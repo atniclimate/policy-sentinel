@@ -1,0 +1,10 @@
+{# Default sovereignty-framed weekly review summary template. Deployments can override. #}
+<div class="review-summary">
+  <h2>Weekly Review: {{ review.review_date }}</h2>
+  <p>{{ review.summary }}</p>
+  <ul>
+    <li>Policies checked: {{ review.policies_checked | length }}</li>
+    <li>Changes detected: {{ review.changes_detected }}</li>
+    <li>Alerts generated: {{ review.alerts_generated }}</li>
+  </ul>
+</div>
