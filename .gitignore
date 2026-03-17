@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Type checking
+.mypy_cache/
+.pytype/
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# Environment
+.env
+.env.*
+
+# Database
+*.db
+*.sqlite3
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Ruff
+.ruff_cache/
+
+# Sphinx docs build
+docs/_build/
+
+# GSD / Claude / Planning (NEVER in public repo)
+.planning/
+.claude/
+.agents/
+
+# Tribal data patterns (should never exist here)
+corpus/
+config/sovereignty*
