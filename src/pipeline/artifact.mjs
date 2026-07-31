@@ -11,7 +11,7 @@ export const STATIC_ARTIFACT_BUDGET_V1 = Object.freeze({
   version: "1.0.0",
   maxIndexBytes: 6 * 1024 * 1024,
   maxInitialNonDetailBytes: 8 * 1024 * 1024,
-  maxIndividualDetailBytes: 256 * 1024,
+  maxIndividualDetailBytes: 512 * 1024,
   maxAllDetailsBytes: 128 * 1024 * 1024,
   maxTotalAssetsBytes: 136 * 1024 * 1024,
 });

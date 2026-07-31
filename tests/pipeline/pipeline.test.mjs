@@ -1269,12 +1269,12 @@ test("coverage packaging rejects inconsistent and out-of-bounds selections", () 
   );
 });
 
-test("static artifact budgets pass at exact boundaries and fail one byte over", () => {
+test("static artifact budgets accept measured details and enforce exact boundaries", () => {
   assert.deepEqual(STATIC_ARTIFACT_BUDGET_V1, {
     version: "1.0.0",
     maxIndexBytes: 6 * 1024 * 1024,
     maxInitialNonDetailBytes: 8 * 1024 * 1024,
-    maxIndividualDetailBytes: 256 * 1024,
+    maxIndividualDetailBytes: 512 * 1024,
     maxAllDetailsBytes: 128 * 1024 * 1024,
     maxTotalAssetsBytes: 136 * 1024 * 1024,
   });
@@ -1289,6 +1289,17 @@ test("static artifact budgets pass at exact boundaries and fail one byte over", 
   const baseline = createArtifactDocuments(input);
   const metrics = assertStaticArtifactBudget(
     baseline.get("manifest.json").assets,
+  );
+  const measuredSubjectHeavyDetailBytes = 439_763;
+  const subjectHeavyAssets = baseline
+    .get("manifest.json")
+    .assets.map((asset) =>
+      asset.path.startsWith("details/")
+        ? { ...asset, sizeBytes: measuredSubjectHeavyDetailBytes }
+        : asset,
+    );
+  assert.doesNotThrow(() =>
+    assertStaticArtifactBudget(subjectHeavyAssets, STATIC_ARTIFACT_BUDGET_V1),
   );
   const boundaries = [
     ["maxIndexBytes", metrics.indexBytes, /compact index exceeds/],
