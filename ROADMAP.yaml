@@ -307,12 +307,13 @@ baseline:
 current_focus:
   work_item: B5-WA-LWS-ADAPTER
   objective: >-
-    Prove offline that the six reviewed point/enrichment operations cannot
-    discover a complete bill population or provide a unified mutation feed, then
-    select and synthetic-contract one separately reviewed population enumeration
-    operation before any further live source request. Keep the source disabled
-    and do not infer completeness from the successful known-bill exchange.
-  last_durable_checkpoint: a685290
+    Add and independently review a separate fixed-input, aggregate-only observer
+    scenario for one GetLegislationByYear 2025 request. Keep generic yearly
+    network transport closed and make no live yearly request until that
+    observer, its exact command gate, privacy contract, and ledger checkpoint
+    are committed. A future bounded result may establish contract fit for only
+    that one query, never completeness or a production partition.
+  last_durable_checkpoint: c86dfa6
   resume_command: npm run check
 
 completion_scope:
@@ -1252,13 +1253,47 @@ work_items:
         overclaim date meaning, requiredness, uniqueness, ordering, faults,
         other bindings, historical range, discovery, or completeness.
       - >-
+        Local commit c86dfa6 adds Washington LWS contract 1.1 and a
+        machine-readable refresh-capability matrix. It proves all six reviewed
+        known-bill operations require a prior seed, provide no population
+        discovery, and do not form a unified mutation feed; numeric bill-range
+        probing remains forbidden.
+      - >-
+        GetLegislationByYear is synthetic-only and disabled. Its exact xsd:int
+        request and LegislationInfo response contract use a separate impossible
+        year-3785 fixture bound by SHA-256, with LF-pinned repository bytes,
+        sparse rows, multiple versions, an exact duplicate, canonical returned
+        biennia, bill numbers bounded to 999999, and a fail-closed 2,048-item
+        ceiling. Order and duplicates are preserved, and no returned biennium,
+        active winner, partition, historical range, or completeness is inferred
+        from the request year.
+      - >-
+        A module-private exhaustive transport decision rejects synthetic and
+        reviewed yearly inputs before resolving fetch. Operation descriptors,
+        XML and transport policies, error/scenario allowlists, canary evidence
+        policy, and every nested refresh-capability node are runtime-frozen with
+        mutation regressions. No GetLegislationByYear source request or provider
+        result was made or retained.
+      - >-
+        Focused Washington validation passed 7 files and 175 tests. Full npm run
+        check passed on 2026-07-31 with 32 Vitest files and 479 tests,
+        formatting, lint, type checking, roadmap validation, source-boundary
+        scanning, a synthetic-only production build, and artifact validation at
+        2 records, 575 Nations, and 7 verified assets; build ID
+        synthetic-b8ae7f49be0313e28d8e.
+      - >-
+        Independent privacy, source-contract, repository-pattern, and final
+        security re-reviews covered fixture separation, governance, parser
+        bounds, default-deny transport, runtime policy integrity, digest
+        portability, and non-inference. After remediation, each reported no
+        remaining high- or medium-severity finding.
+      - >-
         This remains in progress: only one known-bill operation has live
-        aggregate evidence. Source-registry 1.7.0 retains adapter null, and the
-        six reviewed point/enrichment operations do not establish population
-        discovery or a unified mutation feed. Further contract evidence,
-        complete refresh discovery, PolicyRecord normalization/provenance,
-        source health, and checksum-validated last-known-good behavior remain
-        unimplemented.
+        aggregate evidence, while the yearly query has synthetic contract
+        evidence only. Source-registry 1.7.0 retains adapter null. A separately
+        reviewed fixed yearly observer and bounded canary, complete refresh
+        reconciliation, PolicyRecord normalization/provenance, source health,
+        and checksum-validated last-known-good behavior remain unimplemented.
 
   - id: B5-WA-RULES
     priority: 62
@@ -1771,7 +1806,7 @@ source_register:
   - id: SRC-WA-LWS
     source: Washington Legislative Web Services
     implementation_state: >-
-      first_known_bill_canary_complete_refresh_discovery_contract_in_progress
+      yearly_discovery_contract_complete_canary_observer_in_progress
     work_items:
       - B5-WA-LWS-RESEARCH
       - B5-WA-LWS-ADAPTER
@@ -1880,11 +1915,11 @@ next_actions:
   - order: 1
     work_item: B5-WA-LWS-ADAPTER
     action: >-
-      Record an exact offline capability matrix proving the six reviewed
-      operations are point/enrichment calls, not population discovery or a
-      unified mutation feed. Select and synthetic-contract one separately
-      reviewed population enumeration operation before any further source
-      request; do not scan numeric bill ranges.
+      Add and independently review one fixed-input, aggregate-only
+      GetLegislationByYear 2025 observer scenario and exact command gate. Commit
+      the observer and ledger before any live yearly request; retain one
+      attempt, no retry, no persistence, no identifiers or strings, and no
+      completeness claim.
   - order: 2
     work_item: B5-WA-ACCORDS
     action: >-
