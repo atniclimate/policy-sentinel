@@ -1,0 +1,25 @@
+{
+  "agencies": [
+    {
+      "name": "Synthetic Historical Agency",
+      "slug": "synthetic-historical-agency",
+      "see_also": [
+        {
+          "name": "Synthetic Related Agency",
+          "slug": "synthetic-related-agency"
+        }
+      ],
+      "document_categories": [
+        {
+          "type": "",
+          "documents": [
+            {
+              "subject_1": "Synthetic historical issue subject",
+              "document_numbers": ["TST-1994-00001"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

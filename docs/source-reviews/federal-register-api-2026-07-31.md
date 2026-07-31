@@ -114,6 +114,25 @@ with only `raw_name`. The contract therefore requires exact source agency
 language and treats normalized agency IDs, names, slugs, parent IDs, and URLs as
 optional.
 
+The same 1994-01-03 sample returned `citation: null` on 10 of 105 documents and
+included CFR references with `chapter: 0` and `part: null`. Those values are
+valid historical source shapes, not evidence of a citation or CFR part. The
+response contract accepts them exactly; normalization never substitutes a
+citation or CFR label for an unavailable value.
+
+Ten records in that sample also used the paired page sentinel `start_page: 0`
+and `end_page: 0`. The contract accepts only that exact zero pair or ordered
+positive page bounds; it rejects partial-zero and reversed ranges.
+
+The 1994-01-03 search also returned 11 records with the exact historical source
+type `Uncategorized Document`; seven supplied neither `agencies` nor
+`agency_names`. Those records remain inside source-count, identifier-replay,
+issue, and relationship reconciliation, but they are not eligible public-record
+candidates under the MVP rule that rejects unsupported document types. The
+adapter normalizes only `Notice`, `Rule`, `Proposed Rule`, and
+`Presidential Document`, requires an exact source-supplied issuing body, and
+never invents a placeholder agency.
+
 ## Pagination and deterministic slicing
 
 The former repository claim that the API exposes only 2,000 results is no
@@ -127,6 +146,13 @@ longer accurate. On 2026-07-31:
   July 31; and
 - page 11 at 1,000 records per page returned `400 application/json` with the
   message that no more than 10,000 items may be requested at once.
+
+The full 1994-01-03 through 2026-07-31 daily facet contained 11,898 issue dates
+and reported 1,005,337 documents, with a maximum of 344 on one date. This is a
+source-scale observation, not authorization to emit a million-record static
+artifact. B4-FR-UX must establish an explicit eligible range or selection
+policy, measure the resulting compact index and detail assets, and make the
+actual public range visible before G-J can open.
 
 The documented page-size maximum remains 1,000. Live values from 2 through
 2,000 were accepted, while 1, zero, invalid values, and values above 2,000
@@ -160,13 +186,28 @@ errors is an accepted empty slice.
 The issue table of contents is a useful same-provider inventory reconciliation.
 On 2026-07-31, its 148 unique document numbers matched exact-day search. On
 1994-01-03, 107 table-of-contents occurrences reduced to 105 unique identifiers,
-matching the 105 search results. A weekend issue request returned
-`404 text/html`; it is a normal no-issue day only when exact-day search also
-reconciles to zero.
+matching the 105 search results. The historical issue response had an empty
+`meta` object in one live response and omitted `meta` entirely in a follow-up,
+while a current issue repeated its publication date in
+`meta.publication_date`. The parser therefore binds the historical response to
+the already validated request route and exact search/facet identifier set; when
+the optional metadata date is present it must match exactly. Historical agency
+groups can also include bounded `see_also` entries containing only agency name
+and slug; these presentation cross-references are structurally validated but
+do not enter the document inventory. Two historical presentation categories
+also used the exact empty-string `type`; that label is validated as either the
+observed empty sentinel or a bounded nonblank string but is not treated as a
+document type. A weekend issue request returned `404 text/html`; it is a normal
+no-issue day only when exact-day search also reconciles to zero.
 
 The multiple-document endpoint can return `200` with partial results and an
 `errors.not_found` inventory, and it does not preserve request order. Any error
 or difference between requested and returned identifier sets fails that batch.
+An in-memory check using related target `2011-1650`, stable anchor `93-30302`,
+and the complete `fields[]` allowlist returned two results, no error inventory,
+and exactly the requested field set on both documents. Relationship closure
+therefore uses bounded comma batches, revalidates the stable anchor, and replays
+the exact target metadata before accepting it.
 
 ## Historical coverage and official renditions
 
@@ -217,10 +258,20 @@ explicit source relationship. Do not infer withdrawal from keywords.
 alone is not a semantic relationship and must not create a status, supersession,
 correction, Nation association, or legal conclusion.
 
-The current normalized record contract does not yet carry a structured
-source-document relationship. The adapter checkpoint must add a compatible,
-generic relationship field before claiming corrections and withdrawals survive
-normalization.
+On the 2026-07-30 live sample, 330 of 359 `related_documents` entries had
+`relationship_type: null`. The contract accepts that nullable provider shape
+for reconciliation, but null-labeled docket links are excluded from semantic
+target closure and public relationship output. Only an explicit source-supplied
+relationship label can produce the generic relationship edge described below.
+The same sample repeated 12 targets under multiple docket groups, including
+explicitly labeled relationships. Repeats are accepted only when their target,
+label, URL, title, action, and publication date agree exactly; normalization
+emits one deterministic relationship edge and rejects conflicting repeats.
+
+Normalized record contract v1.1 carries a detail-only structured
+source-document relationship. Correction pairs must remain reciprocal within
+the validated same-source record set; generic related-document edges may remain
+one-way and must preserve the exact source label.
 
 ## Terms, attribution, and reproduction boundary
 
@@ -292,12 +343,29 @@ published.
 ## Implementation decision
 
 The public API is technically viable without credentials or an external terms
-action. The source is committed to `config/sources.v1.json` as disabled with
-`adapter: null` and access date 2026-07-31. Disabled sources are excluded from
-coverage, health, manifests, and record output.
+action. Source-registry v1.2 records the versioned build-time adapter and access
+date 2026-07-31, but keeps the source disabled. Disabled sources are excluded
+from coverage, health, manifests, and record output.
 
-The next local checkpoint may implement synthetic contract fixtures and the
-build-time adapter. Federal Register remains disabled until G-J is satisfied by
-the adapter's schema, pagination, history, provenance, source-health,
-last-known-good, malformed-input, and integrated artifact tests. No live
-response or normalized provider record may enter Git.
+The adapter uses only hand-authored synthetic contract fixtures in Git. Its
+retrieval barrier validates bounded transport, deterministic date slicing,
+opaque pagination, complete metadata replay, pre/post daily facets, selected
+issue inventories, correction graphs, and related-document targets before
+yielding a reference. Unsupported historical document types remain part of
+reconciliation but cannot become public records. Normalization preserves exact
+action/date language, generic explicit relationships, official subjects, links,
+and field provenance; it never derives a Nation association, issuing body, or
+withdrawal status.
+
+A live in-memory end-to-end canary for 1994-01-03 passed the contract,
+retrieval, exact replay, issue/facet reconciliation, normalization, internal
+record-policy validation, and unchanged external-validation receipt. It
+reconciled all 105 source documents and produced 94 unique eligible records,
+excluding the 11 exact `Uncategorized Document` entries. No live response,
+normalized record, or generated artifact was persisted.
+
+Federal Register remains disabled until G-J is satisfied by integrated
+artifact, UI, coverage, source-health, last-known-good, and malformed-input
+tests. Early records with no individual PDF remain link-limited; an
+issue-level GovInfo link may be added only after that exact rendition is
+verified. No live response or normalized provider record may enter Git.

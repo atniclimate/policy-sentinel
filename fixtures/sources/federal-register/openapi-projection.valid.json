@@ -1,0 +1,215 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Synthetic Federal Register API Projection",
+    "version": "test-only"
+  },
+  "servers": [
+    {
+      "url": "/api/v1/"
+    }
+  ],
+  "paths": {
+    "/documents.{format}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "format",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Format"
+            }
+          },
+          {
+            "name": "fields[]",
+            "in": "query",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/DocumentField"
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "minimum": 1,
+              "maximum": 1000
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["oldest", "newest"]
+              }
+            }
+          },
+          {
+            "name": "conditions[publication_date][gte]",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/FrDate"
+            }
+          },
+          {
+            "name": "conditions[publication_date][lte]",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/FrDate"
+            }
+          }
+        ]
+      }
+    },
+    "/documents/{document_number}.{format}": {
+      "get": {}
+    },
+    "/documents/{document_numbers}.{format}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "format",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Format"
+            }
+          },
+          {
+            "name": "fields[]",
+            "in": "query",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/DocumentField"
+            }
+          },
+          {
+            "name": "document_numbers",
+            "in": "path",
+            "explode": false,
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "/documents/facets/{facet}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "facet",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Facet"
+            }
+          },
+          {
+            "name": "conditions[publication_date][gte]",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/FrDate"
+            }
+          },
+          {
+            "name": "conditions[publication_date][lte]",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/FrDate"
+            }
+          }
+        ]
+      }
+    },
+    "/issues/{publication_date}.{format}": {
+      "get": {}
+    },
+    "/synthetic-additive-path": {
+      "get": {}
+    }
+  },
+  "components": {
+    "schemas": {
+      "Format": {
+        "type": "string",
+        "enum": ["json", "csv"]
+      },
+      "DocumentField": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "document_number",
+            "title",
+            "type",
+            "subtype",
+            "abstract",
+            "action",
+            "dates",
+            "publication_date",
+            "effective_on",
+            "comments_close_on",
+            "signing_date",
+            "citation",
+            "volume",
+            "start_page",
+            "end_page",
+            "agencies",
+            "agency_names",
+            "docket_ids",
+            "regulation_id_numbers",
+            "topics",
+            "cfr_topics",
+            "cfr_references",
+            "correction_of",
+            "corrections",
+            "related_documents",
+            "disposition_notes",
+            "html_url",
+            "pdf_url",
+            "json_url",
+            "mods_url",
+            "synthetic_additive_field"
+          ]
+        }
+      },
+      "FrDate": {
+        "type": "string",
+        "format": "date"
+      },
+      "Facet": {
+        "type": "string",
+        "enum": [
+          "daily",
+          "weekly",
+          "monthly",
+          "quarterly",
+          "yearly",
+          "agency",
+          "topic",
+          "section",
+          "type",
+          "subtype"
+        ]
+      }
+    }
+  }
+}

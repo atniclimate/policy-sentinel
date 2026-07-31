@@ -1,0 +1,43 @@
+{
+  "document_number": "TST-1994-00001",
+  "title": "Synthetic Historical Notice",
+  "type": "Notice",
+  "subtype": null,
+  "abstract": null,
+  "action": null,
+  "dates": null,
+  "publication_date": "1994-01-03",
+  "effective_on": null,
+  "comments_close_on": null,
+  "signing_date": null,
+  "citation": "59 FR 1",
+  "volume": 59,
+  "start_page": 0,
+  "end_page": 0,
+  "agencies": [
+    {
+      "raw_name": "Synthetic Historical Agency"
+    }
+  ],
+  "agency_names": ["Synthetic Historical Agency"],
+  "docket_ids": [],
+  "regulation_id_numbers": [],
+  "topics": [],
+  "cfr_topics": null,
+  "cfr_references": [
+    {
+      "chapter": 0,
+      "citation_url": null,
+      "part": null,
+      "title": 10
+    }
+  ],
+  "correction_of": null,
+  "corrections": [],
+  "related_documents": {},
+  "disposition_notes": null,
+  "html_url": "https://www.federalregister.gov/documents/1994/01/03/TST-1994-00001/synthetic-historical-notice",
+  "pdf_url": null,
+  "json_url": "https://www.federalregister.gov/api/v1/documents/TST-1994-00001?publication_date=1994-01-03",
+  "mods_url": null
+}

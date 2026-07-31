@@ -1,0 +1,58 @@
+{
+  "document_number": "TST-2026-00001",
+  "title": "Synthetic Notice for Provider Contract Testing",
+  "type": "Notice",
+  "subtype": null,
+  "abstract": "This is synthetic fixture language, not a real Federal Register record.",
+  "action": "Synthetic notice.",
+  "dates": "The synthetic event occurs on August 15, 2026.",
+  "publication_date": "2026-07-30",
+  "effective_on": null,
+  "comments_close_on": "2026-08-15",
+  "signing_date": null,
+  "citation": "999 FR 100",
+  "volume": 999,
+  "start_page": 100,
+  "end_page": 102,
+  "agencies": [
+    {
+      "raw_name": "Synthetic Test Agency",
+      "name": "Synthetic Test Agency",
+      "id": 99001,
+      "url": "https://www.federalregister.gov/agencies/synthetic-test-agency",
+      "json_url": "https://www.federalregister.gov/api/v1/agencies/synthetic-test-agency",
+      "parent_id": null,
+      "slug": "synthetic-test-agency"
+    }
+  ],
+  "agency_names": ["Synthetic Test Agency"],
+  "docket_ids": ["TST-DOCKET-0001"],
+  "regulation_id_numbers": ["9999-TST1"],
+  "topics": ["Synthetic Topic"],
+  "cfr_topics": [
+    {
+      "cfr_part": "999",
+      "cfr_chapter": "IX",
+      "topics": ["Synthetic CFR Topic"],
+      "cfr_title": 50
+    }
+  ],
+  "cfr_references": [
+    {
+      "chapter": "IX",
+      "citation_url": "https://www.ecfr.gov/current/title-50/chapter-IX/part-999",
+      "part": "999",
+      "title": 50
+    }
+  ],
+  "correction_of": null,
+  "corrections": [
+    "https://www.federalregister.gov/api/v1/documents/C1-TST-2026-00001"
+  ],
+  "related_documents": {},
+  "disposition_notes": null,
+  "html_url": "https://www.federalregister.gov/documents/2026/07/30/TST-2026-00001/synthetic-notice-for-provider-contract-testing",
+  "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/pdf/TST-2026-00001.pdf",
+  "json_url": "https://www.federalregister.gov/api/v1/documents/TST-2026-00001?publication_date=2026-07-30",
+  "mods_url": "https://www.govinfo.gov/metadata/granule/FR-2026-07-30/TST-2026-00001/mods.xml"
+}

@@ -34,7 +34,7 @@ test("source registry records researched disabled production sources", () => {
   assert.equal(validateSources(sourceRegistry), true);
   assert.doesNotThrow(() => assertSourceRegistrySemantics(sourceRegistry));
   assert.equal(sourceRegistry.schemaVersion, "1.1.0");
-  assert.equal(sourceRegistry.registryVersion, "1.1.0");
+  assert.equal(sourceRegistry.registryVersion, "1.2.0");
 
   const federalRegister = sourceRegistry.sources.find(
     ({ id }) => id === "federal-register",
@@ -50,7 +50,12 @@ test("source registry records researched disabled production sources", () => {
     {
       enabled: false,
       synthetic: false,
-      adapter: null,
+      adapter: {
+        id: "federal-register-adapter",
+        version: "1.0.0",
+        module: "src/adapters/federal-register/index.ts",
+        identityRule: "federal-register-document-number-v1",
+      },
       accessedOn: "2026-07-31",
       method: "api",
     },
@@ -76,7 +81,11 @@ test("source and adapter identifiers are unique", () => {
 
 test("enabled sources require an adapter", () => {
   const invalid = globalThis.structuredClone(sourceRegistry);
-  invalid.sources.find(({ id }) => id === "federal-register").enabled = true;
+  const federalRegister = invalid.sources.find(
+    ({ id }) => id === "federal-register",
+  );
+  federalRegister.enabled = true;
+  federalRegister.adapter = null;
   assert.equal(validateSources(invalid), false);
 });
 

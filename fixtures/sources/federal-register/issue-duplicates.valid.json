@@ -1,0 +1,38 @@
+{
+  "agencies": [
+    {
+      "name": "Synthetic Test Agency",
+      "slug": "synthetic-test-agency",
+      "document_categories": [
+        {
+          "type": "Notices",
+          "documents": [
+            {
+              "document_numbers": ["C1-TST-2026-00001", "TST-2026-00003"],
+              "subject_1": "Synthetic grouped subject"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Second Synthetic Agency",
+      "slug": "second-synthetic-agency",
+      "document_categories": [
+        {
+          "type": "Notices",
+          "documents": [
+            {
+              "document_numbers": ["C1-TST-2026-00001", "E9-TST-2026-00004"],
+              "subject_1": "Synthetic duplicate occurrence",
+              "subject_2": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "publication_date": "2026-07-31"
+  }
+}

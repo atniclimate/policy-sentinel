@@ -497,10 +497,7 @@ test("records from disabled registry sources fail closed", () => {
       }),
     (error) =>
       error instanceof PolicyValidationError &&
-      error.issues.includes(
-        "record source is disabled in the source registry",
-      ) &&
-      error.issues.includes("record source has no configured adapter"),
+      error.issues.includes("record source is disabled in the source registry"),
   );
 });
 
