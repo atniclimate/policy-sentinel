@@ -64,6 +64,20 @@ filename, operation, role, and SHA-256; that reviewed fixture inventory is not
 provider provenance. The projection is explicitly `general_jurisdiction`, has
 no Nation evidence or official subject labels, and remains `Unclassified`.
 
+The repository transport for those six operations is also bounded but has not
+made a provider request. It builds the exact URL, action, headers, and body
+internally; permits one credential-free, no-redirect attempt under a 30-second
+whole-operation deadline enforced by cancellation during retrieval and
+monotonic elapsed-time checks before and after bounded parsing; requires the
+exact final URL, HTTP 200, reviewed `text/xml` media type with no charset or
+UTF-8, either no `Content-Encoding` or `identity`, and a streamed body of
+1 byte through 2 MiB in at most 4,096 non-empty chunks; and immediately parses
+then zeroes every retained byte buffer before release. Non-200 bodies and unread
+remainders are canceled. The returned receipt contains the canonical request,
+aggregate byte counts, and the typed sanitized projection, never provider bytes
+or raw XML. Errors contain only repository-owned categories, an optional
+numeric HTTP status, and static messages.
+
 That source-contract DTO is not a normalized `PolicyRecord` and carries no
 claim of live provider behavior, historical completeness, retrieval
 provenance, or public eligibility. Operation-specific ranges, live SOAP

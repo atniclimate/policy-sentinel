@@ -531,11 +531,26 @@ production rule: the lower response contract separately preserves legitimate
 missing or empty results.
 
 This checkpoint made no LWS bill/data request and retained no provider
-response. It does not enumerate a complete bill population, establish live
-requiredness or URL hosts, normalize a `PolicyRecord`, emit provenance or
-retrieval evidence, implement transport/source health, or create a
-checksum-validated last-known-good shard. Those are adapter work, not implied
-by the synthetic contract.
+response. The repository now also has a pre-canary transport for the six
+contract operations. It constructs the exact reviewed request internally,
+makes one credential-free attempt, refuses automatic redirects and a changed
+or empty final URL, requires HTTP 200, accepts only `text/xml` with no charset
+or UTF-8 and either no `Content-Encoding` or `identity`, and applies a single
+30-second deadline using cancellation during retrieval and monotonic
+elapsed-time checks before and after bounded parsing. The body must be between
+1 byte and 2 MiB in at most 4,096 non-empty chunks and is parsed immediately.
+Every response-byte buffer retained by the transport is zeroed before release;
+unread bodies or remainders are canceled, and no response-byte buffer is
+returned or persisted. Non-200 bodies are canceled unread; therefore this
+boundary makes no claim about their SOAP-fault content or retryability. Errors
+expose only repository-defined categories, an optional numeric HTTP status,
+and static messages.
+
+The checkpoint does not enumerate a complete bill population, establish live
+requiredness or URL hosts, normalize a `PolicyRecord`, emit provider retrieval
+evidence, implement source health, or create a checksum-validated
+last-known-good shard. Those are later adapter work, not implied by the
+synthetic contract or transport.
 
 The current normalized record schema has no first-class bill-version/rendition
 collection, veto model, RCW/session-law relationship type, or structured

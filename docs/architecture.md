@@ -54,6 +54,24 @@ prior public shards -> last-known-good merge |
 Raw responses remain in ephemeral runner space and are discarded. Only
 whitelisted, validated public fields enter the deployment artifact.
 
+The pre-canary Washington LWS transport constructs only allowlisted SOAP 1.1
+requests and makes one credential-free attempt with automatic redirects,
+referrers, and caching disabled and fixed request media headers. One 30-second
+deadline uses cancellation during fetch and streamed body collection plus
+monotonic elapsed-time checks immediately before and after bounded parsing. The
+response must keep the exact request URL, return HTTP 200, use `text/xml` with
+no charset or UTF-8 and either no `Content-Encoding` or `identity`, and contain
+between 1 byte and 2 MiB in no more than 4,096 non-empty stream chunks.
+Non-200 bodies are canceled without inspection. Every response-byte buffer
+retained by the transport passes directly into the typed parser and is zeroed
+before release; unread bodies or remainders are canceled. No response-byte
+buffer crosses the transport boundary or enters logs or storage. This
+conservative rule is a pre-canary decision, not evidence about the provider's
+live status or fault behavior.
+Transport failures expose a repository-defined category, a numeric HTTP status
+when one was received, and static text without provider body or network-error
+content.
+
 The Washington LWS parser accepts response bytes only after an outer byte
 ceiling, then applies strict UTF-8, XML 1.0, namespace, depth, node, attribute,
 text, collection, and operation limits. It has no resolver or network callback
