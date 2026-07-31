@@ -305,12 +305,12 @@ baseline:
       detail: single-Nation synthetic flow only
 
 current_focus:
-  work_item: B4-REGS-CONTRACT
+  work_item: B5-WA-LWS-RESEARCH
   objective: >-
-    Complete the credential-free Regulations.gov docket, document, agency,
-    subtype, mutable-field, date, attachment, pagination, and rate-header
-    contract with synthetic fixtures while excluding public comments.
-  last_durable_checkpoint: 1255c60
+    Reconfirm the current official Washington Legislative Web Services WSDL,
+    operations, biennia, fields, history, terms, limits, attribution, subject
+    gap, and failure behavior before designing its local adapter.
+  last_durable_checkpoint: 1b958c1
   resume_command: npm run check
 
 completion_scope:
@@ -908,8 +908,8 @@ work_items:
         persisted.
       - >-
         src/contracts/govinfo implements pure keyless relative-query,
-        repository-owned pagination, and strict synthetic response contracts
-        for BILLS, FR, and selected incomplete USCOURTS coverage. It rejects
+        repository-owned pagination, and strict synthetic response contracts for
+        BILLS, FR, and selected incomplete USCOURTS coverage. It rejects
         deprecated offsets, credentials, query drift, duplicate cursors and
         identities, unknown fields, cross-scope rendition links, unbound local
         digests, personal-name court metadata, and unsupported provider claims.
@@ -982,7 +982,7 @@ work_items:
     milestone: B4
     title:
       Regulations.gov credential-free contract design and synthetic fixtures
-    status: in_progress
+    status: complete
     dependencies:
       - B3-PIPELINE
     acceptance:
@@ -991,7 +991,54 @@ work_items:
       - Public comments remain excluded and historical completeness remains
         explicit.
       - No key or live credentialed request is used.
-    evidence: []
+    evidence:
+      - >-
+        docs/source-reviews/regulations-gov-api-2026-07-31.md records the
+        official developer guide and OpenAPI contract, key and terms gates, four
+        reviewed GET routes, documented 5,000-result query ceiling, beta and
+        time-zone-ambiguous lastModifiedDate behavior, sparse requiredness,
+        unsafe comment/personal fields, attachment and rate limitations, privacy
+        and reuse boundaries, and unresolved live questions. The reviewed
+        60,826-byte OpenAPI document had SHA-256
+        be43c866f5ca424a456bde36ea03cb9326c454ef4e1894a13df80b6dc6e22488.
+      - >-
+        src/contracts/regulations-gov implements pure keyless relative-query,
+        repository-owned complete-pagination, strict synthetic
+        docket/document/attachment, same-document mutation, and rate-limit
+        projections. It rejects credentials, comment/submission/search routes,
+        query drift, unstable or incomplete pages, unknown and personal fields,
+        unsafe links, Nation/category inference, identity replacement claims,
+        and unbounded aggregate attachments or formats.
+      - >-
+        Five committed fixtures cover representative eligible resources,
+        review-required supporting material, same-document docket reassignment,
+        a synthetic 429 projection, and a malformed personal/comment field.
+        Every fixture identity is visibly synthetic and no provider envelope,
+        response, key, comment, attachment byte, or public record was persisted.
+      - >-
+        Focused validation passed 4 files and 53 tests, including 50
+        Regulations.gov contract tests, source-registry assertions, TypeScript,
+        ESLint, Prettier, and diff checks. Aggregate boundary tests accept 256
+        attachments and 1,024 formats and fail early above those repository
+        budgets.
+      - >-
+        npm run check passed after remediation: 25 Vitest files and 304 tests,
+        source-boundary scan, roadmap validation, production build, and artifact
+        validation with 2 synthetic records, exactly 575 Nations, and 7 verified
+        assets.
+      - >-
+        Independent query/pagination, response/mutation/rate, and documentation
+        adversarial reviews reported no remaining high- or medium-severity
+        findings after the GET-terms, disabled-source disclosure, identity
+        scope, docket reassignment, and aggregate-budget corrections.
+      - >-
+        Source-registry 1.6.0 keeps Regulations.gov disabled with adapter null,
+        build-secret authentication, browser runtime forbidden, a
+        metadata-and-links reproduction policy, and only the keyless public
+        www.regulations.gov host allowlisted.
+      - >-
+        Local implementation commit 1b958c1 contains the reviewed contract,
+        fixtures, tests, source review, registry update, and documentation.
 
   - id: B4-REGS-LIVE
     priority: 50
@@ -1017,13 +1064,29 @@ work_items:
       The owner explicitly approves Regulations.gov registration, terms, key
       handling, and scope.
     evidence:
-      - "docs/source-feasibility.md records the api.data.gov key requirement."
+      - >-
+        docs/source-reviews/regulations-gov-api-2026-07-31.md records the
+        mandatory api.data.gov key, unresolved distinct GET-specific terms, live
+        requiredness and envelope behavior, identity and pagination gaps, unsafe
+        shared personal/comment fields, unknown attachment bounds and rights,
+        generic unverified rate limit, and unknown historical completeness.
+      - >-
+        Source-registry 1.6.0 keeps Regulations.gov disabled with adapter null,
+        never allowlists the credentialed API host, and permits no browser
+        runtime. No key, keyed request, terms action, provider response,
+        comment, attachment byte, or public record was used.
+      - >-
+        The current artifact has no docket, attachment, general
+        mutation-history, rate-header, planned-source disclosure, or shard
+        dimension. Before activation, add a versioned representation or
+        conservatively omit/degrade the whole source; current disabled sources
+        are absent from the public artifact.
 
   - id: B5-WA-LWS-RESEARCH
     priority: 60
     milestone: B5
     title: Reconfirm Washington Legislative Web Services contract
-    status: ready
+    status: in_progress
     dependencies:
       - B3-PIPELINE
     acceptance:
@@ -1551,7 +1614,7 @@ source_register:
     public_claim: unavailable until approved
   - id: SRC-REGULATIONS
     source: Regulations.gov
-    implementation_state: credential_gate_closed
+    implementation_state: contract_complete_credential_and_terms_gate_closed
     work_items:
       - B4-REGS-CONTRACT
       - B4-REGS-LIVE
@@ -1665,15 +1728,16 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B4-REGS-CONTRACT
-    action: >-
-      Complete the credential-free Regulations.gov docket/document contract with
-      synthetic fixtures while public comments and live key use remain excluded.
-  - order: 2
     work_item: B5-WA-LWS-RESEARCH
     action: >-
-      Reconfirm the current official Washington Legislative Web Services
-      contract after the Regulations.gov checkpoint.
+      Reconfirm the current official Washington Legislative Web Services WSDL,
+      operations, history, terms, limits, attribution, subject gap, and failure
+      behavior without treating stale documentation as a live contract.
+  - order: 2
+    work_item: B6-COURT-RESEARCH
+    action: >-
+      Continue independent official-court pilot-source research if the
+      Washington source reaches a genuine evidence block.
   - order: 3
     work_item: B4-FR-UX
     action: >-
