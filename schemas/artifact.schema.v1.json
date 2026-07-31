@@ -144,6 +144,7 @@
         "assets": {
           "type": "array",
           "minItems": 5,
+          "maxItems": 20000,
           "items": {
             "type": "object",
             "additionalProperties": false,

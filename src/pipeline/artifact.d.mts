@@ -16,7 +16,14 @@ export interface StaticArtifactBudget {
   maxTotalAssetsBytes: number;
 }
 
+export interface ArtifactManifestLimits {
+  version: "1.0.0";
+  maxManifestBytes: number;
+  maxHashedAssets: number;
+}
+
 export const STATIC_ARTIFACT_BUDGET_V1: Readonly<StaticArtifactBudget>;
+export const ARTIFACT_MANIFEST_LIMITS_V1: Readonly<ArtifactManifestLimits>;
 
 export function generateSyntheticNations(): Nation[];
 
@@ -28,8 +35,17 @@ export function createArtifactDocuments(input: {
   generatedAt: string;
   synthetic?: boolean;
   artifactBudget?: StaticArtifactBudget;
+  manifestLimits?: ArtifactManifestLimits;
   sourceHealth?: SourceHealth[];
 }): Map<string, unknown>;
+
+export function assertArtifactManifestLimits(
+  manifest: Pick<ArtifactManifest, "assets"> & Record<string, unknown>,
+  limits?: ArtifactManifestLimits,
+): {
+  manifestBytes: number;
+  hashedAssetCount: number;
+};
 
 export function assertStaticArtifactBudget(
   assets: ArtifactManifest["assets"],

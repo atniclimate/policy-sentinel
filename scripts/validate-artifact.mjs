@@ -1,10 +1,12 @@
-import { readFile, readdir, stat } from "node:fs/promises";
+import { lstat, open, readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { deriveBuildId, sha256Bytes } from "../src/pipeline/hashing.mjs";
 import {
+  ARTIFACT_MANIFEST_LIMITS_V1,
+  assertArtifactManifestLimits,
   assertStaticArtifactBudget,
   toCompactIndexRecord,
 } from "../src/pipeline/artifact.mjs";
@@ -42,17 +44,110 @@ async function readProjectJson(relativePath) {
   return readJsonFile(path.resolve(projectRoot, relativePath));
 }
 
-async function listJsonFiles(root, directory = root) {
-  const results = [];
-  for (const entry of await readdir(directory, { withFileTypes: true })) {
-    const absolute = path.join(directory, entry.name);
-    if (entry.isDirectory()) {
-      results.push(...(await listJsonFiles(root, absolute)));
-    } else if (entry.isFile() && entry.name.endsWith(".json")) {
-      results.push(path.relative(root, absolute).replaceAll("\\", "/"));
+async function inventoryArtifactEntries(root) {
+  const rootStat = await lstat(root);
+  if (rootStat.isSymbolicLink() || !rootStat.isDirectory()) {
+    throw new Error("artifact root must be a regular directory, not a symlink");
+  }
+
+  const files = new Map();
+  const directories = [];
+  async function visit(directory) {
+    const entries = await readdir(directory, { withFileTypes: true });
+    entries.sort((left, right) => left.name.localeCompare(right.name));
+    for (const entry of entries) {
+      const absolutePath = path.join(directory, entry.name);
+      const relativePath = path
+        .relative(root, absolutePath)
+        .replaceAll("\\", "/");
+      const entryStat = await lstat(absolutePath);
+      if (entryStat.isSymbolicLink()) {
+        throw new Error(`artifact contains a symlink: ${relativePath}`);
+      }
+      if (entryStat.isDirectory()) {
+        directories.push(relativePath);
+        await visit(absolutePath);
+      } else if (entryStat.isFile()) {
+        if (!relativePath.endsWith(".json")) {
+          throw new Error(
+            `artifact contains an unmanifested non-JSON file: ${relativePath}`,
+          );
+        }
+        files.set(relativePath, entryStat);
+      } else {
+        throw new Error(
+          `artifact contains a non-regular filesystem entry: ${relativePath}`,
+        );
+      }
     }
   }
-  return results.sort();
+
+  await visit(root);
+  return {
+    directories: directories.sort(),
+    files,
+  };
+}
+
+async function readBoundedRegularFile(
+  filePath,
+  preflightStat,
+  maxBytes,
+  label,
+) {
+  if (preflightStat === undefined || !preflightStat.isFile()) {
+    throw new Error(`${label} is not a regular file`);
+  }
+  if (preflightStat.size > maxBytes) {
+    throw new Error(`${label} exceeds byte limit`);
+  }
+
+  const file = await open(filePath, "r");
+  try {
+    const openedStat = await file.stat();
+    if (!openedStat.isFile()) {
+      throw new Error(`${label} is not a regular file`);
+    }
+    if (openedStat.size !== preflightStat.size || openedStat.size > maxBytes) {
+      throw new Error(`${label} changed after filesystem preflight`);
+    }
+
+    const content = Buffer.allocUnsafe(maxBytes + 1);
+    let offset = 0;
+    while (offset < content.byteLength) {
+      const { bytesRead } = await file.read(
+        content,
+        offset,
+        content.byteLength - offset,
+        offset,
+      );
+      if (bytesRead === 0) {
+        break;
+      }
+      offset += bytesRead;
+    }
+    if (offset > maxBytes) {
+      throw new Error(`${label} exceeds byte limit`);
+    }
+    if (offset !== openedStat.size) {
+      throw new Error(`${label} changed while being read`);
+    }
+    return content.subarray(0, offset);
+  } finally {
+    await file.close();
+  }
+}
+
+function expectedArtifactDirectories(filePaths) {
+  const directories = new Set();
+  for (const filePath of filePaths) {
+    let directory = path.posix.dirname(filePath);
+    while (directory !== ".") {
+      directories.add(directory);
+      directory = path.posix.dirname(directory);
+    }
+  }
+  return [...directories].sort();
 }
 
 function safeAssetPath(root, relativePath) {
@@ -138,22 +233,27 @@ function assertNationCollection(nationDocument) {
   }
 }
 
-function assertIndexMatchesDetails(indexDocument, details) {
+function assertIndexMatchesDetails(indexDocument, detailEntries) {
   const entries = new Map(
     indexDocument.records.map((entry) => [entry.id, entry]),
   );
-  if (entries.size !== details.length) {
+  if (entries.size !== detailEntries.length) {
     throw new Error("index/detail record count mismatch");
   }
-  for (const record of details) {
+  for (const [detailPath, detail] of detailEntries) {
+    const { record } = detail;
+    const expectedDetailPath = `details/${toUrlSafeId(record.internalId)}.json`;
+    if (detailPath !== expectedDetailPath) {
+      throw new Error(
+        `detail document path does not match record identity: ${detailPath}`,
+      );
+    }
     const expected = toCompactIndexRecord(record);
     const actual = entries.get(record.internalId);
     if (JSON.stringify(actual) !== JSON.stringify(expected)) {
       throw new Error(`index/detail mismatch for ${record.internalId}`);
     }
-    if (
-      actual.detailPath !== `details/${toUrlSafeId(record.internalId)}.json`
-    ) {
+    if (actual.detailPath !== expectedDetailPath) {
       throw new Error(`unsafe detail path for ${record.internalId}`);
     }
     if ("aiSummary" in actual) {
@@ -414,17 +514,14 @@ function assertManifestSourceIds(manifest, sourceRegistry) {
   }
 }
 
-async function assertActualArtifactBudget(root, assets) {
-  const actualAssets = await Promise.all(
-    assets.map(async (asset) => {
-      const absolutePath = safeAssetPath(root, asset.path);
-      const assetStat = await stat(absolutePath);
-      if (!assetStat.isFile()) {
-        throw new Error(`artifact asset is not a regular file: ${asset.path}`);
-      }
-      return { ...asset, sizeBytes: assetStat.size };
-    }),
-  );
+function assertActualArtifactBudget(assets, artifactFiles) {
+  const actualAssets = assets.map((asset) => {
+    const assetStat = artifactFiles.get(asset.path);
+    if (assetStat === undefined || !assetStat.isFile()) {
+      throw new Error(`artifact asset is not a regular file: ${asset.path}`);
+    }
+    return { ...asset, sizeBytes: assetStat.size };
+  });
   assertStaticArtifactBudget(actualAssets);
   for (let index = 0; index < assets.length; index += 1) {
     if (actualAssets[index].sizeBytes !== assets[index].sizeBytes) {
@@ -434,6 +531,19 @@ async function assertActualArtifactBudget(root, assets) {
 }
 
 const artifactDirectory = parseArguments(process.argv.slice(2));
+const artifactInventory = await inventoryArtifactEntries(artifactDirectory);
+const manifestStat = artifactInventory.files.get("manifest.json");
+if (manifestStat === undefined) {
+  throw new Error("artifact lacks a regular manifest.json file");
+}
+const manifestContent = await readBoundedRegularFile(
+  path.join(artifactDirectory, "manifest.json"),
+  manifestStat,
+  ARTIFACT_MANIFEST_LIMITS_V1.maxManifestBytes,
+  "artifact manifest",
+);
+const manifest = JSON.parse(manifestContent.toString("utf8"));
+
 const [
   artifactSchema,
   recordSchema,
@@ -460,12 +570,9 @@ assertValid(validateSources, sourceRegistry, "source registry");
 assertSourceRegistrySemantics(sourceRegistry);
 assertValid(validateTaxonomy, taxonomyConfig, "configured taxonomy");
 
-const manifest = await readJsonFile(
-  path.join(artifactDirectory, "manifest.json"),
-);
 assertValid(validateArtifact, manifest, "manifest.json");
+assertArtifactManifestLimits(manifest);
 assertStaticArtifactBudget(manifest.assets);
-await assertActualArtifactBudget(artifactDirectory, manifest.assets);
 if (manifest.sourceRegistryVersion !== sourceRegistry.registryVersion) {
   throw new Error(
     "manifest source-registry version differs from configured registry",
@@ -497,19 +604,33 @@ for (const requiredPath of requiredPaths) {
   }
 }
 
-const artifactFiles = await listJsonFiles(artifactDirectory);
 const expectedFiles = [
   "manifest.json",
   ...manifest.assets.map(({ path: assetPath }) => assetPath),
 ].sort();
-if (JSON.stringify(artifactFiles) !== JSON.stringify(expectedFiles)) {
+if (
+  JSON.stringify([...artifactInventory.files.keys()].sort()) !==
+  JSON.stringify(expectedFiles)
+) {
   throw new Error("artifact contains missing or unmanifested JSON files");
 }
+if (
+  JSON.stringify(artifactInventory.directories) !==
+  JSON.stringify(expectedArtifactDirectories(expectedFiles))
+) {
+  throw new Error("artifact contains an unmanifested directory");
+}
+assertActualArtifactBudget(manifest.assets, artifactInventory.files);
 
 const documents = new Map();
 for (const asset of manifest.assets) {
   const absolutePath = safeAssetPath(artifactDirectory, asset.path);
-  const content = await readFile(absolutePath);
+  const content = await readBoundedRegularFile(
+    absolutePath,
+    artifactInventory.files.get(asset.path),
+    asset.sizeBytes,
+    `artifact asset ${asset.path}`,
+  );
   if (content.byteLength !== asset.sizeBytes) {
     throw new Error(`asset size mismatch: ${asset.path}`);
   }
@@ -540,11 +661,11 @@ if (JSON.stringify(taxonomy) !== JSON.stringify(taxonomyConfig)) {
 
 const nationDocument = documents.get("nations.json");
 assertNationCollection(nationDocument);
-const detailDocuments = [...documents.entries()]
-  .filter(([assetPath]) => assetPath.startsWith("details/"))
-  .map(([, detail]) => detail);
-const records = detailDocuments.map(({ record }) => record);
-for (const detail of detailDocuments) {
+const detailEntries = [...documents.entries()].filter(([assetPath]) =>
+  assetPath.startsWith("details/"),
+);
+const records = detailEntries.map(([, { record }]) => record);
+for (const [, detail] of detailEntries) {
   assertValid(validateRecord, detail.record, detail.record.internalId);
 }
 validateRecordSetPolicy(records, {
@@ -554,7 +675,7 @@ validateRecordSetPolicy(records, {
 });
 
 const indexDocument = documents.get("index/records.json");
-assertIndexMatchesDetails(indexDocument, records);
+assertIndexMatchesDetails(indexDocument, detailEntries);
 assertCoverage(documents.get("coverage.json"), sourceRegistry, records);
 assertHealth(documents.get("source-health.json"), sourceRegistry, records);
 

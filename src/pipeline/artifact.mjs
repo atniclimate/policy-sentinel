@@ -1,3 +1,4 @@
+import { Buffer } from "node:buffer";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { deriveBuildId, hashJson, serializeJson } from "./hashing.mjs";
@@ -14,6 +15,12 @@ export const STATIC_ARTIFACT_BUDGET_V1 = Object.freeze({
   maxTotalAssetsBytes: 136 * 1024 * 1024,
 });
 
+export const ARTIFACT_MANIFEST_LIMITS_V1 = Object.freeze({
+  version: "1.0.0",
+  maxManifestBytes: 4 * 1024 * 1024,
+  maxHashedAssets: 20_000,
+});
+
 const ARTIFACT_BUDGET_KEYS = [
   "maxIndexBytes",
   "maxInitialNonDetailBytes",
@@ -21,6 +28,8 @@ const ARTIFACT_BUDGET_KEYS = [
   "maxAllDetailsBytes",
   "maxTotalAssetsBytes",
 ];
+
+const ARTIFACT_MANIFEST_LIMIT_KEYS = ["maxManifestBytes", "maxHashedAssets"];
 
 function assertArtifactBudgetDefinition(budget) {
   if (
@@ -36,6 +45,52 @@ function assertArtifactBudgetDefinition(budget) {
       throw new TypeError(`artifact budget ${key} must be a positive integer`);
     }
   }
+}
+
+function assertArtifactManifestLimitDefinition(limits) {
+  if (
+    limits === null ||
+    typeof limits !== "object" ||
+    Array.isArray(limits) ||
+    limits.version !== "1.0.0"
+  ) {
+    throw new TypeError(
+      "artifact manifest limits must use manifest limit version 1.0.0",
+    );
+  }
+  for (const key of ARTIFACT_MANIFEST_LIMIT_KEYS) {
+    if (!Number.isSafeInteger(limits[key]) || limits[key] < 1) {
+      throw new TypeError(
+        `artifact manifest limit ${key} must be a positive integer`,
+      );
+    }
+  }
+}
+
+export function assertArtifactManifestLimits(
+  manifest,
+  limits = ARTIFACT_MANIFEST_LIMITS_V1,
+) {
+  assertArtifactManifestLimitDefinition(limits);
+  if (
+    manifest === null ||
+    typeof manifest !== "object" ||
+    Array.isArray(manifest) ||
+    !Array.isArray(manifest.assets)
+  ) {
+    throw new TypeError("artifact manifest must contain an asset array");
+  }
+  if (manifest.assets.length > limits.maxHashedAssets) {
+    throw new Error("artifact manifest exceeds hashed asset count limit");
+  }
+  const manifestBytes = Buffer.byteLength(serializeJson(manifest), "utf8");
+  if (manifestBytes > limits.maxManifestBytes) {
+    throw new Error("artifact manifest exceeds byte limit");
+  }
+  return {
+    manifestBytes,
+    hashedAssetCount: manifest.assets.length,
+  };
 }
 
 export function assertStaticArtifactBudget(
@@ -541,6 +596,7 @@ export function createArtifactDocuments({
   generatedAt,
   synthetic = true,
   artifactBudget = STATIC_ARTIFACT_BUDGET_V1,
+  manifestLimits = ARTIFACT_MANIFEST_LIMITS_V1,
   sourceHealth: suppliedSourceHealth,
 }) {
   const normalizedGeneratedAt = normalizeGeneratedAt(generatedAt);
@@ -653,6 +709,7 @@ export function createArtifactDocuments({
     nationCount: nations.length,
     assets,
   };
+  assertArtifactManifestLimits(manifest, manifestLimits);
   documents.set("manifest.json", manifest);
   return documents;
 }
@@ -680,8 +737,11 @@ export async function writeArtifactDocuments({
   documents,
   outputDirectory,
   projectRoot,
+  manifestLimits = ARTIFACT_MANIFEST_LIMITS_V1,
 }) {
   const output = assertSafeArtifactOutput(outputDirectory, projectRoot);
+  const manifest = documents?.get?.("manifest.json");
+  assertArtifactManifestLimits(manifest, manifestLimits);
   await rm(output, { recursive: true, force: true });
   await mkdir(output, { recursive: true });
   for (const [relativePath, value] of documents) {
