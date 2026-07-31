@@ -239,22 +239,38 @@ test("last-known-good reuse rejects incomplete or inconsistent artifact packages
 
     await t.test("rejects symbolic links during inventory", async (subtest) => {
       await withFixture(async (root) => {
+        let linkName = "linked.json";
         try {
           await symlink(
             path.join(root, "manifest.json"),
-            path.join(root, "linked.json"),
+            path.join(root, linkName),
             "file",
           );
         } catch (error) {
           if (["EPERM", "EACCES", "ENOSYS"].includes(error.code)) {
-            subtest.skip(`symbolic links unavailable: ${error.code}`);
-            return;
+            linkName = "linked-details";
+            try {
+              await symlink(
+                path.join(root, "details"),
+                path.join(root, linkName),
+                "junction",
+              );
+            } catch (junctionError) {
+              if (["EPERM", "EACCES", "ENOSYS"].includes(junctionError.code)) {
+                subtest.skip(
+                  `symbolic links unavailable: ${junctionError.code}`,
+                );
+                return;
+              }
+              throw junctionError;
+            }
+          } else {
+            throw error;
           }
-          throw error;
         }
         await assert.rejects(
           verifyLastKnownGoodArtifact(root),
-          /contains a symbolic link: linked\.json/,
+          new RegExp(`contains a symbolic link: ${linkName}`),
         );
       });
     });
