@@ -24,7 +24,7 @@ export interface FederalRegisterAgency {
 
 export interface FederalRegisterCfrTopic {
   cfr_part: string;
-  cfr_chapter: string | null;
+  cfr_chapter?: string | null;
   topics: string[];
   cfr_title: number;
 }
@@ -394,13 +394,20 @@ function parseAgency(value: unknown, path: string): FederalRegisterAgency {
 
 function parseCfrTopic(value: unknown, path: string): FederalRegisterCfrTopic {
   const parsed = object(value, path);
-  exactKeys(parsed, path, ["cfr_part", "cfr_chapter", "topics", "cfr_title"]);
-  return {
+  exactKeys(parsed, path, ["cfr_part", "topics", "cfr_title"], ["cfr_chapter"]);
+  const topic: FederalRegisterCfrTopic = {
     cfr_part: string(parsed.cfr_part, `${path}.cfr_part`, 64),
-    cfr_chapter: nullableString(parsed.cfr_chapter, `${path}.cfr_chapter`, 64),
     topics: uniqueStrings(parsed.topics, `${path}.topics`, 100, 512),
     cfr_title: integer(parsed.cfr_title, `${path}.cfr_title`, 1, 50),
   };
+  if (Object.hasOwn(parsed, "cfr_chapter")) {
+    topic.cfr_chapter = nullableString(
+      parsed.cfr_chapter,
+      `${path}.cfr_chapter`,
+      64,
+    );
+  }
+  return topic;
 }
 
 function parseCfrReference(

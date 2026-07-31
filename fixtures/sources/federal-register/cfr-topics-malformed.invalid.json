@@ -1,0 +1,18 @@
+{
+  "nonStringChapter": {
+    "cfr_part": "999",
+    "cfr_chapter": 9,
+    "topics": ["Synthetic CFR Topic"],
+    "cfr_title": 50
+  },
+  "missingPart": {
+    "topics": ["Synthetic CFR Topic"],
+    "cfr_title": 50
+  },
+  "unexpectedField": {
+    "cfr_part": "999",
+    "topics": ["Synthetic CFR Topic"],
+    "cfr_title": 50,
+    "chapter_label": "IX"
+  }
+}

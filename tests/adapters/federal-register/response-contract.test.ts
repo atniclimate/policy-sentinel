@@ -1,4 +1,6 @@
 import correctionFixture from "../../../fixtures/sources/federal-register/document-correction.valid.json";
+import malformedCfrTopics from "../../../fixtures/sources/federal-register/cfr-topics-malformed.invalid.json";
+import optionalChapterCfrTopics from "../../../fixtures/sources/federal-register/cfr-topics-optional-chapter.valid.json";
 import historicalFixture from "../../../fixtures/sources/federal-register/document-historical.valid.json";
 import originalFixture from "../../../fixtures/sources/federal-register/document-original.valid.json";
 import withdrawalFixture from "../../../fixtures/sources/federal-register/document-withdrawal.valid.json";
@@ -79,6 +81,30 @@ describe("Federal Register response contract", () => {
         title: 10,
       },
     ]);
+  });
+
+  it("accepts an omitted CFR chapter without inventing one", () => {
+    const optionalChapter = cloneObject(originalFixture);
+    optionalChapter.cfr_topics = optionalChapterCfrTopics;
+
+    const parsed = parseFederalRegisterDocument(optionalChapter).cfr_topics;
+    expect(parsed).toEqual(optionalChapterCfrTopics);
+    expect(parsed?.[0]).not.toHaveProperty("cfr_chapter");
+    expect(parsed?.[1]?.cfr_chapter).toBeNull();
+  });
+
+  it("keeps the optional CFR chapter whitelist fail-closed", () => {
+    for (const [topic, expectedError] of [
+      [malformedCfrTopics.nonStringChapter, /invalid_type.*cfr_chapter/],
+      [malformedCfrTopics.missingPart, /missing_field.*cfr_part/],
+      [malformedCfrTopics.unexpectedField, /unexpected_field.*chapter_label/],
+    ] as const) {
+      const malformed = cloneObject(originalFixture);
+      malformed.cfr_topics = [topic];
+      expect(() => parseFederalRegisterDocument(malformed)).toThrowError(
+        expectedError,
+      );
+    }
   });
 
   it("accepts an observed historical null citation without inventing one", () => {

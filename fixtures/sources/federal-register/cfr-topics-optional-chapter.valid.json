@@ -1,0 +1,13 @@
+[
+  {
+    "cfr_part": "999",
+    "topics": ["Synthetic CFR Topic Without Chapter"],
+    "cfr_title": 50
+  },
+  {
+    "cfr_part": "998",
+    "cfr_chapter": null,
+    "topics": ["Synthetic CFR Topic With Null Chapter"],
+    "cfr_title": 49
+  }
+]
