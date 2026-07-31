@@ -33,18 +33,18 @@ Status: Phase A research, 2026-07-30. This is an implementation decision record,
 ## Priority sequence
 
 1. Validate the 575-Nation registry from the annual BIA notice and establish stable internal IDs. Resolve the Nation-to-state coverage crosswalk before public release.
-2. Build federal vertical slices from Congress.gov plus GovInfo, then Federal Register plus GovInfo, followed by Grants.gov.
-3. Add Washington LWS and a small, reviewed Washington GOIA accord registry.
-4. Add state rule/executive sources and the first official court/IBIA landmark set.
-5. Add Oregon OData only after explicit approval of its agreement and credential workflow.
-6. Add Regulations.gov as regulatory enrichment, not as the primary authority.
-7. Pilot source-reviewed Tribal-government and county registries.
-8. Keep Idaho legislative automation blocked until an official structured path or written permission exists; Idaho administrative rules may proceed independently.
+2. Build Federal Register as the first no-key federal policy adapter, then Grants.gov after reconfirming its no-registration contract.
+3. Complete credential-free Congress.gov, GovInfo, and Regulations.gov contract fixtures, while keeping each live adapter behind its own source-scoped key gate.
+4. Add Washington LWS, Washington rule/executive sources, and a small reviewed GOIA accord registry.
+5. Add official court and IBIA sources plus source-verified landmark records in independent increments.
+6. Add Oregon rule/executive sources independently; keep live Oregon OData behind its terms and credential gate.
+7. Keep Idaho legislative automation blocked until an official structured path is validated; Idaho administrative rules may proceed independently.
+8. Pilot source-reviewed Tribal-government, county, treaty, compact, and other long-tail registries.
 
 ## Stop gates and unresolved facts
 
 - **Nation-state crosswalk:** the annual recognition notice establishes recognition, not a reliable beta-state assignment. A primary or reviewed source set must support the WA/OR/ID coverage notice. TLD geometry and addresses are not acceptable evidence.
-- **Oregon agreement:** no acceptance, credential acquisition, or adapter work until the owner approves the official Acceptable Use Agreement and the proposed secret-handling workflow.
+- **Oregon agreement:** no acceptance, credential acquisition, live OData request, or live OData adapter until the owner approves the official Acceptable Use Agreement and proposed secret-handling workflow. Credential-free contract design, synthetic fixtures, and independent official Oregon rule/executive work may proceed.
 - **Idaho legislation:** no production scraping. Proceed only after a stable official structured source or owner-authorized provider clarification.
 - **Court completeness:** no source identified provides a comprehensive, primary, no-cost corpus across federal, Washington, Oregon, and Idaho courts. Coverage must stay court- and date-specific.
 - **Text rights:** official availability is not blanket permission to redistribute entire works. Every adapter needs a documented field/excerpt policy before public artifacts are generated.

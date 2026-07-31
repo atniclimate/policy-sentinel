@@ -43,6 +43,7 @@ optional AI generation, and outbound notifications remain unauthorized.
 | D-019 | Local Git is the version-control system. All GitHub operations use `gh`; native GitHub plugins, alternate integrations, and browser-only GitHub workflows are prohibited. Remote creation, push, Pages, beta publication, secrets changes, account/API registration, forms, charges, and third-party contact require explicit approval. |
 | D-020 | Phase A creates plans, schemas, configuration, synthetic fixtures, and a durable local validation workflow only. It does not implement ingestion, a production UI, a live Pages site, a remote, or publishing. Phase B must not begin without the gate below. |
 | D-021 | On 2026-07-30 the owner approved Phase B local implementation under the MVP plan. All later source, credential, remote/publication, paid, private-data, AI, and notification gates remain independent and closed. |
+| D-022 | `ROADMAP.yaml` is the canonical machine-readable ledger for current progress, dependencies, evidence, blockers, and remaining work through finish. Binding Markdown documents continue to define product and acceptance requirements. Future sessions validate and update the roadmap at material checkpoints and before context compaction; closed external gates are recorded rather than reopened as a general interview. |
 
 ## Working assumptions
 
@@ -68,7 +69,7 @@ optional AI generation, and outbound notifications remain unauthorized.
 | O-008 | Exact official signatories for the Centennial Accord and other accords. | The [Washington Centennial Accord page](https://goia.wa.gov/state-tribal-relations-centennial-accord/centennial-accord) verifies the public accord but does not provide a validated complete signatory list. Treat it as general-jurisdiction/landmark until each Nation link has official evidence. |
 | O-009 | Primary online source package for the 1974 Boldt decision. | The official original PDF was not located in this review. Preserve the reporter citation and use the official 1979 U.S. Reports opinion as later primary context; do not substitute unofficial full text or invent Nation associations. |
 | O-010 | Court, county, Tribal-government, treaty, compact, and administrative-decision republication rules. | Approve sources individually. Public availability does not by itself authorize bulk reuse or full-text republication. |
-| O-011 | Public repository license and exact independent-project attribution language. | Owner selects the license before remote publication. Preserve ATNI historical attribution and avoid any endorsement claim. |
+| O-011 | Public repository license and exact independent-project attribution language. | `RELEASE-LICENSE` and `G-E-LICENSE` preserve this as a prepublication owner decision. Record the selection before remote creation, preserve ATNI historical attribution, and avoid any endorsement claim. |
 | O-012 | Provenance completeness across each future production adapter. | The shared contract now semantically proves that every declared source-derived record leaf has exact provenance and fails closed on omissions. Each production adapter still requires transform-specific provenance fixtures and review. |
 
 ## Source and authorization blockers
@@ -88,17 +89,24 @@ optional AI generation, and outbound notifications remain unauthorized.
 | Gate | Required approval or evidence | What it authorizes |
 | --- | --- | --- |
 | G-A | **Approved 2026-07-30.** Owner approves the written Phase A plan. | Begin Phase B local implementation only. It does not authorize any other gate. |
-| G-B | Owner explicitly approves the named registration, acceptable-use agreement, API key, or secret workflow after terms review. | Use that one source in approved local or Actions scope. |
-| G-C | Owner explicitly approves the named paid call, form, or third-party contact. | Perform only that identified action and record its outcome. |
-| G-D | Owner explicitly approves remote creation/push and separately approves Pages/publication and any Actions secrets. | Perform the named GitHub operations using `gh` only. |
-| G-E | All enabled sources pass schema, semantic, provenance, attribution, accessibility, failure, freshness, and coverage-notice acceptance tests. | Present a release candidate for public-beta approval; it does not itself publish. |
-| G-F | A Nation supplies or authorizes specific private material and the owner approves a separate private-deployment control plan. | Implement or activate only that private adapter outside the public build. |
+| G-B | Owner explicitly approves the named API/account registration, key, token, or secret workflow after current terms review. The parent gate remains closed; each source uses a scoped child gate such as `G-B-CONGRESS`, `G-B-GOVINFO`, or `G-B-REGULATIONS`, so approval never spills to another source. | Use that one credentialed source in the approved local or Actions scope. |
+| G-C | Owner explicitly approves the exact current Oregon OData agreement, account action, credential handling, and refresh constraints. | Connect the Oregon OData adapter within that approved scope. |
+| G-D | Read-only research validates a stable, permitted, official Idaho structured source requiring no registration, or the owner approves a specific inquiry. | Implement the validated public source locally, or perform only the approved inquiry. If neither path is available, retain the visible gap. |
+| G-E | Owner explicitly approves the named remote, push, Pages, workflow, secret, or publication operations. The parent remains closed; `G-E-LICENSE`, `G-E-REMOTE-PUSH`, `G-E-PAGES`, and `G-E-PUBLISH` are independent prepublication gates. | Perform only the exact approved GitHub operation with `gh`; no narrower approval spills into the next operation. |
+| G-F | Owner explicitly approves the named third-party, licensed, or paid source, current terms, expected cost, and intended fields. | Use only that approved provider and scope. |
+| G-G | A Nation supplies or authorizes specific private material and the owner approves a separate private-deployment control plan. | Implement or activate only that private adapter outside the public build. |
+| G-H | Owner approves the model/provider, budget, input set, retention terms, build-only workflow, and review rules. | Generate optional detail summaries only; core operation remains AI-free. |
+| G-I | Owner approves the recipient, channel, event, content, and workflow. | Send only that outbound notification. Public-beta alerts remain in-site and in-dossier. |
+| G-J | Current primary evidence and tests validate one source's terms, attribution, schema, official status, provenance, health, and coverage behavior. | Enable that source locally. This evidence gate is source-specific and does not authorize an external action. |
+| G-RC | Every required local outcome and enabled source passes integrated schema, semantic, provenance, attribution, accessibility, failure, freshness, security, and coverage acceptance. | Mark a local release candidate accepted; it does not publish. |
 
-Gate G-A is closed as approved. The next approval depends on the exact blocked
-action: G-B for a named registration, term, key, or secret workflow; G-C for a
-named paid call, form, or contact; G-D for named remote or publication work; or
-G-F for a separately controlled private deployment. None is implied by the
-Phase B approval.
+Gate G-A is satisfied by its recorded approval. The next approval depends on the exact blocked
+action: G-B for a named API registration or secret; G-C for Oregon OData terms;
+G-D only when Idaho contact is required; G-E for remote or publication work;
+G-F for a third-party, licensed, or paid source; G-G for private material; G-H
+for optional AI; or G-I for outbound notification. G-J and G-RC are evidence
+gates resolved through validation, not general product questions. None is
+implied by the Phase B approval.
 
 ## Historical repository inspection
 
@@ -121,3 +129,5 @@ reference regardless of the GitHub flag. Its public files were inspected through
    change records its own version and review provenance.
 5. Never silently reclassify records, create Nation relationships, expand
    historical coverage, or weaken a public/private boundary.
+6. Update and validate `ROADMAP.yaml` whenever implementation status,
+   dependencies, evidence, source blocks, or the exact next action changes.

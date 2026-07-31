@@ -1,0 +1,1413 @@
+schema_version: "1.1"
+roadmap_id: policy-sentinel-through-finish
+project:
+  name: Policy Sentinel
+  root: 'I:\policy-sentinel'
+  phase: "Phase B: local implementation"
+  updated_on: "2026-07-30"
+  owner_intent: >-
+    Build and validate a sovereignty-centered static public-policy discovery and
+    source-reference application for Tribal Nations, then stop at the external
+    publication boundary unless the owner explicitly changes it.
+
+canonical_ledger:
+  authority: >-
+    This file is the canonical machine-readable execution ledger. Binding
+    product and governance decisions remain in the referenced documents.
+  update_rule: >-
+    Reconcile this ledger with repository evidence at startup and after every
+    material checkpoint. Never mark work complete from scaffolding or agent
+    assertion alone.
+  allowed_work_item_statuses:
+    - complete
+    - in_progress
+    - ready
+    - blocked
+    - deferred
+    - not_started
+  allowed_gate_states:
+    - approved
+    - closed
+    - pending_evidence
+    - satisfied
+  allowed_finish_states:
+    - not_started
+    - in_progress
+    - complete
+    - blocked
+  priority_rule: >-
+    Continue the lowest-numbered ready work item whose dependencies are
+    complete. A source-specific block does not stop independent ready work.
+  readiness_rule: >-
+    When every dependency of a not_started item becomes complete, promote it to
+    ready in the same ledger update unless it is explicitly blocked or deferred.
+  evidence_rule: >-
+    Complete items must cite dated repository, test, browser, artifact, or
+    primary-source evidence. Add the implementing commit after it exists; use a
+    follow-up ledger commit rather than rewriting history to self-reference.
+  compaction_rule: >-
+    Before a context reset or long pause, update current_focus, next_actions,
+    work-item evidence, and blockers so a fresh session can resume without
+    reconstructing decisions from chat.
+
+binding_documents:
+  - path: AGENTS.md
+    role: durable execution and validation contract
+  - path: docs/project-brief.md
+    role: binding product scope and definition of done
+  - path: docs/data-governance.md
+    role: provenance, association, public/private, and exclusion rules
+  - path: docs/architecture.md
+    role: static artifact and adapter architecture
+  - path: docs/source-coverage.md
+    role: coverage and historical-range disclosure model
+  - path: docs/ux-spec.md
+    role: interaction, accessibility, dossier, and CSV contract
+  - path: docs/mvp-plan.md
+    role: milestone acceptance and source-by-source validation
+  - path: docs/decision-register.md
+    role: final decisions, assumptions, blockers, and change control
+  - path: docs/source-feasibility.md
+    role: dated primary-source evidence and feasibility
+  - path: docs/data-contract.md
+    role: versioned record and artifact field contract
+  - path: docs/continuation-prompt.md
+    role: Sol Ultra long-running execution handoff
+  - path: config/taxonomy.v1.json
+    role: editable many-to-many policy taxonomy
+  - path: config/sources.v1.json
+    role: versioned source registry and host policy
+  - path: schemas/source.schema.v1.json
+    role: source-registry and adapter-configuration contract
+  - path: schemas/record.schema.v1.json
+    role: normalized record contract
+  - path: schemas/artifact.schema.v1.json
+    role: static public-artifact contract
+  - path: schemas/taxonomy.schema.v1.json
+    role: taxonomy configuration contract
+
+authority:
+  local_phase_b:
+    state: approved
+    decided_on: "2026-07-30"
+    permits:
+      - local implementation under the binding documents
+      - synthetic fixtures and ignored local validation artifacts
+      - read-only research of public official sources requiring no registration
+      - local browser, accessibility, security, and artifact verification
+      - local Git commits
+  interpretation: >-
+    The initial prompt answered all gates. Closed external gates are settled
+    constraints, not unanswered questions and not blanket authorization. Record
+    affected work as blocked, fail closed, and continue elsewhere.
+  approval_model: >-
+    External boundaries remain closed as default policies. A later exact owner
+    approval changes only a source- or operation-specific gate, with its scope
+    and evidence recorded; it never opens every operation in that boundary.
+  external_boundaries:
+    - id: EXT-GITHUB
+      state: closed
+      prohibits: >-
+        Remote creation or change, push, pull request, Pages, remote Actions
+        settings or runs, releases, secrets, and publication. Local workflow
+        files and local validation are permitted.
+      unblocks_only_when: >-
+        The owner explicitly names and approves the exact gh operation and
+        publication target.
+    - id: EXT-CREDENTIALS
+      state: closed
+      prohibits: >-
+        API or account registration, terms acceptance, keys, tokens, secrets,
+        forms, or borrowed credentials.
+      unblocks_only_when: >-
+        The owner explicitly approves the named source, current terms,
+        registration, and secret placement.
+    - id: EXT-COST-CONTACT
+      state: closed
+      prohibits: >-
+        Paid or licensed access, charges, subscriptions, and third-party
+        contact.
+      unblocks_only_when: >-
+        The owner explicitly approves the named provider or recipient, terms,
+        expected cost, and exact action.
+    - id: EXT-PRIVATE
+      state: closed
+      prohibits: >-
+        Private, restricted, Nation-supplied, or land-related data and private
+        adapter activation.
+      unblocks_only_when: >-
+        The supplying or authorizing Tribe and owner approve an exact,
+        separately controlled private deployment.
+    - id: EXT-AI
+      state: closed
+      prohibits: optional AI-summary generation or provider calls
+      unblocks_only_when: >-
+        The owner approves the provider, model, budget, inputs, retention terms,
+        and build-only review workflow.
+    - id: EXT-NOTIFY
+      state: closed
+      prohibits: email, text, Slack, webhook, or other outbound notifications
+      unblocks_only_when: >-
+        The owner approves the recipient, channel, event, content, and workflow.
+
+gates:
+  - id: G-A
+    name: Phase B local implementation
+    state: approved
+    evidence:
+      - "Owner message on 2026-07-30: Approve to begin Phase B"
+  - id: G-B
+    name: API registration and secrets category
+    state: closed
+    boundary: EXT-CREDENTIALS
+    approvable: false
+  - id: G-B-CONGRESS
+    name: Congress.gov registration and key
+    state: closed
+    boundary: EXT-CREDENTIALS
+  - id: G-B-GOVINFO
+    name: GovInfo registration and key
+    state: closed
+    boundary: EXT-CREDENTIALS
+  - id: G-B-REGULATIONS
+    name: Regulations.gov registration and key
+    state: closed
+    boundary: EXT-CREDENTIALS
+  - id: G-C
+    name: Oregon terms
+    state: closed
+    boundary: EXT-CREDENTIALS
+  - id: G-D
+    name: Idaho source contract or contact
+    state: pending_evidence
+    boundary: EXT-COST-CONTACT
+    resolution: >-
+      Read-only discovery and validation of a stable, permitted, official
+      no-registration source satisfies the source-contract path without an owner
+      question. If contact is required, EXT-COST-CONTACT remains closed and the
+      visible source gap is the accepted fallback.
+  - id: G-E
+    name: Remote and Pages publication category
+    state: closed
+    boundary: EXT-GITHUB
+    approvable: false
+  - id: G-E-LICENSE
+    name: Public repository license selection
+    state: closed
+  - id: G-E-REMOTE-PUSH
+    name: GitHub remote creation and initial release-candidate push
+    state: closed
+    boundary: EXT-GITHUB
+  - id: G-E-PAGES
+    name: Pages configuration and approved workflow execution
+    state: closed
+    boundary: EXT-GITHUB
+  - id: G-E-PUBLISH
+    name: Public beta publication
+    state: closed
+    boundary: EXT-GITHUB
+  - id: G-F
+    name: Third-party, licensed, or paid source
+    state: closed
+    boundary: EXT-COST-CONTACT
+  - id: G-G
+    name: Private or Nation-supplied material
+    state: closed
+    boundary: EXT-PRIVATE
+  - id: G-H
+    name: Optional AI summaries
+    state: closed
+    boundary: EXT-AI
+  - id: G-I
+    name: Outbound notification
+    state: closed
+    boundary: EXT-NOTIFY
+  - id: G-J
+    name: Source and reuse validation
+    state: pending_evidence
+    resolution: >-
+      Satisfy independently for each enabled source through current primary
+      documentation, contract tests, provenance, attribution, and reproduction
+      review. This is an evidence gate, not a product interview.
+  - id: G-RC
+    name: Local release-candidate acceptance
+    state: pending_evidence
+    resolution: >-
+      All locally executable required items and release checks pass; blocked
+      sources and external publication remain visibly disclosed.
+
+baseline:
+  phase_a_commit: e22512e
+  phase_b_checkpoint_commit: "8357691"
+  verified_on: "2026-07-30"
+  repository_state_at_checkpoint:
+    remote: absent
+    publication: not_started
+    production_policy_records: none
+    nation_registry: >-
+      Ignored validation output contains 575 source-exact entries from the 2026
+      federal recognition notice; publication review is pending.
+    application: >-
+      Static Preact, TypeScript, and Vite single-Nation synthetic vertical
+      slice.
+    pipeline: >-
+      Versioned contracts, compact index and separate details, field provenance,
+      source health, content hashes, and last-known-good behavior for synthetic
+      records.
+  verification:
+    - command: npm run check
+      result: pass
+      detail: "6 Vitest files, 31 tests, static build, and artifact validation"
+    - command: npm audit
+      result: pass
+      detail: "0 vulnerabilities"
+    - check: desktop and mobile browser smoke
+      result: pass
+      detail: single-Nation synthetic flow only
+
+current_focus:
+  work_item: H-HANDOFF
+  objective: >-
+    Finish and validate the canonical YAML execution ledger and the
+    compaction-safe Sol Ultra continuation handoff.
+  parallel_ready_after_review:
+    - B4-FR-RESEARCH
+  last_durable_checkpoint: "8357691"
+  resume_command: npm run check
+
+completion_scope:
+  local_release_candidate:
+    rule: >-
+      Every required outcome must be complete. A source in
+      accepted_source_blocks may be complete if its gate later opens, or remain
+      blocked with evidence and a truthful public fallback. Publication is
+      evaluated separately.
+    required_outcomes:
+      - A-FOUNDATION
+      - H-HANDOFF
+      - B1-APP
+      - B2-PARSER
+      - B2-REVIEW
+      - B2-IDS
+      - B2-STATES
+      - B2-READY
+      - B3-PIPELINE
+      - B4-FR-RESEARCH
+      - B4-FR-ADAPTER
+      - B4-FR-UX
+      - B4-GRANTS-RESEARCH
+      - B4-GRANTS-ADAPTER
+      - B4-CONGRESS-CONTRACT
+      - B4-GOVINFO-CONTRACT
+      - B4-REGS-CONTRACT
+      - B5-WA-LWS-RESEARCH
+      - B5-WA-LWS-ADAPTER
+      - B5-WA-RULES
+      - B5-WA-ACCORDS
+      - B6-COURT-RESEARCH
+      - B6-COURT-ADAPTER
+      - B6-COURT-EXPANSION
+      - B6-LANDMARKS
+      - B7-OR-NONODATA
+      - B7-OR-ADAPTER
+      - B7-OR-ODATA-CONTRACT
+      - B8-ID-RULES
+      - B8-ID-RULES-ADAPTER
+      - B9-LONGTAIL
+      - B10-SINGLE-NATION
+      - B10-COMPARISON
+      - B10-RULES-SCALE
+      - B10-REFRESH
+      - B10-RC
+    accepted_source_blocks:
+      - B4-CONGRESS-LIVE
+      - B4-GOVINFO-LIVE
+      - B4-REGS-LIVE
+      - B7-OR-ODATA-LIVE
+      - B8-ID-LEGISLATION
+    publication_only:
+      - RELEASE-LICENSE
+      - RELEASE-REMOTE-PUSH
+      - RELEASE-PAGES
+      - RELEASE-PUBLISH
+
+work_items:
+  - id: A-FOUNDATION
+    priority: 1
+    milestone: Phase A
+    title: Foundation, feasibility, and written implementation plan
+    status: complete
+    dependencies: []
+    acceptance:
+      - All Phase A documents, schemas, taxonomy, and synthetic contracts exist.
+      - Phase A validation passes and the owner approves Phase B.
+    evidence:
+      - "Commit e22512e: docs: establish Policy Sentinel Phase A foundation"
+      - "Owner approved Phase B on 2026-07-30."
+
+  - id: H-HANDOFF
+    priority: 2
+    milestone: Durable workflow
+    title: Canonical YAML course and Sol Ultra continuation handoff
+    status: in_progress
+    dependencies:
+      - A-FOUNDATION
+    acceptance:
+      - ROADMAP.yaml records progress, dependencies, gates, evidence, and finish
+        states.
+      - The roadmap is parsed and semantically validated by npm run check.
+      - AGENTS.md and README.md direct future sessions to the ledger.
+      - docs/continuation-prompt.md supports autonomous compaction-safe
+        execution.
+      - Cooperative and adversarial reviews find no gate or scope inversion.
+    evidence:
+      - "ROADMAP.yaml and docs/continuation-prompt.md created 2026-07-30."
+      - "npm run check passed 2026-07-30: roadmap, formatting, lint, types,
+        source boundary, 31 tests, build, and 7-asset artifact validation."
+      - "npm audit reported 0 vulnerabilities on 2026-07-30."
+      - "Final cooperative and adversarial reviews reported handoff-ready with
+        no blockers on 2026-07-30."
+      - "The implementation commit will be recorded in the follow-up ledger
+        checkpoint."
+
+  - id: B1-APP
+    priority: 10
+    milestone: B1
+    title: Static synthetic single-Nation vertical slice
+    status: complete
+    dependencies:
+      - A-FOUNDATION
+    acceptance:
+      - Guided Nation, policy-area, and landmark entry paths work with synthetic
+        data.
+      - Filters apply explicitly; details, selection, dossier, and CSV work.
+      - Semantic, keyboard, responsive, and automated accessibility checks pass.
+      - Browser operation makes no provider, telemetry, analytics, or LLM calls.
+    evidence:
+      - "Commit 8357691."
+      - "Desktop and mobile browser smoke passed on 2026-07-30."
+      - "Automated application and accessibility tests passed at baseline."
+
+  - id: B2-PARSER
+    priority: 20
+    milestone: B2
+    title: Official annual-recognition-notice parser
+    status: complete
+    dependencies:
+      - A-FOUNDATION
+    acceptance:
+      - The official current notice parses to exactly 575 source-exact entries.
+      - Cross-reference paragraphs are not silently counted as Nations.
+      - Generated live output remains ignored and federal-only when state
+        coverage is unresolved.
+      - Contacts, addresses, geometry, and land fields are excluded.
+    evidence:
+      - "Commit 8357691."
+      - "npm run source:bia produced 575 ignored entries from the 2026 notice."
+
+  - id: B2-REVIEW
+    priority: 21
+    milestone: B2
+    title: Independent 575-Nation publication review
+    status: ready
+    dependencies:
+      - B2-PARSER
+    acceptance:
+      - Two independent reviews reconcile count, list paragraphs, grouped names,
+        punctuation, and cross-references.
+      - Discrepancies are mechanically compared and adjudicated against exact
+        official language.
+      - Review evidence is durable without committing raw source material.
+      - Regression fixtures cover every adjudicated edge case.
+    evidence:
+      - "Structural 575-count validation exists; independent publication review
+        remains open."
+    next_step: >-
+      Assign separate cooperative and adversarial reviewers, compare their
+      normalized inventories mechanically, and resolve differences against the
+      official notice.
+
+  - id: B2-IDS
+    priority: 22
+    milestone: B2
+    title: Stable Nation ID and official-alias carry-forward
+    status: not_started
+    dependencies:
+      - B2-REVIEW
+    acceptance:
+      - Project IDs survive official name changes without erasing source
+        history.
+      - Every alias is authorized by a cited official source.
+      - Redirect, merge, grouping, and retirement behavior is versioned and
+        tested.
+      - Search never uses unofficial, inferred, address-derived, or
+        geography-derived aliases.
+    evidence: []
+
+  - id: B2-STATES
+    priority: 23
+    milestone: B2
+    title: Official Nation-to-state coverage crosswalk
+    status: not_started
+    dependencies:
+      - B2-REVIEW
+    acceptance:
+      - State coverage uses cited official roster evidence, never address,
+        geometry, territory, maps, or land.
+      - Washington, Oregon, and Idaho inclusion is independently reviewed.
+      - Unresolved entries remain federal-only with a visible notice.
+      - The crosswalk contains no contact, location, or sensitive land data.
+    evidence: []
+
+  - id: B2-READY
+    priority: 24
+    milestone: B2
+    title: Nation registry publication readiness
+    status: not_started
+    dependencies:
+      - B2-IDS
+      - B2-STATES
+    acceptance:
+      - Exactly 575 reviewed Nations pass schema, duplicate, alias, and
+        stable-ID tests.
+      - Native fallback and official-name/authorized-alias search pass at
+        575-entry scale.
+      - Coverage notices correctly fail closed.
+      - No live registry is committed or published.
+    evidence: []
+
+  - id: B3-PIPELINE
+    priority: 30
+    milestone: B3
+    title: Shared source, artifact, provenance, and last-known-good framework
+    status: complete
+    dependencies:
+      - A-FOUNDATION
+    acceptance:
+      - Compact index and separate detail assets validate against versioned
+        contracts.
+      - Every source-derived leaf has exact provenance.
+      - Nation association and taxonomy rules fail closed.
+      - Manifest hashes, source health, and last-known-good assets are verified
+        before use.
+      - Host allowlists reject unsafe, credential-bearing, and deceptive URLs.
+    evidence:
+      - "Commit 8357691."
+      - "Pipeline tests passed for synthetic records on 2026-07-30."
+
+  - id: B4-FR-RESEARCH
+    priority: 40
+    milestone: B4
+    title: Reconfirm Federal Register official contract and terms
+    status: ready
+    dependencies:
+      - B3-PIPELINE
+    acceptance:
+      - Current primary documentation covers endpoint, fields, pagination,
+        2,000-result slicing, limits, attribution, history, and failure
+        behavior.
+      - Reproduction policy distinguishes metadata, permitted excerpts, and
+        official text links.
+      - The source registry and feasibility documentation carry access dates and
+        direct official citations.
+    evidence: []
+
+  - id: B4-FR-ADAPTER
+    priority: 41
+    milestone: B4
+    title: Federal Register production adapter
+    status: not_started
+    dependencies:
+      - B4-FR-RESEARCH
+    acceptance:
+      - Deterministic date slicing, pagination, retry, timeout, content-type,
+        and size limits pass.
+      - Document numbers, types, agencies, dates, corrections, withdrawals, and
+        official links survive normalization.
+      - Nation relevance is explicit-evidence or general-jurisdiction only.
+      - Exact official subjects map deterministically or remain Unclassified.
+      - Health, provenance, coverage, malformed-input, and last-known-good tests
+        pass.
+      - Live responses and normalized output remain ignored.
+    evidence: []
+
+  - id: B4-FR-UX
+    priority: 42
+    milestone: B4
+    title: Federal Register artifact and UI integration
+    status: not_started
+    dependencies:
+      - B4-FR-ADAPTER
+    acceptance:
+      - Compact index and on-demand details stay within measured budgets.
+      - Coverage, historical range, freshness, health, why-shown, and
+        Unclassified states render truthfully.
+      - Dossier and CSV use exact permitted metadata and neutralize spreadsheet
+        formulas.
+      - Built-app browser and accessibility tests pass with no runtime source
+        calls.
+    evidence: []
+
+  - id: B4-GRANTS-RESEARCH
+    priority: 43
+    milestone: B4
+    title: Reconfirm Grants.gov official no-registration contract
+    status: ready
+    dependencies:
+      - B3-PIPELINE
+    acceptance:
+      - Current official documentation verifies access, fields, limits,
+        attribution, cadence, history, and reuse.
+      - If registration, new terms, or credentials are now required, live work
+        becomes blocked without evasion.
+    evidence: []
+
+  - id: B4-GRANTS-ADAPTER
+    priority: 44
+    milestone: B4
+    title: Grants.gov adapter and urgent-deadline behavior
+    status: not_started
+    dependencies:
+      - B4-GRANTS-RESEARCH
+    acceptance:
+      - Opportunity identity, agency, status, eligibility, dates, synopsis,
+        amendments, and official URL validate.
+      - Eligibility remains source-defined general eligibility and never becomes
+        Nation relevance.
+      - Deadline alerts are exact and deterministic, with tested time zones and
+        thresholds.
+      - Attribution, rate/failure, provenance, coverage, and last-known-good
+        tests pass.
+    evidence: []
+
+  - id: B4-CONGRESS-CONTRACT
+    priority: 45
+    milestone: B4
+    title: Congress.gov credential-free contract design and synthetic fixtures
+    status: ready
+    dependencies:
+      - B3-PIPELINE
+    acceptance:
+      - Current public official documentation and coverage dates are cited.
+      - Synthetic contracts cover sessions, bills, sponsors, committees,
+        actions, summaries, subjects, and text links.
+      - No account, key, live credentialed request, or copied response is used.
+    evidence: []
+
+  - id: B4-CONGRESS-LIVE
+    priority: 46
+    milestone: B4
+    title: Congress.gov live adapter validation
+    status: blocked
+    dependencies:
+      - B4-CONGRESS-CONTRACT
+    blocked_by:
+      - G-B-CONGRESS
+    authorization_gate: G-B-CONGRESS
+    acceptance:
+      - The approved key remains build-time only and never enters browser
+        assets, logs, fixtures, or Git.
+      - Official live samples pass the source-specific contract, provenance,
+        rate, history, and failure tests.
+      - Congress.gov and GovInfo identities remain distinct and
+        cross-verification is explicit.
+    safe_fallback: >-
+      Retain contract fixtures and disclose unavailable live coverage; continue
+      with no-key sources.
+    unblocks_only_when: >-
+      The owner explicitly approves Congress.gov registration, current terms,
+      key handling, and its local or Actions scope.
+    evidence:
+      - "docs/source-feasibility.md records the API-key requirement."
+
+  - id: B4-GOVINFO-CONTRACT
+    priority: 47
+    milestone: B4
+    title: GovInfo credential-free contract design and synthetic fixtures
+    status: ready
+    dependencies:
+      - B3-PIPELINE
+    acceptance:
+      - Collection-specific coverage, package/granule identity, MODS, formats,
+        pagination, checksums, and 503 behavior are documented.
+      - Synthetic fixtures exercise collection-specific gaps without
+        credentials.
+    evidence: []
+
+  - id: B4-GOVINFO-LIVE
+    priority: 48
+    milestone: B4
+    title: GovInfo live adapter validation
+    status: blocked
+    dependencies:
+      - B4-GOVINFO-CONTRACT
+    blocked_by:
+      - G-B-GOVINFO
+    authorization_gate: G-B-GOVINFO
+    acceptance:
+      - The approved key remains build-time only and never enters browser
+        assets, logs, fixtures, or Git.
+      - Live packages and granules pass collection-specific contract, checksum,
+        pagination, provenance, and failure tests.
+      - Incomplete collections and historical gaps remain visible.
+    safe_fallback: >-
+      Preserve source-specific contract work and disclose unavailable live
+      coverage.
+    unblocks_only_when: >-
+      The owner explicitly approves GovInfo registration, current terms, key
+      handling, and scope.
+    evidence:
+      - "docs/source-feasibility.md records the api.data.gov key requirement."
+
+  - id: B4-REGS-CONTRACT
+    priority: 49
+    milestone: B4
+    title:
+      Regulations.gov credential-free contract design and synthetic fixtures
+    status: ready
+    dependencies:
+      - B3-PIPELINE
+    acceptance:
+      - Docket/document identity, agency, subtype, mutable fields, dates,
+        attachments, pagination, and rate headers are documented.
+      - Public comments remain excluded and historical completeness remains
+        explicit.
+      - No key or live credentialed request is used.
+    evidence: []
+
+  - id: B4-REGS-LIVE
+    priority: 50
+    milestone: B4
+    title: Regulations.gov live adapter validation
+    status: blocked
+    dependencies:
+      - B4-REGS-CONTRACT
+    blocked_by:
+      - G-B-REGULATIONS
+    authorization_gate: G-B-REGULATIONS
+    acceptance:
+      - The approved key remains build-time only and never enters browser
+        assets, logs, fixtures, or Git.
+      - Live dockets and documents pass contract, mutable-field, provenance,
+        pagination, and rate tests.
+      - Public comments remain excluded and historical completeness remains
+        explicit.
+    safe_fallback: >-
+      Retain contract fixtures and disclose unavailable live regulatory coverage
+      while Federal Register coverage remains independent.
+    unblocks_only_when: >-
+      The owner explicitly approves Regulations.gov registration, terms, key
+      handling, and scope.
+    evidence:
+      - "docs/source-feasibility.md records the api.data.gov key requirement."
+
+  - id: B5-WA-LWS-RESEARCH
+    priority: 60
+    milestone: B5
+    title: Reconfirm Washington Legislative Web Services contract
+    status: ready
+    dependencies:
+      - B3-PIPELINE
+    acceptance:
+      - Current official WSDL, operations, biennia, fields, history, terms,
+        limits, attribution, and failure behavior are cited.
+      - Missing official bulk subjects are explicitly documented.
+    evidence: []
+
+  - id: B5-WA-LWS-ADAPTER
+    priority: 61
+    milestone: B5
+    title: Washington legislative adapter
+    status: not_started
+    dependencies:
+      - B5-WA-LWS-RESEARCH
+    acceptance:
+      - SOAP fixtures cover bills, versions, sponsors, committees, actions,
+        status, dates, documents, missing fields, and faults.
+      - Records without validated official subjects remain Unclassified.
+      - Records without exact Nation evidence remain general-jurisdiction.
+      - Verified history, health, provenance, and last-known-good behavior
+        render truthfully.
+    evidence: []
+
+  - id: B5-WA-RULES
+    priority: 62
+    milestone: B5
+    title: Washington State Register and executive-source adapters
+    status: not_started
+    dependencies:
+      - B5-WA-LWS-ADAPTER
+    acceptance:
+      - Each source has an independent official contract, date range, health
+        shard, and reproduction review.
+      - Rulemaking stage, identifiers, agencies, dates, corrections, and
+        official links validate.
+      - No legislative coverage claim is extended to a separate source.
+    evidence: []
+
+  - id: B5-WA-ACCORDS
+    priority: 63
+    milestone: B5
+    title: Washington accord pilot
+    status: not_started
+    dependencies:
+      - B5-WA-LWS-RESEARCH
+    acceptance:
+      - Authoritative text, date, parties, signed/draft status, supersession,
+        URL, and landmark basis validate.
+      - Centennial Accord Nation associations use exact official signatory
+        evidence only.
+      - Unresolved signatories remain general-jurisdiction with a limitation
+        notice.
+    evidence: []
+
+  - id: B6-COURT-RESEARCH
+    priority: 70
+    milestone: B6
+    title: Select and validate the first official court or administrative source
+    status: ready
+    dependencies:
+      - B3-PIPELINE
+    acceptance:
+      - The source is official or appropriately licensed/public and has
+        documented terms, status semantics, history, identity, and failure
+        behavior.
+      - PACER, paid sources, and unclear third-party licenses remain excluded.
+    evidence: []
+
+  - id: B6-COURT-ADAPTER
+    priority: 71
+    milestone: B6
+    title: First court or administrative-decision adapter
+    status: not_started
+    dependencies:
+      - B6-COURT-RESEARCH
+    acceptance:
+      - Court/body, docket, citation, date, opinion status, supersession,
+        official URL, and historical range validate.
+      - Opinion text is not confused with a headnote, staff summary, or
+        commercial editorial text.
+      - Nation links require exact source evidence; otherwise records remain
+        general-jurisdiction.
+    evidence: []
+
+  - id: B6-COURT-EXPANSION
+    priority: 72
+    milestone: B6
+    title: Incremental official federal and state court coverage
+    status: not_started
+    dependencies:
+      - B6-COURT-ADAPTER
+    acceptance:
+      - Supreme Court, DOI IBIA, and Washington, Oregon, and Idaho appellate
+        sources are each assessed and implemented as independent official-source
+        increments where viable.
+      - GovInfo USCOURTS live use remains behind G-B-GOVINFO and does not block
+        no-key court sources.
+      - Each increment has source-specific status semantics, date range,
+        reproduction policy, health, provenance, and failure tests.
+      - Unavailable or incomplete collections remain visible gaps and do not
+        become comprehensive court claims.
+    evidence: []
+
+  - id: B6-LANDMARKS
+    priority: 73
+    milestone: B6
+    title: Source-verified landmark timeline pilot
+    status: not_started
+    dependencies:
+      - B6-COURT-EXPANSION
+    acceptance:
+      - Each detailed item meets the written landmark criteria with official
+        evidence.
+      - Pre-1980 non-landmarks default to citation-and-link treatment.
+      - Boldt and Centennial Accord facts and associations are not inferred from
+        unofficial text.
+      - Exact reproduction limits and source gaps render visibly.
+    evidence: []
+
+  - id: B7-OR-NONODATA
+    priority: 80
+    milestone: B7
+    title: Oregon official rule, executive, and link-based source feasibility
+    status: ready
+    dependencies:
+      - B3-PIPELINE
+    acceptance:
+      - Lawful no-registration official sources are assessed independently from
+        OData.
+      - Each enabled source receives its own range, health, provenance, and
+        limitation model.
+      - No OData terms are accepted or evaded.
+    evidence: []
+
+  - id: B7-OR-ADAPTER
+    priority: 81
+    milestone: B7
+    title: Oregon no-registration rule or executive adapter
+    status: not_started
+    dependencies:
+      - B7-OR-NONODATA
+    acceptance:
+      - Each viable official source has its own build-time adapter, contract,
+        date range, provenance, health, reproduction policy, and failure tests.
+      - Identifiers, agency, stage/status, filing/publication/effective dates,
+        corrections, and official links remain source-exact.
+      - If no source is viable, the work item closes only with dated evidence
+        and a visible source-specific gap, not an inferred or scraped
+        substitute.
+    evidence: []
+
+  - id: B7-OR-ODATA-CONTRACT
+    priority: 82
+    milestone: B7
+    title: Oregon OData offline contract and synthetic fixtures
+    status: ready
+    dependencies:
+      - B3-PIPELINE
+    acceptance:
+      - Public documentation supports a credential-free offline contract design.
+      - Synthetic fixtures cover metadata, sessions, measures, committees,
+        actions, votes, versions, and status.
+      - No terms acceptance, credentials, live OData calls, or copied responses
+        occur.
+    evidence: []
+
+  - id: B7-OR-ODATA-LIVE
+    priority: 83
+    milestone: B7
+    title: Oregon OData live adapter
+    status: blocked
+    dependencies:
+      - B7-OR-ODATA-CONTRACT
+    blocked_by:
+      - G-C
+    authorization_gate: G-C
+    acceptance:
+      - Credential and refresh behavior follows the owner-approved current
+        agreement.
+      - Live metadata and records reconcile to OLIS and pass provenance,
+        history, failure, and last-known-good tests.
+      - Source-designated nonofficial data links to controlling official
+        material.
+    safe_fallback: >-
+      Show the legislative automation gap and use only separately validated
+      official Oregon sources.
+    unblocks_only_when: >-
+      The owner explicitly approves the exact current acceptable-use agreement,
+      account action, credential handling, and refresh constraints.
+    evidence:
+      - "docs/source-feasibility.md and docs/decision-register.md blocker B-001."
+
+  - id: B8-ID-RULES
+    priority: 90
+    milestone: B8
+    title: Idaho official rules and executive-source feasibility
+    status: ready
+    dependencies:
+      - B3-PIPELINE
+    acceptance:
+      - Sources independent of the unresolved legislative interface are
+        assessed.
+      - Enabled sources have official contracts, terms, history, health, and
+        truthful limitations.
+      - No legislative scraping is disguised as structured coverage.
+    evidence: []
+
+  - id: B8-ID-RULES-ADAPTER
+    priority: 91
+    milestone: B8
+    title: Idaho rule or executive adapter
+    status: not_started
+    dependencies:
+      - B8-ID-RULES
+    acceptance:
+      - Each viable official source has its own build-time adapter, contract,
+        date range, provenance, health, reproduction policy, and failure tests.
+      - Rule/order identifiers, agency, stage/status, dates, corrections, and
+        official links remain source-exact.
+      - If no source is viable, the work item closes only with dated evidence
+        and a visible source-specific gap, not legislative scraping.
+    evidence: []
+
+  - id: B8-ID-LEGISLATION
+    priority: 92
+    milestone: B8
+    title: Idaho structured legislative adapter
+    status: blocked
+    dependencies:
+      - B3-PIPELINE
+    blocked_by:
+      - G-D
+    authorization_gate: G-D
+    acceptance:
+      - The official source owner, endpoint, schema, terms, cadence, limits,
+        history, and failure behavior are documented.
+      - Live samples pass identifiers, sessions, sponsors, committees, actions,
+        status, text-link, provenance, and health tests.
+      - Layout-dependent HTML scraping is not the primary contract.
+    safe_fallback: >-
+      Keep a visible legislative automation gap and link to official session
+      sources without claiming record coverage.
+    unblocks_only_when: >-
+      A stable permitted official structured contract is found through read-only
+      research, or the owner approves a specific inquiry and the resulting
+      contract passes review.
+    evidence:
+      - "docs/source-feasibility.md and docs/decision-register.md blocker B-002."
+
+  - id: B9-LONGTAIL
+    priority: 100
+    milestone: B9
+    title: Controlled long-tail source pilots
+    status: not_started
+    dependencies:
+      - B4-FR-UX
+      - B4-GRANTS-ADAPTER
+      - B5-WA-RULES
+      - B5-WA-ACCORDS
+      - B6-COURT-EXPANSION
+      - B6-LANDMARKS
+      - B7-OR-ADAPTER
+      - B8-ID-RULES-ADAPTER
+    acceptance:
+      - At least one reviewable source set supports each locally viable
+        remaining record class.
+      - Official Tribal documents are officially published and have
+        correction/removal handling.
+      - County records have final/public status and exact Nation-name evidence.
+      - Agreements distinguish signed, draft, superseded, and current status.
+      - Private agreements, municipal records, land data, and unclear reuse
+        remain excluded.
+    evidence: []
+
+  - id: B10-SINGLE-NATION
+    priority: 110
+    milestone: B10
+    title: Production-data single-Nation acceptance suite
+    status: not_started
+    dependencies:
+      - B2-READY
+      - B9-LONGTAIL
+    acceptance:
+      - All three entry points, filters, global search, Unclassified, details,
+        history, selection, dossier, and CSV pass.
+      - Outside-Washington/Oregon/Idaho Nations receive federal-only results and
+        a clear state notice.
+      - Associations and taxonomy never change because of UI mode or query text.
+      - Keyboard, native fallback, screen-reader, zoom/reflow, contrast, focus,
+        responsive, and print checks pass.
+    evidence: []
+
+  - id: B10-COMPARISON
+    priority: 111
+    milestone: B10
+    title: Explicit advanced comparison mode
+    status: not_started
+    dependencies:
+      - B10-SINGLE-NATION
+    acceptance:
+      - Comparison is opt-in and never replaces the default single-Nation flow.
+      - It uses the same source-explicit relationships and general-jurisdiction
+        labels.
+      - It does not infer similarity, legal effect, eligibility, or
+        comprehensive Nation interests.
+      - Accessibility, state, URL/history, dossier, and CSV regression tests
+        pass.
+    evidence: []
+
+  - id: B10-RULES-SCALE
+    priority: 112
+    milestone: B10
+    title: Representative scale budgets and deterministic change rules
+    status: not_started
+    dependencies:
+      - B9-LONGTAIL
+    acceptance:
+      - A public-safe representative multi-source corpus defines expected record
+        count, compact-index size, detail-shard distribution, and search/filter
+        workload without committing generated production data.
+      - Measured budgets and pass/fail thresholds cover initial load, index
+        transfer, detail fetch, search/filter latency, memory, and print/CSV
+        selection scale before any new service or dependency is proposed.
+      - New and changed badges compare documented source IDs, exact
+        source-derived fields, prior validated manifests, and source update
+        semantics deterministically.
+      - Urgent alerts use documented source status/deadline fields, time zones,
+        thresholds, and expiry rules, with no AI or inferred urgency.
+      - Normal, unchanged, amended, corrected, withdrawn, deadline-boundary,
+        missing-time-zone, and source-failure cases have regression tests.
+      - Decision-register items O-002 and O-003 are resolved or updated with
+        measured evidence and remaining limits.
+    evidence: []
+
+  - id: B10-REFRESH
+    priority: 113
+    milestone: B10
+    title: Weekly and manual refresh workflow, locally exercised
+    status: not_started
+    dependencies:
+      - B10-RULES-SCALE
+    acceptance:
+      - Scheduled cadence is weekly and manual workflow_dispatch is defined.
+      - Each source stages, validates, compares, and promotes independently.
+      - Failed sources retain checksum-verified prior shards and original
+        data-as-of dates.
+      - Health, stale/degraded/unavailable state, new/changed badges, and exact
+        urgent alerts agree with manifests.
+      - Workflow configuration is tested locally without remote creation,
+        secrets, Actions execution, or publication.
+    evidence: []
+
+  - id: B10-RC
+    priority: 114
+    milestone: B10
+    title: Local release-candidate hardening
+    status: not_started
+    dependencies:
+      - B10-COMPARISON
+      - B10-REFRESH
+      - B4-CONGRESS-CONTRACT
+      - B4-GOVINFO-CONTRACT
+      - B4-REGS-CONTRACT
+      - B7-OR-ODATA-CONTRACT
+    acceptance:
+      - Full checks, source-specific suites, browser tests, and artifact
+        validation pass.
+      - Asset inventory, hashes, source maps, logs, and tracked files contain no
+        prohibited material.
+      - Dependency vulnerability and license review pass or document accepted
+        local constraints.
+      - CSV formula, encoding, quoting, and repeated-field tests pass.
+      - Print dossier includes criteria, generated/data-as-of times, sources,
+        health, limitations, alerts, exact permitted language, and disclaimer.
+      - Network inspection shows only same-origin static asset requests during
+        ordinary use.
+      - Cooperative and adversarial release reviews have no unresolved
+        high-severity findings.
+      - G-RC changes to satisfied and blocked source/publication gaps remain
+        visible.
+    evidence: []
+
+  - id: RELEASE-LICENSE
+    priority: 200
+    milestone: External publication
+    title: Record the owner-selected public repository license
+    status: blocked
+    dependencies:
+      - B10-RC
+    blocked_by:
+      - G-E-LICENSE
+    authorization_gate: G-E-LICENSE
+    acceptance:
+      - The owner selects the exact license or expressly chooses no license.
+      - LICENSE, README, package metadata, attribution, and third-party notices
+        agree with that decision.
+      - Dependency and source-content rights are reviewed separately from the
+        repository license.
+    safe_fallback: >-
+      Keep the local release candidate private and retain decision-register item
+      O-011 as open.
+    unblocks_only_when: >-
+      The owner explicitly selects the public repository license or expressly
+      chooses no license.
+    evidence:
+      - "docs/decision-register.md item O-011 requires owner selection before
+        publication."
+
+  - id: RELEASE-REMOTE-PUSH
+    priority: 201
+    milestone: External publication
+    title: Create the approved GitHub remote and push the accepted history
+    status: blocked
+    dependencies:
+      - RELEASE-LICENSE
+    blocked_by:
+      - G-E-REMOTE-PUSH
+    authorization_gate: G-E-REMOTE-PUSH
+    acceptance:
+      - gh auth status succeeds in the intended account.
+      - The exact owner, repository name, visibility, description, and default
+        branch match the owner's scoped approval.
+      - The exact accepted local commit and branch are recorded before push.
+      - Tracked content, history, remote, and branch protection assumptions are
+        rechecked.
+      - The remote and initial non-force push use the approved gh operation and
+        are inspected with gh; no Pages change occurs in this item.
+    safe_fallback: Preserve the local repository with no remote or push.
+    unblocks_only_when: >-
+      The owner explicitly approves the named account, repository, visibility,
+      branch, accepted commit, and combined gh remote-and-push operation.
+    evidence:
+      - "The initial prompt expressly withheld remote creation and push
+        approval."
+
+  - id: RELEASE-PAGES
+    priority: 202
+    milestone: External publication
+    title: Configure the approved GitHub Pages target
+    status: blocked
+    dependencies:
+      - RELEASE-REMOTE-PUSH
+    blocked_by:
+      - G-E-PAGES
+    authorization_gate: G-E-PAGES
+    acceptance:
+      - The exact repository, Pages build source, workflow, branch, permissions,
+        and any approved Actions secrets are named.
+      - Configuration and inspection use gh only.
+      - No deployment workflow is dispatched under this item unless the same
+        approval expressly includes that production deployment.
+    safe_fallback: Leave Pages disabled and the remote repository undeployed.
+    unblocks_only_when: >-
+      The owner explicitly approves the exact Pages settings, workflow,
+      permissions, and any named secret operations.
+    evidence:
+      - "The initial prompt expressly withheld Pages and Actions changes."
+
+  - id: RELEASE-PUBLISH
+    priority: 203
+    milestone: External publication
+    title: Deploy and verify the public Pages beta
+    status: blocked
+    dependencies:
+      - RELEASE-PAGES
+    blocked_by:
+      - G-E-PUBLISH
+    authorization_gate: G-E-PUBLISH
+    acceptance:
+      - The owner explicitly identifies the accepted commit, workflow, and
+        production deployment operation.
+      - The deployment is run and inspected with gh only.
+      - Deployment health, assets, source coverage, limitations, and public URL
+        are verified after publication.
+      - The public-beta state changes to complete only after production
+        verification passes.
+    safe_fallback: >-
+      Preserve the configured but undeployed project and the accepted local
+      release candidate.
+    unblocks_only_when: >-
+      The owner explicitly approves the exact production deployment and public
+      beta publication operation.
+    evidence:
+      - "The initial prompt expressly withheld deployment and publication
+        approval."
+
+source_register:
+  - id: SRC-BIA-NOTICE
+    source: BIA annual federal recognition notice
+    implementation_state: publication_review_pending
+    work_items:
+      - B2-REVIEW
+      - B2-IDS
+      - B2-STATES
+      - B2-READY
+    public_claim: no live publication
+  - id: SRC-FEDERAL-REGISTER
+    source: Federal Register
+    implementation_state: ready
+    work_items:
+      - B4-FR-RESEARCH
+      - B4-FR-ADAPTER
+      - B4-FR-UX
+    public_claim: no production records yet
+  - id: SRC-GRANTS
+    source: Grants.gov
+    implementation_state: ready_for_reverification
+    work_items:
+      - B4-GRANTS-RESEARCH
+      - B4-GRANTS-ADAPTER
+    public_claim: no production records yet
+  - id: SRC-CONGRESS
+    source: Congress.gov
+    implementation_state: credential_gate_closed
+    work_items:
+      - B4-CONGRESS-CONTRACT
+      - B4-CONGRESS-LIVE
+    public_claim: unavailable until approved
+  - id: SRC-GOVINFO
+    source: GovInfo
+    implementation_state: credential_gate_closed
+    work_items:
+      - B4-GOVINFO-CONTRACT
+      - B4-GOVINFO-LIVE
+    public_claim: unavailable until approved
+  - id: SRC-REGULATIONS
+    source: Regulations.gov
+    implementation_state: credential_gate_closed
+    work_items:
+      - B4-REGS-CONTRACT
+      - B4-REGS-LIVE
+    public_claim: unavailable until approved
+  - id: SRC-WA-LWS
+    source: Washington Legislative Web Services
+    implementation_state: ready
+    work_items:
+      - B5-WA-LWS-RESEARCH
+      - B5-WA-LWS-ADAPTER
+    public_claim: no production records yet
+  - id: SRC-WA-OTHER
+    source: Washington rules, executive material, and accords
+    implementation_state: source_specific_research_pending
+    work_items:
+      - B5-WA-RULES
+      - B5-WA-ACCORDS
+    public_claim: no production records yet
+  - id: SRC-COURTS
+    source: Official courts and administrative decisions
+    implementation_state: pilot_source_selection_ready
+    work_items:
+      - B6-COURT-RESEARCH
+      - B6-COURT-ADAPTER
+      - B6-COURT-EXPANSION
+      - B6-LANDMARKS
+    public_claim: no production records yet
+  - id: SRC-OR-ODATA
+    source: Oregon Legislature OData
+    implementation_state: terms_and_credential_gate_closed
+    work_items:
+      - B7-OR-ODATA-CONTRACT
+      - B7-OR-ODATA-LIVE
+    public_claim: legislative automation gap
+  - id: SRC-OR-OTHER
+    source: Oregon official rules and executive sources
+    implementation_state: ready_for_source_specific_research
+    work_items:
+      - B7-OR-NONODATA
+      - B7-OR-ADAPTER
+    public_claim: no production records yet
+  - id: SRC-ID-LEG
+    source: Idaho Legislature
+    implementation_state: stable_official_contract_not_found
+    work_items:
+      - B8-ID-LEGISLATION
+    public_claim: legislative automation gap
+  - id: SRC-ID-OTHER
+    source: Idaho official rules and executive sources
+    implementation_state: ready_for_source_specific_research
+    work_items:
+      - B8-ID-RULES
+      - B8-ID-RULES-ADAPTER
+    public_claim: no production records yet
+  - id: SRC-LONGTAIL
+    source: Official Tribal, county, accord, and administrative source sets
+    implementation_state: controlled_pilots_not_started
+    work_items:
+      - B9-LONGTAIL
+    public_claim: no production records yet
+
+risks:
+  - id: R-NATION
+    severity: critical
+    risk:
+      An inferred or unstable Nation association could misrepresent a Nation.
+    control: >-
+      Exact official evidence and URL, independent review, stable-ID history,
+      fail-closed state coverage, and regression tests.
+  - id: R-TERMS
+    severity: critical
+    risk:
+      Public availability could be mistaken for permission to copy full text.
+    control: >-
+      Source-specific terms and reproduction review; citation, permitted short
+      excerpt, and official link when rights are absent or unclear.
+  - id: R-COVERAGE
+    severity: high
+    risk: Partial or stale sources could appear comprehensive or current.
+    control: >-
+      Source-specific date ranges, health, data-as-of, stale/degraded labels,
+      checked last-known-good assets, and explicit gaps.
+  - id: R-CATEGORY
+    severity: high
+    risk:
+      Keyword or AI classification could create unsupported public categories.
+    control: >-
+      Exact official-label mappings only, mapping provenance, many-to-many
+      configuration, and Unclassified fallback.
+  - id: R-STATIC-SCALE
+    severity: medium
+    risk: Index, details, or search may exceed practical static-page budgets.
+    control: >-
+      Measure representative scale before adding a service; preserve compact
+      index and on-demand detail shards.
+  - id: R-SECRETS
+    severity: critical
+    risk:
+      Credentials, raw responses, private material, or land data could enter Git
+      or assets.
+    control: >-
+      Closed credential/private gates, ignored staging, allowlists, source and
+      artifact scans, synthetic fixtures, and adversarial release review.
+  - id: R-AGENT-DRIFT
+    severity: high
+    risk:
+      A long-running agent could reopen settled decisions or overstate progress.
+    control: >-
+      Mandatory startup reads, this ledger, evidence-based status, focused local
+      commits, cooperative/adversarial review, and compaction updates.
+
+next_actions:
+  - order: 1
+    work_item: H-HANDOFF
+    action: >-
+      Finish roadmap validation, cross-document links, cooperative/adversarial
+      review, full npm checks, and the local handoff commit.
+  - order: 2
+    work_item: B2-REVIEW
+    action: >-
+      Complete the independent official-notice review and mechanical
+      reconciliation; keep state coverage federal-only while unresolved.
+  - order: 3
+    work_item: B4-FR-RESEARCH
+    action: >-
+      In parallel with registry review, reverify current Federal Register
+      primary documentation and reproduction constraints.
+  - order: 4
+    work_item: B2-IDS
+    action:
+      Build and test durable Nation identity and official-alias carry-forward.
+  - order: 5
+    work_item: B4-FR-ADAPTER
+    action: Implement the first production policy-source adapter.
+
+finish_states:
+  local_release_candidate:
+    current_state: in_progress
+    satisfied_when:
+      - All locally executable required work items through B10-RC are complete.
+      - Every unavailable source is blocked with evidence and a truthful
+        fallback.
+      - G-RC is satisfied by integrated test, browser, security, artifact, and
+        review evidence.
+      - The worktree is clean and no generated live data or local service
+        remains.
+    does_not_mean:
+      - public beta published
+      - comprehensive legal or source coverage
+      - any closed external gate is approved
+  public_beta:
+    current_state: blocked
+    blocked_by:
+      - RELEASE-PUBLISH
+      - G-E
+    satisfied_when:
+      - The owner explicitly authorizes the exact GitHub and Pages operations.
+      - Those operations are performed with gh from an accepted local release
+        candidate.
+      - Deployment verification passes and public limitations remain visible.
+
+handoff_report_contract:
+  required_fields:
+    - completed work items and evidence
+    - remaining ready, blocked, deferred, and not-started items
+    - primary-source and reproduction gaps
+    - exact commands and real outcomes
+    - browser, accessibility, privacy, security, and artifact findings
+    - local commit SHAs
+    - git status
+    - closed boundary between local readiness and external publication
+  forbidden_claims:
+    - Policy Sentinel is complete because plans or fixtures exist.
+    - A blocked source is covered.
+    - A local release candidate is a published beta.
+    - An inferred Nation relationship is source-explicit.

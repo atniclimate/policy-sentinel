@@ -23,6 +23,12 @@ Pages, and a release are still pending. Gate A did not authorize a remote,
 push, Pages, API registration, provider-term acceptance, paid use, third-party
 contact, optional AI generation, outbound notifications, or private material.
 
+Current progress, dependencies, source blocks, acceptance evidence, and the
+course through a local release candidate are maintained in the validated
+[`ROADMAP.yaml`](ROADMAP.yaml). The external publication step remains
+separately blocked. A fresh Sol Ultra session can resume from
+[the durable continuation prompt](docs/continuation-prompt.md).
+
 ## Intended public beta
 
 The beta is intended to:
@@ -101,15 +107,16 @@ npm ci
 npm run check
 ```
 
-`npm run check` formats, lints, type-checks, validates the foundation, runs
-the source-boundary scan plus unit and accessibility tests, builds the static
-application, emits an ignored synthetic artifact under `dist/data`, and
-validates its hashes and contracts.
+`npm run check` checks formatting, lints, type-checks, validates the YAML
+roadmap and foundation, runs the source-boundary scan plus unit and
+accessibility tests, builds the static application, emits an ignored synthetic
+artifact under `dist/data`, and validates its hashes and contracts.
 
 Useful focused commands:
 
 ```powershell
 npm run dev
+npm run validate:roadmap
 npm test
 npm run test:a11y
 npm run build
@@ -123,6 +130,8 @@ policy records, alter a remote, or publish data.
 
 Key documents:
 
+- [Canonical implementation roadmap](ROADMAP.yaml)
+- [Sol Ultra continuation prompt](docs/continuation-prompt.md)
 - [Project brief](docs/project-brief.md)
 - [Source feasibility](docs/source-feasibility.md)
 - [Data governance](docs/data-governance.md)

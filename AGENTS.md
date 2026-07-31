@@ -16,6 +16,33 @@ closed until the owner approves that exact action.
 Do the smallest task that satisfies the request. Preserve unrelated and
 concurrent changes.
 
+## Durable execution ledger
+
+- Read [`ROADMAP.yaml`](ROADMAP.yaml) completely at the start of every
+  implementation session. It is the canonical ledger for current status,
+  dependencies, evidence, blockers, and the course through finish. The
+  Markdown documents remain the binding product and acceptance contracts.
+- Reconcile roadmap claims with Git, tests, artifacts, browser checks, and
+  current primary-source evidence. A checkbox, scaffold, or agent report is not
+  completion evidence.
+- Update the roadmap after every material checkpoint and before context
+  compaction or a long pause. While local work is active, keep exactly one work
+  item `in_progress`; a validated terminal local-release or genuine-impasse
+  state has zero. Select the lowest-priority-number `ready` item whose
+  dependencies are complete, and promote newly unblocked `not_started` items
+  to `ready` in the same ledger update.
+- Use only the roadmap status vocabulary: `complete`, `in_progress`, `ready`,
+  `blocked`, `deferred`, and `not_started`. Run `npm run validate:roadmap`
+  before committing a ledger change.
+- The initial brief answered all gates. Treat remote, publication, credential,
+  terms, paid/contact, private-data, optional-AI, and outbound-notification
+  gates as resolved **closed** constraints until the owner explicitly changes
+  one exact operation. Do not reopen a general product interview. Record a
+  source-specific block and continue independent ready work.
+- Use [the Sol Ultra continuation prompt](docs/continuation-prompt.md) for a
+  fresh long-running implementation session. Local Git and `ROADMAP.yaml` must
+  remain sufficient to recover after context compaction.
+
 ## Git and GitHub
 
 - Use local Git for local version control.
@@ -111,6 +138,7 @@ Current commands:
 
 ```powershell
 npm ci
+npm run validate:roadmap
 npm run format:check
 npm run lint
 npm run typecheck
@@ -118,6 +146,7 @@ npm run scan:source
 npm test
 npm run build
 npm run validate:artifact
+npm run check
 ```
 
 `npm test` must pass before reporting a contract or taxonomy change complete.

@@ -4,6 +4,10 @@ Status: Gate A approved; Phase B local implementation in progress
 
 Last reviewed: 2026-07-30
 
+This document is the binding milestone and acceptance contract.
+[`ROADMAP.yaml`](../ROADMAP.yaml) is the canonical ledger for current status,
+dependencies, evidence, blockers, and next actions.
+
 ## Authority boundary
 
 Phase A ended when the owner approved Gate A on 2026-07-30. Phase B local implementation may proceed under this plan.
@@ -34,11 +38,11 @@ The implementation order is:
 
 1. BIA annual recognition list for the canonical 575-Nation baseline; Tribal Leaders Directory only for validated public alias/supporting metadata, never contacts, geometry, or legal status.
 2. Federal Register for the first no-key federal record adapter.
-3. Congress.gov with GovInfo verification after the separate API-registration gate.
-4. Grants.gov for active and forecast funding discovery.
+3. Grants.gov for active and forecast funding discovery after its current no-registration contract is reverified.
+4. Congress.gov with GovInfo verification after their separate source-scoped API-registration gates; credential-free contract fixtures may proceed earlier.
 5. Washington Legislative Web Services, followed by Washington State Register and verified Washington accord records.
 6. Official federal and state courts plus curated landmark records.
-7. Regulations.gov after its separate API-key gate.
+7. Regulations.gov after its separate source-scoped API-key gate; credential-free contract fixtures may proceed earlier.
 8. Oregon Legislature OData only after the Oregon terms and credential gate, followed by official Oregon rule and executive sources.
 9. Idaho only after an official stable source contract or approved owner contact resolves the current automation gap.
 10. Carefully reviewed administrative decisions, public state/federal intergovernmental agreements, officially published Tribal government documents, and county records.
@@ -104,7 +108,10 @@ Acceptance criteria:
 
 ### B4: federal core sources
 
-Implement Federal Register first, then Congress.gov/GovInfo after Gate B, and Grants.gov. Implement Regulations.gov only after Gate B for that source.
+Implement Federal Register first, then Grants.gov after reconfirming its current
+no-registration contract. Build Congress.gov, GovInfo, and Regulations.gov
+contracts with synthetic fixtures, but implement their live adapters only after
+their separate scoped Gate B approvals.
 
 Acceptance criteria:
 
@@ -293,15 +300,15 @@ A failed attempt never advances a source's data-as-of timestamp. The workflow em
 | Gate | Stop condition | Approval needed for go |
 | --- | --- | --- |
 | A: Phase B | Phase A plan not approved | Owner explicitly approves Phase B local implementation under this plan. |
-| B: API registration and secrets | A source needs an account, API key, token, secret, or repository/Actions secret | Owner explicitly approves the named registration and credential placement. Approval is per source; use `gh` for later GitHub secret operations. |
+| B: API registration and secrets | A source needs an account, API key, token, secret, or repository/Actions secret | Owner explicitly approves the named registration and credential placement. Approval is per source through a scoped gate such as `G-B-CONGRESS`, `G-B-GOVINFO`, or `G-B-REGULATIONS`; it never spills to another source. Use `gh` for later GitHub secret operations. |
 | C: Oregon terms | OData requires acceptance, credentials, or nonsharing/use commitments | Owner approves the exact current agreement and account action after terms are presented. |
-| D: Idaho source/contact | No stable official structured source has been verified | Owner approves either a named official source contract or a specific inquiry to the named Idaho office. No contact occurs before approval. |
-| E: remote and Pages | Work would create a remote, push, enable Pages, publish an artifact, create a release, or alter GitHub settings | Owner approves the exact `gh` operations and publication target. |
+| D: Idaho source/contact | No stable official structured source has been verified | Read-only research may satisfy the gate by validating a stable, permitted, official no-registration source. If contact is required, the owner must approve the specific inquiry; no contact occurs before approval. Otherwise retain the visible gap. |
+| E: remote and Pages | Work would select the public license, create a remote, push, enable Pages, publish an artifact, create a release, or alter GitHub settings | Owner approves the exact scoped step. `G-E-LICENSE`, `G-E-REMOTE-PUSH`, `G-E-PAGES`, and `G-E-PUBLISH` remain independent; all GitHub operations use `gh`. |
 | F: third-party, licensed, or paid service | A source/provider is nonofficial, has material reuse limits, requires membership/payment, or would incur a charge | Owner approves the named provider, terms, expected cost, and intended fields before access. |
 | G: private or Nation-supplied material | Material is non-public, restricted, Nation-supplied, land-related, or intended for a private deployment | The supplying or authorizing Tribe and owner explicitly authorize the exact private deployment and handling plan. It never enters the public repository or artifact. |
 | H: optional AI | Summary generation needs a model/provider, credentials, cost, or input transmission | Owner approves the provider/model, budget, input set, retention terms, build-only workflow, and review rules. AI remains optional. |
 | I: outbound notification | A workflow would message any person or service | Owner approves the recipient, channel, event, content, and workflow. Public beta alerts remain in-site and in-dossier only. |
-| J: source/reuse change | Terms, attribution, schema, endpoint, or official status changes materially | Pause that adapter, preserve last-known-good data, update feasibility/governance records, and obtain owner/legal direction when the new term creates an obligation. |
+| J: source/reuse validation | Current primary evidence and tests have not yet validated a source's terms, attribution, schema, official status, provenance, health, and coverage behavior | Satisfy this evidence gate independently before enabling each source. A material terms, schema, endpoint, attribution, or official-status change returns the source to pending, pauses that adapter, preserves last-known-good data, and requires owner/legal direction only when the new term creates an external obligation. |
 
 ## Definition of MVP implementation complete
 

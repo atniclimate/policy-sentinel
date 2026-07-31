@@ -14,11 +14,13 @@ software design and code are not inherited.
 
 ## Current phase
 
-Phase A establishes the local repository, written design, source feasibility,
-versioned data contracts, starting taxonomy, and a validation workflow. It
-expressly excludes live ingestion, production UI work, a Pages site, remote
-publishing, API registration, provider-term acceptance, and third-party
-contact.
+Phase A established the local repository, written design, source feasibility,
+versioned data contracts, starting taxonomy, and validation workflow. The owner
+approved Phase B local implementation on 2026-07-30. Current progress,
+dependencies, and remaining work are recorded in
+[`ROADMAP.yaml`](../ROADMAP.yaml). Remote publishing, API registration,
+provider-term acceptance, paid or third-party actions, private data, optional
+AI generation, and outbound notifications remain outside current authority.
 
 ## Binding public-beta scope
 

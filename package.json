@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "vite build && node scripts/build-synthetic-artifact.mjs --out dist/data && npm run validate:artifact",
     "preview": "vite preview",
+    "validate:roadmap": "node scripts/validate-roadmap.mjs",
     "validate:foundation": "node scripts/validate-foundation.mjs",
     "validate:artifact": "node scripts/validate-artifact.mjs --dir dist/data",
     "source:bia": "node scripts/build-bia-registry.mjs --out dist/source-validation/bia/nations.json",
@@ -19,7 +20,7 @@
     "test:unit": "vitest run",
     "test:a11y": "vitest run tests/app",
     "test": "npm run validate:foundation && npm run test:unit",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm run scan:source && npm test && npm run build"
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run validate:roadmap && npm run scan:source && npm test && npm run build"
   },
   "dependencies": {
     "preact": "^10.29.7"
@@ -41,7 +42,8 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.65.0",
     "vite": "^8.2.0",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "yaml": "^2.9.0"
   },
   "engines": {
     "node": ">=22"
