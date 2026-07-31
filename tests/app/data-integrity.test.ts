@@ -7,6 +7,7 @@ import {
 } from "../../src/app/data";
 
 const SOURCE_ID = "synthetic-source";
+const GENERATED_AT = "2026-07-31T12:00:00Z";
 
 const compactRecord = () => ({
   id: "psr:synthetic:record-1",
@@ -50,8 +51,9 @@ const rootAssets = (records: unknown[] = [compactRecord()]) =>
     [
       "data/manifest.json",
       {
+        artifactVersion: "1.1.0",
         buildId: "synthetic-integrity",
-        generatedAt: "2026-07-31T12:00:00Z",
+        generatedAt: GENERATED_AT,
         dataAsOf: "2026-07-31T00:00:00Z",
         recordCount: records.length,
       },
@@ -139,6 +141,20 @@ afterEach(() => {
 });
 
 describe("same-origin artifact integrity", () => {
+  it("fails closed before normalization for a legacy artifact package", async () => {
+    const legacy = rootAssets();
+    const manifest = legacy.get("data/manifest.json") as Record<
+      string,
+      unknown
+    >;
+    manifest.artifactVersion = "1.0.0";
+    installAssetFetch(legacy);
+
+    await expect(loadArtifacts()).rejects.toThrow(
+      "requires artifact package 1.1.0; received 1.0.0",
+    );
+  });
+
   it("requires every root artifact and never synthesizes coverage or health", async () => {
     const incomplete = rootAssets([]);
     incomplete.delete("data/coverage.json");
@@ -243,6 +259,59 @@ describe("detail asset integrity", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("rejects a detail asset from a different artifact build", async () => {
+    const record = normalizeRecord(compactRecord());
+    expect(record).not.toBeNull();
+    if (!record) return;
+    record.artifactGeneratedAt = GENERATED_AT;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              generatedAt: "2026-07-30T12:00:00Z",
+              record: compactRecord(),
+            }),
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            },
+          ),
+      ),
+    );
+
+    await expect(loadRecordDetail(record)).rejects.toThrow(
+      "build timestamp does not match",
+    );
+  });
+
+  it("rejects a detail whose compact projection differs from the index", async () => {
+    const record = normalizeRecord(compactRecord());
+    expect(record).not.toBeNull();
+    if (!record) return;
+    record.artifactGeneratedAt = GENERATED_AT;
+    const detail = structuredClone(compactRecord());
+    detail.issuingBodies = ["Different Issuing Body"];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({ generatedAt: GENERATED_AT, record: detail }),
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            },
+          ),
+      ),
+    );
+
+    await expect(loadRecordDetail(record)).rejects.toThrow(
+      "compact fields do not match",
+    );
+  });
+
   it.each([
     [
       "internal ID",
@@ -286,16 +355,20 @@ describe("detail asset integrity", () => {
       const record = normalizeRecord(compactRecord());
       expect(record).not.toBeNull();
       if (!record) return;
+      record.artifactGeneratedAt = GENERATED_AT;
       const detail = structuredClone(compactRecord());
       mutate(detail);
       vi.stubGlobal(
         "fetch",
         vi.fn(
           async () =>
-            new Response(JSON.stringify({ record: detail }), {
-              status: 200,
-              headers: { "Content-Type": "application/json" },
-            }),
+            new Response(
+              JSON.stringify({ generatedAt: GENERATED_AT, record: detail }),
+              {
+                status: 200,
+                headers: { "Content-Type": "application/json" },
+              },
+            ),
         ),
       );
 

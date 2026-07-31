@@ -769,7 +769,7 @@ export async function refreshFederalRegisterSource(
   const health: SourceHealth = {
     sourceId: FEDERAL_REGISTER_SOURCE_ID,
     status: "healthy",
-    checkedAt: context.generatedAt,
+    checkedAt: lastSuccessfulRetrievalAt,
     dataAsOf,
     lastSuccessfulRetrievalAt,
     usingLastKnownGood: false,

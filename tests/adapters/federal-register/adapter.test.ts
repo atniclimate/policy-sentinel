@@ -663,6 +663,7 @@ describe("Federal Register public source adapter", () => {
 
   it("reports healthy output only after an external validation barrier", async () => {
     const context = enabledContext();
+    const retrievalCheckedAt = "1994-01-03T23:59:59.500Z";
     const validator = {
       validate: vi.fn((records: PolicyRecord[]) => {
         expect(records).toHaveLength(1);
@@ -671,6 +672,7 @@ describe("Federal Register public source adapter", () => {
     };
     const adapter = createFederalRegisterAdapter({
       ...fixedDependencies,
+      now: () => new Date(retrievalCheckedAt),
       fetchImpl: stableFetch(),
     });
 
@@ -687,8 +689,13 @@ describe("Federal Register public source adapter", () => {
         stale: false,
         usingLastKnownGood: false,
         recordCount: 1,
+        checkedAt: retrievalCheckedAt,
       },
     });
+    if (!success.ok) {
+      throw new Error("Synthetic Federal Register setup did not succeed");
+    }
+    expect(success.records[0].sourceHealth.checkedAt).toBe(retrievalCheckedAt);
     expect(validator.validate).toHaveBeenCalledOnce();
 
     const rejectedAdapter = createFederalRegisterAdapter({

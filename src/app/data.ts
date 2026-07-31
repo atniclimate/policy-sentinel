@@ -326,6 +326,10 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
         nullableString(
           jurisdiction.stateCode ?? item.stateCode,
         )?.toUpperCase() ?? null,
+      generalJurisdictionOnly: booleanValue(
+        jurisdiction.generalJurisdictionOnly,
+        false,
+      ),
     },
     issuingBodies: stringArray(item.issuingBodies),
     status: {
@@ -421,6 +425,7 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
     change: {
       kind: stringValue(change.kind, "unchanged"),
       firstSeenAt: nullableString(change.firstSeenAt) ?? undefined,
+      lastSeenAt: nullableString(change.lastSeenAt) ?? undefined,
       urgentAlert:
         Object.keys(urgent).length > 0
           ? {
@@ -489,9 +494,22 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
 const normalizeManifest = (payload: unknown): ArtifactManifest => {
   const item = objectValue(payload);
   const statistics = objectValue(item.statistics);
+  const artifactVersion = stringValue(item.artifactVersion);
+  if (artifactVersion !== "1.1.0") {
+    throw new Error(
+      `This application requires artifact package 1.1.0; received ${
+        artifactVersion || "an unversioned package"
+      }.`,
+    );
+  }
+  const generatedAt = nullableString(item.generatedAt ?? item.builtAt);
+  if (!generatedAt) {
+    throw new Error("Artifact package 1.1.0 is missing its build timestamp.");
+  }
   return {
+    artifactVersion,
     buildId: stringValue(item.buildId ?? item.version, "unknown-build"),
-    generatedAt: nullableString(item.generatedAt ?? item.builtAt),
+    generatedAt,
     dataAsOf: nullableString(item.dataAsOf ?? item.data_as_of),
     recordCount:
       typeof item.recordCount === "number"
@@ -662,6 +680,7 @@ export const loadArtifacts = async (): Promise<ArtifactBundle> => {
     }
   }
 
+  const manifest = normalizeManifest(values.get("data/manifest.json"));
   const nations = arrayPayload(values.get("data/nations.json"), [
     "nations",
     "items",
@@ -676,6 +695,9 @@ export const loadArtifacts = async (): Promise<ArtifactBundle> => {
   ])
     .map(normalizeRecord)
     .filter((record): record is PublicRecord => record !== null);
+  for (const record of records) {
+    record.artifactGeneratedAt = manifest.generatedAt;
+  }
 
   for (const record of records) {
     for (const membership of record.taxonomyMemberships) {
@@ -742,7 +764,7 @@ export const loadArtifacts = async (): Promise<ArtifactBundle> => {
   }
 
   return {
-    manifest: normalizeManifest(values.get("data/manifest.json")),
+    manifest,
     nations,
     taxonomy,
     records,
@@ -763,6 +785,15 @@ export const loadRecordDetail = async (
   }
   const payload = await fetchJson(record.texts.detailPath);
   const root = objectValue(payload);
+  const detailGeneratedAt = nullableString(root.generatedAt);
+  if (
+    !record.artifactGeneratedAt ||
+    detailGeneratedAt !== record.artifactGeneratedAt
+  ) {
+    throw new Error(
+      "The detail asset build timestamp does not match the loaded artifact.",
+    );
+  }
   const normalized = normalizeRecord(root.record ?? payload);
   if (!normalized) {
     throw new Error("The detail asset did not contain a usable record.");
@@ -786,5 +817,68 @@ export const loadRecordDetail = async (
       "The detail asset official source URL does not match the index record.",
     );
   }
+  if (
+    JSON.stringify(compactIntegrityProjection(normalized)) !==
+    JSON.stringify(compactIntegrityProjection(record))
+  ) {
+    throw new Error(
+      "The detail asset compact fields do not match the index record.",
+    );
+  }
+  if (
+    JSON.stringify(recordHealthIntegrityProjection(normalized)) !==
+    JSON.stringify(recordHealthIntegrityProjection(record))
+  ) {
+    throw new Error(
+      "The detail asset source health does not match the loaded artifact.",
+    );
+  }
+  normalized.artifactGeneratedAt = record.artifactGeneratedAt;
+  normalized.texts.detailPath = record.texts.detailPath;
+  normalized.sourceHealth = { ...record.sourceHealth };
   return normalized;
 };
+
+const compactIntegrityProjection = (record: PublicRecord) => ({
+  internalId: record.internalId,
+  sourceDocumentIdentifier: record.sourceDocumentIdentifier,
+  officialTitle: record.officialTitle,
+  documentType: record.documentType,
+  jurisdiction: record.jurisdiction,
+  issuingBodies: record.issuingBodies,
+  status: record.status,
+  source: {
+    id: record.source.id,
+    name: record.source.name,
+    provider: record.source.provider,
+  },
+  dates: {
+    published: record.dates.published,
+    updated: record.dates.updated,
+    lastAction: record.dates.lastAction,
+    deadline: record.dates.deadline,
+  },
+  urls: {
+    officialSource: record.urls.officialSource,
+  },
+  taxonomyMemberships: record.taxonomyMemberships
+    .map(({ categoryId, subcategoryId }) => ({ categoryId, subcategoryId }))
+    .sort(
+      (left, right) =>
+        left.categoryId.localeCompare(right.categoryId) ||
+        (left.subcategoryId ?? "").localeCompare(right.subcategoryId ?? ""),
+    ),
+  isUnclassified: record.isUnclassified,
+  nationIds: [...record.nationIds].sort(),
+  relevance: record.relevance,
+  landmark: {
+    isLandmark: record.landmark.isLandmark,
+  },
+  change: record.change,
+});
+
+const recordHealthIntegrityProjection = (record: PublicRecord) => ({
+  status: record.sourceHealth.status,
+  usingLastKnownGood: record.sourceHealth.usingLastKnownGood,
+  message: record.sourceHealth.message,
+});

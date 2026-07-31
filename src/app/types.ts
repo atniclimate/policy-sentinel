@@ -72,6 +72,7 @@ export interface SourceDocumentRelationship {
 }
 
 export interface PublicRecord {
+  artifactGeneratedAt?: string;
   internalId: string;
   officialTitle: string;
   sourceDocumentIdentifier: string;
@@ -89,6 +90,7 @@ export interface PublicRecord {
     level: string;
     name: string;
     stateCode: string | null;
+    generalJurisdictionOnly?: boolean;
   };
   issuingBodies: string[];
   status: {
@@ -150,6 +152,7 @@ export interface PublicRecord {
   change: {
     kind: string;
     firstSeenAt?: string;
+    lastSeenAt?: string;
     urgentAlert: {
       basis: string;
       label: string;
@@ -186,8 +189,9 @@ export interface PublicRecord {
 }
 
 export interface ArtifactManifest {
+  artifactVersion: "1.1.0";
   buildId: string;
-  generatedAt: string | null;
+  generatedAt: string;
   dataAsOf: string | null;
   recordCount: number | null;
   synthetic: boolean;

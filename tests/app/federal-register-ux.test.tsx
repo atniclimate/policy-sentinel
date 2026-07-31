@@ -112,7 +112,12 @@ const compactRecord = (index: number) => {
       },
     ],
     landmark: { isLandmark: false },
-    change: { kind: "unchanged", urgentAlert: null },
+    change: {
+      kind: "unchanged",
+      firstSeenAt: "2026-07-31T12:00:00.000Z",
+      lastSeenAt: "2026-07-31T12:00:00.000Z",
+      urgentAlert: null,
+    },
   };
 };
 
@@ -190,7 +195,7 @@ const detailRecord = (compact: ReturnType<typeof compactRecord>) => ({
     dataAsOf: "2026-07-31T00:00:00.000Z",
     lastSuccessfulRetrievalAt: "2026-07-31T12:00:00.000Z",
     usingLastKnownGood: false,
-    message: null,
+    message: "Healthy retrieval with a deliberately bounded artifact range.",
   },
   change: {
     kind: "unchanged",
@@ -211,6 +216,7 @@ function installArtifactFetch(
     [
       "manifest.json",
       {
+        artifactVersion: "1.1.0",
         buildId: "synthetic-fr-ux",
         generatedAt: "2026-07-31T12:00:00.000Z",
         dataAsOf: "2026-07-31T00:00:00.000Z",
@@ -251,7 +257,10 @@ function installArtifactFetch(
   for (const record of records) {
     const path = record.detailPath;
     if (!missingDetailPaths.has(path)) {
-      documents.set(path, { record: detailRecord(record) });
+      documents.set(path, {
+        generatedAt: "2026-07-31T12:00:00.000Z",
+        record: detailRecord(record),
+      });
     }
   }
 
@@ -391,6 +400,43 @@ describe("Federal Register artifact UX", () => {
     expect(
       accessibility.violations.map(({ id, help }) => ({ id, help })),
     ).toEqual([]);
+  });
+
+  it("labels current filters separately from selections persisted across views", async () => {
+    const record = compactRecord(1);
+    installArtifactFetch([record]);
+    window.location.hash = `#/unclassified?nation=${encodeURIComponent(NATION_ID)}&areas=all`;
+    const print = vi.spyOn(window, "print").mockImplementation(() => undefined);
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      callback(0);
+      return 1;
+    });
+
+    const { container } = render(<App />);
+    await screen.findByRole("heading", {
+      name: "Synthetic Nation A",
+      level: 2,
+    });
+    fireEvent.click(screen.getByLabelText("Select for dossier and CSV"));
+    fireEvent.input(
+      screen.getByRole("searchbox", {
+        name: "Search official source fields",
+      }),
+      { target: { value: "no-current-view-match" } },
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Apply filters" }));
+    await screen.findByText("0 matching records");
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Print source dossier" }),
+    );
+    await waitFor(() => expect(print).toHaveBeenCalledOnce());
+    const dossier = container.querySelector("#print-dossier");
+    expect(dossier?.textContent).toContain("Current view criteria");
+    expect(dossier?.textContent).toContain("no-current-view-match");
+    expect(dossier?.textContent).toContain(
+      "Selections persist across filters, so a selected record may not match the current view criteria",
+    );
   });
 
   it("aborts CSV and dossier output when any selected detail cannot be validated", async () => {

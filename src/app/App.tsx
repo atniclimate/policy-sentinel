@@ -2322,8 +2322,17 @@ function PrintDossier({
             <dd>{dossier.nation.officialName}</dd>
           </div>
           <div>
-            <dt>Selection criteria</dt>
+            <dt>Current view criteria</dt>
             <dd>{exactCriteriaSummary(dossier.criteria, bundle.taxonomy)}</dd>
+          </div>
+          <div>
+            <dt>Selection basis</dt>
+            <dd>
+              {dossier.records.length} explicitly selected record
+              {dossier.records.length === 1 ? "" : "s"} available in this Nation
+              context. Selections persist across filters, so a selected record
+              may not match the current view criteria shown above.
+            </dd>
           </div>
           <div>
             <dt>Generated</dt>
