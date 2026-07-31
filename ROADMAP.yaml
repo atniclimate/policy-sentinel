@@ -305,12 +305,12 @@ baseline:
       detail: single-Nation synthetic flow only
 
 current_focus:
-  work_item: B4-GOVINFO-CONTRACT
+  work_item: B4-REGS-CONTRACT
   objective: >-
-    Complete the credential-free GovInfo package, granule, collection, MODS,
-    format-link, checksum, pagination, and documented 503 contract with
-    synthetic fixtures only.
-  last_durable_checkpoint: 3519ab4
+    Complete the credential-free Regulations.gov docket, document, agency,
+    subtype, mutable-field, date, attachment, pagination, and rate-header
+    contract with synthetic fixtures while excluding public comments.
+  last_durable_checkpoint: 1255c60
   resume_command: npm run check
 
 completion_scope:
@@ -889,7 +889,7 @@ work_items:
     priority: 47
     milestone: B4
     title: GovInfo credential-free contract design and synthetic fixtures
-    status: in_progress
+    status: complete
     dependencies:
       - B3-PIPELINE
     acceptance:
@@ -897,7 +897,47 @@ work_items:
         pagination, checksums, and 503 behavior are documented.
       - Synthetic fixtures exercise collection-specific gaps without
         credentials.
-    evidence: []
+    evidence:
+      - >-
+        docs/source-reviews/govinfo-api-2026-07-31.md records the dated official
+        OpenAPI hash and route inventory, collection-specific date and format
+        gaps, MODS and rendition boundaries, opaque cursor pagination,
+        documented request limits and 503 Retry-After behavior, reuse cautions,
+        and the closed api.data.gov-key gate. No account, registration, terms
+        action, keyed data request, provider response, or raw corpus was used or
+        persisted.
+      - >-
+        src/contracts/govinfo implements pure keyless relative-query,
+        repository-owned pagination, and strict synthetic response contracts
+        for BILLS, FR, and selected incomplete USCOURTS coverage. It rejects
+        deprecated offsets, credentials, query drift, duplicate cursors and
+        identities, unknown fields, cross-scope rendition links, unbound local
+        digests, personal-name court metadata, and unsupported provider claims.
+      - >-
+        Five clearly labeled synthetic fixtures and 36 focused Vitest cases
+        cover packages, granules, missing granules, historical coverage,
+        terminal and continued pagination, malformed resources, exact
+        rendition-bound SHA-256, unverified PREMIS binding, court privacy, and
+        bounded 503 retry directives.
+      - >-
+        Source-registry 1.5.0 keeps GovInfo disabled with adapter null and
+        build-secret access while allowing only stable www.govinfo.gov public
+        links. No transport, normalizer, public record, API host, key, or live
+        artifact was added.
+      - >-
+        Two independent adversarial reviews closed ambiguous digest binding,
+        pagination continuity, USCOURTS personal-name exposure, accidental
+        public API-host allowlisting, collection-level last-known-good
+        overstatement, and incomplete 503 operation coverage; the re-review
+        reported no remaining high or medium findings.
+      - >-
+        npm run check passed on 2026-07-31 with 22 Vitest files and 254 tests,
+        formatting, lint, type checking, roadmap validation, source-boundary
+        scanning, a synthetic-only production build, and artifact validation at
+        2 records, 575 Nations, and 7 verified assets.
+      - >-
+        Local commit 1255c60 implements the reviewed credential-free GovInfo
+        contract checkpoint.
 
   - id: B4-GOVINFO-LIVE
     priority: 48
@@ -922,14 +962,27 @@ work_items:
       The owner explicitly approves GovInfo registration, current terms, key
       handling, and scope.
     evidence:
-      - "docs/source-feasibility.md records the api.data.gov key requirement."
+      - >-
+        docs/source-reviews/govinfo-api-2026-07-31.md records the query-bound
+        api.data.gov-key requirement and the live envelope, response
+        requiredness, nullability, terminal pagination, rendition-fixity
+        binding, and repeated 503 gaps that cannot be resolved without
+        G-B-GOVINFO.
+      - >-
+        Source-registry 1.5.0 keeps GovInfo disabled with adapter null; the safe
+        fallback emits no GovInfo record or public source claim.
+      - >-
+        The current artifact health and last-known-good contracts are
+        source-level and cannot truthfully represent collection shards. Before
+        activation, add a versioned collection dimension or conservatively
+        degrade the entire GovInfo source when any included collection fails.
 
   - id: B4-REGS-CONTRACT
     priority: 49
     milestone: B4
     title:
       Regulations.gov credential-free contract design and synthetic fixtures
-    status: ready
+    status: in_progress
     dependencies:
       - B3-PIPELINE
     acceptance:
@@ -1491,7 +1544,7 @@ source_register:
     public_claim: unavailable until approved
   - id: SRC-GOVINFO
     source: GovInfo
-    implementation_state: credential_gate_closed
+    implementation_state: contract_complete_credential_gate_closed
     work_items:
       - B4-GOVINFO-CONTRACT
       - B4-GOVINFO-LIVE
@@ -1612,15 +1665,15 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B4-GOVINFO-CONTRACT
-    action: >-
-      Complete the credential-free GovInfo package, granule, collection,
-      checksum, pagination, and failure contract with synthetic fixtures.
-  - order: 2
     work_item: B4-REGS-CONTRACT
     action: >-
       Complete the credential-free Regulations.gov docket/document contract with
       synthetic fixtures while public comments and live key use remain excluded.
+  - order: 2
+    work_item: B5-WA-LWS-RESEARCH
+    action: >-
+      Reconfirm the current official Washington Legislative Web Services
+      contract after the Regulations.gov checkpoint.
   - order: 3
     work_item: B4-FR-UX
     action: >-
