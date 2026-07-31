@@ -6,11 +6,12 @@ Policy Sentinel is a sovereignty-centered public policy discovery and
 source-reference tool. Preserve the product boundaries in
 `docs/project-brief.md` and the decisions in `docs/decision-register.md`.
 
-Phase A contains plans, contracts, and synthetic fixtures only. Do not begin
-Phase B implementation until the owner explicitly approves
-`docs/mvp-plan.md`. Phase B approval alone does not authorize a remote
-repository, push, Pages deployment, API registration, provider-term
-acceptance, paid call, third-party contact, secret change, or private-data use.
+Phase B Gate A was approved by the owner on 2026-07-30. Local implementation
+under `docs/mvp-plan.md` is authorized. That approval does not authorize a
+remote repository, push, Pages deployment, API registration, provider-term
+acceptance, paid call, third-party contact, secret change, private-data use,
+optional AI generation, or outbound notification. Keep every later stop/go gate
+closed until the owner approves that exact action.
 
 Do the smallest task that satisfies the request. Preserve unrelated and
 concurrent changes.
@@ -106,22 +107,26 @@ and mark it unavailable. Never relabel stale data as current.
 
 ## Commands and validation
 
-Current Phase A commands:
+Current commands:
 
 ```powershell
 npm ci
+npm run format:check
+npm run lint
+npm run typecheck
+npm run scan:source
 npm test
+npm run build
+npm run validate:artifact
 ```
 
 `npm test` must pass before reporting a contract or taxonomy change complete.
 It validates JSON Schema compilation in strict mode, taxonomy structure and
-IDs, synthetic fixtures, governance invariants, and negative cases.
-
-When Phase B introduces application code, add and document package scripts for
-format checking, linting, type checking, unit tests, accessibility tests,
-production build, artifact validation, and browser tests. Use only scripts
-committed in `package.json`; update this file and the README when the command
-surface changes.
+IDs, synthetic fixtures, governance invariants, negative cases, application
+logic, and pipeline behavior. `npm run build` creates ignored static output in
+`dist/` and validates the artifact. Use only scripts committed in
+`package.json`; update this file and the README when the command surface
+changes.
 
 Validation is source-by-source and fail-closed. A change is complete only when:
 

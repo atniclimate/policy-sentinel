@@ -1,0 +1,17 @@
+{
+  "fixtureVersion": "1.0.0",
+  "description": "Synthetic successful refresh inputs. No network request is permitted.",
+  "generatedAt": "2026-07-30T15:00:00Z",
+  "inputs": [
+    {
+      "sourceId": "synthetic-federal",
+      "recordFixture": "fixtures/records/general-jurisdiction.valid.json",
+      "outcome": "success"
+    },
+    {
+      "sourceId": "synthetic-county",
+      "recordFixture": "fixtures/records/county-explicit.valid.json",
+      "outcome": "success"
+    }
+  ]
+}

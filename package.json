@@ -1,16 +1,47 @@
 {
-  "name": "policy-sentinel-foundation",
-  "version": "0.1.0",
+  "name": "policy-sentinel",
+  "version": "0.2.0",
   "private": true,
-  "description": "Phase A documentation, taxonomy, schema, and foundation validation for Policy Sentinel",
+  "description": "Sovereignty-centered public policy discovery and source-reference tool",
   "type": "module",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build && node scripts/build-synthetic-artifact.mjs --out dist/data && npm run validate:artifact",
+    "preview": "vite preview",
     "validate:foundation": "node scripts/validate-foundation.mjs",
-    "test": "npm run validate:foundation"
+    "validate:artifact": "node scripts/validate-artifact.mjs --dir dist/data",
+    "source:bia": "node scripts/build-bia-registry.mjs --out dist/source-validation/bia/nations.json",
+    "scan:source": "node scripts/scan-source-boundary.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run",
+    "test:a11y": "vitest run tests/app",
+    "test": "npm run validate:foundation && npm run test:unit",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run scan:source && npm test && npm run build"
+  },
+  "dependencies": {
+    "preact": "^10.29.7"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@preact/preset-vite": "^2.10.6",
+    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/preact": "^3.2.4",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^26.1.2",
     "ajv": "^8.17.1",
-    "ajv-formats": "^3.0.1"
+    "ajv-formats": "^3.0.1",
+    "axe-core": "^4.12.1",
+    "eslint": "^10.8.0",
+    "globals": "^17.8.0",
+    "jsdom": "^29.1.1",
+    "prettier": "^3.9.6",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.65.0",
+    "vite": "^8.2.0",
+    "vitest": "^4.1.10"
   },
   "engines": {
     "node": ">=22"

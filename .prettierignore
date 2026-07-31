@@ -1,0 +1,17 @@
+dist/
+node_modules/
+coverage/
+package-lock.json
+public-data/
+generated-data/
+raw-data/
+cached-responses/
+ai-summaries/
+
+# Phase A prose and contracts preserve their reviewed wrapping.
+AGENTS.md
+README.md
+docs/
+schemas/record.schema.v1.json
+schemas/taxonomy.schema.v1.json
+scripts/validate-foundation.mjs

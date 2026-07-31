@@ -10,6 +10,14 @@ Source-specific blockers do not block unrelated sources.
 
 Last reviewed: 2026-07-30.
 
+## Current phase authorization
+
+The owner approved Gate G-A on 2026-07-30. Phase B local implementation under
+`docs/mvp-plan.md` may proceed. This approval does not include any other gate:
+remote operations, publication, API registration, secrets, provider-term
+acceptance, paid or licensed access, third-party contact, private material,
+optional AI generation, and outbound notifications remain unauthorized.
+
 ## Final decisions
 
 | ID | Decision |
@@ -34,6 +42,7 @@ Last reviewed: 2026-07-30.
 | D-018 | Full official text or long abstracts are published only when source terms allow. Otherwise use an exact citation, a permitted short source excerpt, and the official full-text link. |
 | D-019 | Local Git is the version-control system. All GitHub operations use `gh`; native GitHub plugins, alternate integrations, and browser-only GitHub workflows are prohibited. Remote creation, push, Pages, beta publication, secrets changes, account/API registration, forms, charges, and third-party contact require explicit approval. |
 | D-020 | Phase A creates plans, schemas, configuration, synthetic fixtures, and a durable local validation workflow only. It does not implement ingestion, a production UI, a live Pages site, a remote, or publishing. Phase B must not begin without the gate below. |
+| D-021 | On 2026-07-30 the owner approved Phase B local implementation under the MVP plan. All later source, credential, remote/publication, paid, private-data, AI, and notification gates remain independent and closed. |
 
 ## Working assumptions
 
@@ -49,8 +58,8 @@ Last reviewed: 2026-07-30.
 
 | ID | Fact to resolve | Current evidence and next verification |
 | --- | --- | --- |
-| O-001 | Exact parsing and stable crosswalk for all 575 names, authorized aliases, and state coverage. | The [2026 recognition notice](https://www.federalregister.gov/documents/2026/01/30/2026-01899/indian-entities-recognized-by-and-eligible-to-receive-services-from-the-united-states-bureau-of) states 575; grouping and cross-references require a validated parser and a hard-count fixture. Do not import TLD contacts or geometry. |
-| O-002 | Final client index/shard sizes, full-text method, and detail-asset boundaries. | Benchmark with synthetic fixtures before selecting an index dependency. Preserve the compact initial index and on-demand details either way. |
+| O-001 | Publication review and durable crosswalk for all 575 official names, authorized aliases, name changes, grouping, and state coverage. | The local build-time adapter parses the [2026 recognition notice](https://www.federalregister.gov/documents/2026/01/30/2026-01899/indian-entities-recognized-by-and-eligible-to-receive-services-from-the-united-states-bureau-of), reconciles two exact Venetie alias-only cross-reference paragraphs, and validates 575 source-exact entries. It preserves grouped Pribilof entries as published and leaves state coverage unresolved/federal-only. Human source review and a carry-forward ID crosswalk are still required before publication. Do not import TLD contacts or geometry. |
+| O-002 | Final client index/shard sizes and full-text method at representative public-data scale. | The synthetic vertical slice now uses a compact index and separate on-demand details without a search dependency. Benchmark representative multi-source volume before deciding whether that remains sufficient. |
 | O-003 | Exact deterministic definitions for new/changed badges and urgent deadline/status alerts. | Specify source-field comparisons, time zones, thresholds, and test cases before public use; do not use AI urgency scoring. |
 | O-004 | Congressional and federal metadata field availability across time. | Validate the [Congress.gov coverage dates](https://www.congress.gov/help/coverage-dates), GovInfo package/granule fields, pagination, and source identifiers with source-specific fixtures. |
 | O-005 | Washington category mapping. | [Legislative Web Services](https://wslwebservices.leg.wa.gov/) exposes legislative records but no validated bulk subject field. Keep records `Unclassified` until an exact official Topical Index mapping can be acquired and tested. |
@@ -60,7 +69,7 @@ Last reviewed: 2026-07-30.
 | O-009 | Primary online source package for the 1974 Boldt decision. | The official original PDF was not located in this review. Preserve the reporter citation and use the official 1979 U.S. Reports opinion as later primary context; do not substitute unofficial full text or invent Nation associations. |
 | O-010 | Court, county, Tribal-government, treaty, compact, and administrative-decision republication rules. | Approve sources individually. Public availability does not by itself authorize bulk reuse or full-text republication. |
 | O-011 | Public repository license and exact independent-project attribution language. | Owner selects the license before remote publication. Preserve ATNI historical attribution and avoid any endorsement claim. |
-| O-012 | Exhaustive provenance completeness checking beyond JSON Schema shape. | Phase B must add a semantic walk that proves every source-derived leaf has a matching provenance entry and tests adapter-specific transforms. |
+| O-012 | Provenance completeness across each future production adapter. | The shared contract now semantically proves that every declared source-derived record leaf has exact provenance and fails closed on omissions. Each production adapter still requires transform-specific provenance fixtures and review. |
 
 ## Source and authorization blockers
 
@@ -71,24 +80,25 @@ Last reviewed: 2026-07-30.
 | B-003 | Congress.gov, GovInfo, Regulations.gov, NARA, and some other interfaces require keys or accounts. | Fixtures and adapter contracts may be designed locally, but no registration or secret setup occurs without source-specific approval. Secrets never enter the client or repository. |
 | B-004 | PACER can incur fees and exposes privacy/redaction concerns; third-party court services have separate licenses and limits. | Excluded unless the owner separately approves the source, terms, cost, privacy controls, and authority hierarchy. |
 | B-005 | County and Tribal-government sources are heterogeneous and may restrict reuse. | Enable only a reviewed official source with explicit Nation evidence and permitted use. Discovery pages or search results alone are insufficient. |
-| B-006 | Remote creation, push, Actions secrets, Pages, and public beta release are not authorized in Phase A. | Work remains local until a later explicit remote-operation approval. |
+| B-006 | Remote creation, push, Actions secrets, Pages, and public beta release remain unauthorized during current Phase B local work. | Work remains local until a later explicit remote-operation approval. |
 | B-007 | Full-text republication rights may be absent or unclear even for an official public page. | Publish citation, permitted excerpt, and official link only; quarantine content if even that use is unclear. |
 
 ## Stop/go gates
 
 | Gate | Required approval or evidence | What it authorizes |
 | --- | --- | --- |
-| G-A | Owner approves the written Phase A plan. | Begin Phase B local implementation only. It does not authorize any other gate. |
+| G-A | **Approved 2026-07-30.** Owner approves the written Phase A plan. | Begin Phase B local implementation only. It does not authorize any other gate. |
 | G-B | Owner explicitly approves the named registration, acceptable-use agreement, API key, or secret workflow after terms review. | Use that one source in approved local or Actions scope. |
 | G-C | Owner explicitly approves the named paid call, form, or third-party contact. | Perform only that identified action and record its outcome. |
 | G-D | Owner explicitly approves remote creation/push and separately approves Pages/publication and any Actions secrets. | Perform the named GitHub operations using `gh` only. |
 | G-E | All enabled sources pass schema, semantic, provenance, attribution, accessibility, failure, freshness, and coverage-notice acceptance tests. | Present a release candidate for public-beta approval; it does not itself publish. |
 | G-F | A Nation supplies or authorizes specific private material and the owner approves a separate private-deployment control plan. | Implement or activate only that private adapter outside the public build. |
 
-The single approval needed to start the next phase is **G-A: approve Phase B
-local implementation under the final MVP plan**. That approval does not include
-remote operations, publishing, registrations, terms acceptance, paid services,
-third-party contact, or private-data use.
+Gate G-A is closed as approved. The next approval depends on the exact blocked
+action: G-B for a named registration, term, key, or secret workflow; G-C for a
+named paid call, form, or contact; G-D for named remote or publication work; or
+G-F for a separately controlled private deployment. None is implied by the
+Phase B approval.
 
 ## Historical repository inspection
 

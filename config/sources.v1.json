@@ -1,0 +1,103 @@
+{
+  "$schema": "../schemas/source.schema.v1.json",
+  "schemaVersion": "1.0.0",
+  "registryVersion": "1.0.0",
+  "generatedDataPolicy": "artifact-only",
+  "sources": [
+    {
+      "id": "synthetic-federal",
+      "name": "Synthetic Federal Source",
+      "provider": "Synthetic Public Agency",
+      "synthetic": true,
+      "enabled": true,
+      "adapter": {
+        "id": "synthetic-adapter",
+        "version": "1.0.0",
+        "module": "fixtures/records/general-jurisdiction.valid.json",
+        "identityRule": "fixture-assigned-id-v1"
+      },
+      "jurisdiction": {
+        "level": "federal",
+        "name": "United States",
+        "stateCode": null
+      },
+      "access": {
+        "method": "fixture",
+        "officialDocumentationUrl": "https://official.example.invalid/docs",
+        "allowedHosts": ["official.example.invalid"],
+        "authentication": "none",
+        "rateLimit": "No network access. Committed synthetic fixture only.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": "2020-01-01",
+        "through": null,
+        "cadence": "Synthetic build only.",
+        "limitations": "Contract-test records only. This is not public policy coverage."
+      },
+      "publication": {
+        "attribution": "Synthetic Public Agency",
+        "termsUrl": "https://official.example.invalid/terms",
+        "reproduction": "reviewed_excerpt",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/status/sourceLabel",
+          "/urls/officialSource"
+        ]
+      },
+      "officialSubjectMappings": []
+    },
+    {
+      "id": "synthetic-county",
+      "name": "Synthetic County Records",
+      "provider": "Example County",
+      "synthetic": true,
+      "enabled": true,
+      "adapter": {
+        "id": "synthetic-county-adapter",
+        "version": "1.0.0",
+        "module": "fixtures/records/county-explicit.valid.json",
+        "identityRule": "fixture-assigned-id-v1"
+      },
+      "jurisdiction": {
+        "level": "county",
+        "name": "Example County",
+        "stateCode": "WA"
+      },
+      "access": {
+        "method": "fixture",
+        "officialDocumentationUrl": "https://county.example.invalid/docs",
+        "allowedHosts": ["county.example.invalid"],
+        "authentication": "none",
+        "rateLimit": "No network access. Committed synthetic fixture only.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": "2025-01-01",
+        "through": null,
+        "cadence": "Synthetic build only.",
+        "limitations": "Contract-test records only. The explicit Nation mention is fictional."
+      },
+      "publication": {
+        "attribution": "Example County",
+        "termsUrl": "https://county.example.invalid/terms",
+        "reproduction": "reviewed_excerpt",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/status/sourceLabel",
+          "/urls/officialSource",
+          "/nationAssociations/0"
+        ]
+      },
+      "officialSubjectMappings": []
+    }
+  ]
+}

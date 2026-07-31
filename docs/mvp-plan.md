@@ -1,12 +1,12 @@
 # Policy Sentinel MVP implementation plan
 
-Status: Phase A proposal, not authorization to implement
+Status: Gate A approved; Phase B local implementation in progress
 
 Last reviewed: 2026-07-30
 
 ## Authority boundary
 
-Phase A ends with written plans, schemas, taxonomy configuration, synthetic fixtures, and local validation. Phase B must not begin until the owner gives the single approval stated in the Phase A decision memo.
+Phase A ended when the owner approved Gate A on 2026-07-30. Phase B local implementation may proceed under this plan.
 
 Approval of Phase B authorizes only local implementation described here, use of synthetic fixtures, and read-only access to official public sources that require neither registration nor acceptance of new terms. It does **not** authorize:
 
@@ -20,6 +20,13 @@ Approval of Phase B authorizes only local implementation described here, use of 
 - optional AI-summary generation.
 
 Each excluded action has its own stop/go gate below. No milestone may treat an unapproved or blocked source as covered.
+
+## Current implementation checkpoint
+
+- B1 is implemented as a local synthetic vertical slice and has passed automated accessibility checks plus desktop and mobile browser verification.
+- B2 has a build-time parser for the official 2026 recognition notice that validates 575 source-exact Nation entries. Its generated output is ignored, uses federal-only coverage where state coverage is unresolved, and is not publication-approved until the grouping and cross-reference review is complete.
+- B3 is implemented for synthetic records, including compact indexes, separate detail assets, field provenance checks, fail-closed Nation and category rules, source health, artifact hashes, and last-known-good behavior.
+- B4 and later source milestones have not begun. No production policy records have been ingested or published.
 
 ## Recommended source order
 
@@ -42,9 +49,9 @@ If a credential or terms gate is not approved, work may proceed to the next unga
 
 ### Gate A: approve Phase B local implementation
 
-**Stop:** Phase A review is pending.
+**Stop:** Closed on 2026-07-30.
 
-**Go:** The owner explicitly approves Phase B under this plan.
+**Go:** The owner explicitly approved Phase B under this plan on 2026-07-30.
 
 This is the only approval required to begin local implementation. All later external, credential, publication, paid, and private-data gates remain closed.
 

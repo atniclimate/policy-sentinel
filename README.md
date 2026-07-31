@@ -9,16 +9,19 @@ interests.
 
 ## Project status
 
-This repository is in **Phase A: foundation, source feasibility, and
-implementation planning**. It contains documentation, versioned contracts, and
-synthetic validation fixtures. It does not yet contain ingestion adapters, a
-production interface, generated policy data, a remote repository, or a Pages
-deployment. A folder and plan are not a completed Policy Sentinel product.
+This repository is in **Phase B: local implementation**. The owner approved
+Gate A on July 30, 2026. The current local increment contains a static
+TypeScript application backed by synthetic fixtures, versioned source and
+artifact contracts, a fail-closed artifact pipeline, and a build-time adapter
+that validates the current official recognition notice to 575 Nation entries.
+The live Nation output remains an ignored validation artifact and still
+requires the documented human source review before publication.
 
-Implementation must not begin until the owner approves the
-[MVP plan](docs/mvp-plan.md). That approval will not, by itself, authorize a
-GitHub remote, a push, Pages, API registration, acceptance of provider terms,
-paid use, third-party contact, or use of private material.
+This is not a completed public beta. Production record-source adapters,
+large-scale index benchmarks, publication review, a remote repository, GitHub
+Pages, and a release are still pending. Gate A did not authorize a remote,
+push, Pages, API registration, provider-term acceptance, paid use, third-party
+contact, optional AI generation, outbound notifications, or private material.
 
 ## Intended public beta
 
@@ -89,18 +92,34 @@ Policy Sentinel is not:
 - a repository for non-public agreements or unpublished Tribal material; or
 - an outbound notification or user-tracking service.
 
-## Local foundation setup
+## Local setup
 
 Requirements: Node.js 22 or later and npm.
 
 ```powershell
 npm ci
-npm test
+npm run check
 ```
 
-`npm test` validates both JSON Schemas, the ten-category taxonomy, synthetic
-record fixtures, and selected negative governance cases. There is no application
-development server or production build in Phase A.
+`npm run check` formats, lints, type-checks, validates the foundation, runs
+the source-boundary scan plus unit and accessibility tests, builds the static
+application, emits an ignored synthetic artifact under `dist/data`, and
+validates its hashes and contracts.
+
+Useful focused commands:
+
+```powershell
+npm run dev
+npm test
+npm run test:a11y
+npm run build
+npm run source:bia
+```
+
+`npm run source:bia` reads the cited official recognition notice and writes a
+validated 575-entry registry only to ignored
+`dist/source-validation/bia/nations.json`. It does not register an API, ingest
+policy records, alter a remote, or publish data.
 
 Key documents:
 

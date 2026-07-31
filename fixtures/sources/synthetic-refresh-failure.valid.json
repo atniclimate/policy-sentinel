@@ -1,0 +1,9 @@
+{
+  "fixtureVersion": "1.0.0",
+  "description": "Synthetic failed refresh metadata for last-known-good tests.",
+  "sourceId": "synthetic-federal",
+  "outcome": "failure",
+  "checkedAt": "2026-08-06T15:00:00Z",
+  "failureStage": "fetch",
+  "publicMessage": "Synthetic source refresh failed."
+}
