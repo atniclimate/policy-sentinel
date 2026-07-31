@@ -1,4 +1,4 @@
-export const WASHINGTON_LWS_CONTRACT_VERSION = "1.0.0" as const;
+export const WASHINGTON_LWS_CONTRACT_VERSION = "1.1.0" as const;
 export const WASHINGTON_LWS_SOURCE_ID = "washington-lws" as const;
 export const WASHINGTON_LWS_SYNTHETIC_NOTICE =
   "Synthetic contract data; not a Washington LWS response." as const;
@@ -36,55 +36,74 @@ export const WASHINGTON_LWS_WSDL_SHA256 = {
     "0c74a4c84a09fecbc650e1d896d297f1f3a1cc86569e21f69646b916107abd6e",
 } as const;
 
-export const WASHINGTON_LWS_OPERATION_DESCRIPTORS = {
-  GetLegislation: {
+export const WASHINGTON_LWS_OPERATION_DESCRIPTORS = Object.freeze({
+  GetLegislation: Object.freeze({
     servicePath: "/legislationservice.asmx",
     responseElement: "GetLegislationResponse",
     resultElement: "GetLegislationResult",
     itemElement: "Legislation",
     maximumItems: 64,
-  },
-  GetLegislativeStatusChangesByBillId: {
+  }),
+  GetLegislationByYear: Object.freeze({
+    servicePath: "/legislationservice.asmx",
+    responseElement: "GetLegislationByYearResponse",
+    resultElement: "GetLegislationByYearResult",
+    itemElement: "LegislationInfo",
+    maximumItems: 2_048,
+  }),
+  GetLegislativeStatusChangesByBillId: Object.freeze({
     servicePath: "/legislationservice.asmx",
     responseElement: "GetLegislativeStatusChangesByBillIdResponse",
     resultElement: "GetLegislativeStatusChangesByBillIdResult",
     itemElement: "LegislativeStatus",
     maximumItems: 2_048,
-  },
-  GetSponsors: {
+  }),
+  GetSponsors: Object.freeze({
     servicePath: "/legislationservice.asmx",
     responseElement: "GetSponsorsResponse",
     resultElement: "GetSponsorsResult",
     itemElement: "Sponsor",
     maximumItems: 1_024,
-  },
-  GetCommitteeReferralsByBill: {
+  }),
+  GetCommitteeReferralsByBill: Object.freeze({
     servicePath: "/committeeactionservice.asmx",
     responseElement: "GetCommitteeReferralsByBillResponse",
     resultElement: "GetCommitteeReferralsByBillResult",
     itemElement: "CommitteeReferral",
     maximumItems: 512,
-  },
-  GetDocuments: {
+  }),
+  GetDocuments: Object.freeze({
     servicePath: "/legislativedocumentservice.asmx",
     responseElement: "GetDocumentsResponse",
     resultElement: "GetDocumentsResult",
     itemElement: "LegislativeDocument",
     maximumItems: 512,
-  },
-  GetSessionLawByBillId: {
+  }),
+  GetSessionLawByBillId: Object.freeze({
     servicePath: "/sessionlawservice.asmx",
     responseElement: "GetSessionLawByBillIdResponse",
     resultElement: "GetSessionLawByBillIdResult",
     itemElement: "SessionLaw",
     maximumItems: 1,
-  },
-} as const;
+  }),
+} as const);
 
 export type WashingtonLwsOperation =
   keyof typeof WASHINGTON_LWS_OPERATION_DESCRIPTORS;
 
-export const WASHINGTON_LWS_XML_POLICY = {
+export const WASHINGTON_LWS_KNOWN_BILL_OPERATIONS = Object.freeze([
+  "GetLegislation",
+  "GetLegislativeStatusChangesByBillId",
+  "GetSponsors",
+  "GetCommitteeReferralsByBill",
+  "GetDocuments",
+  "GetSessionLawByBillId",
+] as const satisfies readonly WashingtonLwsOperation[]);
+
+export type WashingtonLwsKnownBillOperation =
+  (typeof WASHINGTON_LWS_KNOWN_BILL_OPERATIONS)[number];
+
+export const WASHINGTON_LWS_XML_POLICY = Object.freeze({
   maximumRequestBytes: 16 * 1_024,
   maximumResponseBytes: 2 * 1_024 * 1_024,
   maximumDepth: 16,
@@ -98,4 +117,4 @@ export const WASHINGTON_LWS_XML_POLICY = {
   maximumUrlLength: 2_048,
   maximumFaultTextLength: 2_048,
   maximumStatusWindowDays: 31,
-} as const;
+} as const);

@@ -1,6 +1,6 @@
 {
   "fixtureNotice": "Synthetic contract data; not a Washington LWS response.",
-  "contractVersion": "1.0.0",
+  "contractVersion": "1.1.0",
   "sourceId": "washington-lws",
   "providerEnvelope": false,
   "historicalCompleteness": "not_documented",

@@ -6,8 +6,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   SOAP_11_NAMESPACE,
+  WASHINGTON_LWS_KNOWN_BILL_OPERATIONS,
   WASHINGTON_LWS_OPERATION_DESCRIPTORS,
   WASHINGTON_LWS_SERVICE_NAMESPACE,
+  WASHINGTON_LWS_XML_POLICY,
   type WashingtonLwsOperation,
 } from "../../../src/contracts/washington-lws/constants";
 import { WashingtonLwsContractError } from "../../../src/contracts/washington-lws/errors";
@@ -19,6 +21,7 @@ import {
 
 const FIXTURE_FILES = {
   GetLegislation: "get-legislation.valid.xml",
+  GetLegislationByYear: "get-legislation-by-year.valid.xml",
   GetLegislativeStatusChangesByBillId:
     "get-legislative-status-changes-by-bill-id.valid.xml",
   GetSponsors: "get-sponsors.valid.xml",
@@ -56,6 +59,9 @@ function requestFor<O extends WashingtonLwsOperation>(
     case "GetLegislation":
     case "GetCommitteeReferralsByBill":
       request = { operation, biennium, billNumber: 999_991 };
+      break;
+    case "GetLegislationByYear":
+      request = { operation, year: 3_785 };
       break;
     case "GetLegislativeStatusChangesByBillId":
       request = {
@@ -115,6 +121,41 @@ function emptyResponse(
 }
 
 describe("Washington LWS SOAP response contract", () => {
+  it("runtime-freezes security-sensitive operation and XML policy constants", () => {
+    expect(Object.isFrozen(WASHINGTON_LWS_OPERATION_DESCRIPTORS)).toBe(true);
+    for (const descriptor of Object.values(
+      WASHINGTON_LWS_OPERATION_DESCRIPTORS,
+    )) {
+      expect(Object.isFrozen(descriptor)).toBe(true);
+    }
+    expect(Object.isFrozen(WASHINGTON_LWS_KNOWN_BILL_OPERATIONS)).toBe(true);
+    expect(Object.isFrozen(WASHINGTON_LWS_XML_POLICY)).toBe(true);
+
+    const descriptor =
+      WASHINGTON_LWS_OPERATION_DESCRIPTORS.GetLegislation as unknown as {
+        servicePath: string;
+        maximumItems: number;
+      };
+    expect(() =>
+      Object.assign(descriptor, {
+        servicePath: "@example.invalid/legislationservice.asmx",
+        maximumItems: Number.MAX_SAFE_INTEGER,
+      }),
+    ).toThrow(TypeError);
+    expect(descriptor).toMatchObject({
+      servicePath: "/legislationservice.asmx",
+      maximumItems: 64,
+    });
+
+    const xmlPolicy = WASHINGTON_LWS_XML_POLICY as unknown as {
+      maximumNodes: number;
+    };
+    expect(() =>
+      Object.assign(xmlPolicy, { maximumNodes: Number.MAX_SAFE_INTEGER }),
+    ).toThrow(TypeError);
+    expect(xmlPolicy.maximumNodes).toBe(30_000);
+  });
+
   it("projects two bill versions without selecting an active winner", () => {
     const response = parseWashingtonLwsSoapResponse(
       "GetLegislation",
@@ -158,6 +199,110 @@ describe("Washington LWS SOAP response contract", () => {
       "SYNTHETIC-HB-999991-BASE",
       "SYNTHETIC-HB-999991-SUB1-ENG2",
     ]);
+  });
+
+  it("projects sparse yearly legislation identities while preserving versions, order, and duplicates", () => {
+    const response = parseWashingtonLwsSoapResponse(
+      "GetLegislationByYear",
+      fixture(FIXTURE_FILES.GetLegislationByYear),
+    );
+
+    expect(response.kind).toBe("success");
+    if (response.kind !== "success") return;
+    expect(response.resultState).toBe("present");
+    expect(response.result).toHaveLength(4);
+    expect(response.result[0]).toMatchObject({
+      biennium: "3785-86",
+      billId: "SYNTHETIC-YEAR-HB-999991-BASE",
+      billNumber: 999991,
+      substituteVersion: 0,
+      engrossedVersion: 0,
+      active: false,
+    });
+    expect(response.result[1]).toEqual(response.result[2]);
+    expect(response.result[3]).toEqual({
+      biennium: null,
+      billId: null,
+      billNumber: 999992,
+      substituteVersion: 0,
+      engrossedVersion: 0,
+      legislationType: null,
+      originalAgency: null,
+      active: false,
+      displayNumber: null,
+    });
+  });
+
+  it("does not invent a request-year echo or inferred biennium identity", () => {
+    const original = fixtureText(FIXTURE_FILES.GetLegislationByYear);
+    const changed = original.replace(
+      "<Biennium>3785-86</Biennium>",
+      "<Biennium>3787-88</Biennium>",
+    );
+    expect(changed).not.toBe(original);
+
+    const response = parseWashingtonLwsSoapResponse(
+      "GetLegislationByYear",
+      bytes(changed),
+    );
+    expect(response.kind).toBe("success");
+    if (response.kind === "success") {
+      expect(response.result[0]?.biennium).toBe("3787-88");
+    }
+  });
+
+  it("fails the whole yearly result on nil, malformed, or unbounded fields", () => {
+    const original = fixtureText(FIXTURE_FILES.GetLegislationByYear);
+    for (const changed of [
+      original.replace(
+        /<LegislationInfo>[\s\S]*?<\/LegislationInfo>/,
+        '<LegislationInfo xsi:nil="true" />',
+      ),
+      original.replace("<BillNumber>999991</BillNumber>", ""),
+      original.replace(
+        "<BillNumber>999991</BillNumber>",
+        "<Unexpected>999991</Unexpected><BillNumber>999991</BillNumber>",
+      ),
+      original.replace(
+        "<SubstituteVersion>0</SubstituteVersion>",
+        "<EngrossedVersion>0</EngrossedVersion><SubstituteVersion>0</SubstituteVersion>",
+      ),
+      original.replace(
+        "<Biennium>3785-86</Biennium>",
+        "<Biennium>bad</Biennium>",
+      ),
+      original.replace(
+        "<Biennium>3785-86</Biennium>",
+        "<Biennium>3784-85</Biennium>",
+      ),
+      original.replace(
+        "<BillNumber>999991</BillNumber>",
+        "<BillNumber>1000000</BillNumber>",
+      ),
+    ]) {
+      expect(changed).not.toBe(original);
+      expect(() =>
+        parseWashingtonLwsSoapResponse("GetLegislationByYear", bytes(changed)),
+      ).toThrowError(WashingtonLwsContractError);
+    }
+  });
+
+  it("accepts the maximum reviewed returned bill number independently of request identity", () => {
+    const original = fixtureText(FIXTURE_FILES.GetLegislationByYear);
+    const changed = original.replace(
+      "<BillNumber>999991</BillNumber>",
+      "<BillNumber>999999</BillNumber>",
+    );
+    expect(changed).not.toBe(original);
+
+    const response = parseWashingtonLwsSoapResponse(
+      "GetLegislationByYear",
+      bytes(changed),
+    );
+    expect(response.kind).toBe("success");
+    if (response.kind === "success") {
+      expect(response.result[0]?.billNumber).toBe(999999);
+    }
   });
 
   it("preserves exact status concepts and lexical source date-times", () => {
@@ -319,6 +464,25 @@ describe("Washington LWS SOAP response contract", () => {
     expect(JSON.stringify(response)).not.toContain("soap:Client");
   });
 
+  it("sanitizes a yearly-enumeration SOAP fault without partial results", () => {
+    const response = parseWashingtonLwsSoapResponse(
+      "GetLegislationByYear",
+      fixture("soap-fault.valid.xml"),
+    );
+
+    expect(response).toMatchObject({
+      kind: "fault",
+      operation: "GetLegislationByYear",
+      fault: {
+        category: "unclassified_provider_fault",
+        codeLexicalDiscarded: true,
+        providerTextDiscarded: true,
+      },
+    });
+    expect(response).not.toHaveProperty("result");
+    expect(JSON.stringify(response)).not.toContain("SYNTHETIC CLIENT FAULT");
+  });
+
   it("distinguishes missing and empty array results without inventing records", () => {
     expect(
       parseWashingtonLwsSoapResponse(
@@ -339,6 +503,28 @@ describe("Washington LWS SOAP response contract", () => {
     ).toMatchObject({
       kind: "success",
       operation: "GetSponsors",
+      resultState: "empty",
+      result: [],
+    });
+    expect(
+      parseWashingtonLwsSoapResponse(
+        "GetLegislationByYear",
+        emptyResponse("GetLegislationByYear", false),
+      ),
+    ).toMatchObject({
+      kind: "success",
+      operation: "GetLegislationByYear",
+      resultState: "missing",
+      result: [],
+    });
+    expect(
+      parseWashingtonLwsSoapResponse(
+        "GetLegislationByYear",
+        emptyResponse("GetLegislationByYear", true),
+      ),
+    ).toMatchObject({
+      kind: "success",
+      operation: "GetLegislationByYear",
       resultState: "empty",
       result: [],
     });
@@ -617,6 +803,43 @@ describe("Washington LWS SOAP response contract", () => {
 
     expect(() =>
       parseWashingtonLwsSoapResponse("GetLegislation", bytes(changed)),
+    ).toThrowError(/operation result exceeds its item budget/);
+  });
+
+  it("accepts the exact yearly item budget and rejects one over without truncation", () => {
+    const original = fixtureText(FIXTURE_FILES.GetLegislationByYear);
+    const fullItem =
+      /<LegislationInfo>[\s\S]*?<\/LegislationInfo>/.exec(original)?.[0] ?? "";
+    expect(fullItem).not.toBe("");
+    const replaceItems = (count: number): Uint8Array =>
+      bytes(
+        original.replace(
+          /<LegislationInfo>[\s\S]*<\/LegislationInfo>/,
+          fullItem.repeat(count),
+        ),
+      );
+
+    const exact = parseWashingtonLwsSoapResponse(
+      "GetLegislationByYear",
+      replaceItems(
+        WASHINGTON_LWS_OPERATION_DESCRIPTORS.GetLegislationByYear.maximumItems,
+      ),
+    );
+    expect(exact.kind).toBe("success");
+    if (exact.kind === "success") {
+      expect(exact.result).toHaveLength(
+        WASHINGTON_LWS_OPERATION_DESCRIPTORS.GetLegislationByYear.maximumItems,
+      );
+    }
+
+    expect(() =>
+      parseWashingtonLwsSoapResponse(
+        "GetLegislationByYear",
+        replaceItems(
+          WASHINGTON_LWS_OPERATION_DESCRIPTORS.GetLegislationByYear
+            .maximumItems + 1,
+        ),
+      ),
     ).toThrowError(/operation result exceeds its item budget/);
   });
 

@@ -54,20 +54,26 @@ prior public shards -> last-known-good merge |
 Raw responses remain in ephemeral runner space and are discarded. Only
 whitelisted, validated public fields enter the deployment artifact.
 
-The pre-canary Washington LWS transport constructs only allowlisted SOAP 1.1
-requests and makes one credential-free attempt with automatic redirects,
-referrers, and caching disabled and fixed request media headers. One 30-second
-deadline uses cancellation during fetch and streamed body collection plus
-monotonic elapsed-time checks immediately before and after bounded parsing. The
-response must keep the exact request URL, return HTTP 200, use `text/xml` with
+The bounded Washington LWS transport constructs only allowlisted SOAP 1.1
+requests. Its operation descriptors are frozen at both levels at runtime, and
+its flat XML policy is also runtime-frozen, so importing code cannot mutate
+endpoint paths, wrapper names, item caps, or parser budgets. Its transport
+policy and sanitized error-code allowlist are likewise frozen, preventing
+runtime changes to the timeout, media type, user agent, or chunk ceiling. The
+transport makes one credential-free attempt with automatic redirects,
+referrers, and caching disabled and fixed request media headers. One 30-second deadline uses
+cancellation during fetch and streamed body collection plus monotonic
+elapsed-time checks immediately before and after bounded parsing. The response
+must keep the exact request URL, return HTTP 200, use `text/xml` with
 no charset or UTF-8 and either no `Content-Encoding` or `identity`, and contain
 between 1 byte and 2 MiB in no more than 4,096 non-empty stream chunks.
 Non-200 bodies are canceled without inspection. Every response-byte buffer
 retained by the transport passes directly into the typed parser and is zeroed
 before release; unread bodies or remainders are canceled. No response-byte
 buffer crosses the transport boundary or enters logs or storage. This
-conservative rule is a pre-canary decision, not evidence about the provider's
-live status or fault behavior.
+conservative rule remains in force after one successful known-bill aggregate
+canary and is not evidence about other operations, provider fault behavior, or
+complete coverage.
 Transport failures expose a repository-defined category, a numeric HTTP status
 when one was received, and static text without provider body or network-error
 content.
@@ -75,8 +81,9 @@ content.
 The manual LWS canary observer sits immediately above that transport. It
 contains one versioned, repository-owned known-bill `GetLegislation` scenario
 and cannot accept request identifiers, URLs, headers, dates, output paths,
-loggers, or environment overrides. Exact execution arguments authorize the
-scenario. The scenario executor is module-private, the observer is absent from
+loggers, or environment overrides. Its scenario and evidence-policy allowlists
+are runtime-frozen. Exact execution arguments authorize the scenario. The
+scenario executor is module-private, the observer is absent from
 the general contract barrel, and only the exact-argument command path can call
 it. A counted wrapper permits at most one sequential provider-request attempt
 with no retry. The report distinguishes authorization from the actual
@@ -87,6 +94,27 @@ byte/status aggregates, and a timing bucket. It never serializes the transport
 receipt, request, typed SOAP projection, provider strings, exact dates, errors,
 or raw bytes; its launcher disables `.env` loading, it imports no filesystem
 API, and it is not connected to build, check, or lifecycle scripts.
+
+The versioned LWS refresh-capability layer keeps point lookups separate from
+population discovery. All six known-bill operations require an existing bill
+number, bill ID, or document-name seed, so none is an enumerator and numeric
+bill-range scanning is forbidden. The complete exported capability graph is
+runtime-frozen, including nested entries and arrays. Contract 1.1 selects
+`GetLegislationByYear` as a disabled, year-keyed synthetic query candidate only.
+It accepts a formal integer year without coercing a biennium, reuses the strict
+`LegislationInfo` field projection, and fails above 2,048 items under the
+existing global XML/transport budgets. Its fixture and manifest are separate
+from the one-bill bundle. The parser preserves order and duplicates and has no
+request-year echo from which to infer a returned biennium. Independently of
+request identity, any present returned biennium must be canonical odd-year
+`YYYY-YY` in the reviewed range and every returned bill number must remain
+within 1 through 999,999. No code calls the operation live: the generic network
+boundary rejects synthetic and reviewed candidate years before resolving or
+calling `fetch`. A separate fixed-input command and review are required to open
+that exact operation. No eventual success could by itself prove annual
+completeness, server non-truncation, uniqueness, prefile coverage, historical
+range, deletions, or a unified change
+feed.
 
 The Washington LWS parser accepts response bytes only after an outer byte
 ceiling, then applies strict UTF-8, XML 1.0, namespace, depth, node, attribute,

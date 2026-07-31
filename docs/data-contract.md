@@ -53,19 +53,39 @@ format budgets fail closed before nested projections can grow without bound.
 Washington Legislative Web Services remains disabled with `adapter: null`.
 Its repository contract now validates exact SOAP 1.1 requests and bounded,
 namespace-aware XML responses for six known-bill operations using impossible
-synthetic fixtures. The typed projection preserves bill/version, status,
-sponsor, committee, document-link, and session-law evidence while excluding
-contact fields and reviewed free text. It fails closed on unknown or duplicate
-structural fields, unbounded collections, unsafe document URLs, and explicit
-request/response identity-echo disagreement. It preserves repeated operation
-items plus successful missing/empty results because live uniqueness and sparse
-result semantics are not yet known. Repository fixture bytes are bound by
-filename, operation, role, and SHA-256; that reviewed fixture inventory is not
-provider provenance. The projection is explicitly `general_jurisdiction`, has
-no Nation evidence or official subject labels, and remains `Unclassified`.
+synthetic fixtures. Contract 1.1 separately adds the formally typed
+`GetLegislationByYear(year: xsd:int) -> LegislationInfo[]` surface as a disabled
+enumeration candidate with its own digest-bound impossible-year fixture and a
+2,048-item repository ceiling. The typed projection preserves bill/version,
+status, sponsor, committee, document-link, and session-law evidence while
+excluding contact fields and reviewed free text. It fails closed on unknown or
+duplicate structural fields, unbounded collections, unsafe document URLs, and
+explicit request/response identity-echo disagreement. It preserves repeated
+operation items plus successful missing/empty results because live uniqueness
+and sparse result semantics are not yet known. Repository fixture bytes are
+bound by filename, operation, role, and SHA-256; that reviewed fixture
+inventory is not provider provenance. The projection is explicitly
+`general_jurisdiction`, has no Nation evidence or official subject labels, and
+remains `Unclassified`.
 
-The repository transport for those six operations is also bounded but has not
-made a provider request. It builds the exact URL, action, headers, and body
+The refresh-capability contract proves that every one of the six known-bill
+operations requires an existing bill number, bill ID, or document-name seed.
+None discovers a bill population, and the bill-specific status window is not a
+unified mutation feed. Numeric bill-range scanning is forbidden.
+`GetLegislationByYear` is only a bounded year-keyed query candidate: no pagination,
+total, provider row cap, ordering, completeness, historical range, deletion
+signal, data-as-of time, or request-year echo is documented. The year-keyed
+query may overlap other years and is not a proven partition. The response
+boundary therefore preserves order and duplicates, does not infer a biennium
+from the request year, and cannot establish a unique or active winner. Present
+returned biennia must independently be canonical odd-year `YYYY-YY` values
+within 1799 through 3999, and returned bill numbers must be integers from 1
+through 999,999; these source-value bounds are not an identity echo.
+
+The repository network transport remains enabled only for the six known-bill
+operations. It rejects every `GetLegislationByYear` input before resolving or
+calling `fetch`; that operation currently has synthetic request/parser evidence
+only. For enabled operations it builds the exact URL, action, headers, and body
 internally; permits one credential-free, no-redirect attempt under a 30-second
 whole-operation deadline enforced by cancellation during retrieval and
 monotonic elapsed-time checks before and after bounded parsing; requires the
@@ -77,6 +97,12 @@ remainders are canceled. The returned receipt contains the canonical request,
 aggregate byte counts, and the typed sanitized projection, never provider bytes
 or raw XML. Errors contain only repository-owned categories, an optional
 numeric HTTP status, and static messages.
+
+Only the fixed known-bill `GetLegislation` observer has used the transport
+live. Its one 2026-07-31 attempt succeeded with a single present item and
+accepted reviewed identity echoes; both observed response date lexemes lacked
+a timezone. No raw XML, typed response item, provider string, exact response
+date, or public record was persisted. No yearly-enumeration request has run.
 
 The separately invoked canary observer reduces that receipt immediately to a
 plain-data snapshot, then runtime-validates an exact-key aggregate report before

@@ -9,6 +9,10 @@ const EXPECTED_TRANSPORT = {
     url: "https://wslwebservices.leg.wa.gov/legislationservice.asmx",
     soapaction: '"http://WSLWebServices.leg.wa.gov/GetLegislation"',
   },
+  GetLegislationByYear: {
+    url: "https://wslwebservices.leg.wa.gov/legislationservice.asmx",
+    soapaction: '"http://WSLWebServices.leg.wa.gov/GetLegislationByYear"',
+  },
   GetLegislativeStatusChangesByBillId: {
     url: "https://wslwebservices.leg.wa.gov/legislationservice.asmx",
     soapaction:
@@ -48,6 +52,13 @@ describe("Washington LWS SOAP request contract", () => {
         "<biennium>3785-86</biennium>",
         "<billNumber>999991</billNumber>",
       ],
+    },
+    {
+      input: {
+        operation: "GetLegislationByYear",
+        year: 3_785,
+      },
+      parameters: ["<year>3785</year>"],
     },
     {
       input: {
@@ -185,6 +196,14 @@ describe("Washington LWS SOAP request contract", () => {
       billNumber: 0,
     },
     {
+      operation: "GetLegislationByYear",
+      year: "3785-86",
+    },
+    {
+      operation: "GetLegislationByYear",
+      year: 3_785.5,
+    },
+    {
       operation: "GetSponsors",
       biennium: "3785-86",
       billId: " SYNTHETIC",
@@ -273,6 +292,31 @@ describe("Washington LWS SOAP request contract", () => {
         endDate: "3785-02-01T00:00:00.001Z",
       }),
     ).toThrowError(/reversed or exceeds 31 days/);
+  });
+
+  it("pins structural year bounds without coercing a biennium", () => {
+    for (const year of [1_799, 3_999]) {
+      const request = buildWashingtonLwsSoapRequest({
+        operation: "GetLegislationByYear",
+        year,
+      });
+      expect(request.body).toContain(`<year>${year}</year>`);
+    }
+    for (const year of [1_798, 4_000]) {
+      expect(() =>
+        buildWashingtonLwsSoapRequest({
+          operation: "GetLegislationByYear",
+          year,
+        }),
+      ).toThrowError(/bounded four-digit legislative year/);
+    }
+    expect(() =>
+      buildWashingtonLwsSoapRequest({
+        operation: "GetLegislationByYear",
+        year: 3_785,
+        biennium: "3785-86",
+      }),
+    ).toThrowError(/outside the reviewed operation/);
   });
 
   it("rejects unreviewed operations, extra fields, and non-plain inputs", () => {

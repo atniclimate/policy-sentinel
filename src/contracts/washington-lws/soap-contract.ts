@@ -119,6 +119,7 @@ export interface WashingtonLwsSessionLaw {
 
 export interface WashingtonLwsOperationResultMap {
   GetLegislation: WashingtonLwsLegislation[];
+  GetLegislationByYear: WashingtonLwsLegislationInfo[];
   GetLegislativeStatusChangesByBillId: WashingtonLwsStatus[];
   GetSponsors: WashingtonLwsSponsor[];
   GetCommitteeReferralsByBill: WashingtonLwsCommitteeReferral[];
@@ -316,6 +317,51 @@ function positiveInt(element: WashingtonLwsXmlElement, path: string): number {
   return parsed;
 }
 
+function canonicalBiennium(
+  element: WashingtonLwsXmlElement,
+  path: string,
+): string {
+  const value = sourceIdentifier(element, path);
+  const match = /^(\d{4})-(\d{2})$/.exec(value);
+  if (match === null) {
+    failWashingtonLwsContract(
+      "invalid_value",
+      path,
+      "expected a canonical source biennium",
+    );
+  }
+  const start = Number(match[1]);
+  const endSuffix = Number(match[2]);
+  if (
+    start < 1799 ||
+    start > 3999 ||
+    start % 2 !== 1 ||
+    (start + 1) % 100 !== endSuffix
+  ) {
+    failWashingtonLwsContract(
+      "invalid_value",
+      path,
+      "expected an odd-year two-year source biennium",
+    );
+  }
+  return value;
+}
+
+function boundedBillNumber(
+  element: WashingtonLwsXmlElement,
+  path: string,
+): number {
+  const parsed = positiveInt(element, path);
+  if (parsed > 999_999) {
+    failWashingtonLwsContract(
+      "invalid_value",
+      path,
+      "source bill number exceeds the reviewed bound",
+    );
+  }
+  return parsed;
+}
+
 function xsdBoolean(element: WashingtonLwsXmlElement, path: string): boolean {
   const lexical = scalarText(element, path, 5);
   if (lexical === "true" || lexical === "1") {
@@ -423,9 +469,9 @@ function field<T>(
 }
 
 const LEGISLATION_INFO_FIELDS = [
-  field("Biennium", sourceIdentifier, true),
+  field("Biennium", canonicalBiennium, true),
   field("BillId", sourceIdentifier, true),
-  field("BillNumber", positiveInt),
+  field("BillNumber", boundedBillNumber),
   field("SubstituteVersion", nonnegativeInt),
   field("EngrossedVersion", nonnegativeInt),
   field("ShortLegislationType", parseLegislationType, true),
@@ -834,6 +880,12 @@ function parseOperationResult<O extends WashingtonLwsOperation>(
         operation,
         parseLegislation,
       ) as WashingtonLwsOperationResultMap[O];
+    case "GetLegislationByYear":
+      return parseArrayResult(
+        result,
+        operation,
+        parseLegislationInfo,
+      ) as WashingtonLwsOperationResultMap[O];
     case "GetLegislativeStatusChangesByBillId":
       return parseArrayResult(
         result,
@@ -1023,6 +1075,11 @@ function assertRequestBoundIdentity(
           mismatch(`$.response.result[${index}]`);
         }
       }
+      break;
+    case "GetLegislationByYear":
+      // The formal request is an integer year, while the help prose describes a
+      // biennium. The response exposes no reviewed request-year echo, so no
+      // inferred year/biennium identity check is allowed at this boundary.
       break;
     case "GetLegislativeStatusChangesByBillId":
       for (const [index, status] of (

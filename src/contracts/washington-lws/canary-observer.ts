@@ -16,20 +16,20 @@ import {
 } from "./transport";
 
 export const WASHINGTON_LWS_CANARY_REPORT_VERSION = "1.0.0" as const;
-export const WASHINGTON_LWS_CANARY_SCENARIOS = [
+export const WASHINGTON_LWS_CANARY_SCENARIOS = Object.freeze([
   "known_bill_legislation_v1",
-] as const;
+] as const);
 
 export type WashingtonLwsCanaryScenario =
   (typeof WASHINGTON_LWS_CANARY_SCENARIOS)[number];
 
-export const WASHINGTON_LWS_CANARY_POLICY = {
+export const WASHINGTON_LWS_CANARY_POLICY = Object.freeze({
   requestCount: 1,
   maximumRequestAttempts: 1,
   retryCount: 0,
   operation: "GetLegislation",
   outputLines: 1,
-} as const;
+} as const);
 
 const KNOWN_BILL_LEGISLATION_REQUEST = {
   operation: "GetLegislation",

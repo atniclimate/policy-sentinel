@@ -8,6 +8,7 @@ import { WASHINGTON_LWS_XML_POLICY } from "../../../src/contracts/washington-lws
 import type { WashingtonLwsRequestInput } from "../../../src/contracts/washington-lws/request-contract";
 import {
   fetchWashingtonLwsSoapExchange,
+  WASHINGTON_LWS_TRANSPORT_ERROR_CODES,
   WASHINGTON_LWS_TRANSPORT_POLICY,
   type WashingtonLwsFetchLike,
 } from "../../../src/contracts/washington-lws/transport";
@@ -98,6 +99,29 @@ afterEach(() => {
 });
 
 describe("Washington LWS bounded SOAP transport", () => {
+  it("runtime-freezes the transport policy and sanitized error-code allowlist", () => {
+    expect(Object.isFrozen(WASHINGTON_LWS_TRANSPORT_POLICY)).toBe(true);
+    expect(Object.isFrozen(WASHINGTON_LWS_TRANSPORT_ERROR_CODES)).toBe(true);
+
+    const transportPolicy = WASHINGTON_LWS_TRANSPORT_POLICY as unknown as {
+      requestTimeoutMilliseconds: number;
+      maximumResponseChunks: number;
+      responseMediaType: string;
+    };
+    expect(() =>
+      Object.assign(transportPolicy, {
+        requestTimeoutMilliseconds: Number.MAX_SAFE_INTEGER,
+        maximumResponseChunks: Number.MAX_SAFE_INTEGER,
+        responseMediaType: "*/*",
+      }),
+    ).toThrow(TypeError);
+    expect(transportPolicy).toMatchObject({
+      requestTimeoutMilliseconds: 30_000,
+      maximumResponseChunks: 4_096,
+      responseMediaType: "text/xml",
+    });
+  });
+
   it("sends the canonical keyless request and returns only a typed bounded receipt", async () => {
     const responseBytes = fixture("get-legislation.valid.xml");
     let capturedInput: RequestInfo | URL | undefined;
@@ -244,6 +268,52 @@ describe("Washington LWS bounded SOAP transport", () => {
       });
     },
   );
+
+  it.each([3_785, 2_025, 2_026])(
+    "keeps yearly enumeration disabled before fetch for year %s",
+    async (year) => {
+      const fetchImpl = vi.fn<WashingtonLwsFetchLike>(async () =>
+        soapResponse(fixture("get-legislation-by-year.valid.xml")),
+      );
+
+      await expect(
+        fetchWashingtonLwsSoapExchange(
+          {
+            operation: "GetLegislationByYear",
+            year,
+          },
+          { fetchImpl },
+        ),
+      ).rejects.toThrowError(
+        /not enabled for Washington LWS network transport/,
+      );
+      expect(fetchImpl).not.toHaveBeenCalled();
+    },
+  );
+
+  it("does not resolve network dependencies for disabled yearly enumeration", async () => {
+    let fetchDependencyReads = 0;
+    const dependencies: {
+      fetchImpl?: WashingtonLwsFetchLike;
+    } = {};
+    Object.defineProperty(dependencies, "fetchImpl", {
+      get() {
+        fetchDependencyReads += 1;
+        throw new Error("PROHIBITED-DISABLED-FETCH-DEPENDENCY");
+      },
+    });
+
+    await expect(
+      fetchWashingtonLwsSoapExchange(
+        {
+          operation: "GetLegislationByYear",
+          year: 2_025,
+        },
+        dependencies,
+      ),
+    ).rejects.toThrowError(/not enabled for Washington LWS network transport/);
+    expect(fetchDependencyReads).toBe(0);
+  });
 
   it("takes an immutable validated request snapshot before awaiting fetch", async () => {
     const mutableRequest: WashingtonLwsRequestInput = {

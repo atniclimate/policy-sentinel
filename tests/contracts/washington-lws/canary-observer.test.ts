@@ -12,6 +12,7 @@ import {
   runWashingtonLwsCanaryCommand,
   serializeWashingtonLwsCanaryReport,
   WASHINGTON_LWS_CANARY_POLICY,
+  WASHINGTON_LWS_CANARY_SCENARIOS,
   type WashingtonLwsCanaryCommandIo,
   type WashingtonLwsCanaryDependencies,
   type WashingtonLwsCanaryReport,
@@ -144,6 +145,26 @@ function recursivelyCollectedKeys(value: unknown): string[] {
 }
 
 describe("Washington LWS aggregate-only canary observer", () => {
+  it("runtime-freezes the scenario and evidence policy allowlists", () => {
+    expect(Object.isFrozen(WASHINGTON_LWS_CANARY_SCENARIOS)).toBe(true);
+    expect(Object.isFrozen(WASHINGTON_LWS_CANARY_POLICY)).toBe(true);
+
+    const canaryPolicy = WASHINGTON_LWS_CANARY_POLICY as unknown as {
+      operation: string;
+      maximumRequestAttempts: number;
+    };
+    expect(() =>
+      Object.assign(canaryPolicy, {
+        operation: "GetLegislationByYear",
+        maximumRequestAttempts: Number.MAX_SAFE_INTEGER,
+      }),
+    ).toThrow(TypeError);
+    expect(canaryPolicy).toMatchObject({
+      operation: "GetLegislation",
+      maximumRequestAttempts: 1,
+    });
+  });
+
   it("runs the one fixed known-bill scenario through transport and returns only aggregates", async () => {
     let capturedInput: RequestInfo | URL | undefined;
     let capturedInit: RequestInit | undefined;

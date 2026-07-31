@@ -72,7 +72,7 @@ describe("Washington LWS digest-bound reviewed synthetic fixture bundle", () => 
 
     expect(bundle).toMatchObject({
       fixtureNotice: "Synthetic contract data; not a Washington LWS response.",
-      contractVersion: "1.0.0",
+      contractVersion: "1.1.0",
       sourceId: "washington-lws",
       providerEnvelope: false,
       identityBehavior: "synthetic_fixture_only_provider_behavior_unverified",

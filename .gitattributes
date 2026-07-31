@@ -1,0 +1,2 @@
+# Digest-bound synthetic Washington LWS XML must retain canonical LF bytes.
+fixtures/sources/washington-lws/*.xml text eol=lf

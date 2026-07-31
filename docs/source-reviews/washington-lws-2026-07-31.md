@@ -1,21 +1,23 @@
 # Washington Legislative Web Services contract review
 
 Status: current primary-source research and repository-owned synthetic
-known-bill contract complete; source remains disabled with `adapter: null` and
-no provider response or public record
+known-bill and year-enumeration-candidate contracts complete; source remains
+disabled with `adapter: null`; one known-bill exchange was reduced to aggregate
+evidence and no provider content or public record was persisted
 
 Access date: 2026-07-31
 
 ## Decision
 
 Washington Legislative Web Services (LWS) is a public, no-registration
-SOAP/XML interface. A repository-owned contract now covers a bounded six-
-operation known-bill slice, but it is not yet a complete local build-time
-adapter: live response behavior, complete refresh discovery, normalization,
-provenance, health, and last-known-good behavior remain unresolved. The
-official material does not require an account or key and does not identify an
-access-triggered terms action. No credential or terms-acceptance gate is
-therefore opened by this review.
+SOAP/XML interface. A repository-owned contract now covers a bounded
+six-operation known-bill slice and one disabled synthetic year-enumeration
+candidate, but it is not yet a complete local build-time adapter: broader live
+response behavior, complete refresh discovery, normalization, provenance,
+health, and last-known-good behavior remain unresolved. The official material
+does not require an account or key and does not identify an access-triggered
+terms action. No credential or terms-acceptance gate is therefore opened by
+this review.
 
 That technical viability is narrower than the prior Phase A claim:
 
@@ -268,8 +270,8 @@ contain zero or more nillable items with no maximum. This is formal schema
 metadata, not proof of live omission, null, default-value, empty-array,
 ordering, uniqueness, or maximum behavior.
 
-The following extracted sequence is the durable repository evidence for the
-six-operation contract. `?` means WSDL `minOccurs=0`; unmarked fields have
+The following extracted sequence is the durable repository evidence for
+contract version 1.1. `?` means WSDL `minOccurs=0`; unmarked fields have
 `minOccurs=1`. `[]?` means an optional array wrapper whose items are
 `0..unbounded` and nillable. Field order below is schema order, not a proposed
 display order.
@@ -294,6 +296,7 @@ constants:
 | Operation | HTTPS service path | Request sequence | Result |
 | --- | --- | --- | --- |
 | `GetLegislation` | `/legislationservice.asmx` | `biennium: string`; `billNumber: int` | optional `ArrayOfLegislation` |
+| `GetLegislationByYear` | `/legislationservice.asmx` | `year: int` | optional `ArrayOfLegislationInfo` |
 | `GetLegislativeStatusChangesByBillId` | `/legislationservice.asmx` | `biennium: string`; `billId: string`; `beginDate: dateTime`; `endDate: dateTime` | optional `ArrayOfLegislativeStatus` |
 | `GetSponsors` | `/legislationservice.asmx` | `biennium: string`; `billId: string` | optional `ArrayOfSponsor` |
 | `GetCommitteeReferralsByBill` | `/committeeactionservice.asmx` | `biennium: string`; `billNumber: int` | optional `ArrayOfCommitteeReferral` |
@@ -479,8 +482,8 @@ The researched source registry entry remains disabled with `adapter: null`.
 No public artifact record, coverage row, or source-health row is emitted for a
 disabled source.
 
-Contract version 1.0 selects SOAP 1.1 over HTTPS and covers exactly six
-known-bill operations:
+Contract version 1.1 selects SOAP 1.1 over HTTPS, retains exactly six known-bill
+operations:
 
 - `GetLegislation`;
 - `GetLegislativeStatusChangesByBillId`;
@@ -489,21 +492,38 @@ known-bill operations:
 - `GetDocuments`; and
 - `GetSessionLawByBillId`.
 
+It adds `GetLegislationByYear` only as a disabled population-enumeration
+candidate. The official
+[`GetLegislationByYear` operation page](https://wslwebservices.leg.wa.gov/legislationservice.asmx?op=GetLegislationByYear),
+reviewed 2026-07-31, describes summary information for all bills active during
+a year and separate substitute versions. Its formal SOAP member is
+`year: xsd:int`, while its help prose incorrectly says a `2005-06` biennium.
+The wire type wins: the contract accepts only a bounded integer and never
+coerces a biennium string.
+
 The request contract uses an exact endpoint and SOAP-action allowlist, exact
 operation parameters, canonical biennia, bounded identifiers, and a maximum
-31-day normalized-UTC status window. Decision D-025 records the explicit
-build-time `saxes@6.0.0` dependency. XML bytes are bounded before strict UTF-8
-decoding and namespace-aware event parsing. The parser rejects XML 1.1, DTDs,
-non-predefined entity declarations, processing instructions, comments, CDATA,
+31-day normalized-UTC status window. Its low-level year validator accepts only
+integers from 1799 through 3999 so impossible synthetic input remains possible;
+the separate refresh capability records only 2025 and 2026 as reviewed initial
+canary candidates and does not claim that either is supported. No live
+enumeration entry point exists. The operation-descriptor allowlist is frozen at
+both levels at runtime, and the flat XML limit policy is runtime-frozen, so an
+importing consumer cannot mutate endpoint paths, wrapper names, item caps, or
+parser budgets. Decision D-025 records the explicit build-time `saxes@6.0.0`
+dependency. XML bytes are bounded before strict UTF-8 decoding and
+namespace-aware event parsing. The parser rejects XML 1.1, DTDs, non-predefined
+entity declarations, processing instructions, comments, CDATA,
 XInclude/unknown namespaces, SOAP 1.2, SOAP headers, unexpected
 elements/attributes, mixed content, partial documents, and responses above
 versioned byte, depth, node, attribute, scalar, aggregate-text, collection, and
 URL limits.
 
 The response contract enforces the reviewed WSDL sequence and requiredness for
-the six operations, distinguishes missing, empty, present, and sanitized fault
-results, and retains typed bill/version, status, sponsor, committee, document,
-session-law, effective-date, and veto evidence. It discards sponsor and
+all seven operations, distinguishes missing, empty, present, and sanitized
+fault results, and retains typed bill/version, year-enumeration identity,
+status, sponsor, committee, document, session-law, effective-date, and veto
+evidence. It discards sponsor and
 committee contact fields plus reviewed free-text fields from the returned
 projection, rejects unknown or duplicate structural fields and
 `xsi:nil="true"` resources, and accepts `xsi:nil="false"` as non-nil. Every
@@ -526,13 +546,71 @@ requires those exact seven repository resources, marks provider identity
 behavior unverified, labels its inventory as fixture inventory rather than
 provenance, and fixes governance at `general_jurisdiction`, empty Nation
 evidence, no official subjects or taxonomy memberships, and `Unclassified`.
+Repository attributes pin every Washington fixture XML file to LF bytes so
+Windows checkout conversion cannot silently invalidate the reviewed digests.
 The bundle is a test loader for exact repository fixtures, not an aggregate
 production rule: the lower response contract separately preserves legitimate
 missing or empty results.
 
-This checkpoint made no LWS bill/data request and retained no provider
-response. The repository now also has a pre-canary transport for the six
-contract operations. It constructs the exact reviewed request internally,
+The versioned refresh-capability matrix records why those six operations cannot
+discover a population or form a unified mutation feed. Its complete exported
+graph is runtime-frozen, including point-operation entries and seed arrays, the
+selected candidate, formal request entries, and reviewed canary years:
+
+| Known-bill operation | Required prior seed | Bounded scope |
+| --- | --- | --- |
+| `GetLegislation` | biennium and bill number | one known-bill snapshot |
+| `GetLegislativeStatusChangesByBillId` | biennium, bill ID, and date window | status history for one known bill only |
+| `GetSponsors` | biennium and bill ID | sponsors for one known bill only |
+| `GetCommitteeReferralsByBill` | biennium and bill number | referrals for one known bill only |
+| `GetDocuments` | biennium and exact document-name input | one known document-name lookup only |
+| `GetSessionLawByBillId` | biennium and bill ID | session-law lookup for one known bill only |
+
+Each has `populationDiscovery: none`. Numeric bill-range probing is forbidden,
+and bill-specific status windows are not a complete change inventory.
+`GetLegislationInfoIntroducedSince` is not a terminal alternative: its sole
+`sinceDate` input has no end bound or biennium partition, its returned
+`LegislationInfo` has no introduced date with which to reconcile cutoff
+membership, and it cannot discover later status, document, committee,
+amendment, vote, session-law, correction, deletion, or disappearance changes.
+
+The year-enumeration fixture is deliberately separate from that one-bill
+bundle. It uses impossible year `3785`, four synthetic `LegislationInfo` rows,
+sparse optionals, two versions sharing a bill number, and one exact repeated
+row. Its separate manifest binds the one XML resource by SHA-256 and fixes
+population completeness as not established, historical completeness as not
+documented, no unified mutation feed, forbidden numeric bill scanning,
+`general_jurisdiction`, empty Nation/subject/mapping evidence, and
+`Unclassified`. The parser preserves its order and exact duplicate and rejects
+nil items, malformed or unknown structure, missing required fields, and a
+2,049th item rather than truncating the 2,048-item repository budget. Any
+present returned biennium must independently be canonical odd-year `YYYY-YY`
+within 1799 through 3999, and every returned bill number must remain within 1
+through 999,999.
+
+That selection is a bounded, restartable year-keyed query candidate, not a
+partition or completeness decision. LWS documents no pagination, total, row
+cap, terminal marker, response data-as-of value, deletion signal, ordering,
+uniqueness, cross-year overlap behavior, prefile coverage, or request-year echo.
+The contract therefore does not infer a returned biennium from the integer
+request year; the independent biennium and bill-number source-value bounds are
+not an identity echo. It also does not deduplicate rows, select an active
+winner, treat `Active` as legal status, or use legislation type, original
+agency, display number, or version flags for taxonomy, Nation evidence, legal
+effect, eligibility, or jurisdiction. A future one-request aggregate canary
+may establish only that one fixed year response fits the current
+byte/item/schema boundaries; it cannot establish annual or biennial
+exhaustiveness.
+
+The repository network transport remains enabled only for the six known-bill
+operations. `GetLegislationByYear` request serialization and response parsing
+are synthetic-only: a module-private exhaustive default-deny decision rejects
+years 3785, 2025, and 2026 before resolving or calling `fetch`. Only the fixed
+known-bill observer has used the transport live; no `GetLegislationByYear`
+request or provider result has been made or retained. The transport constructs
+each enabled reviewed request internally. Its policy and sanitized error-code
+allowlist are runtime-frozen, preventing changes to its accepted media type,
+user agent, chunk ceiling, deadline, attempt count, or error vocabulary. It
 makes one credential-free attempt, refuses automatic redirects and a changed
 or empty final URL, requires HTTP 200, accepts only `text/xml` with no charset
 or UTF-8 and either no `Content-Encoding` or `identity`, and applies a single
@@ -562,8 +640,9 @@ The command requires the exact
 `--execute --scenario known_bill_legislation_v1` arguments, authorizes at most
 one sequential request attempt with no retry, and accepts no dynamic bill,
 biennium, date, URL, header, output, environment, logger, or persistence value.
-The scenario executor is module-private, omitted from the general Washington
-contract barrel, and callable only after that exact command path succeeds. Its
+The scenario and evidence-policy allowlists are runtime-frozen. The scenario
+executor is module-private, omitted from the general Washington contract barrel,
+and callable only after that exact command path succeeds. Its
 report records execution authorization separately from the actual zero-or-one
 request count. The launcher disables `.env` loading. The report is cloned to a
 plain-data snapshot before exact-key runtime validation and serialization and

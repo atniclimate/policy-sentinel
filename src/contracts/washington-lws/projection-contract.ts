@@ -4,7 +4,7 @@ import {
   WASHINGTON_LWS_CONTRACT_VERSION,
   WASHINGTON_LWS_SOURCE_ID,
   WASHINGTON_LWS_SYNTHETIC_NOTICE,
-  type WashingtonLwsOperation,
+  type WashingtonLwsKnownBillOperation,
 } from "./constants";
 import { failWashingtonLwsContract } from "./errors";
 import { type WashingtonLwsRequestInput } from "./request-contract";
@@ -106,7 +106,7 @@ const REVIEWED_SYNTHETIC_MANIFEST = {
 
 export interface WashingtonLwsSyntheticFixtureResource {
   role: "operation_response" | "fault_response";
-  operation: WashingtonLwsOperation;
+  operation: WashingtonLwsKnownBillOperation;
   file: string;
   sha256: string;
 }
@@ -168,7 +168,7 @@ export interface WashingtonLwsSyntheticBillBundle {
   };
   reviewedFixtureInventory: Array<{
     role: "operation_response" | "fault_response";
-    operation: WashingtonLwsOperation;
+    operation: WashingtonLwsKnownBillOperation;
     file: string;
     sha256: string;
     outcome: "present" | "fault";
@@ -310,7 +310,7 @@ function verifyFixtureResources(
 }
 
 function syntheticRequest(
-  operation: WashingtonLwsOperation,
+  operation: WashingtonLwsKnownBillOperation,
   manifest: WashingtonLwsSyntheticFixtureManifest,
 ): WashingtonLwsRequestInput {
   const { activeBillId, biennium, billNumber } = manifest.syntheticIdentity;
@@ -336,7 +336,7 @@ function syntheticRequest(
 }
 
 function operationResource(
-  operation: WashingtonLwsOperation,
+  operation: WashingtonLwsKnownBillOperation,
   manifest: WashingtonLwsSyntheticFixtureManifest,
 ): WashingtonLwsSyntheticFixtureResource {
   const resource = manifest.resources.find(
@@ -354,7 +354,7 @@ function operationResource(
   return resource;
 }
 
-function successfulFixtureResponse<O extends WashingtonLwsOperation>(
+function successfulFixtureResponse<O extends WashingtonLwsKnownBillOperation>(
   operation: O,
   manifest: WashingtonLwsSyntheticFixtureManifest,
   fixtureBytes: WashingtonLwsSyntheticFixtureBytes,

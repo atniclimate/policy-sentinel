@@ -2,6 +2,7 @@ import {
   WASHINGTON_LWS_XML_POLICY,
   type WashingtonLwsOperation,
 } from "./constants";
+import { failWashingtonLwsContract } from "./errors";
 import {
   buildWashingtonLwsSoapRequest,
   type WashingtonLwsRequestInput,
@@ -22,7 +23,28 @@ export interface WashingtonLwsTransportDependencies {
   now?: () => number;
 }
 
-export const WASHINGTON_LWS_TRANSPORT_ERROR_CODES = [
+function assertNetworkTransportEnabled(
+  operation: WashingtonLwsOperation,
+): void {
+  switch (operation) {
+    case "GetLegislation":
+    case "GetLegislativeStatusChangesByBillId":
+    case "GetSponsors":
+    case "GetCommitteeReferralsByBill":
+    case "GetDocuments":
+    case "GetSessionLawByBillId":
+      return;
+    case "GetLegislationByYear":
+      return failWashingtonLwsContract(
+        "unsupported_operation",
+        "$request.operation",
+        "operation is not enabled for Washington LWS network transport",
+      );
+  }
+  operation satisfies never;
+}
+
+export const WASHINGTON_LWS_TRANSPORT_ERROR_CODES = Object.freeze([
   "redirect",
   "http_status",
   "timeout",
@@ -34,7 +56,7 @@ export const WASHINGTON_LWS_TRANSPORT_ERROR_CODES = [
   "response_too_large",
   "missing_body",
   "invalid_soap",
-] as const;
+] as const);
 
 export type WashingtonLwsTransportErrorCode =
   (typeof WASHINGTON_LWS_TRANSPORT_ERROR_CODES)[number];
@@ -66,13 +88,13 @@ export interface WashingtonLwsTransportReceipt<
   soap: WashingtonLwsSoapResponse<O>;
 }
 
-export const WASHINGTON_LWS_TRANSPORT_POLICY = {
+export const WASHINGTON_LWS_TRANSPORT_POLICY = Object.freeze({
   requestTimeoutMilliseconds: 30_000,
   responseMediaType: "text/xml",
   userAgent: "Policy-Sentinel/0.2 build-time source adapter",
   attempts: 1,
   maximumResponseChunks: 4_096,
-} as const;
+} as const);
 
 interface BoundedBody {
   bytes: Uint8Array;
@@ -464,6 +486,7 @@ export async function fetchWashingtonLwsSoapExchange<
     { operation: O }
   >;
   const request = buildWashingtonLwsSoapRequest(immutableRequestInput);
+  assertNetworkTransportEnabled(request.operation);
   const fetchImpl = dependencies.fetchImpl ?? globalThis.fetch;
   const now = dependencies.now ?? (() => globalThis.performance.now());
   const startedAtMilliseconds = now();

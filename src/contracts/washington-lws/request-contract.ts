@@ -17,6 +17,10 @@ export type WashingtonLwsRequestInput =
       billNumber: number;
     }
   | {
+      operation: "GetLegislationByYear";
+      year: number;
+    }
+  | {
       operation: "GetLegislativeStatusChangesByBillId";
       biennium: string;
       billId: string;
@@ -61,6 +65,7 @@ type PlainObject = Record<string, unknown>;
 
 const REQUEST_KEYS: Record<WashingtonLwsOperation, readonly string[]> = {
   GetLegislation: ["operation", "biennium", "billNumber"],
+  GetLegislationByYear: ["operation", "year"],
   GetLegislativeStatusChangesByBillId: [
     "operation",
     "biennium",
@@ -179,6 +184,22 @@ function billNumber(value: unknown): number {
   return value;
 }
 
+function legislativeYear(value: unknown): number {
+  if (
+    typeof value !== "number" ||
+    !Number.isSafeInteger(value) ||
+    value < 1_799 ||
+    value > 3_999
+  ) {
+    failWashingtonLwsContract(
+      "invalid_value",
+      "$request.year",
+      "expected a bounded four-digit legislative year",
+    );
+  }
+  return value;
+}
+
 function boundedSourceIdentifier(
   value: unknown,
   path: "$request.billId" | "$request.namedLike",
@@ -236,14 +257,15 @@ function requestParameters(
   source: PlainObject,
   selectedOperation: WashingtonLwsOperation,
 ): Array<readonly [string, string]> {
-  const selectedBiennium = biennium(source.biennium);
   switch (selectedOperation) {
     case "GetLegislation":
     case "GetCommitteeReferralsByBill":
       return [
-        ["biennium", selectedBiennium],
+        ["biennium", biennium(source.biennium)],
         ["billNumber", String(billNumber(source.billNumber))],
       ];
+    case "GetLegislationByYear":
+      return [["year", String(legislativeYear(source.year))]];
     case "GetLegislativeStatusChangesByBillId": {
       const beginDate = normalizedUtcDateTime(
         source.beginDate,
@@ -267,7 +289,7 @@ function requestParameters(
         );
       }
       return [
-        ["biennium", selectedBiennium],
+        ["biennium", biennium(source.biennium)],
         ["billId", boundedSourceIdentifier(source.billId, "$request.billId")],
         ["beginDate", beginDate],
         ["endDate", endDate],
@@ -276,12 +298,12 @@ function requestParameters(
     case "GetSponsors":
     case "GetSessionLawByBillId":
       return [
-        ["biennium", selectedBiennium],
+        ["biennium", biennium(source.biennium)],
         ["billId", boundedSourceIdentifier(source.billId, "$request.billId")],
       ];
     case "GetDocuments":
       return [
-        ["biennium", selectedBiennium],
+        ["biennium", biennium(source.biennium)],
         [
           "namedLike",
           boundedSourceIdentifier(source.namedLike, "$request.namedLike"),

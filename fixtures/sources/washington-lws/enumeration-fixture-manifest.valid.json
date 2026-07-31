@@ -1,0 +1,22 @@
+{
+  "fixtureNotice": "Synthetic contract data; not a Washington LWS response.",
+  "contractVersion": "1.1.0",
+  "refreshCapabilityVersion": "1.0.0",
+  "sourceId": "washington-lws",
+  "providerEnvelope": false,
+  "operation": "GetLegislationByYear",
+  "syntheticYear": 3785,
+  "populationCompleteness": "not_established",
+  "historicalCompleteness": "not_documented",
+  "unifiedMutationFeed": false,
+  "numericBillRangeScanning": "forbidden",
+  "jurisdiction": "general_jurisdiction",
+  "classification": "Unclassified",
+  "nationEvidence": [],
+  "officialSubjects": [],
+  "taxonomyMemberships": [],
+  "resource": {
+    "file": "get-legislation-by-year.valid.xml",
+    "sha256": "7078cd03a45cd5dfaf19e8da9531f110b4e5bc1f1b687dfa8ab798afdb1e79fe"
+  }
+}
