@@ -1,0 +1,60 @@
+{
+  "contractVersion": "1.0.0",
+  "fixtureNotice": "Synthetic contract data; not a Regulations.gov response.",
+  "kind": "repository_owned_resource_bundle",
+  "sourceId": "regulations-gov",
+  "providerEnvelope": false,
+  "agencyId": "SYNTHETIC-AGENCY-INVALID",
+  "docket": {
+    "stableId": "regulations-gov:docket:SYNTHETIC-DOCKET-INVALID-0004",
+    "docketId": "SYNTHETIC-DOCKET-INVALID-0004",
+    "agencyId": "SYNTHETIC-AGENCY-INVALID",
+    "docketType": "Rulemaking",
+    "title": "Synthetic malformed docket",
+    "lastModifiedDate": "3785-08-01T10:00:00Z",
+    "detailUrl": "https://www.regulations.gov/docket/SYNTHETIC-DOCKET-INVALID-0004",
+    "documentIds": ["SYNTHETIC-DOCUMENT-INVALID-0007"],
+    "governance": {
+      "jurisdiction": "general_jurisdiction",
+      "classification": "Unclassified",
+      "nationEvidence": []
+    },
+    "historicalCompleteness": "not_documented"
+  },
+  "documents": [
+    {
+      "stableId": "regulations-gov:document:SYNTHETIC-DOCUMENT-INVALID-0007",
+      "documentId": "SYNTHETIC-DOCUMENT-INVALID-0007",
+      "docketId": "SYNTHETIC-DOCKET-INVALID-0004",
+      "agencyId": "SYNTHETIC-AGENCY-INVALID",
+      "documentType": "Notice",
+      "subtype": "Synthetic malformed subtype",
+      "eligibility": "eligible",
+      "title": "Synthetic malformed notice",
+      "commentText": "Synthetic forbidden comment body",
+      "lastModifiedDate": "3785-08-01T10:00:00Z",
+      "postedDate": "3785-07-31T10:00:00Z",
+      "commentStartDate": null,
+      "commentEndDate": null,
+      "effectiveDate": null,
+      "implementationDate": null,
+      "authorDate": null,
+      "postmarkDate": null,
+      "receiveDate": null,
+      "sourceStatus": {
+        "openForComment": false,
+        "allowLateComments": false,
+        "withdrawn": false
+      },
+      "detailUrl": "https://www.regulations.gov/document/SYNTHETIC-DOCUMENT-INVALID-0007",
+      "attachmentIds": [],
+      "attachments": [],
+      "governance": {
+        "jurisdiction": "general_jurisdiction",
+        "classification": "Unclassified",
+        "nationEvidence": []
+      },
+      "historicalCompleteness": "not_documented"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "$schema": "../schemas/source.schema.v1.json",
   "schemaVersion": "1.1.0",
-  "registryVersion": "1.5.0",
+  "registryVersion": "1.6.0",
   "generatedDataPolicy": "artifact-only",
   "sources": [
     {
@@ -269,6 +269,49 @@
       "publication": {
         "attribution": "U.S. Government Publishing Office (GovInfo) and the originating department or agency",
         "termsUrl": "https://www.govinfo.gov/about/policies",
+        "reproduction": "metadata_and_links",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/status/sourceLabel",
+          "/urls/officialSource"
+        ]
+      },
+      "officialSubjectMappings": []
+    },
+    {
+      "id": "regulations-gov",
+      "name": "Regulations.gov",
+      "provider": "Federal eRulemaking Program, U.S. General Services Administration",
+      "synthetic": false,
+      "enabled": false,
+      "adapter": null,
+      "jurisdiction": {
+        "level": "federal",
+        "name": "United States",
+        "stateCode": null
+      },
+      "access": {
+        "method": "api",
+        "officialDocumentationUrl": "https://open.gsa.gov/api/regulationsgov/",
+        "accessedOn": "2026-07-31",
+        "allowedHosts": ["www.regulations.gov"],
+        "authentication": "build_secret",
+        "rateLimit": "The api.data.gov platform publishes a generic default of 1,000 requests per rolling hour, but Regulations.gov does not publish a precise GET quota and limits may vary. X-RateLimit-Limit and X-RateLimit-Remaining require later live verification; no keyed request was made.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": null,
+        "through": null,
+        "cadence": "Agency-specific and mutable as dockets, documents, dates, status, and attachments change; any approved Policy Sentinel retrieval would remain weekly and build-time only.",
+        "limitations": "No single guaranteed historical start, complete agency participation, complete field population, or comprehensive docket/document range is documented. The v4 API limits one query to 20 pages of at most 250 results, lastModifiedDate filtering is beta, public comments are excluded, a distinct GET-specific terms instrument was not established, and live response behavior remains unverified."
+      },
+      "publication": {
+        "attribution": "Regulations.gov and the originating federal agency",
+        "termsUrl": "https://www.regulations.gov/user-notice",
         "reproduction": "metadata_and_links",
         "failureMode": "last_known_good",
         "requiredProvenancePointers": [

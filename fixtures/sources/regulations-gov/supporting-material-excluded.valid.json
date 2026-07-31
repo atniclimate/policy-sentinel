@@ -1,0 +1,95 @@
+{
+  "contractVersion": "1.0.0",
+  "fixtureNotice": "Synthetic contract data; not a Regulations.gov response.",
+  "kind": "repository_owned_resource_bundle",
+  "sourceId": "regulations-gov",
+  "providerEnvelope": false,
+  "agencyId": "SYNTHETIC-AGENCY-BETA",
+  "docket": {
+    "stableId": "regulations-gov:docket:SYNTHETIC-DOCKET-NONRULE-0002",
+    "docketId": "SYNTHETIC-DOCKET-NONRULE-0002",
+    "agencyId": "SYNTHETIC-AGENCY-BETA",
+    "docketType": "Nonrulemaking",
+    "title": "Synthetic nonrulemaking docket",
+    "lastModifiedDate": null,
+    "detailUrl": "https://www.regulations.gov/docket/SYNTHETIC-DOCKET-NONRULE-0002",
+    "documentIds": [
+      "SYNTHETIC-DOCUMENT-SUPPORT-0004",
+      "SYNTHETIC-DOCUMENT-OTHER-0005"
+    ],
+    "governance": {
+      "jurisdiction": "general_jurisdiction",
+      "classification": "Unclassified",
+      "nationEvidence": []
+    },
+    "historicalCompleteness": "not_documented"
+  },
+  "documents": [
+    {
+      "stableId": "regulations-gov:document:SYNTHETIC-DOCUMENT-SUPPORT-0004",
+      "documentId": "SYNTHETIC-DOCUMENT-SUPPORT-0004",
+      "docketId": "SYNTHETIC-DOCKET-NONRULE-0002",
+      "agencyId": "SYNTHETIC-AGENCY-BETA",
+      "documentType": "Supporting & Related Material",
+      "subtype": "Synthetic supporting material subtype",
+      "eligibility": "review_required_excluded",
+      "title": "Synthetic supporting material metadata",
+      "lastModifiedDate": null,
+      "postedDate": null,
+      "commentStartDate": null,
+      "commentEndDate": null,
+      "effectiveDate": null,
+      "implementationDate": null,
+      "authorDate": null,
+      "postmarkDate": null,
+      "receiveDate": null,
+      "sourceStatus": {
+        "openForComment": false,
+        "allowLateComments": false,
+        "withdrawn": false
+      },
+      "detailUrl": "https://www.regulations.gov/document/SYNTHETIC-DOCUMENT-SUPPORT-0004",
+      "attachmentIds": [],
+      "attachments": [],
+      "governance": {
+        "jurisdiction": "general_jurisdiction",
+        "classification": "Unclassified",
+        "nationEvidence": []
+      },
+      "historicalCompleteness": "not_documented"
+    },
+    {
+      "stableId": "regulations-gov:document:SYNTHETIC-DOCUMENT-OTHER-0005",
+      "documentId": "SYNTHETIC-DOCUMENT-OTHER-0005",
+      "docketId": "SYNTHETIC-DOCKET-NONRULE-0002",
+      "agencyId": "SYNTHETIC-AGENCY-BETA",
+      "documentType": "Other",
+      "subtype": "Synthetic other document subtype",
+      "eligibility": "review_required_excluded",
+      "title": "Synthetic other document metadata",
+      "lastModifiedDate": "3785-07-01T12:00:00Z",
+      "postedDate": "3785-06-30T12:00:00Z",
+      "commentStartDate": null,
+      "commentEndDate": null,
+      "effectiveDate": null,
+      "implementationDate": null,
+      "authorDate": null,
+      "postmarkDate": null,
+      "receiveDate": null,
+      "sourceStatus": {
+        "openForComment": false,
+        "allowLateComments": false,
+        "withdrawn": true
+      },
+      "detailUrl": "https://www.regulations.gov/document/SYNTHETIC-DOCUMENT-OTHER-0005",
+      "attachmentIds": [],
+      "attachments": [],
+      "governance": {
+        "jurisdiction": "general_jurisdiction",
+        "classification": "Unclassified",
+        "nationEvidence": []
+      },
+      "historicalCompleteness": "not_documented"
+    }
+  ]
+}

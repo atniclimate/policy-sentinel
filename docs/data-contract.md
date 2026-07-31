@@ -13,7 +13,7 @@ The Phase A contracts are:
 - [`source.schema.v1.json`](../schemas/source.schema.v1.json), compatible v1
   source-registry schema version `1.1.0`;
 - [`sources.v1.json`](../config/sources.v1.json), source registry version
-  `1.5.0`; and
+  `1.6.0`; and
 - [`artifact.schema.v1.json`](../schemas/artifact.schema.v1.json), static
   artifact schema version `1.0.0`.
 
@@ -23,7 +23,7 @@ evidence that a production source is enabled or a public dataset exists.
 taxonomy, and synthetic fixtures, and proves selected invalid governance cases
 are rejected.
 
-Source-registry version `1.5.0` distinguishes researched configuration,
+Source-registry version `1.6.0` distinguishes researched configuration,
 implemented adapters, and activation. A disabled source may have
 `adapter: null` or a versioned adapter that is not authorized to emit public
 records; an enabled source must have a versioned adapter. Every non-synthetic
@@ -40,7 +40,26 @@ formal package/granule response schemas do not establish a safe live contract.
 Its local contract preserves only repository-owned synthetic projections,
 keeps GovInfo package/granule identity separate from Congress.gov identity, and
 distinguishes local transport SHA-256 verification from optional provider
-PREMIS fixity.
+PREMIS fixity. Regulations.gov is also disabled with no adapter while its key,
+live response, pagination, date-window, privacy, attachment, rate, and
+historical-completeness gates remain closed. Its local contract permits only
+repository-owned synthetic docket/document/attachment and control projections;
+public comments, submission operations, raw provider envelopes, personal or
+contact fields, and attachment bytes are structurally excluded. The mutation
+projection is explicitly limited to one synthetic document ID, treats provider
+identity behavior as unverified, and permits docket reassignment without
+inferring replacement behavior. Repository-owned aggregate attachment and
+format budgets fail closed before nested projections can grow without bound.
+
+The current normalized record and artifact schemas do not provide first-class
+docket entities, attachment collections, rate-header metadata, or a general
+mutable-field observation history. Regulations.gov docket relationships and
+attachment metadata therefore remain source-contract evidence only. They must
+not be forced into unrelated record fields or emitted publicly before a
+separate versioned schema decision. Health and last-known-good state are also
+source-level; future agency, date-window, or docket sharding must either add a
+versioned shard dimension or conservatively fail/degrade Regulations.gov as one
+source.
 
 ## Record groups
 

@@ -1,0 +1,108 @@
+{
+  "contractVersion": "1.0.0",
+  "fixtureNotice": "Synthetic contract data; not a Regulations.gov response.",
+  "kind": "repository_owned_mutation_observation",
+  "sourceId": "regulations-gov",
+  "providerEnvelope": false,
+  "identityPolicy": {
+    "observationScope": "same_synthetic_document_id",
+    "providerBehavior": "unverified",
+    "identityReplacement": "not_inferred"
+  },
+  "before": {
+    "observedAt": "3785-06-01T12:00:00.000Z",
+    "document": {
+      "stableId": "regulations-gov:document:SYNTHETIC-DOCUMENT-MUTABLE-0006",
+      "documentId": "SYNTHETIC-DOCUMENT-MUTABLE-0006",
+      "docketId": "SYNTHETIC-DOCKET-MUTABLE-0003",
+      "agencyId": "SYNTHETIC-AGENCY-GAMMA",
+      "documentType": "Proposed Rule",
+      "subtype": "Synthetic mutable subtype",
+      "eligibility": "eligible",
+      "title": "Synthetic proposed rule before revision",
+      "lastModifiedDate": "3785-05-31T10:00:00-04:00",
+      "postedDate": "3785-05-01T09:00:00-04:00",
+      "commentStartDate": "3785-05-02T00:00:00-04:00",
+      "commentEndDate": "3785-06-15T23:59:59-04:00",
+      "effectiveDate": null,
+      "implementationDate": null,
+      "authorDate": null,
+      "postmarkDate": null,
+      "receiveDate": null,
+      "sourceStatus": {
+        "openForComment": true,
+        "allowLateComments": false,
+        "withdrawn": false
+      },
+      "detailUrl": "https://www.regulations.gov/document/SYNTHETIC-DOCUMENT-MUTABLE-0006",
+      "attachmentIds": [],
+      "attachments": [],
+      "governance": {
+        "jurisdiction": "general_jurisdiction",
+        "classification": "Unclassified",
+        "nationEvidence": []
+      },
+      "historicalCompleteness": "not_documented"
+    }
+  },
+  "after": {
+    "observedAt": "3785-06-08T12:00:00.000Z",
+    "document": {
+      "stableId": "regulations-gov:document:SYNTHETIC-DOCUMENT-MUTABLE-0006",
+      "documentId": "SYNTHETIC-DOCUMENT-MUTABLE-0006",
+      "docketId": "SYNTHETIC-DOCKET-MUTABLE-0004",
+      "agencyId": "SYNTHETIC-AGENCY-GAMMA",
+      "documentType": "Proposed Rule",
+      "subtype": "Synthetic mutable subtype",
+      "eligibility": "eligible",
+      "title": "Synthetic proposed rule after revision",
+      "lastModifiedDate": "3785-06-07T14:30:00-04:00",
+      "postedDate": "3785-05-01T09:00:00-04:00",
+      "commentStartDate": "3785-05-02T00:00:00-04:00",
+      "commentEndDate": "3785-06-30T23:59:59-04:00",
+      "effectiveDate": null,
+      "implementationDate": null,
+      "authorDate": null,
+      "postmarkDate": null,
+      "receiveDate": null,
+      "sourceStatus": {
+        "openForComment": false,
+        "allowLateComments": false,
+        "withdrawn": false
+      },
+      "detailUrl": "https://www.regulations.gov/document/SYNTHETIC-DOCUMENT-MUTABLE-0006",
+      "attachmentIds": ["SYNTHETIC-DOCUMENT-MUTABLE-0006-ATTACHMENT-1"],
+      "attachments": [
+        {
+          "attachmentId": "SYNTHETIC-DOCUMENT-MUTABLE-0006-ATTACHMENT-1",
+          "parentDocumentId": "SYNTHETIC-DOCUMENT-MUTABLE-0006",
+          "order": 1,
+          "restricted": true,
+          "modifyDate": "3785-06-07T13:00:00-04:00",
+          "publication": null,
+          "formats": [
+            {
+              "format": "pdf",
+              "sizeBytes": 54321,
+              "fileUrl": "https://downloads.regulations.gov/SYNTHETIC-DOCUMENT-MUTABLE-0006/attachment_1.pdf"
+            }
+          ]
+        }
+      ],
+      "governance": {
+        "jurisdiction": "general_jurisdiction",
+        "classification": "Unclassified",
+        "nationEvidence": []
+      },
+      "historicalCompleteness": "not_documented"
+    }
+  },
+  "changedFields": [
+    "docketId",
+    "title",
+    "lastModifiedDate",
+    "commentEndDate",
+    "sourceStatus.openForComment",
+    "attachments"
+  ]
+}

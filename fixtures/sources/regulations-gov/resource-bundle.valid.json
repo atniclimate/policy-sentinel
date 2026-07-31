@@ -1,0 +1,150 @@
+{
+  "contractVersion": "1.0.0",
+  "fixtureNotice": "Synthetic contract data; not a Regulations.gov response.",
+  "kind": "repository_owned_resource_bundle",
+  "sourceId": "regulations-gov",
+  "providerEnvelope": false,
+  "agencyId": "SYNTHETIC-AGENCY-ALPHA",
+  "docket": {
+    "stableId": "regulations-gov:docket:SYNTHETIC-DOCKET-RULEMAKING-0001",
+    "docketId": "SYNTHETIC-DOCKET-RULEMAKING-0001",
+    "agencyId": "SYNTHETIC-AGENCY-ALPHA",
+    "docketType": "Rulemaking",
+    "title": "Synthetic rulemaking docket for contract validation",
+    "lastModifiedDate": "3785-04-20T12:05:06-04:00",
+    "detailUrl": "https://www.regulations.gov/docket/SYNTHETIC-DOCKET-RULEMAKING-0001",
+    "documentIds": [
+      "SYNTHETIC-DOCUMENT-NOTICE-0001",
+      "SYNTHETIC-DOCUMENT-RULE-0002",
+      "SYNTHETIC-DOCUMENT-PROPOSED-0003"
+    ],
+    "governance": {
+      "jurisdiction": "general_jurisdiction",
+      "classification": "Unclassified",
+      "nationEvidence": []
+    },
+    "historicalCompleteness": "not_documented"
+  },
+  "documents": [
+    {
+      "stableId": "regulations-gov:document:SYNTHETIC-DOCUMENT-NOTICE-0001",
+      "documentId": "SYNTHETIC-DOCUMENT-NOTICE-0001",
+      "docketId": "SYNTHETIC-DOCKET-RULEMAKING-0001",
+      "agencyId": "SYNTHETIC-AGENCY-ALPHA",
+      "documentType": "Notice",
+      "subtype": "Synthetic agency notice subtype",
+      "eligibility": "eligible",
+      "title": "Synthetic notice for contract validation",
+      "lastModifiedDate": "3785-03-20T12:05:06-04:00",
+      "postedDate": "3785-03-10T09:00:00-05:00",
+      "commentStartDate": "3785-03-11T08:00:00-05:00",
+      "commentEndDate": "3785-04-12T23:59:59-04:00",
+      "effectiveDate": null,
+      "implementationDate": null,
+      "authorDate": "3785-03-08T16:30:00-05:00",
+      "postmarkDate": null,
+      "receiveDate": null,
+      "sourceStatus": {
+        "openForComment": true,
+        "allowLateComments": false,
+        "withdrawn": false
+      },
+      "detailUrl": "https://www.regulations.gov/document/SYNTHETIC-DOCUMENT-NOTICE-0001",
+      "attachmentIds": ["SYNTHETIC-DOCUMENT-NOTICE-0001-ATTACHMENT-1"],
+      "attachments": [
+        {
+          "attachmentId": "SYNTHETIC-DOCUMENT-NOTICE-0001-ATTACHMENT-1",
+          "parentDocumentId": "SYNTHETIC-DOCUMENT-NOTICE-0001",
+          "order": 1,
+          "restricted": false,
+          "modifyDate": "3785-03-19T14:15:16-04:00",
+          "publication": "Synthetic publication marker 3785-A",
+          "formats": [
+            {
+              "format": "pdf",
+              "sizeBytes": 12345,
+              "fileUrl": "https://downloads.regulations.gov/SYNTHETIC-DOCUMENT-NOTICE-0001/attachment_1.pdf"
+            },
+            {
+              "format": "txt",
+              "sizeBytes": 6789,
+              "fileUrl": "https://downloads.regulations.gov/SYNTHETIC-DOCUMENT-NOTICE-0001/attachment_1.txt"
+            }
+          ]
+        }
+      ],
+      "governance": {
+        "jurisdiction": "general_jurisdiction",
+        "classification": "Unclassified",
+        "nationEvidence": []
+      },
+      "historicalCompleteness": "not_documented"
+    },
+    {
+      "stableId": "regulations-gov:document:SYNTHETIC-DOCUMENT-RULE-0002",
+      "documentId": "SYNTHETIC-DOCUMENT-RULE-0002",
+      "docketId": "SYNTHETIC-DOCKET-RULEMAKING-0001",
+      "agencyId": "SYNTHETIC-AGENCY-ALPHA",
+      "documentType": "Rule",
+      "subtype": "Synthetic final rule subtype",
+      "eligibility": "eligible",
+      "title": "Synthetic rule for contract validation",
+      "lastModifiedDate": "3785-04-18T11:22:33-04:00",
+      "postedDate": "3785-04-01T08:15:00-04:00",
+      "commentStartDate": null,
+      "commentEndDate": null,
+      "effectiveDate": "3785-05-01T00:00:00-04:00",
+      "implementationDate": "3785-06-01T00:00:00-04:00",
+      "authorDate": "3785-03-28T17:00:00-04:00",
+      "postmarkDate": "3785-03-29T09:00:00-04:00",
+      "receiveDate": "3785-03-30T10:00:00-04:00",
+      "sourceStatus": {
+        "openForComment": false,
+        "allowLateComments": false,
+        "withdrawn": false
+      },
+      "detailUrl": "https://www.regulations.gov/document/SYNTHETIC-DOCUMENT-RULE-0002",
+      "attachmentIds": [],
+      "attachments": [],
+      "governance": {
+        "jurisdiction": "general_jurisdiction",
+        "classification": "Unclassified",
+        "nationEvidence": []
+      },
+      "historicalCompleteness": "not_documented"
+    },
+    {
+      "stableId": "regulations-gov:document:SYNTHETIC-DOCUMENT-PROPOSED-0003",
+      "documentId": "SYNTHETIC-DOCUMENT-PROPOSED-0003",
+      "docketId": "SYNTHETIC-DOCKET-RULEMAKING-0001",
+      "agencyId": "SYNTHETIC-AGENCY-ALPHA",
+      "documentType": "Proposed Rule",
+      "subtype": "Synthetic proposed rule subtype",
+      "eligibility": "eligible",
+      "title": "Synthetic proposed rule for contract validation",
+      "lastModifiedDate": "3785-04-20T12:05:06-04:00",
+      "postedDate": "3785-04-02T07:30:00-04:00",
+      "commentStartDate": "3785-04-03T00:00:00-04:00",
+      "commentEndDate": "3785-05-03T23:59:59-04:00",
+      "effectiveDate": null,
+      "implementationDate": null,
+      "authorDate": null,
+      "postmarkDate": null,
+      "receiveDate": null,
+      "sourceStatus": {
+        "openForComment": true,
+        "allowLateComments": true,
+        "withdrawn": false
+      },
+      "detailUrl": "https://www.regulations.gov/document/SYNTHETIC-DOCUMENT-PROPOSED-0003",
+      "attachmentIds": [],
+      "attachments": [],
+      "governance": {
+        "jurisdiction": "general_jurisdiction",
+        "classification": "Unclassified",
+        "nationEvidence": []
+      },
+      "historicalCompleteness": "not_documented"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "contractVersion": "1.0.0",
+  "fixtureNotice": "Synthetic contract data; not a Regulations.gov response.",
+  "kind": "repository_owned_rate_limit_projection",
+  "sourceId": "regulations-gov",
+  "providerEnvelope": false,
+  "ratePolicy": {
+    "verificationState": "generic_unverified",
+    "window": "rolling_hour",
+    "defaultLimit": 1000
+  },
+  "statusCode": 429,
+  "gatewayCode": "OVER_RATE_LIMIT",
+  "headers": {
+    "X-RateLimit-Limit": "1000",
+    "X-RateLimit-Remaining": "0"
+  }
+}

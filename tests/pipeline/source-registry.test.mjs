@@ -34,7 +34,7 @@ test("source registry records researched disabled production sources", () => {
   assert.equal(validateSources(sourceRegistry), true);
   assert.doesNotThrow(() => assertSourceRegistrySemantics(sourceRegistry));
   assert.equal(sourceRegistry.schemaVersion, "1.1.0");
-  assert.equal(sourceRegistry.registryVersion, "1.5.0");
+  assert.equal(sourceRegistry.registryVersion, "1.6.0");
 
   const federalRegister = sourceRegistry.sources.find(
     ({ id }) => id === "federal-register",
@@ -124,6 +124,34 @@ test("source registry records researched disabled production sources", () => {
       method: "api",
       authentication: "build_secret",
       allowedHosts: ["www.govinfo.gov"],
+    },
+  );
+
+  const regulationsGov = sourceRegistry.sources.find(
+    ({ id }) => id === "regulations-gov",
+  );
+  assert.deepEqual(
+    {
+      enabled: regulationsGov.enabled,
+      synthetic: regulationsGov.synthetic,
+      adapter: regulationsGov.adapter,
+      accessedOn: regulationsGov.access.accessedOn,
+      method: regulationsGov.access.method,
+      authentication: regulationsGov.access.authentication,
+      allowedHosts: regulationsGov.access.allowedHosts,
+      termsUrl: regulationsGov.publication.termsUrl,
+      reproduction: regulationsGov.publication.reproduction,
+    },
+    {
+      enabled: false,
+      synthetic: false,
+      adapter: null,
+      accessedOn: "2026-07-31",
+      method: "api",
+      authentication: "build_secret",
+      allowedHosts: ["www.regulations.gov"],
+      termsUrl: "https://www.regulations.gov/user-notice",
+      reproduction: "metadata_and_links",
     },
   );
 });
