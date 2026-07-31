@@ -13,6 +13,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import {
+  ARTIFACT_MANIFEST_LIMITS_V1,
   STATIC_ARTIFACT_BUDGET_V1,
   createArtifactDocuments,
   generateSyntheticNations,
@@ -262,6 +263,16 @@ test("last-known-good reuse rejects incomplete or inconsistent artifact packages
       "preflights declared and actual budgets before parsing assets",
       async () => {
         await withFixture(async (root) => {
+          await writeFile(
+            path.join(root, "manifest.json"),
+            " ".repeat(ARTIFACT_MANIFEST_LIMITS_V1.maxManifestBytes + 1),
+          );
+          await assert.rejects(
+            verifyLastKnownGoodArtifact(root),
+            /manifest exceeds static artifact budget/,
+          );
+        });
+        await withFixture(async (root) => {
           await rewriteManifest(root, (manifest) => {
             manifest.assets.find(
               ({ path: assetPath }) => assetPath === "index/records.json",
@@ -436,6 +447,23 @@ test("last-known-good reuse rejects incomplete or inconsistent artifact packages
     await t.test(
       "requires source-health counts and membership to match",
       async () => {
+        await withFixture(async (root) => {
+          const manifest = await readArtifactJson(root, "manifest.json");
+          const federalDetail = manifest.assets.find(
+            ({ path: assetPath, sourceIds }) =>
+              assetPath.startsWith("details/") &&
+              sourceIds.includes(federalFixture.source.id),
+          );
+          assert.ok(federalDetail);
+          await rewriteAsset(root, federalDetail.path, (detailDocument) => {
+            detailDocument.record.sourceHealth.checkedAt =
+              "2026-07-31T18:01:00.000Z";
+          });
+          await assert.rejects(
+            verifyLastKnownGoodArtifact(root),
+            /receipt differs from record health/,
+          );
+        });
         await withFixture(async (root) => {
           await rewriteAsset(root, "source-health.json", (healthDocument) => {
             healthDocument.sources.find(

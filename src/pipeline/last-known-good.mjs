@@ -1,10 +1,12 @@
 import { lstat, readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import {
-  STATIC_ARTIFACT_BUDGET_V1,
+  ARTIFACT_MANIFEST_LIMITS_V1,
+  assertArtifactManifestLimits,
   assertStaticArtifactBudget,
   toCompactIndexRecord,
 } from "./artifact.mjs";
+import { assertArtifactSourceHealthState } from "./artifact-health.mjs";
 import { deriveBuildId, sha256Bytes } from "./hashing.mjs";
 import { recordIdentityKey, toUrlSafeId } from "./identity.mjs";
 
@@ -117,6 +119,7 @@ function validateManifest(manifest, root) {
       `last-known-good record schema version is unsupported: ${String(manifest.recordSchemaVersion)}`,
     );
   }
+  assertArtifactManifestLimits(manifest);
   if (
     !hasExactlyKeys(manifest, MANIFEST_KEYS) ||
     !/^synthetic-[a-f0-9]{20}$/.test(manifest.buildId) ||
@@ -626,18 +629,17 @@ function validateArtifactContents(manifest, verifiedAssets) {
       );
     }
     if (
-      sourceRecords.some(
-        (record) =>
-          record.source.name !== health.sourceName ||
-          ["status", "usingLastKnownGood", "message"].some(
-            (field) => record.sourceHealth[field] !== health[field],
-          ),
-      )
+      sourceRecords.some((record) => record.source.name !== health.sourceName)
     ) {
       throw new Error(
-        `last-known-good source health differs from records: ${health.sourceId}`,
+        `last-known-good source name differs from records: ${health.sourceId}`,
       );
     }
+    assertArtifactSourceHealthState({
+      health,
+      sourceRecords,
+      label: "last-known-good source-health",
+    });
     const expectedDataAsOf = sourceRecords
       .map((record) => record.sourceHealth.dataAsOf)
       .sort()
@@ -655,17 +657,6 @@ function validateArtifactContents(manifest, verifiedAssets) {
     ) {
       throw new Error(
         `last-known-good source freshness mismatch: ${health.sourceId}`,
-      );
-    }
-    if (
-      (sourceRecords.length === 0 && health.status !== "unavailable") ||
-      (health.status === "unavailable" &&
-        (sourceRecords.length !== 0 || health.dataAsOf !== null)) ||
-      (health.usingLastKnownGood &&
-        (!health.stale || health.status !== "degraded"))
-    ) {
-      throw new Error(
-        `last-known-good source health state is inconsistent: ${health.sourceId}`,
       );
     }
   }
@@ -691,7 +682,7 @@ export async function verifyLastKnownGoodArtifact(root) {
   if (manifestStat.isSymbolicLink() || !manifestStat.isFile()) {
     throw new Error("last-known-good manifest is not a real file");
   }
-  if (manifestStat.size > STATIC_ARTIFACT_BUDGET_V1.maxInitialNonDetailBytes) {
+  if (manifestStat.size > ARTIFACT_MANIFEST_LIMITS_V1.maxManifestBytes) {
     throw new Error("last-known-good manifest exceeds static artifact budget");
   }
   let manifest;
