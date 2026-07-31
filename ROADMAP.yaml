@@ -294,10 +294,11 @@ baseline:
 current_focus:
   work_item: B4-FR-UX
   objective: >-
-    Define and measure a bounded Federal Register static-artifact range, then
-    integrate compact index, detail, coverage, health, freshness, and
-    Unclassified states without enabling the source or adding runtime API calls.
-  last_durable_checkpoint: c639f89
+    Complete the built-app desktop and mobile browser smoke for the implemented
+    Federal Register coverage, detail, Unclassified, dossier, and CSV states.
+    The in-app browser backend was unavailable on 2026-07-31; keep the source
+    disabled and do not claim this item complete until that check runs.
+  last_durable_checkpoint: 8b94d6e
   resume_command: npm run check
 
 completion_scope:
@@ -634,6 +635,39 @@ work_items:
         coverage-range normalization, and fail-closed range tests. The focused
         Federal Register suite passed 123 tests; artifact/UI integration remains
         in progress and the checked-in source stays disabled.
+      - >-
+        Commits c389dff, 303c827, and 370b412 implement fail-closed static byte
+        budgets; documented, selected, and actual coverage; 50-record
+        incremental display; same-origin on-demand details; exact correction
+        relationships and boundary-exclusion disclosure; source health, dossier,
+        CSV, freshness, general-jurisdiction, and visible Unclassified states.
+      - >-
+        Commits 4a62c38 and 978dbca require authoritative non-synthetic health
+        receipts, preserve failure and last-known-good state, preflight declared
+        and actual file sizes before parsing assets, emit additive artifact
+        package 1.1 compact metadata, and retain schema-v1 compatibility
+        fixtures for package 1.0 coverage and index documents.
+      - >-
+        Commit 992f7a5 bounds selected-detail hydration to batches of eight and
+        displays the current Unclassified result count. Commit 8b94d6e records
+        the bounded policy, measurement, health, compatibility, and correction
+        limits in the binding documentation.
+      - >-
+        A 2026-07-31 live in-memory 1994-01-03 canary made six successful HTTP
+        requests, reconciled 105 provider documents to 94 eligible records, and
+        measured a 183,051-byte compact index, 2,030,738 detail bytes,
+        26,702-byte largest detail, 370,527 initial non-detail bytes, and
+        2,401,265 total hashed bytes. No response, record, artifact, cache, or
+        temporary file was persisted; the checked-in source remains disabled.
+      - >-
+        `npm run check` passed on 2026-07-31 with 17 test files and 182 tests,
+        formatting, lint, types, roadmap, source-boundary, production build, and
+        artifact validation. A local built preview returned 200 for the app,
+        manifest, and coverage assets, emitted artifact package 1.1.0, and
+        contained no Federal Register provider-API reference. Automated axe and
+        keyboard tests passed, but the required in-app browser backend was not
+        available, so the desktop/mobile built-app smoke remains pending and
+        this item stays in progress.
 
   - id: B4-GRANTS-RESEARCH
     priority: 43
@@ -1292,7 +1326,7 @@ source_register:
     public_claim: no live publication
   - id: SRC-FEDERAL-REGISTER
     source: Federal Register
-    implementation_state: adapter_validated_ux_in_progress
+    implementation_state: adapter_validated_browser_smoke_pending
     work_items:
       - B4-FR-RESEARCH
       - B4-FR-ADAPTER
@@ -1437,9 +1471,10 @@ next_actions:
   - order: 1
     work_item: B4-FR-UX
     action: >-
-      Establish a measured bounded static-artifact range for the 1,005,337-row
-      source, then integrate truthful coverage, health, compact-index, and
-      detail states while the source remains disabled.
+      With the in-app browser available, run desktop and mobile built-artifact
+      coverage, detail, Unclassified, dossier, CSV, keyboard, accessibility, and
+      same-origin network checks; keep the source disabled, then close the item
+      only if every state is truthful.
   - order: 2
     work_item: B4-GRANTS-RESEARCH
     action: >-
