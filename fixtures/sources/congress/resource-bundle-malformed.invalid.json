@@ -1,0 +1,32 @@
+{
+  "contractVersion": "1.0.0",
+  "fixtureNotice": "Synthetic contract data; not a Congress.gov response.",
+  "sourceId": "congress-gov",
+  "resourcePath": "/v3/bill/997/s/3",
+  "stableId": "congress-gov:997:s:3",
+  "congressNumber": 997,
+  "congress": {
+    "name": "997th Congress (synthetic malformed record)",
+    "startYear": "3781",
+    "endYear": "3783",
+    "sessions": []
+  },
+  "bill": {
+    "congress": 997,
+    "introducedDate": "3781-02-01",
+    "latestAction": {
+      "actionDate": "3781-02-01",
+      "text": "Introduced in the Senate."
+    },
+    "legislationUrl": "https://www.congress.gov/bill/997th-congress/senate-bill/3",
+    "number": "3",
+    "originChamber": "Senate",
+    "originChamberCode": "S",
+    "publisherEmail": "excluded synthetic contact field",
+    "title": "Synthetic malformed record",
+    "type": "S",
+    "updateDate": "3781-02-02T08:00:00Z",
+    "updateDateIncludingText": "3781-02-02T08:00:00Z",
+    "url": "https://api.congress.gov/v3/bill/997/s/3"
+  }
+}

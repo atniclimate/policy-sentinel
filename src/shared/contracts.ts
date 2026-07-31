@@ -1,7 +1,7 @@
 export const RECORD_SCHEMA_VERSION = "1.1.0" as const;
 export const ARTIFACT_SCHEMA_VERSION = "1.0.0" as const;
 export const SOURCE_SCHEMA_VERSION = "1.1.0" as const;
-export const SOURCE_REGISTRY_VERSION = "1.3.0" as const;
+export const SOURCE_REGISTRY_VERSION = "1.4.0" as const;
 
 export type IsoDate = string;
 export type IsoDateTime = string;

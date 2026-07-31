@@ -305,12 +305,12 @@ baseline:
       detail: single-Nation synthetic flow only
 
 current_focus:
-  work_item: B4-CONGRESS-CONTRACT
+  work_item: B4-GOVINFO-CONTRACT
   objective: >-
-    Complete the credential-free Congress.gov contract design and synthetic
-    fixtures from current public official documentation without using an
-    account, API key, live credentialed request, or copied provider response.
-  last_durable_checkpoint: e75adef
+    Complete the credential-free GovInfo package, granule, collection, MODS,
+    format-link, checksum, pagination, and documented 503 contract with
+    synthetic fixtures only.
+  last_durable_checkpoint: 0255321
   resume_command: npm run check
 
 completion_scope:
@@ -812,7 +812,7 @@ work_items:
     priority: 45
     milestone: B4
     title: Congress.gov credential-free contract design and synthetic fixtures
-    status: in_progress
+    status: complete
     dependencies:
       - B3-PIPELINE
     acceptance:
@@ -820,7 +820,34 @@ work_items:
       - Synthetic contracts cover sessions, bills, sponsors, committees,
         actions, summaries, subjects, and text links.
       - No account, key, live credentialed request, or copied response is used.
-    evidence: []
+    evidence:
+      - >-
+        docs/source-reviews/congress-gov-api-2026-07-31.md cites the current
+        official OpenAPI, Library repository and help pages, field-specific
+        coverage, reuse boundary, unresolved runtime hosts, undocumented
+        envelope and pagination behavior, and the closed credential gate. The
+        OpenAPI was measured only in memory; no /v3 data request, registration,
+        key, terms action, provider response, or raw documentation file was used
+        or persisted.
+      - >-
+        src/contracts/congress implements only pure keyless relative-query and
+        strict synthetic resource-fragment contracts. It covers Congresses and
+        sessions, bills and explicit law references, sponsors, committees,
+        actions, summary structure with body discard, exact subjects, titles,
+        and text-format links while rejecting unknown fields, keyed URLs,
+        identity drift, duplicates, malformed dates, and unsafe hosts.
+      - >-
+        Three clearly labeled impossible-identity fixtures and 15 focused Vitest
+        cases cover representative, historical-limited, malformed, pagination,
+        sort, identity, allowlist, secret, size, date, URL, and exact-subject
+        behavior. Source-registry 1.4.0 records Congress.gov disabled with
+        adapter null and build-secret access; no transport, normalization,
+        public record, or artifact was added.
+      - >-
+        npm run check passed on 2026-07-31 with 19 Vitest files and 218 tests,
+        formatting, lint, type checking, roadmap validation, source-boundary
+        scanning, a synthetic-only production build, and artifact validation at
+        2 records, 575 Nations, and 7 verified assets.
 
   - id: B4-CONGRESS-LIVE
     priority: 46
@@ -846,13 +873,20 @@ work_items:
       The owner explicitly approves Congress.gov registration, current terms,
       key handling, and its local or Actions scope.
     evidence:
-      - "docs/source-feasibility.md records the API-key requirement."
+      - >-
+        docs/source-reviews/congress-gov-api-2026-07-31.md records the
+        query-bound API-key requirement, unresolved official runtime hosts, and
+        live response, pagination, nullability, update-window, rate, and failure
+        gaps that cannot be resolved without G-B-CONGRESS.
+      - >-
+        Source-registry 1.4.0 keeps Congress.gov disabled with adapter null; the
+        safe fallback emits no Congress.gov record or public source claim.
 
   - id: B4-GOVINFO-CONTRACT
     priority: 47
     milestone: B4
     title: GovInfo credential-free contract design and synthetic fixtures
-    status: ready
+    status: in_progress
     dependencies:
       - B3-PIPELINE
     acceptance:
@@ -1447,7 +1481,7 @@ source_register:
     public_claim: unavailable until exact terms approval and live validation
   - id: SRC-CONGRESS
     source: Congress.gov
-    implementation_state: credential_gate_closed
+    implementation_state: contract_complete_credential_gate_closed
     work_items:
       - B4-CONGRESS-CONTRACT
       - B4-CONGRESS-LIVE
@@ -1575,22 +1609,16 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B4-CONGRESS-CONTRACT
-    action: >-
-      Document the current public Congress.gov API and coverage contract and
-      implement synthetic fixtures without an account, key, live credentialed
-      request, or copied provider response.
-  - order: 2
     work_item: B4-GOVINFO-CONTRACT
     action: >-
       Complete the credential-free GovInfo package, granule, collection,
       checksum, pagination, and failure contract with synthetic fixtures.
-  - order: 3
+  - order: 2
     work_item: B4-REGS-CONTRACT
     action: >-
       Complete the credential-free Regulations.gov docket/document contract with
       synthetic fixtures while public comments and live key use remain excluded.
-  - order: 4
+  - order: 3
     work_item: B4-FR-UX
     action: >-
       When the in-app Browser backend becomes available, run the required

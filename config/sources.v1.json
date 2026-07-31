@@ -1,7 +1,7 @@
 {
   "$schema": "../schemas/source.schema.v1.json",
   "schemaVersion": "1.1.0",
-  "registryVersion": "1.3.0",
+  "registryVersion": "1.4.0",
   "generatedDataPolicy": "artifact-only",
   "sources": [
     {
@@ -186,6 +186,54 @@
           "/jurisdiction/name",
           "/status/sourceLabel",
           "/dates/deadline",
+          "/urls/officialSource"
+        ]
+      },
+      "officialSubjectMappings": []
+    },
+    {
+      "id": "congress-gov",
+      "name": "Congress.gov",
+      "provider": "Library of Congress",
+      "synthetic": false,
+      "enabled": false,
+      "adapter": null,
+      "jurisdiction": {
+        "level": "federal",
+        "name": "United States",
+        "stateCode": null
+      },
+      "access": {
+        "method": "api",
+        "officialDocumentationUrl": "https://api.congress.gov/",
+        "accessedOn": "2026-07-31",
+        "allowedHosts": [
+          "api.congress.gov",
+          "api.data.gov",
+          "www.congress.gov",
+          "www.govinfo.gov"
+        ],
+        "authentication": "build_secret",
+        "rateLimit": "The official API repository publishes 5,000 requests per hour, while general Library guidance recommends no more than 10 requests per minute. No request was made; an approved future build must use the more conservative applicable bound until live headers and gateway behavior are verified.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": null,
+        "through": null,
+        "cadence": "Congress.gov usually updates current legislative information the morning after a chamber session adjourns; any approved Policy Sentinel retrieval would remain build-time only.",
+        "limitations": "Coverage is field-specific: complete introduced-measure records begin in 1973, enacted measures extend to 1951, selected incomplete measures exist for 1799-1873, current full bill text begins in 1993, Legislative Subjects begin in 2009, and API parity with website Congress/session coverage is not promised. Live range and response behavior remain unverified."
+      },
+      "publication": {
+        "attribution": "Congress.gov, Library of Congress",
+        "termsUrl": "https://www.loc.gov/legal/",
+        "reproduction": "metadata_and_links",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/status/sourceLabel",
           "/urls/officialSource"
         ]
       },

@@ -1,0 +1,141 @@
+{
+  "contractVersion": "1.0.0",
+  "fixtureNotice": "Synthetic contract data; not a Congress.gov response.",
+  "sourceId": "congress-gov",
+  "resourcePath": "/v3/bill/999/hr/1001",
+  "stableId": "congress-gov:999:hr:1001",
+  "congressNumber": 999,
+  "congress": {
+    "name": "999th Congress (synthetic)",
+    "startYear": "3785",
+    "endYear": "3787",
+    "sessions": [
+      {
+        "chamber": "House",
+        "number": 1,
+        "startDate": "3785-01-03",
+        "endDate": "3785-12-20"
+      },
+      {
+        "chamber": "Senate",
+        "number": 1,
+        "startDate": "3785-01-03",
+        "endDate": "3785-12-20"
+      }
+    ]
+  },
+  "bill": {
+    "congress": 999,
+    "introducedDate": "3785-02-01",
+    "latestAction": {
+      "actionDate": "3785-03-15",
+      "text": "Referred to the synthetic committee."
+    },
+    "legislationUrl": "https://www.congress.gov/bill/999th-congress/house-bill/1001",
+    "laws": [
+      {
+        "number": "999-999",
+        "type": "Public Law"
+      }
+    ],
+    "number": "1001",
+    "originChamber": "House",
+    "originChamberCode": "H",
+    "title": "Synthetic Intergovernmental Records Act",
+    "type": "HR",
+    "updateDate": "3785-03-16T08:00:00Z",
+    "updateDateIncludingText": "3785-03-17T08:00:00Z",
+    "url": "https://api.congress.gov/v3/bill/999/hr/1001"
+  },
+  "sponsors": [
+    {
+      "bioguideId": "Z999999",
+      "firstName": "Synthetic",
+      "fullName": "Synthetic Member",
+      "isByRequest": "N",
+      "lastName": "Member",
+      "party": "Independent",
+      "state": "ZZ",
+      "url": "https://api.congress.gov/v3/member/Z999999"
+    }
+  ],
+  "committees": [
+    {
+      "activities": [
+        {
+          "date": "3785-03-15",
+          "name": "Referred to committee"
+        }
+      ],
+      "chamber": "House",
+      "name": "Synthetic Committee on Public Records",
+      "systemCode": "hszz99",
+      "type": "Standing",
+      "url": "https://api.congress.gov/v3/committee/house/hszz99"
+    }
+  ],
+  "actions": [
+    {
+      "actionDate": "3785-02-01",
+      "actionCode": "SYN-INTRO",
+      "sourceSystem": {
+        "code": 9,
+        "name": "Synthetic House"
+      },
+      "text": "Introduced in the House.",
+      "type": "IntroReferral"
+    },
+    {
+      "actionDate": "3785-03-15",
+      "actionCode": "SYN-COMMITTEE",
+      "sourceSystem": {
+        "code": 9,
+        "name": "Synthetic House"
+      },
+      "text": "Referred to the synthetic committee.",
+      "type": "IntroReferral"
+    }
+  ],
+  "summaries": [
+    {
+      "actionDate": "3785-02-01",
+      "actionDesc": "Introduced in House",
+      "text": "Synthetic structural summary text for contract validation only.",
+      "updateDate": "3785-02-02T08:00:00Z",
+      "versionCode": "00"
+    }
+  ],
+  "subjects": {
+    "policyArea": {
+      "name": "Synthetic Public Administration"
+    },
+    "legislativeSubjects": [
+      {
+        "name": "Synthetic intergovernmental records",
+        "updateDate": "3785-03-16T08:00:00Z"
+      }
+    ]
+  },
+  "titles": [
+    {
+      "billTextVersionCode": "ih",
+      "billTextVersionName": "Introduced in House",
+      "title": "Synthetic Intergovernmental Records Act",
+      "titleType": "Official Title as Introduced",
+      "titleTypeCode": 6,
+      "updateDate": "3785-02-02T08:00:00Z"
+    }
+  ],
+  "textVersions": [
+    {
+      "date": "3785-02-01",
+      "formats": [
+        {
+          "type": "Formatted Text",
+          "url": "https://www.congress.gov/999/bills/hr1001/BILLS-999hr1001ih.htm"
+        }
+      ],
+      "type": "Introduced in House"
+    }
+  ]
+}

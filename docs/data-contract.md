@@ -13,7 +13,7 @@ The Phase A contracts are:
 - [`source.schema.v1.json`](../schemas/source.schema.v1.json), compatible v1
   source-registry schema version `1.1.0`;
 - [`sources.v1.json`](../config/sources.v1.json), source registry version
-  `1.3.0`; and
+  `1.4.0`; and
 - [`artifact.schema.v1.json`](../schemas/artifact.schema.v1.json), static
   artifact schema version `1.0.0`.
 
@@ -23,7 +23,7 @@ evidence that a production source is enabled or a public dataset exists.
 taxonomy, and synthetic fixtures, and proves selected invalid governance cases
 are rejected.
 
-Source-registry version `1.3.0` distinguishes researched configuration,
+Source-registry version `1.4.0` distinguishes researched configuration,
 implemented adapters, and activation. A disabled source may have
 `adapter: null` or a versioned adapter that is not authorized to emit public
 records; an enabled source must have a versioned adapter. Every non-synthetic
@@ -31,7 +31,10 @@ source records the date its cited contract and terms were accessed. Disabled
 sources and their identifiers are rejected from coverage, health, manifests,
 and records rather than appearing as an unavailable public source. The
 Grants.gov entry is disabled with no adapter because its current terms and live
-contract canaries remain behind G-B-GRANTS.
+contract canaries remain behind G-B-GRANTS. The Congress.gov entry is likewise
+disabled with no adapter because registration, key handling, runtime-host
+selection, and live response validation remain behind G-B-CONGRESS; its local
+contract uses synthetic resource fragments only.
 
 ## Record groups
 

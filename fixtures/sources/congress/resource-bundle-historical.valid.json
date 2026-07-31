@@ -1,0 +1,37 @@
+{
+  "contractVersion": "1.0.0",
+  "fixtureNotice": "Synthetic contract data; not a Congress.gov response.",
+  "sourceId": "congress-gov",
+  "resourcePath": "/v3/bill/998/sjres/7",
+  "stableId": "congress-gov:998:sjres:7",
+  "congressNumber": 998,
+  "congress": {
+    "name": "998th Congress (synthetic historical-limited record)",
+    "startYear": "3783",
+    "endYear": "3785",
+    "sessions": [
+      {
+        "chamber": "Senate",
+        "number": 1,
+        "startDate": "3783-01-03"
+      }
+    ]
+  },
+  "bill": {
+    "congress": 998,
+    "introducedDate": "3783-04-02",
+    "latestAction": {
+      "actionDate": "3783-04-02",
+      "text": "Introduced in the Senate."
+    },
+    "legislationUrl": "https://www.congress.gov/bill/998th-congress/senate-joint-resolution/7",
+    "number": "7",
+    "originChamber": "Senate",
+    "originChamberCode": "S",
+    "title": "Synthetic historical limited joint resolution",
+    "type": "SJRES",
+    "updateDate": "3783-04-03",
+    "updateDateIncludingText": "3783-04-03",
+    "url": "https://api.congress.gov/v3/bill/998/sjres/7"
+  }
+}
