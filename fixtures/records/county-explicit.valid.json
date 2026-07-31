@@ -1,0 +1,228 @@
+{
+  "schemaVersion": "1.0.0",
+  "internalId": "psr:synthetic-county:ordinance-001",
+  "source": {
+    "id": "synthetic-county",
+    "name": "Synthetic County Records",
+    "provider": "Example County",
+    "recordId": "ORD-001",
+    "adapterId": "synthetic-county-adapter",
+    "adapterVersion": "1.0.0",
+    "coverage": {
+      "from": "2025-01-01",
+      "through": null,
+      "notes": "Synthetic coverage for contract testing only."
+    },
+    "attribution": "Example County"
+  },
+  "officialTitle": "Synthetic ordinance explicitly naming a synthetic Nation",
+  "sourceDocumentIdentifier": "ORD-001",
+  "documentType": "county_ordinance",
+  "jurisdiction": {
+    "level": "county",
+    "name": "Example County",
+    "stateCode": "WA",
+    "generalJurisdictionOnly": false
+  },
+  "issuingBodies": [
+    {
+      "sourceId": "example-county-council",
+      "officialName": "Example County Council"
+    }
+  ],
+  "legislativeContext": null,
+  "status": {
+    "normalized": "enacted",
+    "sourceLabel": "Adopted",
+    "asOf": "2026-06-15"
+  },
+  "dates": {
+    "introduced": "2026-05-01",
+    "published": "2026-06-16",
+    "updated": null,
+    "lastAction": "2026-06-15",
+    "deadline": null,
+    "effective": "2026-07-01",
+    "retrieved": "2026-07-30T13:00:00Z"
+  },
+  "urls": {
+    "officialSource": "https://county.example.invalid/ordinances/ORD-001",
+    "officialFullText": "https://county.example.invalid/ordinances/ORD-001.pdf"
+  },
+  "texts": {
+    "officialSummary": null,
+    "sourceExcerpt": {
+      "text": "The Synthetic Nation A is named in this synthetic official record.",
+      "sourceUrl": "https://county.example.invalid/ordinances/ORD-001.pdf",
+      "sourceDate": "2026-06-15",
+      "reproductionBasis": "Synthetic fixture text."
+    },
+    "detailAsset": {
+      "availability": "official_link_only",
+      "path": null,
+      "reproductionBasis": null
+    }
+  },
+  "sponsors": [],
+  "committees": [],
+  "actionHistory": [
+    {
+      "date": "2026-06-15",
+      "sourceLabel": "Adopted",
+      "sourceUrl": "https://county.example.invalid/ordinances/ORD-001"
+    }
+  ],
+  "statusHistory": [
+    {
+      "date": "2026-06-15",
+      "sourceLabel": "Adopted",
+      "sourceUrl": "https://county.example.invalid/ordinances/ORD-001"
+    }
+  ],
+  "officialSubjects": [],
+  "taxonomyMemberships": [],
+  "isUnclassified": true,
+  "relevance": [
+    {
+      "basis": "explicit_nation_reference",
+      "label": "Official record explicitly names the selected Nation",
+      "sourceUrl": "https://county.example.invalid/ordinances/ORD-001.pdf",
+      "evidence": "The exact synthetic source excerpt names Synthetic Nation A."
+    }
+  ],
+  "nationAssociations": [
+    {
+      "nationId": "nation:synthetic-a",
+      "officialNationName": "Synthetic Nation A",
+      "basis": "explicit_mention",
+      "evidenceText": "The Synthetic Nation A is named in this synthetic official record.",
+      "evidenceUrl": "https://county.example.invalid/ordinances/ORD-001.pdf",
+      "evidenceLocation": "Synthetic page 2, paragraph 1",
+      "validationState": "validated"
+    }
+  ],
+  "landmark": {
+    "isLandmark": false
+  },
+  "historical": {
+    "isHistorical": false,
+    "pre1980Treatment": "not_applicable"
+  },
+  "dataQuality": {
+    "state": "validated",
+    "validatedAt": "2026-07-30T13:01:00Z",
+    "validator": "synthetic-fixture-validator",
+    "issues": []
+  },
+  "sourceHealth": {
+    "status": "healthy",
+    "checkedAt": "2026-07-30T13:00:30Z",
+    "dataAsOf": "2026-06-16T00:00:00Z",
+    "lastSuccessfulRetrievalAt": "2026-07-30T13:00:00Z",
+    "usingLastKnownGood": false,
+    "message": null
+  },
+  "change": {
+    "firstSeenAt": "2026-07-30T13:00:00Z",
+    "lastSeenAt": "2026-07-30T13:00:00Z",
+    "kind": "new",
+    "urgentAlert": null
+  },
+  "aiSummary": {
+    "exists": false,
+    "label": "AI-generated source summary"
+  },
+  "fieldProvenance": [
+    {
+      "field": "/officialTitle",
+      "sourcePath": "$.title",
+      "sourceId": "synthetic-county",
+      "sourceRecordId": "ORD-001",
+      "sourceUrl": "https://county.example.invalid/ordinances/ORD-001",
+      "retrievedAt": "2026-07-30T13:00:00Z",
+      "sourceUpdatedAt": "2026-06-16T00:00:00Z",
+      "adapterId": "synthetic-county-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/sourceDocumentIdentifier",
+      "sourcePath": "$.identifier",
+      "sourceId": "synthetic-county",
+      "sourceRecordId": "ORD-001",
+      "sourceUrl": "https://county.example.invalid/ordinances/ORD-001",
+      "retrievedAt": "2026-07-30T13:00:00Z",
+      "sourceUpdatedAt": "2026-06-16T00:00:00Z",
+      "adapterId": "synthetic-county-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/documentType",
+      "sourcePath": "$.type",
+      "sourceId": "synthetic-county",
+      "sourceRecordId": "ORD-001",
+      "sourceUrl": "https://county.example.invalid/ordinances/ORD-001",
+      "retrievedAt": "2026-07-30T13:00:00Z",
+      "sourceUpdatedAt": "2026-06-16T00:00:00Z",
+      "adapterId": "synthetic-county-adapter",
+      "transformation": "normalized",
+      "transformRuleId": "synthetic-document-type-v1",
+      "validationState": "validated"
+    },
+    {
+      "field": "/jurisdiction/name",
+      "sourcePath": "$.jurisdiction",
+      "sourceId": "synthetic-county",
+      "sourceRecordId": "ORD-001",
+      "sourceUrl": "https://county.example.invalid/ordinances/ORD-001",
+      "retrievedAt": "2026-07-30T13:00:00Z",
+      "sourceUpdatedAt": "2026-06-16T00:00:00Z",
+      "adapterId": "synthetic-county-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/status/sourceLabel",
+      "sourcePath": "$.status",
+      "sourceId": "synthetic-county",
+      "sourceRecordId": "ORD-001",
+      "sourceUrl": "https://county.example.invalid/ordinances/ORD-001",
+      "retrievedAt": "2026-07-30T13:00:00Z",
+      "sourceUpdatedAt": "2026-06-16T00:00:00Z",
+      "adapterId": "synthetic-county-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/urls/officialSource",
+      "sourcePath": "$.url",
+      "sourceId": "synthetic-county",
+      "sourceRecordId": "ORD-001",
+      "sourceUrl": "https://county.example.invalid/ordinances/ORD-001",
+      "retrievedAt": "2026-07-30T13:00:00Z",
+      "sourceUpdatedAt": "2026-06-16T00:00:00Z",
+      "adapterId": "synthetic-county-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/nationAssociations/0",
+      "sourcePath": "$.body.explicitNationReference",
+      "sourceId": "synthetic-county",
+      "sourceRecordId": "ORD-001",
+      "sourceUrl": "https://county.example.invalid/ordinances/ORD-001.pdf",
+      "retrievedAt": "2026-07-30T13:00:00Z",
+      "sourceUpdatedAt": "2026-06-16T00:00:00Z",
+      "adapterId": "synthetic-county-adapter",
+      "transformation": "combined",
+      "transformRuleId": "synthetic-explicit-evidence-v1",
+      "validationState": "validated"
+    }
+  ]
+}

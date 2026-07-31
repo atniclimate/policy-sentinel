@@ -1,0 +1,238 @@
+{
+  "$schema": "../schemas/taxonomy.schema.v1.json",
+  "taxonomyVersion": "1.0.0",
+  "title": "Policy Sentinel taxonomy",
+  "mappingPolicy": {
+    "method": "deterministic-official-subject-only",
+    "manyToMany": true,
+    "unmappedBehavior": "unclassified",
+    "sourceMappings": []
+  },
+  "categories": [
+    {
+      "id": "environmental-protection-pollution-governance",
+      "label": "Environmental Protection & Pollution Governance",
+      "subcategories": [
+        {
+          "id": "air-quality-management",
+          "label": "Air Quality Management",
+          "description": "Industrial emission thresholds, stationary/mobile source regulation, and regional air shed monitoring."
+        },
+        {
+          "id": "water-resources-quality",
+          "label": "Water Resources & Quality",
+          "description": "Clean water standards, watershed protection, discharge permitting, and point/non-point source pollution control."
+        },
+        {
+          "id": "waste-toxics-control",
+          "label": "Waste & Toxics Control",
+          "description": "Hazardous waste handling, Superfund site remediation, solid waste management, and chemical safety standards."
+        },
+        {
+          "id": "environmental-impact-permitting",
+          "label": "Environmental Impact & Permitting",
+          "description": "Environmental review protocols, cross-jurisdictional agency reviews, and public reporting mandates."
+        }
+      ]
+    },
+    {
+      "id": "climate-energy-policy",
+      "label": "Climate & Energy Policy",
+      "subcategories": [
+        {
+          "id": "emissions-reduction-carbon-markets",
+          "label": "Emissions Reduction & Carbon Markets",
+          "description": "Cap-and-invest frameworks, carbon offsets, zero-emission standards, and greenhouse gas inventories."
+        },
+        {
+          "id": "clean-energy-grid-modernization",
+          "label": "Clean Energy & Grid Modernization",
+          "description": "Renewable energy transition goals, transmission line permitting, and clean technology deployment."
+        },
+        {
+          "id": "climate-adaptation-resilience",
+          "label": "Climate Adaptation & Resilience",
+          "description": "Coastal relocation, drought/flood mitigation, hazard planning, and infrastructure hardening."
+        }
+      ]
+    },
+    {
+      "id": "natural-resources-conservation-wildlife",
+      "label": "Natural Resources, Conservation, & Wildlife",
+      "subcategories": [
+        {
+          "id": "wildlife-endangered-species-management",
+          "label": "Wildlife & Endangered Species Management",
+          "description": "Habitat protection, critical habitat designations, species recovery plans, and migratory species oversight."
+        },
+        {
+          "id": "fisheries-aquatic-habitat-restoration",
+          "label": "Fisheries & Aquatic Habitat Restoration",
+          "description": "Harvest allocation, passage barrier remediation, hatchery oversight, and marine sanctuary management."
+        },
+        {
+          "id": "forestry-land-management",
+          "label": "Forestry & Land Management",
+          "description": "Timber harvest regulation, wildfire mitigation, soil conservation, and public land stewardship."
+        }
+      ]
+    },
+    {
+      "id": "healthcare-infrastructure-public-health",
+      "label": "Healthcare Infrastructure & Public Health",
+      "subcategories": [
+        {
+          "id": "healthcare-service-delivery",
+          "label": "Healthcare Service Delivery",
+          "description": "Primary care access, rural/remote facility operations, and specialty care network development."
+        },
+        {
+          "id": "public-health-disease-surveillance",
+          "label": "Public Health & Disease Surveillance",
+          "description": "Epidemic tracking, immunization policy, health emergency preparedness, and sovereign health data sharing."
+        },
+        {
+          "id": "behavioral-mental-health",
+          "label": "Behavioral & Mental Health",
+          "description": "Substance use prevention, mental health crisis intervention, and community-based recovery services."
+        },
+        {
+          "id": "health-financing-insurance",
+          "label": "Health Financing & Insurance",
+          "description": "Public insurance program administration, federal match/reimbursement mechanisms, and uncompensated care funds."
+        }
+      ]
+    },
+    {
+      "id": "education-human-development",
+      "label": "Education & Human Development",
+      "subcategories": [
+        {
+          "id": "early-childhood-k12-education",
+          "label": "Early Childhood & Primary/Secondary (K-12) Education",
+          "description": "Core academic standards, basic education funding apportionments, and district administration."
+        },
+        {
+          "id": "culturally-responsive-alternative-schooling",
+          "label": "Culturally Responsive & Alternative Schooling",
+          "description": "Autonomous compact or magnet models, language immersion, and place-based history curricula."
+        },
+        {
+          "id": "higher-education-workforce-training",
+          "label": "Higher Education & Workforce Training",
+          "description": "Post-secondary institution governance, career/technical education, professional licensing, and adult literacy."
+        },
+        {
+          "id": "student-health-nutrition",
+          "label": "Student Health & Nutrition",
+          "description": "Universal meal programs, direct certification models, and campus safety policy."
+        }
+      ]
+    },
+    {
+      "id": "public-safety-justice-judicial-administration",
+      "label": "Public Safety, Justice, & Judicial Administration",
+      "subcategories": [
+        {
+          "id": "criminal-law-jurisdictional-oversight",
+          "label": "Criminal Law & Jurisdictional Oversight",
+          "description": "Cross-jurisdictional policing, concurrent jurisdiction frameworks, and law-enforcement training standards."
+        },
+        {
+          "id": "judicial-systems-tribal-state-courts",
+          "label": "Judicial Systems & Tribal/State Courts",
+          "description": "Court system administration, dispute resolution, alternative justice models, and extradition protocols."
+        },
+        {
+          "id": "juvenile-justice-intervention",
+          "label": "Juvenile Justice & Intervention",
+          "description": "Youth diversion programs, detention facility standards, and rehabilitative services."
+        },
+        {
+          "id": "emergency-management-first-response",
+          "label": "Emergency Management & First Response",
+          "description": "Intergovernmental disaster response agreements, mutual aid protocols, and emergency communications infrastructure."
+        }
+      ]
+    },
+    {
+      "id": "taxation-revenue-commercial-governance",
+      "label": "Taxation, Revenue, & Commercial Governance",
+      "subcategories": [
+        {
+          "id": "sales-excise-fuel-taxation",
+          "label": "Sales, Excise, & Fuel Taxation",
+          "description": "Intergovernmental tax compacts, dual-taxation mitigation, retail tax allocations, and fuel/tobacco regulation."
+        },
+        {
+          "id": "commercial-enterprise-gaming",
+          "label": "Commercial Enterprise & Gaming",
+          "description": "Class II and Class III gaming oversight, exclusivity fee arrangements, and commercial business licensing."
+        },
+        {
+          "id": "economic-development-grants-management",
+          "label": "Economic Development & Grants Management",
+          "description": "Capital allocation for local infrastructure, enterprise-zone incentives, and small-business support programs."
+        }
+      ]
+    },
+    {
+      "id": "child-welfare-family-social-services",
+      "label": "Child Welfare, Family, & Social Services",
+      "subcategories": [
+        {
+          "id": "child-protective-services-adoption",
+          "label": "Child Protective Services & Adoption",
+          "description": "Foster care placement standards, family preservation frameworks, and legal jurisdiction over custody proceedings."
+        },
+        {
+          "id": "family-support-income-maintenance",
+          "label": "Family Support & Income Maintenance",
+          "description": "Public assistance programs, temporary support funds, and food-security benefits."
+        },
+        {
+          "id": "elder-vulnerable-adult-protection",
+          "label": "Elder & Vulnerable Adult Protection",
+          "description": "Long-term care support, adult protective services, and community caregiving-network administration."
+        }
+      ]
+    },
+    {
+      "id": "infrastructure-transportation-broadband",
+      "label": "Infrastructure, Transportation, & Broadband",
+      "subcategories": [
+        {
+          "id": "transportation-freight-infrastructure",
+          "label": "Transportation & Freight Infrastructure",
+          "description": "Highway, road, and bridge construction, transit funding allocations, and right-of-way planning."
+        },
+        {
+          "id": "digital-access-broadband-infrastructure",
+          "label": "Digital Access & Broadband Infrastructure",
+          "description": "Rural connectivity expansion, middle-mile infrastructure development, and digital-equity grants."
+        },
+        {
+          "id": "water-infrastructure-utilities",
+          "label": "Water Infrastructure & Utilities",
+          "description": "Municipal water treatment systems, dam safety, and utility-grid interconnections."
+        }
+      ]
+    },
+    {
+      "id": "historic-preservation-cultural-resources",
+      "label": "Historic Preservation & Cultural Resources",
+      "subcategories": [
+        {
+          "id": "cultural-resource-protection",
+          "label": "Cultural Resource Protection",
+          "description": "Early consultation mandates for public projects, historic landmark designations, and protection of traditional cultural places."
+        },
+        {
+          "id": "repatriation-museum-stewardship",
+          "label": "Repatriation & Museum Stewardship",
+          "description": "Preservation, inventory, and repatriation procedures for cultural artifacts and ancestral remains."
+        }
+      ]
+    }
+  ]
+}

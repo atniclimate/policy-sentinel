@@ -1,0 +1,1217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/record.schema.v1.json",
+  "title": "Policy Sentinel public record",
+  "description": "Source-reference record contract. Fields describe published source facts and provenance, not legal conclusions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "internalId",
+    "source",
+    "officialTitle",
+    "sourceDocumentIdentifier",
+    "documentType",
+    "jurisdiction",
+    "issuingBodies",
+    "legislativeContext",
+    "status",
+    "dates",
+    "urls",
+    "texts",
+    "sponsors",
+    "committees",
+    "actionHistory",
+    "statusHistory",
+    "officialSubjects",
+    "taxonomyMemberships",
+    "isUnclassified",
+    "relevance",
+    "nationAssociations",
+    "landmark",
+    "historical",
+    "dataQuality",
+    "sourceHealth",
+    "change",
+    "aiSummary",
+    "fieldProvenance"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "internalId": {
+      "type": "string",
+      "pattern": "^psr:[a-z0-9]+(?:-[a-z0-9]+)*:[A-Za-z0-9._~:-]+$"
+    },
+    "source": {
+      "$ref": "#/$defs/source"
+    },
+    "officialTitle": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sourceDocumentIdentifier": {
+      "type": "string",
+      "minLength": 1
+    },
+    "documentType": {
+      "enum": [
+        "bill",
+        "resolution",
+        "statute",
+        "regulation",
+        "proposed_rule",
+        "rulemaking",
+        "executive_action",
+        "notice",
+        "implementation_material",
+        "grant_opportunity",
+        "litigation_filing",
+        "court_decision",
+        "administrative_decision",
+        "intergovernmental_accord",
+        "county_policy",
+        "county_ordinance",
+        "tribal_government_document",
+        "treaty",
+        "other"
+      ]
+    },
+    "jurisdiction": {
+      "$ref": "#/$defs/jurisdiction"
+    },
+    "issuingBodies": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/namedEntity"
+      }
+    },
+    "legislativeContext": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "congress": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1
+            },
+            "session": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "chamber": {
+              "enum": [
+                "house",
+                "senate",
+                "joint",
+                "unicameral",
+                "not_applicable",
+                null
+              ]
+            }
+          },
+          "required": [
+            "congress",
+            "session",
+            "chamber"
+          ]
+        }
+      ]
+    },
+    "status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "normalized",
+        "sourceLabel",
+        "asOf"
+      ],
+      "properties": {
+        "normalized": {
+          "enum": [
+            "proposed",
+            "active",
+            "committee",
+            "enacted",
+            "effective",
+            "historical",
+            "closed",
+            "withdrawn",
+            "decided",
+            "superseded",
+            "unknown"
+          ]
+        },
+        "sourceLabel": {
+          "type": "string",
+          "minLength": 1
+        },
+        "asOf": {
+          "$ref": "#/$defs/dateOrDateTime"
+        }
+      }
+    },
+    "dates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "introduced",
+        "published",
+        "updated",
+        "lastAction",
+        "deadline",
+        "effective",
+        "retrieved"
+      ],
+      "properties": {
+        "introduced": {
+          "$ref": "#/$defs/nullableDate"
+        },
+        "published": {
+          "$ref": "#/$defs/nullableDate"
+        },
+        "updated": {
+          "$ref": "#/$defs/nullableDateOrDateTime"
+        },
+        "lastAction": {
+          "$ref": "#/$defs/nullableDate"
+        },
+        "deadline": {
+          "$ref": "#/$defs/nullableDateOrDateTime"
+        },
+        "effective": {
+          "$ref": "#/$defs/nullableDate"
+        },
+        "retrieved": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "urls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "officialSource",
+        "officialFullText"
+      ],
+      "properties": {
+        "officialSource": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "officialFullText": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/httpsUrl"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "texts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "officialSummary",
+        "sourceExcerpt",
+        "detailAsset"
+      ],
+      "properties": {
+        "officialSummary": {
+          "$ref": "#/$defs/nullableSourceText"
+        },
+        "sourceExcerpt": {
+          "$ref": "#/$defs/nullableSourceText"
+        },
+        "detailAsset": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "availability",
+            "path",
+            "reproductionBasis"
+          ],
+          "properties": {
+            "availability": {
+              "enum": [
+                "none",
+                "official_link_only",
+                "permitted_static_asset"
+              ]
+            },
+            "path": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^details/[A-Za-z0-9._/-]+\\.json$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "reproductionBasis": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "sponsors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/namedEntity"
+      }
+    },
+    "committees": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/namedEntity"
+      }
+    },
+    "actionHistory": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/historyEvent"
+      }
+    },
+    "statusHistory": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/historyEvent"
+      }
+    },
+    "officialSubjects": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/officialSubject"
+      }
+    },
+    "taxonomyMemberships": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/taxonomyMembership"
+      }
+    },
+    "isUnclassified": {
+      "type": "boolean"
+    },
+    "relevance": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/relevance"
+      }
+    },
+    "nationAssociations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/nationAssociation"
+      }
+    },
+    "landmark": {
+      "$ref": "#/$defs/landmark"
+    },
+    "historical": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "isHistorical",
+        "pre1980Treatment"
+      ],
+      "properties": {
+        "isHistorical": {
+          "type": "boolean"
+        },
+        "pre1980Treatment": {
+          "enum": [
+            "not_applicable",
+            "list_and_link",
+            "landmark_detail"
+          ]
+        }
+      }
+    },
+    "dataQuality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "validatedAt",
+        "validator",
+        "issues"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "pending",
+            "validated",
+            "incomplete",
+            "rejected"
+          ]
+        },
+        "validatedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "validator": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "sourceHealth": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "checkedAt",
+        "dataAsOf",
+        "lastSuccessfulRetrievalAt",
+        "usingLastKnownGood",
+        "message"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "healthy",
+            "degraded",
+            "failed",
+            "unknown"
+          ]
+        },
+        "checkedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "dataAsOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastSuccessfulRetrievalAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "usingLastKnownGood": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "firstSeenAt",
+        "lastSeenAt",
+        "kind",
+        "urgentAlert"
+      ],
+      "properties": {
+        "firstSeenAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastSeenAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "kind": {
+          "enum": [
+            "new",
+            "changed",
+            "unchanged"
+          ]
+        },
+        "urgentAlert": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "basis",
+                "label",
+                "date"
+              ],
+              "properties": {
+                "basis": {
+                  "enum": [
+                    "source_deadline",
+                    "source_status"
+                  ]
+                },
+                "label": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "date": {
+                  "$ref": "#/$defs/nullableDateOrDateTime"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "aiSummary": {
+      "$ref": "#/$defs/aiSummary"
+    },
+    "fieldProvenance": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/fieldProvenance"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "taxonomyMemberships": {
+            "type": "array",
+            "maxItems": 0
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "isUnclassified": {
+            "const": true
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "isUnclassified": {
+            "const": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "jurisdiction": {
+            "type": "object",
+            "properties": {
+              "level": {
+                "const": "county"
+              }
+            },
+            "required": [
+              "level"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "nationAssociations": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "basis": {
+                  "const": "explicit_mention"
+                }
+              }
+            }
+          },
+          "relevance": {
+            "type": "array",
+            "contains": {
+              "type": "object",
+              "properties": {
+                "basis": {
+                  "const": "explicit_nation_reference"
+                }
+              },
+              "required": [
+                "basis"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "jurisdiction": {
+            "type": "object",
+            "properties": {
+              "level": {
+                "enum": [
+                  "federal",
+                  "state"
+                ]
+              }
+            },
+            "required": [
+              "level"
+            ]
+          },
+          "nationAssociations": {
+            "type": "array",
+            "maxItems": 0
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "jurisdiction": {
+            "type": "object",
+            "properties": {
+              "generalJurisdictionOnly": {
+                "const": true
+              }
+            }
+          },
+          "relevance": {
+            "type": "array",
+            "contains": {
+              "type": "object",
+              "properties": {
+                "basis": {
+                  "const": "general_jurisdiction"
+                }
+              },
+              "required": [
+                "basis"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "httpsUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "dateOrDateTime": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "nullableDate": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nullableDateOrDateTime": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/dateOrDateTime"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "provider",
+        "recordId",
+        "adapterId",
+        "adapterVersion",
+        "coverage",
+        "attribution"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/slug"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "recordId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "adapterId": {
+          "$ref": "#/$defs/slug"
+        },
+        "adapterVersion": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "from",
+            "through",
+            "notes"
+          ],
+          "properties": {
+            "from": {
+              "$ref": "#/$defs/nullableDate"
+            },
+            "through": {
+              "$ref": "#/$defs/nullableDate"
+            },
+            "notes": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "attribution": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "namedEntity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceId",
+        "officialName"
+      ],
+      "properties": {
+        "sourceId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "officialName": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "jurisdiction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "level",
+        "name",
+        "stateCode",
+        "generalJurisdictionOnly"
+      ],
+      "properties": {
+        "level": {
+          "enum": [
+            "federal",
+            "state",
+            "county",
+            "tribal",
+            "other"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stateCode": {
+          "oneOf": [
+            {
+              "type": "string",
+              "enum": [
+                "WA",
+                "OR",
+                "ID"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "generalJurisdictionOnly": {
+          "type": "boolean"
+        }
+      }
+    },
+    "sourceText": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text",
+        "sourceUrl",
+        "sourceDate",
+        "reproductionBasis"
+      ],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceUrl": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "sourceDate": {
+          "$ref": "#/$defs/nullableDate"
+        },
+        "reproductionBasis": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "nullableSourceText": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/sourceText"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "historyEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "date",
+        "sourceLabel",
+        "sourceUrl"
+      ],
+      "properties": {
+        "date": {
+          "$ref": "#/$defs/nullableDateOrDateTime"
+        },
+        "sourceLabel": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceUrl": {
+          "$ref": "#/$defs/httpsUrl"
+        }
+      }
+    },
+    "officialSubject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scheme",
+        "label",
+        "sourceUrl"
+      ],
+      "properties": {
+        "scheme": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceUrl": {
+          "$ref": "#/$defs/httpsUrl"
+        }
+      }
+    },
+    "taxonomyMembership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "categoryId",
+        "subcategoryId",
+        "mappingRuleId",
+        "taxonomyVersion",
+        "officialSubjectLabels"
+      ],
+      "properties": {
+        "categoryId": {
+          "$ref": "#/$defs/slug"
+        },
+        "subcategoryId": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/slug"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mappingRuleId": {
+          "$ref": "#/$defs/slug"
+        },
+        "taxonomyVersion": {
+          "const": "1.0.0"
+        },
+        "officialSubjectLabels": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "relevance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "basis",
+        "label",
+        "sourceUrl",
+        "evidence"
+      ],
+      "properties": {
+        "basis": {
+          "enum": [
+            "explicit_nation_reference",
+            "general_jurisdiction",
+            "landmark",
+            "source_defined"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceUrl": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "nationAssociation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "nationId",
+        "officialNationName",
+        "basis",
+        "evidenceText",
+        "evidenceUrl",
+        "evidenceLocation",
+        "validationState"
+      ],
+      "properties": {
+        "nationId": {
+          "type": "string",
+          "pattern": "^nation:[A-Za-z0-9._~-]+$"
+        },
+        "officialNationName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis": {
+          "enum": [
+            "explicit_mention",
+            "issuing_government"
+          ]
+        },
+        "evidenceText": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidenceUrl": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "evidenceLocation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "validationState": {
+          "const": "validated"
+        }
+      }
+    },
+    "landmark": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "isLandmark"
+          ],
+          "properties": {
+            "isLandmark": {
+              "const": false
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "isLandmark",
+            "criterionCodes",
+            "officialEvidence"
+          ],
+          "properties": {
+            "isLandmark": {
+              "const": true
+            },
+            "criterionCodes": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "documented-court-decision",
+                  "treaty",
+                  "statute",
+                  "public-state-federal-accord",
+                  "officially-identified-foundational"
+                ]
+              }
+            },
+            "officialEvidence": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/sourceText"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "aiSummary": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "exists",
+            "label"
+          ],
+          "properties": {
+            "exists": {
+              "const": false
+            },
+            "label": {
+              "const": "AI-generated source summary"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "exists",
+            "label",
+            "text",
+            "generatedAt",
+            "model",
+            "provider",
+            "buildId",
+            "policyVersion",
+            "citedInputs",
+            "validationState"
+          ],
+          "properties": {
+            "exists": {
+              "const": true
+            },
+            "label": {
+              "const": "AI-generated source summary"
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^—]*$"
+            },
+            "generatedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "model": {
+              "type": "string",
+              "minLength": 1
+            },
+            "provider": {
+              "type": "string",
+              "minLength": 1
+            },
+            "buildId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "policyVersion": {
+              "type": "string",
+              "minLength": 1
+            },
+            "citedInputs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "field",
+                  "sourceUrl",
+                  "sourceDate"
+                ],
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "pattern": "^/"
+                  },
+                  "sourceUrl": {
+                    "$ref": "#/$defs/httpsUrl"
+                  },
+                  "sourceDate": {
+                    "$ref": "#/$defs/nullableDate"
+                  }
+                }
+              }
+            },
+            "validationState": {
+              "const": "approved"
+            }
+          }
+        }
+      ]
+    },
+    "fieldProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field",
+        "sourcePath",
+        "sourceId",
+        "sourceRecordId",
+        "sourceUrl",
+        "retrievedAt",
+        "sourceUpdatedAt",
+        "adapterId",
+        "transformation",
+        "transformRuleId",
+        "validationState"
+      ],
+      "properties": {
+        "field": {
+          "type": "string",
+          "pattern": "^/"
+        },
+        "sourcePath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceId": {
+          "$ref": "#/$defs/slug"
+        },
+        "sourceRecordId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceUrl": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "retrievedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sourceUpdatedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "adapterId": {
+          "$ref": "#/$defs/slug"
+        },
+        "transformation": {
+          "enum": [
+            "copied",
+            "normalized",
+            "deterministic_mapping",
+            "combined"
+          ]
+        },
+        "transformRuleId": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/slug"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "validationState": {
+          "enum": [
+            "pending",
+            "validated",
+            "rejected"
+          ]
+        }
+      }
+    }
+  }
+}

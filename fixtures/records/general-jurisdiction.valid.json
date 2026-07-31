@@ -1,0 +1,203 @@
+{
+  "schemaVersion": "1.0.0",
+  "internalId": "psr:synthetic-federal:record-001",
+  "source": {
+    "id": "synthetic-federal",
+    "name": "Synthetic Federal Source",
+    "provider": "Synthetic Public Agency",
+    "recordId": "SYN-001",
+    "adapterId": "synthetic-adapter",
+    "adapterVersion": "1.0.0",
+    "coverage": {
+      "from": "2020-01-01",
+      "through": null,
+      "notes": "Synthetic coverage for contract testing only."
+    },
+    "attribution": "Synthetic Public Agency"
+  },
+  "officialTitle": "Synthetic public notice for contract validation",
+  "sourceDocumentIdentifier": "SYN-001",
+  "documentType": "notice",
+  "jurisdiction": {
+    "level": "federal",
+    "name": "United States",
+    "stateCode": null,
+    "generalJurisdictionOnly": true
+  },
+  "issuingBodies": [
+    {
+      "sourceId": "agency-synthetic",
+      "officialName": "Synthetic Public Agency"
+    }
+  ],
+  "legislativeContext": null,
+  "status": {
+    "normalized": "active",
+    "sourceLabel": "Open",
+    "asOf": "2026-07-29"
+  },
+  "dates": {
+    "introduced": null,
+    "published": "2026-07-29",
+    "updated": "2026-07-29T12:00:00Z",
+    "lastAction": null,
+    "deadline": "2026-09-01T23:59:59Z",
+    "effective": null,
+    "retrieved": "2026-07-30T12:00:00Z"
+  },
+  "urls": {
+    "officialSource": "https://official.example.invalid/records/SYN-001",
+    "officialFullText": "https://official.example.invalid/records/SYN-001.pdf"
+  },
+  "texts": {
+    "officialSummary": {
+      "text": "This is synthetic source-provided summary text.",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "sourceDate": "2026-07-29",
+      "reproductionBasis": "Synthetic fixture text."
+    },
+    "sourceExcerpt": null,
+    "detailAsset": {
+      "availability": "official_link_only",
+      "path": null,
+      "reproductionBasis": null
+    }
+  },
+  "sponsors": [],
+  "committees": [],
+  "actionHistory": [],
+  "statusHistory": [
+    {
+      "date": "2026-07-29",
+      "sourceLabel": "Open",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001"
+    }
+  ],
+  "officialSubjects": [],
+  "taxonomyMemberships": [],
+  "isUnclassified": true,
+  "relevance": [
+    {
+      "basis": "general_jurisdiction",
+      "label": "General federal jurisdiction",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "evidence": "The official source identifies the issuing body as a federal agency and does not name a Nation."
+    }
+  ],
+  "nationAssociations": [],
+  "landmark": {
+    "isLandmark": false
+  },
+  "historical": {
+    "isHistorical": false,
+    "pre1980Treatment": "not_applicable"
+  },
+  "dataQuality": {
+    "state": "validated",
+    "validatedAt": "2026-07-30T12:01:00Z",
+    "validator": "synthetic-fixture-validator",
+    "issues": []
+  },
+  "sourceHealth": {
+    "status": "healthy",
+    "checkedAt": "2026-07-30T12:00:30Z",
+    "dataAsOf": "2026-07-29T12:00:00Z",
+    "lastSuccessfulRetrievalAt": "2026-07-30T12:00:00Z",
+    "usingLastKnownGood": false,
+    "message": null
+  },
+  "change": {
+    "firstSeenAt": "2026-07-30T12:00:00Z",
+    "lastSeenAt": "2026-07-30T12:00:00Z",
+    "kind": "new",
+    "urgentAlert": {
+      "basis": "source_deadline",
+      "label": "Official deadline approaching",
+      "date": "2026-09-01T23:59:59Z"
+    }
+  },
+  "aiSummary": {
+    "exists": false,
+    "label": "AI-generated source summary"
+  },
+  "fieldProvenance": [
+    {
+      "field": "/officialTitle",
+      "sourcePath": "$.title",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/sourceDocumentIdentifier",
+      "sourcePath": "$.identifier",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/documentType",
+      "sourcePath": "$.type",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "normalized",
+      "transformRuleId": "synthetic-document-type-v1",
+      "validationState": "validated"
+    },
+    {
+      "field": "/jurisdiction/name",
+      "sourcePath": "$.jurisdiction",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/status/sourceLabel",
+      "sourcePath": "$.status",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/urls/officialSource",
+      "sourcePath": "$.url",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    }
+  ]
+}

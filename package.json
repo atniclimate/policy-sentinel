@@ -1,0 +1,18 @@
+{
+  "name": "policy-sentinel-foundation",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Phase A documentation, taxonomy, schema, and foundation validation for Policy Sentinel",
+  "type": "module",
+  "scripts": {
+    "validate:foundation": "node scripts/validate-foundation.mjs",
+    "test": "npm run validate:foundation"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

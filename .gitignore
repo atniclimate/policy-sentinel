@@ -1,0 +1,20 @@
+node_modules/
+dist/
+coverage/
+.cache/
+.DS_Store
+Thumbs.db
+*.log
+
+# Generated policy data belongs only in an approved Pages deployment artifact.
+public-data/
+generated-data/
+raw-data/
+cached-responses/
+ai-summaries/
+
+# Local secrets and private deployment material are never committed.
+.env
+.env.*
+private/
+secrets/
