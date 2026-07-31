@@ -2,7 +2,8 @@
 
 Accessed: 2026-07-31
 
-Implementation state: researched, registered disabled, no production records
+Implementation state: adapter and bounded artifact integration implemented
+locally; registered disabled; no production records
 
 External authorization: none required for the documented public API
 
@@ -150,9 +151,60 @@ longer accurate. On 2026-07-31:
 The full 1994-01-03 through 2026-07-31 daily facet contained 11,898 issue dates
 and reported 1,005,337 documents, with a maximum of 344 on one date. This is a
 source-scale observation, not authorization to emit a million-record static
-artifact. B4-FR-UX must establish an explicit eligible range or selection
-policy, measure the resulting compact index and detail assets, and make the
-actual public range visible before G-J can open.
+artifact.
+
+The B4-FR-UX measurement used rolling calendar windows ending 2026-07-31. The
+daily facet reported 1,057 documents for 14 days, 2,319 for 31 days, 4,525 for
+60 days, 6,844 for 90 days, 13,266 for 180 days, and 24,504 for 365 days. A
+scan of all available daily counts found the largest inclusive 31-day window
+at 3,442 documents for 1998-03-16 through 1998-04-15. These are unfiltered
+provider counts, so they conservatively include historical types that cannot
+become public records.
+
+The versioned beta policy therefore selects the most recent 31 calendar days,
+inclusive, clamps the beginning to the documented source start, and fails
+before search when the daily facet exceeds 4,000 documents. It never trims
+individual records to fit. The normalized record and public coverage artifact
+carry the selected range; the coverage artifact separately carries the
+documented provider range and the earliest/latest validated record actually
+emitted. A healthy bounded build is labeled `limited`, not complete or
+1994-present.
+
+Reciprocal correction relationships are kept as graph components. If an
+otherwise eligible in-window record belongs to a correction component whose
+reciprocal member falls outside the selected window, the in-window component is
+also omitted. The build records the exact number of these boundary exclusions
+in its coverage limitation instead of leaving a dangling relationship or
+silently implying completeness.
+
+An in-memory 1994-01-03 packaging sample used the 94 eligible normalized
+records from the live canary. Re-measurement against artifact package `1.1.0`
+and its additive compact fields produced a 183,051-byte index, 2,030,738 bytes
+of detail assets, a 26,702-byte largest detail, 370,527 bytes of initial
+non-detail assets, and 2,401,265 total hashed-asset bytes. No response,
+normalized record, artifact, cache, or temporary file was persisted.
+Extrapolating the measured bytes per record to the 3,442-document historical
+maximum supported the following fail-closed static-artifact v1 budgets:
+
+- compact index: 6 MiB;
+- all non-detail initial JSON assets: 8 MiB;
+- one detail asset: 256 KiB;
+- all detail assets: 128 MiB; and
+- all hashed JSON assets: 136 MiB.
+
+The packager rejects the whole candidate artifact if a budget is exceeded.
+These ceilings are guards, not performance targets or evidence that every
+future 31-day window will fit. Any exceedance keeps the prior checksum-validated
+artifact eligible for last-known-good handling and requires a reviewed
+sharding or range-policy change.
+
+Artifact package `1.1.0` adds documented/selected/actual range metadata and
+card-critical compact fields without changing schema `1.0.0`; legacy
+package-`1.0.0` coverage and compact-index fixtures remain valid. Packaging
+requires an authoritative refresh health receipt for an enabled
+non-synthetic source, including failure stage and last-known-good state.
+Validation applies the manifest-declared budgets and checks actual on-disk
+sizes before reading asset bodies.
 
 The documented page-size maximum remains 1,000. Live values from 2 through
 2,000 were accepted, while 1, zero, invalid values, and values above 2,000
@@ -347,7 +399,8 @@ action. Source-registry v1.2 records the versioned build-time adapter and access
 date 2026-07-31, but keeps the source disabled. Disabled sources are excluded
 from coverage, health, manifests, and record output.
 
-The adapter uses only hand-authored synthetic contract fixtures in Git. Its
+The adapter and integrated artifact/UI tests use only hand-authored synthetic
+contract fixtures in Git. Its
 retrieval barrier validates bounded transport, deterministic date slicing,
 opaque pagination, complete metadata replay, pre/post daily facets, selected
 issue inventories, correction graphs, and related-document targets before
@@ -364,8 +417,15 @@ reconciled all 105 source documents and produced 94 unique eligible records,
 excluding the 11 exact `Uncategorized Document` entries. No live response,
 normalized record, or generated artifact was persisted.
 
-Federal Register remains disabled until G-J is satisfied by integrated
-artifact, UI, coverage, source-health, last-known-good, and malformed-input
-tests. Early records with no individual PDF remain link-limited; an
-issue-level GovInfo link may be added only after that exact rendition is
-verified. No live response or normalized provider record may enter Git.
+The local artifact contract distinguishes the documented source range,
+selected artifact window, and actual earliest/latest validated record. It
+enforces deterministic index/detail budgets before writing, while the
+application exposes bounded coverage, freshness, health, general-jurisdiction,
+Unclassified, relationship, dossier, and CSV states from same-origin static
+assets.
+
+Federal Register remains disabled until the owner separately opens G-J after
+reviewing the completed evidence. Early records with no individual PDF remain
+link-limited; an issue-level GovInfo link may be added only after that exact
+rendition is verified. No live response or normalized provider record may
+enter Git.

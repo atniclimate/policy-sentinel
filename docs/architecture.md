@@ -113,6 +113,25 @@ language, actions, and provenance do not inflate initial page load. Index
 entries contain only fields needed for search, filtering, cards, selection, and
 detail lookup.
 
+Static artifact policy v1 fails packaging before any write when the compact
+index exceeds 6 MiB, non-detail initial JSON exceeds 8 MiB, one detail exceeds
+256 KiB, all details exceed 128 MiB, or all hashed JSON assets exceed 136 MiB.
+These ceilings were selected from the documented Federal Register rolling-range
+measurement and are versioned safety limits rather than targets. A source must
+also publish its documented range, selected artifact window, actual
+earliest/latest validated record, count, health, and limitations. A bounded
+healthy slice is `limited`; it is never relabeled as complete source history.
+Validation checks both manifest-declared and actual on-disk asset sizes before
+reading asset content. For every enabled non-synthetic source, packaging
+requires the authoritative refresh health receipt and preserves its failure
+stage, freshness, last-known-good timestamps, stale state, and message.
+
+Artifact package `1.1.0` adds the richer coverage fields and the card-critical
+source document identifier, issuing bodies, and official-source URL to the
+compact index. These additions remain optional under schema `1.0.0`, so
+historical package `1.0.0` coverage and index documents continue to validate;
+current packages always emit the additive fields.
+
 ## Adapter boundaries
 
 Each public source receives its own adapter and registry entry. The conceptual

@@ -135,12 +135,46 @@ An official label that has no approved exact mapping leaves the record
 `Unclassified`. This is a visible discovery state, not an error and not a
 reason to exclude the record.
 
+## Static coverage artifact
+
+Every enabled source has one coverage entry. It keeps three ranges distinct:
+
+- `documentedFrom` and `documentedThrough` describe the reviewed provider
+  availability in the source registry;
+- `from` and `through` describe the exact window selected for the candidate
+  public artifact; and
+- `recordFrom` and `recordThrough`, together with `recordCount`, describe the
+  publication dates and count of validated records actually present.
+
+All emitted records for one source must carry the same selected range, and each
+actual record date must fall inside it. The packager rejects inconsistent or
+out-of-bounds ranges. A non-synthetic source with a bounded window is
+`limited` even when its refresh health is `healthy`; health and coverage are
+different facts. Disabled source identifiers remain absent at every artifact
+boundary.
+
+Static artifact budget v1 is measured on the same deterministic UTF-8 JSON
+serialization hashed by the manifest. Packaging fails closed before writing if
+the compact index exceeds 6 MiB, initial non-detail JSON exceeds 8 MiB, any
+detail exceeds 256 KiB, aggregate details exceed 128 MiB, or all hashed assets
+exceed 136 MiB. Validation rejects over-budget manifest declarations and
+actual filesystem sizes before reading artifact asset bodies. No record is
+silently dropped to make an artifact fit.
+
+Every enabled non-synthetic source supplies its authoritative refresh health
+receipt to packaging. The artifact preserves `failureStage`, retrieval and
+data-as-of timestamps, last-known-good use, stale state, record count, and the
+neutral public message. A source with no validated current or last-known-good
+records is unavailable and contributes no records. Synthetic-only builds may
+derive health from their hand-authored records.
+
 ## Versioning
 
 The artifact manifest names the record, taxonomy, mapping, source-registry, and
 build versions. Additive compatible changes can increment the minor version.
-Current builds emit record schema `1.1.0`; the artifact manifest contract can
-still identify historical `1.0.0` builds.
+Current builds emit artifact package `1.1.0` and record schema `1.1.0`; artifact
+schema `1.0.0` still accepts historical package `1.0.0` coverage, compact-index,
+and manifest shapes.
 Breaking field or meaning changes require a new major schema, migration and
 backward-compatibility fixtures, and an explicit decision-register entry.
 Historical artifacts are interpreted under the versions recorded at their
