@@ -366,15 +366,18 @@ export interface FieldProvenance {
 export interface RecordIndexEntry {
   id: string;
   detailPath: string;
+  sourceDocumentIdentifier: string;
   officialTitle: string;
   documentType: string;
   jurisdiction: PolicyRecord["jurisdiction"];
+  issuingBodies: string[];
   status: PolicyRecord["status"];
   source: Pick<RecordSource, "id" | "name" | "provider">;
   dates: Pick<
     PolicyRecord["dates"],
     "published" | "updated" | "lastAction" | "deadline"
   >;
+  urls: Pick<PolicyRecord["urls"], "officialSource">;
   taxonomyMemberships: Array<
     Pick<TaxonomyMembership, "categoryId" | "subcategoryId">
   >;

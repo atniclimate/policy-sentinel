@@ -65,6 +65,56 @@ const sourceConfigs = new Map(
 const nations = generateSyntheticNations();
 const preparedFederal = completeSyntheticProvenance(federalFixture);
 const preparedCounty = completeSyntheticProvenance(countyFixture);
+const defaultGeneratedAt = "2026-07-30T15:00:00.000Z";
+
+function sourceHealthReceiptsFor(registry, records, receiptOverrides = []) {
+  const overridesBySource = new Map(
+    receiptOverrides.map((receipt) => [receipt.sourceId, receipt]),
+  );
+  return registry.sources
+    .filter(({ enabled }) => enabled)
+    .map((source) => {
+      const override = overridesBySource.get(source.id);
+      if (override !== undefined) {
+        return globalThis.structuredClone(override);
+      }
+      const sourceRecords = records.filter(
+        (record) => record.source.id === source.id,
+      );
+      const latest = sourceRecords
+        .map((record) => record.sourceHealth)
+        .sort((left, right) => left.checkedAt.localeCompare(right.checkedAt))
+        .at(-1);
+      const dataAsOf = sourceRecords
+        .map((record) => record.sourceHealth.dataAsOf)
+        .sort()
+        .at(-1);
+      const lastSuccessfulRetrievalAt = sourceRecords
+        .map((record) => record.sourceHealth.lastSuccessfulRetrievalAt)
+        .filter((value) => value !== null)
+        .sort()
+        .at(-1);
+      return {
+        sourceId: source.id,
+        status: latest?.status ?? "unavailable",
+        checkedAt: latest?.checkedAt ?? defaultGeneratedAt,
+        dataAsOf: dataAsOf ?? null,
+        lastSuccessfulRetrievalAt: lastSuccessfulRetrievalAt ?? null,
+        usingLastKnownGood: latest?.usingLastKnownGood ?? false,
+        stale:
+          latest === undefined ||
+          latest.usingLastKnownGood ||
+          latest.status !== "healthy",
+        recordCount: sourceRecords.length,
+        failureStage: null,
+        message:
+          latest === undefined
+            ? "No validated records are available."
+            : latest.message,
+      };
+    });
+}
+
 const recordAjv = new Ajv2020({
   allErrors: true,
   allowUnionTypes: true,
@@ -218,7 +268,11 @@ async function createLastKnownGoodFixture({
   };
 }
 
-async function createArtifactValidatorFixture() {
+async function createArtifactValidatorFixture({
+  records = [preparedFederal, preparedCounty],
+  sourceHealth,
+  generatedAt = "2026-07-30T15:00:00Z",
+} = {}) {
   const parent = path.join(
     projectRoot,
     "dist",
@@ -227,12 +281,13 @@ async function createArtifactValidatorFixture() {
   await mkdir(parent, { recursive: true });
   const root = await mkdtemp(path.join(parent, "artifact-"));
   const documents = createArtifactDocuments({
-    records: [preparedFederal, preparedCounty],
+    records,
     nations,
     taxonomy,
     sourceRegistry,
-    generatedAt: "2026-07-30T15:00:00Z",
+    generatedAt,
     synthetic: true,
+    sourceHealth,
   });
   await writeArtifactDocuments({
     documents,
@@ -743,7 +798,7 @@ test("source URLs require exact registered HTTPS hostnames", () => {
   );
 });
 
-test("last-known-good fallback preserves freshness and marks data stale", () => {
+test("last-known-good fallback preserves authoritative health through validation", async () => {
   const previousHealth = {
     sourceId: preparedFederal.source.id,
     status: "healthy",
@@ -773,9 +828,49 @@ test("last-known-good fallback preserves freshness and marks data stale", () => 
     preparedFederal.sourceHealth.dataAsOf,
   );
   assert.equal(result.records[0].sourceHealth.usingLastKnownGood, true);
+  assert.equal(result.health.failureStage, failureFixture.failureStage);
+
+  const records = [result.records[0], preparedCounty];
+  const sourceHealth = sourceHealthReceiptsFor(sourceRegistry, records, [
+    result.health,
+  ]);
+  const documents = createArtifactDocuments({
+    records,
+    nations,
+    taxonomy,
+    sourceRegistry,
+    generatedAt: failureFixture.checkedAt,
+    synthetic: true,
+    sourceHealth,
+  });
+  assert.deepEqual(
+    documents
+      .get("source-health.json")
+      .sources.find(({ sourceId }) => sourceId === result.health.sourceId),
+    {
+      ...result.health,
+      sourceName: sourceConfigs.get(result.health.sourceId).name,
+    },
+  );
+
+  const fixture = await createArtifactValidatorFixture({
+    records,
+    sourceHealth,
+    generatedAt: failureFixture.checkedAt,
+  });
+  try {
+    const validation = runArtifactValidator(fixture.root);
+    assert.equal(
+      validation.status,
+      0,
+      `${validation.stdout}${validation.stderr}`,
+    );
+  } finally {
+    await fixture.cleanup();
+  }
 });
 
-test("failed first refresh omits records and reports unavailable", () => {
+test("failed first refresh packages and validates authoritative unavailable health", async () => {
   const result = mergeSourceRefresh({
     sourceId: preparedFederal.source.id,
     refresh: failureFixture,
@@ -784,6 +879,46 @@ test("failed first refresh omits records and reports unavailable", () => {
   assert.equal(result.health.status, "unavailable");
   assert.equal(result.health.dataAsOf, null);
   assert.equal(result.health.usingLastKnownGood, false);
+  assert.equal(result.health.failureStage, failureFixture.failureStage);
+
+  const records = [preparedCounty];
+  const sourceHealth = sourceHealthReceiptsFor(sourceRegistry, records, [
+    result.health,
+  ]);
+  const documents = createArtifactDocuments({
+    records,
+    nations,
+    taxonomy,
+    sourceRegistry,
+    generatedAt: failureFixture.checkedAt,
+    synthetic: true,
+    sourceHealth,
+  });
+  assert.deepEqual(
+    documents
+      .get("source-health.json")
+      .sources.find(({ sourceId }) => sourceId === result.health.sourceId),
+    {
+      ...result.health,
+      sourceName: sourceConfigs.get(result.health.sourceId).name,
+    },
+  );
+
+  const fixture = await createArtifactValidatorFixture({
+    records,
+    sourceHealth,
+    generatedAt: failureFixture.checkedAt,
+  });
+  try {
+    const validation = runArtifactValidator(fixture.root);
+    assert.equal(
+      validation.status,
+      0,
+      `${validation.stdout}${validation.stderr}`,
+    );
+  } finally {
+    await fixture.cleanup();
+  }
 });
 
 test("last-known-good loader uses hash-verified health and detail bytes", async () => {
@@ -914,8 +1049,7 @@ test("artifact packaging is deterministic, compact, and detail-sharded", () => {
       cadence: "Synthetic build only.",
       recordTypes: ["notice"],
       status: "synthetic",
-      limitation:
-        "Contract-test records only. This is not public policy coverage.",
+      limitation: `${sourceConfigs.get("synthetic-federal").coverage.limitations} ${preparedFederal.source.coverage.notes}`,
     },
   );
   assert.ok(
@@ -937,6 +1071,21 @@ test("artifact packaging is deterministic, compact, and detail-sharded", () => {
     assert.deepEqual(entry.taxonomyMemberships, []);
     assert.deepEqual(entry.landmark, { isLandmark: false });
     assert.match(entry.detailPath, /^details\/[A-Za-z0-9_-]+\.json$/);
+    const sourceRecord = [preparedFederal, preparedCounty].find(
+      ({ internalId }) => internalId === entry.id,
+    );
+    assert.ok(sourceRecord);
+    assert.equal(
+      entry.sourceDocumentIdentifier,
+      sourceRecord.sourceDocumentIdentifier,
+    );
+    assert.deepEqual(
+      entry.issuingBodies,
+      sourceRecord.issuingBodies.map(({ officialName }) => officialName),
+    );
+    assert.deepEqual(entry.urls, {
+      officialSource: sourceRecord.urls.officialSource,
+    });
   }
   for (const detail of [...first.entries()]
     .filter(([assetPath]) => assetPath.startsWith("details/"))
@@ -953,6 +1102,8 @@ test("coverage distinguishes selected, documented, and actual record ranges", ()
   federalRegister.enabled = true;
 
   const record = globalThis.structuredClone(preparedFederal);
+  const selectedCoverageNote =
+    "The selected rolling window excludes correction components that cross its boundary.";
   record.internalId = "psr:federal-register:coverage-record";
   record.source = {
     ...record.source,
@@ -963,18 +1114,21 @@ test("coverage distinguishes selected, documented, and actual record ranges", ()
     coverage: {
       from: "2026-07-01",
       through: "2026-07-30",
-      notes: federalRegister.coverage.limitations,
+      notes: selectedCoverageNote,
     },
   };
   record.sourceDocumentIdentifier = "TST-COVERAGE-1";
+  const artifactRecords = [preparedFederal, preparedCounty, record];
+  const sourceHealth = sourceHealthReceiptsFor(configured, artifactRecords);
 
   const documents = createArtifactDocuments({
-    records: [preparedFederal, preparedCounty, record],
+    records: artifactRecords,
     nations,
     taxonomy,
     sourceRegistry: configured,
     generatedAt: "2026-07-30T15:00:00Z",
     synthetic: true,
+    sourceHealth,
   });
   assert.deepEqual(
     documents
@@ -995,22 +1149,23 @@ test("coverage distinguishes selected, documented, and actual record ranges", ()
       cadence: federalRegister.coverage.cadence,
       recordTypes: ["notice"],
       status: "limited",
-      limitation: federalRegister.coverage.limitations,
+      limitation: `${federalRegister.coverage.limitations} ${selectedCoverageNote}`,
     },
   );
 
   record.source.coverage = {
     from: federalRegister.coverage.from,
     through: federalRegister.coverage.through,
-    notes: federalRegister.coverage.limitations,
+    notes: selectedCoverageNote,
   };
   const documentedSelection = createArtifactDocuments({
-    records: [preparedFederal, preparedCounty, record],
+    records: artifactRecords,
     nations,
     taxonomy,
     sourceRegistry: configured,
     generatedAt: "2026-07-30T15:00:00Z",
     synthetic: true,
+    sourceHealth,
   });
   assert.equal(
     documentedSelection
@@ -1037,6 +1192,51 @@ test("coverage dates prefer publication and fall back to status as-of", () => {
     .entries.find(({ sourceId }) => sourceId === "synthetic-federal");
   assert.equal(coverage.recordFrom, expectedDate);
   assert.equal(coverage.recordThrough, expectedDate);
+});
+
+test("coverage preserves and validates selected-range notes", async () => {
+  const record = globalThis.structuredClone(preparedFederal);
+  const selectedNote =
+    "The selected range excludes relationship components crossing its boundary.";
+  record.source.coverage.notes = selectedNote;
+  const records = [record, preparedCounty];
+  const documents = createArtifactDocuments({
+    records,
+    nations,
+    taxonomy,
+    sourceRegistry,
+    generatedAt: "2026-07-30T15:00:00Z",
+    synthetic: true,
+  });
+  assert.equal(
+    documents
+      .get("coverage.json")
+      .entries.find(({ sourceId }) => sourceId === record.source.id).limitation,
+    `${sourceConfigs.get(record.source.id).coverage.limitations} ${selectedNote}`,
+  );
+
+  const fixture = await createArtifactValidatorFixture({ records });
+  try {
+    let validation = runArtifactValidator(fixture.root);
+    assert.equal(
+      validation.status,
+      0,
+      `${validation.stdout}${validation.stderr}`,
+    );
+    await rewriteArtifactAsset(fixture.root, "coverage.json", (coverage) => {
+      coverage.entries.find(
+        ({ sourceId }) => sourceId === record.source.id,
+      ).limitation = sourceConfigs.get(record.source.id).coverage.limitations;
+    });
+    validation = runArtifactValidator(fixture.root);
+    assert.equal(validation.status, 1);
+    assert.match(
+      `${validation.stdout}${validation.stderr}`,
+      /coverage limitation mismatch/,
+    );
+  } finally {
+    await fixture.cleanup();
+  }
 });
 
 test("coverage packaging rejects inconsistent and out-of-bounds selections", () => {
@@ -1151,6 +1351,47 @@ test("static artifact budgets pass at exact boundaries and fail one byte over", 
         }),
       message,
     );
+  }
+});
+
+test("artifact validation enforces declared and actual budgets before asset reads", async () => {
+  const declaredFixture = await createArtifactValidatorFixture();
+  try {
+    await rewriteArtifactManifest(declaredFixture.root, (manifest) => {
+      manifest.assets.find(
+        ({ path: assetPath }) => assetPath === "index/records.json",
+      ).sizeBytes = STATIC_ARTIFACT_BUDGET_V1.maxIndexBytes + 1;
+    });
+    const validation = runArtifactValidator(declaredFixture.root);
+    assert.equal(validation.status, 1);
+    assert.match(
+      `${validation.stdout}${validation.stderr}`,
+      /compact index exceeds static artifact budget/,
+    );
+  } finally {
+    await declaredFixture.cleanup();
+  }
+
+  const actualFixture = await createArtifactValidatorFixture();
+  try {
+    const manifest = JSON.parse(
+      await readFile(path.join(actualFixture.root, "manifest.json"), "utf8"),
+    );
+    const detailPath = manifest.assets.find(({ path: assetPath }) =>
+      assetPath.startsWith("details/"),
+    ).path;
+    await writeFile(
+      path.join(actualFixture.root, detailPath),
+      " ".repeat(STATIC_ARTIFACT_BUDGET_V1.maxIndividualDetailBytes + 1),
+    );
+    const validation = runArtifactValidator(actualFixture.root);
+    assert.equal(validation.status, 1);
+    assert.match(
+      `${validation.stdout}${validation.stderr}`,
+      /detail asset exceeds static artifact budget/,
+    );
+  } finally {
+    await actualFixture.cleanup();
   }
 });
 
@@ -1280,7 +1521,75 @@ test("artifact validation recomputes coverage counts and actual ranges", async (
   }
 });
 
-test("enabled sources without records remain visibly unavailable", () => {
+test("artifact packaging rejects incomplete or inconsistent health receipts", () => {
+  const configured = globalThis.structuredClone(sourceRegistry);
+  const federalRegister = configured.sources.find(
+    ({ id }) => id === "federal-register",
+  );
+  federalRegister.enabled = true;
+  const records = [preparedFederal, preparedCounty];
+  const firstRun = mergeSourceRefresh({
+    sourceId: federalRegister.id,
+    refresh: failureFixture,
+  });
+  const receipts = sourceHealthReceiptsFor(configured, records, [
+    firstRun.health,
+  ]);
+  const input = {
+    records,
+    nations,
+    taxonomy,
+    sourceRegistry: configured,
+    generatedAt: failureFixture.checkedAt,
+    synthetic: true,
+  };
+
+  assert.throws(
+    () =>
+      createArtifactDocuments({
+        ...input,
+        sourceHealth: receipts.slice(1),
+      }),
+    /receipts do not match enabled registry sources/,
+  );
+  assert.throws(
+    () =>
+      createArtifactDocuments({
+        ...input,
+        sourceHealth: [...receipts, globalThis.structuredClone(receipts[0])],
+      }),
+    /receipts contain duplicate source/,
+  );
+
+  const wrongCount = globalThis.structuredClone(receipts);
+  wrongCount[0].recordCount += 1;
+  assert.throws(
+    () => createArtifactDocuments({ ...input, sourceHealth: wrongCount }),
+    /source-health record count mismatch/,
+  );
+
+  const wrongUnavailableState = globalThis.structuredClone(receipts);
+  wrongUnavailableState.find(
+    ({ sourceId }) => sourceId === federalRegister.id,
+  ).status = "failed";
+  assert.throws(
+    () =>
+      createArtifactDocuments({
+        ...input,
+        sourceHealth: wrongUnavailableState,
+      }),
+    /source-health unavailable state mismatch/,
+  );
+
+  const recordMismatch = globalThis.structuredClone(receipts);
+  recordMismatch[0].status = "degraded";
+  assert.throws(
+    () => createArtifactDocuments({ ...input, sourceHealth: recordMismatch }),
+    /source-health receipt differs from record health/,
+  );
+});
+
+test("first-run unavailable health is authoritative for enabled sources without records", () => {
   const configured = globalThis.structuredClone(sourceRegistry);
   const federalRegister = configured.sources.find(
     ({ id }) => id === "federal-register",
@@ -1292,13 +1601,33 @@ test("enabled sources without records remain visibly unavailable", () => {
     module: "src/adapters/federal-register/index.ts",
     identityRule: "federal-register-document-number-v1",
   };
+  const artifactRecords = [preparedFederal, preparedCounty];
+  const firstRun = mergeSourceRefresh({
+    sourceId: federalRegister.id,
+    refresh: failureFixture,
+  });
+  assert.throws(
+    () =>
+      createArtifactDocuments({
+        records: artifactRecords,
+        nations,
+        taxonomy,
+        sourceRegistry: configured,
+        generatedAt: "2026-07-30T15:00:00Z",
+        synthetic: true,
+      }),
+    /source-health receipts are required for non-synthetic enabled sources/,
+  );
   const documents = createArtifactDocuments({
-    records: [preparedFederal, preparedCounty],
+    records: artifactRecords,
     nations,
     taxonomy,
     sourceRegistry: configured,
     generatedAt: "2026-07-30T15:00:00Z",
     synthetic: true,
+    sourceHealth: sourceHealthReceiptsFor(configured, artifactRecords, [
+      firstRun.health,
+    ]),
   });
   assert.deepEqual(
     documents
@@ -1330,14 +1659,14 @@ test("enabled sources without records remain visibly unavailable", () => {
       sourceId: "federal-register",
       sourceName: "Federal Register",
       status: "unavailable",
-      checkedAt: "2026-07-30T15:00:00.000Z",
+      checkedAt: failureFixture.checkedAt,
       dataAsOf: null,
       lastSuccessfulRetrievalAt: null,
       usingLastKnownGood: false,
       stale: true,
       recordCount: 0,
-      failureStage: null,
-      message: "No validated records are available.",
+      failureStage: failureFixture.failureStage,
+      message: failureFixture.publicMessage,
     },
   );
 });

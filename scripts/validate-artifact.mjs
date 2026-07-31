@@ -1,4 +1,4 @@
-import { readFile, readdir } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
@@ -163,6 +163,7 @@ function assertIndexMatchesDetails(indexDocument, details) {
 }
 
 function assertHealth(sourceHealth, sourceRegistry, records) {
+  const recordHealthFields = ["status", "usingLastKnownGood", "message"];
   const expectedSourceIds = sourceRegistry.sources
     .filter(({ enabled }) => enabled)
     .map(({ id }) => id)
@@ -191,6 +192,36 @@ function assertHealth(sourceHealth, sourceRegistry, records) {
       );
     }
     if (
+      sourceRecords.some((record) =>
+        recordHealthFields.some(
+          (field) => record.sourceHealth[field] !== health[field],
+        ),
+      )
+    ) {
+      throw new Error(
+        `source-health receipt differs from record health: ${health.sourceId}`,
+      );
+    }
+    const expectedDataAsOf = sourceRecords
+      .map((record) => record.sourceHealth.dataAsOf)
+      .sort()
+      .at(-1);
+    const expectedLastSuccessfulRetrievalAt = sourceRecords
+      .map((record) => record.sourceHealth.lastSuccessfulRetrievalAt)
+      .filter((value) => value !== null)
+      .sort()
+      .at(-1);
+    if (
+      sourceRecords.length > 0 &&
+      (health.dataAsOf !== expectedDataAsOf ||
+        health.lastSuccessfulRetrievalAt !==
+          (expectedLastSuccessfulRetrievalAt ?? null))
+    ) {
+      throw new Error(
+        `source-health receipt differs from aggregate record freshness: ${health.sourceId}`,
+      );
+    }
+    if (
       health.usingLastKnownGood &&
       (!health.stale || health.status !== "degraded")
     ) {
@@ -201,6 +232,11 @@ function assertHealth(sourceHealth, sourceRegistry, records) {
       (health.recordCount !== 0 || health.dataAsOf !== null)
     ) {
       throw new Error(`unavailable source exposes records: ${health.sourceId}`);
+    }
+    if (sourceRecords.length === 0 && health.status !== "unavailable") {
+      throw new Error(
+        `recordless source is not unavailable: ${health.sourceId}`,
+      );
     }
   }
 }
@@ -233,6 +269,16 @@ function assertRangeWithinDocumented(source, from, through) {
   }
 }
 
+function coverageLimitation(source, selectedCoverage = null) {
+  if (
+    selectedCoverage === null ||
+    selectedCoverage.notes === source.coverage.limitations
+  ) {
+    return source.coverage.limitations;
+  }
+  return `${source.coverage.limitations} ${selectedCoverage.notes}`;
+}
+
 function assertCoverage(coverage, sourceRegistry, records) {
   const expectedSourceIds = sourceRegistry.sources
     .filter(({ enabled }) => enabled)
@@ -259,8 +305,7 @@ function assertCoverage(coverage, sourceRegistry, records) {
         JSON.stringify(source.jurisdiction) ||
       entry.documentedFrom !== source.coverage.from ||
       entry.documentedThrough !== source.coverage.through ||
-      entry.cadence !== source.coverage.cadence ||
-      entry.limitation !== source.coverage.limitations
+      entry.cadence !== source.coverage.cadence
     ) {
       throw new Error(`coverage metadata differs from registry: ${source.id}`);
     }
@@ -284,7 +329,8 @@ function assertCoverage(coverage, sourceRegistry, records) {
         entry.through !== null ||
         entry.recordFrom !== null ||
         entry.recordThrough !== null ||
-        entry.status !== "unavailable"
+        entry.status !== "unavailable" ||
+        entry.limitation !== coverageLimitation(source)
       ) {
         throw new Error(
           `unavailable coverage exposes an emitted range: ${source.id}`,
@@ -312,6 +358,9 @@ function assertCoverage(coverage, sourceRegistry, records) {
       entry.through !== selectedCoverage.through
     ) {
       throw new Error(`coverage selected range mismatch: ${source.id}`);
+    }
+    if (entry.limitation !== coverageLimitation(source, selectedCoverage)) {
+      throw new Error(`coverage limitation mismatch: ${source.id}`);
     }
     assertRangeWithinDocumented(source, entry.from, entry.through);
 
@@ -365,6 +414,25 @@ function assertManifestSourceIds(manifest, sourceRegistry) {
   }
 }
 
+async function assertActualArtifactBudget(root, assets) {
+  const actualAssets = await Promise.all(
+    assets.map(async (asset) => {
+      const absolutePath = safeAssetPath(root, asset.path);
+      const assetStat = await stat(absolutePath);
+      if (!assetStat.isFile()) {
+        throw new Error(`artifact asset is not a regular file: ${asset.path}`);
+      }
+      return { ...asset, sizeBytes: assetStat.size };
+    }),
+  );
+  assertStaticArtifactBudget(actualAssets);
+  for (let index = 0; index < assets.length; index += 1) {
+    if (actualAssets[index].sizeBytes !== assets[index].sizeBytes) {
+      throw new Error(`asset size mismatch: ${assets[index].path}`);
+    }
+  }
+}
+
 const artifactDirectory = parseArguments(process.argv.slice(2));
 const [
   artifactSchema,
@@ -396,6 +464,8 @@ const manifest = await readJsonFile(
   path.join(artifactDirectory, "manifest.json"),
 );
 assertValid(validateArtifact, manifest, "manifest.json");
+assertStaticArtifactBudget(manifest.assets);
+await assertActualArtifactBudget(artifactDirectory, manifest.assets);
 if (manifest.sourceRegistryVersion !== sourceRegistry.registryVersion) {
   throw new Error(
     "manifest source-registry version differs from configured registry",

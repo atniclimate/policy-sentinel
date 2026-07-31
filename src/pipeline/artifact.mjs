@@ -140,9 +140,11 @@ export function toCompactIndexRecord(record) {
   return {
     id: record.internalId,
     detailPath: `details/${detailId}.json`,
+    sourceDocumentIdentifier: record.sourceDocumentIdentifier,
     officialTitle: record.officialTitle,
     documentType: record.documentType,
     jurisdiction: record.jurisdiction,
+    issuingBodies: record.issuingBodies.map(({ officialName }) => officialName),
     status: record.status,
     source: {
       id: record.source.id,
@@ -154,6 +156,9 @@ export function toCompactIndexRecord(record) {
       updated: record.dates.updated,
       lastAction: record.dates.lastAction,
       deadline: record.dates.deadline,
+    },
+    urls: {
+      officialSource: record.urls.officialSource,
     },
     taxonomyMemberships: [
       ...new Map(
@@ -269,6 +274,16 @@ function assertSelectedCoverage(source, selected, sourceRecords) {
   }
 }
 
+function coverageLimitation(source, selectedCoverage = null) {
+  if (
+    selectedCoverage === null ||
+    selectedCoverage.notes === source.coverage.limitations
+  ) {
+    return source.coverage.limitations;
+  }
+  return `${source.coverage.limitations} ${selectedCoverage.notes}`;
+}
+
 function createCoverageEntry(source, records) {
   const sourceRecords = records.filter(
     (record) => record.source.id === source.id,
@@ -289,7 +304,7 @@ function createCoverageEntry(source, records) {
       cadence: source.coverage.cadence,
       recordTypes: [],
       status: "unavailable",
-      limitation: source.coverage.limitations,
+      limitation: coverageLimitation(source),
     };
   }
 
@@ -346,8 +361,176 @@ function createCoverageEntry(source, records) {
       : selectedMatchesDocumented && actualSpansSelection
         ? "available"
         : "limited",
-    limitation: source.coverage.limitations,
+    limitation: coverageLimitation(source, selectedCoverage),
   };
+}
+
+const RECORD_SOURCE_HEALTH_FIELDS = ["status", "usingLastKnownGood", "message"];
+
+function deriveSyntheticSourceHealth(source, sourceRecords, generatedAt) {
+  const latest = sourceRecords
+    .map((record) => record.sourceHealth)
+    .sort((left, right) => left.checkedAt.localeCompare(right.checkedAt))
+    .at(-1);
+  const dataAsOf = sourceRecords
+    .map((record) => record.sourceHealth.dataAsOf)
+    .sort()
+    .at(-1);
+  const lastSuccessfulRetrievalAt = sourceRecords
+    .map((record) => record.sourceHealth.lastSuccessfulRetrievalAt)
+    .filter((value) => value !== null)
+    .sort()
+    .at(-1);
+  return {
+    sourceId: source.id,
+    status: latest?.status ?? "unavailable",
+    checkedAt: latest?.checkedAt ?? generatedAt,
+    dataAsOf: dataAsOf ?? null,
+    lastSuccessfulRetrievalAt: lastSuccessfulRetrievalAt ?? null,
+    usingLastKnownGood: latest?.usingLastKnownGood ?? false,
+    stale:
+      latest === undefined ||
+      latest.usingLastKnownGood ||
+      latest.status !== "healthy",
+    recordCount: sourceRecords.length,
+    failureStage: null,
+    message:
+      latest === undefined
+        ? "No validated records are available."
+        : latest.message,
+  };
+}
+
+function assertSourceHealthReceipt(receipt, source, sourceRecords) {
+  if (receipt.recordCount !== sourceRecords.length) {
+    throw new Error(
+      `artifact source-health record count mismatch: ${source.id}`,
+    );
+  }
+  const unavailable = receipt.status === "unavailable";
+  if (unavailable !== (sourceRecords.length === 0)) {
+    throw new Error(
+      `artifact source-health unavailable state mismatch: ${source.id}`,
+    );
+  }
+  if (
+    unavailable &&
+    (receipt.dataAsOf !== null ||
+      receipt.usingLastKnownGood ||
+      receipt.stale !== true)
+  ) {
+    throw new Error(
+      `artifact source-health unavailable receipt is inconsistent: ${source.id}`,
+    );
+  }
+  if (
+    receipt.usingLastKnownGood &&
+    (receipt.status !== "degraded" || receipt.stale !== true)
+  ) {
+    throw new Error(
+      `artifact source-health last-known-good receipt is inconsistent: ${source.id}`,
+    );
+  }
+  for (const record of sourceRecords) {
+    if (
+      RECORD_SOURCE_HEALTH_FIELDS.some(
+        (field) => record.sourceHealth[field] !== receipt[field],
+      )
+    ) {
+      throw new Error(
+        `artifact source-health receipt differs from record health: ${source.id}`,
+      );
+    }
+  }
+  const expectedDataAsOf = sourceRecords
+    .map((record) => record.sourceHealth.dataAsOf)
+    .sort()
+    .at(-1);
+  const expectedLastSuccessfulRetrievalAt = sourceRecords
+    .map((record) => record.sourceHealth.lastSuccessfulRetrievalAt)
+    .filter((value) => value !== null)
+    .sort()
+    .at(-1);
+  if (
+    sourceRecords.length > 0 &&
+    (receipt.dataAsOf !== expectedDataAsOf ||
+      receipt.lastSuccessfulRetrievalAt !==
+        (expectedLastSuccessfulRetrievalAt ?? null))
+  ) {
+    throw new Error(
+      `artifact source-health receipt differs from aggregate record freshness: ${source.id}`,
+    );
+  }
+}
+
+function createArtifactSourceHealth(
+  enabledSources,
+  records,
+  generatedAt,
+  suppliedReceipts,
+) {
+  let receipts = suppliedReceipts;
+  if (receipts === undefined) {
+    if (enabledSources.some(({ synthetic }) => !synthetic)) {
+      throw new Error(
+        "artifact source-health receipts are required for non-synthetic enabled sources",
+      );
+    }
+    receipts = enabledSources.map((source) => {
+      const sourceRecords = records.filter(
+        (record) => record.source.id === source.id,
+      );
+      return deriveSyntheticSourceHealth(source, sourceRecords, generatedAt);
+    });
+  }
+  if (!Array.isArray(receipts)) {
+    throw new TypeError("artifact source-health receipts must be an array");
+  }
+
+  const receiptsBySource = new Map();
+  for (const receipt of receipts) {
+    if (
+      receipt === null ||
+      typeof receipt !== "object" ||
+      typeof receipt.sourceId !== "string"
+    ) {
+      throw new TypeError("artifact source-health receipt is malformed");
+    }
+    if (receiptsBySource.has(receipt.sourceId)) {
+      throw new Error(
+        `artifact source-health receipts contain duplicate source: ${receipt.sourceId}`,
+      );
+    }
+    receiptsBySource.set(receipt.sourceId, receipt);
+  }
+  const expectedSourceIds = enabledSources.map(({ id }) => id).sort();
+  const actualSourceIds = [...receiptsBySource.keys()].sort();
+  if (JSON.stringify(actualSourceIds) !== JSON.stringify(expectedSourceIds)) {
+    throw new Error(
+      "artifact source-health receipts do not match enabled registry sources",
+    );
+  }
+
+  return enabledSources.map((source) => {
+    const receipt = receiptsBySource.get(source.id);
+    const sourceRecords = records.filter(
+      (record) => record.source.id === source.id,
+    );
+    assertSourceHealthReceipt(receipt, source, sourceRecords);
+    return {
+      sourceId: receipt.sourceId,
+      sourceName: source.name,
+      status: receipt.status,
+      checkedAt: receipt.checkedAt,
+      dataAsOf: receipt.dataAsOf,
+      lastSuccessfulRetrievalAt: receipt.lastSuccessfulRetrievalAt,
+      usingLastKnownGood: receipt.usingLastKnownGood,
+      stale: receipt.stale,
+      recordCount: receipt.recordCount,
+      failureStage: receipt.failureStage,
+      message: receipt.message,
+    };
+  });
 }
 
 export function createArtifactDocuments({
@@ -358,6 +541,7 @@ export function createArtifactDocuments({
   generatedAt,
   synthetic = true,
   artifactBudget = STATIC_ARTIFACT_BUDGET_V1,
+  sourceHealth: suppliedSourceHealth,
 }) {
   const normalizedGeneratedAt = normalizeGeneratedAt(generatedAt);
   const documents = new Map();
@@ -392,35 +576,12 @@ export function createArtifactDocuments({
     ),
   });
 
-  const sourceHealth = enabledSources.map((source) => {
-    const sourceRecords = records.filter(
-      (record) => record.source.id === source.id,
-    );
-    const latest =
-      sourceRecords
-        .map((record) => record.sourceHealth)
-        .sort((a, b) => a.checkedAt.localeCompare(b.checkedAt))
-        .at(-1) ?? null;
-    return {
-      sourceId: source.id,
-      sourceName: source.name,
-      status: latest?.status ?? "unavailable",
-      checkedAt: latest?.checkedAt ?? normalizedGeneratedAt,
-      dataAsOf: latest?.dataAsOf ?? null,
-      lastSuccessfulRetrievalAt: latest?.lastSuccessfulRetrievalAt ?? null,
-      usingLastKnownGood: latest?.usingLastKnownGood ?? false,
-      stale:
-        latest === null ||
-        latest.usingLastKnownGood ||
-        latest.status !== "healthy",
-      recordCount: sourceRecords.length,
-      failureStage: null,
-      message:
-        latest === null
-          ? "No validated records are available."
-          : latest.message,
-    };
-  });
+  const sourceHealth = createArtifactSourceHealth(
+    enabledSources,
+    records,
+    normalizedGeneratedAt,
+    suppliedSourceHealth,
+  );
   documents.set("source-health.json", {
     artifactType: "source-health",
     schemaVersion: "1.0.0",
