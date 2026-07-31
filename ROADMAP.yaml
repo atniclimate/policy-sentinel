@@ -266,8 +266,19 @@ gates:
       validation. Do not relabel parties as issuing bodies, convert execution
       into publication or effectiveness, invent current status or complete
       history, copy source text merely to satisfy landmark schema, or create a
-      Nation association before exact signatory evidence reconciles to the
-      approved BIA identity registry.
+       Nation association before exact signatory evidence reconciles to the
+       approved BIA identity registry.
+  - id: G-DOI-IBIA-DOCUMENT-CONTRACT
+    name: DOI IBIA document access, privacy, and decision-status contract
+    state: pending_evidence
+    resolution: >-
+      Satisfy only when current originating evidence provides a crawlable exact
+      document contract plus docket, document form, disposition,
+      reconsideration, supersession, judicial-review, chronology-completeness,
+      privacy-selection, and official-link semantics. Do not automate the
+      robots-disallowed OHA search or decision hosts, infer current or binding
+      status from the chronology, or ingest personal, probate, land, mineral,
+      ownership, or governance-dispute content.
   - id: G-BIA-IDENTITY
     name: Current BIA recognition identity reconciliation
     state: pending_evidence
@@ -349,14 +360,16 @@ baseline:
       detail: single-Nation synthetic flow only
 
 current_focus:
-  work_item: B6-COURT-RESEARCH
+  work_item: B6-COURT-ADAPTER
   objective: >-
-    Select the smallest viable originating official court or administrative
-    decision source. Validate current terms, status semantics, history,
-    identity, date range, reproduction boundary, privacy exclusions, health, and
-    failure behavior without PACER, paid access, third-party editorial text,
-    personal data, or an unbounded crawl.
-  last_durable_checkpoint: 6b09999
+    Add a source-neutral, versioned judicial context and implement the exact
+    October Term 2018 Supreme Court row for Washington State Dept. of Licensing
+    v. Cougar Den, Inc. as one metadata-and-link record. Retrieve only the
+    bounded official HTML index, never the bound-volume PDF, and preserve court,
+    docket, reporter citation, decision date, document form, publication
+    lifecycle, revision review, general-jurisdiction scope, and zero inferred
+    Nation relationships.
+  last_durable_checkpoint: baea966
   resume_command: npm run check
 
 completion_scope:
@@ -1663,7 +1676,7 @@ work_items:
     priority: 70
     milestone: B6
     title: Select and validate the first official court or administrative source
-    status: in_progress
+    status: complete
     dependencies:
       - B3-PIPELINE
     acceptance:
@@ -1671,13 +1684,42 @@ work_items:
         documented terms, status semantics, history, identity, and failure
         behavior.
       - PACER, paid sources, and unclear third-party licenses remain excluded.
-    evidence: []
+    evidence:
+      - >-
+        docs/source-reviews/supreme-court-opinions-2026-07-31.md selects the
+        exact October Term 2018 row for Washington State Dept. of Licensing v.
+        Cougar Den, Inc., docket 16-1498, decided 2019-03-19, citation 586 U.S.
+        347. The current official row links to the complete bound Volume 586 at
+        the exact case-page fragment, not to a case-only file.
+      - >-
+        The bounded aggregate-only Supreme Court observation found 73 data rows
+        under two exact six-column headers and exactly one target docket row.
+        The selected contract retains no Justice, opinion text, volume bytes,
+        personal data, land detail, taxonomy inference, or Nation association.
+      - >-
+        docs/source-reviews/doi-ibia-2026-07-31.md records the separately
+        declared 1970-present chronology, its possible lag behind the search
+        database, missing docket/status/supersession fields, observed citation
+        and link defects, privacy-sensitive scope, and the OHA host's published
+        automation prohibition. G-DOI-IBIA-DOCUMENT-CONTRACT blocks broad IBIA
+        adapter work without blocking the Supreme Court pilot.
+      - >-
+        Commit baea966 adds source-registry 1.11 with both sources disabled and
+        adapter null, dated reviews, D-035, source coverage and feasibility
+        boundaries, architecture and data-contract gaps, and focused registry
+        and artifact-compatibility tests.
+      - >-
+        Foundation validation, focused registry and artifact-schema tests,
+        format checking, lint, type checking, source-boundary scanning, all 37
+        Vitest files and 572 tests, production build, and artifact validation
+        passed. The build remained synthetic-only at 2 records, 575 Nations, and
+        7 verified assets with build ID synthetic-f58186a51de21c5b8415.
 
   - id: B6-COURT-ADAPTER
     priority: 71
     milestone: B6
     title: First court or administrative-decision adapter
-    status: not_started
+    status: in_progress
     dependencies:
       - B6-COURT-RESEARCH
     acceptance:
@@ -2154,7 +2196,8 @@ source_register:
     public_claim: no production records yet
   - id: SRC-COURTS
     source: Official courts and administrative decisions
-    implementation_state: pilot_source_research_in_progress
+    implementation_state: >-
+      supreme_court_pilot_selected_adapter_in_progress_ibia_document_contract_blocked
     work_items:
       - B6-COURT-RESEARCH
       - B6-COURT-ADAPTER
@@ -2247,20 +2290,20 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B6-COURT-RESEARCH
-    action: >-
-      Select the smallest originating official court or administrative-decision
-      source and validate terms, status, identity, history, range, reproduction,
-      privacy, health, and failure behavior. Prefer a bounded no-key source;
-      exclude PACER, paid access, third-party editorial text, personal data, and
-      unbounded discovery.
-  - order: 2
     work_item: B6-COURT-ADAPTER
     action: >-
-      If the selected source passes research, implement only its reviewed
-      metadata-and-official-link contract with synthetic fixtures, exact status
-      and date semantics, source-specific health/LKG, and zero inferred Nation
+      Add the versioned source-neutral judicial context and implement only the
+      exact Supreme Court October Term 2018 Cougar Den row with synthetic
+      fixtures, bounded HTML transport, exact status/date/citation semantics,
+      source-specific health/LKG, no PDF retrieval, and zero inferred Nation
       relationships.
+  - order: 2
+    work_item: B6-COURT-EXPANSION
+    action: >-
+      After the pilot passes, assess Supreme Court, Washington, Oregon, and
+      Idaho increments independently. Keep DOI IBIA behind
+      G-DOI-IBIA-DOCUMENT-CONTRACT and GovInfo USCOURTS behind G-B-GOVINFO; do
+      not turn selected records into comprehensive coverage claims.
   - order: 3
     work_item: B5-WA-ACCORDS
     action: >-
