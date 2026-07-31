@@ -307,13 +307,14 @@ baseline:
 current_focus:
   work_item: B5-WA-LWS-ADAPTER
   objective: >-
-    Add a bounded no-auth Washington LWS transport and run only the minimum
-    aggregate-only live canaries needed to validate the selected SOAP 1.1
-    binding, sparse/fault behavior, response identity echoes, dates, and
-    document-link hosts. Then establish a complete-refresh design before
-    normalization, provenance, health, or last-known-good work; keep the source
-    disabled and emit no records.
-  last_durable_checkpoint: 6666b40
+    Implement and independently review an aggregate-only no-auth Washington LWS
+    canary observer, then run only the minimum sequential one-attempt canaries
+    needed to validate SOAP 1.1 binding, sparse/fault behavior, response
+    identity echoes, date semantics, and document-link hosts. Retain no provider
+    response, normalize no record, keep the source disabled, and establish
+    complete-refresh discovery before provenance, health, or last-known-good
+    work.
+  last_durable_checkpoint: 284711c
   resume_command: npm run check
 
 completion_scope:
@@ -1187,6 +1188,33 @@ work_items:
         integrity. After remediation they reported no remaining high- or
         medium-severity finding.
       - >-
+        Local commit 284711c adds the pre-canary build-time transport for all
+        six reviewed operations. It constructs exact keyless requests, disables
+        credentials, automatic redirects, referrers, caching, and retries,
+        requires the exact final URL and HTTP 200, and cancels non-200 bodies
+        unread.
+      - >-
+        Accepted responses require reviewed text/xml with no charset or UTF-8
+        and either no Content-Encoding or identity, 1 byte through 2 MiB, and at
+        most 4,096 non-empty stream chunks. A 30-second deadline combines
+        retrieval cancellation with monotonic checks around bounded synchronous
+        parsing. Every retained response-byte buffer is zeroed before release,
+        unread remainders are canceled, and raw XML is never returned or
+        persisted.
+      - >-
+        Focused validation passed Prettier, ESLint, TypeScript, and 5 Washington
+        LWS files with 119 tests. Full npm run check passed on 2026-07-31 with
+        30 Vitest files and 423 tests, formatting, lint, type checking, roadmap
+        validation, source-boundary scanning, a synthetic-only production build,
+        and artifact validation at 2 records, 575 Nations, and 7 verified
+        assets.
+      - >-
+        Independent reviews covered transport mechanics, resource exhaustion,
+        timeout accuracy, privacy, governance, and documentation. After
+        fragmentation, elapsed-time, buffer-zeroing, and documentation
+        remediation, final re-review reported no remaining high- or
+        medium-severity finding.
+      - >-
         This remains in progress: no LWS bill/data operation or provider
         response has been used, source-registry 1.7.0 retains adapter null, and
         live range/shape/fault/link/identity evidence, complete refresh
@@ -1704,7 +1732,7 @@ source_register:
   - id: SRC-WA-LWS
     source: Washington Legislative Web Services
     implementation_state: >-
-      known_bill_synthetic_contract_complete_adapter_in_progress
+      known_bill_contract_and_bounded_transport_complete_adapter_in_progress
     work_items:
       - B5-WA-LWS-RESEARCH
       - B5-WA-LWS-ADAPTER
@@ -1813,12 +1841,12 @@ next_actions:
   - order: 1
     work_item: B5-WA-LWS-ADAPTER
     action: >-
-      Implement and adversarially review a strict no-redirect, timeout- and
-      byte-bounded SOAP transport, then run only aggregate-only no-auth live
-      canaries needed to resolve the selected binding, sparse/fault behavior,
-      response identity echoes, dates, and document-link hosts. Do not retain a
-      provider response or normalize records. Establish complete refresh
-      discovery before provenance, health, or last-known-good implementation.
+      Implement and adversarially review an aggregate-only no-auth canary
+      observer, then run only the minimum sequential one-attempt canaries needed
+      to resolve the selected SOAP binding, sparse/fault behavior, response
+      identity echoes, dates, and document-link hosts. Do not retain a provider
+      response or normalize records. Establish complete refresh discovery before
+      provenance, health, or last-known-good implementation.
   - order: 2
     work_item: B5-WA-ACCORDS
     action: >-
