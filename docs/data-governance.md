@@ -176,9 +176,13 @@ appropriate, and deployment notices. Grants.gov content must include:
 > U.S. Department of Health and Human Services.
 
 Follow the [Grants.gov API terms](https://www.grants.gov/api/terms-conditions)
-and each source's current terms. Acknowledge the earlier ATNI Climate Resilience
-Program Policy Sentinel work while stating that this is an independent project;
-do not imply endorsement by ATNI, a Nation, or any source agency.
+and each source's current terms. Because Grants.gov API access or use
+constitutes acceptance of those terms, make no request and publish no
+Grants.gov content until the owner explicitly opens G-B-GRANTS for the exact
+then-current terms and build-time operation. Acknowledge the earlier ATNI
+Climate Resilience Program Policy Sentinel work while stating that this is an
+independent project; do not imply endorsement by ATNI, a Nation, or any source
+agency.
 
 Evaluate a correction against the current official source. Record the affected
 stable ID and field, old and corrected source values or hashes, evidence URL,

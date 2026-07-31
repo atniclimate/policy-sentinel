@@ -120,8 +120,9 @@ authority:
         API or account registration, terms acceptance, keys, tokens, secrets,
         forms, or borrowed credentials.
       unblocks_only_when: >-
-        The owner explicitly approves the named source, current terms,
-        registration, and secret placement.
+        The owner explicitly approves the named source and every applicable
+        element of its current terms, operation, registration, and secret
+        placement.
     - id: EXT-COST-CONTACT
       state: closed
       prohibits: >-
@@ -157,10 +158,14 @@ gates:
     evidence:
       - "Owner message on 2026-07-30: Approve to begin Phase B"
   - id: G-B
-    name: API registration and secrets category
+    name: API terms, registration, and secrets category
     state: closed
     boundary: EXT-CREDENTIALS
     approvable: false
+  - id: G-B-GRANTS
+    name: Grants.gov API terms and build-time operation
+    state: closed
+    boundary: EXT-CREDENTIALS
   - id: G-B-CONGRESS
     name: Congress.gov registration and key
     state: closed
@@ -300,13 +305,12 @@ baseline:
       detail: single-Nation synthetic flow only
 
 current_focus:
-  work_item: B4-GRANTS-RESEARCH
+  work_item: B4-CONGRESS-CONTRACT
   objective: >-
-    Reconfirm the current official Grants.gov no-registration API, fields,
-    limits, attribution, cadence, historical coverage, reuse terms, and failure
-    behavior. If current primary evidence requires registration, credentials, or
-    a new terms action, record the exact block and continue without evasion.
-  last_durable_checkpoint: 6d0b6b9
+    Complete the credential-free Congress.gov contract design and synthetic
+    fixtures from current public official documentation without using an
+    account, API key, live credentialed request, or copied provider response.
+  last_durable_checkpoint: e75adef
   resume_command: npm run check
 
 completion_scope:
@@ -331,7 +335,6 @@ completion_scope:
       - B4-FR-ADAPTER
       - B4-FR-UX
       - B4-GRANTS-RESEARCH
-      - B4-GRANTS-ADAPTER
       - B4-CONGRESS-CONTRACT
       - B4-GOVINFO-CONTRACT
       - B4-REGS-CONTRACT
@@ -356,6 +359,7 @@ completion_scope:
       - B10-RC
     accepted_source_blocks:
       - B2-REVIEW
+      - B4-GRANTS-ADAPTER
       - B4-CONGRESS-LIVE
       - B4-GOVINFO-LIVE
       - B4-REGS-LIVE
@@ -737,24 +741,44 @@ work_items:
   - id: B4-GRANTS-RESEARCH
     priority: 43
     milestone: B4
-    title: Reconfirm Grants.gov official no-registration contract
-    status: in_progress
+    title: Reconfirm Grants.gov current official access contract
+    status: complete
     dependencies:
       - B3-PIPELINE
     acceptance:
-      - Current official documentation verifies access, fields, limits,
-        attribution, cadence, history, and reuse.
+      - Current official documentation verifies access, published fields,
+        attribution, cadence, failure behavior, and the exact unresolved limits,
+        history, pagination, deadline, and reuse constraints.
       - If registration, new terms, or credentials are now required, live work
         becomes blocked without evasion.
-    evidence: []
+    evidence:
+      - >-
+        docs/source-reviews/grants-gov-api-2026-07-31.md records the current
+        official API guide, search and opportunity samples, terms, status codes,
+        versioning policy, XML extract, help pages, field boundary, eligibility
+        semantics, attribution, cadence, historical uncertainty, and failure
+        behavior.
+      - >-
+        The current terms state that API access or use constitutes acceptance.
+        No REST request was made; one bounded XML ZIP HEAD observed status,
+        content type, length, ETag presence, and absent ACAO without downloading
+        or persisting a body.
+      - >-
+        Current primary documentation supplies no formal REST schema, stable
+        pagination or completeness guarantee, canonical opportunity URL field,
+        or reliable current-deadline/time-zone semantics. G-B-GRANTS records the
+        exact closed terms and live-canary gate.
 
   - id: B4-GRANTS-ADAPTER
     priority: 44
     milestone: B4
     title: Grants.gov adapter and urgent-deadline behavior
-    status: not_started
+    status: blocked
     dependencies:
       - B4-GRANTS-RESEARCH
+    blocked_by:
+      - G-B-GRANTS
+    authorization_gate: G-B-GRANTS
     acceptance:
       - Opportunity identity, agency, status, eligibility, dates, synopsis,
         amendments, and official URL validate.
@@ -764,13 +788,31 @@ work_items:
         thresholds.
       - Attribution, rate/failure, provenance, coverage, and last-known-good
         tests pass.
-    evidence: []
+    safe_fallback: >-
+      Keep the researched Grants.gov source-registry entry disabled with adapter
+      null, emit no Grants.gov record, and show federal grants as unavailable
+      while independent sources continue.
+    unblocks_only_when: >-
+      The owner explicitly approves the exact then-current Grants.gov API terms
+      and bounded build-time API or XML operation, after which live canaries
+      must resolve pagination, nullability, date, status, URL, and schema gaps
+      before adapter implementation.
+    evidence:
+      - >-
+        docs/source-reviews/grants-gov-api-2026-07-31.md records that no-auth
+        common routes still require a new terms action and that the published
+        samples cannot safely substitute for live contract validation.
+      - >-
+        Source-registry 1.3.0 records Grants.gov disabled with adapter null,
+        build-only access policy, required attribution, unknown coverage, and
+        the dated terms boundary. No provider response, token, contact data,
+        record, or artifact was persisted.
 
   - id: B4-CONGRESS-CONTRACT
     priority: 45
     milestone: B4
     title: Congress.gov credential-free contract design and synthetic fixtures
-    status: ready
+    status: in_progress
     dependencies:
       - B3-PIPELINE
     acceptance:
@@ -1149,7 +1191,6 @@ work_items:
     status: not_started
     dependencies:
       - B4-FR-UX
-      - B4-GRANTS-ADAPTER
       - B5-WA-RULES
       - B5-WA-ACCORDS
       - B6-COURT-EXPANSION
@@ -1399,11 +1440,11 @@ source_register:
     public_claim: no production records yet
   - id: SRC-GRANTS
     source: Grants.gov
-    implementation_state: contract_reverification_in_progress
+    implementation_state: terms_gate_closed_contract_canaries_blocked
     work_items:
       - B4-GRANTS-RESEARCH
       - B4-GRANTS-ADAPTER
-    public_claim: no production records yet
+    public_claim: unavailable until exact terms approval and live validation
   - id: SRC-CONGRESS
     source: Congress.gov
     implementation_state: credential_gate_closed
@@ -1534,17 +1575,22 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B4-GRANTS-RESEARCH
+    work_item: B4-CONGRESS-CONTRACT
     action: >-
-      Reconfirm the official no-registration API contract, fields, limits,
-      attribution, cadence, historical coverage, reuse terms, and failure
-      behavior from current primary documentation.
+      Document the current public Congress.gov API and coverage contract and
+      implement synthetic fixtures without an account, key, live credentialed
+      request, or copied provider response.
   - order: 2
-    work_item: B4-GRANTS-ADAPTER
+    work_item: B4-GOVINFO-CONTRACT
     action: >-
-      Implement the adapter only after the current contract and required
-      attribution pass review; keep eligibility general and source-defined.
+      Complete the credential-free GovInfo package, granule, collection,
+      checksum, pagination, and failure contract with synthetic fixtures.
   - order: 3
+    work_item: B4-REGS-CONTRACT
+    action: >-
+      Complete the credential-free Regulations.gov docket/document contract with
+      synthetic fixtures while public comments and live key use remain excluded.
+  - order: 4
     work_item: B4-FR-UX
     action: >-
       When the in-app Browser backend becomes available, run the required

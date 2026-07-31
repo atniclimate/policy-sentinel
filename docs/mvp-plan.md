@@ -35,7 +35,12 @@ Each excluded action has its own stop/go gate below. No milestone may treat an u
   between the displayed paragraphs and the stated total, so the adapter emits
   no Nation registry and B2 identity work is source-blocked.
 - B3 is implemented for synthetic records, including compact indexes, separate detail assets, field provenance checks, fail-closed Nation and category rules, source health, artifact hashes, and last-known-good behavior.
-- B4 and later source milestones have not begun. No production policy records have been ingested or published.
+- The Federal Register B4 adapter and bounded static artifact are implemented,
+  validated, and registered disabled; required built-app browser evidence is
+  blocked by the unavailable in-app Browser backend. Grants.gov research is
+  complete and its adapter is blocked because API use accepts current provider
+  terms and live canaries are required. No production policy records have been
+  ingested or published.
 
 ## Recommended source order
 
@@ -43,7 +48,9 @@ The implementation order is:
 
 1. BIA annual recognition list for the canonical 575-Nation baseline; Tribal Leaders Directory only for validated public alias/supporting metadata, never contacts, geometry, or legal status.
 2. Federal Register for the first no-key federal record adapter.
-3. Grants.gov for active and forecast funding discovery after its current no-registration contract is reverified.
+3. Grants.gov for active and forecast funding discovery only after its current
+   access contract and terms are approved and verified. The 2026-07-31 review
+   found that API use constitutes terms acceptance, so this source is blocked.
 4. Congress.gov with GovInfo verification after their separate source-scoped API-registration gates; credential-free contract fixtures may proceed earlier.
 5. Washington Legislative Web Services, followed by Washington State Register and verified Washington accord records.
 6. Official federal and state courts plus curated landmark records.
@@ -113,10 +120,12 @@ Acceptance criteria:
 
 ### B4: federal core sources
 
-Implement Federal Register first, then Grants.gov after reconfirming its current
-no-registration contract. Build Congress.gov, GovInfo, and Regulations.gov
-contracts with synthetic fixtures, but implement their live adapters only after
-their separate scoped Gate B approvals.
+Implement Federal Register first. Grants.gov follows only if its current access
+contract and terms pass the source-scoped G-B-GRANTS gate; the 2026-07-31
+review found that API use constitutes acceptance, so the adapter remains
+blocked. Build Congress.gov, GovInfo, and Regulations.gov contracts with
+synthetic fixtures, but implement their live adapters only after their separate
+scoped Gate B approvals.
 
 Acceptance criteria:
 
@@ -228,7 +237,7 @@ Every enabled adapter also passes the shared checks for schema validity, field p
 | Congress.gov | Gate B first; test congress/session boundaries, bill IDs, pagination, sponsors, committees, actions, summaries, subjects, policy areas, and text links against official pages; declare per-field historical ranges; exercise rate headers and 429 behavior. |
 | Federal Register | Validate document numbers, types, agencies, publication/effective/comment dates, HTML/PDF links, corrections, withdrawals, conservative date slices below 2,000 results, the currently verified 10,000-result search window, and coverage from 1994; use GovInfo where an official edition is required; do not infer Nation relevance from search terms. |
 | GovInfo | Gate B first; validate package/granule IDs, collection-specific ranges, MODS metadata, official formats, checksums where available, pagination, and 503/Retry-After handling; state incomplete USCOURTS coverage and collection-specific gaps. |
-| Grants.gov | Validate opportunity ID/number, title, agency, status, eligibility, opening/closing/archive dates, synopsis, amendments, and official URL; preserve exact eligibility codes as source-defined general eligibility; test 429 handling; include required Grants.gov attribution. |
+| Grants.gov | G-B-GRANTS first because API access or use accepts the current terms. After exact approval, validate opportunity ID/number, title, agency, status, eligibility, opening/closing/archive dates, synopsis, amendments, official URL, pagination, and current-deadline semantics against bounded live canaries; preserve exact eligibility codes as source-defined general eligibility; test 429 handling; include required Grants.gov attribution. |
 | Regulations.gov | Gate B first; validate docket/document relationships, agency, subtype, posted/comment dates, status, title, attachments, pagination, rate headers, and mutable fields; document unknown historical completeness; do not ingest public comments in the beta. |
 | Washington Legislative Web Services | Validate WSDL/operation contract, biennium boundaries, bill/version identifiers, sponsors, committees, actions, status, documents, effective/veto dates, missing official subjects, SOAP faults, and verified 1991-forward bill-history range. |
 | Washington State Register and executive sources | Validate issue/order identifiers, publication and effective dates, agency, rulemaking stage, official PDF/HTML links, corrections, and the source-specific range; keep each source's health separate. |
@@ -305,7 +314,7 @@ A failed attempt never advances a source's data-as-of timestamp. The workflow em
 | Gate | Stop condition | Approval needed for go |
 | --- | --- | --- |
 | A: Phase B | Phase A plan not approved | Owner explicitly approves Phase B local implementation under this plan. |
-| B: API registration and secrets | A source needs an account, API key, token, secret, or repository/Actions secret | Owner explicitly approves the named registration and credential placement. Approval is per source through a scoped gate such as `G-B-CONGRESS`, `G-B-GOVINFO`, or `G-B-REGULATIONS`; it never spills to another source. Use `gh` for later GitHub secret operations. |
+| B: API terms, registration, and secrets | A source requires terms acceptance, an account, API key, token, secret, or repository/Actions secret | Owner explicitly approves the named current terms, operation, registration, and credential placement that apply. Approval is per source through a scoped gate such as `G-B-GRANTS`, `G-B-CONGRESS`, `G-B-GOVINFO`, or `G-B-REGULATIONS`; it never spills to another source. Use `gh` for later GitHub secret operations. |
 | C: Oregon terms | OData requires acceptance, credentials, or nonsharing/use commitments | Owner approves the exact current agreement and account action after terms are presented. |
 | D: Idaho source/contact | No stable official structured source has been verified | Read-only research may satisfy the gate by validating a stable, permitted, official no-registration source. If contact is required, the owner must approve the specific inquiry; no contact occurs before approval. Otherwise retain the visible gap. |
 | E: remote and Pages | Work would select the public license, create a remote, push, enable Pages, publish an artifact, create a release, or alter GitHub settings | Owner approves the exact scoped step. `G-E-LICENSE`, `G-E-REMOTE-PUSH`, `G-E-PAGES`, and `G-E-PUBLISH` remain independent; all GitHub operations use `gh`. |

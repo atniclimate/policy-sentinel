@@ -66,7 +66,7 @@ test("artifact schema v1 accepts legacy and additive manifest versions", () => {
     synthetic: true,
     recordSchemaVersion: "1.1.0",
     taxonomyVersion: "1.0.0",
-    sourceRegistryVersion: "1.2.0",
+    sourceRegistryVersion: "1.3.0",
     recordCount: 0,
     nationCount: 575,
     assets: [

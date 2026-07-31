@@ -73,6 +73,7 @@ optional AI generation, and outbound notifications remain unauthorized.
 | O-010 | Court, county, Tribal-government, treaty, compact, and administrative-decision republication rules. | Approve sources individually. Public availability does not by itself authorize bulk reuse or full-text republication. |
 | O-011 | Public repository license and exact independent-project attribution language. | `RELEASE-LICENSE` and `G-E-LICENSE` preserve this as a prepublication owner decision. Record the selection before remote creation, preserve ATNI historical attribution, and avoid any endorsement claim. |
 | O-012 | Provenance completeness across each future production adapter. | The shared contract now semantically proves that every declared source-derived record leaf has exact provenance and fails closed on omissions. Each production adapter still requires transform-specific provenance fixtures and review. |
+| O-013 | Grants.gov pagination, nullability, current-deadline/time-zone semantics, canonical opportunity URL, and reliable history shape. | The [2026-07-31 primary-source review](source-reviews/grants-gov-api-2026-07-31.md) found sample-only REST responses, no formal OpenAPI schema, conflicting request examples, and no documented completeness or stable-pagination guarantee. Resolve these only with bounded live canaries after the owner approves the exact current terms and build-time operation through G-B-GRANTS. |
 
 ## Source and authorization blockers
 
@@ -85,13 +86,14 @@ optional AI generation, and outbound notifications remain unauthorized.
 | B-005 | County and Tribal-government sources are heterogeneous and may restrict reuse. | Enable only a reviewed official source with explicit Nation evidence and permitted use. Discovery pages or search results alone are insufficient. |
 | B-006 | Remote creation, push, Actions secrets, Pages, and public beta release remain unauthorized during current Phase B local work. | Work remains local until a later explicit remote-operation approval. |
 | B-007 | Full-text republication rights may be absent or unclear even for an official public page. | Publish citation, permitted excerpt, and official link only; quarantine content if even that use is unclear. |
+| B-008 | Grants.gov documents common API routes as no-auth, but its current terms state that API access or use constitutes acceptance. The published REST pages are sample-only and do not establish several required contract semantics. | No API request, XML-body retrieval, synthetic substitute contract, adapter implementation, or activation until the owner explicitly approves the then-current terms and exact build-time operation through G-B-GRANTS. Treat the blocked adapter as an accepted source block, keep Grants.gov visibly unavailable, and do not make unrelated local work or release acceptance depend on future authorization. |
 
 ## Stop/go gates
 
 | Gate | Required approval or evidence | What it authorizes |
 | --- | --- | --- |
 | G-A | **Approved 2026-07-30.** Owner approves the written Phase A plan. | Begin Phase B local implementation only. It does not authorize any other gate. |
-| G-B | Owner explicitly approves the named API/account registration, key, token, or secret workflow after current terms review. The parent gate remains closed; each source uses a scoped child gate such as `G-B-CONGRESS`, `G-B-GOVINFO`, or `G-B-REGULATIONS`, so approval never spills to another source. | Use that one credentialed source in the approved local or Actions scope. |
+| G-B | Owner explicitly approves the named provider's current terms, API operation, account registration, key, token, or secret workflow. The parent gate remains closed; each source uses a scoped child gate such as `G-B-GRANTS`, `G-B-CONGRESS`, `G-B-GOVINFO`, or `G-B-REGULATIONS`, so approval never spills to another source. | Use only that source and exact approved terms, operation, credential, and local or Actions scope. |
 | G-C | Owner explicitly approves the exact current Oregon OData agreement, account action, credential handling, and refresh constraints. | Connect the Oregon OData adapter within that approved scope. |
 | G-D | Read-only research validates a stable, permitted, official Idaho structured source requiring no registration, or the owner approves a specific inquiry. | Implement the validated public source locally, or perform only the approved inquiry. If neither path is available, retain the visible gap. |
 | G-E | Owner explicitly approves the named remote, push, Pages, workflow, secret, or publication operations. The parent remains closed; `G-E-LICENSE`, `G-E-REMOTE-PUSH`, `G-E-PAGES`, and `G-E-PUBLISH` are independent prepublication gates. | Perform only the exact approved GitHub operation with `gh`; no narrower approval spills into the next operation. |
@@ -102,13 +104,14 @@ optional AI generation, and outbound notifications remain unauthorized.
 | G-J | Current primary evidence and tests validate one source's terms, attribution, schema, official status, provenance, health, and coverage behavior. | Enable that source locally. This evidence gate is source-specific and does not authorize an external action. |
 | G-RC | Every required local outcome and enabled source passes integrated schema, semantic, provenance, attribution, accessibility, failure, freshness, security, and coverage acceptance. | Mark a local release candidate accepted; it does not publish. |
 
-Gate G-A is satisfied by its recorded approval. The next approval depends on the exact blocked
-action: G-B for a named API registration or secret; G-C for Oregon OData terms;
-G-D only when Idaho contact is required; G-E for remote or publication work;
-G-F for a third-party, licensed, or paid source; G-G for private material; G-H
-for optional AI; or G-I for outbound notification. G-J and G-RC are evidence
-gates resolved through validation, not general product questions. None is
-implied by the Phase B approval.
+Gate G-A is satisfied by its recorded approval. The next approval depends on
+the exact blocked action: G-B for named provider terms, an API operation,
+registration, or secret; G-C for Oregon OData terms; G-D only when Idaho
+contact is required; G-E for remote or publication work; G-F for a third-party,
+licensed, or paid source; G-G for private material; G-H for optional AI; or G-I
+for outbound notification. G-J and G-RC are evidence gates resolved through
+validation, not general product questions. None is implied by the Phase B
+approval.
 
 ## Historical repository inspection
 
