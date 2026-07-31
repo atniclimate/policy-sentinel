@@ -328,11 +328,12 @@ baseline:
 current_focus:
   work_item: B5-WA-RULES
   objective: >-
-    Implement the smallest fail-closed source contract supported by the
-    completed Washington State Register and Bob Ferguson executive-order
-    reviews, beginning with the exact one-page Governor filter, without
-    extending any Washington LWS coverage claim.
-  last_durable_checkpoint: 8139941
+    Implement and synthetically validate the official-calendar-bound Washington
+    State Register issue contract now that the exact one-page Bob Ferguson
+    Governor adapter is durably validated but remains disabled. Preserve
+    separate health, coverage, and reproduction boundaries and do not extend any
+    Washington LWS coverage claim.
+  last_durable_checkpoint: ec30e9c
   resume_command: npm run check
 
 completion_scope:
@@ -1466,6 +1467,39 @@ work_items:
         evidence-blocked LWS wording, fixed-governor scope, and undocumented
         cadence, all re-reviews reported no remaining high- or medium-severity
         finding.
+      - >-
+        Commit ec30e9c implements Washington Governor executive-order adapter
+        1.0 with direct parse5 8.0.1, one exact no-retry Bob Ferguson/all-status
+        HTML request, fixed byte/chunk/DOM/row/deadline bounds, inert-template
+        rejection, complete projection before discovery, metadata-and-links-only
+        normalization, compound number/date identity, exact Issued Date and PDF
+        URL transform provenance, atomic source failure, and cross-source LKG
+        rejection. Source-registry 1.9 keeps the source disabled.
+      - >-
+        The five-file Governor synthetic suite passes 80 tests, including exact
+        query and table/filter/count/anchor contracts, malformed and ambiguous
+        HTML, unsafe and non-PDF links, Active-only status, monotonic-clock and
+        never-settling-cancellation deadlines, complete provenance, second-row
+        fetch/normalize atomicity, source health, and same-source LKG behavior.
+        One bounded aggregate-only execution through the finished transport
+        matched 14 rows from 2025-01-15 through 2026-06-25 and retained no
+        provider HTML, PDF, response bytes, or normalized public records.
+      - >-
+        npm run check passed on 2026-07-31 with 37 Vitest files and 572 tests,
+        formatting, lint, type checking, roadmap validation, source-boundary
+        scanning, a synthetic-only production build, and artifact validation at
+        2 records, 575 Nations, and 7 verified assets; build ID
+        synthetic-6365065313702455f96a. The built client contains no parse5,
+        Governor adapter, or governor.wa.gov runtime string.
+      - >-
+        Independent security, governance/provenance, and integration re-reviews
+        found no remaining actionable issue after inert-template exclusion,
+        bounded cancellation, fixed monotonic-clock errors, exact Issued Date
+        retention, normalized relative-PDF provenance, conservative Nation
+        evidence wording, partial-refresh atomicity, and positive same-source
+        LKG cloning were covered. Activation remains closed pending a reviewed
+        continuous official-PDF link-health operation and exact later approval;
+        the State Register contract is the next local increment.
 
   - id: B5-WA-ACCORDS
     priority: 63
@@ -1971,7 +2005,7 @@ source_register:
   - id: SRC-WA-OTHER
     source: Washington State Register, Governor executive orders, and accords
     implementation_state: >-
-      two_official_index_contracts_registered_adapters_null_accord_ready
+      governor_adapter_validated_disabled_register_contract_next_accord_ready
     work_items:
       - B5-WA-RULES
       - B5-WA-ACCORDS
@@ -2073,11 +2107,12 @@ next_actions:
   - order: 1
     work_item: B5-WA-RULES
     action: >-
-      Implement and synthetically validate the exact Bob Ferguson filter
-      contract with bounded HTML transport, metadata-only normalization,
-      source-specific health, and last-known-good behavior. Then implement the
-      official-calendar-bound Register issue contract if its stricter identity,
-      duplicate, incomplete-rendition, and privacy cases pass fail-closed tests.
+      Implement and synthetically validate the official-calendar-bound Register
+      issue contract only if its stricter WSR identity, duplicate,
+      incomplete-rendition, future-publication, relationship, and privacy cases
+      pass fail-closed tests. Keep the validated Governor adapter disabled
+      pending its separately reviewed continuous official-PDF link-health step
+      and exact later activation approval.
   - order: 2
     work_item: B5-WA-ACCORDS
     action: >-
