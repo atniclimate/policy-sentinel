@@ -155,11 +155,23 @@ boundary.
 
 Static artifact budget v1 is measured on the same deterministic UTF-8 JSON
 serialization hashed by the manifest. Packaging fails closed before writing if
-the compact index exceeds 6 MiB, initial non-detail JSON exceeds 8 MiB, any
-detail exceeds 256 KiB, aggregate details exceed 128 MiB, or all hashed assets
-exceed 136 MiB. Validation rejects over-budget manifest declarations and
-actual filesystem sizes before reading artifact asset bodies. No record is
-silently dropped to make an artifact fit.
+the compact index exceeds 6 MiB, hashed initial non-detail JSON (the manifest
+self-file is excluded) exceeds 8 MiB, any detail exceeds 512 KiB, aggregate
+details exceed 128 MiB, or all hashed assets exceed 136 MiB. Validation rejects
+over-budget manifest declarations and actual filesystem sizes before reading
+artifact asset bodies. The 512 KiB detail guard is a measured pre-release
+amendment: the complete July 2026 Federal Register candidate contained one
+439,763-byte subject-heavy detail, while the next largest was 168,633 bytes.
+Both official-subject schemes and every exact leaf-provenance entry remain in
+the record. No record or field is silently dropped to make an artifact fit.
+
+Before parsing, validation requires a regular directory containing exactly the
+manifested JSON inventory and its expected directories. Symbolic links,
+non-regular entries, extra files, and missing assets fail closed. The manifest
+is limited to 4 MiB and 20,000 hashed assets. Last-known-good reuse performs the
+same inventory and budget checks, then reads bounded regular-file handles and
+requires current schema, registry, taxonomy, policy, source-health, hash, and
+compact/detail consistency.
 
 Every enabled non-synthetic source supplies its authoritative refresh health
 receipt to packaging. The artifact preserves `failureStage`, retrieval and
@@ -168,14 +180,29 @@ neutral public message. A source with no validated current or last-known-good
 records is unavailable and contributes no records. Synthetic-only builds may
 derive health from their hand-authored records.
 
+The public artifact accepts only coherent source-health combinations:
+
+- `healthy` has current records, successful freshness timestamps, no fallback,
+  no failure stage, no stale flag, and no message;
+- `degraded` has validated last-known-good records, preserves their successful
+  timestamps, and carries fallback, stale, failure-stage, and message fields;
+  and
+- `unavailable` has zero records, no successful freshness timestamps, no
+  fallback, and a stale flag plus a neutral message.
+
 ## Versioning
 
 The artifact manifest names the record, taxonomy, mapping, source-registry, and
 build versions. Additive compatible changes can increment the minor version.
 Current builds emit artifact package `1.1.0` and record schema `1.1.0`; artifact
 schema `1.0.0` still accepts historical package `1.0.0` coverage, compact-index,
-and manifest shapes.
+and manifest shapes for archival schema validation. The current client fails
+closed on any package other than `1.1.0` before record normalization; it does
+not synthesize missing compact identity or coverage fields from a legacy
+package. A package-1.1 detail must share the loaded manifest build timestamp
+and exactly reproduce the compact index projection; CSV and dossier hydration
+abort on any mismatch.
 Breaking field or meaning changes require a new major schema, migration and
 backward-compatibility fixtures, and an explicit decision-register entry.
-Historical artifacts are interpreted under the versions recorded at their
-build time.
+Historical artifacts are interpreted by matching-version software or an
+explicitly tested migration under the versions recorded at build time.

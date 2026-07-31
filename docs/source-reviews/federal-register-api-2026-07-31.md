@@ -7,8 +7,8 @@ locally; registered disabled; no production records
 
 External authorization: none required for the documented public API
 
-Activation gate: source-specific evidence gate G-J remains closed until the
-adapter, fixtures, health behavior, provenance, and integrated artifact pass
+Activation gate: source-specific evidence gate G-J remains pending while the
+required built-app browser smoke is unavailable; source stays disabled
 
 ## Primary sources
 
@@ -121,6 +121,19 @@ valid historical source shapes, not evidence of a citation or CFR part. The
 response contract accepts them exactly; normalization never substitutes a
 citation or CFR label for an unavailable value.
 
+The OpenAPI document lists `topics` and `cfr_topics` as separate selectable
+document fields and does not define their response shapes or claim that their
+labels are one semantic vocabulary. A complete July scan found extensive exact
+label overlap, but empirical overlap is not authority to collapse the two
+normalized schemes. Policy Sentinel retains both `(scheme, label)` identities
+and their exact source paths so a future deterministic mapping can target
+either official field.
+
+That July scan contained 590 `cfr_topics` entries: 113 omitted `cfr_chapter`
+and 477 supplied it as `null`; none supplied a string in the measured window.
+The current undocumented response shape therefore treats this one property as
+optional while continuing to reject malformed values and unexpected fields.
+
 Ten records in that sample also used the paired page sentinel `start_page: 0`
 and `end_page: 0`. The contract accepts only that exact zero pair or ordered
 positive page bounds; it rejects partial-zero and reversed ranges.
@@ -183,28 +196,54 @@ and its additive compact fields produced a 183,051-byte index, 2,030,738 bytes
 of detail assets, a 26,702-byte largest detail, 370,527 bytes of initial
 non-detail assets, and 2,401,265 total hashed-asset bytes. No response,
 normalized record, artifact, cache, or temporary file was persisted.
-Extrapolating the measured bytes per record to the 3,442-document historical
-maximum supported the following fail-closed static-artifact v1 budgets:
+
+The complete 2026-07-01 through 2026-07-31 in-memory candidate reconciled
+2,319 provider documents to 2,316 eligible records after three exact
+correction-boundary exclusions. It produced a 4,614,723-byte index, 4,802,344
+initial non-detail bytes, 62,874,286 detail bytes, and 67,676,630 total
+hashed-asset bytes. Its 2,321 hashed assets produced a 687,141-byte manifest.
+
+The largest detail was 439,763 bytes because the source supplied 110 top-level
+topics and the same 110 labels under the distinct CFR-topic scheme. Preserving
+both schemes required 220 official-subject objects and 697 exact
+leaf-provenance entries. The next largest detail was 168,633 bytes. Collapsing
+schemes, subjects, or provenance to fit a limit would violate the normalized
+record and taxonomy contract, so the pre-release detail guard was amended from
+256 KiB to 512 KiB. All other static-artifact v1 guards remain:
 
 - compact index: 6 MiB;
 - all non-detail initial JSON assets: 8 MiB;
-- one detail asset: 256 KiB;
+- one detail asset: 512 KiB;
 - all detail assets: 128 MiB; and
 - all hashed JSON assets: 136 MiB.
 
-The packager rejects the whole candidate artifact if a budget is exceeded.
-These ceilings are guards, not performance targets or evidence that every
-future 31-day window will fit. Any exceedance keeps the prior checksum-validated
+The complete candidate retained 1,676,733 bytes of index headroom, 3,586,264
+initial bytes, 84,525 bytes on its largest detail, 71,343,442 detail bytes, and
+74,929,706 total bytes. Scaling its index rate to the historical 3,442-document
+maximum would exceed the 6 MiB index guard, so the 4,000-document facet ceiling
+does not promise that every accepted range will package. The packager rejects
+the whole candidate if any budget is exceeded. These ceilings are guards, not
+performance targets. An exceedance keeps only a prior checksum-validated
 artifact eligible for last-known-good handling and requires a reviewed
 sharding or range-policy change.
 
 Artifact package `1.1.0` adds documented/selected/actual range metadata and
 card-critical compact fields without changing schema `1.0.0`; legacy
-package-`1.0.0` coverage and compact-index fixtures remain valid. Packaging
-requires an authoritative refresh health receipt for an enabled
-non-synthetic source, including failure stage and last-known-good state.
-Validation applies the manifest-declared budgets and checks actual on-disk
-sizes before reading asset bodies.
+package-`1.0.0` coverage and compact-index fixtures remain schema-valid for
+archival checks. The current client requires package `1.1.0` and rejects a
+legacy or unversioned manifest before record normalization rather than
+synthesizing the new identity or coverage fields. Packaging requires an
+authoritative refresh health receipt for an enabled non-synthetic source,
+including failure stage and last-known-good state. Validation applies the
+static budgets to both manifest-declared and actual on-disk sizes before
+reading asset bodies. It caps the manifest at 4 MiB and 20,000 hashed assets,
+inventories the complete filesystem first, and rejects links, unexpected
+directories, non-JSON entries, and missing or extra files. Last-known-good
+reuse then binds bounded no-follow reads to current schemas, taxonomy, source
+registry, record policy, source health, hashes, and exact index/detail
+projections. The client binds each loaded detail to the artifact build
+timestamp and full compact projection before using its detail-only fields in
+cards, CSV, or dossiers.
 
 The documented page-size maximum remains 1,000. Live values from 2 through
 2,000 were accepted, while 1, zero, invalid values, and values above 2,000
@@ -222,14 +261,24 @@ it as the server ceiling:
 4. If a single-day slice still reports at least 2,000, fail the slice closed.
 5. For an accepted slice, follow only the returned `next_page_url`.
 6. Require each next URL to remain HTTPS on `www.federalregister.gov`, on the
-   exact document-search path, with the immutable fields, dates, order, and page
-   size plus one opaque nonempty cursor.
+   exact provider-emitted `/api/v1/documents` alias, with singleton
+   `format=json`, the expected sequential `page`, one bounded nonempty
+   `search_after_cursor`, and the unchanged immutable fields, dates, order, and
+   page size. Normalize only that bound alias to the reviewed
+   `/api/v1/documents.json` fetch route while retaining both page and cursor.
 7. Reject cycles, duplicate document numbers, changing counts, out-of-range
    publication dates, missing pages, or a collected count mismatch.
 8. Re-probe the accepted slice after collection so a changing source cannot
    produce a mixed inventory.
 9. Sort locally by `(publication_date, document_number)` and reconcile the
    unique identifier count across nonoverlapping slices.
+
+In the complete July run, every initial `.json` search page emitted the exact
+extensionless alias above. Each link added one `format=json`, the exact next
+page, and one cursor while preserving all 34 immutable query pairs. Fetching
+the locally normalized `.json` route with that page/cursor pair returned the
+same identifier sequence and count. Page-only, cursor-only, duplicate, stale,
+or changed-query links remain rejected.
 
 The adapter does not construct or interpret `search_after_cursor`. A zero-result
 response may omit both `results` and `total_pages`; only `count: 0` with no
@@ -315,10 +364,15 @@ On the 2026-07-30 live sample, 330 of 359 `related_documents` entries had
 for reconciliation, but null-labeled docket links are excluded from semantic
 target closure and public relationship output. Only an explicit source-supplied
 relationship label can produce the generic relationship edge described below.
-The same sample repeated 12 targets under multiple docket groups, including
-explicitly labeled relationships. Repeats are accepted only when their target,
-label, URL, title, action, and publication date agree exactly; normalization
-emits one deterministic relationship edge and rejects conflicting repeats.
+The same sample repeated 12 targets under multiple docket groups. In the
+complete July scan, 32 documents repeated targets across docket groups for 167
+repeat occurrences. Of those, 165 agreed on every retained value; the other
+two differed only because one occurrence omitted the label while another
+supplied the exact `rule_progression` label. Repeats are accepted only when
+target, URL, title, action, and publication date agree and the label set
+contains at most one exact non-null value. Normalization deterministically
+retains that explicit label. A same-group duplicate, conflicting non-null
+label, or any other metadata difference fails closed.
 
 Normalized record contract v1.1 carries a detail-only structured
 source-document relationship. Correction pairs must remain reciprocal within
@@ -417,6 +471,18 @@ reconciled all 105 source documents and produced 94 unique eligible records,
 excluding the 11 exact `Uncategorized Document` entries. No live response,
 normalized record, or generated artifact was persisted.
 
+A complete current-window canary then made 66 successful HTTP requests: one
+OpenAPI check, two matching facets, nine search pages, three issue inventories,
+and 51 bounded exact-replay batches. It reconciled the 2,319 primary documents
+plus supplemental relationship closure, normalized and policy-validated 2,316
+eligible records, excluded three correction-boundary members, and packaged all
+2,321 hashed assets in memory. The documented range remained
+1994-01-03-through-open; the selected and actual record ranges were both
+2026-07-01 through 2026-07-31. Source, taxonomy, record, policy, health,
+artifact, manifest-limit, and budget validation all passed with healthy,
+current, non-fallback health. No response body, record, artifact, cache, or
+temporary file was persisted.
+
 The local artifact contract distinguishes the documented source range,
 selected artifact window, and actual earliest/latest validated record. It
 enforces deterministic index/detail budgets before writing, while the
@@ -424,8 +490,8 @@ application exposes bounded coverage, freshness, health, general-jurisdiction,
 Unclassified, relationship, dossier, and CSV states from same-origin static
 assets.
 
-Federal Register remains disabled until the owner separately opens G-J after
-reviewing the completed evidence. Early records with no individual PDF remain
-link-limited; an issue-level GovInfo link may be added only after that exact
-rendition is verified. No live response or normalized provider record may
-enter Git.
+Federal Register remains disabled while G-J evidence and the required built-app
+browser smoke are pending; this review does not authorize activation. Early
+records with no individual PDF remain link-limited; an issue-level GovInfo link
+may be added only after that exact rendition is verified. No live response or
+normalized provider record may enter Git.

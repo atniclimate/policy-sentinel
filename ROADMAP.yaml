@@ -294,11 +294,12 @@ baseline:
 current_focus:
   work_item: B4-FR-UX
   objective: >-
-    Complete the built-app desktop and mobile browser smoke for the implemented
-    Federal Register coverage, detail, Unclassified, dossier, and CSV states.
-    The in-app browser backend was unavailable on 2026-07-31; keep the source
-    disabled and do not claim this item complete until that check runs.
-  last_durable_checkpoint: 8b94d6e
+    Reconcile the complete July Federal Register artifact evidence and rerun the
+    integrated repository checks, then preserve the unavailable built-app
+    desktop/mobile browser smoke as the only remaining B4-FR-UX blocker. Keep
+    the source disabled and do not claim this item complete until that smoke
+    runs.
+  last_durable_checkpoint: a57f0d4
   resume_command: npm run check
 
 completion_scope:
@@ -645,13 +646,41 @@ work_items:
         Commits 4a62c38 and 978dbca require authoritative non-synthetic health
         receipts, preserve failure and last-known-good state, preflight declared
         and actual file sizes before parsing assets, emit additive artifact
-        package 1.1 compact metadata, and retain schema-v1 compatibility
-        fixtures for package 1.0 coverage and index documents.
+        package 1.1 compact metadata, and retain schema-v1 archival validation
+        fixtures for package 1.0 coverage and index documents. The current
+        client rejects legacy or unversioned packages before record
+        normalization rather than synthesizing absent identity fields.
       - >-
         Commit 992f7a5 bounds selected-detail hydration to batches of eight and
         displays the current Unclassified result count. Commit 8b94d6e records
         the bounded policy, measurement, health, compatibility, and correction
         limits in the binding documentation.
+      - >-
+        Commits 20441f7 and 721d154 bind each hydrated detail to the manifest
+        and compact index, recursively inventory artifacts before parsing,
+        reject links and unmanifested entries, and cap manifests at 4 MiB and
+        20,000 hashed assets.
+      - >-
+        Commits 6f9b1a7 through 1fcbe3f plus 8a9825e make last-known-good reuse
+        all-or-none, enforce coherent healthy/degraded/unavailable receipts,
+        align byte limits, reject Windows junctions, and bind bounded no-follow
+        reads to current schemas, taxonomy, source registry, record policy,
+        health, hashes, and exact index/detail projections. Independent
+        read-only review found no remaining high- or medium-severity issue.
+      - >-
+        Commits d0ba3b2, 03c92db, 1f00450, and 52b2e23 close live July contract
+        drift for omitted CFR chapters, repeated related targets with one
+        explicit label, the provider's extensionless pagination alias, and the
+        required page/cursor pair. Malformed values, same-group duplicates,
+        conflicting labels, route changes, and partial pagination remain
+        fail-closed; adversarial re-review found no remaining high or medium
+        finding.
+      - >-
+        Commit a57f0d4 amends only the pre-release individual-detail guard to
+        512 KiB after a valid subject-heavy detail measured 439,763 bytes. Both
+        official-subject schemes and all 697 exact provenance entries remain;
+        index, initial, aggregate-detail, total, manifest, and asset-count
+        limits are unchanged.
       - >-
         A 2026-07-31 live in-memory 1994-01-03 canary made six successful HTTP
         requests, reconciled 105 provider documents to 94 eligible records, and
@@ -660,14 +689,24 @@ work_items:
         2,401,265 total hashed bytes. No response, record, artifact, cache, or
         temporary file was persisted; the checked-in source remains disabled.
       - >-
-        `npm run check` passed on 2026-07-31 with 17 test files and 182 tests,
+        The complete 2026-07-01 through 2026-07-31 in-memory candidate made 66
+        successful requests, reconciled 2,319 provider documents to 2,316
+        eligible records after three correction-boundary exclusions, and passed
+        source, taxonomy, record, policy, health, artifact, budget, and manifest
+        checks. It measured 4,614,723 index bytes, 4,802,344 initial non-detail
+        bytes, a 439,763-byte largest detail, 62,874,286 aggregate detail bytes,
+        67,676,630 total hashed bytes, a 687,141-byte manifest, and 2,321 hashed
+        assets. No response, record, artifact, cache, or temporary file was
+        persisted; Federal Register remains disabled.
+      - >-
+        `npm run check` passed on 2026-07-31 with 17 test files and 203 tests,
         formatting, lint, types, roadmap, source-boundary, production build, and
         artifact validation. A local built preview returned 200 for the app,
-        manifest, and coverage assets, emitted artifact package 1.1.0, and
-        contained no Federal Register provider-API reference. Automated axe and
-        keyboard tests passed, but the required in-app browser backend was not
-        available, so the desktop/mobile built-app smoke remains pending and
-        this item stays in progress.
+        manifest, and coverage assets, contained no Federal Register provider
+        API reference, and left no listener. Automated axe and keyboard tests
+        passed, but the required in-app browser backend was not available, so
+        the desktop/mobile built-app smoke remains pending and this item stays
+        in progress.
 
   - id: B4-GRANTS-RESEARCH
     priority: 43

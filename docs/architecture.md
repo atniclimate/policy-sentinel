@@ -114,23 +114,42 @@ entries contain only fields needed for search, filtering, cards, selection, and
 detail lookup.
 
 Static artifact policy v1 fails packaging before any write when the compact
-index exceeds 6 MiB, non-detail initial JSON exceeds 8 MiB, one detail exceeds
-256 KiB, all details exceed 128 MiB, or all hashed JSON assets exceed 136 MiB.
+index exceeds 6 MiB, hashed non-detail initial JSON (excluding the manifest
+self-file) exceeds 8 MiB, one detail exceeds 512 KiB, all details exceed
+128 MiB, or all hashed JSON assets exceed 136 MiB.
 These ceilings were selected from the documented Federal Register rolling-range
-measurement and are versioned safety limits rather than targets. A source must
+measurement and are versioned safety limits rather than targets. The
+pre-release per-detail limit was amended from 256 KiB after the complete July
+2026 candidate exposed one valid 439,763-byte record whose two distinct
+official-subject schemes required 697 exact provenance entries. No subject,
+scheme, or provenance entry was collapsed to fit the artifact. A source must
 also publish its documented range, selected artifact window, actual
 earliest/latest validated record, count, health, and limitations. A bounded
 healthy slice is `limited`; it is never relabeled as complete source history.
-Validation checks both manifest-declared and actual on-disk asset sizes before
-reading asset content. For every enabled non-synthetic source, packaging
+
+Validation recursively inventories the candidate before parsing asset bodies.
+It rejects symbolic links, non-regular or non-JSON entries, unexpected
+directories, and any missing or unmanifested file. The manifest itself is
+bounded to 4 MiB and 20,000 hashed assets. Declared and actual sizes must both
+fit the static budgets. Last-known-good reuse also binds bounded no-follow file
+handles to the inventoried file identity, hash, current schemas, current
+taxonomy and source registry, record policy, source-health state, and exact
+index/detail projection. For every enabled non-synthetic source, packaging
 requires the authoritative refresh health receipt and preserves its failure
 stage, freshness, last-known-good timestamps, stale state, and message.
 
 Artifact package `1.1.0` adds the richer coverage fields and the card-critical
 source document identifier, issuing bodies, and official-source URL to the
 compact index. These additions remain optional under schema `1.0.0`, so
-historical package `1.0.0` coverage and index documents continue to validate;
-current packages always emit the additive fields.
+historical package `1.0.0` coverage and index documents continue to pass schema
+validation; current packages always emit and semantically validate the additive
+fields. The current client requires a matching package `1.1.0` manifest and
+rejects legacy or unversioned packages before normalizing records; an explicit
+migration is required before a historical package can run under a newer client.
+On-demand detail hydration also requires the detail wrapper's build timestamp
+to match the loaded manifest and compares every compact card/search field
+against the index before accepting detail-only content. A mismatch cancels the
+detail, CSV, or dossier operation instead of mixing artifact builds.
 
 ## Adapter boundaries
 

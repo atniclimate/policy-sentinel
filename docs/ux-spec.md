@@ -159,6 +159,11 @@ Coverage notices distinguish source availability from record relevance. A zero r
 
 Selection checkboxes have visible labels, expose the selected count, and persist through filters and detail views during the current browser session. **Clear selection** is explicit. A record removed from the current filter remains selected only if the UI says so and offers a review list.
 
+Because an explicit selection may span several filter views, a dossier labels
+the applied filters as **Current view criteria** rather than claiming every
+selected record matches them. It separately states that records were explicitly
+selected across the browser session and may not match the current view.
+
 The print-ready dossier is assembled in the browser from selected, validated public records and uses a dedicated print stylesheet before any server-side PDF approach is considered. It contains:
 
 - selected Nation or comparison Nations;
