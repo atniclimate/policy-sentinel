@@ -196,11 +196,19 @@ export interface ArtifactManifest {
 export interface CoverageEntry {
   sourceId: string;
   sourceName: string;
+  provider: string;
   jurisdictions: string[];
-  dateFrom: string | null;
-  dateThrough: string | null;
+  from: string | null;
+  through: string | null;
+  documentedFrom: string | null;
+  documentedThrough: string | null;
+  recordFrom: string | null;
+  recordThrough: string | null;
+  recordCount: number;
+  cadence: string;
+  recordTypes: string[];
   status: string;
-  notes: string;
+  limitation: string;
 }
 
 export interface SourceHealthEntry {

@@ -86,7 +86,11 @@ export const healthTone = (
 ): "good" | "warning" | "danger" | "neutral" => {
   const normalized = status.toLocaleLowerCase();
   if (["healthy", "current", "available"].includes(normalized)) return "good";
-  if (["degraded", "delayed", "range-limited", "stale"].includes(normalized))
+  if (
+    ["degraded", "delayed", "limited", "range-limited", "stale"].includes(
+      normalized,
+    )
+  )
     return "warning";
   if (["unavailable", "failed", "error"].includes(normalized)) return "danger";
   return "neutral";

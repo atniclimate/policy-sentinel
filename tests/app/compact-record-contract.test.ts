@@ -14,6 +14,7 @@ const nation: Nation = {
 const compactRecord = (overrides: Record<string, unknown> = {}) => ({
   id: "psr:synthetic:record-1",
   detailPath: "details/cHNyOnN5bnRoZXRpYzpyZWNvcmQtMQ.json",
+  sourceDocumentIdentifier: "SYN-RECORD-1",
   officialTitle: "Synthetic compact official record",
   documentType: "notice",
   jurisdiction: {
@@ -22,6 +23,7 @@ const compactRecord = (overrides: Record<string, unknown> = {}) => ({
     stateCode: null,
     generalJurisdictionOnly: true,
   },
+  issuingBodies: ["Synthetic Public Agency"],
   status: {
     normalized: "active",
     sourceLabel: "Open",
@@ -36,6 +38,9 @@ const compactRecord = (overrides: Record<string, unknown> = {}) => ({
     published: "2026-07-30",
     updated: "2026-07-30T12:00:00Z",
     retrieved: "2026-07-30T13:00:00Z",
+  },
+  urls: {
+    officialSource: "https://official.example.invalid/SYN-RECORD-1",
   },
   categoryIds: ["category-a", "category-b"],
   subcategoryIds: ["subcategory-a", "subcategory-b"],
@@ -99,13 +104,13 @@ describe("compact record contract", () => {
     expect(record && recordMatchesPolicy(record, crossed)).toBe(false);
   });
 
-  it("does not reconstruct memberships from parallel ID arrays", () => {
+  it("does not reconstruct memberships or coerce classification from parallel ID arrays", () => {
     const legacy = compactRecord();
     delete (legacy as { taxonomyMemberships?: unknown }).taxonomyMemberships;
     const record = normalizeRecord(legacy);
 
     expect(record?.taxonomyMemberships).toEqual([]);
-    expect(record?.isUnclassified).toBe(true);
+    expect(record?.isUnclassified).toBe(false);
   });
 
   it("preserves landmark metadata so the timeline can select the record", () => {

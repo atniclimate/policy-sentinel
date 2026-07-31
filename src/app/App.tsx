@@ -27,6 +27,7 @@ import {
 } from "./present";
 import type {
   ArtifactBundle,
+  CoverageEntry,
   Nation,
   PublicRecord,
   RelevanceBasis,
@@ -40,6 +41,30 @@ const DISCLAIMER =
   "Policy Sentinel is a source-reference and discovery tool. It is not legal advice, a comprehensive legal database, a rights-impact engine, or a substitute for official sources.";
 
 const SELECTION_KEY = "policy-sentinel:selected-records";
+const RESULT_WINDOW_SIZE = 50;
+
+const coverageRangeText = (
+  from: string | null,
+  through: string | null,
+  openEnded = false,
+): string =>
+  `${from ? formatDate(from) : "Not provided"} through ${
+    through
+      ? formatDate(through)
+      : openEnded
+        ? "present or not stated"
+        : "Not provided"
+  }`;
+
+const actualCoverageText = (entry: CoverageEntry): string =>
+  entry.recordCount === 0
+    ? "No validated records in this artifact"
+    : `${entry.recordCount} validated record${
+        entry.recordCount === 1 ? "" : "s"
+      }; ${coverageRangeText(entry.recordFrom, entry.recordThrough)}`;
+
+const coverageIsLimited = (entry: CoverageEntry): boolean =>
+  ["limited", "range-limited"].includes(entry.status.toLocaleLowerCase());
 
 const loadSelection = (): Set<string> => {
   try {
@@ -67,7 +92,6 @@ interface DossierState {
   nation: Nation;
   criteria: SearchCriteria;
   generatedAt: Date;
-  missingDetailCount: number;
 }
 
 export function App() {
@@ -145,21 +169,26 @@ export function App() {
     setOutputStatus("Selection cleared.");
   };
 
-  const hydrate = async (
-    records: PublicRecord[],
-  ): Promise<{ records: PublicRecord[]; failed: number }> => {
+  const hydrate = async (records: PublicRecord[]): Promise<PublicRecord[]> => {
     const settled = await Promise.allSettled(
       records.map((record) => loadRecordDetail(record)),
     );
-    let failed = 0;
-    return {
-      records: settled.map((result, index) => {
-        if (result.status === "fulfilled") return result.value;
-        failed += 1;
-        return records[index];
-      }),
-      failed,
-    };
+    const failures = settled.filter(
+      (result): result is PromiseRejectedResult => result.status === "rejected",
+    );
+    if (failures.length > 0) {
+      const firstReason = failures[0].reason;
+      const detail =
+        firstReason instanceof Error ? ` ${firstReason.message}` : "";
+      throw new Error(
+        `${failures.length} of ${records.length} selected detail asset${
+          records.length === 1 ? "" : "s"
+        } could not be validated.${detail}`,
+      );
+    }
+    return settled.flatMap((result) =>
+      result.status === "fulfilled" ? [result.value] : [],
+    );
   };
 
   const selectedForNation = (
@@ -185,8 +214,20 @@ export function App() {
       return;
     }
     setOutputStatus("Preparing selected source records for CSV.");
-    const hydrated = await hydrate(selected);
-    const csv = selectedRecordsCsv(hydrated.records, nation, (record) =>
+    let hydrated: PublicRecord[];
+    try {
+      hydrated = await hydrate(selected);
+    } catch (error: unknown) {
+      setOutputStatus(
+        `CSV export canceled: ${
+          error instanceof Error
+            ? error.message
+            : "Selected detail assets could not be validated."
+        } No CSV was created.`,
+      );
+      return;
+    }
+    const csv = selectedRecordsCsv(hydrated, nation, (record) =>
       whyShownFor(record, nation.id),
     );
     const blob = new Blob([`\uFEFF${csv}`], {
@@ -199,13 +240,9 @@ export function App() {
     link.click();
     URL.revokeObjectURL(url);
     setOutputStatus(
-      `CSV prepared with ${hydrated.records.length} selected record${
-        hydrated.records.length === 1 ? "" : "s"
-      }.${
-        hydrated.failed > 0
-          ? ` ${hydrated.failed} detail asset could not be loaded, so its validated index fields were used.`
-          : ""
-      }`,
+      `CSV prepared with ${hydrated.length} selected record${
+        hydrated.length === 1 ? "" : "s"
+      }.`,
     );
   };
 
@@ -222,19 +259,27 @@ export function App() {
       return;
     }
     setOutputStatus("Preparing selected source records for printing.");
-    const hydrated = await hydrate(selected);
+    setDossier(null);
+    let hydrated: PublicRecord[];
+    try {
+      hydrated = await hydrate(selected);
+    } catch (error: unknown) {
+      setOutputStatus(
+        `Dossier preparation canceled: ${
+          error instanceof Error
+            ? error.message
+            : "Selected detail assets could not be validated."
+        } No dossier was created or printed.`,
+      );
+      return;
+    }
     setDossier({
-      records: hydrated.records,
+      records: hydrated,
       nation,
       criteria,
       generatedAt: new Date(),
-      missingDetailCount: hydrated.failed,
     });
-    setOutputStatus(
-      hydrated.failed > 0
-        ? `${hydrated.failed} detail asset could not be loaded. The dossier identifies records that use compact index fields.`
-        : "Print-ready dossier prepared.",
-    );
+    setOutputStatus("Print-ready dossier prepared.");
     window.requestAnimationFrame(() =>
       window.requestAnimationFrame(() => window.print()),
     );
@@ -554,6 +599,11 @@ function SearchWorkspace({
   const [nationError, setNationError] = useState("");
   const [policyError, setPolicyError] = useState("");
   const [dateError, setDateError] = useState("");
+  const resultWindowKey = `${route.path}?${route.params.toString()}`;
+  const [resultWindow, setResultWindow] = useState({
+    key: resultWindowKey,
+    count: RESULT_WINDOW_SIZE,
+  });
 
   useEffect(() => {
     setDraft(initialDraft);
@@ -604,6 +654,12 @@ function SearchWorkspace({
           isTimeline,
         )
       : [];
+  const visibleCount =
+    resultWindow.key === resultWindowKey
+      ? resultWindow.count
+      : RESULT_WINDOW_SIZE;
+  const visibleResults = results.slice(0, visibleCount);
+  const remainingResults = Math.max(0, results.length - visibleResults.length);
 
   const apply = (event?: Event) => {
     event?.preventDefault();
@@ -872,15 +928,15 @@ function SearchWorkspace({
             </div>
           ) : isTimeline ? (
             <TimelineResults
-              results={results}
+              results={visibleResults}
               criteria={appliedCriteria}
               selectedIds={selectedIds}
               onSelectionChange={onSelectionChange}
               nation={nation}
             />
           ) : (
-            <div class="result-list">
-              {results.map((record) => (
+            <div class="result-list" id="result-records">
+              {visibleResults.map((record) => (
                 <RecordCard
                   record={record}
                   criteria={appliedCriteria}
@@ -890,6 +946,37 @@ function SearchWorkspace({
                   onSelectionChange={onSelectionChange}
                 />
               ))}
+            </div>
+          )}
+
+          {results.length > RESULT_WINDOW_SIZE && (
+            <div class="result-window" aria-live="polite">
+              <p>
+                Showing {visibleResults.length} of {results.length} matching
+                records.
+              </p>
+              <button
+                class="button button--secondary"
+                type="button"
+                aria-controls="result-records"
+                disabled={remainingResults === 0}
+                onClick={() =>
+                  setResultWindow({
+                    key: resultWindowKey,
+                    count: Math.min(
+                      results.length,
+                      visibleCount + RESULT_WINDOW_SIZE,
+                    ),
+                  })
+                }
+              >
+                {remainingResults === 0
+                  ? "All matching records loaded"
+                  : `Load ${Math.min(
+                      RESULT_WINDOW_SIZE,
+                      remainingResults,
+                    )} more records`}
+              </button>
             </div>
           )}
 
@@ -924,6 +1011,7 @@ function CoverageNotice({
   const unhealthy = bundle.sourceHealth.filter(
     (source) => !["healthy", "current", "available"].includes(source.status),
   );
+  const limitedCoverage = bundle.coverage.filter(coverageIsLimited);
   return (
     <div class={compact ? "coverage-notice is-compact" : "coverage-notice"}>
       <p>
@@ -944,6 +1032,24 @@ function CoverageNotice({
         appear only with validated official-source evidence that explicitly
         names this Nation.
       </p>
+      {limitedCoverage.length > 0 && (
+        <ul class="health-summary" aria-label="Bounded source coverage">
+          {limitedCoverage.map((entry) => (
+            <li>
+              <strong>{entry.sourceName}:</strong> selected artifact window{" "}
+              {coverageRangeText(entry.from, entry.through)}; documented source
+              range{" "}
+              {coverageRangeText(
+                entry.documentedFrom,
+                entry.documentedThrough,
+                true,
+              )}
+              ; actual artifact coverage {actualCoverageText(entry)}.{" "}
+              {entry.limitation}
+            </li>
+          ))}
+        </ul>
+      )}
       {unhealthy.length > 0 && (
         <ul class="health-summary" aria-label="Source health limitations">
           {unhealthy.map((source) => (
@@ -1315,7 +1421,7 @@ function TimelineResults({
   nation: Nation;
 }) {
   return (
-    <ol class="timeline-list">
+    <ol class="timeline-list" id="result-records">
       {results.map((record) => {
         const date = updatedDate(record);
         return (
@@ -1483,6 +1589,12 @@ function DetailPage({
         (association) => association.nationId === nation.id,
       )
     : undefined;
+  const sourceCoverage = bundle.coverage.find(
+    (entry) => entry.sourceId === record.source.id,
+  );
+  const aggregateHealth = bundle.sourceHealth.find(
+    (entry) => entry.sourceId === record.source.id,
+  );
 
   return (
     <article class="content-width record-detail">
@@ -1525,6 +1637,28 @@ function DetailPage({
                 <dt>Official source</dt>
                 <dd>{record.source.name}</dd>
               </div>
+              {record.source.provider && (
+                <div>
+                  <dt>Source provider</dt>
+                  <dd>{record.source.provider}</dd>
+                </div>
+              )}
+              {record.source.attribution && (
+                <div>
+                  <dt>Required attribution</dt>
+                  <dd>{record.source.attribution}</dd>
+                </div>
+              )}
+              <div>
+                <dt>Selected artifact window</dt>
+                <dd>
+                  {coverageRangeText(
+                    record.source.coverageFrom ?? null,
+                    record.source.coverageThrough ?? null,
+                    true,
+                  )}
+                </dd>
+              </div>
               <div>
                 <dt>Jurisdiction</dt>
                 <dd>
@@ -1563,6 +1697,12 @@ function DetailPage({
                 <dd>{formatDate(record.dates.retrieved)}</dd>
               </div>
             </dl>
+            {record.source.coverageNotes && (
+              <p class="boundary-note">
+                <strong>Source coverage limitation:</strong>{" "}
+                {record.source.coverageNotes}
+              </p>
+            )}
             <div class="button-row">
               {record.urls.officialSource && (
                 <a
@@ -1664,6 +1804,36 @@ function DetailPage({
                   ),
                 )}
               </ol>
+            </section>
+          )}
+
+          {record.sourceDocumentRelationships.length > 0 && (
+            <section aria-labelledby="source-relationships-title">
+              <h2 id="source-relationships-title">
+                Source document relationships
+              </h2>
+              <p>
+                These labels and links come from the official source and are not
+                a legal-effect determination.
+              </p>
+              <ul class="relationship-list">
+                {record.sourceDocumentRelationships.map((relationship) => (
+                  <li>
+                    <strong>{relationship.sourceLabel}</strong>
+                    <span>
+                      {humanize(relationship.relationshipType)}:{" "}
+                      <a
+                        href={relationship.targetUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {relationship.targetSourceRecordId}
+                        <span class="visually-hidden"> (opens a new tab)</span>
+                      </a>
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </section>
           )}
 
@@ -1778,9 +1948,49 @@ function DetailPage({
           </p>
           <p>
             Source health:{" "}
-            <strong>{humanize(record.sourceHealth.status)}</strong>
+            <strong>
+              {humanize(aggregateHealth?.status ?? record.sourceHealth.status)}
+            </strong>
           </p>
-          <p>Data as of: {formatDate(record.sourceHealth.dataAsOf)}</p>
+          <p>
+            Data as of:{" "}
+            {formatDate(
+              aggregateHealth?.dataAsOf ?? record.sourceHealth.dataAsOf,
+            )}
+          </p>
+          <p>
+            Last successful retrieval:{" "}
+            {formatDate(
+              aggregateHealth?.lastSuccessfulRetrievalAt ??
+                record.sourceHealth.lastSuccessfulRetrievalAt,
+            )}
+          </p>
+          {(aggregateHealth?.usingLastKnownGood ??
+            record.sourceHealth.usingLastKnownGood) && (
+            <p class="coverage-warning">Using last-known-good source data.</p>
+          )}
+          {(aggregateHealth?.message ?? record.sourceHealth.message) && (
+            <p>{aggregateHealth?.message ?? record.sourceHealth.message}</p>
+          )}
+          {sourceCoverage && (
+            <>
+              <h3>Artifact coverage</h3>
+              <p>
+                Selected window:{" "}
+                {coverageRangeText(sourceCoverage.from, sourceCoverage.through)}
+              </p>
+              <p>
+                Documented source range:{" "}
+                {coverageRangeText(
+                  sourceCoverage.documentedFrom,
+                  sourceCoverage.documentedThrough,
+                  true,
+                )}
+              </p>
+              <p>Actual coverage: {actualCoverageText(sourceCoverage)}</p>
+              <p>{sourceCoverage.limitation}</p>
+            </>
+          )}
           <details>
             <summary>
               Field provenance ({record.fieldProvenance.length})
@@ -1854,7 +2064,9 @@ function CoveragePage({ bundle }: { bundle: ArtifactBundle }) {
             <tr>
               <th scope="col">Source</th>
               <th scope="col">Jurisdictions</th>
-              <th scope="col">Available range</th>
+              <th scope="col">Selected artifact window</th>
+              <th scope="col">Documented source range</th>
+              <th scope="col">Actual validated records</th>
               <th scope="col">Coverage state</th>
               <th scope="col">Limitations</th>
             </tr>
@@ -1862,12 +2074,20 @@ function CoveragePage({ bundle }: { bundle: ArtifactBundle }) {
           <tbody>
             {bundle.coverage.map((entry) => (
               <tr>
-                <th scope="row">{entry.sourceName}</th>
+                <th scope="row">
+                  {entry.sourceName}
+                  <small>{entry.provider}</small>
+                </th>
                 <td>{entry.jurisdictions.join(", ") || "Source-specific"}</td>
+                <td>{coverageRangeText(entry.from, entry.through)}</td>
                 <td>
-                  {entry.dateFrom ?? "Unknown"} through{" "}
-                  {entry.dateThrough ?? "present or not stated"}
+                  {coverageRangeText(
+                    entry.documentedFrom,
+                    entry.documentedThrough,
+                    true,
+                  )}
                 </td>
+                <td>{actualCoverageText(entry)}</td>
                 <td>
                   <span
                     class={`status-label status-label--${healthTone(entry.status)}`}
@@ -1875,7 +2095,17 @@ function CoveragePage({ bundle }: { bundle: ArtifactBundle }) {
                     {humanize(entry.status)}
                   </span>
                 </td>
-                <td>{entry.notes || "See source-specific documentation."}</td>
+                <td>
+                  <p>
+                    {entry.limitation || "See source-specific documentation."}
+                  </p>
+                  <small>Cadence: {entry.cadence}</small>
+                  {entry.recordTypes.length > 0 && (
+                    <small>
+                      Record types: {entry.recordTypes.map(humanize).join(", ")}
+                    </small>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -2048,6 +2278,20 @@ function PrintDossier({
   const health = bundle.sourceHealth.filter((source) =>
     sourceIds.has(source.sourceId),
   );
+  const coverage = bundle.coverage.filter((entry) =>
+    sourceIds.has(entry.sourceId),
+  );
+  const sourceAttributions = [
+    ...new Map(
+      dossier.records.map((record) => [
+        record.source.id,
+        {
+          sourceName: record.source.name,
+          attribution: record.source.attribution ?? "Not provided",
+        },
+      ]),
+    ).values(),
+  ];
   return (
     <article id="print-dossier" aria-hidden="true">
       <header>
@@ -2081,13 +2325,32 @@ function PrintDossier({
           and should not be read as a complete account of policy affecting this
           Nation. General-jurisdiction records are not Nation-specific.
         </p>
-        {dossier.missingDetailCount > 0 && (
-          <p>
-            {dossier.missingDetailCount} separate detail asset could not be
-            loaded. The validated compact index fields are shown for those
-            records; no missing content was fabricated.
-          </p>
-        )}
+        <h3>Selected-source coverage</h3>
+        <ul>
+          {coverage.map((entry) => (
+            <li>
+              <strong>{entry.sourceName}:</strong> selected artifact window{" "}
+              {coverageRangeText(entry.from, entry.through)}; documented source
+              range{" "}
+              {coverageRangeText(
+                entry.documentedFrom,
+                entry.documentedThrough,
+                true,
+              )}
+              ; actual artifact coverage {actualCoverageText(entry)}; coverage
+              state {humanize(entry.status)}. {entry.limitation}
+            </li>
+          ))}
+        </ul>
+        <h3>Source attribution</h3>
+        <ul>
+          {sourceAttributions.map((source) => (
+            <li>
+              <strong>{source.sourceName}:</strong> {source.attribution}
+            </li>
+          ))}
+        </ul>
+        <h3>Source health</h3>
         <ul>
           {health.map((source) => (
             <li>
@@ -2098,6 +2361,7 @@ function PrintDossier({
                     source.lastSuccessfulRetrievalAt,
                   )}`
                 : ""}
+              {source.message ? `; ${source.message}` : ""}
             </li>
           ))}
         </ul>
@@ -2148,6 +2412,18 @@ function PrintDossier({
                   <dt>Official source</dt>
                   <dd>{record.urls.officialSource}</dd>
                 </div>
+                {record.urls.officialFullText && (
+                  <div>
+                    <dt>Official full text</dt>
+                    <dd>{record.urls.officialFullText}</dd>
+                  </div>
+                )}
+                {record.source.attribution && (
+                  <div>
+                    <dt>Source attribution</dt>
+                    <dd>{record.source.attribution}</dd>
+                  </div>
+                )}
               </dl>
               {why.evidence && (
                 <>

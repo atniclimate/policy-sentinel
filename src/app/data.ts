@@ -16,6 +16,9 @@ import type {
 
 type JsonObject = Record<string, unknown>;
 
+const DETAIL_ASSET_PATH = /^details\/[A-Za-z0-9_-]+\.json$/;
+const FETCHABLE_DETAIL_ASSET_PATH = /^data\/details\/[A-Za-z0-9_-]+\.json$/;
+
 const objectValue = (value: unknown): JsonObject =>
   value !== null && typeof value === "object" && !Array.isArray(value)
     ? (value as JsonObject)
@@ -29,6 +32,11 @@ const nullableString = (value: unknown): string | null =>
 
 const booleanValue = (value: unknown, fallback = false): boolean =>
   typeof value === "boolean" ? value : fallback;
+
+const nonnegativeInteger = (value: unknown, fallback = 0): number =>
+  typeof value === "number" && Number.isInteger(value) && value >= 0
+    ? value
+    : fallback;
 
 const stringArray = (value: unknown): string[] =>
   Array.isArray(value)
@@ -56,8 +64,13 @@ const arrayPayload = (payload: unknown, keys: string[]): unknown[] => {
   return [];
 };
 
-const assetUrl = (path: string): string =>
-  new URL(path, document.baseURI).toString();
+const assetUrl = (path: string): string => {
+  const url = new URL(path, document.baseURI);
+  if (url.origin !== window.location.origin) {
+    throw new Error(`Refused a cross-origin artifact request for ${path}.`);
+  }
+  return url.toString();
+};
 
 const fetchJson = async (path: string): Promise<unknown> => {
   const response = await fetch(assetUrl(path), {
@@ -351,8 +364,7 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
         const path = nullableString(
           detailAsset.path ?? item.detailPath ?? item.detailAssetPath,
         );
-        if (!path) return null;
-        return path.startsWith("data/") ? path : `data/${path}`;
+        return path && DETAIL_ASSET_PATH.test(path) ? `data/${path}` : null;
       })(),
     },
     sponsors: stringArray(item.sponsors),
@@ -364,10 +376,7 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
     ),
     officialSubjects: stringArray(item.officialSubjects),
     taxonomyMemberships,
-    isUnclassified:
-      taxonomyMemberships.length === 0
-        ? true
-        : booleanValue(item.isUnclassified, false),
+    isUnclassified: booleanValue(item.isUnclassified, false),
     relevance: normalizeRelevance(item.relevance),
     nationIds: [
       ...new Set([
@@ -555,14 +564,14 @@ const normalizeCoverage = (payload: unknown): CoverageEntry[] =>
       const item = objectValue(entry);
       const dateRange = objectValue(item.dateRange ?? item.historicalRange);
       const jurisdiction = objectValue(item.jurisdiction);
+      const sourceId = stringValue(item.sourceId ?? item.id, "unknown-source");
       return {
-        sourceId: stringValue(item.sourceId ?? item.id, "unknown-source"),
+        sourceId,
         sourceName: stringValue(
           item.sourceName ?? item.name,
-          humanizeSourceId(
-            stringValue(item.sourceId ?? item.id, "unknown-source"),
-          ),
+          humanizeSourceId(sourceId),
         ),
+        provider: stringValue(item.provider, "Issuing authority not provided"),
         jurisdictions: stringArray(
           item.jurisdictions ?? item.coveredJurisdictions,
         ).concat(
@@ -570,12 +579,21 @@ const normalizeCoverage = (payload: unknown): CoverageEntry[] =>
             ? [stringValue(jurisdiction.name)]
             : [],
         ),
-        dateFrom: nullableString(item.dateFrom ?? item.from ?? dateRange.from),
-        dateThrough: nullableString(
-          item.dateThrough ?? item.through ?? dateRange.through,
+        from: nullableString(item.from ?? item.dateFrom),
+        through: nullableString(item.through ?? item.dateThrough),
+        documentedFrom: nullableString(item.documentedFrom ?? dateRange.from),
+        documentedThrough: nullableString(
+          item.documentedThrough ?? dateRange.through,
         ),
+        recordFrom: nullableString(item.recordFrom),
+        recordThrough: nullableString(item.recordThrough),
+        recordCount: nonnegativeInteger(item.recordCount),
+        cadence: stringValue(item.cadence, "Cadence not provided"),
+        recordTypes: stringArray(item.recordTypes),
         status: stringValue(item.status, "range-limited"),
-        notes: stringValue(item.notes ?? item.limitations ?? item.limitation),
+        limitation: stringValue(
+          item.limitation ?? item.limitations ?? item.notes,
+        ),
       };
     },
   );
@@ -603,48 +621,6 @@ const normalizeHealth = (payload: unknown): SourceHealthEntry[] =>
       message: nullableString(item.message),
     };
   });
-
-const fallbackCoverage = (records: PublicRecord[]): CoverageEntry[] => {
-  const bySource = new Map<string, CoverageEntry>();
-  for (const record of records) {
-    if (!bySource.has(record.source.id)) {
-      bySource.set(record.source.id, {
-        sourceId: record.source.id,
-        sourceName: record.source.name,
-        jurisdictions: [record.jurisdiction.name],
-        dateFrom: record.source.coverageFrom ?? null,
-        dateThrough: record.source.coverageThrough ?? null,
-        status: "range-limited",
-        notes:
-          record.source.coverageNotes ??
-          "Coverage is limited to the records in this artifact.",
-      });
-    } else {
-      const current = bySource.get(record.source.id);
-      if (
-        current &&
-        !current.jurisdictions.includes(record.jurisdiction.name)
-      ) {
-        current.jurisdictions.push(record.jurisdiction.name);
-      }
-    }
-  }
-  return [...bySource.values()];
-};
-
-const fallbackHealth = (records: PublicRecord[]): SourceHealthEntry[] => {
-  const bySource = new Map<string, SourceHealthEntry>();
-  for (const record of records) {
-    if (!bySource.has(record.source.id)) {
-      bySource.set(record.source.id, {
-        sourceId: record.source.id,
-        sourceName: record.source.name,
-        ...record.sourceHealth,
-      });
-    }
-  }
-  return [...bySource.values()];
-};
 
 export const loadArtifacts = async (): Promise<ArtifactBundle> => {
   const paths = [
@@ -675,14 +651,13 @@ export const loadArtifacts = async (): Promise<ArtifactBundle> => {
     }
   });
 
-  for (const required of [
-    "data/nations.json",
-    "data/taxonomy.json",
-    "data/index/records.json",
-  ]) {
+  for (const required of paths) {
     if (!values.has(required)) {
+      const failure = warnings.find((warning) => warning.includes(required));
       throw new Error(
-        `The required same-origin artifact ${required} is unavailable.`,
+        `The required same-origin artifact ${required} is unavailable.${
+          failure ? ` ${failure}` : ""
+        }`,
       );
     }
   }
@@ -703,19 +678,33 @@ export const loadArtifacts = async (): Promise<ArtifactBundle> => {
     .filter((record): record is PublicRecord => record !== null);
 
   for (const record of records) {
-    record.taxonomyMemberships = record.taxonomyMemberships.filter(
-      (membership) => {
-        if (membership.subcategoryId === null) return true;
-        const category = taxonomy.categories.find(
-          (candidate) => candidate.id === membership.categoryId,
+    for (const membership of record.taxonomyMemberships) {
+      const category = taxonomy.categories.find(
+        (candidate) => candidate.id === membership.categoryId,
+      );
+      if (!category) {
+        throw new Error(
+          `The public index and taxonomy artifacts are inconsistent: record ${record.internalId} uses unknown category ${membership.categoryId}.`,
         );
-        return Boolean(
-          category?.subcategories.some(
-            (subcategory) => subcategory.id === membership.subcategoryId,
-          ),
+      }
+      if (
+        membership.subcategoryId !== null &&
+        !category.subcategories.some(
+          (subcategory) => subcategory.id === membership.subcategoryId,
+        )
+      ) {
+        throw new Error(
+          `The public index and taxonomy artifacts are inconsistent: record ${record.internalId} uses unknown category/subcategory pair ${membership.categoryId}/${membership.subcategoryId}.`,
         );
-      },
-    );
+      }
+    }
+
+    const expectedUnclassified = record.taxonomyMemberships.length === 0;
+    if (record.isUnclassified !== expectedUnclassified) {
+      throw new Error(
+        `The public index artifact is inconsistent: record ${record.internalId} must set isUnclassified to ${expectedUnclassified}.`,
+      );
+    }
   }
 
   if (nations.length === 0) {
@@ -727,15 +716,38 @@ export const loadArtifacts = async (): Promise<ArtifactBundle> => {
 
   const coverage = normalizeCoverage(values.get("data/coverage.json"));
   const sourceHealth = normalizeHealth(values.get("data/source-health.json"));
+  const sourceHealthById = new Map<string, SourceHealthEntry>();
+  for (const health of sourceHealth) {
+    if (sourceHealthById.has(health.sourceId)) {
+      throw new Error(
+        `The source health artifact contains duplicate entries for ${health.sourceId}.`,
+      );
+    }
+    sourceHealthById.set(health.sourceId, health);
+  }
+  for (const record of records) {
+    const health = sourceHealthById.get(record.source.id);
+    if (!health) {
+      throw new Error(
+        `The public index and source health artifacts are inconsistent: source ${record.source.id} has no health entry.`,
+      );
+    }
+    record.sourceHealth = {
+      status: health.status,
+      dataAsOf: health.dataAsOf,
+      lastSuccessfulRetrievalAt: health.lastSuccessfulRetrievalAt,
+      usingLastKnownGood: health.usingLastKnownGood,
+      message: health.message,
+    };
+  }
 
   return {
     manifest: normalizeManifest(values.get("data/manifest.json")),
     nations,
     taxonomy,
     records,
-    coverage: coverage.length > 0 ? coverage : fallbackCoverage(records),
-    sourceHealth:
-      sourceHealth.length > 0 ? sourceHealth : fallbackHealth(records),
+    coverage,
+    sourceHealth,
     warnings,
   };
 };
@@ -746,6 +758,9 @@ export const loadRecordDetail = async (
   if (!record.texts.detailPath) {
     throw new Error("The compact index does not provide a detail asset path.");
   }
+  if (!FETCHABLE_DETAIL_ASSET_PATH.test(record.texts.detailPath)) {
+    throw new Error("The compact index provides an invalid detail asset path.");
+  }
   const payload = await fetchJson(record.texts.detailPath);
   const root = objectValue(payload);
   const normalized = normalizeRecord(root.record ?? payload);
@@ -754,6 +769,22 @@ export const loadRecordDetail = async (
   }
   if (normalized.internalId !== record.internalId) {
     throw new Error("The detail asset ID does not match the requested record.");
+  }
+  if (normalized.source.id !== record.source.id) {
+    throw new Error("The detail asset source does not match the index record.");
+  }
+  if (normalized.sourceDocumentIdentifier !== record.sourceDocumentIdentifier) {
+    throw new Error(
+      "The detail asset source document identifier does not match the index record.",
+    );
+  }
+  if (normalized.officialTitle !== record.officialTitle) {
+    throw new Error("The detail asset title does not match the index record.");
+  }
+  if (normalized.urls.officialSource !== record.urls.officialSource) {
+    throw new Error(
+      "The detail asset official source URL does not match the index record.",
+    );
   }
   return normalized;
 };

@@ -26,6 +26,9 @@ export const selectedRecordsCsv = (
 ): string => {
   const columns = [
     "stable_id",
+    "source_id",
+    "source_name",
+    "source_attribution",
     "source_document_id",
     "official_title",
     "document_type",
@@ -52,6 +55,10 @@ export const selectedRecordsCsv = (
     "retrieved_at",
     "data_quality_state",
     "source_health",
+    "source_health_data_as_of",
+    "source_last_successful_retrieval_at",
+    "using_last_known_good",
+    "source_health_message",
     "urgent_source_label",
     "urgent_source_date",
   ];
@@ -60,6 +67,9 @@ export const selectedRecordsCsv = (
     const why = whyShownForRecord(record);
     return [
       record.internalId,
+      record.source.id,
+      record.source.name,
+      record.source.attribution ?? "",
       record.sourceDocumentIdentifier,
       record.officialTitle,
       record.documentType,
@@ -91,6 +101,10 @@ export const selectedRecordsCsv = (
       record.dates.retrieved,
       record.dataQuality.state,
       record.sourceHealth.status,
+      record.sourceHealth.dataAsOf,
+      record.sourceHealth.lastSuccessfulRetrievalAt,
+      record.sourceHealth.usingLastKnownGood,
+      record.sourceHealth.message ?? "",
       record.change.urgentAlert?.label ?? "",
       record.change.urgentAlert?.date ?? "",
     ];
