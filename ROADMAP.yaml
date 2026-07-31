@@ -4,7 +4,7 @@ project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
   phase: "Phase B: local implementation"
-  updated_on: "2026-07-30"
+  updated_on: "2026-07-31"
   owner_intent: >-
     Build and validate a sovereignty-centered static public-policy discovery and
     source-reference application for Tribal Nations, then stop at the external
@@ -229,6 +229,15 @@ gates:
       Satisfy independently for each enabled source through current primary
       documentation, contract tests, provenance, attribution, and reproduction
       review. This is an evidence gate, not a product interview.
+  - id: G-BIA-IDENTITY
+    name: Current BIA recognition identity reconciliation
+    state: pending_evidence
+    resolution: >-
+      Current originating BIA evidence must provide an unambiguous row-level
+      reconciliation from the 577 displayed list-entry paragraphs to the
+      notice's stated 575 entities, and that mapping must pass two independent
+      reviews. Arithmetic, TLD rows, grouping assumptions, aliases, geography,
+      or third-party contact cannot substitute for exact official evidence.
   - id: G-RC
     name: Local release-candidate acceptance
     state: pending_evidence
@@ -238,15 +247,16 @@ gates:
 
 baseline:
   phase_a_commit: e22512e
-  phase_b_checkpoint_commit: "8357691"
-  verified_on: "2026-07-30"
+  phase_b_checkpoint_commit: fbb54f1
+  verified_on: "2026-07-31"
   repository_state_at_checkpoint:
     remote: absent
     publication: not_started
     production_policy_records: none
     nation_registry: >-
-      Ignored validation output contains 575 source-exact entries from the 2026
-      federal recognition notice; publication review is pending.
+      The 2026 notice transcription is verified at 577 ordered list-entry
+      paragraphs, 348 contiguous and 229 Alaska, against a stated total of 575.
+      Identity reconciliation is source-blocked and no live registry is emitted.
     application: >-
       Static Preact, TypeScript, and Vite single-Nation synthetic vertical
       slice.
@@ -257,7 +267,12 @@ baseline:
   verification:
     - command: npm run check
       result: pass
-      detail: "6 Vitest files, 31 tests, static build, and artifact validation"
+      detail: "6 Vitest files, 36 tests, static build, and artifact validation"
+    - command: npm run source:bia
+      result: expected_fail_closed
+      detail: >-
+        Verified the live transcript, exited 1 at the identity gate, and left
+        neither staging nor legacy registry output.
     - command: npm audit
       result: pass
       detail: "0 vulnerabilities"
@@ -266,12 +281,12 @@ baseline:
       detail: single-Nation synthetic flow only
 
 current_focus:
-  work_item: B2-REVIEW
+  work_item: B4-FR-RESEARCH
   objective: >-
-    Independently reconcile the official 575-Nation notice, grouping,
-    cross-references, punctuation, and source-exact identities before durable
-    ID, alias, or state-coverage work.
-  last_durable_checkpoint: e2f08c9
+    Reconfirm the current Federal Register official API, fields, pagination,
+    slicing, limits, history, attribution, reproduction constraints, and
+    failure behavior before implementing its production adapter.
+  last_durable_checkpoint: fbb54f1
   resume_command: npm run check
 
 completion_scope:
@@ -286,7 +301,6 @@ completion_scope:
       - H-HANDOFF
       - B1-APP
       - B2-PARSER
-      - B2-REVIEW
       - B2-IDS
       - B2-STATES
       - B2-READY
@@ -319,6 +333,7 @@ completion_scope:
       - B10-REFRESH
       - B10-RC
     accepted_source_blocks:
+      - B2-REVIEW
       - B4-CONGRESS-LIVE
       - B4-GOVINFO-LIVE
       - B4-REGS-LIVE
@@ -389,27 +404,39 @@ work_items:
   - id: B2-PARSER
     priority: 20
     milestone: B2
-    title: Official annual-recognition-notice parser
+    title: Official annual-recognition-notice transcription validator
     status: complete
     dependencies:
       - A-FOUNDATION
     acceptance:
-      - The official current notice parses to exactly 575 source-exact entries.
-      - Cross-reference paragraphs are not silently counted as Nations.
-      - Generated live output remains ignored and federal-only when state
-        coverage is unresolved.
+      - The official current notice parses to exactly 577 ordered source-exact
+        list-entry paragraphs, 348 contiguous and 229 Alaska.
+      - Ordered structured-source and bounded GovInfo hashes, the stated total
+        of 575, headings, See clauses, metadata, and correction links fail
+        closed on drift.
+      - Every grouping and cross-reference paragraph remains source evidence;
+        the validator emits no Nation registry while row reconciliation is
+        unresolved.
+      - Any future validation output is restricted to ignored BIA staging and
+        the exact legacy deploy-tree output is removed.
       - Contacts, addresses, geometry, and land fields are excluded.
     evidence:
-      - "Commit 8357691."
-      - "npm run source:bia produced 575 ignored entries from the 2026 notice."
+      - "Commit fbb54f1."
+      - "The review records ordered-entry hash c33e8471..., bounded GovInfo hash
+        f8071894..., and independent PDF comparison hash 3fa7b37a...."
+      - "npm run check passed 6 Vitest files and 36 tests on 2026-07-31."
+      - "npm run source:bia verified the live source, then exited 1 at the
+        identity gate with no staging or legacy output."
 
   - id: B2-REVIEW
     priority: 21
     milestone: B2
-    title: Independent 575-Nation publication review
-    status: in_progress
+    title: Independent recognition-notice identity review
+    status: blocked
     dependencies:
       - B2-PARSER
+    blocked_by:
+      - G-BIA-IDENTITY
     acceptance:
       - Two independent reviews reconcile count, list paragraphs, grouped names,
         punctuation, and cross-references.
@@ -418,12 +445,26 @@ work_items:
       - Review evidence is durable without committing raw source material.
       - Regression fixtures cover every adjudicated edge case.
     evidence:
-      - "Structural 575-count validation exists; independent publication review
-        remains open."
+      - "docs/source-reviews/bia-2026-recognition-review.md records two
+        independent methods, exact hashes, disputed rows, and the fail-closed
+        decision."
+      - "The 2026 notice displays 577 ordered list-entry paragraphs while
+        stating 575 entities and provides no current row-level reconciliation."
+      - "The August 2023 notice withdrew the 2022 and January 2023
+        clarification, so that superseded exclusion rule cannot be reused."
+      - "Commit fbb54f1 removes the unsupported Venetie-only alias rule and
+        emits no registry."
+    safe_fallback: >-
+      Emit no live Nation registry or Nation-specific state coverage; keep the
+      application synthetic and visibly unavailable for production data.
+    unblocks_only_when: >-
+      Current originating BIA evidence unambiguously reconciles the displayed
+      paragraphs to the stated 575 entities and the exact mapping passes two
+      independent reviews.
     next_step: >-
-      Assign separate cooperative and adversarial reviewers, compare their
-      normalized inventories mechanically, and resolve differences against the
-      official notice.
+      Resume only when current originating BIA evidence supplies the exact
+      row-level reconciliation; do not infer it from arithmetic, TLD, grouping,
+      aliases, geography, or contact.
 
   - id: B2-IDS
     priority: 22
@@ -497,7 +538,7 @@ work_items:
     priority: 40
     milestone: B4
     title: Reconfirm Federal Register official contract and terms
-    status: ready
+    status: in_progress
     dependencies:
       - B3-PIPELINE
     acceptance:
@@ -1194,7 +1235,7 @@ work_items:
 source_register:
   - id: SRC-BIA-NOTICE
     source: BIA annual federal recognition notice
-    implementation_state: publication_review_pending
+    implementation_state: blocked_identity_reconciliation
     work_items:
       - B2-REVIEW
       - B2-IDS
@@ -1346,31 +1387,18 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B2-REVIEW
-    action: >-
-      Complete the independent official-notice review and mechanical
-      reconciliation; keep state coverage federal-only while unresolved.
-  - order: 2
-    work_item: B2-IDS
-    action:
-      Build and test durable Nation identity and official-alias carry-forward.
-  - order: 3
-    work_item: B2-STATES
-    action: >-
-      Build the official, fail-closed Washington, Oregon, and Idaho coverage
-      crosswalk without address, geometry, territory, map, or land inference.
-  - order: 4
-    work_item: B2-READY
-    action:
-      Complete registry publication-readiness validation without publishing.
-  - order: 5
     work_item: B4-FR-RESEARCH
-    action:
-      Reverify Federal Register primary documentation and reproduction
-      constraints.
-  - order: 6
+    action: >-
+      Reverify Federal Register primary documentation, API behavior, history,
+      attribution, and reproduction constraints.
+  - order: 2
     work_item: B4-FR-ADAPTER
     action: Implement the first production policy-source adapter.
+  - order: 3
+    work_item: B2-REVIEW
+    action: >-
+      Resume BIA identity work only if current originating evidence supplies the
+      exact row-level reconciliation required by G-BIA-IDENTITY.
 
 finish_states:
   local_release_candidate:
