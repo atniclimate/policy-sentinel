@@ -389,15 +389,15 @@ baseline:
       detail: single-Nation synthetic flow only
 
 current_focus:
-  work_item: B6-COURT-EXPANSION
+  work_item: B6-LANDMARKS
   objective: >-
-    Assess Supreme Court, Washington, Oregon, and Idaho official court
-    increments independently, then implement only bounded no-key
-    metadata-and-link sources whose exact status, identity, date, reproduction,
-    privacy, provenance, and failure contracts validate. Keep DOI IBIA behind
-    its document-contract block and GovInfo USCOURTS behind its credential gate,
-    with no comprehensive court claim or inferred Nation relationship.
-  last_durable_checkpoint: a5bfcd7
+    Implement the smallest source-verified landmark timeline pilot whose
+    official identity, date, issuing body, inclusion criterion, reproduction
+    boundary, provenance, and pre-1980 treatment fit the public record and UI
+    contracts. Preserve the missing official online copy of the 1974 Boldt
+    decision and the Centennial Accord's signatory/model gaps without inferred
+    Nation relationships, copied source text, or legal-effect claims.
+  last_durable_checkpoint: ffd2ed6
   resume_command: npm run check
 
 completion_scope:
@@ -1823,7 +1823,7 @@ work_items:
     priority: 72
     milestone: B6
     title: Incremental official federal and state court coverage
-    status: in_progress
+    status: complete
     dependencies:
       - B6-COURT-ADAPTER
     acceptance:
@@ -1836,13 +1836,49 @@ work_items:
         reproduction policy, health, provenance, and failure tests.
       - Unavailable or incomplete collections remain visible gaps and do not
         become comprehensive court claims.
-    evidence: []
+    evidence:
+      - >-
+        Commit ffd2ed6 records the 2026-07-31 primary-source assessment,
+        independent disabled source identities, exact source gates, registry
+        1.13.0 propagation, and activation-negative tests without adding a
+        state-court adapter, provider body, production record, or public
+        coverage claim.
+      - >-
+        The Washington originating indexes expose dockets, captions, file
+        dates, publication sections, and mutable slip links but no citation
+        separate from the docket or case-specific current-version relationship.
+        G-WA-APPELLATE-CITATION-REVISION-CONTRACT preserves the exact unblock
+        condition; the source remains disabled with adapter null and null range.
+      - >-
+        One pre-gate Oregon institutional row exposed an exact docket and
+        citation, but current Oregon.gov access constitutes terms acceptance,
+        OJD separately restricts commercial copying, and the linked OCLC host
+        has not been reviewed. G-B-OR-OJD remains closed and no further request,
+        transport, or adapter was added.
+      - >-
+        The Idaho Supreme Court and Court of Appeals indexes are independently
+        registered with observed, explicitly non-comprehensive lower bounds.
+        Neither supplies a per-record citation, remittitur/finality state, or
+        typed substitution history, and ICAR 32 restricts bulk distribution;
+        G-ID-APPELLATE-CITATION-FINALITY-CONTRACT remains pending.
+      - >-
+        The broader Supreme Court current-term page mixes mutable revision links
+        and incomplete volume/part placeholders, so it does not inherit the
+        one-row adapter contract. DOI IBIA remains behind
+        G-DOI-IBIA-DOCUMENT-CONTRACT and GovInfo USCOURTS remains behind
+        G-B-GOVINFO; no comprehensive federal-court claim was created.
+      - >-
+        npm run check passed on 2026-07-31 with formatting, lint, type checking,
+        roadmap and source-boundary validation, 43 Vitest files and 656 tests,
+        a synthetic-only production build, and artifact validation at 2 records,
+        575 Nations, and 7 verified assets; build ID
+        synthetic-3fe5f1f0f7ba57eddb0e.
 
   - id: B6-LANDMARKS
     priority: 73
     milestone: B6
     title: Source-verified landmark timeline pilot
-    status: not_started
+    status: in_progress
     dependencies:
       - B6-COURT-EXPANSION
     acceptance:
@@ -2285,7 +2321,7 @@ source_register:
   - id: SRC-COURTS
     source: Official courts and administrative decisions
     implementation_state: >-
-      supreme_court_pilot_validated_disabled_expansion_in_progress_ibia_document_contract_blocked
+      supreme_court_pilot_validated_disabled_state_expansion_assessed_ibia_and_state_contracts_blocked_landmarks_in_progress
     work_items:
       - B6-COURT-RESEARCH
       - B6-COURT-ADAPTER
@@ -2378,28 +2414,26 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B6-COURT-EXPANSION
+    work_item: B6-LANDMARKS
     action: >-
-      Assess Washington, Oregon, and Idaho official appellate-opinion indexes
-      independently against current primary documentation, robots/access rules,
-      exact identity/date/status fields, reproduction limits, privacy exposure,
-      historical range, and bounded build-time failure behavior. Implement only
-      a source-specific metadata-and-link increment whose contract passes
-      without a credential, body crawl, or inferred Nation relationship.
+      Reconcile the landmark record and artifact contract with metadata-and-link
+      reproduction so an item can preserve an exact official citation, date,
+      issuing body, criterion, evidence URL, and review state without requiring
+      copied source text. Version and test any additive contract change.
   - order: 2
-    work_item: B6-COURT-EXPANSION
+    work_item: B6-LANDMARKS
     action: >-
-      Assess any broader Supreme Court increment separately from the validated
-      one-row pilot. Keep DOI IBIA behind G-DOI-IBIA-DOCUMENT-CONTRACT and
-      GovInfo USCOURTS behind G-B-GOVINFO; record source-specific gaps instead
-      of turning selected records into comprehensive coverage claims.
+      Evaluate the Boldt research case only from originating official court or
+      archival evidence. Preserve the documented absence of an official online
+      copy of the 1974 district-court decision, distinguish any later official
+      decision, and add no Nation, rights, land, or legal-effect inference.
   - order: 3
     work_item: B6-LANDMARKS
     action: >-
-      After independent court increments finish, evaluate only source-verified
-      landmark candidates with exact official evidence, metadata-compatible
-      reproduction rights, and the documented pre-1980 boundary. Do not infer
-      Boldt, Accord, Nation, rights, land, or legal-effect facts.
+      Add only a source-verified landmark pilot that passes exact identity,
+      status, date, reproduction, provenance, compact/detail, timeline, dossier,
+      accessibility, and pre-1980 tests. Keep the Centennial Accord blocked by
+      its party/signatory and record-model gate rather than coercing it.
 
 finish_states:
   local_release_candidate:
