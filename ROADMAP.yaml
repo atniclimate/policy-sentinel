@@ -297,7 +297,7 @@ current_focus:
     Define and measure a bounded Federal Register static-artifact range, then
     integrate compact index, detail, coverage, health, freshness, and
     Unclassified states without enabling the source or adding runtime API calls.
-  last_durable_checkpoint: 0f8f235
+  last_durable_checkpoint: c639f89
   resume_command: npm run check
 
 completion_scope:
@@ -628,6 +628,12 @@ work_items:
         The reviewed 1994-01-03 through 2026-07-31 daily facet reports 1,005,337
         documents across 11,898 issue dates, so the source remains disabled
         until this item establishes and displays a measured bounded range.
+      - >-
+        Commit c639f89 implements the versioned inclusive 31-calendar-day
+        selection policy, a 4,000-document pre-search facet ceiling, emitted
+        coverage-range normalization, and fail-closed range tests. The focused
+        Federal Register suite passed 123 tests; artifact/UI integration remains
+        in progress and the checked-in source stays disabled.
 
   - id: B4-GRANTS-RESEARCH
     priority: 43
