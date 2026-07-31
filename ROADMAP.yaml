@@ -266,13 +266,12 @@ baseline:
       detail: single-Nation synthetic flow only
 
 current_focus:
-  work_item: H-HANDOFF
+  work_item: B2-REVIEW
   objective: >-
-    Finish and validate the canonical YAML execution ledger and the
-    compaction-safe Sol Ultra continuation handoff.
-  parallel_ready_after_review:
-    - B4-FR-RESEARCH
-  last_durable_checkpoint: "8357691"
+    Independently reconcile the official 575-Nation notice, grouping,
+    cross-references, punctuation, and source-exact identities before durable
+    ID, alias, or state-coverage work.
+  last_durable_checkpoint: e2f08c9
   resume_command: npm run check
 
 completion_scope:
@@ -349,7 +348,7 @@ work_items:
     priority: 2
     milestone: Durable workflow
     title: Canonical YAML course and Sol Ultra continuation handoff
-    status: in_progress
+    status: complete
     dependencies:
       - A-FOUNDATION
     acceptance:
@@ -367,8 +366,7 @@ work_items:
       - "npm audit reported 0 vulnerabilities on 2026-07-30."
       - "Final cooperative and adversarial reviews reported handoff-ready with
         no blockers on 2026-07-30."
-      - "The implementation commit will be recorded in the follow-up ledger
-        checkpoint."
+      - "Commit e2f08c9: docs: add durable Sol Ultra execution handoff"
 
   - id: B1-APP
     priority: 10
@@ -409,7 +407,7 @@ work_items:
     priority: 21
     milestone: B2
     title: Independent 575-Nation publication review
-    status: ready
+    status: in_progress
     dependencies:
       - B2-PARSER
     acceptance:
@@ -1348,25 +1346,29 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: H-HANDOFF
-    action: >-
-      Finish roadmap validation, cross-document links, cooperative/adversarial
-      review, full npm checks, and the local handoff commit.
-  - order: 2
     work_item: B2-REVIEW
     action: >-
       Complete the independent official-notice review and mechanical
       reconciliation; keep state coverage federal-only while unresolved.
-  - order: 3
-    work_item: B4-FR-RESEARCH
-    action: >-
-      In parallel with registry review, reverify current Federal Register
-      primary documentation and reproduction constraints.
-  - order: 4
+  - order: 2
     work_item: B2-IDS
     action:
       Build and test durable Nation identity and official-alias carry-forward.
+  - order: 3
+    work_item: B2-STATES
+    action: >-
+      Build the official, fail-closed Washington, Oregon, and Idaho coverage
+      crosswalk without address, geometry, territory, map, or land inference.
+  - order: 4
+    work_item: B2-READY
+    action:
+      Complete registry publication-readiness validation without publishing.
   - order: 5
+    work_item: B4-FR-RESEARCH
+    action:
+      Reverify Federal Register primary documentation and reproduction
+      constraints.
+  - order: 6
     work_item: B4-FR-ADAPTER
     action: Implement the first production policy-source adapter.
 
@@ -1389,7 +1391,7 @@ finish_states:
     current_state: blocked
     blocked_by:
       - RELEASE-PUBLISH
-      - G-E
+      - G-E-PUBLISH
     satisfied_when:
       - The owner explicitly authorizes the exact GitHub and Pages operations.
       - Those operations are performed with gh from an accepted local release
