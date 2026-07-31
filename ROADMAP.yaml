@@ -178,6 +178,15 @@ gates:
     name: Regulations.gov registration and key
     state: closed
     boundary: EXT-CREDENTIALS
+  - id: G-B-OR-OJD
+    name: Oregon Judicial Department access and reuse terms
+    state: closed
+    boundary: EXT-CREDENTIALS
+    resolution: >-
+      Reopen only if the owner explicitly approves the exact current Oregon.gov
+      and OJD terms, intended noncommercial or commercial use, and any
+      third-party OCLC access. Continued access is terms acceptance, so no live
+      adapter request or OCLC traversal is authorized while this gate is closed.
   - id: G-C
     name: Oregon terms
     state: closed
@@ -267,7 +276,17 @@ gates:
       into publication or effectiveness, invent current status or complete
       history, copy source text merely to satisfy landmark schema, or create a
        Nation association before exact signatory evidence reconciles to the
-       approved BIA identity registry.
+      approved BIA identity registry.
+  - id: G-WA-APPELLATE-CITATION-REVISION-CONTRACT
+    name: Washington appellate citation and current-version contract
+    state: pending_evidence
+    resolution: >-
+      Satisfy only when originating evidence supplies an exact official citation
+      separate from the docket and a privacy-safe, case-specific current-version
+      and typed revision relationship, or a deliberate versioned record/UI
+      contract permits citationless slip decisions. Do not repair RSS dockets,
+      relabel a docket or filename as a citation, fetch information sheets or
+      PDFs, or use the external reporter as an opaque supplement.
   - id: G-DOI-IBIA-DOCUMENT-CONTRACT
     name: DOI IBIA document access, privacy, and decision-status contract
     state: pending_evidence
@@ -279,6 +298,16 @@ gates:
       robots-disallowed OHA search or decision hosts, infer current or binding
       status from the chronology, or ingest personal, probate, land, mineral,
       ownership, or governance-dispute content.
+  - id: G-ID-APPELLATE-CITATION-FINALITY-CONTRACT
+    name: Idaho appellate citation, finality, and revision contract
+    state: pending_evidence
+    resolution: >-
+      Satisfy only when originating evidence supplies an exact per-record
+      citation, remittitur/finality state, typed amendment or substitution
+      relationships, a permitted bounded inventory contract, and a privacy-safe
+      selection rule. Do not infer judicial status from CMS tags or filenames,
+      fetch staff summaries or PDFs, or use third-party contact without exact
+      owner approval.
   - id: G-BIA-IDENTITY
     name: Current BIA recognition identity reconciliation
     state: pending_evidence

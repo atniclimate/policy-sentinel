@@ -148,7 +148,7 @@ document index that is neither an API, feed, nor bulk export and adds
 `official_page` for one bounded originating document page that is not an index.
 The independently registered `washington-state-register` and
 `washington-governor-executive-orders` sources use `official_index`; the
-Register still has `adapter: null`, while source-registry 1.12.0 retains the
+Register still has `adapter: null`, while source-registry 1.13.0 retains the
 Governor's versioned adapter descriptor without authorizing it to emit public
 records. `washington-centennial-accord` uses `official_page` and remains
 disabled with `adapter: null`. These methods describe reviewed access surfaces
@@ -206,11 +206,23 @@ remains `adapter: null` until a versioned accord-specific model and UI preserve
 those roles without inference. Its exact official page supports only a planned
 general-jurisdiction landmark candidate with zero Nation associations.
 
-Court research and health remain source-specific. Registry 1.12.0 preserves the
+Court research and health remain source-specific. Registry 1.13.0 preserves the
 1.11 DOI IBIA research outcome as a disabled gap because its chronology can lag
 a separate search database, omits docket and decision-status relationships,
 includes privacy- and land-sensitive matters, and points to an OHA host that
 disallows automated access.
+
+The same registry independently records the assessed state-court gaps.
+Washington's originating indexes expose mutable slip-opinion metadata but no
+official citation separate from the docket or case-specific current-version
+relationship. Oregon's OJD index contains a bounded citation-and-docket
+candidate, but no transport is configured because statewide terms make access
+acceptance and the exact source gate is closed. Idaho's Supreme Court and Court
+of Appeals indexes are separate source IDs because their inventory and future
+health can diverge; both lack required citations and later-event finality or
+substitution evidence. Each remains disabled with `adapter: null`. Their
+configured host lists are declarative validation boundaries, not authority to
+retrieve opinion or summary files.
 
 Record schema and artifact package 1.2 add a source-neutral
 `judicialContext`. Court and administrative decisions must preserve an exact
@@ -344,7 +356,7 @@ Artifact package `1.1.0` historically added richer coverage fields and the
 card-critical source document identifier, issuing bodies, and official-source
 URL to the compact index. Current package `1.2.0` and record schema `1.2.0` add
 the complete nullable `judicialContext` projection; current builds bind source
-registry `1.12.0`. These additions remain optional under artifact schema
+registry `1.13.0`. These additions remain optional under artifact schema
 `1.0.0`, so historical package `1.0.0` and `1.1.0` documents continue to pass
 archival schema validation. The current client requires a matching package
 `1.2.0` manifest and rejects legacy or unversioned packages before normalizing

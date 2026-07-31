@@ -34,7 +34,7 @@ test("source registry records researched disabled production sources", () => {
   assert.equal(validateSources(sourceRegistry), true);
   assert.doesNotThrow(() => assertSourceRegistrySemantics(sourceRegistry));
   assert.equal(sourceRegistry.schemaVersion, "1.3.0");
-  assert.equal(sourceRegistry.registryVersion, "1.12.0");
+  assert.equal(sourceRegistry.registryVersion, "1.13.0");
 
   const federalRegister = sourceRegistry.sources.find(
     ({ id }) => id === "federal-register",
@@ -315,6 +315,90 @@ test("source registry records researched disabled production sources", () => {
     /record model cannot preserve parties/,
   );
 
+  const blockedStateCourtSources = [
+    {
+      id: "washington-appellate-slip-opinions",
+      allowedHosts: ["www.courts.wa.gov"],
+      coverageFrom: null,
+      termsUrl: "https://www.courts.wa.gov/?fa=home.notice",
+      limitation: /no citation separate from the docket/,
+    },
+    {
+      id: "oregon-appellate-opinions",
+      allowedHosts: ["www.courts.oregon.gov"],
+      coverageFrom: null,
+      termsUrl: "https://www.oregon.gov/pages/terms-and-conditions.aspx",
+      limitation: /access-triggered terms/,
+    },
+    {
+      id: "idaho-supreme-court-opinions",
+      allowedHosts: ["api.isc.idaho.gov", "isc.idaho.gov"],
+      coverageFrom: "2019-09-11",
+      termsUrl: "https://isc.idaho.gov/rules-procedure/icar",
+      limitation: /no per-record reporter or neutral citation/,
+    },
+    {
+      id: "idaho-court-of-appeals-opinions",
+      allowedHosts: ["api.isc.idaho.gov", "isc.idaho.gov"],
+      coverageFrom: "2013-07-12",
+      termsUrl: "https://isc.idaho.gov/rules-procedure/icar",
+      limitation: /no per-record reporter or neutral citation/,
+    },
+  ];
+  for (const expected of blockedStateCourtSources) {
+    const source = sourceRegistry.sources.find(({ id }) => id === expected.id);
+    assert.deepEqual(
+      {
+        enabled: source.enabled,
+        synthetic: source.synthetic,
+        adapter: source.adapter,
+        stateCode: source.jurisdiction.stateCode,
+        accessedOn: source.access.accessedOn,
+        method: source.access.method,
+        authentication: source.access.authentication,
+        allowedHosts: source.access.allowedHosts,
+        coverageFrom: source.coverage.from,
+        coverageThrough: source.coverage.through,
+        termsUrl: source.publication.termsUrl,
+        reproduction: source.publication.reproduction,
+        failureMode: source.publication.failureMode,
+        officialSubjectMappings: source.officialSubjectMappings,
+      },
+      {
+        enabled: false,
+        synthetic: false,
+        adapter: null,
+        stateCode:
+          expected.id === "oregon-appellate-opinions"
+            ? "OR"
+            : expected.id.startsWith("idaho-")
+              ? "ID"
+              : "WA",
+        accessedOn: "2026-07-31",
+        method: "official_index",
+        authentication: "none",
+        allowedHosts: expected.allowedHosts,
+        coverageFrom: expected.coverageFrom,
+        coverageThrough: null,
+        termsUrl: expected.termsUrl,
+        reproduction: "metadata_and_links",
+        failureMode: "last_known_good",
+        officialSubjectMappings: [],
+      },
+    );
+    assert.match(source.coverage.limitations, expected.limitation);
+    assert.ok(
+      source.publication.requiredProvenancePointers.includes(
+        "/judicialContext/citations/0/value",
+      ),
+    );
+    assert.ok(
+      source.publication.requiredProvenancePointers.includes(
+        "/judicialContext/revisionReview/state",
+      ),
+    );
+  }
+
   const doiIbia = sourceRegistry.sources.find(
     ({ id }) => id === "doi-ibia-decisions",
   );
@@ -425,6 +509,20 @@ test("enabled sources require an adapter", () => {
   federalRegister.enabled = true;
   federalRegister.adapter = null;
   assert.equal(validateSources(invalid), false);
+});
+
+test("blocked state-court gaps cannot be activated without adapters", () => {
+  for (const sourceId of [
+    "washington-appellate-slip-opinions",
+    "oregon-appellate-opinions",
+    "idaho-supreme-court-opinions",
+    "idaho-court-of-appeals-opinions",
+  ]) {
+    const invalid = globalThis.structuredClone(sourceRegistry);
+    const source = invalid.sources.find(({ id }) => id === sourceId);
+    source.enabled = true;
+    assert.equal(validateSources(invalid), false, sourceId);
+  }
 });
 
 test("official pages are production-only source methods", () => {

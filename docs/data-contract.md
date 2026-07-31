@@ -13,7 +13,7 @@ The Phase A contracts are:
 - [`source.schema.v1.json`](../schemas/source.schema.v1.json), compatible v1
   source-registry schema version `1.3.0`;
 - [`sources.v1.json`](../config/sources.v1.json), source registry version
-  `1.12.0`; and
+  `1.13.0`; and
 - [`artifact.schema.v1.json`](../schemas/artifact.schema.v1.json), static
   artifact schema version `1.0.0`.
 
@@ -23,7 +23,7 @@ evidence that a production source is enabled or a public dataset exists.
 taxonomy, and synthetic fixtures, and proves selected invalid governance cases
 are rejected.
 
-Source-registry version `1.12.0` distinguishes researched configuration,
+Source-registry version `1.13.0` distinguishes researched configuration,
 implemented adapters, and activation. A disabled source may have
 `adapter: null` or a versioned adapter that is not authorized to emit public
 records; an enabled source must have a versioned adapter. Every non-synthetic
@@ -217,12 +217,26 @@ kind to the document type, requires the exact adjudicating body to remain in
 edge. The model preserves source evidence without asserting precedential force,
 legal effect, or complete subsequent history.
 
-Registry 1.12.0 registers adapter 1.0 for the selected one-row Supreme Court
+Registry 1.13.0 retains adapter 1.0 for the selected one-row Supreme Court
 source while keeping the source disabled. The adapter emits only the reviewed
 Cougar Den citation-and-link metadata, sets `urls.officialFullText` to `null`,
 and preserves the bound-volume fragment only as the reporter citation's
 `sourceUrl`. The separate DOI IBIA chronology remains disabled with
 `adapter: null` because its source and privacy gaps are unchanged.
+
+Registry 1.13.0 also gives the assessed state court surfaces independent
+disabled source identities. `washington-appellate-slip-opinions` has no
+official citation separate from its docket and no case-specific typed path
+from a mutable slip opinion to its current reporter version.
+`oregon-appellate-opinions` exposes a technically usable citation-and-docket
+row, but Oregon.gov makes continued access acceptance of its terms and that
+source-scoped authorization remains closed. `idaho-supreme-court-opinions` and
+`idaho-court-of-appeals-opinions` expose dockets, dates, categories, and links
+but no per-record citation, remittitur/finality state, or typed substitution
+history. All four entries retain `adapter: null`; their provenance pointer
+requirements document the missing judicial fields, while disabled-source
+validation prevents records, coverage, health, manifests, or last-known-good
+shards from claiming those sources.
 
 ## Record groups
 
@@ -401,7 +415,7 @@ The public artifact accepts only coherent source-health combinations:
 The artifact manifest names the record, taxonomy, mapping, source-registry, and
 build versions. Additive compatible changes can increment the minor version.
 Current builds emit artifact package `1.2.0`, record schema `1.2.0`, and source
-registry `1.12.0`; artifact schema `1.0.0` still accepts historical package
+registry `1.13.0`; artifact schema `1.0.0` still accepts historical package
 `1.0.0` and `1.1.0` shapes for archival schema validation. Package 1.2 adds
 `judicialContext` to the compact-index/detail integrity projection so court,
 docket, citation, form, publication, and revision evidence cannot diverge

@@ -205,9 +205,29 @@ reproducing the volume. Later landmark treatment is a separate B6-LANDMARKS
 decision and requires metadata-compatible evidence and exact reproduction
 review.
 
+## Broader-source expansion assessment
+
+The separately reviewed [October Term 2025 opinion page](https://www.supremecourt.gov/opinions/slipopinions.aspx?Term=09)
+does not inherit the bounded-row contract. The Court says current opinions are
+posted as slip opinions and later replaced by versions edited for U.S. Reports
+publication. On 2026-07-31 the table mixed permanent citations with incomplete
+volume/part placeholders such as `609/2`, and multiple rows exposed later
+revision links. The [field definitions](https://www.supremecourt.gov/opinions/definitions.aspx)
+confirm that the citation column can be a volume/part placeholder and that the
+revision links identify revised electronic slip files.
+
+The current page also includes natural-person and pseudonymous captions. A
+term-wide adapter would need a versioned lifecycle and privacy-selection
+contract, stable final pagination, exact replacement handling, and a bounded
+selection rationale. Neither a placeholder citation nor the absence of a
+revision link establishes a bound or complete current version. No broad
+current-term adapter, PDF retrieval, personal record, or Court-wide coverage
+claim is added. Bounded additional cases remain separate curated-source or
+landmark decisions.
+
 ## Implementation decision
 
-Source-registry 1.12.0 registers `supreme-court-opinions-curated` independently
+Source-registry 1.13.0 retains `supreme-court-opinions-curated` independently
 with adapter 1.0, exact one-record coverage on 2019-03-19, one runtime host,
 metadata-and-links reproduction, and no subject mappings. It remains disabled
 pending exact owner authorization; disabled-source rejection prevents it from

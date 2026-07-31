@@ -1,7 +1,7 @@
 {
   "$schema": "../schemas/source.schema.v1.json",
   "schemaVersion": "1.3.0",
-  "registryVersion": "1.12.0",
+  "registryVersion": "1.13.0",
   "generatedDataPolicy": "artifact-only",
   "sources": [
     {
@@ -501,6 +501,222 @@
           "/documentType",
           "/jurisdiction/name",
           "/status/sourceLabel",
+          "/urls/officialSource"
+        ]
+      },
+      "officialSubjectMappings": []
+    },
+    {
+      "id": "washington-appellate-slip-opinions",
+      "name": "Washington Appellate Slip Opinions",
+      "provider": "Washington State Administrative Office of the Courts, Office of Reporter of Decisions",
+      "synthetic": false,
+      "enabled": false,
+      "adapter": null,
+      "jurisdiction": {
+        "level": "state",
+        "name": "Washington",
+        "stateCode": "WA"
+      },
+      "access": {
+        "method": "official_index",
+        "officialDocumentationUrl": "https://www.courts.wa.gov/opinions/",
+        "accessedOn": "2026-07-31",
+        "allowedHosts": ["www.courts.wa.gov"],
+        "authentication": "none",
+        "rateLimit": "No numeric request limit, pagination guarantee, retry rule, SLA, checksum, stable row ceiling, or change feed was published. The advertised recent page is a rolling 14-day index; annual pages can exceed 700 rows. Any future build-time adapter requires a separately reviewed exact-row, request, byte, DOM, and deadline contract and must not fetch information pages or PDFs.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": null,
+        "through": null,
+        "cadence": "The recent HTML page and seven RSS feeds change as opinions are filed; Policy Sentinel would check only a separately approved bounded index weekly and build-time only.",
+        "limitations": "The Court describes slip opinions filed after February 22, 2013, while its inventory also exposes a 2012 Court of Appeals page with one order-only row; no complete start is established. The indexes expose court, docket, caption, file date, publication section, file-contains label, and links but no citation separate from the docket. Every first-party file is a mutable slip opinion, and a red asterisk supplies no typed revision edge, reporter citation, or case-specific current-version URL. RSS can truncate docket values. The record-1.2 citation and revision contract is not satisfied, so adapter implementation is blocked."
+      },
+      "publication": {
+        "attribution": "Washington State Administrative Office of the Courts, Office of Reporter of Decisions",
+        "termsUrl": "https://www.courts.wa.gov/?fa=home.notice",
+        "reproduction": "metadata_and_links",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/judicialContext/adjudicatingBody/officialName",
+          "/judicialContext/docketNumbers/0",
+          "/judicialContext/citations/0/value",
+          "/judicialContext/citations/0/sourceUrl",
+          "/judicialContext/decisionDate",
+          "/judicialContext/documentForm/sourceLabel",
+          "/judicialContext/publicationStatus/sourceLabel",
+          "/judicialContext/publicationStatus/asOf",
+          "/judicialContext/revisionReview/state",
+          "/judicialContext/revisionReview/reviewedOn",
+          "/status/sourceLabel",
+          "/status/asOf",
+          "/urls/officialSource"
+        ]
+      },
+      "officialSubjectMappings": []
+    },
+    {
+      "id": "oregon-appellate-opinions",
+      "name": "Oregon Appellate Opinions",
+      "provider": "Oregon Judicial Department Publications Program",
+      "synthetic": false,
+      "enabled": false,
+      "adapter": null,
+      "jurisdiction": {
+        "level": "state",
+        "name": "Oregon",
+        "stateCode": "OR"
+      },
+      "access": {
+        "method": "official_index",
+        "officialDocumentationUrl": "https://www.courts.oregon.gov/publications/Pages/default.aspx",
+        "accessedOn": "2026-07-31",
+        "allowedHosts": ["www.courts.oregon.gov"],
+        "authentication": "none",
+        "rateLimit": "Oregon.gov states that continued access accepts its terms, and that source-scoped approval is closed. No API, feed, numeric rate limit, retry rule, stable page contract, checksum, or SLA is published. No live adapter transport or third-party OCLC host is allowed until the exact terms and intended use are approved.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": null,
+        "through": null,
+        "cadence": "OJD says decisions are posted weekly on issuance; Policy Sentinel makes no further request and emits no cadence or currentness claim while the terms gate is closed.",
+        "limitations": "A bounded pre-gate observation found a Court of Appeals institutional row with exact caption, docket A185546, citation 350 Or App 590, displayed date 06/17/2026, Precedential Opinions section, and Advance Sheets 2026 #14 label. It did not establish complete Supreme Court, Court of Appeals, digital-collection, or historical coverage. Mapping those labels to decision, publication, and revision states needs a reviewed contract. Oregon.gov access-triggered terms, OJD commercial-copy restrictions, third-party OCLC terms, privacy-heavy page content, and absent stable transport semantics block adapter implementation."
+      },
+      "publication": {
+        "attribution": "Oregon Judicial Department Publications Program",
+        "termsUrl": "https://www.oregon.gov/pages/terms-and-conditions.aspx",
+        "reproduction": "metadata_and_links",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/judicialContext/adjudicatingBody/officialName",
+          "/judicialContext/docketNumbers/0",
+          "/judicialContext/citations/0/value",
+          "/judicialContext/citations/0/sourceUrl",
+          "/judicialContext/decisionDate",
+          "/judicialContext/documentForm/sourceLabel",
+          "/judicialContext/publicationStatus/sourceLabel",
+          "/judicialContext/publicationStatus/asOf",
+          "/judicialContext/revisionReview/state",
+          "/judicialContext/revisionReview/reviewedOn",
+          "/status/sourceLabel",
+          "/status/asOf",
+          "/urls/officialSource"
+        ]
+      },
+      "officialSubjectMappings": []
+    },
+    {
+      "id": "idaho-supreme-court-opinions",
+      "name": "Idaho Supreme Court Opinions",
+      "provider": "Idaho Supreme Court, Idaho Judicial Branch",
+      "synthetic": false,
+      "enabled": false,
+      "adapter": null,
+      "jurisdiction": {
+        "level": "state",
+        "name": "Idaho",
+        "stateCode": "ID"
+      },
+      "access": {
+        "method": "official_index",
+        "officialDocumentationUrl": "https://isc.idaho.gov/cases-opinions/isc-opinions",
+        "accessedOn": "2026-07-31",
+        "allowedHosts": ["api.isc.idaho.gov", "isc.idaho.gov"],
+        "authentication": "none",
+        "rateLimit": "The official client uses undocumented same-origin JSON with a default 20-item page and opaque cursor. No total, cursor lifetime, stable order, numeric rate, retry rule, SLA, checksum, or change feed is published. ICAR 32 restricts bulk distribution. A future adapter must not fetch the separate-host opinion or summary files.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": "2019-09-11",
+        "through": null,
+        "cadence": "The Court says cited opinions are posted on release day; Policy Sentinel would remain weekly and build-time only after a permitted exact contract exists.",
+        "limitations": "The lower bound is the earliest row observed through the current structured index, not proof of a complete archive. The index exposes docket, caption, release date, category, and file link but no per-record reporter or neutral citation, remittitur, rehearing, review, finality, or typed revision relationship. CMS published/Archived state and filenames cannot establish judicial status. Court-staff summaries are not the Court's opinion and are excluded. Adapter implementation is blocked."
+      },
+      "publication": {
+        "attribution": "Idaho Supreme Court, Idaho Judicial Branch",
+        "termsUrl": "https://isc.idaho.gov/rules-procedure/icar",
+        "reproduction": "metadata_and_links",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/judicialContext/adjudicatingBody/officialName",
+          "/judicialContext/docketNumbers/0",
+          "/judicialContext/citations/0/value",
+          "/judicialContext/citations/0/sourceUrl",
+          "/judicialContext/decisionDate",
+          "/judicialContext/documentForm/sourceLabel",
+          "/judicialContext/publicationStatus/sourceLabel",
+          "/judicialContext/publicationStatus/asOf",
+          "/judicialContext/revisionReview/state",
+          "/judicialContext/revisionReview/reviewedOn",
+          "/status/sourceLabel",
+          "/status/asOf",
+          "/urls/officialSource"
+        ]
+      },
+      "officialSubjectMappings": []
+    },
+    {
+      "id": "idaho-court-of-appeals-opinions",
+      "name": "Idaho Court of Appeals Opinions",
+      "provider": "Idaho Court of Appeals, Idaho Judicial Branch",
+      "synthetic": false,
+      "enabled": false,
+      "adapter": null,
+      "jurisdiction": {
+        "level": "state",
+        "name": "Idaho",
+        "stateCode": "ID"
+      },
+      "access": {
+        "method": "official_index",
+        "officialDocumentationUrl": "https://isc.idaho.gov/cases-opinions/ica-opinions",
+        "accessedOn": "2026-07-31",
+        "allowedHosts": ["api.isc.idaho.gov", "isc.idaho.gov"],
+        "authentication": "none",
+        "rateLimit": "The official client uses undocumented same-origin JSON with a default 20-item page and opaque cursor. No total, cursor lifetime, stable order, numeric rate, retry rule, SLA, checksum, or change feed is published. ICAR 32 restricts bulk distribution. A future adapter must not fetch the separate-host opinion or summary files.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": "2013-07-12",
+        "through": null,
+        "cadence": "The Court says opinions are posted on release day; Policy Sentinel would remain weekly and build-time only after a permitted exact contract exists.",
+        "limitations": "The lower bound is the earliest row observed through the current structured index, not proof of a complete archive. The index exposes docket, caption, release date, category, and file link but no per-record reporter or neutral citation, remittitur, rehearing, Supreme Court review, finality, or typed revision relationship. CMS published/Archived state and filenames cannot establish judicial status. Court-staff summaries are not the Court's opinion and are excluded. Adapter implementation is blocked."
+      },
+      "publication": {
+        "attribution": "Idaho Court of Appeals, Idaho Judicial Branch",
+        "termsUrl": "https://isc.idaho.gov/rules-procedure/icar",
+        "reproduction": "metadata_and_links",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/judicialContext/adjudicatingBody/officialName",
+          "/judicialContext/docketNumbers/0",
+          "/judicialContext/citations/0/value",
+          "/judicialContext/citations/0/sourceUrl",
+          "/judicialContext/decisionDate",
+          "/judicialContext/documentForm/sourceLabel",
+          "/judicialContext/publicationStatus/sourceLabel",
+          "/judicialContext/publicationStatus/asOf",
+          "/judicialContext/revisionReview/state",
+          "/judicialContext/revisionReview/reviewedOn",
+          "/status/sourceLabel",
+          "/status/asOf",
           "/urls/officialSource"
         ]
       },
