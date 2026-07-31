@@ -255,6 +255,19 @@ gates:
       exclusion, official-link, request-count, byte/chunk/concurrency/deadline,
       and whole-refresh semantics. Do not synthesize index-only titles or
       agencies or launch an unbounded filing crawl.
+  - id: G-WA-ACCORD-RECORD-MODEL
+    name: Washington accord record-model fit
+    state: pending_evidence
+    resolution: >-
+      Satisfy only when a versioned contract preserves exact executing parties
+      and signatory roles, an executed or signed date, narrative source-status
+      evidence, reviewed supersession state and typed edges, fallback instrument
+      identity, and metadata-only landmark evidence with reproduction
+      validation. Do not relabel parties as issuing bodies, convert execution
+      into publication or effectiveness, invent current status or complete
+      history, copy source text merely to satisfy landmark schema, or create a
+      Nation association before exact signatory evidence reconciles to the
+      approved BIA identity registry.
   - id: G-BIA-IDENTITY
     name: Current BIA recognition identity reconciliation
     state: pending_evidence
@@ -336,14 +349,14 @@ baseline:
       detail: single-Nation synthetic flow only
 
 current_focus:
-  work_item: B5-WA-ACCORDS
+  work_item: B6-COURT-RESEARCH
   objective: >-
-    Validate the smallest authoritative Centennial Accord pilot using exact
-    official text status, date, party, signature, supersession, URL, and
-    landmark evidence. Create Nation associations only from exact official
-    signatory evidence, retain metadata and official links only, and exclude
-    full text, maps, parcels, and land exhibits.
-  last_durable_checkpoint: 38b569e
+    Select the smallest viable originating official court or administrative
+    decision source. Validate current terms, status semantics, history,
+    identity, date range, reproduction boundary, privacy exclusions, health, and
+    failure behavior without PACER, paid access, third-party editorial text,
+    personal data, or an unbounded crawl.
+  last_durable_checkpoint: 6b09999
   resume_command: npm run check
 
 completion_scope:
@@ -1567,9 +1580,25 @@ work_items:
     priority: 63
     milestone: B5
     title: Washington accord pilot
-    status: in_progress
+    status: blocked
     dependencies:
       - B5-WA-LWS-RESEARCH
+    blocked_by:
+      - G-WA-ACCORD-RECORD-MODEL
+    safe_fallback: >-
+      Keep washington-centennial-accord disabled with adapter null and emit no
+      record, provider text, Nation association, relationship edge, status, date
+      coercion, or public coverage claim. Preserve the exact official page as a
+      visible planned-source gap and keep unresolved signatories at general
+      jurisdiction.
+    unblocks_only_when: >-
+      G-WA-ACCORD-RECORD-MODEL is satisfied by a versioned, synthetic-tested
+      contract and UI treatment for exact party/signatory roles, executed or
+      signed dates, narrative status evidence, supersession state and typed
+      edges, fallback identity, metadata-only landmark evidence, reproduction,
+      provenance, privacy, health, and last-known-good behavior. Any Nation
+      association additionally requires exact official signatory evidence and
+      satisfaction of G-BIA-IDENTITY.
     acceptance:
       - Authoritative text, date, parties, signed/draft status, supersession,
         URL, and landmark basis validate.
@@ -1577,13 +1606,64 @@ work_items:
         evidence only.
       - Unresolved signatories remain general-jurisdiction with a limitation
         notice.
-    evidence: []
+    evidence:
+      - >-
+        docs/source-reviews/washington-centennial-accord-2026-07-31.md records
+        the originating GOIA Accord page, current Centennial Accord and
+        Millennium Agreement materials, RCW 43.376.500 and 43.376.900, GOIA's
+        privacy notice, and two later official aggregate signatory accounts. The
+        page establishes the exact instrument title, collective executing
+        parties, 1989-08-04 execution event, continuing institutional context,
+        official URL, and public-state-federal-accord landmark basis.
+      - >-
+        The selected page supplies no individual Nation signatory set, governor
+        name, official accord number, signed facsimile, structured current
+        status, source update time, complete amendment or supersession history,
+        or reuse license. Later official accounts disagree on original and later
+        signatory counts and timing, and neither is a signed instrument. No
+        name, Nation association, legal-effect conclusion, or complete history
+        was created.
+      - >-
+        One exact aggregate-only identity-encoding observation returned HTTP 200
+        UTF-8 HTML at the canonical URL: 88,747 bytes in 44 chunks, 1,416 DOM
+        nodes, 1,034 attributes, depth 23, 36,108 text code units, and six
+        duplicate-attribute parse errors outside the unique target article. The
+        article had 26 direct elements and no links, tables, forms, images,
+        scripts, templates, or signature block. No response body or document
+        text was retained.
+      - >-
+        Independent security and governance reviews found that a narrow
+        metadata-only adapter could be defensible only after exact role/date/
+        status/identity semantics exist. Integration review identified that the
+        current model would display executing parties as issuing bodies, cannot
+        date an execution event, requires a source status unsupported by a
+        structured field, lacks typed supersession relationships, and requires
+        copied SourceText for landmark evidence. The conservative decision is to
+        block rather than coerce these meanings.
+      - >-
+        Commit 6b09999 adds source-registry schema 1.3, truthful official_page
+        access, and registry 1.10 with washington-centennial-accord disabled and
+        adapter null. It records metadata-and-links reproduction, exact
+        single-record date coverage, no subject mappings, D-034, dated source
+        review, architecture/data-contract/coverage/feasibility updates, and
+        schema and artifact-compatibility tests.
+      - >-
+        Foundation validation, focused source-registry and artifact-schema
+        tests, format checking, lint, type checking, source-boundary scanning,
+        all 37 Vitest files and 572 tests, production build, and artifact
+        validation passed. The build remained synthetic-only at 2 records, 575
+        Nations, and 7 verified assets with build ID
+        synthetic-6a65141269a6f18367f6.
+      - >-
+        This item is evidence-blocked by G-WA-ACCORD-RECORD-MODEL. Its truthful
+        safe fallback emits no Accord record or Nation association while
+        independent ready court-source work proceeds.
 
   - id: B6-COURT-RESEARCH
     priority: 70
     milestone: B6
     title: Select and validate the first official court or administrative source
-    status: ready
+    status: in_progress
     dependencies:
       - B3-PIPELINE
     acceptance:
@@ -2067,14 +2147,14 @@ source_register:
   - id: SRC-WA-OTHER
     source: Washington State Register, Governor executive orders, and accords
     implementation_state: >-
-      governor_adapter_validated_disabled_register_filing_contract_blocked_accord_in_progress
+      governor_adapter_validated_disabled_register_filing_contract_blocked_accord_model_blocked
     work_items:
       - B5-WA-RULES
       - B5-WA-ACCORDS
     public_claim: no production records yet
   - id: SRC-COURTS
     source: Official courts and administrative decisions
-    implementation_state: pilot_source_selection_ready
+    implementation_state: pilot_source_research_in_progress
     work_items:
       - B6-COURT-RESEARCH
       - B6-COURT-ADAPTER
@@ -2167,25 +2247,27 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B5-WA-ACCORDS
-    action: >-
-      Validate the smallest authoritative Centennial Accord pilot using exact
-      official text status, date, parties, signed/draft and supersession
-      evidence, official URLs, and landmark basis. Create Nation associations
-      only from exact official signatory evidence and retain no unreviewed text
-      or land content.
-  - order: 2
     work_item: B6-COURT-RESEARCH
     action: >-
-      Continue independent official-court pilot-source research after the
-      lower-priority-number accord work or if it reaches a genuine evidence
-      block.
-  - order: 3
-    work_item: B5-WA-RULES
+      Select the smallest originating official court or administrative-decision
+      source and validate terms, status, identity, history, range, reproduction,
+      privacy, health, and failure behavior. Prefer a bounded no-key source;
+      exclude PACER, paid access, third-party editorial text, personal data, and
+      unbounded discovery.
+  - order: 2
+    work_item: B6-COURT-ADAPTER
     action: >-
-      Resume the Register only after G-WA-REGISTER-FILING-CONTRACT is satisfied.
-      Do not synthesize titles or agencies, bulk-crawl filing pages, or conflate
-      Register health with the disabled Governor adapter.
+      If the selected source passes research, implement only its reviewed
+      metadata-and-official-link contract with synthetic fixtures, exact status
+      and date semantics, source-specific health/LKG, and zero inferred Nation
+      relationships.
+  - order: 3
+    work_item: B5-WA-ACCORDS
+    action: >-
+      Resume the Accord only after G-WA-ACCORD-RECORD-MODEL is satisfied; resume
+      the Register only after G-WA-REGISTER-FILING-CONTRACT is satisfied. Do not
+      coerce Accord roles or dates, infer signatories, synthesize Register
+      titles or agencies, or bulk-crawl filing pages.
 
 finish_states:
   local_release_candidate:
