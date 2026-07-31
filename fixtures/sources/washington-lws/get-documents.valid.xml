@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GetDocumentsResponse xmlns="http://WSLWebServices.leg.wa.gov/">
+      <GetDocumentsResult>
+        <LegislativeDocument>
+          <Name>SYNTHETIC-DOCUMENT-999991-A</Name>
+          <ShortFriendlyName>SYNTHETIC-DOCUMENT-A</ShortFriendlyName>
+          <Biennium>3785-86</Biennium>
+          <LongFriendlyName>SYNTHETIC-DOCUMENT-LONG-NAME-A</LongFriendlyName>
+          <Description>SYNTHETIC-DOCUMENT-DESCRIPTION-A</Description>
+          <Type>SYNTHETIC-DOCUMENT-TYPE-A</Type>
+          <Class>SYNTHETIC-DOCUMENT-CLASS-A</Class>
+          <HtmUrl>https://wslwebservices.leg.wa.gov/synthetic/3785-86/SYNTHETIC-HB-999991-A.html</HtmUrl>
+          <HtmCreateDate>3785-01-05T09:00:00-08:00</HtmCreateDate>
+          <HtmLastModifiedDate>3785-01-05T09:30:00-08:00</HtmLastModifiedDate>
+          <PdfUrl>https://wslwebservices.leg.wa.gov/synthetic/3785-86/SYNTHETIC-HB-999991-A.pdf</PdfUrl>
+          <PdfCreateDate>3785-01-06T10:00:00-08:00</PdfCreateDate>
+          <PdfLastModifiedDate>3785-01-07T11:00:00-08:00</PdfLastModifiedDate>
+          <BillId>SYNTHETIC-HB-999991-SUB1-ENG2</BillId>
+        </LegislativeDocument>
+        <LegislativeDocument>
+          <Name>SYNTHETIC-DOCUMENT-999991-B</Name>
+          <ShortFriendlyName>SYNTHETIC-DOCUMENT-B</ShortFriendlyName>
+          <Biennium>3785-86</Biennium>
+          <LongFriendlyName>SYNTHETIC-DOCUMENT-LONG-NAME-B</LongFriendlyName>
+          <Description>SYNTHETIC-DOCUMENT-DESCRIPTION-B</Description>
+          <Type>SYNTHETIC-DOCUMENT-TYPE-B</Type>
+          <Class>SYNTHETIC-DOCUMENT-CLASS-B</Class>
+          <HtmUrl>https://wslwebservices.leg.wa.gov/synthetic/3785-86/SYNTHETIC-HB-999991-B.html</HtmUrl>
+          <HtmCreateDate>3785-01-08T12:00:00-08:00</HtmCreateDate>
+          <HtmLastModifiedDate>3785-01-09T13:00:00-08:00</HtmLastModifiedDate>
+          <PdfUrl>https://wslwebservices.leg.wa.gov/synthetic/3785-86/SYNTHETIC-HB-999991-B.pdf</PdfUrl>
+          <PdfCreateDate>3785-01-10T14:00:00-08:00</PdfCreateDate>
+          <PdfLastModifiedDate>3785-01-11T15:00:00-08:00</PdfLastModifiedDate>
+          <BillId>SYNTHETIC-HB-999991-SUB1-ENG2</BillId>
+        </LegislativeDocument>
+      </GetDocumentsResult>
+    </GetDocumentsResponse>
+  </soap:Body>
+</soap:Envelope>

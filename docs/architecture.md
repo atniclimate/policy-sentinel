@@ -18,8 +18,9 @@ Recommended Phase B stack:
 - Vitest and Testing Library for logic/component tests, `axe-core` for
   automated accessibility checks, and Playwright for keyboard, responsive,
   print, download, and built-site tests;
-- a narrowly scoped XML parser only for official XML/SOAP sources such as
-  Washington Legislative Web Services; and
+- `saxes@6.0.0` as the narrowly scoped, build-time, namespace-aware XML event
+  parser for the bounded Washington Legislative Web Services SOAP contract
+  (Decision D-025); and
 - a dedicated client-side search library only if an artifact-size and latency
   benchmark shows that a simple prebuilt token index is insufficient.
 
@@ -52,6 +53,14 @@ prior public shards -> last-known-good merge |
 
 Raw responses remain in ephemeral runner space and are discarded. Only
 whitelisted, validated public fields enter the deployment artifact.
+
+The Washington LWS parser accepts response bytes only after an outer byte
+ceiling, then applies strict UTF-8, XML 1.0, namespace, depth, node, attribute,
+text, collection, and operation limits. It has no resolver or network callback
+and rejects DTDs, non-predefined entity declarations, XInclude, SOAP 1.2,
+headers, and unknown structure. Its current bounded in-memory event projection
+is source-contract evidence only; it is neither a browser dependency nor
+authorization to persist raw provider XML.
 
 ## Source repository versus deployment artifact
 

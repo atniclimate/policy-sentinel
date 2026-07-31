@@ -1,0 +1,80 @@
+{
+  "fixtureNotice": "Synthetic contract data; not a Washington LWS response.",
+  "contractVersion": "1.0.0",
+  "sourceId": "washington-lws",
+  "providerEnvelope": false,
+  "historicalCompleteness": "not_documented",
+  "jurisdiction": "general_jurisdiction",
+  "classification": "Unclassified",
+  "nationEvidence": [],
+  "officialSubjects": [],
+  "taxonomyMemberships": [],
+  "syntheticIdentity": {
+    "biennium": "3785-86",
+    "billNumber": 999991,
+    "activeBillId": "SYNTHETIC-HB-999991-SUB1-ENG2"
+  },
+  "prohibitedSyntheticSentinels": [
+    {
+      "file": "get-sponsors.valid.xml",
+      "fields": ["Phone", "Email", "FirstName", "LastName"],
+      "values": [
+        "PROHIBITED-SPONSOR-PHONE",
+        "PROHIBITED-SPONSOR-EMAIL",
+        "PROHIBITED-SPONSOR-FIRST-NAME",
+        "PROHIBITED-SPONSOR-LAST-NAME"
+      ],
+      "purpose": "Known prohibited synthetic sponsor fields that must be discarded before projection."
+    },
+    {
+      "file": "get-committee-referrals-by-bill.valid.xml",
+      "fields": ["Phone"],
+      "values": ["PROHIBITED-COMMITTEE-PHONE"],
+      "purpose": "Known prohibited synthetic committee field that must be discarded before projection."
+    }
+  ],
+  "resources": [
+    {
+      "role": "operation_response",
+      "operation": "GetLegislation",
+      "file": "get-legislation.valid.xml",
+      "sha256": "43669024ab9dc0093389dc92973121212c7da355bd9021adbfc533ac0fac4a0a"
+    },
+    {
+      "role": "operation_response",
+      "operation": "GetLegislativeStatusChangesByBillId",
+      "file": "get-legislative-status-changes-by-bill-id.valid.xml",
+      "sha256": "d078cc38da8b6c44e99ce94ae9ba4c9574a4310c11421c428c50da3f49e4ed5e"
+    },
+    {
+      "role": "operation_response",
+      "operation": "GetSponsors",
+      "file": "get-sponsors.valid.xml",
+      "sha256": "7fc29f70ccc889830deaeed2adfbbe67d225cc05cf7a94c184019aaf9cf852d9"
+    },
+    {
+      "role": "operation_response",
+      "operation": "GetCommitteeReferralsByBill",
+      "file": "get-committee-referrals-by-bill.valid.xml",
+      "sha256": "65129ed3675e579b134fdc37b7b3552178e76263aacbe69d3bb77dddcf0be822"
+    },
+    {
+      "role": "operation_response",
+      "operation": "GetDocuments",
+      "file": "get-documents.valid.xml",
+      "sha256": "aac1c54b698ab69bf5c3850d4a383e8d4faf2899930d2f38020dca4829fda7df"
+    },
+    {
+      "role": "operation_response",
+      "operation": "GetSessionLawByBillId",
+      "file": "get-session-law-by-bill-id.valid.xml",
+      "sha256": "e33873d17c107b83156bf6442e1f2a5061b979a74dd4e8ba3e3f916623413aed"
+    },
+    {
+      "role": "fault_response",
+      "operation": "GetDocuments",
+      "file": "soap-fault.valid.xml",
+      "sha256": "563a00345d45a9b6eea0bd411b0a37ce1468723eb8002452a6885bff653b04a0"
+    }
+  ]
+}

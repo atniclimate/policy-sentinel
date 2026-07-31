@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GetLegislationResponse xmlns="http://WSLWebServices.leg.wa.gov/">
+      <GetLegislationResult>
+        <Legislation>
+          <Biennium>3785-86</Biennium>
+          <BillId>SYNTHETIC-HB-999991-BASE</BillId>
+          <BillNumber>999991</BillNumber>
+          <SubstituteVersion>0</SubstituteVersion>
+          <EngrossedVersion>0</EngrossedVersion>
+          <ShortLegislationType>
+            <ShortLegislationType>SYNTHETIC-HB</ShortLegislationType>
+            <LongLegislationType>SYNTHETIC-HOUSE-BILL</LongLegislationType>
+          </ShortLegislationType>
+          <OriginalAgency>SYNTHETIC-ORIGINAL-AGENCY</OriginalAgency>
+          <Active>false</Active>
+          <DisplayNumber>SYNTHETIC-DISPLAY-999991-BASE</DisplayNumber>
+          <StateFiscalNote>false</StateFiscalNote>
+          <LocalFiscalNote>false</LocalFiscalNote>
+          <Appropriations>false</Appropriations>
+          <RequestedByGovernor>false</RequestedByGovernor>
+          <RequestedByBudgetCommittee>false</RequestedByBudgetCommittee>
+          <RequestedByDepartment>false</RequestedByDepartment>
+          <RequestedByOther>false</RequestedByOther>
+          <ShortDescription>SYNTHETIC BASE VERSION TITLE</ShortDescription>
+          <Request>SYNTHETIC-DISCARDED-REQUEST-TEXT</Request>
+          <IntroducedDate>3785-01-02T09:15:00-08:00</IntroducedDate>
+          <CurrentStatus>
+            <BillId>SYNTHETIC-HB-999991-BASE</BillId>
+            <HistoryLine>SYNTHETIC-BASE-VERSION-HISTORY</HistoryLine>
+            <ActionDate>3785-01-03T10:30:00-08:00</ActionDate>
+            <AmendedByOppositeBody>false</AmendedByOppositeBody>
+            <PartialVeto>false</PartialVeto>
+            <Veto>false</Veto>
+            <AmendmentsExist>false</AmendmentsExist>
+            <Status>SYNTHETIC-BASE-VERSION-STATUS</Status>
+          </CurrentStatus>
+          <Sponsor>SYNTHETIC-SPONSOR-DISPLAY-999991</Sponsor>
+          <PrimeSponsorID>900001</PrimeSponsorID>
+          <LongDescription>SYNTHETIC-DISCARDED-LONG-DESCRIPTION</LongDescription>
+          <LegalTitle>SYNTHETIC BASE VERSION LEGAL TITLE</LegalTitle>
+        </Legislation>
+        <Legislation>
+          <Biennium>3785-86</Biennium>
+          <BillId>SYNTHETIC-HB-999991-SUB1-ENG2</BillId>
+          <BillNumber>999991</BillNumber>
+          <SubstituteVersion>1</SubstituteVersion>
+          <EngrossedVersion>2</EngrossedVersion>
+          <ShortLegislationType>
+            <ShortLegislationType>SYNTHETIC-SHB</ShortLegislationType>
+            <LongLegislationType>SYNTHETIC-SUBSTITUTE-HOUSE-BILL</LongLegislationType>
+          </ShortLegislationType>
+          <OriginalAgency>SYNTHETIC-ORIGINAL-AGENCY</OriginalAgency>
+          <Active>true</Active>
+          <DisplayNumber>SYNTHETIC-DISPLAY-999991-SUB1-ENG2</DisplayNumber>
+          <StateFiscalNote>true</StateFiscalNote>
+          <LocalFiscalNote>false</LocalFiscalNote>
+          <Appropriations>true</Appropriations>
+          <RequestedByGovernor>false</RequestedByGovernor>
+          <RequestedByBudgetCommittee>true</RequestedByBudgetCommittee>
+          <RequestedByDepartment>false</RequestedByDepartment>
+          <RequestedByOther>false</RequestedByOther>
+          <ShortDescription>SYNTHETIC ACTIVE VERSION TITLE</ShortDescription>
+          <Request>SYNTHETIC-DISCARDED-REQUEST-TEXT-ACTIVE</Request>
+          <IntroducedDate>3785-01-04T11:45:00-08:00</IntroducedDate>
+          <CurrentStatus>
+            <BillId>SYNTHETIC-HB-999991-SUB1-ENG2</BillId>
+            <HistoryLine>SYNTHETIC-ACTIVE-VERSION-HISTORY</HistoryLine>
+            <ActionDate>3785-01-20T14:05:00-08:00</ActionDate>
+            <AmendedByOppositeBody>true</AmendedByOppositeBody>
+            <PartialVeto>false</PartialVeto>
+            <Veto>false</Veto>
+            <AmendmentsExist>true</AmendmentsExist>
+            <Status>SYNTHETIC-ACTIVE-VERSION-STATUS</Status>
+          </CurrentStatus>
+          <Sponsor>SYNTHETIC-SPONSOR-DISPLAY-999991</Sponsor>
+          <PrimeSponsorID>900001</PrimeSponsorID>
+          <LongDescription>SYNTHETIC-DISCARDED-LONG-DESCRIPTION-ACTIVE</LongDescription>
+          <LegalTitle>SYNTHETIC ACTIVE VERSION LEGAL TITLE</LegalTitle>
+        </Legislation>
+      </GetLegislationResult>
+    </GetLegislationResponse>
+  </soap:Body>
+</soap:Envelope>

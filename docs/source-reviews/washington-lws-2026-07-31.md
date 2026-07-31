@@ -1,18 +1,21 @@
 # Washington Legislative Web Services contract review
 
-Status: current primary-source research complete; source remains disabled with
-no adapter or public records
+Status: current primary-source research and repository-owned synthetic
+known-bill contract complete; source remains disabled with `adapter: null` and
+no provider response or public record
 
 Access date: 2026-07-31
 
 ## Decision
 
 Washington Legislative Web Services (LWS) is a public, no-registration
-SOAP/XML interface that is suitable for a local build-time adapter only after
-repository-owned request, response, bounds, privacy, fault, provenance, health,
-and last-known-good contracts pass. The official material does not require an
-account or key and does not identify an access-triggered terms action. No
-credential or terms-acceptance gate is therefore opened by this review.
+SOAP/XML interface. A repository-owned contract now covers a bounded six-
+operation known-bill slice, but it is not yet a complete local build-time
+adapter: live response behavior, complete refresh discovery, normalization,
+provenance, health, and last-known-good behavior remain unresolved. The
+official material does not require an account or key and does not identify an
+access-triggered terms action. No credential or terms-acceptance gate is
+therefore opened by this review.
 
 That technical viability is narrower than the prior Phase A claim:
 
@@ -265,6 +268,44 @@ contain zero or more nillable items with no maximum. This is formal schema
 metadata, not proof of live omission, null, default-value, empty-array,
 ordering, uniqueness, or maximum behavior.
 
+The following extracted sequence is the durable repository evidence for the
+six-operation contract. `?` means WSDL `minOccurs=0`; unmarked fields have
+`minOccurs=1`. `[]?` means an optional array wrapper whose items are
+`0..unbounded` and nillable. Field order below is schema order, not a proposed
+display order.
+
+| WSDL structure | Exact field sequence and XML Schema type |
+| --- | --- |
+| `ShortLegislationType` | `ShortLegislationType?: string`; `LongLegislationType?: string` |
+| `LegislationInfo` | `Biennium?: string`; `BillId?: string`; `BillNumber: int`; `SubstituteVersion: int`; `EngrossedVersion: int`; `ShortLegislationType?: ShortLegislationType`; `OriginalAgency?: string`; `Active: boolean`; `DisplayNumber?: string` |
+| `LegislativeStatus` | `BillId?: string`; `HistoryLine?: string`; `ActionDate: dateTime`; `AmendedByOppositeBody: boolean`; `PartialVeto: boolean`; `Veto: boolean`; `AmendmentsExist: boolean`; `Status?: string` |
+| `Companion` | `Biennium?: string`; `BillId?: string`; `Status?: string` |
+| `Legislation` after inherited `LegislationInfo` | `StateFiscalNote: boolean`; `LocalFiscalNote: boolean`; `Appropriations: boolean`; `RequestedByGovernor: boolean`; `RequestedByBudgetCommittee: boolean`; `RequestedByDepartment: boolean`; `RequestedByOther: boolean`; `ShortDescription?: string`; `Request?: string`; `IntroducedDate: dateTime`; `CurrentStatus?: LegislativeStatus`; `Sponsor?: string`; `PrimeSponsorID: int`; `LongDescription?: string`; `LegalTitle?: string`; `Companions?: ArrayOfCompanion[]?` |
+| `LegislativeEntity` | `Id: int`; `Name?: string`; `LongName?: string`; `Agency?: string`; `Acronym?: string` |
+| `Sponsor` after inherited `LegislativeEntity` | `Type?: string`; `Order: int`; `Phone?: string`; `Email?: string`; `FirstName?: string`; `LastName?: string` |
+| `Committee` after inherited `LegislativeEntity` | `Phone?: string` |
+| `CommitteeReferral` | `LegislationInfo?: LegislationInfo`; `Committee?: Committee`; `ReferredDate: dateTime` |
+| `LegislativeDocument` | `Name?: string`; `ShortFriendlyName?: string`; `Biennium?: string`; `LongFriendlyName?: string`; `Description?: string`; `Type?: string`; `Class?: string`; `HtmUrl?: string`; `HtmCreateDate: dateTime`; `HtmLastModifiedDate: dateTime`; `PdfUrl?: string`; `PdfCreateDate: dateTime`; `PdfLastModifiedDate: dateTime`; `BillId?: string` |
+| `SessionLaw` | `ChapterNumber: int`; `Year: int`; `LegislativeSession?: string`; `LegislatureNumber: int`; `EffectiveDate: dateTime`; `MultipleEffectiveDates: boolean`; `BillId?: string`; `Biennium?: string`; `BillTitle?: string`; `PartialVeto: boolean`; `Veto: boolean`; `LegTypeId: int` |
+
+The selected operation messages are also pinned independently of implementation
+constants:
+
+| Operation | HTTPS service path | Request sequence | Result |
+| --- | --- | --- | --- |
+| `GetLegislation` | `/legislationservice.asmx` | `biennium: string`; `billNumber: int` | optional `ArrayOfLegislation` |
+| `GetLegislativeStatusChangesByBillId` | `/legislationservice.asmx` | `biennium: string`; `billId: string`; `beginDate: dateTime`; `endDate: dateTime` | optional `ArrayOfLegislativeStatus` |
+| `GetSponsors` | `/legislationservice.asmx` | `biennium: string`; `billId: string` | optional `ArrayOfSponsor` |
+| `GetCommitteeReferralsByBill` | `/committeeactionservice.asmx` | `biennium: string`; `billNumber: int` | optional `ArrayOfCommitteeReferral` |
+| `GetDocuments` | `/legislativedocumentservice.asmx` | `biennium: string`; `namedLike: string` | optional `ArrayOfLegislativeDocument` |
+| `GetSessionLawByBillId` | `/sessionlawservice.asmx` | `biennium: string`; `billId: string` | optional singular `SessionLaw` whose fields occur directly in the result element |
+
+Each SOAP action is the target namespace
+`http://WSLWebServices.leg.wa.gov/` followed by the exact operation name.
+The WSDL SHA-256 inventory above binds these extracted tables to the inspected
+official documents; the tests independently pin every selected endpoint/action
+and at least one required and optional field rule in each returned structure.
+
 Notable inconsistencies include:
 
 - `GetLegislationByYear` takes `year: xsd:int`, while its help prose
@@ -275,9 +316,12 @@ Notable inconsistencies include:
 - `Vote.VOte` has anomalous case; and
 - current WSDL fields differ materially from the old dictionary.
 
-Every required, optional, nullable, empty, missing, malformed, duplicate,
-ordering, size, and identifier rule remains a synthetic-contract requirement
-and then a bounded live-canary question.
+Structural requiredness, optional omission, `xsi:nil`, empty/missing results,
+field duplication/order, size, and request-identity echoes are pinned by the
+synthetic contract and remain bounded live-canary questions. Record-level
+identity, uniqueness, and duplicate semantics are deliberately not inferred:
+the response layer preserves repeated items until live evidence establishes a
+source-specific identity rule.
 
 ## Identity, versions, dates, and history
 
@@ -398,9 +442,14 @@ biennium, processing, and unexpectedly missing singular results can produce
 SOAP faults. The WSDL declares no typed faults. Exact SOAP version, HTTP status,
 fault code, actor/role, detail body, transient/permanent classification,
 partial-result behavior, retryability, timeout, and outage-health signaling
-remain live-canary questions. A parser must treat malformed XML, unexpected
-envelopes, unknown fields, duplicate identities, partial required-operation
-success, and unbounded payloads as failures.
+remain live-canary questions. The current parser treats malformed XML,
+unexpected envelopes, unknown or duplicate structural fields, request/response
+identity-echo mismatch, and unbounded payloads as failures. It preserves
+successful `missing` and `empty` result states and repeated operation items
+without calling them failures or deduplicating them. A later adapter must not
+normalize or publish repeated items until bounded live evidence establishes
+their identity semantics; transport faults or unusable required evidence still
+fail the refresh.
 
 ## Use, attribution, and reproduction
 
@@ -430,19 +479,63 @@ The researched source registry entry remains disabled with `adapter: null`.
 No public artifact record, coverage row, or source-health row is emitted for a
 disabled source.
 
-The next adapter checkpoint should prove, using impossible synthetic data:
+Contract version 1.0 selects SOAP 1.1 over HTTPS and covers exactly six
+known-bill operations:
 
-- canonical HTTPS endpoint and SOAP action allowlists;
-- exact operation-specific request shapes and biennium/date bounds;
-- SOAP 1.1 or 1.2 envelope, namespace, message-name, result, and fault parsing;
-- bill/biennium/version identity, exact status/history, sponsors, committees,
-  documents, distinct dates, session-law/effective/veto fields, missing values,
-  duplicates, and bounds;
-- strict field allowlists excluding personal/contact and untyped content;
-- keyless official URL hygiene;
-- `general_jurisdiction`, empty Nation evidence, no subjects/mappings, and
-  `Unclassified`; and
-- source-level health and checksum-validated last-known-good behavior.
+- `GetLegislation`;
+- `GetLegislativeStatusChangesByBillId`;
+- `GetSponsors`;
+- `GetCommitteeReferralsByBill`;
+- `GetDocuments`; and
+- `GetSessionLawByBillId`.
+
+The request contract uses an exact endpoint and SOAP-action allowlist, exact
+operation parameters, canonical biennia, bounded identifiers, and a maximum
+31-day normalized-UTC status window. Decision D-025 records the explicit
+build-time `saxes@6.0.0` dependency. XML bytes are bounded before strict UTF-8
+decoding and namespace-aware event parsing. The parser rejects XML 1.1, DTDs,
+non-predefined entity declarations, processing instructions, comments, CDATA,
+XInclude/unknown namespaces, SOAP 1.2, SOAP headers, unexpected
+elements/attributes, mixed content, partial documents, and responses above
+versioned byte, depth, node, attribute, scalar, aggregate-text, collection, and
+URL limits.
+
+The response contract enforces the reviewed WSDL sequence and requiredness for
+the six operations, distinguishes missing, empty, present, and sanitized fault
+results, and retains typed bill/version, status, sponsor, committee, document,
+session-law, effective-date, and veto evidence. It discards sponsor and
+committee contact fields plus reviewed free-text fields from the returned
+projection, rejects unknown or duplicate structural fields and
+`xsi:nil="true"` resources, and accepts `xsi:nil="false"` as non-nil. Every
+response is parsed with its canonical originating request and any explicit
+response identity echo must agree. Repeated operation items are preserved
+because provider uniqueness rules remain unverified. Document links are
+accepted only in the conspicuous repository-owned
+`/synthetic/3785-86/SYNTHETIC-*.(html|pdf)` fixture shape; no live rendition
+host or path has been approved. Provider fault code, text, actor text, and
+detail content are not returned; the DTO exposes only a generic fault category
+and bounded presence flags.
+
+Repository fixtures use impossible biennium `3785-86`, bill number `999991`,
+and `SYNTHETIC-*` identifiers. The manifest binds every one of the six
+representative responses and the separate SOAP fault by filename, operation,
+role, and SHA-256. It also lists exact prohibited contact sentinels; loading
+proves those values are present in the digest-bound inputs before reporting
+that they are absent from the returned projection. The reviewed fixture bundle
+requires those exact seven repository resources, marks provider identity
+behavior unverified, labels its inventory as fixture inventory rather than
+provenance, and fixes governance at `general_jurisdiction`, empty Nation
+evidence, no official subjects or taxonomy memberships, and `Unclassified`.
+The bundle is a test loader for exact repository fixtures, not an aggregate
+production rule: the lower response contract separately preserves legitimate
+missing or empty results.
+
+This checkpoint made no LWS bill/data request and retained no provider
+response. It does not enumerate a complete bill population, establish live
+requiredness or URL hosts, normalize a `PolicyRecord`, emit provenance or
+retrieval evidence, implement transport/source health, or create a
+checksum-validated last-known-good shard. Those are adapter work, not implied
+by the synthetic contract.
 
 The current normalized record schema has no first-class bill-version/rendition
 collection, veto model, RCW/session-law relationship type, or structured

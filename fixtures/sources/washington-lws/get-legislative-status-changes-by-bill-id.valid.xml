@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GetLegislativeStatusChangesByBillIdResponse xmlns="http://WSLWebServices.leg.wa.gov/">
+      <GetLegislativeStatusChangesByBillIdResult>
+        <LegislativeStatus>
+          <BillId>SYNTHETIC-HB-999991-SUB1-ENG2</BillId>
+          <HistoryLine>SYNTHETIC-STATUS-HISTORY-ONE</HistoryLine>
+          <ActionDate>3785-01-10T08:20:00-08:00</ActionDate>
+          <AmendedByOppositeBody>false</AmendedByOppositeBody>
+          <PartialVeto>false</PartialVeto>
+          <Veto>false</Veto>
+          <AmendmentsExist>true</AmendmentsExist>
+          <Status>SYNTHETIC-STATUS-ONE</Status>
+        </LegislativeStatus>
+        <LegislativeStatus>
+          <BillId>SYNTHETIC-HB-999991-SUB1-ENG2</BillId>
+          <HistoryLine>SYNTHETIC-STATUS-HISTORY-TWO</HistoryLine>
+          <ActionDate>3785-01-20T14:05:00-08:00</ActionDate>
+          <AmendedByOppositeBody>true</AmendedByOppositeBody>
+          <PartialVeto>false</PartialVeto>
+          <Veto>false</Veto>
+          <AmendmentsExist>true</AmendmentsExist>
+          <Status>SYNTHETIC-ACTIVE-VERSION-STATUS</Status>
+        </LegislativeStatus>
+      </GetLegislativeStatusChangesByBillIdResult>
+    </GetLegislativeStatusChangesByBillIdResponse>
+  </soap:Body>
+</soap:Envelope>

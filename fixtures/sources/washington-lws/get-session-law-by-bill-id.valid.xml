@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GetSessionLawByBillIdResponse xmlns="http://WSLWebServices.leg.wa.gov/">
+      <GetSessionLawByBillIdResult>
+        <ChapterNumber>999991</ChapterNumber>
+        <Year>3786</Year>
+        <LegislativeSession>SYNTHETIC-LEGISLATIVE-SESSION</LegislativeSession>
+        <LegislatureNumber>999</LegislatureNumber>
+        <EffectiveDate>3786-07-01T00:00:00-07:00</EffectiveDate>
+        <MultipleEffectiveDates>true</MultipleEffectiveDates>
+        <BillId>SYNTHETIC-HB-999991-SUB1-ENG2</BillId>
+        <Biennium>3785-86</Biennium>
+        <BillTitle>SYNTHETIC-SESSION-LAW-TITLE-999991</BillTitle>
+        <PartialVeto>true</PartialVeto>
+        <Veto>false</Veto>
+        <LegTypeId>999991</LegTypeId>
+      </GetSessionLawByBillIdResult>
+    </GetSessionLawByBillIdResponse>
+  </soap:Body>
+</soap:Envelope>

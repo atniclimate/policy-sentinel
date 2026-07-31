@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GetSponsorsResponse xmlns="http://WSLWebServices.leg.wa.gov/">
+      <GetSponsorsResult>
+        <Sponsor>
+          <Id>900001</Id>
+          <Name>SYNTHETIC-SPONSOR-DISPLAY-999991</Name>
+          <LongName>SYNTHETIC-SPONSOR-LONG-NAME-999991</LongName>
+          <Agency>SYNTHETIC-SPONSOR-AGENCY</Agency>
+          <Acronym>SYNTHETIC-SPONSOR-ACRONYM</Acronym>
+          <Type>SYNTHETIC-PRIME-SPONSOR</Type>
+          <Order>1</Order>
+          <Phone>SYNTHETIC-PROHIBITED-SPONSOR-PHONE-999991</Phone>
+          <Email>SYNTHETIC-PROHIBITED-SPONSOR-EMAIL-999991@example.invalid</Email>
+          <FirstName>SYNTHETIC-PROHIBITED-SPONSOR-FIRST-NAME</FirstName>
+          <LastName>SYNTHETIC-PROHIBITED-SPONSOR-LAST-NAME</LastName>
+        </Sponsor>
+      </GetSponsorsResult>
+    </GetSponsorsResponse>
+  </soap:Body>
+</soap:Envelope>

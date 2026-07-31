@@ -50,13 +50,29 @@ projection is explicitly limited to one synthetic document ID, treats provider
 identity behavior as unverified, and permits docket reassignment without
 inferring replacement behavior. Repository-owned aggregate attachment and
 format budgets fail closed before nested projections can grow without bound.
-Washington Legislative Web Services is disabled with no adapter while its
-operation-specific ranges, SOAP response/fault behavior, unbounded-array
-limits, document-link hosts, date semantics, and identity reconciliation
-remain unverified. Its official WSDLs expose no bill-subject field and include
-personal/contact, free-text, and untyped surfaces, so the future contract must
-use a strict allowlist, emit no Nation inference, leave taxonomy
-`Unclassified`, and retain metadata and official links only.
+Washington Legislative Web Services remains disabled with `adapter: null`.
+Its repository contract now validates exact SOAP 1.1 requests and bounded,
+namespace-aware XML responses for six known-bill operations using impossible
+synthetic fixtures. The typed projection preserves bill/version, status,
+sponsor, committee, document-link, and session-law evidence while excluding
+contact fields and reviewed free text. It fails closed on unknown or duplicate
+structural fields, unbounded collections, unsafe document URLs, and explicit
+request/response identity-echo disagreement. It preserves repeated operation
+items plus successful missing/empty results because live uniqueness and sparse
+result semantics are not yet known. Repository fixture bytes are bound by
+filename, operation, role, and SHA-256; that reviewed fixture inventory is not
+provider provenance. The projection is explicitly `general_jurisdiction`, has
+no Nation evidence or official subject labels, and remains `Unclassified`.
+
+That source-contract DTO is not a normalized `PolicyRecord` and carries no
+claim of live provider behavior, historical completeness, retrieval
+provenance, or public eligibility. Operation-specific ranges, live SOAP
+response/fault behavior, document-link hosts, date semantics, identity
+reconciliation, complete discovery, health, and last-known-good behavior
+remain unverified. The official WSDLs expose no bill-subject field and include
+personal/contact, free-text, and untyped surfaces; publication remains
+metadata-and-reviewed-official-links only after the remaining adapter
+contracts pass.
 
 The current normalized record and artifact schemas do not provide first-class
 docket entities, attachment collections, rate-header metadata, or a general
