@@ -546,6 +546,42 @@ boundary makes no claim about their SOAP-fault content or retryability. Errors
 expose only repository-defined categories, an optional numeric HTTP status,
 and static messages.
 
+The repository also has a manual aggregate-only observer for the first live
+canary. The internally fixed scenario uses `GetLegislation`, biennium
+`2025-26`, and bill number `1001`. The official
+[HB 1001 page](https://app.leg.wa.gov/billsummary?BillNumber=1001&Year=2025),
+reviewed 2026-07-31, identifies `HB 1001 - 2025-26`, its current version, and
+activity in both regular sessions. The Legislature's
+[bill guidance](https://leg.wa.gov/bills-meetings-and-session/bills/), reviewed
+the same day, says each bill number is associated with one legislative
+biennium and defines a biennium as the two-year period beginning in an
+odd-numbered year. These public HTML pages establish a low-scope current
+known-bill input; they do not establish the LWS response contract.
+
+The command requires the exact
+`--execute --scenario known_bill_legislation_v1` arguments, authorizes at most
+one sequential request attempt with no retry, and accepts no dynamic bill,
+biennium, date, URL, header, output, environment, logger, or persistence value.
+The scenario executor is module-private, omitted from the general Washington
+contract barrel, and callable only after that exact command path succeeds. Its
+report records execution authorization separately from the actual zero-or-one
+request count. The launcher disables `.env` loading. The report is cloned to a
+plain-data snapshot before exact-key runtime validation and serialization and
+contains only repository enums, numeric/null HTTP and byte aggregates, bounded
+item/top-level-optional/date-shape counts and booleans, and a timing bucket. The
+request, transport receipt, typed result items, provider strings, exact dates,
+URLs/hosts, raw XML, error text, stack, and cause cannot enter the report.
+Missing, empty, present, sanitized HTTP-200 fault, and rejected transport
+outcomes remain distinct. Expectation success requires a present non-empty
+known-bill result, but does not establish uniqueness, ordering, completeness,
+or date meaning.
+
+This observer checkpoint still made no LWS bill/data request and retained no
+provider response. `GetDocuments` is deliberately unreachable: the current
+parser accepts only the impossible synthetic document-link shape, so actual
+rendition hosts and paths require a separately reviewed in-boundary classifier
+before a live document scenario can be useful.
+
 The checkpoint does not enumerate a complete bill population, establish live
 requiredness or URL hosts, normalize a `PolicyRecord`, emit provider retrieval
 evidence, implement source health, or create a checksum-validated

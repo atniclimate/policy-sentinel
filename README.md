@@ -123,6 +123,7 @@ npm test
 npm run test:a11y
 npm run build
 npm run source:bia
+npm run --silent source:wa-lws:canary -- --help
 ```
 
 `npm run source:bia` reads the cited official recognition notice and validates
@@ -133,6 +134,16 @@ currently fails closed and writes no registry. If that primary-source gap is
 resolved, output remains restricted to ignored
 `.cache/source-validation/bia/nations.json`, outside `dist/`. The command does
 not register an API, ingest policy records, alter a remote, or publish data.
+
+`npm run --silent source:wa-lws:canary -- --help` describes the separately
+invoked
+Washington Legislative Web Services canary. Its only executable scenario is a
+repository-owned known-bill `GetLegislation` request: it requires exact
+`--execute` and `--scenario` flags, makes one keyless build-time request with no
+retry, emits one closed aggregate JSON line, and writes no response or record.
+It is not part of `npm run check`, does not enable the disabled source, and does
+not establish complete coverage. Run it only when a bounded live source check
+is intended.
 
 Key documents:
 

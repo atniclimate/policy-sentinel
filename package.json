@@ -12,6 +12,7 @@
     "validate:foundation": "node scripts/validate-foundation.mjs",
     "validate:artifact": "node scripts/validate-artifact.mjs --dir dist/data",
     "source:bia": "node scripts/build-bia-registry.mjs --out .cache/source-validation/bia/nations.json",
+    "source:wa-lws:canary": "node scripts/observe-washington-lws-canary.mjs",
     "scan:source": "node scripts/scan-source-boundary.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

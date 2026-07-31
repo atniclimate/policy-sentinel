@@ -22,18 +22,22 @@ export interface WashingtonLwsTransportDependencies {
   now?: () => number;
 }
 
+export const WASHINGTON_LWS_TRANSPORT_ERROR_CODES = [
+  "redirect",
+  "http_status",
+  "timeout",
+  "network",
+  "content_type",
+  "content_encoding",
+  "content_length",
+  "response_fragmentation",
+  "response_too_large",
+  "missing_body",
+  "invalid_soap",
+] as const;
+
 export type WashingtonLwsTransportErrorCode =
-  | "redirect"
-  | "http_status"
-  | "timeout"
-  | "network"
-  | "content_type"
-  | "content_encoding"
-  | "content_length"
-  | "response_fragmentation"
-  | "response_too_large"
-  | "missing_body"
-  | "invalid_soap";
+  (typeof WASHINGTON_LWS_TRANSPORT_ERROR_CODES)[number];
 
 export class WashingtonLwsTransportError extends Error {
   readonly code: WashingtonLwsTransportErrorCode;

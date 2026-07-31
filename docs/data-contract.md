@@ -78,6 +78,21 @@ aggregate byte counts, and the typed sanitized projection, never provider bytes
 or raw XML. Errors contain only repository-owned categories, an optional
 numeric HTTP status, and static messages.
 
+The separately invoked canary observer reduces that receipt immediately to a
+plain-data snapshot, then runtime-validates an exact-key aggregate report before
+serialization. Its first versioned scenario authorizes at most one internally
+fixed `GetLegislation` request and reports the actual zero-or-one request
+attempt. The scenario executor is module-private and reachable only after the
+exact command arguments pass; the observer is not exported by the general
+Washington contract barrel. It exposes only operation/scenario enums,
+expectation and sanitized-fault booleans, numeric or null HTTP/byte aggregates,
+result and top-level optional-field counts, lexical date-shape counts, and a
+timing bucket. It accepts no dynamic request or output values and does not
+expose a request, response item, provider string, exact date, URL, header, raw
+byte, or error detail. The launcher disables `.env` loading. The report is not
+a `PolicyRecord`, provider provenance, source-health receipt, coverage claim,
+or persisted artifact.
+
 That source-contract DTO is not a normalized `PolicyRecord` and carries no
 claim of live provider behavior, historical completeness, retrieval
 provenance, or public eligibility. Operation-specific ranges, live SOAP

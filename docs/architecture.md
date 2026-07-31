@@ -72,6 +72,22 @@ Transport failures expose a repository-defined category, a numeric HTTP status
 when one was received, and static text without provider body or network-error
 content.
 
+The manual LWS canary observer sits immediately above that transport. It
+contains one versioned, repository-owned known-bill `GetLegislation` scenario
+and cannot accept request identifiers, URLs, headers, dates, output paths,
+loggers, or environment overrides. Exact execution arguments authorize the
+scenario. The scenario executor is module-private, the observer is absent from
+the general contract barrel, and only the exact-argument command path can call
+it. A counted wrapper permits at most one sequential provider-request attempt
+with no retry. The report distinguishes authorization from the actual
+zero-or-one attempt count. The observer constructs and runtime-validates a
+plain-data snapshot field by field, then emits one JSON line containing only
+repository enums, bounded counts and booleans, top-level optional-field counts,
+byte/status aggregates, and a timing bucket. It never serializes the transport
+receipt, request, typed SOAP projection, provider strings, exact dates, errors,
+or raw bytes; its launcher disables `.env` loading, it imports no filesystem
+API, and it is not connected to build, check, or lifecycle scripts.
+
 The Washington LWS parser accepts response bytes only after an outer byte
 ceiling, then applies strict UTF-8, XML 1.0, namespace, depth, node, attribute,
 text, collection, and operation limits. It has no resolver or network callback
