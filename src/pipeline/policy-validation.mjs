@@ -515,7 +515,12 @@ export function validateRecordPolicy(
   } catch (error) {
     issues.push(error.message);
   }
-  if (
+  if (!sourceConfig.enabled) {
+    issues.push("record source is disabled in the source registry");
+  }
+  if (sourceConfig.adapter === null) {
+    issues.push("record source has no configured adapter");
+  } else if (
     record.source.id !== sourceConfig.id ||
     record.source.adapterId !== sourceConfig.adapter.id ||
     record.source.adapterVersion !== sourceConfig.adapter.version

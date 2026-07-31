@@ -129,6 +129,17 @@ export function createArtifactDocuments({
 }) {
   const normalizedGeneratedAt = normalizeGeneratedAt(generatedAt);
   const documents = new Map();
+  const enabledSources = sourceRegistry.sources.filter(
+    ({ enabled }) => enabled,
+  );
+  const enabledSourceIds = new Set(enabledSources.map(({ id }) => id));
+  for (const record of records) {
+    if (!enabledSourceIds.has(record.source.id)) {
+      throw new Error(
+        `artifact record references disabled or unregistered source: ${record.source.id}`,
+      );
+    }
+  }
 
   documents.set("coverage.json", {
     artifactType: "coverage",
@@ -139,7 +150,7 @@ export function createArtifactDocuments({
       "Public coverage is source-specific and does not represent all of a Nation's interests.",
       "A Nation outside Washington, Oregon, or Idaho receives federal coverage only.",
     ],
-    entries: sourceRegistry.sources.map((source) => ({
+    entries: enabledSources.map((source) => ({
       sourceId: source.id,
       jurisdiction: source.jurisdiction,
       from: source.coverage.from,
@@ -152,12 +163,16 @@ export function createArtifactDocuments({
             .map(({ documentType }) => documentType),
         ),
       ].sort(),
-      status: source.synthetic ? "synthetic" : "available",
+      status: source.synthetic
+        ? "synthetic"
+        : records.some((record) => record.source.id === source.id)
+          ? "available"
+          : "unavailable",
       limitation: source.coverage.limitations,
     })),
   });
 
-  const sourceHealth = sourceRegistry.sources.map((source) => {
+  const sourceHealth = enabledSources.map((source) => {
     const sourceRecords = records.filter(
       (record) => record.source.id === source.id,
     );

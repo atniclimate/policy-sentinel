@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import process from "node:process";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import {
@@ -13,7 +15,7 @@ import {
   makeStableRecordId,
   toUrlSafeId,
 } from "../../src/pipeline/identity.mjs";
-import { hashJson } from "../../src/pipeline/hashing.mjs";
+import { deriveBuildId, hashJson } from "../../src/pipeline/hashing.mjs";
 import {
   loadLastKnownGoodSource,
   mergeSourceRefresh,
@@ -153,6 +155,75 @@ async function createLastKnownGoodFixture({
   };
 }
 
+async function createArtifactValidatorFixture() {
+  const parent = path.join(
+    projectRoot,
+    "dist",
+    "pipeline-artifact-validator-tests",
+  );
+  await mkdir(parent, { recursive: true });
+  const root = await mkdtemp(path.join(parent, "artifact-"));
+  const documents = createArtifactDocuments({
+    records: [preparedFederal, preparedCounty],
+    nations,
+    taxonomy,
+    sourceRegistry,
+    generatedAt: "2026-07-30T15:00:00Z",
+    synthetic: true,
+  });
+  await writeArtifactDocuments({
+    documents,
+    outputDirectory: root,
+    projectRoot,
+  });
+  return {
+    root,
+    cleanup: async () => {
+      const resolved = path.resolve(root);
+      const allowedParent = `${path.resolve(parent)}${path.sep}`;
+      assert.ok(resolved.startsWith(allowedParent));
+      await rm(resolved, { recursive: true, force: true });
+    },
+  };
+}
+
+async function rewriteArtifactAsset(root, relativePath, mutate) {
+  const assetPath = path.join(root, relativePath);
+  const value = JSON.parse(await readFile(assetPath, "utf8"));
+  mutate(value);
+  const rewritten = hashJson(value);
+  await writeFile(assetPath, rewritten.content);
+
+  const manifestPath = path.join(root, "manifest.json");
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  const asset = manifest.assets.find(
+    ({ path: entry }) => entry === relativePath,
+  );
+  asset.sha256 = rewritten.sha256;
+  asset.sizeBytes = rewritten.sizeBytes;
+  manifest.buildId = deriveBuildId(manifest.assets);
+  await writeFile(manifestPath, hashJson(manifest).content);
+}
+
+async function rewriteArtifactManifest(root, mutate) {
+  const manifestPath = path.join(root, "manifest.json");
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  mutate(manifest);
+  manifest.buildId = deriveBuildId(manifest.assets);
+  await writeFile(manifestPath, hashJson(manifest).content);
+}
+
+function runArtifactValidator(root) {
+  return spawnSync(
+    process.execPath,
+    ["scripts/validate-artifact.mjs", "--dir", root],
+    {
+      cwd: projectRoot,
+      encoding: "utf8",
+    },
+  );
+}
+
 test("stable and URL-safe IDs are deterministic", () => {
   const id = makeStableRecordId("synthetic-federal", "SYN 001/α");
   assert.equal(id, makeStableRecordId("synthetic-federal", "SYN 001/α"));
@@ -191,6 +262,45 @@ test("valid synthetic records pass policy and uniqueness validation", () => {
       taxonomy,
       nations,
     }),
+  );
+});
+
+test("records from disabled registry sources fail closed", () => {
+  const invalid = globalThis.structuredClone(preparedFederal);
+  invalid.source.id = "federal-register";
+  for (const entry of invalid.fieldProvenance) {
+    entry.sourceId = "federal-register";
+  }
+  assert.throws(
+    () =>
+      validateRecordPolicy(invalid, {
+        sourceConfig: sourceConfigs.get("federal-register"),
+        taxonomy,
+        knownNationIds: new Set(nations.map(({ id }) => id)),
+      }),
+    (error) =>
+      error instanceof PolicyValidationError &&
+      error.issues.includes(
+        "record source is disabled in the source registry",
+      ) &&
+      error.issues.includes("record source has no configured adapter"),
+  );
+});
+
+test("artifact packaging rejects disabled-source records", () => {
+  const invalid = globalThis.structuredClone(preparedFederal);
+  invalid.source.id = "federal-register";
+  assert.throws(
+    () =>
+      createArtifactDocuments({
+        records: [invalid],
+        nations,
+        taxonomy,
+        sourceRegistry,
+        generatedAt: "2026-07-30T15:00:00Z",
+        synthetic: true,
+      }),
+    /disabled or unregistered source: federal-register/,
   );
 });
 
@@ -523,10 +633,16 @@ test("artifact packaging is deterministic, compact, and detail-sharded", () => {
     first
       .get("source-health.json")
       .sources.map(({ sourceId, sourceName }) => ({ sourceId, sourceName })),
-    sourceRegistry.sources.map(({ id, name }) => ({
-      sourceId: id,
-      sourceName: name,
-    })),
+    sourceRegistry.sources
+      .filter(({ enabled }) => enabled)
+      .map(({ id, name }) => ({
+        sourceId: id,
+        sourceName: name,
+      })),
+  );
+  assert.deepEqual(
+    first.get("coverage.json").entries.map(({ sourceId }) => sourceId),
+    sourceRegistry.sources.filter(({ enabled }) => enabled).map(({ id }) => id),
   );
   assert.ok(
     first
@@ -547,6 +663,131 @@ test("artifact packaging is deterministic, compact, and detail-sharded", () => {
     assert.deepEqual(entry.landmark, { isLandmark: false });
     assert.match(entry.detailPath, /^details\/[A-Za-z0-9_-]+\.json$/);
   }
+});
+
+test("artifact validation rejects disabled source IDs at every metadata boundary", async () => {
+  const manifestFixture = await createArtifactValidatorFixture();
+  try {
+    await rewriteArtifactManifest(manifestFixture.root, (manifest) => {
+      manifest.assets
+        .find(({ path: assetPath }) => assetPath === "coverage.json")
+        .sourceIds.push("federal-register");
+    });
+    const result = runArtifactValidator(manifestFixture.root);
+    assert.equal(result.status, 1);
+    assert.match(
+      `${result.stdout}${result.stderr}`,
+      /manifest asset references disabled or unregistered source/,
+    );
+  } finally {
+    await manifestFixture.cleanup();
+  }
+
+  const coverageFixture = await createArtifactValidatorFixture();
+  try {
+    await rewriteArtifactAsset(
+      coverageFixture.root,
+      "coverage.json",
+      (coverage) => {
+        const source = sourceConfigs.get("federal-register");
+        coverage.entries.push({
+          sourceId: source.id,
+          jurisdiction: source.jurisdiction,
+          from: source.coverage.from,
+          through: source.coverage.through,
+          cadence: source.coverage.cadence,
+          recordTypes: [],
+          status: "unavailable",
+          limitation: source.coverage.limitations,
+        });
+      },
+    );
+    const result = runArtifactValidator(coverageFixture.root);
+    assert.equal(result.status, 1);
+    assert.match(
+      `${result.stdout}${result.stderr}`,
+      /coverage entries do not match enabled registry sources/,
+    );
+  } finally {
+    await coverageFixture.cleanup();
+  }
+
+  const healthFixture = await createArtifactValidatorFixture();
+  try {
+    await rewriteArtifactAsset(
+      healthFixture.root,
+      "source-health.json",
+      (health) => {
+        health.sources.push({
+          sourceId: "federal-register",
+          sourceName: "Federal Register",
+          status: "unavailable",
+          checkedAt: health.generatedAt,
+          dataAsOf: null,
+          lastSuccessfulRetrievalAt: null,
+          usingLastKnownGood: false,
+          stale: true,
+          recordCount: 0,
+          failureStage: null,
+          message: "No validated records are available.",
+        });
+      },
+    );
+    const result = runArtifactValidator(healthFixture.root);
+    assert.equal(result.status, 1);
+    assert.match(
+      `${result.stdout}${result.stderr}`,
+      /source-health entries do not match enabled registry sources/,
+    );
+  } finally {
+    await healthFixture.cleanup();
+  }
+});
+
+test("enabled sources without records remain visibly unavailable", () => {
+  const configured = globalThis.structuredClone(sourceRegistry);
+  const federalRegister = configured.sources.find(
+    ({ id }) => id === "federal-register",
+  );
+  federalRegister.enabled = true;
+  federalRegister.adapter = {
+    id: "federal-register-adapter",
+    version: "1.0.0",
+    module: "src/adapters/federal-register/index.ts",
+    identityRule: "federal-register-document-number-v1",
+  };
+  const documents = createArtifactDocuments({
+    records: [preparedFederal, preparedCounty],
+    nations,
+    taxonomy,
+    sourceRegistry: configured,
+    generatedAt: "2026-07-30T15:00:00Z",
+    synthetic: true,
+  });
+  assert.equal(
+    documents
+      .get("coverage.json")
+      .entries.find(({ sourceId }) => sourceId === "federal-register").status,
+    "unavailable",
+  );
+  assert.deepEqual(
+    documents
+      .get("source-health.json")
+      .sources.find(({ sourceId }) => sourceId === "federal-register"),
+    {
+      sourceId: "federal-register",
+      sourceName: "Federal Register",
+      status: "unavailable",
+      checkedAt: "2026-07-30T15:00:00.000Z",
+      dataAsOf: null,
+      lastSuccessfulRetrievalAt: null,
+      usingLastKnownGood: false,
+      stale: true,
+      recordCount: 0,
+      failureStage: null,
+      message: "No validated records are available.",
+    },
+  );
 });
 
 test("compact records preserve exact taxonomy pairs and landmark state", () => {

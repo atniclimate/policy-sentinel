@@ -2,6 +2,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
+import { assertSourceRegistrySemantics } from "../src/pipeline/source-registry.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const readJson = async (path) =>
@@ -9,7 +10,9 @@ const readJson = async (path) =>
 
 const taxonomySchema = await readJson("schemas/taxonomy.schema.v1.json");
 const recordSchema = await readJson("schemas/record.schema.v1.json");
+const sourceSchema = await readJson("schemas/source.schema.v1.json");
 const taxonomy = await readJson("config/taxonomy.v1.json");
+const sourceRegistry = await readJson("config/sources.v1.json");
 
 const ajv = new Ajv2020({
   allErrors: true,
@@ -21,6 +24,7 @@ addFormats(ajv);
 for (const [name, schema] of [
   ["taxonomy schema", taxonomySchema],
   ["record schema", recordSchema],
+  ["source schema", sourceSchema],
 ]) {
   if (!ajv.validateSchema(schema)) {
     throw new Error(
@@ -41,6 +45,16 @@ if (!validateTaxonomy(taxonomy)) {
     )}`,
   );
 }
+
+const validateSources = ajv.compile(sourceSchema);
+if (!validateSources(sourceRegistry)) {
+  throw new Error(
+    `source registry is invalid:\n${ajv.errorsText(validateSources.errors, {
+      separator: "\n",
+    })}`,
+  );
+}
+assertSourceRegistrySemantics(sourceRegistry);
 
 const categoryIds = new Set();
 const subcategoryIds = new Map();
@@ -272,7 +286,7 @@ if (!historicalPolicyRejected) {
 negativePolicyChecks += 1;
 
 console.log(
-  `Foundation validation passed: 2 schemas, ${taxonomy.categories.length} categories, ` +
+  `Foundation validation passed: 3 schemas, ${taxonomy.categories.length} categories, ` +
     `${taxonomy.categories.reduce((count, category) => count + category.subcategories.length, 0)} subcategories, ` +
     `${fixtureNames.length} valid fixtures, and ${negativePolicyChecks} negative policy checks.`,
 );

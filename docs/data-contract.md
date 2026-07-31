@@ -9,12 +9,26 @@ The Phase A contracts are:
 - [`taxonomy.schema.v1.json`](../schemas/taxonomy.schema.v1.json), taxonomy
   schema version `1.0.0`; and
 - [`taxonomy.v1.json`](../config/taxonomy.v1.json), the editable ten-category,
-  33-subcategory starting taxonomy.
+  33-subcategory starting taxonomy;
+- [`source.schema.v1.json`](../schemas/source.schema.v1.json), compatible v1
+  source-registry schema version `1.1.0`;
+- [`sources.v1.json`](../config/sources.v1.json), source registry version
+  `1.1.0`; and
+- [`artifact.schema.v1.json`](../schemas/artifact.schema.v1.json), static
+  artifact schema version `1.0.0`.
 
-They are proposals for Phase B implementation, not evidence that a source
-adapter or public dataset exists. `npm test` compiles the schemas in strict
-mode, validates the taxonomy and synthetic fixtures, and proves selected
-invalid governance cases are rejected.
+These contracts support Phase B local implementation; their presence is not
+evidence that a production source is enabled or a public dataset exists.
+`npm test` compiles the schemas in strict mode, validates the source registry,
+taxonomy, and synthetic fixtures, and proves selected invalid governance cases
+are rejected.
+
+Source-registry version `1.1.0` distinguishes researched configuration from
+activation. A disabled source may have `adapter: null`; an enabled source must
+have a versioned adapter. Every non-synthetic source records the date its cited
+contract and terms were accessed. Disabled sources and their identifiers are
+rejected from coverage, health, manifests, and records rather than appearing as
+an unavailable public source.
 
 ## Record groups
 

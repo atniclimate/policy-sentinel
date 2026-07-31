@@ -11,7 +11,11 @@ const projectRoot = path.resolve(
 test("pipeline contract and governance suite passes", () => {
   const output = execFileSync(
     process.execPath,
-    ["--test", "tests/pipeline/pipeline.test.mjs"],
+    [
+      "--test",
+      "tests/pipeline/pipeline.test.mjs",
+      "tests/pipeline/source-registry.test.mjs",
+    ],
     {
       cwd: projectRoot,
       encoding: "utf8",

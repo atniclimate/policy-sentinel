@@ -7,6 +7,7 @@ import { deriveBuildId, sha256Bytes } from "../src/pipeline/hashing.mjs";
 import { toCompactIndexRecord } from "../src/pipeline/artifact.mjs";
 import { toUrlSafeId } from "../src/pipeline/identity.mjs";
 import { validateRecordSetPolicy } from "../src/pipeline/policy-validation.mjs";
+import { assertSourceRegistrySemantics } from "../src/pipeline/source-registry.mjs";
 
 const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -201,6 +202,34 @@ function assertHealth(sourceHealth, sourceRegistry, records) {
   }
 }
 
+function assertCoverage(coverage, sourceRegistry) {
+  const expectedSourceIds = sourceRegistry.sources
+    .filter(({ enabled }) => enabled)
+    .map(({ id }) => id)
+    .sort();
+  const actualSourceIds = coverage.entries
+    .map(({ sourceId }) => sourceId)
+    .sort();
+  if (JSON.stringify(expectedSourceIds) !== JSON.stringify(actualSourceIds)) {
+    throw new Error("coverage entries do not match enabled registry sources");
+  }
+}
+
+function assertManifestSourceIds(manifest, sourceRegistry) {
+  const enabledSourceIds = new Set(
+    sourceRegistry.sources.filter(({ enabled }) => enabled).map(({ id }) => id),
+  );
+  for (const asset of manifest.assets) {
+    for (const sourceId of asset.sourceIds) {
+      if (!enabledSourceIds.has(sourceId)) {
+        throw new Error(
+          `manifest asset references disabled or unregistered source: ${sourceId}`,
+        );
+      }
+    }
+  }
+}
+
 const artifactDirectory = parseArguments(process.argv.slice(2));
 const [
   artifactSchema,
@@ -225,12 +254,19 @@ const [validateArtifact, validateRecord, validateTaxonomy, validateSources] =
     sourceSchema,
   ]);
 assertValid(validateSources, sourceRegistry, "source registry");
+assertSourceRegistrySemantics(sourceRegistry);
 assertValid(validateTaxonomy, taxonomyConfig, "configured taxonomy");
 
 const manifest = await readJsonFile(
   path.join(artifactDirectory, "manifest.json"),
 );
 assertValid(validateArtifact, manifest, "manifest.json");
+if (manifest.sourceRegistryVersion !== sourceRegistry.registryVersion) {
+  throw new Error(
+    "manifest source-registry version differs from configured registry",
+  );
+}
+assertManifestSourceIds(manifest, sourceRegistry);
 assertUnique(
   manifest.assets.map(({ path: assetPath }) => assetPath),
   "manifest asset paths",
@@ -312,6 +348,7 @@ validateRecordSetPolicy(records, {
 
 const indexDocument = documents.get("index/records.json");
 assertIndexMatchesDetails(indexDocument, records);
+assertCoverage(documents.get("coverage.json"), sourceRegistry);
 assertHealth(documents.get("source-health.json"), sourceRegistry, records);
 
 if (

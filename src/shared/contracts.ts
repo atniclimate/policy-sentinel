@@ -1,6 +1,7 @@
 export const RECORD_SCHEMA_VERSION = "1.0.0" as const;
 export const ARTIFACT_SCHEMA_VERSION = "1.0.0" as const;
-export const SOURCE_REGISTRY_VERSION = "1.0.0" as const;
+export const SOURCE_SCHEMA_VERSION = "1.1.0" as const;
+export const SOURCE_REGISTRY_VERSION = "1.1.0" as const;
 
 export type IsoDate = string;
 export type IsoDateTime = string;
@@ -80,7 +81,7 @@ export interface DeterministicMappingRule {
 
 export interface SourceRegistry {
   $schema: string;
-  schemaVersion: typeof SOURCE_REGISTRY_VERSION;
+  schemaVersion: typeof SOURCE_SCHEMA_VERSION;
   registryVersion: typeof SOURCE_REGISTRY_VERSION;
   generatedDataPolicy: "artifact-only";
   sources: SourceConfig[];
@@ -97,7 +98,7 @@ export interface SourceConfig {
     version: string;
     module: string;
     identityRule: string;
-  };
+  } | null;
   jurisdiction: {
     level: JurisdictionLevel;
     name: string;
@@ -106,6 +107,7 @@ export interface SourceConfig {
   access: {
     method: "fixture" | "api" | "feed" | "official_export";
     officialDocumentationUrl: string;
+    accessedOn?: IsoDate;
     allowedHosts: string[];
     authentication: "none" | "build_secret";
     rateLimit: string;

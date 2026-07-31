@@ -13,6 +13,7 @@ import {
   completeSyntheticProvenance,
   validateRecordSetPolicy,
 } from "../src/pipeline/policy-validation.mjs";
+import { assertSourceRegistrySemantics } from "../src/pipeline/source-registry.mjs";
 
 const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -65,19 +66,14 @@ function assertValid(validate, value, label) {
   );
 }
 
-function assertUniqueRegistry(sourceRegistry) {
-  const sourceIds = new Set();
-  const adapterIds = new Set();
+function assertSyntheticRegistry(sourceRegistry) {
   for (const source of sourceRegistry.sources) {
-    if (sourceIds.has(source.id)) {
-      throw new Error(`duplicate source registry ID: ${source.id}`);
-    }
-    sourceIds.add(source.id);
-    if (adapterIds.has(source.adapter.id)) {
-      throw new Error(`duplicate adapter ID: ${source.adapter.id}`);
-    }
-    adapterIds.add(source.adapter.id);
-    if (!source.synthetic || source.access.method !== "fixture") {
+    if (
+      source.enabled &&
+      (!source.synthetic ||
+        source.access.method !== "fixture" ||
+        source.adapter === null)
+    ) {
       throw new Error(
         `synthetic artifact cannot load non-fixture source ${source.id}`,
       );
@@ -125,7 +121,8 @@ const [validateRecord, validateTaxonomy, validateSources, validateArtifact] =
   ]);
 assertValid(validateTaxonomy, taxonomy, "taxonomy");
 assertValid(validateSources, sourceRegistry, "source registry");
-assertUniqueRegistry(sourceRegistry);
+assertSourceRegistrySemantics(sourceRegistry);
+assertSyntheticRegistry(sourceRegistry);
 
 const configuredSources = new Map(
   sourceRegistry.sources.map((source) => [source.id, source]),

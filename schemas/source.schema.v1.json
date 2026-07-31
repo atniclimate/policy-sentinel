@@ -16,10 +16,10 @@
       "type": "string"
     },
     "schemaVersion": {
-      "const": "1.0.0"
+      "const": "1.1.0"
     },
     "registryVersion": {
-      "const": "1.0.0"
+      "const": "1.1.0"
     },
     "generatedDataPolicy": {
       "const": "artifact-only"
@@ -52,6 +52,27 @@
           "type": "null"
         }
       ]
+    },
+    "adapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "module", "identityRule"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/slug"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "module": {
+          "type": "string",
+          "pattern": "^(?:fixtures|src/adapters)/(?!\\.\\.(?:/|$))(?!.*\\/\\.\\.(?:\\/|$))[A-Za-z0-9._/-]+$"
+        },
+        "identityRule": {
+          "$ref": "#/$defs/slug"
+        }
+      }
     },
     "source": {
       "type": "object",
@@ -88,25 +109,14 @@
           "type": "boolean"
         },
         "adapter": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["id", "version", "module", "identityRule"],
-          "properties": {
-            "id": {
-              "$ref": "#/$defs/slug"
+          "oneOf": [
+            {
+              "$ref": "#/$defs/adapter"
             },
-            "version": {
-              "type": "string",
-              "pattern": "^\\d+\\.\\d+\\.\\d+$"
-            },
-            "module": {
-              "type": "string",
-              "pattern": "^fixtures/"
-            },
-            "identityRule": {
-              "$ref": "#/$defs/slug"
+            {
+              "type": "null"
             }
-          }
+          ]
         },
         "jurisdiction": {
           "type": "object",
@@ -149,6 +159,10 @@
             },
             "officialDocumentationUrl": {
               "$ref": "#/$defs/httpsUrl"
+            },
+            "accessedOn": {
+              "type": "string",
+              "format": "date"
             },
             "allowedHosts": {
               "type": "array",
@@ -238,7 +252,130 @@
             "$ref": "#/$defs/slug"
           }
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            },
+            "required": ["enabled"]
+          },
+          "then": {
+            "properties": {
+              "adapter": {
+                "$ref": "#/$defs/adapter"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "synthetic": {
+                "const": true
+              }
+            },
+            "required": ["synthetic"]
+          },
+          "then": {
+            "properties": {
+              "access": {
+                "type": "object",
+                "properties": {
+                  "method": {
+                    "const": "fixture"
+                  }
+                }
+              },
+              "adapter": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "$ref": "#/$defs/adapter"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "module": {
+                            "type": "string",
+                            "pattern": "^fixtures/"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "access": {
+                "type": "object",
+                "properties": {
+                  "method": {
+                    "enum": ["api", "feed", "official_export"]
+                  }
+                }
+              },
+              "adapter": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "$ref": "#/$defs/adapter"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "module": {
+                            "type": "string",
+                            "pattern": "^src/adapters/"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "synthetic": {
+                "const": false
+              }
+            },
+            "required": ["synthetic"]
+          },
+          "then": {
+            "properties": {
+              "access": {
+                "type": "object",
+                "required": ["accessedOn"],
+                "properties": {
+                  "accessedOn": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

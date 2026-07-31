@@ -44,6 +44,7 @@ optional AI generation, and outbound notifications remain unauthorized.
 | D-020 | Phase A creates plans, schemas, configuration, synthetic fixtures, and a durable local validation workflow only. It does not implement ingestion, a production UI, a live Pages site, a remote, or publishing. Phase B must not begin without the gate below. |
 | D-021 | On 2026-07-30 the owner approved Phase B local implementation under the MVP plan. All later source, credential, remote/publication, paid, private-data, AI, and notification gates remain independent and closed. |
 | D-022 | `ROADMAP.yaml` is the canonical machine-readable ledger for current progress, dependencies, evidence, blockers, and remaining work through finish. Binding Markdown documents continue to define product and acceptance requirements. Future sessions validate and update the roadmap at material checkpoints and before context compaction; closed external gates are recorded rather than reopened as a general interview. |
+| D-023 | Source-registry v1.1 records researched production sources before activation. A disabled source may have no adapter, every non-synthetic entry carries a primary-source access date, enabled sources require a versioned adapter, and disabled source IDs are excluded from and rejected by generated artifacts. |
 
 ## Working assumptions
 

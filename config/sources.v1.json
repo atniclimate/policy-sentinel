@@ -1,7 +1,7 @@
 {
   "$schema": "../schemas/source.schema.v1.json",
-  "schemaVersion": "1.0.0",
-  "registryVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
+  "registryVersion": "1.1.0",
   "generatedDataPolicy": "artifact-only",
   "sources": [
     {
@@ -95,6 +95,49 @@
           "/status/sourceLabel",
           "/urls/officialSource",
           "/nationAssociations/0"
+        ]
+      },
+      "officialSubjectMappings": []
+    },
+    {
+      "id": "federal-register",
+      "name": "Federal Register",
+      "provider": "Office of the Federal Register",
+      "synthetic": false,
+      "enabled": false,
+      "adapter": null,
+      "jurisdiction": {
+        "level": "federal",
+        "name": "United States",
+        "stateCode": null
+      },
+      "access": {
+        "method": "api",
+        "officialDocumentationUrl": "https://www.federalregister.gov/developers/documentation/api/v1",
+        "accessedOn": "2026-07-31",
+        "allowedHosts": ["www.federalregister.gov", "www.govinfo.gov"],
+        "authentication": "none",
+        "rateLimit": "No numeric request-rate limit was published on 2026-07-31. The documented page-size maximum is 1,000 and the observed search window is 10,000 results, so retrieval must use deterministic date slicing.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": "1994-01-03",
+        "through": null,
+        "cadence": "Federal Register issues are published on federal business days; Policy Sentinel retrieval is build-time only.",
+        "limitations": "The API documents coverage since 1994. The first observed issue is 1994-01-03; early records may lack individual PDFs, and API HTML/XML renditions are informational rather than the official edition."
+      },
+      "publication": {
+        "attribution": "Office of the Federal Register and the issuing agency; link the official PDF on GovInfo when available.",
+        "termsUrl": "https://www.federalregister.gov/reader-aids/government-policy-and-ofr-procedures/about-this-site",
+        "reproduction": "reviewed_excerpt",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/status/sourceLabel",
+          "/urls/officialSource"
         ]
       },
       "officialSubjectMappings": []
