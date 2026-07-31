@@ -310,7 +310,7 @@ current_focus:
     Complete the credential-free GovInfo package, granule, collection, MODS,
     format-link, checksum, pagination, and documented 503 contract with
     synthetic fixtures only.
-  last_durable_checkpoint: 0255321
+  last_durable_checkpoint: 3519ab4
   resume_command: npm run check
 
 completion_scope:
@@ -848,6 +848,9 @@ work_items:
         formatting, lint, type checking, roadmap validation, source-boundary
         scanning, a synthetic-only production build, and artifact validation at
         2 records, 575 Nations, and 7 verified assets.
+      - >-
+        Local commit 3519ab4 implements and records the reviewed credential-free
+        Congress.gov contract checkpoint.
 
   - id: B4-CONGRESS-LIVE
     priority: 46
