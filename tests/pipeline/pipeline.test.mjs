@@ -181,61 +181,40 @@ async function createLastKnownGoodFixture({
   const parent = path.join(projectRoot, "dist", "pipeline-lkg-tests");
   await mkdir(parent, { recursive: true });
   const root = await mkdtemp(path.join(parent, "artifact-"));
-  const healthDocument = {
-    artifactType: "source-health",
-    schemaVersion: "1.0.0",
+  const documents = createArtifactDocuments({
+    records: [preparedFederal],
+    nations,
+    taxonomy,
+    sourceRegistry,
     generatedAt: "2026-07-30T15:00:00Z",
-    sources: [
-      {
-        sourceId: preparedFederal.source.id,
-        sourceName: preparedFederal.source.name,
-        status: "healthy",
-        checkedAt: preparedFederal.sourceHealth.checkedAt,
-        dataAsOf: preparedFederal.sourceHealth.dataAsOf,
-        lastSuccessfulRetrievalAt:
-          preparedFederal.sourceHealth.lastSuccessfulRetrievalAt,
-        usingLastKnownGood: false,
-        stale: false,
-        recordCount: 1,
-        failureStage: null,
-        message: null,
-      },
-    ],
-  };
-  const detailDocument = {
-    artifactType: "record-detail",
-    schemaVersion: "1.0.0",
-    generatedAt: "2026-07-30T15:00:00Z",
-    record: preparedFederal,
-  };
-  const health = hashJson(healthDocument);
-  const detail = hashJson(detailDocument);
-  const detailPath = `details/${toUrlSafeId(preparedFederal.internalId)}.json`;
-  const assets = [
-    ...(includeHealthAsset
-      ? [
-          {
-            path: "source-health.json",
-            sha256: health.sha256,
-            sizeBytes: health.sizeBytes,
-            mediaType: "application/json",
-            sourceIds: [preparedFederal.source.id],
-          },
-        ]
-      : []),
-    {
-      path: detailPath,
-      sha256: detail.sha256,
-      sizeBytes: detail.sizeBytes,
-      mediaType: "application/json",
-      sourceIds: [preparedFederal.source.id],
-    },
-  ];
+    synthetic: true,
+  });
+  const healthDocument = documents.get("source-health.json");
+  await writeArtifactDocuments({
+    documents,
+    outputDirectory: root,
+    projectRoot,
+  });
+
+  const manifest = JSON.parse(
+    await readFile(path.join(root, "manifest.json"), "utf8"),
+  );
+  if (!includeHealthAsset) {
+    manifest.assets = manifest.assets.filter(
+      ({ path: assetPath }) => assetPath !== "source-health.json",
+    );
+  }
   if (duplicateHealthAsset) {
-    assets.push(globalThis.structuredClone(assets[0]));
+    manifest.assets.push(
+      globalThis.structuredClone(
+        manifest.assets.find(
+          ({ path: assetPath }) => assetPath === "source-health.json",
+        ),
+      ),
+    );
   }
   if (unsafeAssetPath !== null) {
-    assets.push({
+    manifest.assets.push({
       path: unsafeAssetPath,
       sha256: "0".repeat(64),
       sizeBytes: 1,
@@ -243,18 +222,13 @@ async function createLastKnownGoodFixture({
       sourceIds: [],
     });
   }
-  const manifest = {
-    artifactType: "manifest",
-    schemaVersion: "1.0.0",
-    assets,
-  };
-
-  await mkdir(path.join(root, "details"), { recursive: true });
-  await Promise.all([
-    writeFile(path.join(root, "manifest.json"), JSON.stringify(manifest)),
-    writeFile(path.join(root, "source-health.json"), health.content),
-    writeFile(path.join(root, detailPath), detail.content),
-  ]);
+  if (!includeHealthAsset || duplicateHealthAsset || unsafeAssetPath !== null) {
+    manifest.buildId = deriveBuildId(manifest.assets);
+    await writeFile(
+      path.join(root, "manifest.json"),
+      hashJson(manifest).content,
+    );
+  }
 
   return {
     root,
@@ -929,7 +903,12 @@ test("last-known-good loader uses hash-verified health and detail bytes", async 
       preparedFederal.source.id,
     );
     assert.equal(loaded.records.length, 1);
-    assert.deepEqual(loaded.health, fixture.healthDocument.sources[0]);
+    assert.deepEqual(
+      loaded.health,
+      fixture.healthDocument.sources.find(
+        ({ sourceId }) => sourceId === preparedFederal.source.id,
+      ),
+    );
   } finally {
     await fixture.cleanup();
   }
@@ -962,7 +941,7 @@ test("last-known-good loader rejects tampered or unmanifested health", async () 
   try {
     await assert.rejects(
       loadLastKnownGoodSource(unmanifested.root, preparedFederal.source.id),
-      /does not hash source-health\.json/,
+      /lacks required asset: source-health\.json/,
     );
   } finally {
     await unmanifested.cleanup();
