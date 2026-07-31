@@ -47,7 +47,19 @@ keep the Register's scheduled publication date separate from online
 availability and do not treat the Governor's current-term index as a complete
 historical archive. The registry-version change intentionally makes an older
 artifact ineligible for last-known-good reuse until it has been rebuilt
-against the exact current source registry. The
+against the exact current source registry.
+
+The
+Register issue index cannot populate the record schema's required exact title
+or reliably populate the issuing body: the observed `26-14` index has no title
+column, and all 22 duplicate identifier groups disagree under their displayed
+or inherited agency contexts. Identifier-only titles and guessed agency
+selection are forbidden. The source remains `adapter: null` until a separately
+reviewed bounded filing-page contract supplies exact values while excluding
+raw bodies, contacts, hearing credentials, unrelated free text, and land
+content.
+
+The
 Grants.gov entry is disabled with no adapter because its current terms and live
 contract canaries remain behind G-B-GRANTS. The Congress.gov entry is likewise
 disabled with no adapter because registration, key handling, runtime-host

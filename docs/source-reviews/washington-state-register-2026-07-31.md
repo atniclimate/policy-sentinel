@@ -2,14 +2,14 @@
 
 Accessed: 2026-07-31
 
-Implementation state: researched in source-registry 1.9.0; registered disabled
-with `adapter: null`; no production records
+Implementation state: evidence-blocked in source-registry 1.9.0; registered
+disabled with `adapter: null`; no production records
 
 External authorization: none required for the reviewed public pages and files
 
-Activation state: closed. A narrow build-time metadata-and-links contract is
-plausible, but the repository does not yet contain its parser, transport,
-normalizer, health receipt, or last-known-good integration.
+Activation state: closed. The reviewed issue index cannot supply exact record
+titles and has conflicting agency context for duplicate identifiers. A separate
+bounded filing-page contract is required before implementation.
 
 ## Primary sources
 
@@ -235,23 +235,48 @@ checksum-validated prior public shard; without one, omit it and mark it
 unavailable after activation. Disabled sources do not appear in public
 coverage or health.
 
+## Bounded issue observation and resulting block
+
+One aggregate-only observation of the latest calendar-eligible issue used the
+exact official `26-14` issue URL on 2026-07-31. The response was exact-URL HTTP
+200 `text/html` with no content encoding, 72,312 declared and received bytes in
+five chunks, and observation-only SHA-256
+`762f18ab87cddfd8bf3b1b582f0b4b5af92f35554b5f82be6493567e7bf11f10`.
+The inert `parse5` observation counted 2,031 DOM nodes, 2,071 attributes,
+maximum depth 11, 5,397 text code units, and nine HTML parse errors.
+
+The candidate issue table had 149 rows, including 147 filing rows, and exactly
+five columns. Its header was a blank first cell followed by `Agency`, `Filing
+(htm)`, `Filing (pdf)`, and `Type`. It supplied no record title or heading.
+The rows contained 123 unique exact WSR identifiers. Twenty-two identifier
+groups covered 46 duplicate rows; every one of those groups disagreed under the
+displayed or inherited agency context, although the type agreed. Two rows were
+holdovers whose identifiers name an earlier issue. The inspected
+`26-13-101` filing page contained only a Reviser's Note directing the material
+to issue `26-14`.
+
+The issue index therefore cannot populate the required exact title or reliably
+select an exact agency without invention. Fetching individual filing HTML
+could potentially supply those fields, but this issue alone would require as
+many as 123 additional privacy-sensitive page requests. No numeric provider
+request limit is published, and the repository has not reviewed a filing-page
+DOM grammar, total byte/request budget, heading/agency reconciliation rule,
+Reviser's Note variants, or complete exclusion behavior for contact, free-text,
+hearing-credential, and land content. No raw HTML or PDF was retained, no PDF
+body was requested, and no adapter or parser scaffold was created.
+
 ## Implementation decision
 
-The smallest defensible next increment is a current-calendar, published-issue,
-metadata-and-links contract for issue `05-19` or later. Synthetic tests must
-cover at least:
-
-- a published issue and a future-but-online issue;
-- duplicate and conflicting duplicate WSR rows;
-- a letter-suffixed identifier;
-- an optional filing timestamp;
-- a holdover filing whose ID names another issue;
-- a Reviser's Note or incomplete rendition;
-- explicit and absent source relationships;
-- a `MISC` Governor record that is not an executive order;
-- unsafe hosts, plaintext links, unknown types, malformed dates, and
-  byte/item/time limits; and
-- complete privacy-field and raw-body exclusion.
+Implementation is blocked on a separately reviewed, bounded filing-metadata
+contract. That contract must establish exact structurally supplied headings,
+exact agency selection and duplicate reconciliation, letter-suffixed identity,
+holdover and Reviser's Note behavior, field-specific date/form/relationship
+semantics, official-link validation, privacy drift rejection, and whole-refresh
+atomicity. It must also declare fixed issue, filing-page, byte, chunk,
+concurrency, request-count, and deadline limits before any live multi-page
+retrieval. Synthetic tests must cover every accepted and rejected condition.
+An index-only adapter must not synthesize titles, choose among conflicting
+agency labels, or emit identifier-only records.
 
 The uniform 1978-present PDF/OCR problem, complete correction history, stable
 agency identity, full-text rights, and complete executive-order recognition

@@ -178,6 +178,17 @@ them. One bounded aggregate-only implementation check on 2026-07-31 matched
 Activation remains closed until a separately reviewed continuous official-link
 health step and the exact later activation gate are approved.
 
+The Register's issue index is not itself a sufficient normalized-record
+contract. A bounded observation of eligible issue `26-14` found 147 filing rows
+and 123 unique identifiers, with 22 duplicate groups whose displayed or
+inherited agency contexts all disagreed. The five-column index has no exact
+record title. An index-only adapter would therefore have to invent a required
+title and choose among conflicting agency labels. The Register remains
+`adapter: null` until a separate filing-page contract fixes the maximum issue,
+request, byte, chunk, concurrency, and deadline budgets and validates exact
+headings, agencies, duplicate and holdover behavior, Reviser's Notes,
+relationships, privacy exclusion, and atomic failure.
+
 The Register and Governor sources must have separate adapters, health receipts,
 and last-known-good shards from each other and from Washington LWS. A Register
 refresh may select only issues whose official annual calendar publication date
