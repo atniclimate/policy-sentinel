@@ -1,0 +1,24 @@
+{
+  "TST-UNLABELED-DOCKET": [
+    {
+      "document_number": "TST-2026-00002",
+      "relationship_type": null,
+      "html_url": "/d/TST-2026-00002",
+      "action": "Synthetic withdrawal notice.",
+      "publication_date": "2026-07-31",
+      "title": "Synthetic Notice Withdrawal",
+      "docket_number": "TST-UNLABELED-DOCKET"
+    }
+  ],
+  "TST-LABELED-DOCKET": [
+    {
+      "document_number": "TST-2026-00002",
+      "relationship_type": "rule_progression",
+      "html_url": "/d/TST-2026-00002",
+      "action": "Synthetic withdrawal notice.",
+      "publication_date": "2026-07-31",
+      "title": "Synthetic Notice Withdrawal",
+      "docket_number": "TST-LABELED-DOCKET"
+    }
+  ]
+}

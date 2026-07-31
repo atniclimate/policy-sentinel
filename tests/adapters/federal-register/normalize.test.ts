@@ -8,6 +8,7 @@ import correctionFixture from "../../../fixtures/sources/federal-register/docume
 import historicalFixture from "../../../fixtures/sources/federal-register/document-historical.valid.json";
 import originalFixture from "../../../fixtures/sources/federal-register/document-original.valid.json";
 import withdrawalFixture from "../../../fixtures/sources/federal-register/document-withdrawal.valid.json";
+import mixedLabelRelatedDocuments from "../../../fixtures/sources/federal-register/related-documents-mixed-label.valid.json";
 import recordSchema from "../../../schemas/record.schema.v1.json";
 import {
   FEDERAL_REGISTER_ADAPTER_ID,
@@ -284,6 +285,33 @@ describe("Federal Register normalization", () => {
         ({ field }) => field === "/sourceDocumentRelationships/0/sourceLabel",
       )?.sourcePath,
     ).toBe('$.related_documents["AAA-ALTERNATE-DOCKET"][0].relationship_type');
+  });
+
+  it("uses the explicit relationship when a duplicate docket match is unlabeled", () => {
+    const source = configuredSource();
+    const candidate = structuredClone(withdrawalFixture) as unknown as {
+      related_documents: Record<string, Array<Record<string, unknown>>>;
+    };
+    candidate.related_documents = mixedLabelRelatedDocuments;
+
+    const record = normalizeFederalRegisterDocument(
+      parseFederalRegisterDocument(candidate),
+      normalizationInput(source),
+    );
+
+    expect(record.sourceDocumentRelationships).toEqual([
+      {
+        relationshipType: "related_document",
+        targetSourceRecordId: "TST-2026-00002",
+        targetUrl: "https://www.federalregister.gov/d/TST-2026-00002",
+        sourceLabel: "rule_progression",
+      },
+    ]);
+    expect(
+      record.fieldProvenance.find(
+        ({ field }) => field === "/sourceDocumentRelationships/0/sourceLabel",
+      )?.sourcePath,
+    ).toBe('$.related_documents["TST-LABELED-DOCKET"][0].relationship_type');
   });
 
   it("keeps historical missing-PDF and raw-name-only agency fields truthful", () => {

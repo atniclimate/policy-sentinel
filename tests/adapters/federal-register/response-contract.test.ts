@@ -8,6 +8,7 @@ import facetFixture from "../../../fixtures/sources/federal-register/facet-daily
 import issueFixture from "../../../fixtures/sources/federal-register/issue-duplicates.valid.json";
 import historicalIssueFixture from "../../../fixtures/sources/federal-register/issue-historical.valid.json";
 import openApiFixture from "../../../fixtures/sources/federal-register/openapi-projection.valid.json";
+import mixedLabelRelatedDocuments from "../../../fixtures/sources/federal-register/related-documents-mixed-label.valid.json";
 import emptySearchFixture from "../../../fixtures/sources/federal-register/search-empty.valid.json";
 import { describe, expect, it } from "vitest";
 
@@ -197,6 +198,20 @@ describe("Federal Register response contract", () => {
       ]?.[0]?.document_number,
     ).toBe("TST-2026-00002");
 
+    const duplicateInLaterGroup = structuredClone(repeatedTarget);
+    const duplicateGroups = duplicateInLaterGroup.related_documents as Record<
+      string,
+      Array<Record<string, unknown>>
+    >;
+    const laterGroup = duplicateGroups["TST-ALTERNATE-DOCKET"];
+    if (laterGroup?.[0] === undefined) {
+      throw new Error("Synthetic repeated target is missing");
+    }
+    laterGroup.push(structuredClone(laterGroup[0]));
+    expect(() =>
+      parseFederalRegisterDocument(duplicateInLaterGroup),
+    ).toThrowError(/metadata differs across docket groups/);
+
     const conflictingTarget = structuredClone(repeatedTarget);
     const conflictingRelatedDocuments =
       conflictingTarget.related_documents as Record<
@@ -211,6 +226,30 @@ describe("Federal Register response contract", () => {
     conflicting.title = "Conflicting target title";
     expect(() => parseFederalRegisterDocument(conflictingTarget)).toThrowError(
       /metadata differs across docket groups/,
+    );
+
+    const conflictingLabel = structuredClone(repeatedTarget);
+    const conflictingLabelGroups = conflictingLabel.related_documents as Record<
+      string,
+      Array<Record<string, unknown>>
+    >;
+    const conflictingLabelTarget =
+      conflictingLabelGroups["TST-ALTERNATE-DOCKET"]?.[0];
+    if (conflictingLabelTarget === undefined) {
+      throw new Error("Synthetic repeated target is missing");
+    }
+    conflictingLabelTarget.relationship_type = "rule_progression";
+    expect(() => parseFederalRegisterDocument(conflictingLabel)).toThrowError(
+      /metadata differs across docket groups/,
+    );
+  });
+
+  it("preserves an unlabeled docket match alongside its explicit relationship", () => {
+    const mixedLabel = cloneObject(withdrawalFixture);
+    mixedLabel.related_documents = mixedLabelRelatedDocuments;
+
+    expect(parseFederalRegisterDocument(mixedLabel).related_documents).toEqual(
+      mixedLabelRelatedDocuments,
     );
   });
 

@@ -497,7 +497,10 @@ function parseRelatedDocuments(
   const result: FederalRegisterRelatedDocuments = {};
   const seenIds = new Map<
     string,
-    { docketLabel: string; document: FederalRegisterRelatedDocument }
+    {
+      docketLabels: Set<string>;
+      document: FederalRegisterRelatedDocument;
+    }
   >();
   if (Object.keys(parsed).length > 1_000) {
     fail("limit_exceeded", path, "too many related-document groups");
@@ -519,10 +522,15 @@ function parseRelatedDocuments(
     }
     for (const document of documents) {
       const previous = seenIds.get(document.document_number);
+      const relationshipTypesConflict =
+        previous !== undefined &&
+        previous.document.relationship_type !== null &&
+        document.relationship_type !== null &&
+        previous.document.relationship_type !== document.relationship_type;
       if (
         previous !== undefined &&
-        (previous.docketLabel === docketLabel ||
-          previous.document.relationship_type !== document.relationship_type ||
+        (previous.docketLabels.has(docketLabel) ||
+          relationshipTypesConflict ||
           previous.document.html_url !== document.html_url ||
           previous.document.action !== document.action ||
           previous.document.publication_date !== document.publication_date ||
@@ -535,7 +543,18 @@ function parseRelatedDocuments(
         );
       }
       if (previous === undefined) {
-        seenIds.set(document.document_number, { docketLabel, document });
+        seenIds.set(document.document_number, {
+          docketLabels: new Set([docketLabel]),
+          document,
+        });
+      } else {
+        previous.docketLabels.add(docketLabel);
+        if (
+          previous.document.relationship_type === null &&
+          document.relationship_type !== null
+        ) {
+          previous.document = document;
+        }
       }
     }
     result[docketLabel] = documents;
