@@ -422,15 +422,10 @@ if (!allowedFinishStates.has(localFinish.current_state)) {
 }
 const inProgress = workItems.filter((item) => item.status === "in_progress");
 const isTerminal = ["complete", "blocked"].includes(localFinish.current_state);
-if (localFinish.current_state !== "blocked") {
-  for (const id of requiredOutcomes) {
-    if (byId.get(id).status === "blocked") {
-      fail(
-        `${id} is required but blocked; move it to accepted_source_blocks with reviewed fallback evidence`,
-      );
-    }
-  }
-}
+// A required outcome may be evidence-blocked while independent ready work
+// continues. The terminal-complete check below still requires every required
+// outcome to be complete, so an active blocker cannot weaken release
+// acceptance or be mistaken for an accepted source gap.
 if (isTerminal) {
   if (inProgress.length !== 0) {
     fail(

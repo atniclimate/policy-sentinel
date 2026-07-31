@@ -244,6 +244,14 @@ gates:
     resolution: >-
       All locally executable required items and release checks pass; blocked
       sources and external publication remain visibly disclosed.
+  - id: G-LOCAL-BROWSER
+    name: Built-app browser evidence
+    state: pending_evidence
+    resolution: >-
+      Satisfy when the in-app Browser backend is available and the required
+      desktop and mobile built-artifact interaction, accessibility, and
+      same-origin network smoke passes. This is an environment evidence gate,
+      not an authorization or owner-approval gate.
 
 baseline:
   phase_a_commit: e22512e
@@ -292,14 +300,13 @@ baseline:
       detail: single-Nation synthetic flow only
 
 current_focus:
-  work_item: B4-FR-UX
+  work_item: B4-GRANTS-RESEARCH
   objective: >-
-    Reconcile the complete July Federal Register artifact evidence and rerun the
-    integrated repository checks, then preserve the unavailable built-app
-    desktop/mobile browser smoke as the only remaining B4-FR-UX blocker. Keep
-    the source disabled and do not claim this item complete until that smoke
-    runs.
-  last_durable_checkpoint: a57f0d4
+    Reconfirm the current official Grants.gov no-registration API, fields,
+    limits, attribution, cadence, historical coverage, reuse terms, and failure
+    behavior. If current primary evidence requires registration, credentials, or
+    a new terms action, record the exact block and continue without evasion.
+  last_durable_checkpoint: 6d0b6b9
   resume_command: npm run check
 
 completion_scope:
@@ -308,7 +315,9 @@ completion_scope:
       Every required outcome must be complete. A source in
       accepted_source_blocks may be complete if its gate later opens, or remain
       blocked with evidence and a truthful public fallback. Publication is
-      evaluated separately.
+      evaluated separately. During active execution, a required outcome may be
+      evidence-blocked while independent ready work proceeds, but it still must
+      be complete before the local release candidate can be complete.
     required_outcomes:
       - A-FOUNDATION
       - H-HANDOFF
@@ -614,9 +623,11 @@ work_items:
     priority: 42
     milestone: B4
     title: Federal Register artifact and UI integration
-    status: in_progress
+    status: blocked
     dependencies:
       - B4-FR-ADAPTER
+    blocked_by:
+      - G-LOCAL-BROWSER
     acceptance:
       - Compact index and on-demand details stay within measured budgets.
       - Coverage, historical range, freshness, health, why-shown, and
@@ -705,14 +716,29 @@ work_items:
         manifest, and coverage assets, contained no Federal Register provider
         API reference, and left no listener. Automated axe and keyboard tests
         passed, but the required in-app browser backend was not available, so
-        the desktop/mobile built-app smoke remains pending and this item stays
-        in progress.
+        the desktop/mobile built-app smoke remains pending.
+      - >-
+        The browser:control-in-app-browser skill found no available in-app
+        Browser backend on 2026-07-31. Its contract prohibits substituting the
+        unrelated Chrome extension without explicit user authorization.
+    safe_fallback: >-
+      Keep Federal Register disabled and publish no production provider records.
+      Preserve the validated local adapter, artifact, automated accessibility,
+      static-preview, and source-call evidence without claiming the required
+      built-app desktop/mobile smoke passed.
+    unblocks_only_when: >-
+      The in-app Browser backend is available and the built package passes
+      desktop and mobile coverage, detail, Unclassified, dossier, CSV, keyboard,
+      accessibility, and same-origin network smoke.
+    next_step: >-
+      Re-run the in-app Browser skill when its backend becomes available; do not
+      substitute another browser-control surface without user authorization.
 
   - id: B4-GRANTS-RESEARCH
     priority: 43
     milestone: B4
     title: Reconfirm Grants.gov official no-registration contract
-    status: ready
+    status: in_progress
     dependencies:
       - B3-PIPELINE
     acceptance:
@@ -1365,7 +1391,7 @@ source_register:
     public_claim: no live publication
   - id: SRC-FEDERAL-REGISTER
     source: Federal Register
-    implementation_state: adapter_validated_browser_smoke_pending
+    implementation_state: adapter_validated_browser_environment_blocked
     work_items:
       - B4-FR-RESEARCH
       - B4-FR-ADAPTER
@@ -1373,7 +1399,7 @@ source_register:
     public_claim: no production records yet
   - id: SRC-GRANTS
     source: Grants.gov
-    implementation_state: ready_for_reverification
+    implementation_state: contract_reverification_in_progress
     work_items:
       - B4-GRANTS-RESEARCH
       - B4-GRANTS-ADAPTER
@@ -1508,22 +1534,22 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B4-FR-UX
-    action: >-
-      With the in-app browser available, run desktop and mobile built-artifact
-      coverage, detail, Unclassified, dossier, CSV, keyboard, accessibility, and
-      same-origin network checks; keep the source disabled, then close the item
-      only if every state is truthful.
-  - order: 2
     work_item: B4-GRANTS-RESEARCH
     action: >-
-      Reconfirm the Grants.gov no-registration contract after the Federal
-      Register vertical slice.
-  - order: 3
+      Reconfirm the official no-registration API contract, fields, limits,
+      attribution, cadence, historical coverage, reuse terms, and failure
+      behavior from current primary documentation.
+  - order: 2
     work_item: B4-GRANTS-ADAPTER
     action: >-
-      Implement the Grants.gov adapter only after its current no-registration
-      contract and required attribution are revalidated.
+      Implement the adapter only after the current contract and required
+      attribution pass review; keep eligibility general and source-defined.
+  - order: 3
+    work_item: B4-FR-UX
+    action: >-
+      When the in-app Browser backend becomes available, run the required
+      Federal Register desktop/mobile built-artifact smoke and close the item
+      only if every state is truthful.
 
 finish_states:
   local_release_candidate:
