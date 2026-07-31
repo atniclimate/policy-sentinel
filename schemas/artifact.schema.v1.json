@@ -108,7 +108,7 @@
           "const": "1.0.0"
         },
         "artifactVersion": {
-          "const": "1.0.0"
+          "enum": ["1.0.0", "1.1.0"]
         },
         "buildId": {
           "type": "string",
@@ -217,16 +217,9 @@
             "additionalProperties": false,
             "required": [
               "sourceId",
-              "sourceName",
-              "provider",
               "jurisdiction",
               "from",
               "through",
-              "documentedFrom",
-              "documentedThrough",
-              "recordFrom",
-              "recordThrough",
-              "recordCount",
               "cadence",
               "recordTypes",
               "status",
@@ -838,6 +831,10 @@
           "type": "string",
           "pattern": "^details/[A-Za-z0-9_-]+\\.json$"
         },
+        "sourceDocumentIdentifier": {
+          "type": "string",
+          "minLength": 1
+        },
         "officialTitle": {
           "type": "string",
           "minLength": 1
@@ -848,6 +845,13 @@
         },
         "jurisdiction": {
           "$ref": "#/$defs/indexJurisdiction"
+        },
+        "issuingBodies": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         },
         "status": {
           "type": "object"
@@ -872,6 +876,16 @@
         },
         "dates": {
           "type": "object"
+        },
+        "urls": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["officialSource"],
+          "properties": {
+            "officialSource": {
+              "$ref": "#/$defs/httpsUrl"
+            }
+          }
         },
         "taxonomyMemberships": {
           "type": "array",

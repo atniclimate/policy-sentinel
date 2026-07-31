@@ -641,7 +641,7 @@ export function createArtifactDocuments({
   const manifest = {
     artifactType: "manifest",
     schemaVersion: "1.0.0",
-    artifactVersion: "1.0.0",
+    artifactVersion: "1.1.0",
     buildId: deriveBuildId(assets),
     generatedAt: normalizedGeneratedAt,
     dataAsOf: maxDataAsOf(records, normalizedGeneratedAt),

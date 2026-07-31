@@ -399,7 +399,7 @@ export interface ArtifactAsset {
 export interface ArtifactManifest {
   artifactType: "manifest";
   schemaVersion: typeof ARTIFACT_SCHEMA_VERSION;
-  artifactVersion: "1.0.0";
+  artifactVersion: "1.0.0" | "1.1.0";
   buildId: string;
   generatedAt: IsoDateTime;
   dataAsOf: IsoDateTime;

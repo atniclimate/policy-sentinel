@@ -1007,6 +1007,7 @@ test("artifact packaging is deterministic, compact, and detail-sharded", () => {
   const first = createArtifactDocuments(input);
   const second = createArtifactDocuments(input);
   assert.deepEqual(first.get("manifest.json"), second.get("manifest.json"));
+  assert.equal(first.get("manifest.json").artifactVersion, "1.1.0");
   assert.equal(first.get("manifest.json").recordSchemaVersion, "1.1.0");
   assert.equal(first.get("manifest.json").nationCount, 575);
   assert.equal(first.get("manifest.json").recordCount, 2);
