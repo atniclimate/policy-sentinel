@@ -307,15 +307,15 @@ baseline:
 current_focus:
   work_item: B5-WA-LWS-ADAPTER
   objective: >-
-    Implement and independently review an aggregate-only no-auth Washington LWS
-    canary observer, then run only the minimum sequential one-attempt canaries
-    needed to validate SOAP 1.1 binding, sparse/fault behavior, response
-    identity echoes, date semantics, and document-link hosts. Retain no provider
-    response, normalize no record, keep the source disabled, and establish
-    complete-refresh discovery before provenance, health, or last-known-good
-    work.
-  last_durable_checkpoint: 284711c
-  resume_command: npm run check
+    Run exactly one command-gated, aggregate-only, no-auth GetLegislation canary
+    for the fixed reviewed known-bill input. Do not retry or persist provider
+    content. Record the single aggregate outcome, keep the source disabled, and
+    use that evidence to choose the next minimum contract question before any
+    additional source request.
+  last_durable_checkpoint: 7c0dd5d
+  resume_command: >-
+    npm run --silent source:wa-lws:canary -- --execute --scenario
+    known_bill_legislation_v1
 
 completion_scope:
   local_release_candidate:
@@ -1215,10 +1215,36 @@ work_items:
         remediation, final re-review reported no remaining high- or
         medium-severity finding.
       - >-
-        This remains in progress: no LWS bill/data operation or provider
-        response has been used, source-registry 1.7.0 retains adapter null, and
-        live range/shape/fault/link/identity evidence, complete refresh
-        discovery, PolicyRecord normalization/provenance, source health, and
+        Local commit 7c0dd5d adds the manual aggregate-only observer for one
+        internally fixed, officially verified GetLegislation known-bill input.
+        Its exact-argument command gate is the only path to a module-private
+        scenario executor, permits at most one actual request with no retry, and
+        is absent from the general contract barrel and all build, check, and
+        lifecycle scripts.
+      - >-
+        The observer clones its closed aggregate report to plain data before
+        exact-key runtime validation and serialization. It exposes only
+        repository enums, a truthful zero-or-one request count, numeric/null
+        status and byte aggregates, bounded item/top-level-optional/date-shape
+        counts and booleans, and a timing bucket; provider records, strings,
+        exact dates, URLs, raw XML, errors, and persistence paths are excluded.
+      - >-
+        Full npm run check passed on 2026-07-31 with 31 Vitest files and 456
+        tests, formatting, lint, type checking, roadmap validation,
+        source-boundary scanning, a synthetic-only production build, and
+        artifact validation at 2 records, 575 Nations, and 7 verified assets.
+      - >-
+        Three independent reviews covered the fixed canary input, command gate,
+        request-attempt accuracy, resource and privacy boundaries, hostile
+        serialization, launcher environment isolation, repository integration,
+        and documentation. After remediation, every re-review reported no
+        remaining high- or medium-severity finding.
+      - >-
+        This remains in progress: the observer is complete, but no LWS
+        bill/data operation or provider response has yet been used.
+        Source-registry 1.7.0 retains adapter null, and live
+        range/shape/fault/link/identity evidence, complete refresh discovery,
+        PolicyRecord normalization/provenance, source health, and
         checksum-validated last-known-good behavior remain unimplemented.
 
   - id: B5-WA-RULES
@@ -1732,7 +1758,7 @@ source_register:
   - id: SRC-WA-LWS
     source: Washington Legislative Web Services
     implementation_state: >-
-      known_bill_contract_and_bounded_transport_complete_adapter_in_progress
+      known_bill_contract_transport_and_canary_observer_complete_adapter_in_progress
     work_items:
       - B5-WA-LWS-RESEARCH
       - B5-WA-LWS-ADAPTER
@@ -1841,11 +1867,10 @@ next_actions:
   - order: 1
     work_item: B5-WA-LWS-ADAPTER
     action: >-
-      Implement and adversarially review an aggregate-only no-auth canary
-      observer, then run only the minimum sequential one-attempt canaries needed
-      to resolve the selected SOAP binding, sparse/fault behavior, response
-      identity echoes, dates, and document-link hosts. Do not retain a provider
-      response or normalize records. Establish complete refresh discovery before
+      Run exactly one aggregate-only GetLegislation canary for the fixed reviewed
+      known-bill input. Do not retry or retain provider content. Record the
+      aggregate outcome, then choose the next minimum contract question before
+      any further source request; establish complete refresh discovery before
       provenance, health, or last-known-good implementation.
   - order: 2
     work_item: B5-WA-ACCORDS
