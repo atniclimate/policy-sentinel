@@ -307,15 +307,13 @@ baseline:
 current_focus:
   work_item: B5-WA-LWS-ADAPTER
   objective: >-
-    Run exactly one command-gated, aggregate-only, no-auth GetLegislation canary
-    for the fixed reviewed known-bill input. Do not retry or persist provider
-    content. Record the single aggregate outcome, keep the source disabled, and
-    use that evidence to choose the next minimum contract question before any
-    additional source request.
-  last_durable_checkpoint: 7c0dd5d
-  resume_command: >-
-    npm run --silent source:wa-lws:canary -- --execute --scenario
-    known_bill_legislation_v1
+    Prove offline that the six reviewed point/enrichment operations cannot
+    discover a complete bill population or provide a unified mutation feed, then
+    select and synthetic-contract one separately reviewed population enumeration
+    operation before any further live source request. Keep the source disabled
+    and do not infer completeness from the successful known-bill exchange.
+  last_durable_checkpoint: a685290
+  resume_command: npm run check
 
 completion_scope:
   local_release_candidate:
@@ -1240,12 +1238,27 @@ work_items:
         and documentation. After remediation, every re-review reported no
         remaining high- or medium-severity finding.
       - >-
-        This remains in progress: the observer is complete, but no LWS
-        bill/data operation or provider response has yet been used.
-        Source-registry 1.7.0 retains adapter null, and live
-        range/shape/fault/link/identity evidence, complete refresh discovery,
-        PolicyRecord normalization/provenance, source health, and
-        checksum-validated last-known-good behavior remain unimplemented.
+        The fixed canary ran once on 2026-07-31 with one request and no retry.
+        It reported HTTP 200 in under one second, equal declared and received
+        lengths of 1,877 bytes, one present result, accepted reviewed identity
+        echoes, one null and nine valued top-level optional fields, and two
+        timezone-absent, non-fractional date lexemes. No raw XML, typed response
+        item, provider string, exact provider date, request content, or error
+        detail was printed or persisted.
+      - >-
+        Local commit a685290 records the bounded result and its limitations.
+        Independent privacy re-review confirmed the aggregates match the run,
+        leak no provider/private content or exact response date, and do not
+        overclaim date meaning, requiredness, uniqueness, ordering, faults,
+        other bindings, historical range, discovery, or completeness.
+      - >-
+        This remains in progress: only one known-bill operation has live
+        aggregate evidence. Source-registry 1.7.0 retains adapter null, and the
+        six reviewed point/enrichment operations do not establish population
+        discovery or a unified mutation feed. Further contract evidence,
+        complete refresh discovery, PolicyRecord normalization/provenance,
+        source health, and checksum-validated last-known-good behavior remain
+        unimplemented.
 
   - id: B5-WA-RULES
     priority: 62
@@ -1758,7 +1771,7 @@ source_register:
   - id: SRC-WA-LWS
     source: Washington Legislative Web Services
     implementation_state: >-
-      known_bill_contract_transport_and_canary_observer_complete_adapter_in_progress
+      first_known_bill_canary_complete_refresh_discovery_contract_in_progress
     work_items:
       - B5-WA-LWS-RESEARCH
       - B5-WA-LWS-ADAPTER
@@ -1867,11 +1880,11 @@ next_actions:
   - order: 1
     work_item: B5-WA-LWS-ADAPTER
     action: >-
-      Run exactly one aggregate-only GetLegislation canary for the fixed reviewed
-      known-bill input. Do not retry or retain provider content. Record the
-      aggregate outcome, then choose the next minimum contract question before
-      any further source request; establish complete refresh discovery before
-      provenance, health, or last-known-good implementation.
+      Record an exact offline capability matrix proving the six reviewed
+      operations are point/enrichment calls, not population discovery or a
+      unified mutation feed. Select and synthetic-contract one separately
+      reviewed population enumeration operation before any further source
+      request; do not scan numeric bill ranges.
   - order: 2
     work_item: B5-WA-ACCORDS
     action: >-
