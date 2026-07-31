@@ -3,7 +3,7 @@
 Accessed: 2026-07-31
 
 Implementation state: contract and adapter 1.0 implemented in source-registry
-1.10.0; registered disabled; no production records
+1.11.0; registered disabled; no production records
 
 External authorization: none required for the reviewed public index and files
 
@@ -305,7 +305,7 @@ transport matched 14 rows, earliest issued date 2025-01-15 and latest
 HTML or bytes.
 
 The historical 534-row view remains a separately bounded future increment.
-Registry 1.10.0 retains adapter 1.0 but keeps the source disabled. Before
+Registry 1.11.0 retains adapter 1.0 but keeps the source disabled. Before
 activation, add and review a bounded continuous official-PDF link-health
 operation; structural URL validation alone is not a current reachability
 claim.

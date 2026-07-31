@@ -1,7 +1,7 @@
 {
   "$schema": "../schemas/source.schema.v1.json",
   "schemaVersion": "1.3.0",
-  "registryVersion": "1.10.0",
+  "registryVersion": "1.11.0",
   "generatedDataPolicy": "artifact-only",
   "sources": [
     {
@@ -502,6 +502,96 @@
           "/jurisdiction/name",
           "/status/sourceLabel",
           "/urls/officialSource"
+        ]
+      },
+      "officialSubjectMappings": []
+    },
+    {
+      "id": "doi-ibia-decisions",
+      "name": "Interior Board of Indian Appeals Decisions",
+      "provider": "U.S. Department of the Interior, Office of Hearings and Appeals",
+      "synthetic": false,
+      "enabled": false,
+      "adapter": null,
+      "jurisdiction": {
+        "level": "federal",
+        "name": "United States",
+        "stateCode": null
+      },
+      "access": {
+        "method": "official_index",
+        "officialDocumentationUrl": "https://www.doi.gov/oha/organization/ibia/Chronological-Index-of-Decisions",
+        "accessedOn": "2026-07-31",
+        "allowedHosts": ["www.doi.gov", "www.oha.doi.gov"],
+        "authentication": "none",
+        "rateLimit": "DOI publishes no numeric limit for the index and specifies Crawl-delay: 1. The linked OHA decision host disallows every automated path in robots.txt, so an adapter may not fetch the decision search application or PDFs. The index has no documented API, pagination, retry, SLA, checksum, or update schedule.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": "1970-08-13",
+        "through": null,
+        "cadence": "The chronological index has no documented update cadence and DOI warns that it may lag the separate IBIA Decisions database; Policy Sentinel remains weekly and build-time only.",
+        "limitations": "The official database is described as 1970-present, while pre-1970 decisions are a separate incomplete physical collection. Year tables expose only caption, decision date, reporter citation, and a linked document. They omit docket, exact disposition or document type, reconsideration and supersession, and judicial-review state. Captions include personal and probate names, and decision bodies can contain prohibited land, probate, ownership, mineral, and governance-dispute detail. Every observed PDF is on the robots-disallowed OHA host. Broad adapter implementation is blocked."
+      },
+      "publication": {
+        "attribution": "U.S. Department of the Interior, Office of Hearings and Appeals, Interior Board of Indian Appeals",
+        "termsUrl": "https://www.doi.gov/copyright",
+        "reproduction": "metadata_and_links",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/status/sourceLabel",
+          "/urls/officialSource"
+        ]
+      },
+      "officialSubjectMappings": []
+    },
+    {
+      "id": "supreme-court-opinions-curated",
+      "name": "Curated U.S. Supreme Court Opinions",
+      "provider": "Supreme Court of the United States",
+      "synthetic": false,
+      "enabled": false,
+      "adapter": null,
+      "jurisdiction": {
+        "level": "federal",
+        "name": "United States",
+        "stateCode": null
+      },
+      "access": {
+        "method": "official_index",
+        "officialDocumentationUrl": "https://www.supremecourt.gov/opinions/slipopinion/18",
+        "accessedOn": "2026-07-31",
+        "allowedHosts": ["www.supremecourt.gov"],
+        "authentication": "none",
+        "rateLimit": "The Court publishes no numeric request limit, API, retry rule, SLA, or checksum. Its robots.txt permits the opinion-index path and specifies Crawl-delay: 1. A first adapter is limited to one exact, no-retry term-index GET and must not fetch the linked full bound-volume PDF.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": "2019-03-19",
+        "through": "2019-03-19",
+        "cadence": "One fixed, already-bound opinion-index row is checked weekly and build-time only; this is not a current slip-opinion feed.",
+        "limitations": "The first selected scope is only Washington State Dept. of Licensing v. Cougar Den, Inc., docket 16-1498, decided 2019-03-19, citation 586 U.S. 347, not complete Supreme Court or U.S. Reports coverage. The exact current row links to the entire bound Volume 586 rather than an individual case PDF. The current record model cannot yet preserve court, docket, reporter citation, decision date, opinion type, and bound publication status separately, so the source remains adapter null. No Justice or author, syllabus, opinion text, counsel or personal names, facts, land detail, party inference, or Nation association may be retained."
+      },
+      "publication": {
+        "attribution": "Supreme Court of the United States",
+        "termsUrl": "https://www.supremecourt.gov/policies/web_policies_and_notices.aspx",
+        "reproduction": "metadata_and_links",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/issuingBodies",
+          "/status/sourceLabel",
+          "/status/asOf",
+          "/dates/lastAction",
+          "/urls/officialSource",
+          "/urls/officialFullText"
         ]
       },
       "officialSubjectMappings": []

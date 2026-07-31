@@ -13,7 +13,7 @@ The Phase A contracts are:
 - [`source.schema.v1.json`](../schemas/source.schema.v1.json), compatible v1
   source-registry schema version `1.3.0`;
 - [`sources.v1.json`](../config/sources.v1.json), source registry version
-  `1.10.0`; and
+  `1.11.0`; and
 - [`artifact.schema.v1.json`](../schemas/artifact.schema.v1.json), static
   artifact schema version `1.0.0`.
 
@@ -23,7 +23,7 @@ evidence that a production source is enabled or a public dataset exists.
 taxonomy, and synthetic fixtures, and proves selected invalid governance cases
 are rejected.
 
-Source-registry version `1.10.0` distinguishes researched configuration,
+Source-registry version `1.11.0` distinguishes researched configuration,
 implemented adapters, and activation. A disabled source may have
 `adapter: null` or a versioned adapter that is not authorized to emit public
 records; an enabled source must have a versioned adapter. Every non-synthetic
@@ -201,6 +201,14 @@ by LWS operation or biennium. Until a versioned schema decision adds those
 dimensions, a required operation or biennium failure must conservatively
 omit/degrade Washington LWS as one source and source-contract evidence must not
 be forced into unrelated record fields.
+
+The normalized schema also lacks a first-class adjudicating body, docket,
+reporter citation, judicial decision date, opinion or order form, publication
+lifecycle, and revision/supersession review. Those values must not be coerced
+into issuing-body, identifier, publication, effectiveness, generic status, or
+free-text fields. Registry 1.11 therefore keeps the selected one-row Supreme
+Court source and the blocked DOI IBIA chronology disabled with `adapter: null`
+until a separately reviewed record-schema version preserves those roles.
 
 ## Record groups
 

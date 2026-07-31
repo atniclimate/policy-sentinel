@@ -148,7 +148,7 @@ document index that is neither an API, feed, nor bulk export and adds
 `official_page` for one bounded originating document page that is not an index.
 The independently registered `washington-state-register` and
 `washington-governor-executive-orders` sources use `official_index`; the
-Register still has `adapter: null`, while source-registry 1.10 retains the
+Register still has `adapter: null`, while source-registry 1.11 retains the
 Governor's versioned adapter descriptor without authorizing it to emit public
 records. `washington-centennial-accord` uses `official_page` and remains
 disabled with `adapter: null`. These methods describe reviewed access surfaces
@@ -203,6 +203,20 @@ evidence under a metadata-and-links-only publication policy. The source remains
 `adapter: null` until a versioned accord-specific model and UI preserve those
 roles without inference. Its exact official page supports only a planned
 general-jurisdiction landmark candidate with zero Nation associations.
+
+Court research is also source-specific. Registry 1.11 records the DOI IBIA
+chronology as a disabled gap because it can lag a separate search database,
+omits docket and decision-status relationships, includes privacy- and
+land-sensitive matters, and points to an OHA host that disallows automated
+access. The first selected court contract is instead one exact row on the
+Supreme Court's October Term 2018 index for
+`Washington State Dept. of Licensing v. Cougar Den, Inc.` The current official
+link targets the complete bound U.S. Reports volume at a case-page fragment, so
+a future adapter may retrieve only the bounded HTML index and must never fetch
+or copy the volume. It remains `adapter: null` until a versioned judicial
+context preserves adjudicating body, docket, reporter citation, decision date,
+document form, publication lifecycle, and revision review without overloading
+existing fields.
 
 The Register and Governor sources must have separate adapters, health receipts,
 and last-known-good shards from each other and from Washington LWS. A Register

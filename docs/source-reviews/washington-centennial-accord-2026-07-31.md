@@ -2,7 +2,7 @@
 
 Accessed: 2026-07-31
 
-Implementation state: researched in source-registry 1.10.0; registered disabled
+Implementation state: researched in source-registry 1.11.0; registered disabled
 with `adapter: null`; no production records
 
 External authorization: none required for the reviewed public pages
@@ -177,7 +177,7 @@ appears in no public coverage, health, record, or artifact.
 ## Implementation decision
 
 Source-registry schema 1.3 adds `official_page` for an originating official
-document page that is neither an API, feed, export, nor index. Registry 1.10
+document page that is neither an API, feed, export, nor index. Registry 1.11
 registers `washington-centennial-accord` independently, disabled with
 `adapter: null`, exact single-record coverage 1989-08-04, one runtime host,
 metadata-and-links reproduction, and no subject mapping.

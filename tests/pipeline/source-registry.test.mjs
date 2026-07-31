@@ -34,7 +34,7 @@ test("source registry records researched disabled production sources", () => {
   assert.equal(validateSources(sourceRegistry), true);
   assert.doesNotThrow(() => assertSourceRegistrySemantics(sourceRegistry));
   assert.equal(sourceRegistry.schemaVersion, "1.3.0");
-  assert.equal(sourceRegistry.registryVersion, "1.10.0");
+  assert.equal(sourceRegistry.registryVersion, "1.11.0");
 
   const federalRegister = sourceRegistry.sources.find(
     ({ id }) => id === "federal-register",
@@ -313,6 +313,85 @@ test("source registry records researched disabled production sources", () => {
   assert.match(
     washingtonCentennialAccord.coverage.limitations,
     /record model cannot preserve parties/,
+  );
+
+  const doiIbia = sourceRegistry.sources.find(
+    ({ id }) => id === "doi-ibia-decisions",
+  );
+  assert.deepEqual(
+    {
+      enabled: doiIbia.enabled,
+      synthetic: doiIbia.synthetic,
+      adapter: doiIbia.adapter,
+      accessedOn: doiIbia.access.accessedOn,
+      method: doiIbia.access.method,
+      authentication: doiIbia.access.authentication,
+      allowedHosts: doiIbia.access.allowedHosts,
+      coverageFrom: doiIbia.coverage.from,
+      coverageThrough: doiIbia.coverage.through,
+      termsUrl: doiIbia.publication.termsUrl,
+      reproduction: doiIbia.publication.reproduction,
+      officialSubjectMappings: doiIbia.officialSubjectMappings,
+    },
+    {
+      enabled: false,
+      synthetic: false,
+      adapter: null,
+      accessedOn: "2026-07-31",
+      method: "official_index",
+      authentication: "none",
+      allowedHosts: ["www.doi.gov", "www.oha.doi.gov"],
+      coverageFrom: "1970-08-13",
+      coverageThrough: null,
+      termsUrl: "https://www.doi.gov/copyright",
+      reproduction: "metadata_and_links",
+      officialSubjectMappings: [],
+    },
+  );
+  assert.match(doiIbia.coverage.limitations, /robots-disallowed OHA host/);
+  assert.match(doiIbia.coverage.limitations, /Broad adapter implementation/);
+
+  const supremeCourt = sourceRegistry.sources.find(
+    ({ id }) => id === "supreme-court-opinions-curated",
+  );
+  assert.deepEqual(
+    {
+      enabled: supremeCourt.enabled,
+      synthetic: supremeCourt.synthetic,
+      adapter: supremeCourt.adapter,
+      accessedOn: supremeCourt.access.accessedOn,
+      method: supremeCourt.access.method,
+      authentication: supremeCourt.access.authentication,
+      allowedHosts: supremeCourt.access.allowedHosts,
+      coverageFrom: supremeCourt.coverage.from,
+      coverageThrough: supremeCourt.coverage.through,
+      termsUrl: supremeCourt.publication.termsUrl,
+      reproduction: supremeCourt.publication.reproduction,
+      officialSubjectMappings: supremeCourt.officialSubjectMappings,
+    },
+    {
+      enabled: false,
+      synthetic: false,
+      adapter: null,
+      accessedOn: "2026-07-31",
+      method: "official_index",
+      authentication: "none",
+      allowedHosts: ["www.supremecourt.gov"],
+      coverageFrom: "2019-03-19",
+      coverageThrough: "2019-03-19",
+      termsUrl:
+        "https://www.supremecourt.gov/policies/web_policies_and_notices.aspx",
+      reproduction: "metadata_and_links",
+      officialSubjectMappings: [],
+    },
+  );
+  assert.match(
+    supremeCourt.coverage.limitations,
+    /only Washington State Dept\. of Licensing v\. Cougar Den, Inc\./,
+  );
+  assert.match(
+    supremeCourt.coverage.limitations,
+    /cannot yet preserve court, docket, reporter citation/,
   );
 });
 
