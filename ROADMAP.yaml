@@ -247,7 +247,7 @@ gates:
 
 baseline:
   phase_a_commit: e22512e
-  phase_b_checkpoint_commit: fbb54f1
+  phase_b_checkpoint_commit: 9fa517c
   verified_on: "2026-07-31"
   repository_state_at_checkpoint:
     remote: absent
@@ -263,7 +263,8 @@ baseline:
     pipeline: >-
       Versioned contracts, compact index and separate details, field provenance,
       source health, content hashes, and last-known-good behavior for synthetic
-      records.
+      records. Source-registry v1.1 records the researched Federal Register
+      contract as disabled and rejects disabled source IDs from artifacts.
   verification:
     - command: npm run check
       result: pass
@@ -281,12 +282,12 @@ baseline:
       detail: single-Nation synthetic flow only
 
 current_focus:
-  work_item: B4-FR-RESEARCH
+  work_item: B4-FR-ADAPTER
   objective: >-
-    Reconfirm the current Federal Register official API, fields, pagination,
-    slicing, limits, history, attribution, reproduction constraints, and
-    failure behavior before implementing its production adapter.
-  last_durable_checkpoint: fbb54f1
+    Implement the Federal Register build-time adapter from synthetic contract
+    fixtures, with conservative date slicing, exact relationship preservation,
+    provenance, health, and fail-closed transport boundaries.
+  last_durable_checkpoint: 9fa517c
   resume_command: npm run check
 
 completion_scope:
@@ -538,24 +539,33 @@ work_items:
     priority: 40
     milestone: B4
     title: Reconfirm Federal Register official contract and terms
-    status: in_progress
+    status: complete
     dependencies:
       - B3-PIPELINE
     acceptance:
       - Current primary documentation covers endpoint, fields, pagination,
-        2,000-result slicing, limits, attribution, history, and failure
-        behavior.
+        conservative 2,000-result client slicing, the current 10,000-result
+        server window, limits, attribution, history, and failure behavior.
       - Reproduction policy distinguishes metadata, permitted excerpts, and
         official text links.
       - The source registry and feasibility documentation carry access dates and
         direct official citations.
-    evidence: []
+    evidence:
+      - "Commit 9fa517c."
+      - >-
+        docs/source-reviews/federal-register-api-2026-07-31.md records dated
+        primary API, OpenAPI, GovInfo, CFR, reuse, history, pagination, and
+        failure evidence.
+      - >-
+        npm run check passed on 2026-07-31 with strict source-registry
+        validation, disabled-source tamper cases, 6 Vitest files, 36 tests, the
+        static build, and artifact validation.
 
   - id: B4-FR-ADAPTER
     priority: 41
     milestone: B4
     title: Federal Register production adapter
-    status: not_started
+    status: in_progress
     dependencies:
       - B4-FR-RESEARCH
     acceptance:
@@ -1244,7 +1254,7 @@ source_register:
     public_claim: no live publication
   - id: SRC-FEDERAL-REGISTER
     source: Federal Register
-    implementation_state: ready
+    implementation_state: contract_reviewed_adapter_in_progress
     work_items:
       - B4-FR-RESEARCH
       - B4-FR-ADAPTER
@@ -1387,18 +1397,20 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B4-FR-RESEARCH
-    action: >-
-      Reverify Federal Register primary documentation, API behavior, history,
-      attribution, and reproduction constraints.
-  - order: 2
     work_item: B4-FR-ADAPTER
-    action: Implement the first production policy-source adapter.
-  - order: 3
-    work_item: B2-REVIEW
     action: >-
-      Resume BIA identity work only if current originating evidence supplies the
-      exact row-level reconciliation required by G-BIA-IDENTITY.
+      Implement and adversarially test the production adapter using only
+      hand-authored synthetic contract fixtures in Git.
+  - order: 2
+    work_item: B4-FR-UX
+    action: >-
+      Integrate validated Federal Register artifact, coverage, and detail states
+      after the adapter contract is complete.
+  - order: 3
+    work_item: B4-GRANTS-RESEARCH
+    action: >-
+      Reconfirm the Grants.gov no-registration contract after the Federal
+      Register vertical slice.
 
 finish_states:
   local_release_candidate:
