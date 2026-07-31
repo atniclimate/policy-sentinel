@@ -307,11 +307,13 @@ baseline:
 current_focus:
   work_item: B5-WA-LWS-ADAPTER
   objective: >-
-    Implement the strict repository-owned Washington Legislative Web Services
-    SOAP contract with synthetic fixtures, bounded no-auth canaries, privacy
-    allowlists, general-jurisdiction and Unclassified behavior, provenance,
-    health, and last-known-good evidence without enabling public records.
-  last_durable_checkpoint: f6dc3b2
+    Add a bounded no-auth Washington LWS transport and run only the minimum
+    aggregate-only live canaries needed to validate the selected SOAP 1.1
+    binding, sparse/fault behavior, response identity echoes, dates, and
+    document-link hosts. Then establish a complete-refresh design before
+    normalization, provenance, health, or last-known-good work; keep the source
+    disabled and emit no records.
+  last_durable_checkpoint: 6666b40
   resume_command: npm run check
 
 completion_scope:
@@ -1145,7 +1147,51 @@ work_items:
       - Records without exact Nation evidence remain general-jurisdiction.
       - Verified history, health, provenance, and last-known-good behavior
         render truthfully.
-    evidence: []
+    evidence:
+      - >-
+        Local commit 6666b40 adds Washington LWS contract 1.0 for six exact
+        known-bill SOAP 1.1 operations. Canonical requests pin independent HTTPS
+        endpoint and SOAP-action oracles, exact parameters, canonical biennia,
+        bounded identifiers, and a maximum 31-day normalized-UTC status window.
+      - >-
+        Decision D-025 records the explicit build-time saxes@6.0.0 dependency.
+        The namespace-aware XML layer bounds bytes before strict UTF-8 parsing
+        and enforces XML version, namespace declaration, depth, node,
+        per-element and aggregate attribute, scalar and aggregate text,
+        collection, identifier, and URL ceilings while rejecting DTD/entity
+        declarations, processing instructions, comments, CDATA, XInclude, SOAP
+        1.2, headers, unknown structure, mixed content, and partial XML.
+      - >-
+        Typed response projections pin the inspected WSDL field sequence,
+        requiredness, and types for legislation/versions, status, sponsors,
+        committee referrals, documents, and session laws. Each exchange retains
+        its canonical request and validates every available response identity
+        echo; successful missing/empty results and repeated operation items are
+        preserved until live behavior establishes their semantics.
+      - >-
+        Seven impossible synthetic resources are bound by filename, operation,
+        role, and SHA-256. Contact sentinels are proven present in input and
+        absent from the returned projection; provider fault text/code and
+        reviewed free text are discarded. Governance is fixed at
+        general_jurisdiction with empty Nation/subject/mapping evidence and
+        Unclassified, and the fixture inventory is explicitly not provider
+        provenance.
+      - >-
+        npm run check passed on 2026-07-31 with 29 Vitest files and 374 tests,
+        formatting, lint, type checking, roadmap validation, source-boundary
+        scanning, a synthetic-only production build, and artifact validation at
+        2 records, 575 Nations, and 7 verified assets.
+      - >-
+        Three independent adversarial re-reviews separately covered request/XML
+        security, SOAP/WSDL/privacy behavior, and projection/governance/fixture
+        integrity. After remediation they reported no remaining high- or
+        medium-severity finding.
+      - >-
+        This remains in progress: no LWS bill/data operation or provider
+        response has been used, source-registry 1.7.0 retains adapter null, and
+        live range/shape/fault/link/identity evidence, complete refresh
+        discovery, PolicyRecord normalization/provenance, source health, and
+        checksum-validated last-known-good behavior remain unimplemented.
 
   - id: B5-WA-RULES
     priority: 62
@@ -1657,7 +1703,8 @@ source_register:
     public_claim: unavailable until approved
   - id: SRC-WA-LWS
     source: Washington Legislative Web Services
-    implementation_state: contract_research_complete_adapter_in_progress
+    implementation_state: >-
+      known_bill_synthetic_contract_complete_adapter_in_progress
     work_items:
       - B5-WA-LWS-RESEARCH
       - B5-WA-LWS-ADAPTER
@@ -1766,10 +1813,12 @@ next_actions:
   - order: 1
     work_item: B5-WA-LWS-ADAPTER
     action: >-
-      Implement and adversarially review the strict synthetic SOAP request,
-      response, fault, identity, bounds, privacy, provenance, health, and
-      last-known-good contract, then run only bounded no-auth live canaries
-      needed to resolve documented behavior.
+      Implement and adversarially review a strict no-redirect, timeout- and
+      byte-bounded SOAP transport, then run only aggregate-only no-auth live
+      canaries needed to resolve the selected binding, sparse/fault behavior,
+      response identity echoes, dates, and document-link hosts. Do not retain a
+      provider response or normalize records. Establish complete refresh
+      discovery before provenance, health, or last-known-good implementation.
   - order: 2
     work_item: B5-WA-ACCORDS
     action: >-
@@ -1780,8 +1829,7 @@ next_actions:
     work_item: B6-COURT-RESEARCH
     action: >-
       Continue independent official-court pilot-source research after the lower
-      priority-number Washington work or if it reaches a genuine evidence
-      block.
+      priority-number Washington work or if it reaches a genuine evidence block.
 
 finish_states:
   local_release_candidate:
