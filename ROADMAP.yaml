@@ -305,12 +305,13 @@ baseline:
       detail: single-Nation synthetic flow only
 
 current_focus:
-  work_item: B5-WA-LWS-RESEARCH
+  work_item: B5-WA-LWS-ADAPTER
   objective: >-
-    Reconfirm the current official Washington Legislative Web Services WSDL,
-    operations, biennia, fields, history, terms, limits, attribution, subject
-    gap, and failure behavior before designing its local adapter.
-  last_durable_checkpoint: 1b958c1
+    Implement the strict repository-owned Washington Legislative Web Services
+    SOAP contract with synthetic fixtures, bounded no-auth canaries, privacy
+    allowlists, general-jurisdiction and Unclassified behavior, provenance,
+    health, and last-known-good evidence without enabling public records.
+  last_durable_checkpoint: f6dc3b2
   resume_command: npm run check
 
 completion_scope:
@@ -1086,20 +1087,55 @@ work_items:
     priority: 60
     milestone: B5
     title: Reconfirm Washington Legislative Web Services contract
-    status: in_progress
+    status: complete
     dependencies:
       - B3-PIPELINE
     acceptance:
       - Current official WSDL, operations, biennia, fields, history, terms,
         limits, attribution, and failure behavior are cited.
       - Missing official bulk subjects are explicitly documented.
-    evidence: []
+    evidence:
+      - >-
+        docs/source-reviews/washington-lws-2026-07-31.md records the current
+        nine-service WSDL inventory, exact operations and schema shapes,
+        transport and SOAP bindings, SHA-256 values, biennium rules,
+        field-specific historical evidence, privacy exclusions, absence of a
+        bill-subject operation, keyless access, unbounded limits, reuse
+        boundary, change policy, and unresolved live fault behavior. No service
+        data operation, account, contact, terms action, or provider response was
+        used; the WSDL and dictionary were inspected in memory and not
+        persisted.
+      - >-
+        The review withdraws the former blanket 1991-92 LWS range. Only
+        LegislativeDocumentService explicitly documents that range, while the
+        separate Detailed Legislative Reports UI says bill information is
+        available back to 1991; every required operation's actual range remains
+        a bounded-canary question.
+      - >-
+        Source-registry 1.7.0 records washington-lws disabled with adapter null,
+        no authentication, only wslwebservices.leg.wa.gov allowlisted, null
+        service-wide coverage bounds, metadata-and-links reproduction, and no
+        official subject mappings.
+      - >-
+        npm run check passed on 2026-07-31 with 25 Vitest files and 304 tests,
+        formatting, lint, type checking, roadmap validation, source-boundary
+        scanning, a synthetic-only production build, and artifact validation at
+        2 records, 575 Nations, and 7 verified assets.
+      - >-
+        Independent adversarial review found no high-severity issue and one
+        medium test gap. The source-registry test now pins both null coverage
+        bounds and the no-service-wide-start limitation; re-review reported no
+        remaining high or medium finding.
+      - >-
+        Local commit f6dc3b2 contains the dated review, corrected binding
+        documentation, disabled registry entry, version propagation, and
+        regression assertions.
 
   - id: B5-WA-LWS-ADAPTER
     priority: 61
     milestone: B5
     title: Washington legislative adapter
-    status: not_started
+    status: in_progress
     dependencies:
       - B5-WA-LWS-RESEARCH
     acceptance:
@@ -1130,7 +1166,7 @@ work_items:
     priority: 63
     milestone: B5
     title: Washington accord pilot
-    status: not_started
+    status: ready
     dependencies:
       - B5-WA-LWS-RESEARCH
     acceptance:
@@ -1621,7 +1657,7 @@ source_register:
     public_claim: unavailable until approved
   - id: SRC-WA-LWS
     source: Washington Legislative Web Services
-    implementation_state: ready
+    implementation_state: contract_research_complete_adapter_in_progress
     work_items:
       - B5-WA-LWS-RESEARCH
       - B5-WA-LWS-ADAPTER
@@ -1728,22 +1764,24 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B5-WA-LWS-RESEARCH
+    work_item: B5-WA-LWS-ADAPTER
     action: >-
-      Reconfirm the current official Washington Legislative Web Services WSDL,
-      operations, history, terms, limits, attribution, subject gap, and failure
-      behavior without treating stale documentation as a live contract.
+      Implement and adversarially review the strict synthetic SOAP request,
+      response, fault, identity, bounds, privacy, provenance, health, and
+      last-known-good contract, then run only bounded no-auth live canaries
+      needed to resolve documented behavior.
   - order: 2
+    work_item: B5-WA-ACCORDS
+    action: >-
+      If the legislative adapter reaches a genuine evidence block, validate a
+      small official Washington accord pilot without inferring Nation
+      signatories or reproducing unreviewed text.
+  - order: 3
     work_item: B6-COURT-RESEARCH
     action: >-
-      Continue independent official-court pilot-source research if the
-      Washington source reaches a genuine evidence block.
-  - order: 3
-    work_item: B4-FR-UX
-    action: >-
-      When the in-app Browser backend becomes available, run the required
-      Federal Register desktop/mobile built-artifact smoke and close the item
-      only if every state is truthful.
+      Continue independent official-court pilot-source research after the lower
+      priority-number Washington work or if it reaches a genuine evidence
+      block.
 
 finish_states:
   local_release_candidate:
