@@ -4,7 +4,10 @@ import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { deriveBuildId, sha256Bytes } from "../src/pipeline/hashing.mjs";
-import { toCompactIndexRecord } from "../src/pipeline/artifact.mjs";
+import {
+  assertStaticArtifactBudget,
+  toCompactIndexRecord,
+} from "../src/pipeline/artifact.mjs";
 import { toUrlSafeId } from "../src/pipeline/identity.mjs";
 import { validateRecordSetPolicy } from "../src/pipeline/policy-validation.mjs";
 import { assertSourceRegistrySemantics } from "../src/pipeline/source-registry.mjs";
@@ -202,7 +205,35 @@ function assertHealth(sourceHealth, sourceRegistry, records) {
   }
 }
 
-function assertCoverage(coverage, sourceRegistry) {
+function recordCoverageDate(record) {
+  const value = record.dates.published ?? record.status.asOf;
+  if (typeof value !== "string" || value.length < 10) {
+    throw new Error(
+      `coverage record lacks a publication or status date: ${record.internalId}`,
+    );
+  }
+  return value.slice(0, 10);
+}
+
+function assertRangeWithinDocumented(source, from, through) {
+  if (from !== null && through !== null && from > through) {
+    throw new Error(`coverage range is reversed: ${source.id}`);
+  }
+  if (
+    source.coverage.from !== null &&
+    (from === null || from < source.coverage.from)
+  ) {
+    throw new Error(`coverage begins outside documented range: ${source.id}`);
+  }
+  if (
+    source.coverage.through !== null &&
+    (through === null || through > source.coverage.through)
+  ) {
+    throw new Error(`coverage ends outside documented range: ${source.id}`);
+  }
+}
+
+function assertCoverage(coverage, sourceRegistry, records) {
   const expectedSourceIds = sourceRegistry.sources
     .filter(({ enabled }) => enabled)
     .map(({ id }) => id)
@@ -212,6 +243,110 @@ function assertCoverage(coverage, sourceRegistry) {
     .sort();
   if (JSON.stringify(expectedSourceIds) !== JSON.stringify(actualSourceIds)) {
     throw new Error("coverage entries do not match enabled registry sources");
+  }
+
+  for (const entry of coverage.entries) {
+    const source = sourceRegistry.sources.find(
+      ({ id }) => id === entry.sourceId,
+    );
+    if (source === undefined) {
+      throw new Error(`coverage source is not registered: ${entry.sourceId}`);
+    }
+    if (
+      entry.sourceName !== source.name ||
+      entry.provider !== source.provider ||
+      JSON.stringify(entry.jurisdiction) !==
+        JSON.stringify(source.jurisdiction) ||
+      entry.documentedFrom !== source.coverage.from ||
+      entry.documentedThrough !== source.coverage.through ||
+      entry.cadence !== source.coverage.cadence ||
+      entry.limitation !== source.coverage.limitations
+    ) {
+      throw new Error(`coverage metadata differs from registry: ${source.id}`);
+    }
+
+    const sourceRecords = records.filter(
+      (record) => record.source.id === source.id,
+    );
+    const expectedRecordTypes = [
+      ...new Set(sourceRecords.map(({ documentType }) => documentType)),
+    ].sort();
+    if (
+      entry.recordCount !== sourceRecords.length ||
+      JSON.stringify(entry.recordTypes) !== JSON.stringify(expectedRecordTypes)
+    ) {
+      throw new Error(`coverage record inventory mismatch: ${source.id}`);
+    }
+
+    if (sourceRecords.length === 0) {
+      if (
+        entry.from !== null ||
+        entry.through !== null ||
+        entry.recordFrom !== null ||
+        entry.recordThrough !== null ||
+        entry.status !== "unavailable"
+      ) {
+        throw new Error(
+          `unavailable coverage exposes an emitted range: ${source.id}`,
+        );
+      }
+      continue;
+    }
+
+    const selectedCoverage = sourceRecords[0].source.coverage;
+    const serializedCoverage = JSON.stringify([
+      selectedCoverage.from,
+      selectedCoverage.through,
+      selectedCoverage.notes,
+    ]);
+    if (
+      sourceRecords.some(
+        (record) =>
+          JSON.stringify([
+            record.source.coverage.from,
+            record.source.coverage.through,
+            record.source.coverage.notes,
+          ]) !== serializedCoverage,
+      ) ||
+      entry.from !== selectedCoverage.from ||
+      entry.through !== selectedCoverage.through
+    ) {
+      throw new Error(`coverage selected range mismatch: ${source.id}`);
+    }
+    assertRangeWithinDocumented(source, entry.from, entry.through);
+
+    const recordDates = sourceRecords.map(recordCoverageDate).sort();
+    const recordFrom = recordDates[0];
+    const recordThrough = recordDates.at(-1);
+    if (
+      recordDates.some(
+        (date) =>
+          (entry.from !== null && date < entry.from) ||
+          (entry.through !== null && date > entry.through),
+      )
+    ) {
+      throw new Error(`coverage record date is out of bounds: ${source.id}`);
+    }
+    if (
+      entry.recordFrom !== recordFrom ||
+      entry.recordThrough !== recordThrough
+    ) {
+      throw new Error(`coverage actual record range mismatch: ${source.id}`);
+    }
+
+    const selectedMatchesDocumented =
+      entry.from === source.coverage.from &&
+      entry.through === source.coverage.through;
+    const actualSpansSelection =
+      entry.recordFrom === entry.from && entry.recordThrough === entry.through;
+    const expectedStatus = source.synthetic
+      ? "synthetic"
+      : selectedMatchesDocumented && actualSpansSelection
+        ? "available"
+        : "limited";
+    if (entry.status !== expectedStatus) {
+      throw new Error(`coverage status mismatch: ${source.id}`);
+    }
   }
 }
 
@@ -322,6 +457,8 @@ for (const asset of manifest.assets) {
   }
 }
 
+assertStaticArtifactBudget(manifest.assets);
+
 if (deriveBuildId(manifest.assets) !== manifest.buildId) {
   throw new Error("manifest build ID does not match asset hashes");
 }
@@ -348,7 +485,7 @@ validateRecordSetPolicy(records, {
 
 const indexDocument = documents.get("index/records.json");
 assertIndexMatchesDetails(indexDocument, records);
-assertCoverage(documents.get("coverage.json"), sourceRegistry);
+assertCoverage(documents.get("coverage.json"), sourceRegistry, records);
 assertHealth(documents.get("source-health.json"), sourceRegistry, records);
 
 if (

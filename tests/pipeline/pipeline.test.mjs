@@ -8,6 +8,8 @@ import test from "node:test";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import {
+  STATIC_ARTIFACT_BUDGET_V1,
+  assertStaticArtifactBudget,
   createArtifactDocuments,
   generateSyntheticNations,
   writeArtifactDocuments,
@@ -889,6 +891,33 @@ test("artifact packaging is deterministic, compact, and detail-sharded", () => {
     first.get("coverage.json").entries.map(({ sourceId }) => sourceId),
     sourceRegistry.sources.filter(({ enabled }) => enabled).map(({ id }) => id),
   );
+  assert.deepEqual(
+    first
+      .get("coverage.json")
+      .entries.find(({ sourceId }) => sourceId === "synthetic-federal"),
+    {
+      sourceId: "synthetic-federal",
+      sourceName: "Synthetic Federal Source",
+      provider: "Synthetic Public Agency",
+      jurisdiction: {
+        level: "federal",
+        name: "United States",
+        stateCode: null,
+      },
+      from: "2020-01-01",
+      through: null,
+      documentedFrom: "2020-01-01",
+      documentedThrough: null,
+      recordFrom: "2026-07-29",
+      recordThrough: "2026-07-29",
+      recordCount: 1,
+      cadence: "Synthetic build only.",
+      recordTypes: ["notice"],
+      status: "synthetic",
+      limitation:
+        "Contract-test records only. This is not public policy coverage.",
+    },
+  );
   assert.ok(
     first
       .get("source-health.json")
@@ -913,6 +942,215 @@ test("artifact packaging is deterministic, compact, and detail-sharded", () => {
     .filter(([assetPath]) => assetPath.startsWith("details/"))
     .map(([, document]) => document)) {
     assert.ok(Array.isArray(detail.record.sourceDocumentRelationships));
+  }
+});
+
+test("coverage distinguishes selected, documented, and actual record ranges", () => {
+  const configured = globalThis.structuredClone(sourceRegistry);
+  const federalRegister = configured.sources.find(
+    ({ id }) => id === "federal-register",
+  );
+  federalRegister.enabled = true;
+
+  const record = globalThis.structuredClone(preparedFederal);
+  record.internalId = "psr:federal-register:coverage-record";
+  record.source = {
+    ...record.source,
+    id: federalRegister.id,
+    name: federalRegister.name,
+    provider: federalRegister.provider,
+    recordId: "TST-COVERAGE-1",
+    coverage: {
+      from: "2026-07-01",
+      through: "2026-07-30",
+      notes: federalRegister.coverage.limitations,
+    },
+  };
+  record.sourceDocumentIdentifier = "TST-COVERAGE-1";
+
+  const documents = createArtifactDocuments({
+    records: [preparedFederal, preparedCounty, record],
+    nations,
+    taxonomy,
+    sourceRegistry: configured,
+    generatedAt: "2026-07-30T15:00:00Z",
+    synthetic: true,
+  });
+  assert.deepEqual(
+    documents
+      .get("coverage.json")
+      .entries.find(({ sourceId }) => sourceId === "federal-register"),
+    {
+      sourceId: "federal-register",
+      sourceName: "Federal Register",
+      provider: "Office of the Federal Register",
+      jurisdiction: federalRegister.jurisdiction,
+      from: "2026-07-01",
+      through: "2026-07-30",
+      documentedFrom: "1994-01-03",
+      documentedThrough: null,
+      recordFrom: "2026-07-29",
+      recordThrough: "2026-07-29",
+      recordCount: 1,
+      cadence: federalRegister.coverage.cadence,
+      recordTypes: ["notice"],
+      status: "limited",
+      limitation: federalRegister.coverage.limitations,
+    },
+  );
+
+  record.source.coverage = {
+    from: federalRegister.coverage.from,
+    through: federalRegister.coverage.through,
+    notes: federalRegister.coverage.limitations,
+  };
+  const documentedSelection = createArtifactDocuments({
+    records: [preparedFederal, preparedCounty, record],
+    nations,
+    taxonomy,
+    sourceRegistry: configured,
+    generatedAt: "2026-07-30T15:00:00Z",
+    synthetic: true,
+  });
+  assert.equal(
+    documentedSelection
+      .get("coverage.json")
+      .entries.find(({ sourceId }) => sourceId === "federal-register").status,
+    "limited",
+  );
+});
+
+test("coverage dates prefer publication and fall back to status as-of", () => {
+  const record = globalThis.structuredClone(preparedFederal);
+  record.dates.published = null;
+  const expectedDate = record.status.asOf.slice(0, 10);
+  const documents = createArtifactDocuments({
+    records: [record, preparedCounty],
+    nations,
+    taxonomy,
+    sourceRegistry,
+    generatedAt: "2026-07-30T15:00:00Z",
+    synthetic: true,
+  });
+  const coverage = documents
+    .get("coverage.json")
+    .entries.find(({ sourceId }) => sourceId === "synthetic-federal");
+  assert.equal(coverage.recordFrom, expectedDate);
+  assert.equal(coverage.recordThrough, expectedDate);
+});
+
+test("coverage packaging rejects inconsistent and out-of-bounds selections", () => {
+  const duplicate = globalThis.structuredClone(preparedFederal);
+  duplicate.internalId = "psr:synthetic-federal:coverage-duplicate";
+  duplicate.source.recordId = "SYN-COVERAGE-DUPLICATE";
+  duplicate.source.coverage.from = "2021-01-01";
+  assert.throws(
+    () =>
+      createArtifactDocuments({
+        records: [preparedFederal, duplicate, preparedCounty],
+        nations,
+        taxonomy,
+        sourceRegistry,
+        generatedAt: "2026-07-30T15:00:00Z",
+        synthetic: true,
+      }),
+    /disagree on selected coverage/,
+  );
+
+  const outsideDocumented = globalThis.structuredClone(preparedFederal);
+  outsideDocumented.source.coverage.from = "2019-12-31";
+  assert.throws(
+    () =>
+      createArtifactDocuments({
+        records: [outsideDocumented, preparedCounty],
+        nations,
+        taxonomy,
+        sourceRegistry,
+        generatedAt: "2026-07-30T15:00:00Z",
+        synthetic: true,
+      }),
+    /begins outside documented range/,
+  );
+
+  const outsideSelection = globalThis.structuredClone(preparedFederal);
+  outsideSelection.source.coverage.from = "2026-07-30";
+  outsideSelection.source.coverage.through = "2026-07-31";
+  assert.throws(
+    () =>
+      createArtifactDocuments({
+        records: [outsideSelection, preparedCounty],
+        nations,
+        taxonomy,
+        sourceRegistry,
+        generatedAt: "2026-07-30T15:00:00Z",
+        synthetic: true,
+      }),
+    /record date falls outside selected coverage/,
+  );
+});
+
+test("static artifact budgets pass at exact boundaries and fail one byte over", () => {
+  assert.deepEqual(STATIC_ARTIFACT_BUDGET_V1, {
+    version: "1.0.0",
+    maxIndexBytes: 6 * 1024 * 1024,
+    maxInitialNonDetailBytes: 8 * 1024 * 1024,
+    maxIndividualDetailBytes: 256 * 1024,
+    maxAllDetailsBytes: 128 * 1024 * 1024,
+    maxTotalAssetsBytes: 136 * 1024 * 1024,
+  });
+  const input = {
+    records: [preparedFederal, preparedCounty],
+    nations,
+    taxonomy,
+    sourceRegistry,
+    generatedAt: "2026-07-30T15:00:00Z",
+    synthetic: true,
+  };
+  const baseline = createArtifactDocuments(input);
+  const metrics = assertStaticArtifactBudget(
+    baseline.get("manifest.json").assets,
+  );
+  const boundaries = [
+    ["maxIndexBytes", metrics.indexBytes, /compact index exceeds/],
+    [
+      "maxInitialNonDetailBytes",
+      metrics.initialNonDetailBytes,
+      /initial non-detail assets exceed/,
+    ],
+    [
+      "maxIndividualDetailBytes",
+      metrics.maximumIndividualDetailBytes,
+      /detail asset exceeds/,
+    ],
+    [
+      "maxAllDetailsBytes",
+      metrics.allDetailsBytes,
+      /aggregate detail assets exceed/,
+    ],
+    ["maxTotalAssetsBytes", metrics.totalAssetsBytes, /total assets exceed/],
+  ];
+
+  for (const [key, boundary, message] of boundaries) {
+    assert.doesNotThrow(() =>
+      createArtifactDocuments({
+        ...input,
+        artifactBudget: {
+          ...STATIC_ARTIFACT_BUDGET_V1,
+          [key]: boundary,
+        },
+      }),
+    );
+    assert.throws(
+      () =>
+        createArtifactDocuments({
+          ...input,
+          artifactBudget: {
+            ...STATIC_ARTIFACT_BUDGET_V1,
+            [key]: boundary - 1,
+          },
+        }),
+      message,
+    );
   }
 });
 
@@ -943,9 +1181,16 @@ test("artifact validation rejects disabled source IDs at every metadata boundary
         const source = sourceConfigs.get("federal-register");
         coverage.entries.push({
           sourceId: source.id,
+          sourceName: source.name,
+          provider: source.provider,
           jurisdiction: source.jurisdiction,
-          from: source.coverage.from,
-          through: source.coverage.through,
+          from: null,
+          through: null,
+          documentedFrom: source.coverage.from,
+          documentedThrough: source.coverage.through,
+          recordFrom: null,
+          recordThrough: null,
+          recordCount: 0,
           cadence: source.coverage.cadence,
           recordTypes: [],
           status: "unavailable",
@@ -995,6 +1240,46 @@ test("artifact validation rejects disabled source IDs at every metadata boundary
   }
 });
 
+test("artifact validation recomputes coverage counts and actual ranges", async () => {
+  const countFixture = await createArtifactValidatorFixture();
+  try {
+    await rewriteArtifactAsset(
+      countFixture.root,
+      "coverage.json",
+      (coverage) => {
+        coverage.entries[0].recordCount += 1;
+      },
+    );
+    const result = runArtifactValidator(countFixture.root);
+    assert.equal(result.status, 1);
+    assert.match(
+      `${result.stdout}${result.stderr}`,
+      /coverage record inventory mismatch/,
+    );
+  } finally {
+    await countFixture.cleanup();
+  }
+
+  const rangeFixture = await createArtifactValidatorFixture();
+  try {
+    await rewriteArtifactAsset(
+      rangeFixture.root,
+      "coverage.json",
+      (coverage) => {
+        coverage.entries[0].recordFrom = "2026-07-28";
+      },
+    );
+    const result = runArtifactValidator(rangeFixture.root);
+    assert.equal(result.status, 1);
+    assert.match(
+      `${result.stdout}${result.stderr}`,
+      /coverage actual record range mismatch/,
+    );
+  } finally {
+    await rangeFixture.cleanup();
+  }
+});
+
 test("enabled sources without records remain visibly unavailable", () => {
   const configured = globalThis.structuredClone(sourceRegistry);
   const federalRegister = configured.sources.find(
@@ -1015,11 +1300,27 @@ test("enabled sources without records remain visibly unavailable", () => {
     generatedAt: "2026-07-30T15:00:00Z",
     synthetic: true,
   });
-  assert.equal(
+  assert.deepEqual(
     documents
       .get("coverage.json")
-      .entries.find(({ sourceId }) => sourceId === "federal-register").status,
-    "unavailable",
+      .entries.find(({ sourceId }) => sourceId === "federal-register"),
+    {
+      sourceId: "federal-register",
+      sourceName: federalRegister.name,
+      provider: federalRegister.provider,
+      jurisdiction: federalRegister.jurisdiction,
+      from: null,
+      through: null,
+      documentedFrom: federalRegister.coverage.from,
+      documentedThrough: federalRegister.coverage.through,
+      recordFrom: null,
+      recordThrough: null,
+      recordCount: 0,
+      cadence: federalRegister.coverage.cadence,
+      recordTypes: [],
+      status: "unavailable",
+      limitation: federalRegister.coverage.limitations,
+    },
   );
   assert.deepEqual(
     documents

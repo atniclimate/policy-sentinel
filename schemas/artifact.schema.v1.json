@@ -217,9 +217,16 @@
             "additionalProperties": false,
             "required": [
               "sourceId",
+              "sourceName",
+              "provider",
               "jurisdiction",
               "from",
               "through",
+              "documentedFrom",
+              "documentedThrough",
+              "recordFrom",
+              "recordThrough",
+              "recordCount",
               "cadence",
               "recordTypes",
               "status",
@@ -229,6 +236,14 @@
               "sourceId": {
                 "$ref": "#/$defs/slug"
               },
+              "sourceName": {
+                "type": "string",
+                "minLength": 1
+              },
+              "provider": {
+                "type": "string",
+                "minLength": 1
+              },
               "jurisdiction": {
                 "$ref": "#/$defs/jurisdiction"
               },
@@ -237,6 +252,22 @@
               },
               "through": {
                 "$ref": "#/$defs/nullableDate"
+              },
+              "documentedFrom": {
+                "$ref": "#/$defs/nullableDate"
+              },
+              "documentedThrough": {
+                "$ref": "#/$defs/nullableDate"
+              },
+              "recordFrom": {
+                "$ref": "#/$defs/nullableDate"
+              },
+              "recordThrough": {
+                "$ref": "#/$defs/nullableDate"
+              },
+              "recordCount": {
+                "type": "integer",
+                "minimum": 0
               },
               "cadence": {
                 "type": "string",

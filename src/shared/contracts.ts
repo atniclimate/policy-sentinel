@@ -411,9 +411,16 @@ export interface ArtifactManifest {
 
 export interface ArtifactCoverageEntry {
   sourceId: string;
+  sourceName: string;
+  provider: string;
   jurisdiction: SourceConfig["jurisdiction"];
   from: IsoDate | null;
   through: IsoDate | null;
+  documentedFrom: IsoDate | null;
+  documentedThrough: IsoDate | null;
+  recordFrom: IsoDate | null;
+  recordThrough: IsoDate | null;
+  recordCount: number;
   cadence: string;
   recordTypes: string[];
   status: "synthetic" | "available" | "limited" | "unavailable";

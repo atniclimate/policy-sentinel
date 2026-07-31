@@ -5,6 +5,98 @@ import { toUrlSafeId } from "./identity.mjs";
 
 const RECORD_SCHEMA_VERSION = "1.1.0";
 
+export const STATIC_ARTIFACT_BUDGET_V1 = Object.freeze({
+  version: "1.0.0",
+  maxIndexBytes: 6 * 1024 * 1024,
+  maxInitialNonDetailBytes: 8 * 1024 * 1024,
+  maxIndividualDetailBytes: 256 * 1024,
+  maxAllDetailsBytes: 128 * 1024 * 1024,
+  maxTotalAssetsBytes: 136 * 1024 * 1024,
+});
+
+const ARTIFACT_BUDGET_KEYS = [
+  "maxIndexBytes",
+  "maxInitialNonDetailBytes",
+  "maxIndividualDetailBytes",
+  "maxAllDetailsBytes",
+  "maxTotalAssetsBytes",
+];
+
+function assertArtifactBudgetDefinition(budget) {
+  if (
+    budget === null ||
+    typeof budget !== "object" ||
+    Array.isArray(budget) ||
+    budget.version !== "1.0.0"
+  ) {
+    throw new TypeError("artifact budget must use static budget version 1.0.0");
+  }
+  for (const key of ARTIFACT_BUDGET_KEYS) {
+    if (!Number.isSafeInteger(budget[key]) || budget[key] < 1) {
+      throw new TypeError(`artifact budget ${key} must be a positive integer`);
+    }
+  }
+}
+
+export function assertStaticArtifactBudget(
+  assets,
+  budget = STATIC_ARTIFACT_BUDGET_V1,
+) {
+  assertArtifactBudgetDefinition(budget);
+  const indexAssets = assets.filter(
+    ({ path: assetPath }) => assetPath === "index/records.json",
+  );
+  if (indexAssets.length !== 1) {
+    throw new Error("artifact budget requires exactly one compact index asset");
+  }
+  const details = assets.filter(({ path: assetPath }) =>
+    assetPath.startsWith("details/"),
+  );
+  const initialBytes = assets
+    .filter(({ path: assetPath }) => !assetPath.startsWith("details/"))
+    .reduce((total, { sizeBytes }) => total + sizeBytes, 0);
+  const detailBytes = details.reduce(
+    (total, { sizeBytes }) => total + sizeBytes,
+    0,
+  );
+  const totalBytes = assets.reduce(
+    (total, { sizeBytes }) => total + sizeBytes,
+    0,
+  );
+  const oversizedDetail = details.find(
+    ({ sizeBytes }) => sizeBytes > budget.maxIndividualDetailBytes,
+  );
+
+  if (indexAssets[0].sizeBytes > budget.maxIndexBytes) {
+    throw new Error("compact index exceeds static artifact budget");
+  }
+  if (initialBytes > budget.maxInitialNonDetailBytes) {
+    throw new Error("initial non-detail assets exceed static artifact budget");
+  }
+  if (oversizedDetail !== undefined) {
+    throw new Error(
+      `detail asset exceeds static artifact budget: ${oversizedDetail.path}`,
+    );
+  }
+  if (detailBytes > budget.maxAllDetailsBytes) {
+    throw new Error("aggregate detail assets exceed static artifact budget");
+  }
+  if (totalBytes > budget.maxTotalAssetsBytes) {
+    throw new Error("total assets exceed static artifact budget");
+  }
+
+  return {
+    indexBytes: indexAssets[0].sizeBytes,
+    initialNonDetailBytes: initialBytes,
+    maximumIndividualDetailBytes: details.reduce(
+      (maximum, { sizeBytes }) => Math.max(maximum, sizeBytes),
+      0,
+    ),
+    allDetailsBytes: detailBytes,
+    totalAssetsBytes: totalBytes,
+  };
+}
+
 export function normalizeGeneratedAt(value = new Date().toISOString()) {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) {
@@ -121,6 +213,143 @@ function maxDataAsOf(records, generatedAt) {
     .at(-1);
 }
 
+function recordCoverageDate(record) {
+  const value = record.dates.published ?? record.status.asOf;
+  if (typeof value !== "string" || value.length < 10) {
+    throw new Error(
+      `artifact record lacks a publication or status date: ${record.internalId}`,
+    );
+  }
+  return value.slice(0, 10);
+}
+
+function assertOrderedRange(from, through, label) {
+  if (from !== null && through !== null && from > through) {
+    throw new Error(`${label} has a reversed date range`);
+  }
+}
+
+function assertSelectedCoverage(source, selected, sourceRecords) {
+  assertOrderedRange(
+    source.coverage.from,
+    source.coverage.through,
+    `documented coverage for ${source.id}`,
+  );
+  assertOrderedRange(
+    selected.from,
+    selected.through,
+    `selected coverage for ${source.id}`,
+  );
+  if (
+    source.coverage.from !== null &&
+    (selected.from === null || selected.from < source.coverage.from)
+  ) {
+    throw new Error(
+      `selected coverage begins outside documented range: ${source.id}`,
+    );
+  }
+  if (
+    source.coverage.through !== null &&
+    (selected.through === null || selected.through > source.coverage.through)
+  ) {
+    throw new Error(
+      `selected coverage ends outside documented range: ${source.id}`,
+    );
+  }
+  for (const record of sourceRecords) {
+    const date = recordCoverageDate(record);
+    if (
+      (selected.from !== null && date < selected.from) ||
+      (selected.through !== null && date > selected.through)
+    ) {
+      throw new Error(
+        `record date falls outside selected coverage: ${record.internalId}`,
+      );
+    }
+  }
+}
+
+function createCoverageEntry(source, records) {
+  const sourceRecords = records.filter(
+    (record) => record.source.id === source.id,
+  );
+  if (sourceRecords.length === 0) {
+    return {
+      sourceId: source.id,
+      sourceName: source.name,
+      provider: source.provider,
+      jurisdiction: source.jurisdiction,
+      from: null,
+      through: null,
+      documentedFrom: source.coverage.from,
+      documentedThrough: source.coverage.through,
+      recordFrom: null,
+      recordThrough: null,
+      recordCount: 0,
+      cadence: source.coverage.cadence,
+      recordTypes: [],
+      status: "unavailable",
+      limitation: source.coverage.limitations,
+    };
+  }
+
+  const selectedCoverage = sourceRecords[0].source.coverage;
+  const serializedCoverage = JSON.stringify([
+    selectedCoverage.from,
+    selectedCoverage.through,
+    selectedCoverage.notes,
+  ]);
+  if (
+    sourceRecords.some(
+      (record) =>
+        JSON.stringify([
+          record.source.coverage.from,
+          record.source.coverage.through,
+          record.source.coverage.notes,
+        ]) !== serializedCoverage,
+    )
+  ) {
+    throw new Error(
+      `source records disagree on selected coverage: ${source.id}`,
+    );
+  }
+  assertSelectedCoverage(source, selectedCoverage, sourceRecords);
+
+  const recordDates = sourceRecords.map(recordCoverageDate).sort();
+  const recordFrom = recordDates[0];
+  const recordThrough = recordDates.at(-1);
+  const selectedMatchesDocumented =
+    selectedCoverage.from === source.coverage.from &&
+    selectedCoverage.through === source.coverage.through;
+  const actualSpansSelection =
+    recordFrom === selectedCoverage.from &&
+    recordThrough === selectedCoverage.through;
+
+  return {
+    sourceId: source.id,
+    sourceName: source.name,
+    provider: source.provider,
+    jurisdiction: source.jurisdiction,
+    from: selectedCoverage.from,
+    through: selectedCoverage.through,
+    documentedFrom: source.coverage.from,
+    documentedThrough: source.coverage.through,
+    recordFrom,
+    recordThrough,
+    recordCount: sourceRecords.length,
+    cadence: source.coverage.cadence,
+    recordTypes: [
+      ...new Set(sourceRecords.map(({ documentType }) => documentType)),
+    ].sort(),
+    status: source.synthetic
+      ? "synthetic"
+      : selectedMatchesDocumented && actualSpansSelection
+        ? "available"
+        : "limited",
+    limitation: source.coverage.limitations,
+  };
+}
+
 export function createArtifactDocuments({
   records,
   nations,
@@ -128,6 +357,7 @@ export function createArtifactDocuments({
   sourceRegistry,
   generatedAt,
   synthetic = true,
+  artifactBudget = STATIC_ARTIFACT_BUDGET_V1,
 }) {
   const normalizedGeneratedAt = normalizeGeneratedAt(generatedAt);
   const documents = new Map();
@@ -157,26 +387,9 @@ export function createArtifactDocuments({
       "Public coverage is source-specific and does not represent all of a Nation's interests.",
       "A Nation outside Washington, Oregon, or Idaho receives federal coverage only.",
     ],
-    entries: enabledSources.map((source) => ({
-      sourceId: source.id,
-      jurisdiction: source.jurisdiction,
-      from: source.coverage.from,
-      through: source.coverage.through,
-      cadence: source.coverage.cadence,
-      recordTypes: [
-        ...new Set(
-          records
-            .filter((record) => record.source.id === source.id)
-            .map(({ documentType }) => documentType),
-        ),
-      ].sort(),
-      status: source.synthetic
-        ? "synthetic"
-        : records.some((record) => record.source.id === source.id)
-          ? "available"
-          : "unavailable",
-      limitation: source.coverage.limitations,
-    })),
+    entries: enabledSources.map((source) =>
+      createCoverageEntry(source, records),
+    ),
   });
 
   const sourceHealth = enabledSources.map((source) => {
@@ -261,6 +474,8 @@ export function createArtifactDocuments({
       };
     })
     .sort((a, b) => a.path.localeCompare(b.path));
+
+  assertStaticArtifactBudget(assets, artifactBudget);
 
   const manifest = {
     artifactType: "manifest",
