@@ -287,10 +287,20 @@ baseline:
     pipeline: >-
       Versioned contracts, compact index and separate details, field provenance,
       source health, content hashes, and last-known-good behavior for synthetic
-      records. Source-registry v1.2 records the validated Federal Register
-      build-time adapter as disabled, and disabled source IDs remain rejected
-      from coverage, health, manifests, and artifacts.
+      records. Source-registry schema 1.2 and registry 1.8 record the validated
+      Federal Register build-time adapter plus separate researched Washington
+      State Register and Governor executive-order sources as disabled, and
+      disabled source IDs remain rejected from coverage, health, manifests, and
+      artifacts.
   verification:
+    - command: npm run check
+      result: pass
+      detail: >-
+        On 2026-07-31, 32 Vitest files and 492 tests passed with formatting,
+        lint, type checking, roadmap validation, source-boundary scanning, a
+        synthetic-only production build, and artifact validation at 2 records,
+        575 Nations, and 7 verified assets; build ID
+        synthetic-8fbf2cee5f0e5b0a82dd.
     - command: npm run check
       result: pass
       detail: >-
@@ -318,11 +328,11 @@ baseline:
 current_focus:
   work_item: B5-WA-RULES
   objective: >-
-    Independently validate Washington State Register and bounded executive
-    sources. Establish a current official contract, date range, reproduction
-    boundary, source-health and last-known-good behavior for each source before
-    implementation, without extending any Washington LWS coverage claim.
-  last_durable_checkpoint: 862a6f6
+    Implement the smallest fail-closed source contract supported by the
+    completed Washington State Register and Bob Ferguson executive-order
+    reviews, beginning with the exact one-page Governor filter, without
+    extending any Washington LWS coverage claim.
+  last_durable_checkpoint: 8139941
   resume_command: npm run check
 
 completion_scope:
@@ -1123,7 +1133,7 @@ work_items:
         available back to 1991; every required operation's actual range remains
         a bounded-canary question.
       - >-
-        Source-registry 1.7.0 records washington-lws disabled with adapter null,
+        Source-registry 1.8.0 records washington-lws disabled with adapter null,
         no authentication, only wslwebservices.leg.wa.gov allowlisted, null
         service-wide coverage bounds, metadata-and-links reproduction, and no
         official subject mappings.
@@ -1385,7 +1395,7 @@ work_items:
         build ID synthetic-41f8005ed94415d8a0cc.
       - >-
         This item is evidence-blocked by G-WA-LWS-DISCOVERY. Source-registry
-        1.7.0 retains adapter null, no Washington LWS record or range is
+        1.8.0 retains adapter null, no Washington LWS record or range is
         emitted, and there is no last-known-good shard. This blocked required
         outcome remains unresolved for local release-candidate acceptance while
         independent ready work proceeds.
@@ -1403,7 +1413,59 @@ work_items:
       - Rulemaking stage, identifiers, agencies, dates, corrections, and
         official links validate.
       - No legislative coverage claim is extended to a separate source.
-    evidence: []
+    evidence:
+      - >-
+        docs/source-reviews/washington-state-register-2026-07-31.md establishes
+        the official publication authority, twice-monthly description,
+        publication calendar, 1978 issue-level archive, 05-19 grouped-filing
+        boundary, section and identifier behavior, metadata/link reproduction
+        limit, private/contact/free-text/land exclusions, and separate health
+        requirements.
+      - >-
+        The Register review proves that online availability and certification do
+        not establish publication. Issue 26-15 was online and certified before
+        its official 2026-08-05 publication date; issue 26-14, published
+        2026-07-15, was the latest eligible issue on the access date. A first
+        adapter must bind eligibility to the official calendar, preserve
+        letter-suffixed and holdover WSR identities, reconcile duplicates, and
+        fail closed on incomplete Reviser's Notes or relationship ambiguity.
+      - >-
+        docs/source-reviews/washington-governor-executive-orders-2026-07-31.md
+        records the exact Bob Ferguson filter value 220 and six-column index
+        projection. That selected one-page scope contained 14 orders from
+        2025-01-15 through 2026-06-25. The separate all-governors view exposed
+        534 rows over 22 pages from 1918-11-27 but has no documented
+        completeness or stable filter, pagination, status, or identity contract
+        and is not implicit first-adapter coverage.
+      - >-
+        Source-registry schema 1.2 and registry 1.8 add official_index and
+        separately register washington-state-register and
+        washington-governor-executive-orders disabled with adapter null,
+        metadata-and-links reproduction, no subject mappings, and independent
+        source-health/last-known-good boundaries. Registry coverage keeps the
+        Governor's earliest observed provider row separate from the selected Bob
+        Ferguson range. No provider record, raw page/PDF body, or public
+        artifact was persisted.
+      - >-
+        Local commit 8139941 contains the two dated primary-source and
+        reproduction reviews, D-031, source/coverage/architecture updates,
+        schema and registry version propagation, compatibility coverage, and
+        disabled registry regression assertions.
+      - >-
+        npm run check passed on 2026-07-31 with 32 Vitest files and 492 tests,
+        formatting, lint, type checking, roadmap validation, source-boundary
+        scanning, a synthetic-only production build, and artifact validation at
+        2 records, 575 Nations, and 7 verified assets; build ID
+        synthetic-8fbf2cee5f0e5b0a82dd. Focused post-review source schema,
+        registry, artifact-compatibility, and formatting checks also passed.
+      - >-
+        Independent repository/schema, primary-claim, and privacy/gate reviews
+        covered range semantics, fixed-filter durability, cadence, version
+        propagation, health separation, reproduction, privacy, sovereignty, and
+        closed gates. After correcting provider-versus-selected coverage,
+        evidence-blocked LWS wording, fixed-governor scope, and undocumented
+        cadence, all re-reviews reported no remaining high- or medium-severity
+        finding.
 
   - id: B5-WA-ACCORDS
     priority: 63
@@ -1907,8 +1969,9 @@ source_register:
       - B5-WA-LWS-ADAPTER
     public_claim: no production records yet
   - id: SRC-WA-OTHER
-    source: Washington rules, executive material, and accords
-    implementation_state: rules_source_contract_in_progress_accord_ready
+    source: Washington State Register, Governor executive orders, and accords
+    implementation_state: >-
+      two_official_index_contracts_registered_adapters_null_accord_ready
     work_items:
       - B5-WA-RULES
       - B5-WA-ACCORDS
@@ -2010,10 +2073,11 @@ next_actions:
   - order: 1
     work_item: B5-WA-RULES
     action: >-
-      Independently validate Washington State Register and bounded executive
-      sources. Establish current official contracts, date ranges, reproduction
-      boundaries, cadence, failure behavior, health, and last-known-good
-      requirements without extending any Washington LWS coverage claim.
+      Implement and synthetically validate the exact Bob Ferguson filter
+      contract with bounded HTML transport, metadata-only normalization,
+      source-specific health, and last-known-good behavior. Then implement the
+      official-calendar-bound Register issue contract if its stricter identity,
+      duplicate, incomplete-rendition, and privacy cases pass fail-closed tests.
   - order: 2
     work_item: B5-WA-ACCORDS
     action: >-
