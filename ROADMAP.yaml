@@ -307,14 +307,16 @@ baseline:
 current_focus:
   work_item: B5-WA-LWS-ADAPTER
   objective: >-
-    Add and independently review a separate fixed-input, aggregate-only observer
-    scenario for one GetLegislationByYear 2025 request. Keep generic yearly
-    network transport closed and make no live yearly request until that
-    observer, its exact command gate, privacy contract, and ledger checkpoint
-    are committed. A future bounded result may establish contract fit for only
-    that one query, never completeness or a production partition.
-  last_durable_checkpoint: c86dfa6
-  resume_command: npm run check
+    Run exactly one fixed-input, aggregate-only legislation_by_year_v1 canary
+    for the internally fixed GetLegislationByYear 2025 request, with no retry or
+    persistence. Record only the closed report aggregates and their limitations;
+    the result may establish contract fit for that one bounded response, never
+    completeness, a production partition, ordering, uniqueness, or historical
+    range.
+  last_durable_checkpoint: fa1b306
+  resume_command: >-
+    npm run --silent source:wa-lws:canary -- --execute --scenario
+    legislation_by_year_v1
 
 completion_scope:
   local_release_candidate:
@@ -1288,12 +1290,47 @@ work_items:
         portability, and non-inference. After remediation, each reported no
         remaining high- or medium-severity finding.
       - >-
-        This remains in progress: only one known-bill operation has live
-        aggregate evidence, while the yearly query has synthetic contract
-        evidence only. Source-registry 1.7.0 retains adapter null. A separately
-        reviewed fixed yearly observer and bounded canary, complete refresh
-        reconciliation, PolicyRecord normalization/provenance, source health,
-        and checksum-validated last-known-good behavior remain unimplemented.
+        Local commit fa1b306 adds report contract 1.1 and an exact command gate
+        for the existing known-bill scenario plus one non-parameterizable
+        legislation_by_year_v1 scenario. The latter is bound internally to
+        GetLegislationByYear 2025, permits at most one request with no retry or
+        persistence, and does not expose a year argument.
+      - >-
+        The reviewed yearly raw receipt helper remains module-private inside the
+        transport. The only cross-module yearly execution helper returns a
+        runtime-frozen closed aggregate of HTTP and byte evidence, result state,
+        returned-item count, repository-budget state, and null/value totals for
+        five reviewed top-level optional fields. No request, receipt, typed
+        item, identifier, provider string, date, URL, or raw XML crosses that
+        boundary, and the helper remains absent from the general contract
+        barrel.
+      - >-
+        The yearly observer treats missing and empty successful results
+        truthfully, sanitizes faults and internal rejection, validates
+        request-attempt and HTTP-status consistency, and fixes request-year
+        echo, uniqueness, ordering, completeness, active-winner selection,
+        historical range, and production viability as not observable or not
+        assessed. Its expectation can describe only a present nonempty
+        structurally accepted response from the one bounded request.
+      - >-
+        Focused Washington validation passed 7 files and 188 tests. Full npm run
+        check passed on 2026-07-31 with 32 Vitest files and 492 tests,
+        formatting, lint, type checking, roadmap validation, source-boundary
+        scanning, a synthetic-only production build, and artifact validation at
+        2 records, 575 Nations, and 7 verified assets; build ID
+        synthetic-814ace6a07d7188706b4.
+      - >-
+        Independent privacy, source-contract, and repository-mechanics reviews
+        covered the exact dispatch, private raw-receipt boundary, aggregate
+        evidence, runtime immutability, attempt accounting, regression behavior,
+        and documentation. After remediation, all final reviews reported no
+        remaining high- or medium-severity finding.
+      - >-
+        No GetLegislationByYear source request has run. This remains in
+        progress: source-registry 1.7.0 retains adapter null, and the single
+        bounded yearly canary, complete refresh reconciliation, PolicyRecord
+        normalization/provenance, source health, and checksum-validated
+        last-known-good behavior remain unimplemented.
 
   - id: B5-WA-RULES
     priority: 62
@@ -1806,7 +1843,7 @@ source_register:
   - id: SRC-WA-LWS
     source: Washington Legislative Web Services
     implementation_state: >-
-      yearly_discovery_contract_complete_canary_observer_in_progress
+      yearly_canary_observer_complete_live_canary_ready
     work_items:
       - B5-WA-LWS-RESEARCH
       - B5-WA-LWS-ADAPTER
@@ -1915,11 +1952,11 @@ next_actions:
   - order: 1
     work_item: B5-WA-LWS-ADAPTER
     action: >-
-      Add and independently review one fixed-input, aggregate-only
-      GetLegislationByYear 2025 observer scenario and exact command gate. Commit
-      the observer and ledger before any live yearly request; retain one
-      attempt, no retry, no persistence, no identifiers or strings, and no
-      completeness claim.
+      Run exactly once: npm run --silent source:wa-lws:canary -- --execute
+      --scenario legislation_by_year_v1. Do not retry or persist the response.
+      Record only the validated aggregate report and its one-query limitations;
+      make no completeness, partition, ordering, uniqueness, or historical-range
+      claim.
   - order: 2
     work_item: B5-WA-ACCORDS
     action: >-
