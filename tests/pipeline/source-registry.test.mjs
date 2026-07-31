@@ -34,7 +34,7 @@ test("source registry records researched disabled production sources", () => {
   assert.equal(validateSources(sourceRegistry), true);
   assert.doesNotThrow(() => assertSourceRegistrySemantics(sourceRegistry));
   assert.equal(sourceRegistry.schemaVersion, "1.1.0");
-  assert.equal(sourceRegistry.registryVersion, "1.6.0");
+  assert.equal(sourceRegistry.registryVersion, "1.7.0");
 
   const federalRegister = sourceRegistry.sources.find(
     ({ id }) => id === "federal-register",
@@ -153,6 +153,44 @@ test("source registry records researched disabled production sources", () => {
       termsUrl: "https://www.regulations.gov/user-notice",
       reproduction: "metadata_and_links",
     },
+  );
+
+  const washingtonLws = sourceRegistry.sources.find(
+    ({ id }) => id === "washington-lws",
+  );
+  assert.deepEqual(
+    {
+      enabled: washingtonLws.enabled,
+      synthetic: washingtonLws.synthetic,
+      adapter: washingtonLws.adapter,
+      accessedOn: washingtonLws.access.accessedOn,
+      method: washingtonLws.access.method,
+      authentication: washingtonLws.access.authentication,
+      allowedHosts: washingtonLws.access.allowedHosts,
+      coverageFrom: washingtonLws.coverage.from,
+      coverageThrough: washingtonLws.coverage.through,
+      termsUrl: washingtonLws.publication.termsUrl,
+      reproduction: washingtonLws.publication.reproduction,
+      officialSubjectMappings: washingtonLws.officialSubjectMappings,
+    },
+    {
+      enabled: false,
+      synthetic: false,
+      adapter: null,
+      accessedOn: "2026-07-31",
+      method: "api",
+      authentication: "none",
+      allowedHosts: ["wslwebservices.leg.wa.gov"],
+      coverageFrom: null,
+      coverageThrough: null,
+      termsUrl: "https://leg.wa.gov/privacy-notice/",
+      reproduction: "metadata_and_links",
+      officialSubjectMappings: [],
+    },
+  );
+  assert.match(
+    washingtonLws.coverage.limitations,
+    /No service-wide historical start/,
   );
 });
 

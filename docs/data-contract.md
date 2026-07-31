@@ -13,7 +13,7 @@ The Phase A contracts are:
 - [`source.schema.v1.json`](../schemas/source.schema.v1.json), compatible v1
   source-registry schema version `1.1.0`;
 - [`sources.v1.json`](../config/sources.v1.json), source registry version
-  `1.6.0`; and
+  `1.7.0`; and
 - [`artifact.schema.v1.json`](../schemas/artifact.schema.v1.json), static
   artifact schema version `1.0.0`.
 
@@ -23,7 +23,7 @@ evidence that a production source is enabled or a public dataset exists.
 taxonomy, and synthetic fixtures, and proves selected invalid governance cases
 are rejected.
 
-Source-registry version `1.6.0` distinguishes researched configuration,
+Source-registry version `1.7.0` distinguishes researched configuration,
 implemented adapters, and activation. A disabled source may have
 `adapter: null` or a versioned adapter that is not authorized to emit public
 records; an enabled source must have a versioned adapter. Every non-synthetic
@@ -50,6 +50,13 @@ projection is explicitly limited to one synthetic document ID, treats provider
 identity behavior as unverified, and permits docket reassignment without
 inferring replacement behavior. Repository-owned aggregate attachment and
 format budgets fail closed before nested projections can grow without bound.
+Washington Legislative Web Services is disabled with no adapter while its
+operation-specific ranges, SOAP response/fault behavior, unbounded-array
+limits, document-link hosts, date semantics, and identity reconciliation
+remain unverified. Its official WSDLs expose no bill-subject field and include
+personal/contact, free-text, and untyped surfaces, so the future contract must
+use a strict allowlist, emit no Nation inference, leave taxonomy
+`Unclassified`, and retain metadata and official links only.
 
 The current normalized record and artifact schemas do not provide first-class
 docket entities, attachment collections, rate-header metadata, or a general
@@ -60,6 +67,14 @@ separate versioned schema decision. Health and last-known-good state are also
 source-level; future agency, date-window, or docket sharding must either add a
 versioned shard dimension or conservatively fail/degrade Regulations.gov as one
 source.
+
+The normalized schema likewise has no first-class Washington bill-version or
+rendition collection, veto model, RCW/session-law relationship, or structured
+biennium boundary. Source health and last-known-good state are not partitioned
+by LWS operation or biennium. Until a versioned schema decision adds those
+dimensions, a required operation or biennium failure must conservatively
+omit/degrade Washington LWS as one source and source-contract evidence must not
+be forced into unrelated record fields.
 
 ## Record groups
 

@@ -1,7 +1,7 @@
 {
   "$schema": "../schemas/source.schema.v1.json",
   "schemaVersion": "1.1.0",
-  "registryVersion": "1.6.0",
+  "registryVersion": "1.7.0",
   "generatedDataPolicy": "artifact-only",
   "sources": [
     {
@@ -312,6 +312,49 @@
       "publication": {
         "attribution": "Regulations.gov and the originating federal agency",
         "termsUrl": "https://www.regulations.gov/user-notice",
+        "reproduction": "metadata_and_links",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/status/sourceLabel",
+          "/urls/officialSource"
+        ]
+      },
+      "officialSubjectMappings": []
+    },
+    {
+      "id": "washington-lws",
+      "name": "Washington Legislative Web Services",
+      "provider": "Washington State Legislature, Legislative Service Center",
+      "synthetic": false,
+      "enabled": false,
+      "adapter": null,
+      "jurisdiction": {
+        "level": "state",
+        "name": "Washington",
+        "stateCode": "WA"
+      },
+      "access": {
+        "method": "api",
+        "officialDocumentationUrl": "https://wslwebservices.leg.wa.gov/",
+        "accessedOn": "2026-07-31",
+        "allowedHosts": ["wslwebservices.leg.wa.gov"],
+        "authentication": "none",
+        "rateLimit": "No numeric quota, pagination contract, row cap, response-size bound, concurrency limit, timeout, retry policy, or backoff rule is published. A future adapter must use bounded, low-concurrency, build-time requests and fail closed on repository-owned request, item, byte, and time budgets.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": null,
+        "through": null,
+        "cadence": "LWS describes its source data as real-time; any approved Policy Sentinel retrieval would remain weekly and build-time only.",
+        "limitations": "No service-wide historical start or complete mutation feed is documented. LegislativeDocumentService explicitly describes information back to 1991-92, and the separate Detailed Legislative Reports UI describes bill information back to 1991, but required operation ranges remain unverified. Arrays are unbounded, no pagination is published, response fields include personal/contact and unrelated free text, and no official bill-subject operation exists."
+      },
+      "publication": {
+        "attribution": "Washington State Legislature",
+        "termsUrl": "https://leg.wa.gov/privacy-notice/",
         "reproduction": "metadata_and_links",
         "failureMode": "last_known_good",
         "requiredProvenancePointers": [
