@@ -1,6 +1,7 @@
 import { Buffer } from "node:buffer";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { assertArtifactSourceHealthState } from "./artifact-health.mjs";
 import { deriveBuildId, hashJson, serializeJson } from "./hashing.mjs";
 import { toUrlSafeId } from "./identity.mjs";
 
@@ -420,8 +421,6 @@ function createCoverageEntry(source, records) {
   };
 }
 
-const RECORD_SOURCE_HEALTH_FIELDS = ["status", "usingLastKnownGood", "message"];
-
 function deriveSyntheticSourceHealth(source, sourceRecords, generatedAt) {
   const latest = sourceRecords
     .map((record) => record.sourceHealth)
@@ -457,46 +456,10 @@ function deriveSyntheticSourceHealth(source, sourceRecords, generatedAt) {
 }
 
 function assertSourceHealthReceipt(receipt, source, sourceRecords) {
-  if (receipt.recordCount !== sourceRecords.length) {
-    throw new Error(
-      `artifact source-health record count mismatch: ${source.id}`,
-    );
-  }
-  const unavailable = receipt.status === "unavailable";
-  if (unavailable !== (sourceRecords.length === 0)) {
-    throw new Error(
-      `artifact source-health unavailable state mismatch: ${source.id}`,
-    );
-  }
-  if (
-    unavailable &&
-    (receipt.dataAsOf !== null ||
-      receipt.usingLastKnownGood ||
-      receipt.stale !== true)
-  ) {
-    throw new Error(
-      `artifact source-health unavailable receipt is inconsistent: ${source.id}`,
-    );
-  }
-  if (
-    receipt.usingLastKnownGood &&
-    (receipt.status !== "degraded" || receipt.stale !== true)
-  ) {
-    throw new Error(
-      `artifact source-health last-known-good receipt is inconsistent: ${source.id}`,
-    );
-  }
-  for (const record of sourceRecords) {
-    if (
-      RECORD_SOURCE_HEALTH_FIELDS.some(
-        (field) => record.sourceHealth[field] !== receipt[field],
-      )
-    ) {
-      throw new Error(
-        `artifact source-health receipt differs from record health: ${source.id}`,
-      );
-    }
-  }
+  assertArtifactSourceHealthState({
+    health: receipt,
+    sourceRecords,
+  });
   const expectedDataAsOf = sourceRecords
     .map((record) => record.sourceHealth.dataAsOf)
     .sort()

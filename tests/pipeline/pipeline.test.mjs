@@ -1482,6 +1482,35 @@ test("artifact validation rejects disabled source IDs at every metadata boundary
   }
 });
 
+test("artifact validation rejects contradictory or unbound source health", async () => {
+  const cases = [
+    {
+      mutate(health) {
+        health.sources[0].stale = true;
+      },
+      expected: /healthy receipt is inconsistent/,
+    },
+    {
+      mutate(health) {
+        health.sources[0].checkedAt = "2026-07-31T20:01:00.000Z";
+      },
+      expected: /receipt differs from record health/,
+    },
+  ];
+
+  for (const { mutate, expected } of cases) {
+    const fixture = await createArtifactValidatorFixture();
+    try {
+      await rewriteArtifactAsset(fixture.root, "source-health.json", mutate);
+      const result = runArtifactValidator(fixture.root);
+      assert.equal(result.status, 1);
+      assert.match(`${result.stdout}${result.stderr}`, expected);
+    } finally {
+      await fixture.cleanup();
+    }
+  }
+});
+
 test("artifact validation recomputes coverage counts and actual ranges", async () => {
   const countFixture = await createArtifactValidatorFixture();
   try {

@@ -13,6 +13,8 @@ test("pipeline contract and governance suite passes", () => {
     process.execPath,
     [
       "--test",
+      "tests/pipeline/artifact-health.test.mjs",
+      "tests/pipeline/artifact-validator-hardening.test.mjs",
       "tests/pipeline/pipeline.test.mjs",
       "tests/pipeline/source-registry.test.mjs",
     ],

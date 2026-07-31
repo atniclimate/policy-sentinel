@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
+import { assertArtifactSourceHealthState } from "../src/pipeline/artifact-health.mjs";
 import { deriveBuildId, sha256Bytes } from "../src/pipeline/hashing.mjs";
 import {
   ARTIFACT_MANIFEST_LIMITS_V1,
@@ -263,7 +264,6 @@ function assertIndexMatchesDetails(indexDocument, detailEntries) {
 }
 
 function assertHealth(sourceHealth, sourceRegistry, records) {
-  const recordHealthFields = ["status", "usingLastKnownGood", "message"];
   const expectedSourceIds = sourceRegistry.sources
     .filter(({ enabled }) => enabled)
     .map(({ id }) => id)
@@ -286,22 +286,11 @@ function assertHealth(sourceHealth, sourceRegistry, records) {
     const sourceRecords = records.filter(
       (record) => record.source.id === health.sourceId,
     );
-    if (health.recordCount !== sourceRecords.length) {
-      throw new Error(
-        `source-health record count mismatch: ${health.sourceId}`,
-      );
-    }
-    if (
-      sourceRecords.some((record) =>
-        recordHealthFields.some(
-          (field) => record.sourceHealth[field] !== health[field],
-        ),
-      )
-    ) {
-      throw new Error(
-        `source-health receipt differs from record health: ${health.sourceId}`,
-      );
-    }
+    assertArtifactSourceHealthState({
+      health,
+      sourceRecords,
+      label: "source-health",
+    });
     const expectedDataAsOf = sourceRecords
       .map((record) => record.sourceHealth.dataAsOf)
       .sort()
@@ -319,23 +308,6 @@ function assertHealth(sourceHealth, sourceRegistry, records) {
     ) {
       throw new Error(
         `source-health receipt differs from aggregate record freshness: ${health.sourceId}`,
-      );
-    }
-    if (
-      health.usingLastKnownGood &&
-      (!health.stale || health.status !== "degraded")
-    ) {
-      throw new Error(`invalid last-known-good health: ${health.sourceId}`);
-    }
-    if (
-      health.status === "unavailable" &&
-      (health.recordCount !== 0 || health.dataAsOf !== null)
-    ) {
-      throw new Error(`unavailable source exposes records: ${health.sourceId}`);
-    }
-    if (sourceRecords.length === 0 && health.status !== "unavailable") {
-      throw new Error(
-        `recordless source is not unavailable: ${health.sourceId}`,
       );
     }
   }
