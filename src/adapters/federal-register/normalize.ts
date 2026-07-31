@@ -13,6 +13,11 @@ import type {
   FederalRegisterRelatedDocument,
 } from "./response-contract";
 import { reconcileFederalRegisterCorrections } from "./response-contract";
+import {
+  assertFederalRegisterPublicArtifactRange,
+  federalRegisterArtifactCoverageNotes,
+} from "./artifact-policy";
+import type { FederalRegisterDateRange } from "./query-contract";
 
 export const FEDERAL_REGISTER_SOURCE_ID = "federal-register" as const;
 export const FEDERAL_REGISTER_ADAPTER_ID = "federal-register-adapter" as const;
@@ -93,6 +98,7 @@ interface ProvenanceSpec {
 export interface FederalRegisterNormalizationInput {
   source: SourceConfig;
   retrievedAt: string;
+  coverageRange: FederalRegisterDateRange;
 }
 
 interface RelationshipWithProvenance {
@@ -174,6 +180,7 @@ function assertNormalizationContext(input: FederalRegisterNormalizationInput): {
   source: SourceConfig;
   retrievedAt: string;
   adapter: NonNullable<SourceConfig["adapter"]>;
+  coverageRange: FederalRegisterDateRange;
 } {
   const { source } = input;
   const adapter = assertFederalRegisterSourceConfig(source);
@@ -187,10 +194,15 @@ function assertNormalizationContext(input: FederalRegisterNormalizationInput): {
       "Federal Register retrieval time must be a normalized UTC timestamp.",
     );
   }
+  const coverageRange = assertFederalRegisterPublicArtifactRange(
+    input.coverageRange,
+    source.coverage,
+  );
   return {
     source,
     retrievedAt: input.retrievedAt,
     adapter,
+    coverageRange,
   };
 }
 
@@ -661,7 +673,16 @@ function normalizeReconciledFederalRegisterDocument(
   document: FederalRegisterDocument,
   input: FederalRegisterNormalizationInput,
 ): PolicyRecord {
-  const { source, retrievedAt, adapter } = assertNormalizationContext(input);
+  const { source, retrievedAt, adapter, coverageRange } =
+    assertNormalizationContext(input);
+  if (
+    document.publication_date < coverageRange.start ||
+    document.publication_date > coverageRange.end
+  ) {
+    throw new Error(
+      "Federal Register document falls outside the selected public artifact range.",
+    );
+  }
   if (document.agencies.length === 0 && document.agency_names.length === 0) {
     throw new Error(
       "Federal Register document has no issuing agency and cannot satisfy the public record contract.",
@@ -756,9 +777,9 @@ function normalizeReconciledFederalRegisterDocument(
       adapterId: adapter.id,
       adapterVersion: adapter.version,
       coverage: {
-        from: source.coverage.from,
-        through: source.coverage.through,
-        notes: source.coverage.limitations,
+        from: coverageRange.start,
+        through: coverageRange.end,
+        notes: federalRegisterArtifactCoverageNotes(coverageRange),
       },
       attribution: source.publication.attribution,
     },

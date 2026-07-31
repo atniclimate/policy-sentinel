@@ -17,6 +17,7 @@ import {
   normalizeFederalRegisterDocument,
   normalizeFederalRegisterInventory,
 } from "../../../src/adapters/federal-register/normalize";
+import type { FederalRegisterDateRange } from "../../../src/adapters/federal-register/query-contract";
 import { parseFederalRegisterDocument } from "../../../src/adapters/federal-register/response-contract";
 import type {
   SourceConfig,
@@ -32,6 +33,14 @@ import {
 const retrievedAt = "2026-07-31T12:00:00.000Z";
 const taxonomyConfig = taxonomy as unknown as TaxonomyConfig;
 const registryConfig = sourceRegistry as unknown as SourceRegistry;
+const recentCoverageRange = {
+  start: "2026-07-01",
+  end: "2026-07-31",
+} as const;
+const historicalCoverageRange = {
+  start: "1994-01-03",
+  end: "1994-01-03",
+} as const;
 
 function configuredSource(): SourceConfig {
   const source = structuredClone(
@@ -45,6 +54,13 @@ function configuredSource(): SourceConfig {
     identityRule: FEDERAL_REGISTER_IDENTITY_RULE,
   };
   return source;
+}
+
+function normalizationInput(
+  source: SourceConfig,
+  coverageRange: FederalRegisterDateRange = recentCoverageRange,
+) {
+  return { source, retrievedAt, coverageRange };
 }
 
 const ajv = new Ajv2020({
@@ -61,10 +77,10 @@ describe("Federal Register normalization", () => {
     const documents = [originalFixture, correctionFixture].map((fixture) =>
       parseFederalRegisterDocument(fixture),
     );
-    const records = normalizeFederalRegisterInventory(documents, {
-      source,
-      retrievedAt,
-    });
+    const records = normalizeFederalRegisterInventory(
+      documents,
+      normalizationInput(source),
+    );
 
     expect(records).toHaveLength(2);
     for (const record of records) {
@@ -140,6 +156,13 @@ describe("Federal Register normalization", () => {
     ]);
     expect(original?.dates.published).toBe("2026-07-30");
     expect(correction?.dates.published).toBe("2026-07-31");
+    expect(original?.source.coverage).toMatchObject({
+      from: "2026-07-01",
+      through: "2026-07-31",
+    });
+    expect(original?.source.coverage.notes).toContain(
+      "not complete 1994-present coverage",
+    );
     expect(original?.officialSubjects).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -159,7 +182,7 @@ describe("Federal Register normalization", () => {
     const source = configuredSource();
     const record = normalizeFederalRegisterDocument(
       parseFederalRegisterDocument(withdrawalFixture),
-      { source, retrievedAt },
+      normalizationInput(source),
     );
 
     expect(record.status).toEqual({
@@ -218,7 +241,7 @@ describe("Federal Register normalization", () => {
 
     const record = normalizeFederalRegisterDocument(
       parseFederalRegisterDocument(candidate),
-      { source, retrievedAt },
+      normalizationInput(source),
     );
 
     expect(record.sourceDocumentRelationships).toEqual([]);
@@ -247,7 +270,7 @@ describe("Federal Register normalization", () => {
 
     const record = normalizeFederalRegisterDocument(
       parseFederalRegisterDocument(candidate),
-      { source, retrievedAt },
+      normalizationInput(source),
     );
 
     expect(record.sourceDocumentRelationships).toHaveLength(1);
@@ -262,7 +285,7 @@ describe("Federal Register normalization", () => {
     const source = configuredSource();
     const record = normalizeFederalRegisterDocument(
       parseFederalRegisterDocument(historicalFixture),
-      { source, retrievedAt },
+      normalizationInput(source, historicalCoverageRange),
     );
 
     expect(record.urls.officialFullText).toBeNull();
@@ -274,6 +297,10 @@ describe("Federal Register normalization", () => {
     ]);
     expect(record.texts.officialSummary).toBeNull();
     expect(record.sourceDocumentRelationships).toEqual([]);
+    expect(record.source.coverage).toMatchObject({
+      from: "1994-01-03",
+      through: "1994-01-03",
+    });
     expect(record.historical).toEqual({
       isHistorical: false,
       pre1980Treatment: "not_applicable",
@@ -292,14 +319,21 @@ describe("Federal Register normalization", () => {
     );
   });
 
+  it("rejects a document outside the declared artifact window", () => {
+    const source = configuredSource();
+    expect(() =>
+      normalizeFederalRegisterDocument(
+        parseFederalRegisterDocument(historicalFixture),
+        normalizationInput(source),
+      ),
+    ).toThrow(/outside the selected public artifact range/);
+  });
+
   it("cannot mark an orphan correction as validated", () => {
     const source = configuredSource();
     const correction = parseFederalRegisterDocument(correctionFixture);
     expect(() =>
-      normalizeFederalRegisterDocument(correction, {
-        source,
-        retrievedAt,
-      }),
+      normalizeFederalRegisterDocument(correction, normalizationInput(source)),
     ).toThrow(/nonreciprocal|missing/i);
   });
 
@@ -317,10 +351,7 @@ describe("Federal Register normalization", () => {
     expect(() =>
       normalizeFederalRegisterDocument(
         parseFederalRegisterDocument(historicalFixture),
-        {
-          source: disabled,
-          retrievedAt,
-        },
+        normalizationInput(disabled),
       ),
     ).toThrow(/registration/);
   });
@@ -353,7 +384,7 @@ describe("Federal Register normalization", () => {
       expect(() =>
         normalizeFederalRegisterDocument(
           parseFederalRegisterDocument(historicalFixture),
-          { source, retrievedAt },
+          normalizationInput(source),
         ),
       ).toThrow(/configuration differs from the reviewed/);
     }
@@ -368,7 +399,7 @@ describe("Federal Register normalization", () => {
     ];
     const record = normalizeFederalRegisterDocument(
       parseFederalRegisterDocument(candidate),
-      { source: configuredSource(), retrievedAt },
+      normalizationInput(configuredSource(), historicalCoverageRange),
     );
 
     expect(record.issuingBodies).toEqual([
@@ -394,7 +425,7 @@ describe("Federal Register normalization", () => {
     candidate.agencies[0].raw_name = "Synthetic Nation A";
     const record = normalizeFederalRegisterDocument(
       parseFederalRegisterDocument(candidate),
-      { source, retrievedAt },
+      normalizationInput(source),
     );
 
     expect(record.nationAssociations).toEqual([]);

@@ -19,6 +19,11 @@ import type {
 } from "../../shared/contracts";
 import { FEDERAL_REGISTER_ORIGIN, FEDERAL_REGISTER_PATHS } from "./constants";
 import {
+  FEDERAL_REGISTER_PUBLIC_ARTIFACT_POLICY,
+  federalRegisterPublicArtifactRange,
+} from "./artifact-policy";
+import type { FederalRegisterDateRange } from "./query-contract";
+import {
   FEDERAL_REGISTER_ADAPTER_ID,
   FEDERAL_REGISTER_ADAPTER_VERSION,
   FEDERAL_REGISTER_SOURCE_ID,
@@ -38,6 +43,12 @@ import {
 } from "./response-contract";
 import { fetchFederalRegisterJson } from "./transport";
 
+export {
+  FEDERAL_REGISTER_PUBLIC_ARTIFACT_POLICY,
+  assertFederalRegisterPublicArtifactRange,
+  federalRegisterArtifactCoverageNotes,
+  federalRegisterPublicArtifactRange,
+} from "./artifact-policy";
 export {
   FEDERAL_REGISTER_DISCOVERY_FIELDS,
   FEDERAL_REGISTER_ORIGIN,
@@ -123,6 +134,7 @@ interface ActiveInventory {
   buildId: string;
   contextFingerprint: string;
   retrievedAt: string;
+  coverageRange: FederalRegisterDateRange;
   documents: readonly FederalRegisterDocument[];
   byDocumentNumber: ReadonlyMap<string, FederalRegisterDocument>;
   ready: boolean;
@@ -179,34 +191,12 @@ function assertAdapterContext(context: BuildContext): string {
   return stableJson(context);
 }
 
-function retrievalRange(context: BuildContext): {
-  start: string;
-  end: string;
-} {
-  const from = context.source.coverage.from;
-  if (from === null) {
-    throw new Error(
-      "Federal Register source registration lacks a reviewed coverage start.",
-    );
-  }
-  const generatedDate = context.generatedAt.slice(0, 10);
-  const through = context.source.coverage.through;
-  const end =
-    through !== null && through < generatedDate ? through : generatedDate;
-  if (from > end) {
-    throw new Error(
-      "Federal Register coverage range is empty at the build time.",
-    );
-  }
-  return { start: from, end };
-}
-
 const PUBLIC_DOCUMENT_TYPES: ReadonlySet<FederalRegisterDocument["type"]> =
   new Set(["Rule", "Proposed Rule", "Notice", "Presidential Document"]);
 
 function publicCandidateDocuments(
   documents: readonly FederalRegisterDocument[],
-  range: ReturnType<typeof retrievalRange>,
+  range: FederalRegisterDateRange,
 ): FederalRegisterDocument[] {
   const candidates = new Map(
     documents
@@ -368,13 +358,24 @@ export class FederalRegisterAdapter implements PublicSourceAdapter {
 
     let active: ActiveInventory | null = null;
     try {
-      const range = retrievalRange(context);
+      const range = federalRegisterPublicArtifactRange(
+        context.generatedAt,
+        context.source.coverage,
+      );
       const inventory: FederalRegisterInventory =
         await retrieveFederalRegisterInventory(range, this.#dependencies);
       const documents = publicCandidateDocuments(inventory.documents, range);
       if (documents.length === 0) {
         throw new Error(
           "Federal Register reconciled inventory contains no eligible public beta records.",
+        );
+      }
+      if (
+        documents.length >
+        FEDERAL_REGISTER_PUBLIC_ARTIFACT_POLICY.maximumCandidateDocuments
+      ) {
+        throw new Error(
+          "Federal Register eligible public candidates exceed the versioned artifact record budget.",
         );
       }
       const byDocumentNumber = new Map<string, FederalRegisterDocument>();
@@ -396,6 +397,7 @@ export class FederalRegisterAdapter implements PublicSourceAdapter {
         buildId: context.buildId,
         contextFingerprint,
         retrievedAt: inventory.retrievedAt,
+        coverageRange: range,
         documents,
         byDocumentNumber,
         ready: false,
@@ -499,6 +501,7 @@ export class FederalRegisterAdapter implements PublicSourceAdapter {
           {
             source: context.source,
             retrievedAt: inventory.retrievedAt,
+            coverageRange: inventory.coverageRange,
           },
         );
         const normalizedByDocumentNumber = new Map(

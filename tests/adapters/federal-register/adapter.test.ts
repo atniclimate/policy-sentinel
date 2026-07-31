@@ -296,6 +296,12 @@ describe("Federal Register public source adapter", () => {
       },
       status: { normalized: "unknown" },
       nationAssociations: [],
+      source: {
+        coverage: {
+          from: "1994-01-03",
+          through: "1994-01-03",
+        },
+      },
     });
 
     const rejectingAdapter = createFederalRegisterAdapter({

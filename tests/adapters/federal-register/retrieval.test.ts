@@ -132,6 +132,37 @@ const fixedDependencies = {
 };
 
 describe("Federal Register reconciled retrieval", () => {
+  it("fails before search when the selected facet exceeds the public candidate budget", async () => {
+    const range = { start: "2026-07-01", end: "2026-07-31" };
+    let searchAttempted = false;
+    const fetchImpl: FederalRegisterFetchLike = async (input) => {
+      const url = new URL(
+        typeof input === "string"
+          ? input
+          : input instanceof URL
+            ? input.href
+            : input.url,
+      );
+      if (url.pathname.endsWith("/facets/daily.json")) {
+        return jsonResponse({
+          [range.end]: { count: 4_001, name: "07/31/2026" },
+        });
+      }
+      if (url.pathname === "/api/v1/documents.json") {
+        searchAttempted = true;
+      }
+      throw new Error(`Unexpected synthetic request path: ${url.pathname}`);
+    };
+
+    await expect(
+      retrieveFederalRegisterInventory(range, {
+        ...fixedDependencies,
+        fetchImpl,
+      }),
+    ).rejects.toMatchObject({ code: "candidate_budget" });
+    expect(searchAttempted).toBe(false);
+  });
+
   it("reconciles two-page search, daily facets, replay, and issue inventory", async () => {
     const range = { start: "2026-07-31", end: "2026-07-31" };
     const documents = Array.from({ length: 1_001 }, (_, index) =>

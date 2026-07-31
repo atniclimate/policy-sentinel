@@ -1,3 +1,4 @@
+import { FEDERAL_REGISTER_PUBLIC_ARTIFACT_POLICY } from "./artifact-policy";
 import {
   FEDERAL_REGISTER_DISCOVERY_FIELDS,
   FEDERAL_REGISTER_ORIGIN,
@@ -34,6 +35,7 @@ import {
 } from "./transport";
 
 export type FederalRegisterRetrievalErrorCode =
+  | "candidate_budget"
   | "page_inconsistent"
   | "relationship_budget"
   | "request_budget"
@@ -642,6 +644,22 @@ function facetCounts(facet: FederalRegisterDailyFacet): Map<string, number> {
   );
 }
 
+function assertCandidateBudget(facet: FederalRegisterDailyFacet): void {
+  const candidateCount = [...facetCounts(facet).values()].reduce(
+    (total, count) => total + count,
+    0,
+  );
+  if (
+    candidateCount >
+    FEDERAL_REGISTER_PUBLIC_ARTIFACT_POLICY.maximumCandidateDocuments
+  ) {
+    throw new FederalRegisterRetrievalError(
+      "candidate_budget",
+      "Federal Register selected window exceeds its versioned candidate-document budget.",
+    );
+  }
+}
+
 function assertFacetMatchesDocuments(
   facet: FederalRegisterDailyFacet,
   groups: Map<string, Set<string>>,
@@ -755,6 +773,7 @@ async function retrieveSnapshot(
   requests: RequestBudget,
 ): Promise<SnapshotResult> {
   const facetBefore = await retrieveDailyFacet(range, requests);
+  assertCandidateBudget(facetBefore);
   const discovered = await collectRange(range, requests);
   const groups = documentGroups(discovered);
   assertFacetMatchesDocuments(facetBefore, groups);
