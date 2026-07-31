@@ -234,6 +234,17 @@ gates:
       Satisfy independently for each enabled source through current primary
       documentation, contract tests, provenance, attribution, and reproduction
       review. This is an evidence gate, not a product interview.
+  - id: G-WA-LWS-DISCOVERY
+    name: Washington LWS population-discovery contract fit
+    state: pending_evidence
+    resolution: >-
+      Satisfy only when current primary documentation or a separately reviewed
+      and explicitly authorized bounded structural observation establishes a
+      stable population-enumeration response plus identity, date, official-link,
+      range, count/limit, and reconciliation semantics. Do not retry the
+      existing legislation_by_year_v1 scenario, loosen the contract from its
+      opaque rejection, or substitute synthetic fixtures for live source
+      evidence.
   - id: G-BIA-IDENTITY
     name: Current BIA recognition identity reconciliation
     state: pending_evidence
@@ -305,18 +316,14 @@ baseline:
       detail: single-Nation synthetic flow only
 
 current_focus:
-  work_item: B5-WA-LWS-ADAPTER
+  work_item: B5-WA-RULES
   objective: >-
-    Run exactly one fixed-input, aggregate-only legislation_by_year_v1 canary
-    for the internally fixed GetLegislationByYear 2025 request, with no retry or
-    persistence. Record only the closed report aggregates and their limitations;
-    the result may establish contract fit for that one bounded response, never
-    completeness, a production partition, ordering, uniqueness, or historical
-    range.
-  last_durable_checkpoint: fa1b306
-  resume_command: >-
-    npm run --silent source:wa-lws:canary -- --execute --scenario
-    legislation_by_year_v1
+    Independently validate Washington State Register and bounded executive
+    sources. Establish a current official contract, date range, reproduction
+    boundary, source-health and last-known-good behavior for each source before
+    implementation, without extending any Washington LWS coverage claim.
+  last_durable_checkpoint: 862a6f6
+  resume_command: npm run check
 
 completion_scope:
   local_release_candidate:
@@ -1139,9 +1146,22 @@ work_items:
     priority: 61
     milestone: B5
     title: Washington legislative adapter
-    status: in_progress
+    status: blocked
     dependencies:
       - B5-WA-LWS-RESEARCH
+    blocked_by:
+      - G-WA-LWS-DISCOVERY
+    safe_fallback: >-
+      Keep washington-lws disabled with adapter null, emit no Washington LWS
+      records or range claim, and omit the source until a truthful
+      planned-source coverage-gap disclosure exists. There is no deployed
+      last-known-good shard to reuse.
+    unblocks_only_when: >-
+      G-WA-LWS-DISCOVERY is satisfied without retrying the existing fixed yearly
+      scenario, and the resulting evidence supports complete refresh
+      reconciliation, PolicyRecord normalization/provenance, source health, and
+      checksum-validated last-known-good behavior without inferred identity,
+      version, date, link, or completeness semantics.
     acceptance:
       - SOAP fixtures cover bills, versions, sponsors, committees, actions,
         status, dates, documents, missing fields, and faults.
@@ -1326,19 +1346,57 @@ work_items:
         and documentation. After remediation, all final reviews reported no
         remaining high- or medium-severity finding.
       - >-
-        No GetLegislationByYear source request has run. This remains in
-        progress: source-registry 1.7.0 retains adapter null, and the single
-        bounded yearly canary, complete refresh reconciliation, PolicyRecord
-        normalization/provenance, source health, and checksum-validated
-        last-known-good behavior remain unimplemented.
+        The exact legislation_by_year_v1 command ran once on 2026-07-31 for its
+        internally fixed GetLegislationByYear 2025 request. It made one request
+        with no retry and reported HTTP 200 in under one second, outcome
+        rejected, expectation false, invalid_soap, null deliberately undisclosed
+        byte fields, and no SOAP observation. No raw XML, response body,
+        transport receipt, typed item, identifier, provider string, request
+        value, or parser detail was printed or persisted.
+      - >-
+        Local analysis proves the response passed the reviewed redirect, final
+        URL, HTTP status, media type, content encoding, bounded nonempty body,
+        stream chunk, declared-length, and deadline checks before any parser
+        throw was collapsed to invalid_soap. That category cannot distinguish
+        provider drift, an unsupported response variant, a collection or field
+        limit, a repository contract mismatch, or a parser defect. It supplies
+        no accepted success or fault, result state, item/field count, returned
+        biennium, ordering, uniqueness, active-version, completeness,
+        historical-range, source-health, or production-viability evidence.
+      - >-
+        Every other reviewed operation requires a prior bill or document seed,
+        has no population discovery, and does not form a unified mutation feed;
+        numeric scanning remains forbidden. Synthetic normalization would invent
+        unsupported identity, deduplication, version, date-zone, link, and
+        completeness decisions, so no independent safe local adapter step
+        remains.
+      - >-
+        Local commit 862a6f6 records the rejected result and its non-inference
+        boundary in the README, architecture, data contract, decision register,
+        source feasibility table, and dated source review. Independent privacy,
+        repository-mechanics, and source-contract reviews found no remaining
+        high- or medium-severity documentation or technical-claim issue after
+        the ledger no-retry correction.
+      - >-
+        Full npm run check passed on 2026-07-31 with 32 Vitest files and 492
+        tests, formatting, lint, type checking, roadmap validation,
+        source-boundary scanning, a synthetic-only production build, and
+        artifact validation at 2 records, 575 Nations, and 7 verified assets;
+        build ID synthetic-41f8005ed94415d8a0cc.
+      - >-
+        This item is evidence-blocked by G-WA-LWS-DISCOVERY. Source-registry
+        1.7.0 retains adapter null, no Washington LWS record or range is
+        emitted, and there is no last-known-good shard. This blocked required
+        outcome remains unresolved for local release-candidate acceptance while
+        independent ready work proceeds.
 
   - id: B5-WA-RULES
     priority: 62
     milestone: B5
     title: Washington State Register and executive-source adapters
-    status: not_started
+    status: in_progress
     dependencies:
-      - B5-WA-LWS-ADAPTER
+      - B3-PIPELINE
     acceptance:
       - Each source has an independent official contract, date range, health
         shard, and reproduction review.
@@ -1843,14 +1901,14 @@ source_register:
   - id: SRC-WA-LWS
     source: Washington Legislative Web Services
     implementation_state: >-
-      yearly_canary_observer_complete_live_canary_ready
+      yearly_contract_fit_evidence_blocked_adapter_null
     work_items:
       - B5-WA-LWS-RESEARCH
       - B5-WA-LWS-ADAPTER
     public_claim: no production records yet
   - id: SRC-WA-OTHER
     source: Washington rules, executive material, and accords
-    implementation_state: source_specific_research_pending
+    implementation_state: rules_source_contract_in_progress_accord_ready
     work_items:
       - B5-WA-RULES
       - B5-WA-ACCORDS
@@ -1950,24 +2008,24 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B5-WA-LWS-ADAPTER
+    work_item: B5-WA-RULES
     action: >-
-      Run exactly once: npm run --silent source:wa-lws:canary -- --execute
-      --scenario legislation_by_year_v1. Do not retry or persist the response.
-      Record only the validated aggregate report and its one-query limitations;
-      make no completeness, partition, ordering, uniqueness, or historical-range
-      claim.
+      Independently validate Washington State Register and bounded executive
+      sources. Establish current official contracts, date ranges, reproduction
+      boundaries, cadence, failure behavior, health, and last-known-good
+      requirements without extending any Washington LWS coverage claim.
   - order: 2
     work_item: B5-WA-ACCORDS
     action: >-
-      If the legislative adapter reaches a genuine evidence block, validate a
-      small official Washington accord pilot without inferring Nation
-      signatories or reproducing unreviewed text.
+      Validate the smallest authoritative Washington accord pilot after the
+      rules work or if it reaches a genuine evidence block, using exact official
+      Nation-signatory evidence and no unreviewed text reproduction.
   - order: 3
     work_item: B6-COURT-RESEARCH
     action: >-
-      Continue independent official-court pilot-source research after the lower
-      priority-number Washington work or if it reaches a genuine evidence block.
+      Continue independent official-court pilot-source research after the
+      lower-priority-number Washington work or if it reaches a genuine evidence
+      block.
 
 finish_states:
   local_release_candidate:
