@@ -141,6 +141,25 @@ headers, and unknown structure. Its current bounded in-memory event projection
 is source-contract evidence only; it is neither a browser dependency nor
 authorization to persist raw provider XML.
 
+Source-registry schema 1.2 adds `official_index` for an originating public
+document index that is neither an API, feed, nor bulk export. The independently
+registered `washington-state-register` and
+`washington-governor-executive-orders` sources use this method. They remain
+disabled with `adapter: null`; the method describes their reviewed access
+surface and does not turn an undocumented HTML page into a formal API.
+
+The Register and Governor sources must have separate adapters, health receipts,
+and last-known-good shards from each other and from Washington LWS. A Register
+refresh may select only issues whose official annual calendar publication date
+is at or before the build time. Online or certified future issues remain
+ineligible. The first Governor contract is limited to exact Bob Ferguson
+filter value `220` and one page of at most 25 rows. The larger
+all-governors view is separate historical evidence, not implicit coverage.
+Both sources are metadata-and-links-only, build-time-only, state
+`general_jurisdiction`, and `Unclassified` absent exact separately validated
+evidence. No page body, PDF body, contact field, land detail, title keyword,
+source status, or publisher identity creates a Nation relationship.
+
 ## Source repository versus deployment artifact
 
 The proposed tree is:

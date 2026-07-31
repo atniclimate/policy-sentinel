@@ -1,7 +1,7 @@
 {
   "$schema": "../schemas/source.schema.v1.json",
-  "schemaVersion": "1.1.0",
-  "registryVersion": "1.7.0",
+  "schemaVersion": "1.2.0",
+  "registryVersion": "1.8.0",
   "generatedDataPolicy": "artifact-only",
   "sources": [
     {
@@ -355,6 +355,96 @@
       "publication": {
         "attribution": "Washington State Legislature",
         "termsUrl": "https://leg.wa.gov/privacy-notice/",
+        "reproduction": "metadata_and_links",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/status/sourceLabel",
+          "/urls/officialSource"
+        ]
+      },
+      "officialSubjectMappings": []
+    },
+    {
+      "id": "washington-state-register",
+      "name": "Washington State Register",
+      "provider": "Washington State Code Reviser's Office",
+      "synthetic": false,
+      "enabled": false,
+      "adapter": null,
+      "jurisdiction": {
+        "level": "state",
+        "name": "Washington",
+        "stateCode": "WA"
+      },
+      "access": {
+        "method": "official_index",
+        "officialDocumentationUrl": "https://leg.wa.gov/state-laws-and-rules/washington-state-register/",
+        "accessedOn": "2026-07-31",
+        "allowedHosts": [
+          "app.leg.wa.gov",
+          "lawfilesext.leg.wa.gov",
+          "leg.wa.gov"
+        ],
+        "authentication": "none",
+        "rateLimit": "No numeric request limit, quota, pagination contract, response-size bound, retry rule, SLA, checksum, or change-notification contract was published. A future build-time adapter must use repository-owned request, byte, item, issue, and time ceilings with no browser retrieval.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": null,
+        "through": null,
+        "cadence": "The current official description says the Register is distributed on the first and third Wednesdays of each month; Policy Sentinel retrieval would remain weekly and build-time only.",
+        "limitations": "The official issue index exposes issue-level material beginning with 1978, but exact first-publication date is not yet established. Grouped filing pages begin with issue 05-19; earlier periods use materially different issue-PDF and annual-index surfaces. Online availability and certification can precede the official scheduled publication date, agency labels are not stable identifiers, individual filings can be incomplete or contain personal/contact and land-related detail, and no correction-history feed or documented machine schema exists."
+      },
+      "publication": {
+        "attribution": "Washington State Register / Washington State Code Reviser's Office",
+        "termsUrl": "https://leg.wa.gov/privacy-notice/",
+        "reproduction": "metadata_and_links",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/status/sourceLabel",
+          "/urls/officialSource"
+        ]
+      },
+      "officialSubjectMappings": []
+    },
+    {
+      "id": "washington-governor-executive-orders",
+      "name": "Washington Governor Executive Orders",
+      "provider": "Office of the Governor, State of Washington",
+      "synthetic": false,
+      "enabled": false,
+      "adapter": null,
+      "jurisdiction": {
+        "level": "state",
+        "name": "Washington",
+        "stateCode": "WA"
+      },
+      "access": {
+        "method": "official_index",
+        "officialDocumentationUrl": "https://governor.wa.gov/office-governor/office/official-actions/executive-orders",
+        "accessedOn": "2026-07-31",
+        "allowedHosts": ["governor.wa.gov"],
+        "authentication": "none",
+        "rateLimit": "No numeric request limit, quota, pagination contract, response-size bound, retry rule, SLA, checksum, or change-notification contract was published. A first build-time adapter must use the exact Bob Ferguson filter value 220 under repository-owned byte, row, and time ceilings and must fail closed if it unexpectedly paginates or its structure drifts.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": "1918-11-27",
+        "through": null,
+        "cadence": "No publisher cadence or publication schedule was documented; Policy Sentinel would check weekly and build-time only.",
+        "limitations": "The coverage start is the earliest row observed in the explicit All-governors/All-statuses view, not a completeness guarantee. That view exposed 534 rows over 22 pages from 1918-11-27 through 2026-06-25 but has no stable HTML, filter-ID, pagination, status-history, correction, or supersession contract. The first selected adapter scope is the exact Bob Ferguson filter value 220 only, beginning with order 25-01 on 2025-01-15, and cannot claim historical or all-active-order completeness."
+      },
+      "publication": {
+        "attribution": "Office of the Governor, State of Washington",
+        "termsUrl": "https://governor.wa.gov/privacy-notice",
         "reproduction": "metadata_and_links",
         "failureMode": "last_known_good",
         "requiredProvenancePointers": [

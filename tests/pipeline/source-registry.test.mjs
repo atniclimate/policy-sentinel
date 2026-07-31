@@ -33,8 +33,8 @@ const validateSources = ajv.compile(sourceSchema);
 test("source registry records researched disabled production sources", () => {
   assert.equal(validateSources(sourceRegistry), true);
   assert.doesNotThrow(() => assertSourceRegistrySemantics(sourceRegistry));
-  assert.equal(sourceRegistry.schemaVersion, "1.1.0");
-  assert.equal(sourceRegistry.registryVersion, "1.7.0");
+  assert.equal(sourceRegistry.schemaVersion, "1.2.0");
+  assert.equal(sourceRegistry.registryVersion, "1.8.0");
 
   const federalRegister = sourceRegistry.sources.find(
     ({ id }) => id === "federal-register",
@@ -191,6 +191,79 @@ test("source registry records researched disabled production sources", () => {
   assert.match(
     washingtonLws.coverage.limitations,
     /No service-wide historical start/,
+  );
+
+  const washingtonStateRegister = sourceRegistry.sources.find(
+    ({ id }) => id === "washington-state-register",
+  );
+  assert.deepEqual(
+    {
+      enabled: washingtonStateRegister.enabled,
+      synthetic: washingtonStateRegister.synthetic,
+      adapter: washingtonStateRegister.adapter,
+      accessedOn: washingtonStateRegister.access.accessedOn,
+      method: washingtonStateRegister.access.method,
+      authentication: washingtonStateRegister.access.authentication,
+      allowedHosts: washingtonStateRegister.access.allowedHosts,
+      coverageFrom: washingtonStateRegister.coverage.from,
+      termsUrl: washingtonStateRegister.publication.termsUrl,
+      reproduction: washingtonStateRegister.publication.reproduction,
+      officialSubjectMappings: washingtonStateRegister.officialSubjectMappings,
+    },
+    {
+      enabled: false,
+      synthetic: false,
+      adapter: null,
+      accessedOn: "2026-07-31",
+      method: "official_index",
+      authentication: "none",
+      allowedHosts: ["app.leg.wa.gov", "lawfilesext.leg.wa.gov", "leg.wa.gov"],
+      coverageFrom: null,
+      termsUrl: "https://leg.wa.gov/privacy-notice/",
+      reproduction: "metadata_and_links",
+      officialSubjectMappings: [],
+    },
+  );
+  assert.match(
+    washingtonStateRegister.coverage.limitations,
+    /Grouped filing pages begin with issue 05-19/,
+  );
+
+  const washingtonGovernorExecutiveOrders = sourceRegistry.sources.find(
+    ({ id }) => id === "washington-governor-executive-orders",
+  );
+  assert.deepEqual(
+    {
+      enabled: washingtonGovernorExecutiveOrders.enabled,
+      synthetic: washingtonGovernorExecutiveOrders.synthetic,
+      adapter: washingtonGovernorExecutiveOrders.adapter,
+      accessedOn: washingtonGovernorExecutiveOrders.access.accessedOn,
+      method: washingtonGovernorExecutiveOrders.access.method,
+      authentication: washingtonGovernorExecutiveOrders.access.authentication,
+      allowedHosts: washingtonGovernorExecutiveOrders.access.allowedHosts,
+      coverageFrom: washingtonGovernorExecutiveOrders.coverage.from,
+      termsUrl: washingtonGovernorExecutiveOrders.publication.termsUrl,
+      reproduction: washingtonGovernorExecutiveOrders.publication.reproduction,
+      officialSubjectMappings:
+        washingtonGovernorExecutiveOrders.officialSubjectMappings,
+    },
+    {
+      enabled: false,
+      synthetic: false,
+      adapter: null,
+      accessedOn: "2026-07-31",
+      method: "official_index",
+      authentication: "none",
+      allowedHosts: ["governor.wa.gov"],
+      coverageFrom: "1918-11-27",
+      termsUrl: "https://governor.wa.gov/privacy-notice",
+      reproduction: "metadata_and_links",
+      officialSubjectMappings: [],
+    },
+  );
+  assert.match(
+    washingtonGovernorExecutiveOrders.coverage.limitations,
+    /cannot claim historical or all-active-order completeness/,
   );
 });
 

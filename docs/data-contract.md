@@ -11,9 +11,9 @@ The Phase A contracts are:
 - [`taxonomy.v1.json`](../config/taxonomy.v1.json), the editable ten-category,
   33-subcategory starting taxonomy;
 - [`source.schema.v1.json`](../schemas/source.schema.v1.json), compatible v1
-  source-registry schema version `1.1.0`;
+  source-registry schema version `1.2.0`;
 - [`sources.v1.json`](../config/sources.v1.json), source registry version
-  `1.7.0`; and
+  `1.8.0`; and
 - [`artifact.schema.v1.json`](../schemas/artifact.schema.v1.json), static
   artifact schema version `1.0.0`.
 
@@ -23,13 +23,24 @@ evidence that a production source is enabled or a public dataset exists.
 taxonomy, and synthetic fixtures, and proves selected invalid governance cases
 are rejected.
 
-Source-registry version `1.7.0` distinguishes researched configuration,
+Source-registry version `1.8.0` distinguishes researched configuration,
 implemented adapters, and activation. A disabled source may have
 `adapter: null` or a versioned adapter that is not authorized to emit public
 records; an enabled source must have a versioned adapter. Every non-synthetic
 source records the date its cited contract and terms were accessed. Disabled
 sources and their identifiers are rejected from coverage, health, manifests,
 and records rather than appearing as an unavailable public source. The
+compatible source schema adds the `official_index` access method for an
+originating public document index that is neither an API, feed, nor bulk
+export. The independently registered `washington-state-register` and
+`washington-governor-executive-orders` sources use that method and remain
+disabled with `adapter: null`; separate source IDs preserve independent health
+and last-known-good behavior. Their dated reviews limit both sources to
+metadata and official links, keep the Register's scheduled publication date
+separate from online availability, and do not treat the Governor's
+current-term index as a complete historical archive. The registry-version
+change intentionally makes an older artifact ineligible for last-known-good
+reuse until it has been rebuilt against the exact current source registry. The
 Grants.gov entry is disabled with no adapter because its current terms and live
 contract canaries remain behind G-B-GRANTS. The Congress.gov entry is likewise
 disabled with no adapter because registration, key handling, runtime-host
