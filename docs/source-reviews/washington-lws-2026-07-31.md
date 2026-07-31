@@ -576,11 +576,34 @@ outcomes remain distinct. Expectation success requires a present non-empty
 known-bill result, but does not establish uniqueness, ordering, completeness,
 or date meaning.
 
-This observer checkpoint still made no LWS bill/data request and retained no
-provider response. `GetDocuments` is deliberately unreachable: the current
-parser accepts only the impossible synthetic document-link shape, so actual
-rendition hosts and paths require a separately reviewed in-boundary classifier
-before a live document scenario can be useful.
+Before its first execution, this observer checkpoint made no LWS bill/data
+request and retained no provider response.
+
+## First aggregate live-canary evidence
+
+The fixed observer ran once on 2026-07-31. It made one request with no retry and
+reported a successful HTTP 200 response in under one second; declared and
+received sizes were both 1,877 bytes. The SOAP result was present with one item,
+and the reviewed request-identity echo fields were accepted. Of the ten
+allowlisted optional top-level fields, one was null and nine had values. Two
+date lexemes were observed; both lacked a timezone and fractional seconds, and
+neither used UTC nor an explicit offset. No raw XML, typed response item,
+provider string, exact date, request content, or network error was printed or
+persisted.
+
+This establishes only that the selected SOAP 1.1 endpoint, action, response
+envelope, transport constraints, parser, and identity-echo checks interoperated
+for one current known-bill request. It does not establish which optional field
+was absent, date-zone or instant semantics, field requiredness across records,
+ordering, uniqueness, historical operation ranges, empty-result or fault
+behavior, complete discovery, or another operation's binding. Date values must
+therefore remain source lexical values and must not be converted to UTC until a
+separate official semantic basis exists.
+
+`GetDocuments` remains deliberately unreachable: the current parser accepts
+only the impossible synthetic document-link shape, so actual rendition hosts
+and paths require a separately reviewed in-boundary classifier before a live
+document scenario can be useful.
 
 The checkpoint does not enumerate a complete bill population, establish live
 requiredness or URL hosts, normalize a `PolicyRecord`, emit provider retrieval
@@ -601,20 +624,20 @@ any failed or incomplete refresh omits the source. A future source-unavailable
 public notice also requires the separate planned-source disclosure mechanism;
 disabled registry entries are not present in the current artifact.
 
-## Live-only questions for the adapter checkpoint
+## Remaining live questions for the adapter checkpoint
 
-A bounded no-auth live canary must still establish:
+Bounded no-auth evidence must still establish or narrow:
 
-1. exact SOAP envelope, content type, action, response, empty-result, and fault
-   behavior for the selected binding;
+1. empty-result and fault behavior for the selected binding, plus exact
+   request/response behavior for each other required operation;
 2. supported biennia and earliest/latest successful range per required
    operation rather than one all-LWS range;
 3. required, optional, missing, empty, nil, default, unknown, and malformed
    field behavior;
 4. bill, version, document, status, committee, sponsor, and session-law
    identity, uniqueness, ordering, and reconciliation;
-5. date time zones, precision, sentinel values, inclusive boundaries, and
-   concurrent-update behavior;
+5. date-zone meaning for the now-observed timezone-absent lexemes, precision,
+   sentinel values, inclusive boundaries, and concurrent-update behavior;
 6. complete refresh design despite unbounded arrays and the absence of a
    unified mutation feed or pagination;
 7. response sizes, item counts, latency, timeouts, and conservative request
