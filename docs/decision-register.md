@@ -8,7 +8,7 @@ implementation facts may be resolved with dated primary evidence, but their
 resolution must be recorded here and in affected versioned configuration.
 Source-specific blockers do not block unrelated sources.
 
-Last reviewed: 2026-07-30.
+Last reviewed: 2026-07-31.
 
 ## Current phase authorization
 
@@ -59,7 +59,7 @@ optional AI generation, and outbound notifications remain unauthorized.
 
 | ID | Fact to resolve | Current evidence and next verification |
 | --- | --- | --- |
-| O-001 | Publication review and durable crosswalk for all 575 official names, authorized aliases, name changes, grouping, and state coverage. | The local build-time adapter parses the [2026 recognition notice](https://www.federalregister.gov/documents/2026/01/30/2026-01899/indian-entities-recognized-by-and-eligible-to-receive-services-from-the-united-states-bureau-of), reconciles two exact Venetie alias-only cross-reference paragraphs, and validates 575 source-exact entries. It preserves grouped Pribilof entries as published and leaves state coverage unresolved/federal-only. Human source review and a carry-forward ID crosswalk are still required before publication. Do not import TLD contacts or geometry. |
+| O-001 | Publication review and durable crosswalk for all 575 official names, authorized aliases, name changes, grouping, and state coverage. | Two independent methods verified that the [2026 recognition notice](https://www.federalregister.gov/documents/2026/01/30/2026-01899/indian-entities-recognized-by-and-eligible-to-receive-services-from-the-united-states-bureau-of) states 575 entities while displaying 577 ordered list-entry paragraphs: 348 contiguous and 229 Alaska. The [August 2023 notice](https://www.govinfo.gov/content/pkg/FR-2023-08-11/html/2023-17195.htm) withdrew the 2022 and January 2023 count clarification and returned the Venetie and Pribilof grouping entities; the current notice supplies no row-level reconciliation from its displayed paragraphs to its stated total. The former Venetie-only alias rule was unsupported and has been removed. The adapter now verifies the transcription and fails closed without emitting a registry. Exact originating-source identity evidence, then the stable-ID, official-alias, and state crosswalk, remain required. TLD contacts, addresses, and geometry stay excluded. |
 | O-002 | Final client index/shard sizes and full-text method at representative public-data scale. | The synthetic vertical slice now uses a compact index and separate on-demand details without a search dependency. Benchmark representative multi-source volume before deciding whether that remains sufficient. |
 | O-003 | Exact deterministic definitions for new/changed badges and urgent deadline/status alerts. | Specify source-field comparisons, time zones, thresholds, and test cases before public use; do not use AI urgency scoring. |
 | O-004 | Congressional and federal metadata field availability across time. | Validate the [Congress.gov coverage dates](https://www.congress.gov/help/coverage-dates), GovInfo package/granule fields, pagination, and source identifiers with source-specific fixtures. |

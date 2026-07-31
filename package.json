@@ -11,7 +11,7 @@
     "validate:roadmap": "node scripts/validate-roadmap.mjs",
     "validate:foundation": "node scripts/validate-foundation.mjs",
     "validate:artifact": "node scripts/validate-artifact.mjs --dir dist/data",
-    "source:bia": "node scripts/build-bia-registry.mjs --out dist/source-validation/bia/nations.json",
+    "source:bia": "node scripts/build-bia-registry.mjs --out .cache/source-validation/bia/nations.json",
     "scan:source": "node scripts/scan-source-boundary.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

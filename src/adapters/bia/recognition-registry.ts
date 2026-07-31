@@ -40,9 +40,25 @@ export const BIA_RESPONSE_POLICY = {
 export const BIA_PUBLICATION_REVIEW = {
   state: "required_before_publication",
   blocking: true,
-  reasonCode: "source-grouping-semantics-require-human-review",
-  note: "The notice does not machine-label every grouped-entry relationship. The adapter reconciles only the two exact Venetie alias cross-references and otherwise preserves source entries without reinterpreting them.",
+  reasonCode: "current-notice-identity-reconciliation-unresolved",
+  note: "Independent review verified 577 ordered list-entry paragraphs and the stated total of 575, but the current notice provides no row-level reconciliation between them. No Nation registry is emitted until exact primary-source evidence resolves that mapping.",
   reviewedAt: null,
+} as const;
+
+export const BIA_REVIEWED_TRANSCRIPTION = {
+  reviewedOn: "2026-07-31",
+  rawEntryCount: 577,
+  sectionEntryCounts: {
+    contiguous_48: 348,
+    alaska: 229,
+  },
+  orderedEntrySha256:
+    "c33e84713c51fe3b58f53ec8a17ee865d2cf82e12716a09b9e9273b3e41306be",
+  govInfoBoundedListSha256:
+    "f80718946ce77076470427b2bac13a14e1548913eae710270c7975fb88aa9ce1",
+  statedNationCount: 575,
+  seeClauseCount: 6,
+  identityReconciliation: "blocked_unresolved_row_reconciliation",
 } as const;
 
 const CONTIGUOUS_HEADING =
@@ -50,19 +66,16 @@ const CONTIGUOUS_HEADING =
 const ALASKA_HEADING =
   "Native Entities Within the State of Alaska Recognized by and Eligible To Receive Services From the United States Bureau of Indian Affairs";
 
-const VENETIE_CANONICAL =
-  "Native Village of Venetie Tribal Government (Arctic Village and Village of Venetie)";
-const VENETIE_CROSS_REFERENCES = [
-  {
-    exactText:
-      "Arctic Village (See Native Village of Venetie Tribal Government)",
-    alias: "Arctic Village",
-  },
-  {
-    exactText:
-      "Village of Venetie (See Native Village of Venetie Tribal Government)",
-    alias: "Village of Venetie",
-  },
+const UNRESOLVED_GROUPING_ROWS = [
+  "Native Village of Venetie Tribal Government (Arctic Village and Village of Venetie)",
+  "Pribilof Islands Aleut Communities of St. Paul & St. George Islands (St. George Island and Saint Paul Island)",
+] as const;
+
+const UNRESOLVED_COMPONENT_ROWS = [
+  "Aleut Community of St. Paul Island (See Pribilof Islands Aleut Communities of St. Paul & St. George Islands) (previously listed as Saint Paul Island (See Pribilof Islands Aleut Communities of St. Paul & St. George Islands))",
+  "Arctic Village (See Native Village of Venetie Tribal Government)",
+  "St. George Island (See Pribilof Islands Aleut Communities of St. Paul & St. George Islands)",
+  "Village of Venetie (See Native Village of Venetie Tribal Government)",
 ] as const;
 
 export type RecognitionDocumentFormat = "html" | "xml" | "text";
@@ -75,103 +88,13 @@ export interface RawRecognitionEntry {
   section: RecognitionSection;
 }
 
-export interface RecognitionEvidence {
-  exactText: string;
-  paragraphId: string;
-  page: string | null;
-  section: RecognitionSection;
-  sourceUrl: string;
-  officialTextUrl: string;
-  officialPdfUrl: string;
-}
-
-interface ReconciledRecognitionEntry {
-  officialName: string;
-  officialListEntry: string;
-  primaryParagraphId: string;
-  section: RecognitionSection;
-  authorizedAliases: string[];
-  evidenceEntries: RawRecognitionEntry[];
-  reconciliationRuleId: string | null;
-}
-
-export interface BiaNation {
-  id: string;
-  officialName: string;
-  authorizedAliases: string[];
-  aliasProvenance: Array<{
-    alias: string;
-    basis: "official_cross_reference";
-    evidenceText: string;
-    evidenceUrl: string;
-    retrievedAt: string;
-    validationState: "validated";
-  }>;
-  recognitionBaselineVersion: string;
-  sourceIdentifier: string;
-  officialListEntry: string;
-  section: RecognitionSection;
-  stateCoverage: {
-    states: [];
-    federalOnly: true;
-    basis: "unresolved_no_reviewed_crosswalk";
-  };
-  sourceEvidence: RecognitionEvidence[];
-  fieldProvenance: Array<{
-    field: "/officialName" | "/authorizedAliases";
-    sourceUrl: string;
-    sourceDate: string;
-    retrievedAt: string;
-    transformation: "copied" | "reconciled_official_cross_reference";
-    transformRuleId: string | null;
-    validationState: "validated";
-  }>;
-}
-
-export interface BiaNationRegistry {
-  artifactType: "nation-collection";
-  schemaVersion: "1.0.0";
-  registryVersion: "2026-01-30";
-  generatedAt: string;
-  baseline: {
-    count: 575;
-    version: "2026-01-30";
-    authorityName: "Bureau of Indian Affairs annual recognition notice";
-    authorityUrl: string;
-    documentNumber: "2026-01899";
-    publicationDate: "2026-01-30";
-    officialTextUrl: string;
-    officialPdfUrl: string;
-    structuredTranscriptionUrl: string;
-    synthetic: false;
-  };
-  identityRule: typeof BIA_IDENTITY_RULE;
-  publicationReview: typeof BIA_PUBLICATION_REVIEW;
-  validation: {
-    state: "validated";
-    rawEntryCount: 577;
-    reconciledNationCount: 575;
-    uniqueIdCount: 575;
-    uniqueOfficialNameCount: 575;
-    transcriptCompared: true;
-    reconciliationRuleIds: ["bia-2026-venetie-cross-references-v1"];
-  };
-  sourceHealth: {
-    status: "healthy";
-    checkedAt: string;
-    dataAsOf: "2026-01-30";
-    lastSuccessfulRetrievalAt: string;
-    usingLastKnownGood: false;
-    message: null;
-  };
-  nations: BiaNation[];
-}
-
 interface FederalRegisterMetadata {
   document_number: string;
   publication_date: string;
   body_html_url: string;
   pdf_url: string;
+  correction_of: null;
+  corrections: unknown[];
 }
 
 export interface RecognitionSourceDocuments {
@@ -225,7 +148,7 @@ function decodeEntity(entity: string): string {
 
 function removeUnprintedPageMarkup(value: string): string {
   return value.replace(
-    /<span\b[^>]*class=["'][^"']*\bunprinted-element\b[^"']*["'][^>]*>[\s\S]*?<\/span>/gi,
+    /<span\b[^>]*class=["'][^"']*\bunprinted-element\b[^"']*["'][^>]*>[\s\S]*?<\/span\s*>/gi,
     "",
   );
 }
@@ -425,74 +348,136 @@ export function reconcile2026RecognitionEntries(
   entries: RawRecognitionEntry[],
   expectedRawCount: number = BIA_RECOGNITION_2026.expectedRawEntryCount,
   expectedNationCount: number = BIA_RECOGNITION_2026.expectedNationCount,
-): ReconciledRecognitionEntry[] {
+): never {
   if (entries.length !== expectedRawCount) {
     throw new Error(
       `2026 recognition transcription has ${entries.length} entries; expected exactly ${expectedRawCount}.`,
     );
   }
 
-  const canonical = findExactlyOne(entries, VENETIE_CANONICAL);
-  const crossReferences = VENETIE_CROSS_REFERENCES.map((reference) => ({
-    ...reference,
-    entry: findExactlyOne(entries, reference.exactText),
-  }));
-  const excludedParagraphIds = new Set(
-    crossReferences.map((reference) => reference.entry.paragraphId),
+  for (const exactText of [
+    ...UNRESOLVED_GROUPING_ROWS,
+    ...UNRESOLVED_COMPONENT_ROWS,
+  ]) {
+    const entry = findExactlyOne(entries, exactText);
+    if (entry.section !== "alaska") {
+      throw new Error(
+        `Expected unresolved 2026 grouping row in the Alaska section: ${JSON.stringify(exactText)}.`,
+      );
+    }
+  }
+
+  if (entries.length - expectedNationCount !== 2) {
+    throw new Error(
+      `2026 recognition identity difference is ${entries.length - expectedNationCount}; expected exactly 2.`,
+    );
+  }
+
+  throw new Error(
+    `BIA identity reconciliation is blocked: the current notice displays ${entries.length} ordered list-entry paragraphs but states ${expectedNationCount} Tribal entities without providing a row-level reconciliation between them. The superseded 2022 and January 2023 clarification cannot be applied after its August 2023 withdrawal.`,
   );
-
-  const reconciled = entries
-    .filter((entry) => !excludedParagraphIds.has(entry.paragraphId))
-    .map((entry): ReconciledRecognitionEntry => {
-      if (entry.paragraphId !== canonical.paragraphId) {
-        return {
-          officialName: entry.exactText,
-          officialListEntry: entry.exactText,
-          primaryParagraphId: entry.paragraphId,
-          section: entry.section,
-          authorizedAliases: [],
-          evidenceEntries: [entry],
-          reconciliationRuleId: null,
-        };
-      }
-
-      return {
-        officialName: entry.exactText,
-        officialListEntry: entry.exactText,
-        primaryParagraphId: entry.paragraphId,
-        section: entry.section,
-        authorizedAliases: crossReferences.map((reference) => reference.alias),
-        evidenceEntries: [
-          entry,
-          ...crossReferences.map((reference) => reference.entry),
-        ],
-        reconciliationRuleId: "bia-2026-venetie-cross-references-v1",
-      };
-    });
-
-  if (reconciled.length !== expectedNationCount) {
-    throw new Error(
-      `2026 recognition reconciliation produced ${reconciled.length} entries; expected exactly ${expectedNationCount}.`,
-    );
-  }
-
-  const names = new Set(reconciled.map((entry) => entry.officialName));
-  if (names.size !== reconciled.length) {
-    throw new Error(
-      "2026 recognition reconciliation produced duplicate names.",
-    );
-  }
-  return reconciled;
 }
 
 function comparisonText(value: string): string {
   return normalizeVisibleText(value).replaceAll("—", "--");
 }
 
+function locateGovInfoListMarkers(normalizedOfficialText: string): {
+  contiguousHeadingIndex: number;
+  alaskaHeadingIndex: number;
+  listEndIndex: number;
+} {
+  const contiguousHeadingIndex = normalizedOfficialText.indexOf(
+    comparisonText(CONTIGUOUS_HEADING),
+  );
+  const alaskaHeadingIndex = normalizedOfficialText.indexOf(
+    comparisonText(ALASKA_HEADING),
+  );
+  const listEndIndex = normalizedOfficialText.indexOf(
+    `[FR Doc. ${BIA_RECOGNITION_2026.documentNumber}`,
+    alaskaHeadingIndex,
+  );
+  if (
+    contiguousHeadingIndex < 0 ||
+    alaskaHeadingIndex <= contiguousHeadingIndex ||
+    listEndIndex <= alaskaHeadingIndex
+  ) {
+    throw new Error(
+      "GovInfo recognition notice is missing the bounded, ordered recognition-list markers.",
+    );
+  }
+  return {
+    contiguousHeadingIndex,
+    alaskaHeadingIndex,
+    listEndIndex,
+  };
+}
+
+export function govInfoBoundedListSha256(officialText: string): string {
+  const normalizedOfficialText = comparisonText(officialText);
+  const { contiguousHeadingIndex, listEndIndex } = locateGovInfoListMarkers(
+    normalizedOfficialText,
+  );
+  return createHash("sha256")
+    .update(
+      normalizedOfficialText.slice(contiguousHeadingIndex, listEndIndex).trim(),
+      "utf8",
+    )
+    .digest("hex");
+}
+
+function orderedEntrySha256(entries: RawRecognitionEntry[]): string {
+  return createHash("sha256")
+    .update(entries.map((entry) => entry.exactText).join("\n"), "utf8")
+    .digest("hex");
+}
+
+export function verifyReviewedRecognitionInventory(
+  entries: RawRecognitionEntry[],
+): void {
+  if (entries.length !== BIA_REVIEWED_TRANSCRIPTION.rawEntryCount) {
+    throw new Error(
+      `Reviewed BIA transcription has ${entries.length} rows; expected ${BIA_REVIEWED_TRANSCRIPTION.rawEntryCount}.`,
+    );
+  }
+
+  const sectionCounts = {
+    contiguous_48: entries.filter((entry) => entry.section === "contiguous_48")
+      .length,
+    alaska: entries.filter((entry) => entry.section === "alaska").length,
+  };
+  for (const section of ["contiguous_48", "alaska"] as const) {
+    const expected = BIA_REVIEWED_TRANSCRIPTION.sectionEntryCounts[section];
+    if (sectionCounts[section] !== expected) {
+      throw new Error(
+        `Reviewed BIA ${section} transcription has ${sectionCounts[section]} rows; expected ${expected}.`,
+      );
+    }
+  }
+
+  const digest = orderedEntrySha256(entries);
+  if (digest !== BIA_REVIEWED_TRANSCRIPTION.orderedEntrySha256) {
+    throw new Error(
+      `Reviewed BIA ordered inventory hash was ${digest}; expected ${BIA_REVIEWED_TRANSCRIPTION.orderedEntrySha256}.`,
+    );
+  }
+
+  const seeClauseCount = entries.reduce(
+    (total, entry) => total + (entry.exactText.match(/\(See\b/g)?.length ?? 0),
+    0,
+  );
+  if (seeClauseCount !== BIA_REVIEWED_TRANSCRIPTION.seeClauseCount) {
+    throw new Error(
+      `Reviewed BIA transcription has ${seeClauseCount} (See) clauses; expected ${BIA_REVIEWED_TRANSCRIPTION.seeClauseCount}.`,
+    );
+  }
+}
+
 export function verifyGovInfoTranscript(
   officialText: string,
   entries: RawRecognitionEntry[],
   expectedNationCount: number = BIA_RECOGNITION_2026.expectedNationCount,
+  expectedBoundedListSha256: string = BIA_REVIEWED_TRANSCRIPTION.govInfoBoundedListSha256,
 ): void {
   const normalizedOfficialText = comparisonText(officialText);
   const statedTotal = normalizedOfficialText.match(
@@ -507,14 +492,49 @@ export function verifyGovInfoTranscript(
     );
   }
 
-  const missing = entries.filter(
-    (entry) =>
-      !normalizedOfficialText.includes(comparisonText(entry.exactText)),
-  );
-  if (missing.length > 0) {
+  const { contiguousHeadingIndex, alaskaHeadingIndex, listEndIndex } =
+    locateGovInfoListMarkers(normalizedOfficialText);
+  const boundedListDigest = createHash("sha256")
+    .update(
+      normalizedOfficialText.slice(contiguousHeadingIndex, listEndIndex).trim(),
+      "utf8",
+    )
+    .digest("hex");
+  if (boundedListDigest !== expectedBoundedListSha256) {
     throw new Error(
-      `Structured recognition transcription differs from GovInfo for ${missing.length} entries; first mismatch is ${JSON.stringify(missing[0].exactText)}.`,
+      `GovInfo bounded recognition-list hash was ${boundedListDigest}; expected ${expectedBoundedListSha256}.`,
     );
+  }
+
+  let cursor = contiguousHeadingIndex;
+  let currentSection: RecognitionSection = "contiguous_48";
+  for (const entry of entries) {
+    if (entry.section !== currentSection) {
+      if (currentSection !== "contiguous_48" || entry.section !== "alaska") {
+        throw new Error(
+          "Structured recognition transcription sections are out of order.",
+        );
+      }
+      currentSection = "alaska";
+      cursor = alaskaHeadingIndex;
+    }
+
+    const comparedEntry = comparisonText(entry.exactText);
+    const entryIndex = normalizedOfficialText.indexOf(comparedEntry, cursor);
+    if (entryIndex < 0) {
+      throw new Error(
+        `Structured recognition transcription differs from ordered GovInfo text at ${JSON.stringify(entry.exactText)}.`,
+      );
+    }
+    if (
+      (entry.section === "contiguous_48" && entryIndex >= alaskaHeadingIndex) ||
+      entryIndex >= listEndIndex
+    ) {
+      throw new Error(
+        `Structured recognition transcription differs from ordered GovInfo text at ${JSON.stringify(entry.exactText)}.`,
+      );
+    }
+    cursor = entryIndex + comparedEntry.length;
   }
 }
 
@@ -533,6 +553,15 @@ function assertOfficialMetadata(metadata: FederalRegisterMetadata): void {
         `Federal Register metadata ${field} was ${JSON.stringify(actual)}; expected ${JSON.stringify(wanted)}.`,
       );
     }
+  }
+  if (
+    metadata.correction_of !== null ||
+    !Array.isArray(metadata.corrections) ||
+    metadata.corrections.length !== 0
+  ) {
+    throw new Error(
+      "Federal Register metadata links a correction or has an invalid correction inventory; a new BIA review is required.",
+    );
   }
 }
 
@@ -556,7 +585,7 @@ export function stableNationId(officialName: string): string {
 
 export function buildBiaRegistryFromDocuments(
   documents: RecognitionSourceDocuments,
-): BiaNationRegistry {
+): never {
   assertOfficialMetadata(documents.metadata);
   validateRetrievedAt(documents.retrievedAt);
 
@@ -565,120 +594,8 @@ export function buildBiaRegistryFromDocuments(
     documents.structuredFormat ?? "html",
   );
   verifyGovInfoTranscript(documents.officialText, rawEntries);
-  const reconciled = reconcile2026RecognitionEntries(rawEntries);
-
-  const nations: BiaNation[] = reconciled.map((entry) => {
-    const primaryUrl = `${BIA_RECOGNITION_2026.structuredBodyUrl}#${entry.primaryParagraphId}`;
-    const sourceEvidence = entry.evidenceEntries.map(
-      (evidence): RecognitionEvidence => ({
-        exactText: evidence.exactText,
-        paragraphId: evidence.paragraphId,
-        page: evidence.page,
-        section: evidence.section,
-        sourceUrl: `${BIA_RECOGNITION_2026.structuredBodyUrl}#${evidence.paragraphId}`,
-        officialTextUrl: BIA_RECOGNITION_2026.officialTextUrl,
-        officialPdfUrl: BIA_RECOGNITION_2026.officialPdfUrl,
-      }),
-    );
-
-    return {
-      id: stableNationId(entry.officialName),
-      officialName: entry.officialName,
-      authorizedAliases: entry.authorizedAliases,
-      aliasProvenance: entry.authorizedAliases.map((alias, index) => ({
-        alias,
-        basis: "official_cross_reference",
-        evidenceText: entry.evidenceEntries[index + 1].exactText,
-        evidenceUrl: sourceEvidence[index + 1].sourceUrl,
-        retrievedAt: documents.retrievedAt,
-        validationState: "validated",
-      })),
-      recognitionBaselineVersion: BIA_RECOGNITION_2026.publicationDate,
-      sourceIdentifier: `${BIA_RECOGNITION_2026.documentNumber}:${entry.primaryParagraphId}`,
-      officialListEntry: entry.officialListEntry,
-      section: entry.section,
-      stateCoverage: {
-        states: [],
-        federalOnly: true,
-        basis: "unresolved_no_reviewed_crosswalk",
-      },
-      sourceEvidence,
-      fieldProvenance: [
-        {
-          field: "/officialName",
-          sourceUrl: primaryUrl,
-          sourceDate: BIA_RECOGNITION_2026.publicationDate,
-          retrievedAt: documents.retrievedAt,
-          transformation: "copied",
-          transformRuleId: null,
-          validationState: "validated",
-        },
-        ...(entry.authorizedAliases.length > 0
-          ? [
-              {
-                field: "/authorizedAliases" as const,
-                sourceUrl: primaryUrl,
-                sourceDate: BIA_RECOGNITION_2026.publicationDate,
-                retrievedAt: documents.retrievedAt,
-                transformation: "reconciled_official_cross_reference" as const,
-                transformRuleId: entry.reconciliationRuleId,
-                validationState: "validated" as const,
-              },
-            ]
-          : []),
-      ],
-    };
-  });
-
-  const ids = new Set(nations.map((nation) => nation.id));
-  const names = new Set(nations.map((nation) => nation.officialName));
-  if (
-    ids.size !== BIA_RECOGNITION_2026.expectedNationCount ||
-    names.size !== BIA_RECOGNITION_2026.expectedNationCount
-  ) {
-    throw new Error(
-      `BIA registry uniqueness validation failed: ${ids.size} IDs and ${names.size} names.`,
-    );
-  }
-
-  return {
-    artifactType: "nation-collection",
-    schemaVersion: "1.0.0",
-    registryVersion: BIA_RECOGNITION_2026.publicationDate,
-    generatedAt: documents.retrievedAt,
-    baseline: {
-      count: 575,
-      version: BIA_RECOGNITION_2026.publicationDate,
-      authorityName: "Bureau of Indian Affairs annual recognition notice",
-      authorityUrl: BIA_RECOGNITION_2026.officialTextUrl,
-      documentNumber: BIA_RECOGNITION_2026.documentNumber,
-      publicationDate: BIA_RECOGNITION_2026.publicationDate,
-      officialTextUrl: BIA_RECOGNITION_2026.officialTextUrl,
-      officialPdfUrl: BIA_RECOGNITION_2026.officialPdfUrl,
-      structuredTranscriptionUrl: BIA_RECOGNITION_2026.structuredBodyUrl,
-      synthetic: false,
-    },
-    identityRule: BIA_IDENTITY_RULE,
-    publicationReview: BIA_PUBLICATION_REVIEW,
-    validation: {
-      state: "validated",
-      rawEntryCount: 577,
-      reconciledNationCount: 575,
-      uniqueIdCount: 575,
-      uniqueOfficialNameCount: 575,
-      transcriptCompared: true,
-      reconciliationRuleIds: ["bia-2026-venetie-cross-references-v1"],
-    },
-    sourceHealth: {
-      status: "healthy",
-      checkedAt: documents.retrievedAt,
-      dataAsOf: BIA_RECOGNITION_2026.publicationDate,
-      lastSuccessfulRetrievalAt: documents.retrievedAt,
-      usingLastKnownGood: false,
-      message: null,
-    },
-    nations,
-  };
+  verifyReviewedRecognitionInventory(rawEntries);
+  return reconcile2026RecognitionEntries(rawEntries);
 }
 
 async function fetchChecked(
@@ -795,7 +712,7 @@ export async function fetchOfficialBiaRegistry(
     fetchImpl?: FetchLike;
     retrievedAt?: string;
   } = {},
-): Promise<BiaNationRegistry> {
+): Promise<never> {
   const fetchImpl = options.fetchImpl ?? fetch;
   const retrievedAt = options.retrievedAt ?? new Date().toISOString();
 

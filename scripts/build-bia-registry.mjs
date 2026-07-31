@@ -1,11 +1,16 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, isAbsolute, relative, resolve } from "node:path";
+import { readFile } from "node:fs/promises";
+import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 
 import { fetchOfficialBiaRegistry } from "../src/adapters/bia/recognition-registry.ts";
+import {
+  prepareBiaStagingOutput,
+  resolveBiaStagingOutput,
+  writeBiaStagingJson,
+} from "../src/adapters/bia/output-staging.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -17,15 +22,16 @@ function printHelp() {
       "Usage:",
       "  node scripts/build-bia-registry.mjs [--out <path>]",
       "",
-      "Default output: dist/source-validation/bia/nations.json",
-      "No fetched response or generated registry is written anywhere else.",
+      "Default output: .cache/source-validation/bia/nations.json",
+      "Output is restricted to ignored validation staging and is never part of dist/.",
+      "The current identity-reconciliation gate intentionally prevents output.",
       "",
     ].join("\n"),
   );
 }
 
 function parseArguments(arguments_) {
-  let output = "dist/source-validation/bia/nations.json";
+  let output = ".cache/source-validation/bia/nations.json";
   for (let index = 0; index < arguments_.length; index += 1) {
     const argument = arguments_[index];
     if (argument === "--help" || argument === "-h") {
@@ -42,28 +48,6 @@ function parseArguments(arguments_) {
       continue;
     }
     throw new Error(`Unknown argument: ${argument}`);
-  }
-  return output;
-}
-
-function resolveOutput(outputArgument) {
-  const output = isAbsolute(outputArgument)
-    ? resolve(outputArgument)
-    : resolve(repositoryRoot, outputArgument);
-  const relativePath = relative(repositoryRoot, output);
-  if (
-    relativePath === "" ||
-    relativePath.startsWith("..") ||
-    isAbsolute(relativePath)
-  ) {
-    throw new Error("BIA registry output must remain inside the repository.");
-  }
-
-  const normalized = relativePath.replaceAll("\\", "/");
-  if (!normalized.startsWith("dist/") || !normalized.endsWith(".json")) {
-    throw new Error(
-      `BIA registry output must be a JSON file under dist/: ${relativePath}.`,
-    );
   }
   return output;
 }
@@ -94,14 +78,16 @@ async function validateArtifactContract(registry) {
 }
 
 try {
-  const output = resolveOutput(parseArguments(process.argv.slice(2)));
+  const outputArgument = parseArguments(process.argv.slice(2));
+  const output = resolveBiaStagingOutput(repositoryRoot, outputArgument);
+  await prepareBiaStagingOutput(repositoryRoot, output);
   const registry = await fetchOfficialBiaRegistry();
   await validateArtifactContract(registry);
-  await mkdir(dirname(output), { recursive: true });
-  await writeFile(output, `${JSON.stringify(registry, null, 2)}\n`, {
-    encoding: "utf8",
-    flag: "w",
-  });
+  await writeBiaStagingJson(
+    repositoryRoot,
+    output,
+    `${JSON.stringify(registry, null, 2)}\n`,
+  );
   process.stdout.write(
     `Validated ${registry.nations.length} Nations from ${registry.baseline.documentNumber}; wrote ${relative(repositoryRoot, output)}.\n`,
   );

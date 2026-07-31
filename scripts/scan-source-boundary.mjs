@@ -9,6 +9,7 @@ const projectRoot = path.resolve(
 );
 
 const forbiddenTrackedPrefixes = [
+  ".cache/",
   "ai-summaries/",
   "cached-responses/",
   "dist/",

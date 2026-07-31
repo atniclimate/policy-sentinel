@@ -2,7 +2,7 @@
 
 Status: Gate A approved; Phase B local implementation in progress
 
-Last reviewed: 2026-07-30
+Last reviewed: 2026-07-31
 
 This document is the binding milestone and acceptance contract.
 [`ROADMAP.yaml`](../ROADMAP.yaml) is the canonical ledger for current status,
@@ -28,7 +28,12 @@ Each excluded action has its own stop/go gate below. No milestone may treat an u
 ## Current implementation checkpoint
 
 - B1 is implemented as a local synthetic vertical slice and has passed automated accessibility checks plus desktop and mobile browser verification.
-- B2 has a build-time parser for the official 2026 recognition notice that validates 575 source-exact Nation entries. Its generated output is ignored, uses federal-only coverage where state coverage is unresolved, and is not publication-approved until the grouping and cross-reference review is complete.
+- B2 has a build-time parser for the official 2026 recognition notice that
+  independently validates 577 ordered displayed list-entry paragraphs against
+  the stated total of 575. After the August 2023 withdrawal of an earlier
+  clarification, the current notice provides no row-level reconciliation
+  between the displayed paragraphs and the stated total, so the adapter emits
+  no Nation registry and B2 identity work is source-blocked.
 - B3 is implemented for synthetic records, including compact indexes, separate detail assets, field provenance checks, fail-closed Nation and category rules, source health, artifact hashes, and last-known-good behavior.
 - B4 and later source milestones have not begun. No production policy records have been ingested or published.
 

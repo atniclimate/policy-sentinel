@@ -1,20 +1,45 @@
 import { spawnSync } from "node:child_process";
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
-
+import {
+  access,
+  lstat,
+  mkdir,
+  mkdtemp,
+  readFile,
+  readdir,
+  realpath,
+  rm,
+  rmdir,
+  symlink,
+  writeFile,
+} from "node:fs/promises";
+import {
+  basename,
+  dirname,
+  isAbsolute,
+  join,
+  relative,
+  resolve,
+  sep,
+} from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
   BIA_PUBLICATION_REVIEW,
   BIA_RECOGNITION_2026,
+  BIA_REVIEWED_TRANSCRIPTION,
   BIA_RESPONSE_POLICY,
   buildBiaRegistryFromDocuments,
   fetchOfficialBiaRegistry,
+  govInfoBoundedListSha256,
   normalizeVisibleText,
   parseRecognitionEntries,
+  prepareBiaStagingOutput,
   reconcile2026RecognitionEntries,
+  resolveBiaStagingOutput,
   stableNationId,
   verifyGovInfoTranscript,
+  verifyReviewedRecognitionInventory,
+  writeBiaStagingJson,
 } from "../../../src/adapters/bia";
 import type {
   FetchLike,
@@ -25,6 +50,88 @@ const fixturePath = resolve(
   process.cwd(),
   "fixtures/sources/bia/recognition-structure.html",
 );
+const repositoryRoot = resolve(process.cwd());
+const projectTestTempParent = resolve(repositoryRoot, ".cache/test-tmp/bia");
+
+function hasFileSystemCode(error: unknown, ...codes: string[]): boolean {
+  return (
+    error instanceof Error &&
+    "code" in error &&
+    codes.includes((error as NodeJS.ErrnoException).code ?? "")
+  );
+}
+
+async function ensureProjectTestTempParent(): Promise<void> {
+  const rootRealPath = await realpath(repositoryRoot);
+  const components = relative(repositoryRoot, projectTestTempParent)
+    .split(sep)
+    .filter(Boolean);
+  let current = repositoryRoot;
+  let currentRealPath = rootRealPath;
+
+  for (const component of components) {
+    current = resolve(current, component);
+    try {
+      await lstat(current);
+    } catch (error) {
+      if (!hasFileSystemCode(error, "ENOENT")) {
+        throw error;
+      }
+      await mkdir(resolve(currentRealPath, component));
+    }
+    const stats = await lstat(current);
+    if (stats.isSymbolicLink() || !stats.isDirectory()) {
+      throw new Error(`Unsafe project-local test directory: ${current}`);
+    }
+    currentRealPath = await realpath(current);
+    if (
+      currentRealPath !== rootRealPath &&
+      !currentRealPath.startsWith(`${rootRealPath}${sep}`)
+    ) {
+      throw new Error(
+        `Project-local test directory escapes the repository: ${current}`,
+      );
+    }
+  }
+}
+
+async function makeProjectTestDirectory(prefix: string): Promise<string> {
+  await ensureProjectTestTempParent();
+  return mkdtemp(join(projectTestTempParent, prefix));
+}
+
+async function removeProjectTestDirectories(
+  ...directories: string[]
+): Promise<void> {
+  for (const directory of directories) {
+    const resolvedDirectory = resolve(directory);
+    const relativePath = relative(projectTestTempParent, resolvedDirectory);
+    if (
+      relativePath === "" ||
+      relativePath.startsWith("..") ||
+      isAbsolute(relativePath)
+    ) {
+      throw new Error(
+        `Refusing to remove an unsafe test directory: ${resolvedDirectory}`,
+      );
+    }
+    await rm(resolvedDirectory, { recursive: true, force: true });
+  }
+  try {
+    await rmdir(projectTestTempParent);
+  } catch (error) {
+    if (!hasFileSystemCode(error, "ENOENT", "ENOTEMPTY")) {
+      throw error;
+    }
+  }
+  try {
+    await rmdir(dirname(projectTestTempParent));
+  } catch (error) {
+    if (!hasFileSystemCode(error, "ENOENT", "ENOTEMPTY")) {
+      throw error;
+    }
+  }
+}
 
 const contiguousHeading =
   "Indian Tribal Entities Within the Contiguous 48 States Recognized by and Eligible To Receive Services From the United States Bureau of Indian Affairs";
@@ -36,6 +143,8 @@ const validMetadata = {
   publication_date: BIA_RECOGNITION_2026.publicationDate,
   body_html_url: BIA_RECOGNITION_2026.structuredBodyUrl,
   pdf_url: BIA_RECOGNITION_2026.officialPdfUrl,
+  correction_of: null,
+  corrections: [],
 };
 
 function response(
@@ -80,16 +189,19 @@ function injectedFetch(responses: {
 
 function fullSyntheticDocuments(): RecognitionSourceDocuments {
   const contiguousNames = Array.from(
-    { length: 300 },
+    { length: 348 },
     (_, index) => `Synthetic Contiguous Nation ${index + 1}`,
   );
   const alaskaNames = Array.from(
-    { length: 274 },
+    { length: 223 },
     (_, index) => `Synthetic Alaska Nation ${index + 1}`,
   );
   const specialNames = [
+    "Aleut Community of St. Paul Island (See Pribilof Islands Aleut Communities of St. Paul & St. George Islands) (previously listed as Saint Paul Island (See Pribilof Islands Aleut Communities of St. Paul & St. George Islands))",
     "Arctic Village (See Native Village of Venetie Tribal Government)",
     "Native Village of Venetie Tribal Government (Arctic Village and Village of Venetie)",
+    "Pribilof Islands Aleut Communities of St. Paul & St. George Islands (St. George Island and Saint Paul Island)",
+    "St. George Island (See Pribilof Islands Aleut Communities of St. Paul & St. George Islands)",
     "Village of Venetie (See Native Village of Venetie Tribal Government)",
   ];
   const paragraph = (name: string, id: string) =>
@@ -108,9 +220,12 @@ function fullSyntheticDocuments(): RecognitionSourceDocuments {
     structuredFormat: "html",
     officialText: [
       "SUMMARY: This notice publishes the current list of 575 Tribal entities.",
+      contiguousHeading,
       ...contiguousNames,
+      alaskaHeading,
       ...alaskaNames,
       ...specialNames,
+      "[FR Doc. 2026-01899 Filed 1-29-26; 8:45 am]",
     ].join("\n"),
     retrievedAt: "2026-07-30T20:00:00.000Z",
   };
@@ -121,51 +236,67 @@ describe("BIA annual recognition-list adapter", () => {
     const fixture = await readFile(fixturePath, "utf8");
     const entries = parseRecognitionEntries(fixture, "html");
 
-    expect(entries).toHaveLength(5);
+    expect(entries).toHaveLength(16);
     expect(entries[0]).toMatchObject({
-      exactText: "Synthetic Nation, Example",
-      paragraphId: "p-contiguous",
-      page: "1",
+      exactText:
+        "Capitan Grande Band of Diegueno Mission Indians of California (Barona Group of Capitan Grande Band of Mission Indians of the Barona Reservation, California; Viejas (Baron Long) Group of Capitan Grande Band of Mission Indians of the Viejas Reservation, California)",
+      paragraphId: "p-capitan",
+      page: "4103",
       section: "contiguous_48",
     });
-    expect(entries.at(-1)?.exactText).toBe(
-      "Synthetic S'Klallam Nation & Community",
+    expect(
+      entries.find((entry) => entry.paragraphId === "p-lumbee")?.exactText,
+    ).toBe(
+      "Lumbee Tribe of North Carolina (See Supplementary Information supra, noting conditions on the Tribe's eligibility for Federal services)",
+    );
+    expect(
+      entries.find((entry) => entry.paragraphId === "p-fort-sill")?.exactText,
+    ).toContain("Fort Sill—Chiricahua—Warm Springs—Apache Tribe");
+    expect(
+      entries.find((entry) => entry.paragraphId === "p-fort-mojave")?.exactText,
+    ).toBe("Fort Mojave Indian Tribe of Arizona, California & Nevada");
+    expect(
+      entries.find((entry) => entry.paragraphId === "p-pulikla")?.exactText,
+    ).toContain("PuliklaTribe");
+    expect(
+      entries.filter((entry) => entry.section === "contiguous_48"),
+    ).toHaveLength(10);
+    expect(entries.filter((entry) => entry.section === "alaska")).toHaveLength(
+      6,
     );
     expect(JSON.stringify(entries)).not.toMatch(
-      /address|contact|email|geometry|latitude|longitude/i,
+      /hidden page control|address|contact|email|geometry|latitude|longitude/i,
     );
   });
 
-  it("reconciles only the two source-explicit Venetie cross references", async () => {
+  it("blocks the unsupported 577-to-575 identity reconciliation", async () => {
     const fixture = await readFile(fixturePath, "utf8");
     const entries = parseRecognitionEntries(fixture, "html");
-    const reconciled = reconcile2026RecognitionEntries(entries, 5, 3);
 
-    expect(reconciled).toHaveLength(3);
-    const canonical = reconciled.find((entry) =>
-      entry.officialName.startsWith(
-        "Native Village of Venetie Tribal Government",
-      ),
+    expect(() => reconcile2026RecognitionEntries(entries, 16, 14)).toThrowError(
+      /identity reconciliation is blocked/,
     );
-    expect(canonical?.authorizedAliases).toEqual([
-      "Arctic Village",
-      "Village of Venetie",
-    ]);
-    expect(canonical?.evidenceEntries).toHaveLength(3);
-    expect(reconciled.map((entry) => entry.officialName)).not.toContain(
-      "Arctic Village (See Native Village of Venetie Tribal Government)",
+    expect(entries.map((entry) => entry.exactText)).toEqual(
+      expect.arrayContaining([
+        "Aleut Community of St. Paul Island (See Pribilof Islands Aleut Communities of St. Paul & St. George Islands) (previously listed as Saint Paul Island (See Pribilof Islands Aleut Communities of St. Paul & St. George Islands))",
+        "Arctic Village (See Native Village of Venetie Tribal Government)",
+        "Native Village of Venetie Tribal Government (Arctic Village and Village of Venetie)",
+        "Pribilof Islands Aleut Communities of St. Paul & St. George Islands (St. George Island and Saint Paul Island)",
+        "St. George Island (See Pribilof Islands Aleut Communities of St. Paul & St. George Islands)",
+        "Village of Venetie (See Native Village of Venetie Tribal Government)",
+      ]),
     );
   });
 
-  it("fails closed on source count changes and duplicate reconciliation entries", async () => {
+  it("fails closed on source count changes and duplicate grouping rows", async () => {
     const fixture = await readFile(fixturePath, "utf8");
     const entries = parseRecognitionEntries(fixture, "html");
 
-    expect(() => reconcile2026RecognitionEntries(entries, 6, 4)).toThrowError(
-      /expected exactly 6/,
+    expect(() => reconcile2026RecognitionEntries(entries, 17, 15)).toThrowError(
+      /expected exactly 17/,
     );
     expect(() =>
-      reconcile2026RecognitionEntries([...entries, entries[1]], 6, 4),
+      reconcile2026RecognitionEntries([...entries, entries[11]], 17, 15),
     ).toThrowError(/found 2/);
   });
 
@@ -215,38 +346,107 @@ describe("BIA annual recognition-list adapter", () => {
     const entries = parseRecognitionEntries(fixture, "html");
     const officialText = `
       SUMMARY: This notice publishes the current list of 3 Tribal entities.
-      ${entries.map((entry) => entry.exactText).join("\n")}
+      ${contiguousHeading}
+      ${entries
+        .filter((entry) => entry.section === "contiguous_48")
+        .map((entry) => entry.exactText)
+        .join("\n")}
+      ${alaskaHeading}
+      ${entries
+        .filter((entry) => entry.section === "alaska")
+        .map((entry) => entry.exactText)
+        .join("\n")}
+      [FR Doc. 2026-01899 Filed 1-29-26; 8:45 am]
     `;
+    const boundedListDigest = govInfoBoundedListSha256(officialText);
 
     expect(() =>
-      verifyGovInfoTranscript(officialText, entries, 3),
+      verifyGovInfoTranscript(officialText, entries, 3, boundedListDigest),
     ).not.toThrow();
     expect(() =>
       verifyGovInfoTranscript(
         officialText.replace("3 Tribal", "4 Tribal"),
         entries,
         3,
+        boundedListDigest,
       ),
     ).toThrowError(/expected total of 3/);
     expect(() =>
       verifyGovInfoTranscript(
-        officialText.replace("Synthetic Nation, Example", "Different Nation"),
+        officialText.replace("PuliklaTribe", "Pulikla Tribe"),
         entries,
         3,
+        boundedListDigest,
       ),
-    ).toThrowError(/differs from GovInfo/);
+    ).toThrowError(/bounded recognition-list hash/);
+    expect(() =>
+      verifyGovInfoTranscript(
+        officialText,
+        [entries[1], entries[0], ...entries.slice(2)],
+        3,
+        boundedListDigest,
+      ),
+    ).toThrowError(/differs from ordered GovInfo/);
+    expect(() =>
+      verifyGovInfoTranscript(
+        officialText.replace(
+          alaskaHeading,
+          `Extra unreviewed Nation\n${alaskaHeading}`,
+        ),
+        entries,
+        3,
+        boundedListDigest,
+      ),
+    ).toThrowError(/bounded recognition-list hash/);
   });
 
-  it("carries a machine-readable blocking publication review into the registry", () => {
-    const registry = buildBiaRegistryFromDocuments(fullSyntheticDocuments());
-
-    expect(registry.publicationReview).toEqual(BIA_PUBLICATION_REVIEW);
-    expect(registry.publicationReview).toMatchObject({
+  it("records a machine-readable blocking publication review", () => {
+    expect(BIA_PUBLICATION_REVIEW).toMatchObject({
       state: "required_before_publication",
       blocking: true,
-      reasonCode: "source-grouping-semantics-require-human-review",
+      reasonCode: "current-notice-identity-reconciliation-unresolved",
       reviewedAt: null,
     });
+    expect(BIA_REVIEWED_TRANSCRIPTION).toMatchObject({
+      rawEntryCount: 577,
+      sectionEntryCounts: {
+        contiguous_48: 348,
+        alaska: 229,
+      },
+      statedNationCount: 575,
+      seeClauseCount: 6,
+      identityReconciliation: "blocked_unresolved_row_reconciliation",
+    });
+  });
+
+  it("rejects any 577-row inventory that is not the reviewed source order", () => {
+    const documents = fullSyntheticDocuments();
+    const entries = parseRecognitionEntries(documents.structuredBody, "html");
+
+    expect(entries).toHaveLength(577);
+    expect(() => verifyReviewedRecognitionInventory(entries)).toThrowError(
+      /ordered inventory hash/,
+    );
+    expect(() => buildBiaRegistryFromDocuments(documents)).toThrowError(
+      /GovInfo bounded recognition-list hash/,
+    );
+  });
+
+  it("requires a fresh review when metadata links a correction", async () => {
+    await expect(
+      fetchOfficialBiaRegistry({
+        fetchImpl: injectedFetch({
+          metadata: response(
+            JSON.stringify({
+              ...validMetadata,
+              corrections: [{ document_number: "test-correction" }],
+            }),
+            "application/json",
+          ),
+        }),
+        retrievedAt: "2026-07-31T00:00:00.000Z",
+      }),
+    ).rejects.toThrowError(/links a correction/);
   });
 
   it.each([
@@ -337,16 +537,130 @@ describe("BIA annual recognition-list adapter", () => {
     ).rejects.toThrowError(/structured body response exceeded/);
   });
 
-  it("refuses generated output outside dist before making a source request", () => {
+  it("accepts only ignored BIA staging and removes a stale exact target", async () => {
+    const temporaryRoot = await makeProjectTestDirectory("output-");
+    try {
+      const outputArgument = ".cache/source-validation/bia/review/nations.json";
+      const expectedOutput = resolve(temporaryRoot, outputArgument);
+      const legacyOutput = resolve(
+        temporaryRoot,
+        "dist/source-validation/bia/nations.json",
+      );
+      expect(resolveBiaStagingOutput(temporaryRoot, outputArgument)).toBe(
+        expectedOutput,
+      );
+      for (const unsafePath of [
+        "dist/source-validation/bia/nations.json",
+        ".cache/source-validation/other/nations.json",
+        ".cache/source-validation/bia-lookalike/nations.json",
+        ".cache/source-validation/bia/../../outside.json",
+        resolve(temporaryRoot, "..", "outside.json"),
+      ]) {
+        expect(() =>
+          resolveBiaStagingOutput(temporaryRoot, unsafePath),
+        ).toThrow();
+      }
+
+      await mkdir(dirname(expectedOutput), { recursive: true });
+      await mkdir(dirname(legacyOutput), { recursive: true });
+      await writeFile(expectedOutput, "stale", "utf8");
+      await writeFile(legacyOutput, "legacy", "utf8");
+      await prepareBiaStagingOutput(temporaryRoot, expectedOutput);
+      await expect(access(expectedOutput)).rejects.toThrow();
+      await expect(access(legacyOutput)).rejects.toThrow();
+
+      await writeBiaStagingJson(
+        temporaryRoot,
+        expectedOutput,
+        '{"validated":true}\n',
+      );
+      await expect(readFile(expectedOutput, "utf8")).resolves.toBe(
+        '{"validated":true}\n',
+      );
+      await expect(
+        writeBiaStagingJson(
+          temporaryRoot,
+          expectedOutput,
+          '{"overwrite":true}\n',
+        ),
+      ).rejects.toThrow();
+      await expect(readFile(expectedOutput, "utf8")).resolves.toBe(
+        '{"validated":true}\n',
+      );
+      const temporaryPrefix = `.${basename(expectedOutput)}.`;
+      expect(
+        (await readdir(dirname(expectedOutput))).filter(
+          (name) => name.startsWith(temporaryPrefix) && name.endsWith(".tmp"),
+        ),
+      ).toEqual([]);
+      await prepareBiaStagingOutput(temporaryRoot, expectedOutput);
+      await expect(access(expectedOutput)).rejects.toThrow();
+    } finally {
+      await removeProjectTestDirectories(temporaryRoot);
+    }
+
+    const ignored = spawnSync(
+      "git",
+      ["check-ignore", "--quiet", ".cache/source-validation/bia/nations.json"],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8",
+      },
+    );
+    expect(ignored.status).toBe(0);
+  });
+
+  it("refuses a linked staging component without touching its target", async () => {
+    const temporaryRoot = await makeProjectTestDirectory("linked-root-");
+    const externalTarget = await makeProjectTestDirectory("linked-target-");
+    try {
+      const stagingParent = resolve(temporaryRoot, ".cache/source-validation");
+      await mkdir(stagingParent, { recursive: true });
+      await symlink(
+        externalTarget,
+        resolve(stagingParent, "bia"),
+        process.platform === "win32" ? "junction" : "dir",
+      );
+
+      await expect(
+        writeBiaStagingJson(
+          temporaryRoot,
+          ".cache/source-validation/bia/nations.json",
+          '{"mustNotWrite":true}\n',
+        ),
+      ).rejects.toThrow(/linked path component/);
+      await expect(readdir(externalTarget)).resolves.toEqual([]);
+    } finally {
+      await removeProjectTestDirectories(temporaryRoot, externalTarget);
+    }
+  });
+
+  it("keeps ignored cache paths in the tracked-source denylist", async () => {
+    const scanner = await readFile(
+      resolve(process.cwd(), "scripts/scan-source-boundary.mjs"),
+      "utf8",
+    );
+    expect(scanner).toMatch(
+      /forbiddenTrackedPrefixes\s*=\s*\[[\s\S]*?"\.cache\/"/,
+    );
+  });
+
+  it("refuses generated output outside ignored BIA validation staging", () => {
     const result = spawnSync(
       process.execPath,
-      ["scripts/build-bia-registry.mjs", "--out", "README.md"],
+      [
+        "scripts/build-bia-registry.mjs",
+        "--out",
+        "dist/source-validation/bia/nations.json",
+      ],
       {
         cwd: process.cwd(),
         encoding: "utf8",
       },
     );
     expect(result.status).toBe(1);
-    expect(result.stderr).toMatch(/JSON file under dist/);
+    expect(result.stderr).toMatch(
+      /JSON file under \.cache\/source-validation\/bia/,
+    );
   });
 });

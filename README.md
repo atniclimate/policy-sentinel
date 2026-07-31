@@ -13,9 +13,11 @@ This repository is in **Phase B: local implementation**. The owner approved
 Gate A on July 30, 2026. The current local increment contains a static
 TypeScript application backed by synthetic fixtures, versioned source and
 artifact contracts, a fail-closed artifact pipeline, and a build-time adapter
-that validates the current official recognition notice to 575 Nation entries.
-The live Nation output remains an ignored validation artifact and still
-requires the documented human source review before publication.
+that independently validates all 577 displayed list-entry paragraphs in the current
+official recognition notice. The notice states 575 entities but does not
+provide a row-level reconciliation between that total and its displayed list,
+so the live Nation registry now fails closed pending exact originating-source
+evidence.
 
 This is not a completed public beta. Production record-source adapters,
 large-scale index benchmarks, publication review, a remote repository, GitHub
@@ -123,10 +125,14 @@ npm run build
 npm run source:bia
 ```
 
-`npm run source:bia` reads the cited official recognition notice and writes a
-validated 575-entry registry only to ignored
-`dist/source-validation/bia/nations.json`. It does not register an API, ingest
-policy records, alter a remote, or publish data.
+`npm run source:bia` reads the cited official recognition notice and validates
+its ordered 577-paragraph transcription against GovInfo. Independent review
+found that the notice states 575 entities without providing a row-level
+reconciliation from its 577 displayed list-entry paragraphs, so the command
+currently fails closed and writes no registry. If that primary-source gap is
+resolved, output remains restricted to ignored
+`.cache/source-validation/bia/nations.json`, outside `dist/`. The command does
+not register an API, ingest policy records, alter a remote, or publish data.
 
 Key documents:
 
