@@ -1,8 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
 import sourceRegistry from "../../../config/sources.v1.json";
+import correctionFixture from "../../../fixtures/sources/federal-register/document-correction.valid.json";
 import historicalFixture from "../../../fixtures/sources/federal-register/document-historical.valid.json";
 import openApiFixture from "../../../fixtures/sources/federal-register/openapi-projection.valid.json";
+import originalFixture from "../../../fixtures/sources/federal-register/document-original.valid.json";
 import {
   FederalRegisterAdapter,
   createFederalRegisterAdapter,
@@ -44,6 +46,32 @@ function issueEnvelope(
               {
                 subject_1: "Synthetic issue subject",
                 document_numbers: identifiers,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+}
+
+function datedIssueEnvelope(
+  date: string,
+  documentNumbers: readonly string[],
+): unknown {
+  return {
+    meta: { publication_date: date },
+    agencies: [
+      {
+        name: "Synthetic Test Agency",
+        slug: "synthetic-test-agency",
+        document_categories: [
+          {
+            type: "Notices",
+            documents: [
+              {
+                subject_1: "Synthetic issue subject",
+                document_numbers: documentNumbers,
               },
             ],
           },
@@ -251,6 +279,70 @@ function supplementalRelationshipFetch(): FederalRegisterFetchLike {
   };
 }
 
+function correctionBoundaryFetch(): FederalRegisterFetchLike {
+  const correction = structuredClone(correctionFixture);
+  const original = structuredClone(originalFixture);
+  const unrelated = structuredClone(originalFixture);
+  unrelated.document_number = "ZZZ-2026-00004";
+  unrelated.title = "Synthetic independent in-window notice";
+  unrelated.publication_date = "2026-07-31";
+  unrelated.citation = "91 FR 99999";
+  unrelated.start_page = 99_999;
+  unrelated.end_page = 99_999;
+  unrelated.corrections = [];
+  unrelated.html_url =
+    "https://www.federalregister.gov/documents/2026/07/31/ZZZ-2026-00004/synthetic-independent-in-window-notice";
+  unrelated.json_url =
+    "https://www.federalregister.gov/api/v1/documents/ZZZ-2026-00004?publication_date=2026-07-31";
+  unrelated.pdf_url =
+    "https://www.govinfo.gov/content/pkg/FR-2026-07-31/pdf/ZZZ-2026-00004.pdf";
+  unrelated.mods_url =
+    "https://www.govinfo.gov/metadata/granule/FR-2026-07-31/ZZZ-2026-00004/mods.xml";
+
+  return async (input) => {
+    const url = new URL(
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.href
+          : input.url,
+    );
+    if (url.pathname === "/api/v1/documentation.json") {
+      return jsonResponse(openApiFixture);
+    }
+    if (url.pathname.endsWith("/facets/daily.json")) {
+      return jsonResponse({
+        "2026-07-31": { count: 2, name: "07/31/2026" },
+      });
+    }
+    if (url.pathname === "/api/v1/documents.json") {
+      return jsonResponse({
+        description: "Synthetic correction-boundary search response.",
+        count: 2,
+        total_pages: 1,
+        results: [correction, unrelated],
+      });
+    }
+    if (url.pathname === "/api/v1/issues/2026-07-31.json") {
+      return jsonResponse(
+        datedIssueEnvelope("2026-07-31", [
+          correction.document_number,
+          unrelated.document_number,
+        ]),
+      );
+    }
+    if (
+      url.pathname === "/api/v1/documents/C1-TST-2026-00001,TST-2026-00001.json"
+    ) {
+      return jsonResponse({
+        count: 2,
+        results: [original, correction],
+      });
+    }
+    throw new Error(`Unexpected synthetic request path: ${url.pathname}`);
+  };
+}
+
 const fixedDependencies = {
   now: () => new Date("1994-01-03T23:59:59.000Z"),
   random: () => 0,
@@ -389,6 +481,39 @@ describe("Federal Register public source adapter", () => {
         ({ sourceRecordId }) => sourceRecordId === "TST-2000-00001",
       ),
     ).toBe(false);
+  });
+
+  it("discloses reciprocal correction records excluded at the rolling boundary", async () => {
+    const context = enabledContext();
+    context.buildId = "synthetic-fr-correction-boundary";
+    context.generatedAt = "2026-08-30T23:59:59.000Z";
+    const adapter = createFederalRegisterAdapter({
+      now: () => new Date("2026-08-30T23:59:59.000Z"),
+      random: () => 0,
+      sleep: async () => undefined,
+      fetchImpl: correctionBoundaryFetch(),
+    });
+
+    await expect(adapter.checkContract(context)).resolves.toMatchObject({
+      ok: true,
+    });
+    const references: SourceReference[] = [];
+    for await (const reference of adapter.discover(context)) {
+      references.push(reference);
+    }
+    expect(references.map(({ sourceRecordId }) => sourceRecordId)).toEqual([
+      "ZZZ-2026-00004",
+    ]);
+
+    const fetched = await adapter.fetch(references[0], context);
+    const [record] = await adapter.normalize(fetched, context);
+    expect(record.source.coverage).toMatchObject({
+      from: "2026-07-31",
+      through: "2026-08-30",
+    });
+    expect(record.source.coverage.notes).toContain(
+      "excluded 1 otherwise eligible in-window record because the reciprocal correction component crossed the selected window boundary",
+    );
   });
 
   it("binds every stage to one checked immutable context and exact fetched body", async () => {

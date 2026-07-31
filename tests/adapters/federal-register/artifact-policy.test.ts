@@ -66,12 +66,26 @@ describe("Federal Register public artifact policy", () => {
   });
 
   it("labels emitted coverage as a bounded slice rather than full history", () => {
-    const notes = federalRegisterArtifactCoverageNotes({
-      start: "2026-07-01",
-      end: "2026-07-31",
-    });
+    const notes = federalRegisterArtifactCoverageNotes(
+      {
+        start: "2026-07-01",
+        end: "2026-07-31",
+      },
+      0,
+    );
     expect(notes).toContain("bounded rolling beta slice");
     expect(notes).toContain("not complete 1994-present coverage");
     expect(notes).toContain(FEDERAL_REGISTER_PUBLIC_ARTIFACT_POLICY.id);
+  });
+
+  it("discloses reciprocal correction records excluded at the window boundary", () => {
+    expect(
+      federalRegisterArtifactCoverageNotes(
+        { start: "2026-07-01", end: "2026-07-31" },
+        2,
+      ),
+    ).toContain(
+      "excluded 2 otherwise eligible in-window records because the reciprocal correction component crossed the selected window boundary",
+    );
   });
 });

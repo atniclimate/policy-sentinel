@@ -135,6 +135,7 @@ interface ActiveInventory {
   contextFingerprint: string;
   retrievedAt: string;
   coverageRange: FederalRegisterDateRange;
+  correctionBoundaryExcludedCount: number;
   documents: readonly FederalRegisterDocument[];
   byDocumentNumber: ReadonlyMap<string, FederalRegisterDocument>;
   ready: boolean;
@@ -197,7 +198,13 @@ const PUBLIC_DOCUMENT_TYPES: ReadonlySet<FederalRegisterDocument["type"]> =
 function publicCandidateDocuments(
   documents: readonly FederalRegisterDocument[],
   range: FederalRegisterDateRange,
-): FederalRegisterDocument[] {
+): {
+  documents: FederalRegisterDocument[];
+  correctionBoundaryExcludedCount: number;
+} {
+  const allDocuments = new Map(
+    documents.map((document) => [document.document_number, document]),
+  );
   const candidates = new Map(
     documents
       .filter(
@@ -211,7 +218,8 @@ function publicCandidateDocuments(
   );
 
   const dependents = new Map<string, Set<string>>();
-  const removalQueue: string[] = [];
+  const removalSeeds = new Set<string>();
+  const boundarySeeds = new Set<string>();
   for (const [documentNumber, document] of candidates) {
     const correctionTargets = [
       ...(document.correction_of === null
@@ -230,23 +238,47 @@ function publicCandidateDocuments(
       targetDependents.add(documentNumber);
       dependents.set(target, targetDependents);
       if (!candidates.has(target)) {
-        removalQueue.push(documentNumber);
+        removalSeeds.add(documentNumber);
+        const targetDocument = allDocuments.get(target);
+        if (
+          targetDocument !== undefined &&
+          (targetDocument.publication_date < range.start ||
+            targetDocument.publication_date > range.end)
+        ) {
+          boundarySeeds.add(documentNumber);
+        }
       }
     }
   }
-  for (let index = 0; index < removalQueue.length; index += 1) {
-    const removed = removalQueue[index] as string;
-    if (!candidates.delete(removed)) {
-      continue;
+
+  const dependentClosure = (seeds: ReadonlySet<string>): Set<string> => {
+    const closure = new Set(seeds);
+    const queue = [...seeds];
+    for (let index = 0; index < queue.length; index += 1) {
+      const removed = queue[index] as string;
+      for (const dependent of dependents.get(removed) ?? []) {
+        if (!closure.has(dependent)) {
+          closure.add(dependent);
+          queue.push(dependent);
+        }
+      }
     }
-    for (const dependent of dependents.get(removed) ?? []) {
-      removalQueue.push(dependent);
-    }
+    return closure;
+  };
+  const removals = dependentClosure(removalSeeds);
+  const boundaryRemovals = dependentClosure(boundarySeeds);
+  for (const removed of removals) {
+    candidates.delete(removed);
   }
 
-  return documents.filter(({ document_number }) =>
-    candidates.has(document_number),
-  );
+  return {
+    documents: documents.filter(({ document_number }) =>
+      candidates.has(document_number),
+    ),
+    correctionBoundaryExcludedCount: [...boundaryRemovals].filter((id) =>
+      removals.has(id),
+    ).length,
+  };
 }
 
 function fixedFailure(
@@ -364,7 +396,11 @@ export class FederalRegisterAdapter implements PublicSourceAdapter {
       );
       const inventory: FederalRegisterInventory =
         await retrieveFederalRegisterInventory(range, this.#dependencies);
-      const documents = publicCandidateDocuments(inventory.documents, range);
+      const candidateSelection = publicCandidateDocuments(
+        inventory.documents,
+        range,
+      );
+      const { documents } = candidateSelection;
       if (documents.length === 0) {
         throw new Error(
           "Federal Register reconciled inventory contains no eligible public beta records.",
@@ -398,6 +434,8 @@ export class FederalRegisterAdapter implements PublicSourceAdapter {
         contextFingerprint,
         retrievedAt: inventory.retrievedAt,
         coverageRange: range,
+        correctionBoundaryExcludedCount:
+          candidateSelection.correctionBoundaryExcludedCount,
         documents,
         byDocumentNumber,
         ready: false,
@@ -502,6 +540,8 @@ export class FederalRegisterAdapter implements PublicSourceAdapter {
             source: context.source,
             retrievedAt: inventory.retrievedAt,
             coverageRange: inventory.coverageRange,
+            correctionBoundaryExcludedCount:
+              inventory.correctionBoundaryExcludedCount,
           },
         );
         const normalizedByDocumentNumber = new Map(

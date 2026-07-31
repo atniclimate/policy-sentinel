@@ -99,6 +99,7 @@ export interface FederalRegisterNormalizationInput {
   source: SourceConfig;
   retrievedAt: string;
   coverageRange: FederalRegisterDateRange;
+  correctionBoundaryExcludedCount: number;
 }
 
 interface RelationshipWithProvenance {
@@ -181,6 +182,7 @@ function assertNormalizationContext(input: FederalRegisterNormalizationInput): {
   retrievedAt: string;
   adapter: NonNullable<SourceConfig["adapter"]>;
   coverageRange: FederalRegisterDateRange;
+  correctionBoundaryExcludedCount: number;
 } {
   const { source } = input;
   const adapter = assertFederalRegisterSourceConfig(source);
@@ -198,11 +200,20 @@ function assertNormalizationContext(input: FederalRegisterNormalizationInput): {
     input.coverageRange,
     source.coverage,
   );
+  if (
+    !Number.isSafeInteger(input.correctionBoundaryExcludedCount) ||
+    input.correctionBoundaryExcludedCount < 0
+  ) {
+    throw new Error(
+      "Federal Register normalization requires a nonnegative correction-boundary exclusion count.",
+    );
+  }
   return {
     source,
     retrievedAt: input.retrievedAt,
     adapter,
     coverageRange,
+    correctionBoundaryExcludedCount: input.correctionBoundaryExcludedCount,
   };
 }
 
@@ -673,8 +684,13 @@ function normalizeReconciledFederalRegisterDocument(
   document: FederalRegisterDocument,
   input: FederalRegisterNormalizationInput,
 ): PolicyRecord {
-  const { source, retrievedAt, adapter, coverageRange } =
-    assertNormalizationContext(input);
+  const {
+    source,
+    retrievedAt,
+    adapter,
+    coverageRange,
+    correctionBoundaryExcludedCount,
+  } = assertNormalizationContext(input);
   if (
     document.publication_date < coverageRange.start ||
     document.publication_date > coverageRange.end
@@ -779,7 +795,10 @@ function normalizeReconciledFederalRegisterDocument(
       coverage: {
         from: coverageRange.start,
         through: coverageRange.end,
-        notes: federalRegisterArtifactCoverageNotes(coverageRange),
+        notes: federalRegisterArtifactCoverageNotes(
+          coverageRange,
+          correctionBoundaryExcludedCount,
+        ),
       },
       attribution: source.publication.attribution,
     },

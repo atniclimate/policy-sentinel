@@ -94,8 +94,25 @@ export function assertFederalRegisterPublicArtifactRange(
 
 export function federalRegisterArtifactCoverageNotes(
   range: FederalRegisterDateRange,
+  correctionBoundaryExcludedCount: number,
 ): string {
   const validated = assertFederalRegisterDateRange(range);
+  if (
+    !Number.isSafeInteger(correctionBoundaryExcludedCount) ||
+    correctionBoundaryExcludedCount < 0
+  ) {
+    throw new Error(
+      "Federal Register correction-boundary exclusion count must be a nonnegative integer.",
+    );
+  }
+  const correctionBoundaryNote =
+    correctionBoundaryExcludedCount === 0
+      ? ""
+      : ` This build excluded ${correctionBoundaryExcludedCount} otherwise ` +
+        `eligible in-window record${
+          correctionBoundaryExcludedCount === 1 ? "" : "s"
+        } because the reciprocal correction component crossed the selected ` +
+        `window boundary.`;
   return (
     `This artifact contains eligible Federal Register records selected from ` +
     `${validated.start} through ${validated.end} under ` +
@@ -103,6 +120,7 @@ export function federalRegisterArtifactCoverageNotes(
     `slice, not complete 1994-present coverage. The API documents coverage since ` +
     `1994, with the first observed issue on 1994-01-03. Historical ` +
     `Uncategorized Document entries and records without an exact issuing body ` +
-    `are excluded from public candidates.`
+    `are excluded from public candidates.` +
+    correctionBoundaryNote
   );
 }

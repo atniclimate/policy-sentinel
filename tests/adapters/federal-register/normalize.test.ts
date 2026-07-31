@@ -60,7 +60,12 @@ function normalizationInput(
   source: SourceConfig,
   coverageRange: FederalRegisterDateRange = recentCoverageRange,
 ) {
-  return { source, retrievedAt, coverageRange };
+  return {
+    source,
+    retrievedAt,
+    coverageRange,
+    correctionBoundaryExcludedCount: 0,
+  };
 }
 
 const ajv = new Ajv2020({
