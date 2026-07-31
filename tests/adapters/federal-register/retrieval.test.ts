@@ -125,6 +125,18 @@ function nextPageUrl(
   return url.href;
 }
 
+function providerNextPageUrl(
+  range: { start: string; end: string },
+  cursor: string,
+  pageNumber = 2,
+): string {
+  const url = new URL(nextPageUrl(range, cursor));
+  url.pathname = "/api/v1/documents";
+  url.searchParams.set("format", "json");
+  url.searchParams.set("page", String(pageNumber));
+  return url.href;
+}
+
 const fixedDependencies = {
   now: () => new Date("2026-07-31T12:00:00.000Z"),
   random: () => 0,
@@ -175,7 +187,7 @@ describe("Federal Register reconciled retrieval", () => {
     const ids = documents.map(
       ({ document_number: documentNumber }) => documentNumber as string,
     );
-    const cursorUrl = nextPageUrl(range, "SYNTHETIC-CURSOR-1000");
+    const cursorUrl = providerNextPageUrl(range, "SYNTHETIC-CURSOR-1000");
     const requestedUrls: string[] = [];
     const fetchImpl: FederalRegisterFetchLike = async (input) => {
       const url = new URL(
@@ -230,6 +242,7 @@ describe("Federal Register reconciled retrieval", () => {
     expect(
       requestedUrls.filter((url) => url.includes("search_after_cursor")),
     ).toHaveLength(2);
+    expect(requestedUrls).not.toContain(cursorUrl);
     expect(requestedUrls.join("\n")).not.toContain("excerpts");
   });
 

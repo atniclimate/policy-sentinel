@@ -477,7 +477,10 @@ function assertFirstPageProbe(
     );
   }
   if (nextPageUrl !== null) {
-    validateFederalRegisterNextPageUrl(nextPageUrl, { range });
+    validateFederalRegisterNextPageUrl(nextPageUrl, {
+      range,
+      expectedPageNumber: 2,
+    });
   }
 }
 
@@ -532,6 +535,7 @@ async function collectAcceptedLeaf(
 
     const next = validateFederalRegisterNextPageUrl(nextPageUrl, {
       range,
+      expectedPageNumber: pageNumber + 1,
       seenUrls,
       seenCursors,
     });

@@ -27,6 +27,17 @@ function nextUrl(cursor = "opaque+/=cursor"): URL {
   return next;
 }
 
+function providerNextUrl(
+  expectedPageNumber: number,
+  cursor = "opaque+/=cursor",
+): URL {
+  const next = nextUrl(cursor);
+  next.pathname = FEDERAL_REGISTER_PATHS.paginationSearch;
+  next.searchParams.set("format", "json");
+  next.searchParams.set("page", String(expectedPageNumber));
+  return next;
+}
+
 describe("Federal Register query contract", () => {
   it("builds the exact fixed discovery query without page or a cursor", () => {
     const url = buildFederalRegisterSearchUrl(range);
@@ -109,11 +120,30 @@ describe("Federal Register query contract", () => {
     const candidate = nextUrl();
     const validated = validateFederalRegisterNextPageUrl(candidate.href, {
       range,
+      expectedPageNumber: 2,
     });
 
-    expect(validated.url.href).toBe(candidate.href);
+    expect(validated.url.pathname).toBe(FEDERAL_REGISTER_PATHS.search);
+    expect([...validated.url.searchParams.entries()].sort()).toEqual(
+      [...candidate.searchParams.entries()].sort(),
+    );
     expect(validated.cursor).toBe("opaque+/=cursor");
     expect(validated.canonicalUrl).toContain("search_after_cursor=");
+  });
+
+  it("accepts the provider pagination alias and normalizes it to the reviewed JSON route", () => {
+    const candidate = providerNextUrl(2);
+    const validated = validateFederalRegisterNextPageUrl(candidate.href, {
+      range,
+      expectedPageNumber: 2,
+    });
+
+    expect(validated.url.pathname).toBe(FEDERAL_REGISTER_PATHS.search);
+    expect(validated.url.searchParams.has("format")).toBe(false);
+    expect(validated.url.searchParams.has("page")).toBe(false);
+    expect(validated.url.searchParams.get("search_after_cursor")).toBe(
+      "opaque+/=cursor",
+    );
   });
 
   it.each([
@@ -157,7 +187,58 @@ describe("Federal Register query contract", () => {
     const candidate = nextUrl();
     mutate(candidate);
     expect(() =>
-      validateFederalRegisterNextPageUrl(candidate.href, { range }),
+      validateFederalRegisterNextPageUrl(candidate.href, {
+        range,
+        expectedPageNumber: 2,
+      }),
+    ).toThrowError();
+  });
+
+  it.each([
+    {
+      label: "missing format",
+      mutate(url: URL) {
+        url.searchParams.delete("format");
+      },
+    },
+    {
+      label: "wrong format",
+      mutate(url: URL) {
+        url.searchParams.set("format", "xml");
+      },
+    },
+    {
+      label: "duplicate format",
+      mutate(url: URL) {
+        url.searchParams.append("format", "json");
+      },
+    },
+    {
+      label: "missing page",
+      mutate(url: URL) {
+        url.searchParams.delete("page");
+      },
+    },
+    {
+      label: "wrong page progression",
+      mutate(url: URL) {
+        url.searchParams.set("page", "3");
+      },
+    },
+    {
+      label: "duplicate page",
+      mutate(url: URL) {
+        url.searchParams.append("page", "2");
+      },
+    },
+  ])("rejects a provider alias with $label", ({ mutate }) => {
+    const candidate = providerNextUrl(2);
+    mutate(candidate);
+    expect(() =>
+      validateFederalRegisterNextPageUrl(candidate.href, {
+        range,
+        expectedPageNumber: 2,
+      }),
     ).toThrowError();
   });
 
@@ -165,41 +246,58 @@ describe("Federal Register query contract", () => {
     const wrongOrigin = nextUrl();
     wrongOrigin.hostname = "example.invalid";
     expect(() =>
-      validateFederalRegisterNextPageUrl(wrongOrigin.href, { range }),
+      validateFederalRegisterNextPageUrl(wrongOrigin.href, {
+        range,
+        expectedPageNumber: 2,
+      }),
     ).toThrowError(/exact Federal Register search boundary/);
 
     const wrongPath = nextUrl();
-    wrongPath.pathname = "/api/v1/documents";
+    wrongPath.pathname = "/api/v1/documentz";
     expect(() =>
-      validateFederalRegisterNextPageUrl(wrongPath.href, { range }),
+      validateFederalRegisterNextPageUrl(wrongPath.href, {
+        range,
+        expectedPageNumber: 2,
+      }),
     ).toThrowError(/exact Federal Register search boundary/);
 
     const fragment = nextUrl();
     fragment.hash = "fragment";
     expect(() =>
-      validateFederalRegisterNextPageUrl(fragment.href, { range }),
+      validateFederalRegisterNextPageUrl(fragment.href, {
+        range,
+        expectedPageNumber: 2,
+      }),
     ).toThrowError(/exact Federal Register search boundary/);
 
     const emptyCursor = nextUrl();
     emptyCursor.searchParams.set("search_after_cursor", " ");
     expect(() =>
-      validateFederalRegisterNextPageUrl(emptyCursor.href, { range }),
+      validateFederalRegisterNextPageUrl(emptyCursor.href, {
+        range,
+        expectedPageNumber: 2,
+      }),
     ).toThrowError(/cursor is empty/);
   });
 
   it("rejects repeated cursor and canonical URL cycles", () => {
     const candidate = nextUrl();
-    const first = validateFederalRegisterNextPageUrl(candidate.href, { range });
+    const first = validateFederalRegisterNextPageUrl(candidate.href, {
+      range,
+      expectedPageNumber: 2,
+    });
 
     expect(() =>
       validateFederalRegisterNextPageUrl(candidate.href, {
         range,
+        expectedPageNumber: 2,
         seenCursors: new Set([first.cursor]),
       }),
     ).toThrowError(/repeats/);
     expect(() =>
       validateFederalRegisterNextPageUrl(candidate.href, {
         range,
+        expectedPageNumber: 2,
         seenUrls: new Set([first.canonicalUrl]),
       }),
     ).toThrowError(/repeats/);

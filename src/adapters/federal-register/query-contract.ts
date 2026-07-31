@@ -13,6 +13,7 @@ export interface FederalRegisterDateRange {
 
 export interface FederalRegisterNextPageContext {
   range: FederalRegisterDateRange;
+  expectedPageNumber: number;
   seenUrls?: ReadonlySet<string>;
   seenCursors?: ReadonlySet<string>;
 }
@@ -190,6 +191,17 @@ export function validateFederalRegisterNextPageUrl(
     );
   }
   const range = assertFederalRegisterDateRange(context.range);
+  if (
+    !Number.isSafeInteger(context.expectedPageNumber) ||
+    context.expectedPageNumber < 2 ||
+    context.expectedPageNumber > FEDERAL_REGISTER_QUERY_POLICY.maximumPageNumber
+  ) {
+    throw new FederalRegisterContractError(
+      "invalid_value",
+      "$context.expectedPageNumber",
+      "expected a bounded next-page number",
+    );
+  }
   let url: URL;
   try {
     url = new URL(value);
@@ -200,10 +212,13 @@ export function validateFederalRegisterNextPageUrl(
       "expected an absolute URL",
     );
   }
+  const isCanonicalSearchPath = url.pathname === FEDERAL_REGISTER_PATHS.search;
+  const isProviderPaginationPath =
+    url.pathname === FEDERAL_REGISTER_PATHS.paginationSearch;
   if (
     url.protocol !== "https:" ||
     url.origin !== FEDERAL_REGISTER_ORIGIN ||
-    url.pathname !== FEDERAL_REGISTER_PATHS.search ||
+    (!isCanonicalSearchPath && !isProviderPaginationPath) ||
     url.username !== "" ||
     url.password !== "" ||
     url.port !== "" ||
@@ -216,11 +231,26 @@ export function validateFederalRegisterNextPageUrl(
     );
   }
 
-  if (url.searchParams.has("page")) {
+  const pages = url.searchParams.getAll("page");
+  const formats = url.searchParams.getAll("format");
+  if (isCanonicalSearchPath) {
+    if (pages.length !== 0 || formats.length !== 0) {
+      throw new FederalRegisterContractError(
+        "invalid_url",
+        "$next_page_url",
+        "canonical cursor URL must not contain page or format",
+      );
+    }
+  } else if (
+    pages.length !== 1 ||
+    pages[0] !== String(context.expectedPageNumber) ||
+    formats.length !== 1 ||
+    formats[0] !== "json"
+  ) {
     throw new FederalRegisterContractError(
       "invalid_url",
-      "$next_page_url.page",
-      "provider cursor URL must not contain page",
+      "$next_page_url",
+      "provider pagination URL must contain the expected page and JSON format",
     );
   }
   const cursors = url.searchParams.getAll("search_after_cursor");
@@ -248,6 +278,8 @@ export function validateFederalRegisterNextPageUrl(
   const expected = buildFederalRegisterSearchUrl(range);
   const actualWithoutCursor = new URL(url.href);
   actualWithoutCursor.searchParams.delete("search_after_cursor");
+  actualWithoutCursor.searchParams.delete("page");
+  actualWithoutCursor.searchParams.delete("format");
   if (
     JSON.stringify(sortedPairs(actualWithoutCursor.searchParams)) !==
     JSON.stringify(sortedPairs(expected.searchParams))
@@ -259,9 +291,12 @@ export function validateFederalRegisterNextPageUrl(
     );
   }
 
-  const canonicalUrl = canonicalize(url);
+  const normalizedUrl = new URL(expected.href);
+  normalizedUrl.searchParams.set("search_after_cursor", cursor);
+  const canonicalUrl = canonicalize(normalizedUrl);
   if (
     context.seenUrls?.has(url.href) === true ||
+    context.seenUrls?.has(normalizedUrl.href) === true ||
     context.seenUrls?.has(canonicalUrl) === true ||
     context.seenCursors?.has(cursor) === true
   ) {
@@ -271,5 +306,5 @@ export function validateFederalRegisterNextPageUrl(
       "pagination URL or cursor repeats",
     );
   }
-  return { url, cursor, canonicalUrl };
+  return { url: normalizedUrl, cursor, canonicalUrl };
 }

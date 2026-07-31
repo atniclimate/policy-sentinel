@@ -343,11 +343,23 @@ function federalRegisterUrl(
 
 function searchPageUrl(value: unknown, path: string): string {
   const parsed = httpsUrl(value, path);
+  const isCanonicalSearchPath =
+    parsed.pathname === FEDERAL_REGISTER_PATHS.search;
+  const isProviderPaginationPath =
+    parsed.pathname === FEDERAL_REGISTER_PATHS.paginationSearch;
   if (
     parsed.origin !== FEDERAL_REGISTER_ORIGIN ||
-    parsed.pathname !== FEDERAL_REGISTER_PATHS.search
+    (!isCanonicalSearchPath && !isProviderPaginationPath)
   ) {
     fail("invalid_url", path, "URL is not a Federal Register search URL");
+  }
+  const formats = parsed.searchParams.getAll("format");
+  if (
+    (isCanonicalSearchPath && formats.length !== 0) ||
+    (isProviderPaginationPath &&
+      (formats.length !== 1 || formats[0] !== "json"))
+  ) {
+    fail("invalid_url", path, "URL has an invalid search response format");
   }
   return parsed.href;
 }

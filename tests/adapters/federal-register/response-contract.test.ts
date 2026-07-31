@@ -392,6 +392,36 @@ describe("Federal Register response contract", () => {
     ).toThrowError(/count changed/);
   });
 
+  it("accepts only the provider's exact JSON pagination route alias", () => {
+    const paginationUrl =
+      "https://www.federalregister.gov/api/v1/documents?format=json&page=2&search_after_cursor=opaque";
+    const page = {
+      description: "Synthetic one-result search fixture.",
+      count: 1_001,
+      total_pages: 2,
+      next_page_url: paginationUrl,
+      previous_page_url: null,
+      results: [originalFixture],
+    };
+
+    expect(
+      parseFederalRegisterSearchPage(page, {
+        range: { start: "2026-07-30", end: "2026-07-30" },
+      }).next_page_url,
+    ).toBe(paginationUrl);
+
+    const wrongFormat = structuredClone(page);
+    wrongFormat.next_page_url = paginationUrl.replace(
+      "format=json",
+      "format=xml",
+    );
+    expect(() =>
+      parseFederalRegisterSearchPage(wrongFormat, {
+        range: { start: "2026-07-30", end: "2026-07-30" },
+      }),
+    ).toThrowError(/invalid search response format/);
+  });
+
   it("requires a batch to equal the requested identifier set and restores request order", () => {
     const batch = parseFederalRegisterDocumentBatch(
       {

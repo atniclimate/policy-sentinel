@@ -3,6 +3,7 @@ export const FEDERAL_REGISTER_ORIGIN =
 
 export const FEDERAL_REGISTER_PATHS = {
   search: "/api/v1/documents.json",
+  paginationSearch: "/api/v1/documents",
   detail: "/api/v1/documents/",
   facet: "/api/v1/documents/facets/",
   issue: "/api/v1/issues/",
