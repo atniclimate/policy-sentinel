@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "internalId": "psr:synthetic-federal:record-001",
   "source": {
     "id": "synthetic-federal",
@@ -73,6 +73,7 @@
       "sourceUrl": "https://official.example.invalid/records/SYN-001"
     }
   ],
+  "sourceDocumentRelationships": [],
   "officialSubjects": [],
   "taxonomyMemberships": [],
   "isUnclassified": true,

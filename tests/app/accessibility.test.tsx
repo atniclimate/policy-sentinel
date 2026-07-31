@@ -77,6 +77,7 @@ const record: PublicRecord = {
   committees: [],
   actionHistory: [],
   statusHistory: [],
+  sourceDocumentRelationships: [],
   officialSubjects: [],
   taxonomyMemberships: [],
   isUnclassified: true,

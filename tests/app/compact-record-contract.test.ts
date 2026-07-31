@@ -129,4 +129,34 @@ describe("compact record contract", () => {
       record ? filterRecords([record], nation, criteria, false, true) : [],
     ).toHaveLength(1);
   });
+
+  it("preserves detail relationships without adding them to compact search text", () => {
+    const compact = normalizeRecord(compactRecord());
+    expect(compact?.sourceDocumentRelationships).toEqual([]);
+
+    const relationshipLabel = "Corrections label must remain detail-only";
+    const detail = normalizeRecord(
+      compactRecord({
+        sourceDocumentRelationships: [
+          {
+            relationshipType: "corrected_by",
+            targetSourceRecordId: "SYN-CORRECTION",
+            targetUrl:
+              "https://official.example.invalid/records/SYN-CORRECTION",
+            sourceLabel: relationshipLabel,
+          },
+        ],
+      }),
+    );
+
+    expect(detail?.sourceDocumentRelationships).toEqual([
+      {
+        relationshipType: "corrected_by",
+        targetSourceRecordId: "SYN-CORRECTION",
+        targetUrl: "https://official.example.invalid/records/SYN-CORRECTION",
+        sourceLabel: relationshipLabel,
+      },
+    ]);
+    expect(detail?.searchText).not.toContain(relationshipLabel.toLowerCase());
+  });
 });

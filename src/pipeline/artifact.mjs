@@ -3,6 +3,8 @@ import path from "node:path";
 import { deriveBuildId, hashJson, serializeJson } from "./hashing.mjs";
 import { toUrlSafeId } from "./identity.mjs";
 
+const RECORD_SCHEMA_VERSION = "1.1.0";
+
 export function normalizeGeneratedAt(value = new Date().toISOString()) {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) {
@@ -134,6 +136,11 @@ export function createArtifactDocuments({
   );
   const enabledSourceIds = new Set(enabledSources.map(({ id }) => id));
   for (const record of records) {
+    if (record.schemaVersion !== RECORD_SCHEMA_VERSION) {
+      throw new Error(
+        `artifact record schema version mismatch: ${record.internalId} uses ${record.schemaVersion}`,
+      );
+    }
     if (!enabledSourceIds.has(record.source.id)) {
       throw new Error(
         `artifact record references disabled or unregistered source: ${record.source.id}`,
@@ -263,7 +270,7 @@ export function createArtifactDocuments({
     generatedAt: normalizedGeneratedAt,
     dataAsOf: maxDataAsOf(records, normalizedGeneratedAt),
     synthetic,
-    recordSchemaVersion: "1.0.0",
+    recordSchemaVersion: RECORD_SCHEMA_VERSION,
     taxonomyVersion: taxonomy.taxonomyVersion,
     sourceRegistryVersion: sourceRegistry.registryVersion,
     recordCount: records.length,

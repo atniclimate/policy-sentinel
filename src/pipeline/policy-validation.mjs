@@ -33,6 +33,7 @@ const SOURCE_DERIVED_ROOTS = [
   "/committees",
   "/actionHistory",
   "/statusHistory",
+  "/sourceDocumentRelationships",
   "/officialSubjects",
   "/taxonomyMemberships",
   "/isUnclassified",
@@ -231,6 +232,12 @@ function validateSourceUrls(record, sourceConfig, issues) {
   record.statusHistory.forEach((event, index) => {
     urls.push([`/statusHistory/${index}/sourceUrl`, event.sourceUrl]);
   });
+  record.sourceDocumentRelationships.forEach((relationship, index) => {
+    urls.push([
+      `/sourceDocumentRelationships/${index}/targetUrl`,
+      relationship.targetUrl,
+    ]);
+  });
   record.officialSubjects.forEach((subject, index) => {
     urls.push([`/officialSubjects/${index}/sourceUrl`, subject.sourceUrl]);
   });
@@ -264,6 +271,73 @@ function validateSourceUrls(record, sourceConfig, issues) {
   for (const [field, value] of urls) {
     if (value !== null && value !== undefined) {
       validateRegisteredHttpsUrl(value, field, allowedHosts, issues);
+    }
+  }
+}
+
+function validateSourceDocumentRelationships(record, issues) {
+  const seenEdges = new Set();
+  for (const [
+    index,
+    relationship,
+  ] of record.sourceDocumentRelationships.entries()) {
+    const label = `/sourceDocumentRelationships/${index}`;
+    if (relationship.targetSourceRecordId === record.source.recordId) {
+      issues.push(`${label} targets its own source record`);
+    }
+
+    const edgeKey = `${relationship.relationshipType}\u0000${relationship.targetSourceRecordId}`;
+    if (seenEdges.has(edgeKey)) {
+      issues.push(
+        `${label} duplicates the ${relationship.relationshipType} relationship to ${relationship.targetSourceRecordId}`,
+      );
+    }
+    seenEdges.add(edgeKey);
+  }
+}
+
+function validateCorrectionRelationshipGraph(records, issues) {
+  const recordsBySourceIdentity = new Map(
+    records.map((record) => [recordIdentityKey(record), record]),
+  );
+  const reciprocalTypes = new Map([
+    ["corrects", "corrected_by"],
+    ["corrected_by", "corrects"],
+  ]);
+
+  for (const record of records) {
+    for (const [
+      index,
+      relationship,
+    ] of record.sourceDocumentRelationships.entries()) {
+      const reciprocalType = reciprocalTypes.get(relationship.relationshipType);
+      if (
+        reciprocalType === undefined ||
+        relationship.targetSourceRecordId === record.source.recordId
+      ) {
+        continue;
+      }
+
+      const targetIdentity = `${record.source.id}\u0000${relationship.targetSourceRecordId}`;
+      const targetRecord = recordsBySourceIdentity.get(targetIdentity);
+      const label = `${record.internalId}: /sourceDocumentRelationships/${index}`;
+      if (targetRecord === undefined) {
+        issues.push(
+          `${label} targets missing same-source record ${record.source.id}/${relationship.targetSourceRecordId}`,
+        );
+        continue;
+      }
+
+      const hasReciprocalEdge = targetRecord.sourceDocumentRelationships.some(
+        (candidate) =>
+          candidate.relationshipType === reciprocalType &&
+          candidate.targetSourceRecordId === record.source.recordId,
+      );
+      if (!hasReciprocalEdge) {
+        issues.push(
+          `${label} lacks reciprocal ${reciprocalType} relationship from ${targetRecord.internalId}`,
+        );
+      }
     }
   }
 }
@@ -531,6 +605,7 @@ export function validateRecordPolicy(
   }
   validateNationPolicy(record, knownNationIds, issues);
   validateSourceUrls(record, sourceConfig, issues);
+  validateSourceDocumentRelationships(record, issues);
   validateTaxonomyPolicy(record, taxonomy, sourceConfig, issues);
   validateProvenance(record, sourceConfig, issues);
   validateHistoricalPolicy(record, issues);
@@ -603,6 +678,8 @@ export function validateRecordSetPolicy(
       // The per-record validator already reports the invalid ID.
     }
   }
+
+  validateCorrectionRelationshipGraph(records, issues);
 
   if (issues.length > 0) {
     throw new PolicyValidationError(issues);

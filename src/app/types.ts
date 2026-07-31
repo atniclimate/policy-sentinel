@@ -64,6 +64,13 @@ export interface HistoryEvent {
   sourceUrl?: string;
 }
 
+export interface SourceDocumentRelationship {
+  relationshipType: "corrects" | "corrected_by" | "related_document";
+  targetSourceRecordId: string;
+  targetUrl: string;
+  sourceLabel: string;
+}
+
 export interface PublicRecord {
   internalId: string;
   officialTitle: string;
@@ -112,6 +119,7 @@ export interface PublicRecord {
   committees: string[];
   actionHistory: HistoryEvent[];
   statusHistory: HistoryEvent[];
+  sourceDocumentRelationships: SourceDocumentRelationship[];
   officialSubjects: string[];
   taxonomyMemberships: TaxonomyMembership[];
   isUnclassified: boolean;

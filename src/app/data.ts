@@ -7,6 +7,7 @@ import type {
   NationAssociation,
   PublicRecord,
   Relevance,
+  SourceDocumentRelationship,
   SourceHealthEntry,
   SourceText,
   Taxonomy,
@@ -134,6 +135,37 @@ const normalizeHistory = (value: unknown): HistoryEvent[] => {
     });
   }
   return events;
+};
+
+const normalizeSourceDocumentRelationships = (
+  value: unknown,
+): SourceDocumentRelationship[] => {
+  const relationships: SourceDocumentRelationship[] = [];
+  if (!Array.isArray(value)) return relationships;
+
+  for (const relationship of value) {
+    const item = objectValue(relationship);
+    const relationshipType = stringValue(item.relationshipType);
+    if (
+      relationshipType !== "corrects" &&
+      relationshipType !== "corrected_by" &&
+      relationshipType !== "related_document"
+    ) {
+      continue;
+    }
+    const targetSourceRecordId = stringValue(item.targetSourceRecordId);
+    const targetUrl = stringValue(item.targetUrl);
+    const sourceLabel = stringValue(item.sourceLabel);
+    if (!targetSourceRecordId || !targetUrl || !sourceLabel) continue;
+
+    relationships.push({
+      relationshipType,
+      targetSourceRecordId,
+      targetUrl,
+      sourceLabel,
+    });
+  }
+  return relationships;
 };
 
 const normalizeMemberships = (value: unknown): TaxonomyMembership[] =>
@@ -327,6 +359,9 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
     committees: stringArray(item.committees),
     actionHistory: normalizeHistory(item.actionHistory),
     statusHistory: normalizeHistory(item.statusHistory),
+    sourceDocumentRelationships: normalizeSourceDocumentRelationships(
+      item.sourceDocumentRelationships,
+    ),
     officialSubjects: stringArray(item.officialSubjects),
     taxonomyMemberships,
     isUnclassified:

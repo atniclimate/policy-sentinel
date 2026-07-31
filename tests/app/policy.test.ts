@@ -44,6 +44,7 @@ const record = (overrides: Partial<PublicRecord>): PublicRecord =>
     committees: [],
     actionHistory: [],
     statusHistory: [],
+    sourceDocumentRelationships: [],
     officialSubjects: [],
     taxonomyMemberships: [],
     isUnclassified: true,

@@ -1,4 +1,4 @@
-export const RECORD_SCHEMA_VERSION = "1.0.0" as const;
+export const RECORD_SCHEMA_VERSION = "1.1.0" as const;
 export const ARTIFACT_SCHEMA_VERSION = "1.0.0" as const;
 export const SOURCE_SCHEMA_VERSION = "1.1.0" as const;
 export const SOURCE_REGISTRY_VERSION = "1.1.0" as const;
@@ -215,6 +215,7 @@ export interface PolicyRecord {
   committees: NamedEntity[];
   actionHistory: HistoryEvent[];
   statusHistory: HistoryEvent[];
+  sourceDocumentRelationships: SourceDocumentRelationship[];
   officialSubjects: OfficialSubject[];
   taxonomyMemberships: TaxonomyMembership[];
   isUnclassified: boolean;
@@ -302,6 +303,16 @@ export interface HistoryEvent {
   sourceUrl: string;
 }
 
+export type SourceDocumentRelationshipType =
+  "corrects" | "corrected_by" | "related_document";
+
+export interface SourceDocumentRelationship {
+  relationshipType: SourceDocumentRelationshipType;
+  targetSourceRecordId: string;
+  targetUrl: string;
+  sourceLabel: string;
+}
+
 export interface OfficialSubject {
   scheme: string;
   label: string;
@@ -346,7 +357,8 @@ export interface FieldProvenance {
   retrievedAt: IsoDateTime;
   sourceUpdatedAt: IsoDateTime | null;
   adapterId: string;
-  transformation: "copied" | "normalized" | "mapped" | "combined";
+  transformation:
+    "copied" | "normalized" | "deterministic_mapping" | "combined";
   transformRuleId: string | null;
   validationState: "validated" | "pending" | "rejected";
 }

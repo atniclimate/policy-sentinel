@@ -5,6 +5,8 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
+import Ajv2020 from "ajv/dist/2020.js";
+import addFormats from "ajv-formats";
 import {
   createArtifactDocuments,
   generateSyntheticNations,
@@ -46,12 +48,14 @@ const [
   federalFixture,
   countyFixture,
   failureFixture,
+  recordSchema,
 ] = await Promise.all([
   json("config/taxonomy.v1.json"),
   json("config/sources.v1.json"),
   json("fixtures/records/general-jurisdiction.valid.json"),
   json("fixtures/records/county-explicit.valid.json"),
   json("fixtures/sources/synthetic-refresh-failure.valid.json"),
+  json("schemas/record.schema.v1.json"),
 ]);
 const sourceConfigs = new Map(
   sourceRegistry.sources.map((source) => [source.id, source]),
@@ -59,6 +63,63 @@ const sourceConfigs = new Map(
 const nations = generateSyntheticNations();
 const preparedFederal = completeSyntheticProvenance(federalFixture);
 const preparedCounty = completeSyntheticProvenance(countyFixture);
+const recordAjv = new Ajv2020({
+  allErrors: true,
+  allowUnionTypes: true,
+  strict: true,
+});
+addFormats(recordAjv);
+const validateRecordSchema = recordAjv.compile(recordSchema);
+
+function relationshipRecord(recordId, sourceDocumentRelationships) {
+  const record = globalThis.structuredClone(federalFixture);
+  const officialSource = `https://official.example.invalid/records/${recordId}`;
+  record.internalId = makeStableRecordId(record.source.id, recordId);
+  record.source.recordId = recordId;
+  record.officialTitle = `Synthetic relationship record ${recordId}`;
+  record.sourceDocumentIdentifier = recordId;
+  record.urls.officialSource = officialSource;
+  record.urls.officialFullText = `${officialSource}.pdf`;
+  if (record.texts.officialSummary !== null) {
+    record.texts.officialSummary.sourceUrl = officialSource;
+  }
+  record.statusHistory = record.statusHistory.map((event) => ({
+    ...event,
+    sourceUrl: officialSource,
+  }));
+  record.relevance = record.relevance.map((entry) => ({
+    ...entry,
+    sourceUrl: officialSource,
+  }));
+  record.sourceDocumentRelationships = sourceDocumentRelationships;
+  record.fieldProvenance = [];
+  return completeSyntheticProvenance(record);
+}
+
+function correctionRelationshipPair() {
+  const originalId = "SYN-ORIGINAL";
+  const correctionId = "SYN-CORRECTION";
+  const originalUrl = `https://official.example.invalid/records/${originalId}`;
+  const correctionUrl = `https://official.example.invalid/records/${correctionId}`;
+  return [
+    relationshipRecord(originalId, [
+      {
+        relationshipType: "corrected_by",
+        targetSourceRecordId: correctionId,
+        targetUrl: correctionUrl,
+        sourceLabel: "corrections",
+      },
+    ]),
+    relationshipRecord(correctionId, [
+      {
+        relationshipType: "corrects",
+        targetSourceRecordId: originalId,
+        targetUrl: originalUrl,
+        sourceLabel: "correction_of",
+      },
+    ]),
+  ];
+}
 
 async function createLastKnownGoodFixture({
   includeHealthAsset = true,
@@ -255,6 +316,162 @@ test("synthetic provenance covers every declared source-derived leaf", () => {
   }
 });
 
+test("record schema 1.1 constrains source-document relationship shape", () => {
+  const [original] = correctionRelationshipPair();
+  assert.equal(
+    validateRecordSchema(original),
+    true,
+    JSON.stringify(validateRecordSchema.errors),
+  );
+
+  const unsupportedType = globalThis.structuredClone(original);
+  unsupportedType.sourceDocumentRelationships[0].relationshipType =
+    "supersedes";
+  assert.equal(validateRecordSchema(unsupportedType), false);
+
+  const missingLabel = globalThis.structuredClone(original);
+  delete missingLabel.sourceDocumentRelationships[0].sourceLabel;
+  assert.equal(validateRecordSchema(missingLabel), false);
+
+  const nonHttpsTarget = globalThis.structuredClone(original);
+  nonHttpsTarget.sourceDocumentRelationships[0].targetUrl =
+    "http://official.example.invalid/records/SYN-CORRECTION";
+  assert.equal(validateRecordSchema(nonHttpsTarget), false);
+});
+
+test("correction relationships are reciprocal while related documents may be one-way", () => {
+  const [original, correction] = correctionRelationshipPair();
+  const related = relationshipRecord("SYN-RELATED", [
+    {
+      relationshipType: "related_document",
+      targetSourceRecordId: "SYN-EXTERNAL-RELATED",
+      targetUrl:
+        "https://official.example.invalid/records/SYN-EXTERNAL-RELATED",
+      sourceLabel: "related_documents",
+    },
+  ]);
+
+  assert.doesNotThrow(() =>
+    validateRecordSetPolicy([original, correction, related], {
+      sourceRegistry,
+      taxonomy,
+      nations,
+    }),
+  );
+});
+
+test("relationship validation rejects self and duplicate edges", () => {
+  const selfRelationship = relationshipRecord("SYN-SELF", [
+    {
+      relationshipType: "related_document",
+      targetSourceRecordId: "SYN-SELF",
+      targetUrl: "https://official.example.invalid/records/SYN-SELF",
+      sourceLabel: "related_documents",
+    },
+  ]);
+  assert.throws(
+    () =>
+      validateRecordPolicy(selfRelationship, {
+        sourceConfig: sourceConfigs.get(selfRelationship.source.id),
+        taxonomy,
+      }),
+    (error) =>
+      error instanceof PolicyValidationError &&
+      error.issues.some((issue) =>
+        issue.includes("targets its own source record"),
+      ),
+  );
+
+  const duplicateRelationship = {
+    relationshipType: "related_document",
+    targetSourceRecordId: "SYN-TARGET",
+    targetUrl: "https://official.example.invalid/records/SYN-TARGET",
+    sourceLabel: "related_documents",
+  };
+  const duplicate = relationshipRecord("SYN-DUPLICATE", [
+    duplicateRelationship,
+    {
+      ...duplicateRelationship,
+      targetUrl: "https://official.example.invalid/records/SYN-TARGET?copy=2",
+      sourceLabel: "duplicate_source_label",
+    },
+  ]);
+  assert.throws(
+    () =>
+      validateRecordPolicy(duplicate, {
+        sourceConfig: sourceConfigs.get(duplicate.source.id),
+        taxonomy,
+      }),
+    (error) =>
+      error instanceof PolicyValidationError &&
+      error.issues.some((issue) =>
+        issue.includes("duplicates the related_document relationship"),
+      ),
+  );
+});
+
+test("correction graph rejects missing targets and missing reciprocal edges", () => {
+  const [original, correction] = correctionRelationshipPair();
+  assert.throws(
+    () =>
+      validateRecordSetPolicy([original], {
+        sourceRegistry,
+        taxonomy,
+        nations,
+      }),
+    (error) =>
+      error instanceof PolicyValidationError &&
+      error.issues.some((issue) =>
+        issue.includes("targets missing same-source record"),
+      ),
+  );
+
+  correction.sourceDocumentRelationships = [];
+  assert.throws(
+    () =>
+      validateRecordSetPolicy([original, correction], {
+        sourceRegistry,
+        taxonomy,
+        nations,
+      }),
+    (error) =>
+      error instanceof PolicyValidationError &&
+      error.issues.some((issue) =>
+        issue.includes("lacks reciprocal corrects relationship"),
+      ),
+  );
+});
+
+test("relationship leaves require exact provenance", () => {
+  const related = relationshipRecord("SYN-PROVENANCE", [
+    {
+      relationshipType: "related_document",
+      targetSourceRecordId: "SYN-TARGET",
+      targetUrl: "https://official.example.invalid/records/SYN-TARGET",
+      sourceLabel: "related_documents",
+    },
+  ]);
+  related.fieldProvenance = related.fieldProvenance.filter(
+    ({ field }) =>
+      field !== "/sourceDocumentRelationships/0/targetSourceRecordId",
+  );
+
+  assert.throws(
+    () =>
+      validateRecordPolicy(related, {
+        sourceConfig: sourceConfigs.get(related.source.id),
+        taxonomy,
+      }),
+    (error) =>
+      error instanceof PolicyValidationError &&
+      error.issues.some((issue) =>
+        issue.includes(
+          "/sourceDocumentRelationships/0/targetSourceRecordId lacks exact provenance",
+        ),
+      ),
+  );
+});
+
 test("valid synthetic records pass policy and uniqueness validation", () => {
   assert.doesNotThrow(() =>
     validateRecordSetPolicy([preparedFederal, preparedCounty], {
@@ -301,6 +518,23 @@ test("artifact packaging rejects disabled-source records", () => {
         synthetic: true,
       }),
     /disabled or unregistered source: federal-register/,
+  );
+});
+
+test("artifact packaging rejects records outside the emitted record contract", () => {
+  const invalid = globalThis.structuredClone(preparedFederal);
+  invalid.schemaVersion = "1.0.0";
+  assert.throws(
+    () =>
+      createArtifactDocuments({
+        records: [invalid],
+        nations,
+        taxonomy,
+        sourceRegistry,
+        generatedAt: "2026-07-30T15:00:00Z",
+        synthetic: true,
+      }),
+    /record schema version mismatch/,
   );
 });
 
@@ -452,6 +686,19 @@ test("source URLs require exact registered HTTPS hostnames", () => {
         record.relevance[0].sourceUrl = "https://attacker.test/relevance";
       },
       field: "/relevance/0/sourceUrl",
+    },
+    {
+      mutate(record) {
+        record.sourceDocumentRelationships = [
+          {
+            relationshipType: "related_document",
+            targetSourceRecordId: "SYN-TARGET",
+            targetUrl: "https://attacker.test/related",
+            sourceLabel: "related_documents",
+          },
+        ];
+      },
+      field: "/sourceDocumentRelationships/0/targetUrl",
     },
     {
       mutate(record) {
@@ -626,6 +873,7 @@ test("artifact packaging is deterministic, compact, and detail-sharded", () => {
   const first = createArtifactDocuments(input);
   const second = createArtifactDocuments(input);
   assert.deepEqual(first.get("manifest.json"), second.get("manifest.json"));
+  assert.equal(first.get("manifest.json").recordSchemaVersion, "1.1.0");
   assert.equal(first.get("manifest.json").nationCount, 575);
   assert.equal(first.get("manifest.json").recordCount, 2);
   assert.equal(first.get("index/records.json").records.length, 2);
@@ -657,11 +905,17 @@ test("artifact packaging is deterministic, compact, and detail-sharded", () => {
   );
   for (const entry of first.get("index/records.json").records) {
     assert.equal("aiSummary" in entry, false);
+    assert.equal("sourceDocumentRelationships" in entry, false);
     assert.equal("categoryIds" in entry, false);
     assert.equal("subcategoryIds" in entry, false);
     assert.deepEqual(entry.taxonomyMemberships, []);
     assert.deepEqual(entry.landmark, { isLandmark: false });
     assert.match(entry.detailPath, /^details\/[A-Za-z0-9_-]+\.json$/);
+  }
+  for (const detail of [...first.entries()]
+    .filter(([assetPath]) => assetPath.startsWith("details/"))
+    .map(([, document]) => document)) {
+    assert.ok(Array.isArray(detail.record.sourceDocumentRelationships));
   }
 });
 

@@ -5,7 +5,7 @@
 The Phase A contracts are:
 
 - [`record.schema.v1.json`](../schemas/record.schema.v1.json), normalized
-  record schema version `1.0.0`;
+  record schema version `1.1.0`;
 - [`taxonomy.schema.v1.json`](../schemas/taxonomy.schema.v1.json), taxonomy
   schema version `1.0.0`; and
 - [`taxonomy.v1.json`](../config/taxonomy.v1.json), the editable ten-category,
@@ -41,6 +41,7 @@ The normalized record preserves:
 | Dates | Introduction, publication, update, action, deadline, retrieval, and any source-defined dates, without inventing absent values. |
 | Links and language | Registered official landing/full-text URLs, official summary or abstract, and only permitted source-language excerpts or full text. |
 | Legislative/process detail | Sponsors, committees, actions, status history, versions, and source timestamps when supplied. |
+| Source-document relationships | Detail-only `corrects`, `corrected_by`, and `related_document` edges with the exact target source-record ID, official target URL, and originating source label. |
 | Relevance | One or more explicit bases such as source-explicit Nation reference, general jurisdiction, landmark, or another registered source-defined basis. |
 | Nation evidence | Internal Nation ID, exact official name or authorized alias found, exact evidence text/location, official evidence URL, evidence date, basis, and validation state. |
 | History and quality | Actual source coverage range and confidence, pre-1980 treatment, landmark criteria/evidence, data quality, source health, freshness, change badge, and urgent alert metadata. |
@@ -70,13 +71,30 @@ JSON Schema is one layer. Phase B semantic validation must additionally prove:
 10. deadlines and status alerts retain their exact source field and date;
 11. AI text contains no em dash or forbidden conclusion/relevance assertion
     and has complete cited-input provenance; and
-12. no raw response, credential, personal contact, private, parcel, ownership,
+12. source-document relationships use registered official HTTPS URLs and
+    contain neither self-relationships nor duplicate type/target edges;
+13. every `corrects` or `corrected_by` relationship resolves within the same
+    source record set and has the reciprocal correction edge; and
+14. no raw response, credential, personal contact, private, parcel, ownership,
     map, or sensitive land field survives normalization.
 
 Validation failures quarantine the candidate record from the new artifact; they
 do not silently coerce, categorize, associate, or drop it. The source health
 manifest reports aggregate failure and the prior valid public shard remains
 eligible for last-known-good handling.
+
+## Source-document relationships
+
+`sourceDocumentRelationships` preserves only relationships explicitly supplied
+by the originating source. `sourceLabel` retains the upstream relationship
+field or label without converting it into a legal conclusion. A correction
+record uses `corrects`; the corrected record uses `corrected_by`; both records
+must be present in the validated same-source record set and point to each other.
+`related_document` is generic and may remain one-way.
+
+Relationships never synthesize a normalized status, change badge, legal effect,
+or additional relationship. They are retained in detail records with exact
+field provenance but excluded from compact indexes and search text.
 
 ## Stable IDs
 
@@ -120,6 +138,8 @@ reason to exclude the record.
 
 The artifact manifest names the record, taxonomy, mapping, source-registry, and
 build versions. Additive compatible changes can increment the minor version.
+Current builds emit record schema `1.1.0`; the artifact manifest contract can
+still identify historical `1.0.0` builds.
 Breaking field or meaning changes require a new major schema, migration and
 backward-compatibility fixtures, and an explicit decision-register entry.
 Historical artifacts are interpreted under the versions recorded at their

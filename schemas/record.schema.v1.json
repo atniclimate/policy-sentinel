@@ -23,6 +23,7 @@
     "committees",
     "actionHistory",
     "statusHistory",
+    "sourceDocumentRelationships",
     "officialSubjects",
     "taxonomyMemberships",
     "isUnclassified",
@@ -38,7 +39,7 @@
   ],
   "properties": {
     "schemaVersion": {
-      "const": "1.0.0"
+      "const": "1.1.0"
     },
     "internalId": {
       "type": "string",
@@ -296,6 +297,13 @@
       "type": "array",
       "items": {
         "$ref": "#/$defs/historyEvent"
+      }
+    },
+    "sourceDocumentRelationships": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/sourceDocumentRelationship"
       }
     },
     "officialSubjects": {
@@ -850,6 +858,36 @@
         },
         "sourceUrl": {
           "$ref": "#/$defs/httpsUrl"
+        }
+      }
+    },
+    "sourceDocumentRelationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "relationshipType",
+        "targetSourceRecordId",
+        "targetUrl",
+        "sourceLabel"
+      ],
+      "properties": {
+        "relationshipType": {
+          "enum": [
+            "corrects",
+            "corrected_by",
+            "related_document"
+          ]
+        },
+        "targetSourceRecordId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "targetUrl": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "sourceLabel": {
+          "type": "string",
+          "minLength": 1
         }
       }
     },

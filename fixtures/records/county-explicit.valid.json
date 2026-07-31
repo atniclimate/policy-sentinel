@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "internalId": "psr:synthetic-county:ordinance-001",
   "source": {
     "id": "synthetic-county",
@@ -79,6 +79,7 @@
       "sourceUrl": "https://county.example.invalid/ordinances/ORD-001"
     }
   ],
+  "sourceDocumentRelationships": [],
   "officialSubjects": [],
   "taxonomyMemberships": [],
   "isUnclassified": true,
