@@ -42,6 +42,7 @@ const DISCLAIMER =
 
 const SELECTION_KEY = "policy-sentinel:selected-records";
 const RESULT_WINDOW_SIZE = 50;
+const DETAIL_HYDRATION_CONCURRENCY = 8;
 
 const coverageRangeText = (
   from: string | null,
@@ -170,25 +171,40 @@ export function App() {
   };
 
   const hydrate = async (records: PublicRecord[]): Promise<PublicRecord[]> => {
-    const settled = await Promise.allSettled(
-      records.map((record) => loadRecordDetail(record)),
-    );
-    const failures = settled.filter(
-      (result): result is PromiseRejectedResult => result.status === "rejected",
-    );
-    if (failures.length > 0) {
-      const firstReason = failures[0].reason;
-      const detail =
-        firstReason instanceof Error ? ` ${firstReason.message}` : "";
-      throw new Error(
-        `${failures.length} of ${records.length} selected detail asset${
-          records.length === 1 ? "" : "s"
-        } could not be validated.${detail}`,
+    const hydrated: PublicRecord[] = [];
+    for (
+      let offset = 0;
+      offset < records.length;
+      offset += DETAIL_HYDRATION_CONCURRENCY
+    ) {
+      const batch = records.slice(
+        offset,
+        offset + DETAIL_HYDRATION_CONCURRENCY,
+      );
+      const settled = await Promise.allSettled(
+        batch.map((record) => loadRecordDetail(record)),
+      );
+      const failures = settled.filter(
+        (result): result is PromiseRejectedResult =>
+          result.status === "rejected",
+      );
+      if (failures.length > 0) {
+        const firstReason = failures[0].reason;
+        const detail =
+          firstReason instanceof Error ? ` ${firstReason.message}` : "";
+        throw new Error(
+          `${failures.length} of ${records.length} selected detail asset${
+            records.length === 1 ? "" : "s"
+          } could not be validated.${detail}`,
+        );
+      }
+      hydrated.push(
+        ...settled.flatMap((result) =>
+          result.status === "fulfilled" ? [result.value] : [],
+        ),
       );
     }
-    return settled.flatMap((result) =>
-      result.status === "fulfilled" ? [result.value] : [],
-    );
+    return hydrated;
   };
 
   const selectedForNation = (
@@ -372,12 +388,15 @@ export function App() {
 }
 
 function Header({ bundle, route }: { bundle: ArtifactBundle; route: Route }) {
+  const unclassifiedCount = bundle.records.filter(
+    ({ isUnclassified }) => isUnclassified,
+  ).length;
   const links = [
     ["/", "Home"],
     ["/search", "Search"],
     ["/policy", "Policy areas"],
     ["/timeline", "Landmark timeline"],
-    ["/unclassified", "Unclassified"],
+    ["/unclassified", `Unclassified (${unclassifiedCount})`],
     ["/coverage", "Source coverage"],
     ["/methodology", "Methodology"],
     ["/about", "About"],

@@ -310,6 +310,9 @@ describe("Federal Register artifact UX", () => {
       "Only the selected July 2026 artifact window is included.",
     );
     expect(
+      screen.getByRole("link", { name: "Unclassified (55)" }),
+    ).toBeInTheDocument();
+    expect(
       screen.getAllByRole("link", { name: "Open record details" }),
     ).toHaveLength(50);
 
