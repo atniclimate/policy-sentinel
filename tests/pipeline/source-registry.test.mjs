@@ -34,7 +34,7 @@ test("source registry records researched disabled production sources", () => {
   assert.equal(validateSources(sourceRegistry), true);
   assert.doesNotThrow(() => assertSourceRegistrySemantics(sourceRegistry));
   assert.equal(sourceRegistry.schemaVersion, "1.2.0");
-  assert.equal(sourceRegistry.registryVersion, "1.8.0");
+  assert.equal(sourceRegistry.registryVersion, "1.9.0");
 
   const federalRegister = sourceRegistry.sources.find(
     ({ id }) => id === "federal-register",
@@ -250,7 +250,13 @@ test("source registry records researched disabled production sources", () => {
     {
       enabled: false,
       synthetic: false,
-      adapter: null,
+      adapter: {
+        id: "washington-governor-executive-orders-adapter",
+        version: "1.0.0",
+        module: "src/adapters/washington-governor-executive-orders/index.ts",
+        identityRule:
+          "washington-governor-executive-order-number-issued-date-v1",
+      },
       accessedOn: "2026-07-31",
       method: "official_index",
       authentication: "none",

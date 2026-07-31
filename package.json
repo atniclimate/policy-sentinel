@@ -24,6 +24,7 @@
     "check": "npm run format:check && npm run lint && npm run typecheck && npm run validate:roadmap && npm run scan:source && npm test && npm run build"
   },
   "dependencies": {
+    "parse5": "8.0.1",
     "preact": "^10.29.7"
   },
   "devDependencies": {

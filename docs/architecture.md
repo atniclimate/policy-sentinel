@@ -20,7 +20,9 @@ Recommended Phase B stack:
   print, download, and built-site tests;
 - `saxes@6.0.0` as the narrowly scoped, build-time, namespace-aware XML event
   parser for the bounded Washington Legislative Web Services SOAP contract
-  (Decision D-025); and
+  (Decision D-025);
+- `parse5@8.0.1` as the pinned, inert build-time HTML parser for the bounded
+  Washington Governor executive-order index contract (Decision D-032); and
 - a dedicated client-side search library only if an artifact-size and latency
   benchmark shows that a simple prebuilt token index is insufficient.
 
@@ -144,9 +146,37 @@ authorization to persist raw provider XML.
 Source-registry schema 1.2 adds `official_index` for an originating public
 document index that is neither an API, feed, nor bulk export. The independently
 registered `washington-state-register` and
-`washington-governor-executive-orders` sources use this method. They remain
-disabled with `adapter: null`; the method describes their reviewed access
-surface and does not turn an undocumented HTML page into a formal API.
+`washington-governor-executive-orders` sources use this method. Both remain
+disabled. The Register still has `adapter: null`; source-registry 1.9 records
+the Governor's versioned adapter descriptor without authorizing it to emit
+public records. The method describes a reviewed access surface and does not
+turn an undocumented HTML page into a formal API.
+
+Governor contract 1.0 makes one credential-free request to the literal Bob
+Ferguson value-`220`, all-status URL, with no redirect, retry, referrer, cache,
+or browser path. The response must be exact-URL HTTP 200 UTF-8 HTML, at most
+256 KiB in at most 512 nonempty chunks, and must also fit fixed DOM node,
+attribute, depth, text, parse-error, row, and whole-operation time ceilings.
+The pinned `parse5` projection scopes itself to the reviewed executive-orders
+view, checks the selected governor and status options, the exact six-column
+table and `Displaying 1 - N of N` count, rejects a pager or more than 25 rows,
+requires the `25-01` / 2025-01-15 lower-bound anchor, and accepts only exact
+`Active` rows in v1. It retains only number, issued date, title, source status,
+governor contract label, and a structurally validated Governor PDF link.
+Compound number-plus-date identity remains independent of the PDF URL.
+
+The Governor adapter performs that complete projection before yielding any
+reference, returns the in-memory allowlisted row from `fetch`, and never
+retrieves a PDF body. Normalization is metadata-and-links-only,
+`general_jurisdiction`, and `Unclassified`; even a title referring generally
+to Tribal Nations creates no Nation association. Every retained
+source-derived leaf has exact provenance. Source-wide failure is atomic, and
+the shared last-known-good merge now rejects success receipts, failure
+receipts, prior records, or prior health from another source before cloning
+them. One bounded aggregate-only implementation check on 2026-07-31 matched
+14 rows from 2025-01-15 through 2026-06-25; no HTML or PDF bytes were retained.
+Activation remains closed until a separately reviewed continuous official-link
+health step and the exact later activation gate are approved.
 
 The Register and Governor sources must have separate adapters, health receipts,
 and last-known-good shards from each other and from Washington LWS. A Register

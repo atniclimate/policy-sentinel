@@ -24,6 +24,7 @@ import { deriveBuildId, hashJson } from "../../src/pipeline/hashing.mjs";
 import { toUrlSafeId } from "../../src/pipeline/identity.mjs";
 import {
   loadLastKnownGoodSource,
+  mergeSourceRefresh,
   verifyLastKnownGoodArtifact,
 } from "../../src/pipeline/last-known-good.mjs";
 import { completeSyntheticProvenance } from "../../src/pipeline/policy-validation.mjs";
@@ -622,4 +623,152 @@ test("last-known-good reuse rejects incomplete or inconsistent artifact packages
     assert.ok(resolvedParent.startsWith(`${distRoot}${path.sep}`));
     await rm(resolvedParent, { recursive: true, force: true });
   }
+});
+
+test("source refresh merging cannot cross source identities", async (t) => {
+  const [federalRecord, countyRecord] = records;
+  const healthFor = (record) => ({
+    sourceId: record.source.id,
+    status: "healthy",
+    checkedAt: record.sourceHealth.checkedAt,
+    dataAsOf: record.sourceHealth.dataAsOf,
+    lastSuccessfulRetrievalAt: record.sourceHealth.lastSuccessfulRetrievalAt,
+    usingLastKnownGood: false,
+    stale: false,
+    recordCount: 1,
+    failureStage: null,
+    message: null,
+  });
+  const failureFor = (sourceId) => ({
+    ok: false,
+    sourceId,
+    checkedAt: "2026-08-01T18:00:00.000Z",
+    failureStage: "fetch",
+    publicMessage: "Synthetic source refresh failed.",
+  });
+  const federalHealth = healthFor(federalRecord);
+  const countyHealth = healthFor(countyRecord);
+  const federalFailure = failureFor(federalRecord.source.id);
+
+  await t.test("preserves valid same-source fallback behavior", () => {
+    const merged = mergeSourceRefresh({
+      sourceId: federalRecord.source.id,
+      refresh: federalFailure,
+      previousRecords: [federalRecord],
+      previousHealth: federalHealth,
+    });
+
+    assert.equal(merged.records.length, 1);
+    assert.equal(merged.records[0].source.id, federalRecord.source.id);
+    assert.equal(merged.records[0].sourceHealth.status, "degraded");
+    assert.equal(merged.records[0].sourceHealth.usingLastKnownGood, true);
+    assert.equal(merged.health.sourceId, federalRecord.source.id);
+    assert.equal(merged.health.status, "degraded");
+    assert.equal(merged.health.usingLastKnownGood, true);
+    assert.equal(merged.health.dataAsOf, federalHealth.dataAsOf);
+    assert.equal(federalRecord.sourceHealth.status, "healthy");
+  });
+
+  await t.test(
+    "clones a valid same-source success without mutating inputs",
+    () => {
+      const refresh = {
+        ok: true,
+        records: [globalThis.structuredClone(federalRecord)],
+        health: globalThis.structuredClone(federalHealth),
+      };
+      const previousRecords = [globalThis.structuredClone(federalRecord)];
+      const previousHealth = globalThis.structuredClone(federalHealth);
+      const refreshBefore = globalThis.structuredClone(refresh);
+      const previousRecordsBefore = globalThis.structuredClone(previousRecords);
+      const previousHealthBefore = globalThis.structuredClone(previousHealth);
+
+      const merged = mergeSourceRefresh({
+        sourceId: federalRecord.source.id,
+        refresh,
+        previousRecords,
+        previousHealth,
+      });
+
+      assert.deepEqual(refresh, refreshBefore);
+      assert.deepEqual(previousRecords, previousRecordsBefore);
+      assert.deepEqual(previousHealth, previousHealthBefore);
+      assert.notStrictEqual(merged.records, refresh.records);
+      assert.notStrictEqual(merged.records[0], refresh.records[0]);
+      assert.notStrictEqual(merged.health, refresh.health);
+      assert.equal(merged.health.sourceId, federalRecord.source.id);
+      assert.equal(merged.health.status, "healthy");
+      assert.equal(merged.health.usingLastKnownGood, false);
+      assert.equal(merged.health.stale, false);
+      assert.equal(merged.health.recordCount, 1);
+      assert.equal(merged.health.failureStage, null);
+    },
+  );
+
+  await t.test("rejects a failure receipt for another source", () => {
+    assert.throws(
+      () =>
+        mergeSourceRefresh({
+          sourceId: federalRecord.source.id,
+          refresh: failureFor(countyRecord.source.id),
+        }),
+      /source refresh failure does not match requested source/,
+    );
+  });
+
+  await t.test("rejects foreign previous records", () => {
+    assert.throws(
+      () =>
+        mergeSourceRefresh({
+          sourceId: federalRecord.source.id,
+          refresh: federalFailure,
+          previousRecords: [countyRecord],
+          previousHealth: federalHealth,
+        }),
+      /previous records do not match requested source/,
+    );
+  });
+
+  await t.test("rejects foreign previous health", () => {
+    assert.throws(
+      () =>
+        mergeSourceRefresh({
+          sourceId: federalRecord.source.id,
+          refresh: federalFailure,
+          previousRecords: [federalRecord],
+          previousHealth: countyHealth,
+        }),
+      /previous health does not match requested source/,
+    );
+  });
+
+  await t.test("rejects successful health for another source", () => {
+    assert.throws(
+      () =>
+        mergeSourceRefresh({
+          sourceId: federalRecord.source.id,
+          refresh: {
+            ok: true,
+            records: [federalRecord],
+            health: countyHealth,
+          },
+        }),
+      /source refresh health does not match requested source/,
+    );
+  });
+
+  await t.test("rejects successful records for another source", () => {
+    assert.throws(
+      () =>
+        mergeSourceRefresh({
+          sourceId: federalRecord.source.id,
+          refresh: {
+            ok: true,
+            records: [countyRecord],
+            health: federalHealth,
+          },
+        }),
+      /source refresh records do not match requested source/,
+    );
+  });
 });

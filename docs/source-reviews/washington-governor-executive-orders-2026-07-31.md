@@ -2,15 +2,16 @@
 
 Accessed: 2026-07-31
 
-Implementation state: researched in source-registry 1.8.0; registered disabled
-with `adapter: null`; no production records
+Implementation state: contract and adapter 1.0 implemented in source-registry
+1.9.0; registered disabled; no production records
 
 External authorization: none required for the reviewed public index and files
 
-Activation state: closed. A bounded Bob Ferguson term,
-metadata-and-links-only contract is viable, but the repository does not yet
-contain its parser, transport, normalizer, health receipt, or last-known-good
-integration.
+Activation state: closed. The bounded Bob Ferguson term,
+metadata-and-links-only parser, transport, normalizer, health receipt, and
+source-specific last-known-good boundary are implemented and tested. A
+separately reviewed continuous official-link health operation and the exact
+later activation gate remain unresolved.
 
 ## Primary sources
 
@@ -98,6 +99,18 @@ The current-term response contained exactly one data table with six columns:
 | `Governor` | Contract identity check for the selected term |
 | empty edit column | Structurally checked and discarded |
 
+The reviewed target container has the stable class tokens
+`view`, `view-executive-orders`, `view-id-executive_orders`, and
+`view-display-id-executive_order_list_block`; its extra `js-view-dom-id-*`
+token is deliberately ignored. The exact table has class tokens `table`,
+`table-bordered`, `table-striped`, `tablesaw`, and `cols-6`. Its count is one
+`view-header` whose collapsed text follows `Displaying 1 - N of N`. The
+reviewed form explicitly marked governor option value `220` / `Bob Ferguson`
+and status option value `All` / `- Any -` as selected. Contract 1.0 validates
+those selected options, the four exact status option mappings, and every row's
+governor label. Pager rejection is scoped to this target view rather than
+unrelated Drupal shell content.
+
 The title anchor is a relative path below
 `/sites/default/files/exe_order/` on `governor.wa.gov`. All 14 current links
 returned HTTP 200 with `application/pdf`, no redirect, and the same final URL
@@ -105,8 +118,8 @@ when checked. Observed file sizes ranged from 118,264 through 1,014,845 bytes.
 Those observations validate the links for the review date; they are not a
 provider size promise or a production byte ceiling.
 
-No contact field or order body appears in the index. A future parser must still
-use an exact table/field allowlist and discard all other page content rather
+No contact field or order body appears in the index. The implemented parser
+uses an exact table/field allowlist and discards all other page content rather
 than treating the complete Drupal page as a normalized source record.
 
 The current rows are descending by issued date. Retrieval must reconcile the
@@ -248,10 +261,27 @@ shard, preserving its original data-as-of time and labeling it stale/degraded.
 Without a prior shard, omit the source and mark it unavailable. While disabled,
 it appears in neither public coverage nor public health.
 
-## Implementation decision
+## Implemented contract and remaining gate
 
-The smallest defensible next increment is the one-page explicit Bob Ferguson
-term contract. Synthetic tests must cover:
+The repository now contains the one-page explicit Bob Ferguson term contract.
+It pins direct `parse5@8.0.1` and uses its inert AST rather than regex or a
+browser DOM. One exact GET has no credentials, referrer, cache, redirect, or
+retry. It accepts only exact-final-URL HTTP 200 UTF-8 HTML, at most 256 KiB in
+at most 512 nonempty chunks, under one 30-second deadline. Separate fixed DOM
+node, attribute, depth, aggregate-text, parse-error, and 25-row ceilings apply.
+Only bounded duplicate-attribute recovery outside the target view is accepted;
+parse ambiguity inside the target view fails closed. Every retained byte
+buffer is zeroed and no raw page or PDF body crosses the transport boundary.
+
+The parser requires the exact filters, table, count, current-term anchor,
+Active-only v1 status, safe Governor PDF path, and compound number/date
+identity before yielding any row. Normalization retains only metadata and
+official links, uses `status.normalized: unknown` while preserving exact
+`Active`, keeps every row `general_jurisdiction` and `Unclassified`, and
+provides provenance for every retained source-derived field. A generic title
+mentioning Tribal Nations still produces no Nation association.
+
+The synthetic suite covers:
 
 - exact current filter query and rejection of default, all-governor, unknown,
   duplicated, or reordered query pairs;
@@ -267,5 +297,15 @@ term contract. Synthetic tests must cover:
 - complete field provenance and metadata-only output; and
 - source-specific failure, health, and last-known-good handling.
 
+The shared LKG merge also fails closed when a success receipt, failure receipt,
+previous record, or previous health entry belongs to the Register, LWS, or any
+other source. On 2026-07-31, one aggregate-only execution through the finished
+transport matched 14 rows, earliest issued date 2025-01-15 and latest
+2026-06-25, under contract 1.0. It made no PDF request and retained no provider
+HTML or bytes.
+
 The historical 534-row view remains a separately bounded future increment.
-Registry 1.8.0 therefore records the source disabled with `adapter: null`.
+Registry 1.9.0 records adapter 1.0 but keeps the source disabled. Before
+activation, add and review a bounded continuous official-PDF link-health
+operation; structural URL validation alone is not a current reachability
+claim.

@@ -19,7 +19,7 @@
       "const": "1.2.0"
     },
     "registryVersion": {
-      "const": "1.8.0"
+      "const": "1.9.0"
     },
     "generatedDataPolicy": {
       "const": "artifact-only"

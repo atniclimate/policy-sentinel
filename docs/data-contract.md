@@ -13,7 +13,7 @@ The Phase A contracts are:
 - [`source.schema.v1.json`](../schemas/source.schema.v1.json), compatible v1
   source-registry schema version `1.2.0`;
 - [`sources.v1.json`](../config/sources.v1.json), source registry version
-  `1.8.0`; and
+  `1.9.0`; and
 - [`artifact.schema.v1.json`](../schemas/artifact.schema.v1.json), static
   artifact schema version `1.0.0`.
 
@@ -23,7 +23,7 @@ evidence that a production source is enabled or a public dataset exists.
 taxonomy, and synthetic fixtures, and proves selected invalid governance cases
 are rejected.
 
-Source-registry version `1.8.0` distinguishes researched configuration,
+Source-registry version `1.9.0` distinguishes researched configuration,
 implemented adapters, and activation. A disabled source may have
 `adapter: null` or a versioned adapter that is not authorized to emit public
 records; an enabled source must have a versioned adapter. Every non-synthetic
@@ -34,13 +34,20 @@ compatible source schema adds the `official_index` access method for an
 originating public document index that is neither an API, feed, nor bulk
 export. The independently registered `washington-state-register` and
 `washington-governor-executive-orders` sources use that method and remain
-disabled with `adapter: null`; separate source IDs preserve independent health
-and last-known-good behavior. Their dated reviews limit both sources to
-metadata and official links, keep the Register's scheduled publication date
-separate from online availability, and do not treat the Governor's
-current-term index as a complete historical archive. The registry-version
-change intentionally makes an older artifact ineligible for last-known-good
-reuse until it has been rebuilt against the exact current source registry. The
+disabled; the Register retains `adapter: null`, while the Governor has a
+versioned contract-1.0 adapter descriptor. Separate source IDs preserve
+independent health and last-known-good behavior. The Governor's synthetic
+contract enforces one exact Bob Ferguson value-`220` page, 25 rows or fewer,
+compound number/date identity, Active-only v1 status, metadata and links only,
+complete provenance, and atomic source failure. Its one aggregate-only live
+contract check matched the reviewed 14-row range without retaining provider
+bytes. It is still not authorized to emit public records and does not claim
+historical completeness or continuous PDF reachability. Their dated reviews
+keep the Register's scheduled publication date separate from online
+availability and do not treat the Governor's current-term index as a complete
+historical archive. The registry-version change intentionally makes an older
+artifact ineligible for last-known-good reuse until it has been rebuilt
+against the exact current source registry. The
 Grants.gov entry is disabled with no adapter because its current terms and live
 contract canaries remain behind G-B-GRANTS. The Congress.gov entry is likewise
 disabled with no adapter because registration, key handling, runtime-host

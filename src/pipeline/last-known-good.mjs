@@ -1028,6 +1028,29 @@ export function mergeSourceRefresh({
   previousHealth = null,
 }) {
   if (refresh.ok) {
+    if (refresh.health?.sourceId !== sourceId) {
+      throw new Error("source refresh health does not match requested source");
+    }
+    if (
+      !Array.isArray(refresh.records) ||
+      refresh.records.some((record) => record?.source?.id !== sourceId)
+    ) {
+      throw new Error("source refresh records do not match requested source");
+    }
+  } else if (refresh.sourceId !== sourceId) {
+    throw new Error("source refresh failure does not match requested source");
+  }
+  if (
+    !Array.isArray(previousRecords) ||
+    previousRecords.some((record) => record?.source?.id !== sourceId)
+  ) {
+    throw new Error("previous records do not match requested source");
+  }
+  if (previousHealth !== null && previousHealth?.sourceId !== sourceId) {
+    throw new Error("previous health does not match requested source");
+  }
+
+  if (refresh.ok) {
     return {
       records: globalThis.structuredClone(refresh.records),
       health: {

@@ -1550,7 +1550,7 @@ test("artifact packaging rejects incomplete or inconsistent health receipts", ()
   const records = [preparedFederal, preparedCounty];
   const firstRun = mergeSourceRefresh({
     sourceId: federalRegister.id,
-    refresh: failureFixture,
+    refresh: { ...failureFixture, sourceId: federalRegister.id },
   });
   const receipts = sourceHealthReceiptsFor(configured, records, [
     firstRun.health,
@@ -1624,7 +1624,7 @@ test("first-run unavailable health is authoritative for enabled sources without 
   const artifactRecords = [preparedFederal, preparedCounty];
   const firstRun = mergeSourceRefresh({
     sourceId: federalRegister.id,
-    refresh: failureFixture,
+    refresh: { ...failureFixture, sourceId: federalRegister.id },
   });
   assert.throws(
     () =>
