@@ -602,16 +602,22 @@ may establish only that one fixed year response fits the current
 byte/item/schema boundaries; it cannot establish annual or biennial
 exhaustiveness.
 
-The repository network transport remains enabled only for the six known-bill
-operations. `GetLegislationByYear` request serialization and response parsing
-are synthetic-only: a module-private exhaustive default-deny decision rejects
-years 3785, 2025, and 2026 before resolving or calling `fetch`. Only the fixed
-known-bill observer has used the transport live; no `GetLegislationByYear`
-request or provider result has been made or retained. The transport constructs
-each enabled reviewed request internally. Its policy and sanitized error-code
-allowlist are runtime-frozen, preventing changes to its accepted media type,
-user agent, chunk ceiling, deadline, attempt count, or error vocabulary. It
-makes one credential-free attempt, refuses automatic redirects and a changed
+The generic repository network transport remains enabled only for the six
+known-bill operations. Its module-private exhaustive default-deny decision
+rejects `GetLegislationByYear` years 3785, 2025, and 2026 before resolving or
+calling `fetch`. A separately reviewed direct helper owns the one fixed 2025
+canary request, accepts only transport dependencies, and reaches the private
+prepared-request core; it takes no request, year, URL, header, mode, or bypass
+flag, reduces the typed result inside `transport.ts`, returns only a frozen
+closed aggregate, and is omitted from the general Washington contract barrel.
+No exported function returns the yearly request, receipt, or items. Only the
+fixed known-bill observer has used the transport live; no
+`GetLegislationByYear` request or provider result has been made or retained.
+The transport constructs each enabled reviewed request internally. Its policy
+and sanitized error-code allowlist are runtime-frozen, preventing changes to
+its accepted media type, user agent, chunk ceiling, deadline, attempt count, or
+error vocabulary. It makes one credential-free attempt, refuses automatic
+redirects and a changed
 or empty final URL, requires HTTP 200, accepts only `text/xml` with no charset
 or UTF-8 and either no `Content-Encoding` or `identity`, and applies a single
 30-second deadline using cancellation during retrieval and monotonic
@@ -624,9 +630,9 @@ boundary makes no claim about their SOAP-fault content or retryability. Errors
 expose only repository-defined categories, an optional numeric HTTP status,
 and static messages.
 
-The repository also has a manual aggregate-only observer for the first live
-canary. The internally fixed scenario uses `GetLegislation`, biennium
-`2025-26`, and bill number `1001`. The official
+The repository also has a manual aggregate-only observer. Its first internally
+fixed scenario uses `GetLegislation`, biennium `2025-26`, and bill number
+`1001`. The official
 [HB 1001 page](https://app.leg.wa.gov/billsummary?BillNumber=1001&Year=2025),
 reviewed 2026-07-31, identifies `HB 1001 - 2025-26`, its current version, and
 activity in both regular sessions. The Legislature's
@@ -636,27 +642,38 @@ biennium and defines a biennium as the two-year period beginning in an
 odd-numbered year. These public HTML pages establish a low-scope current
 known-bill input; they do not establish the LWS response contract.
 
-The command requires the exact
-`--execute --scenario known_bill_legislation_v1` arguments, authorizes at most
-one sequential request attempt with no retry, and accepts no dynamic bill,
-biennium, date, URL, header, output, environment, logger, or persistence value.
-The scenario and evidence-policy allowlists are runtime-frozen. The scenario
-executor is module-private, omitted from the general Washington contract barrel,
-and callable only after that exact command path succeeds. Its
-report records execution authorization separately from the actual zero-or-one
-request count. The launcher disables `.env` loading. The report is cloned to a
-plain-data snapshot before exact-key runtime validation and serialization and
-contains only repository enums, numeric/null HTTP and byte aggregates, bounded
-item/top-level-optional/date-shape counts and booleans, and a timing bucket. The
-request, transport receipt, typed result items, provider strings, exact dates,
-URLs/hosts, raw XML, error text, stack, and cause cannot enter the report.
-Missing, empty, present, sanitized HTTP-200 fault, and rejected transport
-outcomes remain distinct. Expectation success requires a present non-empty
-known-bill result, but does not establish uniqueness, ordering, completeness,
-or date meaning.
+Report contract 1.1 adds the exact nonnumeric
+`--execute --scenario legislation_by_year_v1` command. It maps only to the
+fixed 2025 helper; the help text and report expose no request year. Either exact
+three-argument scenario authorizes at most one sequential request attempt with
+no retry and accepts no dynamic bill, biennium, year, date, URL, header, output,
+environment, logger, or persistence value. The complete per-scenario policy is
+runtime-frozen and binds operation, item ceiling, optional-field count, date
+allowance, and identity-evidence semantics. The scenario executor is
+module-private, omitted from the general Washington contract barrel, and
+callable only after the exact command path succeeds.
 
-Before its first execution, this observer checkpoint made no LWS bill/data
-request and retained no provider response.
+The report records execution authorization separately from the actual
+zero-or-one request count. The launcher disables `.env` loading. The report is
+cloned to a plain-data snapshot before exact-key runtime validation and
+serialization. The known-bill shape retains its bounded item, optional-field,
+and date-shape aggregates. The yearly shape contains only returned-item count,
+whether that count is below or at the 2,048-item repository limit, aggregate
+null/value counts across the five optional top-level fields, accepted
+HTTP/byte aggregates, and a timing bucket. Fixed interpretation markers label
+the response a single bounded response and leave request-year echo, uniqueness,
+ordering, completeness, active winner, historical range, and production
+viability unassessed. Neither shape can contain the request year, transport
+receipt, typed result items, identifiers, provider strings, exact dates,
+URLs/hosts, raw XML, error text, stack, cause, or partial aggregate. Missing,
+empty, present, sanitized HTTP-200 fault, and rejected transport outcomes
+remain distinct. Expectation success requires one attempted, HTTP-200, present,
+non-empty, structurally accepted response; it does not establish any fixed
+non-assessment dimension.
+
+Before the known-bill scenario's first execution, the observer checkpoint made
+no LWS bill/data request and retained no provider response. The yearly scenario
+has not executed.
 
 ## First aggregate live-canary evidence
 

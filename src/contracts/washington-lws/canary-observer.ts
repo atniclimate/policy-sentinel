@@ -8,16 +8,19 @@ import type { WashingtonLwsRequestInput } from "./request-contract";
 import type { WashingtonLwsLegislation } from "./soap-contract";
 import {
   fetchWashingtonLwsSoapExchange,
+  observeWashingtonLwsReviewedYearlyCanaryExchange,
   WASHINGTON_LWS_TRANSPORT_ERROR_CODES,
   WashingtonLwsTransportError,
   type WashingtonLwsFetchLike,
+  type WashingtonLwsReviewedYearlyCanaryObservation,
   type WashingtonLwsTransportErrorCode,
   type WashingtonLwsTransportReceipt,
 } from "./transport";
 
-export const WASHINGTON_LWS_CANARY_REPORT_VERSION = "1.0.0" as const;
+export const WASHINGTON_LWS_CANARY_REPORT_VERSION = "1.1.0" as const;
 export const WASHINGTON_LWS_CANARY_SCENARIOS = Object.freeze([
   "known_bill_legislation_v1",
+  "legislation_by_year_v1",
 ] as const);
 
 export type WashingtonLwsCanaryScenario =
@@ -27,8 +30,25 @@ export const WASHINGTON_LWS_CANARY_POLICY = Object.freeze({
   requestCount: 1,
   maximumRequestAttempts: 1,
   retryCount: 0,
-  operation: "GetLegislation",
   outputLines: 1,
+  scenarios: Object.freeze({
+    known_bill_legislation_v1: Object.freeze({
+      operation: "GetLegislation",
+      maximumItems:
+        WASHINGTON_LWS_OPERATION_DESCRIPTORS.GetLegislation.maximumItems,
+      optionalTopLevelFieldsPerItem: 10,
+      maximumDatesPerItem: 2,
+      identityEvidence: "accepted_reviewed_fields",
+    }),
+    legislation_by_year_v1: Object.freeze({
+      operation: "GetLegislationByYear",
+      maximumItems:
+        WASHINGTON_LWS_OPERATION_DESCRIPTORS.GetLegislationByYear.maximumItems,
+      optionalTopLevelFieldsPerItem: 5,
+      maximumDatesPerItem: 0,
+      identityEvidence: "not_observable",
+    }),
+  }),
 } as const);
 
 const KNOWN_BILL_LEGISLATION_REQUEST = {
@@ -63,12 +83,13 @@ interface WashingtonLwsCanaryBaseReport {
   schemaVersion: typeof WASHINGTON_LWS_CANARY_REPORT_VERSION;
   sourceId: typeof WASHINGTON_LWS_SOURCE_ID;
   scenarioId: WashingtonLwsCanaryScenario;
-  operation: typeof WASHINGTON_LWS_CANARY_POLICY.operation;
+  operation: (typeof WASHINGTON_LWS_CANARY_POLICY.scenarios)[WashingtonLwsCanaryScenario]["operation"];
   executionAuthorized: true;
   requestAttemptCount: 0 | 1;
   retryCount: 0;
   elapsedBucket: WashingtonLwsCanaryElapsedBucket;
   expectationMet: boolean;
+  interpretation: WashingtonLwsCanaryYearlyInterpretation | null;
 }
 
 interface WashingtonLwsCanaryAcceptedHttp {
@@ -86,20 +107,44 @@ export interface WashingtonLwsCanaryDateShapes {
   maximumFractionDigits: number | null;
 }
 
+export interface WashingtonLwsCanaryYearlyInterpretation {
+  responseScope: "single_bounded_response";
+  requestYearEcho: "not_observable";
+  uniqueness: "not_assessed";
+  ordering: "not_assessed";
+  completeness: "not_assessed";
+  activeWinner: "not_assessed";
+  historicalRange: "not_assessed";
+  productionViability: "not_assessed";
+}
+
+interface WashingtonLwsKnownBillSuccessObservation {
+  kind: "success";
+  resultState: "missing" | "empty" | "present";
+  itemCount: number;
+  identityEchoCheck: "accepted_reviewed_fields" | "none_observed";
+  topLevelOptionalNullCount: number;
+  topLevelOptionalValueCount: number;
+  dates: WashingtonLwsCanaryDateShapes;
+}
+
+interface WashingtonLwsYearlySuccessObservation {
+  kind: "success";
+  resultState: "missing" | "empty" | "present";
+  returnedItemCount: number;
+  itemBudgetState: "below_repository_limit" | "at_repository_limit";
+  topLevelOptionalNullCount: number;
+  topLevelOptionalValueCount: number;
+}
+
 export type WashingtonLwsCanaryReport =
   | (WashingtonLwsCanaryBaseReport & {
       outcome: "success";
       expectationMet: boolean;
       http: WashingtonLwsCanaryAcceptedHttp;
-      soapObservation: {
-        kind: "success";
-        resultState: "missing" | "empty" | "present";
-        itemCount: number;
-        identityEchoCheck: "accepted_reviewed_fields" | "none_observed";
-        topLevelOptionalNullCount: number;
-        topLevelOptionalValueCount: number;
-        dates: WashingtonLwsCanaryDateShapes;
-      };
+      soapObservation:
+        | WashingtonLwsKnownBillSuccessObservation
+        | WashingtonLwsYearlySuccessObservation;
       failure: null;
     })
   | (WashingtonLwsCanaryBaseReport & {
@@ -172,13 +217,14 @@ const BASE_REPORT_KEYS = [
   "retryCount",
   "elapsedBucket",
   "expectationMet",
+  "interpretation",
   "outcome",
   "http",
   "soapObservation",
   "failure",
 ] as const;
 
-const SUCCESS_OBSERVATION_KEYS = [
+const KNOWN_BILL_SUCCESS_OBSERVATION_KEYS = [
   "kind",
   "resultState",
   "itemCount",
@@ -186,6 +232,15 @@ const SUCCESS_OBSERVATION_KEYS = [
   "topLevelOptionalNullCount",
   "topLevelOptionalValueCount",
   "dates",
+] as const;
+
+const YEARLY_SUCCESS_OBSERVATION_KEYS = [
+  "kind",
+  "resultState",
+  "returnedItemCount",
+  "itemBudgetState",
+  "topLevelOptionalNullCount",
+  "topLevelOptionalValueCount",
 ] as const;
 
 const DATE_SHAPE_KEYS = [
@@ -197,8 +252,29 @@ const DATE_SHAPE_KEYS = [
   "maximumFractionDigits",
 ] as const;
 
-const OPTIONAL_LEGISLATION_FIELD_COUNT = 10;
-const MAXIMUM_DATE_OBSERVATIONS_PER_ITEM = 2;
+const YEARLY_INTERPRETATION_KEYS = [
+  "responseScope",
+  "requestYearEcho",
+  "uniqueness",
+  "ordering",
+  "completeness",
+  "activeWinner",
+  "historicalRange",
+  "productionViability",
+] as const;
+
+const YEARLY_INTERPRETATION = Object.freeze({
+  responseScope: "single_bounded_response",
+  requestYearEcho:
+    WASHINGTON_LWS_CANARY_POLICY.scenarios.legislation_by_year_v1
+      .identityEvidence,
+  uniqueness: "not_assessed",
+  ordering: "not_assessed",
+  completeness: "not_assessed",
+  activeWinner: "not_assessed",
+  historicalRange: "not_assessed",
+  productionViability: "not_assessed",
+} as const satisfies WashingtonLwsCanaryYearlyInterpretation);
 
 function failReport(): never {
   throw new WashingtonLwsCanaryReportError();
@@ -264,12 +340,36 @@ function boolean(value: unknown): boolean {
   return value;
 }
 
+function validateInterpretation(
+  value: unknown,
+  scenarioId: WashingtonLwsCanaryScenario,
+): void {
+  if (scenarioId === "known_bill_legislation_v1") {
+    if (value !== null) {
+      failReport();
+    }
+    return;
+  }
+  const source = exactObject(value, YEARLY_INTERPRETATION_KEYS);
+  for (const key of YEARLY_INTERPRETATION_KEYS) {
+    if (source[key] !== YEARLY_INTERPRETATION[key]) {
+      failReport();
+    }
+  }
+}
+
 function validateBase(source: Record<string, unknown>): void {
   if (
     source.schemaVersion !== WASHINGTON_LWS_CANARY_REPORT_VERSION ||
     source.sourceId !== WASHINGTON_LWS_SOURCE_ID ||
-    !isMember(source.scenarioId, WASHINGTON_LWS_CANARY_SCENARIOS) ||
-    source.operation !== WASHINGTON_LWS_CANARY_POLICY.operation ||
+    !isMember(source.scenarioId, WASHINGTON_LWS_CANARY_SCENARIOS)
+  ) {
+    failReport();
+  }
+  const scenarioId = source.scenarioId;
+  if (
+    source.operation !==
+      WASHINGTON_LWS_CANARY_POLICY.scenarios[scenarioId].operation ||
     source.executionAuthorized !== true ||
     source.retryCount !== WASHINGTON_LWS_CANARY_POLICY.retryCount ||
     !isMember(source.elapsedBucket, ELAPSED_BUCKETS)
@@ -282,6 +382,7 @@ function validateBase(source: Record<string, unknown>): void {
     WASHINGTON_LWS_CANARY_POLICY.maximumRequestAttempts,
   );
   boolean(source.expectationMet);
+  validateInterpretation(source.interpretation, scenarioId);
 }
 
 function validateAcceptedHttp(value: unknown): void {
@@ -341,15 +442,8 @@ function validateDateShapes(
   }
 }
 
-function validateSuccessReport(source: Record<string, unknown>): void {
-  validateAcceptedHttp(source.http);
-  if (source.failure !== null) {
-    failReport();
-  }
-  const observation = exactObject(
-    source.soapObservation,
-    SUCCESS_OBSERVATION_KEYS,
-  );
+function validateKnownBillSuccessObservation(value: unknown): boolean {
+  const observation = exactObject(value, KNOWN_BILL_SUCCESS_OBSERVATION_KEYS);
   if (
     observation.kind !== "success" ||
     !isMember(observation.resultState, ["missing", "empty", "present"])
@@ -359,7 +453,8 @@ function validateSuccessReport(source: Record<string, unknown>): void {
   const itemCount = integer(
     observation.itemCount,
     0,
-    WASHINGTON_LWS_OPERATION_DESCRIPTORS.GetLegislation.maximumItems,
+    WASHINGTON_LWS_CANARY_POLICY.scenarios.known_bill_legislation_v1
+      .maximumItems,
   );
   if (
     (observation.resultState === "present" && itemCount === 0) ||
@@ -368,11 +463,17 @@ function validateSuccessReport(source: Record<string, unknown>): void {
     failReport();
   }
   const expectedIdentityCheck =
-    itemCount === 0 ? "none_observed" : "accepted_reviewed_fields";
+    itemCount === 0
+      ? "none_observed"
+      : WASHINGTON_LWS_CANARY_POLICY.scenarios.known_bill_legislation_v1
+          .identityEvidence;
   if (observation.identityEchoCheck !== expectedIdentityCheck) {
     failReport();
   }
-  const maximumOptionalCount = itemCount * OPTIONAL_LEGISLATION_FIELD_COUNT;
+  const maximumOptionalCount =
+    itemCount *
+    WASHINGTON_LWS_CANARY_POLICY.scenarios.known_bill_legislation_v1
+      .optionalTopLevelFieldsPerItem;
   const topLevelOptionalNullCount = integer(
     observation.topLevelOptionalNullCount,
     0,
@@ -391,9 +492,75 @@ function validateSuccessReport(source: Record<string, unknown>): void {
   }
   validateDateShapes(
     observation.dates,
-    itemCount * MAXIMUM_DATE_OBSERVATIONS_PER_ITEM,
+    itemCount *
+      WASHINGTON_LWS_CANARY_POLICY.scenarios.known_bill_legislation_v1
+        .maximumDatesPerItem,
   );
-  const expected = observation.resultState === "present" && itemCount > 0;
+  return observation.resultState === "present" && itemCount > 0;
+}
+
+function validateYearlySuccessObservation(value: unknown): boolean {
+  const observation = exactObject(value, YEARLY_SUCCESS_OBSERVATION_KEYS);
+  if (
+    observation.kind !== "success" ||
+    !isMember(observation.resultState, ["missing", "empty", "present"])
+  ) {
+    failReport();
+  }
+  const returnedItemCount = integer(
+    observation.returnedItemCount,
+    0,
+    WASHINGTON_LWS_CANARY_POLICY.scenarios.legislation_by_year_v1.maximumItems,
+  );
+  if (
+    (observation.resultState === "present" && returnedItemCount === 0) ||
+    (observation.resultState !== "present" && returnedItemCount !== 0)
+  ) {
+    failReport();
+  }
+  const expectedBudgetState =
+    returnedItemCount ===
+    WASHINGTON_LWS_CANARY_POLICY.scenarios.legislation_by_year_v1.maximumItems
+      ? "at_repository_limit"
+      : "below_repository_limit";
+  if (observation.itemBudgetState !== expectedBudgetState) {
+    failReport();
+  }
+  const maximumOptionalCount =
+    returnedItemCount *
+    WASHINGTON_LWS_CANARY_POLICY.scenarios.legislation_by_year_v1
+      .optionalTopLevelFieldsPerItem;
+  const topLevelOptionalNullCount = integer(
+    observation.topLevelOptionalNullCount,
+    0,
+    maximumOptionalCount,
+  );
+  const topLevelOptionalValueCount = integer(
+    observation.topLevelOptionalValueCount,
+    0,
+    maximumOptionalCount,
+  );
+  if (
+    topLevelOptionalNullCount + topLevelOptionalValueCount !==
+    maximumOptionalCount
+  ) {
+    failReport();
+  }
+  return observation.resultState === "present" && returnedItemCount > 0;
+}
+
+function validateSuccessReport(
+  source: Record<string, unknown>,
+  scenarioId: WashingtonLwsCanaryScenario,
+): void {
+  validateAcceptedHttp(source.http);
+  if (source.failure !== null) {
+    failReport();
+  }
+  const expected =
+    scenarioId === "known_bill_legislation_v1"
+      ? validateKnownBillSuccessObservation(source.soapObservation)
+      : validateYearlySuccessObservation(source.soapObservation);
   if (source.requestAttemptCount !== 1 || source.expectationMet !== expected) {
     failReport();
   }
@@ -435,12 +602,27 @@ function validateRejectedReport(source: Record<string, unknown>): void {
     "declaredBytes",
     "receivedBytes",
   ]);
-  nullableInteger(http.status, 100, 599);
+  const status = nullableInteger(http.status, 100, 599);
   if (http.declaredBytes !== null || http.receivedBytes !== null) {
     failReport();
   }
   const failure = exactObject(source.failure, ["category"]);
   if (!isMember(failure.category, FAILURE_CATEGORIES)) {
+    failReport();
+  }
+  const requestAttemptCount = integer(source.requestAttemptCount, 0, 1);
+  if (isMember(failure.category, WASHINGTON_LWS_TRANSPORT_ERROR_CODES)) {
+    if (requestAttemptCount !== 1) {
+      failReport();
+    }
+  } else if (failure.category === "request_contract") {
+    if (requestAttemptCount !== 0 || status !== null) {
+      failReport();
+    }
+  } else if (status !== null) {
+    failReport();
+  }
+  if (status !== null && requestAttemptCount !== 1) {
     failReport();
   }
 }
@@ -450,8 +632,9 @@ export function assertWashingtonLwsCanaryReport(
 ): WashingtonLwsCanaryReport {
   const source = exactObject(value, BASE_REPORT_KEYS);
   validateBase(source);
+  const scenarioId = source.scenarioId as WashingtonLwsCanaryScenario;
   if (source.outcome === "success") {
-    validateSuccessReport(source);
+    validateSuccessReport(source, scenarioId);
   } else if (source.outcome === "soap_fault") {
     validateFaultReport(source);
   } else if (source.outcome === "rejected") {
@@ -495,7 +678,7 @@ function elapsedBucket(
 }
 
 function acceptedHttp(
-  receipt: WashingtonLwsTransportReceipt<"GetLegislation">,
+  receipt: WashingtonLwsTransportReceipt,
 ): WashingtonLwsCanaryAcceptedHttp {
   return {
     status: 200,
@@ -548,7 +731,7 @@ function dateShapes(
   };
 }
 
-function topLevelOptionalFieldCounts(results: WashingtonLwsLegislation[]): {
+function knownBillOptionalFieldCounts(results: WashingtonLwsLegislation[]): {
   topLevelOptionalNullCount: number;
   topLevelOptionalValueCount: number;
 } {
@@ -579,49 +762,72 @@ function topLevelOptionalFieldCounts(results: WashingtonLwsLegislation[]): {
 }
 
 function baseReport(
+  scenarioId: WashingtonLwsCanaryScenario,
   elapsed: WashingtonLwsCanaryElapsedBucket,
   requestAttemptCount: 0 | 1,
 ): Omit<WashingtonLwsCanaryBaseReport, "expectationMet"> {
   return {
     schemaVersion: WASHINGTON_LWS_CANARY_REPORT_VERSION,
     sourceId: WASHINGTON_LWS_SOURCE_ID,
-    scenarioId: "known_bill_legislation_v1",
-    operation: WASHINGTON_LWS_CANARY_POLICY.operation,
+    scenarioId,
+    operation: WASHINGTON_LWS_CANARY_POLICY.scenarios[scenarioId].operation,
     executionAuthorized: true,
     requestAttemptCount,
     retryCount: 0,
     elapsedBucket: elapsed,
+    interpretation:
+      scenarioId === "legislation_by_year_v1"
+        ? { ...YEARLY_INTERPRETATION }
+        : null,
   };
 }
 
-function successReport(
+function faultReport(
+  scenarioId: WashingtonLwsCanaryScenario,
+  http: WashingtonLwsCanaryAcceptedHttp,
+  actorPresent: boolean,
+  detailPresent: boolean,
+  elapsed: WashingtonLwsCanaryElapsedBucket,
+  requestAttemptCount: 0 | 1,
+): WashingtonLwsCanaryReport {
+  return {
+    ...baseReport(scenarioId, elapsed, requestAttemptCount),
+    outcome: "soap_fault",
+    expectationMet: false,
+    http,
+    soapObservation: {
+      kind: "fault",
+      providerCodeDiscarded: true,
+      providerTextDiscarded: true,
+      actorPresent,
+      detailPresent,
+    },
+    failure: null,
+  };
+}
+
+function knownBillSuccessReport(
   receipt: WashingtonLwsTransportReceipt<"GetLegislation">,
   elapsed: WashingtonLwsCanaryElapsedBucket,
   requestAttemptCount: 0 | 1,
 ): WashingtonLwsCanaryReport {
   if (receipt.soap.kind === "fault") {
-    return {
-      ...baseReport(elapsed, requestAttemptCount),
-      outcome: "soap_fault",
-      expectationMet: false,
-      http: acceptedHttp(receipt),
-      soapObservation: {
-        kind: "fault",
-        providerCodeDiscarded: true,
-        providerTextDiscarded: true,
-        actorPresent: receipt.soap.fault.actorPresent,
-        detailPresent: receipt.soap.fault.detailPresent,
-      },
-      failure: null,
-    };
+    return faultReport(
+      "known_bill_legislation_v1",
+      acceptedHttp(receipt),
+      receipt.soap.fault.actorPresent,
+      receipt.soap.fault.detailPresent,
+      elapsed,
+      requestAttemptCount,
+    );
   }
 
   const results = receipt.soap.result;
-  const optionalCounts = topLevelOptionalFieldCounts(results);
+  const optionalCounts = knownBillOptionalFieldCounts(results);
   const expectationMet =
     receipt.soap.resultState === "present" && results.length > 0;
   return {
-    ...baseReport(elapsed, requestAttemptCount),
+    ...baseReport("known_bill_legislation_v1", elapsed, requestAttemptCount),
     outcome: "success",
     expectationMet,
     http: acceptedHttp(receipt),
@@ -630,9 +836,47 @@ function successReport(
       resultState: receipt.soap.resultState,
       itemCount: results.length,
       identityEchoCheck:
-        results.length === 0 ? "none_observed" : "accepted_reviewed_fields",
+        results.length === 0
+          ? "none_observed"
+          : WASHINGTON_LWS_CANARY_POLICY.scenarios.known_bill_legislation_v1
+              .identityEvidence,
       ...optionalCounts,
       dates: dateShapes(results),
+    },
+    failure: null,
+  };
+}
+
+function yearlySuccessReport(
+  observation: WashingtonLwsReviewedYearlyCanaryObservation,
+  elapsed: WashingtonLwsCanaryElapsedBucket,
+  requestAttemptCount: 0 | 1,
+): WashingtonLwsCanaryReport {
+  if (observation.kind === "fault") {
+    return faultReport(
+      "legislation_by_year_v1",
+      observation.http,
+      observation.actorPresent,
+      observation.detailPresent,
+      elapsed,
+      requestAttemptCount,
+    );
+  }
+
+  const expectationMet =
+    observation.resultState === "present" && observation.returnedItemCount > 0;
+  return {
+    ...baseReport("legislation_by_year_v1", elapsed, requestAttemptCount),
+    outcome: "success",
+    expectationMet,
+    http: observation.http,
+    soapObservation: {
+      kind: "success",
+      resultState: observation.resultState,
+      returnedItemCount: observation.returnedItemCount,
+      itemBudgetState: observation.itemBudgetState,
+      topLevelOptionalNullCount: observation.topLevelOptionalNullCount,
+      topLevelOptionalValueCount: observation.topLevelOptionalValueCount,
     },
     failure: null,
   };
@@ -661,12 +905,13 @@ function failureCategory(error: unknown): WashingtonLwsCanaryFailureCategory {
 }
 
 function rejectedReport(
+  scenarioId: WashingtonLwsCanaryScenario,
   error: unknown,
   elapsed: WashingtonLwsCanaryElapsedBucket,
   requestAttemptCount: 0 | 1,
 ): WashingtonLwsCanaryReport {
   return {
-    ...baseReport(elapsed, requestAttemptCount),
+    ...baseReport(scenarioId, elapsed, requestAttemptCount),
     outcome: "rejected",
     expectationMet: false,
     http: {
@@ -685,6 +930,7 @@ function rejectedReport(
 }
 
 function validatedOrInternalFailure(
+  scenarioId: WashingtonLwsCanaryScenario,
   report: WashingtonLwsCanaryReport,
   elapsed: WashingtonLwsCanaryElapsedBucket,
   requestAttemptCount: 0 | 1,
@@ -694,6 +940,7 @@ function validatedOrInternalFailure(
   } catch {
     return assertWashingtonLwsCanaryReport(
       rejectedReport(
+        scenarioId,
         new Error("repository-owned canary projection failure"),
         elapsed,
         requestAttemptCount,
@@ -730,20 +977,41 @@ async function runWashingtonLwsCanaryScenario(
       requestAttemptCount = 1;
       return fetchImpl(input, init);
     };
-    const receipt = await fetchWashingtonLwsSoapExchange(
-      structuredClone(KNOWN_BILL_LEGISLATION_REQUEST),
-      { fetchImpl: countedFetch },
-    );
-    const elapsed = elapsedBucket(startedAt, safeNow(now));
-    return validatedOrInternalFailure(
-      successReport(receipt, elapsed, requestAttemptCount),
-      elapsed,
-      requestAttemptCount,
-    );
+    switch (scenarioId) {
+      case "known_bill_legislation_v1": {
+        const receipt = await fetchWashingtonLwsSoapExchange(
+          structuredClone(KNOWN_BILL_LEGISLATION_REQUEST),
+          { fetchImpl: countedFetch },
+        );
+        const elapsed = elapsedBucket(startedAt, safeNow(now));
+        return validatedOrInternalFailure(
+          scenarioId,
+          knownBillSuccessReport(receipt, elapsed, requestAttemptCount),
+          elapsed,
+          requestAttemptCount,
+        );
+      }
+      case "legislation_by_year_v1": {
+        const observation =
+          await observeWashingtonLwsReviewedYearlyCanaryExchange({
+            fetchImpl: countedFetch,
+          });
+        const elapsed = elapsedBucket(startedAt, safeNow(now));
+        return validatedOrInternalFailure(
+          scenarioId,
+          yearlySuccessReport(observation, elapsed, requestAttemptCount),
+          elapsed,
+          requestAttemptCount,
+        );
+      }
+    }
+    scenarioId satisfies never;
+    throw new WashingtonLwsCanaryInvocationError();
   } catch (error) {
     const elapsed = elapsedBucket(startedAt, safeNow(now));
     return validatedOrInternalFailure(
-      rejectedReport(error, elapsed, requestAttemptCount),
+      scenarioId,
+      rejectedReport(scenarioId, error, elapsed, requestAttemptCount),
       elapsed,
       requestAttemptCount,
     );
@@ -763,11 +1031,11 @@ export function parseWashingtonLwsCanaryArguments(
     arguments_.length === 3 &&
     arguments_[0] === "--execute" &&
     arguments_[1] === "--scenario" &&
-    arguments_[2] === "known_bill_legislation_v1"
+    isMember(arguments_[2], WASHINGTON_LWS_CANARY_SCENARIOS)
   ) {
     return {
       kind: "execute",
-      scenarioId: "known_bill_legislation_v1",
+      scenarioId: arguments_[2],
     };
   }
   throw new WashingtonLwsCanaryInvocationError();
@@ -779,8 +1047,9 @@ export function washingtonLwsCanaryHelp(): string {
     "",
     "Usage:",
     "  npm run --silent source:wa-lws:canary -- --execute --scenario known_bill_legislation_v1",
+    "  npm run --silent source:wa-lws:canary -- --execute --scenario legislation_by_year_v1",
     "",
-    "The reviewed scenario makes exactly one no-auth GetLegislation request.",
+    "Each reviewed scenario makes exactly one fixed no-auth request.",
     "It writes one aggregate JSON line and never writes a provider response or record.",
     "",
   ].join("\n");

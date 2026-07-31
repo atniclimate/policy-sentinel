@@ -1,4 +1,5 @@
 import {
+  WASHINGTON_LWS_OPERATION_DESCRIPTORS,
   WASHINGTON_LWS_XML_POLICY,
   type WashingtonLwsOperation,
 } from "./constants";
@@ -22,6 +23,14 @@ export interface WashingtonLwsTransportDependencies {
   fetchImpl?: WashingtonLwsFetchLike;
   now?: () => number;
 }
+
+const REVIEWED_YEARLY_CANARY_REQUEST = Object.freeze({
+  operation: "GetLegislationByYear",
+  year: 2_025,
+} as const satisfies Extract<
+  WashingtonLwsRequestInput,
+  { operation: "GetLegislationByYear" }
+>);
 
 function assertNetworkTransportEnabled(
   operation: WashingtonLwsOperation,
@@ -87,6 +96,29 @@ export interface WashingtonLwsTransportReceipt<
   receivedBytes: number;
   soap: WashingtonLwsSoapResponse<O>;
 }
+
+interface WashingtonLwsReviewedYearlyCanaryHttp {
+  readonly status: 200;
+  readonly declaredBytes: number | null;
+  readonly receivedBytes: number;
+}
+
+export type WashingtonLwsReviewedYearlyCanaryObservation =
+  | Readonly<{
+      kind: "success";
+      http: WashingtonLwsReviewedYearlyCanaryHttp;
+      resultState: "missing" | "empty" | "present";
+      returnedItemCount: number;
+      itemBudgetState: "below_repository_limit" | "at_repository_limit";
+      topLevelOptionalNullCount: number;
+      topLevelOptionalValueCount: number;
+    }>
+  | Readonly<{
+      kind: "fault";
+      http: WashingtonLwsReviewedYearlyCanaryHttp;
+      actorPresent: boolean;
+      detailPresent: boolean;
+    }>;
 
 export const WASHINGTON_LWS_TRANSPORT_POLICY = Object.freeze({
   requestTimeoutMilliseconds: 30_000,
@@ -487,6 +519,20 @@ export async function fetchWashingtonLwsSoapExchange<
   >;
   const request = buildWashingtonLwsSoapRequest(immutableRequestInput);
   assertNetworkTransportEnabled(request.operation);
+  return fetchPreparedWashingtonLwsSoapExchange(
+    immutableRequestInput,
+    request,
+    dependencies,
+  );
+}
+
+async function fetchPreparedWashingtonLwsSoapExchange<
+  O extends WashingtonLwsOperation,
+>(
+  immutableRequestInput: Extract<WashingtonLwsRequestInput, { operation: O }>,
+  request: WashingtonLwsSoapRequest,
+  dependencies: WashingtonLwsTransportDependencies,
+): Promise<WashingtonLwsTransportReceipt<O>> {
   const fetchImpl = dependencies.fetchImpl ?? globalThis.fetch;
   const now = dependencies.now ?? (() => globalThis.performance.now());
   const startedAtMilliseconds = now();
@@ -519,4 +565,83 @@ export async function fetchWashingtonLwsSoapExchange<
       clearTimeout(timeout);
     }
   }
+}
+
+/**
+ * Fixed command-owned transport entry for the reviewed yearly canary.
+ * Intentionally omitted from the general Washington LWS contract barrel.
+ */
+async function fetchWashingtonLwsReviewedYearlyCanaryExchange(
+  dependencies: WashingtonLwsTransportDependencies = {},
+): Promise<WashingtonLwsTransportReceipt<"GetLegislationByYear">> {
+  const immutableRequestInput = structuredClone(REVIEWED_YEARLY_CANARY_REQUEST);
+  const request = buildWashingtonLwsSoapRequest(immutableRequestInput);
+  return fetchPreparedWashingtonLwsSoapExchange(
+    immutableRequestInput,
+    request,
+    dependencies,
+  );
+}
+
+function reviewedYearlyCanaryHttp(
+  receipt: WashingtonLwsTransportReceipt<"GetLegislationByYear">,
+): WashingtonLwsReviewedYearlyCanaryHttp {
+  return Object.freeze({
+    status: 200,
+    declaredBytes: receipt.declaredBytes,
+    receivedBytes: receipt.receivedBytes,
+  });
+}
+
+/**
+ * Fixed aggregate-only entry for the reviewed yearly canary.
+ * No request, typed item, source string, or transport receipt crosses this
+ * boundary. Intentionally omitted from the general Washington LWS barrel.
+ */
+export async function observeWashingtonLwsReviewedYearlyCanaryExchange(
+  dependencies: WashingtonLwsTransportDependencies = {},
+): Promise<WashingtonLwsReviewedYearlyCanaryObservation> {
+  const receipt =
+    await fetchWashingtonLwsReviewedYearlyCanaryExchange(dependencies);
+  const http = reviewedYearlyCanaryHttp(receipt);
+  if (receipt.soap.kind === "fault") {
+    return Object.freeze({
+      kind: "fault",
+      http,
+      actorPresent: receipt.soap.fault.actorPresent,
+      detailPresent: receipt.soap.fault.detailPresent,
+    });
+  }
+
+  let topLevelOptionalNullCount = 0;
+  let topLevelOptionalValueCount = 0;
+  for (const result of receipt.soap.result) {
+    for (const value of [
+      result.biennium,
+      result.billId,
+      result.legislationType,
+      result.originalAgency,
+      result.displayNumber,
+    ]) {
+      if (value === null) {
+        topLevelOptionalNullCount += 1;
+      } else {
+        topLevelOptionalValueCount += 1;
+      }
+    }
+  }
+  const returnedItemCount = receipt.soap.result.length;
+  return Object.freeze({
+    kind: "success",
+    http,
+    resultState: receipt.soap.resultState,
+    returnedItemCount,
+    itemBudgetState:
+      returnedItemCount ===
+      WASHINGTON_LWS_OPERATION_DESCRIPTORS.GetLegislationByYear.maximumItems
+        ? "at_repository_limit"
+        : "below_repository_limit",
+    topLevelOptionalNullCount,
+    topLevelOptionalValueCount,
+  });
 }

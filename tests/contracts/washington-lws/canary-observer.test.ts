@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it, vi } from "vitest";
 
 import * as washingtonLwsContract from "../../../src/contracts/washington-lws";
+import * as washingtonLwsTransport from "../../../src/contracts/washington-lws/transport";
 import {
   assertWashingtonLwsCanaryReport,
   parseWashingtonLwsCanaryArguments,
@@ -60,6 +61,12 @@ function knownBillNestedSparseBytes(): Uint8Array<ArrayBuffer> {
   );
 }
 
+function yearlyLegislationBytes(): Uint8Array<ArrayBuffer> {
+  return new TextEncoder().encode(
+    fixtureText("get-legislation-by-year.valid.xml"),
+  );
+}
+
 function soapResponse(
   body: BodyInit | null,
   {
@@ -90,6 +97,21 @@ function envelope(result: string): Uint8Array<ArrayBuffer> {
       '<GetLegislationResponse xmlns="http://WSLWebServices.leg.wa.gov/">',
       result,
       "</GetLegislationResponse>",
+      "</soap:Body>",
+      "</soap:Envelope>",
+    ].join(""),
+  );
+}
+
+function yearlyEnvelope(result: string): Uint8Array<ArrayBuffer> {
+  return new TextEncoder().encode(
+    [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">',
+      "<soap:Body>",
+      '<GetLegislationByYearResponse xmlns="http://WSLWebServices.leg.wa.gov/">',
+      result,
+      "</GetLegislationByYearResponse>",
       "</soap:Body>",
       "</soap:Envelope>",
     ].join(""),
@@ -131,6 +153,24 @@ async function executeKnownBillScenario(
   );
 }
 
+async function executeYearlyScenario(
+  dependencies: WashingtonLwsCanaryDependencies = {},
+): Promise<WashingtonLwsCanaryReport> {
+  const capture = capturedIo();
+  const exitCode = await runWashingtonLwsCanaryCommand(
+    ["--execute", "--scenario", "legislation_by_year_v1"],
+    capture.io,
+    dependencies,
+  );
+
+  expect([0, 2]).toContain(exitCode);
+  expect(capture.stderr).toEqual([]);
+  expect(capture.stdout).toHaveLength(1);
+  return assertWashingtonLwsCanaryReport(
+    JSON.parse(capture.stdout[0] ?? "") as unknown,
+  );
+}
+
 function recursivelyCollectedKeys(value: unknown): string[] {
   if (value === null || typeof value !== "object") {
     return [];
@@ -148,21 +188,30 @@ describe("Washington LWS aggregate-only canary observer", () => {
   it("runtime-freezes the scenario and evidence policy allowlists", () => {
     expect(Object.isFrozen(WASHINGTON_LWS_CANARY_SCENARIOS)).toBe(true);
     expect(Object.isFrozen(WASHINGTON_LWS_CANARY_POLICY)).toBe(true);
+    expect(Object.isFrozen(WASHINGTON_LWS_CANARY_POLICY.scenarios)).toBe(true);
+    for (const policy of Object.values(
+      WASHINGTON_LWS_CANARY_POLICY.scenarios,
+    )) {
+      expect(Object.isFrozen(policy)).toBe(true);
+    }
 
     const canaryPolicy = WASHINGTON_LWS_CANARY_POLICY as unknown as {
-      operation: string;
       maximumRequestAttempts: number;
     };
     expect(() =>
       Object.assign(canaryPolicy, {
-        operation: "GetLegislationByYear",
         maximumRequestAttempts: Number.MAX_SAFE_INTEGER,
       }),
     ).toThrow(TypeError);
     expect(canaryPolicy).toMatchObject({
-      operation: "GetLegislation",
       maximumRequestAttempts: 1,
     });
+    const knownBillPolicy = WASHINGTON_LWS_CANARY_POLICY.scenarios
+      .known_bill_legislation_v1 as unknown as { operation: string };
+    expect(() =>
+      Object.assign(knownBillPolicy, { operation: "GetLegislationByYear" }),
+    ).toThrow(TypeError);
+    expect(knownBillPolicy.operation).toBe("GetLegislation");
   });
 
   it("runs the one fixed known-bill scenario through transport and returns only aggregates", async () => {
@@ -189,7 +238,7 @@ describe("Washington LWS aggregate-only canary observer", () => {
     expect(capturedInit?.body).toContain("<biennium>2025-26</biennium>");
     expect(capturedInit?.body).toContain("<billNumber>1001</billNumber>");
     expect(report).toEqual({
-      schemaVersion: "1.0.0",
+      schemaVersion: "1.1.0",
       sourceId: "washington-lws",
       scenarioId: "known_bill_legislation_v1",
       operation: "GetLegislation",
@@ -198,6 +247,7 @@ describe("Washington LWS aggregate-only canary observer", () => {
       retryCount: 0,
       elapsedBucket: "under_1s",
       expectationMet: true,
+      interpretation: null,
       outcome: "success",
       http: {
         status: 200,
@@ -252,6 +302,102 @@ describe("Washington LWS aggregate-only canary observer", () => {
     }
   });
 
+  it("runs the fixed yearly scenario once and emits only bounded structural aggregates", async () => {
+    let capturedInput: RequestInfo | URL | undefined;
+    let capturedInit: RequestInit | undefined;
+    const fetchImpl = vi.fn<WashingtonLwsFetchLike>(async (input, init) => {
+      capturedInput = input;
+      capturedInit = init;
+      return soapResponse(yearlyLegislationBytes());
+    });
+    const times = [2_000, 2_750];
+
+    const report = await executeYearlyScenario({
+      fetchImpl,
+      now: () => times.shift() ?? Number.NaN,
+    });
+
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(capturedInput).toBe(
+      "https://wslwebservices.leg.wa.gov/legislationservice.asmx",
+    );
+    expect(capturedInit?.body).toContain("<year>2025</year>");
+    expect(capturedInit?.body).not.toContain("<biennium>");
+    expect(capturedInit?.body).not.toContain("<billNumber>");
+    expect(new Headers(capturedInit?.headers).get("SOAPAction")).toBe(
+      '"http://WSLWebServices.leg.wa.gov/GetLegislationByYear"',
+    );
+    expect(report).toEqual({
+      schemaVersion: "1.1.0",
+      sourceId: "washington-lws",
+      scenarioId: "legislation_by_year_v1",
+      operation: "GetLegislationByYear",
+      executionAuthorized: true,
+      requestAttemptCount: 1,
+      retryCount: 0,
+      elapsedBucket: "under_1s",
+      expectationMet: true,
+      interpretation: {
+        responseScope: "single_bounded_response",
+        requestYearEcho: "not_observable",
+        uniqueness: "not_assessed",
+        ordering: "not_assessed",
+        completeness: "not_assessed",
+        activeWinner: "not_assessed",
+        historicalRange: "not_assessed",
+        productionViability: "not_assessed",
+      },
+      outcome: "success",
+      http: {
+        status: 200,
+        declaredBytes: null,
+        receivedBytes: yearlyLegislationBytes().byteLength,
+      },
+      soapObservation: {
+        kind: "success",
+        resultState: "present",
+        returnedItemCount: 4,
+        itemBudgetState: "below_repository_limit",
+        topLevelOptionalNullCount: 9,
+        topLevelOptionalValueCount: 11,
+      },
+      failure: null,
+    });
+
+    const serialized = serializeWashingtonLwsCanaryReport(report);
+    for (const prohibited of [
+      "2025",
+      "3785-86",
+      "999991",
+      "999992",
+      "SYNTHETIC-YEAR",
+    ]) {
+      expect(serialized).not.toContain(prohibited);
+    }
+    const reportKeys = recursivelyCollectedKeys(report);
+    for (const prohibitedKey of [
+      "request",
+      "year",
+      "biennium",
+      "billId",
+      "billNumber",
+      "displayNumber",
+      "originalAgency",
+      "legislationType",
+      "result",
+      "body",
+      "headers",
+      "url",
+      "host",
+      "message",
+      "stack",
+      "cause",
+      "soap",
+    ]) {
+      expect(reportKeys).not.toContain(prohibitedKey);
+    }
+  });
+
   it.each([
     ["missing", ""],
     ["empty", "<GetLegislationResult />"],
@@ -276,6 +422,79 @@ describe("Washington LWS aggregate-only canary observer", () => {
           topLevelOptionalNullCount: 0,
           topLevelOptionalValueCount: 0,
           dates: { observedCount: 0 },
+        },
+        failure: null,
+      });
+    },
+  );
+
+  it("labels an exact yearly repository-limit response without claiming truncation or completeness", async () => {
+    const minimalItem = [
+      "<LegislationInfo>",
+      "<BillNumber>1</BillNumber>",
+      "<SubstituteVersion>0</SubstituteVersion>",
+      "<EngrossedVersion>0</EngrossedVersion>",
+      "<Active>false</Active>",
+      "</LegislationInfo>",
+    ].join("");
+    const body = yearlyEnvelope(
+      `<GetLegislationByYearResult>${minimalItem.repeat(2_048)}</GetLegislationByYearResult>`,
+    );
+
+    const report = await executeYearlyScenario({
+      fetchImpl: vi.fn<WashingtonLwsFetchLike>(async () => soapResponse(body)),
+    });
+
+    expect(report).toMatchObject({
+      outcome: "success",
+      expectationMet: true,
+      interpretation: {
+        completeness: "not_assessed",
+        productionViability: "not_assessed",
+      },
+      soapObservation: {
+        kind: "success",
+        resultState: "present",
+        returnedItemCount: 2_048,
+        itemBudgetState: "at_repository_limit",
+        topLevelOptionalNullCount: 10_240,
+        topLevelOptionalValueCount: 0,
+      },
+    });
+    expect(serializeWashingtonLwsCanaryReport(report)).not.toContain(
+      "truncated",
+    );
+  });
+
+  it.each([
+    ["missing", ""],
+    ["empty", "<GetLegislationByYearResult />"],
+  ] as const)(
+    "reports a successful yearly %s result without claiming query coverage",
+    async (resultState, result) => {
+      const fetchImpl = vi.fn<WashingtonLwsFetchLike>(async () =>
+        soapResponse(yearlyEnvelope(result)),
+      );
+
+      const report = await executeYearlyScenario({ fetchImpl });
+
+      expect(fetchImpl).toHaveBeenCalledTimes(1);
+      expect(report).toMatchObject({
+        scenarioId: "legislation_by_year_v1",
+        operation: "GetLegislationByYear",
+        outcome: "success",
+        expectationMet: false,
+        interpretation: {
+          requestYearEcho: "not_observable",
+          completeness: "not_assessed",
+        },
+        soapObservation: {
+          kind: "success",
+          resultState,
+          returnedItemCount: 0,
+          itemBudgetState: "below_repository_limit",
+          topLevelOptionalNullCount: 0,
+          topLevelOptionalValueCount: 0,
         },
         failure: null,
       });
@@ -322,6 +541,68 @@ describe("Washington LWS aggregate-only canary observer", () => {
     expect(serialized).not.toContain("SYNTHETIC CLIENT FAULT");
   });
 
+  it("keeps the yearly SOAP-fault report sanitized and explicitly non-assessive", async () => {
+    const report = await executeYearlyScenario({
+      fetchImpl: vi.fn<WashingtonLwsFetchLike>(async () =>
+        soapResponse(fixtureText("soap-fault.valid.xml")),
+      ),
+    });
+
+    expect(report).toMatchObject({
+      scenarioId: "legislation_by_year_v1",
+      operation: "GetLegislationByYear",
+      outcome: "soap_fault",
+      expectationMet: false,
+      interpretation: {
+        responseScope: "single_bounded_response",
+        completeness: "not_assessed",
+        productionViability: "not_assessed",
+      },
+      http: { status: 200 },
+      soapObservation: {
+        kind: "fault",
+        providerCodeDiscarded: true,
+        providerTextDiscarded: true,
+      },
+      failure: null,
+    });
+    const serialized = serializeWashingtonLwsCanaryReport(report);
+    expect(serialized).not.toContain("soap:Client");
+    expect(serialized).not.toContain("SYNTHETIC CLIENT FAULT");
+  });
+
+  it("rejects malformed yearly items without exposing partial aggregates", async () => {
+    const malformed = new TextEncoder().encode(
+      fixtureText("get-legislation-by-year.valid.xml").replace(
+        "<BillNumber>999991</BillNumber>",
+        "<BillNumber>1000000</BillNumber>",
+      ),
+    );
+    const report = await executeYearlyScenario({
+      fetchImpl: vi.fn<WashingtonLwsFetchLike>(async () =>
+        soapResponse(malformed),
+      ),
+    });
+
+    expect(report).toMatchObject({
+      scenarioId: "legislation_by_year_v1",
+      outcome: "rejected",
+      expectationMet: false,
+      requestAttemptCount: 1,
+      http: {
+        status: 200,
+        declaredBytes: null,
+        receivedBytes: null,
+      },
+      soapObservation: null,
+      failure: { category: "invalid_soap" },
+    });
+    const serialized = serializeWashingtonLwsCanaryReport(report);
+    expect(serialized).not.toContain("1000000");
+    expect(serialized).not.toContain("999991");
+    expect(serialized).not.toContain("returnedItemCount");
+  });
+
   it.each(WASHINGTON_LWS_TRANSPORT_ERROR_CODES)(
     "maps transport category %s without retrying or serializing error details",
     async (code) => {
@@ -351,6 +632,76 @@ describe("Washington LWS aggregate-only canary observer", () => {
       expect(serialized).not.toContain("PROVIDER-STACK-SENTINEL");
     },
   );
+
+  it("maps a yearly transport rejection without retry, request values, or provider detail", async () => {
+    const fetchImpl = vi.fn<WashingtonLwsFetchLike>(async () => {
+      throw new WashingtonLwsTransportError(
+        "http_status",
+        "PROVIDER-YEARLY-ERROR-SENTINEL",
+        503,
+      );
+    });
+
+    const report = await executeYearlyScenario({ fetchImpl });
+
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(report).toMatchObject({
+      scenarioId: "legislation_by_year_v1",
+      operation: "GetLegislationByYear",
+      outcome: "rejected",
+      expectationMet: false,
+      requestAttemptCount: 1,
+      retryCount: 0,
+      interpretation: {
+        requestYearEcho: "not_observable",
+        completeness: "not_assessed",
+      },
+      http: { status: 503, declaredBytes: null, receivedBytes: null },
+      soapObservation: null,
+      failure: { category: "http_status" },
+    });
+    expect(serializeWashingtonLwsCanaryReport(report)).not.toMatch(
+      /2025|PROVIDER-YEARLY-ERROR-SENTINEL/,
+    );
+
+    const transportWithoutAttempt = {
+      ...structuredClone(report),
+      requestAttemptCount: 0,
+    };
+    expect(() =>
+      assertWashingtonLwsCanaryReport(transportWithoutAttempt),
+    ).toThrowError("closed-schema validation");
+
+    const requestContract = {
+      ...structuredClone(report),
+      requestAttemptCount: 0,
+      http: { status: null, declaredBytes: null, receivedBytes: null },
+      failure: { category: "request_contract" },
+    };
+    expect(assertWashingtonLwsCanaryReport(requestContract)).toEqual(
+      requestContract,
+    );
+    expect(() =>
+      assertWashingtonLwsCanaryReport({
+        ...requestContract,
+        requestAttemptCount: 1,
+      }),
+    ).toThrowError("closed-schema validation");
+    expect(() =>
+      assertWashingtonLwsCanaryReport({
+        ...requestContract,
+        http: { status: 400, declaredBytes: null, receivedBytes: null },
+      }),
+    ).toThrowError("closed-schema validation");
+    expect(() =>
+      assertWashingtonLwsCanaryReport({
+        ...requestContract,
+        requestAttemptCount: 1,
+        http: { status: 500, declaredBytes: null, receivedBytes: null },
+        failure: { category: "unexpected_internal_failure" },
+      }),
+    ).toThrowError("closed-schema validation");
+  });
 
   it("maps an unexpected error, cause, and stack to one fixed category", async () => {
     const error = new Error("PROVIDER-UNKNOWN-MESSAGE-SENTINEL", {
@@ -410,6 +761,74 @@ describe("Washington LWS aggregate-only canary observer", () => {
     );
   });
 
+  it("rejects yearly scenario mismatches, false interpretation claims, and inconsistent aggregates", async () => {
+    const valid = await executeYearlyScenario({
+      fetchImpl: vi.fn<WashingtonLwsFetchLike>(async () =>
+        soapResponse(yearlyLegislationBytes()),
+      ),
+    });
+    expect(assertWashingtonLwsCanaryReport(valid)).toEqual(valid);
+    if (
+      valid.outcome !== "success" ||
+      valid.interpretation === null ||
+      !("returnedItemCount" in valid.soapObservation)
+    ) {
+      throw new Error("expected yearly success fixture");
+    }
+
+    const wrongOperation = {
+      ...structuredClone(valid),
+      operation: "GetLegislation",
+    };
+    expect(() => assertWashingtonLwsCanaryReport(wrongOperation)).toThrowError(
+      "closed-schema validation",
+    );
+
+    const falseInterpretation = {
+      ...structuredClone(valid),
+      interpretation: {
+        ...valid.interpretation,
+        completeness: "complete",
+      },
+    };
+    expect(() =>
+      assertWashingtonLwsCanaryReport(falseInterpretation),
+    ).toThrowError("closed-schema validation");
+
+    const wrongOptionalTotal = {
+      ...structuredClone(valid),
+      soapObservation: {
+        ...valid.soapObservation,
+        topLevelOptionalValueCount: 10,
+      },
+    };
+    expect(() =>
+      assertWashingtonLwsCanaryReport(wrongOptionalTotal),
+    ).toThrowError("closed-schema validation");
+
+    const falseLimitState = {
+      ...structuredClone(valid),
+      soapObservation: {
+        ...valid.soapObservation,
+        itemBudgetState: "at_repository_limit",
+      },
+    };
+    expect(() => assertWashingtonLwsCanaryReport(falseLimitState)).toThrowError(
+      "closed-schema validation",
+    );
+
+    const inventedDateShape = {
+      ...structuredClone(valid),
+      soapObservation: {
+        ...valid.soapObservation,
+        dates: { observedCount: 0 },
+      },
+    };
+    expect(() =>
+      assertWashingtonLwsCanaryReport(inventedDateShape),
+    ).toThrowError("closed-schema validation");
+  });
+
   it("snapshots accessor-backed reports before validation and serialization", async () => {
     const report = await executeKnownBillScenario({
       fetchImpl: vi.fn<WashingtonLwsFetchLike>(async () =>
@@ -463,6 +882,26 @@ describe("Washington LWS aggregate-only canary observer", () => {
         "PROHIBITED.xml",
       ],
     },
+    {
+      arguments_: [
+        "--execute",
+        "--scenario",
+        "legislation_by_year_v1",
+        "--year",
+        "2026",
+      ],
+    },
+    {
+      arguments_: [
+        "--execute",
+        "--scenario",
+        "legislation_by_year_v1",
+        "known_bill_legislation_v1",
+      ],
+    },
+    {
+      arguments_: ["--execute", "--scenario", "Legislation_By_Year_V1"],
+    },
   ] as Array<{ arguments_: string[] }>)(
     "refuses invalid command arguments without a request or argument echo",
     async ({ arguments_ }) => {
@@ -512,6 +951,10 @@ describe("Washington LWS aggregate-only canary observer", () => {
       expect(capture.stdout.join("")).toContain(
         "--execute --scenario known_bill_legislation_v1",
       );
+      expect(capture.stdout.join("")).toContain(
+        "--execute --scenario legislation_by_year_v1",
+      );
+      expect(capture.stdout.join("")).not.toContain("2025");
     },
   );
 
@@ -534,6 +977,28 @@ describe("Washington LWS aggregate-only canary observer", () => {
     expect(capture.stdout[0]?.endsWith("\n")).toBe(true);
     expect(capture.stdout[0]?.trim().split("\n")).toHaveLength(1);
     expect(() => JSON.parse(capture.stdout[0] ?? "")).not.toThrow();
+  });
+
+  it("executes the yearly scenario once and emits one non-identifying JSON line", async () => {
+    const fetchImpl = vi.fn<WashingtonLwsFetchLike>(async () =>
+      soapResponse(yearlyLegislationBytes()),
+    );
+    const capture = capturedIo();
+
+    const exitCode = await runWashingtonLwsCanaryCommand(
+      ["--execute", "--scenario", "legislation_by_year_v1"],
+      capture.io,
+      { fetchImpl },
+    );
+
+    expect(exitCode).toBe(0);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(capture.stderr).toEqual([]);
+    expect(capture.stdout).toHaveLength(1);
+    expect(capture.stdout[0]?.trim().split("\n")).toHaveLength(1);
+    expect(capture.stdout.join("")).not.toMatch(
+      /2025|3785-86|999991|SYNTHETIC/,
+    );
   });
 
   it("keeps the manual canary command outside check, build, and lifecycle scripts", () => {
@@ -568,11 +1033,30 @@ describe("Washington LWS aggregate-only canary observer", () => {
       kind: "execute",
       scenarioId: "known_bill_legislation_v1",
     });
+    expect(
+      parseWashingtonLwsCanaryArguments([
+        "--execute",
+        "--scenario",
+        "legislation_by_year_v1",
+      ]),
+    ).toEqual({
+      kind: "execute",
+      scenarioId: "legislation_by_year_v1",
+    });
     expect(() =>
       parseWashingtonLwsCanaryArguments([
         "--scenario",
         "known_bill_legislation_v1",
         "--execute",
+      ]),
+    ).toThrowError("exact reviewed argument shape");
+    expect(() =>
+      parseWashingtonLwsCanaryArguments([
+        "--execute",
+        "--scenario",
+        "legislation_by_year_v1",
+        "--year",
+        "2025",
       ]),
     ).toThrowError("exact reviewed argument shape");
   });
@@ -583,6 +1067,15 @@ describe("Washington LWS aggregate-only canary observer", () => {
     );
     expect(washingtonLwsContract).not.toHaveProperty(
       "runWashingtonLwsCanaryCommand",
+    );
+    expect(washingtonLwsContract).not.toHaveProperty(
+      "observeWashingtonLwsReviewedYearlyCanaryExchange",
+    );
+    expect(washingtonLwsTransport).not.toHaveProperty(
+      "fetchWashingtonLwsReviewedYearlyCanaryExchange",
+    );
+    expect(washingtonLwsTransport).toHaveProperty(
+      "observeWashingtonLwsReviewedYearlyCanaryExchange",
     );
   });
 

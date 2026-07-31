@@ -82,11 +82,16 @@ returned biennia must independently be canonical odd-year `YYYY-YY` values
 within 1799 through 3999, and returned bill numbers must be integers from 1
 through 999,999; these source-value bounds are not an identity echo.
 
-The repository network transport remains enabled only for the six known-bill
-operations. It rejects every `GetLegislationByYear` input before resolving or
-calling `fetch`; that operation currently has synthetic request/parser evidence
-only. For enabled operations it builds the exact URL, action, headers, and body
-internally; permits one credential-free, no-redirect attempt under a 30-second
+The generic repository network transport remains enabled only for the six
+known-bill operations. It rejects every `GetLegislationByYear` input before
+resolving or calling `fetch`. A separately reviewed fixed helper owns the one
+2025 yearly canary request, accepts only transport dependencies, reaches the
+private prepared-request core, reduces typed items to a frozen closed aggregate
+before returning, and is omitted from the general contract barrel. No exported
+function returns the yearly request, receipt, or items, and no yearly request
+has run. For enabled operations it builds the exact URL, action, headers, and
+body internally; permits one credential-free, no-redirect attempt under a
+30-second
 whole-operation deadline enforced by cancellation during retrieval and
 monotonic elapsed-time checks before and after bounded parsing; requires the
 exact final URL, HTTP 200, reviewed `text/xml` media type with no charset or
@@ -98,26 +103,28 @@ aggregate byte counts, and the typed sanitized projection, never provider bytes
 or raw XML. Errors contain only repository-owned categories, an optional
 numeric HTTP status, and static messages.
 
-Only the fixed known-bill `GetLegislation` observer has used the transport
-live. Its one 2026-07-31 attempt succeeded with a single present item and
-accepted reviewed identity echoes; both observed response date lexemes lacked
-a timezone. No raw XML, typed response item, provider string, exact response
-date, or public record was persisted. No yearly-enumeration request has run.
+Only the fixed known-bill `GetLegislation` observer has used the transport live.
+Its one 2026-07-31 attempt succeeded with a single present item and accepted
+reviewed identity echoes; both observed response date lexemes lacked a timezone.
+No raw XML, typed response item, provider string, exact response date, or public
+record was persisted.
 
-The separately invoked canary observer reduces that receipt immediately to a
+The separately invoked canary observer reduces a receipt immediately to a
 plain-data snapshot, then runtime-validates an exact-key aggregate report before
-serialization. Its first versioned scenario authorizes at most one internally
-fixed `GetLegislation` request and reports the actual zero-or-one request
-attempt. The scenario executor is module-private and reachable only after the
-exact command arguments pass; the observer is not exported by the general
-Washington contract barrel. It exposes only operation/scenario enums,
-expectation and sanitized-fault booleans, numeric or null HTTP/byte aggregates,
-result and top-level optional-field counts, lexical date-shape counts, and a
-timing bucket. It accepts no dynamic request or output values and does not
-expose a request, response item, provider string, exact date, URL, header, raw
-byte, or error detail. The launcher disables `.env` loading. The report is not
-a `PolicyRecord`, provider provenance, source-health receipt, coverage claim,
-or persisted artifact.
+serialization. Report contract 1.1 binds each of two scenarios to a frozen
+operation and structural policy and reports the actual zero-or-one request
+attempt. The second, unexecuted scenario authorizes only the internally fixed
+yearly helper. The module-private scenario executor is reachable only after one
+exact command passes; the observer and helper are omitted from the general
+Washington contract barrel. The yearly report exposes only operation/scenario
+enums, expectation and sanitized-fault booleans, numeric or null HTTP/byte
+aggregates, returned-item and aggregate five-field optional-presence counts,
+repository-budget state, a timing bucket, and fixed non-assessment markers. It
+accepts no dynamic request or output value and does not expose the request year,
+a response item, identifier, provider string, exact date, URL, header, raw byte,
+error detail, or partial aggregate. The launcher disables `.env` loading. The
+report is not a `PolicyRecord`, provider provenance, source-health receipt,
+coverage claim, or persisted artifact.
 
 That source-contract DTO is not a normalized `PolicyRecord` and carries no
 claim of live provider behavior, historical completeness, retrieval

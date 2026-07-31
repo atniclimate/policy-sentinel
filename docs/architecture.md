@@ -78,22 +78,28 @@ Transport failures expose a repository-defined category, a numeric HTTP status
 when one was received, and static text without provider body or network-error
 content.
 
-The manual LWS canary observer sits immediately above that transport. It
-contains one versioned, repository-owned known-bill `GetLegislation` scenario
-and cannot accept request identifiers, URLs, headers, dates, output paths,
-loggers, or environment overrides. Its scenario and evidence-policy allowlists
-are runtime-frozen. Exact execution arguments authorize the scenario. The
-scenario executor is module-private, the observer is absent from
-the general contract barrel, and only the exact-argument command path can call
-it. A counted wrapper permits at most one sequential provider-request attempt
-with no retry. The report distinguishes authorization from the actual
-zero-or-one attempt count. The observer constructs and runtime-validates a
-plain-data snapshot field by field, then emits one JSON line containing only
-repository enums, bounded counts and booleans, top-level optional-field counts,
-byte/status aggregates, and a timing bucket. It never serializes the transport
-receipt, request, typed SOAP projection, provider strings, exact dates, errors,
-or raw bytes; its launcher disables `.env` loading, it imports no filesystem
-API, and it is not connected to build, check, or lifecycle scripts.
+The manual LWS canary observer sits immediately above that transport. Report
+contract 1.1 has one repository-owned known-bill `GetLegislation` scenario and
+one unexecuted `GetLegislationByYear` scenario whose fixed 2025 input exists
+only in a direct helper omitted from the general barrel. That helper reduces
+the typed receipt inside the transport module and returns only a frozen closed
+aggregate. The generic transport continues to reject every yearly input.
+Neither scenario accepts identifiers, years, URLs, headers, dates, output paths,
+loggers, or environment overrides.
+Its complete per-scenario policy is runtime-frozen. Exact execution arguments
+authorize one scenario, and the module-private exhaustive executor is reachable
+only through that command path. A counted wrapper permits at most one
+sequential provider-request attempt with no retry. The report distinguishes
+authorization from the actual zero-or-one attempt count. The observer
+constructs and runtime-validates a plain-data snapshot field by field, then
+emits one JSON line. The yearly shape contains only returned-item and aggregate
+five-field optional-presence counts, repository-budget state, byte/status
+aggregates, a timing bucket, and fixed markers that leave request-year echo,
+uniqueness, ordering, completeness, active winner, history, and production
+viability unassessed. It never serializes the request year, transport receipt,
+typed SOAP projection, identifiers, provider strings, exact dates, errors, or
+raw bytes; its launcher disables `.env` loading, it imports no filesystem API,
+and it is not connected to build, check, or lifecycle scripts.
 
 The versioned LWS refresh-capability layer keeps point lookups separate from
 population discovery. All six known-bill operations require an existing bill
@@ -108,10 +114,11 @@ from the one-bill bundle. The parser preserves order and duplicates and has no
 request-year echo from which to infer a returned biennium. Independently of
 request identity, any present returned biennium must be canonical odd-year
 `YYYY-YY` in the reviewed range and every returned bill number must remain
-within 1 through 999,999. No code calls the operation live: the generic network
-boundary rejects synthetic and reviewed candidate years before resolving or
-calling `fetch`. A separate fixed-input command and review are required to open
-that exact operation. No eventual success could by itself prove annual
+within 1 through 999,999. No code has called the operation live. The generic
+network boundary rejects synthetic and reviewed candidate years before
+resolving or calling `fetch`; only the fixed command-owned, dependency-only
+canary helper can reach the private prepared-request core. No eventual success
+could by itself prove annual
 completeness, server non-truncation, uniqueness, prefile coverage, historical
 range, deletions, or a unified change
 feed.

@@ -8,6 +8,7 @@ import { WASHINGTON_LWS_XML_POLICY } from "../../../src/contracts/washington-lws
 import type { WashingtonLwsRequestInput } from "../../../src/contracts/washington-lws/request-contract";
 import {
   fetchWashingtonLwsSoapExchange,
+  observeWashingtonLwsReviewedYearlyCanaryExchange,
   WASHINGTON_LWS_TRANSPORT_ERROR_CODES,
   WASHINGTON_LWS_TRANSPORT_POLICY,
   type WashingtonLwsFetchLike,
@@ -290,6 +291,44 @@ describe("Washington LWS bounded SOAP transport", () => {
       expect(fetchImpl).not.toHaveBeenCalled();
     },
   );
+
+  it("reduces the one fixed yearly exception to a frozen closed aggregate inside the transport module", async () => {
+    let capturedInput: RequestInfo | URL | undefined;
+    let capturedInit: RequestInit | undefined;
+    const observation = await observeWashingtonLwsReviewedYearlyCanaryExchange({
+      fetchImpl: async (input, init) => {
+        capturedInput = input;
+        capturedInit = init;
+        return soapResponse(fixture("get-legislation-by-year.valid.xml"));
+      },
+    });
+
+    expect(capturedInput).toBe(
+      "https://wslwebservices.leg.wa.gov/legislationservice.asmx",
+    );
+    expect(capturedInit?.body).toContain("<year>2025</year>");
+    expect(capturedInit?.body).not.toContain("<biennium>");
+    expect(Object.isFrozen(observation)).toBe(true);
+    expect(Object.isFrozen(observation.http)).toBe(true);
+    expect(observation).toEqual({
+      kind: "success",
+      http: {
+        status: 200,
+        declaredBytes: null,
+        receivedBytes: fixture("get-legislation-by-year.valid.xml").byteLength,
+      },
+      resultState: "present",
+      returnedItemCount: 4,
+      itemBudgetState: "below_repository_limit",
+      topLevelOptionalNullCount: 9,
+      topLevelOptionalValueCount: 11,
+    });
+    const serialized = JSON.stringify(observation);
+    expect(serialized).not.toMatch(/2025|3785-86|999991|SYNTHETIC/);
+    expect(Object.keys(observation)).not.toEqual(
+      expect.arrayContaining(["request", "soap", "result"]),
+    );
+  });
 
   it("does not resolve network dependencies for disabled yearly enumeration", async () => {
     let fetchDependencyReads = 0;
