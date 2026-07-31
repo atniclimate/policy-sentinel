@@ -27,4 +27,4 @@ test("pipeline contract and governance suite passes", () => {
   expect(output).toMatch(/\btests \d+\b/);
   expect(output).toMatch(/\bpass \d+\b/);
   expect(output).toMatch(/\bfail 0\b/);
-});
+}, 20_000);

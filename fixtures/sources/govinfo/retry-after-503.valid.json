@@ -1,0 +1,15 @@
+{
+  "contractVersion": "1.0.0",
+  "fixtureNotice": "Synthetic contract data; not a GovInfo response.",
+  "kind": "repository_retry_directive",
+  "sourceId": "govinfo",
+  "directiveOrigin": "repository_policy",
+  "providerEnvelope": false,
+  "statusCode": 503,
+  "operation": "package-mods",
+  "retryAfterSeconds": 30,
+  "localAttemptPolicy": {
+    "maximumAttempts": 3,
+    "maximumElapsedSeconds": 120
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "contractVersion": "1.0.0",
+  "fixtureNotice": "Synthetic contract data; not a GovInfo response.",
+  "kind": "repository_resource_projection",
+  "sourceId": "govinfo",
+  "stableId": "govinfo:USCOURTS-SYNTHETIC-zzd-9_99-cv-99999:USCOURTS-SYNTHETIC-zzd-9_99-cv-99999-0",
+  "coverage": {
+    "collectionCode": "USCOURTS",
+    "scope": "United States Courts Opinions",
+    "range": "selected opinions generally 2004 to present; earlier gaps",
+    "completeness": "selected_incomplete",
+    "granuleAvailability": "collection_specific"
+  },
+  "package": {
+    "collectionCode": "USCOURTS",
+    "packageId": "USCOURTS-SYNTHETIC-zzd-9_99-cv-99999",
+    "lastModified": "3785-06-14T12:00:00Z",
+    "dateIssued": "3785-06-10",
+    "dateIngested": "3785-06-13"
+  },
+  "granule": {
+    "granuleId": "USCOURTS-SYNTHETIC-zzd-9_99-cv-99999-0",
+    "parentPackageId": "USCOURTS-SYNTHETIC-zzd-9_99-cv-99999",
+    "lastModified": "3785-06-14T12:00:00Z",
+    "dateIssued": "3785-06-10",
+    "dateIngested": "3785-06-13"
+  },
+  "mods": {
+    "recordIdentifier": "USCOURTS-SYNTHETIC-zzd-9_99-cv-99999-0",
+    "dateIssued": "3785-06-10",
+    "identifiers": [
+      {
+        "type": "package-id",
+        "value": "USCOURTS-SYNTHETIC-zzd-9_99-cv-99999"
+      },
+      {
+        "type": "granule-id",
+        "value": "USCOURTS-SYNTHETIC-zzd-9_99-cv-99999-0"
+      }
+    ],
+    "court": {
+      "courtCode": "SYNTHETIC-ZZD",
+      "courtType": "district",
+      "bodyType": "opinion"
+    }
+  },
+  "links": {
+    "detailsUrl": "https://www.govinfo.gov/app/details/USCOURTS-SYNTHETIC-zzd-9_99-cv-99999/USCOURTS-SYNTHETIC-zzd-9_99-cv-99999-0",
+    "formats": []
+  },
+  "integrity": {}
+}

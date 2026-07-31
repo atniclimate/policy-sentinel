@@ -1,0 +1,36 @@
+{
+  "contractVersion": "1.0.0",
+  "fixtureNotice": "Synthetic contract data; not a GovInfo response.",
+  "kind": "repository_resource_projection",
+  "sourceId": "govinfo",
+  "stableId": "govinfo:BILLS-SYNTHETIC-998s9002is",
+  "coverage": {
+    "collectionCode": "BILLS",
+    "scope": "Congressional Bill Text",
+    "range": "published versions from 103rd Congress onward",
+    "completeness": "collection_specific",
+    "granuleAvailability": "not_modeled"
+  },
+  "package": {
+    "collectionCode": "BILLS",
+    "packageId": "BILLS-SYNTHETIC-998s9002is",
+    "title": "Synthetic Malformed Bill",
+    "lastModified": "3783-04-03T08:00:00Z",
+    "dateIssued": "3783-04-01",
+    "dateIngested": "3783-04-02"
+  },
+  "mods": {
+    "recordIdentifier": "BILLS-SYNTHETIC-998s9002is",
+    "title": "Synthetic Malformed Bill",
+    "dateIssued": "3783-04-01",
+    "governmentAuthors": ["Synthetic United States Congress"],
+    "identifiers": [
+      {
+        "type": "package-id",
+        "value": "BILLS-SYNTHETIC-998s9002is"
+      }
+    ],
+    "contactEmail": "excluded-synthetic-contact@example.invalid"
+  },
+  "integrity": {}
+}

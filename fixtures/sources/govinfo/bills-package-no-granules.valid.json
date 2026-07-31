@@ -1,0 +1,71 @@
+{
+  "contractVersion": "1.0.0",
+  "fixtureNotice": "Synthetic contract data; not a GovInfo response.",
+  "kind": "repository_resource_projection",
+  "sourceId": "govinfo",
+  "stableId": "govinfo:BILLS-SYNTHETIC-999hr9001ih",
+  "coverage": {
+    "collectionCode": "BILLS",
+    "scope": "Congressional Bill Text",
+    "range": "published versions from 103rd Congress onward",
+    "completeness": "collection_specific",
+    "granuleAvailability": "not_modeled"
+  },
+  "package": {
+    "collectionCode": "BILLS",
+    "packageId": "BILLS-SYNTHETIC-999hr9001ih",
+    "title": "Synthetic Intergovernmental Archives Bill",
+    "lastModified": "3785-04-03T08:15:30Z",
+    "dateIssued": "3785-04-01",
+    "dateIngested": "3785-04-02"
+  },
+  "mods": {
+    "recordIdentifier": "BILLS-SYNTHETIC-999hr9001ih",
+    "title": "Synthetic Intergovernmental Archives Bill",
+    "dateIssued": "3785-04-01",
+    "governmentAuthors": ["Synthetic United States Congress"],
+    "identifiers": [
+      {
+        "type": "package-id",
+        "value": "BILLS-SYNTHETIC-999hr9001ih"
+      },
+      {
+        "type": "document-number",
+        "value": "Synthetic H.R. 9001"
+      }
+    ],
+    "publisher": "Synthetic U.S. Government Publishing Office",
+    "language": "eng"
+  },
+  "links": {
+    "detailsUrl": "https://www.govinfo.gov/app/details/BILLS-SYNTHETIC-999hr9001ih",
+    "formats": [
+      {
+        "scope": "package",
+        "format": "pdf",
+        "objectIdentifier": "BILLS-SYNTHETIC-999hr9001ih",
+        "url": "https://www.govinfo.gov/content/pkg/BILLS-SYNTHETIC-999hr9001ih/pdf/BILLS-SYNTHETIC-999hr9001ih.pdf"
+      },
+      {
+        "scope": "package",
+        "format": "text",
+        "objectIdentifier": "BILLS-SYNTHETIC-999hr9001ih",
+        "url": "https://www.govinfo.gov/content/pkg/BILLS-SYNTHETIC-999hr9001ih/html/BILLS-SYNTHETIC-999hr9001ih.htm"
+      }
+    ]
+  },
+  "integrity": {
+    "localTransportSha256": {
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "scope": "package",
+      "format": "pdf",
+      "renditionUrl": "https://www.govinfo.gov/content/pkg/BILLS-SYNTHETIC-999hr9001ih/pdf/BILLS-SYNTHETIC-999hr9001ih.pdf"
+    },
+    "providerPremisFixity": {
+      "algorithm": "SHA-256",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "objectIdentifier": "SYNTHETIC-PREMIS-OBJECT-BILLS-9001",
+      "bindingStatus": "unverified_binding"
+    }
+  }
+}

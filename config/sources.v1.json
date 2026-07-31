@@ -1,7 +1,7 @@
 {
   "$schema": "../schemas/source.schema.v1.json",
   "schemaVersion": "1.1.0",
-  "registryVersion": "1.4.0",
+  "registryVersion": "1.5.0",
   "generatedDataPolicy": "artifact-only",
   "sources": [
     {
@@ -226,6 +226,49 @@
       "publication": {
         "attribution": "Congress.gov, Library of Congress",
         "termsUrl": "https://www.loc.gov/legal/",
+        "reproduction": "metadata_and_links",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/status/sourceLabel",
+          "/urls/officialSource"
+        ]
+      },
+      "officialSubjectMappings": []
+    },
+    {
+      "id": "govinfo",
+      "name": "GovInfo",
+      "provider": "U.S. Government Publishing Office",
+      "synthetic": false,
+      "enabled": false,
+      "adapter": null,
+      "jurisdiction": {
+        "level": "federal",
+        "name": "United States",
+        "stateCode": null
+      },
+      "access": {
+        "method": "api",
+        "officialDocumentationUrl": "https://www.govinfo.gov/developers",
+        "accessedOn": "2026-07-31",
+        "allowedHosts": ["www.govinfo.gov"],
+        "authentication": "build_secret",
+        "rateLimit": "The official API documentation publishes default regular-key limits of 36,000 requests per rolling hour, 1,200 per minute, and 40 per second. Every reviewed API operation requires a query-bound api.data.gov key; no keyed request was made.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": null,
+        "through": null,
+        "cadence": "Collection-specific. GovInfo adds and reprocesses packages on different publication schedules; any approved Policy Sentinel retrieval would remain build-time only.",
+        "limitations": "Coverage, granularity, metadata, and rendition formats vary by collection and period. BILLS begins with published versions from the 103rd Congress, PLAW with the 104th Congress, FR in 1936, and selected incomplete USCOURTS holdings generally in 2004. The formal API schema leaves package and granule summaries under-specified, and live response behavior remains unverified."
+      },
+      "publication": {
+        "attribution": "U.S. Government Publishing Office (GovInfo) and the originating department or agency",
+        "termsUrl": "https://www.govinfo.gov/about/policies",
         "reproduction": "metadata_and_links",
         "failureMode": "last_known_good",
         "requiredProvenancePointers": [

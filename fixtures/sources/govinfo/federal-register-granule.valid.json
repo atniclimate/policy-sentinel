@@ -1,0 +1,84 @@
+{
+  "contractVersion": "1.0.0",
+  "fixtureNotice": "Synthetic contract data; not a GovInfo response.",
+  "kind": "repository_resource_projection",
+  "sourceId": "govinfo",
+  "stableId": "govinfo:FR-SYNTHETIC-3785-04-01:FR-SYNTHETIC-3785-900001",
+  "coverage": {
+    "collectionCode": "FR",
+    "scope": "Federal Register",
+    "range": "official editions 1936 to present; period-specific rendition and granule gaps",
+    "completeness": "collection_specific_gaps",
+    "granuleAvailability": "available"
+  },
+  "package": {
+    "collectionCode": "FR",
+    "packageId": "FR-SYNTHETIC-3785-04-01",
+    "title": "Synthetic Federal Register Issue",
+    "lastModified": "3785-04-04T09:30:00Z",
+    "dateIssued": "3785-04-01",
+    "dateIngested": "3785-04-02"
+  },
+  "granule": {
+    "granuleId": "FR-SYNTHETIC-3785-900001",
+    "parentPackageId": "FR-SYNTHETIC-3785-04-01",
+    "title": "Synthetic Notice of Records Availability",
+    "granuleClass": "NOTICE",
+    "lastModified": "3785-04-03T10:45:00Z",
+    "dateIssued": "3785-04-01",
+    "dateIngested": "3785-04-02"
+  },
+  "mods": {
+    "recordIdentifier": "FR-SYNTHETIC-3785-900001",
+    "title": "Synthetic Notice of Records Availability",
+    "dateIssued": "3785-04-01",
+    "governmentAuthors": ["Synthetic Federal Records Agency"],
+    "identifiers": [
+      {
+        "type": "package-id",
+        "value": "FR-SYNTHETIC-3785-04-01"
+      },
+      {
+        "type": "granule-id",
+        "value": "FR-SYNTHETIC-3785-900001"
+      },
+      {
+        "type": "document-number",
+        "value": "SYNTHETIC-3785-900001"
+      }
+    ],
+    "publisher": "Synthetic Office of the Federal Register",
+    "language": "eng"
+  },
+  "links": {
+    "detailsUrl": "https://www.govinfo.gov/app/details/FR-SYNTHETIC-3785-04-01/FR-SYNTHETIC-3785-900001",
+    "formats": [
+      {
+        "scope": "granule",
+        "format": "pdf",
+        "objectIdentifier": "FR-SYNTHETIC-3785-900001",
+        "url": "https://www.govinfo.gov/content/pkg/FR-SYNTHETIC-3785-04-01/pdf/FR-SYNTHETIC-3785-900001.pdf"
+      },
+      {
+        "scope": "granule",
+        "format": "xml",
+        "objectIdentifier": "FR-SYNTHETIC-3785-900001",
+        "url": "https://www.govinfo.gov/content/pkg/FR-SYNTHETIC-3785-04-01/xml/FR-SYNTHETIC-3785-900001.xml"
+      }
+    ]
+  },
+  "integrity": {
+    "localTransportSha256": {
+      "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "scope": "granule",
+      "format": "pdf",
+      "renditionUrl": "https://www.govinfo.gov/content/pkg/FR-SYNTHETIC-3785-04-01/pdf/FR-SYNTHETIC-3785-900001.pdf"
+    },
+    "providerPremisFixity": {
+      "algorithm": "MD5",
+      "digest": "cccccccccccccccccccccccccccccccc",
+      "objectIdentifier": "SYNTHETIC-PREMIS-OBJECT-FR-900001",
+      "bindingStatus": "unverified_binding"
+    }
+  }
+}

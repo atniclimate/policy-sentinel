@@ -34,7 +34,7 @@ test("source registry records researched disabled production sources", () => {
   assert.equal(validateSources(sourceRegistry), true);
   assert.doesNotThrow(() => assertSourceRegistrySemantics(sourceRegistry));
   assert.equal(sourceRegistry.schemaVersion, "1.1.0");
-  assert.equal(sourceRegistry.registryVersion, "1.4.0");
+  assert.equal(sourceRegistry.registryVersion, "1.5.0");
 
   const federalRegister = sourceRegistry.sources.find(
     ({ id }) => id === "federal-register",
@@ -102,6 +102,28 @@ test("source registry records researched disabled production sources", () => {
       accessedOn: "2026-07-31",
       method: "api",
       authentication: "build_secret",
+    },
+  );
+
+  const govInfo = sourceRegistry.sources.find(({ id }) => id === "govinfo");
+  assert.deepEqual(
+    {
+      enabled: govInfo.enabled,
+      synthetic: govInfo.synthetic,
+      adapter: govInfo.adapter,
+      accessedOn: govInfo.access.accessedOn,
+      method: govInfo.access.method,
+      authentication: govInfo.access.authentication,
+      allowedHosts: govInfo.access.allowedHosts,
+    },
+    {
+      enabled: false,
+      synthetic: false,
+      adapter: null,
+      accessedOn: "2026-07-31",
+      method: "api",
+      authentication: "build_secret",
+      allowedHosts: ["www.govinfo.gov"],
     },
   );
 });
