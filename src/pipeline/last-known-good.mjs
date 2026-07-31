@@ -1,5 +1,10 @@
-import { lstat, readFile, readdir } from "node:fs/promises";
+import { Buffer } from "node:buffer";
+import { constants } from "node:fs";
+import { lstat, open, readFile, readdir } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+import Ajv2020 from "ajv/dist/2020.js";
+import addFormats from "ajv-formats";
 import {
   ARTIFACT_MANIFEST_LIMITS_V1,
   assertArtifactManifestLimits,
@@ -9,6 +14,8 @@ import {
 import { assertArtifactSourceHealthState } from "./artifact-health.mjs";
 import { deriveBuildId, sha256Bytes } from "./hashing.mjs";
 import { recordIdentityKey, toUrlSafeId } from "./identity.mjs";
+import { validateRecordSetPolicy } from "./policy-validation.mjs";
+import { assertSourceRegistrySemantics } from "./source-registry.mjs";
 
 const ASSET_PATH_PATTERN =
   /^(?:manifest|coverage|source-health|nations|taxonomy)\.json$|^index\/records\.json$|^details\/[A-Za-z0-9_-]+\.json$/;
@@ -49,6 +56,12 @@ const MANIFEST_ASSET_KEYS = [
   "mediaType",
   "sourceIds",
 ];
+const projectRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../..",
+);
+const READ_ONLY_NO_FOLLOW = constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0);
+let canonicalValidationContextPromise;
 
 function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -79,6 +92,70 @@ function sameStringSet(left, right) {
   return (
     JSON.stringify(sortedUnique(left)) === JSON.stringify(sortedUnique(right))
   );
+}
+
+function assertSchemaValid(validate, value, label) {
+  if (validate(value)) {
+    return;
+  }
+  throw new Error(
+    `${label} failed schema validation:\n${validate.errors
+      .map(({ instancePath, message }) => `- ${instancePath || "/"} ${message}`)
+      .join("\n")}`,
+  );
+}
+
+async function readProjectJson(relativePath) {
+  return JSON.parse(
+    await readFile(path.resolve(projectRoot, relativePath), "utf8"),
+  );
+}
+
+async function createCanonicalValidationContext() {
+  const [
+    artifactSchema,
+    recordSchema,
+    taxonomySchema,
+    sourceSchema,
+    sourceRegistry,
+    taxonomy,
+  ] = await Promise.all([
+    readProjectJson("schemas/artifact.schema.v1.json"),
+    readProjectJson("schemas/record.schema.v1.json"),
+    readProjectJson("schemas/taxonomy.schema.v1.json"),
+    readProjectJson("schemas/source.schema.v1.json"),
+    readProjectJson("config/sources.v1.json"),
+    readProjectJson("config/taxonomy.v1.json"),
+  ]);
+  const ajv = new Ajv2020({
+    allErrors: true,
+    allowUnionTypes: true,
+    strict: true,
+  });
+  addFormats(ajv);
+  const validateArtifact = ajv.compile(artifactSchema);
+  const validateRecord = ajv.compile(recordSchema);
+  const validateTaxonomy = ajv.compile(taxonomySchema);
+  const validateSources = ajv.compile(sourceSchema);
+  assertSchemaValid(
+    validateSources,
+    sourceRegistry,
+    "configured source registry",
+  );
+  assertSourceRegistrySemantics(sourceRegistry);
+  assertSchemaValid(validateTaxonomy, taxonomy, "configured taxonomy");
+  return {
+    sourceRegistry,
+    taxonomy,
+    validateArtifact,
+    validateRecord,
+    validateTaxonomy,
+  };
+}
+
+function canonicalValidationContext() {
+  canonicalValidationContextPromise ??= createCanonicalValidationContext();
+  return canonicalValidationContextPromise;
 }
 
 function safeAssetPath(root, relativePath) {
@@ -193,6 +270,55 @@ function validateManifest(manifest, root) {
   return manifest.assets;
 }
 
+function assertCanonicalManifestContext(manifest, context) {
+  if (
+    manifest.sourceRegistryVersion !== context.sourceRegistry.registryVersion
+  ) {
+    throw new Error(
+      "last-known-good manifest source-registry version differs from configured registry",
+    );
+  }
+  if (manifest.taxonomyVersion !== context.taxonomy.taxonomyVersion) {
+    throw new Error(
+      "last-known-good manifest taxonomy version differs from configured taxonomy",
+    );
+  }
+  const enabledSourceIds = new Set(
+    context.sourceRegistry.sources
+      .filter(({ enabled }) => enabled)
+      .map(({ id }) => id),
+  );
+  for (const asset of manifest.assets) {
+    for (const sourceId of asset.sourceIds) {
+      if (!enabledSourceIds.has(sourceId)) {
+        throw new Error(
+          `last-known-good manifest references a disabled or unregistered source: ${sourceId}`,
+        );
+      }
+    }
+  }
+}
+
+function assertCanonicalRecordSource(record, sourcesById) {
+  const source = sourcesById.get(record.source.id);
+  if (source === undefined || !source.enabled || source.adapter === null) {
+    throw new Error(
+      `last-known-good record source is not enabled and configured: ${record.internalId}`,
+    );
+  }
+  if (
+    record.source.name !== source.name ||
+    record.source.provider !== source.provider ||
+    record.source.adapterId !== source.adapter.id ||
+    record.source.adapterVersion !== source.adapter.version ||
+    record.source.attribution !== source.publication.attribution
+  ) {
+    throw new Error(
+      `last-known-good record source metadata differs from configured registry: ${record.internalId}`,
+    );
+  }
+}
+
 async function inventoryArtifact(root) {
   const resolvedRoot = path.resolve(root);
   const rootStat = await lstat(resolvedRoot);
@@ -234,12 +360,102 @@ async function inventoryArtifact(root) {
       }
       files.set(relativePath, {
         absolutePath,
+        stat: fileStat,
         sizeBytes: fileStat.size,
       });
     }
   }
   await visit(resolvedRoot);
   return files;
+}
+
+function sameFileIdentity(left, right) {
+  return (
+    left.dev === right.dev &&
+    left.ino === right.ino &&
+    left.mode === right.mode &&
+    left.birthtimeMs === right.birthtimeMs
+  );
+}
+
+function sameFileSnapshot(left, right) {
+  return (
+    sameFileIdentity(left, right) &&
+    left.size === right.size &&
+    left.mtimeMs === right.mtimeMs &&
+    left.ctimeMs === right.ctimeMs
+  );
+}
+
+async function readBoundedRegularFile(
+  filePath,
+  preflightStat,
+  maxBytes,
+  label,
+) {
+  if (
+    preflightStat === undefined ||
+    preflightStat.isSymbolicLink() ||
+    !preflightStat.isFile()
+  ) {
+    throw new Error(`${label} is not a regular file`);
+  }
+  if (preflightStat.size > maxBytes) {
+    throw new Error(`${label} exceeds byte limit`);
+  }
+
+  let file;
+  try {
+    file = await open(filePath, READ_ONLY_NO_FOLLOW);
+  } catch {
+    throw new Error(`${label} could not be opened as a regular file`);
+  }
+  try {
+    const openedStat = await file.stat();
+    const openedPathStat = await lstat(filePath);
+    if (
+      !openedStat.isFile() ||
+      openedPathStat.isSymbolicLink() ||
+      !openedPathStat.isFile() ||
+      !sameFileSnapshot(preflightStat, openedStat) ||
+      !sameFileSnapshot(preflightStat, openedPathStat) ||
+      openedStat.size > maxBytes
+    ) {
+      throw new Error(`${label} changed after filesystem preflight`);
+    }
+
+    const content = Buffer.allocUnsafe(maxBytes + 1);
+    let offset = 0;
+    while (offset < content.byteLength) {
+      const { bytesRead } = await file.read(
+        content,
+        offset,
+        content.byteLength - offset,
+        offset,
+      );
+      if (bytesRead === 0) {
+        break;
+      }
+      offset += bytesRead;
+    }
+    if (offset > maxBytes) {
+      throw new Error(`${label} exceeds byte limit`);
+    }
+    const completedStat = await file.stat();
+    const completedPathStat = await lstat(filePath);
+    if (
+      offset !== openedStat.size ||
+      !sameFileSnapshot(openedStat, completedStat) ||
+      completedPathStat.isSymbolicLink() ||
+      !completedPathStat.isFile() ||
+      !sameFileSnapshot(openedStat, completedPathStat)
+    ) {
+      throw new Error(`${label} changed while being read`);
+    }
+    return content.subarray(0, offset);
+  } finally {
+    await file.close();
+  }
 }
 
 function assertCompleteInventory(manifest, inventory) {
@@ -459,9 +675,16 @@ function assertAssetSourceIds(asset, actualSourceIds) {
   }
 }
 
-function validateArtifactContents(manifest, verifiedAssets) {
+function validateArtifactContents(manifest, verifiedAssets, context) {
   for (const assetPath of verifiedAssets.keys()) {
-    parseVerifiedJson(verifiedAssets, assetPath);
+    const document = parseVerifiedJson(verifiedAssets, assetPath);
+    assertSchemaValid(
+      assetPath === "taxonomy.json"
+        ? context.validateTaxonomy
+        : context.validateArtifact,
+      document,
+      `last-known-good asset ${assetPath}`,
+    );
   }
 
   const coverageEntries = validateCoverageDocument(
@@ -498,14 +721,20 @@ function validateArtifactContents(manifest, verifiedAssets) {
   const taxonomyDocument = parseVerifiedJson(verifiedAssets, "taxonomy.json");
   if (
     !isObject(taxonomyDocument) ||
-    taxonomyDocument.taxonomyVersion !== manifest.taxonomyVersion
+    taxonomyDocument.taxonomyVersion !== manifest.taxonomyVersion ||
+    JSON.stringify(taxonomyDocument) !== JSON.stringify(context.taxonomy)
   ) {
-    throw new Error("last-known-good taxonomy version does not match manifest");
+    throw new Error(
+      "last-known-good taxonomy differs from the configured taxonomy",
+    );
   }
 
   const records = [];
   const recordsById = new Map();
   const recordIdentityKeys = new Set();
+  const configuredSourcesById = new Map(
+    context.sourceRegistry.sources.map((source) => [source.id, source]),
+  );
   const detailEntries = [...verifiedAssets.entries()].filter(([assetPath]) =>
     assetPath.startsWith("details/"),
   );
@@ -514,6 +743,11 @@ function validateArtifactContents(manifest, verifiedAssets) {
       parseVerifiedJson(verifiedAssets, assetPath),
       assetPath,
       manifest.generatedAt,
+    );
+    assertSchemaValid(
+      context.validateRecord,
+      record,
+      `last-known-good record ${record.internalId ?? assetPath}`,
     );
     if (recordsById.has(record.internalId)) {
       throw new Error(
@@ -530,6 +764,15 @@ function validateArtifactContents(manifest, verifiedAssets) {
     records.push(record);
     recordsById.set(record.internalId, record);
     recordIdentityKeys.add(identityKey);
+  }
+
+  validateRecordSetPolicy(records, {
+    sourceRegistry: context.sourceRegistry,
+    taxonomy: context.taxonomy,
+    nations: nationDocument.nations,
+  });
+  for (const record of records) {
+    assertCanonicalRecordSource(record, configuredSourcesById);
   }
 
   if (
@@ -592,6 +835,15 @@ function validateArtifactContents(manifest, verifiedAssets) {
       "last-known-good coverage and source-health memberships disagree",
     );
   }
+  const configuredSourceIds = context.sourceRegistry.sources
+    .filter(({ enabled }) => enabled)
+    .map(({ id }) => id)
+    .sort();
+  if (JSON.stringify(healthSourceIds) !== JSON.stringify(configuredSourceIds)) {
+    throw new Error(
+      "last-known-good source membership differs from configured registry",
+    );
+  }
   assertAssetSourceIds(
     verifiedAssets.get("source-health.json").asset,
     healthSourceIds,
@@ -615,6 +867,7 @@ function validateArtifactContents(manifest, verifiedAssets) {
       (record) => record.source.id === health.sourceId,
     );
     const coverage = coverageEntries.get(health.sourceId);
+    const configuredSource = configuredSourcesById.get(health.sourceId);
     if (
       health.recordCount !== sourceRecords.length ||
       coverage.recordCount !== sourceRecords.length
@@ -626,6 +879,16 @@ function validateArtifactContents(manifest, verifiedAssets) {
     if (coverage.sourceName !== health.sourceName) {
       throw new Error(
         `last-known-good source name mismatch: ${health.sourceId}`,
+      );
+    }
+    if (
+      configuredSource === undefined ||
+      health.sourceName !== configuredSource.name ||
+      coverage.sourceName !== configuredSource.name ||
+      coverage.provider !== configuredSource.provider
+    ) {
+      throw new Error(
+        `last-known-good source metadata differs from configured registry: ${health.sourceId}`,
       );
     }
     if (
@@ -685,13 +948,26 @@ export async function verifyLastKnownGoodArtifact(root) {
   if (manifestStat.size > ARTIFACT_MANIFEST_LIMITS_V1.maxManifestBytes) {
     throw new Error("last-known-good manifest exceeds static artifact budget");
   }
+  const manifestContent = await readBoundedRegularFile(
+    manifestPath,
+    manifestStat,
+    ARTIFACT_MANIFEST_LIMITS_V1.maxManifestBytes,
+    "last-known-good manifest",
+  );
   let manifest;
   try {
-    manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    manifest = JSON.parse(manifestContent.toString("utf8"));
   } catch {
     throw new Error("last-known-good manifest is not valid JSON");
   }
   const assets = validateManifest(manifest, root);
+  const context = await canonicalValidationContext();
+  assertSchemaValid(
+    context.validateArtifact,
+    manifest,
+    "last-known-good manifest",
+  );
+  assertCanonicalManifestContext(manifest, context);
   const inventory = await inventoryArtifact(root);
   assertCompleteInventory(manifest, inventory);
   assertPreflightSizes(assets, inventory);
@@ -699,7 +975,12 @@ export async function verifyLastKnownGoodArtifact(root) {
 
   for (const asset of assets) {
     const assetPath = safeAssetPath(root, asset.path);
-    const content = await readFile(assetPath);
+    const content = await readBoundedRegularFile(
+      assetPath,
+      inventory.get(asset.path).stat,
+      asset.sizeBytes,
+      `last-known-good asset ${asset.path}`,
+    );
     if (content.byteLength !== asset.sizeBytes) {
       throw new Error(`last-known-good size mismatch: ${asset.path}`);
     }
@@ -712,6 +993,7 @@ export async function verifyLastKnownGoodArtifact(root) {
   const { records, healthDocument } = validateArtifactContents(
     manifest,
     verifiedAssets,
+    context,
   );
   return { manifest, verifiedAssets, records, healthDocument };
 }

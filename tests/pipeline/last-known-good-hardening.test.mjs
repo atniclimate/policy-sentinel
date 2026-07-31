@@ -17,6 +17,7 @@ import {
   STATIC_ARTIFACT_BUDGET_V1,
   createArtifactDocuments,
   generateSyntheticNations,
+  toCompactIndexRecord,
   writeArtifactDocuments,
 } from "../../src/pipeline/artifact.mjs";
 import { deriveBuildId, hashJson } from "../../src/pipeline/hashing.mjs";
@@ -180,6 +181,30 @@ test("last-known-good reuse rejects incomplete or inconsistent artifact packages
         );
       });
     });
+
+    await t.test(
+      "binds source-registry and taxonomy artifacts to current config",
+      async () => {
+        await withFixture(async (root) => {
+          await rewriteManifest(root, (manifest) => {
+            manifest.sourceRegistryVersion = "1.1.0";
+          });
+          await assert.rejects(
+            verifyLastKnownGoodArtifact(root),
+            /source-registry version differs from configured registry/,
+          );
+        });
+        await withFixture(async (root) => {
+          await rewriteAsset(root, "taxonomy.json", (taxonomyDocument) => {
+            taxonomyDocument.title = "Attacker-controlled taxonomy title";
+          });
+          await assert.rejects(
+            verifyLastKnownGoodArtifact(root),
+            /taxonomy differs from the configured taxonomy/,
+          );
+        });
+      },
+    );
 
     await t.test("recomputes and binds the build ID", async () => {
       await withFixture(async (root) => {
@@ -426,7 +451,15 @@ test("last-known-good reuse rejects incomplete or inconsistent artifact packages
           detailDocument.record.internalId =
             "psr:synthetic-county:duplicate-record";
           detailDocument.record.source.id = countyFixture.source.id;
+          detailDocument.record.source.name = countyFixture.source.name;
+          detailDocument.record.source.provider = countyFixture.source.provider;
           detailDocument.record.source.recordId = countyFixture.source.recordId;
+          detailDocument.record.source.adapterId =
+            countyFixture.source.adapterId;
+          detailDocument.record.source.adapterVersion =
+            countyFixture.source.adapterVersion;
+          detailDocument.record.source.attribution =
+            countyFixture.source.attribution;
           const rewritten = hashJson(detailDocument);
           const renamedPath = `details/${toUrlSafeId(detailDocument.record.internalId)}.json`;
           await writeFile(path.join(root, renamedPath), rewritten.content);
@@ -443,6 +476,78 @@ test("last-known-good reuse rejects incomplete or inconsistent artifact packages
           await assert.rejects(
             loadLastKnownGoodSource(root, federalFixture.source.id),
             /repeats source record identity/,
+          );
+        });
+      },
+    );
+
+    await t.test(
+      "validates every detail against the current record schema",
+      async () => {
+        await withFixture(async (root) => {
+          const manifest = await readArtifactJson(root, "manifest.json");
+          const detail = manifest.assets.find(({ path: assetPath }) =>
+            assetPath.startsWith("details/"),
+          );
+          assert.ok(detail);
+          await rewriteAsset(root, detail.path, (detailDocument) => {
+            delete detailDocument.record.fieldProvenance;
+          });
+          await assert.rejects(
+            verifyLastKnownGoodArtifact(root),
+            /failed schema validation:[\s\S]*fieldProvenance/,
+          );
+        });
+      },
+    );
+
+    await t.test(
+      "rejects coherently retagged source metadata against current config",
+      async () => {
+        await withFixture(async (root) => {
+          const manifest = await readArtifactJson(root, "manifest.json");
+          const federalDetail = manifest.assets.find(
+            ({ path: assetPath, sourceIds }) =>
+              assetPath.startsWith("details/") &&
+              sourceIds.includes(federalFixture.source.id),
+          );
+          assert.ok(federalDetail);
+          let retaggedRecord;
+          await rewriteAsset(root, federalDetail.path, (detailDocument) => {
+            detailDocument.record.source.name = "Coherently Retagged Source";
+            detailDocument.record.source.provider = "Retagged Provider";
+            detailDocument.record.source.adapterId =
+              countyFixture.source.adapterId;
+            detailDocument.record.source.adapterVersion =
+              countyFixture.source.adapterVersion;
+            detailDocument.record.source.attribution = "Retagged Provider";
+            for (const provenance of detailDocument.record.fieldProvenance) {
+              provenance.adapterId = countyFixture.source.adapterId;
+            }
+            retaggedRecord = globalThis.structuredClone(detailDocument.record);
+          });
+          await rewriteAsset(root, "index/records.json", (indexDocument) => {
+            const index = indexDocument.records.findIndex(
+              ({ id }) => id === retaggedRecord.internalId,
+            );
+            assert.notEqual(index, -1);
+            indexDocument.records[index] = toCompactIndexRecord(retaggedRecord);
+          });
+          await rewriteAsset(root, "coverage.json", (coverageDocument) => {
+            const entry = coverageDocument.entries.find(
+              ({ sourceId }) => sourceId === federalFixture.source.id,
+            );
+            entry.sourceName = retaggedRecord.source.name;
+            entry.provider = retaggedRecord.source.provider;
+          });
+          await rewriteAsset(root, "source-health.json", (healthDocument) => {
+            healthDocument.sources.find(
+              ({ sourceId }) => sourceId === federalFixture.source.id,
+            ).sourceName = retaggedRecord.source.name;
+          });
+          await assert.rejects(
+            verifyLastKnownGoodArtifact(root),
+            /record source\/adapter identity does not match source registry/,
           );
         });
       },
