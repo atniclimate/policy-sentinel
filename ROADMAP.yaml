@@ -245,6 +245,16 @@ gates:
       existing legislation_by_year_v1 scenario, loosen the contract from its
       opaque rejection, or substitute synthetic fixtures for live source
       evidence.
+  - id: G-WA-REGISTER-FILING-CONTRACT
+    name: Washington State Register filing-metadata contract
+    state: pending_evidence
+    resolution: >-
+      Satisfy only when a separately reviewed bounded filing-page observation
+      establishes exact heading/title, agency, duplicate reconciliation,
+      holdover/Reviser's Note, field-specific date/form/relationship, privacy
+      exclusion, official-link, request-count, byte/chunk/concurrency/deadline,
+      and whole-refresh semantics. Do not synthesize index-only titles or
+      agencies or launch an unbounded filing crawl.
   - id: G-BIA-IDENTITY
     name: Current BIA recognition identity reconciliation
     state: pending_evidence
@@ -326,14 +336,14 @@ baseline:
       detail: single-Nation synthetic flow only
 
 current_focus:
-  work_item: B5-WA-RULES
+  work_item: B5-WA-ACCORDS
   objective: >-
-    Implement and synthetically validate the official-calendar-bound Washington
-    State Register issue contract now that the exact one-page Bob Ferguson
-    Governor adapter is durably validated but remains disabled. Preserve
-    separate health, coverage, and reproduction boundaries and do not extend any
-    Washington LWS coverage claim.
-  last_durable_checkpoint: ec30e9c
+    Validate the smallest authoritative Centennial Accord pilot using exact
+    official text status, date, party, signature, supersession, URL, and
+    landmark evidence. Create Nation associations only from exact official
+    signatory evidence, retain metadata and official links only, and exclude
+    full text, maps, parcels, and land exhibits.
+  last_durable_checkpoint: 38b569e
   resume_command: npm run check
 
 completion_scope:
@@ -1405,9 +1415,23 @@ work_items:
     priority: 62
     milestone: B5
     title: Washington State Register and executive-source adapters
-    status: in_progress
+    status: blocked
     dependencies:
       - B3-PIPELINE
+    blocked_by:
+      - G-WA-REGISTER-FILING-CONTRACT
+    safe_fallback: >-
+      Keep the validated Washington Governor adapter disabled and the State
+      Register disabled with adapter null. Emit no production record or range
+      claim for either source, synthesize no Register title or agency, launch no
+      multi-page filing crawl, and keep their health and last-known-good
+      boundaries separate.
+    unblocks_only_when: >-
+      G-WA-REGISTER-FILING-CONTRACT is satisfied with exact title and agency
+      fields, duplicate and holdover reconciliation, Reviser's Note behavior,
+      field-specific date/form/relationship semantics, privacy exclusion,
+      official-link validation, fixed issue/request/resource budgets, and atomic
+      refresh/LKG behavior. Governor activation remains a separate closed gate.
     acceptance:
       - Each source has an independent official contract, date range, health
         shard, and reproduction review.
@@ -1500,12 +1524,50 @@ work_items:
         LKG cloning were covered. Activation remains closed pending a reviewed
         continuous official-PDF link-health operation and exact later approval;
         the State Register contract is the next local increment.
+      - >-
+        One bounded aggregate-only observation of calendar-eligible Register
+        issue 26-14 returned exact-URL HTTP 200 text/html with no content
+        encoding, 72,312 declared and received bytes in five chunks, 2,031 DOM
+        nodes, 2,071 attributes, depth 11, 5,397 text code units, and nine parse
+        errors. No raw HTML or PDF body was retained.
+      - >-
+        The exact five-column issue table contained 147 filing rows and 123
+        unique WSR identifiers but no title or heading field. Twenty-two
+        duplicate-ID groups covered 46 rows; all disagreed under the displayed
+        or inherited agency context while retaining the same type. Two IDs were
+        holdovers, and inspected filing 26-13-101 contained only a Reviser's
+        Note.
+      - >-
+        Normalization from the index alone would require an invented title and
+        an arbitrary agency choice. A complete issue could require up to 123
+        privacy-sensitive filing-page requests, but no exact filing DOM grammar,
+        numeric provider limit, fixed request/resource budget, or complete
+        privacy-drift contract has been reviewed. No adapter or parser scaffold
+        was created.
+      - >-
+        Independent security, integration, and governance reviews agreed that
+        the Register stays adapter null until a separately bounded filing-page
+        contract establishes exact headings, agencies, dates, forms,
+        relationships, duplicate/holdover behavior, privacy exclusion, request
+        scale, and whole-refresh semantics.
+      - >-
+        Local commit 38b569e records D-033 and the source-review, coverage,
+        feasibility, architecture, and data-contract evidence block. Formatting
+        passed. All 572 tests passed with one worker, and the exact four-test
+        Federal Register UX file passed independently; three default parallel
+        npm test attempts each failed only when that same unrelated five-second
+        UX test timed out.
+      - >-
+        This item is evidence-blocked by G-WA-REGISTER-FILING-CONTRACT. The
+        Governor adapter remains validated but disabled, the Register retains
+        adapter null, neither source emits production records or a range claim,
+        and independent ready work proceeds.
 
   - id: B5-WA-ACCORDS
     priority: 63
     milestone: B5
     title: Washington accord pilot
-    status: ready
+    status: in_progress
     dependencies:
       - B5-WA-LWS-RESEARCH
     acceptance:
@@ -2005,7 +2067,7 @@ source_register:
   - id: SRC-WA-OTHER
     source: Washington State Register, Governor executive orders, and accords
     implementation_state: >-
-      governor_adapter_validated_disabled_register_contract_next_accord_ready
+      governor_adapter_validated_disabled_register_filing_contract_blocked_accord_in_progress
     work_items:
       - B5-WA-RULES
       - B5-WA-ACCORDS
@@ -2105,26 +2167,25 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B5-WA-RULES
-    action: >-
-      Implement and synthetically validate the official-calendar-bound Register
-      issue contract only if its stricter WSR identity, duplicate,
-      incomplete-rendition, future-publication, relationship, and privacy cases
-      pass fail-closed tests. Keep the validated Governor adapter disabled
-      pending its separately reviewed continuous official-PDF link-health step
-      and exact later activation approval.
-  - order: 2
     work_item: B5-WA-ACCORDS
     action: >-
-      Validate the smallest authoritative Washington accord pilot after the
-      rules work or if it reaches a genuine evidence block, using exact official
-      Nation-signatory evidence and no unreviewed text reproduction.
-  - order: 3
+      Validate the smallest authoritative Centennial Accord pilot using exact
+      official text status, date, parties, signed/draft and supersession
+      evidence, official URLs, and landmark basis. Create Nation associations
+      only from exact official signatory evidence and retain no unreviewed text
+      or land content.
+  - order: 2
     work_item: B6-COURT-RESEARCH
     action: >-
       Continue independent official-court pilot-source research after the
-      lower-priority-number Washington work or if it reaches a genuine evidence
+      lower-priority-number accord work or if it reaches a genuine evidence
       block.
+  - order: 3
+    work_item: B5-WA-RULES
+    action: >-
+      Resume the Register only after G-WA-REGISTER-FILING-CONTRACT is satisfied.
+      Do not synthesize titles or agencies, bulk-crawl filing pages, or conflate
+      Register health with the disabled Governor adapter.
 
 finish_states:
   local_release_candidate:
