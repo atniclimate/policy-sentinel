@@ -143,14 +143,16 @@ headers, and unknown structure. Its current bounded in-memory event projection
 is source-contract evidence only; it is neither a browser dependency nor
 authorization to persist raw provider XML.
 
-Source-registry schema 1.2 adds `official_index` for an originating public
-document index that is neither an API, feed, nor bulk export. The independently
-registered `washington-state-register` and
-`washington-governor-executive-orders` sources use this method. Both remain
-disabled. The Register still has `adapter: null`; source-registry 1.9 records
-the Governor's versioned adapter descriptor without authorizing it to emit
-public records. The method describes a reviewed access surface and does not
-turn an undocumented HTML page into a formal API.
+Source-registry schema 1.3 retains `official_index` for an originating public
+document index that is neither an API, feed, nor bulk export and adds
+`official_page` for one bounded originating document page that is not an index.
+The independently registered `washington-state-register` and
+`washington-governor-executive-orders` sources use `official_index`; the
+Register still has `adapter: null`, while source-registry 1.10 retains the
+Governor's versioned adapter descriptor without authorizing it to emit public
+records. `washington-centennial-accord` uses `official_page` and remains
+disabled with `adapter: null`. These methods describe reviewed access surfaces
+and do not turn undocumented HTML into a formal API or export.
 
 Governor contract 1.0 makes one credential-free request to the literal Bob
 Ferguson value-`220`, all-status URL, with no redirect, retry, referrer, cache,
@@ -188,6 +190,19 @@ title and choose among conflicting agency labels. The Register remains
 request, byte, chunk, concurrency, and deadline budgets and validates exact
 headings, agencies, duplicate and holdover behavior, Reviser's Notes,
 relationships, privacy exclusion, and atomic failure.
+
+The Centennial Accord's single official page is likewise not yet a complete
+normalized-record contract. It supplies an exact title, collective executing
+parties, and a 1989-08-04 execution event, but no individual signatory list,
+official number, signed facsimile, structured current status, source update
+time, complete amendment/supersession history, or reuse license. The current
+record model would display executing parties as issuing bodies, has no
+executed/signed date role, does not date the timeline from action history, has
+no typed supersession edge, and requires copied `SourceText` for landmark
+evidence under a metadata-and-links-only publication policy. The source remains
+`adapter: null` until a versioned accord-specific model and UI preserve those
+roles without inference. Its exact official page supports only a planned
+general-jurisdiction landmark candidate with zero Nation associations.
 
 The Register and Governor sources must have separate adapters, health receipts,
 and last-known-good shards from each other and from Washington LWS. A Register

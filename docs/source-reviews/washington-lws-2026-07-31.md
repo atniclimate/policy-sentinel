@@ -722,7 +722,7 @@ fault. It supplies no result-state, item-count, optional-field, budget-state,
 request-year-echo, returned-biennium, ordering, uniqueness, active-version,
 completeness, historical-range, source-health, or production-viability
 evidence. HTTP 200 alone does not establish SOAP contract fit. The operation
-remains disabled, source-registry 1.9.0 retains `adapter: null`, and this exact
+remains disabled, source-registry 1.10.0 retains `adapter: null`, and this exact
 scenario must not be retried under the current ledger.
 
 `GetDocuments` remains deliberately unreachable: the current parser accepts

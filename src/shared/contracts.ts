@@ -1,7 +1,7 @@
 export const RECORD_SCHEMA_VERSION = "1.1.0" as const;
 export const ARTIFACT_SCHEMA_VERSION = "1.0.0" as const;
-export const SOURCE_SCHEMA_VERSION = "1.2.0" as const;
-export const SOURCE_REGISTRY_VERSION = "1.9.0" as const;
+export const SOURCE_SCHEMA_VERSION = "1.3.0" as const;
+export const SOURCE_REGISTRY_VERSION = "1.10.0" as const;
 
 export type IsoDate = string;
 export type IsoDateTime = string;
@@ -105,7 +105,13 @@ export interface SourceConfig {
     stateCode: "WA" | "OR" | "ID" | null;
   };
   access: {
-    method: "fixture" | "api" | "feed" | "official_export" | "official_index";
+    method:
+      | "fixture"
+      | "api"
+      | "feed"
+      | "official_export"
+      | "official_index"
+      | "official_page";
     officialDocumentationUrl: string;
     accessedOn?: IsoDate;
     allowedHosts: string[];

@@ -33,8 +33,8 @@ const validateSources = ajv.compile(sourceSchema);
 test("source registry records researched disabled production sources", () => {
   assert.equal(validateSources(sourceRegistry), true);
   assert.doesNotThrow(() => assertSourceRegistrySemantics(sourceRegistry));
-  assert.equal(sourceRegistry.schemaVersion, "1.2.0");
-  assert.equal(sourceRegistry.registryVersion, "1.9.0");
+  assert.equal(sourceRegistry.schemaVersion, "1.3.0");
+  assert.equal(sourceRegistry.registryVersion, "1.10.0");
 
   const federalRegister = sourceRegistry.sources.find(
     ({ id }) => id === "federal-register",
@@ -271,6 +271,49 @@ test("source registry records researched disabled production sources", () => {
     washingtonGovernorExecutiveOrders.coverage.limitations,
     /cannot claim historical or all-active-order completeness/,
   );
+
+  const washingtonCentennialAccord = sourceRegistry.sources.find(
+    ({ id }) => id === "washington-centennial-accord",
+  );
+  assert.deepEqual(
+    {
+      enabled: washingtonCentennialAccord.enabled,
+      synthetic: washingtonCentennialAccord.synthetic,
+      adapter: washingtonCentennialAccord.adapter,
+      accessedOn: washingtonCentennialAccord.access.accessedOn,
+      method: washingtonCentennialAccord.access.method,
+      authentication: washingtonCentennialAccord.access.authentication,
+      allowedHosts: washingtonCentennialAccord.access.allowedHosts,
+      coverageFrom: washingtonCentennialAccord.coverage.from,
+      coverageThrough: washingtonCentennialAccord.coverage.through,
+      termsUrl: washingtonCentennialAccord.publication.termsUrl,
+      reproduction: washingtonCentennialAccord.publication.reproduction,
+      officialSubjectMappings:
+        washingtonCentennialAccord.officialSubjectMappings,
+    },
+    {
+      enabled: false,
+      synthetic: false,
+      adapter: null,
+      accessedOn: "2026-07-31",
+      method: "official_page",
+      authentication: "none",
+      allowedHosts: ["goia.wa.gov"],
+      coverageFrom: "1989-08-04",
+      coverageThrough: "1989-08-04",
+      termsUrl: "https://goia.wa.gov/privacy-notice",
+      reproduction: "metadata_and_links",
+      officialSubjectMappings: [],
+    },
+  );
+  assert.match(
+    washingtonCentennialAccord.coverage.limitations,
+    /no individual Nation signatories/,
+  );
+  assert.match(
+    washingtonCentennialAccord.coverage.limitations,
+    /record model cannot preserve parties/,
+  );
 });
 
 test("source and adapter identifiers are unique", () => {
@@ -297,6 +340,22 @@ test("enabled sources require an adapter", () => {
   );
   federalRegister.enabled = true;
   federalRegister.adapter = null;
+  assert.equal(validateSources(invalid), false);
+});
+
+test("official pages are production-only source methods", () => {
+  const valid = globalThis.structuredClone(sourceRegistry);
+  const accord = valid.sources.find(
+    ({ id }) => id === "washington-centennial-accord",
+  );
+  assert.equal(validateSources(valid), true);
+  assert.equal(accord.access.method, "official_page");
+
+  const invalid = globalThis.structuredClone(sourceRegistry);
+  const syntheticAccord = invalid.sources.find(
+    ({ id }) => id === "washington-centennial-accord",
+  );
+  syntheticAccord.synthetic = true;
   assert.equal(validateSources(invalid), false);
 });
 

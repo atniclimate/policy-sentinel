@@ -2,7 +2,7 @@
 
 Accessed: 2026-07-31
 
-Implementation state: evidence-blocked in source-registry 1.9.0; registered
+Implementation state: evidence-blocked in source-registry 1.10.0; registered
 disabled with `adapter: null`; no production records
 
 External authorization: none required for the reviewed public pages and files
@@ -280,5 +280,5 @@ agency labels, or emit identifier-only records.
 
 The uniform 1978-present PDF/OCR problem, complete correction history, stable
 agency identity, full-text rights, and complete executive-order recognition
-remain separate unresolved contracts. Registry 1.9.0 therefore records this
+remain separate unresolved contracts. Registry 1.10.0 therefore records this
 source as disabled with `adapter: null`.

@@ -16,10 +16,10 @@
       "type": "string"
     },
     "schemaVersion": {
-      "const": "1.2.0"
+      "const": "1.3.0"
     },
     "registryVersion": {
-      "const": "1.9.0"
+      "const": "1.10.0"
     },
     "generatedDataPolicy": {
       "const": "artifact-only"
@@ -160,7 +160,8 @@
                 "api",
                 "feed",
                 "official_export",
-                "official_index"
+                "official_index",
+                "official_page"
               ]
             },
             "officialDocumentationUrl": {
@@ -327,7 +328,13 @@
                 "type": "object",
                 "properties": {
                   "method": {
-                    "enum": ["api", "feed", "official_export", "official_index"]
+                    "enum": [
+                      "api",
+                      "feed",
+                      "official_export",
+                      "official_index",
+                      "official_page"
+                    ]
                   }
                 }
               },

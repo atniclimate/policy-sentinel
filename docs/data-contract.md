@@ -11,9 +11,9 @@ The Phase A contracts are:
 - [`taxonomy.v1.json`](../config/taxonomy.v1.json), the editable ten-category,
   33-subcategory starting taxonomy;
 - [`source.schema.v1.json`](../schemas/source.schema.v1.json), compatible v1
-  source-registry schema version `1.2.0`;
+  source-registry schema version `1.3.0`;
 - [`sources.v1.json`](../config/sources.v1.json), source registry version
-  `1.9.0`; and
+  `1.10.0`; and
 - [`artifact.schema.v1.json`](../schemas/artifact.schema.v1.json), static
   artifact schema version `1.0.0`.
 
@@ -23,16 +23,17 @@ evidence that a production source is enabled or a public dataset exists.
 taxonomy, and synthetic fixtures, and proves selected invalid governance cases
 are rejected.
 
-Source-registry version `1.9.0` distinguishes researched configuration,
+Source-registry version `1.10.0` distinguishes researched configuration,
 implemented adapters, and activation. A disabled source may have
 `adapter: null` or a versioned adapter that is not authorized to emit public
 records; an enabled source must have a versioned adapter. Every non-synthetic
 source records the date its cited contract and terms were accessed. Disabled
 sources and their identifiers are rejected from coverage, health, manifests,
 and records rather than appearing as an unavailable public source. The
-compatible source schema adds the `official_index` access method for an
+compatible source schema retains the `official_index` access method for an
 originating public document index that is neither an API, feed, nor bulk
-export. The independently registered `washington-state-register` and
+export and adds `official_page` for a bounded originating document page that is
+not an index. The independently registered `washington-state-register` and
 `washington-governor-executive-orders` sources use that method and remain
 disabled; the Register retains `adapter: null`, while the Governor has a
 versioned contract-1.0 adapter descriptor. Separate source IDs preserve
@@ -49,8 +50,7 @@ historical archive. The registry-version change intentionally makes an older
 artifact ineligible for last-known-good reuse until it has been rebuilt
 against the exact current source registry.
 
-The
-Register issue index cannot populate the record schema's required exact title
+The Register issue index cannot populate the record schema's required exact title
 or reliably populate the issuing body: the observed `26-14` index has no title
 column, and all 22 duplicate identifier groups disagree under their displayed
 or inherited agency contexts. Identifier-only titles and guessed agency
@@ -59,8 +59,20 @@ reviewed bounded filing-page contract supplies exact values while excluding
 raw bodies, contacts, hearing credentials, unrelated free text, and land
 content.
 
-The
-Grants.gov entry is disabled with no adapter because its current terms and live
+The separately registered `washington-centennial-accord` source uses
+`official_page` and remains disabled with `adapter: null`. Its official page
+supplies an exact title, collective executing parties, and an execution date but
+no individual signatory list, official number, signed facsimile, structured
+current status, source update time, complete supersession history, or reuse
+license. The record model has no party/signatory role or executed/signed date,
+the UI would relabel parties as issuing bodies, action history does not itself
+date the landmark timeline, and the relationship vocabulary has no supersession
+edge. The metadata-and-links publication policy also needs a metadata-only
+landmark-evidence representation. Those facts must not be forced into
+publication, effectiveness, issuing-body, status, relationship, or copied-text
+fields merely to emit a record.
+
+Grants.gov is disabled with no adapter because its current terms and live
 contract canaries remain behind G-B-GRANTS. The Congress.gov entry is likewise
 disabled with no adapter because registration, key handling, runtime-host
 selection, and live response validation remain behind G-B-CONGRESS; its local
