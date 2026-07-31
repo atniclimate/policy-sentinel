@@ -19,6 +19,8 @@ const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
+const SUPPORTED_ARTIFACT_VERSION = "1.2.0";
+const SUPPORTED_RECORD_SCHEMA_VERSION = "1.2.0";
 
 function parseArguments(argv) {
   let directory = path.join(projectRoot, "dist", "data");
@@ -314,10 +316,13 @@ function assertHealth(sourceHealth, sourceRegistry, records) {
 }
 
 function recordCoverageDate(record) {
-  const value = record.dates.published ?? record.status.asOf;
+  const value =
+    record.judicialContext?.decisionDate ??
+    record.dates.published ??
+    record.status.asOf;
   if (typeof value !== "string" || value.length < 10) {
     throw new Error(
-      `coverage record lacks a publication or status date: ${record.internalId}`,
+      `coverage record lacks a decision, publication, or status date: ${record.internalId}`,
     );
   }
   return value.slice(0, 10);
@@ -543,6 +548,14 @@ assertSourceRegistrySemantics(sourceRegistry);
 assertValid(validateTaxonomy, taxonomyConfig, "configured taxonomy");
 
 assertValid(validateArtifact, manifest, "manifest.json");
+if (
+  manifest.artifactVersion !== SUPPORTED_ARTIFACT_VERSION ||
+  manifest.recordSchemaVersion !== SUPPORTED_RECORD_SCHEMA_VERSION
+) {
+  throw new Error(
+    `manifest version pair is unsupported: expected ${SUPPORTED_ARTIFACT_VERSION}/${SUPPORTED_RECORD_SCHEMA_VERSION}, received ${manifest.artifactVersion}/${manifest.recordSchemaVersion}`,
+  );
+}
 assertArtifactManifestLimits(manifest);
 assertStaticArtifactBudget(manifest.assets);
 if (manifest.sourceRegistryVersion !== sourceRegistry.registryVersion) {

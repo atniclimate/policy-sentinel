@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.1.0",
+  "schemaVersion": "1.2.0",
   "internalId": "psr:synthetic-federal:record-001",
   "source": {
     "id": "synthetic-federal",
@@ -31,6 +31,7 @@
     }
   ],
   "legislativeContext": null,
+  "judicialContext": null,
   "status": {
     "normalized": "active",
     "sourceLabel": "Open",

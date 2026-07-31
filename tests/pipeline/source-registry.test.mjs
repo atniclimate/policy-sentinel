@@ -34,7 +34,7 @@ test("source registry records researched disabled production sources", () => {
   assert.equal(validateSources(sourceRegistry), true);
   assert.doesNotThrow(() => assertSourceRegistrySemantics(sourceRegistry));
   assert.equal(sourceRegistry.schemaVersion, "1.3.0");
-  assert.equal(sourceRegistry.registryVersion, "1.11.0");
+  assert.equal(sourceRegistry.registryVersion, "1.12.0");
 
   const federalRegister = sourceRegistry.sources.find(
     ({ id }) => id === "federal-register",
@@ -372,7 +372,12 @@ test("source registry records researched disabled production sources", () => {
     {
       enabled: false,
       synthetic: false,
-      adapter: null,
+      adapter: {
+        id: "supreme-court-opinions-curated-adapter",
+        version: "1.0.0",
+        module: "src/adapters/supreme-court-opinions-curated/index.ts",
+        identityRule: "supreme-court-docket-reporter-citation-v1",
+      },
       accessedOn: "2026-07-31",
       method: "official_index",
       authentication: "none",
@@ -391,7 +396,7 @@ test("source registry records researched disabled production sources", () => {
   );
   assert.match(
     supremeCourt.coverage.limitations,
-    /cannot yet preserve court, docket, reporter citation/,
+    /retains only allowlisted institutional-party metadata/,
   );
 });
 

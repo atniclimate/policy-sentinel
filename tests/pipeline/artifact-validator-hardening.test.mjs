@@ -272,6 +272,36 @@ test("validator caps a regular manifest before parsing it", async () => {
   }
 });
 
+test("validator rejects unsupported manifest version pairs", async () => {
+  const unsupportedPairs = [
+    ["1.1.0", "1.2.0"],
+    ["1.2.0", "1.1.0"],
+    ["1.1.0", "1.1.0"],
+  ];
+
+  for (const [artifactVersion, recordSchemaVersion] of unsupportedPairs) {
+    const fixture = await createValidatorFixture();
+    try {
+      const manifestPath = path.join(fixture.root, "manifest.json");
+      const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+      manifest.artifactVersion = artifactVersion;
+      manifest.recordSchemaVersion = recordSchemaVersion;
+      await writeFile(manifestPath, hashJson(manifest).content, "utf8");
+
+      const result = runValidator(fixture.root);
+      assert.equal(result.status, 1);
+      assert.match(
+        `${result.stdout}\n${result.stderr}`,
+        new RegExp(
+          `manifest version pair is unsupported: expected 1\\.2\\.0/1\\.2\\.0, received ${artifactVersion.replaceAll(".", "\\.")}/${recordSchemaVersion.replaceAll(".", "\\.")}`,
+        ),
+      );
+    } finally {
+      await fixture.cleanup();
+    }
+  }
+});
+
 test("validator rejects unmanifested directories before asset reads", async () => {
   const fixture = await createValidatorFixture();
   try {

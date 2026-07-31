@@ -227,12 +227,13 @@ performance targets. An exceedance keeps only a prior checksum-validated
 artifact eligible for last-known-good handling and requires a reviewed
 sharding or range-policy change.
 
-Artifact package `1.1.0` adds documented/selected/actual range metadata and
-card-critical compact fields without changing schema `1.0.0`; legacy
-package-`1.0.0` coverage and compact-index fixtures remain schema-valid for
-archival checks. The current client requires package `1.1.0` and rejects a
-legacy or unversioned manifest before record normalization rather than
-synthesizing the new identity or coverage fields. Packaging requires an
+Artifact package `1.1.0` historically added documented/selected/actual range
+metadata and card-critical compact fields without changing artifact-document
+schema `1.0.0`; legacy package-`1.0.0` and package-`1.1.0` fixtures remain
+schema-valid for archival checks. The current client requires artifact package
+and record schema `1.2.0` and rejects a legacy, mismatched, or unversioned
+manifest before record normalization rather than synthesizing current compact
+or judicial fields. Packaging requires an
 authoritative refresh health receipt for an enabled non-synthetic source,
 including failure stage and last-known-good state. Validation applies the
 static budgets to both manifest-declared and actual on-disk sizes before

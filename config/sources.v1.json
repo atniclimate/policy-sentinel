@@ -1,7 +1,7 @@
 {
   "$schema": "../schemas/source.schema.v1.json",
   "schemaVersion": "1.3.0",
-  "registryVersion": "1.11.0",
+  "registryVersion": "1.12.0",
   "generatedDataPolicy": "artifact-only",
   "sources": [
     {
@@ -555,7 +555,12 @@
       "provider": "Supreme Court of the United States",
       "synthetic": false,
       "enabled": false,
-      "adapter": null,
+      "adapter": {
+        "id": "supreme-court-opinions-curated-adapter",
+        "version": "1.0.0",
+        "module": "src/adapters/supreme-court-opinions-curated/index.ts",
+        "identityRule": "supreme-court-docket-reporter-citation-v1"
+      },
       "jurisdiction": {
         "level": "federal",
         "name": "United States",
@@ -574,7 +579,7 @@
         "from": "2019-03-19",
         "through": "2019-03-19",
         "cadence": "One fixed, already-bound opinion-index row is checked weekly and build-time only; this is not a current slip-opinion feed.",
-        "limitations": "The first selected scope is only Washington State Dept. of Licensing v. Cougar Den, Inc., docket 16-1498, decided 2019-03-19, citation 586 U.S. 347, not complete Supreme Court or U.S. Reports coverage. The exact current row links to the entire bound Volume 586 rather than an individual case PDF. The current record model cannot yet preserve court, docket, reporter citation, decision date, opinion type, and bound publication status separately, so the source remains adapter null. No Justice or author, syllabus, opinion text, counsel or personal names, facts, land detail, party inference, or Nation association may be retained."
+        "limitations": "Adapter 1.0 implements only Washington State Dept. of Licensing v. Cougar Den, Inc., docket 16-1498, decided 2019-03-19, citation 586 U.S. 347, and does not claim complete Supreme Court or U.S. Reports coverage. The exact current row links to the entire bound Volume 586 rather than an individual case PDF. The adapter retains only allowlisted institutional-party metadata and the exact bound-volume fragment; it does not retrieve or retain any Justice or author, syllabus, opinion text, counsel or personal name, facts, land detail, party inference, or Nation association. The source remains disabled pending owner authorization."
       },
       "publication": {
         "attribution": "Supreme Court of the United States",
@@ -586,12 +591,19 @@
           "/sourceDocumentIdentifier",
           "/documentType",
           "/jurisdiction/name",
-          "/issuingBodies",
+          "/judicialContext/adjudicatingBody/officialName",
+          "/judicialContext/docketNumbers/0",
+          "/judicialContext/citations/0/value",
+          "/judicialContext/citations/0/sourceUrl",
+          "/judicialContext/decisionDate",
+          "/judicialContext/documentForm/sourceLabel",
+          "/judicialContext/publicationStatus/sourceLabel",
+          "/judicialContext/publicationStatus/asOf",
+          "/judicialContext/revisionReview/state",
+          "/judicialContext/revisionReview/reviewedOn",
           "/status/sourceLabel",
           "/status/asOf",
-          "/dates/lastAction",
-          "/urls/officialSource",
-          "/urls/officialFullText"
+          "/urls/officialSource"
         ]
       },
       "officialSubjectMappings": []

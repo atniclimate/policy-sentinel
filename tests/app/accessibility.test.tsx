@@ -49,6 +49,7 @@ const record: PublicRecord = {
     stateCode: null,
   },
   issuingBodies: ["Synthetic Public Agency"],
+  judicialContext: null,
   status: {
     normalized: "active",
     sourceLabel: "Open",
@@ -72,6 +73,8 @@ const record: PublicRecord = {
     sourceExcerpt: null,
     officialLanguage: null,
     detailPath: null,
+    detailAvailability: null,
+    detailReproductionBasis: null,
   },
   sponsors: [],
   committees: [],

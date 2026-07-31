@@ -1722,6 +1722,12 @@ function DetailPage({
                 {record.source.coverageNotes}
               </p>
             )}
+            {record.texts.detailReproductionBasis && (
+              <p class="boundary-note">
+                <strong>Official-text boundary:</strong>{" "}
+                {record.texts.detailReproductionBasis}
+              </p>
+            )}
             <div class="button-row">
               {record.urls.officialSource && (
                 <a
@@ -1747,6 +1753,87 @@ function DetailPage({
               )}
             </div>
           </section>
+
+          {record.judicialContext && (
+            <section aria-labelledby="judicial-context-title">
+              <h2 id="judicial-context-title">Court and decision metadata</h2>
+              <dl class="detail-metadata">
+                <div>
+                  <dt>
+                    {record.judicialContext.adjudicatingBody.kind === "court"
+                      ? "Court"
+                      : "Adjudicating body"}
+                  </dt>
+                  <dd>
+                    {record.judicialContext.adjudicatingBody.officialName}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Docket</dt>
+                  <dd>{record.judicialContext.docketNumbers.join("; ")}</dd>
+                </div>
+                <div>
+                  <dt>Citation</dt>
+                  <dd>
+                    {record.judicialContext.citations.map(
+                      ({ kind, value, sourceUrl }, index) => (
+                        <span key={`${kind}:${value}:${sourceUrl}`}>
+                          {index > 0 ? "; " : ""}
+                          <a href={sourceUrl} target="_blank" rel="noreferrer">
+                            {value}
+                            <span class="visually-hidden">
+                              {" "}
+                              (opens a new tab)
+                            </span>
+                          </a>{" "}
+                          ({humanize(kind)})
+                        </span>
+                      ),
+                    )}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Decision date</dt>
+                  <dd>{formatDate(record.judicialContext.decisionDate)}</dd>
+                </div>
+                <div>
+                  <dt>Document form</dt>
+                  <dd>
+                    {record.judicialContext.documentForm.sourceLabel} (
+                    {humanize(
+                      record.judicialContext.documentForm.normalized,
+                    ).toLocaleLowerCase()}
+                    )
+                  </dd>
+                </div>
+                <div>
+                  <dt>Publication status</dt>
+                  <dd>
+                    {record.judicialContext.publicationStatus.sourceLabel} (as
+                    of{" "}
+                    {formatDate(record.judicialContext.publicationStatus.asOf)})
+                  </dd>
+                </div>
+                <div>
+                  <dt>Revision review</dt>
+                  <dd>
+                    {humanize(record.judicialContext.revisionReview.state)} (
+                    reviewed{" "}
+                    {formatDate(
+                      record.judicialContext.revisionReview.reviewedOn,
+                    )}
+                    )
+                  </dd>
+                </div>
+              </dl>
+              <p class="boundary-note">
+                <strong>Decision-history boundary:</strong> The revision review
+                reports only what the selected official index exposes. It is not
+                a complete subsequent-history, precedential-force, or
+                legal-effect determination.
+              </p>
+            </section>
+          )}
 
           {(record.texts.officialSummary ||
             record.texts.sourceExcerpt ||
@@ -2424,6 +2511,58 @@ function PrintDossier({
                       "Not provided by source"}
                   </dd>
                 </div>
+                {record.judicialContext && (
+                  <>
+                    <div>
+                      <dt>
+                        {record.judicialContext.adjudicatingBody.kind ===
+                        "court"
+                          ? "Court"
+                          : "Adjudicating body"}
+                      </dt>
+                      <dd>
+                        {record.judicialContext.adjudicatingBody.officialName}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Docket</dt>
+                      <dd>{record.judicialContext.docketNumbers.join("; ")}</dd>
+                    </div>
+                    <div>
+                      <dt>Citation</dt>
+                      <dd>
+                        {record.judicialContext.citations.map(
+                          ({ kind, value, sourceUrl }, citationIndex) => (
+                            <span key={`${kind}:${value}:${sourceUrl}`}>
+                              {citationIndex > 0 ? "; " : ""}
+                              <a href={sourceUrl}>{value}</a> ({sourceUrl})
+                            </span>
+                          ),
+                        )}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Decision date</dt>
+                      <dd>{formatDate(record.judicialContext.decisionDate)}</dd>
+                    </div>
+                    <div>
+                      <dt>Document form</dt>
+                      <dd>{record.judicialContext.documentForm.sourceLabel}</dd>
+                    </div>
+                    <div>
+                      <dt>Publication status</dt>
+                      <dd>
+                        {record.judicialContext.publicationStatus.sourceLabel}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Revision review</dt>
+                      <dd>
+                        {humanize(record.judicialContext.revisionReview.state)}
+                      </dd>
+                    </div>
+                  </>
+                )}
                 <div>
                   <dt>Source status</dt>
                   <dd>{record.status.sourceLabel}</dd>
@@ -2453,6 +2592,19 @@ function PrintDossier({
                   </div>
                 )}
               </dl>
+              {record.judicialContext && (
+                <p>
+                  Decision-history boundary: the revision review reports only
+                  what the selected official index exposes; it is not a complete
+                  subsequent-history, precedential-force, or legal-effect
+                  determination.
+                </p>
+              )}
+              {record.texts.detailReproductionBasis && (
+                <p>
+                  Official-text boundary: {record.texts.detailReproductionBasis}
+                </p>
+              )}
               {why.evidence && (
                 <>
                   <h4>Exact Nation-reference evidence</h4>

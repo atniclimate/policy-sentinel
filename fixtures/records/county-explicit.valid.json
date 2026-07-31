@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.1.0",
+  "schemaVersion": "1.2.0",
   "internalId": "psr:synthetic-county:ordinance-001",
   "source": {
     "id": "synthetic-county",
@@ -31,6 +31,7 @@
     }
   ],
   "legislativeContext": null,
+  "judicialContext": null,
   "status": {
     "normalized": "enacted",
     "sourceLabel": "Adopted",

@@ -73,4 +73,74 @@ describe("CSV output", () => {
     expect(csv).not.toContain("AI TEXT MUST NOT ENTER CSV");
     expect(csv).not.toContain("forbidden-export-model");
   });
+
+  it("exports bounded judicial metadata and its exact citation link", () => {
+    const record = normalizeRecord(structuredClone(generalRecordFixture));
+    if (!record) throw new Error("Synthetic record fixture did not normalize");
+    record.documentType = "court_decision";
+    record.texts.detailReproductionBasis =
+      "The citation link opens the complete bound volume.";
+    record.judicialContext = {
+      adjudicatingBody: {
+        kind: "court",
+        sourceId: null,
+        officialName: "Synthetic Supreme Court",
+      },
+      docketNumbers: ["SYN-DOCKET"],
+      citations: [
+        {
+          kind: "reporter",
+          value: "999 U.S. 1",
+          sourceUrl: "https://official.example.invalid/opinions/999.pdf#page=1",
+        },
+      ],
+      decisionDate: "2019-03-19",
+      documentForm: {
+        normalized: "opinion",
+        sourceLabel: "Opinions of the Court",
+      },
+      publicationStatus: {
+        normalized: "bound_volume",
+        sourceLabel: "U.S. Reports, Volume 999",
+        asOf: "2026-07-31",
+      },
+      revisionReview: {
+        state: "no_separate_relationship_exposed",
+        reviewedOn: "2026-07-31",
+      },
+    };
+
+    const csv = selectedRecordsCsv([record], nation, () => ({
+      basis: "general_jurisdiction",
+      label: "General jurisdiction; not Nation-specific",
+    }));
+    const [header, row] = csv.split("\r\n");
+    expect(header).toContain('"adjudicating_body"');
+    expect(header).toContain('"docket_numbers"');
+    expect(header).toContain('"citations"');
+    expect(header).toContain('"citation_links"');
+    expect(header).toContain('"decision_date"');
+    expect(header).toContain('"judicial_document_form_normalized"');
+    expect(header).toContain('"judicial_document_form_source_label"');
+    expect(header).toContain('"judicial_publication_status_normalized"');
+    expect(header).toContain('"judicial_publication_status_source_label"');
+    expect(header).toContain('"judicial_publication_status_as_of"');
+    expect(header).toContain('"judicial_revision_review_state"');
+    expect(header).toContain('"judicial_revision_reviewed_on"');
+    expect(header).toContain('"official_text_reproduction_basis"');
+    expect(row).toContain('"Synthetic Supreme Court"');
+    expect(row).toContain('"[""SYN-DOCKET""]"');
+    expect(row).toContain('"[""999 U.S. 1""]"');
+    expect(row).toContain(
+      '"[""https://official.example.invalid/opinions/999.pdf#page=1""]"',
+    );
+    expect(row).toContain('"2019-03-19"');
+    expect(row).toContain('"opinion"');
+    expect(row).toContain('"bound_volume"');
+    expect(row).toContain('"2026-07-31"');
+    expect(row).toContain('"no_separate_relationship_exposed"');
+    expect(row).toContain(
+      '"The citation link opens the complete bound volume."',
+    );
+  });
 });

@@ -1,7 +1,7 @@
-export const RECORD_SCHEMA_VERSION = "1.1.0" as const;
+export const RECORD_SCHEMA_VERSION = "1.2.0" as const;
 export const ARTIFACT_SCHEMA_VERSION = "1.0.0" as const;
 export const SOURCE_SCHEMA_VERSION = "1.3.0" as const;
-export const SOURCE_REGISTRY_VERSION = "1.11.0" as const;
+export const SOURCE_REGISTRY_VERSION = "1.12.0" as const;
 
 export type IsoDate = string;
 export type IsoDateTime = string;
@@ -190,6 +190,7 @@ export interface PolicyRecord {
     session: string | null;
     chamber: string | null;
   } | null;
+  judicialContext: JudicialContext | null;
   status: {
     normalized: string;
     sourceLabel: string;
@@ -309,8 +310,52 @@ export interface HistoryEvent {
   sourceUrl: string;
 }
 
+export interface JudicialContext {
+  adjudicatingBody: {
+    kind: "court" | "administrative_body";
+    sourceId: string | null;
+    officialName: string;
+  };
+  docketNumbers: string[];
+  citations: Array<{
+    kind: "reporter" | "neutral" | "official_other";
+    value: string;
+    sourceUrl: string;
+  }>;
+  decisionDate: IsoDate;
+  documentForm: {
+    normalized:
+      "opinion" | "order" | "judgment" | "memorandum" | "decision" | "other";
+    sourceLabel: string;
+  };
+  publicationStatus: {
+    normalized:
+      | "slip_opinion"
+      | "amended"
+      | "withdrawn"
+      | "preliminary_print"
+      | "bound_volume"
+      | "final"
+      | "published"
+      | "unpublished"
+      | "unknown";
+    sourceLabel: string;
+    asOf: IsoDate;
+  };
+  revisionReview: {
+    state: "no_separate_relationship_exposed" | "relationships_recorded";
+    reviewedOn: IsoDate;
+  };
+}
+
 export type SourceDocumentRelationshipType =
-  "corrects" | "corrected_by" | "related_document";
+  | "corrects"
+  | "corrected_by"
+  | "supersedes"
+  | "superseded_by"
+  | "substitutes"
+  | "substituted_by"
+  | "related_document";
 
 export interface SourceDocumentRelationship {
   relationshipType: SourceDocumentRelationshipType;
@@ -377,6 +422,7 @@ export interface RecordIndexEntry {
   documentType: string;
   jurisdiction: PolicyRecord["jurisdiction"];
   issuingBodies: string[];
+  judicialContext: PolicyRecord["judicialContext"];
   status: PolicyRecord["status"];
   source: Pick<RecordSource, "id" | "name" | "provider">;
   dates: Pick<
@@ -405,7 +451,7 @@ export interface ArtifactAsset {
 export interface ArtifactManifest {
   artifactType: "manifest";
   schemaVersion: typeof ARTIFACT_SCHEMA_VERSION;
-  artifactVersion: "1.0.0" | "1.1.0";
+  artifactVersion: "1.0.0" | "1.1.0" | "1.2.0";
   buildId: string;
   generatedAt: IsoDateTime;
   dataAsOf: IsoDateTime;

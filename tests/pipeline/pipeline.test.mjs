@@ -173,6 +173,105 @@ function correctionRelationshipPair() {
   ];
 }
 
+function judicialRecord(overrides = {}) {
+  const record = globalThis.structuredClone(federalFixture);
+  const officialSource =
+    "https://official.example.invalid/opinions/term/synthetic";
+  record.internalId = makeStableRecordId(
+    record.source.id,
+    "SYN-DOCKET@999 U.S. 1",
+  );
+  record.source.recordId = "SYN-DOCKET@999 U.S. 1";
+  record.source.coverage = {
+    from: "2019-03-19",
+    through: "2019-03-19",
+    notes: "One synthetic court record for contract validation.",
+  };
+  record.officialTitle = "Synthetic Court v. Synthetic Respondent";
+  record.sourceDocumentIdentifier = "SYN-DOCKET";
+  record.documentType = "court_decision";
+  record.issuingBodies = [
+    {
+      sourceId: null,
+      officialName: "Synthetic Supreme Court",
+    },
+  ];
+  record.legislativeContext = null;
+  record.judicialContext = {
+    adjudicatingBody: {
+      kind: "court",
+      sourceId: null,
+      officialName: "Synthetic Supreme Court",
+    },
+    docketNumbers: ["SYN-DOCKET"],
+    citations: [
+      {
+        kind: "reporter",
+        value: "999 U.S. 1",
+        sourceUrl:
+          "https://official.example.invalid/opinions/bound/999.pdf#page=1",
+      },
+    ],
+    decisionDate: "2019-03-19",
+    documentForm: {
+      normalized: "opinion",
+      sourceLabel: "Opinions of the Court",
+    },
+    publicationStatus: {
+      normalized: "bound_volume",
+      sourceLabel: "U.S. Reports, Volume 999",
+      asOf: "2026-07-31",
+    },
+    revisionReview: {
+      state: "no_separate_relationship_exposed",
+      reviewedOn: "2026-07-31",
+    },
+  };
+  record.status = {
+    normalized: "decided",
+    sourceLabel: "Opinions of the Court",
+    asOf: "2019-03-19",
+  };
+  record.dates = {
+    introduced: null,
+    published: null,
+    updated: null,
+    lastAction: null,
+    deadline: null,
+    effective: null,
+    retrieved: "2026-07-31T12:00:00Z",
+  };
+  record.urls = {
+    officialSource,
+    officialFullText: null,
+  };
+  record.texts = {
+    officialSummary: null,
+    sourceExcerpt: null,
+    detailAsset: {
+      availability: "official_link_only",
+      path: null,
+      reproductionBasis: null,
+    },
+  };
+  record.actionHistory = [];
+  record.statusHistory = [];
+  record.sourceDocumentRelationships = [];
+  record.relevance = [
+    {
+      basis: "general_jurisdiction",
+      label: "General federal jurisdiction",
+      sourceUrl: officialSource,
+      evidence:
+        "The synthetic court record contains no exact Nation association.",
+    },
+  ];
+  record.change.urgentAlert = null;
+  Object.assign(record, overrides);
+  record.fieldProvenance = [];
+  return completeSyntheticProvenance(record);
+}
+
 async function createLastKnownGoodFixture({
   includeHealthAsset = true,
   duplicateHealthAsset = false,
@@ -347,7 +446,7 @@ test("synthetic provenance covers every declared source-derived leaf", () => {
   }
 });
 
-test("record schema 1.1 constrains source-document relationship shape", () => {
+test("record schema 1.2 constrains source-document relationship shape", () => {
   const [original] = correctionRelationshipPair();
   assert.equal(
     validateRecordSchema(original),
@@ -356,8 +455,7 @@ test("record schema 1.1 constrains source-document relationship shape", () => {
   );
 
   const unsupportedType = globalThis.structuredClone(original);
-  unsupportedType.sourceDocumentRelationships[0].relationshipType =
-    "supersedes";
+  unsupportedType.sourceDocumentRelationships[0].relationshipType = "amends";
   assert.equal(validateRecordSchema(unsupportedType), false);
 
   const missingLabel = globalThis.structuredClone(original);
@@ -368,6 +466,184 @@ test("record schema 1.1 constrains source-document relationship shape", () => {
   nonHttpsTarget.sourceDocumentRelationships[0].targetUrl =
     "http://official.example.invalid/records/SYN-CORRECTION";
   assert.equal(validateRecordSchema(nonHttpsTarget), false);
+});
+
+test("record schema 1.2 requires a bounded source-neutral judicial context", () => {
+  const valid = judicialRecord();
+  assert.equal(
+    validateRecordSchema(valid),
+    true,
+    JSON.stringify(validateRecordSchema.errors),
+  );
+
+  const missing = globalThis.structuredClone(valid);
+  missing.judicialContext = null;
+  assert.equal(validateRecordSchema(missing), false);
+
+  const wrongBodyKind = globalThis.structuredClone(valid);
+  wrongBodyKind.judicialContext.adjudicatingBody.kind = "administrative_body";
+  assert.equal(validateRecordSchema(wrongBodyKind), false);
+
+  const missingCitationLink = globalThis.structuredClone(valid);
+  delete missingCitationLink.judicialContext.citations[0].sourceUrl;
+  assert.equal(validateRecordSchema(missingCitationLink), false);
+
+  const nonJudicial = globalThis.structuredClone(valid);
+  nonJudicial.documentType = "notice";
+  assert.equal(validateRecordSchema(nonJudicial), false);
+});
+
+test("judicial context, revision review, and one-way curated edges fail closed", () => {
+  const valid = judicialRecord();
+  assert.doesNotThrow(() =>
+    validateRecordPolicy(valid, {
+      sourceConfig: sourceConfigs.get(valid.source.id),
+      taxonomy,
+      knownNationIds: new Set(nations.map(({ id }) => id)),
+    }),
+  );
+
+  const mismatchedBody = judicialRecord();
+  mismatchedBody.issuingBodies[0].officialName = "Different Court";
+  assert.throws(
+    () =>
+      validateRecordPolicy(mismatchedBody, {
+        sourceConfig: sourceConfigs.get(mismatchedBody.source.id),
+        taxonomy,
+      }),
+    (error) =>
+      error instanceof PolicyValidationError &&
+      error.issues.some((issue) =>
+        issue.includes("adjudicating body is not preserved"),
+      ),
+  );
+
+  const impossibleReviewDate = judicialRecord();
+  impossibleReviewDate.judicialContext.revisionReview.reviewedOn = "2019-03-18";
+  impossibleReviewDate.fieldProvenance = [];
+  const preparedImpossibleReviewDate =
+    completeSyntheticProvenance(impossibleReviewDate);
+  assert.throws(
+    () =>
+      validateRecordPolicy(preparedImpossibleReviewDate, {
+        sourceConfig: sourceConfigs.get(preparedImpossibleReviewDate.source.id),
+        taxonomy,
+      }),
+    /revision review date falls outside decision-to-retrieval bounds/,
+  );
+
+  const unbackedReview = judicialRecord();
+  unbackedReview.judicialContext.revisionReview.state =
+    "relationships_recorded";
+  assert.throws(
+    () =>
+      validateRecordPolicy(unbackedReview, {
+        sourceConfig: sourceConfigs.get(unbackedReview.source.id),
+        taxonomy,
+      }),
+    /claims relationships without a typed edge/,
+  );
+
+  const oneWay = judicialRecord();
+  oneWay.judicialContext.revisionReview.state = "relationships_recorded";
+  oneWay.sourceDocumentRelationships = [
+    {
+      relationshipType: "supersedes",
+      targetSourceRecordId: "SYN-OLDER",
+      targetUrl: "https://official.example.invalid/opinions/SYN-OLDER",
+      sourceLabel: "Supersedes",
+    },
+  ];
+  oneWay.fieldProvenance = [];
+  const preparedOneWay = completeSyntheticProvenance(oneWay);
+  assert.doesNotThrow(() =>
+    validateRecordSetPolicy([preparedOneWay], {
+      sourceRegistry,
+      taxonomy,
+      nations,
+    }),
+  );
+
+  const deniedEdge = judicialRecord();
+  deniedEdge.sourceDocumentRelationships = [
+    {
+      relationshipType: "supersedes",
+      targetSourceRecordId: "SYN-OLDER",
+      targetUrl: "https://official.example.invalid/opinions/SYN-OLDER",
+      sourceLabel: "Supersedes",
+    },
+  ];
+  deniedEdge.fieldProvenance = [];
+  const preparedDeniedEdge = completeSyntheticProvenance(deniedEdge);
+  assert.throws(
+    () =>
+      validateRecordPolicy(preparedDeniedEdge, {
+        sourceConfig: sourceConfigs.get(preparedDeniedEdge.source.id),
+        taxonomy,
+      }),
+    /denies separate relationships despite a typed edge/,
+  );
+
+  const unsafeCitation = judicialRecord();
+  unsafeCitation.judicialContext.citations[0].sourceUrl =
+    "https://attacker.test/bound.pdf";
+  unsafeCitation.fieldProvenance = [];
+  const preparedUnsafeCitation = completeSyntheticProvenance(unsafeCitation);
+  assert.throws(
+    () =>
+      validateRecordPolicy(preparedUnsafeCitation, {
+        sourceConfig: sourceConfigs.get(preparedUnsafeCitation.source.id),
+        taxonomy,
+      }),
+    /judicialContext\/citations\/0\/sourceUrl hostname attacker\.test/,
+  );
+});
+
+test("judicial decision date controls historical treatment and artifact coverage", () => {
+  const historical = judicialRecord();
+  historical.judicialContext.decisionDate = "1979-03-19";
+  historical.judicialContext.publicationStatus.asOf = "1979-03-19";
+  historical.status.asOf = "1979-03-19";
+  historical.source.coverage = {
+    from: "1979-03-19",
+    through: "1979-03-19",
+    notes: "One synthetic historical court record.",
+  };
+  historical.historical = {
+    isHistorical: true,
+    pre1980Treatment: "not_applicable",
+  };
+  historical.fieldProvenance = [];
+  const preparedHistorical = completeSyntheticProvenance(historical);
+  assert.throws(
+    () =>
+      validateRecordPolicy(preparedHistorical, {
+        sourceConfig: sourceConfigs.get(preparedHistorical.source.id),
+        taxonomy,
+      }),
+    /non-landmark pre-1980 record must use list_and_link/,
+  );
+
+  const configuredRegistry = globalThis.structuredClone(sourceRegistry);
+  const validJudicial = judicialRecord();
+  const configuredSource = configuredRegistry.sources.find(
+    ({ id }) => id === validJudicial.source.id,
+  );
+  configuredSource.coverage.from = "2019-03-19";
+  configuredSource.coverage.through = "2019-03-19";
+  const documents = createArtifactDocuments({
+    records: [validJudicial],
+    nations,
+    taxonomy,
+    sourceRegistry: configuredRegistry,
+    generatedAt: "2026-07-31T12:00:00Z",
+    synthetic: true,
+  });
+  const coverage = documents
+    .get("coverage.json")
+    .entries.find(({ sourceId }) => sourceId === validJudicial.source.id);
+  assert.equal(coverage.recordFrom, "2019-03-19");
+  assert.equal(coverage.recordThrough, "2019-03-19");
 });
 
 test("correction relationships are reciprocal while related documents may be one-way", () => {
@@ -986,8 +1262,8 @@ test("artifact packaging is deterministic, compact, and detail-sharded", () => {
   const first = createArtifactDocuments(input);
   const second = createArtifactDocuments(input);
   assert.deepEqual(first.get("manifest.json"), second.get("manifest.json"));
-  assert.equal(first.get("manifest.json").artifactVersion, "1.1.0");
-  assert.equal(first.get("manifest.json").recordSchemaVersion, "1.1.0");
+  assert.equal(first.get("manifest.json").artifactVersion, "1.2.0");
+  assert.equal(first.get("manifest.json").recordSchemaVersion, "1.2.0");
   assert.equal(first.get("manifest.json").nationCount, 575);
   assert.equal(first.get("manifest.json").recordCount, 2);
   assert.equal(first.get("index/records.json").records.length, 2);
@@ -1046,6 +1322,7 @@ test("artifact packaging is deterministic, compact, and detail-sharded", () => {
   for (const entry of first.get("index/records.json").records) {
     assert.equal("aiSummary" in entry, false);
     assert.equal("sourceDocumentRelationships" in entry, false);
+    assert.equal("judicialContext" in entry, true);
     assert.equal("categoryIds" in entry, false);
     assert.equal("subcategoryIds" in entry, false);
     assert.deepEqual(entry.taxonomyMemberships, []);

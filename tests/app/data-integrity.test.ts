@@ -21,6 +21,7 @@ const compactRecord = () => ({
     provider: "Synthetic Public Agency",
   },
   issuingBodies: ["Synthetic Public Agency"],
+  judicialContext: null,
   jurisdiction: {
     level: "federal",
     name: "United States",
@@ -46,12 +47,50 @@ const compactRecord = () => ({
   ],
 });
 
+const judicialContext = () => ({
+  adjudicatingBody: {
+    kind: "court",
+    sourceId: null,
+    officialName: "Synthetic Supreme Court",
+  },
+  docketNumbers: ["SYN-DOCKET"],
+  citations: [
+    {
+      kind: "reporter",
+      value: "999 U.S. 1",
+      sourceUrl: "https://official.example.invalid/opinions/999.pdf#page=1",
+    },
+  ],
+  decisionDate: "2019-03-19",
+  documentForm: {
+    normalized: "opinion",
+    sourceLabel: "Opinions of the Court",
+  },
+  publicationStatus: {
+    normalized: "bound_volume",
+    sourceLabel: "U.S. Reports, Volume 999",
+    asOf: "2026-07-31",
+  },
+  revisionReview: {
+    state: "no_separate_relationship_exposed",
+    reviewedOn: "2026-07-31",
+  },
+});
+
+const judicialCompactRecord = () => ({
+  ...compactRecord(),
+  documentType: "court_decision",
+  issuingBodies: ["Synthetic Supreme Court"],
+  judicialContext: judicialContext(),
+});
+
 const rootAssets = (records: unknown[] = [compactRecord()]) =>
   new Map<string, unknown>([
     [
       "data/manifest.json",
       {
-        artifactVersion: "1.1.0",
+        artifactVersion: "1.2.0",
+        recordSchemaVersion: "1.2.0",
         buildId: "synthetic-integrity",
         generatedAt: GENERATED_AT,
         dataAsOf: "2026-07-31T00:00:00Z",
@@ -151,7 +190,21 @@ describe("same-origin artifact integrity", () => {
     installAssetFetch(legacy);
 
     await expect(loadArtifacts()).rejects.toThrow(
-      "requires artifact package 1.1.0; received 1.0.0",
+      "requires artifact package 1.2.0; received 1.0.0",
+    );
+  });
+
+  it("fails closed before normalization for a legacy record schema", async () => {
+    const legacy = rootAssets();
+    const manifest = legacy.get("data/manifest.json") as Record<
+      string,
+      unknown
+    >;
+    manifest.recordSchemaVersion = "1.1.0";
+    installAssetFetch(legacy);
+
+    await expect(loadArtifacts()).rejects.toThrow(
+      "requires record schema 1.2.0; received 1.1.0",
     );
   });
 
@@ -182,6 +235,122 @@ describe("same-origin artifact integrity", () => {
       usingLastKnownGood: true,
       message: "Using a validated prior public shard.",
     });
+  });
+
+  it.each([
+    {
+      label: "court decision without judicial context",
+      record: { ...judicialCompactRecord(), judicialContext: null },
+    },
+    {
+      label: "non-judicial record with judicial context",
+      record: { ...judicialCompactRecord(), documentType: "notice" },
+    },
+    {
+      label: "court decision with an administrative body kind",
+      record: {
+        ...judicialCompactRecord(),
+        judicialContext: {
+          ...judicialContext(),
+          adjudicatingBody: {
+            ...judicialContext().adjudicatingBody,
+            kind: "administrative_body",
+          },
+        },
+      },
+    },
+    {
+      label: "court decision whose body is absent from issuing bodies",
+      record: {
+        ...judicialCompactRecord(),
+        issuingBodies: ["Different Court"],
+      },
+    },
+    {
+      label: "impossible decision date",
+      record: {
+        ...judicialCompactRecord(),
+        judicialContext: {
+          ...judicialContext(),
+          decisionDate: "2019-02-29",
+        },
+      },
+    },
+    {
+      label: "impossible publication-status date",
+      record: {
+        ...judicialCompactRecord(),
+        judicialContext: {
+          ...judicialContext(),
+          publicationStatus: {
+            ...judicialContext().publicationStatus,
+            asOf: "2026-07-32",
+          },
+        },
+      },
+    },
+    {
+      label: "non-ISO revision-review date",
+      record: {
+        ...judicialCompactRecord(),
+        judicialContext: {
+          ...judicialContext(),
+          revisionReview: {
+            ...judicialContext().revisionReview,
+            reviewedOn: "07/31/2026",
+          },
+        },
+      },
+    },
+    {
+      label: "non-HTTPS citation URL",
+      record: {
+        ...judicialCompactRecord(),
+        judicialContext: {
+          ...judicialContext(),
+          citations: [
+            {
+              ...judicialContext().citations[0],
+              sourceUrl: "http://official.example.invalid/opinions/999.pdf",
+            },
+          ],
+        },
+      },
+    },
+    {
+      label: "malformed docket mixed with a valid docket",
+      record: {
+        ...judicialCompactRecord(),
+        judicialContext: {
+          ...judicialContext(),
+          docketNumbers: ["SYN-DOCKET", 42],
+        },
+      },
+    },
+    {
+      label: "malformed citation mixed with a valid citation",
+      record: {
+        ...judicialCompactRecord(),
+        judicialContext: {
+          ...judicialContext(),
+          citations: [
+            ...judicialContext().citations,
+            {
+              kind: "reporter",
+              value: "",
+              sourceUrl:
+                "https://official.example.invalid/opinions/malformed.pdf",
+            },
+          ],
+        },
+      },
+    },
+  ])("rejects a current package containing $label", async ({ record }) => {
+    installAssetFetch(rootAssets([record]));
+
+    await expect(loadArtifacts()).rejects.toThrow(
+      "public index artifact contains an invalid record at position 0",
+    );
   });
 
   it.each([
@@ -309,6 +478,111 @@ describe("detail asset integrity", () => {
 
     await expect(loadRecordDetail(record)).rejects.toThrow(
       "compact fields do not match",
+    );
+  });
+
+  it("rejects judicial metadata that differs between the index and detail", async () => {
+    const indexed = {
+      ...compactRecord(),
+      documentType: "court_decision",
+      issuingBodies: ["Synthetic Supreme Court"],
+      judicialContext: {
+        adjudicatingBody: {
+          kind: "court",
+          sourceId: null,
+          officialName: "Synthetic Supreme Court",
+        },
+        docketNumbers: ["SYN-DOCKET"],
+        citations: [
+          {
+            kind: "reporter",
+            value: "999 U.S. 1",
+            sourceUrl:
+              "https://official.example.invalid/opinions/999.pdf#page=1",
+          },
+        ],
+        decisionDate: "2019-03-19",
+        documentForm: {
+          normalized: "opinion",
+          sourceLabel: "Opinions of the Court",
+        },
+        publicationStatus: {
+          normalized: "bound_volume",
+          sourceLabel: "U.S. Reports, Volume 999",
+          asOf: "2026-07-31",
+        },
+        revisionReview: {
+          state: "no_separate_relationship_exposed",
+          reviewedOn: "2026-07-31",
+        },
+      },
+    };
+    const record = normalizeRecord(indexed);
+    expect(record).not.toBeNull();
+    if (!record) return;
+    record.artifactGeneratedAt = GENERATED_AT;
+    const detail = structuredClone(indexed);
+    detail.judicialContext.citations[0].value = "999 U.S. 2";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({ generatedAt: GENERATED_AT, record: detail }),
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            },
+          ),
+      ),
+    );
+
+    await expect(loadRecordDetail(record)).rejects.toThrow(
+      "compact fields do not match",
+    );
+  });
+
+  it("rejects a judicial detail whose source-qualified body differs from the compact body", async () => {
+    const context = {
+      ...judicialContext(),
+      adjudicatingBody: {
+        ...judicialContext().adjudicatingBody,
+        sourceId: "court:synthetic",
+      },
+    };
+    const indexed = {
+      ...judicialCompactRecord(),
+      judicialContext: context,
+    };
+    const record = normalizeRecord(indexed);
+    expect(record).not.toBeNull();
+    if (!record) return;
+    record.artifactGeneratedAt = GENERATED_AT;
+    const detail = {
+      ...structuredClone(indexed),
+      issuingBodies: [
+        {
+          sourceId: "court:different",
+          officialName: context.adjudicatingBody.officialName,
+        },
+      ],
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({ generatedAt: GENERATED_AT, record: detail }),
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            },
+          ),
+      ),
+    );
+
+    await expect(loadRecordDetail(record)).rejects.toThrow(
+      "did not contain a usable record",
     );
   });
 

@@ -84,7 +84,7 @@ test("artifact schema v1 accepts legacy and additive manifest versions", () => {
     })),
   };
 
-  for (const artifactVersion of ["1.0.0", "1.1.0"]) {
+  for (const artifactVersion of ["1.0.0", "1.1.0", "1.2.0"]) {
     for (const sourceRegistryVersion of [
       "1.4.0",
       "1.5.0",
@@ -94,6 +94,7 @@ test("artifact schema v1 accepts legacy and additive manifest versions", () => {
       "1.9.0",
       "1.10.0",
       "1.11.0",
+      "1.12.0",
     ]) {
       assert.equal(
         validateArtifactDocument({

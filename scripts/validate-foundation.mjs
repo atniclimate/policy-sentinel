@@ -154,6 +154,7 @@ const validateRecordPolicy = (record, name) => {
   visit(record);
 
   const primaryDate =
+    record.judicialContext?.decisionDate ??
     record.dates.published ??
     record.dates.introduced ??
     record.dates.effective ??

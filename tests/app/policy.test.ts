@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   filterRecords,
   recordAvailableForNation,
+  recordEventDate,
   whyShownFor,
 } from "../../src/app/policy";
 import { emptyCriteria } from "../../src/app/routing";
@@ -23,6 +24,7 @@ const record = (overrides: Partial<PublicRecord>): PublicRecord =>
     source: { id: "source", name: "Official Source" },
     jurisdiction: { level: "federal", name: "United States", stateCode: null },
     issuingBodies: [],
+    judicialContext: null,
     status: { normalized: "active", sourceLabel: "Open", asOf: null },
     dates: {
       introduced: null,
@@ -39,6 +41,8 @@ const record = (overrides: Partial<PublicRecord>): PublicRecord =>
       sourceExcerpt: null,
       officialLanguage: null,
       detailPath: null,
+      detailAvailability: null,
+      detailReproductionBasis: null,
     },
     sponsors: [],
     committees: [],
@@ -125,5 +129,65 @@ describe("Nation relationship policy", () => {
       allPolicyAreas: true,
     };
     expect(filterRecords([record({})], nation, criteria, true)).toHaveLength(1);
+  });
+
+  it("uses the judicial decision date for filtering and ordering", () => {
+    const judicial = record({
+      documentType: "court_decision",
+      judicialContext: {
+        adjudicatingBody: {
+          kind: "court",
+          sourceId: null,
+          officialName: "Synthetic Supreme Court",
+        },
+        docketNumbers: ["SYN-DOCKET"],
+        citations: [
+          {
+            kind: "reporter",
+            value: "999 U.S. 1",
+            sourceUrl: "https://example.invalid/999.pdf#page=1",
+          },
+        ],
+        decisionDate: "2019-03-19",
+        documentForm: {
+          normalized: "opinion",
+          sourceLabel: "Opinions of the Court",
+        },
+        publicationStatus: {
+          normalized: "bound_volume",
+          sourceLabel: "U.S. Reports, Volume 999",
+          asOf: "2026-07-31",
+        },
+        revisionReview: {
+          state: "no_separate_relationship_exposed",
+          reviewedOn: "2026-07-31",
+        },
+      },
+      dates: {
+        introduced: null,
+        published: null,
+        updated: null,
+        lastAction: null,
+        deadline: null,
+        effective: null,
+        retrieved: "2026-07-31T00:00:00Z",
+      },
+    });
+    expect(recordEventDate(judicial)).toBe("2019-03-19");
+
+    const criteria = {
+      ...emptyCriteria(),
+      nationId: nation.id,
+      allPolicyAreas: true,
+      dateFrom: "2019-03-19",
+      dateThrough: "2019-03-19",
+    };
+    expect(filterRecords([judicial], nation, criteria)).toEqual([judicial]);
+    expect(
+      filterRecords([judicial], nation, {
+        ...criteria,
+        dateFrom: "2019-03-20",
+      }),
+    ).toEqual([]);
   });
 });

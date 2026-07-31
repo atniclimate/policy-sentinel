@@ -24,6 +24,7 @@ const compactRecord = (overrides: Record<string, unknown> = {}) => ({
     generalJurisdictionOnly: true,
   },
   issuingBodies: ["Synthetic Public Agency"],
+  judicialContext: null,
   status: {
     normalized: "active",
     sourceLabel: "Open",
@@ -163,5 +164,57 @@ describe("compact record contract", () => {
       },
     ]);
     expect(detail?.searchText).not.toContain(relationshipLabel.toLowerCase());
+  });
+
+  it("preserves judicial context and makes court, docket, and citation searchable", () => {
+    const record = normalizeRecord(
+      compactRecord({
+        documentType: "court_decision",
+        issuingBodies: ["Synthetic Supreme Court"],
+        judicialContext: {
+          adjudicatingBody: {
+            kind: "court",
+            sourceId: null,
+            officialName: "Synthetic Supreme Court",
+          },
+          docketNumbers: ["SYN-DOCKET"],
+          citations: [
+            {
+              kind: "reporter",
+              value: "999 U.S. 1",
+              sourceUrl:
+                "https://official.example.invalid/opinions/999.pdf#page=1",
+            },
+          ],
+          decisionDate: "2019-03-19",
+          documentForm: {
+            normalized: "opinion",
+            sourceLabel: "Opinions of the Court",
+          },
+          publicationStatus: {
+            normalized: "bound_volume",
+            sourceLabel: "U.S. Reports, Volume 999",
+            asOf: "2026-07-31",
+          },
+          revisionReview: {
+            state: "no_separate_relationship_exposed",
+            reviewedOn: "2026-07-31",
+          },
+        },
+      }),
+    );
+
+    expect(record?.judicialContext).toMatchObject({
+      adjudicatingBody: {
+        kind: "court",
+        officialName: "Synthetic Supreme Court",
+      },
+      docketNumbers: ["SYN-DOCKET"],
+      citations: [{ value: "999 U.S. 1" }],
+      decisionDate: "2019-03-19",
+    });
+    expect(record?.searchText).toContain("synthetic supreme court");
+    expect(record?.searchText).toContain("syn-docket");
+    expect(record?.searchText).toContain("999 u.s. 1");
   });
 });

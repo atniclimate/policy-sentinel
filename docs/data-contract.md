@@ -5,7 +5,7 @@
 The Phase A contracts are:
 
 - [`record.schema.v1.json`](../schemas/record.schema.v1.json), normalized
-  record schema version `1.1.0`;
+  record schema version `1.2.0`;
 - [`taxonomy.schema.v1.json`](../schemas/taxonomy.schema.v1.json), taxonomy
   schema version `1.0.0`; and
 - [`taxonomy.v1.json`](../config/taxonomy.v1.json), the editable ten-category,
@@ -13,7 +13,7 @@ The Phase A contracts are:
 - [`source.schema.v1.json`](../schemas/source.schema.v1.json), compatible v1
   source-registry schema version `1.3.0`;
 - [`sources.v1.json`](../config/sources.v1.json), source registry version
-  `1.11.0`; and
+  `1.12.0`; and
 - [`artifact.schema.v1.json`](../schemas/artifact.schema.v1.json), static
   artifact schema version `1.0.0`.
 
@@ -23,7 +23,7 @@ evidence that a production source is enabled or a public dataset exists.
 taxonomy, and synthetic fixtures, and proves selected invalid governance cases
 are rejected.
 
-Source-registry version `1.11.0` distinguishes researched configuration,
+Source-registry version `1.12.0` distinguishes researched configuration,
 implemented adapters, and activation. A disabled source may have
 `adapter: null` or a versioned adapter that is not authorized to emit public
 records; an enabled source must have a versioned adapter. Every non-synthetic
@@ -65,12 +65,14 @@ supplies an exact title, collective executing parties, and an execution date but
 no individual signatory list, official number, signed facsimile, structured
 current status, source update time, complete supersession history, or reuse
 license. The record model has no party/signatory role or executed/signed date,
-the UI would relabel parties as issuing bodies, action history does not itself
-date the landmark timeline, and the relationship vocabulary has no supersession
-edge. The metadata-and-links publication policy also needs a metadata-only
-landmark-evidence representation. Those facts must not be forced into
-publication, effectiveness, issuing-body, status, relationship, or copied-text
-fields merely to emit a record.
+and the UI would relabel parties as issuing bodies. Action history does not
+itself date the landmark timeline. Although record 1.2 adds typed supersession
+edges for explicit source relationships, the source supplies no complete
+relationship history and the judicial revision-review field cannot be reused
+for an accord. The metadata-and-links publication policy also needs a
+metadata-only landmark-evidence representation. Those facts must not be forced
+into publication, effectiveness, issuing-body, status, relationship, or
+copied-text fields merely to emit a record.
 
 Grants.gov is disabled with no adapter because its current terms and live
 contract canaries remain behind G-B-GRANTS. The Congress.gov entry is likewise
@@ -185,9 +187,10 @@ metadata-and-reviewed-official-links only after the remaining adapter
 contracts pass.
 
 The current normalized record and artifact schemas do not provide first-class
-docket entities, attachment collections, rate-header metadata, or a general
-mutable-field observation history. Regulations.gov docket relationships and
-attachment metadata therefore remain source-contract evidence only. They must
+Regulations.gov docket entities, attachment collections, rate-header metadata,
+or a general mutable-field observation history. Regulations.gov docket
+relationships and attachment metadata therefore remain source-contract
+evidence only. They must
 not be forced into unrelated record fields or emitted publicly before a
 separate versioned schema decision. Health and last-known-good state are also
 source-level; future agency, date-window, or docket sharding must either add a
@@ -202,13 +205,24 @@ dimensions, a required operation or biennium failure must conservatively
 omit/degrade Washington LWS as one source and source-contract evidence must not
 be forced into unrelated record fields.
 
-The normalized schema also lacks a first-class adjudicating body, docket,
-reporter citation, judicial decision date, opinion or order form, publication
-lifecycle, and revision/supersession review. Those values must not be coerced
-into issuing-body, identifier, publication, effectiveness, generic status, or
-free-text fields. Registry 1.11 therefore keeps the selected one-row Supreme
-Court source and the blocked DOI IBIA chronology disabled with `adapter: null`
-until a separately reviewed record-schema version preserves those roles.
+Record schema 1.2 adds a source-neutral `judicialContext` for court and
+administrative decisions. It keeps adjudicating body, docket numbers, exact
+reporter/neutral/other official citations and their source URLs, decision date,
+document form, publication status, and revision review in distinct roles.
+`court_decision` and `administrative_decision` records require this context;
+all other document types require `null`. Semantic validation binds the body
+kind to the document type, requires the exact adjudicating body to remain in
+`issuingBodies`, checks citation URLs against the registered hosts, and makes a
+`relationships_recorded` revision state agree with at least one typed revision
+edge. The model preserves source evidence without asserting precedential force,
+legal effect, or complete subsequent history.
+
+Registry 1.12.0 registers adapter 1.0 for the selected one-row Supreme Court
+source while keeping the source disabled. The adapter emits only the reviewed
+Cougar Den citation-and-link metadata, sets `urls.officialFullText` to `null`,
+and preserves the bound-volume fragment only as the reporter citation's
+`sourceUrl`. The separate DOI IBIA chronology remains disabled with
+`adapter: null` because its source and privacy gaps are unchanged.
 
 ## Record groups
 
@@ -219,9 +233,10 @@ The normalized record preserves:
 | Identity | Schema version, stable opaque internal ID, source ID, exact source record ID, exact official title, and source-specific document identifier. |
 | Classification | Document type, jurisdiction and level, issuing bodies, session/congress context, normalized and exact source status, official subjects, zero-or-more taxonomy memberships, and explicit `isUnclassified`. |
 | Dates | Introduction, publication, update, action, deadline, retrieval, and any source-defined dates, without inventing absent values. |
+| Judicial context | For court and administrative decisions only: exact adjudicating body and kind, docket numbers, typed official citations and source links, decision date, normalized plus source-labeled document form and publication status, and dated revision-review state. |
 | Links and language | Registered official landing/full-text URLs, official summary or abstract, and only permitted source-language excerpts or full text. |
 | Legislative/process detail | Sponsors, committees, actions, status history, versions, and source timestamps when supplied. |
-| Source-document relationships | Detail-only `corrects`, `corrected_by`, and `related_document` edges with the exact target source-record ID, official target URL, and originating source label. |
+| Source-document relationships | Detail-only `corrects`, `corrected_by`, `supersedes`, `superseded_by`, `substitutes`, `substituted_by`, and `related_document` edges with the exact target source-record ID, official target URL, and originating source label. |
 | Relevance | One or more explicit bases such as source-explicit Nation reference, general jurisdiction, landmark, or another registered source-defined basis. |
 | Nation evidence | Internal Nation ID, exact official name or authorized alias found, exact evidence text/location, official evidence URL, evidence date, basis, and validation state. |
 | History and quality | Actual source coverage range and confidence, pre-1980 treatment, landmark criteria/evidence, data quality, source health, freshness, change badge, and urgent alert metadata. |
@@ -251,11 +266,18 @@ JSON Schema is one layer. Phase B semantic validation must additionally prove:
 10. deadlines and status alerts retain their exact source field and date;
 11. AI text contains no em dash or forbidden conclusion/relevance assertion
     and has complete cited-input provenance; and
-12. source-document relationships use registered official HTTPS URLs and
+12. judicial context is present only for court or administrative decisions,
+    its body kind matches the document type, and the same exact body is retained
+    in `issuingBodies`;
+13. judicial publication-status and revision-review dates remain within the
+    decision-to-retrieval interval;
+14. judicial revision-review state agrees with any typed correction,
+    supersession, or substitution edge;
+15. source-document relationships use registered official HTTPS URLs and
     contain neither self-relationships nor duplicate type/target edges;
-13. every `corrects` or `corrected_by` relationship resolves within the same
+16. every `corrects` or `corrected_by` relationship resolves within the same
     source record set and has the reciprocal correction edge; and
-14. no raw response, credential, personal contact, private, parcel, ownership,
+17. no raw response, credential, personal contact, private, parcel, ownership,
     map, or sensitive land field survives normalization.
 
 Validation failures quarantine the candidate record from the new artifact; they
@@ -270,7 +292,12 @@ by the originating source. `sourceLabel` retains the upstream relationship
 field or label without converting it into a legal conclusion. A correction
 record uses `corrects`; the corrected record uses `corrected_by`; both records
 must be present in the validated same-source record set and point to each other.
-`related_document` is generic and may remain one-way.
+The `supersedes`/`superseded_by` and `substitutes`/`substituted_by` pairs retain
+only an explicit originating-source relationship and may remain one-way when
+the target lies outside a bounded curated shard. `related_document` is generic
+and may also remain one-way. A judicial revision-review state of
+`relationships_recorded` requires at least one correction, supersession, or
+substitution edge; `no_separate_relationship_exposed` forbids those edges.
 
 Relationships never synthesize a normalized status, change badge, legal effect,
 or additional relationship. They are retained in detail records with exact
@@ -373,14 +400,22 @@ The public artifact accepts only coherent source-health combinations:
 
 The artifact manifest names the record, taxonomy, mapping, source-registry, and
 build versions. Additive compatible changes can increment the minor version.
-Current builds emit artifact package `1.1.0` and record schema `1.1.0`; artifact
-schema `1.0.0` still accepts historical package `1.0.0` coverage, compact-index,
-and manifest shapes for archival schema validation. The current client fails
-closed on any package other than `1.1.0` before record normalization; it does
-not synthesize missing compact identity or coverage fields from a legacy
-package. A package-1.1 detail must share the loaded manifest build timestamp
-and exactly reproduce the compact index projection; CSV and dossier hydration
-abort on any mismatch.
+Current builds emit artifact package `1.2.0`, record schema `1.2.0`, and source
+registry `1.12.0`; artifact schema `1.0.0` still accepts historical package
+`1.0.0` and `1.1.0` shapes for archival schema validation. Package 1.2 adds
+`judicialContext` to the compact-index/detail integrity projection so court,
+docket, citation, form, publication, and revision evidence cannot diverge
+during hydration. The current client fails closed on any artifact package or
+record schema other than `1.2.0` before record normalization; it does not
+synthesize judicial context or other missing compact fields from a legacy
+package. The current artifact validator likewise requires the coherent
+`1.2.0` package/record pair even though the artifact JSON Schema retains
+archival compatibility. For current records, client normalization also
+rechecks the judicial document-type, context, body, date, citation-link, and
+issuing-body invariants instead of silently dropping malformed values. A
+package-1.2 detail must share the loaded manifest build timestamp and exactly
+reproduce the compact index projection; CSV and dossier hydration abort on any
+mismatch.
 Breaking field or meaning changes require a new major schema, migration and
 backward-compatibility fixtures, and an explicit decision-register entry.
 Historical artifacts are interpreted by matching-version software or an

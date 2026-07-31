@@ -75,10 +75,30 @@ export function RecordCard({
           <dt>Jurisdiction</dt>
           <dd>{record.jurisdiction.name}</dd>
         </div>
-        {record.issuingBodies.length > 0 && (
+        {record.judicialContext && (
+          <div>
+            <dt>
+              {record.judicialContext.adjudicatingBody.kind === "court"
+                ? "Court"
+                : "Adjudicating body"}
+            </dt>
+            <dd>{record.judicialContext.adjudicatingBody.officialName}</dd>
+          </div>
+        )}
+        {!record.judicialContext && record.issuingBodies.length > 0 && (
           <div>
             <dt>Issuing body</dt>
             <dd>{record.issuingBodies.join("; ")}</dd>
+          </div>
+        )}
+        {record.judicialContext && (
+          <div>
+            <dt>Citation</dt>
+            <dd>
+              {record.judicialContext.citations
+                .map(({ value }) => value)
+                .join("; ")}
+            </dd>
           </div>
         )}
         <div>

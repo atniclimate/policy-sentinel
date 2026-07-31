@@ -16,6 +16,7 @@ const SOURCE_DERIVED_ROOTS = [
   "/jurisdiction/generalJurisdictionOnly",
   "/issuingBodies",
   "/legislativeContext",
+  "/judicialContext",
   "/status/normalized",
   "/status/sourceLabel",
   "/status/asOf",
@@ -238,6 +239,12 @@ function validateSourceUrls(record, sourceConfig, issues) {
       relationship.targetUrl,
     ]);
   });
+  record.judicialContext?.citations.forEach((citation, index) => {
+    urls.push([
+      `/judicialContext/citations/${index}/sourceUrl`,
+      citation.sourceUrl,
+    ]);
+  });
   record.officialSubjects.forEach((subject, index) => {
     urls.push([`/officialSubjects/${index}/sourceUrl`, subject.sourceUrl]);
   });
@@ -296,7 +303,7 @@ function validateSourceDocumentRelationships(record, issues) {
   }
 }
 
-function validateCorrectionRelationshipGraph(records, issues) {
+function validateReciprocalRelationshipGraph(records, issues) {
   const recordsBySourceIdentity = new Map(
     records.map((record) => [recordIdentityKey(record), record]),
   );
@@ -339,6 +346,87 @@ function validateCorrectionRelationshipGraph(records, issues) {
         );
       }
     }
+  }
+}
+
+function validateJudicialContext(record, issues) {
+  const isJudicial = ["court_decision", "administrative_decision"].includes(
+    record.documentType,
+  );
+  if (!isJudicial) {
+    if (record.judicialContext !== null) {
+      issues.push("non-judicial record cannot contain judicial context");
+    }
+    return;
+  }
+
+  const context = record.judicialContext;
+  if (context === null) {
+    issues.push("judicial record lacks judicial context");
+    return;
+  }
+
+  const expectedKind =
+    record.documentType === "court_decision" ? "court" : "administrative_body";
+  if (context.adjudicatingBody.kind !== expectedKind) {
+    issues.push("judicial record adjudicating-body kind does not match type");
+  }
+  if (
+    !record.issuingBodies.some(
+      ({ sourceId, officialName }) =>
+        sourceId === context.adjudicatingBody.sourceId &&
+        officialName === context.adjudicatingBody.officialName,
+    )
+  ) {
+    issues.push(
+      "judicial record adjudicating body is not preserved as an issuing body",
+    );
+  }
+
+  const retrievedOn = record.dates.retrieved.slice(0, 10);
+  if (
+    context.publicationStatus.asOf < context.decisionDate ||
+    context.publicationStatus.asOf > retrievedOn
+  ) {
+    issues.push(
+      "judicial publication-status date falls outside decision-to-retrieval bounds",
+    );
+  }
+  if (
+    context.revisionReview.reviewedOn < context.decisionDate ||
+    context.revisionReview.reviewedOn > retrievedOn
+  ) {
+    issues.push(
+      "judicial revision review date falls outside decision-to-retrieval bounds",
+    );
+  }
+
+  const revisionRelationships = new Set([
+    "corrects",
+    "corrected_by",
+    "supersedes",
+    "superseded_by",
+    "substitutes",
+    "substituted_by",
+  ]);
+  const hasRevisionRelationship = record.sourceDocumentRelationships.some(
+    ({ relationshipType }) => revisionRelationships.has(relationshipType),
+  );
+  if (
+    context.revisionReview.state === "relationships_recorded" &&
+    !hasRevisionRelationship
+  ) {
+    issues.push(
+      "judicial revision review claims relationships without a typed edge",
+    );
+  }
+  if (
+    context.revisionReview.state === "no_separate_relationship_exposed" &&
+    hasRevisionRelationship
+  ) {
+    issues.push(
+      "judicial revision review denies separate relationships despite a typed edge",
+    );
   }
 }
 
@@ -539,13 +627,12 @@ function validateProvenance(record, sourceConfig, issues) {
 }
 
 function validateHistoricalPolicy(record, issues) {
-  const publishedYear =
-    record.dates.published === null
-      ? null
-      : Number(record.dates.published.slice(0, 4));
+  const eventDate =
+    record.judicialContext?.decisionDate ?? record.dates.published;
+  const eventYear = eventDate === null ? null : Number(eventDate.slice(0, 4));
   if (
-    publishedYear !== null &&
-    publishedYear < 1980 &&
+    eventYear !== null &&
+    eventYear < 1980 &&
     !record.landmark.isLandmark &&
     record.historical.pre1980Treatment !== "list_and_link"
   ) {
@@ -604,6 +691,7 @@ export function validateRecordPolicy(
     );
   }
   validateNationPolicy(record, knownNationIds, issues);
+  validateJudicialContext(record, issues);
   validateSourceUrls(record, sourceConfig, issues);
   validateSourceDocumentRelationships(record, issues);
   validateTaxonomyPolicy(record, taxonomy, sourceConfig, issues);
@@ -679,7 +767,7 @@ export function validateRecordSetPolicy(
     }
   }
 
-  validateCorrectionRelationshipGraph(records, issues);
+  validateReciprocalRelationshipGraph(records, issues);
 
   if (issues.length > 0) {
     throw new PolicyValidationError(issues);

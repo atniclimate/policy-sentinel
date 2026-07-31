@@ -148,7 +148,7 @@ document index that is neither an API, feed, nor bulk export and adds
 `official_page` for one bounded originating document page that is not an index.
 The independently registered `washington-state-register` and
 `washington-governor-executive-orders` sources use `official_index`; the
-Register still has `adapter: null`, while source-registry 1.11 retains the
+Register still has `adapter: null`, while source-registry 1.12.0 retains the
 Governor's versioned adapter descriptor without authorizing it to emit public
 records. `washington-centennial-accord` uses `official_page` and remains
 disabled with `adapter: null`. These methods describe reviewed access surfaces
@@ -197,26 +197,51 @@ parties, and a 1989-08-04 execution event, but no individual signatory list,
 official number, signed facsimile, structured current status, source update
 time, complete amendment/supersession history, or reuse license. The current
 record model would display executing parties as issuing bodies, has no
-executed/signed date role, does not date the timeline from action history, has
-no typed supersession edge, and requires copied `SourceText` for landmark
-evidence under a metadata-and-links-only publication policy. The source remains
-`adapter: null` until a versioned accord-specific model and UI preserve those
-roles without inference. Its exact official page supports only a planned
+executed/signed date role, does not date the timeline from action history, and
+requires copied `SourceText` for landmark evidence under a
+metadata-and-links-only publication policy. Record 1.2's typed supersession
+edges do not cure the source's absent complete relationship history, and its
+judicial revision-review field cannot be reused for an accord. The source
+remains `adapter: null` until a versioned accord-specific model and UI preserve
+those roles without inference. Its exact official page supports only a planned
 general-jurisdiction landmark candidate with zero Nation associations.
 
-Court research is also source-specific. Registry 1.11 records the DOI IBIA
-chronology as a disabled gap because it can lag a separate search database,
-omits docket and decision-status relationships, includes privacy- and
-land-sensitive matters, and points to an OHA host that disallows automated
-access. The first selected court contract is instead one exact row on the
-Supreme Court's October Term 2018 index for
-`Washington State Dept. of Licensing v. Cougar Den, Inc.` The current official
-link targets the complete bound U.S. Reports volume at a case-page fragment, so
-a future adapter may retrieve only the bounded HTML index and must never fetch
-or copy the volume. It remains `adapter: null` until a versioned judicial
-context preserves adjudicating body, docket, reporter citation, decision date,
-document form, publication lifecycle, and revision review without overloading
-existing fields.
+Court research and health remain source-specific. Registry 1.12.0 preserves the
+1.11 DOI IBIA research outcome as a disabled gap because its chronology can lag
+a separate search database, omits docket and decision-status relationships,
+includes privacy- and land-sensitive matters, and points to an OHA host that
+disallows automated access.
+
+Record schema and artifact package 1.2 add a source-neutral
+`judicialContext`. Court and administrative decisions must preserve an exact
+adjudicating body, docket numbers, typed official citations and their links,
+decision date, source-labeled document form and publication status, and a dated
+revision-review state; nonjudicial records require `null`. Semantic validation
+binds court versus administrative body to the document type, preserves the
+same body in `issuingBodies`, validates citation hosts, and requires revision
+state to agree with explicit correction, supersession, or substitution edges.
+The compact index carries the full context and is checked against detail data.
+Current artifact validation requires the coherent package/record 1.2 pair, and
+the client independently rejects a judicial type/context/body/date/citation
+invariant failure rather than silently normalizing it away. The client uses
+decision date for judicial chronology and exposes the context and exact
+citation link in cards, details, dossier, CSV, and search with a visible
+subsequent-history and legal-effect boundary.
+
+Supreme Court adapter 1.0 implements the first selected court contract for the
+single October Term 2018 row
+`Washington State Dept. of Licensing v. Cougar Den, Inc.` It makes one exact
+build-time request to the term page, validates the two reviewed opinion tables
+and independently bound header and cell orders, then projects only the exact
+caption, docket `16-1498`, decision date `2019-03-19`, permanent citation
+`586 U.S. 347`, document form, bound-volume status, and source links. The
+Court-supplied citation link targets the complete bound Volume 586 at a case
+page fragment; the adapter preserves that fragment only on the citation,
+leaves `officialFullText` null, and never fetches or copies the PDF. The source
+detail and dossier expose the source-supplied reproduction boundary rather than
+presenting the citation link as a case-only text. The source remains disabled
+pending exact owner authorization, so the implementation does not emit public
+records.
 
 The Register and Governor sources must have separate adapters, health receipts,
 and last-known-good shards from each other and from Washington LWS. A Register
@@ -315,18 +340,20 @@ index/detail projection. For every enabled non-synthetic source, packaging
 requires the authoritative refresh health receipt and preserves its failure
 stage, freshness, last-known-good timestamps, stale state, and message.
 
-Artifact package `1.1.0` adds the richer coverage fields and the card-critical
-source document identifier, issuing bodies, and official-source URL to the
-compact index. These additions remain optional under schema `1.0.0`, so
-historical package `1.0.0` coverage and index documents continue to pass schema
-validation; current packages always emit and semantically validate the additive
-fields. The current client requires a matching package `1.1.0` manifest and
-rejects legacy or unversioned packages before normalizing records; an explicit
-migration is required before a historical package can run under a newer client.
-On-demand detail hydration also requires the detail wrapper's build timestamp
-to match the loaded manifest and compares every compact card/search field
-against the index before accepting detail-only content. A mismatch cancels the
-detail, CSV, or dossier operation instead of mixing artifact builds.
+Artifact package `1.1.0` historically added richer coverage fields and the
+card-critical source document identifier, issuing bodies, and official-source
+URL to the compact index. Current package `1.2.0` and record schema `1.2.0` add
+the complete nullable `judicialContext` projection; current builds bind source
+registry `1.12.0`. These additions remain optional under artifact schema
+`1.0.0`, so historical package `1.0.0` and `1.1.0` documents continue to pass
+archival schema validation. The current client requires a matching package
+`1.2.0` manifest and rejects legacy or unversioned packages before normalizing
+records; an explicit migration is required before a historical package can run
+under a newer client. On-demand detail hydration also requires the detail
+wrapper's build timestamp to match the loaded manifest and compares every
+compact card/search field, including judicial context, against the index before
+accepting detail-only content. A mismatch cancels the detail, CSV, or dossier
+operation instead of mixing artifact builds.
 
 ## Adapter boundaries
 

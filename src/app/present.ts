@@ -10,19 +10,26 @@ export const formatDate = (value: string | null | undefined): string => {
   if (!value) return "Not provided";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
+  const hasTime = value.includes("T");
   return new Intl.DateTimeFormat(undefined, {
     year: "numeric",
     month: "short",
     day: "numeric",
-    ...(value.includes("T")
+    ...(hasTime
       ? { hour: "numeric", minute: "2-digit", timeZoneName: "short" }
-      : {}),
+      : { timeZone: "UTC" }),
   }).format(date);
 };
 
 export const updatedDate = (
   record: PublicRecord,
 ): { label: string; value: string | null } => {
+  if (record.judicialContext) {
+    return {
+      label: "Decided",
+      value: record.judicialContext.decisionDate,
+    };
+  }
   if (record.dates.updated) {
     return { label: "Source updated", value: record.dates.updated };
   }

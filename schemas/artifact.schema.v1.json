@@ -108,7 +108,7 @@
           "const": "1.0.0"
         },
         "artifactVersion": {
-          "enum": ["1.0.0", "1.1.0"]
+          "enum": ["1.0.0", "1.1.0", "1.2.0"]
         },
         "buildId": {
           "type": "string",
@@ -126,7 +126,7 @@
           "type": "boolean"
         },
         "recordSchemaVersion": {
-          "enum": ["1.0.0", "1.1.0"]
+          "enum": ["1.0.0", "1.1.0", "1.2.0"]
         },
         "taxonomyVersion": {
           "const": "1.0.0"
@@ -144,7 +144,8 @@
             "1.8.0",
             "1.9.0",
             "1.10.0",
-            "1.11.0"
+            "1.11.0",
+            "1.12.0"
           ]
         },
         "recordCount": {
@@ -817,6 +818,148 @@
         }
       }
     },
+    "indexJudicialContext": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "adjudicatingBody",
+            "docketNumbers",
+            "citations",
+            "decisionDate",
+            "documentForm",
+            "publicationStatus",
+            "revisionReview"
+          ],
+          "properties": {
+            "adjudicatingBody": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "sourceId", "officialName"],
+              "properties": {
+                "kind": {
+                  "enum": ["court", "administrative_body"]
+                },
+                "sourceId": {
+                  "type": ["string", "null"]
+                },
+                "officialName": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "docketNumbers": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 10,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "citations": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 10,
+              "uniqueItems": true,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["kind", "value", "sourceUrl"],
+                "properties": {
+                  "kind": {
+                    "enum": ["reporter", "neutral", "official_other"]
+                  },
+                  "value": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sourceUrl": {
+                    "$ref": "#/$defs/httpsUrl"
+                  }
+                }
+              }
+            },
+            "decisionDate": {
+              "type": "string",
+              "format": "date"
+            },
+            "documentForm": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["normalized", "sourceLabel"],
+              "properties": {
+                "normalized": {
+                  "enum": [
+                    "opinion",
+                    "order",
+                    "judgment",
+                    "memorandum",
+                    "decision",
+                    "other"
+                  ]
+                },
+                "sourceLabel": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "publicationStatus": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["normalized", "sourceLabel", "asOf"],
+              "properties": {
+                "normalized": {
+                  "enum": [
+                    "slip_opinion",
+                    "amended",
+                    "withdrawn",
+                    "preliminary_print",
+                    "bound_volume",
+                    "final",
+                    "published",
+                    "unpublished",
+                    "unknown"
+                  ]
+                },
+                "sourceLabel": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "asOf": {
+                  "type": "string",
+                  "format": "date"
+                }
+              }
+            },
+            "revisionReview": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["state", "reviewedOn"],
+              "properties": {
+                "state": {
+                  "enum": [
+                    "no_separate_relationship_exposed",
+                    "relationships_recorded"
+                  ]
+                },
+                "reviewedOn": {
+                  "type": "string",
+                  "format": "date"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
     "recordIndexEntry": {
       "type": "object",
       "additionalProperties": false,
@@ -866,6 +1009,9 @@
             "type": "string",
             "minLength": 1
           }
+        },
+        "judicialContext": {
+          "$ref": "#/$defs/indexJudicialContext"
         },
         "status": {
           "type": "object"

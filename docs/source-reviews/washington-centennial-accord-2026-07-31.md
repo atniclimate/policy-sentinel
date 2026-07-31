@@ -2,7 +2,7 @@
 
 Accessed: 2026-07-31
 
-Implementation state: researched in source-registry 1.11.0; registered disabled
+Implementation state: researched in source-registry 1.12.0; registered disabled
 with `adapter: null`; no production records
 
 External authorization: none required for the reviewed public pages

@@ -65,10 +65,55 @@ export interface HistoryEvent {
 }
 
 export interface SourceDocumentRelationship {
-  relationshipType: "corrects" | "corrected_by" | "related_document";
+  relationshipType:
+    | "corrects"
+    | "corrected_by"
+    | "supersedes"
+    | "superseded_by"
+    | "substitutes"
+    | "substituted_by"
+    | "related_document";
   targetSourceRecordId: string;
   targetUrl: string;
   sourceLabel: string;
+}
+
+export interface JudicialContext {
+  adjudicatingBody: {
+    kind: "court" | "administrative_body";
+    sourceId: string | null;
+    officialName: string;
+  };
+  docketNumbers: string[];
+  citations: Array<{
+    kind: "reporter" | "neutral" | "official_other";
+    value: string;
+    sourceUrl: string;
+  }>;
+  decisionDate: string;
+  documentForm: {
+    normalized:
+      "opinion" | "order" | "judgment" | "memorandum" | "decision" | "other";
+    sourceLabel: string;
+  };
+  publicationStatus: {
+    normalized:
+      | "slip_opinion"
+      | "amended"
+      | "withdrawn"
+      | "preliminary_print"
+      | "bound_volume"
+      | "final"
+      | "published"
+      | "unpublished"
+      | "unknown";
+    sourceLabel: string;
+    asOf: string;
+  };
+  revisionReview: {
+    state: "no_separate_relationship_exposed" | "relationships_recorded";
+    reviewedOn: string;
+  };
 }
 
 export interface PublicRecord {
@@ -93,6 +138,7 @@ export interface PublicRecord {
     generalJurisdictionOnly?: boolean;
   };
   issuingBodies: string[];
+  judicialContext: JudicialContext | null;
   status: {
     normalized: string;
     sourceLabel: string;
@@ -116,6 +162,8 @@ export interface PublicRecord {
     sourceExcerpt: SourceText | null;
     officialLanguage: SourceText | null;
     detailPath: string | null;
+    detailAvailability: string | null;
+    detailReproductionBasis: string | null;
   };
   sponsors: string[];
   committees: string[];
@@ -189,7 +237,8 @@ export interface PublicRecord {
 }
 
 export interface ArtifactManifest {
-  artifactVersion: "1.1.0";
+  artifactVersion: "1.2.0";
+  recordSchemaVersion: "1.2.0";
   buildId: string;
   generatedAt: string;
   dataAsOf: string | null;

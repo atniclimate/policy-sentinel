@@ -3,6 +3,7 @@ import type {
   ArtifactManifest,
   CoverageEntry,
   HistoryEvent,
+  JudicialContext,
   Nation,
   NationAssociation,
   PublicRecord,
@@ -37,6 +38,23 @@ const nonnegativeInteger = (value: unknown, fallback = 0): number =>
   typeof value === "number" && Number.isInteger(value) && value >= 0
     ? value
     : fallback;
+
+const isRealDate = (value: string): boolean => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  return (
+    !Number.isNaN(parsed.getTime()) &&
+    parsed.toISOString().slice(0, 10) === value
+  );
+};
+
+const isHttpsUrl = (value: string): boolean => {
+  try {
+    return value.startsWith("https://") && new URL(value).protocol === "https:";
+  } catch {
+    return false;
+  }
+};
 
 const stringArray = (value: unknown): string[] =>
   Array.isArray(value)
@@ -162,6 +180,10 @@ const normalizeSourceDocumentRelationships = (
     if (
       relationshipType !== "corrects" &&
       relationshipType !== "corrected_by" &&
+      relationshipType !== "supersedes" &&
+      relationshipType !== "superseded_by" &&
+      relationshipType !== "substitutes" &&
+      relationshipType !== "substituted_by" &&
       relationshipType !== "related_document"
     ) {
       continue;
@@ -179,6 +201,168 @@ const normalizeSourceDocumentRelationships = (
     });
   }
   return relationships;
+};
+
+const normalizeJudicialContext = (value: unknown): JudicialContext | null => {
+  const item = objectValue(value);
+  if (Object.keys(item).length === 0) return null;
+
+  const body = objectValue(item.adjudicatingBody);
+  const bodyKind = stringValue(body.kind);
+  const bodyName = stringValue(body.officialName);
+  const decisionDate = stringValue(item.decisionDate);
+  const documentForm = objectValue(item.documentForm);
+  const documentFormNormalized = stringValue(documentForm.normalized);
+  const documentFormSourceLabel = stringValue(documentForm.sourceLabel);
+  const publicationStatus = objectValue(item.publicationStatus);
+  const publicationNormalized = stringValue(publicationStatus.normalized);
+  const publicationSourceLabel = stringValue(publicationStatus.sourceLabel);
+  const publicationAsOf = stringValue(publicationStatus.asOf);
+  const revisionReview = objectValue(item.revisionReview);
+  const revisionState = stringValue(revisionReview.state);
+  const revisionReviewedOn = stringValue(revisionReview.reviewedOn);
+  const bodySourceId = body.sourceId;
+
+  if (bodySourceId !== null && typeof bodySourceId !== "string") {
+    return null;
+  }
+
+  if (
+    !Array.isArray(item.docketNumbers) ||
+    item.docketNumbers.length === 0 ||
+    item.docketNumbers.length > 10 ||
+    !item.docketNumbers.every(
+      (docket): docket is string =>
+        typeof docket === "string" && docket.length > 0,
+    ) ||
+    new Set(item.docketNumbers).size !== item.docketNumbers.length
+  ) {
+    return null;
+  }
+  const docketNumbers = item.docketNumbers;
+
+  if (
+    !Array.isArray(item.citations) ||
+    item.citations.length === 0 ||
+    item.citations.length > 10
+  ) {
+    return null;
+  }
+  const citations: JudicialContext["citations"] = [];
+  for (const citation of item.citations) {
+    const candidate = objectValue(citation);
+    const kind = stringValue(candidate.kind);
+    const citationValue = stringValue(candidate.value);
+    const sourceUrl = stringValue(candidate.sourceUrl);
+    if (
+      Object.keys(candidate).length === 0 ||
+      !["reporter", "neutral", "official_other"].includes(kind) ||
+      !citationValue ||
+      !isHttpsUrl(sourceUrl)
+    ) {
+      return null;
+    }
+    citations.push({
+      kind: kind as JudicialContext["citations"][number]["kind"],
+      value: citationValue,
+      sourceUrl,
+    });
+  }
+  if (
+    new Set(citations.map((citation) => JSON.stringify(citation))).size !==
+    citations.length
+  ) {
+    return null;
+  }
+
+  if (
+    !["court", "administrative_body"].includes(bodyKind) ||
+    !bodyName ||
+    docketNumbers.length === 0 ||
+    citations.length === 0 ||
+    !isRealDate(decisionDate) ||
+    ![
+      "opinion",
+      "order",
+      "judgment",
+      "memorandum",
+      "decision",
+      "other",
+    ].includes(documentFormNormalized) ||
+    !documentFormSourceLabel ||
+    ![
+      "slip_opinion",
+      "amended",
+      "withdrawn",
+      "preliminary_print",
+      "bound_volume",
+      "final",
+      "published",
+      "unpublished",
+      "unknown",
+    ].includes(publicationNormalized) ||
+    !publicationSourceLabel ||
+    !isRealDate(publicationAsOf) ||
+    !["no_separate_relationship_exposed", "relationships_recorded"].includes(
+      revisionState,
+    ) ||
+    !isRealDate(revisionReviewedOn)
+  ) {
+    return null;
+  }
+
+  return {
+    adjudicatingBody: {
+      kind: bodyKind as JudicialContext["adjudicatingBody"]["kind"],
+      sourceId: bodySourceId,
+      officialName: bodyName,
+    },
+    docketNumbers,
+    citations,
+    decisionDate,
+    documentForm: {
+      normalized:
+        documentFormNormalized as JudicialContext["documentForm"]["normalized"],
+      sourceLabel: documentFormSourceLabel,
+    },
+    publicationStatus: {
+      normalized:
+        publicationNormalized as JudicialContext["publicationStatus"]["normalized"],
+      sourceLabel: publicationSourceLabel,
+      asOf: publicationAsOf,
+    },
+    revisionReview: {
+      state: revisionState as JudicialContext["revisionReview"]["state"],
+      reviewedOn: revisionReviewedOn,
+    },
+  };
+};
+
+const issuingBodiesRepresentAdjudicatingBody = (
+  value: unknown,
+  normalized: string[],
+  context: JudicialContext,
+): boolean => {
+  const { officialName, sourceId } = context.adjudicatingBody;
+  if (!normalized.includes(officialName) || !Array.isArray(value)) return false;
+
+  if (value.every((entry) => typeof entry === "string")) {
+    return value.includes(officialName);
+  }
+
+  if (
+    !value.every(
+      (entry) =>
+        entry !== null && typeof entry === "object" && !Array.isArray(entry),
+    )
+  ) {
+    return false;
+  }
+
+  return value.some((entry) => {
+    const body = objectValue(entry);
+    return body.officialName === officialName && body.sourceId === sourceId;
+  });
 };
 
 const normalizeMemberships = (value: unknown): TaxonomyMembership[] =>
@@ -277,6 +461,32 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
   );
   if (!internalId || !officialTitle) return null;
 
+  const documentType = stringValue(
+    item.documentType ?? item.type,
+    "other_official_record",
+  );
+  const issuingBodies = stringArray(item.issuingBodies);
+  const judicialContext = normalizeJudicialContext(item.judicialContext);
+  const isJudicial = ["court_decision", "administrative_decision"].includes(
+    documentType,
+  );
+  if (!isJudicial && item.judicialContext !== null) return null;
+  if (isJudicial) {
+    if (!judicialContext) return null;
+    const expectedKind =
+      documentType === "court_decision" ? "court" : "administrative_body";
+    if (
+      judicialContext.adjudicatingBody.kind !== expectedKind ||
+      !issuingBodiesRepresentAdjudicatingBody(
+        item.issuingBodies,
+        issuingBodies,
+        judicialContext,
+      )
+    ) {
+      return null;
+    }
+  }
+
   const officialSummary = normalizeSourceText(
     texts.officialSummary ?? item.officialSummary,
   );
@@ -296,10 +506,7 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
         source.recordId ??
         internalId,
     ),
-    documentType: stringValue(
-      item.documentType ?? item.type,
-      "other_official_record",
-    ),
+    documentType,
     source: {
       id: stringValue(source.id ?? item.sourceKey, "unknown-source"),
       name: stringValue(
@@ -331,7 +538,8 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
         false,
       ),
     },
-    issuingBodies: stringArray(item.issuingBodies),
+    issuingBodies,
+    judicialContext,
     status: {
       normalized: stringValue(
         status.normalized ?? item.normalizedStatus,
@@ -370,6 +578,10 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
         );
         return path && DETAIL_ASSET_PATH.test(path) ? `data/${path}` : null;
       })(),
+      detailAvailability: nullableString(detailAsset.availability),
+      detailReproductionBasis: nullableString(
+        detailAsset.reproductionBasis ?? detailAsset.reuseBasis,
+      ),
     },
     sponsors: stringArray(item.sponsors),
     committees: stringArray(item.committees),
@@ -480,6 +692,11 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
     record.officialTitle,
     record.source.name,
     record.source.provider,
+    record.judicialContext?.adjudicatingBody.officialName,
+    record.judicialContext?.docketNumbers.join(" "),
+    record.judicialContext?.citations.map(({ value }) => value).join(" "),
+    record.judicialContext?.documentForm.sourceLabel,
+    record.judicialContext?.publicationStatus.sourceLabel,
     record.texts.officialSummary?.text,
     record.texts.sourceExcerpt?.text,
     record.texts.officialLanguage?.text,
@@ -495,19 +712,28 @@ const normalizeManifest = (payload: unknown): ArtifactManifest => {
   const item = objectValue(payload);
   const statistics = objectValue(item.statistics);
   const artifactVersion = stringValue(item.artifactVersion);
-  if (artifactVersion !== "1.1.0") {
+  if (artifactVersion !== "1.2.0") {
     throw new Error(
-      `This application requires artifact package 1.1.0; received ${
+      `This application requires artifact package 1.2.0; received ${
         artifactVersion || "an unversioned package"
+      }.`,
+    );
+  }
+  const recordSchemaVersion = stringValue(item.recordSchemaVersion);
+  if (recordSchemaVersion !== "1.2.0") {
+    throw new Error(
+      `This application requires record schema 1.2.0; received ${
+        recordSchemaVersion || "an unversioned record schema"
       }.`,
     );
   }
   const generatedAt = nullableString(item.generatedAt ?? item.builtAt);
   if (!generatedAt) {
-    throw new Error("Artifact package 1.1.0 is missing its build timestamp.");
+    throw new Error("Artifact package 1.2.0 is missing its build timestamp.");
   }
   return {
     artifactVersion,
+    recordSchemaVersion,
     buildId: stringValue(item.buildId ?? item.version, "unknown-build"),
     generatedAt,
     dataAsOf: nullableString(item.dataAsOf ?? item.data_as_of),
@@ -689,12 +915,19 @@ export const loadArtifacts = async (): Promise<ArtifactBundle> => {
     .filter((nation): nation is Nation => nation !== null)
     .sort((a, b) => a.officialName.localeCompare(b.officialName));
   const taxonomy = normalizeTaxonomy(values.get("data/taxonomy.json"));
-  const records = arrayPayload(values.get("data/index/records.json"), [
+  const recordEntries = arrayPayload(values.get("data/index/records.json"), [
     "records",
     "items",
-  ])
-    .map(normalizeRecord)
-    .filter((record): record is PublicRecord => record !== null);
+  ]);
+  const records = recordEntries.map((entry, index) => {
+    const record = normalizeRecord(entry);
+    if (!record) {
+      throw new Error(
+        `The public index artifact contains an invalid record at position ${index}.`,
+      );
+    }
+    return record;
+  });
   for (const record of records) {
     record.artifactGeneratedAt = manifest.generatedAt;
   }
@@ -846,6 +1079,7 @@ const compactIntegrityProjection = (record: PublicRecord) => ({
   documentType: record.documentType,
   jurisdiction: record.jurisdiction,
   issuingBodies: record.issuingBodies,
+  judicialContext: record.judicialContext,
   status: record.status,
   source: {
     id: record.source.id,

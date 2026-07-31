@@ -453,7 +453,7 @@ export function normalizeWashingtonGovernorExecutiveOrder(
 
   const sourceRecordId = washingtonGovernorSourceRecordId(validatedRow);
   const record: PolicyRecord = {
-    schemaVersion: "1.1.0",
+    schemaVersion: "1.2.0",
     internalId: washingtonGovernorExecutiveOrderStableRecordId(validatedRow),
     source: {
       id: input.source.id,
@@ -483,6 +483,7 @@ export function normalizeWashingtonGovernorExecutiveOrder(
       },
     ],
     legislativeContext: null,
+    judicialContext: null,
     status: {
       normalized: "unknown",
       sourceLabel: validatedRow.sourceStatus,

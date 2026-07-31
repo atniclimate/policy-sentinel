@@ -2,8 +2,9 @@
 
 Accessed: 2026-07-31
 
-Implementation state: selected pilot in source-registry 1.11.0; registered
-disabled with `adapter: null`; no production records
+Implementation state: record/artifact contract 1.2.0 and adapter 1.0.0
+implemented in source-registry 1.12.0; source remains disabled pending exact
+owner authorization; no production records
 
 External authorization: none required for the reviewed public pages
 
@@ -60,42 +61,73 @@ The Court defines `Date` as the date the case was decided and `Citation` as the
 permanent citation in the U.S. Reports publication stream. The target row's
 current link has moved from a slip-opinion path to the complete bound Volume
 586 PDF, with a Court-supplied page fragment. The U.S. Reports page lists
-Volume 586 as a bound volume. A future model may therefore preserve:
+Volume 586 as a bound volume. Record schema 1.2 and adapter 1.0 preserve:
 
 - normalized lifecycle status `decided`, sourced from the exact term-page
-  heading and decision date;
+  heading and decision date, with exact generic source label
+  `Opinions of the Court - 2018`;
 - exact decision date `2019-03-19`;
+- document form `opinion` with source label `Opinions of the Court`;
 - publication form `bound_volume`;
 - exact source label `U.S. Reports, Volume 586`; and
-- current revision-review state `bound volume link observed`.
+- revision-review state `no_separate_relationship_exposed`, reviewed on
+  2026-07-31.
 
 This is a publication-state observation, not a claim about precedential force,
 subsequent treatment, legal effect, or a complete supersession history. The
 Court cautions that only the printed bound U.S. Reports controls if an
 electronic version differs.
 
-The current generic record has no separate court, docket, reporter citation,
-decision date, opinion form, publication state, or revision-review fields.
-They must not be concatenated into `sourceDocumentIdentifier`, hidden in action
-history, converted into a publication date, or collapsed into one status
-label.
+The source-neutral `judicialContext` keeps the Court, docket, reporter citation
+and its exact source URL, decision date, opinion form, bound-volume publication
+state, and dated revision review separate. The context is included in compact
+and detail artifacts and carried through cards, search, details, dossier, CSV,
+date filtering, and historical policy. It does not concatenate those facts into
+`sourceDocumentIdentifier`, hide them in action history, convert the decision
+date into a publication date, or collapse them into one status label.
 
 ## Bounded structural observation
 
-One exact aggregate-only request to the October Term 2018 page returned
+The first exact aggregate-only request to the October Term 2018 page returned
 exact-URL HTTP 200 UTF-8 HTML with no content encoding or declared length:
 107,003 bytes in 11 nonempty chunks. Inert `parse5` inspection counted 2,719
 nodes, 1,261 attributes, maximum depth 17, 39,147 text code units, and one
 `unexpected-character-in-attribute-name` parse error outside the selected
 projection. No response body was written or retained.
 
-The page had two repeated exact six-column table headers and 73 opinion rows.
-There was exactly one docket `16-1498` row, with the exact values above. Only
-its name cell contained a link. The current link resolved on the same host to
-`/opinions/boundvolumes/586BV.pdf#page=546`.
+A corrected direct-child DOM observation on 2026-07-31 returned HTTP 200
+`text/html; charset=utf-8` and 107,004 bytes. It corrected an earlier diagnostic
+stack traversal that had reversed table and header order and overstated the
+target row index. The page had three tables total. Exactly two opinion tables
+had class `table table-bordered`, with 11 and 64 rows respectively including
+their headers, for exact data-row counts of 10 and 63. Each opinion table's
+direct `th` order was exactly `R-`, `Date`, `Docket`, `Name`, `J.`,
+`Citation`. The unique target appeared at data-row index 41 in the second
+opinion table. Its separately validated direct `td` order was exactly `22`,
+`3/19/19`, `16-1498`,
+`Washington State Dept. of Licensing v. Cougar Den, Inc.`, `B`,
+`586 U.S. 347`; the citation cell has exact direct style
+`text-align: center;` and contains one non-link `span` wrapper with exact style
+`white-space:nowrap;` and the same exact visible text. Only the target's name
+cell contained a link, with exact raw path
+`/opinions/boundvolumes/586BV.pdf#page=546`. The one known
+`unexpected-character-in-attribute-name` parse error remained outside the two
+opinion tables. No response body was written or retained.
 
-The link is a 1,162-page complete bound volume, not an individual case PDF. A
-future adapter must preserve the exact Court-supplied fragment but must not
+The one-byte response-size difference between the observations is within the
+fixed byte ceiling and is not treated as identity. The adapter instead binds
+the exact table structure, target table and values, unique target, and link
+grammar; the observed row index is evidence, not an identity input.
+
+After the exact wrapper contract was added, one final no-retry production
+transport check on 2026-07-31 passed against the same exact term-page URL. It
+validated 73 data rows, projected only the single allowlisted row at coordinates
+`[1, 41]`, and returned the reviewed date, docket, caption, citation, and
+bound-volume fragment. It made no PDF request and retained no response body.
+
+The link is a 1,162-page complete bound volume, not an individual case PDF. The
+adapter preserves the exact Court-supplied fragment only in the reporter
+citation's `sourceUrl`, sets `urls.officialFullText` to `null`, and does not
 fetch, hash, parse, copy, or call the volume an individual-case file. The
 citation is the source locator within the controlling printed volume.
 
@@ -107,7 +139,7 @@ request-rate limit, retry rule, SLA, checksum, or change feed for this fixed
 page. Its robots policy allows opinion paths, disallows selected asset paths,
 and specifies `Crawl-delay: 1`.
 
-A first adapter is bounded to one internally constructed weekly build-time GET:
+Adapter 1.0 is bounded to one internally constructed weekly build-time GET:
 
 - literal HTTPS URL and host `www.supremecourt.gov`;
 - no userinfo, port, query, fragment, redirect, credentials, cookie, referrer,
@@ -115,8 +147,13 @@ A first adapter is bounded to one internally constructed weekly build-time GET:
 - exact final URL and HTTP 200 `text/html` with UTF-8;
 - identity encoding and fixed 30-second, 256-KiB, 512-chunk, DOM, attribute,
   depth, text, table, and row ceilings;
-- exactly the documented term identity, two repeated headers, 73-row maximum,
-  and one exact docket `16-1498` row;
+- exactly the documented term identity, at most three total tables, exactly two
+  opinion tables with 11 and 64 rows including headers, exact 10-and-63 data-row
+  counts, 73 data rows total, and
+  one exact docket `16-1498` row;
+- independently validated direct header order
+  `R-`, `Date`, `Docket`, `Name`, `J.`, `Citation` and target direct-cell order
+  `22`, `3/19/19`, `16-1498`, exact caption, `B`, `586 U.S. 347`;
 - exact caption, date, docket, permanent citation, and same-host bound-volume
   link grammar;
 - reject current placeholders such as `609/2` and citations that are not
@@ -124,11 +161,14 @@ A first adapter is bounded to one internally constructed weekly build-time GET:
 - project only the allowlisted target fields before normalization; and
 - discard all provider bytes and non-target rows without logging them.
 
-Do not fetch the bound-volume link. A missing, duplicate, renamed, recited,
-redated, revised, relinked, placeholder-citation, structurally changed,
-oversized, challenged, or unavailable target fails the whole selected source
-for review. A target revision indicator must also fail closed rather than be
-silently applied.
+The adapter does not fetch the bound-volume link. A missing, duplicate,
+renamed, recited, redated, revised, relinked, placeholder-citation,
+structurally changed, oversized, challenged, or unavailable target fails the
+whole selected source for review. A target revision indicator must also fail
+closed rather than be silently applied. The private source projection records
+only the validated fact that the target sequence cell contains no revision
+element; the public revision-review state is deterministically derived from
+that explicit absence evidence.
 
 `supreme-court-opinions-curated` is an independent source-health and
 last-known-good boundary. A failed refresh may use only its own
@@ -167,25 +207,30 @@ review.
 
 ## Implementation decision
 
-Source-registry 1.11 registers `supreme-court-opinions-curated` independently,
-disabled with `adapter: null`, exact one-record coverage on 2019-03-19, one
-runtime host, metadata-and-links reproduction, and no subject mappings.
+Source-registry 1.12.0 registers `supreme-court-opinions-curated` independently
+with adapter 1.0, exact one-record coverage on 2019-03-19, one runtime host,
+metadata-and-links reproduction, and no subject mappings. It remains disabled
+pending exact owner authorization; disabled-source rejection prevents it from
+emitting a public artifact record.
 
-This source is selected for B6-COURT-ADAPTER because one bounded originating
-official page supplies the required identity and lifecycle evidence without
-PACER, a credential, a paid service, a third-party editorial source, a PDF
-fetch, or personal-party output. Adapter work begins only after a versioned
-source-neutral judicial context preserves:
+Record schema and artifact package 1.2 supply the source-neutral judicial
+context and compact/detail integrity needed by this adapter. The implementation
+preserves:
 
-1. issuing court or administrative body;
-2. one or more docket identifiers;
-3. one or more exact reporter citations;
-4. decision date;
-5. exact decision or opinion form;
-6. publication/rendition status and source label;
-7. explicit revision-history review state and typed relationships where
-   supplied; and
-8. provenance, compact artifact, details, dossier, CSV, search, date,
-   historical, privacy, health, and LKG behavior.
+1. adjudicating body `Supreme Court of the United States`, with kind `court`;
+2. docket `16-1498` independently from record identity and citation;
+3. reporter citation `586 U.S. 347` with the exact Court-supplied
+   bound-volume fragment as its citation `sourceUrl`;
+4. decision date `2019-03-19` without relabeling it as publication;
+5. document form `opinion` and source label `Opinions of the Court`;
+6. publication status `bound_volume`, source label
+   `U.S. Reports, Volume 586`, and a dated as-of value;
+7. revision state `no_separate_relationship_exposed`, which is explicitly not
+   a complete subsequent-history or legal-effect determination; and
+8. exact field provenance plus compact artifact, details, dossier, CSV,
+   search, date, historical, privacy, source-health, and LKG behavior.
 
-No existing field is overloaded merely to make the selected source emit.
+The stable identity remains the docket-plus-reporter-citation rule. The
+term-page URL is `officialSource`; `officialFullText` is null. No existing
+field is overloaded, no PDF or other linked body is requested, and no source
+activation is implied by the implemented local adapter.

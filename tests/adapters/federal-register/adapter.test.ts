@@ -380,7 +380,7 @@ describe("Federal Register public source adapter", () => {
     const records = await adapter.normalize(fetched, context);
     expect(records).toHaveLength(1);
     expect(records[0]).toMatchObject({
-      schemaVersion: "1.1.0",
+      schemaVersion: "1.2.0",
       sourceDocumentIdentifier: "TST-1994-00001",
       jurisdiction: {
         level: "federal",

@@ -82,6 +82,7 @@ const compactRecord = (index: number) => {
       generalJurisdictionOnly: true,
     },
     issuingBodies: ["Synthetic Federal Agency"],
+    judicialContext: null,
     status: {
       normalized: "unknown",
       sourceLabel: "Notice",
@@ -122,7 +123,7 @@ const compactRecord = (index: number) => {
 };
 
 const detailRecord = (compact: ReturnType<typeof compactRecord>) => ({
-  schemaVersion: "1.1.0",
+  schemaVersion: "1.2.0",
   internalId: compact.id,
   officialTitle: compact.officialTitle,
   sourceDocumentIdentifier: compact.sourceDocumentIdentifier,
@@ -144,6 +145,7 @@ const detailRecord = (compact: ReturnType<typeof compactRecord>) => ({
   },
   jurisdiction: compact.jurisdiction,
   issuingBodies: [{ officialName: "Synthetic Federal Agency" }],
+  judicialContext: null,
   status: compact.status,
   dates: {
     introduced: null,
@@ -216,7 +218,8 @@ function installArtifactFetch(
     [
       "manifest.json",
       {
-        artifactVersion: "1.1.0",
+        artifactVersion: "1.2.0",
+        recordSchemaVersion: "1.2.0",
         buildId: "synthetic-fr-ux",
         generatedAt: "2026-07-31T12:00:00.000Z",
         dataAsOf: "2026-07-31T00:00:00.000Z",
