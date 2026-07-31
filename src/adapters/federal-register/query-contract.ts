@@ -292,6 +292,7 @@ export function validateFederalRegisterNextPageUrl(
   }
 
   const normalizedUrl = new URL(expected.href);
+  normalizedUrl.searchParams.set("page", String(context.expectedPageNumber));
   normalizedUrl.searchParams.set("search_after_cursor", cursor);
   const canonicalUrl = canonicalize(normalizedUrl);
   if (

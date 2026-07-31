@@ -189,6 +189,18 @@ function validOpaqueCursor(value: string): boolean {
   );
 }
 
+function validNextPage(value: string): boolean {
+  if (!/^[1-9]\d*$/.test(value)) {
+    return false;
+  }
+  const page = Number(value);
+  return (
+    Number.isSafeInteger(page) &&
+    page >= 2 &&
+    page <= FEDERAL_REGISTER_QUERY_POLICY.maximumPageNumber
+  );
+}
+
 function isReviewedSearchQuery(parameters: URLSearchParams): boolean {
   const allowed = new Set([
     "fields[]",
@@ -196,11 +208,13 @@ function isReviewedSearchQuery(parameters: URLSearchParams): boolean {
     "conditions[publication_date][lte]",
     "per_page",
     "order",
+    "page",
     "search_after_cursor",
   ]);
   const start = parameters.get("conditions[publication_date][gte]");
   const end = parameters.get("conditions[publication_date][lte]");
   const cursors = parameters.getAll("search_after_cursor");
+  const pages = parameters.getAll("page");
   return (
     hasOnlyParameters(parameters, allowed) &&
     hasExactDiscoveryFields(parameters) &&
@@ -215,8 +229,11 @@ function isReviewedSearchQuery(parameters: URLSearchParams): boolean {
       String(FEDERAL_REGISTER_QUERY_POLICY.pageSize),
     ) &&
     hasOneParameter(parameters, "order", FEDERAL_REGISTER_QUERY_POLICY.order) &&
-    (cursors.length === 0 ||
-      (cursors.length === 1 && validOpaqueCursor(cursors[0] ?? "")))
+    ((cursors.length === 0 && pages.length === 0) ||
+      (cursors.length === 1 &&
+        validOpaqueCursor(cursors[0] ?? "") &&
+        pages.length === 1 &&
+        validNextPage(pages[0] ?? "")))
   );
 }
 

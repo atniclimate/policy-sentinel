@@ -124,8 +124,9 @@ describe("Federal Register query contract", () => {
     });
 
     expect(validated.url.pathname).toBe(FEDERAL_REGISTER_PATHS.search);
-    expect([...validated.url.searchParams.entries()].sort()).toEqual(
-      [...candidate.searchParams.entries()].sort(),
+    expect(validated.url.searchParams.get("page")).toBe("2");
+    expect(validated.url.searchParams.get("search_after_cursor")).toBe(
+      "opaque+/=cursor",
     );
     expect(validated.cursor).toBe("opaque+/=cursor");
     expect(validated.canonicalUrl).toContain("search_after_cursor=");
@@ -140,7 +141,7 @@ describe("Federal Register query contract", () => {
 
     expect(validated.url.pathname).toBe(FEDERAL_REGISTER_PATHS.search);
     expect(validated.url.searchParams.has("format")).toBe(false);
-    expect(validated.url.searchParams.has("page")).toBe(false);
+    expect(validated.url.searchParams.get("page")).toBe("2");
     expect(validated.url.searchParams.get("search_after_cursor")).toBe(
       "opaque+/=cursor",
     );

@@ -243,6 +243,11 @@ describe("Federal Register reconciled retrieval", () => {
       requestedUrls.filter((url) => url.includes("search_after_cursor")),
     ).toHaveLength(2);
     expect(requestedUrls).not.toContain(cursorUrl);
+    expect(
+      requestedUrls
+        .filter((url) => url.includes("search_after_cursor"))
+        .every((value) => new URL(value).searchParams.get("page") === "2"),
+    ).toBe(true);
     expect(requestedUrls.join("\n")).not.toContain("excerpts");
   });
 

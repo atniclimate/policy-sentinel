@@ -140,6 +140,18 @@ describe("Federal Register bounded JSON transport", () => {
     expect(capturedInit?.signal).toBeInstanceOf(AbortSignal);
   });
 
+  it("allows only a bounded page paired with an opaque search cursor", async () => {
+    const requestUrl = new URL(requestUrls.search);
+    requestUrl.searchParams.set("page", "2");
+    requestUrl.searchParams.set("search_after_cursor", "opaque-cursor");
+    const fetchImpl = vi.fn(async () => jsonResponse({ synthetic: true }));
+
+    await expect(
+      fetchFederalRegisterJson(requestUrl, "search", { fetchImpl }),
+    ).resolves.toEqual({ synthetic: true });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
   it.each([408, 429, 500, 502, 503, 504])(
     "retries reviewed transient HTTP %s with bounded jitter",
     async (status) => {
@@ -553,6 +565,20 @@ describe("Federal Register bounded JSON transport", () => {
     "conditions[publication_date][gte]",
     "2026-02-30",
   );
+  const searchWithPageOnly = new URL(requestUrls.search);
+  searchWithPageOnly.searchParams.set("page", "2");
+  const searchWithCursorOnly = new URL(requestUrls.search);
+  searchWithCursorOnly.searchParams.set("search_after_cursor", "opaque-cursor");
+  const searchWithWrongPage = new URL(requestUrls.search);
+  searchWithWrongPage.searchParams.set("page", "51");
+  searchWithWrongPage.searchParams.set("search_after_cursor", "opaque-cursor");
+  const searchWithDuplicatePage = new URL(requestUrls.search);
+  searchWithDuplicatePage.searchParams.append("page", "2");
+  searchWithDuplicatePage.searchParams.append("page", "2");
+  searchWithDuplicatePage.searchParams.set(
+    "search_after_cursor",
+    "opaque-cursor",
+  );
   const wrongFacetUrl = reviewedFacetUrl();
   wrongFacetUrl.pathname = "/api/v1/documents/facets/publication_date.json";
   const batchWithUnexpectedParameter = new URL(requestUrls.documentBatch);
@@ -584,6 +610,10 @@ describe("Federal Register bounded JSON transport", () => {
     ],
     ["an unexpected search parameter", searchWithUnexpectedParameter, "search"],
     ["an invalid search date", searchWithInvalidDate, "search"],
+    ["a search page without a cursor", searchWithPageOnly, "search"],
+    ["a search cursor without a page", searchWithCursorOnly, "search"],
+    ["an out-of-range search page", searchWithWrongPage, "search"],
+    ["a duplicate search page", searchWithDuplicatePage, "search"],
     ["an oversized document batch", oversizedBatchUrl, "documentBatch"],
     ["a non-daily facet", wrongFacetUrl, "facet"],
     [
