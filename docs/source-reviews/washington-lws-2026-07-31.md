@@ -597,10 +597,10 @@ request year; the independent biennium and bill-number source-value bounds are
 not an identity echo. It also does not deduplicate rows, select an active
 winner, treat `Active` as legal status, or use legislation type, original
 agency, display number, or version flags for taxonomy, Nation evidence, legal
-effect, eligibility, or jurisdiction. A future one-request aggregate canary
-may establish only that one fixed year response fits the current
-byte/item/schema boundaries; it cannot establish annual or biennial
-exhaustiveness.
+effect, eligibility, or jurisdiction. The one aggregate canary did not
+establish that the fixed-year response fits the current byte/item/schema
+boundaries, and even a structurally accepted response could not establish
+annual or biennial exhaustiveness.
 
 The generic repository network transport remains enabled only for the six
 known-bill operations. Its module-private exhaustive default-deny decision
@@ -610,9 +610,9 @@ canary request, accepts only transport dependencies, and reaches the private
 prepared-request core; it takes no request, year, URL, header, mode, or bypass
 flag, reduces the typed result inside `transport.ts`, returns only a frozen
 closed aggregate, and is omitted from the general Washington contract barrel.
-No exported function returns the yearly request, receipt, or items. Only the
-fixed known-bill observer has used the transport live; no
-`GetLegislationByYear` request or provider result has been made or retained.
+No exported function returns the yearly request, receipt, or items. The fixed
+yearly helper has now run exactly once; no request, receipt, typed provider
+result, or raw body was retained.
 The transport constructs each enabled reviewed request internally. Its policy
 and sanitized error-code allowlist are runtime-frozen, preventing changes to
 its accepted media type, user agent, chunk ceiling, deadline, attempt count, or
@@ -671,9 +671,8 @@ remain distinct. Expectation success requires one attempted, HTTP-200, present,
 non-empty, structurally accepted response; it does not establish any fixed
 non-assessment dimension.
 
-Before the known-bill scenario's first execution, the observer checkpoint made
-no LWS bill/data request and retained no provider response. The yearly scenario
-has not executed.
+Before either scenario's first execution, its observer checkpoint made no
+corresponding LWS bill/data request and retained no provider response.
 
 ## First aggregate live-canary evidence
 
@@ -695,6 +694,36 @@ ordering, uniqueness, historical operation ranges, empty-result or fault
 behavior, complete discovery, or another operation's binding. Date values must
 therefore remain source lexical values and must not be converted to UTC until a
 separate official semantic basis exists.
+
+## First yearly-discovery aggregate evidence
+
+The exact `legislation_by_year_v1` command ran once on 2026-07-31 for its
+internally fixed `GetLegislationByYear(2025)` request. It made one request with
+no retry and returned its one closed report without persistence. The report
+recorded execution authorization, one request attempt, zero retries, elapsed
+time under one second, HTTP 200, `outcome: rejected`, `expectationMet: false`,
+no SOAP observation, null declared and received byte fields, and the
+repository-owned failure category `invalid_soap`.
+
+`invalid_soap` is emitted only after the response passes the preceding reviewed
+HTTP status, media-type, content-encoding, nonempty bounded-body, stream-chunk,
+declared-length, and deadline checks and then fails the bounded SOAP parser. The
+category intentionally collapses all parser failures. It does not distinguish
+provider XML or schema behavior, an unsupported response variant, source
+contract drift, a repository contract mismatch, a parser defect, a collection
+or field limit, or another rejected SOAP-contract condition. The null byte
+fields are deliberately undisclosed by the rejected-report privacy shape, not
+evidence that the response had no body. No raw XML, response byte, transport
+receipt, typed item, identifier, provider string, exact date, request value,
+parse detail, or response body was printed or persisted.
+
+The attempt produced neither an accepted SOAP success nor an accepted SOAP
+fault. It supplies no result-state, item-count, optional-field, budget-state,
+request-year-echo, returned-biennium, ordering, uniqueness, active-version,
+completeness, historical-range, source-health, or production-viability
+evidence. HTTP 200 alone does not establish SOAP contract fit. The operation
+remains disabled, source-registry 1.7.0 retains `adapter: null`, and this exact
+scenario must not be retried under the current ledger.
 
 `GetDocuments` remains deliberately unreachable: the current parser accepts
 only the impossible synthetic document-link shape, so actual rendition hosts
@@ -734,8 +763,9 @@ Bounded no-auth evidence must still establish or narrow:
    identity, uniqueness, ordering, and reconciliation;
 5. date-zone meaning for the now-observed timezone-absent lexemes, precision,
    sentinel values, inclusive boundaries, and concurrent-update behavior;
-6. complete refresh design despite unbounded arrays and the absence of a
-   unified mutation feed or pagination;
+6. the exact cause of the yearly parser rejection and a complete refresh design
+   despite unbounded arrays and the absence of a unified mutation feed or
+   pagination;
 7. response sizes, item counts, latency, timeouts, and conservative request
    budgets;
 8. document link hosts, redirects, stability, authentication, and format/date

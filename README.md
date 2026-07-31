@@ -137,16 +137,16 @@ not register an API, ingest policy records, alter a remote, or publish data.
 
 `npm run --silent source:wa-lws:canary -- --help` describes the separately
 invoked Washington Legislative Web Services canary. It accepts exactly one of
-two repository-owned scenarios: the previously executed
-`known_bill_legislation_v1` `GetLegislation` request or the unexecuted
-`legislation_by_year_v1` scenario whose internal request is fixed to
-`GetLegislationByYear(2025)`. Each requires exact `--execute` and `--scenario`
-flags, makes at most one keyless build-time request with no retry, emits one
-closed aggregate JSON line, and writes no response or record. The yearly report
-contains no request year, identifier, source string, typed item, or completeness
-claim. The command is not part of `npm run check`, does not enable the disabled
-source, and does not establish complete coverage. Run it only when the exact
-bounded live source check is intended.
+two repository-owned scenarios. The known-bill
+`known_bill_legislation_v1` scenario succeeded once. The fixed
+`legislation_by_year_v1` scenario ran once and returned HTTP 200, but the body
+was rejected as `invalid_soap`; it must not be rerun under the current ledger.
+Each exact `--execute` and `--scenario` invocation permits at most one keyless
+build-time request with no retry, emits one closed aggregate JSON line, and
+writes no response or record. The yearly report contains no request year,
+identifier, source string, typed item, or completeness claim. The command is
+not part of `npm run check`, does not enable the disabled source, and does not
+establish complete coverage.
 
 Key documents:
 

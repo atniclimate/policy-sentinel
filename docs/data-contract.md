@@ -88,10 +88,11 @@ resolving or calling `fetch`. A separately reviewed fixed helper owns the one
 2025 yearly canary request, accepts only transport dependencies, reaches the
 private prepared-request core, reduces typed items to a frozen closed aggregate
 before returning, and is omitted from the general contract barrel. No exported
-function returns the yearly request, receipt, or items, and no yearly request
-has run. For enabled operations it builds the exact URL, action, headers, and
-body internally; permits one credential-free, no-redirect attempt under a
-30-second
+function returns the yearly request, receipt, or items. The helper ran once on
+2026-07-31 and returned a sanitized `invalid_soap` rejection at HTTP 200; it
+must not be rerun under the current ledger. For enabled operations the transport
+builds the exact URL, action, headers, and body internally; permits one
+credential-free, no-redirect attempt under a 30-second
 whole-operation deadline enforced by cancellation during retrieval and
 monotonic elapsed-time checks before and after bounded parsing; requires the
 exact final URL, HTTP 200, reviewed `text/xml` media type with no charset or
@@ -103,17 +104,22 @@ aggregate byte counts, and the typed sanitized projection, never provider bytes
 or raw XML. Errors contain only repository-owned categories, an optional
 numeric HTTP status, and static messages.
 
-Only the fixed known-bill `GetLegislation` observer has used the transport live.
-Its one 2026-07-31 attempt succeeded with a single present item and accepted
-reviewed identity echoes; both observed response date lexemes lacked a timezone.
-No raw XML, typed response item, provider string, exact response date, or public
-record was persisted.
+The fixed known-bill `GetLegislation` observer's one 2026-07-31 attempt
+succeeded with a single present item and accepted reviewed identity echoes;
+both observed response date lexemes lacked a timezone. The fixed yearly
+observer's separate one attempt reached HTTP 200 in under one second but was
+rejected as `invalid_soap`; its report retained no byte counts or SOAP
+observation and its expectation was false. That category proves only that the
+body reached and failed bounded SOAP parsing, not why it failed or whether it
+contained a success, fault, excessive collection, malformed XML, or another
+contract mismatch. No raw XML, typed response item, provider string, exact
+response date, or public record was persisted by either observer.
 
 The separately invoked canary observer reduces a receipt immediately to a
 plain-data snapshot, then runtime-validates an exact-key aggregate report before
 serialization. Report contract 1.1 binds each of two scenarios to a frozen
 operation and structural policy and reports the actual zero-or-one request
-attempt. The second, unexecuted scenario authorizes only the internally fixed
+attempt. The second, now closed scenario authorizes only the internally fixed
 yearly helper. The module-private scenario executor is reachable only after one
 exact command passes; the observer and helper are omitted from the general
 Washington contract barrel. The yearly report exposes only operation/scenario

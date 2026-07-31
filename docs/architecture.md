@@ -80,9 +80,9 @@ content.
 
 The manual LWS canary observer sits immediately above that transport. Report
 contract 1.1 has one repository-owned known-bill `GetLegislation` scenario and
-one unexecuted `GetLegislationByYear` scenario whose fixed 2025 input exists
-only in a direct helper omitted from the general barrel. That helper reduces
-the typed receipt inside the transport module and returns only a frozen closed
+one once-executed `GetLegislationByYear` scenario whose fixed 2025 input exists
+only in a direct helper omitted from the general barrel. That helper reduces the
+typed receipt inside the transport module and returns only a frozen closed
 aggregate. The generic transport continues to reject every yearly input.
 Neither scenario accepts identifiers, years, URLs, headers, dates, output paths,
 loggers, or environment overrides.
@@ -100,6 +100,16 @@ viability unassessed. It never serializes the request year, transport receipt,
 typed SOAP projection, identifiers, provider strings, exact dates, errors, or
 raw bytes; its launcher disables `.env` loading, it imports no filesystem API,
 and it is not connected to build, check, or lifecycle scripts.
+
+The fixed yearly scenario ran exactly once on 2026-07-31 with one attempt and
+no retry. The closed report recorded HTTP 200 in under one second, but the body
+failed the reviewed parser as `invalid_soap`; byte aggregates were withheld,
+there was no SOAP observation, and the expectation was false. This proves only
+that the response reached bounded SOAP parsing after the preceding transport
+checks. It does not identify the parser mismatch, establish a successful SOAP
+result or fault, or provide item, ordering, uniqueness, coverage, historical,
+or production-viability evidence. No provider body or typed item was retained,
+and the yearly scenario must not be rerun under the current ledger.
 
 The versioned LWS refresh-capability layer keeps point lookups separate from
 population discovery. All six known-bill operations require an existing bill
