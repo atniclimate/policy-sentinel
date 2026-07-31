@@ -247,7 +247,7 @@ gates:
 
 baseline:
   phase_a_commit: e22512e
-  phase_b_checkpoint_commit: 9fa517c
+  phase_b_checkpoint_commit: 0f8f235
   verified_on: "2026-07-31"
   repository_state_at_checkpoint:
     remote: absent
@@ -263,12 +263,22 @@ baseline:
     pipeline: >-
       Versioned contracts, compact index and separate details, field provenance,
       source health, content hashes, and last-known-good behavior for synthetic
-      records. Source-registry v1.1 records the researched Federal Register
-      contract as disabled and rejects disabled source IDs from artifacts.
+      records. Source-registry v1.2 records the validated Federal Register
+      build-time adapter as disabled, and disabled source IDs remain rejected
+      from coverage, health, manifests, and artifacts.
   verification:
     - command: npm run check
       result: pass
-      detail: "6 Vitest files, 36 tests, static build, and artifact validation"
+      detail: >-
+        12 Vitest files and 154 tests passed with formatting, lint, types,
+        roadmap, source-boundary, production build, and artifact validation; the
+        artifact remained synthetic at 2 records and 575 Nations.
+    - check: Federal Register live in-memory contract canaries
+      result: pass
+      detail: >-
+        Strict 1994-01-03 and 2026-07-30 response parsing, historical issue
+        reconciliation, current OpenAPI projection, and a one-day end-to-end
+        adapter refresh passed without persisting live responses or records.
     - command: npm run source:bia
       result: expected_fail_closed
       detail: >-
@@ -282,12 +292,12 @@ baseline:
       detail: single-Nation synthetic flow only
 
 current_focus:
-  work_item: B4-FR-ADAPTER
+  work_item: B4-FR-UX
   objective: >-
-    Implement the Federal Register build-time adapter from synthetic contract
-    fixtures, with conservative date slicing, exact relationship preservation,
-    provenance, health, and fail-closed transport boundaries.
-  last_durable_checkpoint: 9fa517c
+    Define and measure a bounded Federal Register static-artifact range, then
+    integrate compact index, detail, coverage, health, freshness, and
+    Unclassified states without enabling the source or adding runtime API calls.
+  last_durable_checkpoint: 0f8f235
   resume_command: npm run check
 
 completion_scope:
@@ -565,7 +575,7 @@ work_items:
     priority: 41
     milestone: B4
     title: Federal Register production adapter
-    status: in_progress
+    status: complete
     dependencies:
       - B4-FR-RESEARCH
     acceptance:
@@ -578,13 +588,31 @@ work_items:
       - Health, provenance, coverage, malformed-input, and last-known-good tests
         pass.
       - Live responses and normalized output remain ignored.
-    evidence: []
+    evidence:
+      - "Commit 0f8f235: feat: implement Federal Register adapter"
+      - >-
+        npm run check passed on 2026-07-31: formatting, lint, types, roadmap,
+        source-boundary scan, 12 Vitest files and 154 tests, production build,
+        and validation of the 2-record/575-Nation synthetic artifact.
+      - >-
+        Live in-memory 1994-01-03 response, issue, exact-replay, and full
+        adapter canaries reconciled 105 documents and normalized 94 eligible
+        unique records; the 11 exact Uncategorized Document entries remained
+        excluded.
+      - >-
+        The 2026-07-30 live contract canary parsed 126 documents and all 359
+        related-document entries, excluding 330 null-labeled docket matches from
+        semantic closure; the current OpenAPI projection also passed.
+      - >-
+        Cooperative implementation review and read-only adversarial reviews
+        closed transport, pagination, replay, nullable-shape, normalization,
+        provenance, and lifecycle findings before the checkpoint commit.
 
   - id: B4-FR-UX
     priority: 42
     milestone: B4
     title: Federal Register artifact and UI integration
-    status: not_started
+    status: in_progress
     dependencies:
       - B4-FR-ADAPTER
     acceptance:
@@ -595,7 +623,11 @@ work_items:
         formulas.
       - Built-app browser and accessibility tests pass with no runtime source
         calls.
-    evidence: []
+    evidence:
+      - >-
+        The reviewed 1994-01-03 through 2026-07-31 daily facet reports 1,005,337
+        documents across 11,898 issue dates, so the source remains disabled
+        until this item establishes and displays a measured bounded range.
 
   - id: B4-GRANTS-RESEARCH
     priority: 43
@@ -1254,7 +1286,7 @@ source_register:
     public_claim: no live publication
   - id: SRC-FEDERAL-REGISTER
     source: Federal Register
-    implementation_state: contract_reviewed_adapter_in_progress
+    implementation_state: adapter_validated_ux_in_progress
     work_items:
       - B4-FR-RESEARCH
       - B4-FR-ADAPTER
@@ -1397,20 +1429,21 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B4-FR-ADAPTER
-    action: >-
-      Implement and adversarially test the production adapter using only
-      hand-authored synthetic contract fixtures in Git.
-  - order: 2
     work_item: B4-FR-UX
     action: >-
-      Integrate validated Federal Register artifact, coverage, and detail states
-      after the adapter contract is complete.
-  - order: 3
+      Establish a measured bounded static-artifact range for the 1,005,337-row
+      source, then integrate truthful coverage, health, compact-index, and
+      detail states while the source remains disabled.
+  - order: 2
     work_item: B4-GRANTS-RESEARCH
     action: >-
       Reconfirm the Grants.gov no-registration contract after the Federal
       Register vertical slice.
+  - order: 3
+    work_item: B4-GRANTS-ADAPTER
+    action: >-
+      Implement the Grants.gov adapter only after its current no-registration
+      contract and required attribution are revalidated.
 
 finish_states:
   local_release_candidate:
