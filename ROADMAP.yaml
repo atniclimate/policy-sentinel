@@ -406,16 +406,24 @@ baseline:
     - check: desktop and mobile browser smoke
       result: pass
       detail: single-Nation synthetic flow only
+    - command: npm run check
+      result: pass
+      detail: >-
+        On 2026-07-31, 44 Vitest files and 669 tests passed with formatting,
+        lint, type checking, roadmap validation, source-boundary scanning, a
+        synthetic-only production build, and artifact validation at 2 records,
+        575 Nations, and 7 verified assets; build ID
+        synthetic-f18c5d85755770ceb078.
 
 current_focus:
-  work_item: B7-OR-ODATA-CONTRACT
+  work_item: B8-ID-RULES
   objective: >-
-    Implement a credential-free offline Oregon OData contract from the already
-    reviewed public documentation and repository evidence. Use only synthetic
-    fixtures to cover metadata, sessions, measures, committees, actions, votes,
-    versions, and status; make no live OData call, accept no terms, use no
-    credential, and copy no provider response.
-  last_durable_checkpoint: 4d20dbe
+    Assess Idaho's official administrative-rule, rulemaking, and executive-order
+    sources independently from the blocked legislative interface. Establish
+    current primary-source identity, terms, metadata, history, cadence, limits,
+    privacy, reproduction, static-build, health, and failure boundaries; do not
+    disguise legislative HTML scraping as structured coverage.
+  last_durable_checkpoint: 50710c2
   resume_command: npm run check
 
 completion_scope:
@@ -2027,7 +2035,7 @@ work_items:
     priority: 82
     milestone: B7
     title: Oregon OData offline contract and synthetic fixtures
-    status: in_progress
+    status: complete
     dependencies:
       - B3-PIPELINE
     acceptance:
@@ -2036,7 +2044,48 @@ work_items:
         actions, votes, versions, and status.
       - No terms acceptance, credentials, live OData calls, or copied responses
         occur.
-    evidence: []
+    evidence:
+      - >-
+        Commit 50710c2 adds Oregon OData offline contract 1.0, canonical
+        repository-owned logical metadata, and impossible year-3785 synthetic
+        fixtures for sessions, measures, sponsors, committees, actions, votes,
+        versions, and statuses. It contains no request, environment, transport,
+        or adapter surface and copies no provider envelope.
+      - >-
+        The parser enforces exact field allowlists, explicit nullability,
+        SYN-only ordered identities, bounded sequential terminal pages,
+        cross-entity and same-session relationships, unique per-measure action
+        sequences and version labels, real dates, privacy exclusions, and a
+        conservative pre-2007 rejection that is not a completeness claim.
+      - >-
+        tests/contracts/oregon-odata/offline-contract.test.ts covers canonical
+        metadata, every required entity family, explicit nulls, malformed and
+        missing fields, provider-envelope and personal/land/testimony fields,
+        incomplete/oversized/duplicate pagination, cross-entity references,
+        duplicate relationships, unsupported history, date failures,
+        no-inference behavior, typed paths, and absence of network, environment,
+        transport, adapter, and production-record surfaces.
+      - >-
+        docs/source-reviews/oregon-odata-offline-contract-2026-07-31.md
+        reconciles the logical fields with record, source, artifact, provenance,
+        health, and last-known-good contracts. Missing title/status dates and
+        official event URLs cannot be invented; votes and versions have no
+        first-class public-record collections; Relating To Clause text is not a
+        taxonomy, Nation, relevance, relationship, or legal-effect signal.
+      - >-
+        Source-registry 1.16.0 records oregon-legislature-odata disabled with
+        adapter null, build_secret authentication, null exact-date coverage,
+        metadata-and-links-only intent, and closed G-C. Disabled-source tests
+        prove it cannot emit coverage, health, records, manifests, or LKG data.
+      - >-
+        No Oregon OData endpoint, $metadata, agreement, login, account,
+        credential, or provider response was accessed by this work item. It used
+        only the already reviewed repository documentation evidence.
+      - >-
+        npm run check passed on 2026-07-31: 44 Vitest files and 669 tests plus
+        formatting, lint, types, roadmap, source-boundary, production build, and
+        artifact validation. The artifact remained synthetic at 2 records, 575
+        Nations, and 7 assets; build ID synthetic-f18c5d85755770ceb078.
 
   - id: B7-OR-ODATA-LIVE
     priority: 83
@@ -2068,7 +2117,7 @@ work_items:
     priority: 90
     milestone: B8
     title: Idaho official rules and executive-source feasibility
-    status: ready
+    status: in_progress
     dependencies:
       - B3-PIPELINE
     acceptance:
@@ -2432,7 +2481,7 @@ source_register:
   - id: SRC-OR-ODATA
     source: Oregon Legislature OData
     implementation_state: >-
-      offline_synthetic_contract_in_progress_live_terms_and_credential_gate_closed
+      offline_synthetic_contract_complete_live_terms_and_credential_gate_closed
     work_items:
       - B7-OR-ODATA-CONTRACT
       - B7-OR-ODATA-LIVE
@@ -2453,7 +2502,7 @@ source_register:
     public_claim: legislative automation gap
   - id: SRC-ID-OTHER
     source: Idaho official rules and executive sources
-    implementation_state: ready_for_source_specific_research
+    implementation_state: source_specific_research_in_progress
     work_items:
       - B8-ID-RULES
       - B8-ID-RULES-ADAPTER
@@ -2517,26 +2566,28 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B7-OR-ODATA-CONTRACT
+    work_item: B8-ID-RULES
     action: >-
-      Reconcile the already reviewed Oregon OData public documentation and data
-      model notes with the current record, source, artifact, provenance, health,
-      and last-known-good contracts. Document every field or relationship that
-      cannot fit without inference; make no network request.
+      Review current originating Idaho Administrative Rules and Governor
+      primary documentation, terms, robots/access conditions, archival range,
+      publication cadence, source identity, reproduction basis, and any stable
+      official index or feed. Keep legislation and third-party contact outside
+      this work item.
   - order: 2
-    work_item: B7-OR-ODATA-CONTRACT
+    work_item: B8-ID-RULES
     action: >-
-      Add repository-authored synthetic metadata, session, measure, committee,
-      action, vote, version, and status fixtures plus parsers or projections
-      that enforce exact identity, nullability, cardinality, pagination,
-      privacy, and field allowlists without copying a provider envelope.
+      Perform only bounded, credential-free observations that the current terms
+      permit. Establish exact rulemaking/order identifiers, agencies, stages or
+      statuses, dates, correction/relationship signals, stable official links,
+      range/continuity, DOM or document structure, request/byte ceilings,
+      privacy exclusions, and known failure behavior source by source.
   - order: 3
-    work_item: B7-OR-ODATA-CONTRACT
+    work_item: B8-ID-RULES
     action: >-
-      Test malformed, missing, duplicate, cross-entity, personal-data, and
-      unsupported-history cases; prove the contract performs no network or
-      credential access and emits no production record. Keep G-C and
-      B7-OR-ODATA-LIVE closed.
+      Record each independently viable source or dated gap in the registry and
+      binding coverage/feasibility documents. Advance B8-ID-RULES-ADAPTER only
+      for an exact permitted official contract; otherwise close through its
+      accepted visible source-specific fallback without legislative scraping.
 
 finish_states:
   local_release_candidate:
