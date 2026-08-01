@@ -1,7 +1,7 @@
 {
   "$schema": "../schemas/source.schema.v1.json",
   "schemaVersion": "1.3.0",
-  "registryVersion": "1.16.0",
+  "registryVersion": "1.17.0",
   "generatedDataPolicy": "artifact-only",
   "sources": [
     {
@@ -746,6 +746,102 @@
           "/judicialContext/revisionReview/reviewedOn",
           "/status/sourceLabel",
           "/status/asOf",
+          "/urls/officialSource"
+        ]
+      },
+      "officialSubjectMappings": []
+    },
+    {
+      "id": "idaho-administrative-rulemaking-index",
+      "name": "Idaho Administrative Rulemaking Index",
+      "provider": "Idaho Office of Administrative Rules Coordinator, Division of Financial Management",
+      "synthetic": false,
+      "enabled": false,
+      "adapter": null,
+      "jurisdiction": {
+        "level": "state",
+        "name": "Idaho",
+        "stateCode": "ID"
+      },
+      "access": {
+        "method": "official_index",
+        "officialDocumentationUrl": "https://adminrules.idaho.gov/",
+        "accessedOn": "2026-07-31",
+        "allowedHosts": [
+          "adminrules.idaho.gov",
+          "proddfmmainsa.blob.core.windows.net"
+        ],
+        "authentication": "none",
+        "rateLimit": "No API, feed, machine schema, numeric request limit, retry rule, stable page ceiling, checksum contract, SLA, or change feed is published. The official HTML document-search and listing surfaces displayed a temporary technical-issue notice throughout the review. A fixed public PDF path exposed the mutable Index of Active Rulemaking, but that document is not a stable row API or bulk export.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": null,
+        "through": null,
+        "cadence": "The Office describes the Idaho Administrative Bulletin as monthly and the active-rulemaking index as cumulative and current. Policy Sentinel would remain weekly and build-time only after a stable permitted contract exists.",
+        "limitations": "The Office describes a cumulative rulemaking index beginning July 1, 1993, annual rule archives to 1996, and Bulletin archives to 1995, but the unavailable HTML listings prevent continuity validation and those descriptions do not prove one exact machine-readable range. The reviewed July 1, 2026 abridged PDF exposed 491 extracted lifecycle rows for 189 docket identifiers, with 108 identifiers repeated across stages. Text extraction changed spacing and glyphs, 55 embedded links used HTTP, and blob metadata advertised a future publish date inconsistent with the document and Last-Modified date. Stage repetition, corrections, effective dates, legislative action, and current status require an exact relationship contract; opaque PDF parsing cannot supply one. Adapter implementation is blocked."
+      },
+      "publication": {
+        "attribution": "Idaho Office of Administrative Rules Coordinator, Division of Financial Management",
+        "termsUrl": "https://idaho.gov/legal-notices/",
+        "reproduction": "metadata_and_links",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/issuingBodies/0/officialName",
+          "/status/sourceLabel",
+          "/status/asOf",
+          "/dates/published",
+          "/dates/effective",
+          "/urls/officialSource"
+        ]
+      },
+      "officialSubjectMappings": []
+    },
+    {
+      "id": "idaho-governor-executive-orders",
+      "name": "Idaho Governor Executive Orders",
+      "provider": "Office of the Governor, State of Idaho",
+      "synthetic": false,
+      "enabled": false,
+      "adapter": null,
+      "jurisdiction": {
+        "level": "state",
+        "name": "Idaho",
+        "stateCode": "ID"
+      },
+      "access": {
+        "method": "official_index",
+        "officialDocumentationUrl": "https://gov.idaho.gov/executive-orders/",
+        "accessedOn": "2026-07-31",
+        "allowedHosts": ["gov.idaho.gov"],
+        "authentication": "none",
+        "rateLimit": "No API, feed, machine schema, numeric request limit, retry rule, stable pagination contract, checksum, SLA, or change feed is published. The HTML index is public and credential-free, but its raw bytes vary between requests and it sets session cookies; no cookie value, page body, or order file is retained.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": null,
+        "through": null,
+        "cadence": "The Governor publishes no reviewed order cadence. Policy Sentinel would check only a separately approved bounded index weekly and build-time only.",
+        "limitations": "A bounded index observation found 83 primary rows under 2019-2026 year headings, but the page makes no completeness statement and supplies neither exact issuance dates nor a complete per-order status field. One row has no title, 17 rows carry free-text repeal, replacement, or amendment notes, four rows contain multiple renditions or relationship links, and four primary PDF paths use an upload-folder year that differs from the order number year. The page includes replaced and repealed material, so listing does not mean active; file paths and Last-Modified headers cannot establish issuance or legal status. The required title, date, status-as-of, range, and complete relationship contract is absent, so adapter implementation is blocked."
+      },
+      "publication": {
+        "attribution": "Office of the Governor, State of Idaho",
+        "termsUrl": "https://idaho.gov/legal-notices/",
+        "reproduction": "metadata_and_links",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/issuingBodies/0/officialName",
+          "/status/sourceLabel",
+          "/status/asOf",
+          "/dates/issued",
           "/urls/officialSource"
         ]
       },

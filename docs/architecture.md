@@ -148,7 +148,7 @@ document index that is neither an API, feed, nor bulk export and adds
 `official_page` for one bounded originating document page that is not an index.
 The independently registered `washington-state-register` and
 `washington-governor-executive-orders` sources use `official_index`; the
-Register still has `adapter: null`, while source-registry 1.16.0 retains the
+Register still has `adapter: null`, while source-registry 1.17.0 retains the
 Governor's versioned adapter descriptor without authorizing it to emit public
 records. `washington-centennial-accord` uses `official_page` and remains
 disabled with `adapter: null`. These methods describe reviewed access surfaces
@@ -207,7 +207,7 @@ remains `adapter: null` until a versioned accord-specific model and UI preserve
 those roles without inference. Its exact official page supports only a planned
 general-jurisdiction landmark candidate with zero Nation associations.
 
-Court research and health remain source-specific. Registry 1.16.0 preserves the
+Court research and health remain source-specific. Registry 1.17.0 preserves the
 1.11 DOI IBIA research outcome as a disabled gap because its chronology can lag
 a separate search database, omits docket and decision-status relationships,
 includes privacy- and land-sensitive matters, and points to an OHA host that
@@ -228,7 +228,7 @@ retrieve opinion or summary files.
 Oregon's non-OData sources are also independent disabled boundaries.
 `oregon-administrative-rules-bulletins` describes the Secretary of State OARD
 monthly filing index; `oregon-governor-executive-orders` describes the
-Governor's separate index. Neither has transport or an adapter. Registry 1.16.0
+Governor's separate index. Neither has transport or an adapter. Registry 1.17.0
 records the OARD index's observed AON/agency/type/filed/caption shape and its
 session-token, privacy, date, status, and relationship gaps, while the Governor
 source has no reviewed per-order contract. The current statewide terms cover
@@ -239,7 +239,7 @@ and Other Notices` document cannot be used to infer an order identity or merge
 the two health boundaries.
 
 Oregon Legislature OData is a third, independent Oregon boundary. Registry
-1.16.0 records `oregon-legislature-odata` as a disabled API source with
+1.17.0 records `oregon-legislature-odata` as a disabled API source with
 `adapter: null`, `build_secret` authentication, null exact-date coverage, and
 the separate closed `G-C` agreement/account/credential gate. Contract 1.0 has
 no request or transport surface. It validates only repository-authored logical
@@ -258,6 +258,18 @@ history events require official URLs absent from the synthetic projection.
 `Relating To Clause` language is neither a controlled subject nor Nation
 evidence. Those values must not be forced into category, relevance, Nation,
 status, action, relationship, or legal-effect fields.
+
+Idaho administrative rulemaking and Governor executive orders are two more
+independent disabled source boundaries. Registry 1.17.0 gives each an
+`official_index` identity but no transport or adapter. The administrative HTML
+listings were unavailable during review, and the fixed active-rulemaking PDF
+cannot establish a stable row schema, lossless text, canonical HTTPS links,
+currentness metadata, or complete lifecycle relationships. The Governor index
+has order-number rows and official PDF links but omits exact issue dates and
+uniform status, range, and relationship evidence; at least one row omits the
+required title. File paths, upload years, `Last-Modified` values, year headings,
+and listing presence cannot fill those fields. Both sources therefore emit no
+records, coverage, health, manifest membership, or last-known-good shard.
 
 Record schema and artifact package 1.2 introduced a source-neutral
 `judicialContext`. Court and administrative decisions must preserve an exact
@@ -395,7 +407,7 @@ URL to the compact index. Package `1.2.0` and record schema `1.2.0` added the
 complete nullable `judicialContext` projection. Current package and record
 schema `1.3.0` add reviewed landmark evidence that can be either permitted
 source text or metadata-only evidence with an exact source label, URL, date,
-and reproduction basis; current builds bind source registry `1.16.0`. These
+and reproduction basis; current builds bind source registry `1.17.0`. These
 additions remain optional under artifact schema `1.0.0`, so historical package
 `1.0.0`, `1.1.0`, and `1.2.0` manifests continue to pass archival schema
 validation. The current client requires a matching package `1.3.0` manifest and

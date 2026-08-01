@@ -34,7 +34,7 @@ test("source registry records researched disabled production sources", () => {
   assert.equal(validateSources(sourceRegistry), true);
   assert.doesNotThrow(() => assertSourceRegistrySemantics(sourceRegistry));
   assert.equal(sourceRegistry.schemaVersion, "1.3.0");
-  assert.equal(sourceRegistry.registryVersion, "1.16.0");
+  assert.equal(sourceRegistry.registryVersion, "1.17.0");
 
   const federalRegister = sourceRegistry.sources.find(
     ({ id }) => id === "federal-register",
@@ -464,6 +464,71 @@ test("source registry records researched disabled production sources", () => {
     );
   }
 
+  const blockedIdahoRulesAndExecutiveSources = [
+    {
+      id: "idaho-administrative-rulemaking-index",
+      documentationUrl: "https://adminrules.idaho.gov/",
+      allowedHosts: [
+        "adminrules.idaho.gov",
+        "proddfmmainsa.blob.core.windows.net",
+      ],
+      requiredDatePointer: "/dates/effective",
+      limitation: /491 extracted lifecycle rows for 189 docket identifiers/,
+    },
+    {
+      id: "idaho-governor-executive-orders",
+      documentationUrl: "https://gov.idaho.gov/executive-orders/",
+      allowedHosts: ["gov.idaho.gov"],
+      requiredDatePointer: "/dates/issued",
+      limitation: /83 primary rows under 2019-2026 year headings/,
+    },
+  ];
+  for (const expected of blockedIdahoRulesAndExecutiveSources) {
+    const source = sourceRegistry.sources.find(({ id }) => id === expected.id);
+    assert.deepEqual(
+      {
+        enabled: source.enabled,
+        synthetic: source.synthetic,
+        adapter: source.adapter,
+        stateCode: source.jurisdiction.stateCode,
+        documentationUrl: source.access.officialDocumentationUrl,
+        accessedOn: source.access.accessedOn,
+        method: source.access.method,
+        authentication: source.access.authentication,
+        allowedHosts: source.access.allowedHosts,
+        coverageFrom: source.coverage.from,
+        coverageThrough: source.coverage.through,
+        termsUrl: source.publication.termsUrl,
+        reproduction: source.publication.reproduction,
+        failureMode: source.publication.failureMode,
+        officialSubjectMappings: source.officialSubjectMappings,
+      },
+      {
+        enabled: false,
+        synthetic: false,
+        adapter: null,
+        stateCode: "ID",
+        documentationUrl: expected.documentationUrl,
+        accessedOn: "2026-07-31",
+        method: "official_index",
+        authentication: "none",
+        allowedHosts: expected.allowedHosts,
+        coverageFrom: null,
+        coverageThrough: null,
+        termsUrl: "https://idaho.gov/legal-notices/",
+        reproduction: "metadata_and_links",
+        failureMode: "last_known_good",
+        officialSubjectMappings: [],
+      },
+    );
+    assert.match(source.coverage.limitations, expected.limitation);
+    assert.ok(
+      source.publication.requiredProvenancePointers.includes(
+        expected.requiredDatePointer,
+      ),
+    );
+  }
+
   const oregonOData = sourceRegistry.sources.find(
     ({ id }) => id === "oregon-legislature-odata",
   );
@@ -648,6 +713,8 @@ test("blocked researched gaps cannot be activated without adapters", () => {
     "oregon-administrative-rules-bulletins",
     "oregon-governor-executive-orders",
     "oregon-appellate-opinions",
+    "idaho-administrative-rulemaking-index",
+    "idaho-governor-executive-orders",
     "idaho-supreme-court-opinions",
     "idaho-court-of-appeals-opinions",
   ]) {
