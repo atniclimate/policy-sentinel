@@ -4,6 +4,7 @@ import type {
   CoverageEntry,
   HistoryEvent,
   JudicialContext,
+  LandmarkEvidence,
   Nation,
   NationAssociation,
   PublicRecord,
@@ -147,6 +148,31 @@ const normalizeSourceText = (value: unknown): SourceText | null => {
     sourceDate: nullableString(item.sourceDate ?? item.date),
     reproductionBasis:
       nullableString(item.reproductionBasis ?? item.reuseBasis) ?? undefined,
+  };
+};
+
+const normalizeLandmarkEvidence = (value: unknown): LandmarkEvidence | null => {
+  const item = objectValue(value);
+  const text = nullableString(item.text);
+  const sourceLabel = nullableString(item.sourceLabel);
+  const sourceUrl = stringValue(item.sourceUrl);
+  const reproductionBasis = stringValue(item.reproductionBasis);
+  const sourceDate =
+    item.sourceDate === null ? null : stringValue(item.sourceDate);
+  if (
+    (text === null) === (sourceLabel === null) ||
+    !isHttpsUrl(sourceUrl) ||
+    !reproductionBasis ||
+    (sourceDate !== null && !isRealDate(sourceDate))
+  ) {
+    return null;
+  }
+  return {
+    ...(text === null ? {} : { text }),
+    ...(sourceLabel === null ? {} : { sourceLabel }),
+    sourceUrl,
+    sourceDate,
+    reproductionBasis,
   };
 };
 
@@ -454,17 +480,79 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
   const urgent = objectValue(change.urgentAlert);
   const ai = objectValue(item.aiSummary);
   const taxonomyMemberships = normalizeMemberships(item.taxonomyMemberships);
+  const relevance = normalizeRelevance(item.relevance);
+  const isLandmark = booleanValue(
+    landmark.isLandmark ?? item.isLandmark,
+    false,
+  );
+  const landmarkCriterionCodes = stringArray(landmark.criterionCodes);
+  const landmarkReviewState = nullableString(landmark.reviewState);
+  const rawLandmarkEvidence = Array.isArray(landmark.officialEvidence)
+    ? landmark.officialEvidence
+    : [];
+  const landmarkEvidence = rawLandmarkEvidence
+    .map(normalizeLandmarkEvidence)
+    .filter((evidence): evidence is LandmarkEvidence => evidence !== null);
+  const isDetailRecord = typeof item.schemaVersion === "string";
 
   const internalId = stringValue(item.internalId ?? item.stableId ?? item.id);
   const officialTitle = stringValue(
     item.officialTitle ?? item.title ?? item.official_title,
   );
   if (!internalId || !officialTitle) return null;
+  if (isDetailRecord && item.schemaVersion !== "1.3.0") return null;
+  if (
+    isLandmark !== relevance.some(({ basis }) => basis === "landmark") ||
+    (isDetailRecord &&
+      isLandmark &&
+      (landmarkReviewState !== "approved" ||
+        landmarkCriterionCodes.length === 0 ||
+        landmarkCriterionCodes.length !==
+          new Set(landmarkCriterionCodes).size ||
+        landmarkEvidence.length === 0 ||
+        landmarkEvidence.length !== rawLandmarkEvidence.length ||
+        !relevance
+          .filter(({ basis }) => basis === "landmark")
+          .some(({ sourceUrl }) =>
+            landmarkEvidence.some(
+              (evidence) => evidence.sourceUrl === sourceUrl,
+            ),
+          ))) ||
+    (isDetailRecord &&
+      !isLandmark &&
+      (Object.hasOwn(landmark, "criterionCodes") ||
+        Object.hasOwn(landmark, "reviewState") ||
+        Object.hasOwn(landmark, "officialEvidence")))
+  ) {
+    return null;
+  }
 
   const documentType = stringValue(
     item.documentType ?? item.type,
     "other_official_record",
   );
+  const criterionDocumentTypes = new Map([
+    ["documented-court-decision", "court_decision"],
+    ["treaty", "treaty"],
+    ["statute", "statute"],
+    ["public-state-federal-accord", "intergovernmental_accord"],
+  ]);
+  const allowedLandmarkCriteria = new Set([
+    ...criterionDocumentTypes.keys(),
+    "officially-identified-foundational",
+  ]);
+  if (
+    isDetailRecord &&
+    isLandmark &&
+    landmarkCriterionCodes.some(
+      (criterion) =>
+        !allowedLandmarkCriteria.has(criterion) ||
+        (criterionDocumentTypes.has(criterion) &&
+          criterionDocumentTypes.get(criterion) !== documentType),
+    )
+  ) {
+    return null;
+  }
   const issuingBodies = stringArray(item.issuingBodies);
   const judicialContext = normalizeJudicialContext(item.judicialContext);
   const isJudicial = ["court_decision", "administrative_decision"].includes(
@@ -593,7 +681,7 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
     officialSubjects: stringArray(item.officialSubjects),
     taxonomyMemberships,
     isUnclassified: booleanValue(item.isUnclassified, false),
-    relevance: normalizeRelevance(item.relevance),
+    relevance,
     nationIds: [
       ...new Set([
         ...stringArray(item.nationIds),
@@ -604,13 +692,10 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
     ],
     nationAssociations: normalizeAssociations(item.nationAssociations),
     landmark: {
-      isLandmark: booleanValue(landmark.isLandmark ?? item.isLandmark, false),
-      criterionCodes: stringArray(landmark.criterionCodes),
-      officialEvidence: Array.isArray(landmark.officialEvidence)
-        ? landmark.officialEvidence
-            .map(normalizeSourceText)
-            .filter((text): text is SourceText => text !== null)
-        : [],
+      isLandmark,
+      criterionCodes: landmarkCriterionCodes,
+      reviewState: landmarkReviewState === "approved" ? "approved" : undefined,
+      officialEvidence: landmarkEvidence,
     },
     historical: {
       isHistorical: booleanValue(
@@ -700,6 +785,9 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
     record.texts.officialSummary?.text,
     record.texts.sourceExcerpt?.text,
     record.texts.officialLanguage?.text,
+    record.landmark.officialEvidence
+      .map((evidence) => evidence.text ?? evidence.sourceLabel)
+      .join(" "),
   ]
     .filter(Boolean)
     .join(" ")
@@ -712,24 +800,24 @@ const normalizeManifest = (payload: unknown): ArtifactManifest => {
   const item = objectValue(payload);
   const statistics = objectValue(item.statistics);
   const artifactVersion = stringValue(item.artifactVersion);
-  if (artifactVersion !== "1.2.0") {
+  if (artifactVersion !== "1.3.0") {
     throw new Error(
-      `This application requires artifact package 1.2.0; received ${
+      `This application requires artifact package 1.3.0; received ${
         artifactVersion || "an unversioned package"
       }.`,
     );
   }
   const recordSchemaVersion = stringValue(item.recordSchemaVersion);
-  if (recordSchemaVersion !== "1.2.0") {
+  if (recordSchemaVersion !== "1.3.0") {
     throw new Error(
-      `This application requires record schema 1.2.0; received ${
+      `This application requires record schema 1.3.0; received ${
         recordSchemaVersion || "an unversioned record schema"
       }.`,
     );
   }
   const generatedAt = nullableString(item.generatedAt ?? item.builtAt);
   if (!generatedAt) {
-    throw new Error("Artifact package 1.2.0 is missing its build timestamp.");
+    throw new Error("Artifact package 1.3.0 is missing its build timestamp.");
   }
   return {
     artifactVersion,

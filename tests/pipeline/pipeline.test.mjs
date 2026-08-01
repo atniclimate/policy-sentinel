@@ -272,6 +272,33 @@ function judicialRecord(overrides = {}) {
   return completeSyntheticProvenance(record);
 }
 
+function landmarkJudicialRecord() {
+  const record = globalThis.structuredClone(judicialRecord());
+  record.relevance.push({
+    basis: "landmark",
+    label: "Verified documented court decision; not Nation-specific",
+    sourceUrl: record.urls.officialSource,
+    evidence:
+      "The official source provides the reviewed title, docket, date, citation, and issuing body.",
+  });
+  record.landmark = {
+    isLandmark: true,
+    criterionCodes: ["documented-court-decision"],
+    reviewState: "approved",
+    officialEvidence: [
+      {
+        sourceLabel:
+          "Synthetic Court v. Synthetic Respondent; SYN-DOCKET; 999 U.S. 1; decided 2019-03-19.",
+        sourceUrl: record.urls.officialSource,
+        sourceDate: "2019-03-19",
+        reproductionBasis: "Metadata and official links only.",
+      },
+    ],
+  };
+  record.fieldProvenance = [];
+  return completeSyntheticProvenance(record);
+}
+
 async function createLastKnownGoodFixture({
   includeHealthAsset = true,
   duplicateHealthAsset = false,
@@ -446,7 +473,7 @@ test("synthetic provenance covers every declared source-derived leaf", () => {
   }
 });
 
-test("record schema 1.2 constrains source-document relationship shape", () => {
+test("record schema 1.3 constrains source-document relationship shape", () => {
   const [original] = correctionRelationshipPair();
   assert.equal(
     validateRecordSchema(original),
@@ -468,7 +495,7 @@ test("record schema 1.2 constrains source-document relationship shape", () => {
   assert.equal(validateRecordSchema(nonHttpsTarget), false);
 });
 
-test("record schema 1.2 requires a bounded source-neutral judicial context", () => {
+test("record schema 1.3 requires a bounded source-neutral judicial context", () => {
   const valid = judicialRecord();
   assert.equal(
     validateRecordSchema(valid),
@@ -624,6 +651,37 @@ test("judicial decision date controls historical treatment and artifact coverage
     /non-landmark pre-1980 record must use list_and_link/,
   );
 
+  const linkOnlyHistorical = globalThis.structuredClone(historical);
+  linkOnlyHistorical.historical.pre1980Treatment = "list_and_link";
+  linkOnlyHistorical.fieldProvenance = [];
+  const preparedLinkOnlyHistorical =
+    completeSyntheticProvenance(linkOnlyHistorical);
+  assert.doesNotThrow(() =>
+    validateRecordPolicy(preparedLinkOnlyHistorical, {
+      sourceConfig: sourceConfigs.get(preparedLinkOnlyHistorical.source.id),
+      taxonomy,
+    }),
+  );
+
+  const copiedHistorical = globalThis.structuredClone(linkOnlyHistorical);
+  copiedHistorical.texts.officialSummary = {
+    text: "Copied pre-1980 source language.",
+    sourceUrl: copiedHistorical.urls.officialSource,
+    sourceDate: "1979-03-19",
+    reproductionBasis: "Synthetic excerpt.",
+  };
+  copiedHistorical.fieldProvenance = [];
+  const preparedCopiedHistorical =
+    completeSyntheticProvenance(copiedHistorical);
+  assert.throws(
+    () =>
+      validateRecordPolicy(preparedCopiedHistorical, {
+        sourceConfig: sourceConfigs.get(preparedCopiedHistorical.source.id),
+        taxonomy,
+      }),
+    /non-landmark pre-1980 record must remain metadata-and-link only/,
+  );
+
   const configuredRegistry = globalThis.structuredClone(sourceRegistry);
   const validJudicial = judicialRecord();
   const configuredSource = configuredRegistry.sources.find(
@@ -644,6 +702,83 @@ test("judicial decision date controls historical treatment and artifact coverage
     .entries.find(({ sourceId }) => sourceId === validJudicial.source.id);
   assert.equal(coverage.recordFrom, "2019-03-19");
   assert.equal(coverage.recordThrough, "2019-03-19");
+});
+
+test("record schema 1.3 and policy fail closed around landmark evidence", () => {
+  const valid = landmarkJudicialRecord();
+  assert.equal(
+    validateRecordSchema(valid),
+    true,
+    JSON.stringify(validateRecordSchema.errors),
+  );
+  assert.doesNotThrow(() =>
+    validateRecordPolicy(valid, {
+      sourceConfig: sourceConfigs.get(valid.source.id),
+      taxonomy,
+    }),
+  );
+
+  const missingReview = globalThis.structuredClone(valid);
+  delete missingReview.landmark.reviewState;
+  assert.equal(validateRecordSchema(missingReview), false);
+
+  const mismatchedCriterion = globalThis.structuredClone(valid);
+  mismatchedCriterion.landmark.criterionCodes = ["statute"];
+  assert.throws(
+    () =>
+      validateRecordPolicy(mismatchedCriterion, {
+        sourceConfig: sourceConfigs.get(mismatchedCriterion.source.id),
+        taxonomy,
+      }),
+    /landmark criterion statute does not match document type court_decision/,
+  );
+
+  const unboundRelevance = globalThis.structuredClone(valid);
+  unboundRelevance.relevance[1].sourceUrl =
+    "https://official.example.invalid/opinions/term/other";
+  assert.throws(
+    () =>
+      validateRecordPolicy(unboundRelevance, {
+        sourceConfig: sourceConfigs.get(unboundRelevance.source.id),
+        taxonomy,
+      }),
+    /landmark relevance is not bound to its official evidence URL/,
+  );
+
+  const futureEvidence = globalThis.structuredClone(valid);
+  futureEvidence.landmark.officialEvidence[0].sourceDate = "2026-08-01";
+  assert.throws(
+    () =>
+      validateRecordPolicy(futureEvidence, {
+        sourceConfig: sourceConfigs.get(futureEvidence.source.id),
+        taxonomy,
+      }),
+    /landmark evidence 0 date is after retrieval/,
+  );
+
+  const copiedEvidence = globalThis.structuredClone(valid);
+  copiedEvidence.landmark.officialEvidence = [
+    {
+      text: "Copied decision language is outside this metadata-only test.",
+      sourceUrl: copiedEvidence.urls.officialSource,
+      sourceDate: "2019-03-19",
+      reproductionBasis: "Metadata and official links only.",
+    },
+  ];
+  copiedEvidence.fieldProvenance = [];
+  const preparedCopiedEvidence = completeSyntheticProvenance(copiedEvidence);
+  const metadataOnlySource = globalThis.structuredClone(
+    sourceConfigs.get(preparedCopiedEvidence.source.id),
+  );
+  metadataOnlySource.publication.reproduction = "metadata_and_links";
+  assert.throws(
+    () =>
+      validateRecordPolicy(preparedCopiedEvidence, {
+        sourceConfig: metadataOnlySource,
+        taxonomy,
+      }),
+    /metadata-and-links source cannot publish copied landmark evidence text/,
+  );
 });
 
 test("correction relationships are reciprocal while related documents may be one-way", () => {
@@ -1262,8 +1397,8 @@ test("artifact packaging is deterministic, compact, and detail-sharded", () => {
   const first = createArtifactDocuments(input);
   const second = createArtifactDocuments(input);
   assert.deepEqual(first.get("manifest.json"), second.get("manifest.json"));
-  assert.equal(first.get("manifest.json").artifactVersion, "1.2.0");
-  assert.equal(first.get("manifest.json").recordSchemaVersion, "1.2.0");
+  assert.equal(first.get("manifest.json").artifactVersion, "1.3.0");
+  assert.equal(first.get("manifest.json").recordSchemaVersion, "1.3.0");
   assert.equal(first.get("manifest.json").nationCount, 575);
   assert.equal(first.get("manifest.json").recordCount, 2);
   assert.equal(first.get("index/records.json").records.length, 2);
@@ -1970,6 +2105,7 @@ test("first-run unavailable health is authoritative for enabled sources without 
 
 test("compact records preserve exact taxonomy pairs and landmark state", () => {
   const record = globalThis.structuredClone(preparedFederal);
+  record.documentType = "statute";
   record.taxonomyMemberships = [
     {
       categoryId: "category-b",
@@ -1987,8 +2123,22 @@ test("compact records preserve exact taxonomy pairs and landmark state", () => {
   record.landmark = {
     isLandmark: true,
     criterionCodes: ["statute"],
-    officialEvidence: [],
+    reviewState: "approved",
+    officialEvidence: [
+      {
+        sourceLabel: "Synthetic statute metadata.",
+        sourceUrl: record.urls.officialSource,
+        sourceDate: record.dates.published,
+        reproductionBasis: "Synthetic fixture evidence.",
+      },
+    ],
   };
+  record.relevance.push({
+    basis: "landmark",
+    label: "Synthetic landmark",
+    sourceUrl: record.urls.officialSource,
+    evidence: "Synthetic fixture evidence.",
+  });
   const compact = createArtifactDocuments({
     records: [record],
     nations,

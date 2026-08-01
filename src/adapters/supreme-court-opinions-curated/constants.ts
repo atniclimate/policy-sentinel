@@ -2,7 +2,7 @@ export const SUPREME_COURT_OPINIONS_SOURCE_ID =
   "supreme-court-opinions-curated" as const;
 export const SUPREME_COURT_OPINIONS_ADAPTER_ID =
   "supreme-court-opinions-curated-adapter" as const;
-export const SUPREME_COURT_OPINIONS_ADAPTER_VERSION = "1.0.0" as const;
+export const SUPREME_COURT_OPINIONS_ADAPTER_VERSION = "1.1.0" as const;
 export const SUPREME_COURT_OPINIONS_CONTRACT_VERSION = "1.0.0" as const;
 export const SUPREME_COURT_OPINIONS_IDENTITY_RULE =
   "supreme-court-docket-reporter-citation-v1" as const;
@@ -79,6 +79,13 @@ export const SUPREME_COURT_REQUIRED_PROVENANCE_POINTERS = Object.freeze([
   "/status/sourceLabel",
   "/status/asOf",
   "/urls/officialSource",
+  "/landmark/isLandmark",
+  "/landmark/criterionCodes/0",
+  "/landmark/reviewState",
+  "/landmark/officialEvidence/0/sourceLabel",
+  "/landmark/officialEvidence/0/sourceUrl",
+  "/landmark/officialEvidence/0/sourceDate",
+  "/landmark/officialEvidence/0/reproductionBasis",
 ] as const);
 
 export const SUPREME_COURT_USER_AGENT =

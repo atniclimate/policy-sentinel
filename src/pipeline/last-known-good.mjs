@@ -24,8 +24,8 @@ const SOURCE_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SEMANTIC_VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
 const DATE_TIME_PATTERN =
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
-const SUPPORTED_ARTIFACT_VERSION = "1.2.0";
-const SUPPORTED_RECORD_SCHEMA_VERSION = "1.2.0";
+const SUPPORTED_ARTIFACT_VERSION = "1.3.0";
+const SUPPORTED_RECORD_SCHEMA_VERSION = "1.3.0";
 const ARTIFACT_DOCUMENT_SCHEMA_VERSION = "1.0.0";
 const REQUIRED_ROOT_ASSETS = [
   "coverage.json",

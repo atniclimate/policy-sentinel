@@ -19,8 +19,8 @@ const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
-const SUPPORTED_ARTIFACT_VERSION = "1.2.0";
-const SUPPORTED_RECORD_SCHEMA_VERSION = "1.2.0";
+const SUPPORTED_ARTIFACT_VERSION = "1.3.0";
+const SUPPORTED_RECORD_SCHEMA_VERSION = "1.3.0";
 
 function parseArguments(argv) {
   let directory = path.join(projectRoot, "dist", "data");

@@ -77,7 +77,11 @@ describe("Supreme Court curated-opinion adapter lifecycle", () => {
       urls: { officialSource: SUPREME_COURT_TERM_URL, officialFullText: null },
       nationAssociations: [],
       taxonomyMemberships: [],
-      landmark: { isLandmark: false },
+      landmark: {
+        isLandmark: true,
+        criterionCodes: ["documented-court-decision"],
+        reviewState: "approved",
+      },
     });
     expect(result.health).toEqual({
       sourceId: "supreme-court-opinions-curated",

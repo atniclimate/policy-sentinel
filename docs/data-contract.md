@@ -5,7 +5,7 @@
 The Phase A contracts are:
 
 - [`record.schema.v1.json`](../schemas/record.schema.v1.json), normalized
-  record schema version `1.2.0`;
+  record schema version `1.3.0`;
 - [`taxonomy.schema.v1.json`](../schemas/taxonomy.schema.v1.json), taxonomy
   schema version `1.0.0`; and
 - [`taxonomy.v1.json`](../config/taxonomy.v1.json), the editable ten-category,
@@ -13,7 +13,7 @@ The Phase A contracts are:
 - [`source.schema.v1.json`](../schemas/source.schema.v1.json), compatible v1
   source-registry schema version `1.3.0`;
 - [`sources.v1.json`](../config/sources.v1.json), source registry version
-  `1.13.0`; and
+  `1.14.0`; and
 - [`artifact.schema.v1.json`](../schemas/artifact.schema.v1.json), static
   artifact schema version `1.0.0`.
 
@@ -23,7 +23,7 @@ evidence that a production source is enabled or a public dataset exists.
 taxonomy, and synthetic fixtures, and proves selected invalid governance cases
 are rejected.
 
-Source-registry version `1.13.0` distinguishes researched configuration,
+Source-registry version `1.14.0` distinguishes researched configuration,
 implemented adapters, and activation. A disabled source may have
 `adapter: null` or a versioned adapter that is not authorized to emit public
 records; an enabled source must have a versioned adapter. Every non-synthetic
@@ -205,7 +205,7 @@ dimensions, a required operation or biennium failure must conservatively
 omit/degrade Washington LWS as one source and source-contract evidence must not
 be forced into unrelated record fields.
 
-Record schema 1.2 adds a source-neutral `judicialContext` for court and
+Record schema 1.2 introduced a source-neutral `judicialContext` for court and
 administrative decisions. It keeps adjudicating body, docket numbers, exact
 reporter/neutral/other official citations and their source URLs, decision date,
 document form, publication status, and revision review in distinct roles.
@@ -217,14 +217,24 @@ kind to the document type, requires the exact adjudicating body to remain in
 edge. The model preserves source evidence without asserting precedential force,
 legal effect, or complete subsequent history.
 
-Registry 1.13.0 retains adapter 1.0 for the selected one-row Supreme Court
-source while keeping the source disabled. The adapter emits only the reviewed
-Cougar Den citation-and-link metadata, sets `urls.officialFullText` to `null`,
-and preserves the bound-volume fragment only as the reporter citation's
-`sourceUrl`. The separate DOI IBIA chronology remains disabled with
-`adapter: null` because its source and privacy gaps are unchanged.
+Record schema and artifact package 1.3 add a required `reviewState` for every
+landmark and permit either copied `SourceText` or a mutually exclusive
+metadata-only evidence object with an exact source label, URL, date, and
+reproduction basis. Semantic validation requires landmark relevance and its
+official evidence to share a URL, binds typed criterion codes to document type,
+rejects copied landmark text from `metadata_and_links` sources, and enforces
+link-only treatment for non-landmark pre-1980 records.
 
-Registry 1.13.0 also gives the assessed state court surfaces independent
+Registry 1.14.0 retains adapter 1.1 for the selected one-row Supreme Court
+source while keeping the source disabled. The adapter emits only the reviewed
+Cougar Den citation-and-link metadata, marks the row as an editorially approved
+`documented-court-decision` landmark, sets `urls.officialFullText` to `null`,
+and preserves the bound-volume fragment only as the reporter citation's
+`sourceUrl`. Its landmark evidence is exact metadata, not copied opinion text.
+The separate DOI IBIA chronology remains disabled with `adapter: null` because
+its source and privacy gaps are unchanged.
+
+Registry 1.14.0 also gives the assessed state court surfaces independent
 disabled source identities. `washington-appellate-slip-opinions` has no
 official citation separate from its docket and no case-specific typed path
 from a mutable slip opinion to its current reporter version.
@@ -253,7 +263,7 @@ The normalized record preserves:
 | Source-document relationships | Detail-only `corrects`, `corrected_by`, `supersedes`, `superseded_by`, `substitutes`, `substituted_by`, and `related_document` edges with the exact target source-record ID, official target URL, and originating source label. |
 | Relevance | One or more explicit bases such as source-explicit Nation reference, general jurisdiction, landmark, or another registered source-defined basis. |
 | Nation evidence | Internal Nation ID, exact official name or authorized alias found, exact evidence text/location, official evidence URL, evidence date, basis, and validation state. |
-| History and quality | Actual source coverage range and confidence, pre-1980 treatment, landmark criteria/evidence, data quality, source health, freshness, change badge, and urgent alert metadata. |
+| History and quality | Actual source coverage range and confidence; pre-1980 treatment; landmark criterion code, project editorial review state, exact official evidence metadata or permitted source text, and reproduction basis; data quality; source health; freshness; change badge; and urgent alert metadata. |
 | AI | Nullable detail-summary object with required label, model/build/policy provenance, cited official inputs, dates, and validation state. |
 | Provenance | Per-field JSON Pointer, source ID/record ID/URL, retrieval time, source update time when available, transformation or mapping rule, and validation state. |
 
@@ -275,8 +285,12 @@ JSON Schema is one layer. Phase B semantic validation must additionally prove:
    `explicit_nation_reference` relevance;
 7. federal or state records with no Nation association are marked
    general-jurisdiction;
-8. historic and landmark labels satisfy the written criteria;
-9. excerpts and full text match the registered source-use decision;
+8. historic and landmark labels satisfy the written criteria, every landmark
+   has an approved project editorial review state and official evidence tied to
+   its landmark relevance URL, and criterion codes match the record type;
+9. excerpts and full text match the registered source-use decision, metadata-
+   only landmark evidence contains no copied source text, and non-landmark
+   pre-1980 records remain citation-and-link entries;
 10. deadlines and status alerts retain their exact source field and date;
 11. AI text contains no em dash or forbidden conclusion/relevance assertion
     and has complete cited-input provenance; and
@@ -414,20 +428,21 @@ The public artifact accepts only coherent source-health combinations:
 
 The artifact manifest names the record, taxonomy, mapping, source-registry, and
 build versions. Additive compatible changes can increment the minor version.
-Current builds emit artifact package `1.2.0`, record schema `1.2.0`, and source
-registry `1.13.0`; artifact schema `1.0.0` still accepts historical package
-`1.0.0` and `1.1.0` shapes for archival schema validation. Package 1.2 adds
-`judicialContext` to the compact-index/detail integrity projection so court,
-docket, citation, form, publication, and revision evidence cannot diverge
-during hydration. The current client fails closed on any artifact package or
-record schema other than `1.2.0` before record normalization; it does not
-synthesize judicial context or other missing compact fields from a legacy
-package. The current artifact validator likewise requires the coherent
-`1.2.0` package/record pair even though the artifact JSON Schema retains
-archival compatibility. For current records, client normalization also
-rechecks the judicial document-type, context, body, date, citation-link, and
-issuing-body invariants instead of silently dropping malformed values. A
-package-1.2 detail must share the loaded manifest build timestamp and exactly
+Current builds emit artifact package `1.3.0`, record schema `1.3.0`, and source
+registry `1.14.0`; artifact schema `1.0.0` still accepts historical package
+`1.0.0`, `1.1.0`, and `1.2.0` shapes for archival schema validation. Package
+1.2 added `judicialContext` to the compact-index/detail integrity projection so
+court, docket, citation, form, publication, and revision evidence cannot
+diverge during hydration. Package 1.3 keeps the compact landmark flag and adds
+the reviewed criterion and evidence union to detail records. The current client
+fails closed on any artifact package or record schema other than `1.3.0` before
+record normalization; it does not synthesize judicial or landmark evidence from
+a legacy package. The current artifact validator likewise requires the coherent
+`1.3.0` package/record pair even though the artifact JSON Schema retains
+archival compatibility. For current records, client normalization rechecks the
+judicial document-type, context, body, date, citation-link, and issuing-body
+invariants plus landmark/relevance symmetry and reviewed detail evidence. A
+package-1.3 detail must share the loaded manifest build timestamp and exactly
 reproduce the compact index projection; CSV and dossier hydration abort on any
 mismatch.
 Breaking field or meaning changes require a new major schema, migration and

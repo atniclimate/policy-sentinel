@@ -69,7 +69,6 @@ const compactRecord = (overrides: Record<string, unknown> = {}) => ({
   },
   landmark: {
     isLandmark: false,
-    criterionCodes: [],
   },
   ...overrides,
 });
@@ -117,6 +116,17 @@ describe("compact record contract", () => {
   it("preserves landmark metadata so the timeline can select the record", () => {
     const record = normalizeRecord(
       compactRecord({
+        relevance: [
+          {
+            basis: "general_jurisdiction",
+            label: "General federal jurisdiction",
+          },
+          {
+            basis: "landmark",
+            label: "Verified landmark; not Nation-specific",
+            sourceUrl: "https://official.example.invalid/SYN-RECORD-1",
+          },
+        ],
         landmark: {
           isLandmark: true,
         },

@@ -34,7 +34,7 @@ test("source registry records researched disabled production sources", () => {
   assert.equal(validateSources(sourceRegistry), true);
   assert.doesNotThrow(() => assertSourceRegistrySemantics(sourceRegistry));
   assert.equal(sourceRegistry.schemaVersion, "1.3.0");
-  assert.equal(sourceRegistry.registryVersion, "1.13.0");
+  assert.equal(sourceRegistry.registryVersion, "1.14.0");
 
   const federalRegister = sourceRegistry.sources.find(
     ({ id }) => id === "federal-register",
@@ -458,7 +458,7 @@ test("source registry records researched disabled production sources", () => {
       synthetic: false,
       adapter: {
         id: "supreme-court-opinions-curated-adapter",
-        version: "1.0.0",
+        version: "1.1.0",
         module: "src/adapters/supreme-court-opinions-curated/index.ts",
         identityRule: "supreme-court-docket-reporter-citation-v1",
       },
@@ -474,6 +474,20 @@ test("source registry records researched disabled production sources", () => {
       officialSubjectMappings: [],
     },
   );
+  for (const pointer of [
+    "/landmark/isLandmark",
+    "/landmark/criterionCodes/0",
+    "/landmark/reviewState",
+    "/landmark/officialEvidence/0/sourceLabel",
+    "/landmark/officialEvidence/0/sourceUrl",
+    "/landmark/officialEvidence/0/sourceDate",
+    "/landmark/officialEvidence/0/reproductionBasis",
+  ]) {
+    assert.ok(
+      supremeCourt.publication.requiredProvenancePointers.includes(pointer),
+      pointer,
+    );
+  }
   assert.match(
     supremeCourt.coverage.limitations,
     /only Washington State Dept\. of Licensing v\. Cougar Den, Inc\./,

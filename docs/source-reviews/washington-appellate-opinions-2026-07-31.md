@@ -2,7 +2,7 @@
 
 Accessed: 2026-07-31
 
-Implementation state: evidence-blocked in source-registry 1.13.0; registered
+Implementation state: evidence-blocked in source-registry 1.14.0; registered
 disabled with `adapter: null`; no production records
 
 External authorization: no account, key, registration, or access-triggered
@@ -109,7 +109,7 @@ document facts are not Nation evidence.
 
 ## Decision
 
-Source-registry 1.13.0 records `washington-appellate-slip-opinions` as a
+Source-registry 1.14.0 records `washington-appellate-slip-opinions` as a
 disabled `official_index` source with `adapter: null`, null coverage bounds,
 metadata-and-links reproduction, no subject mappings, and its own future
 health/last-known-good boundary. Disabled sources emit no coverage, health,

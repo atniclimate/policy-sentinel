@@ -134,8 +134,8 @@ test("last-known-good reuse rejects incomplete or inconsistent artifact packages
     await t.test("loads a fully generated current artifact", async () => {
       await withFixture(async (root) => {
         const verified = await verifyLastKnownGoodArtifact(root);
-        assert.equal(verified.manifest.artifactVersion, "1.2.0");
-        assert.equal(verified.manifest.recordSchemaVersion, "1.2.0");
+        assert.equal(verified.manifest.artifactVersion, "1.3.0");
+        assert.equal(verified.manifest.recordSchemaVersion, "1.3.0");
         assert.equal(verified.records.length, 2);
 
         const loaded = await loadLastKnownGoodSource(

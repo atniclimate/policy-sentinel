@@ -45,7 +45,7 @@ export const whyShownFor = (
     return {
       basis: "landmark",
       label: "Verified landmark; not Nation-specific",
-      evidence: officialEvidence?.text,
+      evidence: officialEvidence?.text ?? officialEvidence?.sourceLabel,
       evidenceUrl: officialEvidence?.sourceUrl,
     };
   }

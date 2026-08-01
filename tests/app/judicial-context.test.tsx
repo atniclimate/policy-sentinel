@@ -91,8 +91,15 @@ const compactRecord = {
       basis: "general_jurisdiction",
       label: "General federal jurisdiction; not Nation-specific",
     },
+    {
+      basis: "landmark",
+      label: "Verified documented court decision; not Nation-specific",
+      sourceUrl: OFFICIAL_SOURCE,
+      evidence:
+        "The official Court index supplies the exact reviewed decision metadata.",
+    },
   ],
-  landmark: { isLandmark: false },
+  landmark: { isLandmark: true },
   change: {
     kind: "unchanged",
     firstSeenAt: GENERATED_AT,
@@ -102,7 +109,7 @@ const compactRecord = {
 };
 
 const detailRecord = {
-  schemaVersion: "1.2.0",
+  schemaVersion: "1.3.0",
   internalId: compactRecord.id,
   officialTitle: compactRecord.officialTitle,
   sourceDocumentIdentifier: compactRecord.sourceDocumentIdentifier,
@@ -113,7 +120,7 @@ const detailRecord = {
     provider: compactRecord.source.provider,
     recordId: "16-1498@586 U.S. 347",
     adapterId: "supreme-court-opinions-curated-adapter",
-    adapterVersion: "1.0.0",
+    adapterVersion: "1.1.0",
     coverage: {
       from: "2019-03-19",
       through: "2019-03-19",
@@ -162,7 +169,21 @@ const detailRecord = {
   isUnclassified: true,
   relevance: compactRecord.relevance,
   nationAssociations: [],
-  landmark: { isLandmark: false },
+  landmark: {
+    isLandmark: true,
+    criterionCodes: ["documented-court-decision"],
+    reviewState: "approved",
+    officialEvidence: [
+      {
+        sourceLabel:
+          "Washington State Dept. of Licensing v. Cougar Den, Inc.; docket 16-1498; decided 2019-03-19; 586 U.S. 347.",
+        sourceUrl: OFFICIAL_SOURCE,
+        sourceDate: "2019-03-19",
+        reproductionBasis:
+          "Metadata and official links only; no opinion text is reproduced.",
+      },
+    ],
+  },
   historical: { isHistorical: false, pre1980Treatment: "not_applicable" },
   dataQuality: {
     state: "validated",
@@ -187,8 +208,8 @@ function installArtifactFetch() {
     [
       "manifest.json",
       {
-        artifactVersion: "1.2.0",
-        recordSchemaVersion: "1.2.0",
+        artifactVersion: "1.3.0",
+        recordSchemaVersion: "1.3.0",
         buildId: "synthetic-judicial-ui",
         generatedAt: GENERATED_AT,
         dataAsOf: "2019-03-19T00:00:00.000Z",
@@ -310,9 +331,9 @@ afterEach(() => {
 });
 
 describe("judicial context UX", () => {
-  it("shows court, citation, and decision date on the result card", async () => {
+  it("shows a verified court landmark with citation and date on the timeline", async () => {
     installArtifactFetch();
-    window.location.hash = `#/unclassified?nation=${encodeURIComponent(NATION_ID)}&areas=all`;
+    window.location.hash = `#/timeline?nation=${encodeURIComponent(NATION_ID)}&areas=all`;
 
     const { container } = render(<App />);
 
@@ -327,11 +348,14 @@ describe("judicial context UX", () => {
     expect(card?.textContent).toContain("586 U.S. 347");
     expect(card?.textContent).toContain("Decided");
     expect(card?.textContent).toContain("Mar 19, 2019");
+    expect(card?.textContent).toContain(
+      "Verified landmark; not Nation-specific",
+    );
   });
 
   it("renders bounded decision metadata and carries its boundary into the dossier", async () => {
     installArtifactFetch();
-    window.location.hash = `#/record/${encodeURIComponent(compactRecord.id)}?nation=${encodeURIComponent(NATION_ID)}&areas=all&return=%2Funclassified`;
+    window.location.hash = `#/record/${encodeURIComponent(compactRecord.id)}?nation=${encodeURIComponent(NATION_ID)}&areas=all&return=%2Ftimeline`;
     const print = vi.spyOn(window, "print").mockImplementation(() => undefined);
     vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
       callback(0);
@@ -359,6 +383,20 @@ describe("judicial context UX", () => {
     expect(container.textContent).toContain(
       "complete U.S. Reports volume at the Court-supplied page fragment",
     );
+    expect(
+      screen.getByRole("heading", {
+        name: "Landmark inclusion evidence",
+        level: 2,
+      }),
+    ).toBeInTheDocument();
+    expect(container.textContent).toContain("Documented Court Decision");
+    expect(container.textContent).toContain("Project editorial review");
+    expect(container.textContent).toContain(
+      "Metadata and official links only; no opinion text is reproduced.",
+    );
+    expect(
+      screen.getByRole("link", { name: /Verify official evidence/ }),
+    ).toHaveAttribute("href", OFFICIAL_SOURCE);
 
     const citation = screen.getByRole("link", {
       name: /586 U\.S\. 347/,
@@ -383,6 +421,14 @@ describe("judicial context UX", () => {
     );
     expect(dossier?.textContent).toContain(
       "complete U.S. Reports volume at the Court-supplied page fragment",
+    );
+    expect(dossier?.textContent).toContain("Landmark inclusion evidence");
+    expect(dossier?.textContent).toContain("Documented Court Decision");
+    expect(dossier?.textContent).toContain(
+      "Metadata and official links only; no opinion text is reproduced.",
+    );
+    expect(dossier?.textContent).not.toContain(
+      "Exact Nation-reference evidence",
     );
 
     const accessibility = await axe.run(container, {

@@ -89,8 +89,8 @@ const rootAssets = (records: unknown[] = [compactRecord()]) =>
     [
       "data/manifest.json",
       {
-        artifactVersion: "1.2.0",
-        recordSchemaVersion: "1.2.0",
+        artifactVersion: "1.3.0",
+        recordSchemaVersion: "1.3.0",
         buildId: "synthetic-integrity",
         generatedAt: GENERATED_AT,
         dataAsOf: "2026-07-31T00:00:00Z",
@@ -190,7 +190,7 @@ describe("same-origin artifact integrity", () => {
     installAssetFetch(legacy);
 
     await expect(loadArtifacts()).rejects.toThrow(
-      "requires artifact package 1.2.0; received 1.0.0",
+      "requires artifact package 1.3.0; received 1.0.0",
     );
   });
 
@@ -204,7 +204,7 @@ describe("same-origin artifact integrity", () => {
     installAssetFetch(legacy);
 
     await expect(loadArtifacts()).rejects.toThrow(
-      "requires record schema 1.2.0; received 1.1.0",
+      "requires record schema 1.3.0; received 1.1.0",
     );
   });
 
@@ -395,6 +395,76 @@ describe("same-origin artifact integrity", () => {
 });
 
 describe("detail asset integrity", () => {
+  it("requires symmetric landmark relevance and reviewed detail evidence", () => {
+    const landmarkCompact = {
+      ...compactRecord(),
+      relevance: [
+        ...compactRecord().relevance,
+        {
+          basis: "landmark",
+          label: "Verified landmark; not Nation-specific",
+          sourceUrl: "https://official.example.invalid/records/SYN-1",
+        },
+      ],
+      landmark: { isLandmark: true },
+    };
+    expect(normalizeRecord(landmarkCompact)).not.toBeNull();
+    expect(
+      normalizeRecord({
+        ...landmarkCompact,
+        relevance: compactRecord().relevance,
+      }),
+    ).toBeNull();
+
+    const landmarkDetail = {
+      ...landmarkCompact,
+      schemaVersion: "1.3.0",
+      landmark: {
+        isLandmark: true,
+        criterionCodes: ["officially-identified-foundational"],
+        reviewState: "approved",
+        officialEvidence: [
+          {
+            sourceLabel: "Synthetic reviewed landmark metadata.",
+            sourceUrl: "https://official.example.invalid/records/SYN-1",
+            sourceDate: "2026-07-31",
+            reproductionBasis: "Metadata and official links only.",
+          },
+        ],
+      },
+    };
+    expect(normalizeRecord(landmarkDetail)).not.toBeNull();
+    expect(
+      normalizeRecord({
+        ...landmarkDetail,
+        landmark: { ...landmarkDetail.landmark, officialEvidence: [] },
+      }),
+    ).toBeNull();
+    expect(
+      normalizeRecord({
+        ...landmarkDetail,
+        landmark: {
+          ...landmarkDetail.landmark,
+          criterionCodes: ["documented-court-decision"],
+        },
+      }),
+    ).toBeNull();
+    expect(
+      normalizeRecord({
+        ...landmarkDetail,
+        landmark: {
+          ...landmarkDetail.landmark,
+          officialEvidence: [
+            {
+              ...landmarkDetail.landmark.officialEvidence[0],
+              text: "A second mutually exclusive evidence representation.",
+            },
+          ],
+        },
+      }),
+    ).toBeNull();
+  });
+
   it("accepts only canonical relative detail paths", () => {
     expect(normalizeRecord(compactRecord())?.texts.detailPath).toBe(
       "data/details/record_1.json",

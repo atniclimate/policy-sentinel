@@ -1835,6 +1835,58 @@ function DetailPage({
             </section>
           )}
 
+          {record.landmark.isLandmark && (
+            <section aria-labelledby="landmark-evidence-title">
+              <h2 id="landmark-evidence-title">Landmark inclusion evidence</h2>
+              <dl class="detail-metadata">
+                <div>
+                  <dt>Written inclusion criterion</dt>
+                  <dd>
+                    {record.landmark.criterionCodes.map(humanize).join("; ")}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Project editorial review</dt>
+                  <dd>{humanize(record.landmark.reviewState ?? "unknown")}</dd>
+                </div>
+              </dl>
+              <p class="boundary-note">
+                <strong>Selection boundary:</strong> Landmark status is a
+                reviewed editorial inclusion decision for this discovery tool.
+                It is not a legal-effect, rights, or Nation-relationship
+                determination.
+              </p>
+              <ul class="provenance-list">
+                {record.landmark.officialEvidence.map((evidence) => (
+                  <li
+                    key={`${evidence.sourceUrl}:${evidence.sourceDate ?? ""}`}
+                  >
+                    {evidence.text ? (
+                      <blockquote>{evidence.text}</blockquote>
+                    ) : (
+                      <p>{evidence.sourceLabel}</p>
+                    )}
+                    <p>
+                      Evidence date: {formatDate(evidence.sourceDate)} ·{" "}
+                      <a
+                        href={evidence.sourceUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Verify official evidence
+                        <span class="visually-hidden"> (opens a new tab)</span>
+                      </a>
+                    </p>
+                    <p>
+                      <strong>Reproduction boundary:</strong>{" "}
+                      {evidence.reproductionBasis}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           {(record.texts.officialSummary ||
             record.texts.sourceExcerpt ||
             record.texts.officialLanguage) && (
@@ -2575,6 +2627,24 @@ function PrintDossier({
                   <dt>Why shown</dt>
                   <dd>{why.label}</dd>
                 </div>
+                {record.landmark.isLandmark && (
+                  <>
+                    <div>
+                      <dt>Landmark inclusion criterion</dt>
+                      <dd>
+                        {record.landmark.criterionCodes
+                          .map(humanize)
+                          .join("; ")}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Project editorial review</dt>
+                      <dd>
+                        {humanize(record.landmark.reviewState ?? "unknown")}
+                      </dd>
+                    </div>
+                  </>
+                )}
                 <div>
                   <dt>Official source</dt>
                   <dd>{record.urls.officialSource}</dd>
@@ -2605,11 +2675,32 @@ function PrintDossier({
                   Official-text boundary: {record.texts.detailReproductionBasis}
                 </p>
               )}
-              {why.evidence && (
+              {why.evidence && why.basis === "explicit_nation_reference" && (
                 <>
                   <h4>Exact Nation-reference evidence</h4>
                   <blockquote>{why.evidence}</blockquote>
                   <p>{why.evidenceUrl}</p>
+                </>
+              )}
+              {record.landmark.isLandmark && (
+                <>
+                  <h4>Landmark inclusion evidence</h4>
+                  <p>
+                    This is a project editorial selection, not a legal-effect,
+                    rights, or Nation-relationship determination.
+                  </p>
+                  <ul>
+                    {record.landmark.officialEvidence.map((evidence) => (
+                      <li
+                        key={`${evidence.sourceUrl}:${evidence.sourceDate ?? ""}`}
+                      >
+                        {evidence.text ?? evidence.sourceLabel} (evidence date:{" "}
+                        {formatDate(evidence.sourceDate)}; official evidence:{" "}
+                        {evidence.sourceUrl}). Reproduction boundary:{" "}
+                        {evidence.reproductionBasis}
+                      </li>
+                    ))}
+                  </ul>
                 </>
               )}
               {(record.texts.officialSummary || record.texts.sourceExcerpt) && (

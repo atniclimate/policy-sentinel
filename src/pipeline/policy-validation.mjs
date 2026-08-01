@@ -626,10 +626,107 @@ function validateProvenance(record, sourceConfig, issues) {
   }
 }
 
+function validateLandmarkPolicy(record, sourceConfig, issues) {
+  const landmarkRelevance = record.relevance.some(
+    ({ basis }) => basis === "landmark",
+  );
+  if (!record.landmark.isLandmark) {
+    if (landmarkRelevance) {
+      issues.push("non-landmark record cannot claim landmark relevance");
+    }
+    return;
+  }
+
+  if (record.landmark.reviewState !== "approved") {
+    issues.push("landmark review state is not approved");
+  }
+  if (!landmarkRelevance) {
+    issues.push("landmark record lacks landmark relevance");
+  }
+  if ((record.landmark.criterionCodes ?? []).length === 0) {
+    issues.push("landmark record lacks an approved criterion code");
+  }
+
+  const criterionDocumentTypes = new Map([
+    ["documented-court-decision", "court_decision"],
+    ["treaty", "treaty"],
+    ["statute", "statute"],
+    ["public-state-federal-accord", "intergovernmental_accord"],
+  ]);
+  for (const criterion of record.landmark.criterionCodes ?? []) {
+    const expectedDocumentType = criterionDocumentTypes.get(criterion);
+    if (
+      expectedDocumentType !== undefined &&
+      record.documentType !== expectedDocumentType
+    ) {
+      issues.push(
+        `landmark criterion ${criterion} does not match document type ${record.documentType}`,
+      );
+    }
+    if (
+      criterion === "public-state-federal-accord" &&
+      !["state", "federal"].includes(record.jurisdiction.level)
+    ) {
+      issues.push(
+        "public-state-federal-accord landmark has an unsupported jurisdiction level",
+      );
+    }
+  }
+
+  const eventDate =
+    record.judicialContext?.decisionDate ??
+    record.dates.published ??
+    record.dates.effective ??
+    record.status.asOf;
+  if (eventDate === null) {
+    issues.push("landmark record lacks a verified official date");
+  }
+
+  const evidence = record.landmark.officialEvidence ?? [];
+  if (evidence.length === 0) {
+    issues.push("landmark record lacks official evidence");
+  }
+  const landmarkRelevanceEntries = record.relevance.filter(
+    ({ basis }) => basis === "landmark",
+  );
+  if (
+    evidence.length > 0 &&
+    !landmarkRelevanceEntries.some((entry) =>
+      evidence.some(({ sourceUrl }) => sourceUrl === entry.sourceUrl),
+    )
+  ) {
+    issues.push("landmark relevance is not bound to its official evidence URL");
+  }
+  if (
+    sourceConfig.publication.reproduction === "metadata_and_links" &&
+    evidence.some((entry) => typeof entry.text === "string")
+  ) {
+    issues.push(
+      "metadata-and-links source cannot publish copied landmark evidence text",
+    );
+  }
+  const retrievedOn = record.dates.retrieved.slice(0, 10);
+  evidence.forEach((entry, index) => {
+    if (
+      typeof entry.sourceDate === "string" &&
+      entry.sourceDate > retrievedOn
+    ) {
+      issues.push(`landmark evidence ${index} date is after retrieval`);
+    }
+  });
+}
+
 function validateHistoricalPolicy(record, issues) {
   const eventDate =
     record.judicialContext?.decisionDate ?? record.dates.published;
   const eventYear = eventDate === null ? null : Number(eventDate.slice(0, 4));
+  if (
+    eventYear !== null &&
+    eventYear < 1980 &&
+    !record.historical.isHistorical
+  ) {
+    issues.push("pre-1980 record must be marked historical");
+  }
   if (
     eventYear !== null &&
     eventYear < 1980 &&
@@ -639,11 +736,47 @@ function validateHistoricalPolicy(record, issues) {
     issues.push("non-landmark pre-1980 record must use list_and_link");
   }
   if (
+    eventYear !== null &&
+    eventYear < 1980 &&
+    record.landmark.isLandmark &&
+    record.historical.pre1980Treatment !== "landmark_detail"
+  ) {
+    issues.push("pre-1980 landmark must use landmark_detail");
+  }
+  if (
+    eventYear !== null &&
+    eventYear >= 1980 &&
+    record.historical.pre1980Treatment !== "not_applicable"
+  ) {
+    issues.push(
+      "post-1979 record must use not_applicable historical treatment",
+    );
+  }
+  if (
+    !record.landmark.isLandmark &&
+    record.historical.pre1980Treatment === "landmark_detail"
+  ) {
+    issues.push("non-landmark record cannot use landmark_detail treatment");
+  }
+  if (
     record.landmark.isLandmark &&
     record.historical.pre1980Treatment === "landmark_detail" &&
-    !record.landmark.sourceUrl
+    (record.landmark.officialEvidence ?? []).length === 0
   ) {
-    issues.push("landmark detail lacks an official inclusion source");
+    issues.push("landmark detail lacks official inclusion evidence");
+  }
+  if (
+    eventYear !== null &&
+    eventYear < 1980 &&
+    !record.landmark.isLandmark &&
+    (record.texts.officialSummary !== null ||
+      record.texts.sourceExcerpt !== null ||
+      record.texts.officialLanguage !== undefined ||
+      record.texts.detailAsset.availability === "permitted_static_asset")
+  ) {
+    issues.push(
+      "non-landmark pre-1980 record must remain metadata-and-link only",
+    );
   }
 }
 
@@ -696,6 +829,7 @@ export function validateRecordPolicy(
   validateSourceDocumentRelationships(record, issues);
   validateTaxonomyPolicy(record, taxonomy, sourceConfig, issues);
   validateProvenance(record, sourceConfig, issues);
+  validateLandmarkPolicy(record, sourceConfig, issues);
   validateHistoricalPolicy(record, issues);
   validateAiPolicy(record, issues);
   validateForbiddenKeys(record, "", issues);

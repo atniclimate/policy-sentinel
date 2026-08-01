@@ -1,7 +1,7 @@
-export const RECORD_SCHEMA_VERSION = "1.2.0" as const;
+export const RECORD_SCHEMA_VERSION = "1.3.0" as const;
 export const ARTIFACT_SCHEMA_VERSION = "1.0.0" as const;
 export const SOURCE_SCHEMA_VERSION = "1.3.0" as const;
-export const SOURCE_REGISTRY_VERSION = "1.13.0" as const;
+export const SOURCE_REGISTRY_VERSION = "1.14.0" as const;
 
 export type IsoDate = string;
 export type IsoDateTime = string;
@@ -241,7 +241,8 @@ export interface PolicyRecord {
           | "public-state-federal-accord"
           | "officially-identified-foundational"
         >;
-        officialEvidence: SourceText[];
+        reviewState: "approved";
+        officialEvidence: LandmarkEvidence[];
       };
   historical: {
     isHistorical: boolean;
@@ -298,6 +299,15 @@ export interface SourceText {
   sourceDate: IsoDate | null;
   reproductionBasis: string;
 }
+
+export interface LandmarkMetadataEvidence {
+  sourceLabel: string;
+  sourceUrl: string;
+  sourceDate: IsoDate | null;
+  reproductionBasis: string;
+}
+
+export type LandmarkEvidence = SourceText | LandmarkMetadataEvidence;
 
 export interface NamedEntity {
   sourceId: string | null;
@@ -451,7 +461,7 @@ export interface ArtifactAsset {
 export interface ArtifactManifest {
   artifactType: "manifest";
   schemaVersion: typeof ARTIFACT_SCHEMA_VERSION;
-  artifactVersion: "1.0.0" | "1.1.0" | "1.2.0";
+  artifactVersion: "1.0.0" | "1.1.0" | "1.2.0" | "1.3.0";
   buildId: string;
   generatedAt: IsoDateTime;
   dataAsOf: IsoDateTime;

@@ -2,7 +2,7 @@
 
 Accessed: 2026-07-31
 
-Implementation state: evidence-blocked in source-registry 1.13.0; the Supreme
+Implementation state: evidence-blocked in source-registry 1.14.0; the Supreme
 Court and Court of Appeals indexes are registered independently, disabled, and
 have `adapter: null`; no production records
 
@@ -96,7 +96,7 @@ has zero Nation associations.
 
 ## Decision
 
-Source-registry 1.13.0 registers `idaho-supreme-court-opinions` and
+Source-registry 1.14.0 registers `idaho-supreme-court-opinions` and
 `idaho-court-of-appeals-opinions` as independent disabled `official_index`
 sources with `adapter: null`, metadata-and-links reproduction, observed but
 non-comprehensive lower bounds, no mappings, and separate future health and

@@ -31,9 +31,12 @@ const STATUS_RULE = "supreme-court-decided-status-v1";
 const PUBLICATION_RULE = "supreme-court-bound-volume-publication-v1";
 const REVISION_REVIEW_RULE = "supreme-court-revision-review-v1";
 const GENERAL_JURISDICTION_RULE = "supreme-court-general-jurisdiction-v1";
-const RECORD_POLICY_RULE = "supreme-court-curated-record-policy-v1";
+const LANDMARK_RULE = "supreme-court-documented-decision-landmark-v1";
+const RECORD_POLICY_RULE = "supreme-court-curated-record-policy-v2";
 const REPRODUCTION_BASIS =
   "Metadata from the selected Supreme Court term index and its exact Court-supplied bound-volume fragment only. The linked file is the complete U.S. Reports volume, not a retained or case-only asset.";
+const LANDMARK_EVIDENCE_LABEL =
+  "Washington State Dept. of Licensing v. Cougar Den, Inc.; docket 16-1498; decided 2019-03-19; 586 U.S. 347.";
 const SELECTED_COVERAGE_NOTES =
   "One exact October Term 2018 row for Washington State Dept. of Licensing v. Cougar Den, Inc., docket 16-1498, decided 2019-03-19, and reported at 586 U.S. 347. This does not claim complete October Term 2018, Supreme Court, federal-court, or U.S. Reports coverage.";
 
@@ -118,7 +121,7 @@ const REVIEWED_SOURCE = {
     cadence:
       "One fixed, already-bound opinion-index row is checked weekly and build-time only; this is not a current slip-opinion feed.",
     limitations:
-      "Adapter 1.0 implements only Washington State Dept. of Licensing v. Cougar Den, Inc., docket 16-1498, decided 2019-03-19, citation 586 U.S. 347, and does not claim complete Supreme Court or U.S. Reports coverage. The exact current row links to the entire bound Volume 586 rather than an individual case PDF. The adapter retains only allowlisted institutional-party metadata and the exact bound-volume fragment; it does not retrieve or retain any Justice or author, syllabus, opinion text, counsel or personal name, facts, land detail, party inference, or Nation association. The source remains disabled pending owner authorization.",
+      "Adapter 1.1 implements only Washington State Dept. of Licensing v. Cougar Den, Inc., docket 16-1498, decided 2019-03-19, citation 586 U.S. 347, as an approved metadata-only documented-court-decision landmark and does not claim complete Supreme Court, landmark, or U.S. Reports coverage. The exact current row links to the entire bound Volume 586 rather than an individual case PDF. The adapter retains only allowlisted institutional-party metadata, landmark review metadata, and the exact bound-volume fragment; it does not retrieve or retain any Justice or author, syllabus, opinion text, counsel or personal name, facts, land detail, party inference, legal-effect claim, or Nation association. The source remains disabled pending source-specific G-J evidence validation.",
   },
   publication: {
     attribution: "Supreme Court of the United States",
@@ -285,8 +288,42 @@ function rowSpecs(
       policy("$adapterPolicy.relevance.evidence", GENERAL_JURISDICTION_RULE),
     ],
     [
-      "/landmark/isLandmark",
-      policy("$adapterPolicy.landmark", RECORD_POLICY_RULE),
+      "/relevance/1/basis",
+      policy("$landmarkReview.relevance.basis", LANDMARK_RULE),
+    ],
+    [
+      "/relevance/1/label",
+      policy("$landmarkReview.relevance.label", LANDMARK_RULE),
+    ],
+    ["/relevance/1/sourceUrl", copied("$request.url")],
+    [
+      "/relevance/1/evidence",
+      policy("$landmarkReview.relevance.evidence", LANDMARK_RULE),
+    ],
+    ["/landmark/isLandmark", policy("$landmarkReview.approved", LANDMARK_RULE)],
+    [
+      "/landmark/criterionCodes/0",
+      policy("$landmarkReview.criterionCodes[0]", LANDMARK_RULE),
+    ],
+    [
+      "/landmark/reviewState",
+      policy("$landmarkReview.reviewState", LANDMARK_RULE),
+    ],
+    [
+      "/landmark/officialEvidence/0/sourceLabel",
+      normalized(rowPath, LANDMARK_RULE),
+    ],
+    ["/landmark/officialEvidence/0/sourceUrl", copied("$request.url")],
+    [
+      "/landmark/officialEvidence/0/sourceDate",
+      normalized(`${rowPath}.cells[1].text`, DECISION_DATE_RULE),
+    ],
+    [
+      "/landmark/officialEvidence/0/reproductionBasis",
+      policy(
+        "$sourceRegistry.sources[supreme-court-opinions-curated].publication.reproduction",
+        LANDMARK_RULE,
+      ),
     ],
     [
       "/historical/isHistorical",
@@ -378,7 +415,7 @@ export function normalizeSupremeCourtOpinion(
   }
 
   const record: PolicyRecord = {
-    schemaVersion: "1.2.0",
+    schemaVersion: "1.3.0",
     internalId: supremeCourtOpinionStableRecordId(validatedRow),
     source: {
       id: input.source.id,
@@ -480,9 +517,28 @@ export function normalizeSupremeCourtOpinion(
         evidence:
           "No separately validated exact named-Nation relationship evidence was established for this record; none was inferred from the caption, subject, parties, or official link.",
       },
+      {
+        basis: "landmark",
+        label: "Verified documented court decision; not Nation-specific",
+        sourceUrl: SUPREME_COURT_TERM_URL,
+        evidence:
+          "The official Court index supplies the exact title, docket, decision date, permanent reporter citation, and Court-supplied bound-volume link required by the approved documented-court-decision criterion.",
+      },
     ],
     nationAssociations: [],
-    landmark: { isLandmark: false },
+    landmark: {
+      isLandmark: true,
+      criterionCodes: ["documented-court-decision"],
+      reviewState: "approved",
+      officialEvidence: [
+        {
+          sourceLabel: LANDMARK_EVIDENCE_LABEL,
+          sourceUrl: SUPREME_COURT_TERM_URL,
+          sourceDate: validatedRow.decisionDate,
+          reproductionBasis: REPRODUCTION_BASIS,
+        },
+      ],
+    },
     historical: {
       isHistorical: false,
       pre1980Treatment: "not_applicable",

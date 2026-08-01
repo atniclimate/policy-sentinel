@@ -127,7 +127,9 @@ The detail view may show, where the official source provides and terms permit:
 - exact Nation-association evidence and evidence URL;
 - official source and full-text links;
 - retrieval, source-update, validation, and provenance information;
-- historical and landmark inclusion status; and
+- historical treatment and, for a landmark, its written criterion, project
+  editorial review state, exact official evidence link/date, and visible
+  reproduction boundary; and
 - source health and coverage limitations.
 
 Full official language or a lengthy abstract appears in a collapsed section only when reuse terms allow it. Otherwise, show an exact citation, a short source-provided excerpt when permitted, and an official full-text link. Links identify that they open an external official source.
@@ -136,7 +138,7 @@ An optional build-time summary appears only in this detail view. It is labeled *
 
 ## Landmark timeline
 
-The timeline includes only records that pass the written landmark criteria and source validation. Each item shows date, verified record type, official citation or identifier, source, and relationship basis. It does not visually imply uninterrupted historical coverage.
+The timeline includes only records that pass the written landmark criteria and source validation. Each item shows date, verified record type, official citation or identifier, source, and relationship basis. Details distinguish project editorial selection from source approval or a legal-effect, rights, or Nation-relationship determination and expose the exact evidence and reproduction boundary. The timeline does not visually imply uninterrupted historical coverage.
 
 Source-specific coverage bands and gaps are visible. Before 1980, non-landmark records are normally represented by citation and official link rather than an expanded summary. The Boldt decision and Washington Centennial Accord may appear only after their exact official sources, dates, record identities, and inclusion bases are recorded; neither example authorizes unofficial text or unsupported Nation associations.
 
@@ -173,7 +175,10 @@ The print-ready dossier is assembled in the browser from selected, validated pub
 - source list and per-source health;
 - coverage and historical-range limitations;
 - exact official metadata, citation, source language or permitted excerpt, and link for each record;
-- Why shown and exact Nation-reference evidence where applicable;
+- Why shown and exact Nation-reference evidence where applicable, without
+  labeling landmark evidence as Nation evidence;
+- landmark criterion, project editorial review state, exact official evidence,
+  and reproduction boundary where applicable;
 - visible urgent source deadlines or statuses; and
 - the not-legal-advice notice.
 

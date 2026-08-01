@@ -274,9 +274,9 @@ test("validator caps a regular manifest before parsing it", async () => {
 
 test("validator rejects unsupported manifest version pairs", async () => {
   const unsupportedPairs = [
-    ["1.1.0", "1.2.0"],
-    ["1.2.0", "1.1.0"],
-    ["1.1.0", "1.1.0"],
+    ["1.2.0", "1.3.0"],
+    ["1.3.0", "1.2.0"],
+    ["1.2.0", "1.2.0"],
   ];
 
   for (const [artifactVersion, recordSchemaVersion] of unsupportedPairs) {
@@ -293,7 +293,7 @@ test("validator rejects unsupported manifest version pairs", async () => {
       assert.match(
         `${result.stdout}\n${result.stderr}`,
         new RegExp(
-          `manifest version pair is unsupported: expected 1\\.2\\.0/1\\.2\\.0, received ${artifactVersion.replaceAll(".", "\\.")}/${recordSchemaVersion.replaceAll(".", "\\.")}`,
+          `manifest version pair is unsupported: expected 1\\.3\\.0/1\\.3\\.0, received ${artifactVersion.replaceAll(".", "\\.")}/${recordSchemaVersion.replaceAll(".", "\\.")}`,
         ),
       );
     } finally {

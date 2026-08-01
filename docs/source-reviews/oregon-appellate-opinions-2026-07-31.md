@@ -2,7 +2,7 @@
 
 Accessed: 2026-07-31
 
-Implementation state: terms-gated in source-registry 1.13.0; registered
+Implementation state: terms-gated in source-registry 1.14.0; registered
 disabled with `adapter: null`; no production records
 
 External authorization: required and not granted. Oregon's statewide terms say
@@ -86,7 +86,7 @@ terms condition was identified.
 
 ## Decision
 
-Source-registry 1.13.0 records `oregon-appellate-opinions` as a disabled
+Source-registry 1.14.0 records `oregon-appellate-opinions` as a disabled
 `official_index` source with `adapter: null`, null coverage bounds,
 metadata-and-links-only intent, no OCLC host, no subject mappings, and no
 public record, source health, or last-known-good shard.

@@ -39,14 +39,14 @@ describe("Supreme Court curated-opinion normalization", () => {
       id: "supreme-court-opinions-curated",
       recordId: "16-1498@586 U.S. 347",
       adapterId: "supreme-court-opinions-curated-adapter",
-      adapterVersion: "1.0.0",
+      adapterVersion: "1.1.0",
       coverage: {
         from: "2019-03-19",
         through: "2019-03-19",
       },
     });
     expect(record).toMatchObject({
-      schemaVersion: "1.2.0",
+      schemaVersion: "1.3.0",
       officialTitle: "Washington State Dept. of Licensing v. Cougar Den, Inc.",
       sourceDocumentIdentifier: "16-1498",
       documentType: "court_decision",
@@ -127,9 +127,28 @@ describe("Supreme Court curated-opinion normalization", () => {
         basis: "general_jurisdiction",
         sourceUrl: SUPREME_COURT_TERM_URL,
       }),
+      expect.objectContaining({
+        basis: "landmark",
+        sourceUrl: SUPREME_COURT_TERM_URL,
+      }),
     ]);
     expect(record.nationAssociations).toEqual([]);
-    expect(record.landmark).toEqual({ isLandmark: false });
+    expect(record.landmark).toEqual({
+      isLandmark: true,
+      criterionCodes: ["documented-court-decision"],
+      reviewState: "approved",
+      officialEvidence: [
+        {
+          sourceLabel:
+            "Washington State Dept. of Licensing v. Cougar Den, Inc.; docket 16-1498; decided 2019-03-19; 586 U.S. 347.",
+          sourceUrl: SUPREME_COURT_TERM_URL,
+          sourceDate: "2019-03-19",
+          reproductionBasis: expect.stringContaining(
+            "Metadata from the selected Supreme Court term index",
+          ),
+        },
+      ],
+    });
     expect(record.historical).toEqual({
       isHistorical: false,
       pre1980Treatment: "not_applicable",
@@ -204,6 +223,24 @@ describe("Supreme Court curated-opinion normalization", () => {
       sourcePath: "$opinionTables[1].rows[41].cells[0].elements",
       transformation: "deterministic_mapping",
       transformRuleId: "supreme-court-revision-review-v1",
+    });
+    expect(
+      record.fieldProvenance.find(
+        ({ field }) => field === "/landmark/officialEvidence/0/sourceLabel",
+      ),
+    ).toMatchObject({
+      sourcePath: "$opinionTables[1].rows[41]",
+      transformation: "normalized",
+      transformRuleId: "supreme-court-documented-decision-landmark-v1",
+    });
+    expect(
+      record.fieldProvenance.find(
+        ({ field }) => field === "/landmark/reviewState",
+      ),
+    ).toMatchObject({
+      sourcePath: "$landmarkReview.reviewState",
+      transformation: "deterministic_mapping",
+      transformRuleId: "supreme-court-documented-decision-landmark-v1",
     });
     expect(
       record.fieldProvenance.find(

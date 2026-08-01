@@ -2,15 +2,16 @@
 
 Accessed: 2026-07-31
 
-Implementation state: researched in source-registry 1.12.0; registered disabled
+Implementation state: retained in source-registry 1.14.0; registered disabled
 with `adapter: null`; no production records
 
 External authorization: none required for the reviewed public pages
 
 Activation state: closed. The official page supports one general-jurisdiction
-landmark candidate, but the current record model cannot preserve accord parties,
-an executed date, source status, supersession review, and metadata-only landmark
-evidence without forcing them into fields with different meanings.
+landmark candidate. Record 1.3 can preserve metadata-only landmark evidence,
+but the model still cannot preserve accord parties, an executed date, source
+status, and supersession review without forcing them into fields with different
+meanings.
 
 ## Primary sources
 
@@ -124,10 +125,10 @@ The publication boundary is therefore:
 - no representative names, contacts, registration information, maps, parcels,
   land detail, or territory-based inference.
 
-The current landmark structure requires a `SourceText` value, while this source
-is metadata-and-links-only. A later compatible model needs a reviewed
-metadata-evidence option rather than using copied body language merely to make
-the schema pass.
+Record 1.3's reviewed metadata-evidence option satisfies the evidence shape
+without copying body language merely to make the schema pass. It does not cure
+the separate accord-party, date-role, status, relationship-history, identity,
+or Nation-reconciliation gaps.
 
 ## Bounded structural observation
 
@@ -177,8 +178,8 @@ appears in no public coverage, health, record, or artifact.
 ## Implementation decision
 
 Source-registry schema 1.3 adds `official_page` for an originating official
-document page that is neither an API, feed, export, nor index. Registry 1.11
-registers `washington-centennial-accord` independently, disabled with
+document page that is neither an API, feed, export, nor index. Registry 1.14
+retains `washington-centennial-accord` independently, disabled with
 `adapter: null`, exact single-record coverage 1989-08-04, one runtime host,
 metadata-and-links reproduction, and no subject mapping.
 
@@ -193,9 +194,8 @@ decision:
    source status;
 4. supports reviewed supersession states and typed relationships without
    implying a complete history;
-5. supports metadata-only landmark evidence and validates reproduction policy;
-6. records a title-based fallback identity rule explicitly; and
-7. keeps unresolved signatories at general jurisdiction with zero Nation
+5. records a title-based fallback identity rule explicitly; and
+6. keeps unresolved signatories at general jurisdiction with zero Nation
    associations and a visible limitation.
 
 No parser or adapter scaffold is created merely to satisfy a checkbox. The

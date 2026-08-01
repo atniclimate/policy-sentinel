@@ -29,6 +29,14 @@ export interface SourceText {
   reproductionBasis?: string;
 }
 
+export interface LandmarkEvidence {
+  text?: string;
+  sourceLabel?: string;
+  sourceUrl: string;
+  sourceDate: string | null;
+  reproductionBasis: string;
+}
+
 export interface TaxonomyMembership {
   categoryId: string;
   subcategoryId: string | null;
@@ -179,7 +187,8 @@ export interface PublicRecord {
   landmark: {
     isLandmark: boolean;
     criterionCodes: string[];
-    officialEvidence: SourceText[];
+    reviewState?: "approved";
+    officialEvidence: LandmarkEvidence[];
   };
   historical: {
     isHistorical: boolean;
@@ -237,8 +246,8 @@ export interface PublicRecord {
 }
 
 export interface ArtifactManifest {
-  artifactVersion: "1.2.0";
-  recordSchemaVersion: "1.2.0";
+  artifactVersion: "1.3.0";
+  recordSchemaVersion: "1.3.0";
   buildId: string;
   generatedAt: string;
   dataAsOf: string | null;

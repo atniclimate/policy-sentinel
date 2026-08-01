@@ -5,7 +5,7 @@ import { assertArtifactSourceHealthState } from "./artifact-health.mjs";
 import { deriveBuildId, hashJson, serializeJson } from "./hashing.mjs";
 import { toUrlSafeId } from "./identity.mjs";
 
-const RECORD_SCHEMA_VERSION = "1.2.0";
+const RECORD_SCHEMA_VERSION = "1.3.0";
 
 export const STATIC_ARTIFACT_BUDGET_V1 = Object.freeze({
   version: "1.0.0",
@@ -664,7 +664,7 @@ export function createArtifactDocuments({
   const manifest = {
     artifactType: "manifest",
     schemaVersion: "1.0.0",
-    artifactVersion: "1.2.0",
+    artifactVersion: "1.3.0",
     buildId: deriveBuildId(assets),
     generatedAt: normalizedGeneratedAt,
     dataAsOf: maxDataAsOf(records, normalizedGeneratedAt),

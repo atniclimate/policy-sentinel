@@ -2,9 +2,9 @@
 
 Accessed: 2026-07-31
 
-Implementation state: record/artifact contract 1.2.0 and adapter 1.0.0
-implemented in source-registry 1.12.0; source remains disabled pending exact
-owner authorization; no production records
+Implementation state: record/artifact contract 1.3.0 and adapter 1.1.0
+implemented in source-registry 1.14.0; source remains disabled pending its
+source-specific G-J evidence decision; no production records
 
 External authorization: none required for the reviewed public pages
 
@@ -61,7 +61,7 @@ The Court defines `Date` as the date the case was decided and `Citation` as the
 permanent citation in the U.S. Reports publication stream. The target row's
 current link has moved from a slip-opinion path to the complete bound Volume
 586 PDF, with a Court-supplied page fragment. The U.S. Reports page lists
-Volume 586 as a bound volume. Record schema 1.2 and adapter 1.0 preserve:
+Volume 586 as a bound volume. Record schema 1.3 and adapter 1.1 preserve:
 
 - normalized lifecycle status `decided`, sourced from the exact term-page
   heading and decision date, with exact generic source label
@@ -85,6 +85,24 @@ and detail artifacts and carried through cards, search, details, dossier, CSV,
 date filtering, and historical policy. It does not concatenate those facts into
 `sourceDocumentIdentifier`, hide them in action history, convert the decision
 date into a publication date, or collapse them into one status label.
+
+## Landmark inclusion decision
+
+The row passes the written `documented-court-decision` criterion because the
+originating Court index supplies the exact case title, docket, decision date,
+permanent reporter citation, Court identity, publication state, and official
+links. `reviewState: approved` records the project's editorial review of that
+criterion; it is not source approval, owner authorization to activate the
+source, or a legal determination.
+
+The landmark evidence is metadata-only. Its label repeats the exact reviewed
+title, docket, decision date, and citation; its evidence URL is the originating
+term page; its source date is `2019-03-19`; and its reproduction basis states
+that the linked PDF is the complete U.S. Reports volume and is neither fetched
+nor retained. The separate citation URL keeps the Court-supplied volume
+fragment. The record remains general jurisdiction with zero Nation
+associations, and no association is inferred from the caption, parties,
+subject, geography, treaty context, or linked opinion.
 
 ## Bounded structural observation
 
@@ -139,7 +157,7 @@ request-rate limit, retry rule, SLA, checksum, or change feed for this fixed
 page. Its robots policy allows opinion paths, disallows selected asset paths,
 and specifies `Crawl-delay: 1`.
 
-Adapter 1.0 is bounded to one internally constructed weekly build-time GET:
+Adapter 1.1 is bounded to one internally constructed weekly build-time GET:
 
 - literal HTTPS URL and host `www.supremecourt.gov`;
 - no userinfo, port, query, fragment, redirect, credentials, cookie, referrer,
@@ -195,15 +213,17 @@ The reviewed public boundary is therefore:
   summary, or full-text asset;
 - no personal, contact, land, parcel, ownership, treaty-right, tax-effect, or
   other legal-content field;
-- `general_jurisdiction`, `Unclassified`, and `landmark: false` for the first
-  adapter milestone;
+- `general_jurisdiction`, `Unclassified`, and an editorially approved
+  `documented-court-decision` landmark with exact metadata-only evidence;
 - zero Nation associations; and
 - no AI output.
 
 The source remains fully useful as citation-and-link metadata without
-reproducing the volume. Later landmark treatment is a separate B6-LANDMARKS
-decision and requires metadata-compatible evidence and exact reproduction
-review.
+reproducing the volume. Landmark selection records the exact title, docket,
+decision date, permanent citation, evidence URL, project editorial review
+state, and reproduction boundary. It does not reproduce opinion text or imply
+legal effect, rights, a Nation relationship, or comprehensive landmark
+coverage.
 
 ## Broader-source expansion assessment
 
@@ -227,15 +247,15 @@ landmark decisions.
 
 ## Implementation decision
 
-Source-registry 1.13.0 retains `supreme-court-opinions-curated` independently
-with adapter 1.0, exact one-record coverage on 2019-03-19, one runtime host,
+Source-registry 1.14.0 retains `supreme-court-opinions-curated` independently
+with adapter 1.1, exact one-record coverage on 2019-03-19, one runtime host,
 metadata-and-links reproduction, and no subject mappings. It remains disabled
-pending exact owner authorization; disabled-source rejection prevents it from
-emitting a public artifact record.
+pending its source-specific G-J evidence decision; disabled-source rejection
+prevents it from emitting a public artifact record.
 
-Record schema and artifact package 1.2 supply the source-neutral judicial
-context and compact/detail integrity needed by this adapter. The implementation
-preserves:
+Record schema and artifact package 1.3 supply the source-neutral judicial
+context, metadata-only landmark evidence, and compact/detail integrity needed
+by this adapter. The implementation preserves:
 
 1. adjudicating body `Supreme Court of the United States`, with kind `court`;
 2. docket `16-1498` independently from record identity and citation;
@@ -247,7 +267,9 @@ preserves:
    `U.S. Reports, Volume 586`, and a dated as-of value;
 7. revision state `no_separate_relationship_exposed`, which is explicitly not
    a complete subsequent-history or legal-effect determination; and
-8. exact field provenance plus compact artifact, details, dossier, CSV,
+8. the approved `documented-court-decision` criterion, project editorial review
+   state, exact metadata-only landmark evidence, and reproduction basis; and
+9. exact field provenance plus compact artifact, details, dossier, CSV,
    search, date, historical, privacy, source-health, and LKG behavior.
 
 The stable identity remains the docket-plus-reporter-citation rule. The
