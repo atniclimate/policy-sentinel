@@ -1,7 +1,7 @@
 {
   "$schema": "../schemas/source.schema.v1.json",
   "schemaVersion": "1.3.0",
-  "registryVersion": "1.15.0",
+  "registryVersion": "1.16.0",
   "generatedDataPolicy": "artifact-only",
   "sources": [
     {
@@ -555,6 +555,53 @@
           "/judicialContext/revisionReview/reviewedOn",
           "/status/sourceLabel",
           "/status/asOf",
+          "/urls/officialSource"
+        ]
+      },
+      "officialSubjectMappings": []
+    },
+    {
+      "id": "oregon-legislature-odata",
+      "name": "Oregon Legislature OData",
+      "provider": "Oregon Legislative Assembly",
+      "synthetic": false,
+      "enabled": false,
+      "adapter": null,
+      "jurisdiction": {
+        "level": "state",
+        "name": "Oregon",
+        "stateCode": "OR"
+      },
+      "access": {
+        "method": "api",
+        "officialDocumentationUrl": "https://www.oregonlegislature.gov/citizen_engagement/Pages/data.aspx",
+        "accessedOn": "2026-07-31",
+        "allowedHosts": [
+          "api.oregonlegislature.gov",
+          "www.oregonlegislature.gov"
+        ],
+        "authentication": "build_secret",
+        "rateLimit": "No numeric request limit is published. The reviewed documentation says data refreshes about every five minutes and full refreshes occur once daily between 5 p.m. and 6 a.m. Pacific. The acceptable-use agreement governs credentials, nonsharing, and suspension; G-C is closed, so no live request, account action, credential use, or adapter is authorized.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": null,
+        "through": null,
+        "cadence": "The reviewed source describes updates about every five minutes with one daily full refresh window. Any later approved Policy Sentinel retrieval would remain weekly, off-peak, and build-time only.",
+        "limitations": "The earliest observed OData session is 2007, not a documented completeness guarantee or exact-date lower bound. OLIS archives for 1995-2006 use a separate path, and earlier material remains archive-and-link-first. Contract 1.0 validates only repository-authored logical metadata and synthetic sessions, measures, sponsors, committees, actions, votes, versions, and statuses. It does not reproduce the provider envelope, establish live field names or nullability, validate pagination or deletion behavior, reconcile records to OLIS, or authorize access. Committee public-testimony personal data is excluded. Relating To Clause text is not an official controlled subject and cannot classify a record or establish a Nation relationship."
+      },
+      "publication": {
+        "attribution": "Oregon Legislative Assembly",
+        "termsUrl": "https://www.oregonlegislature.gov/citizen_engagement/Documents/OLODataAcceptableUseAgreement.pdf",
+        "reproduction": "metadata_and_links",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/legislativeContext/session",
+          "/status/sourceLabel",
           "/urls/officialSource"
         ]
       },

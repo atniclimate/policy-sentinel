@@ -34,7 +34,7 @@ test("source registry records researched disabled production sources", () => {
   assert.equal(validateSources(sourceRegistry), true);
   assert.doesNotThrow(() => assertSourceRegistrySemantics(sourceRegistry));
   assert.equal(sourceRegistry.schemaVersion, "1.3.0");
-  assert.equal(sourceRegistry.registryVersion, "1.15.0");
+  assert.equal(sourceRegistry.registryVersion, "1.16.0");
 
   const federalRegister = sourceRegistry.sources.find(
     ({ id }) => id === "federal-register",
@@ -464,6 +464,57 @@ test("source registry records researched disabled production sources", () => {
     );
   }
 
+  const oregonOData = sourceRegistry.sources.find(
+    ({ id }) => id === "oregon-legislature-odata",
+  );
+  assert.deepEqual(
+    {
+      enabled: oregonOData.enabled,
+      synthetic: oregonOData.synthetic,
+      adapter: oregonOData.adapter,
+      stateCode: oregonOData.jurisdiction.stateCode,
+      documentationUrl: oregonOData.access.officialDocumentationUrl,
+      accessedOn: oregonOData.access.accessedOn,
+      method: oregonOData.access.method,
+      authentication: oregonOData.access.authentication,
+      allowedHosts: oregonOData.access.allowedHosts,
+      coverageFrom: oregonOData.coverage.from,
+      coverageThrough: oregonOData.coverage.through,
+      termsUrl: oregonOData.publication.termsUrl,
+      reproduction: oregonOData.publication.reproduction,
+      failureMode: oregonOData.publication.failureMode,
+      officialSubjectMappings: oregonOData.officialSubjectMappings,
+    },
+    {
+      enabled: false,
+      synthetic: false,
+      adapter: null,
+      stateCode: "OR",
+      documentationUrl:
+        "https://www.oregonlegislature.gov/citizen_engagement/Pages/data.aspx",
+      accessedOn: "2026-07-31",
+      method: "api",
+      authentication: "build_secret",
+      allowedHosts: ["api.oregonlegislature.gov", "www.oregonlegislature.gov"],
+      coverageFrom: null,
+      coverageThrough: null,
+      termsUrl:
+        "https://www.oregonlegislature.gov/citizen_engagement/Documents/OLODataAcceptableUseAgreement.pdf",
+      reproduction: "metadata_and_links",
+      failureMode: "last_known_good",
+      officialSubjectMappings: [],
+    },
+  );
+  assert.match(oregonOData.access.rateLimit, /G-C is closed/);
+  assert.match(
+    oregonOData.coverage.limitations,
+    /earliest observed OData session is 2007/,
+  );
+  assert.match(
+    oregonOData.coverage.limitations,
+    /repository-authored logical metadata/,
+  );
+
   const doiIbia = sourceRegistry.sources.find(
     ({ id }) => id === "doi-ibia-decisions",
   );
@@ -593,6 +644,7 @@ test("enabled sources require an adapter", () => {
 test("blocked researched gaps cannot be activated without adapters", () => {
   for (const sourceId of [
     "washington-appellate-slip-opinions",
+    "oregon-legislature-odata",
     "oregon-administrative-rules-bulletins",
     "oregon-governor-executive-orders",
     "oregon-appellate-opinions",

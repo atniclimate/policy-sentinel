@@ -98,6 +98,7 @@ test("artifact schema v1 accepts legacy and additive manifest versions", () => {
       "1.13.0",
       "1.14.0",
       "1.15.0",
+      "1.16.0",
     ]) {
       assert.equal(
         validateArtifactDocument({

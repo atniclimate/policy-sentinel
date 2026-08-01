@@ -1,0 +1,189 @@
+{
+  "contractVersion": "1.0.0",
+  "fixtureNotice": "Repository-authored synthetic contract data; not an Oregon Legislature response.",
+  "kind": "repository_owned_offline_entity_bundle",
+  "sourceId": "oregon-legislature-odata",
+  "pages": {
+    "sessions": [
+      {
+        "pageNumber": 1,
+        "nextPageNumber": null,
+        "items": [
+          {
+            "sessionId": "SYN-SESSION-3785",
+            "sessionYear": 3785,
+            "displayName": "Synthetic 3785 Regular Session",
+            "startDate": "3785-01-08",
+            "endDate": "3785-12-31"
+          }
+        ]
+      }
+    ],
+    "measures": [
+      {
+        "pageNumber": 1,
+        "nextPageNumber": 2,
+        "items": [
+          {
+            "measureId": "SYN-MEASURE-0001",
+            "sessionId": "SYN-SESSION-3785",
+            "measureNumber": "SYN 1001",
+            "title": "Synthetic Public Records Measure",
+            "relatingToText": "Relating to synthetic intergovernmental records.",
+            "statusId": "SYN-STATUS-0002"
+          }
+        ]
+      },
+      {
+        "pageNumber": 2,
+        "nextPageNumber": null,
+        "items": [
+          {
+            "measureId": "SYN-MEASURE-0002",
+            "sessionId": "SYN-SESSION-3785",
+            "measureNumber": "SYN 1002",
+            "title": null,
+            "relatingToText": null,
+            "statusId": "SYN-STATUS-0003"
+          }
+        ]
+      }
+    ],
+    "sponsors": [
+      {
+        "pageNumber": 1,
+        "nextPageNumber": null,
+        "items": [
+          {
+            "sponsorId": "SYN-SPONSOR-0001",
+            "measureId": "SYN-MEASURE-0001",
+            "displayName": "Synthetic Legislator Alpha",
+            "roleLabel": "Synthetic chief sponsor"
+          },
+          {
+            "sponsorId": "SYN-SPONSOR-0002",
+            "measureId": "SYN-MEASURE-0002",
+            "displayName": "Synthetic Legislator Beta",
+            "roleLabel": null
+          }
+        ]
+      }
+    ],
+    "committees": [
+      {
+        "pageNumber": 1,
+        "nextPageNumber": null,
+        "items": [
+          {
+            "committeeId": "SYN-COMMITTEE-0001",
+            "sessionId": "SYN-SESSION-3785",
+            "displayName": "Synthetic Committee on Public Records",
+            "chamberLabel": "Synthetic House"
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "pageNumber": 1,
+        "nextPageNumber": null,
+        "items": [
+          {
+            "actionId": "SYN-ACTION-0001",
+            "measureId": "SYN-MEASURE-0001",
+            "sequence": 1,
+            "occurredAt": "3785-02-01T08:00:00Z",
+            "sourceLabel": "Synthetic referral to committee",
+            "committeeId": "SYN-COMMITTEE-0001"
+          },
+          {
+            "actionId": "SYN-ACTION-0002",
+            "measureId": "SYN-MEASURE-0002",
+            "sequence": 1,
+            "occurredAt": null,
+            "sourceLabel": "Synthetic action with no supplied date",
+            "committeeId": null
+          }
+        ]
+      }
+    ],
+    "votes": [
+      {
+        "pageNumber": 1,
+        "nextPageNumber": null,
+        "items": [
+          {
+            "voteId": "SYN-VOTE-0001",
+            "measureId": "SYN-MEASURE-0001",
+            "actionId": "SYN-ACTION-0001",
+            "committeeId": "SYN-COMMITTEE-0001",
+            "occurredAt": "3785-02-02",
+            "resultLabel": "Synthetic recommendation adopted",
+            "yesCount": 4,
+            "noCount": 1,
+            "excusedCount": 0,
+            "absentCount": 0
+          },
+          {
+            "voteId": "SYN-VOTE-0002",
+            "measureId": "SYN-MEASURE-0002",
+            "actionId": "SYN-ACTION-0002",
+            "committeeId": null,
+            "occurredAt": null,
+            "resultLabel": null,
+            "yesCount": null,
+            "noCount": null,
+            "excusedCount": null,
+            "absentCount": null
+          }
+        ]
+      }
+    ],
+    "versions": [
+      {
+        "pageNumber": 1,
+        "nextPageNumber": null,
+        "items": [
+          {
+            "versionId": "SYN-VERSION-0001",
+            "measureId": "SYN-MEASURE-0001",
+            "versionLabel": "Synthetic introduced version",
+            "publishedAt": "3785-01-31"
+          },
+          {
+            "versionId": "SYN-VERSION-0002",
+            "measureId": "SYN-MEASURE-0002",
+            "versionLabel": "Synthetic version with no supplied date",
+            "publishedAt": null
+          }
+        ]
+      }
+    ],
+    "statuses": [
+      {
+        "pageNumber": 1,
+        "nextPageNumber": null,
+        "items": [
+          {
+            "statusId": "SYN-STATUS-0001",
+            "measureId": "SYN-MEASURE-0001",
+            "sourceLabel": "Synthetic introduced status",
+            "asOf": "3785-01-31"
+          },
+          {
+            "statusId": "SYN-STATUS-0002",
+            "measureId": "SYN-MEASURE-0001",
+            "sourceLabel": "Synthetic committee status",
+            "asOf": "3785-02-02T08:00:00Z"
+          },
+          {
+            "statusId": "SYN-STATUS-0003",
+            "measureId": "SYN-MEASURE-0002",
+            "sourceLabel": "Synthetic status with no supplied date",
+            "asOf": null
+          }
+        ]
+      }
+    ]
+  }
+}

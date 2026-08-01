@@ -13,7 +13,7 @@ The Phase A contracts are:
 - [`source.schema.v1.json`](../schemas/source.schema.v1.json), compatible v1
   source-registry schema version `1.3.0`;
 - [`sources.v1.json`](../config/sources.v1.json), source registry version
-  `1.15.0`; and
+  `1.16.0`; and
 - [`artifact.schema.v1.json`](../schemas/artifact.schema.v1.json), static
   artifact schema version `1.0.0`.
 
@@ -23,7 +23,7 @@ evidence that a production source is enabled or a public dataset exists.
 taxonomy, and synthetic fixtures, and proves selected invalid governance cases
 are rejected.
 
-Source-registry version `1.15.0` distinguishes researched configuration,
+Source-registry version `1.16.0` distinguishes researched configuration,
 implemented adapters, and activation. A disabled source may have
 `adapter: null` or a versioned adapter that is not authorized to emit public
 records; an enabled source must have a versioned adapter. Every non-synthetic
@@ -225,7 +225,7 @@ official evidence to share a URL, binds typed criterion codes to document type,
 rejects copied landmark text from `metadata_and_links` sources, and enforces
 link-only treatment for non-landmark pre-1980 records.
 
-Registry 1.15.0 retains adapter 1.1 for the selected one-row Supreme Court
+Registry 1.16.0 retains adapter 1.1 for the selected one-row Supreme Court
 source while keeping the source disabled. The adapter emits only the reviewed
 Cougar Den citation-and-link metadata, marks the row as an editorially approved
 `documented-court-decision` landmark, sets `urls.officialFullText` to `null`,
@@ -234,7 +234,7 @@ and preserves the bound-volume fragment only as the reporter citation's
 The separate DOI IBIA chronology remains disabled with `adapter: null` because
 its source and privacy gaps are unchanged.
 
-Registry 1.15.0 also gives the assessed state court surfaces independent
+Registry 1.16.0 also gives the assessed state court surfaces independent
 disabled source identities. `washington-appellate-slip-opinions` has no
 official citation separate from its docket and no case-specific typed path
 from a mutable slip opinion to its current reporter version.
@@ -248,7 +248,7 @@ requirements document the missing judicial fields, while disabled-source
 validation prevents records, coverage, health, manifests, or last-known-good
 shards from claiming those sources.
 
-Registry 1.15.0 separately records
+Registry 1.16.0 separately records
 `oregon-administrative-rules-bulletins` and
 `oregon-governor-executive-orders` as disabled non-OData source gaps. The
 bounded OARD observation found a technically useful final-filing index with an
@@ -260,6 +260,29 @@ statewide terms make access acceptance and cover Oregon-operated sites outside
 the `oregon.gov` hostname, so no further OARD or Governor request or adapter is
 authorized. Both entries retain `adapter: null`, null exact-date coverage,
 metadata-and-links-only intent, and independent future health/LKG boundaries.
+
+Registry 1.16.0 separately adds disabled `oregon-legislature-odata` with
+`adapter: null`, `build_secret` authentication, null exact-date coverage, and
+the still-closed G-C terms/account/credential gate. Its contract 1.0 is an
+offline logical DTO, not a provider envelope: canonical synthetic metadata
+defines sessions, measures, sponsors, committees, actions, votes, versions,
+and statuses; bounded sequential pages carry impossible year-3785 records;
+and exact allowlists, explicit nullability, identity order, cardinality,
+cross-entity references, privacy exclusions, and a conservative 2007 contract
+floor fail closed. No request, transport, environment, adapter, production
+record, provider provenance, health receipt, coverage entry, or last-known-good
+shard is produced.
+
+Core measure/session, sponsor/committee, action, and source-status concepts can
+fit the normalized record only after live identity, official URLs, required
+dates, source paths, nullability, and mappings are verified. A measure without
+an official title or current status date cannot satisfy the record contract.
+Votes and versions have no first-class record collections, while action and
+status history require official event URLs that the offline DTO intentionally
+lacks. `Relating To Clause` text is not a controlled official subject and must
+not become a taxonomy category, relevance basis, Nation association, or legal
+conclusion. The [dated offline review](source-reviews/oregon-odata-offline-contract-2026-07-31.md)
+records the complete field-fit and failure boundary.
 
 ## Record groups
 
@@ -442,7 +465,7 @@ The public artifact accepts only coherent source-health combinations:
 The artifact manifest names the record, taxonomy, mapping, source-registry, and
 build versions. Additive compatible changes can increment the minor version.
 Current builds emit artifact package `1.3.0`, record schema `1.3.0`, and source
-registry `1.15.0`; artifact schema `1.0.0` still accepts historical package
+registry `1.16.0`; artifact schema `1.0.0` still accepts historical package
 `1.0.0`, `1.1.0`, and `1.2.0` shapes for archival schema validation. Package
 1.2 added `judicialContext` to the compact-index/detail integrity projection so
 court, docket, citation, form, publication, and revision evidence cannot

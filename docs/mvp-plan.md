@@ -45,8 +45,9 @@ Each excluded action has its own stop/go gate below. No milestone may treat an u
   implemented and validated while remaining disabled. B7's independent Oregon
   rule and executive review found that statewide access-triggered terms cover
   both OARD and the Governor index; both are registered disabled with no
-  adapter, and Oregon Legislature OData remains separately untouched and
-  closed.
+  adapter. The separate Oregon Legislature OData offline contract now validates
+  only repository-owned synthetic logical metadata and entity pages; its source
+  is registered disabled with `adapter: null`, and live access remains closed.
 
 ## Recommended source order
 
@@ -61,7 +62,7 @@ The implementation order is:
 5. Washington Legislative Web Services, followed by Washington State Register and verified Washington accord records.
 6. Official federal and state courts plus curated landmark records.
 7. Regulations.gov after its separate source-scoped API-key gate; credential-free contract fixtures may proceed earlier.
-8. Oregon Legislature OData only after the Oregon terms and credential gate, followed by official Oregon rule and executive sources.
+8. Oregon Legislature OData live access only after the Oregon terms and credential gate; its offline synthetic contract may proceed independently. Keep official Oregon rule and executive sources separately gated.
 9. Idaho only after an official stable source contract or approved owner contact resolves the current automation gap.
 10. Carefully reviewed administrative decisions, public state/federal intergovernmental agreements, officially published Tribal government documents, and county records.
 
@@ -179,6 +180,11 @@ Governor request while `G-B-OR-OARD` or `G-B-OR-GOVERNOR` is closed.
 
 After approval, implement Oregon Legislature OData within its acceptable-use
 terms and refresh window. Keep official Oregon rule/executive sources separate.
+The [2026-07-31 offline OData review](source-reviews/oregon-odata-offline-contract-2026-07-31.md)
+already supplies a credential-free repository contract for logical metadata,
+sessions, measures, sponsors, committees, actions, votes, versions, and
+statuses. It is not a provider envelope or live adapter and produces no public
+record, health, coverage, provenance, or last-known-good data.
 The [2026-07-31 non-OData review](source-reviews/oregon-rules-executive-2026-07-31.md)
 found that Oregon's statewide terms cover Oregon-operated sites beyond the
 `oregon.gov` hostname and make access acceptance. OARD and the Governor index

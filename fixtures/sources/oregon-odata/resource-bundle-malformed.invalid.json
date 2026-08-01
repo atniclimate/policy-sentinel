@@ -1,0 +1,30 @@
+{
+  "contractVersion": "1.0.0",
+  "fixtureNotice": "Repository-authored synthetic contract data; not an Oregon Legislature response.",
+  "kind": "repository_owned_offline_entity_bundle",
+  "sourceId": "oregon-legislature-odata",
+  "pages": {
+    "sessions": [{ "pageNumber": 1, "nextPageNumber": null, "items": [] }],
+    "measures": [{ "pageNumber": 1, "nextPageNumber": null, "items": [] }],
+    "sponsors": [
+      {
+        "pageNumber": 1,
+        "nextPageNumber": null,
+        "items": [
+          {
+            "sponsorId": "SYN-SPONSOR-0001",
+            "measureId": "SYN-MEASURE-0001",
+            "displayName": "Synthetic Legislator",
+            "roleLabel": null,
+            "email": "excluded@example.invalid"
+          }
+        ]
+      }
+    ],
+    "committees": [{ "pageNumber": 1, "nextPageNumber": null, "items": [] }],
+    "actions": [{ "pageNumber": 1, "nextPageNumber": null, "items": [] }],
+    "votes": [{ "pageNumber": 1, "nextPageNumber": null, "items": [] }],
+    "versions": [{ "pageNumber": 1, "nextPageNumber": null, "items": [] }],
+    "statuses": [{ "pageNumber": 1, "nextPageNumber": null, "items": [] }]
+  }
+}

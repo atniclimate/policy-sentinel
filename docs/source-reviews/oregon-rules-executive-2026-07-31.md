@@ -2,7 +2,7 @@
 
 Accessed: 2026-07-31
 
-Implementation state: terms-blocked in source-registry 1.15.0; both sources
+Implementation state: terms-blocked in source-registry 1.16.0; both sources
 registered disabled with `adapter: null`; no production records
 
 External authorization: required and not granted. Oregon's current statewide
@@ -193,7 +193,7 @@ records or health.
 
 ## Decision
 
-Source-registry 1.15.0 records
+Source-registry 1.16.0 records
 `oregon-administrative-rules-bulletins` and
 `oregon-governor-executive-orders` as disabled `official_index` sources with
 `adapter: null`, null coverage bounds, metadata-and-links-only intent, no

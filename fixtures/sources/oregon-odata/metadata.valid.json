@@ -1,0 +1,203 @@
+{
+  "contractVersion": "1.0.0",
+  "fixtureNotice": "Repository-authored synthetic contract data; not an Oregon Legislature response.",
+  "kind": "repository_owned_offline_metadata",
+  "sourceId": "oregon-legislature-odata",
+  "historyBoundary": {
+    "earliestSessionYear": 2007,
+    "meaning": "offline_contract_floor_from_earliest_observed_odata_session_not_a_completeness_claim"
+  },
+  "pagination": {
+    "kind": "repository_owned_sequential_pages",
+    "firstPageNumber": 1,
+    "maximumPagesPerEntity": 16,
+    "maximumItemsPerPage": 250,
+    "maximumItemsPerEntity": 2000
+  },
+  "entities": [
+    {
+      "logicalName": "sessions",
+      "allowlistedFields": [
+        "sessionId",
+        "sessionYear",
+        "displayName",
+        "startDate",
+        "endDate"
+      ],
+      "identityFields": ["sessionId"],
+      "nullableFields": ["startDate", "endDate"],
+      "foreignKeys": []
+    },
+    {
+      "logicalName": "measures",
+      "allowlistedFields": [
+        "measureId",
+        "sessionId",
+        "measureNumber",
+        "title",
+        "relatingToText",
+        "statusId"
+      ],
+      "identityFields": ["measureId"],
+      "nullableFields": ["title", "relatingToText", "statusId"],
+      "foreignKeys": [
+        {
+          "field": "sessionId",
+          "targetEntity": "sessions",
+          "targetField": "sessionId",
+          "nullable": false
+        },
+        {
+          "field": "statusId",
+          "targetEntity": "statuses",
+          "targetField": "statusId",
+          "nullable": true
+        }
+      ]
+    },
+    {
+      "logicalName": "sponsors",
+      "allowlistedFields": [
+        "sponsorId",
+        "measureId",
+        "displayName",
+        "roleLabel"
+      ],
+      "identityFields": ["sponsorId"],
+      "nullableFields": ["roleLabel"],
+      "foreignKeys": [
+        {
+          "field": "measureId",
+          "targetEntity": "measures",
+          "targetField": "measureId",
+          "nullable": false
+        }
+      ]
+    },
+    {
+      "logicalName": "committees",
+      "allowlistedFields": [
+        "committeeId",
+        "sessionId",
+        "displayName",
+        "chamberLabel"
+      ],
+      "identityFields": ["committeeId"],
+      "nullableFields": ["chamberLabel"],
+      "foreignKeys": [
+        {
+          "field": "sessionId",
+          "targetEntity": "sessions",
+          "targetField": "sessionId",
+          "nullable": false
+        }
+      ]
+    },
+    {
+      "logicalName": "actions",
+      "allowlistedFields": [
+        "actionId",
+        "measureId",
+        "sequence",
+        "occurredAt",
+        "sourceLabel",
+        "committeeId"
+      ],
+      "identityFields": ["actionId"],
+      "nullableFields": ["occurredAt", "committeeId"],
+      "foreignKeys": [
+        {
+          "field": "measureId",
+          "targetEntity": "measures",
+          "targetField": "measureId",
+          "nullable": false
+        },
+        {
+          "field": "committeeId",
+          "targetEntity": "committees",
+          "targetField": "committeeId",
+          "nullable": true
+        }
+      ]
+    },
+    {
+      "logicalName": "votes",
+      "allowlistedFields": [
+        "voteId",
+        "measureId",
+        "actionId",
+        "committeeId",
+        "occurredAt",
+        "resultLabel",
+        "yesCount",
+        "noCount",
+        "excusedCount",
+        "absentCount"
+      ],
+      "identityFields": ["voteId"],
+      "nullableFields": [
+        "actionId",
+        "committeeId",
+        "occurredAt",
+        "resultLabel",
+        "yesCount",
+        "noCount",
+        "excusedCount",
+        "absentCount"
+      ],
+      "foreignKeys": [
+        {
+          "field": "measureId",
+          "targetEntity": "measures",
+          "targetField": "measureId",
+          "nullable": false
+        },
+        {
+          "field": "actionId",
+          "targetEntity": "actions",
+          "targetField": "actionId",
+          "nullable": true
+        },
+        {
+          "field": "committeeId",
+          "targetEntity": "committees",
+          "targetField": "committeeId",
+          "nullable": true
+        }
+      ]
+    },
+    {
+      "logicalName": "versions",
+      "allowlistedFields": [
+        "versionId",
+        "measureId",
+        "versionLabel",
+        "publishedAt"
+      ],
+      "identityFields": ["versionId"],
+      "nullableFields": ["publishedAt"],
+      "foreignKeys": [
+        {
+          "field": "measureId",
+          "targetEntity": "measures",
+          "targetField": "measureId",
+          "nullable": false
+        }
+      ]
+    },
+    {
+      "logicalName": "statuses",
+      "allowlistedFields": ["statusId", "measureId", "sourceLabel", "asOf"],
+      "identityFields": ["statusId"],
+      "nullableFields": ["asOf"],
+      "foreignKeys": [
+        {
+          "field": "measureId",
+          "targetEntity": "measures",
+          "targetField": "measureId",
+          "nullable": false
+        }
+      ]
+    }
+  ]
+}
