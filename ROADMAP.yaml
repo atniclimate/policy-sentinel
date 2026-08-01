@@ -389,15 +389,14 @@ baseline:
       detail: single-Nation synthetic flow only
 
 current_focus:
-  work_item: B6-LANDMARKS
+  work_item: B7-OR-NONODATA
   objective: >-
-    Implement the smallest source-verified landmark timeline pilot whose
-    official identity, date, issuing body, inclusion criterion, reproduction
-    boundary, provenance, and pre-1980 treatment fit the public record and UI
-    contracts. Preserve the missing official online copy of the 1974 Boldt
-    decision and the Centennial Accord's signatory/model gaps without inferred
-    Nation relationships, copied source text, or legal-effect claims.
-  last_durable_checkpoint: ffd2ed6
+    Assess Oregon's lawful no-registration official rule, executive-order, and
+    link-based publication surfaces independently from OData. Record a
+    source-specific range, health, provenance, reproduction, limitation, and
+    failure model for each viable source, or a dated exact gap without accepting
+    or evading OData terms.
+  last_durable_checkpoint: f41a787
   resume_command: npm run check
 
 completion_scope:
@@ -1844,9 +1843,9 @@ work_items:
         state-court adapter, provider body, production record, or public
         coverage claim.
       - >-
-        The Washington originating indexes expose dockets, captions, file
-        dates, publication sections, and mutable slip links but no citation
-        separate from the docket or case-specific current-version relationship.
+        The Washington originating indexes expose dockets, captions, file dates,
+        publication sections, and mutable slip links but no citation separate
+        from the docket or case-specific current-version relationship.
         G-WA-APPELLATE-CITATION-REVISION-CONTRACT preserves the exact unblock
         condition; the source remains disabled with adapter null and null range.
       - >-
@@ -1869,8 +1868,8 @@ work_items:
         G-B-GOVINFO; no comprehensive federal-court claim was created.
       - >-
         npm run check passed on 2026-07-31 with formatting, lint, type checking,
-        roadmap and source-boundary validation, 43 Vitest files and 656 tests,
-        a synthetic-only production build, and artifact validation at 2 records,
+        roadmap and source-boundary validation, 43 Vitest files and 656 tests, a
+        synthetic-only production build, and artifact validation at 2 records,
         575 Nations, and 7 verified assets; build ID
         synthetic-3fe5f1f0f7ba57eddb0e.
 
@@ -1878,7 +1877,7 @@ work_items:
     priority: 73
     milestone: B6
     title: Source-verified landmark timeline pilot
-    status: in_progress
+    status: complete
     dependencies:
       - B6-COURT-EXPANSION
     acceptance:
@@ -1888,13 +1887,46 @@ work_items:
       - Boldt and Centennial Accord facts and associations are not inferred from
         unofficial text.
       - Exact reproduction limits and source gaps render visibly.
-    evidence: []
+    evidence:
+      - >-
+        Commit f41a787 adds record and artifact contract 1.3, source registry
+        1.14, and Supreme Court curated adapter 1.1. Metadata-only landmark
+        evidence now preserves an exact official label, URL, date, reproduction
+        basis, criterion, and approved editorial-review state without requiring
+        copied source text.
+      - >-
+        The bounded Cougar Den row is an approved documented-court-decision
+        landmark with exact docket 16-1498, decision date 2019-03-19, and
+        citation 586 U.S. 347. It remains general_jurisdiction, Unclassified,
+        disabled pending source-specific G-J validation, and carries no Nation,
+        rights, land, or legal-effect inference.
+      - >-
+        The record policy, artifact validator, client loader, detail view,
+        timeline, dossier, keyboard, print, and axe tests fail closed on
+        malformed or mixed landmark evidence and visibly disclose criterion,
+        review state, reproduction boundary, and non-implication language.
+        Pre-1980 non-landmarks remain metadata-and-link entries.
+      - >-
+        docs/source-reviews/boldt-decision-2026-07-31.md records the reviewed
+        official WAWD and GovInfo evidence and the missing originating online
+        body of the 1974 decision; no Boldt record or Nation association was
+        emitted. The Centennial Accord review retains the exact party,
+        signatory, execution-date, source-status, supersession, identity, and
+        Nation-reconciliation blockers; no accord record was emitted.
+      - >-
+        On 2026-07-31, npm test passed 43 Vitest files and 657 tests; type
+        checking, lint, foundation validation, source-boundary scanning, build,
+        and artifact validation also passed. The synthetic artifact remained at
+        2 records, 575 Nations, and 7 verified assets with build ID
+        synthetic-1a3fccf89aa677f66770. The in-app Browser backend was
+        unavailable, so G-LOCAL-BROWSER remains pending; automated DOM,
+        keyboard, print, and axe coverage passed.
 
   - id: B7-OR-NONODATA
     priority: 80
     milestone: B7
     title: Oregon official rule, executive, and link-based source feasibility
-    status: ready
+    status: in_progress
     dependencies:
       - B3-PIPELINE
     acceptance:
@@ -2321,7 +2353,7 @@ source_register:
   - id: SRC-COURTS
     source: Official courts and administrative decisions
     implementation_state: >-
-      supreme_court_pilot_validated_disabled_state_expansion_assessed_ibia_and_state_contracts_blocked_landmarks_in_progress
+      supreme_court_landmark_pilot_validated_disabled_state_expansion_assessed_ibia_and_state_contracts_blocked
     work_items:
       - B6-COURT-RESEARCH
       - B6-COURT-ADAPTER
@@ -2337,7 +2369,7 @@ source_register:
     public_claim: legislative automation gap
   - id: SRC-OR-OTHER
     source: Oregon official rules and executive sources
-    implementation_state: ready_for_source_specific_research
+    implementation_state: source_specific_research_in_progress
     work_items:
       - B7-OR-NONODATA
       - B7-OR-ADAPTER
@@ -2414,26 +2446,27 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B6-LANDMARKS
+    work_item: B7-OR-NONODATA
     action: >-
-      Reconcile the landmark record and artifact contract with metadata-and-link
-      reproduction so an item can preserve an exact official citation, date,
-      issuing body, criterion, evidence URL, and review state without requiring
-      copied source text. Version and test any additive contract change.
+      Review current originating Oregon Secretary of State administrative-rule
+      publication and index surfaces, including access, range, update cadence,
+      identity, dates, status, corrections, official links, reproduction terms,
+      and bounded build-time failure behavior. Do not access OData.
   - order: 2
-    work_item: B6-LANDMARKS
+    work_item: B7-OR-NONODATA
     action: >-
-      Evaluate the Boldt research case only from originating official court or
-      archival evidence. Preserve the documented absence of an official online
-      copy of the 1974 district-court decision, distinguish any later official
-      decision, and add no Nation, rights, land, or legal-effect inference.
+      Review Oregon Governor executive-order publication surfaces as an
+      independent source, preserving their exact inventory range, document
+      identity, dates, official links, publication boundaries, health, and
+      source-specific gaps without inferring current legal effect.
   - order: 3
-    work_item: B6-LANDMARKS
+    work_item: B7-OR-NONODATA
     action: >-
-      Add only a source-verified landmark pilot that passes exact identity,
-      status, date, reproduction, provenance, compact/detail, timeline, dossier,
-      accessibility, and pre-1980 tests. Keep the Centennial Accord blocked by
-      its party/signatory and record-model gate rather than coercing it.
+      Record each viable no-registration source as its own bounded contract with
+      range, health, provenance, reproduction, limitation, and failure evidence,
+      or close the research item with a dated source-specific gap. Start no
+      adapter until that evidence supports it and accept or evade no OData
+      terms.
 
 finish_states:
   local_release_candidate:
