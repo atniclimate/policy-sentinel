@@ -187,6 +187,25 @@ gates:
       and OJD terms, intended noncommercial or commercial use, and any
       third-party OCLC access. Continued access is terms acceptance, so no live
       adapter request or OCLC traversal is authorized while this gate is closed.
+  - id: G-B-OR-OARD
+    name: Oregon Administrative Rules Database statewide access terms
+    state: closed
+    boundary: EXT-CREDENTIALS
+    resolution: >-
+      Reopen only if the owner explicitly approves the exact current Oregon
+      statewide terms and named OARD build-time operation. The terms cover sites
+      operated or maintained by Oregon executive-department agencies and make
+      access acceptance even on OARD's separate hostname. No further request,
+      session replay, receipt traversal, or adapter is authorized while closed.
+  - id: G-B-OR-GOVERNOR
+    name: Oregon Governor executive-order statewide access terms
+    state: closed
+    boundary: EXT-CREDENTIALS
+    resolution: >-
+      Reopen only if the owner explicitly approves the exact current Oregon
+      statewide terms and named Governor index operation. Approval would not
+      spill into OARD or Oregon Legislature OData. No direct index, order-file,
+      or adapter request is authorized while closed.
   - id: G-C
     name: Oregon terms
     state: closed
@@ -389,14 +408,14 @@ baseline:
       detail: single-Nation synthetic flow only
 
 current_focus:
-  work_item: B7-OR-NONODATA
+  work_item: B7-OR-ODATA-CONTRACT
   objective: >-
-    Assess Oregon's lawful no-registration official rule, executive-order, and
-    link-based publication surfaces independently from OData. Record a
-    source-specific range, health, provenance, reproduction, limitation, and
-    failure model for each viable source, or a dated exact gap without accepting
-    or evading OData terms.
-  last_durable_checkpoint: f41a787
+    Implement a credential-free offline Oregon OData contract from the already
+    reviewed public documentation and repository evidence. Use only synthetic
+    fixtures to cover metadata, sessions, measures, committees, actions, votes,
+    versions, and status; make no live OData call, accept no terms, use no
+    credential, and copy no provider response.
+  last_durable_checkpoint: 4d20dbe
   resume_command: npm run check
 
 completion_scope:
@@ -1926,7 +1945,7 @@ work_items:
     priority: 80
     milestone: B7
     title: Oregon official rule, executive, and link-based source feasibility
-    status: in_progress
+    status: complete
     dependencies:
       - B3-PIPELINE
     acceptance:
@@ -1935,13 +1954,46 @@ work_items:
       - Each enabled source receives its own range, health, provenance, and
         limitation model.
       - No OData terms are accepted or evaded.
-    evidence: []
+    evidence:
+      - >-
+        Commit 4d20dbe and
+        docs/source-reviews/oregon-rules-executive-2026-07-31.md record the
+        source-specific assessment. Oregon's current statewide terms cover any
+        site operated, controlled, or maintained by Oregon or an
+        executive-department agency and make access and continued access
+        acceptance; the review stopped when that scope was confirmed.
+      - >-
+        A bounded pre-gate OARD observation found 105 monthly Bulletin labels
+        from November 2017 through July 2026. The July issue had 61 proposed
+        notices without AONs and 189 unique-AON final filings: 95 Permanent, 38
+        Temporary, and 56 Minor Correction. It omitted effective/current-status
+        and relationship fields, emitted session-bearing links, and pointed to
+        privacy-heavy receipts; no raw response, session value, or provider body
+        was retained.
+      - >-
+        The Governor resources surface describes a 2003-present order index, but
+        no direct Governor request followed terms discovery. OARD exposed only
+        one aggregate Executive Orders and Other Notices document without
+        per-order identity, date, status, or link fields, so it is not an
+        independent substitute.
+      - >-
+        Source-registry 1.15.0 records oregon-administrative-rules-bulletins and
+        oregon-governor-executive-orders as separate disabled official indexes
+        with adapter null, null exact-date bounds, metadata-and-links-only
+        reproduction, independent future health/LKG boundaries, and no subject
+        mappings. G-B-OR-OARD and G-B-OR-GOVERNOR remain closed.
+      - >-
+        No Oregon Legislature OData endpoint, agreement, login, credential, or
+        response was accessed during this work item, and no terms flow was
+        evaded. npm run check passed on 2026-07-31 with 43 Vitest files and 657
+        tests; the synthetic artifact remained at 2 records, 575 Nations, and 7
+        verified assets with build ID synthetic-7899e03604208f86423f.
 
   - id: B7-OR-ADAPTER
     priority: 81
     milestone: B7
     title: Oregon no-registration rule or executive adapter
-    status: not_started
+    status: complete
     dependencies:
       - B7-OR-NONODATA
     acceptance:
@@ -1952,13 +2004,30 @@ work_items:
       - If no source is viable, the work item closes only with dated evidence
         and a visible source-specific gap, not an inferred or scraped
         substitute.
-    evidence: []
+    evidence:
+      - >-
+        The dated 2026-07-31 source review establishes that neither reviewed
+        source is viable under the closed current terms gates. The technically
+        useful OARD final-filing table cannot authorize another access request,
+        and its notice, date/status, session, privacy, reproduction, and
+        relationship gaps prohibit an offline guessed adapter.
+      - >-
+        Registry 1.15.0 and source-registry regression tests preserve two
+        visible source-specific disabled gaps, reject activation without an
+        adapter, and give neither source public coverage, health, records, or a
+        last-known-good shard. No adapter module, fixture copied from Oregon,
+        provider response, inferred record, or scraped substitute was added.
+      - >-
+        docs/source-coverage.md and docs/source-feasibility.md expose the
+        rule/executive automation gaps separately from OData. Reopening requires
+        exact owner approval through G-B-OR-OARD or G-B-OR-GOVERNOR; either
+        approval remains source-specific.
 
   - id: B7-OR-ODATA-CONTRACT
     priority: 82
     milestone: B7
     title: Oregon OData offline contract and synthetic fixtures
-    status: ready
+    status: in_progress
     dependencies:
       - B3-PIPELINE
     acceptance:
@@ -2362,14 +2431,16 @@ source_register:
     public_claim: no production records yet
   - id: SRC-OR-ODATA
     source: Oregon Legislature OData
-    implementation_state: terms_and_credential_gate_closed
+    implementation_state: >-
+      offline_synthetic_contract_in_progress_live_terms_and_credential_gate_closed
     work_items:
       - B7-OR-ODATA-CONTRACT
       - B7-OR-ODATA-LIVE
     public_claim: legislative automation gap
   - id: SRC-OR-OTHER
     source: Oregon official rules and executive sources
-    implementation_state: source_specific_research_in_progress
+    implementation_state: >-
+      statewide_terms_blocked_no_viable_adapter_source_gaps_registered
     work_items:
       - B7-OR-NONODATA
       - B7-OR-ADAPTER
@@ -2446,27 +2517,26 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B7-OR-NONODATA
+    work_item: B7-OR-ODATA-CONTRACT
     action: >-
-      Review current originating Oregon Secretary of State administrative-rule
-      publication and index surfaces, including access, range, update cadence,
-      identity, dates, status, corrections, official links, reproduction terms,
-      and bounded build-time failure behavior. Do not access OData.
+      Reconcile the already reviewed Oregon OData public documentation and data
+      model notes with the current record, source, artifact, provenance, health,
+      and last-known-good contracts. Document every field or relationship that
+      cannot fit without inference; make no network request.
   - order: 2
-    work_item: B7-OR-NONODATA
+    work_item: B7-OR-ODATA-CONTRACT
     action: >-
-      Review Oregon Governor executive-order publication surfaces as an
-      independent source, preserving their exact inventory range, document
-      identity, dates, official links, publication boundaries, health, and
-      source-specific gaps without inferring current legal effect.
+      Add repository-authored synthetic metadata, session, measure, committee,
+      action, vote, version, and status fixtures plus parsers or projections
+      that enforce exact identity, nullability, cardinality, pagination,
+      privacy, and field allowlists without copying a provider envelope.
   - order: 3
-    work_item: B7-OR-NONODATA
+    work_item: B7-OR-ODATA-CONTRACT
     action: >-
-      Record each viable no-registration source as its own bounded contract with
-      range, health, provenance, reproduction, limitation, and failure evidence,
-      or close the research item with a dated source-specific gap. Start no
-      adapter until that evidence supports it and accept or evade no OData
-      terms.
+      Test malformed, missing, duplicate, cross-entity, personal-data, and
+      unsupported-history cases; prove the contract performs no network or
+      credential access and emits no production record. Keep G-C and
+      B7-OR-ODATA-LIVE closed.
 
 finish_states:
   local_release_candidate:
