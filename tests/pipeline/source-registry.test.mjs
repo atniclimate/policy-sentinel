@@ -34,7 +34,7 @@ test("source registry records researched disabled production sources", () => {
   assert.equal(validateSources(sourceRegistry), true);
   assert.doesNotThrow(() => assertSourceRegistrySemantics(sourceRegistry));
   assert.equal(sourceRegistry.schemaVersion, "1.3.0");
-  assert.equal(sourceRegistry.registryVersion, "1.14.0");
+  assert.equal(sourceRegistry.registryVersion, "1.15.0");
 
   const federalRegister = sourceRegistry.sources.find(
     ({ id }) => id === "federal-register",
@@ -399,6 +399,71 @@ test("source registry records researched disabled production sources", () => {
     );
   }
 
+  const blockedOregonNonOdataSources = [
+    {
+      id: "oregon-administrative-rules-bulletins",
+      documentationUrl:
+        "https://secure.sos.state.or.us/oard/displayBulletins.action",
+      allowedHosts: ["secure.sos.state.or.us"],
+      requiredDatePointer: "/dates/filed",
+      limitation: /61 proposed-notice rows without AONs/,
+    },
+    {
+      id: "oregon-governor-executive-orders",
+      documentationUrl:
+        "https://www.oregon.gov/gov/Pages/executive-orders.aspx",
+      allowedHosts: ["www.oregon.gov"],
+      requiredDatePointer: "/dates/issued",
+      limitation: /aggregate Executive Orders and Other Notices document/,
+    },
+  ];
+  for (const expected of blockedOregonNonOdataSources) {
+    const source = sourceRegistry.sources.find(({ id }) => id === expected.id);
+    assert.deepEqual(
+      {
+        enabled: source.enabled,
+        synthetic: source.synthetic,
+        adapter: source.adapter,
+        stateCode: source.jurisdiction.stateCode,
+        documentationUrl: source.access.officialDocumentationUrl,
+        accessedOn: source.access.accessedOn,
+        method: source.access.method,
+        authentication: source.access.authentication,
+        allowedHosts: source.access.allowedHosts,
+        coverageFrom: source.coverage.from,
+        coverageThrough: source.coverage.through,
+        termsUrl: source.publication.termsUrl,
+        reproduction: source.publication.reproduction,
+        failureMode: source.publication.failureMode,
+        officialSubjectMappings: source.officialSubjectMappings,
+      },
+      {
+        enabled: false,
+        synthetic: false,
+        adapter: null,
+        stateCode: "OR",
+        documentationUrl: expected.documentationUrl,
+        accessedOn: "2026-07-31",
+        method: "official_index",
+        authentication: "none",
+        allowedHosts: expected.allowedHosts,
+        coverageFrom: null,
+        coverageThrough: null,
+        termsUrl: "https://www.oregon.gov/pages/terms-and-conditions.aspx",
+        reproduction: "metadata_and_links",
+        failureMode: "last_known_good",
+        officialSubjectMappings: [],
+      },
+    );
+    assert.match(source.access.rateLimit, /terms/);
+    assert.match(source.coverage.limitations, expected.limitation);
+    assert.ok(
+      source.publication.requiredProvenancePointers.includes(
+        expected.requiredDatePointer,
+      ),
+    );
+  }
+
   const doiIbia = sourceRegistry.sources.find(
     ({ id }) => id === "doi-ibia-decisions",
   );
@@ -525,9 +590,11 @@ test("enabled sources require an adapter", () => {
   assert.equal(validateSources(invalid), false);
 });
 
-test("blocked state-court gaps cannot be activated without adapters", () => {
+test("blocked researched gaps cannot be activated without adapters", () => {
   for (const sourceId of [
     "washington-appellate-slip-opinions",
+    "oregon-administrative-rules-bulletins",
+    "oregon-governor-executive-orders",
     "oregon-appellate-opinions",
     "idaho-supreme-court-opinions",
     "idaho-court-of-appeals-opinions",

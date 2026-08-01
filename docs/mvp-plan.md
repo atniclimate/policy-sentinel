@@ -41,6 +41,12 @@ Each excluded action has its own stop/go gate below. No milestone may treat an u
   complete and its adapter is blocked because API use accepts current provider
   terms and live canaries are required. No production policy records have been
   ingested or published.
+- The B6 metadata-only landmark contract and one-row Cougar Den pilot are
+  implemented and validated while remaining disabled. B7's independent Oregon
+  rule and executive review found that statewide access-triggered terms cover
+  both OARD and the Governor index; both are registered disabled with no
+  adapter, and Oregon Legislature OData remains separately untouched and
+  closed.
 
 ## Recommended source order
 
@@ -167,9 +173,17 @@ Acceptance criteria:
 
 ### B7: Oregon coverage
 
-**Stop:** Do not accept terms, create credentials, or connect to Oregon Legislature OData without Gate C approval.
+**Stop:** Do not accept terms, create credentials, or connect to Oregon
+Legislature OData without Gate C approval. Do not make another OARD or Oregon
+Governor request while `G-B-OR-OARD` or `G-B-OR-GOVERNOR` is closed.
 
-After approval, implement Oregon Legislature OData within its acceptable-use terms and refresh window. Add official Oregon rule/executive sources separately.
+After approval, implement Oregon Legislature OData within its acceptable-use
+terms and refresh window. Keep official Oregon rule/executive sources separate.
+The [2026-07-31 non-OData review](source-reviews/oregon-rules-executive-2026-07-31.md)
+found that Oregon's statewide terms cover Oregon-operated sites beyond the
+`oregon.gov` hostname and make access acceptance. OARD and the Governor index
+therefore remain source-specifically blocked; OARD's aggregate executive-order
+document is not a record-level substitute.
 
 Acceptance criteria:
 
@@ -315,6 +329,7 @@ A failed attempt never advances a source's data-as-of timestamp. The workflow em
 | --- | --- | --- |
 | A: Phase B | Phase A plan not approved | Owner explicitly approves Phase B local implementation under this plan. |
 | B: API terms, registration, and secrets | A source requires terms acceptance, an account, API key, token, secret, or repository/Actions secret | Owner explicitly approves the named current terms, operation, registration, and credential placement that apply. Approval is per source through a scoped gate such as `G-B-GRANTS`, `G-B-CONGRESS`, `G-B-GOVINFO`, or `G-B-REGULATIONS`; it never spills to another source. Use `gh` for later GitHub secret operations. |
+| B-OR: Oregon statewide website terms | OARD or the Oregon Governor index requires accepting statewide access terms | Owner explicitly approves the exact current terms and named build-time operation through `G-B-OR-OARD` or `G-B-OR-GOVERNOR`. Approval does not spill between those sources or into OData. |
 | C: Oregon terms | OData requires acceptance, credentials, or nonsharing/use commitments | Owner approves the exact current agreement and account action after terms are presented. |
 | D: Idaho source/contact | No stable official structured source has been verified | Read-only research may satisfy the gate by validating a stable, permitted, official no-registration source. If contact is required, the owner must approve the specific inquiry; no contact occurs before approval. Otherwise retain the visible gap. |
 | E: remote and Pages | Work would select the public license, create a remote, push, enable Pages, publish an artifact, create a release, or alter GitHub settings | Owner approves the exact scoped step. `G-E-LICENSE`, `G-E-REMOTE-PUSH`, `G-E-PAGES`, and `G-E-PUBLISH` remain independent; all GitHub operations use `gh`. |
