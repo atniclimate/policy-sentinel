@@ -375,6 +375,11 @@ gates:
         its documented discovery troubleshooting was followed; the available
         browser list was still empty. No alternate browser surface was used as
         substitute acceptance evidence.
+      - >-
+        On 2026-09-01, the exact in-app Browser selector was unavailable after
+        the documented discovery troubleshooting. The only listed backend was an
+        unrelated Brave extension, which was not substituted for acceptance
+        evidence. G-LOCAL-BROWSER therefore remains pending.
 
 baseline:
   phase_a_commit: e22512e
@@ -439,6 +444,23 @@ baseline:
         synthetic-only production build, and artifact validation at 2 records,
         575 Nations, and 7 verified assets; build ID
         synthetic-f18c5d85755770ceb078.
+    - command: npm run check
+      result: pass
+      detail: >-
+        On 2026-09-01, formatting, lint, type checking, roadmap and foundation
+        validation, source-boundary scanning, 51 Vitest files and 758 tests, a
+        synthetic-only production build, and artifact validation passed at 3
+        records, 575 Nations, and 8 hashed assets; build ID
+        synthetic-457fcc2c790d52601ea8.
+    - check: deterministic artifact and local security review
+      result: pass
+      detail: >-
+        Two fixed-time builds produced identical build ID
+        synthetic-d9a4c0d879e1e7cb1101 and byte-identical hashes for all 9 JSON
+        files. The final 12-file dist contained no source maps, credential
+        signatures, token-bearing URLs, prohibited public-data keys, telemetry,
+        or non-synthetic data hosts. npm ls reported a valid 338-path dependency
+        tree and npm audit --offline reported zero known vulnerabilities.
 
 current_focus:
   work_item: null
@@ -451,17 +473,17 @@ current_focus:
     whole-refresh reconciliation evidence; and reopen B5-WA-RULES only with the
     bounded filing metadata evidence its gate requires.
   terminal_reason: >-
-    All currently authorized independent local preparation is validated. The
-    remaining dependency chains require authoritative Nation reconciliation, the
-    unavailable required Browser backend, new source-specific evidence, or an
-    explicitly closed owner authorization; no inference or substitute is
-    permitted.
+    R0 custody recovery is durable through 7974906 and all currently authorized
+    independent local preparation is validated. The remaining dependency chains
+    require authoritative Nation reconciliation, the unavailable required
+    Browser backend, new source-specific evidence, or an explicitly closed owner
+    authorization; no inference or substitute is permitted.
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: f6eb61f
+  last_durable_checkpoint: 7974906
   resume_command: npm run check
 
 completion_scope:
