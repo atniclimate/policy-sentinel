@@ -451,7 +451,7 @@ baseline:
         validation, source-boundary scanning, 51 Vitest files and 758 tests, a
         synthetic-only production build, and artifact validation passed at 3
         records, 575 Nations, and 8 hashed assets; build ID
-        synthetic-457fcc2c790d52601ea8.
+        synthetic-44968aef1314a19e30fc.
     - check: deterministic artifact and local security review
       result: pass
       detail: >-
@@ -473,7 +473,7 @@ current_focus:
     whole-refresh reconciliation evidence; and reopen B5-WA-RULES only with the
     bounded filing metadata evidence its gate requires.
   terminal_reason: >-
-    R0 custody recovery is durable through 7974906 and all currently authorized
+    R0 custody recovery is durable through 5fd48ed and all currently authorized
     independent local preparation is validated. The remaining dependency chains
     require authoritative Nation reconciliation, the unavailable required
     Browser backend, new source-specific evidence, or an explicitly closed owner
@@ -483,7 +483,7 @@ current_focus:
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 7974906
+  last_durable_checkpoint: 5fd48ed
   resume_command: npm run check
 
 completion_scope:

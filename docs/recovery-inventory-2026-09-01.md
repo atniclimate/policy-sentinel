@@ -37,7 +37,7 @@ baseline.
 - Dependencies: these documents describe the implementation groups below;
   `ROADMAP.yaml` is the canonical status ledger.
 - Checkpoint: implementation documentation in `a47b380`; terminal ledger in
-  `7974906`; authority/report handoff in the final R0 documentation checkpoint.
+  `7974906`; authority/report handoff in `5fd48ed`.
 - Unresolved custody question: none.
 
 Paths:
@@ -191,13 +191,14 @@ The accepted sequence was:
 
 1. `a47b380` — atomic August contract, Accord, Nation, and UX recovery;
 2. `7974906` — LWS terminal accounting plus exact-set validator regression;
-3. final R0 documentation/ledger checkpoint — authority reconciliation,
+3. `5fd48ed` — final R0 documentation/ledger checkpoint: authority reconciliation,
    reports, inventory, and current evidence.
 
 Current rerun evidence, not the historical August claims:
 
 - `npm run check`: 51 Vitest files and 758 tests passed; the build emitted 3
-  synthetic records, 575 synthetic Nations, and 8 verified artifact assets.
+  synthetic records, 575 synthetic Nations, and 8 verified artifact assets
+  under build ID `synthetic-44968aef1314a19e30fc`.
 - Two fixed-time artifact replays produced the same build ID and byte-identical
   hashes for all 9 generated JSON files.
 - The final build contains 12 files, no source maps, no credential signatures,
