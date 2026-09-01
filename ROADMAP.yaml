@@ -2965,6 +2965,20 @@ work_items:
         in_progress rather than receiving an unauthorized test edit, a false
         completion status, or a known failing final check. Full evidence is in
         docs/vision/reports/s0-implementation-2026-09-01.md.
+      - >-
+        A clean disposable terminal-state proof confirmed the exact boundary.
+        The coherent terminal ROADMAP passed at 26 complete and zero in_progress
+        items, while the unchanged direct roadmap test failed at line 28 with
+        actual complete versus expected in_progress and its Vitest wrapper
+        failed. In the disposable tree only, changing exactly the three
+        live-state assertions to S0 complete, null focus, and blocked local
+        release made the direct test and wrapper pass. The full npm run check
+        then passed all 71 files and 999 tests in 107.67 seconds plus the
+        unchanged 3-record, exactly 575-Nation, 8-asset build and artifact
+        validation. Only ROADMAP.yaml and the one pipeline test differed. The
+        dependency junction was unlinked nonrecursively, Git removed the proof
+        worktree, and main remained clean at 4142496. No other file change is
+        required, and the proven test edit was not applied to main.
     next_step: >-
       Owner must authorize or reject an edit only to
       tests/pipeline/roadmap-validator.test.mjs so its live-state assertions can

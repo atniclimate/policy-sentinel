@@ -275,6 +275,22 @@ lines 753 through 769. Editing it without explicit owner authority would itself
 violate the S0 boundary. Leaving a known failing final check or claiming
 completion while S0 remains active would be equally false.
 
+A subsequent disposable-worktree proof made the boundary executable rather
+than inferential. The coherent terminal `ROADMAP.yaml` passed
+`validate:roadmap` with 26 complete and zero `in_progress` items. The unchanged
+direct roadmap test then failed at line 28 with actual `complete` and expected
+`in_progress`; its Vitest pipeline wrapper also failed. Changing only the three
+live-state assertions in that disposable test from S0 `in_progress` to
+`complete`, focus `S0-SPATIAL` to null, and local release `in_progress` to
+`blocked` made the direct test and wrapper pass. The complete hypothetical
+terminal tree then passed `npm run check`: all 71 files and 999 tests passed in
+107.67 seconds, followed by the unchanged 3-record, exactly 575-Nation,
+8-asset build and artifact validation. Only `ROADMAP.yaml` and that one test
+differed in the disposable tree. Its verified dependency junction was unlinked
+nonrecursively, Git removed the worktree, and main remained clean and unchanged.
+No validator, wrapper, product, configuration, schema, or S0 implementation
+change is needed.
+
 The next owner decision is therefore narrow: authorize or reject an edit only
 to `tests/pipeline/roadmap-validator.test.mjs` so its live-state assertions
 reflect the terminal-blocked ledger while preserving its synthetic regression
