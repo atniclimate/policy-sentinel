@@ -13,6 +13,15 @@ const recordSchema = await readJson("schemas/record.schema.v1.json");
 const sourceSchema = await readJson("schemas/source.schema.v1.json");
 const assertionSchema = await readJson("schemas/assertion.schema.v1.json");
 const lifecycleSchema = await readJson("schemas/lifecycle.schema.v1.json");
+const spatialObservationSchema = await readJson(
+  "schemas/experimental/spatial-observation.schema.v1.json",
+);
+const spatialRelationSchema = await readJson(
+  "schemas/experimental/spatial-relation.schema.v1.json",
+);
+const jurisdictionEvidenceSchema = await readJson(
+  "schemas/experimental/jurisdiction-evidence.schema.v1.json",
+);
 const taxonomy = await readJson("config/taxonomy.v1.json");
 const sourceRegistry = await readJson("config/sources.v1.json");
 
@@ -29,6 +38,9 @@ for (const [name, schema] of [
   ["source schema", sourceSchema],
   ["assertion schema", assertionSchema],
   ["lifecycle schema", lifecycleSchema],
+  ["S0 spatial-observation schema", spatialObservationSchema],
+  ["S0 spatial-relation schema", spatialRelationSchema],
+  ["S0 jurisdiction-evidence schema", jurisdictionEvidenceSchema],
 ]) {
   if (!ajv.validateSchema(schema)) {
     throw new Error(
@@ -41,6 +53,80 @@ for (const [name, schema] of [
 }
 
 ajv.addSchema(assertionSchema);
+for (const [name, schema] of [
+  ["S0 spatial-observation schema", spatialObservationSchema],
+  ["S0 spatial-relation schema", spatialRelationSchema],
+  ["S0 jurisdiction-evidence schema", jurisdictionEvidenceSchema],
+]) {
+  ajv.addSchema(schema);
+  if (ajv.getSchema(schema.$id) === undefined) {
+    throw new Error(`${name} did not compile`);
+  }
+}
+
+const s0FixtureCases = [
+  ...[
+    "observation-complete-certain.valid.json",
+    "observation-missing-geometry.valid.json",
+    "observation-partial-coverage.valid.json",
+    "observation-swapped-axis-open-interval.valid.json",
+    "observation-unknown-coverage.valid.json",
+  ].map((name) => ({
+    name,
+    schema: spatialObservationSchema,
+    expectedValid: true,
+  })),
+  {
+    name: "observation-malformed.invalid.json",
+    schema: spatialObservationSchema,
+    expectedValid: false,
+  },
+  {
+    name: "relation-partial-coverage.valid.json",
+    schema: spatialRelationSchema,
+    expectedValid: true,
+  },
+  {
+    name: "relation-duplicate-input-digest.invalid.json",
+    schema: spatialRelationSchema,
+    expectedValid: false,
+  },
+  {
+    name: "jurisdiction-evidence.valid.json",
+    schema: jurisdictionEvidenceSchema,
+    expectedValid: true,
+  },
+  {
+    name: "jurisdiction-evidence-malformed.invalid.json",
+    schema: jurisdictionEvidenceSchema,
+    expectedValid: false,
+  },
+];
+let s0ValidFixtureChecks = 0;
+let s0InvalidFixtureChecks = 0;
+for (const { name, schema, expectedValid } of s0FixtureCases) {
+  const validate = ajv.getSchema(schema.$id);
+  if (validate === undefined) {
+    throw new Error(`S0 fixture ${name} has no compiled schema`);
+  }
+  const fixture = await readJson(`fixtures/experimental/spatial/${name}`);
+  const accepted = validate(fixture);
+  if (expectedValid && !accepted) {
+    throw new Error(
+      `${name} is invalid:\n${ajv.errorsText(validate.errors, {
+        separator: "\n",
+      })}`,
+    );
+  }
+  if (!expectedValid && accepted) {
+    throw new Error(`negative S0 fixture ${name} was accepted`);
+  }
+  if (expectedValid) {
+    s0ValidFixtureChecks += 1;
+  } else {
+    s0InvalidFixtureChecks += 1;
+  }
+}
 const validateLifecycleBundle = ajv.compile(lifecycleSchema);
 const emptyLifecycleFixture = await readJson(
   "fixtures/lifecycle/empty.synthetic.valid.json",
@@ -314,7 +400,8 @@ if (!historicalPolicyRejected) {
 negativePolicyChecks += 1;
 
 console.log(
-  `Foundation validation passed: 5 schemas, ${taxonomy.categories.length} categories, ` +
+  `Foundation validation passed: 8 schemas, ${taxonomy.categories.length} categories, ` +
     `${taxonomy.categories.reduce((count, category) => count + category.subcategories.length, 0)} subcategories, ` +
-    `${fixtureNames.length} valid fixtures, and ${negativePolicyChecks} negative policy checks.`,
+    `${fixtureNames.length} valid fixtures, ${negativePolicyChecks} negative policy checks, ` +
+    `and ${s0ValidFixtureChecks} valid plus ${s0InvalidFixtureChecks} invalid S0 fixture checks.`,
 );

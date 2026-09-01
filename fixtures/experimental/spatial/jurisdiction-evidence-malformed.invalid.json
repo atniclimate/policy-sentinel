@@ -1,0 +1,99 @@
+{
+  "contractVersion": "1.0.0",
+  "experimental": true,
+  "synthetic": true,
+  "fixtureClass": "impossible_synthetic_geometry",
+  "jurisdictionEvidenceId": "s0-impossible:jurisdiction-evidence:d00e97ce31806536d18025738e4c2c9d8c6ea3f35e50da5dda0b93bb41a896e5",
+  "fixtureSlug": "fixture-0042",
+  "sourceIdentity": {
+    "sourceId": "s0-impossible",
+    "sourceRecordId": "s0-impossible:fixture:fixture-0042"
+  },
+  "featureId": "s0-impossible:feature:fixture-0042",
+  "administrativeUnitId": "s0-impossible:administrative-unit:fixture-0042",
+  "sourceLabel": "Policy Sentinel impossible synthetic administrative statement",
+  "statement": "Impossible synthetic source statement: s0-impossible:feature:fixture-0042 is assigned to s0-impossible:administrative-unit:fixture-0042 in this fixture only.",
+  "statementDigest": "d00e97ce31806536d18025738e4c2c9d8c6ea3f35e50da5dda0b93bb41a896e5",
+  "syntheticLevel": "impossible_administrative_unit",
+  "evidenceBasis": "explicit_synthetic_source_statement",
+  "derivation": "source_citation_only_not_spatial",
+  "reviewState": "validated_synthetic_fixture",
+  "attribution": "Policy Sentinel impossible synthetic fixture",
+  "usageBasis": "Repository-authored impossible synthetic fixture; no external source or reuse grant.",
+  "factManifest": {
+    "titleFact": {
+      "contractVersion": "1.0.0",
+      "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDA0Mg:JC5zb3VyY2VMYWJlbA:instrument_title:d00e97ce31806536d18025738e4c2c9d8c6ea3f35e50da5dda0b93bb41a896e5",
+      "assertionClass": "source_fact",
+      "sourceIdentity": {
+        "sourceId": "s0-impossible",
+        "sourceRecordId": "s0-impossible:fixture:fixture-0042"
+      },
+      "predicate": "instrument_title",
+      "value": {
+        "kind": "text",
+        "value": "Policy Sentinel impossible synthetic administrative statement"
+      },
+      "provenance": {
+        "sourceIdentity": {
+          "sourceId": "s0-impossible",
+          "sourceRecordId": "s0-impossible:fixture:fixture-0042"
+        },
+        "sourceUrl": "https://policy-sentinel.invalid/fixtures/s0/1.0.0/fixture-0042.json",
+        "sourcePath": "$.sourceLabel",
+        "retrievedAt": "3785-06-07T08:09:10-07:00",
+        "sourceUpdatedAt": null,
+        "adapterId": "s0-impossible-fixture",
+        "adapterVersion": "1.0.0",
+        "sourceContentDigest": "d00e97ce31806536d18025738e4c2c9d8c6ea3f35e50da5dda0b93bb41a896e5",
+        "validationState": "validated"
+      },
+      "factDigest": "8f9f1d4ccae56cf49d3210bb7242c8c9533f804328817c1509c462b24934d06b"
+    },
+    "fragmentDigestFact": {
+      "contractVersion": "1.0.0",
+      "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDA0Mg:JA:rendition_digest:d00e97ce31806536d18025738e4c2c9d8c6ea3f35e50da5dda0b93bb41a896e5",
+      "assertionClass": "source_fact",
+      "sourceIdentity": {
+        "sourceId": "s0-impossible",
+        "sourceRecordId": "s0-impossible:fixture:fixture-0042"
+      },
+      "predicate": "rendition_digest",
+      "value": {
+        "kind": "sha256_digest",
+        "value": "d00e97ce31806536d18025738e4c2c9d8c6ea3f35e50da5dda0b93bb41a896e5"
+      },
+      "provenance": {
+        "sourceIdentity": {
+          "sourceId": "s0-impossible",
+          "sourceRecordId": "s0-impossible:fixture:fixture-0042"
+        },
+        "sourceUrl": "https://policy-sentinel.invalid/fixtures/s0/1.0.0/fixture-0042.json",
+        "sourcePath": "$",
+        "retrievedAt": "3785-06-07T08:09:10-07:00",
+        "sourceUpdatedAt": null,
+        "adapterId": "s0-impossible-fixture",
+        "adapterVersion": "1.0.0",
+        "sourceContentDigest": "d00e97ce31806536d18025738e4c2c9d8c6ea3f35e50da5dda0b93bb41a896e5",
+        "validationState": "validated"
+      },
+      "factDigest": "2f880949a7811b6281dd6412c6176668c1ca6635b3b941f295d87055b6c6ef27"
+    }
+  },
+  "evidence": {
+    "state": "supported",
+    "factReferences": [
+      {
+        "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDA0Mg:JA:rendition_digest:d00e97ce31806536d18025738e4c2c9d8c6ea3f35e50da5dda0b93bb41a896e5",
+        "factDigest": "2f880949a7811b6281dd6412c6176668c1ca6635b3b941f295d87055b6c6ef27"
+      },
+      {
+        "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDA0Mg:JC5zb3VyY2VMYWJlbA:instrument_title:d00e97ce31806536d18025738e4c2c9d8c6ea3f35e50da5dda0b93bb41a896e5",
+        "factDigest": "8f9f1d4ccae56cf49d3210bb7242c8c9533f804328817c1509c462b24934d06b"
+      }
+    ]
+  },
+  "jurisdiction": {
+    "level": "forged"
+  }
+}

@@ -2748,11 +2748,173 @@ work_items:
         build and artifact validation at 3 records, exactly 575 Nations, 8
         verified assets. No invocation-specific build ID is treated as a durable
         contract fact.
+      - >-
+        On 2026-09-01, the implementation session independently reverified clean
+        main at 383cc13a7e8e30db031f590a1c2d128a35a81b27, no remote, the exact
+        41,506-byte contract and frozen SHA-256, K0 complete and unchanged, S0
+        as the sole in_progress item, approved G-S0-SYNTHETIC, and closed
+        G-K0-S0-CONVERGENCE before mutation. Three read-only Phase 1 reviews
+        found no contract defect and froze non-overlapping ownership,
+        schema-versus-runtime invariants, every normative clause and S0-R01
+        through S0-R19 evidence route, counterexamples, bounded enumeration, and
+        a recoverable exact removal-proof design in
+        docs/vision/reports/s0-phase-1-traceability-2026-09-01.md. No S0
+        implementation code existed at that checkpoint.
+      - >-
+        Phase 2 added only the three recursively closed experimental S0 schemas,
+        their smallest additive foundation compile registrations, and focused
+        schema/runtime-boundary tests. Independent local validation passed npm
+        run validate:foundation at 8 schemas, 10 categories, 33 subcategories, 3
+        existing valid fixtures, and 5 negative policy checks; the isolated
+        schema/runtime command passed 2 files and 15 tests with one worker in
+        2.13 seconds. An earlier combined reviewer invocation exceeded only its
+        30-second reporting yield; separate 7/7 and 8/8 reruns and the final
+        combined 15/15 rerun passed, so no test failure remained. No dependency,
+        network, K0, current schema, product, artifact, or integration change
+        occurred. A subsequent coordinator typecheck exposed seven narrow
+        TypeScript inference errors in the relation-shaped schema test helper;
+        the reviewer repaired only that test's local structural mutation types,
+        after which independent npm run typecheck and the same 15-test command
+        both passed.
+      - >-
+        Phase 3 added the closed synthetic SpatialObservation constructor and
+        validator, named-axis normalization, exact geometry and pre-fact digest
+        replay, stable observation identity, exact three-fact K0 custody through
+        the frozen public seam, supported time assertions, immutable collection
+        handling, five valid fixtures, and one malformed fixture. Coordinator
+        review found that an initial fact-shape pass enforced K0 semantics
+        before geometry and observation replay; the implementation was
+        refactored so the frozen stage order is structural/year checks, matrix,
+        geometry digest, observation digest/ID, then K0 custody, with
+        combined-failure tests proving the order. A second review removed unsafe
+        mutable casts from frozen collection/bounds APIs. Independent isolated
+        validation then passed 1 observation file and 42 tests in 1.19 seconds,
+        npm run typecheck, and git diff --check. One expected pre-fixture ENOENT
+        was resolved by adding the committed fixtures; no residual failure,
+        dependency, network, K0, product, or integration change remained.
+      - >-
+        Phase 4 added exact shared-valid-time derivation, ordered relation
+        identity, six-fact pair-aligned K0 custody, exact integer-box topology,
+        bounded whole-box tolerance, fixed unknown precedence, assertion and
+        outer result-digest replay, two full relation fixtures, one topology
+        case fixture, and focused temporal/topology/relation tests. Coordinator
+        review repaired early Stage-7/8 semantic enforcement, full-expected
+        construction before predecessor checks, incomplete bounded symmetry
+        accounting, mutable Set assertions, and missing committed full-object
+        relation fixtures. Independent isolated replay passed temporal 6/6 in
+        1.04 seconds, topology 12/12 in 1.78 seconds, relation custody 16/16 in
+        3.07 seconds, npm run typecheck, and git diff --check. The heavy run
+        executed alone with one worker and recorded exactly 40,000 zero-
+        tolerance classifications, 10,000 cached reversal/duality/exclusivity
+        assertions, 36 bounded transforms, 32 named positive cases, 3,531,403
+        streamed oracle pairs, a 4,383,720 implementation-pair ceiling, and
+        7,915,123 combined bounded work; the maximum case was 390,625 and no
+        random, seed, full-domain Cartesian product, dependency, or network
+        operation occurred. One attempted reviewer invocation used unsupported
+        --minWorkers and exited before collection; the supported isolated rerun
+        passed and no validation failure remained.
+      - >-
+        The Phase 4 cooperative audit found two medium test-evidence gaps and
+        one low immutable-type gap, but no runtime defect: preserved open-end
+        overlap and reversed valid-time references were not explicit; missing,
+        extra, and third-observation six-pair substitutions were not explicit;
+        and normalized bounds exposed only a shallow readonly type. The focused
+        repairs added those counterexamples, removed the mutable casts, and
+        passed temporal 7/7, relation custody 18/18, typecheck, file-scoped lint
+        and formatting, and diff checks. One coordinator relation rerun under
+        concurrent worker load exceeded Vitest's default five-second test
+        deadline; the same bounded test passed alone after receiving an explicit
+        30-second deadline, at 18/18 tests and 11.25 seconds of test time. No
+        audit finding remains.
+      - >-
+        Phase 5 added separately evidenced JurisdictionEvidence construction,
+        validation, immutable collection handling, exact synthetic statement
+        digest and stable ID replay, two-fact K0 custody, supported evidence,
+        one valid fixture, one protected-key malformed fixture, and six focused
+        tests. An adversarial reviewer found one medium fail-order issue where
+        cross-fact retrievedAt equality preceded statement digest and ID replay;
+        that check was deferred to exact fact replay and a combined forged-
+        digest, forged-ID, mismatched-time counterexample now proves the frozen
+        order. The repaired jurisdiction suite passes 6/6 with no residual high
+        or medium finding.
+      - >-
+        Phase 6 added the pure closed accessible evidence input and view-model
+        projection, an exact representative fixture, six view tests, and a
+        test-only Preact renderer with exact document order, captions, native
+        table semantics, row and column scopes, aria-describedby, visible
+        explanation, and empty-jurisdiction omission. The view suite passes 6/6
+        in 7.46 seconds of test time and the accessibility suite passes 3/3,
+        including axe and negative visual, interaction, browser-state, and
+        source-link checks. Its bounded all-relation assertion also received a
+        30-second test deadline after one default-deadline timeout; no test
+        scope, classification ceiling, or expected result changed. Typecheck
+        passes. Additive foundation validation now passes all 8 schemas plus 7
+        valid and 3 invalid S0 fixtures while preserving the existing 3 record
+        fixtures and 5 negative policy checks.
+      - >-
+        Phase 7 added three cumulative non-interference suites without changing
+        production code. The protected-data barrier pins the exact ordered 21
+        keys and rejects exactly 252 schema/runtime mutations across all three
+        domain objects and four recursive locations, proves safe string values,
+        preserves complete Nation and PolicyRecord roots plus every required
+        diagnostic pointer across a full S0 workflow, and confirms unchanged
+        PolicyRecord 1.4 rejection of all three proposed root fields. The import
+        barrier parses all nine S0 source modules and reverse production,
+        script, executable-config, JSON-config, and HTML graphs, with planted
+        static, type-only, re-export, dynamic, require, lifecycle, deep-K0,
+        product, Preact, and nonliteral counterexamples. The artifact barrier
+        rejects both exact injected paths and inspects every file, marker,
+        route, source map, manifest asset, raw hash, dynamic import, and Rollup
+        module in a fixed-time Vite plus synthetic-artifact build. Serialized
+        implementer and independent coordinator runs both passed: protected 6/6,
+        imports 7/7, and artifact/build 4/4. A product declaration omitted an
+        existing runtime export needed by the test harness; a narrow test-local
+        namespace/interface cast contained that mismatch, typecheck passed, and
+        no product declaration or implementation was changed.
+      - >-
+        The final independent Sol Ultra adversarial audit initially found no
+        high issue and six medium implementation/evidence gaps: late Stage-1
+        assertion constants and reference grammar, incomplete full-object
+        schema/runtime parity, missing observation custody attacks, single-row
+        accessibility evidence, a direct-schema-import scanner gap, and an
+        insufficiently explicit shared-junction cleanup design. All six were
+        repaired within the authorized S0 paths. The same auditor re-read the
+        complete repaired files and independently reconciled 388 schema-invalid
+        full-object mutations across 17 keyword families, 37 closed roots, 67
+        required branch tags, 7 separate semantic-only runtime rejections, 20
+        named observation attacks, multi-row view and DOM ordering, the exact
+        three-schema foundation-only import exception, and the nonrecursive
+        junction unlink sequence. Its closing disposition records zero remaining
+        high or medium finding in
+        docs/vision/reviews/s0-implementation-audit-2026-09-01.md. Serialized
+        coordinator reruns pass parity 10/10, observation 62/62, temporal 7/7,
+        relation 20/20, view 8/8, accessibility 4/4, imports 9/9, and typecheck.
+        One initial parity rerun exposed only two catalog field-shift bugs; the
+        repaired bounded catalog then exceeded only the default five-second
+        deadline at 6.214 seconds, received a 30-second test deadline, and
+        passed independently in 5.74 seconds with no schema/runtime mismatch.
+      - >-
+        The controlled pre-checkpoint sequence passes schema/runtime 18/18,
+        observation custody 62/62, temporal 7/7, isolated topology/tolerance
+        12/12, relation custody 20/20, jurisdiction 6/6, evidence view 8/8,
+        accessibility 4/4, protected-data 6/6, imports 9/9, and artifact/build
+        4/4. The first pre-checkpoint npm run check stopped before tests on four
+        mechanical formatting findings, which were formatted in place. Two
+        subsequent default-worker full-suite runs each passed 998/999 and
+        exceeded only the unchanged pipeline wrapper's 20-second deadline at
+        21.203 and 22.706 seconds; that exact test passed alone in 4.98 seconds.
+        A process-local installed Vitest VITEST_MAX_WORKERS=1 control then let
+        the exact npm run check complete without file-worker contention: all 71
+        files and 999 tests passed in 92.93 seconds, followed by a 3-record,
+        exactly 575-Nation, 8-asset build and artifact validation. Formatting,
+        lint, typecheck, roadmap validation, and the source-boundary scan also
+        passed. No timeout was treated as a product defect, and no out-of-scope
+        test, configuration, dependency, or product file changed.
     next_step: >-
-      Start a fresh S0 implementation session using only frozen contract 1.0.0
-      and its bounded later-implementation paths. Preserve the synthetic-only,
-      removable, non-interference, no-map, and closed-gate boundaries; do not
-      integrate S0 through G-K0-S0-CONVERGENCE.
+      Create the focused implementation checkpoint, execute the recoverable
+      isolated removal proof, and finish the clean full validation sequence.
+      Preserve the synthetic-only, removable, non-interference, no-map, and
+      closed-gate boundaries; do not integrate S0 through G-K0-S0-CONVERGENCE.
 
   - id: RELEASE-LICENSE
     priority: 200

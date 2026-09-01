@@ -1,0 +1,259 @@
+{
+  "caseSet": "s0-axis-aligned-box-topology-v1",
+  "exactCases": [
+    {
+      "name": "equal-boxes-intersect",
+      "subject": {
+        "synthetic_x": { "minimum": -2, "maximum": 2 },
+        "synthetic_y": { "minimum": -2, "maximum": 2 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": -2, "maximum": 2 },
+        "synthetic_y": { "minimum": -2, "maximum": 2 }
+      },
+      "expected": "intersects"
+    },
+    {
+      "name": "negative-x-overlap-disjoint",
+      "subject": {
+        "synthetic_x": { "minimum": -4, "maximum": -2 },
+        "synthetic_y": { "minimum": -2, "maximum": 2 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": -1, "maximum": 1 },
+        "synthetic_y": { "minimum": -2, "maximum": 2 }
+      },
+      "expected": "disjoint"
+    },
+    {
+      "name": "edge-touch",
+      "subject": {
+        "synthetic_x": { "minimum": -2, "maximum": 0 },
+        "synthetic_y": { "minimum": -2, "maximum": 2 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": 0, "maximum": 2 },
+        "synthetic_y": { "minimum": -1, "maximum": 1 }
+      },
+      "expected": "touches"
+    },
+    {
+      "name": "corner-touch",
+      "subject": {
+        "synthetic_x": { "minimum": -2, "maximum": 0 },
+        "synthetic_y": { "minimum": -2, "maximum": 0 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": 0, "maximum": 2 },
+        "synthetic_y": { "minimum": 0, "maximum": 2 }
+      },
+      "expected": "touches"
+    },
+    {
+      "name": "strict-contains",
+      "subject": {
+        "synthetic_x": { "minimum": -4, "maximum": 4 },
+        "synthetic_y": { "minimum": -4, "maximum": 4 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": -2, "maximum": 2 },
+        "synthetic_y": { "minimum": -2, "maximum": 2 }
+      },
+      "expected": "contains"
+    },
+    {
+      "name": "strict-within",
+      "subject": {
+        "synthetic_x": { "minimum": -2, "maximum": 2 },
+        "synthetic_y": { "minimum": -2, "maximum": 2 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": -4, "maximum": 4 },
+        "synthetic_y": { "minimum": -4, "maximum": 4 }
+      },
+      "expected": "within"
+    },
+    {
+      "name": "shared-boundary-is-not-contains",
+      "subject": {
+        "synthetic_x": { "minimum": -4, "maximum": 4 },
+        "synthetic_y": { "minimum": -4, "maximum": 4 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": -4, "maximum": 2 },
+        "synthetic_y": { "minimum": -2, "maximum": 2 }
+      },
+      "expected": "intersects"
+    },
+    {
+      "name": "cross-overlap-intersects",
+      "subject": {
+        "synthetic_x": { "minimum": -4, "maximum": 4 },
+        "synthetic_y": { "minimum": -1, "maximum": 1 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": -1, "maximum": 1 },
+        "synthetic_y": { "minimum": -4, "maximum": 4 }
+      },
+      "expected": "intersects"
+    }
+  ],
+  "toleranceCases": [
+    {
+      "name": "stable-disjoint-t1",
+      "subject": {
+        "synthetic_x": { "minimum": -10, "maximum": -6 },
+        "synthetic_y": { "minimum": -4, "maximum": 4 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": -2, "maximum": 2 },
+        "synthetic_y": { "minimum": -4, "maximum": 4 }
+      },
+      "tolerance": 1,
+      "expected": "disjoint"
+    },
+    {
+      "name": "stable-disjoint-t2",
+      "subject": {
+        "synthetic_x": { "minimum": -16, "maximum": -10 },
+        "synthetic_y": { "minimum": -8, "maximum": 8 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": -4, "maximum": 2 },
+        "synthetic_y": { "minimum": -8, "maximum": 8 }
+      },
+      "tolerance": 2,
+      "expected": "disjoint"
+    },
+    {
+      "name": "stable-contains-t1",
+      "subject": {
+        "synthetic_x": { "minimum": -10, "maximum": 10 },
+        "synthetic_y": { "minimum": -10, "maximum": 10 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": -2, "maximum": 2 },
+        "synthetic_y": { "minimum": -2, "maximum": 2 }
+      },
+      "tolerance": 1,
+      "expected": "contains"
+    },
+    {
+      "name": "stable-contains-t2",
+      "subject": {
+        "synthetic_x": { "minimum": -10, "maximum": 10 },
+        "synthetic_y": { "minimum": -10, "maximum": 10 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": -2, "maximum": 2 },
+        "synthetic_y": { "minimum": -2, "maximum": 2 }
+      },
+      "tolerance": 2,
+      "expected": "contains"
+    },
+    {
+      "name": "stable-within-t2",
+      "subject": {
+        "synthetic_x": { "minimum": -2, "maximum": 2 },
+        "synthetic_y": { "minimum": -2, "maximum": 2 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": -10, "maximum": 10 },
+        "synthetic_y": { "minimum": -10, "maximum": 10 }
+      },
+      "tolerance": 2,
+      "expected": "within"
+    },
+    {
+      "name": "stable-cross-intersects-t2",
+      "subject": {
+        "synthetic_x": { "minimum": -12, "maximum": 12 },
+        "synthetic_y": { "minimum": -5, "maximum": 5 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": -5, "maximum": 5 },
+        "synthetic_y": { "minimum": -12, "maximum": 12 }
+      },
+      "tolerance": 2,
+      "expected": "intersects"
+    },
+    {
+      "name": "edge-touch-ambiguous-t1",
+      "subject": {
+        "synthetic_x": { "minimum": -4, "maximum": 0 },
+        "synthetic_y": { "minimum": -4, "maximum": 4 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": 0, "maximum": 4 },
+        "synthetic_y": { "minimum": -4, "maximum": 4 }
+      },
+      "tolerance": 1,
+      "expected": "tolerance_ambiguity"
+    },
+    {
+      "name": "corner-touch-ambiguous-t2",
+      "subject": {
+        "synthetic_x": { "minimum": -6, "maximum": 0 },
+        "synthetic_y": { "minimum": -6, "maximum": 0 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": 0, "maximum": 6 },
+        "synthetic_y": { "minimum": 0, "maximum": 6 }
+      },
+      "tolerance": 2,
+      "expected": "tolerance_ambiguity"
+    },
+    {
+      "name": "equal-boxes-ambiguous-t1",
+      "subject": {
+        "synthetic_x": { "minimum": -4, "maximum": 4 },
+        "synthetic_y": { "minimum": -4, "maximum": 4 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": -4, "maximum": 4 },
+        "synthetic_y": { "minimum": -4, "maximum": 4 }
+      },
+      "tolerance": 1,
+      "expected": "tolerance_ambiguity"
+    },
+    {
+      "name": "near-gap-ambiguous-t1",
+      "subject": {
+        "synthetic_x": { "minimum": -5, "maximum": -1 },
+        "synthetic_y": { "minimum": -4, "maximum": 4 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": 0, "maximum": 4 },
+        "synthetic_y": { "minimum": -4, "maximum": 4 }
+      },
+      "tolerance": 1,
+      "expected": "tolerance_ambiguity"
+    },
+    {
+      "name": "shared-boundary-ambiguous-t1",
+      "subject": {
+        "synthetic_x": { "minimum": -8, "maximum": 8 },
+        "synthetic_y": { "minimum": -8, "maximum": 8 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": -8, "maximum": 2 },
+        "synthetic_y": { "minimum": -2, "maximum": 2 }
+      },
+      "tolerance": 1,
+      "expected": "tolerance_ambiguity"
+    },
+    {
+      "name": "domain-edge-stable-disjoint-t2",
+      "subject": {
+        "synthetic_x": { "minimum": -32, "maximum": -26 },
+        "synthetic_y": { "minimum": -8, "maximum": 8 }
+      },
+      "object": {
+        "synthetic_x": { "minimum": -18, "maximum": -12 },
+        "synthetic_y": { "minimum": -8, "maximum": 8 }
+      },
+      "tolerance": 2,
+      "expected": "disjoint"
+    }
+  ]
+}

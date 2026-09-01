@@ -1,0 +1,1035 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/experimental/spatial-relation.schema.v1.json",
+  "title": "Policy Sentinel S0 SpatialRelation",
+  "description": "Frozen S0 1.0.0 impossible-synthetic geometric relation receipt. A relation is geometric evidence only and is not jurisdictional or legal authority.",
+  "allOf": [
+    {
+      "$ref": "#/$defs/spatialRelation"
+    },
+    {
+      "$ref": "#/$defs/noProtectedKeys"
+    }
+  ],
+  "$defs": {
+    "noProtectedKeys": {
+      "if": {
+        "type": "object"
+      },
+      "then": {
+        "type": "object",
+        "propertyNames": {
+          "not": {
+            "enum": [
+              "nationId",
+              "nationIds",
+              "officialName",
+              "authorizedAliases",
+              "recognitionBaselineVersion",
+              "stateCoverage",
+              "nationAssociations",
+              "jurisdiction",
+              "issuingBodies",
+              "officialSubjects",
+              "taxonomyMemberships",
+              "relevance",
+              "landmark",
+              "legalEffect",
+              "legalApplicability",
+              "rights",
+              "consent",
+              "affiliation",
+              "interest",
+              "eligibility",
+              "impact"
+            ]
+          }
+        },
+        "additionalProperties": {
+          "$ref": "#/$defs/noProtectedKeys"
+        }
+      },
+      "else": {
+        "if": {
+          "type": "array"
+        },
+        "then": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/noProtectedKeys"
+          }
+        }
+      }
+    },
+    "sha256": {
+      "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sha256"
+    },
+    "observationId": {
+      "type": "string",
+      "pattern": "^s0-impossible:observation:[a-f0-9]{64}$"
+    },
+    "relationId": {
+      "type": "string",
+      "pattern": "^s0-impossible:relation:[a-f0-9]{64}$"
+    },
+    "observationReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observationId", "observationDigest", "geometryDigest"],
+      "properties": {
+        "observationId": {
+          "$ref": "#/$defs/observationId"
+        },
+        "observationDigest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "geometryDigest": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "s0Date": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/date"
+        },
+        {
+          "type": "string",
+          "pattern": "^3785-"
+        }
+      ]
+    },
+    "s0DateTime": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/dateTime"
+        },
+        {
+          "type": "string",
+          "pattern": "^3785-"
+        }
+      ]
+    },
+    "s0DateValue": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/dateValue"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "$ref": "#/$defs/s0Date"
+            }
+          }
+        }
+      ]
+    },
+    "s0DateTimeValue": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/dateTimeValue"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "$ref": "#/$defs/s0DateTime"
+            }
+          }
+        }
+      ]
+    },
+    "s0DateEndpoint": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/dateEndpoint"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "$ref": "#/$defs/s0Date"
+            }
+          }
+        }
+      ]
+    },
+    "s0DateTimeEndpoint": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/dateTimeEndpoint"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "$ref": "#/$defs/s0DateTime"
+            }
+          }
+        }
+      ]
+    },
+    "s0IntervalValue": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/intervalValue"
+        },
+        {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "start": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/s0DateEndpoint"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "end": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/s0DateEndpoint"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "object",
+              "properties": {
+                "start": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/s0DateTimeEndpoint"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "end": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/s0DateTimeEndpoint"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "s0TemporalValue": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/s0DateValue"
+        },
+        {
+          "$ref": "#/$defs/s0DateTimeValue"
+        },
+        {
+          "$ref": "#/$defs/s0IntervalValue"
+        }
+      ]
+    },
+    "twoFactReferences": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/factReference"
+      }
+    },
+    "sharedValidTimeOverlap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "value", "factReferences"],
+      "properties": {
+        "state": {
+          "const": "overlap"
+        },
+        "value": {
+          "$ref": "#/$defs/s0TemporalValue"
+        },
+        "factReferences": {
+          "$ref": "#/$defs/twoFactReferences"
+        }
+      }
+    },
+    "sharedValidTimeIndeterminate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reason", "factReferences"],
+      "properties": {
+        "state": {
+          "const": "indeterminate"
+        },
+        "reason": {
+          "const": "mixed_precision"
+        },
+        "factReferences": {
+          "$ref": "#/$defs/twoFactReferences"
+        }
+      }
+    },
+    "sharedValidTimeDisjoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "factReferences"],
+      "properties": {
+        "state": {
+          "const": "disjoint"
+        },
+        "factReferences": {
+          "$ref": "#/$defs/twoFactReferences"
+        }
+      }
+    },
+    "sharedValidTime": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/sharedValidTimeOverlap"
+        },
+        {
+          "$ref": "#/$defs/sharedValidTimeIndeterminate"
+        },
+        {
+          "$ref": "#/$defs/sharedValidTimeDisjoint"
+        }
+      ]
+    },
+    "algorithm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "canonicalizationVersion",
+        "tolerance",
+        "unit"
+      ],
+      "properties": {
+        "id": {
+          "const": "s0-axis-aligned-box-topology"
+        },
+        "version": {
+          "const": "1.0.0"
+        },
+        "canonicalizationVersion": {
+          "const": "ps-c14n-json-1"
+        },
+        "tolerance": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "unit": {
+          "const": "impossible_unit"
+        }
+      }
+    },
+    "unknownReason": {
+      "enum": [
+        "missing_geometry",
+        "partial_coverage",
+        "unknown_coverage",
+        "observation_uncertain",
+        "resolution_mismatch",
+        "valid_time_mixed_precision",
+        "valid_time_disjoint",
+        "tolerance_ambiguity"
+      ]
+    },
+    "certainRelation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state"],
+      "properties": {
+        "state": {
+          "const": "certain"
+        }
+      }
+    },
+    "uncertainRelation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reason"],
+      "properties": {
+        "state": {
+          "const": "uncertain"
+        },
+        "reason": {
+          "$ref": "#/$defs/unknownReason"
+        }
+      }
+    },
+    "sixSupportedEvidence": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/supportedEvidence"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "state": {
+              "const": "supported"
+            },
+            "factReferences": {
+              "type": "array",
+              "minItems": 6,
+              "maxItems": 6,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/factReference"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "derivedAssertion": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/derivedAssertion"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "contractVersion": {
+              "const": "1.0.0"
+            },
+            "assertionId": {
+              "type": "string",
+              "pattern": "^k0:spatial_relation:[a-f0-9]{64}$"
+            },
+            "assertionClass": {
+              "const": "spatial_relation"
+            },
+            "inputFactIds": {
+              "type": "array",
+              "minItems": 6,
+              "maxItems": 6,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/factId"
+              }
+            },
+            "inputFactDigests": {
+              "type": "array",
+              "minItems": 6,
+              "maxItems": 6,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/sha256"
+              }
+            },
+            "ruleId": {
+              "const": "s0-axis-aligned-box-topology"
+            },
+            "ruleVersion": {
+              "const": "1.0.0"
+            },
+            "canonicalizationVersion": {
+              "const": "ps-c14n-json-1"
+            },
+            "resultDigest": {
+              "$ref": "#/$defs/sha256"
+            },
+            "evidence": {
+              "$ref": "#/$defs/sixSupportedEvidence"
+            },
+            "validationState": {
+              "const": "validated"
+            }
+          }
+        }
+      ]
+    },
+    "spatialRelation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "experimental",
+        "synthetic",
+        "fixtureClass",
+        "relationId",
+        "subject",
+        "object",
+        "relation",
+        "sharedValidTime",
+        "algorithm",
+        "derivedAssertion",
+        "uncertainty",
+        "unknownReason",
+        "interpretation"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1.0.0"
+        },
+        "experimental": {
+          "const": true
+        },
+        "synthetic": {
+          "const": true
+        },
+        "fixtureClass": {
+          "const": "impossible_synthetic_geometry"
+        },
+        "relationId": {
+          "$ref": "#/$defs/relationId"
+        },
+        "subject": {
+          "$ref": "#/$defs/observationReference"
+        },
+        "object": {
+          "$ref": "#/$defs/observationReference"
+        },
+        "relation": {
+          "enum": [
+            "intersects",
+            "contains",
+            "within",
+            "touches",
+            "disjoint",
+            "unknown"
+          ]
+        },
+        "sharedValidTime": {
+          "$ref": "#/$defs/sharedValidTime"
+        },
+        "algorithm": {
+          "$ref": "#/$defs/algorithm"
+        },
+        "derivedAssertion": {
+          "$ref": "#/$defs/derivedAssertion"
+        },
+        "uncertainty": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/certainRelation"
+            },
+            {
+              "$ref": "#/$defs/uncertainRelation"
+            }
+          ]
+        },
+        "unknownReason": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/unknownReason"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "interpretation": {
+          "const": "geometric_relation_only"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "subject": {
+              "$ref": "#/$defs/presentGeometryReference"
+            },
+            "object": {
+              "$ref": "#/$defs/presentGeometryReference"
+            },
+            "relation": {
+              "enum": [
+                "intersects",
+                "contains",
+                "within",
+                "touches",
+                "disjoint"
+              ]
+            },
+            "sharedValidTime": {
+              "$ref": "#/$defs/sharedValidTimeOverlap"
+            },
+            "uncertainty": {
+              "$ref": "#/$defs/certainRelation"
+            },
+            "unknownReason": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/missingGeometryResult"
+        },
+        {
+          "$ref": "#/$defs/partialCoverageResult"
+        },
+        {
+          "$ref": "#/$defs/unknownCoverageResult"
+        },
+        {
+          "$ref": "#/$defs/observationUncertainResult"
+        },
+        {
+          "$ref": "#/$defs/resolutionMismatchResult"
+        },
+        {
+          "$ref": "#/$defs/mixedPrecisionResult"
+        },
+        {
+          "$ref": "#/$defs/disjointTimeResult"
+        },
+        {
+          "$ref": "#/$defs/toleranceAmbiguityResult"
+        }
+      ]
+    },
+    "presentGeometryReference": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/observationReference"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "geometryDigest": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        }
+      ]
+    },
+    "unknownResultBase": {
+      "type": "object",
+      "properties": {
+        "subject": {
+          "$ref": "#/$defs/presentGeometryReference"
+        },
+        "object": {
+          "$ref": "#/$defs/presentGeometryReference"
+        },
+        "relation": {
+          "const": "unknown"
+        }
+      }
+    },
+    "missingGeometryResult": {
+      "type": "object",
+      "properties": {
+        "relation": {
+          "const": "unknown"
+        },
+        "uncertainty": {
+          "$ref": "#/$defs/uncertaintyMissingGeometry"
+        },
+        "unknownReason": {
+          "const": "missing_geometry"
+        }
+      },
+      "anyOf": [
+        {
+          "properties": {
+            "subject": {
+              "$ref": "#/$defs/nullGeometryReference"
+            }
+          }
+        },
+        {
+          "properties": {
+            "object": {
+              "$ref": "#/$defs/nullGeometryReference"
+            }
+          }
+        }
+      ]
+    },
+    "partialCoverageResult": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/unknownResultBase"
+        },
+        {
+          "$ref": "#/$defs/unknownResultPartialCoverage"
+        }
+      ]
+    },
+    "unknownCoverageResult": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/unknownResultBase"
+        },
+        {
+          "$ref": "#/$defs/unknownResultUnknownCoverage"
+        }
+      ]
+    },
+    "observationUncertainResult": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/unknownResultBase"
+        },
+        {
+          "$ref": "#/$defs/unknownResultObservationUncertain"
+        }
+      ]
+    },
+    "resolutionMismatchResult": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/unknownResultBase"
+        },
+        {
+          "$ref": "#/$defs/unknownResultResolutionMismatch"
+        }
+      ]
+    },
+    "mixedPrecisionResult": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/unknownResultBase"
+        },
+        {
+          "$ref": "#/$defs/unknownResultMixedPrecision"
+        }
+      ]
+    },
+    "disjointTimeResult": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/unknownResultBase"
+        },
+        {
+          "$ref": "#/$defs/unknownResultDisjointTime"
+        }
+      ]
+    },
+    "toleranceAmbiguityResult": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/unknownResultBase"
+        },
+        {
+          "$ref": "#/$defs/unknownResultToleranceAmbiguity"
+        }
+      ]
+    },
+    "nullGeometryReference": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/observationReference"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "geometryDigest": {
+              "type": "null"
+            }
+          }
+        }
+      ]
+    },
+    "uncertaintyMissingGeometry": {
+      "$ref": "#/$defs/uncertaintyReasonMissingGeometry"
+    },
+    "uncertaintyReasonMissingGeometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reason"],
+      "properties": {
+        "state": {
+          "const": "uncertain"
+        },
+        "reason": {
+          "const": "missing_geometry"
+        }
+      }
+    },
+    "unknownResultPartialCoverage": {
+      "$ref": "#/$defs/unknownFieldsPartialCoverage"
+    },
+    "unknownResultUnknownCoverage": {
+      "$ref": "#/$defs/unknownFieldsUnknownCoverage"
+    },
+    "unknownResultObservationUncertain": {
+      "$ref": "#/$defs/unknownFieldsObservationUncertain"
+    },
+    "unknownResultResolutionMismatch": {
+      "$ref": "#/$defs/unknownFieldsResolutionMismatch"
+    },
+    "unknownResultMixedPrecision": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/unknownFieldsMixedPrecision"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "sharedValidTime": {
+              "$ref": "#/$defs/sharedValidTimeIndeterminate"
+            }
+          }
+        }
+      ]
+    },
+    "unknownResultDisjointTime": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/unknownFieldsDisjointTime"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "sharedValidTime": {
+              "$ref": "#/$defs/sharedValidTimeDisjoint"
+            }
+          }
+        }
+      ]
+    },
+    "unknownResultToleranceAmbiguity": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/unknownFieldsToleranceAmbiguity"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "sharedValidTime": {
+              "$ref": "#/$defs/sharedValidTimeOverlap"
+            }
+          }
+        }
+      ]
+    },
+    "unknownFieldsPartialCoverage": {
+      "$ref": "#/$defs/unknownFieldsPartialCoverageShape"
+    },
+    "unknownFieldsUnknownCoverage": {
+      "$ref": "#/$defs/unknownFieldsUnknownCoverageShape"
+    },
+    "unknownFieldsObservationUncertain": {
+      "$ref": "#/$defs/unknownFieldsObservationUncertainShape"
+    },
+    "unknownFieldsResolutionMismatch": {
+      "$ref": "#/$defs/unknownFieldsResolutionMismatchShape"
+    },
+    "unknownFieldsMixedPrecision": {
+      "$ref": "#/$defs/unknownFieldsMixedPrecisionShape"
+    },
+    "unknownFieldsDisjointTime": {
+      "$ref": "#/$defs/unknownFieldsDisjointTimeShape"
+    },
+    "unknownFieldsToleranceAmbiguity": {
+      "$ref": "#/$defs/unknownFieldsToleranceAmbiguityShape"
+    },
+    "unknownFieldsPartialCoverageShape": {
+      "type": "object",
+      "properties": {
+        "uncertainty": {
+          "$ref": "#/$defs/uncertaintyPartialCoverage"
+        },
+        "unknownReason": {
+          "const": "partial_coverage"
+        }
+      }
+    },
+    "unknownFieldsUnknownCoverageShape": {
+      "type": "object",
+      "properties": {
+        "uncertainty": {
+          "$ref": "#/$defs/uncertaintyUnknownCoverage"
+        },
+        "unknownReason": {
+          "const": "unknown_coverage"
+        }
+      }
+    },
+    "unknownFieldsObservationUncertainShape": {
+      "type": "object",
+      "properties": {
+        "uncertainty": {
+          "$ref": "#/$defs/uncertaintyObservationUncertain"
+        },
+        "unknownReason": {
+          "const": "observation_uncertain"
+        }
+      }
+    },
+    "unknownFieldsResolutionMismatchShape": {
+      "type": "object",
+      "properties": {
+        "uncertainty": {
+          "$ref": "#/$defs/uncertaintyResolutionMismatch"
+        },
+        "unknownReason": {
+          "const": "resolution_mismatch"
+        }
+      }
+    },
+    "unknownFieldsMixedPrecisionShape": {
+      "type": "object",
+      "properties": {
+        "uncertainty": {
+          "$ref": "#/$defs/uncertaintyMixedPrecision"
+        },
+        "unknownReason": {
+          "const": "valid_time_mixed_precision"
+        }
+      }
+    },
+    "unknownFieldsDisjointTimeShape": {
+      "type": "object",
+      "properties": {
+        "uncertainty": {
+          "$ref": "#/$defs/uncertaintyDisjointTime"
+        },
+        "unknownReason": {
+          "const": "valid_time_disjoint"
+        }
+      }
+    },
+    "unknownFieldsToleranceAmbiguityShape": {
+      "type": "object",
+      "properties": {
+        "uncertainty": {
+          "$ref": "#/$defs/uncertaintyToleranceAmbiguity"
+        },
+        "unknownReason": {
+          "const": "tolerance_ambiguity"
+        }
+      }
+    },
+    "uncertaintyPartialCoverage": {
+      "$ref": "#/$defs/uncertaintyPartialCoverageShape"
+    },
+    "uncertaintyUnknownCoverage": {
+      "$ref": "#/$defs/uncertaintyUnknownCoverageShape"
+    },
+    "uncertaintyObservationUncertain": {
+      "$ref": "#/$defs/uncertaintyObservationUncertainShape"
+    },
+    "uncertaintyResolutionMismatch": {
+      "$ref": "#/$defs/uncertaintyResolutionMismatchShape"
+    },
+    "uncertaintyMixedPrecision": {
+      "$ref": "#/$defs/uncertaintyMixedPrecisionShape"
+    },
+    "uncertaintyDisjointTime": {
+      "$ref": "#/$defs/uncertaintyDisjointTimeShape"
+    },
+    "uncertaintyToleranceAmbiguity": {
+      "$ref": "#/$defs/uncertaintyToleranceAmbiguityShape"
+    },
+    "uncertaintyPartialCoverageShape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reason"],
+      "properties": {
+        "state": {
+          "const": "uncertain"
+        },
+        "reason": {
+          "const": "partial_coverage"
+        }
+      }
+    },
+    "uncertaintyUnknownCoverageShape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reason"],
+      "properties": {
+        "state": {
+          "const": "uncertain"
+        },
+        "reason": {
+          "const": "unknown_coverage"
+        }
+      }
+    },
+    "uncertaintyObservationUncertainShape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reason"],
+      "properties": {
+        "state": {
+          "const": "uncertain"
+        },
+        "reason": {
+          "const": "observation_uncertain"
+        }
+      }
+    },
+    "uncertaintyResolutionMismatchShape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reason"],
+      "properties": {
+        "state": {
+          "const": "uncertain"
+        },
+        "reason": {
+          "const": "resolution_mismatch"
+        }
+      }
+    },
+    "uncertaintyMixedPrecisionShape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reason"],
+      "properties": {
+        "state": {
+          "const": "uncertain"
+        },
+        "reason": {
+          "const": "valid_time_mixed_precision"
+        }
+      }
+    },
+    "uncertaintyDisjointTimeShape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reason"],
+      "properties": {
+        "state": {
+          "const": "uncertain"
+        },
+        "reason": {
+          "const": "valid_time_disjoint"
+        }
+      }
+    },
+    "uncertaintyToleranceAmbiguityShape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reason"],
+      "properties": {
+        "state": {
+          "const": "uncertain"
+        },
+        "reason": {
+          "const": "tolerance_ambiguity"
+        }
+      }
+    }
+  }
+}

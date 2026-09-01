@@ -1,0 +1,54 @@
+{
+  "heading": "Impossible synthetic spatial evidence",
+  "explanationId": "s0-spatial-explanation",
+  "explanation": "Impossible synthetic geometric relation only. It does not establish jurisdiction, Nation association, policy relevance, legal applicability, rights, consent, affiliation, interest, eligibility, or impact.",
+  "spatialCaption": "Impossible synthetic spatial evidence",
+  "spatialHeaders": [
+    "Subject feature",
+    "Object feature",
+    "Geometric result",
+    "Shared valid time",
+    "Coordinate space",
+    "Axis order",
+    "Resolution",
+    "Tolerance",
+    "Coverage",
+    "Uncertainty",
+    "Algorithm",
+    "Attribution"
+  ],
+  "representativeSpatialCells": [
+    "s0-impossible:feature:fixture-0301",
+    "s0-impossible:feature:fixture-0302",
+    "Contains",
+    "(3785-01-02, 3785-01-04]",
+    "urn:policy-sentinel:crs:impossible-grid:1.0.0",
+    "Subject: [synthetic_x, synthetic_y]; object: [synthetic_y, synthetic_x].",
+    "Subject: 1 impossible_unit; object: 1 impossible_unit.",
+    "0 impossible_unit",
+    "Subject: complete_fixture_extent; object: complete_fixture_extent.",
+    "Subject: certain; object: certain; relation: certain.",
+    "s0-axis-aligned-box-topology 1.0.0",
+    "Policy Sentinel impossible synthetic fixture"
+  ],
+  "jurisdictionHeading": "Separate administrative/source evidence - not derived from geometry",
+  "jurisdictionCaption": "Separate administrative/source evidence - not derived from geometry",
+  "jurisdictionHeaders": [
+    "Feature",
+    "Administrative unit",
+    "Source label",
+    "Exact synthetic statement",
+    "Evidence basis",
+    "Review state",
+    "Attribution"
+  ],
+  "representativeJurisdictionCells": [
+    "s0-impossible:feature:fixture-0042",
+    "s0-impossible:administrative-unit:fixture-0042",
+    "Policy Sentinel impossible synthetic administrative statement",
+    "Impossible synthetic source statement: s0-impossible:feature:fixture-0042 is assigned to s0-impossible:administrative-unit:fixture-0042 in this fixture only.",
+    "explicit_synthetic_source_statement",
+    "validated_synthetic_fixture",
+    "Policy Sentinel impossible synthetic fixture"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "contractVersion": "1.0.0",
+  "experimental": true,
+  "synthetic": true,
+  "fixtureClass": "impossible_synthetic_geometry",
+  "fixtureSlug": "fixture-place",
+  "legalEffect": "claimed"
+}

@@ -1,0 +1,164 @@
+{
+  "attribution": "Policy Sentinel impossible synthetic fixture",
+  "contractVersion": "1.0.0",
+  "coordinateSpace": {
+    "axes": ["synthetic_x", "synthetic_y"],
+    "axisOrder": ["synthetic_y", "synthetic_x"],
+    "id": "urn:policy-sentinel:crs:impossible-grid:1.0.0",
+    "representation": "axis_aligned_integer_box_v1",
+    "unit": "impossible_unit"
+  },
+  "coverage": "complete_fixture_extent",
+  "experimental": true,
+  "factManifest": {
+    "fragmentDigestFact": {
+      "assertionClass": "source_fact",
+      "contractVersion": "1.0.0",
+      "factDigest": "4e59d9e335641704a47676256065ffef9df7ab522372d6a5ae5c495879649e55",
+      "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwOA:JA:rendition_digest:d596dd465d5b3c8ba82d106cb58154f65c41d2c565053978b312a7b15b7dd0ba",
+      "predicate": "rendition_digest",
+      "provenance": {
+        "adapterId": "s0-impossible-fixture",
+        "adapterVersion": "1.0.0",
+        "retrievedAt": "3785-09-01T00:00:00Z",
+        "sourceContentDigest": "d596dd465d5b3c8ba82d106cb58154f65c41d2c565053978b312a7b15b7dd0ba",
+        "sourceIdentity": {
+          "sourceId": "s0-impossible",
+          "sourceRecordId": "s0-impossible:fixture:fixture-0008"
+        },
+        "sourcePath": "$",
+        "sourceUpdatedAt": null,
+        "sourceUrl": "https://policy-sentinel.invalid/fixtures/s0/1.0.0/fixture-0008.json",
+        "validationState": "validated"
+      },
+      "sourceIdentity": {
+        "sourceId": "s0-impossible",
+        "sourceRecordId": "s0-impossible:fixture:fixture-0008"
+      },
+      "value": {
+        "kind": "sha256_digest",
+        "value": "d596dd465d5b3c8ba82d106cb58154f65c41d2c565053978b312a7b15b7dd0ba"
+      }
+    },
+    "observedTimeFact": {
+      "assertionClass": "source_fact",
+      "contractVersion": "1.0.0",
+      "factDigest": "3aee6c4466d357c65201dba0ae2053d09bf6449d031e37727f7e76b468ebaacb",
+      "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwOA:JC5vYnNlcnZlZFRpbWVWYWx1ZQ:observed_time:d596dd465d5b3c8ba82d106cb58154f65c41d2c565053978b312a7b15b7dd0ba",
+      "predicate": "observed_time",
+      "provenance": {
+        "adapterId": "s0-impossible-fixture",
+        "adapterVersion": "1.0.0",
+        "retrievedAt": "3785-09-01T00:00:00Z",
+        "sourceContentDigest": "d596dd465d5b3c8ba82d106cb58154f65c41d2c565053978b312a7b15b7dd0ba",
+        "sourceIdentity": {
+          "sourceId": "s0-impossible",
+          "sourceRecordId": "s0-impossible:fixture:fixture-0008"
+        },
+        "sourcePath": "$.observedTimeValue",
+        "sourceUpdatedAt": null,
+        "sourceUrl": "https://policy-sentinel.invalid/fixtures/s0/1.0.0/fixture-0008.json",
+        "validationState": "validated"
+      },
+      "sourceIdentity": {
+        "sourceId": "s0-impossible",
+        "sourceRecordId": "s0-impossible:fixture:fixture-0008"
+      },
+      "value": {
+        "kind": "date_time",
+        "value": "3785-08-01T10:00:00+02:00"
+      }
+    },
+    "validTimeFact": {
+      "assertionClass": "source_fact",
+      "contractVersion": "1.0.0",
+      "factDigest": "d33325d1ecfd1c72bf33d4c3feb1b606e69be338095280a085a2d4e4f3c233b5",
+      "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwOA:JC52YWxpZFRpbWVWYWx1ZQ:valid_time:d596dd465d5b3c8ba82d106cb58154f65c41d2c565053978b312a7b15b7dd0ba",
+      "predicate": "valid_time",
+      "provenance": {
+        "adapterId": "s0-impossible-fixture",
+        "adapterVersion": "1.0.0",
+        "retrievedAt": "3785-09-01T00:00:00Z",
+        "sourceContentDigest": "d596dd465d5b3c8ba82d106cb58154f65c41d2c565053978b312a7b15b7dd0ba",
+        "sourceIdentity": {
+          "sourceId": "s0-impossible",
+          "sourceRecordId": "s0-impossible:fixture:fixture-0008"
+        },
+        "sourcePath": "$.validTimeValue",
+        "sourceUpdatedAt": null,
+        "sourceUrl": "https://policy-sentinel.invalid/fixtures/s0/1.0.0/fixture-0008.json",
+        "validationState": "validated"
+      },
+      "sourceIdentity": {
+        "sourceId": "s0-impossible",
+        "sourceRecordId": "s0-impossible:fixture:fixture-0008"
+      },
+      "value": {
+        "end": {
+          "inclusive": false,
+          "kind": "date_time",
+          "value": "3785-08-31T10:00:00+02:00"
+        },
+        "kind": "interval",
+        "start": null
+      }
+    }
+  },
+  "featureId": "s0-impossible:feature:fixture-0008",
+  "fixtureClass": "impossible_synthetic_geometry",
+  "fixtureSlug": "fixture-0008",
+  "geometry": {
+    "maximum": [8, 6],
+    "minimum": [-2, -4]
+  },
+  "geometryDigest": "16c042aae6009a780bb720c6a9d5b59255f2fe76cf333074c4be05880a88ffda",
+  "layerId": "s0-impossible:layer:fixture-0008",
+  "layerVersion": "1.2.3",
+  "observationDigest": "d596dd465d5b3c8ba82d106cb58154f65c41d2c565053978b312a7b15b7dd0ba",
+  "observationId": "s0-impossible:observation:d596dd465d5b3c8ba82d106cb58154f65c41d2c565053978b312a7b15b7dd0ba",
+  "observedTime": {
+    "evidence": {
+      "factReferences": [
+        {
+          "factDigest": "3aee6c4466d357c65201dba0ae2053d09bf6449d031e37727f7e76b468ebaacb",
+          "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwOA:JC5vYnNlcnZlZFRpbWVWYWx1ZQ:observed_time:d596dd465d5b3c8ba82d106cb58154f65c41d2c565053978b312a7b15b7dd0ba"
+        }
+      ],
+      "state": "supported"
+    },
+    "value": {
+      "kind": "date_time",
+      "value": "3785-08-01T10:00:00+02:00"
+    }
+  },
+  "resolution": 2,
+  "sourceIdentity": {
+    "sourceId": "s0-impossible",
+    "sourceRecordId": "s0-impossible:fixture:fixture-0008"
+  },
+  "synthetic": true,
+  "uncertainty": {
+    "state": "certain"
+  },
+  "usageBasis": "Repository-authored impossible synthetic fixture; no external source or reuse grant.",
+  "validTime": {
+    "evidence": {
+      "factReferences": [
+        {
+          "factDigest": "d33325d1ecfd1c72bf33d4c3feb1b606e69be338095280a085a2d4e4f3c233b5",
+          "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwOA:JC52YWxpZFRpbWVWYWx1ZQ:valid_time:d596dd465d5b3c8ba82d106cb58154f65c41d2c565053978b312a7b15b7dd0ba"
+        }
+      ],
+      "state": "supported"
+    },
+    "value": {
+      "end": {
+        "inclusive": false,
+        "kind": "date_time",
+        "value": "3785-08-31T10:00:00+02:00"
+      },
+      "kind": "interval",
+      "start": null
+    }
+  }
+}

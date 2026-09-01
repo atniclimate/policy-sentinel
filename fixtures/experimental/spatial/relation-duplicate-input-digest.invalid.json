@@ -1,0 +1,103 @@
+{
+  "algorithm": {
+    "canonicalizationVersion": "ps-c14n-json-1",
+    "id": "s0-axis-aligned-box-topology",
+    "tolerance": 0,
+    "unit": "impossible_unit",
+    "version": "1.0.0"
+  },
+  "contractVersion": "1.0.0",
+  "derivedAssertion": {
+    "assertionClass": "spatial_relation",
+    "assertionId": "k0:spatial_relation:4d6e778837788e65cf8b2f421db1f3372435096d727355c5ba696d6bd1f21123",
+    "canonicalizationVersion": "ps-c14n-json-1",
+    "contractVersion": "1.0.0",
+    "evidence": {
+      "factReferences": [
+        {
+          "factDigest": "7d6986144d9885e18bd9275bac2b06d650a9b917060213c5cf232204d5c7b555",
+          "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwMQ:JA:rendition_digest:491a5f9dd0a90c1354e4cbb5fdb8b1b00e9ee360aa4dcf858b64f3dd2236a842"
+        },
+        {
+          "factDigest": "b9b4d4068efda7302ba41db1df2ebb7d849ce6bb8aaa222b4fddada99cca7ccf",
+          "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwMQ:JC52YWxpZFRpbWVWYWx1ZQ:valid_time:491a5f9dd0a90c1354e4cbb5fdb8b1b00e9ee360aa4dcf858b64f3dd2236a842"
+        },
+        {
+          "factDigest": "cab125d90825045b294a2734fc3bed8721a99827f2fe085fed23b668343c9620",
+          "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwMQ:JC5vYnNlcnZlZFRpbWVWYWx1ZQ:observed_time:491a5f9dd0a90c1354e4cbb5fdb8b1b00e9ee360aa4dcf858b64f3dd2236a842"
+        },
+        {
+          "factDigest": "1cddbcab51ea3af584a94489c25f61f866fe2f492114f7c647e390f379d45062",
+          "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwNQ:JA:rendition_digest:5526a05e7764417d41f98367e298eb085d25d634b326d052a732719beabaed23"
+        },
+        {
+          "factDigest": "3d94b89e51d59a1725bee46c84de0dee65cbd9c1d03bdeee805d4bd547e7ddad",
+          "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwNQ:JC52YWxpZFRpbWVWYWx1ZQ:valid_time:5526a05e7764417d41f98367e298eb085d25d634b326d052a732719beabaed23"
+        },
+        {
+          "factDigest": "4558489a82fa0303dec4a6da23b9349148df559b927ec37d63eb667bd9e42812",
+          "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwNQ:JC5vYnNlcnZlZFRpbWVWYWx1ZQ:observed_time:5526a05e7764417d41f98367e298eb085d25d634b326d052a732719beabaed23"
+        }
+      ],
+      "state": "supported"
+    },
+    "inputFactDigests": [
+      "7d6986144d9885e18bd9275bac2b06d650a9b917060213c5cf232204d5c7b555",
+      "7d6986144d9885e18bd9275bac2b06d650a9b917060213c5cf232204d5c7b555",
+      "cab125d90825045b294a2734fc3bed8721a99827f2fe085fed23b668343c9620",
+      "1cddbcab51ea3af584a94489c25f61f866fe2f492114f7c647e390f379d45062",
+      "3d94b89e51d59a1725bee46c84de0dee65cbd9c1d03bdeee805d4bd547e7ddad",
+      "4558489a82fa0303dec4a6da23b9349148df559b927ec37d63eb667bd9e42812"
+    ],
+    "inputFactIds": [
+      "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwMQ:JA:rendition_digest:491a5f9dd0a90c1354e4cbb5fdb8b1b00e9ee360aa4dcf858b64f3dd2236a842",
+      "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwMQ:JC52YWxpZFRpbWVWYWx1ZQ:valid_time:491a5f9dd0a90c1354e4cbb5fdb8b1b00e9ee360aa4dcf858b64f3dd2236a842",
+      "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwMQ:JC5vYnNlcnZlZFRpbWVWYWx1ZQ:observed_time:491a5f9dd0a90c1354e4cbb5fdb8b1b00e9ee360aa4dcf858b64f3dd2236a842",
+      "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwNQ:JA:rendition_digest:5526a05e7764417d41f98367e298eb085d25d634b326d052a732719beabaed23",
+      "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwNQ:JC52YWxpZFRpbWVWYWx1ZQ:valid_time:5526a05e7764417d41f98367e298eb085d25d634b326d052a732719beabaed23",
+      "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwNQ:JC5vYnNlcnZlZFRpbWVWYWx1ZQ:observed_time:5526a05e7764417d41f98367e298eb085d25d634b326d052a732719beabaed23"
+    ],
+    "resultDigest": "43dafd7a45e747910792c36628f28d9297c3b805d31048f77250b448a24f38a8",
+    "ruleId": "s0-axis-aligned-box-topology",
+    "ruleVersion": "1.0.0",
+    "validationState": "validated"
+  },
+  "experimental": true,
+  "fixtureClass": "impossible_synthetic_geometry",
+  "interpretation": "geometric_relation_only",
+  "object": {
+    "geometryDigest": "71355974b65c9977de73f013c3550f8db0f9dfdbe8c8bd9d5bd95465bfcabc3f",
+    "observationDigest": "5526a05e7764417d41f98367e298eb085d25d634b326d052a732719beabaed23",
+    "observationId": "s0-impossible:observation:5526a05e7764417d41f98367e298eb085d25d634b326d052a732719beabaed23"
+  },
+  "relation": "unknown",
+  "relationId": "s0-impossible:relation:4d6e778837788e65cf8b2f421db1f3372435096d727355c5ba696d6bd1f21123",
+  "sharedValidTime": {
+    "factReferences": [
+      {
+        "factDigest": "b9b4d4068efda7302ba41db1df2ebb7d849ce6bb8aaa222b4fddada99cca7ccf",
+        "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwMQ:JC52YWxpZFRpbWVWYWx1ZQ:valid_time:491a5f9dd0a90c1354e4cbb5fdb8b1b00e9ee360aa4dcf858b64f3dd2236a842"
+      },
+      {
+        "factDigest": "3d94b89e51d59a1725bee46c84de0dee65cbd9c1d03bdeee805d4bd547e7ddad",
+        "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwNQ:JC52YWxpZFRpbWVWYWx1ZQ:valid_time:5526a05e7764417d41f98367e298eb085d25d634b326d052a732719beabaed23"
+      }
+    ],
+    "state": "overlap",
+    "value": {
+      "kind": "date",
+      "value": "3785-01-03"
+    }
+  },
+  "subject": {
+    "geometryDigest": "71355974b65c9977de73f013c3550f8db0f9dfdbe8c8bd9d5bd95465bfcabc3f",
+    "observationDigest": "491a5f9dd0a90c1354e4cbb5fdb8b1b00e9ee360aa4dcf858b64f3dd2236a842",
+    "observationId": "s0-impossible:observation:491a5f9dd0a90c1354e4cbb5fdb8b1b00e9ee360aa4dcf858b64f3dd2236a842"
+  },
+  "synthetic": true,
+  "uncertainty": {
+    "reason": "partial_coverage",
+    "state": "uncertain"
+  },
+  "unknownReason": "partial_coverage"
+}

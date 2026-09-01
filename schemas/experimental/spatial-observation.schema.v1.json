@@ -1,0 +1,1365 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/experimental/spatial-observation.schema.v1.json",
+  "title": "Policy Sentinel S0 SpatialObservation",
+  "description": "Frozen S0 1.0.0 impossible-synthetic spatial observation. Contract validation does not establish jurisdiction, Nation association, relevance, legal effect, rights, consent, affiliation, interest, eligibility, or impact.",
+  "allOf": [
+    {
+      "$ref": "#/$defs/spatialObservation"
+    },
+    {
+      "$ref": "#/$defs/noProtectedKeys"
+    }
+  ],
+  "$defs": {
+    "noProtectedKeys": {
+      "if": {
+        "type": "object"
+      },
+      "then": {
+        "type": "object",
+        "propertyNames": {
+          "not": {
+            "enum": [
+              "nationId",
+              "nationIds",
+              "officialName",
+              "authorizedAliases",
+              "recognitionBaselineVersion",
+              "stateCoverage",
+              "nationAssociations",
+              "jurisdiction",
+              "issuingBodies",
+              "officialSubjects",
+              "taxonomyMemberships",
+              "relevance",
+              "landmark",
+              "legalEffect",
+              "legalApplicability",
+              "rights",
+              "consent",
+              "affiliation",
+              "interest",
+              "eligibility",
+              "impact"
+            ]
+          }
+        },
+        "additionalProperties": {
+          "$ref": "#/$defs/noProtectedKeys"
+        }
+      },
+      "else": {
+        "if": {
+          "type": "array"
+        },
+        "then": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/noProtectedKeys"
+          }
+        }
+      }
+    },
+    "sha256": {
+      "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sha256"
+    },
+    "fixtureSlug": {
+      "type": "string",
+      "pattern": "^fixture-[0-9]{4}$"
+    },
+    "sourceRecordId": {
+      "type": "string",
+      "pattern": "^s0-impossible:fixture:fixture-[0-9]{4}$"
+    },
+    "layerId": {
+      "type": "string",
+      "pattern": "^s0-impossible:layer:fixture-[0-9]{4}$"
+    },
+    "featureId": {
+      "type": "string",
+      "pattern": "^s0-impossible:feature:fixture-[0-9]{4}$"
+    },
+    "layerVersion": {
+      "type": "string",
+      "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+    },
+    "observationId": {
+      "type": "string",
+      "pattern": "^s0-impossible:observation:[a-f0-9]{64}$"
+    },
+    "sentinelUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://policy-sentinel\\.invalid/fixtures/s0/1\\.0\\.0/fixture-[0-9]{4}\\.json$"
+    },
+    "sourceIdentity": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sourceQualifiedIdentity"
+        },
+        {
+          "type": "object",
+          "required": ["sourceId", "sourceRecordId"],
+          "properties": {
+            "sourceId": {
+              "const": "s0-impossible"
+            },
+            "sourceRecordId": {
+              "$ref": "#/$defs/sourceRecordId"
+            }
+          }
+        }
+      ]
+    },
+    "s0Date": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/date"
+        },
+        {
+          "type": "string",
+          "pattern": "^3785-"
+        }
+      ]
+    },
+    "s0DateTime": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/dateTime"
+        },
+        {
+          "type": "string",
+          "pattern": "^3785-"
+        }
+      ]
+    },
+    "s0DateValue": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/dateValue"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "$ref": "#/$defs/s0Date"
+            }
+          }
+        }
+      ]
+    },
+    "s0DateTimeValue": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/dateTimeValue"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "$ref": "#/$defs/s0DateTime"
+            }
+          }
+        }
+      ]
+    },
+    "s0DateEndpoint": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/dateEndpoint"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "$ref": "#/$defs/s0Date"
+            }
+          }
+        }
+      ]
+    },
+    "s0DateTimeEndpoint": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/dateTimeEndpoint"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "$ref": "#/$defs/s0DateTime"
+            }
+          }
+        }
+      ]
+    },
+    "s0IntervalValue": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/intervalValue"
+        },
+        {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "start": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/s0DateEndpoint"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "end": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/s0DateEndpoint"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "object",
+              "properties": {
+                "start": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/s0DateTimeEndpoint"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "end": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/s0DateTimeEndpoint"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "s0TemporalValue": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/s0DateValue"
+        },
+        {
+          "$ref": "#/$defs/s0DateTimeValue"
+        },
+        {
+          "$ref": "#/$defs/s0IntervalValue"
+        }
+      ]
+    },
+    "singleSupportedEvidence": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/supportedEvidence"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "factReferences": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1,
+              "items": {
+                "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/factReference"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "supportedObservedTime": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/supportedTemporalAssertion"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "evidence": {
+              "$ref": "#/$defs/singleSupportedEvidence"
+            },
+            "value": {
+              "$ref": "#/$defs/s0DateTimeValue"
+            }
+          }
+        }
+      ]
+    },
+    "supportedValidTime": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/supportedTemporalAssertion"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "evidence": {
+              "$ref": "#/$defs/singleSupportedEvidence"
+            },
+            "value": {
+              "$ref": "#/$defs/s0TemporalValue"
+            }
+          }
+        }
+      ]
+    },
+    "provenanceBase": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sourceProvenance"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "sourceIdentity": {
+              "$ref": "#/$defs/sourceIdentity"
+            },
+            "sourceUrl": {
+              "$ref": "#/$defs/sentinelUrl"
+            },
+            "retrievedAt": {
+              "$ref": "#/$defs/s0DateTime"
+            },
+            "sourceUpdatedAt": {
+              "type": "null"
+            },
+            "adapterId": {
+              "const": "s0-impossible-fixture"
+            },
+            "adapterVersion": {
+              "const": "1.0.0"
+            },
+            "sourceContentDigest": {
+              "$ref": "#/$defs/sha256"
+            },
+            "validationState": {
+              "const": "validated"
+            }
+          }
+        }
+      ]
+    },
+    "rootProvenance": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/provenanceBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "sourcePath": {
+              "const": "$"
+            }
+          }
+        }
+      ]
+    },
+    "observedTimeProvenance": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/provenanceBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "sourcePath": {
+              "const": "$.observedTimeValue"
+            }
+          }
+        }
+      ]
+    },
+    "validTimeProvenance": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/provenanceBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "sourcePath": {
+              "const": "$.validTimeValue"
+            }
+          }
+        }
+      ]
+    },
+    "sourceFactBase": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sourceFact"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "contractVersion": {
+              "const": "1.0.0"
+            },
+            "assertionClass": {
+              "const": "source_fact"
+            },
+            "sourceIdentity": {
+              "$ref": "#/$defs/sourceIdentity"
+            }
+          }
+        }
+      ]
+    },
+    "fragmentDigestFact": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sourceFactBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "factId": {
+              "type": "string",
+              "pattern": "^k0:fact:s0-impossible:[A-Za-z0-9_-]+:JA:rendition_digest:[a-f0-9]{64}$"
+            },
+            "predicate": {
+              "const": "rendition_digest"
+            },
+            "value": {
+              "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sha256DigestValue"
+            },
+            "provenance": {
+              "$ref": "#/$defs/rootProvenance"
+            }
+          }
+        }
+      ]
+    },
+    "observedTimeFact": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sourceFactBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "factId": {
+              "type": "string",
+              "pattern": "^k0:fact:s0-impossible:[A-Za-z0-9_-]+:JC5vYnNlcnZlZFRpbWVWYWx1ZQ:observed_time:[a-f0-9]{64}$"
+            },
+            "predicate": {
+              "const": "observed_time"
+            },
+            "value": {
+              "$ref": "#/$defs/s0DateTimeValue"
+            },
+            "provenance": {
+              "$ref": "#/$defs/observedTimeProvenance"
+            }
+          }
+        }
+      ]
+    },
+    "validTimeFact": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sourceFactBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "factId": {
+              "type": "string",
+              "pattern": "^k0:fact:s0-impossible:[A-Za-z0-9_-]+:JC52YWxpZFRpbWVWYWx1ZQ:valid_time:[a-f0-9]{64}$"
+            },
+            "predicate": {
+              "const": "valid_time"
+            },
+            "value": {
+              "$ref": "#/$defs/s0TemporalValue"
+            },
+            "provenance": {
+              "$ref": "#/$defs/validTimeProvenance"
+            }
+          }
+        }
+      ]
+    },
+    "factManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fragmentDigestFact", "observedTimeFact", "validTimeFact"],
+      "properties": {
+        "fragmentDigestFact": {
+          "$ref": "#/$defs/fragmentDigestFact"
+        },
+        "observedTimeFact": {
+          "$ref": "#/$defs/observedTimeFact"
+        },
+        "validTimeFact": {
+          "$ref": "#/$defs/validTimeFact"
+        }
+      }
+    },
+    "coordinateSpace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "axes", "axisOrder", "unit", "representation"],
+      "properties": {
+        "id": {
+          "const": "urn:policy-sentinel:crs:impossible-grid:1.0.0"
+        },
+        "axes": {
+          "const": ["synthetic_x", "synthetic_y"]
+        },
+        "axisOrder": {
+          "oneOf": [
+            {
+              "const": ["synthetic_x", "synthetic_y"]
+            },
+            {
+              "const": ["synthetic_y", "synthetic_x"]
+            }
+          ]
+        },
+        "unit": {
+          "const": "impossible_unit"
+        },
+        "representation": {
+          "const": "axis_aligned_integer_box_v1"
+        }
+      }
+    },
+    "coordinate": {
+      "type": "integer",
+      "minimum": -32,
+      "maximum": 32
+    },
+    "coordinatePair": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/coordinate"
+        },
+        {
+          "$ref": "#/$defs/coordinate"
+        }
+      ],
+      "items": false
+    },
+    "box": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum", "maximum"],
+      "properties": {
+        "minimum": {
+          "$ref": "#/$defs/coordinatePair"
+        },
+        "maximum": {
+          "$ref": "#/$defs/coordinatePair"
+        }
+      }
+    },
+    "certainObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state"],
+      "properties": {
+        "state": {
+          "const": "certain"
+        }
+      }
+    },
+    "completeUncertainObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reason"],
+      "properties": {
+        "state": {
+          "const": "uncertain"
+        },
+        "reason": {
+          "enum": [
+            "fixture_limitation",
+            "coordinate_limitation",
+            "temporal_limitation"
+          ]
+        }
+      }
+    },
+    "coverageUncertainObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reason"],
+      "properties": {
+        "state": {
+          "const": "uncertain"
+        },
+        "reason": {
+          "const": "coverage_limitation"
+        }
+      }
+    },
+    "spatialObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "experimental",
+        "synthetic",
+        "fixtureClass",
+        "observationId",
+        "observationDigest",
+        "fixtureSlug",
+        "sourceIdentity",
+        "layerId",
+        "layerVersion",
+        "featureId",
+        "coordinateSpace",
+        "geometry",
+        "geometryDigest",
+        "resolution",
+        "observedTime",
+        "validTime",
+        "coverage",
+        "uncertainty",
+        "attribution",
+        "usageBasis",
+        "factManifest"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1.0.0"
+        },
+        "experimental": {
+          "const": true
+        },
+        "synthetic": {
+          "const": true
+        },
+        "fixtureClass": {
+          "const": "impossible_synthetic_geometry"
+        },
+        "observationId": {
+          "$ref": "#/$defs/observationId"
+        },
+        "observationDigest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "fixtureSlug": {
+          "$ref": "#/$defs/fixtureSlug"
+        },
+        "sourceIdentity": {
+          "$ref": "#/$defs/sourceIdentity"
+        },
+        "layerId": {
+          "$ref": "#/$defs/layerId"
+        },
+        "layerVersion": {
+          "$ref": "#/$defs/layerVersion"
+        },
+        "featureId": {
+          "$ref": "#/$defs/featureId"
+        },
+        "coordinateSpace": {
+          "$ref": "#/$defs/coordinateSpace"
+        },
+        "geometry": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/box"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "geometryDigest": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resolution": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "observedTime": {
+          "$ref": "#/$defs/supportedObservedTime"
+        },
+        "validTime": {
+          "$ref": "#/$defs/supportedValidTime"
+        },
+        "coverage": {
+          "enum": [
+            "complete_fixture_extent",
+            "partial_fixture_extent",
+            "missing_fixture_geometry",
+            "unknown"
+          ]
+        },
+        "uncertainty": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/certainObservation"
+            },
+            {
+              "$ref": "#/$defs/completeUncertainObservation"
+            },
+            {
+              "$ref": "#/$defs/coverageUncertainObservation"
+            }
+          ]
+        },
+        "attribution": {
+          "const": "Policy Sentinel impossible synthetic fixture"
+        },
+        "usageBasis": {
+          "const": "Repository-authored impossible synthetic fixture; no external source or reuse grant."
+        },
+        "factManifest": {
+          "$ref": "#/$defs/factManifest"
+        }
+      },
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "coverage": {
+                  "const": "complete_fixture_extent"
+                },
+                "geometry": {
+                  "$ref": "#/$defs/box"
+                },
+                "geometryDigest": {
+                  "$ref": "#/$defs/sha256"
+                },
+                "uncertainty": {
+                  "$ref": "#/$defs/certainObservation"
+                }
+              }
+            },
+            {
+              "properties": {
+                "coverage": {
+                  "const": "complete_fixture_extent"
+                },
+                "geometry": {
+                  "$ref": "#/$defs/box"
+                },
+                "geometryDigest": {
+                  "$ref": "#/$defs/sha256"
+                },
+                "uncertainty": {
+                  "$ref": "#/$defs/completeUncertainObservation"
+                }
+              }
+            },
+            {
+              "properties": {
+                "coverage": {
+                  "const": "partial_fixture_extent"
+                },
+                "geometry": {
+                  "$ref": "#/$defs/box"
+                },
+                "geometryDigest": {
+                  "$ref": "#/$defs/sha256"
+                },
+                "uncertainty": {
+                  "$ref": "#/$defs/coverageUncertainObservation"
+                }
+              }
+            },
+            {
+              "properties": {
+                "coverage": {
+                  "const": "missing_fixture_geometry"
+                },
+                "geometry": {
+                  "type": "null"
+                },
+                "geometryDigest": {
+                  "type": "null"
+                },
+                "uncertainty": {
+                  "$ref": "#/$defs/coverageUncertainObservation"
+                }
+              }
+            },
+            {
+              "properties": {
+                "coverage": {
+                  "const": "unknown"
+                },
+                "geometry": {
+                  "$ref": "#/$defs/box"
+                },
+                "geometryDigest": {
+                  "$ref": "#/$defs/sha256"
+                },
+                "uncertainty": {
+                  "$ref": "#/$defs/coverageUncertainObservation"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "if": {
+            "properties": {
+              "resolution": {
+                "const": 1
+              }
+            },
+            "required": ["resolution"]
+          },
+          "then": {
+            "$ref": "#/$defs/resolution1Geometry"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "resolution": {
+                "const": 2
+              }
+            },
+            "required": ["resolution"]
+          },
+          "then": {
+            "$ref": "#/$defs/resolution2Geometry"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "resolution": {
+                "const": 3
+              }
+            },
+            "required": ["resolution"]
+          },
+          "then": {
+            "$ref": "#/$defs/resolution3Geometry"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "resolution": {
+                "const": 4
+              }
+            },
+            "required": ["resolution"]
+          },
+          "then": {
+            "$ref": "#/$defs/resolution4Geometry"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "resolution": {
+                "const": 5
+              }
+            },
+            "required": ["resolution"]
+          },
+          "then": {
+            "$ref": "#/$defs/resolution5Geometry"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "resolution": {
+                "const": 6
+              }
+            },
+            "required": ["resolution"]
+          },
+          "then": {
+            "$ref": "#/$defs/resolution6Geometry"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "resolution": {
+                "const": 7
+              }
+            },
+            "required": ["resolution"]
+          },
+          "then": {
+            "$ref": "#/$defs/resolution7Geometry"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "resolution": {
+                "const": 8
+              }
+            },
+            "required": ["resolution"]
+          },
+          "then": {
+            "$ref": "#/$defs/resolution8Geometry"
+          }
+        }
+      ]
+    },
+    "resolution1Geometry": {
+      "$ref": "#/$defs/resolutionGeometry1"
+    },
+    "resolution2Geometry": {
+      "$ref": "#/$defs/resolutionGeometry2"
+    },
+    "resolution3Geometry": {
+      "$ref": "#/$defs/resolutionGeometry3"
+    },
+    "resolution4Geometry": {
+      "$ref": "#/$defs/resolutionGeometry4"
+    },
+    "resolution5Geometry": {
+      "$ref": "#/$defs/resolutionGeometry5"
+    },
+    "resolution6Geometry": {
+      "$ref": "#/$defs/resolutionGeometry6"
+    },
+    "resolution7Geometry": {
+      "$ref": "#/$defs/resolutionGeometry7"
+    },
+    "resolution8Geometry": {
+      "$ref": "#/$defs/resolutionGeometry8"
+    },
+    "resolutionGeometry1": {
+      "type": "object",
+      "properties": {
+        "geometry": {
+          "$ref": "#/$defs/nullableBoxMultiple1"
+        }
+      }
+    },
+    "resolutionGeometry2": {
+      "type": "object",
+      "properties": {
+        "geometry": {
+          "$ref": "#/$defs/nullableBoxMultiple2"
+        }
+      }
+    },
+    "resolutionGeometry3": {
+      "type": "object",
+      "properties": {
+        "geometry": {
+          "$ref": "#/$defs/nullableBoxMultiple3"
+        }
+      }
+    },
+    "resolutionGeometry4": {
+      "type": "object",
+      "properties": {
+        "geometry": {
+          "$ref": "#/$defs/nullableBoxMultiple4"
+        }
+      }
+    },
+    "resolutionGeometry5": {
+      "type": "object",
+      "properties": {
+        "geometry": {
+          "$ref": "#/$defs/nullableBoxMultiple5"
+        }
+      }
+    },
+    "resolutionGeometry6": {
+      "type": "object",
+      "properties": {
+        "geometry": {
+          "$ref": "#/$defs/nullableBoxMultiple6"
+        }
+      }
+    },
+    "resolutionGeometry7": {
+      "type": "object",
+      "properties": {
+        "geometry": {
+          "$ref": "#/$defs/nullableBoxMultiple7"
+        }
+      }
+    },
+    "resolutionGeometry8": {
+      "type": "object",
+      "properties": {
+        "geometry": {
+          "$ref": "#/$defs/nullableBoxMultiple8"
+        }
+      }
+    },
+    "nullableBoxMultiple1": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/boxMultiple1"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nullableBoxMultiple2": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/boxMultiple2"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nullableBoxMultiple3": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/boxMultiple3"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nullableBoxMultiple4": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/boxMultiple4"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nullableBoxMultiple5": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/boxMultiple5"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nullableBoxMultiple6": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/boxMultiple6"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nullableBoxMultiple7": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/boxMultiple7"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nullableBoxMultiple8": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/boxMultiple8"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "coordinatePairMultiple1": {
+      "$ref": "#/$defs/coordinatePair"
+    },
+    "coordinatePairMultiple2": {
+      "$ref": "#/$defs/coordinatePairMultiple2Shape"
+    },
+    "coordinatePairMultiple3": {
+      "$ref": "#/$defs/coordinatePairMultiple3Shape"
+    },
+    "coordinatePairMultiple4": {
+      "$ref": "#/$defs/coordinatePairMultiple4Shape"
+    },
+    "coordinatePairMultiple5": {
+      "$ref": "#/$defs/coordinatePairMultiple5Shape"
+    },
+    "coordinatePairMultiple6": {
+      "$ref": "#/$defs/coordinatePairMultiple6Shape"
+    },
+    "coordinatePairMultiple7": {
+      "$ref": "#/$defs/coordinatePairMultiple7Shape"
+    },
+    "coordinatePairMultiple8": {
+      "$ref": "#/$defs/coordinatePairMultiple8Shape"
+    },
+    "coordinatePairMultiple2Shape": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "type": "integer",
+          "minimum": -32,
+          "maximum": 32,
+          "multipleOf": 2
+        },
+        {
+          "type": "integer",
+          "minimum": -32,
+          "maximum": 32,
+          "multipleOf": 2
+        }
+      ],
+      "items": false
+    },
+    "coordinatePairMultiple3Shape": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "type": "integer",
+          "minimum": -32,
+          "maximum": 32,
+          "multipleOf": 3
+        },
+        {
+          "type": "integer",
+          "minimum": -32,
+          "maximum": 32,
+          "multipleOf": 3
+        }
+      ],
+      "items": false
+    },
+    "coordinatePairMultiple4Shape": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "type": "integer",
+          "minimum": -32,
+          "maximum": 32,
+          "multipleOf": 4
+        },
+        {
+          "type": "integer",
+          "minimum": -32,
+          "maximum": 32,
+          "multipleOf": 4
+        }
+      ],
+      "items": false
+    },
+    "coordinatePairMultiple5Shape": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "type": "integer",
+          "minimum": -32,
+          "maximum": 32,
+          "multipleOf": 5
+        },
+        {
+          "type": "integer",
+          "minimum": -32,
+          "maximum": 32,
+          "multipleOf": 5
+        }
+      ],
+      "items": false
+    },
+    "coordinatePairMultiple6Shape": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "type": "integer",
+          "minimum": -32,
+          "maximum": 32,
+          "multipleOf": 6
+        },
+        {
+          "type": "integer",
+          "minimum": -32,
+          "maximum": 32,
+          "multipleOf": 6
+        }
+      ],
+      "items": false
+    },
+    "coordinatePairMultiple7Shape": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "type": "integer",
+          "minimum": -32,
+          "maximum": 32,
+          "multipleOf": 7
+        },
+        {
+          "type": "integer",
+          "minimum": -32,
+          "maximum": 32,
+          "multipleOf": 7
+        }
+      ],
+      "items": false
+    },
+    "coordinatePairMultiple8Shape": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "type": "integer",
+          "minimum": -32,
+          "maximum": 32,
+          "multipleOf": 8
+        },
+        {
+          "type": "integer",
+          "minimum": -32,
+          "maximum": 32,
+          "multipleOf": 8
+        }
+      ],
+      "items": false
+    },
+    "boxMultiple1": {
+      "$ref": "#/$defs/box"
+    },
+    "boxMultiple2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum", "maximum"],
+      "properties": {
+        "minimum": {
+          "$ref": "#/$defs/coordinatePairMultiple2"
+        },
+        "maximum": {
+          "$ref": "#/$defs/coordinatePairMultiple2"
+        }
+      }
+    },
+    "boxMultiple3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum", "maximum"],
+      "properties": {
+        "minimum": {
+          "$ref": "#/$defs/coordinatePairMultiple3"
+        },
+        "maximum": {
+          "$ref": "#/$defs/coordinatePairMultiple3"
+        }
+      }
+    },
+    "boxMultiple4": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum", "maximum"],
+      "properties": {
+        "minimum": {
+          "$ref": "#/$defs/coordinatePairMultiple4"
+        },
+        "maximum": {
+          "$ref": "#/$defs/coordinatePairMultiple4"
+        }
+      }
+    },
+    "boxMultiple5": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum", "maximum"],
+      "properties": {
+        "minimum": {
+          "$ref": "#/$defs/coordinatePairMultiple5"
+        },
+        "maximum": {
+          "$ref": "#/$defs/coordinatePairMultiple5"
+        }
+      }
+    },
+    "boxMultiple6": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum", "maximum"],
+      "properties": {
+        "minimum": {
+          "$ref": "#/$defs/coordinatePairMultiple6"
+        },
+        "maximum": {
+          "$ref": "#/$defs/coordinatePairMultiple6"
+        }
+      }
+    },
+    "boxMultiple7": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum", "maximum"],
+      "properties": {
+        "minimum": {
+          "$ref": "#/$defs/coordinatePairMultiple7"
+        },
+        "maximum": {
+          "$ref": "#/$defs/coordinatePairMultiple7"
+        }
+      }
+    },
+    "boxMultiple8": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum", "maximum"],
+      "properties": {
+        "minimum": {
+          "$ref": "#/$defs/coordinatePairMultiple8"
+        },
+        "maximum": {
+          "$ref": "#/$defs/coordinatePairMultiple8"
+        }
+      }
+    }
+  }
+}

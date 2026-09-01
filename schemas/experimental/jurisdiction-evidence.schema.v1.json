@@ -1,0 +1,398 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/experimental/jurisdiction-evidence.schema.v1.json",
+  "title": "Policy Sentinel S0 JurisdictionEvidence",
+  "description": "Frozen S0 1.0.0 impossible-synthetic source-statement custody. This object is source evidence only and is never derived from geometry.",
+  "allOf": [
+    {
+      "$ref": "#/$defs/jurisdictionEvidence"
+    },
+    {
+      "$ref": "#/$defs/noProtectedKeys"
+    }
+  ],
+  "$defs": {
+    "noProtectedKeys": {
+      "if": {
+        "type": "object"
+      },
+      "then": {
+        "type": "object",
+        "propertyNames": {
+          "not": {
+            "enum": [
+              "nationId",
+              "nationIds",
+              "officialName",
+              "authorizedAliases",
+              "recognitionBaselineVersion",
+              "stateCoverage",
+              "nationAssociations",
+              "jurisdiction",
+              "issuingBodies",
+              "officialSubjects",
+              "taxonomyMemberships",
+              "relevance",
+              "landmark",
+              "legalEffect",
+              "legalApplicability",
+              "rights",
+              "consent",
+              "affiliation",
+              "interest",
+              "eligibility",
+              "impact"
+            ]
+          }
+        },
+        "additionalProperties": {
+          "$ref": "#/$defs/noProtectedKeys"
+        }
+      },
+      "else": {
+        "if": {
+          "type": "array"
+        },
+        "then": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/noProtectedKeys"
+          }
+        }
+      }
+    },
+    "sha256": {
+      "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sha256"
+    },
+    "fixtureSlug": {
+      "type": "string",
+      "pattern": "^fixture-[0-9]{4}$"
+    },
+    "sourceRecordId": {
+      "type": "string",
+      "pattern": "^s0-impossible:fixture:fixture-[0-9]{4}$"
+    },
+    "featureId": {
+      "type": "string",
+      "pattern": "^s0-impossible:feature:fixture-[0-9]{4}$"
+    },
+    "administrativeUnitId": {
+      "type": "string",
+      "pattern": "^s0-impossible:administrative-unit:fixture-[0-9]{4}$"
+    },
+    "jurisdictionEvidenceId": {
+      "type": "string",
+      "pattern": "^s0-impossible:jurisdiction-evidence:[a-f0-9]{64}$"
+    },
+    "sentinelUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://policy-sentinel\\.invalid/fixtures/s0/1\\.0\\.0/fixture-[0-9]{4}\\.json$"
+    },
+    "sourceIdentity": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sourceQualifiedIdentity"
+        },
+        {
+          "type": "object",
+          "required": ["sourceId", "sourceRecordId"],
+          "properties": {
+            "sourceId": {
+              "const": "s0-impossible"
+            },
+            "sourceRecordId": {
+              "$ref": "#/$defs/sourceRecordId"
+            }
+          }
+        }
+      ]
+    },
+    "s0DateTime": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/dateTime"
+        },
+        {
+          "type": "string",
+          "pattern": "^3785-"
+        }
+      ]
+    },
+    "provenanceBase": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sourceProvenance"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "sourceIdentity": {
+              "$ref": "#/$defs/sourceIdentity"
+            },
+            "sourceUrl": {
+              "$ref": "#/$defs/sentinelUrl"
+            },
+            "retrievedAt": {
+              "$ref": "#/$defs/s0DateTime"
+            },
+            "sourceUpdatedAt": {
+              "type": "null"
+            },
+            "adapterId": {
+              "const": "s0-impossible-fixture"
+            },
+            "adapterVersion": {
+              "const": "1.0.0"
+            },
+            "sourceContentDigest": {
+              "$ref": "#/$defs/sha256"
+            },
+            "validationState": {
+              "const": "validated"
+            }
+          }
+        }
+      ]
+    },
+    "rootProvenance": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/provenanceBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "sourcePath": {
+              "const": "$"
+            }
+          }
+        }
+      ]
+    },
+    "sourceLabelProvenance": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/provenanceBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "sourcePath": {
+              "const": "$.sourceLabel"
+            }
+          }
+        }
+      ]
+    },
+    "sourceFactBase": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sourceFact"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "contractVersion": {
+              "const": "1.0.0"
+            },
+            "assertionClass": {
+              "const": "source_fact"
+            },
+            "sourceIdentity": {
+              "$ref": "#/$defs/sourceIdentity"
+            }
+          }
+        }
+      ]
+    },
+    "titleFact": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sourceFactBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "factId": {
+              "type": "string",
+              "pattern": "^k0:fact:s0-impossible:[A-Za-z0-9_-]+:JC5zb3VyY2VMYWJlbA:instrument_title:[a-f0-9]{64}$"
+            },
+            "predicate": {
+              "const": "instrument_title"
+            },
+            "value": {
+              "allOf": [
+                {
+                  "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/textValue"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "const": "Policy Sentinel impossible synthetic administrative statement"
+                    }
+                  }
+                }
+              ]
+            },
+            "provenance": {
+              "$ref": "#/$defs/sourceLabelProvenance"
+            }
+          }
+        }
+      ]
+    },
+    "fragmentDigestFact": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sourceFactBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "factId": {
+              "type": "string",
+              "pattern": "^k0:fact:s0-impossible:[A-Za-z0-9_-]+:JA:rendition_digest:[a-f0-9]{64}$"
+            },
+            "predicate": {
+              "const": "rendition_digest"
+            },
+            "value": {
+              "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sha256DigestValue"
+            },
+            "provenance": {
+              "$ref": "#/$defs/rootProvenance"
+            }
+          }
+        }
+      ]
+    },
+    "factManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["titleFact", "fragmentDigestFact"],
+      "properties": {
+        "titleFact": {
+          "$ref": "#/$defs/titleFact"
+        },
+        "fragmentDigestFact": {
+          "$ref": "#/$defs/fragmentDigestFact"
+        }
+      }
+    },
+    "twoSupportedEvidence": {
+      "allOf": [
+        {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/supportedEvidence"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "state": {
+              "const": "supported"
+            },
+            "factReferences": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/factReference"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "jurisdictionEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "experimental",
+        "synthetic",
+        "fixtureClass",
+        "jurisdictionEvidenceId",
+        "fixtureSlug",
+        "sourceIdentity",
+        "featureId",
+        "administrativeUnitId",
+        "sourceLabel",
+        "statement",
+        "statementDigest",
+        "syntheticLevel",
+        "evidenceBasis",
+        "derivation",
+        "reviewState",
+        "attribution",
+        "usageBasis",
+        "factManifest",
+        "evidence"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1.0.0"
+        },
+        "experimental": {
+          "const": true
+        },
+        "synthetic": {
+          "const": true
+        },
+        "fixtureClass": {
+          "const": "impossible_synthetic_geometry"
+        },
+        "jurisdictionEvidenceId": {
+          "$ref": "#/$defs/jurisdictionEvidenceId"
+        },
+        "fixtureSlug": {
+          "$ref": "#/$defs/fixtureSlug"
+        },
+        "sourceIdentity": {
+          "$ref": "#/$defs/sourceIdentity"
+        },
+        "featureId": {
+          "$ref": "#/$defs/featureId"
+        },
+        "administrativeUnitId": {
+          "$ref": "#/$defs/administrativeUnitId"
+        },
+        "sourceLabel": {
+          "const": "Policy Sentinel impossible synthetic administrative statement"
+        },
+        "statement": {
+          "type": "string",
+          "pattern": "^Impossible synthetic source statement: s0-impossible:feature:fixture-[0-9]{4} is assigned to s0-impossible:administrative-unit:fixture-[0-9]{4} in this fixture only\\.$"
+        },
+        "statementDigest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "syntheticLevel": {
+          "const": "impossible_administrative_unit"
+        },
+        "evidenceBasis": {
+          "const": "explicit_synthetic_source_statement"
+        },
+        "derivation": {
+          "const": "source_citation_only_not_spatial"
+        },
+        "reviewState": {
+          "const": "validated_synthetic_fixture"
+        },
+        "attribution": {
+          "const": "Policy Sentinel impossible synthetic fixture"
+        },
+        "usageBasis": {
+          "const": "Repository-authored impossible synthetic fixture; no external source or reuse grant."
+        },
+        "factManifest": {
+          "$ref": "#/$defs/factManifest"
+        },
+        "evidence": {
+          "$ref": "#/$defs/twoSupportedEvidence"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "attribution": "Policy Sentinel impossible synthetic fixture",
+  "contractVersion": "1.0.0",
+  "coordinateSpace": {
+    "axes": ["synthetic_x", "synthetic_y"],
+    "axisOrder": ["synthetic_x", "synthetic_y"],
+    "id": "urn:policy-sentinel:crs:impossible-grid:1.0.0",
+    "representation": "axis_aligned_integer_box_v1",
+    "unit": "impossible_unit"
+  },
+  "coverage": "unknown",
+  "experimental": true,
+  "factManifest": {
+    "fragmentDigestFact": {
+      "assertionClass": "source_fact",
+      "contractVersion": "1.0.0",
+      "factDigest": "8ad568e528b02c03dbe8b1793c50b744f315e14ea426d455909bff3edd531d45",
+      "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwNw:JA:rendition_digest:1ade84951988656453fb558a16bd53ca53402ede6ceb8c064cc8db3baeeadfa9",
+      "predicate": "rendition_digest",
+      "provenance": {
+        "adapterId": "s0-impossible-fixture",
+        "adapterVersion": "1.0.0",
+        "retrievedAt": "3785-01-04T05:06:07Z",
+        "sourceContentDigest": "1ade84951988656453fb558a16bd53ca53402ede6ceb8c064cc8db3baeeadfa9",
+        "sourceIdentity": {
+          "sourceId": "s0-impossible",
+          "sourceRecordId": "s0-impossible:fixture:fixture-0007"
+        },
+        "sourcePath": "$",
+        "sourceUpdatedAt": null,
+        "sourceUrl": "https://policy-sentinel.invalid/fixtures/s0/1.0.0/fixture-0007.json",
+        "validationState": "validated"
+      },
+      "sourceIdentity": {
+        "sourceId": "s0-impossible",
+        "sourceRecordId": "s0-impossible:fixture:fixture-0007"
+      },
+      "value": {
+        "kind": "sha256_digest",
+        "value": "1ade84951988656453fb558a16bd53ca53402ede6ceb8c064cc8db3baeeadfa9"
+      }
+    },
+    "observedTimeFact": {
+      "assertionClass": "source_fact",
+      "contractVersion": "1.0.0",
+      "factDigest": "7b1b44debade4dea6cd87d8b02ef1d7f673a0c4b400e0b8e66271ddf2b26722c",
+      "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwNw:JC5vYnNlcnZlZFRpbWVWYWx1ZQ:observed_time:1ade84951988656453fb558a16bd53ca53402ede6ceb8c064cc8db3baeeadfa9",
+      "predicate": "observed_time",
+      "provenance": {
+        "adapterId": "s0-impossible-fixture",
+        "adapterVersion": "1.0.0",
+        "retrievedAt": "3785-01-04T05:06:07Z",
+        "sourceContentDigest": "1ade84951988656453fb558a16bd53ca53402ede6ceb8c064cc8db3baeeadfa9",
+        "sourceIdentity": {
+          "sourceId": "s0-impossible",
+          "sourceRecordId": "s0-impossible:fixture:fixture-0007"
+        },
+        "sourcePath": "$.observedTimeValue",
+        "sourceUpdatedAt": null,
+        "sourceUrl": "https://policy-sentinel.invalid/fixtures/s0/1.0.0/fixture-0007.json",
+        "validationState": "validated"
+      },
+      "sourceIdentity": {
+        "sourceId": "s0-impossible",
+        "sourceRecordId": "s0-impossible:fixture:fixture-0007"
+      },
+      "value": {
+        "kind": "date_time",
+        "value": "3785-01-02T03:04:05-07:00"
+      }
+    },
+    "validTimeFact": {
+      "assertionClass": "source_fact",
+      "contractVersion": "1.0.0",
+      "factDigest": "87760713913dc5f17b3a79d372f3c4c65906fec54293a609923f4eaa4a0e90ec",
+      "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwNw:JC52YWxpZFRpbWVWYWx1ZQ:valid_time:1ade84951988656453fb558a16bd53ca53402ede6ceb8c064cc8db3baeeadfa9",
+      "predicate": "valid_time",
+      "provenance": {
+        "adapterId": "s0-impossible-fixture",
+        "adapterVersion": "1.0.0",
+        "retrievedAt": "3785-01-04T05:06:07Z",
+        "sourceContentDigest": "1ade84951988656453fb558a16bd53ca53402ede6ceb8c064cc8db3baeeadfa9",
+        "sourceIdentity": {
+          "sourceId": "s0-impossible",
+          "sourceRecordId": "s0-impossible:fixture:fixture-0007"
+        },
+        "sourcePath": "$.validTimeValue",
+        "sourceUpdatedAt": null,
+        "sourceUrl": "https://policy-sentinel.invalid/fixtures/s0/1.0.0/fixture-0007.json",
+        "validationState": "validated"
+      },
+      "sourceIdentity": {
+        "sourceId": "s0-impossible",
+        "sourceRecordId": "s0-impossible:fixture:fixture-0007"
+      },
+      "value": {
+        "kind": "date",
+        "value": "3785-01-03"
+      }
+    }
+  },
+  "featureId": "s0-impossible:feature:fixture-0007",
+  "fixtureClass": "impossible_synthetic_geometry",
+  "fixtureSlug": "fixture-0007",
+  "geometry": {
+    "maximum": [6, 8],
+    "minimum": [-4, -2]
+  },
+  "geometryDigest": "71355974b65c9977de73f013c3550f8db0f9dfdbe8c8bd9d5bd95465bfcabc3f",
+  "layerId": "s0-impossible:layer:fixture-0007",
+  "layerVersion": "1.2.3",
+  "observationDigest": "1ade84951988656453fb558a16bd53ca53402ede6ceb8c064cc8db3baeeadfa9",
+  "observationId": "s0-impossible:observation:1ade84951988656453fb558a16bd53ca53402ede6ceb8c064cc8db3baeeadfa9",
+  "observedTime": {
+    "evidence": {
+      "factReferences": [
+        {
+          "factDigest": "7b1b44debade4dea6cd87d8b02ef1d7f673a0c4b400e0b8e66271ddf2b26722c",
+          "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwNw:JC5vYnNlcnZlZFRpbWVWYWx1ZQ:observed_time:1ade84951988656453fb558a16bd53ca53402ede6ceb8c064cc8db3baeeadfa9"
+        }
+      ],
+      "state": "supported"
+    },
+    "value": {
+      "kind": "date_time",
+      "value": "3785-01-02T03:04:05-07:00"
+    }
+  },
+  "resolution": 2,
+  "sourceIdentity": {
+    "sourceId": "s0-impossible",
+    "sourceRecordId": "s0-impossible:fixture:fixture-0007"
+  },
+  "synthetic": true,
+  "uncertainty": {
+    "reason": "coverage_limitation",
+    "state": "uncertain"
+  },
+  "usageBasis": "Repository-authored impossible synthetic fixture; no external source or reuse grant.",
+  "validTime": {
+    "evidence": {
+      "factReferences": [
+        {
+          "factDigest": "87760713913dc5f17b3a79d372f3c4c65906fec54293a609923f4eaa4a0e90ec",
+          "factId": "k0:fact:s0-impossible:czAtaW1wb3NzaWJsZTpmaXh0dXJlOmZpeHR1cmUtMDAwNw:JC52YWxpZFRpbWVWYWx1ZQ:valid_time:1ade84951988656453fb558a16bd53ca53402ede6ceb8c064cc8db3baeeadfa9"
+        }
+      ],
+      "state": "supported"
+    },
+    "value": {
+      "kind": "date",
+      "value": "3785-01-03"
+    }
+  }
+}
