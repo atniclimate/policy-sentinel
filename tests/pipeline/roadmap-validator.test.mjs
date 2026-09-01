@@ -27,7 +27,12 @@ test("terminal-blocked state accounts exactly for every incomplete required-outc
   );
   assert.equal(
     roadmap.work_items.find((item) => item.id === "S0-SPATIAL").status,
-    "ready",
+    "in_progress",
+  );
+  assert.equal(roadmap.current_focus.work_item, "S0-SPATIAL");
+  assert.equal(
+    roadmap.finish_states.local_release_candidate.current_state,
+    "in_progress",
   );
   const expectedRoots = [
     "B2-REVIEW",
@@ -36,6 +41,13 @@ test("terminal-blocked state accounts exactly for every incomplete required-outc
     "B5-WA-RULES",
   ];
   const terminalRoadmap = parse(stringify(roadmap));
+  terminalRoadmap.work_items.find((item) => item.id === "S0-SPATIAL").status =
+    "ready";
+  terminalRoadmap.current_focus.work_item = null;
+  terminalRoadmap.current_focus.terminal_reason =
+    "Synthetic terminal-state regression fixture.";
+  terminalRoadmap.finish_states.local_release_candidate.current_state =
+    "blocked";
 
   assert.deepEqual(
     terminalRoadmap.finish_states.local_release_candidate.blocked_by,

@@ -518,17 +518,12 @@ baseline:
         configured.
 
 current_focus:
-  work_item: null
+  work_item: S0-SPATIAL
   objective: >-
-    Preserve completed K0 and hand off S0 as ready only for a fresh synthetic
-    contract-review and freeze session. The preserved S0 draft still has seven
-    unresolved specification issues; no S0 freeze, implementation, test, or
-    completion work has begun.
-  terminal_reason: >-
-    The local release candidate remains blocked by the four unchanged resumable
-    evidence roots. Optional additive S0 readiness does not enter that release
-    chain, satisfy convergence gate G-K0-S0-CONVERGENCE, or make local work
-    active.
+    Implement the frozen synthetic-only, removable S0 1.0.0 contract in a
+    separate implementation session without changing K0, product, release,
+    source, Nation, convergence, or gate boundaries.
+  terminal_reason: null
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
@@ -2687,7 +2682,7 @@ work_items:
     priority: 121
     milestone: S0
     title: Removable synthetic spatial-observation bridge
-    status: ready
+    status: in_progress
     dependencies:
       - K0-LIFECYCLE
     authorization_gate: G-S0-SYNTHETIC
@@ -2717,21 +2712,47 @@ work_items:
         or publication activity occurs.
     evidence:
       - >-
-        The owner authorized this readiness-only transition after K0 completion:
-        promote S0 from not_started to ready, do not mark it in_progress, and do
-        not begin S0 implementation, freeze, testing, or completion work.
+        At the prior K0 handoff, the owner authorized only a readiness
+        transition: promote S0 from not_started to ready, do not mark it
+        in_progress, and do not begin S0 implementation, freeze, testing, or
+        completion work.
       - >-
-        The untracked draft docs/vision/s0-spatial-contract.md remains preserved
-        at 13,307 bytes with SHA-256
+        At that handoff, the untracked draft docs/vision/s0-spatial-contract.md
+        was preserved at 13,307 bytes with SHA-256
         ca5486e67b43c049e8f6d1c51e9c5b9e34508084a04a90b32c8369a46d7b5d2b. Its
-        seven unresolved specification issues remain unresolved; ready records
-        dependency and owner-authorization readiness only, not contract freeze
-        or implementation readiness.
+        roadmap entry said seven issues were unresolved, but neither the draft
+        nor a committed review enumerated them. The dated S0 review does not
+        claim to reconstruct that missing historical list.
+      - >-
+        The owner authorized this 2026-09-01 contract-only activation. S0 moved
+        from ready to in_progress with matching current-focus and active
+        local-release accounting before the first material contract edit; the
+        existing dependencies, four release blockers, gates, accepted-source
+        blocks, release scope, convergence decision, and evidence roots did not
+        change.
+      - >-
+        docs/vision/s0-spatial-contract.md freezes contract 1.0.0 at 41,506
+        bytes with SHA-256
+        ae213150ca9f5dfbf5c77d3f05c70aa3aad2b3921987fc091ec1e88b92f78888.
+        docs/vision/reviews/s0-contract-review-2026-09-01.md separately records
+        the unknowable historical seven and independently reconstructed issue
+        register S0-R01 through S0-R19. Cooperative and adversarial re-review
+        both PASS with zero residual high- or medium-severity findings; no S0
+        implementation began.
+      - >-
+        The contract checkpoint passed npm run validate:roadmap at 49 work
+        items, 33 gates, 14 sources, 17 binding paths, and exactly one
+        in_progress item; the roadmap regression wrapper passed 1 test file and
+        1 test; npm run format:check and npm run lint passed; and the full npm
+        run check passed all 59 test files and 843 tests plus the synthetic-only
+        build and artifact validation at 3 records, exactly 575 Nations, 8
+        verified assets. No invocation-specific build ID is treated as a durable
+        contract fact.
     next_step: >-
-      In a fresh S0 contract-review and freeze session, reconcile the seven
-      unresolved specification issues before any implementation. Preserve the
-      synthetic-only, removable, non-interference, no-map, and closed-gate
-      boundaries.
+      Start a fresh S0 implementation session using only frozen contract 1.0.0
+      and its bounded later-implementation paths. Preserve the synthetic-only,
+      removable, non-interference, no-map, and closed-gate boundaries; do not
+      integrate S0 through G-K0-S0-CONVERGENCE.
 
   - id: RELEASE-LICENSE
     priority: 200
@@ -3028,7 +3049,7 @@ next_actions:
 
 finish_states:
   local_release_candidate:
-    current_state: blocked
+    current_state: in_progress
     blocked_by:
       - B2-REVIEW
       - B4-FR-UX
