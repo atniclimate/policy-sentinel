@@ -520,18 +520,18 @@ baseline:
 current_focus:
   work_item: K0-LIFECYCLE
   objective: >-
-    Preserve the independently reviewed and locally validated K0 implementation
-    checkpoint candidate, record its focused local commit, and return the next
-    owner decision without beginning another phase. Keep every existing source,
-    Nation, release, and external gate unchanged; S0 remains not_started and
-    untouched under the continuation boundary.
+    Preserve independently reviewed and locally validated K0 implementation
+    checkpoint ba6c4b6 and return the next owner decision without beginning
+    another phase. Keep every existing source, Nation, release, and external
+    gate unchanged; S0 remains not_started and untouched under the continuation
+    boundary.
   terminal_reason: null
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 5fd48ed
+  last_durable_checkpoint: ba6c4b6
   resume_command: npm run check
 
 completion_scope:
@@ -2662,11 +2662,16 @@ work_items:
         843 tests, synthetic build, and artifact validation at 3 records,
         exactly 575 synthetic Nations, and 8 verified assets; build ID
         synthetic-0302f42f2c692a9120cc.
+      - >-
+        Focused local K0 implementation checkpoint commit ba6c4b6 contains the
+        reviewed contracts, schemas, synthetic fixture, kernel, compatibility
+        projection, regression suites, contract/report evidence, and ledger
+        update; S0 is excluded.
     next_step: >-
-      After the focused checkpoint and follow-up ledger commit, return an owner
-      decision packet. Keep K0 in_progress so the ledger-valid dependency rule
-      does not promote S0 from its explicitly required not_started state; do not
-      begin S0 or a convergence phase without a new owner instruction.
+      Return an owner decision packet. Keep K0 in_progress so the ledger-valid
+      dependency rule does not promote S0 from its explicitly required
+      not_started state; do not begin S0 or a convergence phase without a new
+      owner instruction.
 
   - id: S0-SPATIAL
     priority: 121

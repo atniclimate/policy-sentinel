@@ -1,8 +1,8 @@
 # K0 lifecycle kernel implementation report
 
-Status: independently reviewed and fully locally validated checkpoint
-candidate. Only the focused local checkpoint and follow-up ledger commits remain
-to be recorded.
+Status: independently reviewed, fully locally validated, and checkpointed in
+focused local implementation commit `ba6c4b6`. This documentation-only
+follow-up records that immutable commit in the canonical ledger.
 
 Authority: `G-K0-LIFECYCLE` in `ROADMAP.yaml`. This report covers only the
 additive, local, synthetic K0 phase. It does not activate K0 in the public
