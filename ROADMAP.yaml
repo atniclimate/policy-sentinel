@@ -4,7 +4,7 @@ project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
   phase: "Phase B: local implementation"
-  updated_on: "2026-07-31"
+  updated_on: "2026-09-01"
   owner_intent: >-
     Build and validate a sovereignty-centered static public-policy discovery and
     source-reference application for Tribal Nations, then stop at the external
@@ -285,7 +285,7 @@ gates:
       agencies or launch an unbounded filing crawl.
   - id: G-WA-ACCORD-RECORD-MODEL
     name: Washington accord record-model fit
-    state: pending_evidence
+    state: satisfied
     resolution: >-
       Satisfy only when a versioned contract preserves exact executing parties
       and signatory roles, an executed or signed date, narrative source-status
@@ -296,6 +296,25 @@ gates:
       history, copy source text merely to satisfy landmark schema, or create a
        Nation association before exact signatory evidence reconciles to the
       approved BIA identity registry.
+    evidence:
+      - >-
+        Record and artifact schema 1.4.0 plus source-registry schema 1.18.0
+        preserve Accord parties and source roles, signed or executed events,
+        narrative status review, scoped supersession review, source-provided or
+        project-fallback identity, and metadata-only landmark evidence without
+        coercing those meanings into generic issuing-body, status, or date
+        fields.
+      - >-
+        The fictional synthetic-state-accord fixture and negative contract,
+        semantic, pipeline, artifact-integrity, last-known-good, client-parser,
+        search, date, details, dossier, CSV, accessibility, keyboard, and
+        tampering tests exercise the model without creating a real Nation
+        association or retaining provider text.
+      - >-
+        On 2026-08-03, npm test passed all 45 files and 694 tests; type
+        checking, lint, production build, and artifact validation also passed at
+        3 synthetic records, 575 synthetic Nations, and 8 verified assets. The
+        real GOIA source remained disabled with adapter null.
   - id: G-WA-APPELLATE-CITATION-REVISION-CONTRACT
     name: Washington appellate citation and current-version contract
     state: pending_evidence
@@ -350,6 +369,12 @@ gates:
       desktop and mobile built-artifact interaction, accessibility, and
       same-origin network smoke passes. This is an environment evidence gate,
       not an authorization or owner-approval gate.
+    evidence:
+      - >-
+        On 2026-08-03, the required in-app Browser runtime was initialized and
+        its documented discovery troubleshooting was followed; the available
+        browser list was still empty. No alternate browser surface was used as
+        substitute acceptance evidence.
 
 baseline:
   phase_a_commit: e22512e
@@ -416,14 +441,27 @@ baseline:
         synthetic-f18c5d85755770ceb078.
 
 current_focus:
-  work_item: B8-ID-RULES
+  work_item: null
   objective: >-
-    Assess Idaho's official administrative-rule, rulemaking, and executive-order
-    sources independently from the blocked legislative interface. Establish
-    current primary-source identity, terms, metadata, history, cadence, limits,
-    privacy, reproduction, static-build, health, and failure boundaries; do not
-    disguise legislative HTML scraping as structured coverage.
-  last_durable_checkpoint: 50710c2
+    No local work item is active. Resume B2-REVIEW only when authoritative
+    row-level evidence reconciles the 2026 recognition notice's stated 575 count
+    with its 577 displayed paragraphs; resume B4-FR-UX only when the required
+    in-app Browser backend exists; resume B5-WA-LWS-ADAPTER only when
+    G-WA-LWS-DISCOVERY is satisfied by approved population-enumeration and
+    whole-refresh reconciliation evidence; and reopen B5-WA-RULES only with the
+    bounded filing metadata evidence its gate requires.
+  terminal_reason: >-
+    All currently authorized independent local preparation is validated. The
+    remaining dependency chains require authoritative Nation reconciliation, the
+    unavailable required Browser backend, new source-specific evidence, or an
+    explicitly closed owner authorization; no inference or substitute is
+    permitted.
+  resumable_roots:
+    - B2-REVIEW
+    - B4-FR-UX
+    - B5-WA-LWS-ADAPTER
+    - B5-WA-RULES
+  last_durable_checkpoint: f6eb61f
   resume_command: npm run check
 
 completion_scope:
@@ -440,12 +478,14 @@ completion_scope:
       - H-HANDOFF
       - B1-APP
       - B2-PARSER
+      - B2-PREGATE-HARDENING
       - B2-IDS
       - B2-STATES
       - B2-READY
       - B3-PIPELINE
       - B4-FR-RESEARCH
       - B4-FR-ADAPTER
+      - B4-UX-PREGATE-HARDENING
       - B4-FR-UX
       - B4-GRANTS-RESEARCH
       - B4-CONGRESS-CONTRACT
@@ -612,6 +652,7 @@ work_items:
     status: not_started
     dependencies:
       - B2-REVIEW
+      - B2-PREGATE-HARDENING
     acceptance:
       - Project IDs survive official name changes without erasing source
         history.
@@ -629,6 +670,7 @@ work_items:
     status: not_started
     dependencies:
       - B2-REVIEW
+      - B2-PREGATE-HARDENING
     acceptance:
       - State coverage uses cited official roster evidence, never address,
         geometry, territory, maps, or land.
@@ -653,6 +695,63 @@ work_items:
       - Coverage notices correctly fail closed.
       - No live registry is committed or published.
     evidence: []
+
+  - id: B2-PREGATE-HARDENING
+    priority: 25
+    milestone: B2
+    title: Pre-gate Nation collection and association hardening
+    status: complete
+    dependencies:
+      - B2-PARSER
+      - B3-PIPELINE
+    acceptance:
+      - >-
+        Production Nation collections fail closed unless they contain exactly
+        575 unique reviewed identities with required source evidence and field
+        provenance; synthetic collections remain explicitly separate.
+      - >-
+        State coverage is explicitly reviewed or unresolved/federal-only, and no
+        state is accepted without its own authoritative evidence.
+      - >-
+        Every record Nation association matches both the stable ID and official
+        name in the validated collection and retains exact official relationship
+        evidence; no name, geography, eligibility, or keyword inference is used.
+      - >-
+        Representative, missing, malformed, duplicate, unresolved-state, and
+        association-mismatch cases are tested without committing a live Nation
+        registry or weakening G-BIA-IDENTITY.
+    evidence:
+      - >-
+        src/pipeline/nation-collection-policy.mjs and its type declaration add a
+        pure, standalone fail-closed policy. Manifest and baseline synthetic
+        state must agree; production requires exactly 575 collision-free
+        reviewed identities, semantic registry/version/review/validation/source
+        health, baseline-bound source evidence, complete field provenance, and
+        no prohibited contact, land, or private fields.
+      - >-
+        Artifact schema and shared contracts add per-state official-crosswalk
+        evidence. Every accepted state has one validated source identity, exact
+        text, URL, date/retrieval state, and matching field provenance;
+        unresolved entries must remain federal-only. Synthetic rows cannot claim
+        production evidence.
+      - >-
+        Artifact creation and validation invoke the same policy. Record-set
+        policy now rejects duplicate associations, unknown IDs, mismatched
+        ID/official-name pairs, evidence without an exact official name or
+        authorized alias, and evidence URLs not bound to the official record.
+      - >-
+        Ten focused tests cover a valid 575-identity/577-evidence-row production
+        contract, malformed and future evidence, collisions, unresolved state
+        claims, per-state evidence, unassigned rows, privacy fields,
+        non-mutation, synthetic-as-production rejection, post-hash tampering,
+        and association mismatches. npm run check passed all 50 files and 753
+        tests plus build and artifact validation at 3 synthetic records, 575
+        synthetic Nations, and 8 assets with build ID
+        synthetic-ed965d5b0fa25c9dde22.
+    safe_fallback: >-
+      Keep production Nation collections and Nation-specific public records
+      unavailable. Continue to build only the explicit 575-entry synthetic
+      collection and zero-association real-source candidates.
 
   - id: B3-PIPELINE
     priority: 30
@@ -743,6 +842,7 @@ work_items:
     status: blocked
     dependencies:
       - B4-FR-ADAPTER
+      - B4-UX-PREGATE-HARDENING
     blocked_by:
       - G-LOCAL-BROWSER
     acceptance:
@@ -838,6 +938,12 @@ work_items:
         The browser:control-in-app-browser skill found no available in-app
         Browser backend on 2026-07-31. Its contract prohibits substituting the
         unrelated Chrome extension without explicit user authorization.
+      - >-
+        A fresh 2026-08-03 retry initialized the required in-app Browser
+        runtime, followed its documented discovery troubleshooting, and again
+        returned an empty available-browser list. Automated axe and keyboard
+        coverage remains supporting evidence only; the built desktop/mobile
+        interaction and same-origin network smoke is still pending.
     safe_fallback: >-
       Keep Federal Register disabled and publish no production provider records.
       Preserve the validated local adapter, artifact, automated accessibility,
@@ -1194,6 +1300,61 @@ work_items:
         dimension. Before activation, add a versioned representation or
         conservatively omit/degrade the whole source; current disabled sources
         are absent from the public artifact.
+
+  - id: B4-UX-PREGATE-HARDENING
+    priority: 51
+    milestone: B4
+    title: Synthetic UI state and focus hardening
+    status: complete
+    dependencies:
+      - B1-APP
+      - B3-PIPELINE
+      - B4-FR-ADAPTER
+    acceptance:
+      - >-
+        Search text, filters, sort, displayed-result window, route, and selected
+        record persist through URL state and browser Back/Forward without a
+        runtime source request or silent query resubmission.
+      - >-
+        Route changes are announced, closing a detail view restores focus to the
+        originating result, and keyboard behavior remains deterministic.
+      - >-
+        Nation-picker selection and clear/reset behavior match the search state,
+        and zero-association general-jurisdiction records remain visibly
+        distinct.
+      - >-
+        Selected-record hydration, detail, dossier, and CSV fail closed on
+        compact/detail or build-integrity mismatch and preserve formula safety.
+      - >-
+        Synthetic automated tests pass; G-LOCAL-BROWSER remains pending until
+        the actual built desktop/mobile interaction and network smoke can run.
+    evidence:
+      - >-
+        The static client now serializes applied criteria, sort, bounded result
+        window, selected record IDs, detail return route, and focus origin in
+        hash URL state. Draft controls remain staged until explicit Apply, and
+        selection/result-window navigation does not silently submit them.
+      - >-
+        Selection parsing deduplicates and rejects malformed IDs, then removes
+        IDs absent from the validated compact artifact. A stale-effect
+        regression proves that route normalization cannot overwrite newer
+        selection or load-window history state.
+      - >-
+        Route changes use a polite live announcement; Back/Forward restores the
+        applied URL state without a provider request; returning from details
+        restores focus to the encoded collision-free originating record link;
+        and the enhanced and native Nation controls share select/clear state.
+      - >-
+        On 2026-08-03 the focused app suite passed 9 files and 85 tests. The
+        integrated npm run check passed 51 files and 758 tests, source-boundary
+        scanning, lint, type checking, roadmap/foundation validation, a
+        synthetic-only production build, and artifact validation at 3 records,
+        575 Nations, and 8 assets; build ID synthetic-3bd82196c302219831ef.
+      - >-
+        The in-app Browser backend remained unavailable on 2026-08-03. No
+        alternate browser surface was substituted, so G-LOCAL-BROWSER and the
+        built desktop/mobile interaction, accessibility, print, and same-origin
+        network smoke remain pending.
 
   - id: B5-WA-LWS-RESEARCH
     priority: 60
@@ -1647,17 +1808,15 @@ work_items:
     priority: 63
     milestone: B5
     title: Washington accord pilot
-    status: blocked
+    status: complete
     dependencies:
       - B5-WA-LWS-RESEARCH
-    blocked_by:
-      - G-WA-ACCORD-RECORD-MODEL
     safe_fallback: >-
-      Keep washington-centennial-accord disabled with adapter null and emit no
-      record, provider text, Nation association, relationship edge, status, date
-      coercion, or public coverage claim. Preserve the exact official page as a
-      visible planned-source gap and keep unresolved signatories at general
-      jurisdiction.
+      Keep washington-centennial-accord disabled with its validated adapter and
+      emit no record, provider text, Nation association, relationship edge,
+      public health, last-known-good shard, or public coverage claim. Preserve
+      the exact official page as a visible planned-source gap and keep
+      unresolved signatories at general jurisdiction.
     unblocks_only_when: >-
       G-WA-ACCORD-RECORD-MODEL is satisfied by a versioned, synthetic-tested
       contract and UI treatment for exact party/signatory roles, executed or
@@ -1722,9 +1881,31 @@ work_items:
         Nations, and 7 verified assets with build ID
         synthetic-6a65141269a6f18367f6.
       - >-
-        This item is evidence-blocked by G-WA-ACCORD-RECORD-MODEL. Its truthful
-        safe fallback emits no Accord record or Nation association while
-        independent ready court-source work proceeds.
+        On 2026-08-03, record and artifact schema 1.4.0, source-registry schema
+        1.18.0, the fictional synthetic-state-accord fixture, and strict client
+        rendering/export support satisfied G-WA-ACCORD-RECORD-MODEL. npm test
+        passed all 45 files and 694 tests, and the synthetic-only production
+        build passed at 3 records, 575 Nations, and 8 verified assets. The real
+        source remains disabled with adapter null while the bounded adapter is
+        implemented and reviewed.
+      - >-
+        Source-registry 1.19.0 adds disabled adapter 1.0 with one exact
+        canonical URL; public-DNS, no-redirect, status, UTF-8, content-encoding,
+        byte, chunk, DOM, attribute, depth, text, parse-error, article-grammar,
+        and 30-second deadline checks; and a metadata-only 11-key projection.
+        The fictional year-3785 HTML fixture and 57 focused tests cover
+        transport, parsing, normalization, lifecycle, health, disabled behavior,
+        and same-source last-known-good boundaries.
+      - >-
+        One 2026-08-03 in-memory canary accepted the exact current page,
+        contract 1.0, 26 direct article elements, and the reviewed execution
+        date. It printed or persisted no HTML, prose, response byte, normalized
+        record, cache, or artifact. npm run check passed format, lint,
+        typecheck, roadmap, source scan, foundation, all 50 Vitest files and 753
+        tests, build, and artifact validation. The build remained synthetic-only
+        at 3 records, exactly 575 Nations, and 8 assets with build ID
+        synthetic-af99f6521c6743b8ae0c; dist contained no GOIA host, real title,
+        or production adapter identifier.
 
   - id: B6-COURT-RESEARCH
     priority: 70
@@ -2117,7 +2298,7 @@ work_items:
     priority: 90
     milestone: B8
     title: Idaho official rules and executive-source feasibility
-    status: in_progress
+    status: complete
     dependencies:
       - B3-PIPELINE
     acceptance:
@@ -2126,13 +2307,37 @@ work_items:
       - Enabled sources have official contracts, terms, history, health, and
         truthful limitations.
       - No legislative scraping is disguised as structured coverage.
-    evidence: []
+    evidence:
+      - >-
+        docs/source-reviews/idaho-rules-executive-2026-07-31.md records current
+        originating Administrative Rules and Governor sources, statewide legal
+        and privacy notices, robots/access behavior, cadence and archive claims,
+        reproduction limits, privacy exclusions, range gaps, and independent
+        future health/LKG requirements.
+      - >-
+        The Administrative Rules HTML document listings displayed a temporary
+        technical-issue notice. A visual and structural review of the official
+        19-page July 1 active-rulemaking PDF found 491 extracted lifecycle rows
+        for 189 docket IDs, 108 repeated across stages, extraction drift, 55
+        HTTP annotations, and future blob publish metadata conflicting with the
+        document and Last-Modified date. No opaque PDF adapter was created.
+      - >-
+        A bounded in-memory Governor index observation found 83 primary rows
+        under 2019-2026 headings. The page has no completeness statement, exact
+        issued dates, or uniform status; one row lacks a title, relationship and
+        rendition notes vary, and upload paths and file timestamps cannot fill
+        the missing fields. No order body or page response was retained.
+      - >-
+        Commit f6eb61f adds registry 1.17.0, D-041, the dated review, binding
+        feasibility/coverage/architecture/data-contract updates, and disabled
+        activation regression tests without changing the separate blocked Idaho
+        legislative interface.
 
   - id: B8-ID-RULES-ADAPTER
     priority: 91
     milestone: B8
     title: Idaho rule or executive adapter
-    status: not_started
+    status: complete
     dependencies:
       - B8-ID-RULES
     acceptance:
@@ -2142,7 +2347,26 @@ work_items:
         official links remain source-exact.
       - If no source is viable, the work item closes only with dated evidence
         and a visible source-specific gap, not legislative scraping.
-    evidence: []
+    evidence:
+      - >-
+        The dated review establishes that neither official source satisfies the
+        required title, date, status-as-of, range, relationship, stable-link,
+        reproduction, and fail-closed parsing contract. This item therefore
+        closes through its accepted no-viable-source fallback, not through a
+        guessed adapter or legislative scraper.
+      - >-
+        Registry 1.17.0 records idaho-administrative-rulemaking-index and
+        idaho-governor-executive-orders independently, disabled, with adapter
+        null, null exact-date coverage, metadata-and-links-only intent, no
+        subject mappings, and activation-negative tests. Disabled sources emit
+        no record, coverage, provenance, health, manifest membership, or LKG
+        shard.
+      - >-
+        On 2026-07-31, the focused source-registry suite passed 7 tests; lint,
+        type checking, roadmap validation, source-boundary scanning, all 44
+        Vitest files and 669 tests, a synthetic-only build, and artifact
+        validation also passed. The artifact remained at 2 records, 575 Nations,
+        and 7 assets with build ID synthetic-2c85147382abf552548b.
 
   - id: B8-ID-LEGISLATION
     priority: 92
@@ -2463,7 +2687,7 @@ source_register:
   - id: SRC-WA-OTHER
     source: Washington State Register, Governor executive orders, and accords
     implementation_state: >-
-      governor_adapter_validated_disabled_register_filing_contract_blocked_accord_model_blocked
+      governor_adapter_validated_disabled_register_filing_contract_blocked_accord_adapter_1_0_validated_disabled
     work_items:
       - B5-WA-RULES
       - B5-WA-ACCORDS
@@ -2502,7 +2726,8 @@ source_register:
     public_claim: legislative automation gap
   - id: SRC-ID-OTHER
     source: Idaho official rules and executive sources
-    implementation_state: source_specific_research_in_progress
+    implementation_state: >-
+      dated_no_viable_source_fallback_complete_registry_1_17_disabled
     work_items:
       - B8-ID-RULES
       - B8-ID-RULES-ADAPTER
@@ -2566,32 +2791,42 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B8-ID-RULES
+    work_item: B2-REVIEW
     action: >-
-      Review current originating Idaho Administrative Rules and Governor
-      primary documentation, terms, robots/access conditions, archival range,
-      publication cadence, source identity, reproduction basis, and any stable
-      official index or feed. Keep legislation and third-party contact outside
-      this work item.
+      Resume the Nation identity chain only when authoritative row-level
+      evidence reconciles the 2026 notice's stated 575 count with its 577
+      displayed paragraphs and supports the required stable IDs, names, aliases,
+      and state crosswalk. Do not infer the reconciliation.
   - order: 2
-    work_item: B8-ID-RULES
+    work_item: B4-FR-UX
     action: >-
-      Perform only bounded, credential-free observations that the current terms
-      permit. Establish exact rulemaking/order identifiers, agencies, stages or
-      statuses, dates, correction/relationship signals, stable official links,
-      range/continuity, DOM or document structure, request/byte ceilings,
-      privacy exclusions, and known failure behavior source by source.
+      Re-run the required built-app desktop/mobile interaction, accessibility,
+      keyboard, dossier, CSV, Unclassified, and same-origin network smoke only
+      when the in-app Browser backend becomes available. Do not substitute the
+      unrelated Chrome control surface without owner authorization.
   - order: 3
-    work_item: B8-ID-RULES
+    work_item: B5-WA-LWS-ADAPTER
     action: >-
-      Record each independently viable source or dated gap in the registry and
-      binding coverage/feasibility documents. Advance B8-ID-RULES-ADAPTER only
-      for an exact permitted official contract; otherwise close through its
-      accepted visible source-specific fallback without legislative scraping.
+      Resume the LWS adapter only when G-WA-LWS-DISCOVERY is satisfied by an
+      approved population-enumeration and whole-refresh reconciliation contract.
+      Do not retry the rejected fixed-year scenario, infer enumeration from
+      known bills, or replace the null adapter before that gate is satisfied.
+  - order: 4
+    work_item: B5-WA-RULES
+    action: >-
+      Reopen the State Register only when bounded source evidence supplies exact
+      title and agency fields, duplicate/holdover reconciliation, Reviser's Note
+      behavior, privacy exclusions, link rules, and fixed whole-refresh budgets.
+      Keep the validated Governor adapter disabled and independent.
 
 finish_states:
   local_release_candidate:
-    current_state: in_progress
+    current_state: blocked
+    blocked_by:
+      - B2-REVIEW
+      - B4-FR-UX
+      - B5-WA-LWS-ADAPTER
+      - B5-WA-RULES
     satisfied_when:
       - All locally executable required work items through B10-RC are complete.
       - Every unavailable source is blocked with evidence and a truthful

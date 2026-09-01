@@ -3,7 +3,10 @@ import { resolve } from "node:path";
 import { parseDocument } from "yaml";
 
 const root = resolve(import.meta.dirname, "..");
-const roadmapPath = resolve(root, "ROADMAP.yaml");
+const requestedRoadmapPath = process.argv[2];
+const roadmapPath = requestedRoadmapPath
+  ? resolve(process.cwd(), requestedRoadmapPath)
+  : resolve(root, "ROADMAP.yaml");
 const source = await readFile(roadmapPath, "utf8");
 const document = parseDocument(source, {
   prettyErrors: true,
@@ -422,6 +425,7 @@ if (!allowedFinishStates.has(localFinish.current_state)) {
 }
 const inProgress = workItems.filter((item) => item.status === "in_progress");
 const isTerminal = ["complete", "blocked"].includes(localFinish.current_state);
+let terminalRequiredRoots = [];
 // A required outcome may be evidence-blocked while independent ready work
 // continues. The terminal-complete check below still requires every required
 // outcome to be complete, so an active blocker cannot weaken release
@@ -484,6 +488,63 @@ if (localFinish.current_state === "complete") {
   }
 }
 if (localFinish.current_state === "blocked") {
+  const localFinishBlockers = requireUniqueStrings(
+    localFinish.blocked_by,
+    "finish_states.local_release_candidate.blocked_by",
+  );
+  const incompleteRequiredRoots = new Set();
+  const collectIncompleteRoots = (id) => {
+    const item = byId.get(id);
+    if (item.status === "complete") {
+      return;
+    }
+    const incompleteDependencies = item.dependencies.filter(
+      (dependency) => byId.get(dependency).status !== "complete",
+    );
+    if (item.status === "blocked" || incompleteDependencies.length === 0) {
+      incompleteRequiredRoots.add(id);
+      return;
+    }
+    for (const dependency of incompleteDependencies) {
+      collectIncompleteRoots(dependency);
+    }
+  };
+  for (const id of requiredOutcomes) {
+    collectIncompleteRoots(id);
+  }
+  terminalRequiredRoots = [...incompleteRequiredRoots].sort(
+    (left, right) => byId.get(left).priority - byId.get(right).priority,
+  );
+  const omittedRequiredRoots = terminalRequiredRoots.filter(
+    (id) => !localFinishBlockers.includes(id),
+  );
+  const unexpectedFinishBlockers = localFinishBlockers.filter(
+    (id) => !incompleteRequiredRoots.has(id),
+  );
+  if (omittedRequiredRoots.length > 0 || unexpectedFinishBlockers.length > 0) {
+    fail(
+      "terminal-blocked finish blockers must exactly match incomplete " +
+        `required-outcome roots; missing: ${omittedRequiredRoots.join(", ") || "none"}; ` +
+        `unexpected: ${unexpectedFinishBlockers.join(", ") || "none"}`,
+    );
+  }
+  const currentFocusRoots = requireUniqueStrings(
+    roadmap.current_focus.resumable_roots,
+    "current_focus.resumable_roots",
+  );
+  const omittedFocusRoots = terminalRequiredRoots.filter(
+    (id) => !currentFocusRoots.includes(id),
+  );
+  const unexpectedFocusRoots = currentFocusRoots.filter(
+    (id) => !incompleteRequiredRoots.has(id),
+  );
+  if (omittedFocusRoots.length > 0 || unexpectedFocusRoots.length > 0) {
+    fail(
+      "terminal-blocked current focus must exactly match incomplete " +
+        `required-outcome roots; missing: ${omittedFocusRoots.join(", ") || "none"}; ` +
+        `unexpected: ${unexpectedFocusRoots.join(", ") || "none"}`,
+    );
+  }
   const readyItems = workItems
     .filter((item) => item.status === "ready")
     .map((item) => item.id);
@@ -558,6 +619,27 @@ for (const [index, action] of nextActions.entries()) {
     fail(`${path}.work_item references unknown item ${action.work_item}`);
   }
   requireString(action.action, `${path}.action`);
+}
+if (terminalRequiredRoots.length > 0) {
+  const nextActionIds = nextActions.map((action) => action.work_item);
+  const hasExactOrderedRoots =
+    nextActionIds.length === terminalRequiredRoots.length &&
+    nextActionIds.every((id, index) => id === terminalRequiredRoots[index]);
+  if (!hasExactOrderedRoots) {
+    const nextActionSet = new Set(nextActionIds);
+    const omittedActionRoots = terminalRequiredRoots.filter(
+      (id) => !nextActionSet.has(id),
+    );
+    const expectedRootSet = new Set(terminalRequiredRoots);
+    const unexpectedActions = nextActionIds.filter(
+      (id) => !expectedRootSet.has(id),
+    );
+    fail(
+      "terminal-blocked next actions must list each incomplete required-outcome " +
+        `root exactly once in priority order; missing: ${omittedActionRoots.join(", ") || "none"}; ` +
+        `unexpected: ${unexpectedActions.join(", ") || "none"}; expected order: ${terminalRequiredRoots.join(", ")}`,
+    );
+  }
 }
 
 const statusCounts = Object.fromEntries(

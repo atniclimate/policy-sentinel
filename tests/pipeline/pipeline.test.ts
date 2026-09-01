@@ -18,6 +18,7 @@ test("pipeline contract and governance suite passes", () => {
       "tests/pipeline/last-known-good-hardening.test.mjs",
       "tests/pipeline/nation-collection-policy.test.mjs",
       "tests/pipeline/pipeline.test.mjs",
+      "tests/pipeline/roadmap-validator.test.mjs",
       "tests/pipeline/source-registry.test.mjs",
     ],
     {
