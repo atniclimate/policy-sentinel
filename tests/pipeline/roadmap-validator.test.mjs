@@ -17,19 +17,38 @@ const roadmapPath = path.resolve(projectRoot, "ROADMAP.yaml");
 
 test("terminal-blocked state accounts exactly for every incomplete required-outcome root", async (context) => {
   const roadmap = parse(await readFile(roadmapPath, "utf8"));
+  assert.deepEqual(
+    roadmap.completion_scope.local_release_candidate.additive_vision_phases,
+    ["K0-LIFECYCLE", "S0-SPATIAL"],
+  );
   const expectedRoots = [
     "B2-REVIEW",
     "B4-FR-UX",
     "B5-WA-LWS-ADAPTER",
     "B5-WA-RULES",
   ];
+  const terminalRoadmap = parse(stringify(roadmap));
+  const activeItem = terminalRoadmap.work_items.find(
+    (item) => item.id === "K0-LIFECYCLE",
+  );
+  activeItem.status = "deferred";
+  activeItem.reason = "Synthetic terminal-accounting test state.";
+  terminalRoadmap.finish_states.local_release_candidate.current_state =
+    "blocked";
+  terminalRoadmap.current_focus.work_item = null;
+  terminalRoadmap.current_focus.terminal_reason =
+    "Synthetic terminal-accounting test state.";
+
   assert.deepEqual(
-    roadmap.finish_states.local_release_candidate.blocked_by,
+    terminalRoadmap.finish_states.local_release_candidate.blocked_by,
     expectedRoots,
   );
-  assert.deepEqual(roadmap.current_focus.resumable_roots, expectedRoots);
   assert.deepEqual(
-    roadmap.next_actions.map((action) => action.work_item),
+    terminalRoadmap.current_focus.resumable_roots,
+    expectedRoots,
+  );
+  assert.deepEqual(
+    terminalRoadmap.next_actions.map((action) => action.work_item),
     expectedRoots,
   );
 
@@ -38,7 +57,7 @@ test("terminal-blocked state accounts exactly for every incomplete required-outc
   );
   context.after(() => rm(fixtureRoot, { recursive: true, force: true }));
   const validateMutation = async (name, mutate, expectedMessage) => {
-    const candidate = parse(stringify(roadmap));
+    const candidate = parse(stringify(terminalRoadmap));
     mutate(candidate);
     const fixturePath = path.join(fixtureRoot, `${name}.yaml`);
     await writeFile(fixturePath, stringify(candidate), "utf8");
@@ -49,6 +68,15 @@ test("terminal-blocked state accounts exactly for every incomplete required-outc
     assert.notEqual(result.status, 0, `${name} was accepted`);
     assert.match(`${result.stdout}\n${result.stderr}`, expectedMessage);
   };
+
+  await validateMutation(
+    "unscoped-additive-phase",
+    (candidate) => {
+      candidate.completion_scope.local_release_candidate.additive_vision_phases =
+        ["K0-LIFECYCLE"];
+    },
+    /work items missing from completion scope: S0-SPATIAL/,
+  );
 
   for (const rootId of expectedRoots) {
     await validateMutation(

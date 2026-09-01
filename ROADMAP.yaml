@@ -157,6 +157,46 @@ gates:
     state: approved
     evidence:
       - "Owner message on 2026-07-30: Approve to begin Phase B"
+  - id: G-K0-LIFECYCLE
+    name: Additive local lifecycle contract kernel
+    state: approved
+    approved_scope:
+      - Additive versioned lifecycle and assertion contracts using synthetic
+        fixtures only.
+      - Deterministic declared-lossy compatibility projection to PolicyRecord
+        1.4.
+      - Local schema, semantic, compatibility, replay, and negative-inference
+        tests.
+      - Independent cooperative and adversarial contract review.
+    evidence:
+      - >-
+        Owner message in the post-R0 implementation session: "Approve both K0
+        and S0" subject to K0-first sequencing, synthetic-only inputs, frozen
+        shared interfaces, separate checkpoints, and the stated stop conditions.
+  - id: G-S0-SYNTHETIC
+    name: Removable synthetic spatial-observation bridge
+    state: approved
+    approved_scope:
+      - Deliberately impossible synthetic geometries only.
+      - Versioned SpatialObservation, SpatialRelation, and separately evidenced
+        JurisdictionEvidence contracts.
+      - Accessible text and table evidence view without a map.
+      - Local deterministic, topology, uncertainty, accessibility, property, and
+        semantic non-interference tests.
+    evidence:
+      - >-
+        The same owner message expressly authorizes bounded S0 contract and
+        implementation work only after K0 shared provenance and assertion
+        interfaces are frozen. Real geometry, providers, maps, uploads,
+        persistence, land data, private data, and infrastructure remain closed.
+  - id: G-K0-S0-CONVERGENCE
+    name: K0 and S0 integration into the existing release scope
+    state: closed
+    resolution: >-
+      K0 and S0 are additive vision phases. Integration into Policy Sentinel's
+      existing B2/B4/B5 evidence roots, B9/B10 chain, or local release candidate
+      requires a later exact owner convergence decision. Code existence and
+      successful synthetic tests do not satisfy or weaken any existing gate.
   - id: G-B
     name: API terms, registration, and secrets category
     state: closed
@@ -461,23 +501,27 @@ baseline:
         signatures, token-bearing URLs, prohibited public-data keys, telemetry,
         or non-synthetic data hosts. npm ls reported a valid 338-path dependency
         tree and npm audit --offline reported zero known vulnerabilities.
+    - command: npm run check
+      result: pass
+      detail: >-
+        The owner-authorized K0/S0 session began from clean main at 758b6bf.
+        Before mutation, all 51 Vitest files and 758 tests passed with
+        formatting, lint, type checking, roadmap and foundation validation,
+        source-boundary scanning, a synthetic-only production build, and
+        artifact validation at 3 records, exactly 575 synthetic Nations, and 8
+        hashed assets; build ID synthetic-40dd246e487a3988b367. No remote was
+        configured.
 
 current_focus:
-  work_item: null
+  work_item: K0-LIFECYCLE
   objective: >-
-    No local work item is active. Resume B2-REVIEW only when authoritative
-    row-level evidence reconciles the 2026 recognition notice's stated 575 count
-    with its 577 displayed paragraphs; resume B4-FR-UX only when the required
-    in-app Browser backend exists; resume B5-WA-LWS-ADAPTER only when
-    G-WA-LWS-DISCOVERY is satisfied by approved population-enumeration and
-    whole-refresh reconciliation evidence; and reopen B5-WA-RULES only with the
-    bounded filing metadata evidence its gate requires.
-  terminal_reason: >-
-    R0 custody recovery is durable through 5fd48ed and all currently authorized
-    independent local preparation is validated. The remaining dependency chains
-    require authoritative Nation reconciliation, the unavailable required
-    Browser backend, new source-specific evidence, or an explicitly closed owner
-    authorization; no inference or substitute is permitted.
+    Implement and validate the frozen additive K0 lifecycle and assertion kernel
+    plus its deterministic declared-lossy fail-closed PolicyRecord 1.4
+    compatibility projection. Use synthetic fixtures only and keep every
+    existing source, Nation, release, and external gate unchanged. S0 may now
+    use the frozen shared provenance, evidence, temporal, and digest interfaces,
+    but S0 implementation remains sequenced after the K0 checkpoint.
+  terminal_reason: null
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
@@ -545,6 +589,9 @@ completion_scope:
       - RELEASE-REMOTE-PUSH
       - RELEASE-PAGES
       - RELEASE-PUBLISH
+    additive_vision_phases:
+      - K0-LIFECYCLE
+      - S0-SPATIAL
 
 work_items:
   - id: A-FOUNDATION
@@ -2548,6 +2595,83 @@ work_items:
         visible.
     evidence: []
 
+  - id: K0-LIFECYCLE
+    priority: 120
+    milestone: K0
+    title: Additive policy lifecycle contract kernel
+    status: in_progress
+    dependencies:
+      - H-HANDOFF
+      - B3-PIPELINE
+    authorization_gate: G-K0-LIFECYCLE
+    acceptance:
+      - >-
+        Versioned SourceFact, PolicyInstrument, InstrumentVersion,
+        LifecycleEvent, EquivalenceAssertion, and RelationshipAssertion
+        contracts preserve source-qualified identity, immutable provenance,
+        supplied-only actors, distinct observed/published/effective/valid time,
+        ambiguity, concurrency, explicit unknowns, and insufficient evidence.
+      - >-
+        Correction, amendment, withdrawal, stay, substitution, and supersession
+        remain typed source-evidenced relationships; cross-source equivalence
+        never automatically merges identities.
+      - >-
+        A versioned, deterministic, declared-lossy projection to PolicyRecord
+        1.4 preserves compatibility and fails closed whenever normalized status
+        would overstate or cannot safely represent the lifecycle evidence.
+      - >-
+        Synthetic schema, semantic, identity, chronology, ambiguity, replay,
+        projection, automatic-merge rejection, and legal-overclaim tests pass
+        after independent cooperative and adversarial contract review.
+      - >-
+        No real source, network, provider, credential, AI, Nation-identity or
+        Nation-association change, release-scope change, or breaking 1.4 change
+        occurs.
+    evidence:
+      - >-
+        docs/vision/k0-lifecycle-contract.md freezes assertion and lifecycle
+        contract 1.0.0, canonical JSON ps-c14n-json-1, and the versioned
+        declared-lossy PolicyRecord 1.4 projection boundary before code.
+      - >-
+        docs/vision/reviews/k0-contract-review-2026-09-01.md records independent
+        cooperative and adversarial PASS dispositions after status-inference,
+        identity, ambiguity, actor, temporal, relationship, provenance,
+        mutation-surface, validation, and loss/refusal blockers were closed.
+
+  - id: S0-SPATIAL
+    priority: 121
+    milestone: S0
+    title: Removable synthetic spatial-observation bridge
+    status: not_started
+    dependencies:
+      - K0-LIFECYCLE
+    authorization_gate: G-S0-SYNTHETIC
+    acceptance:
+      - >-
+        Versioned SpatialObservation, SpatialRelation, and separately evidenced
+        JurisdictionEvidence contracts use deliberately impossible synthetic
+        geometry and preserve source/layer/feature identity, CRS and axis order,
+        valid/retrieved time, digest, tolerance, algorithm, uncertainty, and
+        missing coverage.
+      - >-
+        Reproducible relations are limited to intersects, contains, within,
+        touches, disjoint, and unknown; uncertainty and missing coverage remain
+        explicit and geometry never becomes authority.
+      - >-
+        A canonical accessible text/table evidence view works without a map and
+        the entire S0 bridge is removable without changing the current product.
+      - >-
+        CRS, axis-order, topology, tolerance, deterministic-digest, coverage,
+        property, accessibility, and negative semantic non-interference tests
+        prove that spatial output cannot populate or modify protected Nation,
+        jurisdiction, relevance, legal, rights, interest, eligibility, impact,
+        affiliation, or consent fields.
+      - >-
+        No real geometry or source, GIS dependency, map, upload, persistence,
+        backend, database, service, private/land/user data, telemetry, remote,
+        or publication activity occurs.
+    evidence: []
+
   - id: RELEASE-LICENSE
     priority: 200
     milestone: External publication
@@ -2843,7 +2967,7 @@ next_actions:
 
 finish_states:
   local_release_candidate:
-    current_state: blocked
+    current_state: in_progress
     blocked_by:
       - B2-REVIEW
       - B4-FR-UX
@@ -2861,6 +2985,7 @@ finish_states:
       - public beta published
       - comprehensive legal or source coverage
       - any closed external gate is approved
+      - K0 or S0 is integrated into the existing release candidate
   public_beta:
     current_state: blocked
     blocked_by:

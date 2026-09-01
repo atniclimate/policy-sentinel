@@ -387,10 +387,15 @@ const publicationOnly = requireUniqueStrings(
   completionScope.publication_only,
   "completion_scope.local_release_candidate.publication_only",
 );
+const additiveVisionPhases = requireUniqueStrings(
+  completionScope.additive_vision_phases,
+  "completion_scope.local_release_candidate.additive_vision_phases",
+);
 const completionGroups = [
   ["required_outcomes", requiredOutcomes],
   ["accepted_source_blocks", acceptedSourceBlocks],
   ["publication_only", publicationOnly],
+  ["additive_vision_phases", additiveVisionPhases],
 ];
 const completionMembership = new Map();
 for (const [group, ids] of completionGroups) {
