@@ -518,19 +518,21 @@ baseline:
         configured.
 
 current_focus:
-  work_item: S0-SPATIAL
+  work_item: null
   objective: >-
-    Preserve the implemented, reviewed, removal-proven S0 1.0.0 checkpoint and
-    obtain an exact owner decision on the out-of-bound terminal roadmap-test
-    update without changing K0, product, release, source, Nation, convergence,
-    or gate boundaries.
-  terminal_reason: null
+    Preserve the completed, reviewed, removal-proven S0 1.0.0 checkpoint without
+    changing K0, product, release, source, Nation, convergence, or gate
+    boundaries, and do not begin another phase without exact owner authority.
+  terminal_reason: >-
+    S0 1.0.0 is implemented, independently reviewed, removal-proven, and locally
+    validated. No authorized local work remains; the local release candidate is
+    blocked by the same four evidence roots recorded below.
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: a7e4c14
+  last_durable_checkpoint: 8aa6c8c
   resume_command: npm run check
 
 completion_scope:
@@ -2683,7 +2685,7 @@ work_items:
     priority: 121
     milestone: S0
     title: Removable synthetic spatial-observation bridge
-    status: in_progress
+    status: complete
     dependencies:
       - K0-LIFECYCLE
     authorization_gate: G-S0-SYNTHETIC
@@ -2979,13 +2981,31 @@ work_items:
         dependency junction was unlinked nonrecursively, Git removed the proof
         worktree, and main remained clean at 4142496. No other file change is
         required, and the proven test edit was not applied to main.
+      - >-
+        On 2026-09-01, the owner accepted the documented boundary disposition
+        and explicitly authorized only the three live-state assertion changes in
+        tests/pipeline/roadmap-validator.test.mjs plus the already-planned S0
+        terminal roadmap and evidence bookkeeping. The authorization preserves
+        every synthetic regression fixture and unrelated assertion, keeps
+        G-K0-S0-CONVERGENCE closed, and does not authorize O0, D0, integration,
+        production work, real data, a remote, or any later phase.
+      - >-
+        The authorized terminal closure changed exactly the three live-state
+        assertions: S0 now expects complete, current focus expects null, and
+        local release expects blocked. The direct Node roadmap regression and
+        Vitest pipeline wrapper each passed 1/1. npm run validate:roadmap passed
+        at 49 items with 26 complete, 0 in_progress, 0 ready, 14 blocked, 0
+        deferred, and 9 not_started. After one ROADMAP-only Prettier repair,
+        formatting, lint, and typecheck passed. The serialized terminal npm run
+        check passed all 71 files and 999 tests in 122.25 seconds, then built
+        and validated the unchanged synthetic artifact at 3 records, exactly 575
+        Nations, and 8 hashed assets. No S0 implementation, schema, fixture,
+        validator, wrapper, configuration, dependency, product, K0, blocker,
+        evidence-root, convergence, or release-scope change occurred.
     next_step: >-
-      Owner must authorize or reject an edit only to
-      tests/pipeline/roadmap-validator.test.mjs so its live-state assertions can
-      reflect the terminal-blocked ledger while preserving its synthetic
-      regression fixtures. Do not mark S0 complete, edit that out-of-bound file,
-      begin another phase, or integrate S0 through G-K0-S0-CONVERGENCE without
-      that exact authority.
+      Preserve S0 as a complete additive synthetic-only phase. Do not begin O0,
+      D0, convergence, integration, production work, or another vision phase;
+      any O0 fixture-only orchestration requires separate exact owner authority.
 
   - id: RELEASE-LICENSE
     priority: 200
@@ -3282,7 +3302,7 @@ next_actions:
 
 finish_states:
   local_release_candidate:
-    current_state: in_progress
+    current_state: blocked
     blocked_by:
       - B2-REVIEW
       - B4-FR-UX

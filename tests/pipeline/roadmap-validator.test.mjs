@@ -27,12 +27,12 @@ test("terminal-blocked state accounts exactly for every incomplete required-outc
   );
   assert.equal(
     roadmap.work_items.find((item) => item.id === "S0-SPATIAL").status,
-    "in_progress",
+    "complete",
   );
-  assert.equal(roadmap.current_focus.work_item, "S0-SPATIAL");
+  assert.equal(roadmap.current_focus.work_item, null);
   assert.equal(
     roadmap.finish_states.local_release_candidate.current_state,
-    "in_progress",
+    "blocked",
   );
   const expectedRoots = [
     "B2-REVIEW",

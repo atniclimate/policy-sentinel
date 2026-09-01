@@ -1,15 +1,13 @@
 # S0 synthetic spatial-observation implementation report
 
-Disposition: `STOPPED_S0_BOUNDARY_REQUIRED`.
+Disposition: `S0_IMPLEMENTED_VALIDATED_CHECKPOINTED`.
 
 The frozen S0 `1.0.0` implementation, its cooperative and adversarial review,
 the deterministic bounded tests, the isolated removal proof, and the final
-implementation-state full check all pass. The stop occurs only at the required
-terminal roadmap transition: the existing pipeline roadmap regression test
-hard-codes S0's temporary activation state, but that test is outside the
-owner-authorized S0 file boundary. S0 therefore remains `in_progress` in the
-ledger rather than being falsely marked complete or paired with a known failing
-repository test.
+terminal-state full check all pass. The owner explicitly authorized the exact
+three-assertion roadmap-test repair previously proven sufficient. S0 is complete
+and current focus is null; the local release candidate is terminal-blocked on
+the same four evidence roots without changing product or release scope.
 
 ## Authority and verified starting state
 
@@ -253,27 +251,22 @@ remote. All fixtures and output remain deliberately impossible and synthetic;
 no real coordinate, place, Nation, source, boundary, geometry, land, private,
 or user-supplied data was introduced.
 
-## Terminal boundary and next owner decision
+## Terminal closure and preservation
 
-A coherent terminal ledger would set `S0-SPATIAL` to `complete`, set
-`current_focus.work_item` to null with a non-empty terminal reason, and return
+A coherent terminal ledger sets `S0-SPATIAL` to `complete`, sets
+`current_focus.work_item` to null with a non-empty terminal reason, and returns
 `finish_states.local_release_candidate.current_state` to `blocked` while
 retaining the exact four existing roots: `B2-REVIEW`, `B4-FR-UX`,
 `B5-WA-LWS-ADAPTER`, and `B5-WA-RULES`. The current roadmap validator accepts
 that state with 26 complete, 0 in progress, 0 ready, 14 blocked, 0 deferred,
 and 9 not started. It does not require a production or release change.
 
-However, `tests/pipeline/roadmap-validator.test.mjs` lines 28 through 35
-hard-code the live activation snapshot: S0 `in_progress`, current focus S0, and
-local release `in_progress`. The test reads the live roadmap, runs under
-`npm test`, and would deterministically fail after the required terminal
-transition. No `ROADMAP.yaml`-only state can satisfy both the terminal ledger
-rules and those opposite assertions.
-
-That pipeline test is outside the frozen implementation allowlist in contract
-lines 753 through 769. Editing it without explicit owner authority would itself
-violate the S0 boundary. Leaving a known failing final check or claiming
-completion while S0 remains active would be equally false.
+Before closure, `tests/pipeline/roadmap-validator.test.mjs` lines 28 through 35
+hard-coded the live activation snapshot: S0 `in_progress`, current focus S0,
+and local release `in_progress`. Because that pipeline test was outside the
+original implementation allowlist, the coordinator stopped until the owner
+explicitly authorized only its three live-state assertion changes and the
+already-planned terminal bookkeeping.
 
 A subsequent disposable-worktree proof made the boundary executable rather
 than inferential. The coherent terminal `ROADMAP.yaml` passed
@@ -289,13 +282,17 @@ terminal tree then passed `npm run check`: all 71 files and 999 tests passed in
 differed in the disposable tree. Its verified dependency junction was unlinked
 nonrecursively, Git removed the worktree, and main remained clean and unchanged.
 No validator, wrapper, product, configuration, schema, or S0 implementation
-change is needed.
+change was needed.
 
-The next owner decision is therefore narrow: authorize or reject an edit only
-to `tests/pipeline/roadmap-validator.test.mjs` so its live-state assertions
-reflect the terminal-blocked ledger while preserving its synthetic regression
-fixtures. Until that exact boundary is opened, S0 remains implemented,
-reviewed, removal-proven, and locally checkpointed but not ledger-complete.
+The authorized main-worktree closure changes exactly those three assertions:
+S0 now expects `complete`, current focus expects null, and local release expects
+`blocked`. The direct roadmap regression and pipeline wrapper each pass 1/1;
+`validate:roadmap` reports the exact terminal counts; formatting, lint, and
+typecheck pass; and serialized `npm run check` passes all 71 files and 999 tests
+in 122.25 seconds plus the unchanged 3-record, exactly 575-Nation, 8-asset build
+and artifact validation. The only terminal-closure paths are `ROADMAP.yaml`,
+this existing report, and the expressly authorized pipeline roadmap test.
+
 `G-K0-S0-CONVERGENCE`, all four evidence blockers, the B9/B10 chain, and the
 local-release scope remain unchanged. No O0, D0, convergence, integration,
 production source, real geometry, or later phase has begun.
