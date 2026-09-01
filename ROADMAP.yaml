@@ -173,6 +173,11 @@ gates:
         Owner message in the post-R0 implementation session: "Approve both K0
         and S0" subject to K0-first sequencing, synthetic-only inputs, frozen
         shared interfaces, separate checkpoints, and the stated stop conditions.
+      - >-
+        Owner continuation message: "I authorize Option 1: resume local-only K0
+        work from the current dirty worktree." This continuation preserves
+        durable commit 21bb68f, prohibits all further network activity, and
+        requires S0 to remain not_started and untouched.
   - id: G-S0-SYNTHETIC
     name: Removable synthetic spatial-observation bridge
     state: approved
@@ -515,12 +520,11 @@ baseline:
 current_focus:
   work_item: K0-LIFECYCLE
   objective: >-
-    Implement and validate the frozen additive K0 lifecycle and assertion kernel
-    plus its deterministic declared-lossy fail-closed PolicyRecord 1.4
-    compatibility projection. Use synthetic fixtures only and keep every
-    existing source, Nation, release, and external gate unchanged. S0 may now
-    use the frozen shared provenance, evidence, temporal, and digest interfaces,
-    but S0 implementation remains sequenced after the K0 checkpoint.
+    Preserve the independently reviewed and locally validated K0 implementation
+    checkpoint candidate, record its focused local commit, and return the next
+    owner decision without beginning another phase. Keep every existing source,
+    Nation, release, and external gate unchanged; S0 remains not_started and
+    untouched under the continuation boundary.
   terminal_reason: null
   resumable_roots:
     - B2-REVIEW
@@ -2637,6 +2641,32 @@ work_items:
         cooperative and adversarial PASS dispositions after status-inference,
         identity, ambiguity, actor, temporal, relationship, provenance,
         mutation-surface, validation, and loss/refusal blockers were closed.
+      - >-
+        docs/vision/reports/k0-implementation-2026-09-01.md records the additive
+        K0 1.0.0 kernel and declared-lossy PolicyRecord 1.4 projection 1.0.1,
+        all seven audit repairs, compatibility boundaries, and synthetic-only
+        scope.
+      - >-
+        docs/vision/reviews/k0-implementation-audit-2026-09-01.md records final
+        cooperative, adversarial, and projection-accounting PASS dispositions,
+        including closure of malformed-input, context-authority, provenance,
+        ambiguity, exact-label, pointer, and receipt-digest counterexamples.
+      - >-
+        Current local reruns pass the focused K0 suite at 8 files and 85 tests,
+        lint, typecheck, foundation validation, and full npm test at 59 files
+        and 843 tests. Historical pre-K0 evidence remains separately recorded at
+        51 files and 758 tests on 758b6bf.
+      - >-
+        Final pre-checkpoint npm run check passes formatting, lint, typecheck,
+        roadmap validation, source-boundary scanning, all 59 Vitest files and
+        843 tests, synthetic build, and artifact validation at 3 records,
+        exactly 575 synthetic Nations, and 8 verified assets; build ID
+        synthetic-0302f42f2c692a9120cc.
+    next_step: >-
+      After the focused checkpoint and follow-up ledger commit, return an owner
+      decision packet. Keep K0 in_progress so the ledger-valid dependency rule
+      does not promote S0 from its explicitly required not_started state; do not
+      begin S0 or a convergence phase without a new owner instruction.
 
   - id: S0-SPATIAL
     priority: 121

@@ -1,0 +1,12 @@
+{
+  "contractVersion": "1.0.0",
+  "assertionContractVersion": "1.0.0",
+  "canonicalizationVersion": "ps-c14n-json-1",
+  "sourceFacts": [],
+  "instruments": [],
+  "versions": [],
+  "events": [],
+  "equivalenceAssertions": [],
+  "relationshipAssertions": [],
+  "bundleDigest": "08ae8b0e74491f2e1a3eb90a8c7da15e19e271308f80e8200990617f45fbc36a"
+}

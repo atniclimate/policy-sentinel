@@ -11,6 +11,8 @@ const readJson = async (path) =>
 const taxonomySchema = await readJson("schemas/taxonomy.schema.v1.json");
 const recordSchema = await readJson("schemas/record.schema.v1.json");
 const sourceSchema = await readJson("schemas/source.schema.v1.json");
+const assertionSchema = await readJson("schemas/assertion.schema.v1.json");
+const lifecycleSchema = await readJson("schemas/lifecycle.schema.v1.json");
 const taxonomy = await readJson("config/taxonomy.v1.json");
 const sourceRegistry = await readJson("config/sources.v1.json");
 
@@ -25,6 +27,8 @@ for (const [name, schema] of [
   ["taxonomy schema", taxonomySchema],
   ["record schema", recordSchema],
   ["source schema", sourceSchema],
+  ["assertion schema", assertionSchema],
+  ["lifecycle schema", lifecycleSchema],
 ]) {
   if (!ajv.validateSchema(schema)) {
     throw new Error(
@@ -34,6 +38,20 @@ for (const [name, schema] of [
       )}`,
     );
   }
+}
+
+ajv.addSchema(assertionSchema);
+const validateLifecycleBundle = ajv.compile(lifecycleSchema);
+const emptyLifecycleFixture = await readJson(
+  "fixtures/lifecycle/empty.synthetic.valid.json",
+);
+if (!validateLifecycleBundle(emptyLifecycleFixture)) {
+  throw new Error(
+    `empty synthetic lifecycle fixture is invalid:\n${ajv.errorsText(
+      validateLifecycleBundle.errors,
+      { separator: "\n" },
+    )}`,
+  );
 }
 
 const validateTaxonomy = ajv.compile(taxonomySchema);
@@ -296,7 +314,7 @@ if (!historicalPolicyRejected) {
 negativePolicyChecks += 1;
 
 console.log(
-  `Foundation validation passed: 3 schemas, ${taxonomy.categories.length} categories, ` +
+  `Foundation validation passed: 5 schemas, ${taxonomy.categories.length} categories, ` +
     `${taxonomy.categories.reduce((count, category) => count + category.subcategories.length, 0)} subcategories, ` +
     `${fixtureNames.length} valid fixtures, and ${negativePolicyChecks} negative policy checks.`,
 );

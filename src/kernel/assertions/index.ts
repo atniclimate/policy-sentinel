@@ -1,0 +1,77 @@
+export {
+  CANONICALIZATION_VERSION,
+  assertJsonValue,
+  assertSortedUniqueStrings,
+  canonicalJsonDigest,
+  canonicalizeJson,
+  immutableCanonicalClone,
+  sha256Hex,
+  type DeepReadonly,
+  type JsonPrimitive,
+  type JsonValue,
+} from "./canonical-json";
+
+export {
+  ASSERTION_CONTRACT_VERSION,
+  SHA256_HEX_PATTERN,
+  createEventId,
+  createFactId,
+  createInstrumentId,
+  createVersionId,
+  validateSha256Hex,
+  validateSourceProvenance,
+  validateSourceQualifiedIdentity,
+  type SourceProvenance,
+  type SourceQualifiedIdentity,
+} from "./identity";
+
+export {
+  IntegrityReplayError,
+  isIntegrityReplayError,
+  type IntegrityReplayFailure,
+} from "./integrity";
+
+export {
+  SOURCE_FACT_PREDICATE_KINDS,
+  createSourceFact,
+  validateDerivedAssertion,
+  validateEvidenceReferences,
+  validateEvidenceState,
+  validateFactReference,
+  validateFactReferences,
+  validateSourceFact,
+  validateTemporalAssertion,
+  type AmbiguousEvidence,
+  type ConflictingEvidence,
+  type DerivedAssertion,
+  type EvidenceState,
+  type FactReference,
+  type IdentifierFactValue,
+  type InsufficientEvidence,
+  type Sha256DigestFactValue,
+  type SourceFact,
+  type SourceFactInput,
+  type SourceFactPredicate,
+  type SourceFactValue,
+  type SupportedEvidence,
+  type SupportedTemporalAssertion,
+  type TemporalAssertion,
+  type TextFactValue,
+  type UnknownEvidence,
+  type UnsupportedTemporalAssertion,
+} from "./contracts";
+
+export {
+  compareTemporalOrder,
+  compareTemporalPoints,
+  isIsoDate,
+  isRfc3339DateTime,
+  validateTemporalValue,
+  type DatePoint,
+  type DateTimePoint,
+  type TemporalEndpoint,
+  type TemporalInterval,
+  type TemporalOrder,
+  type TemporalPoint,
+  type TemporalValue,
+} from "./temporal";

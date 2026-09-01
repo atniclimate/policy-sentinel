@@ -21,7 +21,7 @@ The K0 contract versions are:
 - assertion primitives: `1.0.0`;
 - lifecycle bundle: `1.0.0`;
 - canonical JSON and digest algorithm: `ps-c14n-json-1`;
-- compatibility projection: `policy-record-1.4-from-k0-1.0.0`.
+- compatibility projection: `policy-record-1.4-from-k0-1.0.1`.
 
 These versions are independent of the existing record, artifact, taxonomy, and
 source-registry versions.
@@ -47,7 +47,9 @@ constant invariant.
 `SourceProvenance` contains only:
 
 - exact source identity and source record identity;
-- exact HTTPS source URL and source path/locator;
+- exact lowercase, credential-free HTTPS source URL whose raw lexical form
+  satisfies the same full URI format as the schema, and exact source
+  path/locator;
 - retrieval time and nullable source-updated time;
 - adapter ID and version;
 - SHA-256 source-content digest;
@@ -84,8 +86,11 @@ resolution/type fields.
 - `effectiveTime`;
 - `validTime`.
 
-A supported value is an exact ISO date, exact RFC 3339 date-time with mandatory
-offset, or an interval. An interval has nullable `start` and `end`; each present
+A supported value is an exact ISO date, a canonical RFC 3339 profile date-time
+with mandatory known offset, or an interval. The profile requires uppercase
+`T` and `Z`, ordinary seconds `00` through `59`, and rejects the RFC 3339
+unknown-offset form `-00:00`; input is rejected rather than normalized. An
+interval has nullable `start` and `end`; each present
 endpoint contains one exact date or date-time plus `inclusive: true|false`.
 Both bounds cannot be null. Start must precede end under the rules below; equal
 bounds are valid only when both are inclusive. Date precision is never
@@ -112,13 +117,22 @@ other candidate. Otherwise projection refuses.
 
 Array position is never event order. Chronology may be derived only when exact
 temporal ranges do not overlap. Overlapping precision windows, open intervals,
-or missing values remain concurrent or indeterminate.
+or missing values remain concurrent or indeterminate. Stable event ID may break
+an equal-time tie only when every modeled semantic facet other than event
+identity is canonically equal, including actor, source status, all four time
+dimensions, the selected exact event-label fact, and evidence. Event identifier
+fact identity is the event identity exception and is not a semantic tie facet.
 
 ### Deterministic derivation
 
 `DerivedAssertion` records its assertion ID and class, ordered and unique input
 fact IDs and digests, rule ID and version, canonicalization version, result
-digest, evidence state, and validation state. It cannot claim source custody.
+digest, evidence state, and validation state. Every evidence reference must be
+an exact ID/digest-aligned input, and every input fact ID must independently
+satisfy the exact fact-ID grammar. Inputs may additionally include exact facts
+used by the deterministic assertion but not claimed as evidence; this is
+required when an `unknown` assertion binds a source-supplied label while its
+evidence union correctly remains empty. It cannot claim source custody.
 
 ## Lifecycle contracts
 
@@ -228,6 +242,9 @@ Resolution/evidence combinations are closed: `reviewed_equivalent` and
 `reviewed_not_equivalent` require `supported`; `possible_equivalent` requires
 `ambiguous_evidence`; and `unknown` requires shared evidence state `unknown`.
 Every other cross-product is invalid.
+The exact `equivalence_label` fact is always an aligned derived input and is
+also evidence for every non-`unknown` resolution. An `unknown` resolution keeps
+zero evidence references and does not convert its label into support.
 
 ### `RelationshipAssertion`
 
@@ -250,6 +267,10 @@ Binary endpoints must differ as fully qualified instrument/version references.
 Withdrawal and stay do not invent another instrument, actor, inverse edge,
 duration, current state, or legal consequence. A source label and its evidence
 remain separate from endpoint semantics.
+The exact `relationship_label` fact is always an aligned derived input and is
+also evidence for every non-`unknown` relationship assertion. An `unknown`
+relationship keeps zero evidence references and cannot treat its label as
+support.
 
 ## Canonicalization and immutable replay
 
@@ -276,14 +297,27 @@ digests without making event array order meaningful.
 The projection result is a closed union:
 
 - `projected`: contains projection version, target record version, `lossy:
-  true`, exact input bundle/instrument/base-record/output-record digests, sorted
-  per-item loss entries, sorted changed-pointer receipts, and one cloned
+  true`, exact input bundle/instrument/base-record/validation-context/output-record
+  digests, sorted
+  per-item loss entries, sorted pointer-replacement receipts, and one cloned
   `PolicyRecord 1.4`; or
 - `refused`: contains the same version and input identity plus sorted unique
   reason codes and blocking assertion IDs, and no `record` property.
 
 The caller supplies an already valid base `PolicyRecord 1.4`, one exact K0
-instrument ID, and a frozen source-specific `PolicyRecord14ProjectionPolicy`.
+instrument ID, a frozen source-specific `PolicyRecord14ProjectionPolicy`, and
+owner-selected data context containing the source registry, taxonomy, and an
+optional complete Nation collection. It cannot supply executable validation
+logic. The policy binds the exact canonical context digest, the result repeats
+that digest, and the repository-owned validator additionally requires the
+digest to appear in its repository authorization allowlist. Schema-valid
+caller data and a caller-recomputed policy digest cannot authorize a new source
+host or substitute another context. K0's current allowlist contains only the
+committed source registry and taxonomy with a null Nation collection; a future
+Nation-bearing context requires a separately reviewed repository authorization
+without changing Nation validation rules. The validator schema-validates and
+semantically checks the context, derives the source configuration from the
+registry, and runs the unchanged PolicyRecord validators on isolated clones.
 The source ID and source record ID must match. The projection does not search
 equivalence assertions, select another source identity, or accept a merged
 identity.
@@ -311,9 +345,10 @@ uncertainty, missing evidence, or insufficient evidence never maps to
 
 Publication may populate `dates.published` and history without becoming a
 status. Introduction and effective events may populate their matching date
-fields only from their matching supported temporal dimensions. Every projected
-value receives provenance derived from the exact source fact and projection
-rule. Existing Nation associations, jurisdiction, issuing bodies, relevance,
+fields only from their matching supported temporal dimensions. Every non-null
+projected value receives provenance derived from the exact source fact and
+projection rule. A null omission receives no output provenance. Existing Nation
+associations, jurisdiction, issuing bodies, relevance,
 taxonomy, landmark state, texts, source identity, and URLs remain
 byte-equivalent to the base record.
 
@@ -345,15 +380,26 @@ The only mutable `PolicyRecord 1.4` pointers are:
 Those lifecycle pointers are deterministically replaced, not merged.
 Projection first removes every provenance entry at or below each rebuilt root
 (`/actionHistory` and `/statusHistory`) and at each replaced scalar pointer.
-It then writes exactly one entry for every primitive output leaf from the exact
-same-source fact and projection rule. It copies `sourceUpdatedAt` only when the
+It then writes exactly one entry for every non-null primitive output leaf from
+the exact same-source fact and projection rule. It copies `sourceUpdatedAt` only when the
 fact provenance supplies it and otherwise writes null; it never derives that
 value from another date. Provenance for a removed leaf cannot survive, and
 duplicate or stale provenance cannot remain. Every other subtree is
 canonical-byte-equal to the validated base.
 
-Each changed-pointer receipt is
-`{ pointer, baseValueDigest, outputValueDigest, factIds, ruleId, ruleVersion }`.
+Each pointer-replacement receipt is
+`{ pointer, baseValueDigest, outputValueDigest, baseProvenanceDigest,
+outputProvenanceDigest, assertionReferences, inputFactIds, provenanceFactIds,
+ruleId, ruleVersion }`. An assertion reference names the exact assertion ID and
+relative source pointer used by that replacement. Input facts were considered
+by the replacement or omission decision; provenance facts are the sorted subset
+actually cited by output provenance. When multiple exact same-value facts
+support one scalar but PolicyRecord 1.4 can emit only one provenance entry, the
+lexicographically first exact fact ID supplies that entry; every fact remains a
+decision input, while only the emitted fact is named in `provenanceFactIds`.
+Equal base/output value digests are valid
+when a deterministic replacement refreshes provenance, whose separate digests
+make that operation explicit. A null omission has no provenance fact IDs.
 The envelope separately records canonical base and output record digests.
 Existing `sourceDocumentRelationships` must be empty; otherwise this
 one-record version refuses with
@@ -386,9 +432,11 @@ The projection refuses when:
 - the projected record fails the existing JSON Schema or semantic policy.
 
 Correction, amendment, withdrawal, stay, substitution, and supersession remain
-represented in K0. They never set normalized status. Projection `1.0.0`
-refuses for every `RelationshipAssertion` touching the selected instrument,
-including supported same-source assertions; it never silently omits one. A
+represented in K0. They never set normalized status. Projection `1.0.1`
+refuses for every `RelationshipAssertion` anywhere in the supplied bundle,
+including supported same-source assertions unrelated to the selected
+instrument; it never silently omits one. Cross-source classification compares
+the relationship's own endpoint source IDs. A
 future version may project a same-source definite relationship only if the
 complete reciprocal record set is supplied and passes the unchanged 1.4
 relationship validator; it may never synthesize an inverse edge.
@@ -401,6 +449,8 @@ K0 implementation is limited to:
 - `schemas/lifecycle.schema.v1.json`;
 - `src/kernel/assertions/*`;
 - `src/kernel/lifecycle/*`;
+- the declaration-only TypeScript surface for the existing local
+  `src/pipeline/source-registry.mjs` semantic validator;
 - `fixtures/lifecycle/*`;
 - `tests/kernel/assertions/*` and `tests/kernel/lifecycle/*`;
 - foundation validation and binding documentation needed to register those
@@ -431,12 +481,16 @@ required.
   eligibility, and impact overclaims.
 
 Every projected omission is one sorted entry
-`{ assertionId, targetPointer: string | null, lossCode }`; `targetPointer` is
-null when PolicyRecord 1.4 has no corresponding field. Every lifecycle
-assertion and every unused fact is either represented by a changed-pointer
-receipt or named by a loss entry; there is no catch-all loss. Relationship
+`{ assertionId, sourcePointer, targetPointer: string | null, lossCode }`;
+`sourcePointer` is the exact relative RFC 6901 pointer, with the empty string
+reserved for a whole-object omission, and `targetPointer` is null when
+PolicyRecord 1.4 has no corresponding field. The four event temporal dimensions
+are accounted separately and cannot collapse under one generic event loss.
+Every lifecycle assertion and every unused fact is either represented by a
+pointer-replacement receipt or named by a loss entry; there is no catch-all
+loss. Relationship
 assertions never appear in this list because they always refuse projection
-`1.0.0`. The exhaustive loss-code vocabulary is:
+`1.0.1`. The exhaustive loss-code vocabulary is:
 
 - `source_fact_not_projected`;
 - `instrument_metadata_not_projected`;
@@ -444,10 +498,17 @@ assertions never appear in this list because they always refuse projection
 - `equivalence_not_projected`;
 - `actor_not_projected`;
 - `non_status_event_not_projected_to_status`;
+- `source_status_not_projected`;
 - `temporal_precision_not_projected`;
 - `temporal_interval_not_projected`;
-- `event_time_not_projected`;
+- `temporal_assertion_not_projected`;
 - `history_order_not_projected`.
+
+For an event with no `sourceStatus` property,
+`non_status_event_not_projected_to_status` points to the present `/eventType`
+facet, never to the absent `/sourceStatus` property. A present but unreceipted
+source-status observation uses exact `/sourceStatus` with
+`source_status_not_projected`.
 
 Refusal returns all applicable sorted unique codes and all directly blocking
 assertion IDs. The exhaustive refusal-code vocabulary and mapping is:
@@ -470,7 +531,7 @@ assertion IDs. The exhaustive refusal-code vocabulary and mapping is:
 | exact source label has no exact policy mapping | `missing_status_mapping` |
 | latest source-status observations overlap or tie incompatibly | `concurrent_unrepresentable_state` |
 | multiple versions cannot be represented without selecting one | `version_cardinality_unrepresentable` |
-| a cross-source relationship touches the instrument | `cross_source_relationship_unrepresentable` |
+| a relationship's own endpoints span source IDs | `cross_source_relationship_unrepresentable` |
 | a relationship is unknown, insufficient, ambiguous, or conflicting | `uncertain_relationship_unrepresentable` |
 | a relationship cannot be represented by the one-record target | `relationship_unrepresentable_in_one_record` |
 | a pointer outside the mutable allowlist differs | `protected_field_mutation_detected` |

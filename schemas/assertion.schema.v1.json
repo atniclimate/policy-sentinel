@@ -1,0 +1,712 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json",
+  "title": "Policy Sentinel shared assertion primitives",
+  "description": "Versioned source-fact, evidence, provenance, temporal, and deterministic-assertion primitives. Validation establishes contract fit, not legal effect, relevance, identity equivalence, or source truth.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/sourceFact"
+    },
+    {
+      "$ref": "#/$defs/derivedAssertion"
+    }
+  ],
+  "$defs": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "semanticVersion": {
+      "type": "string",
+      "pattern": "^(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "httpsUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://(?![^/?#]*@)"
+    },
+    "exactText": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?!.*\\s$)[^\\u0000-\\u001F\\u007F]+$"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?!.*-00:00$)\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\\d|3[01])T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|[+-](?:[01]\\d|2[0-3]):[0-5]\\d)$"
+    },
+    "sourceQualifiedIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceId", "sourceRecordId"],
+      "properties": {
+        "sourceId": {
+          "$ref": "#/$defs/slug"
+        },
+        "sourceRecordId": {
+          "$ref": "#/$defs/exactText"
+        }
+      }
+    },
+    "sourceProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceIdentity",
+        "sourceUrl",
+        "sourcePath",
+        "retrievedAt",
+        "sourceUpdatedAt",
+        "adapterId",
+        "adapterVersion",
+        "sourceContentDigest",
+        "validationState"
+      ],
+      "properties": {
+        "sourceIdentity": {
+          "$ref": "#/$defs/sourceQualifiedIdentity"
+        },
+        "sourceUrl": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "sourcePath": {
+          "$ref": "#/$defs/exactText"
+        },
+        "retrievedAt": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "sourceUpdatedAt": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "adapterId": {
+          "$ref": "#/$defs/slug"
+        },
+        "adapterVersion": {
+          "$ref": "#/$defs/semanticVersion"
+        },
+        "sourceContentDigest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "validationState": {
+          "const": "validated"
+        }
+      }
+    },
+    "factId": {
+      "type": "string",
+      "pattern": "^k0:fact:[a-z0-9]+(?:-[a-z0-9]+)*:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+:[a-z_]+:[a-f0-9]{64}$"
+    },
+    "factReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["factId", "factDigest"],
+      "properties": {
+        "factId": {
+          "$ref": "#/$defs/factId"
+        },
+        "factDigest": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "supportedEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "factReferences"],
+      "properties": {
+        "state": {
+          "const": "supported"
+        },
+        "factReferences": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/factReference"
+          }
+        }
+      }
+    },
+    "unknownEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reason", "factReferences"],
+      "properties": {
+        "state": {
+          "const": "unknown"
+        },
+        "reason": {
+          "enum": ["not_supplied", "not_observed"]
+        },
+        "factReferences": {
+          "type": "array",
+          "maxItems": 0
+        }
+      }
+    },
+    "insufficientEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "factReferences"],
+      "properties": {
+        "state": {
+          "const": "insufficient_evidence"
+        },
+        "factReferences": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/factReference"
+          }
+        }
+      }
+    },
+    "ambiguousEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "factReferences"],
+      "properties": {
+        "state": {
+          "const": "ambiguous_evidence"
+        },
+        "factReferences": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/factReference"
+          }
+        }
+      }
+    },
+    "conflictingEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "factReferences"],
+      "properties": {
+        "state": {
+          "const": "conflicting_evidence"
+        },
+        "factReferences": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/factReference"
+          }
+        }
+      }
+    },
+    "evidence": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/supportedEvidence"
+        },
+        {
+          "$ref": "#/$defs/unknownEvidence"
+        },
+        {
+          "$ref": "#/$defs/insufficientEvidence"
+        },
+        {
+          "$ref": "#/$defs/ambiguousEvidence"
+        },
+        {
+          "$ref": "#/$defs/conflictingEvidence"
+        }
+      ]
+    },
+    "dateValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": {
+          "const": "date"
+        },
+        "value": {
+          "$ref": "#/$defs/date"
+        }
+      }
+    },
+    "dateTimeValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": {
+          "const": "date_time"
+        },
+        "value": {
+          "$ref": "#/$defs/dateTime"
+        }
+      }
+    },
+    "dateEndpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value", "inclusive"],
+      "properties": {
+        "kind": {
+          "const": "date"
+        },
+        "value": {
+          "$ref": "#/$defs/date"
+        },
+        "inclusive": {
+          "type": "boolean"
+        }
+      }
+    },
+    "dateTimeEndpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value", "inclusive"],
+      "properties": {
+        "kind": {
+          "const": "date_time"
+        },
+        "value": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "inclusive": {
+          "type": "boolean"
+        }
+      }
+    },
+    "temporalEndpoint": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/dateEndpoint"
+        },
+        {
+          "$ref": "#/$defs/dateTimeEndpoint"
+        }
+      ]
+    },
+    "intervalValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "start", "end"],
+      "properties": {
+        "kind": {
+          "const": "interval"
+        },
+        "start": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/temporalEndpoint"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "end": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/temporalEndpoint"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "not": {
+        "properties": {
+          "start": {
+            "type": "null"
+          },
+          "end": {
+            "type": "null"
+          }
+        },
+        "required": ["start", "end"]
+      }
+    },
+    "textValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": {
+          "const": "text"
+        },
+        "value": {
+          "$ref": "#/$defs/exactText"
+        }
+      }
+    },
+    "identifierValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": {
+          "const": "identifier"
+        },
+        "value": {
+          "$ref": "#/$defs/exactText"
+        }
+      }
+    },
+    "sha256DigestValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": {
+          "const": "sha256_digest"
+        },
+        "value": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "typedValue": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/textValue"
+        },
+        {
+          "$ref": "#/$defs/identifierValue"
+        },
+        {
+          "$ref": "#/$defs/dateValue"
+        },
+        {
+          "$ref": "#/$defs/dateTimeValue"
+        },
+        {
+          "$ref": "#/$defs/intervalValue"
+        },
+        {
+          "$ref": "#/$defs/sha256DigestValue"
+        }
+      ]
+    },
+    "temporalValue": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/dateValue"
+        },
+        {
+          "$ref": "#/$defs/dateTimeValue"
+        },
+        {
+          "$ref": "#/$defs/intervalValue"
+        }
+      ]
+    },
+    "pointTemporalValue": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/dateValue"
+        },
+        {
+          "$ref": "#/$defs/dateTimeValue"
+        }
+      ]
+    },
+    "supportedTemporalAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence", "value"],
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/supportedEvidence"
+        },
+        "value": {
+          "$ref": "#/$defs/temporalValue"
+        }
+      }
+    },
+    "unsupportedTemporalAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence"],
+      "properties": {
+        "evidence": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/unknownEvidence"
+            },
+            {
+              "$ref": "#/$defs/insufficientEvidence"
+            },
+            {
+              "$ref": "#/$defs/ambiguousEvidence"
+            },
+            {
+              "$ref": "#/$defs/conflictingEvidence"
+            }
+          ]
+        }
+      }
+    },
+    "temporalAssertion": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/supportedTemporalAssertion"
+        },
+        {
+          "$ref": "#/$defs/unsupportedTemporalAssertion"
+        }
+      ]
+    },
+    "supportedPointTemporalAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence", "value"],
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/supportedEvidence"
+        },
+        "value": {
+          "$ref": "#/$defs/pointTemporalValue"
+        }
+      }
+    },
+    "sourceFact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "factId",
+        "assertionClass",
+        "sourceIdentity",
+        "predicate",
+        "value",
+        "provenance",
+        "factDigest"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1.0.0"
+        },
+        "factId": {
+          "$ref": "#/$defs/factId"
+        },
+        "assertionClass": {
+          "const": "source_fact"
+        },
+        "sourceIdentity": {
+          "$ref": "#/$defs/sourceQualifiedIdentity"
+        },
+        "predicate": {
+          "enum": [
+            "instrument_identifier",
+            "instrument_title",
+            "rendition_identifier",
+            "rendition_digest",
+            "event_identifier",
+            "event_label",
+            "actor_label",
+            "source_status_label",
+            "observed_time",
+            "published_time",
+            "effective_time",
+            "valid_time",
+            "status_as_of",
+            "relationship_label",
+            "equivalence_label"
+          ]
+        },
+        "value": {
+          "$ref": "#/$defs/typedValue"
+        },
+        "provenance": {
+          "$ref": "#/$defs/sourceProvenance"
+        },
+        "factDigest": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "predicate": {
+                "enum": [
+                  "instrument_identifier",
+                  "rendition_identifier",
+                  "event_identifier"
+                ]
+              }
+            },
+            "required": ["predicate"]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "$ref": "#/$defs/identifierValue"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "predicate": {
+                "enum": [
+                  "instrument_title",
+                  "event_label",
+                  "actor_label",
+                  "source_status_label",
+                  "relationship_label",
+                  "equivalence_label"
+                ]
+              }
+            },
+            "required": ["predicate"]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "$ref": "#/$defs/textValue"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "predicate": {
+                "const": "rendition_digest"
+              }
+            },
+            "required": ["predicate"]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "$ref": "#/$defs/sha256DigestValue"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "predicate": {
+                "enum": [
+                  "observed_time",
+                  "published_time",
+                  "effective_time",
+                  "valid_time"
+                ]
+              }
+            },
+            "required": ["predicate"]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "$ref": "#/$defs/temporalValue"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "predicate": {
+                "const": "status_as_of"
+              }
+            },
+            "required": ["predicate"]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "$ref": "#/$defs/pointTemporalValue"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "derivedAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "assertionId",
+        "assertionClass",
+        "inputFactIds",
+        "inputFactDigests",
+        "ruleId",
+        "ruleVersion",
+        "canonicalizationVersion",
+        "resultDigest",
+        "evidence",
+        "validationState"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1.0.0"
+        },
+        "assertionId": {
+          "type": "string",
+          "pattern": "^k0:[a-z][a-z0-9_]*:[A-Za-z0-9._~:-]+$"
+        },
+        "assertionClass": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "not": {
+            "const": "source_fact"
+          }
+        },
+        "inputFactIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/factId"
+          }
+        },
+        "inputFactDigests": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/sha256"
+          }
+        },
+        "ruleId": {
+          "$ref": "#/$defs/slug"
+        },
+        "ruleVersion": {
+          "$ref": "#/$defs/semanticVersion"
+        },
+        "canonicalizationVersion": {
+          "const": "ps-c14n-json-1"
+        },
+        "resultDigest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "validationState": {
+          "const": "validated"
+        }
+      }
+    }
+  }
+}

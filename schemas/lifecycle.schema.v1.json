@@ -1,0 +1,627 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/lifecycle.schema.v1.json",
+  "title": "Policy Sentinel K0 lifecycle bundle",
+  "description": "Additive, source-qualified lifecycle evidence. This contract does not determine legal effect, relevance, jurisdiction, Nation association, rights, interest, eligibility, or impact.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contractVersion",
+    "assertionContractVersion",
+    "canonicalizationVersion",
+    "sourceFacts",
+    "instruments",
+    "versions",
+    "events",
+    "equivalenceAssertions",
+    "relationshipAssertions",
+    "bundleDigest"
+  ],
+  "properties": {
+    "contractVersion": {
+      "const": "1.0.0"
+    },
+    "assertionContractVersion": {
+      "const": "1.0.0"
+    },
+    "canonicalizationVersion": {
+      "const": "ps-c14n-json-1"
+    },
+    "sourceFacts": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sourceFact"
+      }
+    },
+    "instruments": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/policyInstrument"
+      }
+    },
+    "versions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/instrumentVersion"
+      }
+    },
+    "events": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/lifecycleEvent"
+      }
+    },
+    "equivalenceAssertions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/equivalenceAssertion"
+      }
+    },
+    "relationshipAssertions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/relationshipAssertion"
+      }
+    },
+    "bundleDigest": {
+      "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sha256"
+    }
+  },
+  "$defs": {
+    "instrumentId": {
+      "type": "string",
+      "pattern": "^k0:instrument:[a-z0-9]+(?:-[a-z0-9]+)*:[A-Za-z0-9_-]+$"
+    },
+    "versionId": {
+      "type": "string",
+      "pattern": "^k0:version:[a-z0-9]+(?:-[a-z0-9]+)*:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+:[a-f0-9]{64}$"
+    },
+    "eventId": {
+      "type": "string",
+      "pattern": "^k0:event:[a-z0-9]+(?:-[a-z0-9]+)*:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+$"
+    },
+    "equivalenceAssertionId": {
+      "type": "string",
+      "pattern": "^k0:equivalence:[a-f0-9]{64}$"
+    },
+    "relationshipAssertionId": {
+      "type": "string",
+      "pattern": "^k0:relationship:[a-f0-9]{64}$"
+    },
+    "identityRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ruleId", "ruleVersion"],
+      "properties": {
+        "ruleId": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/slug"
+        },
+        "ruleVersion": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/semanticVersion"
+        }
+      }
+    },
+    "instrumentReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entityType", "instrumentId", "sourceIdentity"],
+      "properties": {
+        "entityType": {
+          "const": "instrument"
+        },
+        "instrumentId": {
+          "$ref": "#/$defs/instrumentId"
+        },
+        "sourceIdentity": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sourceQualifiedIdentity"
+        }
+      }
+    },
+    "versionReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entityType", "instrumentId", "versionId", "sourceIdentity"],
+      "properties": {
+        "entityType": {
+          "const": "instrument_version"
+        },
+        "instrumentId": {
+          "$ref": "#/$defs/instrumentId"
+        },
+        "versionId": {
+          "$ref": "#/$defs/versionId"
+        },
+        "sourceIdentity": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sourceQualifiedIdentity"
+        }
+      }
+    },
+    "entityReference": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/instrumentReference"
+        },
+        {
+          "$ref": "#/$defs/versionReference"
+        }
+      ]
+    },
+    "policyInstrument": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "instrumentId",
+        "sourceIdentity",
+        "sourceIdentifierFactId",
+        "identityRule",
+        "evidence",
+        "automaticCrossSourceMerge"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1.0.0"
+        },
+        "instrumentId": {
+          "$ref": "#/$defs/instrumentId"
+        },
+        "sourceIdentity": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sourceQualifiedIdentity"
+        },
+        "sourceIdentifierFactId": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/factId"
+        },
+        "titleFactId": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/factId"
+        },
+        "identityRule": {
+          "$ref": "#/$defs/identityRule"
+        },
+        "evidence": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/supportedEvidence"
+        },
+        "automaticCrossSourceMerge": {
+          "const": false
+        }
+      }
+    },
+    "instrumentVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "versionId",
+        "instrumentId",
+        "sourceIdentity",
+        "renditionIdentifierFactId",
+        "renditionDigestFactId",
+        "reproductionBasis",
+        "observedTime",
+        "publishedTime",
+        "effectiveTime",
+        "validTime",
+        "evidence"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1.0.0"
+        },
+        "versionId": {
+          "$ref": "#/$defs/versionId"
+        },
+        "instrumentId": {
+          "$ref": "#/$defs/instrumentId"
+        },
+        "sourceIdentity": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sourceQualifiedIdentity"
+        },
+        "renditionIdentifierFactId": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/factId"
+        },
+        "renditionDigestFactId": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/factId"
+        },
+        "reproductionBasis": {
+          "enum": [
+            "metadata_and_links",
+            "reviewed_excerpt",
+            "reviewed_full_text"
+          ]
+        },
+        "observedTime": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/temporalAssertion"
+        },
+        "publishedTime": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/temporalAssertion"
+        },
+        "effectiveTime": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/temporalAssertion"
+        },
+        "validTime": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/temporalAssertion"
+        },
+        "evidence": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/supportedEvidence"
+        }
+      }
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actorLabelFactId", "evidence"],
+      "properties": {
+        "actorLabelFactId": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/factId"
+        },
+        "evidence": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/supportedEvidence"
+        }
+      }
+    },
+    "sourceStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["statusLabelFactId", "statusAsOf", "evidence"],
+      "properties": {
+        "statusLabelFactId": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/factId"
+        },
+        "statusAsOf": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/supportedPointTemporalAssertion"
+        },
+        "evidence": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/evidence"
+        }
+      }
+    },
+    "lifecycleEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "eventId",
+        "instrumentId",
+        "sourceIdentity",
+        "eventIdentifierFactId",
+        "eventType",
+        "eventLabelFactId",
+        "evidence",
+        "observedTime",
+        "publishedTime",
+        "effectiveTime",
+        "validTime"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1.0.0"
+        },
+        "eventId": {
+          "$ref": "#/$defs/eventId"
+        },
+        "instrumentId": {
+          "$ref": "#/$defs/instrumentId"
+        },
+        "versionId": {
+          "$ref": "#/$defs/versionId"
+        },
+        "sourceIdentity": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sourceQualifiedIdentity"
+        },
+        "eventIdentifierFactId": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/factId"
+        },
+        "eventType": {
+          "enum": [
+            "introduction",
+            "hearing",
+            "committee_referral",
+            "amendment",
+            "adoption",
+            "signature",
+            "publication",
+            "enactment",
+            "effective_date",
+            "correction",
+            "withdrawal",
+            "stay",
+            "substitution",
+            "supersession",
+            "decision",
+            "status_observation",
+            "other"
+          ]
+        },
+        "eventLabelFactId": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/factId"
+        },
+        "evidence": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/evidence"
+        },
+        "observedTime": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/temporalAssertion"
+        },
+        "publishedTime": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/temporalAssertion"
+        },
+        "effectiveTime": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/temporalAssertion"
+        },
+        "validTime": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/temporalAssertion"
+        },
+        "actor": {
+          "$ref": "#/$defs/actor"
+        },
+        "sourceStatus": {
+          "$ref": "#/$defs/sourceStatus"
+        }
+      }
+    },
+    "equivalenceAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "assertionId",
+        "assertionClass",
+        "inputFactIds",
+        "inputFactDigests",
+        "ruleId",
+        "ruleVersion",
+        "canonicalizationVersion",
+        "resultDigest",
+        "evidence",
+        "validationState",
+        "left",
+        "right",
+        "equivalenceLabelFactId",
+        "resolution",
+        "automaticCrossSourceMerge"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1.0.0"
+        },
+        "assertionId": {
+          "$ref": "#/$defs/equivalenceAssertionId"
+        },
+        "assertionClass": {
+          "const": "equivalence_assertion"
+        },
+        "inputFactIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/factId"
+          }
+        },
+        "inputFactDigests": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sha256"
+          }
+        },
+        "ruleId": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/slug"
+        },
+        "ruleVersion": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/semanticVersion"
+        },
+        "canonicalizationVersion": {
+          "const": "ps-c14n-json-1"
+        },
+        "resultDigest": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sha256"
+        },
+        "evidence": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/evidence"
+        },
+        "validationState": {
+          "const": "validated"
+        },
+        "left": {
+          "$ref": "#/$defs/instrumentReference"
+        },
+        "right": {
+          "$ref": "#/$defs/instrumentReference"
+        },
+        "equivalenceLabelFactId": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/factId"
+        },
+        "resolution": {
+          "enum": [
+            "reviewed_equivalent",
+            "reviewed_not_equivalent",
+            "possible_equivalent",
+            "unknown"
+          ]
+        },
+        "automaticCrossSourceMerge": {
+          "const": false
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "resolution": {
+                "enum": ["reviewed_equivalent", "reviewed_not_equivalent"]
+              }
+            },
+            "required": ["resolution"]
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/supportedEvidence"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "resolution": {
+                "const": "possible_equivalent"
+              }
+            },
+            "required": ["resolution"]
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/ambiguousEvidence"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "resolution": {
+                "const": "unknown"
+              }
+            },
+            "required": ["resolution"]
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/unknownEvidence"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "relationshipAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "assertionId",
+        "assertionClass",
+        "inputFactIds",
+        "inputFactDigests",
+        "ruleId",
+        "ruleVersion",
+        "canonicalizationVersion",
+        "resultDigest",
+        "evidence",
+        "validationState",
+        "relationshipType",
+        "affected",
+        "relationshipLabelFactId"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "1.0.0"
+        },
+        "assertionId": {
+          "$ref": "#/$defs/relationshipAssertionId"
+        },
+        "assertionClass": {
+          "const": "relationship_assertion"
+        },
+        "inputFactIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/factId"
+          }
+        },
+        "inputFactDigests": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sha256"
+          }
+        },
+        "ruleId": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/slug"
+        },
+        "ruleVersion": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/semanticVersion"
+        },
+        "canonicalizationVersion": {
+          "const": "ps-c14n-json-1"
+        },
+        "resultDigest": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/sha256"
+        },
+        "evidence": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/evidence"
+        },
+        "validationState": {
+          "const": "validated"
+        },
+        "relationshipType": {
+          "enum": [
+            "correction",
+            "amendment",
+            "withdrawal",
+            "stay",
+            "substitution",
+            "supersession"
+          ]
+        },
+        "subject": {
+          "$ref": "#/$defs/entityReference"
+        },
+        "affected": {
+          "$ref": "#/$defs/entityReference"
+        },
+        "relationshipLabelFactId": {
+          "$ref": "https://policy-sentinel.invalid/schemas/assertion.schema.v1.json#/$defs/factId"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "relationshipType": {
+                "enum": [
+                  "correction",
+                  "amendment",
+                  "substitution",
+                  "supersession"
+                ]
+              }
+            },
+            "required": ["relationshipType"]
+          },
+          "then": {
+            "properties": {
+              "subject": {
+                "$ref": "#/$defs/entityReference"
+              }
+            },
+            "required": ["subject"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "relationshipType": {
+                "enum": ["withdrawal", "stay"]
+              }
+            },
+            "required": ["relationshipType"]
+          },
+          "then": {
+            "properties": {
+              "subject": false
+            }
+          }
+        }
+      ]
+    }
+  }
+}
