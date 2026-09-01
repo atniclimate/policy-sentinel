@@ -17,6 +17,7 @@ export function validateRecordPolicy(
   options: {
     sourceConfig: SourceConfig;
     taxonomy: TaxonomyConfig;
+    knownNations?: ReadonlyMap<string, Nation> | null;
     knownNationIds?: ReadonlySet<string> | null;
   },
 ): PolicyRecord;

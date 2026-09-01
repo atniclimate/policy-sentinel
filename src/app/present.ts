@@ -30,6 +30,15 @@ export const updatedDate = (
       value: record.judicialContext.decisionDate,
     };
   }
+  if (record.accordContext) {
+    return {
+      label:
+        record.accordContext.executionEvent.role === "executed"
+          ? "Executed"
+          : "Signed",
+      value: record.accordContext.executionEvent.date,
+    };
+  }
   if (record.dates.updated) {
     return { label: "Source updated", value: record.dates.updated };
   }

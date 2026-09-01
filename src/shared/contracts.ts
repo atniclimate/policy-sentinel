@@ -1,7 +1,7 @@
-export const RECORD_SCHEMA_VERSION = "1.3.0" as const;
+export const RECORD_SCHEMA_VERSION = "1.4.0" as const;
 export const ARTIFACT_SCHEMA_VERSION = "1.0.0" as const;
 export const SOURCE_SCHEMA_VERSION = "1.3.0" as const;
-export const SOURCE_REGISTRY_VERSION = "1.17.0" as const;
+export const SOURCE_REGISTRY_VERSION = "1.19.0" as const;
 
 export type IsoDate = string;
 export type IsoDateTime = string;
@@ -12,21 +12,88 @@ export type SourceHealthStatus =
 export type ValidationState =
   "pending" | "validated" | "incomplete" | "rejected";
 
+export type NationStateCode = "WA" | "OR" | "ID";
+
+export interface NationStateCoverageEvidence {
+  state: NationStateCode;
+  basis: "reviewed_official_crosswalk";
+  sourceNationName: string;
+  evidenceText: string;
+  evidenceUrl: string;
+  sourceIdentifier: string;
+  sourceDate: IsoDate | null;
+  retrievedAt: IsoDateTime;
+  validationState: "validated";
+}
+
+export interface NationAliasProvenance {
+  alias: string;
+  basis: "official_cross_reference";
+  evidenceText: string;
+  evidenceUrl: string;
+  retrievedAt: IsoDateTime;
+  validationState: "validated";
+}
+
+export interface NationSourceEvidence {
+  exactText: string;
+  paragraphId: string;
+  page: string | null;
+  section: "contiguous_48" | "alaska";
+  sourceUrl: string;
+  officialTextUrl: string;
+  officialPdfUrl: string;
+}
+
+export interface NationFieldProvenance {
+  field:
+    | "/id"
+    | "/officialName"
+    | "/authorizedAliases"
+    | "/recognitionBaselineVersion"
+    | "/stateCoverage"
+    | "/sourceIdentifier"
+    | "/officialListEntry"
+    | "/section"
+    | "/sourceEvidence";
+  sourceUrl: string;
+  sourceDate: IsoDate;
+  retrievedAt: IsoDateTime;
+  transformation:
+    | "copied"
+    | "deterministic_mapping"
+    | "reconciled_official_cross_reference"
+    | "combined";
+  transformRuleId: string | null;
+  validationState: "validated";
+}
+
 export interface Nation {
   id: string;
   officialName: string;
   authorizedAliases: string[];
   recognitionBaselineVersion: string;
   stateCoverage: {
-    states: Array<"WA" | "OR" | "ID">;
+    states: NationStateCode[];
     federalOnly: boolean;
-    basis: "synthetic_fixture" | "reviewed_official_crosswalk";
+    basis:
+      | "synthetic_fixture"
+      | "reviewed_official_crosswalk"
+      | "unresolved_no_reviewed_crosswalk";
+    evidence?: NationStateCoverageEvidence[];
   };
+  aliasProvenance?: NationAliasProvenance[];
+  sourceIdentifier?: string;
+  officialListEntry?: string;
+  section?: "contiguous_48" | "alaska";
+  sourceEvidence?: NationSourceEvidence[];
+  fieldProvenance?: NationFieldProvenance[];
 }
 
 export interface NationCollection {
   artifactType: "nation-collection";
   schemaVersion: typeof ARTIFACT_SCHEMA_VERSION;
+  registryVersion?: string;
   generatedAt: IsoDateTime;
   baseline: {
     count: 575;
@@ -34,8 +101,42 @@ export interface NationCollection {
     authorityName: string;
     authorityUrl: string;
     synthetic: boolean;
+    documentNumber?: string;
+    publicationDate?: IsoDate;
+    officialTextUrl?: string;
+    officialPdfUrl?: string;
+    structuredTranscriptionUrl?: string;
   };
   nations: Nation[];
+  identityRule?: {
+    id: string;
+    version: string;
+    description: string;
+  };
+  publicationReview?: {
+    state: "required_before_publication" | "completed";
+    blocking: boolean;
+    reasonCode: string;
+    note: string;
+    reviewedAt: IsoDateTime | null;
+  };
+  validation?: {
+    state: "validated";
+    rawEntryCount: number;
+    reconciledNationCount: 575;
+    uniqueIdCount: 575;
+    uniqueOfficialNameCount: 575;
+    transcriptCompared: true;
+    reconciliationRuleIds: string[];
+  };
+  sourceHealth?: {
+    status: "healthy";
+    checkedAt: IsoDateTime;
+    dataAsOf: IsoDate;
+    lastSuccessfulRetrievalAt: IsoDateTime;
+    usingLastKnownGood: false;
+    message: null;
+  };
 }
 
 export interface TaxonomySubcategory {
@@ -191,10 +292,11 @@ export interface PolicyRecord {
     chamber: string | null;
   } | null;
   judicialContext: JudicialContext | null;
+  accordContext: AccordContext | null;
   status: {
     normalized: string;
-    sourceLabel: string;
-    asOf: IsoDate | IsoDateTime;
+    sourceLabel: string | null;
+    asOf: IsoDate | IsoDateTime | null;
   };
   dates: {
     introduced: IsoDate | null;
@@ -358,6 +460,49 @@ export interface JudicialContext {
   };
 }
 
+export interface AccordContext {
+  parties: Array<{
+    sourceId: string | null;
+    partyKind: "government" | "collective_governments";
+    officialName: string;
+    roles: Array<{
+      normalized: "executing_party" | "signatory_party";
+      sourceLabel: string;
+      sourceUrl: string;
+    }>;
+  }>;
+  executionEvent: {
+    role: "executed" | "signed";
+    date: IsoDate;
+    sourceLabel: string;
+    sourceUrl: string;
+  };
+  statusReview: {
+    currentStatus: "not_established";
+    evidenceKind: "narrative_execution_language";
+    sourceLabel: string;
+    sourceUrl: string;
+    reviewedOn: IsoDate;
+  };
+  supersessionReview: {
+    state: "no_relationship_established" | "relationships_recorded";
+    scope: "reviewed_official_sources_only";
+    reviewedOn: IsoDate;
+    sourceUrls: string[];
+  };
+  instrumentIdentity:
+    | {
+        kind: "source_provided";
+        sourceIdentifier: string;
+        fallbackRuleId: null;
+      }
+    | {
+        kind: "project_fallback";
+        sourceIdentifier: null;
+        fallbackRuleId: string;
+      };
+}
+
 export type SourceDocumentRelationshipType =
   | "corrects"
   | "corrected_by"
@@ -433,6 +578,7 @@ export interface RecordIndexEntry {
   jurisdiction: PolicyRecord["jurisdiction"];
   issuingBodies: string[];
   judicialContext: PolicyRecord["judicialContext"];
+  accordContext: PolicyRecord["accordContext"];
   status: PolicyRecord["status"];
   source: Pick<RecordSource, "id" | "name" | "provider">;
   dates: Pick<
@@ -461,7 +607,7 @@ export interface ArtifactAsset {
 export interface ArtifactManifest {
   artifactType: "manifest";
   schemaVersion: typeof ARTIFACT_SCHEMA_VERSION;
-  artifactVersion: "1.0.0" | "1.1.0" | "1.2.0" | "1.3.0";
+  artifactVersion: "1.0.0" | "1.1.0" | "1.2.0" | "1.3.0" | "1.4.0";
   buildId: string;
   generatedAt: IsoDateTime;
   dataAsOf: IsoDateTime;

@@ -49,15 +49,17 @@ const [
   sourceRegistry,
   federalFixture,
   countyFixture,
+  accordFixture,
   artifactSchema,
 ] = await Promise.all([
   json("config/taxonomy.v1.json"),
   json("config/sources.v1.json"),
   json("fixtures/records/general-jurisdiction.valid.json"),
   json("fixtures/records/county-explicit.valid.json"),
+  json("fixtures/records/intergovernmental-accord.valid.json"),
   json("schemas/artifact.schema.v1.json"),
 ]);
-const records = [federalFixture, countyFixture].map((record) =>
+const records = [federalFixture, countyFixture, accordFixture].map((record) =>
   completeSyntheticProvenance(record),
 );
 const nations = generateSyntheticNations();
@@ -293,7 +295,7 @@ test("validator rejects unsupported manifest version pairs", async () => {
       assert.match(
         `${result.stdout}\n${result.stderr}`,
         new RegExp(
-          `manifest version pair is unsupported: expected 1\\.3\\.0/1\\.3\\.0, received ${artifactVersion.replaceAll(".", "\\.")}/${recordSchemaVersion.replaceAll(".", "\\.")}`,
+          `manifest version pair is unsupported: expected 1\\.4\\.0/1\\.4\\.0, received ${artifactVersion.replaceAll(".", "\\.")}/${recordSchemaVersion.replaceAll(".", "\\.")}`,
         ),
       );
     } finally {
@@ -352,6 +354,56 @@ test("validator binds each detail file path to its record identity", async () =>
     assert.match(
       `${result.stdout}\n${result.stderr}`,
       /detail document path does not match record identity/,
+    );
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test("validator binds the manifest synthetic discriminator to the Nation collection", async () => {
+  const fixture = await createValidatorFixture();
+  try {
+    const manifestPath = path.join(fixture.root, "manifest.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    manifest.synthetic = false;
+    await writeFile(manifestPath, hashJson(manifest).content, "utf8");
+
+    const result = runValidator(fixture.root);
+    assert.equal(result.status, 1);
+    assert.match(
+      `${result.stdout}\n${result.stderr}`,
+      /manifest and Nation baseline synthetic flags must match/,
+    );
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test("validator rejects semantic Nation identity collisions after hash verification", async () => {
+  const fixture = await createValidatorFixture();
+  try {
+    const manifestPath = path.join(fixture.root, "manifest.json");
+    const nationsPath = path.join(fixture.root, "nations.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    const nationDocument = JSON.parse(await readFile(nationsPath, "utf8"));
+    nationDocument.nations[1].officialName =
+      nationDocument.nations[0].officialName;
+
+    const nationContent = hashJson(nationDocument).content;
+    await writeFile(nationsPath, nationContent, "utf8");
+    const nationAsset = manifest.assets.find(
+      ({ path: assetPath }) => assetPath === "nations.json",
+    );
+    nationAsset.sha256 = sha256Bytes(Buffer.from(nationContent, "utf8"));
+    nationAsset.sizeBytes = Buffer.byteLength(nationContent, "utf8");
+    manifest.buildId = deriveBuildId(manifest.assets);
+    await writeFile(manifestPath, hashJson(manifest).content, "utf8");
+
+    const result = runValidator(fixture.root);
+    assert.equal(result.status, 1);
+    assert.match(
+      `${result.stdout}\n${result.stderr}`,
+      /collides with identity/,
     );
   } finally {
     await fixture.cleanup();

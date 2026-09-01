@@ -15,6 +15,11 @@ const nation: Nation = {
   coveredStateCodes: ["WA"],
 };
 
+const parseCsvLine = (line: string): string[] =>
+  [...line.matchAll(/"((?:""|[^"])*)"(?:,|$)/g)].map(([, value]) =>
+    value.replaceAll('""', '"'),
+  );
+
 describe("CSV output", () => {
   it.each(["=1+1", "+cmd", "-2+3", "@SUM(A1)", " \t=hidden"])(
     "neutralizes spreadsheet formula prefix %s",
@@ -142,5 +147,102 @@ describe("CSV output", () => {
     expect(row).toContain(
       '"The citation link opens the complete bound volume."',
     );
+  });
+
+  it("keeps reviewed Accord identity, parties, execution, and review fields distinct", () => {
+    const record = normalizeRecord(structuredClone(generalRecordFixture));
+    if (!record) throw new Error("Synthetic record fixture did not normalize");
+    record.sourceDocumentIdentifier = "SYNTHETIC-ACCORD-FALLBACK-1974";
+    record.documentType = "intergovernmental_accord";
+    record.issuingBodies = [];
+    record.status = { normalized: "unknown", sourceLabel: null, asOf: null };
+    record.dates.introduced = null;
+    record.dates.published = null;
+    record.dates.lastAction = null;
+    record.dates.deadline = null;
+    record.dates.effective = null;
+    record.accordContext = {
+      parties: [
+        {
+          sourceId: "government:synthetic-state",
+          partyKind: "government",
+          officialName: "Synthetic State Government",
+          roles: [
+            {
+              normalized: "executing_party",
+              sourceLabel: "State executing party",
+              sourceUrl: "https://accord.example.invalid/source",
+            },
+          ],
+        },
+        {
+          sourceId: null,
+          partyKind: "collective_governments",
+          officialName: "Synthetic Intergovernmental Council",
+          roles: [
+            {
+              normalized: "signatory_party",
+              sourceLabel: "Council signatory party",
+              sourceUrl: "https://accord.example.invalid/source",
+            },
+          ],
+        },
+      ],
+      executionEvent: {
+        role: "signed",
+        date: "1974-08-04",
+        sourceLabel: "=Signed August 4, 1974",
+        sourceUrl: "https://accord.example.invalid/source",
+      },
+      statusReview: {
+        currentStatus: "not_established",
+        evidenceKind: "narrative_execution_language",
+        sourceLabel: "Reviewed narrative execution history",
+        sourceUrl: "https://accord.example.invalid/history",
+        reviewedOn: "2026-07-31",
+      },
+      supersessionReview: {
+        state: "no_relationship_established",
+        scope: "reviewed_official_sources_only",
+        reviewedOn: "2026-07-31",
+        sourceUrls: ["https://accord.example.invalid/source"],
+      },
+      instrumentIdentity: {
+        kind: "project_fallback",
+        sourceIdentifier: null,
+        fallbackRuleId: "synthetic-accord-fallback-v1",
+      },
+    };
+
+    const csv = selectedRecordsCsv([record], nation, () => ({
+      basis: "general_jurisdiction",
+      label: "General jurisdiction; not Nation-specific",
+    }));
+    const [headerLine, rowLine] = csv.split("\r\n");
+    const headers = parseCsvLine(headerLine);
+    const values = parseCsvLine(rowLine);
+    const row = Object.fromEntries(
+      headers.map((header, index) => [header, values[index]]),
+    );
+
+    expect(row.source_document_id).toBe("");
+    expect(row.project_fallback_instrument_id).toBe(
+      "SYNTHETIC-ACCORD-FALLBACK-1974",
+    );
+    expect(row.instrument_identity_kind).toBe("project_fallback");
+    expect(row.instrument_fallback_rule_id).toBe(
+      "synthetic-accord-fallback-v1",
+    );
+    expect(row.accord_parties).toContain("Synthetic State Government");
+    expect(row.accord_party_roles).toContain("Council signatory party");
+    expect(row.accord_execution_role).toBe("signed");
+    expect(row.accord_execution_source_label).toBe("'=Signed August 4, 1974");
+    expect(row.accord_execution_date).toBe("1974-08-04");
+    expect(row.accord_current_status_review).toBe("not_established");
+    expect(row.accord_status_evidence_kind).toBe(
+      "narrative_execution_language",
+    );
+    expect(row.accord_supersession_state).toBe("no_relationship_established");
+    expect(row.source_status).toBe("");
   });
 });

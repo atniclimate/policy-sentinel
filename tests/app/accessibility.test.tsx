@@ -1,13 +1,20 @@
 /** @jsxImportSource preact */
 
 import axe from "axe-core";
-import { render } from "@testing-library/preact";
-import { describe, expect, it } from "vitest";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/preact";
+import { useState } from "preact/hooks";
+import { afterEach, describe, expect, it } from "vitest";
 
 import { NationPicker } from "../../src/app/components/NationPicker";
 import { PolicySelector } from "../../src/app/components/PolicySelector";
 import { RecordCard } from "../../src/app/components/RecordCard";
-import { emptyCriteria } from "../../src/app/routing";
+import { DEFAULT_RESULT_WINDOW, emptyCriteria } from "../../src/app/routing";
 import type { Nation, PublicRecord, Taxonomy } from "../../src/app/types";
 
 const nation: Nation = {
@@ -50,6 +57,7 @@ const record: PublicRecord = {
   },
   issuingBodies: ["Synthetic Public Agency"],
   judicialContext: null,
+  accordContext: null,
   status: {
     normalized: "active",
     sourceLabel: "Open",
@@ -124,6 +132,13 @@ const record: PublicRecord = {
     "official synthetic accessibility record synthetic official source",
 };
 
+function NationPickerHarness() {
+  const [value, setValue] = useState("");
+  return <NationPicker nations={[nation]} value={value} onChange={setValue} />;
+}
+
+afterEach(cleanup);
+
 describe("accessible discovery controls", () => {
   it("has no automated axe violations in the core selection and result controls", async () => {
     const criteria = {
@@ -154,10 +169,47 @@ describe("accessible discovery controls", () => {
             label: "General jurisdiction, not Nation-specific",
           }}
           selected={false}
+          selectedIds={new Set()}
+          resultWindow={DEFAULT_RESULT_WINDOW}
           onSelectionChange={() => undefined}
         />
       </main>,
     );
+
+    const results = await axe.run(container, {
+      rules: {
+        "color-contrast": { enabled: false },
+      },
+    });
+    expect(results.violations.map(({ id, help }) => ({ id, help }))).toEqual(
+      [],
+    );
+  });
+
+  it("keeps keyboard, clear, and native Nation selection in one controlled state", async () => {
+    const { container } = render(<NationPickerHarness />);
+    const combobox = screen.getByRole("combobox", { name: "Nation" });
+    const nativeSelect = container.querySelector("select");
+    expect(nativeSelect).not.toBeNull();
+
+    fireEvent.input(combobox, { target: { value: "Synthetic A" } });
+    fireEvent.keyDown(combobox, { key: "ArrowDown" });
+    fireEvent.keyDown(combobox, { key: "Enter" });
+
+    expect(combobox).toHaveValue(nation.officialName);
+    expect(nativeSelect).toHaveValue(nation.id);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Clear Nation search and selection",
+      }),
+    );
+    expect(combobox).toHaveValue("");
+    expect(combobox).toHaveFocus();
+    expect(nativeSelect).toHaveValue("");
+
+    fireEvent.change(nativeSelect!, { target: { value: nation.id } });
+    await waitFor(() => expect(combobox).toHaveValue(nation.officialName));
 
     const results = await axe.run(container, {
       rules: {

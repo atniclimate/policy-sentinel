@@ -12,6 +12,11 @@
       "sourceId": "synthetic-county",
       "recordFixture": "fixtures/records/county-explicit.valid.json",
       "outcome": "success"
+    },
+    {
+      "sourceId": "synthetic-state-accord",
+      "recordFixture": "fixtures/records/intergovernmental-accord.valid.json",
+      "outcome": "success"
     }
   ]
 }

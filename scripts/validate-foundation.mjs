@@ -113,7 +113,6 @@ const criticalProvenanceFields = [
   "/sourceDocumentIdentifier",
   "/documentType",
   "/jurisdiction/name",
-  "/status/sourceLabel",
   "/urls/officialSource",
 ];
 
@@ -126,6 +125,15 @@ const validateRecordPolicy = (record, name) => {
     if (!provenanceFields.includes(field)) {
       throw new Error(`${name}: missing critical provenance for ${field}`);
     }
+  }
+  const statusEvidenceField =
+    record.accordContext === null
+      ? "/status/sourceLabel"
+      : "/accordContext/statusReview/sourceLabel";
+  if (!provenanceFields.includes(statusEvidenceField)) {
+    throw new Error(
+      `${name}: missing critical provenance for ${statusEvidenceField}`,
+    );
   }
 
   const forbiddenKeys = new Set([
@@ -155,6 +163,7 @@ const validateRecordPolicy = (record, name) => {
 
   const primaryDate =
     record.judicialContext?.decisionDate ??
+    record.accordContext?.executionEvent.date ??
     record.dates.published ??
     record.dates.introduced ??
     record.dates.effective ??

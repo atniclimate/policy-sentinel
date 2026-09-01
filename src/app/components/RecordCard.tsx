@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 
 import type { PublicRecord, SearchCriteria, WhyShown } from "../types";
-import { recordHash } from "../routing";
+import { recordFocusId, recordHash } from "../routing";
 import { formatDate, humanize, updatedDate } from "../present";
 
 interface RecordCardProps {
@@ -10,6 +10,8 @@ interface RecordCardProps {
   fromPath: string;
   whyShown: WhyShown;
   selected: boolean;
+  selectedIds: Set<string>;
+  resultWindow: number;
   onSelectionChange: (recordId: string, selected: boolean) => void;
 }
 
@@ -19,6 +21,8 @@ export function RecordCard({
   fromPath,
   whyShown,
   selected,
+  selectedIds,
+  resultWindow,
   onSelectionChange,
 }: RecordCardProps) {
   const date = updatedDate(record);
@@ -61,7 +65,13 @@ export function RecordCard({
       </div>
 
       <h3>
-        <a href={recordHash(record.internalId, criteria, fromPath)}>
+        <a
+          id={recordFocusId(record.internalId)}
+          href={recordHash(record.internalId, criteria, fromPath, {
+            selectedIds,
+            resultWindow,
+          })}
+        >
           {record.officialTitle}
         </a>
       </h3>
@@ -85,12 +95,24 @@ export function RecordCard({
             <dd>{record.judicialContext.adjudicatingBody.officialName}</dd>
           </div>
         )}
-        {!record.judicialContext && record.issuingBodies.length > 0 && (
+        {record.accordContext && (
           <div>
-            <dt>Issuing body</dt>
-            <dd>{record.issuingBodies.join("; ")}</dd>
+            <dt>Accord parties</dt>
+            <dd>
+              {record.accordContext.parties
+                .map(({ officialName }) => officialName)
+                .join("; ")}
+            </dd>
           </div>
         )}
+        {!record.judicialContext &&
+          !record.accordContext &&
+          record.issuingBodies.length > 0 && (
+            <div>
+              <dt>Issuing body</dt>
+              <dd>{record.issuingBodies.join("; ")}</dd>
+            </div>
+          )}
         {record.judicialContext && (
           <div>
             <dt>Citation</dt>
@@ -105,10 +127,17 @@ export function RecordCard({
           <dt>Official source</dt>
           <dd>{record.source.name}</dd>
         </div>
-        <div>
-          <dt>Source status</dt>
-          <dd>{record.status.sourceLabel}</dd>
-        </div>
+        {record.accordContext ? (
+          <div>
+            <dt>Current status</dt>
+            <dd>Not stated by source</dd>
+          </div>
+        ) : (
+          <div>
+            <dt>Source status</dt>
+            <dd>{record.status.sourceLabel ?? "Not provided by source"}</dd>
+          </div>
+        )}
         <div>
           <dt>{date.label}</dt>
           <dd>{formatDate(date.value)}</dd>
@@ -121,7 +150,10 @@ export function RecordCard({
       <div class="card-actions">
         <a
           class="button button--small"
-          href={recordHash(record.internalId, criteria, fromPath)}
+          href={recordHash(record.internalId, criteria, fromPath, {
+            selectedIds,
+            resultWindow,
+          })}
         >
           Open record details
         </a>

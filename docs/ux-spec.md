@@ -24,7 +24,9 @@ The home dashboard offers three equally visible entry points. Each converges on 
 
 A persistent navigation area exposes Home, Search, Policy areas, Landmark timeline, Unclassified and other records, Source coverage, Methodology, and About. Browser Back and Forward must restore route, selection, filters, and the open detail record without silently resubmitting a query.
 
-The document-type vocabulary supports proposed, active, committee, enacted, and historical bills and statutes; regulations and rulemakings; executive actions; notices and implementation material; grants and funding opportunities; litigation, court decisions, and administrative decisions; public state/federal intergovernmental accords and agreements; eligible county policies and ordinances; and officially published Tribal government documents. Municipal and city sources are outside the public beta. Status labels must preserve the official source status alongside any normalized status and must not imply that unlike source statuses are legally equivalent.
+The document-type vocabulary supports proposed, active, committee, enacted, and historical bills and statutes; regulations and rulemakings; executive actions; notices and implementation material; grants and funding opportunities; litigation, court decisions, and administrative decisions; public state/federal intergovernmental accords and agreements; eligible county policies and ordinances; and officially published Tribal government documents. Municipal and city sources are outside the public beta. Status labels must preserve the official source status alongside any normalized status and must not imply that unlike source statuses are legally equivalent. An Accord whose source supplies only narrative execution language shows `Current status: Not stated by source`; it never relabels `Executed` or `Signed` as a present status.
+
+Accord cards show exact governmental or collective parties rather than an issuing body and use the exact executed/signed event for chronology. Details, print dossiers, and CSV distinguish a source-provided identifier from a reviewed project fallback, carry party roles and evidence links, and visibly state that reviewed sources do not establish current legal effect, a complete supersession history, or a Nation association. Collective party language cannot populate a Nation-specific result.
 
 ## Guided single-Nation flow
 
@@ -140,7 +142,7 @@ An optional build-time summary appears only in this detail view. It is labeled *
 
 The timeline includes only records that pass the written landmark criteria and source validation. Each item shows date, verified record type, official citation or identifier, source, and relationship basis. Details distinguish project editorial selection from source approval or a legal-effect, rights, or Nation-relationship determination and expose the exact evidence and reproduction boundary. The timeline does not visually imply uninterrupted historical coverage.
 
-Source-specific coverage bands and gaps are visible. Before 1980, non-landmark records are normally represented by citation and official link rather than an expanded summary. The Boldt decision and Washington Centennial Accord may appear only after their exact official sources, dates, record identities, and inclusion bases are recorded; neither example authorizes unofficial text or unsupported Nation associations.
+Source-specific coverage bands and gaps are visible. Before 1980, non-landmark records are normally represented by citation and official link rather than an expanded summary. The Boldt decision and Washington Centennial Accord may appear only after their exact official sources, dates, record identities, and inclusion bases are recorded; neither example authorizes unofficial text or unsupported Nation associations. Record 1.4 proves the Accord presentation with a fictional metadata-only landmark fixture; that fixture is not evidence that the real GOIA source is enabled.
 
 ## Coverage, freshness, and source health
 
@@ -159,7 +161,13 @@ Coverage notices distinguish source availability from record relevance. A zero r
 
 ## Selection, dossier, and CSV
 
-Selection checkboxes have visible labels, expose the selected count, and persist through filters and detail views during the current browser session. **Clear selection** is explicit. A record removed from the current filter remains selected only if the UI says so and offers a review list.
+Selection checkboxes have visible labels, expose the selected count, and persist
+in bounded URL state through filters, detail views, and browser Back and Forward.
+Malformed, duplicate, or stale record IDs are removed after validation against
+the loaded public artifact. **Clear selection** is explicit. A record removed
+from the current filter remains selected only if the UI says so and offers a
+review list. Selection and result-window changes preserve unapplied form edits;
+only the explicit Apply action serializes a new search.
 
 Because an explicit selection may span several filter views, a dossier labels
 the applied filters as **Current view criteria** rather than claiming every

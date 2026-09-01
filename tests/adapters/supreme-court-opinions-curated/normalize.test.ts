@@ -46,7 +46,8 @@ describe("Supreme Court curated-opinion normalization", () => {
       },
     });
     expect(record).toMatchObject({
-      schemaVersion: "1.3.0",
+      schemaVersion: "1.4.0",
+      accordContext: null,
       officialTitle: "Washington State Dept. of Licensing v. Cougar Den, Inc.",
       sourceDocumentIdentifier: "16-1498",
       documentType: "court_decision",

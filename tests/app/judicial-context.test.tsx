@@ -63,6 +63,7 @@ const compactRecord = {
   },
   issuingBodies: ["Supreme Court of the United States"],
   judicialContext,
+  accordContext: null,
   status: {
     normalized: "decided",
     sourceLabel: "Opinions of the Court - 2018",
@@ -109,7 +110,7 @@ const compactRecord = {
 };
 
 const detailRecord = {
-  schemaVersion: "1.3.0",
+  schemaVersion: "1.4.0",
   internalId: compactRecord.id,
   officialTitle: compactRecord.officialTitle,
   sourceDocumentIdentifier: compactRecord.sourceDocumentIdentifier,
@@ -137,6 +138,7 @@ const detailRecord = {
   ],
   legislativeContext: null,
   judicialContext,
+  accordContext: null,
   status: compactRecord.status,
   dates: {
     introduced: null,
@@ -208,8 +210,8 @@ function installArtifactFetch() {
     [
       "manifest.json",
       {
-        artifactVersion: "1.3.0",
-        recordSchemaVersion: "1.3.0",
+        artifactVersion: "1.4.0",
+        recordSchemaVersion: "1.4.0",
         buildId: "synthetic-judicial-ui",
         generatedAt: GENERATED_AT,
         dataAsOf: "2019-03-19T00:00:00.000Z",

@@ -124,6 +124,49 @@ export interface JudicialContext {
   };
 }
 
+export interface AccordContext {
+  parties: Array<{
+    sourceId: string | null;
+    partyKind: "government" | "collective_governments";
+    officialName: string;
+    roles: Array<{
+      normalized: "executing_party" | "signatory_party";
+      sourceLabel: string;
+      sourceUrl: string;
+    }>;
+  }>;
+  executionEvent: {
+    role: "executed" | "signed";
+    date: string;
+    sourceLabel: string;
+    sourceUrl: string;
+  };
+  statusReview: {
+    currentStatus: "not_established";
+    evidenceKind: "narrative_execution_language";
+    sourceLabel: string;
+    sourceUrl: string;
+    reviewedOn: string;
+  };
+  supersessionReview: {
+    state: "no_relationship_established" | "relationships_recorded";
+    scope: "reviewed_official_sources_only";
+    reviewedOn: string;
+    sourceUrls: string[];
+  };
+  instrumentIdentity:
+    | {
+        kind: "source_provided";
+        sourceIdentifier: string;
+        fallbackRuleId: null;
+      }
+    | {
+        kind: "project_fallback";
+        sourceIdentifier: null;
+        fallbackRuleId: string;
+      };
+}
+
 export interface PublicRecord {
   artifactGeneratedAt?: string;
   internalId: string;
@@ -147,9 +190,10 @@ export interface PublicRecord {
   };
   issuingBodies: string[];
   judicialContext: JudicialContext | null;
+  accordContext: AccordContext | null;
   status: {
     normalized: string;
-    sourceLabel: string;
+    sourceLabel: string | null;
     asOf: string | null;
   };
   dates: {
@@ -246,8 +290,8 @@ export interface PublicRecord {
 }
 
 export interface ArtifactManifest {
-  artifactVersion: "1.3.0";
-  recordSchemaVersion: "1.3.0";
+  artifactVersion: "1.4.0";
+  recordSchemaVersion: "1.4.0";
   buildId: string;
   generatedAt: string;
   dataAsOf: string | null;

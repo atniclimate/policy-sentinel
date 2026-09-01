@@ -48,6 +48,13 @@ export function NationPicker({
     inputRef.current?.focus();
   };
 
+  const clear = () => {
+    onChange("");
+    setInput("");
+    setOpen(false);
+    inputRef.current?.focus();
+  };
+
   const activeId =
     open && matches[activeIndex] ? `${id}-option-${activeIndex}` : undefined;
 
@@ -154,6 +161,11 @@ export function NationPicker({
           </div>
         )}
       </div>
+      {input && (
+        <button type="button" class="text-button" onClick={clear}>
+          Clear Nation search and selection
+        </button>
+      )}
       {error && (
         <p class="field-error" id={`${id}-error`}>
           {error}

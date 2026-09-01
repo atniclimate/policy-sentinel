@@ -148,11 +148,13 @@ document index that is neither an API, feed, nor bulk export and adds
 `official_page` for one bounded originating document page that is not an index.
 The independently registered `washington-state-register` and
 `washington-governor-executive-orders` sources use `official_index`; the
-Register still has `adapter: null`, while source-registry 1.17.0 retains the
+Register still has `adapter: null`, while source-registry 1.19.0 retains the
 Governor's versioned adapter descriptor without authorizing it to emit public
 records. `washington-centennial-accord` uses `official_page` and remains
-disabled with `adapter: null`. These methods describe reviewed access surfaces
-and do not turn undocumented HTML into a formal API or export.
+disabled with its versioned contract-1.0 adapter descriptor; the separately enabled
+`synthetic-state-accord` fixture proves the Accord contract without carrying
+provider data. These methods describe reviewed access surfaces and do not turn
+undocumented HTML into a formal API or export.
 
 Governor contract 1.0 makes one credential-free request to the literal Bob
 Ferguson value-`220`, all-status URL, with no redirect, retry, referrer, cache,
@@ -191,23 +193,36 @@ request, byte, chunk, concurrency, and deadline budgets and validates exact
 headings, agencies, duplicate and holdover behavior, Reviser's Notes,
 relationships, privacy exclusion, and atomic failure.
 
-The Centennial Accord's single official page is likewise not yet a complete
-normalized-record contract. It supplies an exact title, collective executing
-parties, and a 1989-08-04 execution event, but no individual signatory list,
-official number, signed facsimile, structured current status, source update
-time, complete amendment/supersession history, or reuse license. The current
-record model would display executing parties as issuing bodies, has no
-executed/signed date role, does not date the timeline from action history, and
-Record 1.3 can preserve metadata-only landmark evidence, but it still lacks the
-accord-specific party/signatory roles, executed-date role, source-status model,
-and non-judicial supersession review needed for this source. Record 1.2's typed
-supersession edges do not cure the absent complete relationship history, and
-its judicial revision-review field cannot be reused for an accord. The source
-remains `adapter: null` until a versioned accord-specific model and UI preserve
-those roles without inference. Its exact official page supports only a planned
-general-jurisdiction landmark candidate with zero Nation associations.
+The Centennial Accord's single official page supplies an exact title,
+collective executing parties, and a 1989-08-04 execution event, but no
+individual signatory list, official number, signed facsimile, structured
+current status, source update time, complete amendment/supersession history,
+or reuse license. Record and artifact package 1.4 add a source-neutral
+`accordContext`: non-Accords require null, while Accords preserve bounded
+governmental or collective parties and exact source roles, an executed/signed
+event, narrative status evidence that cannot establish current status, scoped
+supersession review tied to reciprocal typed edges, and source-provided or
+deterministic fallback identity. Accord parties cannot populate
+`issuingBodies`; generic status is unknown with null label/as-of; execution
+cannot populate introduction, publication, last-action, deadline, or effective
+dates. The compact index carries the complete context, and the client binds it
+to detail hydration, search and chronology, cards, details, dossier, and CSV
+with explicit current-status, relationship-history, and Nation-association
+boundaries. The model is proven by a fictional pre-1980 metadata-only landmark
+fixture.
 
-Court research and health remain source-specific. Registry 1.17.0 preserves the
+GOIA adapter 1.0 makes one build-time request to the exact canonical page and
+rejects URL, public-DNS, redirect, status, UTF-8, encoding, length, chunk,
+deadline, DOM, attribute, depth, text, parse-error, article-identity, or direct
+element grammar drift. It emits only an 11-key reviewed projection and clears
+the response buffer; HTML and page prose never cross the transport boundary.
+Normalization is metadata-and-links-only, `general_jurisdiction`, Unclassified,
+and has zero issuing bodies and Nation associations. Source-wide failure is
+atomic and last-known-good reuse remains same-source only. The real source stays
+disabled, so it emits no public record, coverage, health, or LKG shard; exact
+signatory evidence and source activation remain separate gates.
+
+Court research and health remain source-specific. Registry 1.19.0 preserves the
 1.11 DOI IBIA research outcome as a disabled gap because its chronology can lag
 a separate search database, omits docket and decision-status relationships,
 includes privacy- and land-sensitive matters, and points to an OHA host that
@@ -280,7 +295,7 @@ binds court versus administrative body to the document type, preserves the
 same body in `issuingBodies`, validates citation hosts, and requires revision
 state to agree with explicit correction, supersession, or substitution edges.
 The compact index carries the full context and is checked against detail data.
-Current artifact validation requires the coherent package/record 1.3 pair, and
+Current artifact validation requires the coherent package/record 1.4 pair, and
 the client independently rejects a judicial type/context/body/date/citation or
 landmark/relevance/evidence invariant failure rather than silently normalizing
 it away. The client uses decision date for judicial chronology and exposes the
@@ -376,6 +391,19 @@ language, actions, and provenance do not inflate initial page load. Index
 entries contain only fields needed for search, filtering, cards, selection, and
 detail lookup.
 
+The static client uses hash routes as the durable browser-session state. It
+serializes applied search criteria, sort, bounded result window, selected public
+record IDs, detail return route, and originating record focus. Selection IDs
+must match the record-ID grammar and, once the artifact loads, an actual compact
+record; malformed, duplicate, and stale IDs are removed without fetching a
+provider. Draft form changes remain local until the visitor explicitly applies
+them, so a selection or result-window change cannot silently submit the draft.
+Native hash history restores URL state through Back and Forward. Route changes
+are announced in a polite live region, and leaving a detail route returns focus
+to the encoded, collision-free originating record link when it is still
+present. These automated invariants do not satisfy the separately gated built
+desktop/mobile browser smoke.
+
 Static artifact policy v1 fails packaging before any write when the compact
 index exceeds 6 MiB, hashed non-detail initial JSON (excluding the manifest
 self-file) exceeds 8 MiB, one detail exceeds 512 KiB, all details exceed
@@ -404,20 +432,22 @@ stage, freshness, last-known-good timestamps, stale state, and message.
 Artifact package `1.1.0` historically added richer coverage fields and the
 card-critical source document identifier, issuing bodies, and official-source
 URL to the compact index. Package `1.2.0` and record schema `1.2.0` added the
-complete nullable `judicialContext` projection. Current package and record
-schema `1.3.0` add reviewed landmark evidence that can be either permitted
-source text or metadata-only evidence with an exact source label, URL, date,
-and reproduction basis; current builds bind source registry `1.17.0`. These
-additions remain optional under artifact schema `1.0.0`, so historical package
-`1.0.0`, `1.1.0`, and `1.2.0` manifests continue to pass archival schema
-validation. The current client requires a matching package `1.3.0` manifest and
-rejects legacy or unversioned packages before normalizing records; an explicit
-migration is required before a historical package can run under a newer client.
-On-demand detail hydration also requires the detail wrapper's build timestamp
-to match the loaded manifest and compares every compact card/search field,
-including judicial context and landmark state, against the index before
-accepting detail-only content. A mismatch cancels the detail, CSV, or dossier
-operation instead of mixing artifact builds.
+complete nullable `judicialContext` projection. Package and record schema
+`1.3.0` add reviewed landmark evidence that can be either permitted source text
+or metadata-only evidence with an exact source label, URL, date, and
+reproduction basis. Current package and record schema `1.4.0` add the complete
+Accord context and bind source registry `1.19.0`. These additions remain
+optional under artifact schema `1.0.0`, so historical package `1.0.0`,
+`1.1.0`, `1.2.0`, and `1.3.0` manifests continue to pass archival schema
+validation. The current client requires a matching package `1.4.0` manifest
+and rejects legacy or unversioned packages before normalizing records; an
+explicit migration is required before a historical package can run under a
+newer client. On-demand detail hydration also requires the detail wrapper's
+build timestamp to match the loaded manifest and compares every compact
+card/search field, including judicial context, Accord context, and landmark
+state, against the index before accepting detail-only content. A mismatch
+cancels the detail, CSV, or dossier operation instead of mixing artifact
+builds.
 
 ## Adapter boundaries
 
@@ -466,6 +496,21 @@ and map points are discarded. A separate audited coverage crosswalk controls
 which state coverage notice appears; it does not claim a Nation's complete
 geographic, treaty, or land interests.
 
+The standalone Nation-collection policy binds the manifest and baseline
+synthetic flags before artifact creation or validation. A production collection
+must contain exactly 575 collision-free reviewed identities and carry a
+semantic registry version, completed publication review, validated
+reconciliation summary, current source health, baseline-bound source evidence,
+and field provenance for every identity field. Each accepted WA, OR, or ID code
+has one authoritative crosswalk evidence item with the exact source Nation name,
+text, identifier, URL, date/retrieval state, and matching provenance. An
+unresolved entry must remain federal-only. Synthetic rows cannot claim those
+production fields. Record validation resolves every association against the
+validated collection by both stable ID and official name, requires an exact
+official name or authorized alias in the evidence, and binds the evidence URL
+to the official record. This policy can validate a future exact 577-entry to
+575-identity reconciliation but does not invent that reconciliation.
+
 ## Record and taxonomy contracts
 
 [`record.schema.v1.json`](../schemas/record.schema.v1.json) defines the
@@ -478,7 +523,8 @@ JSON Schema validates shape and conditional rules. Pipeline semantic validators
 add cross-record and source-specific checks, including:
 
 - uniqueness and stability of internal/source identifiers;
-- exactly 575 current Nation registry entries;
+- exactly 575 current Nation registry entries plus the production review,
+  source-evidence, provenance, health, and state-crosswalk policy above;
 - complete provenance for every source-derived leaf field, expressed as an
   exact JSON Pointer and source/retrieval/validation record;
 - exact-evidence coverage for every Nation link;

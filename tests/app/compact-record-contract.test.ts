@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { normalizeRecord } from "../../src/app/data";
-import { filterRecords, recordMatchesPolicy } from "../../src/app/policy";
+import {
+  filterRecords,
+  recordEventDate,
+  recordMatchesPolicy,
+} from "../../src/app/policy";
 import { emptyCriteria } from "../../src/app/routing";
 import type { Nation } from "../../src/app/types";
 
@@ -25,6 +29,7 @@ const compactRecord = (overrides: Record<string, unknown> = {}) => ({
   },
   issuingBodies: ["Synthetic Public Agency"],
   judicialContext: null,
+  accordContext: null,
   status: {
     normalized: "active",
     sourceLabel: "Open",
@@ -226,5 +231,81 @@ describe("compact record contract", () => {
     expect(record?.searchText).toContain("synthetic supreme court");
     expect(record?.searchText).toContain("syn-docket");
     expect(record?.searchText).toContain("999 u.s. 1");
+  });
+
+  it("preserves Accord context for search and execution-date filtering", () => {
+    const record = normalizeRecord(
+      compactRecord({
+        documentType: "intergovernmental_accord",
+        issuingBodies: [],
+        accordContext: {
+          parties: [
+            {
+              sourceId: "government:synthetic-state",
+              partyKind: "government",
+              officialName: "Synthetic State Government",
+              roles: [
+                {
+                  normalized: "executing_party",
+                  sourceLabel: "State executing party",
+                  sourceUrl: "https://accord.example.invalid/source",
+                },
+              ],
+            },
+            {
+              sourceId: null,
+              partyKind: "collective_governments",
+              officialName: "Synthetic Intergovernmental Council",
+              roles: [
+                {
+                  normalized: "signatory_party",
+                  sourceLabel: "Council signatory party",
+                  sourceUrl: "https://accord.example.invalid/source",
+                },
+              ],
+            },
+          ],
+          executionEvent: {
+            role: "signed",
+            date: "1974-08-04",
+            sourceLabel: "Signed August 4, 1974",
+            sourceUrl: "https://accord.example.invalid/source",
+          },
+          statusReview: {
+            currentStatus: "not_established",
+            evidenceKind: "narrative_execution_language",
+            sourceLabel: "Reviewed narrative execution history",
+            sourceUrl: "https://accord.example.invalid/history",
+            reviewedOn: "2026-07-30",
+          },
+          supersessionReview: {
+            state: "no_relationship_established",
+            scope: "reviewed_official_sources_only",
+            reviewedOn: "2026-07-30",
+            sourceUrls: ["https://accord.example.invalid/source"],
+          },
+          instrumentIdentity: {
+            kind: "project_fallback",
+            sourceIdentifier: null,
+            fallbackRuleId: "synthetic-accord-fallback-v1",
+          },
+        },
+        status: { normalized: "unknown", sourceLabel: null, asOf: null },
+        dates: {
+          published: null,
+          updated: null,
+          lastAction: null,
+          deadline: null,
+        },
+      }),
+    );
+
+    expect(record?.accordContext?.parties).toHaveLength(2);
+    expect(record?.searchText).toContain("synthetic state government");
+    expect(record?.searchText).toContain("council signatory party");
+    expect(record?.searchText).toContain(
+      "reviewed narrative execution history",
+    );
+    expect(record && recordEventDate(record)).toBe("1974-08-04");
   });
 });

@@ -4,8 +4,9 @@ import path from "node:path";
 import { assertArtifactSourceHealthState } from "./artifact-health.mjs";
 import { deriveBuildId, hashJson, serializeJson } from "./hashing.mjs";
 import { toUrlSafeId } from "./identity.mjs";
+import { assertNationCollectionPolicy } from "./nation-collection-policy.mjs";
 
-const RECORD_SCHEMA_VERSION = "1.3.0";
+const RECORD_SCHEMA_VERSION = "1.4.0";
 
 export const STATIC_ARTIFACT_BUDGET_V1 = Object.freeze({
   version: "1.0.0",
@@ -202,6 +203,7 @@ export function toCompactIndexRecord(record) {
     jurisdiction: record.jurisdiction,
     issuingBodies: record.issuingBodies.map(({ officialName }) => officialName),
     judicialContext: record.judicialContext,
+    accordContext: record.accordContext,
     status: record.status,
     source: {
       id: record.source.id,
@@ -278,6 +280,7 @@ function maxDataAsOf(records, generatedAt) {
 function recordCoverageDate(record) {
   const value =
     record.judicialContext?.decisionDate ??
+    record.accordContext?.executionEvent.date ??
     record.dates.published ??
     record.status.asOf;
   if (typeof value !== "string" || value.length < 10) {
@@ -612,7 +615,7 @@ export function createArtifactDocuments({
     sources: sourceHealth,
   });
 
-  documents.set("nations.json", {
+  const nationDocument = {
     artifactType: "nation-collection",
     schemaVersion: "1.0.0",
     generatedAt: normalizedGeneratedAt,
@@ -625,7 +628,11 @@ export function createArtifactDocuments({
       synthetic: true,
     },
     nations,
+  };
+  assertNationCollectionPolicy(nationDocument, {
+    manifestSynthetic: synthetic,
   });
+  documents.set("nations.json", nationDocument);
 
   documents.set("taxonomy.json", taxonomy);
   documents.set("index/records.json", {
@@ -664,7 +671,7 @@ export function createArtifactDocuments({
   const manifest = {
     artifactType: "manifest",
     schemaVersion: "1.0.0",
-    artifactVersion: "1.3.0",
+    artifactVersion: "1.4.0",
     buildId: deriveBuildId(assets),
     generatedAt: normalizedGeneratedAt,
     dataAsOf: maxDataAsOf(records, normalizedGeneratedAt),

@@ -2,16 +2,19 @@
 
 Accessed: 2026-07-31
 
-Implementation state: retained in source-registry 1.14.0; registered disabled
-with `adapter: null`; no production records
+Rechecked: 2026-08-03
+
+Implementation state: record/artifact 1.4.0 and source-registry 1.19.0 retain
+the Accord record model and disabled GOIA adapter 1.0; the real source emits no
+production record, coverage, health, or last-known-good shard
 
 External authorization: none required for the reviewed public pages
 
 Activation state: closed. The official page supports one general-jurisdiction
-landmark candidate. Record 1.3 can preserve metadata-only landmark evidence,
-but the model still cannot preserve accord parties, an executed date, source
-status, and supersession review without forcing them into fields with different
-meanings.
+landmark candidate, record 1.4 preserves its roles without coercion, and adapter
+1.0 validates the bounded source contract. Public activation remains separate;
+Nation associations remain forbidden without exact signatory evidence and the
+approved BIA identity registry.
 
 ## Primary sources
 
@@ -26,6 +29,11 @@ meanings.
 - [GOIA privacy notice and disclaimer](https://goia.wa.gov/privacy-notice)
 - [WSDOT Centennial Accord Plan](https://wsdot.wa.gov/sites/default/files/2021-10/WSDOTCentennialAccordPlan5mb.pdf)
 - [2026 Senate final bill report for SSB 6034](https://lawfilesext.leg.wa.gov/biennium/2025-26/Pdf/Bill%20Reports/Senate/6034-S%20SBR%20FBR%2026.pdf)
+
+The 2026-08-03 read-only recheck of the canonical Accord and privacy pages
+confirmed the same exact title, collective party language, execution date, lack
+of an individual signatory list, browsing-log notice, and absence of a content
+reuse license. No page response was written to the repository.
 
 GOIA is the originating state publisher for the reviewed Accord page. Current
 RCW 43.376.500 creates GOIA as a cabinet agency and assigns it responsibility
@@ -125,10 +133,12 @@ The publication boundary is therefore:
 - no representative names, contacts, registration information, maps, parcels,
   land detail, or territory-based inference.
 
-Record 1.3's reviewed metadata-evidence option satisfies the evidence shape
+Record 1.4 preserves metadata-only landmark evidence plus exact collective
+party roles, the execution event, explicitly unestablished current status,
+reviewed-source-only supersession state, and deterministic fallback identity
 without copying body language merely to make the schema pass. It does not cure
-the separate accord-party, date-role, status, relationship-history, identity,
-or Nation-reconciliation gaps.
+the missing individual signatories or BIA identity reconciliation and cannot
+support a Nation association.
 
 ## Bounded structural observation
 
@@ -178,26 +188,39 @@ appears in no public coverage, health, record, or artifact.
 ## Implementation decision
 
 Source-registry schema 1.3 adds `official_page` for an originating official
-document page that is neither an API, feed, export, nor index. Registry 1.14
-retains `washington-centennial-accord` independently, disabled with
-`adapter: null`, exact single-record coverage 1989-08-04, one runtime host,
-metadata-and-links reproduction, and no subject mapping.
+document page that is neither an API, feed, export, nor index. Registry 1.19
+retains `washington-centennial-accord` independently, disabled with adapter
+1.0, exact single-record coverage 1989-08-04, one runtime host,
+metadata-and-links reproduction, no subject mapping, and Accord-specific
+provenance requirements.
 
-Adapter work is evidence-blocked until a versioned accord-specific record-model
-decision:
+Record and artifact package 1.4 satisfy the formerly blocking record-model
+decision. The contract and UI now:
 
-1. preserves parties/signatories with their exact source roles instead of
-   displaying them as issuing bodies;
-2. preserves an executed/signed date without converting it into publication,
-   effectiveness, or a generic undifferentiated date;
-3. represents narrative execution evidence without inventing a formal current
-   source status;
-4. supports reviewed supersession states and typed relationships without
-   implying a complete history;
-5. records a title-based fallback identity rule explicitly; and
-6. keeps unresolved signatories at general jurisdiction with zero Nation
-   associations and a visible limitation.
+1. preserve governmental or collective parties and their exact executing or
+   signatory roles without displaying them as issuing bodies;
+2. preserve an executed/signed event without converting it into introduction,
+   publication, last action, deadline, or effectiveness;
+3. keep generic current status unknown and unlabeled while preserving exact
+   narrative execution evidence in the Accord context;
+4. bind scoped supersession review to reciprocal supersession or substitution
+   edges without claiming complete history;
+5. distinguish source identifiers from deterministic project fallback rules;
+   and
+6. keep unresolved signatories at general jurisdiction with zero Nation
+   associations and visible current-status, relationship, and Nation limits.
 
-No parser or adapter scaffold is created merely to satisfy a checkbox. The
-source remains a truthful planned-source gap until that model and its synthetic,
-UI, provenance, privacy, health, and LKG tests pass.
+The enabled synthetic build proves these rules with a fictional pre-1980
+metadata-only landmark record; it contains no provider data. Adapter 1.0 makes
+one exact build-time request to the canonical page, requires public DNS and no
+redirect, and enforces HTTP, UTF-8, encoding, 128 KiB, 512-chunk, 30-second,
+DOM, attribute, depth, text, parse-error, unique-article, and 26-direct-element
+contracts. Only 11 reviewed projection keys cross the transport boundary; no
+HTML or page prose is retained.
+
+The 2026-08-03 in-memory canary passed the exact current structure and printed
+or persisted no page body, prose, response byte, record, cache, or artifact.
+Fictional impossible-HTML tests cover parser and transport drift, normalization,
+health, disabled behavior, and same-source LKG boundaries. The real source
+remains a truthful planned gap with no public record, coverage, health,
+last-known-good shard, or Nation association until exact activation review.

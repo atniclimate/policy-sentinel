@@ -415,7 +415,7 @@ export function normalizeSupremeCourtOpinion(
   }
 
   const record: PolicyRecord = {
-    schemaVersion: "1.3.0",
+    schemaVersion: "1.4.0",
     internalId: supremeCourtOpinionStableRecordId(validatedRow),
     source: {
       id: input.source.id,
@@ -474,6 +474,7 @@ export function normalizeSupremeCourtOpinion(
         reviewedOn: retrievedAt.slice(0, 10),
       },
     },
+    accordContext: null,
     status: {
       normalized: "decided",
       sourceLabel: input.termHeading,

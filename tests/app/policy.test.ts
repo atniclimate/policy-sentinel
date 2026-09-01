@@ -25,6 +25,7 @@ const record = (overrides: Partial<PublicRecord>): PublicRecord =>
     jurisdiction: { level: "federal", name: "United States", stateCode: null },
     issuingBodies: [],
     judicialContext: null,
+    accordContext: null,
     status: { normalized: "active", sourceLabel: "Open", asOf: null },
     dates: {
       introduced: null,
@@ -189,5 +190,82 @@ describe("Nation relationship policy", () => {
         dateFrom: "2019-03-20",
       }),
     ).toEqual([]);
+  });
+
+  it("uses the Accord execution date instead of a page-update timestamp", () => {
+    const accord = record({
+      documentType: "intergovernmental_accord",
+      accordContext: {
+        parties: [
+          {
+            sourceId: "government:synthetic-state",
+            partyKind: "government",
+            officialName: "Synthetic State Government",
+            roles: [
+              {
+                normalized: "executing_party",
+                sourceLabel: "State executing party",
+                sourceUrl: "https://accord.example.invalid/source",
+              },
+            ],
+          },
+          {
+            sourceId: null,
+            partyKind: "collective_governments",
+            officialName: "Synthetic Intergovernmental Council",
+            roles: [
+              {
+                normalized: "signatory_party",
+                sourceLabel: "Council signatory party",
+                sourceUrl: "https://accord.example.invalid/source",
+              },
+            ],
+          },
+        ],
+        executionEvent: {
+          role: "signed",
+          date: "1974-08-04",
+          sourceLabel: "Signed August 4, 1974",
+          sourceUrl: "https://accord.example.invalid/source",
+        },
+        statusReview: {
+          currentStatus: "not_established",
+          evidenceKind: "narrative_execution_language",
+          sourceLabel: "Reviewed narrative execution history",
+          sourceUrl: "https://accord.example.invalid/history",
+          reviewedOn: "2026-07-31",
+        },
+        supersessionReview: {
+          state: "no_relationship_established",
+          scope: "reviewed_official_sources_only",
+          reviewedOn: "2026-07-31",
+          sourceUrls: ["https://accord.example.invalid/source"],
+        },
+        instrumentIdentity: {
+          kind: "project_fallback",
+          sourceIdentifier: null,
+          fallbackRuleId: "synthetic-accord-fallback-v1",
+        },
+      },
+      dates: {
+        introduced: null,
+        published: null,
+        updated: "2026-07-31T00:00:00Z",
+        lastAction: null,
+        deadline: null,
+        effective: null,
+        retrieved: "2026-07-31T01:00:00Z",
+      },
+    });
+
+    expect(recordEventDate(accord)).toBe("1974-08-04");
+    const criteria = {
+      ...emptyCriteria(),
+      nationId: nation.id,
+      allPolicyAreas: true,
+      dateFrom: "1974-08-04",
+      dateThrough: "1974-08-04",
+    };
+    expect(filterRecords([accord], nation, criteria)).toEqual([accord]);
   });
 });

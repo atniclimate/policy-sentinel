@@ -8,6 +8,7 @@ import type {
 
 export const recordEventDate = (record: PublicRecord): string | null =>
   record.judicialContext?.decisionDate ??
+  record.accordContext?.executionEvent.date ??
   record.dates.updated ??
   record.dates.published ??
   record.dates.lastAction ??

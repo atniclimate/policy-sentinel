@@ -17,6 +17,7 @@ const SOURCE_DERIVED_ROOTS = [
   "/issuingBodies",
   "/legislativeContext",
   "/judicialContext",
+  "/accordContext",
   "/status/normalized",
   "/status/sourceLabel",
   "/status/asOf",
@@ -245,6 +246,32 @@ function validateSourceUrls(record, sourceConfig, issues) {
       citation.sourceUrl,
     ]);
   });
+  record.accordContext?.parties.forEach((party, partyIndex) => {
+    party.roles.forEach((role, roleIndex) => {
+      urls.push([
+        `/accordContext/parties/${partyIndex}/roles/${roleIndex}/sourceUrl`,
+        role.sourceUrl,
+      ]);
+    });
+  });
+  if (record.accordContext !== null) {
+    urls.push([
+      "/accordContext/executionEvent/sourceUrl",
+      record.accordContext.executionEvent.sourceUrl,
+    ]);
+    urls.push([
+      "/accordContext/statusReview/sourceUrl",
+      record.accordContext.statusReview.sourceUrl,
+    ]);
+    record.accordContext.supersessionReview.sourceUrls.forEach(
+      (sourceUrl, index) => {
+        urls.push([
+          `/accordContext/supersessionReview/sourceUrls/${index}`,
+          sourceUrl,
+        ]);
+      },
+    );
+  }
   record.officialSubjects.forEach((subject, index) => {
     urls.push([`/officialSubjects/${index}/sourceUrl`, subject.sourceUrl]);
   });
@@ -310,6 +337,10 @@ function validateReciprocalRelationshipGraph(records, issues) {
   const reciprocalTypes = new Map([
     ["corrects", "corrected_by"],
     ["corrected_by", "corrects"],
+    ["supersedes", "superseded_by"],
+    ["superseded_by", "supersedes"],
+    ["substitutes", "substituted_by"],
+    ["substituted_by", "substitutes"],
   ]);
 
   for (const record of records) {
@@ -430,7 +461,175 @@ function validateJudicialContext(record, issues) {
   }
 }
 
-function validateNationPolicy(record, knownNationIds, issues) {
+function validateAccordContext(record, sourceConfig, issues) {
+  const isAccord = record.documentType === "intergovernmental_accord";
+  if (!isAccord) {
+    if (record.accordContext !== null) {
+      issues.push("non-accord record cannot contain accord context");
+    }
+    if (record.status.sourceLabel === null || record.status.asOf === null) {
+      issues.push("non-accord record lacks source status fields");
+    }
+    return;
+  }
+
+  const context = record.accordContext;
+  if (context === null) {
+    issues.push("intergovernmental accord lacks accord context");
+    return;
+  }
+  if (record.issuingBodies.length !== 0) {
+    issues.push("accord parties cannot be relabeled as issuing bodies");
+  }
+  if (record.legislativeContext !== null || record.judicialContext !== null) {
+    issues.push("accord cannot contain legislative or judicial context");
+  }
+  if (
+    record.status.normalized !== "unknown" ||
+    record.status.sourceLabel !== null ||
+    record.status.asOf !== null
+  ) {
+    issues.push("accord generic status must remain unknown and unlabeled");
+  }
+  if (
+    context.statusReview.currentStatus !== "not_established" ||
+    context.statusReview.evidenceKind !== "narrative_execution_language"
+  ) {
+    issues.push("accord status review cannot assert a current status");
+  }
+  if (
+    record.dates.introduced !== null ||
+    record.dates.published !== null ||
+    record.dates.lastAction !== null ||
+    record.dates.deadline !== null ||
+    record.dates.effective !== null
+  ) {
+    issues.push("accord execution cannot be copied into a generic record date");
+  }
+
+  const retrievedOn = record.dates.retrieved.slice(0, 10);
+  const executionDate = context.executionEvent.date;
+  if (executionDate > retrievedOn) {
+    issues.push("accord execution date is after retrieval");
+  }
+  for (const [label, reviewedOn] of [
+    ["status", context.statusReview.reviewedOn],
+    ["supersession", context.supersessionReview.reviewedOn],
+  ]) {
+    if (reviewedOn < executionDate || reviewedOn > retrievedOn) {
+      issues.push(
+        `accord ${label} review date falls outside execution-to-retrieval bounds`,
+      );
+    }
+  }
+
+  const partyIdentities = new Set();
+  for (const [partyIndex, party] of context.parties.entries()) {
+    const identity = `${party.sourceId ?? ""}\u0000${party.officialName}`;
+    if (partyIdentities.has(identity)) {
+      issues.push(`accord party ${partyIndex} duplicates a party identity`);
+    }
+    partyIdentities.add(identity);
+    const normalizedRoles = party.roles.map(({ normalized }) => normalized);
+    if (new Set(normalizedRoles).size !== normalizedRoles.length) {
+      issues.push(`accord party ${partyIndex} repeats a normalized role`);
+    }
+  }
+
+  const nationParties = new Map(
+    context.parties
+      .filter(({ sourceId }) => sourceId?.startsWith("nation:"))
+      .map((party) => [party.sourceId, party]),
+  );
+  for (const [nationId, party] of nationParties) {
+    const association = record.nationAssociations.find(
+      (candidate) => candidate.nationId === nationId,
+    );
+    if (
+      association === undefined ||
+      association.officialNationName !== party.officialName ||
+      association.validationState !== "validated"
+    ) {
+      issues.push(
+        `accord Nation party ${nationId} lacks a matching validated association`,
+      );
+    }
+  }
+  for (const association of record.nationAssociations) {
+    const party = nationParties.get(association.nationId);
+    if (
+      party === undefined ||
+      party.officialName !== association.officialNationName
+    ) {
+      issues.push(
+        `accord Nation association ${association.nationId} lacks an exact party`,
+      );
+    }
+  }
+
+  const supersessionTypes = new Set([
+    "supersedes",
+    "superseded_by",
+    "substitutes",
+    "substituted_by",
+  ]);
+  const hasSupersessionRelationship = record.sourceDocumentRelationships.some(
+    ({ relationshipType }) => supersessionTypes.has(relationshipType),
+  );
+  if (
+    context.supersessionReview.state === "relationships_recorded" &&
+    !hasSupersessionRelationship
+  ) {
+    issues.push(
+      "accord supersession review claims relationships without a typed edge",
+    );
+  }
+  if (
+    context.supersessionReview.state === "no_relationship_established" &&
+    hasSupersessionRelationship
+  ) {
+    issues.push(
+      "accord supersession review denies an established typed relationship",
+    );
+  }
+
+  const identity = context.instrumentIdentity;
+  if (identity.kind === "source_provided") {
+    if (
+      identity.sourceIdentifier !== record.sourceDocumentIdentifier ||
+      identity.fallbackRuleId !== null
+    ) {
+      issues.push("accord source-provided identity does not match the record");
+    }
+  } else {
+    if (
+      identity.sourceIdentifier !== null ||
+      typeof identity.fallbackRuleId !== "string" ||
+      identity.fallbackRuleId.trim() === ""
+    ) {
+      issues.push("accord project fallback identity is incomplete");
+    }
+    const identifierProvenance = record.fieldProvenance.find(
+      ({ field }) => field === "/sourceDocumentIdentifier",
+    );
+    if (
+      identifierProvenance === undefined ||
+      identifierProvenance.transformation !== "deterministic_mapping" ||
+      identifierProvenance.transformRuleId !== identity.fallbackRuleId
+    ) {
+      issues.push(
+        "accord project fallback identifier lacks its deterministic provenance rule",
+      );
+    }
+    if (sourceConfig.adapter?.identityRule !== identity.fallbackRuleId) {
+      issues.push(
+        "accord project fallback identity rule differs from source registry",
+      );
+    }
+  }
+}
+
+function validateNationPolicy(record, knownNations, knownNationIds, issues) {
   const isCounty = record.jurisdiction.level === "county";
   const isStateOrFederal = ["state", "federal"].includes(
     record.jurisdiction.level,
@@ -478,8 +677,13 @@ function validateNationPolicy(record, knownNationIds, issues) {
     }
   }
 
+  const associatedNationIds = new Set();
   record.nationAssociations.forEach((association, index) => {
     const label = `nationAssociations/${index}`;
+    if (associatedNationIds.has(association.nationId)) {
+      issues.push(`${label} duplicates a Nation association`);
+    }
+    associatedNationIds.add(association.nationId);
     if (
       association.basis === "issuing_government" &&
       record.jurisdiction.level !== "tribal"
@@ -504,7 +708,37 @@ function validateNationPolicy(record, knownNationIds, issues) {
     ) {
       issues.push(`${label} lacks validated exact official evidence`);
     }
-    if (knownNationIds && !knownNationIds.has(association.nationId)) {
+    if (
+      ![record.urls.officialSource, record.urls.officialFullText].includes(
+        association.evidenceUrl,
+      )
+    ) {
+      issues.push(`${label} evidence URL is not an official record URL`);
+    }
+
+    const knownNation = knownNations?.get(association.nationId);
+    if (knownNations && knownNation === undefined) {
+      issues.push(`${label} references an unknown Nation ID`);
+    } else if (knownNation !== undefined) {
+      if (association.officialNationName !== knownNation.officialName) {
+        issues.push(
+          `${label} official Nation name does not match the validated collection`,
+        );
+      }
+      const officialIdentities = [
+        knownNation.officialName,
+        ...knownNation.authorizedAliases,
+      ];
+      if (
+        !officialIdentities.some((identity) =>
+          association.evidenceText.includes(identity),
+        )
+      ) {
+        issues.push(
+          `${label} evidence does not contain an exact official name or authorized alias`,
+        );
+      }
+    } else if (knownNationIds && !knownNationIds.has(association.nationId)) {
       issues.push(`${label} references an unknown Nation ID`);
     }
   });
@@ -675,6 +909,7 @@ function validateLandmarkPolicy(record, sourceConfig, issues) {
 
   const eventDate =
     record.judicialContext?.decisionDate ??
+    record.accordContext?.executionEvent.date ??
     record.dates.published ??
     record.dates.effective ??
     record.status.asOf;
@@ -718,7 +953,9 @@ function validateLandmarkPolicy(record, sourceConfig, issues) {
 
 function validateHistoricalPolicy(record, issues) {
   const eventDate =
-    record.judicialContext?.decisionDate ?? record.dates.published;
+    record.judicialContext?.decisionDate ??
+    record.accordContext?.executionEvent.date ??
+    record.dates.published;
   const eventYear = eventDate === null ? null : Number(eventDate.slice(0, 4));
   if (
     eventYear !== null &&
@@ -800,7 +1037,7 @@ function validateAiPolicy(record, issues) {
 
 export function validateRecordPolicy(
   record,
-  { sourceConfig, taxonomy, knownNationIds = null },
+  { sourceConfig, taxonomy, knownNations = null, knownNationIds = null },
 ) {
   const issues = [];
   try {
@@ -823,8 +1060,9 @@ export function validateRecordPolicy(
       "record source/adapter identity does not match source registry",
     );
   }
-  validateNationPolicy(record, knownNationIds, issues);
+  validateNationPolicy(record, knownNations, knownNationIds, issues);
   validateJudicialContext(record, issues);
+  validateAccordContext(record, sourceConfig, issues);
   validateSourceUrls(record, sourceConfig, issues);
   validateSourceDocumentRelationships(record, issues);
   validateTaxonomyPolicy(record, taxonomy, sourceConfig, issues);
@@ -847,8 +1085,15 @@ export function validateRecordSetPolicy(
   const sourceConfigs = new Map(
     sourceRegistry.sources.map((source) => [source.id, source]),
   );
-  const nationIds =
-    nations.length === 0 ? null : new Set(nations.map(({ id }) => id));
+  const knownNations = nations.length === 0 ? null : new Map();
+  if (knownNations !== null) {
+    for (const nation of nations) {
+      if (knownNations.has(nation.id)) {
+        issues.push(`Nation lookup duplicates ID: ${nation.id}`);
+      }
+      knownNations.set(nation.id, nation);
+    }
+  }
   const internalIds = new Set();
   const sourceIdentities = new Set();
   const detailIds = new Set();
@@ -863,7 +1108,7 @@ export function validateRecordSetPolicy(
       validateRecordPolicy(record, {
         sourceConfig,
         taxonomy,
-        knownNationIds: nationIds,
+        knownNations,
       });
     } catch (error) {
       if (error instanceof PolicyValidationError) {

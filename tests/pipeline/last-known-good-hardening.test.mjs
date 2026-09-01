@@ -46,16 +46,18 @@ async function json(relativePath) {
   );
 }
 
-const [taxonomy, sourceRegistry, federalFixture, countyFixture] =
+const [taxonomy, sourceRegistry, federalFixture, countyFixture, accordFixture] =
   await Promise.all([
     json("config/taxonomy.v1.json"),
     json("config/sources.v1.json"),
     json("fixtures/records/general-jurisdiction.valid.json"),
     json("fixtures/records/county-explicit.valid.json"),
+    json("fixtures/records/intergovernmental-accord.valid.json"),
   ]);
 const records = [
   completeSyntheticProvenance(federalFixture),
   completeSyntheticProvenance(countyFixture),
+  completeSyntheticProvenance(accordFixture),
 ];
 const nations = generateSyntheticNations();
 
@@ -134,9 +136,9 @@ test("last-known-good reuse rejects incomplete or inconsistent artifact packages
     await t.test("loads a fully generated current artifact", async () => {
       await withFixture(async (root) => {
         const verified = await verifyLastKnownGoodArtifact(root);
-        assert.equal(verified.manifest.artifactVersion, "1.3.0");
-        assert.equal(verified.manifest.recordSchemaVersion, "1.3.0");
-        assert.equal(verified.records.length, 2);
+        assert.equal(verified.manifest.artifactVersion, "1.4.0");
+        assert.equal(verified.manifest.recordSchemaVersion, "1.4.0");
+        assert.equal(verified.records.length, 3);
 
         const loaded = await loadLastKnownGoodSource(
           root,
@@ -147,6 +149,20 @@ test("last-known-good reuse rejects incomplete or inconsistent artifact packages
           [federalFixture.internalId],
         );
         assert.equal(loaded.health?.recordCount, 1);
+
+        const loadedAccord = await loadLastKnownGoodSource(
+          root,
+          accordFixture.source.id,
+        );
+        assert.deepEqual(
+          loadedAccord.records.map(({ internalId }) => internalId),
+          [accordFixture.internalId],
+        );
+        assert.deepEqual(
+          loadedAccord.records[0].accordContext,
+          completeSyntheticProvenance(accordFixture).accordContext,
+        );
+        assert.equal(loadedAccord.health?.recordCount, 1);
       });
     });
 

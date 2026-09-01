@@ -783,7 +783,7 @@ function normalizeReconciledFederalRegisterDocument(
 
   const dataAsOf = `${document.publication_date}T00:00:00Z`;
   const record: PolicyRecord = {
-    schemaVersion: "1.3.0",
+    schemaVersion: "1.4.0",
     internalId: federalRegisterStableRecordId(document.document_number),
     source: {
       id: source.id,
@@ -814,6 +814,7 @@ function normalizeReconciledFederalRegisterDocument(
     issuingBodies,
     legislativeContext: null,
     judicialContext: null,
+    accordContext: null,
     status: {
       normalized: "unknown",
       sourceLabel: document.action ?? document.type,

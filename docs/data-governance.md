@@ -21,6 +21,17 @@ The [Tribal Leaders Directory](https://www.bia.gov/service/tribal-leaders-direct
 may support official-name reconciliation and documented aliases, but it is not
 the recognition authority. Do not publish its contacts, addresses, or geometry.
 
+The artifact must distinguish synthetic Nation fixtures from a production
+registry. Synthetic manifest and baseline flags must agree, and synthetic rows
+cannot claim reviewed identities, official crosswalks, source evidence,
+provenance, or source health. A production registry requires exactly 575
+collision-free reviewed identities, an explicit identity rule, a completed
+publication review, a validated source-paragraph reconciliation, current source
+health, and complete baseline evidence and field provenance. The contract can
+represent 577 source paragraphs reconciled to 575 identities, but it supplies no
+grouping or exclusion rule; `G-BIA-IDENTITY` remains closed until an
+authoritative rule is documented.
+
 ## Provenance and validation
 
 Preserve exact source values separately from normalized display and filter
@@ -56,7 +67,15 @@ A public Nation-to-record association requires source-explicit evidence. Store
 the Nation's stable internal identifier, the exact official name or authorized
 alias present in the source, the exact evidence passage or structured source
 field, the source document identifier, and the evidence URL. Validation must
-confirm that the evidence belongs to that official record.
+confirm that the stable identifier and official name match the validated Nation
+collection, the evidence contains that exact official name or reviewed alias,
+and the evidence URL belongs to that official record.
+
+State coverage is a separate reviewed crosswalk, not an inference. Every
+accepted WA, OR, or ID code requires authoritative source text, identifier,
+URL, source and retrieval dates, validation state, and matching field
+provenance. Without that evidence the entry remains federal-only with no state
+coverage claim.
 
 Do not derive or publish a Nation association from:
 

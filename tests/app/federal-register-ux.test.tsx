@@ -83,6 +83,7 @@ const compactRecord = (index: number) => {
     },
     issuingBodies: ["Synthetic Federal Agency"],
     judicialContext: null,
+    accordContext: null,
     status: {
       normalized: "unknown",
       sourceLabel: "Notice",
@@ -123,7 +124,7 @@ const compactRecord = (index: number) => {
 };
 
 const detailRecord = (compact: ReturnType<typeof compactRecord>) => ({
-  schemaVersion: "1.3.0",
+  schemaVersion: "1.4.0",
   internalId: compact.id,
   officialTitle: compact.officialTitle,
   sourceDocumentIdentifier: compact.sourceDocumentIdentifier,
@@ -146,6 +147,7 @@ const detailRecord = (compact: ReturnType<typeof compactRecord>) => ({
   jurisdiction: compact.jurisdiction,
   issuingBodies: [{ officialName: "Synthetic Federal Agency" }],
   judicialContext: null,
+  accordContext: null,
   status: compact.status,
   dates: {
     introduced: null,
@@ -218,8 +220,8 @@ function installArtifactFetch(
     [
       "manifest.json",
       {
-        artifactVersion: "1.3.0",
-        recordSchemaVersion: "1.3.0",
+        artifactVersion: "1.4.0",
+        recordSchemaVersion: "1.4.0",
         buildId: "synthetic-fr-ux",
         generatedAt: "2026-07-31T12:00:00.000Z",
         dataAsOf: "2026-07-31T00:00:00.000Z",
@@ -297,7 +299,7 @@ function installArtifactFetch(
 afterEach(() => {
   cleanup();
   sessionStorage.clear();
-  window.location.hash = "#/";
+  window.history.replaceState(null, "", "#/");
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
@@ -308,7 +310,11 @@ describe("Federal Register artifact UX", () => {
       compactRecord(index + 1),
     );
     const fetchMock = installArtifactFetch(records);
-    window.location.hash = `#/unclassified?nation=${encodeURIComponent(NATION_ID)}&areas=all`;
+    window.location.hash = `#/unclassified?nation=${encodeURIComponent(NATION_ID)}&areas=all&selected=psr%3Afederal-register%3Astale`;
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      callback(0);
+      return 1;
+    });
 
     const { container } = render(<App />);
 
@@ -327,6 +333,17 @@ describe("Federal Register artifact UX", () => {
     expect(
       screen.getAllByRole("link", { name: "Open record details" }),
     ).toHaveLength(50);
+    expect(container.textContent).toContain(
+      "General jurisdiction; not Nation-specific",
+    );
+    expect(container.querySelector("#route-announcement")?.textContent).toBe(
+      "Route changed: Unclassified records",
+    );
+    await waitFor(() =>
+      expect(
+        new URLSearchParams(window.location.hash.split("?")[1]).has("selected"),
+      ).toBe(false),
+    );
 
     fireEvent.click(
       screen.getByRole("button", { name: "Load 5 more records" }),
@@ -339,6 +356,32 @@ describe("Federal Register artifact UX", () => {
     expect(
       screen.getByRole("button", { name: "All matching records loaded" }),
     ).toBeDisabled();
+    expect(
+      new URLSearchParams(window.location.hash.split("?")[1]).get("shown"),
+    ).toBe("55");
+    const requestCountBeforeDetail = fetchMock.mock.calls.length;
+    fireEvent.click(
+      screen.getAllByRole("link", { name: "Open record details" })[54],
+    );
+    await screen.findByRole("heading", {
+      name: records[54].officialTitle,
+      level: 1,
+    });
+    expect(container.querySelector("#route-announcement")?.textContent).toBe(
+      `Route changed: Record details: ${records[54].officialTitle}`,
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(requestCountBeforeDetail + 1);
+
+    window.history.back();
+    await waitFor(() =>
+      expect(
+        screen.getByRole("link", { name: records[54].officialTitle }),
+      ).toHaveFocus(),
+    );
+    expect(
+      screen.getAllByRole("link", { name: "Open record details" }),
+    ).toHaveLength(55);
+    expect(fetchMock).toHaveBeenCalledTimes(requestCountBeforeDetail + 1);
     expect(
       fetchMock.mock.calls.every(([input]) => {
         const raw =
@@ -354,7 +397,7 @@ describe("Federal Register artifact UX", () => {
         );
       }),
     ).toBe(true);
-  });
+  }, 15_000);
 
   it("renders detail relationships and carries coverage, health, and attribution into the dossier", async () => {
     const record = compactRecord(1);
@@ -421,13 +464,34 @@ describe("Federal Register artifact UX", () => {
       level: 2,
     });
     fireEvent.click(screen.getByLabelText("Select for dossier and CSV"));
+    await waitFor(() =>
+      expect(
+        new URLSearchParams(window.location.hash.split("?")[1]).get("selected"),
+      ).toBe(record.id),
+    );
     fireEvent.input(
       screen.getByRole("searchbox", {
         name: "Search official source fields",
       }),
       { target: { value: "no-current-view-match" } },
     );
+    fireEvent.change(screen.getByLabelText("Sort results"), {
+      target: { value: "title" },
+    });
+    fireEvent.click(screen.getByRole("checkbox", { name: "Notice" }));
+    expect(screen.getByText("1 matching record")).toBeInTheDocument();
+    expect(window.location.hash).not.toContain("no-current-view-match");
     fireEvent.click(screen.getByRole("button", { name: "Apply filters" }));
+    await screen.findByText("0 matching records");
+    let appliedParams = new URLSearchParams(window.location.hash.split("?")[1]);
+    expect(appliedParams.get("q")).toBe("no-current-view-match");
+    expect(appliedParams.get("sort")).toBe("title");
+    expect(appliedParams.get("type")).toBe("notice");
+
+    window.history.back();
+    await screen.findByText("1 matching record");
+    expect(screen.getByLabelText("Select for dossier and CSV")).toBeChecked();
+    window.history.forward();
     await screen.findByText("0 matching records");
 
     fireEvent.click(
@@ -440,6 +504,18 @@ describe("Federal Register artifact UX", () => {
     expect(dossier?.textContent).toContain(
       "Selections persist across filters, so a selected record may not match the current view criteria",
     );
+
+    fireEvent.click(screen.getByRole("button", { name: "Reset filters" }));
+    await screen.findByText("1 matching record");
+    expect(screen.getByRole("combobox", { name: "Nation" })).toHaveValue(
+      "Synthetic Nation A",
+    );
+    appliedParams = new URLSearchParams(window.location.hash.split("?")[1]);
+    expect(appliedParams.get("nation")).toBe(NATION_ID);
+    expect(appliedParams.get("q")).toBeNull();
+    expect(appliedParams.get("sort")).toBeNull();
+    expect(appliedParams.get("type")).toBeNull();
+    expect(appliedParams.get("selected")).toBe(record.id);
   });
 
   it("aborts CSV and dossier output when any selected detail cannot be validated", async () => {
@@ -464,7 +540,7 @@ describe("Federal Register artifact UX", () => {
       fireEvent.click(checkbox);
     }
     await screen.findByRole("heading", {
-      name: "2 selected across current browser session",
+      name: "2 selected in this URL view",
       level: 3,
     });
 

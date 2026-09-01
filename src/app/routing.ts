@@ -6,6 +6,17 @@ export interface Route {
   recordId: string | null;
 }
 
+export interface RouteViewState {
+  selectedIds?: Iterable<string>;
+  resultWindow?: number | null;
+  focusRecordId?: string | null;
+}
+
+export const DEFAULT_RESULT_WINDOW = 50;
+const MAX_RESULT_WINDOW = 20_000;
+const MAX_SELECTED_RECORDS = 20_000;
+const RECORD_ID_PATTERN = /^psr:[a-z0-9]+(?:-[a-z0-9]+)*:[A-Za-z0-9._~:-]+$/;
+
 export const emptyCriteria = (): SearchCriteria => ({
   nationId: "",
   allPolicyAreas: false,
@@ -97,6 +108,64 @@ const setList = (
   if (values.length > 0) params.set(key, values.join(","));
 };
 
+const normalizeSelectedIds = (values: Iterable<string>): string[] =>
+  [...new Set(values)]
+    .filter((value) => RECORD_ID_PATTERN.test(value))
+    .sort()
+    .slice(0, MAX_SELECTED_RECORDS);
+
+const applyViewState = (
+  params: URLSearchParams,
+  state: RouteViewState = {},
+): URLSearchParams => {
+  if (state.selectedIds !== undefined) {
+    params.delete("selected");
+    setList(params, "selected", normalizeSelectedIds(state.selectedIds));
+  }
+  if (state.resultWindow !== undefined) {
+    params.delete("shown");
+    if (
+      state.resultWindow !== null &&
+      state.resultWindow > DEFAULT_RESULT_WINDOW
+    ) {
+      params.set(
+        "shown",
+        String(Math.min(Math.floor(state.resultWindow), MAX_RESULT_WINDOW)),
+      );
+    }
+  }
+  if (state.focusRecordId !== undefined) {
+    params.delete("focus");
+    if (state.focusRecordId) params.set("focus", state.focusRecordId);
+  }
+  return params;
+};
+
+const hashFor = (path: string, params: URLSearchParams): string => {
+  const query = params.toString();
+  return `#${path}${query ? `?${query}` : ""}`;
+};
+
+export const selectedIdsFromParams = (params: URLSearchParams): string[] =>
+  normalizeSelectedIds(
+    params
+      .getAll("selected")
+      .flatMap((value) => value.split(","))
+      .map((value) => value.trim())
+      .filter(Boolean),
+  );
+
+export const resultWindowFromParams = (params: URLSearchParams): number => {
+  const values = params.getAll("shown");
+  if (values.length !== 1) return DEFAULT_RESULT_WINDOW;
+  const raw = values[0];
+  if (!/^\d+$/.test(raw)) return DEFAULT_RESULT_WINDOW;
+  const parsed = Number(raw);
+  return Number.isSafeInteger(parsed) && parsed > DEFAULT_RESULT_WINDOW
+    ? Math.min(parsed, MAX_RESULT_WINDOW)
+    : DEFAULT_RESULT_WINDOW;
+};
+
 export const paramsFromCriteria = (
   criteria: SearchCriteria,
 ): URLSearchParams => {
@@ -127,23 +196,36 @@ export const paramsFromCriteria = (
   return params;
 };
 
-export const routeHash = (path: string, criteria?: SearchCriteria): string => {
+export const routeHash = (
+  path: string,
+  criteria?: SearchCriteria,
+  state?: RouteViewState,
+): string => {
   const params = criteria
     ? paramsFromCriteria(criteria)
     : new URLSearchParams();
-  const query = params.toString();
-  return `#${path}${query ? `?${query}` : ""}`;
+  return hashFor(path, applyViewState(params, state));
 };
+
+export const routeStateHash = (route: Route, state: RouteViewState): string =>
+  hashFor(route.path, applyViewState(new URLSearchParams(route.params), state));
 
 export const recordHash = (
   recordId: string,
   criteria: SearchCriteria,
   fromPath: string,
+  state?: RouteViewState,
 ): string => {
-  const params = paramsFromCriteria(criteria);
+  const params = applyViewState(paramsFromCriteria(criteria), {
+    ...state,
+    focusRecordId: recordId,
+  });
   params.set("return", fromPath);
-  return `#/record/${encodeURIComponent(recordId)}?${params.toString()}`;
+  return hashFor(`/record/${encodeURIComponent(recordId)}`, params);
 };
+
+export const recordFocusId = (recordId: string): string =>
+  `record-link-${encodeURIComponent(recordId)}`;
 
 export const navigate = (hash: string): void => {
   if (window.location.hash === hash) {

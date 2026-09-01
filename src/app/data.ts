@@ -1,4 +1,5 @@
 import type {
+  AccordContext,
   ArtifactBundle,
   ArtifactManifest,
   CoverageEntry,
@@ -55,6 +56,31 @@ const isHttpsUrl = (value: string): boolean => {
   } catch {
     return false;
   }
+};
+
+const hasExactlyKeys = (value: JsonObject, keys: string[]): boolean => {
+  const actual = Object.keys(value).sort();
+  const expected = [...keys].sort();
+  return (
+    actual.length === expected.length &&
+    actual.every((key, index) => key === expected[index])
+  );
+};
+
+const isSafeAccordUrl = (value: string): boolean => {
+  if (!isHttpsUrl(value)) return false;
+  const parsed = new URL(value);
+  const authority = value.slice("https://".length).split(/[/?#]/, 1)[0];
+  const hostAndPort = authority.split("@").at(-1) ?? "";
+  const hasExplicitPort = hostAndPort.startsWith("[")
+    ? hostAndPort.includes("]:")
+    : hostAndPort.includes(":");
+  return (
+    parsed.username === "" &&
+    parsed.password === "" &&
+    parsed.port === "" &&
+    !hasExplicitPort
+  );
 };
 
 const stringArray = (value: unknown): string[] =>
@@ -364,6 +390,217 @@ const normalizeJudicialContext = (value: unknown): JudicialContext | null => {
   };
 };
 
+const normalizeAccordContext = (value: unknown): AccordContext | null => {
+  const item = objectValue(value);
+  if (
+    !hasExactlyKeys(item, [
+      "parties",
+      "executionEvent",
+      "statusReview",
+      "supersessionReview",
+      "instrumentIdentity",
+    ]) ||
+    !Array.isArray(item.parties) ||
+    item.parties.length < 2 ||
+    item.parties.length > 50
+  ) {
+    return null;
+  }
+
+  const parties: AccordContext["parties"] = [];
+  for (const value of item.parties) {
+    const party = objectValue(value);
+    if (
+      !hasExactlyKeys(party, [
+        "sourceId",
+        "partyKind",
+        "officialName",
+        "roles",
+      ]) ||
+      (party.sourceId !== null &&
+        (typeof party.sourceId !== "string" || party.sourceId.length === 0)) ||
+      !["government", "collective_governments"].includes(
+        stringValue(party.partyKind),
+      ) ||
+      typeof party.officialName !== "string" ||
+      party.officialName.trim().length === 0 ||
+      !Array.isArray(party.roles) ||
+      party.roles.length === 0 ||
+      party.roles.length > 4
+    ) {
+      return null;
+    }
+
+    const roles: AccordContext["parties"][number]["roles"] = [];
+    for (const value of party.roles) {
+      const role = objectValue(value);
+      const normalized = stringValue(role.normalized);
+      const sourceLabel = stringValue(role.sourceLabel);
+      const sourceUrl = stringValue(role.sourceUrl);
+      if (
+        !hasExactlyKeys(role, ["normalized", "sourceLabel", "sourceUrl"]) ||
+        !["executing_party", "signatory_party"].includes(normalized) ||
+        sourceLabel.trim().length === 0 ||
+        !isSafeAccordUrl(sourceUrl)
+      ) {
+        return null;
+      }
+      roles.push({
+        normalized:
+          normalized as AccordContext["parties"][number]["roles"][number]["normalized"],
+        sourceLabel,
+        sourceUrl,
+      });
+    }
+    if (
+      new Set(roles.map(({ normalized }) => normalized)).size !== roles.length
+    ) {
+      return null;
+    }
+    parties.push({
+      sourceId: party.sourceId as string | null,
+      partyKind:
+        party.partyKind as AccordContext["parties"][number]["partyKind"],
+      officialName: party.officialName,
+      roles,
+    });
+  }
+  if (
+    new Set(
+      parties.map(({ sourceId, officialName }) =>
+        JSON.stringify([sourceId, officialName]),
+      ),
+    ).size !== parties.length
+  ) {
+    return null;
+  }
+
+  const executionEvent = objectValue(item.executionEvent);
+  const executionRole = stringValue(executionEvent.role);
+  const executionDate = stringValue(executionEvent.date);
+  const executionSourceLabel = stringValue(executionEvent.sourceLabel);
+  const executionSourceUrl = stringValue(executionEvent.sourceUrl);
+  if (
+    !hasExactlyKeys(executionEvent, [
+      "role",
+      "date",
+      "sourceLabel",
+      "sourceUrl",
+    ]) ||
+    !["executed", "signed"].includes(executionRole) ||
+    !isRealDate(executionDate) ||
+    executionSourceLabel.trim().length === 0 ||
+    !isSafeAccordUrl(executionSourceUrl)
+  ) {
+    return null;
+  }
+
+  const statusReview = objectValue(item.statusReview);
+  const statusSourceLabel = stringValue(statusReview.sourceLabel);
+  const statusSourceUrl = stringValue(statusReview.sourceUrl);
+  const statusReviewedOn = stringValue(statusReview.reviewedOn);
+  if (
+    !hasExactlyKeys(statusReview, [
+      "currentStatus",
+      "evidenceKind",
+      "sourceLabel",
+      "sourceUrl",
+      "reviewedOn",
+    ]) ||
+    statusReview.currentStatus !== "not_established" ||
+    statusReview.evidenceKind !== "narrative_execution_language" ||
+    statusSourceLabel.trim().length === 0 ||
+    !isSafeAccordUrl(statusSourceUrl) ||
+    !isRealDate(statusReviewedOn)
+  ) {
+    return null;
+  }
+
+  const supersessionReview = objectValue(item.supersessionReview);
+  const supersessionState = stringValue(supersessionReview.state);
+  const supersessionReviewedOn = stringValue(supersessionReview.reviewedOn);
+  if (
+    !hasExactlyKeys(supersessionReview, [
+      "state",
+      "scope",
+      "reviewedOn",
+      "sourceUrls",
+    ]) ||
+    !["no_relationship_established", "relationships_recorded"].includes(
+      supersessionState,
+    ) ||
+    supersessionReview.scope !== "reviewed_official_sources_only" ||
+    !isRealDate(supersessionReviewedOn) ||
+    !Array.isArray(supersessionReview.sourceUrls) ||
+    supersessionReview.sourceUrls.length === 0 ||
+    supersessionReview.sourceUrls.length > 10 ||
+    !supersessionReview.sourceUrls.every(
+      (sourceUrl): sourceUrl is string =>
+        typeof sourceUrl === "string" && isSafeAccordUrl(sourceUrl),
+    ) ||
+    new Set(supersessionReview.sourceUrls).size !==
+      supersessionReview.sourceUrls.length
+  ) {
+    return null;
+  }
+
+  const instrumentIdentity = objectValue(item.instrumentIdentity);
+  const identityKind = stringValue(instrumentIdentity.kind);
+  if (
+    !hasExactlyKeys(instrumentIdentity, [
+      "kind",
+      "sourceIdentifier",
+      "fallbackRuleId",
+    ]) ||
+    !["source_provided", "project_fallback"].includes(identityKind) ||
+    (identityKind === "source_provided" &&
+      (typeof instrumentIdentity.sourceIdentifier !== "string" ||
+        instrumentIdentity.sourceIdentifier.length === 0 ||
+        instrumentIdentity.fallbackRuleId !== null)) ||
+    (identityKind === "project_fallback" &&
+      (instrumentIdentity.sourceIdentifier !== null ||
+        typeof instrumentIdentity.fallbackRuleId !== "string" ||
+        !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(instrumentIdentity.fallbackRuleId)))
+  ) {
+    return null;
+  }
+
+  return {
+    parties,
+    executionEvent: {
+      role: executionRole as AccordContext["executionEvent"]["role"],
+      date: executionDate,
+      sourceLabel: executionSourceLabel,
+      sourceUrl: executionSourceUrl,
+    },
+    statusReview: {
+      currentStatus: "not_established",
+      evidenceKind: "narrative_execution_language",
+      sourceLabel: statusSourceLabel,
+      sourceUrl: statusSourceUrl,
+      reviewedOn: statusReviewedOn,
+    },
+    supersessionReview: {
+      state: supersessionState as AccordContext["supersessionReview"]["state"],
+      scope: "reviewed_official_sources_only",
+      reviewedOn: supersessionReviewedOn,
+      sourceUrls: [...supersessionReview.sourceUrls],
+    },
+    instrumentIdentity:
+      identityKind === "source_provided"
+        ? {
+            kind: "source_provided",
+            sourceIdentifier: instrumentIdentity.sourceIdentifier as string,
+            fallbackRuleId: null,
+          }
+        : {
+            kind: "project_fallback",
+            sourceIdentifier: null,
+            fallbackRuleId: instrumentIdentity.fallbackRuleId as string,
+          },
+  };
+};
+
 const issuingBodiesRepresentAdjudicatingBody = (
   value: unknown,
   normalized: string[],
@@ -500,7 +737,7 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
     item.officialTitle ?? item.title ?? item.official_title,
   );
   if (!internalId || !officialTitle) return null;
-  if (isDetailRecord && item.schemaVersion !== "1.3.0") return null;
+  if (isDetailRecord && item.schemaVersion !== "1.4.0") return null;
   if (
     isLandmark !== relevance.some(({ basis }) => basis === "landmark") ||
     (isDetailRecord &&
@@ -531,6 +768,12 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
     item.documentType ?? item.type,
     "other_official_record",
   );
+  const sourceDocumentIdentifier = stringValue(
+    item.sourceDocumentIdentifier ??
+      item.sourceId ??
+      source.recordId ??
+      internalId,
+  );
   const criterionDocumentTypes = new Map([
     ["documented-court-decision", "court_decision"],
     ["treaty", "treaty"],
@@ -555,6 +798,7 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
   }
   const issuingBodies = stringArray(item.issuingBodies);
   const judicialContext = normalizeJudicialContext(item.judicialContext);
+  const accordContext = normalizeAccordContext(item.accordContext);
   const isJudicial = ["court_decision", "administrative_decision"].includes(
     documentType,
   );
@@ -574,6 +818,46 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
       return null;
     }
   }
+  const isAccord = documentType === "intergovernmental_accord";
+  const accordGenericDateFields = [
+    "introduced",
+    "published",
+    "lastAction",
+    "deadline",
+    "effective",
+  ] as const;
+  const accordHasGenericDate = accordGenericDateFields.some((field) => {
+    const legacyField = {
+      introduced: "introducedDate",
+      published: "publishedDate",
+      lastAction: "lastActionDate",
+      deadline: "deadlineDate",
+      effective: "effectiveDate",
+    }[field];
+    const candidate = dates[field] ?? item[legacyField];
+    return candidate !== undefined && candidate !== null;
+  });
+  if (
+    !Object.hasOwn(item, "accordContext") ||
+    (isAccord &&
+      (!accordContext ||
+        issuingBodies.length !== 0 ||
+        item.judicialContext !== null ||
+        (isDetailRecord && item.legislativeContext !== null) ||
+        accordHasGenericDate ||
+        status.normalized !== "unknown" ||
+        status.sourceLabel !== null ||
+        status.asOf !== null ||
+        (accordContext.instrumentIdentity.kind === "source_provided" &&
+          accordContext.instrumentIdentity.sourceIdentifier !==
+            sourceDocumentIdentifier))) ||
+    (!isAccord &&
+      (item.accordContext !== null ||
+        typeof status.sourceLabel !== "string" ||
+        typeof status.asOf !== "string"))
+  ) {
+    return null;
+  }
 
   const officialSummary = normalizeSourceText(
     texts.officialSummary ?? item.officialSummary,
@@ -584,16 +868,90 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
   const officialLanguage = normalizeSourceText(
     texts.officialLanguage ?? item.officialLanguage,
   );
+  const sourceDocumentRelationships = normalizeSourceDocumentRelationships(
+    item.sourceDocumentRelationships,
+  );
+  const nationAssociations = normalizeAssociations(item.nationAssociations);
+  const nationIds = [
+    ...new Set([
+      ...stringArray(item.nationIds),
+      ...nationAssociations.map((association) => association.nationId),
+    ]),
+  ];
+  if (accordContext) {
+    const retrievedAt = nullableString(dates.retrieved ?? item.retrievedAt);
+    if (
+      accordContext.statusReview.reviewedOn <
+        accordContext.executionEvent.date ||
+      accordContext.supersessionReview.reviewedOn <
+        accordContext.executionEvent.date ||
+      (retrievedAt !== null &&
+        (accordContext.executionEvent.date > retrievedAt.slice(0, 10) ||
+          accordContext.statusReview.reviewedOn > retrievedAt.slice(0, 10) ||
+          accordContext.supersessionReview.reviewedOn >
+            retrievedAt.slice(0, 10))) ||
+      (isDetailRecord && !retrievedAt)
+    ) {
+      return null;
+    }
+    if (isDetailRecord || Object.hasOwn(item, "sourceDocumentRelationships")) {
+      const hasSupersessionRelationship = sourceDocumentRelationships.some(
+        ({ relationshipType }) =>
+          relationshipType === "supersedes" ||
+          relationshipType === "superseded_by",
+      );
+      if (
+        hasSupersessionRelationship !==
+        (accordContext.supersessionReview.state === "relationships_recorded")
+      ) {
+        return null;
+      }
+    }
+    if (
+      isDetailRecord &&
+      accordContext.instrumentIdentity.kind === "project_fallback"
+    ) {
+      const identifierProvenance = Array.isArray(item.fieldProvenance)
+        ? item.fieldProvenance
+            .map(objectValue)
+            .find(({ field }) => field === "/sourceDocumentIdentifier")
+        : undefined;
+      if (
+        !identifierProvenance ||
+        identifierProvenance.transformation !== "deterministic_mapping" ||
+        identifierProvenance.transformRuleId !==
+          accordContext.instrumentIdentity.fallbackRuleId
+      ) {
+        return null;
+      }
+    }
+    const nationParties = new Map(
+      accordContext.parties
+        .filter(({ sourceId }) => sourceId?.startsWith("nation:"))
+        .map((party) => [party.sourceId as string, party]),
+    );
+    if (
+      nationIds.length !== nationParties.size ||
+      nationIds.some((nationId) => !nationParties.has(nationId)) ||
+      (isDetailRecord &&
+        (nationAssociations.length !== nationParties.size ||
+          nationAssociations.some((association) => {
+            const party = nationParties.get(association.nationId);
+            return (
+              !party ||
+              association.validationState !== "validated" ||
+              association.officialNationName !== party.officialName
+            );
+          })))
+    ) {
+      return null;
+    }
+  }
 
   const record: PublicRecord = {
     internalId,
     officialTitle,
-    sourceDocumentIdentifier: stringValue(
-      item.sourceDocumentIdentifier ??
-        item.sourceId ??
-        source.recordId ??
-        internalId,
-    ),
+    sourceDocumentIdentifier,
     documentType,
     source: {
       id: stringValue(source.id ?? item.sourceKey, "unknown-source"),
@@ -628,15 +986,13 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
     },
     issuingBodies,
     judicialContext,
+    accordContext,
     status: {
       normalized: stringValue(
         status.normalized ?? item.normalizedStatus,
         "unknown",
       ),
-      sourceLabel: stringValue(
-        status.sourceLabel ?? item.sourceStatus,
-        "Not provided",
-      ),
+      sourceLabel: nullableString(status.sourceLabel ?? item.sourceStatus),
       asOf: nullableString(status.asOf ?? item.statusAsOf),
     },
     dates: {
@@ -675,22 +1031,13 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
     committees: stringArray(item.committees),
     actionHistory: normalizeHistory(item.actionHistory),
     statusHistory: normalizeHistory(item.statusHistory),
-    sourceDocumentRelationships: normalizeSourceDocumentRelationships(
-      item.sourceDocumentRelationships,
-    ),
+    sourceDocumentRelationships,
     officialSubjects: stringArray(item.officialSubjects),
     taxonomyMemberships,
     isUnclassified: booleanValue(item.isUnclassified, false),
     relevance,
-    nationIds: [
-      ...new Set([
-        ...stringArray(item.nationIds),
-        ...normalizeAssociations(item.nationAssociations).map(
-          (association) => association.nationId,
-        ),
-      ]),
-    ],
-    nationAssociations: normalizeAssociations(item.nationAssociations),
+    nationIds,
+    nationAssociations,
     landmark: {
       isLandmark,
       criterionCodes: landmarkCriterionCodes,
@@ -782,6 +1129,15 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
     record.judicialContext?.citations.map(({ value }) => value).join(" "),
     record.judicialContext?.documentForm.sourceLabel,
     record.judicialContext?.publicationStatus.sourceLabel,
+    record.accordContext?.parties
+      .map(({ officialName, roles }) =>
+        [officialName, ...roles.map(({ sourceLabel }) => sourceLabel)].join(
+          " ",
+        ),
+      )
+      .join(" "),
+    record.accordContext?.executionEvent.sourceLabel,
+    record.accordContext?.statusReview.sourceLabel,
     record.texts.officialSummary?.text,
     record.texts.sourceExcerpt?.text,
     record.texts.officialLanguage?.text,
@@ -800,24 +1156,24 @@ const normalizeManifest = (payload: unknown): ArtifactManifest => {
   const item = objectValue(payload);
   const statistics = objectValue(item.statistics);
   const artifactVersion = stringValue(item.artifactVersion);
-  if (artifactVersion !== "1.3.0") {
+  if (artifactVersion !== "1.4.0") {
     throw new Error(
-      `This application requires artifact package 1.3.0; received ${
+      `This application requires artifact package 1.4.0; received ${
         artifactVersion || "an unversioned package"
       }.`,
     );
   }
   const recordSchemaVersion = stringValue(item.recordSchemaVersion);
-  if (recordSchemaVersion !== "1.3.0") {
+  if (recordSchemaVersion !== "1.4.0") {
     throw new Error(
-      `This application requires record schema 1.3.0; received ${
+      `This application requires record schema 1.4.0; received ${
         recordSchemaVersion || "an unversioned record schema"
       }.`,
     );
   }
   const generatedAt = nullableString(item.generatedAt ?? item.builtAt);
   if (!generatedAt) {
-    throw new Error("Artifact package 1.3.0 is missing its build timestamp.");
+    throw new Error("Artifact package 1.4.0 is missing its build timestamp.");
   }
   return {
     artifactVersion,
@@ -1168,6 +1524,7 @@ const compactIntegrityProjection = (record: PublicRecord) => ({
   jurisdiction: record.jurisdiction,
   issuingBodies: record.issuingBodies,
   judicialContext: record.judicialContext,
+  accordContext: record.accordContext,
   status: record.status,
   source: {
     id: record.source.id,

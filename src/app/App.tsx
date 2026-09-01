@@ -1,13 +1,19 @@
 /** @jsxImportSource preact */
 
-import { useEffect, useMemo, useState } from "preact/hooks";
+import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { loadArtifacts, loadRecordDetail } from "./data";
 import { selectedRecordsCsv } from "./csv";
 import {
   criteriaFromParams,
+  DEFAULT_RESULT_WINDOW,
   navigate,
+  paramsFromCriteria,
   parseRoute,
+  recordFocusId,
+  resultWindowFromParams,
   routeHash,
+  routeStateHash,
+  selectedIdsFromParams,
   type Route,
 } from "./routing";
 import {
@@ -40,9 +46,17 @@ import { RecordCard } from "./components/RecordCard";
 const DISCLAIMER =
   "Policy Sentinel is a source-reference and discovery tool. It is not legal advice, a comprehensive legal database, a rights-impact engine, or a substitute for official sources.";
 
-const SELECTION_KEY = "policy-sentinel:selected-records";
-const RESULT_WINDOW_SIZE = 50;
 const DETAIL_HYDRATION_CONCURRENCY = 8;
+const ROUTE_LABELS: Record<string, string> = {
+  "/": "Home",
+  "/search": "Guided Nation search",
+  "/policy": "Browse policy areas",
+  "/timeline": "Landmark timeline",
+  "/unclassified": "Unclassified records",
+  "/coverage": "Source coverage",
+  "/methodology": "Methodology",
+  "/about": "About",
+};
 
 const coverageRangeText = (
   from: string | null,
@@ -67,27 +81,6 @@ const actualCoverageText = (entry: CoverageEntry): string =>
 const coverageIsLimited = (entry: CoverageEntry): boolean =>
   ["limited", "range-limited"].includes(entry.status.toLocaleLowerCase());
 
-const loadSelection = (): Set<string> => {
-  try {
-    const value = JSON.parse(sessionStorage.getItem(SELECTION_KEY) ?? "[]");
-    return new Set(
-      Array.isArray(value)
-        ? value.filter((item): item is string => typeof item === "string")
-        : [],
-    );
-  } catch {
-    return new Set();
-  }
-};
-
-const saveSelection = (selection: Set<string>): void => {
-  try {
-    sessionStorage.setItem(SELECTION_KEY, JSON.stringify([...selection]));
-  } catch {
-    // Selection remains available in memory if browser storage is unavailable.
-  }
-};
-
 interface DossierState {
   records: PublicRecord[];
   nation: Nation;
@@ -100,9 +93,15 @@ export function App() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
   const [route, setRoute] = useState<Route>(() => parseRoute());
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(loadSelection);
+  const selectedIdsRef = useRef<Set<string>>(
+    new Set(selectedIdsFromParams(route.params)),
+  );
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(
+    () => new Set(selectedIdsRef.current),
+  );
   const [outputStatus, setOutputStatus] = useState("");
   const [dossier, setDossier] = useState<DossierState | null>(null);
+  const previousRecordId = useRef<string | null>(route.recordId);
 
   useEffect(() => {
     let active = true;
@@ -126,26 +125,59 @@ export function App() {
   }, [retry]);
 
   useEffect(() => {
-    const updateRoute = () => setRoute(parseRoute());
+    const updateRoute = () => {
+      const nextRoute = parseRoute();
+      const nextSelectedIds = new Set(selectedIdsFromParams(nextRoute.params));
+      setRoute(nextRoute);
+      selectedIdsRef.current = nextSelectedIds;
+      setSelectedIds(nextSelectedIds);
+    };
     window.addEventListener("hashchange", updateRoute);
     return () => window.removeEventListener("hashchange", updateRoute);
   }, []);
 
   useEffect(() => {
-    const titles: Record<string, string> = {
-      "/": "Policy Sentinel",
-      "/search": "Nation search | Policy Sentinel",
-      "/policy": "Browse policy areas | Policy Sentinel",
-      "/timeline": "Landmark timeline | Policy Sentinel",
-      "/unclassified": "Unclassified records | Policy Sentinel",
-      "/coverage": "Source coverage | Policy Sentinel",
-      "/methodology": "Methodology | Policy Sentinel",
-      "/about": "About | Policy Sentinel",
-    };
+    if (!bundle) return;
+    const currentRoute = parseRoute();
+    const knownRecordIds = new Set(
+      bundle.records.map((record) => record.internalId),
+    );
+    const validSelectedIds = selectedIdsFromParams(currentRoute.params).filter(
+      (id) => knownRecordIds.has(id),
+    );
+    const normalizedHash = routeStateHash(currentRoute, {
+      selectedIds: validSelectedIds,
+    });
+    if (window.location.hash !== normalizedHash) {
+      window.history.replaceState(window.history.state, "", normalizedHash);
+      setRoute(parseRoute(normalizedHash));
+    } else if (
+      currentRoute.path !== route.path ||
+      currentRoute.params.toString() !== route.params.toString()
+    ) {
+      setRoute(currentRoute);
+    }
+    const nextSelectedIds = new Set(validSelectedIds);
+    selectedIdsRef.current = nextSelectedIds;
+    setSelectedIds(nextSelectedIds);
+  }, [bundle, route.path, route.recordId, route.params.toString()]);
+
+  useEffect(() => {
     document.title = route.recordId
       ? "Record details | Policy Sentinel"
-      : (titles[route.path] ?? "Policy Sentinel");
+      : `${ROUTE_LABELS[route.path] ?? "Page not found"} | Policy Sentinel`;
   }, [route.path, route.recordId]);
+
+  useEffect(() => {
+    const priorRecordId = previousRecordId.current;
+    previousRecordId.current = route.recordId;
+    if (route.recordId) return;
+    const focusRecordId = route.params.get("focus") ?? priorRecordId;
+    if (!focusRecordId) return;
+    window.requestAnimationFrame(() => {
+      document.getElementById(recordFocusId(focusRecordId))?.focus();
+    });
+  }, [route.path, route.recordId, route.params.get("focus")]);
 
   useEffect(() => {
     const afterPrint = () => setDossier(null);
@@ -154,19 +186,20 @@ export function App() {
   }, []);
 
   const setSelected = (recordId: string, selected: boolean) => {
-    setSelectedIds((current) => {
-      const next = new Set(current);
-      if (selected) next.add(recordId);
-      else next.delete(recordId);
-      saveSelection(next);
-      return next;
-    });
+    const currentRoute = parseRoute();
+    const next = new Set(selectedIdsRef.current);
+    if (selected) next.add(recordId);
+    else next.delete(recordId);
+    selectedIdsRef.current = next;
+    setSelectedIds(next);
+    navigate(routeStateHash(currentRoute, { selectedIds: next }));
   };
 
   const clearSelection = () => {
     const empty = new Set<string>();
+    selectedIdsRef.current = empty;
     setSelectedIds(empty);
-    saveSelection(empty);
+    navigate(routeStateHash(parseRoute(), { selectedIds: empty }));
     setOutputStatus("Selection cleared.");
   };
 
@@ -335,10 +368,25 @@ export function App() {
   const selectedRecords = bundle.records.filter((record) =>
     selectedIds.has(record.internalId),
   );
+  const routeAnnouncement = route.recordId
+    ? `Record details: ${
+        bundle.records.find((record) => record.internalId === route.recordId)
+          ?.officialTitle ?? "Record not found"
+      }`
+    : (ROUTE_LABELS[route.path] ?? "Page not found");
 
   return (
     <div class="site-shell">
-      <Header bundle={bundle} route={route} />
+      <Header bundle={bundle} route={route} selectedIds={selectedIds} />
+      <p
+        id="route-announcement"
+        class="visually-hidden"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        Route changed: {routeAnnouncement}
+      </p>
       {bundle.warnings.length > 0 && (
         <aside
           class="artifact-warning"
@@ -381,13 +429,21 @@ export function App() {
         )}
       </main>
 
-      <Footer />
+      <Footer selectedIds={selectedIds} />
       {dossier && <PrintDossier bundle={bundle} dossier={dossier} />}
     </div>
   );
 }
 
-function Header({ bundle, route }: { bundle: ArtifactBundle; route: Route }) {
+function Header({
+  bundle,
+  route,
+  selectedIds,
+}: {
+  bundle: ArtifactBundle;
+  route: Route;
+  selectedIds: Set<string>;
+}) {
   const unclassifiedCount = bundle.records.filter(
     ({ isUnclassified }) => isUnclassified,
   ).length;
@@ -405,7 +461,7 @@ function Header({ bundle, route }: { bundle: ArtifactBundle; route: Route }) {
   return (
     <header class="site-header">
       <div class="content-width site-header__top">
-        <a class="brand" href="#/">
+        <a class="brand" href={routeHash("/", undefined, { selectedIds })}>
           <span class="brand__mark" aria-hidden="true">
             PS
           </span>
@@ -425,7 +481,7 @@ function Header({ bundle, route }: { bundle: ArtifactBundle; route: Route }) {
         <div class="content-width primary-nav__scroll">
           {links.map(([path, label]) => (
             <a
-              href={`#${path}`}
+              href={routeHash(path, undefined, { selectedIds })}
               aria-current={
                 route.path === path ||
                 (path === "/search" && route.recordId !== null)
@@ -465,7 +521,7 @@ interface RoutePageProps {
 function RoutePage(props: RoutePageProps) {
   switch (props.route.path) {
     case "/":
-      return <HomePage bundle={props.bundle} />;
+      return <HomePage bundle={props.bundle} selectedIds={props.selectedIds} />;
     case "/search":
     case "/policy":
     case "/timeline":
@@ -478,11 +534,17 @@ function RoutePage(props: RoutePageProps) {
     case "/about":
       return <AboutPage />;
     default:
-      return <NotFoundPage />;
+      return <NotFoundPage selectedIds={props.selectedIds} />;
   }
 }
 
-function HomePage({ bundle }: { bundle: ArtifactBundle }) {
+function HomePage({
+  bundle,
+  selectedIds,
+}: {
+  bundle: ArtifactBundle;
+  selectedIds: Set<string>;
+}) {
   return (
     <>
       <section class="hero">
@@ -520,7 +582,9 @@ function HomePage({ bundle }: { bundle: ArtifactBundle }) {
                 <dd>{bundle.taxonomy.version}</dd>
               </div>
             </dl>
-            <a href="#/coverage">Review source coverage and health</a>
+            <a href={routeHash("/coverage", undefined, { selectedIds })}>
+              Review source coverage and health
+            </a>
           </aside>
         </div>
       </section>
@@ -541,7 +605,10 @@ function HomePage({ bundle }: { bundle: ArtifactBundle }) {
               Select one Nation, choose policy areas, review coverage, and apply
               the search.
             </p>
-            <a class="button" href="#/search">
+            <a
+              class="button"
+              href={routeHash("/search", undefined, { selectedIds })}
+            >
               Start guided search
             </a>
           </article>
@@ -554,7 +621,10 @@ function HomePage({ bundle }: { bundle: ArtifactBundle }) {
               Explore the editable taxonomy, choose categories, then select a
               Nation context.
             </p>
-            <a class="button" href="#/policy">
+            <a
+              class="button"
+              href={routeHash("/policy", undefined, { selectedIds })}
+            >
               Browse policy areas
             </a>
           </article>
@@ -567,7 +637,10 @@ function HomePage({ bundle }: { bundle: ArtifactBundle }) {
               Browse source-verified landmarks with visible historical ranges
               and gaps.
             </p>
-            <a class="button" href="#/timeline">
+            <a
+              class="button"
+              href={routeHash("/timeline", undefined, { selectedIds })}
+            >
               Open landmark timeline
             </a>
           </article>
@@ -606,23 +679,19 @@ function SearchWorkspace({
     () => criteriaFromParams(route.params),
     [route.path, route.params.toString()],
   );
+  const criteriaKey = paramsFromCriteria(appliedCriteria).toString();
   const isTimeline = route.path === "/timeline";
   const isUnclassified = route.path === "/unclassified";
   const isPolicyEntry = route.path === "/policy";
   const initialDraft = useMemo(() => {
-    const criteria = criteriaFromParams(route.params);
+    const criteria = criteriaFromParams(new URLSearchParams(criteriaKey));
     if (isTimeline || isUnclassified) criteria.allPolicyAreas = true;
     return criteria;
-  }, [route.path, route.params.toString()]);
+  }, [route.path, criteriaKey]);
   const [draft, setDraft] = useState<SearchCriteria>(initialDraft);
   const [nationError, setNationError] = useState("");
   const [policyError, setPolicyError] = useState("");
   const [dateError, setDateError] = useState("");
-  const resultWindowKey = `${route.path}?${route.params.toString()}`;
-  const [resultWindow, setResultWindow] = useState({
-    key: resultWindowKey,
-    count: RESULT_WINDOW_SIZE,
-  });
 
   useEffect(() => {
     setDraft(initialDraft);
@@ -673,10 +742,7 @@ function SearchWorkspace({
           isTimeline,
         )
       : [];
-  const visibleCount =
-    resultWindow.key === resultWindowKey
-      ? resultWindow.count
-      : RESULT_WINDOW_SIZE;
+  const visibleCount = resultWindowFromParams(route.params);
   const visibleResults = results.slice(0, visibleCount);
   const remainingResults = Math.max(0, results.length - visibleResults.length);
 
@@ -720,7 +786,7 @@ function SearchWorkspace({
         isTimeline || isUnclassified ? true : draft.allPolicyAreas,
     };
     const targetPath = isPolicyEntry ? "/search" : route.path;
-    navigate(routeHash(targetPath, next));
+    navigate(routeHash(targetPath, next, { selectedIds }));
   };
 
   const resetFacets = () => {
@@ -737,7 +803,7 @@ function SearchWorkspace({
       sort: "updated-desc",
     };
     setDraft(next);
-    navigate(routeHash(route.path, next));
+    navigate(routeHash(route.path, next, { selectedIds }));
   };
 
   const removeFacet = (
@@ -762,7 +828,7 @@ function SearchWorkspace({
       );
     }
     setDraft(next);
-    navigate(routeHash(route.path, next));
+    navigate(routeHash(route.path, next, { selectedIds }));
   };
 
   const heading = isTimeline
@@ -891,7 +957,9 @@ function SearchWorkspace({
                     : criteriaPolicySummary(appliedCriteria, bundle.taxonomy)}
               </p>
             </div>
-            <a href="#/coverage">Review coverage matrix</a>
+            <a href={routeHash("/coverage", undefined, { selectedIds })}>
+              Review coverage matrix
+            </a>
           </header>
 
           <CoverageNotice nation={nation} bundle={bundle} compact />
@@ -940,7 +1008,11 @@ function SearchWorkspace({
                 availability and historical ranges remain limited.
               </p>
               {!isUnclassified && (
-                <a href={routeHash("/unclassified", appliedCriteria)}>
+                <a
+                  href={routeHash("/unclassified", appliedCriteria, {
+                    selectedIds,
+                  })}
+                >
                   Review Unclassified and other records
                 </a>
               )}
@@ -952,6 +1024,7 @@ function SearchWorkspace({
               selectedIds={selectedIds}
               onSelectionChange={onSelectionChange}
               nation={nation}
+              resultWindow={visibleCount}
             />
           ) : (
             <div class="result-list" id="result-records">
@@ -962,13 +1035,15 @@ function SearchWorkspace({
                   fromPath={route.path}
                   whyShown={whyShownFor(record, nation.id)}
                   selected={selectedIds.has(record.internalId)}
+                  selectedIds={selectedIds}
+                  resultWindow={visibleCount}
                   onSelectionChange={onSelectionChange}
                 />
               ))}
             </div>
           )}
 
-          {results.length > RESULT_WINDOW_SIZE && (
+          {results.length > DEFAULT_RESULT_WINDOW && (
             <div class="result-window" aria-live="polite">
               <p>
                 Showing {visibleResults.length} of {results.length} matching
@@ -980,19 +1055,21 @@ function SearchWorkspace({
                 aria-controls="result-records"
                 disabled={remainingResults === 0}
                 onClick={() =>
-                  setResultWindow({
-                    key: resultWindowKey,
-                    count: Math.min(
-                      results.length,
-                      visibleCount + RESULT_WINDOW_SIZE,
-                    ),
-                  })
+                  navigate(
+                    routeHash(route.path, appliedCriteria, {
+                      selectedIds,
+                      resultWindow: Math.min(
+                        results.length,
+                        visibleCount + DEFAULT_RESULT_WINDOW,
+                      ),
+                    }),
+                  )
                 }
               >
                 {remainingResults === 0
                   ? "All matching records loaded"
                   : `Load ${Math.min(
-                      RESULT_WINDOW_SIZE,
+                      DEFAULT_RESULT_WINDOW,
                       remainingResults,
                     )} more records`}
               </button>
@@ -1006,7 +1083,11 @@ function SearchWorkspace({
                 Records without a clean deterministic mapping from official
                 source subjects remain searchable as Unclassified.
               </p>
-              <a href={routeHash("/unclassified", appliedCriteria)}>
+              <a
+                href={routeHash("/unclassified", appliedCriteria, {
+                  selectedIds,
+                })}
+              >
                 Browse Unclassified and other records
               </a>
             </aside>
@@ -1384,13 +1465,12 @@ function SelectionToolbar({
   return (
     <aside class="selection-toolbar" aria-labelledby="selection-title">
       <div>
-        <h3 id="selection-title">
-          {selectedCount} selected across current browser session
-        </h3>
+        <h3 id="selection-title">{selectedCount} selected in this URL view</h3>
         <p>
           {availableSelectedCount} selected record
           {availableSelectedCount === 1 ? " is" : "s are"} available in this
-          Nation context. Records can remain selected when filters change.
+          Nation context. The URL preserves selections when filters change and
+          through browser Back and Forward.
         </p>
       </div>
       <div class="selection-actions">
@@ -1432,12 +1512,14 @@ function TimelineResults({
   selectedIds,
   onSelectionChange,
   nation,
+  resultWindow,
 }: {
   results: PublicRecord[];
   criteria: SearchCriteria;
   selectedIds: Set<string>;
   onSelectionChange: (recordId: string, selected: boolean) => void;
   nation: Nation;
+  resultWindow: number;
 }) {
   return (
     <ol class="timeline-list" id="result-records">
@@ -1455,6 +1537,8 @@ function TimelineResults({
               fromPath="/timeline"
               whyShown={whyShownFor(record, nation.id)}
               selected={selectedIds.has(record.internalId)}
+              selectedIds={selectedIds}
+              resultWindow={resultWindow}
               onSelectionChange={onSelectionChange}
             />
           </li>
@@ -1535,7 +1619,11 @@ function DetailPage({
   )
     ? (route.params.get("return") as string)
     : "/search";
-  const returnHash = routeHash(returnPath, criteria);
+  const returnHash = routeHash(returnPath, criteria, {
+    selectedIds,
+    resultWindow: resultWindowFromParams(route.params),
+    focusRecordId: indexRecord?.internalId ?? route.params.get("focus"),
+  });
 
   if (!indexRecord) {
     return (
@@ -1648,10 +1736,28 @@ function DetailPage({
           <section aria-labelledby="official-metadata-title">
             <h2 id="official-metadata-title">Official source metadata</h2>
             <dl class="detail-metadata">
-              <div>
-                <dt>Source identifier</dt>
-                <dd>{record.sourceDocumentIdentifier}</dd>
-              </div>
+              {record.accordContext?.instrumentIdentity.kind ===
+              "project_fallback" ? (
+                <div>
+                  <dt>Reviewed fallback instrument identity</dt>
+                  <dd>
+                    {record.sourceDocumentIdentifier} (rule:{" "}
+                    {record.accordContext.instrumentIdentity.fallbackRuleId})
+                  </dd>
+                </div>
+              ) : (
+                <div>
+                  <dt>
+                    {record.accordContext
+                      ? "Official source identifier"
+                      : "Source identifier"}
+                  </dt>
+                  <dd>
+                    {record.accordContext?.instrumentIdentity
+                      .sourceIdentifier ?? record.sourceDocumentIdentifier}
+                  </dd>
+                </div>
+              )}
               <div>
                 <dt>Official source</dt>
                 <dd>{record.source.name}</dd>
@@ -1684,25 +1790,37 @@ function DetailPage({
                   {record.jurisdiction.name} ({record.jurisdiction.level})
                 </dd>
               </div>
-              <div>
-                <dt>Issuing body</dt>
-                <dd>
-                  {record.issuingBodies.join("; ") || "Not provided by source"}
-                </dd>
-              </div>
-              <div>
-                <dt>Source-reported status</dt>
-                <dd>
-                  {record.status.sourceLabel}{" "}
-                  {record.status.asOf
-                    ? `(as of ${formatDate(record.status.asOf)})`
-                    : ""}
-                </dd>
-              </div>
-              <div>
-                <dt>Normalized status</dt>
-                <dd>{humanize(record.status.normalized)}</dd>
-              </div>
+              {!record.accordContext && (
+                <div>
+                  <dt>Issuing body</dt>
+                  <dd>
+                    {record.issuingBodies.join("; ") ||
+                      "Not provided by source"}
+                  </dd>
+                </div>
+              )}
+              {record.accordContext ? (
+                <div>
+                  <dt>Current status</dt>
+                  <dd>Not stated by source</dd>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <dt>Source-reported status</dt>
+                    <dd>
+                      {record.status.sourceLabel ?? "Not provided by source"}{" "}
+                      {record.status.asOf
+                        ? `(as of ${formatDate(record.status.asOf)})`
+                        : ""}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Normalized status</dt>
+                    <dd>{humanize(record.status.normalized)}</dd>
+                  </div>
+                </>
+              )}
               <div>
                 <dt>Published</dt>
                 <dd>{formatDate(record.dates.published)}</dd>
@@ -1753,6 +1871,150 @@ function DetailPage({
               )}
             </div>
           </section>
+
+          {record.accordContext && (
+            <section aria-labelledby="accord-context-title">
+              <h2 id="accord-context-title">Accord metadata</h2>
+              <dl class="detail-metadata">
+                <div>
+                  <dt>Parties and source roles</dt>
+                  <dd>
+                    <ul>
+                      {record.accordContext.parties.map((party) => (
+                        <li
+                          key={[party.partyKind, party.officialName].join(":")}
+                        >
+                          <strong>{party.officialName}</strong> ({" "}
+                          {humanize(party.partyKind).toLocaleLowerCase()}):{" "}
+                          {party.roles.map((role, index) => (
+                            <span
+                              key={[
+                                role.normalized,
+                                role.sourceLabel,
+                                role.sourceUrl,
+                              ].join(":")}
+                            >
+                              {index > 0 ? "; " : ""}
+                              <a
+                                href={role.sourceUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                {role.sourceLabel}
+                                <span class="visually-hidden">
+                                  {" "}
+                                  (opens a new tab)
+                                </span>
+                              </a>{" "}
+                              ({humanize(role.normalized).toLocaleLowerCase()})
+                            </span>
+                          ))}
+                        </li>
+                      ))}
+                    </ul>
+                  </dd>
+                </div>
+                <div>
+                  <dt>{humanize(record.accordContext.executionEvent.role)}</dt>
+                  <dd>
+                    {formatDate(record.accordContext.executionEvent.date)} ·{" "}
+                    <a
+                      href={record.accordContext.executionEvent.sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {record.accordContext.executionEvent.sourceLabel}
+                      <span class="visually-hidden"> (opens a new tab)</span>
+                    </a>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Narrative execution evidence</dt>
+                  <dd>
+                    <a
+                      href={record.accordContext.statusReview.sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {record.accordContext.statusReview.sourceLabel}
+                      <span class="visually-hidden"> (opens a new tab)</span>
+                    </a>{" "}
+                    (reviewed{" "}
+                    {formatDate(record.accordContext.statusReview.reviewedOn)})
+                  </dd>
+                </div>
+                <div>
+                  <dt>Supersession review</dt>
+                  <dd>
+                    {humanize(record.accordContext.supersessionReview.state)} ·{" "}
+                    {humanize(
+                      record.accordContext.supersessionReview.scope,
+                    ).toLocaleLowerCase()}{" "}
+                    · reviewed{" "}
+                    {formatDate(
+                      record.accordContext.supersessionReview.reviewedOn,
+                    )}
+                    <ul>
+                      {record.accordContext.supersessionReview.sourceUrls.map(
+                        (sourceUrl) => (
+                          <li key={sourceUrl}>
+                            <a
+                              href={sourceUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              Reviewed official source
+                              <span class="visually-hidden">
+                                {" "}
+                                (opens a new tab)
+                              </span>
+                            </a>
+                          </li>
+                        ),
+                      )}
+                    </ul>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Instrument identity basis</dt>
+                  <dd>
+                    {record.accordContext.instrumentIdentity.kind ===
+                    "project_fallback" ? (
+                      <>
+                        Reviewed project fallback ({" "}
+                        {record.accordContext.instrumentIdentity.fallbackRuleId}
+                        )
+                      </>
+                    ) : (
+                      <>
+                        Source-provided identifier:{" "}
+                        {
+                          record.accordContext.instrumentIdentity
+                            .sourceIdentifier
+                        }
+                      </>
+                    )}
+                  </dd>
+                </div>
+              </dl>
+              <p class="boundary-note">
+                <strong>Current-status boundary:</strong> Narrative execution
+                language documents a historical event. It does not establish the
+                instrument&apos;s current legal status or legal effect.
+              </p>
+              <p class="boundary-note">
+                <strong>Relationship boundary:</strong> The supersession review
+                covers only the listed reviewed official sources. It is not a
+                complete amendment or supersession history.
+              </p>
+              <p class="boundary-note">
+                <strong>Nation-association boundary:</strong> Collective party
+                language does not create a Nation-specific relationship. Any
+                Nation association requires separate exact official signatory
+                evidence.
+              </p>
+            </section>
+          )}
 
           {record.judicialContext && (
             <section aria-labelledby="judicial-context-title">
@@ -2396,17 +2658,19 @@ function AboutPage() {
   );
 }
 
-function NotFoundPage() {
+function NotFoundPage({ selectedIds }: { selectedIds: Set<string> }) {
   return (
     <div class="content-width status-page">
       <h1>Page not found</h1>
       <p>The requested route is not part of this static application.</p>
-      <a href="#/">Return to Policy Sentinel</a>
+      <a href={routeHash("/", undefined, { selectedIds })}>
+        Return to Policy Sentinel
+      </a>
     </div>
   );
 }
 
-function Footer() {
+function Footer({ selectedIds }: { selectedIds: Set<string> }) {
   return (
     <footer class="site-footer">
       <div class="content-width footer-grid">
@@ -2415,9 +2679,15 @@ function Footer() {
           <p>Official-source public policy discovery for Tribal Nations.</p>
         </div>
         <nav aria-label="Footer">
-          <a href="#/coverage">Source coverage</a>
-          <a href="#/methodology">Methodology</a>
-          <a href="#/about">About and attribution</a>
+          <a href={routeHash("/coverage", undefined, { selectedIds })}>
+            Source coverage
+          </a>
+          <a href={routeHash("/methodology", undefined, { selectedIds })}>
+            Methodology
+          </a>
+          <a href={routeHash("/about", undefined, { selectedIds })}>
+            About and attribution
+          </a>
         </nav>
       </div>
       <p class="content-width footer-disclaimer">{DISCLAIMER}</p>
@@ -2544,10 +2814,24 @@ function PrintDossier({
               <p class="dossier-record__number">Record {index + 1}</p>
               <h3>{record.officialTitle}</h3>
               <dl>
-                <div>
-                  <dt>Official identifier</dt>
-                  <dd>{record.sourceDocumentIdentifier}</dd>
-                </div>
+                {record.accordContext?.instrumentIdentity.kind ===
+                "project_fallback" ? (
+                  <div>
+                    <dt>Reviewed fallback instrument identity</dt>
+                    <dd>
+                      {record.sourceDocumentIdentifier} (rule:{" "}
+                      {record.accordContext.instrumentIdentity.fallbackRuleId})
+                    </dd>
+                  </div>
+                ) : (
+                  <div>
+                    <dt>Official identifier</dt>
+                    <dd>
+                      {record.accordContext?.instrumentIdentity
+                        .sourceIdentifier ?? record.sourceDocumentIdentifier}
+                    </dd>
+                  </div>
+                )}
                 <div>
                   <dt>Document type</dt>
                   <dd>{humanize(record.documentType)}</dd>
@@ -2556,13 +2840,15 @@ function PrintDossier({
                   <dt>Jurisdiction</dt>
                   <dd>{record.jurisdiction.name}</dd>
                 </div>
-                <div>
-                  <dt>Issuing body</dt>
-                  <dd>
-                    {record.issuingBodies.join("; ") ||
-                      "Not provided by source"}
-                  </dd>
-                </div>
+                {!record.accordContext && (
+                  <div>
+                    <dt>Issuing body</dt>
+                    <dd>
+                      {record.issuingBodies.join("; ") ||
+                        "Not provided by source"}
+                    </dd>
+                  </div>
+                )}
                 {record.judicialContext && (
                   <>
                     <div>
@@ -2615,10 +2901,99 @@ function PrintDossier({
                     </div>
                   </>
                 )}
-                <div>
-                  <dt>Source status</dt>
-                  <dd>{record.status.sourceLabel}</dd>
-                </div>
+                {record.accordContext && (
+                  <>
+                    <div>
+                      <dt>Accord parties</dt>
+                      <dd>
+                        {record.accordContext.parties
+                          .map(({ officialName }) => officialName)
+                          .join("; ")}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Party roles and evidence</dt>
+                      <dd>
+                        {record.accordContext.parties.map(
+                          (party, partyIndex) => (
+                            <span
+                              key={[
+                                party.sourceId ?? "collective",
+                                party.officialName,
+                              ].join(":")}
+                            >
+                              {partyIndex > 0 ? "; " : ""}
+                              {party.officialName}:{" "}
+                              {party.roles.map((role, roleIndex) => (
+                                <span
+                                  key={[role.normalized, role.sourceUrl].join(
+                                    ":",
+                                  )}
+                                >
+                                  {roleIndex > 0 ? ", " : ""}
+                                  {role.sourceLabel} ({role.sourceUrl})
+                                </span>
+                              ))}
+                            </span>
+                          ),
+                        )}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>
+                        {humanize(record.accordContext.executionEvent.role)}
+                      </dt>
+                      <dd>
+                        {formatDate(record.accordContext.executionEvent.date)} ·{" "}
+                        {record.accordContext.executionEvent.sourceLabel} ({" "}
+                        {record.accordContext.executionEvent.sourceUrl})
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Narrative execution evidence</dt>
+                      <dd>
+                        {record.accordContext.statusReview.sourceLabel} ({" "}
+                        {record.accordContext.statusReview.sourceUrl}); reviewed{" "}
+                        {formatDate(
+                          record.accordContext.statusReview.reviewedOn,
+                        )}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Supersession review</dt>
+                      <dd>
+                        {humanize(
+                          record.accordContext.supersessionReview.state,
+                        )}
+                        ;{" "}
+                        {humanize(
+                          record.accordContext.supersessionReview.scope,
+                        ).toLocaleLowerCase()}
+                        ; reviewed{" "}
+                        {formatDate(
+                          record.accordContext.supersessionReview.reviewedOn,
+                        )}
+                        ; reviewed sources:{" "}
+                        {record.accordContext.supersessionReview.sourceUrls.join(
+                          "; ",
+                        )}
+                      </dd>
+                    </div>
+                  </>
+                )}
+                {record.accordContext ? (
+                  <div>
+                    <dt>Current status</dt>
+                    <dd>Not stated by source</dd>
+                  </div>
+                ) : (
+                  <div>
+                    <dt>Source status</dt>
+                    <dd>
+                      {record.status.sourceLabel ?? "Not provided by source"}
+                    </dd>
+                  </div>
+                )}
                 <div>
                   <dt>{date.label}</dt>
                   <dd>{formatDate(date.value)}</dd>
@@ -2669,6 +3044,26 @@ function PrintDossier({
                   subsequent-history, precedential-force, or legal-effect
                   determination.
                 </p>
+              )}
+              {record.accordContext && (
+                <>
+                  <p>
+                    Current-status boundary: narrative execution language
+                    documents a historical event. It does not establish the
+                    instrument&apos;s current legal status or legal effect.
+                  </p>
+                  <p>
+                    Relationship boundary: the supersession review covers only
+                    the listed reviewed official sources. It is not a complete
+                    amendment or supersession history.
+                  </p>
+                  <p>
+                    Nation-association boundary: collective party language does
+                    not create a Nation-specific relationship. Any Nation
+                    association requires separate exact official signatory
+                    evidence.
+                  </p>
+                </>
               )}
               {record.texts.detailReproductionBasis && (
                 <p>

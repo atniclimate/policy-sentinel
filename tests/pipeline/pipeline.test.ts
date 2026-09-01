@@ -16,6 +16,7 @@ test("pipeline contract and governance suite passes", () => {
       "tests/pipeline/artifact-health.test.mjs",
       "tests/pipeline/artifact-validator-hardening.test.mjs",
       "tests/pipeline/last-known-good-hardening.test.mjs",
+      "tests/pipeline/nation-collection-policy.test.mjs",
       "tests/pipeline/pipeline.test.mjs",
       "tests/pipeline/source-registry.test.mjs",
     ],

@@ -49,6 +49,7 @@ const [
   sourceRegistry,
   federalFixture,
   countyFixture,
+  accordFixture,
   failureFixture,
   recordSchema,
 ] = await Promise.all([
@@ -56,6 +57,7 @@ const [
   json("config/sources.v1.json"),
   json("fixtures/records/general-jurisdiction.valid.json"),
   json("fixtures/records/county-explicit.valid.json"),
+  json("fixtures/records/intergovernmental-accord.valid.json"),
   json("fixtures/sources/synthetic-refresh-failure.valid.json"),
   json("schemas/record.schema.v1.json"),
 ]);
@@ -65,6 +67,7 @@ const sourceConfigs = new Map(
 const nations = generateSyntheticNations();
 const preparedFederal = completeSyntheticProvenance(federalFixture);
 const preparedCounty = completeSyntheticProvenance(countyFixture);
+const preparedAccord = completeSyntheticProvenance(accordFixture);
 const defaultGeneratedAt = "2026-07-30T15:00:00.000Z";
 
 function sourceHealthReceiptsFor(registry, records, receiptOverrides = []) {
@@ -369,7 +372,7 @@ async function createLastKnownGoodFixture({
 }
 
 async function createArtifactValidatorFixture({
-  records = [preparedFederal, preparedCounty],
+  records = [preparedFederal, preparedCounty, preparedAccord],
   sourceHealth,
   generatedAt = "2026-07-30T15:00:00Z",
 } = {}) {
@@ -473,7 +476,7 @@ test("synthetic provenance covers every declared source-derived leaf", () => {
   }
 });
 
-test("record schema 1.3 constrains source-document relationship shape", () => {
+test("record schema 1.4 constrains source-document relationship shape", () => {
   const [original] = correctionRelationshipPair();
   assert.equal(
     validateRecordSchema(original),
@@ -495,7 +498,7 @@ test("record schema 1.3 constrains source-document relationship shape", () => {
   assert.equal(validateRecordSchema(nonHttpsTarget), false);
 });
 
-test("record schema 1.3 requires a bounded source-neutral judicial context", () => {
+test("record schema 1.4 requires a bounded source-neutral judicial context", () => {
   const valid = judicialRecord();
   assert.equal(
     validateRecordSchema(valid),
@@ -583,8 +586,26 @@ test("judicial context, revision review, and one-way curated edges fail closed",
   ];
   oneWay.fieldProvenance = [];
   const preparedOneWay = completeSyntheticProvenance(oneWay);
+  assert.throws(
+    () =>
+      validateRecordSetPolicy([preparedOneWay], {
+        sourceRegistry,
+        taxonomy,
+        nations,
+      }),
+    /targets missing same-source record synthetic-federal\/SYN-OLDER/,
+  );
+
+  const older = relationshipRecord("SYN-OLDER", [
+    {
+      relationshipType: "superseded_by",
+      targetSourceRecordId: oneWay.source.recordId,
+      targetUrl: oneWay.urls.officialSource,
+      sourceLabel: "Superseded by",
+    },
+  ]);
   assert.doesNotThrow(() =>
-    validateRecordSetPolicy([preparedOneWay], {
+    validateRecordSetPolicy([preparedOneWay, older], {
       sourceRegistry,
       taxonomy,
       nations,
@@ -624,6 +645,214 @@ test("judicial context, revision review, and one-way curated edges fail closed",
       }),
     /judicialContext\/citations\/0\/sourceUrl hostname attacker\.test/,
   );
+});
+
+test("accord schema and policy keep parties, status, dates, and evidence source-neutral", () => {
+  const validateAccordPolicy = (record) =>
+    validateRecordPolicy(record, {
+      sourceConfig: sourceConfigs.get(record.source.id),
+      taxonomy,
+      knownNationIds: new Set(nations.map(({ id }) => id)),
+    });
+
+  assert.equal(
+    validateRecordSchema(preparedAccord),
+    true,
+    JSON.stringify(validateRecordSchema.errors),
+  );
+  assert.doesNotThrow(() => validateAccordPolicy(preparedAccord));
+
+  const nonAccordContext = globalThis.structuredClone(preparedFederal);
+  nonAccordContext.accordContext = globalThis.structuredClone(
+    preparedAccord.accordContext,
+  );
+  assert.equal(validateRecordSchema(nonAccordContext), false);
+
+  const issuingParty = globalThis.structuredClone(preparedAccord);
+  issuingParty.issuingBodies = [
+    { sourceId: null, officialName: "Synthetic State Government" },
+  ];
+  assert.equal(validateRecordSchema(issuingParty), false);
+  assert.throws(
+    () => validateAccordPolicy(issuingParty),
+    /cannot be relabeled as issuing bodies/,
+  );
+
+  const assertedStatus = globalThis.structuredClone(preparedAccord);
+  assertedStatus.accordContext.statusReview.currentStatus = "active";
+  assert.equal(validateRecordSchema(assertedStatus), false);
+  assert.throws(
+    () => validateAccordPolicy(assertedStatus),
+    /cannot assert a current status/,
+  );
+
+  const genericStatus = globalThis.structuredClone(preparedAccord);
+  genericStatus.status = {
+    normalized: "active",
+    sourceLabel: "In force",
+    asOf: "2026-07-30",
+  };
+  assert.equal(validateRecordSchema(genericStatus), false);
+  assert.throws(
+    () => validateAccordPolicy(genericStatus),
+    /generic status must remain unknown and unlabeled/,
+  );
+
+  for (const dateField of [
+    "introduced",
+    "published",
+    "lastAction",
+    "deadline",
+    "effective",
+  ]) {
+    const copiedExecution = globalThis.structuredClone(preparedAccord);
+    copiedExecution.dates[dateField] =
+      preparedAccord.accordContext.executionEvent.date;
+    assert.equal(validateRecordSchema(copiedExecution), false, dateField);
+    assert.throws(
+      () => validateAccordPolicy(copiedExecution),
+      /execution cannot be copied into a generic record date/,
+      dateField,
+    );
+  }
+
+  const independentlyUpdated = globalThis.structuredClone(preparedAccord);
+  independentlyUpdated.dates.updated = "2026-07-29T18:00:00Z";
+  const preparedIndependentlyUpdated =
+    completeSyntheticProvenance(independentlyUpdated);
+  assert.equal(
+    validateRecordSchema(preparedIndependentlyUpdated),
+    true,
+    JSON.stringify(validateRecordSchema.errors),
+  );
+  assert.doesNotThrow(() => validateAccordPolicy(preparedIndependentlyUpdated));
+
+  const dateOnlyUpdate = globalThis.structuredClone(preparedAccord);
+  dateOnlyUpdate.dates.updated = "2026-07-29";
+  assert.equal(validateRecordSchema(dateOnlyUpdate), false);
+
+  const impossibleReview = globalThis.structuredClone(preparedAccord);
+  impossibleReview.accordContext.statusReview.reviewedOn = "1974-08-03";
+  assert.throws(
+    () => validateAccordPolicy(impossibleReview),
+    /status review date falls outside execution-to-retrieval bounds/,
+  );
+
+  const mismatchedSourceIdentity = globalThis.structuredClone(preparedAccord);
+  mismatchedSourceIdentity.accordContext.instrumentIdentity = {
+    kind: "source_provided",
+    sourceIdentifier: "different-source-identifier",
+    fallbackRuleId: null,
+  };
+  assert.throws(
+    () => validateAccordPolicy(mismatchedSourceIdentity),
+    /source-provided identity does not match/,
+  );
+
+  const unprovenFallback = globalThis.structuredClone(preparedAccord);
+  unprovenFallback.fieldProvenance.find(
+    ({ field }) => field === "/sourceDocumentIdentifier",
+  ).transformRuleId = "different-fallback-rule-v1";
+  assert.throws(
+    () => validateAccordPolicy(unprovenFallback),
+    /fallback identifier lacks its deterministic provenance rule/,
+  );
+
+  const registryDrift = globalThis.structuredClone(preparedAccord);
+  registryDrift.accordContext.instrumentIdentity.fallbackRuleId =
+    "different-fallback-rule-v1";
+  registryDrift.fieldProvenance.find(
+    ({ field }) => field === "/sourceDocumentIdentifier",
+  ).transformRuleId = "different-fallback-rule-v1";
+  assert.throws(
+    () => validateAccordPolicy(registryDrift),
+    /fallback identity rule differs from source registry/,
+  );
+
+  const unassociatedNationParty = globalThis.structuredClone(preparedAccord);
+  unassociatedNationParty.accordContext.parties[1].sourceId =
+    "nation:synthetic-a";
+  unassociatedNationParty.accordContext.parties[1].officialName =
+    "Synthetic Nation A";
+  assert.throws(
+    () => validateAccordPolicy(unassociatedNationParty),
+    /Nation party nation:synthetic-a lacks a matching validated association/,
+  );
+
+  const unsafeRoleUrl = globalThis.structuredClone(preparedAccord);
+  unsafeRoleUrl.accordContext.parties[0].roles[0].sourceUrl =
+    "https://attacker.test/accord";
+  assert.throws(
+    () => validateAccordPolicy(unsafeRoleUrl),
+    /accordContext\/parties\/0\/roles\/0\/sourceUrl hostname attacker\.test/,
+  );
+
+  const missingContextProvenance = globalThis.structuredClone(preparedAccord);
+  missingContextProvenance.fieldProvenance =
+    missingContextProvenance.fieldProvenance.filter(
+      ({ field }) => field !== "/accordContext/executionEvent/date",
+    );
+  assert.throws(
+    () => validateAccordPolicy(missingContextProvenance),
+    /source-derived field \/accordContext\/executionEvent\/date lacks exact provenance/,
+  );
+});
+
+test("accord supersession and substitution edges require reciprocal records", () => {
+  const relationshipAccord = (recordId, relationship) => {
+    const record = globalThis.structuredClone(accordFixture);
+    record.internalId = makeStableRecordId(record.source.id, recordId);
+    record.source.recordId = recordId;
+    record.sourceDocumentIdentifier = recordId.toLowerCase();
+    record.officialTitle = `Synthetic accord ${recordId}`;
+    record.accordContext.supersessionReview.state = "relationships_recorded";
+    record.sourceDocumentRelationships = [relationship];
+    const identifierProvenance = globalThis.structuredClone(
+      accordFixture.fieldProvenance.find(
+        ({ field }) => field === "/sourceDocumentIdentifier",
+      ),
+    );
+    identifierProvenance.sourceRecordId = recordId;
+    record.fieldProvenance = [identifierProvenance];
+    return completeSyntheticProvenance(record);
+  };
+
+  for (const [forwardType, reciprocalType] of [
+    ["supersedes", "superseded_by"],
+    ["substitutes", "substituted_by"],
+  ]) {
+    const currentId = `SYN-${forwardType.toUpperCase()}`;
+    const priorId = `SYN-${reciprocalType.toUpperCase()}`;
+    const current = relationshipAccord(currentId, {
+      relationshipType: forwardType,
+      targetSourceRecordId: priorId,
+      targetUrl: preparedAccord.urls.officialSource,
+      sourceLabel: forwardType,
+    });
+    assert.throws(
+      () =>
+        validateRecordSetPolicy([current], {
+          sourceRegistry,
+          taxonomy,
+          nations,
+        }),
+      /targets missing same-source record/,
+    );
+
+    const prior = relationshipAccord(priorId, {
+      relationshipType: reciprocalType,
+      targetSourceRecordId: currentId,
+      targetUrl: preparedAccord.urls.officialSource,
+      sourceLabel: reciprocalType,
+    });
+    assert.doesNotThrow(() =>
+      validateRecordSetPolicy([current, prior], {
+        sourceRegistry,
+        taxonomy,
+        nations,
+      }),
+    );
+  }
 });
 
 test("judicial decision date controls historical treatment and artifact coverage", () => {
@@ -704,7 +933,7 @@ test("judicial decision date controls historical treatment and artifact coverage
   assert.equal(coverage.recordThrough, "2019-03-19");
 });
 
-test("record schema 1.3 and policy fail closed around landmark evidence", () => {
+test("record schema 1.4 and policy fail closed around landmark evidence", () => {
   const valid = landmarkJudicialRecord();
   assert.equal(
     validateRecordSchema(valid),
@@ -916,7 +1145,7 @@ test("relationship leaves require exact provenance", () => {
 
 test("valid synthetic records pass policy and uniqueness validation", () => {
   assert.doesNotThrow(() =>
-    validateRecordSetPolicy([preparedFederal, preparedCounty], {
+    validateRecordSetPolicy([preparedFederal, preparedCounty, preparedAccord], {
       sourceRegistry,
       taxonomy,
       nations,
@@ -1387,7 +1616,7 @@ test("last-known-good verifier rejects duplicate and unsafe manifest entries", a
 
 test("artifact packaging is deterministic, compact, and detail-sharded", () => {
   const input = {
-    records: [preparedFederal, preparedCounty],
+    records: [preparedFederal, preparedCounty, preparedAccord],
     nations,
     taxonomy,
     sourceRegistry,
@@ -1397,11 +1626,11 @@ test("artifact packaging is deterministic, compact, and detail-sharded", () => {
   const first = createArtifactDocuments(input);
   const second = createArtifactDocuments(input);
   assert.deepEqual(first.get("manifest.json"), second.get("manifest.json"));
-  assert.equal(first.get("manifest.json").artifactVersion, "1.3.0");
-  assert.equal(first.get("manifest.json").recordSchemaVersion, "1.3.0");
+  assert.equal(first.get("manifest.json").artifactVersion, "1.4.0");
+  assert.equal(first.get("manifest.json").recordSchemaVersion, "1.4.0");
   assert.equal(first.get("manifest.json").nationCount, 575);
-  assert.equal(first.get("manifest.json").recordCount, 2);
-  assert.equal(first.get("index/records.json").records.length, 2);
+  assert.equal(first.get("manifest.json").recordCount, 3);
+  assert.equal(first.get("index/records.json").records.length, 3);
   assert.deepEqual(
     first
       .get("source-health.json")
@@ -1452,7 +1681,7 @@ test("artifact packaging is deterministic, compact, and detail-sharded", () => {
   );
   assert.equal(
     [...first.keys()].filter((key) => key.startsWith("details/")).length,
-    2,
+    3,
   );
   for (const entry of first.get("index/records.json").records) {
     assert.equal("aiSummary" in entry, false);
@@ -1461,12 +1690,15 @@ test("artifact packaging is deterministic, compact, and detail-sharded", () => {
     assert.equal("categoryIds" in entry, false);
     assert.equal("subcategoryIds" in entry, false);
     assert.deepEqual(entry.taxonomyMemberships, []);
-    assert.deepEqual(entry.landmark, { isLandmark: false });
     assert.match(entry.detailPath, /^details\/[A-Za-z0-9_-]+\.json$/);
-    const sourceRecord = [preparedFederal, preparedCounty].find(
+    const sourceRecord = [preparedFederal, preparedCounty, preparedAccord].find(
       ({ internalId }) => internalId === entry.id,
     );
     assert.ok(sourceRecord);
+    assert.deepEqual(entry.landmark, {
+      isLandmark: sourceRecord.landmark.isLandmark,
+    });
+    assert.deepEqual(entry.accordContext, sourceRecord.accordContext);
     assert.equal(
       entry.sourceDocumentIdentifier,
       sourceRecord.sourceDocumentIdentifier,

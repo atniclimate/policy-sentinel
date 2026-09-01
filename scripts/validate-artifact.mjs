@@ -12,6 +12,7 @@ import {
   toCompactIndexRecord,
 } from "../src/pipeline/artifact.mjs";
 import { toUrlSafeId } from "../src/pipeline/identity.mjs";
+import { assertNationCollectionPolicy } from "../src/pipeline/nation-collection-policy.mjs";
 import { validateRecordSetPolicy } from "../src/pipeline/policy-validation.mjs";
 import { assertSourceRegistrySemantics } from "../src/pipeline/source-registry.mjs";
 
@@ -19,8 +20,8 @@ const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
-const SUPPORTED_ARTIFACT_VERSION = "1.3.0";
-const SUPPORTED_RECORD_SCHEMA_VERSION = "1.3.0";
+const SUPPORTED_ARTIFACT_VERSION = "1.4.0";
+const SUPPORTED_RECORD_SCHEMA_VERSION = "1.4.0";
 
 function parseArguments(argv) {
   let directory = path.join(projectRoot, "dist", "data");
@@ -211,31 +212,6 @@ function assertNoCredentialMaterial(content, relativePath) {
   }
 }
 
-function assertNationCollection(nationDocument) {
-  const { nations, baseline } = nationDocument;
-  if (nations.length !== 575 || baseline.count !== 575) {
-    throw new Error("Nation artifact must contain exactly 575 entries");
-  }
-  assertUnique(
-    nations.map(({ id }) => id),
-    "Nation IDs",
-  );
-  assertUnique(
-    nations.map(({ officialName }) => officialName.toLocaleLowerCase("en-US")),
-    "official Nation names",
-  );
-  for (const nation of nations) {
-    if (
-      nation.stateCoverage.federalOnly !==
-      (nation.stateCoverage.states.length === 0)
-    ) {
-      throw new Error(
-        `inconsistent state coverage flag for Nation ${nation.id}`,
-      );
-    }
-  }
-}
-
 function assertIndexMatchesDetails(indexDocument, detailEntries) {
   const entries = new Map(
     indexDocument.records.map((entry) => [entry.id, entry]),
@@ -318,6 +294,7 @@ function assertHealth(sourceHealth, sourceRegistry, records) {
 function recordCoverageDate(record) {
   const value =
     record.judicialContext?.decisionDate ??
+    record.accordContext?.executionEvent.date ??
     record.dates.published ??
     record.status.asOf;
   if (typeof value !== "string" || value.length < 10) {
@@ -645,7 +622,9 @@ if (JSON.stringify(taxonomy) !== JSON.stringify(taxonomyConfig)) {
 }
 
 const nationDocument = documents.get("nations.json");
-assertNationCollection(nationDocument);
+assertNationCollectionPolicy(nationDocument, {
+  manifestSynthetic: manifest.synthetic,
+});
 const detailEntries = [...documents.entries()].filter(([assetPath]) =>
   assetPath.startsWith("details/"),
 );

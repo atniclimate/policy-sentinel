@@ -22,6 +22,7 @@ const compactRecord = () => ({
   },
   issuingBodies: ["Synthetic Public Agency"],
   judicialContext: null,
+  accordContext: null,
   jurisdiction: {
     level: "federal",
     name: "United States",
@@ -84,13 +85,109 @@ const judicialCompactRecord = () => ({
   judicialContext: judicialContext(),
 });
 
+const accordContext = () => ({
+  parties: [
+    {
+      sourceId: "government:synthetic",
+      partyKind: "government",
+      officialName: "Synthetic State",
+      roles: [
+        {
+          normalized: "executing_party",
+          sourceLabel: "State executing party",
+          sourceUrl: "https://official.example.invalid/accord",
+        },
+      ],
+    },
+    {
+      sourceId: null,
+      partyKind: "collective_governments",
+      officialName: "Synthetic collective governments",
+      roles: [
+        {
+          normalized: "executing_party",
+          sourceLabel: "Collective executing parties",
+          sourceUrl: "https://official.example.invalid/accord",
+        },
+      ],
+    },
+  ],
+  executionEvent: {
+    role: "executed",
+    date: "1989-08-04",
+    sourceLabel: "Executed August 4, 1989",
+    sourceUrl: "https://official.example.invalid/accord",
+  },
+  statusReview: {
+    currentStatus: "not_established",
+    evidenceKind: "narrative_execution_language",
+    sourceLabel: "Official narrative history",
+    sourceUrl: "https://official.example.invalid/accord/history",
+    reviewedOn: "2026-07-30",
+  },
+  supersessionReview: {
+    state: "no_relationship_established",
+    scope: "reviewed_official_sources_only",
+    reviewedOn: "2026-07-30",
+    sourceUrls: [
+      "https://official.example.invalid/accord",
+      "https://official.example.invalid/accord/history",
+    ],
+  },
+  instrumentIdentity: {
+    kind: "project_fallback",
+    sourceIdentifier: null,
+    fallbackRuleId: "synthetic-accord-fallback-v1",
+  },
+});
+
+const accordCompactRecord = () => ({
+  ...compactRecord(),
+  sourceDocumentIdentifier: "SYN-ACCORD-1989",
+  documentType: "intergovernmental_accord",
+  issuingBodies: [],
+  judicialContext: null,
+  accordContext: accordContext(),
+  status: { normalized: "unknown", sourceLabel: null, asOf: null },
+  dates: {
+    published: null,
+    updated: null,
+    lastAction: null,
+    deadline: null,
+  },
+});
+
+const accordDetailRecord = () => ({
+  ...accordCompactRecord(),
+  schemaVersion: "1.4.0",
+  internalId: accordCompactRecord().id,
+  legislativeContext: null,
+  dates: {
+    introduced: null,
+    published: null,
+    updated: null,
+    lastAction: null,
+    deadline: null,
+    effective: null,
+    retrieved: GENERATED_AT,
+  },
+  sourceDocumentRelationships: [],
+  fieldProvenance: [
+    {
+      field: "/sourceDocumentIdentifier",
+      transformation: "deterministic_mapping",
+      transformRuleId: "synthetic-accord-fallback-v1",
+    },
+  ],
+});
+
 const rootAssets = (records: unknown[] = [compactRecord()]) =>
   new Map<string, unknown>([
     [
       "data/manifest.json",
       {
-        artifactVersion: "1.3.0",
-        recordSchemaVersion: "1.3.0",
+        artifactVersion: "1.4.0",
+        recordSchemaVersion: "1.4.0",
         buildId: "synthetic-integrity",
         generatedAt: GENERATED_AT,
         dataAsOf: "2026-07-31T00:00:00Z",
@@ -190,7 +287,7 @@ describe("same-origin artifact integrity", () => {
     installAssetFetch(legacy);
 
     await expect(loadArtifacts()).rejects.toThrow(
-      "requires artifact package 1.3.0; received 1.0.0",
+      "requires artifact package 1.4.0; received 1.0.0",
     );
   });
 
@@ -204,7 +301,7 @@ describe("same-origin artifact integrity", () => {
     installAssetFetch(legacy);
 
     await expect(loadArtifacts()).rejects.toThrow(
-      "requires record schema 1.3.0; received 1.1.0",
+      "requires record schema 1.4.0; received 1.1.0",
     );
   });
 
@@ -394,6 +491,226 @@ describe("same-origin artifact integrity", () => {
   });
 });
 
+describe("Accord record integrity", () => {
+  it("accepts a complete Accord context and preserves its reviewed metadata", () => {
+    const record = normalizeRecord(accordCompactRecord());
+
+    expect(record?.accordContext).toEqual(accordContext());
+    expect(record?.status).toEqual({
+      normalized: "unknown",
+      sourceLabel: null,
+      asOf: null,
+    });
+    expect(record?.issuingBodies).toEqual([]);
+    expect(record?.dates.published).toBeNull();
+  });
+
+  it.each([
+    {
+      label: "a missing Accord context",
+      mutate: (record: ReturnType<typeof accordCompactRecord>) => {
+        delete (record as { accordContext?: unknown }).accordContext;
+      },
+    },
+    {
+      label: "an unknown Accord-context field",
+      mutate: (record: ReturnType<typeof accordCompactRecord>) => {
+        (record.accordContext as Record<string, unknown>).unexpected = true;
+      },
+    },
+    {
+      label: "more than 50 parties",
+      mutate: (record: ReturnType<typeof accordCompactRecord>) => {
+        record.accordContext.parties = Array.from(
+          { length: 51 },
+          (_, index) => ({
+            ...structuredClone(record.accordContext.parties[0]),
+            sourceId: `government:${index}`,
+            officialName: `Synthetic Government ${index}`,
+          }),
+        );
+      },
+    },
+    {
+      label: "a repeated normalized role with different source text",
+      mutate: (record: ReturnType<typeof accordCompactRecord>) => {
+        record.accordContext.parties[0].roles.push({
+          normalized: "executing_party",
+          sourceLabel: "Different label for the same normalized role",
+          sourceUrl: "https://official.example.invalid/accord/duplicate-role",
+        });
+      },
+    },
+    {
+      label: "a repeated party identity with a different party kind",
+      mutate: (record: ReturnType<typeof accordCompactRecord>) => {
+        record.accordContext.parties.push({
+          ...structuredClone(record.accordContext.parties[0]),
+          partyKind: "collective_governments",
+        });
+      },
+    },
+    {
+      label: "an evidence URL with user information",
+      mutate: (record: ReturnType<typeof accordCompactRecord>) => {
+        record.accordContext.executionEvent.sourceUrl =
+          "https://user:secret@official.example.invalid/accord";
+      },
+    },
+    {
+      label: "an evidence URL with a port",
+      mutate: (record: ReturnType<typeof accordCompactRecord>) => {
+        record.accordContext.statusReview.sourceUrl =
+          "https://official.example.invalid:443/accord";
+      },
+    },
+    {
+      label: "a status review before execution",
+      mutate: (record: ReturnType<typeof accordCompactRecord>) => {
+        record.accordContext.statusReview.reviewedOn = "1989-08-03";
+      },
+    },
+    {
+      label: "a supersession review before execution",
+      mutate: (record: ReturnType<typeof accordCompactRecord>) => {
+        record.accordContext.supersessionReview.reviewedOn = "1989-08-03";
+      },
+    },
+    {
+      label: "more than 10 supersession sources",
+      mutate: (record: ReturnType<typeof accordCompactRecord>) => {
+        record.accordContext.supersessionReview.sourceUrls = Array.from(
+          { length: 11 },
+          (_, index) => `https://official.example.invalid/accord/${index}`,
+        );
+      },
+    },
+    {
+      label: "a non-slug fallback rule",
+      mutate: (record: ReturnType<typeof accordCompactRecord>) => {
+        record.accordContext.instrumentIdentity.fallbackRuleId =
+          "Invalid Fallback Rule";
+      },
+    },
+    {
+      label: "a generic source status",
+      mutate: (record: ReturnType<typeof accordCompactRecord>) => {
+        (record.status as { sourceLabel: string | null }).sourceLabel =
+          "Executed";
+      },
+    },
+    {
+      label: "an issuing body",
+      mutate: (record: ReturnType<typeof accordCompactRecord>) => {
+        (record as unknown as { issuingBodies: string[] }).issuingBodies = [
+          "Synthetic State",
+        ];
+      },
+    },
+    {
+      label: "a Nation ID without an exact Nation party",
+      mutate: (record: ReturnType<typeof accordCompactRecord>) => {
+        (record as unknown as { nationIds: string[] }).nationIds = [
+          "nation:synthetic-inference",
+        ];
+      },
+    },
+    {
+      label: "an execution date copied into a generic date",
+      mutate: (record: ReturnType<typeof accordCompactRecord>) => {
+        (record.dates as { published: string | null }).published =
+          record.accordContext.executionEvent.date;
+      },
+    },
+    {
+      label: "a mismatched source-provided identifier",
+      mutate: (record: ReturnType<typeof accordCompactRecord>) => {
+        (
+          record.accordContext as unknown as {
+            instrumentIdentity: {
+              kind: string;
+              sourceIdentifier: string | null;
+              fallbackRuleId: string | null;
+            };
+          }
+        ).instrumentIdentity = {
+          kind: "source_provided",
+          sourceIdentifier: "DIFFERENT-ID",
+          fallbackRuleId: null,
+        };
+      },
+    },
+  ])("rejects $label", ({ mutate }) => {
+    const record = accordCompactRecord();
+    mutate(record);
+
+    expect(normalizeRecord(record)).toBeNull();
+  });
+
+  it("rejects Accord-only context on a non-Accord record", () => {
+    expect(
+      normalizeRecord({ ...compactRecord(), accordContext: accordContext() }),
+    ).toBeNull();
+  });
+
+  it("enforces detail review, relationship, and fallback-identity evidence", () => {
+    const valid = accordDetailRecord();
+    (valid.dates as { updated: string | null }).updated =
+      "2026-07-30T12:00:00Z";
+    expect(normalizeRecord(valid)).not.toBeNull();
+
+    const afterRetrieval = accordDetailRecord();
+    afterRetrieval.accordContext.statusReview.reviewedOn = "2026-08-01";
+    expect(normalizeRecord(afterRetrieval)).toBeNull();
+
+    const relationshipMismatch = accordDetailRecord();
+    relationshipMismatch.accordContext.supersessionReview.state =
+      "relationships_recorded";
+    expect(normalizeRecord(relationshipMismatch)).toBeNull();
+
+    const provenanceMismatch = accordDetailRecord();
+    provenanceMismatch.fieldProvenance[0].transformRuleId = "different-rule";
+    expect(normalizeRecord(provenanceMismatch)).toBeNull();
+
+    const missingNationEvidence = accordDetailRecord();
+    missingNationEvidence.accordContext.parties[0].sourceId =
+      "nation:synthetic-without-association";
+    expect(normalizeRecord(missingNationEvidence)).toBeNull();
+
+    const genericDate = accordDetailRecord();
+    (genericDate.dates as { effective: string | null }).effective =
+      genericDate.accordContext.executionEvent.date;
+    expect(normalizeRecord(genericDate)).toBeNull();
+  });
+
+  it("rejects Accord metadata that differs between the index and detail", async () => {
+    const record = normalizeRecord(accordCompactRecord());
+    expect(record).not.toBeNull();
+    if (!record) return;
+    record.artifactGeneratedAt = GENERATED_AT;
+    const detail = accordDetailRecord();
+    detail.accordContext.executionEvent.sourceLabel =
+      "Tampered execution label";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({ generatedAt: GENERATED_AT, record: detail }),
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            },
+          ),
+      ),
+    );
+
+    await expect(loadRecordDetail(record)).rejects.toThrow(
+      "compact fields do not match",
+    );
+  });
+});
+
 describe("detail asset integrity", () => {
   it("requires symmetric landmark relevance and reviewed detail evidence", () => {
     const landmarkCompact = {
@@ -418,7 +735,7 @@ describe("detail asset integrity", () => {
 
     const landmarkDetail = {
       ...landmarkCompact,
-      schemaVersion: "1.3.0",
+      schemaVersion: "1.4.0",
       landmark: {
         isLandmark: true,
         criterionCodes: ["officially-identified-foundational"],

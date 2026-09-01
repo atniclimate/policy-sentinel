@@ -16,6 +16,7 @@
     "issuingBodies",
     "legislativeContext",
     "judicialContext",
+    "accordContext",
     "status",
     "dates",
     "urls",
@@ -40,7 +41,7 @@
   ],
   "properties": {
     "schemaVersion": {
-      "const": "1.3.0"
+      "const": "1.4.0"
     },
     "internalId": {
       "type": "string",
@@ -85,7 +86,7 @@
     },
     "issuingBodies": {
       "type": "array",
-      "minItems": 1,
+      "minItems": 0,
       "items": {
         "$ref": "#/$defs/namedEntity"
       }
@@ -141,6 +142,16 @@
         }
       ]
     },
+    "accordContext": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/accordContext"
+        }
+      ]
+    },
     "status": {
       "type": "object",
       "additionalProperties": false,
@@ -166,11 +177,14 @@
           ]
         },
         "sourceLabel": {
-          "type": "string",
+          "type": [
+            "string",
+            "null"
+          ],
           "minLength": 1
         },
         "asOf": {
-          "$ref": "#/$defs/dateOrDateTime"
+          "$ref": "#/$defs/nullableDateOrDateTime"
         }
       }
     },
@@ -528,6 +542,107 @@
       "if": {
         "properties": {
           "documentType": {
+            "const": "intergovernmental_accord"
+          }
+        },
+        "required": ["documentType"]
+      },
+      "then": {
+        "properties": {
+          "issuingBodies": {
+            "type": "array",
+            "maxItems": 0
+          },
+          "legislativeContext": {
+            "type": "null"
+          },
+          "judicialContext": {
+            "type": "null"
+          },
+          "accordContext": {
+            "$ref": "#/$defs/accordContext"
+          },
+          "status": {
+            "type": "object",
+            "properties": {
+              "normalized": {
+                "const": "unknown"
+              },
+              "sourceLabel": {
+                "type": "null"
+              },
+              "asOf": {
+                "type": "null"
+              }
+            },
+            "required": ["normalized", "sourceLabel", "asOf"]
+          },
+          "dates": {
+            "type": "object",
+            "properties": {
+              "introduced": {
+                "type": "null"
+              },
+              "published": {
+                "type": "null"
+              },
+              "updated": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "lastAction": {
+                "type": "null"
+              },
+              "deadline": {
+                "type": "null"
+              },
+              "effective": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "introduced",
+              "published",
+              "updated",
+              "lastAction",
+              "deadline",
+              "effective"
+            ]
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "issuingBodies": {
+            "type": "array",
+            "minItems": 1
+          },
+          "accordContext": {
+            "type": "null"
+          },
+          "status": {
+            "type": "object",
+            "properties": {
+              "sourceLabel": {
+                "type": "string",
+                "minLength": 1
+              },
+              "asOf": {
+                "$ref": "#/$defs/dateOrDateTime"
+              }
+            },
+            "required": ["sourceLabel", "asOf"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "documentType": {
             "enum": ["court_decision", "administrative_decision"]
           }
         },
@@ -851,6 +966,211 @@
         "officialName": {
           "type": "string",
           "minLength": 1
+        }
+      }
+    },
+    "accordContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "parties",
+        "executionEvent",
+        "statusReview",
+        "supersessionReview",
+        "instrumentIdentity"
+      ],
+      "properties": {
+        "parties": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 50,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sourceId",
+              "partyKind",
+              "officialName",
+              "roles"
+            ],
+            "properties": {
+              "sourceId": {
+                "type": ["string", "null"]
+              },
+              "partyKind": {
+                "enum": ["government", "collective_governments"]
+              },
+              "officialName": {
+                "type": "string",
+                "minLength": 1
+              },
+              "roles": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 4,
+                "uniqueItems": true,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["normalized", "sourceLabel", "sourceUrl"],
+                  "properties": {
+                    "normalized": {
+                      "enum": ["executing_party", "signatory_party"]
+                    },
+                    "sourceLabel": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "sourceUrl": {
+                      "$ref": "#/$defs/httpsUrl"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "executionEvent": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["role", "date", "sourceLabel", "sourceUrl"],
+          "properties": {
+            "role": {
+              "enum": ["executed", "signed"]
+            },
+            "date": {
+              "type": "string",
+              "format": "date"
+            },
+            "sourceLabel": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sourceUrl": {
+              "$ref": "#/$defs/httpsUrl"
+            }
+          }
+        },
+        "statusReview": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "currentStatus",
+            "evidenceKind",
+            "sourceLabel",
+            "sourceUrl",
+            "reviewedOn"
+          ],
+          "properties": {
+            "currentStatus": {
+              "const": "not_established"
+            },
+            "evidenceKind": {
+              "const": "narrative_execution_language"
+            },
+            "sourceLabel": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sourceUrl": {
+              "$ref": "#/$defs/httpsUrl"
+            },
+            "reviewedOn": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        },
+        "supersessionReview": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "scope", "reviewedOn", "sourceUrls"],
+          "properties": {
+            "state": {
+              "enum": [
+                "no_relationship_established",
+                "relationships_recorded"
+              ]
+            },
+            "scope": {
+              "const": "reviewed_official_sources_only"
+            },
+            "reviewedOn": {
+              "type": "string",
+              "format": "date"
+            },
+            "sourceUrls": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 10,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/httpsUrl"
+              }
+            }
+          }
+        },
+        "instrumentIdentity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "sourceIdentifier",
+            "fallbackRuleId"
+          ],
+          "properties": {
+            "kind": {
+              "enum": ["source_provided", "project_fallback"]
+            },
+            "sourceIdentifier": {
+              "type": ["string", "null"],
+              "minLength": 1
+            },
+            "fallbackRuleId": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/slug"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "source_provided"
+                  }
+                },
+                "required": ["kind"]
+              },
+              "then": {
+                "properties": {
+                  "sourceIdentifier": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "fallbackRuleId": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "sourceIdentifier": {
+                    "type": "null"
+                  },
+                  "fallbackRuleId": {
+                    "$ref": "#/$defs/slug"
+                  }
+                }
+              }
+            }
+          ]
         }
       }
     },

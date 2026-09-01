@@ -5,7 +5,7 @@
 The Phase A contracts are:
 
 - [`record.schema.v1.json`](../schemas/record.schema.v1.json), normalized
-  record schema version `1.3.0`;
+  record schema version `1.4.0`;
 - [`taxonomy.schema.v1.json`](../schemas/taxonomy.schema.v1.json), taxonomy
   schema version `1.0.0`; and
 - [`taxonomy.v1.json`](../config/taxonomy.v1.json), the editable ten-category,
@@ -13,7 +13,7 @@ The Phase A contracts are:
 - [`source.schema.v1.json`](../schemas/source.schema.v1.json), compatible v1
   source-registry schema version `1.3.0`;
 - [`sources.v1.json`](../config/sources.v1.json), source registry version
-  `1.17.0`; and
+  `1.19.0`; and
 - [`artifact.schema.v1.json`](../schemas/artifact.schema.v1.json), static
   artifact schema version `1.0.0`.
 
@@ -23,7 +23,7 @@ evidence that a production source is enabled or a public dataset exists.
 taxonomy, and synthetic fixtures, and proves selected invalid governance cases
 are rejected.
 
-Source-registry version `1.17.0` distinguishes researched configuration,
+Source-registry version `1.19.0` distinguishes researched configuration,
 implemented adapters, and activation. A disabled source may have
 `adapter: null` or a versioned adapter that is not authorized to emit public
 records; an enabled source must have a versioned adapter. Every non-synthetic
@@ -60,19 +60,30 @@ raw bodies, contacts, hearing credentials, unrelated free text, and land
 content.
 
 The separately registered `washington-centennial-accord` source uses
-`official_page` and remains disabled with `adapter: null`. Its official page
+`official_page` and remains disabled with a versioned contract-1.0 adapter. Its official page
 supplies an exact title, collective executing parties, and an execution date but
 no individual signatory list, official number, signed facsimile, structured
 current status, source update time, complete supersession history, or reuse
-license. The record model has no party/signatory role or executed/signed date,
-and the UI would relabel parties as issuing bodies. Action history does not
-itself date the landmark timeline. Although record 1.2 adds typed supersession
-edges for explicit source relationships, the source supplies no complete
-relationship history and the judicial revision-review field cannot be reused
-for an accord. The metadata-and-links publication policy also needs a
-metadata-only landmark-evidence representation. Those facts must not be forced
-into publication, effectiveness, issuing-body, status, relationship, or
-copied-text fields merely to emit a record.
+license. Record schema and artifact package `1.4.0` add a required nullable
+`accordContext`, non-null only for `intergovernmental_accord`. It preserves
+bounded government or collective-government parties with exact executing or
+signatory role labels and URLs, an exact executed or signed event, narrative
+execution evidence that explicitly establishes no current status, a
+reviewed-official-sources-only supersession state tied to reciprocal typed
+edges, and either a source identifier or deterministic project-fallback rule.
+Accords require zero issuing bodies and an unknown/null generic status; their
+execution event cannot populate introduction, publication, last-action,
+deadline, or effective dates. The context, event chronology, metadata-only
+landmark evidence, provenance, compact/detail integrity, dossier, CSV, and
+last-known-good behavior are covered by synthetic tests. This model does not
+authorize the real source. Adapter 1.0 accepts only the exact canonical URL and
+a bounded 11-key metadata projection under public-DNS, transport, byte, chunk,
+deadline, DOM, text, and grammar limits; no HTML or page prose crosses the
+transport boundary. Normalization is metadata-and-links-only,
+`general_jurisdiction`, Unclassified, and has zero issuing bodies or Nation
+associations. The GOIA entry remains disabled, emits no record, coverage,
+health, or LKG shard, and cannot create a Nation association without exact
+official signatory evidence reconciled to the approved Nation registry.
 
 Grants.gov is disabled with no adapter because its current terms and live
 contract canaries remain behind G-B-GRANTS. The Congress.gov entry is likewise
@@ -296,6 +307,33 @@ not become a taxonomy category, relevance basis, Nation association, or legal
 conclusion. The [dated offline review](source-reviews/oregon-odata-offline-contract-2026-07-31.md)
 records the complete field-fit and failure boundary.
 
+## Nation collection boundary
+
+The artifact keeps the current 575-entry synthetic Nation collection explicit:
+its manifest and baseline synthetic flags must agree, and synthetic rows cannot
+carry production identity, review, source-evidence, provenance, health, or
+official-crosswalk claims. This prevents a fixture from being relabeled as a
+reviewed public registry.
+
+A production collection remains impossible until `G-BIA-IDENTITY` is satisfied.
+When that evidence exists, the same schema and standalone semantic policy
+require exactly 575 collision-free stable IDs and official names; a semantic
+registry/identity rule; completed non-blocking publication review; a validated
+reconciliation summary whose raw count matches all assigned source paragraphs;
+the annual notice's exact document metadata and current healthy receipt; and
+baseline-bound evidence plus field provenance for every source-derived identity
+field. The policy can represent 577 source paragraphs assigned exactly to 575
+reviewed identities, but supplies no grouping or exclusion rule itself.
+
+State coverage is either `reviewed_official_crosswalk` or
+`unresolved_no_reviewed_crosswalk`. Each accepted WA, OR, or ID code requires
+one validated authoritative evidence item containing the exact official name or
+authorized alias, source text, identifier, URL, source date, retrieval time, and
+matching `/stateCoverage` provenance. Unresolved entries carry no state or state
+evidence and remain federal-only. Record associations must match both stable ID
+and official name in the validated collection, cite an official record URL, and
+contain an exact approved identity in their evidence text.
+
 ## Record groups
 
 The normalized record preserves:
@@ -306,6 +344,7 @@ The normalized record preserves:
 | Classification | Document type, jurisdiction and level, issuing bodies, session/congress context, normalized and exact source status, official subjects, zero-or-more taxonomy memberships, and explicit `isUnclassified`. |
 | Dates | Introduction, publication, update, action, deadline, retrieval, and any source-defined dates, without inventing absent values. |
 | Judicial context | For court and administrative decisions only: exact adjudicating body and kind, docket numbers, typed official citations and source links, decision date, normalized plus source-labeled document form and publication status, and dated revision-review state. |
+| Accord context | For intergovernmental accords only: exact collective or governmental parties and source roles, executed/signed event and evidence, explicit absence of a source-established current status, reviewed supersession scope tied to typed edges, and source-provided or deterministic fallback identity. Parties are not issuing bodies and collective language is not a Nation association. |
 | Links and language | Registered official landing/full-text URLs, official summary or abstract, and only permitted source-language excerpts or full text. |
 | Legislative/process detail | Sponsors, committees, actions, status history, versions, and source timestamps when supplied. |
 | Source-document relationships | Detail-only `corrects`, `corrected_by`, `supersedes`, `superseded_by`, `substitutes`, `substituted_by`, and `related_document` edges with the exact target source-record ID, official target URL, and originating source label. |
@@ -476,21 +515,22 @@ The public artifact accepts only coherent source-health combinations:
 
 The artifact manifest names the record, taxonomy, mapping, source-registry, and
 build versions. Additive compatible changes can increment the minor version.
-Current builds emit artifact package `1.3.0`, record schema `1.3.0`, and source
-registry `1.17.0`; artifact schema `1.0.0` still accepts historical package
-`1.0.0`, `1.1.0`, and `1.2.0` shapes for archival schema validation. Package
+Current builds emit artifact package `1.4.0`, record schema `1.4.0`, and source
+registry `1.19.0`; artifact schema `1.0.0` still accepts historical package
+`1.0.0`, `1.1.0`, `1.2.0`, and `1.3.0` shapes for archival schema validation. Package
 1.2 added `judicialContext` to the compact-index/detail integrity projection so
 court, docket, citation, form, publication, and revision evidence cannot
 diverge during hydration. Package 1.3 keeps the compact landmark flag and adds
-the reviewed criterion and evidence union to detail records. The current client
-fails closed on any artifact package or record schema other than `1.3.0` before
-record normalization; it does not synthesize judicial or landmark evidence from
-a legacy package. The current artifact validator likewise requires the coherent
-`1.3.0` package/record pair even though the artifact JSON Schema retains
-archival compatibility. For current records, client normalization rechecks the
-judicial document-type, context, body, date, citation-link, and issuing-body
-invariants plus landmark/relevance symmetry and reviewed detail evidence. A
-package-1.3 detail must share the loaded manifest build timestamp and exactly
+the reviewed criterion and evidence union to detail records. Package 1.4 adds
+the full Accord context to compact/detail integrity. The current client fails
+closed on any artifact package or record schema other than `1.4.0` before
+record normalization; it does not synthesize judicial, landmark, or Accord
+evidence from a legacy package. The current artifact validator likewise
+requires the coherent `1.4.0` package/record pair even though the artifact JSON
+Schema retains archival compatibility. For current records, client
+normalization rechecks judicial invariants, landmark/relevance symmetry and
+evidence, and the Accord party/role/date/status/supersession/identity boundary.
+A package-1.4 detail must share the loaded manifest build timestamp and exactly
 reproduce the compact index projection; CSV and dossier hydration abort on any
 mismatch.
 Breaking field or meaning changes require a new major schema, migration and

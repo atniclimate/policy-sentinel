@@ -34,7 +34,40 @@ test("source registry records researched disabled production sources", () => {
   assert.equal(validateSources(sourceRegistry), true);
   assert.doesNotThrow(() => assertSourceRegistrySemantics(sourceRegistry));
   assert.equal(sourceRegistry.schemaVersion, "1.3.0");
-  assert.equal(sourceRegistry.registryVersion, "1.17.0");
+  assert.equal(sourceRegistry.registryVersion, "1.19.0");
+
+  const syntheticAccord = sourceRegistry.sources.find(
+    ({ id }) => id === "synthetic-state-accord",
+  );
+  assert.deepEqual(
+    {
+      enabled: syntheticAccord.enabled,
+      synthetic: syntheticAccord.synthetic,
+      adapter: syntheticAccord.adapter,
+      method: syntheticAccord.access.method,
+      reproduction: syntheticAccord.publication.reproduction,
+      coverage: syntheticAccord.coverage,
+    },
+    {
+      enabled: true,
+      synthetic: true,
+      adapter: {
+        id: "synthetic-state-accord-adapter",
+        version: "1.0.0",
+        module: "fixtures/records/intergovernmental-accord.valid.json",
+        identityRule: "synthetic-accord-title-execution-url-v1",
+      },
+      method: "fixture",
+      reproduction: "metadata_and_links",
+      coverage: {
+        from: "1974-08-04",
+        through: "1974-08-04",
+        cadence: "Synthetic build only.",
+        limitations:
+          "One fictional metadata-only historical accord for contract testing. It names no real government, person, or Nation.",
+      },
+    },
+  );
 
   const federalRegister = sourceRegistry.sources.find(
     ({ id }) => id === "federal-register",
@@ -294,8 +327,13 @@ test("source registry records researched disabled production sources", () => {
     {
       enabled: false,
       synthetic: false,
-      adapter: null,
-      accessedOn: "2026-07-31",
+      adapter: {
+        id: "washington-centennial-accord-adapter",
+        version: "1.0.0",
+        module: "src/adapters/washington-centennial-accord/index.ts",
+        identityRule: "washington-centennial-accord-title-execution-url-v1",
+      },
+      accessedOn: "2026-08-03",
       method: "official_page",
       authentication: "none",
       allowedHosts: ["goia.wa.gov"],
@@ -312,8 +350,21 @@ test("source registry records researched disabled production sources", () => {
   );
   assert.match(
     washingtonCentennialAccord.coverage.limitations,
-    /record model cannot preserve parties/,
+    /Adapter 1\.0 retains only bounded party/,
   );
+  for (const pointer of [
+    "/accordContext/parties/0/officialName",
+    "/accordContext/parties/1/officialName",
+    "/accordContext/executionEvent/date",
+    "/accordContext/statusReview/sourceLabel",
+  ]) {
+    assert.ok(
+      washingtonCentennialAccord.publication.requiredProvenancePointers.includes(
+        pointer,
+      ),
+      pointer,
+    );
+  }
 
   const blockedStateCourtSources = [
     {

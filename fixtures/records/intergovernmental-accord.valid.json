@@ -1,0 +1,302 @@
+{
+  "schemaVersion": "1.4.0",
+  "internalId": "psr:synthetic-state-accord:synthetic-accord-1974",
+  "source": {
+    "id": "synthetic-state-accord",
+    "name": "Synthetic State Accord Source",
+    "provider": "Synthetic State Archive",
+    "recordId": "SYNTHETIC-ACCORD-1974",
+    "adapterId": "synthetic-state-accord-adapter",
+    "adapterVersion": "1.0.0",
+    "coverage": {
+      "from": "1974-08-04",
+      "through": "1974-08-04",
+      "notes": "One fictional metadata-only historical accord for contract testing."
+    },
+    "attribution": "Synthetic State Archive"
+  },
+  "officialTitle": "Synthetic intergovernmental accord for contract validation",
+  "sourceDocumentIdentifier": "synthetic-accord-1974-08-04",
+  "documentType": "intergovernmental_accord",
+  "jurisdiction": {
+    "level": "state",
+    "name": "Synthetic State",
+    "stateCode": "WA",
+    "generalJurisdictionOnly": true
+  },
+  "issuingBodies": [],
+  "legislativeContext": null,
+  "judicialContext": null,
+  "accordContext": {
+    "parties": [
+      {
+        "sourceId": null,
+        "partyKind": "government",
+        "officialName": "Synthetic State Government",
+        "roles": [
+          {
+            "normalized": "executing_party",
+            "sourceLabel": "executed by Synthetic State Government",
+            "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974"
+          },
+          {
+            "normalized": "signatory_party",
+            "sourceLabel": "signed for Synthetic State Government",
+            "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974"
+          }
+        ]
+      },
+      {
+        "sourceId": null,
+        "partyKind": "collective_governments",
+        "officialName": "Synthetic Intergovernmental Council",
+        "roles": [
+          {
+            "normalized": "executing_party",
+            "sourceLabel": "executed by Synthetic Intergovernmental Council",
+            "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974"
+          },
+          {
+            "normalized": "signatory_party",
+            "sourceLabel": "signed for Synthetic Intergovernmental Council",
+            "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974"
+          }
+        ]
+      }
+    ],
+    "executionEvent": {
+      "role": "executed",
+      "date": "1974-08-04",
+      "sourceLabel": "Executed August 4, 1974",
+      "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974"
+    },
+    "statusReview": {
+      "currentStatus": "not_established",
+      "evidenceKind": "narrative_execution_language",
+      "sourceLabel": "The fictional parties executed this synthetic accord.",
+      "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974",
+      "reviewedOn": "2026-07-30"
+    },
+    "supersessionReview": {
+      "state": "no_relationship_established",
+      "scope": "reviewed_official_sources_only",
+      "reviewedOn": "2026-07-30",
+      "sourceUrls": ["https://accord.example.invalid/accords/synthetic-1974"]
+    },
+    "instrumentIdentity": {
+      "kind": "project_fallback",
+      "sourceIdentifier": null,
+      "fallbackRuleId": "synthetic-accord-title-execution-url-v1"
+    }
+  },
+  "status": {
+    "normalized": "unknown",
+    "sourceLabel": null,
+    "asOf": null
+  },
+  "dates": {
+    "introduced": null,
+    "published": null,
+    "updated": null,
+    "lastAction": null,
+    "deadline": null,
+    "effective": null,
+    "retrieved": "2026-07-30T14:00:00Z"
+  },
+  "urls": {
+    "officialSource": "https://accord.example.invalid/accords/synthetic-1974",
+    "officialFullText": null
+  },
+  "texts": {
+    "officialSummary": null,
+    "sourceExcerpt": null,
+    "detailAsset": {
+      "availability": "official_link_only",
+      "path": null,
+      "reproductionBasis": "Synthetic metadata-and-links fixture."
+    }
+  },
+  "sponsors": [],
+  "committees": [],
+  "actionHistory": [],
+  "statusHistory": [],
+  "sourceDocumentRelationships": [],
+  "officialSubjects": [],
+  "taxonomyMemberships": [],
+  "isUnclassified": true,
+  "relevance": [
+    {
+      "basis": "general_jurisdiction",
+      "label": "General state jurisdiction",
+      "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974",
+      "evidence": "This fictional source describes a state-level accord and does not name a Nation."
+    },
+    {
+      "basis": "landmark",
+      "label": "Approved synthetic public state accord landmark",
+      "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974",
+      "evidence": "The synthetic fixture documents an executed public state accord for contract testing."
+    }
+  ],
+  "nationAssociations": [],
+  "landmark": {
+    "isLandmark": true,
+    "criterionCodes": ["public-state-federal-accord"],
+    "reviewState": "approved",
+    "officialEvidence": [
+      {
+        "sourceLabel": "Synthetic intergovernmental accord for contract validation, executed August 4, 1974",
+        "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974",
+        "sourceDate": "1974-08-04",
+        "reproductionBasis": "Synthetic metadata-and-links fixture."
+      }
+    ]
+  },
+  "historical": {
+    "isHistorical": true,
+    "pre1980Treatment": "landmark_detail"
+  },
+  "dataQuality": {
+    "state": "validated",
+    "validatedAt": "2026-07-30T14:01:00Z",
+    "validator": "synthetic-fixture-validator",
+    "issues": []
+  },
+  "sourceHealth": {
+    "status": "healthy",
+    "checkedAt": "2026-07-30T14:00:30Z",
+    "dataAsOf": "2026-07-30T14:00:00Z",
+    "lastSuccessfulRetrievalAt": "2026-07-30T14:00:00Z",
+    "usingLastKnownGood": false,
+    "message": null
+  },
+  "change": {
+    "firstSeenAt": "2026-07-30T14:00:00Z",
+    "lastSeenAt": "2026-07-30T14:00:00Z",
+    "kind": "new",
+    "urgentAlert": null
+  },
+  "aiSummary": {
+    "exists": false,
+    "label": "AI-generated source summary"
+  },
+  "fieldProvenance": [
+    {
+      "field": "/officialTitle",
+      "sourcePath": "$.title",
+      "sourceId": "synthetic-state-accord",
+      "sourceRecordId": "SYNTHETIC-ACCORD-1974",
+      "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974",
+      "retrievedAt": "2026-07-30T14:00:00Z",
+      "sourceUpdatedAt": null,
+      "adapterId": "synthetic-state-accord-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/sourceDocumentIdentifier",
+      "sourcePath": "$adapterIdentity.titleExecutionUrl",
+      "sourceId": "synthetic-state-accord",
+      "sourceRecordId": "SYNTHETIC-ACCORD-1974",
+      "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974",
+      "retrievedAt": "2026-07-30T14:00:00Z",
+      "sourceUpdatedAt": null,
+      "adapterId": "synthetic-state-accord-adapter",
+      "transformation": "deterministic_mapping",
+      "transformRuleId": "synthetic-accord-title-execution-url-v1",
+      "validationState": "validated"
+    },
+    {
+      "field": "/documentType",
+      "sourcePath": "$.documentType",
+      "sourceId": "synthetic-state-accord",
+      "sourceRecordId": "SYNTHETIC-ACCORD-1974",
+      "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974",
+      "retrievedAt": "2026-07-30T14:00:00Z",
+      "sourceUpdatedAt": null,
+      "adapterId": "synthetic-state-accord-adapter",
+      "transformation": "normalized",
+      "transformRuleId": "synthetic-accord-document-type-v1",
+      "validationState": "validated"
+    },
+    {
+      "field": "/jurisdiction/name",
+      "sourcePath": "$.jurisdiction",
+      "sourceId": "synthetic-state-accord",
+      "sourceRecordId": "SYNTHETIC-ACCORD-1974",
+      "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974",
+      "retrievedAt": "2026-07-30T14:00:00Z",
+      "sourceUpdatedAt": null,
+      "adapterId": "synthetic-state-accord-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/accordContext/parties/0/officialName",
+      "sourcePath": "$.parties[0].officialName",
+      "sourceId": "synthetic-state-accord",
+      "sourceRecordId": "SYNTHETIC-ACCORD-1974",
+      "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974",
+      "retrievedAt": "2026-07-30T14:00:00Z",
+      "sourceUpdatedAt": null,
+      "adapterId": "synthetic-state-accord-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/accordContext/parties/1/officialName",
+      "sourcePath": "$.parties[1].officialName",
+      "sourceId": "synthetic-state-accord",
+      "sourceRecordId": "SYNTHETIC-ACCORD-1974",
+      "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974",
+      "retrievedAt": "2026-07-30T14:00:00Z",
+      "sourceUpdatedAt": null,
+      "adapterId": "synthetic-state-accord-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/accordContext/executionEvent/date",
+      "sourcePath": "$.executionDate",
+      "sourceId": "synthetic-state-accord",
+      "sourceRecordId": "SYNTHETIC-ACCORD-1974",
+      "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974",
+      "retrievedAt": "2026-07-30T14:00:00Z",
+      "sourceUpdatedAt": null,
+      "adapterId": "synthetic-state-accord-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/accordContext/statusReview/sourceLabel",
+      "sourcePath": "$.executionNarrative",
+      "sourceId": "synthetic-state-accord",
+      "sourceRecordId": "SYNTHETIC-ACCORD-1974",
+      "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974",
+      "retrievedAt": "2026-07-30T14:00:00Z",
+      "sourceUpdatedAt": null,
+      "adapterId": "synthetic-state-accord-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/urls/officialSource",
+      "sourcePath": "$.url",
+      "sourceId": "synthetic-state-accord",
+      "sourceRecordId": "SYNTHETIC-ACCORD-1974",
+      "sourceUrl": "https://accord.example.invalid/accords/synthetic-1974",
+      "retrievedAt": "2026-07-30T14:00:00Z",
+      "sourceUpdatedAt": null,
+      "adapterId": "synthetic-state-accord-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    }
+  ]
+}
