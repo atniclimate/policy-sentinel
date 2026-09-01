@@ -550,12 +550,16 @@ if (localFinish.current_state === "blocked") {
         `unexpected: ${unexpectedFocusRoots.join(", ") || "none"}`,
     );
   }
-  const readyItems = workItems
-    .filter((item) => item.status === "ready")
+  const nonAdditiveReadyItems = workItems
+    .filter(
+      (item) =>
+        item.status === "ready" && !additiveVisionPhases.includes(item.id),
+    )
     .map((item) => item.id);
-  if (readyItems.length > 0) {
+  if (nonAdditiveReadyItems.length > 0) {
     fail(
-      `local release candidate cannot be terminal-blocked while ready work remains: ${readyItems.join(", ")}`,
+      "local release candidate cannot be terminal-blocked while non-additive " +
+        `ready work remains: ${nonAdditiveReadyItems.join(", ")}`,
     );
   }
 }

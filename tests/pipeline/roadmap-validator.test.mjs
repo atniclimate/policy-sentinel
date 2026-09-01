@@ -21,6 +21,14 @@ test("terminal-blocked state accounts exactly for every incomplete required-outc
     roadmap.completion_scope.local_release_candidate.additive_vision_phases,
     ["K0-LIFECYCLE", "S0-SPATIAL"],
   );
+  assert.equal(
+    roadmap.work_items.find((item) => item.id === "K0-LIFECYCLE").status,
+    "complete",
+  );
+  assert.equal(
+    roadmap.work_items.find((item) => item.id === "S0-SPATIAL").status,
+    "ready",
+  );
   const expectedRoots = [
     "B2-REVIEW",
     "B4-FR-UX",
@@ -28,16 +36,6 @@ test("terminal-blocked state accounts exactly for every incomplete required-outc
     "B5-WA-RULES",
   ];
   const terminalRoadmap = parse(stringify(roadmap));
-  const activeItem = terminalRoadmap.work_items.find(
-    (item) => item.id === "K0-LIFECYCLE",
-  );
-  activeItem.status = "deferred";
-  activeItem.reason = "Synthetic terminal-accounting test state.";
-  terminalRoadmap.finish_states.local_release_candidate.current_state =
-    "blocked";
-  terminalRoadmap.current_focus.work_item = null;
-  terminalRoadmap.current_focus.terminal_reason =
-    "Synthetic terminal-accounting test state.";
 
   assert.deepEqual(
     terminalRoadmap.finish_states.local_release_candidate.blocked_by,
@@ -56,15 +54,27 @@ test("terminal-blocked state accounts exactly for every incomplete required-outc
     path.join(tmpdir(), "policy-sentinel-roadmap-"),
   );
   context.after(() => rm(fixtureRoot, { recursive: true, force: true }));
-  const validateMutation = async (name, mutate, expectedMessage) => {
-    const candidate = parse(stringify(terminalRoadmap));
-    mutate(candidate);
+  const validateCandidate = async (name, candidate) => {
     const fixturePath = path.join(fixtureRoot, `${name}.yaml`);
     await writeFile(fixturePath, stringify(candidate), "utf8");
-    const result = spawnSync(process.execPath, [validatorPath, fixturePath], {
+    return spawnSync(process.execPath, [validatorPath, fixturePath], {
       cwd: projectRoot,
       encoding: "utf8",
     });
+  };
+  const additiveReadyResult = await validateCandidate(
+    "additive-ready-terminal-state",
+    terminalRoadmap,
+  );
+  assert.equal(
+    additiveReadyResult.status,
+    0,
+    `${additiveReadyResult.stdout}\n${additiveReadyResult.stderr}`,
+  );
+  const validateMutation = async (name, mutate, expectedMessage) => {
+    const candidate = parse(stringify(terminalRoadmap));
+    mutate(candidate);
+    const result = await validateCandidate(name, candidate);
     assert.notEqual(result.status, 0, `${name} was accepted`);
     assert.match(`${result.stdout}\n${result.stderr}`, expectedMessage);
   };
@@ -76,6 +86,17 @@ test("terminal-blocked state accounts exactly for every incomplete required-outc
         ["K0-LIFECYCLE"];
     },
     /work items missing from completion scope: S0-SPATIAL/,
+  );
+  await validateMutation(
+    "ready-phase-outside-additive-scope",
+    (candidate) => {
+      candidate.completion_scope.local_release_candidate.additive_vision_phases =
+        ["K0-LIFECYCLE"];
+      candidate.completion_scope.local_release_candidate.publication_only.push(
+        "S0-SPATIAL",
+      );
+    },
+    /non-additive ready work remains: S0-SPATIAL/,
   );
 
   for (const rootId of expectedRoots) {

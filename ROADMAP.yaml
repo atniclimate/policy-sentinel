@@ -518,20 +518,23 @@ baseline:
         configured.
 
 current_focus:
-  work_item: K0-LIFECYCLE
+  work_item: null
   objective: >-
-    Preserve independently reviewed and locally validated K0 implementation
-    checkpoint ba6c4b6 and return the next owner decision without beginning
-    another phase. Keep every existing source, Nation, release, and external
-    gate unchanged; S0 remains not_started and untouched under the continuation
-    boundary.
-  terminal_reason: null
+    Preserve completed K0 and hand off S0 as ready only for a fresh synthetic
+    contract-review and freeze session. The preserved S0 draft still has seven
+    unresolved specification issues; no S0 freeze, implementation, test, or
+    completion work has begun.
+  terminal_reason: >-
+    The local release candidate remains blocked by the four unchanged resumable
+    evidence roots. Optional additive S0 readiness does not enter that release
+    chain, satisfy convergence gate G-K0-S0-CONVERGENCE, or make local work
+    active.
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: ba6c4b6
+  last_durable_checkpoint: e8e5ce3
   resume_command: npm run check
 
 completion_scope:
@@ -2603,7 +2606,7 @@ work_items:
     priority: 120
     milestone: K0
     title: Additive policy lifecycle contract kernel
-    status: in_progress
+    status: complete
     dependencies:
       - H-HANDOFF
       - B3-PIPELINE
@@ -2663,21 +2666,28 @@ work_items:
         exactly 575 synthetic Nations, and 8 verified assets; build ID
         synthetic-0302f42f2c692a9120cc.
       - >-
-        Focused local K0 implementation checkpoint commit ba6c4b6 contains the
-        reviewed contracts, schemas, synthetic fixture, kernel, compatibility
-        projection, regression suites, contract/report evidence, and ledger
-        update; S0 is excluded.
+        K0 completion is bound to contract-freeze commit
+        21bb68fbb9bbd45f470b84de02b037a624efadb4, implementation commit
+        ba6c4b6483f052dd372babb58a1280e6804e0617, and validated ledger HEAD
+        e8e5ce3827fe7f2790bdabd74d85045229d69e84. The first two checkpoints
+        contain contract 1.0.0, kernel 1.0.0, projection
+        policy-record-1.4-from-k0-1.0.1, synthetic fixtures, compatibility
+        tests, and reviewed implementation evidence; S0 is excluded.
+      - >-
+        Cooperative, adversarial, and projection-accounting audit dispositions
+        are PASS. PolicyRecord 1.4, package manifests, source and taxonomy
+        configuration, Nation identity and association rules, and every closed
+        gate remain unchanged. K0 has no remaining acceptance blocker.
     next_step: >-
-      Return an owner decision packet. Keep K0 in_progress so the ledger-valid
-      dependency rule does not promote S0 from its explicitly required
-      not_started state; do not begin S0 or a convergence phase without a new
-      owner instruction.
+      Preserve K0 as a complete additive vision phase. Any integration into the
+      existing product or release scope still requires an explicit convergence
+      decision through G-K0-S0-CONVERGENCE.
 
   - id: S0-SPATIAL
     priority: 121
     milestone: S0
     title: Removable synthetic spatial-observation bridge
-    status: not_started
+    status: ready
     dependencies:
       - K0-LIFECYCLE
     authorization_gate: G-S0-SYNTHETIC
@@ -2705,7 +2715,23 @@ work_items:
         No real geometry or source, GIS dependency, map, upload, persistence,
         backend, database, service, private/land/user data, telemetry, remote,
         or publication activity occurs.
-    evidence: []
+    evidence:
+      - >-
+        The owner authorized this readiness-only transition after K0 completion:
+        promote S0 from not_started to ready, do not mark it in_progress, and do
+        not begin S0 implementation, freeze, testing, or completion work.
+      - >-
+        The untracked draft docs/vision/s0-spatial-contract.md remains preserved
+        at 13,307 bytes with SHA-256
+        ca5486e67b43c049e8f6d1c51e9c5b9e34508084a04a90b32c8369a46d7b5d2b. Its
+        seven unresolved specification issues remain unresolved; ready records
+        dependency and owner-authorization readiness only, not contract freeze
+        or implementation readiness.
+    next_step: >-
+      In a fresh S0 contract-review and freeze session, reconcile the seven
+      unresolved specification issues before any implementation. Preserve the
+      synthetic-only, removable, non-interference, no-map, and closed-gate
+      boundaries.
 
   - id: RELEASE-LICENSE
     priority: 200
@@ -3002,7 +3028,7 @@ next_actions:
 
 finish_states:
   local_release_candidate:
-    current_state: in_progress
+    current_state: blocked
     blocked_by:
       - B2-REVIEW
       - B4-FR-UX
