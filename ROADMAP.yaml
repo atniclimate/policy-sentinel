@@ -520,16 +520,17 @@ baseline:
 current_focus:
   work_item: S0-SPATIAL
   objective: >-
-    Implement the frozen synthetic-only, removable S0 1.0.0 contract in a
-    separate implementation session without changing K0, product, release,
-    source, Nation, convergence, or gate boundaries.
+    Preserve the implemented, reviewed, removal-proven S0 1.0.0 checkpoint and
+    obtain an exact owner decision on the out-of-bound terminal roadmap-test
+    update without changing K0, product, release, source, Nation, convergence,
+    or gate boundaries.
   terminal_reason: null
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: e8e5ce3
+  last_durable_checkpoint: a7e4c14
   resume_command: npm run check
 
 completion_scope:
@@ -2910,11 +2911,67 @@ work_items:
         lint, typecheck, roadmap validation, and the source-boundary scan also
         passed. No timeout was treated as a product defect, and no out-of-scope
         test, configuration, dependency, or product file changed.
+      - >-
+        Focused implementation checkpoint
+        a7e4c142975304b45c87848c9dc07e991b5fd078 has parent
+        383cc13a7e8e30db031f590a1c2d128a35a81b27 and contains only the
+        authorized S0 implementation, test, fixture, schema, review, report,
+        additive foundation-registration, and then-current roadmap paths. The
+        main worktree was clean at that checkpoint and no remote was configured.
+      - >-
+        The recoverable removal proof passed in a detached LF-preserving
+        worktree at a7e4c142975304b45c87848c9dc07e991b5fd078 using only the
+        already-installed local dependency tree. Its baseline npm run check
+        passed 71 files and 999 tests; it then removed exactly 37 tracked S0
+        schema/source/fixture/test files and restored only
+        scripts/validate-foundation.mjs to the parent blob. The reduced npm run
+        check passed 59 files and 843 tests. Both fixed-time complete dist
+        inventories contained exactly 12 files and had the identical sorted
+        path/SHA-256 digest
+        67e44fa9254fc62ffdb3fabc0ef206afe175cbfa129ab59768bef6baf6804845. The
+        verified dependency junction was unlinked nonrecursively before Git
+        removed the disposable worktree; the shared target survived and main
+        remained clean and unchanged. An initial global-core.autocrlf checkout
+        stopped on formatting before removal, and two proof-harness assertion
+        mistakes stopped and cleaned up safely before the final passing run;
+        neither altered the contract, implementation, dependencies, or main
+        worktree.
+      - >-
+        The ordered final implementation-state validation passed foundation at 8
+        schemas, 10 categories, 33 subcategories, 3 current record fixtures, 5
+        negative policy checks, and 7 valid plus 3 invalid S0 fixtures; roadmap
+        validation at 49 items, 33 gates, 14 sources, and 17 binding paths;
+        formatting after one ledger-only Prettier repair; lint; typecheck; and
+        the source scan across 327 tracked paths and 327 source files.
+        Process-local VITEST_MAX_WORKERS=1 kept the unchanged heavy suites
+        serialized: npm test passed 71 files and 999 tests in 110.28 seconds,
+        and the final isolated npm run check passed the same 71 files and 999
+        tests in 96.59 seconds plus a 3-record, exactly 575-Nation, 8-asset
+        build and artifact validation. The final 12-file dist had zero S0 path
+        segments, build markers, or source maps. Package and lockfile hashes,
+        all protected K0/current/product paths, no-remote state, and the
+        no-network/no-dependency-mutation boundary remained unchanged.
+      - >-
+        Two independent read-only terminal audits found a narrow authorization
+        boundary after all implementation acceptance work passed. A coherent
+        terminal ledger would set S0 complete, current focus null with a reason,
+        and local release blocked on the same four roots; validate:roadmap would
+        accept 26 complete and zero in_progress items. However,
+        tests/pipeline/roadmap-validator.test.mjs lines 28-35 hard-code the live
+        activation snapshot as S0 in_progress, current focus S0, and local
+        release in_progress. That file runs under npm test but is outside the
+        frozen S0 implementation allowlist. No ROADMAP-only state satisfies both
+        contracts. Disposition is STOPPED_S0_BOUNDARY_REQUIRED; S0 remains
+        in_progress rather than receiving an unauthorized test edit, a false
+        completion status, or a known failing final check. Full evidence is in
+        docs/vision/reports/s0-implementation-2026-09-01.md.
     next_step: >-
-      Create the focused implementation checkpoint, execute the recoverable
-      isolated removal proof, and finish the clean full validation sequence.
-      Preserve the synthetic-only, removable, non-interference, no-map, and
-      closed-gate boundaries; do not integrate S0 through G-K0-S0-CONVERGENCE.
+      Owner must authorize or reject an edit only to
+      tests/pipeline/roadmap-validator.test.mjs so its live-state assertions can
+      reflect the terminal-blocked ledger while preserving its synthetic
+      regression fixtures. Do not mark S0 complete, edit that out-of-bound file,
+      begin another phase, or integrate S0 through G-K0-S0-CONVERGENCE without
+      that exact authority.
 
   - id: RELEASE-LICENSE
     priority: 200
