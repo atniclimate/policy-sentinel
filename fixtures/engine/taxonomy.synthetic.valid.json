@@ -1,0 +1,2978 @@
+{
+  "$schema": "https://policy-sentinel.invalid/schemas/taxonomy-bundle.schema.v1.json",
+  "schemaVersion": "1.0.0",
+  "id": "synthetic-governed-taxonomy-bundle",
+  "version": "1.0.0",
+  "synthetic": true,
+  "profileBundleRef": {
+    "id": "synthetic-impossible-community-profiles",
+    "version": "1.0.0"
+  },
+  "authorityBindings": [
+    {
+      "id": "synthetic-project-general-owner",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-project-taxonomy-authority",
+        "version": "1.0.0"
+      },
+      "role": "vocabulary_owner",
+      "authorityClass": "synthetic_project",
+      "scope": { "kind": "bundle" }
+    },
+    {
+      "id": "synthetic-source-a-owner",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-source-a-authority",
+        "version": "1.0.0"
+      },
+      "role": "vocabulary_owner",
+      "authorityClass": "synthetic_source",
+      "scope": {
+        "kind": "source_region",
+        "sourceId": "synthetic-federal",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-source-a-crosswalk-authorizer",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-source-a-authority",
+        "version": "1.0.0"
+      },
+      "role": "crosswalk_authorizer",
+      "authorityClass": "synthetic_source",
+      "scope": {
+        "kind": "source_region",
+        "sourceId": "synthetic-federal",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-source-a-classifier",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-source-a-authority",
+        "version": "1.0.0"
+      },
+      "role": "source_classifier",
+      "authorityClass": "synthetic_source",
+      "scope": {
+        "kind": "source_region",
+        "sourceId": "synthetic-federal",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-source-a-evidence-provider",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-source-a-authority",
+        "version": "1.0.0"
+      },
+      "role": "evidence_provider",
+      "authorityClass": "synthetic_source",
+      "scope": {
+        "kind": "source_region",
+        "sourceId": "synthetic-federal",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-source-a-reviewer",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-source-a-authority",
+        "version": "1.0.0"
+      },
+      "role": "reviewer",
+      "authorityClass": "synthetic_source",
+      "scope": {
+        "kind": "source_region",
+        "sourceId": "synthetic-federal",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-regional-owner",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-regional-authority",
+        "version": "1.0.0"
+      },
+      "role": "vocabulary_owner",
+      "authorityClass": "synthetic_regional_organization",
+      "scope": {
+        "kind": "region",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-regional-crosswalk-authorizer",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-regional-authority",
+        "version": "1.0.0"
+      },
+      "role": "crosswalk_authorizer",
+      "authorityClass": "synthetic_regional_organization",
+      "scope": {
+        "kind": "region",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-regional-evidence-provider",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-regional-authority",
+        "version": "1.0.0"
+      },
+      "role": "evidence_provider",
+      "authorityClass": "synthetic_regional_organization",
+      "scope": {
+        "kind": "region",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-regional-reviewer",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-regional-authority",
+        "version": "1.0.0"
+      },
+      "role": "reviewer",
+      "authorityClass": "synthetic_regional_organization",
+      "scope": {
+        "kind": "region",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-national-owner",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-national-authority",
+        "version": "1.0.0"
+      },
+      "role": "vocabulary_owner",
+      "authorityClass": "synthetic_national_organization",
+      "scope": { "kind": "bundle" }
+    },
+    {
+      "id": "synthetic-national-crosswalk-authorizer",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-national-authority",
+        "version": "1.0.0"
+      },
+      "role": "crosswalk_authorizer",
+      "authorityClass": "synthetic_national_organization",
+      "scope": { "kind": "bundle" }
+    },
+    {
+      "id": "synthetic-national-evidence-provider",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-national-authority",
+        "version": "1.0.0"
+      },
+      "role": "evidence_provider",
+      "authorityClass": "synthetic_national_organization",
+      "scope": { "kind": "bundle" }
+    },
+    {
+      "id": "synthetic-national-reviewer",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-national-authority",
+        "version": "1.0.0"
+      },
+      "role": "reviewer",
+      "authorityClass": "synthetic_national_organization",
+      "scope": { "kind": "bundle" }
+    },
+    {
+      "id": "synthetic-community-a-owner",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-community-a-authority",
+        "version": "1.0.0"
+      },
+      "role": "vocabulary_owner",
+      "authorityClass": "synthetic_community",
+      "scope": {
+        "kind": "deployment_region",
+        "deploymentProfileRef": {
+          "id": "synthetic-cloud-harbor-deployment",
+          "version": "1.0.0"
+        },
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-community-a-crosswalk-authorizer",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-community-a-authority",
+        "version": "1.0.0"
+      },
+      "role": "crosswalk_authorizer",
+      "authorityClass": "synthetic_community",
+      "scope": {
+        "kind": "deployment_region",
+        "deploymentProfileRef": {
+          "id": "synthetic-cloud-harbor-deployment",
+          "version": "1.0.0"
+        },
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-community-a-configurator",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-community-a-authority",
+        "version": "1.0.0"
+      },
+      "role": "community_configurator",
+      "authorityClass": "synthetic_community",
+      "scope": {
+        "kind": "deployment_region",
+        "deploymentProfileRef": {
+          "id": "synthetic-cloud-harbor-deployment",
+          "version": "1.0.0"
+        },
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-community-a-evidence-provider",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-community-a-authority",
+        "version": "1.0.0"
+      },
+      "role": "evidence_provider",
+      "authorityClass": "synthetic_community",
+      "scope": {
+        "kind": "deployment_region",
+        "deploymentProfileRef": {
+          "id": "synthetic-cloud-harbor-deployment",
+          "version": "1.0.0"
+        },
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-community-a-reviewer",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-community-a-authority",
+        "version": "1.0.0"
+      },
+      "role": "reviewer",
+      "authorityClass": "synthetic_community",
+      "scope": {
+        "kind": "deployment_region",
+        "deploymentProfileRef": {
+          "id": "synthetic-cloud-harbor-deployment",
+          "version": "1.0.0"
+        },
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-community-b-owner",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-community-b-authority",
+        "version": "1.0.0"
+      },
+      "role": "vocabulary_owner",
+      "authorityClass": "synthetic_community",
+      "scope": {
+        "kind": "deployment_region",
+        "deploymentProfileRef": {
+          "id": "synthetic-glass-desert-deployment",
+          "version": "1.0.0"
+        },
+        "regionPackRef": {
+          "id": "synthetic-glass-desert-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-community-b-configurator",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-community-b-authority",
+        "version": "1.0.0"
+      },
+      "role": "community_configurator",
+      "authorityClass": "synthetic_community",
+      "scope": {
+        "kind": "deployment_region",
+        "deploymentProfileRef": {
+          "id": "synthetic-glass-desert-deployment",
+          "version": "1.0.0"
+        },
+        "regionPackRef": {
+          "id": "synthetic-glass-desert-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-community-b-evidence-provider",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-community-b-authority",
+        "version": "1.0.0"
+      },
+      "role": "evidence_provider",
+      "authorityClass": "synthetic_community",
+      "scope": {
+        "kind": "deployment_region",
+        "deploymentProfileRef": {
+          "id": "synthetic-glass-desert-deployment",
+          "version": "1.0.0"
+        },
+        "regionPackRef": {
+          "id": "synthetic-glass-desert-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-community-b-reviewer",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-community-b-authority",
+        "version": "1.0.0"
+      },
+      "role": "reviewer",
+      "authorityClass": "synthetic_community",
+      "scope": {
+        "kind": "deployment_region",
+        "deploymentProfileRef": {
+          "id": "synthetic-glass-desert-deployment",
+          "version": "1.0.0"
+        },
+        "regionPackRef": {
+          "id": "synthetic-glass-desert-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-analyst-a-assigner",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-analyst-a-authority",
+        "version": "1.0.0"
+      },
+      "role": "analyst_assigner",
+      "authorityClass": "synthetic_analyst",
+      "scope": {
+        "kind": "deployment_region",
+        "deploymentProfileRef": {
+          "id": "synthetic-cloud-harbor-deployment",
+          "version": "1.0.0"
+        },
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-analyst-a-evidence-provider",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-analyst-a-authority",
+        "version": "1.0.0"
+      },
+      "role": "evidence_provider",
+      "authorityClass": "synthetic_analyst",
+      "scope": {
+        "kind": "deployment_region",
+        "deploymentProfileRef": {
+          "id": "synthetic-cloud-harbor-deployment",
+          "version": "1.0.0"
+        },
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "synthetic-analyst-a-reviewer",
+      "version": "1.0.0",
+      "synthetic": true,
+      "authorityIdentityRef": {
+        "id": "synthetic-analyst-a-authority",
+        "version": "1.0.0"
+      },
+      "role": "reviewer",
+      "authorityClass": "synthetic_analyst",
+      "scope": {
+        "kind": "deployment_region",
+        "deploymentProfileRef": {
+          "id": "synthetic-cloud-harbor-deployment",
+          "version": "1.0.0"
+        },
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      }
+    }
+  ],
+  "namespaces": [
+    {
+      "id": "synthetic-project-general",
+      "version": "1.0.0",
+      "synthetic": true,
+      "role": "project_general",
+      "officialSubjectScheme": null,
+      "ownerAuthorityBindingRef": {
+        "id": "synthetic-project-general-owner",
+        "version": "1.0.0"
+      },
+      "scope": { "kind": "bundle" },
+      "status": "active",
+      "vocabularyVersion": "1.0.0",
+      "retainedTaxonomyVersion": "1.0.0"
+    },
+    {
+      "id": "synthetic-source-a",
+      "version": "1.0.0",
+      "synthetic": true,
+      "role": "source_native",
+      "officialSubjectScheme": "synthetic-topic",
+      "ownerAuthorityBindingRef": {
+        "id": "synthetic-source-a-owner",
+        "version": "1.0.0"
+      },
+      "scope": {
+        "kind": "source_region",
+        "sourceId": "synthetic-federal",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      },
+      "status": "active",
+      "vocabularyVersion": "1.0.0",
+      "retainedTaxonomyVersion": null
+    },
+    {
+      "id": "synthetic-regional-organization",
+      "version": "1.0.0",
+      "synthetic": true,
+      "role": "regional_organization",
+      "officialSubjectScheme": null,
+      "ownerAuthorityBindingRef": {
+        "id": "synthetic-regional-owner",
+        "version": "1.0.0"
+      },
+      "scope": {
+        "kind": "region",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      },
+      "status": "active",
+      "vocabularyVersion": "1.0.0",
+      "retainedTaxonomyVersion": null
+    },
+    {
+      "id": "synthetic-national-organization",
+      "version": "1.0.0",
+      "synthetic": true,
+      "role": "national_organization",
+      "officialSubjectScheme": null,
+      "ownerAuthorityBindingRef": {
+        "id": "synthetic-national-owner",
+        "version": "1.0.0"
+      },
+      "scope": { "kind": "bundle" },
+      "status": "active",
+      "vocabularyVersion": "1.0.0",
+      "retainedTaxonomyVersion": null
+    },
+    {
+      "id": "synthetic-community-a",
+      "version": "1.0.0",
+      "synthetic": true,
+      "role": "community_deployment",
+      "officialSubjectScheme": null,
+      "ownerAuthorityBindingRef": {
+        "id": "synthetic-community-a-owner",
+        "version": "1.0.0"
+      },
+      "scope": {
+        "kind": "deployment_region",
+        "deploymentProfileRef": {
+          "id": "synthetic-cloud-harbor-deployment",
+          "version": "1.0.0"
+        },
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      },
+      "status": "active",
+      "vocabularyVersion": "1.0.0",
+      "retainedTaxonomyVersion": null
+    },
+    {
+      "id": "synthetic-community-b",
+      "version": "1.0.0",
+      "synthetic": true,
+      "role": "community_deployment",
+      "officialSubjectScheme": null,
+      "ownerAuthorityBindingRef": {
+        "id": "synthetic-community-b-owner",
+        "version": "1.0.0"
+      },
+      "scope": {
+        "kind": "deployment_region",
+        "deploymentProfileRef": {
+          "id": "synthetic-glass-desert-deployment",
+          "version": "1.0.0"
+        },
+        "regionPackRef": {
+          "id": "synthetic-glass-desert-region",
+          "version": "1.0.0"
+        }
+      },
+      "status": "active",
+      "vocabularyVersion": "1.0.0",
+      "retainedTaxonomyVersion": null
+    },
+    {
+      "id": "synthetic-source-b",
+      "version": "1.0.0",
+      "synthetic": true,
+      "role": "source_native",
+      "officialSubjectScheme": "synthetic-other-topic",
+      "ownerAuthorityBindingRef": {
+        "id": "synthetic-source-a-owner",
+        "version": "1.0.0"
+      },
+      "scope": {
+        "kind": "source_region",
+        "sourceId": "synthetic-federal",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      },
+      "status": "active",
+      "vocabularyVersion": "1.0.0",
+      "retainedTaxonomyVersion": null
+    }
+  ],
+  "concepts": [
+    {
+      "id": "synthetic-general-environment",
+      "version": "1.0.0",
+      "synthetic": true,
+      "namespaceRef": {
+        "id": "synthetic-project-general",
+        "version": "1.0.0"
+      },
+      "kind": "retained_general_reference",
+      "retainedTaxonomyRef": {
+        "taxonomyVersion": "1.0.0",
+        "categoryId": "environmental-protection-pollution-governance",
+        "subcategoryId": null
+      },
+      "lifecycleState": "active",
+      "parentRef": null,
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-general-water",
+      "version": "1.0.0",
+      "synthetic": true,
+      "namespaceRef": {
+        "id": "synthetic-project-general",
+        "version": "1.0.0"
+      },
+      "kind": "retained_general_reference",
+      "retainedTaxonomyRef": {
+        "taxonomyVersion": "1.0.0",
+        "categoryId": "environmental-protection-pollution-governance",
+        "subcategoryId": "water-resources-quality"
+      },
+      "lifecycleState": "active",
+      "parentRef": {
+        "namespaceRef": {
+          "id": "synthetic-project-general",
+          "version": "1.0.0"
+        },
+        "conceptRef": {
+          "id": "synthetic-general-environment",
+          "version": "1.0.0"
+        }
+      },
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-general-climate",
+      "version": "1.0.0",
+      "synthetic": true,
+      "namespaceRef": {
+        "id": "synthetic-project-general",
+        "version": "1.0.0"
+      },
+      "kind": "retained_general_reference",
+      "retainedTaxonomyRef": {
+        "taxonomyVersion": "1.0.0",
+        "categoryId": "climate-energy-policy",
+        "subcategoryId": null
+      },
+      "lifecycleState": "active",
+      "parentRef": null,
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-general-adaptation",
+      "version": "1.0.0",
+      "synthetic": true,
+      "namespaceRef": {
+        "id": "synthetic-project-general",
+        "version": "1.0.0"
+      },
+      "kind": "retained_general_reference",
+      "retainedTaxonomyRef": {
+        "taxonomyVersion": "1.0.0",
+        "categoryId": "climate-energy-policy",
+        "subcategoryId": "climate-adaptation-resilience"
+      },
+      "lifecycleState": "active",
+      "parentRef": {
+        "namespaceRef": {
+          "id": "synthetic-project-general",
+          "version": "1.0.0"
+        },
+        "conceptRef": {
+          "id": "synthetic-general-climate",
+          "version": "1.0.0"
+        }
+      },
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-general-infrastructure",
+      "version": "1.0.0",
+      "synthetic": true,
+      "namespaceRef": {
+        "id": "synthetic-project-general",
+        "version": "1.0.0"
+      },
+      "kind": "retained_general_reference",
+      "retainedTaxonomyRef": {
+        "taxonomyVersion": "1.0.0",
+        "categoryId": "infrastructure-transportation-broadband",
+        "subcategoryId": null
+      },
+      "lifecycleState": "active",
+      "parentRef": null,
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-shared-term",
+      "version": "1.0.0",
+      "synthetic": true,
+      "namespaceRef": { "id": "synthetic-source-a", "version": "1.0.0" },
+      "kind": "authority_native",
+      "code": "synthetic-source-a-shared",
+      "preferredLabel": "Synthetic Shared Monitor",
+      "alternateLabels": ["Synthetic Source A Alias"],
+      "description": "Invented source-native term for deterministic testing.",
+      "lifecycleState": "active",
+      "parentRef": null,
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-source-history-term",
+      "version": "1.0.0",
+      "synthetic": true,
+      "namespaceRef": { "id": "synthetic-source-a", "version": "1.0.0" },
+      "kind": "authority_native",
+      "code": "synthetic-source-a-history",
+      "preferredLabel": "Synthetic Historic Monitor",
+      "alternateLabels": [],
+      "description": "Invented term used to exercise mapping supersession.",
+      "lifecycleState": "active",
+      "parentRef": {
+        "namespaceRef": { "id": "synthetic-source-a", "version": "1.0.0" },
+        "conceptRef": { "id": "synthetic-shared-term", "version": "1.0.0" }
+      },
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-source-expired-term",
+      "version": "1.0.0",
+      "synthetic": true,
+      "namespaceRef": { "id": "synthetic-source-a", "version": "1.0.0" },
+      "kind": "authority_native",
+      "code": "synthetic-source-a-expired",
+      "preferredLabel": "Synthetic Expired Monitor",
+      "alternateLabels": [],
+      "description": "Invented term with an expired mapping.",
+      "lifecycleState": "active",
+      "parentRef": null,
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-shared-term",
+      "version": "1.0.0",
+      "synthetic": true,
+      "namespaceRef": {
+        "id": "synthetic-regional-organization",
+        "version": "1.0.0"
+      },
+      "kind": "authority_native",
+      "code": "synthetic-regional-shared",
+      "preferredLabel": "Synthetic Shared Monitor",
+      "alternateLabels": ["Synthetic Regional Alias"],
+      "description": "Invented regional-organization term.",
+      "lifecycleState": "active",
+      "parentRef": null,
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-regional-pending-term",
+      "version": "1.0.0",
+      "synthetic": true,
+      "namespaceRef": {
+        "id": "synthetic-regional-organization",
+        "version": "1.0.0"
+      },
+      "kind": "authority_native",
+      "code": "synthetic-regional-pending",
+      "preferredLabel": "Synthetic Regional Pending",
+      "alternateLabels": [],
+      "description": "Invented regional term with pending review.",
+      "lifecycleState": "active",
+      "parentRef": null,
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-shared-term",
+      "version": "1.0.0",
+      "synthetic": true,
+      "namespaceRef": {
+        "id": "synthetic-national-organization",
+        "version": "1.0.0"
+      },
+      "kind": "authority_native",
+      "code": "synthetic-national-shared",
+      "preferredLabel": "Synthetic Shared Monitor",
+      "alternateLabels": ["Synthetic National Alias"],
+      "description": "Invented national-organization term.",
+      "lifecycleState": "active",
+      "parentRef": null,
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-national-rejected-term",
+      "version": "1.0.0",
+      "synthetic": true,
+      "namespaceRef": {
+        "id": "synthetic-national-organization",
+        "version": "1.0.0"
+      },
+      "kind": "authority_native",
+      "code": "synthetic-national-rejected",
+      "preferredLabel": "Synthetic National Rejected",
+      "alternateLabels": [],
+      "description": "Invented national term with rejected review.",
+      "lifecycleState": "active",
+      "parentRef": null,
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-shared-term",
+      "version": "1.0.0",
+      "synthetic": true,
+      "namespaceRef": { "id": "synthetic-community-a", "version": "1.0.0" },
+      "kind": "authority_native",
+      "code": "synthetic-community-a-shared",
+      "preferredLabel": "Synthetic Shared Monitor",
+      "alternateLabels": ["Synthetic Community A Alias"],
+      "description": "Invented deployment-local community term.",
+      "lifecycleState": "active",
+      "parentRef": null,
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-community-withdrawn-term",
+      "version": "1.0.0",
+      "synthetic": true,
+      "namespaceRef": { "id": "synthetic-community-a", "version": "1.0.0" },
+      "kind": "authority_native",
+      "code": "synthetic-community-a-withdrawn",
+      "preferredLabel": "Synthetic Community Withdrawn",
+      "alternateLabels": [],
+      "description": "Invented deployment-local term with withdrawn review.",
+      "lifecycleState": "active",
+      "parentRef": null,
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-community-disputed-term",
+      "version": "1.0.0",
+      "synthetic": true,
+      "namespaceRef": { "id": "synthetic-community-a", "version": "1.0.0" },
+      "kind": "authority_native",
+      "code": "synthetic-community-a-disputed",
+      "preferredLabel": "Synthetic Community Disputed",
+      "alternateLabels": [],
+      "description": "Invented deployment-local term with disputed review.",
+      "lifecycleState": "active",
+      "parentRef": null,
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-shared-term",
+      "version": "1.0.0",
+      "synthetic": true,
+      "namespaceRef": { "id": "synthetic-community-b", "version": "1.0.0" },
+      "kind": "authority_native",
+      "code": "synthetic-community-b-shared",
+      "preferredLabel": "Synthetic Shared Monitor",
+      "alternateLabels": ["Synthetic Community B Alias"],
+      "description": "Invented unmapped deployment-local community term.",
+      "lifecycleState": "active",
+      "parentRef": null,
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-shared-term",
+      "version": "1.0.0",
+      "synthetic": true,
+      "namespaceRef": { "id": "synthetic-source-b", "version": "1.0.0" },
+      "kind": "authority_native",
+      "code": "synthetic-source-b-shared",
+      "preferredLabel": "Synthetic Shared Monitor",
+      "alternateLabels": ["Synthetic Source B Alias"],
+      "description": "Invented second scheme-bound source-native term.",
+      "lifecycleState": "active",
+      "parentRef": null,
+      "supersedesRef": null
+    }
+  ],
+  "evidenceReferences": [
+    {
+      "id": "synthetic-source-a-evidence",
+      "version": "1.0.0",
+      "synthetic": true,
+      "suppliedByAuthorityBindingRef": {
+        "id": "synthetic-source-a-evidence-provider",
+        "version": "1.0.0"
+      },
+      "kind": "source_documentation",
+      "citation": {
+        "url": "https://synthetic-source-a.invalid/evidence",
+        "locator": "synthetic-source-a-locator"
+      },
+      "observedAt": "3785-01-01T00:00:00Z",
+      "availability": "observed",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-regional-evidence",
+      "version": "1.0.0",
+      "synthetic": true,
+      "suppliedByAuthorityBindingRef": {
+        "id": "synthetic-regional-evidence-provider",
+        "version": "1.0.0"
+      },
+      "kind": "authority_configuration",
+      "citation": {
+        "url": "https://synthetic-regional.invalid/evidence",
+        "locator": "synthetic-regional-locator"
+      },
+      "observedAt": "3785-01-02T00:00:00Z",
+      "availability": "observed",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-national-evidence",
+      "version": "1.0.0",
+      "synthetic": true,
+      "suppliedByAuthorityBindingRef": {
+        "id": "synthetic-national-evidence-provider",
+        "version": "1.0.0"
+      },
+      "kind": "authority_configuration",
+      "citation": {
+        "url": "https://synthetic-national.invalid/evidence",
+        "locator": "synthetic-national-locator"
+      },
+      "observedAt": "3785-01-03T00:00:00Z",
+      "availability": "observed",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-community-a-evidence",
+      "version": "1.0.0",
+      "synthetic": true,
+      "suppliedByAuthorityBindingRef": {
+        "id": "synthetic-community-a-evidence-provider",
+        "version": "1.0.0"
+      },
+      "kind": "authority_configuration",
+      "citation": {
+        "url": "https://synthetic-community-a.invalid/evidence",
+        "locator": "synthetic-community-a-locator"
+      },
+      "observedAt": "3785-01-04T00:00:00Z",
+      "availability": "observed",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-community-b-evidence",
+      "version": "1.0.0",
+      "synthetic": true,
+      "suppliedByAuthorityBindingRef": {
+        "id": "synthetic-community-b-evidence-provider",
+        "version": "1.0.0"
+      },
+      "kind": "authority_configuration",
+      "citation": {
+        "url": "https://synthetic-community-b.invalid/evidence",
+        "locator": "synthetic-community-b-locator"
+      },
+      "observedAt": "3785-01-05T00:00:00Z",
+      "availability": "observed",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-analyst-a-evidence",
+      "version": "1.0.0",
+      "synthetic": true,
+      "suppliedByAuthorityBindingRef": {
+        "id": "synthetic-analyst-a-evidence-provider",
+        "version": "1.0.0"
+      },
+      "kind": "analyst_review",
+      "citation": {
+        "url": "https://synthetic-analyst-a.invalid/evidence",
+        "locator": "synthetic-analyst-a-locator"
+      },
+      "observedAt": "3785-01-06T00:00:00Z",
+      "availability": "observed",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-unknown-evidence",
+      "version": "1.0.0",
+      "synthetic": true,
+      "suppliedByAuthorityBindingRef": {
+        "id": "synthetic-community-b-evidence-provider",
+        "version": "1.0.0"
+      },
+      "kind": "authority_configuration",
+      "citation": {
+        "url": "https://synthetic-community-b.invalid/unknown",
+        "locator": "synthetic-unknown-locator"
+      },
+      "observedAt": "3785-01-07T00:00:00Z",
+      "availability": "observed",
+      "visibility": "public"
+    }
+  ],
+  "reviewAttestations": [
+    {
+      "id": "synthetic-source-crosswalk-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-source-a-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "crosswalk",
+        "ref": { "id": "synthetic-source-a-crosswalk", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-source-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-01T00:00:00Z",
+      "kind": "source_verified",
+      "state": "accepted",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-regional-crosswalk-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-regional-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "crosswalk",
+        "ref": { "id": "synthetic-regional-crosswalk", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-regional-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-02T00:00:00Z",
+      "kind": "authority_configured",
+      "state": "accepted",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-national-crosswalk-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-national-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "crosswalk",
+        "ref": { "id": "synthetic-national-crosswalk", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-national-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-03T00:00:00Z",
+      "kind": "authority_configured",
+      "state": "accepted",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-community-a-crosswalk-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-community-a-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "crosswalk",
+        "ref": { "id": "synthetic-community-a-crosswalk", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-community-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-04T00:00:00Z",
+      "kind": "authority_configured",
+      "state": "accepted",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-history-v1-crosswalk-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-source-a-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "crosswalk",
+        "ref": { "id": "synthetic-history-crosswalk", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-source-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-05T00:00:00Z",
+      "kind": "source_verified",
+      "state": "accepted",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-history-v2-crosswalk-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-source-a-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "crosswalk",
+        "ref": { "id": "synthetic-history-crosswalk", "version": "2.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-source-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-05T00:00:00Z",
+      "kind": "source_verified",
+      "state": "accepted",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-pending-crosswalk-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-regional-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "crosswalk",
+        "ref": { "id": "synthetic-pending-crosswalk", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-regional-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-06T00:00:00Z",
+      "kind": "authority_configured",
+      "state": "pending",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-rejected-crosswalk-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-national-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "crosswalk",
+        "ref": { "id": "synthetic-rejected-crosswalk", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-national-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-07T00:00:00Z",
+      "kind": "authority_configured",
+      "state": "rejected",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-withdrawn-crosswalk-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-community-a-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "crosswalk",
+        "ref": { "id": "synthetic-withdrawn-crosswalk", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-community-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-08T00:00:00Z",
+      "kind": "authority_configured",
+      "state": "withdrawn",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-disputed-crosswalk-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-community-a-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "crosswalk",
+        "ref": { "id": "synthetic-disputed-crosswalk", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-community-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-09T00:00:00Z",
+      "kind": "authority_configured",
+      "state": "disputed",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-expired-crosswalk-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-source-a-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "crosswalk",
+        "ref": { "id": "synthetic-expired-crosswalk", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-source-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-10T00:00:00Z",
+      "kind": "source_verified",
+      "state": "accepted",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-source-assignment-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-source-a-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "assignment",
+        "ref": { "id": "synthetic-source-assignment", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-source-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-11T00:00:00Z",
+      "kind": "source_verified",
+      "state": "accepted",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-configured-assignment-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-community-a-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "assignment",
+        "ref": { "id": "synthetic-configured-assignment", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-community-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-12T00:00:00Z",
+      "kind": "authority_configured",
+      "state": "accepted",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-analyst-assignment-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-analyst-a-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "assignment",
+        "ref": { "id": "synthetic-analyst-assignment", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-analyst-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-13T00:00:00Z",
+      "kind": "analyst_reviewed",
+      "state": "accepted",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-unmapped-assignment-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-community-b-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "assignment",
+        "ref": { "id": "synthetic-unmapped-assignment", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-community-b-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-14T00:00:00Z",
+      "kind": "authority_configured",
+      "state": "accepted",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-unclassified-assignment-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-analyst-a-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "assignment",
+        "ref": { "id": "synthetic-unclassified-assignment", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-analyst-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-15T00:00:00Z",
+      "kind": "analyst_reviewed",
+      "state": "accepted",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-not-assessed-assignment-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-community-b-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "assignment",
+        "ref": { "id": "synthetic-not-assessed-assignment", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-unknown-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-16T00:00:00Z",
+      "kind": "authority_configured",
+      "state": "accepted",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-pending-assignment-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-community-a-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "assignment",
+        "ref": { "id": "synthetic-pending-assignment", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-community-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-17T00:00:00Z",
+      "kind": "authority_configured",
+      "state": "pending",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-disputed-assignment-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-community-a-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "assignment",
+        "ref": { "id": "synthetic-disputed-assignment", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-community-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-18T00:00:00Z",
+      "kind": "authority_configured",
+      "state": "disputed",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-rejected-assignment-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-analyst-a-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "assignment",
+        "ref": { "id": "synthetic-rejected-assignment", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-analyst-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-19T00:00:00Z",
+      "kind": "analyst_reviewed",
+      "state": "rejected",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-withdrawn-assignment-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-community-a-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "assignment",
+        "ref": { "id": "synthetic-withdrawn-assignment", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-community-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-20T00:00:00Z",
+      "kind": "authority_configured",
+      "state": "withdrawn",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-superseded-assignment-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-analyst-a-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "assignment",
+        "ref": { "id": "synthetic-superseded-assignment", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-analyst-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-21T00:00:00Z",
+      "kind": "analyst_reviewed",
+      "state": "accepted",
+      "visibility": "public"
+    },
+    {
+      "id": "synthetic-expired-assignment-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-source-a-reviewer",
+        "version": "1.0.0"
+      },
+      "subject": {
+        "kind": "assignment",
+        "ref": { "id": "synthetic-expired-assignment", "version": "1.0.0" }
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-source-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewedAt": "3785-06-22T00:00:00Z",
+      "kind": "source_verified",
+      "state": "accepted",
+      "visibility": "public"
+    }
+  ],
+  "crosswalks": [
+    {
+      "id": "synthetic-source-a-crosswalk",
+      "version": "1.0.0",
+      "synthetic": true,
+      "kind": "monitoring_crosswalk",
+      "sourceConceptRef": {
+        "namespaceRef": { "id": "synthetic-source-a", "version": "1.0.0" },
+        "conceptRef": { "id": "synthetic-shared-term", "version": "1.0.0" }
+      },
+      "targetConceptRefs": [
+        {
+          "namespaceRef": {
+            "id": "synthetic-project-general",
+            "version": "1.0.0"
+          },
+          "conceptRef": {
+            "id": "synthetic-general-environment",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "namespaceRef": {
+            "id": "synthetic-project-general",
+            "version": "1.0.0"
+          },
+          "conceptRef": { "id": "synthetic-general-water", "version": "1.0.0" }
+        }
+      ],
+      "authorizerAuthorityBindingRef": {
+        "id": "synthetic-source-a-crosswalk-authorizer",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-source-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-source-crosswalk-review", "version": "1.0.0" }
+      ],
+      "scope": {
+        "kind": "source_region",
+        "sourceId": "synthetic-federal",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      },
+      "observedAt": "3785-04-01T00:00:00Z",
+      "effectivePeriod": { "from": "3780-01-01", "through": null },
+      "lifecycleState": "active",
+      "supersedesRef": null,
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-regional-crosswalk",
+      "version": "1.0.0",
+      "synthetic": true,
+      "kind": "monitoring_crosswalk",
+      "sourceConceptRef": {
+        "namespaceRef": {
+          "id": "synthetic-regional-organization",
+          "version": "1.0.0"
+        },
+        "conceptRef": { "id": "synthetic-shared-term", "version": "1.0.0" }
+      },
+      "targetConceptRefs": [
+        {
+          "namespaceRef": {
+            "id": "synthetic-project-general",
+            "version": "1.0.0"
+          },
+          "conceptRef": {
+            "id": "synthetic-general-climate",
+            "version": "1.0.0"
+          }
+        }
+      ],
+      "authorizerAuthorityBindingRef": {
+        "id": "synthetic-regional-crosswalk-authorizer",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-regional-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-regional-crosswalk-review", "version": "1.0.0" }
+      ],
+      "scope": {
+        "kind": "region",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      },
+      "observedAt": "3785-04-02T00:00:00Z",
+      "effectivePeriod": { "from": "3780-01-01", "through": null },
+      "lifecycleState": "active",
+      "supersedesRef": null,
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-national-crosswalk",
+      "version": "1.0.0",
+      "synthetic": true,
+      "kind": "monitoring_crosswalk",
+      "sourceConceptRef": {
+        "namespaceRef": {
+          "id": "synthetic-national-organization",
+          "version": "1.0.0"
+        },
+        "conceptRef": { "id": "synthetic-shared-term", "version": "1.0.0" }
+      },
+      "targetConceptRefs": [
+        {
+          "namespaceRef": {
+            "id": "synthetic-project-general",
+            "version": "1.0.0"
+          },
+          "conceptRef": { "id": "synthetic-general-water", "version": "1.0.0" }
+        }
+      ],
+      "authorizerAuthorityBindingRef": {
+        "id": "synthetic-national-crosswalk-authorizer",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-national-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-national-crosswalk-review", "version": "1.0.0" }
+      ],
+      "scope": { "kind": "bundle" },
+      "observedAt": "3785-04-03T00:00:00Z",
+      "effectivePeriod": { "from": "3780-01-01", "through": null },
+      "lifecycleState": "active",
+      "supersedesRef": null,
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-community-a-crosswalk",
+      "version": "1.0.0",
+      "synthetic": true,
+      "kind": "monitoring_crosswalk",
+      "sourceConceptRef": {
+        "namespaceRef": { "id": "synthetic-community-a", "version": "1.0.0" },
+        "conceptRef": { "id": "synthetic-shared-term", "version": "1.0.0" }
+      },
+      "targetConceptRefs": [
+        {
+          "namespaceRef": {
+            "id": "synthetic-project-general",
+            "version": "1.0.0"
+          },
+          "conceptRef": {
+            "id": "synthetic-general-climate",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "namespaceRef": {
+            "id": "synthetic-project-general",
+            "version": "1.0.0"
+          },
+          "conceptRef": {
+            "id": "synthetic-general-environment",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "namespaceRef": {
+            "id": "synthetic-project-general",
+            "version": "1.0.0"
+          },
+          "conceptRef": { "id": "synthetic-general-water", "version": "1.0.0" }
+        }
+      ],
+      "authorizerAuthorityBindingRef": {
+        "id": "synthetic-community-a-crosswalk-authorizer",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-community-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-community-a-crosswalk-review", "version": "1.0.0" }
+      ],
+      "scope": {
+        "kind": "deployment_region",
+        "deploymentProfileRef": {
+          "id": "synthetic-cloud-harbor-deployment",
+          "version": "1.0.0"
+        },
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      },
+      "observedAt": "3785-04-04T00:00:00Z",
+      "effectivePeriod": { "from": "3780-01-01", "through": null },
+      "lifecycleState": "active",
+      "supersedesRef": null,
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-history-crosswalk",
+      "version": "1.0.0",
+      "synthetic": true,
+      "kind": "monitoring_crosswalk",
+      "sourceConceptRef": {
+        "namespaceRef": { "id": "synthetic-source-a", "version": "1.0.0" },
+        "conceptRef": {
+          "id": "synthetic-source-history-term",
+          "version": "1.0.0"
+        }
+      },
+      "targetConceptRefs": [
+        {
+          "namespaceRef": {
+            "id": "synthetic-project-general",
+            "version": "1.0.0"
+          },
+          "conceptRef": {
+            "id": "synthetic-general-environment",
+            "version": "1.0.0"
+          }
+        }
+      ],
+      "authorizerAuthorityBindingRef": {
+        "id": "synthetic-source-a-crosswalk-authorizer",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-source-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-history-v1-crosswalk-review", "version": "1.0.0" }
+      ],
+      "scope": {
+        "kind": "source_region",
+        "sourceId": "synthetic-federal",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      },
+      "observedAt": "3785-04-05T00:00:00Z",
+      "effectivePeriod": { "from": "3770-01-01", "through": "3779-12-31" },
+      "lifecycleState": "superseded",
+      "supersedesRef": null,
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-history-crosswalk",
+      "version": "2.0.0",
+      "synthetic": true,
+      "kind": "monitoring_crosswalk",
+      "sourceConceptRef": {
+        "namespaceRef": { "id": "synthetic-source-a", "version": "1.0.0" },
+        "conceptRef": {
+          "id": "synthetic-source-history-term",
+          "version": "1.0.0"
+        }
+      },
+      "targetConceptRefs": [
+        {
+          "namespaceRef": {
+            "id": "synthetic-project-general",
+            "version": "1.0.0"
+          },
+          "conceptRef": {
+            "id": "synthetic-general-environment",
+            "version": "1.0.0"
+          }
+        }
+      ],
+      "authorizerAuthorityBindingRef": {
+        "id": "synthetic-source-a-crosswalk-authorizer",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-source-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-history-v2-crosswalk-review", "version": "1.0.0" }
+      ],
+      "scope": {
+        "kind": "source_region",
+        "sourceId": "synthetic-federal",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      },
+      "observedAt": "3785-04-05T00:00:00Z",
+      "effectivePeriod": { "from": "3780-01-01", "through": null },
+      "lifecycleState": "active",
+      "supersedesRef": {
+        "id": "synthetic-history-crosswalk",
+        "version": "1.0.0"
+      },
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-pending-crosswalk",
+      "version": "1.0.0",
+      "synthetic": true,
+      "kind": "monitoring_crosswalk",
+      "sourceConceptRef": {
+        "namespaceRef": {
+          "id": "synthetic-regional-organization",
+          "version": "1.0.0"
+        },
+        "conceptRef": {
+          "id": "synthetic-regional-pending-term",
+          "version": "1.0.0"
+        }
+      },
+      "targetConceptRefs": [
+        {
+          "namespaceRef": {
+            "id": "synthetic-project-general",
+            "version": "1.0.0"
+          },
+          "conceptRef": {
+            "id": "synthetic-general-infrastructure",
+            "version": "1.0.0"
+          }
+        }
+      ],
+      "authorizerAuthorityBindingRef": {
+        "id": "synthetic-regional-crosswalk-authorizer",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-regional-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-pending-crosswalk-review", "version": "1.0.0" }
+      ],
+      "scope": {
+        "kind": "region",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      },
+      "observedAt": "3785-04-06T00:00:00Z",
+      "effectivePeriod": { "from": "3780-01-01", "through": null },
+      "lifecycleState": "pending",
+      "supersedesRef": null,
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-rejected-crosswalk",
+      "version": "1.0.0",
+      "synthetic": true,
+      "kind": "monitoring_crosswalk",
+      "sourceConceptRef": {
+        "namespaceRef": {
+          "id": "synthetic-national-organization",
+          "version": "1.0.0"
+        },
+        "conceptRef": {
+          "id": "synthetic-national-rejected-term",
+          "version": "1.0.0"
+        }
+      },
+      "targetConceptRefs": [
+        {
+          "namespaceRef": {
+            "id": "synthetic-project-general",
+            "version": "1.0.0"
+          },
+          "conceptRef": {
+            "id": "synthetic-general-adaptation",
+            "version": "1.0.0"
+          }
+        }
+      ],
+      "authorizerAuthorityBindingRef": {
+        "id": "synthetic-national-crosswalk-authorizer",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-national-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-rejected-crosswalk-review", "version": "1.0.0" }
+      ],
+      "scope": { "kind": "bundle" },
+      "observedAt": "3785-04-07T00:00:00Z",
+      "effectivePeriod": { "from": "3780-01-01", "through": null },
+      "lifecycleState": "rejected",
+      "supersedesRef": null,
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-withdrawn-crosswalk",
+      "version": "1.0.0",
+      "synthetic": true,
+      "kind": "monitoring_crosswalk",
+      "sourceConceptRef": {
+        "namespaceRef": { "id": "synthetic-community-a", "version": "1.0.0" },
+        "conceptRef": {
+          "id": "synthetic-community-withdrawn-term",
+          "version": "1.0.0"
+        }
+      },
+      "targetConceptRefs": [
+        {
+          "namespaceRef": {
+            "id": "synthetic-project-general",
+            "version": "1.0.0"
+          },
+          "conceptRef": { "id": "synthetic-general-water", "version": "1.0.0" }
+        }
+      ],
+      "authorizerAuthorityBindingRef": {
+        "id": "synthetic-community-a-crosswalk-authorizer",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-community-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-withdrawn-crosswalk-review", "version": "1.0.0" }
+      ],
+      "scope": {
+        "kind": "deployment_region",
+        "deploymentProfileRef": {
+          "id": "synthetic-cloud-harbor-deployment",
+          "version": "1.0.0"
+        },
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      },
+      "observedAt": "3785-04-08T00:00:00Z",
+      "effectivePeriod": { "from": "3780-01-01", "through": null },
+      "lifecycleState": "withdrawn",
+      "supersedesRef": null,
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-disputed-crosswalk",
+      "version": "1.0.0",
+      "synthetic": true,
+      "kind": "monitoring_crosswalk",
+      "sourceConceptRef": {
+        "namespaceRef": { "id": "synthetic-community-a", "version": "1.0.0" },
+        "conceptRef": {
+          "id": "synthetic-community-disputed-term",
+          "version": "1.0.0"
+        }
+      },
+      "targetConceptRefs": [
+        {
+          "namespaceRef": {
+            "id": "synthetic-project-general",
+            "version": "1.0.0"
+          },
+          "conceptRef": {
+            "id": "synthetic-general-adaptation",
+            "version": "1.0.0"
+          }
+        }
+      ],
+      "authorizerAuthorityBindingRef": {
+        "id": "synthetic-community-a-crosswalk-authorizer",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-community-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-disputed-crosswalk-review", "version": "1.0.0" }
+      ],
+      "scope": {
+        "kind": "deployment_region",
+        "deploymentProfileRef": {
+          "id": "synthetic-cloud-harbor-deployment",
+          "version": "1.0.0"
+        },
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      },
+      "observedAt": "3785-04-09T00:00:00Z",
+      "effectivePeriod": { "from": "3780-01-01", "through": null },
+      "lifecycleState": "disputed",
+      "supersedesRef": null,
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-expired-crosswalk",
+      "version": "1.0.0",
+      "synthetic": true,
+      "kind": "monitoring_crosswalk",
+      "sourceConceptRef": {
+        "namespaceRef": { "id": "synthetic-source-a", "version": "1.0.0" },
+        "conceptRef": {
+          "id": "synthetic-source-expired-term",
+          "version": "1.0.0"
+        }
+      },
+      "targetConceptRefs": [
+        {
+          "namespaceRef": {
+            "id": "synthetic-project-general",
+            "version": "1.0.0"
+          },
+          "conceptRef": {
+            "id": "synthetic-general-infrastructure",
+            "version": "1.0.0"
+          }
+        }
+      ],
+      "authorizerAuthorityBindingRef": {
+        "id": "synthetic-source-a-crosswalk-authorizer",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-source-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-expired-crosswalk-review", "version": "1.0.0" }
+      ],
+      "scope": {
+        "kind": "source_region",
+        "sourceId": "synthetic-federal",
+        "regionPackRef": {
+          "id": "synthetic-cloud-harbor-region",
+          "version": "1.0.0"
+        }
+      },
+      "observedAt": "3785-04-10T00:00:00Z",
+      "effectivePeriod": { "from": "3770-01-01", "through": "3779-12-31" },
+      "lifecycleState": "expired",
+      "supersedesRef": null,
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    }
+  ],
+  "assignments": [
+    {
+      "id": "synthetic-source-assignment",
+      "version": "1.0.0",
+      "synthetic": true,
+      "recordId": "psr:synthetic-federal:record-002",
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "source_provided",
+      "conceptRef": {
+        "namespaceRef": { "id": "synthetic-source-a", "version": "1.0.0" },
+        "conceptRef": { "id": "synthetic-shared-term", "version": "1.0.0" }
+      },
+      "targetNamespaceRef": {
+        "id": "synthetic-project-general",
+        "version": "1.0.0"
+      },
+      "sourceProvidedLabel": {
+        "sourceId": "synthetic-federal",
+        "scheme": "synthetic-topic",
+        "label": "Synthetic Shared Monitor"
+      },
+      "authorityBindingRef": {
+        "id": "synthetic-source-a-classifier",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-source-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-source-assignment-review", "version": "1.0.0" }
+      ],
+      "observedAt": "3785-05-01T00:00:00Z",
+      "state": "accepted",
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-configured-assignment",
+      "version": "1.0.0",
+      "synthetic": true,
+      "recordId": "psr:synthetic-federal:record-003",
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "authority_configured",
+      "conceptRef": {
+        "namespaceRef": { "id": "synthetic-community-a", "version": "1.0.0" },
+        "conceptRef": { "id": "synthetic-shared-term", "version": "1.0.0" }
+      },
+      "targetNamespaceRef": {
+        "id": "synthetic-project-general",
+        "version": "1.0.0"
+      },
+      "sourceProvidedLabel": null,
+      "authorityBindingRef": {
+        "id": "synthetic-community-a-configurator",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-community-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-configured-assignment-review", "version": "1.0.0" }
+      ],
+      "observedAt": "3785-05-02T00:00:00Z",
+      "state": "accepted",
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-analyst-assignment",
+      "version": "1.0.0",
+      "synthetic": true,
+      "recordId": "psr:synthetic-federal:record-004",
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "analyst_reviewed",
+      "conceptRef": {
+        "namespaceRef": {
+          "id": "synthetic-regional-organization",
+          "version": "1.0.0"
+        },
+        "conceptRef": { "id": "synthetic-shared-term", "version": "1.0.0" }
+      },
+      "targetNamespaceRef": {
+        "id": "synthetic-project-general",
+        "version": "1.0.0"
+      },
+      "sourceProvidedLabel": null,
+      "authorityBindingRef": {
+        "id": "synthetic-analyst-a-assigner",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-analyst-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-analyst-assignment-review", "version": "1.0.0" }
+      ],
+      "observedAt": "3785-05-03T00:00:00Z",
+      "state": "accepted",
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-unmapped-assignment",
+      "version": "1.0.0",
+      "synthetic": true,
+      "recordId": "psr:synthetic-federal:record-005",
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "unmapped",
+      "conceptRef": {
+        "namespaceRef": { "id": "synthetic-community-b", "version": "1.0.0" },
+        "conceptRef": { "id": "synthetic-shared-term", "version": "1.0.0" }
+      },
+      "targetNamespaceRef": {
+        "id": "synthetic-project-general",
+        "version": "1.0.0"
+      },
+      "sourceProvidedLabel": null,
+      "authorityBindingRef": {
+        "id": "synthetic-community-b-configurator",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-community-b-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-unmapped-assignment-review", "version": "1.0.0" }
+      ],
+      "observedAt": "3785-05-04T00:00:00Z",
+      "state": "accepted",
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-unclassified-assignment",
+      "version": "1.0.0",
+      "synthetic": true,
+      "recordId": "psr:synthetic-federal:record-001",
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "unclassified",
+      "conceptRef": null,
+      "targetNamespaceRef": {
+        "id": "synthetic-project-general",
+        "version": "1.0.0"
+      },
+      "sourceProvidedLabel": null,
+      "authorityBindingRef": {
+        "id": "synthetic-analyst-a-assigner",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-analyst-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-unclassified-assignment-review", "version": "1.0.0" }
+      ],
+      "observedAt": "3785-05-05T00:00:00Z",
+      "state": "accepted",
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-not-assessed-assignment",
+      "version": "1.0.0",
+      "synthetic": true,
+      "recordId": "psr:synthetic-federal:record-006",
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "not_assessed",
+      "conceptRef": null,
+      "targetNamespaceRef": {
+        "id": "synthetic-project-general",
+        "version": "1.0.0"
+      },
+      "sourceProvidedLabel": null,
+      "authorityBindingRef": {
+        "id": "synthetic-community-b-configurator",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-unknown-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-not-assessed-assignment-review", "version": "1.0.0" }
+      ],
+      "observedAt": "3785-05-06T00:00:00Z",
+      "state": "accepted",
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-pending-assignment",
+      "version": "1.0.0",
+      "synthetic": true,
+      "recordId": "psr:synthetic-federal:record-007",
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "authority_configured",
+      "conceptRef": {
+        "namespaceRef": { "id": "synthetic-community-a", "version": "1.0.0" },
+        "conceptRef": {
+          "id": "synthetic-community-withdrawn-term",
+          "version": "1.0.0"
+        }
+      },
+      "targetNamespaceRef": {
+        "id": "synthetic-project-general",
+        "version": "1.0.0"
+      },
+      "sourceProvidedLabel": null,
+      "authorityBindingRef": {
+        "id": "synthetic-community-a-configurator",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-community-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-pending-assignment-review", "version": "1.0.0" }
+      ],
+      "observedAt": "3785-05-07T00:00:00Z",
+      "state": "pending",
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-disputed-assignment",
+      "version": "1.0.0",
+      "synthetic": true,
+      "recordId": "psr:synthetic-federal:record-008",
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "authority_configured",
+      "conceptRef": {
+        "namespaceRef": { "id": "synthetic-community-a", "version": "1.0.0" },
+        "conceptRef": {
+          "id": "synthetic-community-disputed-term",
+          "version": "1.0.0"
+        }
+      },
+      "targetNamespaceRef": {
+        "id": "synthetic-project-general",
+        "version": "1.0.0"
+      },
+      "sourceProvidedLabel": null,
+      "authorityBindingRef": {
+        "id": "synthetic-community-a-configurator",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-community-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-disputed-assignment-review", "version": "1.0.0" }
+      ],
+      "observedAt": "3785-05-08T00:00:00Z",
+      "state": "disputed",
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-rejected-assignment",
+      "version": "1.0.0",
+      "synthetic": true,
+      "recordId": "psr:synthetic-federal:record-009",
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "analyst_reviewed",
+      "conceptRef": {
+        "namespaceRef": {
+          "id": "synthetic-national-organization",
+          "version": "1.0.0"
+        },
+        "conceptRef": {
+          "id": "synthetic-national-rejected-term",
+          "version": "1.0.0"
+        }
+      },
+      "targetNamespaceRef": {
+        "id": "synthetic-project-general",
+        "version": "1.0.0"
+      },
+      "sourceProvidedLabel": null,
+      "authorityBindingRef": {
+        "id": "synthetic-analyst-a-assigner",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-analyst-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-rejected-assignment-review", "version": "1.0.0" }
+      ],
+      "observedAt": "3785-05-09T00:00:00Z",
+      "state": "rejected",
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-withdrawn-assignment",
+      "version": "1.0.0",
+      "synthetic": true,
+      "recordId": "psr:synthetic-federal:record-010",
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "authority_configured",
+      "conceptRef": {
+        "namespaceRef": { "id": "synthetic-community-a", "version": "1.0.0" },
+        "conceptRef": {
+          "id": "synthetic-community-withdrawn-term",
+          "version": "1.0.0"
+        }
+      },
+      "targetNamespaceRef": {
+        "id": "synthetic-project-general",
+        "version": "1.0.0"
+      },
+      "sourceProvidedLabel": null,
+      "authorityBindingRef": {
+        "id": "synthetic-community-a-configurator",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-community-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-withdrawn-assignment-review", "version": "1.0.0" }
+      ],
+      "observedAt": "3785-05-10T00:00:00Z",
+      "state": "withdrawn",
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-superseded-assignment",
+      "version": "1.0.0",
+      "synthetic": true,
+      "recordId": "psr:synthetic-federal:record-011",
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "analyst_reviewed",
+      "conceptRef": {
+        "namespaceRef": {
+          "id": "synthetic-regional-organization",
+          "version": "1.0.0"
+        },
+        "conceptRef": {
+          "id": "synthetic-regional-pending-term",
+          "version": "1.0.0"
+        }
+      },
+      "targetNamespaceRef": {
+        "id": "synthetic-project-general",
+        "version": "1.0.0"
+      },
+      "sourceProvidedLabel": null,
+      "authorityBindingRef": {
+        "id": "synthetic-analyst-a-assigner",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-analyst-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-superseded-assignment-review", "version": "1.0.0" }
+      ],
+      "observedAt": "3785-05-11T00:00:00Z",
+      "state": "superseded",
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    },
+    {
+      "id": "synthetic-expired-assignment",
+      "version": "1.0.0",
+      "synthetic": true,
+      "recordId": "psr:synthetic-federal:record-012",
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "source_provided",
+      "conceptRef": {
+        "namespaceRef": { "id": "synthetic-source-a", "version": "1.0.0" },
+        "conceptRef": {
+          "id": "synthetic-source-expired-term",
+          "version": "1.0.0"
+        }
+      },
+      "targetNamespaceRef": {
+        "id": "synthetic-project-general",
+        "version": "1.0.0"
+      },
+      "sourceProvidedLabel": {
+        "sourceId": "synthetic-federal",
+        "scheme": "synthetic-topic",
+        "label": "Synthetic Expired Monitor"
+      },
+      "authorityBindingRef": {
+        "id": "synthetic-source-a-classifier",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-source-a-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        { "id": "synthetic-expired-assignment-review", "version": "1.0.0" }
+      ],
+      "observedAt": "3785-05-12T00:00:00Z",
+      "state": "expired",
+      "visibility": "public",
+      "nonClaims": [
+        "not_identity_evidence",
+        "not_recognition_evidence",
+        "not_organization_membership_evidence",
+        "not_source_record_association_evidence",
+        "not_a_why_shown_basis",
+        "not_semantic_equivalence",
+        "not_endpoint_authority_endorsement",
+        "not_legal_effect_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_a_nation_position"
+      ]
+    }
+  ],
+  "deploymentBindings": [
+    {
+      "id": "synthetic-cloud-harbor-taxonomy-binding",
+      "version": "1.0.0",
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-cloud-harbor-region",
+        "version": "1.0.0"
+      },
+      "namespaceRefs": [
+        { "id": "synthetic-project-general", "version": "1.0.0" },
+        { "id": "synthetic-source-a", "version": "1.0.0" },
+        { "id": "synthetic-source-b", "version": "1.0.0" },
+        { "id": "synthetic-regional-organization", "version": "1.0.0" },
+        { "id": "synthetic-national-organization", "version": "1.0.0" },
+        { "id": "synthetic-community-a", "version": "1.0.0" }
+      ],
+      "crosswalkRefs": [
+        { "id": "synthetic-source-a-crosswalk", "version": "1.0.0" },
+        { "id": "synthetic-regional-crosswalk", "version": "1.0.0" },
+        { "id": "synthetic-national-crosswalk", "version": "1.0.0" },
+        { "id": "synthetic-community-a-crosswalk", "version": "1.0.0" },
+        { "id": "synthetic-history-crosswalk", "version": "1.0.0" },
+        { "id": "synthetic-history-crosswalk", "version": "2.0.0" },
+        { "id": "synthetic-pending-crosswalk", "version": "1.0.0" },
+        { "id": "synthetic-rejected-crosswalk", "version": "1.0.0" },
+        { "id": "synthetic-withdrawn-crosswalk", "version": "1.0.0" },
+        { "id": "synthetic-disputed-crosswalk", "version": "1.0.0" },
+        { "id": "synthetic-expired-crosswalk", "version": "1.0.0" }
+      ],
+      "assignmentRefs": [
+        { "id": "synthetic-source-assignment", "version": "1.0.0" },
+        { "id": "synthetic-configured-assignment", "version": "1.0.0" },
+        { "id": "synthetic-analyst-assignment", "version": "1.0.0" },
+        { "id": "synthetic-unclassified-assignment", "version": "1.0.0" },
+        { "id": "synthetic-pending-assignment", "version": "1.0.0" },
+        { "id": "synthetic-disputed-assignment", "version": "1.0.0" },
+        { "id": "synthetic-rejected-assignment", "version": "1.0.0" },
+        { "id": "synthetic-withdrawn-assignment", "version": "1.0.0" },
+        { "id": "synthetic-superseded-assignment", "version": "1.0.0" },
+        { "id": "synthetic-expired-assignment", "version": "1.0.0" }
+      ],
+      "personaGrants": [
+        {
+          "id": "synthetic-cloud-harbor-taxonomy-grant",
+          "version": "1.0.0",
+          "personaProjectionRef": {
+            "id": "synthetic-cloud-harbor-researcher",
+            "version": "1.0.0"
+          },
+          "outputAdapterRefs": [
+            { "id": "synthetic-document-reference-output", "version": "1.0.0" }
+          ],
+          "namespaceRefs": [
+            { "id": "synthetic-project-general", "version": "1.0.0" },
+            { "id": "synthetic-source-a", "version": "1.0.0" },
+            { "id": "synthetic-regional-organization", "version": "1.0.0" },
+            { "id": "synthetic-national-organization", "version": "1.0.0" },
+            { "id": "synthetic-community-a", "version": "1.0.0" }
+          ],
+          "crosswalkRefs": [
+            { "id": "synthetic-source-a-crosswalk", "version": "1.0.0" },
+            { "id": "synthetic-regional-crosswalk", "version": "1.0.0" },
+            { "id": "synthetic-national-crosswalk", "version": "1.0.0" },
+            { "id": "synthetic-community-a-crosswalk", "version": "1.0.0" },
+            { "id": "synthetic-history-crosswalk", "version": "1.0.0" },
+            { "id": "synthetic-history-crosswalk", "version": "2.0.0" },
+            { "id": "synthetic-pending-crosswalk", "version": "1.0.0" },
+            { "id": "synthetic-rejected-crosswalk", "version": "1.0.0" },
+            { "id": "synthetic-withdrawn-crosswalk", "version": "1.0.0" },
+            { "id": "synthetic-disputed-crosswalk", "version": "1.0.0" },
+            { "id": "synthetic-expired-crosswalk", "version": "1.0.0" }
+          ],
+          "assignmentRefs": [
+            { "id": "synthetic-source-assignment", "version": "1.0.0" },
+            { "id": "synthetic-configured-assignment", "version": "1.0.0" },
+            { "id": "synthetic-analyst-assignment", "version": "1.0.0" },
+            { "id": "synthetic-unclassified-assignment", "version": "1.0.0" },
+            { "id": "synthetic-pending-assignment", "version": "1.0.0" },
+            { "id": "synthetic-disputed-assignment", "version": "1.0.0" },
+            { "id": "synthetic-rejected-assignment", "version": "1.0.0" },
+            { "id": "synthetic-withdrawn-assignment", "version": "1.0.0" },
+            { "id": "synthetic-superseded-assignment", "version": "1.0.0" },
+            { "id": "synthetic-expired-assignment", "version": "1.0.0" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "synthetic-glass-desert-taxonomy-binding",
+      "version": "1.0.0",
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-glass-desert-region",
+        "version": "1.0.0"
+      },
+      "namespaceRefs": [
+        { "id": "synthetic-project-general", "version": "1.0.0" },
+        { "id": "synthetic-community-b", "version": "1.0.0" }
+      ],
+      "crosswalkRefs": [],
+      "assignmentRefs": [
+        { "id": "synthetic-unmapped-assignment", "version": "1.0.0" },
+        { "id": "synthetic-not-assessed-assignment", "version": "1.0.0" }
+      ],
+      "personaGrants": [
+        {
+          "id": "synthetic-glass-desert-taxonomy-grant",
+          "version": "1.0.0",
+          "personaProjectionRef": {
+            "id": "synthetic-glass-desert-coordinator",
+            "version": "1.0.0"
+          },
+          "outputAdapterRefs": [
+            { "id": "synthetic-web-reference-output", "version": "1.0.0" }
+          ],
+          "namespaceRefs": [
+            { "id": "synthetic-project-general", "version": "1.0.0" },
+            { "id": "synthetic-community-b", "version": "1.0.0" }
+          ],
+          "crosswalkRefs": [],
+          "assignmentRefs": [
+            { "id": "synthetic-unmapped-assignment", "version": "1.0.0" },
+            { "id": "synthetic-not-assessed-assignment", "version": "1.0.0" }
+          ]
+        }
+      ]
+    }
+  ]
+}

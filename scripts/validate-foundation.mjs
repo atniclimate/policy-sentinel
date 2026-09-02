@@ -9,6 +9,9 @@ const readJson = async (path) =>
   JSON.parse(await readFile(resolve(root, path), "utf8"));
 
 const taxonomySchema = await readJson("schemas/taxonomy.schema.v1.json");
+const taxonomyBundleSchema = await readJson(
+  "schemas/taxonomy-bundle.schema.v1.json",
+);
 const recordSchema = await readJson("schemas/record.schema.v1.json");
 const sourceSchema = await readJson("schemas/source.schema.v1.json");
 const assertionSchema = await readJson("schemas/assertion.schema.v1.json");
@@ -40,6 +43,7 @@ addFormats(ajv);
 
 for (const [name, schema] of [
   ["taxonomy schema", taxonomySchema],
+  ["taxonomy bundle schema", taxonomyBundleSchema],
   ["record schema", recordSchema],
   ["source schema", sourceSchema],
   ["assertion schema", assertionSchema],
@@ -222,6 +226,71 @@ for (const fixtureCase of malformedGeographyRights.cases) {
       );
     }
     runtimeBoundaryGeographyRightsChecks += 1;
+  }
+}
+
+const validateTaxonomyBundle = ajv.compile(taxonomyBundleSchema);
+const taxonomyBundleFixture = await readJson(
+  "fixtures/engine/taxonomy.synthetic.valid.json",
+);
+if (!validateTaxonomyBundle(taxonomyBundleFixture)) {
+  throw new Error(
+    `synthetic taxonomy bundle fixture is invalid:\n${ajv.errorsText(
+      validateTaxonomyBundle.errors,
+      { separator: "\n" },
+    )}`,
+  );
+}
+const malformedTaxonomyBundle = await readJson(
+  "fixtures/engine/taxonomy-malformed.invalid.json",
+);
+if (
+  malformedTaxonomyBundle.fixtureFamilyVersion !== "1.0.0" ||
+  malformedTaxonomyBundle.baseFixture !== "taxonomy.synthetic.valid.json" ||
+  !Array.isArray(malformedTaxonomyBundle.cases) ||
+  malformedTaxonomyBundle.cases.length === 0
+) {
+  throw new Error("malformed taxonomy bundle fixture family is invalid");
+}
+const malformedTaxonomyCaseIds = new Set();
+let schemaInvalidTaxonomyChecks = 0;
+let runtimeBoundaryTaxonomyChecks = 0;
+for (const fixtureCase of malformedTaxonomyBundle.cases) {
+  if (
+    typeof fixtureCase.id !== "string" ||
+    malformedTaxonomyCaseIds.has(fixtureCase.id) ||
+    !["schema", "semantic", "projection"].includes(
+      fixtureCase.expectedLayer,
+    ) ||
+    typeof fixtureCase.expectedCode !== "string" ||
+    !Array.isArray(fixtureCase.mutations) ||
+    fixtureCase.mutations.length === 0
+  ) {
+    throw new Error("malformed taxonomy bundle case metadata is invalid");
+  }
+  malformedTaxonomyCaseIds.add(fixtureCase.id);
+  const candidate = applyFixtureMutations(
+    taxonomyBundleFixture,
+    fixtureCase.mutations,
+  );
+  const accepted = validateTaxonomyBundle(candidate);
+  if (fixtureCase.expectedLayer === "schema") {
+    if (accepted) {
+      throw new Error(
+        `negative taxonomy bundle case ${fixtureCase.id} was accepted by the schema`,
+      );
+    }
+    schemaInvalidTaxonomyChecks += 1;
+  } else {
+    if (!accepted) {
+      throw new Error(
+        `runtime-boundary taxonomy bundle case ${fixtureCase.id} did not reach runtime validation:\n${ajv.errorsText(
+          validateTaxonomyBundle.errors,
+          { separator: "\n" },
+        )}`,
+      );
+    }
+    runtimeBoundaryTaxonomyChecks += 1;
   }
 }
 
@@ -573,10 +642,11 @@ if (!historicalPolicyRejected) {
 negativePolicyChecks += 1;
 
 console.log(
-  `Foundation validation passed: 10 schemas, ${taxonomy.categories.length} categories, ` +
+  `Foundation validation passed: 11 schemas, ${taxonomy.categories.length} categories, ` +
     `${taxonomy.categories.reduce((count, category) => count + category.subcategories.length, 0)} subcategories, ` +
     `${fixtureNames.length} valid fixtures, ${negativePolicyChecks} negative policy checks, ` +
     `${s0ValidFixtureChecks} valid plus ${s0InvalidFixtureChecks} invalid S0 fixture checks, ` +
     `1 valid plus ${schemaInvalidProjectionChecks} schema-invalid plus ${semanticProjectionChecks} runtime-boundary projection profile checks, ` +
-    `and 1 valid plus ${schemaInvalidGeographyRightsChecks} schema-invalid plus ${runtimeBoundaryGeographyRightsChecks} runtime-boundary geography and rights checks.`,
+    `1 valid plus ${schemaInvalidGeographyRightsChecks} schema-invalid plus ${runtimeBoundaryGeographyRightsChecks} runtime-boundary geography and rights checks, ` +
+    `and 1 valid plus ${schemaInvalidTaxonomyChecks} schema-invalid plus ${runtimeBoundaryTaxonomyChecks} runtime-boundary taxonomy bundle checks.`,
 );

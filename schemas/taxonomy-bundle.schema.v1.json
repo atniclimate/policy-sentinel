@@ -1,0 +1,780 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/taxonomy-bundle.schema.v1.json",
+  "title": "Policy Sentinel governed taxonomy bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "id",
+    "version",
+    "synthetic",
+    "profileBundleRef",
+    "authorityBindings",
+    "namespaces",
+    "concepts",
+    "evidenceReferences",
+    "reviewAttestations",
+    "crosswalks",
+    "assignments",
+    "deploymentBindings"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://policy-sentinel.invalid/schemas/taxonomy-bundle.schema.v1.json"
+    },
+    "schemaVersion": { "const": "1.0.0" },
+    "id": { "$ref": "#/$defs/stableId" },
+    "version": { "$ref": "#/$defs/version" },
+    "synthetic": { "const": true },
+    "profileBundleRef": { "$ref": "#/$defs/versionedReference" },
+    "authorityBindings": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/authorityBinding" }
+    },
+    "namespaces": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/namespace" }
+    },
+    "concepts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1024,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/concept" }
+    },
+    "evidenceReferences": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 512,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/evidenceReference" }
+    },
+    "reviewAttestations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1024,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/reviewAttestation" }
+    },
+    "crosswalks": {
+      "type": "array",
+      "maxItems": 1024,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/crosswalk" }
+    },
+    "assignments": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2048,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/assignment" }
+    },
+    "deploymentBindings": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/deploymentBinding" }
+    }
+  },
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 96,
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "version": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+    },
+    "recordId": {
+      "type": "string",
+      "minLength": 7,
+      "maxLength": 256,
+      "pattern": "^psr:[a-z0-9]+(?:-[a-z0-9]+)*:[A-Za-z0-9._~-]+$"
+    },
+    "sourceId": { "$ref": "#/$defs/stableId" },
+    "versionedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" }
+      }
+    },
+    "nullableVersionedReference": {
+      "oneOf": [{ "$ref": "#/$defs/versionedReference" }, { "type": "null" }]
+    },
+    "authorityScope": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": { "kind": { "const": "bundle" } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "sourceId", "regionPackRef"],
+          "properties": {
+            "kind": { "const": "source_region" },
+            "sourceId": { "$ref": "#/$defs/sourceId" },
+            "regionPackRef": { "$ref": "#/$defs/versionedReference" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "regionPackRef"],
+          "properties": {
+            "kind": { "const": "region" },
+            "regionPackRef": { "$ref": "#/$defs/versionedReference" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "deploymentProfileRef", "regionPackRef"],
+          "properties": {
+            "kind": { "const": "deployment_region" },
+            "deploymentProfileRef": {
+              "$ref": "#/$defs/versionedReference"
+            },
+            "regionPackRef": { "$ref": "#/$defs/versionedReference" }
+          }
+        }
+      ]
+    },
+    "authorityBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "synthetic",
+        "authorityIdentityRef",
+        "role",
+        "authorityClass",
+        "scope"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "synthetic": { "const": true },
+        "authorityIdentityRef": { "$ref": "#/$defs/versionedReference" },
+        "role": {
+          "enum": [
+            "vocabulary_owner",
+            "crosswalk_authorizer",
+            "source_classifier",
+            "community_configurator",
+            "analyst_assigner",
+            "evidence_provider",
+            "reviewer"
+          ]
+        },
+        "authorityClass": {
+          "enum": [
+            "synthetic_project",
+            "synthetic_source",
+            "synthetic_regional_organization",
+            "synthetic_national_organization",
+            "synthetic_community",
+            "synthetic_analyst"
+          ]
+        },
+        "scope": { "$ref": "#/$defs/authorityScope" }
+      }
+    },
+    "namespace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "synthetic",
+        "role",
+        "officialSubjectScheme",
+        "ownerAuthorityBindingRef",
+        "scope",
+        "status",
+        "vocabularyVersion",
+        "retainedTaxonomyVersion"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "synthetic": { "const": true },
+        "role": {
+          "enum": [
+            "project_general",
+            "source_native",
+            "regional_organization",
+            "national_organization",
+            "community_deployment"
+          ]
+        },
+        "officialSubjectScheme": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            { "type": "null" }
+          ]
+        },
+        "ownerAuthorityBindingRef": {
+          "$ref": "#/$defs/versionedReference"
+        },
+        "scope": { "$ref": "#/$defs/authorityScope" },
+        "status": { "enum": ["active", "retired"] },
+        "vocabularyVersion": { "$ref": "#/$defs/version" },
+        "retainedTaxonomyVersion": {
+          "oneOf": [{ "const": "1.0.0" }, { "type": "null" }]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["role"],
+            "properties": { "role": { "const": "source_native" } }
+          },
+          "then": {
+            "properties": {
+              "officialSubjectScheme": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "officialSubjectScheme": { "type": "null" }
+            }
+          }
+        }
+      ]
+    },
+    "conceptReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["namespaceRef", "conceptRef"],
+      "properties": {
+        "namespaceRef": { "$ref": "#/$defs/versionedReference" },
+        "conceptRef": { "$ref": "#/$defs/versionedReference" }
+      }
+    },
+    "nullableConceptReference": {
+      "oneOf": [{ "$ref": "#/$defs/conceptReference" }, { "type": "null" }]
+    },
+    "retainedTaxonomyReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["taxonomyVersion", "categoryId", "subcategoryId"],
+      "properties": {
+        "taxonomyVersion": { "const": "1.0.0" },
+        "categoryId": { "$ref": "#/$defs/stableId" },
+        "subcategoryId": {
+          "oneOf": [{ "$ref": "#/$defs/stableId" }, { "type": "null" }]
+        }
+      }
+    },
+    "concept": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "version",
+            "synthetic",
+            "namespaceRef",
+            "kind",
+            "retainedTaxonomyRef",
+            "lifecycleState",
+            "parentRef",
+            "supersedesRef"
+          ],
+          "properties": {
+            "id": { "$ref": "#/$defs/stableId" },
+            "version": { "$ref": "#/$defs/version" },
+            "synthetic": { "const": true },
+            "namespaceRef": { "$ref": "#/$defs/versionedReference" },
+            "kind": { "const": "retained_general_reference" },
+            "retainedTaxonomyRef": {
+              "$ref": "#/$defs/retainedTaxonomyReference"
+            },
+            "lifecycleState": {
+              "enum": ["active", "retired", "superseded"]
+            },
+            "parentRef": { "$ref": "#/$defs/nullableConceptReference" },
+            "supersedesRef": {
+              "$ref": "#/$defs/nullableConceptReference"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "version",
+            "synthetic",
+            "namespaceRef",
+            "kind",
+            "code",
+            "preferredLabel",
+            "alternateLabels",
+            "description",
+            "lifecycleState",
+            "parentRef",
+            "supersedesRef"
+          ],
+          "properties": {
+            "id": { "$ref": "#/$defs/stableId" },
+            "version": { "$ref": "#/$defs/version" },
+            "synthetic": { "const": true },
+            "namespaceRef": { "$ref": "#/$defs/versionedReference" },
+            "kind": { "const": "authority_native" },
+            "code": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "preferredLabel": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "alternateLabels": {
+              "type": "array",
+              "maxItems": 32,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "lifecycleState": {
+              "enum": ["active", "retired", "superseded"]
+            },
+            "parentRef": { "$ref": "#/$defs/nullableConceptReference" },
+            "supersedesRef": {
+              "$ref": "#/$defs/nullableConceptReference"
+            }
+          }
+        }
+      ]
+    },
+    "evidenceReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "synthetic",
+        "suppliedByAuthorityBindingRef",
+        "kind",
+        "citation",
+        "observedAt",
+        "availability",
+        "visibility"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "synthetic": { "const": true },
+        "suppliedByAuthorityBindingRef": {
+          "$ref": "#/$defs/versionedReference"
+        },
+        "kind": {
+          "enum": [
+            "source_documentation",
+            "authority_configuration",
+            "analyst_review"
+          ]
+        },
+        "citation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["url", "locator"],
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 512,
+              "pattern": "^https://[a-z0-9]+(?:-[a-z0-9]+)*(?:\\.[a-z0-9]+(?:-[a-z0-9]+)*)*\\.invalid(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*/?$"
+            },
+            "locator": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 96,
+              "pattern": "^[a-z0-9][a-z0-9-]{0,95}$"
+            }
+          }
+        },
+        "observedAt": { "type": "string", "format": "date-time" },
+        "availability": {
+          "enum": [
+            "observed",
+            "not_observed",
+            "unknown",
+            "unavailable",
+            "outside_coverage"
+          ]
+        },
+        "visibility": { "const": "public" }
+      }
+    },
+    "reviewSubject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "ref"],
+      "properties": {
+        "kind": { "enum": ["crosswalk", "assignment"] },
+        "ref": { "$ref": "#/$defs/versionedReference" }
+      }
+    },
+    "reviewAttestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "synthetic",
+        "reviewerAuthorityBindingRef",
+        "subject",
+        "evidenceRefs",
+        "reviewedAt",
+        "kind",
+        "state",
+        "visibility"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "synthetic": { "const": true },
+        "reviewerAuthorityBindingRef": {
+          "$ref": "#/$defs/versionedReference"
+        },
+        "subject": { "$ref": "#/$defs/reviewSubject" },
+        "evidenceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "reviewedAt": { "type": "string", "format": "date-time" },
+        "kind": {
+          "enum": [
+            "source_verified",
+            "authority_configured",
+            "analyst_reviewed"
+          ]
+        },
+        "state": {
+          "enum": ["accepted", "pending", "disputed", "rejected", "withdrawn"]
+        },
+        "visibility": { "const": "public" }
+      }
+    },
+    "nonClaims": {
+      "type": "array",
+      "minItems": 13,
+      "maxItems": 13,
+      "uniqueItems": true,
+      "prefixItems": [
+        { "const": "not_identity_evidence" },
+        { "const": "not_recognition_evidence" },
+        { "const": "not_organization_membership_evidence" },
+        { "const": "not_source_record_association_evidence" },
+        { "const": "not_a_why_shown_basis" },
+        { "const": "not_semantic_equivalence" },
+        { "const": "not_endpoint_authority_endorsement" },
+        { "const": "not_legal_effect_evidence" },
+        { "const": "not_consultation_evidence" },
+        { "const": "not_affiliation_consent_or_endorsement_evidence" },
+        { "const": "not_program_or_grant_eligibility_evidence" },
+        { "const": "not_urgency_priority_or_recommended_action" },
+        { "const": "not_a_nation_position" }
+      ],
+      "items": false
+    },
+    "effectivePeriod": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "through"],
+      "properties": {
+        "from": { "type": "string", "format": "date" },
+        "through": {
+          "oneOf": [{ "type": "string", "format": "date" }, { "type": "null" }]
+        }
+      }
+    },
+    "crosswalk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "synthetic",
+        "kind",
+        "sourceConceptRef",
+        "targetConceptRefs",
+        "authorizerAuthorityBindingRef",
+        "evidenceRefs",
+        "reviewAttestationRefs",
+        "scope",
+        "observedAt",
+        "effectivePeriod",
+        "lifecycleState",
+        "supersedesRef",
+        "visibility",
+        "nonClaims"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "synthetic": { "const": true },
+        "kind": { "const": "monitoring_crosswalk" },
+        "sourceConceptRef": { "$ref": "#/$defs/conceptReference" },
+        "targetConceptRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/conceptReference" }
+        },
+        "authorizerAuthorityBindingRef": {
+          "$ref": "#/$defs/versionedReference"
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "reviewAttestationRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "scope": { "$ref": "#/$defs/authorityScope" },
+        "observedAt": { "type": "string", "format": "date-time" },
+        "effectivePeriod": { "$ref": "#/$defs/effectivePeriod" },
+        "lifecycleState": {
+          "enum": [
+            "active",
+            "pending",
+            "disputed",
+            "rejected",
+            "withdrawn",
+            "superseded",
+            "expired"
+          ]
+        },
+        "supersedesRef": { "$ref": "#/$defs/nullableVersionedReference" },
+        "visibility": { "const": "public" },
+        "nonClaims": { "$ref": "#/$defs/nonClaims" }
+      }
+    },
+    "sourceProvidedLabel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceId", "scheme", "label"],
+      "properties": {
+        "sourceId": { "$ref": "#/$defs/sourceId" },
+        "scheme": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "label": { "type": "string", "minLength": 1, "maxLength": 256 }
+      }
+    },
+    "assignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "synthetic",
+        "recordId",
+        "deploymentProfileRef",
+        "kind",
+        "conceptRef",
+        "targetNamespaceRef",
+        "sourceProvidedLabel",
+        "authorityBindingRef",
+        "evidenceRefs",
+        "reviewAttestationRefs",
+        "observedAt",
+        "state",
+        "visibility",
+        "nonClaims"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "synthetic": { "const": true },
+        "recordId": { "$ref": "#/$defs/recordId" },
+        "deploymentProfileRef": { "$ref": "#/$defs/versionedReference" },
+        "kind": {
+          "enum": [
+            "source_provided",
+            "authority_configured",
+            "analyst_reviewed",
+            "unmapped",
+            "unclassified",
+            "not_assessed"
+          ]
+        },
+        "conceptRef": { "$ref": "#/$defs/nullableConceptReference" },
+        "targetNamespaceRef": { "$ref": "#/$defs/versionedReference" },
+        "sourceProvidedLabel": {
+          "oneOf": [
+            { "$ref": "#/$defs/sourceProvidedLabel" },
+            { "type": "null" }
+          ]
+        },
+        "authorityBindingRef": { "$ref": "#/$defs/versionedReference" },
+        "evidenceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "reviewAttestationRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "observedAt": { "type": "string", "format": "date-time" },
+        "state": {
+          "enum": [
+            "accepted",
+            "pending",
+            "disputed",
+            "rejected",
+            "withdrawn",
+            "superseded",
+            "expired"
+          ]
+        },
+        "visibility": { "const": "public" },
+        "nonClaims": { "$ref": "#/$defs/nonClaims" }
+      }
+    },
+    "personaGrant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "personaProjectionRef",
+        "outputAdapterRefs",
+        "namespaceRefs",
+        "crosswalkRefs",
+        "assignmentRefs"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "personaProjectionRef": { "$ref": "#/$defs/versionedReference" },
+        "outputAdapterRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "namespaceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "crosswalkRefs": {
+          "type": "array",
+          "maxItems": 1024,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "assignmentRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2048,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        }
+      }
+    },
+    "deploymentBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "deploymentProfileRef",
+        "regionPackRef",
+        "namespaceRefs",
+        "crosswalkRefs",
+        "assignmentRefs",
+        "personaGrants"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "deploymentProfileRef": { "$ref": "#/$defs/versionedReference" },
+        "regionPackRef": { "$ref": "#/$defs/versionedReference" },
+        "namespaceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "crosswalkRefs": {
+          "type": "array",
+          "maxItems": 1024,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "assignmentRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2048,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "personaGrants": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/personaGrant" }
+        }
+      }
+    }
+  }
+}

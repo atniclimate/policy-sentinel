@@ -119,6 +119,77 @@ and is not consumed by the static artifact builder. No concrete adapter, GIS
 engine, source activation, real geography, real community configuration, or
 public delivery path is introduced.
 
+## PNW-04 governed taxonomy and crosswalk seam
+
+The additive, synthetic-only `TaxonomyBundle 1.0.0` is a separate closed
+catalog consumed beside the unchanged retained taxonomy and PNW-01 profile
+bundle. The retained `taxonomy.v1.json` remains the only normative taxonomy for
+`PolicyRecord 1.4`, application behavior, static artifacts, source mapping, and
+last-known-good validation. A PNW-04 project-general concept references an
+exact retained category/subcategory identity instead of copying or migrating
+its label.
+
+The bundle separates project-general, source-native, regional-organization,
+national-organization, and community-deployment namespaces. Each namespace,
+concept, evidence item, review, direct crosswalk, and assignment carries exact
+version, authority, scope, lifecycle, and public synthetic identities. Generic
+authority roles keep organization analogues out of the universal kernel. A
+source owns its source-native language, an organization owns only its own
+vocabulary, a community authority owns only its deployment configuration, and
+the project owns only the retained general vocabulary. A crosswalk authorizer
+controls an edge, not either endpoint's meaning. Each source-native namespace
+also pins one exact official-subject scheme; identical labels in different
+schemes or namespaces remain different concepts. Bundle v1 permits one version
+per namespace stable ID because it has no namespace-predecessor contract.
+
+`monitoring_crosswalk` is the sole relation kind. It is directional from a
+source-native, regional-organization, national-organization, or
+community-deployment concept to one or more project-general references. The
+runtime follows one explicit edge only: there is no inverse, transitive,
+keyword, label-similarity, fuzzy, embedding, or model resolution. Parallel
+targets remain many-to-many results; duplicate/conflicting edges fail closed
+rather than selecting an authority winner. Pending, disputed, rejected,
+withdrawn, superseded, and expired edges remain catalog states and cannot
+project as accepted.
+
+The resolver receives an exact PNW-01 profile bundle and immutable
+`EngineProjection`, then selects one synthetic-demo deployment, public persona,
+output adapter, and fixed `asOf` date. It schema-validates every PolicyRecord,
+enforces the retained membership/Unclassified invariant, and accepts only the
+exact engine projection reproduced by the pure PNW-01 resolver. It then
+validates the entire bundle and PNW-01 reference graph before returning a
+detached, recursively frozen, canonically ordered projection. Output contains
+only record, assignment, concept, edge, authority, evidence, and review
+references plus
+`authorized_subset_not_comprehensive`; it never contains a second record store
+or rewrites the PNW-01 projection.
+
+Assignments keep source-provided, authority-configured, analyst-reviewed,
+unmapped, not-assessed, and legacy-Unclassified meanings distinct. A PNW-04
+`unclassified` result can only mirror a valid record whose retained membership
+array is empty and `isUnclassified` is true. It is not a concept or an absence
+claim. `unmapped` is checked against every eligible edge in the exact
+deployment binding before persona/output filtering, so a restricted grant
+cannot manufacture an absence. Invalid references reject atomically;
+unavailable evidence, future review, or inactive review/mapping states are not
+converted to Unclassified.
+
+Every accepted edge, assignment, and result repeats a fixed non-claim tuple.
+The seam cannot establish identity or recognition, organization membership,
+source-record association, `whyShown` relevance, semantic equivalence,
+endpoint endorsement, legal effect or applicability, consultation, rights
+impact, affiliation or consent, eligibility, urgency, recommended action, or a
+Nation/community/organization position. It consumes no PNW-03 geography or
+rights object as evidence and leaves PNW-03 unchanged.
+
+The schema is
+`https://policy-sentinel.invalid/schemas/taxonomy-bundle.schema.v1.json`. Its
+fixture/test family is repository-only and does not enter the static artifact
+builder or application. It supplies structural synthetic qualification, not a
+real ATNI, NCAI, Nation, source, or community taxonomy; no real mapping,
+membership, policy position, source activation, production classification, or
+publication follows from it.
+
 ## Current application and ingestion architecture
 
 The implemented baseline is a static TypeScript application with a separate
@@ -131,7 +202,7 @@ Its current maturity is:
 | Maturity | Current repository evidence |
 | --- | --- |
 | Integrated local output | The Preact application, print dossier, CSV serializer, hash-route behavior, and artifact pipeline run over three synthetic records and 575 explicitly synthetic Nation rows. |
-| Implemented foundation seams | The synthetic-only PNW-01 profile projection and PNW-03 geography/rights catalog produce deterministic immutable reference-only views while leaving the detached `PolicyRecord 1.4` corpus unchanged. They are not integrated with the application or artifact pipeline. |
+| Implemented foundation seams | The synthetic-only PNW-01 profile projection, PNW-03 geography/rights catalog, and PNW-04 governed taxonomy/crosswalk catalog produce deterministic immutable reference-only views while leaving the detached `PolicyRecord 1.4` corpus unchanged. They are not integrated with the application or artifact pipeline. |
 | Implemented but disabled | Federal Register, Washington Governor executive orders, Washington Centennial Accord, and the one-row curated Supreme Court adapters are tested and registered but cannot emit public records. |
 | Contract-only | Congress.gov, GovInfo, Regulations.gov, Oregon Legislature OData, and Washington LWS have bounded synthetic contracts but no activated production adapter. |
 | Proposed and unimplemented | Production region packs and community profiles, the canonical analyzed corpus, concrete common output-adapter implementations, scheduled/manual workflows, Pages delivery, and a private deployment remain future work. |
@@ -482,6 +553,7 @@ policy-sentinel/
   schemas/
     record.schema.v1.json
     taxonomy.schema.v1.json
+    taxonomy-bundle.schema.v1.json
     source.schema.v1.json
     artifact.schema.v1.json
     projection-profile.schema.v1.json

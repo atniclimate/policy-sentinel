@@ -1,0 +1,1349 @@
+{
+  "fixtureFamilyVersion": "1.0.0",
+  "baseFixture": "taxonomy.synthetic.valid.json",
+  "cases": [
+    {
+      "id": "missing-bundle-id",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "$taxonomyBundle/id",
+      "mutations": [{ "operation": "remove", "path": "/id" }]
+    },
+    {
+      "id": "unknown-root-field",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "$taxonomyBundle",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/providerPayload",
+          "value": "synthetic-forbidden"
+        }
+      ]
+    },
+    {
+      "id": "unknown-authority-field",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/authorityBindings/0",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/authorityBindings/0/rawResponse",
+          "value": "synthetic-forbidden"
+        }
+      ]
+    },
+    {
+      "id": "keyword-promotion-field",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/concepts/5",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/concepts/5/keywordMatch",
+          "value": "Synthetic Shared Monitor"
+        }
+      ]
+    },
+    {
+      "id": "why-shown-inference-field",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/assignments/0",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/assignments/0/whyShown",
+          "value": "synthetic-inference"
+        }
+      ]
+    },
+    {
+      "id": "legal-effect-inference-field",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/assignments/0",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/assignments/0/legalEffect",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "not-synthetic",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/synthetic",
+      "mutations": [
+        { "operation": "replace", "path": "/synthetic", "value": false }
+      ]
+    },
+    {
+      "id": "malformed-version",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/version",
+      "mutations": [
+        { "operation": "replace", "path": "/version", "value": "01.0.0" }
+      ]
+    },
+    {
+      "id": "unsupported-namespace-role",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/namespaces/0/role",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/namespaces/0/role",
+          "value": "inferred_organization"
+        }
+      ]
+    },
+    {
+      "id": "non-synthetic-citation",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/evidenceReferences/0/citation/url",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReferences/0/citation/url",
+          "value": "https://example.com/evidence"
+        }
+      ]
+    },
+    {
+      "id": "malformed-observed-time",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/evidenceReferences/0/observedAt",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReferences/0/observedAt",
+          "value": "3785-02-30T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "unsupported-visibility",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/evidenceReferences/0/visibility",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReferences/0/visibility",
+          "value": "restricted"
+        }
+      ]
+    },
+    {
+      "id": "missing-nonclaims",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/crosswalks/0/nonClaims",
+      "mutations": [
+        { "operation": "remove", "path": "/crosswalks/0/nonClaims" }
+      ]
+    },
+    {
+      "id": "invalid-nonclaim",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_INFERENCE_LIMIT",
+      "expectedPath": "/crosswalks/0/nonClaims/5",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/crosswalks/0/nonClaims/5",
+          "value": "claims_semantic_equivalence"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-target-reference",
+      "expectedLayer": "schema",
+      "expectedCode": "DUPLICATE_REFERENCE",
+      "expectedPath": "/crosswalks/0/targetConceptRefs",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/crosswalks/0/targetConceptRefs/1",
+          "value": {
+            "namespaceRef": {
+              "id": "synthetic-project-general",
+              "version": "1.0.0"
+            },
+            "conceptRef": {
+              "id": "synthetic-general-environment",
+              "version": "1.0.0"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "unsupported-assignment-kind",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/assignments/0/kind",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assignments/0/kind",
+          "value": "keyword_inferred"
+        }
+      ]
+    },
+    {
+      "id": "source-label-unknown-field",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/assignments/0/sourceProvidedLabel",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/assignments/0/sourceProvidedLabel/inferred",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "bundle-identity-collides-with-authority",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "/authorityBindings",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/0/id",
+          "value": "synthetic-governed-taxonomy-bundle"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-authority-identity",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "/authorityBindings",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/1/id",
+          "value": "synthetic-project-general-owner"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-namespace-identity",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "/namespaces",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/namespaces/1/id",
+          "value": "synthetic-project-general"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-concept-identity-in-namespace",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "/concepts",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/concepts/6/id",
+          "value": "synthetic-shared-term"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-evidence-identity",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "/evidenceReferences",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReferences/1/id",
+          "value": "synthetic-source-a-evidence"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-review-identity",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "/reviewAttestations",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/reviewAttestations/1/id",
+          "value": "synthetic-source-crosswalk-review"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-crosswalk-identity",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "/crosswalks",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/crosswalks/1/id",
+          "value": "synthetic-source-a-crosswalk"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-assignment-identity",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "/assignments",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assignments/1/id",
+          "value": "synthetic-source-assignment"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-deployment-binding-identity",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "/deploymentBindings",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/1/id",
+          "value": "synthetic-cloud-harbor-taxonomy-binding"
+        }
+      ]
+    },
+    {
+      "id": "grant-identity-collides-with-binding",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "/personaGrants",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/1/personaGrants/0/id",
+          "value": "synthetic-cloud-harbor-taxonomy-binding"
+        }
+      ]
+    },
+    {
+      "id": "dangling-namespace-owner",
+      "expectedLayer": "semantic",
+      "expectedCode": "UNKNOWN_REFERENCE",
+      "expectedPath": "/namespaces/3/ownerAuthorityBindingRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/namespaces/0/ownerAuthorityBindingRef/id",
+          "value": "synthetic-missing-owner"
+        }
+      ]
+    },
+    {
+      "id": "wrong-kind-namespace-owner",
+      "expectedLayer": "semantic",
+      "expectedCode": "WRONG_REFERENCE_KIND",
+      "expectedPath": "/namespaces/3/ownerAuthorityBindingRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/namespaces/0/ownerAuthorityBindingRef/id",
+          "value": "synthetic-source-a-evidence"
+        }
+      ]
+    },
+    {
+      "id": "authority-class-role-laundering",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_AUTHORITY_BINDING",
+      "expectedPath": "/authorityBindings/16/authorityClass",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/0/authorityClass",
+          "value": "synthetic_analyst"
+        }
+      ]
+    },
+    {
+      "id": "authority-identity-scope-drift",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_AUTHORITY_BINDING",
+      "expectedPath": "/authorityBindings/24/authorityIdentityRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/1/scope/sourceId",
+          "value": "synthetic-county"
+        }
+      ]
+    },
+    {
+      "id": "namespace-owner-scope-mismatch",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_NAMESPACE",
+      "expectedPath": "/namespaces/4/ownerAuthorityBindingRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/namespaces/2/ownerAuthorityBindingRef/id",
+          "value": "synthetic-national-owner"
+        }
+      ]
+    },
+    {
+      "id": "unknown-retained-category",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_TAXONOMY_REFERENCE",
+      "expectedPath": "/concepts/8/retainedTaxonomyRef/categoryId",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/concepts/0/retainedTaxonomyRef/categoryId",
+          "value": "synthetic-missing-category"
+        }
+      ]
+    },
+    {
+      "id": "wrong-retained-subcategory-owner",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_TAXONOMY_REFERENCE",
+      "expectedPath": "/concepts/10/retainedTaxonomyRef/subcategoryId",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/concepts/1/retainedTaxonomyRef/subcategoryId",
+          "value": "climate-adaptation-resilience"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-retained-endpoint",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "/concepts/9/retainedTaxonomyRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/concepts/4/retainedTaxonomyRef/categoryId",
+          "value": "environmental-protection-pollution-governance"
+        },
+        {
+          "operation": "replace",
+          "path": "/concepts/4/retainedTaxonomyRef/subcategoryId",
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "retained-concept-in-source-namespace",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_NAMESPACE",
+      "expectedPath": "/concepts/12/kind",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/concepts/4/namespaceRef/id",
+          "value": "synthetic-source-a"
+        }
+      ]
+    },
+    {
+      "id": "ambiguous-preferred-label",
+      "expectedLayer": "semantic",
+      "expectedCode": "AMBIGUOUS_LABEL",
+      "expectedPath": "/concepts/12/preferredLabel",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/concepts/9/preferredLabel",
+          "value": "Synthetic Shared Monitor"
+        }
+      ]
+    },
+    {
+      "id": "ambiguous-alternate-label",
+      "expectedLayer": "semantic",
+      "expectedCode": "AMBIGUOUS_LABEL",
+      "expectedPath": "/concepts/12/preferredLabel",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/concepts/9/alternateLabels/-",
+          "value": "Synthetic Shared Monitor"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-native-code",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "/concepts/12/code",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/concepts/9/code",
+          "value": "synthetic-regional-shared"
+        }
+      ]
+    },
+    {
+      "id": "dangling-parent-reference",
+      "expectedLayer": "semantic",
+      "expectedCode": "UNKNOWN_REFERENCE",
+      "expectedPath": "/concepts/15/parentRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/concepts/6/parentRef/conceptRef/id",
+          "value": "synthetic-missing-parent"
+        }
+      ]
+    },
+    {
+      "id": "cross-namespace-parent-reference",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_HIERARCHY",
+      "expectedPath": "/concepts/15/parentRef/namespaceRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/concepts/6/parentRef/namespaceRef/id",
+          "value": "synthetic-regional-organization"
+        }
+      ]
+    },
+    {
+      "id": "self-parent-reference",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_HIERARCHY",
+      "expectedPath": "/concepts/15/parentRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/concepts/6/parentRef/conceptRef/id",
+          "value": "synthetic-source-history-term"
+        }
+      ]
+    },
+    {
+      "id": "parent-cycle",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_HIERARCHY",
+      "expectedPath": "/concepts",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/concepts/5/parentRef",
+          "value": {
+            "namespaceRef": { "id": "synthetic-source-a", "version": "1.0.0" },
+            "conceptRef": {
+              "id": "synthetic-source-history-term",
+              "version": "1.0.0"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "invalid-retained-parentage",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_HIERARCHY",
+      "expectedPath": "/concepts/7/parentRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/concepts/2/parentRef",
+          "value": {
+            "namespaceRef": {
+              "id": "synthetic-project-general",
+              "version": "1.0.0"
+            },
+            "conceptRef": {
+              "id": "synthetic-general-environment",
+              "version": "1.0.0"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "dangling-crosswalk-source",
+      "expectedLayer": "semantic",
+      "expectedCode": "UNKNOWN_REFERENCE",
+      "expectedPath": "/crosswalks/9/sourceConceptRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/crosswalks/0/sourceConceptRef/conceptRef/id",
+          "value": "synthetic-missing-concept"
+        }
+      ]
+    },
+    {
+      "id": "dangling-crosswalk-target",
+      "expectedLayer": "semantic",
+      "expectedCode": "UNKNOWN_REFERENCE",
+      "expectedPath": "/crosswalks/9/targetConceptRefs/1",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/crosswalks/0/targetConceptRefs/0/conceptRef/id",
+          "value": "synthetic-missing-concept"
+        }
+      ]
+    },
+    {
+      "id": "reversed-crosswalk-direction",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_DIRECTION",
+      "expectedPath": "/crosswalks/9/sourceConceptRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/crosswalks/0/sourceConceptRef",
+          "value": {
+            "namespaceRef": {
+              "id": "synthetic-project-general",
+              "version": "1.0.0"
+            },
+            "conceptRef": {
+              "id": "synthetic-general-environment",
+              "version": "1.0.0"
+            }
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/crosswalks/0/targetConceptRefs",
+          "value": [
+            {
+              "namespaceRef": {
+                "id": "synthetic-source-a",
+                "version": "1.0.0"
+              },
+              "conceptRef": {
+                "id": "synthetic-shared-term",
+                "version": "1.0.0"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wrong-crosswalk-authorizer-role",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_AUTHORITY_BINDING",
+      "expectedPath": "/crosswalks/9/authorizerAuthorityBindingRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/crosswalks/0/authorizerAuthorityBindingRef/id",
+          "value": "synthetic-source-a-owner"
+        }
+      ]
+    },
+    {
+      "id": "crosswalk-scope-mismatch",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_SCOPE_REFERENCE",
+      "expectedPath": "/crosswalks/9/scope",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/crosswalks/0/scope",
+          "value": {
+            "kind": "region",
+            "regionPackRef": {
+              "id": "synthetic-cloud-harbor-region",
+              "version": "1.0.0"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "duplicate-semantic-mapping-edge",
+      "expectedLayer": "semantic",
+      "expectedCode": "MAPPING_CONFLICT",
+      "expectedPath": "/crosswalks/9/targetConceptRefs/0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/crosswalks/1/sourceConceptRef",
+          "value": {
+            "namespaceRef": { "id": "synthetic-source-a", "version": "1.0.0" },
+            "conceptRef": { "id": "synthetic-shared-term", "version": "1.0.0" }
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/crosswalks/1/targetConceptRefs",
+          "value": [
+            {
+              "namespaceRef": {
+                "id": "synthetic-project-general",
+                "version": "1.0.0"
+              },
+              "conceptRef": {
+                "id": "synthetic-general-environment",
+                "version": "1.0.0"
+              }
+            }
+          ]
+        },
+        {
+          "operation": "replace",
+          "path": "/crosswalks/1/scope",
+          "value": {
+            "kind": "source_region",
+            "sourceId": "synthetic-federal",
+            "regionPackRef": {
+              "id": "synthetic-cloud-harbor-region",
+              "version": "1.0.0"
+            }
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/crosswalks/1/authorizerAuthorityBindingRef/id",
+          "value": "synthetic-source-a-crosswalk-authorizer"
+        },
+        {
+          "operation": "replace",
+          "path": "/crosswalks/1/evidenceRefs/0/id",
+          "value": "synthetic-source-a-evidence"
+        },
+        {
+          "operation": "replace",
+          "path": "/reviewAttestations/1/reviewerAuthorityBindingRef/id",
+          "value": "synthetic-source-a-reviewer"
+        },
+        {
+          "operation": "replace",
+          "path": "/reviewAttestations/1/evidenceRefs/0/id",
+          "value": "synthetic-source-a-evidence"
+        },
+        {
+          "operation": "replace",
+          "path": "/reviewAttestations/1/kind",
+          "value": "source_verified"
+        }
+      ]
+    },
+    {
+      "id": "inverted-crosswalk-period",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_TEMPORAL_SCOPE",
+      "expectedPath": "/crosswalks/0/effectivePeriod",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/crosswalks/0/effectivePeriod",
+          "value": { "from": "3785-12-31", "through": "3785-01-01" }
+        }
+      ]
+    },
+    {
+      "id": "crosswalk-self-supersession",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_LINEAGE",
+      "expectedPath": "/crosswalks/4/supersedesRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/crosswalks/5/supersedesRef/version",
+          "value": "2.0.0"
+        }
+      ]
+    },
+    {
+      "id": "crosswalk-missing-predecessor",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_LINEAGE",
+      "expectedPath": "/crosswalks/4/supersedesRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/crosswalks/5/supersedesRef",
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "wrong-kind-review-subject",
+      "expectedLayer": "semantic",
+      "expectedCode": "WRONG_REFERENCE_KIND",
+      "expectedPath": "/reviewAttestations/17/subject/ref",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/reviewAttestations/0/subject/kind",
+          "value": "assignment"
+        }
+      ]
+    },
+    {
+      "id": "review-subject-substitution",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_REVIEW_BINDING",
+      "expectedPath": "/crosswalks/9/reviewAttestationRefs/0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/reviewAttestations/0/subject/ref/id",
+          "value": "synthetic-regional-crosswalk"
+        }
+      ]
+    },
+    {
+      "id": "accepted-crosswalk-with-pending-review",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_REVIEW_BINDING",
+      "expectedPath": "/crosswalks/9/reviewAttestationRefs",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/reviewAttestations/0/state",
+          "value": "pending"
+        }
+      ]
+    },
+    {
+      "id": "wrong-evidence-provider-role",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_EVIDENCE_BINDING",
+      "expectedPath": "/evidenceReferences/5/suppliedByAuthorityBindingRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReferences/0/suppliedByAuthorityBindingRef/id",
+          "value": "synthetic-source-a-classifier"
+        }
+      ]
+    },
+    {
+      "id": "accepted-evidence-not-observed",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_EVIDENCE_BINDING",
+      "expectedPath": "/assignments/0/evidenceRefs/0/availability",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReferences/5/availability",
+          "value": "unknown"
+        }
+      ]
+    },
+    {
+      "id": "unclassified-with-concept",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_ASSIGNMENT",
+      "expectedPath": "/assignments/9/conceptRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assignments/4/conceptRef",
+          "value": {
+            "namespaceRef": { "id": "synthetic-source-a", "version": "1.0.0" },
+            "conceptRef": { "id": "synthetic-shared-term", "version": "1.0.0" }
+          }
+        }
+      ]
+    },
+    {
+      "id": "not-assessed-with-concept",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_ASSIGNMENT",
+      "expectedPath": "/assignments/4/conceptRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assignments/5/conceptRef",
+          "value": {
+            "namespaceRef": {
+              "id": "synthetic-community-b",
+              "version": "1.0.0"
+            },
+            "conceptRef": { "id": "synthetic-shared-term", "version": "1.0.0" }
+          }
+        }
+      ]
+    },
+    {
+      "id": "source-assignment-without-label",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_ASSIGNMENT",
+      "expectedPath": "/assignments/7/sourceProvidedLabel",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assignments/0/sourceProvidedLabel",
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "organization-overrides-community-assignment",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_AUTHORITY_BINDING",
+      "expectedPath": "/assignments/1/authorityBindingRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assignments/1/conceptRef",
+          "value": {
+            "namespaceRef": {
+              "id": "synthetic-regional-organization",
+              "version": "1.0.0"
+            },
+            "conceptRef": { "id": "synthetic-shared-term", "version": "1.0.0" }
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/assignments/1/authorityBindingRef/id",
+          "value": "synthetic-regional-crosswalk-authorizer"
+        }
+      ]
+    },
+    {
+      "id": "persona-grant-exceeds-binding",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_SCOPE_REFERENCE",
+      "expectedPath": "/deploymentBindings/0/personaGrants/0",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/deploymentBindings/0/personaGrants/0/assignmentRefs/-",
+          "value": { "id": "synthetic-unmapped-assignment", "version": "1.0.0" }
+        }
+      ]
+    },
+    {
+      "id": "unbound-crosswalk",
+      "expectedLayer": "semantic",
+      "expectedCode": "UNKNOWN_REFERENCE",
+      "expectedPath": "/deploymentBindings",
+      "mutations": [
+        {
+          "operation": "remove",
+          "path": "/deploymentBindings/0/crosswalkRefs/0"
+        },
+        {
+          "operation": "remove",
+          "path": "/deploymentBindings/0/personaGrants/0/crosswalkRefs/0"
+        }
+      ]
+    },
+    {
+      "id": "profile-bundle-reference-mismatch",
+      "expectedLayer": "projection",
+      "expectedCode": "UNKNOWN_REFERENCE",
+      "expectedPath": "/profileBundleRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/profileBundleRef/id",
+          "value": "synthetic-other-profile-bundle"
+        }
+      ]
+    },
+    {
+      "id": "cross-scheme-source-label-substitution",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_SOURCE_LABEL",
+      "expectedPath": "/assignments/7/sourceProvidedLabel",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assignments/0/sourceProvidedLabel/scheme",
+          "value": "synthetic-other-topic"
+        }
+      ]
+    },
+    {
+      "id": "unknown-assignment-record",
+      "expectedLayer": "projection",
+      "expectedCode": "INVALID_RECORD",
+      "expectedPath": "/assignments/0/recordId",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assignments/2/recordId",
+          "value": "psr:synthetic-federal:missing-record"
+        }
+      ]
+    },
+    {
+      "id": "cross-persona-grant",
+      "expectedLayer": "projection",
+      "expectedCode": "CROSS_SCOPE_REFERENCE",
+      "expectedPath": "/deploymentBindings/0/personaGrants/0/personaProjectionRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/0/personaGrants/0/personaProjectionRef/id",
+          "value": "synthetic-glass-desert-coordinator"
+        }
+      ]
+    },
+    {
+      "id": "cross-output-grant",
+      "expectedLayer": "projection",
+      "expectedCode": "UNAUTHORIZED_PROJECTION",
+      "expectedPath": "/deploymentBindings/0/personaGrants/0/outputAdapterRefs/0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/0/personaGrants/0/outputAdapterRefs/0/id",
+          "value": "synthetic-web-reference-output"
+        }
+      ]
+    },
+    {
+      "id": "missing-official-subject-scheme",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/namespaces/0/officialSubjectScheme",
+      "mutations": [
+        {
+          "operation": "remove",
+          "path": "/namespaces/0/officialSubjectScheme"
+        }
+      ]
+    },
+    {
+      "id": "source-native-null-scheme",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_NAMESPACE",
+      "expectedPath": "/namespaces/5/officialSubjectScheme",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/namespaces/1/officialSubjectScheme",
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "non-source-official-subject-scheme",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_NAMESPACE",
+      "expectedPath": "/namespaces/3/officialSubjectScheme",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/namespaces/0/officialSubjectScheme",
+          "value": "synthetic-topic"
+        }
+      ]
+    },
+    {
+      "id": "one-character-bundle-id",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/id",
+      "mutations": [{ "operation": "replace", "path": "/id", "value": "a" }]
+    },
+    {
+      "id": "one-character-namespace-id",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/namespaces/6/id",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/namespaces/6/id",
+          "value": "a"
+        }
+      ]
+    },
+    {
+      "id": "namespace-version-owner-drift",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_LINEAGE",
+      "expectedPath": "/namespaces/1/version",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/namespaces/-",
+          "value": {
+            "id": "synthetic-community-a",
+            "version": "2.0.0",
+            "synthetic": true,
+            "role": "community_deployment",
+            "officialSubjectScheme": null,
+            "ownerAuthorityBindingRef": {
+              "id": "synthetic-community-b-owner",
+              "version": "1.0.0"
+            },
+            "scope": {
+              "kind": "deployment_region",
+              "deploymentProfileRef": {
+                "id": "synthetic-cloud-harbor-deployment",
+                "version": "1.0.0"
+              },
+              "regionPackRef": {
+                "id": "synthetic-cloud-harbor-region",
+                "version": "1.0.0"
+              }
+            },
+            "status": "active",
+            "vocabularyVersion": "2.0.0",
+            "retainedTaxonomyVersion": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "namespace-version-role-drift",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_LINEAGE",
+      "expectedPath": "/namespaces/1/version",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/namespaces/-",
+          "value": {
+            "id": "synthetic-community-a",
+            "version": "2.0.0",
+            "synthetic": true,
+            "role": "regional_organization",
+            "officialSubjectScheme": null,
+            "ownerAuthorityBindingRef": {
+              "id": "synthetic-regional-owner",
+              "version": "1.0.0"
+            },
+            "scope": {
+              "kind": "region",
+              "regionPackRef": {
+                "id": "synthetic-cloud-harbor-region",
+                "version": "1.0.0"
+              }
+            },
+            "status": "active",
+            "vocabularyVersion": "2.0.0",
+            "retainedTaxonomyVersion": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "namespace-version-scope-drift",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_LINEAGE",
+      "expectedPath": "/namespaces/1/version",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/namespaces/-",
+          "value": {
+            "id": "synthetic-community-a",
+            "version": "2.0.0",
+            "synthetic": true,
+            "role": "community_deployment",
+            "officialSubjectScheme": null,
+            "ownerAuthorityBindingRef": {
+              "id": "synthetic-community-b-owner",
+              "version": "1.0.0"
+            },
+            "scope": {
+              "kind": "deployment_region",
+              "deploymentProfileRef": {
+                "id": "synthetic-glass-desert-deployment",
+                "version": "1.0.0"
+              },
+              "regionPackRef": {
+                "id": "synthetic-glass-desert-region",
+                "version": "1.0.0"
+              }
+            },
+            "status": "active",
+            "vocabularyVersion": "2.0.0",
+            "retainedTaxonomyVersion": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "namespace-version-status-drift",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_LINEAGE",
+      "expectedPath": "/namespaces/1/version",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/namespaces/-",
+          "value": {
+            "id": "synthetic-community-a",
+            "version": "2.0.0",
+            "synthetic": true,
+            "role": "community_deployment",
+            "officialSubjectScheme": null,
+            "ownerAuthorityBindingRef": {
+              "id": "synthetic-community-a-owner",
+              "version": "1.0.0"
+            },
+            "scope": {
+              "kind": "deployment_region",
+              "deploymentProfileRef": {
+                "id": "synthetic-cloud-harbor-deployment",
+                "version": "1.0.0"
+              },
+              "regionPackRef": {
+                "id": "synthetic-cloud-harbor-region",
+                "version": "1.0.0"
+              }
+            },
+            "status": "retired",
+            "vocabularyVersion": "2.0.0",
+            "retainedTaxonomyVersion": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "same-scope-different-identity-evidence-supplier",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_EVIDENCE_BINDING",
+      "expectedPath": "/crosswalks/0/evidenceRefs/0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReferences/3/suppliedByAuthorityBindingRef/id",
+          "value": "synthetic-analyst-a-evidence-provider"
+        }
+      ]
+    },
+    {
+      "id": "source-assignment-authority-identity-laundering",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_SOURCE_LABEL",
+      "expectedPath": "/assignments/7/sourceProvidedLabel",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/authorityBindings/-",
+          "value": {
+            "id": "synthetic-laundered-source-classifier",
+            "version": "1.0.0",
+            "synthetic": true,
+            "authorityIdentityRef": {
+              "id": "synthetic-laundered-source-authority",
+              "version": "1.0.0"
+            },
+            "role": "source_classifier",
+            "authorityClass": "synthetic_source",
+            "scope": {
+              "kind": "source_region",
+              "sourceId": "synthetic-federal",
+              "regionPackRef": {
+                "id": "synthetic-cloud-harbor-region",
+                "version": "1.0.0"
+              }
+            }
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/assignments/0/authorityBindingRef/id",
+          "value": "synthetic-laundered-source-classifier"
+        }
+      ]
+    },
+    {
+      "id": "community-assignment-authority-identity-laundering",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_AUTHORITY_BINDING",
+      "expectedPath": "/assignments/1/authorityBindingRef",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/authorityBindings/-",
+          "value": {
+            "id": "synthetic-laundered-community-configurator",
+            "version": "1.0.0",
+            "synthetic": true,
+            "authorityIdentityRef": {
+              "id": "synthetic-laundered-community-authority",
+              "version": "1.0.0"
+            },
+            "role": "community_configurator",
+            "authorityClass": "synthetic_community",
+            "scope": {
+              "kind": "deployment_region",
+              "deploymentProfileRef": {
+                "id": "synthetic-cloud-harbor-deployment",
+                "version": "1.0.0"
+              },
+              "regionPackRef": {
+                "id": "synthetic-cloud-harbor-region",
+                "version": "1.0.0"
+              }
+            }
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/assignments/1/authorityBindingRef/id",
+          "value": "synthetic-laundered-community-configurator"
+        }
+      ]
+    },
+    {
+      "id": "persona-grant-manufactures-false-unmapped",
+      "expectedLayer": "projection",
+      "expectedCode": "INVALID_ASSIGNMENT",
+      "expectedPath": "/assignments/9/kind",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assignments/4/kind",
+          "value": "unmapped"
+        },
+        {
+          "operation": "replace",
+          "path": "/assignments/4/conceptRef",
+          "value": {
+            "namespaceRef": {
+              "id": "synthetic-source-a",
+              "version": "1.0.0"
+            },
+            "conceptRef": {
+              "id": "synthetic-shared-term",
+              "version": "1.0.0"
+            }
+          }
+        },
+        {
+          "operation": "remove",
+          "path": "/deploymentBindings/0/personaGrants/0/crosswalkRefs/0"
+        },
+        {
+          "operation": "remove",
+          "path": "/deploymentBindings/0/personaGrants/0/assignmentRefs/0"
+        }
+      ]
+    }
+  ]
+}
