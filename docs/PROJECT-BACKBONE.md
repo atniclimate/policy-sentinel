@@ -56,8 +56,10 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | Work-class staffing, tools, leases, validation, and stop rules | [`AGENT-AND-TOOL-OPERATING-MODEL.md`](development/AGENT-AND-TOOL-OPERATING-MODEL.md) | Run templates do not broaden authority |
 | Recovery after a fresh session or compaction | [`continuation-prompt.md`](continuation-prompt.md) | Always reconcile against live Git and roadmap |
 | Historical exact PNW-01 implementation run | [`pnw-engine-seams-implementation-launch-2026-09-02.md`](handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md) | Its authorization and completion evidence do not authorize a successor |
-| Current PNW-03 implementation coordination | [`PNW-03-GEOGRAPHY-RIGHTS-COORDINATION-2026-09-02.md`](development/PNW-03-GEOGRAPHY-RIGHTS-COORDINATION-2026-09-02.md) | Records this local run; cannot authorize sources, real data, convergence, publication, or a successor |
+| Historical PNW-03 implementation coordination | [`PNW-03-GEOGRAPHY-RIGHTS-COORDINATION-2026-09-02.md`](development/PNW-03-GEOGRAPHY-RIGHTS-COORDINATION-2026-09-02.md) | Records that completed local run; cannot authorize sources, real data, convergence, publication, or a successor |
 | PNW-03 implementation and terminal evidence | [`pnw-geography-rights-implementation-2026-09-02.md`](handoffs/pnw-geography-rights-implementation-2026-09-02.md) | Complete local synthetic checkpoint; does not authorize real data, convergence, publication, or a successor |
+| Current PNW-04 implementation coordination | [`PNW-04-TAXONOMY-COORDINATION-2026-09-02.md`](development/PNW-04-TAXONOMY-COORDINATION-2026-09-02.md) | Records the closed taxonomy run, review history, and exact path boundary; cannot authorize real mappings, sources, publication, or a successor |
+| PNW-04 implementation and terminal evidence | [`pnw-taxonomy-implementation-2026-09-02.md`](handoffs/pnw-taxonomy-implementation-2026-09-02.md) | Complete local synthetic checkpoint; does not authorize real taxonomy content, source activation, publication, or a successor |
 | K0/S0/O0 custody and D0 historical status | [`vision/README.md`](vision/README.md) | Protected bytes and convergence gates remain controlling |
 
 The completed product-space mapping and lossless B-to-PNW crosswalk remain in
@@ -87,6 +89,7 @@ transition.
 | D0 | historical proposal only | no roadmap item, schema, fixture, or implementation |
 | Region/deployment/persona projection seam | PNW-01 implemented and validated as a closed synthetic `1.0.0` profile/runtime seam | no production profile, source coverage, analyzed corpus, output adapter, or publication |
 | Governed geography and configured rights seam | PNW-03 implemented as a separate synthetic `1.0.0` catalog with typed temporal relations, source-bound frames, exact grants, and reference-only projection | no real geography or rights evidence, GIS computation, legal determination, public integration, or S0 convergence |
+| Governed taxonomy and directional crosswalk seam | PNW-04 implemented as a separate synthetic `1.0.0` authority/scheme-separated catalog with exact evidence/review, direct many-to-many edges, and reference-only projection | no real ATNI/NCAI/Nation/source/community vocabulary, production classification, source activation, public integration, or position inference |
 | ATNI regional registry | intended and evidence-gated | owner direction and 575 recognition evidence do not supply membership |
 | Canonical analyzed corpus and common document/web/app/structured adapters | accepted target architecture | current artifact, dossier, CSV, and app are precursors only |
 
@@ -124,8 +127,9 @@ telemetry, browser-side AI, or outbound notifications.
 | PNW-00 | Planning/governance rebase complete |
 | PNW-01 | Complete as a bounded synthetic engine-seam tranche |
 | PNW-02 | Independently blocked on `G-PNW-ATNI-59-ROSTER`; PNW-01 dependency complete |
-| PNW-03 | Owner-authorized local synthetic geography/rights tranche; consult live roadmap for active or terminal evidence |
-| PNW-04 and PNW-05 | Dependency-ready but separately owner-gated; no authorization implied by PNW-03 |
+| PNW-03 | Complete as a bounded synthetic geography/rights tranche |
+| PNW-04 | Complete as a bounded synthetic governed-taxonomy tranche |
+| PNW-05 | Dependency-ready but separately owner-gated; no authorization implied by PNW-01, PNW-03, or PNW-04 |
 | PNW-06 through PNW-10 | Not started behind their recorded dependencies |
 | Publication | Closed; both local product finish scopes and exact owner operations are prerequisites |
 
@@ -160,8 +164,7 @@ npm run validate:roadmap
 npm run validate:backbone
 ```
 
-The only current owner-authorized product mutation is the exact local synthetic
-`PNW-03-GEOGRAPHY-RIGHTS` tranche recorded in `ROADMAP.yaml` and its coordination
-ledger. When that item reaches a validated terminal checkpoint, stop. Do not
-begin PNW-02, PNW-04, PNW-05, a source, real geography, S0 convergence, remote,
-publication, or deployment operation without separate exact owner authority.
+PNW-04 is complete at its validated local synthetic checkpoint and no product
+mutation is active. Stop. Do not begin PNW-02, PNW-05, a source, real taxonomy
+or geography content, S0/K0/O0 convergence, remote, publication, or deployment
+operation without separate exact owner authority.

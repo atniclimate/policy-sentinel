@@ -3,7 +3,7 @@ roadmap_id: policy-sentinel-through-finish
 project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
-  phase: "PNW-03 geography and rights complete; next authorization required"
+  phase: "PNW-04 governed taxonomy complete; next authorization required"
   updated_on: "2026-09-02"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -677,19 +677,20 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Preserve the validated synthetic PNW-03 geography-and-rights checkpoint and
+    Preserve the validated synthetic PNW-04 governed taxonomy checkpoint and
     every exact closed boundary while awaiting separate authorization for any
     successor work.
   terminal_reason: >-
-    PNW-03-GEOGRAPHY-RIGHTS completed with objective validation and exact
-    APPROVE_PNW_03; every successor tranche requires separate exact owner
-    authorization and none is active.
+    PNW-04-TAXONOMY completed with objective validation, implementation commit
+    8fd1931bf05e6ab3bc93f5d25b18030101fd7269, and exact APPROVE_PNW_04; every
+    successor tranche requires separate exact owner authorization and none is
+    active.
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 712bb5fe8d56fdd49a0d139e0455c5f30e3bdc1a
+  last_durable_checkpoint: 8fd1931bf05e6ab3bc93f5d25b18030101fd7269
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -1042,7 +1043,21 @@ work_items:
         tested.
       - Search never uses unofficial, inferred, address-derived, or
         geography-derived aliases.
-    evidence: []
+    evidence:
+      - >-
+        Owner directive 13 authorized the exact local synthetic PNW-04 tranche.
+        The pre-edit authority contract, protected identities, 19-path manifest,
+        disjoint write leases, and closed successor/external gates are frozen in
+        docs/development/PNW-04-TAXONOMY-COORDINATION-2026-09-02.md.
+      - >-
+        Implementation remains in progress. Preliminary read-only adversarial
+        review found finite fail-closed defects in forged PNW-01 projection
+        acceptance, source-scheme identity, namespace version posture,
+        plain-JSON closure, evidence/assignment authority, review time, honest
+        unmapped resolution, and error redaction. The first EngineProjection
+        repair and 89 focused assertions pass; the remaining bounded repairs and
+        independent final audit are not yet complete and no completion claim is
+        made.
 
   - id: B2-STATES
     priority: 23
@@ -3920,7 +3935,7 @@ work_items:
     priority: 134
     milestone: PNW authority model
     title: Nation, ATNI, NCAI, source, and general taxonomy crosswalk
-    status: ready
+    status: complete
     dependencies:
       - PNW-01-ENGINE-SEAMS
     acceptance:
@@ -3933,7 +3948,57 @@ work_items:
       - >-
         No organization-wide or community position is inferred from a keyword,
         geography, committee name, resolution title, sponsor, or model output.
-    evidence: []
+    evidence:
+      - >-
+        Owner directive 13 authorized exactly this local synthetic tranche. The
+        pre-edit authority contract, protected identities, exact 19-path
+        manifest, disjoint write leases, reviewer findings and repairs, closed
+        external and successor gates, and terminal evidence are recorded in
+        docs/development/PNW-04-TAXONOMY-COORDINATION-2026-09-02.md and
+        docs/handoffs/pnw-taxonomy-implementation-2026-09-02.md.
+      - >-
+        Implementation commit 8fd1931bf05e6ab3bc93f5d25b18030101fd7269 adds the
+        separate closed synthetic TaxonomyBundle 1.0.0 schema, readonly
+        contracts, parser/projection/serializer, exact PNW-01 projection trust
+        boundary, engine exports, synthetic fixture family, validators, focused
+        tests, and directly supporting architecture/data-contract text in
+        exactly 14 paths.
+      - >-
+        The contract keeps project-general, exact-scheme source-native,
+        regional-organization, national-organization, and community-deployment
+        namespaces authority-separated; accepts only direct directional reviewed
+        monitoring crosswalks; preserves many-to-many targets, exact evidence
+        and review provenance, explicit lifecycle and epistemic states, honest
+        Unclassified/unmapped behavior, fixed non-claims, canonical ordering,
+        atomic failure, and recursive immutability. It contains no real
+        organization, Nation, source, policy, or community mapping.
+      - >-
+        The valid fixture has 26 authority bindings, 7 namespaces, 17 concepts,
+        7 evidence references, 23 reviews, 11 crosswalks, 12 assignments, and 2
+        deployment bindings. The malformed inventory has 82 cases: 22
+        schema-invalid, 55 semantic, and 5 projection-boundary cases. Focused
+        PNW-04 tests passed 118 of 118; PNW-01 passed 45 of 45 and PNW-03 passed
+        90 of 90. Foundation compiled 11 schemas and classified all PNW-04
+        negative cases correctly.
+      - >-
+        Hooks passed 9 of 9; final backbone evidence passed at 12 schema IDs,
+        807 references, 62 Markdown files, and 246 local links; formatting,
+        lint, typecheck, source-boundary scan, roadmap validation, artifact
+        validation, and diff checks passed. The single terminal serialized npm
+        run check passed 80 files and 1,252 tests, then built 3 records, exactly
+        575 synthetic Nations, 8 verified assets, and 12 dist files with no
+        source maps or PNW-04 markers at build ID
+        synthetic-43431d31265d101afccd.
+      - >-
+        Two complete fixed-input builds at 2026-09-02T17:00:00.000Z matched all
+        12 path, size, and SHA-256 entries at build ID
+        synthetic-6be99d5d673a93404590. Preliminary schema/determinism and
+        sovereignty reviewers closed every finite counterexample; independent
+        Agent 6 returned exact APPROVE_PNW_04 with no material defects and then
+        returned POST_COMMIT_PNW04_VERIFIED for the exact implementation tree.
+        K0, S0, O0, retained taxonomy v1, PolicyRecord 1.4, PNW-01, PNW-03,
+        dependencies, artifacts, owner inputs, and every external/convergence
+        gate remained protected.
 
   - id: PNW-05-SOURCE-PACK
     priority: 135
@@ -4476,12 +4541,6 @@ next_actions:
       infer membership, or treat the federal-recognition collection as the
       regional registry.
   - order: 6
-    work_item: PNW-04-TAXONOMY
-    action: >-
-      Begin only under separate exact owner authorization. Preserve Nation,
-      ATNI, NCAI, originating-source, and general taxonomy authorities as
-      separate versioned evidence-bearing mappings without inferring positions.
-  - order: 7
     work_item: PNW-05-SOURCE-PACK
     action: >-
       Begin only under separate exact owner authorization and source-specific

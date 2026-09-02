@@ -1,7 +1,7 @@
 # Policy Sentinel long-running Codex continuation prompt
 
 Status: current after the 2026-09-02 PNW product-space rebase, repository
-backbone alignment, and completed local PNW-01 plus PNW-03 synthetic
+backbone alignment, and completed local PNW-01, PNW-03, and PNW-04 synthetic
 checkpoints. No successor tranche is active. Git and the validated
 `ROADMAP.yaml` remain authoritative over this prose and over chat memory.
 
@@ -53,12 +53,12 @@ geography, proximity, sponsors, model output, or owner-direction counts.
 
 The 2026-07-30 Gate A authorizes only the retained B1-B10 implementation stream
 under `docs/mvp-plan.md`. Later owner directives separately authorized the exact
-local synthetic PNW-01 and PNW-03 tranches; those bounded decisions authorize no
-other PNW item or operation. Do not treat their schemas, fixtures, or passing
-tests as source, roster, real-geography, production-profile, legal, integration,
-or release evidence. Do not access sources merely to fill a gap, review or
-implement O0, import K0/S0/O0, change convergence, or proceed beyond the exact
-current roadmap boundary.
+local synthetic PNW-01, PNW-03, and PNW-04 tranches; those bounded decisions
+authorize no other PNW item or operation. Do not treat their schemas, fixtures,
+or passing tests as source, roster, real-geography, real-taxonomy,
+production-profile, legal, integration, or release evidence. Do not access
+sources merely to fill a gap, review or implement O0, import K0/S0/O0, change
+convergence, or proceed beyond the exact current roadmap boundary.
 
 Remote operations, push, Pages, publication, provider-term acceptance,
 credentials, paid calls, third-party contact, private or land data, optional AI
