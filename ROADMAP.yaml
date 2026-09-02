@@ -4,7 +4,7 @@ project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
   phase: "Phase B: local implementation"
-  updated_on: "2026-09-01"
+  updated_on: "2026-09-02"
   owner_intent: >-
     Build and validate a sovereignty-centered static public-policy discovery and
     source-reference application for Tribal Nations, then stop at the external
@@ -564,15 +564,16 @@ baseline:
 current_focus:
   work_item: H-HOOKS
   objective: >-
-    Preserve the committed and validated repository-scoped Codex lifecycle hooks
-    while the newly supplied owner-direction packet receives its required
-    read-only authority review and authorized repository disposition. Do not
-    absorb, overwrite, or silently discard the packet merely to manufacture a
-    clean hook checkpoint.
+    Preserve the committed, hardened, and validated repository-scoped Codex
+    lifecycle hooks. Resume the owner-direction packet only after the owner
+    supplies missing files 06 and 07, then restart its required ordered
+    read-only authority review at file 00; do not skip ahead to file 08, absorb,
+    overwrite, or silently discard the packet merely to manufacture a clean hook
+    checkpoint.
   terminal_reason: null
   resumable_roots:
     - H-HOOKS
-  last_durable_checkpoint: c9f1b23
+  last_durable_checkpoint: ae40e1f
   resume_command: npm run check
 
 completion_scope:
@@ -751,6 +752,34 @@ work_items:
         untouched pending its ordered read-only protocol, so the H-HOOKS item
         remains in_progress until that authorized repository disposition yields
         a truthful clean checkpoint.
+      - >-
+        Commit ae40e1f hardens the five existing hooks without adding another
+        event: every launcher resolves the repository root and invokes Node
+        directly; absent or unapproved external-boundary records fail closed;
+        command matching recognizes git.exe, gh.exe, npm.cmd, and chained
+        invocations without blocking quoted documentation or search text;
+        credential enumeration is denied; binding-document dispatch derives from
+        ROADMAP.yaml; and future .agents paths enter source-boundary scans.
+      - >-
+        On 2026-09-02, npm run hooks:test passed all 9 focused tests. The exact
+        Windows launcher returned valid SessionStart JSON from the repository
+        root, stayed silent for an allowed nested-directory PreToolUse event,
+        and averaged 324.9 milliseconds over three nested allowed invocations.
+      - >-
+        The final serialized npm run check retry passed on 2026-09-02: 71 Vitest
+        files and 999 tests plus formatting, lint, type checking,
+        roadmap/foundation validation, source-boundary scanning, a
+        synthetic-only production build, and artifact validation at 3 records,
+        exactly 575 Nations, and 8 assets; build ID
+        synthetic-6b44c094a140024746af. The immediately prior full run exceeded
+        only the unchanged pipeline wrapper's 20-second deadline; its isolated
+        retry passed in 9.51 seconds before the clean full pass.
+      - >-
+        The packet inventory still lacks docs/06-REPRESENTATIVE-USE-CASES.md and
+        docs/07-DECISIONS-GATES-AND-NON-GOALS.md. Its ordered authority protocol
+        therefore remains stopped before file 08; no planning rebase, source
+        work, product implementation, skill or custom-agent definition,
+        publication, or external operation began.
 
   - id: B1-APP
     priority: 10
@@ -3627,9 +3656,13 @@ next_actions:
   - order: 1
     work_item: H-HOOKS
     action: >-
-      Complete and validate the five owner-authorized repository-scoped Codex
-      lifecycle hooks, then return the ledger to its prior four evidence-blocked
-      release roots without changing any external or convergence gate.
+      After the owner supplies packet files 06-REPRESENTATIVE-USE-CASES.md and
+      07-DECISIONS-GATES-AND-NON-GOALS.md, restart the packet's read-only review
+      at 00-READ-FIRST.md and continue in exact numeric order through file 08.
+      Then perform only the authorized planning/governance rebase before
+      deciding whether the proposed source-review skill and two narrow read-only
+      custom agents remain useful. Do not begin source access, O0, product
+      implementation, publication, or any external operation.
   - order: 2
     work_item: B2-REVIEW
     action: >-
