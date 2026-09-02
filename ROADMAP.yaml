@@ -562,18 +562,21 @@ baseline:
         configured.
 
 current_focus:
-  work_item: O0-ORCHESTRATION
+  work_item: null
   objective: >-
-    Repair exactly O0-R01 through O0-R15 and O0-G01 through O0-G03, preserve the
-    rejected candidate and independent review as immutable evidence, and seal a
-    distinct proposed 1.0.0 successor for a new independent review.
-  terminal_reason: null
+    Preserve the repaired proposed O0 1.0.0 candidate as immutable local
+    evidence awaiting a separately authorized independent review; do not accept,
+    implement, integrate, or converge it.
+  terminal_reason: >-
+    The bounded O0 contract-and-governance repair is sealed with all 18 findings
+    closed by lead-authored evidence. O0 remains blocked at contract_review
+    because no independent review of the successor is authorized or recorded.
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 24633b9
+  last_durable_checkpoint: 7c13f60
   resume_command: npm run check
 
 completion_scope:
@@ -3105,11 +3108,13 @@ work_items:
     priority: 122
     milestone: O0
     title: Fixture-only orchestration transaction and custody kernel
-    status: in_progress
+    status: blocked
     dependencies:
       - K0-LIFECYCLE
     authorization_gate: G-O0-SYNTHETIC
-    additive_phase_stage: contract_freeze
+    blocked_by:
+      - G-O0-SYNTHETIC
+    additive_phase_stage: contract_review
     convergence_gate: G-O0-CONVERGENCE
     durable_lineage:
       reviewed_predecessor:
@@ -3251,11 +3256,40 @@ work_items:
         The owner accepted only that disposition and authorized only the
         enumerated repair; acceptance, implementation, and convergence remain
         null or closed.
+      - >-
+        Repair activation commit 9c62f2a completed the required pre-edit
+        18-finding closure matrix and activated exactly one O0 work item from
+        the authorized starting HEAD. The matrix records review evidence,
+        closure criteria, affected contract/governance surfaces, proposed
+        repair, objective verification, dependencies, and remaining
+        implementation risk.
+      - >-
+        Repaired-candidate commit 7c13f606f60aa8796bac61c058571a8e179cbf29
+        freezes a distinct proposed 1.0.0 successor at 116,551 LF/no-BOM bytes,
+        SHA-256
+        f4f39c0b7ac2b5ce763d47785b82d0e162fc1217a41377490e8c926ed8cdd381, Git
+        blob 39a340d04f87017a7ebdb2ac3585682048e323ed, and candidate ID
+        o0-contract-candidate:1.0.0:sha256:33e0f9f1433dc7aff5b1234a4397bdf2fef671a624b3cb3fc68783c4e7058843.
+        Its predecessor and review lineage are explicit; accepted_contract and
+        implementation_authorization remain null.
+      - >-
+        Lead-authored closure inventory passed all O0-R01 through O0-R15
+        predicates. Focused O0-G01 through O0-G03 adversarial tests reject
+        wholesale phase/gate deletion, non-authorizing convergence states, K0/S0
+        downgrade or evidence drift, and direct/transitive protected
+        dependencies. This evidence is repair verification, not independent
+        review or acceptance.
+      - >-
+        On the terminal ledger bytes, serialized npm run check passed
+        formatting, lint, typecheck, roadmap and foundation validation,
+        source-boundary scanning, 71 test files and 999 tests, synthetic build,
+        and artifact validation at 3 records, exactly 575 Nations, 8 verified
+        assets, and build ID synthetic-2c30322ba0133d993798. The sealed contract
+        identity remained unchanged.
     next_step: >-
-      Complete only the authorized finding-closure matrix, contract repair,
-      focused roadmap-validator regressions, successor byte seal, and terminal
-      blocked ledger. Do not independently review, accept, implement, integrate,
-      or converge O0.
+      Preserve the sealed successor unchanged. The smallest next action is a
+      separately authorized independent review of exactly that candidate and no
+      implementation, integration, acceptance, or convergence action.
 
   - id: RELEASE-LICENSE
     priority: 200

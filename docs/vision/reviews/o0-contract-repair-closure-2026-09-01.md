@@ -64,5 +64,71 @@ within the five authorized paths.
 
 ## Closure and validation ledger
 
-Pending. This section will record finding-by-finding byte locations, candidate
-identity, commands, real outcomes, and the terminal disposition after repair.
+### Sealed successor identity and lineage
+
+The repaired proposed `1.0.0` contract is exactly 116,551 LF/no-BOM UTF-8
+bytes, SHA-256
+`f4f39c0b7ac2b5ce763d47785b82d0e162fc1217a41377490e8c926ed8cdd381`,
+Git blob `39a340d04f87017a7ebdb2ac3585682048e323ed`, and candidate ID
+`o0-contract-candidate:1.0.0:sha256:33e0f9f1433dc7aff5b1234a4397bdf2fef671a624b3cb3fc68783c4e7058843`.
+The ID preimage is the exact concatenation of
+`UTF8("policy-sentinel:o0-contract-candidate:v1\n")`,
+`UTF8("proposed-version:1.0.0\n")`, `UTF8("byte-length:116551\n")`, and those
+exact contract bytes. Commit `7c13f606f60aa8796bac61c058571a8e179cbf29`
+freezes the successor and governance guards. It explicitly supersedes the
+rejected candidate for a new independent review only; it does not erase or
+reinterpret the predecessor or its review.
+
+### Finding-by-finding closure result
+
+| Finding | Sealed closure evidence | Objective result | Remaining risk |
+| --- | --- | --- | --- |
+| `O0-R01` | “Closed programmatic capability surface” freezes eight request envelopes, 15 receipt kinds, branch-specific durability, every success/idempotent/failure branch, the custody action map, complete run input, nested source outcomes/preparations, and state replacement on resume. | Contract inventory found all four R01 predicates; future `A19` is mechanically enumerable. | Runtime conformance remains separately unauthorized. |
+| `O0-R02` | “Exact compatibility and frozen K0 seam” and “Fixture-only source plans” define `CustodyProfile`, `RunCompatibility`, one fixed run-global clock, per-source tuples, equality constraints, and root/run/source preimages. | Four of four R02 closure predicates passed; source order and scheduling are excluded from identity. | Multi-source execution evidence awaits implementation authority. |
+| `O0-R03` | Exact nested schemas now include source-plan digests, chain tips/predecessors, object observation/identity, expected/owned entries, operation subjects, boundaries, evidence targets, physical assets, and a non-self-referential seal body. | Four of four R03 predicates passed; every named review gap has a property set, comparator, null rule, and digest target. | Future schema files and mutation tests remain unauthorized. |
+| `O0-R04` | The frozen registry defines every fixture member property. Witness sections define expected set `E`, duplicate-retaining observed multiset `O`, unique set `U`, all six counts, three identity digests, five reconciliation Booleans, segment and terminal preimages. | Six of six R04 predicates passed; the equations are independently reproducible from registry and segment bytes. | Actual registry bytes remain a future reviewed artifact. |
+| `O0-R05` | Partition entries name `memberIdentity`; logical item IDs are digest-bound and globally unique; emitted/excluded, logical-item, logical/physical asset, per-source candidate, completed-run, and rejected-run equations are explicit, including zero output. | Five of five R05 predicates passed. | Candidate-schema implementation is not part of this repair. |
+| `O0-R06` | K0 kinds are exactly `source_fact`/`derived_assertion`; actual exports map to fact/assertion IDs and digests; O0, not K0, issues the durable validation receipt with a complete reference preimage and canonical-byte binding. | Five of five R06 predicates passed. The 1,406-byte seam manifest and all eight member hashes replayed exactly. | A future K0 seam change requires a new compatibility entry. |
+| `O0-R07` | Durability is exact by receipt branch; safe pre-custody rejection is ephemeral; every state crossing mutation uses global content-addressed receipt custody, run/receipt staging, deterministic journals, exact-prefix recovery, replay, and closed terminal states. | Five of five R07 predicates passed. | Power-loss durability is expressly not claimed. |
+| `O0-R08` | Fixed candidate and promotion staging paths, distinct subject-bound operation journals, two resume kinds, sealed-staging recovery, promotion preparation/publication, and cleanup eligibility produce exactly one next transition for every supported crash state. | Four of four R08 predicates passed. | Exact process-kill tests await implementation authority. |
+| `O0-R09` | A registry-derived `OutputDeclaration` binds attempts and output ceilings. Capacity checks are separated into pre-executor, during-execution, and post-output/pre-seal phases. | Four of four R09 predicates passed. | Performance is not claimed; only deterministic ceilings are. |
+| `O0-R10` | Logical paths remain distinct while physical bytes deduplicate by digest. `PhysicalAssetEntry`, logical-path membership digest, separate logical/physical counts, unique digest order, and `CandidateSealBody` are exact. | Four of four R10 predicates passed. | A digest collision fails custody; no collision handling implementation exists yet. |
+| `O0-R11` | `OwnedEntry` records path, type, lifecycle, bytes, volume/file/link identity, creator operation, and boundary. Durable `mutation_interruption` binds partial/completed ownership; cleanup consumes only that exact evidence. | Four of four R11 predicates passed. | Identity evidence is limited to the narrowed one-writer platform model. |
+| `O0-R12` | `PromotionLogicalTime` has fixed epoch and `tick = generation`; ordinary, resumed, and logically concurrent same-predecessor requests derive equal time and are serialized through one filesystem writer. | Three of three R12 predicates passed. | No ordering beyond append-only generation is represented. |
+| `O0-R13` | The profile binds Node `v24.14.1`, `win32 x64`, Git `2.55.0.windows.2`, local NTFS, process termination, one writer, and no external mutator. Reachable `open("wx")`, file sync/reopen, identity checks, and same-volume rename are required; parent-directory, power-loss, and hostile no-follow claims are excluded. | Five of five R13 predicates passed. The host reproduced the Node/Git values and PowerShell `Get-Volume` reported fixed healthy NTFS; privileged `fsutil` was unnecessary and returned access denied. | A stronger crash or hostile-race claim requires a successor contract and reviewed mechanism. |
+| `O0-R14` | `GitIgnoreProof` binds repository identity, version, exact argv/stdin, bounded four-field NUL output, rule source/line/pattern/path, and proof digest. Shell-free Git evaluates all applicable rules and the proof is rerun before mutation. | Seven of seven R14 predicates passed. The exact-shaped local probe returned exit 0, empty stderr, and `.gitignore`, line `4`, `.cache/`, and the exact `.cache/o0/<64-hex>` pathname. | A future accepted O0 digest determines the real root key; that exact root must replay the same predicate. |
+| `O0-R15` | A compile-time frozen registry digest-binds executor, source contract, population, member payload, logical items, and assets. Caller paths/bytes/modules/callbacks and every unregistered or substituted value are structurally inadmissible; opaque bytes are never semantically inspected. | Five of five R15 predicates passed. | Human review of future frozen synthetic registry bytes remains required. |
+| `O0-G01` | The validator unconditionally requires K0, S0, O0, their additive membership, and all five required gates; ROADMAP records exact durable lineage. | Focused negatives rejected whole O0/S0 deletion, additive-accounting movement, gate deletion, and lineage/evidence removal. | New additive phases need explicit governance rather than weakening these locks. |
+| `O0-G02` | Only `approved` or `satisfied` convergence authorizes dependency traversal; `closed`, `pending_evidence`, and every other state remain non-authorizing. | Direct and transitive negatives passed for application, pipeline, artifact, B9, B10, publication, and release consumers. | Actual convergence remains an exact owner decision outside this repair. |
+| `O0-G03` | K0/S0 status, stage, dependencies, gates, evidence-prefix digests, contract/review/implementation hashes and commits, and convergence bindings are exact durable terminal facts. | Negatives rejected deletion, downgrade, reopening, evidence removal, hash drift, implementation/review removal, and convergence-binding changes. | New evidence may be appended; frozen facts may not be replaced. |
+
+All 18 findings have closure evidence. There are no remaining material repair
+findings within the authorized boundary. The risks above are deliberately
+deferred implementation or independent-review work, not waived requirements.
+
+### Validation evidence
+
+- Starting authority replayed as `main` at
+  `24633b993535f64e5b8da73265588753f5a95778`, clean and with no remotes before
+  repair. The current commit chain descends from it without amendment or
+  history rewrite.
+- Git-object verification reproduced the rejected candidate, independent
+  review, K0 contract, S0 contract, repaired candidate, and all recorded byte
+  lengths, SHA-256 values, and Git blob IDs.
+- `npm run validate:roadmap` passed at the active checkpoint with 50 work items,
+  35 gates, and exactly one `in_progress` item. The focused direct Node
+  governance regression passed 1/1; its seven-file pipeline set passed 105/105;
+  its serialized Vitest wrapper passed 1/1.
+- `npm run format:check`, `npm run lint`, `npm run typecheck`, and
+  `npm run scan:source` passed after adding explicit Node imports/clone support
+  to the new test. The first lint run truthfully exposed those missing imports;
+  no rule or assertion was weakened.
+- Serialized `npm test` passed 71 files and 999 tests. The candidate bytes
+  remained 116,551 bytes with the same SHA-256 and blob ID before and after the
+  run.
+- On the terminal ledger bytes, serialized `npm run check` passed formatting,
+  lint, typecheck, roadmap and foundation validation, source-boundary scanning,
+  71 test files/999 tests, build, and artifact validation. The synthetic build
+  contained 3 records, exactly 575 Nations, and 8 verified assets with build ID
+  `synthetic-2c30322ba0133d993798`. A final repeat on the exact bytes and a
+  disposable exact-commit checkout are required before handoff.
