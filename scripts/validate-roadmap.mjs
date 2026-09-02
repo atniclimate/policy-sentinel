@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { access, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { parseDocument } from "yaml";
@@ -58,6 +59,64 @@ const requireUniqueStrings = (value, path) => {
     fail(`${path} contains duplicate values`);
   }
   return entries;
+};
+
+const requireExactOrderedValues = (actual, expected, path) => {
+  const values = requireArray(actual, path, { nonempty: expected.length > 0 });
+  if (
+    values.length !== expected.length ||
+    values.some((value, index) => value !== expected[index])
+  ) {
+    fail(`${path} must preserve exactly: ${expected.join(", ")}`);
+  }
+  return values;
+};
+
+const requireExactKeys = (value, expectedKeys, path) => {
+  const object = requireObject(value, path);
+  const actualKeys = Object.keys(object).sort();
+  const sortedExpected = [...expectedKeys].sort();
+  if (
+    actualKeys.length !== sortedExpected.length ||
+    actualKeys.some((key, index) => key !== sortedExpected[index])
+  ) {
+    fail(`${path} must contain exactly: ${expectedKeys.join(", ")}`);
+  }
+  return object;
+};
+
+const requireExactValue = (actual, expected, path) => {
+  if (actual !== expected) {
+    fail(`${path} must remain ${JSON.stringify(expected)}`);
+  }
+  return actual;
+};
+
+const sha256Hex = (bytes) => createHash("sha256").update(bytes).digest("hex");
+
+const repositoryBytes = async (repositoryPath, path) => {
+  const bytes = await readFile(resolve(root, repositoryPath));
+  const normalized = Buffer.from(
+    bytes.toString("utf8").replaceAll("\r\n", "\n"),
+    "utf8",
+  );
+  if (normalized.includes(13)) {
+    fail(`${path} contains a non-canonical carriage return`);
+  }
+  return normalized;
+};
+
+const requireRepositorySha256 = async (
+  repositoryPath,
+  expectedSha256,
+  path,
+) => {
+  const actualSha256 = sha256Hex(await repositoryBytes(repositoryPath, path));
+  if (actualSha256 !== expectedSha256) {
+    fail(
+      `${path} SHA-256 mismatch: expected ${expectedSha256}, received ${actualSha256}`,
+    );
+  }
 };
 
 requireString(roadmap.schema_version, "schema_version");
@@ -486,11 +545,24 @@ const durableAdditiveVisionPhaseIds = [
   "O0-ORCHESTRATION",
 ];
 for (const id of durableAdditiveVisionPhaseIds) {
-  if (
-    byId.has(id) &&
-    completionMembership.get(id) !== "additive_vision_phases"
-  ) {
+  if (!byId.has(id)) {
+    fail(`durable additive work item is missing: ${id}`);
+  }
+  if (completionMembership.get(id) !== "additive_vision_phases") {
     fail(`${id} must remain classified only in additive_vision_phases`);
+  }
+}
+
+const durableAdditiveGateIds = [
+  "G-K0-LIFECYCLE",
+  "G-S0-SYNTHETIC",
+  "G-K0-S0-CONVERGENCE",
+  "G-O0-SYNTHETIC",
+  "G-O0-CONVERGENCE",
+];
+for (const id of durableAdditiveGateIds) {
+  if (!gateById.has(id)) {
+    fail(`durable additive gate is missing: ${id}`);
   }
 }
 for (const [index, item] of workItems.entries()) {
@@ -576,6 +648,241 @@ for (const [index, item] of workItems.entries()) {
   }
 }
 
+const durableTerminalSpecifications = [
+  {
+    id: "K0-LIFECYCLE",
+    priority: 120,
+    milestone: "K0",
+    dependencies: ["H-HANDOFF", "B3-PIPELINE"],
+    authorizationGate: "G-K0-LIFECYCLE",
+    convergenceGate: "G-K0-S0-CONVERGENCE",
+    evidenceCount: 8,
+    evidenceSha256:
+      "967e759aa3616479a24b60694fe3c9d9996ab35dd8cad13c4becf692e23374ca",
+    contract: {
+      path: "docs/vision/k0-lifecycle-contract.md",
+      version: "1.0.0",
+      sha256:
+        "30e98fc8093b00ebd31cbbd545ca671a54eec68e3f6bdae065a7d2173fb7797d",
+      freeze_commit: "21bb68fbb9bbd45f470b84de02b037a624efadb4",
+    },
+    contractReview: {
+      path: "docs/vision/reviews/k0-contract-review-2026-09-01.md",
+      sha256:
+        "cd72507ad36e11ff2a665174307f8be246839ce9a62b6b8f75133677ed5d7d28",
+      disposition: "PASS",
+    },
+    implementation: {
+      report_path: "docs/vision/reports/k0-implementation-2026-09-01.md",
+      report_sha256:
+        "4793c6ea7bf41f0207ad534140f275a4a8c1c33a45d693c147beb509891a6b98",
+      audit_path: "docs/vision/reviews/k0-implementation-audit-2026-09-01.md",
+      audit_sha256:
+        "ceb7f5d4d1d53646f237caf5cef75a8d7eb508d24de9afbc02a8dcc897329cda",
+      implementation_commit: "ba6c4b6483f052dd372babb58a1280e6804e0617",
+      validated_ledger_commit: "e8e5ce3827fe7f2790bdabd74d85045229d69e84",
+    },
+  },
+  {
+    id: "S0-SPATIAL",
+    priority: 121,
+    milestone: "S0",
+    dependencies: ["K0-LIFECYCLE"],
+    authorizationGate: "G-S0-SYNTHETIC",
+    convergenceGate: "G-K0-S0-CONVERGENCE",
+    evidenceCount: 22,
+    evidenceSha256:
+      "997f3d6f1c781f06fb24d7b2ab812404a04771a5da0a19b75ea94017e3c119e1",
+    contract: {
+      path: "docs/vision/s0-spatial-contract.md",
+      version: "1.0.0",
+      sha256:
+        "ae213150ca9f5dfbf5c77d3f05c70aa3aad2b3921987fc091ec1e88b92f78888",
+      freeze_commit: "383cc13a7e8e30db031f590a1c2d128a35a81b27",
+    },
+    contractReview: {
+      path: "docs/vision/reviews/s0-contract-review-2026-09-01.md",
+      sha256:
+        "19ac4f2d90185571aaed9d2643755ea294d7b1074b85104b66036b990edc915d",
+      disposition: "PASS",
+    },
+    implementation: {
+      report_path: "docs/vision/reports/s0-implementation-2026-09-01.md",
+      report_sha256:
+        "2b74233e61c55f0a955f18dfebdf43a2b673a2af99beb14dbcac38769ff5f634",
+      audit_path: "docs/vision/reviews/s0-implementation-audit-2026-09-01.md",
+      audit_sha256:
+        "d05901ea5c9c4f651ba53521202413694c875d11179edc8cebaf69d111c1e59e",
+      implementation_commit: "a7e4c142975304b45c87848c9dc07e991b5fd078",
+      terminal_ledger_commit: "6f04b23a35a3aad7929b93702aaa3d0c31545df8",
+    },
+  },
+];
+
+for (const specification of durableTerminalSpecifications) {
+  const item = byId.get(specification.id);
+  const path = `work item ${specification.id}`;
+  requireExactValue(item.priority, specification.priority, `${path}.priority`);
+  requireExactValue(
+    item.milestone,
+    specification.milestone,
+    `${path}.milestone`,
+  );
+  requireExactValue(item.status, "complete", `${path}.status`);
+  requireExactValue(
+    item.additive_phase_stage,
+    "completion",
+    `${path}.additive_phase_stage`,
+  );
+  requireExactOrderedValues(
+    item.dependencies,
+    specification.dependencies,
+    `${path}.dependencies`,
+  );
+  requireExactValue(
+    item.authorization_gate,
+    specification.authorizationGate,
+    `${path}.authorization_gate`,
+  );
+  requireExactValue(
+    item.convergence_gate,
+    specification.convergenceGate,
+    `${path}.convergence_gate`,
+  );
+
+  const authorizationGate = gateById.get(specification.authorizationGate);
+  requireExactValue(
+    authorizationGate.state,
+    "approved",
+    `gate ${specification.authorizationGate}.state`,
+  );
+  requireExactValue(
+    authorizationGate.authorized_through,
+    "completion",
+    `gate ${specification.authorizationGate}.authorized_through`,
+  );
+  requireExactValue(
+    gateById.get(specification.convergenceGate).state,
+    "closed",
+    `gate ${specification.convergenceGate}.state`,
+  );
+
+  const lineage = requireExactKeys(
+    item.durable_lineage,
+    [
+      "evidence_prefix",
+      "contract",
+      "contract_review",
+      "implementation",
+      "convergence",
+    ],
+    `${path}.durable_lineage`,
+  );
+  const evidencePrefix = requireExactKeys(
+    lineage.evidence_prefix,
+    ["count", "sha256"],
+    `${path}.durable_lineage.evidence_prefix`,
+  );
+  requireExactValue(
+    evidencePrefix.count,
+    specification.evidenceCount,
+    `${path}.durable_lineage.evidence_prefix.count`,
+  );
+  requireExactValue(
+    evidencePrefix.sha256,
+    specification.evidenceSha256,
+    `${path}.durable_lineage.evidence_prefix.sha256`,
+  );
+  if (item.evidence.length < specification.evidenceCount) {
+    fail(`${path}.evidence removed durable terminal evidence`);
+  }
+  const actualEvidenceSha256 = sha256Hex(
+    Buffer.from(
+      JSON.stringify(item.evidence.slice(0, specification.evidenceCount)),
+      "utf8",
+    ),
+  );
+  if (actualEvidenceSha256 !== specification.evidenceSha256) {
+    fail(`${path}.evidence changed durable terminal evidence`);
+  }
+
+  const contract = requireExactKeys(
+    lineage.contract,
+    ["path", "version", "sha256", "freeze_commit"],
+    `${path}.durable_lineage.contract`,
+  );
+  for (const [key, expected] of Object.entries(specification.contract)) {
+    requireExactValue(
+      contract[key],
+      expected,
+      `${path}.durable_lineage.contract.${key}`,
+    );
+  }
+  await requireRepositorySha256(
+    contract.path,
+    contract.sha256,
+    `${path}.durable_lineage.contract`,
+  );
+
+  const contractReview = requireExactKeys(
+    lineage.contract_review,
+    ["path", "sha256", "disposition"],
+    `${path}.durable_lineage.contract_review`,
+  );
+  for (const [key, expected] of Object.entries(specification.contractReview)) {
+    requireExactValue(
+      contractReview[key],
+      expected,
+      `${path}.durable_lineage.contract_review.${key}`,
+    );
+  }
+  await requireRepositorySha256(
+    contractReview.path,
+    contractReview.sha256,
+    `${path}.durable_lineage.contract_review`,
+  );
+
+  const implementationKeys = Object.keys(specification.implementation);
+  const implementation = requireExactKeys(
+    lineage.implementation,
+    implementationKeys,
+    `${path}.durable_lineage.implementation`,
+  );
+  for (const [key, expected] of Object.entries(specification.implementation)) {
+    requireExactValue(
+      implementation[key],
+      expected,
+      `${path}.durable_lineage.implementation.${key}`,
+    );
+  }
+  await requireRepositorySha256(
+    implementation.report_path,
+    implementation.report_sha256,
+    `${path}.durable_lineage.implementation.report`,
+  );
+  await requireRepositorySha256(
+    implementation.audit_path,
+    implementation.audit_sha256,
+    `${path}.durable_lineage.implementation.audit`,
+  );
+
+  const convergence = requireExactKeys(
+    lineage.convergence,
+    ["gate", "required_state"],
+    `${path}.durable_lineage.convergence`,
+  );
+  requireExactValue(
+    convergence.gate,
+    specification.convergenceGate,
+    `${path}.durable_lineage.convergence.gate`,
+  );
+  requireExactValue(
+    convergence.required_state,
+    "closed",
+    `${path}.durable_lineage.convergence.required_state`,
+  );
+}
+
 const o0 = byId.get("O0-ORCHESTRATION");
 if (o0) {
   if (completionMembership.get(o0.id) !== "additive_vision_phases") {
@@ -598,6 +905,311 @@ if (o0) {
   if (o0.convergence_gate !== "G-O0-CONVERGENCE") {
     fail("O0-ORCHESTRATION must use G-O0-CONVERGENCE for convergence");
   }
+  requireExactValue(
+    gateById.get("G-O0-SYNTHETIC").state,
+    "approved",
+    "gate G-O0-SYNTHETIC.state",
+  );
+  requireExactValue(
+    gateById.get("G-O0-CONVERGENCE").state,
+    "closed",
+    "gate G-O0-CONVERGENCE.state",
+  );
+
+  const lineage = requireExactKeys(
+    o0.durable_lineage,
+    [
+      "reviewed_predecessor",
+      "independent_review",
+      "repair_authorization",
+      "supersession",
+    ],
+    "O0-ORCHESTRATION.durable_lineage",
+  );
+  const predecessor = requireExactKeys(
+    lineage.reviewed_predecessor,
+    [
+      "path",
+      "proposed_version",
+      "contractCandidateId",
+      "byte_length",
+      "sha256",
+      "git_blob_id",
+      "freeze_commit",
+      "disposition",
+    ],
+    "O0-ORCHESTRATION.durable_lineage.reviewed_predecessor",
+  );
+  const expectedPredecessor = {
+    path: "docs/vision/o0-orchestration-contract.md",
+    proposed_version: "1.0.0",
+    contractCandidateId:
+      "o0-contract-candidate:1.0.0:sha256:9cfc4006432e9489a273f449fc02bbe383723c7924856ce4434b85047a46dbb6",
+    byte_length: 59366,
+    sha256: "3ea10d753571f08f3e97d5c729d289c3d71e374d5fd91e68bd64c5e3c949f5d6",
+    git_blob_id: "28f127fb62b112001fbb49a7a1e57f53fe9d0d2a",
+    freeze_commit: "789ece12eb51164abfd3e11b7093644143e3c702",
+    disposition: "rejected_material_findings",
+  };
+  for (const [key, expected] of Object.entries(expectedPredecessor)) {
+    requireExactValue(
+      predecessor[key],
+      expected,
+      `O0-ORCHESTRATION.durable_lineage.reviewed_predecessor.${key}`,
+    );
+  }
+
+  const independentReview = requireExactKeys(
+    lineage.independent_review,
+    [
+      "path",
+      "byte_length",
+      "sha256",
+      "git_blob_id",
+      "review_commit",
+      "disposition",
+    ],
+    "O0-ORCHESTRATION.durable_lineage.independent_review",
+  );
+  const expectedReview = {
+    path: "docs/vision/reviews/o0-contract-review-2026-09-01.md",
+    byte_length: 24228,
+    sha256: "d42f850c1193a05f4608660bee1247acffb7cb99e664375b5fdcb01c0995e375",
+    git_blob_id: "a6dbbc48dc89b48d0a384aae4792123a30243adc",
+    review_commit: "24633b993535f64e5b8da73265588753f5a95778",
+    disposition: "O0_CONTRACT_REVIEW_FINDINGS_REPAIR_AUTHORIZATION_REQUIRED",
+  };
+  for (const [key, expected] of Object.entries(expectedReview)) {
+    requireExactValue(
+      independentReview[key],
+      expected,
+      `O0-ORCHESTRATION.durable_lineage.independent_review.${key}`,
+    );
+  }
+  const reviewBytes = await repositoryBytes(
+    independentReview.path,
+    "O0 independent review",
+  );
+  requireExactValue(
+    reviewBytes.length,
+    independentReview.byte_length,
+    "O0 independent review byte_length",
+  );
+  requireExactValue(
+    sha256Hex(reviewBytes),
+    independentReview.sha256,
+    "O0 independent review sha256",
+  );
+
+  const repairAuthorization = requireExactKeys(
+    lineage.repair_authorization,
+    [
+      "accepted_disposition_only",
+      "authorized_findings",
+      "contract_accepted",
+      "implementation_authorized",
+      "convergence_authorized",
+    ],
+    "O0-ORCHESTRATION.durable_lineage.repair_authorization",
+  );
+  requireExactValue(
+    repairAuthorization.accepted_disposition_only,
+    "O0_CONTRACT_REVIEW_FINDINGS_REPAIR_AUTHORIZATION_REQUIRED",
+    "O0 repair authorization accepted_disposition_only",
+  );
+  requireExactValue(
+    repairAuthorization.authorized_findings,
+    "O0-R01..O0-R15,O0-G01..O0-G03",
+    "O0 repair authorization authorized_findings",
+  );
+  for (const key of [
+    "contract_accepted",
+    "implementation_authorized",
+    "convergence_authorized",
+  ]) {
+    requireExactValue(
+      repairAuthorization[key],
+      false,
+      `O0 repair authorization ${key}`,
+    );
+  }
+
+  const candidate = requireExactKeys(
+    o0.contract_candidate,
+    [
+      "path",
+      "proposed_version",
+      "contractCandidateId",
+      "byte_length",
+      "sha256",
+      "git_blob_id",
+      "id_derivation",
+      "predecessor_contractCandidateId",
+      "state",
+    ],
+    "O0-ORCHESTRATION.contract_candidate",
+  );
+  requireExactValue(
+    candidate.path,
+    "docs/vision/o0-orchestration-contract.md",
+    "O0-ORCHESTRATION.contract_candidate.path",
+  );
+  requireExactValue(
+    candidate.proposed_version,
+    "1.0.0",
+    "O0-ORCHESTRATION.contract_candidate.proposed_version",
+  );
+  requireExactValue(
+    candidate.predecessor_contractCandidateId,
+    predecessor.contractCandidateId,
+    "O0-ORCHESTRATION.contract_candidate.predecessor_contractCandidateId",
+  );
+  requireExactValue(
+    candidate.state,
+    "byte_sealed_independent_review_required",
+    "O0-ORCHESTRATION.contract_candidate.state",
+  );
+
+  const contractBytes = await repositoryBytes(
+    candidate.path,
+    "O0 active contract candidate",
+  );
+  const contractSha256 = sha256Hex(contractBytes);
+  const gitBlobId = createHash("sha1")
+    .update(Buffer.from(`blob ${contractBytes.length}\0`, "utf8"))
+    .update(contractBytes)
+    .digest("hex");
+  const candidatePreimage = Buffer.concat([
+    Buffer.from("policy-sentinel:o0-contract-candidate:v1\n", "utf8"),
+    Buffer.from("proposed-version:1.0.0\n", "utf8"),
+    Buffer.from(`byte-length:${contractBytes.length}\n`, "utf8"),
+    contractBytes,
+  ]);
+  const contractCandidateId =
+    "o0-contract-candidate:1.0.0:sha256:" + sha256Hex(candidatePreimage);
+  const expectedIdDerivation =
+    'SHA-256 of UTF8("policy-sentinel:o0-contract-candidate:v1\\n") + ' +
+    'UTF8("proposed-version:1.0.0\\n") + ' +
+    `UTF8("byte-length:${contractBytes.length}\\n") + the exact ` +
+    `${contractBytes.length} LF/no-BOM contract bytes.`;
+  requireExactValue(
+    candidate.byte_length,
+    contractBytes.length,
+    "O0-ORCHESTRATION.contract_candidate.byte_length",
+  );
+  requireExactValue(
+    candidate.sha256,
+    contractSha256,
+    "O0-ORCHESTRATION.contract_candidate.sha256",
+  );
+  requireExactValue(
+    candidate.git_blob_id,
+    gitBlobId,
+    "O0-ORCHESTRATION.contract_candidate.git_blob_id",
+  );
+  requireExactValue(
+    candidate.contractCandidateId,
+    contractCandidateId,
+    "O0-ORCHESTRATION.contract_candidate.contractCandidateId",
+  );
+  requireExactValue(
+    candidate.id_derivation,
+    expectedIdDerivation,
+    "O0-ORCHESTRATION.contract_candidate.id_derivation",
+  );
+  if (
+    candidate.contractCandidateId === predecessor.contractCandidateId ||
+    candidate.sha256 === predecessor.sha256 ||
+    candidate.git_blob_id === predecessor.git_blob_id
+  ) {
+    fail("O0 successor candidate must not reuse rejected candidate identity");
+  }
+
+  const supersession = requireExactKeys(
+    lineage.supersession,
+    [
+      "predecessor_contractCandidateId",
+      "successor_contractCandidateId",
+      "relationship",
+    ],
+    "O0-ORCHESTRATION.durable_lineage.supersession",
+  );
+  requireExactValue(
+    supersession.predecessor_contractCandidateId,
+    predecessor.contractCandidateId,
+    "O0 supersession predecessor",
+  );
+  requireExactValue(
+    supersession.successor_contractCandidateId,
+    candidate.contractCandidateId,
+    "O0 supersession successor",
+  );
+  requireExactValue(
+    supersession.relationship,
+    "supersedes_rejected_candidate_for_independent_review",
+    "O0 supersession relationship",
+  );
+
+  const contractReview = requireExactKeys(
+    o0.contract_review,
+    [
+      "state",
+      "reviewed_predecessor_candidate_id",
+      "predecessor_review_artifact",
+      "predecessor_review_artifact_sha256",
+      "predecessor_disposition",
+      "active_candidate_id",
+      "active_review_artifact",
+      "active_review_disposition",
+    ],
+    "O0-ORCHESTRATION.contract_review",
+  );
+  requireExactValue(
+    contractReview.state,
+    "awaiting_independent_review",
+    "O0-ORCHESTRATION.contract_review.state",
+  );
+  requireExactValue(
+    contractReview.reviewed_predecessor_candidate_id,
+    predecessor.contractCandidateId,
+    "O0 reviewed predecessor candidate",
+  );
+  requireExactValue(
+    contractReview.predecessor_review_artifact,
+    independentReview.path,
+    "O0 predecessor review artifact",
+  );
+  requireExactValue(
+    contractReview.predecessor_review_artifact_sha256,
+    independentReview.sha256,
+    "O0 predecessor review artifact SHA-256",
+  );
+  requireExactValue(
+    contractReview.predecessor_disposition,
+    independentReview.disposition,
+    "O0 predecessor review disposition",
+  );
+  requireExactValue(
+    contractReview.active_candidate_id,
+    candidate.contractCandidateId,
+    "O0 active candidate review binding",
+  );
+  requireExactValue(
+    contractReview.active_review_artifact,
+    null,
+    "O0 active review artifact",
+  );
+  requireExactValue(
+    contractReview.active_review_disposition,
+    null,
+    "O0 active review disposition",
+  );
+  requireExactValue(o0.accepted_contract, null, "O0 accepted_contract");
+  requireExactValue(
+    o0.implementation_authorization,
+    null,
+    "O0 implementation_authorization",
+  );
 }
 
 for (const item of workItems) {
@@ -605,17 +1217,23 @@ for (const item of workItems) {
     continue;
   }
 
-  const dependencyPathToClosedAdditive = (id, path = [item.id]) => {
+  const convergenceAuthorizingStates = new Set(["approved", "satisfied"]);
+  const dependencyPathToNonconvergedAdditive = (id, path = [item.id]) => {
     const dependency = byId.get(id);
     const nextPath = [...path, id];
     if (
       additiveVisionPhaseIds.has(id) &&
-      gateById.get(dependency.convergence_gate)?.state === "closed"
+      !convergenceAuthorizingStates.has(
+        gateById.get(dependency.convergence_gate)?.state,
+      )
     ) {
       return nextPath;
     }
     for (const nestedDependency of dependency.dependencies) {
-      const found = dependencyPathToClosedAdditive(nestedDependency, nextPath);
+      const found = dependencyPathToNonconvergedAdditive(
+        nestedDependency,
+        nextPath,
+      );
       if (found) {
         return found;
       }
@@ -624,12 +1242,12 @@ for (const item of workItems) {
   };
 
   for (const dependency of item.dependencies) {
-    const path = dependencyPathToClosedAdditive(dependency);
+    const path = dependencyPathToNonconvergedAdditive(dependency);
     if (path) {
       const relationship = path.length === 2 ? "direct" : "transitive";
       fail(
         `${item.id} has a ${relationship} dependency on additive work behind ` +
-          `a closed convergence gate: ${path.join(" -> ")}`,
+          `a non-authorizing convergence gate: ${path.join(" -> ")}`,
       );
     }
   }

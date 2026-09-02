@@ -2655,6 +2655,29 @@ work_items:
     authorization_gate: G-K0-LIFECYCLE
     additive_phase_stage: completion
     convergence_gate: G-K0-S0-CONVERGENCE
+    durable_lineage:
+      evidence_prefix:
+        count: 8
+        sha256: 967e759aa3616479a24b60694fe3c9d9996ab35dd8cad13c4becf692e23374ca
+      contract:
+        path: docs/vision/k0-lifecycle-contract.md
+        version: "1.0.0"
+        sha256: 30e98fc8093b00ebd31cbbd545ca671a54eec68e3f6bdae065a7d2173fb7797d
+        freeze_commit: 21bb68fbb9bbd45f470b84de02b037a624efadb4
+      contract_review:
+        path: docs/vision/reviews/k0-contract-review-2026-09-01.md
+        sha256: cd72507ad36e11ff2a665174307f8be246839ce9a62b6b8f75133677ed5d7d28
+        disposition: PASS
+      implementation:
+        report_path: docs/vision/reports/k0-implementation-2026-09-01.md
+        report_sha256: 4793c6ea7bf41f0207ad534140f275a4a8c1c33a45d693c147beb509891a6b98
+        audit_path: docs/vision/reviews/k0-implementation-audit-2026-09-01.md
+        audit_sha256: ceb7f5d4d1d53646f237caf5cef75a8d7eb508d24de9afbc02a8dcc897329cda
+        implementation_commit: ba6c4b6483f052dd372babb58a1280e6804e0617
+        validated_ledger_commit: e8e5ce3827fe7f2790bdabd74d85045229d69e84
+      convergence:
+        gate: G-K0-S0-CONVERGENCE
+        required_state: closed
     acceptance:
       - >-
         Versioned SourceFact, PolicyInstrument, InstrumentVersion,
@@ -2737,6 +2760,29 @@ work_items:
     authorization_gate: G-S0-SYNTHETIC
     additive_phase_stage: completion
     convergence_gate: G-K0-S0-CONVERGENCE
+    durable_lineage:
+      evidence_prefix:
+        count: 22
+        sha256: 997f3d6f1c781f06fb24d7b2ab812404a04771a5da0a19b75ea94017e3c119e1
+      contract:
+        path: docs/vision/s0-spatial-contract.md
+        version: "1.0.0"
+        sha256: ae213150ca9f5dfbf5c77d3f05c70aa3aad2b3921987fc091ec1e88b92f78888
+        freeze_commit: 383cc13a7e8e30db031f590a1c2d128a35a81b27
+      contract_review:
+        path: docs/vision/reviews/s0-contract-review-2026-09-01.md
+        sha256: 19ac4f2d90185571aaed9d2643755ea294d7b1074b85104b66036b990edc915d
+        disposition: PASS
+      implementation:
+        report_path: docs/vision/reports/s0-implementation-2026-09-01.md
+        report_sha256: 2b74233e61c55f0a955f18dfebdf43a2b673a2af99beb14dbcac38769ff5f634
+        audit_path: docs/vision/reviews/s0-implementation-audit-2026-09-01.md
+        audit_sha256: d05901ea5c9c4f651ba53521202413694c875d11179edc8cebaf69d111c1e59e
+        implementation_commit: a7e4c142975304b45c87848c9dc07e991b5fd078
+        terminal_ledger_commit: 6f04b23a35a3aad7929b93702aaa3d0c31545df8
+      convergence:
+        gate: G-K0-S0-CONVERGENCE
+        required_state: closed
     acceptance:
       - >-
         Versioned SpatialObservation, SpatialRelation, and separately evidenced
@@ -3065,6 +3111,33 @@ work_items:
     authorization_gate: G-O0-SYNTHETIC
     additive_phase_stage: contract_freeze
     convergence_gate: G-O0-CONVERGENCE
+    durable_lineage:
+      reviewed_predecessor:
+        path: docs/vision/o0-orchestration-contract.md
+        proposed_version: "1.0.0"
+        contractCandidateId: o0-contract-candidate:1.0.0:sha256:9cfc4006432e9489a273f449fc02bbe383723c7924856ce4434b85047a46dbb6
+        byte_length: 59366
+        sha256: 3ea10d753571f08f3e97d5c729d289c3d71e374d5fd91e68bd64c5e3c949f5d6
+        git_blob_id: 28f127fb62b112001fbb49a7a1e57f53fe9d0d2a
+        freeze_commit: 789ece12eb51164abfd3e11b7093644143e3c702
+        disposition: rejected_material_findings
+      independent_review:
+        path: docs/vision/reviews/o0-contract-review-2026-09-01.md
+        byte_length: 24228
+        sha256: d42f850c1193a05f4608660bee1247acffb7cb99e664375b5fdcb01c0995e375
+        git_blob_id: a6dbbc48dc89b48d0a384aae4792123a30243adc
+        review_commit: 24633b993535f64e5b8da73265588753f5a95778
+        disposition: O0_CONTRACT_REVIEW_FINDINGS_REPAIR_AUTHORIZATION_REQUIRED
+      repair_authorization:
+        accepted_disposition_only: O0_CONTRACT_REVIEW_FINDINGS_REPAIR_AUTHORIZATION_REQUIRED
+        authorized_findings: O0-R01..O0-R15,O0-G01..O0-G03
+        contract_accepted: false
+        implementation_authorized: false
+        convergence_authorized: false
+      supersession:
+        predecessor_contractCandidateId: o0-contract-candidate:1.0.0:sha256:9cfc4006432e9489a273f449fc02bbe383723c7924856ce4434b85047a46dbb6
+        successor_contractCandidateId: o0-contract-candidate:1.0.0:sha256:33e0f9f1433dc7aff5b1234a4397bdf2fef671a624b3cb3fc68783c4e7058843
+        relationship: supersedes_rejected_candidate_for_independent_review
     safe_fallback: >-
       Preserve the rejected candidate and independent review unchanged. If any
       material finding cannot be closed within the five-path repair boundary, do
@@ -3073,25 +3146,29 @@ work_items:
       All 18 authorized findings have objective closure evidence and the new
       candidate bytes and lineage are sealed without review or acceptance.
     contract_candidate:
+      path: docs/vision/o0-orchestration-contract.md
       proposed_version: "1.0.0"
-      contractCandidateId: o0-contract-candidate:1.0.0:sha256:9cfc4006432e9489a273f449fc02bbe383723c7924856ce4434b85047a46dbb6
-      byte_length: 59366
-      sha256: 3ea10d753571f08f3e97d5c729d289c3d71e374d5fd91e68bd64c5e3c949f5d6
-      git_blob_id: 28f127fb62b112001fbb49a7a1e57f53fe9d0d2a
+      contractCandidateId: o0-contract-candidate:1.0.0:sha256:33e0f9f1433dc7aff5b1234a4397bdf2fef671a624b3cb3fc68783c4e7058843
+      byte_length: 116551
+      sha256: f4f39c0b7ac2b5ce763d47785b82d0e162fc1217a41377490e8c926ed8cdd381
+      git_blob_id: 39a340d04f87017a7ebdb2ac3585682048e323ed
       id_derivation: >-
-        SHA-256 of the exact concatenation
-        UTF8("policy-sentinel:o0-contract-candidate:v1\n"),
-        UTF8("proposed-version:1.0.0\n"), UTF8("byte-length:59366\n"), and the
-        exact 59,366 frozen contract bytes; format the result as
-        o0-contract-candidate:1.0.0:sha256:<lowercase digest>.
-      state: byte_sealed_review_required
+        SHA-256 of UTF8("policy-sentinel:o0-contract-candidate:v1\n") +
+        UTF8("proposed-version:1.0.0\n") + UTF8("byte-length:116551\n") + the
+        exact 116551 LF/no-BOM contract bytes.
+      predecessor_contractCandidateId: o0-contract-candidate:1.0.0:sha256:9cfc4006432e9489a273f449fc02bbe383723c7924856ce4434b85047a46dbb6
+      state: byte_sealed_independent_review_required
     contract_review:
-      state: findings_accepted_repair_authorized
-      reviewed_candidate_id: o0-contract-candidate:1.0.0:sha256:9cfc4006432e9489a273f449fc02bbe383723c7924856ce4434b85047a46dbb6
-      review_artifact: docs/vision/reviews/o0-contract-review-2026-09-01.md
-      review_artifact_sha256: d42f850c1193a05f4608660bee1247acffb7cb99e664375b5fdcb01c0995e375
-      disposition: O0_CONTRACT_REVIEW_FINDINGS_REPAIR_AUTHORIZATION_REQUIRED
+      state: awaiting_independent_review
+      reviewed_predecessor_candidate_id: o0-contract-candidate:1.0.0:sha256:9cfc4006432e9489a273f449fc02bbe383723c7924856ce4434b85047a46dbb6
+      predecessor_review_artifact: docs/vision/reviews/o0-contract-review-2026-09-01.md
+      predecessor_review_artifact_sha256: d42f850c1193a05f4608660bee1247acffb7cb99e664375b5fdcb01c0995e375
+      predecessor_disposition: O0_CONTRACT_REVIEW_FINDINGS_REPAIR_AUTHORIZATION_REQUIRED
+      active_candidate_id: o0-contract-candidate:1.0.0:sha256:33e0f9f1433dc7aff5b1234a4397bdf2fef671a624b3cb3fc68783c4e7058843
+      active_review_artifact: null
+      active_review_disposition: null
     accepted_contract: null
+    implementation_authorization: null
     acceptance:
       - >-
         A normative, exact, independently reviewable 1.0.0 contract freezes an
