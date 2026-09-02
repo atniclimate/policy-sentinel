@@ -1,10 +1,9 @@
 # Policy Sentinel long-running Codex continuation prompt
 
-Status: current after the 2026-09-02 PNW product-space rebase and repository
-backbone alignment. This is the general recovery prompt; the separately
-owner-gated PNW-01 implementation run uses the exact launch handoff named
-below. Git and the validated `ROADMAP.yaml` remain authoritative over this
-prose and over chat memory.
+Status: current after the 2026-09-02 PNW product-space rebase, repository
+backbone alignment, and completed local PNW-01 plus PNW-03 synthetic
+checkpoints. No successor tranche is active. Git and the validated
+`ROADMAP.yaml` remain authoritative over this prose and over chat memory.
 
 ## Start and recover
 
@@ -14,9 +13,9 @@ Open Codex in `I:\policy-sentinel` with `gpt-5.6-sol` at Ultra effort, then:
 2. Read `ROADMAP.yaml` completely before selecting work.
 3. Read `docs/PROJECT-BACKBONE.md`, `docs/pnw-scope-and-acceptance.md`, and
    `docs/development/AGENT-AND-TOOL-OPERATING-MODEL.md` completely.
-4. Read `docs/handoffs/pnw-product-space-rebase-2026-09-02.md` and the current
-   `docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md`. The
-   latter is executable only after exact owner authorization of PNW-01.
+4. Read `docs/handoffs/pnw-product-space-rebase-2026-09-02.md`, the historical
+   `docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md`, and the
+   current implementation/evidence handoff named by `ROADMAP.yaml`.
 5. Read the binding contract, architecture, governance, decision, source,
    review, validation, test, and handoff files relevant to the selected item.
 6. Reconcile branch, exact HEAD and parent, worktrees, status, remotes, changed
@@ -53,18 +52,13 @@ geography, proximity, sponsors, model output, or owner-direction counts.
 ## Authority boundary
 
 The 2026-07-30 Gate A authorizes only the retained B1-B10 implementation stream
-under `docs/mvp-plan.md`. It does not authorize PNW-01 or another successor
-contract. `G-PNW-IMPLEMENTATION` remains closed until the owner explicitly
-authorizes the exact first tranche in the current launch handoff.
-
-Until that exact authorization exists:
-
-- do not implement PNW-01;
-- do not treat planning text as source, schema, product, or acceptance evidence;
-- do not access sources merely to fill a gap;
-- do not review or implement O0, import K0/S0/O0, or change convergence; and
-- stop at the recorded implementation/evidence boundary while preserving
-  independent authorized work.
+under `docs/mvp-plan.md`. Later owner directives separately authorized the exact
+local synthetic PNW-01 and PNW-03 tranches; those bounded decisions authorize no
+other PNW item or operation. Do not treat their schemas, fixtures, or passing
+tests as source, roster, real-geography, production-profile, legal, integration,
+or release evidence. Do not access sources merely to fill a gap, review or
+implement O0, import K0/S0/O0, change convergence, or proceed beyond the exact
+current roadmap boundary.
 
 Remote operations, push, Pages, publication, provider-term acceptance,
 credentials, paid calls, third-party contact, private or land data, optional AI

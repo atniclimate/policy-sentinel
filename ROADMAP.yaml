@@ -3,7 +3,7 @@ roadmap_id: policy-sentinel-through-finish
 project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
-  phase: "PNW-01 engine seams complete; next authorization required"
+  phase: "PNW-03 geography and rights complete; next authorization required"
   updated_on: "2026-09-02"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -677,19 +677,19 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Preserve the validated synthetic PNW-01 engine-seam checkpoint and the exact
-    closed boundaries while awaiting separate authorization for any successor
-    work.
+    Preserve the validated synthetic PNW-03 geography-and-rights checkpoint and
+    every exact closed boundary while awaiting separate authorization for any
+    successor work.
   terminal_reason: >-
-    PNW-01-ENGINE-SEAMS completed with objective validation and independent
-    approval; every successor tranche requires separate exact owner
+    PNW-03-GEOGRAPHY-RIGHTS completed with objective validation and exact
+    APPROVE_PNW_03; every successor tranche requires separate exact owner
     authorization and none is active.
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 2ca77547675c3f757fb951bbbe800acba964ddc8
+  last_durable_checkpoint: 712bb5fe8d56fdd49a0d139e0455c5f30e3bdc1a
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -3754,7 +3754,7 @@ work_items:
     priority: 133
     milestone: PNW authority model
     title: Governed PNW geographic relations and community rights frames
-    status: ready
+    status: complete
     dependencies:
       - PNW-01-ENGINE-SEAMS
     acceptance:
@@ -3771,7 +3771,150 @@ work_items:
       - >-
         S0 remains an isolated synthetic compatibility candidate unless its
         exact convergence gate is separately authorized.
-    evidence: []
+    evidence:
+      - >-
+        The owner's untracked directive
+        docs/12-CODEX-PNW-03-GEOGRAPHY-RIGHTS-IMPLEMENTATION-LONG-RUN.md (37,295
+        bytes; SHA-256
+        84fcb0bf60021c75c7e87b2b61d1e8b066b3c9b63a7ecf4a7dfd1e49315d9959)
+        exactly authorizes the local synthetic PNW-03 tranche and keeps source,
+        real geography, private data, K0/S0/O0 convergence, remotes,
+        publication, and every successor tranche closed.
+      - >-
+        The pre-edit reconciliation at e1285c7 verified PNW-01 complete, this
+        item's sole dependency satisfied, tracked and staged state clean, no
+        remote, protected K0/S0/O0 identities intact, and an additive separate
+        GeographyRightsBundle 1.0.0 path that leaves PolicyRecord and the closed
+        PNW-01 profile 1.0.0 contract unchanged.
+      - >-
+        The schema/runtime checkpoint added the closed GeographyRightsBundle
+        1.0.0 and PNW-owned readonly parser/projection seam without changing the
+        PNW-01 schema, contracts, projection implementation, or PolicyRecord.
+        Strict Ajv compilation, TypeScript, lint, formatting, and backbone graph
+        validation passed at 11 schema resources, 11 IDs, and 714 references;
+        synthetic fixtures, adversarial tests, full integration, and independent
+        approval remain outstanding and this item is not complete.
+      - >-
+        The synthetic fixture/test checkpoint covers two materially different
+        impossible deployments, multiple relation kinds, optional frames and
+        geometry, explicit temporal states and supersession, exact grants,
+        visibility non-disclosure, atomicity, immutability, deterministic
+        replay, and 46 malformed cases. The three focused suites passed 64 of 64
+        tests, and foundation validation passed with 10 compiled schemas and 17
+        schema-invalid plus 29 runtime-boundary PNW-03 cases; PNW-01 regression,
+        full validation, protected-state review, and final audit remain owed.
+      - >-
+        Independent post-implementation spatial and sovereignty reviews rejected
+        the first candidate pending finite repair: bundle-level optionality and
+        open/unknown supersession were repaired; authority identity/class
+        laundering, cross-region authority scope, candidate-deployment upgrade,
+        forked/unlinked version lineage, and unenforced approved-use context are
+        under the same frozen schema/runtime and fixture/test leases. No finding
+        was waived and final audit has not begun.
+      - >-
+        The repaired candidate now passes 78 of 78 focused PNW-03 tests, 45 of
+        45 PNW-01 regression tests, and foundation validation with 10 compiled
+        schemas plus 17 schema-invalid and 38 runtime-boundary PNW-03 cases.
+        Repairs cover rights-frame-only operation, exact supersession bounds,
+        authority identity/class and region scope, candidate-deployment refusal,
+        linear lineages, and approved-use enforcement. Independent closure
+        rereviews and the final Agent 6 audit remain outstanding.
+      - >-
+        Final independent closure rereviews passed: the spatial reviewer closed
+        rights-frame-only optionality, known-bound supersession, GIS/S0
+        isolation, payload non-disclosure, and non-universal geography; the
+        sovereignty reviewer closed authority identity/class, region scope,
+        candidate-deployment refusal, linear lineage, and approved-use findings
+        and found no new material defect in its bounded A01-A24 rescan. Agent 6
+        final audit, full serialized validation, and commits remain owed.
+      - >-
+        Agent 6 independently rejected that candidate on three unwaived
+        integrity gaps: PNW-03 did not require the exact selected PNW-01
+        jurisdiction reference to be synthetic-demo authority; authority
+        identity invariants could be bypassed by reusing an identity ID at a
+        different version; and frame-source plus review attestations were not
+        mechanically bound to the governed object's exact evidence identities.
+        The same frozen schema/runtime and fixture/test leases are active for
+        only those finite repairs and counterexamples. PNW-03 remains in
+        progress; full validation, re-audit, and commits remain owed.
+      - >-
+        The finite Agent 6 repair now requires synthetic-demo authority on the
+        exact selected jurisdiction reference, permits only one version and
+        immutable class/scope/deployment binding per authority identity ID,
+        binds each frame source to its evidence source identity, and requires
+        relation, frame, and geometry reviews to cover the governed object's
+        exact evidence set. Seven new runtime counterexamples plus the
+        candidate-jurisdiction case raise the focused result to 86 of 86; PNW-01
+        remains 45 of 45, and foundation validation passes with 17
+        schema-invalid plus 45 runtime-boundary PNW-03 cases. The same Agent 6
+        must re-audit these final candidate bytes before full validation.
+      - >-
+        Agent 6's fresh audit confirmed every prior exploit closed but rejected
+        two adjacent ambiguity defects: multiple distinct PNW-01 jurisdiction
+        assertions may share one asserting authority, so a first-match lookup
+        made authorization depend on sorted jurisdiction ID; and the PNW-03
+        bundle identity was omitted from cross-kind member identity collision
+        checks. Both findings remain unwaived under the same frozen
+        schema/runtime and fixture/test leases. PNW-03 remains in progress;
+        focused repair validation, another same-agent audit, full validation,
+        and commits remain owed.
+      - >-
+        The second finite repair now rejects zero, multiple, and candidate-only
+        jurisdiction matches with distinct stable outcomes, independent of
+        assertion IDs or ordering, and registers the bundle identity in the same
+        cross-kind uniqueness domain as every governed member. Expanded tests
+        cover candidate-before, candidate-after, duplicate-demo, and projected
+        relation/frame collisions: PNW-03 passes 90 of 90, PNW-01 passes 45 of
+        45, and foundation validation passes 17 schema-invalid plus 47
+        runtime-boundary PNW-03 cases. The same Agent 6 must inspect the
+        repaired final candidate before full validation or commits.
+      - >-
+        Agent 6 returned exact APPROVE_PNW_03 on the repaired final candidate
+        with no material defect register. The auditor independently replayed
+        exact-one, zero, candidate, duplicate-demo, candidate-before/after, and
+        permutation jurisdiction cases; bundle collisions against every catalog
+        kind, deployment binding, and nested persona grant; and every earlier
+        authority, source/evidence, and review exploit. All required outcomes,
+        the 19-path manifest, 13 preserved owner files, protected boundaries,
+        roadmap/backbone/source scans, and focused 90-test plus PNW-01 45-test
+        suites passed. Full validation and both local commits remain owed, so
+        this item remains in progress.
+      - >-
+        Implementation commit 712bb5fe8d56fdd49a0d139e0455c5f30e3bdc1a contains
+        exactly the 14 schema, runtime, synthetic fixture, focused test,
+        validator, and contract-documentation paths. It adds the closed
+        GeographyRightsBundle 1.0.0 without changing PNW-01 profile schema,
+        runtime, contracts, fixtures, PolicyRecord 1.4, dependency files,
+        browser code, source adapters, or K0/S0/O0.
+      - >-
+        Terminal checks passed: hooks 9 of 9; PNW-03 90 of 90; PNW-01 45 of 45;
+        foundation with 10 schemas, 17 schema-invalid and 47 runtime-boundary
+        PNW-03 cases; backbone with 11 schema IDs and 715 references;
+        formatting, lint, typecheck, source-boundary, and diff checks; and the
+        accepted serialized npm run check with 77 files and 1,134 tests in
+        120.96 seconds. The final check also built and validated 3 records,
+        exactly 575 synthetic Nations, and 8 assets at build ID
+        synthetic-dc95034d5da20cf35284.
+      - >-
+        The ordinary parallel npm test reproduced only the documented pipeline
+        wrapper's unchanged 20-second contention boundary at 76 of 77 files and
+        1,133 of 1,134 tests. A serialized npm test passed all 77 files and
+        1,134 tests in 109.56 seconds; the isolated wrapper passed in 11.10
+        seconds. One earlier serialized check also encountered a transient
+        protected S0 accessibility timeout; its unchanged isolated file passed 4
+        of 4 before the clean terminal serialized check. No timeout or test
+        configuration changed.
+      - >-
+        Two fixed-input complete static builds at generatedAt
+        2026-09-02T17:00:00.000Z matched all 12 path/size/SHA-256 entries and
+        build ID synthetic-6be99d5d673a93404590. The terminal dist has 12 files,
+        no source maps or PNW-03 markers, and no authored geometry payload. The
+        exact 19-path run manifest, 13 untracked owner files, no-remote state,
+        unchanged canonical K0/S0/O0 hashes and Git blobs, no dependency change,
+        and absence of source, network, publication, credential, private-data,
+        AI, notification, UI, adapter, or convergence work were reverified.
+        Browser testing was inapplicable because no application, route, public
+        artifact contract, or browser path changed.
 
   - id: PNW-04-TAXONOMY
     priority: 134
@@ -4333,24 +4476,17 @@ next_actions:
       infer membership, or treat the federal-recognition collection as the
       regional registry.
   - order: 6
-    work_item: PNW-03-GEOGRAPHY-RIGHTS
-    action: >-
-      Begin only under separate exact owner authorization. Keep geography,
-      source scope, jurisdiction evidence, community relevance, configured
-      rights frames, and legal applicability distinct; do not converge S0 or
-      introduce real or sensitive geometry in this completed run.
-  - order: 7
     work_item: PNW-04-TAXONOMY
     action: >-
       Begin only under separate exact owner authorization. Preserve Nation,
       ATNI, NCAI, originating-source, and general taxonomy authorities as
       separate versioned evidence-bearing mappings without inferring positions.
-  - order: 8
+  - order: 7
     work_item: PNW-05-SOURCE-PACK
     action: >-
       Begin only under separate exact owner authorization and source-specific
-      review. Do not access, activate, or publish a source from PNW-01's
-      synthetic projection seam or treat configured identifiers as coverage.
+      review. Do not access, activate, or publish a source from the synthetic
+      projection seams or treat configured identifiers as coverage.
 finish_states:
   repository_backbone:
     current_state: complete

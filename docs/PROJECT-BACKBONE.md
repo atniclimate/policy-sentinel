@@ -47,7 +47,7 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | Status, dependency graph, evidence, blockers, current focus, finish states | [`ROADMAP.yaml`](../ROADMAP.yaml) | Machine-readable ledger; prose cannot override binding contracts |
 | Final decisions, assumptions, open facts, source and owner gates | [`decision-register.md`](decision-register.md) | Historical decisions retain their recorded scope |
 | Current bytes and future engine architecture | [`architecture.md`](architecture.md) | Separates implemented local substrate from target seams |
-| Schema catalog, logical contracts, field meanings, compatibility, migration | [`data-contract.md`](data-contract.md) | Proposed successors have no schema ID or runtime until implemented |
+| Schema catalog, logical contracts, field meanings, compatibility, migration | [`data-contract.md`](data-contract.md) | Unimplemented successors have no schema ID or runtime authority |
 | Provenance, epistemic states, association, privacy, public/private and exclusion rules | [`data-governance.md`](data-governance.md) | Originating evidence controls source facts and relationships |
 | Declared source/geography coverage semantics | [`source-coverage.md`](source-coverage.md) | Research or a disabled adapter is not production coverage |
 | Dated source evidence and source-review index | [`source-feasibility.md`](source-feasibility.md) | Its historical priority order is not the execution queue |
@@ -55,7 +55,9 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | Retained B1-B10 milestone and source acceptance contract | [`mvp-plan.md`](mvp-plan.md) | Gate A does not authorize PNW successor work |
 | Work-class staffing, tools, leases, validation, and stop rules | [`AGENT-AND-TOOL-OPERATING-MODEL.md`](development/AGENT-AND-TOOL-OPERATING-MODEL.md) | Run templates do not broaden authority |
 | Recovery after a fresh session or compaction | [`continuation-prompt.md`](continuation-prompt.md) | Always reconcile against live Git and roadmap |
-| Exact gated next implementation run | [`pnw-engine-seams-implementation-launch-2026-09-02.md`](handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md) | Executable only after exact owner authorization |
+| Historical exact PNW-01 implementation run | [`pnw-engine-seams-implementation-launch-2026-09-02.md`](handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md) | Its authorization and completion evidence do not authorize a successor |
+| Current PNW-03 implementation coordination | [`PNW-03-GEOGRAPHY-RIGHTS-COORDINATION-2026-09-02.md`](development/PNW-03-GEOGRAPHY-RIGHTS-COORDINATION-2026-09-02.md) | Records this local run; cannot authorize sources, real data, convergence, publication, or a successor |
+| PNW-03 implementation and terminal evidence | [`pnw-geography-rights-implementation-2026-09-02.md`](handoffs/pnw-geography-rights-implementation-2026-09-02.md) | Complete local synthetic checkpoint; does not authorize real data, convergence, publication, or a successor |
 | K0/S0/O0 custody and D0 historical status | [`vision/README.md`](vision/README.md) | Protected bytes and convergence gates remain controlling |
 
 The completed product-space mapping and lossless B-to-PNW crosswalk remain in
@@ -83,7 +85,8 @@ transition.
 | S0 | implemented and complete as removable impossible-fixture spatial work | no real geography, land data, map, or product convergence |
 | O0 | repaired byte-sealed candidate awaiting independent review | no accepted contract, implementation, or convergence |
 | D0 | historical proposal only | no roadmap item, schema, fixture, or implementation |
-| Region/deployment/persona projection seam | proposed as `PNW-01` and owner-gated at this checkpoint; after an authorized run, use PNW-01 status plus validated `src/engine`/schema bytes | no implementation exists at this checkpoint; planning alone never changes maturity |
+| Region/deployment/persona projection seam | PNW-01 implemented and validated as a closed synthetic `1.0.0` profile/runtime seam | no production profile, source coverage, analyzed corpus, output adapter, or publication |
+| Governed geography and configured rights seam | PNW-03 implemented as a separate synthetic `1.0.0` catalog with typed temporal relations, source-bound frames, exact grants, and reference-only projection | no real geography or rights evidence, GIS computation, legal determination, public integration, or S0 convergence |
 | ATNI regional registry | intended and evidence-gated | owner direction and 575 recognition evidence do not supply membership |
 | Canonical analyzed corpus and common document/web/app/structured adapters | accepted target architecture | current artifact, dossier, CSV, and app are precursors only |
 
@@ -119,9 +122,11 @@ telemetry, browser-side AI, or outbound notifications.
 | --- | --- |
 | Retained B1-B10 | Local implementation history preserved; local finish is blocked on the four exact roots in ROADMAP |
 | PNW-00 | Planning/governance rebase complete |
-| PNW-01 | Blocked solely on closed `G-PNW-IMPLEMENTATION`; exact next product tranche |
-| PNW-02 | Independently blocked on `G-PNW-ATNI-59-ROSTER` and depends on PNW-01 |
-| PNW-03 through PNW-10 | Not started behind their recorded dependencies/gates |
+| PNW-01 | Complete as a bounded synthetic engine-seam tranche |
+| PNW-02 | Independently blocked on `G-PNW-ATNI-59-ROSTER`; PNW-01 dependency complete |
+| PNW-03 | Owner-authorized local synthetic geography/rights tranche; consult live roadmap for active or terminal evidence |
+| PNW-04 and PNW-05 | Dependency-ready but separately owner-gated; no authorization implied by PNW-03 |
+| PNW-06 through PNW-10 | Not started behind their recorded dependencies |
 | Publication | Closed; both local product finish scopes and exact owner operations are prerequisites |
 
 The repository-backbone alignment has its own `H-REPOSITORY-BACKBONE` scope so
@@ -142,7 +147,7 @@ governance item is active or complete.
   `.codex/agents/`, and `.agents/skills/`.
 - `dist/` is generated and ignored by `npm run build`. `.cache/` is ignored
   staging. Never hand-edit or commit either.
-- The owner direction packet `docs/00-*` through `docs/11-*` is preserved
+- The owner direction packet `docs/00-*` through `docs/12-*` is preserved
   untracked input, not canonical repository implementation.
 
 ## Recovery and exact next action
@@ -155,7 +160,8 @@ npm run validate:roadmap
 npm run validate:backbone
 ```
 
-The exact next product action is not yet authorized. If the owner explicitly
-authorizes `PNW-01-ENGINE-SEAMS` with the paths and stop conditions in the
-current launch handoff, use that handoff in a fresh `gpt-5.6-sol` Ultra session.
-Otherwise preserve the seam as proposed and leave its gate closed.
+The only current owner-authorized product mutation is the exact local synthetic
+`PNW-03-GEOGRAPHY-RIGHTS` tranche recorded in `ROADMAP.yaml` and its coordination
+ledger. When that item reaches a validated terminal checkpoint, stop. Do not
+begin PNW-02, PNW-04, PNW-05, a source, real geography, S0 convergence, remote,
+publication, or deployment operation without separate exact owner authority.
