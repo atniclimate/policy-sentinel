@@ -680,7 +680,7 @@ current_focus:
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: ee499673854605ca3c58800dfbee828ff82d9df0
+  last_durable_checkpoint: 8fadd1cdd2c866e639109e93c75f6d6096035d2f
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -3953,6 +3953,10 @@ work_items:
         63 work items, 41 gates, 14 sources, 23 binding paths, 9 schemas, 9
         unique IDs, 578 resolved references, 58 canonical Markdown files, and
         238 local links.
+      - >-
+        Commit 8fadd1cdd2c866e639109e93c75f6d6096035d2f records the
+        independently reviewed repository-backbone content as
+        "docs: align repository backbone for PNW long run".
 
   - id: RELEASE-LICENSE
     priority: 200
