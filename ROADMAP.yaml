@@ -689,7 +689,7 @@ current_focus:
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: d9463ad9dfa3adf8a9fd58e8fc15946c1062db8d
+  last_durable_checkpoint: 2ca77547675c3f757fb951bbbe800acba964ddc8
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -3706,6 +3706,11 @@ work_items:
         unchanged; no remote, network/source access, real profile, dependency,
         app/artifact/pipeline integration, concrete output adapter, publication,
         or successor implementation occurred.
+      - >-
+        Local implementation commit 2ca77547675c3f757fb951bbbe800acba964ddc8
+        contains exactly the twelve authorized PNW-01 paths and the validated
+        terminal ledger transition; preserved owner packet files were neither
+        staged nor committed.
 
   - id: PNW-02-REGIONAL-REGISTRY
     priority: 132
