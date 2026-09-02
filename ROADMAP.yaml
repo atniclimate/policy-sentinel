@@ -564,8 +564,8 @@ baseline:
 current_focus:
   work_item: H-HOOKS
   objective: >-
-    Preserve the committed and validated repository-scoped Codex lifecycle
-    hooks while the newly supplied owner-direction packet receives its required
+    Preserve the committed and validated repository-scoped Codex lifecycle hooks
+    while the newly supplied owner-direction packet receives its required
     read-only authority review and authorized repository disposition. Do not
     absorb, overwrite, or silently discard the packet merely to manufacture a
     clean hook checkpoint.
@@ -725,9 +725,9 @@ work_items:
       - >-
         Commit c9f1b23 adds the five repository-scoped hook registrations, one
         dependency-free local dispatcher, focused contract tests, Windows and
-        repository-root command handling, and README/AGENTS command guidance.
-        It reads no transcript, makes no network call or notification, performs
-        no automatic write or commit, and leaves every external and convergence
+        repository-root command handling, and README/AGENTS command guidance. It
+        reads no transcript, makes no network call or notification, performs no
+        automatic write or commit, and leaves every external and convergence
         gate closed.
       - >-
         npm run hooks:test passed 9 focused tests on 2026-09-02. Exact
@@ -736,8 +736,8 @@ work_items:
         use, requested one Stop continuation for H-HOOKS, and honored
         stop_hook_active without recursion.
       - >-
-        The final serialized npm run check retry passed on 2026-09-02: 71
-        Vitest files and 999 tests plus formatting, lint, type checking,
+        The final serialized npm run check retry passed on 2026-09-02: 71 Vitest
+        files and 999 tests plus formatting, lint, type checking,
         roadmap/foundation validation, source-boundary scanning, a
         synthetic-only production build, and artifact validation at 3 records,
         exactly 575 Nations, and 8 assets; build ID
