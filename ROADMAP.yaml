@@ -562,21 +562,17 @@ baseline:
         configured.
 
 current_focus:
-  work_item: null
+  work_item: H-HOOKS
   objective: >-
-    Preserve the repaired proposed O0 1.0.0 candidate as immutable local
-    evidence awaiting a separately authorized independent review; do not accept,
-    implement, integrate, or converge it.
-  terminal_reason: >-
-    The bounded O0 contract-and-governance repair is sealed with all 18 findings
-    closed by lead-authored evidence. O0 remains blocked at contract_review
-    because no independent review of the successor is authorized or recorded.
+    Implement and locally validate repository-scoped Codex lifecycle hooks for
+    session recovery, pre-compaction ledger consistency, changed-file
+    validation, one-shot stop recovery, and closed-gate tool protection without
+    network access, telemetry, transcript logging, external notification, or
+    automatic commits.
+  terminal_reason: null
   resumable_roots:
-    - B2-REVIEW
-    - B4-FR-UX
-    - B5-WA-LWS-ADAPTER
-    - B5-WA-RULES
-  last_durable_checkpoint: 7c13f60
+    - H-HOOKS
+  last_durable_checkpoint: 0c902b7
   resume_command: npm run check
 
 completion_scope:
@@ -593,6 +589,7 @@ completion_scope:
     required_outcomes:
       - A-FOUNDATION
       - H-HANDOFF
+      - H-HOOKS
       - B1-APP
       - B2-PARSER
       - B2-PREGATE-HARDENING
@@ -682,6 +679,49 @@ work_items:
       - "Final cooperative and adversarial reviews reported handoff-ready with
         no blockers on 2026-07-30."
       - "Commit e2f08c9: docs: add durable Sol Ultra execution handoff"
+
+  - id: H-HOOKS
+    priority: 3
+    milestone: Durable workflow
+    title: Repository-scoped Codex lifecycle guardrails
+    status: in_progress
+    dependencies:
+      - H-HANDOFF
+    acceptance:
+      - >-
+        Session startup, resume, and post-compaction recovery inject a concise
+        validated roadmap and Git handoff without reading or retaining the chat
+        transcript.
+      - >-
+        Pre-compaction and one-shot stop hooks detect invalid ledger state,
+        unintended dirty handoffs, and unfinished work without editing the
+        roadmap, committing, advancing work, or looping indefinitely.
+      - >-
+        One changed-file dispatcher runs only proportional local checks for
+        roadmap, governance-document, schema, configuration, and fixture edits;
+        it never launches the full suite after every patch.
+      - >-
+        Pre-tool-use policy denies objectively closed remote, publication,
+        credential, secret, canary, destructive-history, and frozen-contract
+        mutations while retaining read-only local and approved-source work.
+      - >-
+        Hook configuration, Windows execution, JSON event/output contracts,
+        failure behavior, path handling, and false-positive boundaries have
+        deterministic tests and are documented in the README.
+      - >-
+        Full repository validation passes, the worktree is clean at the
+        checkpoint, no remote is configured, and all existing product, source,
+        additive-convergence, publication, privacy, and notification gates stay
+        unchanged.
+    evidence:
+      - >-
+        Owner request on 2026-09-01 explicitly authorizes implementation of the
+        three recommended repository-scoped hooks plus Stop and PreToolUse.
+      - >-
+        Clean baseline at 0c902b7 passed serialized npm run check on 2026-09-01:
+        formatting, lint, type checking, roadmap/foundation validation,
+        source-boundary scanning, 71 files and 999 tests, synthetic build, and
+        artifact validation at 3 records, exactly 575 Nations, and 8 assets.
 
   - id: B1-APP
     priority: 10
@@ -3556,27 +3596,33 @@ risks:
 
 next_actions:
   - order: 1
+    work_item: H-HOOKS
+    action: >-
+      Complete and validate the five owner-authorized repository-scoped Codex
+      lifecycle hooks, then return the ledger to its prior four evidence-blocked
+      release roots without changing any external or convergence gate.
+  - order: 2
     work_item: B2-REVIEW
     action: >-
       Resume the Nation identity chain only when authoritative row-level
       evidence reconciles the 2026 notice's stated 575 count with its 577
       displayed paragraphs and supports the required stable IDs, names, aliases,
       and state crosswalk. Do not infer the reconciliation.
-  - order: 2
+  - order: 3
     work_item: B4-FR-UX
     action: >-
       Re-run the required built-app desktop/mobile interaction, accessibility,
       keyboard, dossier, CSV, Unclassified, and same-origin network smoke only
       when the in-app Browser backend becomes available. Do not substitute the
       unrelated Chrome control surface without owner authorization.
-  - order: 3
+  - order: 4
     work_item: B5-WA-LWS-ADAPTER
     action: >-
       Resume the LWS adapter only when G-WA-LWS-DISCOVERY is satisfied by an
       approved population-enumeration and whole-refresh reconciliation contract.
       Do not retry the rejected fixed-year scenario, infer enumeration from
       known bills, or replace the null adapter before that gate is satisfied.
-  - order: 4
+  - order: 5
     work_item: B5-WA-RULES
     action: >-
       Reopen the State Register only when bounded source evidence supplies exact
@@ -3586,12 +3632,7 @@ next_actions:
 
 finish_states:
   local_release_candidate:
-    current_state: blocked
-    blocked_by:
-      - B2-REVIEW
-      - B4-FR-UX
-      - B5-WA-LWS-ADAPTER
-      - B5-WA-RULES
+    current_state: in_progress
     satisfied_when:
       - All locally executable required work items through B10-RC are complete.
       - Every unavailable source is blocked with evidence and a truthful
