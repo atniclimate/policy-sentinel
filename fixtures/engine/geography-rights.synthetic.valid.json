@@ -1,0 +1,1583 @@
+{
+  "$schema": "https://policy-sentinel.invalid/schemas/geography-rights.schema.v1.json",
+  "schemaVersion": "1.0.0",
+  "id": "synthetic-impossible-geography-rights",
+  "version": "1.0.0",
+  "synthetic": true,
+  "profileBundleRef": {
+    "id": "synthetic-impossible-community-profiles",
+    "version": "1.0.0"
+  },
+  "authorityBindings": [
+    {
+      "id": "synthetic-cloud-harbor-relation-authority-binding",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-cloud-harbor-community-authority-identity",
+        "version": "1.0.0"
+      },
+      "profileAuthorityScopeRef": {
+        "id": "synthetic-cloud-harbor-authority",
+        "version": "1.0.0"
+      },
+      "role": "relation_asserting",
+      "authorityClass": "synthetic_community"
+    },
+    {
+      "id": "synthetic-cloud-harbor-frame-source-binding",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-cloud-harbor-source-authority-identity",
+        "version": "1.0.0"
+      },
+      "profileAuthorityScopeRef": {
+        "id": "synthetic-cloud-harbor-authority",
+        "version": "1.0.0"
+      },
+      "role": "frame_source",
+      "authorityClass": "synthetic_source"
+    },
+    {
+      "id": "synthetic-cloud-harbor-frame-configuration-binding",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-cloud-harbor-community-authority-identity",
+        "version": "1.0.0"
+      },
+      "profileAuthorityScopeRef": {
+        "id": "synthetic-cloud-harbor-authority",
+        "version": "1.0.0"
+      },
+      "role": "frame_configuration",
+      "authorityClass": "synthetic_community"
+    },
+    {
+      "id": "synthetic-cloud-harbor-evidence-source-binding",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-cloud-harbor-source-authority-identity",
+        "version": "1.0.0"
+      },
+      "profileAuthorityScopeRef": {
+        "id": "synthetic-cloud-harbor-authority",
+        "version": "1.0.0"
+      },
+      "role": "evidence_source",
+      "authorityClass": "synthetic_source"
+    },
+    {
+      "id": "synthetic-cloud-harbor-geometry-custody-binding",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-cloud-harbor-custody-authority-identity",
+        "version": "1.0.0"
+      },
+      "profileAuthorityScopeRef": {
+        "id": "synthetic-cloud-harbor-authority",
+        "version": "1.0.0"
+      },
+      "role": "geometry_custody",
+      "authorityClass": "synthetic_custodian"
+    },
+    {
+      "id": "synthetic-cloud-harbor-geometry-derivation-binding",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-cloud-harbor-derivation-authority-identity",
+        "version": "1.0.0"
+      },
+      "profileAuthorityScopeRef": {
+        "id": "synthetic-cloud-harbor-authority",
+        "version": "1.0.0"
+      },
+      "role": "geometry_derivation",
+      "authorityClass": "synthetic_deriver"
+    },
+    {
+      "id": "synthetic-cloud-harbor-community-review-binding",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-cloud-harbor-community-authority-identity",
+        "version": "1.0.0"
+      },
+      "profileAuthorityScopeRef": {
+        "id": "synthetic-cloud-harbor-authority",
+        "version": "1.0.0"
+      },
+      "role": "community_configuration_review",
+      "authorityClass": "synthetic_community"
+    },
+    {
+      "id": "synthetic-cloud-harbor-source-review-binding",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-cloud-harbor-source-authority-identity",
+        "version": "1.0.0"
+      },
+      "profileAuthorityScopeRef": {
+        "id": "synthetic-cloud-harbor-authority",
+        "version": "1.0.0"
+      },
+      "role": "source_verification_review",
+      "authorityClass": "synthetic_source"
+    },
+    {
+      "id": "synthetic-cloud-harbor-analyst-review-binding",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-cloud-harbor-analyst-authority-identity",
+        "version": "1.0.0"
+      },
+      "profileAuthorityScopeRef": {
+        "id": "synthetic-cloud-harbor-authority",
+        "version": "1.0.0"
+      },
+      "role": "analyst_review",
+      "authorityClass": "synthetic_analyst"
+    },
+    {
+      "id": "synthetic-cloud-harbor-counsel-review-binding",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-cloud-harbor-counsel-authority-identity",
+        "version": "1.0.0"
+      },
+      "profileAuthorityScopeRef": {
+        "id": "synthetic-cloud-harbor-authority",
+        "version": "1.0.0"
+      },
+      "role": "counsel_review",
+      "authorityClass": "synthetic_counsel"
+    },
+    {
+      "id": "synthetic-cloud-harbor-geometry-review-binding",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-cloud-harbor-analyst-authority-identity",
+        "version": "1.0.0"
+      },
+      "profileAuthorityScopeRef": {
+        "id": "synthetic-cloud-harbor-authority",
+        "version": "1.0.0"
+      },
+      "role": "geometry_review",
+      "authorityClass": "synthetic_analyst"
+    },
+    {
+      "id": "synthetic-glass-desert-relation-authority-binding",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-glass-desert-community-authority-identity",
+        "version": "1.0.0"
+      },
+      "profileAuthorityScopeRef": {
+        "id": "synthetic-glass-desert-authority",
+        "version": "1.0.0"
+      },
+      "role": "relation_asserting",
+      "authorityClass": "synthetic_community"
+    },
+    {
+      "id": "synthetic-glass-desert-evidence-source-binding",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-glass-desert-source-authority-identity",
+        "version": "1.0.0"
+      },
+      "profileAuthorityScopeRef": {
+        "id": "synthetic-glass-desert-authority",
+        "version": "1.0.0"
+      },
+      "role": "evidence_source",
+      "authorityClass": "synthetic_source"
+    },
+    {
+      "id": "synthetic-glass-desert-community-review-binding",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-glass-desert-community-authority-identity",
+        "version": "1.0.0"
+      },
+      "profileAuthorityScopeRef": {
+        "id": "synthetic-glass-desert-authority",
+        "version": "1.0.0"
+      },
+      "role": "community_configuration_review",
+      "authorityClass": "synthetic_community"
+    },
+    {
+      "id": "synthetic-glass-desert-source-review-binding",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-glass-desert-source-authority-identity",
+        "version": "1.0.0"
+      },
+      "profileAuthorityScopeRef": {
+        "id": "synthetic-glass-desert-authority",
+        "version": "1.0.0"
+      },
+      "role": "source_verification_review",
+      "authorityClass": "synthetic_source"
+    },
+    {
+      "id": "synthetic-glass-desert-analyst-review-binding",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-glass-desert-analyst-authority-identity",
+        "version": "1.0.0"
+      },
+      "profileAuthorityScopeRef": {
+        "id": "synthetic-glass-desert-authority",
+        "version": "1.0.0"
+      },
+      "role": "analyst_review",
+      "authorityClass": "synthetic_analyst"
+    }
+  ],
+  "scopeReferences": [
+    {
+      "id": "synthetic-cloud-harbor-service-scope",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "administrative_scope",
+      "visibility": "public",
+      "sensitivity": "public"
+    },
+    {
+      "id": "synthetic-cloud-harbor-watershed-scope",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "ecological_scope",
+      "visibility": "public",
+      "sensitivity": "public"
+    },
+    {
+      "id": "synthetic-cloud-harbor-co-management-scope",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "agreement_scope",
+      "visibility": "restricted",
+      "sensitivity": "restricted"
+    },
+    {
+      "id": "synthetic-glass-desert-agreement-scope",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "agreement_scope",
+      "visibility": "public",
+      "sensitivity": "public"
+    }
+  ],
+  "evidenceReferences": [
+    {
+      "id": "synthetic-cloud-harbor-public-evidence",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "sourceId": "synthetic-federal",
+      "sourceAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-evidence-source-binding",
+        "version": "1.0.0"
+      },
+      "citation": {
+        "url": "https://cloud-harbor.example.invalid/evidence/public",
+        "locator": "synthetic-locator-public-0001"
+      },
+      "observedTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "known", "date": "3785-01-01" },
+        "through": { "state": "open" }
+      },
+      "visibility": "public",
+      "sensitivity": "public"
+    },
+    {
+      "id": "synthetic-cloud-harbor-rights-evidence",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "sourceId": "synthetic-federal",
+      "sourceAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-evidence-source-binding",
+        "version": "1.0.0"
+      },
+      "citation": {
+        "url": "https://cloud-harbor.example.invalid/evidence/configured-frame",
+        "locator": "synthetic-locator-frame-0001"
+      },
+      "observedTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "known", "date": "3785-02-01" },
+        "through": { "state": "known", "date": "3785-02-02" }
+      },
+      "visibility": "public",
+      "sensitivity": "public"
+    },
+    {
+      "id": "synthetic-cloud-harbor-internal-geometry-evidence",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "sourceId": "synthetic-federal",
+      "sourceAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-evidence-source-binding",
+        "version": "1.0.0"
+      },
+      "citation": {
+        "url": "https://cloud-harbor.example.invalid/evidence/internal-opaque-geometry",
+        "locator": "synthetic-locator-geometry-0001"
+      },
+      "observedTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "unknown" },
+        "through": { "state": "unknown" }
+      },
+      "visibility": "internal",
+      "sensitivity": "internal"
+    },
+    {
+      "id": "synthetic-cloud-harbor-restricted-geometry-evidence",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "sourceId": "synthetic-federal",
+      "sourceAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-evidence-source-binding",
+        "version": "1.0.0"
+      },
+      "citation": {
+        "url": "https://cloud-harbor.example.invalid/evidence/restricted-opaque-derivative",
+        "locator": "synthetic-locator-geometry-0002"
+      },
+      "observedTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "known", "date": "3785-03-01" },
+        "through": { "state": "open" }
+      },
+      "visibility": "restricted",
+      "sensitivity": "restricted"
+    },
+    {
+      "id": "synthetic-cloud-harbor-restricted-frame-evidence",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "sourceId": "synthetic-federal",
+      "sourceAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-evidence-source-binding",
+        "version": "1.0.0"
+      },
+      "citation": {
+        "url": "https://cloud-harbor.example.invalid/evidence/restricted-frame",
+        "locator": "synthetic-locator-frame-0002"
+      },
+      "observedTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "known", "date": "3785-04-01" },
+        "through": { "state": "open" }
+      },
+      "visibility": "restricted",
+      "sensitivity": "restricted"
+    },
+    {
+      "id": "synthetic-glass-desert-public-evidence",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "sourceId": "synthetic-federal",
+      "sourceAuthorityBindingRef": {
+        "id": "synthetic-glass-desert-evidence-source-binding",
+        "version": "1.0.0"
+      },
+      "citation": {
+        "url": "https://glass-desert.example.invalid/evidence/public",
+        "locator": "synthetic-locator-public-0002"
+      },
+      "observedTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "known", "date": "3785-05-01" },
+        "through": { "state": "open" }
+      },
+      "visibility": "public",
+      "sensitivity": "public"
+    }
+  ],
+  "reviewAttestations": [
+    {
+      "id": "synthetic-cloud-harbor-community-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "community_configured",
+      "state": "accepted",
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-community-review-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-cloud-harbor-public-evidence", "version": "1.0.0" }
+      ],
+      "visibility": "public",
+      "sensitivity": "public"
+    },
+    {
+      "id": "synthetic-cloud-harbor-source-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "source_verified",
+      "state": "accepted",
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-source-review-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-cloud-harbor-rights-evidence", "version": "1.0.0" }
+      ],
+      "visibility": "public",
+      "sensitivity": "public"
+    },
+    {
+      "id": "synthetic-cloud-harbor-analyst-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "analyst_reviewed",
+      "state": "accepted",
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-analyst-review-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-cloud-harbor-public-evidence", "version": "1.0.0" }
+      ],
+      "visibility": "public",
+      "sensitivity": "public"
+    },
+    {
+      "id": "synthetic-cloud-harbor-counsel-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "counsel_reviewed",
+      "state": "accepted",
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-counsel-review-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "id": "synthetic-cloud-harbor-restricted-frame-evidence",
+          "version": "1.0.0"
+        }
+      ],
+      "visibility": "restricted",
+      "sensitivity": "restricted"
+    },
+    {
+      "id": "synthetic-cloud-harbor-internal-geometry-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "geometry_reviewed",
+      "state": "accepted",
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-geometry-review-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "id": "synthetic-cloud-harbor-internal-geometry-evidence",
+          "version": "1.0.0"
+        }
+      ],
+      "visibility": "internal",
+      "sensitivity": "internal"
+    },
+    {
+      "id": "synthetic-cloud-harbor-restricted-geometry-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "geometry_reviewed",
+      "state": "accepted",
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-geometry-review-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "id": "synthetic-cloud-harbor-restricted-geometry-evidence",
+          "version": "1.0.0"
+        }
+      ],
+      "visibility": "restricted",
+      "sensitivity": "restricted"
+    },
+    {
+      "id": "synthetic-cloud-harbor-rights-community-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "community_configured",
+      "state": "accepted",
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-community-review-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-cloud-harbor-rights-evidence", "version": "1.0.0" }
+      ],
+      "visibility": "public",
+      "sensitivity": "public"
+    },
+    {
+      "id": "synthetic-cloud-harbor-public-source-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "source_verified",
+      "state": "accepted",
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-source-review-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-cloud-harbor-public-evidence", "version": "1.0.0" }
+      ],
+      "visibility": "public",
+      "sensitivity": "public"
+    },
+    {
+      "id": "synthetic-cloud-harbor-restricted-geometry-source-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "source_verified",
+      "state": "accepted",
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-source-review-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "id": "synthetic-cloud-harbor-restricted-geometry-evidence",
+          "version": "1.0.0"
+        }
+      ],
+      "visibility": "restricted",
+      "sensitivity": "restricted"
+    },
+    {
+      "id": "synthetic-cloud-harbor-restricted-geometry-analyst-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "analyst_reviewed",
+      "state": "accepted",
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-analyst-review-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "id": "synthetic-cloud-harbor-restricted-geometry-evidence",
+          "version": "1.0.0"
+        }
+      ],
+      "visibility": "restricted",
+      "sensitivity": "restricted"
+    },
+    {
+      "id": "synthetic-cloud-harbor-restricted-frame-community-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "community_configured",
+      "state": "accepted",
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-community-review-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "id": "synthetic-cloud-harbor-restricted-frame-evidence",
+          "version": "1.0.0"
+        }
+      ],
+      "visibility": "restricted",
+      "sensitivity": "restricted"
+    },
+    {
+      "id": "synthetic-cloud-harbor-restricted-frame-source-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "source_verified",
+      "state": "accepted",
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-source-review-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "id": "synthetic-cloud-harbor-restricted-frame-evidence",
+          "version": "1.0.0"
+        }
+      ],
+      "visibility": "restricted",
+      "sensitivity": "restricted"
+    },
+    {
+      "id": "synthetic-glass-desert-community-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "community_configured",
+      "state": "accepted",
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-glass-desert-community-review-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-glass-desert-public-evidence", "version": "1.0.0" }
+      ],
+      "visibility": "public",
+      "sensitivity": "public"
+    },
+    {
+      "id": "synthetic-glass-desert-source-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "source_verified",
+      "state": "accepted",
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-glass-desert-source-review-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-glass-desert-public-evidence", "version": "1.0.0" }
+      ],
+      "visibility": "public",
+      "sensitivity": "public"
+    },
+    {
+      "id": "synthetic-glass-desert-analyst-review",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "kind": "analyst_reviewed",
+      "state": "accepted",
+      "reviewerAuthorityBindingRef": {
+        "id": "synthetic-glass-desert-analyst-review-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-glass-desert-public-evidence", "version": "1.0.0" }
+      ],
+      "visibility": "public",
+      "sensitivity": "public"
+    }
+  ],
+  "geometryReferences": [
+    {
+      "id": "synthetic-cloud-harbor-opaque-geometry",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "representation": "opaque_reference",
+      "opaqueReference": "urn:policy-sentinel:synthetic-geography:opaque-reference-0001",
+      "custodyAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-geometry-custody-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "id": "synthetic-cloud-harbor-internal-geometry-evidence",
+          "version": "1.0.0"
+        }
+      ],
+      "reviewAttestationRef": {
+        "id": "synthetic-cloud-harbor-internal-geometry-review",
+        "version": "1.0.0"
+      },
+      "derivation": {
+        "kind": "source_supplied",
+        "sourceGeometryRef": null,
+        "deriverAuthorityBindingRef": null
+      },
+      "visibility": "internal",
+      "sensitivity": "internal"
+    },
+    {
+      "id": "synthetic-cloud-harbor-opaque-geometry",
+      "version": "2.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "representation": "opaque_reference",
+      "opaqueReference": "urn:policy-sentinel:synthetic-geography:opaque-reference-0002",
+      "custodyAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-geometry-custody-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "id": "synthetic-cloud-harbor-restricted-geometry-evidence",
+          "version": "1.0.0"
+        }
+      ],
+      "reviewAttestationRef": {
+        "id": "synthetic-cloud-harbor-restricted-geometry-review",
+        "version": "1.0.0"
+      },
+      "derivation": {
+        "kind": "reviewed_derivative",
+        "sourceGeometryRef": {
+          "id": "synthetic-cloud-harbor-opaque-geometry",
+          "version": "1.0.0"
+        },
+        "deriverAuthorityBindingRef": {
+          "id": "synthetic-cloud-harbor-geometry-derivation-binding",
+          "version": "1.0.0"
+        }
+      },
+      "visibility": "restricted",
+      "sensitivity": "restricted"
+    }
+  ],
+  "geographicRelations": [
+    {
+      "id": "synthetic-cloud-harbor-service-relation",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-cloud-harbor-region",
+        "version": "1.0.0"
+      },
+      "subjectRef": {
+        "kind": "deployment_profile",
+        "ref": { "id": "synthetic-cloud-harbor-deployment", "version": "1.0.0" }
+      },
+      "objectRef": {
+        "kind": "governed_scope",
+        "ref": {
+          "id": "synthetic-cloud-harbor-service-scope",
+          "version": "1.0.0"
+        }
+      },
+      "relationKind": "service_area",
+      "vocabularyVersion": "1.0.0",
+      "assertingAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-relation-authority-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-cloud-harbor-public-evidence", "version": "1.0.0" }
+      ],
+      "observedTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "known", "date": "3780-01-01" },
+        "through": { "state": "known", "date": "3780-01-02" }
+      },
+      "effectiveTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "known", "date": "3780-01-01" },
+        "through": { "state": "known", "date": "3781-12-31" }
+      },
+      "geometryRef": null,
+      "reviewAttestationRefs": [
+        {
+          "id": "synthetic-cloud-harbor-public-source-review",
+          "version": "1.0.0"
+        },
+        { "id": "synthetic-cloud-harbor-analyst-review", "version": "1.0.0" }
+      ],
+      "visibility": "public",
+      "sensitivity": "public",
+      "allowedInferences": [
+        "asserted_relation_reference",
+        "configured_monitoring_scope"
+      ],
+      "forbiddenInferences": [
+        "not_identity_evidence",
+        "not_ownership_or_land_status_evidence",
+        "not_jurisdiction_evidence",
+        "not_legal_applicability_evidence",
+        "not_rights_impact_violation_remedy_or_outcome_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_membership_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_community_position_evidence"
+      ],
+      "nonClaims": [
+        "not_a_nation_relationship",
+        "not_a_legal_applicability_determination",
+        "not_a_rights_impact_determination",
+        "not_a_jurisdiction_determination",
+        "not_comprehensive_coverage",
+        "not_a_community_position"
+      ],
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-cloud-harbor-service-relation",
+      "version": "2.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-cloud-harbor-region",
+        "version": "1.0.0"
+      },
+      "subjectRef": {
+        "kind": "deployment_profile",
+        "ref": { "id": "synthetic-cloud-harbor-deployment", "version": "1.0.0" }
+      },
+      "objectRef": {
+        "kind": "governed_scope",
+        "ref": {
+          "id": "synthetic-cloud-harbor-service-scope",
+          "version": "1.0.0"
+        }
+      },
+      "relationKind": "service_area",
+      "vocabularyVersion": "1.0.0",
+      "assertingAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-relation-authority-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-cloud-harbor-public-evidence", "version": "1.0.0" }
+      ],
+      "observedTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "known", "date": "3782-01-01" },
+        "through": { "state": "open" }
+      },
+      "effectiveTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "known", "date": "3782-01-01" },
+        "through": { "state": "open" }
+      },
+      "geometryRef": null,
+      "reviewAttestationRefs": [
+        {
+          "id": "synthetic-cloud-harbor-public-source-review",
+          "version": "1.0.0"
+        },
+        { "id": "synthetic-cloud-harbor-analyst-review", "version": "1.0.0" }
+      ],
+      "visibility": "public",
+      "sensitivity": "public",
+      "allowedInferences": [
+        "asserted_relation_reference",
+        "configured_monitoring_scope"
+      ],
+      "forbiddenInferences": [
+        "not_identity_evidence",
+        "not_ownership_or_land_status_evidence",
+        "not_jurisdiction_evidence",
+        "not_legal_applicability_evidence",
+        "not_rights_impact_violation_remedy_or_outcome_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_membership_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_community_position_evidence"
+      ],
+      "nonClaims": [
+        "not_a_nation_relationship",
+        "not_a_legal_applicability_determination",
+        "not_a_rights_impact_determination",
+        "not_a_jurisdiction_determination",
+        "not_comprehensive_coverage",
+        "not_a_community_position"
+      ],
+      "supersedesRef": {
+        "id": "synthetic-cloud-harbor-service-relation",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "synthetic-cloud-harbor-watershed-relation",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-cloud-harbor-region",
+        "version": "1.0.0"
+      },
+      "subjectRef": {
+        "kind": "deployment_profile",
+        "ref": { "id": "synthetic-cloud-harbor-deployment", "version": "1.0.0" }
+      },
+      "objectRef": {
+        "kind": "governed_scope",
+        "ref": {
+          "id": "synthetic-cloud-harbor-watershed-scope",
+          "version": "1.0.0"
+        }
+      },
+      "relationKind": "watershed",
+      "vocabularyVersion": "1.0.0",
+      "assertingAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-relation-authority-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-cloud-harbor-public-evidence", "version": "1.0.0" }
+      ],
+      "observedTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "known", "date": "3785-01-01" },
+        "through": { "state": "open" }
+      },
+      "effectiveTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "unknown" },
+        "through": { "state": "unknown" }
+      },
+      "geometryRef": null,
+      "reviewAttestationRefs": [
+        {
+          "id": "synthetic-cloud-harbor-public-source-review",
+          "version": "1.0.0"
+        },
+        { "id": "synthetic-cloud-harbor-analyst-review", "version": "1.0.0" }
+      ],
+      "visibility": "public",
+      "sensitivity": "public",
+      "allowedInferences": ["configured_monitoring_scope"],
+      "forbiddenInferences": [
+        "not_identity_evidence",
+        "not_ownership_or_land_status_evidence",
+        "not_jurisdiction_evidence",
+        "not_legal_applicability_evidence",
+        "not_rights_impact_violation_remedy_or_outcome_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_membership_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_community_position_evidence"
+      ],
+      "nonClaims": [
+        "not_a_nation_relationship",
+        "not_a_legal_applicability_determination",
+        "not_a_rights_impact_determination",
+        "not_a_jurisdiction_determination",
+        "not_comprehensive_coverage",
+        "not_a_community_position"
+      ],
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-cloud-harbor-co-management-relation",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-cloud-harbor-region",
+        "version": "1.0.0"
+      },
+      "subjectRef": {
+        "kind": "deployment_profile",
+        "ref": { "id": "synthetic-cloud-harbor-deployment", "version": "1.0.0" }
+      },
+      "objectRef": {
+        "kind": "governed_scope",
+        "ref": {
+          "id": "synthetic-cloud-harbor-co-management-scope",
+          "version": "1.0.0"
+        }
+      },
+      "relationKind": "co_management_area",
+      "vocabularyVersion": "1.0.0",
+      "assertingAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-relation-authority-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "id": "synthetic-cloud-harbor-restricted-geometry-evidence",
+          "version": "1.0.0"
+        }
+      ],
+      "observedTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "known", "date": "3785-03-01" },
+        "through": { "state": "open" }
+      },
+      "effectiveTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "known", "date": "3785-03-01" },
+        "through": { "state": "open" }
+      },
+      "geometryRef": {
+        "id": "synthetic-cloud-harbor-opaque-geometry",
+        "version": "2.0.0"
+      },
+      "reviewAttestationRefs": [
+        {
+          "id": "synthetic-cloud-harbor-restricted-geometry-source-review",
+          "version": "1.0.0"
+        },
+        {
+          "id": "synthetic-cloud-harbor-restricted-geometry-analyst-review",
+          "version": "1.0.0"
+        },
+        {
+          "id": "synthetic-cloud-harbor-restricted-geometry-review",
+          "version": "1.0.0"
+        }
+      ],
+      "visibility": "restricted",
+      "sensitivity": "restricted",
+      "allowedInferences": [
+        "asserted_relation_reference",
+        "configured_monitoring_scope"
+      ],
+      "forbiddenInferences": [
+        "not_identity_evidence",
+        "not_ownership_or_land_status_evidence",
+        "not_jurisdiction_evidence",
+        "not_legal_applicability_evidence",
+        "not_rights_impact_violation_remedy_or_outcome_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_membership_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_community_position_evidence"
+      ],
+      "nonClaims": [
+        "not_a_nation_relationship",
+        "not_a_legal_applicability_determination",
+        "not_a_rights_impact_determination",
+        "not_a_jurisdiction_determination",
+        "not_comprehensive_coverage",
+        "not_a_community_position"
+      ],
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-glass-desert-agreement-relation",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-glass-desert-region",
+        "version": "1.0.0"
+      },
+      "subjectRef": {
+        "kind": "deployment_profile",
+        "ref": { "id": "synthetic-glass-desert-deployment", "version": "1.0.0" }
+      },
+      "objectRef": {
+        "kind": "governed_scope",
+        "ref": {
+          "id": "synthetic-glass-desert-agreement-scope",
+          "version": "1.0.0"
+        }
+      },
+      "relationKind": "intergovernmental_service_or_agreement_area",
+      "vocabularyVersion": "1.0.0",
+      "assertingAuthorityBindingRef": {
+        "id": "synthetic-glass-desert-relation-authority-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-glass-desert-public-evidence", "version": "1.0.0" }
+      ],
+      "observedTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "known", "date": "3785-05-01" },
+        "through": { "state": "open" }
+      },
+      "effectiveTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "known", "date": "3785-05-01" },
+        "through": { "state": "open" }
+      },
+      "geometryRef": null,
+      "reviewAttestationRefs": [
+        { "id": "synthetic-glass-desert-source-review", "version": "1.0.0" },
+        { "id": "synthetic-glass-desert-analyst-review", "version": "1.0.0" }
+      ],
+      "visibility": "public",
+      "sensitivity": "public",
+      "allowedInferences": ["asserted_relation_reference"],
+      "forbiddenInferences": [
+        "not_identity_evidence",
+        "not_ownership_or_land_status_evidence",
+        "not_jurisdiction_evidence",
+        "not_legal_applicability_evidence",
+        "not_rights_impact_violation_remedy_or_outcome_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_membership_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_community_position_evidence"
+      ],
+      "nonClaims": [
+        "not_a_nation_relationship",
+        "not_a_legal_applicability_determination",
+        "not_a_rights_impact_determination",
+        "not_a_jurisdiction_determination",
+        "not_comprehensive_coverage",
+        "not_a_community_position"
+      ],
+      "supersedesRef": null
+    }
+  ],
+  "rightsFrames": [
+    {
+      "id": "synthetic-cloud-harbor-monitoring-frame",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-cloud-harbor-region",
+        "version": "1.0.0"
+      },
+      "frameType": "plan",
+      "vocabularyVersion": "1.0.0",
+      "sourceAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-frame-source-binding",
+        "version": "1.0.0"
+      },
+      "configurationAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-frame-configuration-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        { "id": "synthetic-cloud-harbor-rights-evidence", "version": "1.0.0" }
+      ],
+      "reviewAttestationRefs": [
+        {
+          "id": "synthetic-cloud-harbor-rights-community-review",
+          "version": "1.0.0"
+        },
+        { "id": "synthetic-cloud-harbor-source-review", "version": "1.0.0" }
+      ],
+      "observedTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "known", "date": "3785-02-01" },
+        "through": { "state": "known", "date": "3785-02-02" }
+      },
+      "effectiveTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "unknown" },
+        "through": { "state": "unknown" }
+      },
+      "visibility": "public",
+      "sensitivity": "public",
+      "approvedUses": [
+        "monitoring_context",
+        "source_reference",
+        "human_review_context"
+      ],
+      "approvedAudiences": ["public", "internal", "restricted", "privileged"],
+      "allowedInferences": [
+        "configured_frame_reference",
+        "source_citation_reference"
+      ],
+      "forbiddenInferences": [
+        "not_identity_evidence",
+        "not_ownership_or_land_status_evidence",
+        "not_jurisdiction_evidence",
+        "not_legal_applicability_evidence",
+        "not_rights_impact_violation_remedy_or_outcome_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_membership_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_community_position_evidence"
+      ],
+      "nonClaims": [
+        "not_a_nation_relationship",
+        "not_a_legal_applicability_determination",
+        "not_a_rights_impact_determination",
+        "not_a_jurisdiction_determination",
+        "not_comprehensive_coverage",
+        "not_a_community_position"
+      ],
+      "supersedesRef": null
+    },
+    {
+      "id": "synthetic-cloud-harbor-restricted-frame",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-cloud-harbor-region",
+        "version": "1.0.0"
+      },
+      "frameType": "agreement",
+      "vocabularyVersion": "1.0.0",
+      "sourceAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-frame-source-binding",
+        "version": "1.0.0"
+      },
+      "configurationAuthorityBindingRef": {
+        "id": "synthetic-cloud-harbor-frame-configuration-binding",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "id": "synthetic-cloud-harbor-restricted-frame-evidence",
+          "version": "1.0.0"
+        }
+      ],
+      "reviewAttestationRefs": [
+        {
+          "id": "synthetic-cloud-harbor-restricted-frame-community-review",
+          "version": "1.0.0"
+        },
+        {
+          "id": "synthetic-cloud-harbor-restricted-frame-source-review",
+          "version": "1.0.0"
+        },
+        { "id": "synthetic-cloud-harbor-counsel-review", "version": "1.0.0" }
+      ],
+      "observedTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "known", "date": "3785-04-01" },
+        "through": { "state": "open" }
+      },
+      "effectiveTemporalScope": {
+        "kind": "inclusive_date_range",
+        "from": { "state": "known", "date": "3785-04-01" },
+        "through": { "state": "open" }
+      },
+      "visibility": "restricted",
+      "sensitivity": "restricted",
+      "approvedUses": ["human_review_context"],
+      "approvedAudiences": ["restricted", "privileged"],
+      "allowedInferences": ["configured_frame_reference"],
+      "forbiddenInferences": [
+        "not_identity_evidence",
+        "not_ownership_or_land_status_evidence",
+        "not_jurisdiction_evidence",
+        "not_legal_applicability_evidence",
+        "not_rights_impact_violation_remedy_or_outcome_evidence",
+        "not_consultation_evidence",
+        "not_affiliation_membership_consent_or_endorsement_evidence",
+        "not_program_or_grant_eligibility_evidence",
+        "not_urgency_priority_or_recommended_action",
+        "not_community_position_evidence"
+      ],
+      "nonClaims": [
+        "not_a_nation_relationship",
+        "not_a_legal_applicability_determination",
+        "not_a_rights_impact_determination",
+        "not_a_jurisdiction_determination",
+        "not_comprehensive_coverage",
+        "not_a_community_position"
+      ],
+      "supersedesRef": null
+    }
+  ],
+  "deploymentBindings": [
+    {
+      "id": "synthetic-cloud-harbor-geography-rights-binding",
+      "version": "1.0.0",
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-cloud-harbor-region",
+        "version": "1.0.0"
+      },
+      "geographicRelationRefs": [
+        { "id": "synthetic-cloud-harbor-service-relation", "version": "1.0.0" },
+        { "id": "synthetic-cloud-harbor-service-relation", "version": "2.0.0" },
+        {
+          "id": "synthetic-cloud-harbor-watershed-relation",
+          "version": "1.0.0"
+        },
+        {
+          "id": "synthetic-cloud-harbor-co-management-relation",
+          "version": "1.0.0"
+        }
+      ],
+      "rightsFrameRefs": [
+        { "id": "synthetic-cloud-harbor-monitoring-frame", "version": "1.0.0" },
+        { "id": "synthetic-cloud-harbor-restricted-frame", "version": "1.0.0" }
+      ],
+      "personaGrants": [
+        {
+          "id": "synthetic-cloud-harbor-researcher-grant",
+          "version": "1.0.0",
+          "personaProjectionRef": {
+            "id": "synthetic-cloud-harbor-researcher",
+            "version": "1.0.0"
+          },
+          "outputAdapterRefs": [
+            { "id": "synthetic-document-reference-output", "version": "1.0.0" }
+          ],
+          "approvedUses": [
+            "monitoring_context",
+            "source_reference",
+            "human_review_context"
+          ],
+          "visibilityClearance": "restricted",
+          "sensitivityClearance": "restricted",
+          "geographicRelationRefs": [
+            {
+              "id": "synthetic-cloud-harbor-service-relation",
+              "version": "2.0.0"
+            },
+            {
+              "id": "synthetic-cloud-harbor-watershed-relation",
+              "version": "1.0.0"
+            },
+            {
+              "id": "synthetic-cloud-harbor-co-management-relation",
+              "version": "1.0.0"
+            }
+          ],
+          "rightsFrameRefs": [
+            {
+              "id": "synthetic-cloud-harbor-monitoring-frame",
+              "version": "1.0.0"
+            },
+            {
+              "id": "synthetic-cloud-harbor-restricted-frame",
+              "version": "1.0.0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "synthetic-glass-desert-geography-rights-binding",
+      "version": "1.0.0",
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-glass-desert-region",
+        "version": "1.0.0"
+      },
+      "geographicRelationRefs": [
+        {
+          "id": "synthetic-glass-desert-agreement-relation",
+          "version": "1.0.0"
+        }
+      ],
+      "rightsFrameRefs": [],
+      "personaGrants": [
+        {
+          "id": "synthetic-glass-desert-coordinator-grant",
+          "version": "1.0.0",
+          "personaProjectionRef": {
+            "id": "synthetic-glass-desert-coordinator",
+            "version": "1.0.0"
+          },
+          "outputAdapterRefs": [
+            { "id": "synthetic-web-reference-output", "version": "1.0.0" }
+          ],
+          "approvedUses": ["monitoring_context"],
+          "visibilityClearance": "public",
+          "sensitivityClearance": "public",
+          "geographicRelationRefs": [
+            {
+              "id": "synthetic-glass-desert-agreement-relation",
+              "version": "1.0.0"
+            }
+          ],
+          "rightsFrameRefs": []
+        }
+      ]
+    }
+  ]
+}

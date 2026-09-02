@@ -64,12 +64,60 @@ This seam is not connected to the current application, source adapters,
 pipeline, artifact builder, or release flow. It establishes neither a
 production PNW profile nor an ATNI roster, analyzed-corpus completion, source
 activation, rights/geography evidence, publication, or K0/S0/O0 convergence.
-After this additive schema is present, the live backbone contains ten schema
-IDs and the foundation validator compiles nine; the artifact schema retains
-its separate instance-validation route. Those validator-derived counts are the
-transition evidence contemplated by the pre-implementation checkpoint text in
-`data-contract.md`, which remains unchanged under the tranche's frozen path
-boundary.
+The validated PNW-01 checkpoint introduced the tenth schema ID and ninth
+foundation-compiled schema; later validated successor counts do not change the
+meaning or bytes of that closed `1.0.0` seam.
+
+## PNW-03 governed geography and rights seam
+
+The additive, synthetic-only `GeographyRightsBundle 1.0.0` is a separate closed
+catalog consumed beside the unchanged PNW-01 profile bundle. It models
+role-specific authority bindings, configured subject/scope references, exact
+source evidence and citations, independent review attestations, optional opaque
+geometry references, typed geographic relations, configured rights frames, and
+deployment/persona grants. Exact composite `id@version` references bind every
+object to a PNW-01 bundle, region, synthetic-demo deployment, persona, output,
+and region-scoped profile authority.
+
+Observed and effective temporal ranges use discriminated known, open, or
+unknown bounds. Same-ID versions form one immediate-predecessor chain; a
+supersession edge requires known, non-overlapping effective dates. Geography
+kinds are optional and relational rather than one landbase field. A deployment
+or an entire bundle may carry rights frames without geography, or relations
+without a treaty-style frame. S0 types, geometry algorithms, and K0/O0 modules
+are not imported.
+
+Authority identity and profile authority scope are separate. One exact
+authority identity cannot change deployment, scope, or authority class across
+bindings, while distinct role bindings prevent a source, configuration,
+custody, derivation, analyst, or counsel role from satisfying another. Evidence,
+review, scope, geometry lineage, relation authority, and frame configuration
+remain separate references.
+
+Visibility and sensitivity use the closed `public`, `internal`, `restricted`,
+and `privileged` classes. An object's declarations may not be less restrictive
+than any evidence, review, scope, geometry, or derivation dependency. The
+projection request names one exact deployment, persona, output, requested
+visibility, and approved use. It emits only authorized relation/frame
+references plus the constant `authorized_subset_not_comprehensive`; it never
+emits catalog payloads, geometry tokens, withheld identifiers, or withheld
+counts. Pending/rejected reviews and non-synthetic-demo deployments cannot be
+upgraded into accepted output.
+
+Every relation and frame repeats the exact six PNW-01 non-claims and the fixed
+PNW-03 forbidden-inference tuple. A rights frame is only a configured,
+source-bound monitoring reference. Neither a frame nor geography establishes
+identity, membership, ownership, land status, jurisdiction, applicability,
+rights impact, consultation, consent, eligibility, urgency, remedy, outcome, or
+community position. The seam does not target records or add a `whyShown` basis.
+
+The schema is
+`https://policy-sentinel.invalid/schemas/geography-rights.schema.v1.json`.
+With it, backbone validation contains eleven schema IDs and foundation
+validation compiles ten schemas. The fixture/test family remains repository-only
+and is not consumed by the static artifact builder. No concrete adapter, GIS
+engine, source activation, real geography, real community configuration, or
+public delivery path is introduced.
 
 ## Current application and ingestion architecture
 
@@ -83,7 +131,7 @@ Its current maturity is:
 | Maturity | Current repository evidence |
 | --- | --- |
 | Integrated local output | The Preact application, print dossier, CSV serializer, hash-route behavior, and artifact pipeline run over three synthetic records and 575 explicitly synthetic Nation rows. |
-| Implemented foundation seam | The synthetic-only projection-profile schema and pure engine seam produce deterministic public reference-only deployment/persona views over one detached `PolicyRecord 1.4` corpus. They are not integrated with the application or artifact pipeline. |
+| Implemented foundation seams | The synthetic-only PNW-01 profile projection and PNW-03 geography/rights catalog produce deterministic immutable reference-only views while leaving the detached `PolicyRecord 1.4` corpus unchanged. They are not integrated with the application or artifact pipeline. |
 | Implemented but disabled | Federal Register, Washington Governor executive orders, Washington Centennial Accord, and the one-row curated Supreme Court adapters are tested and registered but cannot emit public records. |
 | Contract-only | Congress.gov, GovInfo, Regulations.gov, Oregon Legislature OData, and Washington LWS have bounded synthetic contracts but no activated production adapter. |
 | Proposed and unimplemented | Production region packs and community profiles, the canonical analyzed corpus, concrete common output-adapter implementations, scheduled/manual workflows, Pages delivery, and a private deployment remain future work. |

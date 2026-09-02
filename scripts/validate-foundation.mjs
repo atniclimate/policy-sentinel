@@ -16,6 +16,9 @@ const lifecycleSchema = await readJson("schemas/lifecycle.schema.v1.json");
 const projectionProfileSchema = await readJson(
   "schemas/projection-profile.schema.v1.json",
 );
+const geographyRightsSchema = await readJson(
+  "schemas/geography-rights.schema.v1.json",
+);
 const spatialObservationSchema = await readJson(
   "schemas/experimental/spatial-observation.schema.v1.json",
 );
@@ -42,6 +45,7 @@ for (const [name, schema] of [
   ["assertion schema", assertionSchema],
   ["lifecycle schema", lifecycleSchema],
   ["projection profile schema", projectionProfileSchema],
+  ["geography and rights schema", geographyRightsSchema],
   ["S0 spatial-observation schema", spatialObservationSchema],
   ["S0 spatial-relation schema", spatialRelationSchema],
   ["S0 jurisdiction-evidence schema", jurisdictionEvidenceSchema],
@@ -152,6 +156,72 @@ for (const fixtureCase of malformedProjectionProfiles.cases) {
       );
     }
     semanticProjectionChecks += 1;
+  }
+}
+
+const validateGeographyRights = ajv.compile(geographyRightsSchema);
+const geographyRightsFixture = await readJson(
+  "fixtures/engine/geography-rights.synthetic.valid.json",
+);
+if (!validateGeographyRights(geographyRightsFixture)) {
+  throw new Error(
+    `synthetic geography and rights fixture is invalid:\n${ajv.errorsText(
+      validateGeographyRights.errors,
+      { separator: "\n" },
+    )}`,
+  );
+}
+const malformedGeographyRights = await readJson(
+  "fixtures/engine/geography-rights-malformed.invalid.json",
+);
+if (
+  malformedGeographyRights.fixtureFamilyVersion !== "1.0.0" ||
+  malformedGeographyRights.baseFixture !==
+    "geography-rights.synthetic.valid.json" ||
+  !Array.isArray(malformedGeographyRights.cases) ||
+  malformedGeographyRights.cases.length === 0
+) {
+  throw new Error("malformed geography and rights fixture family is invalid");
+}
+const malformedGeographyRightsCaseIds = new Set();
+let schemaInvalidGeographyRightsChecks = 0;
+let runtimeBoundaryGeographyRightsChecks = 0;
+for (const fixtureCase of malformedGeographyRights.cases) {
+  if (
+    typeof fixtureCase.id !== "string" ||
+    malformedGeographyRightsCaseIds.has(fixtureCase.id) ||
+    !["schema", "semantic", "projection"].includes(
+      fixtureCase.expectedLayer,
+    ) ||
+    typeof fixtureCase.expectedCode !== "string" ||
+    !Array.isArray(fixtureCase.mutations) ||
+    fixtureCase.mutations.length === 0
+  ) {
+    throw new Error("malformed geography and rights case metadata is invalid");
+  }
+  malformedGeographyRightsCaseIds.add(fixtureCase.id);
+  const candidate = applyFixtureMutations(
+    geographyRightsFixture,
+    fixtureCase.mutations,
+  );
+  const accepted = validateGeographyRights(candidate);
+  if (fixtureCase.expectedLayer === "schema") {
+    if (accepted) {
+      throw new Error(
+        `negative geography and rights case ${fixtureCase.id} was accepted by the schema`,
+      );
+    }
+    schemaInvalidGeographyRightsChecks += 1;
+  } else {
+    if (!accepted) {
+      throw new Error(
+        `runtime-boundary geography and rights case ${fixtureCase.id} did not reach runtime validation:\n${ajv.errorsText(
+          validateGeographyRights.errors,
+          { separator: "\n" },
+        )}`,
+      );
+    }
+    runtimeBoundaryGeographyRightsChecks += 1;
   }
 }
 
@@ -503,9 +573,10 @@ if (!historicalPolicyRejected) {
 negativePolicyChecks += 1;
 
 console.log(
-  `Foundation validation passed: 9 schemas, ${taxonomy.categories.length} categories, ` +
+  `Foundation validation passed: 10 schemas, ${taxonomy.categories.length} categories, ` +
     `${taxonomy.categories.reduce((count, category) => count + category.subcategories.length, 0)} subcategories, ` +
     `${fixtureNames.length} valid fixtures, ${negativePolicyChecks} negative policy checks, ` +
     `${s0ValidFixtureChecks} valid plus ${s0InvalidFixtureChecks} invalid S0 fixture checks, ` +
-    `and 1 valid plus ${schemaInvalidProjectionChecks} schema-invalid plus ${semanticProjectionChecks} runtime-boundary projection profile checks.`,
+    `1 valid plus ${schemaInvalidProjectionChecks} schema-invalid plus ${semanticProjectionChecks} runtime-boundary projection profile checks, ` +
+    `and 1 valid plus ${schemaInvalidGeographyRightsChecks} schema-invalid plus ${runtimeBoundaryGeographyRightsChecks} runtime-boundary geography and rights checks.`,
 );

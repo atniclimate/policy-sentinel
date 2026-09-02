@@ -1,0 +1,747 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/geography-rights.schema.v1.json",
+  "title": "Policy Sentinel governed geography and rights bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "id",
+    "version",
+    "synthetic",
+    "profileBundleRef",
+    "authorityBindings",
+    "scopeReferences",
+    "evidenceReferences",
+    "reviewAttestations",
+    "geometryReferences",
+    "geographicRelations",
+    "rightsFrames",
+    "deploymentBindings"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://policy-sentinel.invalid/schemas/geography-rights.schema.v1.json"
+    },
+    "schemaVersion": { "const": "1.0.0" },
+    "id": { "$ref": "#/$defs/stableId" },
+    "version": { "$ref": "#/$defs/version" },
+    "synthetic": { "const": true },
+    "profileBundleRef": { "$ref": "#/$defs/versionedReference" },
+    "authorityBindings": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/authorityBinding" }
+    },
+    "scopeReferences": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 256,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/scopeReference" }
+    },
+    "evidenceReferences": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/evidenceReference" }
+    },
+    "reviewAttestations": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 512,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/reviewAttestation" }
+    },
+    "geometryReferences": {
+      "type": "array",
+      "maxItems": 256,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/geometryReference" }
+    },
+    "geographicRelations": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 512,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/geographicRelation" }
+    },
+    "rightsFrames": {
+      "type": "array",
+      "maxItems": 256,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/rightsFrame" }
+    },
+    "deploymentBindings": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/deploymentBinding" }
+    }
+  },
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 96,
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "version": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+    },
+    "versionedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" }
+      }
+    },
+    "visibility": {
+      "enum": ["public", "internal", "restricted", "privileged"]
+    },
+    "sensitivity": {
+      "enum": ["public", "internal", "restricted", "privileged"]
+    },
+    "temporalBound": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "date"],
+          "properties": {
+            "state": { "const": "known" },
+            "date": { "type": "string", "format": "date" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state"],
+          "properties": { "state": { "const": "open" } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state"],
+          "properties": { "state": { "const": "unknown" } }
+        }
+      ]
+    },
+    "temporalScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "from", "through"],
+      "properties": {
+        "kind": { "const": "inclusive_date_range" },
+        "from": { "$ref": "#/$defs/temporalBound" },
+        "through": { "$ref": "#/$defs/temporalBound" }
+      }
+    },
+    "nonClaims": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "uniqueItems": true,
+      "prefixItems": [
+        { "const": "not_a_nation_relationship" },
+        { "const": "not_a_legal_applicability_determination" },
+        { "const": "not_a_rights_impact_determination" },
+        { "const": "not_a_jurisdiction_determination" },
+        { "const": "not_comprehensive_coverage" },
+        { "const": "not_a_community_position" }
+      ],
+      "items": false
+    },
+    "forbiddenInferences": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "uniqueItems": true,
+      "prefixItems": [
+        { "const": "not_identity_evidence" },
+        { "const": "not_ownership_or_land_status_evidence" },
+        { "const": "not_jurisdiction_evidence" },
+        { "const": "not_legal_applicability_evidence" },
+        { "const": "not_rights_impact_violation_remedy_or_outcome_evidence" },
+        { "const": "not_consultation_evidence" },
+        {
+          "const": "not_affiliation_membership_consent_or_endorsement_evidence"
+        },
+        { "const": "not_program_or_grant_eligibility_evidence" },
+        { "const": "not_urgency_priority_or_recommended_action" },
+        { "const": "not_community_position_evidence" }
+      ],
+      "items": false
+    },
+    "authorityBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "synthetic",
+        "deploymentProfileRef",
+        "authorityIdentityRef",
+        "profileAuthorityScopeRef",
+        "role",
+        "authorityClass"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "synthetic": { "const": true },
+        "deploymentProfileRef": { "$ref": "#/$defs/versionedReference" },
+        "authorityIdentityRef": { "$ref": "#/$defs/versionedReference" },
+        "profileAuthorityScopeRef": {
+          "$ref": "#/$defs/versionedReference"
+        },
+        "role": {
+          "enum": [
+            "relation_asserting",
+            "frame_source",
+            "frame_configuration",
+            "evidence_source",
+            "geometry_custody",
+            "geometry_derivation",
+            "community_configuration_review",
+            "source_verification_review",
+            "analyst_review",
+            "counsel_review",
+            "geometry_review"
+          ]
+        },
+        "authorityClass": {
+          "enum": [
+            "synthetic_community",
+            "synthetic_source",
+            "synthetic_custodian",
+            "synthetic_deriver",
+            "synthetic_analyst",
+            "synthetic_counsel"
+          ]
+        }
+      }
+    },
+    "scopeReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "synthetic",
+        "deploymentProfileRef",
+        "kind",
+        "visibility",
+        "sensitivity"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "synthetic": { "const": true },
+        "deploymentProfileRef": { "$ref": "#/$defs/versionedReference" },
+        "kind": {
+          "enum": [
+            "administrative_scope",
+            "ecological_scope",
+            "agreement_scope",
+            "project_scope",
+            "other_opaque_scope"
+          ]
+        },
+        "visibility": { "$ref": "#/$defs/visibility" },
+        "sensitivity": { "$ref": "#/$defs/sensitivity" }
+      }
+    },
+    "evidenceReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "synthetic",
+        "deploymentProfileRef",
+        "sourceId",
+        "sourceAuthorityBindingRef",
+        "citation",
+        "observedTemporalScope",
+        "visibility",
+        "sensitivity"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "synthetic": { "const": true },
+        "deploymentProfileRef": { "$ref": "#/$defs/versionedReference" },
+        "sourceId": { "$ref": "#/$defs/stableId" },
+        "sourceAuthorityBindingRef": { "$ref": "#/$defs/versionedReference" },
+        "citation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["url", "locator"],
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 512,
+              "pattern": "^https://[a-z0-9]+(?:-[a-z0-9]+)*(?:\\.[a-z0-9]+(?:-[a-z0-9]+)*)*\\.invalid(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*/?$"
+            },
+            "locator": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 96,
+              "pattern": "^[a-z0-9][a-z0-9-]{0,95}$"
+            }
+          }
+        },
+        "observedTemporalScope": { "$ref": "#/$defs/temporalScope" },
+        "visibility": { "$ref": "#/$defs/visibility" },
+        "sensitivity": { "$ref": "#/$defs/sensitivity" }
+      }
+    },
+    "reviewAttestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "synthetic",
+        "deploymentProfileRef",
+        "kind",
+        "state",
+        "reviewerAuthorityBindingRef",
+        "evidenceRefs",
+        "visibility",
+        "sensitivity"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "synthetic": { "const": true },
+        "deploymentProfileRef": { "$ref": "#/$defs/versionedReference" },
+        "kind": {
+          "enum": [
+            "community_configured",
+            "source_verified",
+            "analyst_reviewed",
+            "counsel_reviewed",
+            "geometry_reviewed"
+          ]
+        },
+        "state": { "enum": ["accepted", "pending", "rejected"] },
+        "reviewerAuthorityBindingRef": { "$ref": "#/$defs/versionedReference" },
+        "evidenceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "visibility": { "$ref": "#/$defs/visibility" },
+        "sensitivity": { "$ref": "#/$defs/sensitivity" }
+      }
+    },
+    "geometryReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "synthetic",
+        "deploymentProfileRef",
+        "representation",
+        "opaqueReference",
+        "custodyAuthorityBindingRef",
+        "evidenceRefs",
+        "reviewAttestationRef",
+        "derivation",
+        "visibility",
+        "sensitivity"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "synthetic": { "const": true },
+        "deploymentProfileRef": { "$ref": "#/$defs/versionedReference" },
+        "representation": { "const": "opaque_reference" },
+        "opaqueReference": {
+          "type": "string",
+          "maxLength": 192,
+          "pattern": "^urn:policy-sentinel:synthetic-geography:[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        },
+        "custodyAuthorityBindingRef": { "$ref": "#/$defs/versionedReference" },
+        "evidenceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "reviewAttestationRef": { "$ref": "#/$defs/versionedReference" },
+        "derivation": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "sourceGeometryRef",
+                "deriverAuthorityBindingRef"
+              ],
+              "properties": {
+                "kind": { "const": "source_supplied" },
+                "sourceGeometryRef": { "type": "null" },
+                "deriverAuthorityBindingRef": { "type": "null" }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "sourceGeometryRef",
+                "deriverAuthorityBindingRef"
+              ],
+              "properties": {
+                "kind": { "const": "reviewed_derivative" },
+                "sourceGeometryRef": { "$ref": "#/$defs/versionedReference" },
+                "deriverAuthorityBindingRef": {
+                  "$ref": "#/$defs/versionedReference"
+                }
+              }
+            }
+          ]
+        },
+        "visibility": { "$ref": "#/$defs/visibility" },
+        "sensitivity": { "$ref": "#/$defs/sensitivity" }
+      }
+    },
+    "geographicRelation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "synthetic",
+        "deploymentProfileRef",
+        "regionPackRef",
+        "subjectRef",
+        "objectRef",
+        "relationKind",
+        "vocabularyVersion",
+        "assertingAuthorityBindingRef",
+        "evidenceRefs",
+        "observedTemporalScope",
+        "effectiveTemporalScope",
+        "geometryRef",
+        "reviewAttestationRefs",
+        "visibility",
+        "sensitivity",
+        "allowedInferences",
+        "forbiddenInferences",
+        "nonClaims",
+        "supersedesRef"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "synthetic": { "const": true },
+        "deploymentProfileRef": { "$ref": "#/$defs/versionedReference" },
+        "regionPackRef": { "$ref": "#/$defs/versionedReference" },
+        "subjectRef": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "ref"],
+          "properties": {
+            "kind": { "const": "deployment_profile" },
+            "ref": { "$ref": "#/$defs/versionedReference" }
+          }
+        },
+        "objectRef": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "ref"],
+          "properties": {
+            "kind": { "const": "governed_scope" },
+            "ref": { "$ref": "#/$defs/versionedReference" }
+          }
+        },
+        "relationKind": {
+          "enum": [
+            "reservation_boundary",
+            "trust_land",
+            "reservation_fee_land",
+            "allotted_land",
+            "ceded_territory",
+            "usual_and_accustomed_area",
+            "ancestral_territory",
+            "service_area",
+            "co_management_area",
+            "adjudicated_or_reserved_rights_geography",
+            "watershed",
+            "species_range",
+            "project_footprint",
+            "intergovernmental_service_or_agreement_area"
+          ]
+        },
+        "vocabularyVersion": { "$ref": "#/$defs/version" },
+        "assertingAuthorityBindingRef": {
+          "$ref": "#/$defs/versionedReference"
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "observedTemporalScope": { "$ref": "#/$defs/temporalScope" },
+        "effectiveTemporalScope": { "$ref": "#/$defs/temporalScope" },
+        "geometryRef": {
+          "oneOf": [
+            { "$ref": "#/$defs/versionedReference" },
+            { "type": "null" }
+          ]
+        },
+        "reviewAttestationRefs": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "visibility": { "$ref": "#/$defs/visibility" },
+        "sensitivity": { "$ref": "#/$defs/sensitivity" },
+        "allowedInferences": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "asserted_relation_reference",
+              "configured_monitoring_scope"
+            ]
+          }
+        },
+        "forbiddenInferences": { "$ref": "#/$defs/forbiddenInferences" },
+        "nonClaims": { "$ref": "#/$defs/nonClaims" },
+        "supersedesRef": {
+          "oneOf": [
+            { "$ref": "#/$defs/versionedReference" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "rightsFrame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "synthetic",
+        "deploymentProfileRef",
+        "regionPackRef",
+        "frameType",
+        "vocabularyVersion",
+        "sourceAuthorityBindingRef",
+        "configurationAuthorityBindingRef",
+        "evidenceRefs",
+        "reviewAttestationRefs",
+        "observedTemporalScope",
+        "effectiveTemporalScope",
+        "visibility",
+        "sensitivity",
+        "approvedUses",
+        "approvedAudiences",
+        "allowedInferences",
+        "forbiddenInferences",
+        "nonClaims",
+        "supersedesRef"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "synthetic": { "const": true },
+        "deploymentProfileRef": { "$ref": "#/$defs/versionedReference" },
+        "regionPackRef": { "$ref": "#/$defs/versionedReference" },
+        "frameType": {
+          "enum": [
+            "treaty",
+            "tribal_law",
+            "code",
+            "plan",
+            "resolution",
+            "compact",
+            "statute",
+            "adjudication",
+            "litigation_record",
+            "agreement",
+            "other_approved_authority"
+          ]
+        },
+        "vocabularyVersion": { "$ref": "#/$defs/version" },
+        "sourceAuthorityBindingRef": { "$ref": "#/$defs/versionedReference" },
+        "configurationAuthorityBindingRef": {
+          "$ref": "#/$defs/versionedReference"
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "reviewAttestationRefs": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "observedTemporalScope": { "$ref": "#/$defs/temporalScope" },
+        "effectiveTemporalScope": { "$ref": "#/$defs/temporalScope" },
+        "visibility": { "$ref": "#/$defs/visibility" },
+        "sensitivity": { "$ref": "#/$defs/sensitivity" },
+        "approvedUses": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "monitoring_context",
+              "source_reference",
+              "human_review_context"
+            ]
+          }
+        },
+        "approvedAudiences": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/visibility" }
+        },
+        "allowedInferences": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["configured_frame_reference", "source_citation_reference"]
+          }
+        },
+        "forbiddenInferences": { "$ref": "#/$defs/forbiddenInferences" },
+        "nonClaims": { "$ref": "#/$defs/nonClaims" },
+        "supersedesRef": {
+          "oneOf": [
+            { "$ref": "#/$defs/versionedReference" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "personaGrant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "personaProjectionRef",
+        "outputAdapterRefs",
+        "approvedUses",
+        "visibilityClearance",
+        "sensitivityClearance",
+        "geographicRelationRefs",
+        "rightsFrameRefs"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "personaProjectionRef": { "$ref": "#/$defs/versionedReference" },
+        "outputAdapterRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "approvedUses": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "monitoring_context",
+              "source_reference",
+              "human_review_context"
+            ]
+          }
+        },
+        "visibilityClearance": { "$ref": "#/$defs/visibility" },
+        "sensitivityClearance": { "$ref": "#/$defs/sensitivity" },
+        "geographicRelationRefs": {
+          "type": "array",
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "rightsFrameRefs": {
+          "type": "array",
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        }
+      }
+    },
+    "deploymentBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "deploymentProfileRef",
+        "regionPackRef",
+        "geographicRelationRefs",
+        "rightsFrameRefs",
+        "personaGrants"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "deploymentProfileRef": { "$ref": "#/$defs/versionedReference" },
+        "regionPackRef": { "$ref": "#/$defs/versionedReference" },
+        "geographicRelationRefs": {
+          "type": "array",
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "rightsFrameRefs": {
+          "type": "array",
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "personaGrants": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/personaGrant" }
+        }
+      }
+    }
+  }
+}

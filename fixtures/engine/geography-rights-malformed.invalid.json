@@ -1,0 +1,880 @@
+{
+  "fixtureFamilyVersion": "1.0.0",
+  "baseFixture": "geography-rights.synthetic.valid.json",
+  "cases": [
+    {
+      "id": "missing-bundle-id",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [{ "operation": "remove", "path": "/id" }]
+    },
+    {
+      "id": "unknown-root-field",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [
+        { "operation": "add", "path": "/providerPayload", "value": "forbidden" }
+      ]
+    },
+    {
+      "id": "unknown-relation-field",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/geographicRelations/0/landOwnership",
+          "value": "forbidden"
+        }
+      ]
+    },
+    {
+      "id": "legal-conclusion-field",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/rightsFrames/0/legalApplicability",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "geometry-coordinates-injection",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/geometryReferences/0/coordinates",
+          "value": [1, 2]
+        }
+      ]
+    },
+    {
+      "id": "malformed-opaque-reference",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geometryReferences/0/opaqueReference",
+          "value": "synthetic-coordinate-like-47-122"
+        }
+      ]
+    },
+    {
+      "id": "real-citation-url",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReferences/0/citation/url",
+          "value": "https://example.com/evidence"
+        }
+      ]
+    },
+    {
+      "id": "missing-known-date",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [
+        {
+          "operation": "remove",
+          "path": "/evidenceReferences/0/observedTemporalScope/from/date"
+        }
+      ]
+    },
+    {
+      "id": "ambiguous-null-bound",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReferences/0/observedTemporalScope/through",
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "unsupported-relation-kind",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/0/relationKind",
+          "value": "single-landbase"
+        }
+      ]
+    },
+    {
+      "id": "unsupported-frame-type",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/rightsFrames/0/frameType",
+          "value": "legal-rule-engine"
+        }
+      ]
+    },
+    {
+      "id": "unsupported-visibility",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/scopeReferences/0/visibility",
+          "value": "private"
+        }
+      ]
+    },
+    {
+      "id": "not-synthetic",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/0/synthetic",
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "missing-nonclaims",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [
+        { "operation": "remove", "path": "/geographicRelations/0/nonClaims" }
+      ]
+    },
+    {
+      "id": "invalid-nonclaim",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_INFERENCE_LIMIT",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/0/nonClaims/0",
+          "value": "claims_a_nation_relationship"
+        }
+      ]
+    },
+    {
+      "id": "invalid-forbidden-inference",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_INFERENCE_LIMIT",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/rightsFrames/0/forbiddenInferences/3",
+          "value": "permits_legal_applicability"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-authority-reference",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_REFERENCE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/1/id",
+          "value": "synthetic-cloud-harbor-relation-authority-binding"
+        }
+      ]
+    },
+    {
+      "id": "cross-kind-duplicate-identity",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/scopeReferences/0/id",
+          "value": "synthetic-cloud-harbor-relation-authority-binding"
+        }
+      ]
+    },
+    {
+      "id": "wrong-type-relation-evidence",
+      "expectedLayer": "semantic",
+      "expectedCode": "WRONG_REFERENCE_TYPE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/0/evidenceRefs/0/id",
+          "value": "synthetic-cloud-harbor-service-scope"
+        }
+      ]
+    },
+    {
+      "id": "dangling-relation-evidence",
+      "expectedLayer": "semantic",
+      "expectedCode": "UNKNOWN_REFERENCE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/0/evidenceRefs/0/id",
+          "value": "synthetic-unknown-evidence"
+        }
+      ]
+    },
+    {
+      "id": "wrong-reference-version",
+      "expectedLayer": "semantic",
+      "expectedCode": "UNKNOWN_REFERENCE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/0/evidenceRefs/0/version",
+          "value": "9.9.9"
+        }
+      ]
+    },
+    {
+      "id": "relation-authority-role-substitution",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_AUTHORITY_BINDING",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/0/assertingAuthorityBindingRef/id",
+          "value": "synthetic-cloud-harbor-evidence-source-binding"
+        }
+      ]
+    },
+    {
+      "id": "frame-authority-role-substitution",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_AUTHORITY_BINDING",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/rightsFrames/0/sourceAuthorityBindingRef/id",
+          "value": "synthetic-cloud-harbor-frame-configuration-binding"
+        }
+      ]
+    },
+    {
+      "id": "authority-role-class-mismatch",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_AUTHORITY_BINDING",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/0/authorityClass",
+          "value": "synthetic_source"
+        }
+      ]
+    },
+    {
+      "id": "review-role-substitution",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_AUTHORITY_BINDING",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/reviewAttestations/1/kind",
+          "value": "geometry_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "cross-deployment-subject",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_DEPLOYMENT_REFERENCE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/0/subjectRef/ref/id",
+          "value": "synthetic-glass-desert-deployment"
+        }
+      ]
+    },
+    {
+      "id": "cross-deployment-evidence",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_DEPLOYMENT_REFERENCE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/0/evidenceRefs/0/id",
+          "value": "synthetic-glass-desert-public-evidence"
+        }
+      ]
+    },
+    {
+      "id": "reversed-observed-temporal-scope",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_TEMPORAL_SCOPE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/0/observedTemporalScope/through",
+          "value": { "state": "known", "date": "3779-12-31" }
+        }
+      ]
+    },
+    {
+      "id": "missing-required-review-kind",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_REVIEW",
+      "expectedPath": "/geographicRelations/1/reviewAttestationRefs",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/0/reviewAttestationRefs/0/id",
+          "value": "synthetic-cloud-harbor-community-review"
+        }
+      ]
+    },
+    {
+      "id": "mixed-evidence-restriction-downgrade",
+      "expectedLayer": "semantic",
+      "expectedCode": "VISIBILITY_ESCALATION",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/0/evidenceRefs/0/id",
+          "value": "synthetic-cloud-harbor-restricted-geometry-evidence"
+        }
+      ]
+    },
+    {
+      "id": "geometry-restriction-downgrade",
+      "expectedLayer": "semantic",
+      "expectedCode": "VISIBILITY_ESCALATION",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geometryReferences/1/visibility",
+          "value": "public"
+        }
+      ]
+    },
+    {
+      "id": "derivation-authority-role-substitution",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_AUTHORITY_BINDING",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geometryReferences/1/derivation/deriverAuthorityBindingRef/id",
+          "value": "synthetic-cloud-harbor-geometry-custody-binding"
+        }
+      ]
+    },
+    {
+      "id": "geometry-self-derivation",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_DERIVATION",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geometryReferences/1/derivation/sourceGeometryRef/version",
+          "value": "2.0.0"
+        }
+      ]
+    },
+    {
+      "id": "geometry-derivation-cycle",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_DERIVATION",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geometryReferences/0/derivation",
+          "value": {
+            "kind": "reviewed_derivative",
+            "sourceGeometryRef": {
+              "id": "synthetic-cloud-harbor-opaque-geometry",
+              "version": "2.0.0"
+            },
+            "deriverAuthorityBindingRef": {
+              "id": "synthetic-cloud-harbor-geometry-derivation-binding",
+              "version": "1.0.0"
+            }
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/geometryReferences/0/visibility",
+          "value": "restricted"
+        },
+        {
+          "operation": "replace",
+          "path": "/geometryReferences/0/sensitivity",
+          "value": "restricted"
+        }
+      ]
+    },
+    {
+      "id": "invalid-supersession-identity",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_SUPERSESSION",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/1/supersedesRef/id",
+          "value": "synthetic-cloud-harbor-watershed-relation"
+        }
+      ]
+    },
+    {
+      "id": "overlapping-supersession",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_SUPERSESSION",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/1/effectiveTemporalScope/from/date",
+          "value": "3781-12-31"
+        }
+      ]
+    },
+    {
+      "id": "open-predecessor-supersession",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_SUPERSESSION",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/0/effectiveTemporalScope/through",
+          "value": { "state": "open" }
+        }
+      ]
+    },
+    {
+      "id": "unknown-predecessor-supersession",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_SUPERSESSION",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/0/effectiveTemporalScope/through",
+          "value": { "state": "unknown" }
+        }
+      ]
+    },
+    {
+      "id": "open-successor-start-supersession",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_SUPERSESSION",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/1/effectiveTemporalScope/from",
+          "value": { "state": "open" }
+        }
+      ]
+    },
+    {
+      "id": "unknown-successor-start-supersession",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_SUPERSESSION",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/1/effectiveTemporalScope/from",
+          "value": { "state": "unknown" }
+        }
+      ]
+    },
+    {
+      "id": "supersession-cycle-attempt",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_SUPERSESSION",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/0/supersedesRef",
+          "value": {
+            "id": "synthetic-cloud-harbor-service-relation",
+            "version": "2.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "unbound-governed-object",
+      "expectedLayer": "semantic",
+      "expectedCode": "UNKNOWN_REFERENCE",
+      "mutations": [
+        {
+          "operation": "remove",
+          "path": "/deploymentBindings/0/geographicRelationRefs/0"
+        }
+      ]
+    },
+    {
+      "id": "wrong-kind-deployment-reference",
+      "expectedLayer": "semantic",
+      "expectedCode": "WRONG_REFERENCE_TYPE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/0/geographicRelationRefs/0/id",
+          "value": "synthetic-cloud-harbor-monitoring-frame"
+        }
+      ]
+    },
+    {
+      "id": "grant-unbound-relation",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_DEPLOYMENT_REFERENCE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/0/personaGrants/0/geographicRelationRefs/0/id",
+          "value": "synthetic-glass-desert-agreement-relation"
+        }
+      ]
+    },
+    {
+      "id": "invalid-clearance-order",
+      "expectedLayer": "semantic",
+      "expectedCode": "VISIBILITY_ESCALATION",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/0/personaGrants/0/visibilityClearance",
+          "value": "public"
+        }
+      ]
+    },
+    {
+      "id": "restricted-frame-public-audience",
+      "expectedLayer": "semantic",
+      "expectedCode": "VISIBILITY_ESCALATION",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/rightsFrames/1/approvedAudiences/-",
+          "value": "public"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-allowed-inference",
+      "expectedLayer": "schema",
+      "expectedCode": "DUPLICATE_REFERENCE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/0/allowedInferences/1",
+          "value": "asserted_relation_reference"
+        }
+      ]
+    },
+    {
+      "id": "same-authority-identity-incompatible-class",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_AUTHORITY_BINDING",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/1/authorityIdentityRef/id",
+          "value": "synthetic-cloud-harbor-community-authority-identity"
+        }
+      ]
+    },
+    {
+      "id": "cross-region-profile-authority-scope",
+      "expectedLayer": "projection",
+      "expectedCode": "CROSS_DEPLOYMENT_REFERENCE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/9/profileAuthorityScopeRef/id",
+          "value": "synthetic-glass-desert-authority"
+        }
+      ]
+    },
+    {
+      "id": "same-id-version-fork",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_SUPERSESSION",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/2/id",
+          "value": "synthetic-cloud-harbor-service-relation"
+        },
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/2/version",
+          "value": "3.0.0"
+        },
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/2/objectRef/ref/id",
+          "value": "synthetic-cloud-harbor-service-scope"
+        },
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/2/relationKind",
+          "value": "service_area"
+        },
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/2/effectiveTemporalScope/from",
+          "value": { "state": "known", "date": "3784-01-01" }
+        },
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/2/effectiveTemporalScope/through",
+          "value": { "state": "open" }
+        },
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/2/supersedesRef",
+          "value": {
+            "id": "synthetic-cloud-harbor-service-relation",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/0/geographicRelationRefs/2",
+          "value": {
+            "id": "synthetic-cloud-harbor-service-relation",
+            "version": "3.0.0"
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/0/personaGrants/0/geographicRelationRefs/1",
+          "value": {
+            "id": "synthetic-cloud-harbor-service-relation",
+            "version": "3.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "same-id-unlinked-later-version",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_SUPERSESSION",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/1/supersedesRef",
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "requested-use-outside-grant",
+      "expectedLayer": "projection",
+      "expectedCode": "UNAUTHORIZED_PROJECTION",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/0/personaGrants/0/approvedUses",
+          "value": ["source_reference", "human_review_context"]
+        }
+      ]
+    },
+    {
+      "id": "authority-identity-version-class-laundering",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_AUTHORITY_BINDING",
+      "expectedPath": "/authorityBindings/5/authorityIdentityRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/1/authorityIdentityRef/id",
+          "value": "synthetic-cloud-harbor-community-authority-identity"
+        },
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/1/authorityIdentityRef/version",
+          "value": "2.0.0"
+        }
+      ]
+    },
+    {
+      "id": "authority-identity-version-scope-laundering",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_AUTHORITY_BINDING",
+      "expectedPath": "/authorityBindings/8/authorityIdentityRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/10/authorityIdentityRef/version",
+          "value": "2.0.0"
+        },
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/10/profileAuthorityScopeRef/id",
+          "value": "synthetic-glass-desert-authority"
+        }
+      ]
+    },
+    {
+      "id": "authority-identity-version-deployment-laundering",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_AUTHORITY_BINDING",
+      "expectedPath": "/authorityBindings/12/authorityIdentityRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/13/authorityIdentityRef/id",
+          "value": "synthetic-cloud-harbor-community-authority-identity"
+        },
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/13/authorityIdentityRef/version",
+          "value": "2.0.0"
+        },
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/13/profileAuthorityScopeRef/id",
+          "value": "synthetic-cloud-harbor-authority"
+        }
+      ]
+    },
+    {
+      "id": "unrelated-rights-frame-source-identity",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_AUTHORITY_BINDING",
+      "expectedPath": "/rightsFrames/0/evidenceRefs/0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/1/authorityIdentityRef/id",
+          "value": "synthetic-cloud-harbor-unrelated-frame-source-identity"
+        }
+      ]
+    },
+    {
+      "id": "relation-evidence-substitution-with-old-reviews",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_REVIEW",
+      "expectedPath": "/geographicRelations/1/reviewAttestationRefs/0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/0/evidenceRefs/0/id",
+          "value": "synthetic-cloud-harbor-rights-evidence"
+        }
+      ]
+    },
+    {
+      "id": "frame-evidence-substitution-with-old-reviews",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_REVIEW",
+      "expectedPath": "/rightsFrames/0/reviewAttestationRefs/0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/rightsFrames/0/evidenceRefs/0/id",
+          "value": "synthetic-cloud-harbor-public-evidence"
+        }
+      ]
+    },
+    {
+      "id": "geometry-evidence-substitution-with-old-review",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_REVIEW",
+      "expectedPath": "/geometryReferences/0/reviewAttestationRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geometryReferences/0/evidenceRefs/0/id",
+          "value": "synthetic-cloud-harbor-public-evidence"
+        }
+      ]
+    },
+    {
+      "id": "bundle-identity-collides-with-projected-relation",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "$bundle",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/geographicRelations/2/id",
+          "value": "synthetic-impossible-geography-rights"
+        },
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/0/geographicRelationRefs/2/id",
+          "value": "synthetic-impossible-geography-rights"
+        },
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/0/personaGrants/0/geographicRelationRefs/1/id",
+          "value": "synthetic-impossible-geography-rights"
+        }
+      ]
+    },
+    {
+      "id": "bundle-identity-collides-with-rights-frame",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "$bundle",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/rightsFrames/0/id",
+          "value": "synthetic-impossible-geography-rights"
+        },
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/0/rightsFrameRefs/0/id",
+          "value": "synthetic-impossible-geography-rights"
+        },
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/0/personaGrants/0/rightsFrameRefs/0/id",
+          "value": "synthetic-impossible-geography-rights"
+        }
+      ]
+    },
+    {
+      "id": "unknown-region-source",
+      "expectedLayer": "projection",
+      "expectedCode": "UNKNOWN_REFERENCE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReferences/0/sourceId",
+          "value": "synthetic-unknown-source"
+        }
+      ]
+    },
+    {
+      "id": "cross-persona-grant",
+      "expectedLayer": "projection",
+      "expectedCode": "CROSS_DEPLOYMENT_REFERENCE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/0/personaGrants/0/personaProjectionRef/id",
+          "value": "synthetic-glass-desert-coordinator"
+        }
+      ]
+    },
+    {
+      "id": "profile-bundle-version-mismatch",
+      "expectedLayer": "projection",
+      "expectedCode": "UNKNOWN_REFERENCE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/profileBundleRef/version",
+          "value": "2.0.0"
+        }
+      ]
+    }
+  ]
+}

@@ -102,6 +102,15 @@ test("excludes the preserved owner packet from canonical link validation", async
       "[Owner input with an intentionally absent target](not-canonical.md)\n",
       "utf8",
     );
+    await writeFile(
+      path.join(
+        repositoryRoot,
+        "docs",
+        "12-CODEX-PNW-03-GEOGRAPHY-RIGHTS-IMPLEMENTATION-LONG-RUN.md",
+      ),
+      "[Later owner input with an intentionally absent target](also-not-canonical.md)\n",
+      "utf8",
+    );
 
     const result = await validateMarkdownLinks(repositoryRoot);
 

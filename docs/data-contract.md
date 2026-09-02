@@ -109,25 +109,17 @@ successor.
 
 ### Successor contract register
 
-The status cells below describe the aligned repository checkpoint. For the
-exact PNW-01 transition, the reserved schema path and its intended
-producer/consumer/validation posture are cataloged here in advance so the
-owner-gated implementation can remain inside its frozen path list. Live bytes,
-the schema-graph validator, and `ROADMAP.yaml` control whether that row is still
-proposed or has become implemented; this register does not authorize the
-transition.
-
-After an authorized PNW-01 run, the row is classified as implemented only when
-the reserved schema and runtime paths exist, PNW-01 is complete with objective
-evidence, and foundation, backbone, focused engine, and full validation pass.
-Its checkpoint statement that the paths were absent remains dated history, not
-a contrary current-state claim.
+The status cells below describe the live repository checkpoint. Live bytes,
+schema-graph validation, focused/full test evidence, and `ROADMAP.yaml` control
+whether a row is proposed or implemented; this register cannot authorize a
+transition. Historical handoff statements that PNW-01 or PNW-03 paths were
+absent remain dated evidence, not contrary current-state claims.
 
 | Proposed family | Current authority and status | Missing contract/migration consequence |
 | --- | --- | --- |
-| PNW-01 engine, region, deployment, persona, relevance, and output seam | At this checkpoint, the exact synthetic tranche in the [`PNW launch handoff`](handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md) is blocked by closed `G-PNW-IMPLEMENTATION`; its interfaces and schema do not yet exist. The reserved schema path is `schemas/projection-profile.schema.v1.json`. | Exact authorization permits only the additive `1.0.0` profile-bundle schema and readonly runtime contracts named in the handoff. The engine/profile fixture is the producer input; `src/engine` is the sole initial consumer; foundation and backbone validation plus the three focused engine tests are the validators. It does not migrate or change `PolicyRecord 1.4`, artifact `1.4`, source registry `1.19`, current app data, or existing fixtures. A later semantic break requires a new schema version, migration fixture, consumer review, and roadmap decision. |
+| PNW-01 engine, region, deployment, persona, relevance, and output seam | Implemented and validated as the additive closed `ProjectionProfileBundle 1.0.0` and readonly `src/engine` projection seam under its exact historical [`PNW launch handoff`](handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md). | The synthetic profile fixture is its producer input and `src/engine` its consumer. It does not migrate or change `PolicyRecord 1.4`, artifact `1.4`, source registry `1.19`, current app data, or existing fixtures. A semantic break requires a successor schema version, migration fixture, consumer review, and roadmap decision. |
 | Sovereign identity, recognition, and organization membership | PNW-02 requires stable `SovereignEntity`, time-versioned `RecognitionAssertion`, and independent `OrganizationMembershipAssertion` contracts plus originating evidence for the intended 59 current ATNI Member Tribes. | No schema, authoritative 59-member roster, crosswalk, or migration exists. Current Nation records and the 575-recognition collection cannot be renamed or migrated into ATNI membership. |
-| Governed geography and configured rights frames | PNW-03 requires typed temporal/custody-bearing relations, sensitivity and visibility controls, and explicit non-claims. | No successor schema exists. S0 is an impossible-synthetic nonconverged experiment and cannot be promoted or used to infer identity, association, jurisdiction, applicability, or rights impact. |
+| Governed geography and configured rights frames | Implemented as the separate closed `GeographyRightsBundle 1.0.0` schema and PNW-owned parser/projection seam. It references exact PNW-01 scopes, holds multiple optional typed temporal relations and source-bound rights frames, and emits only access/use-authorized references. | It is synthetic model evidence only. It does not migrate the PNW-01 profile, `PolicyRecord`, or public artifact; supply real geography or rights evidence; activate a source; compute an intersection; establish identity, land status, jurisdiction, applicability, or rights impact; or converge S0. A semantic break requires a successor schema and migration/consumer review. |
 | Authority-separated taxonomy crosswalks | PNW-04 requires Nation, ATNI, NCAI, originating-source, and general taxonomy authorities to remain separately versioned and many-to-many. | No successor crosswalk schema exists. Taxonomy `1.0.0` remains the retained general/source configuration and cannot be relabeled as an organization position. |
 | Source-supported events and lifecycle convergence | PNW-06 requires source-specific event, correction, amendment, challenge, withdrawal, deadline, supersession, health, and LKG evidence. | No PNW lifecycle schema exists. K0 is only a possible primitive source after its closed convergence gate is separately opened; current history fields and K0 cannot silently migrate into asserted currentness or legal effect. |
 | Canonical analyzed corpus | PNW-07 requires one versioned identity that references records once alongside events, evidence, explanations, coverage, health, review, projection inputs, and output-safe visibility. | No corpus schema, producer, fixture, or migration exists. `PolicyRecord 1.4`, artifact package `1.4`, and the current app are compatible inputs/precursors, not the analyzed corpus. |
