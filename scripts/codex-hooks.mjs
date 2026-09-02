@@ -5,7 +5,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const scriptPath = fileURLToPath(import.meta.url);
-const planningDocuments = new Set([
+const fallbackPlanningDocuments = new Set([
   "AGENTS.md",
   "docs/architecture.md",
   "docs/continuation-prompt.md",
@@ -156,10 +156,14 @@ const roadmapIsDirty = (root) => {
   return !result.ok || result.stdout.trim().length > 0;
 };
 
-const isClosedBoundary = (roadmap, boundaryId) =>
-  roadmap?.authority?.external_boundaries?.some(
-    (boundary) => boundary.id === boundaryId && boundary.state === "closed",
-  ) ?? true;
+const isClosedBoundary = (roadmap, boundaryId) => {
+  const boundaries = roadmap?.authority?.external_boundaries;
+  if (!Array.isArray(boundaries)) {
+    return true;
+  }
+  const boundary = boundaries.find((candidate) => candidate.id === boundaryId);
+  return boundary?.state !== "approved";
+};
 
 export const collectFrozenPaths = (roadmap) => {
   const activeMilestones = new Set(
@@ -213,6 +217,68 @@ const hasWriteIntent = (command) =>
     command,
   );
 
+const splitShellInvocations = (command) => {
+  const invocations = [];
+  let current = "";
+  let quote = null;
+  let escaped = false;
+
+  const flush = () => {
+    const invocation = current.trim();
+    if (invocation) {
+      invocations.push(invocation);
+    }
+    current = "";
+  };
+
+  for (const character of String(command ?? "")) {
+    if (escaped) {
+      current += character;
+      escaped = false;
+      continue;
+    }
+    if (character === "\\" && quote !== "'") {
+      current += character;
+      escaped = true;
+      continue;
+    }
+    if (quote) {
+      current += character;
+      if (character === quote) {
+        quote = null;
+      }
+      continue;
+    }
+    if (character === "'" || character === '"') {
+      quote = character;
+      current += character;
+      continue;
+    }
+    if (
+      character === ";" ||
+      character === "|" ||
+      character === "&" ||
+      character === "\n" ||
+      character === "\r"
+    ) {
+      flush();
+      continue;
+    }
+    current += character;
+  }
+  flush();
+  return invocations;
+};
+
+const matchesShellInvocation = (command, pattern) =>
+  splitShellInvocations(command).some((invocation) => pattern.test(invocation));
+
+const gitPrefix = String.raw`git(?:\.exe)?(?:\s+(?:(?:-[cC]|--(?:git-dir|work-tree|namespace|config-env))\s+\S+|--(?:bare|no-pager|literal-pathspecs|no-optional-locks|no-replace-objects)))*\s+`;
+const ghPrefix = String.raw`gh(?:\.exe)?(?:\s+(?:-R|--repo)\s+\S+)*\s+`;
+const npmPrefix = String.raw`npm(?:\.cmd|\.exe)?\s+`;
+const invocationPattern = (prefix, operation) =>
+  new RegExp(`^${prefix}${operation}`, "iu");
+
 export const evaluateShellCommand = (command, roadmap) => {
   const text = String(command ?? "");
   const normalized = text.replace(/\s+/gu, " ").trim();
@@ -222,36 +288,76 @@ export const evaluateShellCommand = (command, roadmap) => {
 
   const alwaysBlocked = [
     [
-      /\bgit\s+(?:[^\s]+\s+)*push\b/iu,
+      invocationPattern(gitPrefix, String.raw`push\b`),
       "Direct git push is forbidden; Policy Sentinel requires an exact owner-approved gh operation.",
     ],
     [
-      /\bgit\s+(?:[^\s]+\s+)*(?:reset\s+--hard|rebase\b|commit\s+--amend|filter-(?:branch|repo)\b|clean\s+[^\r\n]*-f|checkout\s+--(?:\s|$)|restore\s+[^\r\n]*(?:--worktree|-W)(?:\s|$))/iu,
+      invocationPattern(
+        gitPrefix,
+        String.raw`(?:reset\s+--hard|rebase\b|commit\s+--amend|filter-(?:branch|repo)\b|clean\s+[^\r\n]*-f|checkout\s+--(?:\s|$)|restore\s+[^\r\n]*(?:--worktree|-W)(?:\s|$))`,
+      ),
       "Destructive or history-rewriting Git operation blocked by repository policy.",
     ],
   ];
   for (const [pattern, reason] of alwaysBlocked) {
-    if (pattern.test(normalized)) {
+    if (matchesShellInvocation(text, pattern)) {
       return { blocked: true, reason };
     }
   }
 
   if (githubClosed) {
     const githubMutationPatterns = [
-      /\bgit\s+remote\s+(?:add|remove|rename|set-url|update)\b/iu,
-      /\bgit\s+(?:[^\s]+\s+)*config\b(?![^\r\n]*\s--get(?:-all|-regexp)?\b)[^\r\n]*\b(?:remote\.[^\s=]+|branch\.[^\s=]+\.remote)\b/iu,
-      /\bgh\s+auth\s+(?:login|logout|refresh|setup-git)\b/iu,
-      /\bgh\s+repo\s+(?:archive|create|delete|edit|fork|rename|sync)\b/iu,
-      /\bgh\s+pr\s+(?:close|create|edit|merge|ready|reopen|review)\b/iu,
-      /\bgh\s+issue\s+(?:close|create|delete|edit|reopen)\b/iu,
-      /\bgh\s+release\s+(?:create|delete|edit|upload)\b/iu,
-      /\bgh\s+workflow\s+(?:disable|enable|run)\b/iu,
-      /\bgh\s+run\s+(?:cancel|delete|rerun)\b/iu,
-      /\bgh\s+(?:secret|variable)\s+(?:delete|remove|set)\b/iu,
-      /\bgh\s+api\b[^\r\n]*(?:(?:-X|--method)(?:=|\s+)(?:POST|PUT|PATCH|DELETE)|(?:^|\s)(?:-f|-F|--field|--raw-field|--input)(?:\s|=))/iu,
-      /\bnpm\s+(?:publish|deprecate|unpublish)\b/iu,
+      invocationPattern(
+        gitPrefix,
+        String.raw`remote\s+(?:add|remove|rename|set-url|update)\b`,
+      ),
+      invocationPattern(
+        gitPrefix,
+        String.raw`config\b(?![^\r\n]*\s--get(?:-all|-regexp)?\b)[^\r\n]*\b(?:remote\.[^\s=]+|branch\.[^\s=]+\.remote)\b`,
+      ),
+      invocationPattern(
+        ghPrefix,
+        String.raw`auth\s+(?:login|logout|refresh|setup-git)\b`,
+      ),
+      invocationPattern(
+        ghPrefix,
+        String.raw`repo\s+(?:archive|create|delete|edit|fork|rename|sync)\b`,
+      ),
+      invocationPattern(
+        ghPrefix,
+        String.raw`pr\s+(?:close|create|edit|merge|ready|reopen|review)\b`,
+      ),
+      invocationPattern(
+        ghPrefix,
+        String.raw`issue\s+(?:close|create|delete|edit|reopen)\b`,
+      ),
+      invocationPattern(
+        ghPrefix,
+        String.raw`release\s+(?:create|delete|edit|upload)\b`,
+      ),
+      invocationPattern(
+        ghPrefix,
+        String.raw`workflow\s+(?:disable|enable|run)\b`,
+      ),
+      invocationPattern(ghPrefix, String.raw`run\s+(?:cancel|delete|rerun)\b`),
+      invocationPattern(
+        ghPrefix,
+        String.raw`(?:secret|variable)\s+(?:delete|remove|set)\b`,
+      ),
+      invocationPattern(
+        ghPrefix,
+        String.raw`api\b[^\r\n]*(?:(?:-X|--method)(?:=|\s+)(?:POST|PUT|PATCH|DELETE)|(?:^|\s)(?:-f|-F|--field|--raw-field|--input)(?:\s|=))`,
+      ),
+      invocationPattern(
+        npmPrefix,
+        String.raw`(?:publish|deprecate|unpublish)\b`,
+      ),
     ];
-    if (githubMutationPatterns.some((pattern) => pattern.test(normalized))) {
+    if (
+      githubMutationPatterns.some((pattern) =>
+        matchesShellInvocation(text, pattern),
+      )
+    ) {
       return {
         blocked: true,
         reason:
@@ -262,20 +368,32 @@ export const evaluateShellCommand = (command, roadmap) => {
 
   if (
     credentialsClosed &&
-    /\b(?:gh\s+(?:secret|variable)\s+(?:delete|remove|set)|npm\s+token\s+(?:create|revoke))\b/iu.test(
-      normalized,
-    )
+    [
+      invocationPattern(
+        ghPrefix,
+        String.raw`(?:secret|variable)\s+(?:delete|list|remove|set)\b`,
+      ),
+      invocationPattern(ghPrefix, String.raw`auth\s+token\b`),
+      invocationPattern(
+        npmPrefix,
+        String.raw`token\s+(?:create|list|revoke)\b`,
+      ),
+    ].some((pattern) => matchesShellInvocation(text, pattern))
   ) {
     return {
       blocked: true,
       reason:
-        "Credential or secret mutation blocked while EXT-CREDENTIALS is closed.",
+        "Credential, secret, or protected-variable access blocked while EXT-CREDENTIALS is closed.",
     };
   }
 
   if (
-    /\bnpm\s+run\s+(?:--silent\s+)?source:wa-lws:canary\b[^\r\n]*--execute\b/iu.test(
-      normalized,
+    matchesShellInvocation(
+      text,
+      invocationPattern(
+        npmPrefix,
+        String.raw`run\s+(?:--silent\s+)?source:wa-lws:canary\b[^\r\n]*--execute\b`,
+      ),
     )
   ) {
     return {
@@ -287,9 +405,10 @@ export const evaluateShellCommand = (command, roadmap) => {
 
   if (
     notificationClosed &&
-    /\b(?:send-mailmessage|mailx?|sendgrid|twilio)\b|\bslack\s+(?:chat|send)\b/iu.test(
-      normalized,
-    )
+    [
+      /^(?:send-mailmessage|mailx?|sendgrid|twilio)\b/iu,
+      /^slack\s+(?:chat|send)\b/iu,
+    ].some((pattern) => matchesShellInvocation(text, pattern))
   ) {
     return {
       blocked: true,
@@ -359,12 +478,12 @@ export const evaluatePatchPaths = (paths, roadmap) => {
   return { blocked: false };
 };
 
-export const planPostEditChecks = (paths) => {
+export const planPostEditChecks = (paths, roadmap) => {
   const normalizedPaths = [...new Set(paths.map(normalizeRepositoryPath))];
   const formattedPaths = normalizedPaths.filter((repositoryPath) =>
     prettierExtensions.has(path.posix.extname(repositoryPath).toLowerCase()),
   );
-  const roadmap = normalizedPaths.includes("ROADMAP.yaml");
+  const roadmapChanged = normalizedPaths.includes("ROADMAP.yaml");
   const foundation = normalizedPaths.some(
     (repositoryPath) =>
       /^(?:config|fixtures|schemas)\//u.test(repositoryPath) ||
@@ -372,23 +491,31 @@ export const planPostEditChecks = (paths) => {
       repositoryPath === "src/pipeline/source-registry.mjs",
   );
   const sourceBoundary = normalizedPaths.some((repositoryPath) =>
-    /^(?:\.codex|config|fixtures|schemas|scripts|src)\//u.test(repositoryPath),
+    /^(?:\.agents|\.codex|config|fixtures|schemas|scripts|src)\//u.test(
+      repositoryPath,
+    ),
   );
+  const planningDocuments = new Set([
+    ...fallbackPlanningDocuments,
+    ...(roadmap?.binding_documents ?? []).map((entry) =>
+      normalizeRepositoryPath(entry?.path),
+    ),
+  ]);
   const planning = normalizedPaths.some((repositoryPath) =>
     planningDocuments.has(repositoryPath),
   );
   return {
     paths: normalizedPaths,
     formattedPaths,
-    roadmap,
+    roadmap: roadmapChanged,
     foundation,
     sourceBoundary,
     planning,
   };
 };
 
-const executePostEditChecks = (root, paths) => {
-  const plan = planPostEditChecks(paths);
+const executePostEditChecks = (root, paths, roadmap) => {
+  const plan = planPostEditChecks(paths, roadmap);
   const checks = [];
   const existingPaths = plan.formattedPaths.filter((repositoryPath) =>
     existsSync(path.resolve(root, repositoryPath)),
@@ -618,7 +745,13 @@ const postToolUse = async (event, root) => {
   if (paths.length === 0) {
     return null;
   }
-  const { plan, checks } = executePostEditChecks(root, paths);
+  let roadmap;
+  try {
+    roadmap = await loadRoadmap(root);
+  } catch {
+    roadmap = null;
+  }
+  const { plan, checks } = executePostEditChecks(root, paths, roadmap);
   const failures = checks.filter((check) => !check.result.ok);
   const companionWarning =
     plan.planning && !plan.roadmap && !roadmapIsDirty(root)

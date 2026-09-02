@@ -26,6 +26,10 @@ const hookRunner = path.resolve(projectRoot, "scripts/codex-hooks.mjs");
 const hookConfig = JSON.parse(
   readFileSync(path.resolve(projectRoot, ".codex/hooks.json"), "utf8"),
 );
+const posixHookCommand =
+  'node "$(git rev-parse --show-toplevel)/scripts/codex-hooks.mjs"';
+const windowsHookCommand =
+  'cmd.exe /d /s /c "for /f \\"delims=\\" %R in (\'git rev-parse --show-toplevel\') do @node \\"%R\\scripts\\codex-hooks.mjs\\""';
 const closedRoadmap = {
   authority: {
     external_boundaries: [
@@ -64,11 +68,11 @@ test("hooks.json installs the five requested synchronous lifecycle hooks", () =>
     const handler = groups[0].hooks[0];
     assert.equal(handler.type, "command");
     assert.equal(handler.async, undefined);
-    assert.match(handler.command, /hooks:run/u);
-    assert.match(handler.commandWindows, /hooks:run/u);
+    assert.equal(handler.command, posixHookCommand);
+    assert.equal(handler.commandWindows, windowsHookCommand);
     assert.doesNotMatch(
       `${handler.command} ${handler.commandWindows}`,
-      /(?:curl|invoke-webrequest|transcript|notify|webhook)/iu,
+      /(?:curl|invoke-webrequest|npm|powershell|transcript|notify|webhook)/iu,
     );
   }
 });
@@ -96,14 +100,23 @@ test("patch paths normalize across Windows and repository-relative input", () =>
 test("PreToolUse blocks closed gates and destructive Git but permits inspection", () => {
   const blockedCommands = [
     "git push origin main",
+    "git.exe push origin main",
+    "git -C . push origin main",
+    "git status --short; git.exe push origin main",
     "git reset --hard HEAD~1",
     "git checkout -- ROADMAP.yaml",
     "git remote add origin https://example.invalid/repo.git",
     "git config remote.origin.url https://example.invalid/repo.git",
     "gh auth login",
     "gh repo create example",
+    "gh.exe repo create example",
     "gh api repos/example/example -X POST -f name=value",
+    "gh secret list",
+    "gh variable list",
+    "gh auth token",
     "npm publish",
+    "npm.cmd publish",
+    "npm token list",
     "npm run source:wa-lws:canary -- --execute --scenario yearly",
     "Send-MailMessage -To owner@example.invalid",
   ];
@@ -121,16 +134,34 @@ test("PreToolUse blocks closed gates and destructive Git but permits inspection"
     "gh auth status",
     "gh repo view atniclimate/policy-sentinel",
     "gh api --method GET repos/atniclimate/policy-sentinel",
-    "gh secret list",
     "git config --get remote.origin.url",
     "npm run check",
     "npm run --silent source:wa-lws:canary -- --help",
+    'Write-Output "Never run git push"',
+    'rg -n "git push" AGENTS.md',
+    'rg -n "gh repo create" AGENTS.md',
   ];
   for (const command of allowedCommands) {
     assert.equal(
       evaluateShellCommand(command, closedRoadmap).blocked,
       false,
       command,
+    );
+  }
+
+  const missingBoundaryRoadmap = {
+    authority: { external_boundaries: [] },
+    work_items: [],
+  };
+  for (const command of [
+    "gh repo create example",
+    "gh secret list",
+    "Send-MailMessage -To owner@example.invalid",
+  ]) {
+    assert.equal(
+      evaluateShellCommand(command, missingBoundaryRoadmap).blocked,
+      true,
+      `missing boundary must fail closed: ${command}`,
     );
   }
 });
@@ -200,6 +231,16 @@ test("PostToolUse selects proportional checks from changed paths", () => {
   const planning = planPostEditChecks(["docs/project-brief.md"]);
   assert.equal(planning.planning, true);
   assert.equal(planning.formattedPaths.length, 1);
+
+  const dynamicPlanning = planPostEditChecks(["docs/new-binding-document.md"], {
+    binding_documents: [{ path: "docs/new-binding-document.md" }],
+  });
+  assert.equal(dynamicPlanning.planning, true);
+
+  const skillPlan = planPostEditChecks([
+    ".agents/skills/policy-sentinel-source-review/SKILL.md",
+  ]);
+  assert.equal(skillPlan.sourceBoundary, true);
 });
 
 test("SessionStart context is bounded recovery state, not transcript content", () => {
