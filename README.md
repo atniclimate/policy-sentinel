@@ -118,6 +118,7 @@ Useful focused commands:
 
 ```powershell
 npm run dev
+npm run hooks:test
 npm run validate:roadmap
 npm test
 npm run test:a11y
@@ -147,6 +148,33 @@ writes no response or record. The yearly report contains no request year,
 identifier, source string, typed item, or completeness claim. The command is
 not part of `npm run check`, does not enable the disabled source, and does not
 establish complete coverage.
+
+## Codex lifecycle hooks
+
+Repository-scoped hooks in [`.codex/hooks.json`](.codex/hooks.json) make long
+local Codex runs easier to recover and harder to leave in an ambiguous state:
+
+- `SessionStart` adds a short recovery brief from validated `ROADMAP.yaml`, Git
+  status, and the next-action queue without reading the chat transcript;
+- `PreCompact` requires a valid roadmap and, when the worktree is dirty, an
+  active work item before compaction;
+- `PreToolUse` denies destructive Git operations, closed external mutations,
+  sensitive paths, and inactive frozen review or contract evidence;
+- `PostToolUse` runs focused formatting, roadmap, foundation, and
+  source-boundary checks after `apply_patch`, selected from the changed paths;
+  and
+- `Stop` requests one continuation when the ledger is invalid, work remains in
+  progress, or an untracked stopping state is dirty. Its recursion guard allows
+  the second stop attempt.
+
+The hooks are synchronous local guardrails. They do not read transcript files,
+make network calls, send notifications, commit changes, or replace the full
+`npm run check` completion gate. Run `npm run hooks:test` for their focused
+contract tests. Codex requires the exact project hook definitions to be
+reviewed and trusted; after cloning or changing them, use `/hooks` to inspect
+and trust the repository hook layer. See the
+[official Codex hooks reference](https://learn.chatgpt.com/docs/hooks) for the
+runtime and trust model.
 
 Key documents:
 

@@ -138,6 +138,7 @@ Current commands:
 
 ```powershell
 npm ci
+npm run hooks:test
 npm run validate:roadmap
 npm run format:check
 npm run lint

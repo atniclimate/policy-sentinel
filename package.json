@@ -8,6 +8,8 @@
     "dev": "vite",
     "build": "vite build && node scripts/build-synthetic-artifact.mjs --out dist/data && npm run validate:artifact",
     "preview": "vite preview",
+    "hooks:run": "node scripts/codex-hooks.mjs",
+    "hooks:test": "node --test tests/hooks/codex-hooks.test.mjs",
     "validate:roadmap": "node scripts/validate-roadmap.mjs",
     "validate:foundation": "node scripts/validate-foundation.mjs",
     "validate:artifact": "node scripts/validate-artifact.mjs --dir dist/data",
