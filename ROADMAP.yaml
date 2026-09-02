@@ -570,7 +570,7 @@ current_focus:
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 6f04b23
+  last_durable_checkpoint: 789ece1
   resume_command: npm run check
 
 completion_scope:
@@ -3153,6 +3153,13 @@ work_items:
         contains exact normative clauses and acceptance register A01 through
         A32; this evidence is authorship and byte custody, not review or
         acceptance.
+      - >-
+        Contract-candidate checkpoint 789ece12eb51164abfd3e11b7093644143e3c702
+        has parent c58625e3ebf4806952a09a61807712d31056b701 and changes exactly
+        ROADMAP.yaml plus docs/vision/o0-orchestration-contract.md. It records
+        O0 as blocked at contract_review with the byte-sealed candidate, review
+        not authorized, and accepted_contract null; it contains no review or
+        implementation.
     next_step: >-
       Stop. Preserve the exact candidate and separately authorize independent
       review of its recorded contractCandidateId before any review artifact,
