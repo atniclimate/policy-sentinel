@@ -3,7 +3,8 @@
 ## Purpose and phase gate
 
 Policy Sentinel is a configurable, sovereignty-centered policy monitoring and
-source-reference engine. Preserve the product boundaries in
+source-reference engine. Use `docs/PROJECT-BACKBONE.md` as the canonical
+repository navigation and authority index. Preserve the product boundaries in
 `docs/project-brief.md`, the PNW scope and acceptance contract in
 `docs/pnw-scope-and-acceptance.md`, and the decisions in
 `docs/decision-register.md`.
@@ -55,10 +56,16 @@ concurrent changes.
 - Use [the Sol Ultra continuation prompt](docs/continuation-prompt.md) for a
   fresh long-running implementation session. Local Git and `ROADMAP.yaml` must
   remain sufficient to recover after context compaction.
-- Treat
-  [`docs/handoffs/pnw-product-space-rebase-2026-09-02.md`](docs/handoffs/pnw-product-space-rebase-2026-09-02.md)
-  as the durable product-space mapping and exact first-tranche boundary until a
-  later checkpoint supersedes it.
+- Follow the
+  [agent and tool operating model](docs/development/AGENT-AND-TOOL-OPERATING-MODEL.md)
+  for bounded roles, write leases, validation, context conservation, and stop
+  contracts. It organizes work but cannot authorize it.
+- Treat the
+  [PNW rebase handoff](docs/handoffs/pnw-product-space-rebase-2026-09-02.md) as
+  the durable product-space mapping, and the
+  [PNW-01 launch handoff](docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md)
+  as the exact first-tranche execution contract after separate owner
+  authorization.
 
 ## Git and GitHub
 
@@ -161,6 +168,7 @@ Current commands:
 npm ci
 npm run hooks:test
 npm run validate:roadmap
+npm run validate:backbone
 npm run format:check
 npm run lint
 npm run typecheck

@@ -1,6 +1,7 @@
 # Policy Sentinel MVP implementation plan
 
-Status: Gate A approved; Phase B local implementation in progress
+Status: Gate A approved; retained B1-B10 contract. The current validated
+terminal checkpoint has no active B-series work item.
 
 Last reviewed for product-space governance: 2026-09-02. Source and implementation
 evidence retains its recorded date.
@@ -23,7 +24,8 @@ capability. See [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md).
 Phase A ended when the owner approved Gate A on 2026-07-30. Phase B local
 implementation may proceed only within this retained B1-B10 plan. That approval
 does not authorize PNW-01; `G-PNW-IMPLEMENTATION` remains closed until the owner
-authorizes the exact tranche recorded in the PNW rebase handoff.
+authorizes the exact tranche recorded in the
+[PNW-01 launch handoff](handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md).
 
 Approval of Phase B authorizes only local implementation described here, use of synthetic fixtures, and read-only access to official public sources that require neither registration nor acceptance of new terms. It does **not** authorize:
 
@@ -54,6 +56,10 @@ Each excluded action has its own stop/go gate below. No milestone may treat an u
   complete and its adapter is blocked because API use accepts current provider
   terms and live canaries are required. No production policy records have been
   ingested or published.
+- The Washington Governor executive-order and Centennial Accord adapters are
+  implemented, tested, and registered disabled. Washington LWS remains a
+  synthetic contract without accepted population discovery, and the Washington
+  State Register remains a researched source with no adapter.
 - The B6 metadata-only landmark contract and one-row Cougar Den pilot are
   implemented and validated while remaining disabled. B7's independent Oregon
   rule and executive review found that statewide access-triggered terms cover
@@ -62,11 +68,16 @@ Each excluded action has its own stop/go gate below. No milestone may treat an u
   only repository-owned synthetic logical metadata and entity pages; its source
   is registered disabled with `adapter: null`, and live access remains closed.
 
-## Recommended source order
+## Retained Phase B source order
 
-The implementation order is:
+This order remains the binding B1-B10 source sequence when its exact item and
+gate are active. It is not the current executable queue and does not authorize
+source access. `ROADMAP.yaml` controls current next actions; the PNW completion
+graph and its exact first tranche are separate.
 
-1. BIA annual recognition list for the canonical 575-Nation baseline; Tribal Leaders Directory only for validated public alias/supporting metadata, never contacts, geometry, or legal status.
+1. BIA annual recognition list for the retained 575-entity United States
+   federal-recognition collection; Tribal Leaders Directory only for validated
+   public alias/supporting metadata, never contacts, geometry, or legal status.
 2. Federal Register for the first no-key federal record adapter.
 3. Grants.gov for active and forecast funding discovery only after its current
    access contract and terms are approved and verified. The 2026-07-31 review
@@ -113,7 +124,8 @@ Implement a versioned build-time adapter for the current BIA annual recognition 
 
 Acceptance criteria:
 
-- the enabled baseline contains exactly 575 federally recognized Nations for the cited annual list;
+- the enabled collection contains exactly 575 reviewed federal-recognition
+  identities for the cited annual list;
 - every entry traces to the exact official recognition-list evidence;
 - aliases are accepted only from a documented authoritative source and never replace the official name;
 - contacts, personal data, addresses not needed for display, maps, coordinates, geometry, parcels, and land fields are discarded;

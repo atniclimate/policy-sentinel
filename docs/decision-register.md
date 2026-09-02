@@ -24,6 +24,13 @@ notifications remain unauthorized.
 
 ## Final decisions
 
+Decisions D-002 through D-004, D-011 through D-012, and D-014 through D-017
+retain their recorded meaning for the Pages-oriented application adapter and
+its B1-B10 acceptance stream. D-046 through D-053 govern the broader product
+space and supersede any product-wide reading of those earlier rows. This scope
+note preserves the historical decisions rather than rewriting them into later
+terminology.
+
 | ID | Decision |
 | --- | --- |
 | D-001 | Policy Sentinel is a new, independent project. The earlier [`atniclimate/policy-sentinel`](https://github.com/atniclimate/policy-sentinel) repository is historical reference only; copy neither its code nor its software design. |
@@ -79,6 +86,7 @@ notifications remain unauthorized.
 | D-051 | Product evolution is braided, not a rewrite. Every B1-B10 identity/status/evidence/gate remains preserved and maps to PNW work only as its actual maturity permits. K0 and S0 remain complete additive candidates behind closed convergence; O0 remains repaired, byte-sealed, unaccepted, unimplemented, and outside the PNW dependency graph. |
 | D-052 | The Nez Perce habitat/endangered-species scenario is a golden use case, not a product fork or accepted fact set. PNW acceptance also requires materially contrasting coastal treaty/fisheries, inland/transboundary, Oregon, Montana, northern California, southeast Alaska, and different/non-treaty scenarios. Scenario failure exposes a limitation and cannot justify engine special cases. |
 | D-053 | D-003, D-014 through D-017, and the B1-B10 application requirements remain binding for the current application adapter and future national-scale evidence. They no longer define the complete product by themselves. PNW completion is governed by `docs/pnw-scope-and-acceptance.md` and the separate PNW completion graph in `ROADMAP.yaml`. |
+| D-054 | `docs/PROJECT-BACKBONE.md` is the canonical authority/navigation index; existing canonical documents keep exclusive ownership of product scope, PNW acceptance, architecture, schemas/contracts, governance, coverage, source evidence, UX, B-series acceptance, decisions, roadmap state, and recovery. `docs/data-contract.md` is the schema catalog, and `docs/development/AGENT-AND-TOOL-OPERATING-MODEL.md` owns work-class staffing, leases, tool proof limits, and run templates. Repository congruence is represented by the isolated `H-REPOSITORY-BACKBONE` scope so it cannot alter B-series or PNW completion roots. Its launch handoff confirms `PNW-01-ENGINE-SEAMS` as the exact next product tranche but does not open `G-PNW-IMPLEMENTATION` or implement a capability. |
 
 ## Working assumptions
 

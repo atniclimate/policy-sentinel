@@ -32,16 +32,28 @@ AI generation, and outbound notifications remain outside current authority.
 
 ## Current application-adapter baseline
 
-The sections below preserve requirements already implemented, contracted, or
-planned for the static application. They are one application-adapter baseline,
-not the complete PNW engine definition of done.
+The sections below preserve mixed-maturity requirements for the static
+application. They are one application-adapter baseline, not the complete PNW
+engine definition of done. Their current maturity is:
+
+| Maturity | Current evidence |
+| --- | --- |
+| Integrated, synthetic only | The static application, dossier, CSV, artifact pipeline, source-health presentation, and last-known-good rules operate over three synthetic records and 575 explicitly synthetic Nation rows. |
+| Implemented but disabled | Federal Register, Washington Governor executive orders, Washington Centennial Accord, and one curated Supreme Court adapter are validated but emit no public records. |
+| Contract-only | Congress.gov, GovInfo, Regulations.gov, Oregon Legislature OData, and Washington LWS have synthetic contract evidence but no activated live adapter. |
+| Proposed | PNW region, deployment, persona, analyzed-corpus, common output-adapter, production-refresh, and publication capabilities are not implemented. |
+
+`ROADMAP.yaml` remains authoritative for item-level status and acceptance
+evidence.
 
 ### People and flows
 
-- The current application contract selects one Nation from a separately
-  validated United States federal-recognition baseline.
-- Comparison is an explicit advanced mode and is implemented only after the
-  single-Nation flow works.
+- The production application contract selects one Nation from a separately
+  validated United States federal-recognition baseline. The current build uses
+  an explicitly synthetic 575-row collection instead.
+- Comparison is an explicit advanced-mode requirement. It is not enabled in the
+  current application and may be implemented only after the single-Nation flow
+  works.
 - The three dashboard entry points are guided Nation search, policy-area
   browsing, and a landmark timeline.
 - Visitors can search globally; filter by jurisdiction, document type, status,
@@ -157,14 +169,18 @@ suggest that its results represent a Nation's full land interests.
 
 ### Refresh and alerts
 
-- Public data refreshes weekly, with a manual workflow-dispatch option.
-- The application shows data-as-of dates, per-source health and freshness,
-  new/changed badges, and urgent deadline or status alerts.
+- The production application acceptance target is a weekly refresh with a
+  manual workflow-dispatch option. No scheduled or manual deployment workflow
+  currently exists.
+- The current synthetic application and artifact contracts present data-as-of
+  dates, per-source health and freshness, new/changed badges, and exact urgent
+  deadline or status alerts when the validated artifact supplies them.
 - Urgent alerts appear only in the site and dossier. No email, text, Slack, or
   other outbound notification is authorized.
-- A failed refresh preserves checksum-validated last-known-good public data,
-  its original data-as-of date, and a degraded/stale label. It never presents
-  stale data as current.
+- The local pipeline implements the rule that a failed refresh may preserve
+  checksum-validated last-known-good public data, its original data-as-of date,
+  and a degraded/stale label. A future deployment workflow must supply the
+  approved prior artifact and must never present stale data as current.
 
 ### Current static application output
 
@@ -246,7 +262,8 @@ The current product public beta requires the PNW regional engine and retained
 application release scopes to be complete, followed by separate publication
 authorization. Within that combined boundary, it is done only when:
 
-1. the 575-Nation registry is validated against the current recognition notice;
+1. the retained 575-entity federal-recognition collection is validated against
+   the current recognition notice;
 2. the single-Nation flow and federal-only notice work before comparison mode;
 3. every enabled source passes its contract, terms, provenance, history,
    health, and last-known-good tests;

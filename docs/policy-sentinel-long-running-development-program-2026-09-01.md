@@ -1,5 +1,13 @@
 # Policy Sentinel Long-Running Development Program
 
+> **Historical strategy proposal.** This document preserves the 2026-09-01
+> program and checkpoint language as evidence. It is superseded for execution
+> by [`ROADMAP.yaml`](../ROADMAP.yaml), the
+> [PNW scope contract](pnw-scope-and-acceptance.md), and the
+> [current continuation prompt](continuation-prompt.md). K0/S0/O0 and the
+> unstarted D0 concept are indexed without changing their protected artifacts in
+> [`docs/vision/README.md`](vision/README.md).
+
 ## Post-deep-dive proposal — 2026-09-01
 
 ## Executive conclusion

@@ -149,6 +149,38 @@ if (
 ) {
   fail("allowed work-item statuses do not match the durable status contract");
 }
+const statusSemantics = requireExactKeys(
+  roadmap.canonical_ledger.status_semantics,
+  [...expectedStatuses],
+  "canonical_ledger.status_semantics",
+);
+for (const status of expectedStatuses) {
+  requireString(
+    statusSemantics[status],
+    `canonical_ledger.status_semantics.${status}`,
+  );
+}
+const maturitySemanticsKeys = [
+  "proposed",
+  "contracted",
+  "implemented",
+  "integrated",
+  "validated",
+  "source_activated",
+  "release_ready",
+  "published",
+];
+const maturitySemantics = requireExactKeys(
+  roadmap.canonical_ledger.capability_maturity_semantics,
+  maturitySemanticsKeys,
+  "canonical_ledger.capability_maturity_semantics",
+);
+for (const maturity of maturitySemanticsKeys) {
+  requireString(
+    maturitySemantics[maturity],
+    `canonical_ledger.capability_maturity_semantics.${maturity}`,
+  );
+}
 
 const allowedGateStates = new Set(
   requireUniqueStrings(
@@ -497,6 +529,10 @@ const pnwCompletionScope = requireObject(
   roadmap.completion_scope.pnw_regional_engine,
   "completion_scope.pnw_regional_engine",
 );
+const repositoryBackboneScope = requireObject(
+  roadmap.completion_scope.repository_backbone,
+  "completion_scope.repository_backbone",
+);
 const hasExactOrderedValues = (actual, expected) =>
   actual.length === expected.length &&
   actual.every((value, index) => value === expected[index]);
@@ -516,6 +552,19 @@ const additiveVisionPhases = requireUniqueStrings(
   completionScope.additive_vision_phases,
   "completion_scope.local_release_candidate.additive_vision_phases",
 );
+const repositoryBackboneOutcomes = requireUniqueStrings(
+  repositoryBackboneScope.required_outcomes,
+  "completion_scope.repository_backbone.required_outcomes",
+);
+requireUniqueStrings(
+  repositoryBackboneScope.does_not_change,
+  "completion_scope.repository_backbone.does_not_change",
+);
+if (
+  !hasExactOrderedValues(repositoryBackboneOutcomes, ["H-REPOSITORY-BACKBONE"])
+) {
+  fail("repository backbone scope must contain exactly H-REPOSITORY-BACKBONE");
+}
 const expectedPnwRequiredOutcomes = [
   "PNW-00-RECONCILE",
   "PNW-01-ENGINE-SEAMS",
@@ -544,6 +593,18 @@ const pnwMappingDocument = requireString(
 );
 if (!bindingPaths.has(pnwMappingDocument)) {
   fail("PNW regional mapping document must be a binding document");
+}
+const expectedPnwLaunchDocument =
+  "docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md";
+const pnwLaunchDocument = requireString(
+  pnwCompletionScope.launch_document,
+  "completion_scope.pnw_regional_engine.launch_document",
+);
+if (pnwLaunchDocument !== expectedPnwLaunchDocument) {
+  fail(`PNW-01 launch document must remain ${expectedPnwLaunchDocument}`);
+}
+if (!bindingPaths.has(pnwLaunchDocument)) {
+  fail("PNW-01 launch document must be a binding document");
 }
 if (
   requireString(
@@ -621,6 +682,7 @@ if (
   fail("PNW-02-REGIONAL-REGISTRY must retain G-PNW-ATNI-59-ROSTER");
 }
 const completionGroups = [
+  ["repository_backbone.required_outcomes", repositoryBackboneOutcomes],
   ["required_outcomes", requiredOutcomes],
   ["accepted_source_blocks", acceptedSourceBlocks],
   ["publication_only", publicationOnly],
@@ -651,6 +713,24 @@ if (unscopedWorkItems.length > 0) {
 }
 
 const additiveVisionPhaseIds = new Set(additiveVisionPhases);
+const repositoryBackboneOutcomeIds = new Set(repositoryBackboneOutcomes);
+const repositoryBackboneItem = byId.get("H-REPOSITORY-BACKBONE");
+if (!repositoryBackboneItem) {
+  fail("durable repository backbone work item is missing");
+}
+if (
+  !hasExactOrderedValues(repositoryBackboneItem.dependencies, [
+    "H-HOOKS",
+    "PNW-00-RECONCILE",
+  ])
+) {
+  fail(
+    "H-REPOSITORY-BACKBONE must depend exactly on H-HOOKS and PNW-00-RECONCILE",
+  );
+}
+if (repositoryBackboneItem.work_class !== "repository_governance") {
+  fail("H-REPOSITORY-BACKBONE must retain work_class repository_governance");
+}
 const durableAdditiveVisionPhaseIds = [
   "K0-LIFECYCLE",
   "S0-SPATIAL",
@@ -1378,6 +1458,38 @@ const pnwFinish = requireObject(
   roadmap.finish_states.pnw_regional_engine,
   "finish_states.pnw_regional_engine",
 );
+const repositoryBackboneFinish = requireObject(
+  roadmap.finish_states.repository_backbone,
+  "finish_states.repository_backbone",
+);
+if (!allowedFinishStates.has(repositoryBackboneFinish.current_state)) {
+  fail(
+    "finish_states.repository_backbone.current_state is not an allowed finish state",
+  );
+}
+requireUniqueStrings(
+  repositoryBackboneFinish.satisfied_when,
+  "finish_states.repository_backbone.satisfied_when",
+);
+requireUniqueStrings(
+  repositoryBackboneFinish.does_not_mean,
+  "finish_states.repository_backbone.does_not_mean",
+);
+const expectedRepositoryBackboneFinish = new Map([
+  ["complete", "complete"],
+  ["in_progress", "in_progress"],
+  ["ready", "not_started"],
+  ["not_started", "not_started"],
+  ["blocked", "blocked"],
+  ["deferred", "blocked"],
+]).get(repositoryBackboneItem.status);
+if (
+  repositoryBackboneFinish.current_state !== expectedRepositoryBackboneFinish
+) {
+  fail(
+    "repository backbone finish state must match H-REPOSITORY-BACKBONE status",
+  );
+}
 if (!allowedFinishStates.has(pnwFinish.current_state)) {
   fail(
     `finish_states.pnw_regional_engine.current_state is not allowed: ${pnwFinish.current_state}`,
@@ -1421,12 +1533,17 @@ if (isTerminal) {
       !(
         pnwFinish.current_state === "in_progress" &&
         pnwRequiredOutcomeIds.has(item.id)
+      ) &&
+      !(
+        repositoryBackboneFinish.current_state === "in_progress" &&
+        repositoryBackboneOutcomeIds.has(item.id)
       ),
   );
   if (disallowedTerminalInProgress.length !== 0) {
     fail(
       "terminal local finish state permits only optional additive in_progress " +
-        "work or in_progress work in the separately active PNW scope; found " +
+        "work, in_progress repository-backbone work, or in_progress work in " +
+        "the separately active PNW scope; found " +
         "disallowed in_progress items: " +
         disallowedTerminalInProgress.map((item) => item.id).join(", "),
     );
@@ -1438,7 +1555,7 @@ if (isTerminal) {
     );
   } else if (roadmap.current_focus.terminal_reason !== null) {
     fail(
-      "an active additive or PNW current focus requires current_focus.terminal_reason: null",
+      "an active additive, repository-backbone, or PNW current focus requires current_focus.terminal_reason: null",
     );
   }
 } else {
@@ -1594,13 +1711,41 @@ if (pnwFinish.current_state === "complete") {
     );
   }
 }
+if (
+  repositoryBackboneFinish.current_state === "in_progress" &&
+  (inProgress.length !== 1 ||
+    !repositoryBackboneOutcomeIds.has(inProgress[0].id))
+) {
+  fail(
+    "active repository backbone finish state requires exactly its one in_progress item",
+  );
+}
 if (pnwFinish.current_state === "in_progress") {
   const activePnwItems = inProgress.filter((item) =>
     pnwRequiredOutcomeIds.has(item.id),
   );
-  if (activePnwItems.length !== 1) {
+  const readyPnwItems = workItems.filter(
+    (item) => pnwRequiredOutcomeIds.has(item.id) && item.status === "ready",
+  );
+  if (activePnwItems.length === 1) {
+    if (inProgress.length !== 1) {
+      fail(
+        "active PNW regional finish state cannot run beside another in_progress item",
+      );
+    }
+  } else if (
+    activePnwItems.length === 0 &&
+    inProgress.length === 0 &&
+    readyPnwItems.length > 0
+  ) {
+    // A bounded PNW tranche may end with newly dependency-ready successors
+    // while exact authority for the next tranche remains outside the run.
+    // Preserve those roots in next_actions without pretending another item is
+    // already active.
+    terminalPnwRoots = collectIncompleteOutcomeRoots(pnwRequiredOutcomes);
+  } else {
     fail(
-      "active PNW regional finish state requires exactly one PNW in_progress item",
+      "in-progress PNW regional finish state requires exactly one PNW in_progress item or a terminal checkpoint with zero in_progress and at least one ready PNW item",
     );
   }
 }

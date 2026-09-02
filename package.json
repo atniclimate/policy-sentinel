@@ -2,7 +2,7 @@
   "name": "policy-sentinel",
   "version": "0.2.0",
   "private": true,
-  "description": "Sovereignty-centered public policy discovery and source-reference tool",
+  "description": "Configurable, sovereignty-centered policy monitoring and source-reference engine",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,6 +11,7 @@
     "hooks:run": "node scripts/codex-hooks.mjs",
     "hooks:test": "node --test tests/hooks/codex-hooks.test.mjs",
     "validate:roadmap": "node scripts/validate-roadmap.mjs",
+    "validate:backbone": "node scripts/validate-backbone.mjs",
     "validate:foundation": "node scripts/validate-foundation.mjs",
     "validate:artifact": "node scripts/validate-artifact.mjs --dir dist/data",
     "source:bia": "node scripts/build-bia-registry.mjs --out .cache/source-validation/bia/nations.json",
@@ -23,7 +24,7 @@
     "test:unit": "vitest run",
     "test:a11y": "vitest run tests/app",
     "test": "npm run validate:foundation && npm run test:unit",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm run validate:roadmap && npm run scan:source && npm test && npm run build"
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run validate:roadmap && npm run validate:backbone && npm run scan:source && npm test && npm run build"
   },
   "dependencies": {
     "parse5": "8.0.1",

@@ -8,16 +8,16 @@ Nation's interests.
 
 ## Project status
 
-This repository retains its approved **Phase B local implementation** history
-and records a bounded 2026-09-02 PNW product-space planning rebase. The owner
-approved Gate A on July 30, 2026. The current local increment contains a static
-TypeScript application backed by synthetic fixtures, versioned source and
-artifact contracts, a fail-closed artifact pipeline, and a build-time adapter
-that independently validates all 577 displayed list-entry paragraphs in the current
-official recognition notice. The notice states 575 entities but does not
-provide a row-level reconciliation between that total and its displayed list,
-so the live Nation registry now fails closed pending exact originating-source
-evidence.
+This repository retains its approved **Phase B local implementation** history,
+the bounded 2026-09-02 PNW product-space planning rebase, and the subsequent
+repository-backbone alignment. The owner approved Gate A on July 30, 2026. The
+current local increment contains a static TypeScript application backed by
+synthetic fixtures, versioned source and artifact contracts, a fail-closed
+artifact pipeline, and a build-time adapter that independently validates all
+577 displayed list-entry paragraphs in the current official recognition
+notice. The notice states 575 entities but does not provide a row-level
+reconciliation between that total and its displayed list, so the live Nation
+registry now fails closed pending exact originating-source evidence.
 
 The static application, dossier, CSV, and artifact are current output
 implementations/precursors, not the whole engine or a general adapter suite.
@@ -26,17 +26,26 @@ region and the intended 59 current ATNI Member Tribes, once an authoritative
 current roster exists. Nationwide United States packs remain the longer-term
 direction.
 
-This is not a completed PNW engine or public beta. Production record-source adapters,
-large-scale index benchmarks, publication review, a remote repository, GitHub
-Pages, and a release are still pending. Gate A did not authorize a remote,
-push, Pages, API registration, provider-term acceptance, paid use, third-party
-contact, optional AI generation, outbound notifications, or private material.
+The Nez Perce habitat/endangered-species scenario is one golden use case for
+proving this general design. It is neither a standalone application nor a
+source of accepted production facts.
+
+This is not a completed PNW engine or public beta. Production source
+activation, remaining record-source adapters, large-scale index benchmarks,
+publication review, a remote repository, GitHub Pages, and a release are still
+pending. Gate A did not authorize a remote, push, Pages, API registration,
+provider-term acceptance, paid use, third-party contact, optional AI
+generation, outbound notifications, or private material.
 
 Current progress, dependencies, source blocks, acceptance evidence, and the
 course through a local release candidate are maintained in the validated
 [`ROADMAP.yaml`](ROADMAP.yaml). The external publication step remains
-separately blocked. A fresh Sol Ultra session can resume from
-[the durable continuation prompt](docs/continuation-prompt.md).
+separately blocked. Start repository navigation with the
+[project backbone](docs/PROJECT-BACKBONE.md). A fresh implementation session
+must use the
+[exact PNW-01 launch handoff](docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md)
+only after the owner authorizes that exact tranche; otherwise use the
+[durable continuation prompt](docs/continuation-prompt.md) for recovery.
 
 ## Intended PNW engine
 
@@ -90,8 +99,10 @@ The public repository may contain source code, documentation, schemas,
 taxonomy and source configuration, synthetic fixtures, notices, and deployment
 configuration. Raw corpora, cached provider responses, generated policy data,
 generated AI summaries, real Nation-specific configuration, credentials, and
-private material must not be committed. Generated public data may exist only in
-an approved Pages deployment artifact and is public once deployed.
+private material must not be committed. For the retained static application,
+generated public data may exist only in an approved Pages deployment artifact
+and is public once deployed. Each future document, web-module, application, or
+structured adapter requires its own approved output and delivery boundary.
 
 The public beta excludes maps, parcel geometry, land ownership, trust-land,
 fee-land, Tribally owned parcel, and sensitive land data. A future private
@@ -122,9 +133,10 @@ npm run check
 ```
 
 `npm run check` checks formatting, lints, type-checks, validates the YAML
-roadmap and foundation, runs the source-boundary scan plus unit and
-accessibility tests, builds the static application, emits an ignored synthetic
-artifact under `dist/data`, and validates its hashes and contracts.
+roadmap, schema/link backbone, and foundation, runs the source-boundary scan
+plus unit and accessibility tests, builds the static application, emits an
+ignored synthetic artifact under `dist/data`, and validates its hashes and
+contracts.
 
 Useful focused commands:
 
@@ -132,6 +144,7 @@ Useful focused commands:
 npm run dev
 npm run hooks:test
 npm run validate:roadmap
+npm run validate:backbone
 npm test
 npm run test:a11y
 npm run build
@@ -190,11 +203,16 @@ runtime and trust model.
 
 Key documents:
 
+- [Canonical repository backbone](docs/PROJECT-BACKBONE.md)
 - [Canonical implementation roadmap](ROADMAP.yaml)
 - [PNW product scope and acceptance](docs/pnw-scope-and-acceptance.md)
 - [PNW rebase mapping, evidence gaps, and first tranche](docs/handoffs/pnw-product-space-rebase-2026-09-02.md)
+- [Exact owner-gated PNW-01 launch handoff](docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md)
 - [Sol Ultra continuation prompt](docs/continuation-prompt.md)
 - [Project brief](docs/project-brief.md)
+- [Schema and logical-contract catalog](docs/data-contract.md)
+- [Agent and tool operating model](docs/development/AGENT-AND-TOOL-OPERATING-MODEL.md)
+- [K0/S0/O0 custody index](docs/vision/README.md)
 - [Source feasibility](docs/source-feasibility.md)
 - [Data governance](docs/data-governance.md)
 - [Architecture](docs/architecture.md)

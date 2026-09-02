@@ -362,6 +362,28 @@ const makeRoadmap = ({
         "blocked",
       ],
       allowed_additive_phase_stages: additiveStages,
+      status_semantics: Object.fromEntries(
+        [
+          "complete",
+          "in_progress",
+          "ready",
+          "blocked",
+          "deferred",
+          "not_started",
+        ].map((value) => [value, `Synthetic meaning for ${value}.`]),
+      ),
+      capability_maturity_semantics: Object.fromEntries(
+        [
+          "proposed",
+          "contracted",
+          "implemented",
+          "integrated",
+          "validated",
+          "source_activated",
+          "release_ready",
+          "published",
+        ].map((value) => [value, `Synthetic meaning for ${value}.`]),
+      ),
     },
     authority: {
       external_boundaries: [
@@ -445,6 +467,10 @@ const makeRoadmap = ({
     ],
     binding_documents: [
       { path: "AGENTS.md", role: "Existing local fixture path." },
+      {
+        path: "docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md",
+        role: "Synthetic PNW launch contract.",
+      },
     ],
     work_items: [
       {
@@ -458,8 +484,18 @@ const makeRoadmap = ({
         evidence: ["Synthetic handoff evidence."],
       },
       {
-        id: "B3-PIPELINE",
+        id: "H-HOOKS",
         priority: 2,
+        milestone: "TEST",
+        title: "Synthetic hook guardrails",
+        status: "complete",
+        dependencies: ["H-HANDOFF"],
+        acceptance: ["The synthetic hooks are complete."],
+        evidence: ["Synthetic hook evidence."],
+      },
+      {
+        id: "B3-PIPELINE",
+        priority: 3,
         milestone: "TEST",
         title: "Synthetic existing pipeline",
         status: "complete",
@@ -509,11 +545,27 @@ const makeRoadmap = ({
       },
       o0,
       ...makePnwWorkItems(),
+      {
+        id: "H-REPOSITORY-BACKBONE",
+        priority: 141,
+        milestone: "Repository governance",
+        title: "Synthetic repository backbone",
+        status: "complete",
+        work_class: "repository_governance",
+        dependencies: ["H-HOOKS", "PNW-00-RECONCILE"],
+        acceptance: ["The synthetic repository backbone is aligned."],
+        evidence: ["Synthetic repository-backbone completion evidence."],
+      },
     ],
     completion_scope: {
+      repository_backbone: {
+        required_outcomes: ["H-REPOSITORY-BACKBONE"],
+        does_not_change: ["Synthetic product roots."],
+      },
       local_release_candidate: {
         required_outcomes: [
           "H-HANDOFF",
+          "H-HOOKS",
           "B3-PIPELINE",
           ...protectedReleaseRoots,
         ],
@@ -548,11 +600,18 @@ const makeRoadmap = ({
           "PNW-10-REGIONAL-RC",
         ],
         mapping_document: "AGENTS.md",
+        launch_document:
+          "docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md",
         first_implementation_tranche: "PNW-01-ENGINE-SEAMS",
         implementation_gate: "G-PNW-IMPLEMENTATION",
       },
     },
     finish_states: {
+      repository_backbone: {
+        current_state: "complete",
+        satisfied_when: ["Synthetic backbone completion."],
+        does_not_mean: ["Synthetic product completion."],
+      },
       local_release_candidate: {
         current_state: releaseState,
         blocked_by: [...releaseRoots],
@@ -598,6 +657,7 @@ test("additive stage governance cannot affect protected release accounting", asy
     name,
     candidate,
     expectedReleaseState = "blocked",
+    expectedNextActionIds = null,
   ) => {
     const result = await validateCandidate(name, candidate);
     assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
@@ -615,7 +675,7 @@ test("additive stage governance cannot affect protected release accounting", asy
     );
     assert.deepEqual(
       candidate.next_actions.map((action) => action.work_item),
-      [
+      expectedNextActionIds ?? [
         ...(expectedReleaseState === "blocked" ? protectedReleaseRoots : []),
         ...(candidate.finish_states.pnw_regional_engine.current_state ===
         "blocked"
@@ -647,7 +707,7 @@ test("additive stage governance cannot affect protected release accounting", asy
     );
     candidate.work_items.push({
       id: "X0-EXPERIMENT",
-      priority: 141,
+      priority: 142,
       milestone: "X0",
       title: "Synthetic pending-convergence additive phase",
       status: "ready",
@@ -1065,6 +1125,58 @@ test("additive stage governance cannot affect protected release accounting", asy
   );
   await expectValid("active-pnw-with-blocked-legacy-release", activePnwTranche);
 
+  const completedPnwTranche = makeRoadmap();
+  const completedPnwGate = completedPnwTranche.gates.find(
+    (gate) => gate.id === "G-PNW-IMPLEMENTATION",
+  );
+  completedPnwGate.state = "approved";
+  completedPnwGate.evidence = ["Synthetic exact PNW tranche authorization."];
+  const completedPnwItem = completedPnwTranche.work_items.find(
+    (item) => item.id === "PNW-01-ENGINE-SEAMS",
+  );
+  completedPnwItem.status = "complete";
+  completedPnwItem.evidence = ["Synthetic completed PNW tranche evidence."];
+  delete completedPnwItem.blocked_by;
+  delete completedPnwItem.safe_fallback;
+  delete completedPnwItem.unblocks_only_when;
+  for (const id of [
+    "PNW-03-GEOGRAPHY-RIGHTS",
+    "PNW-04-TAXONOMY",
+    "PNW-05-SOURCE-PACK",
+  ]) {
+    completedPnwTranche.work_items.find((item) => item.id === id).status =
+      "ready";
+  }
+  completedPnwTranche.current_focus.work_item = null;
+  completedPnwTranche.current_focus.terminal_reason =
+    "The completed PNW tranche stopped before separately authorized successor work.";
+  completedPnwTranche.finish_states.pnw_regional_engine = {
+    current_state: "in_progress",
+  };
+  completedPnwTranche.next_actions = [
+    ...protectedReleaseRoots,
+    "PNW-02-REGIONAL-REGISTRY",
+    "PNW-03-GEOGRAPHY-RIGHTS",
+    "PNW-04-TAXONOMY",
+    "PNW-05-SOURCE-PACK",
+  ].map((workItem, index) => ({
+    order: index + 1,
+    work_item: workItem,
+    action: `Resolve or authorize ${workItem}.`,
+  }));
+  await expectValid(
+    "completed-pnw-tranche-stops-before-ready-successors",
+    completedPnwTranche,
+    "blocked",
+    [
+      ...protectedReleaseRoots,
+      "PNW-02-REGIONAL-REGISTRY",
+      "PNW-03-GEOGRAPHY-RIGHTS",
+      "PNW-04-TAXONOMY",
+      "PNW-05-SOURCE-PACK",
+    ],
+  );
+
   const missingPnwOutcome = makeRoadmap();
   missingPnwOutcome.completion_scope.pnw_regional_engine.required_outcomes.pop();
   await expectInvalid(
@@ -1089,6 +1201,15 @@ test("additive stage governance cannot affect protected release accounting", asy
     "unbound-pnw-mapping",
     unboundPnwMapping,
     /PNW regional mapping document must be a binding document/,
+  );
+
+  const changedPnwLaunch = makeRoadmap();
+  changedPnwLaunch.completion_scope.pnw_regional_engine.launch_document =
+    "AGENTS.md";
+  await expectInvalid(
+    "changed-pnw-launch-document",
+    changedPnwLaunch,
+    /PNW-01 launch document must remain/,
   );
 
   const removedPnwGate = makeRoadmap();
@@ -1126,6 +1247,13 @@ test("additive stage governance cannot affect protected release accounting", asy
   hiddenPnwRoot.status = "deferred";
   hiddenPnwRoot.reason = "Synthetic hidden-root regression.";
   hiddenPnwRoot.evidence = [];
+  const dependentBackbone = hiddenPnwReadyRoot.work_items.find(
+    (item) => item.id === "H-REPOSITORY-BACKBONE",
+  );
+  dependentBackbone.status = "not_started";
+  dependentBackbone.evidence = [];
+  hiddenPnwReadyRoot.finish_states.repository_backbone.current_state =
+    "not_started";
   await expectInvalid(
     "hidden-pnw-nonblocked-root",
     hiddenPnwReadyRoot,

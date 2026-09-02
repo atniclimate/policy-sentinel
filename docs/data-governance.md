@@ -15,13 +15,16 @@ production source. Record source terms, attribution requirements, authentication
 rate limits, historical range, update behavior, and permitted reproduction
 before enabling an adapter.
 
-The retained United States federal-recognition collection used by the current
-application is based on the Bureau of Indian Affairs annual recognition list,
-currently the 575-entity list published January 30, 2026
+The retained United States federal-recognition collection contract intended for
+the current application is based on the Bureau of Indian Affairs annual
+recognition list, currently the notice stating 575 entities published January
+30, 2026
 ([Federal Register notice](https://www.federalregister.gov/documents/2026/01/30/2026-01899/indian-entities-recognized-by-and-eligible-to-receive-services-from-the-united-states-bureau-of)).
 The [Tribal Leaders Directory](https://www.bia.gov/service/tribal-leaders-directory)
 may support official-name reconciliation and documented aliases, but it is not
-the recognition authority. Do not publish its contacts, addresses, or geometry.
+the recognition authority. No production collection exists yet; the current
+application artifact uses explicitly synthetic Nation rows. Do not publish TLD
+contacts, addresses, or geometry.
 
 The retained application artifact must distinguish synthetic Nation fixtures
 from a production United States federal-recognition collection. Synthetic
@@ -64,11 +67,13 @@ URL and identifier checks, and source-specific fixture or contract checks.
 Validation errors quarantine the candidate record; they must not mutate the
 last-known-good public record.
 
-Each deployment manifest records a data-as-of time, per-source retrieval and
-coverage dates, source health, validation outcome, and content hashes. A weekly
-or manually dispatched refresh may mark records new or changed and may expose
-deterministic deadline or status alerts. It must not send email, text, Slack, or
-other outbound notifications.
+The implemented local artifact package records a data-as-of time, per-source
+retrieval and coverage dates, source health, validation outcomes, and content
+hashes. No deployment manifest or scheduled/manual workflow currently exists.
+A future approved weekly or manually dispatched refresh must preserve those
+fields, may mark records new or changed, and may expose deterministic deadline
+or status alerts. It must not send email, text, Slack, or other outbound
+notifications.
 
 If refresh fails, retain the last-known-good source data and label its actual
 freshness and degraded health. If no prior valid data exists, omit that source's
@@ -173,12 +178,14 @@ and approved deployment configuration only. Do not commit raw corpora, cached
 API responses, generated policy data, generated AI summaries, real
 Nation-specific configuration, credentials, personal data, or private data.
 
-The Pages deployment artifact may contain approved generated public data.
-Everything in that artifact is publicly inspectable. Hidden or dot-prefixed
-paths are not private. No API key, token, credential, private endpoint, secret,
-or personal data may enter client code, source maps, assets, commits, logs,
-fixtures, or documentation. Approved GitHub Actions secrets remain build-time
-only.
+For the retained static application, an approved Pages deployment artifact may
+contain approved generated public data. Everything in that artifact is publicly
+inspectable. A future document, web-module, application, or structured-output
+adapter requires its own approved output and delivery boundary. Hidden or
+dot-prefixed paths are not private. No API key, token, credential, private
+endpoint, secret, or personal data may enter client code, source maps, assets,
+commits, logs, fixtures, or documentation. Approved GitHub Actions secrets
+remain build-time only.
 
 The public beta must contain no maps, parcel geometry, land ownership, trust-land
 data, fee-land data, Tribally owned parcel data, or sensitive land context. Land

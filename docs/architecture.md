@@ -34,22 +34,30 @@ rebase neither changes their bytes nor imports them into product code.
 
 ## Current application and ingestion architecture
 
-Build Policy Sentinel as a static TypeScript application with a separate
+The implemented baseline is a static TypeScript application with a separate
 build-time ingestion pipeline. There is no browser-to-provider API path, runtime
 database, application server, LLM dependency, telemetry service, or private
 data path in the public build.
 
-Recommended Phase B stack:
+Its current maturity is:
 
-- TypeScript on the current Node.js LTS line, with Node's built-in `fetch` for
-  adapters;
+| Maturity | Current repository evidence |
+| --- | --- |
+| Integrated local output | The Preact application, print dossier, CSV serializer, hash-route behavior, and artifact pipeline run over three synthetic records and 575 explicitly synthetic Nation rows. |
+| Implemented but disabled | Federal Register, Washington Governor executive orders, Washington Centennial Accord, and the one-row curated Supreme Court adapters are tested and registered but cannot emit public records. |
+| Contract-only | Congress.gov, GovInfo, Regulations.gov, Oregon Legislature OData, and Washington LWS have bounded synthetic contracts but no activated production adapter. |
+| Proposed and unimplemented | Region packs, community deployment profiles, persona projections, the canonical analyzed corpus, common output-adapter implementations, scheduled/manual workflows, Pages delivery, and a private deployment remain future work. |
+
+Current and conditional tooling:
+
+- TypeScript on Node.js 22 or later, with Node's built-in `fetch` for bounded
+  adapter transports;
 - Vite for deterministic static builds and Preact for a small, accessible
   stateful interface;
 - JSON Schema Draft 2020-12 and Ajv for source, record, taxonomy, manifest, and
   artifact validation;
 - Vitest and Testing Library for logic/component tests, `axe-core` for
-  automated accessibility checks, and Playwright for keyboard, responsive,
-  print, download, and built-site tests;
+  automated accessibility checks;
 - `saxes@6.0.0` as the narrowly scoped, build-time, namespace-aware XML event
   parser for the bounded Washington Legislative Web Services SOAP contract
   (Decision D-025);
@@ -57,6 +65,10 @@ Recommended Phase B stack:
   Washington Governor executive-order index contract (Decision D-032); and
 - a dedicated client-side search library only if an artifact-size and latency
   benchmark shows that a simple prebuilt token index is insufficient.
+
+Playwright is not installed. Keyboard, responsive, print, download, and
+built-site browser evidence remains an acceptance target to satisfy through an
+available approved browser-testing route; it is not current package capability.
 
 These packages are build tooling or local UI code; none requires an additional
 hosted service. Do not add a framework with a server runtime, hosted search,
@@ -365,34 +377,39 @@ source status, or publisher identity creates a Nation relationship.
 
 ## Source repository versus deployment artifact
 
-The proposed tree is:
+The current authored tree and its explicitly absent target seams are:
 
 ```text
 policy-sentinel/
-  .github/
-    workflows/                  # Phase B+, only after workflow approval
+  .agents/skills/               # one repository source-review procedure
+  .codex/                       # hooks and read-only reviewer roles
   config/
     taxonomy.v1.json
-    sources.v1.json             # planned source registry
-    mappings/                   # planned exact official-label maps
+    sources.v1.json             # implemented source registry
+    mappings/                   # absent; future exact official-label maps
   docs/
   fixtures/
     records/                    # synthetic only
-    sources/                    # planned synthetic/rights-cleared contracts
+    sources/                    # synthetic source contracts
   schemas/
     record.schema.v1.json
     taxonomy.schema.v1.json
-    source.schema.v1.json       # planned
-    artifact.schema.v1.json     # planned
+    source.schema.v1.json
+    artifact.schema.v1.json
   scripts/
-    validate-foundation.mjs
+    validate-foundation.mjs     # plus artifact/source/hook validators
   src/
-    app/                        # planned static UI
-    adapters/                   # planned build-time public adapters
-    pipeline/                   # planned normalize/validate/package stages
-    private-adapters/           # planned interfaces only, excluded publicly
+    app/                        # implemented static synthetic UI
+    adapters/                   # implemented adapters; real sources disabled
+    contracts/                  # bounded synthetic source contracts
+    experimental/spatial/       # isolated S0; not a product dependency
+    kernel/                     # isolated K0; not a product dependency
+    pipeline/                   # implemented normalize/validate/package stages
+    engine/                     # absent; proposed successor seams
+    private-adapters/           # absent; future gated interface only
     shared/
   tests/
+  .github/workflows/            # absent; future and separately gated
   AGENTS.md
   README.md
   package.json
@@ -403,7 +420,9 @@ synthetic fixtures, tests, notices, and approved workflow definitions. It may
 not hold raw/cached source data, generated records or summaries, secrets,
 private data, or real Nation-specific configuration.
 
-The planned Pages artifact is separate:
+`npm run build` currently creates an ignored, validated synthetic static
+artifact under `dist/`; it does not publish it. If Pages delivery is separately
+approved, the retained application's deployment artifact uses this layout:
 
 ```text
 /
@@ -555,7 +574,7 @@ JSON Schema validates shape and conditional rules. Pipeline semantic validators
 add cross-record and source-specific checks, including:
 
 - uniqueness and stability of internal/source identifiers;
-- exactly 575 current Nation registry entries plus the production review,
+- exactly 575 reviewed federal-recognition identities plus the production review,
   source-evidence, provenance, health, and state-crosswalk policy above;
 - complete provenance for every source-derived leaf field, expressed as an
   exact JSON Pointer and source/retrieval/validation record;
@@ -574,8 +593,11 @@ according to the source contract; they are never guessed.
 
 ## Last-known-good and health behavior
 
-Before a scheduled build publishes, it verifies the manifest and checksums from
-the current public Pages artifact. For each source:
+The local pipeline implements source-scoped health and last-known-good merge
+rules when a validated prior artifact is supplied. It does not retrieve a
+public Pages artifact, schedule a refresh, or publish a build. A future approved
+scheduled publication workflow must first verify the manifest and checksums
+from the current public Pages artifact. For each source:
 
 - a successful refresh replaces that source's shard and records its new
   retrieval and data-as-of times;
@@ -586,10 +608,12 @@ the current public Pages artifact. For each source:
 - an artifact-level validation failure stops deployment, leaving the current
   site unchanged.
 
-The new health manifest identifies the failure stage and last successful time
+The implemented health manifest identifies the failure stage and last
+successful time
 without publishing secrets or raw provider errors. No build may convert an
 unknown freshness state to current. This approach keeps generated data in the
-Pages artifact rather than in Git history or an unrelated durable cache.
+local or approved Pages artifact rather than in Git history or an unrelated
+durable cache.
 
 ## AI boundary
 
@@ -621,8 +645,11 @@ interface AuthorizedPrivateContextAdapter {
 An implementation, if later authorized, belongs in a separately configured
 private deployment. It is opt-in, has no automatic public export, sends no
 telemetry, and must not contain bundled data, credentials, example locations,
-or implicit source paths. Public build configuration rejects this module and
-any private-context manifest. Private context cannot create a public
+or implicit source paths. No private adapter module or private-context manifest
+exists. Current repository checks reject tracked private-path families and
+prohibited public-record fields; a future implementation must additionally
+prove that its public build configuration rejects the private module and every
+private-context manifest. Private context cannot create a public
 Nation-to-record relationship. The public product must state that its results
 do not represent all of a Nation's land or other interests.
 
@@ -643,8 +670,9 @@ do not represent all of a Nation's land or other interests.
 
 ## Deployment separation
 
-Source refresh, artifact build, and Pages deployment are separate jobs with
-explicit permissions. Scheduled and manual refreshes are planned, but no
-workflow is present in Phase A. A future pull-request build uses synthetic
-fixtures only. A live-data workflow requires approved source access and
-secrets; deployment requires a separately approved remote and Pages target.
+The target production design keeps source refresh, artifact build, and Pages
+deployment as separate jobs with explicit permissions. No `.github` workflow,
+scheduled/manual refresh job, or Pages deployment is currently present. A
+future pull-request build uses synthetic fixtures only. A live-data workflow
+requires approved source access and secrets; deployment requires a separately
+approved remote and Pages target.

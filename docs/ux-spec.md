@@ -13,6 +13,12 @@ the entire PNW definition of done. Future document, web-module, application,
 and structured-output adapters must consume one accepted corpus without
 changing record identity, evidence, `whyShown`, review state, or non-claims.
 
+Implementation status: the B1 application exercises these interaction patterns
+over a validated synthetic artifact. A production Nation registry, production
+records, comparison mode, scheduled/manual deployment refresh, Pages
+publication, and the successor PNW output-adapter architecture do not yet
+exist.
+
 ## Experience contract
 
 Policy Sentinel is a source-reference and discovery tool for Tribal government leadership and staff, policy staff, grants staff, and program staff. The interface must be calm, compact, plain-language, and usable without policy or technical expertise. It must not imply that results are comprehensive, legally determinative, or a complete statement of a Nation's interests.
@@ -39,7 +45,11 @@ Accord cards show exact governmental or collective parties rather than an issuin
 
 Single-Nation discovery is the default and must be complete before comparison mode is enabled.
 
-1. **Select a Nation.** Use a searchable, keyboard-accessible single-select control populated with the current validated 575-Nation baseline.
+1. **Select a Nation.** For production, use a searchable,
+   keyboard-accessible single-select control populated with the approved
+   575-entity United States federal-recognition collection after its identity
+   reconciliation passes. The current B1 build uses an explicitly synthetic
+   575-row collection.
 2. **Select policy scope.** Require an explicit choice of All policy areas or at least one category or subcategory.
 3. **Review coverage.** Show the jurisdictions and source date ranges available for the selected Nation context, including any degraded or unavailable source.
 4. **Apply.** A clearly labeled button runs the search. Filters never auto-submit while the visitor is still making choices.
@@ -121,7 +131,13 @@ Each short result card contains:
 
 The Why shown value is limited to a schema-approved relevance basis. **Explicit Nation reference** links to exact official evidence in the detail view. **General jurisdiction** includes the words "not Nation-specific." **Landmark** links to the written inclusion basis. No card contains an AI summary, legal conclusion, rights determination, inferred relationship, or geography-derived claim.
 
-New and changed badges compare the current validated source record with the prior successful public build. They state the comparison window. Urgent badges show the exact source-provided deadline or status, date, time zone when provided, and retrieval age; the application does not predict urgency. Badges are visible in the site and dossier only. They never trigger email, text, Slack, push, or other outbound notification.
+In the production acceptance target, new and changed badges compare the current
+validated source record with the prior successful public build and state the
+comparison window. Urgent badges show the exact source-provided deadline or
+status, date, time zone when provided, and retrieval age; the application does
+not predict urgency. Badges are visible in the site and dossier only. They never
+trigger email, text, Slack, push, or other outbound notification. Current tests
+exercise this behavior with synthetic artifacts, not a prior published build.
 
 ## On-demand record detail
 

@@ -1,5 +1,12 @@
 # Policy Sentinel — Sol Ultra Repository Deep Dive and Vision Reconciliation
 
+> **Historical completed diagnostic prompt.** Do not execute this snapshot as a
+> current run. Use [`ROADMAP.yaml`](../ROADMAP.yaml), the
+> [project backbone](PROJECT-BACKBONE.md), the
+> [current continuation prompt](continuation-prompt.md), and the current dated
+> handoff under [`docs/handoffs/`](handoffs/) instead. The body below retains its
+> original authority limits and historical assumptions.
+
 Use this prompt from the root of the local repository at `I:\policy-sentinel` in a fresh GPT-5.6 Sol Ultra Codex session.
 
 ---

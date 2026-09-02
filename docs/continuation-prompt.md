@@ -1,9 +1,10 @@
 # Policy Sentinel long-running Codex continuation prompt
 
-Status: current after the 2026-09-02 PNW product-space rebase. This prompt
-supersedes the former executable B1-B10 continuation prompt. Git and the
-validated `ROADMAP.yaml` remain authoritative over this prose and over chat
-memory.
+Status: current after the 2026-09-02 PNW product-space rebase and repository
+backbone alignment. This is the general recovery prompt; the separately
+owner-gated PNW-01 implementation run uses the exact launch handoff named
+below. Git and the validated `ROADMAP.yaml` remain authoritative over this
+prose and over chat memory.
 
 ## Start and recover
 
@@ -11,15 +12,19 @@ Open Codex in `I:\policy-sentinel` with `gpt-5.6-sol` at Ultra effort, then:
 
 1. Resolve the repository root and read every applicable `AGENTS.md`.
 2. Read `ROADMAP.yaml` completely before selecting work.
-3. Read `docs/pnw-scope-and-acceptance.md` and
-   `docs/handoffs/pnw-product-space-rebase-2026-09-02.md` completely.
-4. Read the binding contract, architecture, governance, decision, source,
+3. Read `docs/PROJECT-BACKBONE.md`, `docs/pnw-scope-and-acceptance.md`, and
+   `docs/development/AGENT-AND-TOOL-OPERATING-MODEL.md` completely.
+4. Read `docs/handoffs/pnw-product-space-rebase-2026-09-02.md` and the current
+   `docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md`. The
+   latter is executable only after exact owner authorization of PNW-01.
+5. Read the binding contract, architecture, governance, decision, source,
    review, validation, test, and handoff files relevant to the selected item.
-5. Reconcile branch, exact HEAD and parent, worktrees, status, remotes, changed
+6. Reconcile branch, exact HEAD and parent, worktrees, status, remotes, changed
    paths, recent relevant history, and protected K0/S0/O0 identities with the
    roadmap.
-6. Run `npm run validate:roadmap` before mutation. A checkbox, plan, scaffold,
-   agent report, or passing synthetic fixture is not completion evidence.
+7. Run `npm run validate:roadmap` and `npm run validate:backbone` before
+   mutation. A checkbox, plan, scaffold, agent report, or passing synthetic
+   fixture is not completion evidence.
 
 If context was compacted, repeat these recovery steps from local Git and the
 roadmap. Do not reconstruct authority from remembered chat.
@@ -50,7 +55,7 @@ geography, proximity, sponsors, model output, or owner-direction counts.
 The 2026-07-30 Gate A authorizes only the retained B1-B10 implementation stream
 under `docs/mvp-plan.md`. It does not authorize PNW-01 or another successor
 contract. `G-PNW-IMPLEMENTATION` remains closed until the owner explicitly
-authorizes the exact first tranche in the rebase handoff.
+authorizes the exact first tranche in the current launch handoff.
 
 Until that exact authorization exists:
 
@@ -105,10 +110,11 @@ completion.
 
 Use focused changed-surface checks during edits. Before a durable completion
 claim, run the required repository commands in `AGENTS.md`, including roadmap
-validation, formatting, lint, type checking, source-boundary scanning, tests,
-build, artifact validation, and the serialized full `npm run check` when
-locally safe. Recheck protected K0/S0/O0 identities, `git diff --check`, remotes,
-status, generated artifacts, and exact staged paths.
+and backbone validation, formatting, lint, type checking, source-boundary
+scanning, tests, build, artifact validation, and the serialized full
+`npm run check` when locally safe. Recheck protected K0/S0/O0 identities,
+`git diff --check`, remotes, status, generated artifacts, and exact staged
+paths.
 
 Commit only authorized repository changes. Preserve owner-supplied untracked
 direction files unless the owner explicitly authorizes their inclusion or
