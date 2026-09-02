@@ -32,6 +32,45 @@ K0, S0, and O0 remain outside this architecture's active dependency graph
 unless their existing convergence gates are separately opened. The planning
 rebase neither changes their bytes nor imports them into product code.
 
+## PNW-01 synthetic projection seam
+
+The additive `src/engine/` seam now defines closed, readonly `RegionPack`,
+`CommunityDeploymentProfile`, `PersonaProjection`,
+`CommunityRelevanceAssertion`, `ProjectedRecordReference`, `DeploymentView`,
+`EngineProjection`, and `OutputAdapter<T>` contracts. Its independent profile
+schema begins at `1.0.0`. The committed demonstration bundle is explicitly
+synthetic and uses two impossible region/deployment/persona configurations.
+
+The pure projection function receives already validated `PolicyRecord 1.4`
+values. Before returning anything, it validates the complete profile graph
+against the current source registry and taxonomy, rejects non-synthetic source
+references, resolves every exact ID-and-version reference against closed
+authority, region, rule, deployment, and output catalogs, rejects stable-ID
+collisions across declaration kinds, checks fixed non-claims and bounded
+temporal scopes, and resolves exact configured record IDs. Watch rules perform
+no keyword, geography, urgency, legal, rights, or community-position inference.
+Each emitted view contains stable record references and typed
+configuration-supported reasons only.
+
+The result owns one canonical, detached, recursively frozen record store;
+persona views do not copy records. Set-like input collections are normalized
+with fixed ASCII ordering, so canonical serialization is byte-stable. Caller
+inputs remain unfrozen and unchanged. The `OutputAdapter<T>` interface is a
+synchronous, parameter-minimal type boundary over an immutable projection and
+view ID. There is no concrete output adapter, and type-level purity is not a
+proof of arbitrary consumer behavior.
+
+This seam is not connected to the current application, source adapters,
+pipeline, artifact builder, or release flow. It establishes neither a
+production PNW profile nor an ATNI roster, analyzed-corpus completion, source
+activation, rights/geography evidence, publication, or K0/S0/O0 convergence.
+After this additive schema is present, the live backbone contains ten schema
+IDs and the foundation validator compiles nine; the artifact schema retains
+its separate instance-validation route. Those validator-derived counts are the
+transition evidence contemplated by the pre-implementation checkpoint text in
+`data-contract.md`, which remains unchanged under the tranche's frozen path
+boundary.
+
 ## Current application and ingestion architecture
 
 The implemented baseline is a static TypeScript application with a separate
@@ -44,9 +83,10 @@ Its current maturity is:
 | Maturity | Current repository evidence |
 | --- | --- |
 | Integrated local output | The Preact application, print dossier, CSV serializer, hash-route behavior, and artifact pipeline run over three synthetic records and 575 explicitly synthetic Nation rows. |
+| Implemented foundation seam | The synthetic-only projection-profile schema and pure engine seam produce deterministic public reference-only deployment/persona views over one detached `PolicyRecord 1.4` corpus. They are not integrated with the application or artifact pipeline. |
 | Implemented but disabled | Federal Register, Washington Governor executive orders, Washington Centennial Accord, and the one-row curated Supreme Court adapters are tested and registered but cannot emit public records. |
 | Contract-only | Congress.gov, GovInfo, Regulations.gov, Oregon Legislature OData, and Washington LWS have bounded synthetic contracts but no activated production adapter. |
-| Proposed and unimplemented | Region packs, community deployment profiles, persona projections, the canonical analyzed corpus, common output-adapter implementations, scheduled/manual workflows, Pages delivery, and a private deployment remain future work. |
+| Proposed and unimplemented | Production region packs and community profiles, the canonical analyzed corpus, concrete common output-adapter implementations, scheduled/manual workflows, Pages delivery, and a private deployment remain future work. |
 
 Current and conditional tooling:
 
@@ -396,6 +436,7 @@ policy-sentinel/
     taxonomy.schema.v1.json
     source.schema.v1.json
     artifact.schema.v1.json
+    projection-profile.schema.v1.json
   scripts/
     validate-foundation.mjs     # plus artifact/source/hook validators
   src/
@@ -405,7 +446,7 @@ policy-sentinel/
     experimental/spatial/       # isolated S0; not a product dependency
     kernel/                     # isolated K0; not a product dependency
     pipeline/                   # implemented normalize/validate/package stages
-    engine/                     # absent; proposed successor seams
+    engine/                     # additive synthetic projection seam; not integrated
     private-adapters/           # absent; future gated interface only
     shared/
   tests/

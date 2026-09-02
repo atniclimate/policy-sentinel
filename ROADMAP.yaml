@@ -3,8 +3,7 @@ roadmap_id: policy-sentinel-through-finish
 project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
-  phase:
-    "Repository backbone aligned; PNW-01 implementation authorization required"
+  phase: "PNW-01 engine seams complete; next authorization required"
   updated_on: "2026-09-02"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -527,7 +526,16 @@ gates:
         evidence. G-LOCAL-BROWSER therefore remains pending.
   - id: G-PNW-IMPLEMENTATION
     name: First PNW engine-seam implementation tranche
-    state: closed
+    state: approved
+    authorized_through: completion
+    approved_scope:
+      - >-
+        Implement exactly PNW-01-ENGINE-SEAMS under the current launch handoff,
+        using only its twelve allowed paths, synthetic fixtures, required tests,
+        stop conditions, and no-other-gate boundary.
+    evidence:
+      - |-
+        Owner message on 2026-09-02: I Authorize exactly PNW-01-ENGINE-SEAMS under docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md, including its allowed paths, tests, stop conditions, and no other gate or action.
     resolution: >-
       Open only when the owner explicitly authorizes the exact synthetic
       PNW-01-ENGINE-SEAMS tranche recorded in
@@ -669,18 +677,19 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Preserve the aligned repository backbone and exact PNW-01 launch boundary
-    while awaiting separate owner authorization for that one implementation
-    tranche.
+    Preserve the validated synthetic PNW-01 engine-seam checkpoint and the exact
+    closed boundaries while awaiting separate authorization for any successor
+    work.
   terminal_reason: >-
-    H-REPOSITORY-BACKBONE is validated complete; PNW-01 remains blocked solely
-    on exact owner authorization and no successor product work is active.
+    PNW-01-ENGINE-SEAMS completed with objective validation and independent
+    approval; every successor tranche requires separate exact owner
+    authorization and none is active.
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 8fadd1cdd2c866e639109e93c75f6d6096035d2f
+  last_durable_checkpoint: d9463ad9dfa3adf8a9fd58e8fc15946c1062db8d
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -3626,11 +3635,9 @@ work_items:
     priority: 131
     milestone: PNW engine foundation
     title: Engine, region, deployment, persona, and output-adapter seams
-    status: blocked
+    status: complete
     dependencies:
       - PNW-00-RECONCILE
-    blocked_by:
-      - G-PNW-IMPLEMENTATION
     authorization_gate: G-PNW-IMPLEMENTATION
     acceptance:
       - >-
@@ -3649,15 +3656,6 @@ work_items:
         The exact paths, fixtures, tests, review model, completion evidence, and
         stop conditions in the current PNW-01 launch handoff are satisfied
         without expanding scope.
-    safe_fallback: >-
-      Preserve the validated current pipeline and static application unchanged;
-      keep the proposed engine seam as a planning contract only.
-    unblocks_only_when: >-
-      The owner explicitly authorizes exactly the synthetic PNW-01-ENGINE-SEAMS
-      tranche recorded in
-      docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md.
-      General support for the product direction or advance intent does not
-      authorize unnamed implementation work.
     evidence:
       - >-
         docs/handoffs/pnw-product-space-rebase-2026-09-02.md selected the
@@ -3665,6 +3663,49 @@ work_items:
         docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md is
         its current exact execution contract. Neither document supplies owner
         implementation authorization.
+      - >-
+        The owner explicitly authorized exactly PNW-01-ENGINE-SEAMS under the
+        current launch handoff on 2026-09-02, including its allowed paths,
+        tests, stop conditions, and no other gate or action.
+      - >-
+        src/engine defines closed readonly 1.0.0 region, authority, deployment,
+        persona, relevance, reference-only view, projection, and pure output
+        adapter seams. The runtime resolves exact source, taxonomy, authority,
+        region, rule, deployment, persona, output, and record references;
+        rejects duplicate and cross-kind IDs; normalizes set-like order; and
+        returns one detached recursively frozen PolicyRecord 1.4 corpus with no
+        record copies in views.
+      - >-
+        The strict projection-profile schema and synthetic fixture demonstrate
+        two impossible configurations referencing the same existing synthetic
+        record for distinct typed reasons. The malformed family partitions 11
+        schema-invalid and 20 runtime-boundary cases covering missing, unknown,
+        duplicate, cross-profile, visibility, authority, temporal, non-claim,
+        source, taxonomy, output, URI-parity, and record failures.
+      - >-
+        Three focused engine files passed 45 tests. The independent read-only
+        sovereignty/adversarial reviewer returned APPROVE_PNW_01 after closed
+        authority resolution, global stable-ID collision handling, and
+        schema/runtime date, version, and evidence-URI parity defects were
+        repaired.
+      - >-
+        The final serialized VITEST_MAX_WORKERS=1 npm run check passed 74 test
+        files and 1044 tests in 108.24 seconds, then built and validated 3
+        synthetic records, exactly 575 synthetic Nations, and 8 hashed assets;
+        build ID synthetic-e0af00733256a0343ab9. All formatting, lint, types,
+        roadmap, backbone, foundation, source-boundary, build, and artifact
+        checks passed in that run.
+      - >-
+        The ordinary parallel npm test command twice passed every file except
+        the pre-existing pipeline wrapper, which exceeded its 20-second timeout
+        under concurrent load after 1039/1043 other tests passed. The required
+        serialized full run passed the same wrapper and all 1044 tests. No test
+        or timeout setting was changed outside the authorized path boundary.
+      - >-
+        Protected K0, S0, and O0 normalized bytes and O0 Git blob remained
+        unchanged; no remote, network/source access, real profile, dependency,
+        app/artifact/pipeline integration, concrete output adapter, publication,
+        or successor implementation occurred.
 
   - id: PNW-02-REGIONAL-REGISTRY
     priority: 132
@@ -3708,7 +3749,7 @@ work_items:
     priority: 133
     milestone: PNW authority model
     title: Governed PNW geographic relations and community rights frames
-    status: not_started
+    status: ready
     dependencies:
       - PNW-01-ENGINE-SEAMS
     acceptance:
@@ -3731,7 +3772,7 @@ work_items:
     priority: 134
     milestone: PNW authority model
     title: Nation, ATNI, NCAI, source, and general taxonomy crosswalk
-    status: not_started
+    status: ready
     dependencies:
       - PNW-01-ENGINE-SEAMS
     acceptance:
@@ -3750,7 +3791,7 @@ work_items:
     priority: 135
     milestone: PNW source evidence
     title: Federal and differentiating PNW source pack
-    status: not_started
+    status: ready
     dependencies:
       - PNW-01-ENGINE-SEAMS
     acceptance:
@@ -4280,21 +4321,31 @@ next_actions:
       behavior, privacy exclusions, link rules, and fixed whole-refresh budgets.
       Keep the validated Governor adapter disabled and independent.
   - order: 5
-    work_item: PNW-01-ENGINE-SEAMS
-    action: >-
-      Begin only after the owner explicitly authorizes exactly the synthetic
-      engine/region/deployment/persona projection seam, allowed paths, tests,
-      and stop conditions in the committed PNW-01 launch handoff. Do not infer
-      authority from the planning packet, mapping handoff, or completed
-      repository alignment.
-  - order: 6
     work_item: PNW-02-REGIONAL-REGISTRY
     action: >-
       Resolve only from a current ATNI-authorized originating 59-member roster
-      plus separately verified sovereign identities. Do not scrape-and-subtract,
+      plus separately verified sovereign identities. Do not scrape and subtract,
       infer membership, or treat the federal-recognition collection as the
       regional registry.
-
+  - order: 6
+    work_item: PNW-03-GEOGRAPHY-RIGHTS
+    action: >-
+      Begin only under separate exact owner authorization. Keep geography,
+      source scope, jurisdiction evidence, community relevance, configured
+      rights frames, and legal applicability distinct; do not converge S0 or
+      introduce real or sensitive geometry in this completed run.
+  - order: 7
+    work_item: PNW-04-TAXONOMY
+    action: >-
+      Begin only under separate exact owner authorization. Preserve Nation,
+      ATNI, NCAI, originating-source, and general taxonomy authorities as
+      separate versioned evidence-bearing mappings without inferring positions.
+  - order: 8
+    work_item: PNW-05-SOURCE-PACK
+    action: >-
+      Begin only under separate exact owner authorization and source-specific
+      review. Do not access, activate, or publish a source from PNW-01's
+      synthetic projection seam or treat configured identifiers as coverage.
 finish_states:
   repository_backbone:
     current_state: complete
@@ -4327,10 +4378,7 @@ finish_states:
       - any closed external gate is approved
       - K0 or S0 is integrated into the existing release candidate
   pnw_regional_engine:
-    current_state: blocked
-    blocked_by:
-      - PNW-01-ENGINE-SEAMS
-      - PNW-02-REGIONAL-REGISTRY
+    current_state: in_progress
     satisfied_when:
       - PNW-00 through PNW-10 are complete with objective evidence.
       - The accepted 59-member roster and every enabled source are source-bound.

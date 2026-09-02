@@ -13,6 +13,9 @@ const recordSchema = await readJson("schemas/record.schema.v1.json");
 const sourceSchema = await readJson("schemas/source.schema.v1.json");
 const assertionSchema = await readJson("schemas/assertion.schema.v1.json");
 const lifecycleSchema = await readJson("schemas/lifecycle.schema.v1.json");
+const projectionProfileSchema = await readJson(
+  "schemas/projection-profile.schema.v1.json",
+);
 const spatialObservationSchema = await readJson(
   "schemas/experimental/spatial-observation.schema.v1.json",
 );
@@ -38,6 +41,7 @@ for (const [name, schema] of [
   ["source schema", sourceSchema],
   ["assertion schema", assertionSchema],
   ["lifecycle schema", lifecycleSchema],
+  ["projection profile schema", projectionProfileSchema],
   ["S0 spatial-observation schema", spatialObservationSchema],
   ["S0 spatial-relation schema", spatialRelationSchema],
   ["S0 jurisdiction-evidence schema", jurisdictionEvidenceSchema],
@@ -49,6 +53,105 @@ for (const [name, schema] of [
         { separator: "\n" },
       )}`,
     );
+  }
+}
+
+const applyFixtureMutations = (base, mutations) => {
+  const result = structuredClone(base);
+  for (const mutation of mutations) {
+    const parts = mutation.path
+      .slice(1)
+      .split("/")
+      .map((part) => part.replaceAll("~1", "/").replaceAll("~0", "~"));
+    const final = parts.pop();
+    if (!mutation.path.startsWith("/") || final === undefined) {
+      throw new Error(`invalid projection fixture mutation: ${mutation.path}`);
+    }
+    let parent = result;
+    for (const part of parts) {
+      parent = Array.isArray(parent) ? parent[Number(part)] : parent[part];
+    }
+    if (mutation.operation === "remove") {
+      if (Array.isArray(parent)) {
+        parent.splice(Number(final), 1);
+      } else {
+        delete parent[final];
+      }
+    } else if (mutation.operation === "add" && Array.isArray(parent) && final === "-") {
+      parent.push(structuredClone(mutation.value));
+    } else if (mutation.operation === "add" || mutation.operation === "replace") {
+      if (Array.isArray(parent)) {
+        parent[Number(final)] = structuredClone(mutation.value);
+      } else {
+        parent[final] = structuredClone(mutation.value);
+      }
+    } else {
+      throw new Error(`unknown projection fixture operation: ${mutation.operation}`);
+    }
+  }
+  return result;
+};
+
+const validateProjectionProfile = ajv.compile(projectionProfileSchema);
+const projectionProfileFixture = await readJson(
+  "fixtures/engine/projection-profiles.synthetic.valid.json",
+);
+if (!validateProjectionProfile(projectionProfileFixture)) {
+  throw new Error(
+    `synthetic projection profile fixture is invalid:\n${ajv.errorsText(
+      validateProjectionProfile.errors,
+      { separator: "\n" },
+    )}`,
+  );
+}
+const malformedProjectionProfiles = await readJson(
+  "fixtures/engine/projection-profiles-malformed.invalid.json",
+);
+if (
+  malformedProjectionProfiles.fixtureFamilyVersion !== "1.0.0" ||
+  malformedProjectionProfiles.baseFixture !==
+    "projection-profiles.synthetic.valid.json" ||
+  !Array.isArray(malformedProjectionProfiles.cases) ||
+  malformedProjectionProfiles.cases.length === 0
+) {
+  throw new Error("malformed projection profile fixture family is invalid");
+}
+const malformedProjectionCaseIds = new Set();
+let schemaInvalidProjectionChecks = 0;
+let semanticProjectionChecks = 0;
+for (const fixtureCase of malformedProjectionProfiles.cases) {
+  if (
+    typeof fixtureCase.id !== "string" ||
+    malformedProjectionCaseIds.has(fixtureCase.id) ||
+    !["schema", "semantic", "projection"].includes(fixtureCase.expectedLayer) ||
+    !Array.isArray(fixtureCase.mutations) ||
+    fixtureCase.mutations.length === 0
+  ) {
+    throw new Error("malformed projection profile case metadata is invalid");
+  }
+  malformedProjectionCaseIds.add(fixtureCase.id);
+  const candidate = applyFixtureMutations(
+    projectionProfileFixture,
+    fixtureCase.mutations,
+  );
+  const accepted = validateProjectionProfile(candidate);
+  if (fixtureCase.expectedLayer === "schema") {
+    if (accepted) {
+      throw new Error(
+        `negative projection profile case ${fixtureCase.id} was accepted by the schema`,
+      );
+    }
+    schemaInvalidProjectionChecks += 1;
+  } else {
+    if (!accepted) {
+      throw new Error(
+        `semantic projection profile case ${fixtureCase.id} did not reach runtime validation:\n${ajv.errorsText(
+          validateProjectionProfile.errors,
+          { separator: "\n" },
+        )}`,
+      );
+    }
+    semanticProjectionChecks += 1;
   }
 }
 
@@ -400,8 +503,9 @@ if (!historicalPolicyRejected) {
 negativePolicyChecks += 1;
 
 console.log(
-  `Foundation validation passed: 8 schemas, ${taxonomy.categories.length} categories, ` +
+  `Foundation validation passed: 9 schemas, ${taxonomy.categories.length} categories, ` +
     `${taxonomy.categories.reduce((count, category) => count + category.subcategories.length, 0)} subcategories, ` +
     `${fixtureNames.length} valid fixtures, ${negativePolicyChecks} negative policy checks, ` +
-    `and ${s0ValidFixtureChecks} valid plus ${s0InvalidFixtureChecks} invalid S0 fixture checks.`,
+    `${s0ValidFixtureChecks} valid plus ${s0InvalidFixtureChecks} invalid S0 fixture checks, ` +
+    `and 1 valid plus ${schemaInvalidProjectionChecks} schema-invalid plus ${semanticProjectionChecks} runtime-boundary projection profile checks.`,
 );

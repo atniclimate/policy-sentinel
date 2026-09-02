@@ -1,0 +1,191 @@
+{
+  "$schema": "https://policy-sentinel.invalid/schemas/projection-profile.schema.v1.json",
+  "schemaVersion": "1.0.0",
+  "id": "synthetic-impossible-community-profiles",
+  "version": "1.0.0",
+  "synthetic": true,
+  "authorityReferences": [
+    {
+      "id": "synthetic-cloud-harbor-authority",
+      "version": "1.0.0"
+    },
+    {
+      "id": "synthetic-glass-desert-authority",
+      "version": "1.0.0"
+    }
+  ],
+  "outputAdapters": [
+    {
+      "id": "synthetic-document-reference-output",
+      "version": "1.0.0"
+    },
+    {
+      "id": "synthetic-web-reference-output",
+      "version": "1.0.0"
+    }
+  ],
+  "regionPacks": [
+    {
+      "id": "synthetic-cloud-harbor-region",
+      "version": "1.0.0",
+      "sourceIds": ["synthetic-federal"],
+      "taxonomy": {
+        "version": "1.0.0",
+        "taxonomyIds": ["environmental-protection-pollution-governance"]
+      },
+      "jurisdictionReferences": [
+        {
+          "id": "synthetic-cloud-harbor-jurisdiction",
+          "version": "1.0.0",
+          "synthetic": true,
+          "authorityState": "synthetic_demo",
+          "assertingAuthorityRef": {
+            "id": "synthetic-cloud-harbor-authority",
+            "version": "1.0.0"
+          },
+          "evidenceUrl": "https://cloud-harbor.example.invalid/authority"
+        }
+      ]
+    },
+    {
+      "id": "synthetic-glass-desert-region",
+      "version": "1.0.0",
+      "sourceIds": ["synthetic-federal"],
+      "taxonomy": {
+        "version": "1.0.0",
+        "taxonomyIds": ["public-safety-justice-judicial-administration"]
+      },
+      "jurisdictionReferences": [
+        {
+          "id": "synthetic-glass-desert-jurisdiction",
+          "version": "1.0.0",
+          "synthetic": true,
+          "authorityState": "synthetic_demo",
+          "assertingAuthorityRef": {
+            "id": "synthetic-glass-desert-authority",
+            "version": "1.0.0"
+          },
+          "evidenceUrl": "https://glass-desert.example.invalid/authority"
+        }
+      ]
+    }
+  ],
+  "watchRules": [
+    {
+      "id": "synthetic-cloud-harbor-source-rule",
+      "version": "1.0.0",
+      "regionPackRef": {
+        "id": "synthetic-cloud-harbor-region",
+        "version": "1.0.0"
+      },
+      "recordIds": ["psr:synthetic-federal:record-001"],
+      "basis": "configured_source_scope",
+      "evidenceField": "/source/id",
+      "evidenceUrl": "https://cloud-harbor.example.invalid/watch-rules/source-scope",
+      "reviewState": "synthetic_reviewed",
+      "temporalScope": {
+        "kind": "inclusive_date_range",
+        "from": "2026-01-01",
+        "through": "2026-12-31"
+      },
+      "nonClaims": [
+        "not_a_nation_relationship",
+        "not_a_legal_applicability_determination",
+        "not_a_rights_impact_determination",
+        "not_a_jurisdiction_determination",
+        "not_comprehensive_coverage",
+        "not_a_community_position"
+      ]
+    },
+    {
+      "id": "synthetic-glass-desert-general-rule",
+      "version": "1.0.0",
+      "regionPackRef": {
+        "id": "synthetic-glass-desert-region",
+        "version": "1.0.0"
+      },
+      "recordIds": ["psr:synthetic-federal:record-001"],
+      "basis": "configured_general_jurisdiction_scope",
+      "evidenceField": "/jurisdiction/generalJurisdictionOnly",
+      "evidenceUrl": "https://glass-desert.example.invalid/watch-rules/general-scope",
+      "reviewState": "synthetic_reviewed",
+      "temporalScope": {
+        "kind": "inclusive_date_range",
+        "from": "2025-07-01",
+        "through": null
+      },
+      "nonClaims": [
+        "not_a_nation_relationship",
+        "not_a_legal_applicability_determination",
+        "not_a_rights_impact_determination",
+        "not_a_jurisdiction_determination",
+        "not_comprehensive_coverage",
+        "not_a_community_position"
+      ]
+    }
+  ],
+  "deploymentProfiles": [
+    {
+      "id": "synthetic-cloud-harbor-deployment",
+      "version": "1.0.0",
+      "authorityState": "synthetic_demo",
+      "regionPackRef": {
+        "id": "synthetic-cloud-harbor-region",
+        "version": "1.0.0"
+      },
+      "watchRuleRefs": [
+        {
+          "id": "synthetic-cloud-harbor-source-rule",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "synthetic-glass-desert-deployment",
+      "version": "1.0.0",
+      "authorityState": "synthetic_demo",
+      "regionPackRef": {
+        "id": "synthetic-glass-desert-region",
+        "version": "1.0.0"
+      },
+      "watchRuleRefs": [
+        {
+          "id": "synthetic-glass-desert-general-rule",
+          "version": "1.0.0"
+        }
+      ]
+    }
+  ],
+  "personaProjections": [
+    {
+      "id": "synthetic-cloud-harbor-researcher",
+      "version": "1.0.0",
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "visibility": "public",
+      "outputAdapterRefs": [
+        {
+          "id": "synthetic-document-reference-output",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "synthetic-glass-desert-coordinator",
+      "version": "1.0.0",
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "visibility": "public",
+      "outputAdapterRefs": [
+        {
+          "id": "synthetic-web-reference-output",
+          "version": "1.0.0"
+        }
+      ]
+    }
+  ]
+}

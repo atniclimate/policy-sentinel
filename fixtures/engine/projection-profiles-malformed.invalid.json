@@ -1,0 +1,350 @@
+{
+  "fixtureFamilyVersion": "1.0.0",
+  "baseFixture": "projection-profiles.synthetic.valid.json",
+  "cases": [
+    {
+      "id": "missing-bundle-id",
+      "expectedLayer": "schema",
+      "mutations": [{ "operation": "remove", "path": "/id" }]
+    },
+    {
+      "id": "unknown-root-field",
+      "expectedLayer": "schema",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/providerPayload",
+          "value": "forbidden"
+        }
+      ]
+    },
+    {
+      "id": "unknown-nested-field",
+      "expectedLayer": "schema",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/personaProjections/0/recordTitle",
+          "value": "forbidden copy"
+        }
+      ]
+    },
+    {
+      "id": "malformed-region-id",
+      "expectedLayer": "schema",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/regionPacks/0/id",
+          "value": "Not A Stable ID"
+        }
+      ]
+    },
+    {
+      "id": "malformed-rule-version",
+      "expectedLayer": "schema",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/watchRules/0/version",
+          "value": "version-one"
+        }
+      ]
+    },
+    {
+      "id": "unsupported-authority-state",
+      "expectedLayer": "schema",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentProfiles/0/authorityState",
+          "value": "production"
+        }
+      ]
+    },
+    {
+      "id": "unsupported-visibility",
+      "expectedLayer": "schema",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/personaProjections/0/visibility",
+          "value": "private"
+        }
+      ]
+    },
+    {
+      "id": "malformed-temporal-date",
+      "expectedLayer": "schema",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/watchRules/0/temporalScope/from",
+          "value": "not-a-date"
+        }
+      ]
+    },
+    {
+      "id": "missing-nonclaims",
+      "expectedLayer": "schema",
+      "mutations": [
+        {
+          "operation": "remove",
+          "path": "/watchRules/0/nonClaims"
+        }
+      ]
+    },
+    {
+      "id": "invalid-nonclaim",
+      "expectedLayer": "schema",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/watchRules/0/nonClaims/4",
+          "value": "claims_complete_coverage"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-source-reference",
+      "expectedLayer": "schema",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/regionPacks/0/sourceIds/-",
+          "value": "synthetic-federal"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-region-id",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/regionPacks/1/id",
+          "value": "synthetic-cloud-harbor-region"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-watch-rule-id",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/watchRules/1/id",
+          "value": "synthetic-cloud-harbor-source-rule"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-deployment-id",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentProfiles/1/id",
+          "value": "synthetic-cloud-harbor-deployment"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-persona-id",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/personaProjections/1/id",
+          "value": "synthetic-cloud-harbor-researcher"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-output-id",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/outputAdapters/1/id",
+          "value": "synthetic-document-reference-output"
+        },
+        {
+          "operation": "replace",
+          "path": "/outputAdapters/1/version",
+          "value": "2.0.0"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-authority-id",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorityReferences/1/id",
+          "value": "synthetic-cloud-harbor-authority"
+        },
+        {
+          "operation": "replace",
+          "path": "/authorityReferences/1/version",
+          "value": "2.0.0"
+        }
+      ]
+    },
+    {
+      "id": "cross-kind-duplicate-stable-id",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/outputAdapters/0/id",
+          "value": "synthetic-cloud-harbor-authority"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-jurisdiction-reference-id",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/regionPacks/1/jurisdictionReferences/0/id",
+          "value": "synthetic-cloud-harbor-jurisdiction"
+        }
+      ]
+    },
+    {
+      "id": "unknown-source-reference",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/regionPacks/0/sourceIds/0",
+          "value": "synthetic-unknown-source"
+        }
+      ]
+    },
+    {
+      "id": "unknown-authority-reference",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/regionPacks/0/jurisdictionReferences/0/assertingAuthorityRef/id",
+          "value": "synthetic-unknown-authority"
+        }
+      ]
+    },
+    {
+      "id": "unknown-taxonomy-reference",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/regionPacks/0/taxonomy/taxonomyIds/0",
+          "value": "synthetic-unknown-taxonomy"
+        }
+      ]
+    },
+    {
+      "id": "unknown-taxonomy-version",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/regionPacks/0/taxonomy/version",
+          "value": "9.9.9"
+        }
+      ]
+    },
+    {
+      "id": "unknown-region-reference",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentProfiles/0/regionPackRef/id",
+          "value": "synthetic-unknown-region"
+        }
+      ]
+    },
+    {
+      "id": "unknown-deployment-reference",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/personaProjections/0/deploymentProfileRef/id",
+          "value": "synthetic-unknown-deployment"
+        }
+      ]
+    },
+    {
+      "id": "unknown-rule-reference",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentProfiles/0/watchRuleRefs/0/id",
+          "value": "synthetic-unknown-rule"
+        }
+      ]
+    },
+    {
+      "id": "unknown-output-reference",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/personaProjections/0/outputAdapterRefs/0/id",
+          "value": "synthetic-unknown-output"
+        }
+      ]
+    },
+    {
+      "id": "cross-region-rule-reference",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentProfiles/0/watchRuleRefs/0/id",
+          "value": "synthetic-glass-desert-general-rule"
+        }
+      ]
+    },
+    {
+      "id": "inverted-temporal-scope",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/watchRules/0/temporalScope/from",
+          "value": "2027-01-01"
+        }
+      ]
+    },
+    {
+      "id": "basis-evidence-mismatch",
+      "expectedLayer": "semantic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/watchRules/0/evidenceField",
+          "value": "/taxonomyMemberships"
+        }
+      ]
+    },
+    {
+      "id": "unknown-record-reference",
+      "expectedLayer": "projection",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/watchRules/1/recordIds/0",
+          "value": "psr:synthetic-federal:record-unknown"
+        }
+      ]
+    }
+  ]
+}

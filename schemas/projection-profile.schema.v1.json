@@ -1,0 +1,402 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/projection-profile.schema.v1.json",
+  "title": "Policy Sentinel projection profile bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "id",
+    "version",
+    "synthetic",
+    "authorityReferences",
+    "outputAdapters",
+    "regionPacks",
+    "watchRules",
+    "deploymentProfiles",
+    "personaProjections"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://policy-sentinel.invalid/schemas/projection-profile.schema.v1.json"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "id": {
+      "$ref": "#/$defs/stableId"
+    },
+    "version": {
+      "$ref": "#/$defs/semanticVersion"
+    },
+    "synthetic": {
+      "const": true
+    },
+    "authorityReferences": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/versionedReference"
+      },
+      "uniqueItems": true
+    },
+    "outputAdapters": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "$ref": "#/$defs/versionedReference"
+      },
+      "uniqueItems": true
+    },
+    "regionPacks": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "$ref": "#/$defs/regionPack"
+      },
+      "uniqueItems": true
+    },
+    "watchRules": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {
+        "$ref": "#/$defs/watchRule"
+      },
+      "uniqueItems": true
+    },
+    "deploymentProfiles": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/deploymentProfile"
+      },
+      "uniqueItems": true
+    },
+    "personaProjections": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {
+        "$ref": "#/$defs/personaProjection"
+      },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 96,
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "semanticVersion": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+    },
+    "recordId": {
+      "type": "string",
+      "minLength": 7,
+      "maxLength": 256,
+      "pattern": "^psr:[a-z0-9]+(?:-[a-z0-9]+)*:[A-Za-z0-9._~-]+$"
+    },
+    "syntheticEvidenceUrl": {
+      "type": "string",
+      "format": "uri",
+      "maxLength": 512,
+      "pattern": "^https://[a-z0-9]+(?:-[a-z0-9]+)*(?:\\.[a-z0-9]+(?:-[a-z0-9]+)*)*\\.invalid(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*/?$"
+    },
+    "versionedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "version": {
+          "$ref": "#/$defs/semanticVersion"
+        }
+      }
+    },
+    "authorityState": {
+      "enum": ["synthetic_demo", "candidate"]
+    },
+    "jurisdictionReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "synthetic",
+        "authorityState",
+        "assertingAuthorityRef",
+        "evidenceUrl"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "version": {
+          "$ref": "#/$defs/semanticVersion"
+        },
+        "synthetic": {
+          "const": true
+        },
+        "authorityState": {
+          "$ref": "#/$defs/authorityState"
+        },
+        "assertingAuthorityRef": {
+          "$ref": "#/$defs/versionedReference"
+        },
+        "evidenceUrl": {
+          "$ref": "#/$defs/syntheticEvidenceUrl"
+        }
+      }
+    },
+    "regionPack": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "sourceIds",
+        "taxonomy",
+        "jurisdictionReferences"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "version": {
+          "$ref": "#/$defs/semanticVersion"
+        },
+        "sourceIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/stableId"
+          },
+          "uniqueItems": true
+        },
+        "taxonomy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["version", "taxonomyIds"],
+          "properties": {
+            "version": {
+              "$ref": "#/$defs/semanticVersion"
+            },
+            "taxonomyIds": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 128,
+              "items": {
+                "$ref": "#/$defs/stableId"
+              },
+              "uniqueItems": true
+            }
+          }
+        },
+        "jurisdictionReferences": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/jurisdictionReference"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "temporalScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "from", "through"],
+      "properties": {
+        "kind": {
+          "const": "inclusive_date_range"
+        },
+        "from": {
+          "type": "string",
+          "format": "date"
+        },
+        "through": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "nonClaims": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "uniqueItems": true,
+      "prefixItems": [
+        {
+          "const": "not_a_nation_relationship"
+        },
+        {
+          "const": "not_a_legal_applicability_determination"
+        },
+        {
+          "const": "not_a_rights_impact_determination"
+        },
+        {
+          "const": "not_a_jurisdiction_determination"
+        },
+        {
+          "const": "not_comprehensive_coverage"
+        },
+        {
+          "const": "not_a_community_position"
+        }
+      ],
+      "items": false
+    },
+    "watchRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "regionPackRef",
+        "recordIds",
+        "basis",
+        "evidenceField",
+        "evidenceUrl",
+        "reviewState",
+        "temporalScope",
+        "nonClaims"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "version": {
+          "$ref": "#/$defs/semanticVersion"
+        },
+        "regionPackRef": {
+          "$ref": "#/$defs/versionedReference"
+        },
+        "recordIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/recordId"
+          },
+          "uniqueItems": true
+        },
+        "basis": {
+          "enum": [
+            "configured_source_scope",
+            "configured_taxonomy_scope",
+            "configured_general_jurisdiction_scope"
+          ]
+        },
+        "evidenceField": {
+          "enum": [
+            "/source/id",
+            "/taxonomyMemberships",
+            "/jurisdiction/generalJurisdictionOnly"
+          ]
+        },
+        "evidenceUrl": {
+          "$ref": "#/$defs/syntheticEvidenceUrl"
+        },
+        "reviewState": {
+          "enum": ["synthetic_reviewed", "candidate_pending"]
+        },
+        "temporalScope": {
+          "$ref": "#/$defs/temporalScope"
+        },
+        "nonClaims": {
+          "$ref": "#/$defs/nonClaims"
+        }
+      }
+    },
+    "deploymentProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "authorityState",
+        "regionPackRef",
+        "watchRuleRefs"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "version": {
+          "$ref": "#/$defs/semanticVersion"
+        },
+        "authorityState": {
+          "$ref": "#/$defs/authorityState"
+        },
+        "regionPackRef": {
+          "$ref": "#/$defs/versionedReference"
+        },
+        "watchRuleRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "items": {
+            "$ref": "#/$defs/versionedReference"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "personaProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "deploymentProfileRef",
+        "visibility",
+        "outputAdapterRefs"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "version": {
+          "$ref": "#/$defs/semanticVersion"
+        },
+        "deploymentProfileRef": {
+          "$ref": "#/$defs/versionedReference"
+        },
+        "visibility": {
+          "const": "public"
+        },
+        "outputAdapterRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/versionedReference"
+          },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}
