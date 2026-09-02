@@ -564,15 +564,15 @@ baseline:
 current_focus:
   work_item: H-HOOKS
   objective: >-
-    Implement and locally validate repository-scoped Codex lifecycle hooks for
-    session recovery, pre-compaction ledger consistency, changed-file
-    validation, one-shot stop recovery, and closed-gate tool protection without
-    network access, telemetry, transcript logging, external notification, or
-    automatic commits.
+    Preserve the committed and validated repository-scoped Codex lifecycle
+    hooks while the newly supplied owner-direction packet receives its required
+    read-only authority review and authorized repository disposition. Do not
+    absorb, overwrite, or silently discard the packet merely to manufacture a
+    clean hook checkpoint.
   terminal_reason: null
   resumable_roots:
     - H-HOOKS
-  last_durable_checkpoint: 0c902b7
+  last_durable_checkpoint: c9f1b23
   resume_command: npm run check
 
 completion_scope:
@@ -722,6 +722,35 @@ work_items:
         formatting, lint, type checking, roadmap/foundation validation,
         source-boundary scanning, 71 files and 999 tests, synthetic build, and
         artifact validation at 3 records, exactly 575 Nations, and 8 assets.
+      - >-
+        Commit c9f1b23 adds the five repository-scoped hook registrations, one
+        dependency-free local dispatcher, focused contract tests, Windows and
+        repository-root command handling, and README/AGENTS command guidance.
+        It reads no transcript, makes no network call or notification, performs
+        no automatic write or commit, and leaves every external and convergence
+        gate closed.
+      - >-
+        npm run hooks:test passed 9 focused tests on 2026-09-02. Exact
+        commandWindows invocations returned bounded SessionStart context,
+        allowed valid PreCompact and PostToolUse events, denied git push before
+        use, requested one Stop continuation for H-HOOKS, and honored
+        stop_hook_active without recursion.
+      - >-
+        The final serialized npm run check retry passed on 2026-09-02: 71
+        Vitest files and 999 tests plus formatting, lint, type checking,
+        roadmap/foundation validation, source-boundary scanning, a
+        synthetic-only production build, and artifact validation at 3 records,
+        exactly 575 Nations, and 8 assets; build ID
+        synthetic-8e5af112d4a321ae4ba1. An immediately prior full-suite run had
+        three existing five-second timeout failures; the two affected files
+        passed 58/58 in an isolated retry before the clean full pass.
+      - >-
+        All hook-related paths were clean after c9f1b23. The overall worktree
+        intentionally remained dirty only because the owner supplied an
+        untracked direction packet during validation. The packet is preserved
+        untouched pending its ordered read-only protocol, so the H-HOOKS item
+        remains in_progress until that authorized repository disposition yields
+        a truthful clean checkpoint.
 
   - id: B1-APP
     priority: 10
