@@ -555,20 +555,23 @@ baseline:
         configured.
 
 current_focus:
-  work_item: O0-ORCHESTRATION
+  work_item: null
   objective: >-
-    Establish generalized additive-stage governance and freeze one proposed O0
-    1.0.0 contract candidate for separately authorized independent review,
-    without beginning review, acceptance, implementation, source work, D0,
-    convergence, integration, or release work.
-  terminal_reason: null
+    Preserve the byte-sealed proposed O0 1.0.0 contract candidate and wait for
+    exact owner authorization before any independent review, acceptance,
+    implementation, source work, D0, convergence, integration, or release work.
+  terminal_reason: >-
+    O0 contract design and freeze are complete within the authorized ceiling.
+    The exact candidate is byte-sealed and blocked at contract_review because
+    independent review is not authorized. The local release candidate remains
+    blocked by the same four independent evidence roots.
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
   last_durable_checkpoint: 6f04b23
-  resume_command: node scripts/validate-roadmap.mjs
+  resume_command: npm run check
 
 completion_scope:
   local_release_candidate:
@@ -3053,18 +3056,33 @@ work_items:
     priority: 122
     milestone: O0
     title: Fixture-only orchestration transaction and custody kernel
-    status: in_progress
+    status: blocked
     dependencies:
       - K0-LIFECYCLE
     authorization_gate: G-O0-SYNTHETIC
-    additive_phase_stage: contract_design
+    additive_phase_stage: contract_review
     convergence_gate: G-O0-CONVERGENCE
+    blocked_by:
+      - G-O0-SYNTHETIC
+    safe_fallback: >-
+      Preserve the exact byte-sealed candidate without review, acceptance,
+      implementation, source access, convergence, D0, or product integration.
+    unblocks_only_when: >-
+      The owner separately authorizes independent review of the exact recorded
+      contractCandidateId and candidate bytes.
     contract_candidate:
       proposed_version: "1.0.0"
-      contractCandidateId: null
-      byte_length: null
-      sha256: null
-      state: drafting
+      contractCandidateId: o0-contract-candidate:1.0.0:sha256:9cfc4006432e9489a273f449fc02bbe383723c7924856ce4434b85047a46dbb6
+      byte_length: 59366
+      sha256: 3ea10d753571f08f3e97d5c729d289c3d71e374d5fd91e68bd64c5e3c949f5d6
+      git_blob_id: 28f127fb62b112001fbb49a7a1e57f53fe9d0d2a
+      id_derivation: >-
+        SHA-256 of the exact concatenation
+        UTF8("policy-sentinel:o0-contract-candidate:v1\n"),
+        UTF8("proposed-version:1.0.0\n"), UTF8("byte-length:59366\n"), and the
+        exact 59,366 frozen contract bytes; format the result as
+        o0-contract-candidate:1.0.0:sha256:<lowercase digest>.
+      state: byte_sealed_review_required
     contract_review:
       state: not_authorized
       reviewed_candidate_id: null
@@ -3119,10 +3137,26 @@ work_items:
         and 33 gates; the direct Node regression passed 1 of 1; and its Vitest
         pipeline wrapper passed 1 file and 1 test. No network, source, remote,
         dependency, build, artifact, review, or implementation operation ran.
+      - >-
+        Governance activation commit c58625e3ebf4806952a09a61807712d31056b701
+        generalized additive stages, authorized-through ceilings, convergence
+        dependency isolation, release accounting, and generic regression
+        fixtures, then truthfully activated O0 at contract_design. Its parent is
+        the protected starting commit 6f04b23a35a3aad7929b93702aaa3d0c31545df8.
+      - >-
+        docs/vision/o0-orchestration-contract.md is the proposed 1.0.0
+        candidate. Its exact LF/no-BOM UTF-8 bytes are 59,366 bytes with SHA-256
+        3ea10d753571f08f3e97d5c729d289c3d71e374d5fd91e68bd64c5e3c949f5d6,
+        contractCandidateId
+        o0-contract-candidate:1.0.0:sha256:9cfc4006432e9489a273f449fc02bbe383723c7924856ce4434b85047a46dbb6,
+        and Git blob 28f127fb62b112001fbb49a7a1e57f53fe9d0d2a. The candidate
+        contains exact normative clauses and acceptance register A01 through
+        A32; this evidence is authorship and byte custody, not review or
+        acceptance.
     next_step: >-
-      Draft and byte-seal exactly one proposed O0 1.0.0 contract candidate, then
-      move O0 to contract_review/blocked with null focus and stop for separately
-      authorized independent review.
+      Stop. Preserve the exact candidate and separately authorize independent
+      review of its recorded contractCandidateId before any review artifact,
+      acceptance decision, implementation, or later additive stage.
 
   - id: RELEASE-LICENSE
     priority: 200
