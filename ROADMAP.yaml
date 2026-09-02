@@ -3955,8 +3955,8 @@ work_items:
         238 local links.
       - >-
         Commit 8fadd1cdd2c866e639109e93c75f6d6096035d2f records the
-        independently reviewed repository-backbone content as
-        "docs: align repository backbone for PNW long run".
+        independently reviewed repository-backbone content as "docs: align
+        repository backbone for PNW long run".
 
   - id: RELEASE-LICENSE
     priority: 200
