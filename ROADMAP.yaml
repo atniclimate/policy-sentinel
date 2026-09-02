@@ -230,6 +230,13 @@ gates:
         contract freeze through a byte-sealed 1.0.0 candidate, with independent
         review, acceptance, implementation, source work, D0, convergence, and
         every external operation expressly withheld.
+      - >-
+        Owner message on 2026-09-01 accepts only the terminal disposition
+        O0_CONTRACT_REVIEW_FINDINGS_REPAIR_AUTHORIZATION_REQUIRED and authorizes
+        the smallest contract-and-governance repair for O0-R01 through O0-R15
+        and O0-G01 through O0-G03. It does not accept an O0 contract or
+        authorize independent review, implementation, convergence, integration,
+        or any external operation.
   - id: G-O0-CONVERGENCE
     name: O0 integration into the existing product or release scope
     state: closed
@@ -555,22 +562,18 @@ baseline:
         configured.
 
 current_focus:
-  work_item: null
+  work_item: O0-ORCHESTRATION
   objective: >-
-    Preserve the byte-sealed proposed O0 1.0.0 contract candidate and wait for
-    exact owner authorization before any independent review, acceptance,
-    implementation, source work, D0, convergence, integration, or release work.
-  terminal_reason: >-
-    O0 contract design and freeze are complete within the authorized ceiling.
-    The exact candidate is byte-sealed and blocked at contract_review because
-    independent review is not authorized. The local release candidate remains
-    blocked by the same four independent evidence roots.
+    Repair exactly O0-R01 through O0-R15 and O0-G01 through O0-G03, preserve the
+    rejected candidate and independent review as immutable evidence, and seal a
+    distinct proposed 1.0.0 successor for a new independent review.
+  terminal_reason: null
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 789ece1
+  last_durable_checkpoint: 24633b9
   resume_command: npm run check
 
 completion_scope:
@@ -3056,20 +3059,19 @@ work_items:
     priority: 122
     milestone: O0
     title: Fixture-only orchestration transaction and custody kernel
-    status: blocked
+    status: in_progress
     dependencies:
       - K0-LIFECYCLE
     authorization_gate: G-O0-SYNTHETIC
-    additive_phase_stage: contract_review
+    additive_phase_stage: contract_freeze
     convergence_gate: G-O0-CONVERGENCE
-    blocked_by:
-      - G-O0-SYNTHETIC
     safe_fallback: >-
-      Preserve the exact byte-sealed candidate without review, acceptance,
-      implementation, source access, convergence, D0, or product integration.
+      Preserve the rejected candidate and independent review unchanged. If any
+      material finding cannot be closed within the five-path repair boundary, do
+      not seal a purported successor candidate.
     unblocks_only_when: >-
-      The owner separately authorizes independent review of the exact recorded
-      contractCandidateId and candidate bytes.
+      All 18 authorized findings have objective closure evidence and the new
+      candidate bytes and lineage are sealed without review or acceptance.
     contract_candidate:
       proposed_version: "1.0.0"
       contractCandidateId: o0-contract-candidate:1.0.0:sha256:9cfc4006432e9489a273f449fc02bbe383723c7924856ce4434b85047a46dbb6
@@ -3084,9 +3086,11 @@ work_items:
         o0-contract-candidate:1.0.0:sha256:<lowercase digest>.
       state: byte_sealed_review_required
     contract_review:
-      state: not_authorized
-      reviewed_candidate_id: null
-      review_artifact: null
+      state: findings_accepted_repair_authorized
+      reviewed_candidate_id: o0-contract-candidate:1.0.0:sha256:9cfc4006432e9489a273f449fc02bbe383723c7924856ce4434b85047a46dbb6
+      review_artifact: docs/vision/reviews/o0-contract-review-2026-09-01.md
+      review_artifact_sha256: d42f850c1193a05f4608660bee1247acffb7cb99e664375b5fdcb01c0995e375
+      disposition: O0_CONTRACT_REVIEW_FINDINGS_REPAIR_AUTHORIZATION_REQUIRED
     accepted_contract: null
     acceptance:
       - >-
@@ -3160,10 +3164,21 @@ work_items:
         O0 as blocked at contract_review with the byte-sealed candidate, review
         not authorized, and accepted_contract null; it contains no review or
         implementation.
+      - >-
+        Independent review commit 24633b993535f64e5b8da73265588753f5a95778
+        preserves the rejected candidate and adds only
+        docs/vision/reviews/o0-contract-review-2026-09-01.md. The 24,228-byte
+        review artifact has SHA-256
+        d42f850c1193a05f4608660bee1247acffb7cb99e664375b5fdcb01c0995e375 and
+        disposition O0_CONTRACT_REVIEW_FINDINGS_REPAIR_AUTHORIZATION_REQUIRED.
+        The owner accepted only that disposition and authorized only the
+        enumerated repair; acceptance, implementation, and convergence remain
+        null or closed.
     next_step: >-
-      Stop. Preserve the exact candidate and separately authorize independent
-      review of its recorded contractCandidateId before any review artifact,
-      acceptance decision, implementation, or later additive stage.
+      Complete only the authorized finding-closure matrix, contract repair,
+      focused roadmap-validator regressions, successor byte seal, and terminal
+      blocked ledger. Do not independently review, accept, implement, integrate,
+      or converge O0.
 
   - id: RELEASE-LICENSE
     priority: 200
