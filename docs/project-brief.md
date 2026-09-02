@@ -2,11 +2,17 @@
 
 ## Mission
 
-Policy Sentinel will be a sovereignty-centered public policy discovery,
-monitoring, and source-reference tool for Tribal Nations. Its public beta is
-intended for Tribal government leadership and staff, policy staff, grants
-staff, and program staff. It helps people locate and cite official material; it
-does not decide what the material means for a Nation.
+Policy Sentinel is a configurable, sovereignty-centered policy monitoring and
+source-reference engine for rights-holding communities. It watches bounded
+authoritative sources, explains why material was surfaced, preserves
+source-supported change, and produces governed outputs. It does not decide
+what the material legally means for a Nation.
+
+The present development definition of done is a general engine capable of
+supporting the PNW/ATNI region and the intended 59 current ATNI Member Tribes,
+once an authoritative current roster exists. Nationwide United States coverage
+is the longer-term direction. The complete binding scope and acceptance
+contract is [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md).
 
 This is a new, independent project. The earlier public
 `atniclimate/policy-sentinel` repository is historical reference only. Its
@@ -16,18 +22,24 @@ software design and code are not inherited.
 
 Phase A established the local repository, written design, source feasibility,
 versioned data contracts, starting taxonomy, and validation workflow. The owner
-approved Phase B local implementation on 2026-07-30. Current progress,
+approved Phase B local implementation on 2026-07-30. The 2026-09-02 product-space
+rebase retains that work as implementation evidence while separating engine,
+region, deployment, persona, and output concerns. Current progress,
 dependencies, and remaining work are recorded in
 [`ROADMAP.yaml`](../ROADMAP.yaml). Remote publishing, API registration,
 provider-term acceptance, paid or third-party actions, private data, optional
 AI generation, and outbound notifications remain outside current authority.
 
-## Binding public-beta scope
+## Current application-adapter baseline
+
+The sections below preserve requirements already implemented, contracted, or
+planned for the static application. They are one application-adapter baseline,
+not the complete PNW engine definition of done.
 
 ### People and flows
 
-- The default flow selects one Nation from the current 575-Nation federally
-  recognized baseline.
+- The current application contract selects one Nation from a separately
+  validated United States federal-recognition baseline.
 - Comparison is an explicit advanced mode and is implemented only after the
   single-Nation flow works.
 - The three dashboard entry points are guided Nation search, policy-area
@@ -38,10 +50,13 @@ AI generation, and outbound notifications remain outside current authority.
 
 ### Geography and coverage
 
-- The Nation selector includes all 575 federally recognized Nations.
-- Every Nation receives federal coverage. Initial additional coverage is
-  Washington, Oregon, and Idaho only where the visible coverage matrix marks a
-  source as operational.
+- The existing Nation-collection contract targets exactly 575 federally
+  recognized entities and remains future nationwide-scale recognition
+  evidence. It is not an ATNI membership registry.
+- Current additional source research and implementation is concentrated in
+  Washington, Oregon, and Idaho. The PNW completion target also includes
+  western Montana, northern California, and southeast Alaska; those contexts
+  currently remain explicit gaps.
 - For a Nation outside those three states, show federal results only and a
   plain coverage notice.
 - Every source shows its real historical range, range confidence, data-as-of
@@ -53,9 +68,10 @@ AI generation, and outbound notifications remain outside current authority.
   evidence.
 - Municipal and city policy sources are excluded from the public beta.
 
-An official, auditable coverage crosswalk will control which Nations receive a
-state option. Neither an address nor a map point in the Tribal Leaders
-Directory establishes legal or geographic interest.
+An official, auditable relation will control state or regional treatment.
+Neither an address nor a map point in the Tribal Leaders Directory establishes
+legal or geographic interest. Federal recognition, ATNI membership, and state
+or regional relations remain separate evidence-bearing concepts.
 
 ### Eligible records
 
@@ -150,7 +166,7 @@ suggest that its results represent a Nation's full land interests.
   its original data-as-of date, and a degraded/stale label. It never presents
   stale data as current.
 
-### Static public delivery
+### Current static application output
 
 - GitHub Pages is the delivery target; there is no runtime backend requirement.
 - The public repository remains lean and contains no raw corpora, cached API
@@ -215,9 +231,20 @@ validation command exist; current primary-source evidence and gaps are cited;
 the validator passes; no disallowed implementation or external mutation has
 occurred; and the owner receives one explicit Phase B approval gate.
 
-### Public beta
+### PNW regional engine
 
-The public beta is done only when:
+The PNW regional engine is done only when every dimension in
+[`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md) passes, including
+the authoritative current ATNI roster, general engine seams, differentiating
+PNW contexts, one analyzed corpus, required output-adapter classes, contrasting
+acceptance scenarios, and integrated release evidence. Existing B1-B10 work is
+reusable evidence but does not establish those outcomes by itself.
+
+### Published application
+
+The current product public beta requires the PNW regional engine and retained
+application release scopes to be complete, followed by separate publication
+authorization. Within that combined boundary, it is done only when:
 
 1. the 575-Nation registry is validated against the current recognition notice;
 2. the single-Nation flow and federal-only notice work before comparison mode;
@@ -235,4 +262,5 @@ The public beta is done only when:
    source-use compliance; and
 9. the owner separately authorizes the GitHub remote and Pages publication.
 
-Passing Phase A does not satisfy the public-beta definition of done.
+Passing Phase A, a synthetic artifact, or local PNW completion does not satisfy
+the publication gate.

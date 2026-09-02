@@ -493,6 +493,13 @@ const completionScope = requireObject(
   roadmap.completion_scope.local_release_candidate,
   "completion_scope.local_release_candidate",
 );
+const pnwCompletionScope = requireObject(
+  roadmap.completion_scope.pnw_regional_engine,
+  "completion_scope.pnw_regional_engine",
+);
+const hasExactOrderedValues = (actual, expected) =>
+  actual.length === expected.length &&
+  actual.every((value, index) => value === expected[index]);
 const requiredOutcomes = requireUniqueStrings(
   completionScope.required_outcomes,
   "completion_scope.local_release_candidate.required_outcomes",
@@ -509,11 +516,116 @@ const additiveVisionPhases = requireUniqueStrings(
   completionScope.additive_vision_phases,
   "completion_scope.local_release_candidate.additive_vision_phases",
 );
+const expectedPnwRequiredOutcomes = [
+  "PNW-00-RECONCILE",
+  "PNW-01-ENGINE-SEAMS",
+  "PNW-02-REGIONAL-REGISTRY",
+  "PNW-03-GEOGRAPHY-RIGHTS",
+  "PNW-04-TAXONOMY",
+  "PNW-05-SOURCE-PACK",
+  "PNW-06-LIFECYCLE-REFRESH",
+  "PNW-07-ANALYZED-CORPUS",
+  "PNW-08-OUTPUT-ADAPTERS",
+  "PNW-09-ACCEPTANCE-SCENARIOS",
+  "PNW-10-REGIONAL-RC",
+];
+const pnwRequiredOutcomes = requireUniqueStrings(
+  pnwCompletionScope.required_outcomes,
+  "completion_scope.pnw_regional_engine.required_outcomes",
+);
+if (!hasExactOrderedValues(pnwRequiredOutcomes, expectedPnwRequiredOutcomes)) {
+  fail(
+    "PNW regional required outcomes must preserve PNW-00 through PNW-10 in order",
+  );
+}
+const pnwMappingDocument = requireString(
+  pnwCompletionScope.mapping_document,
+  "completion_scope.pnw_regional_engine.mapping_document",
+);
+if (!bindingPaths.has(pnwMappingDocument)) {
+  fail("PNW regional mapping document must be a binding document");
+}
+if (
+  requireString(
+    pnwCompletionScope.first_implementation_tranche,
+    "completion_scope.pnw_regional_engine.first_implementation_tranche",
+  ) !== "PNW-01-ENGINE-SEAMS"
+) {
+  fail(
+    "PNW-01-ENGINE-SEAMS must remain the exact first implementation tranche",
+  );
+}
+if (
+  requireString(
+    pnwCompletionScope.implementation_gate,
+    "completion_scope.pnw_regional_engine.implementation_gate",
+  ) !== "G-PNW-IMPLEMENTATION"
+) {
+  fail("the PNW first implementation tranche must retain G-PNW-IMPLEMENTATION");
+}
+const requiredPnwGateIds = [
+  "G-PNW-IMPLEMENTATION",
+  "G-PNW-ATNI-59-ROSTER",
+  "G-PNW-COMMUNITY-AUTHORITY",
+  "G-PNW-SPATIAL-EVIDENCE",
+  "G-PNW-SOURCE-ACTIVATION",
+  "G-PNW-OUTPUT-REVIEW",
+];
+for (const id of requiredPnwGateIds) {
+  if (!gateById.has(id)) {
+    fail(`durable PNW gate is missing: ${id}`);
+  }
+}
+const expectedPnwDependencies = new Map([
+  ["PNW-00-RECONCILE", []],
+  ["PNW-01-ENGINE-SEAMS", ["PNW-00-RECONCILE"]],
+  ["PNW-02-REGIONAL-REGISTRY", ["PNW-01-ENGINE-SEAMS"]],
+  ["PNW-03-GEOGRAPHY-RIGHTS", ["PNW-01-ENGINE-SEAMS"]],
+  ["PNW-04-TAXONOMY", ["PNW-01-ENGINE-SEAMS"]],
+  ["PNW-05-SOURCE-PACK", ["PNW-01-ENGINE-SEAMS"]],
+  ["PNW-06-LIFECYCLE-REFRESH", ["PNW-05-SOURCE-PACK"]],
+  [
+    "PNW-07-ANALYZED-CORPUS",
+    ["PNW-01-ENGINE-SEAMS", "PNW-04-TAXONOMY", "PNW-05-SOURCE-PACK"],
+  ],
+  ["PNW-08-OUTPUT-ADAPTERS", ["PNW-07-ANALYZED-CORPUS"]],
+  [
+    "PNW-09-ACCEPTANCE-SCENARIOS",
+    [
+      "PNW-02-REGIONAL-REGISTRY",
+      "PNW-03-GEOGRAPHY-RIGHTS",
+      "PNW-06-LIFECYCLE-REFRESH",
+      "PNW-08-OUTPUT-ADAPTERS",
+    ],
+  ],
+  ["PNW-10-REGIONAL-RC", ["PNW-09-ACCEPTANCE-SCENARIOS"]],
+]);
+for (const [id, expectedDependencies] of expectedPnwDependencies) {
+  const item = byId.get(id);
+  if (!item) {
+    fail(`durable PNW work item is missing: ${id}`);
+  }
+  if (!hasExactOrderedValues(item.dependencies, expectedDependencies)) {
+    fail(`${id} dependencies do not match the durable PNW execution graph`);
+  }
+}
+if (
+  byId.get("PNW-01-ENGINE-SEAMS").authorization_gate !== "G-PNW-IMPLEMENTATION"
+) {
+  fail("PNW-01-ENGINE-SEAMS must retain G-PNW-IMPLEMENTATION");
+}
+if (
+  byId.get("PNW-02-REGIONAL-REGISTRY").authorization_gate !==
+  "G-PNW-ATNI-59-ROSTER"
+) {
+  fail("PNW-02-REGIONAL-REGISTRY must retain G-PNW-ATNI-59-ROSTER");
+}
 const completionGroups = [
   ["required_outcomes", requiredOutcomes],
   ["accepted_source_blocks", acceptedSourceBlocks],
   ["publication_only", publicationOnly],
   ["additive_vision_phases", additiveVisionPhases],
+  ["pnw_regional_engine.required_outcomes", pnwRequiredOutcomes],
 ];
 const completionMembership = new Map();
 for (const [group, ids] of completionGroups) {
@@ -1262,9 +1374,20 @@ if (!allowedFinishStates.has(localFinish.current_state)) {
     `finish_states.local_release_candidate.current_state is not allowed: ${localFinish.current_state}`,
   );
 }
+const pnwFinish = requireObject(
+  roadmap.finish_states.pnw_regional_engine,
+  "finish_states.pnw_regional_engine",
+);
+if (!allowedFinishStates.has(pnwFinish.current_state)) {
+  fail(
+    `finish_states.pnw_regional_engine.current_state is not allowed: ${pnwFinish.current_state}`,
+  );
+}
+const pnwRequiredOutcomeIds = new Set(pnwRequiredOutcomes);
 const inProgress = workItems.filter((item) => item.status === "in_progress");
 const isTerminal = ["complete", "blocked"].includes(localFinish.current_state);
 let terminalRequiredRoots = [];
+let terminalPnwRoots = [];
 // A required outcome may be evidence-blocked while independent ready work
 // continues. The terminal-complete check below still requires every required
 // outcome to be complete, so an active blocker cannot weaken release
@@ -1292,13 +1415,20 @@ if (inProgress.length === 1) {
 }
 
 if (isTerminal) {
-  const nonAdditiveInProgress = inProgress.filter(
-    (item) => !additiveVisionPhaseIds.has(item.id),
+  const disallowedTerminalInProgress = inProgress.filter(
+    (item) =>
+      !additiveVisionPhaseIds.has(item.id) &&
+      !(
+        pnwFinish.current_state === "in_progress" &&
+        pnwRequiredOutcomeIds.has(item.id)
+      ),
   );
-  if (nonAdditiveInProgress.length !== 0) {
+  if (disallowedTerminalInProgress.length !== 0) {
     fail(
       "terminal local finish state permits only optional additive in_progress " +
-        `work; found non-additive items: ${nonAdditiveInProgress.map((item) => item.id).join(", ")}`,
+        "work or in_progress work in the separately active PNW scope; found " +
+        "disallowed in_progress items: " +
+        disallowedTerminalInProgress.map((item) => item.id).join(", "),
     );
   }
   if (inProgress.length === 0) {
@@ -1308,7 +1438,7 @@ if (isTerminal) {
     );
   } else if (roadmap.current_focus.terminal_reason !== null) {
     fail(
-      "active additive current focus requires current_focus.terminal_reason: null",
+      "an active additive or PNW current focus requires current_focus.terminal_reason: null",
     );
   }
 } else {
@@ -1348,15 +1478,38 @@ if (localFinish.current_state === "complete") {
     );
   }
 }
+const collectIncompleteOutcomeRoots = (outcomeIds) => {
+  const roots = new Set();
+  const collect = (id) => {
+    const item = byId.get(id);
+    if (item.status === "complete") {
+      return;
+    }
+    const incompleteDependencies = item.dependencies.filter(
+      (dependency) => byId.get(dependency).status !== "complete",
+    );
+    if (item.status === "blocked" || incompleteDependencies.length === 0) {
+      roots.add(id);
+      return;
+    }
+    for (const dependency of incompleteDependencies) {
+      collect(dependency);
+    }
+  };
+  for (const id of outcomeIds) {
+    collect(id);
+  }
+  return [...roots].sort(
+    (left, right) => byId.get(left).priority - byId.get(right).priority,
+  );
+};
+
 const protectedReleaseRoots = [
   "B2-REVIEW",
   "B4-FR-UX",
   "B5-WA-LWS-ADAPTER",
   "B5-WA-RULES",
 ];
-const hasExactOrderedValues = (actual, expected) =>
-  actual.length === expected.length &&
-  actual.every((value, index) => value === expected[index]);
 if (localFinish.current_state === "blocked") {
   const localFinishBlockers = requireUniqueStrings(
     localFinish.blocked_by,
@@ -1368,29 +1521,8 @@ if (localFinish.current_state === "blocked") {
         protectedReleaseRoots.join(", "),
     );
   }
-  const incompleteRequiredRoots = new Set();
-  const collectIncompleteRoots = (id) => {
-    const item = byId.get(id);
-    if (item.status === "complete") {
-      return;
-    }
-    const incompleteDependencies = item.dependencies.filter(
-      (dependency) => byId.get(dependency).status !== "complete",
-    );
-    if (item.status === "blocked" || incompleteDependencies.length === 0) {
-      incompleteRequiredRoots.add(id);
-      return;
-    }
-    for (const dependency of incompleteDependencies) {
-      collectIncompleteRoots(dependency);
-    }
-  };
-  for (const id of requiredOutcomes) {
-    collectIncompleteRoots(id);
-  }
-  terminalRequiredRoots = [...incompleteRequiredRoots].sort(
-    (left, right) => byId.get(left).priority - byId.get(right).priority,
-  );
+  terminalRequiredRoots = collectIncompleteOutcomeRoots(requiredOutcomes);
+  const incompleteRequiredRoots = new Set(terminalRequiredRoots);
   if (!hasExactOrderedValues(terminalRequiredRoots, protectedReleaseRoots)) {
     fail(
       "incomplete required-outcome roots must preserve the exact protected " +
@@ -1410,39 +1542,98 @@ if (localFinish.current_state === "blocked") {
         `unexpected: ${unexpectedFinishBlockers.join(", ") || "none"}`,
     );
   }
-  const currentFocusRoots = requireUniqueStrings(
-    roadmap.current_focus.resumable_roots,
-    "current_focus.resumable_roots",
-  );
-  if (!hasExactOrderedValues(currentFocusRoots, protectedReleaseRoots)) {
-    fail(
-      "current focus must preserve the exact protected release roots in " +
-        `order: ${protectedReleaseRoots.join(", ")}`,
+  if (inProgress.length === 0 || !pnwRequiredOutcomeIds.has(inProgress[0].id)) {
+    const currentFocusRoots = requireUniqueStrings(
+      roadmap.current_focus.resumable_roots,
+      "current_focus.resumable_roots",
     );
-  }
-  const omittedFocusRoots = terminalRequiredRoots.filter(
-    (id) => !currentFocusRoots.includes(id),
-  );
-  const unexpectedFocusRoots = currentFocusRoots.filter(
-    (id) => !incompleteRequiredRoots.has(id),
-  );
-  if (omittedFocusRoots.length > 0 || unexpectedFocusRoots.length > 0) {
-    fail(
-      "terminal-blocked current focus must exactly match incomplete " +
-        `required-outcome roots; missing: ${omittedFocusRoots.join(", ") || "none"}; ` +
-        `unexpected: ${unexpectedFocusRoots.join(", ") || "none"}`,
+    if (!hasExactOrderedValues(currentFocusRoots, protectedReleaseRoots)) {
+      fail(
+        "current focus must preserve the exact protected release roots in " +
+          `order: ${protectedReleaseRoots.join(", ")}`,
+      );
+    }
+    const omittedFocusRoots = terminalRequiredRoots.filter(
+      (id) => !currentFocusRoots.includes(id),
     );
+    const unexpectedFocusRoots = currentFocusRoots.filter(
+      (id) => !incompleteRequiredRoots.has(id),
+    );
+    if (omittedFocusRoots.length > 0 || unexpectedFocusRoots.length > 0) {
+      fail(
+        "terminal-blocked current focus must exactly match incomplete " +
+          `required-outcome roots; missing: ${omittedFocusRoots.join(", ") || "none"}; ` +
+          `unexpected: ${unexpectedFocusRoots.join(", ") || "none"}`,
+      );
+    }
   }
   const nonAdditiveReadyItems = workItems
     .filter(
       (item) =>
-        item.status === "ready" && !additiveVisionPhases.includes(item.id),
+        item.status === "ready" &&
+        !additiveVisionPhases.includes(item.id) &&
+        !pnwRequiredOutcomeIds.has(item.id),
     )
     .map((item) => item.id);
   if (nonAdditiveReadyItems.length > 0) {
     fail(
       "local release candidate cannot be terminal-blocked while non-additive " +
         `ready work remains: ${nonAdditiveReadyItems.join(", ")}`,
+    );
+  }
+}
+
+if (pnwFinish.current_state === "complete") {
+  const incompletePnwOutcomes = pnwRequiredOutcomes.filter(
+    (id) => byId.get(id).status !== "complete",
+  );
+  if (incompletePnwOutcomes.length > 0) {
+    fail(
+      "PNW regional engine is complete with incomplete required outcomes: " +
+        incompletePnwOutcomes.join(", "),
+    );
+  }
+}
+if (pnwFinish.current_state === "in_progress") {
+  const activePnwItems = inProgress.filter((item) =>
+    pnwRequiredOutcomeIds.has(item.id),
+  );
+  if (activePnwItems.length !== 1) {
+    fail(
+      "active PNW regional finish state requires exactly one PNW in_progress item",
+    );
+  }
+}
+if (pnwFinish.current_state === "blocked") {
+  const activePnwItems = workItems.filter(
+    (item) =>
+      pnwRequiredOutcomeIds.has(item.id) &&
+      ["in_progress", "ready"].includes(item.status),
+  );
+  if (activePnwItems.length > 0) {
+    fail(
+      "blocked PNW regional finish state cannot retain ready or in_progress " +
+        `items: ${activePnwItems.map((item) => item.id).join(", ")}`,
+    );
+  }
+  terminalPnwRoots = collectIncompleteOutcomeRoots(pnwRequiredOutcomes);
+  const nonBlockedPnwRoots = terminalPnwRoots.filter(
+    (id) => byId.get(id).status !== "blocked",
+  );
+  if (nonBlockedPnwRoots.length > 0) {
+    fail(
+      "blocked PNW regional finish state has non-blocked incomplete roots: " +
+        nonBlockedPnwRoots.join(", "),
+    );
+  }
+  const pnwFinishBlockers = requireUniqueStrings(
+    pnwFinish.blocked_by,
+    "finish_states.pnw_regional_engine.blocked_by",
+  );
+  if (!hasExactOrderedValues(pnwFinishBlockers, terminalPnwRoots)) {
+    fail(
+      "PNW regional finish blockers must exactly match incomplete PNW roots in " +
+        `priority order: ${terminalPnwRoots.join(", ")}`,
     );
   }
 }
@@ -1459,10 +1650,11 @@ if (!allowedFinishStates.has(publicFinish.current_state)) {
 if (
   publicFinish.current_state === "complete" &&
   (localFinish.current_state !== "complete" ||
+    pnwFinish.current_state !== "complete" ||
     byId.get("RELEASE-PUBLISH")?.status !== "complete")
 ) {
   fail(
-    "public beta is complete without a complete local release candidate and publication work item",
+    "public beta is complete without complete legacy and PNW local scopes plus the publication work item",
   );
 }
 if (
@@ -1512,24 +1704,27 @@ for (const [index, action] of nextActions.entries()) {
   }
   requireString(action.action, `${path}.action`);
 }
-if (terminalRequiredRoots.length > 0) {
+const terminalActionRoots = [
+  ...new Set([...terminalRequiredRoots, ...terminalPnwRoots]),
+].sort((left, right) => byId.get(left).priority - byId.get(right).priority);
+if (terminalActionRoots.length > 0) {
   const nextActionIds = nextActions.map((action) => action.work_item);
   const hasExactOrderedRoots =
-    nextActionIds.length === terminalRequiredRoots.length &&
-    nextActionIds.every((id, index) => id === terminalRequiredRoots[index]);
+    nextActionIds.length === terminalActionRoots.length &&
+    nextActionIds.every((id, index) => id === terminalActionRoots[index]);
   if (!hasExactOrderedRoots) {
     const nextActionSet = new Set(nextActionIds);
-    const omittedActionRoots = terminalRequiredRoots.filter(
+    const omittedActionRoots = terminalActionRoots.filter(
       (id) => !nextActionSet.has(id),
     );
-    const expectedRootSet = new Set(terminalRequiredRoots);
+    const expectedRootSet = new Set(terminalActionRoots);
     const unexpectedActions = nextActionIds.filter(
       (id) => !expectedRootSet.has(id),
     );
     fail(
-      "terminal-blocked next actions must list each incomplete required-outcome " +
-        `root exactly once in priority order; missing: ${omittedActionRoots.join(", ") || "none"}; ` +
-        `unexpected: ${unexpectedActions.join(", ") || "none"}; expected order: ${terminalRequiredRoots.join(", ")}`,
+      "terminal next actions must list each incomplete completion-scope root " +
+        `exactly once in priority order; missing: ${omittedActionRoots.join(", ") || "none"}; ` +
+        `unexpected: ${unexpectedActions.join(", ") || "none"}; expected order: ${terminalActionRoots.join(", ")}`,
     );
   }
 }

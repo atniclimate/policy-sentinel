@@ -1,16 +1,16 @@
 # Policy Sentinel
 
-Policy Sentinel is a sovereignty-centered public policy discovery and
-source-reference project for Tribal government leadership and staff, policy
-staff, grants staff, and program staff. It is being designed as a static public
-GitHub Pages application that helps a visitor find and cite official records
-without implying a legal conclusion or a complete account of a Nation's
-interests.
+Policy Sentinel is a configurable, sovereignty-centered policy monitoring and
+source-reference engine. It watches bounded authoritative sources, explains why
+records are shown, preserves source-supported change, and produces governed
+outputs without implying a legal conclusion or a complete account of a
+Nation's interests.
 
 ## Project status
 
-This repository is in **Phase B: local implementation**. The owner approved
-Gate A on July 30, 2026. The current local increment contains a static
+This repository retains its approved **Phase B local implementation** history
+and records a bounded 2026-09-02 PNW product-space planning rebase. The owner
+approved Gate A on July 30, 2026. The current local increment contains a static
 TypeScript application backed by synthetic fixtures, versioned source and
 artifact contracts, a fail-closed artifact pipeline, and a build-time adapter
 that independently validates all 577 displayed list-entry paragraphs in the current
@@ -19,7 +19,14 @@ provide a row-level reconciliation between that total and its displayed list,
 so the live Nation registry now fails closed pending exact originating-source
 evidence.
 
-This is not a completed public beta. Production record-source adapters,
+The static application, dossier, CSV, and artifact are current output
+implementations/precursors, not the whole engine or a general adapter suite.
+The present development definition of done is a general engine for the PNW/ATNI
+region and the intended 59 current ATNI Member Tribes, once an authoritative
+current roster exists. Nationwide United States packs remain the longer-term
+direction.
+
+This is not a completed PNW engine or public beta. Production record-source adapters,
 large-scale index benchmarks, publication review, a remote repository, GitHub
 Pages, and a release are still pending. Gate A did not authorize a remote,
 push, Pages, API registration, provider-term acceptance, paid use, third-party
@@ -31,22 +38,27 @@ course through a local release candidate are maintained in the validated
 separately blocked. A fresh Sol Ultra session can resume from
 [the durable continuation prompt](docs/continuation-prompt.md).
 
-## Intended public beta
+## Intended PNW engine
 
-The beta is intended to:
+The present product is intended to:
 
-- offer a searchable, keyboard-accessible selector for the current baseline of
-  575 federally recognized Nations;
-- provide federal coverage for every selected Nation and additional source
-  coverage for Washington, Oregon, and Idaho only where a viable official
-  source has been validated;
+- keep sovereign identity, recognition, and ATNI membership as separate
+  evidence-bearing relations;
+- support an authoritatively sourced current 59-member ATNI region across
+  Washington, Oregon, Idaho, western Montana, northern California, and
+  southeast Alaska without hard-coded Nation/state branches;
 - support legislation, statutes, regulations, executive material, grants,
   litigation and decisions, public intergovernmental agreements, qualifying
   county records, and officially published Tribal government documents;
 - provide guided Nation search, policy-area browsing, and a landmark timeline;
 - expose coverage, freshness, source health, provenance, and the exact basis on
   which each result is shown; and
-- create print-ready source dossiers and CSV exports from selected records.
+- emit one analyzed corpus through document, web-module, application, and
+  structured-output adapters without factual drift.
+
+The existing 575-entity federal-recognition contract remains valuable future
+nationwide-scale evidence. It is not ATNI membership evidence or proof of a
+production registry.
 
 The initial editable taxonomy is in
 [`config/taxonomy.v1.json`](config/taxonomy.v1.json). It supports many-to-many
@@ -179,6 +191,8 @@ runtime and trust model.
 Key documents:
 
 - [Canonical implementation roadmap](ROADMAP.yaml)
+- [PNW product scope and acceptance](docs/pnw-scope-and-acceptance.md)
+- [PNW rebase mapping, evidence gaps, and first tranche](docs/handoffs/pnw-product-space-rebase-2026-09-02.md)
 - [Sol Ultra continuation prompt](docs/continuation-prompt.md)
 - [Project brief](docs/project-brief.md)
 - [Source feasibility](docs/source-feasibility.md)
@@ -188,6 +202,12 @@ Key documents:
 - [UX specification](docs/ux-spec.md)
 - [MVP plan and stop/go gates](docs/mvp-plan.md)
 - [Decision register](docs/decision-register.md)
+
+Repository-local Codex support is intentionally narrow: the five lifecycle
+hooks remain the mechanical guardrails; one source-review skill lives under
+`.agents/skills`; and two read-only reviewer roles are registered in
+`.codex/config.toml`. These aids do not grant source access, decide gates, edit
+authoritative files, or constitute completion evidence.
 
 ## Attribution
 

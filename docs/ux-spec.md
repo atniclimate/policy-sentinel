@@ -6,6 +6,13 @@ Applies to: public GitHub Pages beta
 
 Last reviewed: 2026-07-30
 
+Product-space interpretation updated 2026-09-02: this specification remains
+binding for the current static application output. The application is one
+output precursor within the general Policy Sentinel engine; it is not
+the entire PNW definition of done. Future document, web-module, application,
+and structured-output adapters must consume one accepted corpus without
+changing record identity, evidence, `whyShown`, review state, or non-claims.
+
 ## Experience contract
 
 Policy Sentinel is a source-reference and discovery tool for Tribal government leadership and staff, policy staff, grants staff, and program staff. The interface must be calm, compact, plain-language, and usable without policy or technical expertise. It must not imply that results are comprehensive, legally determinative, or a complete statement of a Nation's interests.

@@ -2,16 +2,29 @@
 
 ## Purpose and phase gate
 
-Policy Sentinel is a sovereignty-centered public policy discovery and
-source-reference tool. Preserve the product boundaries in
-`docs/project-brief.md` and the decisions in `docs/decision-register.md`.
+Policy Sentinel is a configurable, sovereignty-centered policy monitoring and
+source-reference engine. Preserve the product boundaries in
+`docs/project-brief.md`, the PNW scope and acceptance contract in
+`docs/pnw-scope-and-acceptance.md`, and the decisions in
+`docs/decision-register.md`.
 
 Phase B Gate A was approved by the owner on 2026-07-30. Local implementation
-under `docs/mvp-plan.md` is authorized. That approval does not authorize a
-remote repository, push, Pages deployment, API registration, provider-term
-acceptance, paid call, third-party contact, secret change, private-data use,
-optional AI generation, or outbound notification. Keep every later stop/go gate
-closed until the owner approves that exact action.
+under the retained B1-B10 stream in `docs/mvp-plan.md` is authorized. That Gate
+A approval does not authorize PNW-01 or another successor-contract tranche;
+`G-PNW-IMPLEMENTATION` remains closed until the owner authorizes the exact
+tranche. Gate A also does not authorize a remote repository, push, Pages
+deployment, API registration, provider-term acceptance, paid call, third-party
+contact, secret change, private-data use, optional AI generation, or outbound
+notification. Keep every later stop/go gate closed until the owner approves
+that exact action.
+
+The 2026-09-02 planning rebase makes a general PNW/ATNI regional engine the
+present definition of done and nationwide United States packs the later
+direction. The intended current 59-member ATNI roster remains an originating-
+evidence gate. Federal recognition is not organization membership. The current
+static application and B1-B10 work are retained evidence, not the whole product.
+K0/S0/O0 remain outside product dependencies while their convergence gates are
+closed.
 
 Do the smallest task that satisfies the request. Preserve unrelated and
 concurrent changes.
@@ -42,6 +55,10 @@ concurrent changes.
 - Use [the Sol Ultra continuation prompt](docs/continuation-prompt.md) for a
   fresh long-running implementation session. Local Git and `ROADMAP.yaml` must
   remain sufficient to recover after context compaction.
+- Treat
+  [`docs/handoffs/pnw-product-space-rebase-2026-09-02.md`](docs/handoffs/pnw-product-space-rebase-2026-09-02.md)
+  as the durable product-space mapping and exact first-tranche boundary until a
+  later checkpoint supersedes it.
 
 ## Git and GitHub
 
@@ -79,9 +96,11 @@ concurrent changes.
 
 ## Non-negotiable data rules
 
-- The Nation baseline comes from the current annual federal recognition notice
-  and must validate to exactly 575 before publication. The BIA Tribal Leaders
-  Directory is supplementary and is not the recognition authority.
+- The retained United States federal-recognition collection used by the current
+  application comes from the current annual recognition notice and must validate
+  to exactly 575 before that collection is published. This is not a universal
+  engine invariant or ATNI membership rule. The BIA Tribal Leaders Directory is
+  supplementary and is not the recognition authority.
 - A public Nation relationship requires exact evidence in an official source
   plus its URL. Never infer it from AI, keywords, geography, sponsors,
   eligibility, territory, maps, or land.
@@ -123,14 +142,16 @@ concurrent changes.
 
 Keep the source repository lean: code, schemas, taxonomy/source configuration,
 documentation, synthetic fixtures, notices, tests, and approved deployment
-configuration only. Generate provider data in ephemeral build space and place
-validated public output only in the approved Pages artifact. A hidden path in a
-public repository or deployment is not private.
+configuration only. Generate provider data in ephemeral build space. For the
+retained static application, place validated public output only in the approved
+Pages artifact. A future document, web-module, application, or structured
+adapter requires its own approved output and delivery boundary. A hidden path
+in a public repository or deployment is not private.
 
 When a source refresh fails, use only a checksum-validated prior public shard
-from the last deployed artifact, label it stale/degraded, and preserve its
-original data-as-of time. If no last-known-good shard exists, omit that source
-and mark it unavailable. Never relabel stale data as current.
+from the same adapter's last approved output artifact, label it stale/degraded,
+and preserve its original data-as-of time. If no last-known-good shard exists,
+omit that source and mark it unavailable. Never relabel stale data as current.
 
 ## Commands and validation
 

@@ -1,10 +1,23 @@
 # Source coverage
 
-Status: Phase A coverage contract, updated 2026-08-03. Policy Sentinel will show records only after a source adapter, provenance rules, and the actual loaded range pass validation. This document does not claim that data has already been ingested.
+Status: retained source-evidence baseline; product direction updated 2026-09-02.
+Policy Sentinel will show records only after a source adapter, provenance rules,
+and the actual loaded range pass validation. This document does not claim that
+data has already been ingested.
 
-## Public beta geography
+The present product definition of done is the PNW/ATNI regional engine across
+Washington, Oregon, Idaho, western Montana, northern California, and southeast
+Alaska for an authoritatively supported current 59-member ATNI roster. The
+matrix below records actual existing research and contract evidence, which is
+primarily federal plus WA/OR/ID. Montana, California, Alaska,
+Tribal/inter-Tribal, and regional/transboundary source packs are unreviewed
+gaps; no WA/OR/ID evidence is extrapolated to them.
 
-- The selector contains all 575 federally recognized Nations from the current annual BIA recognition list.
+## Retained application coverage baseline
+
+- The existing selector contract targets a 575-entity federal-recognition
+  collection. It is national-scale recognition evidence, not ATNI membership
+  or proof that a production registry exists.
 - Public policy-source coverage is federal plus Washington, Oregon, and Idaho.
 - A Nation outside Washington, Oregon, or Idaho receives federal records only and this notice: **“State and county source coverage in this beta is limited to Washington, Oregon, and Idaho. Results for this Nation currently show federal sources only.”**
 - A state or federal record that does not explicitly name the selected Nation may appear only as **General jurisdiction**. It must not be described as Nation-specific.
@@ -12,7 +25,11 @@ Status: Phase A coverage contract, updated 2026-08-03. Policy Sentinel will show
 - Official Tribal-government documents are opt-in source registries governed by the publishing Nation's authority and terms. They do not enlarge the implied coverage of other Nations.
 - Municipal and city sources, private agreements, non-official Tribal materials, maps, parcels, and all public land-context data are outside the beta.
 
-The Nation-to-Washington/Oregon/Idaho crosswalk is not yet approved. Recognition, a mailing address, or TLD map geometry does not prove a Nation's policy geography. Until a reviewed source supplies that crosswalk, the implementation must not silently decide which state notice applies.
+The Nation-to-Washington/Oregon/Idaho crosswalk is not yet approved.
+Recognition, organization membership, a mailing address, or TLD map geometry
+does not prove a Nation's policy geography. Until reviewed evidence supplies a
+typed relation, the implementation must not silently decide which state or
+regional notice applies.
 
 ## Planned coverage matrix
 

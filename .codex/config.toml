@@ -1,0 +1,7 @@
+[agents.source_evidence_auditor]
+description = "Read-only reviewer for official-source authority, contracts, coverage, privacy, reuse, and activation gates."
+config_file = "agents/source-evidence-auditor.toml"
+
+[agents.sovereignty_adversarial_reviewer]
+description = "Read-only adversarial reviewer for identity, authority, relevance, geography, privacy, evidence, and false-completion risks."
+config_file = "agents/sovereignty-adversarial-reviewer.toml"

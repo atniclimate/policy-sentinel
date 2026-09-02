@@ -26,6 +26,7 @@ const protectedReleaseRoots = [
   "B5-WA-LWS-ADAPTER",
   "B5-WA-RULES",
 ];
+const protectedPnwRoots = ["PNW-01-ENGINE-SEAMS", "PNW-02-REGIONAL-REGISTRY"];
 const additiveStages = [
   "contract_design",
   "contract_freeze",
@@ -204,6 +205,64 @@ const blockedWorkItem = (id, priority) => ({
   evidence: ["Synthetic roadmap-validator fixture."],
 });
 
+const makePnwWorkItems = () => {
+  const item = (id, priority, dependencies, status = "not_started") => ({
+    id,
+    priority,
+    milestone: "PNW-TEST",
+    title: id,
+    status,
+    dependencies,
+    acceptance: ["The synthetic PNW roadmap contract remains explicit."],
+    evidence:
+      status === "complete" ? ["Synthetic PNW completion evidence."] : [],
+  });
+  const pnw00 = item("PNW-00-RECONCILE", 130, [], "complete");
+  const pnw01 = {
+    ...item("PNW-01-ENGINE-SEAMS", 131, ["PNW-00-RECONCILE"], "blocked"),
+    blocked_by: ["G-PNW-IMPLEMENTATION"],
+    authorization_gate: "G-PNW-IMPLEMENTATION",
+    safe_fallback: "Keep the synthetic seam unimplemented.",
+    unblocks_only_when: "The exact synthetic tranche is authorized.",
+    evidence: ["Synthetic PNW implementation boundary."],
+  };
+  const pnw02 = {
+    ...item(
+      "PNW-02-REGIONAL-REGISTRY",
+      132,
+      ["PNW-01-ENGINE-SEAMS"],
+      "blocked",
+    ),
+    blocked_by: ["G-PNW-ATNI-59-ROSTER"],
+    authorization_gate: "G-PNW-ATNI-59-ROSTER",
+    safe_fallback: "Emit no regional registry.",
+    unblocks_only_when: "Originating synthetic roster evidence exists.",
+    evidence: ["Synthetic PNW roster evidence boundary."],
+  };
+  return [
+    pnw00,
+    pnw01,
+    pnw02,
+    item("PNW-03-GEOGRAPHY-RIGHTS", 133, ["PNW-01-ENGINE-SEAMS"]),
+    item("PNW-04-TAXONOMY", 134, ["PNW-01-ENGINE-SEAMS"]),
+    item("PNW-05-SOURCE-PACK", 135, ["PNW-01-ENGINE-SEAMS"]),
+    item("PNW-06-LIFECYCLE-REFRESH", 136, ["PNW-05-SOURCE-PACK"]),
+    item("PNW-07-ANALYZED-CORPUS", 137, [
+      "PNW-01-ENGINE-SEAMS",
+      "PNW-04-TAXONOMY",
+      "PNW-05-SOURCE-PACK",
+    ]),
+    item("PNW-08-OUTPUT-ADAPTERS", 138, ["PNW-07-ANALYZED-CORPUS"]),
+    item("PNW-09-ACCEPTANCE-SCENARIOS", 139, [
+      "PNW-02-REGIONAL-REGISTRY",
+      "PNW-03-GEOGRAPHY-RIGHTS",
+      "PNW-06-LIFECYCLE-REFRESH",
+      "PNW-08-OUTPUT-ADAPTERS",
+    ]),
+    item("PNW-10-REGIONAL-RC", 140, ["PNW-09-ACCEPTANCE-SCENARIOS"]),
+  ];
+};
+
 const makeRoadmap = ({
   status = "blocked",
   stage = "contract_design",
@@ -215,8 +274,8 @@ const makeRoadmap = ({
     releaseState === "blocked" ? [...protectedReleaseRoots] : [];
   const nextActionIds =
     releaseState === "blocked"
-      ? [...protectedReleaseRoots]
-      : ["RELEASE-PUBLISH"];
+      ? [...protectedReleaseRoots, ...protectedPnwRoots]
+      : [...protectedPnwRoots];
   const o0 = {
     id: "O0-ORCHESTRATION",
     priority: 122,
@@ -353,6 +412,36 @@ const makeRoadmap = ({
         name: "Synthetic O0 convergence",
         state: "closed",
       },
+      {
+        id: "G-PNW-IMPLEMENTATION",
+        name: "Synthetic PNW implementation authorization",
+        state: "closed",
+      },
+      {
+        id: "G-PNW-ATNI-59-ROSTER",
+        name: "Synthetic PNW roster evidence",
+        state: "pending_evidence",
+      },
+      {
+        id: "G-PNW-COMMUNITY-AUTHORITY",
+        name: "Synthetic PNW community authority",
+        state: "closed",
+      },
+      {
+        id: "G-PNW-SPATIAL-EVIDENCE",
+        name: "Synthetic PNW spatial evidence",
+        state: "pending_evidence",
+      },
+      {
+        id: "G-PNW-SOURCE-ACTIVATION",
+        name: "Synthetic PNW source activation",
+        state: "closed",
+      },
+      {
+        id: "G-PNW-OUTPUT-REVIEW",
+        name: "Synthetic PNW output review",
+        state: "pending_evidence",
+      },
     ],
     binding_documents: [
       { path: "AGENTS.md", role: "Existing local fixture path." },
@@ -419,6 +508,7 @@ const makeRoadmap = ({
         evidence: clone(liveWorkItem("S0-SPATIAL").evidence),
       },
       o0,
+      ...makePnwWorkItems(),
     ],
     completion_scope: {
       local_release_candidate: {
@@ -443,11 +533,33 @@ const makeRoadmap = ({
           "O0-ORCHESTRATION",
         ],
       },
+      pnw_regional_engine: {
+        required_outcomes: [
+          "PNW-00-RECONCILE",
+          "PNW-01-ENGINE-SEAMS",
+          "PNW-02-REGIONAL-REGISTRY",
+          "PNW-03-GEOGRAPHY-RIGHTS",
+          "PNW-04-TAXONOMY",
+          "PNW-05-SOURCE-PACK",
+          "PNW-06-LIFECYCLE-REFRESH",
+          "PNW-07-ANALYZED-CORPUS",
+          "PNW-08-OUTPUT-ADAPTERS",
+          "PNW-09-ACCEPTANCE-SCENARIOS",
+          "PNW-10-REGIONAL-RC",
+        ],
+        mapping_document: "AGENTS.md",
+        first_implementation_tranche: "PNW-01-ENGINE-SEAMS",
+        implementation_gate: "G-PNW-IMPLEMENTATION",
+      },
     },
     finish_states: {
       local_release_candidate: {
         current_state: releaseState,
         blocked_by: [...releaseRoots],
+      },
+      pnw_regional_engine: {
+        current_state: "blocked",
+        blocked_by: ["PNW-01-ENGINE-SEAMS", "PNW-02-REGIONAL-REGISTRY"],
       },
       public_beta: { current_state: "blocked" },
     },
@@ -503,9 +615,13 @@ test("additive stage governance cannot affect protected release accounting", asy
     );
     assert.deepEqual(
       candidate.next_actions.map((action) => action.work_item),
-      expectedReleaseState === "blocked"
-        ? protectedReleaseRoots
-        : ["RELEASE-PUBLISH"],
+      [
+        ...(expectedReleaseState === "blocked" ? protectedReleaseRoots : []),
+        ...(candidate.finish_states.pnw_regional_engine.current_state ===
+        "blocked"
+          ? protectedPnwRoots
+          : []),
+      ],
     );
   };
   const expectInvalid = async (name, candidate, expectedMessage) => {
@@ -531,7 +647,7 @@ test("additive stage governance cannot affect protected release accounting", asy
     );
     candidate.work_items.push({
       id: "X0-EXPERIMENT",
-      priority: 123,
+      priority: 141,
       milestone: "X0",
       title: "Synthetic pending-convergence additive phase",
       status: "ready",
@@ -860,7 +976,7 @@ test("additive stage governance cannot affect protected release accounting", asy
     (item) => item.id === "RELEASE-PUBLISH",
   ).dependencies = ["NONADDITIVE-BRIDGE"];
   transitiveConvergence.work_items.push({
-    ...blockedWorkItem("NONADDITIVE-BRIDGE", 130),
+    ...blockedWorkItem("NONADDITIVE-BRIDGE", 150),
     dependencies: ["O0-ORCHESTRATION"],
   });
   transitiveConvergence.completion_scope.local_release_candidate.publication_only.push(
@@ -902,7 +1018,7 @@ test("additive stage governance cannot affect protected release accounting", asy
     (item) => item.id === "ARTIFACT-CONSUMER",
   ).dependencies = ["NONADDITIVE-BRIDGE"];
   pendingTransitive.work_items.push({
-    ...blockedWorkItem("NONADDITIVE-BRIDGE", 130),
+    ...blockedWorkItem("NONADDITIVE-BRIDGE", 150),
     dependencies: ["X0-EXPERIMENT"],
   });
   pendingTransitive.completion_scope.local_release_candidate.publication_only.push(
@@ -920,6 +1036,124 @@ test("additive stage governance cannot affect protected release accounting", asy
     "changed-protected-release-roots",
     changedReleaseRoot,
     /exact protected roots in order/,
+  );
+
+  const activePnwTranche = makeRoadmap();
+  const activePnwGate = activePnwTranche.gates.find(
+    (gate) => gate.id === "G-PNW-IMPLEMENTATION",
+  );
+  activePnwGate.state = "approved";
+  activePnwGate.evidence = ["Synthetic exact PNW tranche authorization."];
+  const activePnwItem = activePnwTranche.work_items.find(
+    (item) => item.id === "PNW-01-ENGINE-SEAMS",
+  );
+  activePnwItem.status = "in_progress";
+  delete activePnwItem.blocked_by;
+  delete activePnwItem.safe_fallback;
+  delete activePnwItem.unblocks_only_when;
+  activePnwTranche.current_focus.work_item = "PNW-01-ENGINE-SEAMS";
+  activePnwTranche.current_focus.terminal_reason = null;
+  activePnwTranche.finish_states.pnw_regional_engine = {
+    current_state: "in_progress",
+  };
+  activePnwTranche.next_actions = protectedReleaseRoots.map(
+    (workItem, index) => ({
+      order: index + 1,
+      work_item: workItem,
+      action: `Resolve ${workItem}.`,
+    }),
+  );
+  await expectValid("active-pnw-with-blocked-legacy-release", activePnwTranche);
+
+  const missingPnwOutcome = makeRoadmap();
+  missingPnwOutcome.completion_scope.pnw_regional_engine.required_outcomes.pop();
+  await expectInvalid(
+    "missing-pnw-outcome",
+    missingPnwOutcome,
+    /preserve PNW-00 through PNW-10 in order/,
+  );
+
+  const changedPnwTranche = makeRoadmap();
+  changedPnwTranche.completion_scope.pnw_regional_engine.first_implementation_tranche =
+    "PNW-02-REGIONAL-REGISTRY";
+  await expectInvalid(
+    "changed-pnw-first-tranche",
+    changedPnwTranche,
+    /PNW-01-ENGINE-SEAMS must remain the exact first implementation tranche/,
+  );
+
+  const unboundPnwMapping = makeRoadmap();
+  unboundPnwMapping.completion_scope.pnw_regional_engine.mapping_document =
+    "docs/not-binding.md";
+  await expectInvalid(
+    "unbound-pnw-mapping",
+    unboundPnwMapping,
+    /PNW regional mapping document must be a binding document/,
+  );
+
+  const removedPnwGate = makeRoadmap();
+  removedPnwGate.gates = removedPnwGate.gates.filter(
+    (gate) => gate.id !== "G-PNW-OUTPUT-REVIEW",
+  );
+  await expectInvalid(
+    "removed-pnw-gate",
+    removedPnwGate,
+    /durable PNW gate is missing: G-PNW-OUTPUT-REVIEW/,
+  );
+
+  const changedPnwDependency = makeRoadmap();
+  changedPnwDependency.work_items.find(
+    (item) => item.id === "PNW-05-SOURCE-PACK",
+  ).dependencies = ["PNW-02-REGIONAL-REGISTRY"];
+  await expectInvalid(
+    "changed-pnw-dependency",
+    changedPnwDependency,
+    /PNW-05-SOURCE-PACK dependencies do not match the durable PNW execution graph/,
+  );
+
+  const reorderedPnwRoots = makeRoadmap();
+  reorderedPnwRoots.finish_states.pnw_regional_engine.blocked_by.reverse();
+  await expectInvalid(
+    "reordered-pnw-roots",
+    reorderedPnwRoots,
+    /PNW regional finish blockers must exactly match incomplete PNW roots/,
+  );
+
+  const hiddenPnwReadyRoot = makeRoadmap();
+  const hiddenPnwRoot = hiddenPnwReadyRoot.work_items.find(
+    (item) => item.id === "PNW-00-RECONCILE",
+  );
+  hiddenPnwRoot.status = "deferred";
+  hiddenPnwRoot.reason = "Synthetic hidden-root regression.";
+  hiddenPnwRoot.evidence = [];
+  await expectInvalid(
+    "hidden-pnw-nonblocked-root",
+    hiddenPnwReadyRoot,
+    /blocked PNW regional finish state has non-blocked incomplete roots: PNW-00-RECONCILE/,
+  );
+
+  const falsePnwCompletion = makeRoadmap();
+  falsePnwCompletion.finish_states.pnw_regional_engine.current_state =
+    "complete";
+  delete falsePnwCompletion.finish_states.pnw_regional_engine.blocked_by;
+  await expectInvalid(
+    "false-pnw-completion",
+    falsePnwCompletion,
+    /PNW regional engine is complete with incomplete required outcomes/,
+  );
+
+  const readyPnwBehindClosedGate = makeRoadmap();
+  const readyPnwItem = readyPnwBehindClosedGate.work_items.find(
+    (item) => item.id === "PNW-01-ENGINE-SEAMS",
+  );
+  readyPnwItem.status = "ready";
+  delete readyPnwItem.blocked_by;
+  delete readyPnwItem.safe_fallback;
+  delete readyPnwItem.unblocks_only_when;
+  await expectInvalid(
+    "ready-pnw-behind-closed-gate",
+    readyPnwBehindClosedGate,
+    /cannot be ready while authorization gate G-PNW-IMPLEMENTATION is closed/,
   );
 
   const nonAdditiveProgress = makeRoadmap({ status: "ready" });

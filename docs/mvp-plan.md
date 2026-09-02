@@ -2,15 +2,28 @@
 
 Status: Gate A approved; Phase B local implementation in progress
 
-Last reviewed: 2026-07-31
+Last reviewed for product-space governance: 2026-09-02. Source and implementation
+evidence retains its recorded date.
 
-This document is the binding milestone and acceptance contract.
+This document remains the binding milestone and acceptance contract for the
+retained B1-B10 implementation stream.
 [`ROADMAP.yaml`](../ROADMAP.yaml) is the canonical ledger for current status,
 dependencies, evidence, blockers, and next actions.
 
+The 2026-09-02 product-space rebase makes the PNW/ATNI regional engine the
+present product definition of done. B1-B10 identities, evidence, and gates are
+preserved and mapped into PNW workstreams in
+[`handoffs/pnw-product-space-rebase-2026-09-02.md`](handoffs/pnw-product-space-rebase-2026-09-02.md).
+An old item marked complete may be reusable contract, research, implementation,
+or accepted-fallback evidence; it does not thereby complete a broader PNW
+capability. See [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md).
+
 ## Authority boundary
 
-Phase A ended when the owner approved Gate A on 2026-07-30. Phase B local implementation may proceed under this plan.
+Phase A ended when the owner approved Gate A on 2026-07-30. Phase B local
+implementation may proceed only within this retained B1-B10 plan. That approval
+does not authorize PNW-01; `G-PNW-IMPLEMENTATION` remains closed until the owner
+authorizes the exact tranche recorded in the PNW rebase handoff.
 
 Approval of Phase B authorizes only local implementation described here, use of synthetic fixtures, and read-only access to official public sources that require neither registration nor acceptance of new terms. It does **not** authorize:
 
@@ -345,8 +358,13 @@ A failed attempt never advances a source's data-as-of timestamp. The workflow em
 | I: outbound notification | A workflow would message any person or service | Owner approves the recipient, channel, event, content, and workflow. Public beta alerts remain in-site and in-dossier only. |
 | J: source/reuse validation | Current primary evidence and tests have not yet validated a source's terms, attribution, schema, official status, provenance, health, and coverage behavior | Satisfy this evidence gate independently before enabling each source. A material terms, schema, endpoint, attribution, or official-status change returns the source to pending, pauses that adapter, preserves last-known-good data, and requires owner/legal direction only when the new term creates an external obligation. |
 
-## Definition of MVP implementation complete
+## Definition of retained application-stream implementation complete
 
-The MVP is implementation-complete only when the approved source set, static application, schema/data validation, source health, coverage disclosures, single-Nation workflow, advanced comparison, timeline, detail assets, print dossier, CSV export, accessibility, security, and last-known-good behavior meet their acceptance criteria.
+The retained application stream is implementation-complete only when the
+approved source set, static application, schema/data validation, source health,
+coverage disclosures, single-Nation workflow, advanced comparison, timeline,
+detail assets, print dossier, CSV export, accessibility, security, and
+last-known-good behavior meet their acceptance criteria. That state is evidence
+for, but not equivalent to, PNW regional-engine completion.
 
 Implementation-complete does not mean published. A folder, plan, passing fixture build, or local release candidate is not a public beta. Remote creation, push, Pages enablement, and publication remain behind Gate E.

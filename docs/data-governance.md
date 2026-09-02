@@ -2,10 +2,11 @@
 
 ## Purpose and authority
 
-Policy Sentinel is a public source-reference and discovery tool. It is not legal
-advice, a comprehensive legal database, a rights-impact engine, or a substitute
-for an official source. The official source controls whenever this project and
-the source differ.
+Policy Sentinel is a general source-reference and policy-monitoring engine; its
+current static application is one public discovery-output precursor. Neither
+the engine nor an output is legal advice, a comprehensive legal database, a
+rights-impact engine, or a substitute for an official source. The official
+source controls whenever a source fact represented by this project differs.
 
 Use current primary documentation to approve each source and adapter. Data.gov
 may help locate a dataset, but the originating legislature, court, agency, or
@@ -14,23 +15,36 @@ production source. Record source terms, attribution requirements, authentication
 rate limits, historical range, update behavior, and permitted reproduction
 before enabling an adapter.
 
-The Nation baseline is the Bureau of Indian Affairs annual recognition list,
+The retained United States federal-recognition collection used by the current
+application is based on the Bureau of Indian Affairs annual recognition list,
 currently the 575-entity list published January 30, 2026
 ([Federal Register notice](https://www.federalregister.gov/documents/2026/01/30/2026-01899/indian-entities-recognized-by-and-eligible-to-receive-services-from-the-united-states-bureau-of)).
 The [Tribal Leaders Directory](https://www.bia.gov/service/tribal-leaders-directory)
 may support official-name reconciliation and documented aliases, but it is not
 the recognition authority. Do not publish its contacts, addresses, or geometry.
 
-The artifact must distinguish synthetic Nation fixtures from a production
-registry. Synthetic manifest and baseline flags must agree, and synthetic rows
-cannot claim reviewed identities, official crosswalks, source evidence,
-provenance, or source health. A production registry requires exactly 575
+The retained application artifact must distinguish synthetic Nation fixtures
+from a production United States federal-recognition collection. Synthetic
+manifest and baseline flags must agree, and synthetic rows cannot claim
+reviewed identities, official crosswalks, source evidence, provenance, or
+source health. That production recognition collection requires exactly 575
 collision-free reviewed identities, an explicit identity rule, a completed
-publication review, a validated source-paragraph reconciliation, current source
-health, and complete baseline evidence and field provenance. The contract can
-represent 577 source paragraphs reconciled to 575 identities, but it supplies no
-grouping or exclusion rule; `G-BIA-IDENTITY` remains closed until an
-authoritative rule is documented.
+publication review, a validated source-paragraph reconciliation, current
+source health, and complete baseline evidence and field provenance. The
+contract can represent 577 source paragraphs reconciled to 575 identities, but
+it supplies no grouping or exclusion rule; `G-BIA-IDENTITY` remains closed until
+an authoritative rule is documented. These requirements do not turn United
+States recognition or the number 575 into universal engine primitives.
+
+The federal-recognition collection and an ATNI regional membership registry
+are different products of different authorities. The intended PNW scope is 59
+current ATNI Member Tribes, but the owner-supplied public ATNI directory is not
+accepted evidence for that exact current set. Do not derive the set by
+subtraction, geography, or intersection with the federal list. A successor
+model must keep stable sovereign identity, time-versioned recognition, and
+time-versioned organization membership as separate evidence-bearing relations.
+Duwamish is excluded from the intended current target by owner direction; that
+direction neither deletes historical evidence nor supplies the missing roster.
 
 ## Provenance and validation
 
@@ -96,6 +110,14 @@ The relevance basis is descriptive evidence, not a legal conclusion. Supported
 labels include `explicit Nation reference`, `general jurisdiction`, `landmark`,
 and another documented source-defined basis. The result view must explain the
 basis with a visible "why shown" label.
+
+Future community, regional-priority, rights-frame, or reviewed geographic
+explanations require a separate typed assertion with its exact authority,
+evidence/configuration, deterministic rule or author, review state, temporal
+scope, and non-claims. Organization membership, proximity, and geometry alone
+remain insufficient. Geographic intersection must never mutate identity,
+source association, jurisdiction, ownership, legal applicability, treaty
+impact, consent, or community position.
 
 ## Category integrity
 

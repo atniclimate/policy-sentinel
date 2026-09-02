@@ -1,5 +1,33 @@
 # Versioned data contract
 
+## Product-space compatibility and successor boundary
+
+The current contracts below remain authoritative for implemented application
+and artifact behavior. They are not silently renamed as the PNW analyzed
+corpus. `PolicyRecord 1.4` may initially be consumed as one opaque validated
+record input while successor contracts are added around it.
+
+The PNW architecture requires separately versioned contracts for:
+
+- region packs with authority-qualified jurisdiction and source references;
+- community deployment profiles and deployment-authority state;
+- persona projection and visibility policy;
+- stable sovereign entities;
+- recognition assertions independent of organization-membership assertions;
+- evidence-bearing community relevance / `whyShown` assertions;
+- Nation, ATNI, NCAI, source, and general taxonomy-authority crosswalks;
+- a canonical analyzed corpus that references records once alongside events,
+  evidence, explanations, coverage, health, review, and visibility;
+- an output-adapter interface and digest-bearing output receipt; and
+- later governed geographic and lifecycle bindings, only through separately
+  authorized S0/K0 convergence if those modules are selected.
+
+The first authorized successor must be additive and preserve current record,
+artifact, source-registry, Nation-collection, application, K0, S0, and O0
+behavior. A breaking change still requires a new version, migration fixture,
+artifact-version decision, and compatibility test. Planning text supplies no
+schema implementation or PNW completion evidence.
+
 ## Files and status
 
 The Phase A contracts are:

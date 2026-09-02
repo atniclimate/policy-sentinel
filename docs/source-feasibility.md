@@ -2,6 +2,13 @@
 
 Status: Phase A research, updated 2026-08-03. This is an implementation decision record, not a representation that any adapter or dataset already exists.
 
+The 2026-09-02 product-space rebase retains every row as dated evidence. It
+does not make federal plus WA/OR/ID the complete PNW source pack. PNW completion
+also requires independently governed Montana, California, Alaska,
+Tribal/inter-Tribal, and regional/transboundary source contexts. Those contexts
+remain unreviewed gaps; this planning change performed no source access and
+makes no feasibility or activation claim for them.
+
 Row-specific registry numbers preserve the checkpoint at which that source was
 reviewed. The current registry is 1.19.0; a later registry version does not
 retroactively authorize or complete an earlier source contract.

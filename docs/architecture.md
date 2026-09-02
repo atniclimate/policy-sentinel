@@ -1,6 +1,38 @@
 # Architecture
 
-## Recommendation
+## Product-space target and compatibility boundary
+
+Policy Sentinel evolves by braided addition into a general engine with explicit
+region-pack, community-deployment, persona-projection, analyzed-corpus, and
+output-adapter seams. The target flow is:
+
+```text
+authoritative sources -> bounded adapters -> source facts and events
+  -> evidence-bearing relations/classifications -> analyzed corpus
+  -> community/persona projections -> document, web, application, structured outputs
+```
+
+The engine owns only generic identity, evidence lineage, lifecycle, coverage,
+health, deterministic replay, review/visibility state, and projections. A
+region pack references source IDs, authority-qualified jurisdictions,
+taxonomy/crosswalk versions, organization/identity evidence, acceptance
+scenarios, and explicit gaps. A deployment profile supplies only authorized
+community context. Personas are views, not fact stores. Output adapters retain
+record identity, citations, evidence, timestamps, coverage, review,
+visibility, and limitations.
+
+The current static Preact application, print dossier, CSV serializer, source
+contracts, `PolicyRecord 1.4`, source registry `1.19`, and artifact package
+`1.4` remain unchanged compatibility inputs and outputs. They are not the
+complete analyzed corpus or adapter suite. Required successor contracts are
+listed in [`data-contract.md`](data-contract.md), and the exact PNW acceptance
+boundary is [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md).
+
+K0, S0, and O0 remain outside this architecture's active dependency graph
+unless their existing convergence gates are separately opened. The planning
+rebase neither changes their bytes nor imports them into product code.
+
+## Current application and ingestion architecture
 
 Build Policy Sentinel as a static TypeScript application with a separate
 build-time ingestion pipeline. There is no browser-to-provider API path, runtime
