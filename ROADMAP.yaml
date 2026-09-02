@@ -624,15 +624,22 @@ baseline:
         configured.
 
 current_focus:
-  work_item: PNW-00-RECONCILE
+  work_item: null
   objective: >-
-    Complete and validate the authorized PNW product-space planning/governance
-    rebase. Product code, source access, O0 work, convergence, publication, and
-    every external operation remain outside this work item.
-  terminal_reason: null
+    Preserve the validated PNW product-space rebase and all prior evidence while
+    awaiting exact authorization of the separately specified PNW-01 synthetic
+    engine-seam tranche and originating evidence for the ATNI roster.
+  terminal_reason: >-
+    The bounded planning/governance rebase is complete. No locally executable
+    PNW implementation is authorized: PNW-01 is blocked by exact owner authority
+    and PNW-02 is independently blocked by originating roster evidence. The
+    retained legacy release remains blocked on its four protected roots.
   resumable_roots:
-    - PNW-00-RECONCILE
-  last_durable_checkpoint: f8a6f0ba6d2dfc82a1f9e97b8674285f0a8662fc
+    - B2-REVIEW
+    - B4-FR-UX
+    - B5-WA-LWS-ADAPTER
+    - B5-WA-RULES
+  last_durable_checkpoint: 210f50195ef8fedf97a114965d0b676cd3771aab
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -3484,7 +3491,7 @@ work_items:
     priority: 130
     milestone: PNW product-space rebase
     title: Reconcile repository truth with the PNW product direction
-    status: in_progress
+    status: complete
     dependencies: []
     acceptance:
       - >-
@@ -3540,6 +3547,25 @@ work_items:
         synthetic Nations, and 8 assets; build ID
         synthetic-31b67caf0296ce2ab08d. This validates the changed governance
         surfaces and unchanged synthetic baseline, not PNW product capability.
+      - >-
+        Commit 210f50195ef8fedf97a114965d0b676cd3771aab, with parent
+        f8a6f0ba6d2dfc82a1f9e97b8674285f0a8662fc, commits the bounded scope,
+        lossless mapping, architecture/contract direction, decision and gap
+        ledgers, validator regressions, exact first tranche, current
+        continuation prompt, one procedural skill, and two read-only role
+        definitions. It contains no product/runtime/source adapter, schema
+        implementation, fixture, protected K0/S0/O0, dependency, or publication
+        change.
+      - >-
+        On the terminal ledger state, the first final npm run check attempt
+        stopped before lint, tests, or build because ROADMAP.yaml needed a
+        mechanical Prettier repair. After npx prettier --write ROADMAP.yaml, the
+        serialized VITEST_MAX_WORKERS=1 retry passed formatting, lint, type
+        checking, roadmap/foundation validation, source-boundary scanning at 340
+        tracked paths and 352 source files, 71 test files and 999 tests in
+        115.01 seconds, the synthetic build, and artifact validation at 3
+        records, exactly 575 synthetic Nations, and 8 assets; build ID
+        synthetic-ccbe6bc81fd81e3e233a.
 
   - id: PNW-01-ENGINE-SEAMS
     priority: 131
@@ -4121,6 +4147,20 @@ next_actions:
       title and agency fields, duplicate/holdover reconciliation, Reviser's Note
       behavior, privacy exclusions, link rules, and fixed whole-refresh budgets.
       Keep the validated Governor adapter disabled and independent.
+  - order: 5
+    work_item: PNW-01-ENGINE-SEAMS
+    action: >-
+      Begin only after the owner explicitly authorizes exactly the synthetic
+      engine/region/deployment/persona projection seam, allowed paths, tests,
+      and stop conditions in the committed rebase handoff. Do not infer
+      authority from the planning packet or this completed rebase.
+  - order: 6
+    work_item: PNW-02-REGIONAL-REGISTRY
+    action: >-
+      Resolve only from a current ATNI-authorized originating 59-member roster
+      plus separately verified sovereign identities. Do not scrape-and-subtract,
+      infer membership, or treat the federal-recognition collection as the
+      regional registry.
 
 finish_states:
   local_release_candidate:
@@ -4144,7 +4184,10 @@ finish_states:
       - any closed external gate is approved
       - K0 or S0 is integrated into the existing release candidate
   pnw_regional_engine:
-    current_state: in_progress
+    current_state: blocked
+    blocked_by:
+      - PNW-01-ENGINE-SEAMS
+      - PNW-02-REGIONAL-REGISTRY
     satisfied_when:
       - PNW-00 through PNW-10 are complete with objective evidence.
       - The accepted 59-member roster and every enabled source are source-bound.
