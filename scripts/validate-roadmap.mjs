@@ -129,6 +129,32 @@ if (
   fail("allowed finish states do not match the durable finish-state contract");
 }
 
+const expectedAdditivePhaseStages = [
+  "contract_design",
+  "contract_freeze",
+  "contract_review",
+  "implementation",
+  "implementation_review",
+  "completion",
+];
+const allowedAdditivePhaseStages = requireUniqueStrings(
+  roadmap.canonical_ledger.allowed_additive_phase_stages,
+  "canonical_ledger.allowed_additive_phase_stages",
+);
+if (
+  allowedAdditivePhaseStages.length !== expectedAdditivePhaseStages.length ||
+  allowedAdditivePhaseStages.some(
+    (stage, index) => stage !== expectedAdditivePhaseStages[index],
+  )
+) {
+  fail(
+    "allowed additive-phase stages do not match the ordered durable stage contract",
+  );
+}
+const additivePhaseStageIndex = new Map(
+  expectedAdditivePhaseStages.map((stage, index) => [stage, index]),
+);
+
 const boundaries = requireArray(
   roadmap.authority.external_boundaries,
   "authority.external_boundaries",
@@ -172,6 +198,17 @@ for (const [index, gate] of gates.entries()) {
   }
   if (gate.approvable === false && gate.state !== "closed") {
     fail(`${path} is a category gate and must remain closed`);
+  }
+  if (gate.authorized_through !== undefined) {
+    const authorizedThrough = requireString(
+      gate.authorized_through,
+      `${path}.authorized_through`,
+    );
+    if (!additivePhaseStageIndex.has(authorizedThrough)) {
+      fail(
+        `${path}.authorized_through is not an allowed additive-phase stage: ${authorizedThrough}`,
+      );
+    }
   }
   if (gate.state === "approved" && gate.boundary) {
     requireUniqueStrings(gate.approved_scope, `${path}.approved_scope`);
@@ -267,6 +304,28 @@ for (const [index, item] of workItems.entries()) {
   }
   if (item.status === "deferred") {
     requireString(item.reason, `${path}.reason`);
+  }
+  if (item.additive_phase_stage !== undefined) {
+    const additivePhaseStage = requireString(
+      item.additive_phase_stage,
+      `${path}.additive_phase_stage`,
+    );
+    if (!additivePhaseStageIndex.has(additivePhaseStage)) {
+      fail(
+        `${path}.additive_phase_stage is not allowed: ${additivePhaseStage}`,
+      );
+    }
+  }
+  if (item.convergence_gate !== undefined) {
+    const convergenceGate = requireString(
+      item.convergence_gate,
+      `${path}.convergence_gate`,
+    );
+    if (!gateIds.has(convergenceGate)) {
+      fail(
+        `${path}.convergence_gate references unknown gate ${convergenceGate}`,
+      );
+    }
   }
   if (item.authorization_gate) {
     requireString(item.authorization_gate, `${path}.authorization_gate`);
@@ -419,6 +478,163 @@ if (unscopedWorkItems.length > 0) {
     `work items missing from completion scope: ${unscopedWorkItems.join(", ")}`,
   );
 }
+
+const additiveVisionPhaseIds = new Set(additiveVisionPhases);
+const durableAdditiveVisionPhaseIds = [
+  "K0-LIFECYCLE",
+  "S0-SPATIAL",
+  "O0-ORCHESTRATION",
+];
+for (const id of durableAdditiveVisionPhaseIds) {
+  if (
+    byId.has(id) &&
+    completionMembership.get(id) !== "additive_vision_phases"
+  ) {
+    fail(`${id} must remain classified only in additive_vision_phases`);
+  }
+}
+for (const [index, item] of workItems.entries()) {
+  const path = `work_items[${index}]`;
+  const isAdditive = additiveVisionPhaseIds.has(item.id);
+  const hasAdditiveMetadata =
+    item.additive_phase_stage !== undefined ||
+    item.convergence_gate !== undefined;
+
+  if (!isAdditive && hasAdditiveMetadata) {
+    fail(
+      `${item.id} has additive-phase metadata but is not in additive_vision_phases`,
+    );
+  }
+  if (!isAdditive) {
+    continue;
+  }
+
+  const stage = requireString(
+    item.additive_phase_stage,
+    `${path}.additive_phase_stage`,
+  );
+  const stageIndex = additivePhaseStageIndex.get(stage);
+  if (stageIndex === undefined) {
+    fail(`${path}.additive_phase_stage is not allowed: ${stage}`);
+  }
+
+  const authorizationGateId = requireString(
+    item.authorization_gate,
+    `${path}.authorization_gate`,
+  );
+  const authorizationGate = gateById.get(authorizationGateId);
+  if (!authorizationGate) {
+    fail(
+      `${path}.authorization_gate references unknown gate ${authorizationGateId}`,
+    );
+  }
+  const authorizedThrough = requireString(
+    authorizationGate.authorized_through,
+    `gate ${authorizationGateId}.authorized_through`,
+  );
+  const authorizedThroughIndex = additivePhaseStageIndex.get(authorizedThrough);
+  if (authorizedThroughIndex === undefined) {
+    fail(
+      `gate ${authorizationGateId}.authorized_through is not an allowed additive-phase stage: ${authorizedThrough}`,
+    );
+  }
+
+  const convergenceGateId = requireString(
+    item.convergence_gate,
+    `${path}.convergence_gate`,
+  );
+  const convergenceGate = gateById.get(convergenceGateId);
+  if (!convergenceGate) {
+    fail(
+      `${path}.convergence_gate references unknown gate ${convergenceGateId}`,
+    );
+  }
+  if (convergenceGateId === authorizationGateId) {
+    fail(
+      `${item.id} must use a convergence gate distinct from its authorization gate`,
+    );
+  }
+
+  if (item.status === "complete" && stage !== "completion") {
+    fail(`${item.id} is complete before additive phase stage completion`);
+  }
+  if (stage === "completion" && item.status !== "complete") {
+    fail(
+      `${item.id} is at additive phase stage completion but is not complete`,
+    );
+  }
+  if (item.status === "not_started" && stage !== "contract_design") {
+    fail(
+      `${item.id} is not_started outside additive phase stage contract_design`,
+    );
+  }
+  if (stageIndex > authorizedThroughIndex && item.status !== "blocked") {
+    fail(
+      `${item.id} cannot be ${item.status} at additive phase stage ${stage}; ` +
+        `${authorizationGateId} authorizes only through ${authorizedThrough}`,
+    );
+  }
+}
+
+const o0 = byId.get("O0-ORCHESTRATION");
+if (o0) {
+  if (completionMembership.get(o0.id) !== "additive_vision_phases") {
+    fail("O0-ORCHESTRATION must appear only in additive_vision_phases");
+  }
+  if (o0.priority !== 122) {
+    fail("O0-ORCHESTRATION must have priority 122");
+  }
+  if (o0.milestone !== "O0") {
+    fail("O0-ORCHESTRATION must have milestone O0");
+  }
+  if (o0.dependencies.length !== 1 || o0.dependencies[0] !== "K0-LIFECYCLE") {
+    fail(
+      "O0-ORCHESTRATION must depend directly only on K0-LIFECYCLE and not on S0-SPATIAL",
+    );
+  }
+  if (o0.authorization_gate !== "G-O0-SYNTHETIC") {
+    fail("O0-ORCHESTRATION must use G-O0-SYNTHETIC for authorization");
+  }
+  if (o0.convergence_gate !== "G-O0-CONVERGENCE") {
+    fail("O0-ORCHESTRATION must use G-O0-CONVERGENCE for convergence");
+  }
+}
+
+for (const item of workItems) {
+  if (additiveVisionPhaseIds.has(item.id)) {
+    continue;
+  }
+
+  const dependencyPathToClosedAdditive = (id, path = [item.id]) => {
+    const dependency = byId.get(id);
+    const nextPath = [...path, id];
+    if (
+      additiveVisionPhaseIds.has(id) &&
+      gateById.get(dependency.convergence_gate)?.state === "closed"
+    ) {
+      return nextPath;
+    }
+    for (const nestedDependency of dependency.dependencies) {
+      const found = dependencyPathToClosedAdditive(nestedDependency, nextPath);
+      if (found) {
+        return found;
+      }
+    }
+    return null;
+  };
+
+  for (const dependency of item.dependencies) {
+    const path = dependencyPathToClosedAdditive(dependency);
+    if (path) {
+      const relationship = path.length === 2 ? "direct" : "transitive";
+      fail(
+        `${item.id} has a ${relationship} dependency on additive work behind ` +
+          `a closed convergence gate: ${path.join(" -> ")}`,
+      );
+    }
+  }
+}
+
 const localFinish = requireObject(
   roadmap.finish_states.local_release_candidate,
   "finish_states.local_release_candidate",
@@ -435,25 +651,12 @@ let terminalRequiredRoots = [];
 // continues. The terminal-complete check below still requires every required
 // outcome to be complete, so an active blocker cannot weaken release
 // acceptance or be mistaken for an accepted source gap.
-if (isTerminal) {
-  if (inProgress.length !== 0) {
-    fail(
-      `terminal local finish state requires zero in_progress items; found ${inProgress.length}`,
-    );
-  }
-  if (roadmap.current_focus.work_item !== null) {
-    fail("terminal local finish state requires current_focus.work_item: null");
-  }
-  requireString(
-    roadmap.current_focus.terminal_reason,
-    "current_focus.terminal_reason",
+if (inProgress.length > 1) {
+  fail(
+    `global current focus permits at most one in_progress item; found ${inProgress.length}`,
   );
-} else {
-  if (inProgress.length !== 1) {
-    fail(
-      `active local finish state requires exactly one in_progress item; found ${inProgress.length}`,
-    );
-  }
+}
+if (inProgress.length === 1) {
   const focusId = requireString(
     roadmap.current_focus.work_item,
     "current_focus.work_item",
@@ -464,6 +667,41 @@ if (isTerminal) {
   if (focusId !== inProgress[0].id) {
     fail(
       `current_focus.work_item ${focusId} does not match in_progress item ${inProgress[0].id}`,
+    );
+  }
+} else if (roadmap.current_focus.work_item !== null) {
+  fail("zero in_progress items require current_focus.work_item: null");
+}
+
+if (isTerminal) {
+  const nonAdditiveInProgress = inProgress.filter(
+    (item) => !additiveVisionPhaseIds.has(item.id),
+  );
+  if (nonAdditiveInProgress.length !== 0) {
+    fail(
+      "terminal local finish state permits only optional additive in_progress " +
+        `work; found non-additive items: ${nonAdditiveInProgress.map((item) => item.id).join(", ")}`,
+    );
+  }
+  if (inProgress.length === 0) {
+    requireString(
+      roadmap.current_focus.terminal_reason,
+      "current_focus.terminal_reason",
+    );
+  } else if (roadmap.current_focus.terminal_reason !== null) {
+    fail(
+      "active additive current focus requires current_focus.terminal_reason: null",
+    );
+  }
+} else {
+  if (inProgress.length !== 1) {
+    fail(
+      `active local finish state requires exactly one in_progress item; found ${inProgress.length}`,
+    );
+  }
+  if (additiveVisionPhaseIds.has(inProgress[0].id)) {
+    fail(
+      "active local finish state requires its in_progress item to be non-additive",
     );
   }
 }
@@ -492,11 +730,26 @@ if (localFinish.current_state === "complete") {
     );
   }
 }
+const protectedReleaseRoots = [
+  "B2-REVIEW",
+  "B4-FR-UX",
+  "B5-WA-LWS-ADAPTER",
+  "B5-WA-RULES",
+];
+const hasExactOrderedValues = (actual, expected) =>
+  actual.length === expected.length &&
+  actual.every((value, index) => value === expected[index]);
 if (localFinish.current_state === "blocked") {
   const localFinishBlockers = requireUniqueStrings(
     localFinish.blocked_by,
     "finish_states.local_release_candidate.blocked_by",
   );
+  if (!hasExactOrderedValues(localFinishBlockers, protectedReleaseRoots)) {
+    fail(
+      "local release blockers must preserve the exact protected roots in order: " +
+        protectedReleaseRoots.join(", "),
+    );
+  }
   const incompleteRequiredRoots = new Set();
   const collectIncompleteRoots = (id) => {
     const item = byId.get(id);
@@ -520,6 +773,12 @@ if (localFinish.current_state === "blocked") {
   terminalRequiredRoots = [...incompleteRequiredRoots].sort(
     (left, right) => byId.get(left).priority - byId.get(right).priority,
   );
+  if (!hasExactOrderedValues(terminalRequiredRoots, protectedReleaseRoots)) {
+    fail(
+      "incomplete required-outcome roots must preserve the exact protected " +
+        `release roots in order: ${protectedReleaseRoots.join(", ")}`,
+    );
+  }
   const omittedRequiredRoots = terminalRequiredRoots.filter(
     (id) => !localFinishBlockers.includes(id),
   );
@@ -537,6 +796,12 @@ if (localFinish.current_state === "blocked") {
     roadmap.current_focus.resumable_roots,
     "current_focus.resumable_roots",
   );
+  if (!hasExactOrderedValues(currentFocusRoots, protectedReleaseRoots)) {
+    fail(
+      "current focus must preserve the exact protected release roots in " +
+        `order: ${protectedReleaseRoots.join(", ")}`,
+    );
+  }
   const omittedFocusRoots = terminalRequiredRoots.filter(
     (id) => !currentFocusRoots.includes(id),
   );

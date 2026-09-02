@@ -1,4 +1,4 @@
-schema_version: "1.1"
+schema_version: "1.2"
 roadmap_id: policy-sentinel-through-finish
 project:
   name: Policy Sentinel
@@ -35,6 +35,13 @@ canonical_ledger:
     - in_progress
     - complete
     - blocked
+  allowed_additive_phase_stages:
+    - contract_design
+    - contract_freeze
+    - contract_review
+    - implementation
+    - implementation_review
+    - completion
   priority_rule: >-
     Continue the lowest-numbered ready work item whose dependencies are
     complete. A source-specific block does not stop independent ready work.
@@ -160,6 +167,7 @@ gates:
   - id: G-K0-LIFECYCLE
     name: Additive local lifecycle contract kernel
     state: approved
+    authorized_through: completion
     approved_scope:
       - Additive versioned lifecycle and assertion contracts using synthetic
         fixtures only.
@@ -181,6 +189,7 @@ gates:
   - id: G-S0-SYNTHETIC
     name: Removable synthetic spatial-observation bridge
     state: approved
+    authorized_through: completion
     approved_scope:
       - Deliberately impossible synthetic geometries only.
       - Versioned SpatialObservation, SpatialRelation, and separately evidenced
@@ -202,6 +211,34 @@ gates:
       existing B2/B4/B5 evidence roots, B9/B10 chain, or local release candidate
       requires a later exact owner convergence decision. Code existence and
       successful synthetic tests do not satisfy or weaken any existing gate.
+  - id: G-O0-SYNTHETIC
+    name: Fixture-only O0 orchestration contract candidate
+    state: approved
+    authorized_through: contract_freeze
+    approved_scope:
+      - >-
+        Generalize additive-stage governance, activate O0 contract design, and
+        freeze one byte-exact proposed O0 contract candidate using only local
+        repository evidence and deliberately synthetic fixture semantics.
+      - >-
+        Define a removable per-source-revision transaction and custody kernel
+        without creating schemas, fixtures, implementation, adapters, source
+        access, review, acceptance, convergence, D0, or product integration.
+    evidence:
+      - >-
+        Owner message on 2026-09-01 authorizes only O0 contract design and
+        contract freeze through a byte-sealed 1.0.0 candidate, with independent
+        review, acceptance, implementation, source work, D0, convergence, and
+        every external operation expressly withheld.
+  - id: G-O0-CONVERGENCE
+    name: O0 integration into the existing product or release scope
+    state: closed
+    resolution: >-
+      O0 is an additive vision phase. No required, accepted-source, publication,
+      application, pipeline, artifact, B9, B10, or release item may depend on O0
+      while this gate is closed. O0 status and evidence cannot change release
+      completion or blocker accounting; code or fixture tests do not authorize
+      convergence.
   - id: G-B
     name: API terms, registration, and secrets category
     state: closed
@@ -518,22 +555,20 @@ baseline:
         configured.
 
 current_focus:
-  work_item: null
+  work_item: O0-ORCHESTRATION
   objective: >-
-    Preserve the completed, reviewed, removal-proven S0 1.0.0 checkpoint without
-    changing K0, product, release, source, Nation, convergence, or gate
-    boundaries, and do not begin another phase without exact owner authority.
-  terminal_reason: >-
-    S0 1.0.0 is implemented, independently reviewed, removal-proven, and locally
-    validated. No authorized local work remains; the local release candidate is
-    blocked by the same four evidence roots recorded below.
+    Establish generalized additive-stage governance and freeze one proposed O0
+    1.0.0 contract candidate for separately authorized independent review,
+    without beginning review, acceptance, implementation, source work, D0,
+    convergence, integration, or release work.
+  terminal_reason: null
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 8aa6c8c
-  resume_command: npm run check
+  last_durable_checkpoint: 6f04b23
+  resume_command: node scripts/validate-roadmap.mjs
 
 completion_scope:
   local_release_candidate:
@@ -543,7 +578,9 @@ completion_scope:
       blocked with evidence and a truthful public fallback. Publication is
       evaluated separately. During active execution, a required outcome may be
       evidence-blocked while independent ready work proceeds, but it still must
-      be complete before the local release candidate can be complete.
+      be complete before the local release candidate can be complete. Additive
+      vision phases with closed convergence gates are excluded from release
+      completion and blocker accounting.
     required_outcomes:
       - A-FOUNDATION
       - H-HANDOFF
@@ -597,6 +634,7 @@ completion_scope:
     additive_vision_phases:
       - K0-LIFECYCLE
       - S0-SPATIAL
+      - O0-ORCHESTRATION
 
 work_items:
   - id: A-FOUNDATION
@@ -2609,6 +2647,8 @@ work_items:
       - H-HANDOFF
       - B3-PIPELINE
     authorization_gate: G-K0-LIFECYCLE
+    additive_phase_stage: completion
+    convergence_gate: G-K0-S0-CONVERGENCE
     acceptance:
       - >-
         Versioned SourceFact, PolicyInstrument, InstrumentVersion,
@@ -2689,6 +2729,8 @@ work_items:
     dependencies:
       - K0-LIFECYCLE
     authorization_gate: G-S0-SYNTHETIC
+    additive_phase_stage: completion
+    convergence_gate: G-K0-S0-CONVERGENCE
     acceptance:
       - >-
         Versioned SpatialObservation, SpatialRelation, and separately evidenced
@@ -3006,6 +3048,81 @@ work_items:
       Preserve S0 as a complete additive synthetic-only phase. Do not begin O0,
       D0, convergence, integration, production work, or another vision phase;
       any O0 fixture-only orchestration requires separate exact owner authority.
+
+  - id: O0-ORCHESTRATION
+    priority: 122
+    milestone: O0
+    title: Fixture-only orchestration transaction and custody kernel
+    status: in_progress
+    dependencies:
+      - K0-LIFECYCLE
+    authorization_gate: G-O0-SYNTHETIC
+    additive_phase_stage: contract_design
+    convergence_gate: G-O0-CONVERGENCE
+    contract_candidate:
+      proposed_version: "1.0.0"
+      contractCandidateId: null
+      byte_length: null
+      sha256: null
+      state: drafting
+    contract_review:
+      state: not_authorized
+      reviewed_candidate_id: null
+      review_artifact: null
+    accepted_contract: null
+    acceptance:
+      - >-
+        A normative, exact, independently reviewable 1.0.0 contract freezes an
+        isolated, removable, fixture-only, per-source-revision transaction and
+        custody kernel without owning real retrieval, parsing, normalization,
+        public artifacts, current health, production refresh, or D0 semantics.
+      - >-
+        Complete-snapshot-only admission, a fully recomputed population witness,
+        semantic candidate identity, opaque validated K0 references, bounded
+        transcripts and receipts, content-addressed custody, and per-source
+        append-only LKG lineage are closed and deterministic.
+      - >-
+        Duplicate, verified reuse, already-current, orphan, promotion-chain,
+        retention, cleanup, compatibility, capability-surface, filesystem,
+        fault, and resource-budget behavior is exact and fail-closed.
+      - >-
+        Acceptance register A01 through A32 covers deterministic future tests,
+        while no schema, fixture, implementation, adapter, CLI, source access,
+        review, acceptance, D0, convergence, integration, or publication is
+        inferred from the contract candidate.
+      - >-
+        Existing product, application, pipeline, adapters, artifact, K0, S0, B9,
+        B10, release scope, release blockers, and convergence gates remain
+        unchanged, and O0 remains removable additive-only work.
+    evidence:
+      - >-
+        The 2026-09-01 owner instruction authorizes only generalized additive
+        governance, O0 contract design, and byte-exact contract freeze through
+        contract_freeze; independent review and every later stage remain
+        separately unauthorized.
+      - >-
+        Read-only reconciliation verified clean main at
+        6f04b23a35a3aad7929b93702aaa3d0c31545df8 with parent
+        8aa6c8caac4b6fae9d5fb28bbd240fca64ebf007, no remotes, K0 and S0 complete
+        and unchanged, closed G-K0-S0-CONVERGENCE, null focus, the exact four
+        release roots, and the protected 49-item status counts before mutation.
+      - >-
+        Complete K0/S0 contract, seam, terminal-evidence, validator, regression,
+        roadmap, and binding-governance review found that every required O0
+        clause fits the exact four-path allowlist. No earlier accepted O0
+        preflight artifact or A01-A32 register exists in repository history, so
+        this owner instruction supplies the controlling requirements and the
+        candidate must define the missing literal grammars without claiming
+        historical recovery.
+      - >-
+        Before activation, the direct roadmap validator passed at 49 work items
+        and 33 gates; the direct Node regression passed 1 of 1; and its Vitest
+        pipeline wrapper passed 1 file and 1 test. No network, source, remote,
+        dependency, build, artifact, review, or implementation operation ran.
+    next_step: >-
+      Draft and byte-seal exactly one proposed O0 1.0.0 contract candidate, then
+      move O0 to contract_review/blocked with null focus and stop for separately
+      authorized independent review.
 
   - id: RELEASE-LICENSE
     priority: 200
