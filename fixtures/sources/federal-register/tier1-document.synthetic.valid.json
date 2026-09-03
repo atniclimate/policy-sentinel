@@ -1,0 +1,49 @@
+{
+  "document_number": "2026-16965",
+  "title": "SYNTHETIC FIXTURE — Federal Register Tier-1 parser exercise",
+  "type": "Proposed Rule",
+  "subtype": "Synthetic Contract Fixture",
+  "publication_date": "2026-08-20",
+  "effective_on": null,
+  "comments_close_on": "2026-09-21",
+  "signing_date": null,
+  "citation": "999 FR 1",
+  "volume": 999,
+  "start_page": 1,
+  "end_page": 2,
+  "agencies": [
+    {
+      "raw_name": "Synthetic Test Agency — not a real issuer",
+      "name": "Synthetic Test Agency",
+      "id": 99001,
+      "slug": "synthetic-test-agency",
+      "parent_id": null,
+      "url": "https://www.federalregister.gov/agencies/synthetic-test-agency",
+      "json_url": "https://www.federalregister.gov/api/v1/agencies/synthetic-test-agency"
+    }
+  ],
+  "docket_ids": [],
+  "regulation_id_numbers": ["9999-TST1"],
+  "cfr_references": [
+    {
+      "chapter": "IX",
+      "citation_url": "https://www.ecfr.gov/current/title-50/chapter-IX/part-999",
+      "part": "999",
+      "title": 50
+    }
+  ],
+  "topics": ["Synthetic Shared Label", "Synthetic Source Topic"],
+  "cfr_topics": [
+    {
+      "cfr_part": "999",
+      "cfr_chapter": "IX",
+      "topics": ["Synthetic CFR Topic", "Synthetic Shared Label"],
+      "cfr_title": 50
+    }
+  ],
+  "html_url": "https://www.federalregister.gov/documents/2026/08/20/2026-16965/synthetic-tier-1-contract-fixture",
+  "pdf_url": "https://www.govinfo.gov/content/pkg/FR-2026-08-20/pdf/2026-16965.pdf",
+  "json_url": "https://www.federalregister.gov/api/v1/documents/2026-16965?publication_date=2026-08-20",
+  "full_text_xml_url": "https://www.federalregister.gov/documents/full_text/xml/2026/08/20/2026-16965.xml",
+  "raw_text_url": "https://www.federalregister.gov/documents/full_text/text/2026/08/20/2026-16965.txt"
+}

@@ -555,6 +555,40 @@ excluded before normalization. Link targets are never requested. Structured empt
 All provider facts remain exact; the projection adds no Nation, ATNI,
 geographic, legal, rights, consultation, or community-position claim.
 
+## Federal Register Tier-1 candidate byte freeze
+
+At `2026-09-03T12:23:59Z`, after lead inspection and repair but before any
+`FR-A1` request, the exact Tier-1 parser, transport, declarations, synthetic
+fixtures, focused tests, and export surface were frozen for actual-byte source,
+security, and sovereignty review. The lead tightened two fail-closed edges
+before this freeze: a response with an empty final URL is now rejected instead
+of receiving a test-only exception, and direct object capture now shares the
+raw-JSON parser's 32-level nesting ceiling.
+
+The manifest is UTF-8 text with one tab-separated `path`, byte count, and
+SHA-256 row in code-unit path order and one terminal LF. Its exact length is
+1,130 bytes and its SHA-256 is
+`3a85bf0767d7db63b8dc3566d33250d70ef2b107af46392b47860516556c9d2d`.
+
+```text
+fixtures/sources/federal-register/tier1-document-malformed.invalid.json	893	6477578d63b0299e2cef877916a3199e3d3a5695086b38be40374a1c11827379
+fixtures/sources/federal-register/tier1-document.synthetic.valid.json	1778	fb0e77bb50093761538cf82d8369be37130a2f9101349ae71ad87bc2b7b6f9c0
+src/adapters/federal-register/index.ts	25218	36c128a2dd1e3727ad26fbebe0b22f16d5639371c8ec5692e10f5739c9da0697
+src/adapters/federal-register/tier1-contract.d.mts	3079	757d6905242648ce0ac98765a809faf6cbf113148f1d638e77804813f11acbb2
+src/adapters/federal-register/tier1-contract.mjs	24731	deaa321ade6a85bf7ab6c30bb16ccf017a53153cff81ef3da30dca7188c284e1
+src/adapters/federal-register/tier1-transport.d.mts	3289	bba9ba964e969cda8a0b8b31fa645b3ac5897de2ae7331a36d737bc301090d59
+src/adapters/federal-register/tier1-transport.mjs	14134	208905f93b0673f99a36ad1e4864e3cf5a54d7c2cdadca02b0521425dc06fdca
+tests/adapters/federal-register/tier1-contract.test.mjs	19334	f8af607d845301518da3d256043e947402714d5972974c5931fd0e9f503e7ae8
+tests/adapters/federal-register/tier1-transport.test.mjs	17864	50cb0f64e1753527b66a4024dd78b5b774187629cc429a45e63fad5a6a217b78
+```
+
+Root verification against these bytes passed all 98 focused Node tests, all
+142 retained Federal Register Vitest tests, TypeScript type checking, focused
+ESLint with zero warnings, and focused Prettier checking. This is a review
+candidate, not an approval or acquisition grant. Any change to one listed file
+invalidates the manifest and requires a new byte freeze and all three fresh
+reviews. `FR-A1` remains unissued.
+
 ## Phase gates, acceptance, and stop contract
 
 1. Candidate lifecycle schema/runtime/tests must address every pre-freeze
@@ -645,3 +679,8 @@ portfolio review continue.
   489,489 aggregate bytes, 120 chunks, zero redirects/retries, and zero raw-byte
   persistence. `FR-A1` remains unissued pending exact parser/transport,
   residual-risk, and fresh review gates.
+- The Tier-1 candidate now has the exact nine-file, 1,130-byte manifest above.
+  Root focused verification passed 98 new Node tests, 142 retained Federal
+  Register tests, type checking, lint, and formatting. Three independent
+  actual-byte dispositions and the complete pre-acquisition lifecycle graph
+  remain required before `FR-A1`.

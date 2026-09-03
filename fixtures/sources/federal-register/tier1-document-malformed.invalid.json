@@ -1,0 +1,30 @@
+{
+  "document_number": "2026-16965",
+  "title": "SYNTHETIC MALFORMED FIXTURE",
+  "type": "Proposed Rule",
+  "subtype": null,
+  "publication_date": "2026-08-20",
+  "effective_on": null,
+  "comments_close_on": null,
+  "signing_date": null,
+  "citation": null,
+  "volume": null,
+  "start_page": null,
+  "end_page": null,
+  "agencies": [
+    {
+      "raw_name": "Synthetic Test Agency — not a real issuer"
+    }
+  ],
+  "docket_ids": [],
+  "regulation_id_numbers": [],
+  "cfr_references": null,
+  "topics": [],
+  "cfr_topics": null,
+  "html_url": "https://www.federalregister.gov/documents/2026/08/20/2026-16965/synthetic-malformed-fixture",
+  "pdf_url": null,
+  "json_url": "https://www.federalregister.gov/api/v1/documents/2026-16965?publication_date=2026-08-20",
+  "full_text_xml_url": null,
+  "raw_text_url": null,
+  "abstract": "This excluded Tier-2 field also makes the fixture invalid."
+}

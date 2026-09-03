@@ -93,6 +93,20 @@ export {
   FederalRegisterTransportError,
   fetchFederalRegisterJson,
 } from "./transport";
+export {
+  FEDERAL_REGISTER_TIER1_DOCUMENT_NUMBER,
+  FEDERAL_REGISTER_TIER1_FIELDS,
+  FederalRegisterTier1ContractError,
+  parseFederalRegisterTier1Document,
+  parseFederalRegisterTier1DocumentJson,
+  serializeFederalRegisterTier1Document,
+} from "./tier1-contract.mjs";
+export {
+  FEDERAL_REGISTER_TIER1_REQUEST_POLICY,
+  FEDERAL_REGISTER_TIER1_REQUEST_URL,
+  FederalRegisterTier1TransportError,
+  fetchFederalRegisterTier1Document,
+} from "./tier1-transport.mjs";
 
 export type { FederalRegisterNormalizationInput } from "./normalize";
 export type {
@@ -129,6 +143,22 @@ export type {
   FederalRegisterTransportDependencies,
   FederalRegisterTransportErrorCode,
 } from "./transport";
+export type {
+  FederalRegisterTier1Agency,
+  FederalRegisterTier1CfrReference,
+  FederalRegisterTier1CfrTopic,
+  FederalRegisterTier1ContractErrorCode,
+  FederalRegisterTier1Document,
+  FederalRegisterTier1DocumentType,
+} from "./tier1-contract.mjs";
+export type {
+  FederalRegisterTier1FetchLike,
+  FederalRegisterTier1TransportDependencies,
+  FederalRegisterTier1TransportErrorCode,
+  FederalRegisterTier1TransportFailureCategory,
+  FederalRegisterTier1TransportReceipt,
+  FederalRegisterTier1TransportResult,
+} from "./tier1-transport.mjs";
 
 interface ActiveInventory {
   buildId: string;

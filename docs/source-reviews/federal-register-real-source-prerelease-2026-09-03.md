@@ -206,6 +206,26 @@ Common scope:
 Expiry, revocation, field-policy drift, scope drift, or failure of one condition
 invalidates the affected decision. GovInfo evidence cannot extend either one.
 
+## Tier-1 parser and transport byte-review candidate
+
+The exact nine-file candidate is frozen in the coordination record as a
+1,130-byte tab-separated manifest with SHA-256
+`3a85bf0767d7db63b8dc3566d33250d70ef2b107af46392b47860516556c9d2d`.
+It internally constructs only the frozen 23-selector `FR-A1` URL, requires the
+exact final response URL, uses one GET attempt with manual redirect denial,
+omits credentials and referrer, requests identity-encoded JSON, enforces one
+30-second whole-operation deadline and 65,536-byte/64-chunk ceilings, sanitizes
+failures, rejects duplicate or drifted JSON, validates the selected document
+and typed links, retains only the field policy, and parses the same bounded
+bytes twice before clearing them. Direct object and raw-JSON inputs both have a
+32-level nesting ceiling.
+
+The candidate and its focused/retained tests pass locally, but this paragraph
+is not independent approval. Any candidate-byte change invalidates the
+manifest. Source, security, and sovereignty reviewers must match and approve
+the exact bytes together with the complete digest-bound pre-acquisition
+lifecycle graph before `FR-A1` can be issued.
+
 ## Hard blockers before `FR-A1`
 
 The document request must not be issued if any of these remains or appears:
