@@ -171,8 +171,10 @@ contains 3 synthetic records, exactly 575 synthetic Nations, and 8 hashed assets
 at build ID `synthetic-1da7380bf8aab802f04d`. Backbone validation reports 13
 schemas, 13 IDs, 924 references, 70 canonical Markdown files, and 295 local
 links. The terminal roadmap reports zero `in_progress`, one `ready`, 32
-`complete`, 16 `blocked`, and 14 `not_started` items. Local commit identities
-are recorded in the follow-up ledger checkpoint.
+`complete`, 16 `blocked`, and 14 `not_started` items. Implementation/evidence
+commit `a50ce57f1a95715a01b39fe1ba7c8dd621d81d9a` contains exactly the eleven
+authorized paths. The follow-up ledger checkpoint binds recovery to that
+implementation commit and is itself the current Git `HEAD`.
 
 No browser check is required because this tranche changes no UI, interaction,
 source runtime, or artifact contract.

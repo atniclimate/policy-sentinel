@@ -72,7 +72,11 @@ bounded decisions authorize no other PNW item, real source, or operation.
 Federal Register documentation implementation/evidence commit
 `1b7f95e6aea2820d38f6cf9e74356daa00477dc7` records the dossier, current source
 indexes, decision/open fact, and owner-input validator repair without changing
-the registry or adapter. PNW-05 core implementation commit
+the registry or adapter. Federal Register admission-review
+implementation/evidence commit
+`a50ce57f1a95715a01b39fe1ba7c8dd621d81d9a` records the no-go/evidence-blocked
+decision, authority/non-inference contract, and exact-custody validator repair
+without admitting or using the source. PNW-05 core implementation commit
 `6f1475dfb72a432ccfe65b16e65035df25a933d3` supplies only a closed declarative
 schema and pure reference planner. Do not treat these schemas, fixtures, or
 passing tests as source, roster, real-geography, real-taxonomy,

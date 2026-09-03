@@ -686,15 +686,16 @@ current_focus:
   terminal_reason: >-
     PNW-05-SRC-FEDERAL-REGISTER-ADMISSION-REVIEW completed with review
     recommendation NO_GO, the single source-review disposition evidence blocked,
-    and independent verdict APPROVE_PNW05_FR_ADMISSION_REVIEW_CANDIDATE. Owner
-    acceptance is not asserted. The source remains not admitted, disabled,
+    and independent verdict APPROVE_PNW05_FR_ADMISSION_REVIEW_CANDIDATE in
+    implementation/evidence commit a50ce57f1a95715a01b39fe1ba7c8dd621d81d9a.
+    Owner acceptance is not asserted. The source remains not admitted, disabled,
     inactive, unbound, and non-production; no successor tranche is authorized.
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 10489fe9fce00e37dc2cb074f448f416c691db8d
+  last_durable_checkpoint: a50ce57f1a95715a01b39fe1ba7c8dd621d81d9a
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -4181,6 +4182,13 @@ work_items:
         hashed assets at build ID synthetic-1da7380bf8aab802f04d. No browser
         check applies because no UI, interaction, source runtime, or artifact
         contract changed.
+      - >-
+        Implementation/evidence commit a50ce57f1a95715a01b39fe1ba7c8dd621d81d9a
+        contains exactly the 11 authorized roadmap, validator/test,
+        admission-review, coordination, handoff, decision, source-index,
+        backbone, and continuation paths. It contains no registry, adapter,
+        source schema/runtime, fixture, application, artifact, dependency,
+        owner-input, K0, S0, or O0 change.
 
   - id: PNW-06-LIFECYCLE-REFRESH
     priority: 136

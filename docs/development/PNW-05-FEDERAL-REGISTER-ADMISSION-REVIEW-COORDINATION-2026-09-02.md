@@ -230,8 +230,10 @@ links. No owner input changed.
   synthetic Nations, and 8 hashed assets at build ID
   `synthetic-1da7380bf8aab802f04d`.
 - The terminal roadmap has zero `in_progress`, one `ready`, 32 `complete`, 16
-  `blocked`, and 14 `not_started` work items. Local implementation/evidence and
-  ledger commit identities are recorded in a follow-up checkpoint on these same
-  authorized paths.
+  `blocked`, and 14 `not_started` work items.
+- Implementation/evidence commit
+  `a50ce57f1a95715a01b39fe1ba7c8dd621d81d9a` contains exactly the eleven
+  authorized paths. This follow-up ledger checkpoint binds recovery to that
+  implementation commit; its own identity is the current Git `HEAD`.
 - No browser check applies because no UI, interaction, source runtime, or
   artifact contract changed.
