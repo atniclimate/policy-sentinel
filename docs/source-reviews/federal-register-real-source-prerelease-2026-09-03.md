@@ -21,12 +21,14 @@ eligible, acquired, or published
 
 ## Executive determination
 
-Four frozen current official-evidence requests establish enough narrow provider
-evidence to review the exact Tier-1 parser and transport. They do not yet permit
-the document request `FR-A1`. The current deployed OpenAPI bytes exactly match
-the independently reviewed 2026-09-02 contract. Current NARA and GovInfo pages
-support the publisher/operator, official-edition custody, reproduction, and
-rendition distinctions required by this metadata-and-link operation.
+Seven frozen current official-evidence requests are now in custody. The first
+four remain historical observations; the three post-authority observations
+establish enough narrow provider evidence to review the exact Tier-1 parser and
+transport. They do not yet permit the document request `FR-A1`. The current
+deployed OpenAPI bytes exactly match the independently reviewed 2026-09-02
+contract. Current NARA and GovInfo pages support the publisher/operator,
+official-edition custody, reproduction, and rendition distinctions required by
+this metadata-and-link operation.
 
 No FederalRegister.gov API-specific terms or privacy statement was located in
 the reviewed official evidence. GovInfo's policy is operator-specific and does
@@ -52,8 +54,8 @@ call, and general `G-PNW-SOURCE-ACTIVATION` remain closed.
 
 ## Current request custody
 
-The lead issued four serial HTTPS GETs through the frozen process-local
-no-follow observer. Every request used the exact host/path, identity encoding,
+The lead issued seven serial HTTPS GETs in two frozen process-local no-follow
+observer runs. Every request used the exact host/path, identity encoding,
 accepted media, UTF-8 policy, 512-KiB and 64-chunk ceilings, one 30-second
 deadline, one attempt, no credential/cookie/referrer, and no automatic retry.
 Only aggregate receipts and project-owned predicates were emitted. Provider
@@ -66,11 +68,24 @@ cleared before process exit.
 | `FR-R1` | [NARA Federal Register FAQ](https://www.archives.gov/federal-register/faqs) | `2026-09-03T11:44:49.021Z` through `2026-09-03T11:44:49.258Z` | `200`, HTML, UTF-8, identity | 83,240 / 6 | `272f27476b26ff1ee8ab534cacbb29595a12aaf05625c3a0923e13b80387441e` |
 | `FR-R2` | [GovInfo Federal Register help](https://www.govinfo.gov/help/fr) | `2026-09-03T11:44:49.258Z` through `2026-09-03T11:44:49.399Z` | `200`, HTML, UTF-8, identity | 112,041 / 54 | `036deef02ddb0e88e32941ab8e36d2062b130b8ed44f84a0c2cf9f70d2081841` |
 | `FR-R3` | [GovInfo policies](https://www.govinfo.gov/about/policies) | `2026-09-03T11:44:49.399Z` through `2026-09-03T11:44:49.532Z` | `200`, HTML, UTF-8, identity | 64,162 / 43 | `5189ea6f00ac5b788b6937d6024e9f5924ed958305e31afc7d94f7e4bc40c0a9` |
+| `FR-D2` | [FederalRegister.gov deployed OpenAPI](https://www.federalregister.gov/api/v1/documentation.json) | `2026-09-03T12:47:42.741Z` through `2026-09-03T12:47:43.414Z` | `200`, JSON, UTF-8, identity | 230,046 / 19 | `06e06bfd397c49d600bab6d6c3eb4c1e2c07394f13544ffe193ae88385448d71` |
+| `FR-R4` | [NARA Federal Register FAQ](https://www.archives.gov/federal-register/faqs) | `2026-09-03T12:47:43.415Z` through `2026-09-03T12:47:43.727Z` | `200`, HTML, UTF-8, identity | 83,240 / 8 | `272f27476b26ff1ee8ab534cacbb29595a12aaf05625c3a0923e13b80387441e` |
+| `FR-R5` | [GovInfo Federal Register help](https://www.govinfo.gov/help/fr) | `2026-09-03T12:47:43.727Z` through `2026-09-03T12:47:43.878Z` | `200`, HTML, UTF-8, identity | 112,041 / 54 | `6928c58b8617d0b012408eb835bbae0e8b5e7b3496d149552de0622281f0e1c4` |
 
-Totals are four attempts, four `2xx`, 489,489 identity-encoded response bytes,
-120 chunks, zero redirects, zero retries, and zero retained raw bytes. No `3xx`,
+Totals are seven attempts, seven `2xx`, 914,816 identity-encoded response bytes,
+201 chunks, zero redirects, zero retries, and zero retained raw bytes. No `3xx`,
 `4xx`, `429`, or `5xx` was observed. `FR-A1` and all portfolio requests remain
-unissued.
+unissued. `FR-D2` is byte-identical to `FR-D1`, and `FR-R4` is byte-identical to
+`FR-R1`. `FR-R5` changed from the historical `FR-R2` digest while preserving the
+same length and every bounded custody/rendition predicate.
+
+The `FR-D2` aggregate observer also emitted an auxiliary `apiPathCount` value of
+zero. That counter is expressly excluded from provider evidence. The 14-path
+statement rests instead on `FR-D2`'s exact byte-for-byte digest equality with
+the independently measured `FR-D1` and 2026-09-02 OpenAPI bytes; the same D2
+observation independently confirmed OpenAPI 3, all 23 selectors, 56 selectable
+document fields, and absent root security, terms, and external-documentation
+declarations. No request was repeated to repair an aggregate counter.
 
 ## Provider facts that the current evidence can support
 
@@ -81,12 +96,12 @@ review chain. The observation establishes only the value stated below.
 
 | Fact kind | Evidence | Exact support | Does not establish |
 | --- | --- | --- | --- |
-| `source_identity` | `FR-D1` and `FR-R1` | FederalRegister.gov supplies the published-document API for the OFR/NARA publication service. | Issuing-agency identity for the selected document, legal authority, or another host. |
-| `field_meaning` | `FR-D1` | OpenAPI 3.0.0, `/api/v1/`, 14 paths, and 56 selectable document fields; the unchanged digest includes all 23 frozen selectors. | Response requiredness, nullability, full response schema, compatibility, or a completeness promise. |
-| `access_requirement` | `FR-D1` observation | This exact documentation GET succeeded without a credential and OpenAPI declares no security scheme. | Permanent keyless access or permission for another operation. |
-| `official_status` | `FR-R1` | OFR/NARA publication and GPO distribution roles, with official PDF and informational HTML/XML distinguished. | Substantive issuing-agency authority or verified signature status. |
-| `reproduction_right` | `FR-R1` | Reproduction is supported only for material appearing in Federal Register editions under 1 CFR 2.6. | Linked content, images, seals, logos, third-party material, or general redistribution rights. |
-| `rendition_custody` | `FR-R1` and `FR-R2` | FederalRegister.gov informational renditions remain distinct from GovInfo official daily-edition custody and its typed renditions. | Current target availability, signature validation, or authority to fetch rendition bodies. |
+| `source_identity` | `FR-D2` and `FR-R4` | FederalRegister.gov supplies the published-document API for the OFR/NARA publication service. | Issuing-agency identity for the selected document, legal authority, or another host. |
+| `field_meaning` | `FR-D2` | OpenAPI 3.0.0, `/api/v1/`, 14 paths, and 56 selectable document fields; the unchanged digest includes all 23 frozen selectors. | Response requiredness, nullability, full response schema, compatibility, or a completeness promise. |
+| `access_requirement` | `FR-D2` observation | This exact documentation GET succeeded without a credential and OpenAPI declares no security scheme. | Permanent keyless access or permission for another operation. |
+| `official_status` | `FR-R4` | OFR/NARA publication and GPO distribution roles, with official PDF and informational HTML/XML distinguished. | Substantive issuing-agency authority or verified signature status. |
+| `reproduction_right` | `FR-R4` | Reproduction is supported only for material appearing in Federal Register editions under 1 CFR 2.6. | Linked content, images, seals, logos, third-party material, or general redistribution rights. |
+| `rendition_custody` | `FR-R4` and `FR-R5` | FederalRegister.gov informational renditions remain distinct from GovInfo official daily-edition custody and its typed renditions. | Current target availability, signature validation, or authority to fetch rendition bodies. |
 
 `FR-R3` is boundary evidence, not a FederalRegister.gov provider-fact receipt.
 It establishes that GovInfo addresses copyright/public-domain, privacy/PII, and
@@ -235,11 +250,13 @@ authority receipts existed. They remain useful historical observations but
 cannot be relabeled or retimed as provider facts. The coordination record now
 contains a validated seven-authority, evidence-blocked graph issued at
 `2026-09-03T12:40:55Z` and an exact three-request `FR-D2`/`FR-R4`/`FR-R5`
-amendment for post-authority evidence. That amendment requires independent
-adversarial concurrence before execution and cannot issue `FR-A1`. The
-security adversary supplied that exact limited concurrence at
-`2026-09-03T12:43:44Z`; it applies only to one first attempt each for `FR-D2`,
-`FR-R4`, and `FR-R5` under the frozen controls.
+amendment for post-authority evidence. The security adversary supplied exact
+limited concurrence at `2026-09-03T12:43:44Z`, and the sovereignty adversary
+independently returned the same exact disposition. The three permitted first
+attempts then completed serially at `2026-09-03T12:47:42.741Z` through
+`2026-09-03T12:47:43.878Z` under the frozen controls. They supply the only
+provider observations eligible for the prospective graph; the amendment and
+observations still cannot issue `FR-A1`.
 
 ## Hard blockers before `FR-A1`
 

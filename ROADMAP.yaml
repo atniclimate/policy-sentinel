@@ -6,8 +6,9 @@ project:
   phase: >-
     Additive RealSourceLifecycleBundle 1.0.0 contract independently byte-frozen
     and accepted; Federal Register Tier-1 exact-document qualification now in
-    progress after four bounded documentation/evidence requests, with FR-A1
-    unissued and all activation/publication authority still closed
+    progress after seven bounded documentation/evidence requests, with the
+    post-authority evidence refresh complete, FR-A1 unissued, and all
+    activation/publication authority still closed
   updated_on: "2026-09-03"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -737,7 +738,7 @@ current_focus:
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: c62f9d59830362b46374dc5488b1d13ce721f5c1
+  last_durable_checkpoint: d0dbf22e313edd8806694d052accdecda52bc2a7
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -4201,6 +4202,18 @@ work_items:
         avoid backdating provider authority, the independent security adversary
         approved only the exact post-authority FR-D2/FR-R4/FR-R5
         evidence-refresh amendment; FR-A1 remains closed.
+      - >-
+        The sovereignty adversary independently approved the same exact
+        post-authority amendment. The lead then issued FR-D2, FR-R4, and FR-R5
+        once each, serially, from 2026-09-03T12:47:42.741Z through
+        2026-09-03T12:47:43.878Z. All three returned 200 with accepted media,
+        UTF-8, and identity encoding: 425,327 aggregate bytes, 81 chunks, zero
+        redirects/retries, and zero persisted raw bytes. FR-D2 exactly matched
+        the prior OpenAPI digest, FR-R4 exactly matched the prior NARA digest,
+        and FR-R5 preserved all bounded custody/rendition predicates under its
+        new digest. Total request custody is seven; 73 capacity slots remain,
+        and FR-A1 is still unissued pending a replacement byte freeze, three
+        fresh reviews, and the complete pre-acquisition lifecycle gate.
 
   - id: PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG
     priority: 137

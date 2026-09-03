@@ -499,12 +499,15 @@ ceilings. Raw response bytes and provider prose are not logged or persisted.
 
 ### Evidence-request execution log
 
-On 2026-09-03 the lead issued only `FR-D1`, `FR-R1`, `FR-R2`, and `FR-R3`,
-serially through a process-local no-follow HTTPS observer. Each used one GET,
-one 30-second deadline, identity encoding, the frozen Accept and User-Agent
-values, no credential/cookie/referrer, a 512-KiB and 64-chunk ceiling, no
-automatic retry, and no link follow. All four returned `200` with the expected
-media category and accepted UTF-8 policy on the first attempt.
+On 2026-09-03 the lead issued seven evidence GETs in two frozen serial runs.
+`FR-D1`, `FR-R1`, `FR-R2`, and `FR-R3` ran before prospective authority and
+remain historical observations. After the prospective graph and exact
+three-request amendment received independent concurrence, `FR-D2`, `FR-R4`,
+and `FR-R5` ran as post-authority evidence. Each request used one GET, one
+30-second deadline, identity encoding, the frozen Accept and User-Agent values,
+no credential/cookie/referrer, a 512-KiB and 64-chunk ceiling, no automatic
+retry, and no link follow. All seven returned `200` with the expected media
+category and accepted UTF-8 policy on the first attempt.
 
 | ID | UTC interval | Status/media | Bytes | Chunks | SHA-256 |
 | --- | --- | --- | ---: | ---: | --- |
@@ -512,27 +515,36 @@ media category and accepted UTF-8 policy on the first attempt.
 | `FR-R1` | `2026-09-03T11:44:49.021Z` through `2026-09-03T11:44:49.258Z` | `200` HTML | 83,240 | 6 | `272f27476b26ff1ee8ab534cacbb29595a12aaf05625c3a0923e13b80387441e` |
 | `FR-R2` | `2026-09-03T11:44:49.258Z` through `2026-09-03T11:44:49.399Z` | `200` HTML | 112,041 | 54 | `036deef02ddb0e88e32941ab8e36d2062b130b8ed44f84a0c2cf9f70d2081841` |
 | `FR-R3` | `2026-09-03T11:44:49.399Z` through `2026-09-03T11:44:49.532Z` | `200` HTML | 64,162 | 43 | `5189ea6f00ac5b788b6937d6024e9f5924ed958305e31afc7d94f7e4bc40c0a9` |
+| `FR-D2` | `2026-09-03T12:47:42.741Z` through `2026-09-03T12:47:43.414Z` | `200` JSON | 230,046 | 19 | `06e06bfd397c49d600bab6d6c3eb4c1e2c07394f13544ffe193ae88385448d71` |
+| `FR-R4` | `2026-09-03T12:47:43.415Z` through `2026-09-03T12:47:43.727Z` | `200` HTML | 83,240 | 8 | `272f27476b26ff1ee8ab534cacbb29595a12aaf05625c3a0923e13b80387441e` |
+| `FR-R5` | `2026-09-03T12:47:43.727Z` through `2026-09-03T12:47:43.878Z` | `200` HTML | 112,041 | 54 | `6928c58b8617d0b012408eb835bbae0e8b5e7b3496d149552de0622281f0e1c4` |
 
-Aggregate execution is four attempts, four `2xx` responses, 489,489 decoded
-identity bytes, 120 chunks, zero redirect follows, zero retries, zero `3xx`,
+Aggregate execution is seven attempts, seven `2xx` responses, 914,816 decoded
+identity bytes, 201 chunks, zero redirect follows, zero retries, zero `3xx`,
 `4xx`, `429`, or `5xx` statuses, and zero persisted raw bytes. The process
 printed only bounded aggregate receipts and project-owned fact predicates;
 response bodies and provider prose were never printed or written. The exact
-OpenAPI bytes match the prior 2026-09-02 review, preserving its independently
-recorded 14 paths, 56 requestable fields including all 23 frozen selectors,
-JSON/CSV formats, blank semantic version, and absent security/terms/external-
-documentation declarations. Current aggregate predicates also confirmed the
-publisher/operator and reproduction boundary on `FR-R1`, official daily-
-edition custody and rendition distinctions on `FR-R2`, and GovInfo-specific
-copyright/public-domain, privacy/PII, and image-rights distinctions on `FR-R3`.
-They do not turn GovInfo policy into FederalRegister.gov API privacy or terms.
+`FR-D2` OpenAPI bytes match `FR-D1` and the prior 2026-09-02 review byte for
+byte, preserving the independently recorded 14 paths, 56 requestable fields
+including all 23 frozen selectors, JSON/CSV formats, blank semantic version,
+and absent security/terms/external-documentation declarations. `FR-R4` matches
+`FR-R1` byte for byte. `FR-R5` changed from `FR-R2` while preserving its length
+and all bounded custody/rendition predicates. `FR-R3` remains only GovInfo-
+specific copyright/public-domain, privacy/PII, and image-rights boundary
+evidence; it does not turn GovInfo policy into FederalRegister.gov API privacy
+or terms.
 
-Remaining ceilings are 76 total requests, 29 Federal Register API requests,
-9 requests in the Federal Register contract/acquisition allocation, 5 in the
+The `FR-D2` aggregate also printed an auxiliary `apiPathCount` of zero. That
+counter is excluded from provider evidence. The recorded 14-path fact instead
+rests on D2's exact digest equality with the independently measured D1 and
+2026-09-02 bytes. No request was repeated to repair the aggregate counter.
+
+Remaining ceilings are 73 total requests, 28 Federal Register API requests,
+8 requests in the Federal Register contract/acquisition allocation, 3 in the
 NARA/GovInfo allocation, all 24 portfolio requests, and all 38 general reserve
 requests. The 18 still-unissued exact requests are `FR-A1` plus `PF-01` through
-`PF-17`; all 58 unissued-capacity slots remain unavailable without the frozen
-amendment/concurrence rule.
+`PF-17`; all 55 other unissued-capacity slots remain unavailable without a new
+frozen amendment and independent concurrence.
 
 `FR-A1` has no date boundary, time-zone semantic, sort, order, page, or cursor:
 the closed selected range is the single document identity `2026-16965`, its
@@ -659,6 +671,28 @@ only one serial first attempt for each of `FR-D2`, `FR-R4`, and `FR-R5` under
 the written envelope. It does not approve a parser freeze, create a provider
 fact by itself, or authorize `FR-A1`.
 
+The independent sovereignty adversary separately reconstructed the same seven-
+authority graph, identity separation, exact request set, inherited controls,
+and request arithmetic and returned the same exact disposition
+`APPROVE_POST_AUTHORITY_EVIDENCE_REFRESH_AMENDMENT`. It confirmed that no host,
+path family, method, media class, budget, sovereign claim, or downstream
+authorization was added and that `FR-A1` remained closed.
+
+The lead then issued exactly those three first attempts, serially from
+`2026-09-03T12:47:42.741Z` through `2026-09-03T12:47:43.878Z`. All three were
+`200` with accepted media, UTF-8, and identity encoding: `FR-D2` was 230,046
+bytes in 19 chunks at SHA-256
+`06e06bfd397c49d600bab6d6c3eb4c1e2c07394f13544ffe193ae88385448d71`;
+`FR-R4` was 83,240 bytes in 8 chunks at SHA-256
+`272f27476b26ff1ee8ab534cacbb29595a12aaf05625c3a0923e13b80387441e`;
+and `FR-R5` was 112,041 bytes in 54 chunks at SHA-256
+`6928c58b8617d0b012408eb835bbae0e8b5e7b3496d149552de0622281f0e1c4`.
+The run made three attempts, followed zero redirects, retried zero requests,
+persisted zero raw bytes, and destroyed the body buffers. The one-shot observer
+was removed after execution. Total custody is now seven issued requests and 73
+available capacity slots. `FR-A1` remains unissued and closed pending the
+replacement byte freeze and complete pre-acquisition gate.
+
 ## Phase gates, acceptance, and stop contract
 
 1. Candidate lifecycle schema/runtime/tests must address every pre-freeze
@@ -754,3 +788,14 @@ portfolio review continue.
   Register tests, type checking, lint, and formatting. Three independent
   actual-byte dispositions and the complete pre-acquisition lifecycle graph
   remain required before `FR-A1`.
+- Source and security review rejected that first manifest and the lead repaired
+  every reproduced provenance, typed-path, identity, delimiter, scalar,
+  resource, and text-safety defect. The legacy adapter barrel no longer exports
+  any Tier-1 transport surface; the gated prerelease script must direct-import
+  the exact transport and must not activate either legacy acquisition path.
+- After independent security and sovereignty concurrence, the lead issued only
+  `FR-D2`, `FR-R4`, and `FR-R5` under the exact post-authority amendment. All
+  three completed on their first serial attempt with `200`, 425,327 aggregate
+  bytes, 81 chunks, zero redirects/retries, and zero raw-byte persistence.
+  Total external-request custody is seven; `FR-A1` remains unissued pending a
+  replacement manifest, three fresh reviews, and the complete lifecycle gate.
