@@ -4,10 +4,11 @@ project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
   phase: >-
-    PNW-05 Federal Register metadata-only admission review complete with review
-    recommendation NO_GO and disposition evidence blocked; source not admitted,
-    owner acceptance not asserted, and every successor action closed
-  updated_on: "2026-09-02"
+    Additive RealSourceLifecycleBundle 1.0.0 contract independently byte-frozen
+    and accepted; Federal Register Tier-1 exact-document qualification now in
+    progress with zero external requests issued and all activation/publication
+    authority still closed
+  updated_on: "2026-09-03"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
     prove its present definition of done through the intended 59 current ATNI
@@ -724,19 +725,19 @@ baseline:
         configured.
 
 current_focus:
-  work_item: PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT
+  work_item: PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION
   objective: >-
-    Implement and independently freeze RealSourceLifecycleBundle 1.0.0 without
-    changing synthetic SourcePack 1.0, then progress only through the authorized
-    Federal Register qualification, bounded refresh/LKG, corpus/application,
-    security/browser, and portfolio checkpoints whose predecessors pass.
+    Requalify only the frozen Federal Register Tier-1 exact-document operation
+    from current official evidence, implement its bounded parser/transport and
+    exact receipts, and either admit that narrow local pilot or record one
+    precise source-specific evidence block without widening any request or gate.
   terminal_reason: null
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: a40732e2636e8bb956cc812e4ca76ac6f0ae8f71
+  last_durable_checkpoint: e0fb7e4150d9a6889d74d62bfb430b7c782eaac2
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -4075,7 +4076,7 @@ work_items:
     title:
       Additive real-public-source lifecycle, evidence, and compatibility
       contract
-    status: in_progress
+    status: complete
     dependencies:
       - B3-PIPELINE
       - PNW-01-ENGINE-SEAMS
@@ -4115,13 +4116,36 @@ work_items:
         Tier-1 projection, and 58 unusable reserve slots. The coordination blob
         at that commit is 22,576 bytes with SHA-256
         179cad3d2958d7b9185679b707e76da247bcdea418935bcf6025cf9ae341e47e.
+      - >-
+        Implementation commit e0fb7e4150d9a6889d74d62bfb430b7c782eaac2 adds the
+        separate RealSourceLifecycleBundle 1.0.0 schema, runtime,
+        evidence-blocked candidate, malformed fixtures, public engine exports,
+        documentation, and 70 focused tests without changing synthetic
+        SourcePackBundle 1.0.0 behavior.
+      - >-
+        The same source-evidence and sovereignty reviewers rejected two prior
+        exact byte freezes, then independently approved the final 14-file
+        1,575-byte manifest at SHA-256
+        88dcf39d08a4e19a5e4e7b75cf95a2eecb12f069fa739cec72bd2cae671e1028.
+        Candidate digest
+        8cc208b80a1ffe8ee90664ae506b22d1ddf300f00ed650c86aa1742814379b4b remains
+        evidence_blocked with zero provider facts or operation grants; scope
+        digest is
+        8a11d1379c494ae077622b50e645d82d731043898a696107606dadd7ced6736e.
+      - >-
+        Final serialized npm run check passed 87 test files and 1,405 tests in
+        256.77 seconds, then built only 3 synthetic records, exactly 575
+        synthetic Nations, and 8 verified assets at build ID
+        synthetic-629cdb8aa6fd4a7dec4f. Source qualification, activation,
+        publication, and every external operation remained closed; zero external
+        requests were issued.
 
   - id: PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION
     priority: 136
     milestone: PNW local real-source prerelease
     title:
       Federal Register Tier-1 exact-document qualification and local admission
-    status: not_started
+    status: in_progress
     dependencies:
       - PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT
       - B4-FR-ADAPTER
@@ -4167,7 +4191,7 @@ work_items:
     priority: 138
     milestone: PNW local real-source prerelease
     title: General-jurisdiction real-source corpus and reference projection
-    status: not_started
+    status: ready
     dependencies:
       - PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT
       - PNW-04-TAXONOMY
@@ -4940,19 +4964,25 @@ next_actions:
       infer membership, or treat the federal-recognition collection as the
       regional registry.
   - order: 6
-    work_item: PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT
+    work_item: PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION
     action: >-
-      Implement and byte-review the additive RealSourceLifecycleBundle 1.0.0
-      candidate. Preserve synthetic SourcePackBundle 1.0.0 unchanged and make no
-      external request until byte-level adversarial approval freezes the new
-      contract and exact Federal Register request plan.
+      Execute only the approved frozen official-evidence requests, seal their
+      bounded observations, implement the exact Tier-1 parser and transport, and
+      issue no document request until current evidence, expiring residual
+      decisions, and both source/security and sovereignty reviews pass.
   - order: 7
+    work_item: PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION
+    action: >-
+      Build the source-neutral analyzed-corpus contract only within the
+      authorized real-source lane, preserving general_jurisdiction, zero Nation
+      associations, and Unclassified fallback while the source branch qualifies.
+  - order: 8
     work_item: PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY
     action: >-
       After the frozen external ledger is enforceable, perform only bounded
       read-only authority/interface discovery for the owner-named candidates;
       classify and rank without admitting or activating any source.
-  - order: 8
+  - order: 9
     work_item: PNW-05-SOURCE-PACK
     action: >-
       Preserve the broad parent as incomplete while the separately authorized
