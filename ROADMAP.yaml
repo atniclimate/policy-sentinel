@@ -736,7 +736,7 @@ current_focus:
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 3fd9c2cdb8e431e7ef57f328deced43777936a8f
+  last_durable_checkpoint: c14dc7d4b69959d94745e61078ad804b3524f999
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -4102,6 +4102,12 @@ work_items:
         received 2026-09-03; coordination, exact path/request manifests, reuse
         matrix, and review state are recorded in
         docs/development/PNW-05-REAL-SOURCE-PRERELEASE-COORDINATION-2026-09-03.md.
+      - >-
+        Governance commit c14dc7d4b69959d94745e61078ad804b3524f999 records the
+        isolated six-child completion scope, three exact gates, orthogonal
+        Federal Register source state, protected owner-input tuple, validator
+        invariants, and frozen coordination ledger without issuing an external
+        request.
 
   - id: PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION
     priority: 136
