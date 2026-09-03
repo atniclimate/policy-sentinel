@@ -737,6 +737,98 @@ excluded the auxiliary D2 counter, and required R5's new digest. This evidence
 approval is not a parser, gate, admission, activation, or acquisition approval;
 `FR-A1` remains closed.
 
+## Replacement Tier-1 executable freeze
+
+Commit `325a98d6d1d1eb9517b77f8688a6041a7692d51b` is the stable
+replacement candidate. Its executable trust closure is the following exact
+17-row UTF-8 TSV in code-unit path order with one terminal LF. The TSV is
+2,017 bytes and has SHA-256
+`d132d04c31307d444437d7785d3a48c6f35d76be2f8cc81250dc68967f3dac83`.
+
+```text
+config/sources.v1.json	57814	04866e3b1dece1d1f8035ca85391930aa40e8d9bf9c7e6ce86379eabd29f5e51
+fixtures/sources/federal-register/tier1-document-malformed.invalid.json	893	6477578d63b0299e2cef877916a3199e3d3a5695086b38be40374a1c11827379
+fixtures/sources/federal-register/tier1-document.synthetic.valid.json	1778	fb0e77bb50093761538cf82d8369be37130a2f9101349ae71ad87bc2b7b6f9c0
+package.json	2277	a23cab459b1b3433c988329239222ad37d332228fcdbf0cfa2a3d8a2763002cc
+scripts/refresh-federal-register-prerelease.mjs	35694	aa9a5afa220022701681aa032c5d8f315342076d425fdbe33cffbd857db8524c
+src/adapters/federal-register/index.ts	24728	0937f48bcd80a686b7dd704799b317969c8032a5308ee638909719ccb77739a8
+src/adapters/federal-register/tier1-contract.d.mts	3079	757d6905242648ce0ac98765a809faf6cbf113148f1d638e77804813f11acbb2
+src/adapters/federal-register/tier1-contract.mjs	26383	58811b9bd0b5ae313364589d5c4744acb3c597d0a6515d3c7c622c261e593cc1
+src/adapters/federal-register/tier1-refresh.d.mts	10546	4c43716918c502c3081ba4df94188ea4bff6d4af3fbdd1bf57cf9e5b9d854b74
+src/adapters/federal-register/tier1-refresh.mjs	81483	d49b87011db290c341cd21796b1d471c57480f20ad55fa8fc637e62d11f54abd
+src/adapters/federal-register/tier1-transport.d.mts	2990	7cf04d42becebb06d8c36eb5280fd90eb875df61a17d35e7a2648b7ea7cc47b6
+src/adapters/federal-register/tier1-transport.mjs	13446	ab60446c1cf88b64b4e83055036808944483d3ee6d9c34f0ef9c4c992345f94f
+src/engine/real-source-lifecycle-contracts.ts	26453	25a04b0735997120fdce8cb223d37bf8c7146a53a5fa3f6e9f331d90ca5ddb1a
+src/engine/real-source-lifecycle.ts	171676	8853c8082684cc690568aa7fabeb756c79b52782d82e6560a7c878bcb99b528c
+tests/adapters/federal-register/tier1-contract.test.mjs	21629	901519500f96c03e4aa79eed7c2b1a066e0ce47901598fd70ec1b3967f0aff68
+tests/adapters/federal-register/tier1-refresh.test.mjs	36017	6ba065ecdd938a6ebbd11a8497e70ef54ff5b2990f910d1f96b116ae955ed05e
+tests/adapters/federal-register/tier1-transport.test.mjs	19536	fca01c1ea3422c828de0fadb855f47ed5ff6f97ce47e52b6cd5541caf14fc4b7
+```
+
+The exact-commit `npm run check` passed 87 test files and 1,405 tests in
+118.04 seconds after formatting, lint, type, roadmap, backbone, source-boundary,
+and foundation checks. It then built only 3 synthetic records, exactly 575
+synthetic Nations, and 8 verified assets at build ID
+`synthetic-619534cf0fa5ba340248`. The manifest and commit are candidates for the
+three required independent actual-byte reviews; this section grants no
+acquisition or publication authority.
+
+## Authority-custody reproducibility repair
+
+Two independent auditors found that the first `12:40:55Z` prospective graph
+retained only receipt/identity/evidence hashes, not the identity IDs, versions,
+or per-receipt issue times needed to reproduce it. That historical graph and
+its `b1895989…` digest remain evidence of the failed attempt but are ineligible
+for a downstream lifecycle graph. No missing value may be inferred or
+backdated.
+
+The lead therefore created a new authority-only graph from the following exact
+tuples. Every tuple uses version `1.0.0` and issue time
+`2026-09-03T14:04:22Z`; graph `lifecycleAsOf` is
+`2026-09-03T14:04:30Z`. OFR/NARA's two roles intentionally share one identity;
+all other identities are distinct.
+
+| Slot | Authority identity ID | Identity digest | Authority-evidence digest |
+| --- | --- | --- | --- |
+| `ofr_nara_service_operator` | `ofr-nara-federal-register-publishing-service` | `866fc3de0ddeb1c7422f3e8b90fe5c6add28f716bffd204d2390b307535558db` | `2c0597116b607b1c470f34a043d35fea220c692ae2e22d3b11572eb15e7b282f` |
+| `ofr_nara_originating_publisher` | `ofr-nara-federal-register-publishing-service` | `866fc3de0ddeb1c7422f3e8b90fe5c6add28f716bffd204d2390b307535558db` | `544b44693f7c48a17dd3c4534f10ce27be404200b507ebb7e4d9a43f8190eb46` |
+| `gpo_official_edition_custodian` | `gpo-federal-register-official-edition-service` | `0428c9af00842295414bd3409c3a1f9727b4369f8b6285b06f8d73c93d0f6dbc` | `5573591ac6d024aa99e1871500e8873e1b03d31d5067a24f8e1859aa23d8fc3a` |
+| `source_reviewer` | `policy-sentinel-source-evidence-reviewer-2026-09-03` | `ed6a6e6dcae7849df2e80d2357b2e2ea34c2ee47703cf40408ecaa63ccdae49e` | `0bdd640aa76b9af8df1c3d3ebcd3e28aebdbfd5faf503eaacda4afce23674438` |
+| `security_reviewer` | `policy-sentinel-security-reviewer-2026-09-03` | `b423c15880ee5b2f80c03aa3323538eae2aa733dd436361f5f882eb5414084f1` | `4da0a76e697f72650f5af15f96ae94be7eadc989f80ac678f31bbbd9403be859` |
+| `sovereignty_reviewer` | `policy-sentinel-sovereignty-reviewer-2026-09-03` | `a4f2d8d2434487f443f3cda84e3da9c7c04ed8631e6119dfb7404d5519a9bfa6` | `7fbd7a42b520e36e52e530da02cacfe1a6e28a11f4b1918a05ded528eef76b0f` |
+
+Identity digests are SHA-256 of
+`policy-sentinel-authority-identity:v1:<authority identity ID>`. Authority-
+evidence digests are SHA-256 of
+`policy-sentinel-authority-evidence:v1:<slot>:<authority identity ID>:PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE:<basis>`,
+where `<basis>` is respectively `FR-D2,FR-R4`, `FR-R4`, `FR-R5`, and
+`owner-token` for each of the three reviewer slots. These exact preimages make
+the tuples independently reproducible.
+
+The ignored 2,503-byte input has SHA-256
+`f2ec15b838d9402478a64bd1d5b366001120af4b82f1b52aed463fbe717aa8a4`.
+The no-fetch preparation command emitted an ignored 19,844-byte graph at
+SHA-256 `15059000ff3817a6d5df5c8f8d5642aa1cd51042b15028aca26991cc3a6d6cad`.
+It validates as `evidence_blocked` with seven authority receipts, zero provider
+facts/reviews/grants/positive lifecycle receipts, closed publication, bundle
+digest `132fa72f07276bb50f01efe998a7244ec3cccab39d37ca2a81cc4facca6eaa41`,
+scope digest `e0a3dace1c5588cc8c898264dedceb1e7e17553055f48fc7347ee3070a886b7f`,
+and authority-set digest
+`42352fa0d2215e5bff4646660eca05052f342eac0aa8913755372e554e28dd47`.
+
+To restore provider-fact chronology, the lead proposes exactly three new
+first-attempt observations: `FR-D3` at the frozen Federal Register OpenAPI URL,
+`FR-R6` at the frozen NARA FAQ URL, and `FR-R7` at the frozen GovInfo Federal
+Register help URL. They inherit the already frozen serial GET, media, identity-
+encoding, byte/chunk/time, redirect, no-credential, no-referrer, no-retry, and
+body-ephemeral controls. Before execution, custody remains seven issued/73
+available; the proposal would temporarily make 21 exact requests unissued and
+55 unavailable, then, if all three complete once, leave ten issued/70
+available, 27 API slots, seven Federal Register allocation slots, one NARA/
+GovInfo slot, all 24 portfolio slots, and all 38 reserve slots. This amendment
+requires fresh security and sovereignty concurrence before any request.
+`FR-A1` remains separately closed.
+
 ## Phase gates, acceptance, and stop contract
 
 1. Candidate lifecycle schema/runtime/tests must address every pre-freeze

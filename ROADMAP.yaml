@@ -4234,6 +4234,28 @@ work_items:
         v24.14.1 runtime. The reviewed Windows control uses mandatory file fsync
         and records unsupported parent-directory fsync; it is not an absolute
         sudden-power-loss guarantee. The replacement freeze is not yet issued.
+      - >-
+        Commit 325a98d6d1d1eb9517b77f8688a6041a7692d51b is the stable repaired
+        Tier-1 candidate. Its complete 17-path executable trust closure is a
+        2,017-byte TSV with SHA-256
+        d132d04c31307d444437d7785d3a48c6f35d76be2f8cc81250dc68967f3dac83.
+        Exact-commit npm run check passed 87 files and 1,405 tests in 118.04
+        seconds and built only the 3-record/575-Nation/8-asset synthetic
+        artifact at build ID synthetic-619534cf0fa5ba340248. Three independent
+        actual-byte reviews are still required; FR-A1 remains closed.
+      - >-
+        Two independent recovery audits found the 12:40:55Z prospective graph
+        non-replayable because its six identity IDs, versions, and issue times
+        were not retained. No value was inferred or backdated. A new fully
+        reproducible authority-only graph issued at 2026-09-03T14:04:22Z is
+        evidence_blocked with bundle digest
+        132fa72f07276bb50f01efe998a7244ec3cccab39d37ca2a81cc4facca6eaa41, scope
+        digest e0a3dace1c5588cc8c898264dedceb1e7e17553055f48fc7347ee3070a886b7f,
+        authority-set digest
+        42352fa0d2215e5bff4646660eca05052f342eac0aa8913755372e554e28dd47, and
+        zero provider facts or grants. Exact post-authority re-observations
+        FR-D3/FR-R6/FR-R7 are proposed under unchanged bounded controls but
+        require fresh adversarial concurrence before execution.
 
   - id: PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG
     priority: 137
