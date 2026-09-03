@@ -198,11 +198,12 @@ contains only `ROADMAP.yaml`, the project backbone, continuation prompt,
 coordination record, and this handoff; its SHA is reported by the terminal
 session because the commit cannot self-reference.
 
-The 20 owner inputs remain untracked, unstaged, and uncommitted. The five
-current companion hashes still match their starting identities. No unrelated
-tracked path or source registry/schema/adapter/runtime/fixture/artifact path
-changed. No remote exists, and no push, publication, deployment, notification,
-or other external mutation occurred.
+The 22 owner inputs (20 Markdown files, one YAML file, and one text file) remain
+untracked, unstaged, and uncommitted. The five current companion hashes still
+match their starting identities. No unrelated tracked path or source
+registry/schema/adapter/runtime/fixture/artifact path changed. No remote exists,
+and no push, publication, deployment, notification, or other external mutation
+occurred.
 
 ## Exact next authority required
 

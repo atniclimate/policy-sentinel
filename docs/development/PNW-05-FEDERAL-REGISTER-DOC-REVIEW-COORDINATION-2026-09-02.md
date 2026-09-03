@@ -64,9 +64,10 @@ or silently revalidating them.
   repair below closes that defect.
 - Direct roadmap regression: one test passed.
 
-All 20 untracked `docs/00-*` through `docs/15E-*` owner-input files are a
-do-not-touch, do-not-stage, do-not-commit set. The five current companions have
-these frozen identities:
+All 22 untracked `docs/00-*` through `docs/15E-*` owner-input files (20
+Markdown files, one YAML file, and one text file) are a do-not-touch,
+do-not-stage, do-not-commit set. The five current companions have these frozen
+identities:
 
 | Path | Bytes | SHA-256 |
 | --- | ---: | --- |
