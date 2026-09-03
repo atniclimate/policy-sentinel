@@ -512,10 +512,14 @@ gates:
     name: Built-app browser evidence
     state: pending_evidence
     resolution: >-
-      Satisfy when the in-app Browser backend is available and the required
-      desktop and mobile built-artifact interaction, accessibility, and
-      same-origin network smoke passes. This is an environment evidence gate,
-      not an authorization or owner-approval gate.
+      Satisfy when an available standards-based local browser exercises the
+      required desktop and mobile built-artifact interaction, accessibility,
+      keyboard/focus, details, dossier, CSV, and same-origin network outcomes.
+      The previously named in-app Browser remains one acceptable mechanism;
+      owner authorization on 2026-09-03 permits repository-native
+      Playwright/Chromium or another local standards-based harness for the same
+      outcomes without weakening them. This is an evidence gate, not publication
+      authority.
     evidence:
       - >-
         On 2026-08-03, the required in-app Browser runtime was initialized and
@@ -577,6 +581,48 @@ gates:
       terms, credentials, transport, schema, identity, coverage, lifecycle,
       health, privacy, reproduction, and last-known-good requirements pass and
       the exact activation is approved.
+  - id: G-PNW-05-REAL-SOURCE-PRERELEASE
+    name: Local real-source prerelease vertical-slice authority
+    state: approved
+    authorized_through: completion
+    approved_scope:
+      - PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT
+      - PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION
+      - PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG
+      - PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION
+      - PNW-08-LOCAL-REAL-SOURCE-APPLICATION-PRERELEASE
+      - PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY
+    evidence:
+      - >-
+        Owner authorization token PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE
+        received 2026-09-03 in a protected untracked 50,015-byte input with
+        SHA-256
+        7cac531c3346fc85c2eb37701ecfcb64838aa44553417c6b9c7506567978d266. It
+        authorizes the six local child outcomes, bounded read-only external
+        evidence, conditional time/deployment-scoped Federal Register local
+        activation, ignored local artifacts, focused commits, and browser
+        evidence while keeping every remote/publication/private/credential/AI/
+        notification/convergence boundary closed.
+    resolution: >-
+      This approval is exhausted by the exact local child lane and cannot open
+      the broad PNW source-activation gate, another source/deployment, a default
+      network build, or any publication operation.
+  - id: G-PNW-05-FR-TIER1-QUALIFICATION
+    name: Federal Register Tier-1 bounded contract qualification
+    state: pending_evidence
+    resolution: >-
+      Satisfy only when current official identity, field meaning, reproduction,
+      privacy/terms review, the Tier-1 ceiling, exact keyless request policy,
+      expiring residual-risk receipt, and independent adversarial review all
+      pass for the frozen local operation.
+  - id: G-PNW-05-FR-LOCAL-ACTIVATION
+    name: Federal Register time-bounded local prerelease activation
+    state: pending_evidence
+    resolution: >-
+      Satisfy only after Tier-1 qualification and exact deployment-scoped
+      admission, activation, operation, expiry, coverage, health, and LKG
+      receipts pass. This gate never satisfies G-PNW-SOURCE-ACTIVATION and
+      cannot authorize redistribution or publication.
   - id: G-PNW-OUTPUT-REVIEW
     name: Per-output human review
     state: pending_evidence
@@ -678,24 +724,19 @@ baseline:
         configured.
 
 current_focus:
-  work_item: null
+  work_item: PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT
   objective: >-
-    Preserve the validated PNW-05-SRC-FEDERAL-REGISTER-ADMISSION-REVIEW
-    checkpoint and every closed source boundary while awaiting separate exact
-    owner authority for a named source-evidence or contract-design tranche.
-  terminal_reason: >-
-    PNW-05-SRC-FEDERAL-REGISTER-ADMISSION-REVIEW completed with review
-    recommendation NO_GO, the single source-review disposition evidence blocked,
-    and independent verdict APPROVE_PNW05_FR_ADMISSION_REVIEW_CANDIDATE in
-    implementation/evidence commit a50ce57f1a95715a01b39fe1ba7c8dd621d81d9a.
-    Owner acceptance is not asserted. The source remains not admitted, disabled,
-    inactive, unbound, and non-production; no successor tranche is authorized.
+    Implement and independently freeze RealSourceLifecycleBundle 1.0.0 without
+    changing synthetic SourcePack 1.0, then progress only through the authorized
+    Federal Register qualification, bounded refresh/LKG, corpus/application,
+    security/browser, and portfolio checkpoints whose predecessors pass.
+  terminal_reason: null
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: a50ce57f1a95715a01b39fe1ba7c8dd621d81d9a
+  last_durable_checkpoint: 3fd9c2cdb8e431e7ef57f328deced43777936a8f
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -777,6 +818,29 @@ completion_scope:
       - K0-LIFECYCLE
       - S0-SPATIAL
       - O0-ORCHESTRATION
+  local_real_source_prerelease:
+    rule: >-
+      This additive local feedback lane is complete only when the six bounded
+      child outcomes pass with one admitted, time/deployment-scoped real source,
+      deterministic revision/LKG and corpus/artifact evidence, a usable local
+      browser projection, and conspicuous limitations. It is independent from
+      the retained local release candidate and the full PNW definition of done.
+    required_outcomes:
+      - PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT
+      - PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION
+      - PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG
+      - PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION
+      - PNW-08-LOCAL-REAL-SOURCE-APPLICATION-PRERELEASE
+      - PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY
+    authority_gate: G-PNW-05-REAL-SOURCE-PRERELEASE
+    qualification_gate: G-PNW-05-FR-TIER1-QUALIFICATION
+    activation_gate: G-PNW-05-FR-LOCAL-ACTIVATION
+    does_not_change:
+      - broad PNW-05 through PNW-10 status or acceptance
+      - the legacy local release candidate or protected release roots
+      - general source activation, publication, remote, credential, or
+        private-data gates
+      - K0, S0, or O0 identities, dependencies, status, or convergence gates
   pnw_regional_engine:
     rule: >-
       PNW-00 through PNW-10 are the present regional engine definition of done.
@@ -4005,8 +4069,153 @@ work_items:
         dependencies, artifacts, owner inputs, and every external/convergence
         gate remained protected.
 
-  - id: PNW-05-SOURCE-PACK
+  - id: PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT
     priority: 135
+    milestone: PNW local real-source prerelease
+    title:
+      Additive real-public-source lifecycle, evidence, and compatibility
+      contract
+    status: in_progress
+    dependencies:
+      - B3-PIPELINE
+      - PNW-01-ENGINE-SEAMS
+      - PNW-04-TAXONOMY
+    authorization_gate: G-PNW-05-REAL-SOURCE-PRERELEASE
+    acceptance:
+      - >-
+        RealSourceLifecycleBundle 1.0.0 is separate from and non-interfering
+        with synthetic SourcePackBundle 1.0.0.
+      - >-
+        Provider facts, observations, project controls, unknowns, and expiring
+        residual-risk decisions remain distinct and cannot satisfy one another.
+      - >-
+        Qualification, admission, deployment activation, binding, operation
+        grants, artifact eligibility, and publication authority are independent,
+        closed, digest-bound, time-scoped, and fail closed.
+      - >-
+        Coverage stages, health scopes, genesis/LKG lineage, review expiry,
+        revocation, supersession, immutability, deterministic serialization, and
+        trust-domain attacks pass focused and adversarial tests.
+    evidence:
+      - >-
+        Owner authorization token PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE
+        received 2026-09-03; coordination, exact path/request manifests, reuse
+        matrix, and review state are recorded in
+        docs/development/PNW-05-REAL-SOURCE-PRERELEASE-COORDINATION-2026-09-03.md.
+
+  - id: PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION
+    priority: 136
+    milestone: PNW local real-source prerelease
+    title:
+      Federal Register Tier-1 exact-document qualification and local admission
+    status: not_started
+    dependencies:
+      - PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT
+      - B4-FR-ADAPTER
+    authorization_gate: G-PNW-05-REAL-SOURCE-PRERELEASE
+    acceptance:
+      - >-
+        Current official evidence supports the exact keyless metadata/link
+        operation, or the branch records one precise evidence block without
+        affecting independent child work.
+      - >-
+        The parser/transport enforce the exact Tier-1 ceiling, request/media/
+        byte/time bounds, zero automatic retry, 429 stop, sanitized errors,
+        non-inference, and no rendition-body retrieval.
+      - >-
+        Qualification, admission, activation, and operation receipts are exact,
+        time/deployment scoped, independently reviewed, and do not authorize
+        redistribution or publication.
+    evidence: []
+
+  - id: PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG
+    priority: 137
+    milestone: PNW local real-source prerelease
+    title: Federal Register sealed-byte refresh, revision, health, and LKG
+    status: not_started
+    dependencies:
+      - PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION
+    authorization_gate: G-PNW-05-REAL-SOURCE-PRERELEASE
+    acceptance:
+      - >-
+        One exact-document acquisition is parsed twice from the same sealed
+        bytes, promotes one ignored content-addressed normalized revision
+        atomically, and leaves no raw provider body.
+      - >-
+        Request/coverage/health receipts reconcile all stages and keep the
+        selected one-document operation visibly bounded and non-comprehensive.
+      - >-
+        Genesis, no-prior failure, compatible stale reuse, recovery, and every
+        corrupt/cross-source/cross-contract/cross-range/future/expired/partial
+        LKG rejection pass.
+    evidence: []
+
+  - id: PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION
+    priority: 138
+    milestone: PNW local real-source prerelease
+    title: General-jurisdiction real-source corpus and reference projection
+    status: not_started
+    dependencies:
+      - PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT
+      - PNW-04-TAXONOMY
+    authorization_gate: G-PNW-05-REAL-SOURCE-PRERELEASE
+    acceptance:
+      - >-
+        One immutable analyzed corpus stores each source record once and binds
+        its field provenance, revision/lifecycle evidence, coverage, health,
+        limitations, and reference-only views to one digest chain.
+      - >-
+        Real records remain general_jurisdiction, zero-Nation, and Unclassified
+        unless an exact source-label mapping exists; no legal, rights,
+        membership, geography, consultation, or community-position inference is
+        available.
+    evidence: []
+
+  - id: PNW-08-LOCAL-REAL-SOURCE-APPLICATION-PRERELEASE
+    priority: 139
+    milestone: PNW local real-source prerelease
+    title: Usable isolated general-federal local application prerelease
+    status: not_started
+    dependencies:
+      - PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG
+      - PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION
+    authorization_gate: G-PNW-05-REAL-SOURCE-PRERELEASE
+    acceptance:
+      - >-
+        An ignored built local site provides an accessible general-federal
+        list/table, explicit Apply filtering, same-origin details, safe CSV,
+        printable dossier, stable routing/focus, and desktop/mobile behavior.
+      - >-
+        Coverage, data-as-of, retrieval time, health/staleness, review expiry,
+        custody/rendition labels, limitations, and no-Nation mode are
+        conspicuous; synthetic demonstration output remains separate.
+      - >-
+        Browser network evidence contains only same-origin local assets and no
+        provider, telemetry, AI, credential, or dynamic external request.
+    evidence: []
+
+  - id: PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY
+    priority: 140
+    milestone: PNW source evidence
+    title: Typed authority and onboarding-cost portfolio discovery
+    status: ready
+    dependencies:
+      - PNW-01-ENGINE-SEAMS
+    authorization_gate: G-PNW-05-REAL-SOURCE-PRERELEASE
+    acceptance:
+      - >-
+        Every owner-named candidate is classified by exact operator, typed
+        authority role, provable and non-provable claims, access/rights/privacy,
+        interface maturity, coverage/lifecycle feasibility, and smallest next
+        tranche without admission.
+      - >-
+        The next two candidates after Federal Register are ranked using value,
+        sovereign-authority clarity, technical maturity, burden, minimization,
+        and onboarding cost; recommendations open no gate.
+    evidence: []
+
+  - id: PNW-05-SOURCE-PACK
+    priority: 141
     milestone: PNW source evidence
     title: Federal and differentiating PNW source pack
     status: ready
@@ -4191,7 +4400,7 @@ work_items:
         owner-input, K0, S0, or O0 change.
 
   - id: PNW-06-LIFECYCLE-REFRESH
-    priority: 136
+    priority: 142
     milestone: PNW source evidence
     title: Source-supported lifecycle, bounded refresh, and last-known-good
     status: not_started
@@ -4212,7 +4421,7 @@ work_items:
     evidence: []
 
   - id: PNW-07-ANALYZED-CORPUS
-    priority: 137
+    priority: 143
     milestone: PNW corpus
     title: Canonical evidence-bearing analyzed corpus
     status: not_started
@@ -4234,7 +4443,7 @@ work_items:
     evidence: []
 
   - id: PNW-08-OUTPUT-ADAPTERS
-    priority: 138
+    priority: 144
     milestone: PNW outputs
     title: Document, web-module, application, and structured-output adapters
     status: not_started
@@ -4254,7 +4463,7 @@ work_items:
     evidence: []
 
   - id: PNW-09-ACCEPTANCE-SCENARIOS
-    priority: 139
+    priority: 145
     milestone: PNW qualification
     title: Representative PNW use-case qualification
     status: not_started
@@ -4280,7 +4489,7 @@ work_items:
     evidence: []
 
   - id: PNW-10-REGIONAL-RC
-    priority: 140
+    priority: 146
     milestone: PNW qualification
     title: PNW regional engine release-candidate hardening
     status: not_started
@@ -4303,7 +4512,7 @@ work_items:
     evidence: []
 
   - id: H-REPOSITORY-BACKBONE
-    priority: 141
+    priority: 147
     milestone: Repository governance
     title: Canonical repository backbone and long-run launch system
     status: complete
@@ -4493,11 +4702,23 @@ source_register:
     public_claim: no live publication
   - id: SRC-FEDERAL-REGISTER
     source: Federal Register
-    implementation_state: adapter_validated_browser_environment_blocked
+    implementation_state: adapter_1_0_historical_validated_disabled
+    documentation_currency: reviewed_2026_09_02_requalification_in_progress
+    contract_qualification: evidence_blocked_pending_tier1_review
+    admission: not_admitted
+    activation: inactive
+    binding: unbound
+    health: not_observed_for_local_prerelease
+    coverage: none_in_default_artifact
+    ui_acceptance: historical_browser_gate_pending_new_local_lane
+    publication: not_authorized
     work_items:
       - B4-FR-RESEARCH
       - B4-FR-ADAPTER
       - B4-FR-UX
+      - PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION
+      - PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG
+      - PNW-08-LOCAL-REAL-SOURCE-APPLICATION-PRERELEASE
     public_claim: no production records yet
   - id: SRC-GRANTS
     source: Grants.gov
@@ -4681,8 +4902,9 @@ next_actions:
     action: >-
       Re-run the required built-app desktop/mobile interaction, accessibility,
       keyboard, dossier, CSV, Unclassified, and same-origin network smoke only
-      when the in-app Browser backend becomes available. Do not substitute the
-      unrelated Chrome control surface without owner authorization.
+      through the newly authorized standards-based outcome harness when the
+      local prerelease candidate is stable; preserve the historical unavailable
+      in-app Browser evidence.
   - order: 3
     work_item: B5-WA-LWS-ADAPTER
     action: >-
@@ -4705,17 +4927,25 @@ next_actions:
       infer membership, or treat the federal-recognition collection as the
       regional registry.
   - order: 6
+    work_item: PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT
+    action: >-
+      Implement and byte-review the additive RealSourceLifecycleBundle 1.0.0
+      candidate. Preserve synthetic SourcePackBundle 1.0.0 unchanged and make no
+      external request until byte-level adversarial approval freezes the new
+      contract and exact Federal Register request plan.
+  - order: 7
+    work_item: PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY
+    action: >-
+      After the frozen external ledger is enforceable, perform only bounded
+      read-only authority/interface discovery for the owner-named candidates;
+      classify and rank without admitting or activating any source.
+  - order: 8
     work_item: PNW-05-SOURCE-PACK
     action: >-
-      The Federal Register admission review is complete with recommendation
-      NO_GO/evidence blocked and no owner acceptance asserted. Continue only
-      under separate exact owner authorization for a named tranche. The prior
-      project candidate PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY remains
-      separate; the smallest Federal Register reopening would be
-      PNW-05-SRC-FEDERAL-REGISTER-REAL-SOURCE-CONTRACT-DESIGN, local and
-      no-fetch only. Neither is authorized, and neither permits registry/adapter
-      work, source admission, binding, activation, provider access, credentials,
-      terms action, production content, or publication.
+      Preserve the broad parent as incomplete while the separately authorized
+      local prerelease child lane executes. A successful one-source slice is
+      evidence toward, not completion of, the required federal/state/Tribal/
+      regional/transboundary source portfolio.
 finish_states:
   repository_backbone:
     current_state: complete
@@ -4747,6 +4977,27 @@ finish_states:
       - comprehensive legal or source coverage
       - any closed external gate is approved
       - K0 or S0 is integrated into the existing release candidate
+  local_real_source_prerelease:
+    current_state: in_progress
+    satisfied_when:
+      - All six bounded local-real-source child outcomes are complete with
+        objective evidence.
+      - >-
+        G-PNW-05-FR-TIER1-QUALIFICATION and G-PNW-05-FR-LOCAL-ACTIVATION are
+        satisfied for only the exact source, deployment, operations, and expiry.
+      - >-
+        Sealed-byte and normalized-revision replay, LKG, security,
+        accessibility, browser, artifact, custody, and independent review
+        evidence passes.
+      - >-
+        The tracked worktree is clean; raw provider bytes are absent; ignored
+        real data stays outside Git and the ordinary synthetic artifact.
+    does_not_mean:
+      - broad PNW-05, PNW-06, PNW-07, PNW-08, PNW-09, or PNW-10 is complete
+      - the retained local release candidate or PNW regional engine is complete
+      - general source activation, redistribution, publication, or public beta
+      - a Nation relationship, ATNI roster, community position, legal
+        conclusion, or comprehensive coverage
   pnw_regional_engine:
     current_state: in_progress
     satisfied_when:

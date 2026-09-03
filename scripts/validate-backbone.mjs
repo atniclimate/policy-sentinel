@@ -95,6 +95,10 @@ const PRESERVED_OWNER_DIRECTION_MARKDOWN = new Map([
     "docs/15E-PNW-05-TRIBAL-POLICY-CONTEXT-SOURCE-LANDSCAPE.md",
     "bde02ceccf87554964d09b30d134b510d69777a377af9564ea46f27f82df069c",
   ],
+  [
+    "docs/POLICY-SENTINEL-REAL-SOURCE-PRERELEASE-MAX-LONG-RUN.md",
+    "7cac531c3346fc85c2eb37701ecfcb64838aa44553417c6b9c7506567978d266",
+  ],
 ]);
 const JSON_SCHEMA_DIALECT = "https://json-schema.org/draft/2020-12/schema";
 const execFileAsync = promisify(execFile);

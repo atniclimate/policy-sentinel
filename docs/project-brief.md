@@ -26,7 +26,9 @@ approved Phase B local implementation on 2026-07-30. The 2026-09-02 product-spac
 rebase retains that work as implementation evidence while separating engine,
 region, deployment, persona, and output concerns. Current progress,
 dependencies, and remaining work are recorded in
-[`ROADMAP.yaml`](../ROADMAP.yaml). Remote publishing, API registration,
+[`ROADMAP.yaml`](../ROADMAP.yaml). On 2026-09-03 the owner authorized an exact
+local real-source prerelease child lane; it does not change broad PNW item
+status or authorize publication. Remote publishing, API registration,
 provider-term acceptance, paid or third-party actions, private data, optional
 AI generation, and outbound notifications remain outside current authority.
 
@@ -40,8 +42,9 @@ engine definition of done. Their current maturity is:
 | --- | --- |
 | Integrated, synthetic only | The static application, dossier, CSV, artifact pipeline, source-health presentation, and last-known-good rules operate over three synthetic records and 575 explicitly synthetic Nation rows. |
 | Implemented but disabled | Federal Register, Washington Governor executive orders, Washington Centennial Accord, and one curated Supreme Court adapter are validated but emit no public records. |
+| Authorized local prerelease work | An additive real-source lifecycle and bounded Federal Register vertical slice are in progress behind evidence gates; they do not enter the ordinary application or artifact. |
 | Contract-only | Congress.gov, GovInfo, Regulations.gov, Oregon Legislature OData, and Washington LWS have synthetic contract evidence but no activated live adapter. |
-| Proposed | PNW region, deployment, persona, analyzed-corpus, common output-adapter, production-refresh, and publication capabilities are not implemented. |
+| Proposed | Full PNW region, deployment, persona, common output-adapter suite, production refresh, and publication capabilities are not implemented. |
 
 `ROADMAP.yaml` remains authoritative for item-level status and acceptance
 evidence.

@@ -14,13 +14,15 @@ retains its own recorded review dates.
 ## Current phase authorization
 
 The owner approved Gate G-A on 2026-07-30. Phase B local implementation under
-the retained B1-B10 stream in `docs/mvp-plan.md` may proceed. That approval does
-not authorize the successor PNW-01 tranche; `G-PNW-IMPLEMENTATION` remains
-closed until the owner names and authorizes that exact tranche. Gate A also
-does not include any other gate: remote operations, publication, API
-registration, secrets, provider-term acceptance, paid or licensed access,
-third-party contact, private material, optional AI generation, and outbound
-notifications remain unauthorized.
+the retained B1-B10 stream in `docs/mvp-plan.md` may proceed. Later exact owner
+directives separately authorized and completed PNW-01, PNW-03, PNW-04, the
+synthetic PNW-05 core, and two Federal Register reviews. On 2026-09-03 the owner
+authorized only `PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE`, the additive
+local child lane recorded in `ROADMAP.yaml`; this does not change the broad PNW
+parents. Gate A and the later scoped approvals do not include remote operations,
+publication, API registration or credentials, secrets, provider-term
+acceptance, paid or licensed access, third-party contact, private material,
+optional AI generation, or outbound notifications.
 
 ## Final decisions
 
@@ -90,6 +92,7 @@ terminology.
 | D-055 | The 2026-09-02 `SRC-FEDERAL-REGISTER` documentation review treats FederalRegister.gov published-document discovery and GovInfo official-edition custody as distinct provenance. It proposes only a metadata-first, three-tier candidate field policy: purpose-limited structured identity/date/agency/reference/topic fields; conditional bounded source text and verified relationships; and typed outbound rendition links. Public inspection, full-text bodies, images, popularity, comments, attachments, expanded dockets, contacts, sensitive locations, and undocumented fields remain excluded. OpenAPI 3.0.0 is a specification dialect, not an API semantic version; undocumented rate, retry, SLA, paging, change, terms, or CORS behavior remains unknown, and observations are dated. The review recommends only `PNW-05-SRC-FEDERAL-REGISTER-ADMISSION-REVIEW`; it does not modify the retained adapter or registry, admit or activate the source, create coverage, or open `G-PNW-SOURCE-ACTIVATION`. |
 | D-056 | The 2026-09-02 no-fetch `PNW-05-SRC-FEDERAL-REGISTER-ADMISSION-REVIEW` returns the review recommendation `NO_GO` with the single source-review disposition `evidence blocked`; it does not assert owner acceptance. A future Tier-1 published-document metadata/link contract is technically plausible, but the current source-pack is `synthetic_test_only` and cannot represent runtime source `federal-register`; API/site terms and privacy, stable paging, rates, retry/SLA/change behavior, formal response/error schemas, an accepted allowlist and selected range, real configuration/review/operation grants, three-scope health, and checksum-bound last-known-good evidence remain absent or unknown. The retained disabled adapter and dated registry prose are historical evidence only. The source remains not admitted, disabled, inactive, unbound, and absent from production artifacts; `G-PNW-SOURCE-ACTIVATION` remains closed. |
 | D-057 | Canonical-Markdown owner-input exemptions are valid only for the exact accepted path, exact SHA-256 bytes, positive Git-untracked/non-ignored custody, and absence from the current `HEAD` tree. Byte drift, a new or renamed path, ignored state, staged/intent-to-add state, tracked or committed state, or `HEAD` custody removes the exemption and causes normal validation. Failure to inventory tracked Git paths aborts validation; failure to prove untracked custody removes every exemption. Canonical Markdown may not link to a custody-exempt owner input, including through a case variant on a case-insensitive filesystem, raw HTML, or a filesystem alias. This preserves owner inputs as noncanonical evidence without allowing a reserved filename or inbound dependency to bypass repository validation. |
+| D-058 | Governed real public sources are intended first-class Policy Sentinel inputs. Synthetic SourcePackBundle 1.0.0 remains an unchanged, synthetic-test-only structural contract rather than a permanent product prohibition. The 2026-09-03 owner authorization creates only an additive `local_real_source_prerelease` child lane for a separately versioned real-source lifecycle contract, Federal Register Tier-1 exact-document pilot, bounded revision/LKG, general-jurisdiction corpus/application projection, and source-authority portfolio discovery. Qualification, admission, deployment activation, binding, operation grants, artifact eligibility, and publication remain orthogonal. Success cannot complete broad PNW-05 through PNW-10, the legacy local release candidate, PNW regional completion, or public beta; redistribution/publication and every remote, credential, private-data, AI, notification, and K0/S0/O0 convergence gate remain closed. |
 
 ## Working assumptions
 
@@ -161,15 +164,19 @@ terminology.
 | G-I | Owner approves the recipient, channel, event, content, and workflow. | Send only that outbound notification. Public-beta alerts remain in-site and in-dossier. |
 | G-J | Current primary evidence and tests validate one source's terms, attribution, schema, official status, provenance, health, and coverage behavior. | Enable that source locally. This evidence gate is source-specific and does not authorize an external action. |
 | G-RC | Every required local outcome and enabled source passes integrated schema, semantic, provenance, attribution, accessibility, failure, freshness, security, and coverage acceptance. | Mark a local release candidate accepted; it does not publish. |
+| G-PNW-05-REAL-SOURCE-PRERELEASE | **Approved 2026-09-03** only for the six bounded child outcomes and frozen request/path ledger in the current coordination record. | Implement and validate the local unpublished vertical slice. It cannot open general source activation, another source/deployment, the ordinary network-free build, redistribution, or publication. |
+| G-PNW-05-FR-TIER1-QUALIFICATION / G-PNW-05-FR-LOCAL-ACTIVATION | Current primary evidence, strict Tier-1 contract/transport, expiring residual-risk receipt, and independent review pass; then exact deployment-scoped admission/activation/operation/health/LKG receipts pass. | Qualify and activate only the exact Federal Register local prerelease operation until its receipt expiry. It does not satisfy `G-PNW-SOURCE-ACTIVATION`. |
 
-Gate G-A is satisfied by its recorded approval. The next approval depends on
-the exact blocked action: G-B for named provider terms, an API operation,
-registration, or secret; G-C for Oregon OData terms; G-D only when Idaho
-contact is required; G-E for remote or publication work; G-F for a third-party,
-licensed, or paid source; G-G for private material; G-H for optional AI; or G-I
-for outbound notification. G-J and G-RC are evidence gates resolved through
-validation, not general product questions. None is implied by the Phase B
-approval.
+Gate G-A and the exact local prerelease authority are satisfied by their
+recorded approvals. The current Federal Register qualification and local
+activation gates are objective evidence gates inside that authority. Every
+other approval still depends on the exact blocked action: G-B for named
+provider terms, an API operation, registration, or secret; G-C for Oregon
+OData terms; G-D only when Idaho contact is required; G-E for remote or
+publication work; G-F for a third-party, licensed, or paid source; G-G for
+private material; G-H for optional AI; or G-I for outbound notification. G-J
+and G-RC remain evidence gates, not general product questions. No approval
+spills into another gate.
 
 ## Historical repository inspection
 

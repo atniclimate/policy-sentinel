@@ -68,6 +68,7 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | PNW-05 Federal Register admission-review coordination | [`PNW-05-FEDERAL-REGISTER-ADMISSION-REVIEW-COORDINATION-2026-09-02.md`](development/PNW-05-FEDERAL-REGISTER-ADMISSION-REVIEW-COORDINATION-2026-09-02.md) | Records the exact no-fetch authority, protected custody, validator audit, zero-request ledger, and review evidence; cannot accept, admit, or activate a source |
 | PNW-05 Federal Register admission-review dossier | [`federal-register-admission-review-2026-09-02.md`](source-reviews/federal-register-admission-review-2026-09-02.md) | Maps every real-source predicate and authority/non-inference boundary; recommends no-go with disposition `evidence blocked`, without asserting owner acceptance |
 | PNW-05 Federal Register admission-review handoff | [`pnw-federal-register-admission-review-2026-09-02.md`](handoffs/pnw-federal-register-admission-review-2026-09-02.md) | Terminal evidence for the no-fetch review and validator closure; source remains not admitted, disabled, inactive, unbound, and non-production |
+| Current real-source prerelease coordination | [`PNW-05-REAL-SOURCE-PRERELEASE-COORDINATION-2026-09-03.md`](development/PNW-05-REAL-SOURCE-PRERELEASE-COORDINATION-2026-09-03.md) | Records the exact local child-lane authority, custody, path and request budgets, evidence gates, and stop contract; it does not authorize publication or broaden the retained parent graph |
 | K0/S0/O0 custody and D0 historical status | [`vision/README.md`](vision/README.md) | Protected bytes and convergence gates remain controlling |
 
 The completed product-space mapping and lossless B-to-PNW crosswalk remain in
@@ -99,6 +100,7 @@ transition.
 | Governed geography and configured rights seam | PNW-03 implemented as a separate synthetic `1.0.0` catalog with typed temporal relations, source-bound frames, exact grants, and reference-only projection | no real geography or rights evidence, GIS computation, legal determination, public integration, or S0 convergence |
 | Governed taxonomy and directional crosswalk seam | PNW-04 implemented as a separate synthetic `1.0.0` authority/scheme-separated catalog with exact evidence/review, direct many-to-many edges, and reference-only projection | no real ATNI/NCAI/Nation/source/community vocabulary, production classification, source activation, public integration, or position inference |
 | Governed source-pack admission seam | PNW-05 core implemented as a separate synthetic-test-only `1.0.0` closed graph with exact contract/evidence/coverage/authority/review/admission proof, scoped health/availability, typed gaps, deterministic requester projections, and no I/O | no real source qualification, access, terms acceptance, coverage, currentness, lifecycle/LKG, ingestion, analyzed corpus, activation, or publication |
+| Local real-source prerelease child lane | exact owner-authorized additive work is active, beginning with a real-source lifecycle contract; Federal Register qualification, bounded refresh/LKG, one analyzed-corpus projection, and one local application remain evidence-gated child outcomes | no parent PNW-05/06/07/08 completion, ATNI or Nation association, production activation, deployment, or publication |
 | ATNI regional registry | intended and evidence-gated | owner direction and 575 recognition evidence do not supply membership |
 | Canonical analyzed corpus and common document/web/app/structured adapters | accepted target architecture | current artifact, dossier, CSV, and app are precursors only |
 
@@ -138,8 +140,9 @@ telemetry, browser-side AI, or outbound notifications.
 | PNW-02 | Independently blocked on `G-PNW-ATNI-59-ROSTER`; PNW-01 dependency complete |
 | PNW-03 | Complete as a bounded synthetic geography/rights tranche |
 | PNW-04 | Complete as a bounded synthetic governed-taxonomy tranche |
-| PNW-05 | Synthetic structural core plus Federal Register documentation and no-fetch admission reviews complete; admission recommendation is no-go/`evidence blocked`; parent remains ready and non-complete pending separately authorized source evidence or design |
-| PNW-06 through PNW-10 | Not started behind their recorded dependencies |
+| PNW-05 | Broad parent remains ready and non-complete; an additive, exact-scope local prerelease child lane is active without changing that parent status |
+| Local real-source prerelease child lane | `PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT` is in progress; bounded Federal Register admission, refresh/LKG, analyzed-corpus projection, and local application are dependency-ordered; source-authority portfolio discovery is independently ready |
+| PNW-06 through PNW-10 | Broad parent items remain not started behind their recorded dependencies; similarly named prerelease children do not satisfy them |
 | Publication | Closed; both local product finish scopes and exact owner operations are prerequisites |
 
 The repository-backbone alignment has its own `H-REPOSITORY-BACKBONE` scope so
@@ -184,13 +187,15 @@ governance item is active or complete.
   `.codex/agents/`, and `.agents/skills/`.
 - `dist/` is generated and ignored by `npm run build`. `.cache/` is ignored
   staging. Never hand-edit or commit either.
-- The owner direction inputs `docs/00-*` through `docs/15E-*` are preserved
-  untracked, not canonical repository implementation. The backbone validator
-  exempts only the twenty exact Markdown path/SHA-256 tuples while Git confirms
+- The owner direction inputs `docs/00-*` through `docs/15E-*` plus the exact
+  2026-09-03 real-source prerelease authorization are preserved untracked, not
+  canonical repository implementation. The backbone validator exempts only the
+  twenty-one exact Markdown path/SHA-256 tuples while Git confirms
   untracked/non-ignored custody. Altered, indexed, tracked, ignored, aliased, or
   out-of-inventory Markdown is validated or rejected, and canonical Markdown
   cannot depend on an exempt input through Markdown, raw HTML, or filesystem
-  aliases.
+  aliases. Two additional non-Markdown owner inputs remain untracked, for a
+  total protected inventory of twenty-three files.
 
 ## Recovery and exact next action
 
@@ -202,18 +207,13 @@ npm run validate:roadmap
 npm run validate:backbone
 ```
 
-The PNW-05 source-pack core and both bounded Federal Register reviews are
-complete. The admission review recommends `NO_GO` with disposition
-`evidence blocked`; owner acceptance is not asserted. Parent PNW-05 remains
-non-complete and no product mutation is active. The smallest Federal Register
-reopening gate would be exact authority for
-`PNW-05-SRC-FEDERAL-REGISTER-REAL-SOURCE-CONTRACT-DESIGN`, limited to a local,
-no-fetch successor/compatibility design that can represent a real source only
-as not admitted/evidence blocked. The separately ordered
-`PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY` is also not authorized. Neither
-may begin without exact owner authority, and neither would authorize provider
-access, adapter or registry change, admission, activation, production content,
-terms action, credentials, or publication.
-Stop. Do not begin PNW-02, another source, PNW-06/07, real taxonomy/geography/
-community content, S0/K0/O0 convergence, or a remote/publication/deployment
-operation without separate exact owner authority and originating evidence.
+The owner has authorized the exact local child lane
+`PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE`. Recover its frozen boundary and
+request ledger from the current coordination record above. The exact active
+item is `PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT`; use the roadmap's ordered
+children and do not treat a child as completion evidence for its similarly
+named broad parent. The default application/build remains network-free and
+synthetic until a separate ignored prerelease build is proven. Federal Register
+qualification and local activation remain pending evidence; publication and
+every remote, credential, provider-terms, paid/contact, private-data, AI,
+notification, ATNI/Nation-association, and convergence gate remain closed.

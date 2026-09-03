@@ -35,6 +35,57 @@ const additiveStages = [
   "implementation_review",
   "completion",
 ];
+const localRealSourcePrereleaseOutcomes = [
+  "PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT",
+  "PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION",
+  "PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG",
+  "PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION",
+  "PNW-08-LOCAL-REAL-SOURCE-APPLICATION-PRERELEASE",
+  "PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY",
+];
+
+test("live roadmap isolates the local real-source prerelease child lane", () => {
+  assert.deepEqual(
+    liveRoadmap.completion_scope.local_real_source_prerelease.required_outcomes,
+    localRealSourcePrereleaseOutcomes,
+  );
+  assert.equal(
+    liveRoadmap.gates.find(({ id }) => id === "G-PNW-05-REAL-SOURCE-PRERELEASE")
+      ?.state,
+    "approved",
+  );
+  assert.equal(
+    liveRoadmap.gates.find(({ id }) => id === "G-PNW-SOURCE-ACTIVATION")?.state,
+    "closed",
+  );
+  assert.equal(liveWorkItem("PNW-05-SOURCE-PACK")?.status, "ready");
+  for (const id of [
+    "PNW-06-LIFECYCLE-REFRESH",
+    "PNW-07-ANALYZED-CORPUS",
+    "PNW-08-OUTPUT-ADAPTERS",
+    "PNW-09-ACCEPTANCE-SCENARIOS",
+    "PNW-10-REGIONAL-RC",
+  ]) {
+    assert.equal(liveWorkItem(id)?.status, "not_started");
+  }
+  assert.equal(
+    liveRoadmap.finish_states.local_release_candidate.current_state,
+    "blocked",
+  );
+  assert.equal(
+    liveRoadmap.finish_states.pnw_regional_engine.current_state,
+    "in_progress",
+  );
+  assert.equal(liveRoadmap.finish_states.public_beta.current_state, "blocked");
+
+  const federalRegister = liveRoadmap.source_register.find(
+    ({ id }) => id === "SRC-FEDERAL-REGISTER",
+  );
+  assert.equal(federalRegister?.admission, "not_admitted");
+  assert.equal(federalRegister?.activation, "inactive");
+  assert.equal(federalRegister?.binding, "unbound");
+  assert.equal(federalRegister?.publication, "not_authorized");
+});
 
 const sha256Hex = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const clone = (value) => JSON.parse(JSON.stringify(value));

@@ -42,10 +42,10 @@ course through a local release candidate are maintained in the validated
 [`ROADMAP.yaml`](ROADMAP.yaml). The external publication step remains
 separately blocked. Start repository navigation with the
 [project backbone](docs/PROJECT-BACKBONE.md). A fresh implementation session
-must use the
-[exact PNW-01 launch handoff](docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md)
-only after the owner authorizes that exact tranche; otherwise use the
-[durable continuation prompt](docs/continuation-prompt.md) for recovery.
+must use the [durable continuation prompt](docs/continuation-prompt.md) and live
+`ROADMAP.yaml` for recovery. The PNW-01 launch handoff is historical evidence;
+the currently active bounded lane is named by `current_focus` and cannot be
+expanded by an older handoff.
 
 ## Intended PNW engine
 

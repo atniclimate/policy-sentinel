@@ -1,14 +1,14 @@
 # Policy Sentinel long-running Codex continuation prompt
 
-Status: current after the 2026-09-02 PNW product-space rebase, repository
-backbone alignment, and completed local PNW-01, PNW-03, and PNW-04 synthetic
-checkpoints plus the bounded PNW-05 synthetic source-pack core and
-documentation-only Federal Register review and its metadata-only no-fetch
-admission review. That latest review recommends `NO_GO` with disposition
-`evidence blocked`; it does not assert owner acceptance. Parent PNW-05 remains
-non-complete and ready only for separately authorized source evidence or
-design. No successor tranche is active. Git and the validated `ROADMAP.yaml`
-remain authoritative over this prose and over chat memory.
+Status: current after the owner authorized the exact local
+`PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE` child lane on 2026-09-03. The
+lane is additive to the completed synthetic seams and does not change broad
+PNW-05 through PNW-08 statuses. Its first item,
+`PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT`, is active; bounded Federal Register
+qualification, refresh/LKG, one analyzed-corpus projection, one ignored local
+application, and parallel source-authority portfolio discovery remain governed
+by their recorded dependencies and evidence gates. Git and the validated
+`ROADMAP.yaml` remain authoritative over this prose and over chat memory.
 
 ## Start and recover
 
@@ -16,12 +16,15 @@ Open Codex in `I:\policy-sentinel` with `gpt-5.6-sol` at Ultra effort, then:
 
 1. Resolve the repository root and read every applicable `AGENTS.md`.
 2. Read `ROADMAP.yaml` completely before selecting work.
-3. Read `docs/PROJECT-BACKBONE.md`, `docs/pnw-scope-and-acceptance.md`, and
-   `docs/development/AGENT-AND-TOOL-OPERATING-MODEL.md` completely.
+3. Read `docs/PROJECT-BACKBONE.md`, `docs/pnw-scope-and-acceptance.md`,
+   `docs/development/AGENT-AND-TOOL-OPERATING-MODEL.md`, and
+   `docs/development/PNW-05-REAL-SOURCE-PRERELEASE-COORDINATION-2026-09-03.md`
+   completely.
 4. Read `docs/handoffs/pnw-product-space-rebase-2026-09-02.md`, the historical
    `docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md`, and the
-   current implementation/evidence handoff named by `ROADMAP.yaml`, presently
-   `docs/handoffs/pnw-federal-register-admission-review-2026-09-02.md`.
+   current implementation/evidence handoff named by `ROADMAP.yaml`. Until the
+   prerelease terminal handoff exists, use the 2026-09-03 coordination record
+   and the last Federal Register admission-review handoff together.
 5. Read the binding contract, architecture, governance, decision, source,
    review, validation, test, and handoff files relevant to the selected item.
 6. Reconcile branch, exact HEAD and parent, worktrees, status, remotes, changed
@@ -58,17 +61,14 @@ geography, proximity, sponsors, model output, or owner-direction counts.
 ## Authority boundary
 
 The 2026-07-30 Gate A authorizes only the retained B1-B10 implementation stream
-under `docs/mvp-plan.md`. Later owner directives separately authorized the exact
-local synthetic PNW-01, PNW-03, and PNW-04 tranches and the offline structural
-core inside parent PNW-05. A later directive authorized exactly
-`PNW-05-SRC-FEDERAL-REGISTER-DOC-REVIEW`; that documentation tranche is now
-consumed. The owner later authorized exactly
-`PNW-05-SRC-FEDERAL-REGISTER-ADMISSION-REVIEW` as metadata-only and no-fetch,
-including the owner-input validator audit and authority/non-inference rules.
-That review is also consumed and recommends no-go/`evidence blocked`; it did
-not authorize or perform source admission, adapter work, provider access,
-activation, or another source, and it does not assert owner acceptance. Those
-bounded decisions authorize no other PNW item, real source, or operation.
+under `docs/mvp-plan.md`. Later owner directives separately authorized and
+consumed the exact local synthetic PNW-01, PNW-03, PNW-04, PNW-05 source-pack,
+Federal Register documentation-review, and no-fetch admission-review tranches.
+On 2026-09-03 the owner supplied the exact token
+`PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE`. That token authorizes only the
+dependency-ordered local child outcomes and bounded official-source reads in
+the coordination record. It does not complete or activate the broad PNW parent
+items and does not authorize another source's activation.
 Federal Register documentation implementation/evidence commit
 `1b7f95e6aea2820d38f6cf9e74356daa00477dc7` records the dossier, current source
 indexes, decision/open fact, and owner-input validator repair without changing
@@ -78,12 +78,14 @@ implementation/evidence commit
 decision, authority/non-inference contract, and exact-custody validator repair
 without admitting or using the source. PNW-05 core implementation commit
 `6f1475dfb72a432ccfe65b16e65035df25a933d3` supplies only a closed declarative
-schema and pure reference planner. Do not treat these schemas, fixtures, or
-passing tests as source, roster, real-geography, real-taxonomy,
+schema and pure reference planner. Do not treat the earlier schemas, fixtures,
+or passing tests as source, roster, real-geography, real-taxonomy,
 production-profile, provider-contract, coverage, currentness, lifecycle,
-activation, legal, integration, or release evidence. Do not access sources
-merely to fill a gap, review or implement O0, import K0/S0/O0, change
-convergence, or proceed beyond the exact current roadmap boundary.
+activation, legal, integration, or release evidence. During the current child
+lane, access only the frozen HTTPS GET/HEAD allowlist and request budgets after
+the lifecycle contract passes both required reviews. Do not access sources
+merely to fill another gap, review or implement O0, import K0/S0/O0, change
+convergence, or proceed beyond the exact coordination boundary.
 
 Remote operations, push, Pages, publication, provider-term acceptance,
 credentials, paid calls, third-party contact, private or land data, optional AI
@@ -142,15 +144,19 @@ source, and terms/privacy/operations/schema/coverage/authority/health/LKG
 evidence remains incomplete. The source is not admitted, disabled, inactive,
 unbound, and absent from public artifacts.
 
-The smallest Federal Register reopening gate would be exact owner authority for
-`PNW-05-SRC-FEDERAL-REGISTER-REAL-SOURCE-CONTRACT-DESIGN`, limited to a local,
-no-fetch successor/compatibility design that represents the source only as not
-admitted/evidence blocked. The separately ordered
-`PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY` is also not authorized. Any
-adapter design, provider retrieval, source admission, activation, binding,
-terms action, credential, production content, or publication remains a later
-exact gate. `G-PNW-SOURCE-ACTIVATION` and every external operation gate remain
-closed; PNW-06 and PNW-07 remain not started.
+The exact current item is `PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT`. Freeze its
+candidate bytes and obtain the required source-evidence and sovereignty
+reviews before the first external request. Then follow the roadmap through the
+bounded Federal Register Tier-1 admission, refresh/LKG, canonical corpus
+projection, and ignored local prerelease application, while the authorized
+portfolio discovery may proceed independently. Keep the request ledger current:
+no more than 80 external requests overall, 30 to the Federal Register API,
+concurrency two overall and one per host, with no automatic retries and at most
+one deliberate transient retry. The default build stays network-free.
+`G-PNW-SOURCE-ACTIVATION`, broad parent completion, publication, deployment,
+credentials, provider-term acceptance, paid/contact actions, private or land
+data, AI, notifications, ATNI/Nation inference, and K0/S0/O0 convergence remain
+closed.
 
 ## Validation and terminal handoff
 

@@ -529,6 +529,13 @@ const pnwCompletionScope = requireObject(
   roadmap.completion_scope.pnw_regional_engine,
   "completion_scope.pnw_regional_engine",
 );
+const localRealSourcePrereleaseScope =
+  roadmap.completion_scope.local_real_source_prerelease === undefined
+    ? null
+    : requireObject(
+        roadmap.completion_scope.local_real_source_prerelease,
+        "completion_scope.local_real_source_prerelease",
+      );
 const repositoryBackboneScope = requireObject(
   roadmap.completion_scope.repository_backbone,
   "completion_scope.repository_backbone",
@@ -582,6 +589,32 @@ const pnwRequiredOutcomes = requireUniqueStrings(
   pnwCompletionScope.required_outcomes,
   "completion_scope.pnw_regional_engine.required_outcomes",
 );
+const expectedLocalRealSourcePrereleaseOutcomes = [
+  "PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT",
+  "PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION",
+  "PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG",
+  "PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION",
+  "PNW-08-LOCAL-REAL-SOURCE-APPLICATION-PRERELEASE",
+  "PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY",
+];
+const localRealSourcePrereleaseOutcomes =
+  localRealSourcePrereleaseScope === null
+    ? []
+    : requireUniqueStrings(
+        localRealSourcePrereleaseScope.required_outcomes,
+        "completion_scope.local_real_source_prerelease.required_outcomes",
+      );
+if (
+  localRealSourcePrereleaseScope !== null &&
+  !hasExactOrderedValues(
+    localRealSourcePrereleaseOutcomes,
+    expectedLocalRealSourcePrereleaseOutcomes,
+  )
+) {
+  fail(
+    "local real-source prerelease outcomes must preserve the exact bounded child lane",
+  );
+}
 if (!hasExactOrderedValues(pnwRequiredOutcomes, expectedPnwRequiredOutcomes)) {
   fail(
     "PNW regional required outcomes must preserve PNW-00 through PNW-10 in order",
@@ -637,6 +670,25 @@ for (const id of requiredPnwGateIds) {
     fail(`durable PNW gate is missing: ${id}`);
   }
 }
+if (localRealSourcePrereleaseScope !== null) {
+  const exactGates = new Map([
+    ["authority_gate", "G-PNW-05-REAL-SOURCE-PRERELEASE"],
+    ["qualification_gate", "G-PNW-05-FR-TIER1-QUALIFICATION"],
+    ["activation_gate", "G-PNW-05-FR-LOCAL-ACTIVATION"],
+  ]);
+  for (const [field, gateId] of exactGates) {
+    if (localRealSourcePrereleaseScope[field] !== gateId) {
+      fail(`local real-source prerelease ${field} must remain ${gateId}`);
+    }
+    if (!gateById.has(gateId)) {
+      fail(`local real-source prerelease gate is missing: ${gateId}`);
+    }
+  }
+  requireUniqueStrings(
+    localRealSourcePrereleaseScope.does_not_change,
+    "completion_scope.local_real_source_prerelease.does_not_change",
+  );
+}
 const expectedPnwDependencies = new Map([
   ["PNW-00-RECONCILE", []],
   ["PNW-01-ENGINE-SEAMS", ["PNW-00-RECONCILE"]],
@@ -670,6 +722,51 @@ for (const [id, expectedDependencies] of expectedPnwDependencies) {
     fail(`${id} dependencies do not match the durable PNW execution graph`);
   }
 }
+const expectedLocalRealSourceDependencies = new Map([
+  [
+    "PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT",
+    ["B3-PIPELINE", "PNW-01-ENGINE-SEAMS", "PNW-04-TAXONOMY"],
+  ],
+  [
+    "PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION",
+    ["PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT", "B4-FR-ADAPTER"],
+  ],
+  [
+    "PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG",
+    ["PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION"],
+  ],
+  [
+    "PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION",
+    ["PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT", "PNW-04-TAXONOMY"],
+  ],
+  [
+    "PNW-08-LOCAL-REAL-SOURCE-APPLICATION-PRERELEASE",
+    [
+      "PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG",
+      "PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION",
+    ],
+  ],
+  ["PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY", ["PNW-01-ENGINE-SEAMS"]],
+]);
+if (localRealSourcePrereleaseScope !== null) {
+  for (const [
+    id,
+    expectedDependencies,
+  ] of expectedLocalRealSourceDependencies) {
+    const item = byId.get(id);
+    if (!item) {
+      fail(`local real-source prerelease work item is missing: ${id}`);
+    }
+    if (!hasExactOrderedValues(item.dependencies, expectedDependencies)) {
+      fail(
+        `${id} dependencies do not match the bounded local prerelease graph`,
+      );
+    }
+    if (item.authorization_gate !== "G-PNW-05-REAL-SOURCE-PRERELEASE") {
+      fail(`${id} must retain G-PNW-05-REAL-SOURCE-PRERELEASE`);
+    }
+  }
+}
 if (
   byId.get("PNW-01-ENGINE-SEAMS").authorization_gate !== "G-PNW-IMPLEMENTATION"
 ) {
@@ -689,6 +786,12 @@ const completionGroups = [
   ["additive_vision_phases", additiveVisionPhases],
   ["pnw_regional_engine.required_outcomes", pnwRequiredOutcomes],
 ];
+if (localRealSourcePrereleaseScope !== null) {
+  completionGroups.push([
+    "local_real_source_prerelease.required_outcomes",
+    localRealSourcePrereleaseOutcomes,
+  ]);
+}
 const completionMembership = new Map();
 for (const [group, ids] of completionGroups) {
   for (const id of ids) {
@@ -1458,6 +1561,13 @@ const pnwFinish = requireObject(
   roadmap.finish_states.pnw_regional_engine,
   "finish_states.pnw_regional_engine",
 );
+const localRealSourcePrereleaseFinish =
+  localRealSourcePrereleaseScope === null
+    ? null
+    : requireObject(
+        roadmap.finish_states.local_real_source_prerelease,
+        "finish_states.local_real_source_prerelease",
+      );
 const repositoryBackboneFinish = requireObject(
   roadmap.finish_states.repository_backbone,
   "finish_states.repository_backbone",
@@ -1496,10 +1606,32 @@ if (!allowedFinishStates.has(pnwFinish.current_state)) {
   );
 }
 const pnwRequiredOutcomeIds = new Set(pnwRequiredOutcomes);
+const localRealSourcePrereleaseOutcomeIds = new Set(
+  localRealSourcePrereleaseOutcomes,
+);
+if (
+  localRealSourcePrereleaseFinish !== null &&
+  !allowedFinishStates.has(localRealSourcePrereleaseFinish.current_state)
+) {
+  fail(
+    "finish_states.local_real_source_prerelease.current_state is not allowed",
+  );
+}
+if (localRealSourcePrereleaseFinish !== null) {
+  requireUniqueStrings(
+    localRealSourcePrereleaseFinish.satisfied_when,
+    "finish_states.local_real_source_prerelease.satisfied_when",
+  );
+  requireUniqueStrings(
+    localRealSourcePrereleaseFinish.does_not_mean,
+    "finish_states.local_real_source_prerelease.does_not_mean",
+  );
+}
 const inProgress = workItems.filter((item) => item.status === "in_progress");
 const isTerminal = ["complete", "blocked"].includes(localFinish.current_state);
 let terminalRequiredRoots = [];
 let terminalPnwRoots = [];
+let terminalLocalRealSourcePrereleaseRoots = [];
 // A required outcome may be evidence-blocked while independent ready work
 // continues. The terminal-complete check below still requires every required
 // outcome to be complete, so an active blocker cannot weaken release
@@ -1537,6 +1669,10 @@ if (isTerminal) {
       !(
         repositoryBackboneFinish.current_state === "in_progress" &&
         repositoryBackboneOutcomeIds.has(item.id)
+      ) &&
+      !(
+        localRealSourcePrereleaseFinish?.current_state === "in_progress" &&
+        localRealSourcePrereleaseOutcomeIds.has(item.id)
       ),
   );
   if (disallowedTerminalInProgress.length !== 0) {
@@ -1689,7 +1825,8 @@ if (localFinish.current_state === "blocked") {
       (item) =>
         item.status === "ready" &&
         !additiveVisionPhases.includes(item.id) &&
-        !pnwRequiredOutcomeIds.has(item.id),
+        !pnwRequiredOutcomeIds.has(item.id) &&
+        !localRealSourcePrereleaseOutcomeIds.has(item.id),
     )
     .map((item) => item.id);
   if (nonAdditiveReadyItems.length > 0) {
@@ -1710,6 +1847,57 @@ if (pnwFinish.current_state === "complete") {
         incompletePnwOutcomes.join(", "),
     );
   }
+}
+if (localRealSourcePrereleaseFinish?.current_state === "in_progress") {
+  const activeLocalPrereleaseItems = inProgress.filter((item) =>
+    localRealSourcePrereleaseOutcomeIds.has(item.id),
+  );
+  if (activeLocalPrereleaseItems.length !== 1 || inProgress.length !== 1) {
+    fail(
+      "active local real-source prerelease requires exactly one child in_progress item",
+    );
+  }
+  terminalLocalRealSourcePrereleaseRoots = collectIncompleteOutcomeRoots(
+    localRealSourcePrereleaseOutcomes,
+  );
+}
+if (localRealSourcePrereleaseFinish?.current_state === "complete") {
+  const incomplete = localRealSourcePrereleaseOutcomes.filter(
+    (id) => byId.get(id).status !== "complete",
+  );
+  if (incomplete.length > 0) {
+    fail(
+      "local real-source prerelease is complete with incomplete outcomes: " +
+        incomplete.join(", "),
+    );
+  }
+  if (gateById.get("G-PNW-05-FR-TIER1-QUALIFICATION")?.state !== "satisfied") {
+    fail(
+      "local real-source prerelease is complete without Tier-1 qualification",
+    );
+  }
+  if (gateById.get("G-PNW-05-FR-LOCAL-ACTIVATION")?.state !== "satisfied") {
+    fail(
+      "local real-source prerelease is complete without scoped local activation",
+    );
+  }
+}
+if (localRealSourcePrereleaseFinish?.current_state === "blocked") {
+  const active = workItems.filter(
+    (item) =>
+      localRealSourcePrereleaseOutcomeIds.has(item.id) &&
+      ["ready", "in_progress"].includes(item.status),
+  );
+  if (active.length > 0) {
+    fail(
+      "blocked local real-source prerelease cannot retain ready or in_progress children: " +
+        active.map((item) => item.id).join(", "),
+    );
+  }
+  requireUniqueStrings(
+    localRealSourcePrereleaseFinish.blocked_by,
+    "finish_states.local_real_source_prerelease.blocked_by",
+  );
 }
 if (
   repositoryBackboneFinish.current_state === "in_progress" &&
@@ -1735,7 +1923,9 @@ if (pnwFinish.current_state === "in_progress") {
     }
   } else if (
     activePnwItems.length === 0 &&
-    inProgress.length === 0 &&
+    (inProgress.length === 0 ||
+      (inProgress.length === 1 &&
+        localRealSourcePrereleaseOutcomeIds.has(inProgress[0].id))) &&
     readyPnwItems.length > 0
   ) {
     // A bounded PNW tranche may end with newly dependency-ready successors
@@ -1850,7 +2040,11 @@ for (const [index, action] of nextActions.entries()) {
   requireString(action.action, `${path}.action`);
 }
 const terminalActionRoots = [
-  ...new Set([...terminalRequiredRoots, ...terminalPnwRoots]),
+  ...new Set([
+    ...terminalRequiredRoots,
+    ...terminalPnwRoots,
+    ...terminalLocalRealSourcePrereleaseRoots,
+  ]),
 ].sort((left, right) => byId.get(left).priority - byId.get(right).priority);
 if (terminalActionRoots.length > 0) {
   const nextActionIds = nextActions.map((action) => action.work_item);

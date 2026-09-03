@@ -23,9 +23,11 @@ capability. See [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md).
 
 Phase A ended when the owner approved Gate A on 2026-07-30. Phase B local
 implementation may proceed only within this retained B1-B10 plan. That approval
-does not authorize PNW-01; `G-PNW-IMPLEMENTATION` remains closed until the owner
-authorizes the exact tranche recorded in the
-[PNW-01 launch handoff](handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md).
+did not itself authorize PNW-01. Later exact owner directives authorized and
+completed PNW-01, PNW-03, PNW-04, and the synthetic PNW-05 core. The current
+2026-09-03 authorization is a separate additive local real-source prerelease
+child lane recorded in `ROADMAP.yaml`; it does not revise this retained B1-B10
+acceptance stream or complete any broad PNW parent.
 
 Approval of Phase B authorizes only local implementation described here, use of synthetic fixtures, and read-only access to official public sources that require neither registration nor acceptance of new terms. It does **not** authorize:
 

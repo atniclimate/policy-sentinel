@@ -599,6 +599,7 @@ test("validates changed reserved paths even when Git reports them untracked", as
       "15C-CASE-EXAMPLE-02-ROADLESS-RULE-RESCISSION.md",
       "15D-PNW-05-CASE-EVIDENCE-CROSSWALK.md",
       "15E-PNW-05-TRIBAL-POLICY-CONTEXT-SOURCE-LANDSCAPE.md",
+      "POLICY-SENTINEL-REAL-SOURCE-PRERELEASE-MAX-LONG-RUN.md",
     ]) {
       await writeFile(
         path.join(repositoryRoot, "docs", ownerInput),
