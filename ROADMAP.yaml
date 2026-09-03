@@ -6,8 +6,8 @@ project:
   phase: >-
     Additive RealSourceLifecycleBundle 1.0.0 contract independently byte-frozen
     and accepted; Federal Register Tier-1 exact-document qualification now in
-    progress with zero external requests issued and all activation/publication
-    authority still closed
+    progress after four bounded documentation/evidence requests, with FR-A1
+    unissued and all activation/publication authority still closed
   updated_on: "2026-09-03"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -737,7 +737,7 @@ current_focus:
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: e0fb7e4150d9a6889d74d62bfb430b7c782eaac2
+  last_durable_checkpoint: c62f9d59830362b46374dc5488b1d13ce721f5c1
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -4178,6 +4178,17 @@ work_items:
         06e06bfd397c49d600bab6d6c3eb4c1e2c07394f13544ffe193ae88385448d71 exactly
         matches the 2026-09-02 reviewed OpenAPI. FR-A1 remains unissued pending
         parser/transport, residual-risk, and independent review gates.
+      - >-
+        Commit c62f9d59830362b46374dc5488b1d13ce721f5c1 adds the exact
+        23-selector Tier-1 parser/transport, declarations, synthetic fixtures,
+        adversarial tests, and additive adapter exports. Its nine-file
+        1,130-byte manifest has SHA-256
+        3a85bf0767d7db63b8dc3566d33250d70ef2b107af46392b47860516556c9d2d;
+        root verification passed 98 new Node tests, 142 retained Federal
+        Register tests, type checking, lint, formatting, foundation, backbone,
+        roadmap, and source-boundary validation. The byte freeze is a review
+        candidate only; FR-A1 remains unissued pending three independent
+        actual-byte reviews and the complete pre-acquisition lifecycle gate.
 
   - id: PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG
     priority: 137
