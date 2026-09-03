@@ -1,7 +1,10 @@
-import { readdir, readFile, stat } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
+import { lstat, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
+import { promisify } from "node:util";
 
 const DEFAULT_REPOSITORY_ROOT = path.resolve(import.meta.dirname, "..");
 const IGNORED_DIRECTORY_NAMES = new Set([
@@ -11,35 +14,187 @@ const IGNORED_DIRECTORY_NAMES = new Set([
   "dist",
   "node_modules",
 ]);
-const PRESERVED_OWNER_DIRECTION_MARKDOWN = new Set([
-  "docs/00-READ-FIRST.md",
-  "docs/01-NORTH-STAR-AND-PRODUCT-CONTRACT.md",
-  "docs/02-PNW-REGIONAL-SCOPE-AND-AUTHORITY.md",
-  "docs/03-ENGINE-ARCHITECTURE-AND-DATA-MODEL.md",
-  "docs/04-DEFINITION-OF-DONE-AND-ACCEPTANCE.md",
-  "docs/06-REPRESENTATIVE-USE-CASES.md",
-  "docs/07-DECISIONS-GATES-AND-NON-GOALS.md",
-  "docs/08-CODEX-LONG-RUN-DIRECTIVE.md",
-  "docs/10-CODEX-PRODUCT-SPACE-REBASE-CONTINUATION.md",
-  "docs/11-CODEX-REPOSITORY-CONGRUENCE-AND-LONG-RUN-HANDOFF.md",
-  "docs/12-CODEX-PNW-03-GEOGRAPHY-RIGHTS-IMPLEMENTATION-LONG-RUN.md",
-  "docs/13-CODEX-PNW-04-TAXONOMY-IMPLEMENTATION-LONG-RUN.md",
-  "docs/14-CODEX-PNW-05-SOURCE-PACK-CORE-LONG-RUN.md",
-  "docs/14A-CODEX-PNW-05-SOURCE-PACK-CORE-CLOSEOUT.md",
-  "docs/15-CODEX-PNW-05-FEDERAL-REGISTER-DOC-REVIEW-MAX-LONG-RUN.md",
-  "docs/15A-PNW-05-SOURCE-CANDIDATE-QUALIFICATION-AND-AUTHORIZATION.md",
-  "docs/15B-CASE-EXAMPLE-01-LUMMI-POINT-ROBERTS-BROADBAND.md",
-  "docs/15C-CASE-EXAMPLE-02-ROADLESS-RULE-RESCISSION.md",
-  "docs/15D-PNW-05-CASE-EVIDENCE-CROSSWALK.md",
-  "docs/15E-PNW-05-TRIBAL-POLICY-CONTEXT-SOURCE-LANDSCAPE.md",
+const PRESERVED_OWNER_DIRECTION_MARKDOWN = new Map([
+  [
+    "docs/00-READ-FIRST.md",
+    "88f6967bf9655c02e2b598011f437e9c0ed7415b3c722fe537ffa7171095f6fa",
+  ],
+  [
+    "docs/01-NORTH-STAR-AND-PRODUCT-CONTRACT.md",
+    "22738dfd2d2362cffd5071d2553aea907ded5b0f734c917dcf6b4b1a80da9b52",
+  ],
+  [
+    "docs/02-PNW-REGIONAL-SCOPE-AND-AUTHORITY.md",
+    "b0f9dfd54b126cd94f6236976edd20c66f697a665236a5a17eafc863090f3556",
+  ],
+  [
+    "docs/03-ENGINE-ARCHITECTURE-AND-DATA-MODEL.md",
+    "67abb72b8f3c816af0c9582a34ced6da0f74cbd986f6339c7e9e01171e0bfe9b",
+  ],
+  [
+    "docs/04-DEFINITION-OF-DONE-AND-ACCEPTANCE.md",
+    "0ca69a5f78e5e0f6fc21e4786f77228b033afab2f54755d1b30ee63492645a41",
+  ],
+  [
+    "docs/06-REPRESENTATIVE-USE-CASES.md",
+    "ba7bd9911f6a8f5b5a7eaba17de366f03d1f298e7648d463fe5a456781d55965",
+  ],
+  [
+    "docs/07-DECISIONS-GATES-AND-NON-GOALS.md",
+    "9677dfe181f64db80009bd3bf469b3aef756e9cc3829536bc2461c0d8c9e012a",
+  ],
+  [
+    "docs/08-CODEX-LONG-RUN-DIRECTIVE.md",
+    "afdefa2dc2bfdea37edd345ceef07dd11b97a910e45e2b5c51d052035533b29f",
+  ],
+  [
+    "docs/10-CODEX-PRODUCT-SPACE-REBASE-CONTINUATION.md",
+    "0110be885473a7b5287eaa7cc8ff864b10a21409b2f62b5d8bb667a8ae2b68b3",
+  ],
+  [
+    "docs/11-CODEX-REPOSITORY-CONGRUENCE-AND-LONG-RUN-HANDOFF.md",
+    "9a49eecddbc626190e7d5a9f445c0e14348d2aa63fb4c0edc6f757572c6cadc3",
+  ],
+  [
+    "docs/12-CODEX-PNW-03-GEOGRAPHY-RIGHTS-IMPLEMENTATION-LONG-RUN.md",
+    "84fcb0bf60021c75c7e87b2b61d1e8b066b3c9b63a7ecf4a7dfd1e49315d9959",
+  ],
+  [
+    "docs/13-CODEX-PNW-04-TAXONOMY-IMPLEMENTATION-LONG-RUN.md",
+    "e82c88fddd781e2fffccb8871c1dc30502ebf7838d0efb167d4a50a6e6e0555a",
+  ],
+  [
+    "docs/14-CODEX-PNW-05-SOURCE-PACK-CORE-LONG-RUN.md",
+    "6146b2e478caf484e702e48f4412d2cbeb8f461212f53cf63862e61d573c12f6",
+  ],
+  [
+    "docs/14A-CODEX-PNW-05-SOURCE-PACK-CORE-CLOSEOUT.md",
+    "b8ddbb2e2f34d7e4221ebda7065105cc1a3563be6618ba7660459ea1c4134bd2",
+  ],
+  [
+    "docs/15-CODEX-PNW-05-FEDERAL-REGISTER-DOC-REVIEW-MAX-LONG-RUN.md",
+    "508c6b8ec3f69e57eceb81b44a4510ae59e514b48c9dee9ef93e6319c24b08c2",
+  ],
+  [
+    "docs/15A-PNW-05-SOURCE-CANDIDATE-QUALIFICATION-AND-AUTHORIZATION.md",
+    "eda4148c38480081e29b119ecf4c6df7c051cbb235632af93a3e2d740b807b89",
+  ],
+  [
+    "docs/15B-CASE-EXAMPLE-01-LUMMI-POINT-ROBERTS-BROADBAND.md",
+    "e6e255ae5956c9f685fd840b26b6f3e827553e02f750edd0da043a9955597743",
+  ],
+  [
+    "docs/15C-CASE-EXAMPLE-02-ROADLESS-RULE-RESCISSION.md",
+    "45c716302379c30eef79307f843d7d982350e2da6debb5a5becf7fb3ddcd7c9e",
+  ],
+  [
+    "docs/15D-PNW-05-CASE-EVIDENCE-CROSSWALK.md",
+    "61010682c331836619a01c8afaa172c9e82e0b6860de6c3907406aedfce14eda",
+  ],
+  [
+    "docs/15E-PNW-05-TRIBAL-POLICY-CONTEXT-SOURCE-LANDSCAPE.md",
+    "bde02ceccf87554964d09b30d134b510d69777a377af9564ea46f27f82df069c",
+  ],
 ]);
 const JSON_SCHEMA_DIALECT = "https://json-schema.org/draft/2020-12/schema";
+const execFileAsync = promisify(execFile);
 
 const isObject = (value) =>
   value !== null && typeof value === "object" && !Array.isArray(value);
 
 const repositoryPath = (repositoryRoot, filePath) =>
   path.relative(repositoryRoot, filePath).split(path.sep).join("/");
+
+const sha256 = (contents) =>
+  createHash("sha256").update(contents).digest("hex");
+
+const listUntrackedRepositoryPaths = async (repositoryRoot) => {
+  try {
+    const { stdout } = await execFileAsync(
+      "git",
+      [
+        "-C",
+        repositoryRoot,
+        "ls-files",
+        "--others",
+        "--exclude-standard",
+        "-z",
+      ],
+      {
+        encoding: "utf8",
+        maxBuffer: 8 * 1024 * 1024,
+        windowsHide: true,
+      },
+    );
+    return new Set(
+      stdout
+        .split("\0")
+        .filter(Boolean)
+        .map((filePath) => filePath.replaceAll("\\", "/")),
+    );
+  } catch {
+    // Without positive Git custody evidence no Markdown file is exempt.
+    return new Set();
+  }
+};
+
+const listTrackedRepositoryPaths = async (repositoryRoot) => {
+  const { stdout } = await execFileAsync(
+    "git",
+    ["-C", repositoryRoot, "ls-files", "-z"],
+    {
+      encoding: "utf8",
+      maxBuffer: 8 * 1024 * 1024,
+      windowsHide: true,
+    },
+  );
+  return new Set(
+    stdout
+      .split("\0")
+      .filter(Boolean)
+      .map((filePath) => filePath.replaceAll("\\", "/")),
+  );
+};
+
+const listHeadRepositoryPaths = async (repositoryRoot) => {
+  const { stdout } = await execFileAsync(
+    "git",
+    ["-C", repositoryRoot, "ls-tree", "-r", "--name-only", "-z", "HEAD"],
+    {
+      encoding: "utf8",
+      maxBuffer: 8 * 1024 * 1024,
+      windowsHide: true,
+    },
+  );
+  return new Set(
+    stdout
+      .split("\0")
+      .filter(Boolean)
+      .map((filePath) => filePath.replaceAll("\\", "/")),
+  );
+};
+
+export const matchesOwnerInputCustody = ({
+  expectedSha256,
+  fileContents,
+  repositoryRelativePath,
+  untrackedPaths,
+}) =>
+  typeof expectedSha256 === "string" &&
+  expectedSha256.length === 64 &&
+  untrackedPaths instanceof Set &&
+  untrackedPaths.has(repositoryRelativePath) &&
+  sha256(fileContents) === expectedSha256;
+
+export const isExcludedOwnerInputDependency = ({
+  excludedOwnerInputPaths,
+  repositoryRelativeTarget,
+}) =>
+  excludedOwnerInputPaths instanceof Set &&
+  [...excludedOwnerInputPaths].some(
+    (ownerInputPath) =>
+      ownerInputPath.toLowerCase() === repositoryRelativeTarget.toLowerCase(),
+  );
 
 const isWithin = (root, candidate) => {
   const relative = path.relative(root, candidate);
@@ -53,6 +208,7 @@ const walkFiles = async (
   directory,
   accept,
   ignoredDirectoryNames = new Set(),
+  { rejectSymbolicLinks = false } = {},
 ) => {
   const files = [];
   const visit = async (current) => {
@@ -61,6 +217,11 @@ const walkFiles = async (
     for (const entry of entries) {
       const entryPath = path.resolve(current, entry.name);
       if (entry.isSymbolicLink()) {
+        if (rejectSymbolicLinks && !ignoredDirectoryNames.has(entry.name)) {
+          throw new Error(
+            `symbolic link is not allowed in the authored Markdown tree: ${entryPath}`,
+          );
+        }
         continue;
       }
       if (entry.isDirectory()) {
@@ -441,6 +602,133 @@ export const extractMarkdownDestinations = (markdown) => {
   return destinations;
 };
 
+const RAW_HTML_TAG_NAMES = new Set([
+  "a",
+  "abbr",
+  "address",
+  "area",
+  "article",
+  "aside",
+  "audio",
+  "b",
+  "base",
+  "bdi",
+  "bdo",
+  "blockquote",
+  "body",
+  "br",
+  "button",
+  "canvas",
+  "caption",
+  "cite",
+  "code",
+  "col",
+  "colgroup",
+  "data",
+  "datalist",
+  "dd",
+  "del",
+  "details",
+  "dfn",
+  "dialog",
+  "div",
+  "dl",
+  "dt",
+  "em",
+  "embed",
+  "fieldset",
+  "figcaption",
+  "figure",
+  "footer",
+  "form",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "head",
+  "header",
+  "hgroup",
+  "hr",
+  "html",
+  "i",
+  "iframe",
+  "img",
+  "input",
+  "ins",
+  "kbd",
+  "label",
+  "legend",
+  "li",
+  "link",
+  "main",
+  "map",
+  "mark",
+  "menu",
+  "meta",
+  "meter",
+  "nav",
+  "noscript",
+  "object",
+  "ol",
+  "optgroup",
+  "option",
+  "output",
+  "p",
+  "picture",
+  "pre",
+  "progress",
+  "q",
+  "rp",
+  "rt",
+  "ruby",
+  "s",
+  "samp",
+  "script",
+  "search",
+  "section",
+  "select",
+  "slot",
+  "small",
+  "source",
+  "span",
+  "strong",
+  "style",
+  "sub",
+  "summary",
+  "sup",
+  "table",
+  "tbody",
+  "td",
+  "template",
+  "textarea",
+  "tfoot",
+  "th",
+  "thead",
+  "time",
+  "title",
+  "tr",
+  "track",
+  "u",
+  "ul",
+  "var",
+  "video",
+  "wbr",
+]);
+
+export const extractRawHtmlTags = (markdown) => {
+  const source = stripMarkdownCode(markdown).replace(/<!--[\s\S]*?-->/gu, "");
+  return [...source.matchAll(/<([A-Za-z][A-Za-z0-9-]*)(?:\s[^<>]*)?\/?>/gu)]
+    .filter(
+      ([tag, tagName]) =>
+        RAW_HTML_TAG_NAMES.has(tagName.toLowerCase()) ||
+        tagName.includes("-") ||
+        /\s[A-Za-z_:][A-Za-z0-9:._-]*\s*=/u.test(tag),
+    )
+    .map(([tag]) => tag);
+};
+
 const localMarkdownPath = (destination) => {
   const trimmed = destination.trim();
   if (
@@ -463,18 +751,106 @@ const localMarkdownPath = (destination) => {
   }
 };
 
-export const validateMarkdownLinks = async (repositoryRoot) => {
+const findSymbolicLinkSegment = async (root, target) => {
+  let current = root;
+  for (const segment of path.relative(root, target).split(path.sep)) {
+    if (segment === "") {
+      continue;
+    }
+    current = path.resolve(current, segment);
+    try {
+      if ((await lstat(current)).isSymbolicLink()) {
+        return repositoryPath(root, current);
+      }
+    } catch {
+      return null;
+    }
+  }
+  return null;
+};
+
+export const validateMarkdownLinksWithOwnerManifest = async (
+  repositoryRoot,
+  ownerDirectionManifest,
+) => {
+  if (!(ownerDirectionManifest instanceof Map)) {
+    throw new TypeError("owner direction manifest must be a Map");
+  }
   const root = path.resolve(repositoryRoot);
   let markdownFiles;
+  let canonicalMarkdownPathKeys;
+  const excludedOwnerInputPaths = new Set();
   try {
     const discoveredMarkdownFiles = await walkFiles(
       root,
       (filePath) => filePath.toLowerCase().endsWith(".md"),
       IGNORED_DIRECTORY_NAMES,
+      { rejectSymbolicLinks: true },
     );
-    markdownFiles = discoveredMarkdownFiles.filter(
-      (filePath) =>
-        !PRESERVED_OWNER_DIRECTION_MARKDOWN.has(repositoryPath(root, filePath)),
+    const discoveredMarkdownPathKeys = new Set(
+      discoveredMarkdownFiles.map((filePath) =>
+        repositoryPath(root, filePath).toLowerCase(),
+      ),
+    );
+    const trackedPaths = await listTrackedRepositoryPaths(root);
+    const headPaths = await listHeadRepositoryPaths(root);
+    for (const trackedPath of trackedPaths) {
+      if (
+        trackedPath.toLowerCase().endsWith(".md") &&
+        !discoveredMarkdownPathKeys.has(trackedPath.toLowerCase())
+      ) {
+        throw new Error(
+          `tracked Markdown is outside the authored inventory: ${trackedPath}`,
+        );
+      }
+    }
+    for (const headPath of headPaths) {
+      if (
+        !headPath.toLowerCase().endsWith(".md") ||
+        discoveredMarkdownPathKeys.has(headPath.toLowerCase())
+      ) {
+        continue;
+      }
+      try {
+        await lstat(path.resolve(root, headPath));
+      } catch {
+        continue;
+      }
+      throw new Error(
+        `HEAD-tracked Markdown present outside the authored inventory: ${headPath}`,
+      );
+    }
+    const headPathKeys = new Set(
+      [...headPaths].map((headPath) => headPath.toLowerCase()),
+    );
+    const untrackedPaths = new Set(
+      [...(await listUntrackedRepositoryPaths(root))].filter(
+        (untrackedPath) => !headPathKeys.has(untrackedPath.toLowerCase()),
+      ),
+    );
+    const includedMarkdownFiles = [];
+    for (const filePath of discoveredMarkdownFiles) {
+      const repositoryRelativePath = repositoryPath(root, filePath);
+      const expectedSha256 = ownerDirectionManifest.get(repositoryRelativePath);
+      if (
+        expectedSha256 &&
+        matchesOwnerInputCustody({
+          expectedSha256,
+          fileContents: await readFile(filePath),
+          repositoryRelativePath,
+          untrackedPaths,
+        })
+      ) {
+        excludedOwnerInputPaths.add(repositoryRelativePath);
+        continue;
+      }
+      includedMarkdownFiles.push(filePath);
+    }
+    markdownFiles = includedMarkdownFiles;
+    canonicalMarkdownPathKeys = new Set(
+      markdownFiles.map((filePath) =>
+        repositoryPath(root, filePath).toLowerCase(),
+      ),
     );
   } catch (error) {
     throw new BackboneValidationError("Markdown link", [
@@ -487,6 +863,12 @@ export const validateMarkdownLinks = async (repositoryRoot) => {
   for (const markdownFile of markdownFiles) {
     const relativeFile = repositoryPath(root, markdownFile);
     const markdown = await readFile(markdownFile, "utf8");
+    const rawHtmlTagCount = extractRawHtmlTags(markdown).length;
+    if (rawHtmlTagCount > 0) {
+      issues.push(
+        `${relativeFile} uses ${rawHtmlTagCount} raw HTML tag(s); use Markdown syntax`,
+      );
+    }
     for (const destination of extractMarkdownDestinations(markdown)) {
       const localPath = localMarkdownPath(destination);
       if (localPath === null) {
@@ -500,10 +882,38 @@ export const validateMarkdownLinks = async (repositoryRoot) => {
         );
         continue;
       }
+      const symbolicLinkSegment = await findSymbolicLinkSegment(root, target);
+      if (symbolicLinkSegment !== null) {
+        issues.push(
+          `${relativeFile} link traverses a symbolic link: ${destination} (${symbolicLinkSegment})`,
+        );
+        continue;
+      }
       try {
-        await stat(target);
+        await lstat(target);
       } catch {
         issues.push(`${relativeFile} has a missing local link: ${destination}`);
+        continue;
+      }
+      if (
+        isExcludedOwnerInputDependency({
+          excludedOwnerInputPaths,
+          repositoryRelativeTarget: repositoryPath(root, target),
+        })
+      ) {
+        issues.push(
+          `${relativeFile} links to a noncanonical preserved owner input: ${destination}`,
+        );
+        continue;
+      }
+      const repositoryRelativeTarget = repositoryPath(root, target);
+      if (
+        repositoryRelativeTarget.toLowerCase().endsWith(".md") &&
+        !canonicalMarkdownPathKeys.has(repositoryRelativeTarget.toLowerCase())
+      ) {
+        issues.push(
+          `${relativeFile} links to Markdown outside the canonical inventory: ${destination}`,
+        );
       }
     }
   }
@@ -514,6 +924,12 @@ export const validateMarkdownLinks = async (repositoryRoot) => {
 
   return Object.freeze({ markdownFiles: markdownFiles.length, localLinks });
 };
+
+export const validateMarkdownLinks = async (repositoryRoot) =>
+  validateMarkdownLinksWithOwnerManifest(
+    repositoryRoot,
+    PRESERVED_OWNER_DIRECTION_MARKDOWN,
+  );
 
 export const validateBackbone = async (repositoryRoot) => {
   const root = path.resolve(repositoryRoot);

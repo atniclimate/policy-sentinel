@@ -65,6 +65,9 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | PNW-05 Federal Register documentation-review coordination | [`PNW-05-FEDERAL-REGISTER-DOC-REVIEW-COORDINATION-2026-09-02.md`](development/PNW-05-FEDERAL-REGISTER-DOC-REVIEW-COORDINATION-2026-09-02.md) | Records the exact authorization, protected worktree, path/request budgets, agent scopes, and evidence ledger; cannot admit or activate a source |
 | PNW-05 Federal Register documentation dossier | [`federal-register-api-2026-09-02.md`](source-reviews/federal-register-api-2026-09-02.md) | Current primary-documentation, field-policy, rights, operations, and case-boundary evidence; recommends only a separately authorized bounded admission review |
 | PNW-05 Federal Register documentation-review handoff | [`pnw-federal-register-doc-review-2026-09-02.md`](handoffs/pnw-federal-register-doc-review-2026-09-02.md) | Terminal evidence for documentation review only; source remains disabled, not admitted, inactive, and non-production |
+| PNW-05 Federal Register admission-review coordination | [`PNW-05-FEDERAL-REGISTER-ADMISSION-REVIEW-COORDINATION-2026-09-02.md`](development/PNW-05-FEDERAL-REGISTER-ADMISSION-REVIEW-COORDINATION-2026-09-02.md) | Records the exact no-fetch authority, protected custody, validator audit, zero-request ledger, and review evidence; cannot accept, admit, or activate a source |
+| PNW-05 Federal Register admission-review dossier | [`federal-register-admission-review-2026-09-02.md`](source-reviews/federal-register-admission-review-2026-09-02.md) | Maps every real-source predicate and authority/non-inference boundary; recommends no-go with disposition `evidence blocked`, without asserting owner acceptance |
+| PNW-05 Federal Register admission-review handoff | [`pnw-federal-register-admission-review-2026-09-02.md`](handoffs/pnw-federal-register-admission-review-2026-09-02.md) | Terminal evidence for the no-fetch review and validator closure; source remains not admitted, disabled, inactive, unbound, and non-production |
 | K0/S0/O0 custody and D0 historical status | [`vision/README.md`](vision/README.md) | Protected bytes and convergence gates remain controlling |
 
 The completed product-space mapping and lossless B-to-PNW crosswalk remain in
@@ -85,7 +88,7 @@ transition.
 | --- | --- | --- |
 | Static Preact app, hash routes, search/filter, details, dossier, CSV | implemented and validated against synthetic input | no public beta, real Nation registry, or complete output-adapter suite |
 | Artifact pipeline, `PolicyRecord 1.4`, registry 1.19, package 1.4, provenance, health, integrity, last-known-good | implemented local substrate | no canonical analyzed corpus or regional engine |
-| Federal Register, Washington Governor, Centennial Accord, curated Supreme Court adapters | implemented and tested but disabled; Federal Register also has a current 2026-09-02 documentation-only candidate review | no source admission, activation, production records, or coverage; a review does not revalidate a retained adapter |
+| Federal Register, Washington Governor, Centennial Accord, curated Supreme Court adapters | implemented and tested but disabled; Federal Register documentation plus its no-fetch admission review recommend no-go with disposition `evidence blocked` | no source admission, activation, production records, or coverage; a review does not revalidate a retained adapter or assert owner acceptance |
 | Congress, GovInfo, Regulations.gov, Oregon OData, Washington LWS contract families | repository-owned synthetic/offline contracts | no live adapter or provider authority |
 | BIA recognition-notice parser | validates 577 displayed paragraphs and fails closed | no reconciled 575-identity production registry |
 | K0 | implemented and complete as isolated additive lifecycle/assertion work | no product convergence |
@@ -135,7 +138,7 @@ telemetry, browser-side AI, or outbound notifications.
 | PNW-02 | Independently blocked on `G-PNW-ATNI-59-ROSTER`; PNW-01 dependency complete |
 | PNW-03 | Complete as a bounded synthetic geography/rights tranche |
 | PNW-04 | Complete as a bounded synthetic governed-taxonomy tranche |
-| PNW-05 | Synthetic structural core and Federal Register documentation review complete; parent remains ready and non-complete pending separately authorized source admission/onboarding evidence |
+| PNW-05 | Synthetic structural core plus Federal Register documentation and no-fetch admission reviews complete; admission recommendation is no-go/`evidence blocked`; parent remains ready and non-complete pending separately authorized source evidence or design |
 | PNW-06 through PNW-10 | Not started behind their recorded dependencies |
 | Publication | Closed; both local product finish scopes and exact owner operations are prerequisites |
 
@@ -167,6 +170,14 @@ governance item is active or complete.
   and its coordination/handoff. These documentation artifacts do not modify or
   authorize the existing registry entry, disabled adapter, source-pack binding,
   provider retrieval, admission, activation, or production output.
+- PNW-05 Federal Register admission-review evidence:
+  [`federal-register-admission-review-2026-09-02.md`](source-reviews/federal-register-admission-review-2026-09-02.md)
+  and its coordination/handoff. The review recommends no-go with disposition
+  `evidence blocked`; it does not assert owner acceptance or authorize a source
+  mutation. Its validator repair binds the owner-input exemption to exact bytes,
+  Git-untracked custody, and absence from the current `HEAD` tree, then rejects
+  canonical alias/dependency paths and standard/custom-element raw HTML opening
+  tags or unknown tags with assigned attributes.
 - Isolated additive work: `src/kernel/` (K0) and
   `src/experimental/spatial/` (S0).
 - Codex environment: `.codex/hooks.json`, `.codex/config.toml`,
@@ -175,8 +186,11 @@ governance item is active or complete.
   staging. Never hand-edit or commit either.
 - The owner direction inputs `docs/00-*` through `docs/15E-*` are preserved
   untracked, not canonical repository implementation. The backbone validator
-  excludes their exact known paths rather than treating their links as
-  repository truth.
+  exempts only the twenty exact Markdown path/SHA-256 tuples while Git confirms
+  untracked/non-ignored custody. Altered, indexed, tracked, ignored, aliased, or
+  out-of-inventory Markdown is validated or rejected, and canonical Markdown
+  cannot depend on an exempt input through Markdown, raw HTML, or filesystem
+  aliases.
 
 ## Recovery and exact next action
 
@@ -188,13 +202,18 @@ npm run validate:roadmap
 npm run validate:backbone
 ```
 
-The PNW-05 source-pack core and the documentation-only Federal Register review
-are complete at their bounded checkpoints, but parent PNW-05 remains
-non-complete and no product mutation is active. The smallest recommended next
-authority is exactly `PNW-05-SRC-FEDERAL-REGISTER-ADMISSION-REVIEW`, limited to
-a metadata-only no-fetch admission decision and the dossier's explicit unknowns.
-It would not authorize an adapter change, automatic admission, activation,
-binding, production content, terms acceptance, credentials, or publication.
+The PNW-05 source-pack core and both bounded Federal Register reviews are
+complete. The admission review recommends `NO_GO` with disposition
+`evidence blocked`; owner acceptance is not asserted. Parent PNW-05 remains
+non-complete and no product mutation is active. The smallest Federal Register
+reopening gate would be exact authority for
+`PNW-05-SRC-FEDERAL-REGISTER-REAL-SOURCE-CONTRACT-DESIGN`, limited to a local,
+no-fetch successor/compatibility design that can represent a real source only
+as not admitted/evidence blocked. The separately ordered
+`PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY` is also not authorized. Neither
+may begin without exact owner authority, and neither would authorize provider
+access, adapter or registry change, admission, activation, production content,
+terms action, credentials, or publication.
 Stop. Do not begin PNW-02, another source, PNW-06/07, real taxonomy/geography/
 community content, S0/K0/O0 convergence, or a remote/publication/deployment
 operation without separate exact owner authority and originating evidence.

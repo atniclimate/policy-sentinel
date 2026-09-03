@@ -4,8 +4,9 @@ project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
   phase: >-
-    PNW-05 Federal Register primary-documentation review complete; source
-    admission and activation authorization required
+    PNW-05 Federal Register metadata-only admission review complete with review
+    recommendation NO_GO and disposition evidence blocked; source not admitted,
+    owner acceptance not asserted, and every successor action closed
   updated_on: "2026-09-02"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -679,22 +680,21 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Preserve the validated PNW-05-SRC-FEDERAL-REGISTER-DOC-REVIEW checkpoint and
-    every closed source boundary while awaiting separate exact authority for a
-    metadata-only Federal Register admission review or another named tranche.
+    Preserve the validated PNW-05-SRC-FEDERAL-REGISTER-ADMISSION-REVIEW
+    checkpoint and every closed source boundary while awaiting separate exact
+    owner authority for a named source-evidence or contract-design tranche.
   terminal_reason: >-
-    PNW-05-SRC-FEDERAL-REGISTER-DOC-REVIEW completed in implementation commit
-    1b7f95e6aea2820d38f6cf9e74356daa00477dc7 with exact independent disposition
-    APPROVE_PNW05_FR_DOC_REVIEW_CANDIDATE and terminal disposition
-    PNW_05_FEDERAL_REGISTER_DOC_REVIEW_COMPLETE_ACTIVATION_AUTHORIZATION_REQUIRED.
-    It is documentation evidence only; the parent remains non-complete, and the
-    source remains disabled, not admitted, inactive, and non-production.
+    PNW-05-SRC-FEDERAL-REGISTER-ADMISSION-REVIEW completed with review
+    recommendation NO_GO, the single source-review disposition evidence blocked,
+    and independent verdict APPROVE_PNW05_FR_ADMISSION_REVIEW_CANDIDATE. Owner
+    acceptance is not asserted. The source remains not admitted, disabled,
+    inactive, unbound, and non-production; no successor tranche is authorized.
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 1b7f95e6aea2820d38f6cf9e74356daa00477dc7
+  last_durable_checkpoint: 10489fe9fce00e37dc2cb074f448f416c691db8d
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -4030,6 +4030,14 @@ work_items:
         not automatic PNW activation or completion credit.
     evidence:
       - >-
+        Owner message on 2026-09-02 authorizes exactly
+        PNW-05-SRC-FEDERAL-REGISTER-ADMISSION-REVIEW as a metadata-only,
+        no-fetch review under the current Federal Register handoff, including
+        the validator-exclusion audit and authority/non-inference rules. It
+        expressly prohibits adapter work, source admission or activation,
+        retrieval, credentials, terms action, production content, publication,
+        and every other tranche.
+      - >-
         The owner authorized only the offline synthetic source-pack-core slice
         in docs/14-CODEX-PNW-05-SOURCE-PACK-CORE-LONG-RUN.md on 2026-09-02; the
         frozen contract and custody record is
@@ -4127,6 +4135,52 @@ work_items:
         retained adapter, all source schemas/runtime/fixtures, public artifacts,
         owner inputs, K0/S0/O0, and every
         admission/activation/external/convergence gate remain unchanged.
+      - >-
+        The metadata-only, no-fetch Federal Register admission review is
+        recorded in
+        docs/source-reviews/federal-register-admission-review-2026-09-02.md and
+        its coordination and handoff records. It recommends NO_GO with the one
+        source-review disposition evidence blocked; owner acceptance is not
+        asserted. Documented candidate history is 1994-forward, selected range
+        is none, and emitted range/count is none/zero.
+      - >-
+        SourcePackBundle 1.0.0 and source-pack runtime remain
+        synthetic_test_only and reject non-synthetic API-backed runtime source
+        federal-register with INVALID_SYNTHETIC_TRUST. API-specific terms and
+        privacy, stable paging, numeric rates, retry/timeout/SLA/change
+        behavior, formal response/error schemas, an accepted allowlist and
+        selected range, real authority/review/operation grants, three-scope
+        health, and a checksum-bound last-known-good shard remain absent or
+        unresolved. The retained disabled adapter and dated registry prose
+        remain historical evidence only.
+      - >-
+        The canonical-Markdown validator now exempts an owner input only by an
+        exact path/SHA-256 tuple, positive Git-untracked/non-ignored custody,
+        and absence from the current HEAD tree. It rejects staged-deletion
+        aliases, canonical inbound dependencies, case aliases,
+        standard/custom-element raw HTML or assigned-attribute tags,
+        symlink/junction traversal, hidden tracked Markdown, and existing
+        out-of-inventory Markdown. The focused validator suite passed all 25
+        tests, and live backbone validation passed 13 schemas, 13 IDs, 924
+        references, 70 canonical Markdown files, and 295 local links.
+      - >-
+        Independent source-evidence review returned NO_GO/evidence blocked. The
+        separate sovereignty/adversarial reviewer returned exact
+        APPROVE_PNW05_FR_ADMISSION_REVIEW_CANDIDATE and found no remaining
+        material authority, non-inference, privacy, provenance, lifecycle,
+        false-completion, custody, or scope defect. Both are reviewer
+        recommendations, not owner acceptance.
+      - >-
+        Hooks passed 9 of 9. The terminal all-in-one check used a task-specific
+        temporary Node compile cache and one Vitest worker, then passed
+        formatting, lint, typecheck, roadmap, backbone, source-boundary,
+        foundation, all 83 test files and 1,335 tests, build, and artifact
+        validation. The timing-sensitive pipeline child separately passed all
+        105 tests and then passed inside the terminal check. The final build
+        contains 3 synthetic records, exactly 575 synthetic Nations, and 8
+        hashed assets at build ID synthetic-1da7380bf8aab802f04d. No browser
+        check applies because no UI, interaction, source runtime, or artifact
+        contract changed.
 
   - id: PNW-06-LIFECYCLE-REFRESH
     priority: 136
@@ -4645,13 +4699,15 @@ next_actions:
   - order: 6
     work_item: PNW-05-SOURCE-PACK
     action: >-
-      Continue only under separate exact owner authorization for a named
-      source/tranche. The smallest recommended Federal Register step is
-      PNW-05-SRC-FEDERAL-REGISTER-ADMISSION-REVIEW: a metadata-only, no-fetch
-      mapping and go/no-go decision that reconciles the dossier's explicit
-      terms/operations unknowns with the retained disabled B-series
-      configuration. It does not authorize adapter work, admission, activation,
-      binding, production content, credentials, terms action, or publication.
+      The Federal Register admission review is complete with recommendation
+      NO_GO/evidence blocked and no owner acceptance asserted. Continue only
+      under separate exact owner authorization for a named tranche. The prior
+      project candidate PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY remains
+      separate; the smallest Federal Register reopening would be
+      PNW-05-SRC-FEDERAL-REGISTER-REAL-SOURCE-CONTRACT-DESIGN, local and
+      no-fetch only. Neither is authorized, and neither permits registry/adapter
+      work, source admission, binding, activation, provider access, credentials,
+      terms action, production content, or publication.
 finish_states:
   repository_backbone:
     current_state: complete

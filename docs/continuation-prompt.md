@@ -3,10 +3,12 @@
 Status: current after the 2026-09-02 PNW product-space rebase, repository
 backbone alignment, and completed local PNW-01, PNW-03, and PNW-04 synthetic
 checkpoints plus the bounded PNW-05 synthetic source-pack core and
-documentation-only Federal Register review. Parent PNW-05 remains non-complete
-and ready only for separately authorized source admission/onboarding evidence.
-No successor tranche is active. Git and the validated `ROADMAP.yaml` remain
-authoritative over this prose and over chat memory.
+documentation-only Federal Register review and its metadata-only no-fetch
+admission review. That latest review recommends `NO_GO` with disposition
+`evidence blocked`; it does not assert owner acceptance. Parent PNW-05 remains
+non-complete and ready only for separately authorized source evidence or
+design. No successor tranche is active. Git and the validated `ROADMAP.yaml`
+remain authoritative over this prose and over chat memory.
 
 ## Start and recover
 
@@ -19,7 +21,7 @@ Open Codex in `I:\policy-sentinel` with `gpt-5.6-sol` at Ultra effort, then:
 4. Read `docs/handoffs/pnw-product-space-rebase-2026-09-02.md`, the historical
    `docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md`, and the
    current implementation/evidence handoff named by `ROADMAP.yaml`, presently
-   `docs/handoffs/pnw-federal-register-doc-review-2026-09-02.md`.
+   `docs/handoffs/pnw-federal-register-admission-review-2026-09-02.md`.
 5. Read the binding contract, architecture, governance, decision, source,
    review, validation, test, and handoff files relevant to the selected item.
 6. Reconcile branch, exact HEAD and parent, worktrees, status, remotes, changed
@@ -60,9 +62,14 @@ under `docs/mvp-plan.md`. Later owner directives separately authorized the exact
 local synthetic PNW-01, PNW-03, and PNW-04 tranches and the offline structural
 core inside parent PNW-05. A later directive authorized exactly
 `PNW-05-SRC-FEDERAL-REGISTER-DOC-REVIEW`; that documentation tranche is now
-consumed and did not authorize admission, adapter work, activation, or another
-source. Those bounded decisions authorize no other PNW item, real source, or
-operation. Federal Register documentation implementation/evidence commit
+consumed. The owner later authorized exactly
+`PNW-05-SRC-FEDERAL-REGISTER-ADMISSION-REVIEW` as metadata-only and no-fetch,
+including the owner-input validator audit and authority/non-inference rules.
+That review is also consumed and recommends no-go/`evidence blocked`; it did
+not authorize or perform source admission, adapter work, provider access,
+activation, or another source, and it does not assert owner acceptance. Those
+bounded decisions authorize no other PNW item, real source, or operation.
+Federal Register documentation implementation/evidence commit
 `1b7f95e6aea2820d38f6cf9e74356daa00477dc7` records the dossier, current source
 indexes, decision/open fact, and owner-input validator repair without changing
 the registry or adapter. PNW-05 core implementation commit
@@ -117,19 +124,29 @@ completion.
 The current structural core accepts only exact canonical synthetic fixture
 identities and `synthetic_test_only` evidence. The
 [`SRC-FEDERAL-REGISTER` dossier](source-reviews/federal-register-api-2026-09-02.md)
-now supplies current documentation evidence, a 56-field external inventory, a
+supplies current documentation evidence, a 56-field external inventory, a
 smaller tiered field policy, explicit operational/terms unknowns, rendition and
 rights boundaries, and two case non-inference tests. It does not revalidate the
 retained adapter, modify the registry, create a source-pack admission, or
 authorize source access or activation.
 
-The smallest recommended next authority is exactly
-`PNW-05-SRC-FEDERAL-REGISTER-ADMISSION-REVIEW`, limited to a metadata-only,
-no-fetch mapping and explicit go/no-go decision. Any adapter design, provider
-retrieval, source admission, activation, binding, terms action, credential,
-production content, or publication remains a later exact gate. Until then,
-`G-PNW-SOURCE-ACTIVATION` and every external operation gate remain closed;
-PNW-06 and PNW-07 remain not started.
+The later
+[`admission review`](source-reviews/federal-register-admission-review-2026-09-02.md)
+maps every conjunctive predicate and returns the recommendation `NO_GO` with
+disposition `evidence blocked`. The present contract cannot represent a real
+source, and terms/privacy/operations/schema/coverage/authority/health/LKG
+evidence remains incomplete. The source is not admitted, disabled, inactive,
+unbound, and absent from public artifacts.
+
+The smallest Federal Register reopening gate would be exact owner authority for
+`PNW-05-SRC-FEDERAL-REGISTER-REAL-SOURCE-CONTRACT-DESIGN`, limited to a local,
+no-fetch successor/compatibility design that represents the source only as not
+admitted/evidence blocked. The separately ordered
+`PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY` is also not authorized. Any
+adapter design, provider retrieval, source admission, activation, binding,
+terms action, credential, production content, or publication remains a later
+exact gate. `G-PNW-SOURCE-ACTIVATION` and every external operation gate remain
+closed; PNW-06 and PNW-07 remain not started.
 
 ## Validation and terminal handoff
 
