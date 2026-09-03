@@ -129,6 +129,21 @@ test("excludes the preserved owner packet from canonical link validation", async
       "[Newest owner input with an intentionally absent target](not-a-canonical-link.md)\n",
       "utf8",
     );
+    for (const ownerInput of [
+      "14A-CODEX-PNW-05-SOURCE-PACK-CORE-CLOSEOUT.md",
+      "15-CODEX-PNW-05-FEDERAL-REGISTER-DOC-REVIEW-MAX-LONG-RUN.md",
+      "15A-PNW-05-SOURCE-CANDIDATE-QUALIFICATION-AND-AUTHORIZATION.md",
+      "15B-CASE-EXAMPLE-01-LUMMI-POINT-ROBERTS-BROADBAND.md",
+      "15C-CASE-EXAMPLE-02-ROADLESS-RULE-RESCISSION.md",
+      "15D-PNW-05-CASE-EVIDENCE-CROSSWALK.md",
+      "15E-PNW-05-TRIBAL-POLICY-CONTEXT-SOURCE-LANDSCAPE.md",
+    ]) {
+      await writeFile(
+        path.join(repositoryRoot, "docs", ownerInput),
+        "[Preserved owner input](also-intentionally-not-canonical.md)\n",
+        "utf8",
+      );
+    }
 
     const result = await validateMarkdownLinks(repositoryRoot);
 
