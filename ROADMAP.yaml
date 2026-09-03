@@ -736,7 +736,7 @@ current_focus:
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: c14dc7d4b69959d94745e61078ad804b3524f999
+  last_durable_checkpoint: a40732e2636e8bb956cc812e4ca76ac6f0ae8f71
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -4108,6 +4108,13 @@ work_items:
         Federal Register source state, protected owner-input tuple, validator
         invariants, and frozen coordination ledger without issuing an external
         request.
+      - >-
+        Request-plan commit a40732e2636e8bb956cc812e4ca76ac6f0ae8f71 freezes 22
+        exact unissued GETs, zero redirects and automatic retries, request/
+        media/byte/time/item/page ceilings, the sole document identity and
+        Tier-1 projection, and 58 unusable reserve slots. The coordination blob
+        at that commit is 22,576 bytes with SHA-256
+        179cad3d2958d7b9185679b707e76da247bcdea418935bcf6025cf9ae341e47e.
 
   - id: PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION
     priority: 136
