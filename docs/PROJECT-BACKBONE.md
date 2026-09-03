@@ -62,6 +62,9 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | PNW-04 implementation and terminal evidence | [`pnw-taxonomy-implementation-2026-09-02.md`](handoffs/pnw-taxonomy-implementation-2026-09-02.md) | Complete local synthetic checkpoint; does not authorize real taxonomy content, source activation, publication, or a successor |
 | PNW-05 source-pack-core coordination | [`PNW-05-SOURCE-PACK-CORE-COORDINATION-2026-09-02.md`](development/PNW-05-SOURCE-PACK-CORE-COORDINATION-2026-09-02.md) | Records the frozen structural contract, custody, repairs, review, and exact path boundary; cannot qualify or activate a real source |
 | PNW-05 source-pack-core terminal evidence | [`pnw-source-pack-core-2026-09-02.md`](handoffs/pnw-source-pack-core-2026-09-02.md) | Complete local synthetic structural checkpoint; parent PNW-05 remains non-complete pending separately authorized source-specific evidence |
+| PNW-05 Federal Register documentation-review coordination | [`PNW-05-FEDERAL-REGISTER-DOC-REVIEW-COORDINATION-2026-09-02.md`](development/PNW-05-FEDERAL-REGISTER-DOC-REVIEW-COORDINATION-2026-09-02.md) | Records the exact authorization, protected worktree, path/request budgets, agent scopes, and evidence ledger; cannot admit or activate a source |
+| PNW-05 Federal Register documentation dossier | [`federal-register-api-2026-09-02.md`](source-reviews/federal-register-api-2026-09-02.md) | Current primary-documentation, field-policy, rights, operations, and case-boundary evidence; recommends only a separately authorized bounded admission review |
+| PNW-05 Federal Register documentation-review handoff | [`pnw-federal-register-doc-review-2026-09-02.md`](handoffs/pnw-federal-register-doc-review-2026-09-02.md) | Terminal evidence for documentation review only; source remains disabled, not admitted, inactive, and non-production |
 | K0/S0/O0 custody and D0 historical status | [`vision/README.md`](vision/README.md) | Protected bytes and convergence gates remain controlling |
 
 The completed product-space mapping and lossless B-to-PNW crosswalk remain in
@@ -82,7 +85,7 @@ transition.
 | --- | --- | --- |
 | Static Preact app, hash routes, search/filter, details, dossier, CSV | implemented and validated against synthetic input | no public beta, real Nation registry, or complete output-adapter suite |
 | Artifact pipeline, `PolicyRecord 1.4`, registry 1.19, package 1.4, provenance, health, integrity, last-known-good | implemented local substrate | no canonical analyzed corpus or regional engine |
-| Federal Register, Washington Governor, Centennial Accord, curated Supreme Court adapters | implemented and tested but disabled | no source activation, production records, or coverage |
+| Federal Register, Washington Governor, Centennial Accord, curated Supreme Court adapters | implemented and tested but disabled; Federal Register also has a current 2026-09-02 documentation-only candidate review | no source admission, activation, production records, or coverage; a review does not revalidate a retained adapter |
 | Congress, GovInfo, Regulations.gov, Oregon OData, Washington LWS contract families | repository-owned synthetic/offline contracts | no live adapter or provider authority |
 | BIA recognition-notice parser | validates 577 displayed paragraphs and fails closed | no reconciled 575-identity production registry |
 | K0 | implemented and complete as isolated additive lifecycle/assertion work | no product convergence |
@@ -132,7 +135,7 @@ telemetry, browser-side AI, or outbound notifications.
 | PNW-02 | Independently blocked on `G-PNW-ATNI-59-ROSTER`; PNW-01 dependency complete |
 | PNW-03 | Complete as a bounded synthetic geography/rights tranche |
 | PNW-04 | Complete as a bounded synthetic governed-taxonomy tranche |
-| PNW-05 | Synthetic structural core complete; parent remains ready and non-complete pending separately authorized named-source evidence and onboarding |
+| PNW-05 | Synthetic structural core and Federal Register documentation review complete; parent remains ready and non-complete pending separately authorized source admission/onboarding evidence |
 | PNW-06 through PNW-10 | Not started behind their recorded dependencies |
 | Publication | Closed; both local product finish scopes and exact owner operations are prerequisites |
 
@@ -159,14 +162,21 @@ governance item is active or complete.
   [`runtime`](../tests/engine/source-pack.test.ts), and
   [`non-interference`](../tests/engine/source-pack-non-interference.test.ts)
   tests. These surfaces have no source-access or activation authority.
+- PNW-05 Federal Register documentation evidence:
+  [`federal-register-api-2026-09-02.md`](source-reviews/federal-register-api-2026-09-02.md)
+  and its coordination/handoff. These documentation artifacts do not modify or
+  authorize the existing registry entry, disabled adapter, source-pack binding,
+  provider retrieval, admission, activation, or production output.
 - Isolated additive work: `src/kernel/` (K0) and
   `src/experimental/spatial/` (S0).
 - Codex environment: `.codex/hooks.json`, `.codex/config.toml`,
   `.codex/agents/`, and `.agents/skills/`.
 - `dist/` is generated and ignored by `npm run build`. `.cache/` is ignored
   staging. Never hand-edit or commit either.
-- The owner direction inputs `docs/00-*` through `docs/14-*` are preserved
-  untracked, not canonical repository implementation.
+- The owner direction inputs `docs/00-*` through `docs/15E-*` are preserved
+  untracked, not canonical repository implementation. The backbone validator
+  excludes their exact known paths rather than treating their links as
+  repository truth.
 
 ## Recovery and exact next action
 
@@ -178,9 +188,13 @@ npm run validate:roadmap
 npm run validate:backbone
 ```
 
-The PNW-05 source-pack core is complete at its validated local synthetic
-structural checkpoint, but parent PNW-05 remains non-complete and no product
-mutation is active. Stop. Do not begin PNW-02, onboard or access a source,
-implement PNW-06/07, add real taxonomy/geography/community content, converge
-S0/K0/O0, or perform a remote, publication, or deployment operation without
-separate exact owner authority and the required originating evidence.
+The PNW-05 source-pack core and the documentation-only Federal Register review
+are complete at their bounded checkpoints, but parent PNW-05 remains
+non-complete and no product mutation is active. The smallest recommended next
+authority is exactly `PNW-05-SRC-FEDERAL-REGISTER-ADMISSION-REVIEW`, limited to
+a metadata-only no-fetch admission decision and the dossier's explicit unknowns.
+It would not authorize an adapter change, automatic admission, activation,
+binding, production content, terms acceptance, credentials, or publication.
+Stop. Do not begin PNW-02, another source, PNW-06/07, real taxonomy/geography/
+community content, S0/K0/O0 convergence, or a remote/publication/deployment
+operation without separate exact owner authority and originating evidence.

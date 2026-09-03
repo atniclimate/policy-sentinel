@@ -4,8 +4,8 @@ project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
   phase: >-
-    PNW-05 synthetic source-pack core complete; source onboarding authorization
-    required
+    PNW-05 Federal Register primary-documentation review complete; source
+    admission and activation authorization required
   updated_on: "2026-09-02"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -679,20 +679,22 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Preserve the validated offline synthetic PNW-05 source-pack-core checkpoint
-    and every exact closed boundary while awaiting separate authorization and
-    current primary-source evidence for any named-source onboarding tranche.
+    Preserve the validated PNW-05-SRC-FEDERAL-REGISTER-DOC-REVIEW checkpoint and
+    every closed source boundary while awaiting separate exact authority for a
+    metadata-only Federal Register admission review or another named tranche.
   terminal_reason: >-
-    The bounded PNW-05 source-pack core passed objective validation in
-    implementation commit 6f1475dfb72a432ccfe65b16e65035df25a933d3 with exact
-    APPROVE_PNW_05_CORE. It supplies structural evidence only, so the parent
-    remains non-complete and no successor tranche is active.
+    PNW-05-SRC-FEDERAL-REGISTER-DOC-REVIEW completed in implementation commit
+    1b7f95e6aea2820d38f6cf9e74356daa00477dc7 with exact independent disposition
+    APPROVE_PNW05_FR_DOC_REVIEW_CANDIDATE and terminal disposition
+    PNW_05_FEDERAL_REGISTER_DOC_REVIEW_COMPLETE_ACTIVATION_AUTHORIZATION_REQUIRED.
+    It is documentation evidence only; the parent remains non-complete, and the
+    source remains disabled, not admitted, inactive, and non-production.
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 6f1475dfb72a432ccfe65b16e65035df25a933d3
+  last_durable_checkpoint: 1b7f95e6aea2820d38f6cf9e74356daa00477dc7
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -4078,6 +4080,53 @@ work_items:
         implementation tree. This structural checkpoint does not qualify,
         accept, activate, access, refresh, retain, redistribute, publish, or
         establish coverage/currentness/completeness for any real source.
+      - >-
+        The owner separately authorized exactly
+        PNW-05-SRC-FEDERAL-REGISTER-DOC-REVIEW on 2026-09-02. The active
+        coordination record is
+        docs/development/PNW-05-FEDERAL-REGISTER-DOC-REVIEW-COORDINATION-2026-09-02.md;
+        the current primary-documentation dossier is
+        docs/source-reviews/federal-register-api-2026-09-02.md. The review is
+        documentation-only because the source registry has no safe non-admitted
+        candidate state; config, schemas, adapter, runtime, fixtures, public
+        artifact, and source-pack bindings remain unchanged.
+      - >-
+        Exactly 25 of 30 authorized external requests produced a 14-path and
+        56-field deployed OpenAPI inventory, maintained-source implementation
+        gaps, purpose-limited field tiers, current reproduction/privacy and
+        official/unofficial rendition evidence, five controlled API
+        observations, and Point Roberts/Roadless non-inference tests. No retry,
+        redirect follow, credential, account, terms action, provider body
+        persistence, public-inspection/docket ingestion, personal/sensitive
+        data, admission, activation, or production record occurred. Numeric
+        rates, stable total paging, retry/SLA/change contracts, formal response
+        schemas, and API-specific bulk/caching terms remain explicit unknowns.
+      - >-
+        An independent sovereignty/adversarial review rejected six finite
+        wording/evidence defects without finding activation, runtime
+        reachability, sensitive data, authority promotion, an unauthorized path,
+        or a changed owner-input hash. The lead repaired unofficial-rendition
+        labels, exact P1-P5 replay facts, review/runtime identity separation,
+        unverified ATNI/NCAI lead wording, evidence-class vocabulary and the API
+        privacy gap, then preserved terminal state until validation. Renewed
+        review returned exact APPROVE_PNW05_FR_DOC_REVIEW_CANDIDATE.
+      - >-
+        Focused roadmap, backbone, owner-input exclusion, source-registry,
+        hooks, formatting, lint, typecheck, source-boundary, and diff checks
+        passed. The one terminal serialized VITEST_MAX_WORKERS=1 npm run check
+        passed all 83 files and 1,335 tests in 161.72 seconds, then built and
+        validated 3 synthetic records, exactly 575 synthetic Nations, and 8
+        hashed assets at build ID synthetic-b3c631c7991d21088f26. No browser
+        check was applicable because no UI, interaction, runtime source call, or
+        public artifact contract changed.
+      - >-
+        Implementation/evidence commit 1b7f95e6aea2820d38f6cf9e74356daa00477dc7
+        contains the dossier, current source indexes, D-055/O-021, and the
+        literal owner-input backbone-loader/test repair in exactly six
+        authorized paths. The registry ID federal-register, its disabled
+        retained adapter, all source schemas/runtime/fixtures, public artifacts,
+        owner inputs, K0/S0/O0, and every
+        admission/activation/external/convergence gate remain unchanged.
 
   - id: PNW-06-LIFECYCLE-REFRESH
     priority: 136
@@ -4596,11 +4645,13 @@ next_actions:
   - order: 6
     work_item: PNW-05-SOURCE-PACK
     action: >-
-      Continue only under separate exact owner authorization for a named source
-      and a current primary-source review covering authority, contract,
-      coverage, privacy, reuse, lifecycle, attribution, access, and activation
-      boundaries. Do not infer production qualification from this synthetic
-      core.
+      Continue only under separate exact owner authorization for a named
+      source/tranche. The smallest recommended Federal Register step is
+      PNW-05-SRC-FEDERAL-REGISTER-ADMISSION-REVIEW: a metadata-only, no-fetch
+      mapping and go/no-go decision that reconciles the dossier's explicit
+      terms/operations unknowns with the retained disabled B-series
+      configuration. It does not authorize adapter work, admission, activation,
+      binding, production content, credentials, terms action, or publication.
 finish_states:
   repository_backbone:
     current_state: complete
