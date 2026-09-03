@@ -1,0 +1,278 @@
+{
+  "fixtureFamilyVersion": "1.0.0",
+  "baseFixture": "real-source-lifecycle.candidate.valid.json",
+  "cases": [
+    {
+      "id": "synthetic-source-substitution",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_REAL_TRUST",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/scope/source/sourceId",
+          "value": "synthetic-federal"
+        }
+      ]
+    },
+    {
+      "id": "synthetic-receipt-substitution",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_LITERAL",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorityReceipts/0/synthetic",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "nation-association-widening",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_LITERAL",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/scope/relationshipPolicy/nationAssociation",
+          "value": "allowed"
+        }
+      ]
+    },
+    {
+      "id": "cross-scheme-topic-merge",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_LITERAL",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/scope/taxonomyPolicy/crossSchemeMerge",
+          "value": "allowed"
+        }
+      ]
+    },
+    {
+      "id": "issuer-fallback-promotion",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_LITERAL",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/scope/authorityPolicy/authorityFallback",
+          "value": "service_operator"
+        }
+      ]
+    },
+    {
+      "id": "ordinary-build-admission",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_LITERAL",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/scope/artifactBoundary/ordinaryBuildAdmission",
+          "value": "allowed"
+        }
+      ]
+    },
+    {
+      "id": "publication-opened",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_LITERAL",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/publication/state",
+          "value": "authorized"
+        }
+      ]
+    },
+    {
+      "id": "missing-region-scope",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [
+        {
+          "operation": "remove",
+          "path": "/scope/regionPackRef"
+        }
+      ]
+    },
+    {
+      "id": "evidence-class-key-laundering",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/evidenceReceipts/1/evidenceUrl",
+          "value": "https://policy-sentinel.invalid/not-provider-evidence"
+        }
+      ]
+    },
+    {
+      "id": "authority-set-forgery",
+      "expectedLayer": "semantic",
+      "expectedCode": "AUTHORITY_SET_DIGEST_MISMATCH",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/scope/authoritySetDigest",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    },
+    {
+      "id": "catalog-content-substitution",
+      "expectedLayer": "semantic",
+      "expectedCode": "CONTENT_DIGEST_MISMATCH",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorityReceipts/0/authorityRole",
+          "value": "issuing_agency"
+        }
+      ]
+    },
+    {
+      "id": "scope-reference-digest-forgery",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_SCOPE_REFERENCE",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReceipts/0/scopeRef/contentDigest",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    },
+    {
+      "id": "candidate-claims-active",
+      "expectedLayer": "semantic",
+      "expectedCode": "UNSUPPORTED_LIFECYCLE_CLAIM",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/lifecycleState",
+          "value": "active"
+        }
+      ]
+    },
+    {
+      "id": "unknown-top-level-field",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/activationAuthorized",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "observation-digest-without-observation",
+      "expectedLayer": "semantic",
+      "expectedCode": "OBSERVATION_DIGEST_MISMATCH",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReceipts/0/responseDigest",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    },
+    {
+      "id": "malformed-bundle-digest",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_DIGEST",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/contentDigest",
+          "value": "not-a-digest"
+        }
+      ]
+    },
+    {
+      "id": "missing-lifecycle-as-of",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "mutations": [
+        {
+          "operation": "remove",
+          "path": "/lifecycleAsOf"
+        }
+      ]
+    },
+    {
+      "id": "selected-range-member-widening",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_LITERAL",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/scope/selectedRange/memberCount",
+          "value": 2
+        }
+      ]
+    },
+    {
+      "id": "request-method-outside-closed-set",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_ENUM",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/scope/requestPlan/method",
+          "value": "POST"
+        }
+      ]
+    },
+    {
+      "id": "missing-applicable-unknown-axis",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_BOUNDS",
+      "mutations": [
+        {
+          "operation": "remove",
+          "path": "/scope/unknownChecklist/requiredUnknownKinds/8"
+        }
+      ]
+    },
+    {
+      "id": "missing-applicable-source-review-question",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_BOUNDS",
+      "mutations": [
+        {
+          "operation": "remove",
+          "path": "/scope/unknownChecklist/requiredQuestions/22"
+        }
+      ]
+    },
+    {
+      "id": "source-registry-entry-digest-forgery",
+      "expectedLayer": "semantic",
+      "expectedCode": "UNTRUSTED_SOURCE_REGISTRY",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/scope/source/sourceRegistryEntryRef/digest",
+          "value": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      ]
+    },
+    {
+      "id": "request-byte-ceiling-widening",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_REQUEST_PLAN",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/scope/requestPlan/ceilings/responseBytes",
+          "value": 65537
+        }
+      ]
+    }
+  ]
+}

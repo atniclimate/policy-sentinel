@@ -1,0 +1,1647 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/real-source-lifecycle-bundle.schema.v1.json",
+  "title": "Policy Sentinel RealSourceLifecycleBundle 1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "contentDigest",
+    "id",
+    "version",
+    "synthetic",
+    "trustDomain",
+    "lifecycleState",
+    "lifecycleAsOf",
+    "scope",
+    "authorityReceipts",
+    "evidenceReceipts",
+    "reviewReceipts",
+    "operationGrants",
+    "qualificationReceipts",
+    "admissionReceipts",
+    "activationReceipts",
+    "bindingReceipts",
+    "artifactEligibilityReceipts",
+    "coverageReceipts",
+    "healthReceipts",
+    "lkgReceipts",
+    "publication"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://policy-sentinel.invalid/schemas/real-source-lifecycle-bundle.schema.v1.json"
+    },
+    "schemaVersion": { "const": "1.0.0" },
+    "contentDigest": { "$ref": "#/$defs/digest" },
+    "id": { "$ref": "#/$defs/stableId" },
+    "version": { "$ref": "#/$defs/version" },
+    "synthetic": { "const": false },
+    "trustDomain": { "const": "real_source_local_prerelease" },
+    "lifecycleState": {
+      "enum": [
+        "candidate",
+        "evidence_blocked",
+        "rejected",
+        "qualified",
+        "admitted",
+        "active",
+        "bound",
+        "local_artifact_eligible",
+        "suspended",
+        "expired",
+        "revoked",
+        "retired"
+      ]
+    },
+    "lifecycleAsOf": { "$ref": "#/$defs/timestamp" },
+    "scope": { "$ref": "#/$defs/lifecycleScope" },
+    "authorityReceipts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/authorityReceipt" }
+    },
+    "evidenceReceipts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "items": { "$ref": "#/$defs/evidenceReceipt" }
+    },
+    "reviewReceipts": {
+      "type": "array",
+      "maxItems": 128,
+      "items": { "$ref": "#/$defs/reviewReceipt" }
+    },
+    "operationGrants": {
+      "type": "array",
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/operationGrant" }
+    },
+    "qualificationReceipts": {
+      "type": "array",
+      "maxItems": 32,
+      "items": { "$ref": "#/$defs/qualificationReceipt" }
+    },
+    "admissionReceipts": {
+      "type": "array",
+      "maxItems": 32,
+      "items": { "$ref": "#/$defs/admissionReceipt" }
+    },
+    "activationReceipts": {
+      "type": "array",
+      "maxItems": 32,
+      "items": { "$ref": "#/$defs/activationReceipt" }
+    },
+    "bindingReceipts": {
+      "type": "array",
+      "maxItems": 32,
+      "items": { "$ref": "#/$defs/bindingReceipt" }
+    },
+    "artifactEligibilityReceipts": {
+      "type": "array",
+      "maxItems": 32,
+      "items": { "$ref": "#/$defs/artifactEligibilityReceipt" }
+    },
+    "coverageReceipts": {
+      "type": "array",
+      "maxItems": 256,
+      "items": { "$ref": "#/$defs/coverageReceipt" }
+    },
+    "healthReceipts": {
+      "type": "array",
+      "maxItems": 768,
+      "items": { "$ref": "#/$defs/healthReceipt" }
+    },
+    "lkgReceipts": {
+      "type": "array",
+      "maxItems": 256,
+      "items": { "$ref": "#/$defs/lkgReceipt" }
+    },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "authorityReceiptRefs"],
+      "properties": {
+        "state": { "const": "closed" },
+        "authorityReceiptRefs": {
+          "type": "array",
+          "maxItems": 0
+        }
+      }
+    }
+  },
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+      "maxLength": 128
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$",
+      "maxLength": 32
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$"
+    },
+    "versionedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" }
+      }
+    },
+    "digestedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "digest"],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "digest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "scopeReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "version", "contentDigest"],
+      "properties": {
+        "kind": { "const": "lifecycle_scope" },
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "contentDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "catalogKind": {
+      "enum": [
+        "authority_receipt",
+        "evidence_receipt",
+        "review_receipt",
+        "operation_grant",
+        "qualification_receipt",
+        "admission_receipt",
+        "activation_receipt",
+        "binding_receipt",
+        "artifact_eligibility_receipt",
+        "coverage_receipt",
+        "health_receipt",
+        "lkg_receipt"
+      ]
+    },
+    "typedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "version", "contentDigest"],
+      "properties": {
+        "kind": { "$ref": "#/$defs/catalogKind" },
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "contentDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "authorityReference": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/typedReference" },
+        {
+          "type": "object",
+          "properties": { "kind": { "const": "authority_receipt" } }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "evidenceReference": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/typedReference" },
+        {
+          "type": "object",
+          "properties": { "kind": { "const": "evidence_receipt" } }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "reviewReference": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/typedReference" },
+        {
+          "type": "object",
+          "properties": { "kind": { "const": "review_receipt" } }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "operationGrantReference": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/typedReference" },
+        {
+          "type": "object",
+          "properties": { "kind": { "const": "operation_grant" } }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "qualificationReference": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/typedReference" },
+        {
+          "type": "object",
+          "properties": { "kind": { "const": "qualification_receipt" } }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "admissionReference": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/typedReference" },
+        {
+          "type": "object",
+          "properties": { "kind": { "const": "admission_receipt" } }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "activationReference": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/typedReference" },
+        {
+          "type": "object",
+          "properties": { "kind": { "const": "activation_receipt" } }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "bindingReference": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/typedReference" },
+        {
+          "type": "object",
+          "properties": { "kind": { "const": "binding_receipt" } }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "lkgReference": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/typedReference" },
+        {
+          "type": "object",
+          "properties": { "kind": { "const": "lkg_receipt" } }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "referenceSet": {
+      "type": "array",
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/typedReference" }
+    },
+    "operation": {
+      "enum": [
+        "documentation_review",
+        "acquisition",
+        "retention",
+        "transformation",
+        "analysis",
+        "local_projection"
+      ]
+    },
+    "receiptState": { "enum": ["accepted", "revoked", "superseded"] },
+    "catalogHeader": {
+      "type": "object",
+      "required": [
+        "kind",
+        "id",
+        "version",
+        "contentDigest",
+        "synthetic",
+        "scopeRef"
+      ],
+      "properties": {
+        "kind": { "$ref": "#/$defs/catalogKind" },
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "contentDigest": { "$ref": "#/$defs/digest" },
+        "synthetic": { "const": false },
+        "scopeRef": { "$ref": "#/$defs/scopeReference" }
+      }
+    },
+    "validity": {
+      "type": "object",
+      "required": ["issuedAt", "expiresAt"],
+      "properties": {
+        "issuedAt": { "$ref": "#/$defs/timestamp" },
+        "expiresAt": { "$ref": "#/$defs/timestamp" }
+      }
+    },
+    "lifecycleScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "id",
+        "version",
+        "contentDigest",
+        "synthetic",
+        "source",
+        "contractRef",
+        "fieldPolicyRef",
+        "transformRef",
+        "deploymentRef",
+        "regionPackRef",
+        "personaProjectionRef",
+        "outputAdapterRef",
+        "selectedRange",
+        "unknownChecklist",
+        "requestPlan",
+        "artifactBoundaryRef",
+        "authoritySetDigest",
+        "accessScope",
+        "relationshipPolicy",
+        "authorityPolicy",
+        "taxonomyPolicy",
+        "artifactBoundary"
+      ],
+      "properties": {
+        "kind": { "const": "lifecycle_scope" },
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "contentDigest": { "$ref": "#/$defs/digest" },
+        "synthetic": { "const": false },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sourceId",
+            "sourceRegistryVersion",
+            "sourceRegistryRef",
+            "sourceRegistryEntryRef"
+          ],
+          "properties": {
+            "sourceId": { "$ref": "#/$defs/stableId" },
+            "sourceRegistryVersion": { "$ref": "#/$defs/version" },
+            "sourceRegistryRef": { "$ref": "#/$defs/digestedReference" },
+            "sourceRegistryEntryRef": {
+              "$ref": "#/$defs/digestedReference"
+            }
+          }
+        },
+        "contractRef": { "$ref": "#/$defs/digestedReference" },
+        "fieldPolicyRef": { "$ref": "#/$defs/digestedReference" },
+        "transformRef": { "$ref": "#/$defs/digestedReference" },
+        "deploymentRef": { "$ref": "#/$defs/digestedReference" },
+        "regionPackRef": { "$ref": "#/$defs/digestedReference" },
+        "personaProjectionRef": { "$ref": "#/$defs/digestedReference" },
+        "outputAdapterRef": { "$ref": "#/$defs/digestedReference" },
+        "selectedRange": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "id",
+            "version",
+            "digest",
+            "memberCount",
+            "coverageClaim"
+          ],
+          "properties": {
+            "kind": { "const": "explicit_document_identities" },
+            "id": { "$ref": "#/$defs/stableId" },
+            "version": { "$ref": "#/$defs/version" },
+            "digest": { "$ref": "#/$defs/digest" },
+            "memberCount": { "const": 1 },
+            "coverageClaim": { "const": "bounded_non_comprehensive" }
+          }
+        },
+        "unknownChecklist": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "version",
+            "digest",
+            "requiredUnknownKinds",
+            "requiredQuestions"
+          ],
+          "properties": {
+            "id": { "$ref": "#/$defs/stableId" },
+            "version": { "$ref": "#/$defs/version" },
+            "digest": { "$ref": "#/$defs/digest" },
+            "requiredUnknownKinds": {
+              "type": "array",
+              "prefixItems": [
+                { "const": "api_specific_privacy" },
+                { "const": "api_specific_terms" },
+                { "const": "change_notice" },
+                { "const": "formal_response_error_schema" },
+                { "const": "numeric_rate_limit" },
+                { "const": "paging_stability" },
+                { "const": "retry_backoff" },
+                { "const": "service_level" },
+                { "const": "snapshot_stability" }
+              ],
+              "minItems": 9,
+              "maxItems": 9
+            },
+            "requiredQuestions": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "const": "api_specific_privacy.collection_use_disclosure_retention"
+                },
+                { "const": "api_specific_terms.attribution" },
+                { "const": "api_specific_terms.bulk_access" },
+                { "const": "api_specific_terms.cache_rules" },
+                { "const": "api_specific_terms.clickthrough" },
+                { "const": "api_specific_terms.polling" },
+                { "const": "api_specific_terms.redistribution" },
+                { "const": "change_notice.change_notice" },
+                { "const": "change_notice.deprecation_notice" },
+                {
+                  "const": "formal_response_error_schema.error_schema"
+                },
+                {
+                  "const": "formal_response_error_schema.response_schema"
+                },
+                { "const": "numeric_rate_limit.concurrency_limit" },
+                { "const": "numeric_rate_limit.numeric_quota" },
+                { "const": "numeric_rate_limit.numeric_rate_limit" },
+                { "const": "paging_stability.cursor_stability" },
+                { "const": "paging_stability.paging_stability" },
+                { "const": "retry_backoff.backoff_rules" },
+                { "const": "retry_backoff.retry_rules" },
+                { "const": "service_level.incident_response" },
+                { "const": "service_level.indexing_latency" },
+                { "const": "service_level.timeout_promises" },
+                { "const": "snapshot_stability.snapshot_consistency" },
+                { "const": "snapshot_stability.total_consistency" }
+              ],
+              "minItems": 23,
+              "maxItems": 23
+            }
+          }
+        },
+        "requestPlan": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "version",
+            "digest",
+            "operation",
+            "method",
+            "host",
+            "path",
+            "query",
+            "selectedRangeRef",
+            "ceilings",
+            "redirectPolicy"
+          ],
+          "properties": {
+            "id": { "$ref": "#/$defs/stableId" },
+            "version": { "$ref": "#/$defs/version" },
+            "digest": { "$ref": "#/$defs/digest" },
+            "operation": { "const": "acquisition" },
+            "method": { "enum": ["GET", "HEAD"] },
+            "host": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)+$",
+              "maxLength": 253
+            },
+            "path": {
+              "type": "string",
+              "pattern": "^/",
+              "maxLength": 1024
+            },
+            "query": {
+              "type": "array",
+              "minItems": 23,
+              "maxItems": 23,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name", "value"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "const": "fields[]",
+                    "maxLength": 64
+                  },
+                  "value": { "type": "string", "maxLength": 256 }
+                }
+              }
+            },
+            "selectedRangeRef": { "$ref": "#/$defs/digestedReference" },
+            "ceilings": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "requestCount",
+                "pageCount",
+                "itemCount",
+                "concurrency",
+                "timeoutMs",
+                "responseBytes"
+              ],
+              "properties": {
+                "requestCount": { "const": 1 },
+                "pageCount": { "const": 1 },
+                "itemCount": { "const": 1 },
+                "concurrency": { "const": 1 },
+                "timeoutMs": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 60000
+                },
+                "responseBytes": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 10485760
+                }
+              }
+            },
+            "redirectPolicy": { "const": "forbidden" }
+          }
+        },
+        "artifactBoundaryRef": { "$ref": "#/$defs/digestedReference" },
+        "authoritySetDigest": { "$ref": "#/$defs/digest" },
+        "accessScope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["hosts", "methods"],
+          "properties": {
+            "hosts": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 8,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)+$",
+                "maxLength": 253
+              }
+            },
+            "methods": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 2,
+              "uniqueItems": true,
+              "items": { "enum": ["GET", "HEAD"] }
+            }
+          }
+        },
+        "relationshipPolicy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "jurisdictionClass",
+            "nationAssociation",
+            "organizationMembershipInference",
+            "geographyInference",
+            "rightsInference",
+            "positionInference"
+          ],
+          "properties": {
+            "jurisdictionClass": { "const": "general_jurisdiction" },
+            "nationAssociation": { "const": "forbidden" },
+            "organizationMembershipInference": { "const": "forbidden" },
+            "geographyInference": { "const": "forbidden" },
+            "rightsInference": { "const": "forbidden" },
+            "positionInference": { "const": "forbidden" }
+          }
+        },
+        "authorityPolicy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["missingIssuerDisposition", "authorityFallback"],
+          "properties": {
+            "missingIssuerDisposition": { "const": "unresolved" },
+            "authorityFallback": { "const": "forbidden" }
+          }
+        },
+        "taxonomyPolicy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "topicSchemes",
+            "crossSchemeMerge",
+            "unmappedDisposition"
+          ],
+          "properties": {
+            "topicSchemes": {
+              "type": "array",
+              "prefixItems": [
+                { "const": "federal_register_topics" },
+                { "const": "cfr_topics" }
+              ],
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "crossSchemeMerge": { "const": "forbidden" },
+            "unmappedDisposition": { "const": "Unclassified" }
+          }
+        },
+        "artifactBoundary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "artifactClass",
+            "ordinaryBuildAdmission",
+            "publicOutputAdmission"
+          ],
+          "properties": {
+            "artifactClass": { "const": "ignored_local_prerelease" },
+            "ordinaryBuildAdmission": { "const": "forbidden" },
+            "publicOutputAdmission": { "const": "forbidden" }
+          }
+        }
+      }
+    },
+    "authorityReceipt": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/validity" },
+        {
+          "type": "object",
+          "required": [
+            "authorityRole",
+            "authorityIdentityRef",
+            "state",
+            "supersededBy"
+          ],
+          "properties": {
+            "kind": { "const": "authority_receipt" },
+            "authorityRole": {
+              "enum": [
+                "originating_publisher",
+                "issuing_agency",
+                "official_edition_custodian",
+                "service_operator",
+                "owner_configuration_authority",
+                "source_evidence_reviewer",
+                "sovereignty_reviewer",
+                "security_reviewer"
+              ]
+            },
+            "authorityIdentityRef": { "$ref": "#/$defs/digestedReference" },
+            "state": { "$ref": "#/$defs/receiptState" },
+            "supersededBy": {
+              "oneOf": [
+                { "$ref": "#/$defs/authorityReference" },
+                { "type": "null" }
+              ]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "providerFactEvidence": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        {
+          "type": "object",
+          "required": [
+            "evidenceClass",
+            "factKind",
+            "authorityReceiptRef",
+            "accessState",
+            "restrictionState",
+            "evidenceUrl",
+            "accessedAt",
+            "statementDigest"
+          ],
+          "properties": {
+            "kind": { "const": "evidence_receipt" },
+            "evidenceClass": { "const": "provider_fact" },
+            "factKind": {
+              "enum": [
+                "source_identity",
+                "official_status",
+                "field_meaning",
+                "rendition_custody",
+                "access_requirement",
+                "affirmative_restriction",
+                "reproduction_right"
+              ]
+            },
+            "authorityReceiptRef": { "$ref": "#/$defs/authorityReference" },
+            "accessState": {
+              "enum": [
+                "not_applicable",
+                "credentials_not_required",
+                "credentials_required"
+              ]
+            },
+            "restrictionState": {
+              "enum": ["not_applicable", "compatible", "incompatible"]
+            },
+            "evidenceUrl": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 2048
+            },
+            "accessedAt": { "$ref": "#/$defs/timestamp" },
+            "statementDigest": { "$ref": "#/$defs/digest" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "datedObservationEvidence": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        {
+          "type": "object",
+          "required": [
+            "evidenceClass",
+            "observationKind",
+            "operation",
+            "requestDigest",
+            "resultState",
+            "observedAt",
+            "responseDigest"
+          ],
+          "properties": {
+            "kind": { "const": "evidence_receipt" },
+            "evidenceClass": { "const": "dated_observation" },
+            "observationKind": {
+              "enum": [
+                "response_shape",
+                "error_shape",
+                "response_headers",
+                "paging_behavior",
+                "availability"
+              ]
+            },
+            "operation": { "$ref": "#/$defs/operation" },
+            "requestDigest": { "$ref": "#/$defs/digest" },
+            "resultState": { "enum": ["observed", "not_observed", "failed"] },
+            "observedAt": { "$ref": "#/$defs/timestamp" },
+            "responseDigest": {
+              "oneOf": [{ "$ref": "#/$defs/digest" }, { "type": "null" }]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "projectControlEvidence": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        {
+          "type": "object",
+          "required": [
+            "evidenceClass",
+            "controlKind",
+            "controlRef",
+            "enforcementState",
+            "documentedAt"
+          ],
+          "properties": {
+            "kind": { "const": "evidence_receipt" },
+            "evidenceClass": { "const": "project_control" },
+            "controlKind": {
+              "enum": [
+                "field_allowlist",
+                "selected_range",
+                "request_budget",
+                "concurrency_limit",
+                "time_limit",
+                "byte_limit",
+                "no_automatic_retry",
+                "parser_fail_closed",
+                "drift_policy",
+                "lkg_retention",
+                "artifact_isolation",
+                "request_plan",
+                "source_registry",
+                "source_registry_entry",
+                "deployment_scope",
+                "region_scope",
+                "persona_scope",
+                "output_scope"
+              ]
+            },
+            "controlRef": { "$ref": "#/$defs/digestedReference" },
+            "enforcementState": { "const": "fail_closed" },
+            "documentedAt": { "$ref": "#/$defs/timestamp" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "unknownEvidence": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        {
+          "type": "object",
+          "required": [
+            "evidenceClass",
+            "unknownKind",
+            "resolution",
+            "recordedAt",
+            "limitationCode"
+          ],
+          "oneOf": [
+            {
+              "properties": {
+                "unknownKind": { "const": "numeric_rate_limit" },
+                "limitationCode": {
+                  "const": "serial_bounded_requests_only"
+                }
+              }
+            },
+            {
+              "properties": {
+                "unknownKind": { "const": "paging_stability" },
+                "limitationCode": {
+                  "const": "closed_selection_no_completeness"
+                }
+              }
+            },
+            {
+              "properties": {
+                "unknownKind": { "const": "snapshot_stability" },
+                "limitationCode": {
+                  "const": "closed_selection_no_completeness"
+                }
+              }
+            },
+            {
+              "properties": {
+                "unknownKind": { "const": "retry_backoff" },
+                "limitationCode": { "const": "no_automatic_retry" }
+              }
+            },
+            {
+              "properties": {
+                "unknownKind": { "const": "formal_response_error_schema" },
+                "limitationCode": { "const": "parser_fail_closed" }
+              }
+            },
+            {
+              "properties": {
+                "unknownKind": { "const": "service_level" },
+                "limitationCode": { "const": "no_availability_promise" }
+              }
+            },
+            {
+              "properties": {
+                "unknownKind": { "const": "change_notice" },
+                "limitationCode": { "const": "fail_closed_on_drift" }
+              }
+            },
+            {
+              "properties": {
+                "unknownKind": { "const": "api_specific_terms" },
+                "limitationCode": {
+                  "const": "owner_risk_acceptance_required"
+                }
+              }
+            },
+            {
+              "properties": {
+                "unknownKind": { "const": "api_specific_privacy" },
+                "limitationCode": {
+                  "const": "owner_risk_acceptance_required"
+                }
+              }
+            },
+            {
+              "properties": {
+                "unknownKind": { "const": "authentication_requirement" },
+                "limitationCode": {
+                  "const": "owner_risk_acceptance_required"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": { "const": "evidence_receipt" },
+            "evidenceClass": { "const": "unknown" },
+            "unknownKind": {
+              "enum": [
+                "numeric_rate_limit",
+                "paging_stability",
+                "snapshot_stability",
+                "retry_backoff",
+                "formal_response_error_schema",
+                "service_level",
+                "change_notice",
+                "api_specific_terms",
+                "api_specific_privacy",
+                "authentication_requirement"
+              ]
+            },
+            "resolution": {
+              "enum": [
+                "not_located_after_diligent_official_source_review",
+                "not_documented_by_provider",
+                "not_observed"
+              ]
+            },
+            "recordedAt": { "$ref": "#/$defs/timestamp" },
+            "limitationCode": {
+              "enum": [
+                "serial_bounded_requests_only",
+                "closed_selection_no_completeness",
+                "no_availability_promise",
+                "fail_closed_on_drift",
+                "no_automatic_retry",
+                "parser_fail_closed",
+                "owner_risk_acceptance_required"
+              ]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "residualRiskEvidence": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/validity" },
+        {
+          "type": "object",
+          "required": [
+            "evidenceClass",
+            "riskKind",
+            "ownerAuthorityRef",
+            "unknownEvidenceRefs",
+            "acceptedAt",
+            "riskScope",
+            "conditions",
+            "state",
+            "supersededBy"
+          ],
+          "properties": {
+            "kind": { "const": "evidence_receipt" },
+            "evidenceClass": { "const": "residual_risk_decision" },
+            "riskKind": { "const": "api_terms_or_privacy_not_located" },
+            "ownerAuthorityRef": { "$ref": "#/$defs/authorityReference" },
+            "unknownEvidenceRefs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 16,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/evidenceReference" }
+            },
+            "acceptedAt": { "$ref": "#/$defs/timestamp" },
+            "riskScope": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "hosts",
+                "methods",
+                "fieldPolicyRef",
+                "outputBoundary"
+              ],
+              "properties": {
+                "hosts": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 8,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)+$",
+                    "maxLength": 253
+                  }
+                },
+                "methods": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 2,
+                  "uniqueItems": true,
+                  "items": { "enum": ["GET", "HEAD"] }
+                },
+                "fieldPolicyRef": { "$ref": "#/$defs/digestedReference" },
+                "outputBoundary": { "const": "ignored_local_prerelease_only" }
+              }
+            },
+            "conditions": {
+              "type": "array",
+              "minItems": 6,
+              "maxItems": 6,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "keyless_read_only",
+                  "impersonal_metadata_links_only",
+                  "build_time_only",
+                  "bounded_unpublished_local_use",
+                  "no_private_contact_comment_attachment_or_sensitive_location",
+                  "no_conflicting_affirmative_restriction"
+                ]
+              }
+            },
+            "state": { "$ref": "#/$defs/receiptState" },
+            "supersededBy": {
+              "oneOf": [
+                { "$ref": "#/$defs/evidenceReference" },
+                { "type": "null" }
+              ]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "evidenceReceipt": {
+      "oneOf": [
+        { "$ref": "#/$defs/providerFactEvidence" },
+        { "$ref": "#/$defs/datedObservationEvidence" },
+        { "$ref": "#/$defs/projectControlEvidence" },
+        { "$ref": "#/$defs/unknownEvidence" },
+        { "$ref": "#/$defs/residualRiskEvidence" }
+      ]
+    },
+    "reviewReceipt": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/validity" },
+        {
+          "type": "object",
+          "required": [
+            "reviewKind",
+            "subject",
+            "reviewerAuthorityRef",
+            "ownerAuthorityRef",
+            "reviewedAt",
+            "state",
+            "supersededBy"
+          ],
+          "properties": {
+            "kind": { "const": "review_receipt" },
+            "reviewKind": {
+              "enum": [
+                "source_contract",
+                "source_evidence",
+                "sovereignty",
+                "security"
+              ]
+            },
+            "subject": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "ref"],
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "operation_grant",
+                    "qualification_receipt",
+                    "admission_receipt",
+                    "activation_receipt",
+                    "binding_receipt",
+                    "artifact_eligibility_receipt",
+                    "coverage_receipt",
+                    "health_receipt",
+                    "lkg_receipt"
+                  ]
+                },
+                "ref": { "$ref": "#/$defs/typedReference" }
+              }
+            },
+            "reviewerAuthorityRef": { "$ref": "#/$defs/authorityReference" },
+            "ownerAuthorityRef": { "$ref": "#/$defs/authorityReference" },
+            "reviewedAt": { "$ref": "#/$defs/timestamp" },
+            "state": { "$ref": "#/$defs/receiptState" },
+            "supersededBy": {
+              "oneOf": [
+                { "$ref": "#/$defs/reviewReference" },
+                { "type": "null" }
+              ]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "operationGrant": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/validity" },
+        {
+          "type": "object",
+          "required": [
+            "operation",
+            "requestPlanRef",
+            "ownerAuthorityRef",
+            "reviewReceiptRefs",
+            "state",
+            "supersededBy"
+          ],
+          "properties": {
+            "kind": { "const": "operation_grant" },
+            "operation": { "$ref": "#/$defs/operation" },
+            "requestPlanRef": { "$ref": "#/$defs/digestedReference" },
+            "ownerAuthorityRef": { "$ref": "#/$defs/authorityReference" },
+            "reviewReceiptRefs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 16,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/reviewReference" }
+            },
+            "state": { "enum": ["granted", "revoked", "superseded"] },
+            "supersededBy": {
+              "oneOf": [
+                { "$ref": "#/$defs/operationGrantReference" },
+                { "type": "null" }
+              ]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "qualificationReceipt": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/validity" },
+        {
+          "type": "object",
+          "required": [
+            "providerFactEvidenceRefs",
+            "projectControlEvidenceRefs",
+            "unknownEvidenceRefs",
+            "issuedByAuthorityRef",
+            "reviewReceiptRefs",
+            "state",
+            "supersededBy"
+          ],
+          "properties": {
+            "kind": { "const": "qualification_receipt" },
+            "providerFactEvidenceRefs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 64,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/evidenceReference" }
+            },
+            "projectControlEvidenceRefs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 64,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/evidenceReference" }
+            },
+            "unknownEvidenceRefs": {
+              "type": "array",
+              "maxItems": 64,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/evidenceReference" }
+            },
+            "issuedByAuthorityRef": { "$ref": "#/$defs/authorityReference" },
+            "reviewReceiptRefs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 16,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/reviewReference" }
+            },
+            "state": { "enum": ["qualified", "revoked", "superseded"] },
+            "supersededBy": {
+              "oneOf": [
+                { "$ref": "#/$defs/qualificationReference" },
+                { "type": "null" }
+              ]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "admissionReceipt": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/validity" },
+        {
+          "type": "object",
+          "required": [
+            "qualificationReceiptRef",
+            "ownerAuthorityRef",
+            "reviewReceiptRefs",
+            "residualRiskEvidenceRefs",
+            "state",
+            "supersededBy"
+          ],
+          "properties": {
+            "kind": { "const": "admission_receipt" },
+            "qualificationReceiptRef": {
+              "$ref": "#/$defs/qualificationReference"
+            },
+            "ownerAuthorityRef": { "$ref": "#/$defs/authorityReference" },
+            "reviewReceiptRefs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 16,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/reviewReference" }
+            },
+            "residualRiskEvidenceRefs": {
+              "type": "array",
+              "maxItems": 16,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/evidenceReference" }
+            },
+            "state": { "enum": ["admitted", "revoked", "superseded"] },
+            "supersededBy": {
+              "oneOf": [
+                { "$ref": "#/$defs/admissionReference" },
+                { "type": "null" }
+              ]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "activationReceipt": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/validity" },
+        {
+          "type": "object",
+          "required": [
+            "admissionReceiptRef",
+            "ownerAuthorityRef",
+            "operationGrantRefs",
+            "reviewReceiptRefs",
+            "state",
+            "supersededBy"
+          ],
+          "properties": {
+            "kind": { "const": "activation_receipt" },
+            "admissionReceiptRef": { "$ref": "#/$defs/admissionReference" },
+            "ownerAuthorityRef": { "$ref": "#/$defs/authorityReference" },
+            "operationGrantRefs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 6,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/operationGrantReference" }
+            },
+            "reviewReceiptRefs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 16,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/reviewReference" }
+            },
+            "state": { "enum": ["active", "revoked", "superseded"] },
+            "supersededBy": {
+              "oneOf": [
+                { "$ref": "#/$defs/activationReference" },
+                { "type": "null" }
+              ]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "bindingReceipt": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/validity" },
+        {
+          "type": "object",
+          "required": [
+            "activationReceiptRef",
+            "ownerAuthorityRef",
+            "reviewReceiptRefs",
+            "state",
+            "supersededBy"
+          ],
+          "properties": {
+            "kind": { "const": "binding_receipt" },
+            "activationReceiptRef": { "$ref": "#/$defs/activationReference" },
+            "ownerAuthorityRef": { "$ref": "#/$defs/authorityReference" },
+            "reviewReceiptRefs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 16,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/reviewReference" }
+            },
+            "state": { "enum": ["bound", "revoked", "superseded"] },
+            "supersededBy": {
+              "oneOf": [
+                { "$ref": "#/$defs/bindingReference" },
+                { "type": "null" }
+              ]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "artifactEligibilityReceipt": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/validity" },
+        {
+          "type": "object",
+          "required": [
+            "bindingReceiptRef",
+            "localProjectionGrantRef",
+            "ownerAuthorityRef",
+            "reviewReceiptRefs",
+            "artifactClass",
+            "outputBoundary",
+            "state",
+            "supersededBy"
+          ],
+          "properties": {
+            "kind": { "const": "artifact_eligibility_receipt" },
+            "bindingReceiptRef": { "$ref": "#/$defs/bindingReference" },
+            "localProjectionGrantRef": {
+              "$ref": "#/$defs/operationGrantReference"
+            },
+            "ownerAuthorityRef": { "$ref": "#/$defs/authorityReference" },
+            "reviewReceiptRefs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 16,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/reviewReference" }
+            },
+            "artifactClass": { "const": "ignored_local_prerelease" },
+            "outputBoundary": { "const": "isolated_from_default_and_public" },
+            "state": { "enum": ["eligible", "revoked", "superseded"] },
+            "supersededBy": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "allOf": [
+                    { "$ref": "#/$defs/typedReference" },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": { "const": "artifact_eligibility_receipt" }
+                      }
+                    }
+                  ],
+                  "unevaluatedProperties": false
+                },
+                { "type": "null" }
+              ]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "coverageStages": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "documented",
+        "selected",
+        "attempted",
+        "received",
+        "validated",
+        "emitted",
+        "omitted",
+        "claimed"
+      ],
+      "properties": {
+        "documented": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "selected": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "attempted": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "received": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "validated": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "emitted": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "omitted": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "claimed": { "type": "integer", "minimum": 0, "maximum": 1000000 }
+      }
+    },
+    "coverageReceipt": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        {
+          "type": "object",
+          "required": [
+            "observedAt",
+            "issuedByAuthorityRef",
+            "operation",
+            "operationGrantRef",
+            "admissionReceiptRef",
+            "activationReceiptRef",
+            "bindingReceiptRef",
+            "requestPlanRef",
+            "requestDigest",
+            "evidenceDigest",
+            "resultState",
+            "revisionRef",
+            "stages",
+            "completeness",
+            "absenceInference"
+          ],
+          "properties": {
+            "kind": { "const": "coverage_receipt" },
+            "issuedByAuthorityRef": { "$ref": "#/$defs/authorityReference" },
+            "operation": { "$ref": "#/$defs/operation" },
+            "operationGrantRef": {
+              "$ref": "#/$defs/operationGrantReference"
+            },
+            "admissionReceiptRef": { "$ref": "#/$defs/admissionReference" },
+            "activationReceiptRef": {
+              "$ref": "#/$defs/activationReference"
+            },
+            "bindingReceiptRef": { "$ref": "#/$defs/bindingReference" },
+            "requestPlanRef": { "$ref": "#/$defs/digestedReference" },
+            "requestDigest": { "$ref": "#/$defs/digest" },
+            "evidenceDigest": { "$ref": "#/$defs/digest" },
+            "observedAt": { "$ref": "#/$defs/timestamp" },
+            "resultState": {
+              "enum": ["not_attempted", "successful", "failed", "partial"]
+            },
+            "revisionRef": {
+              "oneOf": [
+                { "$ref": "#/$defs/digestedReference" },
+                { "type": "null" }
+              ]
+            },
+            "stages": { "$ref": "#/$defs/coverageStages" },
+            "completeness": { "const": "bounded_non_comprehensive" },
+            "absenceInference": { "const": "forbidden" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "coverageReference": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/typedReference" },
+        {
+          "type": "object",
+          "properties": { "kind": { "const": "coverage_receipt" } }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "healthReference": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/typedReference" },
+        {
+          "type": "object",
+          "properties": { "kind": { "const": "health_receipt" } }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "healthReceipt": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/validity" },
+        {
+          "type": "object",
+          "required": [
+            "healthScope",
+            "issuedByAuthorityRef",
+            "evidenceDigest",
+            "observedAt",
+            "state",
+            "coverageReceiptRef"
+          ],
+          "properties": {
+            "kind": { "const": "health_receipt" },
+            "issuedByAuthorityRef": { "$ref": "#/$defs/authorityReference" },
+            "evidenceDigest": { "$ref": "#/$defs/digest" },
+            "healthScope": {
+              "enum": [
+                "source_contract",
+                "acquisition_operation",
+                "selected_range"
+              ]
+            },
+            "observedAt": { "$ref": "#/$defs/timestamp" },
+            "state": {
+              "enum": [
+                "healthy",
+                "degraded",
+                "failed",
+                "unavailable",
+                "unknown"
+              ]
+            },
+            "coverageReceiptRef": {
+              "oneOf": [
+                { "$ref": "#/$defs/coverageReference" },
+                { "type": "null" }
+              ]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "lkgReceipt": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/validity" },
+        {
+          "type": "object",
+          "required": [
+            "revisionRef",
+            "manifestDigest",
+            "issuedByAuthorityRef",
+            "reviewReceiptRefs",
+            "createdAt",
+            "validatedAt",
+            "validationState",
+            "coverageReceiptRef",
+            "healthReceiptRef",
+            "lineage",
+            "state",
+            "supersededBy"
+          ],
+          "properties": {
+            "kind": { "const": "lkg_receipt" },
+            "revisionRef": { "$ref": "#/$defs/digestedReference" },
+            "manifestDigest": { "$ref": "#/$defs/digest" },
+            "issuedByAuthorityRef": { "$ref": "#/$defs/authorityReference" },
+            "reviewReceiptRefs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 16,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/reviewReference" }
+            },
+            "createdAt": { "$ref": "#/$defs/timestamp" },
+            "validatedAt": { "$ref": "#/$defs/timestamp" },
+            "validationState": { "const": "fully_validated" },
+            "coverageReceiptRef": { "$ref": "#/$defs/coverageReference" },
+            "healthReceiptRef": { "$ref": "#/$defs/healthReference" },
+            "lineage": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["kind", "predecessorRef"],
+                  "properties": {
+                    "kind": { "const": "genesis" },
+                    "predecessorRef": { "type": "null" }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["kind", "predecessorRef"],
+                  "properties": {
+                    "kind": { "const": "successor" },
+                    "predecessorRef": { "$ref": "#/$defs/lkgReference" }
+                  }
+                }
+              ]
+            },
+            "state": { "enum": ["eligible", "revoked", "superseded"] },
+            "supersededBy": {
+              "oneOf": [{ "$ref": "#/$defs/lkgReference" }, { "type": "null" }]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  }
+}

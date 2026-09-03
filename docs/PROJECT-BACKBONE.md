@@ -168,6 +168,25 @@ governance item is active or complete.
   [`runtime`](../tests/engine/source-pack.test.ts), and
   [`non-interference`](../tests/engine/source-pack-non-interference.test.ts)
   tests. These surfaces have no source-access or activation authority.
+- PNW-05 real-source lifecycle substrate: separate
+  [`RealSourceLifecycleBundle 1.0.0` schema](../schemas/real-source-lifecycle-bundle.schema.v1.json),
+  [`readonly contracts`](../src/engine/real-source-lifecycle-contracts.ts),
+  [`pure runtime`](../src/engine/real-source-lifecycle.ts),
+  [`candidate fixture`](../fixtures/engine/real-source-lifecycle.candidate.valid.json),
+  [`malformed inventory`](../fixtures/engine/real-source-lifecycle-malformed.invalid.json),
+  and focused
+  [`schema`](../tests/engine/real-source-lifecycle-schema.test.ts),
+  [`gate/runtime`](../tests/engine/real-source-lifecycle.test.ts),
+  [`coverage/LKG`](../tests/engine/real-source-lifecycle-coverage-lkg.test.ts),
+  and
+  [`non-interference`](../tests/engine/real-source-lifecycle-non-interference.test.ts)
+  tests. The substrate is additive, network-free, and closed by default; its
+  exact disabled-registry and immutable-target descriptors, GET-only
+  one-document request plan, mandatory unknown/control closure, effective-time
+  gates, one-member coverage algebra, three-scope failure evidence, and linear
+  canonical-tip LKG rules are executable. The candidate fixture remains
+  `evidence_blocked` and does not qualify, admit, activate, bind, retrieve,
+  retain, project, or publish Federal Register data.
 - PNW-05 Federal Register documentation evidence:
   [`federal-register-api-2026-09-02.md`](source-reviews/federal-register-api-2026-09-02.md)
   and its coordination/handoff. These documentation artifacts do not modify or

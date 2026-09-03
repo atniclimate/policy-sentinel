@@ -25,6 +25,9 @@ const geographyRightsSchema = await readJson(
 const sourcePackBundleSchema = await readJson(
   "schemas/source-pack-bundle.schema.v1.json",
 );
+const realSourceLifecycleBundleSchema = await readJson(
+  "schemas/real-source-lifecycle-bundle.schema.v1.json",
+);
 const spatialObservationSchema = await readJson(
   "schemas/experimental/spatial-observation.schema.v1.json",
 );
@@ -54,6 +57,7 @@ for (const [name, schema] of [
   ["projection profile schema", projectionProfileSchema],
   ["geography and rights schema", geographyRightsSchema],
   ["source-pack bundle schema", sourcePackBundleSchema],
+  ["real-source lifecycle bundle schema", realSourceLifecycleBundleSchema],
   ["S0 spatial-observation schema", spatialObservationSchema],
   ["S0 spatial-relation schema", spatialRelationSchema],
   ["S0 jurisdiction-evidence schema", jurisdictionEvidenceSchema],
@@ -361,6 +365,74 @@ for (const fixtureCase of malformedSourcePackBundle.cases) {
       );
     }
     runtimeBoundarySourcePackChecks += 1;
+  }
+}
+
+const validateRealSourceLifecycleBundle = ajv.compile(
+  realSourceLifecycleBundleSchema,
+);
+const realSourceLifecycleBundleFixture = await readJson(
+  "fixtures/engine/real-source-lifecycle.candidate.valid.json",
+);
+if (!validateRealSourceLifecycleBundle(realSourceLifecycleBundleFixture)) {
+  throw new Error(
+    `real-source lifecycle candidate fixture is invalid:\n${ajv.errorsText(
+      validateRealSourceLifecycleBundle.errors,
+      { separator: "\n" },
+    )}`,
+  );
+}
+const malformedRealSourceLifecycleBundle = await readJson(
+  "fixtures/engine/real-source-lifecycle-malformed.invalid.json",
+);
+if (
+  malformedRealSourceLifecycleBundle.fixtureFamilyVersion !== "1.0.0" ||
+  malformedRealSourceLifecycleBundle.baseFixture !==
+    "real-source-lifecycle.candidate.valid.json" ||
+  !Array.isArray(malformedRealSourceLifecycleBundle.cases) ||
+  malformedRealSourceLifecycleBundle.cases.length === 0
+) {
+  throw new Error("malformed real-source lifecycle fixture family is invalid");
+}
+const malformedRealSourceLifecycleCaseIds = new Set();
+let schemaInvalidRealSourceLifecycleChecks = 0;
+let runtimeBoundaryRealSourceLifecycleChecks = 0;
+for (const fixtureCase of malformedRealSourceLifecycleBundle.cases) {
+  if (
+    typeof fixtureCase.id !== "string" ||
+    malformedRealSourceLifecycleCaseIds.has(fixtureCase.id) ||
+    !["schema", "semantic"].includes(fixtureCase.expectedLayer) ||
+    typeof fixtureCase.expectedCode !== "string" ||
+    !Array.isArray(fixtureCase.mutations) ||
+    fixtureCase.mutations.length === 0
+  ) {
+    throw new Error(
+      "malformed real-source lifecycle bundle case metadata is invalid",
+    );
+  }
+  malformedRealSourceLifecycleCaseIds.add(fixtureCase.id);
+  const candidate = applyFixtureMutations(
+    realSourceLifecycleBundleFixture,
+    fixtureCase.mutations,
+  );
+  const accepted = validateRealSourceLifecycleBundle(candidate);
+  if (fixtureCase.expectedLayer === "schema") {
+    if (accepted) {
+      throw new Error(
+        `negative real-source lifecycle case ${fixtureCase.id} was accepted by the schema`,
+      );
+    }
+    schemaInvalidRealSourceLifecycleChecks += 1;
+  } else {
+    if (!accepted) {
+      throw new Error(
+        `runtime-boundary real-source lifecycle case ${fixtureCase.id} did not reach runtime validation:\n${ajv.errorsText(
+          validateRealSourceLifecycleBundle.errors,
+          { separator: "\n" },
+        )}`,
+      );
+    }
+    runtimeBoundaryRealSourceLifecycleChecks += 1;
   }
 }
 
@@ -712,12 +784,13 @@ if (!historicalPolicyRejected) {
 negativePolicyChecks += 1;
 
 console.log(
-  `Foundation validation passed: 12 schemas, ${taxonomy.categories.length} categories, ` +
+  `Foundation validation passed: 13 schemas, ${taxonomy.categories.length} categories, ` +
     `${taxonomy.categories.reduce((count, category) => count + category.subcategories.length, 0)} subcategories, ` +
     `${fixtureNames.length} valid fixtures, ${negativePolicyChecks} negative policy checks, ` +
     `${s0ValidFixtureChecks} valid plus ${s0InvalidFixtureChecks} invalid S0 fixture checks, ` +
     `1 valid plus ${schemaInvalidProjectionChecks} schema-invalid plus ${semanticProjectionChecks} runtime-boundary projection profile checks, ` +
     `1 valid plus ${schemaInvalidGeographyRightsChecks} schema-invalid plus ${runtimeBoundaryGeographyRightsChecks} runtime-boundary geography and rights checks, ` +
     `1 valid plus ${schemaInvalidTaxonomyChecks} schema-invalid plus ${runtimeBoundaryTaxonomyChecks} runtime-boundary taxonomy bundle checks, ` +
-    `and 1 valid plus ${schemaInvalidSourcePackChecks} schema-invalid plus ${runtimeBoundarySourcePackChecks} runtime-boundary source-pack bundle checks.`,
+    `1 valid plus ${schemaInvalidSourcePackChecks} schema-invalid plus ${runtimeBoundarySourcePackChecks} runtime-boundary source-pack bundle checks, ` +
+    `and 1 valid plus ${schemaInvalidRealSourceLifecycleChecks} schema-invalid plus ${runtimeBoundaryRealSourceLifecycleChecks} runtime-boundary real-source lifecycle checks.`,
 );

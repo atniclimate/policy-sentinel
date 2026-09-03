@@ -1,0 +1,441 @@
+{
+  "$schema": "https://policy-sentinel.invalid/schemas/real-source-lifecycle-bundle.schema.v1.json",
+  "schemaVersion": "1.0.0",
+  "contentDigest": "8cc208b80a1ffe8ee90664ae506b22d1ddf300f00ed650c86aa1742814379b4b",
+  "id": "federal-register-real-source-candidate",
+  "version": "1.0.0",
+  "synthetic": false,
+  "trustDomain": "real_source_local_prerelease",
+  "lifecycleState": "evidence_blocked",
+  "lifecycleAsOf": "2026-09-03T00:00:00Z",
+  "scope": {
+    "kind": "lifecycle_scope",
+    "id": "federal-register-roadless-local-scope",
+    "version": "1.0.0",
+    "contentDigest": "8a11d1379c494ae077622b50e645d82d731043898a696107606dadd7ced6736e",
+    "synthetic": false,
+    "source": {
+      "sourceId": "federal-register",
+      "sourceRegistryVersion": "1.19.0",
+      "sourceRegistryRef": {
+        "id": "policy-sentinel-source-registry",
+        "version": "1.19.0",
+        "digest": "a6f776c1a5aae68d9944c5772c6e7efeff2c95a0d9749aa2ba3a6cc7e02409df"
+      },
+      "sourceRegistryEntryRef": {
+        "id": "federal-register",
+        "version": "1.19.0",
+        "digest": "8ef4f35eb892dfce860726d3be228d8a0ebaffcced5736b180a954146975469d"
+      }
+    },
+    "contractRef": {
+      "id": "federal-register-tier1-contract",
+      "version": "1.0.0",
+      "digest": "5e9bf0a10d4c86e846bde9513c380c6304a02f5396f5458efa4152c0cb75d4a9"
+    },
+    "fieldPolicyRef": {
+      "id": "federal-register-tier1-field-policy",
+      "version": "1.0.0",
+      "digest": "027a9e24aaf23668adb93e4b9959ff02a8cff981bf565d8b7826a1d66fa0d865"
+    },
+    "transformRef": {
+      "id": "federal-register-tier1-transform",
+      "version": "1.0.0",
+      "digest": "c2e89d1efd0548093f215a6b65e4281882bf7c6ec85add4e28d505c80bacab79"
+    },
+    "deploymentRef": {
+      "id": "general-federal-local-prerelease",
+      "version": "1.0.0",
+      "digest": "9942d1273d5378b8aa75a31b4bd57a97f0f67d1c063c442d9c57d205c2f38539"
+    },
+    "regionPackRef": {
+      "id": "general-federal-pnw-context",
+      "version": "1.0.0",
+      "digest": "ea6562215fa73453d02b3b00bb9f880cfbecc531f1c4f32e461cd15eea3411bf"
+    },
+    "personaProjectionRef": {
+      "id": "general-federal-researcher",
+      "version": "1.0.0",
+      "digest": "fd6db51c1006100bf4121db7e74c23550cb10b52b2d73a00d6dacca7b67704f4"
+    },
+    "outputAdapterRef": {
+      "id": "local-prerelease-reference-output",
+      "version": "1.0.0",
+      "digest": "decc27a9c89fb94080ade21639cd1124239abd117becc5a945ff7877b29b1651"
+    },
+    "selectedRange": {
+      "kind": "explicit_document_identities",
+      "id": "federal-register-document-2026-16965",
+      "version": "1.0.0",
+      "digest": "10586eb7b6e41668af3960da5b28305918648c7fe8342e97be9ba2f835b86ddd",
+      "memberCount": 1,
+      "coverageClaim": "bounded_non_comprehensive"
+    },
+    "unknownChecklist": {
+      "id": "federal-register-known-unknown-checklist",
+      "version": "1.0.0",
+      "digest": "3ef32721381e0de7fb60c44d5b599a6e2888760e0cb1fb6659904fd5f9e3143c",
+      "requiredUnknownKinds": [
+        "api_specific_privacy",
+        "api_specific_terms",
+        "change_notice",
+        "formal_response_error_schema",
+        "numeric_rate_limit",
+        "paging_stability",
+        "retry_backoff",
+        "service_level",
+        "snapshot_stability"
+      ],
+      "requiredQuestions": [
+        "api_specific_privacy.collection_use_disclosure_retention",
+        "api_specific_terms.attribution",
+        "api_specific_terms.bulk_access",
+        "api_specific_terms.cache_rules",
+        "api_specific_terms.clickthrough",
+        "api_specific_terms.polling",
+        "api_specific_terms.redistribution",
+        "change_notice.change_notice",
+        "change_notice.deprecation_notice",
+        "formal_response_error_schema.error_schema",
+        "formal_response_error_schema.response_schema",
+        "numeric_rate_limit.concurrency_limit",
+        "numeric_rate_limit.numeric_quota",
+        "numeric_rate_limit.numeric_rate_limit",
+        "paging_stability.cursor_stability",
+        "paging_stability.paging_stability",
+        "retry_backoff.backoff_rules",
+        "retry_backoff.retry_rules",
+        "service_level.incident_response",
+        "service_level.indexing_latency",
+        "service_level.timeout_promises",
+        "snapshot_stability.snapshot_consistency",
+        "snapshot_stability.total_consistency"
+      ]
+    },
+    "requestPlan": {
+      "id": "federal-register-document-request-plan",
+      "version": "1.0.0",
+      "digest": "835a3c002c401216946b508aff9060b57d4a5569f26e894f294c966bf6f16cf5",
+      "operation": "acquisition",
+      "method": "GET",
+      "host": "www.federalregister.gov",
+      "path": "/api/v1/documents/2026-16965.json",
+      "query": [
+        { "name": "fields[]", "value": "document_number" },
+        { "name": "fields[]", "value": "title" },
+        { "name": "fields[]", "value": "type" },
+        { "name": "fields[]", "value": "subtype" },
+        { "name": "fields[]", "value": "publication_date" },
+        { "name": "fields[]", "value": "effective_on" },
+        { "name": "fields[]", "value": "comments_close_on" },
+        { "name": "fields[]", "value": "signing_date" },
+        { "name": "fields[]", "value": "citation" },
+        { "name": "fields[]", "value": "volume" },
+        { "name": "fields[]", "value": "start_page" },
+        { "name": "fields[]", "value": "end_page" },
+        { "name": "fields[]", "value": "agencies" },
+        { "name": "fields[]", "value": "docket_ids" },
+        { "name": "fields[]", "value": "regulation_id_numbers" },
+        { "name": "fields[]", "value": "cfr_references" },
+        { "name": "fields[]", "value": "topics" },
+        { "name": "fields[]", "value": "cfr_topics" },
+        { "name": "fields[]", "value": "html_url" },
+        { "name": "fields[]", "value": "pdf_url" },
+        { "name": "fields[]", "value": "json_url" },
+        { "name": "fields[]", "value": "full_text_xml_url" },
+        { "name": "fields[]", "value": "raw_text_url" }
+      ],
+      "selectedRangeRef": {
+        "id": "federal-register-document-2026-16965",
+        "version": "1.0.0",
+        "digest": "10586eb7b6e41668af3960da5b28305918648c7fe8342e97be9ba2f835b86ddd"
+      },
+      "ceilings": {
+        "requestCount": 1,
+        "pageCount": 1,
+        "itemCount": 1,
+        "concurrency": 1,
+        "timeoutMs": 30000,
+        "responseBytes": 65536
+      },
+      "redirectPolicy": "forbidden"
+    },
+    "artifactBoundaryRef": {
+      "id": "local-prerelease-artifact-boundary",
+      "version": "1.0.0",
+      "digest": "3416efbb742bd27c7b4c729fbf569ad48f1753748955debcfe1ceb41eba83555"
+    },
+    "authoritySetDigest": "a9c9e9bd079c3c1424757ac7ce231ba4688d757affdc2ba5f199bfdba1049984",
+    "accessScope": {
+      "hosts": ["www.federalregister.gov"],
+      "methods": ["GET"]
+    },
+    "relationshipPolicy": {
+      "jurisdictionClass": "general_jurisdiction",
+      "nationAssociation": "forbidden",
+      "organizationMembershipInference": "forbidden",
+      "geographyInference": "forbidden",
+      "rightsInference": "forbidden",
+      "positionInference": "forbidden"
+    },
+    "authorityPolicy": {
+      "missingIssuerDisposition": "unresolved",
+      "authorityFallback": "forbidden"
+    },
+    "taxonomyPolicy": {
+      "topicSchemes": ["federal_register_topics", "cfr_topics"],
+      "crossSchemeMerge": "forbidden",
+      "unmappedDisposition": "Unclassified"
+    },
+    "artifactBoundary": {
+      "artifactClass": "ignored_local_prerelease",
+      "ordinaryBuildAdmission": "forbidden",
+      "publicOutputAdmission": "forbidden"
+    }
+  },
+  "authorityReceipts": [
+    {
+      "kind": "authority_receipt",
+      "id": "owner-local-prerelease-authority",
+      "version": "1.0.0",
+      "contentDigest": "daeabb7909656f56fe972ef5455c46f4b22a1a658a480c209523e488c2653c39",
+      "synthetic": false,
+      "scopeRef": {
+        "kind": "lifecycle_scope",
+        "id": "federal-register-roadless-local-scope",
+        "version": "1.0.0",
+        "contentDigest": "8a11d1379c494ae077622b50e645d82d731043898a696107606dadd7ced6736e"
+      },
+      "issuedAt": "2026-09-03T00:00:00Z",
+      "expiresAt": "2026-12-01T00:00:00Z",
+      "authorityRole": "owner_configuration_authority",
+      "authorityIdentityRef": {
+        "id": "pnw05-real-source-prerelease-authorization",
+        "version": "1.0.0",
+        "digest": "9b955a3021014a785f37a0519304182c77e5d1740a3721b397e1d5be35163f0e"
+      },
+      "state": "accepted",
+      "supersededBy": null
+    }
+  ],
+  "evidenceReceipts": [
+    {
+      "kind": "evidence_receipt",
+      "id": "federal-register-acquisition-not-observed",
+      "version": "1.0.0",
+      "contentDigest": "08f6b77659dd99fcfd09ae61de31aa0c27cfc4b1b32279bd5511b34e00050efc",
+      "synthetic": false,
+      "scopeRef": {
+        "kind": "lifecycle_scope",
+        "id": "federal-register-roadless-local-scope",
+        "version": "1.0.0",
+        "contentDigest": "8a11d1379c494ae077622b50e645d82d731043898a696107606dadd7ced6736e"
+      },
+      "evidenceClass": "dated_observation",
+      "observationKind": "availability",
+      "operation": "acquisition",
+      "requestDigest": "835a3c002c401216946b508aff9060b57d4a5569f26e894f294c966bf6f16cf5",
+      "resultState": "not_observed",
+      "observedAt": "2026-09-03T00:00:00Z",
+      "responseDigest": null
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "federal-register-artifact-isolation-control",
+      "version": "1.0.0",
+      "contentDigest": "c97788c7a184221728240e6419dc53295b421c6ddfa7a12072d7e15339669eef",
+      "synthetic": false,
+      "scopeRef": {
+        "kind": "lifecycle_scope",
+        "id": "federal-register-roadless-local-scope",
+        "version": "1.0.0",
+        "contentDigest": "8a11d1379c494ae077622b50e645d82d731043898a696107606dadd7ced6736e"
+      },
+      "evidenceClass": "project_control",
+      "controlKind": "artifact_isolation",
+      "controlRef": {
+        "id": "local-prerelease-artifact-boundary",
+        "version": "1.0.0",
+        "digest": "3416efbb742bd27c7b4c729fbf569ad48f1753748955debcfe1ceb41eba83555"
+      },
+      "enforcementState": "fail_closed",
+      "documentedAt": "2026-09-03T00:00:00Z"
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "federal-register-api-privacy-unknown",
+      "version": "1.0.0",
+      "contentDigest": "13b5d4756933fff2d86dae01adc228cee50dd27e47c3962066238fb1b41605f7",
+      "synthetic": false,
+      "scopeRef": {
+        "kind": "lifecycle_scope",
+        "id": "federal-register-roadless-local-scope",
+        "version": "1.0.0",
+        "contentDigest": "8a11d1379c494ae077622b50e645d82d731043898a696107606dadd7ced6736e"
+      },
+      "evidenceClass": "unknown",
+      "unknownKind": "api_specific_privacy",
+      "resolution": "not_located_after_diligent_official_source_review",
+      "recordedAt": "2026-09-03T00:00:00Z",
+      "limitationCode": "owner_risk_acceptance_required"
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "federal-register-api-terms-unknown",
+      "version": "1.0.0",
+      "contentDigest": "f66b04e47e4b39a7e7a3165fdd8f730379c1d33d1be4000642f0d4c8ea7d97b6",
+      "synthetic": false,
+      "scopeRef": {
+        "kind": "lifecycle_scope",
+        "id": "federal-register-roadless-local-scope",
+        "version": "1.0.0",
+        "contentDigest": "8a11d1379c494ae077622b50e645d82d731043898a696107606dadd7ced6736e"
+      },
+      "evidenceClass": "unknown",
+      "unknownKind": "api_specific_terms",
+      "resolution": "not_located_after_diligent_official_source_review",
+      "recordedAt": "2026-09-03T00:00:00Z",
+      "limitationCode": "owner_risk_acceptance_required"
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "federal-register-change-notice-unknown",
+      "version": "1.0.0",
+      "contentDigest": "5e98d15e094bf7be69c03d2887a23896fcac9dc03c20627e8eb5634b8f005bde",
+      "synthetic": false,
+      "scopeRef": {
+        "kind": "lifecycle_scope",
+        "id": "federal-register-roadless-local-scope",
+        "version": "1.0.0",
+        "contentDigest": "8a11d1379c494ae077622b50e645d82d731043898a696107606dadd7ced6736e"
+      },
+      "evidenceClass": "unknown",
+      "unknownKind": "change_notice",
+      "resolution": "not_documented_by_provider",
+      "recordedAt": "2026-09-03T00:00:00Z",
+      "limitationCode": "fail_closed_on_drift"
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "federal-register-formal-response-error-schema-unknown",
+      "version": "1.0.0",
+      "contentDigest": "e89849fb6b9c3528087c254a7fb82b98d4bf830e29335f9c844ea5453a193097",
+      "synthetic": false,
+      "scopeRef": {
+        "kind": "lifecycle_scope",
+        "id": "federal-register-roadless-local-scope",
+        "version": "1.0.0",
+        "contentDigest": "8a11d1379c494ae077622b50e645d82d731043898a696107606dadd7ced6736e"
+      },
+      "evidenceClass": "unknown",
+      "unknownKind": "formal_response_error_schema",
+      "resolution": "not_documented_by_provider",
+      "recordedAt": "2026-09-03T00:00:00Z",
+      "limitationCode": "parser_fail_closed"
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "federal-register-numeric-rate-limit-unknown",
+      "version": "1.0.0",
+      "contentDigest": "2fab3f791fe2eee8175fb0309a5b60eab4db8b9c69c3a92aa9abd287a582e7ce",
+      "synthetic": false,
+      "scopeRef": {
+        "kind": "lifecycle_scope",
+        "id": "federal-register-roadless-local-scope",
+        "version": "1.0.0",
+        "contentDigest": "8a11d1379c494ae077622b50e645d82d731043898a696107606dadd7ced6736e"
+      },
+      "evidenceClass": "unknown",
+      "unknownKind": "numeric_rate_limit",
+      "resolution": "not_documented_by_provider",
+      "recordedAt": "2026-09-03T00:00:00Z",
+      "limitationCode": "serial_bounded_requests_only"
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "federal-register-paging-stability-unknown",
+      "version": "1.0.0",
+      "contentDigest": "1f5f83bb6ed39921bfbf88d801f1ad7c287811d9a7c53cb67748b0c809b5cbb4",
+      "synthetic": false,
+      "scopeRef": {
+        "kind": "lifecycle_scope",
+        "id": "federal-register-roadless-local-scope",
+        "version": "1.0.0",
+        "contentDigest": "8a11d1379c494ae077622b50e645d82d731043898a696107606dadd7ced6736e"
+      },
+      "evidenceClass": "unknown",
+      "unknownKind": "paging_stability",
+      "resolution": "not_documented_by_provider",
+      "recordedAt": "2026-09-03T00:00:00Z",
+      "limitationCode": "closed_selection_no_completeness"
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "federal-register-retry-backoff-unknown",
+      "version": "1.0.0",
+      "contentDigest": "8ae65c37b393f737b387d22b816561f77727ce4175322f9a7b94af6b74bb1cb1",
+      "synthetic": false,
+      "scopeRef": {
+        "kind": "lifecycle_scope",
+        "id": "federal-register-roadless-local-scope",
+        "version": "1.0.0",
+        "contentDigest": "8a11d1379c494ae077622b50e645d82d731043898a696107606dadd7ced6736e"
+      },
+      "evidenceClass": "unknown",
+      "unknownKind": "retry_backoff",
+      "resolution": "not_documented_by_provider",
+      "recordedAt": "2026-09-03T00:00:00Z",
+      "limitationCode": "no_automatic_retry"
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "federal-register-service-level-unknown",
+      "version": "1.0.0",
+      "contentDigest": "6f816cd86fc1a561e7704e2107542dd0ab0b39fcb445799e83187813a16addd6",
+      "synthetic": false,
+      "scopeRef": {
+        "kind": "lifecycle_scope",
+        "id": "federal-register-roadless-local-scope",
+        "version": "1.0.0",
+        "contentDigest": "8a11d1379c494ae077622b50e645d82d731043898a696107606dadd7ced6736e"
+      },
+      "evidenceClass": "unknown",
+      "unknownKind": "service_level",
+      "resolution": "not_documented_by_provider",
+      "recordedAt": "2026-09-03T00:00:00Z",
+      "limitationCode": "no_availability_promise"
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "federal-register-snapshot-stability-unknown",
+      "version": "1.0.0",
+      "contentDigest": "7b295f0b289198230027fc542bcf129e7877b556eb7e6e0424dfb25a5fbe1862",
+      "synthetic": false,
+      "scopeRef": {
+        "kind": "lifecycle_scope",
+        "id": "federal-register-roadless-local-scope",
+        "version": "1.0.0",
+        "contentDigest": "8a11d1379c494ae077622b50e645d82d731043898a696107606dadd7ced6736e"
+      },
+      "evidenceClass": "unknown",
+      "unknownKind": "snapshot_stability",
+      "resolution": "not_documented_by_provider",
+      "recordedAt": "2026-09-03T00:00:00Z",
+      "limitationCode": "closed_selection_no_completeness"
+    }
+  ],
+  "reviewReceipts": [],
+  "operationGrants": [],
+  "qualificationReceipts": [],
+  "admissionReceipts": [],
+  "activationReceipts": [],
+  "bindingReceipts": [],
+  "artifactEligibilityReceipts": [],
+  "coverageReceipts": [],
+  "healthReceipts": [],
+  "lkgReceipts": [],
+  "publication": {
+    "state": "closed",
+    "authorityReceiptRefs": []
+  }
+}

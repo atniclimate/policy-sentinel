@@ -6,7 +6,9 @@ Authorization token: `PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE`
 
 Starting HEAD: `3fd9c2cdb8e431e7ef57f328deced43777936a8f`
 
-Status: active; contract candidate not yet frozen; no external request issued
+Status: active; third lifecycle byte freeze approved by both independent
+actual-byte reviewers and lifecycle checkpoint awaiting commit; no external
+request issued
 
 ## Authority and non-claims
 
@@ -88,6 +90,225 @@ finite required counterexamples. That rejection is not a source or owner
 block: implementation may create the candidate, after which the same role must
 inspect actual bytes and return an exact byte-level disposition before any
 external request.
+
+## Rejected first lifecycle byte freeze
+
+The lead froze the following 14-file lifecycle candidate after the finite
+pre-contract findings were implemented. Both independent actual-byte reviews
+subsequently rejected this first freeze. It is retained below as immutable
+review history, not as the current candidate or permission to continue to an
+external request. The manifest is UTF-8 text with one
+tab-separated `path`, byte count, and lowercase SHA-256 row in the order below,
+including one terminal LF. Its SHA-256 is
+`f6212e9c39a93e79b17989aeb4897dbd5fac7dbb1db89620b4beb2cf224b9586`.
+The candidate bundle declares content digest
+`5e97899b6e903c63c24e162e61feb9401bf2fead28fea4f7a738490e005da811`
+and lifecycle state `evidence_blocked`. It contains one owner-authority receipt,
+three non-provider evidence receipts, and zero reviews, operation grants,
+qualifications, admissions, activations, bindings, artifact-eligibility,
+coverage, health, or LKG receipts. It therefore records no provider fact and
+authorizes no source operation.
+
+| Path | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `schemas/real-source-lifecycle-bundle.schema.v1.json` | 44,336 | `b4c18ac5c371e7b6155041903f0ee57aeb36e6f0b0b321fd875169c6b7e031e6` |
+| `src/engine/real-source-lifecycle-contracts.ts` | 19,155 | `b2af95419972a13d5973b8d3a80cba2e27fd6e09e4922bf7d7983b060369a0f6` |
+| `src/engine/real-source-lifecycle.ts` | 124,677 | `74ac6e29597b26911aff289b8b01a38ba02546864d43c1c8e4945fbfffee5333` |
+| `src/engine/index.ts` | 7,229 | `70cbeb4ddff42e4729f94e82b2b25a34af1f303b88e785ed8adb315610a757e1` |
+| `fixtures/engine/real-source-lifecycle.candidate.valid.json` | 6,652 | `b665e46fb512d531310a5f139d2e347b02b37931ad1ef4de7fe31fff7da5dd7f` |
+| `fixtures/engine/real-source-lifecycle-malformed.invalid.json` | 5,056 | `f6f14a01180ed8458c60849ee387438ecc5134f59595b7b4b90db0bb71e08752` |
+| `tests/engine/real-source-lifecycle-schema.test.ts` | 6,189 | `456685b83caec9f9ddae0b6df053c461ed323023b752fd2d06846b2b5bef098b` |
+| `tests/engine/real-source-lifecycle.test.ts` | 7,711 | `cd7a4797f5465bbb47abfbd0ce9929c7f4e51bcd2c15dc1e561ca034c1a5e8f6` |
+| `tests/engine/real-source-lifecycle-coverage-lkg.test.ts` | 46,975 | `720cb032118c681356f0be55a7e284afd74b0226695d4e35436bf2a6769e14e8` |
+| `tests/engine/real-source-lifecycle-non-interference.test.ts` | 8,565 | `29dd24b11abc8b7fc28db3521832a9a805b00225bb69b00ccc69776b5d485ac7` |
+| `scripts/validate-foundation.mjs` | 26,870 | `5fa9b2bb2ea1408c7645e0c2c66789a2903a0a39d485cb2008a7a487f0401791` |
+| `docs/PROJECT-BACKBONE.md` | 20,865 | `5e9dfc88afc065f282e4418e6fc20d7b0fc7dad14bed8fdc20a64fc90c6085f8` |
+| `docs/architecture.md` | 58,373 | `b7a89bf3309c512ef52c44a6c0065e3d32571537938b84f65d5f084af02065d8` |
+| `docs/data-contract.md` | 67,587 | `9790b27a0f49bef4f45160e5e7ab5324c80f0117609d89c974639d88299872d5` |
+
+Lead validation against these bytes passed: focused Prettier and ESLint; four
+focused Vitest files with 45/45 tests; TypeScript; foundation validation with
+one valid, ten schema-invalid, and six runtime-boundary lifecycle fixtures;
+and backbone validation with 14 schemas, 14 IDs, 1,094 references, 71 Markdown
+files, and 307 local links. The focused non-interference test revalidates the
+accepted synthetic `SourcePackBundle 1.0.0` byte pins. No external request was
+issued. Any candidate-file change invalidates this manifest and both review
+dispositions.
+
+### First-freeze independent dispositions and repair contract
+
+The source-evidence auditor and sovereignty adversary independently verified
+all 14 path, byte-count, and SHA-256 rows and the combined manifest digest,
+then each returned the exact disposition
+`REJECT_REAL_SOURCE_LIFECYCLE_FREEZE`. Neither reviewer edited a file or made a
+network request. The rejection is finite and local: it does not block the
+owner-authorized contract work, but no source request, source activation, or
+downstream implementation may rely on this freeze.
+
+The required repair set is: make reviews and residual decisions effective no
+earlier than their actual review or acceptance time; enforce causal gate and
+coverage chronology; require a reviewed digest-bound unknown-applicability
+inventory; bind the exact one-member selected range and GET-only request plan;
+resolve exact trusted registry and integration-target bytes rather than IDs or
+versions alone; prevent synthetic-registry laundering; require independent
+reviewer identities; make LKG history a single reciprocal canonical lineage;
+require then-current healthy evidence for LKG creation and exact current
+failure evidence plus a real bounded attempt for fallback; make declared
+lifecycle state honest at an explicit evaluation time; and preserve exact
+content, semantic axes, and uniqueness across supersession. Each reported
+counterexample requires an executable regression. The repaired 14-file set
+must receive a new manifest and fresh approval from both of the same review
+roles before the request ledger can move from zero.
+
+## Rejected repaired second lifecycle byte freeze
+
+The lead froze the following repaired 14-file lifecycle candidate only after
+the complete finite repair set and every lead-added boundary were executable.
+Both independent actual-byte reviews subsequently rejected it. It is retained
+below as immutable review history, not as the current candidate, an approval,
+source qualification, source activation, or permission to issue an external
+request.
+The manifest is UTF-8 text with one tab-separated `path`, byte count, and
+lowercase SHA-256 row in the order below, including one terminal LF. It is
+1,575 bytes and its SHA-256 is
+`6b89303a9292c48a1f1daa5dbd1809c9460a03bb59fe11e01ba21208165dcf69`.
+The candidate bundle declares content digest
+`8cc208b80a1ffe8ee90664ae506b22d1ddf300f00ed650c86aa1742814379b4b`
+and scope digest
+`8a11d1379c494ae077622b50e645d82d731043898a696107606dadd7ced6736e`.
+
+| Path | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `schemas/real-source-lifecycle-bundle.schema.v1.json` | 52,351 | `629b611962302d2e66e5289d7087aa724cc405d31bc49e467eeee246a5bcf5e7` |
+| `src/engine/real-source-lifecycle-contracts.ts` | 26,453 | `25a04b0735997120fdce8cb223d37bf8c7146a53a5fa3f6e9f331d90ca5ddb1a` |
+| `src/engine/real-source-lifecycle.ts` | 168,492 | `87c81bdf4a600e0cdd94a7ae5ea627375d375688db539c16f9f8ae4a6aff25d1` |
+| `src/engine/index.ts` | 7,447 | `16c416a90bedd28dd2e82f64460f51d725f85e7e39fc3ef85803f7aed507b5d2` |
+| `fixtures/engine/real-source-lifecycle.candidate.valid.json` | 16,979 | `a3cc8debb08103c5e3c8f5f86f4467ace1044c7f325e96709961fbe6d9f81df2` |
+| `fixtures/engine/real-source-lifecycle-malformed.invalid.json` | 7,144 | `770838a1dd5ee08643fe413a62948d498ccde4a1bafd72521cea1016411723da` |
+| `tests/engine/real-source-lifecycle-schema.test.ts` | 7,975 | `774098b2c77cf7ca72897fd2e02feeeae402bbaf4f38232bdcc27ab0ce1dfc4e` |
+| `tests/engine/real-source-lifecycle.test.ts` | 13,607 | `c698d086961acc886aa93d24d8c312a8199908aa7d7cc84212554ba8933310ea` |
+| `tests/engine/real-source-lifecycle-coverage-lkg.test.ts` | 73,221 | `0d5dcb4112e9e54a5941d2efa539a8dfdc0ddefb3e5a4e8d2e20af8000e60468` |
+| `tests/engine/real-source-lifecycle-non-interference.test.ts` | 12,029 | `256f5c756b3c3a68b0491b641cfd7bf39b131e09fe995d7d5a8ca08edcb0f9df` |
+| `scripts/validate-foundation.mjs` | 26,870 | `5fa9b2bb2ea1408c7645e0c2c66789a2903a0a39d485cb2008a7a487f0401791` |
+| `docs/PROJECT-BACKBONE.md` | 21,169 | `4200802a31a426f813dac020f99f5efa13845bf443d8e68170a9247e4aa0aed8` |
+| `docs/architecture.md` | 60,449 | `8d1411eae8f0cad9e9e9c027468baed75681f56ccf0a8cb8d29f04cb37bd3b5b` |
+| `docs/data-contract.md` | 68,206 | `28c9b143222a79565ff5c82d9953dce53cf7014923237711114b70589680982e` |
+
+The candidate remains `evidence_blocked`. It contains one owner-authority
+receipt, eleven non-provider evidence receipts across three evidence classes,
+and zero reviews, operation
+grants, qualifications, admissions, activations, bindings,
+artifact-eligibility, coverage, health, or LKG receipts. It records no provider
+fact and authorizes no source operation. Every nested reference must resolve to
+the exact referenced member bytes, every lineage edge must be reciprocal and
+canonical, and the bundle content digest pins the complete graph. Member
+digests deliberately exclude a recursively nested content digest; executable
+tests attack both the member-reference and whole-bundle layers.
+
+Lead validation against these exact 14 bytes passed: focused Prettier and
+ESLint; four focused Vitest files with 65/65 tests; TypeScript; foundation
+validation with thirteen schemas and one valid, fifteen schema-invalid, and
+eight runtime-boundary lifecycle fixtures; backbone validation with 14
+schemas, 14 IDs, 1,111 references, 71 Markdown files, and 307 local links;
+roadmap validation with 69 items, 44 gates, and 14 sources; the source scan over
+397 tracked and 429 source files; and hook fixtures with 9/9 tests. The focused
+non-interference test revalidates the accepted synthetic `SourcePackBundle
+1.0.0` byte pins. No external request was issued. Any change to one of these 14
+candidate files invalidates this manifest and requires both reviews again.
+
+### Second-freeze independent dispositions and repair contract
+
+The same source-evidence auditor and sovereignty adversary independently
+verified all 14 path, byte-count, and SHA-256 rows, the 1,575-byte combined
+manifest digest, and the candidate and scope digests, then each returned the
+exact disposition `REJECT_REAL_SOURCE_LIFECYCLE_FREEZE`. Neither reviewer
+edited a file or made a network request. Both reproduced three high-severity
+integrity failures: repeated reads from a caller-controlled JavaScript object
+could make the digest-checked state differ from the returned frozen bundle;
+one stable authority identity ID/version could carry conflicting digests across
+owner and reviewer trust roles; and one stable revision ID/version could carry
+conflicting digests across otherwise valid LKG lineage. The sovereignty review
+also identified the low-severity evidence-receipt count correction now made
+above.
+
+The finite repair must capture each untrusted public-boundary input once into a
+detached plain snapshot, sanitize exceptional proxy behavior, parse and
+serialize only that snapshot, and recheck the digest and graph of the exact
+returned bundle. It must enforce domain-scoped stable `id@version` to digest
+consistency for authority identities and revision references while preserving
+legitimate same-provider multi-role identities. Executable regressions must
+cover changing, nested, throwing, and revoked inputs; bundle, expected-scope,
+evaluation-request, and evaluation-output boundaries; owner/reviewer identity
+aliasing; revision aliasing; and the accepted provider-sharing case. A new
+14-file manifest and fresh approvals from both of these reviewers remain
+mandatory before any external request.
+
+## Third lifecycle byte freeze
+
+The lead froze the following third 14-file lifecycle candidate after repairing
+all three independently reproduced second-freeze integrity classes. This is the
+current candidate for actual-byte review, not an approval, source
+qualification, source activation, or permission to issue an external request.
+The manifest uses the same UTF-8 tab-separated row contract and terminal LF as
+both prior freezes. It is 1,575 bytes and its SHA-256 is
+`88dcf39d08a4e19a5e4e7b75cf95a2eecb12f069fa739cec72bd2cae671e1028`.
+The candidate content digest remains
+`8cc208b80a1ffe8ee90664ae506b22d1ddf300f00ed650c86aa1742814379b4b`
+and its scope digest remains
+`8a11d1379c494ae077622b50e645d82d731043898a696107606dadd7ced6736e`.
+
+| Path | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `schemas/real-source-lifecycle-bundle.schema.v1.json` | 52,351 | `629b611962302d2e66e5289d7087aa724cc405d31bc49e467eeee246a5bcf5e7` |
+| `src/engine/real-source-lifecycle-contracts.ts` | 26,453 | `25a04b0735997120fdce8cb223d37bf8c7146a53a5fa3f6e9f331d90ca5ddb1a` |
+| `src/engine/real-source-lifecycle.ts` | 171,676 | `8853c8082684cc690568aa7fabeb756c79b52782d82e6560a7c878bcb99b528c` |
+| `src/engine/index.ts` | 7,447 | `16c416a90bedd28dd2e82f64460f51d725f85e7e39fc3ef85803f7aed507b5d2` |
+| `fixtures/engine/real-source-lifecycle.candidate.valid.json` | 16,979 | `a3cc8debb08103c5e3c8f5f86f4467ace1044c7f325e96709961fbe6d9f81df2` |
+| `fixtures/engine/real-source-lifecycle-malformed.invalid.json` | 7,144 | `770838a1dd5ee08643fe413a62948d498ccde4a1bafd72521cea1016411723da` |
+| `tests/engine/real-source-lifecycle-schema.test.ts` | 7,975 | `774098b2c77cf7ca72897fd2e02feeeae402bbaf4f38232bdcc27ab0ce1dfc4e` |
+| `tests/engine/real-source-lifecycle.test.ts` | 13,607 | `c698d086961acc886aa93d24d8c312a8199908aa7d7cc84212554ba8933310ea` |
+| `tests/engine/real-source-lifecycle-coverage-lkg.test.ts` | 74,439 | `3fb55a022febc956e14b9b8cea4b0035f623a00f25c8bdd577902d82d696bfcb` |
+| `tests/engine/real-source-lifecycle-non-interference.test.ts` | 18,568 | `131bbfdb4045ea0acc47cceb66876bd0b3ebafc990c6c1cb082076298d871b69` |
+| `scripts/validate-foundation.mjs` | 26,870 | `5fa9b2bb2ea1408c7645e0c2c66789a2903a0a39d485cb2008a7a487f0401791` |
+| `docs/PROJECT-BACKBONE.md` | 21,169 | `4200802a31a426f813dac020f99f5efa13845bf443d8e68170a9247e4aa0aed8` |
+| `docs/architecture.md` | 60,449 | `8d1411eae8f0cad9e9e9c027468baed75681f56ccf0a8cb8d29f04cb37bd3b5b` |
+| `docs/data-contract.md` | 68,206 | `28c9b143222a79565ff5c82d9953dce53cf7014923237711114b70589680982e` |
+
+Only the runtime and two regression-test rows differ from the second freeze.
+The runtime now captures each untrusted public input once through own data
+descriptors into a detached frozen snapshot, sanitizes exceptional proxy
+behavior, parses and serializes only the snapshot, and rechecks the root digest
+and graph on the exact returned bundle. Stable authority identities and
+normalized revisions resolve domain-scoped `id@version` to exactly one digest;
+trust separation checks both stable identity and digest while allowing one
+official provider identity to serve multiple provider roles.
+
+Lead validation against these exact bytes passed: four focused Vitest files
+with 70/70 tests; TypeScript; focused ESLint and Prettier; foundation validation
+with thirteen schemas and one valid, fifteen schema-invalid, and eight
+runtime-boundary lifecycle fixtures; backbone validation with 14 schemas, 14
+IDs, 1,111 references, 71 Markdown files, and 307 local links; roadmap
+validation with 69 items, 44 gates, and 14 sources; source-boundary scan over
+397 tracked and 429 source files; and hook fixtures with 9/9 tests. The new
+regressions cover the original state-change and stable-identity demonstrations,
+nested/throwing/revoked inputs, every public boundary, revision aliases, and
+retained provider-role sharing. The candidate remains `evidence_blocked`,
+contains zero provider facts, and authorizes nothing. No external request was
+issued. Any change to one of these 14 files invalidates this manifest and both
+fresh reviews.
+
+### Third-freeze independent dispositions
+
+The same source-evidence auditor and sovereignty adversary independently
+matched all 14 path, byte-count, and SHA-256 rows, the exact 1,575-byte manifest
+digest, and the unchanged candidate and scope digests. Each re-audited the
+complete first- and second-freeze repair sets against current bytes and found no
+remaining high-severity or material issue. Each returned the exact disposition
+`APPROVE_REAL_SOURCE_LIFECYCLE_FREEZE`. Neither reviewer edited a file, issued
+an external request, qualified or activated a source, or treated a project
+control as provider evidence. This accepts only the additive lifecycle contract
+bytes; the candidate remains `evidence_blocked`, contains zero provider facts
+or decisive receipts, authorizes no operation, and keeps publication closed.
 
 ## Frozen authorized path manifest
 
@@ -191,8 +412,10 @@ files. No agent may expand a lease or commit.
 
 ## Frozen external request ledger and budgets
 
-No request has been issued in this run. Every request is HTTPS `GET` or `HEAD`,
-uses manual redirect handling, omits credentials/cookies/referrer, uses no
+No request has been issued in this run. The owner envelope permits HTTPS `GET`
+or `HEAD`, but the exact initial set below contains only `GET`; no `HEAD` is
+ledgered for execution. Each exact request uses manual redirect inspection
+with no redirect follow, omits credentials/cookies/referrer, uses no
 user/Nation/private/location/session-derived query value, and has no automatic
 retry. Any `429` stops the source operation; the single possible deliberate
 retry requires a recorded transient failure, an official usable
@@ -228,18 +451,21 @@ must not be requested.
 The following is the complete initial request set. It contains 22 requests:
 two Federal Register API requests, three NARA/GovInfo authority-and-rights
 requests, and 17 portfolio requests. The remaining 58-request owner envelope is
-unissued reserve, not an allowlist. A reserve request requires an exact
-same-operator URL, purpose, media/byte/time policy, remaining budget, written
-lead rationale, and adversarial concurrence added to this ledger before it is
-sent. No link is followed automatically.
+unissued capacity treated as reserve under the same concurrence rule, not an
+allowlist: 20 remain inside the named allocation ceilings and 38 are the
+general reserve. Any use of that capacity requires an exact same-operator URL,
+purpose, media/byte/time policy, remaining budget, written lead rationale, and
+adversarial concurrence added to this ledger before it is sent. No link is
+followed automatically.
 
-Every request below uses `GET`, `redirect: error`, `credentials: omit`,
+Every request below uses `GET`, `redirect: manual`, `credentials: omit`,
 `referrerPolicy: no-referrer`, no cookie or authorization header, and user agent
 `Policy-Sentinel-LocalPrerelease/1.0`. JSON accepts only `application/json`;
 HTML accepts only `text/html` or `application/xhtml+xml`. A supplied charset
-must be UTF-8 and decoding is fatal. Success requires status 200. A 3xx is
-recorded but not followed, a 429 stops that host, every other non-200 fails that
-request, and no request is automatically retried. The default execution is
+must be UTF-8 and decoding is fatal. Success requires status 200. A 3xx status
+category is recorded, its target is not followed or requested, a 429 stops that
+host, every other non-200 fails that request, and no request is automatically
+retried. The default execution is
 serial. The whole research deadline is 600,000 ms; the acquisition deadline is
 300,000 ms. Each response is streamed through its declared byte and 64-chunk
 ceilings. Raw response bytes and provider prose are not logged or persisted.
@@ -249,7 +475,7 @@ ceilings. Raw response bytes and provider prose are not logged or persisted.
 | FR-D1 | Federal Register API | `https://www.federalregister.gov/api/v1/documentation.json` | JSON | 524,288 | 30,000 ms | Current deployed interface and field evidence |
 | FR-R1 | NARA/GovInfo | `https://www.archives.gov/federal-register/faqs` | HTML | 524,288 | 30,000 ms | Publisher, official-edition, cadence, and reproduction evidence |
 | FR-R2 | NARA/GovInfo | `https://www.govinfo.gov/help/fr` | HTML | 524,288 | 30,000 ms | Official collection/custody and rendition evidence |
-| FR-R3 | NARA/GovInfo | `https://www.govinfo.gov/about/policies` | HTML | 524,288 | 30,000 ms | Reuse, copyright, image, and privacy boundary evidence |
+| FR-R3 | NARA/GovInfo | `https://www.govinfo.gov/about/policies` | HTML | 524,288 | 30,000 ms | GovInfo-specific reuse, copyright, image, and privacy boundary evidence; it cannot close FederalRegister.gov privacy |
 | FR-A1 | Federal Register API | exact Tier-1 URL below | JSON | 65,536 | 30,000 ms | Sole exact-document acquisition and health observation |
 | PF-01 | Portfolio | `https://www.bia.gov/` | HTML | 1,048,576 | 30,000 ms | Operator/authority overview |
 | PF-02 | Portfolio | `https://www.bia.gov/service/tribal-leaders-directory` | HTML | 1,048,576 | 30,000 ms | Directory purpose and authority boundary |
@@ -278,12 +504,14 @@ Its exact parameter order is frozen as follows:
 https://www.federalregister.gov/api/v1/documents/2026-16965.json?fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=type&fields%5B%5D=subtype&fields%5B%5D=publication_date&fields%5B%5D=effective_on&fields%5B%5D=comments_close_on&fields%5B%5D=signing_date&fields%5B%5D=citation&fields%5B%5D=volume&fields%5B%5D=start_page&fields%5B%5D=end_page&fields%5B%5D=agencies&fields%5B%5D=docket_ids&fields%5B%5D=regulation_id_numbers&fields%5B%5D=cfr_references&fields%5B%5D=topics&fields%5B%5D=cfr_topics&fields%5B%5D=html_url&fields%5B%5D=pdf_url&fields%5B%5D=json_url&fields%5B%5D=full_text_xml_url&fields%5B%5D=raw_text_url
 ```
 
-The parser may retain only the 22 structured Tier-1 fields named in the owner
-contract plus typed allowlisted rendition URLs. Within `agencies`, only
-`raw_name`, `name`, `id`, `slug`, and `parent_id` survive. All Tier-2 text,
-people/contact/comment/public-inspection/attachment/docket-body content and
-unknown fields are rejected or discarded before normalization according to the
-frozen parser contract. Link targets are never requested. Structured empty
+The 23 top-level request selectors comprise 18 structured selectors and five
+typed link selectors. Flattening the permitted `agencies` leaves yields the 22
+structured Tier-1 fields named in the owner contract. Within `agencies`, only
+`raw_name`, `name`, `id`, `slug`, and `parent_id` survive; known provider
+envelope keys `url` and `json_url` are parsed and dropped. Unknown agency keys
+and unknown top-level keys fail the frozen drift contract. All Tier-2 text and
+people/contact/comment/public-inspection/attachment/docket-body content are
+excluded before normalization. Link targets are never requested. Structured empty
 `docket_ids` stays empty. `topics` and `cfr_topics` remain different schemes.
 All provider facts remain exact; the projection adds no Nation, ATNI,
 geographic, legal, rights, consultation, or community-position claim.
@@ -328,7 +556,43 @@ portfolio review continue.
 - The request ledger, path manifest, leases, phase gates, acceptance tests, and
   stop conditions were frozen before any external request or implementation
   edit.
+- A read-only Tier-1 preparatory audit reconciled the 23 top-level selectors,
+  22 flattened structured fields, five link fields, issuer and rendition
+  boundaries, mandatory unknowns, and legacy-adapter incompatibilities without
+  issuing a request. Its finite ledger findings were repaired: exact requests
+  now use observable manual redirect denial, remain GET-only, identify the
+  GovInfo-only privacy evidence boundary, account separately for 20 unused
+  named-allocation slots and 38 general-reserve slots, and make agency
+  parse-and-drop versus unknown-field drift behavior deterministic.
+- The sovereignty adversary verified that amendment against the current bytes,
+  found no URL, host, path, count, media, byte, time, or authority expansion,
+  confirmed the external-request count remained zero, and returned exact
+  disposition `APPROVE_FROZEN_REQUEST_LEDGER_AMENDMENT`.
 - Governance commit `c14dc7d4b69959d94745e61078ad804b3524f999` records the
   isolated roadmap lane, canonical authority updates, exact owner-input tuple,
   and validator regressions. Roadmap/backbone validation and 27 focused
   governance tests passed; the external-request count remained zero.
+- The repaired lifecycle candidate passed the lead's 65-test focused suite and
+  all listed structural, type, lint, formatting, scan, hook, and
+  non-interference checks. Its second exact 14-file manifest was frozen above
+  for the same two independent actual-byte reviewers.
+- Both independent reviewers reproduced the caller-input state-consistency,
+  stable authority-identity, and stable revision-identity defects and returned
+  exact disposition `REJECT_REAL_SOURCE_LIFECYCLE_FREEZE`. The full serialized
+  repository check that had begun against those bytes was intentionally
+  interrupted after rejection; its partial output is not validation evidence.
+  The bounded three-file runtime/test repair then closed all three classes with
+  five additional focused regressions. Root verification passed 70/70 focused
+  tests and every listed structural check; the third exact manifest is frozen
+  above for fresh review.
+- Both original independent reviewers matched the third manifest and candidate
+  digests, re-audited every prior finding against actual bytes, found no
+  remaining material concern, and returned exact disposition
+  `APPROVE_REAL_SOURCE_LIFECYCLE_FREEZE`. This approves only the lifecycle
+  contract; source qualification, activation, retrieval, and publication remain
+  closed, and the external-request count remains zero.
+- The first complete serialized `npm run check` after final repair passed 87
+  test files and 1,405 tests in 256.77 seconds, then produced only the ordinary
+  synthetic artifact: 3 records, exactly 575 synthetic Nations, 8 verified
+  assets, and build ID `synthetic-629cdb8aa6fd4a7dec4f`. No real-source data or
+  provider request entered the build.

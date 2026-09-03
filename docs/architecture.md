@@ -277,6 +277,86 @@ core only—not real source authority, terms, observed behavior, coverage,
 currentness, activation, policy association, PNW-05 completion, publication,
 or readiness for PNW-06/07.
 
+## PNW-05 additive real-source lifecycle substrate
+
+`RealSourceLifecycleBundle 1.0.0` is a separate Federal Register local-
+prerelease contract. It does not loosen, migrate, import, or relabel
+`SourcePackBundle 1.0.0`. Its closed scope resolves the exact disabled
+`federal-register` registry entry and whole registry bytes, seven exported
+deep-frozen contract/field/transform/deployment/region/persona/output
+descriptors, one selected document identity, and one acquisition plan. That
+plan is `GET` only, fixes the document path and ordered 23-field query, permits
+one request/page/item at one concurrency, caps the response at 65,536 bytes and
+30 seconds, and forbids redirect follow. The scope also binds its authority
+set, relationship non-claims, taxonomy separation, and ignored-artifact
+boundary. The bundle and every catalog member carry content digests; a caller
+must supply the trusted whole-bundle digest and exact scope. Same-version
+registry, descriptor, request, range, or receipt substitution therefore fails
+closed.
+
+The graph keeps provider-established facts, dated observations,
+repository-enforced controls, explicit unknowns, and expiring owner residual-
+risk decisions as different evidence classes. Qualification requires the
+reviewed source identity, official status, field meaning, rendition custody,
+credential-free access requirement, and reproduction boundary plus exactly one
+receipt for each of 18 scoped project controls. Its fixed nine-axis,
+23-question applicability inventory preserves unknown API terms, privacy,
+rates, paging, snapshots, retry/backoff, formal schemas, service levels, and
+change notice. Deleting an unknown cannot make the candidate qualify. Only the
+exact terms and privacy gaps may enter the narrow owner residual path, which
+binds the same hosts, `GET` method, field policy, conditions, authority, and a
+maximum 90-day interval. Unknown or required authentication remains blocking,
+and incompatible affirmative restrictions fail closed. No pre-acquisition fact
+claims the selected document's issuing agency: the Tier-1 parser must later
+obtain nonblank `agencies[].raw_name` from the record itself or fail atomically.
+Source identity and service operation do not create issuing-agency,
+official-edition, Nation, organization-membership, geography, rights,
+jurisdiction, applicability, or position authority.
+
+Qualification, operation grants, admission, activation, binding, local
+artifact eligibility, and publication are independent. Every operation grant
+names the exact governing request-plan digest. Accepted review and authority
+receipts are typed, exact-subject, revocable, supersedable, and time-scoped;
+reviews are effective no earlier than `reviewedAt` and residual decisions no
+earlier than `acceptedAt`. Downstream receipts cannot predate the full effective
+prerequisite chain. Provider institutions may legitimately hold more than one
+provider role, while the owner, source reviewer, sovereignty reviewer, and
+security reviewer trust groups require distinct identities. A declared
+progressive state must have exactly one usable chain at `lifecycleAsOf`, and
+evaluation rechecks that chain at its later `asOf`. Evidence-blocked, rejected,
+suspended, expired, revoked, and retired states retain history but authorize
+nothing. Publication is structurally closed in version 1.0.0.
+
+Coverage binds the exact plan, acquisition grant, admission, activation, and
+binding that were usable when the attempt occurred. Its eight documented,
+selected, attempted, received, validated, emitted, omitted, and claimed stages
+are fixed to the one-member range under a permanently bounded-
+non-comprehensive, no-absence-inference rule. A success reconciles every
+positive stage to one and creates exactly one LKG revision atomically; a failed
+or partial real attempt emits and claims zero. Health remains separate at
+source-contract, acquisition-operation, and selected-range scope. An LKG must
+bind a prior fully validated acquisition revision, successful coverage,
+then-current healthy selected-range evidence, current owner/review authority,
+and an exact manifest. One genesis and reciprocal single-child succession form
+one connected history with one eligible canonical tip. Fallback additionally
+requires exact current degraded/failed/unavailable evidence at all three
+health scopes for the current failed coverage. It cannot rescue an expired or
+revoked gate, a scope/contract/range/source mismatch, future evidence, a
+zero-attempt failure, an older fork, or a first run with no predecessor.
+
+Supersession and LKG member digests are cycle-safe: member hashes cover every
+non-reference-digest value, each nested reference must resolve to the exact
+referenced member digest, graph validation enforces reciprocal linear
+semantics, and the caller-pinned whole-bundle digest covers every edge byte.
+The contract does not claim mathematically recursive member hashes.
+
+The initial Federal Register fixture is only a digest-bound candidate with no
+qualification, grant, admission, activation, binding, artifact-eligibility,
+coverage, health, or LKG receipt. The runtime has no network or persistence
+surface and is not consumed by the ordinary adapter, build, application, or
+artifact pipeline. Source-specific qualification and every later local
+prerelease step remain separate evidence-gated outcomes.
+
 ## Current application and ingestion architecture
 
 The implemented baseline is a static TypeScript application with a separate
