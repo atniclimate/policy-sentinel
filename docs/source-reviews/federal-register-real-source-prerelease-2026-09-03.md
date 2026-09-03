@@ -258,6 +258,14 @@ attempts then completed serially at `2026-09-03T12:47:42.741Z` through
 provider observations eligible for the prospective graph; the amendment and
 observations still cannot issue `FR-A1`.
 
+At `2026-09-03T13:02:59Z`, a fresh independent source-evidence auditor
+reconciled the three post-authority receipts, six-fact ceiling, authority roles,
+reuse and privacy boundaries, request arithmetic, and lifecycle chronology and
+returned exact disposition `APPROVE_POST_AUTHORITY_PROVIDER_EVIDENCE`. The
+approval expressly excludes the auxiliary D2 path counter, uses R5's new digest
+without claiming page-wide stability, and cannot substitute for the later
+parser/gate byte reviews or authorize `FR-A1`.
+
 ## Hard blockers before `FR-A1`
 
 The document request must not be issued if any of these remains or appears:

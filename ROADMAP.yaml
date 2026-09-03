@@ -4214,6 +4214,13 @@ work_items:
         new digest. Total request custody is seven; 73 capacity slots remain,
         and FR-A1 is still unissued pending a replacement byte freeze, three
         fresh reviews, and the complete pre-acquisition lifecycle gate.
+      - >-
+        At 2026-09-03T13:02:59Z a fresh independent source-evidence auditor
+        returned APPROVE_POST_AUTHORITY_PROVIDER_EVIDENCE for exactly the six
+        bounded facts. The review excludes D2's auxiliary path counter, treats
+        R5 only under its new digest and observed predicates, preserves every
+        terms/privacy/reuse/non-inference limit, and grants no parser, lifecycle,
+        activation, acquisition, artifact, or publication authority.
 
   - id: PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG
     priority: 137

@@ -7,7 +7,7 @@ Authorization token: `PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE`
 Starting HEAD: `3fd9c2cdb8e431e7ef57f328deced43777936a8f`
 
 Status: active; lifecycle contract committed and Federal Register Tier-1
-evidence closure in progress; four official-evidence requests issued, exact
+evidence closure in progress; seven official-evidence requests issued, exact
 document acquisition still unissued
 
 ## Authority and non-claims
@@ -413,7 +413,7 @@ files. No agent may expand a lease or commit.
 ## Frozen external request ledger and budgets
 
 At freeze time no request had been issued. The execution log below now records
-four completed evidence requests; `FR-A1` and all portfolio requests remain
+seven completed evidence requests; `FR-A1` and all portfolio requests remain
 unissued. The owner envelope permits HTTPS `GET` or `HEAD`, but the exact
 initial set below contains only `GET`; no `HEAD` is ledgered for execution.
 Each exact request uses manual redirect inspection with no redirect follow,
@@ -692,6 +692,14 @@ persisted zero raw bytes, and destroyed the body buffers. The one-shot observer
 was removed after execution. Total custody is now seven issued requests and 73
 available capacity slots. `FR-A1` remains unissued and closed pending the
 replacement byte freeze and complete pre-acquisition gate.
+
+At `2026-09-03T13:02:59Z`, a fresh independent source-evidence auditor returned
+exact disposition `APPROVE_POST_AUTHORITY_PROVIDER_EVIDENCE` for only the six
+facts and limits enumerated in the source review. It independently confirmed
+chronology, digest and request arithmetic, treated D1/R1/R2 only as historical,
+excluded the auxiliary D2 counter, and required R5's new digest. This evidence
+approval is not a parser, gate, admission, activation, or acquisition approval;
+`FR-A1` remains closed.
 
 ## Phase gates, acceptance, and stop contract
 
