@@ -149,6 +149,7 @@ npm test
 npm run test:a11y
 npm run build
 npm run source:bia
+npm run source:federal-register:prerelease
 npm run --silent source:wa-lws:canary -- --help
 ```
 
@@ -160,6 +161,15 @@ currently fails closed and writes no registry. If that primary-source gap is
 resolved, output remains restricted to ignored
 `.cache/source-validation/bia/nations.json`, outside `dist/`. The command does
 not register an API, ingest policy records, alter a remote, or publish data.
+
+`npm run source:federal-register:prerelease` defaults to a no-fetch, no-write
+qualification proposal. Its preparation modes write only no-clobber files
+under ignored `generated-data/real-source-prerelease/`. The `--acquire` mode is
+a separate, expiring local-pilot gate: it accepts only the fixed `FR-A1`
+request, requires a reviewed byte manifest plus complete lifecycle approvals,
+runs only as a fresh direct Node v24.14.1 process, consumes a permanent local
+attempt latch before transport loading, permits no retry, and keeps publication
+closed. It is not part of `npm run check` or the ordinary network-free build.
 
 `npm run --silent source:wa-lws:canary -- --help` describes the separately
 invoked Washington Legislative Web Services canary. It accepts exactly one of

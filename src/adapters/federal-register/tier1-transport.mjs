@@ -6,6 +6,11 @@ import {
   serializeFederalRegisterTier1Document,
 } from "./tier1-contract.mjs";
 
+const PLATFORM_FETCH =
+  typeof globalThis.fetch === "function"
+    ? globalThis.fetch.bind(globalThis)
+    : null;
+
 const FIELD_QUERY = FEDERAL_REGISTER_TIER1_FIELDS.map(
   (field) => `fields%5B%5D=${encodeURIComponent(field)}`,
 ).join("&");
@@ -416,37 +421,12 @@ function classifyThrown(error, signal) {
   return new FederalRegisterTier1TransportError("network", "network_failure");
 }
 
-export async function fetchFederalRegisterTier1Document(dependencies = {}) {
-  let fetchDependency;
-  let validDependencies = false;
-  try {
-    if (
-      dependencies !== null &&
-      typeof dependencies === "object" &&
-      !Array.isArray(dependencies) &&
-      Object.getPrototypeOf(dependencies) === Object.prototype
-    ) {
-      const keys = Reflect.ownKeys(dependencies);
-      const descriptor = Object.getOwnPropertyDescriptor(
-        dependencies,
-        "fetchImpl",
-      );
-      validDependencies =
-        keys.every((key) => key === "fetchImpl") &&
-        (descriptor === undefined ||
-          ("value" in descriptor && descriptor.enumerable === true));
-      fetchDependency = descriptor?.value;
-    }
-  } catch {
-    validDependencies = false;
+export async function fetchFederalRegisterTier1Document() {
+  if (arguments.length !== 0) {
+    fail("invalid_dependency", "transport_arguments_forbidden");
   }
-  if (!validDependencies) {
-    fail("invalid_dependency", "invalid_transport_dependency");
-  }
-  const fetchImpl =
-    fetchDependency === undefined ? globalThis.fetch : fetchDependency;
-  if (typeof fetchImpl !== "function") {
-    fail("invalid_dependency", "missing_fetch_implementation");
+  if (PLATFORM_FETCH === null) {
+    fail("invalid_dependency", "platform_fetch_unavailable");
   }
 
   const controller = new globalThis.AbortController();
@@ -460,7 +440,7 @@ export async function fetchFederalRegisterTier1Document(dependencies = {}) {
   });
   try {
     return await Promise.race([
-      performAcquisition(fetchImpl, controller.signal),
+      performAcquisition(PLATFORM_FETCH, controller.signal),
       deadline,
     ]);
   } catch (error) {

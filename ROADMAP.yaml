@@ -4219,8 +4219,21 @@ work_items:
         returned APPROVE_POST_AUTHORITY_PROVIDER_EVIDENCE for exactly the six
         bounded facts. The review excludes D2's auxiliary path counter, treats
         R5 only under its new digest and observed predicates, preserves every
-        terms/privacy/reuse/non-inference limit, and grants no parser, lifecycle,
-        activation, acquisition, artifact, or publication authority.
+        terms/privacy/reuse/non-inference limit, and grants no parser,
+        lifecycle, activation, acquisition, artifact, or publication authority.
+      - >-
+        Pre-freeze security review extended the replacement manifest to the
+        complete 17-path executable trust closure: the repaired nine Tier-1
+        paths, four refresh/gate paths, three unchanged lifecycle/registry
+        runtime dependencies, and package.json command dispatch. Acquisition
+        must verify those bytes before any covered import and again immediately
+        before fetch, use one globally fixed exclusive FR-A1 attempt latch,
+        enforce actual wall-clock expiry, bound and duplicate-check all local
+        inputs, and reject custody-link traversal. Direct acquisition
+        additionally pins unspoofable import.meta.main and the exact fresh Node
+        v24.14.1 runtime. The reviewed Windows control uses mandatory file fsync
+        and records unsupported parent-directory fsync; it is not an absolute
+        sudden-power-loss guarantee. The replacement freeze is not yet issued.
 
   - id: PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG
     priority: 137

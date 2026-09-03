@@ -11,12 +11,32 @@ import {
   parseFederalRegisterTier1Document,
   serializeFederalRegisterTier1Document,
 } from "../../../src/adapters/federal-register/tier1-contract.mjs";
-import {
+let activeFetchHarness = async () => {
+  throw new Error("Tier-1 test fetch harness is not configured");
+};
+const originalFetchDescriptor = Object.getOwnPropertyDescriptor(
+  globalThis,
+  "fetch",
+);
+Object.defineProperty(globalThis, "fetch", {
+  configurable: true,
+  writable: true,
+  value: (...arguments_) => activeFetchHarness(...arguments_),
+});
+const tier1Transport =
+  await import("../../../src/adapters/federal-register/tier1-transport.mjs?tier1-node-test-harness");
+if (originalFetchDescriptor === undefined) {
+  delete globalThis.fetch;
+} else {
+  Object.defineProperty(globalThis, "fetch", originalFetchDescriptor);
+}
+const {
   FEDERAL_REGISTER_TIER1_REQUEST_POLICY,
   FEDERAL_REGISTER_TIER1_REQUEST_URL,
   FederalRegisterTier1TransportError,
-  fetchFederalRegisterTier1Document,
-} from "../../../src/adapters/federal-register/tier1-transport.mjs";
+  fetchFederalRegisterTier1Document:
+    fetchFederalRegisterTier1DocumentFromPlatform,
+} = tier1Transport;
 
 const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -62,6 +82,45 @@ const EXPECTED_FIELDS = [
 const EXPECTED_URL = `https://www.federalregister.gov/api/v1/documents/2026-16965.json?${EXPECTED_FIELDS.map(
   (field) => `fields%5B%5D=${field}`,
 ).join("&")}`;
+
+async function fetchFederalRegisterTier1Document(dependencies) {
+  let fetchImpl;
+  try {
+    if (
+      arguments.length === 1 &&
+      dependencies !== null &&
+      typeof dependencies === "object" &&
+      !Array.isArray(dependencies) &&
+      Reflect.ownKeys(dependencies).length === 1
+    ) {
+      const descriptor = Object.getOwnPropertyDescriptor(
+        dependencies,
+        "fetchImpl",
+      );
+      if (
+        descriptor !== undefined &&
+        "value" in descriptor &&
+        descriptor.enumerable === true &&
+        typeof descriptor.value === "function"
+      ) {
+        fetchImpl = descriptor.value;
+      }
+    }
+  } catch {
+    fetchImpl = undefined;
+  }
+  if (fetchImpl === undefined) {
+    return fetchFederalRegisterTier1DocumentFromPlatform(dependencies);
+  }
+  activeFetchHarness = fetchImpl;
+  try {
+    return await fetchFederalRegisterTier1DocumentFromPlatform();
+  } finally {
+    activeFetchHarness = async () => {
+      throw new Error("Tier-1 test fetch harness is not configured");
+    };
+  }
+}
 
 function jsonResponse(
   text = compactFixtureText,
@@ -575,12 +634,12 @@ test("rejects dependency and response-shape escape hatches", async () => {
       requestUrl: "https://example.test/escape",
     }),
     "invalid_dependency",
-    "invalid_transport_dependency",
+    "transport_arguments_forbidden",
   );
   await rejectsTransport(
     fetchFederalRegisterTier1Document({ fetchImpl: null }),
     "invalid_dependency",
-    "missing_fetch_implementation",
+    "transport_arguments_forbidden",
   );
   await rejectsTransport(
     fetchFederalRegisterTier1Document({ fetchImpl: async () => null }),

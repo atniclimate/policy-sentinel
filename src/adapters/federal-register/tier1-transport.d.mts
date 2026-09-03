@@ -42,8 +42,8 @@ export type FederalRegisterTier1TransportErrorCode =
   | "invalid_response";
 
 export type FederalRegisterTier1TransportFailureCategory =
-  | "invalid_transport_dependency"
-  | "missing_fetch_implementation"
+  | "transport_arguments_forbidden"
+  | "platform_fetch_unavailable"
   | "network_failure"
   | "deadline_exceeded"
   | "redirect_denied"
@@ -80,15 +80,6 @@ export class FederalRegisterTier1TransportError extends Error {
   );
 }
 
-export type FederalRegisterTier1FetchLike = (
-  input: string,
-  init: Readonly<RequestInit>,
-) => Promise<Response>;
-
-export interface FederalRegisterTier1TransportDependencies {
-  readonly fetchImpl?: FederalRegisterTier1FetchLike;
-}
-
 export interface FederalRegisterTier1TransportReceipt {
   readonly requestId: "FR-A1";
   readonly methodClass: "GET";
@@ -111,6 +102,4 @@ export interface FederalRegisterTier1TransportResult {
   readonly receipt: FederalRegisterTier1TransportReceipt;
 }
 
-export function fetchFederalRegisterTier1Document(
-  dependencies?: FederalRegisterTier1TransportDependencies,
-): Promise<FederalRegisterTier1TransportResult>;
+export function fetchFederalRegisterTier1Document(): Promise<FederalRegisterTier1TransportResult>;

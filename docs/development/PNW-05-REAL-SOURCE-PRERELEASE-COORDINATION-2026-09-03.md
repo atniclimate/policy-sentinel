@@ -610,6 +610,42 @@ accepted the findings, invalidated this manifest, removed the raw fetch from
 the adapter export, and began a bounded repair. No finding caused a provider
 request. A replacement manifest and all fresh reviews are required.
 
+The replacement execution freeze will cover 17 exact paths rather than the
+first candidate's nine. It includes the repaired nine, the four new refresh/
+gate paths, and the three unchanged runtime dependencies evaluated by that
+gate: `src/engine/real-source-lifecycle.ts`,
+`src/engine/real-source-lifecycle-contracts.ts`, and `config/sources.v1.json`,
+plus `package.json`, which owns the required repository command dispatch.
+This is not new authoring scope; all paths are already inside the frozen path
+manifest, and the two lifecycle files remain bound to their separately approved
+freeze. The expansion is the smallest complete executable trust closure and
+has explicit security-adversary concurrence. Before `FR-A1`, a builtins-only
+bootstrap must reconstruct the exact 17-row UTF-8 TSV from current raw file
+bytes before evaluating any covered module and repeat the check immediately
+before the request. The lead must also externally pin the bootstrap file's own
+row digest at launch. Any drift detected after the permanent attempt latch has
+been reserved consumes that grant and stops without a request.
+
+The acquisition entry point also requires unspoofable `import.meta.main`, an
+exact fresh Node `v24.14.1` process with no preload/loader/runtime flags or
+request-affecting environment overrides, and a second manifest check before
+transport loading plus a third check immediately before the request. Importing
+the CLI, including after mutating `process.argv`, can never enter acquisition.
+
+The single-attempt latch is one globally fixed ignored `FR-A1` pathname, not a
+gate-, manifest-, or output-derived pathname. Its mere existence consumes the
+grant even if empty, partial, corrupt, failed, or indeterminate; no code may
+delete, replace, rename, or reinterpret it as reusable. Node 24 on this Windows
+workspace cannot fsync the parent directory entry and returns `EPERM`. The
+reviewed local-NTFS control therefore requires an exclusive no-follow `wx`
+creation, complete identity/state written before the request, mandatory file
+fsync, close, reopen and identity verification, while recording
+`platform_unsupported_windows_file_fsync_used`. Only that exact Windows
+`EPERM` may be tolerated; every other sync failure stops before the request.
+This is an ordinary-process and parallel-invocation at-most-once control, not an
+absolute sudden-power-loss guarantee. A sudden power loss before directory-
+entry persistence requires external request-ledger reconciliation and no retry.
+
 ## Prospective authorities and evidence-refresh amendment
 
 At `2026-09-03T12:40:55Z`, before any replacement evidence access, the lead

@@ -50,6 +50,7 @@ const ECFR_ORIGIN = "https://www.ecfr.gov";
 const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 const ARRAY_INDEX_PATTERN = /^(?:0|[1-9][0-9]*)$/;
 const MAXIMUM_JSON_DEPTH = 32;
+const MAXIMUM_JSON_NODE_COUNT = 20_000;
 const MAXIMUM_JSON_TEXT_LENGTH = 65_536;
 
 export class FederalRegisterTier1ContractError extends TypeError {
@@ -79,9 +80,19 @@ function deepFreeze(value) {
   return value;
 }
 
-function captureJsonValue(value, path, ancestors, depth) {
+function captureJsonValue(value, path, ancestors, depth, budget) {
   if (depth > MAXIMUM_JSON_DEPTH) {
     fail("invalid_json", path, "JSON nesting exceeds the Tier-1 ceiling");
+  }
+  budget.nodeCount += 1;
+  if (budget.nodeCount > MAXIMUM_JSON_NODE_COUNT) {
+    fail("invalid_json", path, "JSON node count exceeds the Tier-1 ceiling");
+  }
+  if (typeof value === "string") {
+    budget.stringBytes += utf8ByteLength(value);
+    if (budget.stringBytes > MAXIMUM_JSON_TEXT_LENGTH) {
+      fail("invalid_json", path, "JSON strings exceed the Tier-1 byte ceiling");
+    }
   }
   if (
     value === null ||
@@ -140,6 +151,10 @@ function captureJsonValue(value, path, ancestors, depth) {
       if (isArray && key === "length") {
         continue;
       }
+      budget.stringBytes += utf8ByteLength(key);
+      if (budget.stringBytes > MAXIMUM_JSON_TEXT_LENGTH) {
+        fail("invalid_json", path, "JSON keys exceed the Tier-1 byte ceiling");
+      }
       if (
         isArray &&
         (!ARRAY_INDEX_PATTERN.test(key) || Number(key) >= length)
@@ -161,6 +176,7 @@ function captureJsonValue(value, path, ancestors, depth) {
           isArray ? `${path}[${key}]` : `${path}.${key}`,
           ancestors,
           depth + 1,
+          budget,
         ),
       ]);
     }
@@ -185,7 +201,12 @@ function captureJsonValue(value, path, ancestors, depth) {
 
 function captureJsonSnapshot(value) {
   try {
-    return deepFreeze(captureJsonValue(value, "$", new WeakSet(), 0));
+    return deepFreeze(
+      captureJsonValue(value, "$", new WeakSet(), 0, {
+        nodeCount: 0,
+        stringBytes: 0,
+      }),
+    );
   } catch {
     fail(
       "invalid_json",
@@ -226,7 +247,16 @@ function text(value, path, maximumLength = 16_384) {
     value.length > maximumLength ||
     [...value].some((character) => {
       const codePoint = character.codePointAt(0);
-      return codePoint <= 0x1f || codePoint === 0x7f;
+      return (
+        codePoint <= 0x1f ||
+        codePoint === 0x7f ||
+        (codePoint >= 0xd800 && codePoint <= 0xdfff) ||
+        codePoint === 0x061c ||
+        codePoint === 0x200e ||
+        codePoint === 0x200f ||
+        (codePoint >= 0x202a && codePoint <= 0x202e) ||
+        (codePoint >= 0x2066 && codePoint <= 0x2069)
+      );
     })
   ) {
     fail("invalid_value", path, "string is blank, unsafe, or too long");
@@ -350,7 +380,9 @@ function httpsUrl(value, path) {
     parsed.password !== "" ||
     parsed.port !== "" ||
     parsed.hash !== "" ||
-    parsed.href !== raw
+    parsed.href !== raw ||
+    raw.endsWith("?") ||
+    raw.endsWith("#")
   ) {
     fail("invalid_url", path, "URL violates the canonical HTTPS boundary");
   }
@@ -362,7 +394,8 @@ function exactUrl(value, path, origin, pathname, search = "") {
   if (
     parsed.origin !== origin ||
     parsed.pathname !== pathname ||
-    parsed.search !== search
+    parsed.search !== search ||
+    parsed.href !== `${origin}${pathname}${search}`
   ) {
     fail("invalid_url", path, "URL host or typed path does not match Tier-1");
   }
@@ -440,9 +473,21 @@ function parseCfrScalar(value, path) {
   if (value === null) {
     return null;
   }
-  return typeof value === "number"
-    ? integer(value, path, 0, 100_000)
-    : text(value, path, 64);
+  if (typeof value === "number") {
+    return integer(value, path, 0, 100_000);
+  }
+  const parsed = text(value, path, 64);
+  if (
+    !/^[A-Za-z0-9]+(?:[.-][A-Za-z0-9]+)*$/.test(parsed) ||
+    encodeURIComponent(parsed) !== parsed
+  ) {
+    fail(
+      "invalid_value",
+      path,
+      "CFR scalar must be one canonical URL-safe segment",
+    );
+  }
+  return parsed;
 }
 
 function parseCfrReference(value, path) {
@@ -454,19 +499,24 @@ function parseCfrReference(value, path) {
   let citationUrl = null;
   if (parsed.citation_url !== null) {
     const url = httpsUrl(parsed.citation_url, `${path}.citation_url`);
-    const segments = url.pathname.split("/").filter(Boolean);
+    const expectedSegments = ["current", `title-${title}`];
+    if (chapter !== null) {
+      expectedSegments.push(`chapter-${String(chapter)}`);
+    }
+    if (part !== null) {
+      expectedSegments.push(`part-${String(part)}`);
+    }
+    const expectedPath = `/${expectedSegments.join("/")}`;
     if (
       url.origin !== ECFR_ORIGIN ||
       url.search !== "" ||
-      segments[0] !== "current" ||
-      segments[1] !== `title-${title}` ||
-      (chapter !== null && !segments.includes(`chapter-${String(chapter)}`)) ||
-      (part !== null && !segments.includes(`part-${String(part)}`))
+      url.pathname !== expectedPath ||
+      url.href !== `${ECFR_ORIGIN}${expectedPath}`
     ) {
       fail(
         "invalid_url",
         `${path}.citation_url`,
-        "eCFR citation URL does not match its title and part",
+        "eCFR citation URL does not match its exact title/chapter/part path",
       );
     }
     citationUrl = url.href;
@@ -633,14 +683,16 @@ export function parseFederalRegisterTier1Document(value) {
   const agencySlugs = agencies
     .map((agency) => agency.slug)
     .filter((slug) => slug !== undefined);
+  const agencyRawNames = agencies.map((agency) => agency.raw_name);
   if (
     new Set(agencyIds).size !== agencyIds.length ||
-    new Set(agencySlugs).size !== agencySlugs.length
+    new Set(agencySlugs).size !== agencySlugs.length ||
+    new Set(agencyRawNames).size !== agencyRawNames.length
   ) {
     fail(
       "duplicate_value",
       "$.agencies",
-      "agency identity axes must be unique within the document",
+      "agency raw names and optional identity axes must be unique within the document",
     );
   }
   const docketIds = uniqueStrings(parsed.docket_ids, "$.docket_ids", 64, 512);

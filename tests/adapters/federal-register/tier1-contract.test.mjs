@@ -337,6 +337,13 @@ test("requires a nonblank issuer raw_name and validates dropped envelope URLs", 
     "invalid_url",
     "$.agencies[0].url",
   );
+  const emptyDelimiter = copy();
+  emptyDelimiter.agencies[0].url += "?";
+  throwsCode(
+    () => parseFederalRegisterTier1Document(emptyDelimiter),
+    "invalid_url",
+    "$.agencies[0].url",
+  );
   const wrongSlug = copy();
   wrongSlug.agencies[0].json_url =
     "https://www.federalregister.gov/api/v1/agencies/other-agency";
@@ -354,6 +361,18 @@ test("requires a nonblank issuer raw_name and validates dropped envelope URLs", 
   });
   throwsCode(
     () => parseFederalRegisterTier1Document(duplicateIdentity),
+    "duplicate_value",
+    "$.agencies",
+  );
+  const duplicateRawName = copy();
+  duplicateRawName.agencies.push({
+    raw_name: duplicateRawName.agencies[0].raw_name,
+    id: 99002,
+    slug: "second-synthetic-agency",
+    parent_id: null,
+  });
+  throwsCode(
+    () => parseFederalRegisterTier1Document(duplicateRawName),
     "duplicate_value",
     "$.agencies",
   );
@@ -405,12 +424,33 @@ test("validates strict CFR shapes without inferring cross-scheme mappings", () =
     "invalid_url",
     "$.cfr_references[0].citation_url",
   );
+  for (const noncanonicalPath of [
+    "/current/title-50/not-a-citation/chapter-IX/part-999",
+    "/current/title-50/chapter-IX/part-999/extra",
+    "/current/title-50//chapter-IX/part-999",
+    "/current/title-50/chapter-IX/part-999/",
+  ]) {
+    const noncanonical = copy();
+    noncanonical.cfr_references[0].citation_url = `https://www.ecfr.gov${noncanonicalPath}`;
+    throwsCode(
+      () => parseFederalRegisterTier1Document(noncanonical),
+      "invalid_url",
+      "$.cfr_references[0].citation_url",
+    );
+  }
   const emptyCfrTopics = copy();
   emptyCfrTopics.cfr_topics[0].topics = [];
   throwsCode(
     () => parseFederalRegisterTier1Document(emptyCfrTopics),
     "invalid_value",
     "$.cfr_topics[0].topics",
+  );
+  const emptyCitationDelimiter = copy();
+  emptyCitationDelimiter.cfr_references[0].citation_url += "#";
+  throwsCode(
+    () => parseFederalRegisterTier1Document(emptyCitationDelimiter),
+    "invalid_url",
+    "$.cfr_references[0].citation_url",
   );
   const optionalChapter = copy();
   delete optionalChapter.cfr_topics[0].cfr_chapter;
@@ -447,6 +487,8 @@ test("requires every CFR member and rejects scalar/type/path substitution", asyn
 
   const cases = [
     ["chapter", false],
+    ["chapter", "IX/rogue"],
+    ["chapter", "IX%2Frogue"],
     ["part", {}],
     ["title", "50"],
     ["citation_url", 1],
@@ -521,7 +563,7 @@ test("binds every retained link to its exact HTTPS host, identity, date, and cus
       `$.${field}`,
     );
   }
-  for (const suffix of ["#fragment", "&extra=1"]) {
+  for (const suffix of ["#", "#fragment", "&extra=1"]) {
     const candidate = copy();
     candidate.json_url += suffix;
     throwsCode(
@@ -529,6 +571,22 @@ test("binds every retained link to its exact HTTPS host, identity, date, and cus
       "invalid_url",
       "$.json_url",
     );
+  }
+  for (const field of [
+    "html_url",
+    "pdf_url",
+    "full_text_xml_url",
+    "raw_text_url",
+  ]) {
+    for (const delimiter of ["?", "#"]) {
+      const candidate = copy();
+      candidate[field] += delimiter;
+      throwsCode(
+        () => parseFederalRegisterTier1Document(candidate),
+        "invalid_url",
+        `$.${field}`,
+      );
+    }
   }
 
   const nestedSlug = copy();
@@ -641,6 +699,13 @@ test("rejects accessors, symbols, sparse arrays, cycles, excessive depth, and Pr
     "invalid_json",
     "$",
   );
+  const overlyWide = copy();
+  overlyWide.unreviewed = Array.from({ length: 20_001 }, () => true);
+  throwsCode(
+    () => parseFederalRegisterTier1Document(overlyWide),
+    "invalid_json",
+    "$",
+  );
   const proxied = new Proxy(copy(), {
     ownKeys() {
       throw new Error("provider bytes must not escape");
@@ -668,6 +733,22 @@ test("raw JSON rejects malformed, duplicate, wrapper, and oversized inputs", () 
     assert.throws(
       () => parseFederalRegisterTier1DocumentJson(source),
       FederalRegisterTier1ContractError,
+    );
+  }
+});
+
+test("rejects non-scalar and bidirectional-control retained text", () => {
+  for (const unsafe of [
+    "unsafe\ud800text",
+    "unsafe\u202etext",
+    "unsafe\u2066text",
+  ]) {
+    const candidate = copy();
+    candidate.title = unsafe;
+    throwsCode(
+      () => parseFederalRegisterTier1Document(candidate),
+      "invalid_value",
+      "$.title",
     );
   }
 });
