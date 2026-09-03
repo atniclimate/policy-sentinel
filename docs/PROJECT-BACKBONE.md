@@ -60,6 +60,8 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | PNW-03 implementation and terminal evidence | [`pnw-geography-rights-implementation-2026-09-02.md`](handoffs/pnw-geography-rights-implementation-2026-09-02.md) | Complete local synthetic checkpoint; does not authorize real data, convergence, publication, or a successor |
 | Current PNW-04 implementation coordination | [`PNW-04-TAXONOMY-COORDINATION-2026-09-02.md`](development/PNW-04-TAXONOMY-COORDINATION-2026-09-02.md) | Records the closed taxonomy run, review history, and exact path boundary; cannot authorize real mappings, sources, publication, or a successor |
 | PNW-04 implementation and terminal evidence | [`pnw-taxonomy-implementation-2026-09-02.md`](handoffs/pnw-taxonomy-implementation-2026-09-02.md) | Complete local synthetic checkpoint; does not authorize real taxonomy content, source activation, publication, or a successor |
+| PNW-05 source-pack-core coordination | [`PNW-05-SOURCE-PACK-CORE-COORDINATION-2026-09-02.md`](development/PNW-05-SOURCE-PACK-CORE-COORDINATION-2026-09-02.md) | Records the frozen structural contract, custody, repairs, review, and exact path boundary; cannot qualify or activate a real source |
+| PNW-05 source-pack-core terminal evidence | [`pnw-source-pack-core-2026-09-02.md`](handoffs/pnw-source-pack-core-2026-09-02.md) | Complete local synthetic structural checkpoint; parent PNW-05 remains non-complete pending separately authorized source-specific evidence |
 | K0/S0/O0 custody and D0 historical status | [`vision/README.md`](vision/README.md) | Protected bytes and convergence gates remain controlling |
 
 The completed product-space mapping and lossless B-to-PNW crosswalk remain in
@@ -90,6 +92,7 @@ transition.
 | Region/deployment/persona projection seam | PNW-01 implemented and validated as a closed synthetic `1.0.0` profile/runtime seam | no production profile, source coverage, analyzed corpus, output adapter, or publication |
 | Governed geography and configured rights seam | PNW-03 implemented as a separate synthetic `1.0.0` catalog with typed temporal relations, source-bound frames, exact grants, and reference-only projection | no real geography or rights evidence, GIS computation, legal determination, public integration, or S0 convergence |
 | Governed taxonomy and directional crosswalk seam | PNW-04 implemented as a separate synthetic `1.0.0` authority/scheme-separated catalog with exact evidence/review, direct many-to-many edges, and reference-only projection | no real ATNI/NCAI/Nation/source/community vocabulary, production classification, source activation, public integration, or position inference |
+| Governed source-pack admission seam | PNW-05 core implemented as a separate synthetic-test-only `1.0.0` closed graph with exact contract/evidence/coverage/authority/review/admission proof, scoped health/availability, typed gaps, deterministic requester projections, and no I/O | no real source qualification, access, terms acceptance, coverage, currentness, lifecycle/LKG, ingestion, analyzed corpus, activation, or publication |
 | ATNI regional registry | intended and evidence-gated | owner direction and 575 recognition evidence do not supply membership |
 | Canonical analyzed corpus and common document/web/app/structured adapters | accepted target architecture | current artifact, dossier, CSV, and app are precursors only |
 
@@ -129,7 +132,7 @@ telemetry, browser-side AI, or outbound notifications.
 | PNW-02 | Independently blocked on `G-PNW-ATNI-59-ROSTER`; PNW-01 dependency complete |
 | PNW-03 | Complete as a bounded synthetic geography/rights tranche |
 | PNW-04 | Complete as a bounded synthetic governed-taxonomy tranche |
-| PNW-05 | Dependency-ready but separately owner-gated; no authorization implied by PNW-01, PNW-03, or PNW-04 |
+| PNW-05 | Synthetic structural core complete; parent remains ready and non-complete pending separately authorized named-source evidence and onboarding |
 | PNW-06 through PNW-10 | Not started behind their recorded dependencies |
 | Publication | Closed; both local product finish scopes and exact owner operations are prerequisites |
 
@@ -145,14 +148,25 @@ governance item is active or complete.
 - Current pipeline and policy enforcement: `src/pipeline/`.
 - Implemented source adapters: `src/adapters/`; logical/offline contracts:
   `src/contracts/`.
+- PNW-05 source-pack core: closed
+  [`SourcePackBundle 1.0.0` schema](../schemas/source-pack-bundle.schema.v1.json),
+  [`readonly contracts`](../src/engine/source-pack-contracts.ts),
+  [`pure runtime`](../src/engine/source-pack.ts),
+  [`valid synthetic fixture`](../fixtures/engine/source-pack.synthetic.valid.json),
+  [`malformed inventory`](../fixtures/engine/source-pack-malformed.invalid.json),
+  and focused
+  [`schema`](../tests/engine/source-pack-schema.test.ts),
+  [`runtime`](../tests/engine/source-pack.test.ts), and
+  [`non-interference`](../tests/engine/source-pack-non-interference.test.ts)
+  tests. These surfaces have no source-access or activation authority.
 - Isolated additive work: `src/kernel/` (K0) and
   `src/experimental/spatial/` (S0).
 - Codex environment: `.codex/hooks.json`, `.codex/config.toml`,
   `.codex/agents/`, and `.agents/skills/`.
 - `dist/` is generated and ignored by `npm run build`. `.cache/` is ignored
   staging. Never hand-edit or commit either.
-- The owner direction packet `docs/00-*` through `docs/12-*` is preserved
-  untracked input, not canonical repository implementation.
+- The owner direction inputs `docs/00-*` through `docs/14-*` are preserved
+  untracked, not canonical repository implementation.
 
 ## Recovery and exact next action
 
@@ -164,7 +178,9 @@ npm run validate:roadmap
 npm run validate:backbone
 ```
 
-PNW-04 is complete at its validated local synthetic checkpoint and no product
-mutation is active. Stop. Do not begin PNW-02, PNW-05, a source, real taxonomy
-or geography content, S0/K0/O0 convergence, remote, publication, or deployment
-operation without separate exact owner authority.
+The PNW-05 source-pack core is complete at its validated local synthetic
+structural checkpoint, but parent PNW-05 remains non-complete and no product
+mutation is active. Stop. Do not begin PNW-02, onboard or access a source,
+implement PNW-06/07, add real taxonomy/geography/community content, converge
+S0/K0/O0, or perform a remote, publication, or deployment operation without
+separate exact owner authority and the required originating evidence.

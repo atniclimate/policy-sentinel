@@ -3,7 +3,9 @@ roadmap_id: policy-sentinel-through-finish
 project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
-  phase: "PNW-04 governed taxonomy complete; next authorization required"
+  phase: >-
+    PNW-05 synthetic source-pack core complete; source onboarding authorization
+    required
   updated_on: "2026-09-02"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -677,20 +679,20 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Preserve the validated synthetic PNW-04 governed taxonomy checkpoint and
-    every exact closed boundary while awaiting separate authorization for any
-    successor work.
+    Preserve the validated offline synthetic PNW-05 source-pack-core checkpoint
+    and every exact closed boundary while awaiting separate authorization and
+    current primary-source evidence for any named-source onboarding tranche.
   terminal_reason: >-
-    PNW-04-TAXONOMY completed with objective validation, implementation commit
-    8fd1931bf05e6ab3bc93f5d25b18030101fd7269, and exact APPROVE_PNW_04; every
-    successor tranche requires separate exact owner authorization and none is
-    active.
+    The bounded PNW-05 source-pack core passed objective validation in
+    implementation commit 6f1475dfb72a432ccfe65b16e65035df25a933d3 with exact
+    APPROVE_PNW_05_CORE. It supplies structural evidence only, so the parent
+    remains non-complete and no successor tranche is active.
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 8fd1931bf05e6ab3bc93f5d25b18030101fd7269
+  last_durable_checkpoint: 6f1475dfb72a432ccfe65b16e65035df25a933d3
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -4024,7 +4026,58 @@ work_items:
       - >-
         Existing disabled adapters and source reviews remain evidence inputs,
         not automatic PNW activation or completion credit.
-    evidence: []
+    evidence:
+      - >-
+        The owner authorized only the offline synthetic source-pack-core slice
+        in docs/14-CODEX-PNW-05-SOURCE-PACK-CORE-LONG-RUN.md on 2026-09-02; the
+        frozen contract and custody record is
+        docs/development/PNW-05-SOURCE-PACK-CORE-COORDINATION-2026-09-02.md and
+        the terminal evidence handoff is
+        docs/handoffs/pnw-source-pack-core-2026-09-02.md.
+      - >-
+        Implementation commit 6f1475dfb72a432ccfe65b16e65035df25a933d3 adds the
+        closed synthetic-test-only SourcePackBundle 1.0.0 schema, readonly
+        contracts, parser/planner/serializers, compatibility assertion, exact
+        PNW-01 profile and optional PNW-03/04 reference seams, neutral fixture
+        family, foundation/backbone integration, focused tests, and supporting
+        architecture/data-contract text in exactly 14 authorized paths.
+      - >-
+        Admission is an exact source-registry identity plus current synthetic
+        contract, typed single-consumer evidence, coverage, configuration
+        authority, accepted review, deployment/context/persona/output scope,
+        independent operation grant, and three-scope availability and health.
+        Whole-graph validation is atomic; partial, unavailable, disabled,
+        not-admitted, unknown, not-observed, outside-coverage, and unhealthy
+        states remain explicit non-absence gaps. Plans are requester-scoped,
+        canonically serialized, fingerprinted, detached, and recursively frozen.
+      - >-
+        The valid fixture contains 4 source contexts, 2 jurisdiction contexts, 4
+        access contexts, 5 authorities, 16 evidence receipts, 3 contracts, 5
+        coverage declarations, 10 reviews, 5 admissions, 15 availability
+        observations, 15 health observations, 5 source bindings, and 2
+        deployments. The malformed inventory has 53 cases: 18 schema, 31
+        semantic, and 4 projection cases. It uses only neutral synthetic
+        repository fixtures and contains no real source, organization, Nation,
+        policy, law, endpoint, geography, community, person, or private data.
+      - >-
+        Focused PNW-05 suites passed 83 tests; PNW-01/03/04 predecessor suites
+        passed 253 tests; foundation compiled 12 contract schemas and classified
+        18 schema-invalid plus 35 runtime-boundary source-pack cases. Hooks,
+        formatting, lint, typecheck, roadmap/backbone validation, source
+        scanning, artifact validation, and diff checks passed. The terminal
+        serialized VITEST_MAX_WORKERS=1 npm run check passed 83 files and 1,335
+        tests, then built and validated 3 records, exactly 575 synthetic
+        Nations, and 8 assets at build ID synthetic-91006af61ddfe9888fcb.
+      - >-
+        Two complete fixed-input builds at 2026-09-02T18:00:00.000Z matched all
+        9 source-data artifact paths, sizes, and SHA-256 values at build ID
+        synthetic-c1d8d821528cac1f7efa. No source-pack identity, configuration,
+        receipt, admission, fixture, slot, gap, or marker entered the ordinary
+        artifact. Independent Agent 6 returned exact APPROVE_PNW_05_CORE on the
+        final candidate and POST_COMMIT_PNW05_CORE_VERIFIED for the exact
+        implementation tree. This structural checkpoint does not qualify,
+        accept, activate, access, refresh, retain, redistribute, publish, or
+        establish coverage/currentness/completeness for any real source.
 
   - id: PNW-06-LIFECYCLE-REFRESH
     priority: 136
@@ -4543,9 +4596,11 @@ next_actions:
   - order: 6
     work_item: PNW-05-SOURCE-PACK
     action: >-
-      Begin only under separate exact owner authorization and source-specific
-      review. Do not access, activate, or publish a source from the synthetic
-      projection seams or treat configured identifiers as coverage.
+      Continue only under separate exact owner authorization for a named source
+      and a current primary-source review covering authority, contract,
+      coverage, privacy, reuse, lifecycle, attribution, access, and activation
+      boundaries. Do not infer production qualification from this synthetic
+      core.
 finish_states:
   repository_backbone:
     current_state: complete

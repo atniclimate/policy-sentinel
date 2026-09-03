@@ -2,7 +2,9 @@
 
 Status: current after the 2026-09-02 PNW product-space rebase, repository
 backbone alignment, and completed local PNW-01, PNW-03, and PNW-04 synthetic
-checkpoints. No successor tranche is active. Git and the validated
+checkpoints plus the bounded PNW-05 synthetic source-pack core. Parent PNW-05
+remains non-complete and ready only for separately authorized source-specific
+onboarding evidence. No successor tranche is active. Git and the validated
 `ROADMAP.yaml` remain authoritative over this prose and over chat memory.
 
 ## Start and recover
@@ -15,7 +17,8 @@ Open Codex in `I:\policy-sentinel` with `gpt-5.6-sol` at Ultra effort, then:
    `docs/development/AGENT-AND-TOOL-OPERATING-MODEL.md` completely.
 4. Read `docs/handoffs/pnw-product-space-rebase-2026-09-02.md`, the historical
    `docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md`, and the
-   current implementation/evidence handoff named by `ROADMAP.yaml`.
+   current implementation/evidence handoff named by `ROADMAP.yaml`, presently
+   `docs/handoffs/pnw-source-pack-core-2026-09-02.md`.
 5. Read the binding contract, architecture, governance, decision, source,
    review, validation, test, and handoff files relevant to the selected item.
 6. Reconcile branch, exact HEAD and parent, worktrees, status, remotes, changed
@@ -53,11 +56,15 @@ geography, proximity, sponsors, model output, or owner-direction counts.
 
 The 2026-07-30 Gate A authorizes only the retained B1-B10 implementation stream
 under `docs/mvp-plan.md`. Later owner directives separately authorized the exact
-local synthetic PNW-01, PNW-03, and PNW-04 tranches; those bounded decisions
-authorize no other PNW item or operation. Do not treat their schemas, fixtures,
-or passing tests as source, roster, real-geography, real-taxonomy,
-production-profile, legal, integration, or release evidence. Do not access
-sources merely to fill a gap, review or implement O0, import K0/S0/O0, change
+local synthetic PNW-01, PNW-03, and PNW-04 tranches and the offline structural
+core inside parent PNW-05; those bounded decisions authorize no other PNW item,
+real source, or operation. PNW-05 core implementation commit
+`6f1475dfb72a432ccfe65b16e65035df25a933d3` supplies only a closed declarative
+schema and pure reference planner. Do not treat these schemas, fixtures, or
+passing tests as source, roster, real-geography, real-taxonomy,
+production-profile, provider-contract, coverage, currentness, lifecycle,
+activation, legal, integration, or release evidence. Do not access sources
+merely to fill a gap, review or implement O0, import K0/S0/O0, change
 convergence, or proceed beyond the exact current roadmap boundary.
 
 Remote operations, push, Pages, publication, provider-term acceptance,
@@ -99,6 +106,15 @@ The repository source-review skill is procedural support, not source authority.
 The registered source-evidence and sovereignty reviewers are read-only by
 default. Their reports do not accept a source, decide a gate, or prove
 completion.
+
+The current structural core accepts only exact canonical synthetic fixture
+identities and `synthetic_test_only` evidence. A future PNW-05 onboarding slice
+requires exact owner authorization naming its bounded source/tranche and a new
+current primary-source review covering authority, interface contract, coverage,
+privacy, reuse/reproduction, attribution, lifecycle, health, failure behavior,
+static/build-time constraints, and the activation decision. Until then,
+`G-PNW-SOURCE-ACTIVATION` and every external operation gate remain closed;
+PNW-06 and PNW-07 remain not started.
 
 ## Validation and terminal handoff
 
