@@ -4183,12 +4183,24 @@ work_items:
         23-selector Tier-1 parser/transport, declarations, synthetic fixtures,
         adversarial tests, and additive adapter exports. Its nine-file
         1,130-byte manifest has SHA-256
-        3a85bf0767d7db63b8dc3566d33250d70ef2b107af46392b47860516556c9d2d;
-        root verification passed 98 new Node tests, 142 retained Federal
-        Register tests, type checking, lint, formatting, foundation, backbone,
-        roadmap, and source-boundary validation. The byte freeze is a review
-        candidate only; FR-A1 remains unissued pending three independent
-        actual-byte reviews and the complete pre-acquisition lifecycle gate.
+        3a85bf0767d7db63b8dc3566d33250d70ef2b107af46392b47860516556c9d2d; root
+        verification passed 98 new Node tests, 142 retained Federal Register
+        tests, type checking, lint, formatting, foundation, backbone, roadmap,
+        and source-boundary validation. The byte freeze is a review candidate
+        only; FR-A1 remains unissued pending three independent actual-byte
+        reviews and the complete pre-acquisition lifecycle gate.
+      - >-
+        The source and security reviewers rejected the first Tier-1 byte freeze
+        after reproducing a generic fetch provenance-forgery path, noncanonical
+        typed eCFR paths, and duplicate mandatory issuer identity; the manifest
+        is invalidated and the bounded repair is in progress. A seven-authority
+        evidence-blocked graph was constructed at 2026-09-03T12:40:55Z with
+        bundle digest
+        b1895989a3fcf829c5e6671daaa9d76b6b6c371d23cc4d1b6275b16180357929 and
+        zero provider facts, reviews, grants, or positive lifecycle receipts. To
+        avoid backdating provider authority, the independent security adversary
+        approved only the exact post-authority FR-D2/FR-R4/FR-R5
+        evidence-refresh amendment; FR-A1 remains closed.
 
   - id: PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG
     priority: 137

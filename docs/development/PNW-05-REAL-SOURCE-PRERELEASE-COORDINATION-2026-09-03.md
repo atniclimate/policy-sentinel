@@ -589,6 +589,76 @@ candidate, not an approval or acquisition grant. Any change to one listed file
 invalidates the manifest and requires a new byte freeze and all three fresh
 reviews. `FR-A1` remains unissued.
 
+Both preliminary actual-byte reviews rejected this first Tier-1 freeze. They
+reproduced a caller-supplied fetch escape that could mint an indistinguishable
+success receipt without provider access, a noncanonical eCFR path grammar, and
+duplicate mandatory issuer-name ambiguity. The security review additionally
+found empty URL delimiters and unsafe CFR scalar interpolation. The lead
+accepted the findings, invalidated this manifest, removed the raw fetch from
+the adapter export, and began a bounded repair. No finding caused a provider
+request. A replacement manifest and all fresh reviews are required.
+
+## Prospective authorities and evidence-refresh amendment
+
+At `2026-09-03T12:40:55Z`, before any replacement evidence access, the lead
+constructed and lifecycle-validated an authority-only, `evidence_blocked`
+prospective graph. It has seven authority receipts, zero provider facts,
+reviews, grants, qualification/admission/activation/binding receipts, coverage,
+health, LKG, or artifact eligibility, and closed publication. Its bundle digest
+is `b1895989a3fcf829c5e6671daaa9d76b6b6c371d23cc4d1b6275b16180357929`,
+scope digest is
+`1ecb53dd71f112143b16ac455e8509ae37c608e243e43dc4ebe21bb2610c1000`,
+and authority-set digest is
+`5af9c82a6dd8257ff3e54a8e677bca0df9197c88f4c9faaf777456baebcfa3d7`.
+All six new receipts expire at `2026-12-01T00:00:00Z`.
+
+| Role | Receipt digest | Identity digest | Authority-evidence digest |
+| --- | --- | --- | --- |
+| OFR/NARA service operator | `01ae2fa3d8e14cd36b9b0ac3cf3b4c079c0dc45037597b16749279c50c5044ca` | `dcf40b4752b971ed9a3489d45609be8f45dc96bf712572441515be092f050df1` | `d86b7c71807db84718347f7763545ee6b986c74584b0eb632fa309bb74f84aa4` |
+| OFR/NARA originating publisher | `203ac095892f3fcf856d4a9aed26a0203dd6aba11385a29521375f68550cb1cf` | `dcf40b4752b971ed9a3489d45609be8f45dc96bf712572441515be092f050df1` | `ebeacb59c7c19267eb5d90d76e6c695e8cbcea98b101c4512a5d0db687b18d0b` |
+| GPO official-edition custodian | `d9ece4b4fceaae73d06e3feef377ee7664a8eef2b90a45b7b315657bb2a60efd` | `7018ce0e50acac6e2764a8d0cf0620415a40fe4e82698b09a8dabba61223d5aa` | `ac0c63d2d17781d77e0c962d2bff6720b0a387a65ec4aba15fae3427c8c48aec` |
+| Source-evidence reviewer | `9987742673658ba4af30fde491ba307894b1d16efe3c1c9b06c987922ddf0829` | `6c692356bedbd484ddd26d7c5c7d7f0dc3b4eadb2587d00826a0d27cd321cff6` | `3133e4ca2b660d54f86850d6af346774a89e5a216378cc035f82f868d58a82d0` |
+| Security reviewer | `b831a078dd425a68da065cf3fd2a2a21f46c4f196e5c03ecaa2dce794b3cb0b9` | `c02811c8e934bc8833db83083320afa257dddd979915ebe1bde01831800b4c9d` | `9726be9532e95fedd6a1701d1f1d3e6dda0707f5c945e41a60422dd3b889dedf` |
+| Sovereignty reviewer | `941909e5b868fd8f97184ffb0f01f1915852e93722c61dac2a0f1e3725889091` | `7ba9f6e8b55b13562276a3181a236fae81ce3a6c3d36587380e75e4bb19db1a8` | `45d597013e4e2523acbebb0531a289f639f7155cde4d79a1e76cd1d5669e8298` |
+
+OFR/NARA's two roles intentionally share one exact provider identity; GPO and
+each owner/reviewer trust group remain distinct. These receipts establish only
+prospective graph authorities. They do not convert the earlier observations
+into provider facts, appoint an issuing agency, or grant an operation.
+
+The source reviewer confirmed that the original `FR-D1`, `FR-R1`, and `FR-R2`
+accesses predate these receipts and therefore cannot truthfully supply provider
+facts under lifecycle chronology. Backdating a receipt or changing an access
+time is forbidden. The lead therefore freezes this exact three-request
+amendment, using previously unused named-allocation capacity and the identical
+serial method/media/redirect/credential/referrer/byte/chunk/time policy:
+
+| ID | Allocation | Exact URL | Accept | Bytes | Time | Purpose |
+| --- | --- | --- | --- | ---: | ---: | --- |
+| FR-D2 | Federal Register API | `https://www.federalregister.gov/api/v1/documentation.json` | JSON | 524,288 | 30,000 ms | Post-authority current interface/field evidence for provider-fact chronology |
+| FR-R4 | NARA/GovInfo | `https://www.archives.gov/federal-register/faqs` | HTML | 524,288 | 30,000 ms | Post-authority publisher/status/reproduction evidence |
+| FR-R5 | NARA/GovInfo | `https://www.govinfo.gov/help/fr` | HTML | 524,288 | 30,000 ms | Post-authority official-edition custody/rendition evidence |
+
+The three requests are not retries and do not replace the historical receipts.
+They may run only after an independent adversary concurs with this exact
+amendment. They remain serial, GET-only, manual/no-follow, one attempt each,
+and body-ephemeral. `FR-R3` is not repeated because it supports only a boundary,
+not a provider fact. Before execution the totals remain four issued and 76
+available. The amendment expands the exact set from 22 to 25 requests, leaving
+21 exact requests unissued and 55 other capacity slots unavailable. If all
+three complete once, totals become seven issued, 73 available, 28 available
+Federal Register API calls, eight available Federal Register allocation calls,
+three available NARA/GovInfo allocation calls, all 24 portfolio calls, and all
+38 general-reserve calls. `FR-A1` remains separately closed.
+
+At `2026-09-03T12:43:44Z`, the independent security adversary reconciled the
+three exact URLs, inherited controls, authority chronology, request arithmetic,
+and non-expansion boundary and returned exact disposition
+`APPROVE_POST_AUTHORITY_EVIDENCE_REFRESH_AMENDMENT`. The approval authorizes
+only one serial first attempt for each of `FR-D2`, `FR-R4`, and `FR-R5` under
+the written envelope. It does not approve a parser freeze, create a provider
+fact by itself, or authorize `FR-A1`.
+
 ## Phase gates, acceptance, and stop contract
 
 1. Candidate lifecycle schema/runtime/tests must address every pre-freeze

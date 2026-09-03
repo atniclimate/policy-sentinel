@@ -206,7 +206,7 @@ Common scope:
 Expiry, revocation, field-policy drift, scope drift, or failure of one condition
 invalidates the affected decision. GovInfo evidence cannot extend either one.
 
-## Tier-1 parser and transport byte-review candidate
+## Rejected first Tier-1 parser and transport byte freeze
 
 The exact nine-file candidate is frozen in the coordination record as a
 1,130-byte tab-separated manifest with SHA-256
@@ -220,11 +220,26 @@ and typed links, retains only the field policy, and parses the same bounded
 bytes twice before clearing them. Direct object and raw-JSON inputs both have a
 32-level nesting ceiling.
 
-The candidate and its focused/retained tests pass locally, but this paragraph
-is not independent approval. Any candidate-byte change invalidates the
-manifest. Source, security, and sovereignty reviewers must match and approve
-the exact bytes together with the complete digest-bound pre-acquisition
-lifecycle graph before `FR-A1` can be issued.
+The source and security reviewers independently matched these bytes and
+rejected them. A caller-supplied fetch implementation could mint a live-looking
+success receipt from synthetic bytes; eCFR paths admitted arbitrary
+interposed/trailing path segments; and duplicate mandatory agency `raw_name`
+values could create ambiguous later issuer authority. Empty URL delimiters and
+unsafe CFR scalar path interpolation were also reproducible. The lead accepted
+every finding and invalidated the manifest. Repairs remain unapproved until a
+new exact byte freeze and all three fresh reviews pass.
+
+The same source review found a separate chronology blocker: the original
+`FR-D1`, `FR-R1`, and `FR-R2` accesses occurred before the prospective provider
+authority receipts existed. They remain useful historical observations but
+cannot be relabeled or retimed as provider facts. The coordination record now
+contains a validated seven-authority, evidence-blocked graph issued at
+`2026-09-03T12:40:55Z` and an exact three-request `FR-D2`/`FR-R4`/`FR-R5`
+amendment for post-authority evidence. That amendment requires independent
+adversarial concurrence before execution and cannot issue `FR-A1`. The
+security adversary supplied that exact limited concurrence at
+`2026-09-03T12:43:44Z`; it applies only to one first attempt each for `FR-D2`,
+`FR-R4`, and `FR-R5` under the frozen controls.
 
 ## Hard blockers before `FR-A1`
 
