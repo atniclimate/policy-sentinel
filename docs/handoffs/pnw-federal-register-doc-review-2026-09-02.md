@@ -216,3 +216,63 @@ candidate. It does not authorize adapter work, provider retrieval, automatic
 admission, activation, source-pack binding, production content, terms
 acceptance, account/credentials, remote work, or publication. Each later action
 requires its own exact authorization.
+
+## Post-review owner acceptance and pickup sequence
+
+On 2026-09-02 the owner accepted the completed review as it stood at
+`290b75e62bfccc4ccca9232803987ce3e439adff` with terminal disposition
+`PNW_05_FEDERAL_REGISTER_DOC_REVIEW_ACCEPTED_SESSION_CLOSED`. The acceptance
+does not retrospectively change the review's evidence set, D-055, O-021, or the
+documented source-contract findings. It adds this controlling clarification for
+later authorized work:
+
+> A verified ATNI or NCAI resolution is primary evidence of the issuing
+> organization's adopted position. It is not automatically evidence of every
+> member Nation's independent position, nor independent proof of every factual
+> or legal recital within the resolution.
+
+The following owner directions govern any later authorized review:
+
+1. A verified, adopted ATNI or NCAI resolution may establish only the issuing
+   organization's position within its dated scope, adoption status, and
+   governance process. It must not be converted into a separate position of
+   every member Nation or into independent proof of its factual or legal
+   recitals.
+2. ATNI Resolution 2025-49 is an originating candidate record for ATNI's
+   organizational Roadless Rule position. Treating the supplied ATNI/NCAI
+   materials as unverified discovery leads was correct within this completed
+   tranche's evidence set and requires no retrospective amendment.
+3. Membership, delegate authorization, adoption, quorum, amendment, withdrawal,
+   expiration, and supersession require dated provenance. Membership never
+   substitutes for Nation identity, federal recognition, or affirmative
+   Nation-level assent.
+4. Preserve the Federal Register API's empty `docket_ids` value separately from
+   docket identifiers appearing in published text. Do not infer, parse, or
+   normalize one into the other without explicit authorization and provenance.
+5. The next repository review must audit the canonical-Markdown validator's
+   owner-input exclusions and prove that they are exact, custody-bound, and
+   incapable of allowing tracked or canonical files to bypass validation.
+6. Record, but do not onboard, these additional candidate source families:
+   ATNI and NCAI resolutions; BIA/Indian Affairs records; USAspending;
+   Grants.gov; eCFR; Congress.gov; Data.gov catalog metadata; SAM.gov
+   service-specific APIs; GAO Tribal issue reports; and mandate-specific Tribal
+   policy, legal, fisheries, research, and advocacy organizations. Each source
+   family requires its own authority, rights, privacy, field, and failure-
+   boundary review.
+
+The ordered pickup sequence is:
+
+1. `PNW-05-SRC-FEDERAL-REGISTER-ADMISSION-REVIEW`, strictly as a metadata-only,
+   no-fetch decision review that also carries the validator-exclusion audit and
+   the claim-specific authority/non-inference rules above.
+2. `PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY`, as a separate tranche that
+   produces two case-source coverage maps and ranks the additional candidates
+   without credentials, bulk crawling, library population, source admission,
+   or runtime work.
+
+This sequence records intended pickup order only. It starts neither tranche and
+authorizes no source admission, adapter implementation, retrieval, activation,
+binding, credentials, terms acceptance, production content, publication, or
+external mutation. `SRC-FEDERAL-REGISTER` and runtime source
+`federal-register` remain documentation-only, disabled, inactive, unbound, and
+absent from production artifacts.
