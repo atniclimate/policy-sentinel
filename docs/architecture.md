@@ -190,6 +190,93 @@ real ATNI, NCAI, Nation, source, or community taxonomy; no real mapping,
 membership, policy position, source activation, production classification, or
 publication follows from it.
 
+## PNW-05 synthetic source-pack core
+
+The additive `SourcePackBundle 1.0.0` is a closed, synthetic-test-only reference
+graph. It compiles an internal source-admission plan without acquiring,
+retaining, interpreting, or publishing source content. Canonical source truth
+stays in `sources.v1.json`: a pack member names only the exact source ID and
+source-registry version. It cannot copy a source name, provider, URL, terms,
+publisher jurisdiction, access settings, or `enabled` flag, and registry
+enablement never satisfies admission.
+
+Admission is proof-carrying and conjunctive. A usable binding requires a
+matching synthetic fixture contract, typed structural evidence, a reviewed
+declared-coverage object, synthetic configuration authority, an accepted
+synthetic-test review, a current synthetic-test admission receipt, an
+independent operation grant, exact PNW-01 region membership, and authorized
+PNW-05 disclosure. The admission's persona and output must also equal the exact
+request tuple. Acquisition, retention, transformation, internal analysis,
+redistribution, and public projection are independent grants. Each evidence
+receipt declares its exact contract, coverage, or authority subject and has
+exactly one primary consumer; review references are secondary views of that
+same evidence, not reusable primary proof. Every catalog reference is kind-,
+ID-, version-, source-, context-, jurisdiction-, profile-, and deployment-
+checked before any plan is returned. Every admission review must target that
+admission's exact contract or coverage object, and its review instant must lie
+inside the exact subject, evidence, and authority proof intervals; malformed
+graphs fail atomically.
+
+Source context and monitoring jurisdiction are explicit configuration axes.
+An opaque monitoring-jurisdiction reference points to an exact configured
+PNW-01 jurisdiction but expressly makes no publisher-jurisdiction equivalence,
+geographic-intersection, legal-jurisdiction, applicability, membership, or
+coverage claim. The neutral synthetic fixture uses a test-local PNW-01 profile
+variant, parsed by the unchanged PNW-01 validator, solely to exercise existing
+canonical synthetic registry IDs. It neither changes nor migrates the accepted
+PNW-01 profile fixture.
+
+Coverage is evaluated per requested opaque slot and preserves `covered`,
+`partial`, `outside_coverage`, `unknown_coverage`, and `not_assessed` as
+different states. Partial declarations remain useful but never aggregate into
+a complete-region claim, percentage, or readiness score. A slot served only by
+an eligible `partial` binding retains both that eligible proof and a `partial`
+`notEvidenceOfAbsence` gap. A plan otherwise contains authorized eligible
+binding references, permitted typed exclusions, and one such gap for each
+unserved requested slot.
+
+Availability and health are separate immutable observation dimensions at
+source, jurisdiction, and source-within-jurisdiction scope. The latest exact-key
+observation at or before explicit request `asOf` applies; a future-only or
+missing observation is `not_observed`, and conflicting states at the same
+instant reject. All required availability scopes must be `available` and all
+required health scopes `healthy`. Observed availability `unknown` and health
+`unknown` remain the distinct `availability_unknown` and `health_unknown` gap
+states instead of being relabeled `not_observed`. The core derives neither from
+record counts and implements no refresh, retry, staleness, cache, cursor, or
+last-known-good behavior; those remain PNW-06 concerns.
+
+PNW-05 disclosure is a separate synthetic-test overlay anchored to exact
+PNW-01 deployment, persona, and output references; it does not widen PNW-01's
+public-only visibility contract. Access is checked before identity-bearing
+projection. A hidden binding contributes no identity, count, reason, time,
+metadata, or fingerprint input to an unauthorized plan. Its unserved slot is
+represented only by the same opaque gap that would exist if no hidden binding
+were present. The disclosure-scoped plan deliberately omits the global source-
+pack bundle identity and version, so a correctly versioned hidden-only bundle
+change cannot perturb public bytes.
+
+Canonical serialization uses ordinal ordering. A browser-safe pure SHA-256
+fingerprint covers only the requester's authorized plan bytes. The plan is
+detached and recursively frozen, and an exact compatibility assertion rejects
+reuse under another profile, region, deployment, persona, output, access
+context, disclosure ceiling, operation, `asOf`, or normalized slot set.
+Optional exact PNW-03 relation/rights-frame and PNW-04 taxonomy-namespace
+references are compatibility links only. PNW-03 predecessors are admissible in
+this v1 seam only when both visibility and sensitivity are `public`; a rights
+frame must additionally approve `source_reference` use and the `public`
+audience. These links cannot change admission, coverage, association,
+relevance, authority, jurisdiction, applicability, rights, legal meaning, or
+activation.
+
+The schema is
+`https://policy-sentinel.invalid/schemas/source-pack-bundle.schema.v1.json`.
+The source-pack fixture/test family stays repository-only and is absent from
+the application and ordinary static artifact. It proves an offline structural
+core only—not real source authority, terms, observed behavior, coverage,
+currentness, activation, policy association, PNW-05 completion, publication,
+or readiness for PNW-06/07.
+
 ## Current application and ingestion architecture
 
 The implemented baseline is a static TypeScript application with a separate
@@ -202,7 +289,7 @@ Its current maturity is:
 | Maturity | Current repository evidence |
 | --- | --- |
 | Integrated local output | The Preact application, print dossier, CSV serializer, hash-route behavior, and artifact pipeline run over three synthetic records and 575 explicitly synthetic Nation rows. |
-| Implemented foundation seams | The synthetic-only PNW-01 profile projection, PNW-03 geography/rights catalog, and PNW-04 governed taxonomy/crosswalk catalog produce deterministic immutable reference-only views while leaving the detached `PolicyRecord 1.4` corpus unchanged. They are not integrated with the application or artifact pipeline. |
+| Implemented foundation seams | The synthetic-only PNW-01 profile projection, PNW-03 geography/rights catalog, PNW-04 governed taxonomy/crosswalk catalog, and PNW-05 source-pack core produce deterministic immutable reference-only views while leaving the detached `PolicyRecord 1.4` corpus unchanged. They are not integrated with the application or artifact pipeline. |
 | Implemented but disabled | Federal Register, Washington Governor executive orders, Washington Centennial Accord, and the one-row curated Supreme Court adapters are tested and registered but cannot emit public records. |
 | Contract-only | Congress.gov, GovInfo, Regulations.gov, Oregon Legislature OData, and Washington LWS have bounded synthetic contracts but no activated production adapter. |
 | Proposed and unimplemented | Production region packs and community profiles, the canonical analyzed corpus, concrete common output-adapter implementations, scheduled/manual workflows, Pages delivery, and a private deployment remain future work. |
@@ -548,12 +635,14 @@ policy-sentinel/
     mappings/                   # absent; future exact official-label maps
   docs/
   fixtures/
+    engine/                     # synthetic PNW profile/geography/taxonomy/source-pack contracts
     records/                    # synthetic only
     sources/                    # synthetic source contracts
   schemas/
     record.schema.v1.json
     taxonomy.schema.v1.json
     taxonomy-bundle.schema.v1.json
+    source-pack-bundle.schema.v1.json
     source.schema.v1.json
     artifact.schema.v1.json
     projection-profile.schema.v1.json

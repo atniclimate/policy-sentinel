@@ -1,0 +1,992 @@
+{
+  "fixtureFamilyVersion": "1.0.0",
+  "baseFixture": "source-pack.synthetic.valid.json",
+  "cases": [
+    {
+      "id": "missing-bundle-id",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "$sourcePackBundle/id",
+      "mutations": [
+        {
+          "operation": "remove",
+          "path": "/id"
+        }
+      ]
+    },
+    {
+      "id": "unknown-root-payload",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "$sourcePackBundle/*",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/providerPayload",
+          "value": "synthetic-forbidden"
+        }
+      ]
+    },
+    {
+      "id": "copied-source-enabled-flag",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/sourceBindings/*/*",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/sourceBindings/0/enabled",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "non-synthetic-trust-domain",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_VALUE",
+      "expectedPath": "/trustDomain",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/trustDomain",
+          "value": "production"
+        }
+      ]
+    },
+    {
+      "id": "production-lifecycle",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_VALUE",
+      "expectedPath": "/lifecycleState",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/lifecycleState",
+          "value": "production_active"
+        }
+      ]
+    },
+    {
+      "id": "unknown-source-context-role",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_VALUE",
+      "expectedPath": "/sourceContexts/*/role",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/sourceContexts/0/role",
+          "value": "production_context"
+        }
+      ]
+    },
+    {
+      "id": "publisher-jurisdiction-equivalence-claim",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_VALUE",
+      "expectedPath": "/jurisdictionContexts/*/publisherJurisdictionEquivalence",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/jurisdictionContexts/0/publisherJurisdictionEquivalence",
+          "value": "asserted"
+        }
+      ]
+    },
+    {
+      "id": "unsupported-disclosure",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_VALUE",
+      "expectedPath": "/accessContexts/*/disclosureCeiling",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/accessContexts/0/disclosureCeiling",
+          "value": "privileged"
+        }
+      ]
+    },
+    {
+      "id": "production-evidence-class",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_VALUE",
+      "expectedPath": "/evidenceReceipts/*/evidenceClass",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReceipts/0/evidenceClass",
+          "value": "production_evidence"
+        }
+      ]
+    },
+    {
+      "id": "observed-provider-behavior-evidence",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_VALUE",
+      "expectedPath": "/evidenceReceipts/*/evidenceKind",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReceipts/0/evidenceKind",
+          "value": "observed_provider_behavior"
+        }
+      ]
+    },
+    {
+      "id": "uppercase-fixture-fingerprint",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_VALUE",
+      "expectedPath": "/evidenceReceipts/*/fixtureFingerprint",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReceipts/0/fixtureFingerprint",
+          "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        }
+      ]
+    },
+    {
+      "id": "production-provider-layer",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_VALUE",
+      "expectedPath": "/contractReceipts/*/providerLayer",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/contractReceipts/0/providerLayer",
+          "value": "provider_response"
+        }
+      ]
+    },
+    {
+      "id": "raw-contract-response",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/contractReceipts/*/*",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/contractReceipts/0/rawResponse",
+          "value": "synthetic-forbidden"
+        }
+      ]
+    },
+    {
+      "id": "empty-coverage-slot-set",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/coverageDeclarations/*/slotStates",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/coverageDeclarations/0/slotStates",
+          "value": []
+        }
+      ]
+    },
+    {
+      "id": "coupled-operation-token",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_VALUE",
+      "expectedPath": "/admissionReceipts/*/operationGrants/*",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/admissionReceipts/0/operationGrants/0",
+          "value": "all_operations"
+        }
+      ]
+    },
+    {
+      "id": "stale-availability-state",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_VALUE",
+      "expectedPath": "/availabilityObservations/*/state",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/availabilityObservations/0/state",
+          "value": "stale"
+        }
+      ]
+    },
+    {
+      "id": "noncanonical-observation-time",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_VALUE",
+      "expectedPath": "/availabilityObservations/*/observedAt",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/availabilityObservations/0/observedAt",
+          "value": "3785-01-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "predecessor-inference-field",
+      "expectedLayer": "schema",
+      "expectedCode": "INVALID_SHAPE",
+      "expectedPath": "/sourceBindings/*/predecessorRefs/*/*",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/sourceBindings/0/predecessorRefs/0/allowedInference",
+          "value": "coverage"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-global-catalog-id",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_ID",
+      "expectedPath": "/catalogs",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/sourceContexts/1/id",
+          "value": "synthetic-context-federal"
+        }
+      ]
+    },
+    {
+      "id": "wrong-source-registry-version",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_SOURCE_IDENTITY",
+      "expectedPath": "/evidenceReceipts/*/source/sourceRegistryVersion",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReceipts/0/source/sourceRegistryVersion",
+          "value": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "unknown-source-identity",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_SOURCE_IDENTITY",
+      "expectedPath": "/evidenceReceipts/*/source/sourceId",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReceipts/0/source/sourceId",
+          "value": "synthetic-unknown-source"
+        }
+      ]
+    },
+    {
+      "id": "adapter-version-substitution",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_SOURCE_IDENTITY",
+      "expectedPath": "/contractReceipts/*/adapterRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/contractReceipts/0/adapterRef/version",
+          "value": "1.19.0"
+        }
+      ]
+    },
+    {
+      "id": "dangling-source-context-reference",
+      "expectedLayer": "semantic",
+      "expectedCode": "UNKNOWN_REFERENCE",
+      "expectedPath": "/coverageDeclarations/*/sourceContextRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/coverageDeclarations/0/sourceContextRef/id",
+          "value": "synthetic-context-missing"
+        }
+      ]
+    },
+    {
+      "id": "wrong-kind-source-context-reference",
+      "expectedLayer": "semantic",
+      "expectedCode": "WRONG_KIND",
+      "expectedPath": "/coverageDeclarations/*/sourceContextRef/kind",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/coverageDeclarations/0/sourceContextRef/kind",
+          "value": "jurisdiction_context"
+        }
+      ]
+    },
+    {
+      "id": "wrong-version-source-context-reference",
+      "expectedLayer": "semantic",
+      "expectedCode": "WRONG_VERSION",
+      "expectedPath": "/coverageDeclarations/*/sourceContextRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/coverageDeclarations/0/sourceContextRef/version",
+          "value": "2.0.0"
+        }
+      ]
+    },
+    {
+      "id": "cross-source-contract-evidence",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_SOURCE_REFERENCE",
+      "expectedPath": "/contractReceipts/*/evidenceRefs/*",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/contractReceipts/0/evidenceRefs/1/id",
+          "value": "synthetic-evidence-county-contract"
+        }
+      ]
+    },
+    {
+      "id": "contract-fingerprint-evidence-mismatch",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_TRUST_REFERENCE",
+      "expectedPath": "/contractReceipts/*/fixtureFingerprint",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/contractReceipts/0/fixtureFingerprint",
+          "value": "9999999999999999999999999999999999999999999999999999999999999999"
+        }
+      ]
+    },
+    {
+      "id": "review-evidence-substitution",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_TRUST_REFERENCE",
+      "expectedPath": "/reviewAttestations/*/evidenceRefs",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/reviewAttestations/0/evidenceRefs/0/id",
+          "value": "synthetic-evidence-federal-identity"
+        }
+      ]
+    },
+    {
+      "id": "cross-source-admission-contract",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_SOURCE_REFERENCE",
+      "expectedPath": "/admissionReceipts/*",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/admissionReceipts/0/contractReceiptRef/id",
+          "value": "synthetic-contract-county"
+        }
+      ]
+    },
+    {
+      "id": "cross-context-admission",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_CONTEXT_REFERENCE",
+      "expectedPath": "/admissionReceipts/*/sourceContextRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/admissionReceipts/0/sourceContextRef/id",
+          "value": "synthetic-context-state-alpha"
+        }
+      ]
+    },
+    {
+      "id": "cross-jurisdiction-admission",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_JURISDICTION_REFERENCE",
+      "expectedPath": "/admissionReceipts/*/jurisdictionContextRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/admissionReceipts/0/jurisdictionContextRef/id",
+          "value": "synthetic-jurisdiction-glass"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-coverage-slot",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_REFERENCE",
+      "expectedPath": "/coverageDeclarations/*/slotStates",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/coverageDeclarations/0/slotStates/-",
+          "value": {
+            "slotRef": "synthetic-slot-alpha",
+            "state": "partial"
+          }
+        }
+      ]
+    },
+    {
+      "id": "conflicting-equal-time-availability",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_OBSERVATION_CONFLICT",
+      "expectedPath": "/availabilityObservations/*",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/availabilityObservations/-",
+          "value": {
+            "kind": "availability_observation",
+            "id": "synthetic-availability-conflict",
+            "version": "1.0.0",
+            "synthetic": true,
+            "source": {
+              "sourceId": "synthetic-federal",
+              "sourceRegistryVersion": "1.19.0"
+            },
+            "sourceContextRef": {
+              "kind": "source_context",
+              "id": "synthetic-context-federal",
+              "version": "1.0.0"
+            },
+            "jurisdictionContextRef": {
+              "kind": "jurisdiction_context",
+              "id": "synthetic-jurisdiction-cloud",
+              "version": "1.0.0"
+            },
+            "deploymentProfileRef": {
+              "id": "synthetic-cloud-harbor-deployment",
+              "version": "1.0.0"
+            },
+            "scope": "source",
+            "observedAt": "3785-01-01T00:00:00Z",
+            "state": "unavailable"
+          }
+        }
+      ]
+    },
+    {
+      "id": "wrong-authority-evidence-role",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_TRUST_REFERENCE",
+      "expectedPath": "/authorityBindings/*/evidenceRefs",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/0/evidenceRefs/0/id",
+          "value": "synthetic-evidence-federal-contract"
+        }
+      ]
+    },
+    {
+      "id": "review-subject-kind-mismatch",
+      "expectedLayer": "semantic",
+      "expectedCode": "WRONG_KIND",
+      "expectedPath": "/reviewAttestations/*/subject/ref/kind",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/reviewAttestations/0/subject/kind",
+          "value": "coverage_declaration"
+        }
+      ]
+    },
+    {
+      "id": "cross-source-binding-coverage",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_SOURCE_REFERENCE",
+      "expectedPath": "/sourceBindings/*",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/sourceBindings/0/coverageDeclarationRef/id",
+          "value": "synthetic-coverage-county-cloud"
+        }
+      ]
+    },
+    {
+      "id": "configuration-authority-wrong-kind",
+      "expectedLayer": "semantic",
+      "expectedCode": "WRONG_KIND",
+      "expectedPath": "/configurationAuthorityBindingRefs/*/kind",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/configurationAuthorityBindingRefs/0/kind",
+          "value": "source_binding"
+        }
+      ]
+    },
+    {
+      "id": "configuration-authority-set-incomplete",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_TRUST_REFERENCE",
+      "expectedPath": "/configurationAuthorityBindingRefs",
+      "mutations": [
+        {
+          "operation": "remove",
+          "path": "/configurationAuthorityBindingRefs/0"
+        }
+      ]
+    },
+    {
+      "id": "evidence-subject-kind-mismatch",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_TRUST_REFERENCE",
+      "expectedPath": "/evidenceReceipts/*/subject",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReceipts/0/subject",
+          "value": {
+            "kind": "coverage_declaration",
+            "ref": {
+              "kind": "coverage_declaration",
+              "id": "synthetic-coverage-federal-cloud",
+              "version": "1.0.0"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "evidence-subject-reference-mismatch",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_TRUST_REFERENCE",
+      "expectedPath": "/evidenceReceipts/*/subject",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidenceReceipts/6/subject/ref/id",
+          "value": "synthetic-coverage-federal-glass"
+        }
+      ]
+    },
+    {
+      "id": "cross-context-primary-evidence-reuse",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_TRUST_REFERENCE",
+      "expectedPath": "/evidenceReceipts/*",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/coverageDeclarations/3/evidenceRefs/0/id",
+          "value": "synthetic-evidence-federal-cloud-coverage"
+        }
+      ]
+    },
+    {
+      "id": "cross-deployment-primary-evidence-reuse",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_TRUST_REFERENCE",
+      "expectedPath": "/evidenceReceipts/*",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorityBindings/3/evidenceRefs/0/id",
+          "value": "synthetic-evidence-federal-cloud-authority"
+        }
+      ]
+    },
+    {
+      "id": "orphan-primary-evidence",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_TRUST_REFERENCE",
+      "expectedPath": "/evidenceReceipts/*",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/evidenceReceipts/-",
+          "value": {
+            "kind": "evidence_receipt",
+            "id": "synthetic-evidence-orphan-contract-identity",
+            "version": "1.0.0",
+            "synthetic": true,
+            "source": {
+              "sourceId": "synthetic-federal",
+              "sourceRegistryVersion": "1.19.0"
+            },
+            "evidenceClass": "repository_authored_synthetic_test",
+            "evidenceKind": "synthetic_fixture_identity",
+            "subject": {
+              "kind": "contract_receipt",
+              "ref": {
+                "kind": "contract_receipt",
+                "id": "synthetic-contract-federal",
+                "version": "1.0.0"
+              }
+            },
+            "fixtureFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+            "validFrom": "3784-01-01T00:00:00Z",
+            "validThrough": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "unconsumed-cross-source-review-authority",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_SOURCE_REFERENCE",
+      "expectedPath": "/reviewAttestations/*/authorityBindingRef/evidenceRefs/*",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/reviewAttestations/-",
+          "value": {
+            "kind": "review_attestation",
+            "id": "synthetic-review-federal-contract-unconsumed-cross-source",
+            "version": "1.0.0",
+            "synthetic": true,
+            "subject": {
+              "kind": "contract_receipt",
+              "ref": {
+                "kind": "contract_receipt",
+                "id": "synthetic-contract-federal",
+                "version": "1.0.0"
+              }
+            },
+            "authorityBindingRef": {
+              "kind": "authority_binding",
+              "id": "synthetic-authority-county-cloud",
+              "version": "1.0.0"
+            },
+            "evidenceRefs": [
+              {
+                "kind": "evidence_receipt",
+                "id": "synthetic-evidence-federal-contract",
+                "version": "1.0.0"
+              }
+            ],
+            "state": "synthetic_test_accepted",
+            "reviewedAt": "3784-02-01T00:00:00Z",
+            "validFrom": "3784-01-01T00:00:00Z",
+            "validThrough": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "unconsumed-cross-jurisdiction-review-authority",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_JURISDICTION_REFERENCE",
+      "expectedPath": "/reviewAttestations/*/authorityBindingRef",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/reviewAttestations/-",
+          "value": {
+            "kind": "review_attestation",
+            "id": "synthetic-review-federal-coverage-unconsumed-cross-jurisdiction",
+            "version": "1.0.0",
+            "synthetic": true,
+            "subject": {
+              "kind": "coverage_declaration",
+              "ref": {
+                "kind": "coverage_declaration",
+                "id": "synthetic-coverage-federal-cloud",
+                "version": "1.0.0"
+              }
+            },
+            "authorityBindingRef": {
+              "kind": "authority_binding",
+              "id": "synthetic-authority-federal-glass",
+              "version": "1.0.0"
+            },
+            "evidenceRefs": [
+              {
+                "kind": "evidence_receipt",
+                "id": "synthetic-evidence-federal-cloud-coverage",
+                "version": "1.0.0"
+              }
+            ],
+            "state": "synthetic_test_accepted",
+            "reviewedAt": "3784-02-01T00:00:00Z",
+            "validFrom": "3784-01-01T00:00:00Z",
+            "validThrough": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "unconsumed-accepted-review",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_TRUST_REFERENCE",
+      "expectedPath": "/reviewAttestations/*",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/reviewAttestations/-",
+          "value": {
+            "kind": "review_attestation",
+            "id": "synthetic-review-federal-cloud-contract-unconsumed",
+            "version": "1.0.0",
+            "synthetic": true,
+            "subject": {
+              "kind": "contract_receipt",
+              "ref": {
+                "kind": "contract_receipt",
+                "id": "synthetic-contract-federal",
+                "version": "1.0.0"
+              }
+            },
+            "authorityBindingRef": {
+              "kind": "authority_binding",
+              "id": "synthetic-authority-federal-cloud",
+              "version": "1.0.0"
+            },
+            "evidenceRefs": [
+              {
+                "kind": "evidence_receipt",
+                "id": "synthetic-evidence-federal-contract",
+                "version": "1.0.0"
+              }
+            ],
+            "state": "synthetic_test_accepted",
+            "reviewedAt": "3784-02-01T00:00:00Z",
+            "validFrom": "3784-01-01T00:00:00Z",
+            "validThrough": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "multiply-consumed-accepted-review",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_TRUST_REFERENCE",
+      "expectedPath": "/reviewAttestations/*",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/reviewAttestations/-",
+          "value": {
+            "kind": "review_attestation",
+            "id": "synthetic-review-federal-cloud-coverage-secondary",
+            "version": "1.0.0",
+            "synthetic": true,
+            "subject": {
+              "kind": "coverage_declaration",
+              "ref": {
+                "kind": "coverage_declaration",
+                "id": "synthetic-coverage-federal-cloud",
+                "version": "1.0.0"
+              }
+            },
+            "authorityBindingRef": {
+              "kind": "authority_binding",
+              "id": "synthetic-authority-federal-cloud",
+              "version": "1.0.0"
+            },
+            "evidenceRefs": [
+              {
+                "kind": "evidence_receipt",
+                "id": "synthetic-evidence-federal-cloud-coverage",
+                "version": "1.0.0"
+              }
+            ],
+            "state": "synthetic_test_accepted",
+            "reviewedAt": "3784-02-01T00:00:00Z",
+            "validFrom": "3784-01-01T00:00:00Z",
+            "validThrough": null
+          }
+        },
+        {
+          "operation": "add",
+          "path": "/admissionReceipts/-",
+          "value": {
+            "kind": "admission_receipt",
+            "id": "synthetic-admission-federal-cloud-review-reuse",
+            "version": "1.0.0",
+            "synthetic": true,
+            "source": {
+              "sourceId": "synthetic-federal",
+              "sourceRegistryVersion": "1.19.0"
+            },
+            "contractReceiptRef": {
+              "kind": "contract_receipt",
+              "id": "synthetic-contract-federal",
+              "version": "1.0.0"
+            },
+            "coverageDeclarationRef": {
+              "kind": "coverage_declaration",
+              "id": "synthetic-coverage-federal-cloud",
+              "version": "1.0.0"
+            },
+            "authorityBindingRef": {
+              "kind": "authority_binding",
+              "id": "synthetic-authority-federal-cloud",
+              "version": "1.0.0"
+            },
+            "reviewAttestationRefs": [
+              {
+                "kind": "review_attestation",
+                "id": "synthetic-review-federal-cloud-contract",
+                "version": "1.0.0"
+              },
+              {
+                "kind": "review_attestation",
+                "id": "synthetic-review-federal-cloud-coverage-secondary",
+                "version": "1.0.0"
+              }
+            ],
+            "sourceContextRef": {
+              "kind": "source_context",
+              "id": "synthetic-context-federal",
+              "version": "1.0.0"
+            },
+            "jurisdictionContextRef": {
+              "kind": "jurisdiction_context",
+              "id": "synthetic-jurisdiction-cloud",
+              "version": "1.0.0"
+            },
+            "deploymentProfileRef": {
+              "id": "synthetic-cloud-harbor-deployment",
+              "version": "1.0.0"
+            },
+            "regionPackRef": {
+              "id": "synthetic-cloud-harbor-region",
+              "version": "1.0.0"
+            },
+            "personaProjectionRef": {
+              "id": "synthetic-cloud-harbor-researcher",
+              "version": "1.0.0"
+            },
+            "outputAdapterRef": {
+              "id": "synthetic-document-reference-output",
+              "version": "1.0.0"
+            },
+            "operationGrants": ["acquisition", "internal_analysis"],
+            "state": "synthetic_test_admitted",
+            "validFrom": "3784-01-01T00:00:00Z",
+            "validThrough": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "split-duplicate-deployment-scope",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_SCOPE",
+      "expectedPath": "/deploymentBindings",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/0/sourceBindingRefs",
+          "value": [
+            {
+              "kind": "source_binding",
+              "id": "synthetic-binding-county-cloud",
+              "version": "1.0.0"
+            }
+          ]
+        },
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/0/accessContextRefs",
+          "value": [
+            {
+              "kind": "access_context",
+              "id": "synthetic-access-cloud-public",
+              "version": "1.0.0"
+            }
+          ]
+        },
+        {
+          "operation": "add",
+          "path": "/deploymentBindings/-",
+          "value": {
+            "kind": "deployment_binding",
+            "id": "synthetic-deployment-binding-cloud-split",
+            "version": "1.0.0",
+            "synthetic": true,
+            "deploymentProfileRef": {
+              "id": "synthetic-cloud-harbor-deployment",
+              "version": "1.0.0"
+            },
+            "regionPackRef": {
+              "id": "synthetic-cloud-harbor-region",
+              "version": "1.0.0"
+            },
+            "sourceBindingRefs": [
+              {
+                "kind": "source_binding",
+                "id": "synthetic-binding-federal-cloud",
+                "version": "1.0.0"
+              },
+              {
+                "kind": "source_binding",
+                "id": "synthetic-binding-state-regional",
+                "version": "1.0.0"
+              }
+            ],
+            "accessContextRefs": [
+              {
+                "kind": "access_context",
+                "id": "synthetic-access-cloud-restricted",
+                "version": "1.0.0"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "bundle-profile-drift",
+      "expectedLayer": "projection",
+      "expectedCode": "CROSS_PROFILE_REFERENCE",
+      "expectedPath": "/profileBundleRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/profileBundleRef/id",
+          "value": "synthetic-other-profiles"
+        }
+      ]
+    },
+    {
+      "id": "missing-taxonomy-predecessor-object",
+      "expectedLayer": "projection",
+      "expectedCode": "UNKNOWN_REFERENCE",
+      "expectedPath": "/sourceBindings/*/predecessorRefs/*/objectRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/sourceBindings/0/predecessorRefs/1/objectRef/id",
+          "value": "synthetic-namespace-missing"
+        }
+      ]
+    },
+    {
+      "id": "cross-deployment-admission-persona",
+      "expectedLayer": "projection",
+      "expectedCode": "CROSS_DEPLOYMENT_REFERENCE",
+      "expectedPath": "/admissionReceipts/*/personaProjectionRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/admissionReceipts/0/personaProjectionRef/id",
+          "value": "synthetic-glass-desert-coordinator"
+        }
+      ]
+    },
+    {
+      "id": "cross-deployment-access-output",
+      "expectedLayer": "projection",
+      "expectedCode": "CROSS_DEPLOYMENT_REFERENCE",
+      "expectedPath": "/accessContexts/*/outputAdapterRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/accessContexts/0/outputAdapterRef/id",
+          "value": "synthetic-web-reference-output"
+        }
+      ]
+    },
+    {
+      "id": "cross-deployment-region-binding",
+      "expectedLayer": "semantic",
+      "expectedCode": "CROSS_DEPLOYMENT_REFERENCE",
+      "expectedPath": "/deploymentBindings/*/regionPackRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentBindings/0/regionPackRef/id",
+          "value": "synthetic-glass-desert-region"
+        }
+      ]
+    }
+  ]
+}

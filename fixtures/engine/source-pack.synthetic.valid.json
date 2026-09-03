@@ -1,0 +1,2765 @@
+{
+  "$schema": "https://policy-sentinel.invalid/schemas/source-pack-bundle.schema.v1.json",
+  "schemaVersion": "1.0.0",
+  "id": "synthetic-governed-source-pack",
+  "version": "1.0.0",
+  "synthetic": true,
+  "trustDomain": "synthetic_test_only",
+  "lifecycleState": "synthetic_test_configuration",
+  "profileBundleRef": {
+    "id": "synthetic-source-pack-profiles",
+    "version": "1.0.0"
+  },
+  "configurationAuthorityBindingRefs": [
+    {
+      "kind": "authority_binding",
+      "id": "synthetic-authority-county-cloud",
+      "version": "1.0.0"
+    },
+    {
+      "kind": "authority_binding",
+      "id": "synthetic-authority-federal-cloud",
+      "version": "1.0.0"
+    },
+    {
+      "kind": "authority_binding",
+      "id": "synthetic-authority-federal-glass",
+      "version": "1.0.0"
+    },
+    {
+      "kind": "authority_binding",
+      "id": "synthetic-authority-state-glass",
+      "version": "1.0.0"
+    },
+    {
+      "kind": "authority_binding",
+      "id": "synthetic-authority-state-regional",
+      "version": "1.0.0"
+    }
+  ],
+  "sourceContexts": [
+    {
+      "kind": "source_context",
+      "id": "synthetic-context-federal",
+      "version": "1.0.0",
+      "synthetic": true,
+      "role": "federal_context"
+    },
+    {
+      "kind": "source_context",
+      "id": "synthetic-context-regional",
+      "version": "1.0.0",
+      "synthetic": true,
+      "role": "regional_intergovernmental_context"
+    },
+    {
+      "kind": "source_context",
+      "id": "synthetic-context-state-alpha",
+      "version": "1.0.0",
+      "synthetic": true,
+      "role": "state_context"
+    },
+    {
+      "kind": "source_context",
+      "id": "synthetic-context-state-beta",
+      "version": "1.0.0",
+      "synthetic": true,
+      "role": "state_context"
+    }
+  ],
+  "jurisdictionContexts": [
+    {
+      "kind": "jurisdiction_context",
+      "id": "synthetic-jurisdiction-cloud",
+      "version": "1.0.0",
+      "synthetic": true,
+      "contextKind": "opaque_monitoring_context",
+      "configuredJurisdictionRef": {
+        "id": "synthetic-cloud-harbor-jurisdiction",
+        "version": "1.0.0"
+      },
+      "publisherJurisdictionEquivalence": "not_asserted"
+    },
+    {
+      "kind": "jurisdiction_context",
+      "id": "synthetic-jurisdiction-glass",
+      "version": "1.0.0",
+      "synthetic": true,
+      "contextKind": "opaque_monitoring_context",
+      "configuredJurisdictionRef": {
+        "id": "synthetic-glass-desert-jurisdiction",
+        "version": "1.0.0"
+      },
+      "publisherJurisdictionEquivalence": "not_asserted"
+    }
+  ],
+  "accessContexts": [
+    {
+      "kind": "access_context",
+      "id": "synthetic-access-cloud-public",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "personaProjectionRef": {
+        "id": "synthetic-cloud-harbor-researcher",
+        "version": "1.0.0"
+      },
+      "outputAdapterRef": {
+        "id": "synthetic-document-reference-output",
+        "version": "1.0.0"
+      },
+      "disclosureCeiling": "public"
+    },
+    {
+      "kind": "access_context",
+      "id": "synthetic-access-cloud-restricted",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "personaProjectionRef": {
+        "id": "synthetic-cloud-harbor-researcher",
+        "version": "1.0.0"
+      },
+      "outputAdapterRef": {
+        "id": "synthetic-document-reference-output",
+        "version": "1.0.0"
+      },
+      "disclosureCeiling": "restricted"
+    },
+    {
+      "kind": "access_context",
+      "id": "synthetic-access-glass-public",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "personaProjectionRef": {
+        "id": "synthetic-glass-desert-coordinator",
+        "version": "1.0.0"
+      },
+      "outputAdapterRef": {
+        "id": "synthetic-web-reference-output",
+        "version": "1.0.0"
+      },
+      "disclosureCeiling": "public"
+    },
+    {
+      "kind": "access_context",
+      "id": "synthetic-access-glass-restricted",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "personaProjectionRef": {
+        "id": "synthetic-glass-desert-coordinator",
+        "version": "1.0.0"
+      },
+      "outputAdapterRef": {
+        "id": "synthetic-web-reference-output",
+        "version": "1.0.0"
+      },
+      "disclosureCeiling": "restricted"
+    }
+  ],
+  "authorityBindings": [
+    {
+      "kind": "authority_binding",
+      "id": "synthetic-authority-federal-cloud",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-cloud-harbor-authority",
+        "version": "1.0.0"
+      },
+      "configuredJurisdictionRef": {
+        "id": "synthetic-cloud-harbor-jurisdiction",
+        "version": "1.0.0"
+      },
+      "role": "synthetic_test_configuration",
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-federal-cloud-authority",
+          "version": "1.0.0"
+        }
+      ],
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "authority_binding",
+      "id": "synthetic-authority-county-cloud",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-cloud-harbor-authority",
+        "version": "1.0.0"
+      },
+      "configuredJurisdictionRef": {
+        "id": "synthetic-cloud-harbor-jurisdiction",
+        "version": "1.0.0"
+      },
+      "role": "synthetic_test_configuration",
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-county-cloud-authority",
+          "version": "1.0.0"
+        }
+      ],
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "authority_binding",
+      "id": "synthetic-authority-state-regional",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-cloud-harbor-authority",
+        "version": "1.0.0"
+      },
+      "configuredJurisdictionRef": {
+        "id": "synthetic-cloud-harbor-jurisdiction",
+        "version": "1.0.0"
+      },
+      "role": "synthetic_test_configuration",
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-state-regional-authority",
+          "version": "1.0.0"
+        }
+      ],
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "authority_binding",
+      "id": "synthetic-authority-federal-glass",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-glass-desert-authority",
+        "version": "1.0.0"
+      },
+      "configuredJurisdictionRef": {
+        "id": "synthetic-glass-desert-jurisdiction",
+        "version": "1.0.0"
+      },
+      "role": "synthetic_test_configuration",
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-federal-glass-authority",
+          "version": "1.0.0"
+        }
+      ],
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "authority_binding",
+      "id": "synthetic-authority-state-glass",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "authorityIdentityRef": {
+        "id": "synthetic-glass-desert-authority",
+        "version": "1.0.0"
+      },
+      "configuredJurisdictionRef": {
+        "id": "synthetic-glass-desert-jurisdiction",
+        "version": "1.0.0"
+      },
+      "role": "synthetic_test_configuration",
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-state-glass-authority",
+          "version": "1.0.0"
+        }
+      ],
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    }
+  ],
+  "evidenceReceipts": [
+    {
+      "kind": "evidence_receipt",
+      "id": "synthetic-evidence-federal-identity",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "evidenceClass": "repository_authored_synthetic_test",
+      "evidenceKind": "synthetic_fixture_identity",
+      "fixtureFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null,
+      "subject": {
+        "kind": "contract_receipt",
+        "ref": {
+          "kind": "contract_receipt",
+          "id": "synthetic-contract-federal",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "synthetic-evidence-federal-contract",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "evidenceClass": "repository_authored_synthetic_test",
+      "evidenceKind": "synthetic_contract_structure",
+      "fixtureFingerprint": "2222222222222222222222222222222222222222222222222222222222222222",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null,
+      "subject": {
+        "kind": "contract_receipt",
+        "ref": {
+          "kind": "contract_receipt",
+          "id": "synthetic-contract-federal",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "synthetic-evidence-county-identity",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-county",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "evidenceClass": "repository_authored_synthetic_test",
+      "evidenceKind": "synthetic_fixture_identity",
+      "fixtureFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null,
+      "subject": {
+        "kind": "contract_receipt",
+        "ref": {
+          "kind": "contract_receipt",
+          "id": "synthetic-contract-county",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "synthetic-evidence-county-contract",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-county",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "evidenceClass": "repository_authored_synthetic_test",
+      "evidenceKind": "synthetic_contract_structure",
+      "fixtureFingerprint": "2222222222222222222222222222222222222222222222222222222222222222",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null,
+      "subject": {
+        "kind": "contract_receipt",
+        "ref": {
+          "kind": "contract_receipt",
+          "id": "synthetic-contract-county",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "synthetic-evidence-state-identity",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "evidenceClass": "repository_authored_synthetic_test",
+      "evidenceKind": "synthetic_fixture_identity",
+      "fixtureFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null,
+      "subject": {
+        "kind": "contract_receipt",
+        "ref": {
+          "kind": "contract_receipt",
+          "id": "synthetic-contract-state",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "synthetic-evidence-state-contract",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "evidenceClass": "repository_authored_synthetic_test",
+      "evidenceKind": "synthetic_contract_structure",
+      "fixtureFingerprint": "2222222222222222222222222222222222222222222222222222222222222222",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null,
+      "subject": {
+        "kind": "contract_receipt",
+        "ref": {
+          "kind": "contract_receipt",
+          "id": "synthetic-contract-state",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "synthetic-evidence-federal-cloud-coverage",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "evidenceClass": "repository_authored_synthetic_test",
+      "evidenceKind": "synthetic_coverage_declaration",
+      "fixtureFingerprint": "3333333333333333333333333333333333333333333333333333333333333333",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null,
+      "subject": {
+        "kind": "coverage_declaration",
+        "ref": {
+          "kind": "coverage_declaration",
+          "id": "synthetic-coverage-federal-cloud",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "synthetic-evidence-county-cloud-coverage",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-county",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "evidenceClass": "repository_authored_synthetic_test",
+      "evidenceKind": "synthetic_coverage_declaration",
+      "fixtureFingerprint": "3333333333333333333333333333333333333333333333333333333333333333",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null,
+      "subject": {
+        "kind": "coverage_declaration",
+        "ref": {
+          "kind": "coverage_declaration",
+          "id": "synthetic-coverage-county-cloud",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "synthetic-evidence-state-regional-coverage",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "evidenceClass": "repository_authored_synthetic_test",
+      "evidenceKind": "synthetic_coverage_declaration",
+      "fixtureFingerprint": "3333333333333333333333333333333333333333333333333333333333333333",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null,
+      "subject": {
+        "kind": "coverage_declaration",
+        "ref": {
+          "kind": "coverage_declaration",
+          "id": "synthetic-coverage-state-regional",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "synthetic-evidence-federal-glass-coverage",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "evidenceClass": "repository_authored_synthetic_test",
+      "evidenceKind": "synthetic_coverage_declaration",
+      "fixtureFingerprint": "3333333333333333333333333333333333333333333333333333333333333333",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null,
+      "subject": {
+        "kind": "coverage_declaration",
+        "ref": {
+          "kind": "coverage_declaration",
+          "id": "synthetic-coverage-federal-glass",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "synthetic-evidence-state-glass-coverage",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "evidenceClass": "repository_authored_synthetic_test",
+      "evidenceKind": "synthetic_coverage_declaration",
+      "fixtureFingerprint": "3333333333333333333333333333333333333333333333333333333333333333",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null,
+      "subject": {
+        "kind": "coverage_declaration",
+        "ref": {
+          "kind": "coverage_declaration",
+          "id": "synthetic-coverage-state-glass",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "synthetic-evidence-federal-cloud-authority",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "evidenceClass": "repository_authored_synthetic_test",
+      "evidenceKind": "synthetic_configuration_authority",
+      "fixtureFingerprint": "4444444444444444444444444444444444444444444444444444444444444444",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null,
+      "subject": {
+        "kind": "authority_binding",
+        "ref": {
+          "kind": "authority_binding",
+          "id": "synthetic-authority-federal-cloud",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "synthetic-evidence-county-cloud-authority",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-county",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "evidenceClass": "repository_authored_synthetic_test",
+      "evidenceKind": "synthetic_configuration_authority",
+      "fixtureFingerprint": "4444444444444444444444444444444444444444444444444444444444444444",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null,
+      "subject": {
+        "kind": "authority_binding",
+        "ref": {
+          "kind": "authority_binding",
+          "id": "synthetic-authority-county-cloud",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "synthetic-evidence-state-regional-authority",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "evidenceClass": "repository_authored_synthetic_test",
+      "evidenceKind": "synthetic_configuration_authority",
+      "fixtureFingerprint": "4444444444444444444444444444444444444444444444444444444444444444",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null,
+      "subject": {
+        "kind": "authority_binding",
+        "ref": {
+          "kind": "authority_binding",
+          "id": "synthetic-authority-state-regional",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "synthetic-evidence-federal-glass-authority",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "evidenceClass": "repository_authored_synthetic_test",
+      "evidenceKind": "synthetic_configuration_authority",
+      "fixtureFingerprint": "4444444444444444444444444444444444444444444444444444444444444444",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null,
+      "subject": {
+        "kind": "authority_binding",
+        "ref": {
+          "kind": "authority_binding",
+          "id": "synthetic-authority-federal-glass",
+          "version": "1.0.0"
+        }
+      }
+    },
+    {
+      "kind": "evidence_receipt",
+      "id": "synthetic-evidence-state-glass-authority",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "evidenceClass": "repository_authored_synthetic_test",
+      "evidenceKind": "synthetic_configuration_authority",
+      "fixtureFingerprint": "4444444444444444444444444444444444444444444444444444444444444444",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null,
+      "subject": {
+        "kind": "authority_binding",
+        "ref": {
+          "kind": "authority_binding",
+          "id": "synthetic-authority-state-glass",
+          "version": "1.0.0"
+        }
+      }
+    }
+  ],
+  "contractReceipts": [
+    {
+      "kind": "contract_receipt",
+      "id": "synthetic-contract-federal",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "adapterRef": {
+        "id": "synthetic-adapter",
+        "version": "1.0.0"
+      },
+      "fixtureFingerprint": "2222222222222222222222222222222222222222222222222222222222222222",
+      "providerLayer": "synthetic_fixture_reference",
+      "internalLayer": "closed_normalized_reference",
+      "publicLayer": "reference_only_no_payload",
+      "qualification": "synthetic_test_qualified",
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-federal-identity",
+          "version": "1.0.0"
+        },
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-federal-contract",
+          "version": "1.0.0"
+        }
+      ],
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "contract_receipt",
+      "id": "synthetic-contract-county",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-county",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "adapterRef": {
+        "id": "synthetic-county-adapter",
+        "version": "1.0.0"
+      },
+      "fixtureFingerprint": "2222222222222222222222222222222222222222222222222222222222222222",
+      "providerLayer": "synthetic_fixture_reference",
+      "internalLayer": "closed_normalized_reference",
+      "publicLayer": "reference_only_no_payload",
+      "qualification": "synthetic_test_qualified",
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-county-identity",
+          "version": "1.0.0"
+        },
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-county-contract",
+          "version": "1.0.0"
+        }
+      ],
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "contract_receipt",
+      "id": "synthetic-contract-state",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "adapterRef": {
+        "id": "synthetic-state-accord-adapter",
+        "version": "1.0.0"
+      },
+      "fixtureFingerprint": "2222222222222222222222222222222222222222222222222222222222222222",
+      "providerLayer": "synthetic_fixture_reference",
+      "internalLayer": "closed_normalized_reference",
+      "publicLayer": "reference_only_no_payload",
+      "qualification": "synthetic_test_qualified",
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-state-identity",
+          "version": "1.0.0"
+        },
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-state-contract",
+          "version": "1.0.0"
+        }
+      ],
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    }
+  ],
+  "coverageDeclarations": [
+    {
+      "kind": "coverage_declaration",
+      "id": "synthetic-coverage-federal-cloud",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-federal-cloud-coverage",
+          "version": "1.0.0"
+        }
+      ],
+      "slotStates": [
+        {
+          "slotRef": "synthetic-slot-alpha",
+          "state": "covered"
+        },
+        {
+          "slotRef": "synthetic-slot-beta",
+          "state": "outside_coverage"
+        },
+        {
+          "slotRef": "synthetic-slot-gamma",
+          "state": "not_assessed"
+        }
+      ]
+    },
+    {
+      "kind": "coverage_declaration",
+      "id": "synthetic-coverage-county-cloud",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-county",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-alpha",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-county-cloud-coverage",
+          "version": "1.0.0"
+        }
+      ],
+      "slotStates": [
+        {
+          "slotRef": "synthetic-slot-alpha",
+          "state": "partial"
+        },
+        {
+          "slotRef": "synthetic-slot-beta",
+          "state": "partial"
+        },
+        {
+          "slotRef": "synthetic-slot-gamma",
+          "state": "unknown_coverage"
+        }
+      ]
+    },
+    {
+      "kind": "coverage_declaration",
+      "id": "synthetic-coverage-state-regional",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-regional",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-state-regional-coverage",
+          "version": "1.0.0"
+        }
+      ],
+      "slotStates": [
+        {
+          "slotRef": "synthetic-slot-alpha",
+          "state": "outside_coverage"
+        },
+        {
+          "slotRef": "synthetic-slot-beta",
+          "state": "outside_coverage"
+        },
+        {
+          "slotRef": "synthetic-slot-gamma",
+          "state": "covered"
+        }
+      ]
+    },
+    {
+      "kind": "coverage_declaration",
+      "id": "synthetic-coverage-federal-glass",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-federal-glass-coverage",
+          "version": "1.0.0"
+        }
+      ],
+      "slotStates": [
+        {
+          "slotRef": "synthetic-slot-alpha",
+          "state": "covered"
+        },
+        {
+          "slotRef": "synthetic-slot-beta",
+          "state": "outside_coverage"
+        },
+        {
+          "slotRef": "synthetic-slot-gamma",
+          "state": "outside_coverage"
+        }
+      ]
+    },
+    {
+      "kind": "coverage_declaration",
+      "id": "synthetic-coverage-state-glass",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-beta",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-state-glass-coverage",
+          "version": "1.0.0"
+        }
+      ],
+      "slotStates": [
+        {
+          "slotRef": "synthetic-slot-alpha",
+          "state": "outside_coverage"
+        },
+        {
+          "slotRef": "synthetic-slot-beta",
+          "state": "covered"
+        },
+        {
+          "slotRef": "synthetic-slot-gamma",
+          "state": "unknown_coverage"
+        }
+      ]
+    }
+  ],
+  "reviewAttestations": [
+    {
+      "kind": "review_attestation",
+      "id": "synthetic-review-federal-cloud-contract",
+      "version": "1.0.0",
+      "synthetic": true,
+      "subject": {
+        "kind": "contract_receipt",
+        "ref": {
+          "kind": "contract_receipt",
+          "id": "synthetic-contract-federal",
+          "version": "1.0.0"
+        }
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-federal-cloud",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-federal-contract",
+          "version": "1.0.0"
+        }
+      ],
+      "state": "synthetic_test_accepted",
+      "reviewedAt": "3784-02-01T00:00:00Z",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "review_attestation",
+      "id": "synthetic-review-federal-cloud-coverage",
+      "version": "1.0.0",
+      "synthetic": true,
+      "subject": {
+        "kind": "coverage_declaration",
+        "ref": {
+          "kind": "coverage_declaration",
+          "id": "synthetic-coverage-federal-cloud",
+          "version": "1.0.0"
+        }
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-federal-cloud",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-federal-cloud-coverage",
+          "version": "1.0.0"
+        }
+      ],
+      "state": "synthetic_test_accepted",
+      "reviewedAt": "3784-02-01T00:00:00Z",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "review_attestation",
+      "id": "synthetic-review-county-cloud-contract",
+      "version": "1.0.0",
+      "synthetic": true,
+      "subject": {
+        "kind": "contract_receipt",
+        "ref": {
+          "kind": "contract_receipt",
+          "id": "synthetic-contract-county",
+          "version": "1.0.0"
+        }
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-county-cloud",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-county-contract",
+          "version": "1.0.0"
+        }
+      ],
+      "state": "synthetic_test_accepted",
+      "reviewedAt": "3784-02-01T00:00:00Z",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "review_attestation",
+      "id": "synthetic-review-county-cloud-coverage",
+      "version": "1.0.0",
+      "synthetic": true,
+      "subject": {
+        "kind": "coverage_declaration",
+        "ref": {
+          "kind": "coverage_declaration",
+          "id": "synthetic-coverage-county-cloud",
+          "version": "1.0.0"
+        }
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-county-cloud",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-county-cloud-coverage",
+          "version": "1.0.0"
+        }
+      ],
+      "state": "synthetic_test_accepted",
+      "reviewedAt": "3784-02-01T00:00:00Z",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "review_attestation",
+      "id": "synthetic-review-state-regional-contract",
+      "version": "1.0.0",
+      "synthetic": true,
+      "subject": {
+        "kind": "contract_receipt",
+        "ref": {
+          "kind": "contract_receipt",
+          "id": "synthetic-contract-state",
+          "version": "1.0.0"
+        }
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-state-regional",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-state-contract",
+          "version": "1.0.0"
+        }
+      ],
+      "state": "synthetic_test_accepted",
+      "reviewedAt": "3784-02-01T00:00:00Z",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "review_attestation",
+      "id": "synthetic-review-state-regional-coverage",
+      "version": "1.0.0",
+      "synthetic": true,
+      "subject": {
+        "kind": "coverage_declaration",
+        "ref": {
+          "kind": "coverage_declaration",
+          "id": "synthetic-coverage-state-regional",
+          "version": "1.0.0"
+        }
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-state-regional",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-state-regional-coverage",
+          "version": "1.0.0"
+        }
+      ],
+      "state": "synthetic_test_accepted",
+      "reviewedAt": "3784-02-01T00:00:00Z",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "review_attestation",
+      "id": "synthetic-review-federal-glass-contract",
+      "version": "1.0.0",
+      "synthetic": true,
+      "subject": {
+        "kind": "contract_receipt",
+        "ref": {
+          "kind": "contract_receipt",
+          "id": "synthetic-contract-federal",
+          "version": "1.0.0"
+        }
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-federal-glass",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-federal-contract",
+          "version": "1.0.0"
+        }
+      ],
+      "state": "synthetic_test_accepted",
+      "reviewedAt": "3784-02-01T00:00:00Z",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "review_attestation",
+      "id": "synthetic-review-federal-glass-coverage",
+      "version": "1.0.0",
+      "synthetic": true,
+      "subject": {
+        "kind": "coverage_declaration",
+        "ref": {
+          "kind": "coverage_declaration",
+          "id": "synthetic-coverage-federal-glass",
+          "version": "1.0.0"
+        }
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-federal-glass",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-federal-glass-coverage",
+          "version": "1.0.0"
+        }
+      ],
+      "state": "synthetic_test_accepted",
+      "reviewedAt": "3784-02-01T00:00:00Z",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "review_attestation",
+      "id": "synthetic-review-state-glass-contract",
+      "version": "1.0.0",
+      "synthetic": true,
+      "subject": {
+        "kind": "contract_receipt",
+        "ref": {
+          "kind": "contract_receipt",
+          "id": "synthetic-contract-state",
+          "version": "1.0.0"
+        }
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-state-glass",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-state-contract",
+          "version": "1.0.0"
+        }
+      ],
+      "state": "synthetic_test_accepted",
+      "reviewedAt": "3784-02-01T00:00:00Z",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "review_attestation",
+      "id": "synthetic-review-state-glass-coverage",
+      "version": "1.0.0",
+      "synthetic": true,
+      "subject": {
+        "kind": "coverage_declaration",
+        "ref": {
+          "kind": "coverage_declaration",
+          "id": "synthetic-coverage-state-glass",
+          "version": "1.0.0"
+        }
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-state-glass",
+        "version": "1.0.0"
+      },
+      "evidenceRefs": [
+        {
+          "kind": "evidence_receipt",
+          "id": "synthetic-evidence-state-glass-coverage",
+          "version": "1.0.0"
+        }
+      ],
+      "state": "synthetic_test_accepted",
+      "reviewedAt": "3784-02-01T00:00:00Z",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    }
+  ],
+  "admissionReceipts": [
+    {
+      "kind": "admission_receipt",
+      "id": "synthetic-admission-federal-cloud",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "contractReceiptRef": {
+        "kind": "contract_receipt",
+        "id": "synthetic-contract-federal",
+        "version": "1.0.0"
+      },
+      "coverageDeclarationRef": {
+        "kind": "coverage_declaration",
+        "id": "synthetic-coverage-federal-cloud",
+        "version": "1.0.0"
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-federal-cloud",
+        "version": "1.0.0"
+      },
+      "reviewAttestationRefs": [
+        {
+          "kind": "review_attestation",
+          "id": "synthetic-review-federal-cloud-contract",
+          "version": "1.0.0"
+        },
+        {
+          "kind": "review_attestation",
+          "id": "synthetic-review-federal-cloud-coverage",
+          "version": "1.0.0"
+        }
+      ],
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-cloud-harbor-region",
+        "version": "1.0.0"
+      },
+      "personaProjectionRef": {
+        "id": "synthetic-cloud-harbor-researcher",
+        "version": "1.0.0"
+      },
+      "outputAdapterRef": {
+        "id": "synthetic-document-reference-output",
+        "version": "1.0.0"
+      },
+      "operationGrants": ["acquisition", "internal_analysis"],
+      "state": "synthetic_test_admitted",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "admission_receipt",
+      "id": "synthetic-admission-county-cloud",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-county",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "contractReceiptRef": {
+        "kind": "contract_receipt",
+        "id": "synthetic-contract-county",
+        "version": "1.0.0"
+      },
+      "coverageDeclarationRef": {
+        "kind": "coverage_declaration",
+        "id": "synthetic-coverage-county-cloud",
+        "version": "1.0.0"
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-county-cloud",
+        "version": "1.0.0"
+      },
+      "reviewAttestationRefs": [
+        {
+          "kind": "review_attestation",
+          "id": "synthetic-review-county-cloud-contract",
+          "version": "1.0.0"
+        },
+        {
+          "kind": "review_attestation",
+          "id": "synthetic-review-county-cloud-coverage",
+          "version": "1.0.0"
+        }
+      ],
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-alpha",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-cloud-harbor-region",
+        "version": "1.0.0"
+      },
+      "personaProjectionRef": {
+        "id": "synthetic-cloud-harbor-researcher",
+        "version": "1.0.0"
+      },
+      "outputAdapterRef": {
+        "id": "synthetic-document-reference-output",
+        "version": "1.0.0"
+      },
+      "operationGrants": ["internal_analysis", "public_projection"],
+      "state": "synthetic_test_admitted",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "admission_receipt",
+      "id": "synthetic-admission-state-regional",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "contractReceiptRef": {
+        "kind": "contract_receipt",
+        "id": "synthetic-contract-state",
+        "version": "1.0.0"
+      },
+      "coverageDeclarationRef": {
+        "kind": "coverage_declaration",
+        "id": "synthetic-coverage-state-regional",
+        "version": "1.0.0"
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-state-regional",
+        "version": "1.0.0"
+      },
+      "reviewAttestationRefs": [
+        {
+          "kind": "review_attestation",
+          "id": "synthetic-review-state-regional-contract",
+          "version": "1.0.0"
+        },
+        {
+          "kind": "review_attestation",
+          "id": "synthetic-review-state-regional-coverage",
+          "version": "1.0.0"
+        }
+      ],
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-regional",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-cloud-harbor-region",
+        "version": "1.0.0"
+      },
+      "personaProjectionRef": {
+        "id": "synthetic-cloud-harbor-researcher",
+        "version": "1.0.0"
+      },
+      "outputAdapterRef": {
+        "id": "synthetic-document-reference-output",
+        "version": "1.0.0"
+      },
+      "operationGrants": ["internal_analysis"],
+      "state": "pack_binding_disabled",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "admission_receipt",
+      "id": "synthetic-admission-federal-glass",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "contractReceiptRef": {
+        "kind": "contract_receipt",
+        "id": "synthetic-contract-federal",
+        "version": "1.0.0"
+      },
+      "coverageDeclarationRef": {
+        "kind": "coverage_declaration",
+        "id": "synthetic-coverage-federal-glass",
+        "version": "1.0.0"
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-federal-glass",
+        "version": "1.0.0"
+      },
+      "reviewAttestationRefs": [
+        {
+          "kind": "review_attestation",
+          "id": "synthetic-review-federal-glass-contract",
+          "version": "1.0.0"
+        },
+        {
+          "kind": "review_attestation",
+          "id": "synthetic-review-federal-glass-coverage",
+          "version": "1.0.0"
+        }
+      ],
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-glass-desert-region",
+        "version": "1.0.0"
+      },
+      "personaProjectionRef": {
+        "id": "synthetic-glass-desert-coordinator",
+        "version": "1.0.0"
+      },
+      "outputAdapterRef": {
+        "id": "synthetic-web-reference-output",
+        "version": "1.0.0"
+      },
+      "operationGrants": ["internal_analysis"],
+      "state": "synthetic_test_admitted",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    },
+    {
+      "kind": "admission_receipt",
+      "id": "synthetic-admission-state-glass",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "contractReceiptRef": {
+        "kind": "contract_receipt",
+        "id": "synthetic-contract-state",
+        "version": "1.0.0"
+      },
+      "coverageDeclarationRef": {
+        "kind": "coverage_declaration",
+        "id": "synthetic-coverage-state-glass",
+        "version": "1.0.0"
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-state-glass",
+        "version": "1.0.0"
+      },
+      "reviewAttestationRefs": [
+        {
+          "kind": "review_attestation",
+          "id": "synthetic-review-state-glass-contract",
+          "version": "1.0.0"
+        },
+        {
+          "kind": "review_attestation",
+          "id": "synthetic-review-state-glass-coverage",
+          "version": "1.0.0"
+        }
+      ],
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-beta",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-glass-desert-region",
+        "version": "1.0.0"
+      },
+      "personaProjectionRef": {
+        "id": "synthetic-glass-desert-coordinator",
+        "version": "1.0.0"
+      },
+      "outputAdapterRef": {
+        "id": "synthetic-web-reference-output",
+        "version": "1.0.0"
+      },
+      "operationGrants": ["internal_analysis"],
+      "state": "not_admitted",
+      "validFrom": "3784-01-01T00:00:00Z",
+      "validThrough": null
+    }
+  ],
+  "availabilityObservations": [
+    {
+      "kind": "availability_observation",
+      "id": "synthetic-availability-federal-cloud-source",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "available"
+    },
+    {
+      "kind": "availability_observation",
+      "id": "synthetic-availability-federal-cloud-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "available"
+    },
+    {
+      "kind": "availability_observation",
+      "id": "synthetic-availability-federal-cloud-source-within-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source_within_jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "available"
+    },
+    {
+      "kind": "availability_observation",
+      "id": "synthetic-availability-county-cloud-source",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-county",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-alpha",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "available"
+    },
+    {
+      "kind": "availability_observation",
+      "id": "synthetic-availability-county-cloud-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-county",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-alpha",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "available"
+    },
+    {
+      "kind": "availability_observation",
+      "id": "synthetic-availability-county-cloud-source-within-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-county",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-alpha",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source_within_jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "available"
+    },
+    {
+      "kind": "availability_observation",
+      "id": "synthetic-availability-state-regional-source",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-regional",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "available"
+    },
+    {
+      "kind": "availability_observation",
+      "id": "synthetic-availability-state-regional-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-regional",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "available"
+    },
+    {
+      "kind": "availability_observation",
+      "id": "synthetic-availability-state-regional-source-within-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-regional",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source_within_jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "available"
+    },
+    {
+      "kind": "availability_observation",
+      "id": "synthetic-availability-federal-glass-source",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "unavailable"
+    },
+    {
+      "kind": "availability_observation",
+      "id": "synthetic-availability-federal-glass-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "available"
+    },
+    {
+      "kind": "availability_observation",
+      "id": "synthetic-availability-federal-glass-source-within-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source_within_jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "available"
+    },
+    {
+      "kind": "availability_observation",
+      "id": "synthetic-availability-state-glass-source",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-beta",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "available"
+    },
+    {
+      "kind": "availability_observation",
+      "id": "synthetic-availability-state-glass-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-beta",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "available"
+    },
+    {
+      "kind": "availability_observation",
+      "id": "synthetic-availability-state-glass-source-within-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-beta",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source_within_jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "available"
+    }
+  ],
+  "healthObservations": [
+    {
+      "kind": "health_observation",
+      "id": "synthetic-health-federal-cloud-source",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "healthy"
+    },
+    {
+      "kind": "health_observation",
+      "id": "synthetic-health-federal-cloud-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "healthy"
+    },
+    {
+      "kind": "health_observation",
+      "id": "synthetic-health-federal-cloud-source-within-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source_within_jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "healthy"
+    },
+    {
+      "kind": "health_observation",
+      "id": "synthetic-health-county-cloud-source",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-county",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-alpha",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "healthy"
+    },
+    {
+      "kind": "health_observation",
+      "id": "synthetic-health-county-cloud-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-county",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-alpha",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "healthy"
+    },
+    {
+      "kind": "health_observation",
+      "id": "synthetic-health-county-cloud-source-within-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-county",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-alpha",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source_within_jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "healthy"
+    },
+    {
+      "kind": "health_observation",
+      "id": "synthetic-health-state-regional-source",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-regional",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "healthy"
+    },
+    {
+      "kind": "health_observation",
+      "id": "synthetic-health-state-regional-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-regional",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "healthy"
+    },
+    {
+      "kind": "health_observation",
+      "id": "synthetic-health-state-regional-source-within-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-regional",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source_within_jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "healthy"
+    },
+    {
+      "kind": "health_observation",
+      "id": "synthetic-health-federal-glass-source",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "healthy"
+    },
+    {
+      "kind": "health_observation",
+      "id": "synthetic-health-federal-glass-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "healthy"
+    },
+    {
+      "kind": "health_observation",
+      "id": "synthetic-health-federal-glass-source-within-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source_within_jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "healthy"
+    },
+    {
+      "kind": "health_observation",
+      "id": "synthetic-health-state-glass-source",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-beta",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "healthy"
+    },
+    {
+      "kind": "health_observation",
+      "id": "synthetic-health-state-glass-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-beta",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "healthy"
+    },
+    {
+      "kind": "health_observation",
+      "id": "synthetic-health-state-glass-source-within-jurisdiction",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-beta",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "scope": "source_within_jurisdiction",
+      "observedAt": "3785-01-01T00:00:00Z",
+      "state": "healthy"
+    }
+  ],
+  "sourceBindings": [
+    {
+      "kind": "source_binding",
+      "id": "synthetic-binding-federal-cloud",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "contractReceiptRef": {
+        "kind": "contract_receipt",
+        "id": "synthetic-contract-federal",
+        "version": "1.0.0"
+      },
+      "coverageDeclarationRef": {
+        "kind": "coverage_declaration",
+        "id": "synthetic-coverage-federal-cloud",
+        "version": "1.0.0"
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-federal-cloud",
+        "version": "1.0.0"
+      },
+      "admissionReceiptRef": {
+        "kind": "admission_receipt",
+        "id": "synthetic-admission-federal-cloud",
+        "version": "1.0.0"
+      },
+      "visibility": "public",
+      "predecessorRefs": [
+        {
+          "kind": "geographic_relation",
+          "bundleRef": {
+            "id": "synthetic-source-pack-geography",
+            "version": "1.0.0"
+          },
+          "objectRef": {
+            "id": "synthetic-cloud-harbor-service-relation",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "kind": "taxonomy_namespace",
+          "bundleRef": {
+            "id": "synthetic-source-pack-taxonomy",
+            "version": "1.0.0"
+          },
+          "objectRef": {
+            "id": "synthetic-source-a",
+            "version": "1.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "source_binding",
+      "id": "synthetic-binding-county-cloud",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-county",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-alpha",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "contractReceiptRef": {
+        "kind": "contract_receipt",
+        "id": "synthetic-contract-county",
+        "version": "1.0.0"
+      },
+      "coverageDeclarationRef": {
+        "kind": "coverage_declaration",
+        "id": "synthetic-coverage-county-cloud",
+        "version": "1.0.0"
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-county-cloud",
+        "version": "1.0.0"
+      },
+      "admissionReceiptRef": {
+        "kind": "admission_receipt",
+        "id": "synthetic-admission-county-cloud",
+        "version": "1.0.0"
+      },
+      "visibility": "public",
+      "predecessorRefs": []
+    },
+    {
+      "kind": "source_binding",
+      "id": "synthetic-binding-state-regional",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-regional",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-cloud",
+        "version": "1.0.0"
+      },
+      "contractReceiptRef": {
+        "kind": "contract_receipt",
+        "id": "synthetic-contract-state",
+        "version": "1.0.0"
+      },
+      "coverageDeclarationRef": {
+        "kind": "coverage_declaration",
+        "id": "synthetic-coverage-state-regional",
+        "version": "1.0.0"
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-state-regional",
+        "version": "1.0.0"
+      },
+      "admissionReceiptRef": {
+        "kind": "admission_receipt",
+        "id": "synthetic-admission-state-regional",
+        "version": "1.0.0"
+      },
+      "visibility": "restricted",
+      "predecessorRefs": []
+    },
+    {
+      "kind": "source_binding",
+      "id": "synthetic-binding-federal-glass",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-federal",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-federal",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "contractReceiptRef": {
+        "kind": "contract_receipt",
+        "id": "synthetic-contract-federal",
+        "version": "1.0.0"
+      },
+      "coverageDeclarationRef": {
+        "kind": "coverage_declaration",
+        "id": "synthetic-coverage-federal-glass",
+        "version": "1.0.0"
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-federal-glass",
+        "version": "1.0.0"
+      },
+      "admissionReceiptRef": {
+        "kind": "admission_receipt",
+        "id": "synthetic-admission-federal-glass",
+        "version": "1.0.0"
+      },
+      "visibility": "public",
+      "predecessorRefs": []
+    },
+    {
+      "kind": "source_binding",
+      "id": "synthetic-binding-state-glass",
+      "version": "1.0.0",
+      "synthetic": true,
+      "source": {
+        "sourceId": "synthetic-state-accord",
+        "sourceRegistryVersion": "1.19.0"
+      },
+      "sourceContextRef": {
+        "kind": "source_context",
+        "id": "synthetic-context-state-beta",
+        "version": "1.0.0"
+      },
+      "jurisdictionContextRef": {
+        "kind": "jurisdiction_context",
+        "id": "synthetic-jurisdiction-glass",
+        "version": "1.0.0"
+      },
+      "contractReceiptRef": {
+        "kind": "contract_receipt",
+        "id": "synthetic-contract-state",
+        "version": "1.0.0"
+      },
+      "coverageDeclarationRef": {
+        "kind": "coverage_declaration",
+        "id": "synthetic-coverage-state-glass",
+        "version": "1.0.0"
+      },
+      "authorityBindingRef": {
+        "kind": "authority_binding",
+        "id": "synthetic-authority-state-glass",
+        "version": "1.0.0"
+      },
+      "admissionReceiptRef": {
+        "kind": "admission_receipt",
+        "id": "synthetic-admission-state-glass",
+        "version": "1.0.0"
+      },
+      "visibility": "public",
+      "predecessorRefs": []
+    }
+  ],
+  "deploymentBindings": [
+    {
+      "kind": "deployment_binding",
+      "id": "synthetic-deployment-binding-cloud",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-cloud-harbor-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-cloud-harbor-region",
+        "version": "1.0.0"
+      },
+      "sourceBindingRefs": [
+        {
+          "kind": "source_binding",
+          "id": "synthetic-binding-county-cloud",
+          "version": "1.0.0"
+        },
+        {
+          "kind": "source_binding",
+          "id": "synthetic-binding-federal-cloud",
+          "version": "1.0.0"
+        },
+        {
+          "kind": "source_binding",
+          "id": "synthetic-binding-state-regional",
+          "version": "1.0.0"
+        }
+      ],
+      "accessContextRefs": [
+        {
+          "kind": "access_context",
+          "id": "synthetic-access-cloud-public",
+          "version": "1.0.0"
+        },
+        {
+          "kind": "access_context",
+          "id": "synthetic-access-cloud-restricted",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "kind": "deployment_binding",
+      "id": "synthetic-deployment-binding-glass",
+      "version": "1.0.0",
+      "synthetic": true,
+      "deploymentProfileRef": {
+        "id": "synthetic-glass-desert-deployment",
+        "version": "1.0.0"
+      },
+      "regionPackRef": {
+        "id": "synthetic-glass-desert-region",
+        "version": "1.0.0"
+      },
+      "sourceBindingRefs": [
+        {
+          "kind": "source_binding",
+          "id": "synthetic-binding-federal-glass",
+          "version": "1.0.0"
+        },
+        {
+          "kind": "source_binding",
+          "id": "synthetic-binding-state-glass",
+          "version": "1.0.0"
+        }
+      ],
+      "accessContextRefs": [
+        {
+          "kind": "access_context",
+          "id": "synthetic-access-glass-public",
+          "version": "1.0.0"
+        },
+        {
+          "kind": "access_context",
+          "id": "synthetic-access-glass-restricted",
+          "version": "1.0.0"
+        }
+      ]
+    }
+  ]
+}

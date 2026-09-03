@@ -22,6 +22,9 @@ const projectionProfileSchema = await readJson(
 const geographyRightsSchema = await readJson(
   "schemas/geography-rights.schema.v1.json",
 );
+const sourcePackBundleSchema = await readJson(
+  "schemas/source-pack-bundle.schema.v1.json",
+);
 const spatialObservationSchema = await readJson(
   "schemas/experimental/spatial-observation.schema.v1.json",
 );
@@ -50,6 +53,7 @@ for (const [name, schema] of [
   ["lifecycle schema", lifecycleSchema],
   ["projection profile schema", projectionProfileSchema],
   ["geography and rights schema", geographyRightsSchema],
+  ["source-pack bundle schema", sourcePackBundleSchema],
   ["S0 spatial-observation schema", spatialObservationSchema],
   ["S0 spatial-relation schema", spatialRelationSchema],
   ["S0 jurisdiction-evidence schema", jurisdictionEvidenceSchema],
@@ -291,6 +295,72 @@ for (const fixtureCase of malformedTaxonomyBundle.cases) {
       );
     }
     runtimeBoundaryTaxonomyChecks += 1;
+  }
+}
+
+const validateSourcePackBundle = ajv.compile(sourcePackBundleSchema);
+const sourcePackBundleFixture = await readJson(
+  "fixtures/engine/source-pack.synthetic.valid.json",
+);
+if (!validateSourcePackBundle(sourcePackBundleFixture)) {
+  throw new Error(
+    `synthetic source-pack bundle fixture is invalid:\n${ajv.errorsText(
+      validateSourcePackBundle.errors,
+      { separator: "\n" },
+    )}`,
+  );
+}
+const malformedSourcePackBundle = await readJson(
+  "fixtures/engine/source-pack-malformed.invalid.json",
+);
+if (
+  malformedSourcePackBundle.fixtureFamilyVersion !== "1.0.0" ||
+  malformedSourcePackBundle.baseFixture !==
+    "source-pack.synthetic.valid.json" ||
+  !Array.isArray(malformedSourcePackBundle.cases) ||
+  malformedSourcePackBundle.cases.length === 0
+) {
+  throw new Error("malformed source-pack bundle fixture family is invalid");
+}
+const malformedSourcePackCaseIds = new Set();
+let schemaInvalidSourcePackChecks = 0;
+let runtimeBoundarySourcePackChecks = 0;
+for (const fixtureCase of malformedSourcePackBundle.cases) {
+  if (
+    typeof fixtureCase.id !== "string" ||
+    malformedSourcePackCaseIds.has(fixtureCase.id) ||
+    !["schema", "semantic", "projection"].includes(
+      fixtureCase.expectedLayer,
+    ) ||
+    typeof fixtureCase.expectedCode !== "string" ||
+    !Array.isArray(fixtureCase.mutations) ||
+    fixtureCase.mutations.length === 0
+  ) {
+    throw new Error("malformed source-pack bundle case metadata is invalid");
+  }
+  malformedSourcePackCaseIds.add(fixtureCase.id);
+  const candidate = applyFixtureMutations(
+    sourcePackBundleFixture,
+    fixtureCase.mutations,
+  );
+  const accepted = validateSourcePackBundle(candidate);
+  if (fixtureCase.expectedLayer === "schema") {
+    if (accepted) {
+      throw new Error(
+        `negative source-pack bundle case ${fixtureCase.id} was accepted by the schema`,
+      );
+    }
+    schemaInvalidSourcePackChecks += 1;
+  } else {
+    if (!accepted) {
+      throw new Error(
+        `runtime-boundary source-pack bundle case ${fixtureCase.id} did not reach runtime validation:\n${ajv.errorsText(
+          validateSourcePackBundle.errors,
+          { separator: "\n" },
+        )}`,
+      );
+    }
+    runtimeBoundarySourcePackChecks += 1;
   }
 }
 
@@ -642,11 +712,12 @@ if (!historicalPolicyRejected) {
 negativePolicyChecks += 1;
 
 console.log(
-  `Foundation validation passed: 11 schemas, ${taxonomy.categories.length} categories, ` +
+  `Foundation validation passed: 12 schemas, ${taxonomy.categories.length} categories, ` +
     `${taxonomy.categories.reduce((count, category) => count + category.subcategories.length, 0)} subcategories, ` +
     `${fixtureNames.length} valid fixtures, ${negativePolicyChecks} negative policy checks, ` +
     `${s0ValidFixtureChecks} valid plus ${s0InvalidFixtureChecks} invalid S0 fixture checks, ` +
     `1 valid plus ${schemaInvalidProjectionChecks} schema-invalid plus ${semanticProjectionChecks} runtime-boundary projection profile checks, ` +
     `1 valid plus ${schemaInvalidGeographyRightsChecks} schema-invalid plus ${runtimeBoundaryGeographyRightsChecks} runtime-boundary geography and rights checks, ` +
-    `and 1 valid plus ${schemaInvalidTaxonomyChecks} schema-invalid plus ${runtimeBoundaryTaxonomyChecks} runtime-boundary taxonomy bundle checks.`,
+    `1 valid plus ${schemaInvalidTaxonomyChecks} schema-invalid plus ${runtimeBoundaryTaxonomyChecks} runtime-boundary taxonomy bundle checks, ` +
+    `and 1 valid plus ${schemaInvalidSourcePackChecks} schema-invalid plus ${runtimeBoundarySourcePackChecks} runtime-boundary source-pack bundle checks.`,
 );

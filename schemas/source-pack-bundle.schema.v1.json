@@ -1,0 +1,810 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/source-pack-bundle.schema.v1.json",
+  "title": "Policy Sentinel synthetic source-pack bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "id",
+    "version",
+    "synthetic",
+    "trustDomain",
+    "lifecycleState",
+    "profileBundleRef",
+    "configurationAuthorityBindingRefs",
+    "sourceContexts",
+    "jurisdictionContexts",
+    "accessContexts",
+    "authorityBindings",
+    "evidenceReceipts",
+    "contractReceipts",
+    "coverageDeclarations",
+    "reviewAttestations",
+    "admissionReceipts",
+    "availabilityObservations",
+    "healthObservations",
+    "sourceBindings",
+    "deploymentBindings"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://policy-sentinel.invalid/schemas/source-pack-bundle.schema.v1.json"
+    },
+    "schemaVersion": { "const": "1.0.0" },
+    "id": { "$ref": "#/$defs/stableId" },
+    "version": { "$ref": "#/$defs/version" },
+    "synthetic": { "const": true },
+    "trustDomain": { "const": "synthetic_test_only" },
+    "lifecycleState": { "const": "synthetic_test_configuration" },
+    "profileBundleRef": { "$ref": "#/$defs/versionedReference" },
+    "configurationAuthorityBindingRefs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/typedReference" }
+    },
+    "sourceContexts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/sourceContext" }
+    },
+    "jurisdictionContexts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/jurisdictionContext" }
+    },
+    "accessContexts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/accessContext" }
+    },
+    "authorityBindings": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/authorityBinding" }
+    },
+    "evidenceReceipts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 512,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/evidenceReceipt" }
+    },
+    "contractReceipts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/contractReceipt" }
+    },
+    "coverageDeclarations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 512,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/coverageDeclaration" }
+    },
+    "reviewAttestations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1024,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/reviewAttestation" }
+    },
+    "admissionReceipts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 512,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/admissionReceipt" }
+    },
+    "availabilityObservations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4096,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/availabilityObservation" }
+    },
+    "healthObservations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4096,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/healthObservation" }
+    },
+    "sourceBindings": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 512,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/sourceBinding" }
+    },
+    "deploymentBindings": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/deploymentBinding" }
+    }
+  },
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 96,
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "version": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+    },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$"
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "slotRef": { "$ref": "#/$defs/stableId" },
+    "versionedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" }
+      }
+    },
+    "catalogKind": {
+      "enum": [
+        "source_context",
+        "jurisdiction_context",
+        "access_context",
+        "authority_binding",
+        "evidence_receipt",
+        "contract_receipt",
+        "coverage_declaration",
+        "review_attestation",
+        "admission_receipt",
+        "availability_observation",
+        "health_observation",
+        "source_binding",
+        "deployment_binding"
+      ]
+    },
+    "typedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "version"],
+      "properties": {
+        "kind": { "$ref": "#/$defs/catalogKind" },
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" }
+      }
+    },
+    "contractReceiptReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "version"],
+      "properties": {
+        "kind": { "const": "contract_receipt" },
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" }
+      }
+    },
+    "coverageDeclarationReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "version"],
+      "properties": {
+        "kind": { "const": "coverage_declaration" },
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" }
+      }
+    },
+    "authorityBindingReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "version"],
+      "properties": {
+        "kind": { "const": "authority_binding" },
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" }
+      }
+    },
+    "evidenceSubject": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "ref"],
+          "properties": {
+            "kind": { "const": "contract_receipt" },
+            "ref": { "$ref": "#/$defs/contractReceiptReference" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "ref"],
+          "properties": {
+            "kind": { "const": "coverage_declaration" },
+            "ref": { "$ref": "#/$defs/coverageDeclarationReference" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "ref"],
+          "properties": {
+            "kind": { "const": "authority_binding" },
+            "ref": { "$ref": "#/$defs/authorityBindingReference" }
+          }
+        }
+      ]
+    },
+    "sourceIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceId", "sourceRegistryVersion"],
+      "properties": {
+        "sourceId": { "$ref": "#/$defs/stableId" },
+        "sourceRegistryVersion": { "$ref": "#/$defs/version" }
+      }
+    },
+    "catalogHeader": {
+      "type": "object",
+      "required": ["kind", "id", "version", "synthetic"],
+      "properties": {
+        "kind": { "$ref": "#/$defs/catalogKind" },
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "synthetic": { "const": true }
+      }
+    },
+    "validityProperties": {
+      "type": "object",
+      "required": ["validFrom", "validThrough"],
+      "properties": {
+        "validFrom": { "$ref": "#/$defs/timestamp" },
+        "validThrough": {
+          "oneOf": [{ "$ref": "#/$defs/timestamp" }, { "type": "null" }]
+        }
+      }
+    },
+    "typedReferenceSet": {
+      "type": "array",
+      "maxItems": 256,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/typedReference" }
+    },
+    "sourceContext": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        {
+          "type": "object",
+          "required": ["role"],
+          "properties": {
+            "kind": { "const": "source_context" },
+            "role": {
+              "enum": [
+                "federal_context",
+                "state_context",
+                "regional_intergovernmental_context",
+                "other_opaque_context"
+              ]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "jurisdictionContext": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        {
+          "type": "object",
+          "required": [
+            "contextKind",
+            "configuredJurisdictionRef",
+            "publisherJurisdictionEquivalence"
+          ],
+          "properties": {
+            "kind": { "const": "jurisdiction_context" },
+            "contextKind": { "const": "opaque_monitoring_context" },
+            "configuredJurisdictionRef": {
+              "$ref": "#/$defs/versionedReference"
+            },
+            "publisherJurisdictionEquivalence": { "const": "not_asserted" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "accessContext": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        {
+          "type": "object",
+          "required": [
+            "deploymentProfileRef",
+            "personaProjectionRef",
+            "outputAdapterRef",
+            "disclosureCeiling"
+          ],
+          "properties": {
+            "kind": { "const": "access_context" },
+            "deploymentProfileRef": {
+              "$ref": "#/$defs/versionedReference"
+            },
+            "personaProjectionRef": {
+              "$ref": "#/$defs/versionedReference"
+            },
+            "outputAdapterRef": { "$ref": "#/$defs/versionedReference" },
+            "disclosureCeiling": {
+              "enum": ["public", "internal", "restricted"]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "authorityBinding": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/validityProperties" },
+        {
+          "type": "object",
+          "required": [
+            "deploymentProfileRef",
+            "authorityIdentityRef",
+            "configuredJurisdictionRef",
+            "role",
+            "evidenceRefs"
+          ],
+          "properties": {
+            "kind": { "const": "authority_binding" },
+            "deploymentProfileRef": {
+              "$ref": "#/$defs/versionedReference"
+            },
+            "authorityIdentityRef": {
+              "$ref": "#/$defs/versionedReference"
+            },
+            "configuredJurisdictionRef": {
+              "$ref": "#/$defs/versionedReference"
+            },
+            "role": { "const": "synthetic_test_configuration" },
+            "evidenceRefs": {
+              "allOf": [
+                { "$ref": "#/$defs/typedReferenceSet" },
+                { "type": "array", "minItems": 1 }
+              ]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "evidenceReceipt": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/validityProperties" },
+        {
+          "type": "object",
+          "required": [
+            "source",
+            "evidenceClass",
+            "evidenceKind",
+            "subject",
+            "fixtureFingerprint"
+          ],
+          "properties": {
+            "kind": { "const": "evidence_receipt" },
+            "source": { "$ref": "#/$defs/sourceIdentity" },
+            "evidenceClass": {
+              "const": "repository_authored_synthetic_test"
+            },
+            "evidenceKind": {
+              "enum": [
+                "synthetic_fixture_identity",
+                "synthetic_contract_structure",
+                "synthetic_coverage_declaration",
+                "synthetic_configuration_authority"
+              ]
+            },
+            "subject": { "$ref": "#/$defs/evidenceSubject" },
+            "fixtureFingerprint": { "$ref": "#/$defs/fingerprint" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "contractReceipt": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/validityProperties" },
+        {
+          "type": "object",
+          "required": [
+            "source",
+            "adapterRef",
+            "fixtureFingerprint",
+            "providerLayer",
+            "internalLayer",
+            "publicLayer",
+            "qualification",
+            "evidenceRefs"
+          ],
+          "properties": {
+            "kind": { "const": "contract_receipt" },
+            "source": { "$ref": "#/$defs/sourceIdentity" },
+            "adapterRef": { "$ref": "#/$defs/versionedReference" },
+            "fixtureFingerprint": { "$ref": "#/$defs/fingerprint" },
+            "providerLayer": { "const": "synthetic_fixture_reference" },
+            "internalLayer": { "const": "closed_normalized_reference" },
+            "publicLayer": { "const": "reference_only_no_payload" },
+            "qualification": { "const": "synthetic_test_qualified" },
+            "evidenceRefs": {
+              "allOf": [
+                { "$ref": "#/$defs/typedReferenceSet" },
+                { "type": "array", "minItems": 2 }
+              ]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "coverageSlotState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slotRef", "state"],
+      "properties": {
+        "slotRef": { "$ref": "#/$defs/slotRef" },
+        "state": {
+          "enum": [
+            "covered",
+            "partial",
+            "outside_coverage",
+            "unknown_coverage",
+            "not_assessed"
+          ]
+        }
+      }
+    },
+    "coverageDeclaration": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        {
+          "type": "object",
+          "required": [
+            "source",
+            "sourceContextRef",
+            "jurisdictionContextRef",
+            "evidenceRefs",
+            "slotStates"
+          ],
+          "properties": {
+            "kind": { "const": "coverage_declaration" },
+            "source": { "$ref": "#/$defs/sourceIdentity" },
+            "sourceContextRef": { "$ref": "#/$defs/typedReference" },
+            "jurisdictionContextRef": { "$ref": "#/$defs/typedReference" },
+            "evidenceRefs": {
+              "allOf": [
+                { "$ref": "#/$defs/typedReferenceSet" },
+                { "type": "array", "minItems": 1 }
+              ]
+            },
+            "slotStates": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 128,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/coverageSlotState" }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "reviewSubject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "ref"],
+      "properties": {
+        "kind": { "enum": ["contract_receipt", "coverage_declaration"] },
+        "ref": { "$ref": "#/$defs/typedReference" }
+      }
+    },
+    "reviewAttestation": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/validityProperties" },
+        {
+          "type": "object",
+          "required": [
+            "subject",
+            "authorityBindingRef",
+            "evidenceRefs",
+            "state",
+            "reviewedAt"
+          ],
+          "properties": {
+            "kind": { "const": "review_attestation" },
+            "subject": { "$ref": "#/$defs/reviewSubject" },
+            "authorityBindingRef": { "$ref": "#/$defs/typedReference" },
+            "evidenceRefs": {
+              "allOf": [
+                { "$ref": "#/$defs/typedReferenceSet" },
+                { "type": "array", "minItems": 1 }
+              ]
+            },
+            "state": {
+              "enum": [
+                "synthetic_test_accepted",
+                "synthetic_test_pending",
+                "synthetic_test_rejected"
+              ]
+            },
+            "reviewedAt": { "$ref": "#/$defs/timestamp" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "operation": {
+      "enum": [
+        "acquisition",
+        "retention",
+        "transformation",
+        "internal_analysis",
+        "redistribution",
+        "public_projection"
+      ]
+    },
+    "admissionReceipt": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/validityProperties" },
+        {
+          "type": "object",
+          "required": [
+            "source",
+            "contractReceiptRef",
+            "coverageDeclarationRef",
+            "authorityBindingRef",
+            "reviewAttestationRefs",
+            "sourceContextRef",
+            "jurisdictionContextRef",
+            "deploymentProfileRef",
+            "regionPackRef",
+            "personaProjectionRef",
+            "outputAdapterRef",
+            "operationGrants",
+            "state"
+          ],
+          "properties": {
+            "kind": { "const": "admission_receipt" },
+            "source": { "$ref": "#/$defs/sourceIdentity" },
+            "contractReceiptRef": { "$ref": "#/$defs/typedReference" },
+            "coverageDeclarationRef": { "$ref": "#/$defs/typedReference" },
+            "authorityBindingRef": { "$ref": "#/$defs/typedReference" },
+            "reviewAttestationRefs": {
+              "allOf": [
+                { "$ref": "#/$defs/typedReferenceSet" },
+                { "type": "array", "minItems": 2 }
+              ]
+            },
+            "sourceContextRef": { "$ref": "#/$defs/typedReference" },
+            "jurisdictionContextRef": { "$ref": "#/$defs/typedReference" },
+            "deploymentProfileRef": {
+              "$ref": "#/$defs/versionedReference"
+            },
+            "regionPackRef": { "$ref": "#/$defs/versionedReference" },
+            "personaProjectionRef": {
+              "$ref": "#/$defs/versionedReference"
+            },
+            "outputAdapterRef": { "$ref": "#/$defs/versionedReference" },
+            "operationGrants": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 6,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/operation" }
+            },
+            "state": {
+              "enum": [
+                "synthetic_test_admitted",
+                "pack_binding_disabled",
+                "not_admitted",
+                "expired",
+                "revoked"
+              ]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "observationProperties": {
+      "type": "object",
+      "required": [
+        "source",
+        "sourceContextRef",
+        "jurisdictionContextRef",
+        "deploymentProfileRef",
+        "scope",
+        "observedAt",
+        "state"
+      ],
+      "properties": {
+        "source": { "$ref": "#/$defs/sourceIdentity" },
+        "sourceContextRef": { "$ref": "#/$defs/typedReference" },
+        "jurisdictionContextRef": { "$ref": "#/$defs/typedReference" },
+        "deploymentProfileRef": { "$ref": "#/$defs/versionedReference" },
+        "scope": {
+          "enum": ["source", "jurisdiction", "source_within_jurisdiction"]
+        },
+        "observedAt": { "$ref": "#/$defs/timestamp" },
+        "state": {
+          "enum": [
+            "available",
+            "unavailable",
+            "healthy",
+            "degraded",
+            "failed",
+            "not_observed",
+            "unknown"
+          ]
+        }
+      }
+    },
+    "availabilityObservation": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/observationProperties" },
+        {
+          "type": "object",
+          "properties": {
+            "kind": { "const": "availability_observation" },
+            "state": {
+              "enum": ["available", "unavailable", "not_observed", "unknown"]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "healthObservation": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        { "$ref": "#/$defs/observationProperties" },
+        {
+          "type": "object",
+          "properties": {
+            "kind": { "const": "health_observation" },
+            "state": {
+              "enum": [
+                "healthy",
+                "degraded",
+                "failed",
+                "not_observed",
+                "unknown"
+              ]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "predecessorReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "bundleRef", "objectRef"],
+      "properties": {
+        "kind": {
+          "enum": ["geographic_relation", "rights_frame", "taxonomy_namespace"]
+        },
+        "bundleRef": { "$ref": "#/$defs/versionedReference" },
+        "objectRef": { "$ref": "#/$defs/versionedReference" }
+      }
+    },
+    "sourceBinding": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        {
+          "type": "object",
+          "required": [
+            "source",
+            "sourceContextRef",
+            "jurisdictionContextRef",
+            "contractReceiptRef",
+            "coverageDeclarationRef",
+            "authorityBindingRef",
+            "admissionReceiptRef",
+            "visibility",
+            "predecessorRefs"
+          ],
+          "properties": {
+            "kind": { "const": "source_binding" },
+            "source": { "$ref": "#/$defs/sourceIdentity" },
+            "sourceContextRef": { "$ref": "#/$defs/typedReference" },
+            "jurisdictionContextRef": { "$ref": "#/$defs/typedReference" },
+            "contractReceiptRef": { "$ref": "#/$defs/typedReference" },
+            "coverageDeclarationRef": { "$ref": "#/$defs/typedReference" },
+            "authorityBindingRef": { "$ref": "#/$defs/typedReference" },
+            "admissionReceiptRef": { "$ref": "#/$defs/typedReference" },
+            "visibility": { "enum": ["public", "internal", "restricted"] },
+            "predecessorRefs": {
+              "type": "array",
+              "maxItems": 32,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/predecessorReference" }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "deploymentBinding": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/catalogHeader" },
+        {
+          "type": "object",
+          "required": [
+            "deploymentProfileRef",
+            "regionPackRef",
+            "sourceBindingRefs",
+            "accessContextRefs"
+          ],
+          "properties": {
+            "kind": { "const": "deployment_binding" },
+            "deploymentProfileRef": {
+              "$ref": "#/$defs/versionedReference"
+            },
+            "regionPackRef": { "$ref": "#/$defs/versionedReference" },
+            "sourceBindingRefs": {
+              "allOf": [
+                { "$ref": "#/$defs/typedReferenceSet" },
+                { "type": "array", "minItems": 1 }
+              ]
+            },
+            "accessContextRefs": {
+              "allOf": [
+                { "$ref": "#/$defs/typedReferenceSet" },
+                { "type": "array", "minItems": 1 }
+              ]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  }
+}
