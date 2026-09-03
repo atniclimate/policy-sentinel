@@ -223,6 +223,71 @@ query may be issued only after contract-byte review and current evidence
 qualification. Typed rendition URLs may be retained as links; their targets
 must not be requested.
 
+### Exact unissued request set
+
+The following is the complete initial request set. It contains 22 requests:
+two Federal Register API requests, three NARA/GovInfo authority-and-rights
+requests, and 17 portfolio requests. The remaining 58-request owner envelope is
+unissued reserve, not an allowlist. A reserve request requires an exact
+same-operator URL, purpose, media/byte/time policy, remaining budget, written
+lead rationale, and adversarial concurrence added to this ledger before it is
+sent. No link is followed automatically.
+
+Every request below uses `GET`, `redirect: error`, `credentials: omit`,
+`referrerPolicy: no-referrer`, no cookie or authorization header, and user agent
+`Policy-Sentinel-LocalPrerelease/1.0`. JSON accepts only `application/json`;
+HTML accepts only `text/html` or `application/xhtml+xml`. A supplied charset
+must be UTF-8 and decoding is fatal. Success requires status 200. A 3xx is
+recorded but not followed, a 429 stops that host, every other non-200 fails that
+request, and no request is automatically retried. The default execution is
+serial. The whole research deadline is 600,000 ms; the acquisition deadline is
+300,000 ms. Each response is streamed through its declared byte and 64-chunk
+ceilings. Raw response bytes and provider prose are not logged or persisted.
+
+| ID | Allocation | Exact URL | Accept | Bytes | Time | Purpose |
+| --- | --- | --- | --- | ---: | ---: | --- |
+| FR-D1 | Federal Register API | `https://www.federalregister.gov/api/v1/documentation.json` | JSON | 524,288 | 30,000 ms | Current deployed interface and field evidence |
+| FR-R1 | NARA/GovInfo | `https://www.archives.gov/federal-register/faqs` | HTML | 524,288 | 30,000 ms | Publisher, official-edition, cadence, and reproduction evidence |
+| FR-R2 | NARA/GovInfo | `https://www.govinfo.gov/help/fr` | HTML | 524,288 | 30,000 ms | Official collection/custody and rendition evidence |
+| FR-R3 | NARA/GovInfo | `https://www.govinfo.gov/about/policies` | HTML | 524,288 | 30,000 ms | Reuse, copyright, image, and privacy boundary evidence |
+| FR-A1 | Federal Register API | exact Tier-1 URL below | JSON | 65,536 | 30,000 ms | Sole exact-document acquisition and health observation |
+| PF-01 | Portfolio | `https://www.bia.gov/` | HTML | 1,048,576 | 30,000 ms | Operator/authority overview |
+| PF-02 | Portfolio | `https://www.bia.gov/service/tribal-leaders-directory` | HTML | 1,048,576 | 30,000 ms | Directory purpose and authority boundary |
+| PF-03 | Portfolio | `https://www.bia.gov/service/tribal-leaders-directory/tld-csvexcel-dataset` | HTML | 1,048,576 | 30,000 ms | Dataset documentation/disclaimer only; no dataset download |
+| PF-04 | Portfolio | `https://atnitribes.org/resolution-table/` | HTML | 1,048,576 | 30,000 ms | ATNI resolution identity, custody, and lifecycle surface |
+| PF-05 | Portfolio | `https://www.ncai.org/resolutions` | HTML | 1,048,576 | 30,000 ms | NCAI resolution identity, custody, and lifecycle surface |
+| PF-06 | Portfolio | `https://coalitionfortribalsovereignty.org/` | HTML | 1,048,576 | 30,000 ms | Coalition operator and position/analysis role |
+| PF-07 | Portfolio | `https://critfc.org/` | HTML | 1,048,576 | 30,000 ms | Inter-Tribal commission operator and statement role |
+| PF-08 | Portfolio | `https://nwifc.org/` | HTML | 1,048,576 | 30,000 ms | Inter-Tribal commission operator and statement role |
+| PF-09 | Portfolio | `https://narf.org/` | HTML | 1,048,576 | 30,000 ms | Legal advocacy/analysis operator role |
+| PF-10 | Portfolio | `https://www.ailc-inc.org/about/policy-legal-analysis/` | HTML | 1,048,576 | 30,000 ms | Policy/legal-analysis role and limits |
+| PF-11 | Portfolio | `https://nni.arizona.edu/our-work/research-policy-analysis` | HTML | 1,048,576 | 30,000 ms | Research/policy-analysis role and limits |
+| PF-12 | Portfolio | `https://www.gao.gov/tribal-and-native-american-issues` | HTML | 1,048,576 | 30,000 ms | Official oversight topic surface |
+| PF-13 | Portfolio | `https://api.congress.gov/` | HTML or JSON | 1,048,576 | 30,000 ms | Official legislative API access/credential boundary |
+| PF-14 | Portfolio | `https://www.govinfo.gov/developers` | HTML | 1,048,576 | 30,000 ms | Official publisher API/interface boundary |
+| PF-15 | Portfolio | `https://open.gsa.gov/api/regulationsgov/` | HTML | 1,048,576 | 30,000 ms | Regulations.gov API/interface boundary |
+| PF-16 | Portfolio | `https://data.gov/about/` | HTML | 1,048,576 | 30,000 ms | Discovery-catalog identity and non-authority boundary |
+| PF-17 | Portfolio | `https://open.gsa.gov/api/` | HTML | 1,048,576 | 30,000 ms | SAM service-path discovery only; no link follow |
+
+`FR-A1` has no date boundary, time-zone semantic, sort, order, page, or cursor:
+the closed selected range is the single document identity `2026-16965`, its
+item/page ceilings are one, and duplicates or any multi-document shape fail.
+Its exact parameter order is frozen as follows:
+
+```text
+https://www.federalregister.gov/api/v1/documents/2026-16965.json?fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=type&fields%5B%5D=subtype&fields%5B%5D=publication_date&fields%5B%5D=effective_on&fields%5B%5D=comments_close_on&fields%5B%5D=signing_date&fields%5B%5D=citation&fields%5B%5D=volume&fields%5B%5D=start_page&fields%5B%5D=end_page&fields%5B%5D=agencies&fields%5B%5D=docket_ids&fields%5B%5D=regulation_id_numbers&fields%5B%5D=cfr_references&fields%5B%5D=topics&fields%5B%5D=cfr_topics&fields%5B%5D=html_url&fields%5B%5D=pdf_url&fields%5B%5D=json_url&fields%5B%5D=full_text_xml_url&fields%5B%5D=raw_text_url
+```
+
+The parser may retain only the 22 structured Tier-1 fields named in the owner
+contract plus typed allowlisted rendition URLs. Within `agencies`, only
+`raw_name`, `name`, `id`, `slug`, and `parent_id` survive. All Tier-2 text,
+people/contact/comment/public-inspection/attachment/docket-body content and
+unknown fields are rejected or discarded before normalization according to the
+frozen parser contract. Link targets are never requested. Structured empty
+`docket_ids` stays empty. `topics` and `cfr_topics` remain different schemes.
+All provider facts remain exact; the projection adds no Nation, ATNI,
+geographic, legal, rights, consultation, or community-position claim.
+
 ## Phase gates, acceptance, and stop contract
 
 1. Candidate lifecycle schema/runtime/tests must address every pre-freeze
