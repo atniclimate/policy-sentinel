@@ -6,9 +6,9 @@ Authorization token: `PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE`
 
 Starting HEAD: `3fd9c2cdb8e431e7ef57f328deced43777936a8f`
 
-Status: active; third lifecycle byte freeze approved by both independent
-actual-byte reviewers and lifecycle checkpoint awaiting commit; no external
-request issued
+Status: active; lifecycle contract committed and Federal Register Tier-1
+evidence closure in progress; four official-evidence requests issued, exact
+document acquisition still unissued
 
 ## Authority and non-claims
 
@@ -412,14 +412,16 @@ files. No agent may expand a lease or commit.
 
 ## Frozen external request ledger and budgets
 
-No request has been issued in this run. The owner envelope permits HTTPS `GET`
-or `HEAD`, but the exact initial set below contains only `GET`; no `HEAD` is
-ledgered for execution. Each exact request uses manual redirect inspection
-with no redirect follow, omits credentials/cookies/referrer, uses no
-user/Nation/private/location/session-derived query value, and has no automatic
-retry. Any `429` stops the source operation; the single possible deliberate
-retry requires a recorded transient failure, an official usable
-`Retry-After`, remaining time/budget, and lead approval.
+At freeze time no request had been issued. The execution log below now records
+four completed evidence requests; `FR-A1` and all portfolio requests remain
+unissued. The owner envelope permits HTTPS `GET` or `HEAD`, but the exact
+initial set below contains only `GET`; no `HEAD` is ledgered for execution.
+Each exact request uses manual redirect inspection with no redirect follow,
+omits credentials/cookies/referrer, uses no user/Nation/private/location/
+session-derived query value, and has no automatic retry. Any `429` stops the
+source operation; the single possible deliberate retry requires a recorded
+transient failure, an official usable `Retry-After`, remaining time/budget, and
+lead approval.
 
 | Allocation | Requests | Hosts/path families | Purpose and response ceiling |
 | --- | ---: | --- | --- |
@@ -494,6 +496,43 @@ ceilings. Raw response bytes and provider prose are not logged or persisted.
 | PF-15 | Portfolio | `https://open.gsa.gov/api/regulationsgov/` | HTML | 1,048,576 | 30,000 ms | Regulations.gov API/interface boundary |
 | PF-16 | Portfolio | `https://data.gov/about/` | HTML | 1,048,576 | 30,000 ms | Discovery-catalog identity and non-authority boundary |
 | PF-17 | Portfolio | `https://open.gsa.gov/api/` | HTML | 1,048,576 | 30,000 ms | SAM service-path discovery only; no link follow |
+
+### Evidence-request execution log
+
+On 2026-09-03 the lead issued only `FR-D1`, `FR-R1`, `FR-R2`, and `FR-R3`,
+serially through a process-local no-follow HTTPS observer. Each used one GET,
+one 30-second deadline, identity encoding, the frozen Accept and User-Agent
+values, no credential/cookie/referrer, a 512-KiB and 64-chunk ceiling, no
+automatic retry, and no link follow. All four returned `200` with the expected
+media category and accepted UTF-8 policy on the first attempt.
+
+| ID | UTC interval | Status/media | Bytes | Chunks | SHA-256 |
+| --- | --- | --- | ---: | ---: | --- |
+| `FR-D1` | `2026-09-03T11:44:48.420Z` through `2026-09-03T11:44:49.021Z` | `200` JSON | 230,046 | 17 | `06e06bfd397c49d600bab6d6c3eb4c1e2c07394f13544ffe193ae88385448d71` |
+| `FR-R1` | `2026-09-03T11:44:49.021Z` through `2026-09-03T11:44:49.258Z` | `200` HTML | 83,240 | 6 | `272f27476b26ff1ee8ab534cacbb29595a12aaf05625c3a0923e13b80387441e` |
+| `FR-R2` | `2026-09-03T11:44:49.258Z` through `2026-09-03T11:44:49.399Z` | `200` HTML | 112,041 | 54 | `036deef02ddb0e88e32941ab8e36d2062b130b8ed44f84a0c2cf9f70d2081841` |
+| `FR-R3` | `2026-09-03T11:44:49.399Z` through `2026-09-03T11:44:49.532Z` | `200` HTML | 64,162 | 43 | `5189ea6f00ac5b788b6937d6024e9f5924ed958305e31afc7d94f7e4bc40c0a9` |
+
+Aggregate execution is four attempts, four `2xx` responses, 489,489 decoded
+identity bytes, 120 chunks, zero redirect follows, zero retries, zero `3xx`,
+`4xx`, `429`, or `5xx` statuses, and zero persisted raw bytes. The process
+printed only bounded aggregate receipts and project-owned fact predicates;
+response bodies and provider prose were never printed or written. The exact
+OpenAPI bytes match the prior 2026-09-02 review, preserving its independently
+recorded 14 paths, 56 requestable fields including all 23 frozen selectors,
+JSON/CSV formats, blank semantic version, and absent security/terms/external-
+documentation declarations. Current aggregate predicates also confirmed the
+publisher/operator and reproduction boundary on `FR-R1`, official daily-
+edition custody and rendition distinctions on `FR-R2`, and GovInfo-specific
+copyright/public-domain, privacy/PII, and image-rights distinctions on `FR-R3`.
+They do not turn GovInfo policy into FederalRegister.gov API privacy or terms.
+
+Remaining ceilings are 76 total requests, 29 Federal Register API requests,
+9 requests in the Federal Register contract/acquisition allocation, 5 in the
+NARA/GovInfo allocation, all 24 portfolio requests, and all 38 general reserve
+requests. The 18 still-unissued exact requests are `FR-A1` plus `PF-01` through
+`PF-17`; all 58 unissued-capacity slots remain unavailable without the frozen
+amendment/concurrence rule.
 
 `FR-A1` has no date boundary, time-zone semantic, sort, order, page, or cursor:
 the closed selected range is the single document identity `2026-16965`, its
@@ -596,3 +635,13 @@ portfolio review continue.
   synthetic artifact: 3 records, exactly 575 synthetic Nations, 8 verified
   assets, and build ID `synthetic-629cdb8aa6fd4a7dec4f`. No real-source data or
   provider request entered the build.
+- Local commits `e0fb7e4150d9a6889d74d62bfb430b7c782eaac2` and
+  `4191b06` record the accepted lifecycle implementation and the ledger advance
+  to Federal Register Tier-1 qualification. The lifecycle work item is complete;
+  the Tier-1 item is the sole `in_progress` work item and the source-neutral
+  corpus item is newly `ready`.
+- The lead then issued only `FR-D1` and `FR-R1` through `FR-R3`. All four
+  completed on their first serial attempt with `200`, accepted media and UTF-8,
+  489,489 aggregate bytes, 120 chunks, zero redirects/retries, and zero raw-byte
+  persistence. `FR-A1` remains unissued pending exact parser/transport,
+  residual-risk, and fresh review gates.

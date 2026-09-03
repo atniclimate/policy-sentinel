@@ -4163,7 +4163,21 @@ work_items:
         Qualification, admission, activation, and operation receipts are exact,
         time/deployment scoped, independently reviewed, and do not authorize
         redistribution or publication.
-    evidence: []
+    evidence:
+      - >-
+        Dependency commit e0fb7e4150d9a6889d74d62bfb430b7c782eaac2 and roadmap
+        commit 4191b06 place the independently accepted lifecycle contract
+        behind this source-specific gate without qualifying or activating
+        Federal Register.
+      - >-
+        On 2026-09-03 the lead issued only frozen requests FR-D1 and FR-R1
+        through FR-R3. All four completed serially on their first attempt with
+        HTTP 200, accepted JSON/HTML and UTF-8, 489,489 aggregate bytes, 120
+        chunks, zero redirects/retries, and no persisted raw bytes. FR-D1's
+        230,046-byte SHA-256
+        06e06bfd397c49d600bab6d6c3eb4c1e2c07394f13544ffe193ae88385448d71 exactly
+        matches the 2026-09-02 reviewed OpenAPI. FR-A1 remains unissued pending
+        parser/transport, residual-risk, and independent review gates.
 
   - id: PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG
     priority: 137
