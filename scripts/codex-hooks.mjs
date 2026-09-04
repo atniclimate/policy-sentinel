@@ -48,10 +48,17 @@ const sensitivePatchRoots = [
   "secrets",
 ];
 const observerAuthoringPolicy = Object.freeze({
+  phase: "execution_frozen",
   path: "generated-data/real-source-prerelease/observe-source-authority-portfolio.mjs",
   directory: "generated-data/real-source-prerelease",
   gateId: "G-PNW-05-REAL-SOURCE-PRERELEASE",
   workItemId: "PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY",
+  observerCustody: Object.freeze({
+    bytes: 99_998,
+    sha256: "2cab3b38b33413ce296656662ba94053cc3512b00d85f3c9c5fb48e65c1ec21d",
+    planSha256:
+      "b676acebcec53076742c5e4e831bd1729e8cbb970a1f276a099543358b274e33",
+  }),
   trustPaths: Object.freeze([
     ".codex/hooks.json",
     ".gitignore",
@@ -1123,7 +1130,10 @@ export const observerPreAddCustodyIsValid = (
 
 export const observerPostAddCustodyIsValid = (
   root,
-  { historicalCustody = observerAuthoringPolicy.historicalCustody } = {},
+  {
+    historicalCustody = observerAuthoringPolicy.historicalCustody,
+    observerCustody = observerAuthoringPolicy.observerCustody,
+  } = {},
 ) =>
   observerParentDirectoriesAreCanonical(root) &&
   reservedCustodyIsAbsent(root) &&
@@ -1133,16 +1143,25 @@ export const observerPostAddCustodyIsValid = (
   ]) &&
   historicalCustodyIsValid(root, historicalCustody) &&
   canonicalSingleLinkFile(root, observerAuthoringPolicy.path) &&
-  gitPathsHaveIgnoredCustody(root, [observerAuthoringPolicy.path]);
+  gitPathsHaveIgnoredCustody(root, [observerAuthoringPolicy.path]) &&
+  hashExactCanonicalFile(
+    root,
+    observerAuthoringPolicy.path,
+    observerCustody.bytes,
+  ) === observerCustody.sha256;
+
+export const observerExecutionCustodyIsValid = observerPostAddCustodyIsValid;
 
 export const observerCustodyContract = Object.freeze({
   historical: observerAuthoringPolicy.historicalCustody,
+  observer: observerAuthoringPolicy.observerCustody,
   observerPath: observerAuthoringPolicy.path,
+  phase: observerAuthoringPolicy.phase,
   reservedPaths: observerAuthoringPolicy.reservedCustodyPaths,
   trustPaths: observerAuthoringPolicy.trustPaths,
 });
 
-export const observerAuthoringEvidenceIsValid = ({
+export const observerExecutionEvidenceIsValid = ({
   roadmap,
   roadmapValid,
   trustInputsMatchHead,
@@ -1153,20 +1172,12 @@ export const observerAuthoringEvidenceIsValid = ({
   observerRoadmapAuthority(roadmap) &&
   custodyValid;
 
-const observerPreAddIsAuthorized = (root, roadmap) =>
-  observerAuthoringEvidenceIsValid({
+export const observerExecutionCheckpointIsValid = (root, roadmap) =>
+  observerExecutionEvidenceIsValid({
     roadmap,
     roadmapValid: validateRoadmap(root).ok,
     trustInputsMatchHead: observerTrustInputsMatchHead(root),
-    custodyValid: observerPreAddCustodyIsValid(root),
-  });
-
-const observerPostAddIsValid = (root, roadmap) =>
-  observerAuthoringEvidenceIsValid({
-    roadmap,
-    roadmapValid: validateRoadmap(root).ok,
-    trustInputsMatchHead: observerTrustInputsMatchHead(root),
-    custodyValid: observerPostAddCustodyIsValid(root),
+    custodyValid: observerExecutionCustodyIsValid(root),
   });
 
 export const evaluatePatchPaths = (
@@ -1218,12 +1229,7 @@ export const evaluatePatchPaths = (
   return { blocked: false };
 };
 
-export const evaluatePatchOperations = (
-  operations,
-  roadmap,
-  root,
-  { authorizeObserverAdd = observerPreAddIsAuthorized } = {},
-) => {
+export const evaluatePatchOperations = (operations, roadmap, root) => {
   if (!Array.isArray(operations) || operations.length === 0) {
     return {
       blocked: true,
@@ -1260,28 +1266,17 @@ export const evaluatePatchOperations = (
       reason: `The ignored portfolio observer requires its one exact canonical path: ${observerPathAlias.rawPath}`,
     };
   }
-  const allowedSensitivePaths = new Set();
   if (observerOperation) {
-    if (
-      operations.length !== 1 ||
-      observerOperation.action !== "Add" ||
-      observerOperation.headerPath !== ` ${observerAuthoringPolicy.path}` ||
-      !observerParentDirectoriesAreCanonical(root) ||
-      !authorizeObserverAdd(root, roadmap)
-    ) {
-      return {
-        blocked: true,
-        reason:
-          "The ignored portfolio observer may only receive one exact Add File patch while its committed authority, canonical parents, and pre-attempt custody remain valid.",
-      };
-    }
-    allowedSensitivePaths.add(observerAuthoringPolicy.path);
+    return {
+      blocked: true,
+      reason:
+        "The approved ignored portfolio observer is execution-frozen at its committed byte identity; Add, Update, Delete, Move, and mixed patches are forbidden.",
+    };
   }
 
   return evaluatePatchPaths(
     operations.map((operation) => operation.repositoryPath),
     roadmap,
-    { allowedSensitivePaths },
   );
 };
 
@@ -1376,40 +1371,6 @@ const executePostEditChecks = (root, paths, roadmap) => {
     });
   }
   return { plan, checks };
-};
-
-const observerPostEditChecks = (root, roadmap) => {
-  const stateIsValid = observerPostAddIsValid(root, roadmap);
-  return [
-    {
-      name: "observer authorization and custody",
-      result: {
-        ok: stateIsValid,
-        status: stateIsValid ? 0 : 1,
-        stdout: "",
-        stderr: stateIsValid
-          ? ""
-          : "committed authority or post-Add observer custody changed",
-      },
-    },
-    {
-      name: "observer syntax",
-      result: run(
-        process.execPath,
-        ["--check", path.resolve(root, observerAuthoringPolicy.path)],
-        { cwd: root, timeout: 30_000 },
-      ),
-    },
-    {
-      name: "observer lint",
-      result: runNodeScript(
-        root,
-        "node_modules/eslint/bin/eslint.js",
-        ["--no-ignore", "--max-warnings=0", observerAuthoringPolicy.path],
-        30_000,
-      ),
-    },
-  ];
 };
 
 export const buildSessionContext = ({ roadmap, validation, head, status }) => {
@@ -1607,22 +1568,13 @@ const postToolUse = async (event, root) => {
   } catch {
     roadmap = null;
   }
-  const observerEdited = isObserverAddOperation(operations);
-  const { plan, checks } = observerEdited
-    ? { plan: planPostEditChecks(paths, roadmap), checks: [] }
-    : executePostEditChecks(root, paths, roadmap);
-  if (observerEdited) {
-    checks.push(...observerPostEditChecks(root, roadmap));
-  }
+  const { plan, checks } = executePostEditChecks(root, paths, roadmap);
   const failures = checks.filter((check) => !check.result.ok);
   const companionWarning =
     plan.planning && !plan.roadmap && !roadmapIsDirty(root)
       ? "A binding planning document changed while ROADMAP.yaml is unchanged. Decide whether status, evidence, next actions, or the decision register needs a companion update; typo-only edits need no ledger churn."
       : "";
-  const observerWarning = observerEdited
-    ? "The ignored portfolio observer was added. Static hook checks do not execute unapproved code. Obtain fresh source, security, and sovereignty approval before any self-test or request execution."
-    : "";
-  if (failures.length === 0 && !companionWarning && !observerWarning) {
+  if (failures.length === 0 && !companionWarning) {
     return null;
   }
   const detail = [
@@ -1630,7 +1582,6 @@ const postToolUse = async (event, root) => {
       ({ name, result }) => `${name} failed:\n${outputForResult(result)}`,
     ),
     companionWarning,
-    observerWarning,
   ]
     .filter(Boolean)
     .join("\n\n");

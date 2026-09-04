@@ -1469,3 +1469,59 @@ This one-Add equivalence expires immediately after Post. It grants no offline
 self-test, process launch, DNS/network request, PF attempt, receipt, source fact,
 source acceptance, admission, activation, artifact, publication, or cleanup
 authority.
+
+### Completed one-Add dispatch and execution-freeze transition
+
+The non-reusable manual equivalence was exercised once at committed `HEAD`
+`0f02dca2e7409d9ec5380bc4344f50d979c01d6e`. The final preflight found exactly
+the 23 protected owner inputs outside tracked custody, no tracked or index diff,
+all six trust inputs canonical and `HEAD`-equal, exactly the eight historical
+generated files at the frozen hashes, all 37 reserved custody paths absent, and
+the observer absent. The production probe returned
+`authority=true/trust=true/pre=true/post=false`.
+
+The fixed descriptor remained 170 UTF-8/LF bytes at SHA-256
+`01b840c7e917deb5459c8b64c780ec26bd706087b0ec55efc47f913dcc0d4943`.
+The actual Add patch was 103,407 bytes at SHA-256
+`da63dc5c53781cff1c3d363a277f1470c9385c476d7f4298605ab781b7b45c6f`.
+Both parsed to the same sole literal `Add` operation, exact canonical path, and
+exact one-space header; only the Add body differed. Direct Pre exited zero with
+exactly empty standard output and error. With no intervening operation, the
+patch tool applied the actual patch exactly once. With no intervening
+operation, direct Post exited zero with empty standard error and emitted only
+the expected static-review warning JSON, without deny or block.
+
+The resulting ignored, untracked, index-absent, and `HEAD`-absent observer is
+99,998 UTF-8/LF bytes at SHA-256
+`2cab3b38b33413ce296656662ba94053cc3512b00d85f3c9c5fb48e65c1ec21d`.
+Generated inventory immediately after Post was exactly the eight unchanged
+historical files plus that observer, with all 37 reserved paths absent. The
+production probe returned `authority=true/trust=true/pre=false/post=true`.
+No import, self-test, Node launch, DNS lookup, network request, or generated
+write occurred during authoring or the ensuing review.
+
+Fresh independent source/evidence, security, and sovereignty reviewers each
+read the actual on-disk bytes and returned exact disposition
+`APPROVE_ACTUAL_OBSERVER_FOR_EXECUTION_TRANSITION`. Their approvals bind only
+the exact observer hash above and canonical plan SHA-256
+`b676acebcec53076742c5e4e831bd1729e8cbb970a1f276a099543358b274e33`.
+
+The ensuing execution-freeze hook transition has a 199-byte LF-terminated
+two-file manifest at SHA-256
+`79cc7e409040576c83dfdeb72d6d9cb42a413845a7abbe359cdb781de2f94fe5`:
+
+| Path | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `scripts/codex-hooks.mjs` | 48,792 | `2ee9190b21504dc6610786fd1124e04bc8598918b4064ae208b631cb8f704f2e` |
+| `tests/hooks/codex-hooks.test.mjs` | 35,233 | `9f503f5df60eb61d7e4f1012b1f2fe5c7cf95293d6a5d303979cf1529a8b990d` |
+
+This transition removes the observer Add exception, rejects every Add, Update,
+Delete, Move, or mixed patch that names the observer, and requires its exact
+byte identity, ignored/untracked/`HEAD`-absent state, canonical single-link
+custody, unchanged historical hashes, absent reserved custody, valid roadmap,
+and clean committed trust inputs for the execution checkpoint. The hook still
+does not claim to govern process launch. The offline self-test and sole live
+token remain unavailable until this transition is committed, its focused tests
+pass, its exact committed bytes receive independent adversarial approval, and a
+final lead-owned prelaunch probe succeeds. Any observer-byte drift closes the
+checkpoint; there is no mutation or repair authority in this phase.

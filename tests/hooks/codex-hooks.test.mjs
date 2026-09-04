@@ -30,8 +30,9 @@ import {
   extractPatchPaths,
   isObserverAddOperation,
   normalizeRepositoryPath,
-  observerAuthoringEvidenceIsValid,
   observerCustodyContract,
+  observerExecutionCustodyIsValid,
+  observerExecutionEvidenceIsValid,
   observerParentDirectoriesAreCanonical,
   observerPostAddCustodyIsValid,
   observerPreAddCustodyIsValid,
@@ -425,7 +426,14 @@ test("portfolio observer policy freezes the exact target and 37 reserved names",
     `${observerDirectory}/FR-A1.attempt`,
     `${observerDirectory}/FR-A1.receipt.json`,
   ];
+  assert.equal(observerCustodyContract.phase, "execution_frozen");
   assert.equal(observerCustodyContract.observerPath, observerPath);
+  assert.deepEqual(observerCustodyContract.observer, {
+    bytes: 99_998,
+    sha256: "2cab3b38b33413ce296656662ba94053cc3512b00d85f3c9c5fb48e65c1ec21d",
+    planSha256:
+      "b676acebcec53076742c5e4e831bd1729e8cbb970a1f276a099543358b274e33",
+  });
   assert.deepEqual(observerCustodyContract.historical, [
     {
       name: "authority-input-v2.json",
@@ -491,11 +499,11 @@ test("portfolio observer policy freezes the exact target and 37 reserved names",
   ]);
 });
 
-test("observer authoring requires the sole active item and exact gate", () => {
+test("observer execution requires the sole active item and exact gate", () => {
   const authorized = observerRoadmap();
   assert.equal(observerRoadmapAuthority(authorized), true);
   assert.equal(
-    observerAuthoringEvidenceIsValid({
+    observerExecutionEvidenceIsValid({
       roadmap: authorized,
       roadmapValid: true,
       trustInputsMatchHead: true,
@@ -509,7 +517,7 @@ test("observer authoring requires the sole active item and exact gate", () => {
     { custodyValid: false },
   ]) {
     assert.equal(
-      observerAuthoringEvidenceIsValid({
+      observerExecutionEvidenceIsValid({
         roadmap: authorized,
         roadmapValid: true,
         trustInputsMatchHead: true,
@@ -789,23 +797,45 @@ test("observer pre-Add custody rejects every reserved name and changed history",
   }
 });
 
-test("observer post-Add custody is exact, root-ignored, and untracked", () => {
+test("observer execution custody binds exact bytes, ignore, and Git absence", () => {
   const { historicalCustody, root } = initializeObserverFixture();
   const absoluteObserverPath = path.join(root, ...observerPath.split("/"));
+  const observerBytes = Buffer.from("export {};\n", "utf8");
+  const observerCustody = {
+    bytes: observerBytes.byteLength,
+    sha256: createHash("sha256").update(observerBytes).digest("hex"),
+  };
   try {
-    writeFileSync(absoluteObserverPath, "export {};\n", "utf8");
+    writeFileSync(absoluteObserverPath, observerBytes);
     assert.equal(
       observerPreAddCustodyIsValid(root, { historicalCustody }),
       false,
     );
     assert.equal(
-      observerPostAddCustodyIsValid(root, { historicalCustody }),
+      observerExecutionCustodyIsValid(root, {
+        historicalCustody,
+        observerCustody,
+      }),
       true,
     );
 
+    writeFileSync(absoluteObserverPath, Buffer.from("export default {};\n"));
+    assert.equal(
+      observerExecutionCustodyIsValid(root, {
+        historicalCustody,
+        observerCustody,
+      }),
+      false,
+      "changed observer bytes must invalidate execution custody",
+    );
+    writeFileSync(absoluteObserverPath, observerBytes);
+
     runGit(root, ["add", "--force", observerPath]);
     assert.equal(
-      observerPostAddCustodyIsValid(root, { historicalCustody }),
+      observerExecutionCustodyIsValid(root, {
+        historicalCustody,
+        observerCustody,
+      }),
       false,
     );
     runGit(root, ["commit", "--quiet", "--message", "track observer"]);
@@ -838,21 +868,13 @@ test("observer ignore provenance cannot come from the repository exclude", () =>
   }
 });
 
-test("observer apply_patch exception is Add-only, exact, and fail-closed", () => {
+test("execution-frozen observer rejects every apply_patch mutation", () => {
   const operation = (header) =>
     extractPatchOperations(`*** Begin Patch\n${header}\n*** End Patch`);
   const exactAdd = operation(`*** Add File: ${observerPath}`);
   assert.equal(isObserverAddOperation(exactAdd), true);
   assert.equal(
-    evaluatePatchOperations(exactAdd, observerRoadmap(), projectRoot, {
-      authorizeObserverAdd: () => true,
-    }).blocked,
-    false,
-  );
-  assert.equal(
-    evaluatePatchOperations(exactAdd, observerRoadmap(), projectRoot, {
-      authorizeObserverAdd: () => false,
-    }).blocked,
+    evaluatePatchOperations(exactAdd, observerRoadmap(), projectRoot).blocked,
     true,
   );
 
@@ -881,14 +903,8 @@ test("observer apply_patch exception is Add-only, exact, and fail-closed", () =>
     const variantOperations = operation(header);
     assert.equal(isObserverAddOperation(variantOperations), false, header);
     assert.equal(
-      evaluatePatchOperations(
-        variantOperations,
-        observerRoadmap(),
-        projectRoot,
-        {
-          authorizeObserverAdd: () => true,
-        },
-      ).blocked,
+      evaluatePatchOperations(variantOperations, observerRoadmap(), projectRoot)
+        .blocked,
       true,
       header,
     );
@@ -898,9 +914,7 @@ test("observer apply_patch exception is Add-only, exact, and fail-closed", () =>
     `*** Begin Patch\n*** Add File: ${observerPath}\n*** Update File: README.md\n*** End Patch`,
   );
   assert.equal(
-    evaluatePatchOperations(mixed, observerRoadmap(), projectRoot, {
-      authorizeObserverAdd: () => true,
-    }).blocked,
+    evaluatePatchOperations(mixed, observerRoadmap(), projectRoot).blocked,
     true,
   );
   assert.equal(
@@ -924,9 +938,8 @@ test("observer apply_patch exception is Add-only, exact, and fail-closed", () =>
       false,
     );
     assert.equal(
-      evaluatePatchOperations(exactAdd, observerRoadmap(), missingParentsRoot, {
-        authorizeObserverAdd: () => true,
-      }).blocked,
+      evaluatePatchOperations(exactAdd, observerRoadmap(), missingParentsRoot)
+        .blocked,
       true,
     );
 

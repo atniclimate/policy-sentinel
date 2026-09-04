@@ -4507,6 +4507,27 @@ work_items:
         the actual patch may differ only in body, is checked for the same sole
         literal Add operation, and gains no execution approval until fresh
         exact-byte source, security, and sovereignty review.
+      - >-
+        The non-reusable direct dispatch completed once at committed HEAD
+        0f02dca2e7409d9ec5380bc4344f50d979c01d6e: silent Pre, one successful
+        103,407-byte Add patch at SHA-256
+        da63dc5c53781cff1c3d363a277f1470c9385c476d7f4298605ab781b7b45c6f, and
+        Post with only the expected static warning. The resulting ignored,
+        untracked, index/HEAD-absent observer is 99,998 bytes at SHA-256
+        2cab3b38b33413ce296656662ba94053cc3512b00d85f3c9c5fb48e65c1ec21d;
+        historical custody remained exact and all 37 reserved paths remained
+        absent. Fresh source, security, and sovereignty reviewers each returned
+        APPROVE_ACTUAL_OBSERVER_FOR_EXECUTION_TRANSITION without importing or
+        executing it.
+      - >-
+        The execution-freeze transition binds that exact observer plus canonical
+        plan SHA-256
+        b676acebcec53076742c5e4e831bd1729e8cbb970a1f276a099543358b274e33,
+        removes the spent Add exception, and denies every observer patch
+        mutation. It grants no process launch by itself; commit, focused tests,
+        independent transition review, exact custody/trust probe, offline
+        zero-I/O self-test, and the one lead-owned live invocation remain
+        sequential prerequisites.
 
   - id: PNW-05-SOURCE-PACK
     priority: 141
