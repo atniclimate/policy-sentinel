@@ -5,10 +5,11 @@ Status: current after the owner authorized the exact local
 lane is additive to the completed synthetic seams and does not change broad
 PNW-05 through PNW-08 statuses. The lifecycle contract is complete; Federal
 Register Tier-1 qualification is evidence-blocked on the consumed R7 digest
-drift, with no retry or FR-A1 authority. The source-neutral
-`PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION` is active, and
-source-authority portfolio discovery remains independently ready. Git and the
-validated `ROADMAP.yaml` remain authoritative over this prose and chat memory.
+drift, with no retry or FR-A1 authority. The narrow source-neutral
+`PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION` child is complete with
+all real inputs fail-closed, and source-authority portfolio discovery is active.
+Git and the validated `ROADMAP.yaml` remain authoritative over this prose and
+chat memory.
 
 ## Start and recover
 
@@ -78,8 +79,13 @@ implementation/evidence commit
 decision, authority/non-inference contract, and exact-custody validator repair
 without admitting or using the source. PNW-05 core implementation commit
 `6f1475dfb72a432ccfe65b16e65035df25a933d3` supplies only a closed declarative
-schema and pure reference planner. Do not treat the earlier schemas, fixtures,
-or passing tests as source, roster, real-geography, real-taxonomy,
+schema and pure reference planner. Narrow analyzed-corpus commit
+`ecbf0f936067a11e6e3cc22ce80846238abbf2b8` supplies only a source-neutral
+schema/runtime child whose exact four-file manifest is
+`f199802e4342dc4c5a4e5ece12aa3531ff06cdc99a724f1e8c2ce335689433fa` and whose
+real create/parse paths all fail `REAL_SOURCE_LIFECYCLE_INTEGRATION_REQUIRED`.
+Do not treat the earlier schemas, fixtures, or passing tests as source, roster,
+real-geography, real-taxonomy,
 production-profile, provider-contract, coverage, currentness, lifecycle,
 activation, legal, integration, or release evidence. During the current child
 lane, access only the frozen HTTPS GET/HEAD allowlist and request budgets after
@@ -145,16 +151,20 @@ evidence remains incomplete. The source is not admitted, disabled, inactive,
 unbound, and absent from public artifacts.
 
 The exact current item is
-`PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION`. Implement only its
-source-neutral corpus and reference-projection contract. Federal Register D3
-and R6 matched approved evidence, but the consumed R7 attempt failed
+`PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY`. Recover its committed observer
+authoring and custody plan from the coordination record. First author, commit,
+and independently approve the hook and one-shot observer; no PF request is
+launch-ready at this checkpoint. Only then issue the already frozen PF-01
+through PF-17 first attempts, serially, with no follow or retry; classify every
+candidate and rank exactly two. Do not admit or activate a source, acquire a
+corpus, use credentials, accept terms, or publish. Federal
+Register D3 and R6 matched approved evidence, but the consumed R7 attempt failed
 `evidence_digest_drift`; do not retry it, infer changed meaning, reuse the
 pre-current-graph R5 observation, or issue FR-A1. The ignored custody contains
-two authority files plus six attempt/receipt files; the disposable observer was
-removed after review. Portfolio discovery may proceed independently after the
-corpus checkpoint. Keep the request ledger at ten issued, 18 exact-unissued,
-and 52 unavailable within 80 unless a still-authorized exact portfolio request
-is issued. The default build stays network-free.
+two authority files plus six Federal Register attempt/receipt files; the old
+disposable observer was removed after review. Keep the request ledger at ten
+issued, 18 exact-unissued, and 52 unavailable within 80 until an authorized PF
+attempt is actually issued. The default build stays network-free.
 `G-PNW-SOURCE-ACTIVATION`, broad parent completion, publication, deployment,
 credentials, provider-term acceptance, paid/contact actions, private or land
 data, AI, notifications, ATNI/Nation inference, and K0/S0/O0 convergence remain

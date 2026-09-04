@@ -6,10 +6,10 @@ Authorization token: `PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE`
 
 Starting HEAD: `3fd9c2cdb8e431e7ef57f328deced43777936a8f`
 
-Status: active; lifecycle contract committed; Federal Register Tier-1
-qualification evidence-blocked after ten official-evidence requests because R7
-changed digest; source-neutral PNW-07 in progress; exact document acquisition
-still unissued
+Status: active; lifecycle contract and narrow source-neutral PNW-07 corpus child
+committed; Federal Register Tier-1 qualification evidence-blocked after ten
+official-evidence requests because R7 changed digest; source-authority portfolio
+discovery active; exact document acquisition still unissued
 
 ## Authority and non-claims
 
@@ -1199,3 +1199,186 @@ authority files and all six attempt/receipt files remain ignored, untracked,
 unchanged, and outside the ordinary build. The source-neutral PNW-07 analyzed
 corpus is the next lowest-priority authorized ready work and becomes the sole
 active item; portfolio discovery remains independently ready.
+
+## Source-neutral analyzed-corpus checkpoint and portfolio transition
+
+Commit `ecbf0f936067a11e6e3cc22ce80846238abbf2b8` implements and documents the
+narrow `AnalyzedCorpus 1.0.0` child. Its independently reviewed four-file core is
+the following exact LF-terminated 431-byte TSV manifest, SHA-256
+`f199802e4342dc4c5a4e5ece12aa3531ff06cdc99a724f1e8c2ce335689433fa`:
+
+| Path | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `schemas/analyzed-corpus.schema.v1.json` | 24,283 | `4e09d7932ba172b6428e0837bf697ab8fdb568e528fefc79cbd11d25f8db6374` |
+| `src/pipeline/analyzed-corpus.mjs` | 58,177 | `9d690bd46d79715a1a44e444f47af24f882b1333b456a8d5059e4a2e748902dd` |
+| `src/pipeline/analyzed-corpus.d.mts` | 12,219 | `6025e805c2103358f2867525994befd0cb5e6475690ba6de6c3f2cfd306baff3` |
+| `tests/pipeline/analyzed-corpus.test.mjs` | 32,006 | `8122046f52d36a2916c434f6a527102177238fa87e7e78568d711e3d33bc26c9` |
+
+The independent evidence auditor and sovereignty/adversarial reviewer each
+returned `APPROVE_SOURCE_NEUTRAL_ANALYZED_CORPUS_1_0_0` for those exact four
+files. The separately validated integration/documentation paths in the commit
+are `README.md`, `package.json`, `scripts/validate-foundation.mjs`,
+`docs/architecture.md`, `docs/data-contract.md`, and
+`docs/decision-register.md`. Focused corpus tests passed 13 of 13, foundation
+compiled 14 schemas, type checking, targeted lint, scoped formatting, and diff
+checks passed, and backbone validation resolved 15 schema IDs, 1,201 references,
+72 Markdown files, and 311 links. The first parallel full-suite attempts exposed
+only test wall-clock contention; all implicated files passed alone. The retained
+test command now uses one Vitest worker, after which `npm test` passed all 87 test
+files and 1,405 tests.
+
+Every real-source creation or parse path fails
+`REAL_SOURCE_LIFECYCLE_INTEGRATION_REQUIRED`. No real record, corpus, health,
+LKG, artifact, application integration, source admission, source activation, or
+publication exists. This completes only the narrow child, not broad PNW-07.
+Portfolio discovery therefore becomes the sole active item. Request custody at
+transition remains ten issued + 18 exact-unissued (`FR-A1` and `PF-01` through
+`PF-17`) + 52 unavailable = 80; the two authority files and six Federal Register
+attempt/receipt files above remain unchanged.
+
+### Portfolio observer authoring and custody freeze
+
+This checkpoint expands the lead-owned tracked-path lease only for
+`scripts/codex-hooks.mjs` and `tests/hooks/codex-hooks.test.mjs`. The exact
+reason is to replace the exhausted Federal Register observer exception with a
+portfolio-specific patch-authoring gate. `.codex/hooks.json`, `.gitignore`,
+`ROADMAP.yaml`, and this coordination record are immutable trust inputs during
+that authoring operation and must equal their committed `HEAD` bytes. No hook
+or test path gains source-request authority.
+
+Before observer Add, `.codex/hooks.json`, `.gitignore`, `ROADMAP.yaml`, this
+coordination record, `scripts/codex-hooks.mjs`, and
+`tests/hooks/codex-hooks.test.mjs` must all equal committed `HEAD`. Every
+gate-critical runtime path must be a canonical regular single-link file. The new
+hook implementation must already be committed, its focused tests must pass, and
+the active client must record hook trust/reload plus one delivered deny probe.
+Uncommitted hook bytes cannot authorize the Add.
+
+The sole ignored authoring target is
+`generated-data/real-source-prerelease/observe-source-authority-portfolio.mjs`.
+The initial hook transition may authorize exactly one `Add File` patch for that
+leaf only while portfolio discovery is the only `in_progress` roadmap item. It
+must reject Update, Delete, Move, mixed patches, absolute or alternate spelling,
+case, dot-segment, doubled-separator, stream/ADS, short-name, symlink, junction,
+hardlink, and near-name variants. Before Add, the final leaf must be absent and
+every parent must be an existing canonical non-reparse directory. After Add,
+the leaf must be an ignored, untracked, `HEAD`-absent, canonical regular file
+with one link. Ignore provenance must be the clean committed root `.gitignore`,
+not a global exclude or `.git/info/exclude`. The hook must independently prove
+that exactly one work item is `in_progress`; passing roadmap validation only
+indirectly is insufficient.
+
+The following 37 exact custody names must all be absent before authoring:
+`PF-PORTFOLIO-RUN.attempt`; for every exact ID `PF-01` through `PF-17`, that ID
+plus `.attempt` and `.receipt.json`; and `FR-A1.attempt` plus
+`FR-A1.receipt.json`. A file, directory, symlink, dangling symlink, junction,
+hardlink, case alias, or indeterminate error at any one closes authoring. The
+eight historical files listed below must remain regular, single-link,
+untracked, ignored, canonical, and byte-identical:
+
+| Path | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `authority-input-v2.json` | 2,503 | `f2ec15b838d9402478a64bd1d5b366001120af4b82f1b52aed463fbe717aa8a4` |
+| `authority-graph-v2.json` | 19,844 | `15059000ff3817a6d5df5c8f8d5642aa1cd51042b15028aca26991cc3a6d6cad` |
+| `FR-D3.attempt` | 462 | `5d75db276f07ce0811022778e3852a99512c2b8866bc93262c3519d730848068` |
+| `FR-D3.receipt.json` | 1,103 | `f58ca7aa9d789c8d804e593e327ae1ca3ad1f44402ae127253ced01bc6e492f6` |
+| `FR-R6.attempt` | 462 | `69b8db8228af680b43050ce1193f349eb70fc9d2a3454f46c0b4c997a57b400d` |
+| `FR-R6.receipt.json` | 1,093 | `093ca14e300c59a1462ff0e71d65131463be15e4a57fadb672d56cdc3cbc770b` |
+| `FR-R7.attempt` | 462 | `eac7bc42975de100326110fa2ae75317981e9fc687adec3bb480fba21931712e` |
+| `FR-R7.receipt.json` | 1,075 | `e9db0fedaca0b558ca92797451c474dbe069c05b86359a7dfacffaac282435ad` |
+
+Before Add, the generated directory must contain exactly those eight entries
+and no other file, directory, link, or unknown ignored entry. Immediately after
+Add it must contain exactly those eight entries plus the observer. Any other
+entry closes authoring.
+
+The observer must embed the exact PF-01-through-PF-17 table already frozen above
+and may issue each first attempt at most once, serially, with the same no-follow,
+no-retry, 30-second, 1-MiB, 64-chunk, fatal-UTF-8, media allowlist, no-credential,
+no-cookie, no-referrer, and `Policy-Sentinel-LocalPrerelease/1.0` controls.
+`Accept-Encoding: identity` is a project-owned tighter transport control. Fixed
+allowlisted public hostnames, public-address resolution pinned to the connection,
+and authorized TLS peer/hostname verification are mandatory. The whole run has
+the already frozen 600-second deadline. No query, link, form, attachment,
+dataset, search result, docket, comment, people page, corpus, or second resource
+may be requested.
+
+Immediately before launch, the execution transition must re-prove all 37
+reserved custody names absent and all eight historical files canonical and
+byte-identical. The global latch is exactly `PF-PORTFOLIO-RUN.attempt`. Before
+any DNS resolution, network activity, or other generated write, the observer
+must create it exclusively, file-sync it, close and reopen it, and revalidate its
+exact bytes. Any existing or indeterminate state closes the run. The global
+latch is never removed, replaced, renamed, reused, or reinterpreted and
+permanently closes another portfolio run. Immediately before each request's
+first DNS or network activity, the observer must apply the same exclusive
+create, file-sync, close/reopen, and exact-byte revalidation to that request's
+`PF-NN.attempt`. A latch consumes its grant even when later execution fails. A
+missing receipt never authorizes retry, and observer code may not mutate a latch
+to manufacture retry authority.
+
+For PF per-attempt receipts only, this reviewed transition refines the aggregate-
+receipt allowlist above solely to permit: request ID; project-defined host class,
+allocation/endpoint class, and planned-purpose class; method class; sanitized
+outcome/status/media categories; byte/chunk/item/page counts; timestamps; body
+and plan SHA-256 values; and closed project predicate IDs with boolean or unknown
+outcomes. `plannedPurposeClass` and every project-defined class are plan
+hypotheses, not observed evidence or an accepted authority-role classification.
+No other receipt field is authorized. The canonical plan must enumerate and
+hash every predicate ID and exact evaluation rule before byte approval;
+ambiguous outcomes become `unknown`. Predicates may not infer authority role,
+identity, membership, Nation position, rights, legal effect, or currentness from
+a hostname, keyword, topic, geography, or transport success. A receipt may not
+retain a URL, redirect target, header value, provider text, response body,
+extracted quotation, contact/person field, cookie, credential, or IP address.
+Response bytes stay in memory only, are discarded after fatal decoding and
+predicate evaluation, and are never written or printed. A transport success,
+certificate, hostname, digest, token, or project predicate cannot by itself
+establish operator authority, custody, rights, currentness, completeness,
+adoption, legal effect, or a Nation position.
+
+The exact offline invocation is `--self-test-no-network`; it must make zero DNS
+or network attempts and zero writes. The sole live token is
+`--execute-approved-PF-01-through-PF-17`. Both the launching shell and the
+runtime must remove or reject this exact 32-name set before Node starts or any
+write occurs: `ALL_PROXY`, `GLOBAL_AGENT_HTTP_PROXY`, `HTTP_PROXY`,
+`HTTPS_PROXY`, `NODE_DEBUG`, `NODE_DEBUG_NATIVE`, `NODE_COMPILE_CACHE`,
+`NODE_COMPILE_CACHE_PORTABLE`, `NODE_DISABLE_COMPILE_CACHE`,
+`NODE_EXTRA_CA_CERTS`, `NODE_NO_WARNINGS`, `NODE_OPENSSL_CONF_NAME`,
+`NODE_OPTIONS`, `NODE_PATH`, `NODE_PENDING_DEPRECATION`,
+`NODE_REDIRECT_WARNINGS`, `NODE_TLS_REJECT_UNAUTHORIZED`,
+`NODE_USE_BUNDLED_CA`, `NODE_USE_ENV_PROXY`, `NODE_USE_SYSTEM_CA`,
+`NODE_V8_COVERAGE`, `OPENSSL_CONF`, `OPENSSL_CONF_INCLUDE`, `OPENSSL_ENGINES`,
+`OPENSSL_MODULES`, `SSL_CERT_DIR`, `SSL_CERT_FILE`, `SSLKEYLOGFILE`, `VITEST`,
+`all_proxy`, `http_proxy`, and `https_proxy`. Standard output is limited to one
+canonical project-owned summary without provider prose; standard error is a
+sanitized closed error code.
+
+The hook governs only `apply_patch` authoring. It does not claim to prevent a
+shell, nested interpreter, `write_stdin`, or another program from launching or
+writing generated files. Launch authority instead requires a committed hook
+checkpoint, exact observer and canonical-plan hashes, fresh independent source,
+security, and sovereignty byte approval, one pre-start environment scrub, and a
+lead-owned exact-hash invocation. No observer will be executed merely because it
+was authored.
+
+Add-only intentionally provides no cleanup authority. After authoring and byte
+approval, a separate committed and independently reviewed transition must bind
+the exact observer hash and allow no mutation before execution. After the run,
+receipt review, and report checkpoint, another separate committed Delete-only
+transition must bind the exact observer hash plus reconciled global/request
+custody before the ignored helper may be removed. Self-deletion is forbidden.
+The terminal hook state must close the exception again.
+
+The intended report remains
+`docs/source-reviews/source-authority-portfolio-discovery-2026-09-03.md`. It must
+classify every candidate under the eight role types in the owner contract and
+rank exactly two candidates after Federal Register. BIA directory evidence is
+not federal recognition, ATNI membership, or assent; ATNI, NCAI, coalition, and
+commission positions are not Nation positions; legal advocacy and research are
+context rather than current law or outcome; GAO proves only its own oversight;
+Data.gov is discovery only; and publisher, custodian, service operator, and
+originating authority remain distinct. Congress.gov, GovInfo, Regulations.gov,
+SAM, credentials, accounts, terms acceptance, source admission, activation,
+coverage, health, LKG, artifacts, publication, and broad completion remain
+closed.

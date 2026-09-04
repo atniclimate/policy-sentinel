@@ -89,7 +89,7 @@ transition.
 | Surface | Live maturity | What it does not prove |
 | --- | --- | --- |
 | Static Preact app, hash routes, search/filter, details, dossier, CSV | implemented and validated against synthetic input | no public beta, real Nation registry, or complete output-adapter suite |
-| Artifact pipeline, `PolicyRecord 1.4`, registry 1.19, package 1.4, provenance, health, integrity, last-known-good | implemented local substrate | no canonical analyzed corpus or regional engine |
+| Artifact pipeline, `PolicyRecord 1.4`, registry 1.19, package 1.4, provenance, health, integrity, last-known-good | implemented local substrate | no integration with the narrow analyzed-corpus child and no regional engine |
 | Federal Register, Washington Governor, Centennial Accord, curated Supreme Court adapters | implemented and tested but disabled; Federal Register documentation plus its no-fetch admission review recommend no-go with disposition `evidence blocked` | no source admission, activation, production records, or coverage; a review does not revalidate a retained adapter or assert owner acceptance |
 | Congress, GovInfo, Regulations.gov, Oregon OData, Washington LWS contract families | repository-owned synthetic/offline contracts | no live adapter or provider authority |
 | BIA recognition-notice parser | validates 577 displayed paragraphs and fails closed | no reconciled 575-identity production registry |
@@ -97,13 +97,13 @@ transition.
 | S0 | implemented and complete as removable impossible-fixture spatial work | no real geography, land data, map, or product convergence |
 | O0 | repaired byte-sealed candidate awaiting independent review | no accepted contract, implementation, or convergence |
 | D0 | historical proposal only | no roadmap item, schema, fixture, or implementation |
-| Region/deployment/persona projection seam | PNW-01 implemented and validated as a closed synthetic `1.0.0` profile/runtime seam | no production profile, source coverage, analyzed corpus, output adapter, or publication |
+| Region/deployment/persona projection seam | PNW-01 implemented and validated as a closed synthetic `1.0.0` profile/runtime seam | no production profile, source coverage, corpus integration, output adapter, or publication |
 | Governed geography and configured rights seam | PNW-03 implemented as a separate synthetic `1.0.0` catalog with typed temporal relations, source-bound frames, exact grants, and reference-only projection | no real geography or rights evidence, GIS computation, legal determination, public integration, or S0 convergence |
 | Governed taxonomy and directional crosswalk seam | PNW-04 implemented as a separate synthetic `1.0.0` authority/scheme-separated catalog with exact evidence/review, direct many-to-many edges, and reference-only projection | no real ATNI/NCAI/Nation/source/community vocabulary, production classification, source activation, public integration, or position inference |
 | Governed source-pack admission seam | PNW-05 core implemented as a separate synthetic-test-only `1.0.0` closed graph with exact contract/evidence/coverage/authority/review/admission proof, scoped health/availability, typed gaps, deterministic requester projections, and no I/O | no real source qualification, access, terms acceptance, coverage, currentness, lifecycle/LKG, ingestion, analyzed corpus, activation, or publication |
-| Local real-source prerelease child lane | lifecycle contract complete; Federal Register qualification blocked on R7 digest drift; source-neutral analyzed-corpus projection active and portfolio discovery independently ready | no Federal Register retry/admission/activation, parent PNW-05/06/07/08 completion, ATNI or Nation association, deployment, or publication |
+| Local real-source prerelease child lane | lifecycle contract and narrow source-neutral analyzed-corpus child complete; Federal Register qualification blocked on R7 digest drift; portfolio discovery active | no Federal Register retry/admission/activation, real corpus, parent PNW-05/06/07/08 completion, ATNI or Nation association, deployment, or publication |
 | ATNI regional registry | intended and evidence-gated | owner direction and 575 recognition evidence do not supply membership |
-| Canonical analyzed corpus and common document/web/app/structured adapters | accepted target architecture | current artifact, dossier, CSV, and app are precursors only |
+| Broad real-source canonical corpus and common document/web/app/structured adapters | accepted target architecture; narrow fail-closed corpus mechanics implemented separately | current artifact, dossier, CSV, and app are precursors only |
 
 Roadmap status and capability maturity are separate dimensions. A work item
 marked `complete` has evidence for that bounded acceptance or accepted fallback;
@@ -142,7 +142,7 @@ telemetry, browser-side AI, or outbound notifications.
 | PNW-03 | Complete as a bounded synthetic geography/rights tranche |
 | PNW-04 | Complete as a bounded synthetic governed-taxonomy tranche |
 | PNW-05 | Broad parent remains ready and non-complete; an additive, exact-scope local prerelease child lane is active without changing that parent status |
-| Local real-source prerelease child lane | lifecycle contract complete; Federal Register admission blocked on current R7 digest drift with FR-A1 closed; `PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION` active; source-authority portfolio discovery independently ready |
+| Local real-source prerelease child lane | lifecycle contract complete; Federal Register admission blocked on current R7 digest drift with FR-A1 closed; narrow `PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION` complete and real inputs fail closed; source-authority portfolio discovery active |
 | PNW-06 through PNW-10 | Broad parent items remain not started behind their recorded dependencies; similarly named prerelease children do not satisfy them |
 | Publication | Closed; both local product finish scopes and exact owner operations are prerequisites |
 
@@ -188,6 +188,19 @@ governance item is active or complete.
   canonical-tip LKG rules are executable. The candidate fixture remains
   `evidence_blocked` and does not qualify, admit, activate, bind, retrieve,
   retain, project, or publish Federal Register data.
+- PNW-07 narrow source-neutral analyzed-corpus child:
+  [`AnalyzedCorpus 1.0.0` schema](../schemas/analyzed-corpus.schema.v1.json),
+  [`pure runtime`](../src/pipeline/analyzed-corpus.mjs),
+  [`readonly declarations`](../src/pipeline/analyzed-corpus.d.mts), and
+  [`focused tests`](../tests/pipeline/analyzed-corpus.test.mjs). The independently
+  approved four-file core has LF TSV manifest SHA-256
+  `f199802e4342dc4c5a4e5ece12aa3531ff06cdc99a724f1e8c2ce335689433fa`.
+  It stores one complete `PolicyRecord 1.4` copy and digest-binds field
+  provenance plus lifecycle, coverage, health, review, LKG, limitation, and
+  reference-only view evidence. Its only positive path is impossible synthetic
+  proof; every real create or parse fails
+  `REAL_SOURCE_LIFECYCLE_INTEGRATION_REQUIRED`. No current adapter, artifact,
+  app, PNW-01 projection, or public output consumes it.
 - PNW-05 Federal Register documentation evidence:
   [`federal-register-api-2026-09-02.md`](source-reviews/federal-register-api-2026-09-02.md)
   and its coordination/handoff. These documentation artifacts do not modify or
@@ -229,12 +242,17 @@ npm run validate:backbone
 
 The owner has authorized the exact local child lane
 `PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE`. Recover its frozen boundary and
-request ledger from the current coordination record above. The exact active
-item is `PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION`; use the
-roadmap's ordered children and do not treat a child as completion evidence for
-its similarly named broad parent. Federal Register qualification is
-evidence-blocked on the consumed R7 digest drift, no retry or FR-A1 is
-authorized, and PNW-06/08 remain dependency-closed. The default
-application/build remains network-free and synthetic. Publication and every
-remote, credential, provider-terms, paid/contact, private-data, AI,
+request ledger from the current coordination record above. The narrow
+`PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION` child is complete at
+commit `ecbf0f936067a11e6e3cc22ce80846238abbf2b8`; this is not broad PNW-07
+completion. The exact active item is now
+`PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY`: first author, commit, and
+independently approve the portfolio hook and one-shot observer controls; only
+then issue the already frozen PF-01 through PF-17 first attempts, classify every
+candidate, and rank exactly two without admission or activation. No PF request
+is launch-ready at this checkpoint.
+Federal Register qualification is evidence-blocked on the consumed R7 digest
+drift, no retry or FR-A1 is authorized, and PNW-06/08 remain dependency-closed.
+The default application/build remains network-free and synthetic. Publication
+and every remote, credential, provider-terms, paid/contact, private-data, AI,
 notification, ATNI/Nation-association, and convergence gate remain closed.
