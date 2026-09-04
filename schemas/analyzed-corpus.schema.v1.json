@@ -1,0 +1,833 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/analyzed-corpus.schema.v1.json",
+  "title": "Policy Sentinel analyzed corpus",
+  "description": "One immutable, source-neutral corpus of PolicyRecord 1.4 records and reference-only governance views. This contract does not establish a Nation relationship, legal applicability, rights impact, jurisdiction, comprehensive coverage, community position, legal advice, or official-source substitution.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "kind",
+    "id",
+    "version",
+    "contentDigest",
+    "synthetic",
+    "trustDomain",
+    "generatedAt",
+    "dataAsOf",
+    "recordSchemaRef",
+    "projectionInputs",
+    "sourceEvidenceBindings",
+    "recordEntries",
+    "views",
+    "nonClaims",
+    "publication"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://policy-sentinel.invalid/schemas/analyzed-corpus.schema.v1.json"
+    },
+    "schemaVersion": { "const": "1.0.0" },
+    "kind": { "const": "analyzed_corpus" },
+    "id": { "$ref": "#/$defs/stableId" },
+    "version": { "$ref": "#/$defs/version" },
+    "contentDigest": { "$ref": "#/$defs/digest" },
+    "synthetic": { "type": "boolean" },
+    "trustDomain": {
+      "enum": ["synthetic_test_only", "real_source_local_prerelease"]
+    },
+    "generatedAt": { "$ref": "#/$defs/timestamp" },
+    "dataAsOf": { "$ref": "#/$defs/timestamp" },
+    "recordSchemaRef": { "$ref": "#/$defs/recordSchemaRef" },
+    "projectionInputs": { "$ref": "#/$defs/projectionInputs" },
+    "sourceEvidenceBindings": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4096,
+      "items": { "$ref": "#/$defs/sourceEvidenceBinding" }
+    },
+    "recordEntries": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4096,
+      "items": { "$ref": "#/$defs/recordEntry" }
+    },
+    "views": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": { "$ref": "#/$defs/view" }
+    },
+    "nonClaims": { "$ref": "#/$defs/nonClaims" },
+    "publication": { "$ref": "#/$defs/publication" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "properties": { "synthetic": { "const": true } }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "trustDomain": { "const": "synthetic_test_only" }
+        }
+      },
+      "else": {
+        "type": "object",
+        "properties": {
+          "trustDomain": { "const": "real_source_local_prerelease" }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "recordId": {
+      "type": "string",
+      "maxLength": 512,
+      "pattern": "^psr:[a-z0-9]+(?:-[a-z0-9]+)*:[A-Za-z0-9._~:-]+$"
+    },
+    "version": {
+      "type": "string",
+      "maxLength": 32,
+      "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$"
+    },
+    "versionedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" }
+      }
+    },
+    "digestedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "version", "digest"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "region_pack",
+            "deployment_profile",
+            "taxonomy",
+            "configuration_authority",
+            "visibility_policy",
+            "field_policy",
+            "normalized_revision",
+            "why_shown_rule",
+            "limitation",
+            "projection_context",
+            "synthetic_corpus_evidence",
+            "synthetic_field_policy",
+            "synthetic_normalized_revision",
+            "synthetic_lifecycle_evaluation",
+            "synthetic_lifecycle_scope",
+            "synthetic_artifact_eligibility",
+            "synthetic_bounded_coverage",
+            "synthetic_health_evidence",
+            "synthetic_review_evidence",
+            "synthetic_lkg_evidence"
+          ]
+        },
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "digest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "contentReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "version", "contentDigest"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "lifecycle_scope",
+            "review_receipt",
+            "artifact_eligibility_receipt",
+            "coverage_receipt",
+            "health_receipt",
+            "lkg_receipt",
+            "source_evidence_binding",
+            "analyzed_corpus_view",
+            "analyzed_corpus",
+            "real_source_lifecycle_bundle"
+          ]
+        },
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "contentDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "recordSchemaRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaId", "version"],
+      "properties": {
+        "schemaId": {
+          "const": "https://policy-sentinel.invalid/schemas/record.schema.v1.json"
+        },
+        "version": { "const": "1.4.0" }
+      }
+    },
+    "projectionInputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "regionPackRef",
+        "deploymentProfileRef",
+        "taxonomyRef",
+        "configurationAuthorityRef",
+        "visibilityPolicyRef",
+        "limitationRefs"
+      ],
+      "properties": {
+        "regionPackRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": { "kind": { "const": "region_pack" } }
+            }
+          ]
+        },
+        "deploymentProfileRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": { "kind": { "const": "deployment_profile" } }
+            }
+          ]
+        },
+        "taxonomyRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": { "kind": { "const": "taxonomy" } }
+            }
+          ]
+        },
+        "configurationAuthorityRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": {
+                "kind": { "const": "configuration_authority" }
+              }
+            }
+          ]
+        },
+        "visibilityPolicyRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": { "kind": { "const": "visibility_policy" } }
+            }
+          ]
+        },
+        "limitationRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "allOf": [
+              { "$ref": "#/$defs/digestedReference" },
+              {
+                "type": "object",
+                "properties": { "kind": { "const": "limitation" } }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "healthReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "receiptRef"],
+      "properties": {
+        "scope": {
+          "enum": ["source_contract", "acquisition_operation", "selected_range"]
+        },
+        "receiptRef": {
+          "allOf": [
+            { "$ref": "#/$defs/contentReference" },
+            {
+              "type": "object",
+              "properties": { "kind": { "const": "health_receipt" } }
+            }
+          ]
+        }
+      }
+    },
+    "sourceEvidenceBinding": {
+      "oneOf": [
+        { "$ref": "#/$defs/syntheticSourceEvidenceBinding" },
+        { "$ref": "#/$defs/realSourceEvidenceBinding" }
+      ]
+    },
+    "syntheticSourceEvidenceBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "id",
+        "version",
+        "contentDigest",
+        "synthetic",
+        "trustDomain",
+        "sourceId",
+        "visibility",
+        "syntheticEvidenceRef",
+        "fieldPolicyRef",
+        "revisionRef",
+        "lifecycleEvaluationRef",
+        "lifecycleScopeRef",
+        "artifactEligibilityRef",
+        "coverageRef",
+        "healthRefs",
+        "reviewRef",
+        "reviewExpiresAt",
+        "lkgRef"
+      ],
+      "properties": {
+        "kind": { "const": "source_evidence_binding" },
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "contentDigest": { "$ref": "#/$defs/digest" },
+        "synthetic": { "const": true },
+        "trustDomain": { "const": "synthetic_test_only" },
+        "sourceId": { "$ref": "#/$defs/stableId" },
+        "visibility": { "const": "non_public_ignored_prerelease" },
+        "syntheticEvidenceRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": {
+                "kind": { "const": "synthetic_corpus_evidence" }
+              }
+            }
+          ]
+        },
+        "fieldPolicyRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": { "kind": { "const": "synthetic_field_policy" } }
+            }
+          ]
+        },
+        "revisionRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": {
+                "kind": { "const": "synthetic_normalized_revision" }
+              }
+            }
+          ]
+        },
+        "lifecycleEvaluationRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": {
+                "kind": { "const": "synthetic_lifecycle_evaluation" }
+              }
+            }
+          ]
+        },
+        "lifecycleScopeRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": {
+                "kind": { "const": "synthetic_lifecycle_scope" }
+              }
+            }
+          ]
+        },
+        "artifactEligibilityRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": {
+                "kind": { "const": "synthetic_artifact_eligibility" }
+              }
+            }
+          ]
+        },
+        "coverageRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": {
+                "kind": { "const": "synthetic_bounded_coverage" }
+              }
+            }
+          ]
+        },
+        "healthRefs": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/syntheticSourceContractHealthReference"
+            },
+            {
+              "$ref": "#/$defs/syntheticAcquisitionHealthReference"
+            },
+            { "$ref": "#/$defs/syntheticRangeHealthReference" }
+          ],
+          "items": false
+        },
+        "reviewRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": {
+                "kind": { "const": "synthetic_review_evidence" }
+              }
+            }
+          ]
+        },
+        "reviewExpiresAt": { "$ref": "#/$defs/timestamp" },
+        "lkgRef": {
+          "oneOf": [
+            {
+              "allOf": [
+                { "$ref": "#/$defs/digestedReference" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": { "const": "synthetic_lkg_evidence" }
+                  }
+                }
+              ]
+            },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "syntheticHealthReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "evidenceRef"],
+      "properties": {
+        "scope": {
+          "enum": ["source_contract", "acquisition_operation", "selected_range"]
+        },
+        "evidenceRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": {
+                "kind": { "const": "synthetic_health_evidence" }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "syntheticSourceContractHealthReference": {
+      "allOf": [
+        { "$ref": "#/$defs/syntheticHealthReference" },
+        {
+          "type": "object",
+          "properties": { "scope": { "const": "source_contract" } }
+        }
+      ]
+    },
+    "syntheticAcquisitionHealthReference": {
+      "allOf": [
+        { "$ref": "#/$defs/syntheticHealthReference" },
+        {
+          "type": "object",
+          "properties": { "scope": { "const": "acquisition_operation" } }
+        }
+      ]
+    },
+    "syntheticRangeHealthReference": {
+      "allOf": [
+        { "$ref": "#/$defs/syntheticHealthReference" },
+        {
+          "type": "object",
+          "properties": { "scope": { "const": "selected_range" } }
+        }
+      ]
+    },
+    "realSourceEvidenceBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "id",
+        "version",
+        "contentDigest",
+        "synthetic",
+        "trustDomain",
+        "sourceId",
+        "lifecycleAsOf",
+        "lifecycleEvaluationDigest",
+        "lifecycleBundleRef",
+        "lifecycleScopeRef",
+        "fieldPolicyRef",
+        "revisionRef",
+        "artifactEligibilityRef",
+        "coverageRef",
+        "healthRefs",
+        "reviewRef",
+        "reviewExpiresAt",
+        "lkgRef",
+        "visibility"
+      ],
+      "properties": {
+        "kind": { "const": "source_evidence_binding" },
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "contentDigest": { "$ref": "#/$defs/digest" },
+        "synthetic": { "const": false },
+        "trustDomain": { "const": "real_source_local_prerelease" },
+        "sourceId": { "$ref": "#/$defs/stableId" },
+        "lifecycleAsOf": { "$ref": "#/$defs/timestamp" },
+        "lifecycleEvaluationDigest": { "$ref": "#/$defs/digest" },
+        "lifecycleBundleRef": {
+          "allOf": [
+            { "$ref": "#/$defs/contentReference" },
+            {
+              "type": "object",
+              "properties": {
+                "kind": { "const": "real_source_lifecycle_bundle" }
+              }
+            }
+          ]
+        },
+        "lifecycleScopeRef": {
+          "allOf": [
+            { "$ref": "#/$defs/contentReference" },
+            {
+              "type": "object",
+              "properties": { "kind": { "const": "lifecycle_scope" } }
+            }
+          ]
+        },
+        "fieldPolicyRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": { "kind": { "const": "field_policy" } }
+            }
+          ]
+        },
+        "revisionRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": { "kind": { "const": "normalized_revision" } }
+            }
+          ]
+        },
+        "artifactEligibilityRef": {
+          "allOf": [
+            { "$ref": "#/$defs/contentReference" },
+            {
+              "type": "object",
+              "properties": {
+                "kind": { "const": "artifact_eligibility_receipt" }
+              }
+            }
+          ]
+        },
+        "coverageRef": {
+          "allOf": [
+            { "$ref": "#/$defs/contentReference" },
+            {
+              "type": "object",
+              "properties": { "kind": { "const": "coverage_receipt" } }
+            }
+          ]
+        },
+        "healthRefs": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "prefixItems": [
+            {
+              "allOf": [
+                { "$ref": "#/$defs/healthReference" },
+                {
+                  "type": "object",
+                  "properties": { "scope": { "const": "source_contract" } }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                { "$ref": "#/$defs/healthReference" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "scope": { "const": "acquisition_operation" }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                { "$ref": "#/$defs/healthReference" },
+                {
+                  "type": "object",
+                  "properties": { "scope": { "const": "selected_range" } }
+                }
+              ]
+            }
+          ],
+          "items": false
+        },
+        "reviewRef": {
+          "allOf": [
+            { "$ref": "#/$defs/contentReference" },
+            {
+              "type": "object",
+              "properties": { "kind": { "const": "review_receipt" } }
+            }
+          ]
+        },
+        "reviewExpiresAt": { "$ref": "#/$defs/timestamp" },
+        "lkgRef": {
+          "oneOf": [
+            {
+              "allOf": [
+                { "$ref": "#/$defs/contentReference" },
+                {
+                  "type": "object",
+                  "properties": { "kind": { "const": "lkg_receipt" } }
+                }
+              ]
+            },
+            { "type": "null" }
+          ]
+        },
+        "visibility": { "const": "non_public_ignored_prerelease" }
+      }
+    },
+    "nonClaims": {
+      "type": "array",
+      "minItems": 11,
+      "maxItems": 11,
+      "uniqueItems": true,
+      "prefixItems": [
+        { "const": "not_a_nation_relationship" },
+        { "const": "not_an_organization_membership_determination" },
+        { "const": "not_a_legal_applicability_determination" },
+        { "const": "not_a_rights_impact_determination" },
+        { "const": "not_a_jurisdiction_determination" },
+        {
+          "const": "not_a_geographic_applicability_or_association_determination"
+        },
+        { "const": "not_a_consultation_obligation_determination" },
+        { "const": "not_comprehensive_coverage" },
+        { "const": "not_a_community_position" },
+        { "const": "not_legal_advice" },
+        { "const": "not_an_official_source_substitute" }
+      ],
+      "items": false
+    },
+    "whyShown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "basis",
+        "evidenceField",
+        "configurationAuthorityRef",
+        "ruleRef",
+        "validFrom",
+        "validThrough",
+        "reviewEvidenceRef",
+        "nonClaims"
+      ],
+      "properties": {
+        "basis": { "const": "general_jurisdiction" },
+        "evidenceField": {
+          "const": "/jurisdiction/generalJurisdictionOnly"
+        },
+        "configurationAuthorityRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": {
+                "kind": { "const": "configuration_authority" }
+              }
+            }
+          ]
+        },
+        "ruleRef": {
+          "allOf": [
+            { "$ref": "#/$defs/digestedReference" },
+            {
+              "type": "object",
+              "properties": { "kind": { "const": "why_shown_rule" } }
+            }
+          ]
+        },
+        "validFrom": { "$ref": "#/$defs/timestamp" },
+        "validThrough": { "$ref": "#/$defs/timestamp" },
+        "reviewEvidenceRef": {
+          "oneOf": [
+            {
+              "allOf": [
+                { "$ref": "#/$defs/contentReference" },
+                {
+                  "type": "object",
+                  "properties": { "kind": { "const": "review_receipt" } }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                { "$ref": "#/$defs/digestedReference" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": { "const": "synthetic_review_evidence" }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "nonClaims": { "$ref": "#/$defs/nonClaims" }
+      }
+    },
+    "bindingReference": {
+      "allOf": [
+        { "$ref": "#/$defs/contentReference" },
+        {
+          "type": "object",
+          "properties": { "kind": { "const": "source_evidence_binding" } }
+        }
+      ]
+    },
+    "recordReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordId", "recordDigest", "sourceEvidenceBindingRef"],
+      "properties": {
+        "recordId": { "$ref": "#/$defs/recordId" },
+        "recordDigest": { "$ref": "#/$defs/digest" },
+        "sourceEvidenceBindingRef": { "$ref": "#/$defs/bindingReference" }
+      }
+    },
+    "recordEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recordId",
+        "recordDigest",
+        "provenanceDigest",
+        "sourceEvidenceBindingRef",
+        "whyShown",
+        "visibility",
+        "record"
+      ],
+      "properties": {
+        "recordId": { "$ref": "#/$defs/recordId" },
+        "recordDigest": { "$ref": "#/$defs/digest" },
+        "provenanceDigest": { "$ref": "#/$defs/digest" },
+        "sourceEvidenceBindingRef": { "$ref": "#/$defs/bindingReference" },
+        "whyShown": { "$ref": "#/$defs/whyShown" },
+        "visibility": { "const": "non_public_ignored_prerelease" },
+        "record": {
+          "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json"
+        }
+      }
+    },
+    "view": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "id",
+        "version",
+        "contentDigest",
+        "visibility",
+        "recordRefs",
+        "limitationRefs"
+      ],
+      "properties": {
+        "kind": { "const": "analyzed_corpus_view" },
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/version" },
+        "contentDigest": { "$ref": "#/$defs/digest" },
+        "visibility": { "const": "non_public_ignored_prerelease" },
+        "recordRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "items": { "$ref": "#/$defs/recordReference" }
+        },
+        "limitationRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "allOf": [
+              { "$ref": "#/$defs/digestedReference" },
+              {
+                "type": "object",
+                "properties": { "kind": { "const": "limitation" } }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "boundary", "authorityReceiptRefs"],
+      "properties": {
+        "state": { "const": "closed" },
+        "boundary": { "const": "non_public_ignored_prerelease" },
+        "authorityReceiptRefs": {
+          "type": "array",
+          "maxItems": 0
+        }
+      }
+    }
+  }
+}

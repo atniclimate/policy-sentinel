@@ -28,6 +28,9 @@ const sourcePackBundleSchema = await readJson(
 const realSourceLifecycleBundleSchema = await readJson(
   "schemas/real-source-lifecycle-bundle.schema.v1.json",
 );
+const analyzedCorpusSchema = await readJson(
+  "schemas/analyzed-corpus.schema.v1.json",
+);
 const spatialObservationSchema = await readJson(
   "schemas/experimental/spatial-observation.schema.v1.json",
 );
@@ -58,6 +61,7 @@ for (const [name, schema] of [
   ["geography and rights schema", geographyRightsSchema],
   ["source-pack bundle schema", sourcePackBundleSchema],
   ["real-source lifecycle bundle schema", realSourceLifecycleBundleSchema],
+  ["analyzed corpus schema", analyzedCorpusSchema],
   ["S0 spatial-observation schema", spatialObservationSchema],
   ["S0 spatial-relation schema", spatialRelationSchema],
   ["S0 jurisdiction-evidence schema", jurisdictionEvidenceSchema],
@@ -70,6 +74,12 @@ for (const [name, schema] of [
       )}`,
     );
   }
+}
+
+ajv.addSchema(recordSchema);
+const validateAnalyzedCorpus = ajv.compile(analyzedCorpusSchema);
+if (typeof validateAnalyzedCorpus !== "function") {
+  throw new Error("analyzed corpus schema did not compile");
 }
 
 const applyFixtureMutations = (base, mutations) => {
@@ -586,7 +596,10 @@ for (const mapping of taxonomy.mappingPolicy.sourceMappings) {
   }
 }
 
-const validateRecord = ajv.compile(recordSchema);
+const validateRecord = ajv.getSchema(recordSchema.$id);
+if (typeof validateRecord !== "function") {
+  throw new Error("record schema did not compile");
+}
 const fixtureDirectory = resolve(root, "fixtures", "records");
 const fixtureNames = (await readdir(fixtureDirectory))
   .filter((name) => name.endsWith(".valid.json"))
@@ -784,7 +797,7 @@ if (!historicalPolicyRejected) {
 negativePolicyChecks += 1;
 
 console.log(
-  `Foundation validation passed: 13 schemas, ${taxonomy.categories.length} categories, ` +
+  `Foundation validation passed: 14 schemas, ${taxonomy.categories.length} categories, ` +
     `${taxonomy.categories.reduce((count, category) => count + category.subcategories.length, 0)} subcategories, ` +
     `${fixtureNames.length} valid fixtures, ${negativePolicyChecks} negative policy checks, ` +
     `${s0ValidFixtureChecks} valid plus ${s0InvalidFixtureChecks} invalid S0 fixture checks, ` +

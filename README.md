@@ -146,6 +146,7 @@ npm run hooks:test
 npm run validate:roadmap
 npm run validate:backbone
 npm test
+npm run test:corpus
 npm run test:a11y
 npm run build
 npm run source:bia

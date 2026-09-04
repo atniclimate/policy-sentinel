@@ -357,6 +357,34 @@ surface and is not consumed by the ordinary adapter, build, application, or
 artifact pipeline. Source-specific qualification and every later local
 prerelease step remain separate evidence-gated outcomes.
 
+### Source-neutral analyzed-corpus child
+
+The additive `AnalyzedCorpus 1.0.0` seam is implemented under the narrow
+PNW-07 local-prerelease child. It embeds each complete `PolicyRecord 1.4` once,
+then exposes only digest-bound record references through views. One exclusive
+source-evidence binding per record closes field provenance, normalized-revision,
+lifecycle, bounded-coverage, three-scope health, review, optional LKG,
+visibility, limitation, and `whyShown` references into the corpus digest.
+Creation is deterministic and canonical; parsing rejects noncanonical stored
+provenance. All returned objects are detached and recursively frozen.
+
+The only positive executable path is impossible synthetic structural proof.
+Synthetic records require a `synthetic-*` source ID, credential-free and
+port-free `.invalid` HTTPS origins for every URL-bearing record field, validated
+data quality, causal health times, and coherent fresh-versus-LKG state. The
+fixed relevance language is a project-owned deterministic general-jurisdiction
+mapping with exact mapping provenance. Records remain `general_jurisdiction`,
+zero-Nation, `Unclassified`, non-landmark, and AI-free, with eleven mandatory
+non-claims and closed non-public visibility.
+
+Every real-source create or parse operation fails
+`REAL_SOURCE_LIFECYCLE_INTEGRATION_REQUIRED`. The seam cannot accept caller-
+declared lifecycle references as evidence; a real path requires the accepted
+lifecycle parser and evaluator to become callable through a separately reviewed
+source-neutral integration. No current adapter, PNW-01 projection, artifact
+builder, application, dossier, CSV, or public output consumes this corpus, and
+no real corpus or corpus artifact is generated.
+
 ## Current application and ingestion architecture
 
 The implemented baseline is a static TypeScript application with a separate
@@ -369,10 +397,10 @@ Its current maturity is:
 | Maturity | Current repository evidence |
 | --- | --- |
 | Integrated local output | The Preact application, print dossier, CSV serializer, hash-route behavior, and artifact pipeline run over three synthetic records and 575 explicitly synthetic Nation rows. |
-| Implemented foundation seams | The synthetic-only PNW-01 profile projection, PNW-03 geography/rights catalog, PNW-04 governed taxonomy/crosswalk catalog, and PNW-05 source-pack core produce deterministic immutable reference-only views while leaving the detached `PolicyRecord 1.4` corpus unchanged. They are not integrated with the application or artifact pipeline. |
+| Implemented foundation seams | The synthetic-only PNW-01 profile projection, PNW-03 geography/rights catalog, PNW-04 governed taxonomy/crosswalk catalog, PNW-05 source-pack core, and narrow PNW-07 source-neutral analyzed-corpus child produce deterministic immutable reference-only structures. They are not integrated with the application or artifact pipeline; the corpus runtime accepts no real source. |
 | Implemented but disabled | Federal Register, Washington Governor executive orders, Washington Centennial Accord, and the one-row curated Supreme Court adapters are tested and registered but cannot emit public records. |
 | Contract-only | Congress.gov, GovInfo, Regulations.gov, Oregon Legislature OData, and Washington LWS have bounded synthetic contracts but no activated production adapter. |
-| Proposed and unimplemented | Production region packs and community profiles, the canonical analyzed corpus, concrete common output-adapter implementations, scheduled/manual workflows, Pages delivery, and a private deployment remain future work. |
+| Proposed and unimplemented | Production region packs and community profiles, broad real-source analyzed-corpus integration, concrete common output-adapter implementations, scheduled/manual workflows, Pages delivery, and a private deployment remain future work. |
 
 Current and conditional tooling:
 
