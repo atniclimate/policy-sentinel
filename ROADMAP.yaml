@@ -4528,6 +4528,15 @@ work_items:
         independent transition review, exact custody/trust probe, offline
         zero-I/O self-test, and the one lead-owned live invocation remain
         sequential prerequisites.
+      - >-
+        Commit 05bb8e2ceea4b3b062a61c4166b17a02029399b9 records the exact
+        execution freeze. The focused suite passed 18/18 and roadmap, syntax,
+        lint, formatting, diff, and source-boundary checks passed. Independent
+        source, security, and sovereignty reviewers each returned
+        APPROVE_EXECUTION_FREEZE_TRANSITION. Its committed production probe
+        returned phase=execution_frozen, authority=true, trust=true,
+        custody=true, checkpoint=true; the spent Add descriptor now receives an
+        exact hook deny.
 
   - id: PNW-05-SOURCE-PACK
     priority: 141

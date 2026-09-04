@@ -1525,3 +1525,14 @@ token remain unavailable until this transition is committed, its focused tests
 pass, its exact committed bytes receive independent adversarial approval, and a
 final lead-owned prelaunch probe succeeds. Any observer-byte drift closes the
 checkpoint; there is no mutation or repair authority in this phase.
+
+Commit `05bb8e2ceea4b3b062a61c4166b17a02029399b9` records that exact
+execution-freeze transition. The focused hook suite passed 18 of 18; roadmap,
+syntax, lint, formatting, diff, and source-boundary checks passed. Independent
+source/evidence, security, and sovereignty review each returned exact
+disposition `APPROVE_EXECUTION_FREEZE_TRANSITION` for the manifest above. At
+the committed checkpoint, the production probe returned
+`phase=execution_frozen`, `authority=true`, `trust=true`, `custody=true`, and
+`checkpoint=true`. A direct Pre probe using the spent Add descriptor exited
+zero with empty standard error and an exact `deny` decision stating that Add,
+Update, Delete, Move, and mixed observer patches are forbidden.
