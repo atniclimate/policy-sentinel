@@ -6,10 +6,11 @@ Authorization token: `PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE`
 
 Starting HEAD: `3fd9c2cdb8e431e7ef57f328deced43777936a8f`
 
-Status: active; lifecycle contract and narrow source-neutral PNW-07 corpus child
-committed; Federal Register Tier-1 qualification evidence-blocked after ten
-official-evidence requests because R7 changed digest; source-authority portfolio
-discovery active; exact document acquisition still unissued
+Status: terminal; the exact authorization is exhausted. The lifecycle contract,
+narrow source-neutral PNW-07 corpus child, source-authority portfolio discovery,
+observer cleanup, and terminal custody are complete. Federal Register Tier-1
+qualification is evidence-blocked after the consumed R7 digest drift; FR-A1 and
+exact document acquisition remain unissued and closed.
 
 ## Authority and non-claims
 
