@@ -7,8 +7,9 @@ project:
     Additive RealSourceLifecycleBundle 1.0.0 contract independently byte-frozen
     and accepted; Federal Register Tier-1 exact-document qualification now in
     progress after seven bounded documentation/evidence requests, with the
-    post-authority evidence refresh complete, FR-A1 unissued, and all
-    activation/publication authority still closed
+    reproducible-authority D3/R6/R7 refresh authorized but unissued after the
+    current observer was rejected, FR-A1 unissued, and all activation and
+    publication authority still closed
   updated_on: "2026-09-03"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -738,8 +739,8 @@ current_focus:
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: d0dbf22e313edd8806694d052accdecda52bc2a7
-  resume_command: npm run validate:roadmap
+  last_durable_checkpoint: a21193b3543ac54ab3ae52a88966f67bb65f794f
+  resume_command: npm run hooks:test
 
 completion_scope:
   repository_backbone:
@@ -1014,6 +1015,21 @@ work_items:
         hook work indeterminate: its authorized disposition is represented by
         the separate PNW-00 reconciliation item, while all owner packet files
         remain preserved and untracked.
+      - >-
+        Recovery on 2026-09-03 found two finite closeout defects: the 23 exact
+        owner-input files kept terminal hooks materially dirty forever, and the
+        active ignored evidence observer could not receive the one authorized
+        update-only repair. Commit a21193b3543ac54ab3ae52a88966f67bb65f794f
+        centralizes all 23 owner tuples, exempts only exact untracked regular
+        single-link non-aliased custody, adds the exact
+        gate/item/focus/HEAD-clean and pre-attempt observer exception, covers
+        unified exec_command events, and keeps post-edit checks static. Two
+        fresh independent reviewers approved the actual bytes after fail-closed
+        latch, hard-link, and test-isolation repairs. npm run hooks:test passed
+        14/14; formatting, lint, syntax, backbone, roadmap, source-boundary, and
+        diff checks passed. The repair grants no observer execution, external
+        request, evidence acceptance, lifecycle activation, artifact, or
+        publication authority.
 
   - id: B1-APP
     priority: 10
@@ -4296,6 +4312,21 @@ work_items:
         the three requests may execute. The Windows parent-directory-sync EPERM
         fallback is a file-synced logical at-most-once boundary, not
         sudden-power-loss durability.
+      - >-
+        The 2026-09-03 continuation recovery reconstructed HEAD 78804fd and
+        committed the predecessor's otherwise complete reproducible-authority
+        checkpoint narration as 7e8a18c without modifying generated custody or
+        owner inputs. Fresh adversarial review then rejected the current
+        36,068-byte observer at SHA-256
+        1fdc4f800e757ac44915bfde3e5a839dcee96a24e66bf2d01871de03dfe5dc2b: R7
+        changed bytes could preserve positive tokens while introducing an
+        uncaught contradictory withdrawal and still satisfy the same-length
+        fallback. No D3/R6/R7/FR-A1 attempt or receipt exists and request
+        custody remains seven issued of 80. Commit
+        a21193b3543ac54ab3ae52a88966f67bb65f794f only repairs local hook custody
+        so an exact update of that ignored observer can be made; fresh
+        exact-byte source, security, and sovereignty approval remains required
+        before any self-test or request.
 
   - id: PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG
     priority: 137
