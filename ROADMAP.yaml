@@ -4554,12 +4554,14 @@ work_items:
         The 34,744-byte portfolio report at SHA-256
         5d496c6cbc5a49f4941f6167bed87fe3f931865c1e0e88150e95bfde563e7ab2
         received APPROVE_PORTFOLIO_REPORT from independent source/evidence,
-        security, and sovereignty reviewers. It ranks BIA first and an exact
-        ATNI resolution second for a future separately authorized tranche, with
-        GAO an unranked reserve; it admits no source and opens no gate. The
-        cumulative ledger is 27 issued, one exact-unissued FR-A1, and 52
-        unavailable; generated custody is 44 exact ignored files pending the
-        separately committed and reviewed observer-only Delete transition.
+        security, and sovereignty reviewers. It ranks BIA first for prospective
+        originating federal administrative value; a future ATNI
+        single-resolution metadata-and-link tranche ranks second, but no exact
+        resolution identity is selected; GAO remains an unranked reserve. It
+        admits no source and opens no gate. The cumulative ledger is 27 issued,
+        one exact-unissued FR-A1, and 52 unavailable; generated custody is 44
+        exact ignored files pending the separately committed and reviewed
+        observer-only Delete transition.
       - >-
         The observer-only Delete transition binds the exact 44-file pre-state,
         the immutable 43-file evidence manifest that must remain afterward, the
@@ -4644,11 +4646,13 @@ work_items:
         remaining wording families: one roadmap phrase collapsed independent
         review into project acceptance, while three portfolio references still
         implied an exact ATNI resolution identity had been selected. Commit
-        7b6e5df2d41427c9e16613f095fc77424fab2bb1 repairs all four references:
-        the lifecycle contract is described as completed after independent
-        review, and the prospective ATNI work is an unselected future
-        single-resolution metadata-and-link tranche. No source, request,
-        evidence, artifact, acceptance decision, or external gate changed.
+        7b6e5df2d41427c9e16613f095fc77424fab2bb1 repairs three references: the
+        lifecycle contract is described as completed after independent review,
+        and the decision-register and coordination references describe an
+        unselected future ATNI single-resolution metadata-and-link tranche. Its
+        exact-state re-review then identified the remaining split-line roadmap
+        portfolio occurrence. No source, request, evidence, artifact, acceptance
+        decision, or external gate changed.
 
   - id: PNW-05-SOURCE-PACK
     priority: 141
