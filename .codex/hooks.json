@@ -8,7 +8,7 @@
           {
             "type": "command",
             "command": "node \"$(git rev-parse --show-toplevel)/scripts/codex-hooks.mjs\"",
-            "commandWindows": "cmd.exe /d /s /c \"for /f \\\"delims=\\\" %R in ('git rev-parse --show-toplevel') do @node \\\"%R\\scripts\\codex-hooks.mjs\\\"\"",
+            "commandWindows": "cmd.exe /d /s /c \"for /f \"delims=\" %R in ('git rev-parse --show-toplevel') do @node \"%R\\scripts\\codex-hooks.mjs\"\"",
             "timeout": 30,
             "statusMessage": "Loading Policy Sentinel recovery state",
             "additionalContextLimit": 1800
@@ -23,7 +23,7 @@
           {
             "type": "command",
             "command": "node \"$(git rev-parse --show-toplevel)/scripts/codex-hooks.mjs\"",
-            "commandWindows": "cmd.exe /d /s /c \"for /f \\\"delims=\\\" %R in ('git rev-parse --show-toplevel') do @node \\\"%R\\scripts\\codex-hooks.mjs\\\"\"",
+            "commandWindows": "cmd.exe /d /s /c \"for /f \"delims=\" %R in ('git rev-parse --show-toplevel') do @node \"%R\\scripts\\codex-hooks.mjs\"\"",
             "timeout": 30,
             "statusMessage": "Checking durable state before compaction"
           }
@@ -37,7 +37,7 @@
           {
             "type": "command",
             "command": "node \"$(git rev-parse --show-toplevel)/scripts/codex-hooks.mjs\"",
-            "commandWindows": "cmd.exe /d /s /c \"for /f \\\"delims=\\\" %R in ('git rev-parse --show-toplevel') do @node \\\"%R\\scripts\\codex-hooks.mjs\\\"\"",
+            "commandWindows": "cmd.exe /d /s /c \"for /f \"delims=\" %R in ('git rev-parse --show-toplevel') do @node \"%R\\scripts\\codex-hooks.mjs\"\"",
             "timeout": 15,
             "statusMessage": "Checking Policy Sentinel gates"
           }
@@ -51,7 +51,7 @@
           {
             "type": "command",
             "command": "node \"$(git rev-parse --show-toplevel)/scripts/codex-hooks.mjs\"",
-            "commandWindows": "cmd.exe /d /s /c \"for /f \\\"delims=\\\" %R in ('git rev-parse --show-toplevel') do @node \\\"%R\\scripts\\codex-hooks.mjs\\\"\"",
+            "commandWindows": "cmd.exe /d /s /c \"for /f \"delims=\" %R in ('git rev-parse --show-toplevel') do @node \"%R\\scripts\\codex-hooks.mjs\"\"",
             "timeout": 120,
             "statusMessage": "Running focused post-edit checks",
             "additionalContextLimit": 2200
@@ -65,7 +65,7 @@
           {
             "type": "command",
             "command": "node \"$(git rev-parse --show-toplevel)/scripts/codex-hooks.mjs\"",
-            "commandWindows": "cmd.exe /d /s /c \"for /f \\\"delims=\\\" %R in ('git rev-parse --show-toplevel') do @node \\\"%R\\scripts\\codex-hooks.mjs\\\"\"",
+            "commandWindows": "cmd.exe /d /s /c \"for /f \"delims=\" %R in ('git rev-parse --show-toplevel') do @node \"%R\\scripts\\codex-hooks.mjs\"\"",
             "timeout": 30,
             "statusMessage": "Checking the durable stopping state"
           }

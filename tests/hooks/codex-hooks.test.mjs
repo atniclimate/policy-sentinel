@@ -55,7 +55,7 @@ const hookConfig = JSON.parse(
 const posixHookCommand =
   'node "$(git rev-parse --show-toplevel)/scripts/codex-hooks.mjs"';
 const windowsHookCommand =
-  'cmd.exe /d /s /c "for /f \\"delims=\\" %R in (\'git rev-parse --show-toplevel\') do @node \\"%R\\scripts\\codex-hooks.mjs\\""';
+  'cmd.exe /d /s /c "for /f "delims=" %R in (\'git rev-parse --show-toplevel\') do @node "%R\\scripts\\codex-hooks.mjs""';
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const closedRoadmap = {
   authority: {
@@ -210,6 +210,7 @@ test("hooks.json installs the five requested synchronous lifecycle hooks", () =>
     assert.equal(handler.async, undefined);
     assert.equal(handler.command, posixHookCommand);
     assert.equal(handler.commandWindows, windowsHookCommand);
+    assert.doesNotMatch(handler.commandWindows, /\\"/u);
     assert.doesNotMatch(
       `${handler.command} ${handler.commandWindows}`,
       /(?:curl|invoke-webrequest|npm|powershell|transcript|notify|webhook)/iu,
@@ -221,6 +222,36 @@ test("hooks.json installs the five requested synchronous lifecycle hooks", () =>
     "PostToolUse must not execute unapproved ignored observer code",
   );
 });
+
+test(
+  "parsed Windows hook launcher reaches Node from a nested session cwd",
+  { skip: process.platform !== "win32" },
+  () => {
+    const handler = hookConfig.hooks.PreToolUse[0].hooks[0];
+    const nestedCwd = path.join(projectRoot, "docs");
+    const result = spawnSync(handler.commandWindows, {
+      cwd: nestedCwd,
+      encoding: "utf8",
+      input: JSON.stringify({
+        hook_event_name: "PreToolUse",
+        cwd: nestedCwd,
+        tool_name: "exec_command",
+        tool_input: {
+          cmd: "git status --short",
+          workdir: projectRoot,
+        },
+      }),
+      shell: true,
+      timeout: 30_000,
+      windowsHide: true,
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.signal, null);
+    assert.equal(result.stdout, "");
+    assert.equal(result.stderr, "");
+  },
+);
 
 test("patch paths normalize across Windows and repository-relative input", () => {
   assert.equal(
