@@ -1086,3 +1086,47 @@ fail-closed `lstat` branch. Formatting, lint, syntax, backbone, roadmap,
 source-boundary, and diff validation passed. This hook approval authorizes no
 observer execution, request, provider fact, admission, activation, artifact,
 or publication.
+
+## Final observer repair and offline gate
+
+The lead replaced the rejected R7 semantic projection with one shared exact
+digest predicate. D3, R6, and R7 can now succeed only when their response body
+SHA-256 equals the previously approved body digest; every changed body fails as
+`evidence_digest_drift`. There is no same-length, structural, keyword, regex,
+or contradiction-list alternative. Fatal UTF-8 validation remains, but source
+language is neither parsed nor converted into a fact by the observer.
+
+Successive inert byte reviews found and closed four further finite issues: Node
+coverage and warning-path environment variables could cause pre-script writes;
+`FR-A1` absence was not part of observer custody; one self-test assertion
+preceded its lexical custody binding; and the canonical plan named the
+prelaunch invariant without hashing the exact denylist. The final observer is
+30,310 LF-only bytes at SHA-256
+`4e92ac1f7d03b3c67127faf89a2038f50a8e42cda1e4bd25af06d0ef91a16781`.
+Its 2,446-byte canonical plan has SHA-256
+`aeca197943db97c68d29fab277366bedaa7c5d6daca549bab05e96c6cbb357ae`.
+The plan now binds all 32 environment names, requires their absence before Node
+starts, and binds `closedRequestIds: ["FR-A1"]`. The runtime rechecks the
+environment and checks `FR-A1.attempt` and `FR-A1.receipt.json` initially,
+immediately before every evidence latch, after each response before its receipt,
+and before successful completion.
+
+Fresh source-evidence, security, and sovereignty reviewers independently
+rehashed the same observer, reconstructed the same canonical plan, confirmed
+the unchanged 2,503-byte authority input and 19,844-byte authority graph, and
+each returned exact disposition
+`APPROVE_AUTHORITY_EVIDENCE_OBSERVER_V3_BYTES`. None imported or executed the
+observer or used the network. Their approval covers only one later offline
+self-test followed by the already authorized first serial D3/R6/R7 attempts
+under the exact plan; it does not accept resulting provider facts or authorize
+FR-A1, lifecycle admission/activation, artifacts, or publication.
+
+The lead then invoked the observer exactly once with
+`--self-test-no-network` from a PowerShell process that removed the same 32
+plan-bound variables before Node started. It returned
+`offline_self_test_passed`, plan SHA-256 `aeca1979...`, 11 checks, zero network
+attempts, and zero writes. Independent before/after name, length, and SHA-256
+snapshots remained identical at exactly three custody files. D3/R6/R7 and
+FR-A1 still have no attempt or receipt at this checkpoint. The network launch
+must use the identical pre-start environment scrub, exact absolute observer
+path, and sole `--execute-approved-D3-R6-R7` token; no retry is authorized.

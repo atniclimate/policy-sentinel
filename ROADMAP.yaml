@@ -8,8 +8,8 @@ project:
     and accepted; Federal Register Tier-1 exact-document qualification now in
     progress after seven bounded documentation/evidence requests, with the
     reproducible-authority D3/R6/R7 refresh authorized but unissued after the
-    current observer was rejected, FR-A1 unissued, and all activation and
-    publication authority still closed
+    repaired observer passed three exact-byte reviews and one offline self-test,
+    FR-A1 unissued, and all activation and publication authority still closed
   updated_on: "2026-09-03"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -739,8 +739,8 @@ current_focus:
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: a21193b3543ac54ab3ae52a88966f67bb65f794f
-  resume_command: npm run hooks:test
+  last_durable_checkpoint: 45689cb9b837e8de09f2be0f8cb9a8aed7b9467b
+  resume_command: npm run validate:roadmap
 
 completion_scope:
   repository_backbone:
@@ -4327,6 +4327,23 @@ work_items:
         so an exact update of that ignored observer can be made; fresh
         exact-byte source, security, and sovereignty approval remains required
         before any self-test or request.
+      - >-
+        The bounded ignored observer repair removes every R7 structural,
+        same-length, token, and contradiction fallback: D3, R6, and R7 now
+        succeed only when the current body SHA-256 equals the respective prior
+        approved digest, and any drift fails as evidence_digest_drift before the
+        next request. The final 30,310-byte observer has SHA-256
+        4e92ac1f7d03b3c67127faf89a2038f50a8e42cda1e4bd25af06d0ef91a16781; its
+        2,446-byte canonical plan has SHA-256
+        aeca197943db97c68d29fab277366bedaa7c5d6daca549bab05e96c6cbb357ae and
+        binds the exact 32-name prelaunch environment denylist plus closed FR-A1
+        custody. Fresh source, security, and sovereignty reviewers each returned
+        APPROVE_AUTHORITY_EVIDENCE_OBSERVER_V3_BYTES for those exact bytes. One
+        prelaunch-sanitized offline self-test then passed 11 checks with zero
+        network attempts, zero writes, and no three-file custody change. The
+        exact launch must remove the same plan-bound denylist before Node starts
+        and the observer must recheck it in process. D3/R6/R7 and FR-A1 remain
+        unissued at this checkpoint.
 
   - id: PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG
     priority: 137
