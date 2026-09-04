@@ -188,33 +188,28 @@ establish complete coverage.
 ## Codex lifecycle hooks
 
 Repository-scoped hooks in [`.codex/hooks.json`](.codex/hooks.json) make long
-local Codex runs easier to recover and harder to leave in an ambiguous state:
+local Codex runs easier to recover while enforcing only boundaries that are
+objective at command time:
 
 - `SessionStart` adds a short recovery brief from validated `ROADMAP.yaml`, Git
-  status, and the next-action queue without reading the chat transcript;
-- `PreCompact` requires a valid roadmap and, when the material worktree is
-  dirty, an active work item before compaction; exact hash-verified untracked
-  owner-direction custody is not treated as unfinished repository work;
-- `PreToolUse` denies destructive Git operations, closed external mutations,
-  sensitive paths, path aliases, and inactive frozen review or contract
-  evidence. The active real-source lane has one update-only exception for its
-  exact ignored observer helper while committed and working authority match
-  and no attempt latch exists;
-- `PostToolUse` runs focused formatting, roadmap, foundation, and
-  source-boundary checks after `apply_patch`, selected from the changed paths;
+  status, and the next-action queue without reading the chat transcript. It
+  also runs after built-in compaction so work can continue from durable state;
   and
-- `Stop` requests one continuation when the ledger is invalid, work remains in
-  progress, or the material stopping state is dirty. Its recursion guard allows
-  the second stop attempt.
+- `PreToolUse` denies closed remote, publication, credential, notification, and
+  spent-canary operations; unsafe staging; a small high-risk Git set; private
+  or generated custody; preserved owner inputs; and inactive frozen evidence.
+  Ordinary PowerShell, Node, WSL, diagnostics, compound commands, external
+  reads, and normal workspace mutations are not placed behind an allowlist.
 
-The hooks are synchronous local guardrails. They do not read transcript files,
-make network calls, send notifications, commit changes, or replace the full
-`npm run check` completion gate. Run `npm run hooks:test` for their focused
-contract tests. Post-edit hook checks never execute an unapproved ignored
-observer; changed observer bytes require fresh independent review before a
-self-test or request. Codex requires the exact project hook definitions to be
-reviewed and trusted; after cloning or changing them, use `/hooks` to inspect
-and trust the repository hook layer. See the
+`PreCompact`, `PostToolUse`, and `Stop` are intentionally not installed.
+Compaction must not be vetoed by repository state, validations belong in the
+explicit command surface, and a stop hook must not create continuation loops.
+The two hooks are synchronous cooperative guardrails, not a shell parser,
+permission system, security boundary, or replacement for `npm run check`.
+Run `npm run hooks:test` for their focused contract tests. Codex requires the
+exact project hook definitions to be reviewed and trusted; after cloning or
+changing them, use `/hooks` to inspect and trust the repository hook layer. See
+the
 [official Codex hooks reference](https://learn.chatgpt.com/docs/hooks) for the
 runtime and trust model.
 

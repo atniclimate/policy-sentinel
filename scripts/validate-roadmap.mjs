@@ -1925,7 +1925,8 @@ if (pnwFinish.current_state === "in_progress") {
     activePnwItems.length === 0 &&
     (inProgress.length === 0 ||
       (inProgress.length === 1 &&
-        localRealSourcePrereleaseOutcomeIds.has(inProgress[0].id))) &&
+        (localRealSourcePrereleaseOutcomeIds.has(inProgress[0].id) ||
+          repositoryBackboneOutcomeIds.has(inProgress[0].id)))) &&
     readyPnwItems.length > 0
   ) {
     // A bounded PNW tranche may end with newly dependency-ready successors

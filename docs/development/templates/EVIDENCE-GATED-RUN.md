@@ -64,7 +64,7 @@ lead publishes the allowed work-around-the-gate manifest.
    passing fixture as production evidence.
 6. Have an independent reviewer challenge the provenance, completeness,
    inference boundary, gate effect, and claimed terminal state.
-7. Run focused commands and the required broader validation. The five hooks
+7. Run focused commands and the required broader validation. The installed hooks
    are guardrails only; hook success is not evidence acceptance.
 8. The lead updates the roadmap only when exact accepted evidence supports the
    transition. Otherwise keep the gate closed, record useful completed work

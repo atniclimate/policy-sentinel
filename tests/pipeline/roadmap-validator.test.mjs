@@ -1239,6 +1239,28 @@ test("additive stage governance cannot affect protected release accounting", asy
     ],
   );
 
+  const activeBackboneWithReadyPnw = clone(completedPnwTranche);
+  const activeBackbone = activeBackboneWithReadyPnw.work_items.find(
+    (item) => item.id === "H-REPOSITORY-BACKBONE",
+  );
+  activeBackbone.status = "in_progress";
+  activeBackboneWithReadyPnw.current_focus.work_item = "H-REPOSITORY-BACKBONE";
+  activeBackboneWithReadyPnw.current_focus.terminal_reason = null;
+  activeBackboneWithReadyPnw.finish_states.repository_backbone.current_state =
+    "in_progress";
+  await expectValid(
+    "active-repository-maintenance-does-not-block-ready-pnw-roots",
+    activeBackboneWithReadyPnw,
+    "blocked",
+    [
+      ...protectedReleaseRoots,
+      "PNW-02-REGIONAL-REGISTRY",
+      "PNW-03-GEOGRAPHY-RIGHTS",
+      "PNW-04-TAXONOMY",
+      "PNW-05-SOURCE-PACK",
+    ],
+  );
+
   const missingPnwOutcome = makeRoadmap();
   missingPnwOutcome.completion_scope.pnw_regional_engine.required_outcomes.pop();
   await expectInvalid(

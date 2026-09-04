@@ -79,7 +79,7 @@ from chat memory.
 | --- | --- | --- | --- |
 | `<surface>` | `<repository-native command>` | `<exit/count/hash>` | `<what remains unproved>` |
 
-Use only commands present in `package.json`. The five hooks do not replace
+Use only commands present in `package.json`. The installed hooks do not replace
 manual authority review, independent audit, full validation, or a commit.
 Custom-role configuration does not prove spawn visibility. Treat browser
 surfaces and global skill validators as optional/environmental until verified.

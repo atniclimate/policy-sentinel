@@ -26,7 +26,7 @@
     "test:unit": "vitest run --maxWorkers=1",
     "test:a11y": "vitest run tests/app",
     "test": "npm run validate:foundation && npm run test:corpus && npm run test:unit",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm run validate:roadmap && npm run validate:backbone && npm run scan:source && npm test && npm run build"
+    "check": "npm run format:check && npm run hooks:test && npm run lint && npm run typecheck && npm run validate:roadmap && npm run validate:backbone && npm run scan:source && npm test && npm run build"
   },
   "dependencies": {
     "parse5": "8.0.1",

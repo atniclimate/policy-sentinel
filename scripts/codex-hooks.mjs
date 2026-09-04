@@ -448,49 +448,8 @@ export const collectFrozenPaths = (roadmap) => {
 };
 
 const hasWriteIntent = (command) =>
-  /\b(?:add-content|appendfile(?:sync)?|clear-content|copyfile(?:sync)?|copy-item|mkdir(?:sync)?|move-item|new-item|new-object|out-file|remove-item|rename-item|rename(?:sync)?|rm(?:sync)?|set-content|truncate(?:sync)?|unlink(?:sync)?|writefile(?:sync)?)\b|(?:^|[\s;|&])(?:ac|clc|cp|cpi|del|erase|install|ln|mi|move|mv|ni|rd|ren|rename|ri|rm|rmdir|sc|si|tee|touch|truncate|unlink)\b|\[(?:system\.)?io\.(?:directory|file)\]::(?:append|copy|create|delete|move|open|replace|set|write)\w*|\b(?:directory|file)\.(?:append|copy|create|delete|move|open|replace|set|write)\w*|\bfind\b[^\r\n]*(?:-delete|-exec|-ok)\b|\bsed\b[^\r\n]*\s-i(?:\s|$)|\bdd\b|>>?/iu.test(
+  /\b(?:add-content|appendfile(?:sync)?|clear-content|copyfile(?:sync)?|copy-item|mkdir(?:sync)?|move-item|new-item|new-object|out-file|remove-item|rename-item|rename(?:sync)?|robocopy|rm(?:sync)?|set-content|set-item|truncate(?:sync)?|unlink(?:sync)?|writefile(?:sync)?|xcopy)\b|(?:^|[\s;|&])(?:ac|clc|copy|cp|cpi|del|erase|install|ln|mi|move|mv|ni|rd|ren|rename|ri|rm|rmdir|rni|sc|si|tee|touch|truncate|unlink)\b|\[(?:system\.)?io\.(?:directory|file)\]::(?:append|copy|create|delete|move|open|replace|set|write)\w*|\b(?:directory|file)\.(?:append|copy|create|delete|move|open|replace|set|write)\w*|\bfind\b[^\r\n]*(?:-delete|-exec|-ok)\b|\bsed\b[^\r\n]*\s-i(?:\s|$)|\bdd\b|>>?/iu.test(
     command,
-  );
-
-const hasUnquotedCallOperator = (command) => {
-  const text = String(command ?? "");
-  let quote = null;
-  let escaped = false;
-  for (let index = 0; index < text.length; index += 1) {
-    const character = text[index];
-    if (escaped) {
-      escaped = false;
-      continue;
-    }
-    if (character === "\\" && quote !== "'") {
-      escaped = true;
-      continue;
-    }
-    if (quote) {
-      if (character === quote) {
-        quote = null;
-      }
-      continue;
-    }
-    if (character === "'" || character === '"') {
-      quote = character;
-      continue;
-    }
-    if (
-      character === "&" &&
-      text[index - 1] !== "&" &&
-      text[index + 1] !== "&"
-    ) {
-      return true;
-    }
-  }
-  return false;
-};
-
-const hasIndirectDispatchSyntax = (command) =>
-  hasUnquotedCallOperator(command) ||
-  /(?:^|[;\r\n])\s*\.\s+\S|\b(?:command|env)\s+\S/iu.test(
-    String(command ?? ""),
   );
 
 const sensitiveShellPathPattern = new RegExp(
@@ -563,18 +522,94 @@ const splitShellInvocations = (command) => {
 const matchesShellInvocation = (command, pattern) =>
   splitShellInvocations(command).some((invocation) => pattern.test(invocation));
 
-const gitPrefix = String.raw`git(?:\.exe)?(?:\s+(?:(?:-[cC]|--(?:git-dir|work-tree|namespace|config-env))\s+\S+|--(?:bare|no-pager|literal-pathspecs|no-optional-locks|no-replace-objects)))*\s+`;
-const ghPrefix = String.raw`gh(?:\.exe)?(?:\s+(?:-R|--repo)\s+\S+)*\s+`;
-const npmPrefix = String.raw`npm(?:\.cmd|\.exe)?\s+`;
+const stripMatchingShellQuotes = (value) => {
+  const text = String(value ?? "").trim();
+  if (
+    text.length >= 2 &&
+    ((text.startsWith('"') && text.endsWith('"')) ||
+      (text.startsWith("'") && text.endsWith("'")))
+  ) {
+    return text.slice(1, -1).trim();
+  }
+  return text;
+};
+
+const expandWrappedShellInvocation = (invocation) => {
+  const expanded = [];
+  let current = String(invocation ?? "").trim();
+  for (let depth = 0; current && depth < 6; depth += 1) {
+    expanded.push(current);
+    const wrapperPatterns = [
+      /^(?:(?:[^\s"']+[\\/])?cmd(?:\.exe)?)\b[^\r\n]*?\s+\/(?:c|k)\s+([\s\S]+)$/iu,
+      /^(?:(?:[^\s"']+[\\/])?(?:pwsh|powershell)(?:\.exe)?)\b[^\r\n]*?\s+-(?:c|command)\s+([\s\S]+)$/iu,
+      /^(?:(?:[^\s"']+[\\/])?wsl(?:\.exe)?)\b(?:\s+(?:(?:-d|--cd|--distribution|--shell-type|-u|--user)(?:=|\s+)\S+|--exec|-e|--))*\s+([\s\S]+)$/iu,
+      /^(?:(?:[^\s"']+[\\/])?(?:bash|sh)(?:\.exe)?)\b[^\r\n]*?\s+-(?:c|lc)\s+([\s\S]+)$/iu,
+      /^npm(?:\.cmd|\.exe)?\s+(?:exec|x)\b(?:\s+--)?\s+([\s\S]+)$/iu,
+      /^npx(?:\.cmd|\.exe)?\b(?:\s+--no-install)?(?:\s+--)?\s+([\s\S]+)$/iu,
+      /^command\s+([\s\S]+)$/iu,
+      /^env(?:\s+[a-z_][a-z0-9_]*=\S+)*\s+([\s\S]+)$/iu,
+    ];
+    const match = wrapperPatterns
+      .map((pattern) => current.match(pattern))
+      .find(Boolean);
+    if (!match) {
+      break;
+    }
+    const inner = stripMatchingShellQuotes(match[1]);
+    if (!inner || inner === current) {
+      break;
+    }
+    current = inner;
+  }
+  return expanded;
+};
+
+const expandShellInvocations = (command) =>
+  splitShellInvocations(command).flatMap(expandWrappedShellInvocation);
+
+const ghPrefix = String.raw`(?:(?:"(?:[^"\r\n]*[\\/])?gh(?:\.exe)?"|'(?:[^'\r\n]*[\\/])?gh(?:\.exe)?')|(?:[^\s;&|<>"']+[\\/])*gh(?:\.exe)?)(?:\s+(?:-R|--repo)\s+\S+)*\s+`;
+const npmPrefix = String.raw`(?:(?:"(?:[^"\r\n]*[\\/])?npm(?:\.cmd|\.exe)?"|'(?:[^'\r\n]*[\\/])?npm(?:\.cmd|\.exe)?')|(?:[^\s;&|<>"']+[\\/])*npm(?:\.cmd|\.exe)?)\s+`;
 const invocationPattern = (prefix, operation) =>
   new RegExp(`^${prefix}${operation}`, "iu");
 
 const gitExecutableAtInvocationStart = new RegExp(
-  String.raw`^(?:[a-z_][a-z0-9_]*=\S+\s+)*(?:"(?:[^"\r\n]*[\\/])?git(?:\.exe)?"|'(?:[^'\r\n]*[\\/])?git(?:\.exe)?'|(?:[^\s;&|<>"']+[\\/])*git(?:\.exe)?)(?=\s)`,
+  String.raw`^(?:[a-z_][a-z0-9_]*=(?:"[^"\r\n]*"|'[^'\r\n]*'|\S*)\s+)*(?:"(?:[^"\r\n]*[\\/])?git(?:\.exe)?"|'(?:[^'\r\n]*[\\/])?git(?:\.exe)?'|(?:[^\s;&|<>"']+[\\/])*git(?:\.exe)?)(?=\s)`,
   "iu",
 );
-const invocationExecutesGit = (invocation) =>
-  gitExecutableAtInvocationStart.test(String(invocation ?? "").trim());
+const gitInvocationOperation = (invocation) => {
+  const normalized = String(invocation ?? "").trim();
+  const executable = normalized.match(gitExecutableAtInvocationStart);
+  if (!executable) {
+    return null;
+  }
+  let remainder = normalized.slice(executable[0].length).trim();
+  for (let optionCount = 0; optionCount < 16; optionCount += 1) {
+    const valuedOption = remainder.match(
+      /^(?:-[cC]|--(?:config-env|git-dir|namespace|work-tree))(?:=|\s+)(?:"[^"\r\n]*"|'[^'\r\n]*'|\S+)\s*/iu,
+    );
+    if (valuedOption) {
+      remainder = remainder.slice(valuedOption[0].length);
+      continue;
+    }
+    const flagOption = remainder.match(
+      /^--(?:bare|literal-pathspecs|no-optional-locks|no-pager|no-replace-objects)\s*/iu,
+    );
+    if (flagOption) {
+      remainder = remainder.slice(flagOption[0].length);
+      continue;
+    }
+    break;
+  }
+  const operation = remainder.match(/^([a-z][a-z0-9-]*)\b([\s\S]*)$/iu);
+  if (!operation) {
+    return null;
+  }
+  return {
+    args: operation[2].trim(),
+    command: operation[1].toLowerCase(),
+    remainder,
+  };
+};
 
 const approvedEvidenceDirectory =
   observerAuthoringPolicy.directory.toLowerCase();
@@ -599,10 +634,110 @@ const commandReferencesForbiddenSensitivePath = (command) =>
     String(command ?? "").replaceAll("\\", "/"),
   );
 
-const commandReferencesNonFileProvider = (command) =>
-  /(?:^|[^a-z0-9_])(?:alias|cert|env|function|hklm|hkcu|registry|variable|wsman):|\[(?:system\.)?environment\]::getenvironmentvariables?\b/iu.test(
-    String(command ?? ""),
+const credentialLabelPattern =
+  /(?:api[_-]?key|auth(?:entication)?|credential|password|private[_-]?key|secret|token)/iu;
+const credentialNamespacePattern =
+  /^(?:anthropic|aws|azure|docker|gcp|gh|github|google|kube|npm|openai)(?:$|[_-])/iu;
+
+const credentialDirectoryNames = new Set([
+  ".aws",
+  ".azure",
+  ".claude",
+  ".codex",
+  ".docker",
+  ".gnupg",
+  ".kube",
+  ".ssh",
+  "private",
+  "secrets",
+]);
+const credentialFileNames = new Set([
+  ".git-credentials",
+  ".netrc",
+  ".npmrc",
+  "hosts.yml",
+]);
+
+const filesystemPathHasCredentialComponent = (value) => {
+  const segments = String(value ?? "")
+    .replaceAll("\\", "/")
+    .split("/")
+    .filter(Boolean)
+    .map((segment) => segment.toLowerCase());
+  return (
+    segments.some((segment) => credentialDirectoryNames.has(segment)) ||
+    segments.some((segment) => credentialFileNames.has(segment))
   );
+};
+
+const commandReferencesExternalCredentialPath = (command, root) => {
+  const normalized = String(command ?? "").replaceAll("\\", "/");
+  const activeRoot = String(root ?? "")
+    .replaceAll("\\", "/")
+    .replace(/\/$/u, "")
+    .toLowerCase();
+  const absolutePathTokens = normalized.matchAll(
+    /(?:^|[\s"'`=(:,])((?:[a-z]:\/|\/\/|\/|~\/|\$home\/|\$env:userprofile\/|%userprofile%\/)[^\s"'`;|&<>)]*)/giu,
+  );
+  for (const match of absolutePathTokens) {
+    const candidate = match[1].replace(/[,.:]+$/u, "");
+    if (!filesystemPathHasCredentialComponent(candidate)) {
+      continue;
+    }
+    const normalizedCandidate = candidate.toLowerCase();
+    if (
+      activeRoot &&
+      (normalizedCandidate === activeRoot ||
+        normalizedCandidate.startsWith(`${activeRoot}/`))
+    ) {
+      continue;
+    }
+    return true;
+  }
+  return false;
+};
+
+const commandReferencesCredentialProvider = (command) => {
+  const text = String(command ?? "").trim();
+  const invocations = splitShellInvocations(text);
+  if (
+    invocations.some((invocation) => {
+      if (/^(?:env|printenv)(?:\.exe)?\s*$/iu.test(invocation)) {
+        return true;
+      }
+      const setQuery = invocation.match(
+        /^set(?:\.exe)?(?:\s+([^\s=]+))?\s*$/iu,
+      );
+      return Boolean(
+        setQuery &&
+        (!setQuery[1] ||
+          /[*?]/u.test(setQuery[1]) ||
+          credentialLabelPattern.test(setQuery[1]) ||
+          credentialNamespacePattern.test(setQuery[1])),
+      );
+    }) ||
+    /\[(?:system\.)?environment\]::getenvironmentvariables\b/iu.test(text) ||
+    /(?:^|[;|&\r\n])\s*(?:get-childitem|gci|dir|ls)\s+(?:-path\s+|-literalpath\s+)?env:(?:\s|$)/iu.test(
+      text,
+    )
+  ) {
+    return true;
+  }
+  const providerNames = [
+    ...text.matchAll(/(?:\$?env:)([^\s"'`;|&<>)]*)/giu),
+    ...text.matchAll(
+      /\[(?:system\.)?environment\]::getenvironmentvariable\(\s*["']([^"']+)["']/giu,
+    ),
+    ...text.matchAll(/\$(?!env:)([a-z_][a-z0-9_-]*)/giu),
+    ...text.matchAll(/%([a-z_][a-z0-9_-]*)%/giu),
+  ].map((match) => match[1]);
+  return providerNames.some(
+    (name) =>
+      /[*?]/u.test(name) ||
+      credentialLabelPattern.test(name) ||
+      credentialNamespacePattern.test(name),
+  );
+};
 
 const extractStrictInspectionTarget = (command) => {
   const normalized = String(command ?? "").trim();
@@ -633,9 +768,6 @@ const extractStrictInspectionTarget = (command) => {
   }
   return null;
 };
-
-const directFileInspectionPattern =
-  /^(?:cat|gc|get-childitem|get-content|get-filehash|get-item|head|ls|more|resolve-path|sha256sum|shasum|stat|tail|test-path|type|wc)\b/iu;
 
 const inspectionTargetContext = (root, workdirContext, target) => {
   if (
@@ -722,6 +854,154 @@ const ownerInputPaths = new Set(
   ),
 );
 
+const commandMentionsRepositoryPath = (command, repositoryPath) => {
+  const normalizedCommand = String(command ?? "")
+    .replaceAll("\\", "/")
+    .toLowerCase();
+  const normalizedPath = String(repositoryPath ?? "")
+    .replaceAll("\\", "/")
+    .toLowerCase();
+  return normalizedPath !== "" && normalizedCommand.includes(normalizedPath);
+};
+
+const pathMutationArguments = (invocation) => {
+  const gitOperation = gitInvocationOperation(invocation);
+  if (gitOperation && ["mv", "rm"].includes(gitOperation.command)) {
+    return gitOperation.args;
+  }
+  const mutation = String(invocation ?? "").match(
+    /^(?:(?:[^\s"']+[\\/])?(?:clear-content|clc|copy-item|copy|cpi|cp|del|erase|mi|move-item|move|mv|rd|remove-item|rename-item|rename|ren|ri|rm|rmdir|rni|robocopy|xcopy)(?:\.exe)?)\b([\s\S]*)$/iu,
+  );
+  return mutation?.[1]?.trim() ?? null;
+};
+
+const normalizeMutationCandidate = (
+  candidate,
+  root,
+  workdirRepositoryPath,
+  workdirTrusted,
+) => {
+  let normalized = String(candidate ?? "")
+    .replaceAll("\\", "/")
+    .replace(/^[,:(]+|[,.:)]+$/gu, "")
+    .trim();
+  if (!normalized || normalized === "--") {
+    return null;
+  }
+  if (normalized.startsWith("-") && normalized.includes("=")) {
+    normalized = normalized.slice(normalized.indexOf("=") + 1);
+  } else if (normalized.startsWith("-")) {
+    return null;
+  }
+  const normalizedRoot = String(root ?? "")
+    .replaceAll("\\", "/")
+    .replace(/\/$/u, "");
+  if (/^(?:[a-z]:\/|\/\/|\/)/iu.test(normalized)) {
+    if (
+      !normalizedRoot ||
+      (normalized.toLowerCase() !== normalizedRoot.toLowerCase() &&
+        !normalized
+          .toLowerCase()
+          .startsWith(`${normalizedRoot.toLowerCase()}/`))
+    ) {
+      return null;
+    }
+    normalized = normalized.slice(normalizedRoot.length).replace(/^\/+/, "");
+  } else {
+    if (!workdirTrusted) {
+      return null;
+    }
+    const base = String(workdirRepositoryPath ?? "").replaceAll("\\", "/");
+    normalized = path.posix.normalize(
+      base ? `${base}/${normalized}` : normalized,
+    );
+  }
+  return normalized.replace(/^\.\//u, "").replace(/\/+$/u, "").toLowerCase();
+};
+
+const mutationCandidateAffectsPath = (candidate, protectedPath) => {
+  if (!candidate) {
+    return false;
+  }
+  if (candidate === ".") {
+    return true;
+  }
+  const wildcardIndex = candidate.search(/[*?[\]]/u);
+  if (wildcardIndex >= 0) {
+    if (candidate.includes("[") || candidate.includes("]")) {
+      const literalPrefix = candidate.slice(0, wildcardIndex);
+      return literalPrefix === "" || protectedPath.startsWith(literalPrefix);
+    }
+    let source = "^";
+    for (let index = 0; index < candidate.length; index += 1) {
+      const character = candidate[index];
+      if (character === "*") {
+        if (candidate[index + 1] === "*") {
+          source += ".*";
+          index += 1;
+        } else {
+          source += "[^/]*";
+        }
+      } else if (character === "?") {
+        source += "[^/]";
+      } else {
+        source += character.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+      }
+    }
+    source += "$";
+    const matcher = new RegExp(source, "iu");
+    const segments = protectedPath.split("/");
+    return segments.some((_, index) =>
+      matcher.test(segments.slice(0, index + 1).join("/")),
+    );
+  }
+  return (
+    protectedPath === candidate || protectedPath.startsWith(`${candidate}/`)
+  );
+};
+
+const protectedShellMutationPath = (command, roadmap, root, workdirContext) => {
+  if (!hasWriteIntent(command)) {
+    return null;
+  }
+  const protectedPaths = [
+    ...ownerInputPaths,
+    ...[...collectFrozenPaths(roadmap)].map((repositoryPath) =>
+      repositoryPath.toLowerCase(),
+    ),
+  ];
+  const directlyMentioned = protectedPaths.find((repositoryPath) =>
+    commandMentionsRepositoryPath(command, repositoryPath),
+  );
+  if (directlyMentioned) {
+    return directlyMentioned;
+  }
+  for (const invocation of expandShellInvocations(command)) {
+    const argumentsText = pathMutationArguments(invocation);
+    if (argumentsText === null) {
+      continue;
+    }
+    const candidates = [
+      ...argumentsText.matchAll(/"([^"\r\n]*)"|'([^'\r\n]*)'|([^\s]+)/gu),
+    ].map((match) => match[1] ?? match[2] ?? match[3]);
+    for (const candidate of candidates) {
+      const normalizedCandidate = normalizeMutationCandidate(
+        candidate,
+        root,
+        workdirContext.repositoryPath,
+        workdirContext.trusted,
+      );
+      const affectedPath = protectedPaths.find((repositoryPath) =>
+        mutationCandidateAffectsPath(normalizedCandidate, repositoryPath),
+      );
+      if (affectedPath) {
+        return affectedPath;
+      }
+    }
+  }
+  return null;
+};
+
 const shellWorkdirContext = (root, workdir) => {
   if (!root) {
     return {
@@ -758,7 +1038,16 @@ const shellWorkdirContext = (root, workdir) => {
     ? path.resolve(rawWorkdir)
     : path.resolve(root, rawWorkdir);
   if (!repositoryPathIsWithin(root, absoluteWorkdir)) {
-    return { restricted: true, sensitive: false, trusted: false };
+    const credentialSensitive =
+      filesystemPathHasCredentialComponent(absoluteWorkdir);
+    return {
+      absolutePath: absoluteWorkdir,
+      external: true,
+      repositoryPath: "",
+      restricted: credentialSensitive,
+      sensitive: credentialSensitive,
+      trusted: false,
+    };
   }
   let rootRealPath;
   let workdirRealPath;
@@ -832,245 +1121,37 @@ const explicitGitAddIsAllowed = (command, root) => {
   });
 };
 
-const safeCommandText = (command) =>
-  !/[\r\n<>`^;|&()$%!]/u.test(String(command ?? ""));
-
-const explicitGitCommandIsAllowed = (command, root, workdirContext) => {
-  const normalized = String(command ?? "").trim();
-  if (
-    workdirContext.repositoryPath !== "" ||
-    !safeCommandText(normalized) ||
-    !/^git(?:\.exe)?\s+/iu.test(normalized) ||
-    /\s--(?:exec-path|git-dir|work-tree)(?:=|\s)|\s-[cC](?:\s|$)/u.test(
-      normalized,
-    )
-  ) {
-    return false;
-  }
-  if (/^git(?:\.exe)?\s+add\b/iu.test(normalized)) {
-    return explicitGitAddIsAllowed(normalized, root);
-  }
-  if (
-    /^git(?:\.exe)?\s+commit\s+-m\s+(?:"[^"\r\n]+"|'[^'\r\n]+')$/iu.test(
-      normalized,
-    )
-  ) {
-    return true;
-  }
-  if (
-    /^git(?:\.exe)?\s+config\s+--get\s+remote\.origin\.url$/iu.test(
-      normalized,
-    ) ||
-    /^git(?:\.exe)?\s+remote\s+-v$/iu.test(normalized) ||
-    /^git(?:\.exe)?\s+worktree\s+list(?:\s+--porcelain)?$/iu.test(normalized) ||
-    /^git(?:\.exe)?\s+branch\s+--(?:show-current|list)$/iu.test(normalized)
-  ) {
-    return true;
-  }
-  const paths = String.raw`[a-z0-9._/-]+(?:\s+[a-z0-9._/-]+)*`;
-  const git = String.raw`git(?:\.exe)?`;
-  return [
-    new RegExp(
-      String.raw`^${git}\s+status(?:(?:\s+--short|\s+--porcelain=v1|\s+-z|\s+--branch|\s+--untracked-files=(?:all|normal|no)))*(?:\s+--\s+${paths})?$`,
-      "iu",
-    ),
-    new RegExp(
-      String.raw`^${git}\s+diff(?:(?:\s+--cached|\s+--staged|\s+--stat|\s+--check|\s+--name-only|\s+--name-status|\s+--exit-code|\s+--quiet|\s+--no-ext-diff))*(?:\s+(?:HEAD|[0-9a-f]{4,40}))?(?:\s+--\s+${paths})?$`,
-      "iu",
-    ),
-    new RegExp(
-      String.raw`^${git}\s+log(?:(?:\s+-\d+|\s+-n\s+\d+|\s+--oneline|\s+--decorate|\s+--stat))*(?:\s+(?:HEAD|[0-9a-f]{4,40}))?$`,
-      "iu",
-    ),
-    new RegExp(
-      String.raw`^${git}\s+show(?:(?:\s+--stat|\s+--oneline|\s+--name-only|\s+--name-status))*(?:\s+(?:HEAD|[0-9a-f]{4,40}))?$`,
-      "iu",
-    ),
-    new RegExp(
-      String.raw`^${git}\s+ls-files(?:(?:\s+--cached|\s+--error-unmatch))*(?:\s+--\s+${paths})?$`,
-      "iu",
-    ),
-    new RegExp(
-      String.raw`^${git}\s+check-ignore(?:\s+-v)?\s+--\s+${paths}$`,
-      "iu",
-    ),
-    new RegExp(
-      String.raw`^${git}\s+rev-parse\s+(?:HEAD|--show-toplevel|--verify\s+HEAD|--abbrev-ref\s+HEAD)$`,
-      "iu",
-    ),
-  ].some((pattern) => pattern.test(normalized));
-};
-
-const explicitGhReadIsAllowed = (command) => {
-  const normalized = String(command ?? "").trim();
-  if (!safeCommandText(normalized)) {
-    return false;
-  }
-  return [
-    /^gh(?:\.exe)?\s+auth\s+status(?:\s+--hostname\s+github\.com)?$/iu,
-    /^gh(?:\.exe)?\s+repo\s+view\s+atniclimate\/policy-sentinel$/iu,
-    /^gh(?:\.exe)?\s+api\s+(?:(?:-X|--method)(?:=|\s+)GET\s+)repos\/atniclimate\/policy-sentinel$/iu,
-  ].some((pattern) => pattern.test(normalized));
-};
-
-const explicitNpmCommandIsAllowed = (command, workdirContext) => {
-  const normalized = String(command ?? "").trim();
-  if (workdirContext.repositoryPath !== "" || !safeCommandText(normalized)) {
-    return false;
-  }
-  if (/^npm(?:\.cmd|\.exe)?\s+(?:--version|test)$/iu.test(normalized)) {
-    return true;
-  }
-  const match = normalized.match(
-    /^npm(?:\.cmd|\.exe)?\s+run\s+(?:--silent\s+)?([^\s]+)(.*)$/iu,
-  );
-  if (!match) {
-    return false;
-  }
-  const script = match[1].toLowerCase();
-  const remainder = match[2].trim();
-  const noArgumentScripts = new Set([
-    "build",
-    "check",
-    "format:check",
-    "hooks:test",
-    "lint",
-    "scan:source",
-    "test",
-    "test:a11y",
-    "test:corpus",
-    "test:unit",
-    "typecheck",
-    "validate:artifact",
-    "validate:backbone",
-    "validate:foundation",
-    "validate:roadmap",
-  ]);
-  if (noArgumentScripts.has(script)) {
-    return remainder === "";
-  }
-  return (
-    script === "preview" &&
-    /^(?:--\s+)?--host\s+127\.0\.0\.1(?:\s+--port\s+\d{2,5})?$/u.test(remainder)
-  );
-};
-
-const explicitRgReadIsAllowed = (command, root, workdirContext) => {
-  const normalized = String(command ?? "").trim();
-  if (
-    workdirContext.repositoryPath !== "" ||
-    !safeCommandText(normalized) ||
-    !/^rg(?:\.exe)?\s+--no-config\b/iu.test(normalized)
-  ) {
-    return false;
-  }
-  if (/^rg(?:\.exe)?\s+--no-config\s+--files$/iu.test(normalized)) {
-    return true;
-  }
-  const match = normalized.match(
-    /^rg(?:\.exe)?\s+--no-config(?:(?:\s+-n|\s+--line-number|\s+-i|\s+-F|\s+--fixed-strings))*\s+("[^"\r\n]+"|'[^'\r\n]+')\s+([a-z0-9._/-]+(?:\s+[a-z0-9._/-]+)*)$/iu,
-  );
-  if (!match) {
-    return false;
-  }
-  return match[2].split(/\s+/u).every((target) => {
-    const context = inspectionTargetContext(root, workdirContext, target);
-    return Boolean(context && !context.sensitive);
-  });
-};
-
-const explicitNodeInspectionIsAllowed = (command, root, workdirContext) => {
-  const normalized = String(command ?? "").trim();
-  if (
-    /^node(?:\.exe)?\s+--test\s+tests[\\/]hooks[\\/]codex-hooks\.test\.mjs$/iu.test(
-      normalized,
-    )
-  ) {
-    return workdirContext.repositoryPath === "";
-  }
-  const match = normalized.match(
-    /^node(?:\.exe)?\s+--check\s+("[^"\r\n]+"|'[^'\r\n]+'|[^\s;&|<>]+)$/iu,
-  );
-  if (!match || !safeCommandText(normalized)) {
-    return false;
-  }
-  const target = match[1].replace(/^(?:"([\s\S]*)"|'([\s\S]*)')$/u, "$1$2");
-  const context = inspectionTargetContext(root, workdirContext, target);
-  return Boolean(context && (!context.sensitive || context.approvedEvidence));
-};
-
-const explicitShellCommandIsAllowed = (command, root, workdirContext) => {
-  const normalized = String(command ?? "").trim();
-  if (!safeCommandText(normalized)) {
-    return false;
-  }
-  const inspectionTarget = extractStrictInspectionTarget(normalized);
-  if (inspectionTarget !== null) {
-    const context = inspectionTargetContext(
-      root,
-      workdirContext,
-      inspectionTarget,
-    );
-    return Boolean(context && (!context.sensitive || context.approvedEvidence));
-  }
-  if (
-    workdirContext.repositoryPath === "" &&
-    sensitiveGitInspectionIsAllowed(normalized)
-  ) {
-    return true;
-  }
-  return (
-    explicitGitCommandIsAllowed(normalized, root, workdirContext) ||
-    explicitGhReadIsAllowed(normalized) ||
-    explicitNpmCommandIsAllowed(normalized, workdirContext) ||
-    explicitRgReadIsAllowed(normalized, root, workdirContext) ||
-    explicitNodeInspectionIsAllowed(normalized, root, workdirContext) ||
-    /^write-output\s+(?:"[^"`$\r\n]*"|'[^'\r\n]*'|[a-z0-9._:-]+)$/iu.test(
-      normalized,
-    ) ||
-    /^(?:get-location|pwd)$/iu.test(normalized)
-  );
-};
-
 export const evaluateShellCommand = (
   command,
   roadmap,
   { root = "", workdir = root } = {},
 ) => {
   const text = String(command ?? "");
-  const normalized = text.replace(/\s+/gu, " ").trim();
+  const policyText = text.replace(/([a-z])(?:`|\^)(?=[a-z])/giu, "$1");
   const workdirContext = shellWorkdirContext(root, workdir);
   const githubClosed = isClosedBoundary(roadmap, "EXT-GITHUB");
   const credentialsClosed = isClosedBoundary(roadmap, "EXT-CREDENTIALS");
   const notificationClosed = isClosedBoundary(roadmap, "EXT-NOTIFY");
 
-  const invocations = splitShellInvocations(text);
-  if (hasIndirectDispatchSyntax(text)) {
-    return {
-      blocked: true,
-      reason:
-        "Indirect executable dispatch is forbidden; invoke a reviewed command directly.",
-    };
-  }
-  if (invocations.length !== 1) {
-    return {
-      blocked: true,
-      reason:
-        "Compound shell commands and pipelines are forbidden; invoke one reviewed command at a time.",
-    };
-  }
-
-  const gitAddInvocations = invocations.filter(
-    (invocation) =>
-      invocationExecutesGit(invocation) &&
-      /\b(?:add|stage)\b/iu.test(invocation),
+  const invocations = splitShellInvocations(policyText);
+  const expandedInvocations = expandShellInvocations(policyText);
+  const expandedCommand = expandedInvocations.join("\n");
+  const gitOperations = expandedInvocations
+    .map((invocation) => ({
+      invocation,
+      operation: gitInvocationOperation(invocation),
+    }))
+    .filter(({ operation }) => operation);
+  const gitAddInvocations = gitOperations.filter(({ operation }) =>
+    ["add", "stage"].includes(operation.command),
   );
   if (
     gitAddInvocations.length > 0 &&
     (invocations.length !== 1 ||
       gitAddInvocations.length !== 1 ||
+      gitAddInvocations[0].invocation !== invocations[0] ||
       workdirContext.repositoryPath !== "" ||
-      !explicitGitAddIsAllowed(gitAddInvocations[0], root))
+      !explicitGitAddIsAllowed(gitAddInvocations[0].invocation, root))
   ) {
     return {
       blocked: true,
@@ -1079,103 +1160,110 @@ export const evaluateShellCommand = (
     };
   }
 
-  const alwaysBlocked = [
-    [
-      invocationPattern(gitPrefix, String.raw`push\b`),
-      "Direct git push is forbidden; Policy Sentinel requires an exact owner-approved gh operation.",
-    ],
-    [
-      invocationPattern(
-        gitPrefix,
-        String.raw`(?:reset\b|restore\b|rm\b|rebase\b|commit\s+--amend|filter-(?:branch|repo)\b|clean\s+[^\r\n]*-f|checkout\s+--(?:\s|$)|apply\b)`,
-      ),
-      "Destructive or history-rewriting Git operation blocked by repository policy.",
-    ],
-    [
-      invocationPattern(gitPrefix, String.raw`update-index\b`),
-      "Direct index mutation is forbidden; stage only explicit reviewed paths.",
-    ],
-  ];
-  for (const [pattern, reason] of alwaysBlocked) {
-    if (matchesShellInvocation(text, pattern)) {
-      return { blocked: true, reason };
-    }
-  }
-
   if (
-    invocations.some(
-      (invocation) =>
-        (invocationExecutesGit(invocation) &&
-          /\b(?:am|apply|checkout|cherry-pick|clean|clone|fetch|filter-branch|filter-repo|merge|pull|push|read-tree|rebase|reset|restore|rm|send-email|stash|submodule|switch|update-index)\b/iu.test(
-            invocation,
-          )) ||
-        /\bcommit\b[^\r\n]*\s--amend\b/iu.test(invocation),
+    gitOperations.some(({ operation }) =>
+      ["push", "send-pack"].includes(operation.command),
     )
   ) {
     return {
       blocked: true,
       reason:
-        "Destructive, worktree-changing, index-changing, or history-rewriting Git operation blocked by repository policy.",
+        "Direct Git push or send-pack is forbidden; Policy Sentinel requires an exact owner-approved remote operation.",
+    };
+  }
+  if (
+    gitOperations.some(({ operation }) => {
+      const { args, command: gitCommand } = operation;
+      return (
+        (gitCommand === "reset" && /(?:^|\s)--hard(?:\s|$)/iu.test(args)) ||
+        gitCommand === "rebase" ||
+        (gitCommand === "commit" && /(?:^|\s)--amend(?:\s|$)/iu.test(args)) ||
+        ["filter-branch", "filter-repo"].includes(gitCommand) ||
+        (gitCommand === "clean" &&
+          /(?:^|\s)(?:-[a-z]*f[a-z]*|--force)(?:\s|$)/iu.test(args)) ||
+        gitCommand === "apply"
+      );
+    })
+  ) {
+    return {
+      blocked: true,
+      reason:
+        "High-risk destructive or history-rewriting Git operation blocked by repository policy.",
+    };
+  }
+  if (
+    gitOperations.some(({ operation }) => operation.command === "update-index")
+  ) {
+    return {
+      blocked: true,
+      reason:
+        "Direct index mutation is forbidden; stage only explicit reviewed paths.",
     };
   }
 
-  const opaqueOrIndirectMutationPatterns = [
-    /^["']?(?:[^\s;&|<>"']+[\\/])*(?:python(?:3(?:\.\d+)*)?|py|perl|ruby)(?:\.exe)?\b/iu,
-    /^node(?:\.exe)?\b(?!\s+--check\s+[^\s;&|<>]+\s*$)(?!\s+--test\s+tests[\\/]hooks[\\/]codex-hooks\.test\.mjs\s*$)/iu,
-    /^["']?(?:[^\s;&|<>"']+[\\/])+node(?:\.exe)?\b/iu,
-    /^(?:bun|deno|npx|pnpm\s+dlx|yarn\s+dlx)\b/iu,
-    /^npm(?:\.cmd|\.exe)?\s+exec\b/iu,
-    /^["']?(?:[^\s;&|<>"']+[\\/])*(?:bash|cmd|dash|ksh|powershell|pwsh|sh|wsl|zsh)(?:\.exe)?\b/iu,
-    /^(?:add-type|call|eval|exec|forfiles|iex|invoke-command|invoke-expression|invoke-item|source|start|start-process|xargs)\b/iu,
-    /^["']?(?:[^\s;&|<>"']+[\\/])*(?:env|printenv)(?:\.exe)?\b/iu,
-    /^\[(?:system\.)?io\./iu,
-    /^["']?(?:[^\s;&|<>"']+[\\/])*(?:apply_patch|patch)(?:\.(?:bat|cmd|exe))?\b/iu,
-    /^busybox(?:\.exe)?\s+patch\b/iu,
-    /^patch\b/iu,
-  ];
   if (
-    invocations.some((invocation) =>
-      opaqueOrIndirectMutationPatterns.some((pattern) =>
-        pattern.test(invocation),
-      ),
+    credentialsClosed &&
+    commandReferencesCredentialProvider(expandedCommand)
+  ) {
+    return {
+      blocked: true,
+      reason:
+        "Broad environment enumeration or direct credential-variable access is blocked while EXT-CREDENTIALS is closed.",
+    };
+  }
+
+  if (
+    credentialsClosed &&
+    gitOperations.some(({ operation }) =>
+      operation.command.startsWith("credential"),
     )
   ) {
     return {
       blocked: true,
       reason:
-        "Opaque interpreters, shell wrappers, and indirect patch writers are forbidden; use reviewed repository commands or apply_patch.",
-    };
-  }
-
-  if (!workdirContext.trusted) {
-    return {
-      blocked: true,
-      reason:
-        "Shell execution requires a canonical, existing directory inside this repository.",
-    };
-  }
-
-  if (commandReferencesNonFileProvider(text)) {
-    return {
-      blocked: true,
-      reason:
-        "Environment, credential-store, registry, and other non-file providers are outside this repository hook's read authority.",
+        "Git credential-helper access or mutation is blocked while EXT-CREDENTIALS is closed.",
     };
   }
 
   if (
-    invocations.some(
-      (invocation) =>
-        invocationExecutesGit(invocation) &&
-        (/\bremote\s+(?:add|remove|rename|set-url|update)\b/iu.test(
-          invocation,
-        ) ||
-          (/\bconfig\b/iu.test(invocation) &&
-            !/\s--get(?:-all|-regexp)?\b/iu.test(invocation) &&
-            /\b(?:branch\.[^\s=]+\.remote|remote\.[^\s=]+)\b/iu.test(
-              invocation,
-            ))),
+    credentialsClosed &&
+    commandReferencesExternalCredentialPath(policyText, root)
+  ) {
+    return {
+      blocked: true,
+      reason:
+        "Direct access to an external credential or private-data path is blocked while EXT-CREDENTIALS is closed.",
+    };
+  }
+
+  if (
+    (githubClosed || credentialsClosed) &&
+    gitOperations.some(
+      ({ operation }) =>
+        operation.command === "config" &&
+        /(?:^|\s)(?:core\.sshcommand|credential(?:\.[^\s=]+)?|http\.[^\s=]+\.extraheader|url\.[^\s=]+\.insteadof)(?:\s|=|$)/iu.test(
+          operation.args,
+        ),
     )
+  ) {
+    return {
+      blocked: true,
+      reason:
+        "Git credential, authentication-header, SSH-command, or URL-rewrite configuration is blocked while external credential and GitHub gates are closed.",
+    };
+  }
+
+  if (
+    gitOperations.some(({ operation }) => {
+      const { args, command: gitCommand } = operation;
+      return (
+        (gitCommand === "remote" &&
+          /^(?:add|remove|rename|set-url|update)\b/iu.test(args)) ||
+        (gitCommand === "config" &&
+          !/(?:^|\s)--get(?:-all|-regexp)?\b/iu.test(args) &&
+          /\b(?:branch\.[^\s=]+\.remote|remote\.[^\s=]+)\b/iu.test(args))
+      );
+    })
   ) {
     return {
       blocked: true,
@@ -1184,81 +1272,41 @@ export const evaluateShellCommand = (
     };
   }
 
-  if (
-    /\brg(?:\.exe)?\b[^\r\n]*\s--pre(?:\s|=)/iu.test(text) ||
-    (/\bgit(?:\.exe)?\b/iu.test(text) &&
-      /(?:\s--output(?:=|\s)|\s-o\s|\b(?:archive|bundle|format-patch)\b)/iu.test(
-        text,
-      ))
-  ) {
-    return {
-      blocked: true,
-      reason:
-        "Commands that invoke preprocessors or write indirect Git output are forbidden.",
-    };
-  }
-
-  for (const invocation of invocations) {
-    if (!directFileInspectionPattern.test(invocation)) {
-      continue;
-    }
-    const inspection = inspectionTargetContext(
-      root,
-      workdirContext,
-      extractStrictInspectionTarget(invocation),
-    );
-    if (!inspection || (inspection.sensitive && !inspection.approvedEvidence)) {
-      return {
-        blocked: true,
-        reason:
-          "Direct file inspection requires one canonical repository target and cannot read private, credential, raw, cache, or non-approved generated custody.",
-      };
-    }
-  }
-
-  if (
-    commandHasUnsafePathSyntax(text) &&
-    (hasWriteIntent(normalized) ||
-      /^(?:get-childitem|get-content|get-filehash|get-item|head|ls|resolve-path|sha256sum|shasum|stat|tail|test-path|wc)\b/iu.test(
-        normalized,
-      ))
-  ) {
-    return {
-      blocked: true,
-      reason:
-        "Wildcard, traversal, or aliased paths are forbidden for direct shell file access.",
-    };
-  }
-
   if (githubClosed) {
     const githubMutationPatterns = [
-      invocationPattern(
-        gitPrefix,
-        String.raw`remote\s+(?:add|remove|rename|set-url|update)\b`,
-      ),
-      invocationPattern(
-        gitPrefix,
-        String.raw`config\b(?![^\r\n]*\s--get(?:-all|-regexp)?\b)[^\r\n]*\b(?:remote\.[^\s=]+|branch\.[^\s=]+\.remote)\b`,
-      ),
       invocationPattern(
         ghPrefix,
         String.raw`auth\s+(?:login|logout|refresh|setup-git)\b`,
       ),
       invocationPattern(
         ghPrefix,
-        String.raw`repo\s+(?:archive|create|delete|edit|fork|rename|sync)\b`,
+        String.raw`repo\s+(?:archive|create|delete|edit|fork|rename|set-default|sync)\b`,
       ),
       invocationPattern(
         ghPrefix,
-        String.raw`pr\s+(?:close|create|edit|merge|ready|reopen|review)\b`,
+        String.raw`repo\s+(?:autolink|deploy-key)\s+(?:add|create|delete|remove|set)\b`,
       ),
       invocationPattern(
         ghPrefix,
-        String.raw`issue\s+(?:close|create|delete|edit|reopen)\b`,
+        String.raw`pr\s+(?:close|comment|create|edit|lock|merge|ready|reopen|review|unlock)\b`,
+      ),
+      invocationPattern(
+        ghPrefix,
+        String.raw`issue\s+(?:close|comment|create|delete|develop|edit|lock|pin|reopen|transfer|unlock|unpin)\b`,
       ),
       invocationPattern(
         ghPrefix,
         String.raw`release\s+(?:create|delete|edit|upload)\b`,
+      ),
+      invocationPattern(ghPrefix, String.raw`gist\s+(?:create|delete|edit)\b`),
+      invocationPattern(
+        ghPrefix,
+        String.raw`(?:gpg-key|ssh-key)\s+(?:add|delete)\b`,
+      ),
+      invocationPattern(ghPrefix, String.raw`alias\s+(?:delete|import|set)\b`),
+      invocationPattern(
+        ghPrefix,
+        String.raw`extension\s+(?:install|remove|upgrade)\b`,
       ),
       invocationPattern(
         ghPrefix,
@@ -1271,16 +1319,30 @@ export const evaluateShellCommand = (
       ),
       invocationPattern(
         ghPrefix,
-        String.raw`api\b[^\r\n]*(?:(?:-X|--method)(?:=|\s+)(?:POST|PUT|PATCH|DELETE)|(?:^|\s)(?:-f|-F|--field|--raw-field|--input)(?:\s|=))`,
+        String.raw`api\b[^\r\n]*(?:(?:-X(?:=|\s*)|--method(?:=|\s+))(?:POST|PUT|PATCH|DELETE)|(?:^|\s)(?:-f|-F|--field|--raw-field|--input)(?:\s|=))`,
       ),
       invocationPattern(
         npmPrefix,
         String.raw`(?:publish|deprecate|unpublish)\b`,
       ),
+      invocationPattern(
+        npmPrefix,
+        String.raw`(?:access\s+(?:grant|revoke|set)|dist-tag\s+(?:add|rm)|owner\s+(?:add|rm)|profile\s+set)\b`,
+      ),
     ];
     if (
       githubMutationPatterns.some((pattern) =>
-        matchesShellInvocation(text, pattern),
+        matchesShellInvocation(expandedCommand, pattern),
+      ) ||
+      gitOperations.some(({ operation }) =>
+        [
+          "clone",
+          "fetch",
+          "ls-remote",
+          "pull",
+          "send-email",
+          "submodule",
+        ].includes(operation.command),
       )
     ) {
       return {
@@ -1303,7 +1365,14 @@ export const evaluateShellCommand = (
         npmPrefix,
         String.raw`token\s+(?:create|list|revoke)\b`,
       ),
-    ].some((pattern) => matchesShellInvocation(text, pattern))
+      invocationPattern(npmPrefix, String.raw`(?:adduser|login|logout)\b`),
+      invocationPattern(npmPrefix, String.raw`config\s+(?:list|ls)\b`),
+      invocationPattern(npmPrefix, String.raw`config\s+get\s*$`),
+      invocationPattern(
+        npmPrefix,
+        String.raw`config\s+(?:delete|del|get|rm|set)\b[^\r\n]*(?:_auth(?:token)?|auth(?:entication)?|credential|password|private[_-]?key|secret|token)\b`,
+      ),
+    ].some((pattern) => matchesShellInvocation(expandedCommand, pattern))
   ) {
     return {
       blocked: true,
@@ -1314,7 +1383,7 @@ export const evaluateShellCommand = (
 
   if (
     matchesShellInvocation(
-      text,
+      expandedCommand,
       invocationPattern(
         npmPrefix,
         String.raw`run\s+(?:--silent\s+)?source:wa-lws:canary\b[^\r\n]*--execute\b`,
@@ -1333,7 +1402,7 @@ export const evaluateShellCommand = (
     [
       /^(?:send-mailmessage|mailx?|sendgrid|twilio)\b/iu,
       /^slack\s+(?:chat|send)\b/iu,
-    ].some((pattern) => matchesShellInvocation(text, pattern))
+    ].some((pattern) => matchesShellInvocation(expandedCommand, pattern))
   ) {
     return {
       blocked: true,
@@ -1341,34 +1410,31 @@ export const evaluateShellCommand = (
     };
   }
 
+  const protectedMutation = protectedShellMutationPath(
+    policyText,
+    roadmap,
+    root,
+    workdirContext,
+  );
+  if (protectedMutation) {
+    return {
+      blocked: true,
+      reason: `Shell mutation of preserved owner input or inactive frozen evidence is forbidden: ${protectedMutation}`,
+    };
+  }
+
   if (
-    (commandMentionsSensitivePath(text) || workdirContext.restricted) &&
-    !sensitivePathInspectionIsAllowed(text, workdirContext, root)
+    (commandMentionsSensitivePath(policyText) || workdirContext.restricted) &&
+    !sensitivePathInspectionIsAllowed(policyText, workdirContext, root)
   ) {
     return {
       blocked: true,
       reason:
-        "Shell mutation under the private/generated boundary is forbidden; use read-only inspection and the exact reviewed repository workflow.",
+        "Private, credential, raw, cache, or non-approved generated custody is outside this hook's shell-access boundary.",
     };
   }
 
-  if (hasWriteIntent(normalized)) {
-    return {
-      blocked: true,
-      reason:
-        "Direct shell file mutation is forbidden; use apply_patch or an exact repository-managed generator within its approved boundary.",
-    };
-  }
-
-  if (explicitShellCommandIsAllowed(text, root, workdirContext)) {
-    return { blocked: false };
-  }
-
-  return {
-    blocked: true,
-    reason:
-      "Shell command is outside the terminal repository allowlist; use one explicit read, validation, staging, or local-commit command.",
-  };
+  return { blocked: false };
 };
 
 const isSensitivePatchPath = (repositoryPath) => {

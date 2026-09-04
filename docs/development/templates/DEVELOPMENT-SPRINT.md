@@ -69,7 +69,7 @@ map before granting a lease.
 | --- | --- | --- | --- | --- |
 | `<command>` | `<changed surface>` | `<exit/count/hash>` | `<bounded claim>` | `<limit>` |
 
-The five lifecycle hooks are cooperative guardrails. Hook tests do not prove
+The installed lifecycle hooks are cooperative guardrails. Hook tests do not prove
 client trust/event delivery, product acceptance, source activation, browser
 behavior, or publication. Label browser and environment-installed validators
 optional until verified in the active session.

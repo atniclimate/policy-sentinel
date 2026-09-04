@@ -370,7 +370,7 @@ authority or completion. Do not nest delegation.
 
 The repository source-review skill is not applicable because this tranche must
 not introduce or access a source. If a source claim becomes necessary, stop;
-do not broaden the run. Use all five current hooks after reviewing/trusting the
+do not broaden the run. Use the installed hooks after reviewing/trusting the
 exact definitions. Their tests prove handler/config behavior only—not client
 trust, event delivery, security containment, acceptance, or completion.
 

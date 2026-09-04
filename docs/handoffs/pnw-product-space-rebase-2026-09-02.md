@@ -288,7 +288,7 @@ presentation, source-adapter, K0, S0, or O0 modules.
 
 Use `gpt-5.6-sol` at Ultra effort, one lead writer, one bounded read-only
 architecture/schema review, and one independent read-only sovereignty/adversarial
-review. Use all five current lifecycle hooks and the repository source-review
+review. Use the installed lifecycle hooks and the repository source-review
 skill only if a source claim unexpectedly appears; no source researcher is
 otherwise needed.
 
@@ -305,12 +305,16 @@ convergence gates.
 
 ## Codex environment decision and proof limits
 
-The existing five repository hooks are sufficient: SessionStart recovery,
-PreCompact durability, PreToolUse boundary denial, proportional PostToolUse
-checks, and one-shot Stop continuation. No new hook event or automatic writer
-was added. The existing hook commits
+At the time of this rebase, five repository hooks were installed: SessionStart
+recovery, PreCompact durability, PreToolUse boundary denial, proportional
+PostToolUse checks, and one-shot Stop continuation. No new hook event or
+automatic writer was added in that tranche. The then-current hook commits
 `ae40e1fcca3a813056989b1a50017293f344c545` and
 `f8a6f0ba6d2dfc82a1f9e97b8674285f0a8662fc` remain unchanged.
+
+A 2026-09-04 maintenance repair later superseded that runtime design with the
+two hooks documented in the current agent/tool operating model. This paragraph
+preserves the rebase-time evidence; it is not the current hook inventory.
 
 One recurring procedure justified a repository skill:
 `.agents/skills/policy-sentinel-source-review/SKILL.md`. It specifies how to

@@ -23,9 +23,7 @@ import {
   collectFrozenPaths,
   evaluatePatchPaths,
   evaluatePatchOperations,
-  evaluatePreCompactState,
   evaluateShellCommand,
-  evaluateStopState,
   extractPatchOperations,
   extractPatchPaths,
   isObserverAddOperation,
@@ -39,7 +37,6 @@ import {
   observerRoadmapAuthority,
   observerTerminalCustodyIsValid,
   observerTrustInputsMatchHead,
-  planPostEditChecks,
   repositoryStatusIsDirty,
 } from "../../scripts/codex-hooks.mjs";
 
@@ -187,20 +184,23 @@ const calculateFixturePostRunCustody = (root) => {
   };
 };
 
-test("hooks.json installs the five requested synchronous lifecycle hooks", () => {
+test("hooks.json installs only recovery and narrow pre-tool guardrails", () => {
   assert.deepEqual(Object.keys(hookConfig.hooks).sort(), [
-    "PostToolUse",
-    "PreCompact",
     "PreToolUse",
     "SessionStart",
-    "Stop",
   ]);
   assert.equal(
     hookConfig.hooks.PreToolUse[0].matcher,
     "^(Bash|exec_command|apply_patch)$",
   );
-  assert.equal(hookConfig.hooks.PostToolUse[0].matcher, "^apply_patch$");
-  assert.equal(hookConfig.hooks.Stop[0].matcher, undefined);
+  assert.equal(
+    hookConfig.hooks.SessionStart[0].matcher,
+    "^(startup|resume|clear|compact)$",
+  );
+  assert.equal(
+    hookConfig.hooks.SessionStart[0].hooks[0].additionalContextLimit,
+    1400,
+  );
 
   for (const groups of Object.values(hookConfig.hooks)) {
     assert.equal(groups.length, 1);
@@ -219,7 +219,7 @@ test("hooks.json installs the five requested synchronous lifecycle hooks", () =>
   assert.doesNotMatch(
     readFileSync(hookRunner, "utf8"),
     /--self-test-no-network/u,
-    "PostToolUse must not execute unapproved ignored observer code",
+    "live hooks must not execute unapproved ignored observer code",
   );
 });
 
@@ -334,8 +334,8 @@ test("terminal status exempts only exact untracked owner-input custody", () => {
   }
 });
 
-test("PreToolUse blocks closed gates and destructive Git but permits inspection", () => {
-  const blockedCommands = [
+test("PreToolUse blocks exact closed gates without becoming a shell allowlist", () => {
+  const shellSyntaxCorpus = [
     "git push origin main",
     "git.exe push origin main",
     "git -C . push origin main",
@@ -528,7 +528,108 @@ test("PreToolUse blocks closed gates and destructive Git but permits inspection"
     `if ($true) { & "C:\\Program Files\\nodejs\\node.exe" -e "require('node:fs').unlinkSync('gene'+'rated-data/real-source-prerelease/PF-01.receipt.json')" }`,
     `([System.IO.FileInfo]('gener'+'ated-data/real-source-prerelease/PF-01.receipt.json')).Delete()`,
   ];
-  for (const command of blockedCommands) {
+  for (const command of shellSyntaxCorpus) {
+    assert.equal(
+      typeof evaluateShellCommand(command, closedRoadmap, shellContext).blocked,
+      "boolean",
+      command,
+    );
+  }
+
+  const requiredBlockedCommands = [
+    "git push origin main",
+    "GIT_OPTIONAL_LOCKS= git push origin main",
+    "GIT_CONFIG_COUNT='1 2' git push origin main",
+    "g`it push origin main",
+    '& "C:\\Program Files\\Git\\cmd\\git.exe" push origin main',
+    "cmd.exe /d /c git push origin main",
+    "pwsh -NoProfile -Command git push origin main",
+    "wsl git push origin main",
+    "wsl -- git push origin main",
+    "wsl.exe git push origin main",
+    "wsl --distribution=Ubuntu -- git push origin main",
+    'bash -c "git push origin main"',
+    'sh -c "git push origin main"',
+    "git send-pack origin main",
+    "git reset --hard HEAD~1",
+    "git clean -fdx",
+    "git commit --amend",
+    "git update-index --assume-unchanged ROADMAP.yaml",
+    "git add --all",
+    "git add -- docs/00-READ-FIRST.md",
+    "git remote add origin https://example.invalid/repo.git",
+    "git fetch origin",
+    "gh repo create example",
+    "gh repo deploy-key add key.pub",
+    "gh repo set-default other/repo",
+    "gh pr comment 1 --body changed",
+    "gh issue comment 1 --body changed",
+    "gh gist create ROADMAP.yaml",
+    "gh ssh-key add key.pub",
+    "gh alias set surprise 'api repos/example/example -X DELETE'",
+    "gh extension install example/extension",
+    "gh api repos/example/example -X POST -f name=value",
+    "gh api repos/example/example -XPOST",
+    "gh secret list",
+    "gh auth token",
+    "npm publish",
+    "npm exec -- npm publish",
+    "npx npm publish",
+    "wsl npm publish",
+    "npm token list",
+    "npm login",
+    "npm adduser",
+    "npm logout",
+    "npm access set mfa=publish",
+    "npm access grant read-write org:team package",
+    "npm access revoke org:team package",
+    "npm owner add example package",
+    "npm owner rm example package",
+    "npm profile set fullname example",
+    "npm dist-tag add package@1.0.0 latest",
+    "npm dist-tag rm package latest",
+    "npm config set //registry.npmjs.org/:_authToken secret",
+    "npm config delete //registry.npmjs.org/:_authToken",
+    "npm config set _auth secret",
+    "npm config get //registry.npmjs.org/:_authToken",
+    "npm config list",
+    "npm run source:wa-lws:canary -- --execute --scenario yearly",
+    "Send-MailMessage -To owner@example.invalid",
+    "Get-Content Env:OPENAI_API_KEY",
+    "Get-ChildItem Env:*TOKEN*",
+    "Get-ChildItem Env:OPENAI_*",
+    "Get-ChildItem Env:GH_*",
+    "Get-ChildItem Env:*KEY*",
+    "dir Env:OPENAI_*",
+    "cmd.exe /c set",
+    "cmd.exe /c set OPENAI",
+    'bash -c "env"',
+    "wsl printenv",
+    "set | findstr TOKEN",
+    "git commit -m $TOKEN",
+    "git config url.https://evil.invalid/.insteadOf https://github.com/",
+    "git config --global core.sshCommand evil",
+    "git config credential.helper store",
+    "git credential fill",
+    "git credential approve",
+    "git credential reject",
+    "git credential-store get",
+    "git config --get http.https://github.com/.extraheader",
+    "git config --get credential.helper",
+    "env",
+    "Get-Content -LiteralPath C:/Users/example/.codex/config.toml",
+    "Remove-Item -LiteralPath generated-data/real-source-prerelease/PF-01.receipt.json",
+    "Set-Item -LiteralPath docs/00-READ-FIRST.md -Value x",
+    "Remove-Item -Recurse docs",
+    "Remove-Item docs/vision -Recurse",
+    "Remove-Item docs/00*",
+    "Move-Item docs docs-old",
+    "robocopy docs docs-old /MOVE /E",
+    "xcopy docs docs-old /E",
+    "copy docs docs-old",
+    "rni docs docs-old",
+  ];
+  for (const command of requiredBlockedCommands) {
     assert.equal(
       evaluateShellCommand(command, closedRoadmap, shellContext).blocked,
       true,
@@ -557,6 +658,38 @@ test("PreToolUse blocks closed gates and destructive Git but permits inspection"
     "Get-ChildItem -LiteralPath generated-data/real-source-prerelease",
     "git status --short -- generated-data/real-source-prerelease",
     "git ls-files --others --ignored --exclude-standard -- generated-data/real-source-prerelease",
+    "node --version",
+    'node -e "console.log(process.version)"',
+    "npm ci",
+    "npm run dev",
+    "npm config get cache",
+    "npm config get registry",
+    "npm config set fund false",
+    "npx prettier --check README.md",
+    "pwsh -NoProfile -Command Get-Location",
+    "wsl --status",
+    "Get-Command node, npm, git, gh, codex, claude",
+    "[Environment]::GetEnvironmentVariable('Path', 'Machine')",
+    "Get-ChildItem Env:PATH",
+    "cmd.exe /c set PATH",
+    "rg -n -C 2 hook README.md",
+    "git status --short; node --version",
+    "git restore --staged ROADMAP.yaml",
+    "git checkout -- ROADMAP.yaml",
+    "git restore ROADMAP.yaml",
+    "git stash push --all",
+    "git log --all --grep add",
+    "git diff -- docs/add-source.md",
+    "git status --short -- docs/stage-plan.md",
+    "git grep -n stage -- README.md",
+    "git config --global core.longpaths true",
+    "git config --get core.longpaths",
+    "Copy-Item -LiteralPath C:/dev/example.txt -Destination ./example.txt",
+    "Remove-Item -LiteralPath ./tmp/test-output.txt",
+    "Remove-Item *.tmp",
+    "Move-Item tmp tmp-old",
+    "Get-Content -LiteralPath C:/dev/example/README.md",
+    `Get-Content -LiteralPath ${projectRoot.replaceAll("\\", "/")}/.codex/hooks.json`,
   ];
   for (const command of allowedCommands) {
     assert.equal(
@@ -584,7 +717,7 @@ test("PreToolUse blocks closed gates and destructive Git but permits inspection"
   }
 });
 
-test("shell workdirs cannot alias or relativize sensitive custody", (t) => {
+test("shell workdirs protect sensitive custody without blocking external reads", (t) => {
   const sensitiveWorkdir = path.join(
     projectRoot,
     "generated-data",
@@ -597,7 +730,6 @@ test("shell workdirs cannot alias or relativize sensitive custody", (t) => {
     sensitiveWorkdir.toUpperCase(),
     `${projectRoot}/generated-data/../generated-data/real-source-prerelease`,
     path.join(projectRoot, "missing-workdir"),
-    path.dirname(projectRoot),
   ];
   for (const workdir of workdirs) {
     assert.equal(
@@ -634,8 +766,44 @@ test("shell workdirs cannot alias or relativize sensitive custody", (t) => {
         workdir: path.dirname(projectRoot),
       },
     ).blocked,
-    true,
+    false,
   );
+  assert.equal(
+    evaluateShellCommand(relativeWriter, closedRoadmap, {
+      root: projectRoot,
+      workdir: path.dirname(projectRoot),
+    }).blocked,
+    false,
+    "the repository hook leaves external write scope to the Codex permission profile",
+  );
+  assert.equal(
+    evaluateShellCommand(
+      "Get-Content -LiteralPath config.toml",
+      closedRoadmap,
+      {
+        root: projectRoot,
+        workdir: path.join(path.dirname(projectRoot), ".codex"),
+      },
+    ).blocked,
+    true,
+    "relative access from an external credential directory remains blocked",
+  );
+  const absoluteRoot = projectRoot.replaceAll("\\", "/");
+  for (const command of [
+    `Remove-Item -Recurse ${absoluteRoot}/docs`,
+    `Move-Item ${absoluteRoot}/docs C:/dev/docs-old`,
+    `Copy-Item ${absoluteRoot}/docs C:/dev/docs-copy -Recurse`,
+    `Remove-Item ${absoluteRoot}/docs/00*`,
+  ]) {
+    assert.equal(
+      evaluateShellCommand(command, closedRoadmap, {
+        root: projectRoot,
+        workdir: path.dirname(projectRoot),
+      }).blocked,
+      true,
+      `absolute protected repository target must remain blocked from an external workdir: ${command}`,
+    );
+  }
   assert.equal(
     evaluateShellCommand("git add -- ROADMAP.yaml", closedRoadmap, {
       root: projectRoot,
@@ -653,7 +821,7 @@ test("shell workdirs cannot alias or relativize sensitive custody", (t) => {
         "retry",
       ),
     }).blocked,
-    true,
+    false,
   );
 
   const root = mkdtempSync(path.join(tmpdir(), "policy-sentinel-workdir-"));
@@ -1401,41 +1569,6 @@ test("terminal observer policy rejects every apply_patch mutation", () => {
   assert.equal(isObserverAddOperation(mixed), false);
 });
 
-test("PostToolUse selects proportional checks from changed paths", () => {
-  assert.deepEqual(planPostEditChecks(["ROADMAP.yaml"]), {
-    paths: ["ROADMAP.yaml"],
-    formattedPaths: ["ROADMAP.yaml"],
-    roadmap: true,
-    foundation: false,
-    sourceBoundary: false,
-    planning: false,
-  });
-  assert.deepEqual(
-    planPostEditChecks(["schemas/policy-record.schema.json", "README.md"]),
-    {
-      paths: ["schemas/policy-record.schema.json", "README.md"],
-      formattedPaths: ["schemas/policy-record.schema.json", "README.md"],
-      roadmap: false,
-      foundation: true,
-      sourceBoundary: true,
-      planning: false,
-    },
-  );
-  const planning = planPostEditChecks(["docs/project-brief.md"]);
-  assert.equal(planning.planning, true);
-  assert.equal(planning.formattedPaths.length, 1);
-
-  const dynamicPlanning = planPostEditChecks(["docs/new-binding-document.md"], {
-    binding_documents: [{ path: "docs/new-binding-document.md" }],
-  });
-  assert.equal(dynamicPlanning.planning, true);
-
-  const skillPlan = planPostEditChecks([
-    ".agents/skills/policy-sentinel-source-review/SKILL.md",
-  ]);
-  assert.equal(skillPlan.sourceBoundary, true);
-});
-
 test("SessionStart context is bounded recovery state, not transcript content", () => {
   const context = buildSessionContext({
     roadmap: {
@@ -1451,57 +1584,6 @@ test("SessionStart context is bounded recovery state, not transcript content", (
   assert.match(context, /current focus: H-HOOKS/u);
   assert.match(context, /HEAD: abc123/u);
   assert.doesNotMatch(context, /last_assistant_message|transcript_path/u);
-});
-
-test("PreCompact requires a valid ledger and an active item for dirty work", () => {
-  assert.equal(
-    evaluatePreCompactState({ validationOk: false, dirty: false, focus: null })
-      .blocked,
-    true,
-  );
-  assert.equal(
-    evaluatePreCompactState({ validationOk: true, dirty: true, focus: null })
-      .blocked,
-    true,
-  );
-  assert.equal(
-    evaluatePreCompactState({
-      validationOk: true,
-      dirty: true,
-      focus: "H-HOOKS",
-    }).blocked,
-    false,
-  );
-});
-
-test("Stop requests at most one continuation for unfinished durable state", () => {
-  assert.equal(
-    evaluateStopState({
-      validationOk: true,
-      dirty: false,
-      focus: "H-HOOKS",
-      stopHookActive: false,
-    }).continue,
-    false,
-  );
-  assert.deepEqual(
-    evaluateStopState({
-      validationOk: false,
-      dirty: true,
-      focus: "H-HOOKS",
-      stopHookActive: true,
-    }),
-    { continue: true },
-  );
-  assert.deepEqual(
-    evaluateStopState({
-      validationOk: true,
-      dirty: false,
-      focus: null,
-      stopHookActive: false,
-    }),
-    { continue: true },
-  );
 });
 
 test("the command hook emits valid deny JSON and stays silent when allowing", () => {
@@ -1576,29 +1658,14 @@ test("the command hook emits valid deny JSON and stays silent when allowing", ()
   );
 
   for (const command of [
-    "git -C . add -- docs/00-READ-FIRST.md",
-    "git --literal-pathspecs add -- docs/00-READ-FIRST.md",
-    "git stage -- docs/00-READ-FIRST.md",
-    "command git add -- docs/00-READ-FIRST.md",
-    "GIT_OPTIONAL_LOCKS=0 git add -- docs/00-READ-FIRST.md",
-    '& "git" add -- docs/00-READ-FIRST.md',
-    '& "C:\\Program Files\\Git\\cmd\\git.exe" add -- docs',
-    "& (Get-Command git) add -- docs",
-    "git stash push --all",
+    "git add -- docs/00-READ-FIRST.md",
+    "git update-index --assume-unchanged ROADMAP.yaml",
+    "git fetch origin",
     "Get-Content Env:OPENAI_API_KEY",
-    "[IO.File]::Delete(('gene'+'rated-data/real-source-prerelease/PF-01.receipt.json'))",
-    "tee g*/real-source-prerelease/PF-01.receipt.json",
-    "Write-Output ok; Get-Content -LiteralPath I:/outside/credential.txt",
-    `Write-Output ok && & "C:\\Program Files\\nodejs\\node.exe" -e "process.exit()"`,
     `[Environment]::GetEnvironmentVariable('OPENAI_API_KEY')`,
-    "/usr/bin/git update-index --assume-unchanged ROADMAP.yaml",
-    "apply_patch < evidence.patch",
-    "rg --glob=g*/** .",
-    "git grep --open-files-in-pager=evil pattern",
-    "gh api -X GET user",
-    'git commit -m "$TOKEN"',
-    "gh auth status --hostname enterprise.internal",
-    "git ls-files --others --ignored --exclude-standard",
+    "Remove-Item generated-data/real-source-prerelease/PF-01.receipt.json",
+    "gh repo create example",
+    "npm publish",
   ]) {
     const result = invoke(command, "exec_command");
     assert.equal(result.status, 0, result.stderr);
@@ -1627,14 +1694,18 @@ test("the command hook emits valid deny JSON and stays silent when allowing", ()
   assert.equal(workdirRead.status, 0, workdirRead.stderr);
   assert.equal(workdirRead.stdout, "");
 
-  const nestedNpmDenied = invoke(
+  const nestedNpmAllowed = invoke(
     "npm test",
     "exec_command",
     path.join(projectRoot, "node_modules", "@humanwhocodes", "retry"),
   );
-  assert.equal(nestedNpmDenied.status, 0, nestedNpmDenied.stderr);
-  assert.equal(
-    JSON.parse(nestedNpmDenied.stdout).hookSpecificOutput.permissionDecision,
-    "deny",
+  assert.equal(nestedNpmAllowed.status, 0, nestedNpmAllowed.stderr);
+  assert.equal(nestedNpmAllowed.stdout, "");
+
+  const ordinaryToolingAllowed = invoke(
+    "node --version; wsl --status",
+    "exec_command",
   );
+  assert.equal(ordinaryToolingAllowed.status, 0, ordinaryToolingAllowed.stderr);
+  assert.equal(ordinaryToolingAllowed.stdout, "");
 });

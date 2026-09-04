@@ -729,19 +729,20 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Preserve the completed portfolio evidence, immutable request ledger, exact
-    43-file ignored custody, terminal hook, and handoff without starting an
-    unauthorized successor tranche.
+    Preserve the completed repository and portfolio evidence with bounded
+    recovery context and narrow closed-gate hooks, without starting an
+    unauthorized product or source tranche.
   terminal_reason: >-
-    PNW-05 source-authority portfolio discovery is complete. The local
-    real-source prerelease remains evidence-blocked, and the dependency-ready
-    broad PNW-05 source pack requires separate owner authorization.
+    The 2026-09-04 hook and Windows-environment repair passed adversarial review
+    and serialized full validation. The real-source prerelease remains
+    evidence-blocked, and the dependency-ready broad PNW-05 source pack still
+    requires separate owner authorization.
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 84f02fadf056ac3b7d8bd4066ea53fc111853dba
+  last_durable_checkpoint: 1b8074998b6b7a1f246c638de2860a927834b602
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -921,17 +922,18 @@ work_items:
         validated roadmap and Git handoff without reading or retaining the chat
         transcript.
       - >-
-        Pre-compaction and one-shot stop hooks detect invalid ledger state,
-        unintended dirty handoffs, and unfinished work without editing the
-        roadmap, committing, advancing work, or looping indefinitely.
+        Built-in compaction remains unblocked, and post-compaction SessionStart
+        recovery restores bounded durable context without a competing token
+        watcher, automatic writer, or stop/continuation loop.
       - >-
-        One changed-file dispatcher runs only proportional local checks for
-        roadmap, governance-document, schema, configuration, and fixture edits;
-        it never launches the full suite after every patch.
+        Focused and full validation remain explicit repository commands rather
+        than synchronous post-edit hooks; npm run check includes the focused
+        hook contract suite.
       - >-
         Pre-tool-use policy denies objectively closed remote, publication,
-        credential, secret, canary, destructive-history, and frozen-contract
-        mutations while retaining read-only local and approved-source work.
+        credential, secret, canary, protected-custody, unsafe-staging, and
+        high-risk destructive-history operations without placing ordinary local
+        development commands behind a terminal allowlist.
       - >-
         Hook configuration, Windows execution, JSON event/output contracts,
         failure behavior, path handling, and false-positive boundaries have
@@ -1047,6 +1049,35 @@ work_items:
         but the repository launcher defect and its exact exit 1 were
         independently reproducible. Hook trust remains hash-bound and requires
         normal owner review after the configuration change.
+      - >-
+        Owner-authorized Windows maintenance on 2026-09-04 replaced the live
+        five-hook policy with bounded SessionStart recovery and a narrow
+        PreToolUse closed-gate guard. Blocking PreCompact, synchronous
+        PostToolUse validation, and Stop continuation are no longer installed;
+        ordinary PowerShell, Node, WSL, Git, inspection, copy, move, and
+        explicitly requested cleanup commands are no longer subject to a
+        terminal default-deny allowlist. Exact remote/publication, credential,
+        secret, spent-canary, notification, protected-custody, unsafe-staging,
+        and destructive-history boundaries remain denied. npm run hooks:test
+        passed 18/18, including the parsed Windows launcher, positive command
+        coverage, exact negative gates, and custody regressions.
+      - >-
+        The serialized npm run check passed on 2026-09-04: formatting, the
+        18-test hook contract, lint, type checking, roadmap/backbone/foundation
+        validation, source-boundary scanning at 428 tracked paths and 452 source
+        files, 13 analyzed-corpus tests, 88 Vitest files and 1407 tests, a
+        synthetic-only production build, and artifact validation at 3 records,
+        exactly 575 synthetic Nations, and 8 assets; build ID
+        synthetic-bbf13045030a01cec800. No product/source tranche, provider
+        access, real data, remote, publication, credential, or gate change was
+        included.
+      - >-
+        A final independent adversarial review on 2026-09-04 returned PASS after
+        exercising nested WSL, bash, cmd.exe, and PowerShell command forms; Git,
+        GitHub CLI, and npm remote and credential mutations; protected-path
+        ancestor and glob mutations; and the corresponding intentional local
+        development allowances. It found no remaining material sovereignty,
+        privacy, provenance, custody, remote/publication, or liveness defect.
 
   - id: B1-APP
     priority: 10
@@ -5048,6 +5079,16 @@ work_items:
         Commit 8fadd1cdd2c866e639109e93c75f6d6096035d2f records the
         independently reviewed repository-backbone content as "docs: align
         repository backbone for PNW long run".
+      - >-
+        The bounded 2026-09-04 maintenance checkpoint reconciled the current
+        hook configuration, README, operating model, active templates,
+        historical handoff qualification, full-check command surface, and
+        roadmap validator. The validator now permits one active repository
+        maintenance item while a separately unauthorized PNW root remains ready,
+        with a focused regression proving that the exception cannot activate PNW
+        work. Full validation passed with the counts and synthetic build
+        identity recorded under H-HOOKS; all product, source, owner, external,
+        and publication gates remained unchanged.
 
   - id: RELEASE-LICENSE
     priority: 200
