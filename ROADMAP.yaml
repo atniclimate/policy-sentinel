@@ -741,7 +741,7 @@ current_focus:
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 7b6e5df2d41427c9e16613f095fc77424fab2bb1
+  last_durable_checkpoint: e33408b26d27494cfdee41bdf51b49dddab157e6
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -4653,6 +4653,15 @@ work_items:
         exact-state re-review then identified the remaining split-line roadmap
         portfolio occurrence. No source, request, evidence, artifact, acceptance
         decision, or external gate changed.
+      - >-
+        Commit 30945fb1ac6a414cc2ec946bb171b4593adf4438 bound that repair for
+        exact-state review. The sovereignty reviewer caught the split-line
+        roadmap occurrence described above; commit
+        e33408b26d27494cfdee41bdf51b49dddab157e6 now aligns it with D-061 and
+        the terminal handoff: a future ATNI single-resolution metadata-and-link
+        tranche ranks second, and no exact resolution identity is selected. No
+        source, request, evidence, artifact, acceptance decision, or external
+        gate changed.
 
   - id: PNW-05-SOURCE-PACK
     priority: 141

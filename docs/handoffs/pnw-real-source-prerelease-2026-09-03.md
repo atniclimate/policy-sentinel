@@ -225,8 +225,8 @@ discipline remain necessary.
 ## Complete authorized-lane commit chain
 
 The following descendants of the starting checkpoint are the complete chain
-through the final authority-wording repair. The later terminal binding commit
-is named in the terminal report:
+through the split-line authority-wording repair. The later terminal binding
+commit is named in the terminal report:
 
 ```text
 c14dc7d4b69959d94745e61078ad804b3524f999 governance: authorize local real-source prerelease lane
@@ -266,6 +266,8 @@ e7d385ed960f3924a7ac39ee036ec20d8f298c2a fix: preserve hash route on skip naviga
 7b14b2570f2ada6691cfd3c2af4a0e10ecc4a31b docs: repair terminal authority wording
 52fde1209cd91ab2741b99aecb6ca4b3b091ac87 docs: bind terminal review repairs
 7b6e5df2d41427c9e16613f095fc77424fab2bb1 docs: close remaining authority wording
+30945fb1ac6a414cc2ec946bb171b4593adf4438 docs: bind final authority repair
+e33408b26d27494cfdee41bdf51b49dddab157e6 docs: close split-line ATNI implication
 ```
 
 ## Exact tracked path manifest
