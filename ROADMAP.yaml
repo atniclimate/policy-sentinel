@@ -8,8 +8,9 @@ project:
     and accepted; Federal Register Tier-1 qualification evidence-blocked after
     ten bounded documentation/evidence requests because R7 changed digest; the
     narrow source-neutral PNW-07 analyzed-corpus child is complete and real
-    inputs fail closed; source-authority portfolio discovery is active while
-    FR-A1 and all admission, activation, and publication authority remain closed
+    inputs fail closed; source-authority portfolio evidence and cleanup are
+    complete while terminal validation is active; FR-A1 and all admission,
+    activation, and publication authority remain closed
   updated_on: "2026-09-04"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -729,18 +730,17 @@ baseline:
 current_focus:
   work_item: PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY
   objective: >-
-    First author, commit, and independently approve the portfolio hook and
-    one-shot observer controls; only then issue the already frozen PF-01 through
-    PF-17 first attempts, classify every owner-named candidate, and rank exactly
-    two next candidates without admitting, activating, acquiring a corpus from,
-    or publishing any source. No PF request is launch-ready at this checkpoint.
+    Preserve the completed one-shot portfolio evidence and exact request ledger,
+    validate the committed terminal hook/custody checkpoint, and finish the
+    local closeout report without issuing, admitting, activating, acquiring a
+    corpus from, or publishing any source.
   terminal_reason: null
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: a7a266c42a822ecb6ef400a6a1c3d31d0a17efdc
+  last_durable_checkpoint: b60a7a34097ec7fd83d6ec9ce1634633ef961d3a
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -4578,6 +4578,30 @@ work_items:
         APPROVE_OBSERVER_DELETE_TRANSITION for those exact bytes and the bound
         report/evidence custody. The transition must be committed and pass a
         production preflight before the one Delete can occur.
+      - >-
+        Commit 867fb6c16a21f7034c6196d2c5eaa9c37c7d5f16 passed the exact
+        preflight. The uninterrupted manual Pre/Delete/Post equivalence returned
+        Pre exit 0 with empty output/error, deleted only the disposable
+        observer, and returned Post exit 0 with empty error and exactly 249
+        expected JSON bytes. Terminal generated custody is 43 files, 49,730
+        bytes, with the 5,357-byte canonical manifest SHA-256
+        73401fdc8c060d443cab0e521c0fc9ae9ec067bcf0f1e75131f0411d2e460546;
+        observer and FR-A1 paths are absent and the 23 owner inputs remain
+        exact.
+      - >-
+        Terminal hook commit b60a7a34097ec7fd83d6ec9ce1634633ef961d3a removes
+        the spent Delete exception, freezes observer and owner-input patches,
+        binds canonical reads/workdirs/staging, and defaults unknown or compound
+        shell commands to denial. Its 76,179-byte hook SHA-256 is
+        d0edcca5d6e638f01e0b12abcd0db71f523b7f3b9ebf46f2c5cd4838bcef21eb; its
+        55,538-byte test SHA-256 is
+        11a170599961b06d33b7a23762e4364aafa246d6d7cb2d66f08485fdf5fdff32; their
+        199-byte manifest SHA-256 is
+        a2d8a5065cb62541565af237703bdf568c87475c7fcc001fb690e71e87190ce0.
+        Focused tests passed 20/20 and three exact-byte reviewers returned
+        APPROVE_TERMINAL_HOOK_TRANSITION after finite bypass repair. The hook is
+        a repository guardrail, not an OS sandbox; custody validation remains
+        mandatory. No source or external authority changed.
 
   - id: PNW-05-SOURCE-PACK
     priority: 141
@@ -5301,11 +5325,10 @@ next_actions:
   - order: 7
     work_item: PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY
     action: >-
-      First author, commit, and independently approve the portfolio hook and
-      one-shot observer controls. Only then perform PF-01 through PF-17 bounded
-      read-only authority/interface discovery; classify every candidate and rank
-      exactly two without admission or activation. No PF request is launch-ready
-      at this checkpoint.
+      Preserve the completed PF-01-through-PF-17 evidence, immutable cumulative
+      request ledger, terminal 43-file custody, and closed source/external
+      gates; finish local validation and the terminal handoff without another
+      request.
   - order: 8
     work_item: PNW-05-SOURCE-PACK
     action: >-

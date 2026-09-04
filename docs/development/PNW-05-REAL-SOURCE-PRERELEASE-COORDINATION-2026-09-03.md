@@ -1679,3 +1679,56 @@ transition must then remove the spent Delete exception and bind the 43-file
 terminal custody. This amendment grants no observer execution, request, retry,
 provider fact, source qualification/admission/activation, health, LKG, artifact,
 deployment, publication, or modification of owner inputs.
+
+### Completed Delete dispatch and terminal hook custody
+
+Commit `867fb6c16a21f7034c6196d2c5eaa9c37c7d5f16` was the committed
+Delete-transition checkpoint. At that exact `HEAD`, the lead proved the 44-file
+pre-state, report and trust custody, the exact 124-byte descriptor, and the
+transition checkpoint. The non-reusable dispatch then completed without an
+intervening operation: Pre exited zero with empty standard output and error;
+`apply_patch` deleted only
+`generated-data/real-source-prerelease/observe-source-authority-portfolio.mjs`;
+Post exited zero with empty standard error and exactly 249 bytes of the expected
+successful post-custody JSON on standard output. The exception expired at Post
+and was not replayed.
+
+The resulting generated-data custody is exactly 43 files and 49,730 total
+bytes. Its canonical LF-terminated TSV manifest is 5,357 bytes at SHA-256
+`73401fdc8c060d443cab0e521c0fc9ae9ec067bcf0f1e75131f0411d2e460546`.
+Every entry remains canonical, regular, single-link, root-ignored, untracked,
+index-absent, and `HEAD`-absent. The disposable observer and both `FR-A1` paths
+are absent. All 23 preserved owner-direction inputs retain their exact hashes,
+remain untracked and non-ignored, and are absent from the index and `HEAD`.
+
+The terminal hook transition is commit
+`b60a7a34097ec7fd83d6ec9ce1634633ef961d3a`. Its exact reviewed LF files and
+manifest are:
+
+| Path | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `scripts/codex-hooks.mjs` | 76,179 | `d0edcca5d6e638f01e0b12abcd0db71f523b7f3b9ebf46f2c5cd4838bcef21eb` |
+| `tests/hooks/codex-hooks.test.mjs` | 55,538 | `11a170599961b06d33b7a23762e4364aafa246d6d7cb2d66f08485fdf5fdff32` |
+
+The two-row LF manifest is 199 bytes at SHA-256
+`a2d8a5065cb62541565af237703bdf568c87475c7fcc001fb690e71e87190ce0`.
+The focused suite passed 20 of 20 and lint passed. Independent source/evidence,
+security, and sovereignty reviewers each returned
+`APPROVE_TERMINAL_HOOK_TRANSITION`; the source review replayed 81 deny and 41
+required-allow evaluator/process probes with zero mismatch. Finite findings
+were repaired before the final freeze: the hook now binds the event workdir,
+protects owner-input patches and staging, freezes every observer patch, permits
+only canonical generated-evidence inspection, and uses a single-command
+positive allowlist for exact repository reads, validation, staging, and local
+commit operations. Shell aliases, wrappers, compound syntax, variable
+expansion, interpreters, patch writers, unbounded Git/GitHub/ripgrep reads,
+remote operations, and unknown commands fail closed.
+
+This hook remains a repository workflow guardrail, not an operating-system
+sandbox. It evaluates declared command text and workdir; it cannot attest every
+behavior of an already trusted dependency or child process. Exact custody
+validation, committed trust inputs, and uncontended process discipline remain
+required. The transition creates no request, retry, provider fact, source
+qualification/admission/activation, corpus, health, LKG, artifact eligibility,
+deployment, publication, credential, private-data, AI, or notification
+authority.
