@@ -41,9 +41,11 @@ requires a new exact owner authorization.
   terminal hook closure, validation, roadmap/handoff reconciliation, and final
   narration.
 - The final pre-handoff implementation checkpoint is
-  `e7d385ed960f3924a7ac39ee036ec20d8f298c2a`. The closeout and follow-up
-  ledger commits are later descendants and are named by the live roadmap and
-  terminal report, avoiding a false self-reference in this file.
+  `e7d385ed960f3924a7ac39ee036ec20d8f298c2a`. Terminal handoff commit
+  `7e2095fee329a66121d9aac626386f0b70e88220` changes exactly the roadmap,
+  backbone, continuation prompt, and this handoff. The follow-up ledger commit
+  is the final live `HEAD` named by the terminal report, avoiding a false self-
+  reference in that commit.
 - There is one worktree on `main` and no configured remote. No remote mutation,
   push, CI, Pages, deployment, release, publication, account, credential,
   provider-term acceptance, paid call, contact, private-data operation, AI
@@ -212,8 +214,8 @@ discipline remain necessary.
 
 ## Complete authorized-lane commit chain
 
-The following descendants of the starting checkpoint are the complete
-pre-handoff chain:
+The following descendants of the starting checkpoint are the complete chain
+through the terminal handoff commit:
 
 ```text
 c14dc7d4b69959d94745e61078ad804b3524f999 governance: authorize local real-source prerelease lane
@@ -247,6 +249,7 @@ ae15696f7cdaa08710e3c2a31855206015a3ef17 docs: bind one-shot hook dispatch
 b60a7a34097ec7fd83d6ec9ce1634633ef961d3a fix: close terminal hook custody
 325600b90336be3d8394d2c865bf415c0b4ee417 docs: record terminal observer custody
 e7d385ed960f3924a7ac39ee036ec20d8f298c2a fix: preserve hash route on skip navigation
+7e2095fee329a66121d9aac626386f0b70e88220 docs: close real-source prerelease checkpoint
 ```
 
 ## Exact tracked path manifest

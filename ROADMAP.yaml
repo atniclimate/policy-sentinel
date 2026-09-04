@@ -741,7 +741,7 @@ current_focus:
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: e7d385ed960f3924a7ac39ee036ec20d8f298c2a
+  last_durable_checkpoint: 7e2095fee329a66121d9aac626386f0b70e88220
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -4615,6 +4615,18 @@ work_items:
         31 field-level provenance rows, result-card return focus, and one-record
         CSV export. The displayed application and artifact remain explicitly
         synthetic.
+      - >-
+        Terminal handoff commit 7e2095fee329a66121d9aac626386f0b70e88220
+        reconciles ROADMAP.yaml, the project backbone, continuation prompt, and
+        the authorized terminal handoff in exactly four paths. Its integrated
+        npm run check passed all 13 analyzed-corpus Node tests and all 1,407
+        Vitest tests in 88 files before producing only the validated synthetic
+        3-record, 575-Nation, 8-asset artifact. Two fixed-input artifact builds
+        matched build ID synthetic-500f7abdc21883fb7b80 and canonical nine-file
+        manifest SHA-256
+        ae49545c4ba95bd87f00b993b3ca3c08766e8cb367d06037bb8cd1e72f3b5c7f. The
+        validated terminal ledger has 35 complete, zero in progress, one ready,
+        17 blocked, zero deferred, and 16 not-started items.
 
   - id: PNW-05-SOURCE-PACK
     priority: 141
