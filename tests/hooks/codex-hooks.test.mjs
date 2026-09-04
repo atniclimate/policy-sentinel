@@ -29,18 +29,15 @@ import {
   extractPatchOperations,
   extractPatchPaths,
   isObserverAddOperation,
-  isObserverDeleteOperation,
   normalizeRepositoryPath,
   observerCustodyContract,
-  observerDeleteDescriptorIsExact,
   observerExecutionCustodyIsValid,
   observerExecutionEvidenceIsValid,
   observerParentDirectoriesAreCanonical,
   observerPostAddCustodyIsValid,
-  observerPostDeleteCustodyIsValid,
   observerPreAddCustodyIsValid,
-  observerPreDeleteCustodyIsValid,
   observerRoadmapAuthority,
+  observerTerminalCustodyIsValid,
   observerTrustInputsMatchHead,
   planPostEditChecks,
   repositoryStatusIsDirty,
@@ -51,6 +48,7 @@ const projectRoot = path.resolve(
   "../..",
 );
 const hookRunner = path.resolve(projectRoot, "scripts/codex-hooks.mjs");
+const shellContext = Object.freeze({ root: projectRoot, workdir: projectRoot });
 const hookConfig = JSON.parse(
   readFileSync(path.resolve(projectRoot, ".codex/hooks.json"), "utf8"),
 );
@@ -310,27 +308,198 @@ test("PreToolUse blocks closed gates and destructive Git but permits inspection"
     "git push origin main",
     "git.exe push origin main",
     "git -C . push origin main",
+    "/usr/bin/git push origin main",
+    "GIT_OPTIONAL_LOCKS= git push origin main",
+    "GIT_CONFIG_COUNT='1 2' git push origin main",
+    'GIT_CONFIG_COUNT="1 2" /usr/bin/git reset --hard HEAD',
+    "g`it push origin main",
+    "g^it push origin main",
+    'g""it push origin main',
+    "g''it push origin main",
     "git status --short; git.exe push origin main",
     "git reset --hard HEAD~1",
+    "git reset -- ROADMAP.yaml",
+    "git restore --staged ROADMAP.yaml",
+    "git rm --cached ROADMAP.yaml",
+    "git stash push --all",
     "git checkout -- ROADMAP.yaml",
+    "git checkout HEAD -- ROADMAP.yaml",
+    "git add --force -- generated-data/real-source-prerelease/PF-01.receipt.json",
+    "git add -f .",
+    "git add --all",
+    "git add ./",
+    "git add -- :/",
+    "git add *",
+    "git add -u",
+    "git add --update",
+    "git add -N ROADMAP.yaml",
+    "git add --intent-to-add ROADMAP.yaml",
+    "git add --renormalize ROADMAP.yaml",
+    "git add --pathspec-from-file=paths.txt",
+    "git add -- docs",
+    "git add -- docs/00-READ-FIRST.md",
+    "git -C . add -- docs/00-READ-FIRST.md",
+    "git -c core.autocrlf=false add -- docs/00-READ-FIRST.md",
+    "git --no-pager add -- docs/00-READ-FIRST.md",
+    "git --literal-pathspecs add -- docs/00-READ-FIRST.md",
+    "git --exec-path=. add -- docs/00-READ-FIRST.md",
+    "git stage -- docs/00-READ-FIRST.md",
+    "command git add -- docs/00-READ-FIRST.md",
+    '& "git" add -- docs/00-READ-FIRST.md',
+    "& 'git.exe' stage -- docs/00-READ-FIRST.md",
+    '& "C:\\Program Files\\Git\\cmd\\git.exe" add -- docs',
+    "& (Get-Command git) add -- docs",
+    "command env GIT_OPTIONAL_LOCKS=0 git add -- docs/00-READ-FIRST.md",
+    "GIT_OPTIONAL_LOCKS=0 git add -- docs/00-READ-FIRST.md",
+    "git add -- ROADMAP.yaml roadmap.yaml",
+    "git update-index --assume-unchanged ROADMAP.yaml",
+    "/usr/bin/git update-index --assume-unchanged ROADMAP.yaml",
+    '"C:\\Program Files\\Git\\cmd\\git.exe" update-index --assume-unchanged ROADMAP.yaml',
+    "git --exec-path=/usr/lib/git-core update-index --skip-worktree ROADMAP.yaml",
+    "/usr/bin/git commit --amend",
+    "git -C .. status --short",
+    "git -C I:/outside-repository commit -m local",
+    "git --git-dir I:/outside/gitmeta --work-tree I:/outside/work commit -m local",
+    "git apply evidence.patch",
+    "nice git add -- docs/00-READ-FIRST.md",
+    'X="a b" git apply evidence.patch',
+    "patch -p1 < evidence.patch",
+    "/usr/bin/patch -p1 < evidence.patch",
+    "C:\\tools\\patch.exe -p1 < evidence.patch",
+    "busybox patch -p1 < evidence.patch",
+    "apply_patch < evidence.patch",
+    "apply_patch.bat < evidence.patch",
     "git remote add origin https://example.invalid/repo.git",
     "git config remote.origin.url https://example.invalid/repo.git",
     "gh auth login",
     "gh repo create example",
+    "/usr/bin/gh repo create example",
+    "GH_DEBUG=1 gh repo create example",
     "gh.exe repo create example",
     "gh api repos/example/example -X POST -f name=value",
     "gh secret list",
     "gh variable list",
     "gh auth token",
     "npm publish",
+    "/usr/bin/npm publish",
     "npm.cmd publish",
     "npm token list",
     "npm run source:wa-lws:canary -- --execute --scenario yearly",
+    "npm run --silent source:wa-lws:canary -- --help",
     "Send-MailMessage -To owner@example.invalid",
+    "Remove-Item -LiteralPath generated-data/real-source-prerelease/PF-01.receipt.json",
+    "Set-Content -LiteralPath generated-data/real-source-prerelease/observe-source-authority-portfolio.mjs -Value x",
+    "Move-Item -LiteralPath generated-data/real-source-prerelease/PF-01.attempt -Destination generated-data/real-source-prerelease/x",
+    "rm -- ./generated-data/real-source-prerelease/PF-02.receipt.json",
+    String.raw`cmd.exe /d /c del generated-data\real-source-prerelease\PF-02.attempt`,
+    String.raw`Remove-Item -LiteralPath I:\policy-sentinel\generated-data\real-source-prerelease\PF-03.receipt.json`,
+    "Remove-Item -LiteralPath GENERAT~1/real-source-prerelease/PF-03.attempt",
+    "Remove-Item -LiteralPath generated-data./real-source-prerelease/PF-03.attempt",
+    "Remove-Item -Path generated-dat?/real-source-prerelease/PF-03.attempt",
+    "Remove-Item -Path generated-*/real-source-prerelease/PF-03.attempt",
+    "rm generat*-data/real-source-prerelease/PF-03.attempt",
+    "tee g*/real-source-prerelease/PF-01.receipt.json",
+    "sed -i s/x/y/ [g]enerated-data/real-source-prerelease/PF-01.receipt.json",
+    `node -e "require('node:fs').writeFileSync('generated-data/real-source-prerelease/PF-04.receipt.json','x')"`,
+    `node -e "require('node:fs').createWriteStream(require('glob').globSync('g*/real-source-prerelease/PF-01.receipt.json')[0])"`,
+    "[System.IO.File]::WriteAllText('generated-data/real-source-prerelease/PF-05.receipt.json','x')",
+    "[System.IO.File]::Delete('generated-data/real-source-prerelease/PF-05.receipt.json')",
+    "[IO.File]::Delete(('gene'+'rated-data/real-source-prerelease/PF-01.receipt.json'))",
+    "[IO.File]::WriteAllText(('gene'+'rated-data/real-source-prerelease/PF-01.receipt.json'),'x')",
+    String.raw`cmd.exe /d /c copy /y source generated-data\real-source-prerelease\PF-06.receipt.json`,
+    String.raw`cmd.exe /d /c xcopy /y source generated-data\real-source-prerelease\PF-06.receipt.json`,
+    String.raw`cmd.exe /d /c md generated-data\real-source-prerelease\new`,
+    "tee generated-data/real-source-prerelease/PF-07.receipt.json",
+    "dd if=source of=generated-data/real-source-prerelease/PF-07.receipt.json",
+    "sed -i s/x/y/ generated-data/real-source-prerelease/PF-08.receipt.json",
+    `python -c "open('generated-data/real-source-prerelease/PF-08.receipt.json','w').write('x')"`,
+    `python -c "__import__('os').remove('gene'+'rated-data/real-source-prerelease/PF-01.receipt.json')"`,
+    `command env python -c "__import__('os').remove('gene'+'rated-data/real-source-prerelease/PF-01.receipt.json')"`,
+    `/usr/bin/python -c "__import__('os').remove('gene'+'rated-data/real-source-prerelease/PF-01.receipt.json')"`,
+    `node -e "require('node:fs').createWriteStream('generated-data/real-source-prerelease/PF-09.receipt.json')"`,
+    "Set-Item -LiteralPath generated-data/real-source-prerelease/PF-09.receipt.json -Value x",
+    "Set-Item -LiteralPath docs/00-READ-FIRST.md -Value x",
+    "'x' | Export-Csv -Path docs/owner.csv",
+    "Tee-Object -FilePath generated-data/real-source-prerelease/PF-10.receipt.json",
+    "git diff --output=generated-data/real-source-prerelease/PF-01.receipt.json HEAD",
+    `rg --pre "python -c __import__('os').remove('generated-data/real-source-prerelease/PF-02.receipt.json')" x generated-data/real-source-prerelease/PF-01.receipt.json`,
+    "Get-Content generated-data/real-source-prerelease/PF-01.receipt.json\nRemove-Item generated-data/real-source-prerelease/PF-01.receipt.json",
+    "git status -- generated-data/real-source-prerelease\ngit add -- generated-data/real-source-prerelease/PF-01.receipt.json",
+    "git -c core.fsmonitor=evil status -- generated-data/real-source-prerelease",
+    "Get-Content generated-data/real-source-prerelease/PF-01.receipt.json\r\n[IO.File]::Delete('generated-data/real-source-prerelease/PF-01.receipt.json')",
+    `Get-Content "$(Remove-Item generated-data/real-source-prerelease/PF-01.receipt.json)"`,
+    "Get-Content (Remove-Item generated-data/real-source-prerelease/PF-01.receipt.json)",
+    "Get-Content `Remove-Item generated-data/real-source-prerelease/PF-01.receipt.json`",
+    "Get-Content .env",
+    "head secrets/token.txt",
+    "Get-Content private/owner-input.json",
+    "Get-Content raw-data/provider.json",
+    "Get-Content Env:OPENAI_API_KEY",
+    "gc Env:OPENAI_API_KEY",
+    "env",
+    "/usr/bin/printenv",
+    "type I:/outside/credential.txt",
+    "[IO.File]::ReadAllText('I:/outside/credential.txt')",
+    "Get-Content generated-data/real-source-prerelease-evil/private.json",
+    "Get-Content generated-data/not-real-source-prerelease/private.json",
+    "Get-Content -LiteralPath generated-data/real-source-prerelease/PF-01.receipt.json I:/outside/credential.txt",
+    "Write-Output ok; Get-Content -LiteralPath I:/outside/credential.txt",
+    "Write-Output ok && gc I:/outside/credential.txt",
+    `[Environment]::GetEnvironmentVariable('OPENAI_API_KEY')`,
+    `Select-String -Pattern . -Path ('.e'+'nv')`,
+    `Select-String -Pattern . -Path ('pri'+'vate/secret.txt')`,
+    "awk 1 /etc/passwd",
+    `([System.IO.FileInfo]('C:\\Windows\\win.ini')).OpenText().ReadToEnd()`,
+    "/usr/bin/cat I:/outside/credential.txt",
+    "/usr/bin/head ../outside/private.txt",
+    "node --check I:/outside/private.js",
+    "node --check ../outside/private.js",
+    "rg -n secret I:/outside/credential.txt",
+    "rg -n secret docs/../../outside/credential.txt",
+    "git ls-remote https://example.invalid/repo.git",
+    "git submodule update --init --recursive",
+    "git send-email --to owner@example.invalid patch",
+    "git grep --open-files-in-pager=evil pattern",
+    "git grep --untracked --no-exclude-standard secret",
+    "git config --get-regexp .*",
+    "git config --get http.https://example.invalid/.extraheader",
+    'git commit -m "$TOKEN"',
+    'git commit -m "%TOKEN:~0,1%"',
+    'git commit -m "!TOKEN!"',
+    "git ls-files --others --ignored --exclude-standard",
+    "git ls-files --others",
+    "git ls-files --others --error-unmatch",
+    "gh api -X GET user",
+    "gh api --method GET notifications",
+    "gh repo view example/private-repository",
+    "gh auth status --hostname enterprise.internal",
+    "gh api -X GET repos/atniclimate/policy-sentinel/collaborators",
+    "gh api -X GET repos/atniclimate/policy-sentinel/invitations",
+    "gh api -X GET repos/atniclimate/policy-sentinel/actions/variables",
+    "gh api -X GET repos/atniclimate/policy-sentinel/../../../user",
+    "git status \\; gh repo create example",
+    "git status \\; Set-Item -LiteralPath docs/00-READ-FIRST.md -Value x",
+    "git status (gh repo create example)",
+    "rg -n x (gh repo create example)",
+    "rg -n secret $HOME",
+    "rg -n secret ~",
+    "rg -n secret %USERPROFILE%",
+    "rg -n . [g]enerated-data/real-source-prerelease/PF-01.receipt.json",
+    "rg --glob=g*/** .",
+    "rg --glob g*/** .",
+    "rg --iglob=g*/** .",
+    "rg -gg*/** .",
+    "rg . g*/**",
+    "rg -fprivate/x .",
+    "rg -fsecrets/x .",
+    "rg -fraw-data/x .",
+    `Write-Output ok && & "C:\\Program Files\\nodejs\\node.exe" -e "require('node:fs')['un'+'linkSync']('gene'+'rated-data/real-source-prerelease/PF-01.receipt.json')"`,
+    `if ($true) { & "C:\\Program Files\\nodejs\\node.exe" -e "require('node:fs').unlinkSync('gene'+'rated-data/real-source-prerelease/PF-01.receipt.json')" }`,
+    `([System.IO.FileInfo]('gener'+'ated-data/real-source-prerelease/PF-01.receipt.json')).Delete()`,
   ];
   for (const command of blockedCommands) {
     assert.equal(
-      evaluateShellCommand(command, closedRoadmap).blocked,
+      evaluateShellCommand(command, closedRoadmap, shellContext).blocked,
       true,
       command,
     );
@@ -339,19 +508,28 @@ test("PreToolUse blocks closed gates and destructive Git but permits inspection"
   const allowedCommands = [
     "git status --short",
     "git log -1 --oneline",
+    "git add -- ROADMAP.yaml",
     "gh auth status",
     "gh repo view atniclimate/policy-sentinel",
     "gh api --method GET repos/atniclimate/policy-sentinel",
     "git config --get remote.origin.url",
+    'git commit -m "local hook checkpoint"',
     "npm run check",
-    "npm run --silent source:wa-lws:canary -- --help",
     'Write-Output "Never run git push"',
-    'rg -n "git push" AGENTS.md',
-    'rg -n "gh repo create" AGENTS.md',
+    'rg --no-config -n "git push" AGENTS.md',
+    'rg --no-config -n "gh repo create" AGENTS.md',
+    "rg --no-config --files",
+    "Get-Content -LiteralPath ROADMAP.yaml",
+    "cat ROADMAP.yaml",
+    "Get-Content -LiteralPath generated-data/real-source-prerelease/PF-01.receipt.json",
+    "Get-FileHash -LiteralPath generated-data/real-source-prerelease/PF-01.receipt.json",
+    "Get-ChildItem -LiteralPath generated-data/real-source-prerelease",
+    "git status --short -- generated-data/real-source-prerelease",
+    "git ls-files --others --ignored --exclude-standard -- generated-data/real-source-prerelease",
   ];
   for (const command of allowedCommands) {
     assert.equal(
-      evaluateShellCommand(command, closedRoadmap).blocked,
+      evaluateShellCommand(command, closedRoadmap, shellContext).blocked,
       false,
       command,
     );
@@ -367,10 +545,108 @@ test("PreToolUse blocks closed gates and destructive Git but permits inspection"
     "Send-MailMessage -To owner@example.invalid",
   ]) {
     assert.equal(
-      evaluateShellCommand(command, missingBoundaryRoadmap).blocked,
+      evaluateShellCommand(command, missingBoundaryRoadmap, shellContext)
+        .blocked,
       true,
       `missing boundary must fail closed: ${command}`,
     );
+  }
+});
+
+test("shell workdirs cannot alias or relativize sensitive custody", (t) => {
+  const sensitiveWorkdir = path.join(
+    projectRoot,
+    "generated-data",
+    "real-source-prerelease",
+  );
+  const relativeWriter = `python -c "open('PF-01.receipt.json','w').write('x')"`;
+  const workdirs = [
+    "generated-data/real-source-prerelease",
+    sensitiveWorkdir,
+    sensitiveWorkdir.toUpperCase(),
+    `${projectRoot}/generated-data/../generated-data/real-source-prerelease`,
+    path.join(projectRoot, "missing-workdir"),
+    path.dirname(projectRoot),
+  ];
+  for (const workdir of workdirs) {
+    assert.equal(
+      evaluateShellCommand(relativeWriter, closedRoadmap, {
+        root: projectRoot,
+        workdir,
+      }).blocked,
+      true,
+      workdir,
+    );
+  }
+  assert.equal(
+    evaluateShellCommand(
+      "Get-Content -LiteralPath PF-01.receipt.json",
+      closedRoadmap,
+      { root: projectRoot, workdir: sensitiveWorkdir },
+    ).blocked,
+    false,
+  );
+  assert.equal(
+    evaluateShellCommand(
+      "Get-Content I:/outside/credential.txt",
+      closedRoadmap,
+      { root: projectRoot, workdir: sensitiveWorkdir },
+    ).blocked,
+    true,
+  );
+  assert.equal(
+    evaluateShellCommand(
+      "Get-Content -LiteralPath ROADMAP.yaml",
+      closedRoadmap,
+      {
+        root: projectRoot,
+        workdir: path.dirname(projectRoot),
+      },
+    ).blocked,
+    true,
+  );
+  assert.equal(
+    evaluateShellCommand("git add -- ROADMAP.yaml", closedRoadmap, {
+      root: projectRoot,
+      workdir: path.join(projectRoot, "docs"),
+    }).blocked,
+    true,
+  );
+  assert.equal(
+    evaluateShellCommand("npm test", closedRoadmap, {
+      root: projectRoot,
+      workdir: path.join(
+        projectRoot,
+        "node_modules",
+        "@humanwhocodes",
+        "retry",
+      ),
+    }).blocked,
+    true,
+  );
+
+  const root = mkdtempSync(path.join(tmpdir(), "policy-sentinel-workdir-"));
+  const sensitiveTarget = path.join(root, "generated-data", "evidence");
+  const alias = path.join(root, "alias");
+  try {
+    mkdirSync(sensitiveTarget, { recursive: true });
+    try {
+      symlinkSync(sensitiveTarget, alias, "junction");
+      assert.equal(
+        evaluateShellCommand(relativeWriter, closedRoadmap, {
+          root,
+          workdir: alias,
+        }).blocked,
+        true,
+      );
+    } catch (error) {
+      if (!["EPERM", "EACCES", "UNKNOWN"].includes(error?.code)) {
+        throw error;
+      }
+      t.diagnostic("workdir junction regression unavailable on this host");
+    }
+  } finally {
+    rmSync(root, { force: true, recursive: true });
   }
 });
 
@@ -408,6 +684,32 @@ test("PreToolUse protects private paths and inactive frozen evidence", () => {
     evaluatePatchPaths(["scripts/codex-hooks.mjs"], closedRoadmap).blocked,
     false,
   );
+  for (const ownerInputPath of [
+    "docs/00-READ-FIRST.md",
+    "docs/POLICY-SENTINEL-REAL-SOURCE-PRERELEASE-MAX-LONG-RUN.md",
+  ]) {
+    assert.equal(
+      evaluatePatchPaths([ownerInputPath], closedRoadmap).blocked,
+      true,
+      ownerInputPath,
+    );
+    assert.equal(
+      evaluatePatchOperations(
+        [
+          {
+            action: "Update",
+            headerPath: ` ${ownerInputPath}`,
+            rawPath: ownerInputPath,
+            repositoryPath: ownerInputPath,
+          },
+        ],
+        closedRoadmap,
+        projectRoot,
+      ).blocked,
+      true,
+      ownerInputPath,
+    );
+  }
 
   const activeK0 = JSON.parse(JSON.stringify(closedRoadmap));
   activeK0.work_items[0].status = "in_progress";
@@ -444,7 +746,7 @@ test("PreToolUse rejects hard-linked patch targets", (t) => {
   }
 });
 
-test("portfolio observer policy binds the post-run Delete checkpoint", () => {
+test("portfolio observer policy binds the terminal evidence checkpoint", () => {
   const expectedReservedPaths = [
     `${observerDirectory}/PF-PORTFOLIO-RUN.attempt`,
     ...Array.from({ length: 17 }, (_, index) =>
@@ -456,12 +758,8 @@ test("portfolio observer policy binds the post-run Delete checkpoint", () => {
     `${observerDirectory}/FR-A1.attempt`,
     `${observerDirectory}/FR-A1.receipt.json`,
   ];
-  assert.equal(observerCustodyContract.phase, "post_run_delete_only");
+  assert.equal(observerCustodyContract.phase, "terminal_evidence_frozen");
   assert.equal(observerCustodyContract.observerPath, observerPath);
-  assert.deepEqual(observerCustodyContract.deleteDescriptor, {
-    bytes: 124,
-    sha256: "79f8f48fa2bfded24cbba9ad5bbe309f732281a6407f50ea9812d55b9c26cb01",
-  });
   assert.deepEqual(observerCustodyContract.observer, {
     bytes: 99_998,
     sha256: "2cab3b38b33413ce296656662ba94053cc3512b00d85f3c9c5fb48e65c1ec21d",
@@ -901,46 +1199,49 @@ test("observer execution custody binds exact bytes, ignore, and Git absence", ()
   }
 });
 
-test("observer Delete custody preserves the exact 43-file post-run manifest", () => {
+test("terminal observer custody preserves the exact 43-file evidence manifest", () => {
   const { root } = initializeObserverFixture();
   const absoluteObserverPath = path.join(root, ...observerPath.split("/"));
-  const observerBytes = Buffer.from("export {};\n", "utf8");
-  const observerCustody = {
-    bytes: observerBytes.byteLength,
-    sha256: createHash("sha256").update(observerBytes).digest("hex"),
-  };
   const postRunCustody = calculateFixturePostRunCustody(root);
-  const options = { observerCustody, postRunCustody };
   try {
-    writeFileSync(absoluteObserverPath, observerBytes);
-    assert.equal(observerPreDeleteCustodyIsValid(root, options), true);
-    assert.equal(observerPostDeleteCustodyIsValid(root, options), false);
+    assert.equal(
+      observerTerminalCustodyIsValid(root, { postRunCustody }),
+      true,
+    );
 
-    writeFileSync(absoluteObserverPath, "export default {};\n", "utf8");
-    assert.equal(observerPreDeleteCustodyIsValid(root, options), false);
-    writeFileSync(absoluteObserverPath, observerBytes);
+    writeFileSync(absoluteObserverPath, "export {};\n", "utf8");
+    assert.equal(
+      observerTerminalCustodyIsValid(root, { postRunCustody }),
+      false,
+    );
+    rmSync(absoluteObserverPath);
 
     const dataPath = path.join(root, observerDirectory, historicalNames[0]);
     const originalData = readFileSync(dataPath);
     writeFileSync(dataPath, Buffer.concat([originalData, Buffer.from("x")]));
-    assert.equal(observerPreDeleteCustodyIsValid(root, options), false);
+    assert.equal(
+      observerTerminalCustodyIsValid(root, { postRunCustody }),
+      false,
+    );
     writeFileSync(dataPath, originalData);
 
     const extraPath = path.join(root, observerDirectory, "unexpected.json");
     writeFileSync(extraPath, "unexpected\n", "utf8");
-    assert.equal(observerPreDeleteCustodyIsValid(root, options), false);
+    assert.equal(
+      observerTerminalCustodyIsValid(root, { postRunCustody }),
+      false,
+    );
     rmSync(extraPath);
-
-    rmSync(absoluteObserverPath);
-    assert.equal(observerPreDeleteCustodyIsValid(root, options), false);
-    assert.equal(observerPostDeleteCustodyIsValid(root, options), true);
 
     writeFileSync(
       path.join(root, observerDirectory, "FR-A1.attempt"),
       "forbidden\n",
       "utf8",
     );
-    assert.equal(observerPostDeleteCustodyIsValid(root, options), false);
+    assert.equal(
+      observerTerminalCustodyIsValid(root, { postRunCustody }),
+      false,
+    );
   } finally {
     rmSync(root, { force: true, recursive: true });
   }
@@ -964,51 +1265,9 @@ test("observer ignore provenance cannot come from the repository exclude", () =>
   }
 });
 
-test("post-run observer permits only the exact checkpointed Delete", () => {
+test("terminal observer policy rejects every apply_patch mutation", () => {
   const operation = (header) =>
     extractPatchOperations(`*** Begin Patch\n${header}\n*** End Patch`);
-  const exactDeleteCommand = `*** Begin Patch
-*** Delete File: ${observerPath}
-*** End Patch
-`;
-  const exactDelete = extractPatchOperations(exactDeleteCommand);
-  assert.equal(isObserverDeleteOperation(exactDelete), true);
-  assert.equal(observerDeleteDescriptorIsExact(exactDeleteCommand), true);
-  assert.equal(
-    evaluatePatchOperations(exactDelete, observerRoadmap(), projectRoot, {
-      observerDeleteCheckpoint: () => true,
-      patchCommand: exactDeleteCommand,
-    }).blocked,
-    false,
-  );
-  assert.equal(
-    evaluatePatchOperations(exactDelete, observerRoadmap(), projectRoot, {
-      observerDeleteCheckpoint: () => false,
-      patchCommand: exactDeleteCommand,
-    }).blocked,
-    true,
-  );
-  for (const changedCommand of [
-    exactDeleteCommand.trimEnd(),
-    exactDeleteCommand.replace("\n", "\r\n"),
-    exactDeleteCommand.replace("*** Delete File:", "*** Delete File: "),
-    `${exactDeleteCommand} `,
-  ]) {
-    assert.equal(observerDeleteDescriptorIsExact(changedCommand), false);
-    assert.equal(
-      evaluatePatchOperations(
-        extractPatchOperations(changedCommand),
-        observerRoadmap(),
-        projectRoot,
-        {
-          observerDeleteCheckpoint: () => true,
-          patchCommand: changedCommand,
-        },
-      ).blocked,
-      true,
-    );
-  }
-
   const exactAdd = operation(`*** Add File: ${observerPath}`);
   assert.equal(isObserverAddOperation(exactAdd), true);
   assert.equal(
@@ -1215,16 +1474,23 @@ test("Stop requests at most one continuation for unfinished durable state", () =
 });
 
 test("the command hook emits valid deny JSON and stays silent when allowing", () => {
-  const invoke = (command, toolName = "Bash") =>
+  const invoke = (
+    command,
+    toolName = "Bash",
+    workdir = undefined,
+    eventCwd = projectRoot,
+  ) =>
     spawnSync(process.execPath, [hookRunner], {
       cwd: projectRoot,
       encoding: "utf8",
       input: JSON.stringify({
         hook_event_name: "PreToolUse",
-        cwd: projectRoot,
+        cwd: eventCwd,
         tool_name: toolName,
         tool_input:
-          toolName === "exec_command" ? { cmd: command } : { command },
+          toolName === "exec_command"
+            ? { cmd: command, ...(workdir ? { workdir } : {}) }
+            : { command, ...(workdir ? { workdir } : {}) },
       }),
       timeout: 30_000,
     });
@@ -1247,6 +1513,97 @@ test("the command hook emits valid deny JSON and stays silent when allowing", ()
   assert.equal(unifiedDenied.status, 0, unifiedDenied.stderr);
   assert.equal(
     JSON.parse(unifiedDenied.stdout).hookSpecificOutput.permissionDecision,
+    "deny",
+  );
+
+  const sensitiveWorkdir = path.join(
+    projectRoot,
+    "generated-data",
+    "real-source-prerelease",
+  );
+  const workdirDenied = invoke(
+    `python -c "open('PF-01.receipt.json','w').write('x')"`,
+    "exec_command",
+    sensitiveWorkdir,
+  );
+  assert.equal(workdirDenied.status, 0, workdirDenied.stderr);
+  assert.equal(
+    JSON.parse(workdirDenied.stdout).hookSpecificOutput.permissionDecision,
+    "deny",
+  );
+
+  const eventCwdDenied = invoke(
+    `python -c "open('PF-01.receipt.json','w').write('x')"`,
+    "exec_command",
+    undefined,
+    sensitiveWorkdir,
+  );
+  assert.equal(eventCwdDenied.status, 0, eventCwdDenied.stderr);
+  assert.equal(
+    JSON.parse(eventCwdDenied.stdout).hookSpecificOutput.permissionDecision,
+    "deny",
+  );
+
+  for (const command of [
+    "git -C . add -- docs/00-READ-FIRST.md",
+    "git --literal-pathspecs add -- docs/00-READ-FIRST.md",
+    "git stage -- docs/00-READ-FIRST.md",
+    "command git add -- docs/00-READ-FIRST.md",
+    "GIT_OPTIONAL_LOCKS=0 git add -- docs/00-READ-FIRST.md",
+    '& "git" add -- docs/00-READ-FIRST.md',
+    '& "C:\\Program Files\\Git\\cmd\\git.exe" add -- docs',
+    "& (Get-Command git) add -- docs",
+    "git stash push --all",
+    "Get-Content Env:OPENAI_API_KEY",
+    "[IO.File]::Delete(('gene'+'rated-data/real-source-prerelease/PF-01.receipt.json'))",
+    "tee g*/real-source-prerelease/PF-01.receipt.json",
+    "Write-Output ok; Get-Content -LiteralPath I:/outside/credential.txt",
+    `Write-Output ok && & "C:\\Program Files\\nodejs\\node.exe" -e "process.exit()"`,
+    `[Environment]::GetEnvironmentVariable('OPENAI_API_KEY')`,
+    "/usr/bin/git update-index --assume-unchanged ROADMAP.yaml",
+    "apply_patch < evidence.patch",
+    "rg --glob=g*/** .",
+    "git grep --open-files-in-pager=evil pattern",
+    "gh api -X GET user",
+    'git commit -m "$TOKEN"',
+    "gh auth status --hostname enterprise.internal",
+    "git ls-files --others --ignored --exclude-standard",
+  ]) {
+    const result = invoke(command, "exec_command");
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(
+      JSON.parse(result.stdout).hookSpecificOutput.permissionDecision,
+      "deny",
+      command,
+    );
+  }
+
+  const ownerPatchDenied = invoke(
+    "*** Begin Patch\n*** Delete File: docs/00-READ-FIRST.md\n*** End Patch",
+    "apply_patch",
+  );
+  assert.equal(ownerPatchDenied.status, 0, ownerPatchDenied.stderr);
+  assert.equal(
+    JSON.parse(ownerPatchDenied.stdout).hookSpecificOutput.permissionDecision,
+    "deny",
+  );
+
+  const workdirRead = invoke(
+    "Get-Content -LiteralPath PF-01.receipt.json",
+    "exec_command",
+    sensitiveWorkdir,
+  );
+  assert.equal(workdirRead.status, 0, workdirRead.stderr);
+  assert.equal(workdirRead.stdout, "");
+
+  const nestedNpmDenied = invoke(
+    "npm test",
+    "exec_command",
+    path.join(projectRoot, "node_modules", "@humanwhocodes", "retry"),
+  );
+  assert.equal(nestedNpmDenied.status, 0, nestedNpmDenied.stderr);
+  assert.equal(
+    JSON.parse(nestedNpmDenied.stdout).hookSpecificOutput.permissionDecision,
     "deny",
   );
 });
