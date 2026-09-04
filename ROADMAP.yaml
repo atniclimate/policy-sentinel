@@ -4558,6 +4558,26 @@ work_items:
         cumulative ledger is 27 issued, one exact-unissued FR-A1, and 52
         unavailable; generated custody is 44 exact ignored files pending the
         separately committed and reviewed observer-only Delete transition.
+      - >-
+        The observer-only Delete transition binds the exact 44-file pre-state,
+        the immutable 43-file evidence manifest that must remain afterward, the
+        committed portfolio report, roadmap authority, and all trust inputs. It
+        permits only one exact 124-byte LF Delete descriptor at SHA-256
+        79f8f48fa2bfded24cbba9ad5bbe309f732281a6407f50ea9812d55b9c26cb01; Add,
+        Update, Move, mixed, aliased, drifted, or replayed operations fail
+        closed. Because automatic hook delivery remains unproved in this API
+        wrapper, the coordination record freezes a new non-reusable direct
+        Pre/Delete/Post equivalence. It grants no request, retry, evidence
+        mutation, source admission, activation, artifact, or publication.
+      - >-
+        The 199-byte LF hook/test manifest at SHA-256
+        9fdb34400717f76b386b3622b33d6eee024622a35910cc2ca73adaadd3b64a8f passed
+        19/19 focused tests plus roadmap, backbone, formatting, lint,
+        source-boundary, and diff checks. Independent source/evidence, security,
+        and sovereignty reviewers each returned
+        APPROVE_OBSERVER_DELETE_TRANSITION for those exact bytes and the bound
+        report/evidence custody. The transition must be committed and pass a
+        production preflight before the one Delete can occur.
 
   - id: PNW-05-SOURCE-PACK
     priority: 141

@@ -48,11 +48,15 @@ const sensitivePatchRoots = [
   "secrets",
 ];
 const observerAuthoringPolicy = Object.freeze({
-  phase: "execution_frozen",
+  phase: "post_run_delete_only",
   path: "generated-data/real-source-prerelease/observe-source-authority-portfolio.mjs",
   directory: "generated-data/real-source-prerelease",
   gateId: "G-PNW-05-REAL-SOURCE-PRERELEASE",
   workItemId: "PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY",
+  deleteDescriptor: Object.freeze({
+    bytes: 124,
+    sha256: "79f8f48fa2bfded24cbba9ad5bbe309f732281a6407f50ea9812d55b9c26cb01",
+  }),
   observerCustody: Object.freeze({
     bytes: 99_998,
     sha256: "2cab3b38b33413ce296656662ba94053cc3512b00d85f3c9c5fb48e65c1ec21d",
@@ -64,9 +68,22 @@ const observerAuthoringPolicy = Object.freeze({
     ".gitignore",
     "ROADMAP.yaml",
     "docs/development/PNW-05-REAL-SOURCE-PRERELEASE-COORDINATION-2026-09-03.md",
+    "docs/source-reviews/source-authority-portfolio-discovery-2026-09-03.md",
     "scripts/codex-hooks.mjs",
     "tests/hooks/codex-hooks.test.mjs",
   ]),
+  reportCustody: Object.freeze({
+    path: "docs/source-reviews/source-authority-portfolio-discovery-2026-09-03.md",
+    bytes: 34_744,
+    sha256: "5d496c6cbc5a49f4941f6167bed87fe3f931865c1e0e88150e95bfde563e7ab2",
+  }),
+  postRunCustody: Object.freeze({
+    fileCount: 43,
+    totalBytes: 49_730,
+    manifestBytes: 5_357,
+    manifestSha256:
+      "73401fdc8c060d443cab0e521c0fc9ae9ec067bcf0f1e75131f0411d2e460546",
+  }),
   historicalCustody: Object.freeze([
     Object.freeze({
       name: "authority-input-v2.json",
@@ -129,6 +146,10 @@ const observerAuthoringPolicy = Object.freeze({
       `generated-data/real-source-prerelease/${requestId}.attempt`,
       `generated-data/real-source-prerelease/${requestId}.receipt.json`,
     ]),
+  ]),
+  neverIssuedCustodyPaths: Object.freeze([
+    "generated-data/real-source-prerelease/FR-A1.attempt",
+    "generated-data/real-source-prerelease/FR-A1.receipt.json",
   ]),
 });
 const maximumObserverTrustInputBytes = 1024 * 1024;
@@ -1106,6 +1127,106 @@ const reservedCustodyIsAbsent = (root) =>
       !fileSystemEntryExists(path.resolve(root, ...repositoryPath.split("/"))),
   );
 
+const neverIssuedCustodyIsAbsent = (root) =>
+  observerAuthoringPolicy.neverIssuedCustodyPaths.every(
+    (repositoryPath) =>
+      !fileSystemEntryExists(path.resolve(root, ...repositoryPath.split("/"))),
+  );
+
+const portfolioReportCheckpointIsValid = (
+  root,
+  reportCustody = observerAuthoringPolicy.reportCustody,
+) =>
+  hashExactCanonicalFile(root, reportCustody.path, reportCustody.bytes) ===
+  reportCustody.sha256;
+
+const postRunDataCustodyIsValid = (
+  root,
+  {
+    observerPresent,
+    observerCustody = observerAuthoringPolicy.observerCustody,
+    postRunCustody = observerAuthoringPolicy.postRunCustody,
+  },
+) => {
+  const absoluteDirectory = path.resolve(
+    root,
+    ...observerAuthoringPolicy.directory.split("/"),
+  );
+  const observerName = path.posix.basename(observerAuthoringPolicy.path);
+  let names;
+  try {
+    names = readdirSync(absoluteDirectory).sort();
+  } catch {
+    return false;
+  }
+  const hasObserver = names.includes(observerName);
+  const dataNames = names.filter((name) => name !== observerName);
+  if (
+    hasObserver !== observerPresent ||
+    names.length !== postRunCustody.fileCount + (observerPresent ? 1 : 0) ||
+    dataNames.length !== postRunCustody.fileCount
+  ) {
+    return false;
+  }
+
+  const repositoryPaths = dataNames.map(
+    (name) => `${observerAuthoringPolicy.directory}/${name}`,
+  );
+  const manifestLines = [];
+  let totalBytes = 0;
+  for (const repositoryPath of repositoryPaths) {
+    let stat;
+    try {
+      stat = lstatSync(path.resolve(root, ...repositoryPath.split("/")));
+    } catch {
+      return false;
+    }
+    if (
+      !Number.isSafeInteger(stat.size) ||
+      stat.size <= 0 ||
+      stat.size > maximumObserverTrustInputBytes ||
+      !canonicalSingleLinkFile(root, repositoryPath)
+    ) {
+      return false;
+    }
+    const sha256 = hashExactCanonicalFile(root, repositoryPath, stat.size);
+    if (sha256 === null) {
+      return false;
+    }
+    totalBytes += stat.size;
+    manifestLines.push(`${repositoryPath}\t${stat.size}\t${sha256}\n`);
+  }
+  const manifest = Buffer.from(manifestLines.join(""), "utf8");
+  const manifestIsExact =
+    totalBytes === postRunCustody.totalBytes &&
+    manifest.byteLength === postRunCustody.manifestBytes &&
+    createHash("sha256").update(manifest).digest("hex") ===
+      postRunCustody.manifestSha256;
+  manifest.fill(0);
+  if (!manifestIsExact || !gitPathsHaveIgnoredCustody(root, repositoryPaths)) {
+    return false;
+  }
+
+  if (!observerPresent) {
+    return (
+      !fileSystemEntryExists(
+        path.resolve(root, ...observerAuthoringPolicy.path.split("/")),
+      ) &&
+      gitIgnoreProvenanceIsRoot(root, [observerAuthoringPolicy.path]) &&
+      gitPathsAreIndexAndHeadAbsent(root, [observerAuthoringPolicy.path])
+    );
+  }
+  return (
+    canonicalSingleLinkFile(root, observerAuthoringPolicy.path) &&
+    gitPathsHaveIgnoredCustody(root, [observerAuthoringPolicy.path]) &&
+    hashExactCanonicalFile(
+      root,
+      observerAuthoringPolicy.path,
+      observerCustody.bytes,
+    ) === observerCustody.sha256
+  );
+};
+
 export const observerPreAddCustodyIsValid = (
   root,
   { historicalCustody = observerAuthoringPolicy.historicalCustody } = {},
@@ -1152,11 +1273,31 @@ export const observerPostAddCustodyIsValid = (
 
 export const observerExecutionCustodyIsValid = observerPostAddCustodyIsValid;
 
+export const observerPreDeleteCustodyIsValid = (root, options = {}) =>
+  observerParentDirectoriesAreCanonical(root) &&
+  neverIssuedCustodyIsAbsent(root) &&
+  postRunDataCustodyIsValid(root, {
+    ...options,
+    observerPresent: true,
+  });
+
+export const observerPostDeleteCustodyIsValid = (root, options = {}) =>
+  observerParentDirectoriesAreCanonical(root) &&
+  neverIssuedCustodyIsAbsent(root) &&
+  postRunDataCustodyIsValid(root, {
+    ...options,
+    observerPresent: false,
+  });
+
 export const observerCustodyContract = Object.freeze({
+  deleteDescriptor: observerAuthoringPolicy.deleteDescriptor,
   historical: observerAuthoringPolicy.historicalCustody,
+  neverIssuedPaths: observerAuthoringPolicy.neverIssuedCustodyPaths,
   observer: observerAuthoringPolicy.observerCustody,
   observerPath: observerAuthoringPolicy.path,
   phase: observerAuthoringPolicy.phase,
+  postRun: observerAuthoringPolicy.postRunCustody,
+  report: observerAuthoringPolicy.reportCustody,
   reservedPaths: observerAuthoringPolicy.reservedCustodyPaths,
   trustPaths: observerAuthoringPolicy.trustPaths,
 });
@@ -1178,6 +1319,16 @@ export const observerExecutionCheckpointIsValid = (root, roadmap) =>
     roadmapValid: validateRoadmap(root).ok,
     trustInputsMatchHead: observerTrustInputsMatchHead(root),
     custodyValid: observerExecutionCustodyIsValid(root),
+  });
+
+export const observerDeleteCheckpointIsValid = (root, roadmap) =>
+  observerExecutionEvidenceIsValid({
+    roadmap,
+    roadmapValid: validateRoadmap(root).ok,
+    trustInputsMatchHead:
+      observerTrustInputsMatchHead(root) &&
+      portfolioReportCheckpointIsValid(root),
+    custodyValid: observerPreDeleteCustodyIsValid(root),
   });
 
 export const evaluatePatchPaths = (
@@ -1229,7 +1380,39 @@ export const evaluatePatchPaths = (
   return { blocked: false };
 };
 
-export const evaluatePatchOperations = (operations, roadmap, root) => {
+const observerDeleteDescriptor = `*** Begin Patch
+*** Delete File: ${observerAuthoringPolicy.path}
+*** End Patch
+`;
+
+export const isObserverDeleteOperation = (operations) =>
+  Array.isArray(operations) &&
+  operations.length === 1 &&
+  operations[0].action === "Delete" &&
+  operations[0].headerPath === ` ${observerAuthoringPolicy.path}` &&
+  operations[0].rawPath === observerAuthoringPolicy.path &&
+  operations[0].repositoryPath === observerAuthoringPolicy.path;
+
+export const observerDeleteDescriptorIsExact = (command) => {
+  const bytes = Buffer.from(String(command ?? ""), "utf8");
+  const isExact =
+    bytes.byteLength === observerAuthoringPolicy.deleteDescriptor.bytes &&
+    createHash("sha256").update(bytes).digest("hex") ===
+      observerAuthoringPolicy.deleteDescriptor.sha256 &&
+    String(command ?? "") === observerDeleteDescriptor;
+  bytes.fill(0);
+  return isExact;
+};
+
+export const evaluatePatchOperations = (
+  operations,
+  roadmap,
+  root,
+  {
+    observerDeleteCheckpoint = observerDeleteCheckpointIsValid,
+    patchCommand = "",
+  } = {},
+) => {
   if (!Array.isArray(operations) || operations.length === 0) {
     return {
       blocked: true,
@@ -1267,10 +1450,17 @@ export const evaluatePatchOperations = (operations, roadmap, root) => {
     };
   }
   if (observerOperation) {
+    if (
+      isObserverDeleteOperation(operations) &&
+      observerDeleteDescriptorIsExact(patchCommand) &&
+      observerDeleteCheckpoint(root, roadmap)
+    ) {
+      return { blocked: false };
+    }
     return {
       blocked: true,
       reason:
-        "The approved ignored portfolio observer is execution-frozen at its committed byte identity; Add, Update, Delete, Move, and mixed patches are forbidden.",
+        "The spent portfolio observer permits only its exact reviewed Delete descriptor at the committed post-run custody checkpoint; Add, Update, Move, mixed, drifted, and replayed patches are forbidden.",
     };
   }
 
@@ -1548,6 +1738,7 @@ const preToolUse = async (event, root) => {
           extractPatchOperations(command, root),
           roadmap,
           root,
+          { patchCommand: command },
         )
       : evaluateShellCommand(command, roadmap);
   return evaluation.blocked ? preToolUseOutput(evaluation.reason) : null;
@@ -1567,6 +1758,31 @@ const postToolUse = async (event, root) => {
     roadmap = await loadRoadmap(root);
   } catch {
     roadmap = null;
+  }
+  if (
+    operations.some(
+      ({ repositoryPath }) => repositoryPath === observerAuthoringPolicy.path,
+    )
+  ) {
+    const deleteIsValid =
+      isObserverDeleteOperation(operations) &&
+      observerDeleteDescriptorIsExact(command) &&
+      observerPostDeleteCustodyIsValid(root);
+    const detail = deleteIsValid
+      ? "The exact observer-only Delete completed with all 43 immutable generated evidence files intact. Close the spent hook exception in a separately reviewed terminal transition."
+      : "The observer Delete did not produce the exact post-run generated custody state. Stop and reconcile without retrying, restoring, or altering evidence files.";
+    const output = {
+      hookSpecificOutput: {
+        hookEventName: "PostToolUse",
+        additionalContext: detail,
+      },
+    };
+    if (!deleteIsValid) {
+      output.decision = "block";
+      output.reason =
+        "Observer post-Delete custody validation failed; inspect without mutating generated evidence.";
+    }
+    return output;
   }
   const { plan, checks } = executePostEditChecks(root, paths, roadmap);
   const failures = checks.filter((check) => !check.result.ok);

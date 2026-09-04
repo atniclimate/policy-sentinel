@@ -1598,3 +1598,84 @@ enabled, active, included in a corpus or artifact, assigned health, or given an
 LKG shard. The observer remains execution-frozen until a separate committed,
 independently reviewed, exact-custody Delete-only transition removes only that
 disposable helper.
+
+### Observer-only Delete transition and manual dispatch amendment
+
+The report checkpoint is commit
+`4a2dbae4dafdaf7206a80be3f497791b6e401788`. Cleanup authority is limited to
+deleting the disposable observer. The eight historical evidence files, global
+PF latch, 17 request latches, and 17 receipts are immutable custody and must
+remain. No request may be retried or reset, and no evidence file may be
+rewritten, renamed, moved, or deleted.
+
+The transition's two-file, LF-terminated manifest is 199 bytes at SHA-256
+`9fdb34400717f76b386b3622b33d6eee024622a35910cc2ca73adaadd3b64a8f`:
+
+| Path | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `scripts/codex-hooks.mjs` | 56,041 | `e58251e0a3dd1267065149716e170cee5f5965a5ed2a3b21213824648e7e5385` |
+| `tests/hooks/codex-hooks.test.mjs` | 40,269 | `6dd3b89c4a8b1b2074293bc53e5918cdd6af2e888f6161f03254cc5fcce07e7f` |
+
+The focused hook suite passed 19 of 19, and roadmap, backbone, formatting,
+lint, source-boundary, and diff checks passed. Independent source/evidence,
+security, and sovereignty reviewers each inspected those exact bytes and the
+bound report/evidence state and returned
+`APPROVE_OBSERVER_DELETE_TRANSITION`.
+
+The Delete-transition implementation binds all of the following before it can
+permit a patch:
+
+- sole active roadmap item and exact approved gate;
+- valid roadmap plus canonical, committed, `HEAD`-equal hook trust files;
+- the exact 34,744-byte approved portfolio report at SHA-256
+  `5d496c6cbc5a49f4941f6167bed87fe3f931865c1e0e88150e95bfde563e7ab2`;
+- exactly 44 generated files before Delete, comprising the exact observer plus
+  the immutable 43-file post-run evidence set;
+- the observer's 99,998 bytes and SHA-256
+  `2cab3b38b33413ce296656662ba94053cc3512b00d85f3c9c5fb48e65c1ec21d`;
+- the 43-file evidence set's 49,730 total bytes and 5,357-byte canonical TSV
+  manifest at SHA-256
+  `73401fdc8c060d443cab0e521c0fc9ae9ec067bcf0f1e75131f0411d2e460546`;
+- canonical regular single-link, root-ignored, untracked, index-absent, and
+  `HEAD`-absent custody for every generated file; and
+- continuing absence of both `FR-A1` paths.
+
+The transition allows only this exact UTF-8/LF descriptor, which is also the
+entire actual Delete patch:
+
+```text
+*** Begin Patch
+*** Delete File: generated-data/real-source-prerelease/observe-source-authority-portfolio.mjs
+*** End Patch
+```
+
+That descriptor is 124 bytes at SHA-256
+`79f8f48fa2bfded24cbba9ad5bbe309f732281a6407f50ea9812d55b9c26cb01`.
+The parser must return exactly one `Delete` operation, whose header path is one
+ASCII space followed by the literal canonical observer path and whose raw and
+repository paths are that same literal path. The hook denies Add, Update, Move,
+mixed, aliased, quoted, absolute, case-varied, body-bearing, CRLF, missing-final-
+LF, extra-byte, byte-drifted, precondition-failing, or replayed patches.
+
+Because this API wrapper did not prove automatic hook delivery, this is a new
+non-reusable manual-dispatch equivalence only for that exact descriptor. After
+the transition is committed and its exact bytes independently approved, the
+lead must establish a clean tracked/index state apart from the 23 unchanged
+owner inputs, rehash all 44 generated entries, prove every trust file equal to
+`HEAD`, and run the production checkpoint. Then, without any intervening
+operation, the lead must pipe one `PreToolUse` event naming `apply_patch` and
+containing the exact descriptor to the committed hook runner. Pre must exit
+zero with exactly empty standard output and error. Without any intervening
+operation, the lead may apply that exact patch once. Without any intervening
+operation, the lead must pipe the matching `PostToolUse` event to the same
+committed runner. Post must exit zero with empty standard error and emit only
+the expected successful 43-file-custody message, with no deny or block.
+
+Any failed precondition or nonempty Pre output freezes cleanup; do not apply the
+patch. Any patch failure or postcondition failure freezes the branch for
+reconciliation without restoring, retrying, or mutating generated evidence.
+The equivalence expires immediately after Post. A separate terminal hook
+transition must then remove the spent Delete exception and bind the 43-file
+terminal custody. This amendment grants no observer execution, request, retry,
+provider fact, source qualification/admission/activation, health, LKG, artifact,
+deployment, publication, or modification of owner inputs.

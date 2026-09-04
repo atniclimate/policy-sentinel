@@ -29,13 +29,17 @@ import {
   extractPatchOperations,
   extractPatchPaths,
   isObserverAddOperation,
+  isObserverDeleteOperation,
   normalizeRepositoryPath,
   observerCustodyContract,
+  observerDeleteDescriptorIsExact,
   observerExecutionCustodyIsValid,
   observerExecutionEvidenceIsValid,
   observerParentDirectoriesAreCanonical,
   observerPostAddCustodyIsValid,
+  observerPostDeleteCustodyIsValid,
   observerPreAddCustodyIsValid,
+  observerPreDeleteCustodyIsValid,
   observerRoadmapAuthority,
   observerTrustInputsMatchHead,
   planPostEditChecks,
@@ -157,6 +161,32 @@ const initializeObserverFixture = () => {
     });
   });
   return { historicalCustody, root };
+};
+
+const calculateFixturePostRunCustody = (root) => {
+  const directory = path.join(root, observerDirectory);
+  const names = Array.from(
+    new Set(
+      historicalNames.filter((name) => existsSync(path.join(directory, name))),
+    ),
+  ).sort();
+  let totalBytes = 0;
+  const manifest = Buffer.from(
+    names
+      .map((name) => {
+        const contents = readFileSync(path.join(directory, name));
+        totalBytes += contents.byteLength;
+        return `${observerDirectory}/${name}\t${contents.byteLength}\t${createHash("sha256").update(contents).digest("hex")}\n`;
+      })
+      .join(""),
+    "utf8",
+  );
+  return {
+    fileCount: names.length,
+    totalBytes,
+    manifestBytes: manifest.byteLength,
+    manifestSha256: createHash("sha256").update(manifest).digest("hex"),
+  };
 };
 
 test("hooks.json installs the five requested synchronous lifecycle hooks", () => {
@@ -414,7 +444,7 @@ test("PreToolUse rejects hard-linked patch targets", (t) => {
   }
 });
 
-test("portfolio observer policy freezes the exact target and 37 reserved names", () => {
+test("portfolio observer policy binds the post-run Delete checkpoint", () => {
   const expectedReservedPaths = [
     `${observerDirectory}/PF-PORTFOLIO-RUN.attempt`,
     ...Array.from({ length: 17 }, (_, index) =>
@@ -426,8 +456,12 @@ test("portfolio observer policy freezes the exact target and 37 reserved names",
     `${observerDirectory}/FR-A1.attempt`,
     `${observerDirectory}/FR-A1.receipt.json`,
   ];
-  assert.equal(observerCustodyContract.phase, "execution_frozen");
+  assert.equal(observerCustodyContract.phase, "post_run_delete_only");
   assert.equal(observerCustodyContract.observerPath, observerPath);
+  assert.deepEqual(observerCustodyContract.deleteDescriptor, {
+    bytes: 124,
+    sha256: "79f8f48fa2bfded24cbba9ad5bbe309f732281a6407f50ea9812d55b9c26cb01",
+  });
   assert.deepEqual(observerCustodyContract.observer, {
     bytes: 99_998,
     sha256: "2cab3b38b33413ce296656662ba94053cc3512b00d85f3c9c5fb48e65c1ec21d",
@@ -489,11 +523,28 @@ test("portfolio observer policy freezes the exact target and 37 reserved names",
     expectedReservedPaths,
   );
   assert.equal(observerCustodyContract.reservedPaths.length, 37);
+  assert.deepEqual(observerCustodyContract.neverIssuedPaths, [
+    `${observerDirectory}/FR-A1.attempt`,
+    `${observerDirectory}/FR-A1.receipt.json`,
+  ]);
+  assert.deepEqual(observerCustodyContract.postRun, {
+    fileCount: 43,
+    totalBytes: 49_730,
+    manifestBytes: 5_357,
+    manifestSha256:
+      "73401fdc8c060d443cab0e521c0fc9ae9ec067bcf0f1e75131f0411d2e460546",
+  });
+  assert.deepEqual(observerCustodyContract.report, {
+    path: "docs/source-reviews/source-authority-portfolio-discovery-2026-09-03.md",
+    bytes: 34_744,
+    sha256: "5d496c6cbc5a49f4941f6167bed87fe3f931865c1e0e88150e95bfde563e7ab2",
+  });
   assert.deepEqual(observerCustodyContract.trustPaths, [
     ".codex/hooks.json",
     ".gitignore",
     "ROADMAP.yaml",
     "docs/development/PNW-05-REAL-SOURCE-PRERELEASE-COORDINATION-2026-09-03.md",
+    "docs/source-reviews/source-authority-portfolio-discovery-2026-09-03.md",
     "scripts/codex-hooks.mjs",
     "tests/hooks/codex-hooks.test.mjs",
   ]);
@@ -850,6 +901,51 @@ test("observer execution custody binds exact bytes, ignore, and Git absence", ()
   }
 });
 
+test("observer Delete custody preserves the exact 43-file post-run manifest", () => {
+  const { root } = initializeObserverFixture();
+  const absoluteObserverPath = path.join(root, ...observerPath.split("/"));
+  const observerBytes = Buffer.from("export {};\n", "utf8");
+  const observerCustody = {
+    bytes: observerBytes.byteLength,
+    sha256: createHash("sha256").update(observerBytes).digest("hex"),
+  };
+  const postRunCustody = calculateFixturePostRunCustody(root);
+  const options = { observerCustody, postRunCustody };
+  try {
+    writeFileSync(absoluteObserverPath, observerBytes);
+    assert.equal(observerPreDeleteCustodyIsValid(root, options), true);
+    assert.equal(observerPostDeleteCustodyIsValid(root, options), false);
+
+    writeFileSync(absoluteObserverPath, "export default {};\n", "utf8");
+    assert.equal(observerPreDeleteCustodyIsValid(root, options), false);
+    writeFileSync(absoluteObserverPath, observerBytes);
+
+    const dataPath = path.join(root, observerDirectory, historicalNames[0]);
+    const originalData = readFileSync(dataPath);
+    writeFileSync(dataPath, Buffer.concat([originalData, Buffer.from("x")]));
+    assert.equal(observerPreDeleteCustodyIsValid(root, options), false);
+    writeFileSync(dataPath, originalData);
+
+    const extraPath = path.join(root, observerDirectory, "unexpected.json");
+    writeFileSync(extraPath, "unexpected\n", "utf8");
+    assert.equal(observerPreDeleteCustodyIsValid(root, options), false);
+    rmSync(extraPath);
+
+    rmSync(absoluteObserverPath);
+    assert.equal(observerPreDeleteCustodyIsValid(root, options), false);
+    assert.equal(observerPostDeleteCustodyIsValid(root, options), true);
+
+    writeFileSync(
+      path.join(root, observerDirectory, "FR-A1.attempt"),
+      "forbidden\n",
+      "utf8",
+    );
+    assert.equal(observerPostDeleteCustodyIsValid(root, options), false);
+  } finally {
+    rmSync(root, { force: true, recursive: true });
+  }
+});
+
 test("observer ignore provenance cannot come from the repository exclude", () => {
   const { historicalCustody, root } = initializeObserverFixture();
   try {
@@ -868,9 +964,51 @@ test("observer ignore provenance cannot come from the repository exclude", () =>
   }
 });
 
-test("execution-frozen observer rejects every apply_patch mutation", () => {
+test("post-run observer permits only the exact checkpointed Delete", () => {
   const operation = (header) =>
     extractPatchOperations(`*** Begin Patch\n${header}\n*** End Patch`);
+  const exactDeleteCommand = `*** Begin Patch
+*** Delete File: ${observerPath}
+*** End Patch
+`;
+  const exactDelete = extractPatchOperations(exactDeleteCommand);
+  assert.equal(isObserverDeleteOperation(exactDelete), true);
+  assert.equal(observerDeleteDescriptorIsExact(exactDeleteCommand), true);
+  assert.equal(
+    evaluatePatchOperations(exactDelete, observerRoadmap(), projectRoot, {
+      observerDeleteCheckpoint: () => true,
+      patchCommand: exactDeleteCommand,
+    }).blocked,
+    false,
+  );
+  assert.equal(
+    evaluatePatchOperations(exactDelete, observerRoadmap(), projectRoot, {
+      observerDeleteCheckpoint: () => false,
+      patchCommand: exactDeleteCommand,
+    }).blocked,
+    true,
+  );
+  for (const changedCommand of [
+    exactDeleteCommand.trimEnd(),
+    exactDeleteCommand.replace("\n", "\r\n"),
+    exactDeleteCommand.replace("*** Delete File:", "*** Delete File: "),
+    `${exactDeleteCommand} `,
+  ]) {
+    assert.equal(observerDeleteDescriptorIsExact(changedCommand), false);
+    assert.equal(
+      evaluatePatchOperations(
+        extractPatchOperations(changedCommand),
+        observerRoadmap(),
+        projectRoot,
+        {
+          observerDeleteCheckpoint: () => true,
+          patchCommand: changedCommand,
+        },
+      ).blocked,
+      true,
+    );
+  }
+
   const exactAdd = operation(`*** Add File: ${observerPath}`);
   assert.equal(isObserverAddOperation(exactAdd), true);
   assert.equal(
