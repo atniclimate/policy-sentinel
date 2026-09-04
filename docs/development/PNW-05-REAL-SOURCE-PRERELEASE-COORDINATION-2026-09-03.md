@@ -1590,9 +1590,11 @@ credential, person/contact field, arbitrary error string, stack, or cause.
 The 34,744-byte source-authority portfolio report at SHA-256
 `5d496c6cbc5a49f4941f6167bed87fe3f931865c1e0e88150e95bfde563e7ab2`
 classifies every owner-named candidate, fixes the evidence ceilings and
-field/privacy boundaries, records every PF receipt hash, and ranks BIA first and
-an exact ATNI resolution second for a possible later separately authorized
-tranche; GAO remains an unranked reserve. Independent source/evidence, security,
+field/privacy boundaries, records every PF receipt hash, and ranks BIA first
+for prospective originating federal administrative value and a future ATNI
+single-resolution metadata-and-link tranche second; no exact resolution
+identity is selected, and GAO remains an unranked reserve. Independent
+source/evidence, security,
 and sovereignty reviewers each inspected that exact report and returned
 `APPROVE_PORTFOLIO_REPORT`. No source is qualified, admitted, configured,
 enabled, active, included in a corpus or artifact, assigned health, or given an

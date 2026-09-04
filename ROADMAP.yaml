@@ -4187,8 +4187,8 @@ work_items:
     evidence:
       - >-
         Dependency commit e0fb7e4150d9a6889d74d62bfb430b7c782eaac2 and roadmap
-        commit 4191b06 place the independently accepted lifecycle contract
-        behind this source-specific gate without qualifying or activating
+        commit 4191b06 place the lifecycle contract completed after independent
+        review behind this source-specific gate without qualifying or activating
         Federal Register.
       - >-
         On 2026-09-03 the lead issued only frozen requests FR-D1 and FR-R1
