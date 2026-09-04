@@ -161,12 +161,13 @@ not source authority. The ignored custody is exactly 43 evidence files totaling
 49,730 bytes; the disposable observer and both FR-A1 paths are absent. The 23
 owner inputs remain exact, untracked, non-ignored, index-absent, and HEAD-absent.
 
-BIA ranks first and one exact ATNI resolution ranks second only as prospective
-candidates for a separately authorized metadata-and-link evidence tranche; GAO
-is an unranked reserve. No candidate is selected, qualified, admitted,
-activated, or authorized for another request. BIA evidence cannot establish a
-Tribal position or ATNI membership, and an ATNI record cannot establish every
-member Nation's position. The default build remains network-free and synthetic.
+BIA ranks first and a future ATNI single-resolution metadata-and-link tranche
+ranks second only as prospective work for a separately authorized evidence
+tranche; no exact ATNI resolution identity is selected. GAO is an unranked
+reserve. No candidate is selected, qualified, admitted, activated, or authorized
+for another request. BIA evidence cannot establish a Tribal position or ATNI
+membership, and a later verified ATNI record cannot establish every member
+Nation's position. The default build remains network-free and synthetic.
 `G-PNW-SOURCE-ACTIVATION`, broad parent completion, publication, deployment,
 credentials, provider-term acceptance, paid/contact actions, private or land
 data, AI, notifications, ATNI/Nation inference, and K0/S0/O0 convergence remain

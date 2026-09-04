@@ -16,10 +16,10 @@ open an owner or external gate
 The authorized local lane reached a safe, recoverable terminal checkpoint, but
 not a complete real-source vertical slice. `RealSourceLifecycleBundle 1.0.0`
 and the narrow source-neutral `AnalyzedCorpus 1.0.0` child are implemented and
-independently accepted. The Federal Register Tier-1 branch stopped fail-closed
-when the single current R7 observation changed digest. The source remains not
-qualified, not admitted, disabled, inactive, unbound, unacquired, and absent
-from artifacts. PNW-06 and PNW-08 therefore did not start.
+completed after independent review. The Federal Register Tier-1 branch stopped
+fail-closed when the single current R7 observation changed digest. The source
+remains not qualified, not admitted, disabled, inactive, unbound, unacquired,
+and absent from artifacts. PNW-06 and PNW-08 therefore did not start.
 
 The separate source-authority portfolio discovery is complete. Its one
 authorized run exhausted PF-01 through PF-17, classified every owner-named
@@ -34,18 +34,23 @@ requires a new exact owner authorization.
 - The full authorized lane began from clean `main` at
   `3fd9c2cdb8e431e7ef57f328deced43777936a8f`, whose parent is
   `a50ce57f1a95715a01b39fe1ba7c8dd621d81d9a`.
-- This recovery wave reconstructed the predecessor at
-  `78804fd1a09b033502b92c5ac69f7674d99ca8dc`. The predecessor's durable
-  work was complete through `0f02dca2e7409d9ec5380bc4344f50d979c01d6e`;
-  the missing work was the already-designed portfolio execution/cleanup,
-  terminal hook closure, validation, roadmap/handoff reconciliation, and final
-  narration.
+- Recovery began from the exact committed predecessor checkpoint
+  `78804fd1a09b033502b92c5ac69f7674d99ca8dc`. Git evidence attributes
+  predecessor-completed committed work only through that checkpoint. Recovery-
+  integration commits `7e8a18c2448cf6c83c7cb74428846d228cccdf13` through
+  `0f02dca2e7409d9ec5380bc4344f50d979c01d6e` documented and hardened the
+  recovered custody, completed the D3/R6/R7 fail-closed observation, added the
+  source-neutral corpus child, advanced the portfolio child, and prepared the
+  non-reusable observer Add dispatch. Those descendants are recovery
+  integration, not predecessor commits.
 - The final pre-handoff implementation checkpoint is
   `e7d385ed960f3924a7ac39ee036ec20d8f298c2a`. Terminal handoff commit
   `7e2095fee329a66121d9aac626386f0b70e88220` changes exactly the roadmap,
-  backbone, continuation prompt, and this handoff. The follow-up ledger commit
-  is the final live `HEAD` named by the terminal report, avoiding a false self-
-  reference in that commit.
+  backbone, continuation prompt, and this handoff. Follow-up ledger commit
+  `36add8dd3c6c5bfaad315447f7c8332ec5179e91` binds that handoff, and
+  `3770b266546f82301ba35c7920c860630cd8060f` closes the coordination header's
+  stale active-state wording. Later wording/ledger repair commits are named by
+  the terminal report, avoiding false self-reference.
 - There is one worktree on `main` and no configured remote. No remote mutation,
   push, CI, Pages, deployment, release, publication, account, credential,
   provider-term acceptance, paid call, contact, private-data operation, AI
@@ -56,43 +61,47 @@ requires a new exact owner authorization.
 
 ## What the predecessor completed
 
-The predecessor established the exact authorization and request ceiling,
-implemented and froze the real-source lifecycle contract, performed only the
-approved Federal Register documentation/evidence observations, built the
-Tier-1 parser/transport and fail-closed authority graph, stopped the Federal
-Register branch on R7 digest drift, implemented the source-neutral corpus
-child, activated the independent portfolio child, hardened the repository hook,
-and prepared the non-reusable portfolio-observer Add dispatch. It issued no
-FR-A1 request and created no real record, corpus, health receipt, LKG, artifact,
-or browser output.
+Through the exact recovered checkpoint, the predecessor established the
+authorization and request ceiling, implemented and froze the real-source
+lifecycle contract, completed the first seven approved Federal Register
+documentation/evidence observations, built and repaired the Tier-1
+parser/transport and 17-path fail-closed admission gate, and froze reproducible
+authority custody for the next evidence attempt. It preserved rejected freezes
+and review outcomes rather than rewriting them into success. It had not issued
+D3, R6, R7, or FR-A1 and had created no real record, corpus, health receipt,
+LKG, artifact, or browser output.
 
-The predecessor also preserved each rejected freeze and review outcome rather
-than rewriting it into success. The recovery did not repeat any completed
-request, reset any limit, or reuse a stale observation as current evidence.
+Recovery integration from `7e8a18c` through `0f02dca` completed the documented
+work listed above. The recovery did not repeat any completed request, reset any
+limit, or reuse a stale observation as current evidence.
 
 ## Recovery and closeout work
 
-1. The exact portfolio observer was added through the frozen Pre/Add/Post
+1. Recovery integration committed the reconstructed checkpoint, repaired the
+   hook and evidence observer, issued D3/R6/R7 only once under the frozen plan,
+   recorded the R7 evidence block, completed the source-neutral corpus child,
+   and prepared the separately controlled portfolio observer Add.
+2. The exact portfolio observer was added through the frozen Pre/Add/Post
    equivalence, committed, self-tested offline, and independently reviewed.
-2. The sole live portfolio invocation ran at committed `HEAD` once. It made 17
+3. The sole live portfolio invocation ran at committed `HEAD` once. It made 17
    serial DNS/HTTPS first attempts with no redirect or retry and retained only
    bounded latches and minimized receipts.
-3. The portfolio report was independently approved. It preserves per-candidate
+4. The portfolio report completed independent review. It preserves per-candidate
    authority, contract, interface, privacy, rights, coverage, lifecycle, and
    non-inference ceilings.
-4. The observer was removed through the separately committed 124-byte
+5. The observer was removed through the separately committed 124-byte
    Pre/Delete/Post transition. The spent exception cannot be replayed.
-5. The terminal hook was repaired inline and committed. It freezes owner-input
+6. The terminal hook was repaired inline and committed. It freezes owner-input
    and observer patches, binds canonical workdirs/reads/staging, admits only
    narrow one-command positive shell forms, and defaults unknown or compound
    commands to denial. It is a repository workflow guardrail, not an operating-
    system sandbox.
-6. Browser validation found a retained-app defect: the static skip link entered
+7. Browser validation found a retained-app defect: the static skip link entered
    a false hash route. Commit
    `e7d385ed960f3924a7ac39ee036ec20d8f298c2a` intercepts only that activation,
    preserves the route, focuses `<main>` in every app state, and adds two
    regression tests.
-7. The roadmap, backbone, continuation prompt, and this handoff were reconciled
+8. The roadmap, backbone, continuation prompt, and this handoff were reconciled
    to the terminal state. No completed observer or source request is launchable
    from the recovery instructions.
 
@@ -139,7 +148,7 @@ shards, health receipts, LKG revisions, or public artifacts.
 
 | Capability | Terminal state |
 | --- | --- |
-| Real-source lifecycle contract | Complete and independently accepted; candidate remains `evidence_blocked` |
+| Real-source lifecycle contract | Complete after independent review; candidate remains `evidence_blocked` |
 | Federal Register Tier-1 qualification | Blocked on consumed R7 digest drift; no retry or FR-A1 |
 | Source admission / local activation | Not admitted; disabled, inactive, and unbound |
 | Sealed-byte refresh / health / LKG | Not started; no real receipt or fallback exists |
@@ -152,11 +161,12 @@ shards, health receipts, LKG revisions, or public artifacts.
 
 BIA is ranked first only for prospective originating federal administrative
 value. It is not Tribal voice and cannot establish ATNI membership, Nation
-assent, a Nation position, or consultation sufficiency. One exact ATNI
-resolution is ranked second only for prospective PNW-specific collective-policy
-value; without exact Nation authorship/adoption evidence, it can establish only
-ATNI's own dated record, never every member Nation's position. GAO is an
-unranked reserve. No candidate is selected and no request, contract,
+assent, a Nation position, or consultation sufficiency. A future ATNI single-
+resolution metadata-and-link tranche ranks second only for prospective PNW-
+specific collective-policy value; no exact resolution identity is selected.
+Without exact Nation authorship/adoption evidence, a later verified record could
+establish only ATNI's own dated record, never every member Nation's position.
+GAO is an unranked reserve. No candidate is selected and no request, contract,
 qualification, onboarding, or activation is authorized.
 
 ## Validation evidence
@@ -215,7 +225,8 @@ discipline remain necessary.
 ## Complete authorized-lane commit chain
 
 The following descendants of the starting checkpoint are the complete chain
-through the terminal handoff commit:
+through the reviewed stale-status repair. Later terminal wording/ledger commits
+are named in the terminal report:
 
 ```text
 c14dc7d4b69959d94745e61078ad804b3524f999 governance: authorize local real-source prerelease lane
@@ -250,6 +261,8 @@ b60a7a34097ec7fd83d6ec9ce1634633ef961d3a fix: close terminal hook custody
 325600b90336be3d8394d2c865bf415c0b4ee417 docs: record terminal observer custody
 e7d385ed960f3924a7ac39ee036ec20d8f298c2a fix: preserve hash route on skip navigation
 7e2095fee329a66121d9aac626386f0b70e88220 docs: close real-source prerelease checkpoint
+36add8dd3c6c5bfaad315447f7c8332ec5179e91 docs: bind prerelease terminal handoff
+3770b266546f82301ba35c7920c860630cd8060f docs: close stale prerelease status
 ```
 
 ## Exact tracked path manifest
