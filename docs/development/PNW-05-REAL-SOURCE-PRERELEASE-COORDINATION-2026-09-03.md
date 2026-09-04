@@ -1417,17 +1417,36 @@ concurrent writer may run, all six hook trust files must be canonical and
 contain exactly the eight approved historical files, and all 37 reserved names
 must be absent.
 
-The lead must pass the exact one-operation patch envelope, canonical repository
-working directory, `tool_name=apply_patch`, and
-`tool_input.command=<the exact patch envelope>` to the committed
-`scripts/codex-hooks.mjs` as a canonical `PreToolUse` JSON event. Pre must exit
-zero with empty standard error and exactly empty standard output. With no
-intervening tool or state mutation, the lead may pass the byte-identical patch
-envelope to `apply_patch`; it must contain exactly one literal canonical
-`*** Add File: generated-data/real-source-prerelease/observe-source-authority-portfolio.mjs`
-operation and nothing else. With no intervening operation, the lead must pass
-the same envelope and event identity as a canonical `PostToolUse` JSON event.
-The amendment commit, `HEAD`, and event-payload SHA-256 must be recorded.
+Manual dispatch uses a fixed descriptor `D`: the following four UTF-8/LF lines
+plus one terminal LF, exactly 170 bytes at SHA-256
+`01b840c7e917deb5459c8b64c780ec26bd706087b0ec55efc47f913dcc0d4943`:
+
+```text
+*** Begin Patch
+*** Add File: generated-data/real-source-prerelease/observe-source-authority-portfolio.mjs
++// manual-dispatch descriptor only; never apply
+*** End Patch
+```
+
+`D` must never be passed to `apply_patch`. The committed parser must first prove
+that it yields exactly one operation whose action is `Add`, whose `headerPath`
+is exactly one ASCII space followed by the canonical observer path, and whose
+raw path and repository path are each the one literal canonical observer path.
+The lead must pass unchanged `D`, the canonical repository
+working directory, `tool_name=apply_patch`, and `tool_input.command=D` to the
+committed hook as a canonical `PreToolUse` JSON event. Pre must exit zero with
+empty standard error and exactly empty standard output.
+
+The actual patch `P` may differ from `D` only in its Add-file body. Its parsed
+operation manifest must be the same sole literal Add action/path/header, with no
+Update, Delete, Move, second header, or other path. Pre authorizes only that
+operation identity; it does not approve `P`'s body, provenance, safety, or
+execution. With no intervening tool or state mutation after Pre, the lead may
+pass `P` once to `apply_patch`. With no intervening operation, the lead must pass
+unchanged `D` as the canonical `PostToolUse` event. Pre and Post differ only in
+`hook_event_name`; `D`, working directory, tool name, and tool input are
+identical. The amendment commit, `HEAD`, `D` identity, `P` SHA-256 and parsed
+manifest, and patch-tool outcome must be recorded.
 
 Post must exit zero with empty standard error and emit only the expected static
 observer-warning JSON, with no deny/block and without executing the observer.
@@ -1438,6 +1457,13 @@ unchanged; every reserved name must remain absent; and the observer must be
 ignored, untracked, and absent from index and `HEAD`. Any deviation freezes this
 branch, leaves the observer unexecuted, and requires a newly reviewed repair or
 Delete transition—there is no retry or silent cleanup.
+
+Post-authoring status and diff evidence must show no tracked/index/`HEAD` change
+and no new untracked or ignored entry except the observer. Record the resulting
+observer byte length and SHA-256. Before any self-test, import, Node launch, DNS,
+network, or PF action, fresh independent source/evidence, security, and
+sovereignty approvals must bind and inspect those exact body bytes. Any byte
+change voids approval; syntax and lint success alone never approve code.
 
 This one-Add equivalence expires immediately after Post. It grants no offline
 self-test, process launch, DNS/network request, PF attempt, receipt, source fact,

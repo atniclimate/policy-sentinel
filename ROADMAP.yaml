@@ -4503,7 +4503,10 @@ work_items:
         unproved. The coordination record freezes a non-reusable direct
         Pre/Add/Post dispatch equivalence for this one observer Add; it must be
         committed and exercised exactly before any observer or PF request can
-        exist.
+        exist. Manual Pre and Post use one fixed 170-byte operation descriptor;
+        the actual patch may differ only in body, is checked for the same sole
+        literal Add operation, and gains no execution approval until fresh
+        exact-byte source, security, and sovereignty review.
 
   - id: PNW-05-SOURCE-PACK
     priority: 141
