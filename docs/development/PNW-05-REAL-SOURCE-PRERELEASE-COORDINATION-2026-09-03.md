@@ -6,9 +6,10 @@ Authorization token: `PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE`
 
 Starting HEAD: `3fd9c2cdb8e431e7ef57f328deced43777936a8f`
 
-Status: active; lifecycle contract committed and Federal Register Tier-1
-evidence closure in progress; seven official-evidence requests issued, exact
-document acquisition still unissued
+Status: active; lifecycle contract committed; Federal Register Tier-1
+qualification evidence-blocked after ten official-evidence requests because R7
+changed digest; source-neutral PNW-07 in progress; exact document acquisition
+still unissued
 
 ## Authority and non-claims
 
@@ -412,10 +413,12 @@ files. No agent may expand a lease or commit.
 
 ## Frozen external request ledger and budgets
 
-At freeze time no request had been issued. The execution log below now records
-seven completed evidence requests; `FR-A1` and all portfolio requests remain
-unissued. The owner envelope permits HTTPS `GET` or `HEAD`, but the exact
-initial set below contains only `GET`; no `HEAD` is ledgered for execution.
+At freeze time no request had been issued. The first execution-wave log below
+records seven completed evidence requests; the later recovery appendix records
+three additional completed evidence requests, for ten issued attempts in all.
+`FR-A1` and all portfolio requests remain unissued. The owner envelope permits
+HTTPS `GET` or `HEAD`, but the exact initial set below contains only `GET`; no
+`HEAD` is ledgered for execution.
 Each exact request uses manual redirect inspection with no redirect follow,
 omits credentials/cookies/referrer, uses no user/Nation/private/location/
 session-derived query value, and has no automatic retry. Any `429` stops the
@@ -1130,3 +1133,69 @@ snapshots remained identical at exactly three custody files. D3/R6/R7 and
 FR-A1 still have no attempt or receipt at this checkpoint. The network launch
 must use the identical pre-start environment scrub, exact absolute observer
 path, and sole `--execute-approved-D3-R6-R7` token; no retry is authorized.
+
+## Reproducible-authority observation result and branch transition
+
+At `2026-09-04T06:53:21.251Z`, after the committed observer checkpoint and an
+immediate exact hash/time/latch preflight, the lead invoked the approved
+observer once from the same 32-name prelaunch-sanitized environment. It created
+one exclusive attempt and one aggregate receipt for each of D3, R6, and R7.
+All three transport responses were `200`, serial, UTF-8, identity encoded, and
+within their byte, chunk, and time ceilings. D3 completed with 230,046 bytes in
+16 chunks at exact approved SHA-256
+`06e06bfd397c49d600bab6d6c3eb4c1e2c07394f13544ffe193ae88385448d71`.
+R6 completed with 83,240 bytes in seven chunks at exact approved SHA-256
+`272f27476b26ff1ee8ab534cacbb29595a12aaf05625c3a0923e13b80387441e`.
+R7 observed 112,041 bytes in 54 chunks, but SHA-256
+`a6b78324e66267aed2c3946eca68ba30ae23f8cf42e9c2633d2bb36cd92a3ae5`
+did not equal approved digest
+`6928c58b8617d0b012408eb835bbae0e8b5e7b3496d149552de0622281f0e1c4`.
+It therefore wrote the bounded failure `evidence_digest_drift` and the process
+exited nonzero. No request was retried; FR-A1 remains absent.
+
+The new run totals are three attempts, 425,327 observed bytes, 77 chunks, zero
+redirect follows, zero retries, zero credentials, cookies, or referrers, and
+zero retained raw bytes. Cumulative prerelease custody is now ten issued
+attempts and ten `200` transport responses, of which nine are evidence-accepted
+and one is evidence-rejected; 1,340,143 observed bytes and 278 chunks; and zero
+redirects, retries, or raw-body persistence. Ledger arithmetic is ten issued +
+18 exact-unissued (`FR-A1` plus `PF-01` through `PF-17`) + 52 unavailable = 80.
+Seventy capacity slots remain, but capacity is not authority.
+
+The six generated request-custody files are:
+
+| Path | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `FR-D3.attempt` | 462 | `5d75db276f07ce0811022778e3852a99512c2b8866bc93262c3519d730848068` |
+| `FR-D3.receipt.json` | 1,103 | `f58ca7aa9d789c8d804e593e327ae1ca3ad1f44402ae127253ced01bc6e492f6` |
+| `FR-R6.attempt` | 462 | `69b8db8228af680b43050ce1193f349eb70fc9d2a3454f46c0b4c997a57b400d` |
+| `FR-R6.receipt.json` | 1,093 | `093ca14e300c59a1462ff0e71d65131463be15e4a57fadb672d56cdc3cbc770b` |
+| `FR-R7.attempt` | 462 | `eac7bc42975de100326110fa2ae75317981e9fc687adec3bb480fba21931712e` |
+| `FR-R7.receipt.json` | 1,075 | `e9db0fedaca0b558ca92797451c474dbe069c05b86359a7dfacffaac282435ad` |
+
+Independent source review accepts D3 and R6 only as byte-identical current
+observations for the five previously reviewed source-identity, field-meaning,
+access-requirement, official-status, and narrow reproduction-right facts. It
+accepts no new fact from either response. R7 supports only its aggregate failed
+observation. No semantic change, outage, current rendition custody, coverage,
+permission, withdrawal, health, or provider intent may be inferred because no
+body was retained. Historical R5 predates the current reproducible authority
+graph and cannot substitute. No provider-fact receipt has been issued.
+
+Fresh security and sovereignty reviews returned respectively
+`APPROVE_AUTHORITY_EVIDENCE_CUSTODY` and
+`EVIDENCE_BLOCKED_R7_DIGEST_DRIFT__BLOCK_FEDERAL_REGISTER_TIER1__ADVANCE_PNW_07`.
+The Federal Register Tier-1 work item is therefore blocked on the pending
+qualification gate; PNW-06 stays not started, the source stays disabled and
+absent from artifacts, and FR-A1 stays closed. A later recovery requires a new
+separately authorized evidence operation or a separately reviewed narrower
+contract, never an R7 retry or relabeling.
+
+After all post-run reviews completed and the exact observer/plan hashes were
+already committed, the lead removed only the disposable one-shot observer as
+its contract required. That ignored file is not recoverable from Git; its
+30,310-byte SHA-256 and 2,446-byte plan SHA-256 remain recorded above. The two
+authority files and all six attempt/receipt files remain ignored, untracked,
+unchanged, and outside the ordinary build. The source-neutral PNW-07 analyzed
+corpus is the next lowest-priority authorized ready work and becomes the sole
+active item; portfolio discovery remains independently ready.

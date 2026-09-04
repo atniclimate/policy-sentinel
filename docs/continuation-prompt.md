@@ -3,12 +3,12 @@
 Status: current after the owner authorized the exact local
 `PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE` child lane on 2026-09-03. The
 lane is additive to the completed synthetic seams and does not change broad
-PNW-05 through PNW-08 statuses. Its first item,
-`PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT`, is active; bounded Federal Register
-qualification, refresh/LKG, one analyzed-corpus projection, one ignored local
-application, and parallel source-authority portfolio discovery remain governed
-by their recorded dependencies and evidence gates. Git and the validated
-`ROADMAP.yaml` remain authoritative over this prose and over chat memory.
+PNW-05 through PNW-08 statuses. The lifecycle contract is complete; Federal
+Register Tier-1 qualification is evidence-blocked on the consumed R7 digest
+drift, with no retry or FR-A1 authority. The source-neutral
+`PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION` is active, and
+source-authority portfolio discovery remains independently ready. Git and the
+validated `ROADMAP.yaml` remain authoritative over this prose and chat memory.
 
 ## Start and recover
 
@@ -144,15 +144,17 @@ source, and terms/privacy/operations/schema/coverage/authority/health/LKG
 evidence remains incomplete. The source is not admitted, disabled, inactive,
 unbound, and absent from public artifacts.
 
-The exact current item is `PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT`. Freeze its
-candidate bytes and obtain the required source-evidence and sovereignty
-reviews before the first external request. Then follow the roadmap through the
-bounded Federal Register Tier-1 admission, refresh/LKG, canonical corpus
-projection, and ignored local prerelease application, while the authorized
-portfolio discovery may proceed independently. Keep the request ledger current:
-no more than 80 external requests overall, 30 to the Federal Register API,
-concurrency two overall and one per host, with no automatic retries and at most
-one deliberate transient retry. The default build stays network-free.
+The exact current item is
+`PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION`. Implement only its
+source-neutral corpus and reference-projection contract. Federal Register D3
+and R6 matched approved evidence, but the consumed R7 attempt failed
+`evidence_digest_drift`; do not retry it, infer changed meaning, reuse the
+pre-current-graph R5 observation, or issue FR-A1. The ignored custody contains
+two authority files plus six attempt/receipt files; the disposable observer was
+removed after review. Portfolio discovery may proceed independently after the
+corpus checkpoint. Keep the request ledger at ten issued, 18 exact-unissued,
+and 52 unavailable within 80 unless a still-authorized exact portfolio request
+is issued. The default build stays network-free.
 `G-PNW-SOURCE-ACTIVATION`, broad parent completion, publication, deployment,
 credentials, provider-term acceptance, paid/contact actions, private or land
 data, AI, notifications, ATNI/Nation inference, and K0/S0/O0 convergence remain

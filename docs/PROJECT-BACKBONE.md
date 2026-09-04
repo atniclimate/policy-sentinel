@@ -69,6 +69,7 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | PNW-05 Federal Register admission-review dossier | [`federal-register-admission-review-2026-09-02.md`](source-reviews/federal-register-admission-review-2026-09-02.md) | Maps every real-source predicate and authority/non-inference boundary; recommends no-go with disposition `evidence blocked`, without asserting owner acceptance |
 | PNW-05 Federal Register admission-review handoff | [`pnw-federal-register-admission-review-2026-09-02.md`](handoffs/pnw-federal-register-admission-review-2026-09-02.md) | Terminal evidence for the no-fetch review and validator closure; source remains not admitted, disabled, inactive, unbound, and non-production |
 | Current real-source prerelease coordination | [`PNW-05-REAL-SOURCE-PRERELEASE-COORDINATION-2026-09-03.md`](development/PNW-05-REAL-SOURCE-PRERELEASE-COORDINATION-2026-09-03.md) | Records the exact local child-lane authority, custody, path and request budgets, evidence gates, and stop contract; it does not authorize publication or broaden the retained parent graph |
+| Current Federal Register prerelease source review | [`federal-register-real-source-prerelease-2026-09-03.md`](source-reviews/federal-register-real-source-prerelease-2026-09-03.md) | Records the R7 digest-drift evidence block, D3/R6 fact ceiling, no-retry custody, and closed FR-A1 state; it does not infer changed provider meaning or admit the source |
 | K0/S0/O0 custody and D0 historical status | [`vision/README.md`](vision/README.md) | Protected bytes and convergence gates remain controlling |
 
 The completed product-space mapping and lossless B-to-PNW crosswalk remain in
@@ -100,7 +101,7 @@ transition.
 | Governed geography and configured rights seam | PNW-03 implemented as a separate synthetic `1.0.0` catalog with typed temporal relations, source-bound frames, exact grants, and reference-only projection | no real geography or rights evidence, GIS computation, legal determination, public integration, or S0 convergence |
 | Governed taxonomy and directional crosswalk seam | PNW-04 implemented as a separate synthetic `1.0.0` authority/scheme-separated catalog with exact evidence/review, direct many-to-many edges, and reference-only projection | no real ATNI/NCAI/Nation/source/community vocabulary, production classification, source activation, public integration, or position inference |
 | Governed source-pack admission seam | PNW-05 core implemented as a separate synthetic-test-only `1.0.0` closed graph with exact contract/evidence/coverage/authority/review/admission proof, scoped health/availability, typed gaps, deterministic requester projections, and no I/O | no real source qualification, access, terms acceptance, coverage, currentness, lifecycle/LKG, ingestion, analyzed corpus, activation, or publication |
-| Local real-source prerelease child lane | exact owner-authorized additive work is active, beginning with a real-source lifecycle contract; Federal Register qualification, bounded refresh/LKG, one analyzed-corpus projection, and one local application remain evidence-gated child outcomes | no parent PNW-05/06/07/08 completion, ATNI or Nation association, production activation, deployment, or publication |
+| Local real-source prerelease child lane | lifecycle contract complete; Federal Register qualification blocked on R7 digest drift; source-neutral analyzed-corpus projection active and portfolio discovery independently ready | no Federal Register retry/admission/activation, parent PNW-05/06/07/08 completion, ATNI or Nation association, deployment, or publication |
 | ATNI regional registry | intended and evidence-gated | owner direction and 575 recognition evidence do not supply membership |
 | Canonical analyzed corpus and common document/web/app/structured adapters | accepted target architecture | current artifact, dossier, CSV, and app are precursors only |
 
@@ -141,7 +142,7 @@ telemetry, browser-side AI, or outbound notifications.
 | PNW-03 | Complete as a bounded synthetic geography/rights tranche |
 | PNW-04 | Complete as a bounded synthetic governed-taxonomy tranche |
 | PNW-05 | Broad parent remains ready and non-complete; an additive, exact-scope local prerelease child lane is active without changing that parent status |
-| Local real-source prerelease child lane | `PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT` is in progress; bounded Federal Register admission, refresh/LKG, analyzed-corpus projection, and local application are dependency-ordered; source-authority portfolio discovery is independently ready |
+| Local real-source prerelease child lane | lifecycle contract complete; Federal Register admission blocked on current R7 digest drift with FR-A1 closed; `PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION` active; source-authority portfolio discovery independently ready |
 | PNW-06 through PNW-10 | Broad parent items remain not started behind their recorded dependencies; similarly named prerelease children do not satisfy them |
 | Publication | Closed; both local product finish scopes and exact owner operations are prerequisites |
 
@@ -229,10 +230,11 @@ npm run validate:backbone
 The owner has authorized the exact local child lane
 `PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE`. Recover its frozen boundary and
 request ledger from the current coordination record above. The exact active
-item is `PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT`; use the roadmap's ordered
-children and do not treat a child as completion evidence for its similarly
-named broad parent. The default application/build remains network-free and
-synthetic until a separate ignored prerelease build is proven. Federal Register
-qualification and local activation remain pending evidence; publication and
-every remote, credential, provider-terms, paid/contact, private-data, AI,
+item is `PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION`; use the
+roadmap's ordered children and do not treat a child as completion evidence for
+its similarly named broad parent. Federal Register qualification is
+evidence-blocked on the consumed R7 digest drift, no retry or FR-A1 is
+authorized, and PNW-06/08 remain dependency-closed. The default
+application/build remains network-free and synthetic. Publication and every
+remote, credential, provider-terms, paid/contact, private-data, AI,
 notification, ATNI/Nation-association, and convergence gate remain closed.

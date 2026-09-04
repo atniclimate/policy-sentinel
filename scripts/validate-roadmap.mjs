@@ -425,20 +425,20 @@ for (const [index, item] of workItems.entries()) {
         `${path}.authorization_gate references unknown gate ${item.authorization_gate}`,
       );
     }
+    const authorizationGateState = gateById.get(item.authorization_gate).state;
     if (
       item.status === "blocked" &&
+      !["approved", "satisfied"].includes(authorizationGateState) &&
       !item.blocked_by.includes(item.authorization_gate)
     ) {
       fail(`${id} is blocked but authorization_gate is absent from blocked_by`);
     }
     if (
       item.status !== "blocked" &&
-      !["approved", "satisfied"].includes(
-        gateById.get(item.authorization_gate).state,
-      )
+      !["approved", "satisfied"].includes(authorizationGateState)
     ) {
       fail(
-        `${id} cannot be ${item.status} while authorization gate ${item.authorization_gate} is ${gateById.get(item.authorization_gate).state}`,
+        `${id} cannot be ${item.status} while authorization gate ${item.authorization_gate} is ${authorizationGateState}`,
       );
     }
   }

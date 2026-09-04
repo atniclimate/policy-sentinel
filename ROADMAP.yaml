@@ -5,12 +5,11 @@ project:
   root: 'I:\policy-sentinel'
   phase: >-
     Additive RealSourceLifecycleBundle 1.0.0 contract independently byte-frozen
-    and accepted; Federal Register Tier-1 exact-document qualification now in
-    progress after seven bounded documentation/evidence requests, with the
-    reproducible-authority D3/R6/R7 refresh authorized but unissued after the
-    repaired observer passed three exact-byte reviews and one offline self-test,
-    FR-A1 unissued, and all activation and publication authority still closed
-  updated_on: "2026-09-03"
+    and accepted; Federal Register Tier-1 qualification evidence-blocked after
+    ten bounded documentation/evidence requests because R7 changed digest;
+    source-neutral PNW-07 analyzed-corpus work in progress while FR-A1 and all
+    activation and publication authority remain closed
+  updated_on: "2026-09-04"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
     prove its present definition of done through the intended 59 current ATNI
@@ -727,19 +726,19 @@ baseline:
         configured.
 
 current_focus:
-  work_item: PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION
+  work_item: PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION
   objective: >-
-    Requalify only the frozen Federal Register Tier-1 exact-document operation
-    from current official evidence, implement its bounded parser/transport and
-    exact receipts, and either admit that narrow local pilot or record one
-    precise source-specific evidence block without widening any request or gate.
+    Build and verify the source-neutral immutable analyzed-corpus contract and
+    reference projection while preserving general_jurisdiction, zero Nation
+    associations, exact field provenance, lifecycle bindings, and Unclassified
+    fallback without using or implying blocked Federal Register activation.
   terminal_reason: null
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 45689cb9b837e8de09f2be0f8cb9a8aed7b9467b
+  last_durable_checkpoint: e357d34461739b30180e5b4d4767dd3076223b25
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -4162,11 +4161,13 @@ work_items:
     milestone: PNW local real-source prerelease
     title:
       Federal Register Tier-1 exact-document qualification and local admission
-    status: in_progress
+    status: blocked
     dependencies:
       - PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT
       - B4-FR-ADAPTER
     authorization_gate: G-PNW-05-REAL-SOURCE-PRERELEASE
+    blocked_by:
+      - G-PNW-05-FR-TIER1-QUALIFICATION
     acceptance:
       - >-
         Current official evidence supports the exact keyless metadata/link
@@ -4344,6 +4345,38 @@ work_items:
         exact launch must remove the same plan-bound denylist before Node starts
         and the observer must recheck it in process. D3/R6/R7 and FR-A1 remain
         unissued at this checkpoint.
+      - >-
+        On 2026-09-04 the single authorized serial observer run consumed D3, R6,
+        and R7 exactly once. D3 and R6 returned 200 and matched their prior
+        approved digests; R7 returned 200 HTML/UTF-8/identity with 112,041 bytes
+        and 54 chunks but failed closed as evidence_digest_drift at SHA-256
+        a6b78324e66267aed2c3946eca68ba30ae23f8cf42e9c2633d2bb36cd92a3ae5 versus
+        approved
+        6928c58b8617d0b012408eb835bbae0e8b5e7b3496d149552de0622281f0e1c4. The
+        three requests observed 425,327 bytes and 77 chunks with zero redirects,
+        retries, credentials, cookies, referrers, or retained raw bytes.
+        Cumulative custody is 10 issued, 18 exact-unissued, and 52 unavailable
+        within 80; FR-A1 remains absent. Independent source, security, and
+        sovereignty reviews accept D3/R6 only as evidence for previously
+        reviewed facts, infer nothing from R7 drift, approve the six generated
+        custody files, and require this source-specific block. The disposable
+        observer was removed after review; both authority files and all six
+        attempt/receipt files remain ignored and untracked.
+    safe_fallback: >-
+      Keep federal-register disabled, not admitted, inactive, unbound, absent
+      from real and public artifacts, and unavailable to PNW-06/08. Preserve the
+      aggregate attempt/receipt custody and continue only source-neutral corpus
+      and independently authorized portfolio work.
+    unblocks_only_when: >-
+      A separately authorized newly frozen current GovInfo evidence operation,
+      or a separately reviewed narrower contract that removes every unsupported
+      GovInfo-dependent claim, passes fresh source, security, and sovereignty
+      review. The consumed R7 attempt cannot be retried or relabeled.
+    next_step: >-
+      Do not issue FR-A1 or create qualification, admission, activation,
+      coverage, health, LKG, artifact, or publication receipts. Continue the
+      active PNW-07 source-neutral corpus work and keep portfolio discovery
+      independently ready.
 
   - id: PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG
     priority: 137
@@ -4371,7 +4404,7 @@ work_items:
     priority: 138
     milestone: PNW local real-source prerelease
     title: General-jurisdiction real-source corpus and reference projection
-    status: ready
+    status: in_progress
     dependencies:
       - PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT
       - PNW-04-TAXONOMY
@@ -5146,16 +5179,17 @@ next_actions:
   - order: 6
     work_item: PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION
     action: >-
-      Execute only the approved frozen official-evidence requests, seal their
-      bounded observations, implement the exact Tier-1 parser and transport, and
-      issue no document request until current evidence, expiring residual
-      decisions, and both source/security and sovereignty reviews pass.
+      Remain evidence-blocked on the consumed R7 digest drift. Do not retry R7,
+      reuse pre-current-graph R5, infer changed semantics, or issue FR-A1.
+      Reopen only through a separately authorized new evidence operation or a
+      separately reviewed narrower contract.
   - order: 7
     work_item: PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION
     action: >-
-      Build the source-neutral analyzed-corpus contract only within the
+      Complete the active source-neutral analyzed-corpus contract within the
       authorized real-source lane, preserving general_jurisdiction, zero Nation
-      associations, and Unclassified fallback while the source branch qualifies.
+      associations, exact lifecycle/provenance bindings, and Unclassified
+      fallback without treating the blocked source as active or acquired.
   - order: 8
     work_item: PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY
     action: >-

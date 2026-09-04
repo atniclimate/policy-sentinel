@@ -840,7 +840,18 @@ test("additive stage governance cannot affect protected release accounting", asy
     /G-O0-SYNTHETIC\.authorized_through must be a non-empty string/,
   );
 
-  const unrecordedAuthorizationBlock = makeRoadmap();
+  const approvedAuthorizationIsNotABlocker = makeRoadmap();
+  approvedAuthorizationIsNotABlocker.work_items.find(
+    (item) => item.id === "O0-ORCHESTRATION",
+  ).blocked_by = ["X-CLOSED"];
+  await expectValid(
+    "approved-authorization-is-not-a-blocker",
+    approvedAuthorizationIsNotABlocker,
+  );
+
+  const unrecordedAuthorizationBlock = makeRoadmap({
+    authorizationState: "closed",
+  });
   unrecordedAuthorizationBlock.work_items.find(
     (item) => item.id === "O0-ORCHESTRATION",
   ).blocked_by = ["X-CLOSED"];
