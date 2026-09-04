@@ -1382,3 +1382,64 @@ originating authority remain distinct. Congress.gov, GovInfo, Regulations.gov,
 SAM, credentials, accounts, terms acceptance, source admission, activation,
 coverage, health, LKG, artifacts, publication, and broad completion remain
 closed.
+
+### One-Add manual hook-dispatch equivalence
+
+Commit `a7a266c42a822ecb6ef400a6a1c3d31d0a17efdc` replaces the exhausted Federal
+Register observer exception with the portfolio Add-only gate. Its exact reviewed
+two-file LF TSV manifest is 199 bytes at SHA-256
+`a91f27b5d2bc08a552db97ab9eed7559beaf5fa34cba8da7af6f40a001fc4ad7`:
+`scripts/codex-hooks.mjs` is 50,294 bytes at
+`4a64689d220b20fa71f5db6f4c7288091c1acc11d07eeae85a2b66d5ee478d87`,
+and `tests/hooks/codex-hooks.test.mjs` is 34,650 bytes at
+`acae4b204cfdb1b972a9f97c2fc898121f05871e255caa44519cdf0ed5b84c1c`.
+The focused suite passed 18 of 18 with syntax, lint, format, and diff checks.
+Fresh adversarial review approved only this Add-authoring checkpoint after
+closing literal-path-normalization and Git assume-unchanged/skip-worktree
+concealment bypasses.
+
+At that committed HEAD, direct production probes returned
+`authority=true`, `trust=true`, `pre=true`, and `post=false`. A safe nested
+`apply_patch` deny probe against a nonexistent hunk in `FR-D3.attempt` reached
+the patch tool's own verification failure, emitted no repository-hook decision,
+and made no mutation. Automatic repository-hook delivery/reload is therefore
+unavailable through this session's API wrapper and must not be reported as
+passed. A direct invocation of the committed hook separately returned exact
+`deny` for that protected path and silent allow for the exact portfolio Add.
+
+The following equivalence supersedes only the active-client-delivery clause for
+this session and this one observer Add. It is not reusable. Immediately before
+Add, the amendment containing this paragraph must be committed at `HEAD`,
+tracked state must be clean apart from the exact protected owner inputs, no
+concurrent writer may run, all six hook trust files must be canonical and
+`HEAD`-equal, the production probe must again return
+`authority=true/trust=true/pre=true/post=false`, the generated directory must
+contain exactly the eight approved historical files, and all 37 reserved names
+must be absent.
+
+The lead must pass the exact one-operation patch envelope, canonical repository
+working directory, `tool_name=apply_patch`, and
+`tool_input.command=<the exact patch envelope>` to the committed
+`scripts/codex-hooks.mjs` as a canonical `PreToolUse` JSON event. Pre must exit
+zero with empty standard error and exactly empty standard output. With no
+intervening tool or state mutation, the lead may pass the byte-identical patch
+envelope to `apply_patch`; it must contain exactly one literal canonical
+`*** Add File: generated-data/real-source-prerelease/observe-source-authority-portfolio.mjs`
+operation and nothing else. With no intervening operation, the lead must pass
+the same envelope and event identity as a canonical `PostToolUse` JSON event.
+The amendment commit, `HEAD`, and event-payload SHA-256 must be recorded.
+
+Post must exit zero with empty standard error and emit only the expected static
+observer-warning JSON, with no deny/block and without executing the observer.
+Production probes must then return
+`authority=true/trust=true/pre=false/post=true`; generated inventory must be
+exactly the eight historical files plus the observer; historical hashes must be
+unchanged; every reserved name must remain absent; and the observer must be
+ignored, untracked, and absent from index and `HEAD`. Any deviation freezes this
+branch, leaves the observer unexecuted, and requires a newly reviewed repair or
+Delete transition—there is no retry or silent cleanup.
+
+This one-Add equivalence expires immediately after Post. It grants no offline
+self-test, process launch, DNS/network request, PF attempt, receipt, source fact,
+source acceptance, admission, activation, artifact, publication, or cleanup
+authority.

@@ -740,7 +740,7 @@ current_focus:
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: ecbf0f936067a11e6e3cc22ce80846238abbf2b8
+  last_durable_checkpoint: a7a266c42a822ecb6ef400a6a1c3d31d0a17efdc
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -4495,6 +4495,15 @@ work_items:
         unavailable within the unchanged 80-request ceiling. Capacity is not
         authority. No PF request is launch-ready until the hook and observer are
         committed and independently approved.
+      - >-
+        Add-authoring hook commit a7a266c42a822ecb6ef400a6a1c3d31d0a17efdc
+        passed 18 focused tests and independent byte review after closing
+        literal path and hidden-index-state bypasses. This API wrapper did not
+        deliver a safe nested deny probe, so automatic hook delivery is
+        unproved. The coordination record freezes a non-reusable direct
+        Pre/Add/Post dispatch equivalence for this one observer Add; it must be
+        committed and exercised exactly before any observer or PF request can
+        exist.
 
   - id: PNW-05-SOURCE-PACK
     priority: 141
