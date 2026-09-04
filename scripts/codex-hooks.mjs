@@ -1,8 +1,13 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+
+import {
+  matchesOwnerInputCustody,
+  PRESERVED_OWNER_DIRECTION_INPUT_SHA256,
+} from "./owner-input-custody.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const fallbackPlanningDocuments = new Set([
@@ -29,6 +34,17 @@ const sensitivePatchRoots = [
   "raw-data",
   "secrets",
 ];
+const observerAuthoringPolicy = Object.freeze({
+  path: "generated-data/real-source-prerelease/observe-authority-evidence-v3.mjs",
+  gateId: "G-PNW-05-REAL-SOURCE-PRERELEASE",
+  workItemId: "PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION",
+  forbiddenCustodyPaths: Object.freeze(
+    ["FR-D3", "FR-R6", "FR-R7", "FR-A1"].flatMap((requestId) => [
+      `generated-data/real-source-prerelease/${requestId}.attempt`,
+      `generated-data/real-source-prerelease/${requestId}.receipt.json`,
+    ]),
+  ),
+});
 const staticFrozenPaths = [
   ["K0", "docs/vision/k0-lifecycle-contract.md"],
   ["K0", "docs/vision/reviews/k0-contract-review-2026-09-01.md"],
@@ -109,21 +125,35 @@ export const normalizeRepositoryPath = (value, root = "") => {
   return normalized.replace(/^\.\//, "");
 };
 
-export const extractPatchPaths = (command, root = "") => {
-  const paths = [];
-  const pattern = /^\*\*\* (?:Add|Delete|Update|Move to) File:\s*(.+)$/gmu;
+export const extractPatchOperations = (command, root = "") => {
+  const operations = [];
+  const pattern =
+    /^\*\*\* (?:(Add|Delete|Update) File:\s*(.+)|Move to(?: File)?:\s*(.+))$/gmu;
   for (const match of String(command ?? "").matchAll(pattern)) {
-    const repositoryPath = normalizeRepositoryPath(match[1], root);
+    const action = match[1] ?? "Move";
+    const rawPath = String(match[2] ?? match[3] ?? "")
+      .trim()
+      .replace(/^['"]|['"]$/g, "")
+      .replaceAll("\\", "/");
+    const repositoryPath = normalizeRepositoryPath(rawPath, root);
     if (
       repositoryPath &&
       repositoryPath !== "dev/null" &&
       repositoryPath !== "/dev/null"
     ) {
-      paths.push(repositoryPath);
+      operations.push(Object.freeze({ action, rawPath, repositoryPath }));
     }
   }
-  return [...new Set(paths)];
+  return operations;
 };
+
+export const extractPatchPaths = (command, root = "") => [
+  ...new Set(
+    extractPatchOperations(command, root).map(
+      (operation) => operation.repositoryPath,
+    ),
+  ),
+];
 
 const resolveRepositoryRoot = (cwd) => {
   const candidate = path.resolve(cwd || process.cwd());
@@ -144,6 +174,85 @@ const validateRoadmap = (root) =>
 
 const gitStatus = (root) =>
   runGit(root, ["status", "--short", "--untracked-files=all"]);
+
+const terminalGitStatus = (root) =>
+  runGit(root, ["status", "--porcelain=v1", "-z", "--untracked-files=all"]);
+
+const repositoryPathIsWithin = (root, candidate) => {
+  const relative = path.relative(root, candidate);
+  return (
+    relative === "" ||
+    (!relative.startsWith("..") && !path.isAbsolute(relative))
+  );
+};
+
+const ownerInputPathIsVerified = (root, repositoryPath, expectedSha256) => {
+  if (!expectedSha256) {
+    return false;
+  }
+  const absolutePath = path.resolve(root, ...repositoryPath.split("/"));
+  if (!repositoryPathIsWithin(root, absolutePath)) {
+    return false;
+  }
+  try {
+    const stat = lstatSync(absolutePath);
+    if (
+      !stat.isFile() ||
+      stat.isSymbolicLink() ||
+      stat.nlink !== 1 ||
+      patchPathHasAlias(root, repositoryPath) ||
+      realpathSync.native(absolutePath).toLowerCase() !==
+        path
+          .resolve(realpathSync.native(root), ...repositoryPath.split("/"))
+          .toLowerCase()
+    ) {
+      return false;
+    }
+    return matchesOwnerInputCustody({
+      expectedSha256,
+      fileContents: readFileSync(absolutePath),
+      repositoryRelativePath: repositoryPath,
+      untrackedPaths: new Set([repositoryPath]),
+    });
+  } catch {
+    return false;
+  }
+};
+
+export const repositoryStatusIsDirty = (
+  root,
+  status,
+  ownerInputManifest = PRESERVED_OWNER_DIRECTION_INPUT_SHA256,
+) => {
+  const entries = String(status ?? "")
+    .split("\0")
+    .filter(Boolean);
+  const verifiedOwnerPaths = new Set();
+  for (const entry of entries) {
+    if (!entry.startsWith("?? ")) {
+      return true;
+    }
+    const repositoryPath = entry.slice(3);
+    if (
+      !ownerInputPathIsVerified(
+        root,
+        repositoryPath,
+        ownerInputManifest[repositoryPath],
+      )
+    ) {
+      return true;
+    }
+    verifiedOwnerPaths.add(repositoryPath);
+  }
+
+  for (const repositoryPath of Object.keys(ownerInputManifest)) {
+    const absolutePath = path.resolve(root, ...repositoryPath.split("/"));
+    if (existsSync(absolutePath) && !verifiedOwnerPaths.has(repositoryPath)) {
+      return true;
+    }
+  }
+  return false;
+};
 
 const roadmapIsDirty = (root) => {
   const result = runGit(root, [
@@ -446,7 +555,175 @@ const isOutsidePatchPath = (repositoryPath) =>
   path.posix.isAbsolute(repositoryPath) ||
   path.win32.isAbsolute(repositoryPath);
 
-export const evaluatePatchPaths = (paths, roadmap) => {
+const patchPathIssue = (repositoryPath) => {
+  if (!repositoryPath || isOutsidePatchPath(repositoryPath)) {
+    return "outside this Git worktree";
+  }
+  const segments = repositoryPath.split("/");
+  if (
+    segments.some(
+      (segment) =>
+        segment === "" ||
+        segment === "." ||
+        segment === ".." ||
+        segment.includes(":") ||
+        /[. ]$/u.test(segment),
+    )
+  ) {
+    return "noncanonical path segment";
+  }
+  return null;
+};
+
+const patchPathHasAlias = (root, repositoryPath) => {
+  let rootRealPath;
+  try {
+    rootRealPath = realpathSync.native(root);
+  } catch {
+    return true;
+  }
+  const segments = repositoryPath.split("/");
+  let candidate = root;
+  for (const [index, segment] of segments.entries()) {
+    candidate = path.resolve(candidate, segment);
+    if (!repositoryPathIsWithin(root, candidate)) {
+      return true;
+    }
+    let stat;
+    try {
+      stat = lstatSync(candidate);
+    } catch (error) {
+      if (error?.code === "ENOENT") {
+        continue;
+      }
+      return true;
+    }
+    if (stat.isSymbolicLink()) {
+      return true;
+    }
+    if (index === segments.length - 1 && (!stat.isFile() || stat.nlink !== 1)) {
+      return true;
+    }
+    let realCandidate;
+    try {
+      realCandidate = realpathSync.native(candidate);
+    } catch {
+      return true;
+    }
+    if (!repositoryPathIsWithin(rootRealPath, realCandidate)) {
+      return true;
+    }
+  }
+  return false;
+};
+
+export const observerRoadmapAuthority = (roadmap) => {
+  const gates = (roadmap?.gates ?? []).filter(
+    (gate) => gate?.id === observerAuthoringPolicy.gateId,
+  );
+  const items = (roadmap?.work_items ?? []).filter(
+    (item) => item?.id === observerAuthoringPolicy.workItemId,
+  );
+  if (gates.length !== 1 || items.length !== 1) {
+    return false;
+  }
+  const [gate] = gates;
+  const [item] = items;
+  return (
+    gate.state === "approved" &&
+    Array.isArray(gate.approved_scope) &&
+    gate.approved_scope.includes(observerAuthoringPolicy.workItemId) &&
+    item.status === "in_progress" &&
+    item.authorization_gate === observerAuthoringPolicy.gateId &&
+    roadmap?.current_focus?.work_item === observerAuthoringPolicy.workItemId
+  );
+};
+
+const fileSystemEntryExists = (absolutePath) => {
+  try {
+    lstatSync(absolutePath);
+    return true;
+  } catch (error) {
+    return error?.code !== "ENOENT";
+  }
+};
+
+export const observerCustodyIsEditable = (root) => {
+  const repositoryPath = observerAuthoringPolicy.path;
+  const absolutePath = path.resolve(root, ...repositoryPath.split("/"));
+  try {
+    const stat = lstatSync(absolutePath);
+    if (
+      !stat.isFile() ||
+      stat.isSymbolicLink() ||
+      stat.nlink !== 1 ||
+      patchPathHasAlias(root, repositoryPath)
+    ) {
+      return false;
+    }
+    if (
+      realpathSync.native(absolutePath).toLowerCase() !==
+      path
+        .resolve(realpathSync.native(root), ...repositoryPath.split("/"))
+        .toLowerCase()
+    ) {
+      return false;
+    }
+  } catch {
+    return false;
+  }
+  if (
+    !runGit(root, ["check-ignore", "--quiet", "--", repositoryPath]).ok ||
+    runGit(root, ["ls-files", "--error-unmatch", "--", repositoryPath]).ok ||
+    runGit(root, ["cat-file", "-e", `HEAD:${repositoryPath}`]).ok
+  ) {
+    return false;
+  }
+  return observerAuthoringPolicy.forbiddenCustodyPaths.every(
+    (forbiddenPath) =>
+      !fileSystemEntryExists(path.resolve(root, ...forbiddenPath.split("/"))),
+  );
+};
+
+export const observerAuthoringEvidenceIsValid = ({
+  roadmap,
+  roadmapValid,
+  roadmapMatchesHead,
+  custodyEditable,
+}) =>
+  roadmapValid &&
+  roadmapMatchesHead &&
+  observerRoadmapAuthority(roadmap) &&
+  custodyEditable;
+
+const observerAuthoringIsAuthorized = (root, roadmap) =>
+  observerAuthoringEvidenceIsValid({
+    roadmap,
+    roadmapValid: validateRoadmap(root).ok,
+    roadmapMatchesHead: runGit(root, [
+      "diff",
+      "--quiet",
+      "HEAD",
+      "--",
+      "ROADMAP.yaml",
+    ]).ok,
+    custodyEditable: observerCustodyIsEditable(root),
+  });
+
+export const evaluatePatchPaths = (
+  paths,
+  roadmap,
+  { allowedSensitivePaths = new Set() } = {},
+) => {
+  const noncanonical = paths.find((repositoryPath) =>
+    patchPathIssue(repositoryPath),
+  );
+  if (noncanonical) {
+    return {
+      blocked: true,
+      reason: `Repository hooks require a canonical repository path: ${noncanonical}`,
+    };
+  }
   const outside = paths.find(isOutsidePatchPath);
   if (outside) {
     return {
@@ -454,7 +731,11 @@ export const evaluatePatchPaths = (paths, roadmap) => {
       reason: `Repository hooks may not patch a path outside this Git worktree: ${outside}`,
     };
   }
-  const sensitive = paths.find(isSensitivePatchPath);
+  const sensitive = paths.find(
+    (repositoryPath) =>
+      isSensitivePatchPath(repositoryPath) &&
+      !allowedSensitivePaths.has(repositoryPath),
+  );
   if (sensitive) {
     return {
       blocked: true,
@@ -476,6 +757,59 @@ export const evaluatePatchPaths = (paths, roadmap) => {
     };
   }
   return { blocked: false };
+};
+
+export const evaluatePatchOperations = (
+  operations,
+  roadmap,
+  root,
+  { authorizeObserverUpdate = observerAuthoringIsAuthorized } = {},
+) => {
+  if (!Array.isArray(operations) || operations.length === 0) {
+    return {
+      blocked: true,
+      reason:
+        "Repository hooks could not identify an apply_patch file operation.",
+    };
+  }
+  for (const operation of operations) {
+    const issue = patchPathIssue(operation.repositoryPath);
+    if (
+      issue ||
+      operation.rawPath !== operation.repositoryPath ||
+      patchPathHasAlias(root, operation.repositoryPath)
+    ) {
+      return {
+        blocked: true,
+        reason: `Repository hooks require a canonical, non-aliased patch path: ${operation.rawPath}`,
+      };
+    }
+  }
+
+  const observerOperation = operations.find(
+    (operation) => operation.repositoryPath === observerAuthoringPolicy.path,
+  );
+  const allowedSensitivePaths = new Set();
+  if (observerOperation) {
+    if (
+      operations.length !== 1 ||
+      observerOperation.action !== "Update" ||
+      !authorizeObserverUpdate(root, roadmap)
+    ) {
+      return {
+        blocked: true,
+        reason:
+          "The ignored observer may only receive one exact Update File patch while its committed and working authorization and pre-attempt custody remain valid.",
+      };
+    }
+    allowedSensitivePaths.add(observerAuthoringPolicy.path);
+  }
+
+  return evaluatePatchPaths(
+    operations.map((operation) => operation.repositoryPath),
+    roadmap,
+    { allowedSensitivePaths },
+  );
 };
 
 export const planPostEditChecks = (paths, roadmap) => {
@@ -562,6 +896,40 @@ const executePostEditChecks = (root, paths, roadmap) => {
     });
   }
   return { plan, checks };
+};
+
+const observerPostEditChecks = (root, roadmap) => {
+  const stateIsValid = observerAuthoringIsAuthorized(root, roadmap);
+  return [
+    {
+      name: "observer authorization and custody",
+      result: {
+        ok: stateIsValid,
+        status: stateIsValid ? 0 : 1,
+        stdout: "",
+        stderr: stateIsValid
+          ? ""
+          : "committed/working authority or pre-attempt observer custody changed",
+      },
+    },
+    {
+      name: "observer syntax",
+      result: run(
+        process.execPath,
+        ["--check", path.resolve(root, observerAuthoringPolicy.path)],
+        { cwd: root, timeout: 30_000 },
+      ),
+    },
+    {
+      name: "observer lint",
+      result: runNodeScript(
+        root,
+        "node_modules/eslint/bin/eslint.js",
+        ["--no-ignore", "--max-warnings=0", observerAuthoringPolicy.path],
+        30_000,
+      ),
+    },
+  ];
 };
 
 export const buildSessionContext = ({ roadmap, validation, head, status }) => {
@@ -708,10 +1076,11 @@ const preCompact = async (root) => {
   } catch {
     roadmap = null;
   }
-  const statusResult = gitStatus(root);
+  const statusResult = terminalGitStatus(root);
   const evaluation = evaluatePreCompactState({
     validationOk: validationResult.ok && Boolean(roadmap) && statusResult.ok,
-    dirty: !statusResult.ok || statusResult.stdout.trim().length > 0,
+    dirty:
+      !statusResult.ok || repositoryStatusIsDirty(root, statusResult.stdout),
     focus: roadmap?.current_focus?.work_item ?? null,
   });
   if (!evaluation.blocked) {
@@ -734,14 +1103,21 @@ const preToolUse = async (event, root) => {
   const command = event?.tool_input?.command ?? event?.tool_input?.cmd ?? "";
   const evaluation =
     event.tool_name === "apply_patch"
-      ? evaluatePatchPaths(extractPatchPaths(command, root), roadmap)
+      ? evaluatePatchOperations(
+          extractPatchOperations(command, root),
+          roadmap,
+          root,
+        )
       : evaluateShellCommand(command, roadmap);
   return evaluation.blocked ? preToolUseOutput(evaluation.reason) : null;
 };
 
 const postToolUse = async (event, root) => {
   const command = event?.tool_input?.command ?? event?.tool_input?.cmd ?? "";
-  const paths = extractPatchPaths(command, root);
+  const operations = extractPatchOperations(command, root);
+  const paths = [
+    ...new Set(operations.map(({ repositoryPath }) => repositoryPath)),
+  ];
   if (paths.length === 0) {
     return null;
   }
@@ -752,12 +1128,22 @@ const postToolUse = async (event, root) => {
     roadmap = null;
   }
   const { plan, checks } = executePostEditChecks(root, paths, roadmap);
+  const observerEdited =
+    operations.length === 1 &&
+    operations[0].action === "Update" &&
+    operations[0].repositoryPath === observerAuthoringPolicy.path;
+  if (observerEdited) {
+    checks.push(...observerPostEditChecks(root, roadmap));
+  }
   const failures = checks.filter((check) => !check.result.ok);
   const companionWarning =
     plan.planning && !plan.roadmap && !roadmapIsDirty(root)
       ? "A binding planning document changed while ROADMAP.yaml is unchanged. Decide whether status, evidence, next actions, or the decision register needs a companion update; typo-only edits need no ledger churn."
       : "";
-  if (failures.length === 0 && !companionWarning) {
+  const observerWarning = observerEdited
+    ? "The ignored observer bytes changed. Static hook checks do not execute unapproved code. Obtain fresh source, security, and sovereignty approval before any self-test or request execution."
+    : "";
+  if (failures.length === 0 && !companionWarning && !observerWarning) {
     return null;
   }
   const detail = [
@@ -765,6 +1151,7 @@ const postToolUse = async (event, root) => {
       ({ name, result }) => `${name} failed:\n${outputForResult(result)}`,
     ),
     companionWarning,
+    observerWarning,
   ]
     .filter(Boolean)
     .join("\n\n");
@@ -790,10 +1177,11 @@ const stop = async (event, root) => {
   } catch {
     roadmap = null;
   }
-  const statusResult = gitStatus(root);
+  const statusResult = terminalGitStatus(root);
   const evaluation = evaluateStopState({
     validationOk: validationResult.ok && Boolean(roadmap) && statusResult.ok,
-    dirty: !statusResult.ok || statusResult.stdout.trim().length > 0,
+    dirty:
+      !statusResult.ok || repositoryStatusIsDirty(root, statusResult.stdout),
     focus: roadmap?.current_focus?.work_item ?? null,
     stopHookActive: event.stop_hook_active === true,
   });

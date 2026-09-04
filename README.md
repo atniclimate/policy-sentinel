@@ -191,21 +191,27 @@ local Codex runs easier to recover and harder to leave in an ambiguous state:
 
 - `SessionStart` adds a short recovery brief from validated `ROADMAP.yaml`, Git
   status, and the next-action queue without reading the chat transcript;
-- `PreCompact` requires a valid roadmap and, when the worktree is dirty, an
-  active work item before compaction;
+- `PreCompact` requires a valid roadmap and, when the material worktree is
+  dirty, an active work item before compaction; exact hash-verified untracked
+  owner-direction custody is not treated as unfinished repository work;
 - `PreToolUse` denies destructive Git operations, closed external mutations,
-  sensitive paths, and inactive frozen review or contract evidence;
+  sensitive paths, path aliases, and inactive frozen review or contract
+  evidence. The active real-source lane has one update-only exception for its
+  exact ignored observer helper while committed and working authority match
+  and no attempt latch exists;
 - `PostToolUse` runs focused formatting, roadmap, foundation, and
   source-boundary checks after `apply_patch`, selected from the changed paths;
   and
 - `Stop` requests one continuation when the ledger is invalid, work remains in
-  progress, or an untracked stopping state is dirty. Its recursion guard allows
+  progress, or the material stopping state is dirty. Its recursion guard allows
   the second stop attempt.
 
 The hooks are synchronous local guardrails. They do not read transcript files,
 make network calls, send notifications, commit changes, or replace the full
 `npm run check` completion gate. Run `npm run hooks:test` for their focused
-contract tests. Codex requires the exact project hook definitions to be
+contract tests. Post-edit hook checks never execute an unapproved ignored
+observer; changed observer bytes require fresh independent review before a
+self-test or request. Codex requires the exact project hook definitions to be
 reviewed and trusted; after cloning or changing them, use `/hooks` to inspect
 and trust the repository hook layer. See the
 [official Codex hooks reference](https://learn.chatgpt.com/docs/hooks) for the

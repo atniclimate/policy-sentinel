@@ -32,7 +32,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "^(Bash|apply_patch)$",
+        "matcher": "^(Bash|exec_command|apply_patch)$",
         "hooks": [
           {
             "type": "command",
