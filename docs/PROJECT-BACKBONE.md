@@ -68,9 +68,10 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | PNW-05 Federal Register admission-review coordination | [`PNW-05-FEDERAL-REGISTER-ADMISSION-REVIEW-COORDINATION-2026-09-02.md`](development/PNW-05-FEDERAL-REGISTER-ADMISSION-REVIEW-COORDINATION-2026-09-02.md) | Records the exact no-fetch authority, protected custody, validator audit, zero-request ledger, and review evidence; cannot accept, admit, or activate a source |
 | PNW-05 Federal Register admission-review dossier | [`federal-register-admission-review-2026-09-02.md`](source-reviews/federal-register-admission-review-2026-09-02.md) | Maps every real-source predicate and authority/non-inference boundary; recommends no-go with disposition `evidence blocked`, without asserting owner acceptance |
 | PNW-05 Federal Register admission-review handoff | [`pnw-federal-register-admission-review-2026-09-02.md`](handoffs/pnw-federal-register-admission-review-2026-09-02.md) | Terminal evidence for the no-fetch review and validator closure; source remains not admitted, disabled, inactive, unbound, and non-production |
-| Current real-source prerelease coordination | [`PNW-05-REAL-SOURCE-PRERELEASE-COORDINATION-2026-09-03.md`](development/PNW-05-REAL-SOURCE-PRERELEASE-COORDINATION-2026-09-03.md) | Records the exact local child-lane authority, custody, path and request budgets, evidence gates, and stop contract; it does not authorize publication or broaden the retained parent graph |
+| Real-source prerelease coordination | [`PNW-05-REAL-SOURCE-PRERELEASE-COORDINATION-2026-09-03.md`](development/PNW-05-REAL-SOURCE-PRERELEASE-COORDINATION-2026-09-03.md) | Records the exhausted local child-lane authority, custody, path and request budgets, evidence gates, and stop contract; it does not authorize publication or broaden the retained parent graph |
 | Current Federal Register prerelease source review | [`federal-register-real-source-prerelease-2026-09-03.md`](source-reviews/federal-register-real-source-prerelease-2026-09-03.md) | Records the R7 digest-drift evidence block, D3/R6 fact ceiling, no-retry custody, and closed FR-A1 state; it does not infer changed provider meaning or admit the source |
 | Source-authority portfolio discovery report | [`source-authority-portfolio-discovery-2026-09-03.md`](source-reviews/source-authority-portfolio-discovery-2026-09-03.md) | Records the one exhausted PF-01-through-PF-17 observation, per-candidate evidence ceilings, future-candidate ranking, immutable request ledger, and generated custody; it admits no source and opens no gate |
+| Real-source prerelease terminal handoff | [`pnw-real-source-prerelease-2026-09-03.md`](handoffs/pnw-real-source-prerelease-2026-09-03.md) | Reconciles the complete foundation, evidence-blocked live-source branch, consumed request ledger, terminal custody, validation, and recovery-only next boundary; it is not source admission, activation, a complete vertical slice, or successor authority |
 | K0/S0/O0 custody and D0 historical status | [`vision/README.md`](vision/README.md) | Protected bytes and convergence gates remain controlling |
 
 The completed product-space mapping and lossless B-to-PNW crosswalk remain in
@@ -102,7 +103,7 @@ transition.
 | Governed geography and configured rights seam | PNW-03 implemented as a separate synthetic `1.0.0` catalog with typed temporal relations, source-bound frames, exact grants, and reference-only projection | no real geography or rights evidence, GIS computation, legal determination, public integration, or S0 convergence |
 | Governed taxonomy and directional crosswalk seam | PNW-04 implemented as a separate synthetic `1.0.0` authority/scheme-separated catalog with exact evidence/review, direct many-to-many edges, and reference-only projection | no real ATNI/NCAI/Nation/source/community vocabulary, production classification, source activation, public integration, or position inference |
 | Governed source-pack admission seam | PNW-05 core implemented as a separate synthetic-test-only `1.0.0` closed graph with exact contract/evidence/coverage/authority/review/admission proof, scoped health/availability, typed gaps, deterministic requester projections, and no I/O | no real source qualification, access, terms acceptance, coverage, currentness, lifecycle/LKG, ingestion, analyzed corpus, activation, or publication |
-| Local real-source prerelease child lane | lifecycle contract and narrow source-neutral analyzed-corpus child complete; Federal Register qualification blocked on R7 digest drift; portfolio discovery active | no Federal Register retry/admission/activation, real corpus, parent PNW-05/06/07/08 completion, ATNI or Nation association, deployment, or publication |
+| Local real-source prerelease child lane | lifecycle contract, narrow source-neutral analyzed-corpus child, portfolio discovery, and terminal cleanup complete; Federal Register qualification blocked on consumed R7 digest drift | no Federal Register retry/admission/activation, real corpus, parent PNW-05/06/07/08 completion, ATNI or Nation association, deployment, or publication |
 | ATNI regional registry | intended and evidence-gated | owner direction and 575 recognition evidence do not supply membership |
 | Broad real-source canonical corpus and common document/web/app/structured adapters | accepted target architecture; narrow fail-closed corpus mechanics implemented separately | current artifact, dossier, CSV, and app are precursors only |
 
@@ -142,8 +143,8 @@ telemetry, browser-side AI, or outbound notifications.
 | PNW-02 | Independently blocked on `G-PNW-ATNI-59-ROSTER`; PNW-01 dependency complete |
 | PNW-03 | Complete as a bounded synthetic geography/rights tranche |
 | PNW-04 | Complete as a bounded synthetic governed-taxonomy tranche |
-| PNW-05 | Broad parent remains ready and non-complete; an additive, exact-scope local prerelease child lane is active without changing that parent status |
-| Local real-source prerelease child lane | lifecycle contract complete; Federal Register admission blocked on current R7 digest drift with FR-A1 closed; narrow `PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION` complete and real inputs fail closed; source-authority portfolio discovery active |
+| PNW-05 | Broad parent remains ready, non-complete, and separately unauthorized; the completed foundation and portfolio evidence do not change that parent status |
+| Local real-source prerelease child lane | blocked at Federal Register Tier-1 qualification after the consumed R7 digest drift; lifecycle contract, narrow `PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION`, portfolio discovery, observer cleanup, and terminal custody are complete; FR-A1 remains closed and real inputs fail closed |
 | PNW-06 through PNW-10 | Broad parent items remain not started behind their recorded dependencies; similarly named prerelease children do not satisfy them |
 | Publication | Closed; both local product finish scopes and exact owner operations are prerequisites |
 
@@ -241,19 +242,19 @@ npm run validate:roadmap
 npm run validate:backbone
 ```
 
-The owner has authorized the exact local child lane
-`PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE`. Recover its frozen boundary and
-request ledger from the current coordination record above. The narrow
-`PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION` child is complete at
-commit `ecbf0f936067a11e6e3cc22ce80846238abbf2b8`; this is not broad PNW-07
-completion. The exact active item is now
-`PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY`: first author, commit, and
-independently approve the portfolio hook and one-shot observer controls; only
-then issue the already frozen PF-01 through PF-17 first attempts, classify every
-candidate, and rank exactly two without admission or activation. No PF request
-is launch-ready at this checkpoint.
-Federal Register qualification is evidence-blocked on the consumed R7 digest
-drift, no retry or FR-A1 is authorized, and PNW-06/08 remain dependency-closed.
-The default application/build remains network-free and synthetic. Publication
-and every remote, credential, provider-terms, paid/contact, private-data, AI,
-notification, ATNI/Nation-association, and convergence gate remain closed.
+The exact local child-lane authorization
+`PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE` is exhausted at the terminal
+handoff above. The lifecycle contract, narrow source-neutral analyzed-corpus
+child, and portfolio discovery are complete; none is broad PNW-05 or PNW-07
+completion. The local real-source prerelease is blocked because Federal
+Register Tier-1 qualification failed closed on the consumed R7 digest drift.
+Do not repeat D3, R6, R7, PF-01 through PF-17, issue FR-A1, or treat the BIA/ATNI
+ranking as selection or request authority. Preserve the exact 27-request ledger,
+23 owner inputs, and 43-file ignored evidence custody.
+
+There is no active implementation item. `PNW-05-SOURCE-PACK` is dependency-
+ready but separately unauthorized; recovery and validation alone do not start
+it. The default application/build remains network-free and synthetic. PNW-06
+and PNW-08 remain dependency-closed. Publication and every remote, credential,
+provider-terms, paid/contact, private-data, AI, notification, ATNI/Nation-
+association, and convergence gate remain closed.

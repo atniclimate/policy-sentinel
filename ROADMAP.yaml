@@ -4,13 +4,12 @@ project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
   phase: >-
-    Additive RealSourceLifecycleBundle 1.0.0 contract independently byte-frozen
-    and accepted; Federal Register Tier-1 qualification evidence-blocked after
-    ten bounded documentation/evidence requests because R7 changed digest; the
-    narrow source-neutral PNW-07 analyzed-corpus child is complete and real
-    inputs fail closed; source-authority portfolio evidence and cleanup are
-    complete while terminal validation is active; FR-A1 and all admission,
-    activation, and publication authority remain closed
+    Federal Register Tier-1 qualification remains evidence-blocked; the
+    source-authority portfolio discovery, observer cleanup, terminal custody,
+    validation, and handoff are complete; the local real-source prerelease is
+    blocked at Tier-1 qualification; the broad PNW-05 source pack is ready but
+    separately unauthorized; FR-A1 and all admission, activation, publication,
+    and external authority remain closed
   updated_on: "2026-09-04"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -728,19 +727,21 @@ baseline:
         configured.
 
 current_focus:
-  work_item: PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY
+  work_item: null
   objective: >-
-    Preserve the completed one-shot portfolio evidence and exact request ledger,
-    validate the committed terminal hook/custody checkpoint, and finish the
-    local closeout report without issuing, admitting, activating, acquiring a
-    corpus from, or publishing any source.
-  terminal_reason: null
+    Preserve the completed portfolio evidence, immutable request ledger, exact
+    43-file ignored custody, terminal hook, and handoff without starting an
+    unauthorized successor tranche.
+  terminal_reason: >-
+    PNW-05 source-authority portfolio discovery is complete. The local
+    real-source prerelease remains evidence-blocked, and the dependency-ready
+    broad PNW-05 source pack requires separate owner authorization.
   resumable_roots:
     - B2-REVIEW
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: b60a7a34097ec7fd83d6ec9ce1634633ef961d3a
+  last_durable_checkpoint: e7d385ed960f3924a7ac39ee036ec20d8f298c2a
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -4368,7 +4369,7 @@ work_items:
       Keep federal-register disabled, not admitted, inactive, unbound, absent
       from real and public artifacts, and unavailable to PNW-06/08. Preserve the
       aggregate attempt/receipt custody, the completed fail-closed
-      source-neutral corpus child, and independently authorized portfolio work.
+      source-neutral corpus child, and completed portfolio evidence.
     unblocks_only_when: >-
       A separately authorized newly frozen current GovInfo evidence operation,
       or a separately reviewed narrower contract that removes every unsupported
@@ -4377,8 +4378,9 @@ work_items:
     next_step: >-
       Do not issue FR-A1 or create qualification, admission, activation,
       coverage, health, LKG, artifact, or publication receipts. Preserve the
-      completed PNW-07 source-neutral child and continue only the active bounded
-      portfolio discovery.
+      completed PNW-07 source-neutral child and portfolio evidence. Reopen only
+      through a separately authorized current evidence operation or a separately
+      reviewed narrower contract.
 
   - id: PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG
     priority: 137
@@ -4473,7 +4475,7 @@ work_items:
     priority: 140
     milestone: PNW source evidence
     title: Typed authority and onboarding-cost portfolio discovery
-    status: in_progress
+    status: complete
     dependencies:
       - PNW-01-ENGINE-SEAMS
     authorization_gate: G-PNW-05-REAL-SOURCE-PRERELEASE
@@ -4602,6 +4604,17 @@ work_items:
         APPROVE_TERMINAL_HOOK_TRANSITION after finite bypass repair. The hook is
         a repository guardrail, not an OS sandbox; custody validation remains
         mandatory. No source or external authority changed.
+      - >-
+        Closeout found one finite retained-app accessibility defect: the static
+        skip link could enter a false hash route. Commit
+        e7d385ed960f3924a7ac39ee036ec20d8f298c2a intercepts only that
+        activation, preserves the current route, focuses the main landmark in
+        every load state, and adds two regression tests. The focused application
+        suite passed 10 files and 87 tests; an actual local Brave check
+        confirmed the repaired focus transition plus table selection, details,
+        31 field-level provenance rows, result-card return focus, and one-record
+        CSV export. The displayed application and artifact remain explicitly
+        synthetic.
 
   - id: PNW-05-SOURCE-PACK
     priority: 141
@@ -5092,14 +5105,14 @@ source_register:
   - id: SRC-FEDERAL-REGISTER
     source: Federal Register
     implementation_state: adapter_1_0_historical_validated_disabled
-    documentation_currency: reviewed_2026_09_02_requalification_in_progress
-    contract_qualification: evidence_blocked_pending_tier1_review
+    documentation_currency: reviewed_2026_09_02_tier1_evidence_blocked_2026_09_04
+    contract_qualification: evidence_blocked_r7_digest_drift
     admission: not_admitted
     activation: inactive
     binding: unbound
-    health: not_observed_for_local_prerelease
+    health: no_real_health_receipt
     coverage: none_in_default_artifact
-    ui_acceptance: historical_browser_gate_pending_new_local_lane
+    ui_acceptance: synthetic_app_only_real_lane_not_reached
     publication: not_authorized
     work_items:
       - B4-FR-RESEARCH
@@ -5316,25 +5329,11 @@ next_actions:
       infer membership, or treat the federal-recognition collection as the
       regional registry.
   - order: 6
-    work_item: PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION
-    action: >-
-      Remain evidence-blocked on the consumed R7 digest drift. Do not retry R7,
-      reuse pre-current-graph R5, infer changed semantics, or issue FR-A1.
-      Reopen only through a separately authorized new evidence operation or a
-      separately reviewed narrower contract.
-  - order: 7
-    work_item: PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY
-    action: >-
-      Preserve the completed PF-01-through-PF-17 evidence, immutable cumulative
-      request ledger, terminal 43-file custody, and closed source/external
-      gates; finish local validation and the terminal handoff without another
-      request.
-  - order: 8
     work_item: PNW-05-SOURCE-PACK
     action: >-
-      Preserve the broad parent as incomplete while the separately authorized
-      local prerelease child lane executes. A successful one-source slice is
-      evidence toward, not completion of, the required federal/state/Tribal/
+      Preserve the broad parent as incomplete and do not begin it without a new
+      exact authorization. The blocked local prerelease and completed portfolio
+      evidence are inputs, not completion of the required federal/state/Tribal/
       regional/transboundary source portfolio.
 finish_states:
   repository_backbone:
@@ -5368,7 +5367,9 @@ finish_states:
       - any closed external gate is approved
       - K0 or S0 is integrated into the existing release candidate
   local_real_source_prerelease:
-    current_state: in_progress
+    current_state: blocked
+    blocked_by:
+      - PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION
     satisfied_when:
       - All six bounded local-real-source child outcomes are complete with
         objective evidence.

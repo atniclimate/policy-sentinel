@@ -3,13 +3,14 @@
 Status: current after the owner authorized the exact local
 `PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE` child lane on 2026-09-03. The
 lane is additive to the completed synthetic seams and does not change broad
-PNW-05 through PNW-08 statuses. The lifecycle contract is complete; Federal
-Register Tier-1 qualification is evidence-blocked on the consumed R7 digest
-drift, with no retry or FR-A1 authority. The narrow source-neutral
-`PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION` child is complete with
-all real inputs fail-closed, and source-authority portfolio discovery is active.
-Git and the validated `ROADMAP.yaml` remain authoritative over this prose and
-chat memory.
+PNW-05 through PNW-08 statuses. The authorized lane is exhausted at a safe
+terminal checkpoint: the lifecycle contract, narrow source-neutral
+`PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION`, portfolio discovery,
+observer cleanup, and terminal custody are complete; Federal Register Tier-1
+qualification is evidence-blocked on the consumed R7 digest drift, with no
+retry or FR-A1 authority. The local real-source prerelease is blocked and the
+broad PNW-05 source pack is ready but separately unauthorized. Git and the
+validated `ROADMAP.yaml` remain authoritative over this prose and chat memory.
 
 ## Start and recover
 
@@ -23,9 +24,8 @@ Open Codex in `I:\policy-sentinel` with `gpt-5.6-sol` at Ultra effort, then:
    completely.
 4. Read `docs/handoffs/pnw-product-space-rebase-2026-09-02.md`, the historical
    `docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md`, and the
-   current implementation/evidence handoff named by `ROADMAP.yaml`. Until the
-   prerelease terminal handoff exists, use the 2026-09-03 coordination record
-   and the last Federal Register admission-review handoff together.
+   current terminal handoff
+   `docs/handoffs/pnw-real-source-prerelease-2026-09-03.md`.
 5. Read the binding contract, architecture, governance, decision, source,
    review, validation, test, and handoff files relevant to the selected item.
 6. Reconcile branch, exact HEAD and parent, worktrees, status, remotes, changed
@@ -88,10 +88,12 @@ Do not treat the earlier schemas, fixtures, or passing tests as source, roster,
 real-geography, real-taxonomy,
 production-profile, provider-contract, coverage, currentness, lifecycle,
 activation, legal, integration, or release evidence. During the current child
-lane, access only the frozen HTTPS GET/HEAD allowlist and request budgets after
-the lifecycle contract passes both required reviews. Do not access sources
-merely to fill another gap, review or implement O0, import K0/S0/O0, change
-convergence, or proceed beyond the exact coordination boundary.
+lane, all frozen source requests have either been consumed, prohibited, or made
+unavailable under the unchanged request ceiling. Do not repeat D3, R6, R7, or
+PF-01 through PF-17; do not issue FR-A1; and do not access a source merely to
+fill another gap. Review or implementation of O0, import of K0/S0/O0,
+convergence changes, and work beyond the exact terminal handoff also remain
+unauthorized.
 
 Remote operations, push, Pages, publication, provider-term acceptance,
 credentials, paid calls, third-party contact, private or land data, optional AI
@@ -150,25 +152,26 @@ source, and terms/privacy/operations/schema/coverage/authority/health/LKG
 evidence remains incomplete. The source is not admitted, disabled, inactive,
 unbound, and absent from public artifacts.
 
-The exact current item is
-`PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY`. Recover its committed observer
-authoring and custody plan from the coordination record. First author, commit,
-and independently approve the hook and one-shot observer; no PF request is
-launch-ready at this checkpoint. Only then issue the already frozen PF-01
-through PF-17 first attempts, serially, with no follow or retry; classify every
-candidate and rank exactly two. Do not admit or activate a source, acquire a
-corpus, use credentials, accept terms, or publish. Federal
-Register D3 and R6 matched approved evidence, but the consumed R7 attempt failed
-`evidence_digest_drift`; do not retry it, infer changed meaning, reuse the
-pre-current-graph R5 observation, or issue FR-A1. The ignored custody contains
-two authority files plus six Federal Register attempt/receipt files; the old
-disposable observer was removed after review. Keep the request ledger at ten
-issued, 18 exact-unissued, and 52 unavailable within 80 until an authorized PF
-attempt is actually issued. The default build stays network-free.
+There is no active implementation item. Recover the terminal state from the
+prerelease handoff and preserve it. The cumulative immutable ledger is 27
+issued first attempts, 27 `2xx` transports, 10 evidence-accepted observations,
+17 evidence-rejected observations, one exact prohibited/unissued `FR-A1`, and
+52 unavailable slots within the original ceiling of 80. Transport success is
+not source authority. The ignored custody is exactly 43 evidence files totaling
+49,730 bytes; the disposable observer and both FR-A1 paths are absent. The 23
+owner inputs remain exact, untracked, non-ignored, index-absent, and HEAD-absent.
+
+BIA ranks first and one exact ATNI resolution ranks second only as prospective
+candidates for a separately authorized metadata-and-link evidence tranche; GAO
+is an unranked reserve. No candidate is selected, qualified, admitted,
+activated, or authorized for another request. BIA evidence cannot establish a
+Tribal position or ATNI membership, and an ATNI record cannot establish every
+member Nation's position. The default build remains network-free and synthetic.
 `G-PNW-SOURCE-ACTIVATION`, broad parent completion, publication, deployment,
 credentials, provider-term acceptance, paid/contact actions, private or land
 data, AI, notifications, ATNI/Nation inference, and K0/S0/O0 convergence remain
-closed.
+closed. `PNW-05-SOURCE-PACK` may begin only after a new exact owner
+authorization.
 
 ## Validation and terminal handoff
 
