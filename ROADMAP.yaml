@@ -742,7 +742,7 @@ current_focus:
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 1b8074998b6b7a1f246c638de2860a927834b602
+  last_durable_checkpoint: 1cd66bb2bff9270de262e21fa9c0ef13f53807bd
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -1078,6 +1078,11 @@ work_items:
         ancestor and glob mutations; and the corresponding intentional local
         development allowances. It found no remaining material sovereignty,
         privacy, provenance, custody, remote/publication, or liveness defect.
+      - >-
+        Commit 1cd66bb2bff9270de262e21fa9c0ef13f53807bd records the
+        owner-authorized two-hook liveness repair, exact closed-gate hardening,
+        positive development-command coverage, and serialized validation as
+        "fix: restore Windows Codex development liveness".
 
   - id: B1-APP
     priority: 10
@@ -5089,6 +5094,10 @@ work_items:
         work. Full validation passed with the counts and synthetic build
         identity recorded under H-HOOKS; all product, source, owner, external,
         and publication gates remained unchanged.
+      - >-
+        Commit 1cd66bb2bff9270de262e21fa9c0ef13f53807bd records the validated
+        repository-backbone maintenance implementation; the later ledger-only
+        checkpoint records this self-reference without rewriting that commit.
 
   - id: RELEASE-LICENSE
     priority: 200
