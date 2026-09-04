@@ -741,7 +741,7 @@ current_focus:
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 7b14b2570f2ada6691cfd3c2af4a0e10ecc4a31b
+  last_durable_checkpoint: 7b6e5df2d41427c9e16613f095fc77424fab2bb1
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -4638,6 +4638,17 @@ work_items:
         from recovery integration, reviewer input from acceptance, and a future
         ATNI single-resolution tranche from any selected record identity. No
         source, request, evidence, artifact, or external gate changed.
+      - >-
+        Commit 52fde1209cd91ab2741b99aecb6ca4b3b091ac87 bound those terminal
+        review repairs. Its exact-state sovereignty re-review found two
+        remaining wording families: one roadmap phrase collapsed independent
+        review into project acceptance, while three portfolio references still
+        implied an exact ATNI resolution identity had been selected. Commit
+        7b6e5df2d41427c9e16613f095fc77424fab2bb1 repairs all four references:
+        the lifecycle contract is described as completed after independent
+        review, and the prospective ATNI work is an unselected future
+        single-resolution metadata-and-link tranche. No source, request,
+        evidence, artifact, acceptance decision, or external gate changed.
 
   - id: PNW-05-SOURCE-PACK
     priority: 141
