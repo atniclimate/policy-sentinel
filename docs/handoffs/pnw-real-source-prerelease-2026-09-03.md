@@ -263,6 +263,7 @@ e7d385ed960f3924a7ac39ee036ec20d8f298c2a fix: preserve hash route on skip naviga
 7e2095fee329a66121d9aac626386f0b70e88220 docs: close real-source prerelease checkpoint
 36add8dd3c6c5bfaad315447f7c8332ec5179e91 docs: bind prerelease terminal handoff
 3770b266546f82301ba35c7920c860630cd8060f docs: close stale prerelease status
+7b14b2570f2ada6691cfd3c2af4a0e10ecc4a31b docs: repair terminal authority wording
 ```
 
 ## Exact tracked path manifest

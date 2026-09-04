@@ -741,7 +741,7 @@ current_focus:
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: 7e2095fee329a66121d9aac626386f0b70e88220
+  last_durable_checkpoint: 7b14b2570f2ada6691cfd3c2af4a0e10ecc4a31b
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -4627,6 +4627,17 @@ work_items:
         ae49545c4ba95bd87f00b993b3ca3c08766e8cb367d06037bb8cd1e72f3b5c7f. The
         validated terminal ledger has 35 complete, zero in progress, one ready,
         17 blocked, zero deferred, and 16 not-started items.
+      - >-
+        Fresh integrated review of commit
+        36add8dd3c6c5bfaad315447f7c8332ec5179e91 found no code, request,
+        custody, security, or capability defect, but rejected four finite stale
+        or authority-collapsing phrases. Commit
+        3770b266546f82301ba35c7920c860630cd8060f closes the coordination
+        header's false active state. Commit
+        7b14b2570f2ada6691cfd3c2af4a0e10ecc4a31b separates predecessor evidence
+        from recovery integration, reviewer input from acceptance, and a future
+        ATNI single-resolution tranche from any selected record identity. No
+        source, request, evidence, artifact, or external gate changed.
 
   - id: PNW-05-SOURCE-PACK
     priority: 141
