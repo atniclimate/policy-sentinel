@@ -1,5 +1,18 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, lstatSync, readFileSync, realpathSync } from "node:fs";
+import { Buffer } from "node:buffer";
+import { createHash } from "node:crypto";
+import {
+  closeSync,
+  constants as fsConstants,
+  existsSync,
+  fstatSync,
+  lstatSync,
+  openSync,
+  readFileSync,
+  readSync,
+  readdirSync,
+  realpathSync,
+} from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -35,16 +48,83 @@ const sensitivePatchRoots = [
   "secrets",
 ];
 const observerAuthoringPolicy = Object.freeze({
-  path: "generated-data/real-source-prerelease/observe-authority-evidence-v3.mjs",
+  path: "generated-data/real-source-prerelease/observe-source-authority-portfolio.mjs",
+  directory: "generated-data/real-source-prerelease",
   gateId: "G-PNW-05-REAL-SOURCE-PRERELEASE",
-  workItemId: "PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION",
-  forbiddenCustodyPaths: Object.freeze(
-    ["FR-D3", "FR-R6", "FR-R7", "FR-A1"].flatMap((requestId) => [
+  workItemId: "PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY",
+  trustPaths: Object.freeze([
+    ".codex/hooks.json",
+    ".gitignore",
+    "ROADMAP.yaml",
+    "docs/development/PNW-05-REAL-SOURCE-PRERELEASE-COORDINATION-2026-09-03.md",
+    "scripts/codex-hooks.mjs",
+    "tests/hooks/codex-hooks.test.mjs",
+  ]),
+  historicalCustody: Object.freeze([
+    Object.freeze({
+      name: "authority-input-v2.json",
+      bytes: 2_503,
+      sha256:
+        "f2ec15b838d9402478a64bd1d5b366001120af4b82f1b52aed463fbe717aa8a4",
+    }),
+    Object.freeze({
+      name: "authority-graph-v2.json",
+      bytes: 19_844,
+      sha256:
+        "15059000ff3817a6d5df5c8f8d5642aa1cd51042b15028aca26991cc3a6d6cad",
+    }),
+    Object.freeze({
+      name: "FR-D3.attempt",
+      bytes: 462,
+      sha256:
+        "5d75db276f07ce0811022778e3852a99512c2b8866bc93262c3519d730848068",
+    }),
+    Object.freeze({
+      name: "FR-D3.receipt.json",
+      bytes: 1_103,
+      sha256:
+        "f58ca7aa9d789c8d804e593e327ae1ca3ad1f44402ae127253ced01bc6e492f6",
+    }),
+    Object.freeze({
+      name: "FR-R6.attempt",
+      bytes: 462,
+      sha256:
+        "69b8db8228af680b43050ce1193f349eb70fc9d2a3454f46c0b4c997a57b400d",
+    }),
+    Object.freeze({
+      name: "FR-R6.receipt.json",
+      bytes: 1_093,
+      sha256:
+        "093ca14e300c59a1462ff0e71d65131463be15e4a57fadb672d56cdc3cbc770b",
+    }),
+    Object.freeze({
+      name: "FR-R7.attempt",
+      bytes: 462,
+      sha256:
+        "eac7bc42975de100326110fa2ae75317981e9fc687adec3bb480fba21931712e",
+    }),
+    Object.freeze({
+      name: "FR-R7.receipt.json",
+      bytes: 1_075,
+      sha256:
+        "e9db0fedaca0b558ca92797451c474dbe069c05b86359a7dfacffaac282435ad",
+    }),
+  ]),
+  reservedCustodyPaths: Object.freeze([
+    "generated-data/real-source-prerelease/PF-PORTFOLIO-RUN.attempt",
+    ...Array.from({ length: 17 }, (_, index) =>
+      String(index + 1).padStart(2, "0"),
+    ).flatMap((suffix) => [
+      `generated-data/real-source-prerelease/PF-${suffix}.attempt`,
+      `generated-data/real-source-prerelease/PF-${suffix}.receipt.json`,
+    ]),
+    ...["FR-A1"].flatMap((requestId) => [
       `generated-data/real-source-prerelease/${requestId}.attempt`,
       `generated-data/real-source-prerelease/${requestId}.receipt.json`,
     ]),
-  ),
+  ]),
 });
+const maximumObserverTrustInputBytes = 1024 * 1024;
 const staticFrozenPaths = [
   ["K0", "docs/vision/k0-lifecycle-contract.md"],
   ["K0", "docs/vision/reviews/k0-contract-review-2026-09-01.md"],
@@ -104,6 +184,25 @@ const run = (command, args, options = {}) => {
 const runGit = (root, args, timeout = 10_000) =>
   run("git", args, { cwd: root, timeout });
 
+const runGitBuffer = (root, args, maximumBytes, timeout = 10_000) => {
+  const result = spawnSync("git", args, {
+    cwd: root,
+    encoding: null,
+    env: process.env,
+    maxBuffer: maximumBytes,
+    shell: false,
+    timeout,
+    windowsHide: true,
+  });
+  return {
+    ok: result.status === 0 && result.error === undefined,
+    status: result.status,
+    stdout: result.stdout ?? Buffer.alloc(0),
+    stderr: result.stderr ?? Buffer.alloc(0),
+    error: result.error,
+  };
+};
+
 const runNodeScript = (root, relativePath, args = [], timeout = 30_000) =>
   run(process.execPath, [path.resolve(root, relativePath), ...args], {
     cwd: root,
@@ -128,10 +227,11 @@ export const normalizeRepositoryPath = (value, root = "") => {
 export const extractPatchOperations = (command, root = "") => {
   const operations = [];
   const pattern =
-    /^\*\*\* (?:(Add|Delete|Update) File:\s*(.+)|Move to(?: File)?:\s*(.+))$/gmu;
+    /^\*\*\* (?:(Add|Delete|Update) File:(.*)|Move to(?: File)?:(.*))$/gmu;
   for (const match of String(command ?? "").matchAll(pattern)) {
     const action = match[1] ?? "Move";
-    const rawPath = String(match[2] ?? match[3] ?? "")
+    const headerPath = String(match[2] ?? match[3] ?? "").replace(/\r$/u, "");
+    const rawPath = headerPath
       .trim()
       .replace(/^['"]|['"]$/g, "")
       .replaceAll("\\", "/");
@@ -141,7 +241,9 @@ export const extractPatchOperations = (command, root = "") => {
       repositoryPath !== "dev/null" &&
       repositoryPath !== "/dev/null"
     ) {
-      operations.push(Object.freeze({ action, rawPath, repositoryPath }));
+      operations.push(
+        Object.freeze({ action, headerPath, rawPath, repositoryPath }),
+      );
     }
   }
   return operations;
@@ -567,6 +669,7 @@ const patchPathIssue = (repositoryPath) => {
         segment === "." ||
         segment === ".." ||
         segment.includes(":") ||
+        /~\d/u.test(segment) ||
         /[. ]$/u.test(segment),
     )
   ) {
@@ -574,6 +677,11 @@ const patchPathIssue = (repositoryPath) => {
   }
   return null;
 };
+
+const canonicalPathEquals = (left, right) =>
+  process.platform === "win32"
+    ? left.toLowerCase() === right.toLowerCase()
+    : left === right;
 
 const patchPathHasAlias = (root, repositoryPath) => {
   let rootRealPath;
@@ -613,6 +721,13 @@ const patchPathHasAlias = (root, repositoryPath) => {
     if (!repositoryPathIsWithin(rootRealPath, realCandidate)) {
       return true;
     }
+    const expectedCandidate = path.resolve(
+      rootRealPath,
+      ...segments.slice(0, index + 1),
+    );
+    if (!canonicalPathEquals(realCandidate, expectedCandidate)) {
+      return true;
+    }
   }
   return false;
 };
@@ -624,7 +739,15 @@ export const observerRoadmapAuthority = (roadmap) => {
   const items = (roadmap?.work_items ?? []).filter(
     (item) => item?.id === observerAuthoringPolicy.workItemId,
   );
-  if (gates.length !== 1 || items.length !== 1) {
+  const inProgressItems = (roadmap?.work_items ?? []).filter(
+    (item) => item?.status === "in_progress",
+  );
+  if (
+    gates.length !== 1 ||
+    items.length !== 1 ||
+    inProgressItems.length !== 1 ||
+    inProgressItems[0]?.id !== observerAuthoringPolicy.workItemId
+  ) {
     return false;
   }
   const [gate] = gates;
@@ -648,8 +771,7 @@ const fileSystemEntryExists = (absolutePath) => {
   }
 };
 
-export const observerCustodyIsEditable = (root) => {
-  const repositoryPath = observerAuthoringPolicy.path;
+const canonicalSingleLinkFile = (root, repositoryPath) => {
   const absolutePath = path.resolve(root, ...repositoryPath.split("/"));
   try {
     const stat = lstatSync(absolutePath);
@@ -661,53 +783,390 @@ export const observerCustodyIsEditable = (root) => {
     ) {
       return false;
     }
-    if (
-      realpathSync.native(absolutePath).toLowerCase() !==
-      path
-        .resolve(realpathSync.native(root), ...repositoryPath.split("/"))
-        .toLowerCase()
-    ) {
-      return false;
-    }
+    return canonicalPathEquals(
+      realpathSync.native(absolutePath),
+      path.resolve(realpathSync.native(root), ...repositoryPath.split("/")),
+    );
   } catch {
     return false;
   }
+};
+
+export const observerParentDirectoriesAreCanonical = (root) => {
+  let rootRealPath;
+  try {
+    rootRealPath = realpathSync.native(root);
+  } catch {
+    return false;
+  }
+  const parentSegments = observerAuthoringPolicy.path.split("/").slice(0, -1);
+  let candidate = root;
+  for (const [index, segment] of parentSegments.entries()) {
+    candidate = path.resolve(candidate, segment);
+    try {
+      const stat = lstatSync(candidate);
+      if (!stat.isDirectory() || stat.isSymbolicLink()) {
+        return false;
+      }
+      const expected = path.resolve(
+        rootRealPath,
+        ...parentSegments.slice(0, index + 1),
+      );
+      if (!canonicalPathEquals(realpathSync.native(candidate), expected)) {
+        return false;
+      }
+    } catch {
+      return false;
+    }
+  }
+  return true;
+};
+
+const outputLines = (value) =>
+  String(value ?? "")
+    .split(/\r?\n/u)
+    .filter((line) => line.length > 0);
+
+const containsEveryExactPathOnce = (actualPaths, expectedPaths) =>
+  actualPaths.length === expectedPaths.length &&
+  new Set(actualPaths).size === expectedPaths.length &&
+  expectedPaths.every((repositoryPath) => actualPaths.includes(repositoryPath));
+
+const gitIgnoreProvenanceIsRoot = (root, repositoryPaths) => {
+  const ignored = runGit(root, [
+    "check-ignore",
+    "--verbose",
+    "--no-index",
+    "--",
+    ...repositoryPaths,
+  ]);
+  if (!ignored.ok) {
+    return false;
+  }
+  const ignoredEntries = outputLines(ignored.stdout).map((line) => {
+    const [provenance, reportedPath, ...extraFields] = line.split("\t");
+    return { extraFields, provenance, reportedPath };
+  });
   if (
-    !runGit(root, ["check-ignore", "--quiet", "--", repositoryPath]).ok ||
-    runGit(root, ["ls-files", "--error-unmatch", "--", repositoryPath]).ok ||
-    runGit(root, ["cat-file", "-e", `HEAD:${repositoryPath}`]).ok
+    !containsEveryExactPathOnce(
+      ignoredEntries.map(({ reportedPath }) => reportedPath),
+      repositoryPaths,
+    ) ||
+    ignoredEntries.some(
+      ({ extraFields, provenance }) =>
+        extraFields.length !== 0 || !/^\.gitignore:\d+:/u.test(provenance),
+    )
   ) {
     return false;
   }
-  return observerAuthoringPolicy.forbiddenCustodyPaths.every(
-    (forbiddenPath) =>
-      !fileSystemEntryExists(path.resolve(root, ...forbiddenPath.split("/"))),
+  return true;
+};
+
+const gitPathsAreIndexAndHeadAbsent = (root, repositoryPaths) => {
+  const indexEntry = runGit(root, [
+    "ls-files",
+    "--stage",
+    "--",
+    ...repositoryPaths,
+  ]);
+  const headEntry = runGit(root, [
+    "ls-tree",
+    "-r",
+    "--name-only",
+    "HEAD",
+    "--",
+    ...repositoryPaths,
+  ]);
+  return (
+    indexEntry.ok &&
+    indexEntry.stdout.trim() === "" &&
+    headEntry.ok &&
+    headEntry.stdout.trim() === ""
   );
 };
+
+const gitPathsHaveIgnoredCustody = (root, repositoryPaths) => {
+  if (
+    !gitIgnoreProvenanceIsRoot(root, repositoryPaths) ||
+    !gitPathsAreIndexAndHeadAbsent(root, repositoryPaths)
+  ) {
+    return false;
+  }
+  const untrackedIgnored = runGit(root, [
+    "ls-files",
+    "--others",
+    "--ignored",
+    "--exclude-standard",
+    "--",
+    ...repositoryPaths,
+  ]);
+  return (
+    untrackedIgnored.ok &&
+    containsEveryExactPathOnce(
+      outputLines(untrackedIgnored.stdout),
+      repositoryPaths,
+    )
+  );
+};
+
+export const observerTrustInputsMatchHead = (
+  root,
+  trustPaths = observerAuthoringPolicy.trustPaths,
+) => {
+  for (const repositoryPath of trustPaths) {
+    if (!canonicalSingleLinkFile(root, repositoryPath)) {
+      return false;
+    }
+    const indexEntry = runGit(root, [
+      "ls-files",
+      "--stage",
+      "--",
+      repositoryPath,
+    ]);
+    const trackedFlags = runGit(root, ["ls-files", "-v", "--", repositoryPath]);
+    const headEntry = runGit(root, [
+      "ls-tree",
+      "-l",
+      "HEAD",
+      "--",
+      repositoryPath,
+    ]);
+    if (!indexEntry.ok || !trackedFlags.ok || !headEntry.ok) {
+      return false;
+    }
+    const indexMatch = outputLines(indexEntry.stdout)[0]?.match(
+      /^(100(?:644|755)) ([0-9a-f]{40,64}) 0\t(.+)$/u,
+    );
+    const headMatch = outputLines(headEntry.stdout)[0]?.match(
+      /^(100(?:644|755)) blob ([0-9a-f]{40,64})\s+(\d+)\t(.+)$/u,
+    );
+    const headBytes = Number(headMatch?.[3]);
+    if (
+      outputLines(indexEntry.stdout).length !== 1 ||
+      outputLines(trackedFlags.stdout).length !== 1 ||
+      outputLines(headEntry.stdout).length !== 1 ||
+      trackedFlags.stdout.trim() !== `H ${repositoryPath}` ||
+      indexMatch?.[3] !== repositoryPath ||
+      headMatch?.[4] !== repositoryPath ||
+      indexMatch?.[1] !== headMatch?.[1] ||
+      indexMatch?.[2] !== headMatch?.[2] ||
+      !Number.isSafeInteger(headBytes) ||
+      headBytes <= 0 ||
+      headBytes > maximumObserverTrustInputBytes
+    ) {
+      return false;
+    }
+    const headBlob = runGitBuffer(
+      root,
+      ["cat-file", "blob", headMatch[2]],
+      maximumObserverTrustInputBytes + 1,
+    );
+    if (
+      !headBlob.ok ||
+      headBlob.stdout.byteLength !== headBytes ||
+      hashExactCanonicalFile(root, repositoryPath, headBytes) !==
+        createHash("sha256").update(headBlob.stdout).digest("hex")
+    ) {
+      return false;
+    }
+  }
+  return true;
+};
+
+const observerDirectoryInventoryMatches = (root, expectedNames) => {
+  const absoluteDirectory = path.resolve(
+    root,
+    ...observerAuthoringPolicy.directory.split("/"),
+  );
+  try {
+    const actualNames = readdirSync(absoluteDirectory).sort();
+    const canonicalNames = [...expectedNames].sort();
+    return (
+      actualNames.length === canonicalNames.length &&
+      actualNames.every((name, index) => name === canonicalNames[index])
+    );
+  } catch {
+    return false;
+  }
+};
+
+const sameFileIdentity = (left, right) =>
+  left.dev === right.dev &&
+  left.ino === right.ino &&
+  left.mode === right.mode &&
+  left.size === right.size &&
+  left.mtimeMs === right.mtimeMs &&
+  left.ctimeMs === right.ctimeMs;
+
+const hashExactCanonicalFile = (root, repositoryPath, expectedBytes) => {
+  const absolutePath = path.resolve(root, ...repositoryPath.split("/"));
+  let descriptor;
+  let contents;
+  try {
+    const before = lstatSync(absolutePath);
+    if (
+      !Number.isSafeInteger(expectedBytes) ||
+      expectedBytes <= 0 ||
+      before.isSymbolicLink() ||
+      !before.isFile() ||
+      before.nlink !== 1 ||
+      before.size !== expectedBytes ||
+      !canonicalSingleLinkFile(root, repositoryPath)
+    ) {
+      return null;
+    }
+    descriptor = openSync(
+      absolutePath,
+      fsConstants.O_RDONLY | (fsConstants.O_NOFOLLOW ?? 0),
+    );
+    const opened = fstatSync(descriptor);
+    const openedPath = lstatSync(absolutePath);
+    if (
+      !opened.isFile() ||
+      opened.nlink !== 1 ||
+      opened.size !== expectedBytes ||
+      openedPath.isSymbolicLink() ||
+      !openedPath.isFile() ||
+      openedPath.nlink !== 1 ||
+      !sameFileIdentity(before, opened) ||
+      !sameFileIdentity(before, openedPath) ||
+      !canonicalSingleLinkFile(root, repositoryPath)
+    ) {
+      return null;
+    }
+
+    contents = Buffer.alloc(expectedBytes + 1);
+    let offset = 0;
+    while (offset < contents.byteLength) {
+      const bytesRead = readSync(
+        descriptor,
+        contents,
+        offset,
+        contents.byteLength - offset,
+        offset,
+      );
+      if (bytesRead === 0) {
+        break;
+      }
+      offset += bytesRead;
+    }
+
+    const after = fstatSync(descriptor);
+    const afterPath = lstatSync(absolutePath);
+    if (
+      offset !== expectedBytes ||
+      !sameFileIdentity(opened, after) ||
+      afterPath.isSymbolicLink() ||
+      !afterPath.isFile() ||
+      afterPath.nlink !== 1 ||
+      !sameFileIdentity(opened, afterPath) ||
+      !canonicalSingleLinkFile(root, repositoryPath)
+    ) {
+      return null;
+    }
+    return createHash("sha256")
+      .update(contents.subarray(0, expectedBytes))
+      .digest("hex");
+  } catch {
+    return null;
+  } finally {
+    contents?.fill(0);
+    if (descriptor !== undefined) {
+      try {
+        closeSync(descriptor);
+      } catch {
+        // A failed close makes no otherwise-invalid custody state valid.
+      }
+    }
+  }
+};
+
+const historicalCustodyIsValid = (root, historicalCustody) => {
+  const repositoryPaths = historicalCustody.map(
+    ({ name }) => `${observerAuthoringPolicy.directory}/${name}`,
+  );
+  return (
+    historicalCustody.every(({ name, bytes, sha256 }) => {
+      const repositoryPath = `${observerAuthoringPolicy.directory}/${name}`;
+      return hashExactCanonicalFile(root, repositoryPath, bytes) === sha256;
+    }) && gitPathsHaveIgnoredCustody(root, repositoryPaths)
+  );
+};
+
+const reservedCustodyIsAbsent = (root) =>
+  observerAuthoringPolicy.reservedCustodyPaths.every(
+    (repositoryPath) =>
+      !fileSystemEntryExists(path.resolve(root, ...repositoryPath.split("/"))),
+  );
+
+export const observerPreAddCustodyIsValid = (
+  root,
+  { historicalCustody = observerAuthoringPolicy.historicalCustody } = {},
+) => {
+  const observerAbsolutePath = path.resolve(
+    root,
+    ...observerAuthoringPolicy.path.split("/"),
+  );
+  return (
+    observerParentDirectoriesAreCanonical(root) &&
+    !fileSystemEntryExists(observerAbsolutePath) &&
+    gitIgnoreProvenanceIsRoot(root, [observerAuthoringPolicy.path]) &&
+    gitPathsAreIndexAndHeadAbsent(root, [observerAuthoringPolicy.path]) &&
+    reservedCustodyIsAbsent(root) &&
+    observerDirectoryInventoryMatches(
+      root,
+      historicalCustody.map(({ name }) => name),
+    ) &&
+    historicalCustodyIsValid(root, historicalCustody)
+  );
+};
+
+export const observerPostAddCustodyIsValid = (
+  root,
+  { historicalCustody = observerAuthoringPolicy.historicalCustody } = {},
+) =>
+  observerParentDirectoriesAreCanonical(root) &&
+  reservedCustodyIsAbsent(root) &&
+  observerDirectoryInventoryMatches(root, [
+    ...historicalCustody.map(({ name }) => name),
+    path.posix.basename(observerAuthoringPolicy.path),
+  ]) &&
+  historicalCustodyIsValid(root, historicalCustody) &&
+  canonicalSingleLinkFile(root, observerAuthoringPolicy.path) &&
+  gitPathsHaveIgnoredCustody(root, [observerAuthoringPolicy.path]);
+
+export const observerCustodyContract = Object.freeze({
+  historical: observerAuthoringPolicy.historicalCustody,
+  observerPath: observerAuthoringPolicy.path,
+  reservedPaths: observerAuthoringPolicy.reservedCustodyPaths,
+  trustPaths: observerAuthoringPolicy.trustPaths,
+});
 
 export const observerAuthoringEvidenceIsValid = ({
   roadmap,
   roadmapValid,
-  roadmapMatchesHead,
-  custodyEditable,
+  trustInputsMatchHead,
+  custodyValid,
 }) =>
   roadmapValid &&
-  roadmapMatchesHead &&
+  trustInputsMatchHead &&
   observerRoadmapAuthority(roadmap) &&
-  custodyEditable;
+  custodyValid;
 
-const observerAuthoringIsAuthorized = (root, roadmap) =>
+const observerPreAddIsAuthorized = (root, roadmap) =>
   observerAuthoringEvidenceIsValid({
     roadmap,
     roadmapValid: validateRoadmap(root).ok,
-    roadmapMatchesHead: runGit(root, [
-      "diff",
-      "--quiet",
-      "HEAD",
-      "--",
-      "ROADMAP.yaml",
-    ]).ok,
-    custodyEditable: observerCustodyIsEditable(root),
+    trustInputsMatchHead: observerTrustInputsMatchHead(root),
+    custodyValid: observerPreAddCustodyIsValid(root),
+  });
+
+const observerPostAddIsValid = (root, roadmap) =>
+  observerAuthoringEvidenceIsValid({
+    roadmap,
+    roadmapValid: validateRoadmap(root).ok,
+    trustInputsMatchHead: observerTrustInputsMatchHead(root),
+    custodyValid: observerPostAddCustodyIsValid(root),
   });
 
 export const evaluatePatchPaths = (
@@ -763,7 +1222,7 @@ export const evaluatePatchOperations = (
   operations,
   roadmap,
   root,
-  { authorizeObserverUpdate = observerAuthoringIsAuthorized } = {},
+  { authorizeObserverAdd = observerPreAddIsAuthorized } = {},
 ) => {
   if (!Array.isArray(operations) || operations.length === 0) {
     return {
@@ -789,17 +1248,31 @@ export const evaluatePatchOperations = (
   const observerOperation = operations.find(
     (operation) => operation.repositoryPath === observerAuthoringPolicy.path,
   );
+  const observerPathAlias = operations.find(
+    (operation) =>
+      operation.repositoryPath !== observerAuthoringPolicy.path &&
+      path.posix.basename(operation.repositoryPath).toLowerCase() ===
+        path.posix.basename(observerAuthoringPolicy.path).toLowerCase(),
+  );
+  if (observerPathAlias) {
+    return {
+      blocked: true,
+      reason: `The ignored portfolio observer requires its one exact canonical path: ${observerPathAlias.rawPath}`,
+    };
+  }
   const allowedSensitivePaths = new Set();
   if (observerOperation) {
     if (
       operations.length !== 1 ||
-      observerOperation.action !== "Update" ||
-      !authorizeObserverUpdate(root, roadmap)
+      observerOperation.action !== "Add" ||
+      observerOperation.headerPath !== ` ${observerAuthoringPolicy.path}` ||
+      !observerParentDirectoriesAreCanonical(root) ||
+      !authorizeObserverAdd(root, roadmap)
     ) {
       return {
         blocked: true,
         reason:
-          "The ignored observer may only receive one exact Update File patch while its committed and working authorization and pre-attempt custody remain valid.",
+          "The ignored portfolio observer may only receive one exact Add File patch while its committed authority, canonical parents, and pre-attempt custody remain valid.",
       };
     }
     allowedSensitivePaths.add(observerAuthoringPolicy.path);
@@ -811,6 +1284,13 @@ export const evaluatePatchOperations = (
     { allowedSensitivePaths },
   );
 };
+
+export const isObserverAddOperation = (operations) =>
+  Array.isArray(operations) &&
+  operations.length === 1 &&
+  operations[0].action === "Add" &&
+  operations[0].headerPath === ` ${observerAuthoringPolicy.path}` &&
+  operations[0].repositoryPath === observerAuthoringPolicy.path;
 
 export const planPostEditChecks = (paths, roadmap) => {
   const normalizedPaths = [...new Set(paths.map(normalizeRepositoryPath))];
@@ -899,7 +1379,7 @@ const executePostEditChecks = (root, paths, roadmap) => {
 };
 
 const observerPostEditChecks = (root, roadmap) => {
-  const stateIsValid = observerAuthoringIsAuthorized(root, roadmap);
+  const stateIsValid = observerPostAddIsValid(root, roadmap);
   return [
     {
       name: "observer authorization and custody",
@@ -909,7 +1389,7 @@ const observerPostEditChecks = (root, roadmap) => {
         stdout: "",
         stderr: stateIsValid
           ? ""
-          : "committed/working authority or pre-attempt observer custody changed",
+          : "committed authority or post-Add observer custody changed",
       },
     },
     {
@@ -1127,11 +1607,10 @@ const postToolUse = async (event, root) => {
   } catch {
     roadmap = null;
   }
-  const { plan, checks } = executePostEditChecks(root, paths, roadmap);
-  const observerEdited =
-    operations.length === 1 &&
-    operations[0].action === "Update" &&
-    operations[0].repositoryPath === observerAuthoringPolicy.path;
+  const observerEdited = isObserverAddOperation(operations);
+  const { plan, checks } = observerEdited
+    ? { plan: planPostEditChecks(paths, roadmap), checks: [] }
+    : executePostEditChecks(root, paths, roadmap);
   if (observerEdited) {
     checks.push(...observerPostEditChecks(root, roadmap));
   }
@@ -1141,7 +1620,7 @@ const postToolUse = async (event, root) => {
       ? "A binding planning document changed while ROADMAP.yaml is unchanged. Decide whether status, evidence, next actions, or the decision register needs a companion update; typo-only edits need no ledger churn."
       : "";
   const observerWarning = observerEdited
-    ? "The ignored observer bytes changed. Static hook checks do not execute unapproved code. Obtain fresh source, security, and sovereignty approval before any self-test or request execution."
+    ? "The ignored portfolio observer was added. Static hook checks do not execute unapproved code. Obtain fresh source, security, and sovereignty approval before any self-test or request execution."
     : "";
   if (failures.length === 0 && !companionWarning && !observerWarning) {
     return null;
