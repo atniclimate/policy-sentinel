@@ -773,6 +773,17 @@ synthetic Nations, and 8 verified assets at build ID
 three required independent actual-byte reviews; this section grants no
 acquisition or publication authority.
 
+The independent security adversary subsequently returned exact disposition
+`APPROVE_FEDERAL_REGISTER_TIER1_BYTE_FREEZE_PRELIMINARY`, bound to commit
+`325a98d6d1d1eb9517b77f8688a6041a7692d51b`, the 2,017-byte manifest SHA-256
+above, Node `v24.14.1`, request-plan digest
+`835a3c002c401216946b508aff9060b57d4a5569f26e894f294c966bf6f16cf5`,
+and request-policy digest
+`c10a65edddeb411ba9366da5f7c93a94cb9c0c06f2dba9feea4ae97ac751409e`.
+The reviewer reproduced all 17 rows and 129/129 focused tests. This is only one
+preliminary byte disposition; it grants no request and will not survive the
+required D3/R6/R7 receipt integration.
+
 ## Authority-custody reproducibility repair
 
 Two independent auditors found that the first `12:40:55Z` prospective graph
@@ -821,13 +832,97 @@ first-attempt observations: `FR-D3` at the frozen Federal Register OpenAPI URL,
 `FR-R6` at the frozen NARA FAQ URL, and `FR-R7` at the frozen GovInfo Federal
 Register help URL. They inherit the already frozen serial GET, media, identity-
 encoding, byte/chunk/time, redirect, no-credential, no-referrer, no-retry, and
-body-ephemeral controls. Before execution, custody remains seven issued/73
-available; the proposal would temporarily make 21 exact requests unissued and
-55 unavailable, then, if all three complete once, leave ten issued/70
-available, 27 API slots, seven Federal Register allocation slots, one NARA/
-GovInfo slot, all 24 portfolio slots, and all 38 reserve slots. This amendment
-requires fresh security and sovereignty concurrence before any request.
-`FR-A1` remains separately closed.
+body-ephemeral controls. Before amendment, custody remains seven issued/73
+available under a 25-request exact set: seven issued, 18 exact-unissued, and 55
+unavailable. The amendment expands that exact set to 28 by converting three
+unavailable slots into `FR-D3`, `FR-R6`, and `FR-R7`; immediately before
+execution the arithmetic is seven issued + 21 exact-unissued + 52 unavailable =
+80. If all three complete once, it becomes ten issued + 18 exact-unissued + 52
+unavailable = 80, leaving 70 available: 27 API slots, seven Federal Register
+allocation slots, one NARA/GovInfo slot, all 24 portfolio slots, and all 38
+reserve slots. This amendment requires fresh security and sovereignty
+concurrence before any request. `FR-A1` remains separately closed.
+
+The current frozen refresh assembler names the historical `FR-D2`, `FR-R4`,
+and `FR-R5` receipts. Those observations predate this new authority graph, so
+they cannot populate its provider-fact chronology. After the approved
+re-observations, recording `FR-D3`, `FR-R6`, and `FR-R7` will necessarily change
+covered refresh/test bytes and invalidate the current 17-path manifest for any
+final acquisition gate. A fresh manifest and fresh actual-byte source,
+security, and sovereignty approvals are required before `FR-A1`; the current
+byte disposition is preliminary only.
+
+### Reproducible-authority evidence-refresh dispositions
+
+On 2026-09-03, independent source-evidence, security, and sovereignty reviewers
+each returned exact disposition
+`APPROVE_REPRODUCIBLE_AUTHORITY_EVIDENCE_REFRESH_AMENDMENT`. Each reviewer
+independently reproduced the six authority tuple preimages and the 2,503-byte
+input, 19,844-byte graph, bundle, scope, and authority-set digests above; checked
+the corrected 25-to-28 request-set arithmetic; preserved the D2/R4/R5 chronology
+exclusion and every non-inference boundary; and confirmed that the graph still
+contains zero provider facts or grants with acquisition and publication closed.
+No reviewer made a network request. The dispositions authorize only one serial
+first attempt each for D3, R6, and R7 under the written controls. They do not
+approve the resulting provider facts or authorize FR-A1, lifecycle admission or
+activation, artifacts, or publication.
+
+Before using that amendment, the lead froze a first disposable ignored observer
+candidate at
+`generated-data/real-source-prerelease/observe-authority-evidence-v3.mjs`. That
+formatted, syntax-valid candidate was 22,209 bytes with SHA-256
+`f8263443f2d3c1a1a898077d54c10d738d4e79d3c774138f0ee26bacc1a31918`.
+Independent source and security byte reviewers both rejected it before
+execution. Among the finite blockers, semantic predicates did not gate success,
+OpenAPI/HTML token checks admitted fabricated or negated evidence, authority
+effective/expiry time was not enforced, runtime flags were not denied, the
+whole-run deadline was incomplete, authority reads and latch custody were
+raceable, response headers were too permissive, and persisted aggregate
+receipts exposed exact URLs. No sovereignty byte approval was sought for those
+rejected bytes. No request, latch, or receipt resulted.
+
+The first repair was 34,034 bytes with SHA-256
+`5def53f5439f467a24256d1718a92181da5f1d23a401fde2d344161c36945555`.
+A fresh source adversary reproduced those bytes but showed that four explicit
+changed-content contradictions could coexist with the positive R7 text and
+still pass: denial of the GovInfo/GPO service relationship, denial of 1936-
+present coverage, denial of period-rendition supply, and a statement that the
+whole authority claim was false. Those bytes were superseded before the source
+review completed; their security review was also stopped as obsolete. Neither
+review granted approval, and neither created a request, latch, or receipt.
+
+The current second repair is a formatted, syntax- and lint-valid 36,068-byte
+observer with SHA-256
+`1fdc4f800e757ac44915bfde3e5a839dcee96a24e66bf2d01871de03dfe5dc2b`
+and canonical plan SHA-256
+`b0d8fe79750f5332ee3bc8acbe864e7f047716e9cb2c38f0ceae06f083b4fa45`.
+It pins Node and both authority-file digests; denies runtime flags and
+request-affecting environment variables; enforces actual authority, expiry,
+monotonic ten-minute research, and per-request time windows; performs bounded
+no-follow identity-stable authority reads; and preflights all three
+attempt/receipt paths. Its exclusive file-synced latch protocol revalidates the
+custody root and file identity before and after close/reopen. On Windows, the
+recorded `EPERM` parent-directory-sync fallback preserves the file-synced,
+exclusive logical at-most-once boundary but is explicitly not a claim of
+parent-directory durability across sudden power loss.
+
+The network path remains exact serial direct HTTPS with no
+redirect/retry/proxy/credential/cookie/referrer path, strict status/media/
+UTF-8/identity/declared-length validation, byte/chunk/time ceilings, aggregate-
+only host-class receipts, buffer zeroing, and stop-before-next-request failure.
+D3 and R6 can pass only by equality with their prior independently approved body
+digests. R7 can pass by prior digest equality or by the same approved byte length
+plus a contradiction-free structural projection that binds GPO/GovInfo custody,
+OFR/NARA publication, 1936-present coverage, and each period-specific rendition
+matrix; false or ambiguous evidence fails the receipt and stops the sequence.
+An explicit offline self-test passed 16 checks with zero network attempts and
+zero writes, including drift, negation, unrelated-token, header, authority-
+identity, absent-custody, and all four reproduced contradiction cases. A no-
+argument invocation failed closed, and the directory still contains only the
+two authority files and observer. Fresh exact-byte source, security, and
+sovereignty approval remains required before execution. The helper must be
+removed after the one permitted run; ignored latches and aggregate receipts
+remain custody evidence. No D3/R6/R7 request has yet been issued.
 
 ## Phase gates, acceptance, and stop contract
 

@@ -4255,7 +4255,47 @@ work_items:
         42352fa0d2215e5bff4646660eca05052f342eac0aa8913755372e554e28dd47, and
         zero provider facts or grants. Exact post-authority re-observations
         FR-D3/FR-R6/FR-R7 are proposed under unchanged bounded controls but
-        require fresh adversarial concurrence before execution.
+        require fresh adversarial concurrence before execution. The amendment
+        expands the exact set from 25 to 28 requests: before execution, seven
+        issued + 21 exact-unissued + 52 unavailable = 80; after three successful
+        first attempts, ten issued + 18 exact-unissued + 52 unavailable = 80.
+        Because the current refresh assembler names the earlier D2/R4/R5
+        receipts, the later D3/R6/R7 custody change will require a fresh 17-path
+        manifest and three fresh actual-byte approvals before FR-A1.
+      - >-
+        The security adversary returned
+        APPROVE_FEDERAL_REGISTER_TIER1_BYTE_FREEZE_PRELIMINARY for commit
+        325a98d6d1d1eb9517b77f8688a6041a7692d51b, all 17 manifest rows at
+        SHA-256
+        d132d04c31307d444437d7785d3a48c6f35d76be2f8cc81250dc68967f3dac83, Node
+        v24.14.1, and 129/129 focused tests. This is one preliminary disposition
+        only and will be invalidated by required D3/R6/R7 receipt integration;
+        it grants no request or lifecycle authority.
+      - >-
+        Independent source-evidence, security, and sovereignty reviewers each
+        returned APPROVE_REPRODUCIBLE_AUTHORITY_EVIDENCE_REFRESH_AMENDMENT for
+        only one serial first attempt each of D3/R6/R7 under the exact corrected
+        graph, URLs, controls, and arithmetic. No reviewer used the network, and
+        the dispositions exclude provider-fact approval, FR-A1, lifecycle,
+        artifact, and publication authority. Independent source and security
+        reviewers rejected the first 22,209-byte observer at SHA-256
+        f8263443f2d3c1a1a898077d54c10d738d4e79d3c774138f0ee26bacc1a31918 before
+        execution for finite semantic-gating, time, runtime, custody, header,
+        and aggregate-log defects; it made no request and created no latch or
+        receipt. A source adversary then superseded the 34,034-byte first repair
+        after reproducing four changed-R7 contradiction false positives; its
+        incomplete security review was stopped and neither review granted
+        approval. The current syntax- and lint-valid disposable ignored observer
+        is frozen at 36,068 bytes, SHA-256
+        1fdc4f800e757ac44915bfde3e5a839dcee96a24e66bf2d01871de03dfe5dc2b, and
+        plan SHA-256
+        b0d8fe79750f5332ee3bc8acbe864e7f047716e9cb2c38f0ceae06f083b4fa45. Its
+        offline adversarial/custody self-test passed 16 checks with zero network
+        attempts and writes, including all four reproduced contradictions; exact
+        source, security, and sovereignty byte approval remains required before
+        the three requests may execute. The Windows parent-directory-sync EPERM
+        fallback is a file-synced logical at-most-once boundary, not
+        sudden-power-loss durability.
 
   - id: PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG
     priority: 137
