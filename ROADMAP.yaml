@@ -741,7 +741,7 @@ current_focus:
     - B4-FR-UX
     - B5-WA-LWS-ADAPTER
     - B5-WA-RULES
-  last_durable_checkpoint: e33408b26d27494cfdee41bdf51b49dddab157e6
+  last_durable_checkpoint: 84f02fadf056ac3b7d8bd4066ea53fc111853dba
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -1032,6 +1032,21 @@ work_items:
         diff checks passed. The repair grants no observer execution, external
         request, evidence acceptance, lifecycle activation, artifact, or
         publication authority.
+      - >-
+        On 2026-09-04, Windows reproduction isolated an exit-code-1 launcher
+        defect before Node: the five parsed commandWindows values passed literal
+        backslash-quote sequences to cmd.exe, which rejected the delims clause.
+        Commit 84f02fadf056ac3b7d8bd4066ea53fc111853dba replaces those sequences
+        with native cmd.exe quoting and adds a Windows-only regression that
+        executes the parsed launcher from a nested repository directory. npm run
+        hooks:test passed 21/21, including that execution path. A fresh
+        read-only adversarial review exercised all five lifecycle handlers at
+        exit 0 with empty stderr and found no weakened allowlist, gate, custody,
+        network, or mutation boundary. Persisted runtime evidence could not
+        uniquely attribute the earlier UI bubble among all enabled Stop hooks,
+        but the repository launcher defect and its exact exit 1 were
+        independently reproducible. Hook trust remains hash-bound and requires
+        normal owner review after the configuration change.
 
   - id: B1-APP
     priority: 10
