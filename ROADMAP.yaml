@@ -4537,6 +4537,27 @@ work_items:
         returned phase=execution_frozen, authority=true, trust=true,
         custody=true, checkpoint=true; the spent Add descriptor now receives an
         exact hook deny.
+      - >-
+        The offline observer self-test passed all 12 zero-I/O assertions after
+        the launch environment was correctly scrubbed; an earlier shell-only
+        precondition attempt stopped before Node because empty variables were
+        detected and made no observer invocation or write. The sole live run at
+        committed HEAD 457fb48a30273c68843a2fee868fe052ffe221f6 used the exact
+        PF-01-through-PF-17 token once. It made 17 serial DNS and HTTPS
+        attempts, received 17 2xx HTML responses totaling 2,312,141 bytes and
+        346 chunks, accepted only PF-17's exact canonical-link predicate,
+        rejected 16 observations, made no retry or redirect, and persisted only
+        the global latch, 17 request latches, and 17 minimized receipts.
+      - >-
+        The 34,744-byte portfolio report at SHA-256
+        5d496c6cbc5a49f4941f6167bed87fe3f931865c1e0e88150e95bfde563e7ab2
+        received APPROVE_PORTFOLIO_REPORT from independent source/evidence,
+        security, and sovereignty reviewers. It ranks BIA first and an exact
+        ATNI resolution second for a future separately authorized tranche, with
+        GAO an unranked reserve; it admits no source and opens no gate. The
+        cumulative ledger is 27 issued, one exact-unissued FR-A1, and 52
+        unavailable; generated custody is 44 exact ignored files pending the
+        separately committed and reviewed observer-only Delete transition.
 
   - id: PNW-05-SOURCE-PACK
     priority: 141

@@ -1536,3 +1536,65 @@ the committed checkpoint, the production probe returned
 `checkpoint=true`. A direct Pre probe using the spent Add descriptor exited
 zero with empty standard error and an exact `deny` decision stating that Add,
 Update, Delete, Move, and mixed observer patches are forbidden.
+
+### Completed offline self-test, sole live run, and portfolio report
+
+At the committed execution checkpoint, the first environment-scrub command
+represented forbidden names as present-but-empty. Its shell precondition stopped
+before Node, so it did not import or invoke the observer and made no generated
+write, DNS lookup, or HTTPS attempt. The corrected launch removed all 32 names
+from the child environment. Node v24.14.1 then ran the observer's offline
+self-test, which passed all 12 assertions with zero generated writes, DNS
+lookups, or HTTPS attempts and reproduced canonical plan SHA-256
+`b676acebcec53076742c5e4e831bd1729e8cbb970a1f276a099543358b274e33`.
+
+At `2026-09-04T10:12:24.640Z`, committed `HEAD`
+`457fb48a30273c68843a2fee868fe052ffe221f6` still satisfied the exact authority,
+trust, custody, and execution checkpoint. The lead invoked the observer exactly
+once with `--execute-approved-PF-01-through-PF-17` from the same correctly
+scrubbed environment. The process exited 2 after completing the closed serial
+plan, as required when any observation fails. Its 371-byte LF-terminated
+canonical summary has SHA-256
+`1cad9b05bb7e7cd1b457489f61f4c8fa59bf1dd6f14c77cd593807f23831f987`
+and reports 17 attempt latches, 17 authorized requests, 35 custody-write
+attempts, 17 DNS lookups, 17 transport attempts, 17 receipts, one strict
+success, 16 failures, zero rate-limited-host skips, and terminal state
+`portfolio_observation_finished_with_failures_or_skips`.
+
+Every request received one `2xx` HTML response. The run streamed 2,312,141
+identity bytes in 346 chunks, followed no redirect, made no retry, persisted no
+body, and destroyed each bounded body buffer after reduction. `PF-17` alone
+passed, solely because `html.canonical_exact=true`; fourteen observations were
+`content_invalid`, while `PF-04` and `PF-06` stopped at the fixed 64-chunk body
+bound. Across 272 predicates, one was true, twelve false, and 259 unknown. These
+are structural observation facts, not provider-contract, authority, rights,
+privacy, coverage, lifecycle, qualification, or admission evidence.
+
+The cumulative immutable ledger is now 27 issued requests, all with `2xx`
+transport; ten evidence-accepted closed observations and seventeen rejected
+observations; 3,652,284 identity bytes in 624 chunks; one exact-unissued and
+still-prohibited `FR-A1`; and 52 unavailable slots. Thus
+`27 issued + 1 exact-unissued + 52 unavailable = 80`. No request can be reset,
+repeated, or inferred from unused capacity.
+
+Post-run generated custody is exactly 44 canonical regular single-link files:
+the eight historical files, the exact 99,998-byte observer, and 35 new immutable
+PF latch/receipt files. Their full repository-relative-path, decimal-byte, and
+lowercase-SHA-256 LF-terminated TSV manifest is 5,505 bytes at SHA-256
+`c94dd447e9005a20d5f84cd331ef61583c08b370001c624942f4e77421bba8b4`.
+All 44 are ignored, untracked, and absent from the index and `HEAD`; `FR-A1`
+remains absent. The receipts contain no raw response, URL, host, header, cookie,
+credential, person/contact field, arbitrary error string, stack, or cause.
+
+The 34,744-byte source-authority portfolio report at SHA-256
+`5d496c6cbc5a49f4941f6167bed87fe3f931865c1e0e88150e95bfde563e7ab2`
+classifies every owner-named candidate, fixes the evidence ceilings and
+field/privacy boundaries, records every PF receipt hash, and ranks BIA first and
+an exact ATNI resolution second for a possible later separately authorized
+tranche; GAO remains an unranked reserve. Independent source/evidence, security,
+and sovereignty reviewers each inspected that exact report and returned
+`APPROVE_PORTFOLIO_REPORT`. No source is qualified, admitted, configured,
+enabled, active, included in a corpus or artifact, assigned health, or given an
+LKG shard. The observer remains execution-frozen until a separate committed,
+independently reviewed, exact-custody Delete-only transition removes only that
+disposable helper.
