@@ -336,7 +336,12 @@ export function App() {
 
   if (!bundle && !loadError) {
     return (
-      <main id="main-content" class="status-page" aria-busy="true">
+      <main
+        id="main-content"
+        class="status-page"
+        aria-busy="true"
+        tabindex={-1}
+      >
         <p class="eyebrow">Policy Sentinel</p>
         <h1>Loading the public source index</h1>
         <p>This application loads only same-origin static data files.</p>
@@ -346,7 +351,7 @@ export function App() {
 
   if (loadError || !bundle) {
     return (
-      <main id="main-content" class="status-page">
+      <main id="main-content" class="status-page" tabindex={-1}>
         <p class="eyebrow">Policy Sentinel</p>
         <h1>The public source index is unavailable</h1>
         <p role="alert">{loadError}</p>
