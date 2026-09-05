@@ -28,13 +28,23 @@ rebase retains that work as implementation evidence while separating engine,
 region, deployment, persona, and output concerns. Current progress,
 dependencies, and remaining work are recorded in
 [`ROADMAP.yaml`](../ROADMAP.yaml). The current exact authorization is
-`POLICY-SENTINEL-0.9-RUN-02-PNW-IDENTITY-AUTHORITY-AND-SCENARIO-MANIFESTS`.
-The owner approved only the [Run 2 entry packet](handoffs/ps09-run-02-entry-packet.md)
+`POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01`: on 2026-09-05 the owner instructed
+execution of the [launch prepared at `39d738a`](handoffs/ps09-real-policy-discovery-launch.md)
+and explicitly adopted its stated local scope. Its bounded runner, reviewed
+credential-free official acquisition, corpus, temporal/cross-context analysis,
+search, local workbench/dossier/export, testing, repairs and local commits are
+authorized. The [execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md)
+records exact leases, source predicates, counters and measured outcomes;
+authorization is not evidence that integration or acquisition has passed.
+
+The earlier owner approval covered only the [Run 2 entry packet](handoffs/ps09-run-02-entry-packet.md)
 for local synthetic identity/authority contracts and nine candidate manifests.
 That bounded packet is now validated at [its checkpoint](handoffs/ps09-run-02-identity-authority-scenarios.md),
-with no active work. Run 1's synthetic corpus spine remains validated. Required real identity and
+with no remaining work under that historical grant. Run 1's synthetic corpus spine remains validated. Required real identity and
 scenario evidence is unresolved; synthetic proof does not complete PS09-02.
-Later runs remain closed. `PS09-06-LOCAL-RC` is the sole local release root.
+PS09-03/04/05 may implement the adopted general-jurisdiction slice independently;
+PS09-02 remains an explicit prerequisite of the still-gated sole local release
+root, `PS09-06-LOCAL-RC`. Other later-run and external gates retain their scope.
 B1-B10, PNW, and the exhausted 2026-09-03 real-source child lane retain
 archived evidence without imposing another release graph. Real public-source
 use is intended product capability, with source-specific admission, operation,
@@ -45,7 +55,7 @@ AI generation, and outbound notifications remain outside current authority.
 
 ## Current application-adapter baseline
 
-The sections below preserve mixed-maturity requirements for the static
+The sections below preserve the `39d738a` baseline and mixed-maturity requirements for the static
 application. They are one application-adapter baseline, not the complete PNW
 engine definition of done. Their current maturity is:
 
@@ -60,6 +70,15 @@ engine definition of done. Their current maturity is:
 
 `ROADMAP.yaml` remains authoritative for item-level status and acceptance
 evidence.
+
+The current local workbench has its own adopted output boundary: reviewed
+generated files stay under the owned external run's `local-output/`, served
+only through explicit `127.0.0.1` invocation. The ordinary synthetic build
+remains independent of real input. General-jurisdiction search, version and
+cross-context comparison do not require a real Nation selection or membership
+registry; their source evidence and uncertainty remain explicit. These local
+capabilities must be demonstrated through the launch's acceptance rather than
+inferred from the retained application baseline.
 
 ### People and flows
 

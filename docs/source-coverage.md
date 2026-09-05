@@ -1,5 +1,15 @@
 # Source coverage
 
+The owner-adopted [real-policy launch](handoffs/ps09-real-policy-discovery-launch.md)
+now executes a bounded local successor. Current source qualification is in
+[the direct-route review](source-reviews/real-policy-direct-2026-09-05.md),
+with actual request/capture/item-review counts in
+[the execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md).
+The first GovInfo instrument and Washington chapter-index captures are in an
+owned external run; capture is not normalized-record or output acceptance.
+The retained coverage below describes the synthetic/public baseline. Its
+keyed or spent interface gates do not govern newly reviewed direct routes.
+
 Status: retained dated source evidence, interpreted under PS09 Run 1 convergence.
 Policy Sentinel will show records only after a source adapter, provenance rules,
 and the actual loaded range pass validation. This document does not claim that

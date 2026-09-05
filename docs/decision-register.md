@@ -8,8 +8,8 @@ implementation facts may be resolved with dated primary evidence, but their
 resolution must be recorded here and in affected versioned configuration.
 Source-specific blockers do not block unrelated sources.
 
-Current product-space interpretation: PS09 convergence and the approved bounded
-Run 2 synthetic identity/authority contract and candidate manifests. Dated source
+Current product-space interpretation: PS09 convergence, retained Run 2 synthetic
+evidence, and the adopted bounded real-policy implementation launch in D-067. Dated source
 evidence and earlier decisions retain their recorded review dates and scope;
 the explicit supersessions below control current product-wide interpretation.
 
@@ -20,19 +20,32 @@ The owner approved Gate G-A on 2026-07-30 for the retained B1-B10 stream in
 directives separately authorized and completed PNW-01, PNW-03, PNW-04, the
 synthetic PNW-05 core, and two Federal Register reviews. On 2026-09-03 the owner
 authorized `PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE`, now exhausted at the
-R7 evidence block. The current token is
+R7 evidence block. The completed historical token is
 `POLICY-SENTINEL-0.9-RUN-02-PNW-IDENTITY-AUTHORITY-AND-SCENARIO-MANIFESTS`:
 the exact approved local synthetic contract/manifest packet is now validated,
 with no active work or further execution grant.
 Run 1 remains validated; required real identity/scenario evidence is unresolved.
 `PS09-06-LOCAL-RC` is the sole local release root; old B/PNW/prerelease finish
-scopes retain archived evidence. Later PS09 runs remain closed. Gate A and the
-later scoped approvals do not include remote operations,
+scopes retain archived evidence.
+
+On 2026-09-05 the owner instructed execution of the full
+[real-policy launch](handoffs/ps09-real-policy-discovery-launch.md) prepared at
+`39d738a` and explicitly adopted its larger bounded local scope. The current
+run is `POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01`, tracked in its
+[execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md). PS09-03/04/05
+may implement and validate that local slice with reviewed official acquisition;
+PS09-02 remains blocked and an explicit PS09-06 prerequisite. Approval does not
+prove source qualification, real integration or local release acceptance.
+The active scope does not include remote operations,
 publication, API registration or credentials, secrets, provider-term
 acceptance, paid or licensed access, third-party contact, private material,
 optional AI generation, or outbound notifications.
 
 ## Final decisions
+
+D-067 below records the newly adopted local launch and supersedes preparation-only
+or all-later-runs-closed readings for that exact scope. The following D-066
+record retains its historical synthetic limits and measured outcome.
 
 D-066 records the owner's 2026-09-04 approval of the exact Run 2 entry packet
 at `1cb2384fe8fa4da71d1f9e8884be6980d010db74` with "Approve and go". It
@@ -132,6 +145,7 @@ application consumption of the corpus. Their dated evidence remains intact.
 | D-063 | The exact PS09 Run 1 owner token establishes repository-level convergence with one canonical source registry, corpus, lifecycle authority, runtime/output path and definition of done. `PS09-06-LOCAL-RC` is the sole local product release root and single product prerequisite for separately gated public beta operations. B1-B10, PNW, and the exhausted real-source child lane retain identities, statuses, source gates and dated evidence as archived accounting, not mandatory parallel products. Every component receives an evidence-backed disposition in `docs/development/ps09-convergence.v1.json`; a disposition cannot admit a source, satisfy a frozen convergence gate or claim unsupported runtime integration. Only Run 1 is authorized; Runs 2–8 remain closed or deferred. |
 | D-064 | The 0.9 cohort is owner-selected and PNW/ATNI-facing, seeded by the planned scenarios and geographies rather than directory membership or a fixed count. Exact membership claims require originating authority and dates; unresolved membership does not gate unrelated general-jurisdiction development. Source-stated counts and entry structure must survive later capture without forced deletion or merging. Crow government, reservation and BIA agency remain distinct; Fort Peck and Fort Belknap remain separate candidates without shared-position inference. Nevada is not automatically included. Duwamish's retained initial cohort exclusion makes no membership, recognition or legal determination. Six deep graphs and sentinels remain planned until Run 2 accepts exact identity/scenario manifests. Nationwide and Native Hawaiian support remain later-compatible; Run 1 asserts no real identity fact. |
 | D-065 | Real public-source information and governed local full text are first-class intended capabilities, with capture, local cache, analysis, display, excerpt, export and public redistribution separately governed. Run 1 implements only owned synthetic bytes: the existing AnalyzedCorpus 1.0 remains supported and its explicit 1.1 exact-three-fixture profile now feeds the ordinary artifact/app/dossier/CSV path. CuratedDocumentPack 1.0 and the Windows local CAS bind object/rendition/document/version/segment/citation evidence to that same corpus without duplicate record or health authority. Both corpus versions reject real input; transport and PDF/OCR/HTML parsing are unsupported. The selected local runtime is Node 24.19.0/npm 12.0.2 on Windows x64; historical acquisition pins retain their dates. The two lifecycle hooks after the Windows liveness repair supersede D-062's historical launcher/allowlist description without changing its immutable evidence custody or source gates. |
+| D-067 | On 2026-09-05 the owner instructed execution of the full real-policy launch prepared at `39d738a` and adopted its stated local scope as `POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01`. This authorizes its bounded runner, independently reviewed credential-free official acquisition, source-neutral versioned corpus, temporal/cross-context analysis, deterministic search, local workbench/dossier/export, tests, repairs and local commits. Exact source/interface/use predicates, operation ceilings and external custody precede dispatch. Roadmap schema 1.6 permits the PS09-03/04/05 general-jurisdiction closure independently of unresolved identity acceptance while preserving PS09-02 as an explicit PS09-06 prerequisite. Retained 1.x synthetic contracts and historical grants remain unchanged evidence; no source, integration, broad scenario or release completion follows from approval. Real objects and derived output stay in the owned external run namespace; only reviewed `local-output/` may be served explicitly on `127.0.0.1`, while ordinary builds stay synthetic. PS09-06/07/08, remote/publication, credentials, affirmative provider terms, paid/contact, private-data, optional AI, notifications and K0/S0/O0 convergence retain their closed boundaries. |
 
 ## Working assumptions
 
@@ -207,13 +221,14 @@ application consumption of the corpus. Their dated evidence remains intact.
 | G-PNW-05-FR-TIER1-QUALIFICATION / G-PNW-05-FR-LOCAL-ACTIVATION | Historical source-specific evidence gates remain unresolved after the consumed request lane stopped at its digest-drift block. | Neither gate is satisfied by Run 1 convergence or a synthetic pack; any future exact source operation requires new scoped authority and evidence. |
 | G-PS09-RUN-01 | **Approved** by the exact `POLICY-SENTINEL-0.9-RUN-01-REPOSITORY-CONVERGENCE-AND-CORPUS-SPINE` owner token. | Only the recorded local convergence and minimal synthetic corpus path, exact leases, validation and local commits. |
 | G-PS09-RUN-02 | **Approved 2026-09-04** by "Approve and go" for the [exact entry packet](handoffs/ps09-run-02-entry-packet.md) at `1cb2384fe8fa4da71d1f9e8884be6980d010db74`. | Only its local synthetic identity/authority contract, nine candidate manifests, tests, independent review and local commits. All source/domain/request/byte budgets are zero. Full PS09-02 remains evidence-dependent. |
-| G-PS09-RUN-03 through G-PS09-RUN-08 | **Closed**, each requiring separate exact owner authorization; Runs 7/8 are conditional. | No automatic successor execution, real identity population, source operation, output tranche or stakeholder contact. |
+| G-PS09-RUN-03 / G-PS09-RUN-04 / G-PS09-RUN-05 | **Approved 2026-09-05 only for D-067's adopted real-policy launch**, within its shared source/host/request/byte/privacy/reuse ceilings and exact source predicates. | The bounded local federal/PNW corpus, analysis, search and governed workbench/dossier/export closure; no historical request revival, broad identity/scenario acceptance, public distribution or unrelated successor execution. |
+| G-PS09-RUN-06 / G-PS09-RUN-07 / G-PS09-RUN-08 | **Closed**, each requiring separate exact owner authorization; Runs 7/8 are conditional. | No automatic local-release acceptance tranche, conditional successor or stakeholder contact. |
 | G-PS09-RC | **Closed** until the six canonical outcomes and exact local acceptance evidence pass. | Acceptance of the sole `PS09-06-LOCAL-RC` root; publication remains separately gated. |
 
 G-A and the prerelease lane retain their dated approval records; those records
-do not revive exhausted requests or superseded execution queues. Only the exact
-PS09 Run 2 packet governs current local synthetic implementation. Later PS09 and external
-approval still depends on the exact blocked action: G-B for named
+do not revive exhausted requests or superseded execution queues. D-067 governs
+the current bounded local run; the Run 2 packet remains completed historical
+synthetic evidence. Operations outside D-067 still depend on the exact blocked action: G-B for named
 provider terms, an API operation, registration, or secret; G-C for Oregon
 OData terms; G-D only when Idaho contact is required; G-E for remote or
 publication work; G-F for a third-party, licensed, or paid source; G-G for

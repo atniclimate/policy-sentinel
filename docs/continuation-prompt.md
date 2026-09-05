@@ -1,21 +1,26 @@
 # Policy Sentinel durable continuation prompt
 
-Status: recover the [real-policy launch prompt](handoffs/ps09-real-policy-discovery-launch.md)
-and [research synthesis](development/ps09-real-policy-systems-research-2026-09-05.md)
-first for the owner's latest direction. This preparation performs public
-read-only research and documentation, with no active implementation item or
-product corpus acquisition. The prompt grants its stated larger local scope
-when the owner supplies it as the next session's instruction. Preserve the
+Status: `POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01` is active under the owner's
+2026-09-05 instruction to execute the full
+[real-policy launch](handoffs/ps09-real-policy-discovery-launch.md) prepared at
+`39d738a` and adopt its stated larger bounded local scope. Recover that launch,
+its [research synthesis](development/ps09-real-policy-systems-research-2026-09-05.md),
+the [execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md) and live
+roadmap before continuing. The journal records leases, source predicates,
+operation accounting, actual checks and remaining work; authorization alone
+proves no acquired corpus or integrated capability. Preserve the
 [earlier recovery guide](handoffs/ps09-fresh-session-recovery-and-forward-plan.md)
 and [EV01 terminal handoff](handoffs/ps09-ev-01-evidence-review.md) as history.
 EV01 ended at local launch before any source request; its initial ledger and
-frozen helpers cannot resume. New local probes verified one-shot argv and
-preloaded input, while TTY launch failed in this tool surface. A new evidence
-runner remains unimplemented; its bounded synthetic scope was approved for
-the next session and is incorporated into the new launch. Full PS09-02 is
-blocked and no implementation work is active.
+frozen helpers cannot resume. Historical local probes verified one-shot argv
+and preloaded input, while TTY launch failed in that tool surface. The active
+run must prove its own one-operation runner through actual PowerShell before
+dispatch. Full PS09-02 remains blocked while its independent
+general-jurisdiction implementation proceeds through PS09-03/04/05.
 Run 1 and the [bounded Run 2 synthetic packet](handoffs/ps09-run-02-identity-authority-scenarios.md)
-retain their validation. New source operations and later runs remain closed.
+retain their validation. Only the adopted launch's bounded source operations
+are authorized after their predicates pass; other later-run and external gates
+retain their exact closed boundaries.
 
 ## Start and recover
 
@@ -26,7 +31,7 @@ invent an API effort value. Model selection does not create authority.
 
 1. Resolve the repository root and read every applicable `AGENTS.md`.
 2. Read `ROADMAP.yaml` completely before selecting work.
-   Read the real-policy launch and research synthesis before applying an older
+   Read the real-policy launch, research synthesis and current execution journal before applying an older
    kickoff. The historical local diagnostics alone do not authorize new work;
    the owner's supplied current instruction determines the active scope.
 3. Read [the backbone](PROJECT-BACKBONE.md), [PNW scope](pnw-scope-and-acceptance.md),
@@ -55,29 +60,35 @@ report, schema or passing synthetic fixture is not source/release evidence.
 
 ## Current authority and single completion graph
 
-At this preparation checkpoint no implementation or product acquisition has
-started. The new launch prompt is ready for the next session; recover its
-explicit authority when the owner supplies it. The following paragraphs
-describe the completed historical synthetic grant, not a limit on the newly
-requested product direction. The completed synthetic packet's token is
+The adopted launch authorizes bounded local implementation, independently
+reviewed credential-free official acquisition, external immutable corpus and
+derived evidence, temporal/cross-context analysis, deterministic search,
+workbench/dossier/export, tests, repairs and local commits. Its exact source,
+host, request, byte, deadline, concurrency, storage and privacy ceilings remain
+binding. Source review and runner preflight precede dispatch; durably account
+for every attempted GET before issuing it, and recover completed operations
+from retained evidence rather than repeating an uncertain request.
+
+The following paragraphs describe completed historical grants, not limits on
+the adopted run. The completed synthetic packet's token is
 `POLICY-SENTINEL-0.9-RUN-02-PNW-IDENTITY-AUTHORITY-AND-SCENARIO-MANIFESTS`.
 It authorized only the 23 paths and local synthetic scope of the entry packet
 approved at `1cb2384fe8fa4da71d1f9e8884be6980d010db74`. Its implementation,
 tests and independent actual-code reviews are validated. Recover final local
 commit metadata from the handoff; do not restart the completed packet.
-Real identity population,
-source/domain/request/byte budgets and external operations remain closed/zero.
+Its real identity population, source/domain/request/byte budgets and external
+operations remained closed/zero.
 Synthetic contract and manifest completion cannot establish full PS09-02
-acceptance; preserve the exact remaining evidence/authority block and stop
-before any successor run or archived lane.
+acceptance; preserve the exact remaining evidence/authority block. That packet
+does not start any successor or archived lane.
 
 The separate EV01 token approved its exact five conditional operations but ended
 before any was reserved or issued. Do not reuse its directory or unused budget,
 repair the stale active ledger, create receipts, or rerun its helper/checks.
-The fresh-session guide proposes a no-network readiness stage and a new exact
-packet with explicit per-operation continuation semantics. Neither is source
-authority. Complete the authorized local preparation before requesting a concrete
-new operation decision; do not reopen settled product questions.
+The fresh-session guide's proposed readiness stage is historical input to the
+new runner; it is not source authority. The adopted launch now supplies its own
+bounded local authority. Do not reopen settled product questions or reset a
+spent operation ledger.
 
 The canonical program is PS09-01 through PS09-06; conditional PS09-07/08 remain
 deferred and separately gated. `PS09-06-LOCAL-RC` is the sole local release
@@ -85,6 +96,10 @@ root and single product prerequisite for later public beta operations. Legacy
 B1-B10, broad PNW and the exhausted real-source child lane retain identities,
 statuses, gates and dated evidence as archived accounting. An archived ready
 item is neither current execution authority nor another mandatory product.
+PS09-02 remains blocked and an explicit PS09-06 prerequisite; do not mark its
+unresolved identities or scenarios complete to enable general-jurisdiction
+work. PS09-03/04/05 execute only the adopted launch's local closure, while
+PS09-06/07/08 retain their exact owner gates.
 
 Use only `complete`, `in_progress`, `ready`, `blocked`, `deferred`, and
 `not_started` in the ledger. While authorized work is active, maintain exactly
@@ -126,8 +141,19 @@ objects remain outside Git. Owned-fixture local cache/analysis/display are
 allowed; pack excerpts, export and public redistribution are prohibited.
 The existing synthetic artifact has its own reviewed boundary. Transport,
 real lifecycle integration, PDF/OCR/HTML parsing and broad search/output
-features remain unsupported or future work. The ADR records exact custody
+features were outside that completed Run 1 implementation. The active run must
+version and validate its successor rather than relabel the retained 1.x profile.
+The ADR records exact custody
 assumptions and proof limits.
+
+General-jurisdiction search and temporal/cross-context comparison must work
+without a real Nation selection or current membership registry. Freeze the
+independent source-grounded gold expectations before tuning and preserve at
+least four undisclosed first-pass cases under the
+[evaluation protocol](development/ps09-real-policy-evaluation.md). Demonstrate
+the launch's document/class/context/chain counts, two analytical operations,
+three evidence-linked falsifiable findings, local browser/dossier/export and
+offline replay; report any shortfall without lowering the outcome.
 
 ## Frozen source and external boundaries
 
@@ -136,7 +162,7 @@ ended with zero source access and is not reusable. The historical real-source pr
 stopped on consumed R7 digest drift. Do not repeat D3, R6, R7 or PF-01 through
 PF-17; do not issue FR-A1. Preserve its 27-issued-request ledger and immutable
 43-file ignored evidence set. Candidate rankings are not selection or source
-operation authority. No source is admitted or activated by this packet.
+operation authority. No source was admitted or activated by that historical packet.
 
 Qualification, admission, activation, acquisition, analysis eligibility,
 artifact eligibility and publication remain separate. Provider, interface,
@@ -145,9 +171,10 @@ recognition, cohort, relevance and legal effect must remain distinct.
 
 Keep remote/push, license/Pages/publication, credential/terms/paid/contact,
 private or sensitive material, AI, telemetry, notifications, real
-identity/membership assertions, and K0/S0/O0 convergence outside this token.
-Do not restore a spent observer, retry a failed provider, switch to another
-source operation, or silently start a later run.
+identity/membership assertions, and K0/S0/O0 convergence outside the active scope.
+Do not restore a spent observer or silently start a later run. New operations
+and any explicit retry must remain inside the adopted launch, accepted source
+profile and fresh ledger; no automatic retry is authorized.
 
 ## Validation, custody and terminal handoff
 
@@ -164,9 +191,13 @@ npm run test:spine
 npm run check
 ```
 
-No external corpus-root operation is needed or approved by the Run 2 packet.
-Run 1's external-root replay remains dated evidence. Preserve any configured
-root and its inventory; no destructive cleanup.
+Run 1's external-root replay remains dated evidence, and Run 2 supplied no
+external-root operation authority. The adopted launch permits a separately
+owned external run namespace; preserve existing roots and inventories without
+destructive cleanup. Real source bodies, renditions, excerpts, gold evidence
+and generated output must not enter Git. Only reviewed `local-output/` files
+may be explicitly served on `127.0.0.1`; never serve the corpus root or
+acquisition objects. Ordinary builds remain synthetic and network-free.
 Verify final Git/staged paths, `git diff --check`, source/artifact boundaries,
 protected input and historical evidence hashes, and final independent
 engineering/security plus governance/sovereignty review. The protected current
@@ -178,7 +209,7 @@ artifacts. Do not amend, rebase, reset or rewrite history. Record actual
 start/end commits, component dispositions, graph/counts, implemented versus
 contracted capabilities, command outcomes, runtime/Windows/replay evidence,
 browser applicability, object manifests/digests, source requests/states,
-custody, adversarial findings/repairs and exact remaining Run 2 evidence gates
+custody, adversarial findings/repairs and exact remaining identity/scenario gates
 in the handoff. A material unresolved implementation finding blocks the local
 packet checkpoint; missing real evidence blocks full PS09-02 completion.
 
@@ -193,7 +224,6 @@ The full Run 2 completion token is unavailable from synthetic proof. The
 bounded local checkpoint is not whole-product completion or publication.
 The earlier recovery task used
 `PS09_FRESH_SESSION_HANDOFF_READY_NO_NEW_SOURCE_AUTHORITY`; that disposition
-is historical. Current preparation records research and real-policy launch
-readiness without claiming implementation. The next session follows the new
-prompt's outcome and reports its actual completed or partial local workbench,
+is historical. Continue the same adopted launch across compaction and report
+its actual completed or partial local workbench,
 measured evidence, unresolved claims, and remaining release work.

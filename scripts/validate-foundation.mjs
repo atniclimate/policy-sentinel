@@ -31,6 +31,7 @@ const realSourceLifecycleBundleSchema = await readJson(
 const analyzedCorpusSchema = await readJson(
   "schemas/analyzed-corpus.schema.v1.json",
 );
+const analyzedCorpusV2Schema = await readJson("schemas/analyzed-corpus.schema.v2.json");
 const identityAuthorityScenariosSchema = await readJson(
   "schemas/identity-authority-scenarios.schema.v1.json",
 );
@@ -65,6 +66,7 @@ for (const [name, schema] of [
   ["source-pack bundle schema", sourcePackBundleSchema],
   ["real-source lifecycle bundle schema", realSourceLifecycleBundleSchema],
   ["analyzed corpus schema", analyzedCorpusSchema],
+  ["analyzed corpus v2 schema", analyzedCorpusV2Schema],
   ["identity authority scenarios schema", identityAuthorityScenariosSchema],
   ["S0 spatial-observation schema", spatialObservationSchema],
   ["S0 spatial-relation schema", spatialRelationSchema],
@@ -82,6 +84,7 @@ for (const [name, schema] of [
 
 ajv.addSchema(recordSchema);
 const validateAnalyzedCorpus = ajv.compile(analyzedCorpusSchema);
+ajv.compile(analyzedCorpusV2Schema);
 if (typeof validateAnalyzedCorpus !== "function") {
   throw new Error("analyzed corpus schema did not compile");
 }
@@ -865,7 +868,7 @@ if (!historicalPolicyRejected) {
 negativePolicyChecks += 1;
 
 console.log(
-  `Foundation validation passed: 15 schemas, ${taxonomy.categories.length} categories, ` +
+  `Foundation validation passed: 16 schemas, ${taxonomy.categories.length} categories, ` +
     `${taxonomy.categories.reduce((count, category) => count + category.subcategories.length, 0)} subcategories, ` +
     `${fixtureNames.length} valid fixtures, ${negativePolicyChecks} negative policy checks, ` +
     `${s0ValidFixtureChecks} valid plus ${s0InvalidFixtureChecks} invalid S0 fixture checks, ` +

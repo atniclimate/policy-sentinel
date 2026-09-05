@@ -136,6 +136,9 @@ test("PS09 release accounting converges without reopening archived lanes", async
     candidate.schema_version = "1.5";
     for (const [index, id] of ps09OutcomeIds.entries()) {
       const entry = item(candidate, id);
+      entry.dependencies = [[], [0], [0, 1], [1, 2], [2, 3], [4], [4], [5]][
+        index
+      ].map((dependency) => ps09OutcomeIds[dependency]);
       entry.status =
         index === 0
           ? "in_progress"
@@ -207,6 +210,7 @@ test("PS09 release accounting converges without reopening archived lanes", async
     );
   };
   for (const [name, candidate] of [
+    ["adopted-general-jurisdiction-run", liveRoadmap],
     ["active", active()],
     ["terminal-run-one", terminalRunOne()],
     ["canonical-rc", complete()],
@@ -218,6 +222,28 @@ test("PS09 release accounting converges without reopening archived lanes", async
       `${name}: ${result.stdout}\n${result.stderr}`,
     );
   }
+  assert.equal(liveRoadmap.schema_version, "1.6");
+  assert.equal(liveWorkItem(ps09OutcomeIds[1])?.status, "blocked");
+  assert.deepEqual(liveWorkItem(ps09OutcomeIds[2]).dependencies, [
+    ps09OutcomeIds[0],
+  ]);
+  assert.deepEqual(liveWorkItem(ps09OutcomeIds[5]).dependencies, [
+    ps09OutcomeIds[1],
+    ps09OutcomeIds[4],
+  ]);
+  const missingIdentityGate = globalThis.structuredClone(liveRoadmap);
+  item(missingIdentityGate, ps09OutcomeIds[5]).dependencies = [
+    ps09OutcomeIds[4],
+  ];
+  const missingGateResult = await validate(
+    "v2-missing-identity-release-gate",
+    missingIdentityGate,
+  );
+  assert.notEqual(missingGateResult.status, 0);
+  assert.match(
+    `${missingGateResult.stdout}\n${missingGateResult.stderr}`,
+    /dependencies must preserve exactly/,
+  );
   const rejects = [
     [
       "hidden-second-root",

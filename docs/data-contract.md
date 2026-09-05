@@ -11,6 +11,23 @@ build's three records. The [corpus ADR](adr/ps09-canonical-corpus.md) and
 canonical path and exclusions. `PS09-06-LOCAL-RC` is the sole local release
 root; the historical schema families below do not impose a second graph.
 
+The owner adopted the [real-policy launch](handoffs/ps09-real-policy-discovery-launch.md)
+prepared at `39d738a` for bounded local implementation, official acquisition,
+analysis and output. The [execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md)
+tracks the authorized successor closure and exact contract/consumer evidence.
+The retained 1.x contracts keep their synthetic limits; their zero-source grants
+do not limit this new run. No new schema is normative merely because the launch
+requests it or a draft file exists. The lead must catalog the validated successor
+and document source-profile, immutable object, work/version/rendition/segment,
+event, evidence-linked analysis, coverage and local-output compatibility.
+
+The new local profile must distinguish publication, source-stated effectiveness,
+version dates and observation; unknown and partial dates remain explicit.
+Source-derived metadata and analytical assertions keep separate provenance.
+The ordinary application build remains synthetic, and real bodies or gold
+excerpts must not enter repository fixtures or the public artifact. Source
+authority, permitted uses and operation/review evidence precede real admission.
+
 The PNW architecture requires separately versioned contracts for:
 
 - region packs with authority-qualified jurisdiction and source references;
@@ -44,6 +61,30 @@ not activate a source, authorize production data, integrate an additive module,
 or establish PNW completion.
 
 ### Implemented JSON Schemas
+
+The adopted run now implements the closed `AnalyzedCorpus 2.0.0` local contract
+in [its schema](../schemas/analyzed-corpus.schema.v2.json),
+[pure producer/validator](../src/pipeline/analyzed-corpus-v2.mjs),
+[readonly declarations](../src/pipeline/analyzed-corpus-v2.d.mts), and
+[synthetic schema/replay/negative tests](../tests/pipeline/analyzed-corpus-v2.test.mjs).
+Stable ID: `https://policy-sentinel.invalid/schemas/analyzed-corpus.schema.v2.json`.
+It has only local `$defs`, no dependency on retained PolicyRecord or lifecycle
+contracts. It separates reviewed source profiles, captures, logical works,
+versions, parser renditions, byte-located segments, source-stated events and
+links, analytical codes/findings, and coverage. Each member and the whole graph
+are digest-bound. Foundation compiles it strictly; runtime validates cross-links,
+exact source-backed provenance, chronology and citation replay. Degraded content
+requires the exact prior corpus supplied as checksum-validated evidence and
+preserves original times; an unavailable source emits no records.
+
+This is an explicit major successor for `real_source_local` or
+`synthetic_test_only` input. It does not relabel a 1.x corpus, migrate its three
+synthetic records, or weaken the retained 1.x real-input rejection. Temporal
+[operations](../src/engine/temporal-operations.mjs) distinguish same-work version
+comparison from cross-instrument provision comparison. A related provision
+comparison requires an explicit source-backed change edge and keeps both work
+identities. Build/UI integration and actual corpus acceptance remain pending
+until separately evidenced in the active journal.
 
 | Schema and normative status | Purpose, version, and stable ID | `$ref` dependencies | Instance producer and consumers | Examples and fixtures | Validator and migration posture |
 | --- | --- | --- | --- | --- | --- |

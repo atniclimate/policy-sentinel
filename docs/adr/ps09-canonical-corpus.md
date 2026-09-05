@@ -5,6 +5,15 @@ Status: accepted Run 1 implementation decision under
 Reconciliation anchor: `0ff44349c37b60006ee34475319a86ec5a87e9e0`.
 This is not Run 2, real-source admission, or release acceptance.
 
+Current addendum, 2026-09-05: the owner has adopted the full
+[real-policy launch](../handoffs/ps09-real-policy-discovery-launch.md) prepared at
+`39d738a` and instructed implementation under
+`POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01`. Its
+[execution journal](../development/PS09-REAL-POLICY-DISCOVERY-01.md) records the
+bounded successor closure, exact leases, source decisions and actual validation.
+The Run 1 decisions and synthetic proof below remain historical compatibility
+evidence; this addendum does not rewrite or extend their consumed authority.
+
 ## Decision and evidence boundary
 
 The single active product path is PS09-01 through PS09-06 in
@@ -113,12 +122,23 @@ real local caching and public reuse require separate source-specific evidence.
 
 ## Remaining work and acceptance
 
-Run 2 must establish bounded identity/authority/scenario contracts and an exact
-cohort with evidence states. Runs 3/4 must independently qualify and authorize
-real source operations and lifecycle integration; no Run 1 test supplies terms,
-activation, freshness or coverage evidence. Run 5 implements common projections,
-search and outputs; Run 6 proves scenario, security, accessibility, provenance,
-coverage and local RC acceptance. No AI, map/land data, private input, contact,
+Run 2's bounded synthetic identity/authority/scenario contracts are validated;
+actual identity and broader scenario acceptance remains blocked. The adopted
+launch authorizes its PS09-03/04/05 local corpus, acquisition, analysis and output
+closure independently of those missing identity facts. Roadmap schema 1.6
+retains PS09-02 as an explicit PS09-06 prerequisite. Source-specific current
+evidence and runner readiness still precede dispatch; no Run 1 test supplies
+terms, activation, freshness or coverage evidence.
+
+The real successor must preserve one canonical evidence-bearing corpus and
+version its contracts explicitly. Reviewed source objects and derived evidence
+stay in a separately owned external run namespace; only reviewed `local-output/`
+may be explicitly served on `127.0.0.1`. Ordinary builds remain synthetic and
+cannot admit real input by relabeling a retained fixture profile. Integrated
+real acquisition, replay, search, temporal/cross-context comparison and governed
+output remain acceptance work until demonstrated in the execution journal.
+Run 6 still requires its exact gate and scenario, security, accessibility,
+provenance, coverage and local RC evidence. No AI, map/land data, private input, contact,
 credentials, paid operations, notification, remote or publication authority opens.
 
 Recovery requires full live roadmap reading and reconciliation before action,

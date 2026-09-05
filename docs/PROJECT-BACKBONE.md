@@ -19,23 +19,28 @@ Run 1 introduces no real identity facts. The Nez Perce scenario remains a
 candidate, and nationwide/Native Hawaiian support remains later-compatible.
 
 The exact PS09 Run 2 local synthetic identity, authority and candidate-manifest
-packet is validated. Full PS09-02 remains blocked; real evidence and later operations
-remain separately gated. `PS09-06-LOCAL-RC` is the sole local release root and single product
+packet is validated. Full PS09-02 remains blocked on originating evidence and
+scenario acceptance, independently of authorized general-jurisdiction work.
+`PS09-06-LOCAL-RC` is the sole local release root and single product
 prerequisite for later separately authorized public beta operations. Historical
 B/PNW/real-source finish scopes are archived evidence. The
 [corpus ADR](adr/ps09-canonical-corpus.md),
 [component disposition registry](development/ps09-convergence.v1.json), and
 [Run 1 handoff](handoffs/ps09-run-01-convergence.md) define the convergence and
 measured acceptance boundary; the live ledger controls whether work is active
-or terminal. No later PS09 run or external gate is opened.
+or terminal. Historical grants do not open a successor or external gate.
 
 The owner's latest 2026-09-05 direction is a real-policy discovery workbench
 with temporal and cross-jurisdiction investigation. Start from the
 [research and strategic correction](development/ps09-real-policy-systems-research-2026-09-05.md)
-and [next-session implementation prompt](handoffs/ps09-real-policy-discovery-launch.md).
-This checkpoint prepares that launch through public research and documentation;
-no product implementation or corpus acquisition starts here. The new prompt's
-larger local scope applies when the owner supplies it as the next instruction.
+and [adopted implementation prompt](handoffs/ps09-real-policy-discovery-launch.md).
+Preparation at `39d738a` performed public research and documentation only.
+The owner then instructed execution in full and adopted its larger bounded
+local scope. `POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01` is active; recover the
+[execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md) for leases,
+source predicates, counters and measured outcomes. PS09-03/04/05 may implement
+that local slice without claiming PS09-02 identity acceptance or PS09-06 release
+completion. Authorization itself proves no working integration or source fact.
 
 EV01's earlier evidence-review grant ended at local launch before any source
 request. Recover its historical failure and diagnostics from the
@@ -87,8 +92,9 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | Run 2 implementation, proof and real-evidence gaps | [`ps09-run-02-identity-authority-scenarios.md`](handoffs/ps09-run-02-identity-authority-scenarios.md) and [`ps09-run-02-candidate-manifests.md`](development/ps09-run-02-candidate-manifests.md) | Synthetic identity/authority/scenario references; nine owner planning manifests supply no real identity, source or scenario acceptance |
 | Work-class staffing, tools, leases, validation, and stop rules | [`AGENT-AND-TOOL-OPERATING-MODEL.md`](development/AGENT-AND-TOOL-OPERATING-MODEL.md) | Run templates do not broaden authority |
 | Recovery after a fresh session or compaction | [`continuation-prompt.md`](continuation-prompt.md) | Always reconcile against live Git and roadmap |
-| Current strategic direction and real-policy implementation launch | [`research synthesis`](development/ps09-real-policy-systems-research-2026-09-05.md) and [`launch prompt`](handoffs/ps09-real-policy-discovery-launch.md) | Public research and prepared next-session authority; no implementation or source-admission claim at preparation |
-| EV01 stop and current recovery course | [`ps09-ev-01-evidence-review.md`](handoffs/ps09-ev-01-evidence-review.md) and [`ps09-fresh-session-recovery-and-forward-plan.md`](handoffs/ps09-fresh-session-recovery-and-forward-plan.md) | Zero source access; local shell diagnostics support a proposed one-operation invocation, not a working source runner or renewed grant |
+| Current strategic direction and real-policy implementation launch | [`research synthesis`](development/ps09-real-policy-systems-research-2026-09-05.md), [`adopted launch`](handoffs/ps09-real-policy-discovery-launch.md), and [`execution journal`](development/PS09-REAL-POLICY-DISCOVERY-01.md) | Active bounded local implementation, reviewed acquisition, analysis and output authority; source predicates and measured acceptance remain independent |
+| Independent real-policy acceptance | [`evaluation protocol`](development/ps09-real-policy-evaluation.md) | Thresholds precede tuning; actual source-derived gold and reserved first-pass cases stay in external review custody |
+| Historical EV01 stop and recovery diagnostics | [`ps09-ev-01-evidence-review.md`](handoffs/ps09-ev-01-evidence-review.md) and [`ps09-fresh-session-recovery-and-forward-plan.md`](handoffs/ps09-fresh-session-recovery-and-forward-plan.md) | EV01 had zero source access and cannot resume; its local diagnostics do not create renewed authority |
 | Historical exact PNW-01 implementation run | [`pnw-engine-seams-implementation-launch-2026-09-02.md`](handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md) | Its authorization and completion evidence do not authorize a successor |
 | Historical PNW-03 implementation coordination | [`PNW-03-GEOGRAPHY-RIGHTS-COORDINATION-2026-09-02.md`](development/PNW-03-GEOGRAPHY-RIGHTS-COORDINATION-2026-09-02.md) | Records that completed local run; cannot authorize sources, real data, convergence, publication, or a successor |
 | PNW-03 implementation and terminal evidence | [`pnw-geography-rights-implementation-2026-09-02.md`](handoffs/pnw-geography-rights-implementation-2026-09-02.md) | Complete local synthetic checkpoint; does not authorize real data, convergence, publication, or a successor |
@@ -115,7 +121,7 @@ they do not replace it as the current status owner.
 
 ## Capability and maturity map
 
-This table records bounded capabilities through Run 2's local packet and provides
+This table records the retained baseline through Run 2's local packet and provides
 the tests for later state changes; it is not a second live ledger. For any
 later authorized tranche, current maturity is the conjunction of live bytes,
 validator/test evidence, and that work item's status in `ROADMAP.yaml`. The
@@ -172,7 +178,7 @@ telemetry, browser-side AI, or outbound notifications.
 
 | Workstream | Canonical state |
 | --- | --- |
-| PS09-01 through PS09-06 | One canonical program; Run 1 and the bounded Run 2 synthetic packet validated, full PS09-02 real evidence blocked, later runs closed, sole local release root PS09-06-LOCAL-RC |
+| PS09-01 through PS09-06 | One canonical program; Run 1 and bounded Run 2 synthetic packet validated, full PS09-02 evidence blocked and an explicit PS09-06 prerequisite; adopted launch authorizes its bounded PS09-03/04/05 local closure; sole local release root PS09-06-LOCAL-RC remains gated |
 | Retained B1-B10 | Archived implementation and fallback evidence; former four finish blockers remain historical source gaps, not a parallel release graph |
 | PNW-00 | Planning/governance rebase complete |
 | PNW-01 | Complete as a bounded synthetic engine-seam tranche |
@@ -225,7 +231,15 @@ evidence. It does not introduce a release root or authorize further work.
   canonical-tip LKG rules are executable. The candidate fixture remains
   `evidence_blocked` and does not qualify, admit, activate, bind, retrieve,
   retain, project, or publish Federal Register data.
-- PNW-07 narrow source-neutral analyzed-corpus child:
+- Adopted real-policy v2 successor: [schema](../schemas/analyzed-corpus.schema.v2.json),
+  [producer and validator](../src/pipeline/analyzed-corpus-v2.mjs),
+  [temporal operations](../src/engine/temporal-operations.mjs),
+  [acquisition custody](../src/pipeline/policy-custody.mjs), and
+  [one-operation runner](../scripts/bounded-operation-runner.mjs).
+  Scope and validation are in the [active journal](development/PS09-REAL-POLICY-DISCOVERY-01.md).
+  This successor is separately versioned; the following retained 1.x baseline
+  keeps its historical restrictions.
+- PNW-07 retained narrow source-neutral analyzed-corpus child:
   [`AnalyzedCorpus 1.0/1.1` schema](../schemas/analyzed-corpus.schema.v1.json),
   [`pure runtime`](../src/pipeline/analyzed-corpus.mjs),
   [`readonly declarations`](../src/pipeline/analyzed-corpus.d.mts), and
@@ -259,6 +273,11 @@ evidence. It does not introduce a release root or authorize further work.
   `.codex/agents/`, and `.agents/skills/`.
 - `dist/` is generated and ignored by `npm run build`. `.cache/` is ignored
   staging. Never hand-edit or commit either.
+- The adopted real-policy run owns a separate external namespace for accepted
+  objects, renditions, review evidence and generated output. Explicit loopback
+  serving is limited to its reviewed `local-output/`; the corpus root and
+  acquisition objects must not be web-addressable. The ordinary build stays
+  synthetic. Exact paths and leases belong to the execution journal.
 - The 32 exact owner direction inputs and the separately classified synthetic
   selected-records CSV remain hash-bound and untracked in
   [Run 1 custody](development/ps09-run-01-custody.json). The earlier 23-input
@@ -280,11 +299,11 @@ npm run validate:backbone
 ```
 
 Recover the real-policy launch and research synthesis first for the latest
-owner direction. Then recover the earlier fresh-session guide, EV01 terminal
+owner direction and its active execution journal. Then recover the earlier fresh-session guide, EV01 terminal
 record, Run 2 handoff and completed Run 1 checkpoint as historical evidence
-with the live roadmap. No implementation is active at this preparation
-checkpoint. The new prompt defines the larger local scope when supplied as
-the next instruction; real identity/scenario evidence remains unresolved.
+with the live roadmap. Continue the adopted local work from its measured
+checkpoint; real identity/scenario evidence remains unresolved and cannot be
+marked complete to unblock general-jurisdiction acquisition.
 Archived ready items and old prompts cannot start another lane. The current
 default application/build remains network-free and synthetic.
 
@@ -292,7 +311,9 @@ The historical real-source prerelease stopped because qualification failed
 closed on consumed R7 digest drift. Do not repeat D3, R6, R7, PF-01 through
 PF-17, issue FR-A1, or treat BIA/ATNI ranking as selection/request authority.
 Preserve the exact 27-request ledger, 43-file ignored evidence custody, and
-current protected input inventory. Publication, source activation/acquisition,
-remote, credential, provider-terms, paid/contact, private-data, AI,
-notification, real identity/membership assertions, and K0/S0/O0 convergence
-remain outside the approved Run 2 packet.
+current protected input inventory. The adopted launch supplies fresh bounded
+source-operation authority only after its source-specific predicates pass;
+it does not revive those historical operations. Publication, remote, credential,
+affirmative provider-terms, paid/contact, private-data, AI, notification,
+unsupported identity/membership assertions and K0/S0/O0 convergence remain
+outside the active scope.

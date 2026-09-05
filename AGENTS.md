@@ -9,7 +9,21 @@ repository navigation and authority index. Preserve the product boundaries in
 `docs/pnw-scope-and-acceptance.md`, and the decisions in
 `docs/decision-register.md`.
 
-The completed local synthetic authorization was
+The current local authorization is
+`POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01`. On 2026-09-05 the owner instructed
+execution of the full [real-policy launch](docs/handoffs/ps09-real-policy-discovery-launch.md)
+prepared at `39d738a` and explicitly adopted its stated local scope. It
+authorizes the bounded runner, independently reviewed credential-free official
+acquisition, local corpus and temporal analysis, search/workbench, governed
+local outputs, tests, repairs and local commits within that launch's exact
+source, host, request, byte, custody and privacy ceilings. Read the
+[execution journal](docs/development/PS09-REAL-POLICY-DISCOVERY-01.md) for current
+leases, accepted source profiles, operation accounting and measured evidence.
+Approval is not source qualification or implementation acceptance. PS09-03
+coordinates active general-jurisdiction work; unresolved PS09-02 identity and
+scenario acceptance remains an explicit PS09-06 prerequisite.
+
+The completed historical local synthetic authorization was
 `POLICY-SENTINEL-0.9-RUN-02-PNW-IDENTITY-AUTHORITY-AND-SCENARIO-MANIFESTS`.
 The owner approved the exact [Run 2 entry packet](docs/handoffs/ps09-run-02-entry-packet.md)
 with "Approve and go" on 2026-09-04. It permits only the listed local synthetic
@@ -21,8 +35,9 @@ with no active work or remaining execution grant. Run 1 remains complete.
 This approval does not authorize a later run or archived
 ready lane. `PS09-06-LOCAL-RC` is the sole local
 release root; retained B1-B10, PNW, and real-source prerelease statuses are
-archived evidence, not parallel mandatory release graphs. Later PS09 runs
-remain behind their exact owner gates. Earlier Gate A and tranche approvals
+archived evidence, not parallel mandatory release graphs. Current PS09-03/04/05
+authority is limited to the adopted launch; PS09-06/07/08 and every operation
+outside that scope retain their exact owner gates. Earlier Gate A and tranche approvals
 retain only their recorded scope. No current approval authorizes a remote repository, push, Pages
 deployment, API registration, provider-term acceptance, paid call, third-party
 contact, secret change, private-data use, optional AI generation, or outbound
@@ -39,10 +54,10 @@ diagnostic preparation only. The owner subsequently approved recommendations
 real-policy direction, public research with subagents, and an implementation
 prompt. Recover the [strategic research](docs/development/ps09-real-policy-systems-research-2026-09-05.md)
 and [real-policy launch prompt](docs/handoffs/ps09-real-policy-discovery-launch.md)
-before selecting the older startup. Current preparation includes public
-read-only research and documentation; it does not activate implementation or
-acquire a product corpus. When supplied as the next session's instruction, the
-new prompt grants its stated larger local scope. Historical grants remain
+before selecting the older startup. The `39d738a` preparation checkpoint
+performed public read-only research and documentation without implementation
+or product acquisition. The owner has now supplied and adopted that prompt;
+its larger bounded local scope is active. Historical grants remain
 historical; do not reset them or mistake their synthetic limits for the new
 product goal. Separately closed external operations retain their boundaries.
 
@@ -182,10 +197,16 @@ concurrent changes.
 
 Keep the source repository lean: code, schemas, taxonomy/source configuration,
 documentation, synthetic fixtures, notices, tests, and approved deployment
-configuration only. Generate provider data in ephemeral build space. For the
+configuration only. Generate provider data in approved external or ephemeral
+build space. The current real-policy run may retain reviewed immutable source
+objects and derived evidence in its separately owned external namespace.
+Only its reviewed `local-output/` directory may be served explicitly on
+`127.0.0.1`; never serve the corpus root or acquisition objects. Ordinary
+builds remain synthetic and network-free. For the
 retained static application, place validated public output only in the approved
 Pages artifact. A future document, web-module, application, or structured
-adapter requires its own approved output and delivery boundary. A hidden path
+adapter requires its own approved output and delivery boundary; the adopted
+launch supplies only its stated local workbench/dossier/export boundary. A hidden path
 in a public repository or deployment is not private.
 
 When a source refresh fails, use only a checksum-validated prior public shard

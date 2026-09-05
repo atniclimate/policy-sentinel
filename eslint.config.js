@@ -13,6 +13,7 @@ export default tseslint.config(
       "raw-data/**",
       "cached-responses/**",
       "ai-summaries/**",
+      ".cache/ps09-ev-01/**",
     ],
   },
   js.configs.recommended,

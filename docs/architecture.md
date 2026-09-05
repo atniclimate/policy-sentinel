@@ -29,6 +29,23 @@ prerelease finish scopes retain evidence only. The
 migration, compatibility, and excluded/deferred work. Run 1 does not authorize
 later runs, real acquisition, source activation, or publication.
 
+The separately adopted [real-policy launch](handoffs/ps09-real-policy-discovery-launch.md)
+at `39d738a` now authorizes its bounded local successor implementation under
+`POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01`. The
+[execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md) owns exact
+leases, accepted source/custody decisions and measured integration evidence.
+The target slice connects a one-operation runner, immutable official objects,
+versioned corpus and replayable segments, deterministic search, temporal and
+cross-context comparison, and local browser/dossier/export. Source review and
+runner preflight precede acquisition; the authorization itself proves no
+working path. PS09-02 stays blocked and an explicit PS09-06 prerequisite while
+general-jurisdiction work proceeds independently.
+
+The sections below describe retained component evidence and the launch baseline.
+Their synthetic/unsupported statements apply to the named existing contracts;
+they do not prohibit the adopted successor work. New implementation must record
+its own version, compatibility and evidence before a maturity claim changes.
+
 The current static Preact application, print dossier, CSV serializer, source
 contracts, `PolicyRecord 1.4`, source registry `1.19`, and artifact package
 `1.4` remain unchanged compatibility inputs and outputs. They are not the
@@ -510,8 +527,12 @@ This retained public refresh path uses ephemeral raw staging and emits only
 whitelisted, validated public fields. The converged local corpus may separately
 retain immutable objects outside Git after an exact source/operation/custody
 grant. Local retention, analysis, display, export and public redistribution are
-independent policy decisions; the present store accepts owned synthetic bytes
-only and does not broaden any historical source transport contract.
+independent policy decisions; Run 1's store accepts owned synthetic bytes only
+and does not broaden any historical source transport contract. The adopted
+real-policy run may create a separate reviewed external namespace. Its explicit
+local build emits reviewed workbench/dossier/export files only under
+`local-output/`, served on `127.0.0.1`; it must never serve the corpus root or
+acquisition objects. Ordinary builds remain synthetic and network-free.
 
 The bounded Washington LWS transport constructs only allowlisted SOAP 1.1
 requests. Its operation descriptors are frozen at both levels at runtime, and

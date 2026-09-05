@@ -1,19 +1,16 @@
-schema_version: "1.5"
+schema_version: "1.6"
 roadmap_id: policy-sentinel-through-finish
 project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
   phase: >-
-    Owner-approved PS09-EV-01 ended at local launch before any source request;
-    its interruption rule prohibits restarting the run. Full PS09-02 remains
-    blocked. The completed Run 2 synthetic packet and Run 1 remain validated.
-    Historical release scopes are archived evidence. PS09-06-LOCAL-RC is the
-    sole release root. After approving the seven-path synthetic runner, the
-    owner requested real-policy systems research and a comprehensive
-    next-session implementation prompt. Public read-only research and launch
-    documentation are prepared; no implementation item is active and no product
-    corpus is acquired. The new launch states its larger local authority when
-    supplied as the next session's instruction. Historical grants are not reset.
+    POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01 is active under the owner's
+    2026-09-05 instruction to execute the full real-policy launch and adopt its
+    local scope. PS09-03 coordinates the runner, source-neutral corpus and
+    bounded federal evidence closure. PS09-02 identity/scenario acceptance
+    remains independently blocked and is an explicit PS09-06 prerequisite.
+    PS09-06-LOCAL-RC remains the sole release root. EV01, Run 1/2 and archived
+    lanes retain their historical evidence and spent-operation boundaries.
   updated_on: "2026-09-05"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -284,13 +281,45 @@ gates:
         4d536122287f131f36ff3db2bd59e36aec4228cc065f594886f652df2631d388.
   - id: G-PS09-RUN-03
     name: Bounded federal real-source tranche
-    state: closed
+    state: approved
+    approval_scope: >-
+      Only the local federal capability closure in the adopted
+      POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01 launch: reviewed credential-free
+      official acquisition, new bounded operation ledger/custody, v2 corpus,
+      parsers, temporal analysis, integration, tests, repairs and local commits.
+      Historical operations and all separately closed external actions remain
+      closed. Source-specific predicates and the launch ceilings precede
+      dispatch.
+    evidence:
+      - Owner instruction on 2026-09-05 executes the full launch at 39d738a and
+        explicitly adopts its stated local scope.
+      - docs/handoffs/ps09-real-policy-discovery-launch.md
+      - docs/development/PS09-REAL-POLICY-DISCOVERY-01.md
   - id: G-PS09-RUN-04
     name: Bounded PNW real-corpus tranche
-    state: closed
+    state: approved
+    approval_scope: >-
+      Only the independently reviewed PNW local corpus and scenario closure in
+      POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01, within its shared source/host/
+      request/byte/privacy/reuse ceilings. This does not accept broad regional
+      scenarios, real Nation identities or current organization membership.
+    evidence:
+      - Owner instruction on 2026-09-05 executes the full launch at 39d738a and
+        explicitly adopts its stated local scope.
+      - docs/handoffs/ps09-real-policy-discovery-launch.md
   - id: G-PS09-RUN-05
     name: Search and governed output tranche
-    state: closed
+    state: approved
+    approval_scope: >-
+      Only the integrated local workbench, search, two reproducible analytical
+      operations, findings, dossier/structured exports, loopback browser and
+      offline replay in POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01. Real output
+      stays inside the owned external run local-output namespace; ordinary
+      synthetic builds, publication and distribution boundaries remain distinct.
+    evidence:
+      - Owner instruction on 2026-09-05 executes the full launch at 39d738a and
+        explicitly adopts its stated local scope.
+      - docs/handoffs/ps09-real-policy-discovery-launch.md
   - id: G-PS09-RUN-06
     name: Canonical local release acceptance tranche
     state: closed
@@ -810,26 +839,26 @@ baseline:
         configured.
 
 current_focus:
-  work_item: null
+  work_item: PS09-03-FEDERAL-REAL-SOURCE-SPINE
   objective: >-
-    Preserve the stopped EV01 run and unresolved identity/scenario claims.
-    Recover docs/handoffs/ps09-real-policy-discovery-launch.md and its research
-    companion for the owner's latest real-policy direction. The next-session
-    prompt integrates the runner, real acquisition, temporal analysis, search,
-    local review and evidence-based acceptance under explicit new local scope.
-    Current work is public research and documentation preparation only.
-  terminal_reason: >-
-    EV01's noninteractive shell launch closed standard input after initial
-    ledger creation; the process exited before any operation reservation or
-    source request. The packet prohibits restart after interruption. No new
-    product source evidence was obtained by EV01 and full PS09-02 remains
-    blocked. Subsequent public research informs a broader real-policy launch; it
-    does not admit a product source or start implementation. No item is active
-    and historical operation grants remain spent. The new prompt's stated scope
-    applies when supplied as the next session's instruction.
+    Execute the adopted real-policy launch through its demonstrated local
+    workbench outcome. Authority/dependency repair and source review are
+    recorded; v2 contract and bounded runner synthetic/PowerShell checks pass.
+    Continue reviewed canaries, accepted real documents, replayable citations,
+    temporal comparisons and integrated investigation. See the journal for exact
+    checks and write leases. Twenty-seven initial official captures support the
+    initial 14-work, 19-version gold v2 corpus. Independent source-grounded
+    evaluation is being frozen before search tuning. Partial vetoes, unknown
+    publication dates and source-specific rendition omissions remain explicit.
+    Gold offline replay now verifies 14 works, 19 versions, 3,298 segments and
+    10 date events. Generic search, UI and the first owned local build pass
+    automated checks. Another 100 Washington inventories are captured; broader
+    bodies, research findings and measured evaluation remain in progress. Actual
+    visual inspection is unavailable because no browser is connected.
+  terminal_reason: null
   resumable_roots:
-    - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: 2d91e860df3b8fcbe84e47c6e6563201d5f7693e
+    - PS09-03-FEDERAL-REAL-SOURCE-SPINE
+  last_durable_checkpoint: 39d738a
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5605,22 +5634,27 @@ work_items:
     milestone: PS09 Run 3
     title:
       Qualify and acquire a bounded federal corpus through canonical interfaces
-    status: not_started
-    dependencies:
-      [PS09-01-REPOSITORY-CONVERGENCE, PS09-02-IDENTITY-AUTHORITY-SCENARIOS]
+    status: in_progress
+    dependencies: [PS09-01-REPOSITORY-CONVERGENCE]
     authorization_gate: G-PS09-RUN-03
     acceptance:
       - Exact interface authority and operation budgets precede acquisition.
       - Real lifecycle, citations, refresh and source gaps are independently
         validated.
-    evidence: []
+    evidence:
+      - >-
+        2026-09-05 launch adopted at baseline main/39d738a. Runtime, roadmap,
+        backbone and 76 protected custody identities verified. Source and
+        migration readers established independent candidate routes and v2
+        integration needs. Exact leases, scope and outstanding validation are
+        recorded in docs/development/PS09-REAL-POLICY-DISCOVERY-01.md. No
+        acquisition or implementation completion is claimed at activation.
   - id: PS09-04-PNW-REAL-CORPUS
     priority: 303
     milestone: PS09 Run 4
     title: Build bounded scenario-led PNW corpus
     status: not_started
-    dependencies:
-      [PS09-02-IDENTITY-AUTHORITY-SCENARIOS, PS09-03-FEDERAL-REAL-SOURCE-SPINE]
+    dependencies: [PS09-03-FEDERAL-REAL-SOURCE-SPINE]
     authorization_gate: G-PS09-RUN-04
     acceptance:
       - Exact local source and rendition authority, privacy and reuse evidence
@@ -5646,7 +5680,7 @@ work_items:
     milestone: PS09 Run 6
     title: Accept the single canonical 0.9 local release candidate
     status: not_started
-    dependencies: [PS09-05-SEARCH-OUTPUTS]
+    dependencies: [PS09-02-IDENTITY-AUTHORITY-SCENARIOS, PS09-05-SEARCH-OUTPUTS]
     authorization_gate: G-PS09-RUN-06
     acceptance:
       - Full scenario outcomes, refresh, scale, portability, browser and
@@ -5886,23 +5920,21 @@ risks:
 next_actions:
   - order: 1
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-    action:
-      Recover docs/handoffs/ps09-real-policy-discovery-launch.md and its
-      research companion before applying the older seven-path startup. The
-      owner-requested next-session prompt provides explicit larger local scope
-      for a real-policy workbench when supplied as the session instruction.
-      Reconcile canonical dependencies with its authority and validated contract
-      needs; do not mark unresolved PS09-02 claims complete to permit
-      general-jurisdiction work. Include actual PowerShell runner proof, real
-      documents and citations, temporal/cross-context investigation, integrated
-      UI, independent review and required checks. Preserve EV01, spent grants,
-      archived evidence and separately closed external actions. No
-      implementation starts in this research/preparation checkpoint.
+    action: >-
+      Preserve unresolved originating identity and broad scenario acceptance.
+      General-jurisdiction implementation proceeds independently; this item
+      remains a mandatory PS09-06 acceptance dependency.
+  - order: 2
+    work_item: PS09-03-FEDERAL-REAL-SOURCE-SPINE
+    action: >-
+      Continue POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01 from its execution
+      journal: integrate the replay-verified gold corpus with local search,
+      source-grounded evaluation, analytical evidence and the explicit owned
+      output; broaden reviewed Washington acquisition after the gold path works.
 finish_states:
   ps09:
-    current_state: blocked
+    current_state: in_progress
     release_root: PS09-06-LOCAL-RC
-    blocked_by: [PS09-02-IDENTITY-AUTHORITY-SCENARIOS]
     satisfied_when:
       - All six canonical outcomes have objective acceptance evidence.
       - G-PS09-RC is satisfied without opening publication or optional tranches.

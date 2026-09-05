@@ -15,6 +15,16 @@ source access, reuse and exact real citations unresolved. Full PS09-02 and
 the later scenario acceptance outcomes require their own objective evidence.
 No fixed current ATNI count becomes a gate for unrelated general work.
 
+On 2026-09-05 the owner adopted the full
+[real-policy launch](handoffs/ps09-real-policy-discovery-launch.md) prepared at
+`39d738a` and instructed implementation under
+`POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01`. Its bounded general-jurisdiction
+corpus, temporal/cross-context investigation and local output slice may
+proceed through PS09-03/04/05 while PS09-02 remains blocked and an explicit
+PS09-06 prerequisite. The [execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md)
+records exact scope, leases and measured evidence. This authorization does not
+accept real identities, broad regional scenarios, a complete engine or release.
+
 ## Product north star
 
 Policy Sentinel is a configurable, sovereignty-centered policy monitoring
@@ -156,9 +166,11 @@ current application remain compatible public-output contracts. They are
 not renamed as the analyzed corpus. AnalyzedCorpus 1.0 remains supported; its
 explicit 1.1 exact-fixture profile now supplies the three ordinary build
 records. CuratedDocumentPack 1.0 binds synthetic objects, renditions and exact
-citations to that corpus without duplicating records or health. Real inputs
-remain rejected. The [corpus ADR](adr/ps09-canonical-corpus.md) identifies the
-implemented subset. Further contracts are required for
+citations to that corpus without duplicating records or health. Those retained
+1.x paths reject real inputs. The [corpus ADR](adr/ps09-canonical-corpus.md)
+identifies that implemented subset and the authorized successor boundary.
+The adopted local run must version, implement and test its real corpus and
+output contracts; approval alone is no integration evidence. Further contracts are required for
 region packs, deployment profiles, persona projections, sovereign identity,
 recognition, organization membership, evidence-bearing relevance, authority
 crosswalks, real lifecycle/corpus integration, and common output receipts.

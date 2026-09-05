@@ -71,7 +71,31 @@ and CuratedDocumentPack path to owned synthetic UTF-8 plain text. Packs permit
 local cache, analysis, and display, while excerpt/export/public redistribution
 remain prohibited. The retained synthetic artifact is its separately reviewed
 existing output boundary and contains no pack object or rendition. Real
-lifecycle integration and broader parsers remain closed future work.
+lifecycle integration and broader parsers were outside that completed grant.
+
+The owner has now adopted the [real-policy launch](handoffs/ps09-real-policy-discovery-launch.md)
+at `39d738a` for bounded local implementation and reviewed official acquisition.
+Recover its [execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md)
+for exact source profiles, operation accounting, custody and acceptance state.
+Each source still needs current interface, privacy and separate capture,
+analysis, display, excerpt and export decisions before use. No affirmative
+provider-term acceptance, credential, private-data or publication gate opens.
+
+Real source objects, derived renditions, gold evidence and generated output
+remain in the run's separately owned external namespace. Only reviewed files
+under its `local-output/` may be served on explicit `127.0.0.1` invocation;
+the corpus root and acquisition objects must not be addressable. Ordinary
+builds stay synthetic and independent of real acquisition. A general-jurisdiction
+investigation may proceed without accepted Nation identities, while unknown
+identity, membership, association and broader scenario claims stay unresolved.
+
+The authorized comparisons must distinguish source statements from analytical
+assertions. Each analytical method/code or finding retains method/version,
+input identities and exact spans, reviewer, uncertainty and limitations.
+Findings require their comparison population, denominator, contrary evidence,
+missing evidence, rival explanations and a disconfirming next test. A reviewed
+analysis is not an official subject mapping, source fact, legal conclusion or
+community position.
 
 ## Provenance and validation
 

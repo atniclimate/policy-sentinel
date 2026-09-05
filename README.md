@@ -8,6 +8,37 @@ Nation's interests.
 
 ## Project status
 
+The owner adopted the [real-policy discovery launch](docs/handoffs/ps09-real-policy-discovery-launch.md)
+at `39d738a`. Its bounded local implementation is active in the
+[execution journal](docs/development/PS09-REAL-POLICY-DISCOVERY-01.md).
+The historical status below describes the synthetic baseline; the current
+ledger identifies implemented and still-pending successor capabilities.
+
+Development commands added for that scope: `npm run test:policy` runs the v2
+contract, temporal, extraction and acquisition checks; `npm run test:roadmap`
+runs ledger migration and rejection regressions with direct diagnostics;
+`npm run policy:runner -- <command>`
+invokes one bounded custody operation; `npm run format:files -- <paths>` formats
+explicitly owned files. Runner commands are `init`, `acquire`, `read`, `recover`
+and `verify`, with `--root <external-owned-run-root>`; `status` reads counters
+and `admit` appends reviewed exact targets without changing source profiles.
+`npm run policy:prepare -- --root <external-owned-run-root>` creates an empty
+owned run from the reviewed direct-source configuration. Acquisition additionally
+requires `--operation <id> --url <exact-reviewed-url>`. Synthetic preflight uses
+the same operation core with an explicitly synthetic root and `--synthetic`.
+`npm run policy:extract -- --root <root> --operation <id> --kind <source-kind>`
+creates a deterministic, privacy-filtered rendition pending item review in the
+external run. Optional `--show <1-20>` exposes bounded extracted blocks for review.
+`npm run policy:admit:links -- --root <root> --operation <inventory-id>` appends
+only advertised HTML bill/session-law targets from a retained, verified Washington
+inventory and records their exact source pointers; body acceptance remains separate.
+`npm run policy:admit:candidates -- --root <root>` appends reviewed discovery
+candidates from the source configuration to an existing owned run, preserving all
+historical manifests and previously admitted exact targets.
+`npm run policy:curate:gold -- --root <root>` applies the authored gold review
+selectors to retained objects, replays their extraction, and produces external
+review descriptors, evidence index, and a validated v2 corpus. It makes no requests.
+
 The authorized 0.9 Run 1 has completed repository convergence and a minimal
 local synthetic corpus/citation spine. Its exact acceptance evidence is in
 [`ROADMAP.yaml`](ROADMAP.yaml) and the
@@ -147,6 +178,38 @@ ignored synthetic artifact under `dist/data`, and validates its hashes and
 contracts.
 
 Useful focused commands:
+
+The adopted local discovery run also registers `policy:replay`,
+`policy:build:local`, and `policy:serve:local`. These explicit commands use the
+owned external run and do not acquire source data:
+
+```powershell
+npm run policy:replay -- --corpus-root I:/policy-sentinel-corpus-real-policy/discovery-01
+npm run policy:build:local -- --corpus-root I:/policy-sentinel-corpus-real-policy/discovery-01
+npm run policy:serve:local -- --corpus-root I:/policy-sentinel-corpus-real-policy/discovery-01
+```
+
+Replay verifies retained receipt/object hashes, parser recipes, exact evidence,
+and the reviewed corpus seal. Build emits the explicit local application profile
+only inside that run's `local-output/`; serve loads checksum-verified output
+entries on `127.0.0.1:4179`. It has no directory fallback and cannot serve raw
+objects or review files. A corpus selected with `--name discovery` must have its
+own reviewed input and seal. Ordinary `npm run build` remains synthetic.
+The current execution journal records which browser/evaluation outcomes have
+actually passed; registering the commands does not establish those outcomes.
+
+`policy:prepare:broad -- --root <root> --phase inventories` freezes the bounded
+Washington chapter sample from the retained index. `policy:acquire:batch --
+--root <root> --phase inventories --count 50` dispatches at most 50 separately
+accounted one-operation processes and skips all prior attempts. After inventory
+capture, preparation with `--phase bodies` admits only actual advertised HTML
+links; acquisition uses the same phase. Neither command retries a failed or
+ambiguous attempt. `policy:curate:discovery -- --root <root>` validates retained
+body identity, source headers and filtered text into a separately sealed corpus.
+`policy:enrich -- --corpus-root <root>` resolves a reviewed external research
+recipe against the stable gold corpus and writes its evidence-linked output.
+All these commands require the already adopted local run and its owned external
+root; they do not authorize publication or a new source family.
 
 ```powershell
 npm run dev

@@ -25,7 +25,7 @@ if (document.errors.length > 0) {
 }
 
 const roadmap = document.toJS();
-const ps09 = roadmap.schema_version === "1.5";
+const ps09 = ["1.5", "1.6"].includes(roadmap.schema_version);
 const ps09Ids = [
   "PS09-01-REPOSITORY-CONVERGENCE",
   "PS09-02-IDENTITY-AUTHORITY-SCENARIOS",
@@ -635,7 +635,13 @@ const repositoryBackboneScope = requireObject(
 const hasExactOrderedValues = (actual, expected) =>
   actual.length === expected.length &&
   actual.every((value, index) => value === expected[index]);
-const ps09Dependencies = [[], [0], [0, 1], [1, 2], [2, 3], [4], [4], [5]];
+// 1.5 remains replayable historical accounting. The adopted real-policy run
+// makes identity acceptance an explicit release prerequisite, independent of
+// general-jurisdiction acquisition. No required outcome is removed.
+const ps09Dependencies =
+  roadmap.schema_version === "1.6"
+    ? [[], [0], [0], [2], [2, 3], [1, 4], [4], [5]]
+    : [[], [0], [0, 1], [1, 2], [2, 3], [4], [4], [5]];
 if (ps09) {
   requireExactKeys(
     roadmap.completion_scope,

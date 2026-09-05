@@ -1,5 +1,12 @@
 # Source feasibility
 
+The adopted real-policy run adds a separately reviewed
+[GovInfo direct and Washington legislative-text contract](source-reviews/real-policy-direct-2026-09-05.md).
+Their bounded keyless canaries run through accountable local custody. Parsing,
+identity, privacy/reuse screening and local output acceptance remain distinct
+checkpoints in the [journal](development/PS09-REAL-POLICY-DISCOVERY-01.md).
+No row below is silently reactivated and no public deployment is authorized.
+
 Status: dated source-feasibility evidence index, interpreted under PS09 Run 1. This is an
 implementation decision record, not a representation that an adapter, admitted
 source, production dataset, or public coverage exists.
