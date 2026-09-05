@@ -18,8 +18,9 @@ distinct planning concepts. Run 2 must bind actual identities and scenarios;
 Run 1 introduces no real identity facts. The Nez Perce scenario remains a
 candidate, and nationwide/Native Hawaiian support remains later-compatible.
 
-Only the exact PS09 Run 1 local convergence/corpus-spine token is currently
-authorized. `PS09-06-LOCAL-RC` is the sole local release root and single product
+The exact PS09 Run 2 local synthetic identity, authority and candidate-manifest
+packet is validated. Full PS09-02 remains blocked; real evidence and later operations
+remain separately gated. `PS09-06-LOCAL-RC` is the sole local release root and single product
 prerequisite for later separately authorized public beta operations. Historical
 B/PNW/real-source finish scopes are archived evidence. The
 [corpus ADR](adr/ps09-canonical-corpus.md),
@@ -65,7 +66,9 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | Retained static-application interaction and accessibility contract | [`ux-spec.md`](ux-spec.md) | One output precursor, not the complete engine UX |
 | PS09 sequence and retained B1-B10 source acceptance evidence | [`mvp-plan.md`](mvp-plan.md) | Historical milestones are not a second release root |
 | Single corpus path and component convergence | [`ps09-canonical-corpus.md`](adr/ps09-canonical-corpus.md) and [`ps09-convergence.v1.json`](development/ps09-convergence.v1.json) | A disposition does not open a source or frozen convergence gate |
-| Run 1 execution/custody and measured outcome | [`PS09-RUN-01-COORDINATION.md`](development/PS09-RUN-01-COORDINATION.md) and [`ps09-run-01-convergence.md`](handoffs/ps09-run-01-convergence.md) | Run 2 remains closed |
+| Run 1 execution/custody and measured outcome | [`PS09-RUN-01-COORDINATION.md`](development/PS09-RUN-01-COORDINATION.md) and [`ps09-run-01-convergence.md`](handoffs/ps09-run-01-convergence.md) | Validated historical checkpoint; supplies no successor authority |
+| Approved bounded Run 2 scope and execution | [`ps09-run-02-entry-packet.md`](handoffs/ps09-run-02-entry-packet.md) and [`PS09-RUN-02-COORDINATION.md`](development/PS09-RUN-02-COORDINATION.md) | Local synthetic contracts and candidate manifests only; full PS09-02 evidence remains unresolved |
+| Run 2 implementation, proof and real-evidence gaps | [`ps09-run-02-identity-authority-scenarios.md`](handoffs/ps09-run-02-identity-authority-scenarios.md) and [`ps09-run-02-candidate-manifests.md`](development/ps09-run-02-candidate-manifests.md) | Synthetic identity/authority/scenario references; nine owner planning manifests supply no real identity, source or scenario acceptance |
 | Work-class staffing, tools, leases, validation, and stop rules | [`AGENT-AND-TOOL-OPERATING-MODEL.md`](development/AGENT-AND-TOOL-OPERATING-MODEL.md) | Run templates do not broaden authority |
 | Recovery after a fresh session or compaction | [`continuation-prompt.md`](continuation-prompt.md) | Always reconcile against live Git and roadmap |
 | Historical exact PNW-01 implementation run | [`pnw-engine-seams-implementation-launch-2026-09-02.md`](handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md) | Its authorization and completion evidence do not authorize a successor |
@@ -94,7 +97,7 @@ they do not replace it as the current status owner.
 
 ## Capability and maturity map
 
-This table records bounded capabilities as interpreted during Run 1 and provides
+This table records bounded capabilities through Run 2's local packet and provides
 the tests for later state changes; it is not a second live ledger. For any
 later authorized tranche, current maturity is the conjunction of live bytes,
 validator/test evidence, and that work item's status in `ROADMAP.yaml`. The
@@ -118,7 +121,7 @@ transition.
 | Governed taxonomy and directional crosswalk seam | PNW-04 implemented as a separate synthetic `1.0.0` authority/scheme-separated catalog with exact evidence/review, direct many-to-many edges, and reference-only projection | no real ATNI/NCAI/Nation/source/community vocabulary, production classification, source activation, public integration, or position inference |
 | Governed source-pack admission seam | PNW-05 core implemented as a separate synthetic-test-only `1.0.0` closed graph with exact contract/evidence/coverage/authority/review/admission proof, scoped health/availability, typed gaps, deterministic requester projections, and no I/O | no real source qualification, access, terms acceptance, coverage, currentness, lifecycle/LKG, ingestion, analyzed corpus, activation, or publication |
 | Local real-source prerelease child lane | lifecycle contract, narrow source-neutral analyzed-corpus child, portfolio discovery, and terminal cleanup complete; Federal Register qualification blocked on consumed R7 digest drift | no Federal Register retry/admission/activation, real corpus, parent PNW-05/06/07/08 completion, ATNI or Nation association, deployment, or publication |
-| Owner-selected cohort and independent identity/membership assertions | Run 2 target; no real registry supplied by Run 1 | owner direction, directory counts and 575 recognition evidence do not establish membership |
+| Identity, authority, independent memberships, owner cohort and scenario references | Run 2 implements a standalone synthetic-only `1.0.0` graph with exact evidence/review/citation bindings and separate temporal states; nine candidate manifests remain owner planning | no real identity registry, current membership, accepted real scenario, source acquisition or corpus integration; directory counts and 575 recognition evidence do not establish membership |
 | Broad real-source canonical corpus and common document/web/app/structured adapters | accepted target architecture; synthetic corpus integrated into the retained artifact path | real lifecycle integration and common successor output profiles remain future work |
 
 Roadmap status and capability maturity are separate dimensions. A work item
@@ -151,7 +154,7 @@ telemetry, browser-side AI, or outbound notifications.
 
 | Workstream | Canonical state |
 | --- | --- |
-| PS09-01 through PS09-06 | One canonical program; exact Run 1 is authorized, later runs closed, sole local release root PS09-06-LOCAL-RC |
+| PS09-01 through PS09-06 | One canonical program; Run 1 and the bounded Run 2 synthetic packet validated, full PS09-02 real evidence blocked, later runs closed, sole local release root PS09-06-LOCAL-RC |
 | Retained B1-B10 | Archived implementation and fallback evidence; former four finish blockers remain historical source gaps, not a parallel release graph |
 | PNW-00 | Planning/governance rebase complete |
 | PNW-01 | Complete as a bounded synthetic engine-seam tranche |
@@ -258,9 +261,12 @@ npm run validate:roadmap
 npm run validate:backbone
 ```
 
-Recover the completed PS09 Run 1 checkpoint from its coordination, handoff and
-live roadmap. Run 2 remains closed. Archived ready items and old continuation prompts cannot start
-another lane. The default application/build remains network-free and synthetic.
+Recover the terminal Run 2 handoff and coordination alongside the completed
+Run 1 checkpoint and live roadmap. The bounded packet has no remaining active
+work; required real identity/scenario evidence and separate operation authority
+remain unresolved. Archived ready
+items and old prompts cannot start another lane. The default application/build
+remains network-free and synthetic.
 
 The historical real-source prerelease stopped because qualification failed
 closed on consumed R7 digest drift. Do not repeat D3, R6, R7, PF-01 through
@@ -269,4 +275,4 @@ Preserve the exact 27-request ledger, 43-file ignored evidence custody, and
 current protected input inventory. Publication, source activation/acquisition,
 remote, credential, provider-terms, paid/contact, private-data, AI,
 notification, real identity/membership assertions, and K0/S0/O0 convergence
-remain outside Run 1 authority.
+remain outside the approved Run 2 packet.

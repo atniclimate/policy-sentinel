@@ -1,8 +1,12 @@
 # Policy Sentinel durable continuation prompt
 
-Status: PS09 Run 1 convergence and the synthetic corpus spine are complete at
-the validated local checkpoint. Recover its evidence from Git, the roadmap and
-Run 1 handoff; stop at the closed Run 2 gate. No later run is authorized.
+Status: the owner-approved bounded Run 2 synthetic packet is validated at
+[its terminal checkpoint](handoffs/ps09-run-02-identity-authority-scenarios.md).
+Full PS09-02 remains blocked on exact real evidence and separately bounded
+operation authority; no work is active. Recover the
+[entry packet](handoffs/ps09-run-02-entry-packet.md),
+[coordination record](development/PS09-RUN-02-COORDINATION.md), Git and roadmap.
+Run 1 remains complete. Source operations and later runs remain closed.
 
 ## Start and recover
 
@@ -24,7 +28,7 @@ Astra is unavailable. Model selection does not create authority.
    by their exact inventory paths. They are owner direction, not implemented
    contracts. Do not edit, rename, delete, stage, or commit them.
 5. Read binding architecture, data/governance, source, UX, decision and
-   validation contracts relevant to the actual outstanding Run 1 work.
+   validation contracts relevant to the actual outstanding approved Run 2 work.
 6. Reconcile branch, exact HEAD/parent, worktrees, status, remotes, staged and
    changed paths, relevant history, active processes, owner-input hashes,
    generated evidence custody and protected K0/S0/O0 identities.
@@ -38,11 +42,16 @@ report, schema or passing synthetic fixture is not source/release evidence.
 ## Current authority and single completion graph
 
 The current token is
-`POLICY-SENTINEL-0.9-RUN-01-REPOSITORY-CONVERGENCE-AND-CORPUS-SPINE`.
-It authorizes local repository convergence and the minimum synthetic corpus
-spine only, with exact path leases and focused local commits. Complete its
-required validation and independent final-tree reviews, record the terminal
-handoff and ledger, then stop at the closed Run 2 gate.
+`POLICY-SENTINEL-0.9-RUN-02-PNW-IDENTITY-AUTHORITY-AND-SCENARIO-MANIFESTS`.
+It authorizes only the 23 paths and local synthetic scope of the entry packet
+approved at `1cb2384fe8fa4da71d1f9e8884be6980d010db74`. Its implementation,
+tests and independent actual-code reviews are validated. Recover final local
+commit metadata from the handoff; do not restart the completed packet.
+Real identity population,
+source/domain/request/byte budgets and external operations remain closed/zero.
+Synthetic contract and manifest completion cannot establish full PS09-02
+acceptance; preserve the exact remaining evidence/authority block and stop
+before any successor run or archived lane.
 
 The canonical program is PS09-01 through PS09-06; conditional PS09-07/08 remain
 deferred and separately gated. `PS09-06-LOCAL-RC` is the sole local release
@@ -96,11 +105,11 @@ assumptions and proof limits.
 
 ## Frozen source and external boundaries
 
-Run 1's request/byte budget is zero. The historical real-source prerelease
+Run 2's source/domain/request/byte budgets are zero. The historical real-source prerelease
 stopped on consumed R7 digest drift. Do not repeat D3, R6, R7 or PF-01 through
 PF-17; do not issue FR-A1. Preserve its 27-issued-request ledger and immutable
 43-file ignored evidence set. Candidate rankings are not selection or source
-operation authority. No source is admitted or activated by Run 1.
+operation authority. No source is admitted or activated by this packet.
 
 Qualification, admission, activation, acquisition, analysis eligibility,
 artifact eligibility and publication remain separate. Provider, interface,
@@ -111,7 +120,7 @@ Keep remote/push, license/Pages/publication, credential/terms/paid/contact,
 private or sensitive material, AI, telemetry, notifications, real
 identity/membership assertions, and K0/S0/O0 convergence outside this token.
 Do not restore a spent observer, retry a failed provider, switch to another
-source operation, or silently start Run 2.
+source operation, or silently start a later run.
 
 ## Validation, custody and terminal handoff
 
@@ -128,9 +137,9 @@ npm run test:spine
 npm run check
 ```
 
-When needed for exact Run 1 acceptance, use
-`npm run corpus:verify -- --root <external-root>` for synthetic external-root
-replay. Preserve the configured root and its inventory; no destructive cleanup.
+No external corpus-root operation is needed or approved by the Run 2 packet.
+Run 1's external-root replay remains dated evidence. Preserve any configured
+root and its inventory; no destructive cleanup.
 Verify final Git/staged paths, `git diff --check`, source/artifact boundaries,
 protected input and historical evidence hashes, and final independent
 engineering/security plus governance/sovereignty review. The protected current
@@ -142,13 +151,15 @@ artifacts. Do not amend, rebase, reset or rewrite history. Record actual
 start/end commits, component dispositions, graph/counts, implemented versus
 contracted capabilities, command outcomes, runtime/Windows/replay evidence,
 browser applicability, object manifests/digests, source requests/states,
-custody, adversarial findings/repairs, remaining gates and the Run 2 decision
-packet in the handoff. A material unresolved finding blocks completion.
+custody, adversarial findings/repairs and exact remaining Run 2 evidence gates
+in the handoff. A material unresolved implementation finding blocks the local
+packet checkpoint; missing real evidence blocks full PS09-02 completion.
 
 End with exactly one truthful disposition:
 
-- `RUN_01_CONVERGED_REPOSITORY_AND_CORPUS_SPINE_COMPLETE`
-- `RUN_01_FOCUSED_CONVERGENCE_REPAIR_REQUIRED`
-- `RUN_01_OWNER_CUSTODY_OR_COMPONENT_DECISION_REQUIRED`
+- `RUN_02_LOCAL_SYNTHETIC_PACKET_VALIDATED_REAL_EVIDENCE_BLOCKED`
+- `RUN_02_LOCAL_PACKET_REPAIR_REQUIRED`
+- `RUN_02_OWNER_CUSTODY_OR_SCOPE_DECISION_REQUIRED`
 
-Run 1 acceptance is not whole-product completion or publication.
+The full Run 2 completion token is unavailable from synthetic proof. The
+bounded local checkpoint is not whole-product completion or publication.

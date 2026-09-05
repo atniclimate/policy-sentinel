@@ -1,8 +1,15 @@
 # PS09 Run 2 entry packet: identity, authority and candidate scenarios
 
-Status: proposed bounded entry packet, prepared 2026-09-04 for owner review.
-`G-PS09-RUN-02` remains closed. Preparing this packet implements no Run 2
-capability and changes no source or release gate.
+Status: the owner approved this exact bounded packet with "Approve and go"
+on 2026-09-04, following preparation commit
+`1cb2384fe8fa4da71d1f9e8884be6980d010db74`. `G-PS09-RUN-02` is approved only
+for its local synthetic scope. The proposal and preparation evidence below
+remain the historical approval basis; references to pending approval describe
+that prior state. Current execution and leases are recorded in the
+[Run 2 coordination record](../development/PS09-RUN-02-COORDINATION.md).
+The approved packet is now validated at [its terminal checkpoint](ps09-run-02-identity-authority-scenarios.md).
+The preparation disposition below is historical; full PS09-02 remains
+blocked on required real evidence and separate operation authority.
 
 ## Decision requested
 

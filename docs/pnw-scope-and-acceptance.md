@@ -6,6 +6,15 @@ defines the intended 0.9 product; `PS09-06-LOCAL-RC` is its sole local release
 root in `ROADMAP.yaml`. Repository code, tests, artifacts, and Git history remain authoritative
 for what is actually implemented, validated, enabled, accepted, or published.
 
+The owner approved the [Run 2 entry packet](handoffs/ps09-run-02-entry-packet.md)
+on 2026-09-04 for bounded local synthetic contracts and candidate manifests.
+The local packet is validated at [its checkpoint](handoffs/ps09-run-02-identity-authority-scenarios.md).
+It implements evidence-handling distinctions only; named planning candidates
+remain `owner_plan_only`, with accepted official identity, current versions,
+source access, reuse and exact real citations unresolved. Full PS09-02 and
+the later scenario acceptance outcomes require their own objective evidence.
+No fixed current ATNI count becomes a gate for unrelated general work.
+
 ## Product north star
 
 Policy Sentinel is a configurable, sovereignty-centered policy monitoring

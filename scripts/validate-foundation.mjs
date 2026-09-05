@@ -31,6 +31,9 @@ const realSourceLifecycleBundleSchema = await readJson(
 const analyzedCorpusSchema = await readJson(
   "schemas/analyzed-corpus.schema.v1.json",
 );
+const identityAuthorityScenariosSchema = await readJson(
+  "schemas/identity-authority-scenarios.schema.v1.json",
+);
 const spatialObservationSchema = await readJson(
   "schemas/experimental/spatial-observation.schema.v1.json",
 );
@@ -62,6 +65,7 @@ for (const [name, schema] of [
   ["source-pack bundle schema", sourcePackBundleSchema],
   ["real-source lifecycle bundle schema", realSourceLifecycleBundleSchema],
   ["analyzed corpus schema", analyzedCorpusSchema],
+  ["identity authority scenarios schema", identityAuthorityScenariosSchema],
   ["S0 spatial-observation schema", spatialObservationSchema],
   ["S0 spatial-relation schema", spatialRelationSchema],
   ["S0 jurisdiction-evidence schema", jurisdictionEvidenceSchema],
@@ -119,6 +123,70 @@ const applyFixtureMutations = (base, mutations) => {
 };
 
 const validateProjectionProfile = ajv.compile(projectionProfileSchema);
+const validateIdentityAuthorityScenarios = ajv.compile(
+  identityAuthorityScenariosSchema,
+);
+const identityAuthorityScenariosFixture = await readJson(
+  "fixtures/engine/identity-authority-scenarios.synthetic.valid.json",
+);
+if (!validateIdentityAuthorityScenarios(identityAuthorityScenariosFixture)) {
+  throw new Error(
+    `synthetic identity authority scenarios fixture is invalid:\n${ajv.errorsText(
+      validateIdentityAuthorityScenarios.errors,
+      { separator: "\n" },
+    )}`,
+  );
+}
+const malformedIdentityAuthorityScenarios = await readJson(
+  "fixtures/engine/identity-authority-scenarios-malformed.invalid.json",
+);
+if (
+  malformedIdentityAuthorityScenarios.fixtureFamilyVersion !== "1.0.0" ||
+  malformedIdentityAuthorityScenarios.baseFixture !==
+    "identity-authority-scenarios.synthetic.valid.json" ||
+  !Array.isArray(malformedIdentityAuthorityScenarios.cases) ||
+  malformedIdentityAuthorityScenarios.cases.length === 0
+) {
+  throw new Error("malformed identity authority scenarios family is invalid");
+}
+const identityAuthorityScenarioCaseIds = new Set();
+let schemaInvalidIdentityAuthorityScenarioChecks = 0;
+let runtimeBoundaryIdentityAuthorityScenarioChecks = 0;
+for (const fixtureCase of malformedIdentityAuthorityScenarios.cases) {
+  if (
+    typeof fixtureCase.id !== "string" ||
+    identityAuthorityScenarioCaseIds.has(fixtureCase.id) ||
+    !["schema", "semantic"].includes(fixtureCase.expectedLayer) ||
+    typeof fixtureCase.expectedCode !== "string" ||
+    typeof fixtureCase.expectedPath !== "string" ||
+    !Array.isArray(fixtureCase.mutations) ||
+    fixtureCase.mutations.length === 0
+  ) {
+    throw new Error("malformed identity authority scenario case metadata");
+  }
+  identityAuthorityScenarioCaseIds.add(fixtureCase.id);
+  const candidate = applyFixtureMutations(
+    identityAuthorityScenariosFixture,
+    fixtureCase.mutations,
+  );
+  const accepted = validateIdentityAuthorityScenarios(candidate);
+  if (fixtureCase.expectedLayer === "schema") {
+    if (accepted) {
+      throw new Error(`negative identity case ${fixtureCase.id} was accepted`);
+    }
+    schemaInvalidIdentityAuthorityScenarioChecks += 1;
+  } else {
+    if (!accepted) {
+      throw new Error(
+        `identity case ${fixtureCase.id} did not reach semantic validation:\n${ajv.errorsText(
+          validateIdentityAuthorityScenarios.errors,
+          { separator: "\n" },
+        )}`,
+      );
+    }
+    runtimeBoundaryIdentityAuthorityScenarioChecks += 1;
+  }
+}
 const projectionProfileFixture = await readJson(
   "fixtures/engine/projection-profiles.synthetic.valid.json",
 );
@@ -797,7 +865,7 @@ if (!historicalPolicyRejected) {
 negativePolicyChecks += 1;
 
 console.log(
-  `Foundation validation passed: 14 schemas, ${taxonomy.categories.length} categories, ` +
+  `Foundation validation passed: 15 schemas, ${taxonomy.categories.length} categories, ` +
     `${taxonomy.categories.reduce((count, category) => count + category.subcategories.length, 0)} subcategories, ` +
     `${fixtureNames.length} valid fixtures, ${negativePolicyChecks} negative policy checks, ` +
     `${s0ValidFixtureChecks} valid plus ${s0InvalidFixtureChecks} invalid S0 fixture checks, ` +
@@ -805,5 +873,6 @@ console.log(
     `1 valid plus ${schemaInvalidGeographyRightsChecks} schema-invalid plus ${runtimeBoundaryGeographyRightsChecks} runtime-boundary geography and rights checks, ` +
     `1 valid plus ${schemaInvalidTaxonomyChecks} schema-invalid plus ${runtimeBoundaryTaxonomyChecks} runtime-boundary taxonomy bundle checks, ` +
     `1 valid plus ${schemaInvalidSourcePackChecks} schema-invalid plus ${runtimeBoundarySourcePackChecks} runtime-boundary source-pack bundle checks, ` +
-    `and 1 valid plus ${schemaInvalidRealSourceLifecycleChecks} schema-invalid plus ${runtimeBoundaryRealSourceLifecycleChecks} runtime-boundary real-source lifecycle checks.`,
+    `1 valid plus ${schemaInvalidRealSourceLifecycleChecks} schema-invalid plus ${runtimeBoundaryRealSourceLifecycleChecks} runtime-boundary real-source lifecycle checks, ` +
+    `and 1 valid plus ${schemaInvalidIdentityAuthorityScenarioChecks} schema-invalid plus ${runtimeBoundaryIdentityAuthorityScenarioChecks} runtime-boundary identity authority scenario checks.`,
 );

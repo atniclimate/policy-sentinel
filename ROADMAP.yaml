@@ -4,11 +4,13 @@ project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
   phase: >-
-    Owner-authorized PS09 Run 1 repository convergence and synthetic corpus
-    spine is validated at its terminal local checkpoint. The sole PS09 release
-    root remains blocked at closed Run 2. Historical release scopes are archived
-    evidence, not competing product roots. All real admission, activation,
-    acquisition and external gates remain closed.
+    Owner-approved PS09 Run 2 local synthetic identity, authority and candidate
+    scenario packet is validated. Full PS09-02 remains blocked on exact real
+    identity/scenario evidence and separately bounded operation authority. Run 1
+    remains validated; historical release scopes are archived evidence.
+    PS09-06-LOCAL-RC is the sole release root. No authorized work remains
+    active; acquisition, activation, later runs and external operations remain
+    gated.
   updated_on: "2026-09-04"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -227,7 +229,22 @@ gates:
       - Owner custody correction clears the exact design-document lookup only.
   - id: G-PS09-RUN-02
     name: Identity authority and scenario tranche
-    state: closed
+    state: approved
+    approval_scope: >-
+      Owner message Approve and go on 2026-09-04 approves only the local
+      synthetic contract and candidate-manifest packet at commit
+      1cb2384fe8fa4da71d1f9e8884be6980d010db74 under token
+      POLICY-SENTINEL-0.9-RUN-02-PNW-IDENTITY-AUTHORITY-AND-SCENARIO-MANIFESTS.
+      Source/domain/request/byte budgets are zero; real identity evidence, later
+      runs and all external operations require separate exact authority. The
+      approved local packet is now validated; this approval supplies no further
+      implementation run or real-evidence operation authority.
+    evidence:
+      - Owner message Approve and go on 2026-09-04.
+      - docs/handoffs/ps09-run-02-entry-packet.md at
+        1cb2384fe8fa4da71d1f9e8884be6980d010db74.
+      - docs/handoffs/ps09-run-02-identity-authority-scenarios.md records the
+        validated bounded packet and exact unresolved real-evidence scope.
   - id: G-PS09-RUN-03
     name: Bounded federal real-source tranche
     state: closed
@@ -758,14 +775,18 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Preserve the validated Run 1 checkpoint and its custody. Do not begin Run 2
-    or an archived ready lane without the exact new owner authorization.
+    Preserve the validated local synthetic identity/authority/scenario packet,
+    exact custody and claim-specific real-evidence gaps. Recover the Run 2
+    handoff before any separately bounded follow-up decision.
   terminal_reason: >-
-    Run 1 acceptance is complete. G-PS09-RUN-02 is closed and no authorized
-    canonical work remains ready; the whole product and local RC remain blocked.
+    The approved local packet passed validation. Full PS09-02 remains blocked on
+    originating real identity/scenario evidence and separately bounded
+    acquisition/custody/review authority outside the zero-source-budget packet.
+    No authorized canonical work remains ready; later runs and archived lanes
+    cannot start from this checkpoint.
   resumable_roots:
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: b5dcda3df41f389b5b302709c2675b994d20c6c8
+  last_durable_checkpoint: 1cb2384fe8fa4da71d1f9e8884be6980d010db74
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5324,8 +5345,13 @@ work_items:
     safe_fallback:
       Preserve planning candidates without emitting production identity
       assertions.
-    unblocks_only_when:
-      Owner approves the exact Run 2 entry packet after Run 1 acceptance.
+    unblocks_only_when: >-
+      The validated synthetic packet supplies no remaining execution grant. Each
+      required real claim needs exact originating identity/scenario documents,
+      versions, dates, citation/reuse evidence and separately bounded
+      operation/custody/review authority. G-PS09-RUN-02 remains approved only
+      for the completed local packet; its residual real scope is unapproved. No
+      fixed membership count gates unrelated general-jurisdiction work.
     acceptance:
       - Separate recognition, membership, cohort, governmental and geographic
         identities.
@@ -5340,6 +5366,67 @@ work_items:
         and candidate-manifest scope requires owner approval; it supplies no
         implementation, accepted real identity evidence or source operation
         authority. PS09-02 and its gate remain blocked and closed respectively.
+      - >-
+        The later 2026-09-04 owner message Approve and go approves exactly the
+        entry packet at 1cb2384fe8fa4da71d1f9e8884be6980d010db74. Baseline npm
+        run check passed on Node 24.19.0/npm 12.0.2 Windows x64, including all
+        retained tests and the synthetic build. The lead has read this ledger
+        completely. Scope, custody and disjoint leases are recorded in
+        docs/development/PS09-RUN-02-COORDINATION.md. This approval supersedes
+        the preceding pending local-implementation state only.
+      - >-
+        The local schema/readonly interface and nine candidate manifests passed
+        scoped read-only review after explicit unknown-proceeding and opaque
+        scenario-key repairs. Runtime and synthetic fixtures are implemented;
+        initial typecheck passed. Finite actual-code authority, reference,
+        temporal and diagnostic findings are repaired pending regression tests.
+        All 76 protected owner/historical evidence identities matched. Focused
+        tests, full integrated validation and final independent reviews remain
+        required; PS09-02 stays the sole active item and real evidence stays
+        unresolved.
+      - >-
+        All worker leases returned to the lead. Formatting, typecheck,
+        foundation (15 schemas; 17 schema-invalid and 50 semantic identity
+        cases), lint and backbone passed. The first focused 100-test run had 63
+        passes and 37 failures from shared positive-fixture date chronology; the
+        repaired retry had 99 passes and one artifact Map-order oracle failure.
+        Exact per-path artifact bytes were unchanged. Path-sorted comparison
+        passed all 100 tests; the final oracle uses the actual artifact
+        serializer. Full integrated validation and final review remain pending.
+        A misfiled interim checkpoint was removed from B2-PARSER acceptance and
+        recorded here without changing the historical contract.
+      - >-
+        First integrated check passed runtime, format, hooks, lint, typecheck,
+        roadmap, backbone, source scan, foundation and corpus/spine suites;
+        Vitest had 1506 passes and one retained pipeline-wrapper failure. Its
+        roadmap fixture derives a blocked Run 2 from the live ledger and needs
+        the residual blocked_by field, which had been removed while local work
+        was active. Restoring G-PS09-RUN-02 as the residual evidence/operation
+        blocker passed roadmap validation and the focused pipeline wrapper
+        (13.69 seconds). No retained test or validator was changed. Full
+        integrated retry and terminal custody/review remain pending.
+      - >-
+        The serialized integrated retry passed npm run check: runtime, format,
+        18 hooks, lint, typecheck, roadmap/backbone, source scan, foundation, 13
+        analyzed-corpus tests, 30 passing spine tests with one Windows
+        file-symlink privilege skip, and 1507 Vitest tests in 91 files. Build
+        and artifact validation passed with 3 synthetic records, 575 Nation rows
+        and 8 assets; build ID synthetic-5c1312695b1dd6b54820 at
+        2026-09-05T03:54:02.763Z. Equal-generation per-path artifact bytes and
+        retained projection outputs were unchanged. Both independent reviewers
+        found no material implementation/sovereignty blocker. All 76 protected
+        file identities and package-lock matched; exactly 23 authored paths
+        changed, with 33 protected untracked inputs, one worktree and no remote.
+        The bounded packet is validated; the nine named manifests remain
+        owner_plan_only and full PS09-02 is blocked on exact real evidence and
+        separate operation authority. Final Git metadata follows in the handoff.
+      - >-
+        Final engineering and sovereignty terminal-delta reviews recommend
+        acceptance with no material finding. Terminal roadmap/backbone and the
+        unchanged pipeline wrapper (14.58 seconds) passed. Staged source
+        scanning passed at 455 tracked paths/488 source files; format and
+        whitespace checks passed. The index contains exactly 23 approved paths
+        and no protected input, with all 76 custody identities unchanged.
   - id: PS09-03-FEDERAL-REAL-SOURCE-SPINE
     priority: 302
     milestone: PS09 Run 3
@@ -5627,16 +5714,16 @@ next_actions:
   - order: 1
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action:
-      Review and approve the exact proposed local Run 2 scope in
-      docs/handoffs/ps09-run-02-entry-packet.md before implementation. Required
-      real identity evidence remains unresolved; source operations and later
-      runs need their own exact authority. Do not revive archived ready work.
+      Preserve the validated bounded packet and its handoff. A follow-up must
+      select exact unresolved real claims, originating evidence and a separately
+      bounded operation/custody/review scope before execution. Do not repeat the
+      completed packet, start a later run, infer real acceptance or revive an
+      archived ready lane from this terminal checkpoint.
 finish_states:
   ps09:
     current_state: blocked
     release_root: PS09-06-LOCAL-RC
-    blocked_by:
-      - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
+    blocked_by: [PS09-02-IDENTITY-AUTHORITY-SCENARIOS]
     satisfied_when:
       - All six canonical outcomes have objective acceptance evidence.
       - G-PS09-RC is satisfied without opening publication or optional tranches.

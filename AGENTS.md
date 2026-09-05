@@ -10,9 +10,16 @@ repository navigation and authority index. Preserve the product boundaries in
 `docs/decision-register.md`.
 
 The current local authorization is
-`POLICY-SENTINEL-0.9-RUN-01-REPOSITORY-CONVERGENCE-AND-CORPUS-SPINE`.
-Its Run 1 work is complete at the validated terminal checkpoint; it does not
-authorize another run or an archived ready lane. `PS09-06-LOCAL-RC` is the sole local
+`POLICY-SENTINEL-0.9-RUN-02-PNW-IDENTITY-AUTHORITY-AND-SCENARIO-MANIFESTS`.
+The owner approved the exact [Run 2 entry packet](docs/handoffs/ps09-run-02-entry-packet.md)
+with "Approve and go" on 2026-09-04. It permits only the listed local synthetic
+contracts, candidate manifests, tests, reviews and local commits; its source,
+domain, request and byte budgets are zero. Required real identity evidence
+remains unresolved and synthetic proof cannot complete all of PS09-02. The
+bounded packet is validated at [its terminal checkpoint](docs/handoffs/ps09-run-02-identity-authority-scenarios.md),
+with no active work or remaining execution grant. Run 1 remains complete.
+This approval does not authorize a later run or archived
+ready lane. `PS09-06-LOCAL-RC` is the sole local
 release root; retained B1-B10, PNW, and real-source prerelease statuses are
 archived evidence, not parallel mandatory release graphs. Later PS09 runs
 remain behind their exact owner gates. Earlier Gate A and tranche approvals

@@ -1,0 +1,1371 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/identity-authority-scenarios.schema.v1.json",
+  "title": "IdentityAuthorityScenariosBundle 1.0.0 — local synthetic references",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "id",
+    "version",
+    "synthetic",
+    "trustDomain",
+    "namespaces",
+    "entities",
+    "authorities",
+    "documents",
+    "evidence",
+    "assertions",
+    "scenarios"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://policy-sentinel.invalid/schemas/identity-authority-scenarios.schema.v1.json"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 32,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "synthetic": {
+      "const": true
+    },
+    "trustDomain": {
+      "const": "synthetic_test_only"
+    },
+    "namespaces": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "$ref": "#/$defs/namespace"
+      }
+    },
+    "entities": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "items": {
+        "$ref": "#/$defs/entity"
+      }
+    },
+    "authorities": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "items": {
+        "$ref": "#/$defs/authority"
+      }
+    },
+    "documents": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 512,
+      "items": {
+        "$ref": "#/$defs/document"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1024,
+      "items": {
+        "$ref": "#/$defs/evidence"
+      }
+    },
+    "assertions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1024,
+      "items": {
+        "$ref": "#/$defs/assertion"
+      }
+    },
+    "scenarios": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/scenario"
+      }
+    }
+  },
+  "$defs": {
+    "namespaceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "namespaceId", "id", "version"],
+      "properties": {
+        "kind": {
+          "const": "namespace"
+        },
+        "namespaceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        }
+      }
+    },
+    "entityRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "namespaceId", "id", "version"],
+      "properties": {
+        "kind": {
+          "const": "entity"
+        },
+        "namespaceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        }
+      }
+    },
+    "authorityRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "namespaceId", "id", "version"],
+      "properties": {
+        "kind": {
+          "const": "authority"
+        },
+        "namespaceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        }
+      }
+    },
+    "documentRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "namespaceId", "id", "version"],
+      "properties": {
+        "kind": {
+          "const": "document"
+        },
+        "namespaceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        }
+      }
+    },
+    "evidenceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "namespaceId", "id", "version"],
+      "properties": {
+        "kind": {
+          "const": "evidence"
+        },
+        "namespaceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        }
+      }
+    },
+    "assertionRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "namespaceId", "id", "version"],
+      "properties": {
+        "kind": {
+          "const": "assertion"
+        },
+        "namespaceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        }
+      }
+    },
+    "scenarioRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "namespaceId", "id", "version"],
+      "properties": {
+        "kind": {
+          "const": "scenario"
+        },
+        "namespaceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        }
+      }
+    },
+    "entityDocumentRef": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/entityRef"
+        },
+        {
+          "$ref": "#/$defs/documentRef"
+        }
+      ]
+    },
+    "date": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "date"],
+          "properties": {
+            "state": {
+              "const": "known"
+            },
+            "date": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+              "maxLength": 20
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state"],
+          "properties": {
+            "state": {
+              "const": "unknown"
+            }
+          }
+        }
+      ]
+    },
+    "evidenceState": {
+      "enum": [
+        "available",
+        "unknown",
+        "unavailable",
+        "outside_coverage",
+        "not_observed",
+        "not_assessed"
+      ]
+    },
+    "reviewState": {
+      "enum": ["synthetic_accepted", "pending", "disputed", "rejected"]
+    },
+    "relation": {
+      "enum": [
+        "source_name",
+        "source_alias",
+        "recognition",
+        "organization_membership",
+        "cohort_inclusion",
+        "cohort_exclusion",
+        "record_association",
+        "consultation_list_inclusion",
+        "instrument_party",
+        "administrative_service",
+        "geographic_reference",
+        "deployment_configuration",
+        "source_stated_count",
+        "enumerated_entries",
+        "document_status",
+        "proceeding_status",
+        "document_relation"
+      ]
+    },
+    "authorityRole": {
+      "enum": [
+        "self_identity",
+        "recognition_registry",
+        "organization_membership",
+        "owner_selection",
+        "record_issuer",
+        "consultation_list",
+        "instrument_issuer",
+        "administrative_service",
+        "geographic_reference",
+        "deployment_owner",
+        "reviewer"
+      ]
+    },
+    "namespace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "namespaceId",
+        "id",
+        "version",
+        "synthetic",
+        "authoritySystem",
+        "jurisdictionNamespace"
+      ],
+      "properties": {
+        "kind": {
+          "const": "namespace"
+        },
+        "namespaceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "synthetic": {
+          "const": true
+        },
+        "authoritySystem": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "jurisdictionNamespace": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        }
+      }
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "namespaceId",
+        "id",
+        "version",
+        "synthetic",
+        "entityKind",
+        "label"
+      ],
+      "properties": {
+        "kind": {
+          "const": "entity"
+        },
+        "namespaceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "synthetic": {
+          "const": true
+        },
+        "entityKind": {
+          "enum": [
+            "government",
+            "organization",
+            "administrative_office",
+            "geographic_concept",
+            "corporation",
+            "consortium",
+            "demographic_concept",
+            "cohort",
+            "instrument",
+            "deployment",
+            "project_owner",
+            "analyst"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240,
+          "pattern": "^Synthetic [A-Za-z0-9 .,:;()'/-]+$"
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "namespaceId",
+        "id",
+        "version",
+        "synthetic",
+        "entityRef",
+        "role",
+        "subjectRefs",
+        "objectRefs"
+      ],
+      "properties": {
+        "kind": {
+          "const": "authority"
+        },
+        "namespaceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "synthetic": {
+          "const": true
+        },
+        "entityRef": {
+          "$ref": "#/$defs/entityRef"
+        },
+        "role": {
+          "$ref": "#/$defs/authorityRole"
+        },
+        "subjectRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/entityRef"
+          }
+        },
+        "objectRefs": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/entityDocumentRef"
+          }
+        }
+      }
+    },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "namespaceId",
+        "id",
+        "version",
+        "synthetic",
+        "issuerRef",
+        "speakerRef",
+        "officialUrl",
+        "digest",
+        "title",
+        "renditionRole",
+        "documentKind",
+        "proceeding",
+        "issuedAt"
+      ],
+      "properties": {
+        "kind": {
+          "const": "document"
+        },
+        "namespaceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "synthetic": {
+          "const": true
+        },
+        "issuerRef": {
+          "$ref": "#/$defs/entityRef"
+        },
+        "speakerRef": {
+          "$ref": "#/$defs/entityRef"
+        },
+        "officialUrl": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^https://synthetic-[a-z0-9-]+\\.invalid/[a-z0-9]+(?:[a-z0-9/-]*[a-z0-9])?$"
+        },
+        "digest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240,
+          "pattern": "^Synthetic [A-Za-z0-9 .,:;()'/-]+$"
+        },
+        "renditionRole": {
+          "enum": ["originating_record", "convenience_reference"]
+        },
+        "documentKind": {
+          "enum": [
+            "name_attestation",
+            "recognition_notice",
+            "membership_roster",
+            "owner_decision",
+            "county_agenda",
+            "county_record",
+            "agency_instrument",
+            "party_filing",
+            "court_instrument",
+            "technical_report",
+            "agreement",
+            "entity_reference"
+          ]
+        },
+        "issuedAt": {
+          "$ref": "#/$defs/date"
+        },
+        "proceeding": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["state", "id"],
+              "properties": {
+                "state": {
+                  "const": "known"
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120,
+                  "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["state"],
+              "properties": {
+                "state": {
+                  "const": "unknown"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "assertionObject": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": {
+              "const": "name"
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 240,
+              "pattern": "^Synthetic [A-Za-z0-9 .,:;()'/-]+$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "ref"],
+          "properties": {
+            "kind": {
+              "const": "entity"
+            },
+            "ref": {
+              "$ref": "#/$defs/entityRef"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "documentRef", "nameAssertionRef"],
+          "properties": {
+            "kind": {
+              "const": "record"
+            },
+            "documentRef": {
+              "$ref": "#/$defs/documentRef"
+            },
+            "nameAssertionRef": {
+              "$ref": "#/$defs/assertionRef"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value", "collectionRef"],
+          "properties": {
+            "kind": {
+              "const": "count"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000
+            },
+            "collectionRef": {
+              "$ref": "#/$defs/entityRef"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "entryRefs", "collectionRef"],
+          "properties": {
+            "kind": {
+              "const": "entries"
+            },
+            "entryRefs": {
+              "type": "array",
+              "minItems": 0,
+              "maxItems": 256,
+              "items": {
+                "$ref": "#/$defs/entityRef"
+              }
+            },
+            "collectionRef": {
+              "$ref": "#/$defs/entityRef"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "documentRef", "value"],
+          "properties": {
+            "kind": {
+              "const": "statement"
+            },
+            "documentRef": {
+              "$ref": "#/$defs/documentRef"
+            },
+            "value": {
+              "enum": [
+                "proposed",
+                "scheduled",
+                "filed",
+                "adopted",
+                "final",
+                "executed",
+                "acknowledged",
+                "completed",
+                "pending",
+                "closed",
+                "not_assessed"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "documentRef", "targetDocumentRef", "value"],
+          "properties": {
+            "kind": {
+              "const": "document_relation"
+            },
+            "documentRef": {
+              "$ref": "#/$defs/documentRef"
+            },
+            "targetDocumentRef": {
+              "$ref": "#/$defs/documentRef"
+            },
+            "value": {
+              "enum": [
+                "version_of",
+                "filed_in",
+                "responds_to",
+                "explicit_same_project",
+                "context_for"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assertionRef",
+        "authorityRef",
+        "evidenceRef",
+        "state",
+        "reviewedAt"
+      ],
+      "properties": {
+        "assertionRef": {
+          "$ref": "#/$defs/assertionRef"
+        },
+        "authorityRef": {
+          "$ref": "#/$defs/authorityRef"
+        },
+        "evidenceRef": {
+          "$ref": "#/$defs/evidenceRef"
+        },
+        "state": {
+          "$ref": "#/$defs/reviewState"
+        },
+        "reviewedAt": {
+          "$ref": "#/$defs/date"
+        }
+      }
+    },
+    "assertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "namespaceId",
+        "id",
+        "version",
+        "synthetic",
+        "subjectRef",
+        "relation",
+        "object",
+        "authorityRef",
+        "evidenceRef",
+        "observedAt",
+        "retrievedAt",
+        "sourceUpdatedAt",
+        "asOf",
+        "validFrom",
+        "validThrough",
+        "evidenceState",
+        "review",
+        "visibility",
+        "allowedUse"
+      ],
+      "properties": {
+        "kind": {
+          "const": "assertion"
+        },
+        "namespaceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "synthetic": {
+          "const": true
+        },
+        "subjectRef": {
+          "$ref": "#/$defs/entityRef"
+        },
+        "relation": {
+          "$ref": "#/$defs/relation"
+        },
+        "object": {
+          "$ref": "#/$defs/assertionObject"
+        },
+        "authorityRef": {
+          "$ref": "#/$defs/authorityRef"
+        },
+        "evidenceRef": {
+          "$ref": "#/$defs/evidenceRef"
+        },
+        "observedAt": {
+          "$ref": "#/$defs/date"
+        },
+        "retrievedAt": {
+          "$ref": "#/$defs/date"
+        },
+        "sourceUpdatedAt": {
+          "$ref": "#/$defs/date"
+        },
+        "asOf": {
+          "$ref": "#/$defs/date"
+        },
+        "validFrom": {
+          "$ref": "#/$defs/date"
+        },
+        "validThrough": {
+          "$ref": "#/$defs/date"
+        },
+        "evidenceState": {
+          "$ref": "#/$defs/evidenceState"
+        },
+        "review": {
+          "$ref": "#/$defs/review"
+        },
+        "visibility": {
+          "const": "public"
+        },
+        "allowedUse": {
+          "const": "local_synthetic_test_reference"
+        }
+      }
+    },
+    "citation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state",
+            "officialUrl",
+            "documentDigest",
+            "locator",
+            "value"
+          ],
+          "properties": {
+            "state": {
+              "const": "available"
+            },
+            "officialUrl": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "pattern": "^https://synthetic-[a-z0-9-]+\\.invalid/[a-z0-9]+(?:[a-z0-9/-]*[a-z0-9])?$"
+            },
+            "documentDigest": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "locator": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^synthetic:[a-z0-9]+(?:[a-z0-9:/.-]*[a-z0-9])?$"
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 240,
+              "pattern": "^Synthetic [A-Za-z0-9 .,:;()'/-]+$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state"],
+          "properties": {
+            "state": {
+              "const": "unknown"
+            }
+          }
+        }
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "namespaceId",
+        "id",
+        "version",
+        "synthetic",
+        "assertionRef",
+        "subjectRef",
+        "relation",
+        "object",
+        "authorityRef",
+        "documentRef",
+        "evidenceKind",
+        "availability",
+        "citation",
+        "observedAt",
+        "retrievedAt",
+        "sourceUpdatedAt",
+        "asOf"
+      ],
+      "properties": {
+        "kind": {
+          "const": "evidence"
+        },
+        "namespaceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "synthetic": {
+          "const": true
+        },
+        "assertionRef": {
+          "$ref": "#/$defs/assertionRef"
+        },
+        "subjectRef": {
+          "$ref": "#/$defs/entityRef"
+        },
+        "relation": {
+          "$ref": "#/$defs/relation"
+        },
+        "object": {
+          "$ref": "#/$defs/assertionObject"
+        },
+        "authorityRef": {
+          "$ref": "#/$defs/authorityRef"
+        },
+        "documentRef": {
+          "$ref": "#/$defs/documentRef"
+        },
+        "evidenceKind": {
+          "enum": [
+            "name_attestation",
+            "recognition",
+            "membership",
+            "owner_selection",
+            "official_record_mention",
+            "source_statement"
+          ]
+        },
+        "availability": {
+          "$ref": "#/$defs/evidenceState"
+        },
+        "citation": {
+          "$ref": "#/$defs/citation"
+        },
+        "observedAt": {
+          "$ref": "#/$defs/date"
+        },
+        "retrievedAt": {
+          "$ref": "#/$defs/date"
+        },
+        "sourceUpdatedAt": {
+          "$ref": "#/$defs/date"
+        },
+        "asOf": {
+          "$ref": "#/$defs/date"
+        }
+      }
+    },
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "namespaceId",
+        "id",
+        "version",
+        "synthetic",
+        "planningId",
+        "status",
+        "documentRefs",
+        "assertionRefs",
+        "citationRefs",
+        "distinctPairs",
+        "gaps"
+      ],
+      "properties": {
+        "kind": {
+          "const": "scenario"
+        },
+        "namespaceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "synthetic": {
+          "const": true
+        },
+        "planningId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "status": {
+          "const": "synthetic_candidate"
+        },
+        "documentRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/documentRef"
+          }
+        },
+        "assertionRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/assertionRef"
+          }
+        },
+        "citationRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/evidenceRef"
+          }
+        },
+        "distinctPairs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["left", "right"],
+            "properties": {
+              "left": {
+                "$ref": "#/$defs/entityDocumentRef"
+              },
+              "right": {
+                "$ref": "#/$defs/entityDocumentRef"
+              }
+            }
+          }
+        },
+        "gaps": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 6,
+          "items": {
+            "$ref": "#/$defs/evidenceState"
+          }
+        }
+      }
+    },
+    "citationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidenceRef",
+        "documentRef",
+        "officialUrl",
+        "documentDigest",
+        "locator",
+        "value"
+      ],
+      "properties": {
+        "evidenceRef": {
+          "$ref": "#/$defs/evidenceRef"
+        },
+        "documentRef": {
+          "$ref": "#/$defs/documentRef"
+        },
+        "officialUrl": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^https://synthetic-[a-z0-9-]+\\.invalid/[a-z0-9]+(?:[a-z0-9/-]*[a-z0-9])?$"
+        },
+        "documentDigest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^synthetic:[a-z0-9]+(?:[a-z0-9:/.-]*[a-z0-9])?$"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240,
+          "pattern": "^Synthetic [A-Za-z0-9 .,:;()'/-]+$"
+        }
+      }
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scenarioRef", "asOf", "citations"],
+      "properties": {
+        "scenarioRef": {
+          "$ref": "#/$defs/scenarioRef"
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+          "maxLength": 20
+        },
+        "citations": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/citationRequest"
+          }
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bundleRef",
+        "scenarioRef",
+        "asOf",
+        "trustDomain",
+        "assertions",
+        "exactCitationRefs",
+        "nonClaims"
+      ],
+      "properties": {
+        "bundleRef": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "version"],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "pattern": "^synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+            }
+          }
+        },
+        "scenarioRef": {
+          "$ref": "#/$defs/scenarioRef"
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+          "maxLength": 20
+        },
+        "trustDomain": {
+          "const": "synthetic_test_only"
+        },
+        "assertions": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 256,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "assertionRef",
+              "temporalState",
+              "evidenceState",
+              "reviewState",
+              "resolution"
+            ],
+            "properties": {
+              "assertionRef": {
+                "$ref": "#/$defs/assertionRef"
+              },
+              "temporalState": {
+                "enum": ["in_interval", "outside_interval", "indeterminate"]
+              },
+              "evidenceState": {
+                "$ref": "#/$defs/evidenceState"
+              },
+              "reviewState": {
+                "$ref": "#/$defs/reviewState"
+              },
+              "resolution": {
+                "enum": ["accepted_synthetic_reference", "unresolved"]
+              }
+            }
+          }
+        },
+        "exactCitationRefs": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/evidenceRef"
+          }
+        },
+        "nonClaims": {
+          "const": [
+            "synthetic_reference_only",
+            "no_real_identity_or_membership",
+            "no_inferred_association_or_member_position",
+            "no_legal_rights_jurisdiction_or_eligibility_determination",
+            "no_source_activation_or_publication_authority"
+          ]
+        }
+      }
+    }
+  }
+}

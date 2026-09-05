@@ -1,0 +1,1360 @@
+{
+  "fixtureFamilyVersion": "1.0.0",
+  "baseFixture": "identity-authority-scenarios.synthetic.valid.json",
+  "cases": [
+    {
+      "id": "real-trust-domain",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "/trustDomain",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/trustDomain",
+          "value": "real_public"
+        }
+      ]
+    },
+    {
+      "id": "non-synthetic-bundle",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "/synthetic",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/synthetic",
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "source-body-field",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/rawResponse",
+          "value": "Synthetic forbidden body"
+        }
+      ]
+    },
+    {
+      "id": "optional-ai-field",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/aiSummary",
+          "value": "Synthetic forbidden summary"
+        }
+      ]
+    },
+    {
+      "id": "contact-field",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "/entities/0",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/entities/0/contact",
+          "value": "Synthetic forbidden contact"
+        }
+      ]
+    },
+    {
+      "id": "geometry-field",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "/entities/0",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/entities/0/geometry",
+          "value": {}
+        }
+      ]
+    },
+    {
+      "id": "land-field",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "/documents/0",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/documents/0/landOwnership",
+          "value": "Synthetic forbidden value"
+        }
+      ]
+    },
+    {
+      "id": "private-visibility",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "/assertions/0/visibility",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/0/visibility",
+          "value": "restricted"
+        }
+      ]
+    },
+    {
+      "id": "unapproved-use",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "/assertions/0/allowedUse",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/0/allowedUse",
+          "value": "public_redistribution"
+        }
+      ]
+    },
+    {
+      "id": "real-label",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "/entities/0/label",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/entities/0/label",
+          "value": "Real identity forbidden"
+        }
+      ]
+    },
+    {
+      "id": "real-url",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "/documents/0/officialUrl",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/documents/0/officialUrl",
+          "value": "https://example.com/record"
+        }
+      ]
+    },
+    {
+      "id": "credential-url",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "/documents/0/officialUrl",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/documents/0/officialUrl",
+          "value": "https://user:password@synthetic-records.invalid/record"
+        }
+      ]
+    },
+    {
+      "id": "extra-query-url",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "/documents/0/officialUrl",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/documents/0/officialUrl",
+          "value": "https://synthetic-records.invalid/record?query=1"
+        }
+      ]
+    },
+    {
+      "id": "missing-retrieval",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "/assertions/0",
+      "mutations": [
+        {
+          "operation": "remove",
+          "path": "/assertions/0/retrievedAt"
+        }
+      ]
+    },
+    {
+      "id": "legal-conclusion-relation",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "/assertions/0/relation",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/0/relation",
+          "value": "legal_applicability"
+        }
+      ]
+    },
+    {
+      "id": "source-activation-state",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "/scenarios/0/status",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/scenarios/0/status",
+          "value": "activated"
+        }
+      ]
+    },
+    {
+      "id": "land-entity-kind",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "/entities/0/entityKind",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/entities/0/entityKind",
+          "value": "parcel_owner"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-typed-identity",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "entity/synthetic-namespace-one/synthetic-government-one/1.0.0",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/entities/-",
+          "value": {
+            "kind": "entity",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-government-one",
+            "version": "1.0.0",
+            "synthetic": true,
+            "entityKind": "government",
+            "label": "Synthetic Government One 1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "unknown-namespace",
+      "expectedLayer": "semantic",
+      "expectedCode": "UNKNOWN_REFERENCE",
+      "expectedPath": "entity/synthetic-missing/synthetic-government-one/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/entities/0/namespaceId",
+          "value": "synthetic-missing"
+        }
+      ]
+    },
+    {
+      "id": "namespace-does-not-name-self",
+      "expectedLayer": "semantic",
+      "expectedCode": "NAMESPACE_MISMATCH",
+      "expectedPath": "/namespaces",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/namespaces/0/namespaceId",
+          "value": "synthetic-namespace-other"
+        }
+      ]
+    },
+    {
+      "id": "same-authority-and-jurisdiction-pair",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "/namespaces",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/namespaces/1/jurisdictionNamespace",
+          "value": "synthetic-jurisdiction-one"
+        }
+      ]
+    },
+    {
+      "id": "authority-actor-kind-cannot-self-attest",
+      "expectedLayer": "semantic",
+      "expectedCode": "AUTHORITY_SCOPE",
+      "expectedPath": "authority/synthetic-namespace-one/synthetic-official-name-authority/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorities/0/entityRef",
+          "value": {
+            "kind": "entity",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-demographic-concept",
+            "version": "1.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "duplicate-authority-subject",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "authority/synthetic-namespace-one/synthetic-official-name-authority/1.0.0",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/authorities/0/subjectRefs/-",
+          "value": {
+            "kind": "entity",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-government-one",
+            "version": "1.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "asserting-subject-outside-scope",
+      "expectedLayer": "semantic",
+      "expectedCode": "AUTHORITY_SCOPE",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-official-name/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorities/0/subjectRefs/0",
+          "value": {
+            "kind": "entity",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-government-two",
+            "version": "1.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "review-subject-outside-scope",
+      "expectedLayer": "semantic",
+      "expectedCode": "AUTHORITY_SCOPE",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-official-name/1.0.0/review",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorities/1/subjectRefs/0",
+          "value": {
+            "kind": "entity",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-government-two",
+            "version": "1.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "review-object-outside-scope",
+      "expectedLayer": "semantic",
+      "expectedCode": "AUTHORITY_SCOPE",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-official-name/1.0.0/review",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorities/1/objectRefs",
+          "value": []
+        }
+      ]
+    },
+    {
+      "id": "asserting-object-outside-scope",
+      "expectedLayer": "semantic",
+      "expectedCode": "AUTHORITY_SCOPE",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-official-name/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/authorities/0/objectRefs",
+          "value": []
+        }
+      ]
+    },
+    {
+      "id": "evidence-mirrored-name-differs",
+      "expectedLayer": "semantic",
+      "expectedCode": "EVIDENCE_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-official-name/1.0.0/object",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidence/0/object/value",
+          "value": "Synthetic Different Name"
+        }
+      ]
+    },
+    {
+      "id": "missing-exact-evidence-version",
+      "expectedLayer": "semantic",
+      "expectedCode": "UNKNOWN_REFERENCE",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-official-name/1.0.0/evidenceRef",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/0/evidenceRef/version",
+          "value": "9.0.0"
+        }
+      ]
+    },
+    {
+      "id": "evidence-bound-to-another-assertion",
+      "expectedLayer": "semantic",
+      "expectedCode": "EVIDENCE_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-official-name/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidence/0/assertionRef",
+          "value": {
+            "kind": "assertion",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-official-alias",
+            "version": "1.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "orphan-evidence",
+      "expectedLayer": "semantic",
+      "expectedCode": "EVIDENCE_MISMATCH",
+      "expectedPath": "/evidence",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/evidence/-",
+          "value": {
+            "kind": "evidence",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-orphan-evidence",
+            "version": "1.0.0",
+            "synthetic": true,
+            "assertionRef": {
+              "kind": "assertion",
+              "namespaceId": "synthetic-namespace-one",
+              "id": "synthetic-official-name",
+              "version": "1.0.0"
+            },
+            "subjectRef": {
+              "kind": "entity",
+              "namespaceId": "synthetic-namespace-one",
+              "id": "synthetic-government-one",
+              "version": "1.0.0"
+            },
+            "relation": "source_name",
+            "object": {
+              "kind": "name",
+              "value": "Synthetic Government One 1"
+            },
+            "authorityRef": {
+              "kind": "authority",
+              "namespaceId": "synthetic-namespace-one",
+              "id": "synthetic-official-name-authority",
+              "version": "1.0.0"
+            },
+            "documentRef": {
+              "kind": "document",
+              "namespaceId": "synthetic-namespace-one",
+              "id": "synthetic-name-attestation",
+              "version": "1.0.0"
+            },
+            "evidenceKind": "name_attestation",
+            "availability": "available",
+            "citation": {
+              "state": "available",
+              "officialUrl": "https://synthetic-records.invalid/name-attestation/1-0-0",
+              "documentDigest": "0000000000000000000000000000000000000000000000000000000000000001",
+              "locator": "synthetic:official-name:1-0-0:paragraph:1",
+              "value": "Synthetic Government One 1"
+            },
+            "observedAt": {
+              "state": "known",
+              "date": "3785-02-01T00:00:00Z"
+            },
+            "retrievedAt": {
+              "state": "known",
+              "date": "3785-02-02T00:00:00Z"
+            },
+            "sourceUpdatedAt": {
+              "state": "unknown"
+            },
+            "asOf": {
+              "state": "known",
+              "date": "3785-02-04T00:00:00Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "membership-cannot-become-recognition",
+      "expectedLayer": "semantic",
+      "expectedCode": "RELATION_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-membership/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/4/relation",
+          "value": "recognition"
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/4/relation",
+          "value": "recognition"
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/4/evidenceKind",
+          "value": "recognition"
+        }
+      ]
+    },
+    {
+      "id": "membership-cannot-become-record-association",
+      "expectedLayer": "semantic",
+      "expectedCode": "RELATION_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-membership/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/4/relation",
+          "value": "record_association"
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/4/relation",
+          "value": "record_association"
+        },
+        {
+          "operation": "replace",
+          "path": "/assertions/4/object",
+          "value": {
+            "kind": "record",
+            "documentRef": {
+              "kind": "document",
+              "namespaceId": "synthetic-namespace-one",
+              "id": "synthetic-scenario-a-record",
+              "version": "1.0.0"
+            },
+            "nameAssertionRef": {
+              "kind": "assertion",
+              "namespaceId": "synthetic-namespace-one",
+              "id": "synthetic-official-name",
+              "version": "1.0.0"
+            }
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/4/object",
+          "value": {
+            "kind": "record",
+            "documentRef": {
+              "kind": "document",
+              "namespaceId": "synthetic-namespace-one",
+              "id": "synthetic-scenario-a-record",
+              "version": "1.0.0"
+            },
+            "nameAssertionRef": {
+              "kind": "assertion",
+              "namespaceId": "synthetic-namespace-one",
+              "id": "synthetic-official-name",
+              "version": "1.0.0"
+            }
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/4/evidenceKind",
+          "value": "official_record_mention"
+        },
+        {
+          "operation": "replace",
+          "path": "/authorities/8/objectRefs",
+          "value": [
+            {
+              "kind": "document",
+              "namespaceId": "synthetic-namespace-one",
+              "id": "synthetic-membership-roster",
+              "version": "1.0.0"
+            },
+            {
+              "kind": "entity",
+              "namespaceId": "synthetic-namespace-one",
+              "id": "synthetic-organization-one",
+              "version": "1.0.0"
+            },
+            {
+              "kind": "document",
+              "namespaceId": "synthetic-namespace-one",
+              "id": "synthetic-scenario-a-record",
+              "version": "1.0.0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cohort-cannot-become-membership",
+      "expectedLayer": "semantic",
+      "expectedCode": "RELATION_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-cohort-inclusion/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/6/relation",
+          "value": "organization_membership"
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/6/relation",
+          "value": "organization_membership"
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/6/evidenceKind",
+          "value": "membership"
+        }
+      ]
+    },
+    {
+      "id": "association-other-government-name",
+      "expectedLayer": "semantic",
+      "expectedCode": "EVIDENCE_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-scenario-a-record-association/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/24/object/nameAssertionRef",
+          "value": {
+            "kind": "assertion",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-second-official-alias",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/24/object/nameAssertionRef",
+          "value": {
+            "kind": "assertion",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-second-official-alias",
+            "version": "1.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "association-other-record",
+      "expectedLayer": "semantic",
+      "expectedCode": "EVIDENCE_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-scenario-a-record-association/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/24/object/documentRef",
+          "value": {
+            "kind": "document",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-scenario-a-record",
+            "version": "2.0.0"
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/24/object/documentRef",
+          "value": {
+            "kind": "document",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-scenario-a-record",
+            "version": "2.0.0"
+          }
+        },
+        {
+          "operation": "add",
+          "path": "/authorities/48/objectRefs/-",
+          "value": {
+            "kind": "document",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-scenario-a-record",
+            "version": "2.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "association-membership-source-kind",
+      "expectedLayer": "semantic",
+      "expectedCode": "EVIDENCE_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-scenario-a-record-association/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/documents/12/documentKind",
+          "value": "membership_roster"
+        }
+      ]
+    },
+    {
+      "id": "association-name-not-accepted",
+      "expectedLayer": "semantic",
+      "expectedCode": "EVIDENCE_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-scenario-a-record-association/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/0/review/state",
+          "value": "pending"
+        }
+      ]
+    },
+    {
+      "id": "association-name-expired",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_TEMPORAL",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-scenario-a-record-association/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/0/validFrom",
+          "value": {
+            "state": "known",
+            "date": "3784-01-01T00:00:00Z"
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/assertions/0/validThrough",
+          "value": {
+            "state": "known",
+            "date": "3784-12-31T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "id": "agenda-cannot-prove-final",
+      "expectedLayer": "semantic",
+      "expectedCode": "EVIDENCE_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-scenario-a-status/2.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/21/object/value",
+          "value": "final"
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/21/object/value",
+          "value": "final"
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/21/citation/value",
+          "value": "Synthetic final"
+        }
+      ]
+    },
+    {
+      "id": "agenda-cannot-prove-executed",
+      "expectedLayer": "semantic",
+      "expectedCode": "EVIDENCE_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-scenario-a-status/2.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/21/object/value",
+          "value": "executed"
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/21/object/value",
+          "value": "executed"
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/21/citation/value",
+          "value": "Synthetic executed"
+        }
+      ]
+    },
+    {
+      "id": "party-host-cannot-become-speaker",
+      "expectedLayer": "semantic",
+      "expectedCode": "AUTHORITY_SCOPE",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-scenario-b-party-status/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/documents/20/speakerRef",
+          "value": {
+            "kind": "entity",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-registry-office",
+            "version": "1.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "convenience-cannot-become-originating-evidence",
+      "expectedLayer": "semantic",
+      "expectedCode": "EVIDENCE_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-official-name/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/documents/0/renditionRole",
+          "value": "convenience_reference"
+        }
+      ]
+    },
+    {
+      "id": "citation-wrong-value",
+      "expectedLayer": "semantic",
+      "expectedCode": "CITATION_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-official-name/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidence/0/citation/value",
+          "value": "Synthetic Different Name"
+        }
+      ]
+    },
+    {
+      "id": "citation-wrong-digest",
+      "expectedLayer": "semantic",
+      "expectedCode": "CITATION_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-official-name/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidence/0/citation/documentDigest",
+          "value": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        }
+      ]
+    },
+    {
+      "id": "citation-wrong-official-url",
+      "expectedLayer": "semantic",
+      "expectedCode": "CITATION_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-official-name/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidence/0/citation/officialUrl",
+          "value": "https://synthetic-records.invalid/other"
+        }
+      ]
+    },
+    {
+      "id": "review-other-assertion",
+      "expectedLayer": "semantic",
+      "expectedCode": "REVIEW_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-official-name/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/0/review/assertionRef",
+          "value": {
+            "kind": "assertion",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-official-alias",
+            "version": "1.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "review-other-evidence",
+      "expectedLayer": "semantic",
+      "expectedCode": "REVIEW_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-official-name/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/0/review/evidenceRef",
+          "value": {
+            "kind": "evidence",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-official-alias-evidence",
+            "version": "1.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "reversed-validity-interval",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_TEMPORAL",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-official-name/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/0/validThrough",
+          "value": {
+            "state": "known",
+            "date": "3784-12-31T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "id": "retrieval-precedes-observation",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_TEMPORAL",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-official-name/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/0/retrievedAt",
+          "value": {
+            "state": "known",
+            "date": "3784-12-31T00:00:00Z"
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/0/retrievedAt",
+          "value": {
+            "state": "known",
+            "date": "3784-12-31T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "id": "review-precedes-retrieval",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_TEMPORAL",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-official-name/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/0/review/reviewedAt",
+          "value": {
+            "state": "known",
+            "date": "3785-01-01T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "id": "accepted-unknown-observation",
+      "expectedLayer": "semantic",
+      "expectedCode": "INVALID_TEMPORAL",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-official-name/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/0/observedAt",
+          "value": {
+            "state": "unknown"
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/0/observedAt",
+          "value": {
+            "state": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "id": "unavailable-evidence-cannot-claim-citation",
+      "expectedLayer": "semantic",
+      "expectedCode": "EVIDENCE_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-scenario-a-unavailable/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidence/23/citation",
+          "value": {
+            "state": "available",
+            "officialUrl": "https://synthetic-records.invalid/name-attestation/1-0-0",
+            "documentDigest": "0000000000000000000000000000000000000000000000000000000000000001",
+            "locator": "synthetic:official-name:1-0-0:paragraph:1",
+            "value": "Synthetic Government One 1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mirrored-availability-drift",
+      "expectedLayer": "semantic",
+      "expectedCode": "EVIDENCE_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-scenario-a-unavailable/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/evidence/23/availability",
+          "value": "not_observed"
+        }
+      ]
+    },
+    {
+      "id": "proceeding-status-needs-known-proceeding",
+      "expectedLayer": "semantic",
+      "expectedCode": "RELATION_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-sentinel-two-proceeding-status/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/documents/44/proceeding",
+          "value": {
+            "state": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "id": "document-status-is-not-proceeding-status",
+      "expectedLayer": "semantic",
+      "expectedCode": "RELATION_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-scenario-a-status/2.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/21/object/value",
+          "value": "closed"
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/21/object/value",
+          "value": "closed"
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/21/citation/value",
+          "value": "Synthetic closed"
+        }
+      ]
+    },
+    {
+      "id": "version-relation-cannot-merge-similar-title",
+      "expectedLayer": "semantic",
+      "expectedCode": "RELATION_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-scenario-a-changed-version/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/22/object/targetDocumentRef",
+          "value": {
+            "kind": "document",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-scenario-a-similar-record",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/22/object/targetDocumentRef",
+          "value": {
+            "kind": "document",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-scenario-a-similar-record",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "operation": "add",
+          "path": "/authorities/44/objectRefs/-",
+          "value": {
+            "kind": "document",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-scenario-a-similar-record",
+            "version": "1.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "duplicate-scenario-planning-key",
+      "expectedLayer": "semantic",
+      "expectedCode": "DUPLICATE_IDENTITY",
+      "expectedPath": "scenario/synthetic-namespace-one/synthetic-scenario-b/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/scenarios/1/planningId",
+          "value": "synthetic-scenario-a"
+        }
+      ]
+    },
+    {
+      "id": "distinct-pair-cannot-collapse",
+      "expectedLayer": "semantic",
+      "expectedCode": "SCENARIO_MISMATCH",
+      "expectedPath": "scenario/synthetic-namespace-one/synthetic-scenario-a/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/scenarios/0/distinctPairs/0/right",
+          "value": {
+            "kind": "document",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-scenario-a-record",
+            "version": "2.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "missing-scenario-gap",
+      "expectedLayer": "semantic",
+      "expectedCode": "SCENARIO_MISMATCH",
+      "expectedPath": "scenario/synthetic-namespace-one/synthetic-scenario-a/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/scenarios/0/gaps",
+          "value": ["unknown"]
+        }
+      ]
+    },
+    {
+      "id": "available-is-not-gap",
+      "expectedLayer": "semantic",
+      "expectedCode": "SCENARIO_MISMATCH",
+      "expectedPath": "scenario/synthetic-namespace-one/synthetic-scenario-a/1.0.0",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/scenarios/0/gaps/-",
+          "value": "available"
+        }
+      ]
+    },
+    {
+      "id": "scenario-omits-document-target",
+      "expectedLayer": "semantic",
+      "expectedCode": "SCENARIO_MISMATCH",
+      "expectedPath": "scenario/synthetic-namespace-one/synthetic-scenario-a/1.0.0",
+      "mutations": [
+        {
+          "operation": "remove",
+          "path": "/scenarios/0/documentRefs/0"
+        }
+      ]
+    },
+    {
+      "id": "cross-jurisdiction-evidence-cannot-substitute",
+      "expectedLayer": "semantic",
+      "expectedCode": "NAMESPACE_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-recognition/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/3/evidenceRef",
+          "value": {
+            "kind": "evidence",
+            "namespaceId": "synthetic-namespace-two",
+            "id": "synthetic-recognition-evidence",
+            "version": "1.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "government-cannot-change-kind-across-versions",
+      "expectedLayer": "semantic",
+      "expectedCode": "RELATION_MISMATCH",
+      "expectedPath": "entity/synthetic-namespace-one/synthetic-government-one/2.0.0",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/entities/-",
+          "value": {
+            "kind": "entity",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-government-one",
+            "version": "2.0.0",
+            "synthetic": true,
+            "entityKind": "geographic_concept",
+            "label": "Synthetic Government One 1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "assertion-relation-cannot-change-across-versions",
+      "expectedLayer": "semantic",
+      "expectedCode": "RELATION_MISMATCH",
+      "expectedPath": "assertion/synthetic-namespace-one/synthetic-scenario-a-status/2.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/assertions/21/relation",
+          "value": "proceeding_status"
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/21/relation",
+          "value": "proceeding_status"
+        },
+        {
+          "operation": "replace",
+          "path": "/assertions/21/object/value",
+          "value": "pending"
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/21/object/value",
+          "value": "pending"
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/21/citation/value",
+          "value": "Synthetic pending"
+        }
+      ]
+    },
+    {
+      "id": "distinct-entity-pair-outside-scenario-closure",
+      "expectedLayer": "semantic",
+      "expectedCode": "SCENARIO_MISMATCH",
+      "expectedPath": "scenario/synthetic-namespace-one/synthetic-scenario-b/1.0.0",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/scenarios/1/distinctPairs/-",
+          "value": {
+            "left": {
+              "kind": "entity",
+              "namespaceId": "synthetic-namespace-one",
+              "id": "synthetic-government-one",
+              "version": "1.0.0"
+            },
+            "right": {
+              "kind": "entity",
+              "namespaceId": "synthetic-namespace-two",
+              "id": "synthetic-government-one",
+              "version": "1.0.0"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "organization-cannot-issue-county-record",
+      "expectedLayer": "semantic",
+      "expectedCode": "RELATION_MISMATCH",
+      "expectedPath": "document/synthetic-namespace-one/synthetic-scenario-a-record/1.0.0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/documents/12/issuerRef",
+          "value": {
+            "kind": "entity",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-organization-one",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/documents/12/speakerRef",
+          "value": {
+            "kind": "entity",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-organization-one",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/assertions/20/subjectRef",
+          "value": {
+            "kind": "entity",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-organization-one",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/20/subjectRef",
+          "value": {
+            "kind": "entity",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-organization-one",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/authorities/40/entityRef",
+          "value": {
+            "kind": "entity",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-organization-one",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/authorities/40/subjectRefs/0",
+          "value": {
+            "kind": "entity",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-organization-one",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/assertions/21/subjectRef",
+          "value": {
+            "kind": "entity",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-organization-one",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/evidence/21/subjectRef",
+          "value": {
+            "kind": "entity",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-organization-one",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/authorities/42/entityRef",
+          "value": {
+            "kind": "entity",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-organization-one",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "operation": "replace",
+          "path": "/authorities/42/subjectRefs/0",
+          "value": {
+            "kind": "entity",
+            "namespaceId": "synthetic-namespace-one",
+            "id": "synthetic-organization-one",
+            "version": "1.0.0"
+          }
+        }
+      ]
+    }
+  ]
+}

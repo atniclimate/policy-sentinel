@@ -8,7 +8,8 @@ implementation facts may be resolved with dated primary evidence, but their
 resolution must be recorded here and in affected versioned configuration.
 Source-specific blockers do not block unrelated sources.
 
-Current product-space interpretation: PS09 Run 1 convergence. Dated source
+Current product-space interpretation: PS09 convergence and the approved bounded
+Run 2 synthetic identity/authority contract and candidate manifests. Dated source
 evidence and earlier decisions retain their recorded review dates and scope;
 the explicit supersessions below control current product-wide interpretation.
 
@@ -20,8 +21,10 @@ directives separately authorized and completed PNW-01, PNW-03, PNW-04, the
 synthetic PNW-05 core, and two Federal Register reviews. On 2026-09-03 the owner
 authorized `PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE`, now exhausted at the
 R7 evidence block. The current token is
-`POLICY-SENTINEL-0.9-RUN-01-REPOSITORY-CONVERGENCE-AND-CORPUS-SPINE`:
-only local Run 1 convergence and the minimal corpus spine are authorized.
+`POLICY-SENTINEL-0.9-RUN-02-PNW-IDENTITY-AUTHORITY-AND-SCENARIO-MANIFESTS`:
+the exact approved local synthetic contract/manifest packet is now validated,
+with no active work or further execution grant.
+Run 1 remains validated; required real identity/scenario evidence is unresolved.
 `PS09-06-LOCAL-RC` is the sole local release root; old B/PNW/prerelease finish
 scopes retain archived evidence. Later PS09 runs remain closed. Gate A and the
 later scoped approvals do not include remote operations,
@@ -30,6 +33,22 @@ acceptance, paid or licensed access, third-party contact, private material,
 optional AI generation, or outbound notifications.
 
 ## Final decisions
+
+D-066 records the owner's 2026-09-04 approval of the exact Run 2 entry packet
+at `1cb2384fe8fa4da71d1f9e8884be6980d010db74` with "Approve and go". It
+supersedes D-063's closed-Run-2 execution statement only for the 23 listed local
+paths, synthetic tests, independent review and local commits. Real identity
+population, source/domain/request/byte budgets, later runs, protected
+convergence and all external operations remain closed/zero. Nine candidate
+manifests are planning references; synthetic acceptance cannot establish full
+PS09-02 completion or enable a successor. D-063 through D-065 otherwise retain
+their scope and non-claims.
+
+The bounded D-066 implementation passed integrated local validation at the
+[Run 2 checkpoint](handoffs/ps09-run-02-identity-authority-scenarios.md).
+Full PS09-02 remains blocked on exact originating real evidence and separately
+bounded operation authority. This implementation fact changes no owner decision
+or later gate.
 
 Decisions D-002 through D-004, D-011 through D-012, and D-014 through D-017
 retain their recorded meaning for the Pages-oriented application adapter and
@@ -187,12 +206,13 @@ application consumption of the corpus. Their dated evidence remains intact.
 | G-PNW-05-REAL-SOURCE-PRERELEASE | Historical **2026-09-03 approval** only for the six bounded child outcomes and that lane's frozen request/path ledger. Its D3/R6/R7 request authority is consumed. | No fresh request, retry, activation, acquisition or new work follows from this archived approval. FR-A1 remains unissued and prohibited. |
 | G-PNW-05-FR-TIER1-QUALIFICATION / G-PNW-05-FR-LOCAL-ACTIVATION | Historical source-specific evidence gates remain unresolved after the consumed request lane stopped at its digest-drift block. | Neither gate is satisfied by Run 1 convergence or a synthetic pack; any future exact source operation requires new scoped authority and evidence. |
 | G-PS09-RUN-01 | **Approved** by the exact `POLICY-SENTINEL-0.9-RUN-01-REPOSITORY-CONVERGENCE-AND-CORPUS-SPINE` owner token. | Only the recorded local convergence and minimal synthetic corpus path, exact leases, validation and local commits. |
-| G-PS09-RUN-02 through G-PS09-RUN-08 | **Closed**, each requiring separate exact owner authorization; Runs 7/8 are conditional. | No automatic successor execution, real identity population, source operation, output tranche or stakeholder contact. |
+| G-PS09-RUN-02 | **Approved 2026-09-04** by "Approve and go" for the [exact entry packet](handoffs/ps09-run-02-entry-packet.md) at `1cb2384fe8fa4da71d1f9e8884be6980d010db74`. | Only its local synthetic identity/authority contract, nine candidate manifests, tests, independent review and local commits. All source/domain/request/byte budgets are zero. Full PS09-02 remains evidence-dependent. |
+| G-PS09-RUN-03 through G-PS09-RUN-08 | **Closed**, each requiring separate exact owner authorization; Runs 7/8 are conditional. | No automatic successor execution, real identity population, source operation, output tranche or stakeholder contact. |
 | G-PS09-RC | **Closed** until the six canonical outcomes and exact local acceptance evidence pass. | Acceptance of the sole `PS09-06-LOCAL-RC` root; publication remains separately gated. |
 
 G-A and the prerelease lane retain their dated approval records; those records
 do not revive exhausted requests or superseded execution queues. Only the exact
-PS09 Run 1 token governs current implementation. Every later PS09 and external
+PS09 Run 2 packet governs current local synthetic implementation. Later PS09 and external
 approval still depends on the exact blocked action: G-B for named
 provider terms, an API operation, registration, or secret; G-C for Oregon
 OData terms; G-D only when Idaho contact is required; G-E for remote or

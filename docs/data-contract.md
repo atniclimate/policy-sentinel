@@ -34,6 +34,9 @@ schema implementation or PNW completion evidence.
 
 ## Canonical schema catalog
 
+The Run 2 local profile is detailed in
+[its reference contract](#ps09-run-2-local-identity-authority-and-scenario-references).
+
 This section is the single catalog for implemented JSON Schemas, related
 logical/runtime contracts, and accepted but unimplemented successors. A schema
 or interface is normative only for the scope named here. Its existence does
@@ -44,6 +47,7 @@ or establish PNW completion.
 
 | Schema and normative status | Purpose, version, and stable ID | `$ref` dependencies | Instance producer and consumers | Examples and fixtures | Validator and migration posture |
 | --- | --- | --- | --- | --- | --- |
+| [`identity-authority-scenarios.schema.v1.json`](../schemas/identity-authority-scenarios.schema.v1.json) — local synthetic contract | `IdentityAuthorityScenariosBundle 1.0.0`; ID `https://policy-sentinel.invalid/schemas/identity-authority-scenarios.schema.v1.json`. Separates stable entities, names, recognition, membership, owner cohort, record association and reference scenarios. | Closed local definitions only; no protected schema or real-source/corpus dependency. | Pure [`identity-authority-scenarios.ts`](../src/engine/identity-authority-scenarios.ts) parser/evaluator/serializers; readonly [`contracts`](../src/engine/identity-authority-scenarios-contracts.ts). | [`synthetic fixture`](../fixtures/engine/identity-authority-scenarios.synthetic.valid.json) and [`malformed family`](../fixtures/engine/identity-authority-scenarios-malformed.invalid.json). | Foundation compiles strict schema and classifies negative layers; focused schema/runtime/non-interference tests enforce semantics. New additive version, no retained migration or real-data acceptance. |
 | [`artifact.schema.v1.json`](../schemas/artifact.schema.v1.json) — current static-application contract | Six static artifact document kinds use document schema `1.0.0`. The manifest accepts archival artifact packages `1.0.0` through `1.4.0`; current output is package `1.4.0` with record `1.4.0` and source registry `1.19.0`. ID: `https://policy-sentinel.invalid/schemas/artifact.schema.v1.json`. | No external references; record, index, Nation, coverage, health, and manifest shapes are closed local definitions. | [`artifact.mjs`](../src/pipeline/artifact.mjs) and [`build-synthetic-artifact.mjs`](../scripts/build-synthetic-artifact.mjs) produce ignored `dist/data/**`. The application loader, artifact validator, and [`last-known-good.mjs`](../src/pipeline/last-known-good.mjs) consume it. | Current examples are generated and ignored; archival package fixtures are constructed in [`artifact-schema-compatibility.test.ts`](../tests/pipeline/artifact-schema-compatibility.test.ts). | [`validate-artifact.mjs`](../scripts/validate-artifact.mjs) and pipeline hardening tests validate instances separately from foundation validation. The schema remains archive-compatible, but the current client and validator require the coherent `1.4.0` package/record pair. Older packages need matching-version software or an explicit tested migration. |
 | [`record.schema.v1.json`](../schemas/record.schema.v1.json) — current normalized-record contract | `PolicyRecord` schema `1.4.0`, including taxonomy membership `1.0.0`. ID: `https://policy-sentinel.invalid/schemas/record.schema.v1.json`. Its WA/OR/ID jurisdiction vocabulary and Nation-association fields belong to the retained application; they are not universal engine primitives or an ATNI-membership model. | No external references. The artifact schema carries related closed projections rather than referencing this schema. | Source normalizers under [`src/adapters/`](../src/adapters/), the pipeline, and the synthetic builder produce records. Policy validation, artifact/LKG handling, K0 compatibility projection, and application loading consume them. | [`county-explicit.valid.json`](../fixtures/records/county-explicit.valid.json), [`general-jurisdiction.valid.json`](../fixtures/records/general-jurisdiction.valid.json), and [`intergovernmental-accord.valid.json`](../fixtures/records/intergovernmental-accord.valid.json). | [`validate-foundation.mjs`](../scripts/validate-foundation.mjs), [`policy-record-14-validator.ts`](../src/kernel/lifecycle/policy-record-14-validator.ts), artifact validation, and pipeline tests enforce schema plus semantic policy. A breaking field or meaning change requires a new major schema, migration and compatibility fixtures, an artifact-version decision, and a decision-register entry. No general record migration is implemented. |
 | [`source.schema.v1.json`](../schemas/source.schema.v1.json) — current source-registry contract | Source schema `1.3.0`; current registry `1.19.0`. ID: `https://policy-sentinel.invalid/schemas/source.schema.v1.json`. | No external references. | The authored [`sources.v1.json`](../config/sources.v1.json) is the normative instance. Build, policy, LKG, and K0 projection validators consume it. | The registry itself is the representative configuration; source-specific synthetic payloads live under [`fixtures/sources/`](../fixtures/sources/). | Foundation validation and [`source-registry.test.mjs`](../tests/pipeline/source-registry.test.mjs) validate it. Artifact/LKG compatibility is pinned to the exact registry version; an older artifact must be rebuilt or explicitly migrated, never silently relabeled. |
@@ -667,3 +671,93 @@ Breaking field or meaning changes require a new major schema, migration and
 backward-compatibility fixtures, and an explicit decision-register entry.
 Historical artifacts are interpreted by matching-version software or an
 explicitly tested migration under the versions recorded at build time.
+
+## PS09 Run 2 local identity, authority and scenario references
+
+`IdentityAuthorityScenariosBundle 1.0.0` is an additive
+`synthetic_test_only` reference contract. It accepts declared synthetic
+identities, dates and citation values, not real evidence or signed authority.
+A `synthetic_accepted` review value is a test fact; it is never proof of human
+review, official source status, current membership, deployment permission or
+source admission. The approved packet supplies no real-data operation authority.
+
+The seven catalogs are namespace, entity, authority, document, evidence,
+assertion and scenario. Every reference carries exact kind, namespace ID,
+local ID and version. Namespace IDs bind one authority-system/jurisdiction
+namespace pair; jurisdiction here is an opaque identifier, not a determination.
+Shared labels/local IDs across jurisdictions cannot collide. Entity fixture
+labels are separate from source-attested name and alias assertions. Government,
+organization, office, geographic concept, corporation, consortium, demographic
+concept, cohort, instrument, owner, analyst and deployment stay distinct.
+Repeated source enumeration entries and their order are preserved. A separately
+stated count cannot reconcile, delete or merge them; neither 575 nor any
+membership count is a general invariant.
+
+Each assertion binds subject, finite relation/object, exact asserting authority,
+one evidence atom, review, visibility, allowed use and dates. This one-atom
+profile is intentionally bounded and does not prescribe a universal future
+source model. The atom mirrors the exact assertion subject/relation/object and
+authority and names its document/version. Reviewer scope binds the exact
+assertion and evidence plus permitted subject/object targets. A review flag
+alone cannot satisfy authority. Role and entity-kind checks keep self-attested
+names, originating recognition, organization membership, owner cohort choices,
+record issuance, consultation lists, instruments, service concepts, geographic
+references and deployment configuration separate. No inverse/transitive,
+shared-name, keyword, geography or cross-organization inference is performed.
+
+An official-record association requires a government entity, independently
+accepted exact name/alias for that entity and applicable time, the originating
+record itself, exact URL and matching official-record-mention evidence. Neither
+recognition nor membership evidence can stand in for it. A convenience
+reference cannot become an originating record; party speakers do not inherit
+their hosting agency's authority. County agenda evidence cannot assert final
+or executed document status. Document and proceeding status remain distinct.
+An unknown proceeding identity is expressible and cannot support a proceeding
+status or filed-in assertion.
+
+All evidentiary times use explicit known/unknown states. Valid-from and
+valid-through are independent of observed, retrieved, source-updated and as-of
+time; this first profile has no implicit open interval. Evaluation takes a
+fixed caller-supplied time and returns `in_interval`, `outside_interval`
+or `indeterminate`. Available evidence and a synthetic accepted review do
+not make an expired/unknown assertion current. Pending, disputed and rejected
+reviews and all six evidence states survive reference evaluation independently.
+Scheduled/proposed documents do not supply future text or final outcomes.
+
+Synthetic citations match exact evidence/document/version, URL, declared
+digest, locator and bounded citation value. Names and associations match exact
+accepted names; entity relations match the target fixture label; count and
+entry atoms use `Synthetic count N` and `Synthetic entries N`; status atoms
+use `Synthetic ` followed by the status enum; document relations replace enum
+underscores with spaces after that prefix. These are fixture conventions, not
+a real-text parser. Digests are declared reference-integrity values, not
+verified bytes or CAS receipts. Real exact-byte evidence remains a separate
+future binding to the canonical corpus spine.
+
+Scenario keys are opaque synthetic identifiers. The nine selected planning
+contexts live only in the [candidate manifests](development/ps09-run-02-candidate-manifests.md).
+Scenarios reference facts once through document/assertion/evidence references,
+with explicit distinct pairs and gaps. Evaluation emits detached immutable
+references, evidence/review/temporal states and fixed non-claims. It creates no
+copy of a PolicyRecord, taxonomy, why-shown, lifecycle, health or source state,
+and no real-scenario/release/publication flags. Persona and output adapters
+remain consumers of the later canonical corpus, not a new fact store here.
+
+The public API is `parseIdentityAuthorityScenariosBundle`,
+`serializeIdentityAuthorityScenariosBundle`,
+`evaluateIdentityAuthorityScenarios` and
+`serializeIdentityAuthorityScenariosEvaluation`. Closed schema validation
+and semantic graph checks follow a bounded descriptor-aware plain-JSON
+snapshot. Accessors, symbols, cycles, sparse arrays, unsupported prototypes,
+unsafe numbers and oversized inputs fail without invoking getters/toJSON.
+Serialization is canonical and outputs recursively frozen/detached. The runtime
+performs no file, network, model, timer or wall-clock operation. Public synthetic
+visibility is a disclosure class only; it grants no artifact/publication right.
+Private/restricted fields, bodies, contacts, service lists, geometry and land
+content are outside the accepted schema.
+
+Full PS09-02 remains incomplete until the exact required real identity and
+scenario claims have originating evidence and any necessary separately bounded
+operation authority. Passing this profile proves only local synthetic
+reference handling. Existing contract versions, command surface, application,
+registry, taxonomy, corpus, K0/S0/O0 and release gates retain their boundaries.

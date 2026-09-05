@@ -28,9 +28,13 @@ rebase retains that work as implementation evidence while separating engine,
 region, deployment, persona, and output concerns. Current progress,
 dependencies, and remaining work are recorded in
 [`ROADMAP.yaml`](../ROADMAP.yaml). The current exact authorization is
-`POLICY-SENTINEL-0.9-RUN-01-REPOSITORY-CONVERGENCE-AND-CORPUS-SPINE`.
-Run 1 implements local convergence and the minimum synthetic corpus spine;
-later runs remain closed. `PS09-06-LOCAL-RC` is the sole local release root.
+`POLICY-SENTINEL-0.9-RUN-02-PNW-IDENTITY-AUTHORITY-AND-SCENARIO-MANIFESTS`.
+The owner approved only the [Run 2 entry packet](handoffs/ps09-run-02-entry-packet.md)
+for local synthetic identity/authority contracts and nine candidate manifests.
+That bounded packet is now validated at [its checkpoint](handoffs/ps09-run-02-identity-authority-scenarios.md),
+with no active work. Run 1's synthetic corpus spine remains validated. Required real identity and
+scenario evidence is unresolved; synthetic proof does not complete PS09-02.
+Later runs remain closed. `PS09-06-LOCAL-RC` is the sole local release root.
 B1-B10, PNW, and the exhausted 2026-09-03 real-source child lane retain
 archived evidence without imposing another release graph. Real public-source
 use is intended product capability, with source-specific admission, operation,

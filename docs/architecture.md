@@ -40,7 +40,21 @@ K0, S0, and O0 remain outside this architecture's active dependency graph
 unless their existing convergence gates are separately opened. The planning
 rebase neither changes their bytes nor imports them into product code.
 
-## PNW-01 synthetic projection seam
+## PS09 Run 2 synthetic identity and scenario references
+
+The approved PS09 Run 2 seam is described in the
+[identity/authority contract](data-contract.md#ps09-run-2-local-identity-authority-and-scenario-references).
+Its standalone synthetic graph tests namespaced entity/assertion identity,
+authority, temporal evidence and reference-only scenario evaluation. It imports
+only its own contracts/schema and local validation dependencies. It neither
+replaces nor writes the analyzed corpus, source registry, taxonomy, lifecycle,
+health, retained application or artifact path. The
+[nine candidate manifests](development/ps09-run-02-candidate-manifests.md) map
+opaque synthetic keys to named owner planning contexts; the runtime contains
+no geography/persona/candidate-specific behavior. Real bindings and integration
+require a later approved contract and originating evidence.
+
+## Retained PNW-01 synthetic projection seam
 
 The additive `src/engine/` seam now defines closed, readonly `RegionPack`,
 `CommunityDeploymentProfile`, `PersonaProjection`,
