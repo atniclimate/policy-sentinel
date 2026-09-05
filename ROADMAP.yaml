@@ -10,7 +10,7 @@ project:
     Historical release scopes are archived evidence. PS09-06-LOCAL-RC is the
     sole release root. No work is active; new evidence operations, source
     activation and later runs remain gated.
-  updated_on: "2026-09-04"
+  updated_on: "2026-09-05"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
     prove its present definition of done through the owner-selected PNW scenario
@@ -788,9 +788,10 @@ current_focus:
   work_item: null
   objective: >-
     Preserve the stopped EV01 run as read-only recovery evidence and retain
-    unresolved real identity/scenario claims. Recover the comprehensive fresh
-    session guide and measured shell diagnostics before defining a new bounded
-    local readiness task and exact operation packet.
+    unresolved real identity/scenario claims. Recover the refreshed handoff,
+    measured shell diagnostics and exact proposed seven-path local synthetic
+    runner scope. That scope needs owner approval before implementation; an
+    executable source packet remains subsequent separately defined work.
   terminal_reason: >-
     EV01's noninteractive shell launch closed standard input after initial
     ledger creation; the process exited before any operation reservation or
@@ -799,7 +800,7 @@ current_focus:
     canonical work remains ready; later runs and archived lanes stay closed.
   resumable_roots:
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: 9d7cbb6ca13fe4938e8daa16c39b41642d623245
+  last_durable_checkpoint: 6844c05236dcd375fec79530cd7341ca410c258b
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5374,6 +5375,25 @@ work_items:
         legal effect.
     evidence:
       - >-
+        On 2026-09-05, documentation recovery from committed handoff
+        6844c05236dcd375fec79530cd7341ca410c258b covered all 5918 starting
+        ledger lines. Runtime, roadmap and backbone baseline passed. All 76
+        protected identities, custody manifest, package-lock and three EV01
+        files matched their pins. Actual shell probes accepted one synthetic
+        argv operation with exit 0, forwarded rejected argv exit 3, and observed
+        stdin EOF with zero commands and exit 1. A complete 8192-byte synthetic
+        UTF-8 view with late restriction and digest survived tool capture at a
+        9000-token output budget; this is neither human review nor durable
+        runner proof. The refreshed handoff provides an exact proposed
+        seven-path local synthetic runner scope. No code, source request,
+        retired custody, status, dependency, gate or implementation authority
+        changed; PS09-02 remains blocked with zero active items. Refreshed full
+        check passed runtime, formatting and 18 hook tests, then stopped at the
+        same 74 retired-helper lint errors. The exact-directory exclusion lint
+        diagnostic, roadmap, backbone and source scan passed. Final evidence is
+        recorded in
+        docs/handoffs/ps09-fresh-session-recovery-and-forward-plan.md.
+      - >-
         Final handoff checks passed typecheck, roadmap, backbone, source scan,
         foundation, 13 corpus tests, 30 spine tests with one host-limited skip,
         1507 unit tests, and synthetic build/artifact validation. Full npm run
@@ -5792,11 +5812,13 @@ next_actions:
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action:
       Recover docs/handoffs/ps09-fresh-session-recovery-and-forward-plan.md.
-      Define the smallest no-network readiness scope for a one-operation argv
-      runner, then prove its actual launch and durable accounting before a fresh
-      exact evidence packet. The local probes do not implement that runner or
-      renew source authority. Preserve EV01 unchanged; no source retry, FR-A1,
-      later run or archived ready lane is authorized.
+      Review its exact proposed seven-path local synthetic runner scope; owner
+      approval is required before implementing that scope and the lint repair.
+      Prove actual launched-process custody and recovery locally. Real
+      transport, source-policy extraction and an executable source packet remain
+      subsequent separately defined work. The probes do not implement the runner
+      or renew source authority. Preserve EV01 unchanged; no source retry,
+      FR-A1, later run or archived ready lane is authorized.
 finish_states:
   ps09:
     current_state: blocked
