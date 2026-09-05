@@ -1,10 +1,13 @@
 # Policy Sentinel durable continuation prompt
 
-Latest maintenance recovery: read the
-[knowledge assurance journal](development/PS09-KNOWLEDGE-ASSURANCE-01.md) and live
-ROADMAP for H-KNOWLEDGE-ASSURANCE-01. Its approved scope is local organization
-and engineering assurance, with zero policy-source acquisition/release authority.
-The discovery checkpoint below is retained terminal history.
+Latest recovery: read the completed
+[knowledge assurance outcome](handoffs/ps09-knowledge-assurance-outcome.md),
+[journal](development/PS09-KNOWLEDGE-ASSURANCE-01.md) and live ROADMAP.
+H-KNOWLEDGE-ASSURANCE-01 is complete and there are zero active items.
+The [next PS09-02 evidence packet](handoffs/ps09-02-next-evidence-packet.md)
+is an unexecuted proposal; exact later adoption, source qualification and a
+reviewed ledger representation precede execution. The discovery checkpoint
+below remains terminal history. No ended run or historical budget restarts.
 
 Discovery recovery: read the completed
 [local workbench outcome](handoffs/ps09-real-policy-discovery-outcome.md),

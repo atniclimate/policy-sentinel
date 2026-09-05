@@ -348,7 +348,7 @@ additional_findings:
     verification: docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md
 
 reviewed_implementation_locators:
-  revision_context: Working tree after25bcf564; exact raw file SHA-256 and lengths in externally owned implementation-check-inputs.json; final commit recorded in outcome.
+  revision_context: Implementation commit 8188e712d74e20ca7244ceee49a428476bbde7fe; tested code raw SHA-256 and lengths in externally owned implementation-check-inputs.json. Later terminal documentation changes are recorded in the outcome.
   hash_domain: raw_file_bytes_sha256
   locations:
     ER-01: src/pipeline/policy-custody.mjs:156 and640

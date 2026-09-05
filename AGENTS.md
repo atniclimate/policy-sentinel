@@ -1,11 +1,12 @@
 # AGENTS.md
 
-Current maintenance recovery: the approved organization and engineering assurance
-scope is represented by H-KNOWLEDGE-ASSURANCE-01 in the live ledger. Read
-[its journal](docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md) for exact leases,
-findings and checkpoints. It has zero policy-source acquisition/release authority.
-The discovery recovery below remains historical terminal evidence; its zero
-active count describes that checkpoint, not active maintenance.
+Current recovery: approved organization and engineering assurance is complete.
+Start with the [local outcome](docs/handoffs/ps09-knowledge-assurance-outcome.md)
+and live `ROADMAP.yaml`; there are zero active items. All findings have explicit
+dispositions and all worker leases are returned. The
+[next PS09-02 evidence packet](docs/handoffs/ps09-02-next-evidence-packet.md)
+is an unexecuted proposal requiring exact later adoption and source review.
+This completed maintenance scope cannot authorize acquisition or release work.
 
 Discovery recovery: the bounded cutoff continuation is complete. Start with the
 [local outcome](docs/handoffs/ps09-real-policy-discovery-outcome.md) and live

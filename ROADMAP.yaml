@@ -10,7 +10,7 @@ project:
     incompletes have a separate hash-bound manual contrast/visibility
     disposition. Full repository checks, corpus replay, frozen evaluation and
     controlled failure exercises pass. Approved local knowledge organization and
-    engineering assurance is the sole active maintenance item. The PS09 program
+    engineering assurance is complete with zero active items. The PS09 program
     remains blocked on PS09-02 identity/scenario evidence, an explicit PS09-06
     prerequisite. PS09-06-LOCAL-RC is the sole release root and remains
     unstarted and gated. EV01, Run 1/2 and archived lanes retain their
@@ -860,14 +860,14 @@ baseline:
         configured.
 
 current_focus:
-  work_item: H-KNOWLEDGE-ASSURANCE-01
+  work_item: null
   objective: >-
-    Execute the approved organization and engineering assurance prompt; recover
-    coordination from docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md. Preserve
-    the accepted bounded local workbench and sealed 210-work, 215-version
-    corpus. Final browser report 23891ff8 binds build 9c79fb4d to 25 passing
-    journeys, 14 clean exact-width geometry checks and 28 verified screenshots.
-    Ten original and ten targeted axe checks remain incomplete in that immutable
+    Recover the completed local organization and engineering assurance result
+    from docs/handoffs/ps09-knowledge-assurance-outcome.md. Preserve the
+    accepted bounded local workbench and sealed 210-work, 215-version corpus.
+    Final browser report 23891ff8 binds build 9c79fb4d to 25 passing journeys,
+    14 clean exact-width geometry checks and 28 verified screenshots. Ten
+    original and ten targeted axe checks remain incomplete in that immutable
     automated report; independent manual review resolves the ten exact residual
     nodes with 1932 visible character measurements and 14.556:1 contrast. Full
     check passes 1516 unit tests and 99 policy tests. Corpus replay, frozen
@@ -877,10 +877,14 @@ current_focus:
     local launch/replay commands and limits. PS09-02 originating
     identity/scenario evidence requires an exact next packet; PS09-06 remains
     unstarted and gated. No historical budget or archived ready lane is a grant.
-  terminal_reason: null
+  terminal_reason: >-
+    Approved local maintenance is complete with independent reviews, measured
+    navigation pilots, passing checks and unchanged protected evidence. No
+    authorized work remains active. PS09 is blocked on originating identity and
+    scenario evidence; the prepared next packet has not been executed.
   resumable_roots:
-    - H-KNOWLEDGE-ASSURANCE-01
-  last_durable_checkpoint: 25bcf56466ffc97048a89c3f001e4b2459a71569
+    - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
+  last_durable_checkpoint: 8188e712d74e20ca7244ceee49a428476bbde7fe
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5371,7 +5375,7 @@ work_items:
     priority: 299
     milestone: H
     title: Approved knowledge organization and bounded engineering assurance
-    status: in_progress
+    status: complete
     work_class: repository_governance
     dependencies: []
     authorization_gate: G-H-KNOWLEDGE-ASSURANCE-01
@@ -5399,9 +5403,12 @@ work_items:
         source-correctly. Serialized npm run check passes, including 1,516 unit
         tests and the synthetic build with eight verified assets. One existing
         Windows file-symlink permission skip remains explicit. All protected
-        identities and 1,140 sealed corpus files match. Terminal handoff and
-        local commits are being recorded. No policy-source operation or release
-        is authorized.
+        identities and 1,140 sealed corpus files match. Implementation commit
+        8188e712d74e20ca7244ceee49a428476bbde7fe contains exactly 43 owned
+        paths. docs/handoffs/ps09-knowledge-assurance-outcome.md records the
+        completed local outcome, explicit remaining limits and unexecuted
+        PS09-02 packet. All worker leases are returned. No policy-source
+        operation or release is authorized by this completed maintenance scope.
   - id: PS09-01-REPOSITORY-CONVERGENCE
     priority: 300
     milestone: PS09 Run 1
@@ -6056,26 +6063,22 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: H-KNOWLEDGE-ASSURANCE-01
-    action: >-
-      Complete the approved finite local maintenance scope and independent
-      reviews recorded in docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md.
-      Preserve all terminal discovery evidence and separately closed gates.
-  - order: 2
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action: >-
-      Prepare an exact originating identity/scenario evidence and authority
-      packet for owner selection. Preserve unsupported claims as unresolved; the
-      completed general-jurisdiction workbench supplies no identity proof. This
-      remains a mandatory PS09-06 acceptance dependency. Existing sealed corpus
-      replay and local inspection are available without reacquisition. Keep
-      PS09-06 unstarted and gated until PS09-02 is accepted and the owner
-      authorizes the exact local release run. Recover the completed bounded
-      outcome from docs/handoffs/ps09-real-policy-discovery-outcome.md; do not
-      reactivate its cutoff startup, archived ready lanes or ended acquisition.
+      Recover docs/handoffs/ps09-02-next-evidence-packet.md for the concrete
+      unexecuted proposal. Exact owner selection, source qualification and a
+      reviewed later ledger representation precede any execution. Preserve
+      unsupported claims as unresolved; the completed general-jurisdiction
+      workbench supplies no identity proof. This remains a mandatory PS09-06
+      acceptance dependency. Existing sealed corpus replay and local inspection
+      are available without reacquisition. Keep PS09-06 unstarted and gated
+      until PS09-02 is accepted and the owner authorizes the exact local release
+      run. Recover the completed bounded outcome from
+      docs/handoffs/ps09-real-policy-discovery-outcome.md; do not reactivate its
+      cutoff startup, archived ready lanes or ended acquisition.
 finish_states:
   knowledge_assurance:
-    current_state: in_progress
+    current_state: complete
     work_item: H-KNOWLEDGE-ASSURANCE-01
     blocked_by: []
     satisfied_when:

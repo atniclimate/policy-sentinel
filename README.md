@@ -8,10 +8,12 @@ Nation's interests.
 
 ## Project status
 
-Approved local knowledge organization and engineering assurance is active under
-`H-KNOWLEDGE-ASSURANCE-01`. Recover its
-[coordination journal](docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md) and the live
-roadmap. It has zero policy-source acquisition authority and no release authority.
+Approved local knowledge organization and engineering assurance is complete under
+`H-KNOWLEDGE-ASSURANCE-01`. Recover the
+[local outcome](docs/handoffs/ps09-knowledge-assurance-outcome.md) and live roadmap.
+There are zero active items. The
+[next PS09-02 evidence packet](docs/handoffs/ps09-02-next-evidence-packet.md)
+is prepared for later exact adoption; acquisition and release remain gated.
 
 The command surface now includes `npm run validate:knowledge`,
 `npm run test:knowledge`, and `npm run knowledge:generate -- --out <new-external-vault>`

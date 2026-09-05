@@ -312,3 +312,45 @@ all349 edges as links_to, all eight authority owners, seven inherited-reference
 limits and five authority-sensitive pilot answers. Only README's current
 observation changed between runs; all four metadata hashes and historical pins
 remain unchanged. Both reviewers recommend PASS at these bounded limits.
+
+## Terminal local outcome — 2026-09-05
+
+Implementation commit 8188e712d74e20ca7244ceee49a428476bbde7fe contains exactly
+43 authorized owned paths. Source-boundary scan passed for 537 tracked paths
+and 570 source files; staged diff whitespace checks passed and none of the
+33 protected untracked owner inputs entered the index. Git reported its existing
+automatic committer identity and LF-to-CRLF notices; no configuration or history
+was changed. A terminal documentation/ledger checkpoint records the actual
+implementation commit separately from its own future identity.
+
+H-KNOWLEDGE-ASSURANCE-01 and its independent non-release finish scope are complete;
+current_focus is null and the recovery root is PS09-02. Roadmap validation passes:
+78 items, 54 gates, 40 complete, zero active, 18 blocked, 17 not_started, two
+deferred and one archived ready. Backbone passes 101 Markdown files and 711 local
+links. Independent final governance review verifies all 26 originally closed gate
+objects unchanged from c65949f, PS09-02 blocked and PS09-06 unstarted/gated.
+All worker leases are returned. B-UI, ER-03, ER-04 and D-01 retain the explicit
+limits/dispositions in the findings register and outcome; no new run is opened.
+
+After the terminal recovery edits, explicit knowledge:generate completed again
+in the same owned reading-vault. The two original pilot manifests and validation
+reports are retained as separate external files. Final view: 83 files and
+332,583 bytes, manifest SHA-256
+faaac7950beb0586e738d8d042d078b99bc90c0a99b3754ab2bc201176401ff6.
+All 82 manifest entries and the exact output census verify. validate:knowledge
+exited 0; its long console JSON was truncated by the tool, so the complete generated
+validation.json and a targeted structured read recover counts, hashes and limits:
+41 documents, 18 entries, 17 references, 47 locators, 12 visible stale documents,
+historical pins unchanged. No native Obsidian or human acceptance is inferred.
+
+The independent final preservation comparison at 20:43:50Z, recorded externally
+in preservation-terminal.json, matches all 1,140 corpus files / 196,815,407 bytes,
+76 protected identities, three ignored retired EV01 files, seven preparation
+inputs and the final view, with zero issues. The synthetic aggregate build did
+not change these sealed identities. No acquisition, replay, policy build,
+browser run, server, remote, push or other closed operation occurred.
+
+Two terminal ROADMAP patches rejected stale wrapped context before applying;
+targeted reads recovered the exact lines and the subsequent patch and validators
+succeeded. No partial patch was taken as successful validation. All earlier
+failures remain recorded above and in the finite findings register.

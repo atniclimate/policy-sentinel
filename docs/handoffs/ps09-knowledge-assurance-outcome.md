@@ -1,23 +1,30 @@
 # Knowledge organization and engineering assurance outcome
 
-Current checkpoint: implementation and independent review in progress under
-H-KNOWLEDGE-ASSURANCE-01. This handoff will record the terminal local result after
-the navigation pilot, final aggregate and preservation check. It does not start
-PS09-02 evidence acquisition or PS09-06 release work.
+Completed 2026-09-05: H-KNOWLEDGE-ASSURANCE-01 delivered the approved local
+organization and engineering assurance scope. Independent engineering and
+governance reviews pass, the measured navigation pilot passes, and the serialized
+aggregate check passes. The live ledger has zero active items. PS09-02 evidence
+acceptance remains blocked; PS09-06 remains unstarted and gated.
 
 ## Scope and implementation
 
 Owner approved the organization proposal and adopted the exact local scope in
 `I:/policy-sentinel-organization-review/2026-09-05/converged-session/implementation-prompt.md`.
-Recovered main c65949f with33 protected untracked inputs; no remote or second
-worktree. Bootstrap commit25bcf56466ffc97048a89c3f001e4b2459a71569 adds exact schema1.7
-non-release maintenance accounting. Later repairs preserve all26 originally closed
+Recovered main `c65949fef2c8e331097cbaf9c32f04983cde2a64` with 33 protected
+untracked inputs; no remote or second worktree. Bootstrap commit
+`25bcf56466ffc97048a89c3f001e4b2459a71569` adds exact schema 1.7
+non-release maintenance accounting. Later repairs preserve all 26 originally closed
 gates across active, complete and blocked maintenance. Unknown production schemas,
 historical reactivation, spent approval, changed PS09 prerequisites and source or
 release authority are rejected.
 
-The new knowledge layer retains41 document records,18 entries,47 exact historical
-locators and17 references. Versioned strict validation verifies Git pins separately
+Implementation commit `8188e712d74e20ca7244ceee49a428476bbde7fe` contains exactly
+43 owned paths. Its Git change list is the exact implementation path manifest;
+the journal records the prior write leases. This subsequent documentation/ledger
+checkpoint records that existing commit without circular self-pinning.
+
+The new knowledge layer retains 41 document records, 18 entries, 47 exact historical
+locators and 17 references. Versioned strict validation verifies Git pins separately
 from current raw/canonical freshness. Stable IDs, explicit authority owners and
 reviewed links preserve original documents as authority. Detached index/cards,
 three Bases and graph/validation/ownership manifests are generated only into a
@@ -33,9 +40,9 @@ runtime/source pin change was made.
 ## Evidence map and findings
 
 The [finite findings register](../development/ps09-knowledge-findings.yaml) preserves
-all14 imported findings and newly discovered issues with explicit disposition.
+all 14 imported findings and newly discovered issues with explicit disposition.
 The [crosswalk](../development/ps09-knowledge-acceptance-crosswalk.md) accounts for
-all12 clauses, nine manifests,34 O/B IDs and65 frozen convergence components.
+all 12 clauses, nine manifests, 34 O/B IDs and 65 frozen convergence components.
 O-017 and six stale editorial targets have scoped corrections; historical bodies,
 original failures and the convergence/custody registries remain intact.
 
@@ -48,19 +55,19 @@ claims, negative results and the seven unreviewed inherited references.
 
 ## Validation and pilot
 
-Focused observed results: roadmap137, assurance16, policy99, backbone26 and
-Tier1129 tests pass with zero skips. Knowledge31/31 and both independent reviews
-pass; serialized `npm run check` exited0. Lint's first23 errors were explicitly
+Focused observed results: roadmap 137, assurance 16, policy 99, backbone 26 and
+Tier1 129 tests pass with zero skips. Knowledge 31/31 and both independent reviews
+pass; serialized `npm run check` exited 0. Lint's first 23 errors were explicitly
 corrected without suppressions and lint passes.
 
-The aggregate passed runtime, formatting, hooks18/18, lint, typecheck, roadmap,
-backbone, knowledge, source scan, foundation, corpus13/13, spine30/31 with one
-existing Windows file-symlink permission skip, policy99/99, assurance16/16,
-backbone26/26, Tier1129/129, knowledge31/31 and1516/1516 unit tests in92 files.
+The aggregate passed runtime, formatting, hooks 18/18, lint, typecheck, roadmap,
+backbone, knowledge, source scan, foundation, corpus 13/13, spine 30/31 with one
+existing Windows file-symlink permission skip, policy 99/99, assurance 16/16,
+backbone 26/26, Tier1 129/129, knowledge 31/31 and 1,516/1,516 unit tests in 92 files.
 Junction and hard-link tests ran successfully. The nested pipeline wrapper
-passed; separately focused roadmap137 evidence is not double-counted.
+passed; separately focused roadmap 137 evidence is not double-counted.
 Synthetic build/artifact validation passed for
-`synthetic-b59284b9bb0b29db53f4`: three fixture records,575 synthetic Nations,
+`synthetic-b59284b9bb0b29db53f4`: three fixture records, 575 synthetic Nations,
 eight verified assets. This is not a real recognition collection.
 
 External `final-check-01.log` SHA-256:
@@ -71,20 +78,31 @@ Synthetic artifact manifest SHA-256:
 The [navigation pilot](../development/ps09-knowledge-navigation-pilot.md) fixes ten
 questions, source-correctness and timing/upkeep criteria before execution. Native
 Obsidian/human acceptance remains unproven; agent retrieval and ownership checks
-have their own bounded acceptance. Both routes answered10/10 correctly before
+have their own bounded acceptance. Both routes answered 10/10 correctly before
 and after the controlled source revision; independent governance checked five
-authority-sensitive answers and every83-file output identity. Zero metadata
+authority-sensitive answers and every 83-file output identity. Zero metadata
 edits preserved historical pins while current README freshness changed.
 The view and logs belong only to
 `I:/policy-sentinel-knowledge-assurance/2026-09-05/assurance-01`.
 
+The final reading view is `reading-vault/INDEX.md` in that namespace: 83 files,
+332,583 bytes, manifest SHA-256
+`faaac7950beb0586e738d8d042d078b99bc90c0a99b3754ab2bc201176401ff6`.
+It was regenerated after the terminal recovery edits; both original pilot
+manifests and validation reports remain separate. All 82 manifest entries were
+independently hashed again, with no unknown files or mismatches. All historical
+pins still verify and 12 changed documents remain visibly stale. This refresh
+does not silently refresh their dated citations or establish application usability.
+
 ## Preservation and remaining PS09 work
 
-Baseline verification matched all76 protected identities (33owner+43historical),
-three retiredEV01 files, all7 preparation inputs and the complete sealed discovery
-inventory of1140files/196815407bytes. Final read-only comparison at20:24:12Z
+Baseline verification matched all 76 protected identities (33 owner + 43 historical),
+three retired EV01 files, all seven preparation inputs and the complete sealed discovery
+inventory of 1,140 files / 196,815,407 bytes. Read-only comparison at 20:24:12Z
 matched every byte with zero issues; the external preservation report records it.
-Acquisition remains423objects/37589489bytes and ended authority. No provider
+The terminal comparison at 20:43:50Z repeats all of those checks successfully in
+`preservation-terminal.json`, including the final reading-view identities.
+Acquisition remains 423 objects / 37,589,489 bytes and ended authority. No provider
 requests, corpus replay, policy rebuild, browser run or server occurred here.
 
 The accepted discovery build remains
@@ -101,3 +119,21 @@ is a concrete unexecuted five-operation proposal requiring separate exact adopti
 source qualification, custody/review acceptance and a reviewed later ledger
 representation. No push, remote, publication, credential, terms acceptance,
 paid/contact action, optional AI, private data or outbound notification occurred.
+
+Remaining limits are explicit: B-UI leaves native Obsidian and human usability
+unproved; ER-03 defers Windows probe input-delivery hardening; ER-04 defers finite
+timeouts for cleanup promises that never settle. Caught cleanup rejection and
+report-write failures are tested. OS crash recovery and hostile concurrent writer
+races remain outside the demonstrated publication guarantee. D-01 ends the optional
+Graphify experiment with a documented no-go; nothing was installed or executed.
+The seven inherited bibliography entries require fresh primary review before
+publication. These dispositions do not assert exhaustive absence of defects or
+product release readiness.
+
+Final governance review accepts the terminal documentation/ledger delta and
+verifies that all 26 originally closed gate objects are unchanged from the
+recovered baseline. The ledger has 40 complete, 18 blocked, 17 not_started,
+two deferred and one archived ready item, with zero in_progress. The archived
+ready item remains outside the authorized PS09 graph. All worker leases are
+returned. Terminal roadmap/backbone/knowledge and staging checks supplement the
+serialized implementation check; they do not replace it.

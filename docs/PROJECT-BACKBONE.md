@@ -1,10 +1,14 @@
 # Policy Sentinel project backbone
 
-Latest maintenance entry: [knowledge assurance journal](development/PS09-KNOWLEDGE-ASSURANCE-01.md),
+Latest completed local outcome: [knowledge assurance](handoffs/ps09-knowledge-assurance-outcome.md).
+Recover its [journal](development/PS09-KNOWLEDGE-ASSURANCE-01.md),
 [finite findings](development/ps09-knowledge-findings.yaml),
 [acceptance crosswalk](development/ps09-knowledge-acceptance-crosswalk.md) and
 [knowledge metadata](../knowledge/README.md). The live ledger owns current
 maintenance status; catalogs and external reading cards cannot authorize work.
+There are zero active items. The
+[next PS09-02 evidence packet](handoffs/ps09-02-next-evidence-packet.md) remains
+an unexecuted proposal requiring exact later adoption and source review.
 
 Discovery recovery entry: the
 [local workbench outcome](handoffs/ps09-real-policy-discovery-outcome.md)
