@@ -1,0 +1,728 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/curated-document-pack.schema.v1.json",
+  "title": "Policy Sentinel curated document pack",
+  "description": "Synthetic-only reference attachment to the single analyzed corpus. Runtime replay additionally enforces exact canonical object, rendition, citation, registry and corpus pins. No network or real authority is granted.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "kind",
+    "id",
+    "version",
+    "contentDigest",
+    "synthetic",
+    "trustDomain",
+    "generatedAt",
+    "corpusRef",
+    "registryRef",
+    "recordRef",
+    "interface",
+    "boundaries",
+    "object",
+    "rendition",
+    "document",
+    "segments",
+    "assertions",
+    "reuse",
+    "index",
+    "indexDigest",
+    "publication"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://policy-sentinel.invalid/schemas/curated-document-pack.schema.v1.json"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "kind": {
+      "const": "curated_document_pack"
+    },
+    "id": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "version": {
+      "const": "1.0.0"
+    },
+    "contentDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "synthetic": {
+      "const": true
+    },
+    "trustDomain": {
+      "const": "synthetic_test_only"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "corpusRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "version", "contentDigest"],
+      "properties": {
+        "kind": {
+          "const": "analyzed_corpus"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "maxLength": 32,
+          "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+        },
+        "contentDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "registryRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["registryVersion", "digest"],
+      "properties": {
+        "registryVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "recordRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordId", "recordDigest", "sourceEvidenceBindingRef"],
+      "properties": {
+        "recordId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "recordDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "sourceEvidenceBindingRef": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "id", "version", "contentDigest"],
+          "properties": {
+            "kind": {
+              "const": "source_evidence_binding"
+            },
+            "id": {
+              "type": "string",
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+            },
+            "version": {
+              "type": "string",
+              "maxLength": 32,
+              "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+            },
+            "contentDigest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        }
+      }
+    },
+    "interface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sourceId",
+        "provider",
+        "kind",
+        "operationId",
+        "networkRequests"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        },
+        "sourceId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "kind": {
+          "const": "synthetic_utf8_fixture"
+        },
+        "operationId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        },
+        "networkRequests": {
+          "const": 0
+        }
+      }
+    },
+    "boundaries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "qualification",
+        "admission",
+        "activation",
+        "acquisition",
+        "analysisEligibility",
+        "artifactEligibility",
+        "publication"
+      ],
+      "properties": {
+        "qualification": {
+          "const": "synthetic_test_only"
+        },
+        "admission": {
+          "const": "synthetic_test_only"
+        },
+        "activation": {
+          "const": "synthetic_test_only"
+        },
+        "acquisition": {
+          "const": "synthetic_fixture_only"
+        },
+        "analysisEligibility": {
+          "const": "synthetic_test_only"
+        },
+        "artifactEligibility": {
+          "const": "non_public_ignored_prerelease"
+        },
+        "publication": {
+          "const": "closed"
+        }
+      }
+    },
+    "object": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha256", "byteLength", "objectPath"],
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144
+        },
+        "objectPath": {
+          "type": "string",
+          "pattern": "^objects/sha256/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{64}$"
+        }
+      }
+    },
+    "rendition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "inputDigest",
+        "sha256",
+        "byteLength",
+        "parser",
+        "encoding",
+        "lineEndings",
+        "authorityRole",
+        "reviewState"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        },
+        "inputDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144
+        },
+        "parser": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "version", "configDigest"],
+          "properties": {
+            "id": {
+              "const": "strict-utf8-lf"
+            },
+            "version": {
+              "const": "1.0.0"
+            },
+            "configDigest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        "encoding": {
+          "const": "UTF-8"
+        },
+        "lineEndings": {
+          "const": "LF"
+        },
+        "authorityRole": {
+          "const": "synthetic_fixture"
+        },
+        "reviewState": {
+          "const": "synthetic_test_only"
+        }
+      }
+    },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sourceDocumentIdentifier",
+        "documentType",
+        "sourceStatusLabel",
+        "versionId",
+        "proceedingId",
+        "dates"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        },
+        "sourceDocumentIdentifier": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "documentType": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "sourceStatusLabel": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "versionId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        },
+        "proceedingId": {
+          "type": "null"
+        },
+        "dates": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "issued",
+            "published",
+            "filed",
+            "signed",
+            "enacted",
+            "effective",
+            "updated",
+            "dataAsOf",
+            "retrieved",
+            "reviewed"
+          ],
+          "properties": {
+            "issued": {
+              "type": "null"
+            },
+            "published": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string",
+                  "maxLength": 32,
+                  "anyOf": [
+                    {
+                      "format": "date"
+                    },
+                    {
+                      "format": "date-time"
+                    }
+                  ]
+                }
+              ]
+            },
+            "filed": {
+              "type": "null"
+            },
+            "signed": {
+              "type": "null"
+            },
+            "enacted": {
+              "type": "null"
+            },
+            "effective": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string",
+                  "maxLength": 32,
+                  "anyOf": [
+                    {
+                      "format": "date"
+                    },
+                    {
+                      "format": "date-time"
+                    }
+                  ]
+                }
+              ]
+            },
+            "updated": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string",
+                  "maxLength": 32,
+                  "anyOf": [
+                    {
+                      "format": "date"
+                    },
+                    {
+                      "format": "date-time"
+                    }
+                  ]
+                }
+              ]
+            },
+            "dataAsOf": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string",
+                  "maxLength": 32,
+                  "anyOf": [
+                    {
+                      "format": "date"
+                    },
+                    {
+                      "format": "date-time"
+                    }
+                  ]
+                }
+              ]
+            },
+            "retrieved": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string",
+                  "maxLength": 32,
+                  "anyOf": [
+                    {
+                      "format": "date"
+                    },
+                    {
+                      "format": "date-time"
+                    }
+                  ]
+                }
+              ]
+            },
+            "reviewed": {
+              "type": "null"
+            }
+          }
+        }
+      }
+    },
+    "segments": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "renditionDigest",
+          "textDigest",
+          "locator",
+          "contextDigest",
+          "field"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 128,
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "renditionDigest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "textDigest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "locator": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "start", "end"],
+            "properties": {
+              "type": {
+                "const": "utf8_byte_range"
+              },
+              "start": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 262144
+              },
+              "end": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 262144
+              }
+            }
+          },
+          "contextDigest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "field": {
+            "enum": ["/officialTitle", "/texts/officialSummary/text"]
+          }
+        }
+      }
+    },
+    "assertions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "mode",
+          "accepted",
+          "recordId",
+          "field",
+          "segmentIds",
+          "authorityRef"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 128,
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "mode": {
+            "const": "source_attested"
+          },
+          "accepted": {
+            "const": true
+          },
+          "recordId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "field": {
+            "enum": ["/officialTitle", "/texts/officialSummary/text"]
+          },
+          "segmentIds": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1,
+            "items": {
+              "type": "string",
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+            }
+          },
+          "authorityRef": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sourceEvidenceBindingRef",
+              "provenanceDigest",
+              "field"
+            ],
+            "properties": {
+              "sourceEvidenceBindingRef": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["kind", "id", "version", "contentDigest"],
+                "properties": {
+                  "kind": {
+                    "const": "source_evidence_binding"
+                  },
+                  "id": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                  },
+                  "version": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+                  },
+                  "contentDigest": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                }
+              },
+              "provenanceDigest": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "field": {
+                "enum": ["/officialTitle", "/texts/officialSummary/text"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "reuse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "localCache",
+        "localAnalysis",
+        "localFullText",
+        "excerpt",
+        "export",
+        "publicRedistribution",
+        "refresh"
+      ],
+      "properties": {
+        "localCache": {
+          "const": "allowed"
+        },
+        "localAnalysis": {
+          "const": "allowed"
+        },
+        "localFullText": {
+          "const": "allowed"
+        },
+        "excerpt": {
+          "const": "prohibited"
+        },
+        "export": {
+          "const": "prohibited"
+        },
+        "publicRedistribution": {
+          "const": "prohibited"
+        },
+        "refresh": {
+          "const": "manual_revalidation"
+        }
+      }
+    },
+    "index": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["segmentId", "field", "textDigest"],
+        "properties": {
+          "segmentId": {
+            "type": "string",
+            "maxLength": 128,
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "field": {
+            "enum": ["/officialTitle", "/texts/officialSummary/text"]
+          },
+          "textDigest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    "indexDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "boundary"],
+      "properties": {
+        "state": {
+          "const": "closed"
+        },
+        "boundary": {
+          "const": "non_public_ignored_prerelease"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "futureRenditionAuthority": {
+      "enum": [
+        "synthetic_fixture",
+        "official_authoritative",
+        "convenience_informational"
+      ]
+    },
+    "futureAssertionMethod": {
+      "enum": [
+        "source_attested",
+        "deterministic_rule_derived",
+        "human_adjudicated",
+        "machine_suggested_unaccepted"
+      ]
+    }
+  }
+}

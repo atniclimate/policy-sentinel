@@ -39,15 +39,39 @@ it supplies no grouping or exclusion rule; `G-BIA-IDENTITY` remains closed until
 an authoritative rule is documented. These requirements do not turn United
 States recognition or the number 575 into universal engine primitives.
 
-The federal-recognition collection and an ATNI regional membership registry
-are different products of different authorities. The intended PNW scope is 59
-current ATNI Member Tribes, but the owner-supplied public ATNI directory is not
-accepted evidence for that exact current set. Do not derive the set by
-subtraction, geography, or intersection with the federal list. A successor
-model must keep stable sovereign identity, time-versioned recognition, and
-time-versioned organization membership as separate evidence-bearing relations.
-Duwamish is excluded from the intended current target by owner direction; that
-direction neither deletes historical evidence nor supplies the missing roster.
+Federal recognition, ATNI membership, and the owner-selected 0.9 cohort are
+different relations with different authorities. No exact-count ATNI roster is
+a universal product prerequisite. A current-membership claim still requires
+originating evidence; preserve source-stated counts and listed entries without
+subtraction, geographic inference, or forced intersection with the federal
+list. Sovereign identity, recognition, membership, and cohort inclusion require
+separate temporal assertions. Duwamish's initial product-cohort exclusion does
+not delete history or determine membership or legal status. Crow government,
+reservation, and BIA agency remain distinct, as do Fort Peck and Fort Belknap.
+These are modeling boundaries; Run 1 creates no real identity facts.
+
+## Local evidence custody and reuse
+
+Real public information is an intended first-class capability. Source
+qualification, admission, activation, operation, analysis eligibility, output
+eligibility, and publication remain independent decisions. Source provider,
+interface, host/custodian, document issuer or speaker, and rendition authority
+must not be conflated. A hosted party filing is not a court finding; a useful
+informational rendition is not automatically the official legal edition.
+
+Raw immutable capture, local cache, local analysis, local full-text display,
+excerpt, export, and public redistribution have separate source-specific
+policies. Public availability and available disk space prove none of these
+permissions. Acquired objects stay outside Git; portable manifests contain
+digest-derived relative references and reviewed metadata only. A rendition or
+source update cannot overwrite the evidence behind an earlier citation.
+
+The [Run 1 corpus ADR](adr/ps09-canonical-corpus.md) limits the implemented store
+and CuratedDocumentPack path to owned synthetic UTF-8 plain text. Packs permit
+local cache, analysis, and display, while excerpt/export/public redistribution
+remain prohibited. The retained synthetic artifact is its separately reviewed
+existing output boundary and contains no pack object or rendition. Real
+lifecycle integration and broader parsers remain closed future work.
 
 ## Provenance and validation
 
@@ -155,7 +179,7 @@ accord that satisfies the written inclusion criteria, or an official source that
 identifies it as foundational. Verification includes the primary identifier,
 date, status, official citation or text location, and reproduction permission.
 
-Exclude from the public beta:
+Exclude from the retained static public beta artifact:
 
 - municipal and city policy sources;
 - non-public agreements and Tribal materials that are not officially published;
@@ -163,6 +187,10 @@ Exclude from the public beta:
 - county records without an explicit Nation mention;
 - private, personal, credentialed, or sensitive material;
 - source text whose terms do not permit republication.
+
+Future bounded municipal/local materials require separately authorized source,
+privacy, reuse, and output contracts. This does not admit such material now or
+weaken the retained county explicit-Nation rule.
 
 Exclusion from a category is not exclusion from discovery: otherwise valid
 unmapped records are `Unclassified`. Full official language or a lengthy official

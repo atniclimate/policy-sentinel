@@ -10,12 +10,23 @@ bounded authoritative policy sources, explains why material was surfaced, and
 produces governed outputs without converting inference into sovereign,
 jurisdictional, legal, or community authority.
 
-The present development definition of done is the general engine proven across
-the PNW/ATNI region and the intended 59 current ATNI Member Tribes after an
-originating roster exists. Nationwide United States packs are later work. The
-Nez Perce habitat/endangered-species scenario is one golden use case within a
-materially contrasting regional suite, not the product boundary or an accepted
-fact set.
+The 0.9 target is one general engine proven against a bounded owner-selected
+PNW/ATNI-facing cohort and contrasting scenarios. Exact current membership is
+a source-evidence claim, not a fixed-count cohort or universal release gate.
+Crow government/reservation/BIA agency and Fort Peck/Fort Belknap remain
+distinct planning concepts. Run 2 must bind actual identities and scenarios;
+Run 1 introduces no real identity facts. The Nez Perce scenario remains a
+candidate, and nationwide/Native Hawaiian support remains later-compatible.
+
+Only the exact PS09 Run 1 local convergence/corpus-spine token is currently
+authorized. `PS09-06-LOCAL-RC` is the sole local release root and single product
+prerequisite for later separately authorized public beta operations. Historical
+B/PNW/real-source finish scopes are archived evidence. The
+[corpus ADR](adr/ps09-canonical-corpus.md),
+[component disposition registry](development/ps09-convergence.v1.json), and
+[Run 1 handoff](handoffs/ps09-run-01-convergence.md) define the convergence and
+measured acceptance boundary; the live ledger controls whether work is active
+or terminal. No later PS09 run or external gate is opened.
 
 ## Authority order
 
@@ -42,8 +53,8 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | Responsibility | Canonical owner | Boundary |
 | --- | --- | --- |
 | Durable execution, gates, validation, and Git rules | [`AGENTS.md`](../AGENTS.md) | Repository instructions; cannot authorize an owner gate |
-| Product mission, current application contract, non-claims, combined definition of done | [`project-brief.md`](project-brief.md) | PNW detail belongs to the PNW contract |
-| Present PNW scope, authority, architecture, scenarios, and regional acceptance | [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md) | Does not claim implementation or supply the 59-member roster |
+| Product mission, current application contract, non-claims, single 0.9 definition of done | [`project-brief.md`](project-brief.md) | PNW detail belongs to the PNW contract |
+| Present PNW scope, authority, architecture, scenarios, and regional acceptance | [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md) | Does not claim implementation or supply membership evidence |
 | Status, dependency graph, evidence, blockers, current focus, finish states | [`ROADMAP.yaml`](../ROADMAP.yaml) | Machine-readable ledger; prose cannot override binding contracts |
 | Final decisions, assumptions, open facts, source and owner gates | [`decision-register.md`](decision-register.md) | Historical decisions retain their recorded scope |
 | Current bytes and future engine architecture | [`architecture.md`](architecture.md) | Separates implemented local substrate from target seams |
@@ -52,13 +63,15 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | Declared source/geography coverage semantics | [`source-coverage.md`](source-coverage.md) | Research or a disabled adapter is not production coverage |
 | Dated source evidence and source-review index | [`source-feasibility.md`](source-feasibility.md) | Its historical priority order is not the execution queue |
 | Retained static-application interaction and accessibility contract | [`ux-spec.md`](ux-spec.md) | One output precursor, not the complete engine UX |
-| Retained B1-B10 milestone and source acceptance contract | [`mvp-plan.md`](mvp-plan.md) | Gate A does not authorize PNW successor work |
+| PS09 sequence and retained B1-B10 source acceptance evidence | [`mvp-plan.md`](mvp-plan.md) | Historical milestones are not a second release root |
+| Single corpus path and component convergence | [`ps09-canonical-corpus.md`](adr/ps09-canonical-corpus.md) and [`ps09-convergence.v1.json`](development/ps09-convergence.v1.json) | A disposition does not open a source or frozen convergence gate |
+| Run 1 execution/custody and measured outcome | [`PS09-RUN-01-COORDINATION.md`](development/PS09-RUN-01-COORDINATION.md) and [`ps09-run-01-convergence.md`](handoffs/ps09-run-01-convergence.md) | Run 2 remains closed |
 | Work-class staffing, tools, leases, validation, and stop rules | [`AGENT-AND-TOOL-OPERATING-MODEL.md`](development/AGENT-AND-TOOL-OPERATING-MODEL.md) | Run templates do not broaden authority |
 | Recovery after a fresh session or compaction | [`continuation-prompt.md`](continuation-prompt.md) | Always reconcile against live Git and roadmap |
 | Historical exact PNW-01 implementation run | [`pnw-engine-seams-implementation-launch-2026-09-02.md`](handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md) | Its authorization and completion evidence do not authorize a successor |
 | Historical PNW-03 implementation coordination | [`PNW-03-GEOGRAPHY-RIGHTS-COORDINATION-2026-09-02.md`](development/PNW-03-GEOGRAPHY-RIGHTS-COORDINATION-2026-09-02.md) | Records that completed local run; cannot authorize sources, real data, convergence, publication, or a successor |
 | PNW-03 implementation and terminal evidence | [`pnw-geography-rights-implementation-2026-09-02.md`](handoffs/pnw-geography-rights-implementation-2026-09-02.md) | Complete local synthetic checkpoint; does not authorize real data, convergence, publication, or a successor |
-| Current PNW-04 implementation coordination | [`PNW-04-TAXONOMY-COORDINATION-2026-09-02.md`](development/PNW-04-TAXONOMY-COORDINATION-2026-09-02.md) | Records the closed taxonomy run, review history, and exact path boundary; cannot authorize real mappings, sources, publication, or a successor |
+| Historical PNW-04 implementation coordination | [`PNW-04-TAXONOMY-COORDINATION-2026-09-02.md`](development/PNW-04-TAXONOMY-COORDINATION-2026-09-02.md) | Records the closed taxonomy run, review history, and exact path boundary; cannot authorize real mappings, sources, publication, or a successor |
 | PNW-04 implementation and terminal evidence | [`pnw-taxonomy-implementation-2026-09-02.md`](handoffs/pnw-taxonomy-implementation-2026-09-02.md) | Complete local synthetic checkpoint; does not authorize real taxonomy content, source activation, publication, or a successor |
 | PNW-05 source-pack-core coordination | [`PNW-05-SOURCE-PACK-CORE-COORDINATION-2026-09-02.md`](development/PNW-05-SOURCE-PACK-CORE-COORDINATION-2026-09-02.md) | Records the frozen structural contract, custody, repairs, review, and exact path boundary; cannot qualify or activate a real source |
 | PNW-05 source-pack-core terminal evidence | [`pnw-source-pack-core-2026-09-02.md`](handoffs/pnw-source-pack-core-2026-09-02.md) | Complete local synthetic structural checkpoint; parent PNW-05 remains non-complete pending separately authorized source-specific evidence |
@@ -81,7 +94,7 @@ they do not replace it as the current status owner.
 
 ## Capability and maturity map
 
-This table records the aligned `H-REPOSITORY-BACKBONE` checkpoint and provides
+This table records bounded capabilities as interpreted during Run 1 and provides
 the tests for later state changes; it is not a second live ledger. For any
 later authorized tranche, current maturity is the conjunction of live bytes,
 validator/test evidence, and that work item's status in `ROADMAP.yaml`. The
@@ -91,7 +104,8 @@ transition.
 | Surface | Live maturity | What it does not prove |
 | --- | --- | --- |
 | Static Preact app, hash routes, search/filter, details, dossier, CSV | implemented and validated against synthetic input | no public beta, real Nation registry, or complete output-adapter suite |
-| Artifact pipeline, `PolicyRecord 1.4`, registry 1.19, package 1.4, provenance, health, integrity, last-known-good | implemented local substrate | no integration with the narrow analyzed-corpus child and no regional engine |
+| Artifact pipeline, `PolicyRecord 1.4`, registry 1.19, package 1.4, provenance, health, integrity, last-known-good | ordinary build now consumes AnalyzedCorpus 1.1's exact three-fixture compatibility profile | no real corpus or complete regional engine |
+| Windows corpus store and CuratedDocumentPack 1.0 | synthetic immutable object/rendition/document/version/segment/citation replay with explicit local root and bounded custody | no transport, real admission, PDF/OCR/HTML parsing, or pack publication |
 | Federal Register, Washington Governor, Centennial Accord, curated Supreme Court adapters | implemented and tested but disabled; Federal Register documentation plus its no-fetch admission review recommend no-go with disposition `evidence blocked` | no source admission, activation, production records, or coverage; a review does not revalidate a retained adapter or assert owner acceptance |
 | Congress, GovInfo, Regulations.gov, Oregon OData, Washington LWS contract families | repository-owned synthetic/offline contracts | no live adapter or provider authority |
 | BIA recognition-notice parser | validates 577 displayed paragraphs and fails closed | no reconciled 575-identity production registry |
@@ -104,8 +118,8 @@ transition.
 | Governed taxonomy and directional crosswalk seam | PNW-04 implemented as a separate synthetic `1.0.0` authority/scheme-separated catalog with exact evidence/review, direct many-to-many edges, and reference-only projection | no real ATNI/NCAI/Nation/source/community vocabulary, production classification, source activation, public integration, or position inference |
 | Governed source-pack admission seam | PNW-05 core implemented as a separate synthetic-test-only `1.0.0` closed graph with exact contract/evidence/coverage/authority/review/admission proof, scoped health/availability, typed gaps, deterministic requester projections, and no I/O | no real source qualification, access, terms acceptance, coverage, currentness, lifecycle/LKG, ingestion, analyzed corpus, activation, or publication |
 | Local real-source prerelease child lane | lifecycle contract, narrow source-neutral analyzed-corpus child, portfolio discovery, and terminal cleanup complete; Federal Register qualification blocked on consumed R7 digest drift | no Federal Register retry/admission/activation, real corpus, parent PNW-05/06/07/08 completion, ATNI or Nation association, deployment, or publication |
-| ATNI regional registry | intended and evidence-gated | owner direction and 575 recognition evidence do not supply membership |
-| Broad real-source canonical corpus and common document/web/app/structured adapters | accepted target architecture; narrow fail-closed corpus mechanics implemented separately | current artifact, dossier, CSV, and app are precursors only |
+| Owner-selected cohort and independent identity/membership assertions | Run 2 target; no real registry supplied by Run 1 | owner direction, directory counts and 575 recognition evidence do not establish membership |
+| Broad real-source canonical corpus and common document/web/app/structured adapters | accepted target architecture; synthetic corpus integrated into the retained artifact path | real lifecycle integration and common successor output profiles remain future work |
 
 Roadmap status and capability maturity are separate dimensions. A work item
 marked `complete` has evidence for that bounded acceptance or accepted fallback;
@@ -137,20 +151,20 @@ telemetry, browser-side AI, or outbound notifications.
 
 | Workstream | Canonical state |
 | --- | --- |
-| Retained B1-B10 | Local implementation history preserved; local finish is blocked on the four exact roots in ROADMAP |
+| PS09-01 through PS09-06 | One canonical program; exact Run 1 is authorized, later runs closed, sole local release root PS09-06-LOCAL-RC |
+| Retained B1-B10 | Archived implementation and fallback evidence; former four finish blockers remain historical source gaps, not a parallel release graph |
 | PNW-00 | Planning/governance rebase complete |
 | PNW-01 | Complete as a bounded synthetic engine-seam tranche |
-| PNW-02 | Independently blocked on `G-PNW-ATNI-59-ROSTER`; PNW-01 dependency complete |
+| PNW-02 | Archived exact-roster gate remains recorded; PS09 Run 2 must replace universal count assumptions with separate evidence-bearing identity, membership, and cohort contracts |
 | PNW-03 | Complete as a bounded synthetic geography/rights tranche |
 | PNW-04 | Complete as a bounded synthetic governed-taxonomy tranche |
-| PNW-05 | Broad parent remains ready, non-complete, and separately unauthorized; the completed foundation and portfolio evidence do not change that parent status |
+| PNW-05 | Archived broad parent retains its ready/non-complete status; that state is not current execution authority or an additional release prerequisite |
 | Local real-source prerelease child lane | blocked at Federal Register Tier-1 qualification after the consumed R7 digest drift; lifecycle contract, narrow `PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION`, portfolio discovery, observer cleanup, and terminal custody are complete; FR-A1 remains closed and real inputs fail closed |
 | PNW-06 through PNW-10 | Broad parent items remain not started behind their recorded dependencies; similarly named prerelease children do not satisfy them |
-| Publication | Closed; both local product finish scopes and exact owner operations are prerequisites |
+| Publication | Closed; the single PS09-06 local product root and exact license/remote/hosting/publication operations are prerequisites |
 
-The repository-backbone alignment has its own `H-REPOSITORY-BACKBONE` scope so
-it cannot alter either product graph. Consult the roadmap for whether that
-governance item is active or complete.
+The completed `H-REPOSITORY-BACKBONE` alignment remains historical governance
+evidence. It does not introduce a release root or authorize further work.
 
 ## Repository surfaces and generated boundary
 
@@ -191,18 +205,20 @@ governance item is active or complete.
   `evidence_blocked` and does not qualify, admit, activate, bind, retrieve,
   retain, project, or publish Federal Register data.
 - PNW-07 narrow source-neutral analyzed-corpus child:
-  [`AnalyzedCorpus 1.0.0` schema](../schemas/analyzed-corpus.schema.v1.json),
+  [`AnalyzedCorpus 1.0/1.1` schema](../schemas/analyzed-corpus.schema.v1.json),
   [`pure runtime`](../src/pipeline/analyzed-corpus.mjs),
   [`readonly declarations`](../src/pipeline/analyzed-corpus.d.mts), and
   [`focused tests`](../tests/pipeline/analyzed-corpus.test.mjs). The independently
-  approved four-file core has LF TSV manifest SHA-256
+  approved historical 1.0 four-file core had LF TSV manifest SHA-256
   `f199802e4342dc4c5a4e5ece12aa3531ff06cdc99a724f1e8c2ce335689433fa`.
   It stores one complete `PolicyRecord 1.4` copy and digest-binds field
   provenance plus lifecycle, coverage, health, review, LKG, limitation, and
-  reference-only view evidence. Its only positive path is impossible synthetic
-  proof; every real create or parse fails
-  `REAL_SOURCE_LIFECYCLE_INTEGRATION_REQUIRED`. No current adapter, artifact,
-  app, PNW-01 projection, or public output consumes it.
+  reference-only view evidence. Version 1.0 retains its impossible-synthetic
+  proof; version 1.1 adds the exact three-fixture application compatibility
+  profile consumed by the ordinary artifact build and therefore app/dossier/CSV.
+  Every real create or parse still fails
+  `REAL_SOURCE_LIFECYCLE_INTEGRATION_REQUIRED`. PNW-01 is not a consumer. The
+  historical manifest is not a claim about the migrated current bytes.
 - PNW-05 Federal Register documentation evidence:
   [`federal-register-api-2026-09-02.md`](source-reviews/federal-register-api-2026-09-02.md)
   and its coordination/handoff. These documentation artifacts do not modify or
@@ -222,15 +238,15 @@ governance item is active or complete.
   `.codex/agents/`, and `.agents/skills/`.
 - `dist/` is generated and ignored by `npm run build`. `.cache/` is ignored
   staging. Never hand-edit or commit either.
-- The owner direction inputs `docs/00-*` through `docs/15E-*` plus the exact
-  2026-09-03 real-source prerelease authorization are preserved untracked, not
-  canonical repository implementation. The backbone validator exempts only the
-  twenty-one exact Markdown path/SHA-256 tuples while Git confirms
-  untracked/non-ignored custody. Altered, indexed, tracked, ignored, aliased, or
-  out-of-inventory Markdown is validated or rejected, and canonical Markdown
-  cannot depend on an exempt input through Markdown, raw HTML, or filesystem
-  aliases. Two additional non-Markdown owner inputs remain untracked, for a
-  total protected inventory of twenty-three files.
+- The 32 exact owner direction inputs and the separately classified synthetic
+  selected-records CSV remain hash-bound and untracked in
+  [Run 1 custody](development/ps09-run-01-custody.json). The earlier 23-input
+  inventory is historical evidence, not the current total. These inputs are
+  not canonical implementation; the CSV's producer is unproven and its bytes
+  are preserved. Exact Markdown exemptions require unchanged bytes and
+  untracked/non-ignored custody. Altered, indexed, tracked, ignored, aliased,
+  or out-of-inventory Markdown is validated or rejected; canonical Markdown
+  cannot depend on an exempt input through links, raw HTML or aliases.
 
 ## Recovery and exact next action
 
@@ -242,19 +258,15 @@ npm run validate:roadmap
 npm run validate:backbone
 ```
 
-The exact local child-lane authorization
-`PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE` is exhausted at the terminal
-handoff above. The lifecycle contract, narrow source-neutral analyzed-corpus
-child, and portfolio discovery are complete; none is broad PNW-05 or PNW-07
-completion. The local real-source prerelease is blocked because Federal
-Register Tier-1 qualification failed closed on the consumed R7 digest drift.
-Do not repeat D3, R6, R7, PF-01 through PF-17, issue FR-A1, or treat the BIA/ATNI
-ranking as selection or request authority. Preserve the exact 27-request ledger,
-23 owner inputs, and 43-file ignored evidence custody.
+Recover the completed PS09 Run 1 checkpoint from its coordination, handoff and
+live roadmap. Run 2 remains closed. Archived ready items and old continuation prompts cannot start
+another lane. The default application/build remains network-free and synthetic.
 
-There is no active implementation item. `PNW-05-SOURCE-PACK` is dependency-
-ready but separately unauthorized; recovery and validation alone do not start
-it. The default application/build remains network-free and synthetic. PNW-06
-and PNW-08 remain dependency-closed. Publication and every remote, credential,
-provider-terms, paid/contact, private-data, AI, notification, ATNI/Nation-
-association, and convergence gate remain closed.
+The historical real-source prerelease stopped because qualification failed
+closed on consumed R7 digest drift. Do not repeat D3, R6, R7, PF-01 through
+PF-17, issue FR-A1, or treat BIA/ATNI ranking as selection/request authority.
+Preserve the exact 27-request ledger, 43-file ignored evidence custody, and
+current protected input inventory. Publication, source activation/acquisition,
+remote, credential, provider-terms, paid/contact, private-data, AI,
+notification, real identity/membership assertions, and K0/S0/O0 convergence
+remain outside Run 1 authority.

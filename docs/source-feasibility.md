@@ -1,6 +1,6 @@
 # Source feasibility
 
-Status: source-feasibility evidence index, updated 2026-09-02. This is an
+Status: dated source-feasibility evidence index, interpreted under PS09 Run 1. This is an
 implementation decision record, not a representation that an adapter, admitted
 source, production dataset, or public coverage exists.
 
@@ -10,6 +10,21 @@ also requires independently governed Montana, California, Alaska,
 Tribal/inter-Tribal, and regional/transboundary source contexts. Those contexts
 remain unreviewed gaps; this planning change performed no source access and
 makes no feasibility or activation claim for them.
+
+The current 0.9 portfolio is an owner-selected cohort/scenario target, not an
+exact-count ATNI roster. Crow, Fort Peck, and Fort Belknap are distinct planning
+contexts; Run 2 must establish their actual source/identity manifests. Real
+public-source use is a first-class intended capability, while Run 1 performs
+zero source requests and admits or activates no real source.
+
+The [Federal Register prerelease review](source-reviews/federal-register-real-source-prerelease-2026-09-03.md)
+is the latest local evidence disposition: consumed R7 digest drift blocks
+qualification; D3/R6/R7 and PF-01 through PF-17 are spent and FR-A1 is closed.
+The 2026-09-02 dossier and table rows below retain their dated evidence, not
+fresh provider verification. Credential gates apply to exact API interfaces;
+direct/bulk rendition interfaces need independent evidence and authorization,
+and are not approved by this distinction. Source provider, interface host,
+custodian, document issuer/speaker, and rendition authority remain separate.
 
 Row-specific registry numbers preserve the checkpoint at which that source was
 reviewed. The current registry is 1.19.0; a later registry version does not

@@ -2,13 +2,14 @@
 
 ## Product-space target and compatibility boundary
 
-Policy Sentinel evolves by braided addition into a general engine with explicit
+Policy Sentinel converges into one general engine with explicit
 region-pack, community-deployment, persona-projection, analyzed-corpus, and
 output-adapter seams. The target flow is:
 
 ```text
-authoritative sources -> bounded adapters -> source facts and events
-  -> evidence-bearing relations/classifications -> analyzed corpus
+source provider/interface -> separately granted operation -> immutable object
+  -> rendition -> document/version -> exact evidence segment/citation
+  -> analyzed corpus, source-supported events and reviewed relations
   -> community/persona projections -> document, web, application, structured outputs
 ```
 
@@ -20,6 +21,13 @@ scenarios, and explicit gaps. A deployment profile supplies only authorized
 community context. Personas are views, not fact stores. Output adapters retain
 record identity, citations, evidence, timestamps, coverage, review,
 visibility, and limitations.
+
+The single local release root is `PS09-06-LOCAL-RC`. Historical B/PNW/local
+prerelease finish scopes retain evidence only. The
+[convergence ADR](adr/ps09-canonical-corpus.md) and
+[component registry](development/ps09-convergence.v1.json) bind current adoption,
+migration, compatibility, and excluded/deferred work. Run 1 does not authorize
+later runs, real acquisition, source activation, or publication.
 
 The current static Preact application, print dossier, CSV serializer, source
 contracts, `PolicyRecord 1.4`, source registry `1.19`, and artifact package
@@ -357,7 +365,7 @@ surface and is not consumed by the ordinary adapter, build, application, or
 artifact pipeline. Source-specific qualification and every later local
 prerelease step remain separate evidence-gated outcomes.
 
-### Source-neutral analyzed-corpus child
+### Analyzed-corpus compatibility migration
 
 The additive `AnalyzedCorpus 1.0.0` seam is implemented under the narrow
 PNW-07 local-prerelease child. It embeds each complete `PolicyRecord 1.4` once,
@@ -368,7 +376,7 @@ visibility, limitation, and `whyShown` references into the corpus digest.
 Creation is deterministic and canonical; parsing rejects noncanonical stored
 provenance. All returned objects are detached and recursively frozen.
 
-The only positive executable path is impossible synthetic structural proof.
+The original 1.0 positive path is impossible synthetic structural proof.
 Synthetic records require a `synthetic-*` source ID, credential-free and
 port-free `.invalid` HTTPS origins for every URL-bearing record field, validated
 data quality, causal health times, and coherent fresh-versus-LKG state. The
@@ -381,9 +389,40 @@ Every real-source create or parse operation fails
 `REAL_SOURCE_LIFECYCLE_INTEGRATION_REQUIRED`. The seam cannot accept caller-
 declared lifecycle references as evidence; a real path requires the accepted
 lifecycle parser and evaluator to become callable through a separately reviewed
-source-neutral integration. No current adapter, PNW-01 projection, artifact
-builder, application, dossier, CSV, or public output consumes this corpus, and
-no real corpus or corpus artifact is generated.
+source-neutral integration. Version 1.1 now adds only the explicit
+`synthetic_application_compatibility` profile: exact digests of the three
+canonical application fixtures, registry, and taxonomy, plus unchanged record
+semantic validation. It preserves the county fixture's exact Nation evidence
+and the landmark accord rather than coercing them into 1.0's narrower policy.
+Missing, extra, modified, or resealed fixture input fails closed. The ordinary
+build consumes this corpus through `synthetic-corpus-path.mjs`, then projects
+its records into the retained artifact. The app, dossier, and CSV consume that
+artifact. PNW-01 remains an excluded compatibility seam and no real corpus is
+generated.
+
+### Minimal local custody and citation spine
+
+`corpus-store.mjs` supplies a Windows-only synthetic content-addressed store
+with an explicitly configured external root, SHA-256-derived relative paths,
+bounded quotas/free-space reserve, staged promotion, quarantine, locks, and
+sanitized immutable receipts. The ordinary build does not create this root.
+`curated-document-pack.mjs` and its 1.0 schema bind an existing corpus record
+and source-evidence reference to a document/version, raw object, derived
+rendition, UTF-8 byte-range evidence segments, context/text hashes and index.
+They do not duplicate records, events, health, or lifecycle authority.
+
+Strict UTF-8 plain text with deterministic LF normalization and exact
+title/available-summary citation replay is implemented. Transport is universally
+denied; invalid encoding, BOM, prohibited controls and recognized leading
+document signatures are rejected. This is not comprehensive format detection;
+literal markup within accepted UTF-8 remains inert text. HTML/XML/PDF/archive
+parsing, OCR, layout extraction, real acquisition and real lifecycle integration remain
+unsupported. Local caching, analysis, and full-text display of owned fixtures
+are allowed; pack excerpt/export/public redistribution remain prohibited. The
+existing synthetic artifact retains its separately reviewed output boundary.
+The [ADR](adr/ps09-canonical-corpus.md) records exact Windows custody assumptions
+and cooperative deadline/power-loss limits; these are not an ACL or kernel
+isolation guarantee.
 
 ## Current application and ingestion architecture
 
@@ -397,15 +436,17 @@ Its current maturity is:
 | Maturity | Current repository evidence |
 | --- | --- |
 | Integrated local output | The Preact application, print dossier, CSV serializer, hash-route behavior, and artifact pipeline run over three synthetic records and 575 explicitly synthetic Nation rows. |
-| Implemented foundation seams | The synthetic-only PNW-01 profile projection, PNW-03 geography/rights catalog, PNW-04 governed taxonomy/crosswalk catalog, PNW-05 source-pack core, and narrow PNW-07 source-neutral analyzed-corpus child produce deterministic immutable reference-only structures. They are not integrated with the application or artifact pipeline; the corpus runtime accepts no real source. |
+| Integrated corpus compatibility | AnalyzedCorpus 1.1 supplies the exact three existing fixture records to the ordinary artifact build; 1.0 remains supported and both reject real corpora. CuratedDocumentPack and the Windows local store supply synthetic citation/custody proof without a second record or output authority. |
+| Retained foundation seams | PNW-01 profiles, PNW-03 geography/rights, PNW-04 taxonomy/crosswalk, and the PNW-05 synthetic source-pack core remain separately tested compatibility evidence outside the current application path. |
 | Implemented but disabled | Federal Register, Washington Governor executive orders, Washington Centennial Accord, and the one-row curated Supreme Court adapters are tested and registered but cannot emit public records. |
 | Contract-only | Congress.gov, GovInfo, Regulations.gov, Oregon Legislature OData, and Washington LWS have bounded synthetic contracts but no activated production adapter. |
 | Proposed and unimplemented | Production region packs and community profiles, broad real-source analyzed-corpus integration, concrete common output-adapter implementations, scheduled/manual workflows, Pages delivery, and a private deployment remain future work. |
 
 Current and conditional tooling:
 
-- TypeScript on Node.js 22 or later, with Node's built-in `fetch` for bounded
-  adapter transports;
+- TypeScript on the selected Windows x64 Node.js 24.19.0/npm 12.0.2 pin;
+  historical adapter/acquisition evidence retains its original runtime and
+  bounded transport contract;
 - Vite for deterministic static builds and Preact for a small, accessible
   stateful interface;
 - JSON Schema Draft 2020-12 and Ajv for source, record, taxonomy, manifest, and
@@ -451,8 +492,12 @@ prior public shards -> last-known-good merge |
                               approved GitHub Pages artifact
 ```
 
-Raw responses remain in ephemeral runner space and are discarded. Only
-whitelisted, validated public fields enter the deployment artifact.
+This retained public refresh path uses ephemeral raw staging and emits only
+whitelisted, validated public fields. The converged local corpus may separately
+retain immutable objects outside Git after an exact source/operation/custody
+grant. Local retention, analysis, display, export and public redistribution are
+independent policy decisions; the present store accepts owned synthetic bytes
+only and does not broaden any historical source transport contract.
 
 The bounded Washington LWS transport constructs only allowlisted SOAP 1.1
 requests. Its operation descriptors are frozen at both levels at runtime, and

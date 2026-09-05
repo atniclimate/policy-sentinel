@@ -1,25 +1,24 @@
-schema_version: "1.4"
+schema_version: "1.5"
 roadmap_id: policy-sentinel-through-finish
 project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
   phase: >-
-    Federal Register Tier-1 qualification remains evidence-blocked; the
-    source-authority portfolio discovery, observer cleanup, terminal custody,
-    validation, and handoff are complete; the local real-source prerelease is
-    blocked at Tier-1 qualification; the broad PNW-05 source pack is ready but
-    separately unauthorized; FR-A1 and all admission, activation, publication,
-    and external authority remain closed
+    Owner-authorized PS09 Run 1 repository convergence and synthetic corpus
+    spine is validated at its terminal local checkpoint. The sole PS09 release
+    root remains blocked at closed Run 2. Historical release scopes are archived
+    evidence, not competing product roots. All real admission, activation,
+    acquisition and external gates remain closed.
   updated_on: "2026-09-04"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
-    prove its present definition of done through the intended 59 current ATNI
-    Member Tribes and materially different PNW use cases, and retain nationwide
-    and separately modeled international expansion as later directions. Treat
-    documents, web modules, applications, and structured exports as adapters
-    over one analyzed corpus. Stop at every evidence, implementation,
-    convergence, private-data, and publication gate unless the owner changes
-    that exact gate.
+    prove its present definition of done through the owner-selected PNW scenario
+    cohort without making exact ATNI membership a universal release gate, and
+    retain nationwide and separately modeled international expansion as later
+    directions. Treat documents, web modules, applications, and structured
+    exports as adapters over one analyzed corpus. Stop at every evidence,
+    implementation, convergence, private-data, and publication gate unless the
+    owner changes that exact gate.
 
 canonical_ledger:
   authority: >-
@@ -220,6 +219,36 @@ authority:
         The owner approves the recipient, channel, event, content, and workflow.
 
 gates:
+  - id: G-PS09-RUN-01
+    name: Repository convergence and minimum synthetic corpus spine
+    state: approved
+    evidence:
+      - POLICY-SENTINEL-0.9-RUN-01-REPOSITORY-CONVERGENCE-AND-CORPUS-SPINE
+      - Owner custody correction clears the exact design-document lookup only.
+  - id: G-PS09-RUN-02
+    name: Identity authority and scenario tranche
+    state: closed
+  - id: G-PS09-RUN-03
+    name: Bounded federal real-source tranche
+    state: closed
+  - id: G-PS09-RUN-04
+    name: Bounded PNW real-corpus tranche
+    state: closed
+  - id: G-PS09-RUN-05
+    name: Search and governed output tranche
+    state: closed
+  - id: G-PS09-RUN-06
+    name: Canonical local release acceptance tranche
+    state: closed
+  - id: G-PS09-RUN-07
+    name: Conditional focused acceptance repair
+    state: closed
+  - id: G-PS09-RUN-08
+    name: Conditional stakeholder hardening and distribution
+    state: closed
+  - id: G-PS09-RC
+    name: Single 0.9 local release acceptance
+    state: closed
   - id: G-A
     name: Phase B local implementation
     state: approved
@@ -729,46 +758,56 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Preserve the completed repository and portfolio evidence with bounded
-    recovery context and narrow closed-gate hooks, without starting an
-    unauthorized product or source tranche.
+    Preserve the validated Run 1 checkpoint and its custody. Do not begin Run 2
+    or an archived ready lane without the exact new owner authorization.
   terminal_reason: >-
-    The 2026-09-04 hook and Windows-environment repair passed adversarial review
-    and serialized full validation. The real-source prerelease remains
-    evidence-blocked, and the dependency-ready broad PNW-05 source pack still
-    requires separate owner authorization.
+    Run 1 acceptance is complete. G-PS09-RUN-02 is closed and no authorized
+    canonical work remains ready; the whole product and local RC remain blocked.
   resumable_roots:
-    - B2-REVIEW
-    - B4-FR-UX
-    - B5-WA-LWS-ADAPTER
-    - B5-WA-RULES
-  last_durable_checkpoint: 1cd66bb2bff9270de262e21fa9c0ef13f53807bd
+    - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
+  last_durable_checkpoint: 0ff44349c37b60006ee34475319a86ec5a87e9e0
   resume_command: npm run validate:roadmap
 
 completion_scope:
+  ps09:
+    release_root: PS09-06-LOCAL-RC
+    required_outcomes:
+      - PS09-01-REPOSITORY-CONVERGENCE
+      - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
+      - PS09-03-FEDERAL-REAL-SOURCE-SPINE
+      - PS09-04-PNW-REAL-CORPUS
+      - PS09-05-SEARCH-OUTPUTS
+      - PS09-06-LOCAL-RC
+    conditional_outcomes:
+      - PS09-07-FOCUSED-REPAIR
+      - PS09-08-STAKEHOLDER-HARDENING
+    rule:
+      One canonical 0.9 release root. Each later run requires its exact gate.
   repository_backbone:
     rule: >-
-      Repository-governance convergence is tracked independently from the
-      retained application and PNW product graphs. Completing this scope proves
-      only the documented authority map, catalog, workflow, validation, and
-      launch handoff; it cannot open an owner/evidence gate or implement a
-      product capability.
+      Repository-governance convergence is retained supporting evidence for the
+      single PS09 release graph. Completing this scope proves only the
+      documented authority map, catalog, workflow, validation, and launch
+      handoff; it cannot open an owner/evidence gate or implement a product
+      capability.
     required_outcomes:
       - H-REPOSITORY-BACKBONE
     does_not_change:
-      - retained B-series release roots or evidence
+      - retained B-series identities, statuses, dependencies, or evidence
       - PNW-00 through PNW-10 membership, dependencies, status, or gates
       - K0, S0, O0, D0, publication, source, privacy, or external authority
   local_release_candidate:
+    accounting: archived_evidence_not_release_root
     rule: >-
-      Every required outcome must be complete. A source in
-      accepted_source_blocks may be complete if its gate later opens, or remain
-      blocked with evidence and a truthful public fallback. Publication is
-      evaluated separately. During active execution, a required outcome may be
-      evidence-blocked while independent ready work proceeds, but it still must
-      be complete before the local release candidate can be complete. Additive
-      vision phases with closed convergence gates are excluded from release
-      completion and blocker accounting.
+      Archived pre-0.9 acceptance rule only; these are not current release
+      prerequisites. Historically every required outcome had to be complete. A
+      source in accepted_source_blocks may be complete if its gate later opens,
+      or remain blocked with evidence and a truthful public fallback.
+      Publication is evaluated separately. During active execution, a required
+      outcome may be evidence-blocked while independent ready work proceeds, but
+      it still must be complete before the local release candidate can be
+      complete. Additive vision phases with closed convergence gates are
+      excluded from release completion and blocker accounting.
     required_outcomes:
       - A-FOUNDATION
       - H-HANDOFF
@@ -825,12 +864,14 @@ completion_scope:
       - S0-SPATIAL
       - O0-ORCHESTRATION
   local_real_source_prerelease:
+    accounting: archived_evidence_not_release_root
     rule: >-
-      This additive local feedback lane is complete only when the six bounded
+      Archived pre-0.9 acceptance rule only; this is not a current release root.
+      This additive local feedback lane was complete only when the six bounded
       child outcomes pass with one admitted, time/deployment-scoped real source,
       deterministic revision/LKG and corpus/artifact evidence, a usable local
-      browser projection, and conspicuous limitations. It is independent from
-      the retained local release candidate and the full PNW definition of done.
+      browser projection, and conspicuous limitations. Its blocked evidence
+      remains preserved; PS09 now supplies the only current release graph.
     required_outcomes:
       - PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT
       - PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION
@@ -848,8 +889,9 @@ completion_scope:
         private-data gates
       - K0, S0, or O0 identities, dependencies, status, or convergence gates
   pnw_regional_engine:
+    accounting: archived_evidence_not_release_root
     rule: >-
-      PNW-00 through PNW-10 are the present regional engine definition of done.
+      PNW-00 through PNW-10 preserve the superseded regional execution graph.
       Existing B work, the 575-Nation synthetic/national evidence, and K0/S0/O0
       remain preserved in their prior accounting and contribute only the
       explicitly mapped evidence. Planning, synthetic scaffolds, or a blocked
@@ -1198,6 +1240,10 @@ work_items:
         repair and 89 focused assertions pass; the remaining bounded repairs and
         independent final audit are not yet complete and no completion claim is
         made.
+      - >-
+        Run 1 recovery correction: the preceding two entries were misfiled
+        PNW-04 checkpoint notes, not B2-IDS implementation evidence. B2-IDS
+        remains not_started; the later PNW-04 item contains its actual closure.
 
   - id: B2-STATES
     priority: 23
@@ -5105,8 +5151,7 @@ work_items:
     title: Record the owner-selected public repository license
     status: blocked
     dependencies:
-      - B10-RC
-      - PNW-10-REGIONAL-RC
+      - PS09-06-LOCAL-RC
     blocked_by:
       - G-E-LICENSE
     authorization_gate: G-E-LICENSE
@@ -5203,6 +5248,167 @@ work_items:
     evidence:
       - "The initial prompt expressly withheld deployment and publication
         approval."
+
+  - id: PS09-01-REPOSITORY-CONVERGENCE
+    priority: 300
+    milestone: PS09 Run 1
+    title: Converge repository and implement minimum synthetic corpus spine
+    status: complete
+    dependencies: []
+    authorization_gate: G-PS09-RUN-01
+    acceptance:
+      - One release root, source registry, analyzed corpus and compatible output
+        path.
+      - Immutable Windows objects, renditions, segments and exact citation
+        replay.
+      - Hostile input, custody, quota, restart and integrity tests pass.
+      - Independent engineering and sovereignty review approve the final tree.
+      - No real-source or external gate is opened by this implementation.
+    evidence:
+      - docs/development/PS09-RUN-01-COORDINATION.md records fresh pre-action
+        reconciliation.
+      - Baseline npm run check passed on Node 24.19.0 and npm 12.0.2 Windows
+        x64.
+      - >-
+        Crash recovery reconciled HEAD 0ff44349c37b60006ee34475319a86ec5a87e9e0,
+        dirty integration and all 33 protected input identities. Fresh roadmap
+        validation passed; spine tests passed 27 with one Windows file-symlink
+        privilege skip. Backbone reported the two still-pending convergence
+        registry/handoff links. Independent reviewers found byte-bound,
+        reference-version, canonical graph and documentation repairs; bounded
+        leases are recorded in docs/development/PS09-RUN-01-COORDINATION.md.
+        Final validation and review remain pending; network requests remain
+        zero.
+      - >-
+        Recovery repairs close byte-slot spoofing and version-reference parity;
+        spine tests pass 30 with one existing Windows file-symlink privilege
+        skip. Two external-root replays resolve three packs/four citations from
+        seven objects totaling 98,415 bytes. The 65-component registry and
+        canonical graph pass validation; independent alias probes now reject
+        dot/separator/owner-input evidence paths. The first integrated check
+        passed 1,406 of 1,407 Vitest tests and exposed frozen S0 JSON-inventory
+        placement. Moving the planning registry to docs/development and using
+        config/local-corpus.v1.mjs resolves all nine focused S0 isolation tests
+        without changing frozen S0. Full validation retry is running. Scoped
+        engineering, graph and sovereignty reviews report no remaining material
+        finding; final integrated evidence and terminal-delta reviews remain.
+      - >-
+        Final integrated npm run check passed: 18 hooks, 13 corpus tests, 30
+        spine tests with one explicit Windows file-symlink privilege skip, and
+        all 1,407 Vitest tests across 88 files. Build and artifact validation
+        passed for three synthetic records, 575 synthetic Nation rows and eight
+        assets, build ID synthetic-7d80aab3233b3b005e23. Local browser smoke
+        verified keyboard skip navigation, record selection, provenance,
+        selection persistence and return focus. The preview was stopped.
+        docs/handoffs/ps09-run-01-convergence.md records final independent
+        review, custody, exact local commits and the terminal disposition. This
+        terminal entry supersedes the preceding pending checkpoints; all later
+        gates remain closed and no provider request or real acquisition
+        occurred.
+  - id: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
+    priority: 301
+    milestone: PS09 Run 2
+    title: Reconcile bounded identity authority and selected scenarios
+    status: blocked
+    dependencies: [PS09-01-REPOSITORY-CONVERGENCE]
+    authorization_gate: G-PS09-RUN-02
+    blocked_by: [G-PS09-RUN-02]
+    safe_fallback:
+      Preserve planning candidates without emitting production identity
+      assertions.
+    unblocks_only_when:
+      Owner approves the exact Run 2 entry packet after Run 1 acceptance.
+    acceptance:
+      - Separate recognition, membership, cohort, governmental and geographic
+        identities.
+      - Verify exact scenario source and claim boundaries without inferring
+        legal effect.
+    evidence:
+      - Run 1 owner token expressly excludes Run 2; G-PS09-RUN-02 remains
+        closed.
+  - id: PS09-03-FEDERAL-REAL-SOURCE-SPINE
+    priority: 302
+    milestone: PS09 Run 3
+    title:
+      Qualify and acquire a bounded federal corpus through canonical interfaces
+    status: not_started
+    dependencies:
+      [PS09-01-REPOSITORY-CONVERGENCE, PS09-02-IDENTITY-AUTHORITY-SCENARIOS]
+    authorization_gate: G-PS09-RUN-03
+    acceptance:
+      - Exact interface authority and operation budgets precede acquisition.
+      - Real lifecycle, citations, refresh and source gaps are independently
+        validated.
+    evidence: []
+  - id: PS09-04-PNW-REAL-CORPUS
+    priority: 303
+    milestone: PS09 Run 4
+    title: Build bounded scenario-led PNW corpus
+    status: not_started
+    dependencies:
+      [PS09-02-IDENTITY-AUTHORITY-SCENARIOS, PS09-03-FEDERAL-REAL-SOURCE-SPINE]
+    authorization_gate: G-PS09-RUN-04
+    acceptance:
+      - Exact local source and rendition authority, privacy and reuse evidence
+        survive normalization.
+      - Gold scenarios and geographic sentinels retain honest coverage and
+        unknowns.
+    evidence: []
+  - id: PS09-05-SEARCH-OUTPUTS
+    priority: 304
+    milestone: PS09 Run 5
+    title: Integrate deterministic search and governed output views
+    status: not_started
+    dependencies: [PS09-03-FEDERAL-REAL-SOURCE-SPINE, PS09-04-PNW-REAL-CORPUS]
+    authorization_gate: G-PS09-RUN-05
+    acceptance:
+      - All views consume one corpus with identical source facts, citations and
+        caveats.
+      - Accessibility, keyboard, output privacy and deterministic ranking are
+        validated.
+    evidence: []
+  - id: PS09-06-LOCAL-RC
+    priority: 305
+    milestone: PS09 Run 6
+    title: Accept the single canonical 0.9 local release candidate
+    status: not_started
+    dependencies: [PS09-05-SEARCH-OUTPUTS]
+    authorization_gate: G-PS09-RUN-06
+    acceptance:
+      - Full scenario outcomes, refresh, scale, portability, browser and
+        security checks pass.
+      - Independent engineering and sovereignty review close all blocking
+        findings.
+      - G-PS09-RC is satisfied; external publication remains separately closed.
+    evidence: []
+  - id: PS09-07-FOCUSED-REPAIR
+    priority: 306
+    milestone: PS09 conditional Run 7
+    title: Repair bounded findings from canonical acceptance
+    status: deferred
+    dependencies: [PS09-05-SEARCH-OUTPUTS]
+    authorization_gate: G-PS09-RUN-07
+    reason:
+      Conditional only on recorded Run 6 findings and exact authorization, not a
+      second RC.
+    acceptance:
+      - Named acceptance defects are repaired and rechecked at the same
+        canonical release root.
+    evidence: []
+  - id: PS09-08-STAKEHOLDER-HARDENING
+    priority: 307
+    milestone: PS09 conditional Run 8
+    title: Separately authorized stakeholder feedback and hardening
+    status: deferred
+    dependencies: [PS09-06-LOCAL-RC]
+    authorization_gate: G-PS09-RUN-08
+    reason:
+      No contact or distribution authority; optional feedback does not create
+      another mandatory RC.
+    acceptance:
+      - Exact approved feedback and distribution scope is respected and repairs
+        validated.
+    evidence: []
 
 source_register:
   - id: SRC-BIA-NOTICE
@@ -5405,49 +5611,19 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: B2-REVIEW
-    action: >-
-      Resume the Nation identity chain only when authoritative row-level
-      evidence reconciles the 2026 notice's stated 575 count with its 577
-      displayed paragraphs and supports the required stable IDs, names, aliases,
-      and state crosswalk. Do not infer the reconciliation.
-  - order: 2
-    work_item: B4-FR-UX
-    action: >-
-      Re-run the required built-app desktop/mobile interaction, accessibility,
-      keyboard, dossier, CSV, Unclassified, and same-origin network smoke only
-      through the newly authorized standards-based outcome harness when the
-      local prerelease candidate is stable; preserve the historical unavailable
-      in-app Browser evidence.
-  - order: 3
-    work_item: B5-WA-LWS-ADAPTER
-    action: >-
-      Resume the LWS adapter only when G-WA-LWS-DISCOVERY is satisfied by an
-      approved population-enumeration and whole-refresh reconciliation contract.
-      Do not retry the rejected fixed-year scenario, infer enumeration from
-      known bills, or replace the null adapter before that gate is satisfied.
-  - order: 4
-    work_item: B5-WA-RULES
-    action: >-
-      Reopen the State Register only when bounded source evidence supplies exact
-      title and agency fields, duplicate/holdover reconciliation, Reviser's Note
-      behavior, privacy exclusions, link rules, and fixed whole-refresh budgets.
-      Keep the validated Governor adapter disabled and independent.
-  - order: 5
-    work_item: PNW-02-REGIONAL-REGISTRY
-    action: >-
-      Resolve only from a current ATNI-authorized originating 59-member roster
-      plus separately verified sovereign identities. Do not scrape and subtract,
-      infer membership, or treat the federal-recognition collection as the
-      regional registry.
-  - order: 6
-    work_item: PNW-05-SOURCE-PACK
-    action: >-
-      Preserve the broad parent as incomplete and do not begin it without a new
-      exact authorization. The blocked local prerelease and completed portfolio
-      evidence are inputs, not completion of the required federal/state/Tribal/
-      regional/transboundary source portfolio.
+    work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
+    action:
+      Await exact owner authorization of the Run 2 entry packet in the Run 1
+      handoff. Do not execute Run 2 or revive archived ready work.
 finish_states:
+  ps09:
+    current_state: blocked
+    release_root: PS09-06-LOCAL-RC
+    blocked_by:
+      - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
+    satisfied_when:
+      - All six canonical outcomes have objective acceptance evidence.
+      - G-PS09-RC is satisfied without opening publication or optional tranches.
   repository_backbone:
     current_state: complete
     satisfied_when:
@@ -5459,6 +5635,7 @@ finish_states:
       - the retained application or PNW engine is release-ready
       - any source, remote, deployment, or publication action is approved
   local_release_candidate:
+    accounting: archived_evidence_not_release_root
     current_state: blocked
     blocked_by:
       - B2-REVIEW
@@ -5479,6 +5656,7 @@ finish_states:
       - any closed external gate is approved
       - K0 or S0 is integrated into the existing release candidate
   local_real_source_prerelease:
+    accounting: archived_evidence_not_release_root
     current_state: blocked
     blocked_by:
       - PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION
@@ -5502,10 +5680,12 @@ finish_states:
       - a Nation relationship, ATNI roster, community position, legal
         conclusion, or comprehensive coverage
   pnw_regional_engine:
+    accounting: archived_evidence_not_release_root
     current_state: in_progress
     satisfied_when:
       - PNW-00 through PNW-10 are complete with objective evidence.
-      - The accepted 59-member roster and every enabled source are source-bound.
+      - Historical exact-roster acceptance was never established; current PS09
+        cohort selection is separate from any exact ATNI membership claim.
       - >-
         Representative scenarios and all output adapters preserve evidence,
         review, visibility, coverage, limitations, and explicit non-claims.
@@ -5525,9 +5705,10 @@ finish_states:
     satisfied_when:
       - The owner explicitly authorizes the exact GitHub and Pages operations.
       - >-
-        The legacy application and PNW regional engine finish states are both
-        complete before publication work begins.
-      - Those operations are performed with gh from the accepted local scopes.
+        The single PS09-06-LOCAL-RC finish state is complete before publication
+        work begins.
+      - Those operations are performed with gh from the accepted canonical local
+        scope.
       - Deployment verification passes and public limitations remain visible.
 
 handoff_report_contract:

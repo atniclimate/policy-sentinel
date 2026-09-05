@@ -9,21 +9,28 @@ repository navigation and authority index. Preserve the product boundaries in
 `docs/pnw-scope-and-acceptance.md`, and the decisions in
 `docs/decision-register.md`.
 
-Phase B Gate A was approved by the owner on 2026-07-30. Local implementation
-under the retained B1-B10 stream in `docs/mvp-plan.md` is authorized. That Gate
-A approval does not authorize PNW-01 or another successor-contract tranche;
-`G-PNW-IMPLEMENTATION` remains closed until the owner authorizes the exact
-tranche. Gate A also does not authorize a remote repository, push, Pages
+The current local authorization is
+`POLICY-SENTINEL-0.9-RUN-01-REPOSITORY-CONVERGENCE-AND-CORPUS-SPINE`.
+Its Run 1 work is complete at the validated terminal checkpoint; it does not
+authorize another run or an archived ready lane. `PS09-06-LOCAL-RC` is the sole local
+release root; retained B1-B10, PNW, and real-source prerelease statuses are
+archived evidence, not parallel mandatory release graphs. Later PS09 runs
+remain behind their exact owner gates. Earlier Gate A and tranche approvals
+retain only their recorded scope. No current approval authorizes a remote repository, push, Pages
 deployment, API registration, provider-term acceptance, paid call, third-party
 contact, secret change, private-data use, optional AI generation, or outbound
 notification. Keep every later stop/go gate closed until the owner approves
 that exact action.
 
-The 2026-09-02 planning rebase makes a general PNW/ATNI regional engine the
-present definition of done and nationwide United States packs the later
-direction. The intended current 59-member ATNI roster remains an originating-
-evidence gate. Federal recognition is not organization membership. The current
-static application and B1-B10 work are retained evidence, not the whole product.
+The 0.9 program targets one general engine with an owner-selected PNW/ATNI-facing
+cohort and contrasting scenarios. Exact current ATNI membership requires
+originating evidence only when that claim is made; no fixed membership count
+defines the product cohort or gates unrelated general-jurisdiction work.
+Federal recognition is not organization membership. Nationwide and Native
+Hawaiian support remain later-compatible directions. Real public information
+is an intended first-class capability; Run 1's implemented corpus path remains
+synthetic and cannot admit or activate a real source. The current static
+application and B1-B10 work are retained evidence, not the whole product.
 K0/S0/O0 remain outside product dependencies while their convergence gates are
 closed.
 
@@ -44,7 +51,8 @@ concurrent changes.
   item `in_progress`; a validated terminal local-release or genuine-impasse
   state has zero. Select the lowest-priority-number `ready` item whose
   dependencies are complete, and promote newly unblocked `not_started` items
-  to `ready` in the same ledger update.
+  to `ready` in the same ledger update. Select only within the authorized
+  canonical PS09 graph; an archived ready item is not an execution grant.
 - Use only the roadmap status vocabulary: `complete`, `in_progress`, `ready`,
   `blocked`, `deferred`, and `not_started`. Run `npm run validate:roadmap`
   before committing a ledger change.
@@ -53,7 +61,7 @@ concurrent changes.
   gates as resolved **closed** constraints until the owner explicitly changes
   one exact operation. Do not reopen a general product interview. Record a
   source-specific block and continue independent ready work.
-- Use [the Sol Ultra continuation prompt](docs/continuation-prompt.md) for a
+- Use [the durable continuation prompt](docs/continuation-prompt.md) for a
   fresh long-running implementation session. Local Git and `ROADMAP.yaml` must
   remain sufficient to recover after context compaction.
 - Follow the
@@ -64,8 +72,9 @@ concurrent changes.
   [PNW rebase handoff](docs/handoffs/pnw-product-space-rebase-2026-09-02.md) as
   the durable product-space mapping, and the
   [PNW-01 launch handoff](docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md)
-  as the exact first-tranche execution contract after separate owner
-  authorization.
+  as historical first-tranche evidence. The current convergence decision is
+  [the corpus ADR](docs/adr/ps09-canonical-corpus.md); recover exact Run 1
+  outcomes from [its handoff](docs/handoffs/ps09-run-01-convergence.md).
 
 ## Git and GitHub
 
@@ -166,6 +175,7 @@ Current commands:
 
 ```powershell
 npm ci
+npm run validate:runtime
 npm run hooks:test
 npm run validate:roadmap
 npm run validate:backbone
@@ -174,10 +184,17 @@ npm run lint
 npm run typecheck
 npm run scan:source
 npm test
+npm run test:spine
 npm run build
 npm run validate:artifact
 npm run check
 ```
+
+The selected local runtime is Windows x64 Node 24.19.0 with npm 12.0.2.
+`npm run corpus:verify -- --root <external-root>` is an explicit synthetic
+custody/replay check; the ordinary build creates no external corpus root.
+Historical source-observer runtime pins and consumed operation grants are not
+changed by this selection.
 
 `npm test` must pass before reporting a contract or taxonomy change complete.
 It validates JSON Schema compilation in strict mode, taxonomy structure and

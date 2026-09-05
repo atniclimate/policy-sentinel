@@ -6,15 +6,23 @@ Applies to: public GitHub Pages beta
 
 Last reviewed: 2026-07-30
 
-Product-space interpretation updated 2026-09-02: this specification remains
+Product-space interpretation converged under PS09 Run 1: this specification remains
 binding for the current static application output. The application is one
 output precursor within the general Policy Sentinel engine; it is not
 the entire PNW definition of done. Future document, web-module, application,
 and structured-output adapters must consume one accepted corpus without
 changing record identity, evidence, `whyShown`, review state, or non-claims.
 
+The sole local release root is `PS09-06-LOCAL-RC`; historical application and
+PNW acceptance scopes provide evidence without a second mandatory release
+root. The owner-selected cohort and planned scenario manifests require Run 2;
+no current-membership count controls this retained fixture interface.
+
 Implementation status: the B1 application exercises these interaction patterns
-over a validated synthetic artifact. A production Nation registry, production
+over a validated synthetic artifact, now built from the existing analyzed
+corpus's exact three-fixture 1.1 compatibility profile. This migration changes
+no UI features. The local curated-pack spine does not add public full-text or
+pack export. A production Nation registry, production
 records, comparison mode, scheduled/manual deployment refresh, Pages
 publication, and the successor PNW output-adapter architecture do not yet
 exist.

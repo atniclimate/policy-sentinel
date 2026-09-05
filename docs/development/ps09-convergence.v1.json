@@ -1,0 +1,529 @@
+{
+  "schemaVersion": "1.0.0",
+  "canonicalReleaseRoot": "PS09-06-LOCAL-RC",
+  "requiredOutcomes": [
+    "PS09-01-REPOSITORY-CONVERGENCE",
+    "PS09-02-IDENTITY-AUTHORITY-SCENARIOS",
+    "PS09-03-FEDERAL-REAL-SOURCE-SPINE",
+    "PS09-04-PNW-REAL-CORPUS",
+    "PS09-05-SEARCH-OUTPUTS",
+    "PS09-06-LOCAL-RC"
+  ],
+  "conditionalOutcomes": [
+    "PS09-07-FOCUSED-REPAIR",
+    "PS09-08-STAKEHOLDER-HARDENING"
+  ],
+  "components": [
+    {
+      "id": "A-FOUNDATION",
+      "disposition": "adopt",
+      "evidence": ["docs/project-brief.md", "docs/data-governance.md"],
+      "implementationEffect": "Retain the mission and non-inference/privacy constraints as binding contracts for the single PS09 product."
+    },
+    {
+      "id": "H-HANDOFF",
+      "disposition": "migrate",
+      "evidence": ["docs/continuation-prompt.md", "ROADMAP.yaml"],
+      "implementationEffect": "Replace the prior launch queue with recovery of the exact active PS09 tranche; later gates remain closed."
+    },
+    {
+      "id": "H-HOOKS",
+      "disposition": "adopt",
+      "evidence": [
+        "scripts/codex-hooks.mjs",
+        "tests/hooks/codex-hooks.test.mjs"
+      ],
+      "implementationEffect": "Keep the two current local recovery and closed-gate hooks; the superseded five-hook installation is historical evidence."
+    },
+    {
+      "id": "B1-APP",
+      "disposition": "adopt",
+      "evidence": [
+        "scripts/build-synthetic-artifact.mjs",
+        "tests/pipeline/synthetic-corpus-path.test.mjs"
+      ],
+      "implementationEffect": "The retained application artifact receives the same three fixture records from the canonical analyzed corpus; no pack text or second record store is published."
+    },
+    {
+      "id": "B2-PARSER",
+      "disposition": "compatibility_fixture",
+      "evidence": [
+        "docs/source-reviews/bia-2026-recognition-review.md",
+        "tests/pipeline/nation-collection-policy.test.mjs"
+      ],
+      "implementationEffect": "Preserve annual-recognition parsing and tests; the unresolved source identity reconciliation prevents production collection emission."
+    },
+    {
+      "id": "B2-REVIEW",
+      "disposition": "defer",
+      "evidence": ["docs/source-reviews/bia-2026-recognition-review.md"],
+      "implementationEffect": "Keep the 577 ordered entries versus 575 stated entities evidence block; no forced alias merge or universal PS09 membership prerequisite."
+    },
+    {
+      "id": "B2-IDS",
+      "disposition": "migrate",
+      "evidence": ["docs/pnw-scope-and-acceptance.md", "ROADMAP.yaml"],
+      "implementationEffect": "Carry stable identity and alias requirements into gated Run 2 cohort contracts. No real identities or alias facts are implemented in Run 1."
+    },
+    {
+      "id": "B2-STATES",
+      "disposition": "migrate",
+      "evidence": ["docs/data-governance.md", "ROADMAP.yaml"],
+      "implementationEffect": "Carry exact source-evidenced state associations into gated identity work; geography alone cannot establish association or membership."
+    },
+    {
+      "id": "B2-READY",
+      "disposition": "defer",
+      "evidence": ["src/pipeline/nation-collection-policy.mjs", "ROADMAP.yaml"],
+      "implementationEffect": "Keep retained federal recognition publication closed until that collection's review and exact-575 contract pass; it is not a universal corpus invariant."
+    },
+    {
+      "id": "B2-PREGATE-HARDENING",
+      "disposition": "adopt",
+      "evidence": [
+        "src/pipeline/nation-collection-policy.mjs",
+        "tests/pipeline/nation-collection-policy.test.mjs"
+      ],
+      "implementationEffect": "Keep existing artifact count, identity, provenance and official association checks intact for the retained collection."
+    },
+    {
+      "id": "B3-PIPELINE",
+      "disposition": "adopt",
+      "evidence": [
+        "scripts/build-synthetic-artifact.mjs",
+        "src/pipeline/source-adapter.ts"
+      ],
+      "implementationEffect": "Retain the artifact/provenance/health framework as the application projection downstream of one corpus; no new parallel health or LKG store."
+    },
+    {
+      "id": "B4-FR-RESEARCH",
+      "disposition": "compatibility_fixture",
+      "evidence": [
+        "docs/source-reviews/federal-register-api-2026-07-31.md",
+        "docs/source-reviews/federal-register-api-2026-09-02.md"
+      ],
+      "implementationEffect": "Preserve dated originating-document observations; they do not supply current admission, terms clearance or a fresh operation grant."
+    },
+    {
+      "id": "B4-FR-ADAPTER",
+      "disposition": "migrate",
+      "evidence": [
+        "docs/source-reviews/federal-register-real-source-prerelease-2026-09-03.md",
+        "config/sources.v1.json"
+      ],
+      "implementationEffect": "Retain disabled adapter code and tests as candidate evidence for a future canonical interface; Run 1 performs no real adapter execution or activation."
+    },
+    {
+      "id": "B4-FR-UX",
+      "disposition": "migrate",
+      "evidence": [
+        "docs/source-reviews/federal-register-real-source-prerelease-2026-09-03.md",
+        "docs/ux-spec.md"
+      ],
+      "implementationEffect": "Retain bounded coverage, health and disclosure behavior; real artifact integration remains blocked and must enter the sole PS09 path under new authority."
+    },
+    {
+      "id": "B4-GRANTS-RESEARCH",
+      "disposition": "compatibility_fixture",
+      "evidence": ["docs/source-reviews/grants-gov-api-2026-07-31.md"],
+      "implementationEffect": "Preserve the dated access-contract review without treating it as a currently qualified or enabled interface."
+    },
+    {
+      "id": "B4-GRANTS-ADAPTER",
+      "disposition": "defer",
+      "evidence": [
+        "docs/source-reviews/grants-gov-api-2026-07-31.md",
+        "config/sources.v1.json"
+      ],
+      "implementationEffect": "Retain the disabled source and honest gap; no credentials, provider terms or urgent-deadline production behavior is authorized."
+    },
+    {
+      "id": "B4-CONGRESS-CONTRACT",
+      "disposition": "compatibility_fixture",
+      "evidence": ["docs/source-reviews/congress-gov-api-2026-07-31.md"],
+      "implementationEffect": "Keep offline API contracts and synthetic tests as candidates; API credential gates do not decide separate direct or bulk interface feasibility."
+    },
+    {
+      "id": "B4-CONGRESS-LIVE",
+      "disposition": "defer",
+      "evidence": [
+        "docs/source-reviews/congress-gov-api-2026-07-31.md",
+        "config/sources.v1.json"
+      ],
+      "implementationEffect": "No live API execution or credentials. Any alternate official interface requires its own qualification and exact operation grant."
+    },
+    {
+      "id": "B4-GOVINFO-CONTRACT",
+      "disposition": "compatibility_fixture",
+      "evidence": ["docs/source-reviews/govinfo-api-2026-07-31.md"],
+      "implementationEffect": "Keep offline API contracts and synthetic tests; the API credential gate is interface-specific, not a determination about every GovInfo record."
+    },
+    {
+      "id": "B4-GOVINFO-LIVE",
+      "disposition": "defer",
+      "evidence": [
+        "docs/source-reviews/govinfo-api-2026-07-31.md",
+        "config/sources.v1.json"
+      ],
+      "implementationEffect": "Preserve the live API block. Direct file or bulk alternatives remain unqualified and unauthorized in this run."
+    },
+    {
+      "id": "B4-REGS-CONTRACT",
+      "disposition": "compatibility_fixture",
+      "evidence": ["docs/source-reviews/regulations-gov-api-2026-07-31.md"],
+      "implementationEffect": "Retain offline API contracts and allowlists without implying safe ingestion of public comments or personal fields."
+    },
+    {
+      "id": "B4-REGS-LIVE",
+      "disposition": "defer",
+      "evidence": [
+        "docs/source-reviews/regulations-gov-api-2026-07-31.md",
+        "config/sources.v1.json"
+      ],
+      "implementationEffect": "Keep credential, privacy and live operation gates closed; no docket or comment body enters the corpus."
+    },
+    {
+      "id": "B4-UX-PREGATE-HARDENING",
+      "disposition": "adopt",
+      "evidence": [
+        "docs/ux-spec.md",
+        "tests/pipeline/synthetic-corpus-path.test.mjs"
+      ],
+      "implementationEffect": "Keep existing synthetic UI and focus behavior through unchanged artifact records; this supplies no real source coverage."
+    },
+    {
+      "id": "B5-WA-LWS-RESEARCH",
+      "disposition": "compatibility_fixture",
+      "evidence": ["docs/source-reviews/washington-lws-2026-07-31.md"],
+      "implementationEffect": "Preserve the dated SOAP/XML observations and offline contract evidence; the consumed canary cannot be replayed as a new request."
+    },
+    {
+      "id": "B5-WA-LWS-ADAPTER",
+      "disposition": "defer",
+      "evidence": [
+        "docs/source-reviews/washington-lws-2026-07-31.md",
+        "config/sources.v1.json"
+      ],
+      "implementationEffect": "Keep the source disabled and live qualification blocked. Any future use needs exact interface and operation review."
+    },
+    {
+      "id": "B5-WA-RULES",
+      "disposition": "defer",
+      "evidence": [
+        "docs/source-reviews/washington-state-register-2026-07-31.md",
+        "docs/source-reviews/washington-governor-executive-orders-2026-07-31.md"
+      ],
+      "implementationEffect": "Preserve disabled Washington rules/executive candidates and dated limitations; no scraper, acquisition or activation is added."
+    },
+    {
+      "id": "B5-WA-ACCORDS",
+      "disposition": "adopt",
+      "evidence": [
+        "docs/source-reviews/washington-centennial-accord-2026-07-31.md",
+        "tests/pipeline/synthetic-corpus-path.test.mjs"
+      ],
+      "implementationEffect": "Retain the synthetic landmark accord in the exact-fixture corpus profile and unchanged artifact. The historical real pilot remains separately disabled."
+    },
+    {
+      "id": "B6-COURT-RESEARCH",
+      "disposition": "compatibility_fixture",
+      "evidence": ["docs/source-reviews/doi-ibia-2026-07-31.md"],
+      "implementationEffect": "Preserve the bounded official administrative-source review as dated evidence only."
+    },
+    {
+      "id": "B6-COURT-ADAPTER",
+      "disposition": "compatibility_fixture",
+      "evidence": [
+        "docs/source-reviews/doi-ibia-2026-07-31.md",
+        "config/sources.v1.json"
+      ],
+      "implementationEffect": "Retain disabled court/administrative adapter fixtures. Completed fallback work is not a working real corpus feed."
+    },
+    {
+      "id": "B6-COURT-EXPANSION",
+      "disposition": "compatibility_fixture",
+      "evidence": [
+        "docs/source-reviews/supreme-court-opinions-2026-07-31.md",
+        "docs/source-reviews/washington-appellate-opinions-2026-07-31.md",
+        "docs/source-reviews/oregon-appellate-opinions-2026-07-31.md",
+        "docs/source-reviews/idaho-appellate-opinions-2026-07-31.md"
+      ],
+      "implementationEffect": "Preserve source-specific offline candidates and gaps; no court corpus coverage or legal-effect conclusion is inferred."
+    },
+    {
+      "id": "B6-LANDMARKS",
+      "disposition": "compatibility_fixture",
+      "evidence": [
+        "docs/source-reviews/boldt-decision-2026-07-31.md",
+        "docs/project-brief.md"
+      ],
+      "implementationEffect": "Keep explicit landmark criteria and reviewed pilot evidence; no pre-1980 body, rights determination or source activation is added."
+    },
+    {
+      "id": "B7-OR-NONODATA",
+      "disposition": "compatibility_fixture",
+      "evidence": ["docs/source-reviews/oregon-rules-executive-2026-07-31.md"],
+      "implementationEffect": "Preserve dated rule/executive/link feasibility and unknowns without relabeling fallback work as current automation."
+    },
+    {
+      "id": "B7-OR-ADAPTER",
+      "disposition": "compatibility_fixture",
+      "evidence": [
+        "docs/source-reviews/oregon-rules-executive-2026-07-31.md",
+        "config/sources.v1.json"
+      ],
+      "implementationEffect": "Keep disabled Oregon candidates and their tests; no official provider body is acquired or normalized by Run 1."
+    },
+    {
+      "id": "B7-OR-ODATA-CONTRACT",
+      "disposition": "compatibility_fixture",
+      "evidence": [
+        "docs/source-reviews/oregon-odata-offline-contract-2026-07-31.md"
+      ],
+      "implementationEffect": "Preserve offline OData shape and failure tests without accepting access terms or enabling the interface."
+    },
+    {
+      "id": "B7-OR-ODATA-LIVE",
+      "disposition": "defer",
+      "evidence": [
+        "docs/source-reviews/oregon-odata-offline-contract-2026-07-31.md",
+        "config/sources.v1.json"
+      ],
+      "implementationEffect": "Keep the named live OData gate closed; future qualification cannot be inherited from a synthetic contract."
+    },
+    {
+      "id": "B8-ID-RULES",
+      "disposition": "compatibility_fixture",
+      "evidence": ["docs/source-reviews/idaho-rules-executive-2026-07-31.md"],
+      "implementationEffect": "Retain dated originating-source research and limitations."
+    },
+    {
+      "id": "B8-ID-RULES-ADAPTER",
+      "disposition": "compatibility_fixture",
+      "evidence": [
+        "docs/source-reviews/idaho-rules-executive-2026-07-31.md",
+        "config/sources.v1.json"
+      ],
+      "implementationEffect": "Retain disabled Idaho fallback/adapter evidence without representing it as current production coverage."
+    },
+    {
+      "id": "B8-ID-LEGISLATION",
+      "disposition": "defer",
+      "evidence": ["docs/source-feasibility.md", "config/sources.v1.json"],
+      "implementationEffect": "Keep the absent stable permitted structured interface as a visible gap; no opaque scraper is adopted."
+    },
+    {
+      "id": "B9-LONGTAIL",
+      "disposition": "migrate",
+      "evidence": [
+        "docs/pnw-scope-and-acceptance.md",
+        "docs/data-governance.md"
+      ],
+      "implementationEffect": "Move future bounded Nation, county and other scenario materials into gated PS09 qualification, preserving exact Nation-name and status evidence rules."
+    },
+    {
+      "id": "B10-SINGLE-NATION",
+      "disposition": "migrate",
+      "evidence": ["docs/ux-spec.md", "docs/pnw-scope-and-acceptance.md"],
+      "implementationEffect": "Retain single-Nation acceptance needs in PS09 scenario/output work; no independent legacy production suite becomes a second release root."
+    },
+    {
+      "id": "B10-COMPARISON",
+      "disposition": "defer",
+      "evidence": ["docs/ux-spec.md", "ROADMAP.yaml"],
+      "implementationEffect": "Keep advanced comparison unimplemented until an exact output tranche approves it; the current synthetic application remains the retained projection."
+    },
+    {
+      "id": "B10-RULES-SCALE",
+      "disposition": "migrate",
+      "evidence": ["docs/mvp-plan.md", "docs/architecture.md"],
+      "implementationEffect": "Carry representative scale, deterministic mapping and resource budgets into PS09 acceptance; tiny Run 1 objects are not scale qualification."
+    },
+    {
+      "id": "B10-REFRESH",
+      "disposition": "migrate",
+      "evidence": ["docs/data-governance.md", "docs/mvp-plan.md"],
+      "implementationEffect": "Carry source-specific refresh and checksum-bound LKG into future canonical lifecycle work; no source refresh or outbound schedule is enabled."
+    },
+    {
+      "id": "B10-RC",
+      "disposition": "migrate",
+      "evidence": ["docs/mvp-plan.md", "ROADMAP.yaml"],
+      "implementationEffect": "Archive the old local RC accounting. Relevant acceptance checks feed PS09-06, which is the only current local release root."
+    },
+    {
+      "id": "K0-LIFECYCLE",
+      "disposition": "defer",
+      "evidence": [
+        "docs/vision/k0-lifecycle-contract.md",
+        "schemas/lifecycle.schema.v1.json"
+      ],
+      "implementationEffect": "Preserve frozen K0 identity and tests; no import or product dependency is added while its convergence gate is closed."
+    },
+    {
+      "id": "S0-SPATIAL",
+      "disposition": "defer",
+      "evidence": [
+        "docs/vision/s0-spatial-contract.md",
+        "schemas/experimental/spatial-observation.schema.v1.json"
+      ],
+      "implementationEffect": "Preserve frozen removable S0 fixtures; no spatial, map, parcel or sensitive land dependency enters PS09."
+    },
+    {
+      "id": "O0-ORCHESTRATION",
+      "disposition": "reject_pending_review",
+      "evidence": ["docs/vision/o0-orchestration-contract.md"],
+      "implementationEffect": "Keep the unaccepted O0 proposal outside runtime and dependencies. Run 1 neither reviews it into acceptance nor implements a competing custody engine."
+    },
+    {
+      "id": "PNW-00-RECONCILE",
+      "disposition": "adopt",
+      "evidence": [
+        "docs/handoffs/pnw-product-space-rebase-2026-09-02.md",
+        "docs/adr/ps09-canonical-corpus.md"
+      ],
+      "implementationEffect": "Retain the dated product-space mapping as evidence while replacing its release graph with the explicitly authorized PS09 graph."
+    },
+    {
+      "id": "PNW-01-ENGINE-SEAMS",
+      "disposition": "compatibility_fixture",
+      "evidence": [
+        "tests/engine/projection.test.ts",
+        "tests/engine/projection-non-interference.test.ts"
+      ],
+      "implementationEffect": "Preserve synthetic engine/profile/projection contracts and tests; they are not yet wired as a second corpus or ordinary runtime dependency."
+    },
+    {
+      "id": "PNW-02-REGIONAL-REGISTRY",
+      "disposition": "migrate",
+      "evidence": [
+        "docs/pnw-scope-and-acceptance.md",
+        "docs/adr/ps09-canonical-corpus.md"
+      ],
+      "implementationEffect": "Replace the universal exact-59 launch requirement with gated owner-selected cohort contracts; exact current membership claims still require originating evidence."
+    },
+    {
+      "id": "PNW-03-GEOGRAPHY-RIGHTS",
+      "disposition": "compatibility_fixture",
+      "evidence": [
+        "schemas/geography-rights.schema.v1.json",
+        "tests/engine/geography-rights-non-interference.test.ts"
+      ],
+      "implementationEffect": "Preserve synthetic relation/authority contracts without importing geographic or rights assertions into the current corpus or inferring jurisdiction."
+    },
+    {
+      "id": "PNW-04-TAXONOMY",
+      "disposition": "compatibility_fixture",
+      "evidence": [
+        "schemas/taxonomy-bundle.schema.v1.json",
+        "tests/engine/taxonomy-non-interference.test.ts"
+      ],
+      "implementationEffect": "Keep the separate synthetic taxonomy seam and provenance tests. The ordinary corpus retains the existing exact-label taxonomy; no semantic or AI mapping is added."
+    },
+    {
+      "id": "PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT",
+      "disposition": "compatibility_fixture",
+      "evidence": [
+        "schemas/real-source-lifecycle-bundle.schema.v1.json",
+        "tests/engine/real-source-lifecycle.test.ts"
+      ],
+      "implementationEffect": "Preserve the Federal Register-specific lifecycle candidate and tests. It is not generalized or connected to real AnalyzedCorpus admission in Run 1."
+    },
+    {
+      "id": "PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION",
+      "disposition": "defer",
+      "evidence": [
+        "docs/source-reviews/federal-register-real-source-prerelease-2026-09-03.md",
+        "docs/development/ps09-run-01-custody.json"
+      ],
+      "implementationEffect": "Preserve consumed D3/R6/R7 evidence and the digest-drift block. FR-A1 remains unissued; no retry, grant reuse or admission follows convergence."
+    },
+    {
+      "id": "PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG",
+      "disposition": "migrate",
+      "evidence": [
+        "docs/data-governance.md",
+        "schemas/real-source-lifecycle-bundle.schema.v1.json"
+      ],
+      "implementationEffect": "Retain bounded revision/refresh/LKG requirements as future gated canonical lifecycle work; no real health or prior-output evidence is fabricated."
+    },
+    {
+      "id": "PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION",
+      "disposition": "adopt",
+      "evidence": [
+        "src/pipeline/analyzed-corpus.mjs",
+        "schemas/analyzed-corpus.schema.v1.json",
+        "tests/pipeline/synthetic-corpus-path.test.mjs"
+      ],
+      "implementationEffect": "Use the existing corpus implementation, preserving schema 1.0 and adding the closed 1.1 exact-three-fixture profile for the ordinary build. Both still reject real corpora."
+    },
+    {
+      "id": "PNW-08-LOCAL-REAL-SOURCE-APPLICATION-PRERELEASE",
+      "disposition": "migrate",
+      "evidence": ["docs/adr/ps09-canonical-corpus.md", "docs/ux-spec.md"],
+      "implementationEffect": "Retire the separate prerelease product lane. Future real application views must project from the same canonical corpus under PS09 authority."
+    },
+    {
+      "id": "PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY",
+      "disposition": "adopt",
+      "evidence": [
+        "docs/source-reviews/source-authority-portfolio-discovery-2026-09-03.md"
+      ],
+      "implementationEffect": "Retain exact dated portfolio observations, unknowns and consumed request evidence as planning inputs; rankings are not qualification or selected record identities."
+    },
+    {
+      "id": "PNW-05-SOURCE-PACK",
+      "disposition": "compatibility_fixture",
+      "evidence": [
+        "schemas/source-pack-bundle.schema.v1.json",
+        "tests/engine/source-pack-non-interference.test.ts"
+      ],
+      "implementationEffect": "Preserve the synthetic-only SourcePackBundle contract and gates. New CuratedDocumentPack references the canonical corpus; it does not admit a real source or duplicate source-pack lifecycle."
+    },
+    {
+      "id": "PNW-06-LIFECYCLE-REFRESH",
+      "disposition": "migrate",
+      "evidence": [
+        "docs/adr/ps09-canonical-corpus.md",
+        "docs/data-governance.md"
+      ],
+      "implementationEffect": "Carry lifecycle and freshness requirements into PS09 real-source runs, with one source-specific governed path and no second revision store."
+    },
+    {
+      "id": "PNW-07-ANALYZED-CORPUS",
+      "disposition": "migrate",
+      "evidence": [
+        "src/pipeline/analyzed-corpus.mjs",
+        "docs/adr/ps09-canonical-corpus.md"
+      ],
+      "implementationEffect": "Converge future evidence-bearing analysis on the existing corpus. Run 1 adds synthetic objects, renditions and citations; broader real analysis remains gated."
+    },
+    {
+      "id": "PNW-08-OUTPUT-ADAPTERS",
+      "disposition": "migrate",
+      "evidence": [
+        "scripts/build-synthetic-artifact.mjs",
+        "docs/adr/ps09-canonical-corpus.md"
+      ],
+      "implementationEffect": "Keep the ordinary artifact as the implemented disposable projection; document/web/structured outputs must share corpus references in gated Run 5."
+    },
+    {
+      "id": "PNW-09-ACCEPTANCE-SCENARIOS",
+      "disposition": "migrate",
+      "evidence": ["docs/pnw-scope-and-acceptance.md", "docs/mvp-plan.md"],
+      "implementationEffect": "Carry contrasting scenario and non-inference acceptance into Run 2 manifests and Run 6 evidence. Candidate scenarios are not proven real graphs."
+    },
+    {
+      "id": "PNW-10-REGIONAL-RC",
+      "disposition": "migrate",
+      "evidence": ["ROADMAP.yaml", "docs/adr/ps09-canonical-corpus.md"],
+      "implementationEffect": "Archive the separate PNW release root; relevant scenario, review and security obligations converge on sole PS09-06 acceptance."
+    },
+    {
+      "id": "H-REPOSITORY-BACKBONE",
+      "disposition": "adopt",
+      "evidence": ["docs/PROJECT-BACKBONE.md", "scripts/validate-backbone.mjs"],
+      "implementationEffect": "Retain one binding authority/navigation index and strict schema/link/custody validation; repository convergence is supporting evidence, not a second product release."
+    }
+  ]
+}

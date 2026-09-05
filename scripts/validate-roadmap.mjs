@@ -1,7 +1,8 @@
 import { createHash } from "node:crypto";
-import { access, readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { access, lstat, readFile, realpath } from "node:fs/promises";
+import { isAbsolute, relative, resolve } from "node:path";
 import { parseDocument } from "yaml";
+import { PRESERVED_OWNER_DIRECTION_INPUT_SHA256 } from "./owner-input-custody.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const requestedRoadmapPath = process.argv[2];
@@ -24,6 +25,92 @@ if (document.errors.length > 0) {
 }
 
 const roadmap = document.toJS();
+const ps09 = roadmap.schema_version === "1.5";
+const ps09Ids = [
+  "PS09-01-REPOSITORY-CONVERGENCE",
+  "PS09-02-IDENTITY-AUTHORITY-SCENARIOS",
+  "PS09-03-FEDERAL-REAL-SOURCE-SPINE",
+  "PS09-04-PNW-REAL-CORPUS",
+  "PS09-05-SEARCH-OUTPUTS",
+  "PS09-06-LOCAL-RC",
+  "PS09-07-FOCUSED-REPAIR",
+  "PS09-08-STAKEHOLDER-HARDENING",
+];
+const ps09PublicationIds = [
+  "RELEASE-LICENSE",
+  "RELEASE-REMOTE-PUSH",
+  "RELEASE-PAGES",
+  "RELEASE-PUBLISH",
+];
+// Frozen identities from the pre-convergence ledger. The registry must account
+// for these components even if someone deletes both an item and its scope entry.
+const ps09HistoricalIds = [
+  "A-FOUNDATION",
+  "H-HANDOFF",
+  "H-HOOKS",
+  "B1-APP",
+  "B2-PARSER",
+  "B2-REVIEW",
+  "B2-IDS",
+  "B2-STATES",
+  "B2-READY",
+  "B2-PREGATE-HARDENING",
+  "B3-PIPELINE",
+  "B4-FR-RESEARCH",
+  "B4-FR-ADAPTER",
+  "B4-FR-UX",
+  "B4-GRANTS-RESEARCH",
+  "B4-GRANTS-ADAPTER",
+  "B4-CONGRESS-CONTRACT",
+  "B4-CONGRESS-LIVE",
+  "B4-GOVINFO-CONTRACT",
+  "B4-GOVINFO-LIVE",
+  "B4-REGS-CONTRACT",
+  "B4-REGS-LIVE",
+  "B4-UX-PREGATE-HARDENING",
+  "B5-WA-LWS-RESEARCH",
+  "B5-WA-LWS-ADAPTER",
+  "B5-WA-RULES",
+  "B5-WA-ACCORDS",
+  "B6-COURT-RESEARCH",
+  "B6-COURT-ADAPTER",
+  "B6-COURT-EXPANSION",
+  "B6-LANDMARKS",
+  "B7-OR-NONODATA",
+  "B7-OR-ADAPTER",
+  "B7-OR-ODATA-CONTRACT",
+  "B7-OR-ODATA-LIVE",
+  "B8-ID-RULES",
+  "B8-ID-RULES-ADAPTER",
+  "B8-ID-LEGISLATION",
+  "B9-LONGTAIL",
+  "B10-SINGLE-NATION",
+  "B10-COMPARISON",
+  "B10-RULES-SCALE",
+  "B10-REFRESH",
+  "B10-RC",
+  "K0-LIFECYCLE",
+  "S0-SPATIAL",
+  "O0-ORCHESTRATION",
+  "PNW-00-RECONCILE",
+  "PNW-01-ENGINE-SEAMS",
+  "PNW-02-REGIONAL-REGISTRY",
+  "PNW-03-GEOGRAPHY-RIGHTS",
+  "PNW-04-TAXONOMY",
+  "PNW-05-REAL-SOURCE-LIFECYCLE-CONTRACT",
+  "PNW-05-SRC-FEDERAL-REGISTER-TIER1-BOUNDED-ADMISSION",
+  "PNW-06-FEDERAL-REGISTER-BOUNDED-REFRESH-LKG",
+  "PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION",
+  "PNW-08-LOCAL-REAL-SOURCE-APPLICATION-PRERELEASE",
+  "PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY",
+  "PNW-05-SOURCE-PACK",
+  "PNW-06-LIFECYCLE-REFRESH",
+  "PNW-07-ANALYZED-CORPUS",
+  "PNW-08-OUTPUT-ADAPTERS",
+  "PNW-09-ACCEPTANCE-SCENARIOS",
+  "PNW-10-REGIONAL-RC",
+  "H-REPOSITORY-BACKBONE",
+];
 
 const fail = (message) => {
   throw new Error(`ROADMAP.yaml: ${message}`);
@@ -435,6 +522,11 @@ for (const [index, item] of workItems.entries()) {
     }
     if (
       item.status !== "blocked" &&
+      !(
+        ps09 &&
+        ps09Ids.includes(id) &&
+        ["not_started", "deferred"].includes(item.status)
+      ) &&
       !["approved", "satisfied"].includes(authorizationGateState)
     ) {
       fail(
@@ -543,6 +635,265 @@ const repositoryBackboneScope = requireObject(
 const hasExactOrderedValues = (actual, expected) =>
   actual.length === expected.length &&
   actual.every((value, index) => value === expected[index]);
+const ps09Dependencies = [[], [0], [0, 1], [1, 2], [2, 3], [4], [4], [5]];
+if (ps09) {
+  requireExactKeys(
+    roadmap.completion_scope,
+    [
+      "ps09",
+      "repository_backbone",
+      "local_release_candidate",
+      "local_real_source_prerelease",
+      "pnw_regional_engine",
+    ],
+    "canonical completion scopes",
+  );
+  requireExactKeys(
+    roadmap.finish_states,
+    [
+      "ps09",
+      "repository_backbone",
+      "local_release_candidate",
+      "local_real_source_prerelease",
+      "pnw_regional_engine",
+      "public_beta",
+    ],
+    "canonical finish states",
+  );
+  requireExactOrderedValues(
+    workItems
+      .filter(
+        ({ id }) => !ps09Ids.includes(id) && !ps09PublicationIds.includes(id),
+      )
+      .map(({ id }) => id),
+    ps09HistoricalIds,
+    "preserved historical component identities",
+  );
+  const scope = requireObject(
+    roadmap.completion_scope.ps09,
+    "completion_scope.ps09",
+  );
+  requireExactValue(scope.release_root, ps09Ids[5], "PS09 release root");
+  requireExactOrderedValues(
+    scope.required_outcomes,
+    ps09Ids.slice(0, 6),
+    "PS09 required outcomes",
+  );
+  requireExactOrderedValues(
+    scope.conditional_outcomes,
+    ps09Ids.slice(6),
+    "PS09 conditional outcomes",
+  );
+  for (const [index, id] of ps09Ids.entries()) {
+    const item = byId.get(id);
+    if (!item) fail(`canonical PS09 work item missing: ${id}`);
+    requireExactOrderedValues(
+      item.dependencies,
+      ps09Dependencies[index].map((i) => ps09Ids[i]),
+      `${id} dependencies`,
+    );
+    requireExactValue(
+      item.authorization_gate,
+      `G-PS09-RUN-0${index + 1}`,
+      `${id} authorization gate`,
+    );
+    requireExactValue(item.priority, index + 300, `${id} priority`);
+    if (index < 6 && item.status === "deferred")
+      fail(`${id} is mandatory and cannot be deferred`);
+    if (index >= 6 && item.status !== "deferred" && item.evidence.length === 0)
+      fail(`${id} conditional work requires recorded trigger evidence`);
+  }
+  for (const name of [
+    "local_release_candidate",
+    "pnw_regional_engine",
+    "local_real_source_prerelease",
+  ]) {
+    requireExactValue(
+      roadmap.completion_scope[name]?.accounting,
+      "archived_evidence_not_release_root",
+      `${name} accounting`,
+    );
+  }
+  const publicationGates = [
+    "G-E-LICENSE",
+    "G-E-REMOTE-PUSH",
+    "G-E-PAGES",
+    "G-E-PUBLISH",
+  ];
+  for (const [index, id] of ps09PublicationIds.entries()) {
+    requireExactOrderedValues(
+      byId.get(id)?.dependencies,
+      [index === 0 ? ps09Ids[5] : ps09PublicationIds[index - 1]],
+      `${id} single public-beta prerequisite`,
+    );
+    requireExactValue(
+      byId.get(id)?.authorization_gate,
+      publicationGates[index],
+      `${id} exact publication gate`,
+    );
+  }
+  if (!gateById.has("G-PS09-RC"))
+    fail("canonical G-PS09-RC acceptance gate is missing");
+  const finish = requireObject(
+    roadmap.finish_states.ps09,
+    "finish_states.ps09",
+  );
+  requireExactValue(finish.release_root, ps09Ids[5], "PS09 finish root");
+  if (!allowedFinishStates.has(finish.current_state))
+    fail("invalid PS09 finish state");
+  if (
+    finish.current_state === "complete" &&
+    (ps09Ids.slice(0, 6).some((id) => byId.get(id).status !== "complete") ||
+      gateById.get("G-PS09-RC")?.state !== "satisfied")
+  ) {
+    fail(
+      "PS09 completion requires all six outcomes and exact release acceptance",
+    );
+  }
+  if (
+    byId.get(ps09Ids[5]).status === "complete" &&
+    gateById.get("G-PS09-RC")?.state !== "satisfied"
+  )
+    fail("PS09 RC requires its acceptance gate");
+  if (
+    (finish.current_state === "complete") !==
+    (byId.get(ps09Ids[5]).status === "complete")
+  )
+    fail("PS09 finish completion must match its canonical RC item");
+  if (
+    gateById.get("G-PS09-RC").state === "satisfied" &&
+    byId.get(ps09Ids[5]).status !== "complete"
+  )
+    fail("G-PS09-RC cannot be satisfied before canonical RC completion");
+  requireUniqueStrings(
+    finish.satisfied_when,
+    "finish_states.ps09.satisfied_when",
+  );
+
+  // An optional explicit registry path supports isolated validator fixtures.
+  // Normal validation always reads the committed convergence registry.
+  const registry = requireExactKeys(
+    JSON.parse(
+      await readFile(
+        process.argv[3]
+          ? resolve(process.cwd(), process.argv[3])
+          : resolve(root, "docs/development/ps09-convergence.v1.json"),
+        "utf8",
+      ),
+    ),
+    [
+      "schemaVersion",
+      "canonicalReleaseRoot",
+      "requiredOutcomes",
+      "conditionalOutcomes",
+      "components",
+    ],
+    "PS09 convergence registry",
+  );
+  requireExactValue(
+    registry.schemaVersion,
+    "1.0.0",
+    "PS09 convergence registry schemaVersion",
+  );
+  requireExactValue(
+    registry.canonicalReleaseRoot,
+    ps09Ids[5],
+    "PS09 convergence registry release root",
+  );
+  requireExactOrderedValues(
+    registry.requiredOutcomes,
+    ps09Ids.slice(0, 6),
+    "PS09 convergence registry required outcomes",
+  );
+  requireExactOrderedValues(
+    registry.conditionalOutcomes,
+    ps09Ids.slice(6),
+    "PS09 convergence registry conditional outcomes",
+  );
+  const components = requireArray(
+    registry.components,
+    "PS09 convergence components",
+  );
+  requireExactOrderedValues(
+    components.map((entry) => entry?.id),
+    ps09HistoricalIds,
+    "PS09 convergence component coverage",
+  );
+  const dispositions = new Set([
+    "adopt",
+    "migrate",
+    "compatibility_fixture",
+    "defer",
+    "reject_pending_review",
+  ]);
+  const ownerInputPaths = new Set(
+    Object.keys(PRESERVED_OWNER_DIRECTION_INPUT_SHA256).map((path) =>
+      path.toLowerCase(),
+    ),
+  );
+  const canonicalRoot = await realpath(root);
+  for (const component of components) {
+    const path = `PS09 convergence component ${component.id}`;
+    requireExactKeys(
+      component,
+      ["id", "disposition", "evidence", "implementationEffect"],
+      path,
+    );
+    if (!dispositions.has(component.disposition))
+      fail(`${path} has invalid disposition`);
+    requireString(
+      component.implementationEffect,
+      `${path}.implementationEffect`,
+    );
+    if (
+      ["K0-LIFECYCLE", "S0-SPATIAL", "O0-ORCHESTRATION"].includes(
+        component.id,
+      ) &&
+      ["adopt", "migrate"].includes(component.disposition)
+    )
+      fail(
+        `${path} cannot enter product dependencies behind closed convergence gates`,
+      );
+    for (const evidence of requireUniqueStrings(
+      component.evidence,
+      `${path}.evidence`,
+    )) {
+      const target = resolve(root, evidence);
+      const relativeTarget = relative(root, target);
+      if (
+        isAbsolute(evidence) ||
+        evidence.includes("\\") ||
+        evidence
+          .split("/")
+          .some((segment) => ["", ".", ".."].includes(segment)) ||
+        relativeTarget.startsWith("..") ||
+        isAbsolute(relativeTarget) ||
+        !/^(?:AGENTS\.md|README\.md|ROADMAP\.yaml|(?:src|tests|schemas|scripts|config|docs)\/[A-Za-z0-9_./-]+)$/.test(
+          evidence,
+        )
+      )
+        fail(`${path} evidence must be a portable repository path`);
+      if (ownerInputPaths.has(evidence.toLowerCase()))
+        fail(`${path} must not depend on an untracked owner input`);
+      const evidenceStat = await lstat(target).catch(() =>
+        fail(`${path} evidence path does not exist: ${evidence}`),
+      );
+      const resolvedEvidence = relative(canonicalRoot, await realpath(target));
+      const canonicalEvidence = resolvedEvidence.replaceAll("\\", "/");
+      if (
+        !evidenceStat.isFile() ||
+        evidenceStat.isSymbolicLink() ||
+        evidenceStat.nlink !== 1 ||
+        canonicalEvidence !== evidence ||
+        resolvedEvidence.startsWith("..") ||
+        isAbsolute(resolvedEvidence)
+      )
+        fail(`${path} evidence must be a regular file inside the repository`);
+      if (ownerInputPaths.has(canonicalEvidence.toLowerCase()))
+        fail(`${path} must not depend on an untracked owner input`);
+    }
+  }
+}
 const requiredOutcomes = requireUniqueStrings(
   completionScope.required_outcomes,
   "completion_scope.local_release_candidate.required_outcomes",
@@ -786,6 +1137,7 @@ const completionGroups = [
   ["additive_vision_phases", additiveVisionPhases],
   ["pnw_regional_engine.required_outcomes", pnwRequiredOutcomes],
 ];
+if (ps09) completionGroups.push(["ps09.canonical_and_conditional", ps09Ids]);
 if (localRealSourcePrereleaseScope !== null) {
   completionGroups.push([
     "local_real_source_prerelease.required_outcomes",
@@ -1658,10 +2010,11 @@ if (inProgress.length === 1) {
   fail("zero in_progress items require current_focus.work_item: null");
 }
 
-if (isTerminal) {
+if (!ps09 && isTerminal) {
   const disallowedTerminalInProgress = inProgress.filter(
     (item) =>
       !additiveVisionPhaseIds.has(item.id) &&
+      !(ps09 && ps09Ids.includes(item.id)) &&
       !(
         pnwFinish.current_state === "in_progress" &&
         pnwRequiredOutcomeIds.has(item.id)
@@ -1694,7 +2047,7 @@ if (isTerminal) {
       "an active additive, repository-backbone, or PNW current focus requires current_focus.terminal_reason: null",
     );
   }
-} else {
+} else if (!ps09) {
   if (inProgress.length !== 1) {
     fail(
       `active local finish state requires exactly one in_progress item; found ${inProgress.length}`,
@@ -1707,7 +2060,7 @@ if (isTerminal) {
   }
 }
 
-if (localFinish.current_state === "complete") {
+if (!ps09 && localFinish.current_state === "complete") {
   const incompleteRequired = requiredOutcomes.filter(
     (id) => byId.get(id).status !== "complete",
   );
@@ -1763,7 +2116,122 @@ const protectedReleaseRoots = [
   "B5-WA-LWS-ADAPTER",
   "B5-WA-RULES",
 ];
-if (localFinish.current_state === "blocked") {
+let ps09ActionRoots = [];
+if (ps09) {
+  const finish = roadmap.finish_states.ps09;
+  const requiredRoots = collectIncompleteOutcomeRoots(ps09Ids.slice(0, 6));
+  const enabledConditionalIds = ps09Ids.slice(6).filter((id) => {
+    const item = byId.get(id);
+    return (
+      item.status !== "deferred" &&
+      ["approved", "satisfied"].includes(
+        gateById.get(item.authorization_gate).state,
+      )
+    );
+  });
+  ps09ActionRoots = collectIncompleteOutcomeRoots([
+    ...ps09Ids.slice(0, 6),
+    ...enabledConditionalIds,
+  ]);
+  const active = inProgress[0];
+  if (active && ![...ps09Ids, ...ps09PublicationIds].includes(active.id))
+    fail("PS09 execution cannot activate an archived historical lane");
+  if (
+    active &&
+    ps09PublicationIds.includes(active.id) &&
+    finish.current_state !== "complete"
+  )
+    fail("publication execution requires complete canonical PS09 acceptance");
+  if (active && ps09PublicationIds.includes(active.id))
+    ps09ActionRoots = [active.id];
+  if (
+    finish.current_state === "in_progress" &&
+    (!active || !ps09Ids.includes(active.id))
+  )
+    fail("active PS09 finish requires exactly one PS09 in_progress item");
+  if (
+    active &&
+    ps09Ids.slice(0, 6).includes(active.id) &&
+    finish.current_state !== "in_progress"
+  )
+    fail("active required PS09 item requires in_progress PS09 finish");
+  if (["blocked", "not_started"].includes(finish.current_state) && active)
+    fail("inactive PS09 finish cannot retain in_progress work");
+  if (
+    finish.current_state === "not_started" &&
+    ps09Ids.slice(0, 6).some((id) => byId.get(id).status === "complete")
+  )
+    fail("PS09 finish cannot be not_started after required work completes");
+  if (finish.current_state === "blocked") {
+    if (
+      requiredRoots.length === 0 ||
+      requiredRoots.some((id) => byId.get(id).status !== "blocked")
+    )
+      fail(
+        "blocked PS09 finish requires only blocked incomplete canonical roots",
+      );
+    requireExactOrderedValues(
+      finish.blocked_by,
+      requiredRoots,
+      "PS09 finish blockers",
+    );
+  } else if (finish.blocked_by !== undefined) {
+    requireExactOrderedValues(
+      finish.blocked_by,
+      [],
+      "non-blocked PS09 finish blockers",
+    );
+  }
+  const ready = [...ps09Ids, ...ps09PublicationIds]
+    .map((id) => byId.get(id))
+    .filter((item) => item.status === "ready");
+  if (!active && ready.length > 0)
+    fail("PS09 terminal checkpoint cannot retain authorized ready work");
+  if (active && ready.some((item) => item.priority < active.priority))
+    fail(
+      "PS09 current focus must select the lowest-priority-number ready work",
+    );
+  if (active) {
+    requireExactValue(
+      roadmap.current_focus.terminal_reason,
+      null,
+      "active PS09 terminal reason",
+    );
+    requireExactOrderedValues(
+      roadmap.current_focus.resumable_roots,
+      [active.id],
+      "active PS09 resumable roots",
+    );
+  } else {
+    requireString(
+      roadmap.current_focus.terminal_reason,
+      "terminal PS09 reason",
+    );
+    requireExactOrderedValues(
+      roadmap.current_focus.resumable_roots,
+      ps09ActionRoots,
+      "terminal PS09 resumable roots",
+    );
+  }
+  for (const name of [
+    "local_release_candidate",
+    "pnw_regional_engine",
+    "local_real_source_prerelease",
+  ]) {
+    const archived = roadmap.finish_states[name];
+    if (archived.blocked_by !== undefined) {
+      for (const id of requireArray(
+        archived.blocked_by,
+        `archived ${name} blockers`,
+        { nonempty: false },
+      )) {
+        if (!byId.has(id) && !gateById.has(id) && !boundaryIds.has(id))
+          fail(`archived ${name} references unknown blocker ${id}`);
+      }
+    }
+  }
+}
+if (!ps09 && localFinish.current_state === "blocked") {
   const localFinishBlockers = requireUniqueStrings(
     localFinish.blocked_by,
     "finish_states.local_release_candidate.blocked_by",
@@ -1795,7 +2263,10 @@ if (localFinish.current_state === "blocked") {
         `unexpected: ${unexpectedFinishBlockers.join(", ") || "none"}`,
     );
   }
-  if (inProgress.length === 0 || !pnwRequiredOutcomeIds.has(inProgress[0].id)) {
+  if (
+    !ps09 &&
+    (inProgress.length === 0 || !pnwRequiredOutcomeIds.has(inProgress[0].id))
+  ) {
     const currentFocusRoots = requireUniqueStrings(
       roadmap.current_focus.resumable_roots,
       "current_focus.resumable_roots",
@@ -1824,6 +2295,7 @@ if (localFinish.current_state === "blocked") {
     .filter(
       (item) =>
         item.status === "ready" &&
+        !(ps09 && ps09Ids.includes(item.id)) &&
         !additiveVisionPhases.includes(item.id) &&
         !pnwRequiredOutcomeIds.has(item.id) &&
         !localRealSourcePrereleaseOutcomeIds.has(item.id),
@@ -1837,7 +2309,7 @@ if (localFinish.current_state === "blocked") {
   }
 }
 
-if (pnwFinish.current_state === "complete") {
+if (!ps09 && pnwFinish.current_state === "complete") {
   const incompletePnwOutcomes = pnwRequiredOutcomes.filter(
     (id) => byId.get(id).status !== "complete",
   );
@@ -1848,7 +2320,7 @@ if (pnwFinish.current_state === "complete") {
     );
   }
 }
-if (localRealSourcePrereleaseFinish?.current_state === "in_progress") {
+if (!ps09 && localRealSourcePrereleaseFinish?.current_state === "in_progress") {
   const activeLocalPrereleaseItems = inProgress.filter((item) =>
     localRealSourcePrereleaseOutcomeIds.has(item.id),
   );
@@ -1861,7 +2333,7 @@ if (localRealSourcePrereleaseFinish?.current_state === "in_progress") {
     localRealSourcePrereleaseOutcomes,
   );
 }
-if (localRealSourcePrereleaseFinish?.current_state === "complete") {
+if (!ps09 && localRealSourcePrereleaseFinish?.current_state === "complete") {
   const incomplete = localRealSourcePrereleaseOutcomes.filter(
     (id) => byId.get(id).status !== "complete",
   );
@@ -1882,7 +2354,7 @@ if (localRealSourcePrereleaseFinish?.current_state === "complete") {
     );
   }
 }
-if (localRealSourcePrereleaseFinish?.current_state === "blocked") {
+if (!ps09 && localRealSourcePrereleaseFinish?.current_state === "blocked") {
   const active = workItems.filter(
     (item) =>
       localRealSourcePrereleaseOutcomeIds.has(item.id) &&
@@ -1900,6 +2372,7 @@ if (localRealSourcePrereleaseFinish?.current_state === "blocked") {
   );
 }
 if (
+  !ps09 &&
   repositoryBackboneFinish.current_state === "in_progress" &&
   (inProgress.length !== 1 ||
     !repositoryBackboneOutcomeIds.has(inProgress[0].id))
@@ -1908,7 +2381,7 @@ if (
     "active repository backbone finish state requires exactly its one in_progress item",
   );
 }
-if (pnwFinish.current_state === "in_progress") {
+if (!ps09 && pnwFinish.current_state === "in_progress") {
   const activePnwItems = inProgress.filter((item) =>
     pnwRequiredOutcomeIds.has(item.id),
   );
@@ -1940,7 +2413,7 @@ if (pnwFinish.current_state === "in_progress") {
     );
   }
 }
-if (pnwFinish.current_state === "blocked") {
+if (!ps09 && pnwFinish.current_state === "blocked") {
   const activePnwItems = workItems.filter(
     (item) =>
       pnwRequiredOutcomeIds.has(item.id) &&
@@ -1985,12 +2458,15 @@ if (!allowedFinishStates.has(publicFinish.current_state)) {
 }
 if (
   publicFinish.current_state === "complete" &&
-  (localFinish.current_state !== "complete" ||
-    pnwFinish.current_state !== "complete" ||
-    byId.get("RELEASE-PUBLISH")?.status !== "complete")
+  (ps09
+    ? roadmap.finish_states.ps09.current_state !== "complete" ||
+      byId.get("RELEASE-PUBLISH")?.status !== "complete"
+    : localFinish.current_state !== "complete" ||
+      pnwFinish.current_state !== "complete" ||
+      byId.get("RELEASE-PUBLISH")?.status !== "complete")
 ) {
   fail(
-    "public beta is complete without complete legacy and PNW local scopes plus the publication work item",
+    "public beta is complete without its canonical local acceptance and publication work item",
   );
 }
 if (
@@ -2026,7 +2502,9 @@ for (const [index, sourceEntry] of sourceRegister.entries()) {
   }
 }
 
-const nextActions = requireArray(roadmap.next_actions, "next_actions");
+const nextActions = requireArray(roadmap.next_actions, "next_actions", {
+  nonempty: !ps09,
+});
 let previousOrder = -1;
 for (const [index, action] of nextActions.entries()) {
   const path = `next_actions[${index}]`;
@@ -2040,14 +2518,16 @@ for (const [index, action] of nextActions.entries()) {
   }
   requireString(action.action, `${path}.action`);
 }
-const terminalActionRoots = [
-  ...new Set([
-    ...terminalRequiredRoots,
-    ...terminalPnwRoots,
-    ...terminalLocalRealSourcePrereleaseRoots,
-  ]),
-].sort((left, right) => byId.get(left).priority - byId.get(right).priority);
-if (terminalActionRoots.length > 0) {
+const terminalActionRoots = ps09
+  ? ps09ActionRoots
+  : [
+      ...new Set([
+        ...terminalRequiredRoots,
+        ...terminalPnwRoots,
+        ...terminalLocalRealSourcePrereleaseRoots,
+      ]),
+    ].sort((left, right) => byId.get(left).priority - byId.get(right).priority);
+if (ps09 || terminalActionRoots.length > 0) {
   const nextActionIds = nextActions.map((action) => action.work_item);
   const hasExactOrderedRoots =
     nextActionIds.length === terminalActionRoots.length &&

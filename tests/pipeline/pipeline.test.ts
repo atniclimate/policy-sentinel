@@ -29,4 +29,5 @@ test("pipeline contract and governance suite passes", () => {
   expect(output).toMatch(/\btests \d+\b/);
   expect(output).toMatch(/\bpass \d+\b/);
   expect(output).toMatch(/\bfail 0\b/);
-}, 20_000);
+  // Includes isolated CLI launches for legacy and canonical PS09 graph rejection.
+}, 45_000);

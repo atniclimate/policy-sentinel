@@ -44,7 +44,7 @@ const localRealSourcePrereleaseOutcomes = [
   "PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY",
 ];
 
-test("live roadmap isolates the local real-source prerelease child lane", () => {
+test("live roadmap preserves the archived local real-source prerelease child lane", () => {
   assert.deepEqual(
     liveRoadmap.completion_scope.local_real_source_prerelease.required_outcomes,
     localRealSourcePrereleaseOutcomes,
@@ -85,6 +85,418 @@ test("live roadmap isolates the local real-source prerelease child lane", () => 
   assert.equal(federalRegister?.activation, "inactive");
   assert.equal(federalRegister?.binding, "unbound");
   assert.equal(federalRegister?.publication, "not_authorized");
+});
+
+const ps09OutcomeIds = [
+  "PS09-01-REPOSITORY-CONVERGENCE",
+  "PS09-02-IDENTITY-AUTHORITY-SCENARIOS",
+  "PS09-03-FEDERAL-REAL-SOURCE-SPINE",
+  "PS09-04-PNW-REAL-CORPUS",
+  "PS09-05-SEARCH-OUTPUTS",
+  "PS09-06-LOCAL-RC",
+  "PS09-07-FOCUSED-REPAIR",
+  "PS09-08-STAKEHOLDER-HARDENING",
+];
+
+test("PS09 release accounting converges without reopening archived lanes", async (context) => {
+  const fixtureRoot = await mkdtemp(
+    path.join(tmpdir(), "policy-sentinel-ps09-roadmap-"),
+  );
+  context.after(() => rm(fixtureRoot, { recursive: true, force: true }));
+  const item = (candidate, id) =>
+    candidate.work_items.find((entry) => entry.id === id);
+  const gate = (candidate, id) =>
+    candidate.gates.find((entry) => entry.id === id);
+  const registry = {
+    schemaVersion: "1.0.0",
+    canonicalReleaseRoot: ps09OutcomeIds[5],
+    requiredOutcomes: ps09OutcomeIds.slice(0, 6),
+    conditionalOutcomes: ps09OutcomeIds.slice(6),
+    components: liveRoadmap.work_items
+      .filter(
+        ({ id }) => !ps09OutcomeIds.includes(id) && !id.startsWith("RELEASE-"),
+      )
+      .map(({ id }) => ({
+        id,
+        disposition: "compatibility_fixture",
+        evidence: ["README.md"],
+        implementationEffect:
+          "Synthetic registry-validation fixture; no component adoption.",
+      })),
+  };
+  const actions = (candidate, ids) => {
+    candidate.next_actions = ids.map((id, index) => ({
+      order: index + 1,
+      work_item: id,
+      action: `Resolve ${id}.`,
+    }));
+  };
+  const active = () => {
+    const candidate = clone(liveRoadmap);
+    candidate.schema_version = "1.5";
+    for (const [index, id] of ps09OutcomeIds.entries()) {
+      const entry = item(candidate, id);
+      entry.status =
+        index === 0
+          ? "in_progress"
+          : index === 1
+            ? "blocked"
+            : index < 6
+              ? "not_started"
+              : "deferred";
+      if (index !== 1) delete entry.blocked_by;
+      gate(candidate, entry.authorization_gate).state =
+        index === 0 ? "approved" : "closed";
+    }
+    gate(candidate, "G-PS09-RC").state = "closed";
+    candidate.finish_states.ps09 = {
+      current_state: "in_progress",
+      release_root: ps09OutcomeIds[5],
+      satisfied_when: ["Synthetic exact acceptance."],
+    };
+    candidate.current_focus.work_item = ps09OutcomeIds[0];
+    candidate.current_focus.terminal_reason = null;
+    candidate.current_focus.resumable_roots = [ps09OutcomeIds[0]];
+    actions(candidate, ps09OutcomeIds.slice(0, 2));
+    return candidate;
+  };
+  const terminalRunOne = () => {
+    const candidate = active();
+    item(candidate, ps09OutcomeIds[0]).status = "complete";
+    candidate.finish_states.ps09.current_state = "blocked";
+    candidate.finish_states.ps09.blocked_by = [ps09OutcomeIds[1]];
+    candidate.current_focus.work_item = null;
+    candidate.current_focus.terminal_reason =
+      "Run 1 accepted; exact Run 2 authority remains closed.";
+    candidate.current_focus.resumable_roots = [ps09OutcomeIds[1]];
+    actions(candidate, [ps09OutcomeIds[1]]);
+    return candidate;
+  };
+  const complete = () => {
+    const candidate = active();
+    for (const id of ps09OutcomeIds.slice(0, 6)) {
+      const entry = item(candidate, id);
+      entry.status = "complete";
+      entry.evidence = ["Synthetic objective completion evidence."];
+      delete entry.blocked_by;
+      const authorization = gate(candidate, entry.authorization_gate);
+      authorization.state = "approved";
+      authorization.evidence = ["Synthetic exact tranche authorization."];
+    }
+    Object.assign(gate(candidate, "G-PS09-RC"), {
+      state: "satisfied",
+      evidence: ["Synthetic canonical release acceptance."],
+    });
+    candidate.finish_states.ps09.current_state = "complete";
+    candidate.current_focus.work_item = null;
+    candidate.current_focus.terminal_reason =
+      "Canonical local acceptance complete; publication remains closed.";
+    candidate.current_focus.resumable_roots = [];
+    actions(candidate, []);
+    return candidate;
+  };
+  const validate = async (name, candidate, candidateRegistry = registry) => {
+    const fixturePath = path.join(fixtureRoot, `${name}.yaml`);
+    const registryPath = path.join(fixtureRoot, `${name}.json`);
+    await writeFile(fixturePath, stringify(candidate), "utf8");
+    await writeFile(registryPath, JSON.stringify(candidateRegistry), "utf8");
+    return spawnSync(
+      process.execPath,
+      [validatorPath, fixturePath, registryPath],
+      { cwd: projectRoot, encoding: "utf8" },
+    );
+  };
+  for (const [name, candidate] of [
+    ["active", active()],
+    ["terminal-run-one", terminalRunOne()],
+    ["canonical-rc", complete()],
+  ]) {
+    const result = await validate(name, candidate);
+    assert.equal(
+      result.status,
+      0,
+      `${name}: ${result.stdout}\n${result.stderr}`,
+    );
+  }
+  const rejects = [
+    [
+      "hidden-second-root",
+      (r) => {
+        r.completion_scope.hidden_second_rc = { required_outcomes: ["B10-RC"] };
+      },
+      /canonical completion scopes/,
+    ],
+    [
+      "hidden-second-finish",
+      (r) => {
+        r.finish_states.hidden_second_rc = { current_state: "complete" };
+      },
+      /canonical finish states/,
+    ],
+    [
+      "wrong-release-root",
+      (r) => {
+        r.completion_scope.ps09.release_root = "B10-RC";
+      },
+      /PS09 release root/,
+    ],
+    [
+      "missing-required-outcome",
+      (r) => {
+        r.completion_scope.ps09.required_outcomes.pop();
+      },
+      /PS09 required outcomes/,
+    ],
+    [
+      "mandatory-conditional",
+      (r) => {
+        r.completion_scope.ps09.required_outcomes.push(ps09OutcomeIds[6]);
+      },
+      /PS09 required outcomes/,
+    ],
+    [
+      "wrong-conditional",
+      (r) => {
+        r.completion_scope.ps09.conditional_outcomes.reverse();
+      },
+      /PS09 conditional outcomes/,
+    ],
+    [
+      "missing-rc-gate",
+      (r) => {
+        r.gates = r.gates.filter(({ id }) => id !== "G-PS09-RC");
+      },
+      /G-PS09-RC acceptance gate is missing/,
+    ],
+    [
+      "wrong-run-gate",
+      (r) => {
+        item(r, ps09OutcomeIds[0]).authorization_gate = "G-PNW-IMPLEMENTATION";
+      },
+      /authorization gate/,
+    ],
+    [
+      "old-dependency",
+      (r) => {
+        item(r, ps09OutcomeIds[0]).dependencies = ["B3-PIPELINE"];
+      },
+      /dependencies/,
+    ],
+    [
+      "k0-dependency",
+      (r) => {
+        item(r, ps09OutcomeIds[0]).dependencies = ["K0-LIFECYCLE"];
+      },
+      /dependencies/,
+    ],
+    [
+      "publication-bypass",
+      (r) => {
+        item(r, "RELEASE-LICENSE").dependencies = ["B3-PIPELINE"];
+      },
+      /single public-beta prerequisite/,
+    ],
+    [
+      "publication-gate-bypass",
+      (r) => {
+        item(r, "RELEASE-PUBLISH").authorization_gate = "G-PS09-RUN-01";
+      },
+      /exact publication gate/,
+    ],
+    [
+      "active-claimed-not-started",
+      (r) => {
+        r.finish_states.ps09.current_state = "not_started";
+      },
+      /active required PS09 item/,
+    ],
+    [
+      "active-claimed-blocked",
+      (r) => {
+        r.finish_states.ps09.current_state = "blocked";
+        r.finish_states.ps09.blocked_by = ["BOGUS"];
+      },
+      /active required PS09 item/,
+    ],
+    [
+      "active-without-focus",
+      (r) => {
+        item(r, ps09OutcomeIds[0]).status = "ready";
+        r.current_focus.work_item = null;
+      },
+      /active PS09 finish requires exactly one/,
+    ],
+    [
+      "conditional-closed-start",
+      (r) => {
+        item(r, ps09OutcomeIds[6]).status = "in_progress";
+      },
+      /authorization gate/,
+    ],
+    [
+      "mandatory-deferred",
+      (r) => {
+        item(r, ps09OutcomeIds[2]).status = "deferred";
+        item(r, ps09OutcomeIds[2]).reason = "Synthetic evasion.";
+      },
+      /mandatory and cannot be deferred/,
+    ],
+    [
+      "hidden-next-action",
+      (r) => {
+        r.next_actions.pop();
+      },
+      /terminal next actions/,
+    ],
+    [
+      "historical-next-action",
+      (r) => {
+        r.next_actions[0].work_item = "B2-REVIEW";
+      },
+      /terminal next actions/,
+    ],
+    [
+      "premature-public-completion",
+      (r) => {
+        r.finish_states.public_beta.current_state = "complete";
+      },
+      /public beta is complete/,
+    ],
+    [
+      "premature-rc-acceptance",
+      (r) => {
+        Object.assign(gate(r, "G-PS09-RC"), {
+          state: "satisfied",
+          evidence: ["Synthetic false acceptance."],
+        });
+      },
+      /cannot be satisfied before canonical RC completion/,
+    ],
+    [
+      "prefix-authorization-bypass",
+      (r) => {
+        r.work_items.push({
+          ...clone(item(r, ps09OutcomeIds[6])),
+          id: "PS09-99-UNAUTHORIZED",
+          priority: 308,
+        });
+      },
+      /authorization gate/,
+    ],
+  ];
+  for (const [name, mutate, message] of rejects) {
+    const candidate = active();
+    mutate(candidate);
+    const result = await validate(name, candidate);
+    assert.notEqual(result.status, 0, `${name} was accepted`);
+    assert.match(`${result.stdout}\n${result.stderr}`, message);
+  }
+  const terminal = terminalRunOne();
+  terminal.finish_states.ps09.blocked_by = ["BOGUS"];
+  let result = await validate("wrong-terminal-blockers", terminal);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /PS09 finish blockers/);
+  const falseComplete = complete();
+  gate(falseComplete, "G-PS09-RC").state = "closed";
+  result = await validate("closed-rc-acceptance", falseComplete);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /exact release acceptance/);
+  for (const [name, mutate, message] of [
+    [
+      "registry-missing-component",
+      (r) => {
+        r.components.pop();
+      },
+      /component coverage/,
+    ],
+    [
+      "registry-duplicate-component",
+      (r) => {
+        r.components[1] = clone(r.components[0]);
+      },
+      /component coverage/,
+    ],
+    [
+      "registry-wrong-root",
+      (r) => {
+        r.canonicalReleaseRoot = "B10-RC";
+      },
+      /registry release root/,
+    ],
+    [
+      "registry-bogus-disposition",
+      (r) => {
+        r.components[0].disposition = "complete";
+      },
+      /invalid disposition/,
+    ],
+    [
+      "registry-missing-evidence",
+      (r) => {
+        r.components[0].evidence = ["docs/no-such-convergence-evidence.md"];
+      },
+      /evidence path does not exist/,
+    ],
+    [
+      "registry-external-evidence",
+      (r) => {
+        r.components[0].evidence = ["../README.md"];
+      },
+      /portable repository path/,
+    ],
+    [
+      "registry-directory-evidence",
+      (r) => {
+        r.components[0].evidence = ["docs/adr"];
+      },
+      /regular file inside the repository/,
+    ],
+    [
+      "registry-owner-input",
+      (r) => {
+        r.components[0].evidence = ["docs/00-READ-FIRST.md"];
+      },
+      /untracked owner input/,
+    ],
+    [
+      "registry-owner-dot-alias",
+      (r) => {
+        r.components[0].evidence = [
+          "docs/./Policy-Sentinel-0.9-Program-Plan-2026-09-05.md",
+        ];
+      },
+      /portable repository path/,
+    ],
+    [
+      "registry-owner-separator-alias",
+      (r) => {
+        r.components[0].evidence = ["docs//00-READ-FIRST.md"];
+      },
+      /portable repository path/,
+    ],
+    [
+      "registry-k0-adoption",
+      (r) => {
+        r.components.find(({ id }) => id === "K0-LIFECYCLE").disposition =
+          "adopt";
+      },
+      /closed convergence gates/,
+    ],
+    [
+      "registry-o0-migration",
+      (r) => {
+        r.components.find(({ id }) => id === "O0-ORCHESTRATION").disposition =
+          "migrate";
+      },
+      /closed convergence gates/,
+    ],
+  ]) {
+    const candidateRegistry = clone(registry);
+    mutate(candidateRegistry);
+    const invalid = await validate(name, active(), candidateRegistry);
+    assert.notEqual(invalid.status, 0, `${name} was accepted`);
+    assert.match(invalid.stderr, message);
+  }
 });
 
 const sha256Hex = (bytes) => createHash("sha256").update(bytes).digest("hex");

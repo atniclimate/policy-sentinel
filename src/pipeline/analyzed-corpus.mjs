@@ -5,7 +5,44 @@ import addFormats from "ajv-formats";
 
 import recordSchema from "../../schemas/record.schema.v1.json" with { type: "json" };
 
-import { sourceDerivedLeafPointers } from "./policy-validation.mjs";
+import {
+  completeSyntheticProvenance,
+  sourceDerivedLeafPointers,
+  validateRecordSetPolicy,
+} from "./policy-validation.mjs";
+import canonicalSources from "../../config/sources.v1.json" with { type: "json" };
+import canonicalTaxonomy from "../../config/taxonomy.v1.json" with { type: "json" };
+import federalFixture from "../../fixtures/records/general-jurisdiction.valid.json" with { type: "json" };
+import countyFixture from "../../fixtures/records/county-explicit.valid.json" with { type: "json" };
+import accordFixture from "../../fixtures/records/intergovernmental-accord.valid.json" with { type: "json" };
+
+export const SYNTHETIC_APPLICATION_PROFILE =
+  "synthetic_application_compatibility";
+const applicationFixtures = [federalFixture, countyFixture, accordFixture].map(
+  (value) => completeSyntheticProvenance(globalThis.structuredClone(value)),
+);
+const isApplicationProfile = (value) =>
+  value.recordProfile === SYNTHETIC_APPLICATION_PROFILE;
+
+export function canonicalCorpusDigest(value) {
+  return digestValue(capturePlainJson(value, "$digest"));
+}
+
+export function syntheticApplicationPins() {
+  return deepFreeze({
+    sourceRegistryDigest: digestValue(canonicalSources),
+    taxonomyDigest: digestValue(canonicalTaxonomy),
+    fixtureDigests: applicationFixtures
+      .map((record) => ({
+        recordId: record.internalId,
+        digest: digestValue({
+          ...record,
+          fieldProvenance: canonicalProvenance(record),
+        }),
+      }))
+      .sort((a, b) => compareText(a.recordId, b.recordId)),
+  });
+}
 
 export const ANALYZED_CORPUS_SCHEMA_ID =
   "https://policy-sentinel.invalid/schemas/analyzed-corpus.schema.v1.json";
@@ -857,6 +894,34 @@ function validatePolicyRecord(record, path, root) {
       "embedded value does not satisfy the complete PolicyRecord 1.4 schema",
     );
   }
+  if (isApplicationProfile(root)) {
+    expectLiteral(root.synthetic, true, "/synthetic");
+    const canonicalRecord = {
+      ...object,
+      fieldProvenance: canonicalProvenance(object),
+    };
+    const expected = syntheticApplicationPins().fixtureDigests.find(
+      (entry) => entry.recordId === object.internalId,
+    );
+    if (!expected || expected.digest !== digestValue(canonicalRecord)) {
+      fail(
+        "APPLICATION_FIXTURE_PIN_MISMATCH",
+        path,
+        "only exact reviewed application fixtures are accepted",
+      );
+    }
+    if (
+      object.dataQuality.validatedAt > root.generatedAt ||
+      object.sourceHealth.checkedAt > root.generatedAt
+    ) {
+      fail(
+        "FUTURE_VALIDATION",
+        path,
+        "fixture evidence cannot follow corpus generation",
+      );
+    }
+    return canonicalRecord;
+  }
   expectLiteral(
     object.schemaVersion,
     RECORD_SCHEMA_VERSION,
@@ -1271,10 +1336,18 @@ function validateWhyShown(value, path, corpus, binding) {
     "reviewEvidenceRef",
     "nonClaims",
   ]);
-  expectLiteral(object.basis, "general_jurisdiction", `${path}/basis`);
+  expectLiteral(
+    object.basis,
+    isApplicationProfile(corpus)
+      ? "synthetic_compatibility"
+      : "general_jurisdiction",
+    `${path}/basis`,
+  );
   expectLiteral(
     object.evidenceField,
-    "/jurisdiction/generalJurisdictionOnly",
+    isApplicationProfile(corpus)
+      ? "/source/id"
+      : "/jurisdiction/generalJurisdictionOnly",
     `${path}/evidenceField`,
   );
   parseDigestedRef(
@@ -1357,11 +1430,24 @@ function recordRef(entry) {
 }
 
 function validateCorpusSnapshot(corpus, authority) {
-  const root = expectObject(corpus, "$analyzedCorpus", ROOT_KEYS);
+  const compatibility = corpus.schemaVersion === "1.1.0";
+  const root = expectObject(
+    corpus,
+    "$analyzedCorpus",
+    compatibility ? [...ROOT_KEYS, "recordProfile"] : ROOT_KEYS,
+  );
+  if (compatibility) {
+    expectLiteral(
+      root.recordProfile,
+      SYNTHETIC_APPLICATION_PROFILE,
+      "/recordProfile",
+    );
+    expectLiteral(root.synthetic, true, "/synthetic");
+  }
   expectLiteral(root.$schema, ANALYZED_CORPUS_SCHEMA_ID, "/$schema");
   expectLiteral(
     root.schemaVersion,
-    ANALYZED_CORPUS_SCHEMA_VERSION,
+    compatibility ? "1.1.0" : ANALYZED_CORPUS_SCHEMA_VERSION,
     "/schemaVersion",
   );
   expectLiteral(root.kind, "analyzed_corpus", "/kind");
@@ -1504,6 +1590,38 @@ function validateCorpusSnapshot(corpus, authority) {
     );
   });
   requireCanonicalOrder(entries, (entry) => entry.recordId, "/recordEntries");
+  if (compatibility) {
+    const pins = syntheticApplicationPins();
+    if (
+      !sameValue(
+        entries.map((entry) => ({
+          recordId: entry.recordId,
+          digest: entry.recordDigest,
+        })),
+        pins.fixtureDigests,
+      )
+    ) {
+      fail(
+        "APPLICATION_FIXTURE_SET_MISMATCH",
+        "/recordEntries",
+        "all three exact fixtures are required once",
+      );
+    }
+    expectLiteral(
+      root.projectionInputs.taxonomyRef.digest,
+      pins.taxonomyDigest,
+      "/projectionInputs/taxonomyRef/digest",
+    );
+    expectLiteral(
+      root.projectionInputs.configurationAuthorityRef.digest,
+      pins.sourceRegistryDigest,
+      "/projectionInputs/configurationAuthorityRef/digest",
+    );
+    validateRecordSetPolicy(
+      entries.map((entry) => entry.record),
+      { sourceRegistry: canonicalSources, taxonomy: canonicalTaxonomy },
+    );
+  }
   const derivedDataAsOf = entries
     .map((entry) => entry.record.sourceHealth.dataAsOf)
     .sort(compareText)
@@ -1684,11 +1802,23 @@ export function createAnalyzedCorpus(inputValue, lifecycleAuthority) {
     lifecycleAuthority === undefined
       ? undefined
       : capturePlainJson(lifecycleAuthority, "$lifecycleAuthority");
-  const object = expectObject(input, "$createAnalyzedCorpus", CREATE_ROOT_KEYS);
+  const compatibility = Object.hasOwn(input, "recordProfile");
+  const object = expectObject(
+    input,
+    "$createAnalyzedCorpus",
+    compatibility ? [...CREATE_ROOT_KEYS, "recordProfile"] : CREATE_ROOT_KEYS,
+  );
+  if (compatibility)
+    expectLiteral(
+      object.recordProfile,
+      SYNTHETIC_APPLICATION_PROFILE,
+      "/recordProfile",
+    );
   const root = {
     synthetic: object.synthetic,
     trustDomain: object.trustDomain,
     generatedAt: object.generatedAt,
+    ...(compatibility ? { recordProfile: object.recordProfile } : {}),
   };
   if (typeof root.synthetic !== "boolean") {
     fail("INVALID_SHAPE", "/synthetic", "expected a boolean");
@@ -1858,7 +1988,8 @@ export function createAnalyzedCorpus(inputValue, lifecycleAuthority) {
     .sort((left, right) => compareText(bindingKey(left), bindingKey(right)));
   const corpus = {
     $schema: ANALYZED_CORPUS_SCHEMA_ID,
-    schemaVersion: ANALYZED_CORPUS_SCHEMA_VERSION,
+    schemaVersion: compatibility ? "1.1.0" : ANALYZED_CORPUS_SCHEMA_VERSION,
+    ...(compatibility ? { recordProfile: object.recordProfile } : {}),
     kind: "analyzed_corpus",
     id: expectStableId(object.id, "/id"),
     version: expectVersion(object.version, "/version"),

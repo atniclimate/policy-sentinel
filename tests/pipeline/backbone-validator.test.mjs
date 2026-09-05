@@ -13,6 +13,8 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
+import runOneCustody from "../../docs/development/ps09-run-01-custody.json" with { type: "json" };
+import { PRESERVED_OWNER_DIRECTION_INPUT_SHA256 } from "../../scripts/owner-input-custody.mjs";
 
 import {
   BackboneValidationError,
@@ -28,6 +30,27 @@ import {
 } from "../../scripts/validate-backbone.mjs";
 
 const DIALECT = "https://json-schema.org/draft/2020-12/schema";
+
+test("Run 1 custody inventory and exclusion identities agree without requiring local owner inputs", () => {
+  const rows = runOneCustody.ownerInputs;
+  assert.equal(rows.length, 33);
+  assert.equal(new Set(rows.map((row) => row.path.toLowerCase())).size, 33);
+  assert.deepEqual(
+    Object.fromEntries(rows.map((row) => [row.path, row.sha256])),
+    PRESERVED_OWNER_DIRECTION_INPUT_SHA256,
+  );
+  for (const row of rows) {
+    assert.equal(row.filename, path.posix.basename(row.path));
+    assert.match(row.path, /^docs\/[^/\\]+$/u);
+    assert.match(row.sha256, /^[a-f0-9]{64}$/u);
+    assert.ok(Number.isSafeInteger(row.byteLength) && row.byteLength > 0);
+  }
+  const csv = rows.filter((row) => row.path.endsWith(".csv"));
+  assert.equal(csv.length, 1);
+  assert.equal(csv[0].path, "docs/policy-sentinel-selected-records.csv");
+  assert.equal(csv[0].byteLength, 2409);
+  assert.equal(rows.filter((row) => row.path !== csv[0].path).length, 32);
+});
 
 const writeJson = (filePath, value) =>
   writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");

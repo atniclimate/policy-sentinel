@@ -8,18 +8,23 @@ implementation facts may be resolved with dated primary evidence, but their
 resolution must be recorded here and in affected versioned configuration.
 Source-specific blockers do not block unrelated sources.
 
-Last reviewed for product-space governance: 2026-09-02. Dated source evidence
-retains its own recorded review dates.
+Current product-space interpretation: PS09 Run 1 convergence. Dated source
+evidence and earlier decisions retain their recorded review dates and scope;
+the explicit supersessions below control current product-wide interpretation.
 
 ## Current phase authorization
 
-The owner approved Gate G-A on 2026-07-30. Phase B local implementation under
-the retained B1-B10 stream in `docs/mvp-plan.md` may proceed. Later exact owner
+The owner approved Gate G-A on 2026-07-30 for the retained B1-B10 stream in
+`docs/mvp-plan.md`. Later exact owner
 directives separately authorized and completed PNW-01, PNW-03, PNW-04, the
 synthetic PNW-05 core, and two Federal Register reviews. On 2026-09-03 the owner
-authorized only `PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE`, the additive
-local child lane recorded in `ROADMAP.yaml`; this does not change the broad PNW
-parents. Gate A and the later scoped approvals do not include remote operations,
+authorized `PNW-05-REAL-SOURCE-PRERELEASE-VERTICAL-SLICE`, now exhausted at the
+R7 evidence block. The current token is
+`POLICY-SENTINEL-0.9-RUN-01-REPOSITORY-CONVERGENCE-AND-CORPUS-SPINE`:
+only local Run 1 convergence and the minimal corpus spine are authorized.
+`PS09-06-LOCAL-RC` is the sole local release root; old B/PNW/prerelease finish
+scopes retain archived evidence. Later PS09 runs remain closed. Gate A and the
+later scoped approvals do not include remote operations,
 publication, API registration or credentials, secrets, provider-term
 acceptance, paid or licensed access, third-party contact, private material,
 optional AI generation, or outbound notifications.
@@ -31,7 +36,10 @@ retain their recorded meaning for the Pages-oriented application adapter and
 its B1-B10 acceptance stream. D-046 through D-053 govern the broader product
 space and supersede any product-wide reading of those earlier rows. This scope
 note preserves the historical decisions rather than rewriting them into later
-terminology.
+terminology. D-063 through D-065 now supersede product-wide readings of D-003,
+D-046, D-047, D-051 through D-054, D-058, and D-060 where they prescribe a fixed
+membership cohort, parallel release roots, additive-only architecture, or no
+application consumption of the corpus. Their dated evidence remains intact.
 
 | ID | Decision |
 | --- | --- |
@@ -98,6 +106,14 @@ terminology.
 | D-061 | The one authorized source-authority portfolio observation exhausted `PF-01` through `PF-17` without qualifying or admitting a source. All 17 serial transports returned `2xx` HTML, but the strict observer accepted only `PF-17` and only for one exact canonical-link predicate on the GSA public API index; a transport success, hostname, digest, or structural predicate is not source authority, contract, rights, privacy, coverage, lifecycle, health, LKG, or admission evidence. The cumulative immutable request ledger is 27 issued, one exact-unissued `FR-A1`, and 52 unavailable within the unchanged 80-request ceiling. For future separately authorized work, BIA ranks first for prospective originating federal administrative value; a future ATNI single-resolution metadata-and-link tranche ranks second for PNW-specific collective-policy value, but no exact resolution identity is selected and no member-Nation position may be inferred; GAO remains an unranked reserve. The ranking opens no gate, selects no pilot, permits no repeat or follow-up request, and creates no real corpus, source health, LKG, artifact, activation, publication, or complete PNW source pack. |
 | D-062 | After the sole portfolio run and approved report, the disposable observer was removed through the separately committed, exact-descriptor Pre/Delete/Post transition. Terminal generated custody is the immutable 43-file, 49,730-byte evidence set with 5,357-byte manifest SHA-256 `73401fdc8c060d443cab0e521c0fc9ae9ec067bcf0f1e75131f0411d2e460546`; the observer and both never-issued `FR-A1` paths are absent. The terminal repository hook removes the spent Delete exception, makes all observer and preserved owner-input patches fail closed, binds canonical workdir/read/staging behavior, and replaces shell-writer blacklisting with a one-command positive allowlist plus default denial. It is a repository guardrail rather than an OS sandbox, so exact custody checks and process discipline remain mandatory. This cleanup changes no request count, source status, real/synthetic boundary, health/LKG state, or external gate. |
 
+## Current convergence decisions
+
+| ID | Decision |
+| --- | --- |
+| D-063 | The exact PS09 Run 1 owner token establishes repository-level convergence with one canonical source registry, corpus, lifecycle authority, runtime/output path and definition of done. `PS09-06-LOCAL-RC` is the sole local product release root and single product prerequisite for separately gated public beta operations. B1-B10, PNW, and the exhausted real-source child lane retain identities, statuses, source gates and dated evidence as archived accounting, not mandatory parallel products. Every component receives an evidence-backed disposition in `docs/development/ps09-convergence.v1.json`; a disposition cannot admit a source, satisfy a frozen convergence gate or claim unsupported runtime integration. Only Run 1 is authorized; Runs 2–8 remain closed or deferred. |
+| D-064 | The 0.9 cohort is owner-selected and PNW/ATNI-facing, seeded by the planned scenarios and geographies rather than directory membership or a fixed count. Exact membership claims require originating authority and dates; unresolved membership does not gate unrelated general-jurisdiction development. Source-stated counts and entry structure must survive later capture without forced deletion or merging. Crow government, reservation and BIA agency remain distinct; Fort Peck and Fort Belknap remain separate candidates without shared-position inference. Nevada is not automatically included. Duwamish's retained initial cohort exclusion makes no membership, recognition or legal determination. Six deep graphs and sentinels remain planned until Run 2 accepts exact identity/scenario manifests. Nationwide and Native Hawaiian support remain later-compatible; Run 1 asserts no real identity fact. |
+| D-065 | Real public-source information and governed local full text are first-class intended capabilities, with capture, local cache, analysis, display, excerpt, export and public redistribution separately governed. Run 1 implements only owned synthetic bytes: the existing AnalyzedCorpus 1.0 remains supported and its explicit 1.1 exact-three-fixture profile now feeds the ordinary artifact/app/dossier/CSV path. CuratedDocumentPack 1.0 and the Windows local CAS bind object/rendition/document/version/segment/citation evidence to that same corpus without duplicate record or health authority. Both corpus versions reject real input; transport and PDF/OCR/HTML parsing are unsupported. The selected local runtime is Node 24.19.0/npm 12.0.2 on Windows x64; historical acquisition pins retain their dates. The two lifecycle hooks after the Windows liveness repair supersede D-062's historical launcher/allowlist description without changing its immutable evidence custody or source gates. |
+
 ## Working assumptions
 
 | ID | Assumption | Resolution rule |
@@ -127,11 +143,11 @@ terminology.
 | O-013 | Grants.gov pagination, nullability, current-deadline/time-zone semantics, canonical opportunity URL, and reliable history shape. | The [2026-07-31 primary-source review](source-reviews/grants-gov-api-2026-07-31.md) found sample-only REST responses, no formal OpenAPI schema, conflicting request examples, and no documented completeness or stable-pagination guarantee. Resolve these only with bounded live canaries after the owner approves the exact current terms and build-time operation through G-B-GRANTS. |
 | O-014 | Regulations.gov live envelope, mutation, privacy, attachment, paging, date-window, rate, and historical-completeness behavior. | The [2026-07-31 primary-source review](source-reviews/regulations-gov-api-2026-07-31.md) records a 5,000-result query ceiling, beta and time-zone-ambiguous `lastModifiedDate`, almost no schema requiredness, inconsistent detail envelopes, an unsafe shared detail model containing comment and personal/contact fields, unbounded attachment URLs, generic rather than service-verified GET rates, and no guaranteed historical range. The repository-owned contract excludes comments and raw envelopes and can prove only synthetic structure. Resolve live semantics only through G-B-REGULATIONS-approved canaries. The current artifact has no Regulations.gov docket entity, attachment, general mutation-history, rate-header, or shard dimension, so activation also requires a versioned schema decision or conservative source-level omission/degradation. |
 | O-015 | Washington LWS operation ranges, SOAP behavior, identity/date reconciliation, and health partitioning. | The [2026-07-31 primary-source review](source-reviews/washington-lws-2026-07-31.md) withdraws the former blanket 1991-92 LWS range: only LegislativeDocumentService explicitly documents that range, while Detailed Legislative Reports separately says bill information is available back to 1991. Required operation ranges, nil/empty/fault behavior, unbounded-array limits, link hosts, identity/version reconciliation, date time zones, and complete-refresh behavior require synthetic contracts and bounded no-auth canaries. The current artifact has no bill-version/rendition, veto, RCW/session-law relationship, structured biennium, or operation/biennium health dimension, so do not force those concepts into unrelated fields and conservatively omit/degrade the whole source until a versioned decision says otherwise. |
-| O-016 | Exact current ATNI 59-member roster and identity reconciliation. | An ATNI-authorized current roster, resolution, roll call, or equivalent originating record must identify the exact members and effective state. Reconcile each member separately to sovereign identity and recognition evidence. Do not derive the set from the public directory, geography, subtraction, or the federal list. |
-| O-017 | Engine, region, deployment, persona, relevance, corpus, and output-adapter successor contracts. | `PolicyRecord 1.4` and artifact package `1.4` remain compatible inputs/outputs, not the new corpus. Begin only with the exact synthetic PNW-01 projection seam after owner authorization; version later contracts from proven acceptance needs. |
+| O-016 | Exact current ATNI membership evidence when a membership claim is required. | An originating record must support the exact claim and effective state. Preserve source-stated counts and entries without forced reconciliation, separate sovereign identity/recognition/membership/cohort inclusion, and gate only the unsupported claim. PS09 Run 2 must establish the relevant contracts; no fixed count defines the product cohort. |
+| O-017 | Engine, region, deployment, persona, relevance, real lifecycle/corpus, and common output contracts. | Retained PolicyRecord/artifact 1.4 are compatible inputs/outputs. AnalyzedCorpus 1.1 now supplies exact fixture records to the ordinary build; real integration and common successor outputs remain later PS09 work. Historical PNW-01 is compatibility evidence, not the next execution grant. |
 | O-018 | Montana, California, Alaska, Tribal/inter-Tribal, and regional/transboundary source contexts. | No source review or adapter is claimed by the planning rebase. Evaluate originating sources independently under existing terms, privacy, contract, health, coverage, and activation gates; retain visible gaps meanwhile. |
 | O-019 | Current ATNI/NCAI taxonomy authority and community deployment authority. | Owner-supplied public URLs are discovery seeds only. Exact current resolutions, committees/portfolios, terminology, deployment status, visibility, and review authority must be source-bound before attribution or real configuration. |
-| O-020 | Representative PNW production evidence sufficient for regional completion. | The accepted suite must exercise Nez Perce and materially contrasting regional scenarios across required output classes without special-case engine logic. Exact real sources, community authority, privacy, and review remain later gates; all-synthetic success is insufficient. |
+| O-020 | Representative PNW production evidence sufficient for canonical PS09 acceptance. | Run 2 must establish the owner-selected six candidate deep graphs and geographic sentinels as bounded manifests with evidence and unknown states. Nez Perce remains a candidate, not a mandatory special-case engine branch. Exact real sources, community authority, privacy, and review remain later gates; all-synthetic success is insufficient for real scenario acceptance. |
 | O-021 | FederalRegister.gov API operational, response-schema, and current use-contract gaps. | The [2026-09-02 primary-documentation review](source-reviews/federal-register-api-2026-09-02.md) verifies the current base/path inventory, 56 requestable published-document fields, 1-1,000 documented page size, credential-free observations, publication cadence, rendition distinction, rights boundary, and a minimized candidate policy. It does not establish numeric rate/quota/concurrency, stable total-result/cursor behavior, formal response/error schemas, retry/backoff, timeout, SLA, deprecation/change notice, conditional caching, or API-specific polling/bulk-use/redistribution/attribution/clickthrough terms. Preserve those values as unknown. Resolve them, plus the observed empty `docket_ids` value for Roadless document `2026-16965`, only in a separately authorized admission/design review; never fill them from prior adapter constants or owner hypotheses. |
 | O-022 | Federal Register real-source contract and evidence closure. | The [no-fetch admission review](source-reviews/federal-register-admission-review-2026-09-02.md) confirms that SourcePackBundle 1.0.0 and its runtime accept only synthetic fixture sources, while runtime `federal-register` is non-synthetic, API-backed, and disabled. Reconsideration requires a separately authorized versioned real-source successor/compatibility contract plus current terms/privacy/operations evidence, accepted fixtures and field/relationship rules, honest documented/selected/emitted range, independent operation and review authority, and source-specific health/LKG behavior. Do not use a registry toggle, synthetic receipt, retained adapter constant, owner hypothesis, organization membership, topic, geography, docket text, or successful dated probe to fill any predicate. |
 
@@ -148,7 +164,7 @@ terminology.
 | B-007 | Full-text republication rights may be absent or unclear even for an official public page. | Publish citation, permitted excerpt, and official link only; quarantine content if even that use is unclear. |
 | B-008 | Grants.gov documents common API routes as no-auth, but its current terms state that API access or use constitutes acceptance. The published REST pages are sample-only and do not establish several required contract semantics. | No API request, XML-body retrieval, synthetic substitute contract, adapter implementation, or activation until the owner explicitly approves the then-current terms and exact build-time operation through G-B-GRANTS. Treat the blocked adapter as an accepted source block, keep Grants.gov visibly unavailable, and do not make unrelated local work or release acceptance depend on future authorization. |
 | B-009 | Oregon's statewide website terms apply beyond the `oregon.gov` hostname to sites operated or maintained by executive-department agencies and make access acceptance. OARD and the Governor index are covered; the OARD public pages also emit session-bearing links and privacy-heavy receipt targets. | No further OARD or Governor request, adapter, link traversal, or provider-body retrieval until the owner approves the exact current statewide terms and named build-time operation through `G-B-OR-OARD` or `G-B-OR-GOVERNOR`. Keep both source gaps independent from OData and from each other. |
-| B-010 | No authoritative current ATNI source in the repository establishes the intended exact 59-member roster. | `PNW-02-REGIONAL-REGISTRY` remains blocked at `G-PNW-ATNI-59-ROSTER`; the target count and Duwamish exclusion are direction, not publishable membership evidence. |
+| B-010 | No accepted originating evidence currently establishes an authoritative complete-current-membership claim. | Historical `G-PNW-ATNI-59-ROSTER` remains archived evidence. The single PS09 program uses an owner-selected cohort; Run 2 must implement separate identity, count-convention, membership and cohort contracts. An unsupported membership badge remains blocked without blocking unrelated general-jurisdiction work. |
 | B-011 | The repository has no accepted contracts or production source evidence for the additional Montana, California, Alaska, and regional/transboundary PNW contexts. | Preserve explicit coverage gaps and begin no source access during the rebase. Later reviews remain source-specific and cannot inherit viability or authorization from WA/OR/ID. |
 | B-012 | No real community deployment authority, governed rights-frame/geography set, or designated output-review process is present. | Use only synthetic/candidate profiles until exact per-deployment, per-relation, privacy/visibility, and human-review evidence is accepted. |
 
@@ -167,20 +183,23 @@ terminology.
 | G-H | Owner approves the model/provider, budget, input set, retention terms, build-only workflow, and review rules. | Generate optional detail summaries only; core operation remains AI-free. |
 | G-I | Owner approves the recipient, channel, event, content, and workflow. | Send only that outbound notification. Public-beta alerts remain in-site and in-dossier. |
 | G-J | Current primary evidence and tests validate one source's terms, attribution, schema, official status, provenance, health, and coverage behavior. | Enable that source locally. This evidence gate is source-specific and does not authorize an external action. |
-| G-RC | Every required local outcome and enabled source passes integrated schema, semantic, provenance, attribution, accessibility, failure, freshness, security, and coverage acceptance. | Mark a local release candidate accepted; it does not publish. |
-| G-PNW-05-REAL-SOURCE-PRERELEASE | **Approved 2026-09-03** only for the six bounded child outcomes and frozen request/path ledger in the current coordination record. | Implement and validate the local unpublished vertical slice. It cannot open general source activation, another source/deployment, the ordinary network-free build, redistribution, or publication. |
-| G-PNW-05-FR-TIER1-QUALIFICATION / G-PNW-05-FR-LOCAL-ACTIVATION | Current primary evidence, strict Tier-1 contract/transport, expiring residual-risk receipt, and independent review pass; then exact deployment-scoped admission/activation/operation/health/LKG receipts pass. | Qualify and activate only the exact Federal Register local prerelease operation until its receipt expiry. It does not satisfy `G-PNW-SOURCE-ACTIVATION`. |
+| G-RC | Historical retained-application acceptance gate; its old scope remains archived evidence. | It is not the current PS09 release gate and cannot create another required release root. |
+| G-PNW-05-REAL-SOURCE-PRERELEASE | Historical **2026-09-03 approval** only for the six bounded child outcomes and that lane's frozen request/path ledger. Its D3/R6/R7 request authority is consumed. | No fresh request, retry, activation, acquisition or new work follows from this archived approval. FR-A1 remains unissued and prohibited. |
+| G-PNW-05-FR-TIER1-QUALIFICATION / G-PNW-05-FR-LOCAL-ACTIVATION | Historical source-specific evidence gates remain unresolved after the consumed request lane stopped at its digest-drift block. | Neither gate is satisfied by Run 1 convergence or a synthetic pack; any future exact source operation requires new scoped authority and evidence. |
+| G-PS09-RUN-01 | **Approved** by the exact `POLICY-SENTINEL-0.9-RUN-01-REPOSITORY-CONVERGENCE-AND-CORPUS-SPINE` owner token. | Only the recorded local convergence and minimal synthetic corpus path, exact leases, validation and local commits. |
+| G-PS09-RUN-02 through G-PS09-RUN-08 | **Closed**, each requiring separate exact owner authorization; Runs 7/8 are conditional. | No automatic successor execution, real identity population, source operation, output tranche or stakeholder contact. |
+| G-PS09-RC | **Closed** until the six canonical outcomes and exact local acceptance evidence pass. | Acceptance of the sole `PS09-06-LOCAL-RC` root; publication remains separately gated. |
 
-Gate G-A and the exact local prerelease authority are satisfied by their
-recorded approvals. The current Federal Register qualification and local
-activation gates are objective evidence gates inside that authority. Every
-other approval still depends on the exact blocked action: G-B for named
+G-A and the prerelease lane retain their dated approval records; those records
+do not revive exhausted requests or superseded execution queues. Only the exact
+PS09 Run 1 token governs current implementation. Every later PS09 and external
+approval still depends on the exact blocked action: G-B for named
 provider terms, an API operation, registration, or secret; G-C for Oregon
 OData terms; G-D only when Idaho contact is required; G-E for remote or
 publication work; G-F for a third-party, licensed, or paid source; G-G for
 private material; G-H for optional AI; or G-I for outbound notification. G-J
-and G-RC remain evidence gates, not general product questions. No approval
-spills into another gate.
+and G-PS09-RC remain evidence gates, not general product questions. Historical
+G-RC accounting is archived. No approval spills into another gate.
 
 ## Historical repository inspection
 

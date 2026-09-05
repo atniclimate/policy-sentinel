@@ -1,7 +1,8 @@
 # Policy Sentinel MVP implementation plan
 
-Status: Gate A approved; retained B1-B10 contract. The current validated
-terminal checkpoint has no active B-series work item.
+Status: PS09 Run 1 convergence authorized; retained B1-B10 acceptance evidence.
+The live ledger controls active/terminal status. No B-series item is a separate
+current execution lane or mandatory second release root.
 
 Last reviewed for product-space governance: 2026-09-02. Source and implementation
 evidence retains its recorded date.
@@ -11,23 +12,44 @@ retained B1-B10 implementation stream.
 [`ROADMAP.yaml`](../ROADMAP.yaml) is the canonical ledger for current status,
 dependencies, evidence, blockers, and next actions.
 
-The 2026-09-02 product-space rebase makes the PNW/ATNI regional engine the
-present product definition of done. B1-B10 identities, evidence, and gates are
-preserved and mapped into PNW workstreams in
+The current 0.9 program supersedes the duplicated B/PNW release accounting
+with one root, `PS09-06-LOCAL-RC`. B1-B10 identities, evidence, and gates are
+preserved as archived accounting; their historical PNW mapping remains in
 [`handoffs/pnw-product-space-rebase-2026-09-02.md`](handoffs/pnw-product-space-rebase-2026-09-02.md).
 An old item marked complete may be reusable contract, research, implementation,
 or accepted-fallback evidence; it does not thereby complete a broader PNW
-capability. See [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md).
+capability. The current [component registry](development/ps09-convergence.v1.json)
+and [corpus ADR](adr/ps09-canonical-corpus.md) give exact runtime dispositions.
+See [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md).
+
+## Current six-run program
+
+| Run | Required outcome | Authority |
+| --- | --- | --- |
+| PS09-01 | Repository convergence, selected Windows runtime, synthetic immutable object/rendition/segment/citation spine and ordinary corpus-backed build | Exact Run 1 token only; live roadmap and handoff control acceptance |
+| PS09-02 | Separate identity, membership, recognition, owner-selected cohort, source portfolio and scenario manifests | Closed exact Run 2 gate |
+| PS09-03 | Qualified and authorized federal real-source lifecycle/corpus integration | Closed exact Run 3 and source-operation gates |
+| PS09-04 | Bounded PNW discovery/gold corpus and geographic sentinels | Closed exact Run 4 and source-operation gates |
+| PS09-05 | Real search, evidence-supported relations, common application/output profiles | Closed exact Run 5 gate |
+| PS09-06 | Integrated evidence, replay, security/accessibility and the sole local RC | Closed exact Run 6 and local RC gates |
+| PS09-07 / PS09-08 | Conditional focused repair or feedback/hardening | Deferred; separate authorization required |
+
+These are outcomes, not completion claims. Six deep scenario graphs and
+geographic sentinels remain planned until Run 2 accepts exact manifests.
+Real public information is intended product capability; current Run 1 accepts
+only synthetic corpus inputs and opens no real-source or publication gate.
 
 ## Authority boundary
 
-Phase A ended when the owner approved Gate A on 2026-07-30. Phase B local
-implementation may proceed only within this retained B1-B10 plan. That approval
+Phase A ended when the owner approved Gate A on 2026-07-30. Its local
+implementation authority was bounded by this retained B1-B10 plan. That approval
 did not itself authorize PNW-01. Later exact owner directives authorized and
-completed PNW-01, PNW-03, PNW-04, and the synthetic PNW-05 core. The current
-2026-09-03 authorization is a separate additive local real-source prerelease
-child lane recorded in `ROADMAP.yaml`; it does not revise this retained B1-B10
-acceptance stream or complete any broad PNW parent.
+completed PNW-01, PNW-03, PNW-04, and the synthetic PNW-05 core. The exhausted
+2026-09-03 real-source child lane stopped on consumed R7 digest drift; it is
+archived evidence and grants no retry or FR-A1. Current authority is only
+`POLICY-SENTINEL-0.9-RUN-01-REPOSITORY-CONVERGENCE-AND-CORPUS-SPINE`.
+It changes release accounting and the exact local corpus path, not the
+historical source evidence or closed K0/S0/O0 convergence gates.
 
 Approval of Phase B authorizes only local implementation described here, use of synthetic fixtures, and read-only access to official public sources that require neither registration nor acceptance of new terms. It does **not** authorize:
 
@@ -42,7 +64,7 @@ Approval of Phase B authorizes only local implementation described here, use of 
 
 Each excluded action has its own stop/go gate below. No milestone may treat an unapproved or blocked source as covered.
 
-## Current implementation checkpoint
+## Retained implementation evidence
 
 - B1 is implemented as a local synthetic vertical slice and has passed automated accessibility checks plus desktop and mobile browser verification.
 - B2 has a build-time parser for the official 2026 recognition notice that
@@ -372,13 +394,15 @@ A failed attempt never advances a source's data-as-of timestamp. The workflow em
 | I: outbound notification | A workflow would message any person or service | Owner approves the recipient, channel, event, content, and workflow. Public beta alerts remain in-site and in-dossier only. |
 | J: source/reuse validation | Current primary evidence and tests have not yet validated a source's terms, attribution, schema, official status, provenance, health, and coverage behavior | Satisfy this evidence gate independently before enabling each source. A material terms, schema, endpoint, attribution, or official-status change returns the source to pending, pauses that adapter, preserves last-known-good data, and requires owner/legal direction only when the new term creates an external obligation. |
 
-## Definition of retained application-stream implementation complete
+## Historical retained application acceptance criteria
 
-The retained application stream is implementation-complete only when the
+The historical retained application stream's completion criteria require the
 approved source set, static application, schema/data validation, source health,
 coverage disclosures, single-Nation workflow, advanced comparison, timeline,
 detail assets, print dossier, CSV export, accessibility, security, and
 last-known-good behavior meet their acceptance criteria. That state is evidence
-for, but not equivalent to, PNW regional-engine completion.
+for the single PS09 local release root where adopted by its component
+disposition. These archived criteria do not impose a second mandatory RC or
+authorize execution of an old ready item.
 
 Implementation-complete does not mean published. A folder, plan, passing fixture build, or local release candidate is not a public beta. Remote creation, push, Pages enablement, and publication remain behind Gate E.

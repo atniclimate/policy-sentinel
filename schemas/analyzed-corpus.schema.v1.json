@@ -28,7 +28,8 @@
     "$schema": {
       "const": "https://policy-sentinel.invalid/schemas/analyzed-corpus.schema.v1.json"
     },
-    "schemaVersion": { "const": "1.0.0" },
+    "schemaVersion": { "enum": ["1.0.0", "1.1.0"] },
+    "recordProfile": { "const": "synthetic_application_compatibility" },
     "kind": { "const": "analyzed_corpus" },
     "id": { "$ref": "#/$defs/stableId" },
     "version": { "$ref": "#/$defs/version" },
@@ -63,6 +64,28 @@
     "publication": { "$ref": "#/$defs/publication" }
   },
   "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "properties": { "schemaVersion": { "const": "1.1.0" } },
+        "required": ["schemaVersion"]
+      },
+      "then": {
+        "type": "object",
+        "required": ["recordProfile"],
+        "properties": {
+          "recordProfile": { "const": "synthetic_application_compatibility" },
+          "synthetic": { "const": true }
+        }
+      },
+      "else": {
+        "not": {
+          "type": "object",
+          "properties": { "recordProfile": {} },
+          "required": ["recordProfile"]
+        }
+      }
+    },
     {
       "if": {
         "type": "object",
@@ -680,9 +703,11 @@
         "nonClaims"
       ],
       "properties": {
-        "basis": { "const": "general_jurisdiction" },
+        "basis": {
+          "enum": ["general_jurisdiction", "synthetic_compatibility"]
+        },
         "evidenceField": {
-          "const": "/jurisdiction/generalJurisdictionOnly"
+          "enum": ["/jurisdiction/generalJurisdictionOnly", "/source/id"]
         },
         "configurationAuthorityRef": {
           "allOf": [

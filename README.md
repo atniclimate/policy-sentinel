@@ -8,27 +8,33 @@ Nation's interests.
 
 ## Project status
 
-This repository retains its approved **Phase B local implementation** history,
-the bounded 2026-09-02 PNW product-space planning rebase, and the subsequent
-repository-backbone alignment. The owner approved Gate A on July 30, 2026. The
-current local increment contains a static TypeScript application backed by
-synthetic fixtures, versioned source and artifact contracts, a fail-closed
-artifact pipeline, and a build-time adapter that independently validates all
-577 displayed list-entry paragraphs in the current official recognition
-notice. The notice states 575 entities but does not provide a row-level
-reconciliation between that total and its displayed list, so the live Nation
-registry now fails closed pending exact originating-source evidence.
+The authorized 0.9 Run 1 has completed repository convergence and a minimal
+local synthetic corpus/citation spine. Its exact acceptance evidence is in
+[`ROADMAP.yaml`](ROADMAP.yaml) and the
+[Run 1 handoff](docs/handoffs/ps09-run-01-convergence.md). Later runs remain
+closed. `PS09-06-LOCAL-RC` is the single local release root; B1-B10, PNW, and
+the exhausted real-source child lane retain historical evidence without
+creating additional release roots.
+
+The ordinary static build now routes its same three synthetic records through
+the existing analyzed-corpus module's explicit 1.1 compatibility profile. The
+app, dossier, CSV, and artifact retain their existing public contract. A local
+Windows content-addressed store and curated document packs prove synthetic
+object, rendition, document/version, segment, and exact citation replay.
+Neither real source admission nor a production Nation registry is implemented.
 
 The static application, dossier, CSV, and artifact are current output
 implementations/precursors, not the whole engine or a general adapter suite.
-The present development definition of done is a general engine for the PNW/ATNI
-region and the intended 59 current ATNI Member Tribes, once an authoritative
-current roster exists. Nationwide United States packs remain the longer-term
-direction.
+The 0.9 target is a general engine for a bounded owner-selected PNW/ATNI-facing
+cohort and representative scenarios. Exact current membership is a separate
+source-evidence claim, not a fixed-count product gate. Real public information
+is a first-class intended capability; the current runnable path is synthetic.
+Nationwide United States and Native Hawaiian support remain later directions.
 
-The Nez Perce habitat/endangered-species scenario is one golden use case for
-proving this general design. It is neither a standalone application nor a
-source of accepted production facts.
+The Nez Perce habitat/endangered-species scenario is a retained candidate.
+Six deep scenario graphs and geographic sentinels are planned for later runs;
+Run 2 must bind their identities, evidence states, and acceptance manifests.
+No scenario supplies accepted production facts merely by appearing in a plan.
 
 This is not a completed PNW engine or public beta. Production source
 activation, remaining record-source adapters, large-scale index benchmarks,
@@ -53,9 +59,10 @@ The present product is intended to:
 
 - keep sovereign identity, recognition, and ATNI membership as separate
   evidence-bearing relations;
-- support an authoritatively sourced current 59-member ATNI region across
-  Washington, Oregon, Idaho, western Montana, northern California, and
-  southeast Alaska without hard-coded Nation/state branches;
+- support an owner-selected regional cohort across Washington, Oregon, Idaho,
+  northern California, southeast Alaska, and selected Montana contexts,
+  including Crow, Fort Peck, and Fort Belknap, without hard-coded Nation/state
+  branches or treating a directory as product membership;
 - support legislation, statutes, regulations, executive material, grants,
   litigation and decisions, public intergovernmental agreements, qualifying
   county records, and officially published Tribal government documents;
@@ -119,13 +126,14 @@ Policy Sentinel is not:
 - a rights-impact, jurisdiction, eligibility, or land-interest determination
   engine;
 - a substitute for the cited official source;
-- a municipal or city policy index for the public beta;
+- a municipal or city policy index in the retained static beta artifact;
 - a repository for non-public agreements or unpublished Tribal material; or
 - an outbound notification or user-tracking service.
 
 ## Local setup
 
-Requirements: Node.js 22 or later and npm.
+Requirements: Windows x64 Node.js 24.19.0 and npm 12.0.2, as pinned in
+`package.json`. Historical acquisition evidence retains its original runtime.
 
 ```powershell
 npm ci
@@ -142,17 +150,24 @@ Useful focused commands:
 
 ```powershell
 npm run dev
+npm run validate:runtime
 npm run hooks:test
 npm run validate:roadmap
 npm run validate:backbone
 npm test
 npm run test:corpus
+npm run test:spine
 npm run test:a11y
 npm run build
-npm run source:bia
-npm run source:federal-register:prerelease
-npm run --silent source:wa-lws:canary -- --help
 ```
+
+For an explicit synthetic local-store replay, use
+`npm run corpus:verify -- --root <external-root>` or set
+`POLICY_SENTINEL_CORPUS_ROOT`. The ordinary build never creates that root.
+The [corpus ADR](docs/adr/ps09-canonical-corpus.md) defines supported UTF-8
+plain-text behavior, Windows custody limits, and unsupported parsers.
+Historical source commands below are documentation, not current request
+authority: D3, R6, R7, and PF-01 through PF-17 are spent, and FR-A1 is closed.
 
 `npm run source:bia` reads the cited official recognition notice and validates
 its ordered 577-paragraph transcription against GovInfo. Independent review
@@ -233,7 +248,7 @@ Key documents:
 - [MVP plan and stop/go gates](docs/mvp-plan.md)
 - [Decision register](docs/decision-register.md)
 
-Repository-local Codex support is intentionally narrow: the five lifecycle
+Repository-local Codex support is intentionally narrow: the two lifecycle
 hooks remain the mechanical guardrails; one source-review skill lives under
 `.agents/skills`; and two read-only reviewer roles are registered in
 `.codex/config.toml`. These aids do not grant source access, decide gates, edit

@@ -1,9 +1,9 @@
 # PNW product scope and acceptance contract
 
-Status: binding owner direction under the 2026-09-02 planning/governance
-rebase. This contract defines the intended product and the present development
-definition of done; `ROADMAP.yaml` records the rebase's current and terminal
-state. Repository code, tests, artifacts, and Git history remain authoritative
+Status: binding scope converged under the exact PS09 Run 1 owner direction,
+superseding product-wide readings of the 2026-09-02 rebase. This contract
+defines the intended 0.9 product; `PS09-06-LOCAL-RC` is its sole local release
+root in `ROADMAP.yaml`. Repository code, tests, artifacts, and Git history remain authoritative
 for what is actually implemented, validated, enabled, accepted, or published.
 
 ## Product north star
@@ -33,25 +33,34 @@ complete architecture.
 
 ## Present and future scope
 
-The present development definition of done is a general engine that can
-truthfully support the PNW/ATNI region. The intended target is the 59 current
-ATNI Member Tribes across Washington, Oregon, Idaho, western Montana, northern
-California, and southeast Alaska. That count and set must not be claimed until
-an authoritative current ATNI source supports them.
+The 0.9 target is one general engine with a representative owner-selected
+PNW/ATNI-facing cohort across Washington, Oregon, Idaho, northern California,
+southeast Alaska, and selected Montana contexts. Crow, Fort Peck, and Fort
+Belknap are distinct planning candidates. Crow Tribal government, Crow
+Reservation, and BIA Crow Agency must remain separate concepts. The Assiniboine
+and Sioux Tribes of the Fort Peck Indian Reservation and the Fort Belknap
+Indian Community cannot be merged or assigned shared positions. Run 2 must
+resolve exact official identities and dated cohort/scenario manifests; Run 1
+adds no real identity assertion.
 
 The public ATNI membership page at
 <https://atnitribes.org/membership/atni-members/> is owner-supplied discovery
-evidence, not an accepted current roster. It describes a different count and
-includes Duwamish. Owner direction excludes Duwamish from the intended current
-59-member target, but neither subtraction nor geographic inference may be used
-to manufacture the other identities.
+evidence, not an accepted current roster or the product cohort. Preserve any
+source-stated count and enumerated entries independently when later capture is
+authorized; never alter source facts to fit a target count. Exact current
+membership requires originating evidence only when claimed. It does not block
+unrelated general-jurisdiction work. Duwamish remains excluded from the initial
+product cohort by owner direction, without deleting history or determining
+membership, recognition, or legal status. Nevada is not automatically included
+because a directory lists it.
 
 Nationwide United States coverage remains the longer-term direction. The
 existing 575-entity federal-recognition work is retained as national-scale
 identity and validation evidence; it is not ATNI-membership evidence or PNW
 completion. Possible Canadian expansion would require a separate identity,
 authority, privacy, and source model. United States federal recognition must
-not become a universal engine primitive.
+not become a universal engine primitive. Future Native Hawaiian support likewise
+requires its own sourced concepts within the same general engine.
 
 ## Authority and identity distinctions
 
@@ -109,10 +118,10 @@ alone is forbidden.
 The intended flow is:
 
 ```text
-authoritative sources
-  -> bounded source adapters
-  -> immutable source facts and source-supported events
-  -> evidence-bearing relations and classifications
+source providers, interfaces, and separately granted operations
+  -> immutable objects -> authoritative or informational renditions
+  -> document/version identities -> exact segments and citations
+  -> source-supported events, evidence-bearing relations and classifications
   -> one canonical analyzed corpus
   -> community and persona projections
   -> document, web-module, application, and structured-output adapters
@@ -134,11 +143,16 @@ authoritative sources
   limitations.
 
 `PolicyRecord 1.4`, artifact package `1.4`, source registry `1.19`, and the
-current application remain compatible legacy/public-output contracts. They are
-not renamed as the analyzed corpus. Successor contracts are required for
+current application remain compatible public-output contracts. They are
+not renamed as the analyzed corpus. AnalyzedCorpus 1.0 remains supported; its
+explicit 1.1 exact-fixture profile now supplies the three ordinary build
+records. CuratedDocumentPack 1.0 binds synthetic objects, renditions and exact
+citations to that corpus without duplicating records or health. Real inputs
+remain rejected. The [corpus ADR](adr/ps09-canonical-corpus.md) identifies the
+implemented subset. Further contracts are required for
 region packs, deployment profiles, persona projections, sovereign identity,
 recognition, organization membership, evidence-bearing relevance, authority
-crosswalks, the analyzed corpus, and output receipts.
+crosswalks, real lifecycle/corpus integration, and common output receipts.
 
 K0 is a candidate source of lifecycle/assertion primitives only after its
 closed convergence gate is separately opened. S0 remains a removable,
@@ -148,16 +162,18 @@ is a current PNW dependency.
 
 ## PNW definition of done
 
-PNW regional completion requires all of the following, with objective
-repository evidence rather than planning text:
+The single local 0.9 release root requires all of the following for its accepted
+bounded coverage envelope, with objective repository evidence. Historical B/PNW
+finish scopes are archived evidence, not additional release prerequisites:
 
 1. Generic engine seams contain no Nation-, ATNI-member-, state-, committee-,
    persona-, or use-case branch that belongs in configuration.
 2. Two materially different synthetic deployment profiles prove isolation;
    one record can serve both without factual duplication or drift.
-3. An authoritative current ATNI source supports the exact intended 59-member
-   roster, independently reconciled to sovereign identities and federal
-   recognition evidence.
+3. The owner-selected cohort has versioned, evidence-bearing identities and
+   scenario inclusion decisions. Recognition and membership claims retain
+   their separate authorities and dates; an exact current-membership badge
+   requires originating evidence, without forcing a fixed-count cohort.
 4. Typed, temporal, custody-bearing geographic relations preserve sensitivity
    and cannot mutate identity or legal meaning.
 5. Federal and each PNW state/regional source family has an independent
@@ -192,15 +208,16 @@ it is never relabeled as comprehensive.
 
 ## Representative acceptance scenarios
 
-The Nez Perce habitat and endangered-species case is the golden scenario. It is
-a candidate real-world use case until exact sources, identities, authority,
+The Nez Perce habitat and endangered-species case is a retained candidate from
+the earlier golden-scenario plan. It remains a candidate until exact sources, identities, authority,
 coverage, and reuse conditions are verified. It must exercise federal
 rulemaking, planning/permitting, litigation, Idaho legislation, authorized
 Tribal sources, grants, rights-frame context, lifecycle, deadlines, health,
 and gaps without producing an automatic treaty-impact, preemption, violation,
 remedy, eligibility, or outcome claim.
 
-The suite must also include materially different strata:
+The current six-deep-graph and geographic-sentinel program remains planning
+until Run 2 accepts exact manifests. Its contrasting strata include:
 
 - coastal treaty fisheries and habitat;
 - Columbia Basin or inland transboundary resources;

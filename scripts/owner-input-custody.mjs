@@ -1,6 +1,26 @@
 import { createHash } from "node:crypto";
 
 export const PRESERVED_OWNER_DIRECTION_INPUT_SHA256 = Object.freeze({
+  "docs/Policy-Sentinel-0.9-Implementation-Package-Index-2026-09-05.md":
+    "2316e664644d075a0e9c91c53b7aaa7ce7c60f41311b51592fd52184b9483a53",
+  "docs/Policy-Sentinel-0.9-Long-Run-Session-Briefs-2026-09-05.md":
+    "1ad9c0da7f7289e856d62fa91b154a6e584691c06d9ce18dd939df8e13a3b2ca",
+  "docs/Policy-Sentinel-0.9-Program-Plan-2026-09-05.md":
+    "b6d12527a0550e35b5b5315c15251f58a701ae69e911bc33b517309f35958a9b",
+  "docs/Policy-Sentinel-Adversarial-Review-and-Decision-Log-2026-09-05 (1).md":
+    "7bc42b62b4021f7e77fde775857d5e67b242f0139996288138950a17a9c6d813",
+  "docs/Policy-Sentinel-Adversarial-Review-and-Decision-Log-2026-09-05.md":
+    "c8ced347228ea732ec2986214dd6e15d164a083afc14cb486daac1444b8d1358",
+  "docs/Policy-Sentinel-Fresh-Codex-Onboarding-and-Run-1-Kickoff-2026-09-05.md":
+    "54f320051ae392a8e52f491d484251aa46824afec7cb51635530f5053386d797",
+  "docs/Policy-Sentinel-PNW-Research-and-Test-Case-Catalog-2026-09-05.md":
+    "82c45788e51be6e127796fd6f2d0a2d48895b7f234e2ff3faf9ffc244979e152",
+  "docs/Policy-Sentinel-Real-Source-Corpus-Identity-and-Citation-Design-2026-09-05.md":
+    "da5187f7955de0dcf3ee40053bf732fca02564992117b37cdd5b1051827dbdb5",
+  "docs/policy-sentinel-selected-records.csv":
+    "0de36d7c76e2b19635a3f64e42ede1061a5c54d33bece1eb9e60c9e6e2c0a6c8",
+  "docs/Policy-Sentinel-State-and-Distance-to-Ship-Assessment-2026-09-04.md":
+    "f552a002294027798e106c2ed14f974d1b20d825d0cec1ade06da9ba62c5073e",
   "docs/00-READ-FIRST.md":
     "88f6967bf9655c02e2b598011f437e9c0ed7415b3c722fe537ffa7171095f6fa",
   "docs/01-NORTH-STAR-AND-PRODUCT-CONTRACT.md":

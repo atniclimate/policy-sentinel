@@ -1,17 +1,29 @@
 # Source coverage
 
-Status: retained source-evidence baseline; product direction updated 2026-09-02.
+Status: retained dated source evidence, interpreted under PS09 Run 1 convergence.
 Policy Sentinel will show records only after a source adapter, provenance rules,
 and the actual loaded range pass validation. This document does not claim that
 data has already been ingested.
 
-The present product definition of done is the PNW/ATNI regional engine across
-Washington, Oregon, Idaho, western Montana, northern California, and southeast
-Alaska for an authoritatively supported current 59-member ATNI roster. The
+The single 0.9 target is an owner-selected PNW/ATNI-facing cohort across
+Washington, Oregon, Idaho, northern California, southeast Alaska, and selected
+Montana contexts including Crow, Fort Peck, and Fort Belknap. Exact membership
+claims remain independently evidence-gated; no 59-member roster defines the
+product cohort. Run 2 must establish the exact cohort/scenario manifests. The
 matrix below records actual existing research and contract evidence, which is
 primarily federal plus WA/OR/ID. Montana, California, Alaska,
 Tribal/inter-Tribal, and regional/transboundary source packs are unreviewed
 gaps; no WA/OR/ID evidence is extrapolated to them.
+
+Run 1 performs no source requests and admits or activates no real source. The
+[latest Federal Register prerelease review](source-reviews/federal-register-real-source-prerelease-2026-09-03.md)
+records the consumed R7 digest-drift block; older review rows below retain
+their dated evidence ceiling. D3/R6/R7 and PF-01 through PF-17 cannot be repeated,
+and FR-A1 is closed. Real public data is intended product capability, subject
+to exact source/interface and operation evidence in later authorized runs.
+An API credential gate applies to its named interface; it does not describe
+every direct or bulk rendition interface, whose access and reuse still need
+their own review and authorization.
 
 ## Retained application coverage baseline
 
@@ -28,7 +40,10 @@ gaps; no WA/OR/ID evidence is extrapolated to them.
 - A state or federal record that does not explicitly name the selected Nation may appear only as **General jurisdiction**. It must not be described as Nation-specific.
 - County records require an exact Nation mention in the official record and a stored evidence passage/field plus official URL. Location, territory, maps, land records, and keyword matches are never relationship evidence.
 - Official Tribal-government documents are opt-in source registries governed by the publishing Nation's authority and terms. They do not enlarge the implied coverage of other Nations.
-- Municipal and city sources, private agreements, non-official Tribal materials, maps, parcels, and all public land-context data are outside the beta.
+- Municipal and city sources are outside the retained static beta artifact;
+  future bounded local materials require a separately authorized source and
+  output contract. Private agreements, non-official Tribal materials, maps,
+  parcels, and public land-context data remain excluded.
 
 The Nation-to-Washington/Oregon/Idaho crosswalk is not yet approved.
 Recognition, organization membership, a mailing address, or TLD map geometry

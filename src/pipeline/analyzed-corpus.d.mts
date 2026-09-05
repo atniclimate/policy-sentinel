@@ -157,8 +157,9 @@ export type SourceEvidenceBinding =
   SyntheticSourceEvidenceBinding | RealSourceEvidenceBinding;
 
 export interface AnalyzedCorpusWhyShown {
-  readonly basis: "general_jurisdiction";
-  readonly evidenceField: "/jurisdiction/generalJurisdictionOnly";
+  readonly basis: "general_jurisdiction" | "synthetic_compatibility";
+  readonly evidenceField:
+    "/jurisdiction/generalJurisdictionOnly" | "/source/id";
   readonly configurationAuthorityRef: AnalyzedCorpusDigestedReference<"configuration_authority">;
   readonly ruleRef: AnalyzedCorpusDigestedReference<"why_shown_rule">;
   readonly validFrom: string;
@@ -194,7 +195,8 @@ export interface AnalyzedCorpusView {
 
 export interface AnalyzedCorpus {
   readonly $schema: typeof ANALYZED_CORPUS_SCHEMA_ID;
-  readonly schemaVersion: typeof ANALYZED_CORPUS_SCHEMA_VERSION;
+  readonly schemaVersion: typeof ANALYZED_CORPUS_SCHEMA_VERSION | "1.1.0";
+  readonly recordProfile?: "synthetic_application_compatibility";
   readonly kind: "analyzed_corpus";
   readonly id: string;
   readonly version: string;
@@ -229,6 +231,7 @@ export type CreateRealSourceEvidenceBinding = Omit<
 >;
 
 export interface CreateAnalyzedCorpusInput {
+  readonly recordProfile?: "synthetic_application_compatibility";
   readonly id: string;
   readonly version: string;
   readonly synthetic: boolean;
@@ -299,6 +302,16 @@ export function createAnalyzedCorpus(
   input: CreateAnalyzedCorpusInput,
   lifecycleAuthority?: AnalyzedCorpusLifecycleAuthority,
 ): AnalyzedCorpus;
+export const SYNTHETIC_APPLICATION_PROFILE: "synthetic_application_compatibility";
+export function canonicalCorpusDigest(value: unknown): string;
+export function syntheticApplicationPins(): {
+  readonly sourceRegistryDigest: string;
+  readonly taxonomyDigest: string;
+  readonly fixtureDigests: readonly {
+    readonly recordId: string;
+    readonly digest: string;
+  }[];
+};
 export function parseAnalyzedCorpus(
   value: unknown,
   lifecycleAuthority?: AnalyzedCorpusLifecycleAuthority,

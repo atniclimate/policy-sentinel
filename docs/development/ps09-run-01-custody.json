@@ -1,0 +1,529 @@
+{
+  "schemaVersion": "1.0.0",
+  "baselineHead": "0ff44349c37b60006ee34475319a86ec5a87e9e0",
+  "ownerInputs": [
+    {
+      "path": "docs/00-READ-FIRST.md",
+      "filename": "00-READ-FIRST.md",
+      "byteLength": 4672,
+      "sha256": "88f6967bf9655c02e2b598011f437e9c0ed7415b3c722fe537ffa7171095f6fa",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/01-NORTH-STAR-AND-PRODUCT-CONTRACT.md",
+      "filename": "01-NORTH-STAR-AND-PRODUCT-CONTRACT.md",
+      "byteLength": 5347,
+      "sha256": "22738dfd2d2362cffd5071d2553aea907ded5b0f734c917dcf6b4b1a80da9b52",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/02-PNW-REGIONAL-SCOPE-AND-AUTHORITY.md",
+      "filename": "02-PNW-REGIONAL-SCOPE-AND-AUTHORITY.md",
+      "byteLength": 5795,
+      "sha256": "b0f9dfd54b126cd94f6236976edd20c66f697a665236a5a17eafc863090f3556",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/03-ENGINE-ARCHITECTURE-AND-DATA-MODEL.md",
+      "filename": "03-ENGINE-ARCHITECTURE-AND-DATA-MODEL.md",
+      "byteLength": 8000,
+      "sha256": "67abb72b8f3c816af0c9582a34ced6da0f74cbd986f6339c7e9e01171e0bfe9b",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/04-DEFINITION-OF-DONE-AND-ACCEPTANCE.md",
+      "filename": "04-DEFINITION-OF-DONE-AND-ACCEPTANCE.md",
+      "byteLength": 6566,
+      "sha256": "0ca69a5f78e5e0f6fc21e4786f77228b033afab2f54755d1b30ee63492645a41",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/05-ROADMAP-REBASE-PROPOSAL.yaml",
+      "filename": "05-ROADMAP-REBASE-PROPOSAL.yaml",
+      "byteLength": 10216,
+      "sha256": "7a015459d1d7a5c5cbce161b3076645978d7967bafdb824856b2e7aa06cf4add",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/06-REPRESENTATIVE-USE-CASES.md",
+      "filename": "06-REPRESENTATIVE-USE-CASES.md",
+      "byteLength": 5124,
+      "sha256": "ba7bd9911f6a8f5b5a7eaba17de366f03d1f298e7648d463fe5a456781d55965",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/07-DECISIONS-GATES-AND-NON-GOALS.md",
+      "filename": "07-DECISIONS-GATES-AND-NON-GOALS.md",
+      "byteLength": 4900,
+      "sha256": "9677dfe181f64db80009bd3bf469b3aef756e9cc3829536bc2461c0d8c9e012a",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/08-CODEX-LONG-RUN-DIRECTIVE.md",
+      "filename": "08-CODEX-LONG-RUN-DIRECTIVE.md",
+      "byteLength": 11578,
+      "sha256": "afdefa2dc2bfdea37edd345ceef07dd11b97a910e45e2b5c51d052035533b29f",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/09-PASTE-INTO-CODEX.txt",
+      "filename": "09-PASTE-INTO-CODEX.txt",
+      "byteLength": 1728,
+      "sha256": "e4902fb1ce2ff067c27f5fa272aef6152301d4d5309d132311da0bd78ebeecdc",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/10-CODEX-PRODUCT-SPACE-REBASE-CONTINUATION.md",
+      "filename": "10-CODEX-PRODUCT-SPACE-REBASE-CONTINUATION.md",
+      "byteLength": 8966,
+      "sha256": "0110be885473a7b5287eaa7cc8ff864b10a21409b2f62b5d8bb667a8ae2b68b3",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/11-CODEX-REPOSITORY-CONGRUENCE-AND-LONG-RUN-HANDOFF.md",
+      "filename": "11-CODEX-REPOSITORY-CONGRUENCE-AND-LONG-RUN-HANDOFF.md",
+      "byteLength": 35950,
+      "sha256": "9a49eecddbc626190e7d5a9f445c0e14348d2aa63fb4c0edc6f757572c6cadc3",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/12-CODEX-PNW-03-GEOGRAPHY-RIGHTS-IMPLEMENTATION-LONG-RUN.md",
+      "filename": "12-CODEX-PNW-03-GEOGRAPHY-RIGHTS-IMPLEMENTATION-LONG-RUN.md",
+      "byteLength": 37295,
+      "sha256": "84fcb0bf60021c75c7e87b2b61d1e8b066b3c9b63a7ecf4a7dfd1e49315d9959",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/13-CODEX-PNW-04-TAXONOMY-IMPLEMENTATION-LONG-RUN.md",
+      "filename": "13-CODEX-PNW-04-TAXONOMY-IMPLEMENTATION-LONG-RUN.md",
+      "byteLength": 43718,
+      "sha256": "e82c88fddd781e2fffccb8871c1dc30502ebf7838d0efb167d4a50a6e6e0555a",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/14-CODEX-PNW-05-SOURCE-PACK-CORE-LONG-RUN.md",
+      "filename": "14-CODEX-PNW-05-SOURCE-PACK-CORE-LONG-RUN.md",
+      "byteLength": 53887,
+      "sha256": "6146b2e478caf484e702e48f4412d2cbeb8f461212f53cf63862e61d573c12f6",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/14A-CODEX-PNW-05-SOURCE-PACK-CORE-CLOSEOUT.md",
+      "filename": "14A-CODEX-PNW-05-SOURCE-PACK-CORE-CLOSEOUT.md",
+      "byteLength": 1421,
+      "sha256": "b8ddbb2e2f34d7e4221ebda7065105cc1a3563be6618ba7660459ea1c4134bd2",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/15-CODEX-PNW-05-FEDERAL-REGISTER-DOC-REVIEW-MAX-LONG-RUN.md",
+      "filename": "15-CODEX-PNW-05-FEDERAL-REGISTER-DOC-REVIEW-MAX-LONG-RUN.md",
+      "byteLength": 34751,
+      "sha256": "508c6b8ec3f69e57eceb81b44a4510ae59e514b48c9dee9ef93e6319c24b08c2",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/15A-PNW-05-SOURCE-CANDIDATE-QUALIFICATION-AND-AUTHORIZATION.md",
+      "filename": "15A-PNW-05-SOURCE-CANDIDATE-QUALIFICATION-AND-AUTHORIZATION.md",
+      "byteLength": 15548,
+      "sha256": "eda4148c38480081e29b119ecf4c6df7c051cbb235632af93a3e2d740b807b89",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/15B-CASE-EXAMPLE-01-LUMMI-POINT-ROBERTS-BROADBAND.md",
+      "filename": "15B-CASE-EXAMPLE-01-LUMMI-POINT-ROBERTS-BROADBAND.md",
+      "byteLength": 10359,
+      "sha256": "e6e255ae5956c9f685fd840b26b6f3e827553e02f750edd0da043a9955597743",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/15C-CASE-EXAMPLE-02-ROADLESS-RULE-RESCISSION.md",
+      "filename": "15C-CASE-EXAMPLE-02-ROADLESS-RULE-RESCISSION.md",
+      "byteLength": 13633,
+      "sha256": "45c716302379c30eef79307f843d7d982350e2da6debb5a5becf7fb3ddcd7c9e",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/15D-PNW-05-CASE-EVIDENCE-CROSSWALK.md",
+      "filename": "15D-PNW-05-CASE-EVIDENCE-CROSSWALK.md",
+      "byteLength": 13745,
+      "sha256": "61010682c331836619a01c8afaa172c9e82e0b6860de6c3907406aedfce14eda",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/15E-PNW-05-TRIBAL-POLICY-CONTEXT-SOURCE-LANDSCAPE.md",
+      "filename": "15E-PNW-05-TRIBAL-POLICY-CONTEXT-SOURCE-LANDSCAPE.md",
+      "byteLength": 18519,
+      "sha256": "bde02ceccf87554964d09b30d134b510d69777a377af9564ea46f27f82df069c",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/Policy-Sentinel-0.9-Implementation-Package-Index-2026-09-05.md",
+      "filename": "Policy-Sentinel-0.9-Implementation-Package-Index-2026-09-05.md",
+      "byteLength": 4637,
+      "sha256": "2316e664644d075a0e9c91c53b7aaa7ce7c60f41311b51592fd52184b9483a53",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/Policy-Sentinel-0.9-Long-Run-Session-Briefs-2026-09-05.md",
+      "filename": "Policy-Sentinel-0.9-Long-Run-Session-Briefs-2026-09-05.md",
+      "byteLength": 32480,
+      "sha256": "1ad9c0da7f7289e856d62fa91b154a6e584691c06d9ce18dd939df8e13a3b2ca",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/Policy-Sentinel-0.9-Program-Plan-2026-09-05.md",
+      "filename": "Policy-Sentinel-0.9-Program-Plan-2026-09-05.md",
+      "byteLength": 25014,
+      "sha256": "b6d12527a0550e35b5b5315c15251f58a701ae69e911bc33b517309f35958a9b",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/Policy-Sentinel-Adversarial-Review-and-Decision-Log-2026-09-05 (1).md",
+      "filename": "Policy-Sentinel-Adversarial-Review-and-Decision-Log-2026-09-05 (1).md",
+      "byteLength": 16057,
+      "sha256": "7bc42b62b4021f7e77fde775857d5e67b242f0139996288138950a17a9c6d813",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/Policy-Sentinel-Adversarial-Review-and-Decision-Log-2026-09-05.md",
+      "filename": "Policy-Sentinel-Adversarial-Review-and-Decision-Log-2026-09-05.md",
+      "byteLength": 17405,
+      "sha256": "c8ced347228ea732ec2986214dd6e15d164a083afc14cb486daac1444b8d1358",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/Policy-Sentinel-Fresh-Codex-Onboarding-and-Run-1-Kickoff-2026-09-05.md",
+      "filename": "Policy-Sentinel-Fresh-Codex-Onboarding-and-Run-1-Kickoff-2026-09-05.md",
+      "byteLength": 17373,
+      "sha256": "54f320051ae392a8e52f491d484251aa46824afec7cb51635530f5053386d797",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/Policy-Sentinel-PNW-Research-and-Test-Case-Catalog-2026-09-05.md",
+      "filename": "Policy-Sentinel-PNW-Research-and-Test-Case-Catalog-2026-09-05.md",
+      "byteLength": 36384,
+      "sha256": "82c45788e51be6e127796fd6f2d0a2d48895b7f234e2ff3faf9ffc244979e152",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/Policy-Sentinel-Real-Source-Corpus-Identity-and-Citation-Design-2026-09-05.md",
+      "filename": "Policy-Sentinel-Real-Source-Corpus-Identity-and-Citation-Design-2026-09-05.md",
+      "byteLength": 24644,
+      "sha256": "da5187f7955de0dcf3ee40053bf732fca02564992117b37cdd5b1051827dbdb5",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/POLICY-SENTINEL-REAL-SOURCE-PRERELEASE-MAX-LONG-RUN.md",
+      "filename": "POLICY-SENTINEL-REAL-SOURCE-PRERELEASE-MAX-LONG-RUN.md",
+      "byteLength": 50015,
+      "sha256": "7cac531c3346fc85c2eb37701ecfcb64838aa44553417c6b9c7506567978d266",
+      "disposition": "preserved_untracked_owner_input"
+    },
+    {
+      "path": "docs/policy-sentinel-selected-records.csv",
+      "filename": "policy-sentinel-selected-records.csv",
+      "byteLength": 2409,
+      "sha256": "0de36d7c76e2b19635a3f64e42ede1061a5c54d33bece1eb9e60c9e6e2c0a6c8",
+      "disposition": "preserved_untracked_synthetic_export_producer_unproven"
+    },
+    {
+      "path": "docs/Policy-Sentinel-State-and-Distance-to-Ship-Assessment-2026-09-04.md",
+      "filename": "Policy-Sentinel-State-and-Distance-to-Ship-Assessment-2026-09-04.md",
+      "byteLength": 35101,
+      "sha256": "f552a002294027798e106c2ed14f974d1b20d825d0cec1ade06da9ba62c5073e",
+      "disposition": "preserved_untracked_owner_input"
+    }
+  ],
+  "generatedArtifacts": [
+    {
+      "path": ".cache/status-preview.err.log",
+      "byteLength": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".cache/status-preview.log",
+      "byteLength": 237,
+      "sha256": "d9d6b655672a931d40a86968114750451e57aacfb39371ddfcef2ef91f2deb0f"
+    },
+    {
+      "path": "dist/assets/index-Ccnsihk7.js",
+      "byteLength": 115603,
+      "sha256": "10caee7c7743f68e56472a77090b34b1ff0080e7446555efc17e44d796995d9b"
+    },
+    {
+      "path": "dist/assets/index-DlYUVvzV.css",
+      "byteLength": 15715,
+      "sha256": "1edcc002ae65a1fe8503a49bc32ca2520ce4de1b1bf7671ad7beb0a8e877e6a4"
+    },
+    {
+      "path": "dist/data/coverage.json",
+      "byteLength": 2709,
+      "sha256": "9e79a742a756b9e5b7949d4b3c216e80cb1cdbc8dcc40dd2652c16d1d663f489"
+    },
+    {
+      "path": "dist/data/details/cHNyOnN5bnRoZXRpYy1jb3VudHk6b3JkaW5hbmNlLTAwMQ.json",
+      "byteLength": 27483,
+      "sha256": "510c91d896cdec147d8c45a499964aedacb3fc8ee35f1a58191817c14c8425cb"
+    },
+    {
+      "path": "dist/data/details/cHNyOnN5bnRoZXRpYy1mZWRlcmFsOnJlY29yZC0wMDE.json",
+      "byteLength": 19785,
+      "sha256": "84b5207296f15174657d720ac7fd184489fa96bb09c8cf863aeb8005315e561b"
+    },
+    {
+      "path": "dist/data/details/cHNyOnN5bnRoZXRpYy1zdGF0ZS1hY2NvcmQ6c3ludGhldGljLWFjY29yZC0xOTc0.json",
+      "byteLength": 38554,
+      "sha256": "973a2daf2ed6acdc0d8e5224817abff5dd10bc3c51b42ed7325fa78b38f152b4"
+    },
+    {
+      "path": "dist/data/index/records.json",
+      "byteLength": 8399,
+      "sha256": "a92a9d5b8f52414e7dede172982a44895615b5aa5d253753a0afaade05f0036e"
+    },
+    {
+      "path": "dist/data/manifest.json",
+      "byteLength": 2683,
+      "sha256": "8e9915e8e3554390ef71f36d3cef86ecaac500f10361316ba485a4235567e34d"
+    },
+    {
+      "path": "dist/data/nations.json",
+      "byteLength": 174613,
+      "sha256": "bbb384416770cbef953e16d4a5e86d42a6601856dad821b53c724e35afab6459"
+    },
+    {
+      "path": "dist/data/source-health.json",
+      "byteLength": 1345,
+      "sha256": "ba478f56bea2dce444c0dc1f503ae7eb6e3a0eb563a0d75663899ae38f27b052"
+    },
+    {
+      "path": "dist/data/taxonomy.json",
+      "byteLength": 10363,
+      "sha256": "327e4520a577e64f40b83cefbea9d18b4a22f32c87719ff5b09d4dcb5828c70d"
+    },
+    {
+      "path": "dist/index.html",
+      "byteLength": 1052,
+      "sha256": "f7f6919fc2e6ecf442cce96c76ba2482fdf42a2c64b8769b0e5a57e2ef35a188"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/authority-graph-v2.json",
+      "byteLength": 19844,
+      "sha256": "15059000ff3817a6d5df5c8f8d5642aa1cd51042b15028aca26991cc3a6d6cad"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/authority-input-v2.json",
+      "byteLength": 2503,
+      "sha256": "f2ec15b838d9402478a64bd1d5b366001120af4b82f1b52aed463fbe717aa8a4"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/FR-D3.attempt",
+      "byteLength": 462,
+      "sha256": "5d75db276f07ce0811022778e3852a99512c2b8866bc93262c3519d730848068"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/FR-D3.receipt.json",
+      "byteLength": 1103,
+      "sha256": "f58ca7aa9d789c8d804e593e327ae1ca3ad1f44402ae127253ced01bc6e492f6"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/FR-R6.attempt",
+      "byteLength": 462,
+      "sha256": "69b8db8228af680b43050ce1193f349eb70fc9d2a3454f46c0b4c997a57b400d"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/FR-R6.receipt.json",
+      "byteLength": 1093,
+      "sha256": "093ca14e300c59a1462ff0e71d65131463be15e4a57fadb672d56cdc3cbc770b"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/FR-R7.attempt",
+      "byteLength": 462,
+      "sha256": "eac7bc42975de100326110fa2ae75317981e9fc687adec3bb480fba21931712e"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/FR-R7.receipt.json",
+      "byteLength": 1075,
+      "sha256": "e9db0fedaca0b558ca92797451c474dbe069c05b86359a7dfacffaac282435ad"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-01.attempt",
+      "byteLength": 224,
+      "sha256": "ac8150ea5c382c5f67a49adc6ec8d76a9bde457e02d5d073e4294801a5aaff49"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-01.receipt.json",
+      "byteLength": 1086,
+      "sha256": "81fdacb1fa0d425d0084a0bfc5955db4c1156dde5af7c03ee51be0d83ea724dc"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-02.attempt",
+      "byteLength": 224,
+      "sha256": "b61d4710c9105366e956937098fb13539d98034fbc661a2eb0278316d420cf3e"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-02.receipt.json",
+      "byteLength": 1099,
+      "sha256": "8cd476051141c4d8895eedbe16c5c687ebfc6d885c85b32a71bb3ab77f721ac6"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-03.attempt",
+      "byteLength": 224,
+      "sha256": "d43ab6f5066b4d0341f3b0c22bb83620f09ee4b0b87f87c4c6bee334fd9ed47a"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-03.receipt.json",
+      "byteLength": 1102,
+      "sha256": "ead9ce486aa80b582320c47d76841c35e24b2743e2ee8bc18c96cd2a45499b20"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-04.attempt",
+      "byteLength": 224,
+      "sha256": "7dddef812c09c8a69f446b7429ddd4f0ab7cb9fd30c3d8748897bf78c2d7c1ee"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-04.receipt.json",
+      "byteLength": 1061,
+      "sha256": "2291539bc55d856cf971045ea43c73ebbc4e3efd631364e674822b0c0f9d5371"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-05.attempt",
+      "byteLength": 224,
+      "sha256": "8c616b5e2b0ba561d8d45746e1c0b06c5da67b4341e88a8c4a477820ded19797"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-05.receipt.json",
+      "byteLength": 1119,
+      "sha256": "f5868e8f8bfe2e3742e1533a420c6a9abd04f2aba5916e1ef906b1d0150a19ea"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-06.attempt",
+      "byteLength": 224,
+      "sha256": "56a222b36f676cc60c1d7f2e2b6360cf981f7461de5c132fd9dee284e6e166a7"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-06.receipt.json",
+      "byteLength": 1054,
+      "sha256": "0b262f577381148ae951754775af34e9ae8dbbdf1e47b06ac1e255f8a1989b84"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-07.attempt",
+      "byteLength": 224,
+      "sha256": "26e67440f173321853484327c274a5642479eb32423abac8a2ebc8f88d92660d"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-07.receipt.json",
+      "byteLength": 1124,
+      "sha256": "2c9c671b4ab4ca7946df1a757f7e6954b1e254eb4da9e5b44eba87af13529f04"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-08.attempt",
+      "byteLength": 224,
+      "sha256": "5ba3fd3e335368b764a0f6408aeac22a194a5b44905e3651bebe48e5844f6ad7"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-08.receipt.json",
+      "byteLength": 1123,
+      "sha256": "473e3631b5806f473d46028ec8ed328d1d774be4e3ea2f39a153dc50e11e74c6"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-09.attempt",
+      "byteLength": 224,
+      "sha256": "3fbe58274daee217e1fe1e5542381e0436bd79beeded985dc5dcacaa8038964d"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-09.receipt.json",
+      "byteLength": 1104,
+      "sha256": "ff2958e48ed21628f516fa213f57e79240c9fb2ae89d395a6c279553d14b5b2c"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-10.attempt",
+      "byteLength": 224,
+      "sha256": "606c9543059e07ba9a7e7afd57a447d964384e9c82d63707389b7dfa13fa8214"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-10.receipt.json",
+      "byteLength": 1108,
+      "sha256": "60f7243993ddc2c932035ccb320d66d1eff400783f81d6dcbaebe92dbcbd7de1"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-11.attempt",
+      "byteLength": 224,
+      "sha256": "f93436f32f50c03c8b325dfd042446964b7679d99d4ae13ceb1c1299c863e5d6"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-11.receipt.json",
+      "byteLength": 1105,
+      "sha256": "05a8b040f7cfc9d1a5caa27d5e042543a67759c9b2051057250858d349d9600a"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-12.attempt",
+      "byteLength": 224,
+      "sha256": "47028435a5a3796dafa1038eff970369ecdf18a01963b4785bbbc78977f13bf7"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-12.receipt.json",
+      "byteLength": 1106,
+      "sha256": "874367feb36e99aeef3cc4e7cd6d94bd0b44968bbf7eda32741bab387709fbe5"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-13.attempt",
+      "byteLength": 224,
+      "sha256": "89d1a77a60aeefb27da8cc89489095300516810df6f7bc2bbafc96e5550a0469"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-13.receipt.json",
+      "byteLength": 1120,
+      "sha256": "9b272b984a90a696431ba8cabdbe120659630c2db85635d7e68cffb02504d256"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-14.attempt",
+      "byteLength": 224,
+      "sha256": "003448d43444a08e163be5dc07210d4b096c71ca6828fe3b6a9c039c7347d091"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-14.receipt.json",
+      "byteLength": 1123,
+      "sha256": "f9be7b88e1fb01c31ac83801e5bd68766e19f37ae70f9702bec8b210be8870b5"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-15.attempt",
+      "byteLength": 224,
+      "sha256": "b61b64bac880ec7dc6a2897bde2af574a54f01d56ac267a51364a53ff1f5ed9d"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-15.receipt.json",
+      "byteLength": 1101,
+      "sha256": "9a726bd60d5e5c5650c8c2d136af83a386aea3d96758e61a30c221b5e2588800"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-16.attempt",
+      "byteLength": 224,
+      "sha256": "5d8b0780959492d447720fd65eaf1e8a23a17495530920ea0779006f5a3058a7"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-16.receipt.json",
+      "byteLength": 1113,
+      "sha256": "fb886b9a9cadcf33b068ce567261d1e16c04d6b09d52329ce274f974d96cd705"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-17.attempt",
+      "byteLength": 224,
+      "sha256": "ef530f923978cc397b60a30e08ffce0e26b1add1019763bf0ce2d68f85ad96e8"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-17.receipt.json",
+      "byteLength": 1026,
+      "sha256": "095d19dc881c46347694f2916be2ec75a51d3840ebd48800375994e04c2c5aa3"
+    },
+    {
+      "path": "generated-data/real-source-prerelease/PF-PORTFOLIO-RUN.attempt",
+      "byteLength": 244,
+      "sha256": "f501870f3b2a04b798c9a97c7783d0f1051201571e2317e0fe756dd5d14d0a52"
+    }
+  ],
+  "dependencyCustody": {
+    "packageLockSha256": "88bccd37edaec8e7b29e11d2a264e04f210968e5641bf2907e0aeaf24bef5c4c",
+    "disposition": "ignored_installed_dependencies",
+    "path": "node_modules"
+  }
+}

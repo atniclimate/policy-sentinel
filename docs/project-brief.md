@@ -8,10 +8,11 @@ authoritative sources, explains why material was surfaced, preserves
 source-supported change, and produces governed outputs. It does not decide
 what the material legally means for a Nation.
 
-The present development definition of done is a general engine capable of
-supporting the PNW/ATNI region and the intended 59 current ATNI Member Tribes,
-once an authoritative current roster exists. Nationwide United States coverage
-is the longer-term direction. The complete binding scope and acceptance
+The 0.9 definition of done is one general engine supporting a bounded,
+owner-selected PNW/ATNI-facing cohort and contrasting scenarios. Exact current
+ATNI membership is an independently evidenced claim, not the product's cohort
+definition or a universal acquisition gate. Nationwide United States and
+Native Hawaiian support are later-compatible directions. The complete binding scope and acceptance
 contract is [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md).
 
 This is a new, independent project. The earlier public
@@ -26,9 +27,15 @@ approved Phase B local implementation on 2026-07-30. The 2026-09-02 product-spac
 rebase retains that work as implementation evidence while separating engine,
 region, deployment, persona, and output concerns. Current progress,
 dependencies, and remaining work are recorded in
-[`ROADMAP.yaml`](../ROADMAP.yaml). On 2026-09-03 the owner authorized an exact
-local real-source prerelease child lane; it does not change broad PNW item
-status or authorize publication. Remote publishing, API registration,
+[`ROADMAP.yaml`](../ROADMAP.yaml). The current exact authorization is
+`POLICY-SENTINEL-0.9-RUN-01-REPOSITORY-CONVERGENCE-AND-CORPUS-SPINE`.
+Run 1 implements local convergence and the minimum synthetic corpus spine;
+later runs remain closed. `PS09-06-LOCAL-RC` is the sole local release root.
+B1-B10, PNW, and the exhausted 2026-09-03 real-source child lane retain
+archived evidence without imposing another release graph. Real public-source
+use is intended product capability, with source-specific admission, operation,
+analysis, display, export, and redistribution decisions still required.
+Remote publishing, API registration,
 provider-term acceptance, paid or third-party actions, private data, optional
 AI generation, and outbound notifications remain outside current authority.
 
@@ -40,9 +47,10 @@ engine definition of done. Their current maturity is:
 
 | Maturity | Current evidence |
 | --- | --- |
-| Integrated, synthetic only | The static application, dossier, CSV, artifact pipeline, source-health presentation, and last-known-good rules operate over three synthetic records and 575 explicitly synthetic Nation rows. |
+| Integrated, synthetic only | The ordinary build passes its exact three existing fixtures through AnalyzedCorpus 1.1 into the retained artifact, application, dossier, CSV, source-health, and last-known-good contracts. The Nation rows remain 575 explicitly synthetic fixtures. |
 | Implemented but disabled | Federal Register, Washington Governor executive orders, Washington Centennial Accord, and one curated Supreme Court adapter are validated but emit no public records. |
-| Authorized local prerelease work | An additive real-source lifecycle and bounded Federal Register vertical slice are in progress behind evidence gates; they do not enter the ordinary application or artifact. |
+| Historical real-source evidence block | The Federal Register-specific lifecycle contract and narrow AnalyzedCorpus 1.0 child are implemented; the live vertical slice stopped on consumed R7 digest drift. No retry, FR-A1, real corpus, or activation is authorized. |
+| Local corpus spine | Windows synthetic object custody and CuratedDocumentPack 1.0 implement strict UTF-8 rendition, document/version, evidence-segment and citation replay. Real acquisition, PDF/OCR/HTML parsing, and pack publication are unsupported. |
 | Contract-only | Congress.gov, GovInfo, Regulations.gov, Oregon Legislature OData, and Washington LWS have synthetic contract evidence but no activated live adapter. |
 | Proposed | Full PNW region, deployment, persona, common output-adapter suite, production refresh, and publication capabilities are not implemented. |
 
@@ -68,10 +76,14 @@ evidence.
 - The existing Nation-collection contract targets exactly 575 federally
   recognized entities and remains future nationwide-scale recognition
   evidence. It is not an ATNI membership registry.
-- Current additional source research and implementation is concentrated in
-  Washington, Oregon, and Idaho. The PNW completion target also includes
-  western Montana, northern California, and southeast Alaska; those contexts
-  currently remain explicit gaps.
+- Existing source research is concentrated in Washington, Oregon, and Idaho.
+  The owner-selected 0.9 planning cohort also includes northern California,
+  southeast Alaska, and Montana contexts including Crow, Fort Peck, and Fort
+  Belknap. Run 2 must establish exact identity and scenario manifests; Run 1
+  introduces no real identity facts. A Crow government, reservation, and BIA
+  agency are distinct; Fort Peck and Fort Belknap cannot be merged. Nevada is
+  not automatically included by directory appearance. The retained Duwamish
+  cohort exclusion makes no recognition, membership, or legal determination.
 - For a Nation outside those three states, show federal results only and a
   plain coverage notice.
 - Every source shows its real historical range, range confidence, data-as-of
@@ -81,7 +93,9 @@ evidence.
 - A county record may appear only when its official record explicitly names
   the selected Nation. Location, territory, land, maps, and keywords are not
   evidence.
-- Municipal and city policy sources are excluded from the public beta.
+- Municipal and city sources are excluded from the retained static beta
+  artifact. Future bounded local materials require source-specific authority,
+  privacy, reuse, and output decisions in separately authorized runs.
 
 An official, auditable relation will control state or regional treatment.
 Neither an address nor a map point in the Tribal Leaders Directory establishes
@@ -250,23 +264,26 @@ validation command exist; current primary-source evidence and gaps are cited;
 the validator passes; no disallowed implementation or external mutation has
 occurred; and the owner receives one explicit Phase B approval gate.
 
-### PNW regional engine
+### Single local 0.9 release candidate
 
-The PNW regional engine is done only when every dimension in
-[`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md) passes, including
-the authoritative current ATNI roster, general engine seams, differentiating
-PNW contexts, one analyzed corpus, required output-adapter classes, contrasting
-acceptance scenarios, and integrated release evidence. Existing B1-B10 work is
-reusable evidence but does not establish those outcomes by itself.
+`PS09-06-LOCAL-RC` is complete only when the accepted scope in
+[`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md) passes: the bounded
+cohort and scenarios, real-source evidence and operation gates, immutable
+renditions and exact citations, one corpus and common outputs, honest coverage,
+and integrated Windows, browser, accessibility, privacy, security, and replay
+evidence. Membership evidence is required for a membership claim. Existing
+B1-B10 and PNW checkpoints are reusable evidence with explicit
+[component dispositions](development/ps09-convergence.v1.json), not separate
+mandatory release roots. Run 1 does not complete this six-run target.
 
 ### Published application
 
-The current product public beta requires the PNW regional engine and retained
-application release scopes to be complete, followed by separate publication
-authorization. Within that combined boundary, it is done only when:
+The public beta has one product prerequisite, the converged
+`PS09-06-LOCAL-RC`, followed by separately authorized license, remote, hosting,
+and publication operations and public-profile review. It is done only when:
 
-1. the retained 575-entity federal-recognition collection is validated against
-   the current recognition notice;
+1. if the retained federal-recognition collection is published, its exact
+   575-identity compatibility contract and current recognition evidence pass;
 2. the single-Nation flow and federal-only notice work before comparison mode;
 3. every enabled source passes its contract, terms, provenance, history,
    health, and last-known-good tests;

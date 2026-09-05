@@ -14,6 +14,10 @@ import {
   validateRecordSetPolicy,
 } from "../src/pipeline/policy-validation.mjs";
 import { assertSourceRegistrySemantics } from "../src/pipeline/source-registry.mjs";
+import {
+  createSyntheticApplicationCorpus,
+  syntheticApplicationRecords,
+} from "../src/pipeline/synthetic-corpus-path.mjs";
 
 const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -177,8 +181,14 @@ validateRecordSetPolicy(records, {
   nations,
 });
 
-const documents = createArtifactDocuments({
+const corpus = createSyntheticApplicationCorpus({
   records,
+  registry: sourceRegistry,
+  configuredTaxonomy: taxonomy,
+  generatedAt: options.generatedAt,
+});
+const documents = createArtifactDocuments({
+  records: syntheticApplicationRecords(corpus),
   nations,
   taxonomy,
   sourceRegistry,
