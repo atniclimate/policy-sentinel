@@ -786,7 +786,7 @@ current_focus:
     cannot start from this checkpoint.
   resumable_roots:
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: 1cb2384fe8fa4da71d1f9e8884be6980d010db74
+  last_durable_checkpoint: 00c7203483e314edfa0c598848008853379bb7bd
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5427,6 +5427,15 @@ work_items:
         scanning passed at 455 tracked paths/488 source files; format and
         whitespace checks passed. The index contains exactly 23 approved paths
         and no protected input, with all 76 custody identities unchanged.
+      - >-
+        Implementation commit 00c7203483e314edfa0c598848008853379bb7bd has
+        parent 1cb2384fe8fa4da71d1f9e8884be6980d010db74 and exactly the 23
+        authorized paths. Post-commit tracked worktree and index were clean,
+        with 33 protected untracked inputs and no remote. All 76 custody
+        identities, the custody-manifest hash and package-lock hash matched. The
+        following metadata-only closeout records this SHA without rewriting
+        history or changing code, contracts, gates, statuses, dependencies or
+        custody.
   - id: PS09-03-FEDERAL-REAL-SOURCE-SPINE
     priority: 302
     milestone: PS09 Run 3

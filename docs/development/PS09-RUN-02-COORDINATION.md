@@ -1,7 +1,7 @@
 # PS09 Run 2 coordination
 
 Status: bounded synthetic implementation validated, 2026-09-04 local time;
-full PS09-02 real evidence blocked. Final local metadata closeout follows.
+full PS09-02 real evidence blocked. Implementation and metadata leases closed.
 
 ## Authority and starting truth
 
@@ -37,7 +37,7 @@ and records the exact lease below. Workers must preserve concurrent changes.
 
 | Owner | Exact paths | State |
 | --- | --- | --- |
-| Lead | All packet paths except the runtime and five fixture/test paths | Implementation closed; terminal metadata and commits only |
+| Lead | All packet paths except the runtime and five fixture/test paths | Closed at local checkpoint |
 | Lead, after `handoff_git_check` runtime worker release | `src/engine/identity-authority-scenarios.ts` | Closed after serial integration and review repairs |
 | Lead, after `run2_owner_scope` fixture/test worker release | `fixtures/engine/identity-authority-scenarios.synthetic.valid.json`, `fixtures/engine/identity-authority-scenarios-malformed.invalid.json`, `tests/engine/identity-authority-scenarios-schema.test.ts`, `tests/engine/identity-authority-scenarios.test.ts`, `tests/engine/identity-authority-scenarios-non-interference.test.ts` | Closed after serial integration and regression repairs |
 | Independent reviewers | No write paths | Read-only |
@@ -143,6 +143,12 @@ Both independent terminal-delta reviews recommend acceptance without material
 findings. Terminal roadmap/backbone, retained pipeline wrapper (14.58 seconds),
 staged source scan (455 tracked paths/488 source files), formatting and staged
 whitespace checks passed. The final 23-path index contains no protected input;
-all 76 custody identities and both hashes matched again. The lead now owns
-only serial local commits and metadata closeout; all implementation leases
-are closed.
+all 76 custody identities and both hashes matched again.
+
+Implementation commit `00c7203483e314edfa0c598848008853379bb7bd` contains exactly
+the 23 approved paths, with parent `1cb2384fe8fa4da71d1f9e8884be6980d010db74`.
+Post-commit verification found zero modified/staged tracked paths, 33 protected
+untracked inputs, no remote and unchanged 76-file custody plus both hashes.
+The following metadata-only local commit records that SHA in these three
+durable checkpoint documents without rewriting history or changing scope.
+All leases are closed; the validated packet supplies no new execution grant.

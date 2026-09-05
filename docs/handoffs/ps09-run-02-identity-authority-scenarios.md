@@ -169,9 +169,18 @@ checks passed. All 76 protected identities and both pinned hashes matched
 again, with exactly 23 staged paths, zero unstaged tracked paths and 33
 protected untracked inputs.
 
-Implementation and closeout commit metadata and post-commit custody checks
-follow in the metadata closeout. No additional implementation, source
-operation or successor work remains authorized.
+Implementation commit: `00c7203483e314edfa0c598848008853379bb7bd`, with parent
+`1cb2384fe8fa4da71d1f9e8884be6980d010db74`. It contains exactly the 23 approved
+paths. Post-commit verification found a clean tracked worktree and index,
+33 protected untracked inputs, no remote and unchanged identities for all 76
+protected files, the custody manifest and package-lock.
+
+The following local metadata closeout commit records that implementation SHA
+in this handoff, the coordination record and roadmap; it changes no runtime,
+schema, fixture, test, gate, status, dependency or protected file. Its exact SHA
+is the commit containing this paragraph and is recoverable from local Git.
+History is preserved. All leases are closed. No additional implementation,
+source operation or successor work remains authorized.
 
 Bounded disposition:
 `RUN_02_LOCAL_SYNTHETIC_PACKET_VALIDATED_REAL_EVIDENCE_BLOCKED`.
