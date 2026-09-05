@@ -3,23 +3,27 @@
 Prepared 2026-09-04 local time, following EV01 terminal commit
 `9d7cbb6ca13fe4938e8daa16c39b41642d623245`; refreshed 2026-09-05 from the
 committed handoff at `6844c05236dcd375fec79530cd7341ca410c258b`.
-This is the current recovery guide. It records local diagnostic results and a
-proposed runner scope, not a new implementation/source operation grant or a
-completed evidence review. The original checks below retain their dates;
-the new recovery checks are recorded separately.
+The owner subsequently approved recommendations 1–5 for the next session on
+2026-09-05, binding the seven-path synthetic runner scope reviewed at
+`f45f96e11d592141bbb4517ec4574f7faaccfeb6`. This is the current recovery and
+approved startup guide. Implementation starts in the next session; this
+checkpoint records the approval only. No source-operation grant or completed
+evidence review follows. Original checks below retain their dates.
 
 ## Start here
 
-**Use a bounded operation per noninteractive invocation for the next proposed
-evidence runner. Prove the actual launch and recovery behavior before asking
-for source-request approval. Do not restart EV01.**
+**The next session may implement the approved seven-path synthetic runner scope
+without requesting that approval again. Use one operation per noninteractive
+invocation and prove actual shell launch, custody and recovery. Do not restart
+EV01 or access a source.**
 
-The owner's request for this handoff authorizes this local documentation and
-diagnostic preparation. It does not renew EV01, authorize a source request,
-start a later PS09 run, or implement the proposed runner. The previous failure
-was ours: we designed a run around persistent standard input and approved its
-internal tests without testing that interface through the actual shell tool.
-The remedy should simplify execution while preserving evidence and authority.
+The initial handoff request authorized documentation and diagnostic preparation.
+The later exact owner approval, recorded below, adds only the next-session local
+synthetic implementation scope. It does not renew EV01, authorize a source
+request or start a later PS09 run. The previous failure was ours: we designed a
+run around persistent standard input and approved its internal tests without
+testing that interface through the actual shell tool. The remedy should
+simplify execution while preserving evidence and authority.
 
 A fresh session should first read this guide, then `AGENTS.md` and the complete
 live `ROADMAP.yaml`. Verify Git and custody before relying on any snapshot below.
@@ -221,28 +225,28 @@ blanket zero-attempt termination and Content-Length-only parser were engineering
 choices we put into EV01, not inherent sovereignty/product requirements. We
 must honor that closed packet and design the next one more carefully.
 
-## Longer-term course beyond the proposed synthetic scope
+## Longer-term course beyond the approved synthetic scope
 
 This sequence spans separate local scopes and a later source-operation decision.
-The immediate proposed seven-path scope below covers synthetic launch, custody
+The approved next-session seven-path scope below covers synthetic launch, custody
 and output readiness only. HTTP framing/transport, source-specific extraction,
 policy/identity review and an executable evidence packet are outside that scope;
 define and obtain their exact local authority before implementing them. Steps
 4–6 cannot follow merely because the synthetic runner passes.
 
-1. **Recover and authorize local readiness.** Reconcile this handoff, full roadmap,
+1. **Recover approved local readiness.** Reconcile this handoff, full roadmap,
    live Git and protected hashes. Review the exact seven-path synthetic manifest
    below, including reused code, command/test paths and the narrow lint repair.
-   This guide itself grants no implementation lease. Obtain or recover that
-   exact local approval before implementation. Do not request network approval
-   yet.
+   Recover the owner's recorded recommendations 1–5 approval below and its exact
+   scope binding. Implementation starts in the next session; do not request that
+   same approval again. Do not request network approval yet.
 2. **Prove the real command boundary first.** Exercise the actual shell command,
    argv validation, native exit propagation, receipt output and bounded failure
    without network. Verify complete maximum-sized view delivery and fail closed
    on truncated/missing output. Then test durable reservation and normal cross-process
    continuation using synthetic custody. Keep preflight custody separate from
    the future live run.
-3. **Finish each approved scope's finite review.** The proposed synthetic scope
+3. **Finish each approved scope's finite review.** The approved synthetic scope
    covers duplicate/out-of-order operations, crash before/after reservation,
    sync failure, lock contention, deadline expiry, malformed/bounded UTF-8 and
    late restrictions in synthetic output. Test the launched process as well as
@@ -267,10 +271,10 @@ define and obtain their exact local authority before implementing them. Steps
    progress within the grant. Return to a terminal ledger and report actual
    capability/claim gains; a metadata review alone cannot complete full PS09-02.
 
-The immediate implementation deliverable, after exact local approval, is the
-bounded synthetic runner specified below. The readiness manifest is now
-reviewable. A concrete executable source packet follows the separately defined
-transport, source-policy and retention work; it is not this scope's deliverable.
+The approved next-session implementation deliverable is the bounded synthetic
+runner specified below. A concrete executable source packet follows the
+separately defined transport, source-policy and retention work; it is not this
+scope's deliverable.
 
 ## Remaining product work, independent of the launch repair
 
@@ -416,14 +420,36 @@ operation. Their counters are code observations, not an OS-level traffic audit.
 TTY availability was not retested; its previously failed attempts remain dated
 evidence, not a proposed fix.
 
-## Proposed bounded local runner scope
+## Approved bounded local runner scope
 
-This is the reviewable next implementation scope, **not an active write lease**.
-The current [AGENTS.md boundary](../../AGENTS.md) authorizes "local documentation
-and synthetic diagnostic preparation only" and opens "no new source,
-implementation tranche or later-run gate." The current task completes that
-preparation. Implementing the runner requires the owner to approve this exact
-local scope; no source approval is requested with it.
+**Approved for the next session; implementation has not started.** On 2026-09-05
+the owner answered the five-question approval request exactly:
+
+> Approve recommendations 1–5 for the next session.
+
+That answer approves the seven-path scope as reviewed at commit
+`f45f96e11d592141bbb4517ec4574f7faaccfeb6`, including the five recommendations
+recorded here. The approved handoff's committed Git blob is
+`dc592e147c8f905b53e16592062e774d68bcd0c2`, 42,592 bytes, SHA-256
+`4d536122287f131f36ff3db2bd59e36aec4228cc065f594886f652df2631d388`.
+These identities bind the original committed scope; they do not describe this
+updated file's working-copy bytes or create a new request grant.
+
+| Approved recommendation | Exact effect |
+| --- | --- |
+| 1. Seven-file implementation | Build the local synthetic runner, tests, commands, documentation and ledger updates within the seven tracked paths below. |
+| 2. Synthetic scratch custody | Create fresh isolated, bounded test directories beneath `.cache/ps09-runner-synthetic/`; preserve EV01, historical evidence and protected inputs. |
+| 3. Narrow lint repair | Add only the `.cache/ps09-ev-01/**` ESLint exclusion while preserving both frozen helpers and existing lint rules. |
+| 4. Autonomous local execution | Make routine engineering decisions, implement, test, obtain independent read-only review, repair finite findings and commit locally without repeated confirmation within scope. Escalate only when a necessary change exceeds that scope. |
+| 5. Completion and stopping conditions | Require actual PowerShell launch tests, durable reservation/crash-recovery tests, complete bounded-output checks, preserved custody, independent review and a passing unmodified `npm run check`. Finish with a committed handoff of real outcomes and remaining source-preparation gaps. |
+
+The owner's later exact instruction supersedes the earlier documentation-only
+wording in [AGENTS.md](../../AGENTS.md) and older recovery entry points solely for
+this bounded local scope. Those files remain outside the seven-file write lease;
+no edit to them or repeated owner approval is needed to recover this grant.
+All source, later-run, convergence and external-operation gates remain closed
+under their existing terms. Approval recording in this session does not start
+or consume the next-session implementation scope.
 
 The bounded capability is a source-neutral, one-operation-per-invocation runner
 with a synthetic transport, exclusive scratch custody, durable reservations,
@@ -434,7 +460,7 @@ launch/custody mechanism. Real transport, source-specific policy extraction and
 an executable source packet remain subsequent, separately defined work; passing
 this scope alone would not make source acquisition ready.
 
-| Exact proposed tracked path | Permitted change after local approval |
+| Exact approved tracked path | Approved change for the next session |
 | --- | --- |
 | `scripts/bounded-operation-runner.mjs` | New synthetic-only command and source-neutral reservation/custody/output logic; validate exact argv and fail before dispatch for unknown operations. |
 | `tests/pipeline/bounded-operation-runner.test.mjs` | Synthetic fixtures embedded in the test; import-level and child-process tests, crash injection, custody rejection and complete-output assertions. |
@@ -452,9 +478,10 @@ arbitrary existing root, an external corpus root, EV01 or historical prerelease
 custody. No scratch code, provider input or receipt enters Git. The package lock,
 dependencies, source/adapters, schemas, taxonomy, app, hooks, deployment files,
 owner inputs, all 76 protected identities and retired EV01 files remain outside
-the proposed mutation scope.
+the approved mutation scope.
 
-Proposed commands, **not available or authorized to run yet**:
+Approved command design, **not implemented yet**. Register these commands in
+the next session before invoking them:
 
 ```powershell
 npm run test:runner
@@ -499,9 +526,9 @@ remains read-only and returns a finite defect list or pass after inspecting the
 actual changes and launched-process evidence. Stop at an unleased dependency,
 protected-file conflict, source/parser requirement or unresolved material
 failure; record the exact limitation without upgrading local proof to source
-readiness. This proposed scope adds no product milestone or release root.
+readiness. This approved scope adds no product milestone or release root.
 
-## Refresh validation and terminal checkpoint (2026-09-05)
+## Pre-approval refresh validation and checkpoint (2026-09-05)
 
 The refresh changes only this handoff and `ROADMAP.yaml`. No runner or lint
 configuration was implemented. The full-ledger/backbone reader
@@ -544,27 +571,115 @@ last-durable-checkpoint field now names the verified starting handoff commit
 
 Disposition: `PS09_FRESH_SESSION_HANDOFF_READY_NO_NEW_SOURCE_AUTHORITY`.
 Source requests, runner implementation, historical-custody mutations and all
-closed external operations remain absent. The next owner decision is whether to
-approve the exact seven-path local synthetic runner scope. The template below
-makes that decision copy-pastable; merely storing it in this document does not
-authorize it. No source-operation approval is being sought at this checkpoint.
+closed external operations remain absent. At that checkpoint, the next owner
+decision was whether to approve the seven-path local synthetic scope. The later
+approval recorded above resolves that exact decision. No source-operation
+approval was sought or received.
+
+## Owner approval checkpoint (2026-09-05)
+
+Disposition: `PS09_LOCAL_SYNTHETIC_RUNNER_APPROVED_FOR_NEXT_SESSION`.
+The owner approved all five recommendations exactly as recorded above. The
+current task records that approval in **only this handoff and `ROADMAP.yaml`**;
+the next session implements it. No runner, test, command, lint change or scratch
+directory has been created by this approval-recording task.
+
+Starting branch `main`, HEAD `f45f96e11d592141bbb4517ec4574f7faaccfeb6`,
+clean tracked worktree/index and the same 33 protected untracked inputs.
+Runtime, roadmap and backbone baselines passed. All 76 protected file identities,
+the five manifest/lock/EV01 pins and the exact three-file EV01 inventory matched.
+The historical approved handoff's Git blob, byte length and SHA-256 above were
+computed from its committed bytes using read-only Git, separately from the live
+file. The approval record does not change any work-item status, dependency,
+release root or gate state. It adds only this exact local authorization to the
+existing Run 2 gate history; consumed Run 2 and EV01 grants remain consumed.
+
+The next session must first recover this approval, validate runtime/roadmap/
+backbone, reconcile Git and custody, and record current HEAD before mutation.
+There is no need to reopen the product interview or repeat recommendations 1–5.
+At activation, change only the existing canonical PS09-02 accounting within
+the approved ledger path:
+
+| Ledger field | While the approved local work is active |
+| --- | --- |
+| PS09-02 `status` | `in_progress` |
+| PS09-02 `blocked_by` | Retain `[G-PS09-RUN-02]` for the residual real-evidence/operation block; the existing regression factory also relies on this field. |
+| `current_focus.work_item` | `PS09-02-IDENTITY-AUTHORITY-SCENARIOS` |
+| `current_focus.terminal_reason` | `null` |
+| `current_focus.resumable_roots` | `[PS09-02-IDENTITY-AUTHORITY-SCENARIOS]` |
+| `finish_states.ps09.current_state` | `in_progress` |
+| `finish_states.ps09.blocked_by` | Remove this field or set `[]` while the finish state is active. |
+| `next_actions` | Keep exactly one entry targeting PS09-02 and describe the active local scope. |
+| `G-PS09-RUN-02.state` | Keep `approved`; rely only on the separately recorded seven-path local grant. |
+
+Run `npm run validate:roadmap` after activation. At local closeout, restore
+PS09-02 and canonical finish to `blocked`, with finish blocker
+`[PS09-02-IDENTITY-AUTHORITY-SCENARIOS]`, null focus and an accurate terminal
+reason. Keep the residual item blocker and the same root/next-action identity.
+Do not mark full PS09-02 complete or advance PS09-03 from synthetic runner proof.
+One item is active during local execution; zero are active at this scheduled
+approval checkpoint and at the later validated local terminal checkpoint.
+
+The read-only ledger reviewer `/root/recovery_ledger` inspected the validator,
+live-derived regression and hook routing and found no unavoidable need for an
+eighth implementation path. This is a code assessment, not a dynamically tested
+activation or proof of hook delivery in the next session. Approved scratch
+creation and bounded cleanup belong in the reviewed runner/test commands;
+do not hand-edit scratch or change hooks. If an actual necessary repair crosses
+the approved scope, record the concrete issue and seek that exact additional
+scope while continuing independent authorized work.
+
+Approval-record validation:
+
+| Command / check | Actual result |
+| --- | --- |
+| `npm run validate:runtime` | Exit 0: Node 24.19.0, npm 12.0.2, Windows x64. |
+| `npm run validate:roadmap` | Exit 0: 77 items, 53 gates, 14 sources, 23 binding paths; counts remain 36 complete, zero active, one archived ready, 18 blocked, two deferred and 20 not started. |
+| `npm run validate:backbone` | Exit 0: 17 schemas/IDs, 1,271 references, 86 Markdown files, 452 local links. |
+| `npm run scan:source` | Exit 0: 460 tracked paths and 493 source files checked. |
+| `npm run check` | Exit 1 at the same 74 lint errors in the two frozen EV01 helpers, after runtime, formatting and all 18 hook tests passed. The narrow lint repair is approved for the next session and was not performed now. |
+| `git diff --check` | Exit 0; only the two authorized documentation/ledger paths change. |
+| Final custody recheck | All 76 protected files, all five manifest/lock/EV01 pins and the exact three-file EV01 inventory still match after validation. |
+| Independent review | `/root/handoff_review` returned pass with no material findings on the two-file approval record. It verified all five recommendations, scope binding, timing, no repeated approval and preserved closed gates. Both reviewers remained read-only. |
+
+The first standalone format check caught two new roadmap wrapping issues;
+both were repaired before the full check's formatting pass. Hook tests reported
+unavailable historical/dangling-symlink regression branches. The full check
+stopped before typecheck, unit tests and build; none was separately rerun for
+this approval-only update. No new browser, TTY, runner, network or external
+corpus check was performed. Earlier diagnostics retain their original dates
+and limits. The approval is recorded and ready; runner readiness remains to be
+proved in the next session.
+
+The approval checkpoint uses the local commit subject
+`docs: record approved next-session synthetic runner scope`. Resolve its exact
+identity from this handoff's Git history. The ledger names verified predecessor
+`f45f96e11d592141bbb4517ec4574f7faaccfeb6` as its last durable checkpoint.
+No source, real transport/parser, later PS09 run, publication, external operation
+or protected-custody mutation is authorized by this record. The next user action
+is to start the next session with the prompt below.
 
 ## Copy-paste fresh-session prompt
 
-This is an **owner approval template for the proposed local synthetic scope**.
-It is not an approval already received. Send it only if you choose to authorize
-those seven tracked paths and their bounded synthetic scratch work. Source
-operations require a later, separately reviewable packet and decision.
+The owner has already approved the exact local scope. Paste this prompt into
+the next session to begin that authorized work; no repeat approval is needed.
+Source operations require a later, separately reviewable packet and decision.
 
 ```text
 Continue in I:\policy-sentinel from
 docs/handoffs/ps09-fresh-session-recovery-and-forward-plan.md.
 
-I approve exactly the seven tracked paths and bounded synthetic scratch work
-listed under "Proposed bounded local runner scope" in that handoff. This is
-local implementation approval only, including its narrow lint exclusion,
-tests, documentation, ledger updates and local commits. Record the reviewed
-Git HEAD and handoff digest before editing. Do not broaden the path manifest.
+The owner approved recommendations 1–5 for this next session on 2026-09-05.
+Recover the "Approved bounded local runner scope" and approval checkpoint in
+the handoff. The approved scope was reviewed at commit
+f45f96e11d592141bbb4517ec4574f7faaccfeb6; its committed handoff SHA-256 is
+4d536122287f131f36ff3db2bd59e36aec4228cc065f594886f652df2631d388.
+Verify that historical binding separately from the updated live handoff. The
+approval covers exactly its seven tracked paths, bounded synthetic scratch work,
+narrow lint exclusion, tests, independent read-only review, routine engineering
+decisions, finite repairs, documentation, ledger updates and local commits.
+Proceed autonomously within that scope; do not request the same approval again.
+Record current Git/custody state before editing. Do not broaden the manifest.
 
 Read AGENTS.md, the full live ROADMAP.yaml and the linked terminal evidence.
 Reconcile Git, the 76 protected identities and the three immutable EV01 files.
@@ -585,7 +700,8 @@ and the unmodified npm run check. Obtain independent read-only actual-code
 review and repair finite findings within the scope. Preserve unrelated changes,
 all protected identities, source-specific use/review and non-inference rules.
 
-Keep one canonical item active during the authorized local work with consistent
+Use the approval checkpoint's exact ledger activation/terminal guidance. Keep
+one canonical item active during the authorized local work with consistent
 finish/focus accounting; return PS09-02 to its real-evidence block at the terminal
 checkpoint. Record exact outcomes, commits, custody checks, skips and remaining
 gaps in the handoff and roadmap. Do not claim this synthetic runner makes a source

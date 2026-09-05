@@ -8,8 +8,10 @@ project:
     its interruption rule prohibits restarting the run. Full PS09-02 remains
     blocked. The completed Run 2 synthetic packet and Run 1 remain validated.
     Historical release scopes are archived evidence. PS09-06-LOCAL-RC is the
-    sole release root. No work is active; new evidence operations, source
-    activation and later runs remain gated.
+    sole release root. The owner approved the exact seven-path local synthetic
+    runner scope for the next session; only its approval record is prepared now.
+    No work item is active. Source operations, activation and later runs remain
+    gated.
   updated_on: "2026-09-05"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -248,7 +250,17 @@ gates:
       at local launch before any operation was reserved or issued. Its
       interruption rule ends the single-use run; unused budget is not reusable.
       Terminal evidence is recorded in
-      docs/handoffs/ps09-ev-01-evidence-review.md.
+      docs/handoffs/ps09-ev-01-evidence-review.md. Separately, on 2026-09-05 the
+      owner said Approve recommendations 1–5 for the next session, approving
+      only the seven-path local synthetic runner scope reviewed in
+      docs/handoffs/ps09-fresh-session-recovery-and-forward-plan.md at
+      f45f96e11d592141bbb4517ec4574f7faaccfeb6. It permits synthetic runner,
+      tests, commands, exact retired-directory lint exclusion, bounded new
+      synthetic scratch, autonomous in-scope repairs, independent read-only
+      review, documentation, ledger updates and local commits in that next
+      session. It grants no source request, real transport/parser, later PS09
+      run, protected-custody mutation or external operation. This approval
+      checkpoint records authority without starting implementation.
     evidence:
       - Owner message Approve and go on 2026-09-04.
       - docs/handoffs/ps09-run-02-entry-packet.md at
@@ -257,6 +269,14 @@ gates:
         validated bounded packet and exact unresolved real-evidence scope.
       - The later owner message Approve authorizes the exact EV01 packet;
         docs/development/PS09-EV-01-COORDINATION.md records its execution.
+      - >-
+        Owner message on 2026-09-05: Approve recommendations 1–5 for the next
+        session. Exact scope and all five approved recommendations are recorded
+        in docs/handoffs/ps09-fresh-session-recovery-and-forward-plan.md. The
+        reviewed f45f96e handoff Git blob is
+        dc592e147c8f905b53e16592062e774d68bcd0c2; its committed 42592 bytes have
+        SHA-256
+        4d536122287f131f36ff3db2bd59e36aec4228cc065f594886f652df2631d388.
   - id: G-PS09-RUN-03
     name: Bounded federal real-source tranche
     state: closed
@@ -788,19 +808,22 @@ current_focus:
   work_item: null
   objective: >-
     Preserve the stopped EV01 run as read-only recovery evidence and retain
-    unresolved real identity/scenario claims. Recover the refreshed handoff,
-    measured shell diagnostics and exact proposed seven-path local synthetic
-    runner scope. That scope needs owner approval before implementation; an
-    executable source packet remains subsequent separately defined work.
+    unresolved real identity/scenario claims. Record the owner's exact
+    recommendations 1–5 approval and final startup prompt for the seven-path
+    local synthetic runner scope. Implementation starts in the next session
+    without repeat approval; an executable source packet remains subsequent
+    separately defined work.
   terminal_reason: >-
     EV01's noninteractive shell launch closed standard input after initial
     ledger creation; the process exited before any operation reservation or
     source request. The packet prohibits restart after interruption. No new
-    source evidence was obtained and full PS09-02 remains blocked. No authorized
-    canonical work remains ready; later runs and archived lanes stay closed.
+    source evidence was obtained and full PS09-02 remains blocked. The owner
+    approved only the bounded local synthetic runner for the next session;
+    current work records that approval without starting implementation. No item
+    is active; later runs and archived lanes stay closed.
   resumable_roots:
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: 6844c05236dcd375fec79530cd7341ca410c258b
+  last_durable_checkpoint: f45f96e11d592141bbb4517ec4574f7faaccfeb6
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5367,13 +5390,33 @@ work_items:
       at local launch with zero source access and cannot resume. A new exact
       packet is required for further operations; all real claims remain
       unresolved. No fixed membership count gates unrelated general-jurisdiction
-      work.
+      work. The separate 2026-09-05 approval permits only the seven-path local
+      synthetic runner readiness work in the next session. That local grant does
+      not satisfy any missing real evidence or authorize source operations.
     acceptance:
       - Separate recognition, membership, cohort, governmental and geographic
         identities.
       - Verify exact scenario source and claim boundaries without inferring
         legal effect.
     evidence:
+      - >-
+        On 2026-09-05 the owner explicitly approved recommendations 1–5 for the
+        next session, binding the exact seven-path synthetic runner scope at
+        f45f96e11d592141bbb4517ec4574f7faaccfeb6. Current preparation records
+        that approval, its original committed scope identity, all five approved
+        recommendations, next-session activation/terminal guidance and a final
+        startup prompt in the handoff. Only this ledger and the handoff change;
+        runner, tests, commands, lint repair and scratch remain unimplemented.
+        Full PS09-02 and the canonical finish remain blocked with zero active
+        items; no status, dependency or gate state changes. Approval is ready
+        for the next session without renewed confirmation inside its exact
+        scope. Source operations, real transport/parsers, later runs and
+        protected custody remain outside the grant. Approval-record runtime,
+        roadmap, backbone, source scan and independent review passed. Full check
+        passed runtime, formatting and 18 hook tests before stopping at the same
+        74 frozen-helper lint errors; their exact repair is approved for next
+        session and was not performed now. Final proof limits are recorded in
+        the handoff.
       - >-
         On 2026-09-05, documentation recovery from committed handoff
         6844c05236dcd375fec79530cd7341ca410c258b covered all 5918 starting
@@ -5811,14 +5854,16 @@ next_actions:
   - order: 1
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action:
-      Recover docs/handoffs/ps09-fresh-session-recovery-and-forward-plan.md.
-      Review its exact proposed seven-path local synthetic runner scope; owner
-      approval is required before implementing that scope and the lint repair.
-      Prove actual launched-process custody and recovery locally. Real
-      transport, source-policy extraction and an executable source packet remain
-      subsequent separately defined work. The probes do not implement the runner
-      or renew source authority. Preserve EV01 unchanged; no source retry,
-      FR-A1, later run or archived ready lane is authorized.
+      Recover docs/handoffs/ps09-fresh-session-recovery-and-forward-plan.md. In
+      the next session, recover the recorded recommendations 1–5 approval bound
+      to f45f96e11d592141bbb4517ec4574f7faaccfeb6, activate only the approved
+      seven-path local synthetic runner scope and finish its tests, exact lint
+      repair, review and local commits without repeated confirmation. Use the
+      handoff's activation and terminal ledger guidance. Require actual
+      PowerShell launch/custody/recovery proof and the unmodified npm run check.
+      Real transport, source-policy extraction and an executable source packet
+      remain subsequent separately defined work. Preserve EV01 unchanged; no
+      source retry, FR-A1, later run or archived ready lane is authorized.
 finish_states:
   ps09:
     current_state: blocked
