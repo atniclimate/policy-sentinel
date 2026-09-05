@@ -5436,6 +5436,20 @@ work_items:
         following metadata-only closeout records this SHA without rewriting
         history or changing code, contracts, gates, statuses, dependencies or
         custody.
+      - >-
+        The owner's Continue to the next step instruction supports local
+        preparation of docs/handoffs/ps09-run-02-real-evidence-entry-packet.md.
+        The proposed PS09-EV-01 review selects one dated Crow name-entry claim
+        and scenario B's RCW 80.50.060 metadata, with five conditional requests,
+        exact access/use, custody and review limits. Preparation grants no
+        request, implementation, real identity population or successor work; the
+        synthetic packet, blocked PS09-02 status and all gates remain unchanged.
+        Runtime, roadmap, backbone, format, source scanning and whitespace
+        checks passed. Independent engineering, source and sovereignty review
+        findings were repaired. All 76 protected file identities and the
+        manifest/package-lock hashes matched. Only the packet and this ledger
+        changed; no source request or helper was created. The exact preparation
+        commit is recoverable from local Git. The packet awaits owner approval.
   - id: PS09-03-FEDERAL-REAL-SOURCE-SPINE
     priority: 302
     milestone: PS09 Run 3
@@ -5723,11 +5737,12 @@ next_actions:
   - order: 1
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action:
-      Preserve the validated bounded packet and its handoff. A follow-up must
-      select exact unresolved real claims, originating evidence and a separately
-      bounded operation/custody/review scope before execution. Do not repeat the
-      completed packet, start a later run, infer real acceptance or revive an
-      archived ready lane from this terminal checkpoint.
+      Review and approve the exact proposed five-operation PS09-EV-01 scope in
+      docs/handoffs/ps09-run-02-real-evidence-entry-packet.md before any covered
+      operation. Until exact approval, preserve the validated synthetic packet
+      and unresolved real claims. Do not reuse consumed request authority, issue
+      FR-A1, start a later run, infer real acceptance or revive an archived
+      ready lane. The proposal opens no current gate or execution grant.
 finish_states:
   ps09:
     current_state: blocked
