@@ -5334,6 +5334,12 @@ work_items:
     evidence:
       - Run 1 owner token expressly excludes Run 2; G-PS09-RUN-02 remains
         closed.
+      - >-
+        2026-09-04 entry-packet preparation is recorded in
+        docs/handoffs/ps09-run-02-entry-packet.md. The proposed local contract
+        and candidate-manifest scope requires owner approval; it supplies no
+        implementation, accepted real identity evidence or source operation
+        authority. PS09-02 and its gate remain blocked and closed respectively.
   - id: PS09-03-FEDERAL-REAL-SOURCE-SPINE
     priority: 302
     milestone: PS09 Run 3
@@ -5621,8 +5627,10 @@ next_actions:
   - order: 1
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action:
-      Await exact owner authorization of the Run 2 entry packet in the Run 1
-      handoff. Do not execute Run 2 or revive archived ready work.
+      Review and approve the exact proposed local Run 2 scope in
+      docs/handoffs/ps09-run-02-entry-packet.md before implementation. Required
+      real identity evidence remains unresolved; source operations and later
+      runs need their own exact authority. Do not revive archived ready work.
 finish_states:
   ps09:
     current_state: blocked
