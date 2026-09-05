@@ -4,13 +4,12 @@ project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
   phase: >-
-    Owner-approved PS09 Run 2 local synthetic identity, authority and candidate
-    scenario packet is validated. Full PS09-02 remains blocked on exact real
-    identity/scenario evidence and separately bounded operation authority. Run 1
-    remains validated; historical release scopes are archived evidence.
-    PS09-06-LOCAL-RC is the sole release root. No authorized work remains
-    active; acquisition, activation, later runs and external operations remain
-    gated.
+    Owner-approved PS09-EV-01 ended at local launch before any source request;
+    its interruption rule prohibits restarting the run. Full PS09-02 remains
+    blocked. The completed Run 2 synthetic packet and Run 1 remain validated.
+    Historical release scopes are archived evidence. PS09-06-LOCAL-RC is the
+    sole release root. No work is active; new evidence operations, source
+    activation and later runs remain gated.
   updated_on: "2026-09-04"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -238,13 +237,26 @@ gates:
       Source/domain/request/byte budgets are zero; real identity evidence, later
       runs and all external operations require separate exact authority. The
       approved local packet is now validated; this approval supplies no further
-      implementation run or real-evidence operation authority.
+      implementation run or real-evidence operation authority. Separately, the
+      later owner message Approve on 2026-09-04 approves exactly
+      docs/handoffs/ps09-run-02-real-evidence-entry-packet.md at
+      a116fa70bb07660d21010ec80f8c7b510be3f093 under single-use token
+      POLICY-SENTINEL-PS09-EV-01-IDENTITY-SCENARIO-EVIDENCE-REVIEW. Its maximum
+      five conditional GET attempts, three hosts and 3670016 body bytes cover
+      only the listed evidence review, session views and local custody. No
+      source admission, activation or later run is authorized. EV01 then stopped
+      at local launch before any operation was reserved or issued. Its
+      interruption rule ends the single-use run; unused budget is not reusable.
+      Terminal evidence is recorded in
+      docs/handoffs/ps09-ev-01-evidence-review.md.
     evidence:
       - Owner message Approve and go on 2026-09-04.
       - docs/handoffs/ps09-run-02-entry-packet.md at
         1cb2384fe8fa4da71d1f9e8884be6980d010db74.
       - docs/handoffs/ps09-run-02-identity-authority-scenarios.md records the
         validated bounded packet and exact unresolved real-evidence scope.
+      - The later owner message Approve authorizes the exact EV01 packet;
+        docs/development/PS09-EV-01-COORDINATION.md records its execution.
   - id: G-PS09-RUN-03
     name: Bounded federal real-source tranche
     state: closed
@@ -775,18 +787,18 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Preserve the validated local synthetic identity/authority/scenario packet,
-    exact custody and claim-specific real-evidence gaps. Recover the Run 2
-    handoff before any separately bounded follow-up decision.
+    Preserve the stopped EV01 run as read-only recovery evidence and retain
+    unresolved real identity/scenario claims. Recover its terminal handoff
+    before preparing any new exact operation packet.
   terminal_reason: >-
-    The approved local packet passed validation. Full PS09-02 remains blocked on
-    originating real identity/scenario evidence and separately bounded
-    acquisition/custody/review authority outside the zero-source-budget packet.
-    No authorized canonical work remains ready; later runs and archived lanes
-    cannot start from this checkpoint.
+    EV01's noninteractive shell launch closed standard input after initial
+    ledger creation; the process exited before any operation reservation or
+    source request. The packet prohibits restart after interruption. No new
+    source evidence was obtained and full PS09-02 remains blocked. No authorized
+    canonical work remains ready; later runs and archived lanes stay closed.
   resumable_roots:
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: 00c7203483e314edfa0c598848008853379bb7bd
+  last_durable_checkpoint: a116fa70bb07660d21010ec80f8c7b510be3f093
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5349,15 +5361,36 @@ work_items:
       The validated synthetic packet supplies no remaining execution grant. Each
       required real claim needs exact originating identity/scenario documents,
       versions, dates, citation/reuse evidence and separately bounded
-      operation/custody/review authority. G-PS09-RUN-02 remains approved only
-      for the completed local packet; its residual real scope is unapproved. No
-      fixed membership count gates unrelated general-jurisdiction work.
+      operation/custody/review authority. The separately approved EV01 run ended
+      at local launch with zero source access and cannot resume. A new exact
+      packet is required for further operations; all real claims remain
+      unresolved. No fixed membership count gates unrelated general-jurisdiction
+      work.
     acceptance:
       - Separate recognition, membership, cohort, governmental and geographic
         identities.
       - Verify exact scenario source and claim boundaries without inferring
         legal effect.
     evidence:
+      - >-
+        docs/handoffs/ps09-ev-01-evidence-review.md records EV01's local launch
+        failure after all 43 synthetic observer checks passed. The lead used a
+        shell invocation whose input closed immediately. The observer exited 1
+        after initial ledger creation, with zero reservations, requests, body
+        bytes, network time and source views. No source fact was observed. The
+        initial ledger and two frozen helpers remain read-only recovery
+        evidence; no receipt exists and no restart or backfill is permitted.
+        Full PS09-02 and the canonical finish state return to blocked with zero
+        active items. Final report validation is recorded in that handoff.
+      - >-
+        The later owner message Approve authorizes the exact EV01 packet at
+        a116fa70bb07660d21010ec80f8c7b510be3f093. Read-only reconciliation
+        covered all 5864 starting ledger lines. Baseline runtime, roadmap and
+        backbone passed; all 76 protected files and manifest/package-lock hashes
+        matched. The lead owns the four tracked and eight ignored paths listed
+        in docs/development/PS09-EV-01-COORDINATION.md. Source policy inspection
+        eligibility is reviewed; content operations still require actual policy
+        review and observer preflight.
       - Run 1 owner token expressly excludes Run 2; G-PS09-RUN-02 remains
         closed.
       - >-
@@ -5737,12 +5770,11 @@ next_actions:
   - order: 1
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action:
-      Review and approve the exact proposed five-operation PS09-EV-01 scope in
-      docs/handoffs/ps09-run-02-real-evidence-entry-packet.md before any covered
-      operation. Until exact approval, preserve the validated synthetic packet
-      and unresolved real claims. Do not reuse consumed request authority, issue
-      FR-A1, start a later run, infer real acceptance or revive an archived
-      ready lane. The proposal opens no current gate or execution grant.
+      Recover the terminal EV01 launch-failure handoff and preserve its ignored
+      ledger without mutation. Prepare a new exact packet only after a synthetic
+      persistent-input launch check; no retry is currently approved. Do not
+      reuse EV01's directory or unused budget, infer source evidence, issue
+      FR-A1, start a later run or revive an archived ready lane.
 finish_states:
   ps09:
     current_state: blocked
