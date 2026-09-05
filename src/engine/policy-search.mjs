@@ -3,18 +3,39 @@ import {
   selectTemporalVersions,
 } from "./temporal-operations.mjs";
 
-const METHOD = Object.freeze({ id: "source-passage-bm25", version: "1.0.0" });
+const METHOD = Object.freeze({ id: "source-passage-bm25", version: "2.0.0" });
 const indexes = new WeakMap();
 const encoder = new globalThis.TextEncoder();
 const decoder = new globalThis.TextDecoder("utf-8", { fatal: true });
 const stop = new Set(
-  "a an and are as at be by for from how in into is it of on or that the their this to was were what when where which who with".split(
+  "a an and are as at be by did do does for from how in into is it of on or that the their this to was were what when where which who with".split(
     " ",
   ),
 );
 const order = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 const normalize = (value) => value.normalize("NFKC").toLowerCase();
 const tokens = (value) => normalize(value).match(/[\p{L}\p{N}]+/gu) ?? [];
+// Bounded lexical suffix folding only. This changes matching, never source text,
+// exact identifiers, quoted phrases, taxonomy or an asserted policy meaning.
+function termKey(word) {
+  if (!/^[a-z]{5,}$/u.test(word)) return word;
+  let value = word.replace(/ies$/u, "y");
+  if (value === word && /(?:ches|shes|sses|xes|zes)$/u.test(value))
+    value = value.slice(0, -2);
+  else if (value === word && /[^sui]s$/u.test(value))
+    value = value.slice(0, -1);
+  const replace = (pattern, replacement = "") => {
+    const next = value.replace(pattern, replacement);
+    if (next.length >= 4) value = next;
+  };
+  replace(/(?:ation|ating|ated|ate)$/u);
+  replace(/(?:ing|ed)$/u);
+  replace(/([bcdfgkmnprt])\1$/u, "$1");
+  replace(/(?<=[st])ion$/u);
+  replace(/(?:ly|al)$/u);
+  replace(/e$/u);
+  return value;
+}
 const identifier = (value) => tokens(value).join("");
 const freeze = (value) => {
   if (value && typeof value === "object" && !Object.isFrozen(value)) {
@@ -29,7 +50,10 @@ function ensure(value, code) {
 function vector(text) {
   const words = tokens(text);
   const counts = new Map();
-  for (const word of words) counts.set(word, (counts.get(word) ?? 0) + 1);
+  for (const word of words) {
+    const key = termKey(word);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
   return { counts, length: words.length, normalized: words.join(" ") };
 }
 function limits(value, fallback, maximum) {
@@ -123,7 +147,18 @@ export function createPolicySearchIndex(corpus) {
           bytes.get(rendition.id).subarray(segment.startByte, segment.endByte),
         )
       : "";
-    const passage = { segment, rendition, searchable, vector: vector(text) };
+    const heading =
+      /^(?:new section\.?\s*)?(?:sec\.\s*\d+(?:\.\d+)*[.\s]|section\s+\d+\.\s|§\s*\d)/iu.test(
+        text.replace(/\[\[\/?(?:INSERTION|DELETION)\]\]/gu, "").trim(),
+      );
+    const passage = {
+      segment,
+      rendition,
+      searchable,
+      vector: vector(text),
+      heading,
+      context: [],
+    };
     segments.set(segment.id, passage);
     if (!searchable) continue;
     totalLength += passage.vector.length;
@@ -132,6 +167,29 @@ export function createPolicySearchIndex(corpus) {
     if (!passagesByVersion.has(rendition.versionId))
       passagesByVersion.set(rendition.versionId, []);
     passagesByVersion.get(rendition.versionId).push(passage);
+  }
+  // Context references stay within one rendition. Returned quotations remain
+  // individual exact segments; the contributing context IDs are explicit.
+  for (const entries of passagesByVersion.values()) {
+    entries.sort(
+      (a, b) =>
+        order(a.rendition.id, b.rendition.id) ||
+        a.segment.startByte - b.segment.startByte,
+    );
+    let heading = null;
+    for (let i = 0; i < entries.length; i += 1) {
+      const passage = entries[i];
+      if (heading?.rendition.id !== passage.rendition.id) heading = null;
+      if (passage.heading) heading = passage;
+      passage.context = [
+        ...new Set([heading, entries[i - 1], entries[i + 1]]),
+      ].filter(
+        (other) =>
+          other &&
+          other !== passage &&
+          other.rendition.id === passage.rendition.id,
+      );
+    }
   }
   const entries = [...corpus.versions]
     .sort((a, b) => order(a.id, b.id))
@@ -183,10 +241,10 @@ export function createPolicySearchIndex(corpus) {
 }
 function bm25(vector, terms, data) {
   let score = 0;
-  for (const term of terms) {
-    const count = vector.counts.get(term) ?? 0;
+  for (const key of terms) {
+    const count = vector.counts.get(key) ?? 0;
     if (!count) continue;
-    const df = data.frequency.get(term) ?? 0;
+    const df = data.frequency.get(key) ?? 0;
     const idf = Math.log(1 + (data.passageCount - df + 0.5) / (df + 0.5));
     score +=
       (idf * count * 2.2) /
@@ -195,6 +253,57 @@ function bm25(vector, terms, data) {
           (0.25 + (0.75 * vector.length) / Math.max(1, data.averageLength)));
   }
   return score;
+}
+function evidenceFields(entry, request, queryTerms, state, data) {
+  const fields = new Map();
+  const add = (provenance, label) => {
+    for (const id of provenance.segmentIds) {
+      const passage = data.segments.get(id);
+      if (
+        !passage.searchable ||
+        passage.rendition.versionId !== entry.version.id ||
+        (state && !state.knownRenditions.has(passage.rendition.id))
+      )
+        continue;
+      if (!fields.has(id)) fields.set(id, []);
+      if (!fields.get(id).includes(label)) fields.get(id).push(label);
+    }
+  };
+  const intent = new Set(queryTerms.map(termKey));
+  const status = ["status", "action", "stage"].some((word) =>
+    intent.has(termKey(word)),
+  );
+  const dateRequested = [
+    "date",
+    "publication",
+    "published",
+    "effective",
+    "enacted",
+  ].some((word) => intent.has(termKey(word)));
+  for (const provenance of entry.version.fieldProvenance) {
+    if (
+      (status && provenance.field === "/sourceStatusLabel") ||
+      ((dateRequested || request.asOf) &&
+        provenance.field.startsWith("/dates/"))
+    )
+      add(provenance, `version${provenance.field}`);
+  }
+  if (dateRequested || request.basis === "source_effective") {
+    for (const event of data.corpus.events) {
+      if (
+        event.versionId !== entry.version.id ||
+        (state &&
+          !state.selected.get(entry.version.id)?.eventIds.includes(event.id))
+      )
+        continue;
+      if (intent.has(termKey("effective")) && event.type !== "effective")
+        continue;
+      for (const provenance of event.fieldProvenance)
+        if (provenance.field === "/date/value")
+          add(provenance, `event:${event.type}/date/value`);
+    }
+  }
+  return fields;
 }
 function knownField(record, field, state, data) {
   if (!state) return true;
@@ -245,23 +354,30 @@ export function searchPolicyCorpus(index, request) {
   const queryTerms = [
     ...new Set(tokens(query).filter((term) => !stop.has(term))),
   ];
+  const queryTermKeys = queryTerms.map((term) => [term, termKey(term)]);
+  const queryKeys = [...new Set(queryTermKeys.map(([, key]) => key))];
   const phrases = [...query.matchAll(/"([^"\n]+)"/gu)]
     .map((match) => tokens(match[1]).join(" "))
     .filter(Boolean);
   const exactQuery = identifier(query);
   const state = temporalState(data, request.asOf, request.basis);
+  const scopedWorks = new Set(
+    data.corpus.works
+      .filter(
+        (work) =>
+          (!request.sourceProfileId ||
+            request.sourceProfileId === work.sourceProfileId) &&
+          (!request.governmentContext ||
+            request.governmentContext === work.governmentContext) &&
+          (!request.instrumentClass ||
+            request.instrumentClass === work.instrumentClass),
+      )
+      .map((work) => work.id),
+  );
   const matches = [];
   for (const entry of data.entries) {
     const { work, version } = entry;
-    if (
-      (request.sourceProfileId &&
-        request.sourceProfileId !== work.sourceProfileId) ||
-      (request.governmentContext &&
-        request.governmentContext !== work.governmentContext) ||
-      (request.instrumentClass &&
-        request.instrumentClass !== work.instrumentClass) ||
-      (state && !state.selected.has(version.id))
-    )
+    if (!scopedWorks.has(work.id) || (state && !state.selected.has(version.id)))
       continue;
     const known = {
       title: knownField(work, "/title", state, data),
@@ -287,38 +403,66 @@ export function searchPolicyCorpus(index, request) {
       exactQuery === entry.identifiers[3]
     )
       exactFields.push("source_version_identifier");
-    const titleScore = known.title ? bm25(entry.title, queryTerms, data) : 0;
+    const titleScore = known.title ? bm25(entry.title, queryKeys, data) : 0;
     const metadata = vector(
       `${known.identifier ? work.sourceIdentifier : ""} ${known.versionIdentifier ? version.sourceVersionIdentifier : ""} ${known.status ? version.sourceStatusLabel : ""}`,
     );
-    const metadataScore = bm25(metadata, queryTerms, data);
+    const metadataScore = bm25(metadata, queryKeys, data);
+    const proofFields = evidenceFields(entry, request, queryTerms, state, data);
     const passages = entry.passages
       .filter(
         (passage) => !state || state.knownRenditions.has(passage.rendition.id),
       )
       .map((passage) => {
-        const matchedTerms = queryTerms.filter((term) =>
-          passage.vector.counts.has(term),
-        );
+        const matchedTerms = queryTermKeys
+          .filter(([, key]) => passage.vector.counts.has(key))
+          .map(([term]) => term);
         const matchedPhrases = phrases.filter((phrase) =>
           ` ${passage.vector.normalized} `.includes(` ${phrase} `),
         );
-        const score =
-          bm25(passage.vector, queryTerms, data) + matchedPhrases.length * 4;
+        const lexicalScore =
+          bm25(passage.vector, queryKeys, data) +
+          new Set(matchedTerms.map(termKey)).size * 1.25 +
+          matchedPhrases.length * 4;
+        const context = passage.context
+          .map((other) => ({
+            id: other.segment.id,
+            score:
+              bm25(other.vector, queryKeys, data) *
+              (other.heading ? 0.35 : 0.15),
+          }))
+          .filter((other) => other.score > 0);
+        const contextScore = Math.max(
+          0,
+          ...context.map((other) => other.score),
+        );
+        const fields = proofFields.get(passage.segment.id) ?? [];
         return {
           segmentId: passage.segment.id,
           renditionId: passage.rendition.id,
           captureId: passage.rendition.captureId,
-          score,
+          score: lexicalScore + contextScore,
+          lexicalScore,
+          contextScore,
+          contextSegmentIds: context.map((other) => other.id),
+          evidenceFields: fields,
           matchedTerms,
           matchedPhrases,
-          whyShown: matchedTerms.length
-            ? "source_passage_match"
-            : "identifier_or_browse_evidence",
+          whyShown: fields.length
+            ? "source_field_provenance"
+            : matchedTerms.length
+              ? "source_passage_match"
+              : context.length
+                ? "source_context_match"
+                : "identifier_or_browse_evidence",
         };
       })
       .filter(
-        (passage) => !query || passage.score > 0 || exactFields.length > 0,
+        (passage) =>
+          !query ||
+          passage.score > 0 ||
+          exactFields.length > 0 ||
+          passage.evidenceFields.length,
       )
       .sort((a, b) => b.score - a.score || order(a.segmentId, b.segmentId));
     const titlePhrase =
@@ -334,11 +478,27 @@ export function searchPolicyCorpus(index, request) {
     )
       continue;
     const score =
-      titleScore * 2 +
-      metadataScore * 2 +
+      titleScore * 0.75 +
+      metadataScore +
       (passages[0]?.score ?? 0) +
+      passages
+        .slice(0, 3)
+        .reduce((sum, passage) => sum + passage.lexicalScore, 0) *
+        0.25 +
       (titlePhrase ? 4 : 0);
     if (query && score === 0 && exactFields.length === 0) continue;
+    const bestPassage = passages[0]?.score ?? 0;
+    for (const passage of passages)
+      if (passage.evidenceFields.length)
+        passage.score = Math.max(passage.score, bestPassage * 0.95);
+    passages.sort(
+      (a, b) => b.score - a.score || order(a.segmentId, b.segmentId),
+    );
+    // Document context carries identifier/title matches into evidence ranking;
+    // diminishing repeated hits prevents one long instrument filling the pool.
+    passages.forEach((passage, rank) => {
+      passage.score = (passage.score + score * 0.3) / (1 + rank * 0.18);
+    });
     const whyShown = [
       ...exactFields.map((field) => `exact_${field}`),
       ...(titleScore > 0 ? ["title_terms"] : []),
@@ -395,15 +555,21 @@ export function searchPolicyCorpus(index, request) {
           asOf: request.asOf,
           basis: request.basis,
           unknownWorkIds: state.snapshot.selections
-            .filter((entry) => entry.state === "unknown")
+            .filter(
+              (entry) =>
+                entry.state === "unknown" && scopedWorks.has(entry.workId),
+            )
             .map((entry) => entry.workId),
-          excluded: state.snapshot.excluded,
+          excluded: state.snapshot.excluded.filter((entry) =>
+            scopedWorks.has(entry.workId),
+          ),
           limitations: state.snapshot.limitations,
         }
       : null,
     limitations: [
       "Lexical matches require review of the cited source passages; no answer or legal conclusion is generated.",
       "Separate instruments can supply separate parts of a question. Retained versions are ranked independently.",
+      "Scoring folds English suffixes and uses declared neighboring/section context, document relevance, and requested field provenance; exact phrases and identifiers stay literal. Quotes are never concatenated.",
       "An unfiltered search includes unknown dates; a cutoff excludes unknown or indeterminate source states.",
     ],
   });

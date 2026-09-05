@@ -11,9 +11,17 @@ import userEvent from "@testing-library/user-event";
 import axe from "axe-core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PolicyWorkbench } from "../../src/app/PolicyWorkbench";
+import {
+  createAnalyzedCorpusV2,
+  createEvidenceSegment,
+} from "../../src/pipeline/analyzed-corpus-v2.mjs";
+import { createHash } from "node:crypto";
+import { Buffer } from "node:buffer";
 import type { AnalyzedCorpusV2 } from "../../src/pipeline/analyzed-corpus-v2.mjs";
 // @ts-expect-error The authored Node fixture has no declaration file; its sealed result is the shared v2 contract.
-import { syntheticCorpusV2 } from "../pipeline/analyzed-corpus-v2.test.mjs";
+import * as authored from "../pipeline/analyzed-corpus-v2.test.mjs";
+
+const { syntheticCorpusV2, syntheticCorpusV2Input } = authored;
 
 const fixture = (): AnalyzedCorpusV2 => syntheticCorpusV2();
 afterEach(() => {
@@ -111,6 +119,227 @@ describe("local policy workbench", () => {
       within(comparison).getAllByRole("button", { name: /Read evidence/u })
         .length,
     ).toBeGreaterThan(0);
+    fireEvent.click(
+      screen.getByRole("checkbox", {
+        name: "Select Edition 2022 for comparison",
+      }),
+    );
+    fireEvent.click(
+      screen.getByRole("checkbox", {
+        name: "Select Edition 2021 for comparison",
+      }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Compare institutional procedures" }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Inspect reference evidence 1" }),
+    );
+    expect(
+      screen.getByRole("region", { name: "Source evidence" }),
+    ).toHaveTextContent("Cites Instrument A");
+  });
+
+  it("masks unavailable relationship targets and distinguishes cutoff eligibility from retained absence", async () => {
+    const input = syntheticCorpusV2Input();
+    input.relationships[0].target.versionId = "version-a-new";
+    render(<PolicyWorkbench corpus={createAnalyzedCorpusV2(input)} />);
+    fireEvent.input(screen.getByLabelText("As of date"), {
+      target: { value: "2021-06-01" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Search corpus" }));
+    expect(
+      screen.getByText(/target not available by cutoff/u),
+    ).toHaveTextContent("Instrument A");
+    expect(screen.queryByText(/target resolved/u)).not.toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /No reviewed reference evidence is eligible at this cutoff/u,
+      ),
+    ).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Date evidence basis"), {
+      target: { value: "source_effective" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Search corpus" }));
+    expect(
+      screen.getByText(/does not apply cross-document/u),
+    ).toHaveTextContent("determine what law is in force");
+  });
+
+  it("exposes unchanged text across shifted source locations with both evidence links", () => {
+    let input = syntheticCorpusV2Input();
+    for (const id of ["rendition-a-old", "rendition-a-new"]) {
+      const rendition = input.renditions.find(
+        (entry: { id: string }) => entry.id === id,
+      );
+      const capture = input.captures.find(
+        (entry: { id: string }) => entry.id === rendition.captureId,
+      );
+      const previous = input.segments.find(
+        (entry: { renditionId: string }) => entry.renditionId === id,
+      );
+      const blocks = [
+        rendition.text,
+        ...(id === "rendition-a-new" ? ["Inserted cover note."] : []),
+        "The archive preserves annual statements.",
+      ];
+      const bytes = Buffer.from(blocks.join("\n\n"));
+      const digest = createHash("sha256").update(bytes).digest("hex");
+      Object.assign(rendition, {
+        text: bytes.toString("utf8"),
+        outputDigest: digest,
+        byteLength: bytes.length,
+      });
+      Object.assign(capture, {
+        objectDigest: digest,
+        objectPath: `objects/${digest}.bin`,
+        encodedBytes: bytes.length,
+        decodedBytes: bytes.length,
+      });
+      let startByte = 0;
+      const segments = blocks.map((block: string, number: number) => {
+        const endByte = startByte + Buffer.byteLength(block);
+        const segment = createEvidenceSegment({
+          renditionId: id,
+          renditionDigest: digest,
+          renditionBytes: bytes,
+          startByte,
+          endByte,
+          locator: {
+            ...previous.locator,
+            value: number
+              ? `/document/p[${number + 1}]`
+              : previous.locator.value,
+          },
+        });
+        startByte = endByte + 2;
+        return segment;
+      });
+      input.segments = input.segments.filter(
+        (entry: { id: string }) => entry.id !== previous.id,
+      );
+      input = JSON.parse(
+        JSON.stringify(input).replaceAll(previous.id, segments[0].id),
+      );
+      input.segments.push(...segments);
+    }
+    render(<PolicyWorkbench corpus={createAnalyzedCorpusV2(input)} />);
+    fireEvent.click(
+      screen.getByRole("checkbox", {
+        name: "Select Edition 2020 for comparison",
+      }),
+    );
+    fireEvent.click(
+      screen.getByRole("checkbox", {
+        name: "Select Edition 2022 for comparison",
+      }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Compare text versions" }),
+    );
+    const result = screen.getByRole("region", {
+      name: "Text comparison result",
+    });
+    const summary = within(result).getByText(
+      "Unchanged exact text matches (1)",
+    );
+    fireEvent.click(summary);
+    const unchanged = summary.closest("details")!;
+    expect(unchanged).toHaveTextContent("unique exact text");
+    expect(unchanged).toHaveTextContent(
+      "structural_path:/document/p[2] → structural_path:/document/p[3]",
+    );
+    fireEvent.click(
+      within(unchanged).getByRole("button", { name: "After evidence 1" }),
+    );
+    expect(
+      screen.getByRole("region", { name: "Source evidence" }),
+    ).toHaveTextContent("The archive preserves annual statements.");
+  });
+
+  it("keeps later metadata out of historical controls and evidence while labeling full-population finding evidence", async () => {
+    const input = syntheticCorpusV2Input();
+    const prior = input.renditions[0];
+    const text = prior.text.replace("Edition 2020", "Later editorial label");
+    const bytes = Buffer.from(text);
+    const digest = createHash("sha256").update(bytes).digest("hex");
+    const capture = {
+      ...input.captures[0],
+      id: "capture-a-later",
+      operationId: "operation-a-later",
+      retrievedAt: "2026-09-03T00:00:00Z",
+      objectDigest: digest,
+      objectPath: `objects/${digest}.bin`,
+      encodedBytes: bytes.length,
+      decodedBytes: bytes.length,
+    };
+    const rendition = {
+      ...prior,
+      id: "rendition-a-later",
+      captureId: capture.id,
+      text,
+      outputDigest: digest,
+      byteLength: bytes.length,
+    };
+    const segment = createEvidenceSegment({
+      renditionId: rendition.id,
+      renditionDigest: digest,
+      renditionBytes: bytes,
+      startByte: 0,
+      endByte: bytes.length,
+      locator: { ...input.segments[0].locator },
+    });
+    input.captures.push(capture);
+    input.renditions.push(rendition);
+    input.segments.push(segment);
+    input.versions[0].renditionIds.push(rendition.id);
+    input.versions[0].sourceVersionIdentifier = "Later editorial label";
+    const provenance = input.versions[0].fieldProvenance.find(
+      (entry: { field: string }) => entry.field === "/sourceVersionIdentifier",
+    );
+    provenance.captureId = capture.id;
+    provenance.segmentIds = [segment.id];
+    const corpus = createAnalyzedCorpusV2(input);
+    render(<PolicyWorkbench corpus={corpus} />);
+    fireEvent.input(screen.getByLabelText("As of date"), {
+      target: { value: "2026-09-02" },
+    });
+    fireEvent.change(screen.getByLabelText("Date evidence basis"), {
+      target: { value: "corpus_observed" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Search corpus" }));
+    const masked = screen.getByRole("checkbox", {
+      name: "Select Source version label unknown at cutoff (version-a-old) for comparison",
+    });
+    expect(
+      screen.queryByRole("checkbox", { name: /Later editorial label/u }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(masked);
+    expect(
+      screen.getByRole("button", {
+        name: "Remove Source version label unknown at cutoff (version-a-old)",
+      }),
+    ).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Inspect passage 1 · Source version label unknown at cutoff (version-a-old)",
+      }),
+    );
+    let panel = screen.getByRole("region", { name: "Source evidence" });
+    expect(panel).not.toHaveTextContent("Later editorial label");
+    expect(panel).toHaveTextContent("Search evidence at cutoff");
+    fireEvent.click(
+      within(panel).getByRole("button", { name: "Close evidence" }),
+    );
+    const findings = screen.getByRole("region", {
+      name: "Provisional findings and counterevidence",
+    });
+    fireEvent.click(
+      within(findings).getByRole("button", { name: "Read evidence 1" }),
+    );
+    panel = screen.getByRole("region", { name: "Source evidence" });
+    expect(panel).toHaveTextContent("outside the date-filtered search");
+    expect(panel).toHaveTextContent("Later editorial label");
   });
 
   it("keeps unknown temporal states and coverage explicit and excludes future versions from results", async () => {

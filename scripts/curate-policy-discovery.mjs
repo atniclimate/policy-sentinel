@@ -9,6 +9,7 @@ import {
 import { replayReviewedCorpus } from "../src/pipeline/policy-local-output.mjs";
 import { extractPolicyText } from "../src/pipeline/policy-text.mjs";
 import { assertWashingtonBillHeader } from "../src/pipeline/policy-broad-discovery.mjs";
+import { resolvePolicyResearchReview } from "../src/pipeline/policy-research-output.mjs";
 import {
   createPolicyCorpus,
   normalizePolicyDateSource,
@@ -19,6 +20,27 @@ if (args.length !== 2 || args[0] !== "--root")
   throw new Error("EXPLICIT_ROOT_REQUIRED");
 const root = args[1];
 const gold = await replayReviewedCorpus(root);
+const researchBytes = await readFile(join(root, "review/research-input.json"));
+const researchSeal = JSON.parse(
+  await readFile(join(root, "review/research-seal.json"), "utf8"),
+);
+if (
+  researchSeal.baseCorpusDigest !== gold.corpus.contentDigest ||
+  researchSeal.baseInputDigest !== gold.seal.inputDigest ||
+  researchSeal.baseOutputDigest !== gold.seal.outputDigest ||
+  researchSeal.inputDigest !== digest(researchBytes)
+)
+  throw new Error("RESEARCH_BASE_SEAL_MISMATCH");
+const research = resolvePolicyResearchReview({
+  corpus: gold.corpus,
+  review: JSON.parse(researchBytes.toString("utf8")),
+});
+if (
+  research.corpus.contentDigest !== researchSeal.corpusDigest ||
+  digest(Buffer.from(serializeAnalyzedCorpusV2(research.corpus))) !==
+    researchSeal.outputDigest
+)
+  throw new Error("RESEARCH_REPLAY_MISMATCH");
 const run = await openPolicyRun(root);
 const targets = JSON.parse(
   await readFile(join(root, "review/broad-bodies.json"), "utf8"),
@@ -28,6 +50,15 @@ const unknown = () => ({ value: null, precision: "unknown" });
 const items = [...gold.reviewedInput.items];
 const reviews = [];
 const gaps = [...targets.gaps];
+// Independently reviewed retained renditions. These are source/extraction
+// limitations, not subject exclusions; a changed capture needs a fresh review.
+const deferredBodies = new Map([
+  ["broad-wa-5128-session-001", "SOURCE_AMENDMENT_MARKUP_AMBIGUOUS"],
+  [
+    "broad-wa-1389-session-001",
+    "SOURCE_CONTACT_SECTION_FALSE_POSITIVE_TRUNCATION",
+  ],
+]);
 for (const candidate of targets.records) {
   try {
     const receipt = run.ledger.operations[candidate.bodyOperationId];
@@ -38,6 +69,8 @@ for (const candidate of targets.records) {
       receipt.url !== candidate.bodyUrl
     )
       throw new Error("REVIEWED_BODY_CAPTURE_REQUIRED");
+    if (deferredBodies.has(candidate.bodyOperationId))
+      throw new Error(deferredBodies.get(candidate.bodyOperationId));
     const sourceBytes = await readFile(join(root, receipt.objectPath));
     if (digest(sourceBytes) !== receipt.objectDigest)
       throw new Error("OBJECT_DIGEST_MISMATCH");
@@ -90,7 +123,7 @@ for (const candidate of targets.records) {
       headers.find(
         (block) =>
           /^[A-Z][A-Z ,—–()/-]{15,}$/.test(block.text) &&
-          !/CERTIFICATION|LEGISLATURE|REGULAR SESSION|SUBSTITUTE|BILL|EFFECTIVE DATE/.test(
+          !/^(?:CERTIFICATION|.*LEGISLATURE.*|.*REGULAR SESSION.*|.*(?:HOUSE|SENATE) BILL.*|EFFECTIVE DATE.*)$/.test(
             block.text,
           ),
       ) ?? one(/^AN ACT\b/, frontmatter);
@@ -213,6 +246,17 @@ for (const candidate of targets.records) {
               "Whole-document effective date unknown; read the source's section-specific or qualified dates.",
             ]
           : []),
+        ...(extraction.exclusions.some((entry) =>
+          [
+            "personal_contact_section",
+            "personal_contact_block",
+            "prohibited_location_block",
+          ].includes(entry.reason),
+        )
+          ? [
+              "Partial rendition: conservative content filters also omit some statutory citations, blank form fields or generic documentation language; exact omission locators are retained. No absence inference is valid for omitted text.",
+            ]
+          : []),
       ],
     });
   } catch (error) {
@@ -229,7 +273,43 @@ const input = {
   id: "real-policy-discovery-01",
   generatedAt,
   items,
+  relationships: research.relationships,
+  analyses: research.analyses,
+  findings: research.findings,
 };
+const baseCoverage = createPolicyCorpus(input).coverage;
+input.coverage = baseCoverage.map((entry) => {
+  const result = { ...entry };
+  delete result.contentDigest;
+  const broad = entry.sourceProfileId === "washington-legislative-text";
+  result.limitations = [
+    ...entry.limitations,
+    ...(broad
+      ? [
+          `Broader sample: 2025 regular-session chapters 1–200, 198 eligible numeric bills; ${reviews.length} accepted new works and ${gaps.length} source/admission gaps.`,
+          "Gold includes selected 2012, 2021–2023 and 2025 bill versions; broad sample adds one session-law version per accepted 2025 bill.",
+          "Publication and source-version dates are unknown. Exact unqualified whole-document effective headers are recorded separately; partial vetoes and qualified dates require source inspection.",
+        ]
+      : [
+          "Seven purposively selected Federal Register instruments published 2000–2026; no complete CFR history or current-law consolidation.",
+        ]),
+    "All works are general-jurisdiction and Unclassified; research findings use only their declared gold populations.",
+  ];
+  result.exclusions = broad
+    ? [
+        "2025 chapter 1 initiative and chapter 2 salary schedule fall outside the selected numeric-bill interface.",
+        "2025 chapters after 200 and other sessions are outside the broader sample.",
+        `${gaps.length} candidate gaps are recorded in the owned broad-body review; no gap is silently replaced.`,
+        "Source blocks matching prohibited contact/location content are omitted with rendition omission locators.",
+        "Seven broad renditions contain bounded false-positive omissions of statutory citations, blank forms or generic documentation language; inspect omission locators before drawing an absence conclusion.",
+        "SB5128 chapter 12 is deferred for ambiguous amendment markup; HB1389 chapter 155 is deferred for contact-filter truncation of a blank statutory form.",
+      ]
+    : [
+        "Two reproduced private-comment paragraphs in the 2004 rule are omitted with exact rendition locators.",
+        "The referenced 2001 rule is absent and remains an unresolved relationship target.",
+      ];
+  return result;
+});
 const corpus = createPolicyCorpus(input);
 const portable = {
   ...input,
@@ -266,9 +346,9 @@ const review = await writePolicyDerived(
   root,
   "review/broad-body-reviews.json",
   Buffer.from(
-    `${JSON.stringify({ version: "1.0.0", generatedAt, goldCorpusDigest: gold.corpus.contentDigest, corpusDigest: corpus.contentDigest, reviews, gaps, indexExclusions: targets.exclusions }, null, 2)}\n`,
+    `${JSON.stringify({ version: "1.0.0", generatedAt, goldCorpusDigest: gold.corpus.contentDigest, researchCorpusDigest: research.corpus.contentDigest, researchInputDigest: researchSeal.inputDigest, corpusDigest: corpus.contentDigest, reviews, gaps, indexExclusions: targets.exclusions }, null, 2)}\n`,
   ),
 );
 process.stdout.write(
-  `${JSON.stringify({ descriptors, output, review, corpusDigest: corpus.contentDigest, goldWorks: gold.corpus.works.length, broadAccepted: reviews.length, works: corpus.works.length, versions: corpus.versions.length, events: corpus.events.length, segments: corpus.segments.length, gaps })}\n`,
+  `${JSON.stringify({ descriptors, output, review, corpusDigest: corpus.contentDigest, goldWorks: gold.corpus.works.length, broadAccepted: reviews.length, works: corpus.works.length, versions: corpus.versions.length, events: corpus.events.length, segments: corpus.segments.length, gapCount: gaps.length, gapReasons: [...new Set(gaps.map((gap) => gap.reason))] })}\n`,
 );

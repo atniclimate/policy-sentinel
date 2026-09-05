@@ -459,7 +459,20 @@ export function createPolicyCorpus(input) {
         byteLength: Buffer.byteLength(extraction.text),
         text: extraction.text,
         authorityLabel: profile.authorityLabel,
-        omittedSourceLocators: [...extraction.excludedBlockLocators].sort(),
+        omittedSourceLocators: [
+          ...new Set([
+            ...extraction.excludedBlockLocators,
+            ...extraction.exclusions
+              .filter((entry) =>
+                [
+                  "personal_contact_section",
+                  "personal_contact_block",
+                  "prohibited_location_block",
+                ].includes(entry.reason),
+              )
+              .map((entry) => entry.sourceLocator),
+          ]),
+        ].sort(),
         warnings: [
           ...new Set([
             ...extraction.warnings,

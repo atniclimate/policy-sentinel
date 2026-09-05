@@ -1,6 +1,6 @@
 // Pure browser-compatible operations over an already validated v2 corpus.
 // No operation makes a determination of current law or legal applicability.
-const METHOD_VERSION = "1.0.0";
+const METHOD_VERSION = "2.0.0";
 const COMPARE_LIMIT = 20000;
 const DATE_PRECISIONS = ["unknown", "year", "month", "day"];
 
@@ -284,6 +284,11 @@ export function selectTemporalVersions(input, { asOf, basis }) {
       "Source dates and corpus observation are separate evidence axes.",
       "A latest available version is not a determination of current law.",
       "Unknown predecessors and dates are not filled with the earliest retained text.",
+      ...(basis === "source_effective"
+        ? [
+            "This selects effective-event evidence by cutoff; repeal, supersession and other relationship effects are not applied. It is not an in-force filter.",
+          ]
+        : []),
     ],
   });
 }
@@ -331,45 +336,82 @@ function compareVersionTexts(value, before, after) {
   const right = rendition(value, after);
   const leftUnits = textUnits(value, left);
   const rightUnits = textUnits(value, right);
-  const leftMap = new Map();
-  const rightMap = new Map();
-  for (const unit of leftUnits) {
-    if (!leftMap.has(unit.locator)) leftMap.set(unit.locator, []);
-    leftMap.get(unit.locator).push(unit);
-  }
-  for (const unit of rightUnits) {
-    if (!rightMap.has(unit.locator)) rightMap.set(unit.locator, []);
-    rightMap.get(unit.locator).push(unit);
-  }
   const changes = [];
-  for (const locator of [
-    ...new Set([...leftMap.keys(), ...rightMap.keys()]),
-  ].sort()) {
-    const prior = leftMap.get(locator) ?? [];
-    const next = rightMap.get(locator) ?? [];
-    const kind =
-      prior.length === 0
-        ? "added"
-        : next.length === 0
-          ? "removed"
-          : prior.length !== 1 || next.length !== 1
-            ? "ambiguous_locator"
-            : prior[0].text === next[0].text
-              ? "unchanged"
-              : normalizeFormatting(prior[0].text) ===
-                  normalizeFormatting(next[0].text)
-                ? "formatting_only"
-                : "text_changed";
+  const usedLeft = new Set();
+  const usedRight = new Set();
+  const groups = (units, normalize) => {
+    const map = new Map();
+    for (const unit of units) {
+      const key = normalize(unit.text);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(unit);
+    }
+    return map;
+  };
+  const append = (prior, next, kind, alignment) => {
     changes.push({
-      locator,
+      locator:
+        prior && next && prior.locator !== next.locator
+          ? `${prior.locator} → ${next.locator}`
+          : (prior ?? next).locator,
       kind,
-      beforeSegmentIds: prior.map((unit) => unit.segmentId),
-      afterSegmentIds: next.map((unit) => unit.segmentId),
+      alignment,
+      beforeSegmentIds: prior ? [prior.segmentId] : [],
+      afterSegmentIds: next ? [next.segmentId] : [],
     });
+  };
+  // Locators identify occurrences inside one rendition. An equal ordinal path
+  // is never evidence that two versions contain the same provision there.
+  for (const [normalize, kind, alignment] of [
+    [(text) => text, "unchanged", "unique_exact_text"],
+    [
+      normalizeFormatting,
+      "formatting_only",
+      "unique_whitespace_normalized_text",
+    ],
+  ]) {
+    const leftGroups = groups(leftUnits, normalize);
+    const rightGroups = groups(rightUnits, normalize);
+    for (const prior of leftUnits) {
+      if (usedLeft.has(prior.segmentId)) continue;
+      const key = normalize(prior.text);
+      const candidates = rightGroups.get(key) ?? [];
+      if (leftGroups.get(key).length !== 1 || candidates.length !== 1) continue;
+      const next = candidates[0];
+      if (usedRight.has(next.segmentId)) continue;
+      usedLeft.add(prior.segmentId);
+      usedRight.add(next.segmentId);
+      append(prior, next, kind, alignment);
+    }
   }
+  const leftText = groups(leftUnits, normalizeFormatting);
+  const rightText = groups(rightUnits, normalizeFormatting);
+  for (const prior of leftUnits.filter((unit) => !usedLeft.has(unit.segmentId)))
+    append(
+      prior,
+      null,
+      rightText.has(normalizeFormatting(prior.text))
+        ? "ambiguous_text"
+        : "unaligned_before",
+      "no_reviewed_provision_correspondence",
+    );
+  for (const next of rightUnits.filter(
+    (unit) => !usedRight.has(unit.segmentId),
+  ))
+    append(
+      null,
+      next,
+      leftText.has(normalizeFormatting(next.text))
+        ? "ambiguous_text"
+        : "unaligned_after",
+      "no_reviewed_provision_correspondence",
+    );
   return freeze({
     kind: "version_comparison",
-    method: { id: "exact-locator-text-comparison", version: METHOD_VERSION },
+    method: {
+      id: "unique-text-occurrence-comparison",
+      version: METHOD_VERSION,
+    },
     corpusDigest: value.contentDigest,
     workId: before.workId,
     beforeVersionId: before.id,
@@ -392,7 +434,8 @@ function compareVersionTexts(value, before, after) {
     limitations: [
       "Text differences are not legal-effect determinations.",
       "Formatting comparison collapses whitespace only; spelling and punctuation remain changes.",
-      "Locator matching does not infer correspondence when locators repeat or disappear.",
+      "Unique exact or whitespace-normalized text can match across different locators. This proves textual presence, not provision identity or continuity.",
+      "Unaligned or repeated text is not classified as an added, removed or changed provision. Ordinal positions never establish cross-version correspondence.",
     ],
   });
 }
@@ -424,7 +467,7 @@ export function compareRelatedProvisions(
     ...comparison,
     kind: "related_provision_comparison",
     method: {
-      id: "explicit-change-linked-provision-comparison",
+      id: "explicit-edge-linked-whole-instrument-text-comparison",
       version: METHOD_VERSION,
     },
     beforeWorkId: before.workId,
@@ -433,10 +476,12 @@ export function compareRelatedProvisions(
     relationshipType: relationship.type,
     relationshipSourceLabel: relationship.sourceLabel,
     relationshipSegmentIds: [...relationship.segmentIds],
+    comparisonScope: "whole_instrument_text",
     limitations: [
       ...comparison.limitations,
       "These are distinct policy instruments linked by explicit source evidence, not versions of one work.",
       "The recorded change relationship preserves source language and does not independently determine legal effect.",
+      "This compares whole retained instruments. The edge does not supply a reviewed alignment of the amended provisions.",
     ],
   });
 }
@@ -527,8 +572,15 @@ export function compareInstitutionalProcedures(input, { analysisIds }) {
   });
 }
 
-export function resolveCorpusRelationships(input, { versionId, asOf }) {
+export function resolveCorpusRelationships(
+  input,
+  { versionId, asOf, basis = "source_available" },
+) {
   const value = corpus(input);
+  ensure(
+    ["source_available", "corpus_observed", "source_effective"].includes(basis),
+    "INVALID_TEMPORAL_BASIS",
+  );
   refVersion(value, versionId);
   const limit = cutoff(asOf);
   const visible = [];
@@ -537,13 +589,9 @@ export function resolveCorpusRelationships(input, { versionId, asOf }) {
     (entry) => entry.fromVersionId === versionId,
   )) {
     if (
-      !atOrBefore(relationship.sourceStatedAt, limit) ||
-      !evidenceKnownAt(
-        value,
-        relationship.segmentIds,
-        limit,
-        "source_available",
-      )
+      (basis !== "corpus_observed" &&
+        !atOrBefore(relationship.sourceStatedAt, limit)) ||
+      !evidenceKnownAt(value, relationship.segmentIds, limit, basis)
     ) {
       excluded.push({
         relationshipId: relationship.id,
@@ -559,10 +607,15 @@ export function resolveCorpusRelationships(input, { versionId, asOf }) {
       sourceLabel: relationship.sourceLabel,
       segmentIds: [...relationship.segmentIds],
     };
-    if (relationship.target.state === "resolved") {
-      const target = refVersion(value, relationship.target.versionId);
+    const targetKnown = (versionId) => {
+      const target = refVersion(value, versionId);
       const interval = sourceInterval(target);
-      if (interval === null || interval.upper > limit) {
+      return basis === "corpus_observed"
+        ? timestamp(target.observedAt) <= limit
+        : interval !== null && interval.upper <= limit;
+    };
+    if (relationship.target.state === "resolved") {
+      if (!targetKnown(relationship.target.versionId)) {
         result.state = "target_not_available_by_cutoff";
         result.target = {
           state: "unresolved",
@@ -572,6 +625,10 @@ export function resolveCorpusRelationships(input, { versionId, asOf }) {
           candidateVersionIds: [],
         };
       }
+    } else if (relationship.target.state === "ambiguous") {
+      // Removing unavailable candidates cannot establish a source's intended target.
+      result.target.candidateVersionIds =
+        result.target.candidateVersionIds.filter(targetKnown);
     }
     visible.push(result);
   }
@@ -584,10 +641,10 @@ export function resolveCorpusRelationships(input, { versionId, asOf }) {
     corpusDigest: value.contentDigest,
     versionId,
     asOf,
-    basis: "source_available",
+    basis,
     relationships: visible,
     excluded,
     limitation:
-      "Explicit references preserve unresolved targets and do not establish legal effect.",
+      "Explicit references preserve unresolved targets and do not establish legal effect. Unavailable ambiguous candidates are filtered without promoting the remaining candidates to resolved.",
   });
 }

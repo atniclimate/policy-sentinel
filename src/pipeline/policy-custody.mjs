@@ -1164,8 +1164,14 @@ export async function verifyPolicyRun(root) {
   };
 }
 
-export async function writePolicyDerived(root, relativePath, bytes) {
+export async function writePolicyDerived(
+  root,
+  relativePath,
+  bytes,
+  { replace = true } = {},
+) {
   if (
+    typeof replace !== "boolean" ||
     typeof relativePath !== "string" ||
     !/^(?:work|review|local-output)\/[a-zA-Z0-9_./-]+$/.test(relativePath) ||
     relativePath
@@ -1180,6 +1186,16 @@ export async function writePolicyDerived(root, relativePath, bytes) {
     const target = join(root, relativePath);
     await safePath(target, true);
     if (!within(resolve(root), target)) fail("DERIVED_PATH_ESCAPE");
+    if (!replace) {
+      const exists = await lstat(target).then(
+        () => true,
+        (error) => {
+          if (error.code === "ENOENT") return false;
+          throw error;
+        },
+      );
+      if (exists) fail("DERIVED_OUTPUT_ALREADY_EXISTS");
+    }
     const disk = await statfs(root);
     if (
       (await diskUse(root)) + bytes.length > POLICY_LIMITS.runBytes ||

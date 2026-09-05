@@ -31,9 +31,20 @@ export interface PolicyPassageHit {
   readonly renditionId: string;
   readonly captureId: string;
   readonly score: number;
+  /** Direct lexical score before context, document relevance and repetition discount. */
+  readonly lexicalScore: number;
+  readonly contextScore: number;
+  /** Distinct source segments contributing scoring context, never a joined quotation. */
+  readonly contextSegmentIds: readonly string[];
+  /** Existing source-field/event provenance supporting the requested status/date axis. */
+  readonly evidenceFields: readonly string[];
   readonly matchedTerms: readonly string[];
   readonly matchedPhrases: readonly string[];
-  readonly whyShown: "source_passage_match" | "identifier_or_browse_evidence";
+  readonly whyShown:
+    | "source_passage_match"
+    | "identifier_or_browse_evidence"
+    | "source_context_match"
+    | "source_field_provenance";
 }
 export interface PolicySearchHit {
   readonly workId: string;

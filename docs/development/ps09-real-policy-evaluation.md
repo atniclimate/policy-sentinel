@@ -297,3 +297,238 @@ pause. This record is not a completion claim for the local run or
 `PS09-06-LOCAL-RC`: measured retrieval failures, independent analytical review,
 eventual broader-corpus evaluation and remaining output/browser acceptance
 still require their own evidence.
+
+## First repaired regression and analytical audit
+
+The unchanged freeze was rerun through `npm run policy:evaluate -- --root
+I:/policy-sentinel-corpus-real-policy/discovery-01 --label repaired-gold-v1
+--name gold` from `2026-09-05T13:23:39.012Z` through
+`2026-09-05T13:23:42.595Z`. The command validated the owned root before reads,
+verified the immutable question and gold digests, used the production APIs,
+replayed source bytes, and sealed a new result with the custody helper's
+locked no-replacement option. The original first pass remains unchanged.
+Previously reserved questions are now revealed regression cases.
+
+| Measure | Shared regression | Revealed reserved regression | Combined result |
+| --- | --- | --- | --- |
+| Complete supporting versions in top 10 | 12/12 | 2/2 | 14/14; passes. |
+| Required version instances recovered | 17/17 | 4/4 | 21/21. |
+| Complete multi-document questions | 5/5 | 2/2 | 7/7; passes. |
+| Required supporting spans in top 20 | 20/23 | 4/4 | 24/27 (88.9%); fails the required 25/27. |
+| Questions with all supporting spans | 11/12 | 2/2 | 13/14. |
+| Exact identifier top 1 | Shared identifier suite | Not a separate suite | 66/66; passes. |
+
+All 30 distinct citations replayed through 18 renditions. There were zero
+forbidden future hits, zero future event leaks, no lost required unknown
+state, and no automatic answer output. Source-filtered temporal diagnostics
+were repaired in this search revision. One cross-context question still
+misses three expected passages: one returned passage has pooled rank 41 and
+two do not occur in the returned passage candidate set. The command correctly
+reported a failing acceptance result and returned nonzero through npm. No
+query, expected evidence, denominator, cutoff or threshold was adjusted.
+
+| Regression evidence | SHA-256 |
+| --- | --- |
+| `review/evaluation/repaired-gold-v1.json` (3,504,217 bytes) | `1566f8eb7453cde3004640eb8e30b10732db6ee8a5422a5d4d22c694631d314a` |
+| Reusable repository evaluator | `b6e3bbb8b300587a35dbfaae45102157766edf10de9a54d9bf8e726e88de05fe` |
+| Search implementation in this regression | `86af9966783f5baf89bd97c1e0aa615543d32c520098a04ec838d81a7e8588e6` |
+| Temporal implementation in this regression | `f72cc2bf34c9c229b99977bb4f5664772d2a387c7de76d74788c3f0aa83b787f` |
+
+The corpus core and parser retain the first-pass code pins above. The generic
+repository evaluator embeds no source questions or excerpts; it reads the
+external freeze, preserves its ranking rules and thresholds, and supports
+separately labeled gold, research and discovery populations. Every frozen
+source entity must remain unchanged when a larger population is evaluated.
+
+### Independent analytical operation evidence
+
+Read-only replay of the accepted research recipe exactly reproduced content
+digest `720ca43d3e7f63cbbd4be98852cad3feac6706b582eceafbf3bf9deed82a32b5`
+and serialized corpus SHA-256
+`019e77afa01eee7252ac4f03fd842b382ca07da4faf8ed2a75573d436077950e`.
+The input recipe SHA-256 is
+`558b3c96f498e4e7c60f4d45fc0225faed323a5665fabea0c4939065d26e3f6e`.
+Its 11 source relationships, nine analytical coding records and three finding
+records survive the research JSON projection unchanged. All 43 distinct cited
+passages retain their correct version, object/rendition/text digests and source
+dates, and render as exact escaped canonical quotations. Declared methods,
+dispositions, missing evidence, rival explanations and next disconfirming
+tests survive dossier rendering. This is independent operation and output
+parity evidence; originating-source interpretation was reviewed separately.
+
+The reviewer found that the initial version comparator treated equal ordinal
+HTML positions as cross-version provision correspondence. An actual moved
+paragraph was thereby paired with unrelated text. The repaired method
+`unique-text-occurrence-comparison` version `2.0.0` matches that paragraph to
+its exact occurrence at its new position. All 76 paired occurrences in the
+checked actual version comparison have equal exact or whitespace-normalized
+text. Unmatched text remains explicitly unaligned; matching textual presence
+does not establish provision identity, addition/removal or legal effect.
+Unknown Washington publication dates continue to produce unknown temporal
+order. Related-instrument comparison identifies its whole-instrument scope
+and does not infer an alignment of amended provisions from a reference edge.
+
+The institutional comparison operation reproduces deterministically across
+nine retained versions and ten dimensions. Each of its 90 observation cells
+preserves the exact declared code, supporting segments, method and uncertainty;
+47 uncoded cells remain `not_coded_unknown`. Uncoded dimensions are not evidence
+that the source lacks that institutional feature. These results establish two
+bounded reproducible analytical operations on the actual corpus without a
+model service or a current-law conclusion.
+
+The repaired resolved-target cutoff was also reviewed for residual cases.
+A controlled in-memory adversarial modification, never retained as source
+facts, showed that an ambiguous reference can still expose a future candidate
+version through its candidate list. That generic future-rejection defect was
+reported for repair; the accepted research population has no ambiguous target
+records. The subsequent repair passes the same independent reproduction:
+the future candidate disappears, the available candidate remains, and the
+reference remains ambiguous without a resolved version ID. The measured
+passage threshold failure, broader-population evaluation, and remaining
+UI/browser acceptance prevent a terminal acceptance claim at this checkpoint.
+
+## Passing search regression and omission metadata repair
+
+The second generic search repair passed the same frozen protocol through
+`npm run policy:evaluate -- --root
+I:/policy-sentinel-corpus-real-policy/discovery-01 --label repaired-gold-v2
+--name gold`, before any gold metadata mutation. It recovered all 14 complete
+supporting-version question sets, all 21 required version instances, all seven
+multi-document sets, and 25/27 required passages (92.6%). The shared passage
+result is 21/23; the revealed reserved result is 4/4. All 66 identifier checks,
+30 citation replays, required unknown states, future exclusions and absence of
+automatic answers pass. Both shared and revealed reserved sets retain the
+original denominators. Two passages in one cross-context question remain
+diagnostic misses: one has pooled rank 125 and one is outside the returned
+candidate set. Passing the threshold does not erase those misses or claim
+complete passage coverage. The command exited zero.
+
+Independent source review then identified missing omission metadata: canonical
+renditions disclosed manually excluded passages but did not include some
+contact/location blocks the unchanged parser had already removed. Earlier
+quote and context replay results remain byte-valid, but the omission catalog
+was incomplete. The repair adds disclosure metadata; it restores no excluded
+content and changes no source quotation or expected answer.
+
+Before current gold or research files changed, the evaluator preserved seven
+original files without replacement under
+`review/evaluation/pre-omission-v1/`: both corpus files, both input recipes,
+both seals, and the gold evidence index. Their exact prior hashes appear in
+the independently frozen `metadata-repair-plan-v1.json`. The original question
+freeze and every prior result remain immutable at their existing paths.
+
+The independent plan replayed all 19 retained source renditions using their
+unchanged parser recipes and raw objects. It froze the exact sorted union of
+manual exclusions with the parser's `personal_contact_section`,
+`personal_contact_block`, and `prohibited_location_block` exclusions. Five
+renditions gain six missing locators; the total omission catalog grows from
+two to eight locators. The plan predicted the corrected gold and research
+digests before the lead wrote the corrected files.
+
+The resulting validation addendum verifies those exact predictions. Every
+catalog field outside rendition omission metadata and its dependent content
+digests is unchanged, including every parser recipe, text, segment ID, byte
+range, quote/context digest, source date, event, provenance field and timestamp.
+Gold input and evidence-index bytes are identical. Research input changes only
+by literal replacement of its base corpus digest; all research records and
+their timestamps are unchanged, and the recipe reproduces the corrected
+research output exactly. All seven preserved originals verify against their
+prior hashes.
+
+The repository evaluator always validates the original question freeze and
+first-pass record. Its metadata migration also pins the independent repair
+plan and validation addendum, verifies the archived prior evidence, and
+rejects any difference beyond the frozen omission lists. It records original
+and corrected gold identities separately. A metadata-only digest change does
+not count as a larger document/version population.
+
+`npm run policy:evaluate -- --root
+I:/policy-sentinel-corpus-real-policy/discovery-01 --label
+corrected-metadata-gold-v1 --name gold` passes the same thresholds. Independent
+comparison of the two result records confirms that all 18 questions have
+identical ranked document/version IDs, passage IDs and scores before and
+after the metadata correction. The two diagnostic misses remain unchanged.
+
+| Immutable evidence | SHA-256 or content digest |
+| --- | --- |
+| `review/evaluation/repaired-gold-v2.json` | `608ab260c3f81b3e0c489fb1d7bdf302c88d0bbdac18225820be600f0c34e168` |
+| `review/evaluation/metadata-repair-plan-v1.json` | `58cd0113e196118b187e5327c66f3581539d22b06ab6521f009b7265de0dcf09` |
+| `review/evaluation/metadata-repair-addendum-v1.json` | `c8eb49eac22449188376d2da6beefc5213bb4cc604faf68c0596aab7ca15e171` |
+| Corrected gold content digest | `197d21cbb9a49ec89e8a45d416b0d6af4a2408a76c9b7a33f0879b0979aab938` |
+| Corrected `work/gold-corpus.json` | `5df1f1288c16e7d03d1a51de34f321cb7a41c9e08f40d23b6a713cae7a84cc54` |
+| Corrected `review/research-input.json` | `4caeabdafbeba7a8bed9b139b2935ecb5eea4edb587e5295d3dcbd127bf48289` |
+| Corrected research content digest | `cf1e6e27910d3fca4585f96ebd168d4ce754b2e0c10310e55554aa17b36130a3` |
+| Corrected `work/research-corpus.json` | `2c8e6c16cc58ca47a746f7662397861b8326fd3153d1067f28675785a31e1a79` |
+| `review/evaluation/corrected-metadata-gold-v1.json` | `fe7faf12005f67fa86a509bb7416719b7dd6629a72827180475c3142031039d7` |
+| Search implementation for both passing regressions | `a2d2ef2b51bf5b4e1d54a84f76f7020341301d6660ec7d9411db3926d851e638` |
+| Temporal implementation for both passing regressions | `633284e63a73cc211e77814f12aa13b86da7be72665279b152974e40fc0fad68` |
+| Migrated repository evaluator | `c55d52476fdb53b6118429b80a1b49822f92e202f8438ca1d5d0fe73f4e2cd1e` |
+
+This establishes passing corrected-gold retrieval and citation acceptance,
+with the recorded limitations. The broader discovery population and final
+output/browser acceptance still require their own evidence.
+
+## Final expanded discovery regression
+
+The independent evaluator ran `npm run policy:evaluate -- --root
+I:/policy-sentinel-corpus-real-policy/discovery-01 --label final-discovery-v1
+--name discovery` from `2026-09-05T13:49:42.440Z` through
+`2026-09-05T13:50:06.514Z`. The final population contains 210 works, 215
+versions, 21,209 evidence segments and 193 source events. It preserves every
+corrected gold capture, work, version, rendition, segment and event unchanged.
+The evaluator explicitly records that the document/version population grew.
+Search, temporal, corpus-core and parser code pins match the passing corrected
+gold regression; no additional search tuning occurred for this evaluation.
+
+| Frozen measure | Expanded-population result |
+| --- | --- |
+| Exact identifier top 1 | 66/66; passes. |
+| Complete supporting versions in top 10 | 14/14 questions and 21/21 version instances; passes. |
+| Complete multi-document sets | 7/7; passes. |
+| Required supporting passages in top 20 | 25/27 (92.6%); passes the required 25/27. |
+| Shared and revealed reserved passage results | 21/23 shared; 4/4 revealed reserved. |
+| Questions with all required passages | 13/14; diagnostic completeness. |
+| Exact citation replay | 30/30 distinct citations through 18 renditions; passes. |
+| Temporal and uncertainty checks | Zero forbidden future hits or event leaks; required unknown states retained. |
+| Automatic answers | None; generated-answer abstention accuracy remains outside this retrieval measurement. |
+
+The command exited zero and preserved a new immutable result. The two
+previous diagnostic passage misses remain in the larger population: one now
+has pooled rank 127 and one is outside the returned passage candidate set.
+The measured success is the unchanged frozen threshold, not perfect passage
+recall or an unseen held-out result.
+
+The final source counts reconcile to seven federal works/versions and 203
+Washington works with 208 versions. All 208 Washington publication dates
+remain unknown. There are 203 bill works, four final rules, two executive
+orders and one proposed rule across the United States federal and Washington
+contexts. Source coverage records disclose the bounded selection, two
+admission gaps and seven broad renditions with bounded false-positive
+omissions. The 196 admitted new works supplement the 14-work gold population;
+captured but excluded bodies do not count as accepted works. Healthy source
+status describes the accepted bounded output and does not imply completeness,
+current-law status or the absence of those gaps.
+
+Independent final operation/output parity checks confirm that all 11 source
+relationships, nine analytical records and three findings exactly match the
+accepted research graph and survive the research JSON projection unchanged.
+All 43 cited quotations and their version, object, rendition, text and date
+references verify; 11 cited references carry exact omission catalogs. Methods,
+dispositions, missing evidence, rival explanations and next tests survive
+dossier rendering. The research findings retain their original declared gold
+populations and are not silently generalized to all 210 works.
+
+| Final evidence | SHA-256 or content digest |
+| --- | --- |
+| Discovery corpus content digest | `c9628a10139baf8457eff13279f8b286b3fb6852a77c2d6263b689c0fa027ca1` |
+| `work/discovery-corpus.json` | `7e9ee67f61432e7a3c1d087f63c8747286bb09bab5580d34078ee27ead0c16fe` |
+| Discovery input recipe | `54c2f6c6aa134c69e6d3a0eec3d451b8fc142654b2f016623ef727290f67d1c1` |
+| `review/evaluation/final-discovery-v1.json` (3,535,623 bytes) | `4650800dfc89d1795f8f966ef0e7ba92daa7a676633df7a0bd96abe1163e8633` |
+| Independently rendered `dossier.html` | `80ca2065be36647273cbdac87723e9628105bfb16bdfc5340c9f63ee0339b41a` |
+| Independently rendered `evidence.html` | `7b22632fe16c6121946eaa4ca005109389b3686e60a7e8c4c6d4b5707695fe8b` |
+| Independently rendered `research.json` | `61e812792311ca6dbae50229f813a61c4eb7c0fd57c4833ec18c9c2f336d71ea` |
+
+These checks establish the final source-corpus retrieval, citation and
+analytical projection results. They do not substitute for the lead's final
+build/serve verification, source-failure behavior, browser acceptance or the
+separately blocked real identity prerequisite for `PS09-02`.

@@ -555,6 +555,36 @@ test("reviewed parser omissions replay their exact config and never expose an ex
   });
 });
 
+test("automatic content omissions remain inspectable without changing the parser replay recipe", () => {
+  const input = fixture();
+  const capture = input.items[2].captures[0];
+  const config = capture.extraction.parser.configDigest;
+  reviseCapture(capture, (html) =>
+    html.replace(
+      "</body>",
+      "<p>Authored contact: records@example.invalid</p><p>Authored policy documentation requires a property tax parcel number.</p></body>",
+    ),
+  );
+  assert.equal(capture.extraction.parser.configDigest, config);
+  assert.deepEqual(capture.extraction.excludedBlockLocators, []);
+  const automatic = capture.extraction.exclusions.filter((entry) =>
+    ["personal_contact_block", "prohibited_location_block"].includes(
+      entry.reason,
+    ),
+  );
+  assert.equal(automatic.length, 2);
+  const corpus = createPolicyCorpus(input);
+  const rendition = corpus.renditions.find(
+    (entry) => entry.versionId === "version-federal",
+  );
+  assert.deepEqual(
+    rendition.omittedSourceLocators,
+    automatic.map((entry) => entry.sourceLocator).sort(),
+  );
+  assert.doesNotMatch(rendition.text, /records@example|property tax parcel/);
+  assert.equal(rendition.outputDigest, capture.extraction.renditionDigest);
+});
+
 test("distinct Federal Register instruments cannot be silently merged as versions", () => {
   const input = fixture();
   const second = globalThis.structuredClone(input.items[2]);

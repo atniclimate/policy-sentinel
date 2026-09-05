@@ -19,6 +19,7 @@ import {
   compareInstitutionalProcedures,
   compareRelatedProvisions,
   policyDateBounds,
+  resolveCorpusRelationships,
 } from "../engine/temporal-operations.mjs";
 import type {
   InstitutionalComparison,
@@ -38,11 +39,33 @@ const dateLabel = (date: PolicyDate) =>
     ? "Unknown"
     : `${date.value} (${date.precision} precision)`;
 const words = (value: string) => value.replaceAll("_", " ");
+const sourceFieldLabel = (value: string) => {
+  if (value === "version/sourceStatusLabel") return "source status label";
+  if (value === "version/dates/publication/value") return "publication date";
+  if (value === "version/dates/sourceVersion/value")
+    return "source version date";
+  const event = /^event:([^/]+)\/date\/value$/.exec(value);
+  return event ? `source-stated ${words(event[1])} date` : value;
+};
 const basisLabels: Record<TemporalBasis, string> = {
   source_available: "Source-dated availability",
   corpus_observed: "Observed in this corpus",
   source_effective: "Source-stated effectiveness",
 };
+function fieldKnown(
+  record: {
+    readonly fieldProvenance: AnalyzedCorpusV2["works"][number]["fieldProvenance"];
+  },
+  field: string,
+  knownSegments: ReadonlySet<string> | null,
+) {
+  if (knownSegments === null) return true;
+  const proof = record.fieldProvenance.find((entry) => entry.field === field);
+  return Boolean(
+    proof?.segmentIds.length &&
+    proof.segmentIds.every((id) => knownSegments.has(id)),
+  );
+}
 function ownedLink(value: string | undefined) {
   return value &&
     /^(?:\.\/|\/)?[a-zA-Z0-9][a-zA-Z0-9_./-]*(?:#[a-zA-Z0-9_-]+)?$/.test(
@@ -77,11 +100,17 @@ function EvidencePanel({
   index,
   segmentId,
   onClose,
+  knownSegments,
+  cutoff,
+  outsideSnapshot,
 }: {
   corpus: AnalyzedCorpusV2;
   index: PolicySearchIndex;
   segmentId: string;
   onClose: () => void;
+  knownSegments: ReadonlySet<string> | null;
+  cutoff: string | undefined;
+  outsideSnapshot: boolean;
 }) {
   const heading = useRef<HTMLHeadingElement>(null);
   const [expanded, setExpanded] = useState(false);
@@ -117,9 +146,23 @@ function EvidencePanel({
           Close evidence
         </button>
       </div>
+      {cutoff && (
+        <p class="pw-notice">
+          {outsideSnapshot
+            ? "This evidence belongs to the full retained research population, outside the date-filtered search."
+            : `Search evidence at cutoff ${cutoff}. Metadata without eligible supporting evidence is marked unknown.`}
+        </p>
+      )}
       <p>
-        <strong>{work.sourceIdentifier}</strong> ·{" "}
-        {version.sourceVersionIdentifier}
+        <strong>
+          {fieldKnown(work, "/sourceIdentifier", knownSegments)
+            ? work.sourceIdentifier
+            : work.id}
+        </strong>{" "}
+        ·{" "}
+        {fieldKnown(version, "/sourceVersionIdentifier", knownSegments)
+          ? version.sourceVersionIdentifier
+          : "Source version label unknown at cutoff"}
       </p>
       <p>{rendition.authorityLabel}</p>
       {excerpt.text === null ? (
@@ -152,11 +195,23 @@ function EvidencePanel({
       </p>
       <dl class="pw-facts">
         <dt>Source status label</dt>
-        <dd>{version.sourceStatusLabel}</dd>
+        <dd>
+          {fieldKnown(version, "/sourceStatusLabel", knownSegments)
+            ? version.sourceStatusLabel
+            : "Unknown at cutoff"}
+        </dd>
         <dt>Publication</dt>
-        <dd>{dateLabel(version.dates.publication)}</dd>
+        <dd>
+          {fieldKnown(version, "/dates/publication/value", knownSegments)
+            ? dateLabel(version.dates.publication)
+            : "Unknown at cutoff"}
+        </dd>
         <dt>Source version date</dt>
-        <dd>{dateLabel(version.dates.sourceVersion)}</dd>
+        <dd>
+          {fieldKnown(version, "/dates/sourceVersion/value", knownSegments)
+            ? dateLabel(version.dates.sourceVersion)
+            : "Unknown at cutoff"}
+        </dd>
         <dt>Capture observed</dt>
         <dd>{capture.retrievedAt}</dd>
         <dt>Source locator</dt>
@@ -268,6 +323,9 @@ export function PolicyWorkbench({
   const [request, setRequest] = useState<PolicySearchRequest>({ query: "" });
   const [windowSize, setWindowSize] = useState(20);
   const [evidenceId, setEvidenceId] = useState<string | null>(null);
+  const [evidenceScope, setEvidenceScope] = useState<"search" | "retained">(
+    "retained",
+  );
   const [selected, setSelected] = useState<string[]>([]);
   const [comparison, setComparison] = useState<
     VersionComparison | RelatedProvisionComparison | null
@@ -308,6 +366,65 @@ export function PolicyWorkbench({
     () => new Map(corpus.sourceProfiles.map((entry) => [entry.id, entry])),
     [corpus],
   );
+  const knownSegments = useMemo(() => {
+    if (!request.asOf) return null;
+    const cutoff = Date.parse(
+      request.asOf.length === 10
+        ? `${request.asOf}T23:59:59.999Z`
+        : request.asOf,
+    );
+    const captures = new Map(corpus.captures.map((entry) => [entry.id, entry]));
+    const knownRenditions = new Set(
+      corpus.renditions
+        .filter((entry) => {
+          if (request.basis === "corpus_observed")
+            return (
+              Date.parse(captures.get(entry.captureId)!.retrievedAt) <= cutoff
+            );
+          const dates = Object.values(versionMap.get(entry.versionId)!.dates)
+            .map(policyDateBounds)
+            .filter((value) => value !== null);
+          return (
+            dates.length > 0 &&
+            dates.every((value) => Date.parse(value.latest) <= cutoff)
+          );
+        })
+        .map((entry) => entry.id),
+    );
+    return new Set(
+      corpus.segments
+        .filter((entry) => knownRenditions.has(entry.renditionId))
+        .map((entry) => entry.id),
+    );
+  }, [corpus, request.asOf, request.basis, versionMap]);
+  const visibleVersionLabel = (id: string) => {
+    const version = versionMap.get(id)!;
+    return fieldKnown(version, "/sourceVersionIdentifier", knownSegments)
+      ? version.sourceVersionIdentifier
+      : `Source version label unknown at cutoff (${id})`;
+  };
+  const references = useMemo(
+    () =>
+      new Map(
+        result.value?.hits.map((hit) => [
+          hit.versionId,
+          request.asOf
+            ? resolveCorpusRelationships(corpus, {
+                versionId: hit.versionId,
+                asOf: request.asOf,
+                basis: request.basis,
+              }).relationships
+            : corpus.relationships
+                .filter((entry) => entry.fromVersionId === hit.versionId)
+                .map((entry) => ({
+                  ...entry,
+                  relationshipId: entry.id,
+                  state: entry.target.state,
+                })),
+        ]) ?? [],
+      ),
+    [corpus, request.asOf, request.basis, result.value],
+  );
   const contexts = useMemo(
     () =>
       [...new Set(corpus.works.map((entry) => entry.governmentContext))].sort(),
@@ -336,48 +453,23 @@ export function PolicyWorkbench({
             selected.includes(entry.target.versionId),
         )
       : undefined;
-  function referenceKnown(entry: AnalyzedCorpusV2["relationships"][number]) {
-    if (!request.asOf) return true;
-    const cutoff = Date.parse(
-      request.asOf.length === 10
-        ? `${request.asOf}T23:59:59.999Z`
-        : request.asOf,
-    );
-    const stated = policyDateBounds(entry.sourceStatedAt);
-    if (!stated || Date.parse(stated.latest) > cutoff) return false;
-    return entry.segmentIds.every((id) => {
-      const segment = corpus.segments.find((value) => value.id === id)!;
-      const rendition = corpus.renditions.find(
-        (value) => value.id === segment.renditionId,
-      )!;
-      if (request.basis === "corpus_observed")
-        return (
-          Date.parse(
-            corpus.captures.find((value) => value.id === rendition.captureId)!
-              .retrievedAt,
-          ) <= cutoff
-        );
-      const bounds = Object.values(versionMap.get(rendition.versionId)!.dates)
-        .map(policyDateBounds)
-        .filter((value) => value !== null);
-      return (
-        bounds.length > 0 &&
-        bounds.every((value) => Date.parse(value.latest) <= cutoff)
-      );
-    });
-  }
-  function openEvidence(id: string) {
+  function openEvidence(id: string, scope: "search" | "retained" = "retained") {
     lastEvidenceTrigger.current =
       document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null;
     setEvidenceId(id);
+    setEvidenceScope(scope);
   }
   function closeEvidence() {
     setEvidenceId(null);
     lastEvidenceTrigger.current?.focus();
   }
-  function evidenceButtons(ids: readonly string[], prefix = "Read evidence") {
+  function evidenceButtons(
+    ids: readonly string[],
+    prefix = "Read evidence",
+    scope: "search" | "retained" = "retained",
+  ) {
     return ids.length ? (
       <span class="pw-evidence-links">
         {ids.map((id, number) => (
@@ -385,7 +477,7 @@ export function PolicyWorkbench({
             type="button"
             class="pw-text-button"
             key={id}
-            onClick={() => openEvidence(id)}
+            onClick={() => openEvidence(id, scope)}
           >
             {prefix} {number + 1}
           </button>
@@ -605,6 +697,13 @@ export function PolicyWorkbench({
                 Unknown dates and evidence after the cutoff do not establish a
                 historical state.
               </p>
+              {result.value.temporal.basis === "source_effective" && (
+                <p>
+                  This filter uses retained source-stated effective, repeal, and
+                  withdrawal events. It does not apply cross-document repeal
+                  relationships or determine what law is in force.
+                </p>
+              )}
               <details>
                 <summary>
                   {result.value.temporal.unknownWorkIds.length} works have no
@@ -673,9 +772,25 @@ export function PolicyWorkbench({
                           : "Unknown at cutoff"}
                       </dd>
                       <dt>Publication</dt>
-                      <dd>{dateLabel(version.dates.publication)}</dd>
+                      <dd>
+                        {fieldKnown(
+                          version,
+                          "/dates/publication/value",
+                          knownSegments,
+                        )
+                          ? dateLabel(version.dates.publication)
+                          : "Unknown at cutoff"}
+                      </dd>
                       <dt>Source version date</dt>
-                      <dd>{dateLabel(version.dates.sourceVersion)}</dd>
+                      <dd>
+                        {fieldKnown(
+                          version,
+                          "/dates/sourceVersion/value",
+                          knownSegments,
+                        )
+                          ? dateLabel(version.dates.sourceVersion)
+                          : "Unknown at cutoff"}
+                      </dd>
                       <dt>First retained capture</dt>
                       <dd>{version.observedAt}</dd>
                     </dl>
@@ -700,7 +815,7 @@ export function PolicyWorkbench({
                           )
                         }
                       />{" "}
-                      Select {version.sourceVersionIdentifier} for comparison
+                      Select {visibleVersionLabel(version.id)} for comparison
                     </label>
                     {hit.passages.length ? (
                       <ul class="pw-passages">
@@ -710,13 +825,30 @@ export function PolicyWorkbench({
                               index={index}
                               segmentId={passage.segmentId}
                             />
+                            <p class="pw-muted">
+                              Passage basis: {words(passage.whyShown)}.
+                              {passage.matchedTerms.length > 0 &&
+                                ` Matching query terms: ${passage.matchedTerms.join(", ")}.`}
+                              {passage.evidenceFields.length > 0 &&
+                                ` Source field evidence: ${passage.evidenceFields.map(sourceFieldLabel).join(", ")}.`}
+                              {passage.contextSegmentIds.length > 0 &&
+                                " Neighboring or section evidence contributes to ranking; each quotation remains separate."}
+                            </p>
+                            {passage.contextSegmentIds.length > 0 &&
+                              evidenceButtons(
+                                passage.contextSegmentIds,
+                                "Inspect ranking context",
+                                "search",
+                              )}
                             <button
                               type="button"
                               class="pw-text-button"
-                              onClick={() => openEvidence(passage.segmentId)}
+                              onClick={() =>
+                                openEvidence(passage.segmentId, "search")
+                              }
                             >
                               Inspect passage {number + 1} ·{" "}
-                              {version.sourceVersionIdentifier}
+                              {visibleVersionLabel(version.id)}
                             </button>
                           </li>
                         ))}
@@ -742,6 +874,7 @@ export function PolicyWorkbench({
                             )?.segmentIds
                           : []) ?? [],
                         "Inspect work-title evidence",
+                        "search",
                       )}
                       <h4>Source-stated events</h4>
                       {corpus.events
@@ -751,35 +884,40 @@ export function PolicyWorkbench({
                             {entry.sourceLabel} · {dateLabel(entry.date)} ·
                             source statement dated{" "}
                             {dateLabel(entry.sourceStatedAt)}
-                            {evidenceButtons(entry.segmentIds)}
+                            {evidenceButtons(
+                              entry.segmentIds,
+                              "Read evidence",
+                              "search",
+                            )}
                           </p>
                         ))}
                       {!corpus.events.some((entry) =>
                         hit.eventIds.includes(entry.id),
-                      ) && <p>No reviewed event evidence retained.</p>}
-                      <h4>Explicit source references</h4>
-                      {corpus.relationships
-                        .filter(
-                          (entry) =>
-                            entry.fromVersionId === version.id &&
-                            referenceKnown(entry),
-                        )
-                        .map((entry) => (
-                          <p key={entry.id}>
-                            {entry.sourceLabel} · {entry.type} · target{" "}
-                            {entry.target.state}:{" "}
-                            {entry.target.sourceIdentifier}
-                            {evidenceButtons(entry.segmentIds)}
-                          </p>
-                        ))}
-                      {!corpus.relationships.some(
-                        (entry) =>
-                          entry.fromVersionId === version.id &&
-                          referenceKnown(entry),
                       ) && (
                         <p>
-                          No reviewed reference relationships retained. This
-                          does not establish that none exist.
+                          {request.asOf
+                            ? "No reviewed event evidence is eligible at this cutoff."
+                            : "No reviewed event evidence retained."}
+                        </p>
+                      )}
+                      <h4>Explicit source references</h4>
+                      {references.get(version.id)!.map((entry) => (
+                        <p key={entry.relationshipId}>
+                          {entry.sourceLabel} · {entry.type} · target{" "}
+                          {words(entry.state)}: {entry.target.sourceIdentifier}
+                          {evidenceButtons(
+                            entry.segmentIds,
+                            "Read evidence",
+                            "search",
+                          )}
+                        </p>
+                      ))}
+                      {references.get(version.id)!.length === 0 && (
+                        <p>
+                          {request.asOf
+                            ? "No reviewed reference evidence is eligible at this cutoff."
+                            : "No reviewed reference relationships retained."}{" "}
+                          This does not establish that none exist.
                         </p>
                       )}
                     </details>
@@ -805,6 +943,9 @@ export function PolicyWorkbench({
             index={index}
             segmentId={evidenceId}
             onClose={closeEvidence}
+            knownSegments={evidenceScope === "search" ? knownSegments : null}
+            cutoff={request.asOf}
+            outsideSnapshot={evidenceScope === "retained"}
           />
         )}
         <section
@@ -821,14 +962,20 @@ export function PolicyWorkbench({
           <ul>
             {selected.map((id) => (
               <li key={id}>
-                {workMap.get(versionMap.get(id)!.workId)!.sourceIdentifier} ·{" "}
-                {versionMap.get(id)!.sourceVersionIdentifier}{" "}
+                {fieldKnown(
+                  workMap.get(versionMap.get(id)!.workId)!,
+                  "/sourceIdentifier",
+                  knownSegments,
+                )
+                  ? workMap.get(versionMap.get(id)!.workId)!.sourceIdentifier
+                  : versionMap.get(id)!.workId}{" "}
+                · {visibleVersionLabel(id)}{" "}
                 <button
                   type="button"
                   class="pw-text-button"
                   onClick={() => toggleVersion(id, false)}
                 >
-                  Remove {versionMap.get(id)!.sourceVersionIdentifier}
+                  Remove {visibleVersionLabel(id)}
                 </button>
               </li>
             ))}
@@ -886,16 +1033,24 @@ export function PolicyWorkbench({
               {comparison.kind === "related_provision_comparison" && (
                 <p>
                   Distinct instruments connected by{" "}
-                  {comparison.relationshipSourceLabel}.
+                  {comparison.relationshipSourceLabel}. Comparison scope:{" "}
+                  {words(comparison.comparisonScope)}.
                   {evidenceButtons(comparison.relationshipSegmentIds)}
                 </p>
               )}
-              <ul>
+              <p>
+                Source locations identify evidence within each rendition. Exact
+                or whitespace-normalized text can establish a unique match
+                across moved locations. Unaligned blocks do not establish
+                corresponding provisions or additions and deletions.
+              </p>
+              <ul aria-label="Unaligned and formatting evidence">
                 {comparison.changes
                   .filter((change) => change.kind !== "unchanged")
                   .map((change, number) => (
                     <li key={`${change.locator}-${number}`}>
                       <strong>{words(change.kind)}</strong> · {change.locator}
+                      <p>Alignment: {words(change.alignment)}.</p>
                       {evidenceButtons(
                         change.beforeSegmentIds,
                         "Before evidence",
@@ -907,6 +1062,35 @@ export function PolicyWorkbench({
                     </li>
                   ))}
               </ul>
+              <details>
+                <summary>
+                  Unchanged exact text matches (
+                  {
+                    comparison.changes.filter(
+                      (change) => change.kind === "unchanged",
+                    ).length
+                  }
+                  )
+                </summary>
+                <ul>
+                  {comparison.changes
+                    .filter((change) => change.kind === "unchanged")
+                    .map((change, number) => (
+                      <li key={`${change.locator}-${number}`}>
+                        <strong>{words(change.kind)}</strong> · {change.locator}
+                        <p>Alignment: {words(change.alignment)}.</p>
+                        {evidenceButtons(
+                          change.beforeSegmentIds,
+                          "Before evidence",
+                        )}
+                        {evidenceButtons(
+                          change.afterSegmentIds,
+                          "After evidence",
+                        )}
+                      </li>
+                    ))}
+                </ul>
+              </details>
               {comparison.limitations.map((entry) => (
                 <p key={entry}>{entry}</p>
               ))}
@@ -967,17 +1151,22 @@ export function PolicyWorkbench({
               </div>
               <h4>Reference structures</h4>
               {procedures.references.map((reference) => (
-                <p key={reference.analysisId}>
-                  {reference.governmentContext} · {reference.versionId}:{" "}
-                  {reference.links.length
-                    ? reference.links
-                        .map(
-                          (link) =>
-                            `${link.type}: ${link.targetIdentifier} (${link.state})`,
-                        )
-                        .join("; ")
-                    : "No retained references; structure unknown."}
-                </p>
+                <div key={reference.analysisId}>
+                  <p>
+                    {reference.governmentContext} · {reference.versionId}:{" "}
+                    {reference.links.length === 0 &&
+                      "No retained references; structure unknown."}
+                  </p>
+                  {reference.links.map((link) => (
+                    <p key={link.relationshipId}>
+                      {link.type}: {link.targetIdentifier} ({link.state})
+                      {evidenceButtons(
+                        link.segmentIds,
+                        "Inspect reference evidence",
+                      )}
+                    </p>
+                  ))}
+                </div>
               ))}
               {procedures.limitations.map((entry) => (
                 <p key={entry}>{entry}</p>

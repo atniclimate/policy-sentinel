@@ -41,6 +41,8 @@ local scope. `POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01` is active; recover the
 source predicates, counters and measured outcomes. PS09-03/04/05 may implement
 that local slice without claiming PS09-02 identity acceptance or PS09-06 release
 completion. Authorization itself proves no working integration or source fact.
+The [local outcome record](handoffs/ps09-real-policy-discovery-outcome.md)
+provides launch/replay commands, demonstrations and measured acceptance limits.
 
 EV01's earlier evidence-review grant ended at local launch before any source
 request. Recover its historical failure and diagnostics from the

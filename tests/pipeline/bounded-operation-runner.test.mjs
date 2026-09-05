@@ -104,6 +104,16 @@ test("derived output confines reviewed namespaces and leaves acquisition account
   );
   assert.equal(result.bytes, bytes.length);
   assert.deepEqual(await readFile(join(root, result.path)), bytes);
+  await assert.rejects(
+    writePolicyDerived(root, result.path, Buffer.from("Replacement"), {
+      replace: false,
+    }),
+    /DERIVED_OUTPUT_ALREADY_EXISTS/,
+  );
+  assert.deepEqual(await readFile(join(root, result.path)), bytes);
+  await writePolicyDerived(root, "review/immutable.json", Buffer.from("{}"), {
+    replace: false,
+  });
   for (const path of [
     "../escape.txt",
     "objects/injected.bin",

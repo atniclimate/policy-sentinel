@@ -52,12 +52,15 @@ export interface VersionComparison {
   readonly changes: readonly {
     readonly locator: string;
     readonly kind:
-      | "added"
-      | "removed"
-      | "ambiguous_locator"
+      | "unaligned_before"
+      | "unaligned_after"
+      | "ambiguous_text"
       | "unchanged"
-      | "formatting_only"
-      | "text_changed";
+      | "formatting_only";
+    readonly alignment:
+      | "unique_exact_text"
+      | "unique_whitespace_normalized_text"
+      | "no_reviewed_provision_correspondence";
     readonly beforeSegmentIds: readonly string[];
     readonly afterSegmentIds: readonly string[];
   }[];
@@ -78,6 +81,7 @@ export interface RelatedProvisionComparison extends Omit<
   readonly relationshipType: "amends" | "supersedes" | "corrects";
   readonly relationshipSourceLabel: string;
   readonly relationshipSegmentIds: readonly string[];
+  readonly comparisonScope: "whole_instrument_text";
 }
 export function compareRelatedProvisions(
   corpus: AnalyzedCorpusV2,
@@ -133,7 +137,7 @@ export interface RelationshipResolution {
   readonly corpusDigest: string;
   readonly versionId: string;
   readonly asOf: string;
-  readonly basis: "source_available";
+  readonly basis: TemporalBasis;
   readonly relationships: readonly {
     readonly relationshipId: string;
     readonly type: PolicyRelationship["type"];
@@ -151,5 +155,5 @@ export interface RelationshipResolution {
 }
 export function resolveCorpusRelationships(
   corpus: AnalyzedCorpusV2,
-  request: { versionId: string; asOf: string },
+  request: { versionId: string; asOf: string; basis?: TemporalBasis },
 ): RelationshipResolution;

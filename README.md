@@ -184,19 +184,20 @@ The adopted local discovery run also registers `policy:replay`,
 owned external run and do not acquire source data:
 
 ```powershell
-npm run policy:replay -- --corpus-root I:/policy-sentinel-corpus-real-policy/discovery-01
-npm run policy:build:local -- --corpus-root I:/policy-sentinel-corpus-real-policy/discovery-01
-npm run policy:serve:local -- --corpus-root I:/policy-sentinel-corpus-real-policy/discovery-01
+npm run policy:replay -- --corpus-root I:/policy-sentinel-corpus-real-policy/discovery-01 --name discovery
+npm run policy:build:local -- --corpus-root I:/policy-sentinel-corpus-real-policy/discovery-01 --name discovery
+npm run policy:serve:local -- --corpus-root I:/policy-sentinel-corpus-real-policy/discovery-01 --port 4181
 ```
 
 Replay verifies retained receipt/object hashes, parser recipes, exact evidence,
 and the reviewed corpus seal. Build emits the explicit local application profile
 only inside that run's `local-output/`; serve loads checksum-verified output
-entries on `127.0.0.1:4179`. It has no directory fallback and cannot serve raw
+entries on the chosen loopback port (default `127.0.0.1:4179`). It has no directory fallback and cannot serve raw
 objects or review files. A corpus selected with `--name discovery` must have its
 own reviewed input and seal. Ordinary `npm run build` remains synthetic.
-The current execution journal records which browser/evaluation outcomes have
-actually passed; registering the commands does not establish those outcomes.
+The [local outcome](docs/handoffs/ps09-real-policy-discovery-outcome.md) gives
+actual corpus demonstrations, evaluation results, coverage and proof limits;
+the execution journal retains the implementation checkpoints.
 
 `policy:prepare:broad -- --root <root> --phase inventories` freezes the bounded
 Washington chapter sample from the retained index. `policy:acquire:batch --
@@ -210,6 +211,23 @@ body identity, source headers and filtered text into a separately sealed corpus.
 recipe against the stable gold corpus and writes its evidence-linked output.
 All these commands require the already adopted local run and its owned external
 root; they do not authorize publication or a new source family.
+
+`policy:evaluate -- --root <root> --label <unique-label> --name gold` runs the
+independently frozen evaluation, writes an immutable result under owned review
+custody, and returns a nonzero exit for measured acceptance misses. `--name research` or
+`--name discovery` tests that separately labeled population only if every frozen
+gold source entity survives unchanged. Baseline, repaired and broadened results
+remain separate; the frozen questions and passages are never committed.
+Discovery curation also replays the sealed research recipe before combining its
+explicit evidence links, analyses and findings with the broader document set.
+
+`policy:simulate:failure -- --corpus-root <root> --source <sourceProfileId>`
+replays the approved local output and exercises its output adapter with two
+controlled failure projections: checksum-bound same-source stale reuse with
+original timestamps, and source unavailability without prior proof. The command
+is read-only, makes no source request and changes no local output pointer.
+It demonstrates controlled failure behavior; it does not schedule or implement
+automatic source refresh.
 
 ```powershell
 npm run dev

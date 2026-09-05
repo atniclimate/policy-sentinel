@@ -7,13 +7,99 @@ scope. Preparing that launch at `39d738a` was historical; this is its execution.
 
 ## Objective and live checkpoint
 
-Current checkpoint (13:06 UTC): full `npm run check` passed with 89 policy
+Current checkpoint (14:05 UTC): final `npm run check` passes, with 1,515/1,515
+unit tests in 92 files, 99/99 policy tests, 18 hook tests, 13 original corpus
+tests, 30 spine passes and one host symlink skip, lint/types/format/source scan
+and ordinary synthetic build/artifact (three records, 575 recognition entries,
+eight assets). Final local discovery build `build-8ab253d1db2b204578a860c65f4dbadd`
+has 12 files, 19,619,764 bytes and manifest SHA
+`ffb93545a3e88d8220adefc25b4928b58ed048c8768b8e38689dd3342d66e753`.
+It runs on 127.0.0.1:4181; older gold preview servers were stopped by exact
+verified process IDs. HTTP validation passes for app/profile/corpus/dossier/
+evidence/research, all 101 dossier evidence links resolve, raw/review routes
+return 404 and foreign Origin returns 403. Both actual controlled source-failure
+commands pass: stale GovInfo retains seven works and Washington 203, with each
+source's original data-as-of and last-success times; unavailable removes that
+source and retains the independent source. No requests/writes/pointer changes
+occurred. Independent failure-path review accepts that stated controlled scope,
+without automatic refresh or power-loss claims. All 76 protected identities,
+the custody manifest and all three EV01 hashes pass again.
+
+PS09-03/04 are now complete for the adopted bounded slice. PS09-05 is the sole
+active item for final browser acceptance. The CUA browser inventory is empty,
+but G-LOCAL-BROWSER records an earlier exact owner approval for a local
+Playwright/Chromium or equivalent standards-based harness. That alternative
+must be investigated before declaring an environment impasse. Corpus agent
+has a read-only local runtime discovery lease; all code leases have returned.
+No installation, new dependency or source acquisition is underway. Root owns
+browser integration, final ledger and handoff/commit. The previously proposed
+terminal blocked state was not committed and is superseded by this recovery.
+
+Earlier checkpoint (13:54 UTC): final discovery curation accepts 196 broad
+works plus 14 gold works, yielding 210 works, 215 versions/renditions,
+21,209 segments and 193 events. Its content digest is
+`c9628a10139baf8457eff13279f8b286b3fb6852a77c2d6263b689c0fa027ca1`;
+serialized SHA `7e9ee67f61432e7a3c1d087f63c8747286bb09bab5580d34078ee27ead0c16fe`.
+Full offline replay passes against all 423 retained objects. Expanded-population
+evaluation passes the unchanged protocol at 25/27 passages, 14/14 version sets,
+7/7 multi-document sets, 66/66 exact IDs, 30/30 citation replay and all required
+safety checks. Result SHA
+`4650800dfc89d1795f8f966ef0e7ba92daa7a676633df7a0bd96abe1163e8633`.
+Independent parity review confirms all corrected gold entities, 11 edges,
+nine analyses and three findings survive unchanged. All 43 research evidence
+quotes and source/version/date bindings match. The
+[outcome handoff](../handoffs/ps09-real-policy-discovery-outcome.md) records
+demonstrations and coverage.
+
+Current remaining work: corpus agent owns only local-output module/tests and
+a controlled source-failure simulation script, closing the output adapter's
+missing proof transport for degraded sources. Existing core synthetic behavior
+passes, but automatic refresh is not implemented or claimed. Root owns final
+build/serve, HTTP/exports, full checks, ledger and terminal documentation.
+Evaluator owns its aggregate report; source reviewer remains read-only.
+No source acquisition is active. Browser inventory remains empty at the latest
+check; actual visual validation is unavailable.
+
+Earlier checkpoint (13:42 UTC): all 423 acquisitions are complete with zero
+failed requests or retries, 37,589,489 encoded and decoded bytes, and 85,369,021
+disk bytes at the verified pre-repair custody checkpoint. All 198 additional
+Washington bodies pass exact header identities. Final source review is excluding
+malformed amendment markup (SB5128) and a blank-form contact-section filter
+false positive (HB1389); remaining bodies are under independent review.
+
+Generic search repair v2 passes the unchanged frozen threshold: 25/27 supporting
+passages, 14/14 complete version questions, 7/7 multi-document questions, 66/66
+identifier assertions, 30/30 citation replays and every required safety check.
+Result SHA `608ab260c3f81b3e0c489fb1d7bdf302c88d0bbdac18225820be600f0c34e168`.
+The two remaining passage misses are FR 04-15218 paragraph 89 and HB1216 div194.
+Eight repaired UI tests pass, with lint and type checks; the browser connection
+remains unavailable.
+
+Automatic content omission metadata was incomplete. A metadata-only repair plan
+was independently frozen before mutation, SHA
+`58cd0113e196118b187e5327c66f3581539d22b06ab6521f009b7265de0dcf09`.
+Seven prior gold/research files were preserved under the owned
+`review/evaluation/pre-omission-v1/` path. Exact independently predicted gold
+digest `197d21cbb9a49ec89e8a45d416b0d6af4a2408a76c9b7a33f0879b0979aab938`
+and research digest `cf1e6e27910d3fca4585f96ebd168d4ce754b2e0c10310e55554aa17b36130a3`
+now match production rebuild. Five renditions gain six already-excluded source
+locators; no source bytes, parser recipe, text, segment ID, date, review timestamp,
+question or expected evidence changed. Gold input and evidence index remain
+byte-identical. Independent addendum validation is next, followed by final broad
+curation, discovery evaluation, local replay/build/serve and full checks.
+The latest focused policy suite passes 97/97, including this omission regression.
+
+Earlier checkpoint evidence: the committed baseline full `npm run check` passed with 89 policy
 tests, 1,512/1,512 unit tests, lint, types, authority checks and the ordinary
 synthetic build/artifact (three records, 575 retained recognition entries).
 This includes research-output/accessibility and printed-variant tests.
 Output seal/replay hardening passed actual offline replay, build and serve.
-No local implementation commit yet; the next checkpoint will commit only
-authored implementation and documentation after preservation checks.
+Later focused checks pass 94/94 including retrieval, immutable evaluation writes,
+and corrected text alignment and cutoff-target tests; final full check remains
+required after the remaining UI and broad integration changes.
+Local implementation baseline committed as `8e40df6`; protected inputs remain
+untracked and unchanged. Source bodies, derived corpora and evaluation evidence
+remain external. No remote operation occurred.
 
 The accepted gold corpus has 14 work identities, 19 versions, 3,298 exact
 segments and 10 events, digest
@@ -26,14 +112,20 @@ Offline replay passed. Exact source exclusions, unknown Washington publication
 dates, partial-veto notices, and the explicitly year-attested SB6175 numeric
 effective date survive normalization. Gold remains stable for evaluation.
 
-There are 177 completed captures: the initial 27 gold/discovery objects and
-150 additional Washington inventories. No failed request or retry has occurred.
+At the last batch boundary there were 325 completed captures: the initial 27
+gold/discovery objects, all 198 Washington inventories and 100 broad bodies.
+The next 50-body batch is active. No failed request or retry has occurred.
 The frozen broader sample covers 198 eligible bill identities from the first
 200 chapters of the retained 2025 index; initiative and salary-schedule entries
 are explicitly excluded. Active manifest SHA is
-`3c72936520979134c69b4eab11ce43d0b01b56c83ce5ee09377c3d77f3aaca8c`.
-Another 48 inventories and the source-advertised bodies remain to acquire and
-validate. Acquisition is paused for serialized agent review writes. Last settled
+`eb20d2304ac80361b9761aed1bcf698a362772503ff296bec1f452a4e7dc2fe3`.
+All 198 actual advertised HTML body targets passed inventory admission with zero
+gaps. Preliminary curation accepted the first 50 captured bodies: 64 works,
+69 versions, 6,822 segments and 56 events including gold; the remaining 148 were
+explicitly pending at that preliminary build, not failed source acquisitions.
+The preliminary discovery includes the reviewed research additions and has
+digest `605ea164a2af0fc924adff42e7af4080adbd040d57037e27a5e45ffc1c5ca966`.
+It is not the final broad acceptance inventory. Last settled
 replay verified 17,117,818 encoded/decoded bytes and 34,700,447 disk bytes over
 the then-complete 127 objects.
 
@@ -61,15 +153,36 @@ this did not rerun search. Revealed reserved cases are now repair regressions.
 Research source review accepts 11 edges, nine analyses and three findings;
 101 evidence references resolve to 43 exact segments. Reviewed enriched digest
 is `772ed97ba34c5f16c72bb8510e7161e5cc4fef3f81000214318aca87ee743e0d`.
-One minor condition-recipient wording precision will be resealed at this pause.
-The research corpus remains separate from immutable gold.
-Search repairs and post-repair evaluation remain required.
+The final wording precision was applied and resealed as research digest
+`720ca43d3e7f63cbbd4be98852cad3feac6706b582eceafbf3bf9deed82a32b5`.
+Independent replay and output review verifies all 43 evidence references and
+all relationships/analyses/findings unchanged across the research projection.
+Gold remains immutable.
+
+First repaired evaluation `repaired-gold-v1`, SHA
+`1566f8eb7453cde3004640eb8e30b10732db6ee8a5422a5d4d22c694631d314a`,
+passes 14/14 supporting-version sets, 7/7 multi-document cases, 66/66 exact IDs,
+30/30 citation replays and required temporal/unknown checks. Passage recovery is
+24/27 (shared 20/23, revealed reserved 4/4), still below the frozen 90% threshold.
+The remaining three passage misses belong to one shared question; no threshold
+or expected span changed. Further generic repair and independent retest remain.
+
+Independent UI review found that equal ordinal DOM paths were incorrectly
+treated as corresponding provisions. The repaired method v2 matches only unique
+exact/whitespace-normalized text, leaves other occurrences unaligned/ambiguous,
+and labels linked-instrument comparison as whole-instrument text. Synthetic
+tests pass; actual HB1018 moved text now matches its true identical occurrence,
+and all 76 paired occurrences pass independent text equivalence checks. Procedure
+comparison preserves all 90 cells over nine versions, including 47 uncoded
+unknowns. UI wording/target-cutoff/evidence-route repairs remain in progress.
 
 Current leases supersede the historical lease table below: lead owns all
 handed-back core/parser/builder/search/UI files and new replay/output/broad
-scripts. Corpus agent owns `src/pipeline/policy-research-output.mjs`,
-`scripts/enrich-policy-corpus.mjs`, its focused test, and external research
-review/corpus/seal. Evaluator owns its documentation and external
+scripts plus temporal operations/tests. Corpus agent owns retrieval repairs in
+`src/engine/policy-search.mjs`, its `.d.mts` and its focused test, followed by
+the workbench UI/tests for the finite independent audit fixes. Research is handed
+back. Evaluator authored the now-handed-back `scripts/evaluate-policy-discovery.mjs`
+and owns independent execution in external
 `review/evaluation/`; source reviewer is read-only. External writes serialize
 with acquisition through the owned root lock.
 

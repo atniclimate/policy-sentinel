@@ -4,6 +4,7 @@ import { request } from "node:http";
 import test from "node:test";
 import {
   createLoopbackOutputServer,
+  simulateLocalSourceFailure,
   validateLocalOutputFiles,
 } from "../../src/pipeline/policy-local-output.mjs";
 import {
@@ -172,6 +173,174 @@ function get(server, path = "/", headers = {}, method = "GET") {
     req.end();
   });
 }
+
+function approvedSnapshot(fixture) {
+  const files = new Map(fixture.files);
+  files.set(
+    "index.html",
+    Buffer.from("<main>Authored approved synthetic baseline</main>"),
+  );
+  const manifest = {
+    version: "1.0.0",
+    runId: fixture.run.owner.runId,
+    buildId: "build-" + "a".repeat(32),
+    corpusDigest: fixture.manifest.corpusDigest,
+    publication: "closed",
+    files: [...files].map(([path, bytes]) => ({
+      path,
+      bytes: bytes.length,
+      digest: digest(bytes),
+    })),
+  };
+  return {
+    files,
+    manifest,
+    manifestDigest: digest(
+      Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`),
+    ),
+  };
+}
+
+test("controlled source failure exercises actual local output validation and serving with explicit prior proof or unavailability", async (t) => {
+  const fixture = semanticFixture();
+  const output = approvedSnapshot(fixture);
+  const originalBytes = Buffer.from(output.files.get("corpus.json"));
+  const request = {
+    output,
+    run: fixture.run,
+    sourceProfileId: "profile-a",
+    generatedAt: "2026-09-04T00:00:00Z",
+  };
+  const degraded = simulateLocalSourceFailure({
+    ...request,
+    priorOutput: output,
+  });
+  const before = JSON.parse(originalBytes.toString("utf8"));
+  const stale = degraded.corpus.coverage.find(
+    (entry) => entry.sourceProfileId === "profile-a",
+  );
+  assert.equal(stale.status, "degraded");
+  assert.equal(stale.lastKnownGoodDigest, before.contentDigest);
+  assert.equal(stale.dataAsOf, before.coverage[0].dataAsOf);
+  assert.equal(stale.lastSuccessfulAt, before.coverage[0].lastSuccessfulAt);
+  assert.equal(
+    canonicalV2Digest(degraded.corpus.captures),
+    canonicalV2Digest(before.captures),
+  );
+  assert.equal(
+    canonicalV2Digest(degraded.corpus.segments),
+    canonicalV2Digest(before.segments),
+  );
+  assert.equal(
+    degraded.corpus.coverage.find(
+      (entry) => entry.sourceProfileId === "profile-b",
+    ).status,
+    "healthy",
+  );
+  assert.throws(
+    () =>
+      validateLocalOutputFiles(degraded.files, degraded.manifest, fixture.run),
+    /VERIFIED_PRIOR_CORPUS_REQUIRED/u,
+  );
+  assert.equal(
+    validateLocalOutputFiles(
+      degraded.files,
+      degraded.manifest,
+      fixture.run,
+      degraded.replayOptions,
+    ).valid,
+    true,
+  );
+  const unavailable = simulateLocalSourceFailure(request);
+  assert.equal(unavailable.status, "unavailable");
+  assert.deepEqual(
+    unavailable.corpus.works.map((entry) => entry.id),
+    ["work-b"],
+  );
+  assert.equal(unavailable.corpus.coverage[0].dataAsOf, null);
+  assert.equal(unavailable.corpus.coverage[0].lastKnownGoodDigest, null);
+  assert.equal(unavailable.corpus.relationships[0].target.state, "unresolved");
+  assert.equal(unavailable.corpus.relationships[0].target.versionId, null);
+  assert.equal(unavailable.corpus.findings.length, 0);
+  assert.equal(unavailable.automaticRefresh, false);
+  assert.equal(unavailable.normalOutputChanged, false);
+  assert.ok(output.files.get("corpus.json").equals(originalBytes));
+  for (const scenario of [degraded, unavailable]) {
+    const server = await createLoopbackOutputServer(scenario.files, 0);
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const response = await get(server, "/corpus.json");
+    assert.equal(response.status, 200);
+    const served = JSON.parse(response.body);
+    assert.equal(served.contentDigest, scenario.corpus.contentDigest);
+    assert.equal(served.coverage[0].status, scenario.status);
+    assert.equal((await get(server, "/review/gold-seal.json")).status, 404);
+  }
+});
+
+test("controlled failure rejects wrong prior checksums, source policies and unsupported prior baselines", () => {
+  const fixture = semanticFixture();
+  const output = approvedSnapshot(fixture);
+  const request = {
+    output,
+    run: fixture.run,
+    sourceProfileId: "profile-a",
+    generatedAt: "2026-09-04T00:00:00Z",
+  };
+  const corrupted = { ...output, files: new Map(output.files) };
+  corrupted.files.set("corpus.json", Buffer.from("{}"));
+  assert.throws(
+    () => simulateLocalSourceFailure({ ...request, priorOutput: corrupted }),
+    /SIMULATION_OUTPUT_FILE_CHECKSUM_MISMATCH/u,
+  );
+  assert.throws(
+    () =>
+      simulateLocalSourceFailure({
+        ...request,
+        priorOutput: { ...output, manifestDigest: "0".repeat(64) },
+      }),
+    /SIMULATION_APPROVED_OUTPUT_CHECKSUM_REQUIRED/u,
+  );
+  const differentPolicy = approvedSnapshot(
+    semanticFixture((input) => {
+      input.sourceProfiles[0].review.reviewer =
+        "Different synthetic source review";
+    }),
+  );
+  assert.throws(
+    () =>
+      simulateLocalSourceFailure({ ...request, priorOutput: differentPolicy }),
+    /SOURCE_POLICY_ADMISSION_MISMATCH/u,
+  );
+  const differentBaseline = approvedSnapshot(
+    semanticFixture((input) => {
+      input.generatedAt = "2026-09-03T01:00:00Z";
+    }),
+  );
+  assert.throws(
+    () =>
+      simulateLocalSourceFailure({
+        ...request,
+        priorOutput: differentBaseline,
+      }),
+    /SIMULATION_EXACT_APPROVED_BASELINE_REQUIRED/u,
+  );
+  assert.throws(
+    () =>
+      simulateLocalSourceFailure({
+        ...request,
+        sourceProfileId: "missing-profile",
+      }),
+    /SIMULATION_HEALTHY_SOURCE_REQUIRED/u,
+  );
+  assert.throws(
+    () =>
+      simulateLocalSourceFailure({
+        ...request,
+        generatedAt: "2026-09-01T00:00:00Z",
+      }),
+    /SIMULATION_LATER_TIME_REQUIRED/u,
+  );
+});
 test("loopback server serves only verified in-memory output entries with local origin controls", async (t) => {
   const server = await createLoopbackOutputServer(
     new Map([

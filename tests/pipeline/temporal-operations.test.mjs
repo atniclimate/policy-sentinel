@@ -147,9 +147,11 @@ test("actual version comparison reports text changes and evidence IDs without le
   });
   assert.equal(result.changeType, "text_changed");
   assert.equal(result.temporalOrder, "source_dates_ordered");
-  assert.equal(result.changes[0].kind, "text_changed");
+  assert.equal(result.changes[0].kind, "unaligned_before");
   assert.equal(result.changes[0].beforeSegmentIds.length, 1);
-  assert.equal(result.changes[0].afterSegmentIds.length, 1);
+  assert.equal(result.changes[0].afterSegmentIds.length, 0);
+  assert.equal(result.changes[1].kind, "unaligned_after");
+  assert.equal(result.changes[1].afterSegmentIds.length, 1);
   assert.throws(
     () =>
       compareDocumentVersions(corpus, {
@@ -184,6 +186,7 @@ test("related provisions require an explicit change edge and never merge distinc
   assert.equal(result.afterWorkId, "work-b");
   assert.equal(Object.hasOwn(result, "workId"), false);
   assert.equal(result.relationshipSegmentIds.length, 1);
+  assert.equal(result.comparisonScope, "whole_instrument_text");
   assert.throws(
     () => compareRelatedProvisions(syntheticCorpusV2(), request),
     /EXPLICIT_CHANGE_RELATIONSHIP_REQUIRED/u,
@@ -239,6 +242,123 @@ test("formatting-only changes and repeated locators are explicitly distinguished
   assert.equal(result.changes[0].kind, "formatting_only");
 });
 
+test("inserted paragraphs cannot turn rendition positions into provision correspondence", () => {
+  // A declared synthetic comparison projection isolates alignment from ingestion.
+  const projection = JSON.parse(JSON.stringify(syntheticCorpusV2()));
+  const install = (renditionId, paragraphs) => {
+    const selected = projection.renditions.find(
+      (entry) => entry.id === renditionId,
+    );
+    selected.text = paragraphs.join("\n");
+    const bytes = Buffer.from(selected.text);
+    selected.outputDigest = hash(bytes);
+    projection.segments = projection.segments.filter(
+      (entry) => entry.renditionId !== renditionId,
+    );
+    let start = 0;
+    const ids = [];
+    paragraphs.forEach((text, index) => {
+      const end = start + Buffer.byteLength(text);
+      const segment = createEvidenceSegment({
+        renditionId,
+        renditionDigest: hash(bytes),
+        renditionBytes: bytes,
+        startByte: start,
+        endByte: end,
+        locator: {
+          type: "structural_path",
+          value: `/document/p[${index + 1}]`,
+          headingPath: [],
+          printedPageLabel: null,
+          physicalPageIndex: null,
+        },
+      });
+      projection.segments.push(segment);
+      ids.push(segment.id);
+      start = end + 1;
+    });
+    return ids;
+  };
+  const before = install("rendition-a-old", [
+    "Header",
+    "Agency must report annually.",
+    "Repeated notice",
+    "Repeated notice",
+  ]);
+  const after = install("rendition-a-new", [
+    "Inserted cover",
+    "Header",
+    "Agency must report annually.",
+    "Repeated notice",
+    "Repeated notice",
+    "Agency may report monthly.",
+  ]);
+  const result = compareDocumentVersions(projection, {
+    beforeVersionId: "version-a-old",
+    afterVersionId: "version-a-new",
+  });
+  const annual = result.changes.find((entry) =>
+    entry.beforeSegmentIds.includes(before[1]),
+  );
+  assert.equal(annual.kind, "unchanged");
+  assert.equal(annual.alignment, "unique_exact_text");
+  assert.deepEqual(annual.afterSegmentIds, [after[2]]);
+  assert.equal(
+    result.changes.filter((entry) => entry.kind === "ambiguous_text").length,
+    4,
+  );
+  assert.ok(
+    result.changes.some(
+      (entry) =>
+        entry.kind === "unaligned_after" &&
+        entry.afterSegmentIds.includes(after[0]),
+    ),
+  );
+  assert.ok(
+    result.changes.every(
+      (entry) => !["added", "removed", "text_changed"].includes(entry.kind),
+    ),
+  );
+});
+
+test("relationship target resolution distinguishes observation from source dates", () => {
+  const projection = JSON.parse(JSON.stringify(syntheticCorpusV2()));
+  const target = projection.versions.find(
+    (entry) => entry.id === "version-a-old",
+  );
+  target.dates = {
+    publication: { value: null, precision: "unknown" },
+    sourceVersion: { value: null, precision: "unknown" },
+  };
+  const observed = resolveCorpusRelationships(projection, {
+    versionId: "version-b",
+    asOf: "2026-09-03",
+    basis: "corpus_observed",
+  });
+  assert.equal(observed.basis, "corpus_observed");
+  assert.equal(observed.relationships[0].state, "resolved");
+  target.observedAt = "2026-09-04T00:00:00Z";
+  const future = resolveCorpusRelationships(projection, {
+    versionId: "version-b",
+    asOf: "2026-09-03",
+    basis: "corpus_observed",
+  });
+  assert.equal(future.relationships[0].state, "target_not_available_by_cutoff");
+  const source = resolveCorpusRelationships(projection, {
+    versionId: "version-b",
+    asOf: "2026-09-03",
+    basis: "source_available",
+  });
+  assert.equal(source.relationships[0].state, "target_not_available_by_cutoff");
+  const effective = selectTemporalVersions(syntheticCorpusV2(), {
+    asOf: "2026-09-03",
+    basis: "source_effective",
+  });
+  assert.ok(
+    effective.limitations.some((value) => /not an in-force filter/.test(value)),
+  );
+});
+
 test("institutional comparison is reproducible, cross-context, source linked and attributed", () => {
   const corpus = syntheticCorpusV2();
   const args = { analysisIds: ["analysis-a-old", "analysis-b"] };
@@ -288,6 +408,27 @@ test("explicit citation resolution leaves unavailable targets and unknown refere
     asOf: "2021-06-01",
   });
   assert.equal(result.relationships[0].state, "target_not_available_by_cutoff");
+  assert.equal(result.relationships[0].target.versionId, null);
+});
+
+test("ambiguous citation candidates cannot leak future versions or become resolved by filtering", () => {
+  const input = syntheticCorpusV2Input();
+  input.relationships[0].target = {
+    state: "ambiguous",
+    workId: null,
+    versionId: null,
+    sourceIdentifier: "Instrument A version unspecified",
+    candidateVersionIds: ["version-a-old", "version-a-new"],
+  };
+  const value = createAnalyzedCorpusV2(input);
+  const result = resolveCorpusRelationships(value, {
+    versionId: "version-b",
+    asOf: "2021-06-01",
+  });
+  assert.equal(result.relationships[0].state, "ambiguous");
+  assert.deepEqual(result.relationships[0].target.candidateVersionIds, [
+    "version-a-old",
+  ]);
   assert.equal(result.relationships[0].target.versionId, null);
 });
 

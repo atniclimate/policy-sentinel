@@ -4,13 +4,15 @@ project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
   phase: >-
-    POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01 is active under the owner's
-    2026-09-05 instruction to execute the full real-policy launch and adopt its
-    local scope. PS09-03 coordinates the runner, source-neutral corpus and
-    bounded federal evidence closure. PS09-02 identity/scenario acceptance
-    remains independently blocked and is an explicit PS09-06 prerequisite.
-    PS09-06-LOCAL-RC remains the sole release root. EV01, Run 1/2 and archived
-    lanes retain their historical evidence and spent-operation boundaries.
+    POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01 reached a validated local
+    implementation checkpoint: PS09-03/04 are complete for the adopted bounded
+    slice; PS09-05 is checking the previously approved local browser harness
+    alternative because the connector is unavailable. The workbench, replay,
+    evaluation and controlled failure exercises pass. PS09-02 identity/scenario
+    acceptance remains independently blocked and is an explicit PS09-06
+    prerequisite. PS09-06-LOCAL-RC remains the sole release root. EV01, Run 1/2
+    and archived lanes retain their historical evidence and spent-operation
+    boundaries.
   updated_on: "2026-09-05"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -839,26 +841,20 @@ baseline:
         configured.
 
 current_focus:
-  work_item: PS09-03-FEDERAL-REAL-SOURCE-SPINE
+  work_item: PS09-05-SEARCH-OUTPUTS
   objective: >-
-    Execute the adopted real-policy launch through its demonstrated local
-    workbench outcome. Authority/dependency repair and source review are
-    recorded; v2 contract and bounded runner synthetic/PowerShell checks pass.
-    Continue reviewed canaries, accepted real documents, replayable citations,
-    temporal comparisons and integrated investigation. See the journal for exact
-    checks and write leases. Twenty-seven initial official captures support the
-    initial 14-work, 19-version gold v2 corpus. Independent source-grounded
-    evaluation is being frozen before search tuning. Partial vetoes, unknown
-    publication dates and source-specific rendition omissions remain explicit.
-    Gold offline replay now verifies 14 works, 19 versions, 3,298 segments and
-    10 date events. Generic search, UI and the first owned local build pass
-    automated checks. Another 100 Washington inventories are captured; broader
-    bodies, research findings and measured evaluation remain in progress. Actual
-    visual inspection is unavailable because no browser is connected.
+    Preserve the running local discovery workbench and sealed 210-work,
+    215-version corpus. Final evaluation passes 25/27 supporting passages, 14/14
+    version sets, 7/7 multi-document cases, 66/66 exact identifiers and 30/30
+    citation replays. Both controlled source-failure projections, final
+    build/serve/HTTP and full check pass. Inspect existing local Chromium and
+    harness capability under G-LOCAL-BROWSER's explicit alternative approval,
+    then perform actual desktop/mobile/keyboard/evidence checks if available.
+    Connector inventory is empty; source acquisition is ended.
   terminal_reason: null
   resumable_roots:
-    - PS09-03-FEDERAL-REAL-SOURCE-SPINE
-  last_durable_checkpoint: 39d738a
+    - PS09-05-SEARCH-OUTPUTS
+  last_durable_checkpoint: 8e40df6
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5634,7 +5630,7 @@ work_items:
     milestone: PS09 Run 3
     title:
       Qualify and acquire a bounded federal corpus through canonical interfaces
-    status: in_progress
+    status: complete
     dependencies: [PS09-01-REPOSITORY-CONVERGENCE]
     authorization_gate: G-PS09-RUN-03
     acceptance:
@@ -5649,11 +5645,20 @@ work_items:
         integration needs. Exact leases, scope and outstanding validation are
         recorded in docs/development/PS09-REAL-POLICY-DISCOVERY-01.md. No
         acquisition or implementation completion is claimed at activation.
+      - >-
+        2026-09-05 bounded closure: qualified GovInfo and Washington interfaces,
+        423 accounted complete captures, sealed v2 corpus, source-byte/parser
+        replay and exact citations. Both actual read-only controlled failure
+        commands validate same-source prior output/original timestamps and
+        source unavailability through the local output adapter. No automatic
+        refresh or power-loss durability is claimed. Full check passes with 99
+        policy tests and 1515 unit tests. See the execution journal and
+        docs/handoffs/ps09-real-policy-discovery-outcome.md.
   - id: PS09-04-PNW-REAL-CORPUS
     priority: 303
     milestone: PS09 Run 4
     title: Build bounded scenario-led PNW corpus
-    status: not_started
+    status: complete
     dependencies: [PS09-03-FEDERAL-REAL-SOURCE-SPINE]
     authorization_gate: G-PS09-RUN-04
     acceptance:
@@ -5661,12 +5666,37 @@ work_items:
         survive normalization.
       - Gold scenarios and geographic sentinels retain honest coverage and
         unknowns.
-    evidence: []
+    evidence:
+      - >-
+        2026-09-05 bounded adopted-launch corpus accepted independently: 210
+        works, 215 versions, 21209 segments, 193 events, 11 explicit
+        relationships, 9 reviewed analyses and 3 findings. Gold contains 14
+        works/19 versions; 196 Washington session-law works broaden it. Two
+        candidate renditions are deferred, seven broad renditions carry exact
+        conservative-filter omission limitations, and 208 publication dates
+        remain unknown. Broader PNW/Nation-identity/geographic sentinels remain
+        unproven; this completion is only the adopted functional slice. Exact
+        seals, source/privacy/reuse review and parity evidence are in
+        docs/handoffs/ps09-real-policy-discovery-outcome.md.
   - id: PS09-05-SEARCH-OUTPUTS
     priority: 304
     milestone: PS09 Run 5
     title: Integrate deterministic search and governed output views
-    status: not_started
+    status: in_progress
+    blocked_by: [G-LOCAL-BROWSER]
+    safe_fallback: >-
+      Keep the verified local output and sealed corpus, automated checks and
+      explicit acceptance limit. Do not claim actual browser validation or
+      substitute a different browser surface without reporting its identity.
+    unblocks_only_when: >-
+      The enabled browser surface becomes available and actual affected
+      workbench keyboard, accessibility, responsive and evidence interactions
+      pass with recorded browser evidence.
+    reason: >-
+      Integrated local output, ranking, evidence parity and eight automated
+      UI/accessibility tests pass, but the enabled browser inventory is empty.
+      Actual affected-browser, visual accessibility and keyboard evidence is
+      unavailable. This is an environment capability gap, not an approval gap.
     dependencies: [PS09-03-FEDERAL-REAL-SOURCE-SPINE, PS09-04-PNW-REAL-CORPUS]
     authorization_gate: G-PS09-RUN-05
     acceptance:
@@ -5674,7 +5704,16 @@ work_items:
         caveats.
       - Accessibility, keyboard, output privacy and deterministic ranking are
         validated.
-    evidence: []
+    evidence:
+      - >-
+        2026-09-05 final discovery build-8ab253d1db2b204578a860c65f4dbadd serves
+        12 checksum-verified files on 127.0.0.1:4181, including the shared
+        corpus, dossier, evidence and structured research output. All 101
+        dossier evidence links resolve. Final independent frozen evaluation
+        passes 25/27 passages against the unchanged 90% threshold, with two
+        explicit misses and no source-question changes. Full check passes;
+        actual browser inventory remains empty. Local source display does not
+        authorize publication or establish PS09-06 acceptance.
   - id: PS09-06-LOCAL-RC
     priority: 305
     milestone: PS09 Run 6
@@ -5925,16 +5964,18 @@ next_actions:
       General-jurisdiction implementation proceeds independently; this item
       remains a mandatory PS09-06 acceptance dependency.
   - order: 2
-    work_item: PS09-03-FEDERAL-REAL-SOURCE-SPINE
+    work_item: PS09-05-SEARCH-OUTPUTS
     action: >-
-      Continue POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01 from its execution
-      journal: integrate the replay-verified gold corpus with local search,
-      source-grounded evaluation, analytical evidence and the explicit owned
-      output; broaden reviewed Washington acquisition after the gold path works.
+      Connect a browser to the enabled automation surface, then inspect the
+      already authorized local workbench at 127.0.0.1:4181 using the outcome
+      handoff's demonstrations. Verify actual visual, keyboard, evidence and
+      responsive behavior and repair any concrete defects before accepting
+      PS09-05. Do not reacquire data or restart the historical launch.
 finish_states:
   ps09:
     current_state: in_progress
     release_root: PS09-06-LOCAL-RC
+    blocked_by: []
     satisfied_when:
       - All six canonical outcomes have objective acceptance evidence.
       - G-PS09-RC is satisfied without opening publication or optional tranches.
