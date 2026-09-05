@@ -29,6 +29,13 @@ B/PNW/real-source finish scopes are archived evidence. The
 measured acceptance boundary; the live ledger controls whether work is active
 or terminal. No later PS09 run or external gate is opened.
 
+EV01's later evidence-review grant ended at local launch before any source
+request. Start fresh-session recovery from the
+[measured diagnostics and forward plan](handoffs/ps09-fresh-session-recovery-and-forward-plan.md)
+and [EV01 terminal record](handoffs/ps09-ev-01-evidence-review.md). Its initial
+ledger is immutable recovery evidence, not a resumable run. The new handoff
+opens no source or implementation gate.
+
 ## Authority order
 
 When two statements appear to conflict, use this order:
@@ -71,6 +78,7 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | Run 2 implementation, proof and real-evidence gaps | [`ps09-run-02-identity-authority-scenarios.md`](handoffs/ps09-run-02-identity-authority-scenarios.md) and [`ps09-run-02-candidate-manifests.md`](development/ps09-run-02-candidate-manifests.md) | Synthetic identity/authority/scenario references; nine owner planning manifests supply no real identity, source or scenario acceptance |
 | Work-class staffing, tools, leases, validation, and stop rules | [`AGENT-AND-TOOL-OPERATING-MODEL.md`](development/AGENT-AND-TOOL-OPERATING-MODEL.md) | Run templates do not broaden authority |
 | Recovery after a fresh session or compaction | [`continuation-prompt.md`](continuation-prompt.md) | Always reconcile against live Git and roadmap |
+| EV01 stop and current recovery course | [`ps09-ev-01-evidence-review.md`](handoffs/ps09-ev-01-evidence-review.md) and [`ps09-fresh-session-recovery-and-forward-plan.md`](handoffs/ps09-fresh-session-recovery-and-forward-plan.md) | Zero source access; local shell diagnostics support a proposed one-operation invocation, not a working source runner or renewed grant |
 | Historical exact PNW-01 implementation run | [`pnw-engine-seams-implementation-launch-2026-09-02.md`](handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md) | Its authorization and completion evidence do not authorize a successor |
 | Historical PNW-03 implementation coordination | [`PNW-03-GEOGRAPHY-RIGHTS-COORDINATION-2026-09-02.md`](development/PNW-03-GEOGRAPHY-RIGHTS-COORDINATION-2026-09-02.md) | Records that completed local run; cannot authorize sources, real data, convergence, publication, or a successor |
 | PNW-03 implementation and terminal evidence | [`pnw-geography-rights-implementation-2026-09-02.md`](handoffs/pnw-geography-rights-implementation-2026-09-02.md) | Complete local synthetic checkpoint; does not authorize real data, convergence, publication, or a successor |
@@ -158,7 +166,7 @@ telemetry, browser-side AI, or outbound notifications.
 | Retained B1-B10 | Archived implementation and fallback evidence; former four finish blockers remain historical source gaps, not a parallel release graph |
 | PNW-00 | Planning/governance rebase complete |
 | PNW-01 | Complete as a bounded synthetic engine-seam tranche |
-| PNW-02 | Archived exact-roster gate remains recorded; PS09 Run 2 must replace universal count assumptions with separate evidence-bearing identity, membership, and cohort contracts |
+| PNW-02 | Archived exact-roster gate remains recorded; PS09 Run 2 implemented separate synthetic identity, membership, and cohort contracts; required real evidence remains unresolved |
 | PNW-03 | Complete as a bounded synthetic geography/rights tranche |
 | PNW-04 | Complete as a bounded synthetic governed-taxonomy tranche |
 | PNW-05 | Archived broad parent retains its ready/non-complete status; that state is not current execution authority or an additional release prerequisite |
@@ -261,10 +269,10 @@ npm run validate:roadmap
 npm run validate:backbone
 ```
 
-Recover the terminal Run 2 handoff and coordination alongside the completed
-Run 1 checkpoint and live roadmap. The bounded packet has no remaining active
-work; required real identity/scenario evidence and separate operation authority
-remain unresolved. Archived ready
+Recover the current fresh-session guide and EV01 terminal handoff first, then
+the terminal Run 2 handoff and completed Run 1 checkpoint with the live roadmap.
+No bounded packet has remaining active work; required real identity/scenario
+evidence and separate operation authority remain unresolved. Archived ready
 items and old prompts cannot start another lane. The default application/build
 remains network-free and synthetic.
 

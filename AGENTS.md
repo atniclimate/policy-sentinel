@@ -9,7 +9,7 @@ repository navigation and authority index. Preserve the product boundaries in
 `docs/pnw-scope-and-acceptance.md`, and the decisions in
 `docs/decision-register.md`.
 
-The current local authorization is
+The completed local synthetic authorization was
 `POLICY-SENTINEL-0.9-RUN-02-PNW-IDENTITY-AUTHORITY-AND-SCENARIO-MANIFESTS`.
 The owner approved the exact [Run 2 entry packet](docs/handoffs/ps09-run-02-entry-packet.md)
 with "Approve and go" on 2026-09-04. It permits only the listed local synthetic
@@ -28,6 +28,13 @@ deployment, API registration, provider-term acceptance, paid call, third-party
 contact, secret change, private-data use, optional AI generation, or outbound
 notification. Keep every later stop/go gate closed until the owner approves
 that exact action.
+
+The separately approved EV01 evidence-review run subsequently ended at local
+launch with zero source requests; its interrupted directory is read-only and
+cannot resume. Recover [its terminal record](docs/handoffs/ps09-ev-01-evidence-review.md)
+and the [fresh-session recovery guide](docs/handoffs/ps09-fresh-session-recovery-and-forward-plan.md).
+The later handoff request authorizes local documentation and synthetic diagnostic
+preparation only; it opens no new source, implementation tranche or later-run gate.
 
 The 0.9 program targets one general engine with an owner-selected PNW/ATNI-facing
 cohort and contrasting scenarios. Exact current ATNI membership requires

@@ -788,8 +788,9 @@ current_focus:
   work_item: null
   objective: >-
     Preserve the stopped EV01 run as read-only recovery evidence and retain
-    unresolved real identity/scenario claims. Recover its terminal handoff
-    before preparing any new exact operation packet.
+    unresolved real identity/scenario claims. Recover the comprehensive fresh
+    session guide and measured shell diagnostics before defining a new bounded
+    local readiness task and exact operation packet.
   terminal_reason: >-
     EV01's noninteractive shell launch closed standard input after initial
     ledger creation; the process exited before any operation reservation or
@@ -798,7 +799,7 @@ current_focus:
     canonical work remains ready; later runs and archived lanes stay closed.
   resumable_roots:
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: a116fa70bb07660d21010ec80f8c7b510be3f093
+  last_durable_checkpoint: 9d7cbb6ca13fe4938e8daa16c39b41642d623245
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5373,6 +5374,26 @@ work_items:
         legal effect.
     evidence:
       - >-
+        Final handoff checks passed typecheck, roadmap, backbone, source scan,
+        foundation, 13 corpus tests, 30 spine tests with one host-limited skip,
+        1507 unit tests, and synthetic build/artifact validation. Full npm run
+        check stopped at 74 lint errors in the frozen ignored EV01 helpers;
+        exact-directory exclusion lint passed as a diagnostic only. The next
+        local readiness scope must address that validation boundary without
+        altering retired custody. Independent handoff reviews passed; no source
+        evidence, implementation capability or execution authority was added.
+      - >-
+        The later owner request for a comprehensive fresh-session handoff
+        authorizes local documentation and synthetic diagnostics, not renewed
+        EV01 or later-run execution. All 5896 starting ledger lines were read;
+        runtime, roadmap, backbone and 76-file custody baseline passed. Local
+        one-shot argv and preloaded-pipe probes passed; default stdin ended, TTY
+        process creation failed, and explicit native exit forwarding preserved
+        the rejection code. These are shell-interface observations, not
+        evidence-runner or source proof. Recovery is recorded in
+        docs/handoffs/ps09-fresh-session-recovery-and-forward-plan.md. Statuses,
+        dependencies and gates remain unchanged, with zero active work items.
+      - >-
         docs/handoffs/ps09-ev-01-evidence-review.md records EV01's local launch
         failure after all 43 synthetic observer checks passed. The lead used a
         shell invocation whose input closed immediately. The observer exited 1
@@ -5770,11 +5791,12 @@ next_actions:
   - order: 1
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action:
-      Recover the terminal EV01 launch-failure handoff and preserve its ignored
-      ledger without mutation. Prepare a new exact packet only after a synthetic
-      persistent-input launch check; no retry is currently approved. Do not
-      reuse EV01's directory or unused budget, infer source evidence, issue
-      FR-A1, start a later run or revive an archived ready lane.
+      Recover docs/handoffs/ps09-fresh-session-recovery-and-forward-plan.md.
+      Define the smallest no-network readiness scope for a one-operation argv
+      runner, then prove its actual launch and durable accounting before a fresh
+      exact evidence packet. The local probes do not implement that runner or
+      renew source authority. Preserve EV01 unchanged; no source retry, FR-A1,
+      later run or archived ready lane is authorized.
 finish_states:
   ps09:
     current_state: blocked

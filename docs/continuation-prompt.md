@@ -1,12 +1,13 @@
 # Policy Sentinel durable continuation prompt
 
-Status: the owner-approved bounded Run 2 synthetic packet is validated at
-[its terminal checkpoint](handoffs/ps09-run-02-identity-authority-scenarios.md).
-Full PS09-02 remains blocked on exact real evidence and separately bounded
-operation authority; no work is active. Recover the
-[entry packet](handoffs/ps09-run-02-entry-packet.md),
-[coordination record](development/PS09-RUN-02-COORDINATION.md), Git and roadmap.
-Run 1 remains complete. Source operations and later runs remain closed.
+Status: recover the [fresh-session guide](handoffs/ps09-fresh-session-recovery-and-forward-plan.md)
+and [EV01 terminal handoff](handoffs/ps09-ev-01-evidence-review.md) first.
+EV01 ended at local launch before any source request; its initial ledger and
+frozen helpers cannot resume. New local probes verified one-shot argv and
+preloaded input, while TTY launch failed in this tool surface. A new evidence
+runner remains proposed. Full PS09-02 is blocked and no work is active.
+Run 1 and the [bounded Run 2 synthetic packet](handoffs/ps09-run-02-identity-authority-scenarios.md)
+retain their validation. New source operations and later runs remain closed.
 
 ## Start and recover
 
@@ -16,6 +17,8 @@ Astra is unavailable. Model selection does not create authority.
 
 1. Resolve the repository root and read every applicable `AGENTS.md`.
 2. Read `ROADMAP.yaml` completely before selecting work.
+   Read the current fresh-session recovery guide before applying an older
+   kickoff. The local diagnostics do not authorize new implementation or network.
 3. Read [the backbone](PROJECT-BACKBONE.md), [PNW scope](pnw-scope-and-acceptance.md),
    [operating model](development/AGENT-AND-TOOL-OPERATING-MODEL.md),
    [corpus ADR](adr/ps09-canonical-corpus.md),
@@ -28,7 +31,8 @@ Astra is unavailable. Model selection does not create authority.
    by their exact inventory paths. They are owner direction, not implemented
    contracts. Do not edit, rename, delete, stage, or commit them.
 5. Read binding architecture, data/governance, source, UX, decision and
-   validation contracts relevant to the actual outstanding approved Run 2 work.
+   validation contracts relevant to the bounded local task under current owner
+   direction.
 6. Reconcile branch, exact HEAD/parent, worktrees, status, remotes, staged and
    changed paths, relevant history, active processes, owner-input hashes,
    generated evidence custody and protected K0/S0/O0 identities.
@@ -41,9 +45,10 @@ report, schema or passing synthetic fixture is not source/release evidence.
 
 ## Current authority and single completion graph
 
-The current token is
+There is no remaining implementation or source execution grant. The completed
+synthetic packet's historical token is
 `POLICY-SENTINEL-0.9-RUN-02-PNW-IDENTITY-AUTHORITY-AND-SCENARIO-MANIFESTS`.
-It authorizes only the 23 paths and local synthetic scope of the entry packet
+It authorized only the 23 paths and local synthetic scope of the entry packet
 approved at `1cb2384fe8fa4da71d1f9e8884be6980d010db74`. Its implementation,
 tests and independent actual-code reviews are validated. Recover final local
 commit metadata from the handoff; do not restart the completed packet.
@@ -52,6 +57,14 @@ source/domain/request/byte budgets and external operations remain closed/zero.
 Synthetic contract and manifest completion cannot establish full PS09-02
 acceptance; preserve the exact remaining evidence/authority block and stop
 before any successor run or archived lane.
+
+The separate EV01 token approved its exact five conditional operations but ended
+before any was reserved or issued. Do not reuse its directory or unused budget,
+repair the stale active ledger, create receipts, or rerun its helper/checks.
+The fresh-session guide proposes a no-network readiness stage and a new exact
+packet with explicit per-operation continuation semantics. Neither is source
+authority. Complete the authorized local preparation before requesting a concrete
+new operation decision; do not reopen settled product questions.
 
 The canonical program is PS09-01 through PS09-06; conditional PS09-07/08 remain
 deferred and separately gated. `PS09-06-LOCAL-RC` is the sole local release
@@ -105,7 +118,8 @@ assumptions and proof limits.
 
 ## Frozen source and external boundaries
 
-Run 2's source/domain/request/byte budgets are zero. The historical real-source prerelease
+The completed synthetic Run 2 packet's budgets remain zero. EV01's later grant
+ended with zero source access and is not reusable. The historical real-source prerelease
 stopped on consumed R7 digest drift. Do not repeat D3, R6, R7 or PF-01 through
 PF-17; do not issue FR-A1. Preserve its 27-issued-request ledger and immutable
 43-file ignored evidence set. Candidate rankings are not selection or source
@@ -155,7 +169,8 @@ custody, adversarial findings/repairs and exact remaining Run 2 evidence gates
 in the handoff. A material unresolved implementation finding blocks the local
 packet checkpoint; missing real evidence blocks full PS09-02 completion.
 
-End with exactly one truthful disposition:
+The following are historical Run 2 local-packet dispositions, not the only
+permitted disposition for every later recovery task:
 
 - `RUN_02_LOCAL_SYNTHETIC_PACKET_VALIDATED_REAL_EVIDENCE_BLOCKED`
 - `RUN_02_LOCAL_PACKET_REPAIR_REQUIRED`
@@ -163,3 +178,6 @@ End with exactly one truthful disposition:
 
 The full Run 2 completion token is unavailable from synthetic proof. The
 bounded local checkpoint is not whole-product completion or publication.
+For the current handoff task use
+`PS09_FRESH_SESSION_HANDOFF_READY_NO_NEW_SOURCE_AUTHORITY`. Later local readiness
+must report its own actual tested boundary and unresolved operation gate.
