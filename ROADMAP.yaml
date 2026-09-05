@@ -765,7 +765,7 @@ current_focus:
     canonical work remains ready; the whole product and local RC remain blocked.
   resumable_roots:
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: 0ff44349c37b60006ee34475319a86ec5a87e9e0
+  last_durable_checkpoint: b5dcda3df41f389b5b302709c2675b994d20c6c8
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5305,6 +5305,14 @@ work_items:
         terminal entry supersedes the preceding pending checkpoints; all later
         gates remain closed and no provider request or real acquisition
         occurred.
+      - >-
+        Local implementation commit b5dcda3df41f389b5b302709c2675b994d20c6c8
+        contains exactly 42 authorized paths. Post-commit tracked status is
+        clean; only the 33 unchanged protected inputs remain untracked. The
+        staged source-boundary scan passed at 443 tracked paths and 476 source
+        files. Final engineering/security, graph and sovereignty reviews
+        recommend acceptance with no material blocker. This closeout metadata
+        checkpoint records the implementation SHA without rewriting history.
   - id: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     priority: 301
     milestone: PS09 Run 2

@@ -1,8 +1,8 @@
 # PS09 Run 1 repository convergence and corpus spine
 
 Status: Run 1 complete after successful integrated validation and independent
-final review. The sole local RC
-root remains blocked at Run 2; real-source admission and publication stay closed.
+final review. The sole local RC root remains blocked at Run 2; real-source
+admission and publication stay closed.
 
 Authority is the exact owner token
 `POLICY-SENTINEL-0.9-RUN-01-REPOSITORY-CONVERGENCE-AND-CORPUS-SPINE`, recovered
@@ -223,6 +223,23 @@ data, remote, push or publication is authorized by this packet.
 
 Do not automatically start Run 2 when Run 1 closes. The entry packet above is
 the next decision boundary, not authorization to perform that work.
+
+## Local commit and custody closeout
+
+The implementation commit is
+`b5dcda3df41f389b5b302709c2675b994d20c6c8` on `main`, directly after the starting
+anchor `0ff44349c37b60006ee34475319a86ec5a87e9e0`. It contains exactly the 42
+authorized code, schema, configuration, test and documentation paths. The
+post-staging source-boundary scan passed at 443 tracked paths and 476 checked
+source files; staged whitespace checks passed. Post-commit tracked status was
+clean, with exactly the 33 unchanged protected inputs remaining untracked.
+All 43 immutable ignored historical evidence files still match their hashes.
+No generated object, provider body, real configuration or credential was staged.
+
+This follow-up checkpoint changes only the roadmap, coordination log and this
+handoff to record that measured commit and its outcome. Its identity is the Git
+commit containing this closeout entry; it does not amend the implementation
+commit or grant another run. Local Git has no remote, push or publication.
 
 ## Terminal disposition
 

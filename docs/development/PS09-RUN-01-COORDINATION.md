@@ -260,3 +260,13 @@ commit only the 42 authorized implementation/documentation paths, then record
 the actual implementation commit and post-commit status in a metadata checkpoint.
 
 Terminal disposition: `RUN_01_CONVERGED_REPOSITORY_AND_CORPUS_SPINE_COMPLETE`.
+
+### Committed recovery anchor
+
+Implementation commit `b5dcda3df41f389b5b302709c2675b994d20c6c8` is on `main`
+with exactly 42 authorized paths. Its tracked tree is clean and only the 33
+protected inputs remain untracked. The staged source-boundary check passed at
+443 tracked paths and 476 checked source files. There is no remote, and the
+task preview is stopped. This metadata-only follow-up records the measured
+implementation commit in this log, the roadmap and handoff; no history is
+rewritten and no later gate opens.
