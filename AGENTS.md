@@ -33,8 +33,18 @@ The separately approved EV01 evidence-review run subsequently ended at local
 launch with zero source requests; its interrupted directory is read-only and
 cannot resume. Recover [its terminal record](docs/handoffs/ps09-ev-01-evidence-review.md)
 and the [fresh-session recovery guide](docs/handoffs/ps09-fresh-session-recovery-and-forward-plan.md).
-The later handoff request authorizes local documentation and synthetic diagnostic
-preparation only; it opens no new source, implementation tranche or later-run gate.
+The earlier recovery handoff request authorized local documentation and synthetic
+diagnostic preparation only. The owner subsequently approved recommendations
+1–5 for a next-session synthetic runner, then on 2026-09-05 requested a broader
+real-policy direction, public research with subagents, and an implementation
+prompt. Recover the [strategic research](docs/development/ps09-real-policy-systems-research-2026-09-05.md)
+and [real-policy launch prompt](docs/handoffs/ps09-real-policy-discovery-launch.md)
+before selecting the older startup. Current preparation includes public
+read-only research and documentation; it does not activate implementation or
+acquire a product corpus. When supplied as the next session's instruction, the
+new prompt grants its stated larger local scope. Historical grants remain
+historical; do not reset them or mistake their synthetic limits for the new
+product goal. Separately closed external operations retain their boundaries.
 
 The 0.9 program targets one general engine with an owner-selected PNW/ATNI-facing
 cohort and contrasting scenarios. Exact current ATNI membership requires

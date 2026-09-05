@@ -29,12 +29,21 @@ B/PNW/real-source finish scopes are archived evidence. The
 measured acceptance boundary; the live ledger controls whether work is active
 or terminal. No later PS09 run or external gate is opened.
 
-EV01's later evidence-review grant ended at local launch before any source
-request. Start fresh-session recovery from the
+The owner's latest 2026-09-05 direction is a real-policy discovery workbench
+with temporal and cross-jurisdiction investigation. Start from the
+[research and strategic correction](development/ps09-real-policy-systems-research-2026-09-05.md)
+and [next-session implementation prompt](handoffs/ps09-real-policy-discovery-launch.md).
+This checkpoint prepares that launch through public research and documentation;
+no product implementation or corpus acquisition starts here. The new prompt's
+larger local scope applies when the owner supplies it as the next instruction.
+
+EV01's earlier evidence-review grant ended at local launch before any source
+request. Recover its historical failure and diagnostics from the
 [measured diagnostics and forward plan](handoffs/ps09-fresh-session-recovery-and-forward-plan.md)
 and [EV01 terminal record](handoffs/ps09-ev-01-evidence-review.md). Its initial
-ledger is immutable recovery evidence, not a resumable run. The new handoff
-opens no source or implementation gate.
+ledger is immutable recovery evidence, not a resumable run. The subsequently
+approved seven-path runner is an enabling component in the new launch target;
+its prior approval alone did not authorize a real source.
 
 ## Authority order
 
@@ -78,6 +87,7 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | Run 2 implementation, proof and real-evidence gaps | [`ps09-run-02-identity-authority-scenarios.md`](handoffs/ps09-run-02-identity-authority-scenarios.md) and [`ps09-run-02-candidate-manifests.md`](development/ps09-run-02-candidate-manifests.md) | Synthetic identity/authority/scenario references; nine owner planning manifests supply no real identity, source or scenario acceptance |
 | Work-class staffing, tools, leases, validation, and stop rules | [`AGENT-AND-TOOL-OPERATING-MODEL.md`](development/AGENT-AND-TOOL-OPERATING-MODEL.md) | Run templates do not broaden authority |
 | Recovery after a fresh session or compaction | [`continuation-prompt.md`](continuation-prompt.md) | Always reconcile against live Git and roadmap |
+| Current strategic direction and real-policy implementation launch | [`research synthesis`](development/ps09-real-policy-systems-research-2026-09-05.md) and [`launch prompt`](handoffs/ps09-real-policy-discovery-launch.md) | Public research and prepared next-session authority; no implementation or source-admission claim at preparation |
 | EV01 stop and current recovery course | [`ps09-ev-01-evidence-review.md`](handoffs/ps09-ev-01-evidence-review.md) and [`ps09-fresh-session-recovery-and-forward-plan.md`](handoffs/ps09-fresh-session-recovery-and-forward-plan.md) | Zero source access; local shell diagnostics support a proposed one-operation invocation, not a working source runner or renewed grant |
 | Historical exact PNW-01 implementation run | [`pnw-engine-seams-implementation-launch-2026-09-02.md`](handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md) | Its authorization and completion evidence do not authorize a successor |
 | Historical PNW-03 implementation coordination | [`PNW-03-GEOGRAPHY-RIGHTS-COORDINATION-2026-09-02.md`](development/PNW-03-GEOGRAPHY-RIGHTS-COORDINATION-2026-09-02.md) | Records that completed local run; cannot authorize sources, real data, convergence, publication, or a successor |
@@ -269,12 +279,14 @@ npm run validate:roadmap
 npm run validate:backbone
 ```
 
-Recover the current fresh-session guide and EV01 terminal handoff first, then
-the terminal Run 2 handoff and completed Run 1 checkpoint with the live roadmap.
-No bounded packet has remaining active work; required real identity/scenario
-evidence and separate operation authority remain unresolved. Archived ready
-items and old prompts cannot start another lane. The default application/build
-remains network-free and synthetic.
+Recover the real-policy launch and research synthesis first for the latest
+owner direction. Then recover the earlier fresh-session guide, EV01 terminal
+record, Run 2 handoff and completed Run 1 checkpoint as historical evidence
+with the live roadmap. No implementation is active at this preparation
+checkpoint. The new prompt defines the larger local scope when supplied as
+the next instruction; real identity/scenario evidence remains unresolved.
+Archived ready items and old prompts cannot start another lane. The current
+default application/build remains network-free and synthetic.
 
 The historical real-source prerelease stopped because qualification failed
 closed on consumed R7 digest drift. Do not repeat D3, R6, R7, PF-01 through

@@ -8,10 +8,12 @@ project:
     its interruption rule prohibits restarting the run. Full PS09-02 remains
     blocked. The completed Run 2 synthetic packet and Run 1 remain validated.
     Historical release scopes are archived evidence. PS09-06-LOCAL-RC is the
-    sole release root. The owner approved the exact seven-path local synthetic
-    runner scope for the next session; only its approval record is prepared now.
-    No work item is active. Source operations, activation and later runs remain
-    gated.
+    sole release root. After approving the seven-path synthetic runner, the
+    owner requested real-policy systems research and a comprehensive
+    next-session implementation prompt. Public read-only research and launch
+    documentation are prepared; no implementation item is active and no product
+    corpus is acquired. The new launch states its larger local authority when
+    supplied as the next session's instruction. Historical grants are not reset.
   updated_on: "2026-09-05"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -19,9 +21,12 @@ project:
     cohort without making exact ATNI membership a universal release gate, and
     retain nationwide and separately modeled international expansion as later
     directions. Treat documents, web modules, applications, and structured
-    exports as adapters over one analyzed corpus. Stop at every evidence,
-    implementation, convergence, private-data, and publication gate unless the
-    owner changes that exact gate.
+    exports as adapters over one analyzed corpus. Investigate actual policy
+    documents, temporal histories, institutional mechanisms and
+    cross-jurisdiction patterns with inspectable evidence and provisional
+    analytical claims. Synthetic fixtures are regression tools, not the intended
+    product-data boundary. Respect source-specific evidence and the current
+    exact execution, private-data, and publication authority.
 
 canonical_ledger:
   authority: >-
@@ -807,23 +812,24 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Preserve the stopped EV01 run as read-only recovery evidence and retain
-    unresolved real identity/scenario claims. Record the owner's exact
-    recommendations 1–5 approval and final startup prompt for the seven-path
-    local synthetic runner scope. Implementation starts in the next session
-    without repeat approval; an executable source packet remains subsequent
-    separately defined work.
+    Preserve the stopped EV01 run and unresolved identity/scenario claims.
+    Recover docs/handoffs/ps09-real-policy-discovery-launch.md and its research
+    companion for the owner's latest real-policy direction. The next-session
+    prompt integrates the runner, real acquisition, temporal analysis, search,
+    local review and evidence-based acceptance under explicit new local scope.
+    Current work is public research and documentation preparation only.
   terminal_reason: >-
     EV01's noninteractive shell launch closed standard input after initial
     ledger creation; the process exited before any operation reservation or
     source request. The packet prohibits restart after interruption. No new
-    source evidence was obtained and full PS09-02 remains blocked. The owner
-    approved only the bounded local synthetic runner for the next session;
-    current work records that approval without starting implementation. No item
-    is active; later runs and archived lanes stay closed.
+    product source evidence was obtained by EV01 and full PS09-02 remains
+    blocked. Subsequent public research informs a broader real-policy launch; it
+    does not admit a product source or start implementation. No item is active
+    and historical operation grants remain spent. The new prompt's stated scope
+    applies when supplied as the next session's instruction.
   resumable_roots:
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: f45f96e11d592141bbb4517ec4574f7faaccfeb6
+  last_durable_checkpoint: 2d91e860df3b8fcbe84e47c6e6563201d5f7693e
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5390,15 +5396,42 @@ work_items:
       at local launch with zero source access and cannot resume. A new exact
       packet is required for further operations; all real claims remain
       unresolved. No fixed membership count gates unrelated general-jurisdiction
-      work. The separate 2026-09-05 approval permits only the seven-path local
-      synthetic runner readiness work in the next session. That local grant does
-      not satisfy any missing real evidence or authorize source operations.
+      work. The separate recommendations 1–5 approval permits the seven-path
+      synthetic runner; that historical grant supplies no real evidence. The
+      later owner direction and prepared real-policy launch define a larger
+      next-session target. Use its new authority when supplied, migrate false
+      whole-phase dependencies coherently, and keep unsupported identity claims
+      unresolved rather than marking this item complete to advance.
     acceptance:
       - Separate recognition, membership, cohort, governmental and geographic
         identities.
       - Verify exact scenario source and claim boundaries without inferring
         legal effect.
     evidence:
+      - >-
+        On 2026-09-05 the owner requested real documents and federal APIs,
+        systemic and temporal policy investigation, public
+        GitHub/open-literature research with subagents, and an Astra Ultra
+        prompt that implements a useful system. Three read-only agents reviewed
+        repository/owner intent, seven GitHub implementations through gh, and
+        seven open primary research works. Current official source and OpenAI
+        documentation were also read. Findings and limits are in
+        docs/development/ps09-real-policy-systems-research-2026-09-05.md; the
+        explicit next-session implementation prompt is
+        docs/handoffs/ps09-real-policy-discovery-launch.md. Current preparation
+        changes documentation and ledger prose only, preserving all statuses,
+        dependencies, gate states and historical custody. No product corpus,
+        code implementation, source admission or activation is claimed. The new
+        prompt supersedes the seven-path startup as the proposed strategic
+        launch when supplied by the owner; its scope is not inferred from the
+        earlier approval and no consumed grant is reset. Independent scope,
+        research/evaluation and ledger reviews closed the explicit local output,
+        first-pass evaluation and stale recovery-pointer findings. Roadmap,
+        backbone, formatting, staged source scan and diff checks passed. Full
+        check passed runtime, formatting and 18 hook tests, then stopped at the
+        same 74 retired-helper lint errors. All 76 protected identities and five
+        additional custody/lock/EV01 pins matched; no implementation was
+        changed.
       - >-
         On 2026-09-05 the owner explicitly approved recommendations 1–5 for the
         next session, binding the exact seven-path synthetic runner scope at
@@ -5854,16 +5887,17 @@ next_actions:
   - order: 1
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action:
-      Recover docs/handoffs/ps09-fresh-session-recovery-and-forward-plan.md. In
-      the next session, recover the recorded recommendations 1–5 approval bound
-      to f45f96e11d592141bbb4517ec4574f7faaccfeb6, activate only the approved
-      seven-path local synthetic runner scope and finish its tests, exact lint
-      repair, review and local commits without repeated confirmation. Use the
-      handoff's activation and terminal ledger guidance. Require actual
-      PowerShell launch/custody/recovery proof and the unmodified npm run check.
-      Real transport, source-policy extraction and an executable source packet
-      remain subsequent separately defined work. Preserve EV01 unchanged; no
-      source retry, FR-A1, later run or archived ready lane is authorized.
+      Recover docs/handoffs/ps09-real-policy-discovery-launch.md and its
+      research companion before applying the older seven-path startup. The
+      owner-requested next-session prompt provides explicit larger local scope
+      for a real-policy workbench when supplied as the session instruction.
+      Reconcile canonical dependencies with its authority and validated contract
+      needs; do not mark unresolved PS09-02 claims complete to permit
+      general-jurisdiction work. Include actual PowerShell runner proof, real
+      documents and citations, temporal/cross-context investigation, integrated
+      UI, independent review and required checks. Preserve EV01, spent grants,
+      archived evidence and separately closed external actions. No
+      implementation starts in this research/preparation checkpoint.
 finish_states:
   ps09:
     current_state: blocked

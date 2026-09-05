@@ -1,24 +1,34 @@
 # Policy Sentinel durable continuation prompt
 
-Status: recover the [fresh-session guide](handoffs/ps09-fresh-session-recovery-and-forward-plan.md)
-and [EV01 terminal handoff](handoffs/ps09-ev-01-evidence-review.md) first.
+Status: recover the [real-policy launch prompt](handoffs/ps09-real-policy-discovery-launch.md)
+and [research synthesis](development/ps09-real-policy-systems-research-2026-09-05.md)
+first for the owner's latest direction. This preparation performs public
+read-only research and documentation, with no active implementation item or
+product corpus acquisition. The prompt grants its stated larger local scope
+when the owner supplies it as the next session's instruction. Preserve the
+[earlier recovery guide](handoffs/ps09-fresh-session-recovery-and-forward-plan.md)
+and [EV01 terminal handoff](handoffs/ps09-ev-01-evidence-review.md) as history.
 EV01 ended at local launch before any source request; its initial ledger and
 frozen helpers cannot resume. New local probes verified one-shot argv and
 preloaded input, while TTY launch failed in this tool surface. A new evidence
-runner remains proposed. Full PS09-02 is blocked and no work is active.
+runner remains unimplemented; its bounded synthetic scope was approved for
+the next session and is incorporated into the new launch. Full PS09-02 is
+blocked and no implementation work is active.
 Run 1 and the [bounded Run 2 synthetic packet](handoffs/ps09-run-02-identity-authority-scenarios.md)
 retain their validation. New source operations and later runs remain closed.
 
 ## Start and recover
 
 Use the owner-selected model and effort for the session; the current kickoff
-selects GPT-6 Astra at Ultra, Max if unavailable, or GPT-5.6 Sol at Ultra if
-Astra is unavailable. Model selection does not create authority.
+selects GPT-6 Astra at Ultra where the interface supports it. Preserve the
+owner's actual model selection; do not silently substitute another model or
+invent an API effort value. Model selection does not create authority.
 
 1. Resolve the repository root and read every applicable `AGENTS.md`.
 2. Read `ROADMAP.yaml` completely before selecting work.
-   Read the current fresh-session recovery guide before applying an older
-   kickoff. The local diagnostics do not authorize new implementation or network.
+   Read the real-policy launch and research synthesis before applying an older
+   kickoff. The historical local diagnostics alone do not authorize new work;
+   the owner's supplied current instruction determines the active scope.
 3. Read [the backbone](PROJECT-BACKBONE.md), [PNW scope](pnw-scope-and-acceptance.md),
    [operating model](development/AGENT-AND-TOOL-OPERATING-MODEL.md),
    [corpus ADR](adr/ps09-canonical-corpus.md),
@@ -45,8 +55,11 @@ report, schema or passing synthetic fixture is not source/release evidence.
 
 ## Current authority and single completion graph
 
-There is no remaining implementation or source execution grant. The completed
-synthetic packet's historical token is
+At this preparation checkpoint no implementation or product acquisition has
+started. The new launch prompt is ready for the next session; recover its
+explicit authority when the owner supplies it. The following paragraphs
+describe the completed historical synthetic grant, not a limit on the newly
+requested product direction. The completed synthetic packet's token is
 `POLICY-SENTINEL-0.9-RUN-02-PNW-IDENTITY-AUTHORITY-AND-SCENARIO-MANIFESTS`.
 It authorized only the 23 paths and local synthetic scope of the entry packet
 approved at `1cb2384fe8fa4da71d1f9e8884be6980d010db74`. Its implementation,
@@ -178,6 +191,9 @@ permitted disposition for every later recovery task:
 
 The full Run 2 completion token is unavailable from synthetic proof. The
 bounded local checkpoint is not whole-product completion or publication.
-For the current handoff task use
-`PS09_FRESH_SESSION_HANDOFF_READY_NO_NEW_SOURCE_AUTHORITY`. Later local readiness
-must report its own actual tested boundary and unresolved operation gate.
+The earlier recovery task used
+`PS09_FRESH_SESSION_HANDOFF_READY_NO_NEW_SOURCE_AUTHORITY`; that disposition
+is historical. Current preparation records research and real-policy launch
+readiness without claiming implementation. The next session follows the new
+prompt's outcome and reports its actual completed or partial local workbench,
+measured evidence, unresolved claims, and remaining release work.

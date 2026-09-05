@@ -5,17 +5,24 @@ Prepared 2026-09-04 local time, following EV01 terminal commit
 committed handoff at `6844c05236dcd375fec79530cd7341ca410c258b`.
 The owner subsequently approved recommendations 1–5 for the next session on
 2026-09-05, binding the seven-path synthetic runner scope reviewed at
-`f45f96e11d592141bbb4517ec4574f7faaccfeb6`. This is the current recovery and
-approved startup guide. Implementation starts in the next session; this
-checkpoint records the approval only. No source-operation grant or completed
-evidence review follows. Original checks below retain their dates.
+`f45f96e11d592141bbb4517ec4574f7faaccfeb6`. This guide retains that approval
+and its measured recovery evidence. Original checks below retain their dates.
+
+The owner then requested a broader real-policy direction and a comprehensive
+implementation prompt. Use the [new launch prompt](ps09-real-policy-discovery-launch.md)
+and [research synthesis](../development/ps09-real-policy-systems-research-2026-09-05.md)
+for that next session. The seven-path startup below is historical scope; the
+new launch integrates the runner into a real evidence-to-discovery outcome.
+Preparing that launch does not start acquisition or reset any old grant.
 
 ## Start here
 
-**The next session may implement the approved seven-path synthetic runner scope
+**For the earlier bounded approval only**, the next session may implement the
+approved seven-path synthetic runner scope
 without requesting that approval again. Use one operation per noninteractive
 invocation and prove actual shell launch, custody and recovery. Do not restart
-EV01 or access a source.**
+EV01 or access a source under that earlier grant. The new strategic launch
+provides its own explicit scope when used.
 
 The initial handoff request authorized documentation and diagnostic preparation.
 The later exact owner approval, recorded below, adds only the next-session local
