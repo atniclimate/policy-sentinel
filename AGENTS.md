@@ -1,6 +1,13 @@
 # AGENTS.md
 
-Current recovery: the bounded cutoff continuation is complete. Start with the
+Current maintenance recovery: the approved organization and engineering assurance
+scope is represented by H-KNOWLEDGE-ASSURANCE-01 in the live ledger. Read
+[its journal](docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md) for exact leases,
+findings and checkpoints. It has zero policy-source acquisition/release authority.
+The discovery recovery below remains historical terminal evidence; its zero
+active count describes that checkpoint, not active maintenance.
+
+Discovery recovery: the bounded cutoff continuation is complete. Start with the
 [local outcome](docs/handoffs/ps09-real-policy-discovery-outcome.md) and live
 `ROADMAP.yaml`. PS09-05 has scoped browser acceptance, including a separate
 hash-bound manual disposition for ten preserved axe incompletes. There are zero

@@ -214,6 +214,55 @@ test("schema 1.7 confines maintenance to its approved non-release scope", async 
       );
     },
   );
+  // Frozen from c65949f; never derive this protection from the candidate.
+  const originallyClosed = [
+    "G-PS09-RUN-06",
+    "G-PS09-RUN-07",
+    "G-PS09-RUN-08",
+    "G-PS09-RC",
+    "G-K0-S0-CONVERGENCE",
+    "G-O0-CONVERGENCE",
+    "G-B",
+    "G-B-GRANTS",
+    "G-B-CONGRESS",
+    "G-B-GOVINFO",
+    "G-B-REGULATIONS",
+    "G-B-OR-OJD",
+    "G-B-OR-OARD",
+    "G-B-OR-GOVERNOR",
+    "G-C",
+    "G-E",
+    "G-E-LICENSE",
+    "G-E-REMOTE-PUSH",
+    "G-E-PAGES",
+    "G-E-PUBLISH",
+    "G-F",
+    "G-G",
+    "G-H",
+    "G-I",
+    "G-PNW-COMMUNITY-AUTHORITY",
+    "G-PNW-SOURCE-ACTIVATION",
+  ];
+  for (const status of ["in_progress", "complete", "blocked"]) {
+    for (const id of originallyClosed) {
+      await context.test(`${status} cannot reopen ${id}`, async () => {
+        const candidate = candidateFor(status);
+        Object.assign(gate(candidate, id), {
+          state: "approved",
+          evidence: ["Synthetic fabricated authority; no approval exists."],
+          approved_scope: ["Synthetic unauthorized operation."],
+        });
+        const result = await validate(`${status}-${id}`, candidate);
+        assert.notEqual(result.status, 0);
+        assert.match(
+          `${result.stdout}\n${result.stderr}`,
+          ["G-B", "G-E"].includes(id)
+            ? /is a category gate and must remain closed/
+            : new RegExp(`maintenance preserved ${id}`),
+        );
+      });
+    }
+  }
   const rejections = [
     [
       "wrong-maintenance-work-class",

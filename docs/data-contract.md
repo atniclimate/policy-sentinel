@@ -14,14 +14,15 @@ root; the historical schema families below do not impose a second graph.
 The owner adopted the [real-policy launch](handoffs/ps09-real-policy-discovery-launch.md)
 prepared at `39d738a` for bounded local implementation, official acquisition,
 analysis and output. The [execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md)
-tracks the authorized successor closure and exact contract/consumer evidence.
-The retained 1.x contracts keep their synthetic limits; their zero-source grants
-do not limit this new run. No new schema is normative merely because the launch
-requests it or a draft file exists. The lead must catalog the validated successor
-and document source-profile, immutable object, work/version/rendition/segment,
-event, evidence-linked analysis, coverage and local-output compatibility.
+records completed successor closure and exact contract/consumer evidence.
+The [terminal outcome](handoffs/ps09-real-policy-discovery-outcome.md) proves the
+cataloged AnalyzedCorpus2.0 and bounded local output profile. The retained1.x
+contracts keep their synthetic limits. Acquisition has ended. Source-profile,
+object/work/version/rendition/segment/event, evidence-linked analysis, coverage
+and local-output contracts below retain their exact validated compatibility;
+a draft or catalog observation alone cannot make a schema normative.
 
-The new local profile must distinguish publication, source-stated effectiveness,
+The implemented local profile distinguishes publication, source-stated effectiveness,
 version dates and observation; unknown and partial dates remain explicit.
 Source-derived metadata and analytical assertions keep separate provenance.
 The ordinary application build remains synthetic, and real bodies or gold

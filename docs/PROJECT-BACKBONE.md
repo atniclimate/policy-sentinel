@@ -1,6 +1,12 @@
 # Policy Sentinel project backbone
 
-Latest recovery entry: the
+Latest maintenance entry: [knowledge assurance journal](development/PS09-KNOWLEDGE-ASSURANCE-01.md),
+[finite findings](development/ps09-knowledge-findings.yaml),
+[acceptance crosswalk](development/ps09-knowledge-acceptance-crosswalk.md) and
+[knowledge metadata](../knowledge/README.md). The live ledger owns current
+maintenance status; catalogs and external reading cards cannot authorize work.
+
+Discovery recovery entry: the
 [local workbench outcome](handoffs/ps09-real-policy-discovery-outcome.md)
 records completed bounded PS09-05 browser acceptance and its separate manual
 contrast disposition. The live roadmap has zero active items; PS09 remains
@@ -103,7 +109,7 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | Run 2 implementation, proof and real-evidence gaps | [`ps09-run-02-identity-authority-scenarios.md`](handoffs/ps09-run-02-identity-authority-scenarios.md) and [`ps09-run-02-candidate-manifests.md`](development/ps09-run-02-candidate-manifests.md) | Synthetic identity/authority/scenario references; nine owner planning manifests supply no real identity, source or scenario acceptance |
 | Work-class staffing, tools, leases, validation, and stop rules | [`AGENT-AND-TOOL-OPERATING-MODEL.md`](development/AGENT-AND-TOOL-OPERATING-MODEL.md) | Run templates do not broaden authority |
 | Recovery after a fresh session or compaction | [`continuation-prompt.md`](continuation-prompt.md) | Always reconcile against live Git and roadmap |
-| Current strategic direction and real-policy implementation launch | [`research synthesis`](development/ps09-real-policy-systems-research-2026-09-05.md), [`adopted launch`](handoffs/ps09-real-policy-discovery-launch.md), and [`execution journal`](development/PS09-REAL-POLICY-DISCOVERY-01.md) | Active bounded local implementation, reviewed acquisition, analysis and output authority; source predicates and measured acceptance remain independent |
+| Completed strategic direction and real-policy implementation launch | [`research synthesis`](development/ps09-real-policy-systems-research-2026-09-05.md), [`adopted launch`](handoffs/ps09-real-policy-discovery-launch.md), and [`execution journal`](development/PS09-REAL-POLICY-DISCOVERY-01.md) | Completed bounded local implementation and ended acquisition; source predicates and measured acceptance remain independent |
 | Independent real-policy acceptance | [`evaluation protocol`](development/ps09-real-policy-evaluation.md) | Thresholds precede tuning; actual source-derived gold and reserved first-pass cases stay in external review custody |
 | Historical EV01 stop and recovery diagnostics | [`ps09-ev-01-evidence-review.md`](handoffs/ps09-ev-01-evidence-review.md) and [`ps09-fresh-session-recovery-and-forward-plan.md`](handoffs/ps09-fresh-session-recovery-and-forward-plan.md) | EV01 had zero source access and cannot resume; its local diagnostics do not create renewed authority |
 | Historical exact PNW-01 implementation run | [`pnw-engine-seams-implementation-launch-2026-09-02.md`](handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md) | Its authorization and completion evidence do not authorize a successor |
@@ -257,7 +263,7 @@ evidence. It does not introduce a release root or authorize further work.
   [temporal operations](../src/engine/temporal-operations.mjs),
   [acquisition custody](../src/pipeline/policy-custody.mjs), and
   [one-operation runner](../scripts/bounded-operation-runner.mjs).
-  Scope and validation are in the [active journal](development/PS09-REAL-POLICY-DISCOVERY-01.md).
+  Scope and validation are in the [terminal journal](development/PS09-REAL-POLICY-DISCOVERY-01.md).
   This successor is separately versioned; the following retained 1.x baseline
   keeps its historical restrictions.
 - PNW-07 retained narrow source-neutral analyzed-corpus child:

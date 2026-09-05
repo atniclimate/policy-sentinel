@@ -29,6 +29,7 @@ import { clearTimeout, setTimeout } from "node:timers";
 import { URL } from "node:url";
 import { types } from "node:util";
 import { setTimeout as delay } from "node:timers/promises";
+import { withPreservedCleanup } from "./policy-assurance.mjs";
 
 export const POLICY_LIMITS = Object.freeze({
   attempts: 2000,
@@ -152,12 +153,13 @@ async function atomic(path, bytes) {
   await safePath(path, true);
   const temp = `${path}.${randomUUID()}.tmp`;
   const handle = await open(temp, "wx");
-  try {
-    await handle.writeFile(bytes);
-    await handle.sync();
-  } finally {
-    await handle.close();
-  }
+  await withPreservedCleanup(
+    async () => {
+      await handle.writeFile(bytes);
+      await handle.sync();
+    },
+    () => handle.close(),
+  );
   await rename(temp, path);
 }
 
@@ -635,16 +637,21 @@ async function locked(root, action) {
   const handle = await open(path, "wx").catch(() =>
     fail("RUN_LOCKED_RECOVER_EXPLICITLY"),
   );
-  try {
-    await handle.writeFile(
-      jsonBytes({ pid: process.pid, token: randomUUID() }),
-    );
-    await handle.sync();
-    return await action();
-  } finally {
-    await handle.close();
-    await rm(path);
-  }
+  return withPreservedCleanup(
+    async () => {
+      await handle.writeFile(
+        jsonBytes({ pid: process.pid, token: randomUUID() }),
+      );
+      await handle.sync();
+      return await action();
+    },
+    async () => {
+      // A failed close leaves an ambiguous lock for explicit recovery; never
+      // remove a lock that may still have an open writer.
+      await handle.close();
+      await rm(path);
+    },
+  );
 }
 
 export async function admitPolicyTargets(root, manifest) {

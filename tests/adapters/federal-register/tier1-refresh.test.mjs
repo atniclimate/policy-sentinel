@@ -6,6 +6,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import { runInNewContext } from "node:vm";
 
 import {
   FEDERAL_REGISTER_TIER1_GATE_EXPIRY,
@@ -1007,7 +1008,7 @@ test("spoofed argv wrapper import cannot acquire, fetch, or mutate custody", asy
   );
 });
 
-test("system-CA launch override is rejected before acquisition custody", async () => {
+test("actual acquisition guard distinguishes CA override from historical runtime rejection without dispatch", async () => {
   const cliUrl = new URL(
     "../../../scripts/refresh-federal-register-prerelease.mjs",
     import.meta.url,
@@ -1018,32 +1019,45 @@ test("system-CA launch override is rejected before acquisition custody", async (
     "../../../generated-data/real-source-prerelease/federal-register-tier1-acquisition.json",
   ].map((path) => new URL(path, import.meta.url));
   const before = await Promise.all(custodyUrls.map(optionalFileDigest));
-  const environment = cleanAcquisitionEnvironment();
-  environment.NODE_USE_SYSTEM_CA = "1";
-  const result = spawnSync(
-    process.execPath,
-    [
-      fileURLToPath(cliUrl),
-      "--acquire",
-      "--gate",
-      "generated-data/real-source-prerelease/nonexistent-gate.json",
-      "--expectation",
-      "generated-data/real-source-prerelease/nonexistent-expectation.json",
-    ],
-    {
-      cwd: fileURLToPath(new URL("../../../", import.meta.url)),
-      encoding: "utf8",
-      env: environment,
-      maxBuffer: 1_048_576,
-    },
+  // Evaluate only the actual pure guard and its exact constants. No import,
+  // transport, process launch, custody routine or acquisition CLI can run here.
+  const source = await readFile(cliUrl, "utf8");
+  const version = source.match(/const REVIEWED_NODE_VERSION = "([^"]+)";/)?.[1];
+  assert.equal(version, "v24.14.1");
+  const denylist = source.match(
+    /const ACQUISITION_ENVIRONMENT_DENYLIST = Object\.freeze\((\[[\s\S]*?\])\);/,
+  )?.[1];
+  assert.ok(denylist);
+  const start = source.indexOf("function assertAcquisitionProcessBoundary() {");
+  const end = source.indexOf("\nfunction parseCanonicalTimestamp", start);
+  assert.ok(start > 0 && end > start);
+  const guardSource = `${source.slice(start, end)}\nassertAcquisitionProcessBoundary();`;
+  const checkGuard = (runtime, execArgv, env) =>
+    runInNewContext(guardSource, {
+      process: { version: runtime, execArgv, env },
+      REVIEWED_NODE_VERSION: version,
+      ACQUISITION_ENVIRONMENT_DENYLIST: JSON.parse(
+        denylist.replace(/,\s*\]/, "]"),
+      ),
+      fail: (code, detail) => {
+        throw Object.assign(new Error(detail), { code });
+      },
+    });
+  assert.doesNotThrow(() => checkGuard(version, [], {}));
+  assert.throws(
+    () => checkGuard("v24.19.0", [], { NODE_USE_SYSTEM_CA: "1" }),
+    /Node runtime differs/,
   );
-  assert.equal(result.status, 1);
-  assert.equal(result.stdout, "");
-  assert.deepEqual(JSON.parse(result.stderr), {
-    state: "rejected",
-    code: "process_boundary",
-    publication: "closed",
-  });
+  assert.throws(
+    () => checkGuard(version, ["--synthetic-flag"], {}),
+    /Node preload, loader, and runtime flags/,
+  );
+  assert.throws(
+    () => checkGuard(version, [], { NODE_USE_SYSTEM_CA: "1" }),
+    (error) =>
+      error.code === "process_boundary" &&
+      error.message === "request-affecting environment overrides are forbidden",
+  );
   assert.deepEqual(
     await Promise.all(custodyUrls.map(optionalFileDigest)),
     before,

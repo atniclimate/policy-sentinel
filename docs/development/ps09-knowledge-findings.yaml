@@ -1,0 +1,374 @@
+schema_version: '1.0'
+source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+purpose: Finite preparation findings to carry into the approved successor implementation
+authority: Prompt review does not repair code or change product/source/release acceptance
+findings:
+  - id: FA-01
+    priority: high
+    classification: verified_ledger_representation_conflict
+    evidence: scripts/validate-roadmap.mjs 669-677, 2143-2144, 2164-2165; full ROADMAP read by authority reviewer
+    finding: Schema 1.6 rejects a new or reactivated maintenance item while PS09 remains blocked.
+    prompt_requirement: Bootstrap a narrowly versioned independent maintenance item/gate/focus with explicit schema compatibility and negative guard tests; preserve all PS09 and historical states.
+    represented_in_prompt: true
+    preparation_state: not_started
+  - id: FA-02
+    priority: medium
+    classification: requirement_coverage_risk
+    evidence: docs/pnw-scope-and-acceptance.md 184-224; candidate manifests; decision-register O-001..022 and B-001..012
+    finding: A generic crosswalk can omit unresolved output/persona/deployment/scenario requirements or erase interface-specific gaps after direct-route success.
+    prompt_requirement: Account for all 12 clauses, nine manifests, decision IDs and convergence components with source-bound scope dispositions; reconcile O-017 only within proved scope.
+    represented_in_prompt: true
+    preparation_state: not_started
+  - id: FA-03
+    priority: medium
+    classification: verified_hash_domain_distinction
+    evidence: docs/vision/o0-orchestration-contract.md; ROADMAP.yaml canonical seal; prior seed raw working hash
+    finding: O0 raw CRLF bytes and canonical LF bytes are different valid identities, not evidence of corruption.
+    raw_bytes: 117080
+    raw_sha256: 0f61c8d4b8da9f339b39ce3460358d5a89cad5c3d5e17b249161a9f876966d5f
+    canonical_lf_bytes: 116551
+    canonical_lf_sha256: f4f39c0b7ac2b5ce763d47785b82d0e162fc1217a41377490e8c926ed8cdd381
+    prompt_requirement: Type hash domains; never normalize sealed originals; select exactly 33 owner plus 43 historical protected artifacts, not every old dist/cache inventory entry.
+    represented_in_prompt: true
+    preparation_state: not_started
+  - id: FA-04
+    priority: low
+    classification: pilot_acceptance_gap
+    evidence: Approved external proposal reading-pilot requirement
+    finding: Questions alone do not predeclare the success criteria or separate agent navigation from human usability.
+    prompt_requirement: Freeze answers, evidence, 10/10 source correctness, zero invented authority, visible stale pins, timing method and upkeep criterion before execution.
+    represented_in_prompt: true
+    preparation_state: not_started
+  - id: ENG-01
+    priority: high
+    classification: verified_test_discovery_gap
+    evidence: package.json scripts; vitest.config.ts include; tests/pipeline/pipeline.test.ts nested Node runner; tracked test inventory
+    finding: Four of 25 tracked Node test files are outside aggregate execution. Roadmap tests already run through the nested wrapper.
+    omitted_paths:
+      - tests/pipeline/backbone-validator.test.mjs
+      - tests/adapters/federal-register/tier1-contract.test.mjs
+      - tests/adapters/federal-register/tier1-refresh.test.mjs
+      - tests/adapters/federal-register/tier1-transport.test.mjs
+    prompt_requirement: Audit offline/temp-root safety and oracle validity, then reconcile every test to execution or a reviewed exclusion and integrate relevant suites.
+    limit: These four suites were not run in preparation; no claim that they fail. Refresh includes a negative acquire path and cannot be called independently network-isolated yet.
+    represented_in_prompt: true
+    preparation_state: not_started
+  - id: ENG-02
+    priority: medium
+    classification: verified_cleanup_failure_path
+    evidence: scripts/verify-policy-browser.mjs 1531 onward; installed Playwright 1.61.1 close implementation; Context7 API docs
+    finding: A rejected browser.close can bypass report finalization and persistence in finally.
+    prompt_requirement: Preserve primary and cleanup errors separately, attempt report persistence regardless, retain nonzero outcome and add synthetic cleanup/write-failure regressions.
+    limit: Static and in-memory control-flow evidence, not a real browser fault; existing persisted accepted report remains valid for its scope.
+    represented_in_prompt: true
+    preparation_state: not_started
+  - id: ENG-03
+    priority: medium
+    classification: untested_promise_failure_path
+    evidence: scripts/verify-policy-browser.mjs 628; Playwright download.cancel returns Promise<void>
+    finding: void download.cancel does not observe rejection or ensure cancellation settles before report sealing.
+    prompt_requirement: Track/await cleanup promises and surface bounded failures before sealing the report.
+    limit: Accepted run had no downloads; this does not retroactively invalidate it.
+    represented_in_prompt: true
+    preparation_state: not_started
+  - id: ENG-04
+    priority: medium
+    classification: generator_design_risk
+    evidence: Approved detached Obsidian reading-vault proposal
+    finding: A disposable label alone does not protect edited/unknown files or prevent generated-text interpretation.
+    prompt_requirement: Exact owned-output manifest, stable collision-safe filenames, literal escaping, no embeds, atomic staging, fail-before-overwrite and deletion only of unchanged owned projections.
+    represented_in_prompt: true
+    preparation_state: not_started
+  - id: ENG-05
+    priority: medium
+    classification: command_evidence_risk
+    evidence: PowerShell native exit and nonterminating-error behavior; resolved discovery-read errors in this review
+    finding: Later successful commands can conceal earlier command failures in aggregate shell status.
+    prompt_requirement: Check each native exit status and relevant terminating cmdlet errors; classify warnings/truncation/skips and preserve original failure evidence.
+    represented_in_prompt: true
+    preparation_state: not_started
+  - id: ENG-06
+    priority: medium
+    classification: verified_negative_oracle_masking
+    evidence: tier1-refresh.test.mjs 1010-1053; refresh-federal-register-prerelease.mjs runtime guard at 768-774 before CA guard at 783-789
+    finding: Current Node 24.19.0 fails frozen v24.14.1 runtime guard before the CA override condition; generic process_boundary can satisfy the wrong test assertion.
+    prompt_requirement: Isolate or repair the intended-guard oracle; preserve historical runtime pin and no-acquisition boundary; label unavailable proof if it cannot safely be exercised.
+    limit: Reachable-path inspection, not an executed pass/failure of that suite.
+    represented_in_prompt: true
+    preparation_state: not_started
+  - id: ROOT-01
+    priority: high
+    classification: reproduced_aggregate_failure_signaling
+    evidence: scripts/acquire-policy-batch.mjs 48-64; probe-results.json child-accounted-failure-exit-2
+    finding: failed=1 can be reported while the module completes normally without a nonzero exit assignment.
+    prompt_requirement: Define and test nonzero aggregate failure outcome without changing durable accounting or retry restrictions.
+    limit: Exact module text executed under injected imports/process; no real source request or full CLI/custody execution.
+    represented_in_prompt: true
+    preparation_state: not_started
+  - id: ROOT-02
+    priority: medium
+    classification: reproduced_lost_child_diagnostic
+    evidence: scripts/acquire-policy-batch.mjs 55; probe-results.json spawn-failure-empty-stderr
+    finding: Empty stderr wins a nullish fallback over a meaningful child.error message.
+    prompt_requirement: Preserve bounded redacted spawn/timeout/signal diagnostics without retaining sensitive stderr/raw responses.
+    represented_in_prompt: true
+    preparation_state: not_started
+  - id: ROOT-03
+    priority: medium
+    classification: verified_library_behavior_and_validator_design_risk
+    evidence: YAML 2.9.0 installed public-api.js and probe-results.json
+    finding: parseDocument errors are data; parse with silent logging can accept duplicate keys.
+    prompt_requirement: Explicit Document.errors, unique-key/multiple-document and alias/input-bound checks; never suppress parser errors to make metadata pass.
+    limit: No existing repository YAML parser defect is asserted; this constrains the new knowledge validator.
+    represented_in_prompt: true
+    preparation_state: not_started
+  - id: ROOT-04
+    priority: medium
+    classification: metadata_identity_design_risk
+    evidence: Current seeds pin source documents to the prior Git revision; next session will edit some of those documents
+    finding: Blind hash refresh loses historical provenance, while self/containing-commit pins can create circular commit requirements.
+    prompt_requirement: Distinguish current freshness from historical citations; avoid self-pins; use reviewed source changes followed by actual-revision metadata checkpoints.
+    represented_in_prompt: true
+    preparation_state: not_started
+
+
+implementation_review:
+  source_revision: 25bcf56466ffc97048a89c3f001e4b2459a71569
+  observation: Working changes after bootstrap; final commits and command identities are recorded in the outcome and journal.
+  scope: H-KNOWLEDGE-ASSURANCE-01 only; this register supplies no work authorization.
+  verification_owner: docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md
+  dispositions:
+    - id: FA-01
+      classification: observed_defect
+      status: complete
+      disposition: "Schema 1.7 exact maintenance item/gate, version rejection, legacy fixture contract and all-state PS09 preservation implemented; test:roadmap covers compatibility and negative authority guards."
+      verification: "docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md"
+    - id: FA-02
+      classification: untested_risk
+      status: complete
+      disposition: "Finite crosswalk enumerates 12 clauses, nine manifests, O001..022/B001..012 and all65 registry components; independent exact-row review passed after CW-01..03 corrections."
+      verification: "docs/development/ps09-knowledge-acceptance-crosswalk.md"
+    - id: FA-03
+      classification: intentional_limitation
+      status: complete
+      disposition: "Verified O0 raw and canonical hashes without normalization, exact33+43 protected selection and retiredEV01; declared raw versus Git blob domains in catalog."
+      verification: "docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md"
+    - id: FA-04
+      classification: untested_risk
+      status: complete
+      disposition: "Ten answers/sources, 10/10 threshold, zero invented authority, timing/upkeep limits frozen before pilot; both repaired first and controlled-revision pilot runs pass10/10 source-correct; native UI remains explicitly unproven."
+      verification: "docs/development/ps09-knowledge-navigation-pilot.md"
+    - id: ENG-01
+      classification: observed_defect
+      status: complete
+      disposition: "All four omitted suites registered after offline audit and isolated CA oracle; test:backbone26/26 and test:tier1129/129 independently passed. Knowledge and assurance suites also aggregated; roadmap already nested."
+      verification: "docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md"
+    - id: ENG-02
+      classification: observed_defect
+      status: complete
+      disposition: "sealBrowserReport attempts persistence after close failure; separate primary/cleanup/write evidence and nonzero CLI outcome. test:assurance16/16 including actual CLI boundary."
+      verification: "docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md"
+    - id: ENG-03
+      classification: untested_risk
+      status: complete
+      disposition: "Cancellation tasks attach rejection handlers immediately and settle before report sealing; synthetic rejection regression passes. Historical accepted run had no downloads."
+      verification: "docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md"
+    - id: ENG-04
+      classification: untested_risk
+      status: complete
+      disposition: "Atomic manifest-owned external publisher and negative tests implemented; independent31-test review and83-file actual owned-output verification pass."
+      verification: "docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md"
+    - id: ENG-05
+      classification: untested_risk
+      status: complete
+      disposition: "Native exit codes checked immediately; original nonzero/truncated reads and precise retries retained in journal. Serialized command logs retain exit/counts; no broad claim every shell is safe."
+      verification: "docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md"
+    - id: ENG-06
+      classification: observed_defect
+      status: complete
+      disposition: "Actual pure historical runtime/environment guard evaluated in injected VM with exact constants; distinct runtime and CA reasons proved without launching acquisition. Frozen implementation pin unchanged."
+      verification: "docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md"
+    - id: ROOT-01
+      classification: observed_defect
+      status: complete
+      disposition: "Accounted child exit2 contributes failure and nonzero aggregate; failed/spent IDs remain excluded, no retries. Actual-module injected regression passes."
+      verification: "docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md"
+    - id: ROOT-02
+      classification: observed_defect
+      status: complete
+      disposition: "Fixed categories retain spawn/timeout/signal/code diagnostics without stderr or raw message. Actual-module injected cases pass."
+      verification: "docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md"
+    - id: ROOT-03
+      classification: untested_risk
+      status: complete
+      disposition: "New knowledge parser rejects Document.errors, duplicate keys, multiple documents, aliases and size limits; 31 focused tests and independent actual-code review pass."
+      verification: "docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md"
+    - id: ROOT-04
+      classification: untested_risk
+      status: complete
+      disposition: "Historical Git pins separately verified; current freshness visible and no containing-commit/self hash required. Controlled revision exposes changed current README hash with unchanged historical pins; both runs pass."
+      verification: "docs/development/ps09-knowledge-navigation-pilot.md"
+
+additional_findings:
+  - id: BG-01-through-BG-05
+    severity: medium
+    classification: untested_risk
+    status: complete
+    source: Bootstrap design review before25bcf564; original one-to-one ID/topic mapping not retained after context recovery
+    evidence: Five recorded topics were version dispatch, exact historical filtering, legacy fixture stripping, separate non-release finish/next-actions roots, and strict zero-budget maintenance scope.
+    disposition: All five design constraints implemented and independently reviewed in bootstrap. Preserve IDs BG-01, BG-02, BG-03, BG-04 and BG-05 as this explicit grouped disposition rather than invent their original mapping. GA-01 was an alias of BG-06, not another finding.
+    verification: tests/pipeline/roadmap-validator.test.mjs; bootstrap59 and later137 focused tests pass
+  - id: KG-01
+    severity: medium
+    classification: observed_defect
+    status: complete
+    source: src/knowledge/validate.mjs authority owner consistency checks, working draft
+    evidence: Actual read-only synchronized catalog/profile work_status redirect to O0 passed and generated an O0 authority-owner link.
+    disposition: All eight Policy Sentinel authority roles now bind exact canonical IDs and source paths; generic synthetic projects remain configurable. Independent original probe rejects; 31/31 focused tests and independent review pass.
+    verification: tests/knowledge/knowledge.test.mjs synchronized owner and ID/path swap regressions
+  - id: KN-01
+    severity: medium
+    classification: observed_defect
+    status: complete
+    source: src/knowledge/validate.mjs curated relation endpoints, working draft
+    evidence: Case-folded endpoint validation allowed a different exact ID that failed graph lookup.
+    disposition: Exact endpoint resolution enforced; case collision and exact endpoint regressions pass independent31-test review.
+    verification: tests/knowledge/knowledge.test.mjs
+  - id: KN-02
+    severity: medium
+    classification: untested_risk
+    status: complete
+    source: src/knowledge/validate.mjs and publish.mjs Windows path/custody boundary, working draft
+    evidence: Node link checks alone did not prove other Windows reparse attributes; configurable registry and output alias could weaken protection.
+    disposition: Native fail-closed ReparsePoint checks, fixed Policy Sentinel registry/namespace, historical plus current protected paths and exact manifest source alias now implemented. Actual junction/hardlink/registry-swap fixtures pass independent31-test review; OS crash and hostile concurrent-writer atomicity are not claimed.
+    verification: tests/knowledge/knowledge.test.mjs and knowledge/README.md ownership limits
+  - id: KN-03
+    severity: low
+    classification: observed_defect
+    status: complete
+    source: src/knowledge/navigation.mjs Markdown edge extraction, working draft
+    evidence: Regex could treat comments, indented code or escaped openers as navigation links.
+    disposition: Conservative context filtering added with independently passing regression; unsupported Markdown constructs remain explicit omissions, never stronger authority edges.
+    verification: tests/knowledge/knowledge.test.mjs
+  - id: KN-04
+    severity: low
+    classification: untested_risk
+    status: complete
+    source: src/knowledge/validate.mjs source decoding, working draft
+    evidence: Metadata used fatal UTF-8 but source toString could replace malformed bytes while README promised UTF-8 inputs. No original source is known malformed and hashes still exposed changes.
+    disposition: Fatal current/historical source and custody decoding implemented; malformed-source and oversized-source fixtures pass independent31-test review.
+    verification: tests/knowledge/knowledge.test.mjs
+  - id: CW-01
+    severity: medium
+    classification: observed_defect
+    status: complete
+    source: docs/development/ps09-knowledge-acceptance-crosswalk.md clause2 working draft
+    evidence: Reviewer and root draft incorrectly demanded two real deployments; binding contract requires two materially different synthetic profiles.
+    disposition: Corrected to exact synthetic isolation evidence, no invented release gate; independent re-review accepted.
+    verification: docs/pnw-scope-and-acceptance.md lines192-193 and tests/engine/projection.test.ts
+  - id: CW-02
+    severity: medium
+    classification: observed_defect
+    status: complete
+    source: Crosswalk O-016 working draft
+    evidence: Generic summary misassigned membership to community/taxonomy authority.
+    disposition: Exact current ATNI membership predicate, separate dates/authorities and no fixed-count gate restored; independently reviewed.
+    verification: docs/decision-register.md O-016
+  - id: CW-03
+    severity: medium
+    classification: observed_defect
+    status: complete
+    source: Crosswalk O-019 working draft
+    evidence: Generic summary omitted ATNI/NCAI taxonomy and real community deployment predicates.
+    disposition: Current resolutions, committees/portfolios, terminology, deployment state, visibility and designated review restored. Source-specific O/B drafting corrections also checked against all34 exact rows.
+    verification: docs/decision-register.md O-019 and independent finite crosswalk review
+  - id: ER-01
+    severity: medium
+    classification: observed_defect
+    status: complete
+    source: "src/pipeline/policy-custody.mjs atomic and locked at c65949f"
+    evidence: "Injected actual functions lost primary when close/remove rejected; no observed corpus corruption."
+    disposition: "withPreservedCleanup retains primary and cleanup; failed close retains lock. Three actual-function assurance regressions pass."
+    verification: docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md
+  - id: ER-02
+    severity: medium
+    classification: observed_defect
+    status: complete
+    source: "scripts/verify-policy-browser.mjs finalization boundary, working repair after25bcf56"
+    evidence: "Node24.19 renders raw AggregateError nested messages/stacks; reviewer synthetic reproduction exit1."
+    disposition: "CLI now emits bounded JSON and exit1 without raw rethrow; actual boundary injected test plus internal retention tests pass."
+    verification: docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md
+  - id: BG-06
+    severity: high
+    classification: observed_defect
+    status: complete
+    source: "Schema1.7 draft completed-maintenance exception before25bcf56"
+    evidence: "Actual injected validator accepted PS09-02 active using spent Run2 approval; prior PASS withdrawn."
+    disposition: "All schema1.7 states freeze terminal PS09 prerequisites; exact negative regression and independent probe reject."
+    verification: docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md
+  - id: BG-07
+    severity: high
+    classification: observed_defect
+    status: complete
+    source: "scripts/validate-roadmap.mjs maintenance gate loop at25bcf56"
+    evidence: "Actual injected validator accepted fabricated approval of G-B-GOVINFO; no request performed."
+    disposition: "All26 originally closed gates frozen fromc65949f; independent exact-list and GovInfo probe pass.78 state/gate fixtures; six category-oracle failures repaired, final repaired result137/137 pass, zero skip."
+    verification: docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md
+  - id: ER-03
+    severity: medium
+    classification: untested_risk
+    status: deferred
+    source: "src/pipeline/policy-custody.mjs Windows reparse probe stdin handler at25bcf56"
+    evidence: "stdin error is ignored while close0/emptyoutput determines success; no observed accepted-run failure."
+    disposition: "Delivery-integrity hardening needs a bounded synthetic child/Windows input contract. Preserve as explicit future hardening requirement; no new assurance claim for this path."
+    verification: docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md
+  - id: ER-04
+    severity: low
+    classification: intentional_limitation
+    status: deferred
+    source: "src/pipeline/policy-assurance.mjs awaited close/cancellation"
+    evidence: "A promise that never settles can prevent finalization; tested rejections do not prove timeout behavior."
+    disposition: "No browser run here; document as remaining harness hardening question with finite timeout semantics before a new acceptance run."
+    verification: docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md
+  - id: D-01
+    severity: low
+    classification: closed_gate
+    status: deferred
+    source: "Approved implementation prompt WorkstreamD and organization README Graphify pin"
+    evidence: "Conditional optional tool depends on separately bounded pinned retrieval/install/offline custody not established in this run."
+    disposition: "No-go: no installation or Graphify execution; mandatory native knowledge views and synthetic reusable profile continue."
+    verification: docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md
+  - id: B-UI
+    severity: low
+    classification: intentional_limitation
+    status: blocked
+    source: "Session tool capabilities and navigation pilot"
+    evidence: "Native Obsidian UI unavailable; file generation cannot establish human/application acceptance."
+    disposition: "Complete independent metadata/ownership/pilot checks; actual application and human reading acceptance explicitly unproven."
+    verification: docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md
+
+reviewed_implementation_locators:
+  revision_context: Working tree after25bcf564; exact raw file SHA-256 and lengths in externally owned implementation-check-inputs.json; final commit recorded in outcome.
+  hash_domain: raw_file_bytes_sha256
+  locations:
+    ER-01: src/pipeline/policy-custody.mjs:156 and640
+    ER-02: scripts/verify-policy-browser.mjs:1538
+    ER-03: src/pipeline/policy-custody.mjs:198
+    ER-04: src/pipeline/policy-assurance.mjs sealBrowserReport awaited cleanup
+    BG-06: scripts/validate-roadmap.mjs maintenance PS09 freeze, bootstrap25bcf564
+    BG-07: scripts/validate-roadmap.mjs:885 originally closed gate list; test:roadmap137
+    KG-01: src/knowledge/validate.mjs:253 exact authority guard
+    KN-01: src/knowledge/validate.mjs:423 exact endpoint guard
+    KN-02: src/knowledge/validate.mjs:33 and270; src/knowledge/publish.mjs:35 and132
+    KN-03: src/knowledge/navigation.mjs:56
+    KN-04: src/knowledge/validate.mjs current and historical TextDecoder fatal source decoding
+
+pilot_finding:
+  id: PILOT-01
+  severity: low
+  classification: observed_defect
+  status: complete
+  source: scripts/pilot-knowledge.mjs Q06 source selection, first actual run
+  evidence: Initial pilot-01.log exit1 looked for the O0 seal in custody JSON rather than ROADMAP from the frozen answer key.
+  disposition: Corrected exact ROADMAP source/hash lookup; criteria unchanged. Repaired first and post-revision runs exit0 with all10 lookups and root source-correctness review.
+  verification: docs/development/ps09-knowledge-navigation-pilot.md

@@ -8,6 +8,25 @@ Nation's interests.
 
 ## Project status
 
+Approved local knowledge organization and engineering assurance is active under
+`H-KNOWLEDGE-ASSURANCE-01`. Recover its
+[coordination journal](docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md) and the live
+roadmap. It has zero policy-source acquisition authority and no release authority.
+
+The command surface now includes `npm run validate:knowledge`,
+`npm run test:knowledge`, and `npm run knowledge:generate -- --out <new-external-vault>`
+for curated metadata and detached reading views. `npm run test:assurance` covers
+error propagation; `npm run test:backbone` and `npm run test:tier1` run the four
+previously omitted offline suites. These suites are included in `npm test`;
+knowledge validation is included in `npm run check`. Generation is explicit and
+does not run during ordinary builds. Catalogs are navigation aids; the roadmap,
+backbone, decision register and contracts retain authority.
+
+`npm run knowledge:pilot -- --view <owned-reading-vault>` records read-only local
+retrieval timings and source identities for the predeclared ten-question pilot;
+semantic review and human/application acceptance remain separate.
+The reading view shows historical source pins and current staleness separately.
+
 The owner adopted the [real-policy discovery launch](docs/handoffs/ps09-real-policy-discovery-launch.md)
 at `39d738a`. Its bounded local workbench is implemented and validated through
 PS09-05; the [local outcome](docs/handoffs/ps09-real-policy-discovery-outcome.md)
@@ -45,8 +64,8 @@ review descriptors, evidence index, and a validated v2 corpus. It makes no reque
 The authorized 0.9 Run 1 has completed repository convergence and a minimal
 local synthetic corpus/citation spine. Its exact acceptance evidence is in
 [`ROADMAP.yaml`](ROADMAP.yaml) and the
-[Run 1 handoff](docs/handoffs/ps09-run-01-convergence.md). Later runs remain
-closed. `PS09-06-LOCAL-RC` is the single local release root; B1-B10, PNW, and
+[Run 1 handoff](docs/handoffs/ps09-run-01-convergence.md). Its historical grant is
+complete. `PS09-06-LOCAL-RC` is the single local release root; B1-B10, PNW, and
 the exhausted real-source child lane retain historical evidence without
 creating additional release roots.
 
@@ -55,14 +74,16 @@ the existing analyzed-corpus module's explicit 1.1 compatibility profile. The
 app, dossier, CSV, and artifact retain their existing public contract. A local
 Windows content-addressed store and curated document packs prove synthetic
 object, rendition, document/version, segment, and exact citation replay.
-Neither real source admission nor a production Nation registry is implemented.
+That retained 1.x path admits no real sources. The separate bounded v2 discovery
+path has reviewed direct-rendition sources; no production Nation registry exists.
 
 The static application, dossier, CSV, and artifact are current output
 implementations/precursors, not the whole engine or a general adapter suite.
 The 0.9 target is a general engine for a bounded owner-selected PNW/ATNI-facing
 cohort and representative scenarios. Exact current membership is a separate
 source-evidence claim, not a fixed-count product gate. Real public information
-is a first-class intended capability; the current runnable path is synthetic.
+is implemented within the bounded local discovery slice. The ordinary application
+build remains synthetic.
 Nationwide United States and Native Hawaiian support remain later directions.
 
 The Nez Perce habitat/endangered-species scenario is a retained candidate.

@@ -1,0 +1,628 @@
+schema_version: 1.0.0
+project: policy-sentinel
+observed_at: 2026-09-05T17:44:07.247Z
+source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+authority:
+  External organization review only; no status, authorization or acceptance
+  changes
+publication_status: local_review_package_not_reviewed_for_export
+source_resolution:
+  Resolve sources.document through document-catalog.seed.yaml; section and line
+  are observed at its pinned revision.
+entries:
+  - id: policy-sentinel:knowledge:M01
+    kind: method
+    title: Trace outputs through immutable source identities
+    summary:
+      Connect an output claim to its analysis, citation, segment, rendition and
+      captured object instead of retaining only a URL.
+    evidence_maturity: reported_bounded_implementation
+    observed_scope:
+      The local evaluation reports parity across 43 cited quotations, 11
+      relations, 9 analyses and 3 findings. These are bounded output checks, not
+      a corpus-wide accuracy rate.
+    limits:
+      - A checksum establishes byte identity, not semantic truth or reuse
+        permission.
+      - The organization catalog points to repository evidence; it does not copy
+        the external corpus.
+    proposed_reuse:
+      An evidence-chain pattern for archives, research software and reproducible
+      reports.
+    tags:
+      - provenance
+      - reproducibility
+      - data-science
+    sources:
+      - document: policy-sentinel:document:adr
+        section: Minimal object, identity and citation spine
+        observed_line: 66
+      - document: policy-sentinel:document:evaluation
+        section: Final expanded discovery regression
+        observed_line: 471
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+  - id: policy-sentinel:knowledge:M02
+    kind: method
+    title: Keep publication, effective, version and capture dates separate
+    summary:
+      Represent different source clocks explicitly and retain unknown dates
+      rather than inventing a single policy date.
+    evidence_maturity: reported_bounded_implementation
+    observed_scope:
+      The evaluation fixes time-sensitive expectations and records a
+      future-evidence leakage repair.
+    limits:
+      - A date filter cannot determine legal applicability.
+      - A later capture can contain an earlier text; each temporal claim needs
+        its own field provenance.
+    proposed_reuse:
+      Temporal dataset and as-of query design, with explicit leakage tests.
+    tags:
+      - temporal-analysis
+      - provenance
+      - evaluation
+    sources:
+      - document: policy-sentinel:document:research
+        section:
+          A system that can learn without making its conclusions authoritative
+        observed_line: 152
+      - document: policy-sentinel:document:evaluation
+        section: Fixed practical thresholds
+        observed_line: 109
+      - document: policy-sentinel:document:evaluation
+        section: Recorded first pass, 2026-09-05
+        observed_line: 204
+      - document: policy-sentinel:document:evaluation
+        section: Independent analytical operation evidence
+        observed_line: 343
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+  - id: policy-sentinel:knowledge:M03
+    kind: method
+    title: Distinguish text correspondence from provision identity
+    summary:
+      Use an explicit text-matching rule and leave unmatched units unaligned
+      when the evidence does not establish provision identity.
+    evidence_maturity: reported_repair_with_limits
+    observed_scope:
+      After rejecting ordinal pairing, the recorded method
+      unique-text-occurrence-comparison, version 2.0.0, paired 76 exact or
+      whitespace-normalized units.
+    limits:
+      - Unaligned does not mean added or repealed.
+      - Textual correspondence does not establish unchanged legal effect or a
+        stable legal provision identity.
+    proposed_reuse:
+      A conservative change-analysis method with an auditable matching rule and
+      unmatched cases.
+    tags:
+      - temporal-analysis
+      - text-comparison
+      - negative-results
+    sources:
+      - document: policy-sentinel:document:evaluation
+        section: Independent analytical operation evidence
+        observed_line: 343
+      - document: policy-sentinel:document:outcome
+        section: Demonstrations using retained identities
+        observed_line: 185
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+  - id: policy-sentinel:knowledge:M04
+    kind: method
+    title: Expose uncoded cells in institutional comparisons
+    summary:
+      Record the coding rule and supporting text while preserving not-coded and
+      unknown states in a comparison matrix.
+    evidence_maturity: reported_small_sample_analysis
+    observed_scope:
+      "The recorded comparison covers 9 versions and 10 dimensions: 90 cells,
+      including 47 not_coded_unknown cells."
+    limits:
+      - No inter-coder reliability or expert-validity study is established by
+        this run.
+      - The matrix does not establish government equivalence, policy quality or
+        experienced outcomes.
+    proposed_reuse:
+      A pilot coding protocol for a future institutional or political-ecology
+      methods study.
+    tags:
+      - institutional-analysis
+      - missingness
+      - research-methods
+    sources:
+      - document: policy-sentinel:document:evaluation
+        section: Independent analytical operation evidence
+        observed_line: 343
+      - document: policy-sentinel:document:research
+        section: Research that changes the design
+        observed_line: 82
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+  - id: policy-sentinel:knowledge:M05
+    kind: method
+    title: Freeze expectations and preserve first-pass failures
+    summary:
+      Keep predeclared questions, original scores, repairs and later regression
+      results distinguishable.
+    evidence_maturity: reported_evaluation_practice
+    observed_scope:
+      The protocol records 18 questions, 7 multi-document tasks, 4 unsupported
+      questions and 4 reserved cases. Required supporting spans recovered in the
+      pooled top 20 were 19/27 initially and 25/27 after repair, with 2 misses
+      remaining.
+    limits:
+      - Reserved cases disclosed for repair are no longer held out.
+      - The shared workspace was not a secure blind benchmark.
+      - Purposeful sampling and repair on the same tasks do not establish
+        general search performance.
+    proposed_reuse:
+      Evaluation diaries that preserve negative findings and prevent
+      retrospective success claims.
+    tags:
+      - evaluation
+      - negative-results
+      - reproducibility
+    sources:
+      - document: policy-sentinel:document:evaluation
+        section: Independent evidence freeze
+        observed_line: 37
+      - document: policy-sentinel:document:evaluation
+        section: Recorded first pass, 2026-09-05
+        observed_line: 204
+      - document: policy-sentinel:document:evaluation
+        section: Passing search regression and omission metadata repair
+        observed_line: 390
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+  - id: policy-sentinel:knowledge:M06
+    kind: method
+    title: Audit omission disclosure separately from quotation integrity
+    summary:
+      A correctly copied quotation can still be misleading if the system fails
+      to disclose excluded context.
+    evidence_maturity: reported_metadata_repair
+    observed_scope:
+      The evaluation records omitted-context metadata repair involving 5
+      renditions and 6 locators, with preserved prior evidence and unchanged
+      question ranking and score observations.
+    limits:
+      - Disclosure repair is not restoration of all excluded source context.
+      - Integrity and completeness need distinct acceptance questions.
+    proposed_reuse:
+      A checklist for evidence excerpts and retrieval systems that make scope
+      limitations inspectable.
+    tags:
+      - provenance
+      - omissions
+      - evaluation
+    sources:
+      - document: policy-sentinel:document:evaluation
+        section: Passing search regression and omission metadata repair
+        observed_line: 390
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+  - id: policy-sentinel:knowledge:M07
+    kind: method
+    title: Preserve sampling denominators and exclusions
+    summary:
+      Carry the sampled population, selection method, gaps and exclusions
+      alongside findings.
+    evidence_maturity: reported_bounded_corpus_evidence
+    observed_scope:
+      The bounded local outcome reports 210 works, 215 versions and 21,209
+      segments; the three retained findings (two provisional and one null) do
+      not silently expand to cover that entire population.
+    limits:
+      - The Washington chapter selection is bounded and ordered, with recorded
+        gaps and filtering.
+      - Healthy source operation does not establish comprehensive coverage.
+    proposed_reuse:
+      A dataset scope statement and denominator record for future papers and
+      product explanations.
+    tags:
+      - sampling
+      - coverage
+      - data-science
+    sources:
+      - document: policy-sentinel:document:outcome
+        section: Corpus and coverage
+        observed_line: 212
+      - document: policy-sentinel:document:evaluation
+        section: Corpus and scenario selection
+        observed_line: 15
+      - document: policy-sentinel:document:evaluation
+        section: Final expanded discovery regression
+        observed_line: 471
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+  - id: policy-sentinel:knowledge:M08
+    kind: method
+    title: Keep refresh health separate from source history
+    summary:
+      Use only eligible checksum-valid prior output from the same adapter and
+      source, preserving its original data-as-of and a degraded state when a
+      refresh fails.
+    evidence_maturity: reported_controlled_failure_check
+    observed_scope:
+      The local acceptance includes controlled stale/degraded and unavailable
+      projections.
+    limits:
+      - This is not proof of a scheduled refresh service or arbitrary power-loss
+        recovery.
+      - No eligible prior shard means unavailable; failure must not invent a new
+        policy version.
+    proposed_reuse:
+      Failure semantics for static evidence products and reproducible pipelines.
+    tags:
+      - source-health
+      - failure-semantics
+      - reproducibility
+    sources:
+      - document: policy-sentinel:document:evaluation
+        section: Controlled adversarial acceptance
+        observed_line: 170
+      - document: policy-sentinel:document:outcome
+        section: Repository validation and proof limits
+        observed_line: 154
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+  - id: policy-sentinel:knowledge:R01
+    kind: research_question
+    title: Can procedure similarities distinguish diffusion from boilerplate?
+    summary:
+      Study whether recurring procedural language has temporal and institutional
+      evidence consistent with policy diffusion.
+    evidence_maturity: unproven_research_question
+    observed_scope:
+      The strategic memo proposes a research direction; the current run does not
+      establish diffusion.
+    limits:
+      - Rival explanations include shared upstream authority, boilerplate,
+        missing versions and selection bias.
+      - Text similarity alone is not causal evidence.
+    proposed_reuse:
+      Design a study with independently selected temporal comparisons, rival
+      hypotheses and new evaluation data before making diffusion claims.
+    tags:
+      - policy-diffusion
+      - institutional-analysis
+      - political-ecology
+    sources:
+      - document: policy-sentinel:document:research
+        section: Research that changes the design
+        observed_line: 82
+      - document: policy-sentinel:document:research
+        section:
+          A system that can learn without making its conclusions authoritative
+        observed_line: 152
+      - document: policy-sentinel:document:evaluation
+        section: Analytical and output acceptance
+        observed_line: 140
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+  - id: policy-sentinel:knowledge:R02
+    kind: research_question
+    title:
+      How do participation and review procedures relate to environmental
+      governance?
+    summary:
+      Connect careful coding of policy procedures with separately supported
+      questions about participation and political or environmental conditions.
+    evidence_maturity: unproven_research_question
+    observed_scope:
+      The memo and synthetic scenario manifests offer motivating cases,
+      including flood governance and clean-energy siting.
+    limits:
+      - Procedural text does not establish lived experience, motives, consent,
+        impacts or causation.
+      - Current scenarios do not supply accepted real identity evidence.
+      - Community-specific research, additional data and contact would need
+        their own agreed research and governance scope.
+    proposed_reuse:
+      A future mixed-methods research protocol co-designed around an explicit
+      question and appropriate contextual evidence.
+    tags:
+      - political-ecology
+      - participation
+      - research-design
+    sources:
+      - document: policy-sentinel:document:research
+        section: Research that changes the design
+        observed_line: 82
+      - document: policy-sentinel:document:candidates
+        section: PS09-SC-A — Nooksack-Sumas/Whatcom flood and water governance
+        observed_line: 55
+      - document: policy-sentinel:document:candidates
+        section: PS09-SC-B — Washington clean-energy siting
+        observed_line: 79
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+  - id: policy-sentinel:knowledge:G01
+    kind: governance_method
+    title: Keep identity and authority relationships distinct
+    summary:
+      Represent recognition, membership, cohort selection, issuer, speaker,
+      association and jurisdiction as different evidence-bearing relationships.
+    evidence_maturity: reported_synthetic_contracts_real_acceptance_unresolved
+    observed_scope:
+      Run 2 synthetic identity contracts and PNW-04 taxonomy contracts implement
+      the distinctions; candidate manifests record unresolved real-evidence
+      requirements.
+    limits:
+      - Recognition is not organization membership.
+      - A taxonomy crosswalk is not transitive legal or institutional
+        equivalence.
+      - Unmapped and unassessed are different states; keyword association is not
+        Nation evidence.
+    proposed_reuse:
+      A typed relationship discipline for federated research catalogs without
+      inferring authority from graph proximity.
+    tags:
+      - sovereignty
+      - identity
+      - knowledge-organization
+    sources:
+      - document: policy-sentinel:document:adr
+        section: Decision and evidence boundary
+        observed_line: 17
+      - document: policy-sentinel:document:candidates
+        section: Shared slot and evidence contract
+        observed_line: 14
+      - document: policy-sentinel:document:taxonomy-journal
+        section: Frozen input model
+        observed_line: 86
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+  - id: policy-sentinel:knowledge:D01
+    kind: developer_lesson
+    title: Scope dependencies to the claims they constrain
+    summary:
+      Separate a missing prerequisite for one claim or release gate from
+      unrelated work that can be qualified independently.
+    evidence_maturity: recorded_architectural_correction
+    observed_scope:
+      The strategic correction and corpus ADR consolidate parallel release
+      accounting and permit general-jurisdiction work within its adopted scope.
+    limits:
+      - This does not waive real identity or integrated release prerequisites.
+      - Archived ready work is not a new execution grant.
+    proposed_reuse:
+      Dependency graphs with explicit claim scope and a single release root.
+    tags:
+      - architecture
+      - dependency-design
+      - negative-results
+    sources:
+      - document: policy-sentinel:document:research
+        section: What failed, and what remains sound
+        observed_line: 38
+      - document: policy-sentinel:document:adr
+        section: Decision and evidence boundary
+        observed_line: 17
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+  - id: policy-sentinel:knowledge:D02
+    kind: developer_lesson
+    title: Exercise the actual process-launch boundary
+    summary:
+      Test the real shell, argument transport, exit behavior and invocation
+      shape before treating helper checks as end-to-end evidence.
+    evidence_maturity: recorded_failed_launch_and_successor_design
+    observed_scope:
+      The recovery record describes 43 passing helper checks followed by a
+      persistent-stdin launch failure and zero source operations; it proposes an
+      explicit argv-based successor.
+    limits:
+      - This was a local execution failure, not evidence that a provider refused
+        access.
+      - The retired run remains immutable and cannot be resumed through this
+        lesson.
+    proposed_reuse:
+      A minimal real-launch smoke check for automation that crosses shell or
+      process boundaries.
+    tags:
+      - runtime
+      - negative-results
+      - validation
+    sources:
+      - document: policy-sentinel:document:recovery
+        section: What failed, and what did not
+        observed_line: 95
+      - document: policy-sentinel:document:recovery
+        section: Original local launch evidence (2026-09-04)
+        observed_line: 118
+      - document: policy-sentinel:document:recovery
+        section: Recommended execution design for a new packet
+        observed_line: 155
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+  - id: policy-sentinel:knowledge:D03
+    kind: developer_method
+    title: Use bounded leases and finite review findings
+    summary:
+      Give each worker an owned scope, evidence obligations and stop contract;
+      reconcile a finite findings list at checkpoints.
+    evidence_maturity: documented_operating_practice
+    observed_scope:
+      The operating model and four run templates already encode reusable
+      patterns for this repository.
+    limits:
+      - The history does not experimentally establish productivity gains over
+        another workflow.
+      - The operating model organizes work; it does not authorize it.
+    proposed_reuse:
+      Extract a small project-neutral operating template after a second project
+      pilot.
+    tags:
+      - agent-workflows
+      - handoffs
+      - repository-management
+    sources:
+      - document: policy-sentinel:document:operating-model
+        section: Operating rules
+        observed_line: 16
+      - document: policy-sentinel:document:operating-model
+        section: Path, evidence, and stop matrix
+        observed_line: 99
+      - document: policy-sentinel:document:operating-model
+        section: Context conservation and handoff
+        observed_line: 144
+      - document: policy-sentinel:document:operating-model
+        section: Reusable run templates
+        observed_line: 168
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+  - id: policy-sentinel:knowledge:D04
+    kind: developer_method
+    title: Preserve automated and manual review disagreement
+    summary:
+      Review the test oracle, retain rejected evidence and keep a manual
+      disposition separate from the raw automated result.
+    evidence_maturity: recorded_browser_repair_and_manual_disposition
+    observed_scope:
+      A masked-overflow pass was rejected. The terminal browser evidence
+      preserves ten original incomplete nodes and ten targeted rescans that also
+      remained incomplete, plus a separate finite manual review; the raw
+      automated result remains unchanged.
+    limits:
+      - The disposition covers the recorded local pages, viewports and findings.
+      - It is not universal accessibility certification.
+    proposed_reuse:
+      An auditable pattern for human review of automated accessibility and
+      quality checks.
+    tags:
+      - accessibility
+      - test-oracles
+      - negative-results
+    sources:
+      - document: policy-sentinel:document:outcome
+        section: Browser repair and review evidence
+        observed_line: 43
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+  - id: policy-sentinel:knowledge:X01
+    kind: experimental_method
+    title: Make compatibility loss explicit
+    summary:
+      Require a lossy compatibility view to report exactly what it omits and
+      preserve the richer source evidence.
+    evidence_maturity: isolated_experiment_not_converged
+    observed_scope:
+      The K0 implementation report describes omission receipts and
+      non-interference for an isolated synthetic experiment.
+    limits:
+      - K0 is not a current product dependency while its convergence gate is
+        closed.
+      - Synthetic compatibility evidence does not establish real-source
+        suitability.
+    proposed_reuse:
+      A candidate migration pattern to assess separately before adopting in
+      another engine.
+    tags:
+      - compatibility
+      - provenance
+      - experimental
+    sources:
+      - document: policy-sentinel:document:k0-report
+        section: Seven-item audit closure
+        observed_line: 43
+      - document: policy-sentinel:document:k0-report
+        section: PolicyRecord 1.4 compatibility and non-interference
+        observed_line: 91
+      - document: policy-sentinel:document:vision
+        section: Current states
+        observed_line: 7
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+  - id: policy-sentinel:knowledge:X02
+    kind: experimental_method
+    title: Use impossible fixtures and prove removability
+    summary:
+      Exercise schema and boundary behavior using deliberately impossible
+      synthetic cases, then verify that removing the experiment leaves the main
+      product intact.
+    evidence_maturity: isolated_synthetic_experiment_not_converged
+    observed_scope:
+      The S0 report records impossible-fixture-only contracts, bounded property
+      checks and non-interference/removal evidence.
+    limits:
+      - This establishes no real GIS fitness or authorization for maps, land or
+        geometry in the product.
+      - The experiment remains isolated behind its convergence gate.
+    proposed_reuse:
+      A testing pattern for sensitive or speculative components before any
+      real-data integration.
+    tags:
+      - synthetic-testing
+      - noninterference
+      - experimental
+    sources:
+      - document: policy-sentinel:document:s0-report
+        section: Implemented boundary
+        observed_line: 29
+      - document: policy-sentinel:document:s0-report
+        section: Deterministic bounded property evidence
+        observed_line: 107
+      - document: policy-sentinel:document:s0-report
+        section: Non-interference and removal proof
+        observed_line: 144
+      - document: policy-sentinel:document:vision
+        section: Current states
+        observed_line: 7
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+  - id: policy-sentinel:knowledge:P01
+    kind: application_idea
+    title: Explore deterministic change intelligence with correction and expiry
+    summary:
+      A possible future local capability would connect before/after evidence,
+      rule versions, deduplication, correction and expiry.
+    evidence_maturity: historical_proposal_only
+    observed_scope:
+      D0 survives as a historical proposal in the development program and
+      custody index.
+    limits:
+      - D0 has no active roadmap item, schema, fixture or implementation.
+      - This does not authorize notifications or convergence of O0.
+    proposed_reuse:
+      Keep a concise idea card for later requirements review without reviving
+      the historical phase sequence.
+    tags:
+      - change-intelligence
+      - future-application
+      - historical-idea
+    sources:
+      - document: policy-sentinel:document:program
+        section: Phase D0 — Deterministic change intelligence
+        observed_line: 358
+      - document: policy-sentinel:document:vision
+        section: Current states
+        observed_line: 7
+    extraction_review: curated_seed_not_a_new_acceptance_decision
+    product_activation: none
+    publication_status: not_reviewed_for_export
+adoption:
+  source_artifact: knowledge.seed.yaml
+  source_artifact_sha256: db6a31d4cf3dd0a45c0f81b0054a07eb84e258f06639fc029b0173a988f81b82
+  source_hash_domain: raw_file_bytes
+  metadata_authority: sidecar_navigation_only
+  export_disposition: local_only_metadata_projection

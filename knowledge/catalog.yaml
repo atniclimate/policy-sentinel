@@ -1,0 +1,619 @@
+schema_version: 1.0.0
+project: policy-sentinel
+observed_at: 2026-09-05T17:44:07.247Z
+source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+authority:
+  External organization review only; no status, authorization or acceptance
+  changes
+publication_status: local_review_package_not_reviewed_for_export
+source_root_alias: policy-sentinel-repository
+authority_owners:
+  navigation: policy-sentinel:document:backbone
+  work_status: policy-sentinel:document:roadmap
+  decisions: policy-sentinel:document:decisions
+  product: policy-sentinel:document:brief
+  scope_acceptance: policy-sentinel:document:pnw
+  data_governance: policy-sentinel:document:governance
+  component_dispositions: policy-sentinel:document:convergence
+  protected_inputs: policy-sentinel:document:custody
+editorial_policy:
+  - Sidecar observations do not amend source documents.
+  - Work statuses must be read from their owner; no editable duplicate is stored
+    here.
+  - Source hashes identify bytes and are not authority or acceptance scores.
+  - Protected owner originals must not be ingested, linked by generated
+    canonical documents, reformatted or moved.
+  - A historical record may remain useful without governing present work.
+documents:
+  - id: policy-sentinel:document:agents
+    path: AGENTS.md
+    title: AGENTS.md
+    observed_role: operational_guidance
+    document_lifecycle_observation: current_guidance
+    purpose: Entry instructions and exact action boundaries
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 1558b83a5f9e229bd40636881f13f7cf1d480afb0b560b3bc4cffd72b23d18ce
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: f7479472611d67d896a28dd2b01629e413c808e5
+      sha256: 1558b83a5f9e229bd40636881f13f7cf1d480afb0b560b3bc4cffd72b23d18ce
+  - id: policy-sentinel:document:readme
+    path: README.md
+    title: Policy Sentinel
+    observed_role: overview
+    document_lifecycle_observation: current_overview_with_stale_passages
+    purpose: Human entry point and command surface
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 59baf3dda19e0e844b907be8698079600d69e96fff2bba3d499cb75ece86c3e8
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: bd72a32f62f6021552f4ee63ecff988ea0796289
+      sha256: 59baf3dda19e0e844b907be8698079600d69e96fff2bba3d499cb75ece86c3e8
+  - id: policy-sentinel:document:backbone
+    path: docs/PROJECT-BACKBONE.md
+    title: Policy Sentinel project backbone
+    observed_role: authority_index
+    document_lifecycle_observation: current_index_with_stale_passages
+    purpose: Canonical navigation and responsibility map
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: f17772a11ac7b3da3aef198b43b4706155d2d3f77c07887833e3d3dd44f625d6
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: f876e7b8dac1a0ff77e0eb22bd63470318c835ec
+      sha256: f17772a11ac7b3da3aef198b43b4706155d2d3f77c07887833e3d3dd44f625d6
+  - id: policy-sentinel:document:continuation
+    path: docs/continuation-prompt.md
+    title: Policy Sentinel durable continuation prompt
+    observed_role: operational_guidance
+    document_lifecycle_observation: current_guidance
+    purpose: Fresh-session recovery
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: db67c5d656a68c96391624f87ab7d54a864aebcc91c4ac69a95747cc0feeecf0
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 913ecc00099370d3518a22fdca17ad35b7b95ba7
+      sha256: db67c5d656a68c96391624f87ab7d54a864aebcc91c4ac69a95747cc0feeecf0
+  - id: policy-sentinel:document:roadmap
+    path: ROADMAP.yaml
+    title: ROADMAP.yaml
+    observed_role: work_ledger
+    document_lifecycle_observation: current_ledger
+    purpose: Sole current status, dependency, blocker and evidence ledger
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: ca22c9ce00d5c3142c2e5bbdf77588ee1aaea4fc60b9a5e77b2a8803524af097
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 541d7f879e76247df451e86fb19d611409172b8f
+      sha256: ca22c9ce00d5c3142c2e5bbdf77588ee1aaea4fc60b9a5e77b2a8803524af097
+  - id: policy-sentinel:document:brief
+    path: docs/project-brief.md
+    title: Project brief
+    observed_role: binding_contract
+    document_lifecycle_observation: binding_contract
+    purpose: Product purpose and boundaries
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 3de92281ce577ae2dc9ba7c5489db39fc368cd46379d77d7fdde88c9da841cd2
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: dfb6542296af550dc2bcf043d4ce7baf6fe7fbe5
+      sha256: 3de92281ce577ae2dc9ba7c5489db39fc368cd46379d77d7fdde88c9da841cd2
+  - id: policy-sentinel:document:pnw
+    path: docs/pnw-scope-and-acceptance.md
+    title: PNW product scope and acceptance contract
+    observed_role: binding_contract
+    document_lifecycle_observation: binding_contract
+    purpose: PNW scope and acceptance
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: a216eb5f94d412fbf325659f044d7a46f65205898c256c2607535b66651817e3
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 207c390db9af17102224e8dc33d9f6d05532755f
+      sha256: a216eb5f94d412fbf325659f044d7a46f65205898c256c2607535b66651817e3
+  - id: policy-sentinel:document:decisions
+    path: docs/decision-register.md
+    title: Decision register
+    observed_role: decision_record
+    document_lifecycle_observation: binding_decisions
+    purpose: Recorded decisions and gates
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: f189795161eb040ad18b8a0b3470808531d2e8e9390db0d58478b77a7cb83bba
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 027b8c4047070389cfc653219af9d40ea637ff75
+      sha256: f189795161eb040ad18b8a0b3470808531d2e8e9390db0d58478b77a7cb83bba
+  - id: policy-sentinel:document:governance
+    path: docs/data-governance.md
+    title: Data governance
+    observed_role: binding_contract
+    document_lifecycle_observation: binding_contract
+    purpose: Identity, evidence, privacy and reuse rules
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: ee3bb3d6a4811a301a91b9a92fce9560ce5b5cabb2055d98c8d0f176e40066e4
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 147045045b22de076861d6931acc4b8ddf1f53eb
+      sha256: ee3bb3d6a4811a301a91b9a92fce9560ce5b5cabb2055d98c8d0f176e40066e4
+  - id: policy-sentinel:document:data-contract
+    path: docs/data-contract.md
+    title: Versioned data contract
+    observed_role: binding_contract
+    document_lifecycle_observation: binding_contract_with_stale_passages
+    purpose: Data semantics and compatibility
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 3cc46f0e9e30995f287a7d1246004a376b154aa980a3643c03724147809474e3
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: db65324ea18b77223e14dc5fbb125d13dc9d27c2
+      sha256: 3cc46f0e9e30995f287a7d1246004a376b154aa980a3643c03724147809474e3
+  - id: policy-sentinel:document:architecture
+    path: docs/architecture.md
+    title: Architecture
+    observed_role: design_contract
+    document_lifecycle_observation: retained_design
+    purpose: Architecture and pipeline design
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: b552d49fe325ad3d5d66149757326d8701ca41355c2cec9902b08066c7fcfcc3
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: b1c8eaaea4579443b99ab3eea1063e8115356899
+      sha256: b552d49fe325ad3d5d66149757326d8701ca41355c2cec9902b08066c7fcfcc3
+  - id: policy-sentinel:document:ux
+    path: docs/ux-spec.md
+    title: Policy Sentinel UX specification
+    observed_role: design_contract
+    document_lifecycle_observation: retained_design
+    purpose: User-facing behavior and accessibility expectations
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 3f62869dcd25648dfa3e711637d9bee0b5fbca2f9b7a034e8d7b0815472bfa55
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: e18b1e93ea908a2f20e530b5a2092534ec18cf28
+      sha256: 3f62869dcd25648dfa3e711637d9bee0b5fbca2f9b7a034e8d7b0815472bfa55
+  - id: policy-sentinel:document:mvp
+    path: docs/mvp-plan.md
+    title: Policy Sentinel MVP implementation plan
+    observed_role: binding_contract
+    document_lifecycle_observation: retained_contract_with_stale_passages
+    purpose:
+      Retained B1-B10 milestone contract; current framing needs reconciliation
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 1f515de6f886213c58ca661a2d24d99fc71f937774123ab185b95645912f5833
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: a50777c18c2739f31124900fd16a4fd04ac58d5b
+      sha256: 1f515de6f886213c58ca661a2d24d99fc71f937774123ab185b95645912f5833
+  - id: policy-sentinel:document:coverage
+    path: docs/source-coverage.md
+    title: Source coverage
+    observed_role: source_evidence_index
+    document_lifecycle_observation: dated_evidence_with_stale_intro
+    purpose: Retained source coverage and exclusions
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 8cdc34d59002fc71b1ab49aae45c0fb46546e49faad6b932f5f814b017da9169
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: a0d66678207d601e2b9b46c75389a311b939c18c
+      sha256: 8cdc34d59002fc71b1ab49aae45c0fb46546e49faad6b932f5f814b017da9169
+  - id: policy-sentinel:document:feasibility
+    path: docs/source-feasibility.md
+    title: Source feasibility
+    observed_role: source_evidence_index
+    document_lifecycle_observation: dated_source_evidence
+    purpose: Historical source feasibility and gates
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: b86ba0c7842f1b62bd2f911358fb690bf620b6021ac7f87e382e21e338b46e1e
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: a6d100818162f816b0897ace70990f5362da8bfa
+      sha256: b86ba0c7842f1b62bd2f911358fb690bf620b6021ac7f87e382e21e338b46e1e
+  - id: policy-sentinel:document:adr
+    path: docs/adr/ps09-canonical-corpus.md
+    title: "ADR: one Policy Sentinel 0.9 corpus and release graph"
+    observed_role: decision_record
+    document_lifecycle_observation: binding_decision
+    purpose: One corpus and one release graph
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 95bdfa47239c761488949df937d778cba3569dd3b5a22ede7e83f973acf6e100
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: a195c04a51680b617d8ba71f5be600e8f9830538
+      sha256: 95bdfa47239c761488949df937d778cba3569dd3b5a22ede7e83f973acf6e100
+  - id: policy-sentinel:document:convergence
+    path: docs/development/ps09-convergence.v1.json
+    title: docs/development/ps09-convergence.v1.json
+    observed_role: registry
+    document_lifecycle_observation: current_registry
+    purpose: Component dispositions and evidence
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: c0944a7173f4dda7fe7423354ff17c9c88232957a0bc58de9c120ea74ce122b5
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 05eee1e61b99e5b1665be00f0a3130eb5028cc6e
+      sha256: c0944a7173f4dda7fe7423354ff17c9c88232957a0bc58de9c120ea74ce122b5
+  - id: policy-sentinel:document:custody
+    path: docs/development/ps09-run-01-custody.json
+    title: docs/development/ps09-run-01-custody.json
+    observed_role: custody_registry
+    document_lifecycle_observation: preservation_evidence
+    purpose:
+      Owner-input and historical artifact custody; reference entries rather than
+      ingesting protected originals
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: c440a663dc0678cb5619541adb49599a77b69b2e31bda62ab8d27ae921db8221
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 062a9a6dc128d896b50a098ca56ab15223d93545
+      sha256: c440a663dc0678cb5619541adb49599a77b69b2e31bda62ab8d27ae921db8221
+  - id: policy-sentinel:document:operating-model
+    path: docs/development/AGENT-AND-TOOL-OPERATING-MODEL.md
+    title: Agent and tool operating model
+    observed_role: operational_guidance
+    document_lifecycle_observation: current_guidance
+    purpose: Leases, bounded reviews, validation and stop contracts
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 01bf32f70ef28c888f6fba9bf6ca84ad149d2e0b219fdae79f298b79034124cf
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 5d4ce53c6a3dd9d80eefd11f89f13d17dcba64f4
+      sha256: 01bf32f70ef28c888f6fba9bf6ca84ad149d2e0b219fdae79f298b79034124cf
+  - id: policy-sentinel:document:evaluation
+    path: docs/development/ps09-real-policy-evaluation.md
+    title: Real-policy discovery evaluation protocol
+    observed_role: evaluation_record
+    document_lifecycle_observation: dated_evaluation_evidence
+    purpose: Frozen expectations, first failures, repairs and proof limits
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: f061dfb1f030f24aa1a4aba1f3ef08dcb6c45d0d0fa440af00fefb8c933e9301
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 36f4371febca47e80dac2476a65f60bcc214c26f
+      sha256: f061dfb1f030f24aa1a4aba1f3ef08dcb6c45d0d0fa440af00fefb8c933e9301
+  - id: policy-sentinel:document:outcome
+    path: docs/handoffs/ps09-real-policy-discovery-outcome.md
+    title: Real-policy discovery local outcome
+    observed_role: outcome_record
+    document_lifecycle_observation: terminal_bounded_run_evidence
+    purpose:
+      Actual local outcome, browser disposition, coverage and remaining
+      prerequisites
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 2a6b4e4dae1c8cbabf39a2a8537bd4f61e78e246ab7b8d517a49829447bcd84f
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 9e347365b1faa49d0aac3ca94b532dbd562dc85e
+      sha256: 2a6b4e4dae1c8cbabf39a2a8537bd4f61e78e246ab7b8d517a49829447bcd84f
+  - id: policy-sentinel:document:journal
+    path: docs/development/PS09-REAL-POLICY-DISCOVERY-01.md
+    title: Real-policy discovery execution journal
+    observed_role: execution_record
+    document_lifecycle_observation: terminal_bounded_run_evidence
+    purpose: Run accounting, leases, implementation and checkpoints
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 19638d97c3fc018e0f5ea68ea0d49ef22e3251604ea68d5bd5759a34548cca44
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 14b26d7a9bb914e26d0a244bd5096515c86683a2
+      sha256: 19638d97c3fc018e0f5ea68ea0d49ef22e3251604ea68d5bd5759a34548cca44
+  - id: policy-sentinel:document:research
+    path: docs/development/ps09-real-policy-systems-research-2026-09-05.md
+    title:
+      "Policy Sentinel: real policy systems research and strategic correction"
+    observed_role: research_memo
+    document_lifecycle_observation: dated_research_and_design_inferences
+    purpose: Research bibliography and strategic correction
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 4e78ba82e9fcb1f913e1c2cb1fd17aba2c06d48cc2b63449d9e8575c07a74af1
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 94cb8a50b04a3fb86ff30e9e22c3ce1d21a678c0
+      sha256: 4e78ba82e9fcb1f913e1c2cb1fd17aba2c06d48cc2b63449d9e8575c07a74af1
+  - id: policy-sentinel:document:recovery
+    path: docs/handoffs/ps09-fresh-session-recovery-and-forward-plan.md
+    title: "Policy Sentinel: fresh-session recovery and forward plan"
+    observed_role: recovery_record
+    document_lifecycle_observation: layered_historical_record
+    purpose: EV01 failure, successor proposals and later approval history
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 3ddcfc91bb7607af54722cfe35e1fa700f9d7707a7e6addd36fde001f10154c8
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 8fd1e83420d3b0f165e8cb54a8af742ef5a2bb57
+      sha256: 3ddcfc91bb7607af54722cfe35e1fa700f9d7707a7e6addd36fde001f10154c8
+  - id: policy-sentinel:document:launch
+    path: docs/handoffs/ps09-real-policy-discovery-launch.md
+    title:
+      "Policy Sentinel: Astra Ultra real-policy discovery and implementation
+      launch"
+    observed_role: adopted_launch_record
+    document_lifecycle_observation: consumed_bounded_authorization_record
+    purpose: Exact adopted local scope; unused ceilings do not renew execution
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 3356c082b4eacc30b7b6d2e13ae4163de3465714f304bc2b481b0025e92ad850
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: c800fe4b63aa36fdd7f5fb100b1e8037c31a0d9b
+      sha256: 3356c082b4eacc30b7b6d2e13ae4163de3465714f304bc2b481b0025e92ad850
+  - id: policy-sentinel:document:ev01
+    path: docs/handoffs/ps09-ev-01-evidence-review.md
+    title: PS09 EV01 terminal evidence-review handoff
+    observed_role: outcome_record
+    document_lifecycle_observation: terminal_retired_run_evidence
+    purpose: Interrupted EV01 launch and zero source requests
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 3b211c5da021f624e5d4b3f19336b8a39c512dc4687b3ec99bf108f5a3840440
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 833dc122b236bab51b3f75a49543077b5a83d043
+      sha256: 3b211c5da021f624e5d4b3f19336b8a39c512dc4687b3ec99bf108f5a3840440
+  - id: policy-sentinel:document:ev01-proposal
+    path: docs/handoffs/ps09-run-02-real-evidence-entry-packet.md
+    title: "PS09 Run 2 follow-up: bounded identity and scenario evidence review"
+    observed_role: proposal
+    document_lifecycle_observation: historical_proposal_needing_orientation
+    purpose:
+      Earlier EV01 entry proposal; terminal successor pointer would clarify
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: ce59dbb8f17c866ede10b077b118e3af90dbec48f774ee061f0c5483b88b52ea
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 2105b335b3095cbcbe27ee6bbfb0e4b2ac18fb0b
+      sha256: ce59dbb8f17c866ede10b077b118e3af90dbec48f774ee061f0c5483b88b52ea
+  - id: policy-sentinel:document:candidates
+    path: docs/development/ps09-run-02-candidate-manifests.md
+    title: PS09 Run 2 candidate manifests
+    observed_role: candidate_registry
+    document_lifecycle_observation: synthetic_candidates_with_unresolved_real_acceptance
+    purpose: Scenario slots and required identity evidence
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 9d8fe5032d42ab235c22da2a901ca1bad3ac42bd6d470a226e9d1eec08a2fdc9
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 14f4f1c89babed34d7492835d6439d8e1615c7b7
+      sha256: 9d8fe5032d42ab235c22da2a901ca1bad3ac42bd6d470a226e9d1eec08a2fdc9
+  - id: policy-sentinel:document:taxonomy-journal
+    path: docs/development/PNW-04-TAXONOMY-COORDINATION-2026-09-02.md
+    title: PNW-04 governed taxonomy coordination ledger
+    observed_role: execution_record
+    document_lifecycle_observation: historical_evidence
+    purpose: Taxonomy state distinctions and negative invariants
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 38c3a1b2594d9858e4ae5dca7c2440b78cd531504cf3493df4425b021ab2cd3e
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: fec8205e4e91d1dc6e77028d6bfe5202cf2d1126
+      sha256: 38c3a1b2594d9858e4ae5dca7c2440b78cd531504cf3493df4425b021ab2cd3e
+  - id: policy-sentinel:document:vision
+    path: docs/vision/README.md
+    title: Additive vision custody index
+    observed_role: custody_index
+    document_lifecycle_observation: current_custody_index
+    purpose: Current interpretation of sealed K0/S0/O0 and historical D0
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 7f4dae335265826d7de798ec735cd943139dd8e74394403cf75eb3c3624ea7ed
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 79efef4b5711cfeff67d6927508b3930155bebd0
+      sha256: 7f4dae335265826d7de798ec735cd943139dd8e74394403cf75eb3c3624ea7ed
+  - id: policy-sentinel:document:k0-report
+    path: docs/vision/reports/k0-implementation-2026-09-01.md
+    title: K0 lifecycle kernel implementation report
+    observed_role: implementation_report
+    document_lifecycle_observation: isolated_experiment_evidence
+    purpose: Explicitly lossy compatibility and provenance preservation
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 4793c6ea7bf41f0207ad534140f275a4a8c1c33a45d693c147beb509891a6b98
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 316d5caebb6d27091d999eeb491dfa624ff18ca2
+      sha256: 4793c6ea7bf41f0207ad534140f275a4a8c1c33a45d693c147beb509891a6b98
+  - id: policy-sentinel:document:s0-report
+    path: docs/vision/reports/s0-implementation-2026-09-01.md
+    title: S0 synthetic spatial-observation implementation report
+    observed_role: implementation_report
+    document_lifecycle_observation: isolated_synthetic_experiment_evidence
+    purpose: Impossible fixtures, traceability and removability
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 2b74233e61c55f0a955f18dfebdf43a2b673a2af99beb14dbcac38769ff5f634
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 8b0d354c385ea01a8283219c6064a89a6e94141e
+      sha256: 2b74233e61c55f0a955f18dfebdf43a2b673a2af99beb14dbcac38769ff5f634
+  - id: policy-sentinel:document:o0-contract
+    path: docs/vision/o0-orchestration-contract.md
+    title: O0 fixture orchestration contract candidate
+    observed_role: candidate_contract
+    document_lifecycle_observation: byte_sealed_unaccepted_candidate
+    purpose: Preserve exact bytes; navigation belongs outside the contract
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 0f61c8d4b8da9f339b39ce3460358d5a89cad5c3d5e17b249161a9f876966d5f
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 39a340d04f87017a7ebdb2ac3585682048e323ed
+      sha256: f4f39c0b7ac2b5ce763d47785b82d0e162fc1217a41377490e8c926ed8cdd381
+  - id: policy-sentinel:document:program
+    path: docs/policy-sentinel-long-running-development-program-2026-09-01.md
+    title: Policy Sentinel Long-Running Development Program
+    observed_role: proposal
+    document_lifecycle_observation: superseded_strategy
+    purpose: Historical program and D0 idea; no current execution queue
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 9ed92012d8eaee742ab6cb762f9733a82af018afb07ce149557608d69fb4ee91
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: cee8d39708b11f357bb29bfc6f6e6faa1e9e0851
+      sha256: 9ed92012d8eaee742ab6cb762f9733a82af018afb07ce149557608d69fb4ee91
+  - id: policy-sentinel:document:old-fr-review
+    path: docs/source-reviews/federal-register-api-2026-07-31.md
+    title: Federal Register API contract and reuse review
+    observed_role: source_review
+    document_lifecycle_observation: dated_source_evidence
+    purpose:
+      Referenced by roadmap and convergence registry despite no Markdown inbound
+      edge
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: cc10ded69846920f7c5030e548a1ab55d9e84916612477076f9597b0ed32c296
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: cfcf86ef101606d730107433b8f882d8f76950f5
+      sha256: cc10ded69846920f7c5030e548a1ab55d9e84916612477076f9597b0ed32c296
+  - id: policy-sentinel:document:congruence
+    path: docs/development/REPOSITORY-CONGRUENCE-COORDINATION-2026-09-02.md
+    title: Repository congruence coordination ledger
+    observed_role: execution_record
+    document_lifecycle_observation: historical_evidence
+    purpose: Referenced by roadmap despite no Markdown inbound edge
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 19e6eb66fe54d66a704bbac25268f90e608bcf2e142ccd93713000e494d4d844
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: a4a7c4b75af2187d658babadb34ed42b8ff18af4
+      sha256: 19e6eb66fe54d66a704bbac25268f90e608bcf2e142ccd93713000e494d4d844
+  - id: policy-sentinel:document:old-pnw-journal
+    path: docs/development/PNW-05-REAL-SOURCE-PRERELEASE-COORDINATION-2026-09-03.md
+    title: PNW-05 real-source local prerelease coordination
+    observed_role: execution_record
+    document_lifecycle_observation: historical_evidence
+    purpose:
+      Long but valuable custody history; add navigation rather than rewrite
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 830f37e44967fbe0a7d32e3b9e07446a0ac2090dc3df651f12573a2585a45c21
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 26e6180817804ecd513c62695c1f8ca30439238e
+      sha256: 830f37e44967fbe0a7d32e3b9e07446a0ac2090dc3df651f12573a2585a45c21
+  - id: policy-sentinel:document:template-review
+    path: docs/development/templates/REVIEW-ONLY.md
+    title: Review-only run template
+    observed_role: run_template
+    document_lifecycle_observation: reusable_template
+    purpose: Bounded review pattern
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: d892a433a2b53c58488cefe6fc6786ccf2340e462f721e490c371917d0daadef
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: c65f80478b4f9ddafc330c2918374f3aad67e0f6
+      sha256: d892a433a2b53c58488cefe6fc6786ccf2340e462f721e490c371917d0daadef
+  - id: policy-sentinel:document:template-long-run
+    path: docs/development/templates/LONG-RUN.md
+    title: Long-run template
+    observed_role: run_template
+    document_lifecycle_observation: reusable_template
+    purpose: Long-run ownership and recovery pattern
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: ea42b169daf1e2618d5804502eec9a4525e89ab023c6ab95269408b5141f5e45
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 10afbdf7f211b14bc194b83c47d4e6daf1e7f494
+      sha256: ea42b169daf1e2618d5804502eec9a4525e89ab023c6ab95269408b5141f5e45
+  - id: policy-sentinel:document:template-evidence
+    path: docs/development/templates/EVIDENCE-GATED-RUN.md
+    title: Evidence-gated run template
+    observed_role: run_template
+    document_lifecycle_observation: reusable_template
+    purpose: Evidence and operation boundaries
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: ccce84db3d08abe0d341b0a8d637c499c190ec042a1ce99291f278212b7d8d30
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 298852a68f1bcda233d035eda3dbcd63e8f6ec08
+      sha256: ccce84db3d08abe0d341b0a8d637c499c190ec042a1ce99291f278212b7d8d30
+  - id: policy-sentinel:document:template-sprint
+    path: docs/development/templates/DEVELOPMENT-SPRINT.md
+    title: Development sprint template
+    observed_role: run_template
+    document_lifecycle_observation: reusable_template
+    purpose: Small implementation tranche pattern
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: df60062733503e326ef6e1dce7fd55ffe93e8459a884f851437f925393d228eb
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 63992030c243dfc870db8c73f13ecf3c9a89bedd
+      sha256: df60062733503e326ef6e1dce7fd55ffe93e8459a884f851437f925393d228eb
+adoption:
+  source_artifact: document-catalog.seed.yaml
+  source_artifact_sha256: 4f8cf232ac600379820922bb19e3109bb5cd286d7ece9877d89c7e90ad8198f2
+  source_hash_domain: raw_file_bytes
+  metadata_authority: sidecar_navigation_only
+  export_disposition: local_only_metadata_projection

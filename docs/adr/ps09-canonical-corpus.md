@@ -11,6 +11,10 @@ Current addendum, 2026-09-05: the owner has adopted the full
 `POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01`. Its
 [execution journal](../development/PS09-REAL-POLICY-DISCOVERY-01.md) records the
 bounded successor closure, exact leases, source decisions and actual validation.
+That bounded run is now complete and acquisition has ended; the
+[terminal outcome](../handoffs/ps09-real-policy-discovery-outcome.md) preserves
+the real v2/local-output evidence and remaining PS09-02/06 limits. Current
+knowledge assurance is independent non-release maintenance in the live ledger.
 The Run 1 decisions and synthetic proof below remain historical compatibility
 evidence; this addendum does not rewrite or extend their consumed authority.
 

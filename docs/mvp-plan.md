@@ -1,6 +1,6 @@
 # Policy Sentinel MVP implementation plan
 
-Status: PS09 Run 1 convergence authorized; retained B1-B10 acceptance evidence.
+Status: bounded PS09-03/04/05 discovery complete; retained B1-B10 acceptance evidence.
 The live ledger controls active/terminal status. No B-series item is a separate
 current execution lane or mandatory second release root.
 
@@ -27,17 +27,18 @@ See [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md).
 | Run | Required outcome | Authority |
 | --- | --- | --- |
 | PS09-01 | Repository convergence, selected Windows runtime, synthetic immutable object/rendition/segment/citation spine and ordinary corpus-backed build | Exact Run 1 token only; live roadmap and handoff control acceptance |
-| PS09-02 | Separate identity, membership, recognition, owner-selected cohort, source portfolio and scenario manifests | Closed exact Run 2 gate |
-| PS09-03 | Qualified and authorized federal real-source lifecycle/corpus integration | Closed exact Run 3 and source-operation gates |
-| PS09-04 | Bounded PNW discovery/gold corpus and geographic sentinels | Closed exact Run 4 and source-operation gates |
-| PS09-05 | Real search, evidence-supported relations, common application/output profiles | Closed exact Run 5 gate |
+| PS09-02 | Separate identity, membership, recognition, owner-selected cohort, source portfolio and scenario manifests | Synthetic Run2 packet complete; originating identity/scenario acceptance still blocked |
+| PS09-03 | Qualified and authorized federal real-source lifecycle/corpus integration | Complete only for adopted bounded direct-route discovery; acquisition ended |
+| PS09-04 | Bounded PNW discovery/gold corpus and geographic sentinels | Bounded WA discovery complete; real sentinel acceptance remains PS09-02 work |
+| PS09-05 | Real search, evidence-supported relations, common application/output profiles | Bounded local workbench/dossier/evidence/JSON complete; broader output/persona acceptance remains |
 | PS09-06 | Integrated evidence, replay, security/accessibility and the sole local RC | Closed exact Run 6 and local RC gates |
 | PS09-07 / PS09-08 | Conditional focused repair or feedback/hardening | Deferred; separate authorization required |
 
 These are outcomes, not completion claims. Six deep scenario graphs and
 geographic sentinels remain planned until Run 2 accepts exact manifests.
-Real public information is intended product capability; current Run 1 accepts
-only synthetic corpus inputs and opens no real-source or publication gate.
+The [terminal discovery outcome](handoffs/ps09-real-policy-discovery-outcome.md)
+records actual real-data capability and its limits. Ordinary builds retain the
+Run1 synthetic path. No historical budget restarts acquisition or publication.
 
 ## Authority boundary
 
@@ -46,10 +47,11 @@ implementation authority was bounded by this retained B1-B10 plan. That approval
 did not itself authorize PNW-01. Later exact owner directives authorized and
 completed PNW-01, PNW-03, PNW-04, and the synthetic PNW-05 core. The exhausted
 2026-09-03 real-source child lane stopped on consumed R7 digest drift; it is
-archived evidence and grants no retry or FR-A1. Current authority is only
-`POLICY-SENTINEL-0.9-RUN-01-REPOSITORY-CONVERGENCE-AND-CORPUS-SPINE`.
-It changes release accounting and the exact local corpus path, not the
-historical source evidence or closed K0/S0/O0 convergence gates.
+archived evidence and grants no retry or FR-A1. Run1's convergence grant and the
+later discovery grant have completed their bounded outcomes. The approved
+[knowledge assurance](development/PS09-KNOWLEDGE-ASSURANCE-01.md) is separate local
+maintenance with zero policy-source requests. Historical source evidence and
+closed K0/S0/O0 convergence gates remain unchanged.
 
 Approval of Phase B authorizes only local implementation described here, use of synthetic fixtures, and read-only access to official public sources that require neither registration nor acceptance of new terms. It does **not** authorize:
 

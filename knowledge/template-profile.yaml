@@ -1,0 +1,25 @@
+schema_version: 1.0.0
+project: example-project
+source_root_alias: example-repository
+authority_owners:
+  navigation: example-project:document:readme
+  work_status: example-project:document:readme
+  decisions: example-project:document:readme
+  product: example-project:document:readme
+  scope_acceptance: example-project:document:readme
+  data_governance: example-project:document:readme
+  component_dispositions: example-project:document:readme
+  protected_inputs: example-project:document:readme
+allowed_source_paths:
+  - README.md
+protected_inputs_registry: null
+registry_links: []
+relations: []
+output_protocol: owned_detached_vault_v1
+adaptation: >-
+  Synthetic template candidate only. Replace the namespace, repository alias,
+  exact allowed document paths and placeholder authority owners after an owner
+  selects a real project. Supply that project's protected-input registry and
+  independently pinned catalog, entries and references. Do not scan neighboring
+  projects, inherit Policy Sentinel authority or equate identities across
+  projects.

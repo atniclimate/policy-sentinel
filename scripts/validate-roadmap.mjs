@@ -711,7 +711,7 @@ for (const id of workItemIds) {
   visit(id);
 }
 
-let knowledgeAssuranceItem = null;
+let knowledgeAssuranceItem;
 if (knowledgeAssurance) {
   knowledgeAssuranceItem = byId.get(knowledgeAssuranceId);
   if (!knowledgeAssuranceItem) {
@@ -884,11 +884,31 @@ if (knowledgeAssurance) {
   );
   for (const gateId of [
     "G-PS09-RUN-06",
+    "G-PS09-RUN-07",
+    "G-PS09-RUN-08",
     "G-PS09-RC",
+    "G-K0-S0-CONVERGENCE",
+    "G-O0-CONVERGENCE",
+    "G-B",
+    "G-B-GRANTS",
+    "G-B-CONGRESS",
+    "G-B-GOVINFO",
+    "G-B-REGULATIONS",
+    "G-B-OR-OJD",
+    "G-B-OR-OARD",
+    "G-B-OR-GOVERNOR",
+    "G-C",
+    "G-E",
     "G-E-LICENSE",
     "G-E-REMOTE-PUSH",
     "G-E-PAGES",
     "G-E-PUBLISH",
+    "G-F",
+    "G-G",
+    "G-H",
+    "G-I",
+    "G-PNW-COMMUNITY-AUTHORITY",
+    "G-PNW-SOURCE-ACTIVATION",
   ]) {
     requireExactValue(
       gateById.get(gateId)?.state,

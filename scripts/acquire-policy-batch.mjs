@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { openPolicyRun } from "../src/pipeline/policy-custody.mjs";
+import { childFailure } from "../src/pipeline/policy-assurance.mjs";
 const args = process.argv.slice(2);
 if (
   args.length !== 6 ||
@@ -48,14 +49,16 @@ for (const record of pending) {
     ],
     { windowsHide: true, encoding: "utf8", timeout: 65000, maxBuffer: 16000 },
   );
-  if (child.status === 0) complete++;
+  const diagnostic = childFailure(child);
+  if (diagnostic === null) complete++;
   else {
     failed++;
+    process.exitCode = 1;
     process.stdout.write(
-      `${JSON.stringify({ operationId: record.operationId, exit: child.status, error: String(child.stderr ?? child.error?.message ?? "unknown").slice(0, 240) })}\n`,
+      `${JSON.stringify({ operationId: record.operationId, exit: child.status, error: diagnostic })}\n`,
     );
     // An unsettled operation must be recovered and inspected by the lead.
-    if (child.status !== 2)
+    if (diagnostic.kind !== "accounted_operation_failure")
       throw new Error("BATCH_STOPPED_FOR_UNSETTLED_OR_LOCAL_FAILURE");
   }
   process.stdout.write(

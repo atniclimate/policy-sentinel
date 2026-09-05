@@ -1,6 +1,12 @@
 # PS09 Run 2 follow-up: bounded identity and scenario evidence review
 
-Status: proposed, awaiting exact owner approval. Preparation follows the owner's
+Current disposition: historical packet. The owner later approved EV01; it ended
+at local launch with zero source requests. Its directory is read-only and cannot
+resume. Recover the [terminal record](ps09-ev-01-evidence-review.md). The decision
+request and contract body below are preserved as dated preparation, not a live
+approval request or execution grant.
+
+Historical preparation status: proposed, awaiting exact owner approval. Preparation follows the owner's
 "Continue to the next step" instruction after the [Run 2 terminal handoff](ps09-run-02-identity-authority-scenarios.md).
 That instruction authorizes this local proposal and its roadmap checkpoint;
 no source was accessed. The validated synthetic packet and all existing gates,

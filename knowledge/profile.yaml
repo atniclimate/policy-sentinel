@@ -1,0 +1,67 @@
+schema_version: 1.0.0
+project: policy-sentinel
+source_root_alias: policy-sentinel-repository
+authority_owners:
+  navigation: policy-sentinel:document:backbone
+  work_status: policy-sentinel:document:roadmap
+  decisions: policy-sentinel:document:decisions
+  product: policy-sentinel:document:brief
+  scope_acceptance: policy-sentinel:document:pnw
+  data_governance: policy-sentinel:document:governance
+  component_dispositions: policy-sentinel:document:convergence
+  protected_inputs: policy-sentinel:document:custody
+allowed_source_paths:
+  - AGENTS.md
+  - README.md
+  - docs/PROJECT-BACKBONE.md
+  - docs/continuation-prompt.md
+  - ROADMAP.yaml
+  - docs/project-brief.md
+  - docs/pnw-scope-and-acceptance.md
+  - docs/decision-register.md
+  - docs/data-governance.md
+  - docs/data-contract.md
+  - docs/architecture.md
+  - docs/ux-spec.md
+  - docs/mvp-plan.md
+  - docs/source-coverage.md
+  - docs/source-feasibility.md
+  - docs/adr/ps09-canonical-corpus.md
+  - docs/development/ps09-convergence.v1.json
+  - docs/development/ps09-run-01-custody.json
+  - docs/development/AGENT-AND-TOOL-OPERATING-MODEL.md
+  - docs/development/ps09-real-policy-evaluation.md
+  - docs/handoffs/ps09-real-policy-discovery-outcome.md
+  - docs/development/PS09-REAL-POLICY-DISCOVERY-01.md
+  - docs/development/ps09-real-policy-systems-research-2026-09-05.md
+  - docs/handoffs/ps09-fresh-session-recovery-and-forward-plan.md
+  - docs/handoffs/ps09-real-policy-discovery-launch.md
+  - docs/handoffs/ps09-ev-01-evidence-review.md
+  - docs/handoffs/ps09-run-02-real-evidence-entry-packet.md
+  - docs/development/ps09-run-02-candidate-manifests.md
+  - docs/development/PNW-04-TAXONOMY-COORDINATION-2026-09-02.md
+  - docs/vision/README.md
+  - docs/vision/reports/k0-implementation-2026-09-01.md
+  - docs/vision/reports/s0-implementation-2026-09-01.md
+  - docs/vision/o0-orchestration-contract.md
+  - docs/policy-sentinel-long-running-development-program-2026-09-01.md
+  - docs/source-reviews/federal-register-api-2026-07-31.md
+  - docs/development/REPOSITORY-CONGRUENCE-COORDINATION-2026-09-02.md
+  - docs/development/PNW-05-REAL-SOURCE-PRERELEASE-COORDINATION-2026-09-03.md
+  - docs/development/templates/REVIEW-ONLY.md
+  - docs/development/templates/LONG-RUN.md
+  - docs/development/templates/EVIDENCE-GATED-RUN.md
+  - docs/development/templates/DEVELOPMENT-SPRINT.md
+protected_inputs_registry: docs/development/ps09-run-01-custody.json
+registry_links:
+  - document: policy-sentinel:document:convergence
+    selector: components_evidence
+    review: reviewed_navigation_only
+  - document: policy-sentinel:document:roadmap
+    selector: exact_catalog_paths
+    review: reviewed_navigation_only
+relations: []
+output_protocol: owned_detached_vault_v1
+adaptation:
+  Local sidecar navigation only. Work status, source qualification, activation,
+  publication and release acceptance remain with their named repository owners.

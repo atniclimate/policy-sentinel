@@ -4,6 +4,12 @@ import { join, resolve } from "node:path";
 import { createRequire } from "node:module";
 import { readLocalOutput } from "../src/pipeline/policy-local-output.mjs";
 import { digest, writePolicyDerived } from "../src/pipeline/policy-custody.mjs";
+import {
+  observeCleanup,
+  sealBrowserReport,
+} from "../src/pipeline/policy-assurance.mjs";
+
+const downloadCancellationTasks = [];
 
 // Uses an explicitly supplied, already installed standards-based runtime. This
 // command installs nothing, runs no source requests and changes no output pointer.
@@ -623,7 +629,9 @@ async function openContext(name, viewport, mobile) {
     });
     page.on("download", (download) => {
       observations.downloads.push(download.suggestedFilename());
-      void download.cancel();
+      observeCleanup(downloadCancellationTasks, "download_cancel", () =>
+        download.cancel(),
+      );
     });
   });
   const page = await context.newPage();
@@ -1528,36 +1536,29 @@ try {
       report.screenshotError = error.message;
     });
 } finally {
-  await browser?.close();
-  report.finishedAt = new Date().toISOString();
-  const incomplete = report.contexts.flatMap((context) =>
-    (context.accessibility ?? []).flatMap((scan) => scan.incomplete),
-  );
-  report.accessibilityReview = {
-    unresolvedRules: incomplete.length,
-    unresolvedNodes: incomplete.reduce(
-      (sum, entry) => sum + entry.nodes.length,
-      0,
-    ),
-  };
-  report.passed = !failure && incomplete.length === 0;
-  report.acceptanceComplete = !smokeOnly && report.passed;
-  report.outcome = failure
-    ? "failed"
-    : incomplete.length
-      ? "needs_accessibility_review"
-      : smokeOnly
-        ? "smoke_passed"
-        : "passed";
-  const bytes = Buffer.from(`${JSON.stringify(report, null, 2)}\n`);
-  const artifact = await writePolicyDerived(
-    root,
-    `${artifactBase}/report.json`,
-    bytes,
-    { replace: false },
-  );
-  process.stdout.write(
-    `${JSON.stringify({ report: artifact.path, digest: artifact.digest, passed: report.passed, checks: report.checks.length, screenshots: report.screenshots.length })}\n`,
-  );
+  try {
+    const artifact = await sealBrowserReport({
+      report,
+      failure,
+      smokeOnly,
+      close: () => browser?.close(),
+      downloadTasks: downloadCancellationTasks,
+      persist: (value) =>
+        writePolicyDerived(
+          root,
+          `${artifactBase}/report.json`,
+          Buffer.from(`${JSON.stringify(value, null, 2)}\n`),
+          { replace: false },
+        ),
+    });
+    process.stdout.write(
+      `${JSON.stringify({ report: artifact.path, digest: artifact.digest, passed: report.passed, checks: report.checks.length, screenshots: report.screenshots.length })}\n`,
+    );
+  } catch {
+    process.exitCode = 1;
+    process.stdout.write(
+      `${JSON.stringify({ passed: false, failure: Boolean(failure), cleanupErrors: report.cleanupErrors, persistenceError: report.persistenceError })}\n`,
+    );
+  }
 }
 if (!report.passed) process.exitCode = 1;

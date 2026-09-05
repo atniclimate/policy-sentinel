@@ -1,0 +1,247 @@
+schema_version: 1.0.0
+project: policy-sentinel
+review_date: 2026-09-05
+source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+authority: External organization review only
+publication_status: local_review_package_not_reviewed_for_export
+references:
+  - id: policy-sentinel:reference:graphify
+    kind: software
+    title: Graphify
+    publisher: Graphify-Labs
+    url: https://github.com/Graphify-Labs/graphify
+    inspected_revision: 937e59a5476fcb2665d6c4f4b7c0d0a4142011b6
+    version_observation:
+      0.9.54; default branch v8; package graphifyy; CLI graphify; Python >=3.10
+    verification: primary_repository_documentation_and_selected_code_inspected
+    accessed: 2026-09-05
+    useful_for: Optional code dependency and navigation graph pilot
+    limits:
+      - No installation, execution, Windows fitness test or performance
+        benchmark was performed.
+      - Document semantic extraction can use model backends; not part of the
+        proposed initial pilot.
+      - Standard graph HTML loads vis-network from unpkg; call-flow HTML loads
+        Mermaid from jsDelivr.
+      - Codex installation changes AGENTS.md and hooks; do not apply it to this
+        project as part of organization.
+      - Query logging documentation conflicts; pinned code is opt-in and an
+        explicit log path also enables it.
+    evidence:
+      - https://github.com/Graphify-Labs/graphify/blob/937e59a5476fcb2665d6c4f4b7c0d0a4142011b6/README.md
+      - https://github.com/Graphify-Labs/graphify/blob/937e59a5476fcb2665d6c4f4b7c0d0a4142011b6/pyproject.toml
+      - https://github.com/Graphify-Labs/graphify/blob/937e59a5476fcb2665d6c4f4b7c0d0a4142011b6/graphify/cli.py
+      - https://github.com/Graphify-Labs/graphify/blob/937e59a5476fcb2665d6c4f4b7c0d0a4142011b6/graphify/querylog.py
+      - https://github.com/Graphify-Labs/graphify/blob/937e59a5476fcb2665d6c4f4b7c0d0a4142011b6/graphify/export.py
+      - https://github.com/Graphify-Labs/graphify/blob/937e59a5476fcb2665d6c4f4b7c0d0a4142011b6/graphify/exporters/html.py#L601-L608
+      - https://github.com/Graphify-Labs/graphify/blob/937e59a5476fcb2665d6c4f4b7c0d0a4142011b6/graphify/callflow_html.py#L1708
+  - id: policy-sentinel:reference:obsidian-bases
+    kind: tool_documentation
+    title: Obsidian Bases
+    url: https://obsidian.md/help/bases
+    verification: primary_documentation_inspected
+    accessed: 2026-09-05
+    useful_for: Local tables and other views of note metadata
+    limits:
+      - Bases operates on Markdown file properties; an arbitrary central YAML
+        catalog needs a generated Markdown projection.
+      - A .base file defines views; it is not a second metadata database.
+  - id: policy-sentinel:reference:obsidian-properties
+    kind: tool_documentation
+    title: Obsidian Properties
+    url: https://obsidian.md/help/properties
+    verification: primary_documentation_inspected
+    accessed: 2026-09-05
+    useful_for: Flat properties on generated reading cards
+    limits:
+      - Nested YAML is not supported by the ordinary properties editor.
+      - Do not inject frontmatter into protected or frozen source documents.
+  - id: policy-sentinel:reference:obsidian-graph
+    kind: tool_documentation
+    title: Obsidian Graph view
+    url: https://obsidian.md/help/plugins/graph
+    verification: primary_documentation_inspected
+    accessed: 2026-09-05
+    useful_for: Local neighborhoods, backlinks and filtered document exploration
+    limits:
+      - Internal links are navigation edges, not proof of agreement, authority
+        or acceptance.
+      - An unlinked note is not necessarily obsolete or unused by a registry.
+  - id: policy-sentinel:reference:obsidian-plugin-security
+    kind: tool_documentation
+    title: Obsidian Plugin security
+    url: https://obsidian.md/help/plugin-security
+    verification: primary_documentation_inspected
+    accessed: 2026-09-05
+    useful_for: Choosing a core-plugin-only initial reading view
+    limits:
+      - Community plugins execute with application permissions rather than a
+        fine-grained sandbox.
+      - No community plugin installation was performed or is required by this
+        proposal.
+  - id: policy-sentinel:reference:obsidian-privacy
+    kind: tool_documentation
+    title: Obsidian Privacy policy
+    url: https://obsidian.md/privacy
+    verification: primary_documentation_inspected
+    accessed: 2026-09-05
+    useful_for:
+      Distinguishing local files from optional services and application requests
+    limits:
+      - Local note storage does not mean every application feature makes zero
+        network requests.
+      - Sync, Publish, online embeds and community extensions need separate
+        consideration; none is adopted here.
+  - id: policy-sentinel:reference:prov-overview
+    kind: provenance_standard_overview
+    title: PROV Overview
+    publisher: W3C
+    url: https://www.w3.org/TR/prov-overview/
+    verification: primary_overview_inspected
+    accessed: 2026-09-05
+    useful_for:
+      A future mapping of evidence entities, activities and responsible agents
+    limits:
+      - This overview is not the normative definition of every PROV component.
+      - Similar field names do not establish PROV conformance; no conformance is
+        claimed.
+  - id: policy-sentinel:reference:ro-crate
+    kind: research_metadata_framework
+    title: RO-Crate
+    publisher: RO-Crate community
+    url: https://www.researchobject.org/ro-crate/
+    verification: primary_project_overview_inspected
+    accessed: 2026-09-05
+    useful_for:
+      Later packaging of an approved paper's research artifacts and metadata
+    limits:
+      - A later export target, not a required database or dependency for this
+        initial catalog.
+      - Packaging does not authorize publication of the underlying artifacts.
+  - id: policy-sentinel:reference:fair
+    kind: research_principles
+    title:
+      The FAIR Guiding Principles for scientific data management and stewardship
+    author_short: Wilkinson et al.
+    year: 2016
+    doi: 10.1038/sdata.2016.18
+    url: https://www.nature.com/articles/sdata201618
+    verification: primary_article_text_inspected
+    accessed: 2026-09-05
+    useful_for:
+      Designing discoverable identifiers, metadata and reusable research records
+    limits:
+      - No FAIR compliance assessment was performed.
+      - Findability and reuse design do not themselves grant access or
+        publication rights.
+  - id: policy-sentinel:reference:care
+    kind: research_principles
+    title: The CARE Principles for Indigenous Data Governance
+    author_short: Carroll et al.
+    year: 2020
+    doi: 10.5334/dsj-2020-043
+    url: https://doi.org/10.5334/dsj-2020-043
+    verification: primary_publisher_abstract_and_indexed_article_passages_inspected
+    accessed: 2026-09-05
+    useful_for:
+      Evaluating benefit, control, responsibility and ethics in future research
+      reuse
+    limits:
+      - Full article retrieval was intermittent; this audit did not perform a
+        CARE implementation assessment.
+      - A citation does not establish community authorization or replace a
+        specific governance agreement.
+  - id: policy-sentinel:reference:institutional-grammar
+    kind: inherited_research_reference
+    title: Institutional Grammar 2.0 Codebook, version 1.4
+    author_short: Frantz and Siddiki
+    url: https://newinstitutionalgrammar.org/resources/IG%202.0%20Codebook%20v1.4.pdf
+    verification: inherited_repository_bibliography_not_revalidated_in_this_audit
+    inherited_from: policy-sentinel:document:research
+    inherited_section: Research that changes the design
+    useful_for: Future explicit institutional coding protocol
+    related_entries:
+      - policy-sentinel:knowledge:M04
+  - id: policy-sentinel:reference:measuring-law
+    kind: inherited_research_reference
+    title: Measuring Law Over Time
+    author_short: Coupette et al.
+    year: 2021
+    url: https://www.frontiersin.org/journals/physics/articles/10.3389/fphy.2021.658463/full
+    verification: inherited_repository_bibliography_not_revalidated_in_this_audit
+    inherited_from: policy-sentinel:document:research
+    inherited_section: Research that changes the design
+    useful_for: Temporal and structural study of legal document collections
+    related_entries:
+      - policy-sentinel:knowledge:M02
+      - policy-sentinel:knowledge:M03
+  - id: policy-sentinel:reference:catala
+    kind: inherited_research_reference
+    title: Catala
+    author_short: Merigoux et al.
+    year: 2021
+    url: https://arxiv.org/pdf/2103.03198
+    verification: inherited_repository_bibliography_not_revalidated_in_this_audit
+    inherited_from: policy-sentinel:document:research
+    inherited_section: Research that changes the design
+    useful_for:
+      Understanding the boundary between source organization and executable
+      legal formalization
+  - id: policy-sentinel:reference:policy-pathways
+    kind: inherited_research_reference
+    title: Persistent Policy Pathways
+    author_short: Desmarais, Harden and Boehmke
+    version_note: Repository cites a 2014 manuscript of work published in 2015
+    url: https://myweb.uiowa.edu/fboehmke/shambaugh2014/papers/desmarais_etal_2014.pdf
+    verification: inherited_repository_bibliography_not_revalidated_in_this_audit
+    inherited_from: policy-sentinel:document:research
+    inherited_section: Research that changes the design
+    useful_for:
+      Framing rival explanations and evidence requirements for diffusion
+      questions
+    related_entries:
+      - policy-sentinel:knowledge:R01
+  - id: policy-sentinel:reference:democratic-citizenship
+    kind: inherited_research_reference
+    title: The Consequences of Public Policy for Democratic Citizenship
+    author_short: Mettler and Soss
+    year: 2004
+    url: https://suzannemettler.weebly.com/uploads/1/0/8/8/108858037/3688340.pdf
+    verification: inherited_repository_bibliography_not_revalidated_in_this_audit
+    inherited_from: policy-sentinel:document:research
+    inherited_section: Research that changes the design
+    useful_for: Framing participation and policy-feedback research questions
+    related_entries:
+      - policy-sentinel:knowledge:R02
+  - id: policy-sentinel:reference:rules-as-code
+    kind: inherited_research_reference
+    title: Cracking the Code
+    author_short: Mohun and Roberts
+    publisher: OECD
+    year: 2020
+    url: https://www.oecd.org/content/dam/oecd/en/publications/reports/2020/10/dechiffrer-le-code_d56cab77/3afe6ba5-en.pdf
+    verification: inherited_repository_bibliography_not_revalidated_in_this_audit
+    inherited_from: policy-sentinel:document:research
+    inherited_section: Research that changes the design
+    useful_for:
+      Distinguishing policy evidence infrastructure from rules-as-code
+      applications
+  - id: policy-sentinel:reference:legalbench-rag
+    kind: inherited_research_reference
+    title: LegalBench-RAG
+    author_short: Pipitone and Alami
+    year: 2024
+    url: https://arxiv.org/html/2408.10343v1
+    verification: inherited_repository_bibliography_not_revalidated_in_this_audit
+    inherited_from: policy-sentinel:document:research
+    inherited_section: Research that changes the design
+    useful_for: Planning independent evidence-retrieval evaluation
+    related_entries:
+      - policy-sentinel:knowledge:M05
+      - policy-sentinel:knowledge:M06
+adoption:
+  source_artifact: references.seed.yaml
+  source_artifact_sha256: a5f56f48522e3f7df39883454e255544c658da49ec0bba3c9b9352cee2945c8e
+  source_hash_domain: raw_file_bytes
+  metadata_authority: sidecar_navigation_only
+  export_disposition: local_only_metadata_projection

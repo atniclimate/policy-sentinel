@@ -880,7 +880,7 @@ current_focus:
   terminal_reason: null
   resumable_roots:
     - H-KNOWLEDGE-ASSURANCE-01
-  last_durable_checkpoint: c65949fef2c8e331097cbaf9c32f04983cde2a64
+  last_durable_checkpoint: 25bcf56466ffc97048a89c3f001e4b2459a71569
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5392,8 +5392,16 @@ work_items:
         Recovered clean main c65949f with 33 protected untracked owner inputs;
         runtime, roadmap and backbone passed before mutation. Exact four-path
         bootstrap lease and conditional reviewer design acceptance are recorded
-        in docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md. Implementation proof
-        remains pending; no policy-source operation or release is authorized.
+        in docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md. Bootstrap committed
+        at 25bcf564; all 26 closed-gate preservation repairs pass 137 focused
+        tests. Independent engineering and governance reviews pass; knowledge
+        passes 31 tests and both navigation pilots answer 10/10
+        source-correctly. Serialized npm run check passes, including 1,516 unit
+        tests and the synthetic build with eight verified assets. One existing
+        Windows file-symlink permission skip remains explicit. All protected
+        identities and 1,140 sealed corpus files match. Terminal handoff and
+        local commits are being recorded. No policy-source operation or release
+        is authorized.
   - id: PS09-01-REPOSITORY-CONVERGENCE
     priority: 300
     milestone: PS09 Run 1

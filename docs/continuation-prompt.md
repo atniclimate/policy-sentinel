@@ -1,6 +1,12 @@
 # Policy Sentinel durable continuation prompt
 
-Latest recovery: read the completed
+Latest maintenance recovery: read the
+[knowledge assurance journal](development/PS09-KNOWLEDGE-ASSURANCE-01.md) and live
+ROADMAP for H-KNOWLEDGE-ASSURANCE-01. Its approved scope is local organization
+and engineering assurance, with zero policy-source acquisition/release authority.
+The discovery checkpoint below is retained terminal history.
+
+Discovery recovery: read the completed
 [local workbench outcome](handoffs/ps09-real-policy-discovery-outcome.md),
 [execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md) and live roadmap.
 PS09-03/04/05 are complete only for the adopted bounded real-policy slice.

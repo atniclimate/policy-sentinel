@@ -27,22 +27,25 @@ approved Phase B local implementation on 2026-07-30. The 2026-09-02 product-spac
 rebase retains that work as implementation evidence while separating engine,
 region, deployment, persona, and output concerns. Current progress,
 dependencies, and remaining work are recorded in
-[`ROADMAP.yaml`](../ROADMAP.yaml). The current exact authorization is
+[`ROADMAP.yaml`](../ROADMAP.yaml). The completed discovery authorization was
 `POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01`: on 2026-09-05 the owner instructed
 execution of the [launch prepared at `39d738a`](handoffs/ps09-real-policy-discovery-launch.md)
 and explicitly adopted its stated local scope. Its bounded runner, reviewed
 credential-free official acquisition, corpus, temporal/cross-context analysis,
-search, local workbench/dossier/export, testing, repairs and local commits are
-authorized. The [execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md)
+search, local workbench/dossier/export, testing, repairs and local commits were
+bounded by that now-ended grant. The [execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md)
 records exact leases, source predicates, counters and measured outcomes;
-authorization is not evidence that integration or acquisition has passed.
+the [terminal outcome](handoffs/ps09-real-policy-discovery-outcome.md) supplies
+measured acceptance. Current organization/engineering maintenance is separately
+recorded in the [assurance journal](development/PS09-KNOWLEDGE-ASSURANCE-01.md)
+with zero policy-source acquisition authority.
 
 The earlier owner approval covered only the [Run 2 entry packet](handoffs/ps09-run-02-entry-packet.md)
 for local synthetic identity/authority contracts and nine candidate manifests.
 That bounded packet is now validated at [its checkpoint](handoffs/ps09-run-02-identity-authority-scenarios.md),
 with no remaining work under that historical grant. Run 1's synthetic corpus spine remains validated. Required real identity and
 scenario evidence is unresolved; synthetic proof does not complete PS09-02.
-PS09-03/04/05 may implement the adopted general-jurisdiction slice independently;
+PS09-03/04/05 completed the adopted general-jurisdiction slice independently;
 PS09-02 remains an explicit prerequisite of the still-gated sole local release
 root, `PS09-06-LOCAL-RC`. Other later-run and external gates retain their scope.
 B1-B10, PNW, and the exhausted 2026-09-03 real-source child lane retain
