@@ -900,7 +900,7 @@ current_focus:
     and scenario acceptance; no successor or external operation is authorized.
   resumable_roots:
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: 7ee07f9
+  last_durable_checkpoint: 5a736a4fb15501850aab027ee6126b7d0939234c
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5435,8 +5435,11 @@ work_items:
         Both independent final disposition reviews recommend scoped PASS and
         root accepts the bounded result with its explicit limits. All worker
         leases are returned; terminal outcome is
-        docs/handoffs/ps09-engineering-review-02-outcome.md. The local
-        implementation revision will be pinned after that commit exists.
+        docs/handoffs/ps09-engineering-review-02-outcome.md. Local
+        implementation commit 5a736a4fb15501850aab027ee6126b7d0939234c contains
+        exactly 20 authorized paths. This follow-up records the existing
+        revision without self-pinning; no generated data or owner input is
+        committed.
   - id: H-KNOWLEDGE-ASSURANCE-01
     priority: 299
     milestone: H

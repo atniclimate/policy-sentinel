@@ -189,7 +189,14 @@ rehashed all 1,349 observations and reviewed the actual final check, revisions,
 findings and outcome. The 1,349 observations contain 1,346 distinct paths because
 three preparation observations repeat; exact tree comparisons use unique paths.
 Their recommendations are scoped evidence; root owns this terminal acceptance.
-The implementation commit identity is added by the authorized follow-up
-checkpoint after the commit exists; no self-containing revision is invented.
+Local implementation commit `5a736a4fb15501850aab027ee6126b7d0939234c`
+contains exactly 20 authorized paths after bootstrap `7ee07f9`. The final staged
+raw/index manifest SHA-256 is
+dd6625d2888ab8c5cec9e526ecce66093e44c2cce2022e5b9e2c469f4d44f109.
+This documentation/ledger follow-up records that existing revision without
+self-pinning. After the implementation commit, tracked worktree/index were clean
+and exactly 33 owner inputs remained untracked. No generated data entered Git.
+The three-file revision-pin follow-up also passes roadmap, backbone, formatting,
+source-boundary and knowledge checks; it adds no implementation or gate change.
 Remote, push, publication, credentials, terms acceptance, paid/contact actions,
 private-data use, optional AI and outbound notification gates remain closed.

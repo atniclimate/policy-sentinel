@@ -530,3 +530,32 @@ and `validate:knowledge` all exit 0. Roadmap has 79 items / 55 gates, with
 17 not_started. Backbone validates 18 schemas/IDs, 1,297 references, 107 Markdown
 files and 759 local links. Historical knowledge pins remain valid while current
 document staleness stays visible; the metadata catalog is not repinned.
+
+## Existing implementation revision and follow-up
+
+Local implementation commit 5a736a4fb15501850aab027ee6126b7d0939234c exists on
+main after bootstrap 7ee07f973ede27cec0299c7adc10b0fb975b3162. It contains
+exactly 20 authorized paths (12 modifications and eight new files), no owner
+inputs or generated artifacts. Both final candidate reviews recommended the
+bounded terminal disposition. Authority additionally verified the actual final
+staged ledger, all original frozen objects, 33 owner inputs and exactly 20
+paths, and recommended PASS. Its one low recommendation/lead-acceptance wording
+correction was applied and validated before commit. Root independently verified
+exact staging, unchanged tested code, zero unstaged tracked paths, and the
+staged source scan (546 tracked paths / 579 source files) plus terminal roadmap.
+The final staged raw/index manifest SHA-256 is
+dd6625d2888ab8c5cec9e526ecce66093e44c2cce2022e5b9e2c469f4d44f109;
+the earlier pre-wording manifest remains preserved at d44df4aa0d16223e45c94d637d84bc6d2309119f27afc536ace22fd923c34a1d.
+
+After the implementation commit, tracked worktree/index are clean and exactly
+33 owner inputs remain untracked. Root's remaining follow-up lease is exactly
+ROADMAP.yaml, this journal and the outcome: pin the existing implementation,
+validate and commit those documentation changes. No code, measured evidence,
+protected input or gate changes; no history rewrite or remote operation.
+
+The follow-up's roadmap, backbone, formatting, source-boundary and knowledge
+checks all exit 0 with the same terminal counts and closed boundaries. Root
+verified exactly these three changed paths and a clean diff check. This local
+checkpoint ends the root follow-up lease; recovery requires only local Git,
+the completed outcome and live roadmap, with PS09-02 still the sole blocked
+product recovery root. No active worker or implementation lease remains.
