@@ -882,30 +882,25 @@ baseline:
         configured.
 
 current_focus:
-  work_item: H-ENGINEERING-REVIEW-02
+  work_item: null
   objective: >-
-    Execute the exact adopted H02 maintenance scope recorded in
-    docs/development/PS09-ENGINEERING-REVIEW-02.md. Recover the completed local
-    organization and engineering assurance result from
-    docs/handoffs/ps09-knowledge-assurance-outcome.md. Preserve the accepted
-    bounded local workbench and sealed 210-work, 215-version corpus. Final
-    browser report 23891ff8 binds build 9c79fb4d to 25 passing journeys, 14
-    clean exact-width geometry checks and 28 verified screenshots. Ten original
-    and ten targeted axe checks remain incomplete in that immutable automated
-    report; independent manual review resolves the ten exact residual nodes with
-    1932 visible character measurements and 14.556:1 contrast. Full check passes
-    1516 unit tests and 99 policy tests. Corpus replay, frozen evaluation,
-    output parity and controlled failures remain valid and unchanged. Discovery
-    leases are returned; acquisition is ended. Recover
-    docs/handoffs/ps09-real-policy-discovery-outcome.md for exact evidence,
-    local launch/replay commands and limits. PS09-02 originating
-    identity/scenario evidence requires an exact next packet; PS09-06 remains
-    unstarted and gated. No historical budget or archived ready lane is a grant.
-  terminal_reason: null
+    Recover the completed bounded engineering review from
+    docs/handoffs/ps09-engineering-review-02-outcome.md and its coordination
+    journal. ER-03/ER-04 repairs and full check pass; five synthetic measurement
+    cases completed and search 2000 remains explicitly incomplete. Preserve
+    every sealed discovery, prior assurance and owner-input identity. The finite
+    evidence matrix proposes a broader PS09-02 tranche for separate exact
+    adoption and source review. PS09-02 originating identity/scenario acceptance
+    remains unresolved; PS09-06 is unstarted and gated. No spent maintenance,
+    discovery or archived budget authorizes further execution.
+  terminal_reason: >-
+    H02 completed its finite local review, repair, measurement and evidence-plan
+    obligations with explicit limits, full checks, preserved bytes and two
+    independent reviews. PS09 remains blocked on PS09-02 originating evidence
+    and scenario acceptance; no successor or external operation is authorized.
   resumable_roots:
-    - H-ENGINEERING-REVIEW-02
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: c5182e05d21e601b7211d441e6d966436620d391
+  last_durable_checkpoint: 7ee07f9
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5401,7 +5396,7 @@ work_items:
     title:
       Bounded engineering review, two hardening repairs and performance
       pre-analysis
-    status: in_progress
+    status: complete
     work_class: repository_governance
     dependencies: []
     authorization_gate: G-H-ENGINEERING-REVIEW-02
@@ -5418,8 +5413,30 @@ work_items:
         reviews and exact local commits support the terminal handoff.
     evidence:
       - docs/development/PS09-ENGINEERING-REVIEW-02.md records owner adoption,
-        baseline passing runtime/roadmap/backbone checks, initial exact leases
-        and two independent bootstrap design reviews. Actual review is pending.
+        accepted four-path bootstrap at 7ee07f9, 412 passing roadmap tests and
+        two independent actual bootstrap reviews. ER-03 passes 54 focused tests
+        and ER-04 passes 24; actual engineering review recommends PASS for both
+        and root accepts their bounded behavior.
+      - docs/development/ps09-engineering-review-02-evidence-matrix.md and
+        docs/development/ps09-engineering-review-02-acceptance-delta.md retain
+        all 50 families, six cohort claim classes, 12 clauses, nine manifests,
+        34 decision IDs and 65 frozen components; actual authority review
+        passes.
+      - >-
+        Prior synthetic measurement protocol and actual tooling passed root and
+        two independent reviews; 14 focused tests pass after preserved native
+        entry regressions. All six bounded cases were attempted: five complete,
+        search 2000 incomplete at its cooperative deadline with one warmup and
+        zero measured repetitions. Actual results reviews pass for those limits;
+        the original overall incomplete report is preserved. Full check 03
+        passes after retained lint and static-import failures, including 1516
+        Vitest tests and the synthetic build with eight verified assets. All
+        1349 protected raw-byte observations and historical tree sets match.
+        Both independent final disposition reviews recommend scoped PASS and
+        root accepts the bounded result with its explicit limits. All worker
+        leases are returned; terminal outcome is
+        docs/handoffs/ps09-engineering-review-02-outcome.md. The local
+        implementation revision will be pinned after that commit exists.
   - id: H-KNOWLEDGE-ASSURANCE-01
     priority: 299
     milestone: H
@@ -6112,30 +6129,22 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: H-ENGINEERING-REVIEW-02
-    action: >-
-      Complete the exact adopted local engineering prompt through reviewed
-      bootstrap, ER-03/ER-04 repairs, synthetic measurements, finite evidence
-      plan and terminal validation. Recover the coordination journal at
-      docs/development/PS09-ENGINEERING-REVIEW-02.md before further leases. All
-      policy-source and release operations remain excluded.
-  - order: 2
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action: >-
-      Recover docs/handoffs/ps09-02-next-evidence-packet.md for the concrete
-      unexecuted proposal. Exact owner selection, source qualification and a
-      reviewed later ledger representation precede any execution. Preserve
-      unsupported claims as unresolved; the completed general-jurisdiction
-      workbench supplies no identity proof. This remains a mandatory PS09-06
-      acceptance dependency. Existing sealed corpus replay and local inspection
-      are available without reacquisition. Keep PS09-06 unstarted and gated
-      until PS09-02 is accepted and the owner authorizes the exact local release
-      run. Recover the completed bounded outcome from
-      docs/handoffs/ps09-real-policy-discovery-outcome.md; do not reactivate its
-      cutoff startup, archived ready lanes or ended acquisition.
+      Recover docs/development/ps09-engineering-review-02-evidence-matrix.md and
+      its acceptance delta for a broader finite proposed evidence tranche. Exact
+      owner adoption, source qualification and a reviewed later ledger
+      representation precede execution; unknown locators require separately
+      bounded discovery. The dormant five-GET packet remains an unexecuted
+      limited pilot and cannot complete PS09-02. Preserve all nine scenario gaps
+      and unsupported identity claims. Keep PS09-06 unstarted and gated until
+      PS09-02 is accepted and the exact local release run is authorized. Recover
+      docs/handoffs/ps09-engineering-review-02-outcome.md and the preserved
+      discovery outcome; do not reactivate ended maintenance, acquisition,
+      cutoff startups or archived lanes.
 finish_states:
   engineering_review:
-    current_state: in_progress
+    current_state: complete
     work_item: H-ENGINEERING-REVIEW-02
     blocked_by: []
     satisfied_when:

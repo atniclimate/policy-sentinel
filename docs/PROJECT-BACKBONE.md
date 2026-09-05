@@ -1,6 +1,14 @@
 # Policy Sentinel project backbone
 
-Latest completed local outcome: [knowledge assurance](handoffs/ps09-knowledge-assurance-outcome.md).
+Latest completed local outcome: [engineering review 02](handoffs/ps09-engineering-review-02-outcome.md).
+Its [journal](development/PS09-ENGINEERING-REVIEW-02.md) records the two bounded
+repairs, full validation and preserved evidence. Five synthetic measurement
+cases completed; search at 2,000 works remains incomplete. The
+[evidence matrix](development/ps09-engineering-review-02-evidence-matrix.md) and
+[acceptance delta](development/ps09-engineering-review-02-acceptance-delta.md)
+provide a finite next-proof plan with no acquisition or release authority.
+The earlier [knowledge assurance](handoffs/ps09-knowledge-assurance-outcome.md)
+remains complete.
 Recover its [journal](development/PS09-KNOWLEDGE-ASSURANCE-01.md),
 [finite findings](development/ps09-knowledge-findings.yaml),
 [acceptance crosswalk](development/ps09-knowledge-acceptance-crosswalk.md) and

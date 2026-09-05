@@ -8,10 +8,16 @@ Nation's interests.
 
 ## Project status
 
-Approved local knowledge organization and engineering assurance is complete under
-`H-KNOWLEDGE-ASSURANCE-01`. Recover the
-[local outcome](docs/handoffs/ps09-knowledge-assurance-outcome.md) and live roadmap.
+The adopted finite engineering review `H-ENGINEERING-REVIEW-02` is complete.
+Recover its [outcome](docs/handoffs/ps09-engineering-review-02-outcome.md),
+[journal](docs/development/PS09-ENGINEERING-REVIEW-02.md) and live roadmap.
+ER-03/ER-04 repairs and full checks pass; five synthetic measurement cases
+completed and the 2,000-work search case remains explicitly incomplete.
 There are zero active items. The
+[evidence matrix](docs/development/ps09-engineering-review-02-evidence-matrix.md)
+proposes a broader finite PS09-02 tranche requiring separate adoption and
+source review. The earlier [knowledge assurance outcome](docs/handoffs/ps09-knowledge-assurance-outcome.md)
+remains complete. The
 [next PS09-02 evidence packet](docs/handoffs/ps09-02-next-evidence-packet.md)
 is prepared for later exact adoption; acquisition and release remain gated.
 
@@ -28,6 +34,16 @@ backbone, decision register and contracts retain authority.
 retrieval timings and source identities for the predeclared ten-question pilot;
 semantic review and human/application acceptance remain separate.
 The reading view shows historical source pins and current staleness separately.
+
+`npm run test:browser-assurance`, `npm run test:windows-probe` and
+`npm run test:engineering-measurement` select its offline regression suites;
+all three are included in `npm run test:assurance` and ordinary `npm test`.
+`npm run measure:engineering -- --run` is the explicit fixed synthetic search/knowledge
+measurement command. It runs only under its recorded finite protocol and owned
+external namespace, never during ordinary builds or tests. It accepts no real
+corpus, source, browser or publication input. Timing results are engineering
+observations and cannot establish product, human or release acceptance.
+That measurement run has ended; command documentation does not authorize a rerun.
 
 The owner adopted the [real-policy discovery launch](docs/handoffs/ps09-real-policy-discovery-launch.md)
 at `39d738a`. Its bounded local workbench is implemented and validated through

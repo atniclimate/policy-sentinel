@@ -1,9 +1,15 @@
 # AGENTS.md
 
-Current recovery: approved organization and engineering assurance is complete.
-Start with the [local outcome](docs/handoffs/ps09-knowledge-assurance-outcome.md)
-and live `ROADMAP.yaml`; there are zero active items. All findings have explicit
-dispositions and all worker leases are returned. The
+Current recovery: the bounded engineering review H-ENGINEERING-REVIEW-02 is
+complete. Start with the [local outcome](docs/handoffs/ps09-engineering-review-02-outcome.md)
+and live `ROADMAP.yaml`; there are zero active items and all worker leases are
+returned. ER-03/ER-04 repairs and full checks pass. Five synthetic measurement
+cases completed; search at 2,000 works remains explicitly incomplete. The
+[claim/evidence matrix](docs/development/ps09-engineering-review-02-evidence-matrix.md)
+recommends a broader finite PS09-02 tranche for separate exact adoption and
+source review; it supplies no originating identity or scenario evidence. The
+[prior knowledge assurance](docs/handoffs/ps09-knowledge-assurance-outcome.md)
+remains complete. The
 [next PS09-02 evidence packet](docs/handoffs/ps09-02-next-evidence-packet.md)
 is an unexecuted proposal requiring exact later adoption and source review.
 This completed maintenance scope cannot authorize acquisition or release work.

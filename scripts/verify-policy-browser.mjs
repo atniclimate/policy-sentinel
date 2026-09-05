@@ -5,11 +5,13 @@ import { createRequire } from "node:module";
 import { readLocalOutput } from "../src/pipeline/policy-local-output.mjs";
 import { digest, writePolicyDerived } from "../src/pipeline/policy-custody.mjs";
 import {
+  boundedFailure,
+  createCleanupCollection,
   observeCleanup,
   sealBrowserReport,
 } from "../src/pipeline/policy-assurance.mjs";
 
-const downloadCancellationTasks = [];
+const downloadCancellationTasks = createCleanupCollection();
 
 // Uses an explicitly supplied, already installed standards-based runtime. This
 // command installs nothing, runs no source requests and changes no output pointer.
@@ -83,6 +85,7 @@ const report = {
     "Automated axe and explicit keyboard/focus journeys do not certify every accessibility criterion or a screen-reader session.",
     "This local profile exposes dossier and JSON exports; no CSV export is implemented or claimed.",
     "Research and comparison cases are selected deterministically from this approved corpus, not from a new blind evaluation population.",
+    "The final close/cancellation deadline does not bound earlier screenshots/context closes or report persistence, and does not prove browser or download process termination.",
   ],
   checks: [],
   screenshots: [],
@@ -123,7 +126,7 @@ async function check(name, fn) {
       durationMs: Date.now() - started,
     });
   } catch (error) {
-    report.checks.push({ name, passed: false, error: error.message });
+    report.checks.push({ name, passed: false, error: boundedFailure(error) });
     throw error;
   }
 }
@@ -586,7 +589,7 @@ async function openContext(name, viewport, mobile) {
   context.on("requestfailed", (request) =>
     observations.failed.push({
       url: request.url(),
-      error: request.failure()?.errorText,
+      error: "REQUEST_FAILED",
     }),
   );
   context.on("response", (response) => {
@@ -613,7 +616,7 @@ async function openContext(name, viewport, mobile) {
             observations.responseDigests.push({
               file,
               valid: false,
-              error: error.message,
+              error: boundedFailure(error),
             });
           }),
       );
@@ -621,14 +624,14 @@ async function openContext(name, viewport, mobile) {
   });
   context.on("page", (page) => {
     page.on("pageerror", (error) =>
-      observations.pageErrors.push(error.message),
+      observations.pageErrors.push(boundedFailure(error)),
     );
     page.on("console", (message) => {
       if (message.type() === "error")
-        observations.consoleErrors.push(message.text());
+        observations.consoleErrors.push("BROWSER_CONSOLE_ERROR");
     });
     page.on("download", (download) => {
-      observations.downloads.push(download.suggestedFilename());
+      observations.downloads.push("UNEXPECTED_DOWNLOAD");
       observeCleanup(downloadCancellationTasks, "download_cancel", () =>
         download.cancel(),
       );
@@ -1526,14 +1529,10 @@ try {
   });
 } catch (error) {
   failure = error;
-  report.failure = {
-    name: error.name,
-    message: error.message,
-    stack: error.stack,
-  };
+  report.failure = { code: boundedFailure(error) };
   if (activePage && !activePage.isClosed())
     await screenshot(activePage, "failure").catch((error) => {
-      report.screenshotError = error.message;
+      report.screenshotError = boundedFailure(error);
     });
 } finally {
   try {
@@ -1557,7 +1556,7 @@ try {
   } catch {
     process.exitCode = 1;
     process.stdout.write(
-      `${JSON.stringify({ passed: false, failure: Boolean(failure), cleanupErrors: report.cleanupErrors, persistenceError: report.persistenceError })}\n`,
+      `${JSON.stringify({ passed: false, failure: Boolean(failure), cleanupErrors: report.cleanupErrors, cleanupSettlement: report.cleanupSettlement, persistenceError: report.persistenceError })}\n`,
     );
   }
 }

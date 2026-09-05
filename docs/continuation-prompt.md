@@ -1,6 +1,17 @@
 # Policy Sentinel durable continuation prompt
 
 Latest recovery: read the completed
+[engineering review 02 outcome](handoffs/ps09-engineering-review-02-outcome.md),
+[journal](development/PS09-ENGINEERING-REVIEW-02.md) and live ROADMAP.
+H-ENGINEERING-REVIEW-02 is complete with zero active items and returned leases.
+ER-03/ER-04 bounded repairs and full checks pass. Five synthetic measurement
+cases completed; the 2,000-work search case is explicitly incomplete.
+The [claim/evidence matrix](development/ps09-engineering-review-02-evidence-matrix.md)
+and [acceptance delta](development/ps09-engineering-review-02-acceptance-delta.md)
+recommend a broader finite PS09-02 tranche for separate exact adoption and source
+review. They provide no new identity/scenario acceptance or execution grant.
+
+Prior recovery: the completed
 [knowledge assurance outcome](handoffs/ps09-knowledge-assurance-outcome.md),
 [journal](development/PS09-KNOWLEDGE-ASSURANCE-01.md) and live ROADMAP.
 H-KNOWLEDGE-ASSURANCE-01 is complete and there are zero active items.

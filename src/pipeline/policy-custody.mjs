@@ -170,42 +170,123 @@ async function json(path) {
 }
 async function windowsProbe(root) {
   if (process.platform !== "win32") return;
-  const script =
-    "$ErrorActionPreference='Stop'; try { $r=[Console]::In.ReadToEnd()|ConvertFrom-Json; $p=$r.root; while($p){if(Test-Path -LiteralPath $p){$i=Get-Item -Force -LiteralPath $p;if(($i.Attributes -band [IO.FileAttributes]::ReparsePoint)-ne 0){exit 42}};$p=[IO.Path]::GetDirectoryName($p)}; $q=[Collections.Generic.Queue[string]]::new();if(Test-Path -LiteralPath $r.root){$q.Enqueue($r.root)};$n=0;while($q.Count){foreach($e in [IO.Directory]::EnumerateFileSystemEntries($q.Dequeue())){$n++;if($n-gt 30000){exit 43};$i=Get-Item -Force -LiteralPath $e;if(($i.Attributes -band [IO.FileAttributes]::ReparsePoint)-ne 0){exit 42};if($i.PSIsContainer){$q.Enqueue($e)}}};exit 0}catch{exit 44}";
+  const request = { version: "1.0", nonce: randomUUID(), root };
+  // Fixed shell code receives paths only as JSON. A nonce-bound acknowledgement
+  // is emitted only after the full existing ancestor and descendant inventory.
+  const script = [
+    "$ErrorActionPreference='Stop'; try { [Console]::InputEncoding=[Text.UTF8Encoding]::new($false,$true);$s=[Console]::In.ReadToEnd();if([string]::IsNullOrWhiteSpace($s)){exit 45};",
+    "$r=$s|ConvertFrom-Json;if($null-eq $r -or $r-is [array] -or (@($r.PSObject.Properties.Name|Sort-Object)-join ',')-cne 'nonce,root,version' -or $r.version-isnot [string] -or $r.version-cne '1.0' -or $r.root-isnot [string] -or $r.root-notmatch '^[A-Za-z]:[\\\\/]' -or $r.root.Length-gt 240 -or $r.nonce-isnot [string] -or $r.nonce-cnotmatch '^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$'){exit 45};",
+    "$p=$r.root;while($p){if(Test-Path -LiteralPath $p){$i=Get-Item -Force -LiteralPath $p;if(($i.Attributes -band [IO.FileAttributes]::ReparsePoint)-ne 0){exit 42}};$p=[IO.Path]::GetDirectoryName($p)};",
+    "$q=[Collections.Generic.Queue[string]]::new();if(Test-Path -LiteralPath $r.root){$q.Enqueue($r.root)};$n=0;while($q.Count){foreach($e in [IO.Directory]::EnumerateFileSystemEntries($q.Dequeue())){$n++;if($n-gt 30000){exit 43};$i=Get-Item -Force -LiteralPath $e;if(($i.Attributes -band [IO.FileAttributes]::ReparsePoint)-ne 0){exit 42};if($i.PSIsContainer){$q.Enqueue($e)}}};",
+    "[Console]::Out.Write((@{version='1.0';nonce=$r.nonce;complete=$true;entries=$n}|ConvertTo-Json -Compress));exit 0}catch{exit 44}",
+  ].join("");
   await new Promise((resolveProbe, reject) => {
     const systemRoot = process.env.SystemRoot;
     if (!systemRoot || !/^[A-Z]:\\[^<>:"|?*]+$/.test(systemRoot))
       fail("WINDOWS_PROBE_CONFIGURATION");
-    const child = spawn(
-      join(
-        systemRoot,
-        "System32",
-        "WindowsPowerShell",
-        "v1.0",
-        "powershell.exe",
-      ),
-      ["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script],
-      { windowsHide: true, stdio: ["pipe", "pipe", "pipe"] },
-    );
+    let child;
+    let settled = false;
+    let delivered = false;
+    let closed = false;
     let outputBytes = 0;
-    const timer = setTimeout(() => child.kill(), 5000);
-    const discard = (bytes) => {
-      outputBytes += bytes.length;
-      if (outputBytes > 1024) child.kill();
+    let stderrBytes = 0;
+    const stdout = [];
+    const finish = (code, terminate = false) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      if (terminate && child) {
+        // Only this owned child is addressed. Failure/timeout does not assert
+        // confirmed process termination; rejection does not await its close.
+        try {
+          child.kill();
+        } catch {
+          // Preserve the fixed primary failure even when termination fails.
+        }
+      }
+      if (code) reject(new Error(code));
+      else resolveProbe();
     };
-    child.stdout.on("data", discard);
-    child.stderr.on("data", discard);
-    child.stdin.on("error", () => {});
-    child.on("error", (error) => {
-      clearTimeout(timer);
-      reject(error);
+    const timer = setTimeout(() => finish("WINDOWS_PROBE_TIMEOUT", true), 5000);
+    const accept = () => {
+      if (settled || !closed || !delivered) return;
+      let response;
+      try {
+        response = JSON.parse(Buffer.concat(stdout).toString("utf8"));
+      } catch {
+        finish("WINDOWS_PROBE_OUTPUT");
+        return;
+      }
+      if (
+        stderrBytes !== 0 ||
+        !exact(response, ["version", "nonce", "complete", "entries"]) ||
+        response.version !== request.version ||
+        response.nonce !== request.nonce ||
+        response.complete !== true ||
+        !count(response.entries, 30000)
+      ) {
+        finish("WINDOWS_PROBE_OUTPUT");
+        return;
+      }
+      finish();
+    };
+    const collect = (bytes, stderr = false) => {
+      if (settled) return;
+      outputBytes += bytes.length;
+      if (outputBytes > 1024) {
+        finish("WINDOWS_PROBE_OUTPUT_LIMIT", true);
+        return;
+      }
+      if (stderr) stderrBytes += bytes.length;
+      else stdout.push(Buffer.from(bytes));
+    };
+    try {
+      child = spawn(
+        join(
+          systemRoot,
+          "System32",
+          "WindowsPowerShell",
+          "v1.0",
+          "powershell.exe",
+        ),
+        ["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script],
+        { windowsHide: true, stdio: ["pipe", "pipe", "pipe"] },
+      );
+    } catch {
+      finish("WINDOWS_PROBE_SPAWN");
+      return;
+    }
+    child.stdout.on("data", (bytes) => collect(bytes));
+    child.stderr.on("data", (bytes) => collect(bytes, true));
+    child.stdout.on("error", () => finish("WINDOWS_PROBE_OUTPUT", true));
+    child.stderr.on("error", () => finish("WINDOWS_PROBE_OUTPUT", true));
+    child.stdin.on("error", () => finish("WINDOWS_PROBE_INPUT", true));
+    child.on("error", () => finish("WINDOWS_PROBE_SPAWN", true));
+    child.on("close", (code, signal) => {
+      if (settled) return;
+      if (signal) finish("WINDOWS_PROBE_SIGNAL");
+      else if (code !== 0)
+        finish(
+          code === 45
+            ? "WINDOWS_PROBE_INPUT"
+            : "WINDOWS_REPARSE_OR_INVENTORY_REJECTED",
+        );
+      else {
+        closed = true;
+        accept();
+      }
     });
-    child.on("close", (code) => {
-      clearTimeout(timer);
-      if (code === 0 && outputBytes === 0) resolveProbe();
-      else reject(new Error("WINDOWS_REPARSE_OR_INVENTORY_REJECTED"));
-    });
-    child.stdin.end(JSON.stringify({ root }));
+    try {
+      child.stdin.end(JSON.stringify(request), (error) => {
+        if (error) finish("WINDOWS_PROBE_INPUT", true);
+        else {
+          delivered = true;
+          accept();
+        }
+      });
+    } catch {
+      finish("WINDOWS_PROBE_INPUT", true);
+    }
   });
 }
 async function diskUse(root) {

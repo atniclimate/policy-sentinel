@@ -5,6 +5,8 @@ import { runInNewContext } from "node:vm";
 import { URL } from "node:url";
 import {
   childFailure,
+  boundedFailure,
+  createCleanupCollection,
   observeCleanup,
   sealBrowserReport,
   withPreservedCleanup,
@@ -14,42 +16,65 @@ const batchSource = await readFile(
   new URL("../../scripts/acquire-policy-batch.mjs", import.meta.url),
   "utf8",
 );
-test("actual browser CLI boundary keeps raw persistence failures off the console", async () => {
+test("actual browser CLI catch/seal/write boundary redacts all settled failures", async () => {
   const source = await readFile(
     new URL("../../scripts/verify-policy-browser.mjs", import.meta.url),
     "utf8",
   );
-  const boundary = source.slice(
-    source.lastIndexOf("} finally {") + "} finally {".length,
-  );
-  const output = [];
-  const process = {
-    exitCode: 0,
-    stdout: { write: (value) => output.push(value) },
-  };
-  const failure = new Error("SYNTHETIC_PRIVATE_PRIMARY");
-  const report = {
-    passed: false,
-    cleanupErrors: [],
-    persistenceError: { code: "EIO" },
-  };
-  await runInNewContext(`(async () => { { ${boundary} })()`, {
-    process,
-    report,
-    failure,
-    smokeOnly: false,
-    browser: undefined,
-    downloadCancellationTasks: [],
-    sealBrowserReport: async () => {
-      throw new AggregateError(
-        [failure, new Error("SYNTHETIC_PRIVATE_WRITE")],
-        "BROWSER_REPORT_PERSISTENCE_FAILED",
-      );
-    },
-  });
-  assert.equal(process.exitCode, 1);
-  assert.match(output.join(""), /"passed":false/);
-  assert.doesNotMatch(output.join(""), /PRIVATE|AggregateError|stack/);
+  const boundary = source.slice(source.lastIndexOf("} catch (error) {"));
+  for (const writeFails of [false, true]) {
+    const output = [];
+    const process = {
+      exitCode: 0,
+      stdout: { write: (value) => output.push(value) },
+    };
+    const failure = new Error("SYNTHETIC_PRIVATE_PRIMARY");
+    const value = report();
+    const tasks = createCleanupCollection();
+    observeCleanup(tasks, "download_cancel", async () => {
+      throw new Error("SYNTHETIC_PRIVATE_CANCEL");
+    });
+    let persisted;
+    await runInNewContext(
+      `(async () => { try { throw failure; ${boundary} })()`,
+      {
+        process,
+        report: value,
+        failure,
+        smokeOnly: false,
+        browser: {
+          close: async () => {
+            throw new Error("SYNTHETIC_PRIVATE_CLOSE");
+          },
+        },
+        activePage: undefined,
+        downloadCancellationTasks: tasks,
+        sealBrowserReport,
+        boundedFailure,
+        Buffer: globalThis.Buffer,
+        root: "owned-synthetic",
+        artifactBase: "synthetic",
+        writePolicyDerived: async (_root, _path, bytes) => {
+          persisted = JSON.parse(bytes.toString());
+          if (writeFails)
+            throw Object.assign(new Error("SYNTHETIC_PRIVATE_WRITE"), {
+              code: "EIO",
+            });
+          return { path: "synthetic/report.json", digest: "synthetic" };
+        },
+      },
+    );
+    assert.equal(process.exitCode, 1);
+    assert.match(output.join(""), /"passed":false/);
+    assert.doesNotMatch(output.join(""), /PRIVATE|AggregateError|stack/);
+    assert.doesNotMatch(
+      JSON.stringify(persisted),
+      /PRIVATE|AggregateError|stack/,
+    );
+    assert.equal(persisted.cleanupErrors.length, 2);
+    assert.equal(persisted.passed, false);
+    assert.equal(value.persistenceError?.code, writeFails ? "EIO" : undefined);
+  }
 });
 async function batch(children, ledger = {}) {
   const output = [];
@@ -261,10 +286,37 @@ test("cleanup preserves a lone primary, cleanup-only failure and successful retu
   );
 });
 
-const report = () => ({ contexts: [], checks: [], screenshots: [] });
+function report() {
+  return { contexts: [], checks: [], screenshots: [] };
+}
+test("never-settling browser close cannot prevent the owned report attempt", async () => {
+  let writes = 0;
+  const sealing = sealBrowserReport({
+    report: report(),
+    failure: null,
+    smokeOnly: false,
+    close: () => new Promise(() => {}),
+    downloadTasks: createCleanupCollection(),
+    cleanupBudgetMs: 20,
+    persist: async () => {
+      writes++;
+      return "attempted";
+    },
+  });
+  let timer;
+  const result = await Promise.race([
+    sealing,
+    new Promise((resolve) => {
+      timer = globalThis.setTimeout(() => resolve("WATCHDOG"), 200);
+    }),
+  ]);
+  globalThis.clearTimeout(timer);
+  assert.equal(result, "attempted");
+  assert.equal(writes, 1);
+});
 test("browser close and cancellation failures are settled before failed report persistence", async () => {
   const value = report();
-  const tasks = [];
+  const tasks = createCleanupCollection();
   let cancelled = false;
   let writes = 0;
   observeCleanup(tasks, "download_cancel", async () => {
@@ -306,7 +358,7 @@ test("browser primary, close and write failures remain separate and write is att
       close: async () => {
         throw new Error("CLOSE");
       },
-      downloadTasks: [],
+      downloadTasks: createCleanupCollection(),
       persist: async () => {
         attempted = true;
         throw write;
@@ -334,7 +386,7 @@ test("browser incompletes remain unresolved and smoke cannot become acceptance",
       failure: null,
       smokeOnly,
       close: async () => {},
-      downloadTasks: [],
+      downloadTasks: createCleanupCollection(),
       persist: async () => ({}),
     });
     assert.equal(value.outcome, "needs_accessibility_review");
@@ -347,10 +399,297 @@ test("browser incompletes remain unresolved and smoke cannot become acceptance",
     failure: null,
     smokeOnly: true,
     close: async () => {},
-    downloadTasks: [],
+    downloadTasks: createCleanupCollection(),
     persist: async () => ({}),
   });
   assert.equal(value.passed, true);
   assert.equal(value.outcome, "smoke_passed");
   assert.equal(value.acceptanceComplete, false);
+});
+
+test("one total deadline covers never-settling close and appended cancellation", async () => {
+  const value = report();
+  const tasks = createCleanupCollection();
+  let rejectLate;
+  let postClosedObserved = false;
+  let snapshot;
+  let writes = 0;
+  const started = globalThis.performance.now();
+  const artifact = await sealBrowserReport({
+    report: value,
+    failure: null,
+    smokeOnly: false,
+    downloadTasks: tasks,
+    cleanupBudgetMs: 30,
+    close: async () => {
+      await new Promise((resolve) => globalThis.setTimeout(resolve, 20));
+      assert.equal(
+        observeCleanup(
+          tasks,
+          "download_cancel",
+          () =>
+            new Promise((_resolve, reject) => {
+              rejectLate = reject;
+            }),
+        ),
+        true,
+      );
+      await new Promise(() => {});
+    },
+    persist: async (sealed) => {
+      writes++;
+      snapshot = sealed;
+      return "owned";
+    },
+  });
+  assert.equal(artifact, "owned");
+  assert.equal(writes, 1);
+  assert.ok(
+    globalThis.performance.now() - started < 250,
+    "bounded local scheduling tolerance",
+  );
+  assert.equal(snapshot.cleanupSettlement.deadlineReached, true);
+  assert.equal(snapshot.cleanupSettlement.pendingAtDeadline, 2);
+  assert.equal(snapshot.cleanupSettlement.terminationConfirmed, false);
+  assert.deepEqual(
+    snapshot.cleanupErrors.map((issue) => issue.code),
+    ["ETIMEDOUT", "ETIMEDOUT"],
+  );
+  const bytes = JSON.stringify(snapshot);
+  rejectLate(new Error("PRIVATE_LATE_CANCEL"));
+  assert.equal(
+    observeCleanup(tasks, "download_cancel", async () => {
+      postClosedObserved = true;
+      throw new Error("PRIVATE_POST_CLOSED");
+    }),
+    false,
+  );
+  value.contexts.push({ accessibility: [{ incomplete: [{ nodes: [{}] }] }] });
+  value.cleanupErrors.push({ operation: "live_event", code: "SYNTHETIC" });
+  await new Promise((resolve) => globalThis.setImmediate(resolve));
+  assert.equal(postClosedObserved, true);
+  assert.equal(JSON.stringify(snapshot), bytes);
+  assert.ok(
+    Object.isFrozen(snapshot) && Object.isFrozen(snapshot.cleanupErrors),
+  );
+  assert.throws(() => snapshot.contexts.push({}), TypeError);
+});
+
+test("cancellation alone times out and pending tasks added during settlement are counted", async () => {
+  for (const never of [false, true]) {
+    const value = report();
+    const tasks = createCleanupCollection();
+    observeCleanup(tasks, "download_cancel", async () => {
+      await Promise.resolve();
+      observeCleanup(tasks, "download_cancel", async () => {
+        if (never) await new Promise(() => {});
+        else
+          throw Object.assign(new Error("PRIVATE_APPENDED"), { code: "EIO" });
+      });
+    });
+    await sealBrowserReport({
+      report: value,
+      failure: null,
+      smokeOnly: false,
+      close: async () => {},
+      downloadTasks: tasks,
+      cleanupBudgetMs: 20,
+      persist: async (sealed) => {
+        assert.equal(sealed.cleanupErrors.length, 1);
+        assert.equal(sealed.cleanupErrors[0].code, never ? "ETIMEDOUT" : "EIO");
+      },
+    });
+    assert.equal(value.passed, false);
+  }
+});
+
+test("closed collection and immutable snapshot stay closed while owned persistence is awaited", async () => {
+  const value = report();
+  value.contexts.push({ accessibility: [{ incomplete: [] }] });
+  const tasks = createCleanupCollection();
+  let releaseWrite;
+  let beginWrite;
+  const startedWrite = new Promise((resolve) => {
+    beginWrite = resolve;
+  });
+  let snapshot;
+  const sealing = sealBrowserReport({
+    report: value,
+    failure: null,
+    smokeOnly: false,
+    close: async () => {},
+    downloadTasks: tasks,
+    cleanupBudgetMs: 5,
+    persist: async (sealed) => {
+      snapshot = sealed;
+      beginWrite();
+      await new Promise((resolve) => {
+        releaseWrite = resolve;
+      });
+      return "completed_owned_write";
+    },
+  });
+  await startedWrite;
+  const bytes = JSON.stringify(snapshot);
+  value.contexts[0].accessibility[0].incomplete.push({ nodes: [{}] });
+  assert.equal(
+    observeCleanup(tasks, "download_cancel", async () => {
+      throw new Error("PRIVATE_LATE");
+    }),
+    false,
+  );
+  await new Promise((resolve) => globalThis.setTimeout(resolve, 15));
+  assert.equal(JSON.stringify(snapshot), bytes);
+  assert.equal(snapshot.passed, true);
+  assert.ok(Object.isFrozen(snapshot.contexts[0].accessibility[0].incomplete));
+  releaseWrite();
+  assert.equal(await sealing, "completed_owned_write");
+  await assert.rejects(
+    sealBrowserReport({
+      report: value,
+      close: async () => {},
+      downloadTasks: tasks,
+      persist: async () => {},
+    }),
+    /INVALID_BROWSER_SEAL_BOUNDARY/,
+  );
+});
+
+test("cleanup collection rejects arbitrary handles, operations and extended deadlines", async () => {
+  assert.throws(
+    () => observeCleanup([], "download_cancel", async () => {}),
+    /INVALID_CLEANUP/,
+  );
+  assert.throws(
+    () =>
+      observeCleanup(
+        createCleanupCollection(),
+        "PRIVATE_OPERATION",
+        async () => {},
+      ),
+    /INVALID_CLEANUP/,
+  );
+  await assert.rejects(
+    sealBrowserReport({
+      report: report(),
+      close: async () => {},
+      downloadTasks: createCleanupCollection(),
+      persist: async () => {},
+      cleanupBudgetMs: 5001,
+    }),
+    /INVALID_BROWSER_SEAL_BOUNDARY/,
+  );
+});
+
+test("actual sealer schedules one shared default deadline for close and cancellation", async () => {
+  const source = await readFile(
+    new URL("../../src/pipeline/policy-assurance.mjs", import.meta.url),
+    "utf8",
+  );
+  const timers = [];
+  const cleared = [];
+  const actual = runInNewContext(
+    `(() => { ${source.replace(/^export /gm, "")}\n return {createCleanupCollection, observeCleanup, sealBrowserReport}; })()`,
+    {
+      structuredClone: globalThis.structuredClone,
+      performance: { now: () => 0 },
+      setTimeout: (fn, delay) => {
+        timers.push({ fn, delay });
+        return timers.length;
+      },
+      clearTimeout: (id) => cleared.push(id),
+    },
+  );
+  const tasks = actual.createCleanupCollection();
+  let resolveClose;
+  const close = new Promise((resolve) => {
+    resolveClose = resolve;
+  });
+  actual.observeCleanup(tasks, "download_cancel", () => new Promise(() => {}));
+  let sealed;
+  const result = actual.sealBrowserReport({
+    report: report(),
+    failure: null,
+    smokeOnly: false,
+    close: () => close,
+    downloadTasks: tasks,
+    persist: async (value) => {
+      sealed = value;
+      return "written";
+    },
+  });
+  await Promise.resolve();
+  resolveClose();
+  for (let n = 0; n < 8; n++) await Promise.resolve();
+  assert.deepEqual(
+    timers.map((timer) => timer.delay),
+    [5000],
+  );
+  timers[0].fn();
+  assert.equal(await result, "written");
+  assert.equal(sealed.cleanupErrors[0].operation, "download_cancel");
+  assert.equal(sealed.cleanupErrors[0].code, "ETIMEDOUT");
+  assert.deepEqual(cleared, [1]);
+});
+
+test("continuously appended cleanup microtasks cannot starve the deadline", async () => {
+  const tasks = createCleanupCollection();
+  let appended = 0;
+  let admitted = true;
+  function append() {
+    if (!admitted) return;
+    appended++;
+    admitted = observeCleanup(tasks, "download_cancel", append);
+  }
+  observeCleanup(tasks, "download_cancel", append);
+  const value = report();
+  await sealBrowserReport({
+    report: value,
+    failure: null,
+    smokeOnly: false,
+    close: async () => {},
+    downloadTasks: tasks,
+    cleanupBudgetMs: 10,
+    persist: async () => "written",
+  });
+  assert.ok(appended > 0);
+  assert.equal(value.cleanupSettlement.deadlineReached, true);
+  assert.equal(value.passed, false);
+});
+
+test("cleanup observed settled after the total deadline cannot pass", async () => {
+  const source = await readFile(
+    new URL("../../src/pipeline/policy-assurance.mjs", import.meta.url),
+    "utf8",
+  );
+  let clock = 0;
+  const actual = runInNewContext(
+    `(() => { ${source.replace(/^export /gm, "")}\n return {createCleanupCollection, sealBrowserReport}; })()`,
+    {
+      structuredClone: globalThis.structuredClone,
+      performance: { now: () => clock },
+      setTimeout: () => 1,
+      clearTimeout: () => {},
+    },
+  );
+  let snapshot;
+  await actual.sealBrowserReport({
+    report: report(),
+    failure: null,
+    smokeOnly: false,
+    close: async () => {
+      clock = 5001;
+    },
+    downloadTasks: actual.createCleanupCollection(),
+    persist: async (sealed) => {
+      snapshot = sealed;
+    },
+  });
+  assert.equal(snapshot.passed, false);
+  assert.equal(snapshot.acceptanceComplete, false);
+  assert.equal(snapshot.outcome, "failed");
+  assert.equal(snapshot.cleanupSettlement.deadlineReached, true);
+  assert.equal(snapshot.cleanupSettlement.pendingAtDeadline, 0);
+  assert.equal(snapshot.cleanupErrors[0].operation, "cleanup_deadline");
+  assert.equal(snapshot.cleanupErrors[0].code, "ETIMEDOUT");
 });
