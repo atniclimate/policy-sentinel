@@ -1,4 +1,4 @@
-schema_version: "1.7"
+schema_version: "1.8"
 roadmap_id: policy-sentinel-through-finish
 project:
   name: Policy Sentinel
@@ -228,6 +228,28 @@ authority:
         The owner approves the recipient, channel, event, content, and workflow.
 
 gates:
+  - id: G-H-ENGINEERING-REVIEW-02
+    name: Approved bounded local engineering review and performance pre-analysis
+    state: approved
+    evidence:
+      - Owner instructed reading the exact next-session prompt and then
+        execution on 2026-09-05. This is new finite local maintenance authority.
+    owner_instruction: I:/policy-sentinel-knowledge-assurance/2026-09-05/next-session-preparation-01/next-session-prompt.md
+    scope:
+      kind: approved_local_engineering_review
+      prompt_sha256: 8609007652d38059a717afb79b04896eaa9d161cc785551aa4507160016ead4a
+      policy_acquisition_budget:
+        { sources: 0, domains: 0, requests: 0, bytes: 0 }
+      generic_technical_documentation: true
+      synthetic_local_validation: true
+      repairs: [ER-03, ER-04]
+      synthetic_measurement: true
+      optimization_implementation: false
+      policy_source_activation: false
+      sealed_corpus_replay: false
+      real_policy_build: false
+      real_policy_browser: false
+      release_authority: false
   - id: G-H-KNOWLEDGE-ASSURANCE-01
     name: Approved local knowledge organization and engineering assurance
     state: approved
@@ -860,34 +882,36 @@ baseline:
         configured.
 
 current_focus:
-  work_item: null
+  work_item: H-ENGINEERING-REVIEW-02
   objective: >-
-    Recover the completed local organization and engineering assurance result
-    from docs/handoffs/ps09-knowledge-assurance-outcome.md. Preserve the
-    accepted bounded local workbench and sealed 210-work, 215-version corpus.
-    Final browser report 23891ff8 binds build 9c79fb4d to 25 passing journeys,
-    14 clean exact-width geometry checks and 28 verified screenshots. Ten
-    original and ten targeted axe checks remain incomplete in that immutable
-    automated report; independent manual review resolves the ten exact residual
-    nodes with 1932 visible character measurements and 14.556:1 contrast. Full
-    check passes 1516 unit tests and 99 policy tests. Corpus replay, frozen
-    evaluation, output parity and controlled failures remain valid and
-    unchanged. Discovery leases are returned; acquisition is ended. Recover
+    Execute the exact adopted H02 maintenance scope recorded in
+    docs/development/PS09-ENGINEERING-REVIEW-02.md. Recover the completed local
+    organization and engineering assurance result from
+    docs/handoffs/ps09-knowledge-assurance-outcome.md. Preserve the accepted
+    bounded local workbench and sealed 210-work, 215-version corpus. Final
+    browser report 23891ff8 binds build 9c79fb4d to 25 passing journeys, 14
+    clean exact-width geometry checks and 28 verified screenshots. Ten original
+    and ten targeted axe checks remain incomplete in that immutable automated
+    report; independent manual review resolves the ten exact residual nodes with
+    1932 visible character measurements and 14.556:1 contrast. Full check passes
+    1516 unit tests and 99 policy tests. Corpus replay, frozen evaluation,
+    output parity and controlled failures remain valid and unchanged. Discovery
+    leases are returned; acquisition is ended. Recover
     docs/handoffs/ps09-real-policy-discovery-outcome.md for exact evidence,
     local launch/replay commands and limits. PS09-02 originating
     identity/scenario evidence requires an exact next packet; PS09-06 remains
     unstarted and gated. No historical budget or archived ready lane is a grant.
-  terminal_reason: >-
-    Approved local maintenance is complete with independent reviews, measured
-    navigation pilots, passing checks and unchanged protected evidence. No
-    authorized work remains active. PS09 is blocked on originating identity and
-    scenario evidence; the prepared next packet has not been executed.
+  terminal_reason: null
   resumable_roots:
+    - H-ENGINEERING-REVIEW-02
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: 8188e712d74e20ca7244ceee49a428476bbde7fe
+  last_durable_checkpoint: c5182e05d21e601b7211d441e6d966436620d391
   resume_command: npm run validate:roadmap
 
 completion_scope:
+  engineering_review:
+    accounting: non_release_local_maintenance
+    required_outcomes: [H-ENGINEERING-REVIEW-02]
   knowledge_assurance:
     accounting: non_release_local_maintenance
     required_outcomes: [H-KNOWLEDGE-ASSURANCE-01]
@@ -5371,6 +5395,31 @@ work_items:
       - "The initial prompt expressly withheld deployment and publication
         approval."
 
+  - id: H-ENGINEERING-REVIEW-02
+    priority: 298
+    milestone: H
+    title:
+      Bounded engineering review, two hardening repairs and performance
+      pre-analysis
+    status: in_progress
+    work_class: repository_governance
+    dependencies: []
+    authorization_gate: G-H-ENGINEERING-REVIEW-02
+    acceptance:
+      - Independently reviewed exact schema 1.8 and actual state fixtures
+        preserve historical authority, PS09 contracts and all closed gates.
+      - Five-area review and bounded ER-03/ER-04 reproductions and repairs have
+        actual regression evidence and explicit remaining limits.
+      - At most three simplification proposals and two synthetic measurement
+        families use prior protocols and correctness oracles.
+      - Finite acceptance delta and selected-cohort/nine-manifest claim-evidence
+        matrix preserve every missing proof and later gate.
+      - Serialized required checks, protected-byte verification, two independent
+        reviews and exact local commits support the terminal handoff.
+    evidence:
+      - docs/development/PS09-ENGINEERING-REVIEW-02.md records owner adoption,
+        baseline passing runtime/roadmap/backbone checks, initial exact leases
+        and two independent bootstrap design reviews. Actual review is pending.
   - id: H-KNOWLEDGE-ASSURANCE-01
     priority: 299
     milestone: H
@@ -6063,6 +6112,14 @@ risks:
 
 next_actions:
   - order: 1
+    work_item: H-ENGINEERING-REVIEW-02
+    action: >-
+      Complete the exact adopted local engineering prompt through reviewed
+      bootstrap, ER-03/ER-04 repairs, synthetic measurements, finite evidence
+      plan and terminal validation. Recover the coordination journal at
+      docs/development/PS09-ENGINEERING-REVIEW-02.md before further leases. All
+      policy-source and release operations remain excluded.
+  - order: 2
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action: >-
       Recover docs/handoffs/ps09-02-next-evidence-packet.md for the concrete
@@ -6077,6 +6134,19 @@ next_actions:
       docs/handoffs/ps09-real-policy-discovery-outcome.md; do not reactivate its
       cutoff startup, archived ready lanes or ended acquisition.
 finish_states:
+  engineering_review:
+    current_state: in_progress
+    work_item: H-ENGINEERING-REVIEW-02
+    blocked_by: []
+    satisfied_when:
+      - All finite review, repair, measurement and evidence-plan obligations
+        have verified results or explicit remaining limitations.
+      - Required checks and two independent reviews support the local handoff.
+      - Protected evidence is unchanged and all implementation leases returned.
+    does_not_mean:
+      - PS09-02 identity or scenario acceptance
+      - PS09-06 release acceptance or authority
+      - new source acquisition, optimization or external operation authority
   knowledge_assurance:
     current_state: complete
     work_item: H-KNOWLEDGE-ASSURANCE-01

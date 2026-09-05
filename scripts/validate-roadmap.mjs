@@ -39,8 +39,13 @@ if (document.errors.length > 0) {
 }
 
 const roadmap = document.toJS();
-const ps09 = ["1.5", "1.6", "1.7"].includes(roadmap.schema_version);
-const knowledgeAssurance = roadmap.schema_version === "1.7";
+const ps09 = ["1.5", "1.6", "1.7", "1.8"].includes(roadmap.schema_version);
+const knowledgeAssurance = ["1.7", "1.8"].includes(roadmap.schema_version);
+const engineeringReview = roadmap.schema_version === "1.8";
+const engineeringReviewId = "H-ENGINEERING-REVIEW-02";
+const engineeringReviewGateId = "G-H-ENGINEERING-REVIEW-02";
+const engineeringReviewInstruction =
+  "I:/policy-sentinel-knowledge-assurance/2026-09-05/next-session-preparation-01/next-session-prompt.md";
 const knowledgeAssuranceId = "H-KNOWLEDGE-ASSURANCE-01";
 const knowledgeAssuranceGateId = "G-H-KNOWLEDGE-ASSURANCE-01";
 const knowledgeAssuranceInstruction =
@@ -454,11 +459,18 @@ for (const [index, gate] of gates.entries()) {
   const path = `gates[${index}]`;
   requireObject(gate, path);
   const id = requireString(gate.id, `${path}.id`);
-  if (knowledgeAssurance && !knowledgeAssuranceGateIds.has(id)) {
-    fail(`schema 1.7 references unknown gate ${id}`);
+  if (
+    knowledgeAssurance &&
+    !knowledgeAssuranceGateIds.has(id) &&
+    !(engineeringReview && id === engineeringReviewGateId)
+  ) {
+    fail(`schema ${roadmap.schema_version} references unknown gate ${id}`);
   }
   if (!knowledgeAssurance && id === knowledgeAssuranceGateId) {
     fail("knowledge assurance gate requires schema 1.7");
+  }
+  if (!engineeringReview && id === engineeringReviewGateId) {
+    fail("engineering review gate requires schema 1.8");
   }
   if (gateIds.has(id)) {
     fail(`duplicate gate id: ${id}`);
@@ -711,6 +723,245 @@ for (const id of workItemIds) {
   visit(id);
 }
 
+// Schema 1.8 is an exact additive maintenance representation. These canonical
+// JSON digests were derived once from ROADMAP.yaml at
+// c5182e05d21e601b7211d441e6d966436620d391. They are not computed from a candidate
+// baseline or runtime Git. Object key order is immaterial; arrays stay ordered.
+const canonicalValue = (value) =>
+  Array.isArray(value)
+    ? value.map(canonicalValue)
+    : value && typeof value === "object"
+      ? Object.fromEntries(
+          Object.keys(value)
+            .sort()
+            .map((key) => [key, canonicalValue(value[key])]),
+        )
+      : value;
+const requireFrozenEngineeringValue = (value, expected, path) => {
+  if (
+    value === undefined ||
+    sha256Hex(JSON.stringify(canonicalValue(value))) !== expected
+  ) {
+    fail(`engineering review must preserve frozen ${path}`);
+  }
+};
+if (engineeringReview) {
+  requireFrozenEngineeringValue(
+    workItems
+      .filter(({ id }) => id !== engineeringReviewId)
+      .map(({ id }) => id),
+    "de74ac7d4153154d835329738b8f2c85f9403bce83056c1c6787e1dfaaff464a",
+    "work-item identities",
+  );
+  requireFrozenEngineeringValue(
+    gates
+      .filter(({ id }) => id !== engineeringReviewGateId)
+      .map(({ id }) => id),
+    "d2bcb93c6f23509e08dd4ccdb86c8817e725f103621d9504e1bec624e080802d",
+    "gate identities",
+  );
+  requireFrozenEngineeringValue(
+    byId.get(knowledgeAssuranceId),
+    "51cbf00cb9138212c319d2a3167a252f2abd805a1fded5060089b9f6dc755282",
+    "spent H01 item",
+  );
+  requireFrozenEngineeringValue(
+    gateById.get(knowledgeAssuranceGateId),
+    "ee1f276f6f205670cfda650935bf8ae78d1929f8e902698960eaea628df536d9",
+    "spent H01 gate",
+  );
+  for (const [key, digest] of [
+    [
+      "completion_scope",
+      "ce9f420260fec4a22af994f22a44e247a7e8f574e888372b8d6319f486cb1c99",
+    ],
+    [
+      "finish_states",
+      "c132853cbbb3262ffdeaa28d97307282b0cbb7415316c12a573011352dedd108",
+    ],
+  ]) {
+    requireFrozenEngineeringValue(
+      Object.fromEntries(
+        Object.entries(roadmap[key]).filter(
+          ([name]) => name !== "engineering_review",
+        ),
+      ),
+      digest,
+      key,
+    );
+  }
+  requireFrozenEngineeringValue(
+    Object.fromEntries(ps09Ids.map((id) => [id, byId.get(id)])),
+    "f76b4821cce91b47670e6db7ecceb51c02702c1e25a6e95846cd0ac9928d6332",
+    "PS09 items",
+  );
+  requireFrozenEngineeringValue(
+    Object.fromEntries(
+      [
+        ...ps09Ids.map((_, index) => `G-PS09-RUN-0${index + 1}`),
+        "G-PS09-RC",
+      ].map((id) => [id, gateById.get(id)]),
+    ),
+    "0dc7ddbd67269d7df2f5df93060c03fef16c70008bff45b0c983b5a586cb2aaf",
+    "PS09 gates",
+  );
+  // Select the original closed identities, never the candidate's current state.
+  const originalClosedGateIds = [
+    "G-PS09-RUN-06",
+    "G-PS09-RUN-07",
+    "G-PS09-RUN-08",
+    "G-PS09-RC",
+    "G-K0-S0-CONVERGENCE",
+    "G-O0-CONVERGENCE",
+    "G-B",
+    "G-B-GRANTS",
+    "G-B-CONGRESS",
+    "G-B-GOVINFO",
+    "G-B-REGULATIONS",
+    "G-B-OR-OJD",
+    "G-B-OR-OARD",
+    "G-B-OR-GOVERNOR",
+    "G-C",
+    "G-E",
+    "G-E-LICENSE",
+    "G-E-REMOTE-PUSH",
+    "G-E-PAGES",
+    "G-E-PUBLISH",
+    "G-F",
+    "G-G",
+    "G-H",
+    "G-I",
+    "G-PNW-COMMUNITY-AUTHORITY",
+    "G-PNW-SOURCE-ACTIVATION",
+  ];
+  requireFrozenEngineeringValue(
+    Object.fromEntries(
+      originalClosedGateIds.map((id) => [id, gateById.get(id)]),
+    ),
+    "9e8131b1aba8941c8ef3ca1a27413c95f35ef0b467089746d6ddebce2e9e1512",
+    "26 closed gate objects",
+  );
+
+  const item = requireObject(
+    byId.get(engineeringReviewId),
+    "engineering review item",
+  );
+  for (const [field, value] of [
+    ["work_class", "repository_governance"],
+    ["priority", 298],
+    ["milestone", "H"],
+    ["authorization_gate", engineeringReviewGateId],
+  ]) {
+    requireExactValue(item[field], value, `engineering review ${field}`);
+  }
+  requireExactOrderedValues(
+    item.dependencies,
+    [],
+    "engineering review dependencies",
+  );
+  if (!["in_progress", "blocked", "complete"].includes(item.status)) {
+    fail("engineering review status must be in_progress, blocked, or complete");
+  }
+  for (const dependent of workItems) {
+    if (dependent.dependencies.includes(engineeringReviewId)) {
+      fail(`${dependent.id} cannot depend on non-release engineering review`);
+    }
+  }
+  const authorization = requireExactKeys(
+    gateById.get(engineeringReviewGateId),
+    ["id", "name", "state", "evidence", "owner_instruction", "scope"],
+    "engineering review gate",
+  );
+  requireExactValue(
+    authorization.state,
+    "approved",
+    "engineering review gate state",
+  );
+  requireExactValue(
+    authorization.owner_instruction,
+    engineeringReviewInstruction,
+    "engineering review owner instruction",
+  );
+  const expectedScope = {
+    kind: "approved_local_engineering_review",
+    prompt_sha256:
+      "8609007652d38059a717afb79b04896eaa9d161cc785551aa4507160016ead4a",
+    policy_acquisition_budget: {
+      sources: 0,
+      domains: 0,
+      requests: 0,
+      bytes: 0,
+    },
+    generic_technical_documentation: true,
+    synthetic_local_validation: true,
+    repairs: ["ER-03", "ER-04"],
+    synthetic_measurement: true,
+    optimization_implementation: false,
+    policy_source_activation: false,
+    sealed_corpus_replay: false,
+    real_policy_build: false,
+    real_policy_browser: false,
+    release_authority: false,
+  };
+  if (
+    JSON.stringify(canonicalValue(authorization.scope)) !==
+    JSON.stringify(canonicalValue(expectedScope))
+  ) {
+    fail(
+      "engineering review approved scope must preserve exact adopted prompt and zero policy budgets",
+    );
+  }
+  const completion = requireExactKeys(
+    roadmap.completion_scope.engineering_review,
+    ["accounting", "required_outcomes"],
+    "engineering review completion scope",
+  );
+  requireExactValue(
+    completion.accounting,
+    "non_release_local_maintenance",
+    "engineering review accounting",
+  );
+  requireExactOrderedValues(
+    completion.required_outcomes,
+    [engineeringReviewId],
+    "engineering review required outcomes",
+  );
+  const finish = requireExactKeys(
+    roadmap.finish_states.engineering_review,
+    [
+      "current_state",
+      "work_item",
+      "blocked_by",
+      "satisfied_when",
+      "does_not_mean",
+    ],
+    "engineering review finish scope",
+  );
+  requireExactValue(
+    finish.current_state,
+    item.status,
+    "engineering review finish state",
+  );
+  requireExactValue(
+    finish.work_item,
+    engineeringReviewId,
+    "engineering review finish item",
+  );
+  requireExactOrderedValues(
+    finish.blocked_by,
+    item.status === "blocked" ? [engineeringReviewId] : [],
+    "engineering review finish blockers",
+  );
+  requireUniqueStrings(
+    finish.satisfied_when,
+    "engineering review satisfied_when",
+  );
+  requireUniqueStrings(
+    finish.does_not_mean,
+    "engineering review does_not_mean",
+  );
+}
+
 let knowledgeAssuranceItem;
 if (knowledgeAssurance) {
   knowledgeAssuranceItem = byId.get(knowledgeAssuranceId);
@@ -943,7 +1194,7 @@ const hasExactOrderedValues = (actual, expected) =>
 // 1.5 remains replayable historical accounting. The adopted real-policy run
 // makes identity acceptance an explicit release prerequisite, independent of
 // general-jurisdiction acquisition. No required outcome is removed.
-const ps09Dependencies = ["1.6", "1.7"].includes(roadmap.schema_version)
+const ps09Dependencies = ["1.6", "1.7", "1.8"].includes(roadmap.schema_version)
   ? [[], [0], [0], [2], [2, 3], [1, 4], [4], [5]]
   : [[], [0], [0, 1], [1, 2], [2, 3], [4], [4], [5]];
 if (ps09) {
@@ -956,6 +1207,7 @@ if (ps09) {
       "local_real_source_prerelease",
       "pnw_regional_engine",
       ...(knowledgeAssurance ? ["knowledge_assurance"] : []),
+      ...(engineeringReview ? ["engineering_review"] : []),
     ],
     "canonical completion scopes",
   );
@@ -969,6 +1221,7 @@ if (ps09) {
       "pnw_regional_engine",
       "public_beta",
       ...(knowledgeAssurance ? ["knowledge_assurance"] : []),
+      ...(engineeringReview ? ["engineering_review"] : []),
     ],
     "canonical finish states",
   );
@@ -978,7 +1231,8 @@ if (ps09) {
         ({ id }) =>
           !ps09Ids.includes(id) &&
           !ps09PublicationIds.includes(id) &&
-          !(knowledgeAssurance && id === knowledgeAssuranceId),
+          !(knowledgeAssurance && id === knowledgeAssuranceId) &&
+          !(engineeringReview && id === engineeringReviewId),
       )
       .map(({ id }) => id),
     ps09HistoricalIds,
@@ -1457,6 +1711,12 @@ if (knowledgeAssurance) {
   completionGroups.push([
     "knowledge_assurance.required_outcomes",
     [knowledgeAssuranceId],
+  ]);
+}
+if (engineeringReview) {
+  completionGroups.push([
+    "engineering_review.required_outcomes",
+    [engineeringReviewId],
   ]);
 }
 if (localRealSourcePrereleaseScope !== null) {
@@ -2454,10 +2714,12 @@ if (ps09) {
     ...ps09Ids.slice(0, 6),
     ...enabledConditionalIds,
     ...(knowledgeAssurance ? [knowledgeAssuranceId] : []),
+    ...(engineeringReview ? [engineeringReviewId] : []),
   ]);
   const active = inProgress[0];
   const activeMaintenance =
-    knowledgeAssurance && active?.id === knowledgeAssuranceId;
+    (knowledgeAssurance && active?.id === knowledgeAssuranceId) ||
+    (engineeringReview && active?.id === engineeringReviewId);
   if (
     active &&
     ![...ps09Ids, ...ps09PublicationIds].includes(active.id) &&
@@ -2531,7 +2793,7 @@ if (ps09) {
     );
     requireExactOrderedValues(
       roadmap.current_focus.resumable_roots,
-      [active.id],
+      engineeringReview ? [engineeringReviewId, ps09Ids[1]] : [active.id],
       "active PS09 resumable roots",
     );
   } else {
