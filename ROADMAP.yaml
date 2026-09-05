@@ -4,17 +4,16 @@ project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
   phase: >-
-    POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01 reached a validated local
-    implementation checkpoint: PS09-03/04 are complete for the adopted bounded
-    slice; PS09-05 remains in progress at the owner's requested fresh-session
-    handoff after a session limit. Actual Chromium review exposed a masked
-    mobile overflow and incomplete contrast checks. Bounded repairs pass the
-    rebuilt-output smoke and full repository check; full browser journeys remain
-    unfinished. Corpus replay, evaluation and controlled failure exercises pass.
-    PS09-02 identity/scenario acceptance remains independently blocked and is an
-    explicit PS09-06 prerequisite. PS09-06-LOCAL-RC remains the sole release
-    root. EV01, Run 1/2 and archived lanes retain their historical evidence and
-    spent-operation boundaries.
+    POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01 completed its bounded local
+    workbench outcome through PS09-03/04/05. Final Chromium evidence passes all
+    25 journeys and 14 exact-width geometry checks; ten preserved axe
+    incompletes have a separate hash-bound manual contrast/visibility
+    disposition. Full repository checks, corpus replay, frozen evaluation and
+    controlled failure exercises pass. There are zero active items. The PS09
+    program remains blocked on PS09-02 identity/scenario evidence, an explicit
+    PS09-06 prerequisite. PS09-06-LOCAL-RC is the sole release root and remains
+    unstarted and gated. EV01, Run 1/2 and archived lanes retain their
+    historical evidence and spent-operation boundaries.
   updated_on: "2026-09-05"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -843,25 +842,25 @@ baseline:
         configured.
 
 current_focus:
-  work_item: PS09-05-SEARCH-OUTPUTS
+  work_item: null
   objective: >-
-    Preserve the running local discovery workbench and sealed 210-work,
-    215-version corpus. Final evaluation passes 25/27 supporting passages, 14/14
-    version sets, 7/7 multi-document cases, 66/66 exact identifiers and 30/30
-    citation replays. Both controlled source-failure projections, final
-    build/serve/HTTP pass. Full check passed 1516 unit tests after the final
-    responsive repairs. Independent review rejected the earlier report's claimed
-    pass: mobile expanded to 539/628 pixels from configured 390 and 146 axe
-    contrast node occurrences were incomplete. The global skip, wrapping and
-    fixed-width oracle repairs pass 13 browser smoke checks with six clean axe
-    scans and exact 390px mobile geometry. Full journeys remain. Preserve
-    PS09-05 as unfinished at the owner's requested cutoff handoff and recover
-    docs/handoffs/ps09-real-policy-cutoff-continuation.md for exact fixes,
-    checks, build/server identities and next commands. Acquisition is ended.
-  terminal_reason: null
+    Preserve the accepted bounded local workbench and sealed 210-work,
+    215-version corpus. Final browser report 23891ff8 binds build 9c79fb4d to 25
+    passing journeys, 14 clean exact-width geometry checks and 28 verified
+    screenshots. Ten original and ten targeted axe checks remain incomplete in
+    that immutable automated report; independent manual review resolves the ten
+    exact residual nodes with 1932 visible character measurements and 14.556:1
+    contrast. Full check passes 1516 unit tests and 99 policy tests. Corpus
+    replay, frozen evaluation, output parity and controlled failures remain
+    valid and unchanged. All leases are returned; acquisition is ended. Recover
+    docs/handoffs/ps09-real-policy-discovery-outcome.md for exact evidence,
+    local launch/replay commands and limits. PS09-02 originating
+    identity/scenario evidence requires an exact next packet; PS09-06 remains
+    unstarted and gated. No historical budget or archived ready lane is a grant.
+  terminal_reason: LOCAL_WORKBENCH_ACCEPTED_PS09_02_EVIDENCE_BLOCKED
   resumable_roots:
-    - PS09-05-SEARCH-OUTPUTS
-  last_durable_checkpoint: 5d25167
+    - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
+  last_durable_checkpoint: 51f0b8a
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5430,10 +5429,11 @@ work_items:
       unresolved. No fixed membership count gates unrelated general-jurisdiction
       work. The separate recommendations 1–5 approval permits the seven-path
       synthetic runner; that historical grant supplies no real evidence. The
-      later owner direction and prepared real-policy launch define a larger
-      next-session target. Use its new authority when supplied, migrate false
-      whole-phase dependencies coherently, and keep unsupported identity claims
-      unresolved rather than marking this item complete to advance.
+      later owner direction adopted the larger real-policy launch, whose bounded
+      general-jurisdiction outcome is now complete through PS09-05. That work
+      did not establish the originating identity/scenario evidence required
+      here. Keep those claims unresolved and prepare an exact next
+      evidence/authority packet before further operations.
     acceptance:
       - Separate recognition, membership, cohort, governmental and geographic
         identities.
@@ -5689,7 +5689,7 @@ work_items:
     priority: 304
     milestone: PS09 Run 5
     title: Integrate deterministic search and governed output views
-    status: in_progress
+    status: complete
     dependencies: [PS09-03-FEDERAL-REAL-SOURCE-SPINE, PS09-04-PNW-REAL-CORPUS]
     authorization_gate: G-PS09-RUN-05
     acceptance:
@@ -5721,6 +5721,30 @@ work_items:
         docs/handoffs/ps09-real-policy-cutoff-continuation.md. The user
         requested a fresh-session handoff; this is not a source/permission
         impasse and no item is marked complete from the report alone.
+      - >-
+        2026-09-05 bounded browser closure on
+        build-9c79fb4da90fa2097c91ae61bae9b067, manifest
+        ec13bd7878c4a4456e70701709f1c1ffe96c32c1893fd7207e2d646b9f9156c9. Full
+        report review/browser/run-20260905165432392/report.json, SHA
+        23891ff83aec1ad1e299dbc5b6df81341c201c47703155c6f327e01505c5f639,
+        records 25/25 journeys, 14 exact 1440/390px scale-1 layouts with empty
+        element/text overflow arrays, 28 verified PNGs and 48 same-origin page
+        requests with zero observed errors. Eleven of twelve full axe scans are
+        clear. Ten nodes in the remaining scan and all ten targeted rescans
+        retain bgOverlap incompletes; raw passed/acceptanceComplete remain false
+        and command exit remains 1. Independent manual review separately
+        resolves those exact nodes using 1932/1932 visible non-whitespace
+        character measurements, neutral ancestry, sealed screenshots and
+        14.556:1 contrast. The single whole-range mismatch maps only to U+0020
+        at UTF-16 [98,99). The centered mobile screenshot proves all three
+        warning labels visible and wrapped. Full npm run check exits zero after
+        final harness changes: 1516 unit tests in 92 files, 99 policy tests and
+        synthetic artifact synthetic-c6a4c9980cbefd6178c7 pass. Independent
+        custody/output review finds no remaining bounded defect; all 76
+        protected identities, lockfile, custody manifest and three retired EV01
+        files remain unchanged. The outcome handoff records exact review scope
+        and limits. This completes only adopted PS09-05; PS09-02 and PS09-06
+        remain unresolved/gated.
   - id: PS09-06-LOCAL-RC
     priority: 305
     milestone: PS09 Run 6
@@ -5967,23 +5991,20 @@ next_actions:
   - order: 1
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action: >-
-      Preserve unresolved originating identity and broad scenario acceptance.
-      General-jurisdiction implementation proceeds independently; this item
-      remains a mandatory PS09-06 acceptance dependency.
-  - order: 2
-    work_item: PS09-05-SEARCH-OUTPUTS
-    action: >-
-      Execute the startup prompt in
-      docs/handoffs/ps09-real-policy-cutoff-continuation.md. Verify the bounded
-      responsive repairs, exact rebuilt output and fixed 390px viewport;
-      adjudicate remaining axe incompletes and rerun the full browser journeys
-      with independent review before accepting PS09-05. Do not reacquire data or
-      restart the historical launch. The local Chromium runtime is available.
+      Prepare an exact originating identity/scenario evidence and authority
+      packet for owner selection. Preserve unsupported claims as unresolved; the
+      completed general-jurisdiction workbench supplies no identity proof. This
+      remains a mandatory PS09-06 acceptance dependency. Existing sealed corpus
+      replay and local inspection are available without reacquisition. Keep
+      PS09-06 unstarted and gated until PS09-02 is accepted and the owner
+      authorizes the exact local release run. Recover the completed bounded
+      outcome from docs/handoffs/ps09-real-policy-discovery-outcome.md; do not
+      reactivate its cutoff startup, archived ready lanes or ended acquisition.
 finish_states:
   ps09:
-    current_state: in_progress
+    current_state: blocked
     release_root: PS09-06-LOCAL-RC
-    blocked_by: []
+    blocked_by: [PS09-02-IDENTITY-AUTHORITY-SCENARIOS]
     satisfied_when:
       - All six canonical outcomes have objective acceptance evidence.
       - G-PS09-RC is satisfied without opening publication or optional tranches.

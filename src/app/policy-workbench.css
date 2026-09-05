@@ -276,6 +276,9 @@
   border-top: 5px solid var(--pw-green);
   box-shadow: 0 5px 20px #153e3414;
 }
+.pw-evidence li {
+  overflow-wrap: anywhere;
+}
 .pw-quote {
   white-space: pre-wrap;
   overflow-wrap: anywhere;

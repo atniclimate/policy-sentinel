@@ -9,10 +9,13 @@ Nation's interests.
 ## Project status
 
 The owner adopted the [real-policy discovery launch](docs/handoffs/ps09-real-policy-discovery-launch.md)
-at `39d738a`. Its bounded local implementation is active in the
-[execution journal](docs/development/PS09-REAL-POLICY-DISCOVERY-01.md).
-The historical status below describes the synthetic baseline; the current
-ledger identifies implemented and still-pending successor capabilities.
+at `39d738a`. Its bounded local workbench is implemented and validated through
+PS09-05; the [local outcome](docs/handoffs/ps09-real-policy-discovery-outcome.md)
+records launch/replay commands, frozen evaluation and separate manual review
+of ten preserved browser contrast incompletes. The PS09 program remains blocked
+on PS09-02 identity/scenario evidence; PS09-06 is unstarted and gated. The
+historical status below describes the synthetic baseline. The ordinary build
+remains synthetic, while the sealed real corpus uses its reviewed local output.
 
 Development commands added for that scope: `npm run test:policy` runs the v2
 contract, temporal, extraction and acquisition checks; `npm run test:roadmap`
@@ -243,6 +246,13 @@ layout/accessibility diagnostic before the full interaction run. It checks the
 configured viewport, never treats automatic mobile expansion as a pass, and
 reports incomplete accessibility checks as needing review. A passing smoke run
 does not complete the full browser acceptance.
+
+Full journeys also open evidence limitations and check visible text against both
+viewport edges. When axe cannot determine a snippet's background and reports
+`bgOverlap`, the report preserves that incomplete result and records separate
+scrolled screenshots, computed colors, text and character geometry, sampled visibility and
+targeted contrast scans. These follow-ups require independent review; they do
+not automatically change `needs_accessibility_review` into a passing report.
 
 ```powershell
 npm run dev

@@ -1,5 +1,14 @@
 # Real-policy discovery: session-cutoff continuation
 
+Completed 2026-09-05. This cutoff and startup prompt are retained as historical
+evidence. Recover the [current local outcome](ps09-real-policy-discovery-outcome.md)
+and live roadmap for the accepted bounded PS09-05 result, final browser report
+`23891ff8`, separate manual resolution of ten preserved axe incompletes, local
+commits and launch/replay commands. There are zero active items; PS09 remains
+blocked on PS09-02 and PS09-06 stays unstarted and gated. The historical server
+and build identities below are superseded by the outcome. Preserve the sealed
+corpus; do not execute this completed startup again.
+
 Prepared 2026-09-05 after the session usage limit interrupted final browser
 acceptance. The owner requested subagent triage, bounded fixes and a fresh
 session handoff. This is a continuation of the already adopted

@@ -1,11 +1,12 @@
 # AGENTS.md
 
-Current recovery: after the session limit, the owner requested bounded triage,
-fixes and a fresh-session handoff. Start with the
-[cutoff continuation prompt](docs/handoffs/ps09-real-policy-cutoff-continuation.md).
-PS09-05 remains the sole unfinished active closure; the earlier browser report's
-pass was rejected for masked mobile overflow and incomplete contrast checks.
-Preserve the existing sealed corpus and continue local UI/browser validation.
+Current recovery: the bounded cutoff continuation is complete. Start with the
+[local outcome](docs/handoffs/ps09-real-policy-discovery-outcome.md) and live
+`ROADMAP.yaml`. PS09-05 has scoped browser acceptance, including a separate
+hash-bound manual disposition for ten preserved axe incompletes. There are zero
+active items; the PS09 program remains blocked on PS09-02 identity/scenario
+evidence. PS09-06 stays unstarted and gated. Preserve the sealed corpus; the
+[cutoff prompt](docs/handoffs/ps09-real-policy-cutoff-continuation.md) is historical.
 
 ## Purpose and phase gate
 
@@ -16,16 +17,19 @@ repository navigation and authority index. Preserve the product boundaries in
 `docs/pnw-scope-and-acceptance.md`, and the decisions in
 `docs/decision-register.md`.
 
-The current local authorization is
+The completed bounded local run is
 `POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01`. On 2026-09-05 the owner instructed
 execution of the full [real-policy launch](docs/handoffs/ps09-real-policy-discovery-launch.md)
 prepared at `39d738a` and explicitly adopted its stated local scope. It
-authorizes the bounded runner, independently reviewed credential-free official
+authorized the bounded runner, independently reviewed credential-free official
 acquisition, local corpus and temporal analysis, search/workbench, governed
 local outputs, tests, repairs and local commits within that launch's exact
 source, host, request, byte, custody and privacy ceilings. Read the
 [execution journal](docs/development/PS09-REAL-POLICY-DISCOVERY-01.md) for current
 leases, accepted source profiles, operation accounting and measured evidence.
+The adopted local workbench outcome is complete; acquisition has ended and
+unused ceilings do not authorize a new run. Local replay and inspection use the
+existing sealed corpus and reviewed output.
 Approval is not source qualification or implementation acceptance. Recover
 the live/terminal item from `ROADMAP.yaml` and the
 [local outcome](docs/handoffs/ps09-real-policy-discovery-outcome.md).
@@ -65,8 +69,8 @@ prompt. Recover the [strategic research](docs/development/ps09-real-policy-syste
 and [real-policy launch prompt](docs/handoffs/ps09-real-policy-discovery-launch.md)
 before selecting the older startup. The `39d738a` preparation checkpoint
 performed public read-only research and documentation without implementation
-or product acquisition. The owner has now supplied and adopted that prompt;
-its larger bounded local scope is active. Historical grants remain
+or product acquisition. The owner subsequently supplied and adopted that prompt;
+its larger bounded local outcome is now complete. Historical grants remain
 historical; do not reset them or mistake their synthetic limits for the new
 product goal. Separately closed external operations retain their boundaries.
 

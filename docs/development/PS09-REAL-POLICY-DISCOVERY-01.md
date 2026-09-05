@@ -1,13 +1,183 @@
 # Real-policy discovery execution journal
 
-Run: `POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01`. Active local implementation,
+Run: `POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01`. Completed bounded local implementation,
 2026-09-05. The owner instructed execution of the entire
 [launch](../handoffs/ps09-real-policy-discovery-launch.md) and adopted its local
 scope. Preparing that launch at `39d738a` was historical; this is its execution.
 
-## Objective and live checkpoint
+## Objective and terminal checkpoint
 
-Current checkpoint (2026-09-05 cutoff continuation): the owner requested
+Terminal local outcome, 2026-09-05: PS09-05 is complete only for the adopted
+bounded workbench. There are zero active items; the PS09 finish remains blocked
+on PS09-02 identity/scenario evidence and PS09-06 stays unstarted and gated.
+The [outcome handoff](../handoffs/ps09-real-policy-discovery-outcome.md) binds
+the final report, manual disposition, tests, launch/replay commands and limits.
+All worker leases are returned. The lead owns final documentation and local
+commits; no source acquisition or corpus/evaluation mutation occurred during
+this cutoff continuation.
+
+Final browser report `review/browser/run-20260905165432392/report.json`, SHA
+`23891ff83aec1ad1e299dbc5b6df81341c201c47703155c6f327e01505c5f639`, binds
+build `9c79fb4d` / manifest `ec13bd78` / unchanged corpus `c9628a10` to all
+25 passing journeys, 14 exact-width scale-1 geometry checks, 28 independently
+hashed PNGs and 48 same-origin page requests with zero observed errors. Opened
+mobile limitation labels are fully visible and wrapped. Eleven of twelve full
+axe scans are clear; ten nodes in the remaining scan and every targeted rescan
+remain incomplete. Raw exit 1, `needs_accessibility_review`, `passed: false`
+and `acceptanceComplete: false` are preserved.
+
+The independent acceptance auditor recomputed all 1,932 non-whitespace character
+visibility checks, matched each target to exactly one original node and
+reconstructed each diagnostic text,
+verified all neutral ancestors and inspected all ten sealed target screenshots.
+Uniform normal 16.64px/400 text has independently calculated 14.556094:1
+contrast. The sole whole-range sample mismatch maps only to U+0020 at UTF-16
+[98,99); that finding is not a blanket explanation for all axe results. The
+auditor found no remaining bounded browser defect and recommended acceptance.
+The lead adopts the separate manual resolution of these ten exact nodes within
+the existing local authorization. This does not constitute owner release
+approval or a general accessibility certification.
+
+The owner then relayed a second session's read-only independent acceptance of
+`run-20260905165432392` through manual adjudication. It confirms all 25 journeys,
+the ten contrast-node resolutions and mobile warning visibility, changed no
+files, and explicitly preserves the raw automated result as false. The owner
+instructed continuation of final validation, documentation and local commit.
+
+Final repeated `npm run check` after all harness changes exits zero: 1,516 unit
+tests in 92 files, 99 policy, 18 hook, 13 corpus and 30 spine tests, with one
+Windows file-symlink skip and two historical hook symlink probes unavailable.
+All other stages pass; ordinary synthetic artifact
+`synthetic-c6a4c9980cbefd6178c7` has three records, 575 recognition entries and
+eight verified assets. The independent reviewer verified all 12 served output
+files and hashes, totaling 19,619,912 bytes. Node PID 13708 and its exact
+127.0.0.1:4181 listener/command are verified. All 76 protected identities,
+custody manifest, lockfile and three retired EV01 files remain unchanged;
+33 owner inputs remain untracked. No later or external gate is opened.
+
+Terminal validation found a test-fixture isolation issue after PS09-05 becomes
+complete: the roadmap dependency-removal negative case reaches the generic
+readiness guard before its intended canonical-dependency guard. The live
+terminal ledger itself validates. The lead leases only
+`tests/pipeline/roadmap-validator.test.mjs` to `browser_repair_review` for the
+smallest fixture repair, preserving the validator and its required rejection.
+This extended the final owned set to 13 paths. PS09-05 was temporarily active
+for this regression closure; the browser acceptance above remained valid.
+
+The worker returned that final lease after isolating the negative case with an
+explicit validated schema-1.6 fixture. The validator and exact dependency
+rejection remain unchanged. With the terminal ledger restored, the registered
+`npm run test:roadmap` exits zero (3/3, no skips), including positive live
+terminal and synthetic-1.6 cases. Formatting, lint and diff checks pass.
+Independent code review accepts the repair. All leases are now returned and
+zero active items are restored. Final roadmap validation passes 77 items/53
+gates, with 39 complete, 18 blocked, 17 not started, two deferred and one archived
+ready. Backbone, source-boundary scan and formatting checks pass. The terminal
+validator also rejected an unnecessary PS09-06 next-action entry; its closed
+successor boundary is now recorded under the sole PS09-02 root action.
+
+## Fresh-session execution history
+
+Fresh-session continuation (2026-09-05, starting `main` / `51f0b8a`): PS09-05
+remains the sole active closure. The tracked worktree is clean and the 33
+protected owner inputs remain untracked. Node 24.19.0/npm 12.0.2 and the exact
+loopback server PID 25480 are verified. Acquisition is ended; the sealed corpus,
+evaluation freezes, historical reports and retired EV01 directory are read-only.
+The lead owns rebuild/serve/browser report writes in the existing external
+`local-output/` and `review/browser/` namespaces, plus `ROADMAP.yaml`, this journal,
+`AGENTS.md`, `docs/PROJECT-BACKBONE.md`, `docs/continuation-prompt.md`, and the
+cutoff/outcome handoffs for current recovery and acceptance records. The
+`browser_repair_review` worker begins read-only on the harness/workbench closure;
+the independent `acceptance_auditor` remains read-only on custody, evidence and
+terminal claims. No worker has a write lease. Any required code repair will have
+an exact path lease before editing. Next: offline rebuild, corrected early smoke,
+full journeys, screenshot inspection and independent review, then final checks.
+
+Fresh evidence: the local rebuild reproduces the exact cutoff output pointer
+(`build-215d11d8f2538a434ed92a0ba0dc83d1`, manifest `5dfe331d`), so the verified
+PID 25480 continues serving those bytes. Smoke report
+`review/browser/run-20260905162557221/report.json`, SHA-256
+`a104d6751e6ffe4cf3ffe95249c87b9f56bcc7eaa56b544508ac45b00af48cc7`, passes
+13 checks and six screenshots. All six geometry measurements have exact
+1440/390px configured/client/document/inner/visual widths at scale 1 and empty
+element/text overflow arrays. Six axe scans have zero violations or incompletes;
+24 page requests are same-origin with no observed network/runtime errors.
+Independent rehash and visual review accepts that smoke scope only. Independent
+offline replay exits zero over 423 objects, 210 works, 215 versions and 21,209
+segments; the existing corpus/seal, 76 protected identities, custody manifest,
+lockfile and three retired EV01 hashes remain unchanged. Full browser run
+`run-20260905162640052` and the fresh repository check are still pending.
+
+Full rerun `review/browser/run-20260905162640052/report.json`, SHA-256
+`c9218c0182c6b1cfd4afaf8fd2b335606b0e7527bdfed40a563caca4dd254dbd`, completes
+all 25 journey checks but correctly exits 1 with `needs_accessibility_review`:
+ten desktop cross-government snippet nodes retain axe `bgOverlap` incompletes.
+Mobile evidence also records two long diagnostic-label text ranges beyond 390px
+while page dimensions remain 390px. Acceptance remains open. New exact worker
+lease: `browser_repair_review` owns `scripts/verify-policy-browser.mjs` and
+`src/app/policy-workbench.css` plus immutable reports/screenshots in external
+`review/browser/`. The lead retains shared output code, package/README, ledger
+and commits. The worker must preserve concurrent edits and use no source calls,
+clipping workaround or corpus mutation. Required closure is label wrapping,
+stronger geometry/visibility diagnostics and targeted contrast evidence; any
+remaining incomplete needs independent explicit adjudication. The final full
+repository check must follow these repairs.
+
+The fresh pre-follow-up `npm run check` exits zero: 1,516/1,516 unit tests in
+92 files, 99 policy tests, 18 hook tests, 13 legacy corpus tests, 30 spine tests
+and one Windows file-symlink skip; all other stages and ordinary synthetic
+artifact `synthetic-759829b1bea6aaa052ef` pass (three records, 575 recognition
+entries, eight assets). This does not validate the forthcoming follow-up repair.
+
+For final recovery congruence, the lead also owns only the current-pointer prose
+in `docs/handoffs/ps09-real-policy-discovery-launch.md` and
+`docs/handoffs/ps09-fresh-session-recovery-and-forward-plan.md`, plus the browser
+diagnostic description in `README.md`. Their historical evidence remains intact.
+
+The worker returned both code leases after lint, formatting, whitespace and
+18/18 focused workbench/import tests passed. Independent diagnostic-code review
+accepts a new run, without accepting the unfinished browser outcome. The lead
+adds an explicit open-limitations viewport screenshot to the same returned
+harness, then owns rebuild, exact server replacement and final browser/check
+execution. The harness preserves full-scan incompletes and records per-target
+follow-ups as `independent_review_required`; no automatic waiver is introduced.
+
+Follow-up build exits zero: `build-9c79fb4da90fa2097c91ae61bae9b067`, manifest
+SHA `ec13bd7878c4a4456e70701709f1c1ffe96c32c1893fd7207e2d646b9f9156c9`,
+12 files and 19,619,912 bytes. After re-verifying and stopping only old Node
+PID 25480, the registered serve command exposes the new output on 127.0.0.1:4181
+through Node PID 13708. Independent comparison confirms corpus, research,
+dossier, evidence, local profile and dossier stylesheet bytes unchanged.
+New smoke `review/browser/run-20260905164101800/report.json`, SHA
+`92d2d38fe9457bc6282e855d011371e89a6cb7a9c19616f38181f96f4d141cae`, exits zero
+with all 13 checks and six screenshots. Full journeys and per-node review remain
+pending. The first post-repair check stopped at roadmap formatting; exact-file
+formatting is repaired and the complete check is running again.
+
+Post-repair full `npm run check` exits zero: 1,516/1,516 unit tests in 92 files,
+99 policy tests and all other stages; the ordinary synthetic artifact is
+`synthetic-e749dc2d2c6bffc42ad2` (three records, 575 recognition entries, eight
+verified assets). Full browser report `run-20260905164217415/report.json`, SHA
+`f8bf390a0cd2548f6c74491a1b1d92945ee99216ba546d72d4d1be6b40ee6c5d`, preserves
+all 25 passing journeys, 14 clean geometry measurements and 28 screenshots,
+but correctly exits 1 for ten original contrast incompletes. All ten targeted
+rescans also remain incomplete. Independent rendered-color calculation gives
+14.556:1; visual review sees no occlusion. One small range hit test still needs
+character-level evidence, and the mobile limitations screenshot misses the
+warning text below its viewport. Acceptance remains open. The worker again owns
+only `scripts/verify-policy-browser.mjs` to improve those diagnostic captures,
+preserving original ranges and axe results. This is a harness-only follow-up;
+the served product build and sealed corpus remain unchanged.
+
+The worker returned the final harness lease after formatting, lint, syntax and
+diff checks passed. Independent code review accepts the diagnostic method for
+a rerun. The lead owns all remaining paths, reports and commits; no worker
+writes remain. Final browser run `run-20260905165432392` and repeated full
+`npm run check` are underway. The lead extends the README lease to its current
+status paragraph for terminal recovery congruence. Objective acceptance remains
+pending, and PS09-05 is still the sole active item.
+
+Historical checkpoint (2026-09-05 cutoff continuation): the owner requested
 subagent triage, bounded fixes and a handoff after the session limit. Recover
 the [new startup](../handoffs/ps09-real-policy-cutoff-continuation.md).
 Cutoff implementation and recovery instructions are committed as `5d25167`

@@ -1,10 +1,12 @@
 # Policy Sentinel project backbone
 
 Latest recovery entry: the
-[session-cutoff continuation](handoffs/ps09-real-policy-cutoff-continuation.md)
-records the owner's requested pause, bounded fixes and unfinished PS09-05
-browser acceptance. Start there with the live roadmap; preserve the sealed
-corpus and do not restart acquisition from an older prompt.
+[local workbench outcome](handoffs/ps09-real-policy-discovery-outcome.md)
+records completed bounded PS09-05 browser acceptance and its separate manual
+contrast disposition. The live roadmap has zero active items; PS09 remains
+blocked on PS09-02, with PS09-06 unstarted and gated. Preserve the sealed corpus.
+The [session-cutoff continuation](handoffs/ps09-real-policy-cutoff-continuation.md)
+is completed history and does not restart acquisition.
 
 Status: canonical repository authority and navigation index, established
 2026-09-02. `ROADMAP.yaml` remains the machine-readable source for live status.
@@ -42,9 +44,10 @@ with temporal and cross-jurisdiction investigation. Start from the
 and [adopted implementation prompt](handoffs/ps09-real-policy-discovery-launch.md).
 Preparation at `39d738a` performed public research and documentation only.
 The owner then instructed execution in full and adopted its larger bounded
-local scope. `POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01` is active; recover the
+local scope. `POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01` has completed its bounded
+local outcome; recover the
 [execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md) for leases,
-source predicates, counters and measured outcomes. PS09-03/04/05 may implement
+source predicates, counters and measured outcomes. PS09-03/04/05 validate
 that local slice without claiming PS09-02 identity acceptance or PS09-06 release
 completion. Authorization itself proves no working integration or source fact.
 The [local outcome record](handoffs/ps09-real-policy-discovery-outcome.md)
@@ -316,12 +319,12 @@ npm run validate:roadmap
 npm run validate:backbone
 ```
 
-Recover the real-policy launch and research synthesis first for the latest
-owner direction and its active execution journal. Then recover the earlier fresh-session guide, EV01 terminal
-record, Run 2 handoff and completed Run 1 checkpoint as historical evidence
-with the live roadmap. Continue the adopted local work from its measured
-checkpoint; real identity/scenario evidence remains unresolved and cannot be
-marked complete to unblock general-jurisdiction acquisition.
+Recover the completed real-policy outcome and its execution journal with the
+live roadmap first. The launch, research synthesis, earlier fresh-session guide,
+EV01 terminal record and Run 1/2 handoffs retain historical direction and
+evidence. Local inspection and replay use the sealed corpus. Real identity and
+scenario evidence remains unresolved and requires an exact next packet before
+new operations.
 Archived ready items and old prompts cannot start another lane. The current
 default application/build remains network-free and synthetic.
 
@@ -329,9 +332,9 @@ The historical real-source prerelease stopped because qualification failed
 closed on consumed R7 digest drift. Do not repeat D3, R6, R7, PF-01 through
 PF-17, issue FR-A1, or treat BIA/ATNI ranking as selection/request authority.
 Preserve the exact 27-request ledger, 43-file ignored evidence custody, and
-current protected input inventory. The adopted launch supplies fresh bounded
-source-operation authority only after its source-specific predicates pass;
-it does not revive those historical operations. Publication, remote, credential,
+current protected input inventory. The adopted launch's acquisition has ended;
+new source operations require exact next-packet authority and source-specific
+qualification. Historical operations cannot resume. Publication, remote, credential,
 affirmative provider-terms, paid/contact, private-data, AI, notification,
 unsupported identity/membership assertions and K0/S0/O0 convergence remain
-outside the active scope.
+outside the completed local outcome's scope.

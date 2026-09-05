@@ -131,14 +131,18 @@ test("PS09 release accounting converges without reopening archived lanes", async
       action: `Resolve ${id}.`,
     }));
   };
-  const active = () => {
+  const active = (schemaVersion = "1.5") => {
     const candidate = clone(liveRoadmap);
-    candidate.schema_version = "1.5";
+    candidate.schema_version = schemaVersion;
+    const dependencies =
+      schemaVersion === "1.6"
+        ? [[], [0], [0], [2], [2, 3], [1, 4], [4], [5]]
+        : [[], [0], [0, 1], [1, 2], [2, 3], [4], [4], [5]];
     for (const [index, id] of ps09OutcomeIds.entries()) {
       const entry = item(candidate, id);
-      entry.dependencies = [[], [0], [0, 1], [1, 2], [2, 3], [4], [4], [5]][
-        index
-      ].map((dependency) => ps09OutcomeIds[dependency]);
+      entry.dependencies = dependencies[index].map(
+        (dependency) => ps09OutcomeIds[dependency],
+      );
       entry.status =
         index === 0
           ? "in_progress"
@@ -212,6 +216,7 @@ test("PS09 release accounting converges without reopening archived lanes", async
   for (const [name, candidate] of [
     ["adopted-general-jurisdiction-run", liveRoadmap],
     ["active", active()],
+    ["active-v2", active("1.6")],
     ["terminal-run-one", terminalRunOne()],
     ["canonical-rc", complete()],
   ]) {
@@ -231,7 +236,8 @@ test("PS09 release accounting converges without reopening archived lanes", async
     ps09OutcomeIds[1],
     ps09OutcomeIds[4],
   ]);
-  const missingIdentityGate = globalThis.structuredClone(liveRoadmap);
+  // Isolate the graph rejection from readiness changes as live work completes.
+  const missingIdentityGate = active("1.6");
   item(missingIdentityGate, ps09OutcomeIds[5]).dependencies = [
     ps09OutcomeIds[4],
   ];

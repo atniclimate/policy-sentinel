@@ -1,38 +1,27 @@
 # Policy Sentinel durable continuation prompt
 
-Latest startup: execute the
-[session-cutoff continuation prompt](handoffs/ps09-real-policy-cutoff-continuation.md).
-The owner requested a fresh-session handoff after bounded triage/repairs.
-PS09-05 remains unfinished; current browser evidence has explicit viewport and
-contrast gaps. No source reacquisition is needed.
+Latest recovery: read the completed
+[local workbench outcome](handoffs/ps09-real-policy-discovery-outcome.md),
+[execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md) and live roadmap.
+PS09-03/04/05 are complete only for the adopted bounded real-policy slice.
+The final browser report retains ten axe incompletes; a separate reproducible
+manual review closes those exact contrast/visibility nodes. There are zero
+active work items. The PS09 program is blocked on PS09-02 originating identity
+and scenario evidence; PS09-06 remains unstarted and gated.
 
-Recover the implemented [local workbench outcome](handoffs/ps09-real-policy-discovery-outcome.md)
-and live roadmap first. They supersede the launch-time capability descriptions
-below and identify current browser acceptance, commands and remaining PS09
-release work. Use the existing sealed external corpus for replay and review;
-do not restart acquisition from a historical startup instruction.
-
-Status: `POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01` is active under the owner's
-2026-09-05 instruction to execute the full
-[real-policy launch](handoffs/ps09-real-policy-discovery-launch.md) prepared at
-`39d738a` and adopt its stated larger bounded local scope. Recover that launch,
-its [research synthesis](development/ps09-real-policy-systems-research-2026-09-05.md),
-the [execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md) and live
-roadmap before continuing. The journal records leases, source predicates,
-operation accounting, actual checks and remaining work; authorization alone
-proves no acquired corpus or integrated capability. Preserve the
+The [cutoff continuation](handoffs/ps09-real-policy-cutoff-continuation.md)
+has been executed. Its startup and the launch instructions below are historical
+execution context, not a new acquisition or successor-run grant. Local replay
+and inspection use the existing sealed corpus and reviewed loopback output.
+The next owner action is an exact PS09-02 evidence/scenario packet with bounded
+authority, followed by separate PS09-06 authorization only when prerequisites
+are met. Preserve the [adopted launch](handoffs/ps09-real-policy-discovery-launch.md),
+[research synthesis](development/ps09-real-policy-systems-research-2026-09-05.md),
 [earlier recovery guide](handoffs/ps09-fresh-session-recovery-and-forward-plan.md)
 and [EV01 terminal handoff](handoffs/ps09-ev-01-evidence-review.md) as history.
-EV01 ended at local launch before any source request; its initial ledger and
-frozen helpers cannot resume. Historical local probes verified one-shot argv
-and preloaded input, while TTY launch failed in that tool surface. The active
-run must prove its own one-operation runner through actual PowerShell before
-dispatch. Full PS09-02 remains blocked while its independent
-general-jurisdiction implementation proceeds through PS09-03/04/05.
-Run 1 and the [bounded Run 2 synthetic packet](handoffs/ps09-run-02-identity-authority-scenarios.md)
-retain their validation. Only the adopted launch's bounded source operations
-are authorized after their predicates pass; other later-run and external gates
-retain their exact closed boundaries.
+EV01, Run 1 and the [bounded Run 2 packet](handoffs/ps09-run-02-identity-authority-scenarios.md)
+cannot resume from spent or unused historical operation budgets. Every separately
+closed source, release and external gate retains its exact boundary.
 
 ## Start and recover
 
@@ -72,7 +61,7 @@ report, schema or passing synthetic fixture is not source/release evidence.
 
 ## Current authority and single completion graph
 
-The adopted launch authorizes bounded local implementation, independently
+The completed adopted launch authorized bounded local implementation, independently
 reviewed credential-free official acquisition, external immutable corpus and
 derived evidence, temporal/cross-context analysis, deterministic search,
 workbench/dossier/export, tests, repairs and local commits. Its exact source,
@@ -98,8 +87,8 @@ The separate EV01 token approved its exact five conditional operations but ended
 before any was reserved or issued. Do not reuse its directory or unused budget,
 repair the stale active ledger, create receipts, or rerun its helper/checks.
 The fresh-session guide's proposed readiness stage is historical input to the
-new runner; it is not source authority. The adopted launch now supplies its own
-bounded local authority. Do not reopen settled product questions or reset a
+new runner; it is not source authority. The adopted launch supplied its own
+bounded local authority and has reached its local outcome. Do not reopen settled product questions or reset a
 spent operation ledger.
 
 The canonical program is PS09-01 through PS09-06; conditional PS09-07/08 remain
@@ -110,7 +99,7 @@ statuses, gates and dated evidence as archived accounting. An archived ready
 item is neither current execution authority nor another mandatory product.
 PS09-02 remains blocked and an explicit PS09-06 prerequisite; do not mark its
 unresolved identities or scenarios complete to enable general-jurisdiction
-work. PS09-03/04/05 execute only the adopted launch's local closure, while
+work. PS09-03/04/05 completed only the adopted launch's local closure, while
 PS09-06/07/08 retain their exact owner gates.
 
 Use only `complete`, `in_progress`, `ready`, `blocked`, `deferred`, and
@@ -236,6 +225,6 @@ The full Run 2 completion token is unavailable from synthetic proof. The
 bounded local checkpoint is not whole-product completion or publication.
 The earlier recovery task used
 `PS09_FRESH_SESSION_HANDOFF_READY_NO_NEW_SOURCE_AUTHORITY`; that disposition
-is historical. Continue the same adopted launch across compaction and report
-its actual completed or partial local workbench,
-measured evidence, unresolved claims, and remaining release work.
+is historical. Across compaction recover the completed bounded workbench's
+terminal outcome and live ledger. Preserve its measured evidence, unresolved
+claims and remaining release gates; the completed launch does not restart itself.

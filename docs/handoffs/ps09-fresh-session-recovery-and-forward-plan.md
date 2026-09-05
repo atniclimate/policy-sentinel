@@ -1,8 +1,10 @@
 # Policy Sentinel: fresh-session recovery and forward plan
 
-Latest startup: use the
-[real-policy cutoff continuation](ps09-real-policy-cutoff-continuation.md)
-requested after the later implementation session hit its usage limit.
+Latest recovery: use the
+[real-policy local outcome](ps09-real-policy-discovery-outcome.md).
+The later [cutoff continuation](ps09-real-policy-cutoff-continuation.md) is
+complete through bounded PS09-05 acceptance. There are zero active items;
+PS09 remains blocked on PS09-02 and PS09-06 stays unstarted and gated.
 
 Current recovery pointer: the owner adopted and executed the broader launch
 prepared at `39d738a`. Recover the

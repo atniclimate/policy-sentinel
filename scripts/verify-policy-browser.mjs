@@ -143,6 +143,264 @@ async function screenshot(page, name, fullPage = false) {
     `${JSON.stringify({ screenshot: artifact.path, digest: artifact.digest })}\n`,
   );
 }
+async function reviewContrastOverlap(page, name, incomplete) {
+  const reviews = [];
+  for (const rule of incomplete) {
+    if (rule.id !== "color-contrast") continue;
+    for (const node of rule.nodes) {
+      if (
+        ![...node.any, ...node.all, ...node.none].some(
+          (check) => check.data?.messageKey === "bgOverlap",
+        )
+      )
+        continue;
+      const review = { target: node.target, originalRule: rule.id };
+      reviews.push(review);
+      if (node.target.length !== 1 || typeof node.target[0] !== "string") {
+        review.error = "Target requires unsupported nested-frame/shadow review";
+        continue;
+      }
+      const target = page.locator(node.target[0]);
+      if ((await target.count()) !== 1) {
+        review.error = "Original target no longer resolves uniquely";
+        continue;
+      }
+      review.beforeScroll = await target.evaluate((element) => {
+        const rect = element.getBoundingClientRect();
+        return {
+          scroll: { x: globalThis.scrollX, y: globalThis.scrollY },
+          viewport: {
+            width: globalThis.innerWidth,
+            height: globalThis.innerHeight,
+          },
+          element: {
+            left: rect.left,
+            right: rect.right,
+            top: rect.top,
+            bottom: rect.bottom,
+          },
+        };
+      });
+      await target.evaluate((element) => {
+        element.scrollIntoView({
+          block: "center",
+          inline: "nearest",
+          behavior: "instant",
+        });
+      });
+      review.visibility = await target.evaluate((element) => {
+        const describe = (node) => ({
+          tag: node.tagName,
+          id: node.id,
+          class: node.className,
+        });
+        const rectValue = (rect) => ({
+          left: rect.left,
+          right: rect.right,
+          top: rect.top,
+          bottom: rect.bottom,
+          width: rect.width,
+          height: rect.height,
+        });
+        const ancestors = [];
+        for (let current = element; current; current = current.parentElement) {
+          const style = globalThis.getComputedStyle(current);
+          ancestors.push({
+            ...describe(current),
+            color: style.color,
+            backgroundColor: style.backgroundColor,
+            backgroundImage: style.backgroundImage,
+            opacity: style.opacity,
+            filter: style.filter,
+            backdropFilter: style.backdropFilter,
+            mixBlendMode: style.mixBlendMode,
+            backgroundBlendMode: style.backgroundBlendMode,
+            visibility: style.visibility,
+            display: style.display,
+            overflowX: style.overflowX,
+            overflowY: style.overflowY,
+          });
+        }
+        const style = globalThis.getComputedStyle(element);
+        const walker = globalThis.document.createTreeWalker(
+          element,
+          globalThis.NodeFilter.SHOW_TEXT,
+        );
+        const textRects = [];
+        while (walker.nextNode()) {
+          const text = walker.currentNode;
+          if (!text.textContent.trim()) continue;
+          const range = globalThis.document.createRange();
+          range.selectNodeContents(text);
+          for (const rect of range.getClientRects()) {
+            if (rect.width <= 0 || rect.height <= 0) continue;
+            const inViewport =
+              rect.left >= 0 &&
+              rect.right <= globalThis.innerWidth &&
+              rect.top >= 0 &&
+              rect.bottom <= globalThis.innerHeight;
+            const points = inViewport
+              ? [0.1, 0.5, 0.9].map((fraction) => {
+                  const x = rect.left + rect.width * fraction;
+                  const y = rect.top + rect.height / 2;
+                  const top = globalThis.document.elementFromPoint(x, y);
+                  return {
+                    x,
+                    y,
+                    unobscured: Boolean(
+                      top && (top === element || element.contains(top)),
+                    ),
+                    topElement: top ? describe(top) : null,
+                  };
+                })
+              : [];
+            textRects.push({ ...rectValue(rect), inViewport, points });
+          }
+        }
+        // Keep whole-text range evidence above unchanged. A line-end range can
+        // cover hanging whitespace, so independently identify every character
+        // covering an obscured sample instead of treating it as hidden glyphs.
+        const obscuredSamples = textRects.flatMap((rect) =>
+          rect.points.filter((point) => !point.unobscured),
+        );
+        const characterWalker = globalThis.document.createTreeWalker(
+          element,
+          globalThis.NodeFilter.SHOW_TEXT,
+        );
+        const characterGeometry = [];
+        let textNodeIndex = 0;
+        while (characterWalker.nextNode()) {
+          const text = characterWalker.currentNode;
+          let offset = 0;
+          for (const character of text.textContent) {
+            const range = globalThis.document.createRange();
+            range.setStart(text, offset);
+            range.setEnd(text, offset + character.length);
+            const rects = [...range.getClientRects()].map((rect) => {
+              const positive = rect.width > 0 && rect.height > 0;
+              const inViewport =
+                positive &&
+                rect.left >= 0 &&
+                rect.right <= globalThis.innerWidth &&
+                rect.top >= 0 &&
+                rect.bottom <= globalThis.innerHeight;
+              const x = rect.left + rect.width / 2;
+              const y = rect.top + rect.height / 2;
+              const top = inViewport
+                ? globalThis.document.elementFromPoint(x, y)
+                : null;
+              return {
+                ...rectValue(rect),
+                positive,
+                inViewport,
+                point: {
+                  x,
+                  y,
+                  unobscured: Boolean(
+                    top && (top === element || element.contains(top)),
+                  ),
+                  topElement: top ? describe(top) : null,
+                },
+              };
+            });
+            characterGeometry.push({
+              character,
+              codePoint: `U+${character.codePointAt(0).toString(16).toUpperCase().padStart(4, "0")}`,
+              whitespace: /\s/u.test(character),
+              textNodeIndex,
+              startUtf16: offset,
+              endUtf16: offset + character.length,
+              rects,
+            });
+            offset += character.length;
+          }
+          textNodeIndex += 1;
+        }
+        const nonWhitespaceCharacters = characterGeometry.filter(
+          (entry) => !entry.whitespace,
+        );
+        return {
+          text: element.textContent,
+          viewport: {
+            width: globalThis.innerWidth,
+            height: globalThis.innerHeight,
+          },
+          scroll: { x: globalThis.scrollX, y: globalThis.scrollY },
+          element: rectValue(element.getBoundingClientRect()),
+          fontSize: style.fontSize,
+          fontWeight: style.fontWeight,
+          lineHeight: style.lineHeight,
+          ancestors,
+          textRects,
+          allTextRectsInViewport:
+            textRects.length > 0 && textRects.every((rect) => rect.inViewport),
+          allSampledPointsUnobscured:
+            textRects.length > 0 &&
+            textRects.every(
+              (rect) =>
+                rect.inViewport &&
+                rect.points.every((point) => point.unobscured),
+            ),
+          characterVisibility: {
+            scope:
+              "Per-character layout rectangles and center-point element hit tests; this does not inspect individual rasterized glyph pixels.",
+            nonWhitespaceCharacters,
+            allNonWhitespaceCharactersRenderedAndUnobscured:
+              nonWhitespaceCharacters.length > 0 &&
+              nonWhitespaceCharacters.every(
+                (entry) =>
+                  entry.rects.length > 0 &&
+                  entry.rects.every(
+                    (rect) =>
+                      rect.positive && rect.inViewport && rect.point.unobscured,
+                  ),
+              ),
+            originallyObscuredSamples: obscuredSamples.map((point) => ({
+              point,
+              coveringCharacters: characterGeometry.filter((entry) =>
+                entry.rects.some(
+                  (rect) =>
+                    rect.positive &&
+                    point.x >= rect.left &&
+                    point.x <= rect.right &&
+                    point.y >= rect.top &&
+                    point.y <= rect.bottom,
+                ),
+              ),
+            })),
+          },
+        };
+      });
+      const screenshotName = `${name}-contrast-review-${reviews.length}`;
+      await screenshot(page, screenshotName);
+      review.screenshot = report.screenshots.at(-1).path;
+      review.targetedScan = await page.evaluate(async (selector) => {
+        const result = await globalThis.axe.run(
+          globalThis.document.querySelector(selector),
+          {
+            runOnly: { type: "rule", values: ["color-contrast"] },
+          },
+        );
+        return {
+          violations: result.violations,
+          incomplete: result.incomplete,
+          passes: result.passes,
+          inapplicable: result.inapplicable,
+        };
+      }, node.target[0]);
+    }
+  }
+  if (reviews.length) {
+    report.contexts.at(-1).contrastFollowups ??= [];
+    report.contexts.at(-1).contrastFollowups.push({
+      originalScan: name,
+      disposition: "independent_review_required",
+      scope:
+        "Original incomplete targets scrolled into view, sampled for occlusion, photographed and rescanned individually. Original incomplete results remain unresolved.",
+      reviews,
+    });
+  }
+}
 async function axe(page, name) {
   // Automation evaluation leaves the served CSP intact; no script tag or
   // bypassCSP option is used to load the installed diagnostic library.
@@ -163,12 +421,34 @@ async function axe(page, name) {
   });
   report.contexts.at(-1).accessibility ??= [];
   report.contexts.at(-1).accessibility.push({ name, ...result });
+  await reviewContrastOverlap(page, name, result.incomplete);
   assert.equal(result.violations.length, 0, `AXE_VIOLATIONS_${name}`);
 }
 async function noHorizontalOverflow(page) {
   const configuredWidth = page.viewportSize().width;
-  const layout = await page.evaluate(
-    (configuredWidth) => ({
+  const layout = await page.evaluate((configuredWidth) => {
+    const rendered = (node) => {
+      const style = globalThis.getComputedStyle(node);
+      if (["hidden", "collapse"].includes(style.visibility)) return false;
+      for (let current = node; current; current = current.parentElement) {
+        const ancestorStyle = globalThis.getComputedStyle(current);
+        if (
+          ancestorStyle.display === "none" ||
+          ancestorStyle.contentVisibility === "hidden"
+        )
+          return false;
+        if (current.tagName === "DETAILS" && !current.open) {
+          const summary = [...current.children].find(
+            (child) => child.tagName === "SUMMARY",
+          );
+          if (node !== current && !summary?.contains(node)) return false;
+        }
+      }
+      return node.getClientRects().length > 0;
+    };
+    const exceedsViewport = (rect) =>
+      rect.width > 0 && (rect.left < -1 || rect.right > configuredWidth + 1);
+    return {
       configuredWidth,
       innerWidth: globalThis.innerWidth,
       clientWidth: globalThis.document.documentElement.clientWidth,
@@ -182,11 +462,7 @@ async function noHorizontalOverflow(page) {
       overflow: [...globalThis.document.querySelectorAll("body *")]
         .filter((node) => {
           const rect = node.getBoundingClientRect();
-          return (
-            rect.width > 0 &&
-            rect.right > configuredWidth + 1 &&
-            globalThis.getComputedStyle(node).position !== "fixed"
-          );
+          return rendered(node) && exceedsViewport(rect);
         })
         .slice(0, 20)
         .map((node) => ({
@@ -195,6 +471,7 @@ async function noHorizontalOverflow(page) {
           id: node.id,
           parentClass: node.parentElement?.className,
           width: node.getBoundingClientRect().width,
+          left: node.getBoundingClientRect().left,
           right: node.getBoundingClientRect().right,
           whiteSpace: globalThis.getComputedStyle(node).whiteSpace,
           overflowWrap: globalThis.getComputedStyle(node).overflowWrap,
@@ -208,17 +485,17 @@ async function noHorizontalOverflow(page) {
         const offenders = [];
         while (walker.nextNode() && offenders.length < 20) {
           const node = walker.currentNode;
-          if (!node.textContent.trim()) continue;
+          if (!node.textContent.trim() || !rendered(node.parentElement))
+            continue;
           const range = globalThis.document.createRange();
           range.selectNodeContents(node);
-          const rects = [...range.getClientRects()].filter(
-            (rect) => rect.width > 0 && rect.right > configuredWidth + 1,
-          );
+          const rects = [...range.getClientRects()].filter(exceedsViewport);
           if (rects.length)
             offenders.push({
               tag: node.parentElement.tagName,
               class: node.parentElement.className,
               id: node.parentElement.id,
+              left: Math.min(...rects.map((rect) => rect.left)),
               right: Math.max(...rects.map((rect) => rect.right)),
               sample: node.textContent.slice(0, 160),
               whiteSpace: globalThis.getComputedStyle(node.parentElement)
@@ -229,9 +506,8 @@ async function noHorizontalOverflow(page) {
         }
         return offenders;
       })(),
-    }),
-    configuredWidth,
-  );
+    };
+  }, configuredWidth);
   report.contexts.at(-1).layouts ??= [];
   report.contexts.at(-1).layouts.push({ url: page.url(), ...layout });
   assert.ok(layout.width <= configuredWidth + 1, "PAGE_HORIZONTAL_OVERFLOW");
@@ -253,6 +529,8 @@ async function noHorizontalOverflow(page) {
       "UNEXPECTED_VIEWPORT_SCALING",
     );
   }
+  assert.deepEqual(layout.overflow, [], "VISIBLE_ELEMENT_HORIZONTAL_OVERFLOW");
+  assert.deepEqual(layout.textOverflow, [], "VISIBLE_TEXT_HORIZONTAL_OVERFLOW");
 }
 async function openContext(name, viewport, mobile) {
   const context = await browser.newContext({
@@ -563,6 +841,16 @@ async function evidence(page, trigger, expectedSegmentId) {
     .getByText("Capture and replay evidence", { exact: true })
     .click();
   assert.ok((await region.textContent()).includes(segment.textDigest));
+  const limitations = region.getByText("Rendition limitations and omissions", {
+    exact: true,
+  });
+  if (await limitations.count()) {
+    await limitations.press("Enter");
+    assert.equal(
+      await limitations.evaluate((node) => node.parentElement.open),
+      true,
+    );
+  }
   return region;
 }
 try {
@@ -753,6 +1041,51 @@ try {
           .getByRole("button", { name: /^Inspect passage 1 ·/ })
           .first();
         const region = await evidence(page, trigger);
+        const limitations = region.getByText(
+          "Rendition limitations and omissions",
+          { exact: true },
+        );
+        if (await limitations.count()) {
+          const list = limitations.locator("..").locator("ul");
+          await list.evaluate((node) =>
+            node.scrollIntoView({
+              block: "center",
+              inline: "nearest",
+              behavior: "instant",
+            }),
+          );
+          const view = await list.evaluate((node) => {
+            const rect = node.getBoundingClientRect();
+            return {
+              warnings: [...node.children].map((child) => child.textContent),
+              viewport: {
+                width: globalThis.innerWidth,
+                height: globalThis.innerHeight,
+              },
+              scroll: { x: globalThis.scrollX, y: globalThis.scrollY },
+              list: {
+                left: rect.left,
+                right: rect.right,
+                top: rect.top,
+                bottom: rect.bottom,
+                height: rect.height,
+              },
+            };
+          });
+          assert.ok(
+            view.list.left >= 0 && view.list.right <= view.viewport.width,
+          );
+          assert.ok(
+            view.list.top >= 0 && view.list.bottom <= view.viewport.height,
+            "Evidence warning list requires additional bounded screenshots if taller than the viewport",
+          );
+          await screenshot(page, `${name}-evidence-limitations`);
+          observations.evidenceDisclosureViews ??= [];
+          observations.evidenceDisclosureViews.push({
+            ...view,
+            screenshot: report.screenshots.at(-1).path,
+          });
+        }
         await region
           .getByRole("heading", { name: "Source evidence" })
           .scrollIntoViewIfNeeded();
@@ -1098,6 +1431,7 @@ try {
         );
         await noHorizontalOverflow(page);
         await axe(page, `${name}-evidence-export`);
+        await screenshot(page, `${name}-evidence-export`);
         await page.goto(`${origin}/dossier.html`);
         await page.emulateMedia({ media: "print" });
         assert.equal(await page.locator("h1").isVisible(), true);
