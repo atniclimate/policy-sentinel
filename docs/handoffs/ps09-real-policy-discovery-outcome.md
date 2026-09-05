@@ -308,9 +308,14 @@ Final evaluation result SHA:
 
 Original launch branch/HEAD: `main` / `39d738a`, with implementation baseline
 `8e40df6`. This cutoff continuation starts from `main` / `51f0b8a` after cutoff
-repair commit `5d25167`. The lead owns the final 13-path commit and its following
-ledger checkpoint; commit identities are recorded after creation, without
-rewriting history. All worker leases are returned. The `browser_repair_review`
+repair commit `5d25167`. The verified ending implementation checkpoint is
+`main` / `ee229150c8698fc76a5297256452f341f8bb4b2d`, parent
+`51f0b8a33aeb666ec7ff82855cbf7d9e6bb06a3f`: exactly 13 reviewed owned files,
+883 insertions and 163 deletions. Independent commit review confirms that
+the index and tracked worktree are clean, with only the 33 protected inputs
+untracked. This following three-file ledger/journal/outcome checkpoint records
+the actual implementation SHA without rewriting history. All worker leases
+are returned. The `browser_repair_review`
 worker implemented the CSS/harness diagnostics and final roadmap test fixture;
 the independent
 `acceptance_auditor` and its ledger reviewer remained read-only. The lead owns

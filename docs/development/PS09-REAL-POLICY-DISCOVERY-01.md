@@ -7,6 +7,16 @@ scope. Preparing that launch at `39d738a` was historical; this is its execution.
 
 ## Objective and terminal checkpoint
 
+Verified implementation commit:
+`ee229150c8698fc76a5297256452f341f8bb4b2d`, parent
+`51f0b8a33aeb666ec7ff82855cbf7d9e6bb06a3f`, on `main`. It contains exactly
+the 13 reviewed owned paths (883 insertions, 163 deletions). Independent commit
+review confirms no generated or protected data entered it; tracked worktree and
+index are clean and 33 protected owner inputs remain untracked. This following
+three-path ledger/journal/outcome checkpoint records the actual SHA without
+amending history. Final format, lint, roadmap/backbone, source scan and diff
+checks pass; the roadmap regression passes 3/3. All leases are returned.
+
 Terminal local outcome, 2026-09-05: PS09-05 is complete only for the adopted
 bounded workbench. There are zero active items; the PS09 finish remains blocked
 on PS09-02 identity/scenario evidence and PS09-06 stays unstarted and gated.

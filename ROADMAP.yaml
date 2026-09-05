@@ -860,7 +860,7 @@ current_focus:
   terminal_reason: LOCAL_WORKBENCH_ACCEPTED_PS09_02_EVIDENCE_BLOCKED
   resumable_roots:
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: 51f0b8a
+  last_durable_checkpoint: ee229150c8698fc76a5297256452f341f8bb4b2d
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5745,6 +5745,15 @@ work_items:
         files remain unchanged. The outcome handoff records exact review scope
         and limits. This completes only adopted PS09-05; PS09-02 and PS09-06
         remain unresolved/gated.
+      - >-
+        Local implementation commit ee229150c8698fc76a5297256452f341f8bb4b2d,
+        parent 51f0b8a33aeb666ec7ff82855cbf7d9e6bb06a3f, contains exactly 13
+        reviewed owned paths. Independent commit review confirms no generated
+        data or protected input was staged, tracked worktree/index clean and 33
+        unchanged owner inputs untracked. Final roadmap regression passes 3/3;
+        formatting, lint, roadmap/backbone, source scan and whitespace checks
+        pass. This follow-up ledger records the actual implementation SHA
+        without rewriting history. No release or external gate changes.
   - id: PS09-06-LOCAL-RC
     priority: 305
     milestone: PS09 Run 6
