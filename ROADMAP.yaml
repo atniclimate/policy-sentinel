@@ -1,4 +1,4 @@
-schema_version: "1.6"
+schema_version: "1.7"
 roadmap_id: policy-sentinel-through-finish
 project:
   name: Policy Sentinel
@@ -9,9 +9,10 @@ project:
     25 journeys and 14 exact-width geometry checks; ten preserved axe
     incompletes have a separate hash-bound manual contrast/visibility
     disposition. Full repository checks, corpus replay, frozen evaluation and
-    controlled failure exercises pass. There are zero active items. The PS09
-    program remains blocked on PS09-02 identity/scenario evidence, an explicit
-    PS09-06 prerequisite. PS09-06-LOCAL-RC is the sole release root and remains
+    controlled failure exercises pass. Approved local knowledge organization and
+    engineering assurance is the sole active maintenance item. The PS09 program
+    remains blocked on PS09-02 identity/scenario evidence, an explicit PS09-06
+    prerequisite. PS09-06-LOCAL-RC is the sole release root and remains
     unstarted and gated. EV01, Run 1/2 and archived lanes retain their
     historical evidence and spent-operation boundaries.
   updated_on: "2026-09-05"
@@ -227,6 +228,23 @@ authority:
         The owner approves the recipient, channel, event, content, and workflow.
 
 gates:
+  - id: G-H-KNOWLEDGE-ASSURANCE-01
+    name: Approved local knowledge organization and engineering assurance
+    state: approved
+    evidence:
+      - >-
+        Owner instructed reading and execution of the approved organization
+        implementation prompt on 2026-09-05; routine local repairs and commits
+        are authorized. This is a new administrative gate, not an old run token.
+    owner_instruction: I:/policy-sentinel-organization-review/2026-09-05/converged-session/implementation-prompt.md
+    scope:
+      kind: approved_local_knowledge_and_engineering_assurance
+      policy_acquisition_budget:
+        { sources: 0, domains: 0, requests: 0, bytes: 0 }
+      generic_technical_documentation: true
+      synthetic_local_validation: true
+      policy_source_activation: false
+      release_authority: false
   - id: G-PS09-RUN-01
     name: Repository convergence and minimum synthetic corpus spine
     state: approved
@@ -842,28 +860,33 @@ baseline:
         configured.
 
 current_focus:
-  work_item: null
+  work_item: H-KNOWLEDGE-ASSURANCE-01
   objective: >-
-    Preserve the accepted bounded local workbench and sealed 210-work,
-    215-version corpus. Final browser report 23891ff8 binds build 9c79fb4d to 25
-    passing journeys, 14 clean exact-width geometry checks and 28 verified
-    screenshots. Ten original and ten targeted axe checks remain incomplete in
-    that immutable automated report; independent manual review resolves the ten
-    exact residual nodes with 1932 visible character measurements and 14.556:1
-    contrast. Full check passes 1516 unit tests and 99 policy tests. Corpus
-    replay, frozen evaluation, output parity and controlled failures remain
-    valid and unchanged. All leases are returned; acquisition is ended. Recover
+    Execute the approved organization and engineering assurance prompt; recover
+    coordination from docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md. Preserve
+    the accepted bounded local workbench and sealed 210-work, 215-version
+    corpus. Final browser report 23891ff8 binds build 9c79fb4d to 25 passing
+    journeys, 14 clean exact-width geometry checks and 28 verified screenshots.
+    Ten original and ten targeted axe checks remain incomplete in that immutable
+    automated report; independent manual review resolves the ten exact residual
+    nodes with 1932 visible character measurements and 14.556:1 contrast. Full
+    check passes 1516 unit tests and 99 policy tests. Corpus replay, frozen
+    evaluation, output parity and controlled failures remain valid and
+    unchanged. Discovery leases are returned; acquisition is ended. Recover
     docs/handoffs/ps09-real-policy-discovery-outcome.md for exact evidence,
     local launch/replay commands and limits. PS09-02 originating
     identity/scenario evidence requires an exact next packet; PS09-06 remains
     unstarted and gated. No historical budget or archived ready lane is a grant.
-  terminal_reason: LOCAL_WORKBENCH_ACCEPTED_PS09_02_EVIDENCE_BLOCKED
+  terminal_reason: null
   resumable_roots:
-    - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: ee229150c8698fc76a5297256452f341f8bb4b2d
+    - H-KNOWLEDGE-ASSURANCE-01
+  last_durable_checkpoint: c65949fef2c8e331097cbaf9c32f04983cde2a64
   resume_command: npm run validate:roadmap
 
 completion_scope:
+  knowledge_assurance:
+    accounting: non_release_local_maintenance
+    required_outcomes: [H-KNOWLEDGE-ASSURANCE-01]
   ps09:
     release_root: PS09-06-LOCAL-RC
     required_outcomes:
@@ -5344,6 +5367,33 @@ work_items:
       - "The initial prompt expressly withheld deployment and publication
         approval."
 
+  - id: H-KNOWLEDGE-ASSURANCE-01
+    priority: 299
+    milestone: H
+    title: Approved knowledge organization and bounded engineering assurance
+    status: in_progress
+    work_class: repository_governance
+    dependencies: []
+    authorization_gate: G-H-KNOWLEDGE-ASSURANCE-01
+    acceptance:
+      - Independently reviewed schema 1.7 preserves historical and PS09
+        boundaries.
+      - Finite findings and acceptance crosswalk account for every recorded
+        item.
+      - Validated knowledge metadata, safe external views and measured
+        navigation pilot.
+      - Focused error repairs, registered offline tests and serialized final
+        checks.
+      - Protected discovery and historical evidence remains unchanged.
+      - Reviewed local handoff and concrete unexecuted PS09-02 next evidence
+        packet.
+    evidence:
+      - >-
+        Recovered clean main c65949f with 33 protected untracked owner inputs;
+        runtime, roadmap and backbone passed before mutation. Exact four-path
+        bootstrap lease and conditional reviewer design acceptance are recorded
+        in docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md. Implementation proof
+        remains pending; no policy-source operation or release is authorized.
   - id: PS09-01-REPOSITORY-CONVERGENCE
     priority: 300
     milestone: PS09 Run 1
@@ -5998,6 +6048,12 @@ risks:
 
 next_actions:
   - order: 1
+    work_item: H-KNOWLEDGE-ASSURANCE-01
+    action: >-
+      Complete the approved finite local maintenance scope and independent
+      reviews recorded in docs/development/PS09-KNOWLEDGE-ASSURANCE-01.md.
+      Preserve all terminal discovery evidence and separately closed gates.
+  - order: 2
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action: >-
       Prepare an exact originating identity/scenario evidence and authority
@@ -6010,6 +6066,19 @@ next_actions:
       outcome from docs/handoffs/ps09-real-policy-discovery-outcome.md; do not
       reactivate its cutoff startup, archived ready lanes or ended acquisition.
 finish_states:
+  knowledge_assurance:
+    current_state: in_progress
+    work_item: H-KNOWLEDGE-ASSURANCE-01
+    blocked_by: []
+    satisfied_when:
+      - Every mandatory local task has measured evidence or an explicit
+        remaining block.
+      - Two independent reviews and required checks support the local handoff.
+      - Protected evidence is unchanged and all write leases are returned.
+    does_not_mean:
+      - PS09-02 identity or scenario acceptance
+      - PS09-06 release acceptance or authority
+      - new policy acquisition or any external operation authorization
   ps09:
     current_state: blocked
     release_root: PS09-06-LOCAL-RC

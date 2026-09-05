@@ -97,6 +97,557 @@ const ps09OutcomeIds = [
   "PS09-07-FOCUSED-REPAIR",
   "PS09-08-STAKEHOLDER-HARDENING",
 ];
+const knowledgeAssuranceId = "H-KNOWLEDGE-ASSURANCE-01";
+const knowledgeAssuranceGateId = "G-H-KNOWLEDGE-ASSURANCE-01";
+const withoutKnowledgeAssurance = (candidate) => {
+  candidate.work_items = candidate.work_items.filter(
+    ({ id }) => id !== knowledgeAssuranceId,
+  );
+  candidate.gates = candidate.gates.filter(
+    ({ id }) => id !== knowledgeAssuranceGateId,
+  );
+  delete candidate.completion_scope.knowledge_assurance;
+  delete candidate.finish_states.knowledge_assurance;
+  return candidate;
+};
+
+test("schema 1.7 confines maintenance to its approved non-release scope", async (context) => {
+  const fixtureRoot = await mkdtemp(
+    path.join(tmpdir(), "policy-sentinel-ps09-roadmap-"),
+  );
+  context.after(() => rm(fixtureRoot, { recursive: true, force: true }));
+  const item = (candidate, id = knowledgeAssuranceId) =>
+    candidate.work_items.find((entry) => entry.id === id);
+  const gate = (candidate, id = knowledgeAssuranceGateId) =>
+    candidate.gates.find((entry) => entry.id === id);
+  const candidateFor = (status) => {
+    const candidate = clone(liveRoadmap);
+    const maintenance = item(candidate);
+    maintenance.status = status;
+    maintenance.evidence = ["Synthetic bounded maintenance evidence."];
+    delete maintenance.blocked_by;
+    delete maintenance.safe_fallback;
+    delete maintenance.unblocks_only_when;
+    if (status === "blocked") {
+      Object.assign(maintenance, {
+        blocked_by: [knowledgeAssuranceGateId],
+        safe_fallback:
+          "Preserve local evidence and keep source/release gates closed.",
+        unblocks_only_when:
+          "The named synthetic validation blocker is resolved.",
+      });
+    }
+    Object.assign(candidate.finish_states.knowledge_assurance, {
+      current_state: status,
+      blocked_by: status === "blocked" ? [knowledgeAssuranceId] : [],
+    });
+    const roots =
+      status === "complete"
+        ? [ps09OutcomeIds[1]]
+        : [knowledgeAssuranceId, ps09OutcomeIds[1]];
+    Object.assign(candidate.current_focus, {
+      work_item: status === "in_progress" ? knowledgeAssuranceId : null,
+      terminal_reason:
+        status === "in_progress"
+          ? null
+          : "Synthetic bounded maintenance checkpoint.",
+      resumable_roots:
+        status === "in_progress" ? [knowledgeAssuranceId] : roots,
+    });
+    candidate.next_actions = roots.map((id, index) => ({
+      order: index + 1,
+      work_item: id,
+      action: `Resolve ${id} within its separate authority.`,
+    }));
+    return candidate;
+  };
+  const validate = async (name, candidate, extraArguments = []) => {
+    const fixturePath = path.join(fixtureRoot, `${name}.yaml`);
+    await writeFile(fixturePath, stringify(candidate), "utf8");
+    return spawnSync(
+      process.execPath,
+      [validatorPath, fixturePath, ...extraArguments],
+      {
+        cwd: projectRoot,
+        encoding: "utf8",
+      },
+    );
+  };
+  for (const status of ["in_progress", "complete", "blocked"]) {
+    await context.test(
+      `valid ${status} maintenance preserves PS09-02`,
+      async () => {
+        const result = await validate(status, candidateFor(status));
+        assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+      },
+    );
+  }
+  await context.test(
+    "historical 1.6 terminal accounting remains replayable",
+    async () => {
+      const candidate = withoutKnowledgeAssurance(candidateFor("complete"));
+      candidate.schema_version = "1.6";
+      const result = await validate("historical-v16-terminal", candidate);
+      assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+    },
+  );
+  await context.test(
+    "completed maintenance cannot resume PS09 using spent historical approval",
+    async () => {
+      const candidate = candidateFor("complete");
+      item(candidate, ps09OutcomeIds[1]).status = "in_progress";
+      candidate.finish_states.ps09.current_state = "in_progress";
+      candidate.finish_states.ps09.blocked_by = [];
+      Object.assign(candidate.current_focus, {
+        work_item: ps09OutcomeIds[1],
+        terminal_reason: null,
+        resumable_roots: [ps09OutcomeIds[1]],
+      });
+      const result = await validate(
+        "completed-maintenance-future-ps09",
+        candidate,
+      );
+      assert.notEqual(result.status, 0);
+      assert.match(
+        `${result.stdout}\n${result.stderr}`,
+        /maintenance PS09-02 status/,
+      );
+    },
+  );
+  const rejections = [
+    [
+      "wrong-maintenance-work-class",
+      (r) => {
+        item(r).work_class = "source_implementation";
+      },
+      /H-KNOWLEDGE-ASSURANCE-01 work class must remain/,
+    ],
+    [
+      "unknown-version",
+      (r) => {
+        r.schema_version = "1.8";
+      },
+      /unsupported production schema_version/,
+    ],
+    [
+      "legacy-production-fallback",
+      (r) => {
+        r.schema_version = "test";
+      },
+      /synthetic legacy fixture contract/,
+    ],
+    [
+      "downgraded-version",
+      (r) => {
+        r.schema_version = "1.6";
+      },
+      /requires schema 1.7/,
+    ],
+    [
+      "unknown-maintenance-id",
+      (r) => {
+        item(r).id = "H-KNOWLEDGE-ASSURANCE-02";
+      },
+      /canonical maintenance work item missing/,
+    ],
+    [
+      "unrelated-extra-item",
+      (r) => {
+        const extra = clone(item(r));
+        extra.id = "H-OTHER-MAINTENANCE";
+        extra.priority = 298;
+        extra.status = "complete";
+        r.work_items.push(extra);
+        r.work_items.sort((a, b) => a.priority - b.priority);
+      },
+      /preserved historical component identities/,
+    ],
+    [
+      "unknown-gate",
+      (r) => {
+        r.gates.push({
+          id: "G-UNAPPROVED",
+          name: "Unapproved gate",
+          state: "closed",
+        });
+      },
+      /unknown gate G-UNAPPROVED/,
+    ],
+    [
+      "wrong-maintenance-gate",
+      (r) => {
+        item(r).authorization_gate = "G-A";
+      },
+      /authorization gate must remain/,
+    ],
+    [
+      "closed-maintenance-gate",
+      (r) => {
+        gate(r).state = "closed";
+      },
+      /cannot be in_progress|gate state must remain/,
+    ],
+    [
+      "missing-owner-instruction",
+      (r) => {
+        gate(r).owner_instruction = "Unrelated approval.";
+      },
+      /owner instruction must remain/,
+    ],
+    [
+      "missing-approval-evidence",
+      (r) => {
+        gate(r).evidence = [];
+      },
+      /evidence must be a non-empty array/,
+    ],
+    [
+      "unapproved-scope-kind",
+      (r) => {
+        gate(r).scope.kind = "unlimited_local_implementation";
+      },
+      /scope kind must remain/,
+    ],
+    [
+      "additional-scope",
+      (r) => {
+        gate(r).scope.policy_research = true;
+      },
+      /approved scope must contain exactly/,
+    ],
+    [
+      "source-activation",
+      (r) => {
+        gate(r).scope.policy_source_activation = true;
+      },
+      /scope policy_source_activation must remain false/,
+    ],
+    [
+      "release-authority",
+      (r) => {
+        gate(r).scope.release_authority = true;
+      },
+      /scope release_authority must remain false/,
+    ],
+    [
+      "string-boolean",
+      (r) => {
+        gate(r).scope.synthetic_local_validation = "true";
+      },
+      /scope synthetic_local_validation must remain true/,
+    ],
+    [
+      "non-release-root-replaced",
+      (r) => {
+        r.completion_scope.knowledge_assurance.required_outcomes = [
+          ps09OutcomeIds[5],
+        ];
+      },
+      /knowledge assurance required outcomes/,
+    ],
+    [
+      "maintenance-release-root",
+      (r) => {
+        r.completion_scope.knowledge_assurance.release_root =
+          knowledgeAssuranceId;
+      },
+      /completion scope must contain exactly/,
+    ],
+    [
+      "maintenance-dependency",
+      (r) => {
+        item(r, ps09OutcomeIds[5]).dependencies.push(knowledgeAssuranceId);
+      },
+      /cannot depend on non-release knowledge assurance/,
+    ],
+    [
+      "maintenance-depends-on-history",
+      (r) => {
+        item(r).dependencies.push("B3-PIPELINE");
+      },
+      /H-KNOWLEDGE-ASSURANCE-01 dependencies/,
+    ],
+    [
+      "changed-ps09-root",
+      (r) => {
+        r.completion_scope.ps09.release_root = knowledgeAssuranceId;
+      },
+      /PS09 release root/,
+    ],
+    [
+      "removed-identity-dependency",
+      (r) => {
+        // Keep one unfinished dependency so the graph guard, rather than the
+        // generic readiness check, proves identity cannot be substituted.
+        item(r, ps09OutcomeIds[5]).dependencies = [
+          ps09OutcomeIds[4],
+          ps09OutcomeIds[6],
+        ];
+      },
+      /dependencies must preserve exactly/,
+      "complete",
+    ],
+    [
+      "identity-accepted-during-maintenance",
+      (r) => {
+        item(r, ps09OutcomeIds[1]).status = "complete";
+        Object.assign(item(r, ps09OutcomeIds[5]), {
+          status: "blocked",
+          blocked_by: ["G-PS09-RUN-06"],
+          safe_fallback: "Keep RC closed.",
+          unblocks_only_when: "Exact separate acceptance.",
+          evidence: ["Synthetic identity mutation."],
+        });
+      },
+      /maintenance PS09-02 status/,
+    ],
+    [
+      "release-gate-opened",
+      (r) => {
+        gate(r, "G-PS09-RUN-06").state = "approved";
+        gate(r, "G-PS09-RUN-06").evidence = [
+          "Fabricated maintenance authority.",
+        ];
+      },
+      /maintenance preserved G-PS09-RUN-06/,
+    ],
+    [
+      "rc-gate-satisfied",
+      (r) => {
+        gate(r, "G-PS09-RC").state = "satisfied";
+        gate(r, "G-PS09-RC").evidence = ["Fabricated maintenance acceptance."];
+      },
+      /maintenance preserved G-PS09-RC/,
+    ],
+    [
+      "publication-gate-opened",
+      (r) => {
+        gate(r, "G-E-PUBLISH").state = "approved";
+        gate(r, "G-E-PUBLISH").evidence = [
+          "Fabricated maintenance publication.",
+        ];
+        gate(r, "G-E-PUBLISH").approved_scope = [
+          "Fabricated publication scope.",
+        ];
+      },
+      /maintenance preserved G-E-PUBLISH/,
+    ],
+    [
+      "premature-rc",
+      (r) => {
+        item(r, ps09OutcomeIds[5]).status = "complete";
+        item(r, ps09OutcomeIds[5]).evidence = ["Fabricated RC acceptance."];
+      },
+      /dependencies are not|cannot be complete|maintenance PS09-06/,
+    ],
+    [
+      "premature-publication",
+      (r) => {
+        item(r, "RELEASE-PUBLISH").status = "complete";
+      },
+      /cannot be complete|dependencies are not/,
+    ],
+    [
+      "ps09-finish-complete",
+      (r) => {
+        r.finish_states.ps09.current_state = "complete";
+      },
+      /maintenance PS09 finish/,
+    ],
+    [
+      "two-active-items",
+      (r) => {
+        item(r, "PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY").status =
+          "in_progress";
+      },
+      /at most one in_progress/,
+    ],
+    [
+      "historical-reactivation",
+      (r) => {
+        item(r).status = "complete";
+        r.finish_states.knowledge_assurance.current_state = "complete";
+        item(r, "PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY").status =
+          "in_progress";
+        r.current_focus.work_item =
+          "PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY";
+        r.current_focus.resumable_roots = [
+          "PNW-05-SOURCE-AUTHORITY-PORTFOLIO-DISCOVERY",
+        ];
+      },
+      /cannot activate an archived historical lane/,
+    ],
+    [
+      "backbone-reactivation",
+      (r) => {
+        item(r).status = "complete";
+        r.finish_states.knowledge_assurance.current_state = "complete";
+        item(r, "H-REPOSITORY-BACKBONE").status = "in_progress";
+        r.finish_states.repository_backbone.current_state = "in_progress";
+        r.current_focus.work_item = "H-REPOSITORY-BACKBONE";
+        r.current_focus.resumable_roots = ["H-REPOSITORY-BACKBONE"];
+      },
+      /cannot activate an archived historical lane/,
+    ],
+    [
+      "wrong-active-focus",
+      (r) => {
+        r.current_focus.work_item = ps09OutcomeIds[1];
+      },
+      /does not match in_progress/,
+    ],
+    [
+      "active-terminal-reason",
+      (r) => {
+        r.current_focus.terminal_reason = "Done";
+      },
+      /active PS09 terminal reason/,
+    ],
+    [
+      "active-resumable-root",
+      (r) => {
+        r.current_focus.resumable_roots = [ps09OutcomeIds[1]];
+      },
+      /active PS09 resumable roots/,
+    ],
+    [
+      "active-hides-ps09-action",
+      (r) => {
+        r.next_actions.pop();
+      },
+      /terminal next actions/,
+    ],
+    [
+      "blocked-hides-maintenance-root",
+      (r) => {
+        r.current_focus.resumable_roots = [ps09OutcomeIds[1]];
+      },
+      /terminal PS09 resumable roots/,
+      "blocked",
+    ],
+    [
+      "blocked-hides-ps09-root",
+      (r) => {
+        r.current_focus.resumable_roots = [knowledgeAssuranceId];
+      },
+      /terminal PS09 resumable roots/,
+      "blocked",
+    ],
+    [
+      "blocked-hides-finish-blocker",
+      (r) => {
+        r.finish_states.knowledge_assurance.blocked_by = [];
+      },
+      /knowledge assurance finish blockers/,
+      "blocked",
+    ],
+    [
+      "blocked-action-order",
+      (r) => {
+        r.next_actions.reverse();
+        r.next_actions.forEach((a, i) => {
+          a.order = i + 1;
+        });
+      },
+      /terminal next actions/,
+      "blocked",
+    ],
+    [
+      "completion-without-evidence",
+      (r) => {
+        item(r).evidence = [];
+      },
+      /complete without evidence/,
+      "complete",
+    ],
+    [
+      "completion-keeps-maintenance-root",
+      (r) => {
+        r.current_focus.resumable_roots.unshift(knowledgeAssuranceId);
+      },
+      /terminal PS09 resumable roots/,
+      "complete",
+    ],
+    [
+      "completion-finish-mismatch",
+      (r) => {
+        r.finish_states.knowledge_assurance.current_state = "in_progress";
+      },
+      /knowledge assurance finish state/,
+      "complete",
+    ],
+  ];
+  for (const dimension of ["sources", "domains", "requests", "bytes"]) {
+    rejections.push([
+      `nonzero-${dimension}`,
+      (r) => {
+        gate(r).scope.policy_acquisition_budget[dimension] = 1;
+      },
+      /knowledge assurance acquisition .* must remain 0/,
+    ]);
+  }
+  rejections.push([
+    "string-zero",
+    (r) => {
+      gate(r).scope.policy_acquisition_budget.bytes = "0";
+    },
+    /acquisition bytes must remain 0/,
+  ]);
+  for (const [name, mutate, expected, status = "in_progress"] of rejections) {
+    await context.test(`reject ${name}`, async () => {
+      const candidate = candidateFor(status);
+      mutate(candidate);
+      const result = await validate(name, candidate);
+      assert.notEqual(result.status, 0, `${name} was accepted`);
+      assert.match(`${result.stdout}\n${result.stderr}`, expected);
+    });
+  }
+  await context.test(
+    "production cannot opt into synthetic legacy interpretation",
+    async () => {
+      const result = await validate(
+        "production-with-synthetic-flag",
+        candidateFor("in_progress"),
+        ["--synthetic-legacy-fixture"],
+      );
+      assert.notEqual(result.status, 0);
+      assert.match(
+        `${result.stdout}\n${result.stderr}`,
+        /synthetic legacy fixture contract/,
+      );
+    },
+  );
+  await context.test(
+    "maintenance cannot become historical convergence evidence",
+    async () => {
+      const registry = JSON.parse(
+        await readFile(
+          path.join(projectRoot, "docs/development/ps09-convergence.v1.json"),
+          "utf8",
+        ),
+      );
+      registry.components.push({
+        id: knowledgeAssuranceId,
+        disposition: "compatibility_fixture",
+        evidence: ["README.md"],
+        implementationEffect:
+          "Invalid synthetic historical maintenance component.",
+      });
+      const registryPath = path.join(fixtureRoot, "maintenance-registry.json");
+      await writeFile(registryPath, JSON.stringify(registry), "utf8");
+      const result = await validate(
+        "maintenance-in-history",
+        candidateFor("in_progress"),
+        [registryPath],
+      );
+      assert.notEqual(result.status, 0);
+      assert.match(
+        `${result.stdout}\n${result.stderr}`,
+        /PS09 convergence component coverage/,
+      );
+    },
+  );
+});
 
 test("PS09 release accounting converges without reopening archived lanes", async (context) => {
   const fixtureRoot = await mkdtemp(
@@ -114,7 +665,10 @@ test("PS09 release accounting converges without reopening archived lanes", async
     conditionalOutcomes: ps09OutcomeIds.slice(6),
     components: liveRoadmap.work_items
       .filter(
-        ({ id }) => !ps09OutcomeIds.includes(id) && !id.startsWith("RELEASE-"),
+        ({ id }) =>
+          !ps09OutcomeIds.includes(id) &&
+          !id.startsWith("RELEASE-") &&
+          id !== knowledgeAssuranceId,
       )
       .map(({ id }) => ({
         id,
@@ -132,7 +686,7 @@ test("PS09 release accounting converges without reopening archived lanes", async
     }));
   };
   const active = (schemaVersion = "1.5") => {
-    const candidate = clone(liveRoadmap);
+    const candidate = withoutKnowledgeAssurance(clone(liveRoadmap));
     candidate.schema_version = schemaVersion;
     const dependencies =
       schemaVersion === "1.6"
@@ -227,7 +781,7 @@ test("PS09 release accounting converges without reopening archived lanes", async
       `${name}: ${result.stdout}\n${result.stderr}`,
     );
   }
-  assert.equal(liveRoadmap.schema_version, "1.6");
+  assert.equal(liveRoadmap.schema_version, "1.7");
   assert.equal(liveWorkItem(ps09OutcomeIds[1])?.status, "blocked");
   assert.deepEqual(liveWorkItem(ps09OutcomeIds[2]).dependencies, [
     ps09OutcomeIds[0],
@@ -1143,11 +1697,67 @@ test("additive stage governance cannot affect protected release accounting", asy
   const validateCandidate = async (name, candidate) => {
     const fixturePath = path.join(fixtureRoot, `${name}.yaml`);
     await writeFile(fixturePath, stringify(candidate), "utf8");
-    return spawnSync(process.execPath, [validatorPath, fixturePath], {
-      cwd: projectRoot,
-      encoding: "utf8",
-    });
+    return spawnSync(
+      process.execPath,
+      [validatorPath, fixturePath, "--synthetic-legacy-fixture"],
+      {
+        cwd: projectRoot,
+        encoding: "utf8",
+      },
+    );
   };
+  for (const [name, mutate, withFlag] of [
+    ["legacy-no-explicit-flag", () => {}, false],
+    [
+      "legacy-production-id",
+      (r) => {
+        r.roadmap_id = "policy-sentinel-through-finish";
+      },
+      true,
+    ],
+    [
+      "legacy-unknown-version",
+      (r) => {
+        r.schema_version = "0.0";
+      },
+      true,
+    ],
+  ]) {
+    const candidate = makeRoadmap();
+    mutate(candidate);
+    const fixturePath = path.join(fixtureRoot, `${name}.yaml`);
+    await writeFile(fixturePath, stringify(candidate), "utf8");
+    const result = spawnSync(
+      process.execPath,
+      [
+        validatorPath,
+        fixturePath,
+        ...(withFlag ? ["--synthetic-legacy-fixture"] : []),
+      ],
+      { cwd: projectRoot, encoding: "utf8" },
+    );
+    assert.notEqual(result.status, 0, `${name} was accepted`);
+    assert.match(
+      `${result.stdout}\n${result.stderr}`,
+      /synthetic legacy fixture contract/,
+    );
+  }
+  const nonFixtureRoot = await mkdtemp(
+    path.join(tmpdir(), "policy-sentinel-not-legacy-"),
+  );
+  context.after(() => rm(nonFixtureRoot, { recursive: true, force: true }));
+  const nonFixturePath = path.join(nonFixtureRoot, "wrong-root.yaml");
+  await writeFile(nonFixturePath, stringify(makeRoadmap()), "utf8");
+  const wrongRoot = spawnSync(
+    process.execPath,
+    [validatorPath, nonFixturePath, "--synthetic-legacy-fixture"],
+    { cwd: projectRoot, encoding: "utf8" },
+  );
+  assert.notEqual(wrongRoot.status, 0);
+  assert.match(
+    `${wrongRoot.stdout}\n${wrongRoot.stderr}`,
+    /synthetic legacy fixture contract/,
+  );
   const expectValid = async (
     name,
     candidate,

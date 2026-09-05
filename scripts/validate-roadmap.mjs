@@ -1,11 +1,25 @@
 import { createHash } from "node:crypto";
 import { access, lstat, readFile, realpath } from "node:fs/promises";
-import { isAbsolute, relative, resolve } from "node:path";
+import { tmpdir } from "node:os";
+import { basename, dirname, isAbsolute, relative, resolve } from "node:path";
 import { parseDocument } from "yaml";
 import { PRESERVED_OWNER_DIRECTION_INPUT_SHA256 } from "./owner-input-custody.mjs";
 
 const root = resolve(import.meta.dirname, "..");
-const requestedRoadmapPath = process.argv[2];
+const syntheticFixtureFlag = "--synthetic-legacy-fixture";
+const arguments_ = process.argv.slice(2);
+const syntheticFixture = arguments_.includes(syntheticFixtureFlag);
+const positionalArguments = arguments_.filter(
+  (argument) => argument !== syntheticFixtureFlag,
+);
+if (
+  positionalArguments.length > 2 ||
+  positionalArguments.some((argument) => argument.startsWith("--")) ||
+  arguments_.filter((argument) => argument === syntheticFixtureFlag).length > 1
+) {
+  throw new Error("ROADMAP.yaml: unsupported validator arguments");
+}
+const [requestedRoadmapPath, requestedRegistryPath] = positionalArguments;
 const roadmapPath = requestedRoadmapPath
   ? resolve(process.cwd(), requestedRoadmapPath)
   : resolve(root, "ROADMAP.yaml");
@@ -25,7 +39,12 @@ if (document.errors.length > 0) {
 }
 
 const roadmap = document.toJS();
-const ps09 = ["1.5", "1.6"].includes(roadmap.schema_version);
+const ps09 = ["1.5", "1.6", "1.7"].includes(roadmap.schema_version);
+const knowledgeAssurance = roadmap.schema_version === "1.7";
+const knowledgeAssuranceId = "H-KNOWLEDGE-ASSURANCE-01";
+const knowledgeAssuranceGateId = "G-H-KNOWLEDGE-ASSURANCE-01";
+const knowledgeAssuranceInstruction =
+  "I:/policy-sentinel-organization-review/2026-09-05/converged-session/implementation-prompt.md";
 const ps09Ids = [
   "PS09-01-REPOSITORY-CONVERGENCE",
   "PS09-02-IDENTITY-AUTHORITY-SCENARIOS",
@@ -42,6 +61,57 @@ const ps09PublicationIds = [
   "RELEASE-PAGES",
   "RELEASE-PUBLISH",
 ];
+// Schema 1.7 adds one named administrative gate. It does not admit arbitrary
+// source, maintenance or publication grants under a free-form new identity.
+const knowledgeAssuranceGateIds = new Set([
+  ...ps09Ids.map((_, index) => `G-PS09-RUN-0${index + 1}`),
+  "G-PS09-RC",
+  "G-A",
+  "G-K0-LIFECYCLE",
+  "G-S0-SYNTHETIC",
+  "G-K0-S0-CONVERGENCE",
+  "G-O0-SYNTHETIC",
+  "G-O0-CONVERGENCE",
+  "G-B",
+  "G-B-GRANTS",
+  "G-B-CONGRESS",
+  "G-B-GOVINFO",
+  "G-B-REGULATIONS",
+  "G-B-OR-OJD",
+  "G-B-OR-OARD",
+  "G-B-OR-GOVERNOR",
+  "G-C",
+  "G-D",
+  "G-E",
+  "G-E-LICENSE",
+  "G-E-REMOTE-PUSH",
+  "G-E-PAGES",
+  "G-E-PUBLISH",
+  "G-F",
+  "G-G",
+  "G-H",
+  "G-I",
+  "G-J",
+  "G-WA-LWS-DISCOVERY",
+  "G-WA-REGISTER-FILING-CONTRACT",
+  "G-WA-ACCORD-RECORD-MODEL",
+  "G-WA-APPELLATE-CITATION-REVISION-CONTRACT",
+  "G-DOI-IBIA-DOCUMENT-CONTRACT",
+  "G-ID-APPELLATE-CITATION-FINALITY-CONTRACT",
+  "G-BIA-IDENTITY",
+  "G-RC",
+  "G-LOCAL-BROWSER",
+  "G-PNW-IMPLEMENTATION",
+  "G-PNW-ATNI-59-ROSTER",
+  "G-PNW-COMMUNITY-AUTHORITY",
+  "G-PNW-SPATIAL-EVIDENCE",
+  "G-PNW-SOURCE-ACTIVATION",
+  "G-PNW-05-REAL-SOURCE-PRERELEASE",
+  "G-PNW-05-FR-TIER1-QUALIFICATION",
+  "G-PNW-05-FR-LOCAL-ACTIVATION",
+  "G-PNW-OUTPUT-REVIEW",
+  knowledgeAssuranceGateId,
+]);
 // Frozen identities from the pre-convergence ledger. The registry must account
 // for these components even if someone deletes both an item and its scope entry.
 const ps09HistoricalIds = [
@@ -208,6 +278,28 @@ const requireRepositorySha256 = async (
 
 requireString(roadmap.schema_version, "schema_version");
 requireString(roadmap.roadmap_id, "roadmap_id");
+// Legacy accounting is a deliberately synthetic test surface, never an unknown
+// production version fallback. Both the invocation and owned temporary fixture
+// identity must opt in; a production ledger cannot acquire this interpretation.
+if (!ps09 || syntheticFixture) {
+  const canonicalPath = await realpath(roadmapPath);
+  const canonicalTemporaryRoot = await realpath(tmpdir());
+  const fixtureParent = dirname(canonicalPath);
+  if (
+    roadmap.schema_version !== "test" ||
+    !syntheticFixture ||
+    !requestedRoadmapPath ||
+    requestedRegistryPath !== undefined ||
+    roadmap.roadmap_id !== "policy-sentinel-test" ||
+    dirname(fixtureParent) !== canonicalTemporaryRoot ||
+    !/^policy-sentinel-roadmap-[A-Za-z0-9]+$/.test(basename(fixtureParent)) ||
+    !/^[A-Za-z0-9_-]+\.yaml$/.test(basename(canonicalPath))
+  ) {
+    fail(
+      "unsupported production schema_version or invalid explicit synthetic legacy fixture contract",
+    );
+  }
+}
 requireObject(roadmap.project, "project");
 requireObject(roadmap.canonical_ledger, "canonical_ledger");
 requireObject(roadmap.authority, "authority");
@@ -362,6 +454,12 @@ for (const [index, gate] of gates.entries()) {
   const path = `gates[${index}]`;
   requireObject(gate, path);
   const id = requireString(gate.id, `${path}.id`);
+  if (knowledgeAssurance && !knowledgeAssuranceGateIds.has(id)) {
+    fail(`schema 1.7 references unknown gate ${id}`);
+  }
+  if (!knowledgeAssurance && id === knowledgeAssuranceGateId) {
+    fail("knowledge assurance gate requires schema 1.7");
+  }
   if (gateIds.has(id)) {
     fail(`duplicate gate id: ${id}`);
   }
@@ -613,6 +711,193 @@ for (const id of workItemIds) {
   visit(id);
 }
 
+let knowledgeAssuranceItem = null;
+if (knowledgeAssurance) {
+  knowledgeAssuranceItem = byId.get(knowledgeAssuranceId);
+  if (!knowledgeAssuranceItem) {
+    fail(`canonical maintenance work item missing: ${knowledgeAssuranceId}`);
+  }
+  const itemPath = knowledgeAssuranceId;
+  requireExactValue(
+    knowledgeAssuranceItem.work_class,
+    "repository_governance",
+    `${itemPath} work class`,
+  );
+  requireExactValue(
+    knowledgeAssuranceItem.priority,
+    299,
+    `${itemPath} priority`,
+  );
+  requireExactValue(
+    knowledgeAssuranceItem.authorization_gate,
+    knowledgeAssuranceGateId,
+    `${itemPath} authorization gate`,
+  );
+  requireExactOrderedValues(
+    knowledgeAssuranceItem.dependencies,
+    [],
+    `${itemPath} dependencies`,
+  );
+  if (
+    !["in_progress", "complete", "blocked"].includes(
+      knowledgeAssuranceItem.status,
+    )
+  ) {
+    fail(
+      "knowledge assurance status must be in_progress, complete, or blocked",
+    );
+  }
+  for (const item of workItems) {
+    if (item.dependencies.includes(knowledgeAssuranceId)) {
+      fail(`${item.id} cannot depend on non-release knowledge assurance`);
+    }
+  }
+  const authorization = requireExactKeys(
+    gateById.get(knowledgeAssuranceGateId),
+    ["id", "name", "state", "evidence", "owner_instruction", "scope"],
+    "knowledge assurance gate",
+  );
+  requireExactValue(
+    authorization.state,
+    "approved",
+    "knowledge assurance gate state",
+  );
+  requireExactValue(
+    authorization.owner_instruction,
+    knowledgeAssuranceInstruction,
+    "knowledge assurance owner instruction",
+  );
+  const scope = requireExactKeys(
+    authorization.scope,
+    [
+      "kind",
+      "policy_acquisition_budget",
+      "generic_technical_documentation",
+      "synthetic_local_validation",
+      "policy_source_activation",
+      "release_authority",
+    ],
+    "knowledge assurance approved scope",
+  );
+  requireExactValue(
+    scope.kind,
+    "approved_local_knowledge_and_engineering_assurance",
+    "knowledge assurance scope kind",
+  );
+  const acquisitionBudget = requireExactKeys(
+    scope.policy_acquisition_budget,
+    ["sources", "domains", "requests", "bytes"],
+    "knowledge assurance policy acquisition budget",
+  );
+  for (const dimension of Object.keys(acquisitionBudget)) {
+    requireExactValue(
+      acquisitionBudget[dimension],
+      0,
+      `knowledge assurance acquisition ${dimension}`,
+    );
+  }
+  for (const [field, expected] of [
+    ["generic_technical_documentation", true],
+    ["synthetic_local_validation", true],
+    ["policy_source_activation", false],
+    ["release_authority", false],
+  ]) {
+    requireExactValue(
+      scope[field],
+      expected,
+      `knowledge assurance scope ${field}`,
+    );
+  }
+  const completion = requireExactKeys(
+    roadmap.completion_scope.knowledge_assurance,
+    ["accounting", "required_outcomes"],
+    "knowledge assurance completion scope",
+  );
+  requireExactValue(
+    completion.accounting,
+    "non_release_local_maintenance",
+    "knowledge assurance accounting",
+  );
+  requireExactOrderedValues(
+    completion.required_outcomes,
+    [knowledgeAssuranceId],
+    "knowledge assurance required outcomes",
+  );
+  const finish = requireExactKeys(
+    roadmap.finish_states.knowledge_assurance,
+    [
+      "current_state",
+      "work_item",
+      "satisfied_when",
+      "does_not_mean",
+      "blocked_by",
+    ],
+    "knowledge assurance finish scope",
+  );
+  requireExactValue(
+    finish.work_item,
+    knowledgeAssuranceId,
+    "knowledge assurance finish item",
+  );
+  requireExactValue(
+    finish.current_state,
+    knowledgeAssuranceItem.status,
+    "knowledge assurance finish state",
+  );
+  requireUniqueStrings(
+    finish.satisfied_when,
+    "knowledge assurance satisfied_when",
+  );
+  requireUniqueStrings(
+    finish.does_not_mean,
+    "knowledge assurance does_not_mean",
+  );
+  requireExactOrderedValues(
+    finish.blocked_by,
+    knowledgeAssuranceItem.status === "blocked" ? [knowledgeAssuranceId] : [],
+    "knowledge assurance finish blockers",
+  );
+  // The approved maintenance exception starts from terminal discovery. It may
+  // not manufacture identity evidence or activate a later release/source run.
+  // Completion cannot revive an already spent historical approval. A future
+  // source or PS09 run needs a separately reviewed representation of its exact
+  // authority; schema 1.7 represents this maintenance scope in every state.
+  requireExactValue(
+    byId.get(ps09Ids[1])?.status,
+    "blocked",
+    "maintenance PS09-02 status",
+  );
+  requireExactValue(
+    byId.get(ps09Ids[5])?.status,
+    "not_started",
+    "maintenance PS09-06 status",
+  );
+  requireExactValue(
+    roadmap.finish_states.ps09?.current_state,
+    "blocked",
+    "maintenance PS09 finish",
+  );
+  requireExactOrderedValues(
+    roadmap.finish_states.ps09?.blocked_by,
+    [ps09Ids[1]],
+    "maintenance PS09 blockers",
+  );
+  for (const gateId of [
+    "G-PS09-RUN-06",
+    "G-PS09-RC",
+    "G-E-LICENSE",
+    "G-E-REMOTE-PUSH",
+    "G-E-PAGES",
+    "G-E-PUBLISH",
+  ]) {
+    requireExactValue(
+      gateById.get(gateId)?.state,
+      "closed",
+      `maintenance preserved ${gateId}`,
+    );
+  }
+}
+
 const completionScope = requireObject(
   roadmap.completion_scope.local_release_candidate,
   "completion_scope.local_release_candidate",
@@ -638,10 +923,9 @@ const hasExactOrderedValues = (actual, expected) =>
 // 1.5 remains replayable historical accounting. The adopted real-policy run
 // makes identity acceptance an explicit release prerequisite, independent of
 // general-jurisdiction acquisition. No required outcome is removed.
-const ps09Dependencies =
-  roadmap.schema_version === "1.6"
-    ? [[], [0], [0], [2], [2, 3], [1, 4], [4], [5]]
-    : [[], [0], [0, 1], [1, 2], [2, 3], [4], [4], [5]];
+const ps09Dependencies = ["1.6", "1.7"].includes(roadmap.schema_version)
+  ? [[], [0], [0], [2], [2, 3], [1, 4], [4], [5]]
+  : [[], [0], [0, 1], [1, 2], [2, 3], [4], [4], [5]];
 if (ps09) {
   requireExactKeys(
     roadmap.completion_scope,
@@ -651,6 +935,7 @@ if (ps09) {
       "local_release_candidate",
       "local_real_source_prerelease",
       "pnw_regional_engine",
+      ...(knowledgeAssurance ? ["knowledge_assurance"] : []),
     ],
     "canonical completion scopes",
   );
@@ -663,13 +948,17 @@ if (ps09) {
       "local_real_source_prerelease",
       "pnw_regional_engine",
       "public_beta",
+      ...(knowledgeAssurance ? ["knowledge_assurance"] : []),
     ],
     "canonical finish states",
   );
   requireExactOrderedValues(
     workItems
       .filter(
-        ({ id }) => !ps09Ids.includes(id) && !ps09PublicationIds.includes(id),
+        ({ id }) =>
+          !ps09Ids.includes(id) &&
+          !ps09PublicationIds.includes(id) &&
+          !(knowledgeAssurance && id === knowledgeAssuranceId),
       )
       .map(({ id }) => id),
     ps09HistoricalIds,
@@ -781,8 +1070,8 @@ if (ps09) {
   const registry = requireExactKeys(
     JSON.parse(
       await readFile(
-        process.argv[3]
-          ? resolve(process.cwd(), process.argv[3])
+        requestedRegistryPath
+          ? resolve(process.cwd(), requestedRegistryPath)
           : resolve(root, "docs/development/ps09-convergence.v1.json"),
         "utf8",
       ),
@@ -1144,6 +1433,12 @@ const completionGroups = [
   ["pnw_regional_engine.required_outcomes", pnwRequiredOutcomes],
 ];
 if (ps09) completionGroups.push(["ps09.canonical_and_conditional", ps09Ids]);
+if (knowledgeAssurance) {
+  completionGroups.push([
+    "knowledge_assurance.required_outcomes",
+    [knowledgeAssuranceId],
+  ]);
+}
 if (localRealSourcePrereleaseScope !== null) {
   completionGroups.push([
     "local_real_source_prerelease.required_outcomes",
@@ -2138,9 +2433,16 @@ if (ps09) {
   ps09ActionRoots = collectIncompleteOutcomeRoots([
     ...ps09Ids.slice(0, 6),
     ...enabledConditionalIds,
+    ...(knowledgeAssurance ? [knowledgeAssuranceId] : []),
   ]);
   const active = inProgress[0];
-  if (active && ![...ps09Ids, ...ps09PublicationIds].includes(active.id))
+  const activeMaintenance =
+    knowledgeAssurance && active?.id === knowledgeAssuranceId;
+  if (
+    active &&
+    ![...ps09Ids, ...ps09PublicationIds].includes(active.id) &&
+    !activeMaintenance
+  )
     fail("PS09 execution cannot activate an archived historical lane");
   if (
     active &&
@@ -2161,7 +2463,11 @@ if (ps09) {
     finish.current_state !== "in_progress"
   )
     fail("active required PS09 item requires in_progress PS09 finish");
-  if (["blocked", "not_started"].includes(finish.current_state) && active)
+  if (
+    ["blocked", "not_started"].includes(finish.current_state) &&
+    active &&
+    !activeMaintenance
+  )
     fail("inactive PS09 finish cannot retain in_progress work");
   if (
     finish.current_state === "not_started" &&
