@@ -1,5 +1,11 @@
 # Policy Sentinel project backbone
 
+Latest recovery entry: the
+[session-cutoff continuation](handoffs/ps09-real-policy-cutoff-continuation.md)
+records the owner's requested pause, bounded fixes and unfinished PS09-05
+browser acceptance. Start there with the live roadmap; preserve the sealed
+corpus and do not restart acquisition from an older prompt.
+
 Status: canonical repository authority and navigation index, established
 2026-09-02. `ROADMAP.yaml` remains the machine-readable source for live status.
 
@@ -149,6 +155,16 @@ transition.
 | Local real-source prerelease child lane | lifecycle contract, narrow source-neutral analyzed-corpus child, portfolio discovery, and terminal cleanup complete; Federal Register qualification blocked on consumed R7 digest drift | no Federal Register retry/admission/activation, real corpus, parent PNW-05/06/07/08 completion, ATNI or Nation association, deployment, or publication |
 | Identity, authority, independent memberships, owner cohort and scenario references | Run 2 implements a standalone synthetic-only `1.0.0` graph with exact evidence/review/citation bindings and separate temporal states; nine candidate manifests remain owner planning | no real identity registry, current membership, accepted real scenario, source acquisition or corpus integration; directory counts and 575 recognition evidence do not establish membership |
 | Broad real-source canonical corpus and common document/web/app/structured adapters | accepted target architecture; synthetic corpus integrated into the retained artifact path | real lifecycle integration and common successor output profiles remain future work |
+
+The adopted 2026-09-05 discovery run adds a current bounded v2 slice beyond
+that historical table: reviewed real-source custody, 210 instrument identities,
+temporal/evidence operations, deterministic search, local workbench and shared
+dossier/structured research output. Full checks, frozen evaluation, offline
+replay and controlled source-failure projections pass. Recover exact current
+browser and terminal acceptance from the
+[outcome](handoffs/ps09-real-policy-discovery-outcome.md) and roadmap. This does
+not accept all regional scenarios, real Nation identities, automatic refresh,
+public distribution or the complete successor adapter suite.
 
 Roadmap status and capability maturity are separate dimensions. A work item
 marked `complete` has evidence for that bounded acceptance or accepted fallback;

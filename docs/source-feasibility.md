@@ -7,9 +7,10 @@ identity, privacy/reuse screening and local output acceptance remain distinct
 checkpoints in the [journal](development/PS09-REAL-POLICY-DISCOVERY-01.md).
 No row below is silently reactivated and no public deployment is authorized.
 
-Status: dated source-feasibility evidence index, interpreted under PS09 Run 1. This is an
-implementation decision record, not a representation that an adapter, admitted
-source, production dataset, or public coverage exists.
+Status: dated source-feasibility evidence index. The direct-source contract
+above governs the adopted bounded v2 local slice; the rows below retain their
+historical Run 1 dispositions. Those rows do not establish current admission,
+activation, a production dataset or public coverage.
 
 The 2026-09-02 product-space rebase retains every row as dated evidence. It
 does not make federal plus WA/OR/ID the complete PNW source pack. PNW completion
@@ -20,12 +21,13 @@ makes no feasibility or activation claim for them.
 
 The current 0.9 portfolio is an owner-selected cohort/scenario target, not an
 exact-count ATNI roster. Crow, Fort Peck, and Fort Belknap are distinct planning
-contexts; Run 2 must establish their actual source/identity manifests. Real
-public-source use is a first-class intended capability, while Run 1 performs
-zero source requests and admits or activates no real source.
+contexts. Run 2's completed synthetic manifests did not establish their actual
+identity evidence; PS09-02 retains that unresolved acceptance. The bounded v2
+slice now uses reviewed real public text. Historical Run 1 made zero source
+requests and admitted or activated no real source.
 
 The [Federal Register prerelease review](source-reviews/federal-register-real-source-prerelease-2026-09-03.md)
-is the latest local evidence disposition: consumed R7 digest drift blocks
+records that historical lane's terminal disposition: consumed R7 digest drift blocks
 qualification; D3/R6/R7 and PF-01 through PF-17 are spent and FR-A1 is closed.
 The 2026-09-02 dossier and table rows below retain their dated evidence, not
 fresh provider verification. Credential gates apply to exact API interfaces;
@@ -73,7 +75,7 @@ The sequence below is retained as historical Phase A source-planning context.
 It is not the current executable queue and does not authorize source access or
 adapter work. Use [`ROADMAP.yaml`](../ROADMAP.yaml), the
 [PNW scope contract](pnw-scope-and-acceptance.md), and the
-[current PNW-01 launch handoff](handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md)
+[current real-policy outcome](handoffs/ps09-real-policy-discovery-outcome.md)
 for present ordering and gates. The
 [rebase handoff](handoffs/pnw-product-space-rebase-2026-09-02.md) remains the
 historical product-space mapping.
@@ -118,4 +120,4 @@ historical product-space mapping.
 - **Idaho legislation:** no production scraping. Proceed only after a stable official structured source or owner-authorized provider clarification.
 - **Court completeness:** no source identified provides a comprehensive, primary, no-cost corpus across federal, Washington, Oregon, and Idaho courts. Coverage must stay court- and date-specific.
 - **Text rights:** official availability is not blanket permission to redistribute entire works. Every adapter needs a documented field/excerpt policy before public artifacts are generated.
-- **Registrations and contact:** Congress.gov, GovInfo, Regulations.gov, and possibly NARA require later approved keys. No account registration, terms acceptance, or third-party contact occurred in Phase A.
+- **Registrations and contact:** the credentialed API interfaces for Congress.gov, GovInfo, Regulations.gov, and possibly NARA require later approved keys. This does not include the separately qualified GovInfo keyless direct-text route. No account registration, terms acceptance, or third-party contact occurred in Phase A.

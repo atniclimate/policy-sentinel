@@ -1,5 +1,15 @@
 # Policy Sentinel: Astra Ultra real-policy discovery and implementation launch
 
+Latest continuation: after executing this launch, the owner requested cutoff
+triage and a [fresh-session continuation prompt](ps09-real-policy-cutoff-continuation.md).
+Use that prompt and the live roadmap for the remaining browser/UI work.
+
+Execution recovery: the owner adopted this full prompt on 2026-09-05 from
+`39d738a`. Recover the [local outcome](ps09-real-policy-discovery-outcome.md),
+its execution journal and live roadmap before selecting work. The preparation
+record below retains its original date and results; it is not the current
+implementation state or an instruction to restart acquisition.
+
 Prepared 2026-09-05 at the owner's request, following the strategic redirection
 after approval of recommendations 1–5. Read the
 [research and strategic correction](../development/ps09-real-policy-systems-research-2026-09-05.md)

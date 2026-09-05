@@ -6,13 +6,15 @@ project:
   phase: >-
     POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01 reached a validated local
     implementation checkpoint: PS09-03/04 are complete for the adopted bounded
-    slice; PS09-05 is checking the previously approved local browser harness
-    alternative because the connector is unavailable. The workbench, replay,
-    evaluation and controlled failure exercises pass. PS09-02 identity/scenario
-    acceptance remains independently blocked and is an explicit PS09-06
-    prerequisite. PS09-06-LOCAL-RC remains the sole release root. EV01, Run 1/2
-    and archived lanes retain their historical evidence and spent-operation
-    boundaries.
+    slice; PS09-05 remains in progress at the owner's requested fresh-session
+    handoff after a session limit. Actual Chromium review exposed a masked
+    mobile overflow and incomplete contrast checks. Bounded repairs pass the
+    rebuilt-output smoke and full repository check; full browser journeys remain
+    unfinished. Corpus replay, evaluation and controlled failure exercises pass.
+    PS09-02 identity/scenario acceptance remains independently blocked and is an
+    explicit PS09-06 prerequisite. PS09-06-LOCAL-RC remains the sole release
+    root. EV01, Run 1/2 and archived lanes retain their historical evidence and
+    spent-operation boundaries.
   updated_on: "2026-09-05"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -847,14 +849,19 @@ current_focus:
     215-version corpus. Final evaluation passes 25/27 supporting passages, 14/14
     version sets, 7/7 multi-document cases, 66/66 exact identifiers and 30/30
     citation replays. Both controlled source-failure projections, final
-    build/serve/HTTP and full check pass. Inspect existing local Chromium and
-    harness capability under G-LOCAL-BROWSER's explicit alternative approval,
-    then perform actual desktop/mobile/keyboard/evidence checks if available.
-    Connector inventory is empty; source acquisition is ended.
+    build/serve/HTTP pass. Full check passed 1516 unit tests after the final
+    responsive repairs. Independent review rejected the earlier report's claimed
+    pass: mobile expanded to 539/628 pixels from configured 390 and 146 axe
+    contrast node occurrences were incomplete. The global skip, wrapping and
+    fixed-width oracle repairs pass 13 browser smoke checks with six clean axe
+    scans and exact 390px mobile geometry. Full journeys remain. Preserve
+    PS09-05 as unfinished at the owner's requested cutoff handoff and recover
+    docs/handoffs/ps09-real-policy-cutoff-continuation.md for exact fixes,
+    checks, build/server identities and next commands. Acquisition is ended.
   terminal_reason: null
   resumable_roots:
     - PS09-05-SEARCH-OUTPUTS
-  last_durable_checkpoint: 8e40df6
+  last_durable_checkpoint: c9e84d8
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5683,20 +5690,6 @@ work_items:
     milestone: PS09 Run 5
     title: Integrate deterministic search and governed output views
     status: in_progress
-    blocked_by: [G-LOCAL-BROWSER]
-    safe_fallback: >-
-      Keep the verified local output and sealed corpus, automated checks and
-      explicit acceptance limit. Do not claim actual browser validation or
-      substitute a different browser surface without reporting its identity.
-    unblocks_only_when: >-
-      The enabled browser surface becomes available and actual affected
-      workbench keyboard, accessibility, responsive and evidence interactions
-      pass with recorded browser evidence.
-    reason: >-
-      Integrated local output, ranking, evidence parity and eight automated
-      UI/accessibility tests pass, but the enabled browser inventory is empty.
-      Actual affected-browser, visual accessibility and keyboard evidence is
-      unavailable. This is an environment capability gap, not an approval gap.
     dependencies: [PS09-03-FEDERAL-REAL-SOURCE-SPINE, PS09-04-PNW-REAL-CORPUS]
     authorization_gate: G-PS09-RUN-05
     acceptance:
@@ -5712,8 +5705,22 @@ work_items:
         dossier evidence links resolve. Final independent frozen evaluation
         passes 25/27 passages against the unchanged 90% threshold, with two
         explicit misses and no source-question changes. Full check passes;
-        actual browser inventory remains empty. Local source display does not
+        browser acceptance remains separate. Local source display does not
         authorize publication or establish PS09-06 acceptance.
+      - >-
+        2026-09-05 cutoff: actual Chromium report f9566281 records 23 passing
+        assertions but independent review rejects final acceptance because its
+        old overflow oracle masked mobile expansion and 146 contrast node
+        occurrences remained incomplete. The corrected oracle reproduced an
+        overflowing snippet text range in diagnostic e293cdc6. Bounded
+        CSS/oracle repairs pass smoke report 9629dacf (13 checks, six
+        screenshots, exact 1440/390px geometry, zero axe violations/incompletes)
+        on build 215d11d8. Full repository check passes 1516 unit tests and 99
+        policy tests. Smoke acceptanceComplete is false; full browser acceptance
+        remains. Seals are in
+        docs/handoffs/ps09-real-policy-cutoff-continuation.md. The user
+        requested a fresh-session handoff; this is not a source/permission
+        impasse and no item is marked complete from the report alone.
   - id: PS09-06-LOCAL-RC
     priority: 305
     milestone: PS09 Run 6
@@ -5966,11 +5973,12 @@ next_actions:
   - order: 2
     work_item: PS09-05-SEARCH-OUTPUTS
     action: >-
-      Connect a browser to the enabled automation surface, then inspect the
-      already authorized local workbench at 127.0.0.1:4181 using the outcome
-      handoff's demonstrations. Verify actual visual, keyboard, evidence and
-      responsive behavior and repair any concrete defects before accepting
-      PS09-05. Do not reacquire data or restart the historical launch.
+      Execute the startup prompt in
+      docs/handoffs/ps09-real-policy-cutoff-continuation.md. Verify the bounded
+      responsive repairs, exact rebuilt output and fixed 390px viewport;
+      adjudicate remaining axe incompletes and rerun the full browser journeys
+      with independent review before accepting PS09-05. Do not reacquire data or
+      restart the historical launch. The local Chromium runtime is available.
 finish_states:
   ps09:
     current_state: in_progress

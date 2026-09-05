@@ -1,5 +1,16 @@
 # Policy Sentinel: fresh-session recovery and forward plan
 
+Latest startup: use the
+[real-policy cutoff continuation](ps09-real-policy-cutoff-continuation.md)
+requested after the later implementation session hit its usage limit.
+
+Current recovery pointer: the owner adopted and executed the broader launch
+prepared at `39d738a`. Recover the
+[real-policy outcome](ps09-real-policy-discovery-outcome.md), its linked
+execution journal and live `ROADMAP.yaml` for the implemented workbench and
+current acceptance. The startup instructions and grants below are historical;
+do not restart acquisition or the older synthetic runner from this guide.
+
 Prepared 2026-09-04 local time, following EV01 terminal commit
 `9d7cbb6ca13fe4938e8daa16c39b41642d623245`; refreshed 2026-09-05 from the
 committed handoff at `6844c05236dcd375fec79530cd7341ca410c258b`.

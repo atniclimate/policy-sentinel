@@ -11,6 +11,7 @@ import userEvent from "@testing-library/user-event";
 import axe from "axe-core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PolicyWorkbench } from "../../src/app/PolicyWorkbench";
+import { installSkipLink } from "../../src/app/skip-link";
 import {
   createAnalyzedCorpusV2,
   createEvidenceSegment,
@@ -30,6 +31,42 @@ afterEach(() => {
 });
 
 describe("local policy workbench", () => {
+  it("keeps the static skip link working after the loading main is replaced", async () => {
+    const user = userEvent.setup();
+    const skip = document.createElement("a");
+    skip.className = "skip-link";
+    skip.href = "#main-content";
+    skip.textContent = "Skip to main content";
+    document.body.prepend(skip);
+    const removeListener = installSkipLink();
+    try {
+      const view = render(
+        <main id="main-content" tabIndex={-1}>
+          Verifying the local corpus…
+        </main>,
+      );
+      await user.tab();
+      expect(skip).toHaveFocus();
+      await user.keyboard("{Enter}");
+      expect(screen.getByRole("main")).toHaveFocus();
+
+      view.rerender(<PolicyWorkbench corpus={fixture()} />);
+      skip.focus();
+      await user.keyboard("{Enter}");
+      const main = screen.getByRole("main");
+      expect(main).toHaveFocus();
+      for (const name of ["Skip to policy search", "Search"]) {
+        expect(screen.getByRole("link", { name, exact: true })).toHaveAttribute(
+          "href",
+          `#${main.id}`,
+        );
+      }
+    } finally {
+      removeListener();
+      skip.remove();
+    }
+  });
+
   it("supports keyboard search, source evidence focus/return and exact replay locators without network calls", async () => {
     const network = vi
       .spyOn(globalThis, "fetch")

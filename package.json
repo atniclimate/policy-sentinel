@@ -47,7 +47,8 @@
     "check": "npm run validate:runtime && npm run format:check && npm run hooks:test && npm run lint && npm run typecheck && npm run validate:roadmap && npm run validate:backbone && npm run scan:source && npm test && npm run build",
     "policy:enrich": "node scripts/enrich-policy-corpus.mjs",
     "policy:evaluate": "node scripts/evaluate-policy-discovery.mjs",
-    "policy:simulate:failure": "node scripts/simulate-policy-source-failure.mjs"
+    "policy:simulate:failure": "node scripts/simulate-policy-source-failure.mjs",
+    "policy:verify:browser": "node scripts/verify-policy-browser.mjs"
   },
   "dependencies": {
     "parse5": "8.0.1",

@@ -5,11 +5,17 @@ record for the owner's adopted [launch](ps09-real-policy-discovery-launch.md).
 The [execution journal](../development/PS09-REAL-POLICY-DISCOVERY-01.md) records
 the implementation, independent reviews, repairs and custody checkpoints.
 
-Current disposition: final browser validation in progress. Corpus, evaluation,
-offline replay, both controlled source-failure exercises, local build/serve,
-HTTP checks and the full repository check pass. The browser connector is empty;
-the earlier owner-approved local Chromium alternative is installed and is now
-being exercised with a fresh isolated context.
+Current disposition: partial implementation preserved for fresh-session
+continuation after the session limit. Corpus, evaluation, offline replay,
+both controlled source-failure exercises and the repository check pass.
+The actual Chromium report's 23 passing assertions are not accepted as final
+browser evidence: its overflow oracle allowed mobile viewport expansion, and
+146 axe contrast node occurrences remained incomplete. The bounded repairs
+pass the full repository check and 13 browser smoke checks, including six axe
+scans without violations or incompletes and exact 390px mobile geometry.
+The smoke report explicitly leaves full interaction acceptance unfinished.
+Exact results, seals and next checks are recorded in the
+[cutoff continuation handoff](ps09-real-policy-cutoff-continuation.md).
 
 ## Launch and replay
 
@@ -29,7 +35,9 @@ are not HTTP routes. Ordinary `npm run build` still produces synthetic output.
 
 ## Demonstrations using retained identities
 
-1. Search `HB 1018` and select `work-wa-2025-26-hb1018`. Compare
+1. Search `HB 1018` and select the two named original/session version cards
+   for `work-wa-2025-26-hb1018` (the work has three retained versions).
+   Choose **Compare text versions** to compare
    `version-wa-2025-26-hb1018-original` with
    `version-wa-2025-26-hb1018-session`. Inspect exact unchanged text that moved
    between source positions. Equal ordinal paths are not provision identity.
@@ -38,14 +46,16 @@ are not HTTP routes. Ordinary `npm run build` still produces synthetic output.
    paragraph changes, while the HB1018 pair carries over. Unaligned occurrences
    are not automatically classified as added or repealed provisions.
 3. Open `version-fr-2023-01483-publication` and its explicit relationship to
-   `version-fr-2020-23984-publication`. Apply a 2023 source-availability cutoff.
+   `version-fr-2020-23984-publication`. Apply source-availability cutoff
+   `2023-12-31`.
    `version-fr-2026-16965-publication` is excluded; its later proposed-rule
    status is not an enacted or effective status. The cited 2001 rule remains
    an unresolved target because that instrument is not retained.
 4. Use institutional-procedure comparison for EO13175
    (`version-fr-00-29003-publication`), Washington SB6175
    (`version-wa-2011-12-sb6175-session`) and SB5141
-   (`version-wa-2021-22-sb5141-session`). Inspect analyst codes linked to source
+   (`version-wa-2021-22-sb5141-session`) in two pairwise comparisons:
+   EO13175 with SB6175, then SB6175 with SB5141. Inspect analyst codes linked to source
    passages for actors and reporting destinations, plus uncoded dimensions
    such as trigger. These are provisional reviewed descriptions, with no
    inferred Nation association or legal equivalence.
@@ -84,8 +94,14 @@ The run made 423 accounted GET attempts, all complete, with zero retries and
 actual acquisition hosts: `www.govinfo.gov`, `leg.wa.gov`, `app.leg.wa.gov` and
 `lawfilesext.leg.wa.gov`. These counts are below the adopted four
 family, ten host, 2,000 request and 2 GiB encoded/decoded ceilings. Retained
-external bodies are never committed. eCFR and other unqualified candidates
-remain source-specific gaps.
+external bodies are never committed. The
+[dated source review](../source-reviews/real-policy-direct-2026-09-05.md) and
+[source profiles](../../config/policy-sources.v2.mjs) record the exact interfaces,
+allowed local uses and restrictions. eCFR remains blocked by its reviewed
+privacy access-consent predicate. The Governor route returned 403 and its
+complete policy review was unavailable. OLRC remains unqualified and optional.
+These gaps do not authorize an unreviewed fallback. Public redistribution of
+the accepted local corpus remains closed.
 
 ## Evaluation and findings
 

@@ -1,5 +1,12 @@
 # AGENTS.md
 
+Current recovery: after the session limit, the owner requested bounded triage,
+fixes and a fresh-session handoff. Start with the
+[cutoff continuation prompt](docs/handoffs/ps09-real-policy-cutoff-continuation.md).
+PS09-05 remains the sole unfinished active closure; the earlier browser report's
+pass was rejected for masked mobile overflow and incomplete contrast checks.
+Preserve the existing sealed corpus and continue local UI/browser validation.
+
 ## Purpose and phase gate
 
 Policy Sentinel is a configurable, sovereignty-centered policy monitoring and
@@ -19,9 +26,11 @@ local outputs, tests, repairs and local commits within that launch's exact
 source, host, request, byte, custody and privacy ceilings. Read the
 [execution journal](docs/development/PS09-REAL-POLICY-DISCOVERY-01.md) for current
 leases, accepted source profiles, operation accounting and measured evidence.
-Approval is not source qualification or implementation acceptance. PS09-03
-coordinates active general-jurisdiction work; unresolved PS09-02 identity and
-scenario acceptance remains an explicit PS09-06 prerequisite.
+Approval is not source qualification or implementation acceptance. Recover
+the live/terminal item from `ROADMAP.yaml` and the
+[local outcome](docs/handoffs/ps09-real-policy-discovery-outcome.md).
+Unresolved PS09-02 identity and scenario acceptance remains an explicit
+PS09-06 prerequisite.
 
 The completed historical local synthetic authorization was
 `POLICY-SENTINEL-0.9-RUN-02-PNW-IDENTITY-AUTHORITY-AND-SCENARIO-MANIFESTS`.

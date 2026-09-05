@@ -229,6 +229,21 @@ is read-only, makes no source request and changes no local output pointer.
 It demonstrates controlled failure behavior; it does not schedule or implement
 automatic source refresh.
 
+`policy:verify:browser` takes `--corpus-root`, `--playwright-core` and `--browser`
+arguments after `--` and verifies the served discovery output
+on `127.0.0.1:4181` in isolated desktop/mobile Chromium contexts. It requires
+an explicitly supplied existing Playwright core runtime and browser; it installs
+nothing and makes no source request. Screenshots and the run report stay in the
+owned external `review/browser/` namespace. This is the previously approved local
+browser alternative, separate from the browser connector. The outcome handoff
+records actual results and runtime identities.
+
+Append `--smoke-only` for a short desktop/mobile workbench, dossier and evidence
+layout/accessibility diagnostic before the full interaction run. It checks the
+configured viewport, never treats automatic mobile expansion as a pass, and
+reports incomplete accessibility checks as needing review. A passing smoke run
+does not complete the full browser acceptance.
+
 ```powershell
 npm run dev
 npm run validate:runtime

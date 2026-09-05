@@ -14,7 +14,7 @@ if (!root) {
 installSkipLink();
 if (import.meta.env.VITE_POLICY_LOCAL === "1") {
   render(
-    <main id="main-content">
+    <main id="main-content" tabIndex={-1}>
       <h1>Policy Sentinel local workbench</h1>
       <p role="status">Verifying the local corpus…</p>
     </main>,
@@ -37,7 +37,7 @@ if (import.meta.env.VITE_POLICY_LOCAL === "1") {
     })
     .catch(() => {
       render(
-        <main id="main-content">
+        <main id="main-content" tabIndex={-1}>
           <h1>Local corpus unavailable</h1>
           <p>
             The reviewed output could not be verified. Rebuild with the explicit

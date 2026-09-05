@@ -535,7 +535,7 @@ export function PolicyWorkbench({
   const json = ownedLink(jsonHref);
   return (
     <div class="policy-workbench">
-      <a class="pw-skip" href="#pw-main">
+      <a class="pw-skip" href="#main-content">
         Skip to policy search
       </a>
       <header class="pw-masthead">
@@ -556,14 +556,14 @@ export function PolicyWorkbench({
         </div>
       </header>
       <nav class="pw-navigation" aria-label="Workbench sections">
-        <a href="#pw-main">Search</a>
+        <a href="#main-content">Search</a>
         <a href="#pw-comparison">Compare</a>
         <a href="#pw-findings">Findings</a>
         <a href="#pw-coverage">Coverage</a>
         {dossier && <a href={dossier}>Open local dossier</a>}
         {json && <a href={json}>Open corpus JSON</a>}
       </nav>
-      <main id="pw-main" tabIndex={-1}>
+      <main id="main-content" tabIndex={-1}>
         <section class="pw-search" aria-labelledby="pw-search-heading">
           <h2 id="pw-search-heading">Find source passages</h2>
           <form

@@ -1,5 +1,17 @@
 # Policy Sentinel durable continuation prompt
 
+Latest startup: execute the
+[session-cutoff continuation prompt](handoffs/ps09-real-policy-cutoff-continuation.md).
+The owner requested a fresh-session handoff after bounded triage/repairs.
+PS09-05 remains unfinished; current browser evidence has explicit viewport and
+contrast gaps. No source reacquisition is needed.
+
+Recover the implemented [local workbench outcome](handoffs/ps09-real-policy-discovery-outcome.md)
+and live roadmap first. They supersede the launch-time capability descriptions
+below and identify current browser acceptance, commands and remaining PS09
+release work. Use the existing sealed external corpus for replay and review;
+do not restart acquisition from a historical startup instruction.
+
 Status: `POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01` is active under the owner's
 2026-09-05 instruction to execute the full
 [real-policy launch](handoffs/ps09-real-policy-discovery-launch.md) prepared at

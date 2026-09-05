@@ -245,6 +245,7 @@
 }
 .pw-snippet {
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
   font-family: Georgia, serif;
   font-size: 1.04rem;
   margin: 0.35rem 0;

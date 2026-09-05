@@ -7,7 +7,73 @@ scope. Preparing that launch at `39d738a` was historical; this is its execution.
 
 ## Objective and live checkpoint
 
-Current checkpoint (14:05 UTC): final `npm run check` passes, with 1,515/1,515
+Current checkpoint (2026-09-05 cutoff continuation): the owner requested
+subagent triage, bounded fixes and a handoff after the session limit. Recover
+the [new startup](../handoffs/ps09-real-policy-cutoff-continuation.md).
+The final post-repair full check passed 1,516/1,516 unit tests in 92 files,
+99 policy tests and ordinary synthetic artifact `synthetic-8c965f0f020b3a25e8d9`.
+Actual browser report f9566281 recorded 23 passing assertions/14 screenshots,
+but independent review rejected acceptance: mobile expansion masked overflow,
+and 146 contrast node occurrences across three scans remained incomplete.
+The corrected-oracle diagnostic e293cdc6 proved a snippet text range extending
+to 541.55px in a configured 390px viewport. The worker completed the bounded
+snippet wrapping/harness repair; root completed dossier wrapping and documentation.
+All write leases are returned. Repaired build `215d11d8` passes smoke report
+`9629dacf`: 13 checks, six screenshots, exact 1440/390px geometry at scale 1,
+six axe scans with zero violations/incompletes, and 24 same-origin page requests
+with zero observed network/runtime errors. Its `acceptanceComplete: false`
+correctly preserves the unfinished full journeys and cross-government contrast
+state. The handoff records full external paths, seals and serving PID 25480.
+All three subagents resumed for the owner's cutoff triage, confirmed intact
+corpus/source boundaries and reviewed the new continuation. Full browser
+acceptance remains unfinished; PS09-05 stays the sole in-progress item.
+The remaining older checkpoints/lease statements below are historical and are
+superseded by this checkpoint and the new handoff's final repair record.
+
+Earlier checkpoint (14:46 UTC): the repaired global/inner skip and desktop
+search, exact evidence, focus return, findings/counterevidence, dossier and
+axe checks pass in actual Chromium. Retained failures additionally identify
+harness-only selector and inspector-cache issues; neither is suppressed as a
+pass. Independent review required stronger known-date, mixed-filter,
+cross-government comparison, exact served-byte and all-context network
+oracles. The worker implemented those checks and is rerunning the browser.
+Full check first exposed a README multiline-code formatting issue, then the
+nonliteral runtime import rejected by the protected S0 graph test. README is
+repaired; the harness now uses a literal playwright-core package load with
+exact resolved-entry equality. Its formatting/lint and all nine focused S0
+checks pass without changing that guard. Final full check is running again;
+the preceding run otherwise passed 1,515 unit tests and all 99 policy tests.
+All 76 protected identities, all three retired EV01 identities and unchanged
+lockfile have been verified again. No source requests or corpus changes.
+The external run occupied 147,805,747 bytes at 14:44 UTC, with more than 731 GB
+free. This checkpoint remains active, with no final acceptance claim yet.
+
+Earlier checkpoint (14:33 UTC): actual Chromium desktop/mobile smoke checks
+found a built-profile global skip-link defect: the static first link targeted
+main-content while the loaded workbench used pw-main. Root aligned the main
+and both internal links with main-content and made loading/error mains focusable.
+The regression exercises the loading-to-workbench replacement; 11 focused tests
+pass. New build `build-445fc56f9abd77ac1d7762b95c28cafc`, manifest SHA
+`2a4460f0a5e1b41e2b0100e1c4639511551f0dc6ae8a5382cc75cb9ea84d77d6`,
+has 12 files and 19,619,803 bytes; its corpus is unchanged. The exact prior
+owned 4181 server was replaced and the repaired output is serving there.
+Corpus agent owns only the browser harness and external browser report writes;
+root owns the UI repair/tests and current documentation/package/ledger. Both
+earlier failed reports remain immutable. Independent evaluator reviews final
+harness and evidence. Root inspected desktop and mobile smoke screenshots;
+no visible layout issue appeared. Full browser interactions remain underway.
+
+Earlier checkpoint (14:10 UTC): implementation/review checkpoint committed as
+`c9e84d8` (24 paths), following baseline `8e40df6`. All worker code leases were
+returned before staging; the 33 protected owner inputs remain untracked.
+The already installed Playwright core 1.61.1 and cached Chromium provide the
+explicitly owner-approved alternative to the empty browser connector. Corpus
+agent now owns `scripts/verify-policy-browser.mjs` and external
+`review/browser/` report/screenshots, using a fresh isolated context and only
+127.0.0.1:4181 requests. Evaluator independently reviews that harness, and root
+will inspect screenshots. No dependency installation or new source request.
+
+Earlier checkpoint (14:05 UTC): final `npm run check` passes, with 1,515/1,515
 unit tests in 92 files, 99/99 policy tests, 18 hook tests, 13 original corpus
 tests, 30 spine passes and one host symlink skip, lint/types/format/source scan
 and ordinary synthetic build/artifact (three records, 575 recognition entries,
