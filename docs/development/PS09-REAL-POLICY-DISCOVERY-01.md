@@ -10,6 +10,8 @@ scope. Preparing that launch at `39d738a` was historical; this is its execution.
 Current checkpoint (2026-09-05 cutoff continuation): the owner requested
 subagent triage, bounded fixes and a handoff after the session limit. Recover
 the [new startup](../handoffs/ps09-real-policy-cutoff-continuation.md).
+Cutoff implementation and recovery instructions are committed as `5d25167`
+(18 exact owned paths); this following ledger update records the actual commit.
 The final post-repair full check passed 1,516/1,516 unit tests in 92 files,
 99 policy tests and ordinary synthetic artifact `synthetic-8c965f0f020b3a25e8d9`.
 Actual browser report f9566281 recorded 23 passing assertions/14 screenshots,

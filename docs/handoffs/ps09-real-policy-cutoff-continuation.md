@@ -14,9 +14,10 @@ implemented corpus, evaluation, findings and historical checkpoints.
   PS09-05 is the sole `in_progress` item and remains unfinished. The owner
   requested this pause; it is not a source or permission impasse.
 - `main` started at `39d738a`. Baseline implementation is `8e40df6`, expanded
-  corpus/replay/search/output validation is `c9e84d8`. Recover the cutoff
-  implementation commit with `git log -1 --format="%H %s" -- scripts/verify-policy-browser.mjs`.
-  A following ledger-only checkpoint may be the current HEAD.
+  corpus/replay/search/output validation is `c9e84d8`. Cutoff repairs and this
+  continuation were committed as `5d25167` (18 exact owned paths). A following
+  ledger-only checkpoint may be the current HEAD. The 33 protected owner inputs
+  remain untracked and preserved.
 - The actual Chromium report at external path
   `review/browser/run-20260905144640878/report.json`, SHA
   `f956628141531ef150c1495d2c28be466a874d411cb62765f05ef1a643db1ab5`,

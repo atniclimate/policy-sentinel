@@ -861,7 +861,7 @@ current_focus:
   terminal_reason: null
   resumable_roots:
     - PS09-05-SEARCH-OUTPUTS
-  last_durable_checkpoint: c9e84d8
+  last_durable_checkpoint: 5d25167
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5708,12 +5708,12 @@ work_items:
         browser acceptance remains separate. Local source display does not
         authorize publication or establish PS09-06 acceptance.
       - >-
-        2026-09-05 cutoff: actual Chromium report f9566281 records 23 passing
-        assertions but independent review rejects final acceptance because its
-        old overflow oracle masked mobile expansion and 146 contrast node
-        occurrences remained incomplete. The corrected oracle reproduced an
-        overflowing snippet text range in diagnostic e293cdc6. Bounded
-        CSS/oracle repairs pass smoke report 9629dacf (13 checks, six
+        2026-09-05 cutoff commit 5d25167: actual Chromium report f9566281
+        records 23 passing assertions but independent review rejects final
+        acceptance because its old overflow oracle masked mobile expansion and
+        146 contrast node occurrences remained incomplete. The corrected oracle
+        reproduced an overflowing snippet text range in diagnostic e293cdc6.
+        Bounded CSS/oracle repairs pass smoke report 9629dacf (13 checks, six
         screenshots, exact 1440/390px geometry, zero axe violations/incompletes)
         on build 215d11d8. Full repository check passes 1516 unit tests and 99
         policy tests. Smoke acceptanceComplete is false; full browser acceptance
