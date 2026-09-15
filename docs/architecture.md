@@ -455,6 +455,48 @@ The [ADR](adr/ps09-canonical-corpus.md) records exact Windows custody assumption
 and cooperative deadline/power-loss limits; these are not an ACL or kernel
 isolation guarantee.
 
+## Makah demo private-context groundwork seam
+
+Prepared 2026-09-15 under the
+[Makah demo launch packet](handoffs/makah-demo-fable-5.1-launch-prompt.md).
+Three additive contracts and two pure modules turn the descriptive sketches
+in [`docs/makah-demo/`](makah-demo/00-llm-usage-manifest.yaml) into
+reviewable, versioned, tested shapes without admitting real data:
+`LandBoundary 1.0.0` (an opaque reference to an externally held boundary
+object, never inline coordinates), `LandParcel 1.0.0` (co-existing
+land-status types and ordered, non-exclusive jurisdiction layers, each with
+its own official evidence and never a single winning field),
+`CitationExport 1.0.0` (record identity, citation and agency-level public
+contact fields with mandatory per-field provenance reused from
+`PolicyRecord 1.4`), `resolveParcelQuery` (a union of exact layer matches
+over already validated records that returns a per-record `whyAssociated`
+layer basis and never an applicability statement), and the typed
+`AuthorizedPrivateContextAdapter` interface with one synthetic in-memory
+implementation used only by tests.
+
+A tribal layer matches a record only through a validated
+`nationAssociations` entry whose official name equals the layer's authority
+name; jurisdiction names, issuing bodies, keywords and geography never
+produce a match, so a county-only parcel cannot yield a Nation association.
+Both private-only contracts fix `deploymentProfile: private`, reject
+PolicyRecord protected keys and geometry payload keys at any depth before
+schema validation, require Tribal-supplied material to be at least
+`restricted`, and separate `synthetic_test_only` from
+`private_local_authorized` trust domains with `.invalid` hosts required for
+synthetic evidence. The synthetic adapter rejects any
+`private_local_authorized` input with
+`REAL_PRIVATE_DATA_REQUIRES_AUTHORIZED_ADAPTER`; a real adapter that reads an
+owner-owned private root is a documented follow-on requiring an owner
+dependency approval, a private deployment under D-010 and gate `G-G`, and
+a build-time shapefile or GeoJSON ingestion step that does not exist.
+
+The modules perform no I/O, import nothing from the application, adapters,
+pipeline, kernel or experimental trees, and are not imported by the artifact
+builder, the application or any output path; the ordinary synthetic build is
+unchanged. The seam adds no `whyShown` basis to records, no real geometry,
+no parcel data, no contact value from a real source, no source activation
+and no public delivery path.
+
 ## Current application and ingestion architecture
 
 The implemented baseline is a static TypeScript application with a separate
@@ -1083,8 +1125,13 @@ interface AuthorizedPrivateContextAdapter {
 An implementation, if later authorized, belongs in a separately configured
 private deployment. It is opt-in, has no automatic public export, sends no
 telemetry, and must not contain bundled data, credentials, example locations,
-or implicit source paths. No private adapter module or private-context manifest
-exists. Current repository checks reject tracked private-path families and
+or implicit source paths. As of 2026-09-15 the interface exists as a typed
+contract in
+[`authorized-private-context-adapter.ts`](../src/engine/authorized-private-context-adapter.ts)
+with a synthetic in-memory implementation for tests only; its operations are
+synchronous because the contract performs no I/O, a deliberate deviation from
+the promise-returning sketch above. No real private adapter module or
+private-context manifest exists. Current repository checks reject tracked private-path families and
 prohibited public-record fields; a future implementation must additionally
 prove that its public build configuration rejects the private module and every
 private-context manifest. Private context cannot create a public

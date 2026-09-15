@@ -44,6 +44,11 @@ const spatialRelationSchema = await readJson(
 const jurisdictionEvidenceSchema = await readJson(
   "schemas/experimental/jurisdiction-evidence.schema.v1.json",
 );
+const landBoundarySchema = await readJson("schemas/land-boundary.schema.v1.json");
+const landParcelSchema = await readJson("schemas/land-parcel.schema.v1.json");
+const citationExportSchema = await readJson(
+  "schemas/citation-export.schema.v1.json",
+);
 const taxonomy = await readJson("config/taxonomy.v1.json");
 const sourceRegistry = await readJson("config/sources.v1.json");
 
@@ -71,6 +76,9 @@ for (const [name, schema] of [
   ["S0 spatial-observation schema", spatialObservationSchema],
   ["S0 spatial-relation schema", spatialRelationSchema],
   ["S0 jurisdiction-evidence schema", jurisdictionEvidenceSchema],
+  ["land boundary schema", landBoundarySchema],
+  ["land parcel schema", landParcelSchema],
+  ["citation export schema", citationExportSchema],
 ]) {
   if (!ajv.validateSchema(schema)) {
     throw new Error(
@@ -517,6 +525,108 @@ for (const fixtureCase of malformedRealSourceLifecycleBundle.cases) {
   }
 }
 
+// Makah demo groundwork (2026-09-15): private-only boundary/parcel contracts
+// and the citation export. Synthetic fixtures only; compiling them admits no
+// real geometry, parcel, contact or source data.
+const makahDemoFamilies = [
+  {
+    name: "land boundary",
+    schema: landBoundarySchema,
+    validFixture: "fixtures/engine/land-boundary.synthetic.valid.json",
+    malformedFixture: "fixtures/engine/land-boundary-malformed.invalid.json",
+    baseFixture: "land-boundary.synthetic.valid.json",
+  },
+  {
+    name: "land parcel",
+    schema: landParcelSchema,
+    validFixture: "fixtures/engine/land-parcel.synthetic.valid.json",
+    malformedFixture: "fixtures/engine/land-parcel-malformed.invalid.json",
+    baseFixture: "land-parcel.synthetic.valid.json",
+  },
+];
+const makahDemoCounts = [];
+for (const family of makahDemoFamilies) {
+  const validate = ajv.compile(family.schema);
+  const fixture = await readJson(family.validFixture);
+  if (!validate(fixture)) {
+    throw new Error(
+      `synthetic ${family.name} fixture is invalid:\n${ajv.errorsText(
+        validate.errors,
+        { separator: "\n" },
+      )}`,
+    );
+  }
+  const malformed = await readJson(family.malformedFixture);
+  if (
+    malformed.fixtureFamilyVersion !== "1.0.0" ||
+    malformed.baseFixture !== family.baseFixture ||
+    !Array.isArray(malformed.cases) ||
+    malformed.cases.length === 0
+  ) {
+    throw new Error(`malformed ${family.name} fixture family is invalid`);
+  }
+  const caseIds = new Set();
+  let schemaInvalid = 0;
+  let protectedKey = 0;
+  let runtimeBoundary = 0;
+  for (const fixtureCase of malformed.cases) {
+    if (
+      typeof fixtureCase.id !== "string" ||
+      caseIds.has(fixtureCase.id) ||
+      !["schema", "semantic"].includes(fixtureCase.expectedLayer) ||
+      typeof fixtureCase.expectedCode !== "string" ||
+      typeof fixtureCase.expectedPath !== "string" ||
+      !Array.isArray(fixtureCase.mutations) ||
+      fixtureCase.mutations.length === 0
+    ) {
+      throw new Error(`malformed ${family.name} case metadata is invalid`);
+    }
+    caseIds.add(fixtureCase.id);
+    const candidate = applyFixtureMutations(fixture, fixtureCase.mutations);
+    const accepted = validate(candidate);
+    if (fixtureCase.expectedLayer === "schema") {
+      if (fixtureCase.expectedCode === "PROTECTED_KEY") {
+        // Protected keys are rejected by the runtime before schema validation;
+        // the closed schema may or may not also reject them. Count separately.
+        protectedKey += 1;
+      } else {
+        if (accepted) {
+          throw new Error(
+            `negative ${family.name} case ${fixtureCase.id} was accepted by the schema`,
+          );
+        }
+        schemaInvalid += 1;
+      }
+    } else {
+      if (!accepted) {
+        throw new Error(
+          `runtime-boundary ${family.name} case ${fixtureCase.id} did not reach runtime validation:\n${ajv.errorsText(
+            validate.errors,
+            { separator: "\n" },
+          )}`,
+        );
+      }
+      runtimeBoundary += 1;
+    }
+  }
+  makahDemoCounts.push(
+    `1 valid plus ${schemaInvalid} schema-invalid plus ${protectedKey} protected-key plus ${runtimeBoundary} runtime-boundary ${family.name} checks`,
+  );
+}
+const validateCitationExport = ajv.compile(citationExportSchema);
+const citationExportFixture = await readJson(
+  "fixtures/engine/citation-export.synthetic.valid.json",
+);
+if (!validateCitationExport(citationExportFixture)) {
+  throw new Error(
+    `synthetic citation export fixture is invalid:\n${ajv.errorsText(
+      validateCitationExport.errors,
+      { separator: "\n" },
+    )}`,
+  );
+}
+makahDemoCounts.push("1 valid citation export check");
+
 ajv.addSchema(assertionSchema);
 for (const [name, schema] of [
   ["S0 spatial-observation schema", spatialObservationSchema],
@@ -868,7 +978,7 @@ if (!historicalPolicyRejected) {
 negativePolicyChecks += 1;
 
 console.log(
-  `Foundation validation passed: 16 schemas, ${taxonomy.categories.length} categories, ` +
+  `Foundation validation passed: 19 schemas, ${taxonomy.categories.length} categories, ` +
     `${taxonomy.categories.reduce((count, category) => count + category.subcategories.length, 0)} subcategories, ` +
     `${fixtureNames.length} valid fixtures, ${negativePolicyChecks} negative policy checks, ` +
     `${s0ValidFixtureChecks} valid plus ${s0InvalidFixtureChecks} invalid S0 fixture checks, ` +
@@ -877,5 +987,6 @@ console.log(
     `1 valid plus ${schemaInvalidTaxonomyChecks} schema-invalid plus ${runtimeBoundaryTaxonomyChecks} runtime-boundary taxonomy bundle checks, ` +
     `1 valid plus ${schemaInvalidSourcePackChecks} schema-invalid plus ${runtimeBoundarySourcePackChecks} runtime-boundary source-pack bundle checks, ` +
     `1 valid plus ${schemaInvalidRealSourceLifecycleChecks} schema-invalid plus ${runtimeBoundaryRealSourceLifecycleChecks} runtime-boundary real-source lifecycle checks, ` +
-    `and 1 valid plus ${schemaInvalidIdentityAuthorityScenarioChecks} schema-invalid plus ${runtimeBoundaryIdentityAuthorityScenarioChecks} runtime-boundary identity authority scenario checks.`,
+    `1 valid plus ${schemaInvalidIdentityAuthorityScenarioChecks} schema-invalid plus ${runtimeBoundaryIdentityAuthorityScenarioChecks} runtime-boundary identity authority scenario checks, ` +
+    `and ${makahDemoCounts.join(", ")}.`,
 );

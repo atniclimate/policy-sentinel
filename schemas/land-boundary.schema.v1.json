@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/land-boundary.schema.v1.json",
+  "title": "Policy Sentinel private-only land boundary reference",
+  "description": "A private-deployment-only reference to an externally held land-boundary object. It never carries inline coordinates, never enters a public artifact, and establishes no land status, jurisdiction, rights, applicability, or Nation association. Version 1.0.0.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "boundaryId",
+    "trustDomain",
+    "deploymentProfile",
+    "crs",
+    "geometryRef",
+    "supplierClass",
+    "sensitivity",
+    "sourceEvidence",
+    "nonClaims"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://policy-sentinel.invalid/schemas/land-boundary.schema.v1.json"
+    },
+    "schemaVersion": { "const": "1.0.0" },
+    "boundaryId": { "$ref": "#/$defs/stableId" },
+    "trustDomain": { "$ref": "#/$defs/trustDomain" },
+    "deploymentProfile": { "const": "private" },
+    "crs": {
+      "type": "string",
+      "maxLength": 16,
+      "pattern": "^EPSG:[1-9][0-9]{0,5}$"
+    },
+    "geometryRef": { "$ref": "#/$defs/geometryReference" },
+    "supplierClass": { "$ref": "#/$defs/supplierClass" },
+    "sensitivity": { "$ref": "#/$defs/sensitivity" },
+    "sourceEvidence": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/sourceEvidence" }
+    },
+    "nonClaims": { "$ref": "#/$defs/nonClaims" }
+  },
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 96,
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "trustDomain": {
+      "enum": ["synthetic_test_only", "private_local_authorized"]
+    },
+    "sensitivity": {
+      "description": "No public class exists: a boundary reference is never public data and never enters a public artifact. Reference layers from public agencies are at least internal; Tribally supplied material is at least restricted.",
+      "enum": ["internal", "restricted", "privileged"]
+    },
+    "supplierClass": {
+      "enum": [
+        "tribal_government",
+        "county",
+        "state",
+        "federal",
+        "project_synthetic",
+        "unknown"
+      ]
+    },
+    "httpsUrl": {
+      "type": "string",
+      "minLength": 12,
+      "maxLength": 2048,
+      "pattern": "^https://[^\\s]+$"
+    },
+    "sha256Hex": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "geometryReference": {
+      "description": "An opaque reference to a geometry object held outside Git in an owner-owned private root. No coordinate, ring, feature, bounding box, or centroid representation is permitted anywhere in this contract.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "opaqueReference", "objectDigest", "format"],
+      "properties": {
+        "kind": { "const": "external_private_object" },
+        "opaqueReference": {
+          "type": "string",
+          "maxLength": 160,
+          "pattern": "^urn:policy-sentinel:private-boundary:[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "objectDigest": { "$ref": "#/$defs/sha256Hex" },
+        "format": {
+          "enum": [
+            "geojson_polygon_or_multipolygon",
+            "esri_shapefile_bundle",
+            "synthetic_fixture_placeholder"
+          ]
+        }
+      }
+    },
+    "sourceEvidence": {
+      "description": "Who supplied the boundary object and on what basis. This records custody and provenance; it is not a land-status or ownership statement.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceLabel",
+        "sourceUrl",
+        "retrievedAt",
+        "sourceUpdatedAt",
+        "evidenceBasis",
+        "validationState"
+      ],
+      "properties": {
+        "sourceLabel": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "sourceUrl": {
+          "oneOf": [{ "$ref": "#/$defs/httpsUrl" }, { "type": "null" }]
+        },
+        "retrievedAt": { "type": "string", "format": "date-time" },
+        "sourceUpdatedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "evidenceBasis": {
+          "enum": [
+            "official_public_gis_publication",
+            "government_supplied_private_file",
+            "tribal_government_supplied_private_file",
+            "synthetic_fixture"
+          ]
+        },
+        "validationState": { "enum": ["pending", "validated", "rejected"] }
+      }
+    },
+    "nonClaims": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "prefixItems": [
+        { "const": "not_a_land_status_determination" },
+        { "const": "not_a_jurisdiction_determination" },
+        { "const": "not_a_rights_or_applicability_determination" },
+        { "const": "not_a_nation_association" },
+        { "const": "not_public_data_and_never_in_a_public_artifact" }
+      ],
+      "items": false
+    }
+  }
+}

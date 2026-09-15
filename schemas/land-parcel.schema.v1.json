@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/land-parcel.schema.v1.json",
+  "title": "Policy Sentinel private-only land parcel reference",
+  "description": "A private-deployment-only parcel reference carrying non-exclusive, independently evidenced land-status types and jurisdiction layers. There is never a single winning jurisdiction field. The object establishes no legal land status, treaty right, jurisdiction, applicability, or Nation association. Version 1.0.0.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "parcelId",
+    "trustDomain",
+    "deploymentProfile",
+    "landStatusTypes",
+    "landStatusEvidence",
+    "jurisdictionLayers",
+    "boundaryRef",
+    "sensitivity",
+    "nonClaims"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://policy-sentinel.invalid/schemas/land-parcel.schema.v1.json"
+    },
+    "schemaVersion": { "const": "1.0.0" },
+    "parcelId": { "$ref": "#/$defs/parcelId" },
+    "trustDomain": { "$ref": "#/$defs/trustDomain" },
+    "deploymentProfile": { "const": "private" },
+    "landStatusTypes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/landStatusType" }
+    },
+    "landStatusEvidence": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/landStatusEvidence" }
+    },
+    "jurisdictionLayers": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/jurisdictionLayer" }
+    },
+    "boundaryRef": {
+      "oneOf": [{ "$ref": "#/$defs/boundaryReference" }, { "type": "null" }]
+    },
+    "sensitivity": { "$ref": "#/$defs/sensitivity" },
+    "nonClaims": { "$ref": "#/$defs/nonClaims" }
+  },
+  "$defs": {
+    "parcelId": {
+      "description": "A project-assigned identifier with a mandatory prefix and a letter-led slug, so a bare assessor parcel number cannot satisfy the pattern. Opacity beyond that is producer discipline; the object references a cadastral record and is never that record.",
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 128,
+      "pattern": "^parcel:[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "nationId": {
+      "description": "The project-stable Nation identifier used by PolicyRecord nationAssociations. A tribal layer is a candidate label with no identity standing until this identifier is bound to an accepted identity record.",
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 128,
+      "pattern": "^nation:[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "stableId": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 96,
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "trustDomain": {
+      "enum": ["synthetic_test_only", "private_local_authorized"]
+    },
+    "sensitivity": {
+      "enum": ["public", "internal", "restricted", "privileged"]
+    },
+    "httpsUrl": {
+      "type": "string",
+      "minLength": 12,
+      "maxLength": 2048,
+      "pattern": "^https://[^\\s]+$"
+    },
+    "landStatusType": {
+      "enum": [
+        "tribal_trust",
+        "tribal_fee",
+        "allotted_trust",
+        "reservation_fee",
+        "ceded_territory_unresolved",
+        "state_land",
+        "county_land",
+        "private_fee",
+        "federal_land",
+        "unknown"
+      ]
+    },
+    "jurisdictionLevel": {
+      "enum": ["federal", "state", "county", "tribal"]
+    },
+    "landStatusEvidence": {
+      "description": "One official-source observation supporting one listed land-status type. Same evidentiary discipline as record nationAssociations: an official source, never an inference.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "landStatusType",
+        "sourceLabel",
+        "sourceUrl",
+        "retrievedAt",
+        "sourceUpdatedAt",
+        "evidenceBasis",
+        "validationState"
+      ],
+      "properties": {
+        "landStatusType": { "$ref": "#/$defs/landStatusType" },
+        "sourceLabel": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "sourceUrl": { "$ref": "#/$defs/httpsUrl" },
+        "retrievedAt": { "type": "string", "format": "date-time" },
+        "sourceUpdatedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "evidenceBasis": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "validationState": { "enum": ["pending", "validated", "rejected"] }
+      }
+    },
+    "jurisdictionLayer": {
+      "description": "One ordered, non-exclusive jurisdiction layer with its own official evidence. Layers coexist; none is primary. A tribal layer must carry a nationId and is matched only through a validated record nationAssociations entry with that identifier; the authorityName is a display label, not identity evidence.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "level",
+        "authorityName",
+        "nationId",
+        "evidenceUrl",
+        "evidenceDate"
+      ],
+      "properties": {
+        "level": { "$ref": "#/$defs/jurisdictionLevel" },
+        "authorityName": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "nationId": {
+          "oneOf": [{ "$ref": "#/$defs/nationId" }, { "type": "null" }]
+        },
+        "evidenceUrl": { "$ref": "#/$defs/httpsUrl" },
+        "evidenceDate": { "type": "string", "format": "date" }
+      },
+      "if": {
+        "properties": { "level": { "const": "tribal" } },
+        "required": ["level"]
+      },
+      "then": {
+        "properties": { "nationId": { "$ref": "#/$defs/nationId" } }
+      },
+      "else": {
+        "properties": { "nationId": { "type": "null" } }
+      }
+    },
+    "boundaryReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["boundaryId", "schemaVersion"],
+      "properties": {
+        "boundaryId": { "$ref": "#/$defs/stableId" },
+        "schemaVersion": { "const": "1.0.0" }
+      }
+    },
+    "nonClaims": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "prefixItems": [
+        { "const": "not_a_legal_land_status_determination" },
+        { "const": "not_a_treaty_rights_determination" },
+        { "const": "not_a_jurisdiction_or_applicability_determination" },
+        {
+          "const": "not_a_substitute_for_the_official_cadastral_or_trust_record"
+        }
+      ],
+      "items": false
+    }
+  }
+}

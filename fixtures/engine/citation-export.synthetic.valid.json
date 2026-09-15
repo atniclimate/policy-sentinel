@@ -1,0 +1,225 @@
+{
+  "$schema": "https://policy-sentinel.invalid/schemas/citation-export.schema.v1.json",
+  "schemaVersion": "1.0.0",
+  "exportId": "synthetic-export-alpha",
+  "trustDomain": "synthetic_test_only",
+  "generatedAt": "2026-09-10T00:00:00Z",
+  "scope": {
+    "kind": "jurisdiction_layers",
+    "jurisdictionLayers": [
+      {
+        "level": "federal",
+        "authorityName": "Synthetic Federal Union",
+        "nationId": null,
+        "evidenceUrl": "https://federal.example.invalid/jurisdiction/synthetic-export-alpha",
+        "evidenceDate": "2026-08-01"
+      },
+      {
+        "level": "county",
+        "authorityName": "Example County",
+        "nationId": null,
+        "evidenceUrl": "https://county.example.invalid/jurisdiction/synthetic-export-alpha",
+        "evidenceDate": "2026-08-01"
+      }
+    ],
+    "asOf": "2026-09-10"
+  },
+  "records": [
+    {
+      "internalId": "psr:synthetic-federal:record-001",
+      "officialTitle": "Synthetic public notice for contract validation",
+      "documentType": "notice",
+      "jurisdiction": {
+        "level": "federal",
+        "name": "Synthetic Federal Union"
+      },
+      "issuingAuthority": {
+        "name": "Synthetic Federal Office",
+        "officialWebsite": "https://federal.example.invalid",
+        "administrativeOffice": "Synthetic Records Office",
+        "publicAddress": "1 Synthetic Plaza, Synthetic City, ZZ 00000",
+        "publicPhone": "+1 555 0100 100",
+        "contactScope": "agency_public_only"
+      },
+      "citation": {
+        "officialCitation": "Synthetic Citation No. 001",
+        "sourceUrl": "https://federal.example.invalid/records/synthetic-export-alpha",
+        "retrievedAt": "2026-09-10T00:00:00Z",
+        "sourceUpdatedAt": null
+      },
+      "whyAssociated": {
+        "basis": "jurisdiction_layer_match",
+        "layerIndex": 0,
+        "level": "federal",
+        "authorityName": "Synthetic Federal Union",
+        "nationId": null,
+        "evidenceUrl": "https://federal.example.invalid/jurisdiction/synthetic-export-alpha"
+      },
+      "fieldProvenance": [
+        {
+          "field": "/records/0/officialTitle",
+          "sourcePath": "$.title",
+          "sourceId": "synthetic-federal",
+          "sourceRecordId": "SYN-001",
+          "sourceUrl": "https://federal.example.invalid/records/synthetic-export-alpha",
+          "retrievedAt": "2026-09-10T00:00:00Z",
+          "sourceUpdatedAt": null,
+          "adapterId": "synthetic-adapter",
+          "transformation": "copied",
+          "transformRuleId": null,
+          "validationState": "validated"
+        },
+        {
+          "field": "/records/0/citation/sourceUrl",
+          "sourcePath": "$.url",
+          "sourceId": "synthetic-federal",
+          "sourceRecordId": "SYN-001",
+          "sourceUrl": "https://federal.example.invalid/records/synthetic-export-alpha",
+          "retrievedAt": "2026-09-10T00:00:00Z",
+          "sourceUpdatedAt": null,
+          "adapterId": "synthetic-adapter",
+          "transformation": "copied",
+          "transformRuleId": null,
+          "validationState": "validated"
+        },
+        {
+          "field": "/records/0/issuingAuthority/administrativeOffice",
+          "sourcePath": "$.office",
+          "sourceId": "synthetic-federal",
+          "sourceRecordId": "SYN-001",
+          "sourceUrl": "https://federal.example.invalid/records/synthetic-export-alpha",
+          "retrievedAt": "2026-09-10T00:00:00Z",
+          "sourceUpdatedAt": null,
+          "adapterId": "synthetic-adapter",
+          "transformation": "copied",
+          "transformRuleId": null,
+          "validationState": "validated"
+        },
+        {
+          "field": "/records/0/issuingAuthority/publicAddress",
+          "sourcePath": "$.address",
+          "sourceId": "synthetic-federal",
+          "sourceRecordId": "SYN-001",
+          "sourceUrl": "https://federal.example.invalid/records/synthetic-export-alpha",
+          "retrievedAt": "2026-09-10T00:00:00Z",
+          "sourceUpdatedAt": null,
+          "adapterId": "synthetic-adapter",
+          "transformation": "copied",
+          "transformRuleId": null,
+          "validationState": "validated"
+        },
+        {
+          "field": "/records/0/issuingAuthority/publicPhone",
+          "sourcePath": "$.phone",
+          "sourceId": "synthetic-federal",
+          "sourceRecordId": "SYN-001",
+          "sourceUrl": "https://federal.example.invalid/records/synthetic-export-alpha",
+          "retrievedAt": "2026-09-10T00:00:00Z",
+          "sourceUpdatedAt": null,
+          "adapterId": "synthetic-adapter",
+          "transformation": "copied",
+          "transformRuleId": null,
+          "validationState": "validated"
+        }
+      ]
+    },
+    {
+      "internalId": "psr:synthetic-county:ordinance-001",
+      "officialTitle": "Synthetic ordinance explicitly naming a synthetic Nation",
+      "documentType": "county_ordinance",
+      "jurisdiction": {
+        "level": "county",
+        "name": "Example County"
+      },
+      "issuingAuthority": {
+        "name": "Synthetic County Records",
+        "officialWebsite": "https://county.example.invalid",
+        "administrativeOffice": "Synthetic Records Office",
+        "publicAddress": "1 Synthetic Plaza, Synthetic City, ZZ 00000",
+        "publicPhone": "+1 555 0100 100",
+        "contactScope": "agency_public_only"
+      },
+      "citation": {
+        "officialCitation": "Synthetic Citation No. 002",
+        "sourceUrl": "https://county.example.invalid/records/synthetic-export-alpha",
+        "retrievedAt": "2026-09-10T00:00:00Z",
+        "sourceUpdatedAt": null
+      },
+      "whyAssociated": null,
+      "fieldProvenance": [
+        {
+          "field": "/records/1/officialTitle",
+          "sourcePath": "$.title",
+          "sourceId": "synthetic-county",
+          "sourceRecordId": "ORD-001",
+          "sourceUrl": "https://county.example.invalid/records/synthetic-export-alpha",
+          "retrievedAt": "2026-09-10T00:00:00Z",
+          "sourceUpdatedAt": null,
+          "adapterId": "synthetic-county-adapter",
+          "transformation": "copied",
+          "transformRuleId": null,
+          "validationState": "validated"
+        },
+        {
+          "field": "/records/1/citation/sourceUrl",
+          "sourcePath": "$.url",
+          "sourceId": "synthetic-county",
+          "sourceRecordId": "ORD-001",
+          "sourceUrl": "https://county.example.invalid/records/synthetic-export-alpha",
+          "retrievedAt": "2026-09-10T00:00:00Z",
+          "sourceUpdatedAt": null,
+          "adapterId": "synthetic-county-adapter",
+          "transformation": "copied",
+          "transformRuleId": null,
+          "validationState": "validated"
+        },
+        {
+          "field": "/records/1/issuingAuthority/administrativeOffice",
+          "sourcePath": "$.office",
+          "sourceId": "synthetic-county",
+          "sourceRecordId": "ORD-001",
+          "sourceUrl": "https://county.example.invalid/records/synthetic-export-alpha",
+          "retrievedAt": "2026-09-10T00:00:00Z",
+          "sourceUpdatedAt": null,
+          "adapterId": "synthetic-county-adapter",
+          "transformation": "copied",
+          "transformRuleId": null,
+          "validationState": "validated"
+        },
+        {
+          "field": "/records/1/issuingAuthority/publicAddress",
+          "sourcePath": "$.address",
+          "sourceId": "synthetic-county",
+          "sourceRecordId": "ORD-001",
+          "sourceUrl": "https://county.example.invalid/records/synthetic-export-alpha",
+          "retrievedAt": "2026-09-10T00:00:00Z",
+          "sourceUpdatedAt": null,
+          "adapterId": "synthetic-county-adapter",
+          "transformation": "copied",
+          "transformRuleId": null,
+          "validationState": "validated"
+        },
+        {
+          "field": "/records/1/issuingAuthority/publicPhone",
+          "sourcePath": "$.phone",
+          "sourceId": "synthetic-county",
+          "sourceRecordId": "ORD-001",
+          "sourceUrl": "https://county.example.invalid/records/synthetic-export-alpha",
+          "retrievedAt": "2026-09-10T00:00:00Z",
+          "sourceUpdatedAt": null,
+          "adapterId": "synthetic-county-adapter",
+          "transformation": "copied",
+          "transformRuleId": null,
+          "validationState": "validated"
+        }
+      ]
+    }
+  ],
+  "nonClaims": [
+    "not_legal_advice",
+    "not_a_comprehensive_legal_database",
+    "not_a_jurisdiction_rights_or_eligibility_determination",
+    "not_a_substitute_for_the_cited_official_source",
+    "coverage_is_bounded_and_non_comprehensive"
+  ]
+}

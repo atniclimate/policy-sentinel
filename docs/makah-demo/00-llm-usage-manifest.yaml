@@ -44,6 +44,15 @@ part_1_what_this_document_set_is:
       Prepared launch packet for the next session that would implement the
       groundwork and run research scouts. It is proposed scope, not adopted;
       it becomes execution authority only when the owner launches with it.
+    launched_on: "2026-09-15"
+  related_outcome:
+    path: ../handoffs/makah-demo-01-groundwork-outcome.md
+    role: >
+      Terminal outcome of the 2026-09-15 groundwork session: schemas,
+      engine contracts, fixtures, tests, five source reviews, three
+      reconciled scout reports, a sovereignty review, and a proposed
+      decision-register entry. It records what remains gated; it authorizes
+      nothing and does not change the descriptive status of this document set.
 
 # ---------------------------------------------------------------------------
 part_2_how_an_llm_must_read_these_documents:

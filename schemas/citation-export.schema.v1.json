@@ -1,0 +1,287 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/citation-export.schema.v1.json",
+  "title": "Policy Sentinel citation and agency-metadata export",
+  "description": "A structured export of already-accepted policy records scoped to a parcel or to jurisdiction layers, carrying citations, agency-level public contact fields with mandatory per-field provenance, and the fixed non-claims. Version 1.0.0. Reuses the PolicyRecord 1.4 fieldProvenance definition by reference.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "exportId",
+    "trustDomain",
+    "generatedAt",
+    "scope",
+    "records",
+    "nonClaims"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://policy-sentinel.invalid/schemas/citation-export.schema.v1.json"
+    },
+    "schemaVersion": { "const": "1.0.0" },
+    "exportId": { "$ref": "#/$defs/stableId" },
+    "trustDomain": { "$ref": "#/$defs/trustDomain" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "scope": { "$ref": "#/$defs/scope" },
+    "records": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 4096,
+      "items": { "$ref": "#/$defs/exportRecord" }
+    },
+    "nonClaims": { "$ref": "#/$defs/nonClaims" }
+  },
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 96,
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "parcelId": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 128,
+      "pattern": "^parcel:[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "nationId": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 128,
+      "pattern": "^nation:[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "trustDomain": {
+      "enum": ["synthetic_test_only", "private_local_authorized"]
+    },
+    "httpsUrl": {
+      "type": "string",
+      "minLength": 12,
+      "maxLength": 2048,
+      "pattern": "^https://[^\\s]+$"
+    },
+    "jurisdictionLevel": {
+      "enum": ["federal", "state", "county", "tribal"]
+    },
+    "recordJurisdictionLevel": {
+      "enum": ["federal", "state", "county", "tribal", "other"]
+    },
+    "jurisdictionLayer": {
+      "description": "Mirrors the LandParcel jurisdiction layer. A tribal layer carries a nationId and is matched only through a validated record nationAssociations entry; authorityName is a display label.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "level",
+        "authorityName",
+        "nationId",
+        "evidenceUrl",
+        "evidenceDate"
+      ],
+      "properties": {
+        "level": { "$ref": "#/$defs/jurisdictionLevel" },
+        "authorityName": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "nationId": {
+          "oneOf": [{ "$ref": "#/$defs/nationId" }, { "type": "null" }]
+        },
+        "evidenceUrl": { "$ref": "#/$defs/httpsUrl" },
+        "evidenceDate": { "type": "string", "format": "date" }
+      },
+      "if": {
+        "properties": { "level": { "const": "tribal" } },
+        "required": ["level"]
+      },
+      "then": {
+        "properties": { "nationId": { "$ref": "#/$defs/nationId" } }
+      },
+      "else": {
+        "properties": { "nationId": { "type": "null" } }
+      }
+    },
+    "scope": {
+      "oneOf": [
+        {
+          "description": "A parcel scope carries the parcel's own jurisdiction layers so every whyAssociated basis can be checked against them inside the export.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "parcelId", "jurisdictionLayers", "asOf"],
+          "properties": {
+            "kind": { "const": "parcel" },
+            "parcelId": { "$ref": "#/$defs/parcelId" },
+            "jurisdictionLayers": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 16,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/jurisdictionLayer" }
+            },
+            "asOf": { "type": "string", "format": "date" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "jurisdictionLayers", "asOf"],
+          "properties": {
+            "kind": { "const": "jurisdiction_layers" },
+            "jurisdictionLayers": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 16,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/jurisdictionLayer" }
+            },
+            "asOf": { "type": "string", "format": "date" }
+          }
+        }
+      ]
+    },
+    "contactText": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "issuingAuthority": {
+      "description": "Agency-level, officially published, non-personal metadata only. An individual's name, direct line, or email is never permitted; runtime validation rejects personal-shaped values and any populated contact field lacking its own provenance entry.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "officialWebsite",
+        "administrativeOffice",
+        "publicAddress",
+        "publicPhone",
+        "contactScope"
+      ],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "officialWebsite": {
+          "oneOf": [{ "$ref": "#/$defs/httpsUrl" }, { "type": "null" }]
+        },
+        "administrativeOffice": { "$ref": "#/$defs/contactText" },
+        "publicAddress": { "$ref": "#/$defs/contactText" },
+        "publicPhone": {
+          "type": ["string", "null"],
+          "minLength": 7,
+          "maxLength": 32,
+          "pattern": "^\\+?[0-9][0-9 ().-]{5,30}$"
+        },
+        "contactScope": { "const": "agency_public_only" }
+      }
+    },
+    "citation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "officialCitation",
+        "sourceUrl",
+        "retrievedAt",
+        "sourceUpdatedAt"
+      ],
+      "properties": {
+        "officialCitation": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "sourceUrl": { "$ref": "#/$defs/httpsUrl" },
+        "retrievedAt": { "type": "string", "format": "date-time" },
+        "sourceUpdatedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        }
+      }
+    },
+    "whyAssociated": {
+      "description": "A display basis pointing at the exact jurisdiction layer whose evidence caused inclusion. 'Associated' here means layer-match display only; it is not a PolicyRecord nationAssociation, not a jurisdictional relevance finding, and never an applicability statement. It must agree with the scope's layer at layerIndex.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "basis",
+        "layerIndex",
+        "level",
+        "authorityName",
+        "nationId",
+        "evidenceUrl"
+      ],
+      "properties": {
+        "basis": { "const": "jurisdiction_layer_match" },
+        "layerIndex": { "type": "integer", "minimum": 0, "maximum": 15 },
+        "level": { "$ref": "#/$defs/jurisdictionLevel" },
+        "authorityName": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "nationId": {
+          "oneOf": [{ "$ref": "#/$defs/nationId" }, { "type": "null" }]
+        },
+        "evidenceUrl": { "$ref": "#/$defs/httpsUrl" }
+      },
+      "if": {
+        "properties": { "level": { "const": "tribal" } },
+        "required": ["level"]
+      },
+      "then": {
+        "properties": { "nationId": { "$ref": "#/$defs/nationId" } }
+      },
+      "else": {
+        "properties": { "nationId": { "type": "null" } }
+      }
+    },
+    "exportRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "internalId",
+        "officialTitle",
+        "documentType",
+        "jurisdiction",
+        "issuingAuthority",
+        "citation",
+        "whyAssociated",
+        "fieldProvenance"
+      ],
+      "properties": {
+        "internalId": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "officialTitle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "documentType": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "jurisdiction": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["level", "name"],
+          "properties": {
+            "level": { "$ref": "#/$defs/recordJurisdictionLevel" },
+            "name": { "type": "string", "minLength": 1, "maxLength": 256 }
+          }
+        },
+        "issuingAuthority": { "$ref": "#/$defs/issuingAuthority" },
+        "citation": { "$ref": "#/$defs/citation" },
+        "whyAssociated": {
+          "oneOf": [{ "$ref": "#/$defs/whyAssociated" }, { "type": "null" }]
+        },
+        "fieldProvenance": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": {
+            "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/fieldProvenance"
+          }
+        }
+      }
+    },
+    "nonClaims": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "prefixItems": [
+        { "const": "not_legal_advice" },
+        { "const": "not_a_comprehensive_legal_database" },
+        { "const": "not_a_jurisdiction_rights_or_eligibility_determination" },
+        { "const": "not_a_substitute_for_the_cited_official_source" },
+        { "const": "coverage_is_bounded_and_non_comprehensive" }
+      ],
+      "items": false
+    }
+  }
+}

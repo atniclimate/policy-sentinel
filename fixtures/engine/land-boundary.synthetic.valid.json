@@ -1,0 +1,41 @@
+{
+  "$schema": "https://policy-sentinel.invalid/schemas/land-boundary.schema.v1.json",
+  "schemaVersion": "1.0.0",
+  "boundaryId": "synthetic-boundary-alpha",
+  "trustDomain": "synthetic_test_only",
+  "deploymentProfile": "private",
+  "crs": "EPSG:4326",
+  "geometryRef": {
+    "kind": "external_private_object",
+    "opaqueReference": "urn:policy-sentinel:private-boundary:synthetic-boundary-alpha",
+    "objectDigest": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+    "format": "synthetic_fixture_placeholder"
+  },
+  "supplierClass": "project_synthetic",
+  "sensitivity": "restricted",
+  "sourceEvidence": [
+    {
+      "sourceLabel": "Synthetic county open data boundary listing",
+      "sourceUrl": null,
+      "retrievedAt": "2026-09-01T00:00:00Z",
+      "sourceUpdatedAt": null,
+      "evidenceBasis": "synthetic_fixture",
+      "validationState": "validated"
+    },
+    {
+      "sourceLabel": "Synthetic federal office boundary listing",
+      "sourceUrl": "https://county.example.invalid/boundaries/synthetic-boundary-alpha",
+      "retrievedAt": "2026-09-02T00:00:00Z",
+      "sourceUpdatedAt": "2026-08-01T00:00:00Z",
+      "evidenceBasis": "synthetic_fixture",
+      "validationState": "pending"
+    }
+  ],
+  "nonClaims": [
+    "not_a_land_status_determination",
+    "not_a_jurisdiction_determination",
+    "not_a_rights_or_applicability_determination",
+    "not_a_nation_association",
+    "not_public_data_and_never_in_a_public_artifact"
+  ]
+}

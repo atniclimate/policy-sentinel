@@ -1,0 +1,237 @@
+{
+  "fixtureFamilyVersion": "1.0.0",
+  "baseFixture": "land-boundary.synthetic.valid.json",
+  "cases": [
+    {
+      "id": "bad-boundary-id-pattern",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/boundaryId",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/boundaryId",
+          "value": "SYN_INVALID_ID!"
+        }
+      ]
+    },
+    {
+      "id": "bad-trust-domain-enum",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/trustDomain",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/trustDomain",
+          "value": "real_public"
+        }
+      ]
+    },
+    {
+      "id": "missing-crs",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$",
+      "mutations": [
+        {
+          "operation": "remove",
+          "path": "/crs"
+        }
+      ]
+    },
+    {
+      "id": "additional-root-property",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/extraField",
+          "value": "synthetic-extra"
+        }
+      ]
+    },
+    {
+      "id": "nonclaims-wrong-order",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/nonClaims/0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/nonClaims",
+          "value": [
+            "not_a_jurisdiction_determination",
+            "not_a_land_status_determination",
+            "not_a_rights_or_applicability_determination",
+            "not_a_nation_association",
+            "not_public_data_and_never_in_a_public_artifact"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wrong-schema-version",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/schemaVersion",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/schemaVersion",
+          "value": "2.0.0"
+        }
+      ]
+    },
+    {
+      "id": "deployment-profile-not-private",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/deploymentProfile",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentProfile",
+          "value": "public"
+        }
+      ]
+    },
+    {
+      "id": "protected-key-root-coordinates",
+      "expectedLayer": "schema",
+      "expectedCode": "PROTECTED_KEY",
+      "expectedPath": "$/coordinates",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/coordinates",
+          "value": [1, 2]
+        }
+      ]
+    },
+    {
+      "id": "protected-key-nested-coordinates",
+      "expectedLayer": "schema",
+      "expectedCode": "PROTECTED_KEY",
+      "expectedPath": "$/field/coordinates",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/geometryRef/coordinates",
+          "value": [1, 2]
+        }
+      ]
+    },
+    {
+      "id": "protected-key-geometry-in-geometryref",
+      "expectedLayer": "schema",
+      "expectedCode": "PROTECTED_KEY",
+      "expectedPath": "$/field/geometry",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/geometryRef/geometry",
+          "value": {}
+        }
+      ]
+    },
+    {
+      "id": "bad-supplier-class-enum",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/supplierClass",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/supplierClass",
+          "value": "synthetic_invalid"
+        }
+      ]
+    },
+    {
+      "id": "bad-crs-pattern",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/crs",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/crs",
+          "value": "EPSG:ABCD"
+        }
+      ]
+    },
+    {
+      "id": "sensitivity-too-low-tribal-supplier",
+      "expectedLayer": "semantic",
+      "expectedCode": "SENSITIVITY_TOO_LOW",
+      "expectedPath": "$/sensitivity",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/supplierClass",
+          "value": "tribal_government"
+        },
+        {
+          "operation": "replace",
+          "path": "/sensitivity",
+          "value": "internal"
+        }
+      ]
+    },
+    {
+      "id": "public-sensitivity-is-not-a-boundary-class",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/sensitivity",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/sensitivity",
+          "value": "public"
+        }
+      ]
+    },
+    {
+      "id": "trust-domain-mismatch-evidence-basis",
+      "expectedLayer": "semantic",
+      "expectedCode": "TRUST_DOMAIN_MISMATCH",
+      "expectedPath": "$/sourceEvidence/0/evidenceBasis",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/sourceEvidence/0/evidenceBasis",
+          "value": "official_public_gis_publication"
+        }
+      ]
+    },
+    {
+      "id": "trust-domain-mismatch-private-with-synthetic-markers",
+      "expectedLayer": "semantic",
+      "expectedCode": "TRUST_DOMAIN_MISMATCH",
+      "expectedPath": "$/supplierClass",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/trustDomain",
+          "value": "private_local_authorized"
+        }
+      ]
+    },
+    {
+      "id": "synthetic-url-required-real-host",
+      "expectedLayer": "semantic",
+      "expectedCode": "SYNTHETIC_URL_REQUIRED",
+      "expectedPath": "$/sourceEvidence/1/sourceUrl",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/sourceEvidence/1/sourceUrl",
+          "value": "https://county.example.com/boundaries/synthetic-boundary-alpha"
+        }
+      ]
+    }
+  ]
+}

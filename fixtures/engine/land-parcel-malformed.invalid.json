@@ -1,0 +1,297 @@
+{
+  "fixtureFamilyVersion": "1.0.0",
+  "baseFixture": "land-parcel.synthetic.valid.json",
+  "cases": [
+    {
+      "id": "bad-parcel-id-pattern",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/parcelId",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/parcelId",
+          "value": "PARCEL:BAD!!"
+        }
+      ]
+    },
+    {
+      "id": "bad-trust-domain-enum",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/trustDomain",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/trustDomain",
+          "value": "real_public"
+        }
+      ]
+    },
+    {
+      "id": "missing-sensitivity",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$",
+      "mutations": [
+        {
+          "operation": "remove",
+          "path": "/sensitivity"
+        }
+      ]
+    },
+    {
+      "id": "additional-root-property",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/extraField",
+          "value": "synthetic-extra"
+        }
+      ]
+    },
+    {
+      "id": "nonclaims-wrong-order",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/nonClaims/0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/nonClaims",
+          "value": [
+            "not_a_treaty_rights_determination",
+            "not_a_legal_land_status_determination",
+            "not_a_jurisdiction_or_applicability_determination",
+            "not_a_substitute_for_the_official_cadastral_or_trust_record"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wrong-schema-version",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/schemaVersion",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/schemaVersion",
+          "value": "2.0.0"
+        }
+      ]
+    },
+    {
+      "id": "deployment-profile-not-private",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/deploymentProfile",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/deploymentProfile",
+          "value": "public"
+        }
+      ]
+    },
+    {
+      "id": "protected-key-root-coordinates",
+      "expectedLayer": "schema",
+      "expectedCode": "PROTECTED_KEY",
+      "expectedPath": "$/coordinates",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/coordinates",
+          "value": [1, 2]
+        }
+      ]
+    },
+    {
+      "id": "protected-key-nested-jurisdiction-layer",
+      "expectedLayer": "schema",
+      "expectedCode": "PROTECTED_KEY",
+      "expectedPath": "$/field/0/coordinates",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/jurisdictionLayers/0/coordinates",
+          "value": [1, 2]
+        }
+      ]
+    },
+    {
+      "id": "protected-key-geometry-in-boundaryref",
+      "expectedLayer": "schema",
+      "expectedCode": "PROTECTED_KEY",
+      "expectedPath": "$/field/geometry",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/boundaryRef/geometry",
+          "value": {}
+        }
+      ]
+    },
+    {
+      "id": "bad-land-status-type-enum",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/landStatusTypes/0",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/landStatusTypes/0",
+          "value": "bogus_status"
+        }
+      ]
+    },
+    {
+      "id": "bad-jurisdiction-level-enum",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/jurisdictionLayers/0/level",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/jurisdictionLayers/0/level",
+          "value": "planetary"
+        }
+      ]
+    },
+    {
+      "id": "land-status-evidence-missing",
+      "expectedLayer": "semantic",
+      "expectedCode": "LAND_STATUS_EVIDENCE_MISSING",
+      "expectedPath": "$/landStatusTypes/2",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/landStatusTypes",
+          "value": ["county_land", "unknown", "state_land"]
+        }
+      ]
+    },
+    {
+      "id": "land-status-evidence-orphan",
+      "expectedLayer": "semantic",
+      "expectedCode": "LAND_STATUS_EVIDENCE_ORPHAN",
+      "expectedPath": "$/landStatusEvidence/1/landStatusType",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/landStatusEvidence/-",
+          "value": {
+            "landStatusType": "federal_land",
+            "sourceLabel": "Synthetic federal land status listing",
+            "sourceUrl": "https://federal.example.invalid/land-status/synthetic-parcel-alpha",
+            "retrievedAt": "2026-08-02T00:00:00Z",
+            "sourceUpdatedAt": null,
+            "evidenceBasis": "synthetic_fixture",
+            "validationState": "validated"
+          }
+        }
+      ]
+    },
+    {
+      "id": "jurisdiction-layer-duplicate",
+      "expectedLayer": "semantic",
+      "expectedCode": "JURISDICTION_LAYER_DUPLICATE",
+      "expectedPath": "$/jurisdictionLayers/3",
+      "mutations": [
+        {
+          "operation": "add",
+          "path": "/jurisdictionLayers/-",
+          "value": {
+            "level": "county",
+            "authorityName": "Example County",
+            "nationId": null,
+            "evidenceUrl": "https://county.example.invalid/jurisdiction/synthetic-parcel-alpha-dup",
+            "evidenceDate": "2026-08-01"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tribal-layer-without-nation-id",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/jurisdictionLayers/2/nationId",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/jurisdictionLayers/2/nationId",
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "county-layer-with-nation-id",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/jurisdictionLayers/1/nationId",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/jurisdictionLayers/1/nationId",
+          "value": "nation:synthetic-a"
+        }
+      ]
+    },
+    {
+      "id": "bare-assessor-number-parcel-id",
+      "expectedLayer": "schema",
+      "expectedCode": "SCHEMA_INVALID",
+      "expectedPath": "$/parcelId",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/parcelId",
+          "value": "parcel:063012345678"
+        }
+      ]
+    },
+    {
+      "id": "sensitivity-too-low-tribal-layer",
+      "expectedLayer": "semantic",
+      "expectedCode": "SENSITIVITY_TOO_LOW",
+      "expectedPath": "$/sensitivity",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/sensitivity",
+          "value": "internal"
+        }
+      ]
+    },
+    {
+      "id": "trust-domain-mismatch-parcel-id",
+      "expectedLayer": "semantic",
+      "expectedCode": "TRUST_DOMAIN_MISMATCH",
+      "expectedPath": "$/parcelId",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/parcelId",
+          "value": "parcel:real-parcel-alpha"
+        }
+      ]
+    },
+    {
+      "id": "synthetic-url-required-real-host",
+      "expectedLayer": "semantic",
+      "expectedCode": "SYNTHETIC_URL_REQUIRED",
+      "expectedPath": "$/jurisdictionLayers/0/evidenceUrl",
+      "mutations": [
+        {
+          "operation": "replace",
+          "path": "/jurisdictionLayers/0/evidenceUrl",
+          "value": "https://federal.example.com/jurisdiction/synthetic-parcel-alpha"
+        }
+      ]
+    }
+  ]
+}
