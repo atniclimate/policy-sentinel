@@ -208,6 +208,34 @@ node scripts/bounded-operation-runner.mjs verify --root I:\policy-sentinel-corpu
 The terminal serialized `npm run check` result and the commit record follow
 in the last section.
 
+## Follow-up: final check and commit record
+
+The full `npm run check` ran once on the complete tree with the ledger still
+active (`MAKAH-DEMO-02` `in_progress`) and exited 0: runtime validation,
+formatting, 18 hook tests, lint, typecheck, roadmap validation at 81 work
+items and 57 gates, backbone validation at 22 schemas, 123 Markdown files and
+834 local links, knowledge validation, the source-boundary scan at 583 tracked
+paths and 621 source files, foundation validation, every node suite, 97 Vitest
+files and 1617 tests, the synthetic build, and artifact validation at 3
+records, 575 Nations and 8 verified assets. The ledger was then moved to its
+terminal state (item complete, focus null, resumable root `PS09-02`), after
+which roadmap validation passed at 43 complete and zero `in_progress`,
+`npm run test:roadmap` passed 441 tests, backbone, formatting, hooks and
+`git diff --check` passed again.
+
+Implementation commit `07d5fb2ccc9d0162144941fe96fc622992330f3e` ("Land Makah
+demo launch 02: schema 1.9 ledger, PDF runner route, D-069 acquisition")
+contains exactly 19 paths: `ROADMAP.yaml`, `AGENTS.md`, `package.json`,
+`config/policy-sources.v2.mjs`, `scripts/prepare-policy-run.mjs`,
+`scripts/validate-roadmap.mjs`, `src/pipeline/policy-custody.mjs`, the three
+test files, `docs/PROJECT-BACKBONE.md`, `docs/continuation-prompt.md`,
+`docs/source-coverage.md`, `docs/source-feasibility.md`, the two source
+reviews, the provenance record, the Makah demo usage manifest and this file.
+Post-commit tracked status contained only the two pre-existing unrelated
+pipeline changes; every owner input stayed untracked and no external object,
+receipt or `.bin` entered Git. This follow-up note and the matching ledger
+checkpoint record that revision without amending it.
+
 ## Gates confirmed closed and operations confirmed absent
 
 No remote, push, Pages, publication, credential, terms acceptance, paid call,

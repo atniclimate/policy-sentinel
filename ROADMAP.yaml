@@ -954,7 +954,7 @@ current_focus:
     acceptance; no successor run or external operation is authorized.
   resumable_roots:
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: edb508481a8719f294e5802c6e68b3b576760175
+  last_durable_checkpoint: 07d5fb2ccc9d0162144941fe96fc622992330f3e
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5552,6 +5552,12 @@ work_items:
         value exists. Terminal disposition
         MAKAH_DEMO_02_ACQUIRED_REVIEWED_NOT_ADMITTED; the implementation commit
         is recorded by the follow-up ledger checkpoint.
+      - >-
+        Implementation commit 07d5fb2ccc9d0162144941fe96fc622992330f3e contains
+        exactly 19 authorized paths; post-commit tracked status held only the
+        two pre-existing unrelated pipeline changes, every owner input stayed
+        untracked, and no external object or receipt entered Git. This follow-up
+        records the existing revision without rewriting it.
   - id: H-ENGINEERING-REVIEW-02
     priority: 298
     milestone: H
