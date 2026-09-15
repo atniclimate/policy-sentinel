@@ -3,10 +3,10 @@
     "record_id": "psr:makah-demo:provenance:2026-09-15",
     "title": "Makah demo groundwork: sources observed, reports generated and federal acquisition candidates (2026-09-15)",
     "schema_version": "TSDF Provenance Record schema as supplied by the owner on 2026-09-15 (no version string printed in the schema)",
-    "status": "Draft, machine-validated against the schema copy in this directory; Honor section awaits human curation; classification not recorded",
+    "status": "Draft, machine-validated against the schema copy in this directory; the eight D-069 federal documents were acquired on 2026-09-15 and carry SHA-256 artifacts and acquisition evidence; Honor section awaits human curation (owner-deferred until the demos are functional); classification not recorded",
     "purpose": "Bind every source the Makah demo scouts and lead observed on 2026-09-15, every generated report, and the eight federal acquisition candidates approved by D-069 to one traceable record, so that later footnotes, cover blocks and appendices render only from fields here.",
     "scope": {
-      "description": "Read-only public research reads and repository artifacts of the MAKAH_DEMO_01 groundwork session. No document bytes were retained; artifact digests for source publications are 'Not recorded' until the D-069 acquisition stores immutable objects in the external run namespace.",
+      "description": "Read-only public research reads and repository artifacts of the MAKAH_DEMO_01 groundwork session. The D-069 acquisition of 2026-09-15 stored the eight approved federal documents and two GovInfo package metadata files as immutable digested objects in the external run namespace I:\\policy-sentinel-corpus-real-policy\\makah-demo-02; every other source publication has no retained bytes and its artifact digest stays 'Not recorded'.",
       "source_entry_ids": [
         "S-001",
         "S-002",
@@ -112,7 +112,7 @@
       "entry_id": "S-001",
       "entry_type": "Source publication",
       "role": "Federal candidate for D-069 acquisition; treaty instrument",
-      "review_status": "Lead-verified at originating URL (2026-09-15)",
+      "review_status": "Lead-verified at originating URL (2026-09-15); acquired under D-069 on 2026-09-15 and reviewed for identity, digest and privacy screen (see docs/handoffs/makah-demo-02-federal-acquisition-outcome.md)",
       "citation_register_entry_id": "REF-S-001",
       "title": "Treaty between the United States of America and the Makah Tribe of Indians (Treaty with the Makah Tribe, Jan. 31, 1855)",
       "contributors": [
@@ -195,9 +195,46 @@
               "evidence_id": "S-001-E1"
             }
           ]
+        },
+        {
+          "url": "https://www.govinfo.gov/content/pkg/STATUTE-12/pdf/STATUTE-12-Pg939.pdf",
+          "role": "Source download",
+          "accessed_at": "2026-09-15T14:55:55.391Z (UTC; runner receipt completedAt from the local system clock)",
+          "basis": "D-069 bounded acquisition: one ledgered product-runner GET, no retry, credential-free; bytes retained only as an immutable digested object in the external run namespace",
+          "verification_status": "complete receipt; SHA-256 recorded; identity per the linked acquisition evidence",
+          "evidence": [
+            {
+              "entry_id": "S-001",
+              "evidence_id": "S-001-E3"
+            }
+          ]
+        },
+        {
+          "url": "https://www.govinfo.gov/metadata/pkg/STATUTE-12/mods.xml",
+          "role": "Repository",
+          "accessed_at": "2026-09-15T14:56:02.189Z (UTC; runner receipt completedAt from the local system clock)",
+          "basis": "D-069 bounded acquisition: one ledgered product-runner GET, no retry, credential-free; bytes retained only as an immutable digested object in the external run namespace; optional GovInfo package metadata permitted by the launch packet as identity evidence",
+          "verification_status": "complete receipt; SHA-256 recorded",
+          "evidence": [
+            {
+              "entry_id": "S-001",
+              "evidence_id": "S-001-E4"
+            }
+          ]
         }
       ],
-      "artifacts": [],
+      "artifacts": [
+        {
+          "role": "Source PDF",
+          "path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\objects\\64fb6c118a36f120195c4bbb2958f0f4063ba9c359a8eb93dd02074315d8e4ad.bin",
+          "sha256": "64fb6c118a36f120195c4bbb2958f0f4063ba9c359a8eb93dd02074315d8e4ad"
+        },
+        {
+          "role": "Other",
+          "path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\objects\\151de62f879ba1f144cf075bc70a6a4ca929853c4782d09bd7a7b3acc007896f.bin",
+          "sha256": "151de62f879ba1f144cf075bc70a6a4ca929853c4782d09bd7a7b3acc007896f"
+        }
+      ],
       "relationships": [],
       "claims": [
         {
@@ -229,6 +266,24 @@
           "locator": "Table row for \"Treaty between the United States of America and the Makah Tribe of Indians (Treaty with the Makah Tribe, Jan. 31, 1855)\"",
           "quotation": "Not recorded",
           "verification": "Search-agent observation (observed_at_url per the agent); not lead-verified"
+        },
+        {
+          "evidence_id": "S-001-E3",
+          "type": "Acquisition record",
+          "artifact_sha256": "64fb6c118a36f120195c4bbb2958f0f4063ba9c359a8eb93dd02074315d8e4ad",
+          "artifact_path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\statute-12-pg939.json",
+          "locator": "Runner receipt operationId statute-12-pg939; objectPath objects/64fb6c118a36f120195c4bbb2958f0f4063ba9c359a8eb93dd02074315d8e4ad.bin; HTTP 200 application/pdf; 1122216 bytes; startedAt 2026-09-15T14:55:53.995Z; completedAt 2026-09-15T14:55:55.391Z; manifestDigest 7ee5dc4a5051e9157b259673c4bda632986c60d2b3ef5002368e238dbbd864a9",
+          "quotation": "Not recorded",
+          "verification": "PDF 1.4, multi-page granule (five page objects observed by the reviewer), compressed content streams; page text was not extracted and 'Makah' is not byte-searchable. Identity confirmed by the exact GovInfo granule URL and by the acquired package MODS (see the next evidence item), whose constituent STATUTE-12-Pg939 is titled 'Treaty between the United States of America and the Makah Tribe of Indians. Concluded at Neah Bay, Washington Territory, January 31, 1855. Ratified by the Senate, March 8, 1859.'"
+        },
+        {
+          "evidence_id": "S-001-E4",
+          "type": "Acquisition record",
+          "artifact_sha256": "151de62f879ba1f144cf075bc70a6a4ca929853c4782d09bd7a7b3acc007896f",
+          "artifact_path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\mods-statute-12.json",
+          "locator": "Runner receipt operationId mods-statute-12; objectPath objects/151de62f879ba1f144cf075bc70a6a4ca929853c4782d09bd7a7b3acc007896f.bin; HTTP 200 application/xml; 4025743 bytes; completedAt 2026-09-15T14:56:02.189Z; URL https://www.govinfo.gov/metadata/pkg/STATUTE-12/mods.xml",
+          "quotation": "Not recorded",
+          "verification": "GovInfo package MODS for STATUTE-12 (application/xml, 4,025,743 bytes) acquired as identity evidence; it names constituent id-STATUTE-12-Pg939 with the treaty title; 'Makah' occurs 2 times. Package-level metadata, not the treaty text."
         }
       ],
       "field_links": [
@@ -261,6 +316,13 @@
           "evidence_ids": [
             "S-001-E2"
           ]
+        },
+        {
+          "field": "artifacts, access_records (D-069 acquisition), identity verification",
+          "evidence_ids": [
+            "S-001-E3",
+            "S-001-E4"
+          ]
         }
       ],
       "gaps": [
@@ -286,7 +348,7 @@
         "scope": "Identity, date, issuer and whether the document names the Makah Tribe; no content analysis",
         "limitations": [
           "Times of day were not recorded for access events.",
-          "No document bytes were retained in the repository; artifact digests are 'Not recorded' until the D-069 acquisition run stores immutable objects in the external namespace."
+          "Acquired bytes stay in the external run namespace; nothing is admitted, activated, excerpted, exported or published, and no text extraction was performed. Identity was verified from bytes where the rendition is byte-searchable and otherwise from the exact URL plus acquired package metadata, as stated in the acquisition evidence item."
         ]
       }
     },
@@ -601,7 +663,7 @@
       "entry_id": "S-004",
       "entry_type": "Source publication",
       "role": "Federal candidate for D-069 acquisition; appellate opinion",
-      "review_status": "Lead-verified at originating URL (2026-09-15)",
+      "review_status": "Lead-verified at originating URL (2026-09-15); acquired under D-069 on 2026-09-15 and reviewed for identity, digest and privacy screen (see docs/handoffs/makah-demo-02-federal-acquisition-outcome.md)",
       "citation_register_entry_id": "REF-S-004",
       "title": "United States of America et al. v. State of Washington (opinion)",
       "contributors": [
@@ -694,9 +756,28 @@
               "evidence_id": "S-004-E1"
             }
           ]
+        },
+        {
+          "url": "https://cdn.ca9.uscourts.gov/datastore/opinions/2016/06/27/13-35474.pdf",
+          "role": "Source download",
+          "accessed_at": "2026-09-15T14:55:57.468Z (UTC; runner receipt completedAt from the local system clock)",
+          "basis": "D-069 bounded acquisition: one ledgered product-runner GET, no retry, credential-free; bytes retained only as an immutable digested object in the external run namespace",
+          "verification_status": "complete receipt; SHA-256 recorded; identity per the linked acquisition evidence",
+          "evidence": [
+            {
+              "entry_id": "S-004",
+              "evidence_id": "S-004-E3"
+            }
+          ]
         }
       ],
-      "artifacts": [],
+      "artifacts": [
+        {
+          "role": "Source PDF",
+          "path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\objects\\31f890c75cb62a6c2d5e798c69dd314f4c54faaa303d58c99f224cfb860d09eb.bin",
+          "sha256": "31f890c75cb62a6c2d5e798c69dd314f4c54faaa303d58c99f224cfb860d09eb"
+        }
+      ],
       "relationships": [],
       "claims": [
         {
@@ -723,6 +804,15 @@
           "locator": "Table row for \"United States of America et al. v. State of Washington (opinion)\"",
           "quotation": "Not recorded",
           "verification": "Search-agent observation (secondary reporter site only); not lead-verified"
+        },
+        {
+          "evidence_id": "S-004-E3",
+          "type": "Acquisition record",
+          "artifact_sha256": "31f890c75cb62a6c2d5e798c69dd314f4c54faaa303d58c99f224cfb860d09eb",
+          "artifact_path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\ca9-13-35474.json",
+          "locator": "Runner receipt operationId ca9-13-35474; objectPath objects/31f890c75cb62a6c2d5e798c69dd314f4c54faaa303d58c99f224cfb860d09eb.bin; HTTP 200 application/pdf; 252123 bytes; startedAt 2026-09-15T14:55:57.188Z; completedAt 2026-09-15T14:55:57.468Z; manifestDigest 7ee5dc4a5051e9157b259673c4bda632986c60d2b3ef5002368e238dbbd864a9",
+          "quotation": "Not recorded",
+          "verification": "PDF 1.4, 59 pages, compressed content streams; an effectively empty Info /Title and a short XMP title that is not identity-bearing; the docket and 'Makah' are not byte-searchable. Identity rests on the exact Ninth Circuit datastore URL (2016/06/27/13-35474.pdf) and the lead's first-page read recorded in S-004-E1; text was not extracted. Privacy screen: a '/s/' signature marker and counsel content exist inside the object and must never reach an output, excerpt or export."
         }
       ],
       "field_links": [
@@ -755,6 +845,12 @@
           "evidence_ids": [
             "S-004-E2"
           ]
+        },
+        {
+          "field": "artifacts, access_records (D-069 acquisition), identity verification",
+          "evidence_ids": [
+            "S-004-E3"
+          ]
         }
       ],
       "gaps": [
@@ -780,7 +876,7 @@
         "scope": "Identity, date, issuer and whether the document names the Makah Tribe; no content analysis",
         "limitations": [
           "Times of day were not recorded for access events.",
-          "No document bytes were retained in the repository; artifact digests are 'Not recorded' until the D-069 acquisition run stores immutable objects in the external namespace."
+          "Acquired bytes stay in the external run namespace; nothing is admitted, activated, excerpted, exported or published, and no text extraction was performed. Identity was verified from bytes where the rendition is byte-searchable and otherwise from the exact URL plus acquired package metadata, as stated in the acquisition evidence item."
         ]
       }
     },
@@ -945,7 +1041,7 @@
       "entry_id": "S-006",
       "entry_type": "Source publication",
       "role": "Federal candidate for D-069 acquisition; appellate opinion",
-      "review_status": "Lead-verified at originating URL (2026-09-15)",
+      "review_status": "Lead-verified at originating URL (2026-09-15); acquired under D-069 on 2026-09-15 and reviewed for identity, digest and privacy screen (see docs/handoffs/makah-demo-02-federal-acquisition-outcome.md)",
       "citation_register_entry_id": "REF-S-006",
       "title": "Makah Indian Tribe v. Quileute Indian Tribe; Quinault Indian Nation",
       "contributors": [
@@ -1048,9 +1144,46 @@
               "evidence_id": "S-006-E1"
             }
           ]
+        },
+        {
+          "url": "https://www.govinfo.gov/content/pkg/USCOURTS-ca9-15-35824/pdf/USCOURTS-ca9-15-35824-0.pdf",
+          "role": "Source download",
+          "accessed_at": "2026-09-15T14:55:56.775Z (UTC; runner receipt completedAt from the local system clock)",
+          "basis": "D-069 bounded acquisition: one ledgered product-runner GET, no retry, credential-free; bytes retained only as an immutable digested object in the external run namespace",
+          "verification_status": "complete receipt; SHA-256 recorded; identity per the linked acquisition evidence",
+          "evidence": [
+            {
+              "entry_id": "S-006",
+              "evidence_id": "S-006-E3"
+            }
+          ]
+        },
+        {
+          "url": "https://www.govinfo.gov/metadata/pkg/USCOURTS-ca9-15-35824/mods.xml",
+          "role": "Repository",
+          "accessed_at": "2026-09-15T14:56:03.498Z (UTC; runner receipt completedAt from the local system clock)",
+          "basis": "D-069 bounded acquisition: one ledgered product-runner GET, no retry, credential-free; bytes retained only as an immutable digested object in the external run namespace; optional GovInfo package metadata permitted by the launch packet as identity evidence",
+          "verification_status": "complete receipt; SHA-256 recorded",
+          "evidence": [
+            {
+              "entry_id": "S-006",
+              "evidence_id": "S-006-E4"
+            }
+          ]
         }
       ],
-      "artifacts": [],
+      "artifacts": [
+        {
+          "role": "Source PDF",
+          "path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\objects\\25d11c6adf170cf0d906542d7f2cb4dcb6fc7cb47f56b2b475e4e15ef8b9351b.bin",
+          "sha256": "25d11c6adf170cf0d906542d7f2cb4dcb6fc7cb47f56b2b475e4e15ef8b9351b"
+        },
+        {
+          "role": "Other",
+          "path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\objects\\716cf70c1ab53792bf1d39f031d39a1f1d1d6b9f5f335f290b6a52dc289fd43f.bin",
+          "sha256": "716cf70c1ab53792bf1d39f031d39a1f1d1d6b9f5f335f290b6a52dc289fd43f"
+        }
+      ],
       "relationships": [],
       "claims": [
         {
@@ -1077,6 +1210,24 @@
           "locator": "Table row for \"Makah Indian Tribe v. Quileute Indian Tribe; Quinault Indian Nation\"",
           "quotation": "Not recorded",
           "verification": "Search-agent observation (observed_at_url per the agent); not lead-verified"
+        },
+        {
+          "evidence_id": "S-006-E3",
+          "type": "Acquisition record",
+          "artifact_sha256": "25d11c6adf170cf0d906542d7f2cb4dcb6fc7cb47f56b2b475e4e15ef8b9351b",
+          "artifact_path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\uscourts-ca9-15-35824.json",
+          "locator": "Runner receipt operationId uscourts-ca9-15-35824; objectPath objects/25d11c6adf170cf0d906542d7f2cb4dcb6fc7cb47f56b2b475e4e15ef8b9351b.bin; HTTP 200 application/pdf; 672713 bytes; startedAt 2026-09-15T14:55:56.012Z; completedAt 2026-09-15T14:55:56.775Z; manifestDigest 7ee5dc4a5051e9157b259673c4bda632986c60d2b3ef5002368e238dbbd864a9",
+          "quotation": "Not recorded",
+          "verification": "PDF 1.6, 27 pages (root /Count 27; reviewer-verified), compressed content streams; opinion text was not extracted and the docket is not byte-searchable. Identity confirmed by the exact GovInfo URL and by the acquired package MODS (next evidence item): docket 15-35824, parties including 'Makah Indian Tribe' (Appellant), Quileute Indian Tribe and Quinault Indian Nation. Privacy screen: counsel and signature content exists inside the opinion and must never reach an output, excerpt or export."
+        },
+        {
+          "evidence_id": "S-006-E4",
+          "type": "Acquisition record",
+          "artifact_sha256": "716cf70c1ab53792bf1d39f031d39a1f1d1d6b9f5f335f290b6a52dc289fd43f",
+          "artifact_path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\mods-uscourts-ca9-15-35824.json",
+          "locator": "Runner receipt operationId mods-uscourts-ca9-15-35824; objectPath objects/716cf70c1ab53792bf1d39f031d39a1f1d1d6b9f5f335f290b6a52dc289fd43f.bin; HTTP 200 application/xml; 15742 bytes; completedAt 2026-09-15T14:56:03.498Z; URL https://www.govinfo.gov/metadata/pkg/USCOURTS-ca9-15-35824/mods.xml",
+          "quotation": "Not recorded",
+          "verification": "GovInfo package MODS for USCOURTS-ca9-15-35824 (application/xml, 15,742 bytes) acquired as identity evidence; '15-35824' occurs 26 times, 'Makah' 9 times, with institutional party names and roles. Package-level metadata; not the opinion text."
         }
       ],
       "field_links": [
@@ -1109,6 +1260,13 @@
           "evidence_ids": [
             "S-006-E2"
           ]
+        },
+        {
+          "field": "artifacts, access_records (D-069 acquisition), identity verification",
+          "evidence_ids": [
+            "S-006-E3",
+            "S-006-E4"
+          ]
         }
       ],
       "gaps": [
@@ -1134,7 +1292,7 @@
         "scope": "Identity, date, issuer and whether the document names the Makah Tribe; no content analysis",
         "limitations": [
           "Times of day were not recorded for access events.",
-          "No document bytes were retained in the repository; artifact digests are 'Not recorded' until the D-069 acquisition run stores immutable objects in the external namespace."
+          "Acquired bytes stay in the external run namespace; nothing is admitted, activated, excerpted, exported or published, and no text extraction was performed. Identity was verified from bytes where the rendition is byte-searchable and otherwise from the exact URL plus acquired package metadata, as stated in the acquisition evidence item."
         ]
       }
     },
@@ -1142,7 +1300,7 @@
       "entry_id": "S-007",
       "entry_type": "Source publication",
       "role": "Federal candidate for D-069 acquisition; district court findings",
-      "review_status": "Lead-verified at originating URL (2026-09-15)",
+      "review_status": "Lead-verified at originating URL (2026-09-15); acquired under D-069 on 2026-09-15 and reviewed for identity, digest and privacy screen (see docs/handoffs/makah-demo-02-federal-acquisition-outcome.md)",
       "citation_register_entry_id": "REF-S-007",
       "title": "Findings of Fact and Conclusions of Law and Memorandum Order, Subproceeding No. 09-01",
       "contributors": [
@@ -1215,9 +1373,28 @@
               "evidence_id": "S-007-E1"
             }
           ]
+        },
+        {
+          "url": "https://www.wawd.uscourts.gov/sites/wawd/files/Makah09-01FFCLandMemorandum.pdf",
+          "role": "Source download",
+          "accessed_at": "2026-09-15T14:56:00.673Z (UTC; runner receipt completedAt from the local system clock)",
+          "basis": "D-069 bounded acquisition: one ledgered product-runner GET, no retry, credential-free; bytes retained only as an immutable digested object in the external run namespace",
+          "verification_status": "complete receipt; SHA-256 recorded; identity per the linked acquisition evidence",
+          "evidence": [
+            {
+              "entry_id": "S-007",
+              "evidence_id": "S-007-E2"
+            }
+          ]
         }
       ],
-      "artifacts": [],
+      "artifacts": [
+        {
+          "role": "Source PDF",
+          "path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\objects\\257b7bed6916737ad0e7b8db491827eeed437ea66a2a64fa0eb9f866a36277a6.bin",
+          "sha256": "257b7bed6916737ad0e7b8db491827eeed437ea66a2a64fa0eb9f866a36277a6"
+        }
+      ],
       "relationships": [],
       "claims": [
         {
@@ -1235,6 +1412,15 @@
           "locator": "YAML item titled \"Findings of Fact and Conclusions of Law and Memorandum Order, Subproceeding No. 09-01\"",
           "quotation": "This subproceeding is before the Court pursuant to the request of the Makah Indian Tribe",
           "verification": "Reconciled by the lead against the originating URL on 2026-09-15"
+        },
+        {
+          "evidence_id": "S-007-E2",
+          "type": "Acquisition record",
+          "artifact_sha256": "257b7bed6916737ad0e7b8db491827eeed437ea66a2a64fa0eb9f866a36277a6",
+          "artifact_path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\wawd-09-01.json",
+          "locator": "Runner receipt operationId wawd-09-01; objectPath objects/257b7bed6916737ad0e7b8db491827eeed437ea66a2a64fa0eb9f866a36277a6.bin; HTTP 200 application/pdf; 2035657 bytes; startedAt 2026-09-15T14:55:57.902Z; completedAt 2026-09-15T14:56:00.673Z; manifestDigest 7ee5dc4a5051e9157b259673c4bda632986c60d2b3ef5002368e238dbbd864a9",
+          "quotation": "Not recorded",
+          "verification": "PDF 1.5; XMP document title 'Microsoft Word - Makah 09-01.FFCL and Memorandum.doc'; '09-01' and 'Makah' are present in the bytes. Identity confirmed. Privacy screen: party, witness, counsel and signature content exists inside the findings and must never reach an output, excerpt or export."
         }
       ],
       "field_links": [
@@ -1261,6 +1447,12 @@
           "evidence_ids": [
             "S-007-E1"
           ]
+        },
+        {
+          "field": "artifacts, access_records (D-069 acquisition), identity verification",
+          "evidence_ids": [
+            "S-007-E2"
+          ]
         }
       ],
       "gaps": [
@@ -1286,7 +1478,7 @@
         "scope": "Identity, date, issuer and whether the document names the Makah Tribe; no content analysis",
         "limitations": [
           "Times of day were not recorded for access events.",
-          "No document bytes were retained in the repository; artifact digests are 'Not recorded' until the D-069 acquisition run stores immutable objects in the external namespace."
+          "Acquired bytes stay in the external run namespace; nothing is admitted, activated, excerpted, exported or published, and no text extraction was performed. Identity was verified from bytes where the rendition is byte-searchable and otherwise from the exact URL plus acquired package metadata, as stated in the acquisition evidence item."
         ]
       }
     },
@@ -2647,7 +2839,7 @@
       "entry_id": "S-017",
       "entry_type": "Source publication",
       "role": "Federal candidate for D-069 acquisition; final rule",
-      "review_status": "Lead-verified at originating URL (2026-09-15)",
+      "review_status": "Lead-verified at originating URL (2026-09-15); acquired under D-069 on 2026-09-15 and reviewed for identity, digest and privacy screen (see docs/handoffs/makah-demo-02-federal-acquisition-outcome.md)",
       "citation_register_entry_id": "REF-S-017",
       "title": "Regulations Governing the Taking of Marine Mammals (final rule)",
       "contributors": [
@@ -2773,9 +2965,28 @@
               "evidence_id": "S-017-E1"
             }
           ]
+        },
+        {
+          "url": "https://www.govinfo.gov/content/pkg/FR-2024-06-18/html/2024-12669.htm",
+          "role": "Source download",
+          "accessed_at": "2026-09-15T14:55:08.025Z (UTC; runner receipt completedAt from the local system clock)",
+          "basis": "D-069 bounded acquisition: one ledgered product-runner GET, no retry, credential-free; bytes retained only as an immutable digested object in the external run namespace",
+          "verification_status": "complete receipt; SHA-256 recorded; identity per the linked acquisition evidence",
+          "evidence": [
+            {
+              "entry_id": "S-017",
+              "evidence_id": "S-017-E3"
+            }
+          ]
         }
       ],
-      "artifacts": [],
+      "artifacts": [
+        {
+          "role": "Other",
+          "path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\objects\\470faf11feabb615e9b871d2c64190c3aa3a7cb396408b3f154a5d6d1d847f4a.bin",
+          "sha256": "470faf11feabb615e9b871d2c64190c3aa3a7cb396408b3f154a5d6d1d847f4a"
+        }
+      ],
       "relationships": [],
       "claims": [
         {
@@ -2807,6 +3018,15 @@
           "locator": "Table row for \"Regulations Governing the Taking of Marine Mammals (final rule)\"",
           "quotation": "Not recorded",
           "verification": "Search-agent observation (observed_at_url per the agent); not lead-verified"
+        },
+        {
+          "evidence_id": "S-017-E3",
+          "type": "Acquisition record",
+          "artifact_sha256": "470faf11feabb615e9b871d2c64190c3aa3a7cb396408b3f154a5d6d1d847f4a",
+          "artifact_path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\fr-2024-12669.json",
+          "locator": "Runner receipt operationId fr-2024-12669; objectPath objects/470faf11feabb615e9b871d2c64190c3aa3a7cb396408b3f154a5d6d1d847f4a.bin; HTTP 200 text/html; 321576 bytes; startedAt 2026-09-15T14:55:07.793Z; completedAt 2026-09-15T14:55:08.025Z; manifestDigest 7ee5dc4a5051e9157b259673c4bda632986c60d2b3ef5002368e238dbbd864a9",
+          "quotation": "Not recorded",
+          "verification": "Identity confirmed in the acquired bytes: '[FR Doc. 2024-12669 Filed 6-13-24; 11:15 am]', header '[Federal Register Volume 89, Number 118 (Tuesday, June 18, 2024)]', page number in the header line 51600; 'Makah' occurs 279 times. Privacy screen: a FOR FURTHER INFORMATION CONTACT block is inside the object and must never reach an output, excerpt or export."
         }
       ],
       "field_links": [
@@ -2839,6 +3059,12 @@
           "evidence_ids": [
             "S-017-E2"
           ]
+        },
+        {
+          "field": "artifacts, access_records (D-069 acquisition), identity verification",
+          "evidence_ids": [
+            "S-017-E3"
+          ]
         }
       ],
       "gaps": [
@@ -2864,7 +3090,7 @@
         "scope": "Identity, date, issuer and whether the document names the Makah Tribe; no content analysis",
         "limitations": [
           "Times of day were not recorded for access events.",
-          "No document bytes were retained in the repository; artifact digests are 'Not recorded' until the D-069 acquisition run stores immutable objects in the external namespace."
+          "Acquired bytes stay in the external run namespace; nothing is admitted, activated, excerpted, exported or published, and no text extraction was performed. Identity was verified from bytes where the rendition is byte-searchable and otherwise from the exact URL plus acquired package metadata, as stated in the acquisition evidence item."
         ]
       }
     },
@@ -2872,7 +3098,7 @@
       "entry_id": "S-018",
       "entry_type": "Source publication",
       "role": "Federal candidate for D-069 acquisition; proposed rule",
-      "review_status": "Lead-verified at originating URL (2026-09-15)",
+      "review_status": "Lead-verified at originating URL (2026-09-15); acquired under D-069 on 2026-09-15 and reviewed for identity, digest and privacy screen (see docs/handoffs/makah-demo-02-federal-acquisition-outcome.md)",
       "citation_register_entry_id": "REF-S-018",
       "title": "Regulations Governing the Taking of Marine Mammals (proposed rule)",
       "contributors": [
@@ -2975,9 +3201,28 @@
               "evidence_id": "S-018-E1"
             }
           ]
+        },
+        {
+          "url": "https://www.govinfo.gov/content/pkg/FR-2019-04-05/html/2019-06337.htm",
+          "role": "Source download",
+          "accessed_at": "2026-09-15T14:55:09.979Z (UTC; runner receipt completedAt from the local system clock)",
+          "basis": "D-069 bounded acquisition: one ledgered product-runner GET, no retry, credential-free; bytes retained only as an immutable digested object in the external run namespace",
+          "verification_status": "complete receipt; SHA-256 recorded; identity per the linked acquisition evidence",
+          "evidence": [
+            {
+              "entry_id": "S-018",
+              "evidence_id": "S-018-E3"
+            }
+          ]
         }
       ],
-      "artifacts": [],
+      "artifacts": [
+        {
+          "role": "Other",
+          "path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\objects\\fa4e9c194525183eddb963ca1f93cd37682f2beae86dc75355c56c7c827a5a0b.bin",
+          "sha256": "fa4e9c194525183eddb963ca1f93cd37682f2beae86dc75355c56c7c827a5a0b"
+        }
+      ],
       "relationships": [
         {
           "type": "Other",
@@ -3014,6 +3259,15 @@
           "locator": "Table row for \"Regulations Governing the Taking of Marine Mammals (proposed rule)\"",
           "quotation": "Not recorded",
           "verification": "Search-agent observation (observed_at_url per the agent); not lead-verified"
+        },
+        {
+          "evidence_id": "S-018-E3",
+          "type": "Acquisition record",
+          "artifact_sha256": "fa4e9c194525183eddb963ca1f93cd37682f2beae86dc75355c56c7c827a5a0b",
+          "artifact_path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\fr-2019-06337.json",
+          "locator": "Runner receipt operationId fr-2019-06337; objectPath objects/fa4e9c194525183eddb963ca1f93cd37682f2beae86dc75355c56c7c827a5a0b.bin; HTTP 200 text/html; 147329 bytes; startedAt 2026-09-15T14:55:09.806Z; completedAt 2026-09-15T14:55:09.979Z; manifestDigest 7ee5dc4a5051e9157b259673c4bda632986c60d2b3ef5002368e238dbbd864a9",
+          "quotation": "Not recorded",
+          "verification": "Identity confirmed in the acquired bytes: '[FR Doc. 2019-06337 Filed 4-4-19; 8:45 am]', header '[Federal Register Volume 84, Number 66 (Friday, April 5, 2019)]', page number in the header line 13604; 'Makah' occurs 174 times. Privacy screen: a FOR FURTHER INFORMATION CONTACT block is inside the object and must never reach an output, excerpt or export."
         }
       ],
       "field_links": [
@@ -3046,6 +3300,12 @@
           "evidence_ids": [
             "S-018-E2"
           ]
+        },
+        {
+          "field": "artifacts, access_records (D-069 acquisition), identity verification",
+          "evidence_ids": [
+            "S-018-E3"
+          ]
         }
       ],
       "gaps": [
@@ -3071,7 +3331,7 @@
         "scope": "Identity, date, issuer and whether the document names the Makah Tribe; no content analysis",
         "limitations": [
           "Times of day were not recorded for access events.",
-          "No document bytes were retained in the repository; artifact digests are 'Not recorded' until the D-069 acquisition run stores immutable objects in the external namespace."
+          "Acquired bytes stay in the external run namespace; nothing is admitted, activated, excerpted, exported or published, and no text extraction was performed. Identity was verified from bytes where the rendition is byte-searchable and otherwise from the exact URL plus acquired package metadata, as stated in the acquisition evidence item."
         ]
       }
     },
@@ -3079,7 +3339,7 @@
       "entry_id": "S-019",
       "entry_type": "Source publication",
       "role": "Federal candidate for D-069 acquisition; notice",
-      "review_status": "Lead-verified at originating URL (2026-09-15)",
+      "review_status": "Lead-verified at originating URL (2026-09-15); acquired under D-069 on 2026-09-15 and reviewed for identity, digest and privacy screen (see docs/handoffs/makah-demo-02-federal-acquisition-outcome.md)",
       "citation_register_entry_id": "REF-S-019",
       "title": "Notice of Availability of a Draft Management Plan and Draft Environmental Assessment for the Olympic Coast National Marine Sanctuary; Request for Public Comment",
       "contributors": [
@@ -3172,9 +3432,28 @@
               "evidence_id": "S-019-E1"
             }
           ]
+        },
+        {
+          "url": "https://www.govinfo.gov/content/pkg/FR-2026-05-12/html/2026-09372.htm",
+          "role": "Source download",
+          "accessed_at": "2026-09-15T14:55:11.956Z (UTC; runner receipt completedAt from the local system clock)",
+          "basis": "D-069 bounded acquisition: one ledgered product-runner GET, no retry, credential-free; bytes retained only as an immutable digested object in the external run namespace",
+          "verification_status": "complete receipt; SHA-256 recorded; identity per the linked acquisition evidence",
+          "evidence": [
+            {
+              "entry_id": "S-019",
+              "evidence_id": "S-019-E3"
+            }
+          ]
         }
       ],
-      "artifacts": [],
+      "artifacts": [
+        {
+          "role": "Other",
+          "path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\objects\\942633494d96472eff43a0e5e575e7a7f58775002356466f969cb2f129dc2582.bin",
+          "sha256": "942633494d96472eff43a0e5e575e7a7f58775002356466f969cb2f129dc2582"
+        }
+      ],
       "relationships": [],
       "claims": [
         {
@@ -3206,6 +3485,15 @@
           "locator": "Table row for \"Notice of Availability of a Draft Management Plan and Draft Environmental Assessment for the Olympic Coast National Marine Sanctuary; Request for Public Comment\"",
           "quotation": "Not recorded",
           "verification": "Search-agent observation (observed_at_url per the agent); not lead-verified"
+        },
+        {
+          "evidence_id": "S-019-E3",
+          "type": "Acquisition record",
+          "artifact_sha256": "942633494d96472eff43a0e5e575e7a7f58775002356466f969cb2f129dc2582",
+          "artifact_path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\fr-2026-09372.json",
+          "locator": "Runner receipt operationId fr-2026-09372; objectPath objects/942633494d96472eff43a0e5e575e7a7f58775002356466f969cb2f129dc2582.bin; HTTP 200 text/html; 16077 bytes; startedAt 2026-09-15T14:55:11.809Z; completedAt 2026-09-15T14:55:11.956Z; manifestDigest 7ee5dc4a5051e9157b259673c4bda632986c60d2b3ef5002368e238dbbd864a9",
+          "quotation": "Not recorded",
+          "verification": "Identity confirmed in the acquired bytes: '[FR Doc. 2026-09372 Filed 5-11-26; 8:45 am]', header '[Federal Register Volume 91, Number 91 (Tuesday, May 12, 2026)]', page number in the header line 25865; 'Makah' occurs 2 times. Privacy screen: a FOR FURTHER INFORMATION CONTACT block is inside the object and must never reach an output, excerpt or export."
         }
       ],
       "field_links": [
@@ -3238,6 +3526,12 @@
           "evidence_ids": [
             "S-019-E2"
           ]
+        },
+        {
+          "field": "artifacts, access_records (D-069 acquisition), identity verification",
+          "evidence_ids": [
+            "S-019-E3"
+          ]
         }
       ],
       "gaps": [
@@ -3264,7 +3558,7 @@
         "scope": "Identity, date, issuer and whether the document names the Makah Tribe; no content analysis",
         "limitations": [
           "Times of day were not recorded for access events.",
-          "No document bytes were retained in the repository; artifact digests are 'Not recorded' until the D-069 acquisition run stores immutable objects in the external namespace."
+          "Acquired bytes stay in the external run namespace; nothing is admitted, activated, excerpted, exported or published, and no text extraction was performed. Identity was verified from bytes where the rendition is byte-searchable and otherwise from the exact URL plus acquired package metadata, as stated in the acquisition evidence item."
         ]
       }
     },
@@ -3272,7 +3566,7 @@
       "entry_id": "S-020",
       "entry_type": "Source publication",
       "role": "Federal candidate for D-069 acquisition; notice",
-      "review_status": "Lead-verified at originating URL (2026-09-15)",
+      "review_status": "Lead-verified at originating URL (2026-09-15); acquired under D-069 on 2026-09-15 and reviewed for identity, digest and privacy screen (see docs/handoffs/makah-demo-02-federal-acquisition-outcome.md)",
       "citation_register_entry_id": "REF-S-020",
       "title": "HEARTH Act Approval of Makah Indian Tribe of the Makah Indian Reservation Regulations",
       "contributors": [
@@ -3355,9 +3649,28 @@
               "evidence_id": "S-020-E1"
             }
           ]
+        },
+        {
+          "url": "https://www.govinfo.gov/content/pkg/FR-2015-08-26/html/2015-20888.htm",
+          "role": "Source download",
+          "accessed_at": "2026-09-15T14:55:13.945Z (UTC; runner receipt completedAt from the local system clock)",
+          "basis": "D-069 bounded acquisition: one ledgered product-runner GET, no retry, credential-free; bytes retained only as an immutable digested object in the external run namespace",
+          "verification_status": "complete receipt; SHA-256 recorded; identity per the linked acquisition evidence",
+          "evidence": [
+            {
+              "entry_id": "S-020",
+              "evidence_id": "S-020-E3"
+            }
+          ]
         }
       ],
-      "artifacts": [],
+      "artifacts": [
+        {
+          "role": "Other",
+          "path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\objects\\4f7fe6fa666e585afe40fa6842a5dc9a9b070d66bc923ce67e3fe557a4409446.bin",
+          "sha256": "4f7fe6fa666e585afe40fa6842a5dc9a9b070d66bc923ce67e3fe557a4409446"
+        }
+      ],
       "relationships": [],
       "claims": [
         {
@@ -3389,6 +3702,15 @@
           "locator": "Table row for \"HEARTH Act Approval of Makah Indian Tribe of the Makah Indian Reservation Regulations\"",
           "quotation": "Not recorded",
           "verification": "Search-agent observation (observed_at_url per the agent); not lead-verified"
+        },
+        {
+          "evidence_id": "S-020-E3",
+          "type": "Acquisition record",
+          "artifact_sha256": "4f7fe6fa666e585afe40fa6842a5dc9a9b070d66bc923ce67e3fe557a4409446",
+          "artifact_path": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\fr-2015-20888.json",
+          "locator": "Runner receipt operationId fr-2015-20888; objectPath objects/4f7fe6fa666e585afe40fa6842a5dc9a9b070d66bc923ce67e3fe557a4409446.bin; HTTP 200 text/html; 9130 bytes; startedAt 2026-09-15T14:55:13.815Z; completedAt 2026-09-15T14:55:13.945Z; manifestDigest 7ee5dc4a5051e9157b259673c4bda632986c60d2b3ef5002368e238dbbd864a9",
+          "quotation": "Not recorded",
+          "verification": "Identity confirmed in the acquired bytes: '[FR Doc. 2015-20888 Filed 8-24-15; 4:15 pm]', header '[Federal Register Volume 80, Number 165 (Wednesday, August 26, 2015)]', page number in the header line 51836; 'Makah' occurs 10 times. Privacy screen: a FOR FURTHER INFORMATION CONTACT block with a telephone line is inside the object and must never reach an output, excerpt or export."
         }
       ],
       "field_links": [
@@ -3421,6 +3743,12 @@
           "evidence_ids": [
             "S-020-E2"
           ]
+        },
+        {
+          "field": "artifacts, access_records (D-069 acquisition), identity verification",
+          "evidence_ids": [
+            "S-020-E3"
+          ]
         }
       ],
       "gaps": [
@@ -3446,7 +3774,7 @@
         "scope": "Identity, date, issuer and whether the document names the Makah Tribe; no content analysis",
         "limitations": [
           "Times of day were not recorded for access events.",
-          "No document bytes were retained in the repository; artifact digests are 'Not recorded' until the D-069 acquisition run stores immutable objects in the external namespace."
+          "Acquired bytes stay in the external run namespace; nothing is admitted, activated, excerpted, exported or published, and no text extraction was performed. Identity was verified from bytes where the rendition is byte-searchable and otherwise from the exact URL plus acquired package metadata, as stated in the acquisition evidence item."
         ]
       }
     },
@@ -9463,13 +9791,101 @@
         "source_created_at": "Not recorded",
         "event_at": "2026-09-15T14:13:37.275Z",
         "time_basis": "System clock of the generating session (UTC)"
+      },
+      {
+        "event_type": "Acquisition",
+        "location": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\fr-2024-12669.json",
+        "sha256": "470faf11feabb615e9b871d2c64190c3aa3a7cb396408b3f154a5d6d1d847f4a",
+        "source_created_at": "Not recorded",
+        "event_at": "2026-09-15T14:55:08.025Z",
+        "time_basis": "Runner receipt completedAt (UTC, local system clock); startedAt 2026-09-15T14:55:07.793Z"
+      },
+      {
+        "event_type": "Acquisition",
+        "location": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\fr-2019-06337.json",
+        "sha256": "fa4e9c194525183eddb963ca1f93cd37682f2beae86dc75355c56c7c827a5a0b",
+        "source_created_at": "Not recorded",
+        "event_at": "2026-09-15T14:55:09.979Z",
+        "time_basis": "Runner receipt completedAt (UTC, local system clock); startedAt 2026-09-15T14:55:09.806Z"
+      },
+      {
+        "event_type": "Acquisition",
+        "location": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\fr-2026-09372.json",
+        "sha256": "942633494d96472eff43a0e5e575e7a7f58775002356466f969cb2f129dc2582",
+        "source_created_at": "Not recorded",
+        "event_at": "2026-09-15T14:55:11.956Z",
+        "time_basis": "Runner receipt completedAt (UTC, local system clock); startedAt 2026-09-15T14:55:11.809Z"
+      },
+      {
+        "event_type": "Acquisition",
+        "location": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\fr-2015-20888.json",
+        "sha256": "4f7fe6fa666e585afe40fa6842a5dc9a9b070d66bc923ce67e3fe557a4409446",
+        "source_created_at": "Not recorded",
+        "event_at": "2026-09-15T14:55:13.945Z",
+        "time_basis": "Runner receipt completedAt (UTC, local system clock); startedAt 2026-09-15T14:55:13.815Z"
+      },
+      {
+        "event_type": "Acquisition",
+        "location": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\statute-12-pg939.json",
+        "sha256": "64fb6c118a36f120195c4bbb2958f0f4063ba9c359a8eb93dd02074315d8e4ad",
+        "source_created_at": "Not recorded",
+        "event_at": "2026-09-15T14:55:55.391Z",
+        "time_basis": "Runner receipt completedAt (UTC, local system clock); startedAt 2026-09-15T14:55:53.995Z"
+      },
+      {
+        "event_type": "Acquisition",
+        "location": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\uscourts-ca9-15-35824.json",
+        "sha256": "25d11c6adf170cf0d906542d7f2cb4dcb6fc7cb47f56b2b475e4e15ef8b9351b",
+        "source_created_at": "Not recorded",
+        "event_at": "2026-09-15T14:55:56.775Z",
+        "time_basis": "Runner receipt completedAt (UTC, local system clock); startedAt 2026-09-15T14:55:56.012Z"
+      },
+      {
+        "event_type": "Acquisition",
+        "location": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\ca9-13-35474.json",
+        "sha256": "31f890c75cb62a6c2d5e798c69dd314f4c54faaa303d58c99f224cfb860d09eb",
+        "source_created_at": "Not recorded",
+        "event_at": "2026-09-15T14:55:57.468Z",
+        "time_basis": "Runner receipt completedAt (UTC, local system clock); startedAt 2026-09-15T14:55:57.188Z"
+      },
+      {
+        "event_type": "Acquisition",
+        "location": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\wawd-09-01.json",
+        "sha256": "257b7bed6916737ad0e7b8db491827eeed437ea66a2a64fa0eb9f866a36277a6",
+        "source_created_at": "Not recorded",
+        "event_at": "2026-09-15T14:56:00.673Z",
+        "time_basis": "Runner receipt completedAt (UTC, local system clock); startedAt 2026-09-15T14:55:57.902Z"
+      },
+      {
+        "event_type": "Acquisition",
+        "location": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\mods-statute-12.json",
+        "sha256": "151de62f879ba1f144cf075bc70a6a4ca929853c4782d09bd7a7b3acc007896f",
+        "source_created_at": "Not recorded",
+        "event_at": "2026-09-15T14:56:02.189Z",
+        "time_basis": "Runner receipt completedAt (UTC, local system clock); startedAt 2026-09-15T14:56:01.356Z"
+      },
+      {
+        "event_type": "Acquisition",
+        "location": "I:\\policy-sentinel-corpus-real-policy\\makah-demo-02\\receipts\\mods-uscourts-ca9-15-35824.json",
+        "sha256": "716cf70c1ab53792bf1d39f031d39a1f1d1d6b9f5f335f290b6a52dc289fd43f",
+        "source_created_at": "Not recorded",
+        "event_at": "2026-09-15T14:56:03.498Z",
+        "time_basis": "Runner receipt completedAt (UTC, local system clock); startedAt 2026-09-15T14:56:03.362Z"
+      },
+      {
+        "event_type": "Review",
+        "location": "docs/handoffs/makah-demo-02-federal-acquisition-outcome.md",
+        "sha256": "Not recorded",
+        "source_created_at": "Not recorded",
+        "event_at": "2026-09-15T14:59:55.563Z",
+        "time_basis": "System clock of the reviewing session (UTC)"
       }
     ],
     "gaps": {
       "missing": [
         "Access times of day",
         "Publisher and place for every source publication",
-        "Artifact digests for source publications (no bytes retained)",
+        "Artifact digests for source publications outside the eight D-069 documents (no bytes retained); the eight acquired documents and two package metadata files carry SHA-256 values",
         "Honor classification and handling profile"
       ],
       "conflicting": [

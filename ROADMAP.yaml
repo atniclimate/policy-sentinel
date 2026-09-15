@@ -1,4 +1,4 @@
-schema_version: "1.8"
+schema_version: "1.9"
 roadmap_id: policy-sentinel-through-finish
 project:
   name: Policy Sentinel
@@ -14,8 +14,12 @@ project:
     remains blocked on PS09-02 identity/scenario evidence, an explicit PS09-06
     prerequisite. PS09-06-LOCAL-RC is the sole release root and remains
     unstarted and gated. EV01, Run 1/2 and archived lanes retain their
-    historical evidence and spent-operation boundaries.
-  updated_on: "2026-09-05"
+    historical evidence and spent-operation boundaries. Separately, the non-PS09
+    Makah demo track landed synthetic-only groundwork at 554e105; on 2026-09-15
+    the owner adopted D-068, approved D-069 and authorized the schema 1.9
+    representation of that track as a non-release local scope with one bounded
+    acquisition of eight exact federal documents.
+  updated_on: "2026-09-15"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
     prove its present definition of done through the owner-selected PNW scenario
@@ -228,6 +232,52 @@ authority:
         The owner approves the recipient, channel, event, content, and workflow.
 
 gates:
+  - id: G-MAKAH-DEMO-01
+    name: Approved Makah demo groundwork, discovery and scouts
+    state: approved
+    evidence:
+      - >-
+        Owner launched docs/handoffs/makah-demo-fable-5.1-launch-prompt.md with
+        "and go" on 2026-09-15 and no URL allowlist. It permitted local
+        synthetic private-only contracts, read-only public research by scouts,
+        source reviews, a sovereignty review and local commits only.
+    owner_instruction: docs/handoffs/makah-demo-fable-5.1-launch-prompt.md
+    scope:
+      kind: approved_local_demo_groundwork
+      policy_acquisition_budget:
+        { sources: 0, domains: 0, requests: 0, bytes: 0 }
+      synthetic_local_validation: true
+      read_only_public_research: true
+      policy_source_activation: false
+      nation_association: false
+      release_authority: false
+  - id: G-MAKAH-DEMO-02
+    name: Approved bounded acquisition of eight federal candidate documents
+    state: approved
+    evidence:
+      - >-
+        Owner instruction "allow acquisition to acquire federal candidates" on
+        2026-09-15, recorded as D-069 in docs/decision-register.md: exactly the
+        eight document URLs tabulated in
+        docs/handoffs/makah-demo-02-federal-acquisition-launch.md plus the two
+        optional GovInfo package metadata files its prose permits, one
+        credential-free GET each, no retry, immutable digested objects only in
+        the owner-owned external run namespace.
+    owner_instruction: docs/handoffs/makah-demo-02-federal-acquisition-launch.md
+    scope:
+      kind: approved_bounded_federal_candidate_acquisition
+      decision: D-069
+      policy_acquisition_budget:
+        { sources: 2, domains: 3, requests: 10, bytes: 671088640 }
+      documents: 8
+      hosts: [www.govinfo.gov, cdn.ca9.uscourts.gov, www.wawd.uscourts.gov]
+      retries: 0
+      synthetic_local_validation: true
+      policy_source_activation: false
+      source_admission: false
+      nation_association: false
+      publication: false
+      release_authority: false
   - id: G-H-ENGINEERING-REVIEW-02
     name: Approved bounded local engineering review and performance pre-analysis
     state: approved
@@ -884,31 +934,35 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Recover the completed bounded engineering review from
-    docs/handoffs/ps09-engineering-review-02-outcome.md and its coordination
-    journal. ER-03/ER-04 repairs and full check pass; five synthetic measurement
-    cases completed and search 2000 remains explicitly incomplete. Preserve
-    every sealed discovery, prior assurance and owner-input identity. The finite
-    evidence matrix proposes a broader PS09-02 tranche for separate exact
-    adoption and source review. PS09-02 originating identity/scenario acceptance
-    remains unresolved; PS09-06 is unstarted and gated. No spent maintenance,
-    discovery or archived budget authorizes further execution. Separately, the
-    non-PS09 Makah demo track landed synthetic-only groundwork at 554e105 and
-    the owner adopted D-068 and approved D-069 on 2026-09-15; its schema 1.9
-    ledger representation and bounded federal acquisition are specified in
-    docs/handoffs/makah-demo-02-federal-acquisition-launch.md and are not yet
-    represented as a work item or gate here.
+    Recover the completed Makah demo launch 02 from
+    docs/handoffs/makah-demo-02-federal-acquisition-outcome.md: schema 1.9
+    ledger representation, bounded application/pdf and federal court host runner
+    changes, and one acquisition of exactly the eight approved federal documents
+    plus two GovInfo metadata files into the external makah-demo-02 namespace
+    (ten receipts, zero retries). Acquisition is custody, not admission; the
+    next owner actions are per-document G-J decisions and the G-BIA-IDENTITY
+    prerequisite, and the provenance record's Honor section stays owner-curated.
+    The PS09 program stays blocked on PS09-02 originating identity/scenario
+    evidence; PS09-06 is unstarted and gated; the completed H01/H02 maintenance
+    and every sealed discovery, prior assurance and owner-input identity are
+    preserved.
   terminal_reason: >-
-    H02 completed its finite local review, repair, measurement and evidence-plan
-    obligations with explicit limits, full checks, preserved bytes and two
-    independent reviews. PS09 remains blocked on PS09-02 originating evidence
-    and scenario acceptance; no successor or external operation is authorized.
+    Makah demo launch 02 completed its finite ledger, runner and acquisition
+    obligations with receipts, digests, privacy screens, an independent
+    read-only review and a passing full check. Nothing is admitted or activated.
+    PS09 remains blocked on PS09-02 originating evidence and scenario
+    acceptance; no successor run or external operation is authorized.
   resumable_roots:
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: 5a736a4fb15501850aab027ee6126b7d0939234c
+  last_durable_checkpoint: edb508481a8719f294e5802c6e68b3b576760175
   resume_command: npm run validate:roadmap
 
 completion_scope:
+  makah_demo:
+    accounting: non_release_local_maintenance
+    required_outcomes:
+      - MAKAH-DEMO-01-GROUNDWORK-DISCOVERY-SCOUTS
+      - MAKAH-DEMO-02-FEDERAL-CANDIDATE-ACQUISITION
   engineering_review:
     accounting: non_release_local_maintenance
     required_outcomes: [H-ENGINEERING-REVIEW-02]
@@ -5395,6 +5449,109 @@ work_items:
       - "The initial prompt expressly withheld deployment and publication
         approval."
 
+  - id: MAKAH-DEMO-01-GROUNDWORK-DISCOVERY-SCOUTS
+    priority: 296
+    milestone: Makah demo
+    title:
+      Makah demo groundwork, private-only contracts, scouts and source reviews
+    status: complete
+    work_class: demo_track_local
+    dependencies: []
+    authorization_gate: G-MAKAH-DEMO-01
+    acceptance:
+      - >-
+        Private-only LandBoundary, LandParcel and CitationExport 1.0.0
+        contracts, five pure engine modules, synthetic fixtures and focused
+        tests land without touching the ordinary synthetic artifact.
+      - >-
+        Three reconciled scout reports, five source reviews and one sovereignty
+        review record every kept observation at its originating URL and every
+        rejection or downgrade.
+      - >-
+        No source is admitted or activated, no Nation association is created,
+        and no PS09 gate or release root changes.
+    evidence:
+      - >-
+        docs/handoffs/makah-demo-01-groundwork-outcome.md records the executed
+        launch: 101 focused engine tests, byte-identical fixed-time artifact
+        builds, full npm run check at 97 files and 1617 tests, and
+        implementation commit 554e1057d9a9aa41eeaaec88e0eb1a1d2f247182 with
+        exactly 36 paths. Track D1 (ledger representation) was stopped for an
+        unlisted validator path.
+      - >-
+        docs/development/makah-demo/sovereignty-review-2026-09-15.md records
+        fourteen findings, twelve closed by the lead, one closed by the owner's
+        adoption of D-068 later on 2026-09-15, and C4-07 open as an owner item.
+      - >-
+        The owner adopted D-068 and approved D-069 on 2026-09-15
+        (docs/decision-register.md) and authorized this schema 1.9
+        representation through
+        docs/handoffs/makah-demo-02-federal-acquisition-launch.md.
+  - id: MAKAH-DEMO-02-FEDERAL-CANDIDATE-ACQUISITION
+    priority: 297
+    milestone: Makah demo
+    title: Bounded acquisition of eight approved federal documents
+    status: complete
+    work_class: demo_track_local
+    dependencies: [MAKAH-DEMO-01-GROUNDWORK-DISCOVERY-SCOUTS]
+    authorization_gate: G-MAKAH-DEMO-02
+    acceptance:
+      - >-
+        Schema 1.9 validates with both Makah items and gates while every 1.8
+        assertion still holds on 1.8 fixtures and no PS09 item or gate changes.
+      - >-
+        The runner accepts application/pdf only for declared targets, a reviewed
+        federal court opinion profile exists, and the makah-demo-02 manifest
+        selects exactly the ten packet targets.
+      - >-
+        At most ten ledgered GETs with zero retries land immutable digested
+        objects in the external makah-demo-02 namespace; each object has
+        identity, SHA-256, privacy screen and reuse basis recorded.
+      - >-
+        The TSDF provenance record, the federal actions source review and the
+        coverage document record the acquisition as bounded local evidence; no
+        document is admitted, activated, excerpted, exported or published.
+    evidence:
+      - >-
+        Launched 2026-09-15 from main at
+        edb508481a8719f294e5802c6e68b3b576760175 under
+        docs/handoffs/makah-demo-02-federal-acquisition-launch.md after the
+        owner approved D-069. Runtime, roadmap (79 items, 55 gates) and backbone
+        validation passed before mutation; the two pre-existing unrelated
+        pipeline changes and every owner input remain untouched.
+      - >-
+        Schema 1.9 validator and tests landed (441 roadmap tests pass; every
+        1.7/1.8 assertion runs unchanged on stripped fixtures). The runner
+        accepts application/pdf only for declared targets (7 focused tests),
+        profile federal-court-opinions-direct and the makah-demo-02 manifest
+        factory are pinned by 9 focused tests, and npm run test:policy passes
+        115 tests. Both new test files are registered in package.json
+        test:policy, the one path outside the packet's lease table.
+      - >-
+        Acquisition run makah-demo-02 in
+        I:\policy-sentinel-corpus-real-policy\makah-demo-02, manifest digest
+        7ee5dc4a5051e9157b259673c4bda632986c60d2b3ef5002368e238dbbd864a9:
+        exactly ten ledgered GETs (four GovInfo FR HTML renditions, four PDFs
+        across GovInfo, the Ninth Circuit datastore and the Western District,
+        two GovInfo MODS files), ten complete receipts, zero retries, zero
+        failures, 8,618,306 bytes, three hosts; runner verify returns valid:true
+        with ten objects. Identity, digest and privacy screens per object, the
+        provenance record additions (SHA-256 artifacts, acquisition evidence,
+        access records, ten Acquisition events; Honor section untouched) and the
+        read-only privacy/provenance review (PASS_WITH_MINOR_REPAIRS, repairs
+        applied, F-07 recorded as an owner item) are in
+        docs/handoffs/makah-demo-02-federal-acquisition-outcome.md.
+      - >-
+        Full npm run check passed on 2026-09-15 with the ledger active: runtime,
+        formatting, hooks, lint, typecheck, roadmap (81 items, 57 gates),
+        backbone (123 Markdown files, 834 links), knowledge, source scan,
+        foundation, all node suites, 97 Vitest files and 1617 tests, the
+        synthetic build and artifact validation at 3 records, 575 Nations and 8
+        assets. Acquisition is custody, not admission: no document is admitted,
+        activated, excerpted, exported or published and no nationAssociations
+        value exists. Terminal disposition
+        MAKAH_DEMO_02_ACQUIRED_REVIEWED_NOT_ADMITTED; the implementation commit
+        is recorded by the follow-up ledger checkpoint.
   - id: H-ENGINEERING-REVIEW-02
     priority: 298
     milestone: H
@@ -6151,6 +6308,22 @@ next_actions:
       discovery outcome; do not reactivate ended maintenance, acquisition,
       cutoff startups or archived lanes.
 finish_states:
+  makah_demo:
+    current_state: complete
+    work_item: MAKAH-DEMO-02-FEDERAL-CANDIDATE-ACQUISITION
+    blocked_by: []
+    satisfied_when:
+      - Both Makah demo items have objective evidence, including receipts,
+        digests and privacy screens for the bounded acquisition.
+      - The TSDF provenance record validates and every acquired entry carries a
+        SHA-256.
+      - Full checks pass and every worker lease is returned.
+    does_not_mean:
+      - admission, activation, excerpting, export or publication of any acquired
+        document
+      - a nationAssociations value or any Nation relationship, land,
+        jurisdiction or rights determination
+      - PS09-02 acceptance, PS09-06 release authority or a private deployment
   engineering_review:
     current_state: complete
     work_item: H-ENGINEERING-REVIEW-02

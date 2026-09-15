@@ -65,9 +65,26 @@ entry is one exact document at one official URL.
 
 ## Priority and status
 
-Reviewed, not admitted. Priority P1 for the exact-document candidates as a
-future bounded, per-document metadata-and-link tranche. Gates: `G-J` per
-source; `G-PNW-05-FR-TIER1-QUALIFICATION` remains unresolved for the Federal
-Register adapter; `G-B-GOVINFO` for any API use; `G-BIA-IDENTITY` before any
-Nation association. No allowlist was stated at launch, so no acquisition is
-authorized by this review.
+**Acquired (bounded, D-069), not admitted.** On 2026-09-15 the owner approved
+D-069 and the [federal acquisition launch](../handoffs/makah-demo-02-federal-acquisition-launch.md)
+acquired all eight candidates once each, with no retry, into the external run
+namespace `I:\policy-sentinel-corpus-real-policy\makah-demo-02` (run
+`makah-demo-02`, manifest digest
+`7ee5dc4a5051e9157b259673c4bda632986c60d2b3ef5002368e238dbbd864a9`). The
+four Federal Register documents were acquired as GovInfo official-edition HTML
+renditions rather than the PDFs listed above; the treaty and Ninth Circuit
+No. 15-35824 as GovInfo PDFs; the two court-hosted PDFs under the separately
+reviewed [court datastore profile](federal-court-opinion-datastores-2026-09-15.md).
+Receipt identifiers: `fr-2024-12669`, `fr-2019-06337`, `fr-2026-09372`,
+`fr-2015-20888`, `statute-12-pg939`, `uscourts-ca9-15-35824`, `ca9-13-35474`,
+`wawd-09-01`, plus the two optional GovInfo package metadata receipts
+`mods-statute-12` and `mods-uscourts-ca9-15-35824`. Object digests, identity
+checks and privacy screens are recorded in the
+[TSDF provenance record](../development/makah-demo/tsdf-provenance-record-2026-09-15.json)
+and the [acquisition outcome](../handoffs/makah-demo-02-federal-acquisition-outcome.md).
+
+Acquisition is custody, not admission: no document is admitted, activated,
+excerpted, exported or published; no `nationAssociations` value exists. Gates:
+`G-J` per document; `G-PNW-05-FR-TIER1-QUALIFICATION` remains unresolved for
+the Federal Register adapter; `G-B-GOVINFO` for any API use (none was used);
+`G-BIA-IDENTITY` before any Nation association. `FR-A1` remains unissued.

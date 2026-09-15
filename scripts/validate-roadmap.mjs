@@ -39,9 +39,17 @@ if (document.errors.length > 0) {
 }
 
 const roadmap = document.toJS();
-const ps09 = ["1.5", "1.6", "1.7", "1.8"].includes(roadmap.schema_version);
-const knowledgeAssurance = ["1.7", "1.8"].includes(roadmap.schema_version);
-const engineeringReview = roadmap.schema_version === "1.8";
+const ps09 = ["1.5", "1.6", "1.7", "1.8", "1.9"].includes(
+  roadmap.schema_version,
+);
+const knowledgeAssurance = ["1.7", "1.8", "1.9"].includes(
+  roadmap.schema_version,
+);
+const engineeringReview = ["1.8", "1.9"].includes(roadmap.schema_version);
+// Schema 1.9 is an exact additive non-release representation of the non-PS09
+// Makah demo track. It admits no free-form identity: exactly the groundwork
+// and bounded-acquisition items and their two named gates, below.
+const makahDemo = roadmap.schema_version === "1.9";
 const engineeringReviewId = "H-ENGINEERING-REVIEW-02";
 const engineeringReviewGateId = "G-H-ENGINEERING-REVIEW-02";
 const engineeringReviewInstruction =
@@ -50,6 +58,19 @@ const knowledgeAssuranceId = "H-KNOWLEDGE-ASSURANCE-01";
 const knowledgeAssuranceGateId = "G-H-KNOWLEDGE-ASSURANCE-01";
 const knowledgeAssuranceInstruction =
   "I:/policy-sentinel-organization-review/2026-09-05/converged-session/implementation-prompt.md";
+const makahDemoGroundworkId = "MAKAH-DEMO-01-GROUNDWORK-DISCOVERY-SCOUTS";
+const makahDemoAcquisitionId = "MAKAH-DEMO-02-FEDERAL-CANDIDATE-ACQUISITION";
+const makahDemoIds = [makahDemoGroundworkId, makahDemoAcquisitionId];
+const makahDemoGroundworkGateId = "G-MAKAH-DEMO-01";
+const makahDemoAcquisitionGateId = "G-MAKAH-DEMO-02";
+const makahDemoGateIds = [
+  makahDemoGroundworkGateId,
+  makahDemoAcquisitionGateId,
+];
+const makahDemoGroundworkInstruction =
+  "docs/handoffs/makah-demo-fable-5.1-launch-prompt.md";
+const makahDemoAcquisitionInstruction =
+  "docs/handoffs/makah-demo-02-federal-acquisition-launch.md";
 const ps09Ids = [
   "PS09-01-REPOSITORY-CONVERGENCE",
   "PS09-02-IDENTITY-AUTHORITY-SCENARIOS",
@@ -462,7 +483,8 @@ for (const [index, gate] of gates.entries()) {
   if (
     knowledgeAssurance &&
     !knowledgeAssuranceGateIds.has(id) &&
-    !(engineeringReview && id === engineeringReviewGateId)
+    !(engineeringReview && id === engineeringReviewGateId) &&
+    !(makahDemo && makahDemoGateIds.includes(id))
   ) {
     fail(`schema ${roadmap.schema_version} references unknown gate ${id}`);
   }
@@ -471,6 +493,9 @@ for (const [index, gate] of gates.entries()) {
   }
   if (!engineeringReview && id === engineeringReviewGateId) {
     fail("engineering review gate requires schema 1.8");
+  }
+  if (!makahDemo && makahDemoGateIds.includes(id)) {
+    fail("makah demo gate requires schema 1.9");
   }
   if (gateIds.has(id)) {
     fail(`duplicate gate id: ${id}`);
@@ -746,9 +771,14 @@ const requireFrozenEngineeringValue = (value, expected, path) => {
   }
 };
 if (engineeringReview) {
+  // Schema 1.9 adds two exact Makah demo items and gates on top of this
+  // frozen 1.8 baseline. They are additive, so the frozen digests below must
+  // be computed with them filtered out, exactly like the engineering review
+  // item and gate are filtered out.
   requireFrozenEngineeringValue(
     workItems
       .filter(({ id }) => id !== engineeringReviewId)
+      .filter(({ id }) => !(makahDemo && makahDemoIds.includes(id)))
       .map(({ id }) => id),
     "de74ac7d4153154d835329738b8f2c85f9403bce83056c1c6787e1dfaaff464a",
     "work-item identities",
@@ -756,6 +786,7 @@ if (engineeringReview) {
   requireFrozenEngineeringValue(
     gates
       .filter(({ id }) => id !== engineeringReviewGateId)
+      .filter(({ id }) => !(makahDemo && makahDemoGateIds.includes(id)))
       .map(({ id }) => id),
     "d2bcb93c6f23509e08dd4ccdb86c8817e725f103621d9504e1bec624e080802d",
     "gate identities",
@@ -783,7 +814,9 @@ if (engineeringReview) {
     requireFrozenEngineeringValue(
       Object.fromEntries(
         Object.entries(roadmap[key]).filter(
-          ([name]) => name !== "engineering_review",
+          ([name]) =>
+            name !== "engineering_review" &&
+            !(makahDemo && name === "makah_demo"),
         ),
       ),
       digest,
@@ -960,6 +993,215 @@ if (engineeringReview) {
     finish.does_not_mean,
     "engineering review does_not_mean",
   );
+}
+
+// Schema 1.9 is an exact additive non-release representation of the non-PS09
+// Makah demo track: exactly one completed groundwork item and one bounded
+// federal-candidate acquisition item, each with its own named approved gate.
+// It admits no free-form identity, budget drift, or PS09 interaction.
+if (makahDemo) {
+  const groundwork = requireObject(
+    byId.get(makahDemoGroundworkId),
+    "makah demo groundwork item",
+  );
+  const acquisition = requireObject(
+    byId.get(makahDemoAcquisitionId),
+    "makah demo acquisition item",
+  );
+  for (const [field, value] of [
+    ["work_class", "demo_track_local"],
+    ["priority", 296],
+    ["milestone", "Makah demo"],
+    ["authorization_gate", makahDemoGroundworkGateId],
+  ]) {
+    requireExactValue(
+      groundwork[field],
+      value,
+      `makah demo groundwork ${field}`,
+    );
+  }
+  requireExactOrderedValues(
+    groundwork.dependencies,
+    [],
+    "makah demo groundwork dependencies",
+  );
+  requireExactValue(
+    groundwork.status,
+    "complete",
+    "makah demo groundwork status",
+  );
+  const groundworkEvidence = requireArray(
+    groundwork.evidence,
+    "makah demo groundwork evidence",
+  );
+  if (
+    !groundworkEvidence.some((entry) => entry.includes("554e105")) ||
+    !groundworkEvidence.some((entry) =>
+      entry.includes("docs/handoffs/makah-demo-01-groundwork-outcome.md"),
+    )
+  ) {
+    fail(
+      "makah demo groundwork evidence must cite the outcome handoff and commit 554e105",
+    );
+  }
+
+  for (const [field, value] of [
+    ["work_class", "demo_track_local"],
+    ["priority", 297],
+    ["milestone", "Makah demo"],
+    ["authorization_gate", makahDemoAcquisitionGateId],
+  ]) {
+    requireExactValue(
+      acquisition[field],
+      value,
+      `makah demo acquisition ${field}`,
+    );
+  }
+  requireExactOrderedValues(
+    acquisition.dependencies,
+    [makahDemoGroundworkId],
+    "makah demo acquisition dependencies",
+  );
+  if (!["in_progress", "blocked", "complete"].includes(acquisition.status)) {
+    fail(
+      "makah demo acquisition status must be in_progress, blocked, or complete",
+    );
+  }
+
+  for (const dependent of workItems) {
+    if (dependent.id === makahDemoAcquisitionId) {
+      continue;
+    }
+    for (const id of makahDemoIds) {
+      if (dependent.dependencies.includes(id)) {
+        fail(`${dependent.id} cannot depend on non-release makah demo work`);
+      }
+    }
+  }
+
+  const groundworkGate = requireExactKeys(
+    gateById.get(makahDemoGroundworkGateId),
+    ["id", "name", "state", "evidence", "owner_instruction", "scope"],
+    "makah demo groundwork gate",
+  );
+  requireExactValue(
+    groundworkGate.state,
+    "approved",
+    "makah demo groundwork gate state",
+  );
+  requireExactValue(
+    groundworkGate.owner_instruction,
+    makahDemoGroundworkInstruction,
+    "makah demo groundwork gate owner instruction",
+  );
+  const expectedGroundworkScope = {
+    kind: "approved_local_demo_groundwork",
+    policy_acquisition_budget: {
+      sources: 0,
+      domains: 0,
+      requests: 0,
+      bytes: 0,
+    },
+    synthetic_local_validation: true,
+    read_only_public_research: true,
+    policy_source_activation: false,
+    nation_association: false,
+    release_authority: false,
+  };
+  if (
+    JSON.stringify(canonicalValue(groundworkGate.scope)) !==
+    JSON.stringify(canonicalValue(expectedGroundworkScope))
+  ) {
+    fail(
+      "makah demo groundwork gate scope must preserve the exact zero-budget local scope",
+    );
+  }
+
+  const acquisitionGate = requireExactKeys(
+    gateById.get(makahDemoAcquisitionGateId),
+    ["id", "name", "state", "evidence", "owner_instruction", "scope"],
+    "makah demo acquisition gate",
+  );
+  requireExactValue(
+    acquisitionGate.state,
+    "approved",
+    "makah demo acquisition gate state",
+  );
+  requireExactValue(
+    acquisitionGate.owner_instruction,
+    makahDemoAcquisitionInstruction,
+    "makah demo acquisition gate owner instruction",
+  );
+  const expectedAcquisitionScope = {
+    kind: "approved_bounded_federal_candidate_acquisition",
+    decision: "D-069",
+    policy_acquisition_budget: {
+      sources: 2,
+      domains: 3,
+      requests: 10,
+      bytes: 671088640,
+    },
+    documents: 8,
+    hosts: ["www.govinfo.gov", "cdn.ca9.uscourts.gov", "www.wawd.uscourts.gov"],
+    retries: 0,
+    synthetic_local_validation: true,
+    policy_source_activation: false,
+    source_admission: false,
+    nation_association: false,
+    publication: false,
+    release_authority: false,
+  };
+  if (
+    JSON.stringify(canonicalValue(acquisitionGate.scope)) !==
+    JSON.stringify(canonicalValue(expectedAcquisitionScope))
+  ) {
+    fail(
+      "makah demo acquisition gate scope must preserve the exact D-069 ceilings",
+    );
+  }
+
+  const makahCompletion = requireExactKeys(
+    roadmap.completion_scope.makah_demo,
+    ["accounting", "required_outcomes"],
+    "makah demo completion scope",
+  );
+  requireExactValue(
+    makahCompletion.accounting,
+    "non_release_local_maintenance",
+    "makah demo accounting",
+  );
+  requireExactOrderedValues(
+    makahCompletion.required_outcomes,
+    makahDemoIds,
+    "makah demo required outcomes",
+  );
+
+  const makahFinish = requireExactKeys(
+    roadmap.finish_states.makah_demo,
+    [
+      "current_state",
+      "work_item",
+      "blocked_by",
+      "satisfied_when",
+      "does_not_mean",
+    ],
+    "makah demo finish scope",
+  );
+  requireExactValue(
+    makahFinish.work_item,
+    makahDemoAcquisitionId,
+    "makah demo finish item",
+  );
+  if (makahFinish.current_state !== acquisition.status) {
+    fail("makah demo finish state must match the acquisition item");
+  }
+  requireExactOrderedValues(
+    makahFinish.blocked_by,
+    acquisition.status === "blocked" ? [makahDemoAcquisitionId] : [],
+    "makah demo finish blockers",
+  );
+  requireUniqueStrings(makahFinish.satisfied_when, "makah demo satisfied_when");
+  requireUniqueStrings(makahFinish.does_not_mean, "makah demo does_not_mean");
 }
 
 let knowledgeAssuranceItem;
@@ -1194,7 +1436,9 @@ const hasExactOrderedValues = (actual, expected) =>
 // 1.5 remains replayable historical accounting. The adopted real-policy run
 // makes identity acceptance an explicit release prerequisite, independent of
 // general-jurisdiction acquisition. No required outcome is removed.
-const ps09Dependencies = ["1.6", "1.7", "1.8"].includes(roadmap.schema_version)
+const ps09Dependencies = ["1.6", "1.7", "1.8", "1.9"].includes(
+  roadmap.schema_version,
+)
   ? [[], [0], [0], [2], [2, 3], [1, 4], [4], [5]]
   : [[], [0], [0, 1], [1, 2], [2, 3], [4], [4], [5]];
 if (ps09) {
@@ -1208,6 +1452,7 @@ if (ps09) {
       "pnw_regional_engine",
       ...(knowledgeAssurance ? ["knowledge_assurance"] : []),
       ...(engineeringReview ? ["engineering_review"] : []),
+      ...(makahDemo ? ["makah_demo"] : []),
     ],
     "canonical completion scopes",
   );
@@ -1222,6 +1467,7 @@ if (ps09) {
       "public_beta",
       ...(knowledgeAssurance ? ["knowledge_assurance"] : []),
       ...(engineeringReview ? ["engineering_review"] : []),
+      ...(makahDemo ? ["makah_demo"] : []),
     ],
     "canonical finish states",
   );
@@ -1232,7 +1478,8 @@ if (ps09) {
           !ps09Ids.includes(id) &&
           !ps09PublicationIds.includes(id) &&
           !(knowledgeAssurance && id === knowledgeAssuranceId) &&
-          !(engineeringReview && id === engineeringReviewId),
+          !(engineeringReview && id === engineeringReviewId) &&
+          !(makahDemo && makahDemoIds.includes(id)),
       )
       .map(({ id }) => id),
     ps09HistoricalIds,
@@ -1718,6 +1965,9 @@ if (engineeringReview) {
     "engineering_review.required_outcomes",
     [engineeringReviewId],
   ]);
+}
+if (makahDemo) {
+  completionGroups.push(["makah_demo.required_outcomes", makahDemoIds]);
 }
 if (localRealSourcePrereleaseScope !== null) {
   completionGroups.push([
@@ -2715,11 +2965,13 @@ if (ps09) {
     ...enabledConditionalIds,
     ...(knowledgeAssurance ? [knowledgeAssuranceId] : []),
     ...(engineeringReview ? [engineeringReviewId] : []),
+    ...(makahDemo ? makahDemoIds : []),
   ]);
   const active = inProgress[0];
   const activeMaintenance =
     (knowledgeAssurance && active?.id === knowledgeAssuranceId) ||
-    (engineeringReview && active?.id === engineeringReviewId);
+    (engineeringReview && active?.id === engineeringReviewId) ||
+    (makahDemo && makahDemoIds.includes(active?.id));
   if (
     active &&
     ![...ps09Ids, ...ps09PublicationIds].includes(active.id) &&
@@ -2793,7 +3045,11 @@ if (ps09) {
     );
     requireExactOrderedValues(
       roadmap.current_focus.resumable_roots,
-      engineeringReview ? [engineeringReviewId, ps09Ids[1]] : [active.id],
+      makahDemo && makahDemoIds.includes(active.id)
+        ? [active.id, ps09Ids[1]]
+        : engineeringReview
+          ? [engineeringReviewId, ps09Ids[1]]
+          : [active.id],
       "active PS09 resumable roots",
     );
   } else {

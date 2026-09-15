@@ -44,6 +44,8 @@ export const POLICY_LIMITS = Object.freeze({
 });
 export const digest = (bytes) =>
   createHash("sha256").update(bytes).digest("hex");
+export const DEFAULT_ACCEPT =
+  "text/html,application/xml,text/xml,text/plain,application/json";
 const jsonBytes = (value) => Buffer.from(`${JSON.stringify(value, null, 2)}\n`);
 const fail = (code) => {
   throw new Error(code);
@@ -420,6 +422,8 @@ function validateManifest(manifest, forDispatch = false) {
       !profile.pathPrefixes.some((p) => url.pathname.startsWith(p))
     )
       fail("TARGET_OUTSIDE_PROFILE");
+    // application/pdf is stored as opaque immutable bytes only: this module
+    // never parses or extracts text from PDF content.
     if (
       target.mediaTypes.some(
         (x) =>
@@ -429,6 +433,7 @@ function validateManifest(manifest, forDispatch = false) {
             "text/xml",
             "application/xml",
             "application/json",
+            "application/pdf",
           ].includes(x),
       )
     )
@@ -786,7 +791,7 @@ export function isPublicAddress(address) {
   return false;
 }
 
-async function networkTransport({ url, signal, onHeaders, onChunk }) {
+async function networkTransport({ url, signal, accept, onHeaders, onChunk }) {
   const parsed = new URL(url);
   const addresses = await lookup(parsed.hostname, {
     all: true,
@@ -806,8 +811,7 @@ async function networkTransport({ url, signal, onHeaders, onChunk }) {
         highWaterMark: 65536,
         headers: {
           "User-Agent": "PolicySentinelLocalResearch/0.9",
-          Accept:
-            "text/html,application/xml,text/xml,text/plain,application/json",
+          Accept: accept,
           "Accept-Encoding": "identity",
         },
         lookup: (_host, options, callback) => {
@@ -956,10 +960,14 @@ export async function acquirePolicyObject(
       () => controller.abort(new Error("OPERATION_DEADLINE")),
       syntheticDeadlineMs ?? limits.deadlineMs,
     );
+    const accept = target.mediaTypes.includes("application/pdf")
+      ? `${DEFAULT_ACCEPT},application/pdf`
+      : DEFAULT_ACCEPT;
     try {
       const transmission = (syntheticTransport ?? networkTransport)({
         url,
         signal: controller.signal,
+        accept,
         onHeaders: (value) => {
           controller.signal.throwIfAborted();
           headers = value;

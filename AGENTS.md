@@ -1,9 +1,11 @@
 # AGENTS.md
 
-Newest owner direction (2026-09-15): the Makah demo track's
+Newest state (2026-09-15): the Makah demo track's
 [federal acquisition launch](docs/handoffs/makah-demo-02-federal-acquisition-launch.md)
-(see the Makah demo paragraph below). The PS09 recoveries that follow are
-unchanged.
+was executed; its [outcome](docs/handoffs/makah-demo-02-federal-acquisition-outcome.md)
+records the schema 1.9 ledger representation, the bounded runner changes and
+the ten-receipt acquisition (see the Makah demo paragraph below). The PS09
+recoveries that follow are unchanged.
 
 Current PS09 recovery: the bounded engineering review H-ENGINEERING-REVIEW-02 is
 complete. Start with the [local outcome](docs/handoffs/ps09-engineering-review-02-outcome.md)
@@ -39,14 +41,21 @@ validated against
 was launched and executed on 2026-09-15; its
 [outcome](docs/handoffs/makah-demo-01-groundwork-outcome.md) records the
 private-only contracts, scout reports, source reviews and sovereignty review
-that landed at `554e105`. The owner then adopted D-068 and approved D-069.
-The next session starts from the
-[federal acquisition launch](docs/handoffs/makah-demo-02-federal-acquisition-launch.md):
-schema 1.9 ledger representation, bounded runner changes for PDF media types
-and two court hosts, and one acquisition of exactly eight approved federal
-documents into a new external run namespace. The track still does not touch
-any PS09 gate, `PS09-06-LOCAL-RC`, or the existing release root, and no
-document is admitted or activated by acquisition.
+that landed at `554e105`. The owner then adopted D-068 and approved D-069, and the
+[federal acquisition launch](docs/handoffs/makah-demo-02-federal-acquisition-launch.md)
+was executed the same day: `ROADMAP.yaml` is at schema 1.9 with the two
+Makah demo items and gates, the runner accepts `application/pdf` for
+declared targets under a reviewed federal court host profile, and exactly
+ten ledgered GETs (eight documents plus two GovInfo metadata files, zero
+retries) landed in the external `makah-demo-02` namespace with receipts and
+digests bound to the TSDF provenance record. Recover the
+[outcome](docs/handoffs/makah-demo-02-federal-acquisition-outcome.md). The
+track still does not touch any PS09 gate, `PS09-06-LOCAL-RC`, or the
+existing release root; acquisition is custody, not admission, and no
+document is admitted, activated, excerpted or published. The next owner
+actions are source-specific `G-J` decisions per acquired document and the
+`G-BIA-IDENTITY` prerequisite before any Nation association; the provenance
+record's Honor section stays owner-curated and deferred.
 
 ## Purpose and phase gate
 

@@ -56,9 +56,20 @@ part_1_what_this_document_set_is:
   related_next_launch:
     path: ../handoffs/makah-demo-02-federal-acquisition-launch.md
     role: >
-      Current owner direction for the track (2026-09-15): schema 1.9 ledger
-      representation and one bounded acquisition of eight approved federal
-      documents under D-069. Acquisition does not admit or activate a source.
+      Owner direction for the track (2026-09-15), executed the same day:
+      schema 1.9 ledger representation and one bounded acquisition of eight
+      approved federal documents under D-069. Acquisition does not admit or
+      activate a source.
+    launched_on: "2026-09-15"
+  related_next_outcome:
+    path: ../handoffs/makah-demo-02-federal-acquisition-outcome.md
+    role: >
+      Terminal outcome of the 2026-09-15 acquisition session: the schema 1.9
+      validator and ledger, the application/pdf and federal court host runner
+      changes, ten ledgered receipts and digested objects in the external
+      makah-demo-02 namespace, and the provenance record updates. It records
+      identity checks, privacy screens and every gate that stays closed; it
+      authorizes nothing and admits no source.
   related_provenance_record:
     path: ../development/makah-demo/tsdf-provenance-record-2026-09-15.json
     role: >

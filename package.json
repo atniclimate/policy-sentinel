@@ -36,7 +36,7 @@
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test:corpus": "node --test tests/pipeline/analyzed-corpus.test.mjs",
-    "test:policy": "node --test tests/pipeline/analyzed-corpus-v2.test.mjs tests/pipeline/temporal-operations.test.mjs tests/pipeline/bounded-operation-runner.test.mjs tests/pipeline/policy-text.test.mjs tests/pipeline/policy-corpus-builder.test.mjs tests/pipeline/policy-local-output.test.mjs tests/pipeline/policy-search.test.mjs tests/pipeline/policy-broad-discovery.test.mjs tests/pipeline/policy-research-output.test.mjs",
+    "test:policy": "node --test tests/pipeline/analyzed-corpus-v2.test.mjs tests/pipeline/temporal-operations.test.mjs tests/pipeline/bounded-operation-runner.test.mjs tests/pipeline/policy-custody-pdf.test.mjs tests/pipeline/makah-demo-manifest.test.mjs tests/pipeline/policy-text.test.mjs tests/pipeline/policy-corpus-builder.test.mjs tests/pipeline/policy-local-output.test.mjs tests/pipeline/policy-search.test.mjs tests/pipeline/policy-broad-discovery.test.mjs tests/pipeline/policy-research-output.test.mjs",
     "policy:runner": "node scripts/bounded-operation-runner.mjs",
     "policy:prepare": "node scripts/prepare-policy-run.mjs",
     "policy:admit:candidates": "node scripts/prepare-policy-run.mjs --admit",

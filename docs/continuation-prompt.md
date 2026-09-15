@@ -1,11 +1,13 @@
 # Policy Sentinel durable continuation prompt
 
-Current owner direction (2026-09-15): the Makah demo track's
+Current state (2026-09-15): the Makah demo track's
 [federal acquisition launch](handoffs/makah-demo-02-federal-acquisition-launch.md)
-is the packet a fresh session starts from; its first task adds the schema 1.9
-roadmap representation, so `ROADMAP.yaml` still shows no Makah demo item and
-`current_focus.work_item` is `null`. The PS09 recoveries below are unchanged
-history and remain blocked on PS09-02 evidence.
+has been executed; read its
+[outcome](handoffs/makah-demo-02-federal-acquisition-outcome.md) first.
+`ROADMAP.yaml` is at schema 1.9 with `MAKAH-DEMO-01` complete and
+`MAKAH-DEMO-02` recorded per the outcome, and the external `makah-demo-02`
+namespace holds ten receipts and objects. The PS09 recoveries below are
+unchanged history and remain blocked on PS09-02 evidence.
 
 Latest PS09 recovery: read the completed
 [engineering review 02 outcome](handoffs/ps09-engineering-review-02-outcome.md),
@@ -59,13 +61,16 @@ parcel-jurisdiction/citation-export gap analyses, validated against
 was executed on 2026-09-15; recover its
 [outcome](handoffs/makah-demo-01-groundwork-outcome.md), the adopted D-068
 and approved D-069 in the decision register, and the TSDF provenance record
-under `docs/development/makah-demo/`. A fresh session on this track starts
-from the
-[federal acquisition launch](handoffs/makah-demo-02-federal-acquisition-launch.md),
-which is the current owner direction for the track. The roadmap still holds
-no Makah demo item; that packet's first task adds the schema 1.9
-representation. The track does not touch any PS09 gate or the
-`PS09-06-LOCAL-RC` release root.
+under `docs/development/makah-demo/`. The
+[federal acquisition launch](handoffs/makah-demo-02-federal-acquisition-launch.md)
+was executed on 2026-09-15; its
+[outcome](handoffs/makah-demo-02-federal-acquisition-outcome.md) records the
+schema 1.9 representation, the `application/pdf` and court-host runner
+changes, the ten-receipt acquisition into
+`I:\policy-sentinel-corpus-real-policy\makah-demo-02`, and the provenance
+record updates. Acquisition is custody, not admission; the next owner actions
+are per-document `G-J` decisions and `G-BIA-IDENTITY`. The track does not
+touch any PS09 gate or the `PS09-06-LOCAL-RC` release root.
 
 ## Start and recover
 

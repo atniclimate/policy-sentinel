@@ -152,7 +152,36 @@ const knowledgeAssuranceId = "H-KNOWLEDGE-ASSURANCE-01";
 const knowledgeAssuranceGateId = "G-H-KNOWLEDGE-ASSURANCE-01";
 const engineeringReviewId = "H-ENGINEERING-REVIEW-02";
 const engineeringReviewGateId = "G-H-ENGINEERING-REVIEW-02";
+const makahDemoGroundworkId = "MAKAH-DEMO-01-GROUNDWORK-DISCOVERY-SCOUTS";
+const makahDemoAcquisitionId = "MAKAH-DEMO-02-FEDERAL-CANDIDATE-ACQUISITION";
+const makahDemoIds = [makahDemoGroundworkId, makahDemoAcquisitionId];
+const makahDemoGroundworkGateId = "G-MAKAH-DEMO-01";
+const makahDemoAcquisitionGateId = "G-MAKAH-DEMO-02";
+const makahDemoGateIds = [
+  makahDemoGroundworkGateId,
+  makahDemoAcquisitionGateId,
+];
+const withoutMakahDemo = (candidate) => {
+  candidate.work_items = candidate.work_items.filter(
+    ({ id }) => !makahDemoIds.includes(id),
+  );
+  candidate.gates = candidate.gates.filter(
+    ({ id }) => !makahDemoGateIds.includes(id),
+  );
+  delete candidate.completion_scope.makah_demo;
+  delete candidate.finish_states.makah_demo;
+  Object.assign(candidate.current_focus, {
+    work_item: null,
+    terminal_reason: "Synthetic terminal reason.",
+    resumable_roots: [ps09OutcomeIds[1]],
+  });
+  candidate.next_actions = candidate.next_actions
+    .filter((action) => !makahDemoIds.includes(action.work_item))
+    .map((action, index) => ({ ...action, order: index + 1 }));
+  return candidate;
+};
 const withoutEngineeringReview = (candidate) => {
+  withoutMakahDemo(candidate);
   candidate.work_items = candidate.work_items.filter(
     ({ id }) => id !== engineeringReviewId,
   );
@@ -351,7 +380,7 @@ test("schema 1.7 confines maintenance to its approved non-release scope", async 
     [
       "unknown-version",
       (r) => {
-        r.schema_version = "1.9";
+        r.schema_version = "2.0";
       },
       /unsupported production schema_version/,
     ],
@@ -785,7 +814,7 @@ test("schema 1.8 freezes spent authority and bounds the exact engineering review
   const gate = (candidate, id = engineeringReviewGateId) =>
     candidate.gates.find((entry) => entry.id === id);
   const candidateFor = (status) => {
-    const candidate = clone(liveRoadmap);
+    const candidate = withoutMakahDemo(clone(liveRoadmap));
     candidate.schema_version = "1.8";
     const maintenance = item(candidate);
     maintenance.status = status;
@@ -1046,7 +1075,7 @@ test("schema 1.8 freezes spent authority and bounds the exact engineering review
     [
       "unknown-version",
       (r) => {
-        r.schema_version = "1.9";
+        r.schema_version = "2.0";
       },
       /unsupported production schema_version/,
     ],
@@ -1410,6 +1439,316 @@ test("schema 1.8 freezes spent authority and bounds the exact engineering review
   }
 });
 
+test("schema 1.9 represents the Makah demo track without touching PS09", async (context) => {
+  const fixtureRoot = await mkdtemp(
+    path.join(tmpdir(), "policy-sentinel-ps09-roadmap-"),
+  );
+  context.after(() => rm(fixtureRoot, { recursive: true, force: true }));
+  const item = (candidate, id = makahDemoAcquisitionId) =>
+    candidate.work_items.find((entry) => entry.id === id);
+  const gate = (candidate, id = makahDemoAcquisitionGateId) =>
+    candidate.gates.find((entry) => entry.id === id);
+  const candidateFor = (status) => {
+    const candidate = clone(liveRoadmap);
+    candidate.schema_version = "1.9";
+    const acquisition = item(candidate);
+    acquisition.status = status;
+    acquisition.evidence = [
+      "Synthetic bounded federal candidate acquisition evidence.",
+    ];
+    delete acquisition.blocked_by;
+    delete acquisition.safe_fallback;
+    delete acquisition.unblocks_only_when;
+    if (status === "blocked") {
+      Object.assign(acquisition, {
+        blocked_by: [makahDemoAcquisitionGateId],
+        safe_fallback:
+          "Preserve acquired objects and keep PS09 and release gates closed.",
+        unblocks_only_when:
+          "The named synthetic validation blocker is resolved.",
+      });
+    }
+    Object.assign(candidate.finish_states.makah_demo, {
+      current_state: status,
+      blocked_by: status === "blocked" ? [makahDemoAcquisitionId] : [],
+    });
+    const roots =
+      status === "complete"
+        ? [ps09OutcomeIds[1]]
+        : [makahDemoAcquisitionId, ps09OutcomeIds[1]];
+    Object.assign(candidate.current_focus, {
+      work_item: status === "in_progress" ? makahDemoAcquisitionId : null,
+      terminal_reason:
+        status === "in_progress"
+          ? null
+          : "Synthetic bounded acquisition checkpoint.",
+      resumable_roots: roots,
+    });
+    candidate.next_actions = roots.map((id, index) => ({
+      order: index + 1,
+      work_item: id,
+      action: `Resolve ${id} within its separate authority.`,
+    }));
+    return candidate;
+  };
+  const validate = async (
+    name,
+    candidate,
+    { cli = false, extraArguments = [] } = {},
+  ) => {
+    const fixturePath = path.join(fixtureRoot, `${name}.yaml`);
+    await writeFile(fixturePath, stringify(candidate), "utf8");
+    return cli
+      ? spawnSync(
+          process.execPath,
+          [validatorPath, fixturePath, ...extraArguments],
+          { cwd: projectRoot, encoding: "utf8" },
+        )
+      : validateActualModule(fixturePath, extraArguments);
+  };
+  const expectRejected = async (name, candidate, expected, options) => {
+    const result = await validate(name, candidate, options);
+    assert.notEqual(result.status, 0, `${name} was accepted`);
+    assert.match(`${result.stdout}\n${result.stderr}`, expected);
+  };
+  const closedGateIds = [
+    "G-PS09-RUN-06",
+    "G-PS09-RUN-07",
+    "G-PS09-RUN-08",
+    "G-PS09-RC",
+    "G-K0-S0-CONVERGENCE",
+    "G-O0-CONVERGENCE",
+    "G-B",
+    "G-B-GRANTS",
+    "G-B-CONGRESS",
+    "G-B-GOVINFO",
+    "G-B-REGULATIONS",
+    "G-B-OR-OJD",
+    "G-B-OR-OARD",
+    "G-B-OR-GOVERNOR",
+    "G-C",
+    "G-E",
+    "G-E-LICENSE",
+    "G-E-REMOTE-PUSH",
+    "G-E-PAGES",
+    "G-E-PUBLISH",
+    "G-F",
+    "G-G",
+    "G-H",
+    "G-I",
+    "G-PNW-COMMUNITY-AUTHORITY",
+    "G-PNW-SOURCE-ACTIVATION",
+  ];
+  assert.deepEqual(
+    liveRoadmap.gates
+      .filter(({ state }) => state === "closed")
+      .map(({ id }) => id),
+    closedGateIds,
+  );
+  for (const status of ["in_progress", "blocked", "complete"]) {
+    await context.test(
+      `actual CLI and actual module accept ${status}`,
+      async () => {
+        for (const cli of [true, false]) {
+          const result = await validate(
+            `${status}-${cli ? "cli" : "module"}`,
+            candidateFor(status),
+            { cli },
+          );
+          assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+          assert.match(result.stdout, /Roadmap validation passed/);
+        }
+      },
+    );
+  }
+  const rejections = [
+    [
+      "third-makah-item",
+      (r) => {
+        const extra = clone(item(r, makahDemoGroundworkId));
+        extra.id = "MAKAH-DEMO-03-OTHER";
+        extra.priority = 295;
+        r.work_items.push(extra);
+        r.work_items.sort((a, b) => a.priority - b.priority);
+      },
+      /frozen work-item identities|preserved historical component identities/,
+    ],
+    [
+      "renamed-makah-gate",
+      (r) => {
+        gate(r).id = "G-MAKAH-DEMO-99";
+      },
+      /references unknown gate/,
+    ],
+    [
+      "ps09-item-frozen",
+      (r) => {
+        item(r, "PS09-06-LOCAL-RC").dependencies.push("B9-LONGTAIL");
+      },
+      /frozen PS09 items/,
+    ],
+    [
+      "ps09-gate-frozen",
+      (r) => {
+        gate(r, "G-PS09-RUN-03").approval_scope = "Synthetic reused grant.";
+      },
+      /frozen PS09 gates/,
+    ],
+    [
+      "wrong-priority",
+      (r) => {
+        item(r).priority = 295;
+        r.work_items.sort((a, b) => a.priority - b.priority);
+      },
+      /makah demo acquisition priority must remain 297/,
+    ],
+    [
+      "wrong-work-class",
+      (r) => {
+        item(r).work_class = "source_implementation";
+      },
+      /makah demo acquisition work_class must remain/,
+    ],
+    [
+      "wrong-dependencies",
+      (r) => {
+        item(r).dependencies = ["PS09-01-REPOSITORY-CONVERGENCE"];
+      },
+      /makah demo acquisition dependencies must preserve exactly/,
+    ],
+    [
+      "wrong-authorization-gate",
+      (r) => {
+        item(r).authorization_gate = knowledgeAssuranceGateId;
+      },
+      /makah demo acquisition authorization_gate must remain/,
+    ],
+    [
+      "historical-item-cannot-depend-on-makah",
+      (r) => {
+        item(r, "B9-LONGTAIL").dependencies.push(makahDemoAcquisitionId);
+      },
+      /cannot depend on non-release makah demo work/,
+    ],
+    [
+      "gate01-nonzero-budget",
+      (r) => {
+        gate(
+          r,
+          makahDemoGroundworkGateId,
+        ).scope.policy_acquisition_budget.sources = 1;
+      },
+      /exact zero-budget local scope/,
+    ],
+    [
+      "missing-makah-finish",
+      (r) => {
+        delete r.finish_states.makah_demo;
+      },
+      /makah demo finish scope must be an object/,
+    ],
+    [
+      "makah-finish-mismatch",
+      (r) => {
+        r.finish_states.makah_demo.current_state = "blocked";
+      },
+      /makah demo finish state must match/,
+    ],
+    [
+      "makah-completion-accounting",
+      (r) => {
+        r.completion_scope.makah_demo.accounting = "release";
+      },
+      /makah demo accounting must remain/,
+    ],
+    [
+      "groundwork-status-drift",
+      (r) => {
+        item(r, makahDemoGroundworkId).status = "in_progress";
+      },
+      /makah demo groundwork status must remain "complete"/,
+      "blocked",
+    ],
+    [
+      "groundwork-evidence-missing-commit",
+      (r) => {
+        item(r, makahDemoGroundworkId).evidence = [
+          "Synthetic evidence missing the required references.",
+        ];
+      },
+      /cite the outcome handoff and commit 554e105/,
+    ],
+    [
+      "hides-active-makah-root",
+      (r) => {
+        r.current_focus.resumable_roots = [ps09OutcomeIds[1]];
+      },
+      /active PS09 resumable roots/,
+    ],
+  ];
+  for (const dimension of ["requests", "retries", "documents"]) {
+    const value = { requests: 11, retries: 1, documents: 9 }[dimension];
+    rejections.push([
+      `gate02-${dimension}-drift`,
+      (r) => {
+        if (dimension === "requests") {
+          gate(r).scope.policy_acquisition_budget.requests = value;
+        } else {
+          gate(r).scope[dimension] = value;
+        }
+      },
+      /exact D-069 ceilings/,
+    ]);
+  }
+  for (const field of [
+    "publication",
+    "source_admission",
+    "nation_association",
+  ]) {
+    rejections.push([
+      `gate02-${field}-true`,
+      (r) => {
+        gate(r).scope[field] = true;
+      },
+      /exact D-069 ceilings/,
+    ]);
+  }
+  rejections.push([
+    "gate02-extra-host",
+    (r) => {
+      gate(r).scope.hosts.push("extra.example.gov");
+    },
+    /exact D-069 ceilings/,
+  ]);
+  rejections.push([
+    "gate02-removed-host",
+    (r) => {
+      gate(r).scope.hosts.pop();
+    },
+    /exact D-069 ceilings/,
+  ]);
+  for (const [name, mutate, expected, status = "in_progress"] of rejections) {
+    await context.test(`reject ${name}`, async () => {
+      const candidate = candidateFor(status);
+      mutate(candidate);
+      await expectRejected(name, candidate, expected);
+    });
+  }
+  await context.test(
+    "a 1.8 ledger carrying makah identities is rejected",
+    async () => {
+      const candidate = clone(liveRoadmap);
+      candidate.schema_version = "1.8";
+      await expectRejected(
+        "makah-in-1.8-ledger",
+        candidate,
+        /frozen work-item identities|references unknown gate|makah demo gate requires schema 1\.9/,
+        { cli: true },
+      );
+    },
+  );
+});
+
 test("PS09 release accounting converges without reopening archived lanes", async (context) => {
   const fixtureRoot = await mkdtemp(
     path.join(tmpdir(), "policy-sentinel-ps09-roadmap-"),
@@ -1430,7 +1769,8 @@ test("PS09 release accounting converges without reopening archived lanes", async
           !ps09OutcomeIds.includes(id) &&
           !id.startsWith("RELEASE-") &&
           id !== knowledgeAssuranceId &&
-          id !== engineeringReviewId,
+          id !== engineeringReviewId &&
+          !makahDemoIds.includes(id),
       )
       .map(({ id }) => ({
         id,
@@ -1555,7 +1895,7 @@ test("PS09 release accounting converges without reopening archived lanes", async
       `${name}: ${result.stdout}\n${result.stderr}`,
     );
   }
-  assert.equal(liveRoadmap.schema_version, "1.8");
+  assert.equal(liveRoadmap.schema_version, "1.9");
   assert.equal(liveWorkItem(ps09OutcomeIds[1])?.status, "blocked");
   assert.deepEqual(liveWorkItem(ps09OutcomeIds[2]).dependencies, [
     ps09OutcomeIds[0],
