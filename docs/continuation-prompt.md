@@ -43,6 +43,20 @@ EV01, Run 1 and the [bounded Run 2 packet](handoffs/ps09-run-02-identity-authori
 cannot resume from spent or unused historical operation budgets. Every separately
 closed source, release and external gate retains its exact boundary.
 
+Makah demo recovery, a separate non-PS09 track prepared 2026-09-15: read
+[`docs/makah-demo/00-llm-usage-manifest.yaml`](makah-demo/00-llm-usage-manifest.yaml)
+and its two sibling documents for the current-functionality/GIS-boundary and
+parcel-jurisdiction/citation-export gap analyses, validated against
+[`schemas/makah-demo-doc.schema.v1.json`](../schemas/makah-demo-doc.schema.v1.json).
+[`docs/handoffs/makah-demo-fable-5.1-launch-prompt.md`](handoffs/makah-demo-fable-5.1-launch-prompt.md)
+is a prepared, unlaunched packet for the next session covering implementation
+groundwork, bounded source discovery, and four task-assigned research scouts
+with per-role model/effort assignments. It remains proposed scope until the
+owner launches it and states an exact acquisition allowlist; it does not
+create a roadmap item, decision-register entry, or source authority on its
+own, and it does not touch any PS09 gate or the `PS09-06-LOCAL-RC` release
+root.
+
 ## Start and recover
 
 Use the owner-selected model and effort for the session; the current kickoff

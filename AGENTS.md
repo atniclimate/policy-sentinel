@@ -22,6 +22,21 @@ active items; the PS09 program remains blocked on PS09-02 identity/scenario
 evidence. PS09-06 stays unstarted and gated. Preserve the sealed corpus; the
 [cutoff prompt](docs/handoffs/ps09-real-policy-cutoff-continuation.md) is historical.
 
+Makah demo recovery: a separate, non-PS09 track. The owner requested
+descriptive documentation and a launch prompt on 2026-09-15 for a Makah Tribe
+/ Clallam County / Jefferson County / Washington State / federal demo scope.
+[`docs/makah-demo/`](docs/makah-demo/) holds the non-authorizing current-state
+and gap-analysis documents (start at
+[`00-llm-usage-manifest.yaml`](docs/makah-demo/00-llm-usage-manifest.yaml)),
+validated against
+[`schemas/makah-demo-doc.schema.v1.json`](schemas/makah-demo-doc.schema.v1.json).
+[`docs/handoffs/makah-demo-fable-5.1-launch-prompt.md`](docs/handoffs/makah-demo-fable-5.1-launch-prompt.md)
+is a prepared launch packet for implementation groundwork, bounded source
+discovery and four task-assigned research scouts; it is proposed scope only
+and creates no `ROADMAP.yaml` work item, decision-register entry, or source
+authority until the owner launches it. It does not touch any PS09 gate,
+`PS09-06-LOCAL-RC`, or the existing release root.
+
 ## Purpose and phase gate
 
 Policy Sentinel is a configurable, sovereignty-centered policy monitoring and
