@@ -49,13 +49,16 @@ and its two sibling documents for the current-functionality/GIS-boundary and
 parcel-jurisdiction/citation-export gap analyses, validated against
 [`schemas/makah-demo-doc.schema.v1.json`](../schemas/makah-demo-doc.schema.v1.json).
 [`docs/handoffs/makah-demo-fable-5.1-launch-prompt.md`](handoffs/makah-demo-fable-5.1-launch-prompt.md)
-is a prepared, unlaunched packet for the next session covering implementation
-groundwork, bounded source discovery, and four task-assigned research scouts
-with per-role model/effort assignments. It remains proposed scope until the
-owner launches it and states an exact acquisition allowlist; it does not
-create a roadmap item, decision-register entry, or source authority on its
-own, and it does not touch any PS09 gate or the `PS09-06-LOCAL-RC` release
-root.
+was executed on 2026-09-15; recover its
+[outcome](handoffs/makah-demo-01-groundwork-outcome.md), the adopted D-068
+and approved D-069 in the decision register, and the TSDF provenance record
+under `docs/development/makah-demo/`. A fresh session on this track starts
+from the
+[federal acquisition launch](handoffs/makah-demo-02-federal-acquisition-launch.md),
+which is the current owner direction for the track. The roadmap still holds
+no Makah demo item; that packet's first task adds the schema 1.9
+representation. The track does not touch any PS09 gate or the
+`PS09-06-LOCAL-RC` release root.
 
 ## Start and recover
 

@@ -31,11 +31,17 @@ and gap-analysis documents (start at
 validated against
 [`schemas/makah-demo-doc.schema.v1.json`](schemas/makah-demo-doc.schema.v1.json).
 [`docs/handoffs/makah-demo-fable-5.1-launch-prompt.md`](docs/handoffs/makah-demo-fable-5.1-launch-prompt.md)
-is a prepared launch packet for implementation groundwork, bounded source
-discovery and four task-assigned research scouts; it is proposed scope only
-and creates no `ROADMAP.yaml` work item, decision-register entry, or source
-authority until the owner launches it. It does not touch any PS09 gate,
-`PS09-06-LOCAL-RC`, or the existing release root.
+was launched and executed on 2026-09-15; its
+[outcome](docs/handoffs/makah-demo-01-groundwork-outcome.md) records the
+private-only contracts, scout reports, source reviews and sovereignty review
+that landed at `554e105`. The owner then adopted D-068 and approved D-069.
+The next session starts from the
+[federal acquisition launch](docs/handoffs/makah-demo-02-federal-acquisition-launch.md):
+schema 1.9 ledger representation, bounded runner changes for PDF media types
+and two court hosts, and one acquisition of exactly eight approved federal
+documents into a new external run namespace. The track still does not touch
+any PS09 gate, `PS09-06-LOCAL-RC`, or the existing release root, and no
+document is admitted or activated by acquisition.
 
 ## Purpose and phase gate
 

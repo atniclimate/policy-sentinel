@@ -17,7 +17,7 @@ exclusion-list content anywhere in scope.
 
 | Id | Severity | Finding (abridged) | Lead disposition |
 | --- | --- | --- | --- |
-| C4-01 | material | The `landStatusType` vocabulary (trust, fee, allotted, ceded) and a synthetic in-memory adapter land in Git while D-068 is only proposed; D-010 speaks of a documented but unimplemented adapter. | Open, owner decision. The launched packet (exact current owner direction, first in the authority order) specified both the enum and the synthetic test-only adapter interface. The vocabulary is an enum in a private-only schema with synthetic fixtures, not land content; the adapter has no I/O and rejects real data. The owner adopts or amends D-068 at the recorded checkpoint, or directs removal. |
+| C4-01 | material | The `landStatusType` vocabulary (trust, fee, allotted, ceded) and a synthetic in-memory adapter land in Git while D-068 is only proposed; D-010 speaks of a documented but unimplemented adapter. | Closed by owner adoption of D-068 later on 2026-09-15. The lead's position, recorded for the reviewer: the launched packet specified both the enum and the synthetic test-only adapter interface; the vocabulary is an enum in a private-only schema with synthetic fixtures, not land content; the adapter has no I/O and rejects real data. |
 | C4-02 | material | A parcel-scoped export could carry a tribal `whyAssociated` naming any Nation because the mismatch check skipped `scope.kind: parcel`. | Closed. The parcel scope now carries the parcel's `jurisdictionLayers`; the mismatch check runs for both scope kinds and compares `nationId`. The reviewer's counterexample is a negative test in `citation-export.test.ts`. |
 | C4-03 | material | The personal-shape token guard is bypassable by an unmarked name and D-068 over-promised rejection. | Closed for the decision text and the guard scope: D-068 (proposed) now states the guard is finite and that agency-level status rests on provenance and source review; `issuingAuthority.name` is scanned; a test documents that an unmarked name passes. Open by design: no validator can prove a value is agency-level. |
 | C4-04 | material | `parcelId` accepted an all-digit slug despite "never a bare APN". | Closed. Both schemas require a letter-led slug; the bare-number case is a schema-invalid fixture case; prose now says opacity beyond the pattern is producer discipline. |
@@ -32,9 +32,9 @@ exclusion-list content anywhere in scope.
 | C4-13 | material (false completion) | Documentation claimed compilation and test enforcement without command output; the foundation validator counted protected-key cases as schema-invalid. | Closed. Protected-key cases are counted separately in `validate-foundation.mjs`; the numeric `$ref` count is restored in the data contract; exact command outputs are recorded in the outcome handoff, and the documentation rows describe what the suites enforce as of that recorded run. |
 | C4-14 | minor | "United States" appeared as a synthetic fixture authority name. | Closed. Replaced with "Synthetic Federal Union" in the parcel and export fixtures. |
 
-Remaining open items after repair: C4-01 (owner adoption or amendment of
-D-068 relative to D-010), C4-07 (owner acknowledgement of the research API
-read), and the two by-design limits recorded in C4-03 and C4-12.
+Remaining open items after repair and adoption: C4-07 (owner acknowledgement
+of the research API read) and the two by-design limits recorded in C4-03 and
+C4-12.
 
 The reviewer read the files listed in its report; it ran no npm script and
 asserted nothing about test results. The lead's repair commands and their

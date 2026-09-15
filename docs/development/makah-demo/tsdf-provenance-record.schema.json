@@ -1,0 +1,426 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tsdf.atni.org/schema/provenance-record.json",
+  "title": "TSDF Provenance Record",
+  "description": "Canonical, machine-validated record. Footnote, cover-block, and appendix outputs are all rendered from one object of this shape; nothing in those outputs should exist that is not traceable back to a field here. Unknown values are the literal string 'Not recorded', never omitted and never guessed.",
+  "type": "object",
+  "required": ["record", "honor", "entries", "compliance", "metadata_history", "citation_register"],
+  "properties": {
+    "record": {
+      "type": "object",
+      "description": "Section 'Record and Scope'.",
+      "required": ["record_id", "title", "schema_version", "status"],
+      "properties": {
+        "record_id": { "type": "string" },
+        "title": { "type": "string" },
+        "schema_version": { "type": "string" },
+        "status": { "type": "string" },
+        "purpose": { "type": "string", "default": "Not recorded" },
+        "scope": {
+          "type": "object",
+          "properties": {
+            "description": { "type": "string", "default": "Not recorded" },
+            "source_entry_ids": { "type": "array", "items": { "type": "string" } },
+            "inventory_complete": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "string", "default": "Not recorded" },
+                "basis": { "type": "string", "default": "Not recorded" }
+              }
+            },
+            "nested_bibliographies_included": { "type": "string", "default": "Not recorded" },
+            "metadata_completeness": { "type": "string", "default": "Not recorded" },
+            "limitations": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    },
+    "honor": {
+      "type": "object",
+      "description": "Section 1, Honor. Every field here is human-curated only; see D1. The renderer treats 'authority.status' and 'consent.status' as gating fields: unset, and footnote/cover rendering is refused.",
+      "required": ["authority", "consent", "classification"],
+      "properties": {
+        "intent_statement": { "type": "string", "default": "Not recorded" },
+        "tribal_nation": { "type": "string", "default": "Not recorded" },
+        "relationship": { "type": "string", "default": "Not recorded" },
+        "relationship_evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceRef" } },
+        "authority": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": { "type": "string", "enum": ["Not recorded", "source reported", "reviewed with evidence"] },
+            "actor": { "type": "string", "default": "Not recorded" },
+            "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceRef" } }
+          }
+        },
+        "consent": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": { "type": "string", "enum": ["Not recorded", "source reported", "reviewed with evidence"] },
+            "grantor": { "type": "string", "default": "Not recorded" },
+            "scope": { "type": "string", "default": "Not recorded" },
+            "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceRef" } }
+          }
+        },
+        "classification": {
+          "type": "object",
+          "required": ["sovereign_tier", "status"],
+          "properties": {
+            "sovereign_tier": { "type": "string", "description": "T0/T1/T2/T3/T* per TSDF watershed tiers, or 'Not recorded'." },
+            "status": { "type": "string", "default": "Not recorded" },
+            "authority_evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceRef" } },
+            "handling_profile": { "type": "string", "default": "Not recorded" }
+          }
+        },
+        "labels_notices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "assessment_status": { "type": "string", "default": "Not recorded" },
+              "record_type": { "type": "string", "enum": ["Applied Label", "Observed Notice", "Not recorded"] },
+              "label_id": { "type": "string" },
+              "title": { "type": "string" },
+              "family": { "type": "string", "enum": ["TK", "BC", "Notice", "Not recorded"] },
+              "issuer": { "type": "string", "default": "Not recorded" },
+              "material_covered": { "type": "string" },
+              "customized_text": { "type": "string" },
+              "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceRef" } },
+              "verification_status": { "type": "string", "default": "Not recorded" },
+              "network_integration": { "type": "string", "default": "offline (implementation status per record)" }
+            }
+          }
+        }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "description": "Section 2. One object per source publication or generated report.",
+      "items": {
+        "type": "object",
+        "required": ["entry_id", "entry_type", "title"],
+        "properties": {
+          "entry_id": { "type": "string" },
+          "entry_type": { "type": "string", "enum": ["Source publication", "Generated report"] },
+          "role": { "type": "string", "default": "Not recorded" },
+          "review_status": { "type": "string", "default": "Not recorded" },
+          "citation_register_entry_id": { "type": "string" },
+          "title": { "type": "string" },
+          "subtitle": { "type": "string" },
+          "report_number": { "type": "string" },
+          "edition": { "type": "string" },
+          "version": { "type": "string" },
+          "contributors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "entity_type": { "type": "string", "enum": ["Person", "Organization", "Software", "Unknown"] },
+                "role": { "type": "string" },
+                "position": { "type": "integer" },
+                "affiliations": { "type": "string", "default": "Not recorded" },
+                "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceRef" } }
+              }
+            }
+          },
+          "date": {
+            "type": "object",
+            "properties": {
+              "as_printed": { "type": "string", "default": "Not recorded" },
+              "normalized": { "type": "string", "description": "YYYY / YYYY-MM / YYYY-MM-DD / timestamp" },
+              "precision": { "type": "string", "enum": ["Year", "Month", "Day", "Timestamp", "Not recorded"] },
+              "type": { "type": "string", "enum": ["Publication", "Revision", "Generation", "Not recorded"] },
+              "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceRef" } }
+            }
+          },
+          "publisher": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string", "default": "Not recorded" },
+              "place": { "type": "string", "default": "Not recorded" },
+              "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceRef" } }
+            }
+          },
+          "identifiers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "scheme": { "type": "string", "enum": ["DOI", "ISBN", "ISSN", "Award", "Other"] },
+                "value": { "type": "string" },
+                "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceRef" } }
+              }
+            }
+          },
+          "citation": {
+            "type": "object",
+            "properties": {
+              "complete": { "type": "string", "default": "Not recorded" },
+              "style": { "type": "string", "default": "Not recorded" },
+              "verbatim": { "type": "string" },
+              "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceRef" } },
+              "normalization_notes": { "type": "string" },
+              "additional_attributions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string" },
+                    "role": { "type": "string" },
+                    "scope": { "type": "string" },
+                    "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceRef" } }
+                  }
+                }
+              }
+            }
+          },
+          "access_records": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": { "type": "string" },
+                "role": { "type": "string", "enum": ["Source download", "Landing page", "Repository"] },
+                "accessed_at": { "type": "string", "description": "timestamp with timezone" },
+                "basis": { "type": "string" },
+                "verification_status": { "type": "string", "default": "Not recorded" },
+                "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceRef" } }
+              }
+            }
+          },
+          "artifacts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "role": { "type": "string", "enum": ["Source PDF", "Report JSON", "Report Markdown", "Receipt", "Other"] },
+                "path": { "type": "string" },
+                "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$|^Not recorded$" }
+              }
+            }
+          },
+          "relationships": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": { "type": "string", "enum": ["Derived from", "Part of", "Revision of", "Other"] },
+                "target_entry_id": { "type": "string" }
+              }
+            }
+          },
+          "claims": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "scope": { "type": "string" },
+                "pdf_page": { "type": "integer" },
+                "printed_page": { "type": "string" },
+                "verification": { "type": "string", "default": "Not recorded" }
+              }
+            }
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["evidence_id"],
+              "properties": {
+                "evidence_id": { "type": "string" },
+                "type": { "type": "string", "enum": ["Source PDF", "Acquisition record", "Generated artifact"] },
+                "artifact_sha256": { "type": "string" },
+                "artifact_path": { "type": "string" },
+                "pdf_page": { "type": "integer" },
+                "printed_page": { "type": "string" },
+                "quotation": { "type": "string" },
+                "locator": { "type": "string" },
+                "json_pointer": { "type": "string" },
+                "verification": { "type": "string", "default": "Not recorded" }
+              }
+            }
+          },
+          "field_links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": { "type": "string" },
+                "evidence_ids": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          },
+          "gaps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "missing_field": { "type": "string" },
+                "state": { "type": "string", "enum": ["Not recorded", "Not located in reviewed evidence", "Other"] },
+                "explanation": { "type": "string" }
+              }
+            }
+          },
+          "conflicts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": { "type": "string" },
+                "value_a": { "type": "string" },
+                "evidence_a": { "type": "array", "items": { "type": "string" } },
+                "value_b": { "type": "string" },
+                "evidence_b": { "type": "array", "items": { "type": "string" } },
+                "disposition": { "type": "string" }
+              }
+            }
+          },
+          "review": {
+            "type": "object",
+            "properties": {
+              "at": { "type": "string" },
+              "method": { "type": "string" },
+              "reviewer_role": { "type": "string" },
+              "pages_checked": { "type": "array", "items": { "type": "integer" } },
+              "scope": { "type": "string" },
+              "limitations": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "compliance": {
+      "type": "object",
+      "description": "Section 3. No boolean 'is_compliant' field exists anywhere in this schema by design; see D4. Every claim is scoped and carries its own basis.",
+      "properties": {
+        "local_profile_status": { "type": "string", "default": "Not recorded" },
+        "conformance_claim": {
+          "type": "object",
+          "properties": {
+            "claim": { "type": "string", "default": "No conformance asserted." },
+            "basis": { "type": "string", "default": "Not recorded" }
+          }
+        },
+        "assessments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "reference": { "type": "string", "description": "e.g. 'CARE', 'FAIR', 'Local Contexts', 'IEEE 2890-2025'" },
+              "version": { "type": "string" },
+              "clause": { "type": "string" },
+              "reference_url": { "type": "string" },
+              "status": { "type": "string", "enum": ["Not assessed", "Partial", "Assessed within stated scope"] },
+              "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceRef" } },
+              "limitations": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "acknowledgement": {
+      "type": "array",
+      "description": "Section 4.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "statement": { "type": "string" },
+          "credited": { "type": "string" },
+          "role": { "type": "string", "enum": ["Custodian", "Contributor", "Funder", "Host", "Photo credit", "Other"] },
+          "scope": { "type": "string" },
+          "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceRef" } }
+        }
+      }
+    },
+    "metadata_history": {
+      "type": "object",
+      "description": "Section 5. This is the one section a tagging program may populate unattended; see D1.",
+      "required": ["created_at", "generator"],
+      "properties": {
+        "created_at": { "type": "string" },
+        "creation_basis": { "type": "string" },
+        "generator": { "type": "string", "description": "tool name + version that produced this record" },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "event_type": { "type": "string", "enum": ["Acquisition", "Extraction", "Review", "Transformation", "Generation", "Other"] },
+              "location": { "type": "string" },
+              "sha256": { "type": "string" },
+              "source_created_at": { "type": "string" },
+              "event_at": { "type": "string" },
+              "time_basis": { "type": "string" }
+            }
+          }
+        },
+        "gaps": {
+          "type": "object",
+          "properties": {
+            "missing": { "type": "array", "items": { "type": "string" } },
+            "conflicting": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    },
+    "citation_register": {
+      "type": "object",
+      "description": "Section 6. Binds this record to the full IEEE-style citation register.",
+      "properties": {
+        "display_refs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ref_number": { "type": "integer" },
+              "source_entry_id": { "type": "string" },
+              "style": { "type": "string" },
+              "complete_citation": { "type": "string" },
+              "completeness_status": { "type": "string" },
+              "notes": { "type": "string" }
+            }
+          }
+        },
+        "register_binding": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "title": { "type": "string" },
+            "schema_version": { "type": "string" },
+            "created_at": { "type": "string" },
+            "review_status": { "type": "string" },
+            "path": { "type": "string" },
+            "sha256": { "type": "string" },
+            "selected_entry_ids": { "type": "array", "items": { "type": "string" } },
+            "reuse_method": { "type": "string" },
+            "inventory_scope": { "type": "string" },
+            "nested_bibliographies_included": { "type": "string" },
+            "completeness_notes": { "type": "string" }
+          }
+        },
+        "policy": {
+          "type": "object",
+          "properties": {
+            "display_rule": { "type": "string" },
+            "author_name_retention": { "type": "string" },
+            "unknown_value_handling": { "type": "string", "default": "Literal 'Not recorded'; never omitted, never inferred." },
+            "access_time_separation": { "type": "string" },
+            "role_separation": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "evidenceRef": {
+      "type": "object",
+      "description": "Pointer to an evidence_id within an entry's evidence[] array. Field-level claims should resolve to at least one of these; a field with none is a gap, not silently trusted.",
+      "properties": {
+        "entry_id": { "type": "string" },
+        "evidence_id": { "type": "string" }
+      }
+    }
+  }
+}

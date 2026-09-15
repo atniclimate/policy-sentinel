@@ -53,6 +53,18 @@ part_1_what_this_document_set_is:
       reconciled scout reports, a sovereignty review, and a proposed
       decision-register entry. It records what remains gated; it authorizes
       nothing and does not change the descriptive status of this document set.
+  related_next_launch:
+    path: ../handoffs/makah-demo-02-federal-acquisition-launch.md
+    role: >
+      Current owner direction for the track (2026-09-15): schema 1.9 ledger
+      representation and one bounded acquisition of eight approved federal
+      documents under D-069. Acquisition does not admit or activate a source.
+  related_provenance_record:
+    path: ../development/makah-demo/tsdf-provenance-record-2026-09-15.json
+    role: >
+      TSDF provenance record binding every observed source and generated
+      report; Honor section awaits human curation; unknown values are the
+      literal "Not recorded".
 
 # ---------------------------------------------------------------------------
 part_2_how_an_llm_must_read_these_documents:

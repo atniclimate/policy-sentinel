@@ -9,9 +9,11 @@
  * agency-level public contact metadata with per-field provenance reused by
  * `$ref` from PolicyRecord 1.4. It is not legal advice, not a comprehensive
  * database, not a jurisdiction/rights/eligibility determination and not a
- * substitute for the cited official source. Until the proposed
- * decision-register entry is adopted, contact fields exist only in synthetic
- * fixtures. No I/O, no provider call, no timer, no logging.
+ * substitute for the cited official source. Decision D-068 (adopted
+ * 2026-09-15) permits agency-level contact fields; a real value still needs a
+ * source review naming the exact official publication page, and none exists
+ * yet, so contact fields remain synthetic. No I/O, no provider call, no
+ * timer, no logging.
  */
 import Ajv2020 from "ajv/dist/2020.js";
 import type { ValidateFunction } from "ajv";
@@ -88,7 +90,7 @@ export const CITATION_EXPORT_PROTECTED_KEYS = Object.freeze([
  * administrativeOffice, publicAddress and publicPhone value. A hit means the
  * value is personal-shaped or non-public and the export is rejected with
  * PERSONAL_CONTACT_SHAPE. This is a deterministic guard, not a proof that a
- * value is agency-level; the proposed decision-register entry and a source
+ * value is agency-level; decision D-068 and a per-source
  * review remain required before any real value is populated.
  */
 export const PERSONAL_CONTACT_SHAPE_TOKENS = Object.freeze([

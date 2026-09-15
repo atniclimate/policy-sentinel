@@ -42,12 +42,9 @@ or a successor run.
    record and the roadmap was not touched. Decide whether to authorize that
    validator change (the house pattern used for H01 at 1.7 and H02 at 1.8),
    or to leave this track outside the ledger.
-2. **D-068.** Adopt, amend or reject the proposed decision-register entry
-   covering agency-level public contact fields and the private-only
-   boundary and parcel contracts. The sovereignty reviewer's C4-01 holds that
-   the land-status vocabulary and synthetic adapter landed ahead of the
-   decision; the lead's position is that the launched packet specified both
-   and that the enum is a private-only schema vocabulary, not land content.
+2. **D-068.** Resolved later on 2026-09-15: the owner adopted D-068 as
+   recommended, which closes the sovereignty reviewer's C4-01. The register
+   records the adoption and the same-day D-069 acquisition approval.
 3. **Research API read.** The C3 scout retrieved Federal Register document
    metadata through FederalRegister.gov's keyless JSON endpoints, whose terms
    and rates the project records as unknown (O-021). It was a read-only
@@ -55,10 +52,11 @@ or a successor run.
    issue `FR-A1`; the lead verified every kept document against GovInfo
    official-edition PDFs instead. Acknowledge or record a rule for future
    scouts.
-4. **Acquisition allowlist.** The federal actions source review lists eight
-   exact official documents as candidates, not an allowlist. Any acquisition
-   needs an exact allowlist, source-specific `G-J` evidence and, for Nation
-   associations, `G-BIA-IDENTITY`.
+4. **Acquisition allowlist.** Resolved later on 2026-09-15: the owner
+   authorized acquisition of exactly the eight federal candidates (D-069).
+   The bounded run is specified in the
+   [federal acquisition launch](makah-demo-02-federal-acquisition-launch.md);
+   Nation associations still need `G-BIA-IDENTITY`.
 
 ## Interpretation stated at launch
 
