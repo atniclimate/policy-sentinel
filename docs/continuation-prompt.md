@@ -70,7 +70,15 @@ changes, the ten-receipt acquisition into
 `I:\policy-sentinel-corpus-real-policy\makah-demo-02`, and the provenance
 record updates. Acquisition is custody, not admission; the next owner actions
 are per-document `G-J` decisions and `G-BIA-IDENTITY`. The track does not
-touch any PS09 gate or the `PS09-06-LOCAL-RC` release root.
+touch any PS09 gate or the `PS09-06-LOCAL-RC` release root. Read the
+[ATNI Climate interop IO guide](development/atni-climate-interop-io-guide.md)
+before any cross-app work: the specified pathway is search context in,
+citations out, with no parcel or geometry intake, and it is not adopted in
+the ledger. The owner's stated next direction (shapefile pipeline through
+GeoBase, land-use-analyzer and Policy Sentinel) is open fact O-023 in the
+decision register and requires an owner decision first. The convention stage
+package lives at `I:\ATNI-annual-convention-2026\ga-demonstration\policy-sentinel`
+and is machine-only.
 
 ## Start and recover
 

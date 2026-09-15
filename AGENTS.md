@@ -55,7 +55,18 @@ existing release root; acquisition is custody, not admission, and no
 document is admitted, activated, excerpted or published. The next owner
 actions are source-specific `G-J` decisions per acquired document and the
 `G-BIA-IDENTITY` prerequisite before any Nation association; the provenance
-record's Honor section stays owner-curated and deferred.
+record's Honor section stays owner-curated and deferred. Later on 2026-09-15
+the owner recorded D-070 (court profile `uses` accepted with reuse terms not
+located), the lead wrote the
+[ATNI Climate interop IO guide](docs/development/atni-climate-interop-io-guide.md)
+(the land-use-analyzer-specified `policy.search-context/1` in,
+`policy.citations/1` out pathway: specified, not implemented, not adopted),
+and a machine-only stage package was staged outside the repository at
+`I:\ATNI-annual-convention-2026\ga-demonstration\policy-sentinel`. The
+owner's stated next direction, a shapefile-driven cross-app pipeline, is
+recorded as open fact O-023 in the decision register; it needs an explicit
+owner decision before any implementation because it conflicts with the
+interop profile and this file's land-data boundary as stated.
 
 ## Purpose and phase gate
 
