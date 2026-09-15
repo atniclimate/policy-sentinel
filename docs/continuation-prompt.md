@@ -1,6 +1,13 @@
 # Policy Sentinel durable continuation prompt
 
-Latest recovery: read the completed
+Current owner direction (2026-09-15): the Makah demo track's
+[federal acquisition launch](handoffs/makah-demo-02-federal-acquisition-launch.md)
+is the packet a fresh session starts from; its first task adds the schema 1.9
+roadmap representation, so `ROADMAP.yaml` still shows no Makah demo item and
+`current_focus.work_item` is `null`. The PS09 recoveries below are unchanged
+history and remain blocked on PS09-02 evidence.
+
+Latest PS09 recovery: read the completed
 [engineering review 02 outcome](handoffs/ps09-engineering-review-02-outcome.md),
 [journal](development/PS09-ENGINEERING-REVIEW-02.md) and live ROADMAP.
 H-ENGINEERING-REVIEW-02 is complete with zero active items and returned leases.

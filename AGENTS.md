@@ -1,6 +1,11 @@
 # AGENTS.md
 
-Current recovery: the bounded engineering review H-ENGINEERING-REVIEW-02 is
+Newest owner direction (2026-09-15): the Makah demo track's
+[federal acquisition launch](docs/handoffs/makah-demo-02-federal-acquisition-launch.md)
+(see the Makah demo paragraph below). The PS09 recoveries that follow are
+unchanged.
+
+Current PS09 recovery: the bounded engineering review H-ENGINEERING-REVIEW-02 is
 complete. Start with the [local outcome](docs/handoffs/ps09-engineering-review-02-outcome.md)
 and live `ROADMAP.yaml`; there are zero active items and all worker leases are
 returned. ER-03/ER-04 repairs and full checks pass. Five synthetic measurement

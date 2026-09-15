@@ -892,7 +892,12 @@ current_focus:
     evidence matrix proposes a broader PS09-02 tranche for separate exact
     adoption and source review. PS09-02 originating identity/scenario acceptance
     remains unresolved; PS09-06 is unstarted and gated. No spent maintenance,
-    discovery or archived budget authorizes further execution.
+    discovery or archived budget authorizes further execution. Separately, the
+    non-PS09 Makah demo track landed synthetic-only groundwork at 554e105 and
+    the owner adopted D-068 and approved D-069 on 2026-09-15; its schema 1.9
+    ledger representation and bounded federal acquisition are specified in
+    docs/handoffs/makah-demo-02-federal-acquisition-launch.md and are not yet
+    represented as a work item or gate here.
   terminal_reason: >-
     H02 completed its finite local review, repair, measurement and evidence-plan
     obligations with explicit limits, full checks, preserved bytes and two
