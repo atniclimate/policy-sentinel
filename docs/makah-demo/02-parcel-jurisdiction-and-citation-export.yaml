@@ -1,0 +1,290 @@
+# Policy Sentinel — Makah / Clallam / Jefferson / Washington / Federal demo
+# Document 2 of 2: how parcel-level land-type detail and cross-jurisdictional
+# components could apply identified policies to specific parcels, and how the
+# resulting policy set could be exported as machine-readable citation
+# metadata (agency, administrative office, address, phone number).
+#
+# STATUS: descriptive documentation and an illustrative, UNADOPTED schema
+# sketch. This file authorizes nothing, creates no schema, source access, or
+# product decision. It depends on and does not repeat
+# docs/makah-demo/01-current-functionality-and-gis-boundary.yaml, which must
+# be read first for the current-state baseline (no real geometry, no parcel
+# data, no Clallam/Jefferson county source exist today).
+
+$schema: ../../schemas/makah-demo-doc.schema.v1.json
+schemaVersion: 1
+docId: makah-demo-02-parcel-jurisdiction-and-citation-export
+generatedFor: "2026-09-15 Makah Tribe / Clallam County / Jefferson County / Washington State / Federal demo scope"
+docKind: descriptive_gap_analysis_and_illustrative_schema_sketch
+dependsOn: [makah-demo-01-current-functionality-and-gis-boundary]
+authorizes: []
+nonClaims:
+  - "does not establish land status, jurisdiction, rights, applicability, or a Nation association"
+  - "the proposed schemas below are illustrative only; none is adopted, versioned, or implemented"
+  - "does not authorize acquisition, publication, private-adapter implementation, or a new source"
+
+# ---------------------------------------------------------------------------
+part_1_current_state:
+# ---------------------------------------------------------------------------
+
+  parcel_or_land_status_data: not_present
+  detail: >
+    No schema, config, or source in this repository models a parcel, a
+    land-status type (trust/fee/private/state/county/federal), or land
+    ownership. This is a deliberate, explicit exclusion, not an oversight.
+  evidence:
+    - "AGENTS.md: 'Do not add maps, parcel geometry, ownership, trust-land, fee-land, Tribally owned parcel, or sensitive land content.'"
+    - "docs/decision-register.md#D-010: public data and relevance logic exclude maps, parcel geometry, ownership, trust/fee-land data, Tribally owned parcel data, and sensitive land context; a documented but unimplemented adapter may connect explicitly authorized data only in a separate private deployment."
+    - "docs/project-brief.md: 'The public beta contains no map, parcel geometry, ownership, trust-land, fee-land, Tribally owned parcel, or sensitive land context.'"
+
+  closest_existing_concepts_to_build_on:
+    - id: record_jurisdiction_field
+      location: schemas/record.schema.v1.json ($defs.jurisdiction)
+      what_it_actually_models: >
+        The jurisdiction and level of the ISSUING body of a policy record
+        (e.g. federal, state, county, tribal_government_document as a
+        documentType) — not the land status of a place. This field already
+        exists and is queryable today.
+    - id: nationAssociations
+      location: schemas/record.schema.v1.json (record group "Nation evidence")
+      what_it_actually_models: >
+        An evidence-bound link between a record and a federally recognized
+        Nation: internal Nation ID, exact official name/alias found, exact
+        evidence text/location, official evidence URL, date, basis, and
+        validation state. Requires exact official-source evidence; no
+        inference from geography is permitted.
+    - id: PNW-03_GeographyRightsBundle
+      location: schemas/geography-rights.schema.v1.json
+      what_it_actually_models: >
+        Synthetic-only typed geographic relations and source-bound rights
+        frames, explicitly relational rather than "one landbase field" —
+        the PNW-03 design brief instructs: "Do not collapse the following
+        into a single polygon or enum: trust land; reservation fee land;
+        [and other land-status categories]." This design principle should
+        carry forward into any future real parcel model even though PNW-03
+        itself supplies no real data.
+      evidence: [docs/02-PNW-REGIONAL-SCOPE-AND-AUTHORITY.md, docs/12-CODEX-PNW-03-GEOGRAPHY-RIGHTS-IMPLEMENTATION-LONG-RUN.md]
+    - id: S0_JurisdictionEvidence
+      location: schemas/experimental/jurisdiction-evidence.schema.v1.json
+      what_it_actually_models: >
+        A synthetic source-STATEMENT ("<feature> is assigned to
+        <administrative unit> in this fixture only") — a useful shape for
+        "an official source says this land is administratively X," but
+        synthetic-only and never derived from geometry.
+
+# ---------------------------------------------------------------------------
+part_2_illustrative_parcel_model:
+# ---------------------------------------------------------------------------
+
+  status: illustrative_only_not_adopted
+  proposed_entity: LandParcel
+  design_principle_carried_from_PNW_03: >
+    Never collapse land status into one polygon or one enum value. A single
+    parcel may simultaneously carry federal trust status, be inside a
+    reservation, be inside a Washington county, and be subject to treaty
+    rights recognized at the federal level — these are separate,
+    co-existing evidentiary layers, not mutually exclusive categories.
+
+  proposed_fields:
+    parcelId:
+      type: string
+      note: >
+        An opaque, project-assigned stable identifier — never a bare
+        government Assessor's Parcel Number (APN) alone, to avoid implying
+        the record IS the legal cadastral record rather than a reference
+        to it.
+    landStatusType:
+      type: enum
+      values:
+        - tribal_trust
+        - tribal_fee
+        - allotted_trust
+        - reservation_fee
+        - ceded_territory_unresolved
+        - state_land
+        - county_land
+        - private_fee
+        - federal_land
+        - unknown
+      note: many-to-many is possible in practice; model as a list, not a single value.
+    landStatusEvidence:
+      type: object
+      fields: [sourceLabel, sourceUrl, retrievedAt, sourceUpdatedAt, evidenceBasis]
+      note: >
+        Same evidentiary discipline as record.schema.v1.json's
+        nationAssociations group — an official source (e.g. BIA Trust Asset
+        and Accounting Management System, a county assessor record, or a
+        BLM/GLO land status record), not an inference.
+    jurisdictionLayers:
+      type: array
+      item_fields: [level (federal|state|county|tribal), authorityName, evidenceUrl]
+      note: >
+        Ordered, non-exclusive list. This is how "cross-jurisdictional
+        components" are represented — a Clallam County parcel inside the
+        Makah Reservation, for instance, would carry a county layer AND a
+        tribal layer AND a federal layer, each independently evidenced.
+    boundaryReference:
+      type: string, opaque, nullable
+      note: >
+        An OPTIONAL reference to a private geometry object as described in
+        doc 1 of this pair. Never inline real geometry in a shared or
+        public-facing record. If geometry is unavailable or unauthorized,
+        this field is null and jurisdictionLayers still functions.
+    sensitivity:
+      type: enum [public, internal, restricted, privileged]
+      note: >
+        Borrowed directly from PNW-03's existing four-class model
+        (schemas/geography-rights.schema.v1.json). Any real Tribal land
+        parcel defaults to at least `restricted`.
+    nonClaims:
+      type: fixed array
+      value: >
+        ["does not establish legal land status", "does not determine treaty
+        rights", "does not establish jurisdiction or applicability",
+        "not a substitute for the official cadastral or trust record"]
+
+  what_this_requires_that_does_not_exist_today:
+    - "a new, owner-approved schema (e.g. land-parcel.schema.v1.json), versioned and reviewed per docs/data-contract.md's schema-change discipline"
+    - "the private/opt-in adapter boundary described in doc 1 (AuthorizedPrivateContextAdapter), since real parcel/land-status data cannot enter the public build"
+    - "a source-evidence intake process for landStatusEvidence with the same field-provenance rules as every other source-derived PolicyRecord field"
+
+# ---------------------------------------------------------------------------
+part_3_applying_policies_to_a_parcel:
+# ---------------------------------------------------------------------------
+
+  mechanism_sketch:
+    step_1:
+      action: resolve a parcel's jurisdictionLayers
+      via: the private, opt-in LandParcel adapter (part 2) — never the public build
+    step_2:
+      action: query the existing record set
+      how: >
+        Filter already-existing PolicyRecord fields — `jurisdiction`,
+        `nationAssociations`, `officialSubjects`, `taxonomyMemberships` —
+        for each resolved layer. THIS STEP NEEDS NO NEW RECORD SCHEMA; the
+        filtering primitives already exist in record.schema.v1.json today.
+        What is missing is only the parcel-to-layer resolution (step 1) and
+        the join logic connecting a resolved layer to a query (step 3).
+    step_3:
+      action: union results across layers, never intersect them into one determination
+      why: >
+        A federal-trust parcel inside Clallam County is subject to BOTH the
+        federal layer's records AND, where general-jurisdiction county
+        records apply, the county layer's records — not whichever layer
+        "wins." Collapsing to a single winning jurisdiction would itself be
+        exactly the kind of jurisdictional determination AGENTS.md forbids
+        the engine from making.
+    step_4:
+      action: attach a per-record "why associated" explanation
+      how: >
+        Reference the exact jurisdictionLayer and its evidenceUrl that
+        caused the record to be included — analogous to the existing
+        `WhyShown`/`relevance` pattern in src/app/types.ts and
+        src/app/policy.ts, but scoped to parcel association rather than
+        Nation/general-jurisdiction relevance. Must carry the same
+        non-claim discipline (a display basis and evidence pointer, never
+        an applicability statement).
+
+  already_works_without_new_schema:
+    - "filtering an existing PolicyRecord query by jurisdiction level (federal/state/county) and by nationAssociations, once a Nation appears in a production (non-synthetic) Nation collection"
+  requires_new_work:
+    - "LandParcel schema and its private adapter (part 2 of this document)"
+    - "a join/query layer mapping parcel jurisdictionLayers to jurisdiction/nationAssociations/officialSubjects filters"
+    - "explicit non-claim UI language wherever a parcel-scoped result set is displayed, per the existing pattern for Nation-scoped results"
+
+# ---------------------------------------------------------------------------
+part_4_citation_and_agency_metadata_export:
+# ---------------------------------------------------------------------------
+
+  current_state:
+    already_modeled_on_PolicyRecord:
+      fields:
+        - "source.sourceId, source.sourceRecordId"
+        - "officialTitle, sourceDocumentIdentifier"
+        - "urls (registered official landing/full-text URLs)"
+        - "issuingBodies: array of namedEntity (name + role/url) — an entity, not a contact record"
+        - "judicialContext (adjudicating body, docket numbers, typed official citations + source links) for court/administrative decisions"
+        - "fieldProvenance: per-field JSON Pointer, source ID/record ID/URL, retrieval time, source update time, transformation rule, validation state"
+      evidence: ["docs/data-contract.md Record groups", "schemas/record.schema.v1.json"]
+    not_modeled_anywhere_today:
+      - "an administrative office or division within an issuing agency"
+      - "a public mailing address for an agency or office"
+      - "a public phone number for an agency or office"
+    why_this_gap_is_deliberate_not_accidental: >
+      The project has repeatedly and explicitly rejected contact-like
+      fields from real sources it has reviewed. AGENTS.md forbids "personal
+      data" and "personal contact fields" in client code, assets, or
+      documentation. Independent source reviews for GOIA, the Washington
+      Register, and others explicitly exclude contact/registration
+      information. A future agency-contact export therefore needs to prove
+      it is sourcing OFFICIAL, PUBLIC, AGENCY-LEVEL contact information
+      (e.g. an agency's published public information line, not an
+      individual staffer's number) — the same distinction the repository
+      already draws between an issuing body's identity and a person's
+      contact details.
+      evidence:
+        - "AGENTS.md 'AI, privacy, and security'"
+        - "docs/source-reviews/washington-centennial-accord-2026-07-31.md: 'no representative names, contacts, registration information, maps, parcels'"
+        - "docs/source-feasibility.md GOIA row: 'Never ingest maps, parcel material, land exhibits, signatures, representative names, contacts, or full text.'"
+
+  illustrative_export_shape:
+    status: illustrative_only_not_adopted
+    citationExport:
+      exportVersion: "1.0.0-proposed"
+      generatedAt: "<ISO 8601 timestamp>"
+      scope:
+        parcelId_or_jurisdictionLayers: "<from part 3>"
+        asOf: "<date>"
+      records:
+        - internalId: "<PolicyRecord.internalId, existing field>"
+          officialTitle: "<existing field>"
+          documentType: "<existing field>"
+          jurisdiction: { level: "<existing>", name: "<existing>" }
+          issuingAuthority:
+            name: "<existing issuingBodies[].name>"
+            administrativeOffice: "<NEW — not currently modeled>"
+            publicAddress: "<NEW — official published agency address only>"
+            publicPhone: "<NEW — official published agency public phone only, never a staffer's direct/personal number>"
+            officialWebsite: "<existing issuingBodies[].url>"
+          citation:
+            officialCitation: "<from judicialContext/legislativeContext when present, existing>"
+            sourceUrl: "<existing urls field>"
+            retrievedAt: "<existing fieldProvenance>"
+            sourceUpdatedAt: "<existing fieldProvenance, nullable>"
+          fieldProvenance: "<reuse existing per-field provenance structure verbatim>"
+      nonClaims:
+        - "not legal advice"
+        - "not a comprehensive legal database"
+        - "not a jurisdiction, rights, or eligibility determination"
+        - "not a substitute for the cited official source"
+        - "coverage is bounded and non-comprehensive"
+
+  what_would_be_required:
+    - requirement: a new, versioned export schema
+      detail: "e.g. schemas/citation-export.schema.v1.json, reviewed and additively versioned per docs/data-contract.md's schema-change rules"
+    - requirement: an IssuingAuthorityContact fact set per agency
+      detail: >
+        Sourced ONLY from each agency's own official publication (e.g. a
+        state legislature's or county's official 'contact us' page for the
+        office itself, not a directory of named staff), with the same
+        source/retrieval/validation provenance already required for every
+        other source-derived field.
+    - requirement: an explicit governance/allow-list decision
+      detail: >
+        Because agency address/phone sits adjacent to the currently
+        prohibited "contact field" boundary, this needs its own scoped
+        decision-register entry (parallel to D-010) stating exactly which
+        contact fields are permitted (agency-level, publicly published,
+        non-personal) and which remain forbidden (any individual's name,
+        direct line, or email).
+    - requirement: an output adapter
+      detail: >
+        Implemented against the OutputAdapter<T> interface already
+        described in docs/architecture.md's "Adapter boundaries" section,
+        preserving record identity, citations, evidence, timestamps,
+        coverage, review, visibility, and limitations exactly as every
+        other adapter in this repository is required to.
+
+  demo_guidance:
+    - "Treat administrativeOffice/publicAddress/publicPhone fields in any demo export as clearly-labeled placeholders until the governance decision above is made and real agency-level (not personal) contact data is sourced and reviewed."
+    - "Never populate these fields from a scrape, directory, or AI guess; require an exact official-publication citation for each, exactly like every other source-derived field in this project."

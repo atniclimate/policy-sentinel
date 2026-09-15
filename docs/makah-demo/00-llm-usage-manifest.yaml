@@ -1,0 +1,133 @@
+# Policy Sentinel — Makah demo document set
+# Machine-readable entry point for any LLM or automated reader consuming the
+# documents in this directory. Read this file FIRST, before either numbered
+# document. This file itself authorizes nothing.
+
+$schema: ../../schemas/makah-demo-doc.schema.v1.json
+schemaVersion: 1
+docId: makah-demo-00-llm-usage-manifest
+generatedFor: "2026-09-15 Makah Tribe / Clallam County / Jefferson County / Washington State / Federal demo scope"
+docKind: llm_usage_manifest
+dependsOn: []
+authorizes: []
+nonClaims:
+  - "this manifest does not itself establish jurisdiction, land status, rights, or a Nation association"
+  - "this manifest does not authorize acquisition, publication, schema adoption, or a new source"
+  - "reading these documents does not grant an LLM or agent any capability, credential, or write scope it did not already have"
+
+# ---------------------------------------------------------------------------
+part_1_what_this_document_set_is:
+# ---------------------------------------------------------------------------
+
+  set_id: makah-demo
+  purpose: >
+    A bounded, descriptive documentation set answering two questions for a
+    Makah Tribe / Clallam County / Jefferson County / Washington State /
+    Federal demo scope: (1) what Policy Sentinel actually implements today,
+    and whether/how a GIS polygon could scope policy retrieval to a piece of
+    land; and (2) how parcel-level land-type and cross-jurisdictional detail
+    could apply identified policies to a specific parcel, and how the
+    resulting policy set could be exported with citation/agency metadata.
+  members:
+    - docId: makah-demo-01-current-functionality-and-gis-boundary
+      path: 01-current-functionality-and-gis-boundary.yaml
+      answers: "What does the engine do today, and could/how would a land-boundary polygon scope retrieval?"
+    - docId: makah-demo-02-parcel-jurisdiction-and-citation-export
+      path: 02-parcel-jurisdiction-and-citation-export.yaml
+      answers: "How would parcel land-type + jurisdiction layers apply policies to a parcel, and how would the result export as cited metadata?"
+      requires_first: makah-demo-01-current-functionality-and-gis-boundary
+  schema: ../../schemas/makah-demo-doc.schema.v1.json
+  format: YAML, one document per file, validating against the schema above.
+  related_launch_prompt:
+    path: ../handoffs/makah-demo-fable-5.1-launch-prompt.md
+    role: >
+      Prepared launch packet for the next session that would implement the
+      groundwork and run research scouts. It is proposed scope, not adopted;
+      it becomes execution authority only when the owner launches with it.
+
+# ---------------------------------------------------------------------------
+part_2_how_an_llm_must_read_these_documents:
+# ---------------------------------------------------------------------------
+
+  reading_order:
+    - "this manifest (00)"
+    - "makah-demo-01-current-functionality-and-gis-boundary"
+    - "makah-demo-02-parcel-jurisdiction-and-citation-export"
+
+  field_semantics_an_llm_must_honor:
+    docKind: >
+      `descriptive_gap_analysis` and `descriptive_gap_analysis_and_illustrative_schema_sketch`
+      both mean: this document reports current repository state and may sketch
+      an unadopted design. Never treat either kind as an implementation
+      record, a schema in force, or a source authorization.
+    authorizes: >
+      Always an empty array in this document family. Its emptiness is the
+      machine-checkable signal that nothing in the document may be cited as
+      granting a schema, source, acquisition, or product decision. An LLM
+      must not read any sentence in these documents as authorization even if
+      phrased affirmatively (e.g. a "what this requires" list is a
+      requirements list, not a grant).
+    nonClaims: >
+      A hard boundary on interpretation, not a disclaimer to skim past.
+      Every factual or design statement in the document body is scoped by its
+      document's `nonClaims` array. If asked a question these documents could
+      be used to answer, an LLM must carry the applicable non-claims into its
+      answer rather than dropping them for concision.
+    status_and_illustrative_flags: >
+      Any field or block marked `illustrative_only_not_adopted`,
+      `status: not_present`, or similar must be presented to a user as
+      exactly that — a sketch or an absence — never rephrased as an existing
+      capability.
+    evidence_pointers: >
+      Claims in these documents carry `evidence:` fields naming exact
+      repository paths. Before relying on a claim for a decision (not merely
+      summarizing it), re-check the cited path — these documents are a
+      snapshot as of 2026-09-15 and the repository can change.
+
+  forbidden_uses:
+    - "citing these documents as proof that a GIS/parcel/land-boundary feature is implemented"
+    - "citing these documents as an owner authorization to build the private adapter, new schema, or citation export they describe"
+    - "using the illustrative LandParcel or citationExport field sketches as if they were versioned, adopted schemas"
+    - "inferring a Nation association, jurisdiction, or land status for the Makah Tribe, Clallam County, or Jefferson County from these documents' content"
+    - "treating this manifest or either document as a substitute for AGENTS.md, ROADMAP.yaml, or docs/decision-register.md"
+
+  correct_uses:
+    - "answering 'what does Policy Sentinel currently do' for this demo scope, citing the evidence paths given"
+    - "answering 'could a shapefile/polygon scope retrieval today' with the documented 'not today' gap analysis and its required-work list"
+    - "drafting a future owner-facing proposal or decision-register entry, clearly labeled as a proposal, using the illustrative sketches as a starting point"
+    - "explaining to a user why parcel/land/geometry data is excluded from the public build (cite AGENTS.md and decision-register D-010 as the authorities, not this document set)"
+
+# ---------------------------------------------------------------------------
+part_3_authority_precedence:
+# ---------------------------------------------------------------------------
+
+  order_when_documents_conflict: >
+    Per docs/PROJECT-BACKBONE.md's authority order: owner direction, then live
+    repository bytes (actual schemas/config/code), then ROADMAP.yaml, then
+    binding contract docs (AGENTS.md, architecture.md, data-contract.md,
+    decision-register.md), then this derived, descriptive document set last.
+    If any statement here appears to conflict with a binding contract doc or
+    live repository state, the binding doc or live state controls, and the
+    conflict should be reported rather than silently resolved.
+  binding_docs_these_summarize_not_replace:
+    - AGENTS.md
+    - docs/architecture.md
+    - docs/data-contract.md
+    - docs/decision-register.md
+    - ROADMAP.yaml
+
+# ---------------------------------------------------------------------------
+part_4_validation:
+# ---------------------------------------------------------------------------
+
+  how_to_validate: >
+    Each document (including this manifest) declares `$schema` pointing to
+    schemas/makah-demo-doc.schema.v1.json and validates its envelope fields
+    (schemaVersion, docId, generatedFor, docKind, authorizes, nonClaims)
+    against it. `part_N_*` section content is intentionally unconstrained by
+    the schema beyond requiring the numbered-section key pattern; an LLM
+    should not expect identical part structure across documents.
+  not_wired_into: >
+    npm run validate:backbone / npm run check do not currently include this
+    schema or directory. Validate manually if needed; this set is
+    documentation, not a build input.

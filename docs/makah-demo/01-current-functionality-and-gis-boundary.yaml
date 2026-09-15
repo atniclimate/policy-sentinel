@@ -1,0 +1,266 @@
+# Policy Sentinel — Makah / Clallam / Jefferson / Washington / Federal demo
+# Document 1 of 2: current implemented functionality, and a gap analysis for
+# using a GIS polygon (a piece-of-land boundary) to scope policy retrieval.
+#
+# STATUS: descriptive documentation only. This file authorizes nothing. It
+# creates no schema, source access, geography evidence, source activation, or
+# product decision. Every claim below is reconciled against live repository
+# bytes as of 2026-09-15; see "evidence" fields for exact file pointers.
+# Authority order for resolving any apparent conflict with this file is
+# docs/PROJECT-BACKBONE.md "Authority order" (owner direction > live repo
+# bytes > ROADMAP.yaml > binding contract docs > this kind of derived note).
+
+$schema: ../../schemas/makah-demo-doc.schema.v1.json
+schemaVersion: 1
+docId: makah-demo-01-current-functionality-and-gis-boundary
+generatedFor: "2026-09-15 Makah Tribe / Clallam County / Jefferson County / Washington State / Federal demo scope"
+docKind: descriptive_gap_analysis
+dependsOn: []
+authorizes: []
+nonClaims:
+  - "does not establish jurisdiction, land status, Nation association, rights, or legal applicability"
+  - "does not authorize acquisition, publication, or a new source"
+  - "does not activate, qualify, or admit any disabled source"
+  - "is not itself a schema, migration, or implementation"
+
+# ---------------------------------------------------------------------------
+part_1_current_functionality:
+# ---------------------------------------------------------------------------
+
+  one_sentence_definition: >
+    Policy Sentinel is a configurable, sovereignty-centered engine that
+    watches bounded, authoritative policy sources; explains, per record, the
+    exact evidence basis on which it is shown; and produces governed outputs
+    without converting inference into a sovereign, jurisdictional, legal, or
+    community-authority conclusion.
+  evidence: [docs/PROJECT-BACKBONE.md#one-sentence-product-definition]
+
+  implemented_and_validated_surfaces:
+    - id: static_application
+      description: >
+        Static Preact single-page app; hash-route state; search/filter,
+        record cards, detail view, print dossier, CSV export. No server,
+        no database, no browser-side network call to a source, no LLM call.
+      maturity: implemented_and_validated_against_synthetic_input
+      evidence: [docs/architecture.md "Current application and ingestion architecture"]
+    - id: normalized_record_contract
+      schema: schemas/record.schema.v1.json
+      version: "1.4.0"
+      description: >
+        The canonical PolicyRecord shape. Field groups: Identity,
+        Classification (documentType, jurisdiction, issuingBodies,
+        officialSubjects, taxonomyMemberships, isUnclassified), Dates,
+        Judicial context, Accord context, Links/language, Legislative
+        detail, Source-document relationships, Relevance, Nation evidence,
+        History/quality, AI, and per-field Provenance. No field for a legal
+        conclusion, rights impact, jurisdictional determination, or land
+        interest.
+      evidence: [docs/data-contract.md "Record groups", schemas/record.schema.v1.json]
+    - id: taxonomy
+      config: config/taxonomy.v1.json
+      schema: schemas/taxonomy.schema.v1.json
+      version: "1.0.0"
+      description: >
+        10 categories / 33 subcategories. Mapping method is
+        deterministic-official-subject-only, many-to-many, with unmapped
+        records remaining Unclassified. No keyword or AI classification.
+      evidence: [config/taxonomy.v1.json]
+    - id: source_registry
+      config: config/sources.v1.json
+      schema: schemas/source.schema.v1.json
+      version: "1.19.0"
+      description: >
+        Every source has its own registry entry, adapter (or adapter:null),
+        health/last-known-good boundary, and access method
+        (api | official_index | official_page). A disabled source emits no
+        record, coverage, health, or last-known-good shard.
+      evidence: [docs/data-contract.md "Canonical schema catalog"]
+    - id: analyzed_corpus_and_local_output
+      description: >
+        AnalyzedCorpus 1.0/1.1 feeds the ordinary synthetic 3-record artifact
+        build (app/dossier/CSV). A separately adopted AnalyzedCorpus 2.0
+        local workbench exists for a bounded, sealed real-policy discovery
+        run (POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01); its output is a
+        local-only workbench/dossier/export served on 127.0.0.1, not the
+        public build.
+      evidence: [docs/data-contract.md "Canonical schema catalog", README.md]
+
+  makah_clallam_jefferson_current_state:
+    makah_tribe:
+      in_575_entry_federal_recognition_collection: >
+        The 575-entry Nation collection is currently a synthetic fixture
+        only; a production collection is blocked on gate G-BIA-IDENTITY.
+        The Makah Tribe would appear in a future production collection once
+        that gate is resolved, but has no production Nation record today.
+      documented_case_evidence: >
+        Boldt decision (United States v. Washington, 384 F. Supp. 312,
+        W.D. Wash. 1974) is a reviewed, documented SOURCE GAP: no online
+        originating-court copy of the 1974 decision body was located; the
+        Western District docket confirms case C70-9213-RSM and the filing
+        event only. No Nation association or record is emitted from this
+        review — names, parties, and treaty context are explicitly not
+        substitutes for exact association evidence in an official source.
+      evidence: [docs/source-reviews/boldt-decision-2026-07-31.md]
+      current_records_or_source_bindings_for_makah: none
+    clallam_county:
+      registered_as_a_source: false
+      note: >
+        No county-level Washington source (Clallam or otherwise) is
+        currently configured in config/sources.v1.json. AGENTS.md requires
+        that a county record is eligible only when the official county
+        record explicitly names the Nation; an agenda item alone is
+        insufficient.
+    jefferson_county:
+      registered_as_a_source: false
+      note: same absence as clallam_county above.
+    washington_state:
+      researched_sources:
+        - washington-state-register (official_index, adapter:null, disabled)
+        - washington-governor-executive-orders (official_index, adapter v1.0, disabled)
+        - washington-centennial-accord (official_page, adapter v1.0, disabled)
+        - washington-legislature-web-services (SOAP contract v1.1, adapter disabled)
+      status: >
+        All Washington sources are implemented as contracts/adapters but
+        disabled; none is authorized to emit a public record today.
+      evidence: [docs/architecture.md "System boundary"]
+    federal:
+      researched_sources:
+        - federal-register (adapter implemented, disabled; local prerelease
+          lifecycle work blocked on Tier-1 qualification evidence)
+        - congress.gov, govinfo, regulations.gov (synthetic contracts only,
+          live gate closed)
+      evidence: [docs/data-contract.md "Logical and runtime contract families"]
+
+  product_non_goals_directly_relevant_to_this_demo:
+    items:
+      - "no maps, parcel geometry, land ownership, trust-land, fee-land, Tribally owned parcel, or sensitive land content in the public build"
+      - "a Nation-to-record relationship requires exact evidence in an official source plus its URL — never inferred from geography, keyword, sponsor, eligibility, territory, map, or land"
+      - "county records require an exact Nation mention in the official county record itself"
+    evidence: ["AGENTS.md Non-negotiable data rules", "AGENTS.md AI, privacy, and security", "docs/decision-register.md#D-010"]
+
+# ---------------------------------------------------------------------------
+part_2_gis_polygon_boundary_for_policy_retrieval:
+# ---------------------------------------------------------------------------
+
+  the_question: >
+    Could a GIS polygon describing a specific piece of land (e.g. a Makah
+    Tribe parcel, or a boundary intersecting Clallam/Jefferson County,
+    Washington State, and federal jurisdiction) be used to scope which
+    policies the engine retrieves?
+
+  short_answer: >
+    Not today. No part of the implemented product path accepts, stores, or
+    reasons over real geometry (GeoJSON, shapefile, or otherwise). The two
+    closest existing artifacts are synthetic-only, non-integrated research
+    seams that explicitly forbid real polygons. A working feature requires
+    new schema, a new private/opt-in adapter, and a separate owner
+    authorization gate — none of which currently exist.
+
+  closest_existing_but_non_product_work:
+    - id: S0_experimental_spatial_seam
+      status: implemented, frozen v1.0.0, isolated under src/experimental/spatial/, not imported by any production module
+      geometry_representation: axis_aligned_integer_box_v1 only
+      explicit_exclusion_quote: >
+        "S0 accepts only axis_aligned_integer_box_v1. It is not GeoJSON and
+        has no feature collection, ring, polygon, properties, upload,
+        parser, or provider representation."
+      coordinate_domain: "fixed integer grid [-32, 32]; every date/time value is fixed to the impossible year 3785"
+      evidence: [docs/vision/s0-spatial-contract.md]
+      relevance_to_this_demo: >
+        Demonstrates the pattern the engine uses to keep a geometric
+        observation from silently becoming a jurisdiction/relevance claim —
+        useful as an architectural precedent, not as a usable capability.
+    - id: S0_JurisdictionEvidence
+      schema: schemas/experimental/jurisdiction-evidence.schema.v1.json
+      status: synthetic-only source-statement object, "never a spatial result"
+      description: >
+        Records an exact synthetic source statement of the form "<feature>
+        is assigned to <administrative unit> in this fixture only." It
+        carries no geometry, no real place name, and forbids the record
+        schema's protected keys (jurisdiction, nationAssociations,
+        rights, etc.) anywhere in its structure.
+      evidence: [schemas/experimental/jurisdiction-evidence.schema.v1.json]
+    - id: PNW-03_GeographyRightsBundle
+      schema: schemas/geography-rights.schema.v1.json
+      status: implemented as a closed, synthetic-only 1.0.0 catalog; not connected to the application, adapters, pipeline, or artifact builder
+      capability: >
+        Optional opaque geometry REFERENCES (not geometry itself) plus
+        typed geographic relations and source-bound "rights frames," scoped
+        to synthetic PNW-01 region/deployment/persona identities.
+      explicit_non_claims: >
+        Does not compute a real intersection, and neither a relation nor a
+        frame establishes identity, membership, ownership, land status,
+        jurisdiction, applicability, rights impact, consultation, or
+        community position.
+      evidence: [docs/architecture.md "PNW-03 governed geography and rights seam"]
+
+  does_real_polygon_intake_exist_today: false
+
+  what_would_be_required_to_add_it:
+    - requirement: a real geometry schema
+      detail: >
+        A new, non-synthetic schema (e.g. `land-boundary.schema.v2.json`)
+        that accepts an actual coordinate representation (GeoJSON
+        Polygon/MultiPolygon in a stated CRS, most likely EPSG:4326, or an
+        equivalent bounded shapefile-derived form) does not exist. S0's
+        integer-box representation is explicitly incompatible and cannot be
+        widened in place — the S0 contract is frozen and any real-geometry
+        addition is out of its scope by design.
+      new_versus_reuse: new schema; not an extension of S0 or PNW-03
+    - requirement: a private, opt-in adapter boundary
+      detail: >
+        docs/architecture.md already names the intended integration point:
+        `AuthorizedPrivateContextAdapter` with
+        `assertDeploymentIsPrivate`, `verifyWrittenAuthorization`,
+        `connectLocally`, and `enrichPrivateView`. It is documentation-level
+        only today — no module, manifest, or implementation exists. A
+        Makah-Tribe-supplied boundary is exactly the "land context a Tribe
+        explicitly supplies" this interface anticipates, and per AGENTS.md
+        it must remain private and opt-in, never in the public build.
+      evidence: [docs/architecture.md "Private extension boundary"]
+    - requirement: a build-time shapefile/GeoJSON ingestion step
+      detail: >
+        Conversion of a .shp/.dbf/.prj bundle (or a GeoJSON file) into the
+        new schema's validated form, performed only at build time, never as
+        a browser-side dependency or upload path — consistent with the
+        project's existing "no S0/GIS or property-testing dependency"
+        and "browser never calls a provider" rules.
+    - requirement: a real (non-impossible) topology/intersection engine
+      detail: >
+        S0's box-topology algorithm is fixed and synthetic; a working
+        feature needs its own reviewed, bounded intersection algorithm
+        (e.g. point/polygon and polygon/polygon tests against county and
+        reservation reference boundaries), with the same total-precedence
+        "unknown reason" discipline S0 already models.
+    - requirement: geometry can only narrow a query, never create evidence
+      detail: >
+        Even once implemented, a polygon intersection may at most select
+        which sources/records to query. It cannot itself create a Nation
+        association, jurisdiction determination, or relevance basis — those
+        still require exact evidence in an official source per AGENTS.md's
+        non-negotiable data rules. This mirrors S0/PNW-03's existing
+        non-claim pattern and would need to be enforced the same way
+        (protected-key rejection, non-interference tests).
+    - requirement: sensitivity and custody classification
+      detail: >
+        Any real Makah Tribe (or other Nation) parcel boundary is
+        Tribally-supplied land data, which decision D-010 and AGENTS.md
+        currently exclude from the public build entirely. It must be
+        classified at minimum `restricted` (borrowing PNW-03's
+        public/internal/restricted/privileged model) and stored only in a
+        separately owned, private, opt-in deployment namespace — never
+        committed to the repository or emitted into the public artifact.
+      evidence: [AGENTS.md, docs/decision-register.md#D-010]
+    - requirement: explicit owner authorization
+      detail: >
+        Per docs/PROJECT-BACKBONE.md's authority order, a new schema, real
+        geography, and a private adapter each require an explicit owner
+        gate. The existing PNW-03 gate record already states its scope
+        stops short of exactly this: "no real geography or rights evidence,
+        GIS computation, legal determination, public integration."
+      evidence: [docs/data-contract.md "Successor contract register" row "Governed geography and configured rights frames"]
+
+  demo_guidance:
+    - "Any Makah/Clallam/Jefferson boundary used to illustrate this demo must be marked synthetic/illustrative unless the owner has separately authorized and reviewed a real, private boundary source."
+    - "Do not reuse S0 or PNW-03 fixtures as if they were real-geometry evidence; both are explicitly impossible-synthetic and non-integrated."
+    - "A future working implementation belongs in a new, separately versioned, owner-approved schema and a private adapter — not in an extension of the frozen S0 contract."

@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/makah-demo-doc.schema.v1.json",
+  "title": "Policy Sentinel Makah-demo descriptive document",
+  "description": "Envelope contract for the non-authorizing, descriptive gap-analysis documents under docs/makah-demo/. These documents describe current repository state and illustrative, unadopted design sketches; they never create a schema, source, authorization, or product decision. Every part_N_* section is doc-specific free-form content; only the envelope fields below are structurally validated.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "docId",
+    "generatedFor",
+    "docKind",
+    "authorizes",
+    "nonClaims"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "pattern": "(^https://policy-sentinel\\.invalid/schemas/|/)makah-demo-doc\\.schema\\.v1\\.json$"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "docId": {
+      "type": "string",
+      "pattern": "^makah-demo-[a-z0-9-]+$"
+    },
+    "generatedFor": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The exact bounded demo scope this document was written for. Not a claim that the scope is authorized or active product coverage."
+    },
+    "docKind": {
+      "type": "string",
+      "enum": [
+        "descriptive_gap_analysis",
+        "descriptive_gap_analysis_and_illustrative_schema_sketch",
+        "llm_usage_manifest"
+      ]
+    },
+    "authorizes": {
+      "type": "array",
+      "maxItems": 0,
+      "description": "Always empty for this document family. Presence of this field, empty, is the machine-checkable signal that the document grants no schema, source, or product authority."
+    },
+    "nonClaims": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "description": "Explicit statements of what this document does NOT establish (jurisdiction, land status, rights, authorization, implementation). An LLM or human reader must treat every claim in the document body as bounded by this list."
+    },
+    "dependsOn": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "docId values of sibling documents that must be read first and are not repeated in this one."
+    }
+  },
+  "patternProperties": {
+    "^part_[0-9]+_[a-z0-9_]+$": {
+      "description": "One numbered content section. Structure is doc-specific and not constrained further by this schema; every factual claim inside is expected to carry an 'evidence' pointer to a real repository path, per this document family's own convention."
+    }
+  }
+}
