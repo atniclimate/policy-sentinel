@@ -232,4 +232,11 @@ dependencies; `PS09-06-LOCAL-RC` is untouched.
 
 ## Follow-up: final check and commit record
 
-Filled in after the final `npm run check` and the local commit.
+Implementation commit `554e1057d9a9aa41eeaaec88e0eb1a1d2f247182` ("Land Makah
+demo groundwork: private-only contracts, scouts, source reviews") contains
+exactly 36 paths: the three schemas, six `src/engine/` files, five fixtures,
+five tests, the foundation validator, six edited documents and ten new
+documents including this file. The pre-existing unrelated pipeline changes
+and every owner input stayed uncommitted. This follow-up note records that
+revision without amending it; `git diff --check` was clean and
+`npm run check` exited 0 at the tree that was committed.
