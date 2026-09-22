@@ -1,11 +1,30 @@
 # AGENTS.md
 
-Newest state (2026-09-15): the Makah demo track's
-[federal acquisition launch](docs/handoffs/makah-demo-02-federal-acquisition-launch.md)
-was executed; its [outcome](docs/handoffs/makah-demo-02-federal-acquisition-outcome.md)
-records the schema 1.9 ledger representation, the bounded runner changes and
-the ten-receipt acquisition (see the Makah demo paragraph below). The PS09
-recoveries that follow are unchanged.
+Newest state (2026-09-22): general development. The non-PS09 Makah demo track
+was delivered at the ATNI Annual Convention and is finished. The project now
+returns to general engine development, with nationwide coverage (Tribal,
+federal and state sources across the United States) treated as a core
+capability, not an extension. The realignment session on branch
+`realign/general-development` produced three documents. Read them in this
+order before any implementation:
+
+1. The [general development audit](docs/audits/2026-09-22-general-dev-audit.md):
+   the code as it actually is, baseline results, contract drift, the O-023
+   assessment and severity-ordered findings.
+2. The [module boundaries design](docs/architecture/module-boundaries.md): the
+   intake, geographic/context association and output module contracts, the
+   ecosystem map, interop conformance tables and the refactor handoff.
+3. The [realignment open decisions](docs/decisions/2026-09-22-realignment-open-decisions.md):
+   the owner calls that come before the refactor.
+
+`ROADMAP.yaml` stays at schema 1.9, which freezes work-item and gate
+identities. The refactor and nationwide work are therefore a dependency-checked
+proposal (module boundaries section 9.4), not ledger entries. Representing them
+needs owner decision RD-01 and a validator extension. Until then there are zero
+active items and no general-development execution grant.
+`docs/continuation-prompt.md` still opens with the 2026-09-15 Makah state; start
+from this paragraph and the three documents above instead. The PS09 recoveries
+that follow are unchanged history.
 
 Current PS09 recovery: the bounded engineering review H-ENGINEERING-REVIEW-02 is
 complete. Start with the [local outcome](docs/handoffs/ps09-engineering-review-02-outcome.md)
@@ -29,44 +48,27 @@ active items; the PS09 program remains blocked on PS09-02 identity/scenario
 evidence. PS09-06 stays unstarted and gated. Preserve the sealed corpus; the
 [cutoff prompt](docs/handoffs/ps09-real-policy-cutoff-continuation.md) is historical.
 
-Makah demo recovery: a separate, non-PS09 track. The owner requested
-descriptive documentation and a launch prompt on 2026-09-15 for a Makah Tribe
-/ Clallam County / Jefferson County / Washington State / federal demo scope.
-[`docs/makah-demo/`](docs/makah-demo/) holds the non-authorizing current-state
-and gap-analysis documents (start at
-[`00-llm-usage-manifest.yaml`](docs/makah-demo/00-llm-usage-manifest.yaml)),
-validated against
-[`schemas/makah-demo-doc.schema.v1.json`](schemas/makah-demo-doc.schema.v1.json).
-[`docs/handoffs/makah-demo-fable-5.1-launch-prompt.md`](docs/handoffs/makah-demo-fable-5.1-launch-prompt.md)
-was launched and executed on 2026-09-15; its
-[outcome](docs/handoffs/makah-demo-01-groundwork-outcome.md) records the
-private-only contracts, scout reports, source reviews and sovereignty review
-that landed at `554e105`. The owner then adopted D-068 and approved D-069, and the
-[federal acquisition launch](docs/handoffs/makah-demo-02-federal-acquisition-launch.md)
-was executed the same day: `ROADMAP.yaml` is at schema 1.9 with the two
-Makah demo items and gates, the runner accepts `application/pdf` for
-declared targets under a reviewed federal court host profile, and exactly
-ten ledgered GETs (eight documents plus two GovInfo metadata files, zero
-retries) landed in the external `makah-demo-02` namespace with receipts and
-digests bound to the TSDF provenance record. Recover the
-[outcome](docs/handoffs/makah-demo-02-federal-acquisition-outcome.md). The
-track still does not touch any PS09 gate, `PS09-06-LOCAL-RC`, or the
-existing release root; acquisition is custody, not admission, and no
-document is admitted, activated, excerpted or published. The next owner
-actions are source-specific `G-J` decisions per acquired document and the
-`G-BIA-IDENTITY` prerequisite before any Nation association; the provenance
-record's Honor section stays owner-curated and deferred. Later on 2026-09-15
-the owner recorded D-070 (court profile `uses` accepted with reuse terms not
-located), the lead wrote the
+Makah demo track (finished, non-PS09). Both items are complete on commit
+evidence: groundwork at `554e105` and the bounded federal acquisition at
+`07d5fb2`, with the ledger follow-up at `a1ee988`, all on 2026-09-15. Recover
+the [groundwork outcome](docs/handoffs/makah-demo-01-groundwork-outcome.md) and
+the [acquisition outcome](docs/handoffs/makah-demo-02-federal-acquisition-outcome.md).
+[`docs/makah-demo/`](docs/makah-demo/) holds the non-authorizing descriptive
+documents (start at
+[`00-llm-usage-manifest.yaml`](docs/makah-demo/00-llm-usage-manifest.yaml)).
+By owner ruling, all Makah demo material stays where it is; the audit
+inventories it. D-068, D-069 and D-070 retain their recorded scope.
+Acquisition is custody, not admission: no acquired document is admitted,
+activated, excerpted or published, and the ten objects in the external
+`makah-demo-02` namespace stay custody only. Per-document `G-J` decisions and
+the `G-BIA-IDENTITY` prerequisite still precede any use or Nation association.
+The provenance record's Honor section stays owner-curated and deferred. The
 [ATNI Climate interop IO guide](docs/development/atni-climate-interop-io-guide.md)
-(the land-use-analyzer-specified `policy.search-context/1` in,
-`policy.citations/1` out pathway: specified, not implemented, not adopted),
-and a machine-only stage package was staged outside the repository at
-`I:\ATNI-annual-convention-2026\ga-demonstration\policy-sentinel`. The
-owner's stated next direction, a shapefile-driven cross-app pipeline, is
-recorded as open fact O-023 in the decision register; it needs an explicit
-owner decision before any implementation because it conflicts with the
-interop profile and this file's land-data boundary as stated.
+(`policy.search-context/1` in, `policy.citations/1` out) remains specified, not
+implemented and not adopted. Open fact O-023, the owner's shapefile-driven
+cross-app pipeline, is unchanged. It is assessed in audit section 4 and is
+decision RD-06 in the decisions file. No implementation of either reading
+precedes that decision.
 
 ## Purpose and phase gate
 
@@ -138,8 +140,12 @@ The 0.9 program targets one general engine with an owner-selected PNW/ATNI-facin
 cohort and contrasting scenarios. Exact current ATNI membership requires
 originating evidence only when that claim is made; no fixed membership count
 defines the product cohort or gates unrelated general-jurisdiction work.
-Federal recognition is not organization membership. Nationwide and Native
-Hawaiian support remain later-compatible directions. Real public information
+Federal recognition is not organization membership. Nationwide coverage
+(Tribal, federal and state sources across the United States) is a core
+capability of the general engine (owner direction, 2026-09-22). The current
+public record, artifact and source contracts still admit only WA, OR and ID
+state codes, and widening them is a gated contract change (decision RD-05).
+Native Hawaiian support remains a later-compatible direction. Real public information
 is an intended first-class capability; Run 1's implemented corpus path remains
 synthetic and cannot admit or activate a real source. The current static
 application and B1-B10 work are retained evidence, not the whole product.

@@ -4,8 +4,9 @@ Status: evidence record for the realignment session on branch
 `realign/general-development`. It describes the repository as found. It
 authorizes nothing, changes no gate, and does not change open fact O-023. The
 module design that follows from it is
-`docs/architecture/module-boundaries.md`; owner calls are collected in
-`docs/decisions/2026-09-22-realignment-open-decisions.md`.
+[`../architecture/module-boundaries.md`](../architecture/module-boundaries.md);
+owner calls are collected in
+[`../decisions/2026-09-22-realignment-open-decisions.md`](../decisions/2026-09-22-realignment-open-decisions.md).
 
 Method. Every file cited here was opened in this session. The import graph was
 extracted mechanically from `src/`, `config/`, `scripts/` and `tests/`, and the
@@ -299,3 +300,23 @@ run. Both validators and the test suite ran as found.
   finding F-02). The commit hash is recorded in the next entry. Next: Phase 3
   realignment of `AGENTS.md`, `PROJECT-BACKBONE.md` and `ROADMAP.yaml`, plus the
   decisions file.
+- **Phase 3 checkpoint (realignment).** Phase 2 was commit `20d0056`.
+  - `AGENTS.md`: the framing paragraphs and one purpose sentence changed; every
+    rule section is byte-identical.
+  - `PROJECT-BACKBONE.md`: updated to the module design and nationwide scope.
+  - `ROADMAP.yaml`: the phase, owner intent, current focus and next-action text
+    changed. The Makah items gained `completed_on` and `completion_commit` from
+    `git show -s --format=%cI` (554e105 and 07d5fb2) plus close-out evidence.
+    Schema stays 1.9 and no item or gate was added (F-02). The status
+    vocabulary was confirmed against `scripts/validate-roadmap.mjs:343-350` and
+    is identical to the expected set.
+  - [Decisions file](../decisions/2026-09-22-realignment-open-decisions.md):
+    RD-01 through RD-07.
+  - Gates: `validate:roadmap` passed (81 items, 57 gates, same status counts).
+    `validate:backbone` failed only on the four pre-existing
+    `.local/handoff/HANDOFF.md` issues (RD-03); it passed on a scratch clone of
+    the branch with these files (126 Markdown files, 875 links). `npm test`
+    matches the baseline (node suites identical; Vitest 97 files, 1617 tests).
+    `validate:knowledge` and `format:check` also passed.
+  - The commit hash is recorded in the next entry. Next: owner rulings on RD-01
+    through RD-03, then refactor wave 1 (module boundaries section 9.2).

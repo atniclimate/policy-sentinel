@@ -4,34 +4,40 @@ project:
   name: Policy Sentinel
   root: 'I:\policy-sentinel'
   phase: >-
-    POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01 completed its bounded local
-    workbench outcome through PS09-03/04/05. Final Chromium evidence passes all
-    25 journeys and 14 exact-width geometry checks; ten preserved axe
-    incompletes have a separate hash-bound manual contrast/visibility
-    disposition. Full repository checks, corpus replay, frozen evaluation and
-    controlled failure exercises pass. Approved local knowledge organization and
-    engineering assurance is complete with zero active items. The PS09 program
-    remains blocked on PS09-02 identity/scenario evidence, an explicit PS09-06
-    prerequisite. PS09-06-LOCAL-RC is the sole release root and remains
-    unstarted and gated. EV01, Run 1/2 and archived lanes retain their
-    historical evidence and spent-operation boundaries. Separately, the non-PS09
-    Makah demo track landed synthetic-only groundwork at 554e105; on 2026-09-15
-    the owner adopted D-068, approved D-069 and authorized the schema 1.9
-    representation of that track as a non-release local scope with one bounded
-    acquisition of eight exact federal documents.
-  updated_on: "2026-09-15"
+    General development (owner direction, 2026-09-22). The non-PS09 Makah demo
+    track was delivered at the ATNI Annual Convention and is finished: both of
+    its items are complete on commit evidence (554e105 and 07d5fb2, 2026-09-15).
+    The project returns to general engine development, with nationwide coverage
+    (Tribal, federal and state sources across the United States) as a core
+    capability. The realignment audit
+    (docs/audits/2026-09-22-general-dev-audit.md) records the code as found. The
+    module design (docs/architecture/module-boundaries.md) defines a shared core
+    plus intake, geographic/context association and output modules, and proposes
+    the refactor and nationwide items GD-00 to GD-16 as a dependency-checked
+    schema 1.10 fragment. That fragment is not applied, because schema 1.9
+    freezes work-item and gate identities. Owner calls are in
+    docs/decisions/2026-09-22-realignment-open-decisions.md. Retained PS09 state
+    is unchanged: POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01 completed its bounded
+    local workbench outcome through PS09-03/04/05; the program remains blocked
+    on PS09-02 identity/scenario evidence, an explicit PS09-06 prerequisite;
+    PS09-06-LOCAL-RC is the sole release root and remains unstarted and gated.
+    EV01, Run 1/2 and archived lanes retain their historical evidence and
+    spent-operation boundaries.
+  updated_on: "2026-09-22"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
     prove its present definition of done through the owner-selected PNW scenario
-    cohort without making exact ATNI membership a universal release gate, and
-    retain nationwide and separately modeled international expansion as later
-    directions. Treat documents, web modules, applications, and structured
-    exports as adapters over one analyzed corpus. Investigate actual policy
-    documents, temporal histories, institutional mechanisms and
-    cross-jurisdiction patterns with inspectable evidence and provisional
-    analytical claims. Synthetic fixtures are regression tools, not the intended
-    product-data boundary. Respect source-specific evidence and the current
-    exact execution, private-data, and publication authority.
+    cohort without making exact ATNI membership a universal release gate. Treat
+    nationwide coverage (Tribal, federal and state sources across the United
+    States) as a core capability of the general engine, carried by jurisdiction
+    identifiers rather than geometry, and retain separately modeled
+    international expansion as a later direction. Treat documents, web modules,
+    applications, and structured exports as adapters over one analyzed corpus.
+    Investigate actual policy documents, temporal histories, institutional
+    mechanisms and cross-jurisdiction patterns with inspectable evidence and
+    provisional analytical claims. Synthetic fixtures are regression tools, not
+    the intended product-data boundary. Respect source-specific evidence and the
+    current exact execution, private-data, and publication authority.
 
 canonical_ledger:
   authority: >-
@@ -934,27 +940,29 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Recover the completed Makah demo launch 02 from
-    docs/handoffs/makah-demo-02-federal-acquisition-outcome.md: schema 1.9
-    ledger representation, bounded application/pdf and federal court host runner
-    changes, and one acquisition of exactly the eight approved federal documents
-    plus two GovInfo metadata files into the external makah-demo-02 namespace
-    (ten receipts, zero retries). Acquisition is custody, not admission; the
-    next owner actions are per-document G-J decisions and the G-BIA-IDENTITY
-    prerequisite, and the provenance record's Honor section stays owner-curated.
-    The PS09 program stays blocked on PS09-02 originating identity/scenario
-    evidence; PS09-06 is unstarted and gated; the completed H01/H02 maintenance
-    and every sealed discovery, prior assurance and owner-input identity are
-    preserved.
+    Begin general development from the 2026-09-22 realignment. Read
+    docs/audits/2026-09-22-general-dev-audit.md,
+    docs/architecture/module-boundaries.md and
+    docs/decisions/2026-09-22-realignment-open-decisions.md. The next action is
+    the owner's ruling on RD-01 (a schema 1.10 representation of GD-00 to GD-16
+    with gate G-GENERAL-DEV-01), RD-02 (the two pre-existing uncommitted
+    modifications) and RD-03 (the backbone check failing on the git-excluded
+    .local/handoff/HANDOFF.md). After those rulings the refactor starts at
+    module-boundaries section 9, wave 1 (GD-01, GD-02, GD-03). The Makah demo
+    track is finished; its acquired objects remain custody only, and
+    per-document G-J decisions and G-BIA-IDENTITY stay open. The PS09 program
+    stays blocked on PS09-02 originating identity/scenario evidence; PS09-06 is
+    unstarted and gated; the completed H01/H02 maintenance and every sealed
+    discovery, prior assurance and owner-input identity are preserved.
   terminal_reason: >-
-    Makah demo launch 02 completed its finite ledger, runner and acquisition
-    obligations with receipts, digests, privacy screens, an independent
-    read-only review and a passing full check. Nothing is admitted or activated.
-    PS09 remains blocked on PS09-02 originating evidence and scenario
-    acceptance; no successor run or external operation is authorized.
+    The realignment session finished its audit, module design and planning
+    realignment without code changes. No general-development item can be
+    represented or activated under schema 1.9. PS09 remains blocked on PS09-02
+    originating evidence and scenario acceptance; no successor run or external
+    operation is authorized.
   resumable_roots:
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: 07d5fb2ccc9d0162144941fe96fc622992330f3e
+  last_durable_checkpoint: 20d00567358abd605547a6cbc76b64815f9f8391
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5455,6 +5463,8 @@ work_items:
     title:
       Makah demo groundwork, private-only contracts, scouts and source reviews
     status: complete
+    completed_on: "2026-09-15T06:33:24-07:00"
+    completion_commit: 554e1057d9a9aa41eeaaec88e0eb1a1d2f247182
     work_class: demo_track_local
     dependencies: []
     authorization_gate: G-MAKAH-DEMO-01
@@ -5492,6 +5502,8 @@ work_items:
     milestone: Makah demo
     title: Bounded acquisition of eight approved federal documents
     status: complete
+    completed_on: "2026-09-15T08:18:30-07:00"
+    completion_commit: 07d5fb2ccc9d0162144941fe96fc622992330f3e
     work_class: demo_track_local
     dependencies: [MAKAH-DEMO-01-GROUNDWORK-DISCOVERY-SCOUTS]
     authorization_gate: G-MAKAH-DEMO-02
@@ -5558,6 +5570,15 @@ work_items:
         two pre-existing unrelated pipeline changes, every owner input stayed
         untracked, and no external object or receipt entered Git. This follow-up
         records the existing revision without rewriting it.
+      - >-
+        Track close-out on 2026-09-22: the owner states the Makah demo track was
+        delivered at the ATNI Annual Convention and is finished. completed_on is
+        the commit time of the completion commit (git show -s --format=%cI):
+        554e105 for groundwork and 07d5fb2 for this acquisition. Both items were
+        first represented in the ledger, as complete, at 07d5fb2, with the
+        evidence follow-up at a1ee988 (2026-09-15T08:20:05-07:00). No Makah work
+        remains; the objects stay custody only; per-document G-J decisions and
+        G-BIA-IDENTITY stay open owner items.
   - id: H-ENGINEERING-REVIEW-02
     priority: 298
     milestone: H
@@ -6312,7 +6333,11 @@ next_actions:
       PS09-02 is accepted and the exact local release run is authorized. Recover
       docs/handoffs/ps09-engineering-review-02-outcome.md and the preserved
       discovery outcome; do not reactivate ended maintenance, acquisition,
-      cutoff startups or archived lanes.
+      cutoff startups or archived lanes. Separately, general development waits
+      on owner decisions RD-01 to RD-03 in
+      docs/decisions/2026-09-22-realignment-open-decisions.md; its work items
+      are proposed in docs/architecture/module-boundaries.md section 9.4 and are
+      not ledger entries under schema 1.9.
 finish_states:
   makah_demo:
     current_state: complete

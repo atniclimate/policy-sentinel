@@ -3,8 +3,8 @@
 Status: design proposal, 2026-09-22. It follows from the
 [general development audit](../audits/2026-09-22-general-dev-audit.md) and is
 the document the follow-on refactor session executes from. It changes no code
-and authorizes nothing. Executing it requires the owner decisions in the
-realignment decisions file (`docs/decisions/2026-09-22-realignment-open-decisions.md`),
+and authorizes nothing. Executing it requires the owner decisions in
+[the realignment decisions file](../decisions/2026-09-22-realignment-open-decisions.md),
 chiefly RD-01 (a schema 1.10 ledger representation and its gate) and RD-02 (the
 disposition of the two pre-existing uncommitted modifications). The binding
 architecture owner remains [`../architecture.md`](../architecture.md); this

@@ -1,6 +1,17 @@
 # Policy Sentinel project backbone
 
-Latest completed local outcome: [engineering review 02](handoffs/ps09-engineering-review-02-outcome.md).
+Current phase (2026-09-22): general development. The Makah demo track is
+finished, and nationwide coverage (Tribal, federal and state sources across the
+United States) is a core capability of the engine. Start from the
+[general development audit](audits/2026-09-22-general-dev-audit.md), the
+[module boundaries design](architecture/module-boundaries.md) and the
+[realignment open decisions](decisions/2026-09-22-realignment-open-decisions.md).
+The module refactor and nationwide foundation are a dependency-checked proposal
+awaiting owner decision RD-01. `ROADMAP.yaml` schema 1.9 cannot represent them
+yet, so there are zero active items. The PS09 entries below are unchanged
+history.
+
+Latest completed PS09 maintenance outcome: [engineering review 02](handoffs/ps09-engineering-review-02-outcome.md).
 Its [journal](development/PS09-ENGINEERING-REVIEW-02.md) records the two bounded
 repairs, full validation and preserved evidence. Five synthetic measurement
 cases completed; search at 2,000 works remains incomplete. The
@@ -42,7 +53,17 @@ a source-evidence claim, not a fixed-count cohort or universal release gate.
 Crow government/reservation/BIA agency and Fort Peck/Fort Belknap remain
 distinct planning concepts. Run 2 must bind actual identities and scenarios;
 Run 1 introduces no real identity facts. The Nez Perce scenario remains a
-candidate, and nationwide/Native Hawaiian support remains later-compatible.
+candidate.
+
+General development widens that target. Nationwide coverage is a core
+capability, not an extension. The engine is organized as a shared core plus
+three modules: intake, geographic and context association, and output
+([module boundaries](architecture/module-boundaries.md)). Geography is carried
+by identifiers (`us`, `us-state:<USPS>`, `us-county:<FIPS>`, and evidence-bound
+`nation:<slug>`), never by geometry. The public record, artifact and source
+contracts still admit only WA, OR and ID state codes (audit F-03), and
+superseding D-004's three-state coverage is decision RD-05. Native Hawaiian
+support remains later-compatible.
 
 The exact PS09 Run 2 local synthetic identity, authority and candidate-manifest
 packet is validated. Full PS09-02 remains blocked on originating evidence and
@@ -104,6 +125,9 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | Responsibility | Canonical owner | Boundary |
 | --- | --- | --- |
 | Durable execution, gates, validation, and Git rules | [`AGENTS.md`](../AGENTS.md) | Repository instructions; cannot authorize an owner gate |
+| General development audit: code as found on 2026-09-22, baseline results, contract drift, O-023 assessment, findings | [`2026-09-22-general-dev-audit.md`](audits/2026-09-22-general-dev-audit.md) | Dated evidence record; authorizes nothing and changes no gate or open fact |
+| Proposed module architecture, ecosystem map, interop conformance and refactor handoff | [`module-boundaries.md`](architecture/module-boundaries.md) | Design proposal. Binding only after owner adoption (RD-01) and a ledger representation; [`architecture.md`](architecture.md) stays the binding architecture owner until then |
+| Owner calls raised by the realignment | [`2026-09-22-realignment-open-decisions.md`](decisions/2026-09-22-realignment-open-decisions.md) | Open questions with recommended defaults. A ruling is recorded in [`decision-register.md`](decision-register.md), not in the decisions file |
 | Product mission, current application contract, non-claims, single 0.9 definition of done | [`project-brief.md`](project-brief.md) | PNW detail belongs to the PNW contract |
 | Present PNW scope, authority, architecture, scenarios, and regional acceptance | [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md) | Does not claim implementation or supply membership evidence |
 | Status, dependency graph, evidence, blockers, current focus, finish states | [`ROADMAP.yaml`](../ROADMAP.yaml) | Machine-readable ledger; prose cannot override binding contracts |
@@ -142,9 +166,9 @@ publication evidence. An agent report is advice until reconciled by the lead.
 | Source-authority portfolio discovery report | [`source-authority-portfolio-discovery-2026-09-03.md`](source-reviews/source-authority-portfolio-discovery-2026-09-03.md) | Records the one exhausted PF-01-through-PF-17 observation, per-candidate evidence ceilings, future-candidate ranking, immutable request ledger, and generated custody; it admits no source and opens no gate |
 | Real-source prerelease terminal handoff | [`pnw-real-source-prerelease-2026-09-03.md`](handoffs/pnw-real-source-prerelease-2026-09-03.md) | Reconciles the complete foundation, evidence-blocked live-source branch, consumed request ledger, terminal custody, validation, and recovery-only next boundary; it is not source admission, activation, a complete vertical slice, or successor authority |
 | K0/S0/O0 custody and D0 historical status | [`vision/README.md`](vision/README.md) | Protected bytes and convergence gates remain controlling |
-| ATNI Climate cross-app interop pathway (Policy Sentinel side) | [`atni-climate-interop-io-guide.md`](development/atni-climate-interop-io-guide.md) | Describes the land-use-analyzer-specified `policy.search-context/1` in, `policy.citations/1` out contract and this repository's seams. Specified 2026-09-15, not implemented, not adopted in `ROADMAP.yaml`; admits no parcel, geometry, ownership or land-status intake; implementation needs its own decision and ledger representation |
+| ATNI Climate cross-app interop pathway (Policy Sentinel side) | [`atni-climate-interop-io-guide.md`](development/atni-climate-interop-io-guide.md) | Describes the land-use-analyzer-specified `policy.search-context/1` in, `policy.citations/1` out contract and this repository's seams. Specified 2026-09-15, not implemented, not adopted in `ROADMAP.yaml`; admits no parcel, geometry, ownership or land-status intake; implementation needs its own decision and ledger representation. Neither profile has a field-level schema anywhere, and the envelope has no restriction label (audit C-4, C-5); field-by-field conformance is in [module boundaries section 8](architecture/module-boundaries.md) |
 | Makah demo launch 02: schema 1.9 ledger representation, bounded PDF/court-host runner changes and the D-069 acquisition | [`makah-demo-02-federal-acquisition-launch.md`](handoffs/makah-demo-02-federal-acquisition-launch.md), [`makah-demo-02-federal-acquisition-outcome.md`](handoffs/makah-demo-02-federal-acquisition-outcome.md) and [`federal-court-opinion-datastores-2026-09-15.md`](source-reviews/federal-court-opinion-datastores-2026-09-15.md) | Adopted 2026-09-15 under D-069: exactly ten ledgered GETs into the external `makah-demo-02` namespace, zero retries, receipts and digests bound to the provenance record. Acquisition is custody, not admission: no source is admitted or activated, no document is excerpted, exported or published, no `nationAssociations` value exists, and no PS09 gate, `PS09-06-LOCAL-RC` or external boundary changed |
-| Makah demo track (non-PS09): descriptive documents, groundwork outcome, provenance record and current launch | [`makah-demo/00-llm-usage-manifest.yaml`](makah-demo/00-llm-usage-manifest.yaml), [`makah-demo-01-groundwork-outcome.md`](handoffs/makah-demo-01-groundwork-outcome.md), [`tsdf-provenance-record-2026-09-15.json`](development/makah-demo/tsdf-provenance-record-2026-09-15.json) and [`makah-demo-02-federal-acquisition-launch.md`](handoffs/makah-demo-02-federal-acquisition-launch.md) | Groundwork landed at `554e105` (synthetic-only contracts, reviews, scout reports); D-068 adopted and D-069 approved 2026-09-15; the launch authorizes only the schema 1.9 ledger representation, bounded runner changes and one acquisition of eight exact federal documents. It admits or activates no source, creates no Nation association, and touches no PS09 gate or `PS09-06-LOCAL-RC` |
+| Makah demo track (non-PS09, finished; material stays in place by owner ruling): descriptive documents, groundwork outcome, provenance record and final launch | [`makah-demo/00-llm-usage-manifest.yaml`](makah-demo/00-llm-usage-manifest.yaml), [`makah-demo-01-groundwork-outcome.md`](handoffs/makah-demo-01-groundwork-outcome.md), [`tsdf-provenance-record-2026-09-15.json`](development/makah-demo/tsdf-provenance-record-2026-09-15.json) and [`makah-demo-02-federal-acquisition-launch.md`](handoffs/makah-demo-02-federal-acquisition-launch.md) | Groundwork landed at `554e105` (synthetic-only contracts, reviews, scout reports); D-068 adopted and D-069 approved 2026-09-15; the launch authorizes only the schema 1.9 ledger representation, bounded runner changes and one acquisition of eight exact federal documents. It admits or activates no source, creates no Nation association, and touches no PS09 gate or `PS09-06-LOCAL-RC` |
 
 The completed product-space mapping and lossless B-to-PNW crosswalk remain in
 [`pnw-product-space-rebase-2026-09-02.md`](handoffs/pnw-product-space-rebase-2026-09-02.md).
@@ -179,6 +203,10 @@ transition.
 | Local real-source prerelease child lane | lifecycle contract, narrow source-neutral analyzed-corpus child, portfolio discovery, and terminal cleanup complete; Federal Register qualification blocked on consumed R7 digest drift | no Federal Register retry/admission/activation, real corpus, parent PNW-05/06/07/08 completion, ATNI or Nation association, deployment, or publication |
 | Identity, authority, independent memberships, owner cohort and scenario references | Run 2 implements a standalone synthetic-only `1.0.0` graph with exact evidence/review/citation bindings and separate temporal states; nine candidate manifests remain owner planning | no real identity registry, current membership, accepted real scenario, source acquisition or corpus integration; directory counts and 575 recognition evidence do not establish membership |
 | Broad real-source canonical corpus and common document/web/app/structured adapters | accepted target architecture; synthetic corpus integrated into the retained artifact path | real lifecycle integration and common successor output profiles remain future work |
+| Makah demo private-context seam (`LandBoundary`, `LandParcel`, `CitationExport` 1.0.0, `resolveParcelQuery`, `AuthorizedPrivateContextAdapter`) | implemented, synthetic-only, private-deployment-only under D-068; not imported by any output path | no real land data, private deployment, public delivery or interop use; kept in place by owner ruling |
+| Module boundaries (core plus intake, context, output) | proposed ([design](architecture/module-boundaries.md)) | no refactor has run; current code still has the entanglements listed in audit section 2.6 |
+| Nationwide jurisdiction identifiers (`JurisdictionRef`) and all-state public contracts | proposed; the state enum is WA/OR/ID in three schemas and two runtime modules | no identifier registry, no v2 jurisdiction association, no nationwide source catalog |
+| Taxonomy resolution for real records | deterministic `Unclassified` fallback only (`sourceMappings: []`) | no official-label mapping for any real source |
 
 The adopted 2026-09-05 discovery run adds a current bounded v2 slice beyond
 that historical table: reviewed real-source custody, 210 instrument identities,
@@ -204,6 +232,14 @@ authoritative sources -> bounded adapters -> source facts/events
   -> document | web module | application | structured output adapters
 ```
 
+Proposed module mapping ([module boundaries](architecture/module-boundaries.md)):
+**intake** owns sources through normalized source facts and replay; **context**
+owns jurisdiction, taxonomy, Nation-evidence and temporal association; and
+**output** owns retrieval, projections and every output adapter, including
+`policy.citations/1`. All three depend only on a shared **core** of contracts,
+corpus validation and one boundary guard. K0, S0 and the private-context seam
+stay outside every module.
+
 Identity, recognition, organization membership, source association,
 geographic relation, community relevance, taxonomy authority, configured
 rights frame, legal applicability, review state, visibility, and output
@@ -220,6 +256,8 @@ telemetry, browser-side AI, or outbound notifications.
 
 | Workstream | Canonical state |
 | --- | --- |
+| General development (module refactor GD-01 to GD-16, nationwide foundation, interop adapter) | Proposed and dependency-checked in [module boundaries section 9](architecture/module-boundaries.md). Not in the ledger: schema 1.9 freezes identities. Needs RD-01; GD-13 also needs RD-05 and GD-16 needs RD-06 |
+| Makah demo track | Finished. `MAKAH-DEMO-01` complete at `554e105` and `MAKAH-DEMO-02` complete at `07d5fb2` (2026-09-15). Per-document `G-J` decisions and `G-BIA-IDENTITY` remain open owner items |
 | PS09-01 through PS09-06 | One canonical program; Run 1 and bounded Run 2 synthetic packet validated, full PS09-02 evidence blocked and an explicit PS09-06 prerequisite; adopted launch authorizes its bounded PS09-03/04/05 local closure; sole local release root PS09-06-LOCAL-RC remains gated |
 | Retained B1-B10 | Archived implementation and fallback evidence; former four finish blockers remain historical source gaps, not a parallel release graph |
 | PNW-00 | Planning/governance rebase complete |
@@ -311,6 +349,20 @@ evidence. It does not introduce a release root or authorize further work.
   tags or unknown tags with assigned attributes.
 - Isolated additive work: `src/kernel/` (K0) and
   `src/experimental/spatial/` (S0).
+- Other engine seams, each separately tested and outside the production path
+  unless noted: `src/engine/{geography-rights,taxonomy,projection,identity-authority-scenarios}.ts`
+  (PNW-01/03/04, Run 2), and the in-use local workbench retrieval
+  `src/engine/{policy-search,temporal-operations}.mjs`.
+- Makah demo private-context seam, in place by owner ruling:
+  `src/engine/{land-boundary-contracts,land-parcel-contracts,parcel-query,authorized-private-context-adapter,citation-export-contracts}.ts`
+  and their schemas, fixtures and tests. It is re-exported by
+  `src/engine/index.ts` and is not imported by the app, pipeline or artifact
+  builder.
+- Repository knowledge tooling: `src/knowledge/` and `knowledge/`.
+- Realignment records: `docs/audits/`, `docs/architecture/` (proposed module
+  design) and `docs/decisions/` (open owner calls).
+- Proposed new module homes, not yet created: `src/core/`, `src/modules/intake/`,
+  `src/modules/context/`, `src/modules/output/`.
 - Codex environment: `.codex/hooks.json`, `.codex/config.toml`,
   `.codex/agents/`, and `.agents/skills/`.
 - `dist/` is generated and ignored by `npm run build`. `.cache/` is ignored
@@ -340,8 +392,14 @@ npm run validate:roadmap
 npm run validate:backbone
 ```
 
-Recover the completed real-policy outcome and its execution journal with the
-live roadmap first. The launch, research synthesis, earlier fresh-session guide,
+For general development, read the audit, the module boundaries design and the
+realignment decisions file linked at the top of this index. The first
+executable action is the owner's ruling on RD-01 through RD-03. After that
+ruling, the refactor session starts at module boundaries section 9 with wave 1
+(GD-01, GD-02 and GD-03). Until then no general-development item is active.
+
+For PS09 history, recover the completed real-policy outcome and its execution
+journal with the live roadmap first. The launch, research synthesis, earlier fresh-session guide,
 EV01 terminal record and Run 1/2 handoffs retain historical direction and
 evidence. Local inspection and replay use the sealed corpus. Real identity and
 scenario evidence remains unresolved and requires an exact next packet before
