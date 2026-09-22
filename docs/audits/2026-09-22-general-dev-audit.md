@@ -320,3 +320,7 @@ run. Both validators and the test suite ran as found.
     `validate:knowledge` and `format:check` also passed.
   - The commit hash is recorded in the next entry. Next: owner rulings on RD-01
     through RD-03, then refactor wave 1 (module boundaries section 9.2).
+- **Session close.** Phase 3 was commit `6eb8947`. This entry is a follow-up
+  commit and rewrites no history. Nothing was pushed, tagged, merged or
+  rebased. The two pre-existing modifications and every untracked owner input
+  remain untouched. Next: the owner rulings above.
