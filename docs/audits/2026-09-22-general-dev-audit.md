@@ -288,3 +288,14 @@ run. Both validators and the test suite ran as found.
 ## 7. Session ledger
 
 (Entries are appended at each checkpoint.)
+
+- **Phase 1 checkpoint (audit).** Finished the baseline, pipeline inventory,
+  contract drift, O-023 assessment, Makah inventory and findings. Commit
+  `fff7990`. Next: Phase 2 module design.
+- **Phase 2 checkpoint (module design).** Finished
+  [`../architecture/module-boundaries.md`](../architecture/module-boundaries.md):
+  the three module contracts, ecosystem map, interop conformance tables,
+  refactor handoff, and a dependency-checked schema 1.10 proposal (not applied,
+  finding F-02). The commit hash is recorded in the next entry. Next: Phase 3
+  realignment of `AGENTS.md`, `PROJECT-BACKBONE.md` and `ROADMAP.yaml`, plus the
+  decisions file.
