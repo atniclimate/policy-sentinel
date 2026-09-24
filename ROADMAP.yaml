@@ -1008,7 +1008,7 @@ baseline:
         configured.
 
 current_focus:
-  work_item: null
+  work_item: GD-01-CHARACTERIZATION-TESTS
   objective: >-
     General development under G-GENERAL-DEV-01 (D-071). Refactor wave 1 is
     GD-01, GD-02 and GD-03, run one at a time while the one-in_progress rule
@@ -1020,22 +1020,11 @@ current_focus:
     program stays blocked on PS09-02 originating identity/scenario evidence;
     PS09-06 is unstarted and gated; the completed H01/H02 maintenance and every
     sealed discovery, prior assurance and owner-input identity are preserved.
-  terminal_reason: >-
-    General-development session 1 represented the general-development graph at
-    schema 1.10 and has not yet activated a wave 1 item. PS09 remains blocked on
-    PS09-02 originating evidence and scenario acceptance; no successor run or
-    external operation is authorized.
+  terminal_reason: null
   resumable_roots:
-    - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     - GD-01-CHARACTERIZATION-TESTS
-    - GD-02-MODULE-BOUNDARY-TEST
-    - GD-03-BOUNDARY-GUARD-TESTS
-    - GD-13-NATIONWIDE-RECORD-CONTRACT
-    - GD-16-INTEROP-PURE-ADAPTER
-    - GD-17-NATIONWIDE-SOURCE-SURVEY
-    - GD-18-STORAGE-CAPACITY-MODEL
-    - GD-22-NATION-REGISTRY-BINDING
-  last_durable_checkpoint: 9a25d764cb781010b9209f2febb8cd5c5244ce00
+    - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
+  last_durable_checkpoint: 3499febdfd5d25764ba91e732e3ff54604fc17d2
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -6248,7 +6237,7 @@ work_items:
     priority: 311
     milestone: General development
     title: Characterization tests for local-output replay, write and read
-    status: ready
+    status: in_progress
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01

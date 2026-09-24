@@ -292,3 +292,10 @@ No commit for step 1.
   files and 1617 tests. `npm run format:check`, `lint`, `typecheck`,
   `validate:backbone` (853 links) and `hooks:test` (18/18): all exit 0.
 - Commit recorded in the step 7 entry.
+
+### Step 7: wave 1, sequential
+
+- Step 6 was commit `3499feb`.
+- GD-01 (characterization tests) marked `in_progress`, focus set to GD-01 with
+  `resumable_roots: [GD-01, PS09-02]`; `npm run validate:roadmap` passed
+  (in_progress 1, ready 5).
