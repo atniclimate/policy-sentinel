@@ -190,3 +190,21 @@ No commit for step 1.
 - `npm run validate:backbone`: exit 0 (853 local links). Prettier check on the
   two changed documents: clean.
 - Commit recorded in the step 5 entry.
+
+### Step 5: AGENTS.md rule sentences
+
+- Step 4 was commit `d8a670a`.
+- Ledger rule (RL-01): "Select only within the authorized canonical PS09 graph;
+  an archived ready item is not an execution grant." became "Select only
+  within an authorized canonical graph: the PS09 graph, or the
+  general-development graph under G-GENERAL-DEV-01 once represented. An
+  archived ready item is not an execution grant. (D-071)"
+- Data rule (RL-04): after "Public builds must reject private adapter inputs."
+  added "A locally run deployment may process such content only when the user
+  supplies it, under the private-context module rules in
+  `docs/architecture/general-development-addendum-2026-09-22.md`; a public
+  build never can. (D-072)"
+- `git diff -- AGENTS.md` shows only those two hunks. No test or hook pins the
+  old sentence text. `npm run validate:backbone` exit 0; `npm run format:check`
+  exit 0.
+- Commit recorded in the step 6 entry.

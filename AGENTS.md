@@ -119,8 +119,10 @@ concurrent changes.
   item `in_progress`; a validated terminal local-release or genuine-impasse
   state has zero. Select the lowest-priority-number `ready` item whose
   dependencies are complete, and promote newly unblocked `not_started` items
-  to `ready` in the same ledger update. Select only within the authorized
-  canonical PS09 graph; an archived ready item is not an execution grant.
+  to `ready` in the same ledger update. Select only within an authorized
+  canonical graph: the PS09 graph, or the general-development graph under
+  G-GENERAL-DEV-01 once represented. An archived ready item is not an execution
+  grant. (D-071)
 - Use only the roadmap status vocabulary: `complete`, `in_progress`, `ready`,
   `blocked`, `deferred`, and `not_started`. Run `npm run validate:roadmap`
   before committing a ledger change.
@@ -220,7 +222,10 @@ concurrent changes.
   transmission belongs in the public beta.
 - Do not add maps, parcel geometry, ownership, trust-land, fee-land, Tribally
   owned parcel, or sensitive land content. Public builds must reject private
-  adapter inputs.
+  adapter inputs. A locally run deployment may process such content only when
+  the user supplies it, under the private-context module rules in
+  `docs/architecture/general-development-addendum-2026-09-22.md`; a public
+  build never can. (D-072)
 
 ## Repository and artifact boundary
 
