@@ -1,74 +1,24 @@
 # AGENTS.md
 
-Newest state (2026-09-22): general development. The non-PS09 Makah demo track
-was delivered at the ATNI Annual Convention and is finished. The project now
-returns to general engine development, with nationwide coverage (Tribal,
-federal and state sources across the United States) treated as a core
-capability, not an extension. The realignment session on branch
-`realign/general-development` produced three documents. Read them in this
-order before any implementation:
+This file is the governing contract for every agent working in this
+repository: rules, boundaries, commands and validation. It is not the place to
+learn where the project is. Current state, the read order for a fresh session
+and the historical recovery pointers live in
+[`docs/continuation-prompt.md`](docs/continuation-prompt.md). Historical
+grants remain historical: no completed launch, handoff or outcome document
+resumes through this file.
 
-1. The [general development audit](docs/audits/2026-09-22-general-dev-audit.md):
-   the code as it actually is, baseline results, contract drift, the O-023
-   assessment and severity-ordered findings.
-2. The [module boundaries design](docs/architecture/module-boundaries.md): the
-   intake, geographic/context association and output module contracts, the
-   ecosystem map, interop conformance tables and the refactor handoff.
-3. The [realignment open decisions](docs/decisions/2026-09-22-realignment-open-decisions.md):
-   the owner calls that come before the refactor.
-
-`ROADMAP.yaml` stays at schema 1.9, which freezes work-item and gate
-identities. The refactor and nationwide work are therefore a dependency-checked
-proposal (module boundaries section 9.4), not ledger entries. Representing them
-needs owner decision RD-01 and a validator extension. Until then there are zero
-active items and no general-development execution grant.
-`docs/continuation-prompt.md` still opens with the 2026-09-15 Makah state; start
-from this paragraph and the three documents above instead. The PS09 recoveries
-that follow are unchanged history.
-
-Current PS09 recovery: the bounded engineering review H-ENGINEERING-REVIEW-02 is
-complete. Start with the [local outcome](docs/handoffs/ps09-engineering-review-02-outcome.md)
-and live `ROADMAP.yaml`; there are zero active items and all worker leases are
-returned. ER-03/ER-04 repairs and full checks pass. Five synthetic measurement
-cases completed; search at 2,000 works remains explicitly incomplete. The
-[claim/evidence matrix](docs/development/ps09-engineering-review-02-evidence-matrix.md)
-recommends a broader finite PS09-02 tranche for separate exact adoption and
-source review; it supplies no originating identity or scenario evidence. The
-[prior knowledge assurance](docs/handoffs/ps09-knowledge-assurance-outcome.md)
-remains complete. The
-[next PS09-02 evidence packet](docs/handoffs/ps09-02-next-evidence-packet.md)
-is an unexecuted proposal requiring exact later adoption and source review.
-This completed maintenance scope cannot authorize acquisition or release work.
-
-Discovery recovery: the bounded cutoff continuation is complete. Start with the
-[local outcome](docs/handoffs/ps09-real-policy-discovery-outcome.md) and live
-`ROADMAP.yaml`. PS09-05 has scoped browser acceptance, including a separate
-hash-bound manual disposition for ten preserved axe incompletes. There are zero
-active items; the PS09 program remains blocked on PS09-02 identity/scenario
-evidence. PS09-06 stays unstarted and gated. Preserve the sealed corpus; the
-[cutoff prompt](docs/handoffs/ps09-real-policy-cutoff-continuation.md) is historical.
-
-Makah demo track (finished, non-PS09). Both items are complete on commit
-evidence: groundwork at `554e105` and the bounded federal acquisition at
-`07d5fb2`, with the ledger follow-up at `a1ee988`, all on 2026-09-15. Recover
-the [groundwork outcome](docs/handoffs/makah-demo-01-groundwork-outcome.md) and
-the [acquisition outcome](docs/handoffs/makah-demo-02-federal-acquisition-outcome.md).
-[`docs/makah-demo/`](docs/makah-demo/) holds the non-authorizing descriptive
-documents (start at
-[`00-llm-usage-manifest.yaml`](docs/makah-demo/00-llm-usage-manifest.yaml)).
-By owner ruling, all Makah demo material stays where it is; the audit
-inventories it. D-068, D-069 and D-070 retain their recorded scope.
-Acquisition is custody, not admission: no acquired document is admitted,
-activated, excerpted or published, and the ten objects in the external
-`makah-demo-02` namespace stay custody only. Per-document `G-J` decisions and
-the `G-BIA-IDENTITY` prerequisite still precede any use or Nation association.
-The provenance record's Honor section stays owner-curated and deferred. The
-[ATNI Climate interop IO guide](docs/development/atni-climate-interop-io-guide.md)
-(`policy.search-context/1` in, `policy.citations/1` out) remains specified, not
-implemented and not adopted. Open fact O-023, the owner's shapefile-driven
-cross-app pipeline, is unchanged. It is assessed in audit section 4 and is
-decision RD-06 in the decisions file. No implementation of either reading
-precedes that decision.
+Phase (2026-09-22): general development. The Makah demo track is finished and
+its material stays where it is by owner ruling. Nationwide coverage (Tribal,
+federal and state sources across the United States) is a core capability of
+the general engine. Before any implementation, read
+[`docs/continuation-prompt.md`](docs/continuation-prompt.md) and follow its
+read order, which covers the
+[general development audit](docs/audits/2026-09-22-general-dev-audit.md), the
+[module boundaries design](docs/architecture/module-boundaries.md), the
+[general development addendum](docs/architecture/general-development-addendum-2026-09-22.md),
+the [realignment open decisions](docs/decisions/2026-09-22-realignment-open-decisions.md)
+and the [realignment rulings](docs/decisions/2026-09-22-realignment-rulings.md).
 
 ## Purpose and phase gate
 

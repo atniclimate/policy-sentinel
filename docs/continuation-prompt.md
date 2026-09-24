@@ -1,287 +1,110 @@
-# Policy Sentinel durable continuation prompt
+# Continuation prompt: current state for a fresh session
 
-Current state (2026-09-15): the Makah demo track's
-[federal acquisition launch](handoffs/makah-demo-02-federal-acquisition-launch.md)
-has been executed; read its
-[outcome](handoffs/makah-demo-02-federal-acquisition-outcome.md) first.
-`ROADMAP.yaml` is at schema 1.9 with `MAKAH-DEMO-01` complete and
-`MAKAH-DEMO-02` recorded per the outcome, and the external `makah-demo-02`
-namespace holds ten receipts and objects. The PS09 recoveries below are
-unchanged history and remain blocked on PS09-02 evidence.
+Updated 2026-09-22. This is the single current-state document for Policy
+Sentinel. `AGENTS.md` holds the rules; this file holds where the project is,
+what to read, and what a fresh session does first. Historical launch, cutoff
+and outcome documents remain preserved; their execution grants do not resume
+through this file.
 
-Latest PS09 recovery: read the completed
-[engineering review 02 outcome](handoffs/ps09-engineering-review-02-outcome.md),
-[journal](development/PS09-ENGINEERING-REVIEW-02.md) and live ROADMAP.
-H-ENGINEERING-REVIEW-02 is complete with zero active items and returned leases.
-ER-03/ER-04 bounded repairs and full checks pass. Five synthetic measurement
-cases completed; the 2,000-work search case is explicitly incomplete.
-The [claim/evidence matrix](development/ps09-engineering-review-02-evidence-matrix.md)
-and [acceptance delta](development/ps09-engineering-review-02-acceptance-delta.md)
-recommend a broader finite PS09-02 tranche for separate exact adoption and source
-review. They provide no new identity/scenario acceptance or execution grant.
+## Current state (2026-09-22): general development
 
-Prior recovery: the completed
-[knowledge assurance outcome](handoffs/ps09-knowledge-assurance-outcome.md),
-[journal](development/PS09-KNOWLEDGE-ASSURANCE-01.md) and live ROADMAP.
-H-KNOWLEDGE-ASSURANCE-01 is complete and there are zero active items.
-The [next PS09-02 evidence packet](handoffs/ps09-02-next-evidence-packet.md)
-is an unexecuted proposal; exact later adoption, source qualification and a
-reviewed ledger representation precede execution. The discovery checkpoint
-below remains terminal history. No ended run or historical budget restarts.
+The non-PS09 Makah demo track was delivered at the ATNI Annual Convention and
+is finished. The project has returned to general engine development, with
+nationwide coverage (Tribal, federal and state sources across the United
+States) treated as a core capability, not an extension.
 
-Discovery recovery: read the completed
-[local workbench outcome](handoffs/ps09-real-policy-discovery-outcome.md),
-[execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md) and live roadmap.
-PS09-03/04/05 are complete only for the adopted bounded real-policy slice.
-The final browser report retains ten axe incompletes; a separate reproducible
-manual review closes those exact contrast/visibility nodes. There are zero
-active work items. The PS09 program is blocked on PS09-02 originating identity
-and scenario evidence; PS09-06 remains unstarted and gated.
+The realignment session on branch `realign/general-development` (commits
+`fff7990` audit, `20d0056` design, `6eb8947` realignment, plus a ledger
+follow-up) produced three documents; the owner then ruled on their open
+questions and added directions. Read, in this order, before any
+implementation:
 
-The [cutoff continuation](handoffs/ps09-real-policy-cutoff-continuation.md)
-has been executed. Its startup and the launch instructions below are historical
-execution context, not a new acquisition or successor-run grant. Local replay
-and inspection use the existing sealed corpus and reviewed loopback output.
-The next owner action is an exact PS09-02 evidence/scenario packet with bounded
-authority, followed by separate PS09-06 authorization only when prerequisites
-are met. Preserve the [adopted launch](handoffs/ps09-real-policy-discovery-launch.md),
-[research synthesis](development/ps09-real-policy-systems-research-2026-09-05.md),
-[earlier recovery guide](handoffs/ps09-fresh-session-recovery-and-forward-plan.md)
-and [EV01 terminal handoff](handoffs/ps09-ev-01-evidence-review.md) as history.
-EV01, Run 1 and the [bounded Run 2 packet](handoffs/ps09-run-02-identity-authority-scenarios.md)
-cannot resume from spent or unused historical operation budgets. Every separately
-closed source, release and external gate retains its exact boundary.
+1. `ROADMAP.yaml` (the canonical ledger; read it completely).
+2. `docs/audits/2026-09-22-general-dev-audit.md`: the code as it actually is,
+   baseline results, contract drift, the O-023 assessment and the
+   severity-ordered findings.
+3. `docs/architecture/module-boundaries.md`: the intake, context and output
+   module contracts, the ecosystem map, the interop conformance tables and
+   the refactor handoff (section 9).
+4. `docs/architecture/general-development-addendum-2026-09-22.md`: Module 4
+   (private context, user-supplied), the area resolver, PolicyContext v1, the
+   designation registry, the Nation registry binding, the storage holding
+   policy and the added work items.
+5. `docs/decisions/2026-09-22-realignment-open-decisions.md` (the questions)
+   and `docs/decisions/2026-09-22-realignment-rulings.md` (the owner's
+   answers, RL-01 to RL-14).
 
-Makah demo recovery, a separate non-PS09 track prepared 2026-09-15: read
-[`docs/makah-demo/00-llm-usage-manifest.yaml`](makah-demo/00-llm-usage-manifest.yaml)
-and its two sibling documents for the current-functionality/GIS-boundary and
-parcel-jurisdiction/citation-export gap analyses, validated against
-[`schemas/makah-demo-doc.schema.v1.json`](../schemas/makah-demo-doc.schema.v1.json).
-[`docs/handoffs/makah-demo-fable-5.1-launch-prompt.md`](handoffs/makah-demo-fable-5.1-launch-prompt.md)
-was executed on 2026-09-15; recover its
-[outcome](handoffs/makah-demo-01-groundwork-outcome.md), the adopted D-068
-and approved D-069 in the decision register, and the TSDF provenance record
-under `docs/development/makah-demo/`. The
-[federal acquisition launch](handoffs/makah-demo-02-federal-acquisition-launch.md)
-was executed on 2026-09-15; its
-[outcome](handoffs/makah-demo-02-federal-acquisition-outcome.md) records the
-schema 1.9 representation, the `application/pdf` and court-host runner
-changes, the ten-receipt acquisition into
-`I:\policy-sentinel-corpus-real-policy\makah-demo-02`, and the provenance
-record updates. Acquisition is custody, not admission; the next owner actions
-are per-document `G-J` decisions and `G-BIA-IDENTITY`. The track does not
-touch any PS09 gate or the `PS09-06-LOCAL-RC` release root. Read the
+Ledger status: until the governance session applies RL-01, `ROADMAP.yaml`
+stays at schema 1.9, which freezes work-item and gate identities; the
+general-development items are a dependency-checked proposal (design section
+9.4 and addendum section 11), there are zero active items, and there is no
+general-development execution grant. After RL-01 is applied, the ledger says
+what is active; this paragraph is then stale and should be updated.
+
+Open owner decisions after the rulings: addendum section 12 (registry
+repository shape, wave concurrency versus the one-`in_progress` rule, the
+geometry dependency).
+
+## What a fresh session does first
+
+1. Confirm the checkout: `git branch --show-current`, `git rev-parse HEAD`,
+   `git status --short`. Compare against the last session handoff under
+   `docs/handoffs/`.
+2. Run `npm run validate:roadmap` and `npm run validate:backbone`. Both must
+   pass before any edit; if one fails, the failure is the first finding.
+3. Read the documents in the order above.
+4. Select work only from the ledger, under the rules in `AGENTS.md`
+   ("Durable execution ledger"). A design document, an addendum or a handoff
+   is not an execution grant.
+5. Keep the session ledger and the handoff as `CLAUDE.md` describes.
+
+## Historical recoveries (moved here from the top of `AGENTS.md`, unchanged)
+
+Current PS09 recovery: the bounded engineering review H-ENGINEERING-REVIEW-02 is
+complete. Start with the [local outcome](handoffs/ps09-engineering-review-02-outcome.md)
+and live `ROADMAP.yaml`; there are zero active items and all worker leases are
+returned. ER-03/ER-04 repairs and full checks pass. Five synthetic measurement
+cases completed; search at 2,000 works remains explicitly incomplete. The
+[claim/evidence matrix](development/ps09-engineering-review-02-evidence-matrix.md)
+recommends a broader finite PS09-02 tranche for separate exact adoption and
+source review; it supplies no originating identity or scenario evidence. The
+[prior knowledge assurance](handoffs/ps09-knowledge-assurance-outcome.md)
+remains complete. The
+[next PS09-02 evidence packet](handoffs/ps09-02-next-evidence-packet.md)
+is an unexecuted proposal requiring exact later adoption and source review.
+This completed maintenance scope cannot authorize acquisition or release work.
+
+Discovery recovery: the bounded cutoff continuation is complete. Start with the
+[local outcome](handoffs/ps09-real-policy-discovery-outcome.md) and live
+`ROADMAP.yaml`. PS09-05 has scoped browser acceptance, including a separate
+hash-bound manual disposition for ten preserved axe incompletes. There are zero
+active items; the PS09 program remains blocked on PS09-02 identity/scenario
+evidence. PS09-06 stays unstarted and gated. Preserve the sealed corpus; the
+[cutoff prompt](handoffs/ps09-real-policy-cutoff-continuation.md) is historical.
+
+Makah demo track (finished, non-PS09). Both items are complete on commit
+evidence: groundwork at `554e105` and the bounded federal acquisition at
+`07d5fb2`, with the ledger follow-up at `a1ee988`, all on 2026-09-15. Recover
+the [groundwork outcome](handoffs/makah-demo-01-groundwork-outcome.md) and
+the [acquisition outcome](handoffs/makah-demo-02-federal-acquisition-outcome.md).
+[`docs/makah-demo/`](makah-demo/) holds the non-authorizing descriptive
+documents (start at
+[`00-llm-usage-manifest.yaml`](makah-demo/00-llm-usage-manifest.yaml)).
+By owner ruling, all Makah demo material stays where it is; the audit
+inventories it. D-068, D-069 and D-070 retain their recorded scope.
+Acquisition is custody, not admission: no acquired document is admitted,
+activated, excerpted or published, and the ten objects in the external
+`makah-demo-02` namespace stay custody only. Per-document `G-J` decisions and
+the `G-BIA-IDENTITY` prerequisite still precede any use or Nation association.
+The provenance record's Honor section stays owner-curated and deferred. The
 [ATNI Climate interop IO guide](development/atni-climate-interop-io-guide.md)
-before any cross-app work: the specified pathway is search context in,
-citations out, with no parcel or geometry intake, and it is not adopted in
-the ledger. The owner's stated next direction (shapefile pipeline through
-GeoBase, land-use-analyzer and Policy Sentinel) is open fact O-023 in the
-decision register and requires an owner decision first. The convention stage
-package lives at `I:\ATNI-annual-convention-2026\ga-demonstration\policy-sentinel`
-and is machine-only.
+(`policy.search-context/1` in, `policy.citations/1` out) remains specified, not
+implemented and not adopted. Open fact O-023, the owner's shapefile-driven
+cross-app pipeline, is assessed in audit section 4, was decision RD-06 in the
+decisions file, and is closed in modified form by ruling RL-06.
 
-## Start and recover
-
-Use the owner-selected model and effort for the session; the current kickoff
-selects GPT-6 Astra at Ultra where the interface supports it. Preserve the
-owner's actual model selection; do not silently substitute another model or
-invent an API effort value. Model selection does not create authority.
-
-1. Resolve the repository root and read every applicable `AGENTS.md`.
-2. Read `ROADMAP.yaml` completely before selecting work.
-   Read the real-policy launch, research synthesis and current execution journal before applying an older
-   kickoff. The historical local diagnostics alone do not authorize new work;
-   the owner's supplied current instruction determines the active scope.
-3. Read [the backbone](PROJECT-BACKBONE.md), [PNW scope](pnw-scope-and-acceptance.md),
-   [operating model](development/AGENT-AND-TOOL-OPERATING-MODEL.md),
-   [corpus ADR](adr/ps09-canonical-corpus.md),
-   [component dispositions](development/ps09-convergence.v1.json),
-   [Run 1 coordination](development/PS09-RUN-01-COORDINATION.md),
-   [custody manifest](development/ps09-run-01-custody.json), and
-   [Run 1 handoff](handoffs/ps09-run-01-convergence.md).
-4. Resolve and read the protected owner kickoff, program plan, corpus design,
-   scenario catalog, session briefs, state assessment, and decision-log inputs
-   by their exact inventory paths. They are owner direction, not implemented
-   contracts. Do not edit, rename, delete, stage, or commit them.
-5. Read binding architecture, data/governance, source, UX, decision and
-   validation contracts relevant to the bounded local task under current owner
-   direction.
-6. Reconcile branch, exact HEAD/parent, worktrees, status, remotes, staged and
-   changed paths, relevant history, active processes, owner-input hashes,
-   generated evidence custody and protected K0/S0/O0 identities.
-7. Validate runtime, roadmap and backbone before mutation. Recover outstanding
-   leases before assigning writes. Preserve unrelated and concurrent changes.
-
-After compaction, recover from local Git and the durable ledger rather than
-replaying an older prompt or relying on remembered chat. A checkbox, agent
-report, schema or passing synthetic fixture is not source/release evidence.
-
-## Current authority and single completion graph
-
-The completed adopted launch authorized bounded local implementation, independently
-reviewed credential-free official acquisition, external immutable corpus and
-derived evidence, temporal/cross-context analysis, deterministic search,
-workbench/dossier/export, tests, repairs and local commits. Its exact source,
-host, request, byte, deadline, concurrency, storage and privacy ceilings remain
-binding. Source review and runner preflight precede dispatch; durably account
-for every attempted GET before issuing it, and recover completed operations
-from retained evidence rather than repeating an uncertain request.
-
-The following paragraphs describe completed historical grants, not limits on
-the adopted run. The completed synthetic packet's token is
-`POLICY-SENTINEL-0.9-RUN-02-PNW-IDENTITY-AUTHORITY-AND-SCENARIO-MANIFESTS`.
-It authorized only the 23 paths and local synthetic scope of the entry packet
-approved at `1cb2384fe8fa4da71d1f9e8884be6980d010db74`. Its implementation,
-tests and independent actual-code reviews are validated. Recover final local
-commit metadata from the handoff; do not restart the completed packet.
-Its real identity population, source/domain/request/byte budgets and external
-operations remained closed/zero.
-Synthetic contract and manifest completion cannot establish full PS09-02
-acceptance; preserve the exact remaining evidence/authority block. That packet
-does not start any successor or archived lane.
-
-The separate EV01 token approved its exact five conditional operations but ended
-before any was reserved or issued. Do not reuse its directory or unused budget,
-repair the stale active ledger, create receipts, or rerun its helper/checks.
-The fresh-session guide's proposed readiness stage is historical input to the
-new runner; it is not source authority. The adopted launch supplied its own
-bounded local authority and has reached its local outcome. Do not reopen settled product questions or reset a
-spent operation ledger.
-
-The canonical program is PS09-01 through PS09-06; conditional PS09-07/08 remain
-deferred and separately gated. `PS09-06-LOCAL-RC` is the sole local release
-root and single product prerequisite for later public beta operations. Legacy
-B1-B10, broad PNW and the exhausted real-source child lane retain identities,
-statuses, gates and dated evidence as archived accounting. An archived ready
-item is neither current execution authority nor another mandatory product.
-PS09-02 remains blocked and an explicit PS09-06 prerequisite; do not mark its
-unresolved identities or scenarios complete to enable general-jurisdiction
-work. PS09-03/04/05 completed only the adopted launch's local closure, while
-PS09-06/07/08 retain their exact owner gates.
-
-Use only `complete`, `in_progress`, `ready`, `blocked`, `deferred`, and
-`not_started` in the ledger. While authorized work is active, maintain exactly
-one active item. At the validated terminal stop, none is active. Never advance
-a later-run gate because its dependency completes. Update the roadmap after
-material checkpoints and before compaction or a long pause; validate it before
-a ledger commit.
-
-## Product and implementation boundary
-
-The target is one general engine for a bounded owner-selected PNW/ATNI-facing
-cohort, real public sources, representative deep scenario graphs and geographic
-sentinels. Run 2 must establish exact identity, authority, cohort and scenario
-manifests. Directory appearance does not define the cohort, and no fixed
-current-membership count gates unrelated general-jurisdiction work. An exact
-membership claim still requires originating evidence.
-
-Crow Tribal government, Crow Reservation and BIA Crow Agency are distinct.
-Fort Peck and Fort Belknap remain separate candidates without shared-position
-inference. Nevada is not automatically included. Duwamish's retained initial
-cohort exclusion makes no legal, recognition or membership determination.
-Nez Perce remains a candidate scenario. Nationwide and Native Hawaiian support
-remain later-compatible directions. Run 1 adds no real identity facts.
-
-The ordinary build consumes the existing analyzed-corpus module's explicit
-1.1 exact-three-fixture compatibility profile, then its retained artifact,
-app, dossier and CSV path. AnalyzedCorpus 1.0 remains supported. Both versions
-reject real create/parse with
-`REAL_SOURCE_LIFECYCLE_INTEGRATION_REQUIRED`.
-`PolicyRecord 1.4`, artifact 1.4 and source registry 1.19 remain their own
-compatible contracts, not duplicate corpus authorities. The retained 575-row
-Nation fixture/recognition contract is not ATNI membership or a universal
-engine invariant.
-
-Windows synthetic CAS and CuratedDocumentPack 1.0 prove object/rendition,
-document/version, UTF-8 byte segment and exact citation replay. An explicit
-external root is required; the ordinary build creates none. Raw immutable
-objects remain outside Git. Owned-fixture local cache/analysis/display are
-allowed; pack excerpts, export and public redistribution are prohibited.
-The existing synthetic artifact has its own reviewed boundary. Transport,
-real lifecycle integration, PDF/OCR/HTML parsing and broad search/output
-features were outside that completed Run 1 implementation. The active run must
-version and validate its successor rather than relabel the retained 1.x profile.
-The ADR records exact custody
-assumptions and proof limits.
-
-General-jurisdiction search and temporal/cross-context comparison must work
-without a real Nation selection or current membership registry. Freeze the
-independent source-grounded gold expectations before tuning and preserve at
-least four undisclosed first-pass cases under the
-[evaluation protocol](development/ps09-real-policy-evaluation.md). Demonstrate
-the launch's document/class/context/chain counts, two analytical operations,
-three evidence-linked falsifiable findings, local browser/dossier/export and
-offline replay; report any shortfall without lowering the outcome.
-
-## Frozen source and external boundaries
-
-The completed synthetic Run 2 packet's budgets remain zero. EV01's later grant
-ended with zero source access and is not reusable. The historical real-source prerelease
-stopped on consumed R7 digest drift. Do not repeat D3, R6, R7 or PF-01 through
-PF-17; do not issue FR-A1. Preserve its 27-issued-request ledger and immutable
-43-file ignored evidence set. Candidate rankings are not selection or source
-operation authority. No source was admitted or activated by that historical packet.
-
-Qualification, admission, activation, acquisition, analysis eligibility,
-artifact eligibility and publication remain separate. Provider, interface,
-host/custodian, issuer/speaker, rendition authority, identity, membership,
-recognition, cohort, relevance and legal effect must remain distinct.
-
-Keep remote/push, license/Pages/publication, credential/terms/paid/contact,
-private or sensitive material, AI, telemetry, notifications, real
-identity/membership assertions, and K0/S0/O0 convergence outside the active scope.
-Do not restore a spent observer or silently start a later run. New operations
-and any explicit retry must remain inside the adopted launch, accepted source
-profile and fresh ledger; no automatic retry is authorized.
-
-## Validation, custody and terminal handoff
-
-The selected current runtime is Windows x64 Node 24.19.0/npm 12.0.2.
-Historical acquisitions retain their original pins and observations. Use only
-committed package scripts. Run focused checks during edits and serialize
-expensive full validation on this machine:
-
-```powershell
-npm run validate:runtime
-npm run validate:roadmap
-npm run validate:backbone
-npm run test:spine
-npm run check
-```
-
-Run 1's external-root replay remains dated evidence, and Run 2 supplied no
-external-root operation authority. The adopted launch permits a separately
-owned external run namespace; preserve existing roots and inventories without
-destructive cleanup. Real source bodies, renditions, excerpts, gold evidence
-and generated output must not enter Git. Only reviewed `local-output/` files
-may be explicitly served on `127.0.0.1`; never serve the corpus root or
-acquisition objects. Ordinary builds remain synthetic and network-free.
-Verify final Git/staged paths, `git diff --check`, source/artifact boundaries,
-protected input and historical evidence hashes, and final independent
-engineering/security plus governance/sovereignty review. The protected current
-inventory contains 32 owner direction inputs and a separate synthetic CSV
-whose producer is unproven. The historical 23-input count is not current.
-
-Commit only exact authorized paths and preserve protected inputs/ignored
-artifacts. Do not amend, rebase, reset or rewrite history. Record actual
-start/end commits, component dispositions, graph/counts, implemented versus
-contracted capabilities, command outcomes, runtime/Windows/replay evidence,
-browser applicability, object manifests/digests, source requests/states,
-custody, adversarial findings/repairs and exact remaining identity/scenario gates
-in the handoff. A material unresolved implementation finding blocks the local
-packet checkpoint; missing real evidence blocks full PS09-02 completion.
-
-The following are historical Run 2 local-packet dispositions, not the only
-permitted disposition for every later recovery task:
-
-- `RUN_02_LOCAL_SYNTHETIC_PACKET_VALIDATED_REAL_EVIDENCE_BLOCKED`
-- `RUN_02_LOCAL_PACKET_REPAIR_REQUIRED`
-- `RUN_02_OWNER_CUSTODY_OR_SCOPE_DECISION_REQUIRED`
-
-The full Run 2 completion token is unavailable from synthetic proof. The
-bounded local checkpoint is not whole-product completion or publication.
-The earlier recovery task used
-`PS09_FRESH_SESSION_HANDOFF_READY_NO_NEW_SOURCE_AUTHORITY`; that disposition
-is historical. Across compaction recover the completed bounded workbench's
-terminal outcome and live ledger. Preserve its measured evidence, unresolved
-claims and remaining release gates; the completed launch does not restart itself.
+The 2026-09-19 external deep review (evidence at
+`I:\policy-sentinel-review\2026-09-19\`) is preserved as evidence. Its
+priorities are not roadmap authority; its findings on analyst workflows,
+repeatability by another person and reuse on a second corpus are inputs to
+general-development planning.
