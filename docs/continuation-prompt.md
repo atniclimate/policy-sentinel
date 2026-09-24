@@ -34,12 +34,22 @@ implementation:
    and `docs/decisions/2026-09-22-realignment-rulings.md` (the owner's
    answers, RL-01 to RL-14).
 
-Ledger status: until the governance session applies RL-01, `ROADMAP.yaml`
-stays at schema 1.9, which freezes work-item and gate identities; the
-general-development items are a dependency-checked proposal (design section
-9.4 and addendum section 11), there are zero active items, and there is no
-general-development execution grant. After RL-01 is applied, the ledger says
-what is active; this paragraph is then stale and should be updated.
+Ledger status: general-development session 1 applied RL-01. The rulings are
+D-071 to D-079 in `docs/decision-register.md`, and `ROADMAP.yaml` is at schema
+1.10: milestone "General development" (GD-00 to GD-23) is admitted by rule
+behind four gates, `G-GENERAL-DEV-01` and `G-GD-PRIVATE-CONTEXT` approved for
+local synthetic work, `G-GD-NATIONWIDE-CONTRACT` and `G-GD-INTEROP` closed.
+Every other milestone keeps its frozen identities. Refactor wave 1 (GD-01
+characterization tests, GD-02 module boundary test, GD-03 boundary-guard
+tests) is complete, and the ledger is at a terminal checkpoint with zero
+active items. Ready next: session R (GD-17 nationwide source survey, GD-18
+storage capacity model) and session 2 (wave 2: GD-04, GD-05, GD-07, GD-08,
+GD-09). The ledger's `current_focus` and `next_actions` say what is next;
+recover that session's detail from
+[its outcome](handoffs/general-development-session-01-outcome.md). Note that
+`docs/PROJECT-BACKBONE.md` and `docs/architecture/module-boundaries.md`
+section 9.4 still describe the pre-ruling schema 1.9 state until GD-15
+updates them.
 
 Open owner decisions after the rulings: addendum section 12 (registry
 repository shape, wave concurrency versus the one-`in_progress` rule, the
