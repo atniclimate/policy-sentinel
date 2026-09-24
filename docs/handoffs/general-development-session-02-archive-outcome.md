@@ -92,3 +92,26 @@ this ledger, `git log` and `ROADMAP.yaml`.
 - Addendum section 7 table: one row added, class "International and
   transboundary instruments", with the owner's starting points and note.
 - `npm run validate:backbone` exit 0; Prettier check clean on both files.
+
+### Step 1c: decision register D-080 to D-082
+
+- Step 1b was commit `dd4708e`.
+- D-080 to D-089 were unused anywhere in the repository (checked with grep
+  over Markdown, YAML and source) before the edit.
+- Three rows appended to the "General development decisions" table after
+  D-079: D-080 (legacy archive and consolidation), D-081 (definition of done
+  for general development, the PS09-06-LOCAL-RC consolidation into GD-27
+  recorded as the plan for a later planning session, the first acquisition
+  decision deferred until GD-17 and GD-18 report), D-082 (Claude Code
+  operating environment and the closure of addendum section 12). Each row
+  says what it does not authorize.
+- Addendum section 12: "Resolved by D-082." added to each of the three
+  questions.
+- **Finding S2-F3:** two existing sentences still call addendum section 12 open:
+  the end of D-075 ("the registry repository shape is an open owner question
+  (addendum section 12)") and `docs/continuation-prompt.md` line 54 ("Open
+  owner decisions after the rulings: addendum section 12 ..."). This
+  session's authority covers neither edit (D-075 is an existing row; step 1g
+  adds sections only), so both are left as found and recorded here. D-082
+  supersedes them.
+- `npm run validate:backbone` exit 0 (855 local links); Prettier clean.

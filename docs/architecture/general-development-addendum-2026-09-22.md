@@ -320,11 +320,13 @@ RL-04; real private data never enters this repository under any gate.
 1. Registry repository shape: one repository holding both the Nation registry
    and the designation registry as separate datasets, or two repositories.
    Default: one repository, two datasets, separate version lines.
+   Resolved by D-082.
 2. Wave concurrency versus the ledger rule "exactly one work item
    `in_progress`" while local work is active. Parallel lanes in a wave
    violate it as written. Session 1 runs wave 1 sequentially to respect the
    rule; the owner decides whether to amend the rule for waves (for example,
    one `in_progress` item per lane, each lane's item named in the ledger) or
-   keep sequential execution.
+   keep sequential execution. Resolved by D-082.
 3. Geometry dependency for the area resolver: a pinned, offline, pure
    JavaScript library is proposed; the owner may prefer a different choice.
+   Resolved by D-082.
