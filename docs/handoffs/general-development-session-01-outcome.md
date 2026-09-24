@@ -315,4 +315,26 @@ No commit for step 1.
 - Commit `b32d5f6` (GD-01 implementation, 2026-09-24T09:28:45-07:00). Ledger:
   GD-01 complete with that commit and time; no item newly unblocked (GD-05
   still needs GD-02); focus null at a wave checkpoint;
-  `npm run validate:roadmap` passed (complete 45, ready 5).
+  `npm run validate:roadmap` passed (complete 45, ready 5). Commit `33aff12`.
+- GD-02 (module boundary test) activated at commit `5345a0c`.
+- GD-02 lane: added `tests/architecture/module-manifest.mjs`,
+  `tests/architecture/module-boundaries.test.ts` and, beyond its row,
+  `tests/architecture/module-manifest.d.mts` (a type declaration the `.mjs`
+  needs for `tsc`; accepted as the design's `.mjs`/`.d.mts` pairing and
+  recorded here as a scope note); extended the Makah non-interference scan.
+  Report mode with 16 allowlisted violations (config coupling and seam
+  bundling from audit 2.6); reachability enforcing and passing (19 files
+  walked from `src/main.tsx`, 16 from `scripts/build-synthetic-artifact.mjs`);
+  `npm test` exit 0 with Vitest 98 files and 1621 tests.
+- GD-02 verification (`gate-verifier`, base `5345a0c`): PASS, allowlist checked
+  in both directions, reachability not allowlisted, no Makah assertion removed.
+  Its minor note: the lane's missing-directory skip also covered `src/app` and
+  `src/pipeline`. The lead narrowed the skip to `src/modules` and `src/core`
+  only (a missing `src/app` or `src/pipeline` still throws) and reran
+  typecheck, lint and the two suites (10/10). The verifier also reported that
+  one of its own commands briefly created `I:\dummy`, which it deleted; the
+  lead confirmed it is absent.
+- Commit `2093cf3` (GD-02 implementation, 2026-09-24T10:36:08-07:00). Ledger:
+  GD-02 complete; GD-05, GD-07, GD-08 and GD-09 promoted to `ready` (their
+  dependencies are now complete); focus null at a wave checkpoint with eleven
+  roots; `npm run validate:roadmap` passed (complete 46, ready 8).

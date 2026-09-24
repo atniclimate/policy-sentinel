@@ -1008,7 +1008,7 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-02-MODULE-BOUNDARY-TEST
+  work_item: null
   objective: >-
     General development under G-GENERAL-DEV-01 (D-071). Refactor wave 1 is
     GD-01, GD-02 and GD-03, run one at a time while the one-in_progress rule
@@ -1020,11 +1020,23 @@ current_focus:
     program stays blocked on PS09-02 originating identity/scenario evidence;
     PS09-06 is unstarted and gated; the completed H01/H02 maintenance and every
     sealed discovery, prior assurance and owner-input identity are preserved.
-  terminal_reason: null
+  terminal_reason: >-
+    Wave 1 checkpoint: GD-01 and GD-02 are complete and GD-03 is not yet
+    activated. PS09 remains blocked on PS09-02 originating evidence and scenario
+    acceptance; no successor run or external operation is authorized.
   resumable_roots:
-    - GD-02-MODULE-BOUNDARY-TEST
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: 33aff120708f54cdb33fe7bc00ec37cb9b87aea4
+    - GD-03-BOUNDARY-GUARD-TESTS
+    - GD-05-INTAKE-REPLAY-AND-DISCOVERY
+    - GD-07-RESEARCH-OUTPUT-SPLIT
+    - GD-08-CONTEXT-RELEVANCE-EXTRACTION
+    - GD-09-JURISDICTION-IDENTIFIER-MODEL
+    - GD-13-NATIONWIDE-RECORD-CONTRACT
+    - GD-16-INTEROP-PURE-ADAPTER
+    - GD-17-NATIONWIDE-SOURCE-SURVEY
+    - GD-18-STORAGE-CAPACITY-MODEL
+    - GD-22-NATION-REGISTRY-BINDING
+  last_durable_checkpoint: 2093cf3a1f5a161660846fd8153bd92315b4d6da
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -6275,7 +6287,9 @@ work_items:
     priority: 312
     milestone: General development
     title: Module manifest and import-rule test (report mode)
-    status: in_progress
+    status: complete
+    completed_on: "2026-09-24T10:36:08-07:00"
+    completion_commit: 2093cf3a1f5a161660846fd8153bd92315b4d6da
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -6295,7 +6309,27 @@ work_items:
         The source scan in tests/engine/makah-demo-non-interference.test.ts
         extends to src/modules/** and src/core/** without weakening any
         assertion, and that test stays green.
-    evidence: []
+    evidence:
+      - >-
+        Commit 2093cf3a1f5a161660846fd8153bd92315b4d6da
+        (2026-09-24T10:36:08-07:00) adds tests/architecture/module-manifest.mjs
+        with a .d.mts companion and
+        tests/architecture/module-boundaries.test.ts. The dependency rule runs
+        in report mode against an exact allowlist of 16 of today's violations
+        (audit section 2.6), checked in both directions. The public-entry
+        reachability rule is enforcing and passes: no private-module file,
+        src/modules/private file or src/engine/index.ts is reachable from
+        src/main.tsx (19 files walked) or scripts/build-synthetic-artifact.mjs
+        (16 files walked). The Makah non-interference scan extends to
+        src/modules and src/core, skipped only while absent.
+      - >-
+        Written by the gd-lane agent; the .d.mts companion is beyond the step
+        row and was accepted by the lead; the lead narrowed the lane's
+        missing-directory skip so src/app and src/pipeline still fail if absent.
+        gate-verifier returned PASS against base 5345a0c: npm test exit 0
+        (Vitest 98 files, 1621 tests), typecheck, lint, format:check, both
+        validators, scan:source and build exit 0; protected and private-context
+        paths unchanged.
   - id: GD-03-BOUNDARY-GUARD-TESTS
     priority: 313
     milestone: General development
@@ -6342,7 +6376,7 @@ work_items:
     priority: 315
     milestone: General development
     title: Replay and Washington discovery moved into intake
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -6383,7 +6417,7 @@ work_items:
     priority: 317
     milestone: General development
     title: Research review (context) split from research HTML (output)
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -6400,7 +6434,7 @@ work_items:
     priority: 318
     milestone: General development
     title: Relevance functions moved into context
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -6418,7 +6452,7 @@ work_items:
     priority: 319
     milestone: General development
     title: Nationwide JurisdictionRef model (synthetic registry)
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-073
     authorization_gate: G-GENERAL-DEV-01
@@ -6978,35 +7012,49 @@ next_actions:
       cutoff startups or archived lanes. General development proceeds separately
       under G-GENERAL-DEV-01 (D-071) and does not unblock PS09.
   - order: 2
-    work_item: GD-02-MODULE-BOUNDARY-TEST
-    action: >-
-      Wave 1: module manifest and boundary test in report mode, with the
-      private-module public-entry reachability rule enforcing (addendum section
-      2).
-  - order: 3
     work_item: GD-03-BOUNDARY-GUARD-TESTS
     action: Wave 1 - shared boundary-guard tests written before GD-04.
+  - order: 3
+    work_item: GD-05-INTAKE-REPLAY-AND-DISCOVERY
+    action: >-
+      Wave 2 (session 2): move replay and Washington discovery into
+      src/modules/intake behind re-export shims.
   - order: 4
+    work_item: GD-07-RESEARCH-OUTPUT-SPLIT
+    action: >-
+      Wave 2 (session 2): split research review (context) from research HTML
+      (output).
+  - order: 5
+    work_item: GD-08-CONTEXT-RELEVANCE-EXTRACTION
+    action: >-
+      Wave 2 (session 2): move the relevance functions into
+      src/modules/context/relevance.ts.
+  - order: 6
+    work_item: GD-09-JURISDICTION-IDENTIFIER-MODEL
+    action: >-
+      Wave 2 (session 2): nationwide JurisdictionRef model with a synthetic
+      registry.
+  - order: 7
     work_item: GD-13-NATIONWIDE-RECORD-CONTRACT
     action: >-
       Blocked on the closed gate G-GD-NATIONWIDE-CONTRACT; the owner opens it
       for the exact successor contracts under D-073.
-  - order: 5
+  - order: 8
     work_item: GD-16-INTEROP-PURE-ADAPTER
     action: >-
       Blocked on the closed gate G-GD-INTEROP; the owner opens it for the pure
       validator and projector only under D-074.
-  - order: 6
+  - order: 9
     work_item: GD-17-NATIONWIDE-SOURCE-SURVEY
     action: >-
       Session R (RL-14): documentation-only nationwide source survey with the
       source-scout agent; acquires nothing.
-  - order: 7
+  - order: 10
     work_item: GD-18-STORAGE-CAPACITY-MODEL
     action: >-
       Session R (RL-14): storage capacity model and storage:report against the
       D-077 caps; acquires nothing.
-  - order: 8
+  - order: 11
     work_item: GD-22-NATION-REGISTRY-BINDING
     action: >-
       Blocked on G-BIA-IDENTITY and on an atni-nation-registry v0 release
