@@ -161,7 +161,42 @@ const makahDemoGateIds = [
   makahDemoGroundworkGateId,
   makahDemoAcquisitionGateId,
 ];
+// Schema 1.10 admits milestone "General development" by rule (D-071). Older
+// schema fixtures strip that graph so every 1.7 to 1.9 assertion still runs
+// unchanged on a ledger shaped like its own schema.
+const generalDevelopmentMilestone = "General development";
+const generalDevelopmentGateIds = [
+  "G-GENERAL-DEV-01",
+  "G-GD-NATIONWIDE-CONTRACT",
+  "G-GD-INTEROP",
+  "G-GD-PRIVATE-CONTEXT",
+];
+const isGeneralDevelopmentItem = ({ milestone }) =>
+  milestone === generalDevelopmentMilestone;
+const withoutGeneralDevelopment = (candidate) => {
+  const ids = new Set(
+    candidate.work_items.filter(isGeneralDevelopmentItem).map(({ id }) => id),
+  );
+  candidate.work_items = candidate.work_items.filter(({ id }) => !ids.has(id));
+  candidate.gates = candidate.gates.filter(
+    ({ id }) => !generalDevelopmentGateIds.includes(id),
+  );
+  delete candidate.completion_scope.general_development;
+  if (ids.has(candidate.current_focus.work_item)) {
+    Object.assign(candidate.current_focus, {
+      work_item: null,
+      terminal_reason: "Synthetic terminal reason.",
+    });
+  }
+  candidate.current_focus.resumable_roots =
+    candidate.current_focus.resumable_roots.filter((id) => !ids.has(id));
+  candidate.next_actions = candidate.next_actions
+    .filter((action) => !ids.has(action.work_item))
+    .map((action, index) => ({ ...action, order: index + 1 }));
+  return candidate;
+};
 const withoutMakahDemo = (candidate) => {
+  withoutGeneralDevelopment(candidate);
   candidate.work_items = candidate.work_items.filter(
     ({ id }) => !makahDemoIds.includes(id),
   );
@@ -905,9 +940,15 @@ test("schema 1.8 freezes spent authority and bounds the exact engineering review
   ];
   assert.equal(closedGateIds.length, 26);
   assert.equal(new Set(closedGateIds).size, 26);
+  // The four general-development gates are admitted by rule at schema 1.10
+  // and asserted exactly in that schema's own test; every other closed gate
+  // must still be exactly these 26.
   assert.deepEqual(
     liveRoadmap.gates
-      .filter(({ state }) => state === "closed")
+      .filter(
+        ({ id, state }) =>
+          state === "closed" && !generalDevelopmentGateIds.includes(id),
+      )
       .map(({ id }) => id),
     closedGateIds,
   );
@@ -1449,7 +1490,7 @@ test("schema 1.9 represents the Makah demo track without touching PS09", async (
   const gate = (candidate, id = makahDemoAcquisitionGateId) =>
     candidate.gates.find((entry) => entry.id === id);
   const candidateFor = (status) => {
-    const candidate = clone(liveRoadmap);
+    const candidate = withoutGeneralDevelopment(clone(liveRoadmap));
     candidate.schema_version = "1.9";
     const acquisition = item(candidate);
     acquisition.status = status;
@@ -1539,9 +1580,14 @@ test("schema 1.9 represents the Makah demo track without touching PS09", async (
     "G-PNW-COMMUNITY-AUTHORITY",
     "G-PNW-SOURCE-ACTIVATION",
   ];
+  // See the schema 1.8 test: general-development gates are asserted exactly
+  // in the schema 1.10 test.
   assert.deepEqual(
     liveRoadmap.gates
-      .filter(({ state }) => state === "closed")
+      .filter(
+        ({ id, state }) =>
+          state === "closed" && !generalDevelopmentGateIds.includes(id),
+      )
       .map(({ id }) => id),
     closedGateIds,
   );
@@ -1749,6 +1795,395 @@ test("schema 1.9 represents the Makah demo track without touching PS09", async (
   );
 });
 
+test("schema 1.10 admits the general-development graph by rule and keeps every other identity frozen", async (context) => {
+  const fixtureRoot = await mkdtemp(
+    path.join(tmpdir(), "policy-sentinel-ps09-roadmap-"),
+  );
+  context.after(() => rm(fixtureRoot, { recursive: true, force: true }));
+  const item = (candidate, id) =>
+    candidate.work_items.find((entry) => entry.id === id);
+  const gate = (candidate, id) =>
+    candidate.gates.find((entry) => entry.id === id);
+  const generalDevelopmentItems = (candidate) =>
+    candidate.work_items.filter(isGeneralDevelopmentItem);
+  const realignment = "GD-00-REALIGNMENT-AUDIT-DESIGN";
+  const designationRegistry = "GD-20-DESIGNATION-REGISTRY-CONTRACT";
+  const userSuppliedSourceClass = "GD-23-USER-SUPPLIED-SOURCE-CLASS";
+  const interopAdapter = "GD-16-INTEROP-PURE-ADAPTER";
+  const validate = async (name, candidate, { cli = false } = {}) => {
+    const fixturePath = path.join(fixtureRoot, `${name}.yaml`);
+    await writeFile(fixturePath, stringify(candidate), "utf8");
+    return cli
+      ? spawnSync(process.execPath, [validatorPath, fixturePath], {
+          cwd: projectRoot,
+          encoding: "utf8",
+        })
+      : validateActualModule(fixturePath);
+  };
+  const expectAccepted = async (name, candidate, options) => {
+    const result = await validate(name, candidate, options);
+    assert.equal(
+      result.status,
+      0,
+      `${name}: ${result.stdout}\n${result.stderr}`,
+    );
+    assert.match(result.stdout, /Roadmap validation passed/);
+  };
+  const expectRejected = async (name, candidate, expected, options) => {
+    const result = await validate(name, candidate, options);
+    assert.notEqual(result.status, 0, `${name} was accepted`);
+    assert.match(`${result.stdout}\n${result.stderr}`, expected);
+  };
+  // An active checkpoint: the lowest-priority-number ready general-development
+  // item is in_progress, whatever the live ledger's own checkpoint is.
+  const active = () => {
+    const candidate = clone(liveRoadmap);
+    let current = generalDevelopmentItems(candidate).find(
+      ({ status }) => status === "in_progress",
+    );
+    if (!current) {
+      current = generalDevelopmentItems(candidate)
+        .filter(({ status }) => status === "ready")
+        .sort((left, right) => left.priority - right.priority)[0];
+      current.status = "in_progress";
+    }
+    Object.assign(candidate.current_focus, {
+      work_item: current.id,
+      terminal_reason: null,
+      resumable_roots: [current.id, ps09OutcomeIds[1]],
+    });
+    return candidate;
+  };
+
+  assert.equal(liveRoadmap.schema_version, "1.10");
+  assert.deepEqual(
+    liveRoadmap.gates
+      .filter(({ id }) => generalDevelopmentGateIds.includes(id))
+      .map(({ id, state }) => [id, state]),
+    [
+      ["G-GENERAL-DEV-01", "approved"],
+      ["G-GD-NATIONWIDE-CONTRACT", "closed"],
+      ["G-GD-INTEROP", "closed"],
+      ["G-GD-PRIVATE-CONTEXT", "approved"],
+    ],
+  );
+  for (const entry of generalDevelopmentItems(liveRoadmap)) {
+    assert.equal(entry.work_class, "general_development_local", entry.id);
+    assert.match(entry.decision_ref, /^D-\d{3}$/, entry.id);
+    assert.ok(
+      generalDevelopmentGateIds.includes(entry.authorization_gate),
+      entry.id,
+    );
+  }
+
+  await context.test(
+    "actual CLI and module accept the live ledger",
+    async () => {
+      await expectAccepted("live-cli", clone(liveRoadmap), { cli: true });
+      await expectAccepted("live-module", clone(liveRoadmap));
+    },
+  );
+  await context.test(
+    "an active general-development item is admitted",
+    async () => {
+      await expectAccepted("active", active());
+    },
+  );
+  await context.test(
+    "a planning act admits a new item with no validator change",
+    async () => {
+      const candidate = clone(liveRoadmap);
+      candidate.work_items.push({
+        id: "GD-99-SYNTHETIC-PLANNING-ACT",
+        priority:
+          Math.max(...candidate.work_items.map(({ priority }) => priority)) + 1,
+        milestone: generalDevelopmentMilestone,
+        title: "Synthetic item added by a register entry and a ledger edit",
+        status: "not_started",
+        work_class: "general_development_local",
+        decision_ref: "D-071",
+        authorization_gate: "G-GENERAL-DEV-01",
+        dependencies: [interopAdapter],
+        acceptance: ["Synthetic acceptance line."],
+        evidence: [],
+      });
+      await expectAccepted("planning-act", candidate);
+    },
+  );
+
+  const rejections = [
+    [
+      "missing-decision-ref",
+      (r) => {
+        delete item(r, designationRegistry).decision_ref;
+      },
+      /decision_ref must be a non-empty string/,
+    ],
+    [
+      "unresolvable-decision-ref",
+      (r) => {
+        item(r, designationRegistry).decision_ref = "D-999";
+      },
+      /decision_ref D-999 does not resolve to a decision-register entry/,
+    ],
+    [
+      "ruling-id-is-not-a-decision",
+      (r) => {
+        item(r, designationRegistry).decision_ref = "RL-08";
+      },
+      /decision_ref RL-08 does not resolve to a decision-register entry/,
+    ],
+    [
+      "wrong-gate",
+      (r) => {
+        item(r, designationRegistry).authorization_gate = "G-A";
+      },
+      /authorization_gate must name a general-development gate/,
+    ],
+    [
+      "missing-gate",
+      (r) => {
+        delete item(r, designationRegistry).authorization_gate;
+      },
+      /authorization_gate must name a general-development gate/,
+    ],
+    [
+      "wrong-work-class",
+      (r) => {
+        item(r, designationRegistry).work_class = "repository_governance";
+      },
+      /work_class must be general_development_local/,
+    ],
+    [
+      "work-class-outside-milestone",
+      (r) => {
+        item(r, "B9-LONGTAIL").work_class = "general_development_local";
+      },
+      /general_development_local is reserved for milestone General development/,
+    ],
+    [
+      "identity-outside-pattern",
+      (r) => {
+        item(r, userSuppliedSourceClass).id = "GENDEV-23-USER-SUPPLIED";
+      },
+      /general-development identity must match GD-nn-NAME/,
+    ],
+    [
+      "depends-on-frozen-item",
+      (r) => {
+        item(r, designationRegistry).dependencies.push(ps09OutcomeIds[4]);
+      },
+      /may depend only on general-development items/,
+    ],
+    [
+      "frozen-item-depends-on-general-development",
+      (r) => {
+        item(r, "B9-LONGTAIL").dependencies.push(realignment);
+      },
+      /cannot depend on non-release general-development work/,
+    ],
+    [
+      "frozen-item-relabelled-into-milestone",
+      (r) => {
+        Object.assign(item(r, "B9-LONGTAIL"), {
+          milestone: generalDevelopmentMilestone,
+          work_class: "general_development_local",
+          decision_ref: "D-071",
+          authorization_gate: "G-GENERAL-DEV-01",
+        });
+      },
+      /general-development identity must match|may depend only on general-development items|frozen work-item identities/,
+    ],
+    [
+      "gd-prefixed-item-under-frozen-milestone",
+      (r) => {
+        r.work_items.push({
+          id: "GD-98-OUTSIDE-THE-MILESTONE",
+          priority:
+            Math.max(...r.work_items.map(({ priority }) => priority)) + 1,
+          milestone: "PS09 Run 9",
+          title: "Synthetic item that borrows the prefix only",
+          status: "ready",
+          dependencies: [],
+          acceptance: ["Synthetic acceptance line."],
+          evidence: [],
+        });
+      },
+      /frozen work-item identities/,
+    ],
+    [
+      "new-item-under-frozen-milestone",
+      (r) => {
+        r.work_items.push({
+          id: "PS09-09-EXTRA-RELEASE-ROOT",
+          priority:
+            Math.max(...r.work_items.map(({ priority }) => priority)) + 1,
+          milestone: "PS09 Run 9",
+          title: "Synthetic second release root",
+          status: "blocked",
+          dependencies: [],
+          authorization_gate: "G-PS09-RUN-06",
+          blocked_by: ["G-PS09-RUN-06"],
+          safe_fallback: "Synthetic fallback.",
+          unblocks_only_when: "Synthetic condition.",
+          acceptance: ["Synthetic acceptance line."],
+          evidence: ["Synthetic evidence."],
+        });
+      },
+      /frozen work-item identities/,
+    ],
+    [
+      "general-development-gate-authorizes-frozen-item",
+      (r) => {
+        item(r, "B9-LONGTAIL").authorization_gate = "G-GENERAL-DEV-01";
+      },
+      /general-development gate G-GENERAL-DEV-01 authorizes only milestone General development/,
+    ],
+    [
+      "fifth-general-development-gate",
+      (r) => {
+        r.gates.push({
+          ...clone(gate(r, "G-GD-INTEROP")),
+          id: "G-GD-ANOTHER",
+        });
+      },
+      /references unknown gate G-GD-ANOTHER/,
+    ],
+    [
+      "refactor-gate-nonzero-budget",
+      (r) => {
+        gate(r, "G-GENERAL-DEV-01").scope.policy_acquisition_budget.requests =
+          1;
+      },
+      /G-GENERAL-DEV-01 must preserve its exact synthetic local scope/,
+    ],
+    [
+      "private-context-gate-real-data",
+      (r) => {
+        gate(r, "G-GD-PRIVATE-CONTEXT").scope.real_private_data = true;
+      },
+      /G-GD-PRIVATE-CONTEXT must preserve its exact synthetic local scope/,
+    ],
+    [
+      "interop-gate-approved-with-budget",
+      (r) => {
+        Object.assign(gate(r, "G-GD-INTEROP"), {
+          state: "approved",
+          evidence: ["Synthetic approval."],
+          scope: {
+            kind: "approved_interop_pure_adapter",
+            policy_acquisition_budget: {
+              sources: 0,
+              domains: 0,
+              requests: 1,
+              bytes: 0,
+            },
+            policy_source_activation: false,
+            real_private_data: false,
+            publication: false,
+            release_authority: false,
+          },
+        });
+      },
+      /approved general-development gate G-GD-INTEROP must keep zero acquisition budget/,
+    ],
+    [
+      "closed-gate-without-unblock-condition",
+      (r) => {
+        delete gate(r, "G-GD-NATIONWIDE-CONTRACT").unblocks_only_when;
+      },
+      /G-GD-NATIONWIDE-CONTRACT requires unblocks_only_when/,
+    ],
+    [
+      "gate-decision-ref-unresolvable",
+      (r) => {
+        gate(r, "G-GD-INTEROP").decision_ref = "D-998";
+      },
+      /decision_ref D-998 does not resolve to a decision-register entry/,
+    ],
+    [
+      "refactor-gate-closed-under-active-work",
+      (r) => {
+        gate(r, "G-GENERAL-DEV-01").state = "closed";
+      },
+      /cannot be \w+ while authorization gate G-GENERAL-DEV-01 is closed/,
+    ],
+    [
+      "complete-without-completion-commit",
+      (r) => {
+        delete item(r, realignment).completion_commit;
+      },
+      /completion_commit must be a full commit id/,
+    ],
+    [
+      "complete-with-undated-completion",
+      (r) => {
+        item(r, realignment).completed_on = "2026-09-22";
+      },
+      /completed_on must be an ISO 8601 commit timestamp/,
+    ],
+    [
+      "missing-completion-scope",
+      (r) => {
+        delete r.completion_scope.general_development;
+      },
+      /general development completion scope/,
+    ],
+    [
+      "release-accounting",
+      (r) => {
+        r.completion_scope.general_development.accounting = "release";
+      },
+      /general development accounting must remain "non_release_local_development"/,
+    ],
+    [
+      "hides-active-general-development-root",
+      (r) => {
+        r.current_focus.resumable_roots = [ps09OutcomeIds[1]];
+      },
+      /active PS09 resumable roots/,
+    ],
+    [
+      "skips-lower-priority-ready-item",
+      (r) => {
+        const current = item(r, r.current_focus.work_item);
+        const later = generalDevelopmentItems(r)
+          .filter(
+            ({ status, priority }) =>
+              status === "ready" && priority > current.priority,
+          )
+          .at(-1);
+        assert.ok(later, "the fixture needs a later ready item");
+        current.status = "ready";
+        later.status = "in_progress";
+        r.current_focus.work_item = later.id;
+        r.current_focus.resumable_roots = [later.id, ps09OutcomeIds[1]];
+      },
+      /must select the lowest-priority-number ready general-development item/,
+    ],
+  ];
+  for (const [name, mutate, expected] of rejections) {
+    await context.test(`reject ${name}`, async () => {
+      const candidate = active();
+      mutate(candidate);
+      await expectRejected(name, candidate, expected);
+    });
+  }
+  await context.test(
+    "a 1.9 ledger carrying general-development identities is rejected",
+    async () => {
+      const candidate = clone(liveRoadmap);
+      candidate.schema_version = "1.9";
+      await expectRejected(
+        "general-development-in-1.9-ledger",
+        candidate,
+        /general development gate requires schema 1\.10|references unknown gate/,
+        { cli: true },
+      );
+    },
+  );
+});
+
 test("PS09 release accounting converges without reopening archived lanes", async (context) => {
   const fixtureRoot = await mkdtemp(
     path.join(tmpdir(), "policy-sentinel-ps09-roadmap-"),
@@ -1770,7 +2205,8 @@ test("PS09 release accounting converges without reopening archived lanes", async
           !id.startsWith("RELEASE-") &&
           id !== knowledgeAssuranceId &&
           id !== engineeringReviewId &&
-          !makahDemoIds.includes(id),
+          !makahDemoIds.includes(id) &&
+          !id.startsWith("GD-"),
       )
       .map(({ id }) => ({
         id,
@@ -1895,7 +2331,7 @@ test("PS09 release accounting converges without reopening archived lanes", async
       `${name}: ${result.stdout}\n${result.stderr}`,
     );
   }
-  assert.equal(liveRoadmap.schema_version, "1.9");
+  assert.equal(liveRoadmap.schema_version, "1.10");
   assert.equal(liveWorkItem(ps09OutcomeIds[1])?.status, "blocked");
   assert.deepEqual(liveWorkItem(ps09OutcomeIds[2]).dependencies, [
     ps09OutcomeIds[0],

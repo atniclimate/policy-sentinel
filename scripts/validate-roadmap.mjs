@@ -39,17 +39,37 @@ if (document.errors.length > 0) {
 }
 
 const roadmap = document.toJS();
-const ps09 = ["1.5", "1.6", "1.7", "1.8", "1.9"].includes(
+const ps09 = ["1.5", "1.6", "1.7", "1.8", "1.9", "1.10"].includes(
   roadmap.schema_version,
 );
-const knowledgeAssurance = ["1.7", "1.8", "1.9"].includes(
+const knowledgeAssurance = ["1.7", "1.8", "1.9", "1.10"].includes(
   roadmap.schema_version,
 );
-const engineeringReview = ["1.8", "1.9"].includes(roadmap.schema_version);
+const engineeringReview = ["1.8", "1.9", "1.10"].includes(
+  roadmap.schema_version,
+);
 // Schema 1.9 is an exact additive non-release representation of the non-PS09
 // Makah demo track. It admits no free-form identity: exactly the groundwork
 // and bounded-acquisition items and their two named gates, below.
-const makahDemo = roadmap.schema_version === "1.9";
+const makahDemo = ["1.9", "1.10"].includes(roadmap.schema_version);
+// Schema 1.10 admits the non-release general-development graph by rule
+// (D-071), not by an enumerated identity list: milestone "General
+// development", work_class general_development_local, a decision_ref that
+// resolves to a decision-register row, and one of exactly four named gates.
+// Every other milestone keeps the frozen 1.9 identities below.
+const generalDevelopment = roadmap.schema_version === "1.10";
+const generalDevelopmentMilestone = "General development";
+const generalDevelopmentWorkClass = "general_development_local";
+const generalDevelopmentGateIds = [
+  "G-GENERAL-DEV-01",
+  "G-GD-NATIONWIDE-CONTRACT",
+  "G-GD-INTEROP",
+  "G-GD-PRIVATE-CONTEXT",
+];
+const isGeneralDevelopmentItem = (item) =>
+  generalDevelopment && item?.milestone === generalDevelopmentMilestone;
+const isGeneralDevelopmentGate = (id) =>
+  generalDevelopment && generalDevelopmentGateIds.includes(id);
 const engineeringReviewId = "H-ENGINEERING-REVIEW-02";
 const engineeringReviewGateId = "G-H-ENGINEERING-REVIEW-02";
 const engineeringReviewInstruction =
@@ -484,9 +504,13 @@ for (const [index, gate] of gates.entries()) {
     knowledgeAssurance &&
     !knowledgeAssuranceGateIds.has(id) &&
     !(engineeringReview && id === engineeringReviewGateId) &&
-    !(makahDemo && makahDemoGateIds.includes(id))
+    !(makahDemo && makahDemoGateIds.includes(id)) &&
+    !isGeneralDevelopmentGate(id)
   ) {
     fail(`schema ${roadmap.schema_version} references unknown gate ${id}`);
+  }
+  if (!generalDevelopment && generalDevelopmentGateIds.includes(id)) {
+    fail("general development gate requires schema 1.10");
   }
   if (!knowledgeAssurance && id === knowledgeAssuranceGateId) {
     fail("knowledge assurance gate requires schema 1.7");
@@ -770,15 +794,196 @@ const requireFrozenEngineeringValue = (value, expected, path) => {
     fail(`engineering review must preserve frozen ${path}`);
   }
 };
+
+// Schema 1.10 general-development admission (D-071). The rule is checked
+// here, before the frozen digests, and the admitted items and gates are the
+// only identities those digests filter out. A frozen item relabelled into the
+// milestone fails the identity pattern; any other new identity still fails the
+// freeze. Adding an item is a register entry plus a ledger edit.
+const generalDevelopmentItemIds = workItems
+  .filter(isGeneralDevelopmentItem)
+  .map(({ id }) => id);
+const decisionRegisterIds = generalDevelopment
+  ? new Set(
+      [
+        ...(
+          await readFile(resolve(root, "docs/decision-register.md"), "utf8")
+        ).matchAll(/^\| (D-\d{3}) \|/gmu),
+      ].map(([, id]) => id),
+    )
+  : new Set();
+const requireDecisionRef = (value, path) => {
+  const reference = requireString(value, `${path}.decision_ref`);
+  if (!decisionRegisterIds.has(reference)) {
+    fail(
+      `${path} decision_ref ${reference} does not resolve to a decision-register entry`,
+    );
+  }
+  return reference;
+};
+const generalDevelopmentScopeInvariants = {
+  policy_acquisition_budget: { sources: 0, domains: 0, requests: 0, bytes: 0 },
+  policy_source_activation: false,
+  real_private_data: false,
+  publication: false,
+  release_authority: false,
+};
+const expectedGeneralDevelopmentScopes = new Map([
+  [
+    "G-GENERAL-DEV-01",
+    {
+      kind: "approved_general_development_local_synthetic",
+      ...generalDevelopmentScopeInvariants,
+      synthetic_local_validation: true,
+    },
+  ],
+  [
+    "G-GD-PRIVATE-CONTEXT",
+    {
+      kind: "approved_private_context_synthetic_fixtures",
+      ...generalDevelopmentScopeInvariants,
+      synthetic_fixtures_only: true,
+    },
+  ],
+]);
+for (const item of workItems) {
+  if (
+    !generalDevelopment &&
+    (item.milestone === generalDevelopmentMilestone ||
+      item.work_class === generalDevelopmentWorkClass)
+  ) {
+    fail(`general development item ${item.id} requires schema 1.10`);
+  }
+  if (!isGeneralDevelopmentItem(item)) {
+    if (item.work_class === generalDevelopmentWorkClass) {
+      fail(
+        `work_class general_development_local is reserved for milestone General development; ${item.id} is outside it`,
+      );
+    }
+    if (generalDevelopmentGateIds.includes(item.authorization_gate)) {
+      fail(
+        `general-development gate ${item.authorization_gate} authorizes only milestone General development; ${item.id} is outside it`,
+      );
+    }
+    for (const dependency of item.dependencies) {
+      if (isGeneralDevelopmentItem(byId.get(dependency))) {
+        fail(
+          `${item.id} cannot depend on non-release general-development work`,
+        );
+      }
+    }
+    continue;
+  }
+  if (!/^GD-\d{2}-[A-Z0-9]+(?:-[A-Z0-9]+)*$/u.test(item.id)) {
+    fail(`${item.id} general-development identity must match GD-nn-NAME`);
+  }
+  if (item.work_class !== generalDevelopmentWorkClass) {
+    fail(`${item.id} work_class must be general_development_local`);
+  }
+  requireDecisionRef(item.decision_ref, item.id);
+  if (!generalDevelopmentGateIds.includes(item.authorization_gate)) {
+    fail(`${item.id} authorization_gate must name a general-development gate`);
+  }
+  for (const dependency of item.dependencies) {
+    if (!isGeneralDevelopmentItem(byId.get(dependency))) {
+      fail(
+        `${item.id} may depend only on general-development items; found ${dependency}`,
+      );
+    }
+  }
+  if (item.status === "complete") {
+    if (
+      typeof item.completion_commit !== "string" ||
+      !/^[0-9a-f]{40}$/u.test(item.completion_commit)
+    ) {
+      fail(`${item.id} completion_commit must be a full commit id`);
+    }
+    if (
+      typeof item.completed_on !== "string" ||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/u.test(
+        item.completed_on,
+      )
+    ) {
+      fail(`${item.id} completed_on must be an ISO 8601 commit timestamp`);
+    }
+  }
+}
+if (generalDevelopment) {
+  for (const id of generalDevelopmentGateIds) {
+    const gate = gateById.get(id);
+    if (!gate) {
+      fail(`general-development gate is missing: ${id}`);
+    }
+    requireDecisionRef(gate.decision_ref, `general-development gate ${id}`);
+    if (["approved", "satisfied"].includes(gate.state)) {
+      const scope = requireObject(
+        gate.scope,
+        `general-development gate ${id}.scope`,
+      );
+      requireString(scope.kind, `general-development gate ${id}.scope.kind`);
+      const expectedScope = expectedGeneralDevelopmentScopes.get(id);
+      if (
+        expectedScope &&
+        JSON.stringify(canonicalValue(scope)) !==
+          JSON.stringify(canonicalValue(expectedScope))
+      ) {
+        fail(
+          `general-development gate ${id} must preserve its exact synthetic local scope`,
+        );
+      }
+      for (const [key, value] of Object.entries(
+        generalDevelopmentScopeInvariants,
+      )) {
+        if (
+          JSON.stringify(canonicalValue(scope[key])) !==
+          JSON.stringify(canonicalValue(value))
+        ) {
+          fail(
+            `approved general-development gate ${id} must keep zero acquisition budget and no activation, private data, publication or release authority`,
+          );
+        }
+      }
+    } else if (
+      typeof gate.unblocks_only_when !== "string" ||
+      gate.unblocks_only_when.trim() === ""
+    ) {
+      fail(
+        `general-development gate ${id} requires unblocks_only_when while not approved`,
+      );
+    }
+  }
+  const generalDevelopmentScope = requireExactKeys(
+    roadmap.completion_scope.general_development,
+    ["accounting", "admission_rule", "decision_ref"],
+    "general development completion scope",
+  );
+  requireExactValue(
+    generalDevelopmentScope.accounting,
+    "non_release_local_development",
+    "general development accounting",
+  );
+  requireString(
+    generalDevelopmentScope.admission_rule,
+    "general development completion scope admission_rule",
+  );
+  requireDecisionRef(
+    generalDevelopmentScope.decision_ref,
+    "general development completion scope",
+  );
+}
+
 if (engineeringReview) {
   // Schema 1.9 adds two exact Makah demo items and gates on top of this
   // frozen 1.8 baseline. They are additive, so the frozen digests below must
   // be computed with them filtered out, exactly like the engineering review
   // item and gate are filtered out.
+  // Schema 1.10 filters only the general-development items and gates admitted
+  // by rule above; every other identity still hashes to the frozen digest.
   requireFrozenEngineeringValue(
     workItems
       .filter(({ id }) => id !== engineeringReviewId)
       .filter(({ id }) => !(makahDemo && makahDemoIds.includes(id)))
+      .filter((item) => !isGeneralDevelopmentItem(item))
       .map(({ id }) => id),
     "de74ac7d4153154d835329738b8f2c85f9403bce83056c1c6787e1dfaaff464a",
     "work-item identities",
@@ -787,6 +992,7 @@ if (engineeringReview) {
     gates
       .filter(({ id }) => id !== engineeringReviewGateId)
       .filter(({ id }) => !(makahDemo && makahDemoGateIds.includes(id)))
+      .filter(({ id }) => !isGeneralDevelopmentGate(id))
       .map(({ id }) => id),
     "d2bcb93c6f23509e08dd4ccdb86c8817e725f103621d9504e1bec624e080802d",
     "gate identities",
@@ -816,7 +1022,8 @@ if (engineeringReview) {
         Object.entries(roadmap[key]).filter(
           ([name]) =>
             name !== "engineering_review" &&
-            !(makahDemo && name === "makah_demo"),
+            !(makahDemo && name === "makah_demo") &&
+            !(generalDevelopment && name === "general_development"),
         ),
       ),
       digest,
@@ -1436,7 +1643,7 @@ const hasExactOrderedValues = (actual, expected) =>
 // 1.5 remains replayable historical accounting. The adopted real-policy run
 // makes identity acceptance an explicit release prerequisite, independent of
 // general-jurisdiction acquisition. No required outcome is removed.
-const ps09Dependencies = ["1.6", "1.7", "1.8", "1.9"].includes(
+const ps09Dependencies = ["1.6", "1.7", "1.8", "1.9", "1.10"].includes(
   roadmap.schema_version,
 )
   ? [[], [0], [0], [2], [2, 3], [1, 4], [4], [5]]
@@ -1453,6 +1660,7 @@ if (ps09) {
       ...(knowledgeAssurance ? ["knowledge_assurance"] : []),
       ...(engineeringReview ? ["engineering_review"] : []),
       ...(makahDemo ? ["makah_demo"] : []),
+      ...(generalDevelopment ? ["general_development"] : []),
     ],
     "canonical completion scopes",
   );
@@ -1474,12 +1682,13 @@ if (ps09) {
   requireExactOrderedValues(
     workItems
       .filter(
-        ({ id }) =>
-          !ps09Ids.includes(id) &&
-          !ps09PublicationIds.includes(id) &&
-          !(knowledgeAssurance && id === knowledgeAssuranceId) &&
-          !(engineeringReview && id === engineeringReviewId) &&
-          !(makahDemo && makahDemoIds.includes(id)),
+        (item) =>
+          !ps09Ids.includes(item.id) &&
+          !ps09PublicationIds.includes(item.id) &&
+          !(knowledgeAssurance && item.id === knowledgeAssuranceId) &&
+          !(engineeringReview && item.id === engineeringReviewId) &&
+          !(makahDemo && makahDemoIds.includes(item.id)) &&
+          !isGeneralDevelopmentItem(item),
       )
       .map(({ id }) => id),
     ps09HistoricalIds,
@@ -1968,6 +2177,12 @@ if (engineeringReview) {
 }
 if (makahDemo) {
   completionGroups.push(["makah_demo.required_outcomes", makahDemoIds]);
+}
+if (generalDevelopment) {
+  completionGroups.push([
+    "general_development (admitted by rule)",
+    generalDevelopmentItemIds,
+  ]);
 }
 if (localRealSourcePrereleaseScope !== null) {
   completionGroups.push([
@@ -2966,18 +3181,35 @@ if (ps09) {
     ...(knowledgeAssurance ? [knowledgeAssuranceId] : []),
     ...(engineeringReview ? [engineeringReviewId] : []),
     ...(makahDemo ? makahDemoIds : []),
+    ...generalDevelopmentItemIds,
   ]);
   const active = inProgress[0];
+  // A general-development item is non-release local work beside the blocked
+  // PS09 graph, like the maintenance items: it may be the one active item.
+  const activeGeneralDevelopment = isGeneralDevelopmentItem(active);
   const activeMaintenance =
     (knowledgeAssurance && active?.id === knowledgeAssuranceId) ||
     (engineeringReview && active?.id === engineeringReviewId) ||
-    (makahDemo && makahDemoIds.includes(active?.id));
+    (makahDemo && makahDemoIds.includes(active?.id)) ||
+    activeGeneralDevelopment;
   if (
     active &&
     ![...ps09Ids, ...ps09PublicationIds].includes(active.id) &&
     !activeMaintenance
   )
     fail("PS09 execution cannot activate an archived historical lane");
+  if (
+    activeGeneralDevelopment &&
+    workItems.some(
+      (item) =>
+        isGeneralDevelopmentItem(item) &&
+        item.status === "ready" &&
+        item.priority < active.priority,
+    )
+  )
+    fail(
+      "general-development current focus must select the lowest-priority-number ready general-development item",
+    );
   if (
     active &&
     ps09PublicationIds.includes(active.id) &&
@@ -3045,7 +3277,8 @@ if (ps09) {
     );
     requireExactOrderedValues(
       roadmap.current_focus.resumable_roots,
-      makahDemo && makahDemoIds.includes(active.id)
+      (makahDemo && makahDemoIds.includes(active.id)) ||
+        activeGeneralDevelopment
         ? [active.id, ps09Ids[1]]
         : engineeringReview
           ? [engineeringReviewId, ps09Ids[1]]

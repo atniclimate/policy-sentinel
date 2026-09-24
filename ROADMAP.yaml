@@ -1,4 +1,4 @@
-schema_version: "1.9"
+schema_version: "1.10"
 roadmap_id: policy-sentinel-through-finish
 project:
   name: Policy Sentinel
@@ -12,18 +12,21 @@ project:
     capability. The realignment audit
     (docs/audits/2026-09-22-general-dev-audit.md) records the code as found. The
     module design (docs/architecture/module-boundaries.md) defines a shared core
-    plus intake, geographic/context association and output modules, and proposes
-    the refactor and nationwide items GD-00 to GD-16 as a dependency-checked
-    schema 1.10 fragment. That fragment is not applied, because schema 1.9
-    freezes work-item and gate identities. Owner calls are in
-    docs/decisions/2026-09-22-realignment-open-decisions.md. Retained PS09 state
-    is unchanged: POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01 completed its bounded
-    local workbench outcome through PS09-03/04/05; the program remains blocked
-    on PS09-02 identity/scenario evidence, an explicit PS09-06 prerequisite;
-    PS09-06-LOCAL-RC is the sole release root and remains unstarted and gated.
-    EV01, Run 1/2 and archived lanes retain their historical evidence and
-    spent-operation boundaries.
-  updated_on: "2026-09-22"
+    plus intake, geographic/context association and output modules. The owner
+    ruled on the realignment questions on 2026-09-22
+    (docs/decisions/2026-09-22-realignment-rulings.md, transcribed as D-071 to
+    D-079 in docs/decision-register.md). Under D-071 this ledger is schema 1.10:
+    milestone "General development" (GD-00 to GD-23 from the design and
+    docs/architecture/general-development-addendum-2026-09-22.md) is admitted by
+    rule behind four named gates, and every other milestone keeps its frozen 1.9
+    identities. General development is non-release local work. Retained PS09
+    state is unchanged: POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01 completed its
+    bounded local workbench outcome through PS09-03/04/05; the program remains
+    blocked on PS09-02 identity/scenario evidence, an explicit PS09-06
+    prerequisite; PS09-06-LOCAL-RC is the sole release root and remains
+    unstarted and gated. EV01, Run 1/2 and archived lanes retain their
+    historical evidence and spent-operation boundaries.
+  updated_on: "2026-09-24"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
     prove its present definition of done through the owner-selected PNW scenario
@@ -845,6 +848,73 @@ gates:
       citations, evidence, coverage, visibility, limitations, and generated
       legal, advocacy, grant, technical, executive, or public prose represented
       as reviewed output.
+  - id: G-GENERAL-DEV-01
+    name: General development local synthetic refactor
+    state: approved
+    decision_ref: D-071
+    evidence:
+      - >-
+        Owner ruling RL-01 on 2026-09-22
+        (docs/decisions/2026-09-22-realignment-rulings.md), transcribed as D-071
+        in docs/decision-register.md, approves schema 1.10 and this gate for
+        local synthetic refactor work with zero acquisition budget and no source
+        activation, private data, publication or release authority.
+    scope:
+      kind: approved_general_development_local_synthetic
+      policy_acquisition_budget:
+        { sources: 0, domains: 0, requests: 0, bytes: 0 }
+      policy_source_activation: false
+      real_private_data: false
+      publication: false
+      release_authority: false
+      synthetic_local_validation: true
+  - id: G-GD-NATIONWIDE-CONTRACT
+    name: Nationwide public record, artifact and source contract successors
+    state: closed
+    decision_ref: D-073
+    resolution: >-
+      D-073 supersedes D-004's three-state coverage, but the public contract
+      change itself (record, artifact package and source registry successors
+      that replace the WA/OR/ID enum with JurisdictionRef, with migration
+      fixtures) waits for this gate. Nationwide work before it opens stays in
+      the identifier model and the local corpus.
+    unblocks_only_when: >-
+      The owner explicitly opens this gate for the exact versioned successor
+      contracts and migration fixtures of GD-13 under D-073, after GD-09 and
+      GD-10 are complete.
+  - id: G-GD-INTEROP
+    name:
+      Interop pure adapter for policy.search-context/1 and policy.citations/1
+    state: closed
+    decision_ref: D-074
+    resolution: >-
+      D-074 adopts Design A generalized and closes O-023 in modified form. The
+      pure PolicyContext validator and policy.citations/1 projector (GD-16)
+      still wait for this gate; no live listener is in scope.
+    unblocks_only_when: >-
+      The owner explicitly opens this gate for the pure validator and projector
+      only, with no live listener, after GD-06, GD-08, GD-09, GD-10 and GD-21
+      are complete.
+  - id: G-GD-PRIVATE-CONTEXT
+    name: Private-context module synthetic-fixture code
+    state: approved
+    decision_ref: D-072
+    evidence:
+      - >-
+        Owner ruling RL-04 on 2026-09-22, transcribed as D-072, puts the
+        user-supplied private-context module (addendum section 2) in scope, and
+        the addendum (section 11) approves this gate for synthetic-fixture code
+        work. Real private data never enters this repository under any gate;
+        EXT-PRIVATE and G-G are unchanged.
+    scope:
+      kind: approved_private_context_synthetic_fixtures
+      policy_acquisition_budget:
+        { sources: 0, domains: 0, requests: 0, bytes: 0 }
+      policy_source_activation: false
+      real_private_data: false
+      publication: false
+      release_authority: false
+      synthetic_fixtures_only: true
 
 baseline:
   phase_a_commit: e22512e
@@ -940,32 +1010,46 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Begin general development from the 2026-09-22 realignment. Read
-    docs/audits/2026-09-22-general-dev-audit.md,
-    docs/architecture/module-boundaries.md and
-    docs/decisions/2026-09-22-realignment-open-decisions.md. The next action is
-    the owner's ruling on RD-01 (a schema 1.10 representation of GD-00 to GD-16
-    with gate G-GENERAL-DEV-01), RD-02 (the two pre-existing uncommitted
-    modifications) and RD-03 (the backbone check failing on the git-excluded
-    .local/handoff/HANDOFF.md). After those rulings the refactor starts at
-    module-boundaries section 9, wave 1 (GD-01, GD-02, GD-03). The Makah demo
-    track is finished; its acquired objects remain custody only, and
-    per-document G-J decisions and G-BIA-IDENTITY stay open. The PS09 program
-    stays blocked on PS09-02 originating identity/scenario evidence; PS09-06 is
-    unstarted and gated; the completed H01/H02 maintenance and every sealed
-    discovery, prior assurance and owner-input identity are preserved.
+    General development under G-GENERAL-DEV-01 (D-071). Refactor wave 1 is
+    GD-01, GD-02 and GD-03, run one at a time while the one-in_progress rule
+    stands (addendum section 12, question 2, is an open owner question). Session
+    R (GD-17 nationwide source survey, GD-18 storage capacity model) and session
+    2 (waves 2 and 3) follow per RL-14. GD-13, GD-16 and GD-22 wait on their
+    gates. The Makah demo track is finished; its acquired objects remain custody
+    only, and per-document G-J decisions and G-BIA-IDENTITY stay open. The PS09
+    program stays blocked on PS09-02 originating identity/scenario evidence;
+    PS09-06 is unstarted and gated; the completed H01/H02 maintenance and every
+    sealed discovery, prior assurance and owner-input identity are preserved.
   terminal_reason: >-
-    The realignment session finished its audit, module design and planning
-    realignment without code changes. No general-development item can be
-    represented or activated under schema 1.9. PS09 remains blocked on PS09-02
-    originating evidence and scenario acceptance; no successor run or external
-    operation is authorized.
+    General-development session 1 represented the general-development graph at
+    schema 1.10 and has not yet activated a wave 1 item. PS09 remains blocked on
+    PS09-02 originating evidence and scenario acceptance; no successor run or
+    external operation is authorized.
   resumable_roots:
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: 20d00567358abd605547a6cbc76b64815f9f8391
+    - GD-01-CHARACTERIZATION-TESTS
+    - GD-02-MODULE-BOUNDARY-TEST
+    - GD-03-BOUNDARY-GUARD-TESTS
+    - GD-13-NATIONWIDE-RECORD-CONTRACT
+    - GD-16-INTEROP-PURE-ADAPTER
+    - GD-17-NATIONWIDE-SOURCE-SURVEY
+    - GD-18-STORAGE-CAPACITY-MODEL
+    - GD-22-NATION-REGISTRY-BINDING
+  last_durable_checkpoint: 9a25d764cb781010b9209f2febb8cd5c5244ce00
   resume_command: npm run validate:roadmap
 
 completion_scope:
+  general_development:
+    accounting: non_release_local_development
+    admission_rule: >-
+      Every work item under milestone "General development" belongs here by
+      rule: it carries work_class general_development_local, a decision_ref that
+      resolves to a docs/decision-register.md row, and an authorization_gate
+      among G-GENERAL-DEV-01, G-GD-NATIONWIDE-CONTRACT, G-GD-INTEROP and
+      G-GD-PRIVATE-CONTEXT. General-development items depend only on each other,
+      no other item depends on them, and none is a release prerequisite;
+      PS09-06-LOCAL-RC stays the sole release root.
+    decision_ref: D-071
   makah_demo:
     accounting: non_release_local_maintenance
     required_outcomes:
@@ -6119,6 +6203,557 @@ work_items:
       - Exact approved feedback and distribution scope is respected and repairs
         validated.
     evidence: []
+  - id: GD-00-REALIGNMENT-AUDIT-DESIGN
+    priority: 310
+    milestone: General development
+    title: Realignment audit, module design and planning realignment
+    status: complete
+    completed_on: "2026-09-22T11:03:28-07:00"
+    completion_commit: 6eb8947441a7faea6546de856d96087abc6fd10b
+    work_class: general_development_local
+    decision_ref: D-071
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: []
+    acceptance:
+      - >-
+        docs/audits/2026-09-22-general-dev-audit.md records the code as found,
+        the baseline, contract drift, the O-023 assessment and severity-ordered
+        findings.
+      - >-
+        docs/architecture/module-boundaries.md defines the core, intake, context
+        and output module contracts, the ecosystem map, the interop conformance
+        tables and the refactor handoff.
+      - >-
+        The governance documents are realigned to general development without a
+        code change, and the owner questions are collected in
+        docs/decisions/2026-09-22-realignment-open-decisions.md.
+    evidence:
+      - >-
+        Commit fff79902730e3bf637c113de50592c640831678f (audit, phase 1),
+        committed 2026-09-22T10:46:14-07:00.
+      - >-
+        Commit 20d00567358abd605547a6cbc76b64815f9f8391 (module boundary design
+        and refactor handoff, phase 2), committed 2026-09-22T10:53:50-07:00.
+      - >-
+        Commit 6eb8947441a7faea6546de856d96087abc6fd10b (governance realignment,
+        phase 3), committed 2026-09-22T11:03:28-07:00, is the completion commit;
+        the ledger follow-up ab6aefd (2026-09-22T11:03:38-07:00) records it in
+        the audit session ledger. Dates are commit times from git show -s
+        --format=%cI.
+      - >-
+        This work preceded G-GENERAL-DEV-01 and D-071. General-development
+        session 1 represents it at schema 1.10 under that gate for accounting
+        only; the gate authorized none of it retroactively.
+  - id: GD-01-CHARACTERIZATION-TESTS
+    priority: 311
+    milestone: General development
+    title: Characterization tests for local-output replay, write and read
+    status: ready
+    work_class: general_development_local
+    decision_ref: D-071
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-00-REALIGNMENT-AUDIT-DESIGN]
+    acceptance:
+      - >-
+        tests/pipeline/policy-local-output-replay.test.mjs (new) characterizes
+        replayReviewedCorpus, writeLocalOutput, readLocalOutput and
+        localCorpusBytes over a synthetic run root built with
+        initializePolicyRun and admitPolicyTargets, with no network access.
+      - >-
+        package.json registers the new file in test:policy; npm run test:policy,
+        npm run test:assurance and the standing checks stay green.
+      - No production source file changes in this step.
+    evidence: []
+  - id: GD-02-MODULE-BOUNDARY-TEST
+    priority: 312
+    milestone: General development
+    title: Module manifest and import-rule test (report mode)
+    status: ready
+    work_class: general_development_local
+    decision_ref: D-071
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-00-REALIGNMENT-AUDIT-DESIGN]
+    acceptance:
+      - >-
+        tests/architecture/module-manifest.mjs and
+        tests/architecture/module-boundaries.test.ts (both new) encode the
+        design section 2 dependency rule in report mode with an explicit
+        allowlist of today's violations (audit section 2.6).
+      - >-
+        The manifest classifies the private-context seam files as module private
+        (addendum section 2), and a public-entry reachability rule, in enforcing
+        mode from the start, proves every private-module file unreachable from
+        src/main.tsx and scripts/build-synthetic-artifact.mjs.
+      - >-
+        The source scan in tests/engine/makah-demo-non-interference.test.ts
+        extends to src/modules/** and src/core/** without weakening any
+        assertion, and that test stays green.
+    evidence: []
+  - id: GD-03-BOUNDARY-GUARD-TESTS
+    priority: 313
+    milestone: General development
+    title: Shared boundary-guard tests
+    status: ready
+    work_class: general_development_local
+    decision_ref: D-071
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-00-REALIGNMENT-AUDIT-DESIGN]
+    acceptance:
+      - >-
+        tests/core/boundary-guard.test.ts (new) states the protected-key union
+        of src/pipeline/policy-validation.mjs,
+        src/engine/land-boundary-contracts.ts and
+        src/engine/citation-export-contracts.ts plus landStatus, apn,
+        parcelNumber and shapefile, and requires each key to be rejected at any
+        depth.
+      - >-
+        The standing checks stay green before the guard exists (GD-04); no
+        production file changes in this step.
+    evidence: []
+  - id: GD-04-CORE-BOUNDARY-GUARD
+    priority: 314
+    milestone: General development
+    title: Core boundary guard adopted by record validation
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-071
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-03-BOUNDARY-GUARD-TESTS]
+    acceptance:
+      - >-
+        src/core/boundary-guard.mjs and its .d.mts export one normalized
+        protected-key set and rejectProtectedKeys; the GD-03 tests pass against
+        it.
+      - >-
+        src/pipeline/policy-validation.mjs adopts the guard; the private-seam
+        files keep their own lists unchanged.
+      - >-
+        tests/pipeline/pipeline.test.ts, tests/app/data-integrity.test.ts and
+        npm run build stay green.
+    evidence: []
+  - id: GD-05-INTAKE-REPLAY-AND-DISCOVERY
+    priority: 315
+    milestone: General development
+    title: Replay and Washington discovery moved into intake
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-071
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-01-CHARACTERIZATION-TESTS, GD-02-MODULE-BOUNDARY-TEST]
+    acceptance:
+      - >-
+        replayReviewedCorpus with readOwnedFile, assertProfileBindings and
+        assertCaptureBindings moves to src/modules/intake/replay.mjs (with
+        .d.mts); src/pipeline/policy-broad-discovery.mjs moves to
+        src/modules/intake/sources/washington-legislature/discovery.mjs.
+      - Both old paths keep thin re-export shims so every importer resolves.
+      - >-
+        npm run test:policy, npm run test:assurance and the GD-01
+        characterization tests stay green.
+    evidence: []
+  - id: GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
+    priority: 316
+    milestone: General development
+    title:
+      Local-workbench writer, server and failure simulation split into output
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-071
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-05-INTAKE-REPLAY-AND-DISCOVERY]
+    acceptance:
+      - >-
+        The writer, reader, validation and checksum helpers, the failure
+        simulation and the loopback server move to
+        src/modules/output/local-workbench/{write,failure-simulation,loopback-server}.mjs
+        with .d.mts files.
+      - src/pipeline/policy-local-output.mjs becomes a pure re-export shim.
+      - >-
+        tests/pipeline/policy-local-output.test.mjs, npm run test:assurance and
+        the GD-01 tests stay green.
+    evidence: []
+  - id: GD-07-RESEARCH-OUTPUT-SPLIT
+    priority: 317
+    milestone: General development
+    title: Research review (context) split from research HTML (output)
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-071
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-02-MODULE-BOUNDARY-TEST]
+    acceptance:
+      - >-
+        resolvePolicyResearchReview and enrichPolicyCorpus move to
+        src/modules/context/research-review.mjs; the HTML builder, stylesheet
+        and escape helpers move to src/modules/output/research-html.mjs.
+      - src/pipeline/policy-research-output.mjs becomes a re-export shim.
+      - tests/pipeline/policy-research-output.test.mjs stays green.
+    evidence: []
+  - id: GD-08-CONTEXT-RELEVANCE-EXTRACTION
+    priority: 318
+    milestone: General development
+    title: Relevance functions moved into context
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-071
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-02-MODULE-BOUNDARY-TEST]
+    acceptance:
+      - >-
+        recordEventDate, whyShownFor and recordAvailableForNation move to
+        src/modules/context/relevance.ts, and src/app/policy.ts re-exports them
+        so its S0-pinned path and every importer stay valid.
+      - >-
+        tests/app/policy.test.ts, tests/app/csv.test.ts and
+        tests/app/accessibility.test.tsx stay green.
+    evidence: []
+  - id: GD-09-JURISDICTION-IDENTIFIER-MODEL
+    priority: 319
+    milestone: General development
+    title: Nationwide JurisdictionRef model (synthetic registry)
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-073
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-02-MODULE-BOUNDARY-TEST]
+    acceptance:
+      - >-
+        src/modules/context/jurisdiction/{registry,association}.ts,
+        schemas/jurisdiction-ref.schema.v1.json, a synthetic registry fixture
+        and tests/context/jurisdiction*.test.ts (all new) model us,
+        us-state:USPS with its FIPS code, us-county:FIPS, nation:slug (only as
+        the subject of exact official evidence) and body:slug.
+      - >-
+        The model reserves ca and ca-province:code with no entries (D-079) and
+        rejects coordinates, boxes, polygons, parcel identifiers, land status
+        and map-inferred Nations.
+      - The backbone schema-ID check passes with the new schema.
+    evidence: []
+  - id: GD-10-BOUNDARY-ENFORCEMENT
+    priority: 320
+    milestone: General development
+    title: Boundary test flipped to enforcing
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-071
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      - GD-04-CORE-BOUNDARY-GUARD
+      - GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
+      - GD-07-RESEARCH-OUTPUT-SPLIT
+      - GD-08-CONTEXT-RELEVANCE-EXTRACTION
+    acceptance:
+      - >-
+        tests/architecture/module-manifest.mjs reduces its allowlist to the
+        documented shims, and the GD-02 boundary test runs in enforcing mode and
+        passes.
+    evidence: []
+  - id: GD-11-V2-JURISDICTION-ASSOCIATION
+    priority: 321
+    milestone: General development
+    title: Additive corpus 2.1 jurisdiction association
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-073
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      - GD-09-JURISDICTION-IDENTIFIER-MODEL
+      - GD-10-BOUNDARY-ENFORCEMENT
+    acceptance:
+      - >-
+        An additive AnalyzedCorpus 2.1 schema and runtime carry
+        work.jurisdictionRefs with evidence; governmentContext stays as source
+        text.
+      - >-
+        A 2.0 replay compatibility test is written first, and the sealed 2.0
+        corpus still replays byte-identically.
+      - >-
+        npm run test:policy and tests/pipeline/analyzed-corpus-v2.test.mjs stay
+        green.
+    evidence: []
+  - id: GD-12-NATIONWIDE-SOURCE-CATALOG
+    priority: 322
+    milestone: General development
+    title: Source catalog replacing hand-coded profiles
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-071
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      - GD-05-INTAKE-REPLAY-AND-DISCOVERY
+      - GD-09-JURISDICTION-IDENTIFIER-MODEL
+    acceptance:
+      - >-
+        src/modules/intake/source-catalog.mjs,
+        schemas/source-catalog.schema.v1.json and a synthetic catalog fixture
+        (catalog data in .mjs or under fixtures/, never a new JSON file under
+        config/) generalize the source profile shape.
+      - >-
+        Catalog schema negative cases and a manifest-from-catalog equivalence
+        test against initialDirectManifest pass.
+      - >-
+        Credential requirements are environment-variable references only, never
+        values (D-072), and the user_supplied authority class is defined.
+      - npm run test:policy stays green.
+    evidence: []
+  - id: GD-13-NATIONWIDE-RECORD-CONTRACT
+    priority: 323
+    milestone: General development
+    title: Public record, artifact and source contracts for all states
+    status: blocked
+    work_class: general_development_local
+    decision_ref: D-073
+    authorization_gate: G-GD-NATIONWIDE-CONTRACT
+    dependencies:
+      - GD-09-JURISDICTION-IDENTIFIER-MODEL
+      - GD-10-BOUNDARY-ENFORCEMENT
+    blocked_by: [G-GD-NATIONWIDE-CONTRACT]
+    safe_fallback: >-
+      Keep the retained WA/OR/ID record, artifact and source contracts unchanged
+      and emit no record from another state; nationwide work proceeds only in
+      the identifier model and the local corpus (GD-09, GD-11, GD-12).
+    unblocks_only_when: >-
+      The owner opens G-GD-NATIONWIDE-CONTRACT for the exact successor contracts
+      under D-073, and GD-09 and GD-10 are complete.
+    acceptance:
+      - >-
+        Record, artifact package and source registry successor schemas replace
+        the state enum with JurisdictionRef; src/app/data.ts and
+        src/pipeline/nation-collection-policy.mjs follow.
+      - Migration and compatibility fixtures are written first.
+      - All artifact and app suites and npm run build stay green.
+    evidence:
+      - >-
+        Represented at schema 1.10 by general-development session 1 behind the
+        closed gate G-GD-NATIONWIDE-CONTRACT, as the module design (section 9.4)
+        and D-073 require.
+  - id: GD-14-FEDERAL-TAXONOMY-SOURCE-MAPPINGS
+    priority: 324
+    milestone: General development
+    title: Deterministic official-label mappings (synthetic first)
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-071
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      - GD-08-CONTEXT-RELEVANCE-EXTRACTION
+      - GD-10-BOUNDARY-ENFORCEMENT
+    acceptance:
+      - >-
+        config/taxonomy.v1.json sourceMappings gain synthetic official labels
+        first, with a context mapping function that records mapping provenance
+        and falls back to Unclassified; no keyword or AI classification.
+      - >-
+        Mapping provenance and Unclassified fallback tests are written first;
+        tests/engine/taxonomy*.test.ts and foundation validation stay green.
+    evidence: []
+  - id: GD-15-ARCHITECTURE-DOCS
+    priority: 325
+    milestone: General development
+    title: Architecture, backbone and data-contract updates
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-071
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-10-BOUNDARY-ENFORCEMENT]
+    acceptance:
+      - >-
+        docs/architecture.md (including the C-3 wording),
+        docs/PROJECT-BACKBONE.md and docs/data-contract.md describe the module
+        design and fold in the general development addendum.
+      - npm run validate:backbone stays green.
+    evidence: []
+  - id: GD-16-INTEROP-PURE-ADAPTER
+    priority: 326
+    milestone: General development
+    title: >-
+      Pure policy.search-context/1 validator and policy.citations/1 projector
+    status: blocked
+    work_class: general_development_local
+    decision_ref: D-074
+    authorization_gate: G-GD-INTEROP
+    dependencies:
+      - GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
+      - GD-08-CONTEXT-RELEVANCE-EXTRACTION
+      - GD-09-JURISDICTION-IDENTIFIER-MODEL
+      - GD-10-BOUNDARY-ENFORCEMENT
+      - GD-21-POLICY-CONTEXT-V1
+    blocked_by: [G-GD-INTEROP]
+    safe_fallback: >-
+      No interop adapter, listener or wire payload exists; the IO guide remains
+      specified and not implemented.
+    unblocks_only_when: >-
+      The owner opens G-GD-INTEROP for the pure validator and projector only,
+      with no live listener, and GD-06, GD-08, GD-09, GD-10 and GD-21 are
+      complete.
+    acceptance:
+      - >-
+        src/modules/output/interop/, schemas/interop/ and tests/interop/ hold a
+        pure PolicyContext validator for policy.search-context/1 and a
+        policy.citations/1 projector that carries record-side evidence only
+        (NC-1 to NC-7).
+      - The minimum scenario 4 negatives are written first.
+      - No live listener, persistence or logging of queries exists.
+    evidence:
+      - >-
+        Represented at schema 1.10 by general-development session 1 behind the
+        closed gate G-GD-INTEROP; D-074 adopts Design A generalized and adds
+        GD-21 as a dependency (addendum section 11).
+  - id: GD-17-NATIONWIDE-SOURCE-SURVEY
+    priority: 327
+    milestone: General development
+    title: Nationwide source landscape survey (docs only)
+    status: ready
+    work_class: general_development_local
+    decision_ref: D-078
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-00-REALIGNMENT-AUDIT-DESIGN]
+    acceptance:
+      - >-
+        SourceDescriptor drafts, one document per jurisdiction under
+        docs/source-reviews/nationwide/, cover federal sources, all 50 states,
+        DC and the territories, with counties by platform class (addendum
+        section 7).
+      - >-
+        Tribal law sources are not surveyed for acquisition (D-078); discovery
+        catalogs may be named for a Nation's own use.
+      - >-
+        Documentation only: nothing is acquired, no terms are accepted and no
+        key is registered.
+    evidence: []
+  - id: GD-18-STORAGE-CAPACITY-MODEL
+    priority: 328
+    milestone: General development
+    title: Storage capacity model, holding policy and storage:report
+    status: ready
+    work_class: general_development_local
+    decision_ref: D-077
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-00-REALIGNMENT-AUDIT-DESIGN]
+    acceptance:
+      - >-
+        A capacity model replaces the addendum section 8 estimates with measured
+        numbers from the survey and the existing custody namespaces.
+      - >-
+        A storage:report script reports reference, custody, derived and reserve
+        tier usage against the D-077 caps; nothing is acquired.
+    evidence: []
+  - id: GD-19-AREA-RESOLVER
+    priority: 329
+    milestone: General development
+    title: Area resolver in the private-context module (synthetic fixtures only)
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-074
+    authorization_gate: G-GD-PRIVATE-CONTEXT
+    dependencies:
+      - GD-09-JURISDICTION-IDENTIFIER-MODEL
+      - GD-10-BOUNDARY-ENFORCEMENT
+      - GD-20-DESIGNATION-REGISTRY-CONTRACT
+      - GD-21-POLICY-CONTEXT-V1
+    acceptance:
+      - >-
+        Code under src/modules/private/ reads a zipped shapefile, GeoPackage,
+        GeoJSON, KML or KMZ, or an ATNI-GeoPack in memory from synthetic
+        fixtures, intersects public boundary and designation layers and emits a
+        PolicyContext.
+      - >-
+        It never populates a Nation except as user_declared, takes land-status
+        classes only from user attributes, emits no identifiers, coordinates,
+        boxes or counts, and labels every output informational.
+      - >-
+        Every resolver file is unreachable from the public application entry and
+        the synthetic artifact build.
+      - >-
+        The geometry dependency is a pinned, offline, pure JavaScript library
+        recorded in the decision register when this item starts (addendum
+        section 12, question 3, is open).
+    evidence: []
+  - id: GD-20-DESIGNATION-REGISTRY-CONTRACT
+    priority: 330
+    milestone: General development
+    title: Designation registry schema, synthetic fixture and appliesWhere field
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-076
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-09-JURISDICTION-IDENTIFIER-MODEL]
+    acceptance:
+      - >-
+        A designation registry schema and synthetic fixture carry code, title,
+        authority, geometry source reference, legal basis, status, tier, the
+        publisher's verbatim disclaimer, policy triggers and version (addendum
+        section 5).
+      - >-
+        An appliesWhere record field maps designation codes to records with
+        provenance; no entry asserts a boundary as a determination.
+    evidence: []
+  - id: GD-21-POLICY-CONTEXT-V1
+    priority: 331
+    milestone: General development
+    title: PolicyContext v1 schema and validator
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-074
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      - GD-09-JURISDICTION-IDENTIFIER-MODEL
+      - GD-20-DESIGNATION-REGISTRY-CONTRACT
+    acceptance:
+      - >-
+        schemas/interop/policy-context.schema.v1.json and its validator close
+        the PolicyContext shape in addendum section 4.
+      - >-
+        The query is bounded at 500 characters and rejects coordinate-, APN-,
+        box- and address-shaped tokens; a derivedFromPrivate context or a tier
+        above T1 is refused for off-deployment transmission.
+    evidence: []
+  - id: GD-22-NATION-REGISTRY-BINDING
+    priority: 332
+    milestone: General development
+    title: Bind the tribal JurisdictionRef kind to atni-nation-registry
+    status: blocked
+    work_class: general_development_local
+    decision_ref: D-075
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-09-JURISDICTION-IDENTIFIER-MODEL]
+    blocked_by: [G-BIA-IDENTITY]
+    safe_fallback: >-
+      The tribal JurisdictionRef kind stays evidence-only with no registry
+      binding, and no Nation criterion is exchanged.
+    unblocks_only_when: >-
+      G-BIA-IDENTITY is satisfied, atni-nation-registry v0 exists as a
+      digest-pinned release, and GD-09 is complete.
+    acceptance:
+      - >-
+        The tribal JurisdictionRef kind binds to registry nation slugs and the
+        registry digest is pinned; recognitionAuthority carries us_federal with
+        ca_first_nation reserved and empty (D-079).
+    evidence:
+      - >-
+        Represented at schema 1.10 by general-development session 1; D-075 makes
+        G-BIA-IDENTITY the registry's first release gate (addendum sections 6
+        and 11).
+  - id: GD-23-USER-SUPPLIED-SOURCE-CLASS
+    priority: 333
+    milestone: General development
+    title:
+      user_supplied source class in the catalog and private custody namespace
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-072
+    authorization_gate: G-GD-PRIVATE-CONTEXT
+    dependencies: [GD-12-NATIONWIDE-SOURCE-CATALOG]
+    acceptance:
+      - >-
+        The catalog defines a user_supplied source class whose documents enter
+        the deployment's private custody namespace through the same
+        immutable-object and receipt model as v2 custody, with no network
+        transport, using synthetic fixtures only.
+      - >-
+        Tribal codes and ordinances enter only through this class (D-078), and
+        no private-module file is reachable from the public entry.
+    evidence: []
 
 source_register:
   - id: SRC-BIA-NOTICE
@@ -6333,11 +6968,47 @@ next_actions:
       PS09-02 is accepted and the exact local release run is authorized. Recover
       docs/handoffs/ps09-engineering-review-02-outcome.md and the preserved
       discovery outcome; do not reactivate ended maintenance, acquisition,
-      cutoff startups or archived lanes. Separately, general development waits
-      on owner decisions RD-01 to RD-03 in
-      docs/decisions/2026-09-22-realignment-open-decisions.md; its work items
-      are proposed in docs/architecture/module-boundaries.md section 9.4 and are
-      not ledger entries under schema 1.9.
+      cutoff startups or archived lanes. General development proceeds separately
+      under G-GENERAL-DEV-01 (D-071) and does not unblock PS09.
+  - order: 2
+    work_item: GD-01-CHARACTERIZATION-TESTS
+    action: >-
+      Wave 1, first step: characterization tests for local-output replay, write
+      and read (module-boundaries section 9.1).
+  - order: 3
+    work_item: GD-02-MODULE-BOUNDARY-TEST
+    action: >-
+      Wave 1: module manifest and boundary test in report mode, with the
+      private-module public-entry reachability rule enforcing (addendum section
+      2).
+  - order: 4
+    work_item: GD-03-BOUNDARY-GUARD-TESTS
+    action: Wave 1 - shared boundary-guard tests written before GD-04.
+  - order: 5
+    work_item: GD-13-NATIONWIDE-RECORD-CONTRACT
+    action: >-
+      Blocked on the closed gate G-GD-NATIONWIDE-CONTRACT; the owner opens it
+      for the exact successor contracts under D-073.
+  - order: 6
+    work_item: GD-16-INTEROP-PURE-ADAPTER
+    action: >-
+      Blocked on the closed gate G-GD-INTEROP; the owner opens it for the pure
+      validator and projector only under D-074.
+  - order: 7
+    work_item: GD-17-NATIONWIDE-SOURCE-SURVEY
+    action: >-
+      Session R (RL-14): documentation-only nationwide source survey with the
+      source-scout agent; acquires nothing.
+  - order: 8
+    work_item: GD-18-STORAGE-CAPACITY-MODEL
+    action: >-
+      Session R (RL-14): storage capacity model and storage:report against the
+      D-077 caps; acquires nothing.
+  - order: 9
+    work_item: GD-22-NATION-REGISTRY-BINDING
+    action: >-
+      Blocked on G-BIA-IDENTITY and on an atni-nation-registry v0 release
+      (D-075).
 finish_states:
   makah_demo:
     current_state: complete

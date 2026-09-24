@@ -208,3 +208,87 @@ No commit for step 1.
   old sentence text. `npm run validate:backbone` exit 0; `npm run format:check`
   exit 0.
 - Commit recorded in the step 6 entry.
+
+### Step 6: schema 1.10 (RL-01, D-071)
+
+- Step 5 was commit `9a25d76`.
+- Design: admit-by-rule worked; the enumerated 1.7 to 1.9 fallback was not
+  needed. The rule lives in `scripts/validate-roadmap.mjs` in one block placed
+  before the frozen digests. An item under milestone `General development` is
+  admitted when its id matches `GD-nn-NAME`, it carries
+  `work_class: general_development_local`, a `decision_ref` that matches a
+  `| D-nnn |` row of `docs/decision-register.md`, an `authorization_gate` among
+  the four named gates, and dependencies only on other general-development
+  items. Only those admitted items and the four named gates are filtered out
+  of the frozen 1.8 identity digests and the preserved-historical-identity
+  list; every other milestone still hashes to the frozen values. A frozen item
+  relabelled into the milestone fails the id pattern; any other new identity
+  fails the freeze; a fifth `G-GD-*` gate is an unknown gate.
+- Extra invariants the rule enforces: no non-general-development item may
+  depend on a general-development item or use one of the four gates; a
+  complete item needs a 40-hex `completion_commit` and an ISO 8601
+  `completed_on`; `G-GENERAL-DEV-01` and `G-GD-PRIVATE-CONTEXT`, when approved,
+  must hold their exact zero-budget synthetic scopes, and any approved
+  general-development gate must keep a zero acquisition budget and no
+  activation, private data, publication or release authority; a closed one
+  needs `unblocks_only_when`; `completion_scope.general_development` is
+  `non_release_local_development`; an active general-development item may be the
+  one `in_progress` item beside the blocked PS09 graph, must be the
+  lowest-priority-number ready general-development item, and keeps
+  `resumable_roots: [active, PS09-02]`; general-development roots join the
+  terminal `next_actions` accounting.
+- Tests first (`tests/pipeline/roadmap-validator.test.mjs`): a new schema 1.10
+  block with 31 cases (live ledger via actual CLI and module, an active item, a
+  planning-act item with no validator change, and 28 rejections including
+  missing, unresolvable and ruling-id `decision_ref`, wrong or missing gate,
+  wrong `work_class`, frozen-milestone tampering three ways, a fifth gate,
+  gate-scope drift, closed-gate and completion-record defects, hidden roots,
+  skipped lower-priority work, and a 1.9 ledger carrying these identities).
+  Older fixtures now strip the general-development graph in the shared
+  `withoutMakahDemo` chain, so every 1.7, 1.8 and 1.9 assertion runs unchanged
+  on its own schema's shape. Three live-state lines changed: the live schema
+  assertion (`1.9` to `1.10`), the synthetic convergence registry filter (skip
+  `GD-` ids), and the 1.8 and 1.9 "closed gates are exactly these 26"
+  assertions, now scoped to non-general-development gates with the same 26-id
+  list, while the 1.10 block asserts the four gates and their states exactly.
+  Nothing was deleted or skipped.
+- `ROADMAP.yaml`: schema 1.10; four gates (`G-GENERAL-DEV-01` and
+  `G-GD-PRIVATE-CONTEXT` approved with exact zero-budget scopes;
+  `G-GD-NATIONWIDE-CONTRACT` and `G-GD-INTEROP` closed with
+  `unblocks_only_when`); `completion_scope.general_development`; GD-00 to GD-23
+  at priorities 310 to 333 with dependencies, `decision_ref`, acceptance lines
+  from design section 9.1 and addendum section 11, and the blocked-item fields;
+  GD-00 complete at `6eb8947` (`completed_on` 2026-09-22T11:03:28-07:00 from
+  `git show -s --format=%cI`; evidence cites `fff7990` 10:46:14, `20d0056`
+  10:53:50 and the follow-up `ab6aefd` 11:03:38); `current_focus` and
+  `next_actions` list the nine incomplete roots in priority order.
+- **Where the ledger differs from the launch prompt's predicted statuses, and
+  why** (lead judgment, recorded for the owner):
+  1. GD-17 (nationwide source survey) and GD-18 (storage capacity model) are
+     `ready`, not `not_started`: they depend only on GD-00, which is complete,
+     and the ledger's readiness rule forces a dependency-complete item under an
+     approved gate to `ready`.
+  2. GD-19 (area resolver) and GD-23 (user-supplied source class) are
+     `not_started`, not `blocked`: the validator's `blocked` status requires a
+     named gate or boundary as the blocker, and their gate
+     (`G-GD-PRIVATE-CONTEXT`) is approved; what holds them is unfinished
+     dependencies, which the vocabulary calls `not_started`. GD-19's
+     acceptance records that its geometry dependency needs the owner's
+     answer to addendum section 12, question 3 before it starts.
+  3. GD-22 (Nation registry binding) uses `G-GENERAL-DEV-01` as its
+     authorization gate and is `blocked_by: [G-BIA-IDENTITY]`: the addendum
+     table names G-BIA-IDENTITY as its gate, but the RL-01 rule requires one of
+     the four general-development gates.
+  4. GD-00 (realignment audit and design) carries `G-GENERAL-DEV-01` for
+     accounting only (the design table says "none"); its evidence says the gate
+     authorized none of that work retroactively.
+  5. GD-16 (interop adapter) also depends on GD-21 (PolicyContext v1), per the
+     addendum.
+- Results: `npm run validate:roadmap` exit 0: 105 work items, 61 gates, 14
+  sources, 23 binding paths; complete 44, in_progress 0, ready 6, blocked 21,
+  deferred 2, not_started 32. `node --test
+  tests/pipeline/roadmap-validator.test.mjs`: 473/473 in 26.9 s (441 before).
+  `npm test`: exit 0 in 244 s, node suites unchanged from baseline, Vitest 97
+  files and 1617 tests. `npm run format:check`, `lint`, `typecheck`,
+  `validate:backbone` (853 links) and `hooks:test` (18/18): all exit 0.
+- Commit recorded in the step 7 entry.
