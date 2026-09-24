@@ -1015,12 +1015,14 @@ current_focus:
     rule stands (addendum section 12, question 2, is an open owner question).
     Next per RL-14: session R (GD-17 nationwide source survey, GD-18 storage
     capacity model) and session 2 (wave 2: GD-04, GD-05, GD-07, GD-08, GD-09;
-    wave 3: GD-06, GD-10). GD-13, GD-16 and GD-22 wait on their gates. The Makah
-    demo track is finished; its acquired objects remain custody only, and
-    per-document G-J decisions and G-BIA-IDENTITY stay open. The PS09 program
-    stays blocked on PS09-02 originating identity/scenario evidence; PS09-06 is
-    unstarted and gated; the completed H01/H02 maintenance and every sealed
-    discovery, prior assurance and owner-input identity are preserved.
+    wave 3: GD-06, GD-10). GD-13, GD-16 and GD-22 wait on their gates.
+    General-development session 2 added GD-24 to GD-27 by planning act (D-080,
+    D-081); GD-24 (legacy archive) runs first. The Makah demo track is finished;
+    its acquired objects remain custody only, and per-document G-J decisions and
+    G-BIA-IDENTITY stay open. The PS09 program stays blocked on PS09-02
+    originating identity/scenario evidence; PS09-06 is unstarted and gated; the
+    completed H01/H02 maintenance and every sealed discovery, prior assurance
+    and owner-input identity are preserved.
   terminal_reason: >-
     General-development session 1 ended after refactor wave 1 (GD-01, GD-02,
     GD-03 complete); its authority covered governance plus wave 1 only. Wave 2
@@ -1029,6 +1031,7 @@ current_focus:
     external operation is authorized.
   resumable_roots:
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
+    - GD-24-LEGACY-ARCHIVE-AND-CONSOLIDATION
     - GD-04-CORE-BOUNDARY-GUARD
     - GD-05-INTAKE-REPLAY-AND-DISCOVERY
     - GD-07-RESEARCH-OUTPUT-SPLIT
@@ -1039,6 +1042,8 @@ current_focus:
     - GD-17-NATIONWIDE-SOURCE-SURVEY
     - GD-18-STORAGE-CAPACITY-MODEL
     - GD-22-NATION-REGISTRY-BINDING
+    - GD-26-REPRODUCIBLE-CHECKS
+    - GD-27-LOCAL-RELEASE-PACKAGE
   last_durable_checkpoint: ac8ff44fe4931c89aeda5aaddbad71683af03a7f
   resume_command: npm run validate:roadmap
 
@@ -6207,6 +6212,40 @@ work_items:
       - Exact approved feedback and distribution scope is respected and repairs
         validated.
     evidence: []
+  - id: GD-24-LEGACY-ARCHIVE-AND-CONSOLIDATION
+    priority: 309
+    milestone: General development
+    title: Legacy archive and consolidation outside the repository
+    status: ready
+    work_class: general_development_local
+    decision_ref: D-080
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-00-REALIGNMENT-AUDIT-DESIGN]
+    acceptance:
+      - >-
+        A hashed inventory of every legacy and related location (path, size,
+        modification time, SHA-256, classification, hold flag and reason) is
+        written under I:\policy-sentinel-archive\inventory\, with a hold list
+        for Nation-specific, T2 or T3, acquisition custody, credential-shaped
+        and unclear material.
+      - >-
+        Classified public material is copied into
+        I:\policy-sentinel-archive\copies\ with a manifest per copy, legacy git
+        repositories are preserved as verified git bundles, and no held item is
+        copied.
+      - >-
+        Seven digests and an archive index cite their sources by path and
+        SHA-256 and make no new claim.
+      - >-
+        No write, move, rename or delete occurs in any source location, and no
+        legacy code is merged into this repository.
+    evidence:
+      - >-
+        Placed at priority 309, ahead of GD-00, by the planning act of
+        general-development session 2: the owner's launch prompt sequences this
+        item first, and the ledger rule selects the lowest-priority-number ready
+        general-development item, so a priority after GD-23 could never be
+        activated while wave 2 items are ready.
   - id: GD-00-REALIGNMENT-AUDIT-DESIGN
     priority: 310
     milestone: General development
@@ -6819,6 +6858,86 @@ work_items:
         Tribal codes and ordinances enter only through this class (D-078), and
         no private-module file is reachable from the public entry.
     evidence: []
+  - id: GD-25-ANALYST-RESEARCH-LOOP
+    priority: 334
+    milestone: General development
+    title: Analyst research loop in the local workbench
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-081
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      - GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
+      - GD-07-RESEARCH-OUTPUT-SPLIT
+      - GD-10-BOUNDARY-ENFORCEMENT
+    acceptance:
+      - >-
+        In the local workbench an analyst can draft a finding, attach evidence,
+        review, revise and export it, using synthetic fixtures; today findings
+        are consumed from prepared JSON only.
+      - >-
+        The loop is required for demonstration A1 of the definition of done
+        (docs/decisions/2026-09-24-definition-of-done-general-development.md).
+    evidence: []
+  - id: GD-26-REPRODUCIBLE-CHECKS
+    priority: 335
+    milestone: General development
+    title: Reproducible checks and Claude Code mechanical gate tests
+    status: ready
+    work_class: general_development_local
+    decision_ref: D-081
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-00-REALIGNMENT-AUDIT-DESIGN]
+    acceptance:
+      - >-
+        npm run hooks:test passes on a fresh source snapshot that carries no
+        ignored historical receipts.
+      - >-
+        A test attempts each denied form in .claude/settings.json and verifies
+        that the deny rule matches it.
+      - >-
+        The checks are required for demonstration A3 of the definition of done.
+    evidence: []
+  - id: GD-27-LOCAL-RELEASE-PACKAGE
+    priority: 336
+    milestone: General development
+    title: Versioned 1.0 local release package
+    status: blocked
+    work_class: general_development_local
+    decision_ref: D-081
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      - GD-10-BOUNDARY-ENFORCEMENT
+      - GD-13-NATIONWIDE-RECORD-CONTRACT
+      - GD-15-ARCHITECTURE-DOCS
+      - GD-19-AREA-RESOLVER
+      - GD-21-POLICY-CONTEXT-V1
+      - GD-22-NATION-REGISTRY-BINDING
+      - GD-25-ANALYST-RESEARCH-LOOP
+      - GD-26-REPRODUCIBLE-CHECKS
+    blocked_by: [G-GD-NATIONWIDE-CONTRACT]
+    safe_fallback: >-
+      No release package exists; PS09-06-LOCAL-RC stays the sole local release
+      root and D-063 is unchanged.
+    unblocks_only_when: >-
+      The owner opens G-GD-NATIONWIDE-CONTRACT for GD-13 under D-073, and every
+      dependency of this item is complete.
+    acceptance:
+      - >-
+        A versioned local release package with an install document and the T0
+        baseline bundle v0 as a local file installs on a second machine.
+      - >-
+        A later planning session consolidates PS09-06-LOCAL-RC into this root
+        (D-081, completing the D-071 intent); until it acts, PS09-06-LOCAL-RC
+        remains the sole local release root.
+      - >-
+        The package is required for demonstrations A1 and A3 of the definition
+        of done; it is not a public release or remote publication.
+    evidence:
+      - >-
+        Represented by the planning act of general-development session 2 under
+        D-081. It depends on GD-13, which waits on the closed gate
+        G-GD-NATIONWIDE-CONTRACT, so it is recorded as blocked by that gate.
 
 source_register:
   - id: SRC-BIA-NOTICE
@@ -7036,56 +7155,68 @@ next_actions:
       cutoff startups or archived lanes. General development proceeds separately
       under G-GENERAL-DEV-01 (D-071) and does not unblock PS09.
   - order: 2
+    work_item: GD-24-LEGACY-ARCHIVE-AND-CONSOLIDATION
+    action: >-
+      General-development session 2 (D-080): inventory, classify, copy, bundle
+      and digest legacy material into I:\policy-sentinel-archive, copy-only.
+  - order: 3
     work_item: GD-04-CORE-BOUNDARY-GUARD
     action: >-
-      Wave 2 (session 2): build src/core/boundary-guard.mjs to the contract the
-      GD-03 tests state (its 80 skipped tests then run) and adopt it in record
-      validation.
-  - order: 3
+      Wave 2: build src/core/boundary-guard.mjs to the contract the GD-03 tests
+      state (its 80 skipped tests then run) and adopt it in record validation.
+  - order: 4
     work_item: GD-05-INTAKE-REPLAY-AND-DISCOVERY
     action: >-
-      Wave 2 (session 2): move replay and Washington discovery into
-      src/modules/intake behind re-export shims.
-  - order: 4
+      Wave 2: move replay and Washington discovery into src/modules/intake
+      behind re-export shims.
+  - order: 5
     work_item: GD-07-RESEARCH-OUTPUT-SPLIT
     action: >-
-      Wave 2 (session 2): split research review (context) from research HTML
-      (output).
-  - order: 5
+      Wave 2: split research review (context) from research HTML (output).
+  - order: 6
     work_item: GD-08-CONTEXT-RELEVANCE-EXTRACTION
     action: >-
-      Wave 2 (session 2): move the relevance functions into
+      Wave 2: move the relevance functions into
       src/modules/context/relevance.ts.
-  - order: 6
+  - order: 7
     work_item: GD-09-JURISDICTION-IDENTIFIER-MODEL
     action: >-
-      Wave 2 (session 2): nationwide JurisdictionRef model with a synthetic
-      registry.
-  - order: 7
+      Wave 2: nationwide JurisdictionRef model with a synthetic registry.
+  - order: 8
     work_item: GD-13-NATIONWIDE-RECORD-CONTRACT
     action: >-
       Blocked on the closed gate G-GD-NATIONWIDE-CONTRACT; the owner opens it
       for the exact successor contracts under D-073.
-  - order: 8
+  - order: 9
     work_item: GD-16-INTEROP-PURE-ADAPTER
     action: >-
       Blocked on the closed gate G-GD-INTEROP; the owner opens it for the pure
       validator and projector only under D-074.
-  - order: 9
+  - order: 10
     work_item: GD-17-NATIONWIDE-SOURCE-SURVEY
     action: >-
       Session R (RL-14): documentation-only nationwide source survey with the
       source-scout agent; acquires nothing.
-  - order: 10
+  - order: 11
     work_item: GD-18-STORAGE-CAPACITY-MODEL
     action: >-
       Session R (RL-14): storage capacity model and storage:report against the
       D-077 caps; acquires nothing.
-  - order: 11
+  - order: 12
     work_item: GD-22-NATION-REGISTRY-BINDING
     action: >-
       Blocked on G-BIA-IDENTITY and on an atni-nation-registry v0 release
       (D-075).
+  - order: 13
+    work_item: GD-26-REPRODUCIBLE-CHECKS
+    action: >-
+      Make hook tests independent of ignored historical receipts and test each
+      .claude/settings.json deny form (D-081).
+  - order: 14
+    work_item: GD-27-LOCAL-RELEASE-PACKAGE
+    action: >-
+      Blocked on the closed gate G-GD-NATIONWIDE-CONTRACT (through GD-13); a
+      later planning session consolidates PS09-06-LOCAL-RC into it (D-081).
 finish_states:
   makah_demo:
     current_state: complete

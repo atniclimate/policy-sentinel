@@ -115,3 +115,47 @@ this ledger, `git log` and `ROADMAP.yaml`.
   adds sections only), so both are left as found and recorded here. D-082
   supersedes them.
 - `npm run validate:backbone` exit 0 (855 local links); Prettier clean.
+
+### Step 1d: planning act, GD-24 to GD-27
+
+- Step 1c was commit `cdd0c14`.
+- Four items added under milestone "General development", work class
+  `general_development_local`, gate `G-GENERAL-DEV-01`:
+  GD-24-LEGACY-ARCHIVE-AND-CONSOLIDATION (D-080, depends GD-00, `ready`),
+  GD-25-ANALYST-RESEARCH-LOOP (D-081, depends GD-06, GD-07, GD-10,
+  `not_started`), GD-26-REPRODUCIBLE-CHECKS (D-081, depends GD-00, `ready`),
+  GD-27-LOCAL-RELEASE-PACKAGE (D-081, depends GD-10, GD-13, GD-15, GD-19,
+  GD-21, GD-22, GD-25, GD-26, `blocked` by `G-GD-NATIONWIDE-CONTRACT` with
+  `safe_fallback`, `unblocks_only_when` and one evidence line, which the
+  validator requires of every blocked item). `current_focus.resumable_roots`
+  and `next_actions` now list the 14 incomplete roots in priority order, and
+  one sentence was added to `current_focus.objective`.
+- Priority placement (lead judgment): the validator requires strictly
+  increasing priorities in file order (`scripts/validate-roadmap.mjs` lines
+  602 to 612) and an active general-development item must be the
+  lowest-priority-number ready general-development item (lines 3200 to 3212).
+  Appended after GD-23, GD-24 would get 334 and could not be activated in step
+  2 while GD-04 (314) and the other wave 2 items are ready. GD-24 is therefore
+  inserted before GD-00 at priority 309, which also states the owner's
+  sequencing (the archive runs first). GD-25, GD-26 and GD-27 are appended at
+  334, 335 and 336.
+- First validator run rejected GD-27 ("blocked without evidence"); adding the
+  evidence line fixed it. The second rejected the terminal
+  `resumable_roots` and printed the exact expected order; the edit above
+  matched it.
+- Results: `npm run validate:roadmap` exit 0: 109 work items, 61 gates, 14
+  sources, 23 binding paths; complete 47, in_progress 0, ready 10, blocked 22,
+  deferred 2, not_started 28. `node --test
+  tests/pipeline/roadmap-validator.test.mjs`: 473/473 in 31.2 s. `git diff`
+  shows no change under `scripts/` or `tests/`. One Prettier reflow of the
+  edited `objective` paragraph.
+- **Proof of the D-071 design:** the validator accepted the four new items
+  with zero validator changes and zero test changes. The one constraint the
+  planning act had to respect was priority placement.
+- **Finding S2-F4:** the same focus rule blocks RL-14's session R as planned.
+  GD-17 (327) and GD-18 (328) are `ready`, but while any of GD-04, GD-05,
+  GD-07, GD-08 or GD-09 (314 to 319) is `ready`, the validator rejects GD-17
+  or GD-18 as the active item. Session R therefore cannot start before wave 2
+  unless a planning act moves GD-17 and GD-18 to lower priority numbers (the
+  same move made here for GD-24; general-development priorities are not
+  frozen) or wave 2 lands first. Recorded for the owner; nothing changed.
