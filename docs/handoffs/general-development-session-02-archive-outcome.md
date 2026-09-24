@@ -74,3 +74,21 @@ this ledger, `git log` and `ROADMAP.yaml`.
   files, 854 local links).
 - Commit: "Adopt Claude Code mechanical gates, two agents and the definition of
   done" (the four drop-ins plus this ledger).
+
+### Step 1b: definition of done, one row change (owner answer 4)
+
+- Step 1a was commit `aef7d2e`.
+- Part B of the definition file: the row "Live bounded custody for federal
+  sources plus at least three states ..." is replaced by two rows: (i)
+  federal families fully wired (catalog rows for Federal Register, GovInfo,
+  eCFR, Regulations.gov and Congress.gov, credential placeholders where a key
+  is required, live bounded custody for the keyless ones), mapped to GD-12 and
+  a new decision after GD-17; (ii) starting state custody for at least three
+  states, with no larger number until GD-18 reports the measured weight of a
+  full federal plus 50-state current-text corpus and of the international
+  instruments class, mapped to GD-18 and the same decision. The notes column
+  wording is the lead's (the owner's answer gave the capability text and the
+  mapping only).
+- Addendum section 7 table: one row added, class "International and
+  transboundary instruments", with the owner's starting points and note.
+- `npm run validate:backbone` exit 0; Prettier check clean on both files.

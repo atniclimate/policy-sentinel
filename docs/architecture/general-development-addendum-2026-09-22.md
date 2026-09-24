@@ -235,6 +235,7 @@ it acquires nothing, accepts no terms and registers no keys.
 | State | Open States v3 API (Plural; key required; states plus DC and Puerto Rico; bills, legislators, committees, events) and its bulk data; each legislature's own site; state administrative codes and registers | Open States is a discovery catalog, not an originating source: use it to find records, take custody from the originating legislature URL. Washington (lws) and Oregon (ODATA) contracts already exist |
 | County and municipal | Platform classes: Municode (CivicPlus), American Legal Publishing, eCode360 (General Code), Legistar (Granicus); originating county sites on demand | Most platforms expose no public API; record each as a gap with its terms rather than scrape it |
 | Tribal | Not surveyed for acquisition (RL-10) | A Nation supplies its own law as user-supplied data; discovery catalogs may be cited for the Nation's own use |
+| International and transboundary instruments | UN publication of UNDRIP and related instruments; US treaty texts through GovInfo or the Statutes at Large; boundary-waters and Pacific Salmon Treaty texts from their commissions | Small class; surveyed for weight and terms, acquisition gated like any other source |
 
 First pass covers federal, all 50 states, DC and the territories. Counties are
 covered by platform class plus originating sites when a user's area demands.
