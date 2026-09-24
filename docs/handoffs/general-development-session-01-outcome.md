@@ -337,4 +337,26 @@ No commit for step 1.
 - Commit `2093cf3` (GD-02 implementation, 2026-09-24T10:36:08-07:00). Ledger:
   GD-02 complete; GD-05, GD-07, GD-08 and GD-09 promoted to `ready` (their
   dependencies are now complete); focus null at a wave checkpoint with eleven
-  roots; `npm run validate:roadmap` passed (complete 46, ready 8).
+  roots; `npm run validate:roadmap` passed (complete 46, ready 8). Commit
+  `43c9a25`.
+- GD-03 (boundary-guard tests) activated at commit `3f8d77e`. Lead design for
+  the lane: the tests target a guard that GD-04 builds later, and GD-04 does
+  not own the test file, so the file pins the expected key set now (always on)
+  and the guard-behavior tests skip only while `src/core/boundary-guard.mjs` is
+  absent, running automatically once GD-04 creates it.
+- GD-03 lane: added `tests/core/boundary-guard.test.ts`; 77-key union (two
+  lists imported, the unexported record-guard list extracted from source
+  text); Part A 1 test passing, Part B 80 tests skipped; Part B contract:
+  `PROTECTED_KEYS` export and a throwing `rejectProtectedKeys`. `npm test`
+  exit 0 (Vitest 99 files, 1622 passed, 80 skipped).
+- GD-03 verification (`gate-verifier`, base `3f8d77e`): PASS; `src/core/` does
+  not exist; the skip condition is exactly the module's absence; skip counts
+  are 80 plus the one existing spine skip.
+- Commit `ac8ff44` (GD-03 implementation, 2026-09-24T10:53:31-07:00). Ledger:
+  GD-03 complete; GD-04 promoted to `ready`; wave 1 done, focus null with a
+  terminal reason and eleven roots; `npm run validate:roadmap` passed
+  (complete 47, in_progress 0, ready 8, blocked 21, deferred 2,
+  not_started 27).
+- Wave 1 wall time: GD-01 about 25 minutes (lane 18, verifier 7), GD-02 about
+  61 minutes (lane 26, verifier 35), GD-03 about 14 minutes (lane 8, verifier
+  6), each including at least two full `npm test` runs.

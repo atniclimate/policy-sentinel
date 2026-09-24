@@ -1008,23 +1008,38 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-03-BOUNDARY-GUARD-TESTS
+  work_item: null
   objective: >-
-    General development under G-GENERAL-DEV-01 (D-071). Refactor wave 1 is
-    GD-01, GD-02 and GD-03, run one at a time while the one-in_progress rule
-    stands (addendum section 12, question 2, is an open owner question). Session
-    R (GD-17 nationwide source survey, GD-18 storage capacity model) and session
-    2 (waves 2 and 3) follow per RL-14. GD-13, GD-16 and GD-22 wait on their
-    gates. The Makah demo track is finished; its acquired objects remain custody
-    only, and per-document G-J decisions and G-BIA-IDENTITY stay open. The PS09
-    program stays blocked on PS09-02 originating identity/scenario evidence;
-    PS09-06 is unstarted and gated; the completed H01/H02 maintenance and every
-    sealed discovery, prior assurance and owner-input identity are preserved.
-  terminal_reason: null
+    General development under G-GENERAL-DEV-01 (D-071). Refactor wave 1 (GD-01,
+    GD-02, GD-03) is complete, run one item at a time while the one-in_progress
+    rule stands (addendum section 12, question 2, is an open owner question).
+    Next per RL-14: session R (GD-17 nationwide source survey, GD-18 storage
+    capacity model) and session 2 (wave 2: GD-04, GD-05, GD-07, GD-08, GD-09;
+    wave 3: GD-06, GD-10). GD-13, GD-16 and GD-22 wait on their gates. The Makah
+    demo track is finished; its acquired objects remain custody only, and
+    per-document G-J decisions and G-BIA-IDENTITY stay open. The PS09 program
+    stays blocked on PS09-02 originating identity/scenario evidence; PS09-06 is
+    unstarted and gated; the completed H01/H02 maintenance and every sealed
+    discovery, prior assurance and owner-input identity are preserved.
+  terminal_reason: >-
+    General-development session 1 ended after refactor wave 1 (GD-01, GD-02,
+    GD-03 complete); its authority covered governance plus wave 1 only. Wave 2
+    and session R items are ready for their own sessions. PS09 remains blocked
+    on PS09-02 originating evidence and scenario acceptance; no successor run or
+    external operation is authorized.
   resumable_roots:
-    - GD-03-BOUNDARY-GUARD-TESTS
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: 43c9a25f1f1f10649a1499c6a2eaaf7263fadee9
+    - GD-04-CORE-BOUNDARY-GUARD
+    - GD-05-INTAKE-REPLAY-AND-DISCOVERY
+    - GD-07-RESEARCH-OUTPUT-SPLIT
+    - GD-08-CONTEXT-RELEVANCE-EXTRACTION
+    - GD-09-JURISDICTION-IDENTIFIER-MODEL
+    - GD-13-NATIONWIDE-RECORD-CONTRACT
+    - GD-16-INTEROP-PURE-ADAPTER
+    - GD-17-NATIONWIDE-SOURCE-SURVEY
+    - GD-18-STORAGE-CAPACITY-MODEL
+    - GD-22-NATION-REGISTRY-BINDING
+  last_durable_checkpoint: ac8ff44fe4931c89aeda5aaddbad71683af03a7f
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -6322,7 +6337,9 @@ work_items:
     priority: 313
     milestone: General development
     title: Shared boundary-guard tests
-    status: in_progress
+    status: complete
+    completed_on: "2026-09-24T10:53:31-07:00"
+    completion_commit: ac8ff44fe4931c89aeda5aaddbad71683af03a7f
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -6338,12 +6355,31 @@ work_items:
       - >-
         The standing checks stay green before the guard exists (GD-04); no
         production file changes in this step.
-    evidence: []
+    evidence:
+      - >-
+        Commit ac8ff44fe4931c89aeda5aaddbad71683af03a7f
+        (2026-09-24T10:53:31-07:00) adds tests/core/boundary-guard.test.ts. Part
+        A (always on, passing) pins the expected 77-key protected set: the union
+        of the record guard in src/pipeline/policy-validation.mjs (extracted
+        from source text because it is not exported),
+        PRIVATE_CONTEXT_PROTECTED_KEYS, CITATION_EXPORT_PROTECTED_KEYS and the
+        four added keys. Part B states the GD-04 contract (the guard module
+        exports PROTECTED_KEYS equal to that set; rejectProtectedKeys throws at
+        top level, nested, in array elements and three levels deep, and accepts
+        benign objects and string values); its 80 tests skip only while
+        src/core/boundary-guard.mjs is absent and run once GD-04 creates it.
+      - >-
+        Written by the gd-lane agent; gate-verifier returned PASS against base
+        3f8d77e: npm test exit 0 (Vitest 99 files, 1622 passed and 80 skipped,
+        plus the existing spine skip), typecheck, lint, format:check, both
+        validators, scan:source and build exit 0; protected, private-context and
+        record-guard files unchanged; module-boundaries test still in report
+        mode with 16 allowlisted violations and the reachability rule passing.
   - id: GD-04-CORE-BOUNDARY-GUARD
     priority: 314
     milestone: General development
     title: Core boundary guard adopted by record validation
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -7000,8 +7036,11 @@ next_actions:
       cutoff startups or archived lanes. General development proceeds separately
       under G-GENERAL-DEV-01 (D-071) and does not unblock PS09.
   - order: 2
-    work_item: GD-03-BOUNDARY-GUARD-TESTS
-    action: Wave 1 - shared boundary-guard tests written before GD-04.
+    work_item: GD-04-CORE-BOUNDARY-GUARD
+    action: >-
+      Wave 2 (session 2): build src/core/boundary-guard.mjs to the contract the
+      GD-03 tests state (its 80 skipped tests then run) and adopt it in record
+      validation.
   - order: 3
     work_item: GD-05-INTAKE-REPLAY-AND-DISCOVERY
     action: >-
