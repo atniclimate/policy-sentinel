@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import { lstat, open, readFile, realpath } from "node:fs/promises";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { Buffer } from "node:buffer";
+import { withPreservedCleanup } from "./policy-assurance.mjs";
 import {
   digest,
   openPolicyRun,
@@ -58,22 +59,23 @@ async function readOwnedFile(root, relativePath, limit = 128 * 1024 ** 2) {
     fail("OUTPUT_PATH_ESCAPE");
   const before = await lstat(path);
   const handle = await open(path, "r");
-  try {
-    const stat = await handle.stat();
-    if (
-      !stat.isFile() ||
-      stat.nlink !== 1 ||
-      stat.size > limit ||
-      stat.ino !== before.ino ||
-      stat.dev !== before.dev
-    )
-      fail("UNSAFE_OR_OVERSIZED_OUTPUT_FILE");
-    const bytes = await handle.readFile();
-    if (bytes.length !== stat.size) fail("OUTPUT_FILE_CHANGED_DURING_READ");
-    return bytes;
-  } finally {
-    await handle.close();
-  }
+  return withPreservedCleanup(
+    async () => {
+      const stat = await handle.stat();
+      if (
+        !stat.isFile() ||
+        stat.nlink !== 1 ||
+        stat.size > limit ||
+        stat.ino !== before.ino ||
+        stat.dev !== before.dev
+      )
+        fail("UNSAFE_OR_OVERSIZED_OUTPUT_FILE");
+      const bytes = await handle.readFile();
+      if (bytes.length !== stat.size) fail("OUTPUT_FILE_CHANGED_DURING_READ");
+      return bytes;
+    },
+    () => handle.close(),
+  );
 }
 function assertProfileBindings(corpusOrInput, run) {
   for (const profile of corpusOrInput.sourceProfiles) {

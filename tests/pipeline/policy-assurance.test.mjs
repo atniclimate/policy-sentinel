@@ -286,6 +286,93 @@ test("cleanup preserves a lone primary, cleanup-only failure and successful retu
   );
 });
 
+const localOutputSource = await readFile(
+  new URL("../../src/pipeline/policy-local-output.mjs", import.meta.url),
+  "utf8",
+);
+function localOutputRead(injected) {
+  const start = localOutputSource.indexOf("const fail = (code) => {");
+  const end = localOutputSource.indexOf(
+    "function assertProfileBindings(",
+    start,
+  );
+  assert.ok(start > 0 && end > start);
+  return runInNewContext(
+    `${localOutputSource.slice(start, end)}\nreadOwnedFile;`,
+    {
+      withPreservedCleanup,
+      realpath: async (value) => value,
+      join: (...parts) => parts.join("/"),
+      relative: (base, value) => value.slice(base.length + 1),
+      resolve: (value) => value,
+      isAbsolute: (value) => value.startsWith("/"),
+      sep: "/",
+      ...injected,
+    },
+  );
+}
+for (const stage of ["stat", "read", "length", "success"]) {
+  for (const cleanupFails of [false, true]) {
+    test(`actual local output ${stage} retains separate cleanup=${cleanupFails}`, async () => {
+      const primary = new Error(`SYNTHETIC_PRIVATE_${stage}`);
+      const cleanup = new Error("SYNTHETIC_PRIVATE_CLOSE");
+      const bytes = globalThis.Buffer.from("abc");
+      const stat = {
+        isSymbolicLink: () => false,
+        isDirectory: () => false,
+        isFile: () => true,
+        nlink: 1,
+        size: stage === "length" ? 4 : bytes.length,
+        ino: 1,
+        dev: 1,
+      };
+      let closes = 0;
+      const read = localOutputRead({
+        lstat: async () => stat,
+        open: async () => ({
+          stat: async () => {
+            if (stage === "stat") throw primary;
+            return stat;
+          },
+          readFile: async () => {
+            if (stage === "read") throw primary;
+            return bytes;
+          },
+          close: async () => {
+            closes++;
+            if (cleanupFails) throw cleanup;
+          },
+        }),
+      });
+      if (stage === "success" && !cleanupFails) {
+        assert.equal(await read("owned", "review/output.json"), bytes);
+      } else {
+        await assert.rejects(read("owned", "review/output.json"), (error) => {
+          if (stage === "success") assert.equal(error, cleanup);
+          else {
+            const observedPrimary = cleanupFails ? error.cause : error;
+            if (stage === "length")
+              assert.equal(
+                observedPrimary.message,
+                "OUTPUT_FILE_CHANGED_DURING_READ",
+              );
+            else assert.equal(observedPrimary, primary);
+            if (cleanupFails) {
+              assert.equal(error.message, "PRIMARY_AND_CLEANUP_FAILURE");
+              assert.equal(error.errors.length, 2);
+              assert.equal(error.errors[0], observedPrimary);
+              assert.equal(error.errors[1], cleanup);
+            }
+          }
+          assert.doesNotMatch(JSON.stringify(boundedFailure(error)), /PRIVATE/);
+          return true;
+        });
+      }
+      assert.equal(closes, 1);
+    });
+  }
+}
+
 function report() {
   return { contexts: [], checks: [], screenshots: [] };
 }
