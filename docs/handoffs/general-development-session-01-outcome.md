@@ -298,4 +298,21 @@ No commit for step 1.
 - Step 6 was commit `3499feb`.
 - GD-01 (characterization tests) marked `in_progress`, focus set to GD-01 with
   `resumable_roots: [GD-01, PS09-02]`; `npm run validate:roadmap` passed
-  (in_progress 1, ready 5).
+  (in_progress 1, ready 5). Commit `260bc47`.
+- GD-01 lane (`gd-lane` agent): added
+  `tests/pipeline/policy-local-output-replay.test.mjs` (six cases over
+  synthetic run roots in temporary directories) and registered it in
+  `test:policy`; reported test:policy 121/121, test:assurance 100/100,
+  `npm test` exit 0, lint, typecheck, format and scan:source green. The lane
+  said "7 test blocks"; the file has six, a miscount only.
+- GD-01 verification (`gate-verifier`, base `260bc47`): PASS. Only the two
+  owned paths changed; protected and private-context paths unchanged; npm
+  test, typecheck, lint, format:check, both validators, scan:source and build
+  exit 0; both pinned non-interference tests in the passing set. It noted one
+  made-up absolute path on `I:` in the test (never touched, the selection is
+  rejected first); the lead moved it under the temporary directory inside the
+  owned file and reran the file (6/6), lint and Prettier.
+- Commit `b32d5f6` (GD-01 implementation, 2026-09-24T09:28:45-07:00). Ledger:
+  GD-01 complete with that commit and time; no item newly unblocked (GD-05
+  still needs GD-02); focus null at a wave checkpoint;
+  `npm run validate:roadmap` passed (complete 45, ready 5).

@@ -1008,7 +1008,7 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-01-CHARACTERIZATION-TESTS
+  work_item: null
   objective: >-
     General development under G-GENERAL-DEV-01 (D-071). Refactor wave 1 is
     GD-01, GD-02 and GD-03, run one at a time while the one-in_progress rule
@@ -1020,11 +1020,20 @@ current_focus:
     program stays blocked on PS09-02 originating identity/scenario evidence;
     PS09-06 is unstarted and gated; the completed H01/H02 maintenance and every
     sealed discovery, prior assurance and owner-input identity are preserved.
-  terminal_reason: null
+  terminal_reason: >-
+    Wave 1 checkpoint: GD-01 is complete and the next wave 1 item is not yet
+    activated. PS09 remains blocked on PS09-02 originating evidence and scenario
+    acceptance; no successor run or external operation is authorized.
   resumable_roots:
-    - GD-01-CHARACTERIZATION-TESTS
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: 3499febdfd5d25764ba91e732e3ff54604fc17d2
+    - GD-02-MODULE-BOUNDARY-TEST
+    - GD-03-BOUNDARY-GUARD-TESTS
+    - GD-13-NATIONWIDE-RECORD-CONTRACT
+    - GD-16-INTEROP-PURE-ADAPTER
+    - GD-17-NATIONWIDE-SOURCE-SURVEY
+    - GD-18-STORAGE-CAPACITY-MODEL
+    - GD-22-NATION-REGISTRY-BINDING
+  last_durable_checkpoint: b32d5f6dd383103b0e130265367ed0c5845f8284
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -6237,7 +6246,9 @@ work_items:
     priority: 311
     milestone: General development
     title: Characterization tests for local-output replay, write and read
-    status: in_progress
+    status: complete
+    completed_on: "2026-09-24T09:28:45-07:00"
+    completion_commit: b32d5f6dd383103b0e130265367ed0c5845f8284
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -6252,7 +6263,23 @@ work_items:
         package.json registers the new file in test:policy; npm run test:policy,
         npm run test:assurance and the standing checks stay green.
       - No production source file changes in this step.
-    evidence: []
+    evidence:
+      - >-
+        Commit b32d5f6dd383103b0e130265367ed0c5845f8284
+        (2026-09-24T09:28:45-07:00) adds
+        tests/pipeline/policy-local-output-replay.test.mjs (six node:test cases:
+        one full replay, write, read and localCorpusBytes chain over a synthetic
+        real_source_local run root built with initializePolicyRun and
+        admitPolicyTargets in a temporary directory, plus the fail-closed
+        branches) and registers it in test:policy. No production file changed
+        and no network or external namespace is used.
+      - >-
+        Written by the gd-lane agent; gate-verifier returned PASS against base
+        260bc47: npm test exit 0 (policy 121/121, assurance 100/100, Vitest 97
+        files and 1617 tests), typecheck, lint, format:check, validate:roadmap,
+        validate:backbone, scan:source (598 tracked paths) and build (3 records,
+        575 Nations, 8 assets) all exit 0; protected and private-context paths
+        unchanged. Logs are under C:/dev/_scratch/policy-sentinel/session-01/.
   - id: GD-02-MODULE-BOUNDARY-TEST
     priority: 312
     milestone: General development
@@ -6960,40 +6987,35 @@ next_actions:
       cutoff startups or archived lanes. General development proceeds separately
       under G-GENERAL-DEV-01 (D-071) and does not unblock PS09.
   - order: 2
-    work_item: GD-01-CHARACTERIZATION-TESTS
-    action: >-
-      Wave 1, first step: characterization tests for local-output replay, write
-      and read (module-boundaries section 9.1).
-  - order: 3
     work_item: GD-02-MODULE-BOUNDARY-TEST
     action: >-
       Wave 1: module manifest and boundary test in report mode, with the
       private-module public-entry reachability rule enforcing (addendum section
       2).
-  - order: 4
+  - order: 3
     work_item: GD-03-BOUNDARY-GUARD-TESTS
     action: Wave 1 - shared boundary-guard tests written before GD-04.
-  - order: 5
+  - order: 4
     work_item: GD-13-NATIONWIDE-RECORD-CONTRACT
     action: >-
       Blocked on the closed gate G-GD-NATIONWIDE-CONTRACT; the owner opens it
       for the exact successor contracts under D-073.
-  - order: 6
+  - order: 5
     work_item: GD-16-INTEROP-PURE-ADAPTER
     action: >-
       Blocked on the closed gate G-GD-INTEROP; the owner opens it for the pure
       validator and projector only under D-074.
-  - order: 7
+  - order: 6
     work_item: GD-17-NATIONWIDE-SOURCE-SURVEY
     action: >-
       Session R (RL-14): documentation-only nationwide source survey with the
       source-scout agent; acquires nothing.
-  - order: 8
+  - order: 7
     work_item: GD-18-STORAGE-CAPACITY-MODEL
     action: >-
       Session R (RL-14): storage capacity model and storage:report against the
       D-077 caps; acquires nothing.
-  - order: 9
+  - order: 8
     work_item: GD-22-NATION-REGISTRY-BINDING
     action: >-
       Blocked on G-BIA-IDENTITY and on an atni-nation-registry v0 release
