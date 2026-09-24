@@ -1008,7 +1008,7 @@ baseline:
         configured.
 
 current_focus:
-  work_item: null
+  work_item: GD-02-MODULE-BOUNDARY-TEST
   objective: >-
     General development under G-GENERAL-DEV-01 (D-071). Refactor wave 1 is
     GD-01, GD-02 and GD-03, run one at a time while the one-in_progress rule
@@ -1020,20 +1020,11 @@ current_focus:
     program stays blocked on PS09-02 originating identity/scenario evidence;
     PS09-06 is unstarted and gated; the completed H01/H02 maintenance and every
     sealed discovery, prior assurance and owner-input identity are preserved.
-  terminal_reason: >-
-    Wave 1 checkpoint: GD-01 is complete and the next wave 1 item is not yet
-    activated. PS09 remains blocked on PS09-02 originating evidence and scenario
-    acceptance; no successor run or external operation is authorized.
+  terminal_reason: null
   resumable_roots:
-    - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     - GD-02-MODULE-BOUNDARY-TEST
-    - GD-03-BOUNDARY-GUARD-TESTS
-    - GD-13-NATIONWIDE-RECORD-CONTRACT
-    - GD-16-INTEROP-PURE-ADAPTER
-    - GD-17-NATIONWIDE-SOURCE-SURVEY
-    - GD-18-STORAGE-CAPACITY-MODEL
-    - GD-22-NATION-REGISTRY-BINDING
-  last_durable_checkpoint: b32d5f6dd383103b0e130265367ed0c5845f8284
+    - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
+  last_durable_checkpoint: 33aff120708f54cdb33fe7bc00ec37cb9b87aea4
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -6284,7 +6275,7 @@ work_items:
     priority: 312
     milestone: General development
     title: Module manifest and import-rule test (report mode)
-    status: ready
+    status: in_progress
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
