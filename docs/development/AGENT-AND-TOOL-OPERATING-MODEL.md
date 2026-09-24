@@ -78,6 +78,32 @@ compaction remains live, post-edit validation is explicit and reproducible, and
 repository state cannot create a stop/continuation loop. A matching
 post-compaction `SessionStart` event restores the bounded durable context.
 
+## Claude Code
+
+Claude Code sessions (D-082) read [`CLAUDE.md`](../../CLAUDE.md), which
+imports `AGENTS.md`. The Codex hooks in `.codex/hooks.json` do not run under
+Claude Code. The deny rules in [`.claude/settings.json`](../../.claude/settings.json)
+are the mechanical floor there: they refuse push, remote, tag, rebase, merge,
+amend, hard resets and cleans, GitHub publication operations, network fetch
+commands, recursive deletes, edits to sibling and custody locations, and reads
+of sealed `pilot` records and credential-shaped files. Like the Codex hooks,
+they are a guardrail and not a security boundary; a command they do not match
+is not thereby authorized.
+
+The project agents in `.claude/agents/` map to the roles above:
+
+| Agent | Role in this model | Boundary |
+| --- | --- | --- |
+| `gd-lane` | A bounded write lease whose manifest is the step row in `docs/architecture/module-boundaries.md` section 9 or the addendum | Edits only that step's files; never stages, commits or edits the ledger or register; runs focused checks for its step only |
+| `gate-verifier` | Proportional and standing-check verification: the standing checks, byte identity of protected paths, private-context reachability | Read-only. It is not the independent sovereignty review |
+| `sovereignty-reviewer` | The Claude equivalent of `sovereignty_adversarial_reviewer` | Read-only; required before commit for GD-09, GD-13, GD-19 to GD-23 and any classification of legacy material |
+| `legacy-inventory` | Read-only research: inventory of one legacy location for the archive (D-080) | Copies, moves and changes nothing |
+| `source-scout` | Read-only research: one jurisdiction or source family for the nationwide survey (GD-17) | Documentation only; acquires nothing, accepts no terms, registers no key |
+
+Validation is serialized on this machine: lanes run focused checks, and the
+verifier runs the one full serialized `npm test` and `npm run build` for a
+step. The main session remains the only writer to the Git index.
+
 ## Work-class staffing and routing
 
 “Task-assigned” below means a bounded role created for the run; it does not

@@ -159,3 +159,16 @@ this ledger, `git log` and `ROADMAP.yaml`.
   unless a planning act moves GD-17 and GD-18 to lower priority numbers (the
   same move made here for GD-24; general-development priorities are not
   frozen) or wave 2 lands first. Recorded for the owner; nothing changed.
+
+### Step 1e: operating model, Claude Code subsection
+
+- Step 1d was commit `12ff591`.
+- New section "Claude Code" in
+  `docs/development/AGENT-AND-TOOL-OPERATING-MODEL.md`, after "What the hooks
+  prove", as session 1 answer 5 proposed: `.codex/hooks.json` does not run
+  under Claude Code and the `.claude/settings.json` deny rules are the
+  mechanical floor; a five-row table maps `gd-lane`, `gate-verifier`,
+  `sovereignty-reviewer`, `legacy-inventory` and `source-scout` to their roles
+  and boundaries; lanes run focused checks and the verifier runs the one full
+  serialized `npm test` and build.
+- `npm run validate:backbone` exit 0 (857 local links); Prettier clean.
