@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import Ajv2020 from "ajv/dist/2020.js";
@@ -226,7 +226,7 @@ describe("Makah demo non-interference boundaries", () => {
     expect(builder).not.toContain("fixtures/engine");
   });
 
-  it("keeps src/app and src/pipeline free of any reference to the private engine modules", () => {
+  it("keeps src/app, src/pipeline, src/modules and src/core free of any reference to the private engine modules", () => {
     const forbiddenStrings = [
       "land-boundary",
       "land-parcel",
@@ -245,6 +245,13 @@ describe("Makah demo non-interference boundaries", () => {
         ".tsx",
         ".mjs",
       ]),
+      // GD-02: src/modules/** and src/core/** do not exist until later steps
+      // create them, so only these two are skipped while absent; a missing
+      // src/app or src/pipeline still throws.
+      ...["src/modules", "src/core"]
+        .map((dir) => resolve(projectRoot, dir))
+        .filter((dir) => existsSync(dir))
+        .flatMap((dir) => findFilesRecursively(dir, [".ts", ".tsx", ".mjs"])),
     ];
     expect(files.length).toBeGreaterThan(0);
     for (const file of files) {
