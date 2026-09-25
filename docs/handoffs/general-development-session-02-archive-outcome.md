@@ -394,3 +394,31 @@ the custody root by hand rather than acquired by the runner.
 - Copy set: 85 files from `D:\Projects\policy-sentinel` (80,033 bytes), 85
   from `C:\dev\_scratch\policy-sentinel` (82,849 bytes), `checklist.md` and
   `sibling-plan-assessor.md` from the audit folder (5,319 bytes). No bundles.
+
+### Step 5: copy
+
+- Step 4 was commit `803ee92`.
+- Robocopy (`/E /COPY:DAT /DCOPY:T /R:0 /W:0 /XJ`, excluding `node_modules`,
+  `dist`, `.cache`, `coverage`, `__pycache__`, `.venv`, `pilot`, `.git`, the
+  three tool caches, the session log folders, credential-shaped names, and the
+  two held files by full path so the public template `CLAUDE.md` still
+  copies) into `I:\policy-sentinel-archive\copies\<label>\`. Exit code 1 for
+  all three (files copied, no failures). Logs:
+  `copy-d-policy-sentinel.log`, `copy-c-scratch-policy-sentinel.log`,
+  `copy-c-scratch-policy-sentinel-audit.log`.
+- Verification (every copied file hashed and matched to the inventory YAML):
+  d-policy-sentinel 85 of 85 (80,033 bytes), c-scratch-policy-sentinel 85 of
+  85 (82,849 bytes), audit 2 of 2 (5,319 bytes); 0 mismatches, 0 missing, 0
+  extra (`5-verify-copies.json`). The held `CLAUDE.md` and
+  `scripts\sovereignty-guard.sh` are absent from both copies; the template
+  `examples\tribe-deployment-template\CLAUDE.md` is present.
+- `COPY-MANIFEST.yaml` written in each copy (source path, date, file count,
+  bytes, verification, `bundle_path: null` with the hold reason, git state,
+  exclusions). No `git bundle` was created (held in step 4); generated items
+  were not copied.
+- Source locations after copying (`inventory\git-state-after-copy.txt`):
+  every HEAD, ref, commit count and index modification time is identical to
+  `git-state-before.txt` for all four legacy repositories. The only status
+  difference is in `C:\dev\_scratch\policy-sentinel`, 99 to 110 untracked
+  lines, all of them this session's own log files under `session-02\` (the
+  designated log folder, finding S2-F6).
