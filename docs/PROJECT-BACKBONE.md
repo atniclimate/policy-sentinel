@@ -6,10 +6,9 @@ United States) is a core capability of the engine. Start from the
 [general development audit](audits/2026-09-22-general-dev-audit.md), the
 [module boundaries design](architecture/module-boundaries.md) and the
 [realignment open decisions](decisions/2026-09-22-realignment-open-decisions.md).
-The module refactor and nationwide foundation are a dependency-checked proposal
-awaiting owner decision RD-01. `ROADMAP.yaml` schema 1.9 cannot represent them
-yet, so there are zero active items. The PS09 entries below are unchanged
-history.
+The module refactor and nationwide foundation are represented at schema 1.10 on
+2026-09-24 (commit `3499feb`), admitted by rule under D-071; see
+`ROADMAP.yaml`. The PS09 entries below are unchanged history.
 
 Latest completed PS09 maintenance outcome: [engineering review 02](handoffs/ps09-engineering-review-02-outcome.md).
 Its [journal](development/PS09-ENGINEERING-REVIEW-02.md) records the two bounded
@@ -256,7 +255,7 @@ telemetry, browser-side AI, or outbound notifications.
 
 | Workstream | Canonical state |
 | --- | --- |
-| General development (module refactor GD-01 to GD-16, nationwide foundation, interop adapter) | Proposed and dependency-checked in [module boundaries section 9](architecture/module-boundaries.md). Not in the ledger: schema 1.9 freezes identities. Needs RD-01; GD-13 also needs RD-05 and GD-16 needs RD-06 |
+| General development (module refactor GD-01 to GD-16, nationwide foundation, interop adapter) | Proposed and dependency-checked in [module boundaries section 9](architecture/module-boundaries.md). Represented at schema 1.10 on 2026-09-24 (commit `3499feb`), admitted by rule under D-071; see `ROADMAP.yaml` |
 | Makah demo track | Finished. `MAKAH-DEMO-01` complete at `554e105` and `MAKAH-DEMO-02` complete at `07d5fb2` (2026-09-15). Per-document `G-J` decisions and `G-BIA-IDENTITY` remain open owner items |
 | PS09-01 through PS09-06 | One canonical program; Run 1 and bounded Run 2 synthetic packet validated, full PS09-02 evidence blocked and an explicit PS09-06 prerequisite; adopted launch authorizes its bounded PS09-03/04/05 local closure; sole local release root PS09-06-LOCAL-RC remains gated |
 | Retained B1-B10 | Archived implementation and fallback evidence; former four finish blockers remain historical source gaps, not a parallel release graph |

@@ -172,3 +172,19 @@ this ledger, `git log` and `ROADMAP.yaml`.
   and boundaries; lanes run focused checks and the verifier runs the one full
   serialized `npm test` and build.
 - `npm run validate:backbone` exit 0 (857 local links); Prettier clean.
+
+### Step 1f: stale schema 1.9 status lines
+
+- Step 1e was commit `121894b`.
+- `docs/PROJECT-BACKBONE.md` opening paragraph (formerly lines 10 to 12) and
+  the general-development row of the workstream table (formerly line 259),
+  and the first sentence of `docs/architecture/module-boundaries.md` section
+  9.4: each "schema 1.9 cannot represent" statement is replaced by one
+  sentence: represented at schema 1.10 on 2026-09-24 (commit `3499feb`,
+  committed 2026-09-24T09:00:40-07:00 per `git show -s --format=%cI`),
+  admitted by rule under D-071; see `ROADMAP.yaml`. No other text changed;
+  the section 9.4 heading "(not applied)" and its closing sentence about the
+  enumerated pattern stay for GD-15's full rewrite.
+- No test, script or source file pins the replaced text (grep). `npm run
+  validate:backbone` exit 0; `npm run test:knowledge` 31/31;
+  `npm run test:backbone` 26/26; Prettier clean.

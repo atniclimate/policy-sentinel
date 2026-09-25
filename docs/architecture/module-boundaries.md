@@ -437,8 +437,8 @@ Stop and report if any of the following would happen:
 
 ### 9.4 Proposed schema 1.10 ledger fragment (not applied)
 
-`ROADMAP.yaml` stays at schema 1.9 in this session because 1.9 freezes
-work-item and gate identities (audit F-02). This fragment was checked with a
+Represented at schema 1.10 on 2026-09-24 (commit `3499feb`), admitted by rule
+under D-071; see `ROADMAP.yaml`. This fragment was checked with a
 scratch script that applies the validator's generic dependency and gate rules
 (`scripts/validate-roadmap.mjs:562-749`) in two states. With
 G-GENERAL-DEV-01 closed, every GD item except GD-00 is `blocked`. With it
