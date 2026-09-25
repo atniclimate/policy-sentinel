@@ -1008,28 +1008,42 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-24-LEGACY-ARCHIVE-AND-CONSOLIDATION
+  work_item: null
   objective: >-
     General development under G-GENERAL-DEV-01 (D-071). Refactor wave 1 (GD-01,
-    GD-02, GD-03) is complete; waves run one item at a time under the
-    one-in_progress rule (D-082). General-development session 2 added GD-24 to
-    GD-27 by planning act (D-080, D-081) and is executing GD-24 (legacy archive
-    and consolidation): a copy-only, hashed archive at
-    I:\policy-sentinel-archive with holds, git bundles, seven digests and an
-    index, and no write to any source location. Afterwards: session R (GD-17
-    nationwide source survey, GD-18 storage capacity model) and wave 2 (GD-04,
-    GD-05, GD-07, GD-08, GD-09; wave 3: GD-06, GD-10). GD-13, GD-16, GD-22 and
-    GD-27 wait on their gates. The Makah demo track is finished; its acquired
-    objects remain custody only, and per-document G-J decisions and
-    G-BIA-IDENTITY stay open. The PS09 program stays blocked on PS09-02
-    originating identity/scenario evidence; PS09-06 is unstarted and gated; the
-    completed H01/H02 maintenance and every sealed discovery, prior assurance
-    and owner-input identity are preserved.
-  terminal_reason: null
+    GD-02, GD-03) and GD-24 (legacy archive and consolidation, D-080) are
+    complete; waves run one item at a time under the one-in_progress rule
+    (D-082). Next: session R (GD-17 nationwide source survey, GD-18 storage
+    capacity model; activating them first needs a planning act that moves them
+    ahead of the ready wave 2 items, or wave 2 lands first), wave 2 (GD-04,
+    GD-05, GD-07, GD-08, GD-09; wave 3: GD-06, GD-10) and GD-26 (reproducible
+    checks). GD-13, GD-16, GD-22 and GD-27 wait on their gates. The Makah demo
+    track is finished; its acquired objects remain custody only, and
+    per-document G-J decisions and G-BIA-IDENTITY stay open. The PS09 program
+    stays blocked on PS09-02 originating identity/scenario evidence; PS09-06 is
+    unstarted and gated; the completed H01/H02 maintenance and every sealed
+    discovery, prior assurance and owner-input identity are preserved.
+  terminal_reason: >-
+    General-development session 2 ended after GD-24 (legacy archive and
+    consolidation) and its governance steps; its authority covered those only.
+    Session R, wave 2 and GD-26 are ready for their own sessions. PS09 remains
+    blocked on PS09-02 originating evidence and scenario acceptance; no
+    successor run or external operation is authorized.
   resumable_roots:
-    - GD-24-LEGACY-ARCHIVE-AND-CONSOLIDATION
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: 0db5a4de69fc4b96ee98b9570e3f370a9c7869d0
+    - GD-04-CORE-BOUNDARY-GUARD
+    - GD-05-INTAKE-REPLAY-AND-DISCOVERY
+    - GD-07-RESEARCH-OUTPUT-SPLIT
+    - GD-08-CONTEXT-RELEVANCE-EXTRACTION
+    - GD-09-JURISDICTION-IDENTIFIER-MODEL
+    - GD-13-NATIONWIDE-RECORD-CONTRACT
+    - GD-16-INTEROP-PURE-ADAPTER
+    - GD-17-NATIONWIDE-SOURCE-SURVEY
+    - GD-18-STORAGE-CAPACITY-MODEL
+    - GD-22-NATION-REGISTRY-BINDING
+    - GD-26-REPRODUCIBLE-CHECKS
+    - GD-27-LOCAL-RELEASE-PACKAGE
+  last_durable_checkpoint: e47966295ea686560d765ebaae2c0e578ad448d9
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -6201,7 +6215,9 @@ work_items:
     priority: 309
     milestone: General development
     title: Legacy archive and consolidation outside the repository
-    status: in_progress
+    status: complete
+    completed_on: "2026-09-24T18:05:22-07:00"
+    completion_commit: e47966295ea686560d765ebaae2c0e578ad448d9
     work_class: general_development_local
     decision_ref: D-080
     authorization_gate: G-GENERAL-DEV-01
@@ -6231,6 +6247,30 @@ work_items:
         item first, and the ledger rule selects the lowest-priority-number ready
         general-development item, so a priority after GD-23 could never be
         activated while wave 2 items are ready.
+      - >-
+        Inventory: 17 locations, 4,495 files, 369,012,103 bytes hashed into
+        I:\policy-sentinel-archive\inventory\inventory-2026-09-24.yaml (4,520
+        rows, SHA-256
+        33e49cc0d115645c2d968e2ce82f71e53ddf12d0b5e896fbb09e58adf80d7d97); rows
+        by classification public_engine 182, planning 151, research 39,
+        generated 2,154, acquisition_custody 1,193, pilot_nation_specific 417,
+        credential_shaped 6, git_metadata 8, unknown 370; 3,005 rows held. The
+        five loose PDFs in the custody root are held (owner answer 3).
+      - >-
+        Sovereignty review of the inventory: FAIL (two legacy scaffold files
+        name Nations; bundles carry them and an individual's email), applied,
+        then PASS. Copies: 172 files verified by SHA-256 (85, 85 and 2), 0
+        mismatches, with a COPY-MANIFEST.yaml each. Bundles: none created;
+        acceptance line 2's bundles are not met because all four legacy
+        repositories are holds under D-080 (two Nation-specific, two whose
+        history carries held files); an owner decision can release them.
+      - >-
+        Seven T0 digests and ARCHIVE-INDEX.md (SHA-256
+        8651713844eec390efcf17348daa506c626402b208f9344056e985c6a0c8694b);
+        digest review FAIL, applied, then PASS; every digest hash checked
+        against computed hashes. HEAD, refs and commits of all four legacy
+        repositories identical before and after; no merge into this repository.
+        Record: docs/handoffs/general-development-session-02-archive-outcome.md.
   - id: GD-00-REALIGNMENT-AUDIT-DESIGN
     priority: 310
     milestone: General development
@@ -7139,11 +7179,6 @@ next_actions:
       discovery outcome; do not reactivate ended maintenance, acquisition,
       cutoff startups or archived lanes. General development proceeds separately
       under G-GENERAL-DEV-01 (D-071) and does not unblock PS09.
-  - order: 2
-    work_item: GD-24-LEGACY-ARCHIVE-AND-CONSOLIDATION
-    action: >-
-      General-development session 2 (D-080): inventory, classify, copy, bundle
-      and digest legacy material into I:\policy-sentinel-archive, copy-only.
   - order: 3
     work_item: GD-04-CORE-BOUNDARY-GUARD
     action: >-
