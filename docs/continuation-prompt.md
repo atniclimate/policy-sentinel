@@ -99,6 +99,9 @@ geometry dependency).
 - PS09 Run 1: [corpus ADR](adr/ps09-canonical-corpus.md),
   [component dispositions](development/ps09-convergence.v1.json) and
   [custody manifest](development/ps09-run-01-custody.json).
+- Legacy archive (GD-24, D-080): `I:\policy-sentinel-archive`, copy-only,
+  index `ARCHIVE-INDEX.md` SHA-256
+  `8651713844eec390efcf17348daa506c626402b208f9344056e985c6a0c8694b`.
 
 ## Historical recoveries (moved here from the top of `AGENTS.md`, unchanged)
 

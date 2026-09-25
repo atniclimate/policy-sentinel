@@ -451,3 +451,24 @@ the runner: no receipt names them.
   applied; the held-study link was also removed from the inventory, the
   working notes and this ledger. Second pass: **PASS**; its two wording notes
   were applied.
+
+### Step 7: index and close-out
+
+- Step 6 was commit `18251d1`.
+- `I:\policy-sentinel-archive\ARCHIVE-INDEX.md` generated from computed
+  hashes (what the archive is, layout, provenance, hold list, digest hashes,
+  inventory and manifest hashes, the copy-only rule and the canonical tree):
+  SHA-256 `8651713844eec390efcf17348daa506c626402b208f9344056e985c6a0c8694b`.
+  Digest hashes: 01 `2f1eab230ab8439ce3911eaf2be4071c090b6c0159686319cc91db983d61fbaa`,
+  02 `1a566cb45586dcd0b4100916d463c3ee17d7014f940d89a4e17ce02a984d735e`,
+  03 `54a1c583532dce501dddaeefd2e3db2c45d5cee59763af9c58d87c64042f58dc`,
+  04 `284139585d0a3d7472fd42bdfc246f5aa196c229599bde8239936d66cae9aebe`,
+  05 `eeb30d1b8c75b1b02caa3ea1dc1f8eb54f5fb09eab986cbba2f8d0ab7343a93a`,
+  06 `2ac21a2241feb6c62a0f2f8ea2c4062de6e17536d7d359911eab1a33d5e349c6`,
+  07 `c2a674a8e1d4de95c5e8867903f2a86dcb198823905cb9f51d57d7f78ba3e8e8`.
+- Archive on disk: 240 files, 2,893,059 bytes. I: drive free space after
+  copying: 531,406,290,944 bytes.
+- `docs/continuation-prompt.md` "Historical pointers" gains one line naming
+  the archive path and the index hash.
+- GD-24 is completed in the ledger by the follow-up commit that cites this
+  one.
