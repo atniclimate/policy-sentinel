@@ -219,3 +219,144 @@ this ledger, `git log` and `ROADMAP.yaml`.
 - `npm run validate:roadmap` exit 0: 109 items; complete 47, in_progress 1,
   ready 9, blocked 22, deferred 2, not_started 28. `node --test
   tests/pipeline/roadmap-validator.test.mjs` 473/473 with the active ledger.
+
+### Step 3a: discovery (read-only)
+
+- Step 2 was commit `19b02c4`.
+- Bounded directory-name search, `Get-ChildItem -Directory -Recurse -Depth 3
+  -Force -ErrorAction SilentlyContinue` (PowerShell 7), case-insensitive
+  pattern `policy-sentinel|policy_sentinel|policysentinel|sentinel|esa-policy|esa_policy|nez-perce|nezperce|makah|atniclimate`.
+  Logs: `discovery-D.log` (3,402 directories scanned, 7 matches),
+  `discovery-C-dev.log` (6,214 scanned, 5 matches), `discovery-F.log` (962
+  scanned, 2 matches). No content scan was run.
+- Matches, reduced to distinct roots: `D:\Projects\policy-sentinel`,
+  `D:\Projects\nez-perce-policy-sentinel`, `D:\Projects\esa-policy-analyzer`
+  (all three git repositories), `D:\tcr-policy-scanner-archive\T1\sentinel-routed`,
+  `D:\Claude-Workspace\.claude\projects\D--Projects-esa-policy-analyzer`
+  (Claude Code session transcripts), `C:\dev\TCR-policy-scanner\outputs\spike-makah-internal`,
+  `C:\dev\TCR-policy-scanner\outputs\spike-makah-review` (empty),
+  `C:\dev\_scratch\policy-sentinel` (a git repository),
+  `C:\dev\_scratch\policy-sentinel-audit`, `F:\projects\Nations\makah-tribe`
+  and `F:\projects\Nations\nez-perce-tribe` (each holds only an empty
+  `Raw-Data` directory). The two `src\policy_sentinel` and
+  `src\nez_perce_policy_sentinel` matches sit inside their parent roots.
+- **Finding S2-F5:** the recovery roots the owner named are not at the top of
+  F:\. They are `F:\atni-phase2\sources\F_recovery` and
+  `F:\atni-phase2\sources\Recovery` (with intake copies under
+  `F:\_intake\`). The name search listed their directory names to its depth
+  limit and matched nothing inside them; nothing there was opened.
+- **Finding S2-F6:** `C:\dev\_scratch\policy-sentinel`, the log directory
+  that `CLAUDE.md` and the launch prompt prescribe, is itself a legacy git
+  repository (a clone of `atniclimate/policy-sentinel` at the same HEAD as
+  `D:\Projects\policy-sentinel`, plus an old `src\policy_sentinel` package).
+  The session-01 and session-02 log folders are untracked files inside that
+  repository's working tree. This session keeps writing its logs there because
+  the owner designated it; the before and after git states are compared on
+  HEAD, refs and tracked files, and the only untracked additions are under
+  `session-02\`. Recommendation: move the log root to a directory that is not
+  inside a repository (for example `C:\dev\_scratch\policy-sentinel-logs\`).
+- Git state of the four legacy repositories, read with
+  `git -c safe.directory=* --no-optional-locks` so no index refresh is
+  written: `I:\policy-sentinel-archive\inventory\git-state-before.txt`.
+- Hashed manifests: every file under every root, excluding `node_modules`,
+  `dist`, `.cache`, `coverage`, `__pycache__`, `.venv`, `pilot` and `.git`
+  (recorded by path and size only), written by a Node script that never
+  follows links and never opens credential-shaped names, to
+  `I:\policy-sentinel-archive\inventory\raw\<label>.tsv`. Summaries:
+  `3a-hash-summary.jsonl`. A first Git Bash version was stopped after ten
+  minutes (about 1.6 files per second); its partial output was deleted and
+  replaced by the Node run.
+
+| Label | Root | Files | Bytes | Credential-shaped |
+| --- | --- | --- | --- | --- |
+| d-policy-sentinel | `D:\Projects\policy-sentinel` | 1,409 | 46,226,155 | 6 |
+| d-nez-perce-policy-sentinel | `D:\Projects\nez-perce-policy-sentinel` | 43 | 591,930 | 0 |
+| d-esa-policy-analyzer | `D:\Projects\esa-policy-analyzer` | 35 | 623,655 | 0 |
+| d-tcr-archive-sentinel-routed | `D:\tcr-policy-scanner-archive\T1\sentinel-routed` | 323 | 13,219,758 | 0 |
+| d-claude-transcripts-esa | `D:\Claude-Workspace\.claude\projects\D--Projects-esa-policy-analyzer` | 56 | 13,633,189 | 0 |
+| c-tcr-spike-makah-internal | `C:\dev\TCR-policy-scanner\outputs\spike-makah-internal` | 14 | 405,865 | 0 |
+| c-tcr-spike-makah-review | `C:\dev\TCR-policy-scanner\outputs\spike-makah-review` | 0 | 0 | 0 |
+| c-scratch-policy-sentinel | `C:\dev\_scratch\policy-sentinel` (session logs excluded) | 87 | 98,828 | 0 |
+| c-scratch-policy-sentinel-audit | `C:\dev\_scratch\policy-sentinel-audit` | 19 | 538,536 | 0 |
+| f-nations-makah-tribe | `F:\projects\Nations\makah-tribe` | 0 | 0 | 0 |
+| f-nations-nez-perce-tribe | `F:\projects\Nations\nez-perce-tribe` | 0 | 0 | 0 |
+| i-corpus-real-policy | `I:\policy-sentinel-corpus-real-policy` | 1,168 | 211,394,771 | 0 |
+| i-corpus | `I:\policy-sentinel-corpus` | 17 | 98,415 | 0 |
+| i-review | `I:\policy-sentinel-review` | 646 | 11,827,893 | 0 |
+| i-knowledge-assurance | `I:\policy-sentinel-knowledge-assurance` | 594 | 48,671,869 | 0 |
+| i-organization-review | `I:\policy-sentinel-organization-review` | 18 | 523,487 | 0 |
+| i-convention-ga-policy-sentinel | `I:\ATNI-annual-convention-2026\ga-demonstration\policy-sentinel` | 66 | 21,157,752 | 0 |
+
+### Step 3c: the five loose PDFs (owner answer 3)
+
+Opened with the Read tool (first pages) and `pdfinfo` for page counts. They
+sit at the root of `I:\policy-sentinel-corpus-real-policy`, outside both run
+roots, with modification times of 2026-09-05 between 22:07 and 22:09 UTC; no
+run receipt names them. None is a public government document, so all five
+are holds under owner answer 3. They are listed by path and SHA-256 and left
+in place; nothing is quoted. Individual author names in the PDF metadata are
+not recorded.
+
+| File | Title (as shown) | Publisher | Date | Pages | SHA-256 | Classification |
+| --- | --- | --- | --- | --- | --- | --- |
+| `2025.08.06-Earthjustice-et-al-CWA-401-2025-Comments28.pdf` | Comments on the EPA request for comment on Clean Water Act section 401 implementation, docket EPA-HQ-OW-2025-0272 | Earthjustice and Native American Rights Fund, on behalf of four named Tribal governments | submitted 2025-08-06 | 28 | `2f7a3c0f79a6b745c80c6a07e9ca48e5d36b7c0ac8a68b6931c9d272077416ea` | hold: Nation-specific (states named Nations' positions); a public comment, not a government document |
+| `CTS FY26 President's Budget Request Analysis as of 05.03.25.pdf` | Analysis of the President's Budget Request to Congress | Coalition for Tribal Sovereignty | as of 2025-05-03 | 5 | `f0e94d40040de886442ec708b2106e89bc7493be9eb0ad7db7f1b039cec910ea` | hold: advocacy analysis, not a government document |
+| `Chuckwalla Tribal Letter_4_7_24.pdf` | Letter from Tribal governments and a national intertribal organization to federal officials on a national monument | named Tribal governments | letter dated April 2025 (the file name says `4_7_24`) | 3 | `3d8951fab3c8b21893ab52309ed9cc6692fe8df599835769327b287a9907e92a` | hold: Nation-specific government-to-government correspondence |
+| `JOINT-INDIAN-COUNTRY-ECON-POLICY-BRIEF-ADMINISTRATION-FINAL-2-11-26.pdf` | Tribal Economic Development: Indian Country's Policy Priorities for the Federal Government, a 2026 policy brief | joint brief endorsed by national and regional Native organizations | February 2026 | 10 | `7e2e5397867a04092027a67d152a182fa881dbd147176c2d927d5f87e6a6b84b` | hold: organizational policy brief, not a government document |
+| High Country News article PDF (the file name begins with a typographic quote: "Quite frustrating_ what it's like to have a treaty with the United States - High Country News.pdf") | "Quite frustrating: what it's like to have a treaty with the United States" | High Country News (journalism, browser print) | article 2026-08-14, printed 2026-09-05 | 13 | `0a20184045cb41ae1a8325c5f119135a1946304adc4f300f5e14b200758db801` | hold: copyrighted news article with Nation members' statements, not a government document |
+
+Later cross-check (step 3b): the five PDFs total 5,935,245 bytes and 59 pages,
+exactly the "five owner-provided inputs [with] 59 PDF pages and 5,935,245
+bytes" described in
+`I:\policy-sentinel-knowledge-assurance\2026-09-05\tribe-centered-next-session-preparation-01\document-examples.md`.
+They are the inputs of a 2026-09-05 Tribe-centered document study, placed in
+the custody root by hand rather than acquired by the runner.
+
+### Step 3b: legacy-inventory agents
+
+- Fourteen `legacy-inventory` agents, at most three at a time, one per
+  non-empty location (the two `D:\Projects` git repositories plus the
+  esa-policy-analyzer repository, the TCR archive folder, the transcripts
+  folder, the TCR Makah spike folder, the two `C:\dev\_scratch` folders, and
+  the six known I:\ locations, the two smallest in one agent). The three empty
+  locations were recorded by the lead. Every report and the lead's
+  disposition are in `I:\policy-sentinel-archive\inventory\working-notes.md`.
+- **Finding S2-F7:** the stopped Git Bash hasher had not fully exited; it
+  appended 327 duplicate rows to `d-policy-sentinel.tsv` after the Node run.
+  No hasher process remained at 17:24; the manifest was regenerated and
+  reproduced the first Node tree digest (`f23df7d3...`). No other manifest was
+  affected.
+- **Finding S2-F8 (agent reliability):** four agents misreported hashes (three
+  said the 64-character manifest hashes had 65 characters, one printed
+  truncated 63-character hashes while calling them full); one called a
+  directory generic that is byte-identical to files naming a Nation and its
+  litigation; one proposed `hold: false` for files it classified as
+  Nation-specific. The lead checked every such claim against the manifests;
+  the manifests govern and every hash in the inventory comes from them.
+- Three agents had reads refused by the auto-mode PII classifier (memory notes
+  in the transcripts folder, `restricted-scratch` in the knowledge-assurance
+  study, two Makah demo files in the stage package). None retried; those items
+  are held by path.
+
+### Step 3d: merged inventory
+
+- Written by the lead: `I:\policy-sentinel-archive\inventory\inventory-2026-09-24.md`
+  (method, per-location table with tree digests, git state, hold list, the
+  five PDFs, copy plan) and `inventory-2026-09-24.yaml` (4,520 rows, one per
+  file plus excluded directories and empty locations; SHA-256
+  `f7682a86f7c314c9d80675d9b3c4b7c66ed9848bcc9f4708e4e4948add347358`, parses
+  with the `yaml` package, every hash 64 hex characters), with
+  `summary-2026-09-24.json` and `raw\`.
+- Totals: 17 locations, 4,495 files, 369,012,103 bytes. Rows by
+  classification: public_engine 185, planning 152, research 39, generated
+  2,154, acquisition_custody 1,193, pilot_nation_specific 413,
+  credential_shaped 6, git_metadata 8, unknown 370. Rows with hold true:
+  2,999.
+- Hold list (location or subtree level): the Nez Perce deployment repository,
+  the esa-policy-analyzer repository, the TCR archive folder, the transcripts
+  folder, the TCR Makah spike folders, the two F:\ Nation folders, one audit
+  sibling report, six credential-shaped cache names, and all six known I:\
+  locations (with `HANDOFF.md` and the Tribe-centered study folders called out).
+- Proposed copies (pending step 4): 87 source files from
+  `D:\Projects\policy-sentinel`, 87 from `C:\dev\_scratch\policy-sentinel`,
+  two files from the audit folder; two git bundles.
