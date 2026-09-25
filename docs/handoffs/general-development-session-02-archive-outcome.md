@@ -6,8 +6,133 @@ was away for the run; the launch prompt's rules decided, and a hold was the
 answer whenever material was unclear. This document authorizes nothing by
 itself; the decision register and `ROADMAP.yaml` carry the authority.
 
-Status: in progress. The sections below the session ledger are completed at
-step 8.
+## Terminal disposition
+
+`GD_SESSION_02_ARCHIVE_COMPLETE_WITH_HOLDS`
+
+Steps 1 to 8 are done. The four drop-ins are committed; the definition of
+done is edited per owner answer 4; D-080 to D-082 are in the register;
+GD-24 to GD-27 were added by planning act with zero validator changes; the
+operating model has its Claude Code section; the stale schema 1.9 lines and
+the continuation prompt are updated. GD-24 (legacy archive and consolidation)
+is `complete`: 17 locations inventoried and hashed, 172 public files copied
+and verified, seven T0 digests and an index written, all outside the
+repository at `I:\policy-sentinel-archive`. Both sovereignty reviews failed
+once and passed after their findings were applied. No git bundle was created:
+all four legacy repositories are holds. The ledger ends at a terminal
+checkpoint with zero `in_progress` items. Nothing was pushed, tagged, merged,
+rebased or amended; no source location was changed; no network was used.
+
+## Start and end state
+
+| Item | Value |
+| --- | --- |
+| Branch | `realign/general-development`, one worktree, no remote (read-only `git config --get-regexp '^remote\.'` returns nothing) |
+| Start commit | `ed5c7ce` (session 1 outcome) |
+| End commit | the commit that adds this completed document, directly after `ecb625d`; recover it with `git log -1 -- docs/handoffs/general-development-session-02-archive-outcome.md` |
+| Working tree at end | only the pre-existing untracked owner inputs under `docs/` (unchanged); `.claude/settings.local.json` now excluded in `.git/info/exclude` |
+| Ledger at end | schema 1.10; 109 work items, 61 gates; complete 48, in_progress 0, ready 9, blocked 22, deferred 2, not_started 28 |
+| Archive | `I:\policy-sentinel-archive`: 241 files, 2,897,714 bytes at close (240 files and 2,893,059 bytes when the index was written; `inventory\git-state-final.txt` was added after it) |
+| Runtime | Windows x64, Node 24.19.0, npm 12.0.2 |
+
+## What changed
+
+- Repository (governance only): the four owner drop-ins; one definition-of-done
+  row split into two and one addendum section 7 row; D-080, D-081, D-082 and
+  "Resolved by D-082" under addendum section 12; ledger items GD-24 to GD-27;
+  the operating model's "Claude Code" section; three stale status sentences;
+  two continuation-prompt sections plus the archive pointer; this outcome.
+- Outside the repository: `I:\policy-sentinel-archive` with `inventory\`,
+  `copies\` (three copies), `digests\` (seven) and `ARCHIVE-INDEX.md`.
+- No change under `src/`, `schemas/`, `config/`, `fixtures/` or `tests/`; no
+  validator or script change.
+
+## Commits
+
+| Commit | Committed | Purpose |
+| --- | --- | --- |
+| `aef7d2e` | 2026-09-24T16:50:02-07:00 | Adopt Claude Code mechanical gates, two agents and the definition of done (step 1a) |
+| `dd4708e` | 2026-09-24T16:50:35-07:00 | Split the federal-plus-three-states done row; add the international instruments class (1b) |
+| `cdd0c14` | 2026-09-24T16:52:32-07:00 | Record D-080, D-081 and D-082 (1c) |
+| `12ff591` | 2026-09-24T16:57:45-07:00 | Add GD-24 to GD-27 by planning act, no validator change (1d) |
+| `121894b` | 2026-09-24T16:58:13-07:00 | Operating model Claude Code section (1e) |
+| `c760446` | 2026-09-24T17:00:03-07:00 | Replace the stale schema 1.9 status lines (1f) |
+| `0db5a4d` | 2026-09-24T17:01:57-07:00 | Continuation prompt: frozen boundaries and historical pointers (1g) |
+| `19b02c4` | 2026-09-24T17:03:46-07:00 | Activate GD-24 (step 2) |
+| `67fedee` | 2026-09-24T17:36:59-07:00 | Record the read-only inventory (step 3) |
+| `803ee92` | 2026-09-24T17:48:13-07:00 | Record the sovereignty review; trim held-item descriptions (step 4) |
+| `71da30f` | 2026-09-24T17:49:33-07:00 | Record the verified archive copies (step 5) |
+| `18251d1` | 2026-09-24T18:04:13-07:00 | Record the digests and their review (step 6) |
+| `e479662` | 2026-09-24T18:05:22-07:00 | Archive pointer in the continuation prompt; step 7 entry (GD-24 completion commit) |
+| `ecb625d` | 2026-09-24T18:07:24-07:00 | Record GD-24 complete in the ledger |
+| (this commit) | see `git log` | Complete the session 2 outcome (step 8) |
+
+## Commands and real outcomes
+
+| Command | Baseline (at `ed5c7ce`) | Final |
+| --- | --- | --- |
+| `npm run validate:roadmap` | exit 0; 105 items, 61 gates; complete 47, in_progress 0, ready 8, blocked 21, deferred 2, not_started 27 | exit 0; 109 items, 61 gates; complete 48, in_progress 0, ready 9, blocked 22, deferred 2, not_started 28 |
+| `npm run validate:backbone` | exit 0; 22 schemas, 1346 refs, 137 Markdown files, 854 local links | exit 0; 22 schemas, 1346 refs, 138 Markdown files, 868 local links |
+| `npm test` | exit 0; node suites 13/13, 30 plus 1 skipped of 31, 121/121, 100/100, 26/26, 129/129, 31/31; Vitest 99 files, 1622 passed and 80 skipped | exit 0; node suites 13/13, 30 plus 1 skipped of 31, 121/121, 100/100, 26/26, 129/129, 31/31; Vitest 99 files, 1622 passed and 80 skipped (unchanged) |
+| `node --test tests/pipeline/roadmap-validator.test.mjs` | not run at baseline | 473/473 after the planning act, with GD-24 active, and at the terminal ledger |
+| `npm run format:check` | exit 1 on two owner drop-ins (reflowed) and the local `.claude/settings.local.json` (S2-F2) | the same local file only; every committed file passes `prettier --check` |
+| `npm run test:knowledge`, `npm run test:backbone` | not run at baseline | 31/31 and 26/26 after step 1f |
+
+Logs: `C:\dev\_scratch\policy-sentinel\session-02\`.
+
+## Roles, agents and leases
+
+- Lead: every repository and archive write, every commit, every disposition.
+- `legacy-inventory`: fifteen read-only runs (fourteen locations and one
+  factual extraction for digest 04). Four misreported hashes and one missed
+  Nation-specific content (S2-F8); three had reads refused by the PII
+  classifier and did not retry.
+- `sovereignty-reviewer`: two reviews, each FAIL then PASS after the lead
+  applied every finding.
+- `gd-lane`, `gate-verifier`, `source-scout` and built-in agents: not used.
+- One settings deny rule fired as designed (`Bash(git remote *)` on a
+  read-only `git remote -v`); the lead switched to `git config`. One
+  user-level hook fired (heredoc with a backslash); the lead switched to the
+  Edit tool.
+- All agents have returned; no lease is open.
+
+## Findings
+
+S2-F1 to S2-F9 are recorded in the ledger below: S2-F1 tier vocabulary not in
+`docs/data-governance.md`; S2-F2 `format:check` fails on the local settings
+file; S2-F3 two sentences still call addendum section 12 open; S2-F4 the focus
+rule blocks session R before wave 2; S2-F5 recovery roots deeper than stated;
+S2-F6 the log folder is a legacy git repository; S2-F7 a stopped process kept
+writing; S2-F8 inventory agent reliability; S2-F9 two hand-typed hashes caught
+by a mechanical check.
+
+## Gates still closed and operations confirmed absent
+
+Unchanged: `G-GD-NATIONWIDE-CONTRACT` and `G-GD-INTEROP` closed;
+`G-GENERAL-DEV-01` and `G-GD-PRIVATE-CONTEXT` approved with zero budgets;
+`G-PS09-RUN-06`, `-07`, `-08` and `G-PS09-RC` closed; `G-K0-S0-CONVERGENCE`
+and `G-O0-CONVERGENCE` closed; `G-B` and its children, `G-C`, `G-E` and its
+children, `G-F`, `G-G`, `G-H`, `G-I`, `G-PNW-COMMUNITY-AUTHORITY` and
+`G-PNW-SOURCE-ACTIVATION` closed; `G-BIA-IDENTITY`, `G-J`, `G-D`, `G-RC` and
+`G-LOCAL-BROWSER` pending evidence. All six external boundaries closed.
+PS09-02 blocked, PS09-06 unstarted.
+
+Confirmed absent: push, tag, merge, rebase, amend, remote; any network use
+(no `gh`, no fetch, no install); any provider request; any write, move,
+rename or delete in D:\, C:\dev, F:\ or a legacy location (only this
+session's log files in the designated `session-02` folder); any held item
+copied; any credential-shaped file opened; any change under `src/`,
+`schemas/`, `config/`, `fixtures/` or `tests/`; any Nation-specific, custody
+or private material written into the repository or the archive.
+
+## Next bounded action
+
+- **Session 3 (GD-17 survey and GD-18 storage model, documentation only):**
+  first a one-row planning act that moves GD-17 and GD-18 ahead of the ready
+  wave 2 items (as done for GD-24; finding S2-F4), then activate GD-17 and run
+  `source-scout` on the federal family.
+- **Session 4:** start with GD-26 (reproducible checks), moved ahead of wave 2
+  by the same kind of planning act, then wave 2 from GD-04 (answer 9).
 
 ## Session ledger
 
@@ -472,3 +597,166 @@ the runner: no receipt names them.
   the archive path and the index hash.
 - GD-24 is completed in the ledger by the follow-up commit that cites this
   one.
+
+### Step 8: outcome
+
+- GD-24 completion was commit `ecb625d` (completion commit `e479662`,
+  `completed_on` 2026-09-24T18:05:22-07:00 from `git show -s --format=%cI`).
+  Terminal ledger validated (109 items, zero in progress); validator tests
+  473/473.
+- Final legacy git state (`inventory\git-state-final.txt`): HEAD, refs,
+  remotes, commit counts and index modification times identical to the
+  starting snapshot for all four repositories.
+- This document completed; the final `npm test` result is in "Commands and
+  real outcomes".
+
+## Answers for the owner
+
+### 1. Held items, reasons and recommendations
+
+| Held item | Hold reason | Recommendation |
+| --- | --- | --- |
+| `D:\Projects\nez-perce-policy-sentinel` (43 files, 4 commits) | Nation-specific deployment repository | Belongs in a private deployment repository if the Nation authorizes it; otherwise leave out. Its generic planning research could be copied after owner review. |
+| `D:\Projects\esa-policy-analyzer` (35 files, 18 commits, 14 uncommitted paths) | Nation-specific planning | Leave out; its generic setup documents could be copied after owner review. |
+| `CLAUDE.md` and `scripts\sovereignty-guard.sh` in both legacy engine copies | Name a Nation's deployment repository; hard-code Nation names as configuration | Copy after owner review (the owner decides whether an ATNI-published denylist of Nation names may be archived). |
+| Git bundles of `D:\Projects\policy-sentinel` and `C:\dev\_scratch\policy-sentinel` | History carries the two files above and an individual's email in author metadata | Copy after owner review; the history stays intact in place meanwhile. |
+| `D:\Claude-Workspace\.claude\projects\D--Projects-esa-policy-analyzer` | Unreviewed conversation transcripts | Leave out; review privately if ever needed. |
+| `D:\tcr-policy-scanner-archive\T1\sentinel-routed` | Sibling-project (TCR) material outside D-080 scope | Leave out; it belongs to the TCR archive. Note that something wrote there at 2026-09-24T23:40Z during this session. |
+| `C:\dev\TCR-policy-scanner\outputs\spike-makah-internal` and `spike-makah-review` | Sibling-project material about one Nation; possible T2 or T3 | Leave out; needs a tier ruling in TCR Policy Scanner's own custody. |
+| `F:\projects\Nations\makah-tribe`, `F:\projects\Nations\nez-perce-tribe` | Nation-named; each holds only an empty directory | Leave out. |
+| `C:\dev\_scratch\policy-sentinel-audit\sibling-tcr-policy-scanner.md` | Names Nations as corpus keys of a sibling repository | Leave out, or copy after owner review. |
+| Six credential-shaped cache files in `D:\Projects\policy-sentinel\.mypy_cache` | Credential-shaped names (third-party type caches) | Leave out. |
+| `I:\policy-sentinel-corpus-real-policy` and `I:\policy-sentinel-corpus` | Acquisition custody (real and synthetic) | Leave out; referenced by hash by design. |
+| The five loose PDFs | Not government documents (answer 2) | Leave out of the archive; consider moving them out of the custody root to a study-inputs location, since no receipt names them. |
+| `I:\policy-sentinel-review` (with `HANDOFF.md`) | Known location; private note (RL-03) | Leave out; referenced by hash. |
+| `I:\policy-sentinel-knowledge-assurance` | Known location; its two Tribe-centered study folders are Nation-specific and possibly T2 or T3 | Leave out; the study folders belong in a private deployment repository or owner custody. |
+| `I:\policy-sentinel-organization-review` | Known location (no sensitive content found) | Could be copied after owner review. |
+| `I:\ATNI-annual-convention-2026\ga-demonstration\policy-sentinel` | Machine-only stage package with custody-derived output | Leave out. |
+
+### 2. The five loose PDFs
+
+All five sit at the root of `I:\policy-sentinel-corpus-real-policy`, outside
+both run roots, and no receipt names them. None is a public government
+document, so all five are holds (owner answer 3), listed by SHA-256 and left
+in place: a public comment letter on an EPA docket (Earthjustice and Native
+American Rights Fund, 2025-08-06, 28 pages, Nation-specific); an advocacy
+analysis of the President's budget request (Coalition for Tribal Sovereignty,
+2025-05-03, 5 pages); a letter from Tribal governments (April 2025, 3 pages,
+Nation-specific); a joint policy brief of Native organizations (February 2026,
+10 pages); and a High Country News article (2026-08-14, 13 pages). Their
+totals match the input set recorded in a held 2026-09-05 study folder in the
+knowledge-assurance location. Hashes are in the step 3c table.
+
+### 3. Salvage candidates, ranked (digest 07)
+
+1. The plan-assessor interface facts in the copied `sibling-plan-assessor.md`:
+   GD-16 (interop pure adapter) and demonstration A4.
+2. LegiScan as a discovery catalog to evaluate (CourtListener is already
+   listed): GD-17 (nationwide source survey). No code.
+3. OSS governance files (CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG),
+   rewritten, not copied: RELEASE-LICENSE or GD-27 (local release package).
+4. The bracketed private-deployment template, rewritten under D-072: GD-27 and
+   GD-23 (user-supplied source class).
+5. Deadline and alert hooks: none now (outside 1.0; open fact O-003).
+6. Graph and TCR export hooks: none (superseded by `policy.citations/1`).
+7. CI and Dependabot configuration: none (no remote; EXT-GITHUB closed).
+8. The TSDF gate stub and the rights-frame issue template: reject.
+
+D-001 bars copying the legacy code or design; every candidate is an input to
+an existing item's own review, not a merge. No merge was performed.
+
+### 4. Legacy statements that contradict current authority
+
+- `copies\d-policy-sentinel\.github\ISSUE_TEMPLATE\rights-frame.md` line 15:
+  "Treaty rights are jurisdictional baseline, not policy preference." Against
+  `AGENTS.md`: "Never add a field or label that implies a rights,
+  legal-effect, jurisdiction, eligibility, or comprehensive land-interest
+  determination."
+- `copies\d-policy-sentinel\README.md` line 5: the engine "analyzes them for
+  rights implications and status changes". Same `AGENTS.md` rule, and D-002
+  (not "a rights-impact engine").
+- `copies\d-policy-sentinel\src\policy_sentinel\tsdf\gate.py` lines 6 and 7:
+  "Only Tier 0 (T0) and Tier 1 (T1) data may be exported." Against the TSDF
+  vocabulary in `docs/development/makah-demo/reference-lookup-2026-09-15.md`
+  lines 55 to 57 ("T1 is community network access") and addendum section 4
+  (a tier above T1 is refused off-deployment; T1 is not public).
+- The held legacy planning repositories commit Nation-specific planning,
+  against `AGENTS.md`: "Never commit ... real Nation-specific configuration"
+  (not quoted, per the hold).
+- Current documents still disagreeing with D-082 (not legacy): the end of
+  D-075 and `docs/continuation-prompt.md` line 54 still call addendum section
+  12 open (S2-F3).
+
+### 5. Should the archive itself be a git repository?
+
+No, as the default proposed. The archive's integrity comes from the hashed
+inventory, the per-copy manifests and the index, whose SHA-256 is recorded in
+the canonical repository (`docs/continuation-prompt.md`). A git repository
+there would invite commits and a remote for material that includes copies of
+another repository, and every held item would still have to be excluded by
+hand. If versioning is wanted later, store only a new index hash in the
+canonical repository for each archive revision. Bundles, if the owner
+releases them, fit inside the current layout (`bundles\`).
+
+### 6. Archive size and free space
+
+241 files, 2,897,714 bytes (2.9 MB) at close. The I: drive had
+531,406,290,944 bytes free after copying and 531,404,754,944 bytes free at
+close (used: 492,799,107,072 bytes after copying).
+
+### 7. The planning act, in one sentence
+
+The four new general-development items GD-24 to GD-27 were added to
+`ROADMAP.yaml` under decisions D-080 and D-081 with zero changes to the
+validator or its tests, which accepted them and still passes 473 of 473; the
+only constraint was choosing priority numbers so the item meant to run first
+could be activated.
+
+### 8. First-pass weight estimate for GD-18 (an estimate for GD-18 to replace)
+
+Inputs the record holds (digest 04 cites each): discovery-01, 423 objects,
+37,589,489 bytes, 210 works, sealed corpus 19,240,268 bytes; makah-demo-02,
+four PDFs of 1,122,216, 672,713, 252,123 and 2,035,657 bytes; GovInfo Federal
+Register HTML renditions (11 captures, mean 112,927 bytes, measured this
+session from the custody manifest); one Federal Register GovInfo PDF of
+260,175 bytes; the Federal Register daily facet of 1,005,337 documents from
+1994-01-03 to 2026-07-31; the addendum's reference-tier figure of 1 to 2 KB
+per record and "two hundred thousand records per year".
+
+Derived per-work sizes: HTML object mean 88,864 bytes and 2.01 objects per
+work, so 179,000 bytes of HTML custody per work; derived analyzed corpus
+91,620 bytes per work; PDF object mean 1,020,677 bytes.
+
+| Scenario | HTML or text custody | PDF custody | Derived corpus |
+| --- | --- | --- | --- |
+| Reference tier only (metadata, locator, hash): Federal Register history | 1.0 to 2.0 GB | same | none |
+| Reference tier only: 200,000 records per year | 0.2 to 0.4 GB per year | same | none |
+| Federal Register full history, 1,005,337 documents | 113.5 GB | 261.6 GB (one observed PDF size) to 1.03 TB (four-PDF mean) | 92.1 GB |
+| Annual flow, 200,000 documents per year | 35.8 GB per year | 204.1 GB per year | 18.3 GB per year |
+| Federal plus 50 states plus DC current text, assuming 10,000 documents per jurisdiction (520,000) | 93.1 GB | 530.8 GB | 47.6 GB |
+| The same, assuming 50,000 per jurisdiction (2,600,000) | 465.4 GB | 2.65 TB | 238.2 GB |
+| What fits the D-077 caps (35 GB custody, 10 GB derived) | about 195,000 works | about 34,000 works | about 109,000 works (binds first) |
+
+Assumptions and limits: the per-jurisdiction counts of 10,000 and 50,000 are
+assumptions, not record figures; the record holds no size or count for the
+U.S. Code, the CFR, state codes or administrative codes, and none for the
+international instruments class. Washington session-law HTML (a measured mean
+of about 31 KB) is much smaller than bill pages (about 147 KB), so the mix
+matters. Custody and derived figures come from one Washington-heavy run and
+four PDFs. Conclusion for GD-18 to test: a full federal plus 50-state
+current-text corpus does not fit the D-077 custody cap in any scenario, while
+a reference-first index of it does.
+
+### 9. Where session 4 should start, and GD-26
+
+Start session 4 with GD-26 (reproducible checks), then wave 2 from GD-04. GD-26
+is small and ready. It makes `npm test` and the hook tests pass on a fresh
+checkout (the deep review's Appendix A failure), and it can absorb S2-F2 (add
+`.claude/settings.local.json` to `.prettierignore`). It also tests the
+`.claude/settings.json` deny rules, one of which fired correctly this session.
+Doing it before wave 2 means every wave 2 lane is verified by reproducible
+checks. One ledger step is needed first. GD-26 sits at priority 335, behind
+the ready wave 2 items, and the focus rule selects the lowest ready number. A
+one-item planning act must move it ahead, for example to priority 308 before
+GD-24, just as session 2 placed GD-24. Session 3 (GD-17 and GD-18) needs the
+same move (S2-F4).
