@@ -309,11 +309,10 @@ Descriptions in this table were trimmed after sovereignty review finding F5
 (kind, publisher, date and pages only).
 
 Later cross-check (step 3b): the five PDFs total 5,935,245 bytes and 59 pages,
-exactly the "five owner-provided inputs [with] 59 PDF pages and 5,935,245
-bytes" described in
-`I:\policy-sentinel-knowledge-assurance\2026-09-05\tribe-centered-next-session-preparation-01\document-examples.md`.
-They are the inputs of a 2026-09-05 Tribe-centered document study, placed in
-the custody root by hand rather than acquired by the runner.
+which matches the input totals recorded in a held 2026-09-05 study folder
+under `I:\policy-sentinel-knowledge-assurance\2026-09-05\` (not quoted). They
+appear to have been placed in the custody root by hand rather than acquired by
+the runner: no receipt names them.
 
 ### Step 3b: legacy-inventory agents
 
@@ -422,3 +421,33 @@ the custody root by hand rather than acquired by the runner.
   difference is in `C:\dev\_scratch\policy-sentinel`, 99 to 110 untracked
   lines, all of them this session's own log files under `session-02\` (the
   designated log folder, finding S2-F6).
+
+### Step 6: digests
+
+- Step 5 was commit `71da30f`.
+- Seven digests written by the lead under `I:\policy-sentinel-archive\digests\`,
+  each tier T0 at the top: 01 development history, 02 methods and evidence
+  model, 03 sovereignty constraints and decisions, 04 source research
+  compendium (with "Weight estimate inputs for GD-18"), 05 lessons learned, 06
+  pilot history, 07 legacy divergence report (states that no merge was
+  performed). One read-only `legacy-inventory` agent extracted the facts of the
+  31 source reviews and 5 research documents for digest 04; every hash in
+  every digest was computed by the lead.
+- **Finding S2-F9 (lead error, caught):** writing digests 05 and 06 by hand,
+  the lead twice completed a 64-character hash from a 12-character prefix it
+  had seen, producing two fabricated hashes. A checker
+  (`check-digest-hashes.mjs`) now requires every 64-hex string in the digests
+  and the inventory to equal a hash the lead computed (hash logs, raw
+  manifests, git state); both were corrected and the check reports 0 unknown.
+  The lead also verified three legacy quotes against the archived copies and
+  corrected one that the sovereignty review had paraphrased.
+- Digest review (sovereignty-reviewer): first pass **FAIL**, ten findings: two
+  overstatements of Nation evidence in digest 04 (a dropped exception in a
+  quoted line; a paragraph asserting that several reviews name a Nation, cite
+  gates they do not cite, and describe a Nation position the source says is
+  not covered), three descriptions of held material beyond kind (digests 01,
+  04, 02 and 06, including receipt-derived custody figures and a link between
+  a held study folder and the five PDFs), and five accuracy fixes. All ten
+  applied; the held-study link was also removed from the inventory, the
+  working notes and this ledger. Second pass: **PASS**; its two wording notes
+  were applied.
