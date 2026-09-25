@@ -188,3 +188,21 @@ this ledger, `git log` and `ROADMAP.yaml`.
 - No test, script or source file pins the replaced text (grep). `npm run
   validate:backbone` exit 0; `npm run test:knowledge` 31/31;
   `npm run test:backbone` 26/26; Prettier clean.
+
+### Step 1g: continuation prompt sections
+
+- Step 1f was commit `c760446`.
+- `docs/continuation-prompt.md` gains two sections after "What a fresh session
+  does first": "Frozen source and external boundaries" (four lines: do not
+  repeat D3, R6, R7 or PF-01 to PF-17; do not issue FR-A1; preserve the
+  27-request ledger and the 43-file ignored evidence custody; the two v2
+  reviews expire 2026-10-05 and 2026-10-15, confirmed at
+  `config/policy-sources.v2.mjs` lines 7 and 63, after which dispatch fails
+  with `EXPIRED_PROFILE`, `src/pipeline/policy-custody.mjs` line 386) and
+  "Historical pointers" (the five pointer sets session 1 found missing,
+  recovered from the pre-rewrite prompt at `6eb8947`; every linked file
+  confirmed to exist; the axe disposition is the "Browser repair and review
+  evidence" section of the discovery outcome; the stage package is a code
+  path because it is outside the repository).
+- `npm run validate:backbone` exit 0 (868 local links, 11 new);
+  `npm run test:knowledge` 31/31; Prettier clean.

@@ -68,6 +68,38 @@ geometry dependency).
    is not an execution grant.
 5. Keep the session ledger and the handoff as `CLAUDE.md` describes.
 
+## Frozen source and external boundaries
+
+- Do not repeat the consumed requests D3, R6, R7 or PF-01 to PF-17, and do
+  not issue FR-A1.
+- Preserve the 27-issued-request ledger and the immutable 43-file ignored
+  evidence custody.
+- The two v2 source reviews in `config/policy-sources.v2.mjs` expire on
+  2026-10-05 (`govinfo-direct`, `washington-legislative-text`) and 2026-10-15
+  (`federal-court-opinions-direct`).
+- After expiry the runner refuses dispatch with `EXPIRED_PROFILE` (fails
+  closed) until a new source review is recorded.
+
+## Historical pointers
+
+- PS09 engineering review 02:
+  [journal](development/PS09-ENGINEERING-REVIEW-02.md) and
+  [acceptance delta](development/ps09-engineering-review-02-acceptance-delta.md).
+- PS09 knowledge assurance:
+  [journal](development/PS09-KNOWLEDGE-ASSURANCE-01.md).
+- Real-policy discovery:
+  [execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md) and the
+  [axe disposition](handoffs/ps09-real-policy-discovery-outcome.md#browser-repair-and-review-evidence)
+  (ten preserved axe incompletes closed by a separate manual review).
+- Makah demo: [document schema](../schemas/makah-demo-doc.schema.v1.json),
+  [Fable 5.1 launch prompt](handoffs/makah-demo-fable-5.1-launch-prompt.md),
+  [TSDF provenance record](development/makah-demo/tsdf-provenance-record-2026-09-15.json),
+  and the machine-only convention stage package at
+  `I:\ATNI-annual-convention-2026\ga-demonstration\policy-sentinel`.
+- PS09 Run 1: [corpus ADR](adr/ps09-canonical-corpus.md),
+  [component dispositions](development/ps09-convergence.v1.json) and
+  [custody manifest](development/ps09-run-01-custody.json).
+
 ## Historical recoveries (moved here from the top of `AGENTS.md`, unchanged)
 
 Current PS09 recovery: the bounded engineering review H-ENGINEERING-REVIEW-02 is
