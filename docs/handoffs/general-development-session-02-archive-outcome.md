@@ -299,11 +299,14 @@ not recorded.
 
 | File | Title (as shown) | Publisher | Date | Pages | SHA-256 | Classification |
 | --- | --- | --- | --- | --- | --- | --- |
-| `2025.08.06-Earthjustice-et-al-CWA-401-2025-Comments28.pdf` | Comments on the EPA request for comment on Clean Water Act section 401 implementation, docket EPA-HQ-OW-2025-0272 | Earthjustice and Native American Rights Fund, on behalf of four named Tribal governments | submitted 2025-08-06 | 28 | `2f7a3c0f79a6b745c80c6a07e9ca48e5d36b7c0ac8a68b6931c9d272077416ea` | hold: Nation-specific (states named Nations' positions); a public comment, not a government document |
-| `CTS FY26 President's Budget Request Analysis as of 05.03.25.pdf` | Analysis of the President's Budget Request to Congress | Coalition for Tribal Sovereignty | as of 2025-05-03 | 5 | `f0e94d40040de886442ec708b2106e89bc7493be9eb0ad7db7f1b039cec910ea` | hold: advocacy analysis, not a government document |
-| `Chuckwalla Tribal Letter_4_7_24.pdf` | Letter from Tribal governments and a national intertribal organization to federal officials on a national monument | named Tribal governments | letter dated April 2025 (the file name says `4_7_24`) | 3 | `3d8951fab3c8b21893ab52309ed9cc6692fe8df599835769327b287a9907e92a` | hold: Nation-specific government-to-government correspondence |
-| `JOINT-INDIAN-COUNTRY-ECON-POLICY-BRIEF-ADMINISTRATION-FINAL-2-11-26.pdf` | Tribal Economic Development: Indian Country's Policy Priorities for the Federal Government, a 2026 policy brief | joint brief endorsed by national and regional Native organizations | February 2026 | 10 | `7e2e5397867a04092027a67d152a182fa881dbd147176c2d927d5f87e6a6b84b` | hold: organizational policy brief, not a government document |
-| High Country News article PDF (the file name begins with a typographic quote: "Quite frustrating_ what it's like to have a treaty with the United States - High Country News.pdf") | "Quite frustrating: what it's like to have a treaty with the United States" | High Country News (journalism, browser print) | article 2026-08-14, printed 2026-09-05 | 13 | `0a20184045cb41ae1a8325c5f119135a1946304adc4f300f5e14b200758db801` | hold: copyrighted news article with Nation members' statements, not a government document |
+| `2025.08.06-Earthjustice-et-al-CWA-401-2025-Comments28.pdf` | Public comment letter on an EPA request for comment, docket EPA-HQ-OW-2025-0272 | Earthjustice and Native American Rights Fund | 2025-08-06 | 28 | `2f7a3c0f79a6b745c80c6a07e9ca48e5d36b7c0ac8a68b6931c9d272077416ea` | hold: Nation-specific; not a government document |
+| `CTS FY26 President's Budget Request Analysis as of 05.03.25.pdf` | Analysis of the President's Budget Request to Congress | Coalition for Tribal Sovereignty | 2025-05-03 | 5 | `f0e94d40040de886442ec708b2106e89bc7493be9eb0ad7db7f1b039cec910ea` | hold: advocacy analysis, not a government document |
+| `Chuckwalla Tribal Letter_4_7_24.pdf` | Letter (title as in the file name) | Tribal governments (not named here) | April 2025 | 3 | `3d8951fab3c8b21893ab52309ed9cc6692fe8df599835769327b287a9907e92a` | hold: Nation-specific; not a government document |
+| `JOINT-INDIAN-COUNTRY-ECON-POLICY-BRIEF-ADMINISTRATION-FINAL-2-11-26.pdf` | Tribal Economic Development: Indian Country's Policy Priorities for the Federal Government | joint brief of Native organizations | February 2026 | 10 | `7e2e5397867a04092027a67d152a182fa881dbd147176c2d927d5f87e6a6b84b` | hold: organizational policy brief, not a government document |
+| High Country News article PDF (the file name begins with a typographic quote: "Quite frustrating_ what it's like to have a treaty with the United States - High Country News.pdf") | "Quite frustrating: what it's like to have a treaty with the United States" | High Country News | 2026-08-14 | 13 | `0a20184045cb41ae1a8325c5f119135a1946304adc4f300f5e14b200758db801` | hold: copyrighted news article, not a government document |
+
+Descriptions in this table were trimmed after sovereignty review finding F5
+(kind, publisher, date and pages only).
 
 Later cross-check (step 3b): the five PDFs total 5,935,245 bytes and 59 pages,
 exactly the "five owner-provided inputs [with] 59 PDF pages and 5,935,245
@@ -329,8 +332,8 @@ the custody root by hand rather than acquired by the runner.
 - **Finding S2-F8 (agent reliability):** four agents misreported hashes (three
   said the 64-character manifest hashes had 65 characters, one printed
   truncated 63-character hashes while calling them full); one called a
-  directory generic that is byte-identical to files naming a Nation and its
-  litigation; one proposed `hold: false` for files it classified as
+  directory generic that is byte-identical to Nation-specific files; one
+  proposed `hold: false` for files it classified as
   Nation-specific. The lead checked every such claim against the manifests;
   the manifests govern and every hash in the inventory comes from them.
 - Three agents had reads refused by the auto-mode PII classifier (memory notes
@@ -359,4 +362,35 @@ the custody root by hand rather than acquired by the runner.
   locations (with `HANDOFF.md` and the Tribe-centered study folders called out).
 - Proposed copies (pending step 4): 87 source files from
   `D:\Projects\policy-sentinel`, 87 from `C:\dev\_scratch\policy-sentinel`,
-  two files from the audit folder; two git bundles.
+  two files from the audit folder; two git bundles. **Superseded by step 4
+  below; the hash and totals above are also superseded.**
+
+### Step 4: classification review (sovereignty-reviewer)
+
+- Step 3 was commit `67fedee`.
+- First pass: **FAIL** with ten findings. F1: `CLAUDE.md` in both legacy
+  engine copies names a Nation's deployment repository. F2:
+  `scripts/sovereignty-guard.sh` in both copies hard-codes Nation names as
+  configuration. F6: every commit of both repositories carries an individual's
+  email in author metadata. F3 to F5: held-item descriptions in the inventory,
+  the working notes and this ledger said more than a hold reason needs. F7 to
+  F9: reason text and one classification. F10: rights and legal-effect
+  language and a T1 export assumption in the legacy scaffold (relevant only to
+  a future merge).
+- Applied in full: the four files became holds (pilot_nation_specific); both
+  git bundles became holds and will not be created (every commit carries at
+  least one of the two held files and the author email); descriptions trimmed
+  in all three documents; reasons corrected; the template made public_engine
+  in both copies; F10 kept for digest 07.
+- Second pass: **PASS**. The reviewer confirmed the YAML flags and reasons, a
+  name search of about 50 Nation names over both 85-file sets with no match,
+  and no remaining over-description; its three record notes (this entry, two
+  superseded lines in the working notes, one wording fix) were applied.
+- Inventory after review: `inventory-2026-09-24.yaml` SHA-256
+  `33e49cc0d115645c2d968e2ce82f71e53ddf12d0b5e896fbb09e58adf80d7d97`, 4,520
+  rows; public_engine 182, planning 151, research 39, generated 2,154,
+  acquisition_custody 1,193, pilot_nation_specific 417, credential_shaped 6,
+  git_metadata 8, unknown 370; hold true 3,005.
+- Copy set: 85 files from `D:\Projects\policy-sentinel` (80,033 bytes), 85
+  from `C:\dev\_scratch\policy-sentinel` (82,849 bytes), `checklist.md` and
+  `sibling-plan-assessor.md` from the audit folder (5,319 bytes). No bundles.
