@@ -1008,43 +1008,28 @@ baseline:
         configured.
 
 current_focus:
-  work_item: null
+  work_item: GD-24-LEGACY-ARCHIVE-AND-CONSOLIDATION
   objective: >-
     General development under G-GENERAL-DEV-01 (D-071). Refactor wave 1 (GD-01,
-    GD-02, GD-03) is complete, run one item at a time while the one-in_progress
-    rule stands (addendum section 12, question 2, is an open owner question).
-    Next per RL-14: session R (GD-17 nationwide source survey, GD-18 storage
-    capacity model) and session 2 (wave 2: GD-04, GD-05, GD-07, GD-08, GD-09;
-    wave 3: GD-06, GD-10). GD-13, GD-16 and GD-22 wait on their gates.
-    General-development session 2 added GD-24 to GD-27 by planning act (D-080,
-    D-081); GD-24 (legacy archive) runs first. The Makah demo track is finished;
-    its acquired objects remain custody only, and per-document G-J decisions and
+    GD-02, GD-03) is complete; waves run one item at a time under the
+    one-in_progress rule (D-082). General-development session 2 added GD-24 to
+    GD-27 by planning act (D-080, D-081) and is executing GD-24 (legacy archive
+    and consolidation): a copy-only, hashed archive at
+    I:\policy-sentinel-archive with holds, git bundles, seven digests and an
+    index, and no write to any source location. Afterwards: session R (GD-17
+    nationwide source survey, GD-18 storage capacity model) and wave 2 (GD-04,
+    GD-05, GD-07, GD-08, GD-09; wave 3: GD-06, GD-10). GD-13, GD-16, GD-22 and
+    GD-27 wait on their gates. The Makah demo track is finished; its acquired
+    objects remain custody only, and per-document G-J decisions and
     G-BIA-IDENTITY stay open. The PS09 program stays blocked on PS09-02
     originating identity/scenario evidence; PS09-06 is unstarted and gated; the
     completed H01/H02 maintenance and every sealed discovery, prior assurance
     and owner-input identity are preserved.
-  terminal_reason: >-
-    General-development session 1 ended after refactor wave 1 (GD-01, GD-02,
-    GD-03 complete); its authority covered governance plus wave 1 only. Wave 2
-    and session R items are ready for their own sessions. PS09 remains blocked
-    on PS09-02 originating evidence and scenario acceptance; no successor run or
-    external operation is authorized.
+  terminal_reason: null
   resumable_roots:
-    - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     - GD-24-LEGACY-ARCHIVE-AND-CONSOLIDATION
-    - GD-04-CORE-BOUNDARY-GUARD
-    - GD-05-INTAKE-REPLAY-AND-DISCOVERY
-    - GD-07-RESEARCH-OUTPUT-SPLIT
-    - GD-08-CONTEXT-RELEVANCE-EXTRACTION
-    - GD-09-JURISDICTION-IDENTIFIER-MODEL
-    - GD-13-NATIONWIDE-RECORD-CONTRACT
-    - GD-16-INTEROP-PURE-ADAPTER
-    - GD-17-NATIONWIDE-SOURCE-SURVEY
-    - GD-18-STORAGE-CAPACITY-MODEL
-    - GD-22-NATION-REGISTRY-BINDING
-    - GD-26-REPRODUCIBLE-CHECKS
-    - GD-27-LOCAL-RELEASE-PACKAGE
-  last_durable_checkpoint: ac8ff44fe4931c89aeda5aaddbad71683af03a7f
+    - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
+  last_durable_checkpoint: 0db5a4de69fc4b96ee98b9570e3f370a9c7869d0
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -6216,7 +6201,7 @@ work_items:
     priority: 309
     milestone: General development
     title: Legacy archive and consolidation outside the repository
-    status: ready
+    status: in_progress
     work_class: general_development_local
     decision_ref: D-080
     authorization_gate: G-GENERAL-DEV-01

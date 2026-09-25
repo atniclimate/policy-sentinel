@@ -206,3 +206,16 @@ this ledger, `git log` and `ROADMAP.yaml`.
   path because it is outside the repository).
 - `npm run validate:backbone` exit 0 (868 local links, 11 new);
   `npm run test:knowledge` 31/31; Prettier clean.
+
+### Step 2: activate GD-24
+
+- Step 1g was commit `0db5a4d`.
+- GD-24 (legacy archive and consolidation) set `in_progress`;
+  `current_focus.work_item` GD-24, `terminal_reason` null,
+  `resumable_roots` `[GD-24, PS09-02]` as the validator requires for an active
+  general-development item, `last_durable_checkpoint` `0db5a4d`, and the
+  objective rewritten for the active item (it no longer calls addendum section
+  12 open).
+- `npm run validate:roadmap` exit 0: 109 items; complete 47, in_progress 1,
+  ready 9, blocked 22, deferred 2, not_started 28. `node --test
+  tests/pipeline/roadmap-validator.test.mjs` 473/473 with the active ledger.
