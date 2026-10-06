@@ -1,0 +1,19 @@
+name = "policy-sentinel-demo"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# No request or query logging beyond what Cloudflare keeps by default.
+[observability]
+enabled = false
+
+# Per-visitor rate limit. The key is the connecting address; it is never stored by this Worker.
+[[ratelimits]]
+name = "RATE"
+namespace_id = "7301"
+  [ratelimits.simple]
+  limit = 30
+  period = 60
+
+# Secrets (never in this file). Add with:
+#   npx wrangler secret put DATA_GOV_API_KEY --config worker/wrangler.toml

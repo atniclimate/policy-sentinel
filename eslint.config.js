@@ -6,6 +6,8 @@ export default tseslint.config(
   {
     ignores: [
       "dist/**",
+      "docs/demo-assets/**",
+      "**/.wrangler/**",
       "node_modules/**",
       "coverage/**",
       "public-data/**",
