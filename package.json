@@ -8,6 +8,10 @@
     "dev": "vite",
     "build": "vite build && node scripts/build-synthetic-artifact.mjs --out dist/data && npm run validate:artifact",
     "preview": "vite preview",
+    "demo:dev": "vite --config vite.demo.config.ts",
+    "demo:build": "vite build --config vite.demo.config.ts && node scripts/finish-demo-build.mjs",
+    "demo:worker:dev": "npx wrangler dev --config worker/wrangler.toml",
+    "demo:worker:deploy": "npx wrangler deploy --config worker/wrangler.toml",
     "hooks:run": "node scripts/codex-hooks.mjs",
     "hooks:test": "node --test tests/hooks/codex-hooks.test.mjs",
     "validate:roadmap": "node scripts/validate-roadmap.mjs",
@@ -63,6 +67,7 @@
   },
   "dependencies": {
     "parse5": "8.0.1",
+    "pdf-lib": "1.17.1",
     "preact": "^10.29.7"
   },
   "devDependencies": {
