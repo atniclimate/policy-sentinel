@@ -155,7 +155,6 @@ await page.screenshot({ path: join(out, "desktop-1280.png"), fullPage: true });
 // Accessibility, with the results and issues on screen.
 await page.addScriptTag({ content: axeSource });
 const axe = await page.evaluate(() =>
-  // eslint-disable-next-line no-undef
   axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21aa"] }),
 );
 check(
