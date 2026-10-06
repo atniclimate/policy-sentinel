@@ -1,0 +1,118 @@
+# pyproject.toml for policy-sentinel engine
+[build-system]
+requires = ["hatchling>=1.29"]
+build-backend = "hatchling.build"
+
+[project]
+name = "policy-sentinel"
+version = "0.1.0"
+description = "A sovereignty-centered policy intelligence engine"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+authors = [
+    { name = "ATNI Climate Resilience Program" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+    "typer>=0.24",
+    "rich>=14.0",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.7",
+    "sqlalchemy>=2.0",
+    "alembic>=1.0",
+    "jinja2>=3.1",
+    "httpx>=0.27",
+]
+
+# PEP 735 dependency groups (NOT published to PyPI)
+[dependency-groups]
+test = [
+    "pytest>=8.0",
+    "pytest-cov>=6.0",
+]
+dev = [
+    { include-group = "test" },
+    "ruff>=0.15",
+    "mypy>=1.19",
+    "pre-commit>=4.5",
+]
+docs = [
+    "sphinx>=9.1,<10",
+    "furo>=2025.12",
+    "myst-parser>=5.0",
+    "sphinx-autoapi>=3.7",
+    "sphinx-autodoc-typehints",
+    "sphinx-design>=0.6",
+    "sphinx-copybutton>=0.5",
+]
+
+[project.scripts]
+policy-sentinel = "policy_sentinel.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/atniclimate/policy-sentinel"
+Repository = "https://github.com/atniclimate/policy-sentinel"
+Issues = "https://github.com/atniclimate/policy-sentinel/issues"
+Changelog = "https://github.com/atniclimate/policy-sentinel/blob/main/CHANGELOG.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/policy_sentinel"]
+
+[tool.hatch.version]
+path = "src/policy_sentinel/__init__.py"
+
+# --- Ruff Configuration ---
+[tool.ruff]
+target-version = "py312"
+line-length = 99
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "D",    # pydocstyle
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "TCH",  # flake8-type-checking
+    "RUF",  # ruff-specific rules
+]
+ignore = [
+    "D107",  # Missing docstring in __init__ (NumPy convention)
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["D", "S101"]  # No docstrings or assert warnings in tests
+
+# --- Mypy Configuration ---
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+
+# --- Pytest Configuration ---
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
