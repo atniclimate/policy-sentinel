@@ -156,9 +156,15 @@ concurrent changes.
   GitHub integration.
 - Do not create or change a remote, push, publish, enable Pages, alter secrets,
   create releases, or rewrite history without explicit owner authorization.
+- Exception by owner rulings D-083 and D-084 (2026-10-06): the live public demo
+  (`demo/`, `worker/`, published from `docs/` on `main`) may be committed, pushed
+  and served by GitHub Pages, and its Worker may call official hosts at runtime.
+  That authority covers the demo only and does not open any other gate.
 - Treat `atniclimate/policy-sentinel` as read-only historical reference.
   Inspect it with `gh` and public source files; do not copy its code or inherit
-  its architecture by default.
+  its architecture by default. This describes the earlier Python project; after
+  D-084 the `main` of that repository holds this project, and the earlier
+  history stays in its log.
 - Never commit generated public data, raw responses, caches, AI summaries,
   credentials, private data, or real Nation-specific configuration.
 

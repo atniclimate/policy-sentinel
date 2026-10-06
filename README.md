@@ -126,6 +126,40 @@ must use the [durable continuation prompt](docs/continuation-prompt.md) and live
 the currently active bounded lane is named by `current_focus` and cannot be
 expanded by an older handoff.
 
+## Live demo
+
+A live demonstration of Policy Sentinel runs at
+<https://atniclimate.github.io/policy-sentinel/>. It searches real public
+policy, reads the official text with the same text extractor the rest of the
+project uses, points to passages that may deserve a closer look, and exports a
+cited, annotated PDF. Policy Sentinel is in development, and the demo says so on
+the page and in every PDF it makes, with the version number.
+
+The demo is two pieces. The page (`demo/`, built into `docs/`) holds no keys and
+makes no claim beyond what it shows. The Worker (`worker/`, deployed as
+`policy-sentinel-demo` on Cloudflare) reads an allowlist of exact official
+government hosts, answers only the Pages origin and localhost, rate limits, and
+keeps no record of searches. Federal Register search and Washington Legislature
+bill lookup are live. GovInfo, Congress.gov and Regulations.gov are built and
+switched off until an api.data.gov key is added as a Worker secret; Oregon and
+Idaho are shown as not available, for the reasons in
+[source feasibility](docs/source-feasibility.md). The issues the demo flags come
+from automated rule checks (`src/demo/rules.ts`), not from Sentinel's reviewed
+findings. The owner rulings are D-083 and D-084 in the
+[decision register](docs/decision-register.md).
+
+```powershell
+npm run demo:build                # builds docs/index.html and docs/demo-assets/
+npm run demo:worker:dev           # local Worker on http://127.0.0.1:8787
+npm run demo:worker:deploy        # deploys policy-sentinel-demo
+npx wrangler secret put DATA_GOV_API_KEY --config worker/wrangler.toml
+node scripts/verify-demo-browser.mjs --url https://atniclimate.github.io/policy-sentinel/ --out <folder>
+```
+
+Embed the page in another site with an iframe and add `?embed=1` for the compact
+layout. Add `?api=http://127.0.0.1:8787` on a localhost copy to test against a
+local Worker.
+
 ## Intended PNW engine
 
 The present product is intended to:
