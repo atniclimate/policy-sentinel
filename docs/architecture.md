@@ -22,8 +22,11 @@ community context. Personas are views, not fact stores. Output adapters retain
 record identity, citations, evidence, timestamps, coverage, review,
 visibility, and limitations.
 
-The single local release root is `PS09-06-LOCAL-RC`. Historical B/PNW/local
-prerelease finish scopes retain evidence only. The
+The current local release root is GD-27 under schema 1.11 and the
+[GD-31 crosswalk](development/gd31-release-acceptance-crosswalk.md).
+PS09-06 and historical B/PNW/local prerelease scopes retain their evidence.
+The [preparation contract](architecture/gd31-successor-contracts.md) is pure
+and does not integrate a runner or output adapter. The
 [convergence ADR](adr/ps09-canonical-corpus.md) and
 [component registry](development/ps09-convergence.v1.json) bind current adoption,
 migration, compatibility, and excluded/deferred work. Run 1 does not authorize

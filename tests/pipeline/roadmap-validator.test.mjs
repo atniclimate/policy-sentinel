@@ -171,6 +171,12 @@ const generalDevelopmentGateIds = [
   "G-GD-INTEROP",
   "G-GD-PRIVATE-CONTEXT",
 ];
+const successorGateIds = [
+  "G-GD-SUCCESSOR-IMPLEMENTATION",
+  "G-GD-PUBLIC-ACQUISITION",
+  "G-GD-ATNI-LOCAL-ASSESSMENT",
+  "G-GD-LOCAL-RELEASE-ACCEPTANCE",
+];
 const isGeneralDevelopmentItem = ({ milestone }) =>
   milestone === generalDevelopmentMilestone;
 const withoutGeneralDevelopment = (candidate) => {
@@ -179,9 +185,11 @@ const withoutGeneralDevelopment = (candidate) => {
   );
   candidate.work_items = candidate.work_items.filter(({ id }) => !ids.has(id));
   candidate.gates = candidate.gates.filter(
-    ({ id }) => !generalDevelopmentGateIds.includes(id),
+    ({ id }) =>
+      ![...generalDevelopmentGateIds, ...successorGateIds].includes(id),
   );
   delete candidate.completion_scope.general_development;
+  delete candidate.finish_states.general_development;
   if (ids.has(candidate.current_focus.work_item)) {
     Object.assign(candidate.current_focus, {
       work_item: null,
@@ -193,6 +201,56 @@ const withoutGeneralDevelopment = (candidate) => {
   candidate.next_actions = candidate.next_actions
     .filter((action) => !ids.has(action.work_item))
     .map((action, index) => ({ ...action, order: index + 1 }));
+  return candidate;
+};
+const asSchema110 = (candidate) => {
+  candidate.schema_version = "1.10";
+  candidate.gates = candidate.gates.filter(
+    ({ id }) => !successorGateIds.includes(id),
+  );
+  for (const entry of candidate.work_items.filter(isGeneralDevelopmentItem)) {
+    if (successorGateIds.includes(entry.authorization_gate)) {
+      entry.authorization_gate = "G-GENERAL-DEV-01";
+      if (entry.blocked_by)
+        entry.blocked_by = entry.blocked_by.map((id) =>
+          successorGateIds.includes(id) ? "G-GENERAL-DEV-01" : id,
+        );
+    }
+  }
+  candidate.completion_scope.general_development = {
+    accounting: "non_release_local_development",
+    admission_rule: "Synthetic schema 1.10 admission fixture.",
+    decision_ref: "D-071",
+  };
+  delete candidate.finish_states.general_development;
+  const byId = new Map(candidate.work_items.map((entry) => [entry.id, entry]));
+  const roots = new Set();
+  const collect = (id) => {
+    const entry = byId.get(id);
+    if (entry.status === "complete" || entry.status === "deferred") return;
+    const incomplete = entry.dependencies.filter(
+      (dependency) => byId.get(dependency).status !== "complete",
+    );
+    if (entry.status === "blocked" || incomplete.length === 0) roots.add(id);
+    else incomplete.forEach(collect);
+  };
+  [
+    ...ps09OutcomeIds.slice(0, 6),
+    ...candidate.work_items
+      .filter(isGeneralDevelopmentItem)
+      .map(({ id }) => id),
+  ].forEach(collect);
+  const ordered = [...roots].sort(
+    (left, right) => byId.get(left).priority - byId.get(right).priority,
+  );
+  candidate.next_actions = ordered.map((id, index) => ({
+    order: index + 1,
+    work_item: id,
+    action: "Synthetic next action.",
+  }));
+  candidate.current_focus.resumable_roots = candidate.current_focus.work_item
+    ? [candidate.current_focus.work_item, ps09OutcomeIds[1]]
+    : ordered;
   return candidate;
 };
 const withoutMakahDemo = (candidate) => {
@@ -947,7 +1005,8 @@ test("schema 1.8 freezes spent authority and bounds the exact engineering review
     liveRoadmap.gates
       .filter(
         ({ id, state }) =>
-          state === "closed" && !generalDevelopmentGateIds.includes(id),
+          state === "closed" &&
+          ![...generalDevelopmentGateIds, ...successorGateIds].includes(id),
       )
       .map(({ id }) => id),
     closedGateIds,
@@ -1586,7 +1645,8 @@ test("schema 1.9 represents the Makah demo track without touching PS09", async (
     liveRoadmap.gates
       .filter(
         ({ id, state }) =>
-          state === "closed" && !generalDevelopmentGateIds.includes(id),
+          state === "closed" &&
+          ![...generalDevelopmentGateIds, ...successorGateIds].includes(id),
       )
       .map(({ id }) => id),
     closedGateIds,
@@ -1796,6 +1856,11 @@ test("schema 1.9 represents the Makah demo track without touching PS09", async (
 });
 
 test("schema 1.10 admits the general-development graph by rule and keeps every other identity frozen", async (context) => {
+  const liveRoadmap = asSchema110(
+    clone(
+      parse(await readFile(path.resolve(projectRoot, "ROADMAP.yaml"), "utf8")),
+    ),
+  );
   const fixtureRoot = await mkdtemp(
     path.join(tmpdir(), "policy-sentinel-ps09-roadmap-"),
   );
@@ -2191,6 +2256,203 @@ test("schema 1.10 admits the general-development graph by rule and keeps every o
   );
 });
 
+test("schema 1.11 makes general development the current local release without changing historical authority", async (context) => {
+  const fixtureRoot = await mkdtemp(
+    path.join(tmpdir(), "policy-sentinel-gd-roadmap-"),
+  );
+  context.after(() => rm(fixtureRoot, { recursive: true, force: true }));
+  const validate = async (name, candidate) => {
+    const fixturePath = path.join(fixtureRoot, `${name}.yaml`);
+    await writeFile(fixturePath, stringify(candidate), "utf8");
+    return validateActualModule(fixturePath);
+  };
+  assert.equal(liveRoadmap.schema_version, "1.11");
+  const valid = await validate("live", liveRoadmap);
+  assert.equal(valid.status, 0, `${valid.stdout}\n${valid.stderr}`);
+  const scope = (r) => r.completion_scope.general_development;
+  const gate = (r, id) => r.gates.find((entry) => entry.id === id);
+  const item = (r, id) => r.work_items.find((entry) => entry.id === id);
+  await context.test("bounded checkpoint may retain ready work", async () => {
+    const candidate = clone(liveRoadmap);
+    const active = candidate.work_items.find(
+      ({ status }) => status === "in_progress",
+    );
+    if (active) active.status = "ready";
+    Object.assign(candidate.current_focus, {
+      work_item: null,
+      terminal_reason: "Synthetic validated bounded checkpoint.",
+      resumable_roots: candidate.next_actions.map(({ work_item }) => work_item),
+    });
+    const result = await validate("bounded-checkpoint", candidate);
+    assert.equal(result.status, 0, result.stderr);
+  });
+  await context.test(
+    "complete synthetic acceptance requires the entire current graph",
+    async () => {
+      const candidate = clone(liveRoadmap);
+      for (const id of scope(candidate).required_outcomes) {
+        Object.assign(item(candidate, id), {
+          status: "complete",
+          evidence: [
+            "Synthetic validator fixture only; no actual demonstration or source acceptance.",
+          ],
+          completion_commit: "0".repeat(40),
+          completed_on: "2026-10-07T00:00:00Z",
+        });
+      }
+      Object.assign(gate(candidate, scope(candidate).acceptance_gate), {
+        state: "satisfied",
+        evidence: ["Synthetic validator fixture only."],
+      });
+      candidate.finish_states.general_development.current_state = "complete";
+      candidate.finish_states.general_development.blocked_by = [];
+      Object.assign(candidate.current_focus, {
+        work_item: null,
+        terminal_reason: "Synthetic complete graph fixture.",
+        resumable_roots: [],
+      });
+      candidate.next_actions = [];
+      const result = await validate("synthetic-complete", candidate);
+      assert.equal(result.status, 0, result.stderr);
+    },
+  );
+  const cases = [
+    [
+      "successor-authority-in-old-schema",
+      (r) => {
+        r.schema_version = "1.10";
+      },
+      /references unknown gate G-GD-SUCCESSOR-IMPLEMENTATION/,
+    ],
+    [
+      "omit-required-capability",
+      (r) => {
+        scope(r).required_outcomes.pop();
+      },
+      /general engine required outcomes/,
+    ],
+    [
+      "omit-demonstration",
+      (r) => {
+        scope(r).demonstration_outcomes.pop();
+      },
+      /general engine demonstrations/,
+    ],
+    [
+      "replace-current-root",
+      (r) => {
+        scope(r).release_root = ps09OutcomeIds[5];
+      },
+      /general engine release root/,
+    ],
+    [
+      "replace-historical-root",
+      (r) => {
+        scope(r).historical_release_root = "B10-RC";
+      },
+      /general engine historical root/,
+    ],
+    [
+      "wrong-crosswalk",
+      (r) => {
+        scope(r).acceptance_crosswalk = "README.md";
+      },
+      /general engine acceptance crosswalk/,
+    ],
+    [
+      "missing-release-dependency",
+      (r) => {
+        item(r, scope(r).release_root).dependencies = [];
+      },
+      /general engine release dependency closure/,
+    ],
+    [
+      "false-release-completion",
+      (r) => {
+        r.finish_states.general_development.current_state = "complete";
+      },
+      /active general engine finish|release completion/,
+    ],
+    [
+      "false-acceptance",
+      (r) => {
+        gate(r, scope(r).acceptance_gate).state = "satisfied";
+        gate(r, scope(r).acceptance_gate).evidence = [
+          "Synthetic false acceptance.",
+        ];
+      },
+      /release completion/,
+    ],
+    [
+      "unreviewed-dispatch",
+      (r) => {
+        gate(
+          r,
+          "G-GD-PUBLIC-ACQUISITION",
+        ).scope.policy_acquisition_budget.dispatch_requires_reviewed_manifest =
+          false;
+      },
+      /successor gate .* scope/,
+    ],
+    [
+      "larger-managed-cap",
+      (r) => {
+        gate(r, "G-GD-PUBLIC-ACQUISITION").scope.policy_acquisition_budget
+          .total_managed_bytes++;
+      },
+      /successor gate .* scope/,
+    ],
+    [
+      "publication-through-acquisition",
+      (r) => {
+        gate(r, "G-GD-PUBLIC-ACQUISITION").scope.publication = true;
+      },
+      /successor gate .* scope/,
+    ],
+    [
+      "private-data-through-assessment",
+      (r) => {
+        gate(r, "G-GD-ATNI-LOCAL-ASSESSMENT").scope.real_private_data = true;
+      },
+      /successor gate .* scope/,
+    ],
+    [
+      "acquisition-through-implementation",
+      (r) => {
+        gate(
+          r,
+          "G-GD-SUCCESSOR-IMPLEMENTATION",
+        ).scope.policy_acquisition_budget.requests = 1;
+      },
+      /successor gate .* scope/,
+    ],
+    [
+      "historical-gate-reopened",
+      (r) => {
+        gate(r, "G-PS09-RC").state = "approved";
+        gate(r, "G-PS09-RC").evidence = ["Synthetic incorrect approval."];
+      },
+      /frozen PS09 gates/,
+    ],
+    [
+      "historical-finish-rewritten",
+      (r) => {
+        r.finish_states.ps09.current_state = "complete";
+      },
+      /frozen finish_states/,
+    ],
+  ];
+  for (const [name, mutate, expected] of cases) {
+    await context.test(name, async () => {
+      const candidate = clone(liveRoadmap);
+      mutate(candidate);
+      const result = await validate(name, candidate);
+      assert.notEqual(result.status, 0, name);
+      assert.match(result.stderr, expected);
+    });
+  }
+});
+
 test("PS09 release accounting converges without reopening archived lanes", async (context) => {
   const fixtureRoot = await mkdtemp(
     path.join(tmpdir(), "policy-sentinel-ps09-roadmap-"),
@@ -2338,7 +2600,7 @@ test("PS09 release accounting converges without reopening archived lanes", async
       `${name}: ${result.stdout}\n${result.stderr}`,
     );
   }
-  assert.equal(liveRoadmap.schema_version, "1.10");
+  assert.equal(liveRoadmap.schema_version, "1.11");
   assert.equal(liveWorkItem(ps09OutcomeIds[1])?.status, "blocked");
   assert.deepEqual(liveWorkItem(ps09OutcomeIds[2]).dependencies, [
     ps09OutcomeIds[0],

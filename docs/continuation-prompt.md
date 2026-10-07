@@ -75,9 +75,13 @@ before implementation:
    survey, qualification gaps and current validation/next-task state.
 10. `docs/handoffs/2026-10-07-gd18-storage-report.md`: measured storage command,
     inventory, conservative forecast refusal and next-task recovery.
+11. `docs/development/gd31-release-acceptance-crosswalk.md`,
+    `docs/development/gd31-operation-packets.md` and
+    `docs/architecture/gd31-successor-contracts.md`: current release closure,
+    blocked finite preparation manifests and synthetic boundary contracts.
 
 Historical foundation: general-development session 1 applied RL-01. The rulings are
-D-071 to D-079 in `docs/decision-register.md`, and `ROADMAP.yaml` is at schema
+D-071 to D-079 in `docs/decision-register.md`, and the historical roadmap used schema
 1.10: milestone "General development" (GD-00 to GD-23) is admitted by rule
 behind four gates, `G-GENERAL-DEV-01` and `G-GD-PRIVATE-CONTEXT` approved for
 local synthetic work, `G-GD-NATIONWIDE-CONTRACT` and `G-GD-INTEROP` closed.
@@ -100,8 +104,11 @@ dependency is selected when GD-19 starts. D-086 records the 50 GB total cap,
 public/private authorization distinction, ATNI local assessment authority and
 the owner-selected AK/CA/MT/NV planning communities. Remaining contract and
 source-specific details are listed in the revision; do not reopen settled
-questions. The historical four GD gates are unchanged pending GD-31's reviewed
-successor representation. Neither that implementation requirement nor a source
+questions. Schema 1.11 preserves the historical four GD gates and represents
+successor implementation, measured public acquisition, ATNI local assessment
+and release acceptance separately. `GD-27-LOCAL-RELEASE-PACKAGE` is the current
+general-engine release root; the crosswalk retains unmet PS09 obligations.
+Neither that implementation requirement nor a source
 qualification gap means the owner must repeat the adopted blanket direction.
 
 D-087 accepts both former open choices: county/municipal discovery without a
@@ -122,7 +129,8 @@ is complete at implementation commit `8dc3985`. Its read-only command passes
 declared roots total 558,104,040 bytes. The hypothetical forecast correctly
 refuses because the included C: support volume is below the 20 GiB disk floor;
 this is not an I: shortage and does not block GD-31/GD-32 preparation. Both
-successors are ready, with GD-31 next and zero active work items.
+GD-31 is in progress preparing successor contracts and the release crosswalk;
+GD-32 is ready and remains the next bounded task after that checkpoint.
 GD-33 full nationwide survey is also ready. The full A3 restore/replay
 demonstration remains future acceptance work.
 

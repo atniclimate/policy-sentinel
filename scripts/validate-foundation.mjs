@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { assertSourceRegistrySemantics } from "../src/pipeline/source-registry.mjs";
+import { parseDevelopmentAuthority } from "../src/core/development-authority.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const readJson = async (path) =>
@@ -13,6 +14,7 @@ const taxonomyBundleSchema = await readJson(
   "schemas/taxonomy-bundle.schema.v1.json",
 );
 const recordSchema = await readJson("schemas/record.schema.v1.json");
+const developmentAuthoritySchema = await readJson("schemas/development-authority.schema.v1.json");
 const sourceSchema = await readJson("schemas/source.schema.v1.json");
 const assertionSchema = await readJson("schemas/assertion.schema.v1.json");
 const lifecycleSchema = await readJson("schemas/lifecycle.schema.v1.json");
@@ -63,6 +65,7 @@ for (const [name, schema] of [
   ["taxonomy schema", taxonomySchema],
   ["taxonomy bundle schema", taxonomyBundleSchema],
   ["record schema", recordSchema],
+  ["development authority preparation schema", developmentAuthoritySchema],
   ["source schema", sourceSchema],
   ["assertion schema", assertionSchema],
   ["lifecycle schema", lifecycleSchema],
@@ -91,6 +94,16 @@ for (const [name, schema] of [
 }
 
 ajv.addSchema(recordSchema);
+ajv.compile(developmentAuthoritySchema);
+for (const preparationPath of [
+  "fixtures/development/authority.synthetic.valid.json",
+  "docs/development/gd31-operation-packets.v1.json",
+]) {
+  // Fixed fixture clock; blocked real preparation rows assert no current review.
+  parseDevelopmentAuthority(await readFile(resolve(root, preparationPath), "utf8"), {
+    now: "2026-10-07T00:00:00Z",
+  });
+}
 const validateAnalyzedCorpus = ajv.compile(analyzedCorpusSchema);
 ajv.compile(analyzedCorpusV2Schema);
 if (typeof validateAnalyzedCorpus !== "function") {
@@ -978,7 +991,7 @@ if (!historicalPolicyRejected) {
 negativePolicyChecks += 1;
 
 console.log(
-  `Foundation validation passed: 19 schemas, ${taxonomy.categories.length} categories, ` +
+  `Foundation validation passed: 20 schemas, ${taxonomy.categories.length} categories, ` +
     `${taxonomy.categories.reduce((count, category) => count + category.subcategories.length, 0)} subcategories, ` +
     `${fixtureNames.length} valid fixtures, ${negativePolicyChecks} negative policy checks, ` +
     `${s0ValidFixtureChecks} valid plus ${s0InvalidFixtureChecks} invalid S0 fixture checks, ` +

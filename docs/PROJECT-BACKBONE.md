@@ -1,5 +1,12 @@
 # Policy Sentinel project backbone
 
+Current execution contract: schema 1.11, GD-27 current local release root.
+The [GD-31 crosswalk](development/gd31-release-acceptance-crosswalk.md) accounts
+for retained PS09 claims, every Part B capability and A1-A4. The
+[successor preparation contract](architecture/gd31-successor-contracts.md) and
+[finite blocked packets](development/gd31-operation-packets.md) do not dispatch
+or complete a release. `ROADMAP.yaml` owns active state and next work.
+
 Current plan (2026-10-06): [development revision](decisions/2026-10-06-development-plan-revision.md)
 under D-086, with its [next-session handoff](handoffs/2026-10-06-development-realignment-next-session.md)
 and [adversarial review](audits/2026-10-06-development-plan-adversarial-review.md).
@@ -82,8 +89,9 @@ support remains later-compatible.
 The exact PS09 Run 2 local synthetic identity, authority and candidate-manifest
 packet is validated. Full PS09-02 remains blocked on originating evidence and
 scenario acceptance, independently of authorized general-jurisdiction work.
-`PS09-06-LOCAL-RC` is the sole local release root and single product
-prerequisite for later separately authorized public beta operations. Historical
+`PS09-06-LOCAL-RC` is the frozen historical release root. GD-27 now owns
+current local acceptance, with unmet PS09 claims retained by GD-53. General-engine
+publication remains ungranted and needs its own successor operation contract. Historical
 B/PNW/real-source finish scopes are archived evidence. The
 [corpus ADR](adr/ps09-canonical-corpus.md),
 [component disposition registry](development/ps09-convergence.v1.json), and
@@ -282,7 +290,7 @@ telemetry, browser-side AI, or outbound notifications.
 | PNW-05 | Archived broad parent retains its ready/non-complete status; that state is not current execution authority or an additional release prerequisite |
 | Local real-source prerelease child lane | blocked at Federal Register Tier-1 qualification after the consumed R7 digest drift; lifecycle contract, narrow `PNW-07-GENERAL-JURISDICTION-ANALYZED-CORPUS-PROJECTION`, portfolio discovery, observer cleanup, and terminal custody are complete; FR-A1 remains closed and real inputs fail closed |
 | PNW-06 through PNW-10 | Broad parent items remain not started behind their recorded dependencies; similarly named prerelease children do not satisfy them |
-| Publication | Closed; the single PS09-06 local product root and exact license/remote/hosting/publication operations are prerequisites |
+| Publication | General-engine publication is closed; historical PS09 publication rows remain frozen evidence, not current authority. The separate demo exception retains its exact scope. |
 
 The completed `H-REPOSITORY-BACKBONE` alignment remains historical governance
 evidence. It does not introduce a release root or authorize further work.

@@ -39,25 +39,43 @@ if (document.errors.length > 0) {
 }
 
 const roadmap = document.toJS();
-const ps09 = ["1.5", "1.6", "1.7", "1.8", "1.9", "1.10"].includes(
+const ps09 = ["1.5", "1.6", "1.7", "1.8", "1.9", "1.10", "1.11"].includes(
   roadmap.schema_version,
 );
-const knowledgeAssurance = ["1.7", "1.8", "1.9", "1.10"].includes(
+const knowledgeAssurance = ["1.7", "1.8", "1.9", "1.10", "1.11"].includes(
   roadmap.schema_version,
 );
-const engineeringReview = ["1.8", "1.9", "1.10"].includes(
+const engineeringReview = ["1.8", "1.9", "1.10", "1.11"].includes(
   roadmap.schema_version,
 );
 // Schema 1.9 is an exact additive non-release representation of the non-PS09
 // Makah demo track. It admits no free-form identity: exactly the groundwork
 // and bounded-acquisition items and their two named gates, below.
-const makahDemo = ["1.9", "1.10"].includes(roadmap.schema_version);
+const makahDemo = ["1.9", "1.10", "1.11"].includes(roadmap.schema_version);
 // Schema 1.10 admits the non-release general-development graph by rule
 // (D-071), not by an enumerated identity list: milestone "General
 // development", work_class general_development_local, a decision_ref that
 // resolves to a decision-register row, and one of exactly four named gates.
 // Every other milestone keeps the frozen 1.9 identities below.
-const generalDevelopment = roadmap.schema_version === "1.10";
+// Schema 1.11 adds a current general-engine release graph. The PS09 scope,
+// items, gates, registry and finish record remain immutable historical evidence.
+// Successor public acquisition authority is conditional on a reviewed dispatch
+// manifest; roadmap readiness alone is never permission to contact a source.
+const generalEngineRelease = roadmap.schema_version === "1.11";
+const generalDevelopment = ["1.10", "1.11"].includes(roadmap.schema_version);
+const generalEngineReleaseRoot = "GD-27-LOCAL-RELEASE-PACKAGE";
+const generalEngineDemonstrations = [
+  "GD-49-DEMONSTRATION-A1",
+  "GD-50-DEMONSTRATION-A2",
+  "GD-51-DEMONSTRATION-A3",
+  "GD-52-DEMONSTRATION-A4",
+];
+const successorGateIds = [
+  "G-GD-SUCCESSOR-IMPLEMENTATION",
+  "G-GD-PUBLIC-ACQUISITION",
+  "G-GD-ATNI-LOCAL-ASSESSMENT",
+  "G-GD-LOCAL-RELEASE-ACCEPTANCE",
+];
 const generalDevelopmentMilestone = "General development";
 const generalDevelopmentWorkClass = "general_development_local";
 const generalDevelopmentGateIds = [
@@ -65,6 +83,7 @@ const generalDevelopmentGateIds = [
   "G-GD-NATIONWIDE-CONTRACT",
   "G-GD-INTEROP",
   "G-GD-PRIVATE-CONTEXT",
+  ...(generalEngineRelease ? successorGateIds : []),
 ];
 const isGeneralDevelopmentItem = (item) =>
   generalDevelopment && item?.milestone === generalDevelopmentMilestone;
@@ -846,6 +865,45 @@ const expectedGeneralDevelopmentScopes = new Map([
     },
   ],
 ]);
+const successorScopes = new Map([
+  [
+    "G-GD-SUCCESSOR-IMPLEMENTATION",
+    {
+      kind: "approved_general_engine_successor_implementation",
+      ...generalDevelopmentScopeInvariants,
+    },
+  ],
+  [
+    "G-GD-ATNI-LOCAL-ASSESSMENT",
+    {
+      kind: "approved_atni_local_synthetic_assessment",
+      ...generalDevelopmentScopeInvariants,
+    },
+  ],
+  [
+    "G-GD-PUBLIC-ACQUISITION",
+    {
+      kind: "approved_measured_public_acquisition",
+      ...generalDevelopmentScopeInvariants,
+      policy_acquisition_budget: {
+        total_managed_bytes: 50_000_000_000,
+        dispatch_requires_reviewed_manifest: true,
+      },
+      policy_source_activation: true,
+      source_review_required: true,
+      external_storage_required: true,
+      source_specific_external_gates_preserved: true,
+    },
+  ],
+  [
+    "G-GD-LOCAL-RELEASE-ACCEPTANCE",
+    {
+      kind: "general_engine_local_release_acceptance",
+      ...generalDevelopmentScopeInvariants,
+      release_authority: true,
+    },
+  ],
+]);
 for (const item of workItems) {
   if (
     !generalDevelopment &&
@@ -915,6 +973,32 @@ if (generalDevelopment) {
       fail(`general-development gate is missing: ${id}`);
     }
     requireDecisionRef(gate.decision_ref, `general-development gate ${id}`);
+    if (generalEngineRelease && !successorGateIds.includes(id)) {
+      requireExactValue(
+        gate.state,
+        ["G-GENERAL-DEV-01", "G-GD-PRIVATE-CONTEXT"].includes(id)
+          ? "approved"
+          : "closed",
+        `preserved general-development gate ${id} state`,
+      );
+    }
+    if (generalEngineRelease && successorGateIds.includes(id)) {
+      requireExactValue(
+        JSON.stringify(canonicalValue(gate.scope)),
+        JSON.stringify(canonicalValue(successorScopes.get(id))),
+        `successor gate ${id} scope`,
+      );
+      if (!["D-086", "D-087"].includes(gate.decision_ref)) {
+        fail(`successor gate ${id} must reference D-086 or D-087`);
+      }
+      if (!["approved", "satisfied"].includes(gate.state)) {
+        requireString(
+          gate.unblocks_only_when,
+          `successor gate ${id}.unblocks_only_when`,
+        );
+      }
+      continue;
+    }
     if (["approved", "satisfied"].includes(gate.state)) {
       const scope = requireObject(
         gate.scope,
@@ -954,12 +1038,26 @@ if (generalDevelopment) {
   }
   const generalDevelopmentScope = requireExactKeys(
     roadmap.completion_scope.general_development,
-    ["accounting", "admission_rule", "decision_ref"],
+    generalEngineRelease
+      ? [
+          "accounting",
+          "admission_rule",
+          "decision_ref",
+          "release_root",
+          "required_outcomes",
+          "demonstration_outcomes",
+          "acceptance_gate",
+          "historical_release_root",
+          "acceptance_crosswalk",
+        ]
+      : ["accounting", "admission_rule", "decision_ref"],
     "general development completion scope",
   );
   requireExactValue(
     generalDevelopmentScope.accounting,
-    "non_release_local_development",
+    generalEngineRelease
+      ? "canonical_general_engine_local_release"
+      : "non_release_local_development",
     "general development accounting",
   );
   requireString(
@@ -1643,7 +1741,7 @@ const hasExactOrderedValues = (actual, expected) =>
 // 1.5 remains replayable historical accounting. The adopted real-policy run
 // makes identity acceptance an explicit release prerequisite, independent of
 // general-jurisdiction acquisition. No required outcome is removed.
-const ps09Dependencies = ["1.6", "1.7", "1.8", "1.9", "1.10"].includes(
+const ps09Dependencies = ["1.6", "1.7", "1.8", "1.9", "1.10", "1.11"].includes(
   roadmap.schema_version,
 )
   ? [[], [0], [0], [2], [2, 3], [1, 4], [4], [5]]
@@ -1676,6 +1774,7 @@ if (ps09) {
       ...(knowledgeAssurance ? ["knowledge_assurance"] : []),
       ...(engineeringReview ? ["engineering_review"] : []),
       ...(makahDemo ? ["makah_demo"] : []),
+      ...(generalEngineRelease ? ["general_development"] : []),
     ],
     "canonical finish states",
   );
@@ -3163,7 +3262,164 @@ const protectedReleaseRoots = [
   "B5-WA-RULES",
 ];
 let ps09ActionRoots = [];
-if (ps09) {
+let generalEngineActionRoots = [];
+if (generalEngineRelease) {
+  const scope = roadmap.completion_scope.general_development;
+  requireExactValue(
+    scope.release_root,
+    generalEngineReleaseRoot,
+    "general engine release root",
+  );
+  requireExactValue(
+    scope.historical_release_root,
+    ps09Ids[5],
+    "general engine historical root",
+  );
+  requireExactValue(
+    scope.acceptance_gate,
+    "G-GD-LOCAL-RELEASE-ACCEPTANCE",
+    "general engine acceptance gate",
+  );
+  requireExactValue(
+    scope.acceptance_crosswalk,
+    "docs/development/gd31-release-acceptance-crosswalk.md",
+    "general engine acceptance crosswalk",
+  );
+  await access(resolve(root, scope.acceptance_crosswalk));
+  const required = generalDevelopmentItemIds.filter(
+    (id) => id !== "GD-28-DEMO-MAINTENANCE-VALIDATION",
+  );
+  requireExactOrderedValues(
+    requireUniqueStrings(
+      scope.required_outcomes,
+      "general engine required outcomes",
+    )
+      .slice()
+      .sort(),
+    [...required].sort(),
+    "general engine required outcomes",
+  );
+  requireExactOrderedValues(
+    scope.demonstration_outcomes,
+    generalEngineDemonstrations,
+    "general engine demonstrations",
+  );
+  const release = byId.get(generalEngineReleaseRoot);
+  if (!release) fail("general engine release root is missing");
+  requireExactValue(
+    release.authorization_gate,
+    scope.acceptance_gate,
+    "general engine release authorization gate",
+  );
+  const closure = new Set();
+  const collectDependencies = (id) => {
+    if (closure.has(id)) return;
+    closure.add(id);
+    for (const dependency of byId.get(id).dependencies)
+      collectDependencies(dependency);
+  };
+  collectDependencies(generalEngineReleaseRoot);
+  for (const id of required) {
+    if (!closure.has(id))
+      fail(`general engine release dependency closure omits ${id}`);
+  }
+  for (const id of [
+    ...generalEngineDemonstrations,
+    "GD-48-PACKAGE-CANDIDATE",
+    "GD-53-PS09-ACCEPTANCE-CARRYFORWARD",
+  ]) {
+    if (!required.includes(id))
+      fail(`general engine required acceptance item is missing: ${id}`);
+  }
+  const finish = requireExactKeys(
+    roadmap.finish_states.general_development,
+    [
+      "release_root",
+      "current_state",
+      "blocked_by",
+      "satisfied_when",
+      "does_not_mean",
+    ],
+    "general engine finish state",
+  );
+  requireExactValue(
+    finish.release_root,
+    generalEngineReleaseRoot,
+    "general engine finish root",
+  );
+  if (!allowedFinishStates.has(finish.current_state))
+    fail("invalid general engine finish state");
+  requireUniqueStrings(finish.satisfied_when, "general engine satisfied_when");
+  requireUniqueStrings(finish.does_not_mean, "general engine does_not_mean");
+  generalEngineActionRoots = collectIncompleteOutcomeRoots(required);
+  const active = inProgress[0];
+  if (active && !required.includes(active.id))
+    fail(
+      "general engine execution cannot activate historical or optional work",
+    );
+  const ready = required
+    .map((id) => byId.get(id))
+    .filter((item) => item.status === "ready");
+  if (active && ready.some((item) => item.priority < active.priority))
+    fail("general engine must select the lowest-priority-number ready item");
+  if (active) {
+    requireExactValue(
+      finish.current_state,
+      "in_progress",
+      "active general engine finish",
+    );
+    requireExactValue(
+      roadmap.current_focus.terminal_reason,
+      null,
+      "active general engine terminal reason",
+    );
+    requireExactOrderedValues(
+      roadmap.current_focus.resumable_roots,
+      [active.id],
+      "active general engine resumable roots",
+    );
+  } else {
+    requireString(
+      roadmap.current_focus.terminal_reason,
+      "general engine checkpoint reason",
+    );
+    requireExactOrderedValues(
+      roadmap.current_focus.resumable_roots,
+      generalEngineActionRoots,
+      "general engine checkpoint resumable roots",
+    );
+  }
+  const accepted = gateById.get(scope.acceptance_gate).state === "satisfied";
+  const complete = finish.current_state === "complete";
+  if (complete !== (release.status === "complete") || complete !== accepted)
+    fail(
+      "general engine release completion requires matching root and acceptance gate",
+    );
+  if (
+    complete &&
+    (generalEngineActionRoots.length > 0 || inProgress.length > 0)
+  )
+    fail("general engine release complete with incomplete required outcomes");
+  if (finish.current_state === "blocked") {
+    if (
+      generalEngineActionRoots.length === 0 ||
+      generalEngineActionRoots.some((id) => byId.get(id).status !== "blocked")
+    )
+      fail("blocked general engine requires only blocked incomplete roots");
+    requireExactOrderedValues(
+      finish.blocked_by,
+      generalEngineActionRoots,
+      "general engine blockers",
+    );
+  } else {
+    requireExactOrderedValues(
+      finish.blocked_by,
+      [],
+      "non-blocked general engine blockers",
+    );
+  }
+}
+if (ps09 && !generalEngineRelease) {
   const finish = roadmap.finish_states.ps09;
   const requiredRoots = collectIncompleteOutcomeRoots(ps09Ids.slice(0, 6));
   const enabledConditionalIds = ps09Ids.slice(6).filter((id) => {
@@ -3601,15 +3857,19 @@ for (const [index, action] of nextActions.entries()) {
   }
   requireString(action.action, `${path}.action`);
 }
-const terminalActionRoots = ps09
-  ? ps09ActionRoots
-  : [
-      ...new Set([
-        ...terminalRequiredRoots,
-        ...terminalPnwRoots,
-        ...terminalLocalRealSourcePrereleaseRoots,
-      ]),
-    ].sort((left, right) => byId.get(left).priority - byId.get(right).priority);
+const terminalActionRoots = generalEngineRelease
+  ? generalEngineActionRoots
+  : ps09
+    ? ps09ActionRoots
+    : [
+        ...new Set([
+          ...terminalRequiredRoots,
+          ...terminalPnwRoots,
+          ...terminalLocalRealSourcePrereleaseRoots,
+        ]),
+      ].sort(
+        (left, right) => byId.get(left).priority - byId.get(right).priority,
+      );
 if (ps09 || terminalActionRoots.length > 0) {
   const nextActionIds = nextActions.map((action) => action.work_item);
   const hasExactOrderedRoots =

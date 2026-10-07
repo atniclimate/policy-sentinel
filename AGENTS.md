@@ -60,8 +60,9 @@ remains unresolved and synthetic proof cannot complete all of PS09-02. The
 bounded packet is validated at [its terminal checkpoint](docs/handoffs/ps09-run-02-identity-authority-scenarios.md),
 with no active work or remaining execution grant. Run 1 remains complete.
 This approval does not authorize a later run or archived
-ready lane. `PS09-06-LOCAL-RC` is the sole local
-release root; retained B1-B10, PNW, and real-source prerelease statuses are
+ready lane. `PS09-06-LOCAL-RC` remains the frozen historical local
+release root; schema 1.11 represents GD-27 as the current general-engine root
+through the GD-31 claim crosswalk. Retained B1-B10, PNW, and real-source prerelease statuses are
 archived evidence, not parallel mandatory release graphs. Current PS09-03/04/05
 authority is limited to the adopted launch; PS09-06/07/08 and every operation
 outside that scope retain their exact owner gates. Earlier Gate A and tranche approvals
@@ -116,8 +117,8 @@ expanded regional coverage including Nevada, public intertribal resolutions,
 and already-authorized ATNI local interoperability assessment. Public-only
 instances follow software/source licenses; private/shared data and ATNI
 interoperability require applicable authorization and agreements. This planning
-session dispatches no acquisition. GD-31 must represent reviewed successor
-contracts and manifests before later dispatch under that adopted direction;
+session dispatches no acquisition. GD-31 represents reviewed successor
+preparation contracts and blocked manifests before later dispatch under that adopted direction;
 do not repurpose historical zero-budget gates or request the same blanket
 authorization again. Source qualification and separate ungranted external
 operations retain their actual boundaries.
@@ -130,6 +131,17 @@ its governmental or operational subject does not determine access. Annotations
 may guide explicit discovery requests but never become official evidence or
 silently transmit private research. Apply these rulings in reviewed successor
 contracts without reopening the owner's settled choices.
+
+Schema 1.11 represents the current local release root as
+`GD-27-LOCAL-RELEASE-PACKAGE` under D-086/D-087. The
+[claim crosswalk](docs/development/gd31-release-acceptance-crosswalk.md) preserves
+all unmet PS09 acceptance in GD-53; the historical PS09 objects and publication
+schedule remain frozen evidence. GD-48 prepares a candidate, while A1-A4 and
+all required outcomes precede GD-27 acceptance. Successor implementation,
+measured public acquisition and ATNI local assessment have distinct named
+gates; historical gates are unchanged. The
+[GD-31 packets](docs/development/gd31-operation-packets.md) allow no dispatch.
+No current general-engine publication or private-sharing operation is granted.
 
 - [`ROADMAP.yaml`](ROADMAP.yaml) remains the canonical ledger, and the Markdown
   documents remain the binding product and acceptance contracts. Before

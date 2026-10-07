@@ -8,8 +8,10 @@ and artifact behavior. They are not renamed as the analyzed corpus.
 the explicit 1.1 exact-fixture compatibility profile now supplies the ordinary
 build's three records. The [corpus ADR](adr/ps09-canonical-corpus.md) and
 [component dispositions](development/ps09-convergence.v1.json) define the single
-canonical path and exclusions. `PS09-06-LOCAL-RC` is the sole local release
-root; the historical schema families below do not impose a second graph.
+canonical path and exclusions. GD-27 is the current local release root under
+schema 1.11 and the [GD-31 crosswalk](development/gd31-release-acceptance-crosswalk.md).
+PS09-06 and the historical schema families below retain evidence without
+imposing a second current execution graph.
 
 The owner adopted the [real-policy launch](handoffs/ps09-real-policy-discovery-launch.md)
 prepared at `39d738a` for bounded local implementation, official acquisition,
@@ -62,6 +64,21 @@ not activate a source, authorize production data, integrate an additive module,
 or establish PNW completion.
 
 ### Implemented JSON Schemas
+
+`DevelopmentAuthorityPreparation 1.0.0` is a local preparation-only contract in
+[`development-authority.schema.v1.json`](../schemas/development-authority.schema.v1.json),
+ID `https://policy-sentinel.invalid/schemas/development-authority.schema.v1.json`.
+It has closed local definitions and no external `$ref`. The pure
+[`development-authority.mjs`](../src/core/development-authority.mjs) parser and
+assessment functions consume source, exchange and restriction specimens.
+Foundation strictly compiles the schema and validates the
+[`synthetic fixture`](../fixtures/development/authority.synthetic.valid.json)
+and [blocked real planning packet](development/gd31-operation-packets.v1.json).
+[`Focused tests`](../tests/pipeline/development-authority.test.mjs) exercise
+refusal, source eligibility, profile migration and independent restrictions.
+The [contract reference](architecture/gd31-successor-contracts.md) specifies
+compatibility. All roots forbid dispatch; this does not migrate retained
+PolicyRecord/artifact/source contracts or implement GD-16 peer exchange.
 
 The adopted run now implements the closed `AnalyzedCorpus 2.0.0` local contract
 in [its schema](../schemas/analyzed-corpus.schema.v2.json),

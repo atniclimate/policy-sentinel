@@ -8,6 +8,18 @@ Nation's interests.
 
 ## Project status
 
+Schema 1.11 represents GD-27 as the current local release root, with all
+remaining PS09 claims preserved in the
+[release crosswalk](docs/development/gd31-release-acceptance-crosswalk.md).
+GD-31 adds [tested preparation contracts](docs/architecture/gd31-successor-contracts.md)
+and [finite blocked source/API packets](docs/development/gd31-operation-packets.md).
+`npm run test:development-authority` runs their offline refusal and compatibility
+tests and is included in `npm test`. Preparation cannot dispatch, share or publish.
+
+`npm run test:spine` serializes its three test files to avoid competing Windows
+native custody probes. Assertions, process isolation and operation timeouts stay
+unchanged; `npm test` includes the same suite.
+
 Current general-development work is recorded in [ROADMAP.yaml](ROADMAP.yaml).
 The separately authorized public demonstration and its maintenance evidence are
 recorded in [Live demo status](docs/DEMO-STATUS.md). The engineering-review
@@ -176,7 +188,8 @@ The authorized 0.9 Run 1 has completed repository convergence and a minimal
 local synthetic corpus/citation spine. Its exact acceptance evidence is in
 [`ROADMAP.yaml`](ROADMAP.yaml) and the
 [Run 1 handoff](docs/handoffs/ps09-run-01-convergence.md). Its historical grant is
-complete. `PS09-06-LOCAL-RC` is the single local release root; B1-B10, PNW, and
+complete. `PS09-06-LOCAL-RC` is the frozen historical release root; the current
+GD-27 root carries its unmet claims through GD-53. B1-B10, PNW, and
 the exhausted real-source child lane retain historical evidence without
 creating additional release roots.
 

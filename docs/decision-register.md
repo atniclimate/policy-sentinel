@@ -8,7 +8,14 @@ implementation facts may be resolved with dated primary evidence, but their
 resolution must be recorded here and in affected versioned configuration.
 Source-specific blockers do not block unrelated sources.
 
-Current product-space interpretation: PS09 convergence, retained Run 2 synthetic
+Current product-space interpretation: D-086/D-087 successor preparation is
+represented by roadmap schema 1.11 and the
+[GD-31 acceptance crosswalk](development/gd31-release-acceptance-crosswalk.md).
+GD-27 is the current general-engine local release root. This implements the
+recorded migration direction; it supplies no release acceptance or new owner
+decision. Historical decisions retain their original wording and scope.
+
+Historical product-space interpretation: PS09 convergence, retained Run 2 synthetic
 evidence, the adopted bounded real-policy implementation launch in D-067, and
 the separate non-PS09 Makah demo track under D-068 and D-069. Dated source
 evidence and earlier decisions retain their recorded review dates and scope;
@@ -26,7 +33,7 @@ R7 evidence block. The completed historical token is
 the exact approved local synthetic contract/manifest packet is now validated,
 with no active work or further execution grant.
 Run 1 remains validated; required real identity/scenario evidence is unresolved.
-`PS09-06-LOCAL-RC` is the sole local release root; old B/PNW/prerelease finish
+`PS09-06-LOCAL-RC` is the historical local release root; old B/PNW/prerelease finish
 scopes retain archived evidence.
 
 On 2026-09-05 the owner instructed execution of the full

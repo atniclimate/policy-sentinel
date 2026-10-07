@@ -1,0 +1,55 @@
+{
+  "$schema": "https://policy-sentinel.invalid/schemas/development-authority.schema.v1.json",
+  "schemaVersion": "1.0.0",
+  "kind": "source_preparation",
+  "id": "synthetic-preparation",
+  "decisionRefs": ["D-086", "D-087"],
+  "synthetic": true,
+  "dispatchAllowed": false,
+  "storage": {
+    "managedLimitBytes": 50000000000,
+    "maxRunBytes": 10737418240,
+    "minFreeBytes": 21474836480,
+    "managedBytes": 1000000,
+    "peakAdditionalBytes": 4000000,
+    "freeBytes": 100000000000,
+    "allManagedRootsInventoried": true,
+    "measurementRefs": ["synthetic-storage-receipt"]
+  },
+  "sources": [
+    {
+      "sourceId": "synthetic-county",
+      "authorityClass": "county",
+      "access": "public",
+      "jurisdictionIds": ["us-county:53033"],
+      "family": "ordinance",
+      "officialUrls": ["https://county.example.invalid/ordinances"],
+      "interfaces": ["html"],
+      "dateWindow": {
+        "from": "2025-01-01",
+        "through": "2026-10-07"
+      },
+      "bounds": {
+        "requests": 4,
+        "retries": 1,
+        "maxBytes": 1000000,
+        "maxBytesPerRequest": 250000,
+        "requestsPerMinute": 6,
+        "timeoutMs": 30000,
+        "concurrency": 1
+      },
+      "review": {
+        "state": "reviewed_preparation",
+        "evidenceRefs": [
+          "synthetic-authority-review",
+          "synthetic-reuse-review"
+        ],
+        "expiresAt": "2026-11-01T00:00:00Z",
+        "blockReasons": []
+      },
+      "reuseReview": "metadata_only",
+      "outputFields": ["sourceId", "sourceUrl", "title", "status", "dates"],
+      "custodyNamespace": "synthetic-successor-preparation"
+    }
+  ]
+}

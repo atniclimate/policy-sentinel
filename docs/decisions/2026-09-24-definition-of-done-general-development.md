@@ -11,6 +11,12 @@ The name "1.0 local" means a versioned, self-contained local deployment. It
 is not a public release, a remote publication, or a hosted service; those
 remain separate decisions.
 
+The [GD-31 acceptance crosswalk](../development/gd31-release-acceptance-crosswalk.md)
+maps every Part B capability and A1-A4 demonstration to the current schema 1.11
+graph rooted at GD-27. GD-48 produces a package candidate; it cannot complete
+the release without the demonstrations and unresolved historical claims.
+This representation does not change the acceptance standard below.
+
 ## Part A. Demonstrations (acceptance evidence)
 
 1.0 is done when all four have been performed and recorded with dates,

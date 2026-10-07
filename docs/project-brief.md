@@ -49,8 +49,10 @@ That bounded packet is now validated at [its checkpoint](handoffs/ps09-run-02-id
 with no remaining work under that historical grant. Run 1's synthetic corpus spine remains validated. Required real identity and
 scenario evidence is unresolved; synthetic proof does not complete PS09-02.
 PS09-03/04/05 completed the adopted general-jurisdiction slice independently;
-PS09-02 remains an explicit prerequisite of the still-gated sole local release
-root, `PS09-06-LOCAL-RC`. Other later-run and external gates retain their scope.
+PS09-02 remains an unmet historical release prerequisite. Schema 1.11 carries
+its claims into GD-53 and the current GD-27 local release root through the
+[GD-31 crosswalk](development/gd31-release-acceptance-crosswalk.md).
+Historical PS09 and other external gates retain their scope.
 B1-B10, PNW, and the exhausted 2026-09-03 real-source child lane retain
 archived evidence without imposing another release graph. Real public-source
 use is intended product capability, with source-specific admission, operation,
@@ -299,6 +301,12 @@ occurred; and the owner receives one explicit Phase B approval gate.
 
 ### Single local 0.9 release candidate
 
+This subsection records the retained historical acceptance. Current 1.0 local
+acceptance is the [owner definition](decisions/2026-09-24-definition-of-done-general-development.md)
+and [GD-31 claim crosswalk](development/gd31-release-acceptance-crosswalk.md),
+represented by GD-27. Every unresolved historical claim survives in GD-53;
+the package candidate and independent demonstrations are separate work items.
+
 `PS09-06-LOCAL-RC` is complete only when the accepted scope in
 [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md) passes: the bounded
 cohort and scenarios, real-source evidence and operation gates, immutable
@@ -311,9 +319,11 @@ mandatory release roots. Run 1 does not complete this six-run target.
 
 ### Published application
 
-The public beta has one product prerequisite, the converged
+The retained public-beta contract below has the historical prerequisite
 `PS09-06-LOCAL-RC`, followed by separately authorized license, remote, hosting,
-and publication operations and public-profile review. It is done only when:
+and publication operations and public-profile review. It supplies no current
+general-engine publication authority; a successor output operation must be
+represented separately. Its retained historical acceptance is satisfied only when:
 
 1. if the retained federal-recognition collection is published, its exact
    575-identity compatibility contract and current recognition evidence pass;
