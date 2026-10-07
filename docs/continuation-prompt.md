@@ -5,11 +5,37 @@ D-083/D-084. Recover [its current status](DEMO-STATUS.md) before demo work. The
 local-only historical grants below retain their own scope; they neither revoke
 that demo exception nor authorize new acquisition or general-engine publication.
 
-Updated 2026-09-22. This is the single current-state document for Policy
-Sentinel. `AGENTS.md` holds the rules; this file holds where the project is,
+General-engine state updated 2026-09-22; startup routing amended 2026-10-06
+under D-085. `AGENTS.md` holds the rules; this file holds where the engine is,
 what to read, and what a fresh session does first. Historical launch, cutoff
 and outcome documents remain preserved; their execution grants do not resume
 through this file.
+
+## Scope-specific startup context
+
+General-engine work, shared extractor work, ledger graph changes, and uncertain
+or mixed scope require the complete `ROADMAP.yaml` and the full ordered context
+below. Shared code stays on this route even when its caller is the demo. Branch
+names and the hook's five-action summary do not determine task scope.
+
+For a task confined to the existing demo surface, read applicable instructions,
+`docs/DEMO-STATUS.md`, the explicitly selected plan and matching recovery handoff,
+and the following complete closure from the full YAML:
+
+1. Current focus and terminal reason, plus the explicitly selected work item.
+2. Every dependency recursively by item ID, every referenced authorization gate
+   and decision (including D-083/D-084 for the demo exception), and the complete
+   acceptance, evidence and blocker fields for those items.
+3. The task's allowed and protected paths, validation obligations, and exact
+   current authority. A completed or unselected demo record does not supply a
+   new active task or reopen a completed grant.
+
+If references are missing, authority or current state is inconsistent, or the
+closure or scope is uncertain, complete the full read before implementation.
+Full reading does not itself resolve an authority conflict. Both routes retain
+the existing full-ledger validators before repository edits and every substantive
+source, privacy, publication and acceptance gate. This rule reduces context only
+for narrow demo work; it does not reduce validation or authorize new work.
 
 ## Current state (2026-09-22): general development
 
@@ -21,8 +47,8 @@ States) treated as a core capability, not an extension.
 The realignment session on branch `realign/general-development` (commits
 `fff7990` audit, `20d0056` design, `6eb8947` realignment, plus a ledger
 follow-up) produced three documents; the owner then ruled on their open
-questions and added directions. Read, in this order, before any
-implementation:
+questions and added directions. For the full-context route, read in this order
+before implementation:
 
 1. `ROADMAP.yaml` (the canonical ledger; read it completely).
 2. `docs/audits/2026-09-22-general-dev-audit.md`: the code as it actually is,
@@ -63,11 +89,16 @@ geometry dependency).
 ## What a fresh session does first
 
 1. Confirm the checkout: `git branch --show-current`, `git rev-parse HEAD`,
-   `git status --short`. Compare against the last session handoff under
-   `docs/handoffs/`.
+   `git status --short`. Compare against the explicitly selected plan and the
+   matching surface's current handoff. For October demo work, start with
+   `docs/DEMO-STATUS.md` and any private recovery explicitly selected by the
+   current task or its plan;
+   for general-engine work use the selected ledger item and corresponding
+   handoff. Do not choose a plan by filename date or resume a completed grant.
 2. Run `npm run validate:roadmap` and `npm run validate:backbone`. Both must
    pass before any edit; if one fails, the failure is the first finding.
-3. Read the documents in the order above.
+3. Follow the scope-specific startup context rule above. Shared extractor,
+   general-engine, ledger graph and uncertain or mixed work take the full route.
 4. Select work only from the ledger, under the rules in `AGENTS.md`
    ("Durable execution ledger"). A design document, an addendum or a handoff
    is not an execution grant.

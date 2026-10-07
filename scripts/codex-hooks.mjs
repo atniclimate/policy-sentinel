@@ -2308,7 +2308,8 @@ export const buildSessionContext = ({ roadmap, validation, head, status }) => {
     `- status counts: ${JSON.stringify(statusCounts)}`,
     `- next actions: ${nextActions || "none"}`,
     `- closed external boundaries: ${closedBoundaries || "none recorded"}`,
-    "- before implementation, read AGENTS.md and ROADMAP.yaml completely; Git and the validated ledger outrank chat memory.",
+    "- Before implementation, read AGENTS.md and follow the continuation prompt's scope-specific context rule. The hook summary is not a complete dependency, gate, acceptance or evidence closure.",
+    "- General-engine work, shared extractor work, ledger graph changes, and uncertain or mixed scope require the full context. A completed or unselected demo record does not supply a new active task.",
   ].join("\n");
 };
 

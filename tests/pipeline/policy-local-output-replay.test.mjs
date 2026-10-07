@@ -8,7 +8,7 @@
 // this file, and no external custody namespace is read or written.
 import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { lstat, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -36,6 +36,7 @@ import {
   writeLocalOutput,
 } from "../../src/pipeline/policy-local-output.mjs";
 import { syntheticCorpusV2Input } from "./analyzed-corpus-v2.test.mjs";
+import { mockPolicyFilesystem } from "../helpers/policy-filesystem-observations.mjs";
 
 function evidenceFor(
   capture,
@@ -321,6 +322,9 @@ async function buildSyntheticOnlyRoot(t) {
 }
 
 test("replayReviewedCorpus, writeLocalOutput, readLocalOutput and localCorpusBytes reproduce a reviewed run built with initializePolicyRun and admitPolicyTargets", async (t) => {
+  mockPolicyFilesystem(t, {
+    availableBytes: POLICY_LIMITS.freeBytes + POLICY_LIMITS.runBytes,
+  });
   const fixture = await buildRunFixture(t);
   const replay = await replayReviewedCorpus(fixture.root, { name: "gold" });
   assert.equal(replay.custody.valid, true);
@@ -380,6 +384,28 @@ test("replayReviewedCorpus, writeLocalOutput, readLocalOutput and localCorpusByt
       { name: "gold" },
     ),
     /OUTPUT_ASSET_CONFLICT/,
+  );
+});
+
+test("writeLocalOutput refuses low capacity before creating output or its pointer", async (t) => {
+  const fixture = await buildRunFixture(t);
+  const replay = await replayReviewedCorpus(fixture.root, { name: "gold" });
+  mockPolicyFilesystem(t, { availableBytes: POLICY_LIMITS.freeBytes });
+  await assert.rejects(
+    writeLocalOutput(
+      fixture.root,
+      replay.corpus,
+      new Map([["index.html", Buffer.from("<main>Synthetic output</main>")]]),
+      { name: "gold" },
+    ),
+    /DISK_BUDGET_EXHAUSTED/,
+  );
+  await assert.rejects(lstat(join(fixture.root, "local-output")), {
+    code: "ENOENT",
+  });
+  await assert.rejects(
+    lstat(join(fixture.root, "review", "local-output-current.json")),
+    { code: "ENOENT" },
   );
 });
 
@@ -502,6 +528,9 @@ test("writeLocalOutput fails closed on a tampered review seal", async (t) => {
 });
 
 test("readLocalOutput fails closed on a non-real-source-local run, a tampered pointer, manifest digest and served file bytes", async (t) => {
+  mockPolicyFilesystem(t, {
+    availableBytes: POLICY_LIMITS.freeBytes + POLICY_LIMITS.runBytes,
+  });
   const synthetic = await buildSyntheticOnlyRoot(t);
   await assert.rejects(readLocalOutput(synthetic), /REAL_LOCAL_RUN_REQUIRED/);
 

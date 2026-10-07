@@ -1584,6 +1584,78 @@ test("SessionStart context is bounded recovery state, not transcript content", (
   assert.match(context, /current focus: H-HOOKS/u);
   assert.match(context, /HEAD: abc123/u);
   assert.doesNotMatch(context, /last_assistant_message|transcript_path/u);
+  assert.ok(
+    context.includes(
+      "Before implementation, read AGENTS.md and follow the continuation prompt's scope-specific context rule. The hook summary is not a complete dependency, gate, acceptance or evidence closure.",
+    ),
+  );
+});
+
+test("recovery summaries preserve full-context fallbacks without granting task authority", () => {
+  for (const [title, itemStatus] of [
+    ["Narrow demo CSS", "in_progress"],
+    ["Shared extractor used by demo", "in_progress"],
+    ["Ledger graph change", "in_progress"],
+    ["General-engine work", "in_progress"],
+    ["Ambiguous mixed demo and engine work", "in_progress"],
+    ["Completed demo record", "complete"],
+    ["Unselected demo record", "ready"],
+  ]) {
+    const context = buildSessionContext({
+      roadmap: {
+        ...closedRoadmap,
+        current_focus: {
+          work_item: itemStatus === "in_progress" ? "DEMO-LABEL" : null,
+        },
+        work_items: [
+          {
+            id: "DEMO-LABEL",
+            title,
+            status: itemStatus,
+            dependencies: ["SIXTH"],
+          },
+        ],
+        next_actions: [
+          "FIRST",
+          "SECOND",
+          "THIRD",
+          "FOURTH",
+          "FIFTH",
+          "SIXTH",
+        ].map((work_item, index) => ({ order: index + 1, work_item })),
+      },
+      validation: { ok: true, detail: "" },
+      head: "abc123",
+      status: "",
+    });
+    assert.ok(
+      context.includes(
+        "General-engine work, shared extractor work, ledger graph changes, and uncertain or mixed scope require the full context. A completed or unselected demo record does not supply a new active task.",
+      ),
+      title,
+    );
+    assert.ok(
+      context.includes(
+        "The hook summary is not a complete dependency, gate, acceptance or evidence closure.",
+      ),
+      title,
+    );
+    assert.match(
+      context,
+      /closed external boundaries: EXT-GITHUB, EXT-CREDENTIALS, EXT-NOTIFY/u,
+    );
+    assert.doesNotMatch(
+      context,
+      /SIXTH/u,
+      "the bounded summary still omits later actions",
+    );
+    assert.match(
+      context,
+      itemStatus === "in_progress"
+        ? /current focus: DEMO-LABEL/u
+        : /current focus: none/u,
+    );
+  }
 });
 
 test("the command hook emits valid deny JSON and stays silent when allowing", () => {

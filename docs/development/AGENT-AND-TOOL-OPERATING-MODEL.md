@@ -15,9 +15,19 @@ successor tranche or reopen a consumed source operation.
 
 ## Operating rules
 
-1. Start from the live repository. Read every applicable `AGENTS.md`, read the
-   roadmap completely, and reconcile the branch, HEAD, status, worktrees,
-   remotes, relevant history, gates, and protected evidence before mutation.
+1. Start from the live repository. Read every applicable `AGENTS.md` and follow
+   the continuation prompt's scope-specific context rule. General-engine work,
+   shared extractor work, ledger graph changes, and uncertain or mixed scope
+   require the complete roadmap and full ordered context. Narrow demo work
+   requires current focus and terminal reason, the explicitly selected item's
+   complete recursive dependency, gate, decision, acceptance, evidence and
+   blocker closure, applicable instructions, `docs/DEMO-STATUS.md` and the
+   selected handoff. Missing references or inconsistent authority take the full
+   route; completed or unselected records cannot start work. Run full-ledger
+   validators before repository edits. Reconcile the branch, HEAD, status,
+   worktrees, remotes, relevant history, gates, and protected evidence before
+   mutation, using the selected plan and matching surface handoff rather than
+   filename dates.
 2. Name one bounded capability or evidence question. Record its starting and
    terminal states, exact authority, allowed paths, protected paths,
    dependencies, fixtures, tests, and stop conditions.

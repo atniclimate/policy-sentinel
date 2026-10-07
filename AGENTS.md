@@ -11,9 +11,11 @@ resumes through this file.
 Phase (2026-09-22): general development. The Makah demo track is finished and
 its material stays where it is by owner ruling. Nationwide coverage (Tribal,
 federal and state sources across the United States) is a core capability of
-the general engine. Before any implementation, read
+the general engine. Before implementation, read
 [`docs/continuation-prompt.md`](docs/continuation-prompt.md) and follow its
-read order, which covers the
+scope-specific context rule below. General-engine work, shared extractor work,
+ledger graph changes, and uncertain or mixed scope require the full read order,
+which covers the
 [general development audit](docs/audits/2026-09-22-general-dev-audit.md), the
 [module boundaries design](docs/architecture/module-boundaries.md), the
 [general development addendum](docs/architecture/general-development-addendum-2026-09-22.md),
@@ -107,10 +109,22 @@ concurrent changes.
 
 ## Durable execution ledger
 
-- Read [`ROADMAP.yaml`](ROADMAP.yaml) completely at the start of every
-  implementation session. It is the canonical ledger for current status,
-  dependencies, evidence, blockers, and the course through finish. The
-  Markdown documents remain the binding product and acceptance contracts.
+- [`ROADMAP.yaml`](ROADMAP.yaml) remains the canonical ledger, and the Markdown
+  documents remain the binding product and acceptance contracts. Before
+  general-engine work, shared extractor work, ledger graph changes, or work with
+  uncertain or mixed scope, read the complete roadmap and the continuation
+  prompt's full required context. For a task confined to the existing demo
+  surface, read the applicable instructions, current focus and terminal reason,
+  the explicitly selected item's full dependency and authorization-gate closure,
+  acceptance, evidence and blockers, the relevant decision rows, and
+  `docs/DEMO-STATUS.md` plus the explicitly selected handoff. Resolve that closure
+  from the full YAML by item ID, recursively following every dependency and
+  reading every referenced gate and decision. A completed or unselected demo
+  record does not supply a new active task. Run the existing full-ledger
+  validators before repository edits. If this scoped read reveals inconsistent
+  authority, dependencies or current state, missing references or uncertain
+  closure, complete the full read before implementation. Do not treat a
+  truncated summary as the dependency or evidence closure.
 - Reconcile roadmap claims with Git, tests, artifacts, browser checks, and
   current primary-source evidence. A checkbox, scaffold, or agent report is not
   completion evidence.

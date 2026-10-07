@@ -10,10 +10,22 @@ notes.
 
 ## Start of session
 
-- Read `docs/continuation-prompt.md` first, then `ROADMAP.yaml` completely, then
-  the read order the continuation prompt gives.
+- Read `docs/continuation-prompt.md` first and follow its scope-specific context
+  rule. General-engine work, shared extractor work, ledger graph changes, and
+  uncertain or mixed scope require the complete roadmap and full read order. A
+  task confined to the existing demo surface requires the selected item's full
+  recursive dependency, gate, decision, acceptance, evidence and blocker
+  closure, current focus and terminal reason, applicable instructions and demo
+  handoff. Missing references or inconsistent authority require the full-read
+  route.
 - Confirm the checkout (`git branch --show-current`, `git rev-parse HEAD`,
-  `git status --short`) against the latest handoff under `docs/handoffs/`.
+  `git status --short`) against the explicitly selected plan and the matching
+  surface's current handoff. For October demo work, start with
+  `docs/DEMO-STATUS.md` and any private recovery explicitly selected by the
+  current task or its plan; for general-engine work use the continuation
+  prompt's selected ledger item and corresponding handoff. Do not choose a plan
+  by filename date or resume a completed grant. A completed or unselected demo
+  record is not a new active task.
 - Run `npm run validate:roadmap` and `npm run validate:backbone` before any
   edit. A failure is the first finding, not something to work around.
 
@@ -28,8 +40,14 @@ the conversation.
 
 ## Git
 
-- Local only. No remote is configured and none may be created. No push, tag,
-  merge, rebase, amend, force, or `--no-verify`.
+- Use local Git for local work. External and history-changing actions remain
+  closed unless covered by exact current owner authority. Follow `AGENTS.md` and
+  D-083/D-084 for the existing demo exception; it does not authorize
+  general-engine publication or new source/account operations. Do not infer
+  publication authority from this startup file, a generic launch, or cached
+  branch labels. Preserve the recorded deny settings, the ban on `--no-verify`,
+  and no-force/no-history-rewrite boundaries. This amendment adds no authority
+  to create tags or alter remotes.
 - One commit per checkpoint. When a `ROADMAP.yaml` item changes status, run
   `npm run validate:roadmap` before that commit.
 - The main session is the only writer to the Git index. Subagents edit files;

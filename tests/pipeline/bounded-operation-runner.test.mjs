@@ -1,13 +1,14 @@
 import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
 import { spawnSync } from "node:child_process";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { lstat, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import process from "node:process";
 import test from "node:test";
 import {
   acquirePolicyObject,
   admitPolicyTargets,
+  digest,
   initializePolicyRun,
   isPublicAddress,
   openPolicyRun,
@@ -17,6 +18,7 @@ import {
   verifyPolicyRun,
   writePolicyDerived,
 } from "../../src/pipeline/policy-custody.mjs";
+import { mockPolicyFilesystem } from "../helpers/policy-filesystem-observations.mjs";
 
 export const runnerSyntheticManifest = () => ({
   version: "1.0.0",
@@ -94,6 +96,9 @@ const acquire = (root, extra = {}) =>
   });
 
 test("derived output confines reviewed namespaces and leaves acquisition accounting unchanged", async (t) => {
+  mockPolicyFilesystem(t, {
+    availableBytes: POLICY_LIMITS.freeBytes + POLICY_LIMITS.runBytes,
+  });
   const { root } = await fixture(t);
   const before = await readFile(join(root, "ledger.json"));
   const bytes = Buffer.from("Authored synthetic reviewed output");
@@ -132,6 +137,77 @@ test("derived output confines reviewed namespaces and leaves acquisition account
   );
   assert.deepEqual(await readFile(join(root, "ledger.json")), before);
   assert.equal((await verifyPolicyRun(root)).attempts, 0);
+});
+
+test("derived output enforces the post-write free-space floor", async (t) => {
+  const bytes = Buffer.from("Authored capacity boundary output");
+  for (const [label, margin, accepted] of [
+    ["above floor", 1, true],
+    ["exactly at floor", 0, true],
+    ["one byte below floor", -1, false],
+  ]) {
+    await t.test(label, async (context) => {
+      const { root } = await fixture(context);
+      const before = await verifyPolicyRun(root);
+      const ledger = await readFile(join(root, "ledger.json"));
+      mockPolicyFilesystem(context, {
+        availableBytes: POLICY_LIMITS.freeBytes + bytes.length + margin,
+      });
+      const relativePath = "local-output/capacity-boundary/result.txt";
+      const result = writePolicyDerived(root, relativePath, bytes);
+      if (accepted) {
+        assert.deepEqual(await result, {
+          path: relativePath,
+          digest: digest(bytes),
+          bytes: bytes.length,
+        });
+        assert.deepEqual(await readFile(join(root, relativePath)), bytes);
+        assert.equal(
+          (await verifyPolicyRun(root)).diskBytes,
+          before.diskBytes + bytes.length,
+        );
+      } else {
+        await assert.rejects(result, /DISK_BUDGET_EXHAUSTED/);
+        await assert.rejects(lstat(join(root, "local-output")), {
+          code: "ENOENT",
+        });
+        assert.equal((await verifyPolicyRun(root)).diskBytes, before.diskBytes);
+      }
+      assert.deepEqual(await readFile(join(root, "ledger.json")), ledger);
+    });
+  }
+});
+
+test("derived output independently refuses the run-byte ceiling with ample free space", async (t) => {
+  const { root } = await fixture(t);
+  const sentinel = join(root, "work", "authored-size-sentinel.txt");
+  const sentinelBytes = Buffer.from(
+    "Authored size observation, not a 10 GiB allocation",
+  );
+  await writeFile(sentinel, sentinelBytes);
+  const before = await verifyPolicyRun(root);
+  const ledger = await readFile(join(root, "ledger.json"));
+  // Only this existing authored file's size observation is injected. Real file
+  // types, all other sizes, custody, bytes and writes retain production behavior.
+  mockPolicyFilesystem(t, {
+    availableBytes: POLICY_LIMITS.freeBytes + POLICY_LIMITS.runBytes,
+    fileSizes: new Map([[sentinel, POLICY_LIMITS.runBytes]]),
+  });
+  await assert.rejects(
+    writePolicyDerived(
+      root,
+      "local-output/run-ceiling/result.txt",
+      Buffer.from("Rejected output"),
+    ),
+    /DISK_BUDGET_EXHAUSTED/,
+  );
+  await assert.rejects(lstat(join(root, "local-output")), { code: "ENOENT" });
+  assert.deepEqual(await readFile(sentinel), sentinelBytes);
+  assert.deepEqual(await readFile(join(root, "ledger.json")), ledger);
+  assert.equal(
+    (await verifyPolicyRun(root)).diskBytes,
+    before.diskBytes - sentinelBytes.length + POLICY_LIMITS.runBytes,
+  );
 });
 
 test("fragmented transport uses byte limits and receipt review never dispatches", async (t) => {
