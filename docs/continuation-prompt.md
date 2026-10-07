@@ -79,6 +79,8 @@ before implementation:
     `docs/development/gd31-operation-packets.md` and
     `docs/architecture/gd31-successor-contracts.md`: current release closure,
     blocked finite preparation manifests and synthetic boundary contracts.
+    Recover `docs/handoffs/2026-10-07-gd31-successor-contracts.md` for the
+    incomplete local checkpoint and exact validation failures.
 
 Historical foundation: general-development session 1 applied RL-01. The rulings are
 D-071 to D-079 in `docs/decision-register.md`, and the historical roadmap used schema
@@ -129,8 +131,14 @@ is complete at implementation commit `8dc3985`. Its read-only command passes
 declared roots total 558,104,040 bytes. The hypothetical forecast correctly
 refuses because the included C: support volume is below the 20 GiB disk floor;
 this is not an I: shortage and does not block GD-31/GD-32 preparation. Both
-GD-31 is in progress preparing successor contracts and the release crosswalk;
-GD-32 is ready and remains the next bounded task after that checkpoint.
+GD-31 is implemented and independently reviewed at local checkpoint `b6145f6`,
+but is not complete: full npm test repeatedly failed at unchanged Windows
+custody/native-probe deadlines under observed host contention. It is ready for
+validation recovery, with zero active items; do not redo the preparation work
+or infer completion from the 37 focused contract and 492 roadmap passes.
+The test:spine command now serializes its same three files without relaxing
+assertions or timeouts. Failed logs remain visible. GD-32 is ready and follows
+GD-31's acceptance; no source dispatch has occurred.
 GD-33 full nationwide survey is also ready. The full A3 restore/replay
 demonstration remains future acceptance work.
 

@@ -1079,15 +1079,35 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
+  work_item: null
   objective: >-
-    Implement GD-31 successor authority and operation preparation contracts,
-    compatibility tests and the explicit general-engine release crosswalk under
-    D-086/D-087. No source dispatch occurs in this preparation checkpoint.
-  terminal_reason: null
+    Resume GD-31 at required full validation, not implementation, then proceed
+    to GD-32 after acceptance. The reviewed preparation checkpoint dispatches no
+    source operation and does not complete GD-31 or the release.
+  terminal_reason: >-
+    Bounded incomplete checkpoint: implementation and independent review pass,
+    but full npm test repeatedly hit unchanged Windows native-probe deadlines
+    under observed host contention. Repeated broad attempts were stopped after
+    owner steering to proceed where validation is unnecessary. The required
+    full-suite prerequisite remains unsatisfied; GD-31 is ready for validation
+    recovery, not complete. No workers or validation processes remain active.
   resumable_roots:
     - GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
-  last_durable_checkpoint: 8dc3985e373aaf79d0e352eee8fe60284250ccd0
+    - GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
+    - GD-04-CORE-BOUNDARY-GUARD
+    - GD-05-INTAKE-REPLAY-AND-DISCOVERY
+    - GD-07-RESEARCH-OUTPUT-SPLIT
+    - GD-08-CONTEXT-RELEVANCE-EXTRACTION
+    - GD-09-JURISDICTION-IDENTIFIER-MODEL
+    - GD-22-NATION-REGISTRY-BINDING
+    - GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
+    - GD-40-GOVINFO-API-INTEGRATION
+    - GD-41-ECFR-API-INTEGRATION
+    - GD-42-CONGRESS-API-INTEGRATION
+    - GD-43-REGULATIONS-API-INTEGRATION
+    - GD-53-PS09-ACCEPTANCE-CARRYFORWARD
+    - GD-27-LOCAL-RELEASE-PACKAGE
+  last_durable_checkpoint: b6145f6c479fd36ca2cdfb1a896407a0ae9e33ba
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5874,7 +5894,7 @@ work_items:
     priority: 293
     milestone: General development
     title: Successor authority manifests and release acceptance crosswalk
-    status: in_progress
+    status: ready
     work_class: general_development_local
     decision_ref: D-086
     authorization_gate: G-GENERAL-DEV-01
@@ -8228,8 +8248,9 @@ next_actions:
   - order: 1
     work_item: GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
     action:
-      "Complete the reviewed successor contracts, operation preparations and
-      release-root migration; no dispatch in this checkpoint."
+      "Finish required full validation of the reviewed b6145f6 preparation
+      checkpoint in a quiet Windows test window; retain failed logs and do not
+      repeat implementation or dispatch sources."
   - order: 2
     work_item: GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
     action:

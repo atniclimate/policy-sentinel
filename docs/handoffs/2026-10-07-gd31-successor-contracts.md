@@ -2,6 +2,7 @@
 
 Date: 2026-10-07. Branch: `demo/live-pages`.
 Starting commit: `3ea56470b809e262bebf16227d51ceac26f73c6d`.
+Reviewed implementation checkpoint: `b6145f6c479fd36ca2cdfb1a896407a0ae9e33ba`.
 Checkpoint status: implementation prepared and independently reviewed; required
 full-suite validation remains incomplete. GD-31 must not be marked complete.
 
@@ -96,10 +97,20 @@ The pre-existing global formatting failure in ignored
 `npm run check` success must not be claimed. All 36 pre-existing owner files
 match the retained SHA-256 inventory. No UI or source-adapter behavior changed.
 
+Terminal receipt: `C:/dev/_scratch/policy-sentinel/gd31-2026-10-07/results-terminal.json`.
+Roadmap, backbone, source boundary and build/artifact checks all exit 0.
+Terminal ledger: 55 complete, zero active, 9 ready, 25 blocked, 2 deferred and
+44 not_started; GD-31 remains ready and incomplete. Final synthetic build:
+`synthetic-fe573cd218d22d5b4934`. All 36 protected hashes still match. This
+bookkeeping acceptance does not turn the failed full test run into a pass.
+
 ## Recovery and next work
 
 First finish GD-31's required full validation in a quiet Windows test window;
 do not repeat the preparation work or mark it complete from this handoff.
+The ledger returns GD-31 to ready for that validation recovery, with zero active
+items. All delegated leases are returned and the remaining-check process was
+stopped; this is an incomplete bounded checkpoint, not release acceptance.
 After GD-31 validates, GD-32 is the next lowest-priority ready item:
 bounded offline storage/search design with retained or synthetic inputs, named
 measurements and a finite analyst journey. It must account for the 128 MiB

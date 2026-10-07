@@ -5,6 +5,9 @@ Starting HEAD: `3ea56470b809e262bebf16227d51ceac26f73c6d`.
 Status: reviewed implementation checkpoint under the owner's `$pickup and go`
 direction, D-086/D-087 and the GD-31 acceptance contract. Required full validation
 is incomplete; GD-31 is not complete. This task dispatches no source operation.
+Implementation commit: `b6145f6c479fd36ca2cdfb1a896407a0ae9e33ba`.
+Terminal bookkeeping leaves zero active items and GD-31 ready for validation
+recovery. All worker leases are returned; no test process remains active.
 
 ## Startup and write leases
 
@@ -123,3 +126,8 @@ the separate policy suite also failed under the observed contention. Global
 format:check reports only the pre-existing ignored local settings file. No
 aggregate npm run check success is claimed. Failed and interrupted logs remain
 under `C:/dev/_scratch/policy-sentinel/gd31-2026-10-07/`.
+
+The terminal receipt (`results-terminal.json` in that directory) records passing
+roadmap, backbone, source-boundary and build/artifact checks. All 36 protected
+owner-file hashes still match. The terminal ledger has zero active items and
+GD-31 ready for the unresolved validation; no completion stamp was written.
