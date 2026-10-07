@@ -227,7 +227,8 @@ const asSchema110 = (candidate) => {
   const roots = new Set();
   const collect = (id) => {
     const entry = byId.get(id);
-    if (entry.status === "complete" || entry.status === "deferred") return;
+    // Deferred mandatory work remains incomplete in the historical graph too.
+    if (entry.status === "complete") return;
     const incomplete = entry.dependencies.filter(
       (dependency) => byId.get(dependency).status !== "complete",
     );
@@ -1973,6 +1974,42 @@ test("schema 1.10 admits the general-development graph by rule and keeps every o
         evidence: [],
       });
       await expectAccepted("planning-act", candidate);
+    },
+  );
+
+  await context.test(
+    "deferred general-development work remains in historical recovery actions",
+    async () => {
+      const candidate = clone(liveRoadmap);
+      const id = "GD-99-SYNTHETIC-DEFERRED-ROOT";
+      candidate.work_items.push({
+        id,
+        priority:
+          Math.max(...candidate.work_items.map((entry) => entry.priority)) + 1,
+        milestone: generalDevelopmentMilestone,
+        title: "Synthetic deliberately postponed incomplete work",
+        status: "deferred",
+        reason: "Synthetic scheduling decision; acceptance is not waived.",
+        work_class: "general_development_local",
+        decision_ref: "D-071",
+        authorization_gate: "G-GENERAL-DEV-01",
+        dependencies: [],
+        acceptance: ["Synthetic acceptance line."],
+        evidence: [],
+      });
+      asSchema110(candidate);
+      assert.ok(
+        candidate.next_actions.some((action) => action.work_item === id),
+      );
+      await expectAccepted("deferred-root-retained", candidate);
+      candidate.next_actions = candidate.next_actions.filter(
+        (action) => action.work_item !== id,
+      );
+      await expectRejected(
+        "deferred-root-omitted",
+        candidate,
+        /terminal next actions.*missing: GD-99-SYNTHETIC-DEFERRED-ROOT/u,
+      );
     },
   );
 

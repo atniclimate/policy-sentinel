@@ -16,9 +16,10 @@ and [finite blocked source/API packets](docs/development/gd31-operation-packets.
 `npm run test:development-authority` runs their offline refusal and compatibility
 tests and is included in `npm test`. Preparation cannot dispatch, share or publish.
 
-`npm run test:spine` serializes its three test files to avoid competing Windows
-native custody probes. Assertions, process isolation and operation timeouts stay
-unchanged; `npm test` includes the same suite.
+`npm run test:spine` and `npm run test:policy` serialize their respective three
+and twelve test files to avoid competing Windows native custody probes.
+Assertions, process isolation and operation timeouts stay unchanged; `npm test`
+includes both suites.
 
 Current general-development work is recorded in [ROADMAP.yaml](ROADMAP.yaml).
 The separately authorized public demonstration and its maintenance evidence are
@@ -112,6 +113,24 @@ forecast is refused; exit 1 is an invalid input or unexpected error. No report
 authorizes acquisition, deletion, automatic eviction, source reuse or publication.
 
 ## Historical engineering checkpoints
+
+The [GD-32 bounded search design](docs/architecture/gd32-bounded-search.md)
+selects immutable bounded projections and freezes finite analyst journeys.
+`npm run test:search-measurement` checks its synthetic measurement guards.
+`npm run measure:search -- --out C:/dev/_scratch/policy-sentinel/autonomous-2026-10-07/search-01`
+runs the newly authorized finite synthetic protocol in that fresh external
+namespace. Existing evidence is never replaced. It imports pure historical
+fixture/oracle exports without resuming the historical runner. Failed or partial
+measurements remain visible; this is no 50 GB search-capacity claim.
+
+`npm run measure:search:browser -- --measurement-root <search-01> --out <search-browser-01> --playwright-core <installed-package> --browser <installed-executable>`
+uses the same pinned payloads in a separate synthetic loopback harness. Both
+output paths are fixed under the current run namespace. It installs nothing;
+an absent installed runtime yields an incomplete report, never invented timing
+or memory. This harness does not exercise the application loader or analyst
+journeys. Its deprecated optional heap estimate cannot accept browser memory.
+Neither measurement runs during ordinary builds; command documentation does not
+authorize a later replay of an ended measurement run.
 
 The adopted finite engineering review `H-ENGINEERING-REVIEW-02` is complete.
 Recover its [outcome](docs/handoffs/ps09-engineering-review-02-outcome.md),

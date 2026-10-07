@@ -1079,34 +1079,15 @@ baseline:
         configured.
 
 current_focus:
-  work_item: null
+  work_item: GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
   objective: >-
-    Resume GD-31 at required full validation, not implementation, then proceed
-    to GD-32 after acceptance. The reviewed preparation checkpoint dispatches no
-    source operation and does not complete GD-31 or the release.
-  terminal_reason: >-
-    Bounded incomplete checkpoint: implementation and independent review pass,
-    but full npm test repeatedly hit unchanged Windows native-probe deadlines
-    under observed host contention. Repeated broad attempts were stopped after
-    owner steering to proceed where validation is unnecessary. The required
-    full-suite prerequisite remains unsatisfied; GD-31 is ready for validation
-    recovery, not complete. No workers or validation processes remain active.
+    Measure and document bounded offline search using synthetic inputs under the
+    2026-10-07 owner long-run instruction. GD-31 acceptance remains incomplete
+    after preserved Windows probe failures; no deadline or operation gate
+    changes. This independent GD-32 design work permits no source dispatch.
+  terminal_reason: null
   resumable_roots:
-    - GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
     - GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
-    - GD-04-CORE-BOUNDARY-GUARD
-    - GD-05-INTAKE-REPLAY-AND-DISCOVERY
-    - GD-07-RESEARCH-OUTPUT-SPLIT
-    - GD-08-CONTEXT-RELEVANCE-EXTRACTION
-    - GD-09-JURISDICTION-IDENTIFIER-MODEL
-    - GD-22-NATION-REGISTRY-BINDING
-    - GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
-    - GD-40-GOVINFO-API-INTEGRATION
-    - GD-41-ECFR-API-INTEGRATION
-    - GD-42-CONGRESS-API-INTEGRATION
-    - GD-43-REGULATIONS-API-INTEGRATION
-    - GD-53-PS09-ACCEPTANCE-CARRYFORWARD
-    - GD-27-LOCAL-RELEASE-PACKAGE
   last_durable_checkpoint: b6145f6c479fd36ca2cdfb1a896407a0ae9e33ba
   resume_command: npm run validate:roadmap
 
@@ -5894,7 +5875,13 @@ work_items:
     priority: 293
     milestone: General development
     title: Successor authority manifests and release acceptance crosswalk
-    status: ready
+    status: deferred
+    reason: >-
+      Deliberately postpone repeated full-suite attempts after two preserved
+      recovery failures; this is a temporary scheduling decision. Required
+      acceptance remains pending, not waived: resume full validation when
+      reproducible Windows native-probe conditions change. Independent GD-32
+      depends only on completed GD-18 and can proceed without dispatch.
     work_class: general_development_local
     decision_ref: D-086
     authorization_gate: G-GENERAL-DEV-01
@@ -5940,6 +5927,24 @@ work_items:
       - docs/development/gd31-release-acceptance-crosswalk.md
       - docs/development/gd31-successor-preparation-2026-10-07.md
       - docs/handoffs/2026-10-07-gd31-successor-contracts.md
+      - docs/development/2026-10-07-autonomous-run.md
+      - >-
+        Recovery full test: spine passes 30 tests with one native-symlink skip;
+        concurrent policy fails nine of 143 tests on WINDOWS_PROBE_TIMEOUT. Root
+        applies a bounded scheduling-only repair to serialize the same policy
+        files; all assertions and native/operation limits remain intact.
+      - >-
+        The second full recovery test exits 1 before policy: spine has 25
+        passed, five TIME_LIMIT failures and one native-symlink skip. The policy
+        scheduling repair is independently reviewed but has no full passing run.
+        Both logs remain external; GD-31 stays an unmet mandatory release
+        outcome.
+      - >-
+        Final GD-32 implementation validation also exits 1 on unchanged native
+        probes: corpus 13 pass, spine 30 pass/one privilege skip, policy 138
+        pass/five WINDOWS_PROBE_TIMEOUT failures. Later phases do not run.
+        test-gd32-final.log/json preserve the third full attempt; no deadlines
+        or mandatory acceptance have been waived.
       - >-
         Preparation implementation and independent review pass; 37 focused
         contract tests and 492 roadmap tests pass. Full npm test completion
@@ -5950,7 +5955,7 @@ work_items:
     priority: 294
     milestone: General development
     title: Bounded offline search storage and pilot measurement design
-    status: ready
+    status: in_progress
     work_class: general_development_local
     decision_ref: D-086
     authorization_gate: G-GENERAL-DEV-01
@@ -5970,7 +5975,27 @@ work_items:
         save/reopen, exact citation replay, three output styles and private
         notes attached to public sources. No acquisition or bulk dispatch occurs
         in this design item.
-    evidence: []
+    evidence:
+      - docs/development/2026-10-07-autonomous-run.md
+      - docs/architecture/gd32-bounded-search.md
+      - >-
+        Bounded projection design and twelve analyst journeys are frozen. A new
+        finite synthetic measurement runner and nine negative/supervisor tests
+        pass focused validation. The 100-work case completes; 500 and 2000
+        watchdog exits are confirmed and remain incomplete. Browser attempt
+        records the absent installed runtime without launching a browser or
+        listener. docs/development/gd32-search-measurements-2026-10-07.md
+        records the measured limits. Historical runner and production modules
+        remain unchanged; journeys, browser memory and item completion are not
+        claimed.
+      - docs/handoffs/2026-10-07-gd32-bounded-search.md
+      - >-
+        Independent fixture and measurement reconciliation reviews pass. Focused
+        measurement tests pass 9/9 and repaired roadmap regressions pass
+        493/493. Final lint, typecheck, roadmap/backbone and source scan pass;
+        global formatting fails only on protected ignored local settings. Full
+        npm test exits 1 with five unchanged native-probe timeouts, so
+        completion remains pending. All 36 original owner hashes match.
 
   - id: GD-29-BOUNDED-OPTIMIZATION
     priority: 295
@@ -8254,8 +8279,9 @@ next_actions:
   - order: 2
     work_item: GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
     action:
-      "Next bounded task: freeze and measure offline search design and pilot
-      journeys using retained or synthetic inputs; no acquisition."
+      "Active bounded task: validate and execute the new finite synthetic search
+      protocol, retain failed/partial measurements and freeze pilot journeys.
+      Historical runner remains ended; no acquisition or delivery acceptance."
   - order: 3
     work_item: GD-04-CORE-BOUNDARY-GUARD
     action:
