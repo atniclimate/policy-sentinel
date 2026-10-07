@@ -39,6 +39,24 @@ for narrow demo work; it does not reduce validation or authorize new work.
 
 ## Current state (2026-10-07): general development
 
+#### True-up at the user-requested pause
+
+GD-09 is accepted at source checkpoint `8b97383f37e33c0569e57b7e834ac8fd8ef582fc`.
+GD-10 remains the only active roadmap item. Its reviewed 50-path contract is
+committed at `84cf62c0aa2b70510a8045a04fe80d139131c1fe`; no GD-10 source lease
+was issued before the owner paused the run. On an explicit resume, first
+confirm the checkout and protected worktree state, then reread the
+[GD-10 boundary contract](handoffs/2026-10-07-gd10-boundary-enforcement.md)
+and issue the three disjoint leases (25/16/9). Do not repeat the completed
+GD-31 or GD-09 implementation and acceptance work.
+
+The ordinary build remains synthetic. The accepted PS09 local workbench is a
+separate, locally served output. GD-09's synthetic identifier and association
+contract is not a production identity registry, and the four existing source
+adapters remain disabled. The local release root GD-27 is not accepted. See
+the [run record](development/2026-10-07-autonomous-run.md) for this pause's
+validation results and the specific discussion/stop conditions.
+
 The non-PS09 Makah demo track was delivered at the ATNI Annual Convention and
 is finished. The project has returned to general engine development, with
 nationwide coverage (Tribal, federal and state sources across the United
@@ -47,8 +65,9 @@ States) treated as a core capability, not an extension.
 The realignment session on branch `realign/general-development` (commits
 `fff7990` audit, `20d0056` design, `6eb8947` realignment, plus a ledger
 follow-up) produced three documents; the owner then ruled on their open
-questions and added directions. For the full-context route, read in this order
-before implementation:
+questions and added directions. That ordered work is historical evidence; use
+the live roadmap and the true-up above for today's status. For the full-context
+route, read in this order before implementation:
 
 1. `ROADMAP.yaml` (the canonical ledger; read it completely).
 2. `docs/audits/2026-09-22-general-dev-audit.md`: the code as it actually is,
@@ -80,7 +99,8 @@ before implementation:
     `docs/architecture/gd31-successor-contracts.md`: current release closure,
     blocked finite preparation manifests and synthetic boundary contracts.
     Recover `docs/handoffs/2026-10-07-gd31-successor-contracts.md` for the
-    incomplete local checkpoint and exact validation failures.
+    historical successor-preparation contract; validation recovery is closed
+    and reconciled in the current autonomous run record.
 
 Historical foundation: general-development session 1 applied RL-01. The rulings are
 D-071 to D-079 in `docs/decision-register.md`, and the historical roadmap used schema
@@ -131,16 +151,29 @@ is complete at implementation commit `8dc3985`. Its read-only command passes
 declared roots total 558,104,040 bytes. The hypothetical forecast correctly
 refuses because the included C: support volume is below the 20 GiB disk floor;
 this is not an I: shortage and does not block GD-31/GD-32 preparation. Both
-GD-31 is implemented and independently reviewed at local checkpoint `b6145f6`,
-but is not complete: full npm test repeatedly failed at unchanged Windows
-custody/native-probe deadlines under observed host contention. It is ready for
-validation recovery, with zero active items; do not redo the preparation work
-or infer completion from the 37 focused contract and 492 roadmap passes.
-The test:spine command now serializes its same three files without relaxing
-assertions or timeouts. Failed logs remain visible. GD-32 is ready and follows
-GD-31's acceptance; no source dispatch has occurred.
-GD-33 full nationwide survey is also ready. The full A3 restore/replay
-demonstration remains future acceptance work.
+GD-31 successor preparation and validation recovery, plus GD-32 bounded search
+design, have durable completed checkpoints. Their full outcomes and immutable
+failed receipts are reconciled in `docs/development/2026-10-07-autonomous-run.md`;
+do not repeat that recovery. The `test:spine` serialization preserves its
+assertions and timeouts. GD-17 found no newly dispatch-ready acquisition profile,
+and no payload was acquired in that work. GD-33's nationwide survey and the full
+A3 restore/replay demonstration retain their roadmap status and acceptance.
+
+## Re-entry issues and discussion boundaries
+
+No new product ruling is needed to resume GD-10. If implementation finds a
+real graph edge outside the reviewed 50-path manifest, stop for diagnosis and
+a root-reviewed amendment. Record source-specific qualification gaps against
+their exact gate and continue independent eligible work where possible.
+
+The genuine remaining evidence and acceptance work is already owned by the
+roadmap: GD-53 carries unresolved PS09 identity/scenario claims; GD-13 owns the
+gated nationwide record-contract successor; source activation is source-specific;
+and GD-27 still requires its outcomes, demonstrations and release review. D-087's
+county/municipal discovery and public Tribal-publication rulings are settled.
+Private/shared access, publication, remote operations, new acquisition and
+release remain behind their existing gates. Details and validation limits are
+in the [true-up record](development/2026-10-07-autonomous-run.md).
 
 ## What a fresh session does first
 

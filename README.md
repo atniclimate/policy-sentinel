@@ -8,6 +8,26 @@ Nation's interests.
 
 ## Project status
 
+### Repository true-up (2026-10-07)
+
+The ordinary static build remains synthetic: it sends three fixture records
+through the retained corpus and application contracts, alongside 575 synthetic
+Nation rows. The accepted PS09 local workbench is a separate workflow over its
+reviewed local output; it supports search, passage and citation review, temporal
+and cross-context comparison, findings with supporting and contrary evidence,
+and dossier, evidence, and JSON export. That output is served only through its
+explicit local boundary.
+
+The four implemented Federal Register, curated Supreme Court, Washington
+Governor executive-order, and Washington Centennial Accord adapters remain
+disabled and contribute no records to the ordinary build. GD-09 committed a
+synthetic jurisdiction identifier and association contract; it does not add a
+production identity registry or live source coverage. GD-10 is the next active
+item: its exact implementation scope is reviewed and committed, but its source
+leases have not been issued. Follow [the continuation guide](docs/continuation-prompt.md)
+and [the autonomous run record](docs/development/2026-10-07-autonomous-run.md)
+for the precise resume state.
+
 Schema 1.11 represents GD-27 as the current local release root, with all
 remaining PS09 claims preserved in the
 [release crosswalk](docs/development/gd31-release-acceptance-crosswalk.md).

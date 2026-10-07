@@ -276,3 +276,20 @@ network/source activation or land fields. Do not broaden this lease to renew
 historical observer pins or grants. This step proves local architecture
 enforcement, not source qualification, official Nation evidence, general-engine
 release acceptance or publication.
+
+## Selection checkpoint and pause
+
+The exact five-document selection checkpoint is committed locally as
+`84cf62c0aa2b70510a8045a04fe80d139131c1fe`. Independent reviewers found no
+substantive scope blocker. One wording ambiguity about the leased configured
+curated-pack composition root was clarified before the final scoped formatting
+check (ROADMAP.yaml under repository ignore rules), whitespace check on all five
+paths, roadmap validation and backbone validation; all passed. Full GD-09 test
+and standing-check evidence is recorded in
+`docs/development/2026-10-07-autonomous-run.md`.
+
+The owner paused the autonomous run before any GD-10 source lease was issued.
+GD-10 remains the sole active item. On explicit continuation, confirm the
+worktree and protected files, then issue only the three reviewed disjoint
+source leases (25/16/9). If the actual strict graph requires paths outside this
+manifest, stop for diagnosis and a reviewed amendment before changing them.

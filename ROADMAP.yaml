@@ -1084,11 +1084,13 @@ current_focus:
     Close all 16 substantive module exceptions under the reviewed GD10
     production and enforcement contract. Preserve exact compatibility APIs,
     protected classifications, public/private reachability and operation gates.
-    Dispatch the 50-path source lease only after the selection checkpoint.
+    The exact selection is committed at the durable checkpoint below. No source
+    lease was issued before the user-requested pause. On explicit resume, issue
+    the three disjoint leases (25/16/9) under that contract.
   terminal_reason: null
   resumable_roots:
     - GD-10-BOUNDARY-ENFORCEMENT
-  last_durable_checkpoint: 8b97383f37e33c0569e57b7e834ac8fd8ef582fc
+  last_durable_checkpoint: 84cf62c0aa2b70510a8045a04fe80d139131c1fe
   resume_command: npm run validate:roadmap
 completion_scope:
   general_development:

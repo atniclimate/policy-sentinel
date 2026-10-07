@@ -1057,3 +1057,58 @@ ordinary modules cannot reach configured composition through facades or
 unclassified relays. A stronger actual graph finding requires diagnosis and
 a concrete reviewed scope amendment. This preparation dispatches no source
 operation and renews no historical observer pin, grant or release claim.
+
+## 2026-10-07 true-up and user-requested pause
+
+The five-document GD-10 selection checkpoint is committed locally as
+`84cf62c0aa2b70510a8045a04fe80d139131c1fe`. It updates ROADMAP, this run record,
+the GD-09 acceptance handoff, the GD-10 binding handoff and the module-boundaries
+design. The curated-pack wording now explicitly names the leased configured
+composition root. Independent review found no substantive scope blocker; the
+final selection formatting, whitespace, roadmap and backbone checks passed.
+
+GD-10 remains the sole active roadmap item, but no source lease was issued
+before the user asked to pause. No GD-10 implementation file has changed. The
+reviewed contract contains exactly 50 disjoint source/test paths in three groups
+of 25, 16 and 9. On explicit resume, verify the checkout and protected
+worktree state, review the contract, and dispatch those three leases. Root alone
+owns integration, validation, acceptance and commits.
+
+The full GD-09 test run passed 2,049 unit tests. Ten of eleven standing
+acceptance commands passed. Build, artifact, runtime, hooks, knowledge, roadmap,
+backbone, source scan, lint and typecheck passed; global formatting still fails
+on the protected ignored `.claude/settings.local.json`. Do not claim an
+aggregate check pass. After the final contract wording correction, the scoped
+Prettier command passed under repository ignore rules (it formats ROADMAP.yaml;
+Markdown is excluded). `git diff --check` covered all five selection paths.
+`npm run validate:roadmap` passed (135 items: 63 complete, one active, four
+ready, 25 blocked, two deferred, 40 not started); `npm run validate:backbone`
+passed (24 schemas, 24 IDs, 1,376 refs, 176 Markdown files, 1,058 local links).
+
+### Resume issues and discussion boundaries
+
+- **GD-10 graph surprises:** the 50-path lease is exact. If the actual strict
+  graph exposes another production path or a protected edge, diagnose it and
+  get a concrete reviewed amendment before editing. Do not solve it by relabeling
+  modules or weakening tests.
+- **Identity and scenario evidence:** GD-09 proves only a synthetic jurisdiction
+  identifier and exact-evidence association contract. Unmet real identity and
+  scenario acceptance remains in GD-53; it needs originating evidence and cannot
+  be filled with synthetic proof.
+- **Nationwide contracts and sources:** the retained public state-code contract
+  remains WA/OR/ID until its gated successor. GD-12/GD-13 and source-specific
+  qualification remain future work. GD-17 found no newly dispatch-ready source
+  profile; historical acquisition has ended and no adapter is activated by this
+  pause.
+- **Private and external operations:** D-087's county/municipal discovery and
+  public Tribal-publication rulings are settled. Restricted internal materials
+  and ATNI exchange still follow their applicable agreements. Publication,
+  release, remote operations, new acquisition, and other closed gates remain
+  closed; this true-up grants none of them.
+- **Release:** GD-27 is the current local release root, not an accepted release.
+  Required outcomes, A1-A4 demonstrations and retained GD-53 claims remain open.
+
+No owner decision is needed to resume the bounded GD-10 mechanical refactor.
+Stop for owner or source-specific review only if implementation reaches one of
+the concrete contract or closed-gate conditions above. Existing unrelated
+untracked owner files were preserved and must remain untouched.
