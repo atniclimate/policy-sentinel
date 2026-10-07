@@ -1,7 +1,7 @@
 # Next session for Policy Sentinel development
 
 Start from the [development plan revision](../decisions/2026-10-06-development-plan-revision.md)
-and D-086 in the [decision register](../decision-register.md). O1/O2 and GD-29
+and D-086/D-087 in the [decision register](../decision-register.md). O1/O2 and GD-29
 are complete. The next bounded implementation item after this planning checkpoint
 is GD-26, reproducible checks. No product or source integration is completed by
 the plan itself.
@@ -37,7 +37,8 @@ interface and journey checkpoints, not as a standing reviewer of every file.
 ## Following preparation
 
 GD-17 follows with the finite five-federal-family, seven-state and
-ATNI/NCAI/USET source matrix and a qualified pilot subset. GD-33 retains the
+ATNI/NCAI/USET source matrix, official public Tribal-government source candidates
+and a qualified pilot subset. GD-33 retains the
 complete nationwide survey as release work; it does not delay that pilot.
 GD-18 consumes
 that inventory and produces the baseline storage report. Actual acquired batches
@@ -64,6 +65,22 @@ findings independently of their source documents. Include a private note
 attached to public citations in the negative export journeys.
 
 ## Owner selections to preserve
+
+D-087 accepts county and municipal general-jurisdiction discovery without a
+Nation-name eligibility requirement, and an optional deliberately selected Nation
+identifier in a versioned authorized ATNI exchange. The common profile remains
+Nation-free. GD-31 implements the exact successor fields and compatibility;
+these product choices need no repeated confirmation.
+
+Official public Tribal-government publications use the public-source path.
+Restricted internal governmental or operational policies use authorized local
+input; external partners require permission. A published operational policy may
+still be public. Do not preserve D-078's blanket public-code exclusion.
+
+GD-25 must connect annotations to explicit saved discovery requests and reviewed
+candidates returned to the case, preserving provenance and private-note exclusion.
+The current demo annotation tool is a starting point, not evidence that this
+feedback loop or unattended monitoring is implemented.
 
 Public-only independent installations follow software/source licenses. Private or
 shared data and ATNI interoperability require authorization. The owner states

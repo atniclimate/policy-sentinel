@@ -55,6 +55,14 @@ through their actual API route into usable evidence. The earlier analyst pilot
 does not complete Parts A or B. GD-27's dependency list must cover these tasks
 and every existing Part B capability; release-root migration remains explicit.
 
+D-087 (2026-10-07) settles the local-government and ATNI exchange choices in
+that revision. Include official public Tribal-government publications in the
+GD-17/GD-33 survey and GD-12 catalog; reserve restricted internal input for
+GD-23's permission-aware path. GD-25 includes an explicit annotation-to-discovery
+request-to-candidate-review-to-case cycle with provenance and private-note
+exclusion. Iterative user-requested discovery does not require the continuous
+monitoring service excluded in Part C.
+
 ## Part C. Not in 1.0
 
 These stay outside 1.0 whatever else is finished, each behind its existing

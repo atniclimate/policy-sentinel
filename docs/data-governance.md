@@ -1,5 +1,26 @@
 # Data governance
 
+Current general-engine amendment D-087 (2026-10-07), recorded in the
+[development plan](decisions/2026-10-06-development-plan-revision.md): official
+county and municipal instruments may be discovered as general-jurisdiction
+records without naming a Nation. Exact official evidence remains necessary for
+a Nation-record relationship. This replaces the retained beta exclusions below
+for successor general-engine contracts; historical evidence is unchanged.
+
+Official public Tribal-government publications are eligible public sources from
+sovereign governmental authorities. Tribal authorship does not make a record
+private or require permission for each public-only instance. Restricted internal
+governmental, administrative or operational policies need authorized local
+input and permission for external partners' access and uses. Subject matter,
+issuer identity and access classification remain separate; an officially public
+operational policy can follow the public-source path. Source-specific access,
+provenance and permitted reuse apply consistently across public publishers.
+
+User annotations may guide explicit discovery requests while remaining authored
+analysis. Private notes and request context must not silently enter external
+queries, shared outputs or public artifacts. Keep reviewed candidates separate
+from accepted official evidence and retain each request's source/version binding.
+
 ## Purpose and authority
 
 Policy Sentinel is a general source-reference and policy-monitoring engine; its

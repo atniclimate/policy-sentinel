@@ -5,7 +5,7 @@ D-083/D-084. Recover [its current status](DEMO-STATUS.md) before demo work. The
 local-only historical grants below retain their own scope; they neither revoke
 that demo exception nor authorize new acquisition or general-engine publication.
 
-General-engine plan updated 2026-10-06 under D-086; startup routing remains
+General-engine plan updated 2026-10-07 under D-086/D-087; startup routing remains
 under D-085. `AGENTS.md` holds the rules; this file holds where the engine is,
 what to read, and what a fresh session does first. Historical launch, cutoff
 and outcome documents remain preserved; their execution grants do not resume
@@ -37,7 +37,7 @@ the existing full-ledger validators before repository edits and every substantiv
 source, privacy, publication and acceptance gate. This rule reduces context only
 for narrow demo work; it does not reduce validation or authorize new work.
 
-## Current state (2026-10-06): general development
+## Current state (2026-10-07): general development
 
 The non-PS09 Makah demo track was delivered at the ATNI Annual Convention and
 is finished. The project has returned to general engine development, with
@@ -97,6 +97,13 @@ source-specific details are listed in the revision; do not reopen settled
 questions. The historical four GD gates are unchanged pending GD-31's reviewed
 successor representation. Neither that implementation requirement nor a source
 qualification gap means the owner must repeat the adopted blanket direction.
+
+D-087 accepts both former open choices: county/municipal discovery without a
+Nation-name requirement and an optional selected Nation criterion in a versioned
+authorized ATNI exchange. It distinguishes official public Tribal publications
+from restricted internal policies and adds annotation-guided discovery requests
+to GD-25. Read the updated plan and handoff; do not reopen these product choices.
+GD-26 remains the next implementation item after the documentation checkpoint.
 
 ## What a fresh session does first
 

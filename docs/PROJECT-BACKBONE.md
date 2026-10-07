@@ -10,6 +10,11 @@ includes the named AK/CA/MT/NV planning communities and whole-state public APIs.
 `ROADMAP.yaml` owns live status; historical summaries below do not supersede
 this revision or reactivate completed runs.
 
+D-087 (2026-10-07) accepts the revision's local-government and optional ATNI
+Nation-context choices, clarifies public Tribal-government versus restricted
+internal material, and adds annotation-guided discovery to the analyst workflow.
+The current plan and handoff include these settled decisions.
+
 Current phase: general development. The Makah demo track is
 finished, and nationwide coverage (Tribal, federal and state sources across the
 United States) is a core capability of the engine. Start from the

@@ -6,6 +6,12 @@ and defines the implementation sequence, source acceptance and release evidence.
 D-086 adopts the owner directions in this document. Planning completion is not
 implementation, source activation or release completion.
 
+Updated 2026-10-07 under D-087: both follow-up choices are accepted. The
+general engine admits official county and municipal instruments without a
+Nation-name requirement and supports an optional selected Nation criterion in
+a versioned, authorized ATNI exchange profile. The public/internal Tribal-data
+distinction and annotation-guided discovery requirements below are owner rulings.
+
 ## Owner decisions and their scope
 
 | Direction | Planning interpretation |
@@ -70,14 +76,28 @@ sources: public citations do not make confidential Tribal analysis public.
 Combine source and authored-material restrictions conservatively at every
 search, output and transfer boundary.
 
-For the D-074/D-075 ambiguity, the implementation proposal is: a user-declared
-Nation may be used inside an authorized local deployment; general off-deployment
-v1 remains Nation-free. Authorized ATNI-local assessment can evaluate a separately
-versioned ATNI context profile. Any later cross-deployment Nation field requires
-an explicit profile, recipient authority and agreement. User declaration never
-creates an evidence-backed Nation-record relationship. The profile distinction
-must be finalized in the authority/contract task before implementing a changed
-wire contract.
+D-087 resolves the D-074/D-075 ambiguity: a user-declared Nation can be used
+locally, while the common exchange profile remains Nation-free. A separately
+versioned ATNI profile may carry an optional canonical Nation identifier only
+when deliberately selected for an authorized recipient. It expresses the user's
+search selection, not affiliation, authority to represent a Nation, ATNI
+membership or a policy's applicability. A selection never creates a
+source-evidenced Nation-record relationship. Private documents and annotations
+retain their separate permissions; geometry and land-status classes stay out of
+the exchange. GD-31 must encode and test the chosen profile and migration before
+dependent implementation; this is a settled product choice.
+
+Tribal governments are originating governmental authorities for their public
+publications. Publicly issued Tribal codes, ordinances, resolutions and policies
+belong in public-source discovery under the same source-specific authority,
+access, provenance and reuse review as other governmental records. Do not route
+all Tribal material into private intake or add per-instance permission for
+public-only use. Restricted internal policies may concern government,
+administration, operations or other organizational work; their subject does not
+make them nongovernmental. Authorized Tribal users can incorporate them locally;
+external partners need permission for access and use. Conversely, a published
+operational policy may be public. Issuer, subject and access classification are
+separate attributes. This supersedes D-078's blanket public-source exclusion.
 
 ## Sequence and bounded work
 
@@ -119,7 +139,9 @@ evidence columns.
 Start with the five already planned federal families: Federal Register, GovInfo,
 eCFR, Congress.gov and Regulations.gov. Survey official state legislature,
 statute/code, administrative-rule/register, court/opinion and selected local
-ordinance sources. Record source-class gaps explicitly. A third-party discovery
+ordinance sources, including official public Tribal-government publications
+selected for the initial regional workflow and later national expansion.
+Record source-class gaps explicitly. A third-party discovery
 catalog may locate an official record but cannot silently replace its authority.
 
 API-supported nationwide sources may remain national. Offline-heavy state/local
@@ -211,6 +233,23 @@ Save explicitly, close, reopen and revise without losing evidence bindings.
 Changed or missing source versions must require visible review rather than
 silently rewriting saved findings.
 
+Make annotations useful for repeated discovery: an explicit "Request further
+discovery" action creates a saved request bound to the annotation, exact source
+version/passage, research question, desired sources/date range and missing
+evidence. Review the outgoing request; keep private notes local and transmit
+only deliberately selected, permitted content to source services or recipients.
+Return candidate records and accepted, rejected, duplicate, unresolved or blocked
+dispositions to that request and case, with provenance and remaining gaps.
+Annotation terms remain analyst-authored: they cannot populate official facts,
+taxonomy mappings, Nation relationships or organizational positions.
+
+Demonstrate one annotation-to-request-to-bounded-discovery-to-candidate-review
+cycle, including no-result/source-failure behavior, duplicate handling and a
+private-note exclusion. Existing demo notes are saved in tab session storage
+and included in reports; the general-engine feedback connection is planned work.
+Iterative discovery here means repeatable selected requests; this planning
+amendment does not start an unattended service, schedule or public query log.
+
 Search must expose source, jurisdiction, document type, date basis, coverage and
 unclassified material. A zero-result search must remain distinguishable from a
 failed, unavailable or unsearched source. Show stable identifiers and exact
@@ -283,17 +322,18 @@ Resolve registry v0/v1 naming in the release contract; do not turn either versio
 label into acceptance. Every Part B capability and A1-A4 demonstration must be
 represented even if an installable package can be prepared earlier.
 
-Regional county/municipal general-jurisdiction documents need a deliberate
-successor eligibility rule: the retained contract admits a county record only
-when it explicitly names a Nation. The proposed successor would admit scoped
-official local instruments as general_jurisdiction while continuing to require
-exact source evidence for any Nation relationship. Keep this proposed change
-visible for determination; neither silently filter away required local coverage
-nor bypass the existing contract.
+D-087 adopts regional county/municipal discovery as general_jurisdiction even
+when an official instrument names no Nation. The successor explicitly replaces
+both the retained county-name eligibility restriction and the municipal-source
+exclusion for the general engine. Preserve document type and source-stated
+draft/adopted/version status; an agenda is not proof of final action. Selected
+geography guides discovery, while a Nation relationship still needs exact
+official evidence. GD-13/GD-31 represent and test the successor contract before
+emitting new output; historical beta evidence is preserved.
 
 Pending details are limited to the concrete source/jurisdiction manifest for the
-owner-selected communities, the county eligibility successor, the versioned ATNI versus general
-interop profile, source-specific missing credentials/terms where encountered,
+owner-selected communities, exact implementation fields and compatibility for
+the adopted successor contracts, source-specific credentials/terms where encountered,
 and evidence supplied by external registry owners or independent demonstrators.
 Continue independent preparation while a detail blocks only its dependent work.
 

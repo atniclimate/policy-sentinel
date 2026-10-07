@@ -122,6 +122,15 @@ do not repurpose historical zero-budget gates or request the same blanket
 authorization again. Source qualification and separate ungranted external
 operations retain their actual boundaries.
 
+D-087 (2026-10-07) settles local-government eligibility and the optional
+Nation selection in an authorized ATNI exchange profile, and admits official
+public Tribal-government publications to public-source discovery. Restricted
+internal Tribal material remains permission-dependent for external partners;
+its governmental or operational subject does not determine access. Annotations
+may guide explicit discovery requests but never become official evidence or
+silently transmit private research. Apply these rulings in reviewed successor
+contracts without reopening the owner's settled choices.
+
 - [`ROADMAP.yaml`](ROADMAP.yaml) remains the canonical ledger, and the Markdown
   documents remain the binding product and acceptance contracts. Before
   general-engine work, shared extractor work, ledger graph changes, or work with
@@ -223,11 +232,15 @@ operations retain their actual boundaries.
 - A public Nation relationship requires exact evidence in an official source
   plus its URL. Never infer it from AI, keywords, geography, sponsors,
   eligibility, territory, maps, or land.
-- A county record is eligible only when the official county record explicitly
-  names the Nation. An agenda item alone does not prove final or executed
-  status.
-- State and federal records without exact Nation evidence must be labeled
+- Under D-087, official county and municipal instruments may be discovered
+  without naming a Nation. A Nation relationship still requires exact official
+  evidence. Preserve the retained beta contract until its versioned successor
+  is implemented; an agenda item alone does not prove final or executed status.
+- State, federal and local records without exact Nation evidence must be labeled
   `general_jurisdiction`, never Nation-specific.
+- Official public Tribal-government publications are eligible public sources.
+  Private/internal access restrictions follow the record and its derivatives;
+  Tribal authorship alone does not make a record private.
 - Category mappings must be deterministic mappings from exact official subject
   or topic labels, be versioned, and retain mapping provenance. Keyword-only or
   AI classification is forbidden. Unmapped records remain `Unclassified` and

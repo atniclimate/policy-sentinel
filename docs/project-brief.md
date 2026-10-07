@@ -119,12 +119,16 @@ inferred from the retained application baseline.
   date, and health. Never imply universal or complete coverage.
 - A state or federal record that does not explicitly name a Nation may appear
   only as a clearly labeled general-jurisdiction record.
-- A county record may appear only when its official record explicitly names
-  the selected Nation. Location, territory, land, maps, and keywords are not
-  evidence.
-- Municipal and city sources are excluded from the retained static beta
-  artifact. Future bounded local materials require source-specific authority,
-  privacy, reuse, and output decisions in separately authorized runs.
+- D-087 admits official county and municipal instruments to general-engine
+  discovery as general-jurisdiction records without a Nation-name requirement.
+  Exact official evidence remains required for a Nation relationship; location,
+  territory, land, maps and keywords cannot supply it. The retained static beta
+  exclusions remain historical until successor schemas are implemented.
+- Official public Tribal-government codes, ordinances, resolutions and policies
+  are eligible public sources. Restricted internal governmental or operational
+  policies may be incorporated by authorized Tribal users; external partners
+  require permission for access and use. Public Tribal authorship alone creates
+  no private-data or per-instance authorization requirement (D-087).
 
 An official, auditable relation will control state or regional treatment.
 Neither an address nor a map point in the Tribal Leaders Directory establishes

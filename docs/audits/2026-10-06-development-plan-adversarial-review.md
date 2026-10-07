@@ -64,7 +64,39 @@ and every gate and non-focus ledger section. Seven pending items are deliberatel
 revised and four are added. All 36 pre-existing untracked files match their
 baseline SHA-256 values. Product, schema and runtime files are unchanged.
 
-County general-jurisdiction eligibility, the exact ATNI versus general interop
-profile, finite locality/source manifests and source-specific access details
-remain concrete follow-up determinations. They do not reopen the owner's settled
-50 GB, public-instance or ATNI-local-assessment answers.
+At the initial checkpoint, county eligibility and the ATNI profile were follow-up
+choices. The owner accepted both on 2026-10-07 under D-087. Exact implementation
+fields, finite locality/source manifests and source-specific access details
+remain work; the policy choices and the earlier 50 GB, public-instance and
+ATNI-local-assessment answers are settled.
+
+## D-087 clarification follow-up (2026-10-07)
+
+The bounded interpretation review distinguished public/internal access from
+governmental/operational subject matter; public-only source use from permission
+for restricted data; and user-authored annotations from official evidence.
+Those distinctions now appear in the plan, authority documents and pending-item
+acceptance. The source-class expansion applies to the general engine; the
+separately authorized existing demo is unchanged.
+
+A read-only code check found that demo citation/issue notes persist in tab
+session storage and appear in reports, while the general workbench searches the
+retained corpus and accepts prepared research JSON. Existing candidate-admission
+tools are separate from annotations. The proposed explicit discovery-request
+feedback loop is therefore recorded as planned GD-25 work, with synthetic
+journeys before its bounded real-pilot evidence; no continuous service is claimed.
+
+Amendment candidate checks pass: roadmap and backbone validation, source-boundary
+scan and diff checking. The ledger is formatted with the committed scoped
+formatter; Markdown retains the repository's intentional prose-format exclusion.
+A semantic comparison preserves the other 108 prior work items and all gates;
+GD-13/16/17/23/25/31/33 are revised and GD-34 tracks this amendment.
+All 36 pre-existing untracked files retain their baseline hashes. No runtime,
+schema, taxonomy, source-profile or product-test changes are included, and the
+earlier full-suite evidence is not represented as a new run.
+
+The independent reviewer returned PASS for the bounded D-087 amendment with no
+material defect: owner choices are settled, public/internal access is distinct,
+annotation discovery remains planned and the existing demo grant is unchanged.
+This review accepts the documentation checkpoint, not runtime implementation or
+source qualification.
