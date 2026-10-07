@@ -111,10 +111,12 @@ GD-26 reproducible checks are complete at implementation commit `a3ac31a`;
 recover [the checkpoint handoff](handoffs/2026-10-07-gd26-reproducible-checks.md).
 Both hook runs pass 47/47 and the complete committed Bash deny inventory is
 tested through the production matcher. The separate ignored-settings formatting
-failure remains visible. GD-17 initial source survey is active in the current
-continuation; recover its handoff above. The survey acquires no policy payload,
-renews no profile and supplies no API-integration acceptance. The full A3
-restore/replay demonstration remains future acceptance work.
+failure remains visible. GD-17 initial source survey is complete at `b839a56`;
+recover its handoff above. It records a contract-preparation shortlist and an
+empty newly dispatch-ready pilot subset. No policy payload was acquired, no
+profile renewed and no API integration accepted. GD-18 measured storage capacity
+is next; GD-33 full nationwide survey is also ready. The full A3 restore/replay
+demonstration remains future acceptance work.
 
 ## What a fresh session does first
 

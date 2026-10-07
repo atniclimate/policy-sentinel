@@ -1008,16 +1008,33 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-17-NATIONWIDE-SOURCE-SURVEY
+  work_item: null
   objective: >-
-    GD-17 initial source survey is active under D-086/D-087: documentation-only
-    federal, seven-state, local and public Tribal/intertribal source reviews. No
-    acquisition, profile renewal, terms acceptance or key registration.
-  terminal_reason: null
+    GD-17 initial source survey is complete at the validated local checkpoint.
+    Recover docs/handoffs/2026-10-07-gd17-initial-source-survey.md. GD-18
+    measured storage capacity is next; GD-33 full nationwide survey is also
+    ready.
+  terminal_reason: >-
+    The bounded documentation task, independent source/sovereignty reviews and
+    local validation are complete. The newly dispatch-ready pilot subset is
+    empty; the contract-preparation shortlist and source-specific gaps are
+    recorded. No policy acquisition or API integration was performed. GD-18 is
+    the next bounded task; historical profiles and external gates remain
+    unchanged. The ignored-settings formatting limitation persists.
   resumable_roots:
-    - GD-17-NATIONWIDE-SOURCE-SURVEY
+    - GD-18-STORAGE-CAPACITY-MODEL
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: a3ac31aff64b24d124c05456e3e842bd2b88b2c7
+    - GD-04-CORE-BOUNDARY-GUARD
+    - GD-05-INTAKE-REPLAY-AND-DISCOVERY
+    - GD-07-RESEARCH-OUTPUT-SPLIT
+    - GD-08-CONTEXT-RELEVANCE-EXTRACTION
+    - GD-09-JURISDICTION-IDENTIFIER-MODEL
+    - GD-13-NATIONWIDE-RECORD-CONTRACT
+    - GD-16-INTEROP-PURE-ADAPTER
+    - GD-22-NATION-REGISTRY-BINDING
+    - GD-27-LOCAL-RELEASE-PACKAGE
+    - GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
+  last_durable_checkpoint: b839a56704073f044700bd7509b6c55f7bb05f28
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5644,7 +5661,9 @@ work_items:
     priority: 291
     milestone: General development
     title: Initial federal regional and intertribal source matrix (docs only)
-    status: in_progress
+    status: complete
+    completed_on: "2026-10-07T01:23:20-07:00"
+    completion_commit: b839a56704073f044700bd7509b6c55f7bb05f28
     work_class: general_development_local
     decision_ref: D-078
     authorization_gate: G-GENERAL-DEV-01
@@ -5688,17 +5707,17 @@ work_items:
         acquisition follows from this survey. Independent source and sovereignty
         reviews completed; source review's qualification wording repair applied.
       - >-
-        Active checkpoint: roadmap/backbone validators and source-boundary scan
-        pass; npm run test:roadmap passes 473 tests. Protected runtime and
+        Validated checkpoint: roadmap/backbone validators and source-boundary
+        scan pass; npm run test:roadmap passes 473 tests. Protected runtime and
         source configuration unchanged; all 36 pre-existing untracked files
-        preserve their recorded SHA-256 hashes. Terminal commit bookkeeping
-        follows.
+        preserve their recorded SHA-256 hashes. Completion unblocks GD-18 and
+        GD-33; source-specific gaps remain represented in the survey.
 
   - id: GD-18-STORAGE-CAPACITY-MODEL
     priority: 292
     milestone: General development
     title: Storage capacity model, holding policy and storage:report
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-077
     authorization_gate: G-GENERAL-DEV-01
@@ -7322,7 +7341,7 @@ work_items:
     priority: 337
     milestone: General development
     title: Complete nationwide source landscape beyond initial pilot
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-086
     authorization_gate: G-GENERAL-DEV-01
@@ -7554,12 +7573,14 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: GD-17-NATIONWIDE-SOURCE-SURVEY
+    work_item: GD-18-STORAGE-CAPACITY-MODEL
     action: >-
-      Prepare the finite initial federal, seven-state and intertribal source
-      matrix under D-086/D-087; qualify a pilot subset and record gaps.
-      Nationwide survey completion is retained separately in GD-33. Acquire
-      nothing here.
+      Measure existing project-managed storage and implement storage:report
+      against the 50,000,000,000-byte total managed footprint under D-086.
+      Include retained custody, derivatives, exports and peak staging/rebuild
+      space; distinguish measured usage from projections. Preserve evidence;
+      acquire nothing and perform no automatic eviction. Recover the GD-17
+      handoff and source-format gaps before this next bounded task.
   - order: 2
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action: >-
@@ -7621,6 +7642,14 @@ next_actions:
       Await every Part B prerequisite and GD-31 acceptance crosswalk and
       release-root migration. PS09-06 remains the represented release root; an
       installable package alone does not complete the four demonstrations.
+  - order: 12
+    work_item: GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
+    action: >-
+      Complete the remaining national and international/transboundary source
+      survey after higher-priority ready work, preserving the initial GD-17
+      gaps. Documentation only: no acquisition, terms acceptance or
+      registration. Full survey completion remains a release prerequisite, not a
+      pilot gate.
 finish_states:
   makah_demo:
     current_state: complete
