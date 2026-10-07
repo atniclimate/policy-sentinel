@@ -109,6 +109,19 @@ concurrent changes.
 
 ## Durable execution ledger
 
+Current owner direction D-086 is recorded in the
+[development plan revision](docs/decisions/2026-10-06-development-plan-revision.md).
+It adopts measured public acquisition within a 50 GB total managed footprint,
+expanded regional coverage including Nevada, public intertribal resolutions,
+and already-authorized ATNI local interoperability assessment. Public-only
+instances follow software/source licenses; private/shared data and ATNI
+interoperability require applicable authorization and agreements. This planning
+session dispatches no acquisition. GD-31 must represent reviewed successor
+contracts and manifests before later dispatch under that adopted direction;
+do not repurpose historical zero-budget gates or request the same blanket
+authorization again. Source qualification and separate ungranted external
+operations retain their actual boundaries.
+
 - [`ROADMAP.yaml`](ROADMAP.yaml) remains the canonical ledger, and the Markdown
   documents remain the binding product and acceptance contracts. Before
   general-engine work, shared extractor work, ledger graph changes, or work with

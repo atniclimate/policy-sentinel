@@ -5,7 +5,7 @@ D-083/D-084. Recover [its current status](DEMO-STATUS.md) before demo work. The
 local-only historical grants below retain their own scope; they neither revoke
 that demo exception nor authorize new acquisition or general-engine publication.
 
-General-engine state updated 2026-09-22; startup routing amended 2026-10-06
+General-engine plan updated 2026-10-06 under D-086; startup routing remains
 under D-085. `AGENTS.md` holds the rules; this file holds where the engine is,
 what to read, and what a fresh session does first. Historical launch, cutoff
 and outcome documents remain preserved; their execution grants do not resume
@@ -37,7 +37,7 @@ the existing full-ledger validators before repository edits and every substantiv
 source, privacy, publication and acceptance gate. This rule reduces context only
 for narrow demo work; it does not reduce validation or authorize new work.
 
-## Current state (2026-09-22): general development
+## Current state (2026-10-06): general development
 
 The non-PS09 Makah demo track was delivered at the ATNI Annual Convention and
 is finished. The project has returned to general engine development, with
@@ -64,27 +64,39 @@ before implementation:
 5. `docs/decisions/2026-09-22-realignment-open-decisions.md` (the questions)
    and `docs/decisions/2026-09-22-realignment-rulings.md` (the owner's
    answers, RL-01 to RL-14).
+6. `docs/decisions/2026-09-24-definition-of-done-general-development.md` and
+   `docs/decisions/2026-10-06-development-plan-revision.md`: retained release
+   demonstrations, latest owner scope and revised implementation sequence.
+7. `docs/handoffs/2026-10-06-development-realignment-next-session.md`: bounded
+   next-session task, protected evidence and checks.
 
-Ledger status: general-development session 1 applied RL-01. The rulings are
+Historical foundation: general-development session 1 applied RL-01. The rulings are
 D-071 to D-079 in `docs/decision-register.md`, and `ROADMAP.yaml` is at schema
 1.10: milestone "General development" (GD-00 to GD-23) is admitted by rule
 behind four gates, `G-GENERAL-DEV-01` and `G-GD-PRIVATE-CONTEXT` approved for
 local synthetic work, `G-GD-NATIONWIDE-CONTRACT` and `G-GD-INTEROP` closed.
 Every other milestone keeps its frozen identities. Refactor wave 1 (GD-01
 characterization tests, GD-02 module boundary test, GD-03 boundary-guard
-tests) is complete, and the ledger is at a terminal checkpoint with zero
-active items. Ready next: session R (GD-17 nationwide source survey, GD-18
-storage capacity model) and session 2 (wave 2: GD-04, GD-05, GD-07, GD-08,
-GD-09). The ledger's `current_focus` and `next_actions` say what is next;
-recover that session's detail from
-[its outcome](handoffs/general-development-session-01-outcome.md). Note that
-`docs/PROJECT-BACKBONE.md` and `docs/architecture/module-boundaries.md`
-section 9.4 still describe the pre-ruling schema 1.9 state until GD-15
-updates them.
+tests) is complete. GD-24 archive/consolidation and GD-29 optimization O1/O2
+are also complete. D-086 reorders pending work: GD-26 reproducible checks,
+GD-17 initial survey, GD-18 measured capacity, GD-31 authority/manifest/release
+crosswalk, and GD-32 bounded storage/search design precede bulk expansion.
+GD-33 retains the complete nationwide survey without delaying the pilot.
+The ledger's `current_focus` and `next_actions` own active/terminal status;
+Recover session 1's historical detail from
+[its outcome](handoffs/general-development-session-01-outcome.md).
+`docs/architecture/module-boundaries.md` section 9.4 retains historical
+pre-ruling design text pending GD-15; the current ledger and D-086 sequence
+control execution.
 
-Open owner decisions after the rulings: addendum section 12 (registry
-repository shape, wave concurrency versus the one-`in_progress` rule, the
-geometry dependency).
+D-082 settled the registry repository shape and sequential waves. The geometry
+dependency is selected when GD-19 starts. D-086 records the 50 GB total cap,
+public/private authorization distinction, ATNI local assessment authority and
+the owner-selected AK/CA/MT/NV planning communities. Remaining contract and
+source-specific details are listed in the revision; do not reopen settled
+questions. The historical four GD gates are unchanged pending GD-31's reviewed
+successor representation. Neither that implementation requirement nor a source
+qualification gap means the owner must repeat the adopted blanket direction.
 
 ## What a fresh session does first
 

@@ -1,5 +1,13 @@
 # PNW product scope and acceptance contract
 
+For current general development, read the
+[2026-10-06 revision](decisions/2026-10-06-development-plan-revision.md) (D-086)
+and the [1.0 local definition](decisions/2026-09-24-definition-of-done-general-development.md).
+They add the present regional source direction including Nevada and nationwide
+API capability. This retained 0.9 contract and its evidence are not rewritten as
+completed 1.0 acceptance; GD-31 prepares the explicit crosswalk and successor
+contract representation before implementation depends on wider boundaries.
+
 Status: binding scope converged under the exact PS09 Run 1 owner direction,
 superseding product-wide readings of the 2026-09-02 rebase. This contract
 defines the intended 0.9 product; `PS09-06-LOCAL-RC` is its sole local release

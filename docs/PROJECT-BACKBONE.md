@@ -1,6 +1,16 @@
 # Policy Sentinel project backbone
 
-Current phase (2026-09-22): general development. The Makah demo track is
+Current plan (2026-10-06): [development revision](decisions/2026-10-06-development-plan-revision.md)
+under D-086, with its [next-session handoff](handoffs/2026-10-06-development-realignment-next-session.md)
+and [adversarial review](audits/2026-10-06-development-plan-adversarial-review.md).
+GD-26 reproducibility leads the revised order; public-source integration,
+measured acquisition within 50 GB total and a usable offline analyst pilot
+follow source, capacity and successor-contract preparation. The owner scope
+includes the named AK/CA/MT/NV planning communities and whole-state public APIs.
+`ROADMAP.yaml` owns live status; historical summaries below do not supersede
+this revision or reactivate completed runs.
+
+Current phase: general development. The Makah demo track is
 finished, and nationwide coverage (Tribal, federal and state sources across the
 United States) is a core capability of the engine. Start from the
 [general development audit](audits/2026-09-22-general-dev-audit.md), the

@@ -11,8 +11,11 @@ what the material legally means for a Nation.
 The 0.9 definition of done is one general engine supporting a bounded,
 owner-selected PNW/ATNI-facing cohort and contrasting scenarios. Exact current
 ATNI membership is an independently evidenced claim, not the product's cohort
-definition or a universal acquisition gate. Nationwide United States and
-Native Hawaiian support are later-compatible directions. The complete binding scope and acceptance
+definition or a universal acquisition gate. Nationwide United States coverage is
+a core general-engine capability under D-071; Native Hawaiian support remains
+later-compatible. The [2026-10-06 revision](decisions/2026-10-06-development-plan-revision.md)
+records the current implementation sequence, regional acquisition focus,
+50 GB total ceiling and public/local deployment roles. The retained 0.9 scope and acceptance
 contract is [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md).
 
 This is a new, independent project. The earlier public

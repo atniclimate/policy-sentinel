@@ -240,7 +240,22 @@ it acquires nothing, accepts no terms and registers no keys.
 First pass covers federal, all 50 states, DC and the territories. Counties are
 covered by platform class plus originating sites when a user's area demands.
 
+D-086 supersedes that first-pass sequence: GD-17 delivers the finite initial
+federal/seven-state/intertribal matrix; GD-33 completes nationwide coverage for
+release. Catalog and pilot preparation need only the selected initial matrix,
+not completion of every national survey row.
+
 ## 8. Storage holding policy (about 50 GB on I:)
+
+Current amendment D-086 (2026-10-06): **50,000,000,000 bytes total managed
+policy data**, including retained originals, extracted text, indexes, cases,
+exports and peak temporary/rebuild copies. The allocation and rough estimates
+below are historical starting assumptions, superseded by measured budgeting in
+the [development revision](../decisions/2026-10-06-development-plan-revision.md).
+GD-18 inventories existing roots and builds the report before acquisition;
+later measured batches calibrate it. Cold storage still managed by this project
+counts toward the total. No automatic deletion, extra allowance or relaxation of
+the production free-space/run limits is selected.
 
 | Tier | Holds | Cap | Notes |
 | --- | --- | --- | --- |
