@@ -215,3 +215,39 @@ locations are PDF custody line 88 and local-output replay lines 324, 428, 510 an
 intact and none of these failures is replaced by the focused successes.
 This third retained full attempt does not accept GD-31 or GD-32. Root prepares a
 scoped incomplete local checkpoint, followed by the next independent ready item.
+
+Incomplete checkpoint: `cba873a4da2f1d87f43a998fb88d31d0499db170` contains exactly
+the eleven owned paths, with no owner inputs staged. Final incomplete review and
+roadmap/backbone checks pass before this local commit. No remote operation occurs.
+
+## GD-04 normalized boundary guard manifest
+
+GD-04 is the sole active item, selected at priority 314 from the ready graph.
+Its closure is completed GD-03 and GD-00, under approved G-GENERAL-DEV-01/D-071.
+GD-31 and GD-32 are temporarily deferred with mandatory full validation pending;
+their failed logs and release obligations remain intact. This transition opens
+no source operation, private-data, credential/terms or publication gate.
+
+Root owns this record, ROADMAP.yaml, a dated handoff,
+`src/pipeline/policy-validation.mjs` and `tests/pipeline/pipeline.test.ts`.
+A bounded worker owns only `src/core/boundary-guard.mjs`, its `.d.mts` and
+`tests/core/boundary-guard.test.ts`; it runs no tests or Git. Historical private
+lists, demo/Worker, extractors, sealed source objects and owner inputs are outside
+both leases. Core imports no private module or I/O. Root alone validates and
+commits; independent read-only review precedes acceptance.
+
+Freeze core exports: readonly normalized `PROTECTED_KEYS`,
+`normalizeProtectedKey(key)`, `isProtectedKey(key)` and strict recursive
+`rejectProtectedKeys(value)`. Keep all 77 frozen origin spellings and depth
+rejection cases; adapt only the source-extraction/export expectations to the
+normalized 70-key union. Add spelling-variant checks. Generic rejection accepts
+no caller-controlled exceptions. Record traversal uses the shared predicate,
+exempting only the six exact canonical root keys and always scanning children.
+Add meaningful record negatives beneath those allowed roots. Existing error
+aggregation and schema/identity/provenance rules remain intact.
+
+Validate the live ledger before implementation, then run final lint/typecheck,
+unit tests (including GD-03, pipeline and data integrity), source/boundary checks,
+synthetic build/artifact, appropriate full validation and independent review.
+Retain every failure under a new external attempt label. Native probe limits are
+unchanged; incomplete validation cannot complete the item.

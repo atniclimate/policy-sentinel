@@ -1079,16 +1079,16 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
+  work_item: GD-04-CORE-BOUNDARY-GUARD
   objective: >-
-    Measure and document bounded offline search using synthetic inputs under the
-    2026-10-07 owner long-run instruction. GD-31 acceptance remains incomplete
-    after preserved Windows probe failures; no deadline or operation gate
-    changes. This independent GD-32 design work permits no source dispatch.
+    Implement the shared normalized protected-key guard under the bounded GD-04
+    manifest in docs/development/2026-10-07-autonomous-run.md. GD-31/GD-32
+    acceptance remains pending after retained native-probe failures. Preserve
+    valid canonical record roots, historical private lists and closed gates.
   terminal_reason: null
   resumable_roots:
-    - GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
-  last_durable_checkpoint: b6145f6c479fd36ca2cdfb1a896407a0ae9e33ba
+    - GD-04-CORE-BOUNDARY-GUARD
+  last_durable_checkpoint: cba873a4da2f1d87f43a998fb88d31d0499db170
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5955,7 +5955,13 @@ work_items:
     priority: 294
     milestone: General development
     title: Bounded offline search storage and pilot measurement design
-    status: in_progress
+    status: deferred
+    reason: >-
+      Temporarily postpone item acceptance after the final full suite retains
+      five unchanged Windows native-probe timeouts. Design, failed/incomplete
+      measurements and focused review are checkpointed at cba873a; full npm test
+      remains required. Continue independent ready GD-04 without relaxing limits
+      or rerunning ended measurement namespaces.
     work_class: general_development_local
     decision_ref: D-086
     authorization_gate: G-GENERAL-DEV-01
@@ -7009,7 +7015,7 @@ work_items:
     priority: 314
     milestone: General development
     title: Core boundary guard adopted by record validation
-    status: ready
+    status: in_progress
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -7025,7 +7031,8 @@ work_items:
       - >-
         tests/pipeline/pipeline.test.ts, tests/app/data-integrity.test.ts and
         npm run build stay green.
-    evidence: []
+    evidence:
+      - docs/development/2026-10-07-autonomous-run.md
   - id: GD-05-INTAKE-REPLAY-AND-DISCOVERY
     priority: 315
     milestone: General development
@@ -8279,14 +8286,14 @@ next_actions:
   - order: 2
     work_item: GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
     action:
-      "Active bounded task: validate and execute the new finite synthetic search
-      protocol, retain failed/partial measurements and freeze pilot journeys.
-      Historical runner remains ended; no acquisition or delivery acceptance."
+      "Finish mandatory full validation of checkpointed search design and
+      measurements when native-probe conditions change. Retain incomplete rows;
+      never rerun ended namespaces or claim acquisition/delivery acceptance."
   - order: 3
     work_item: GD-04-CORE-BOUNDARY-GUARD
     action:
-      "Implement the core guard against the existing negative contract and
-      enable its retained skipped tests."
+      "Active bounded task: implement the normalized core guard, preserve exact
+      valid record root names and enable all retained rejection tests."
   - order: 4
     work_item: GD-05-INTAKE-REPLAY-AND-DISCOVERY
     action:

@@ -7,8 +7,9 @@ current item from `ROADMAP.yaml` and the
 [run record](../development/2026-10-07-autonomous-run.md), after the continuation
 prompt's complete general-engine read order.
 
-GD-32 is the sole active item. GD-31 is temporarily deferred after two retained
-full-test failures; its required acceptance remains pending. This checkpoint
+GD-32 was the sole active item at the incomplete local checkpoint
+`cba873a4da2f1d87f43a998fb88d31d0499db170`. The live ledger now selects GD-04;
+GD-31 and GD-32 are temporarily deferred with required acceptance pending. This checkpoint
 does not complete either item, the analyst journeys, a pilot or the local
 release. Approved successor preparation packets still permit no dispatch.
 
@@ -45,10 +46,9 @@ unchanged file-symlink privilege skip, and policy 138 pass/five
 `WINDOWS_PROBE_TIMEOUT` failures. Later full-suite phases do not run. No aggregate
 check or acceptance pass is claimed. All 36 pre-existing owner-input hashes match.
 
-Next: validate this handoff and the live ledger, then make an explicitly scoped
-incomplete local checkpoint. GD-31 acceptance and
+The incomplete local checkpoint is committed. GD-31 acceptance and
 GD-32 completion require their actual validation evidence. Continue the lowest
-priority-number eligible work after that checkpoint. GD-04 is the next currently
-ready independent item; its implementation has not begun. Never reopen the
+priority-number eligible work under its own reviewed manifest. GD-04 is selected
+as the sole active item; recover its exact scope from the run record. Never reopen the
 owner's adopted blanket direction or treat it as source qualification,
 publication, private sharing, credential/terms approval or acquisition dispatch.
