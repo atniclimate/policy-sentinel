@@ -1008,32 +1008,15 @@ baseline:
         configured.
 
 current_focus:
-  work_item: null
+  work_item: GD-18-STORAGE-CAPACITY-MODEL
   objective: >-
-    GD-17 initial source survey is complete at the validated local checkpoint.
-    Recover docs/handoffs/2026-10-07-gd17-initial-source-survey.md. GD-18
-    measured storage capacity is next; GD-33 full nationwide survey is also
-    ready.
-  terminal_reason: >-
-    The bounded documentation task, independent source/sovereignty reviews and
-    local validation are complete. The newly dispatch-ready pilot subset is
-    empty; the contract-preparation shortlist and source-specific gaps are
-    recorded. No policy acquisition or API integration was performed. GD-18 is
-    the next bounded task; historical profiles and external gates remain
-    unchanged. The ignored-settings formatting limitation persists.
+    GD-18 implements a read-only measured storage inventory and peak-capacity
+    report against the total 50,000,000,000-byte managed cap. Preserve sealed
+    custody and independent run/free-disk limits; acquire and delete nothing.
+  terminal_reason: null
   resumable_roots:
     - GD-18-STORAGE-CAPACITY-MODEL
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-    - GD-04-CORE-BOUNDARY-GUARD
-    - GD-05-INTAKE-REPLAY-AND-DISCOVERY
-    - GD-07-RESEARCH-OUTPUT-SPLIT
-    - GD-08-CONTEXT-RELEVANCE-EXTRACTION
-    - GD-09-JURISDICTION-IDENTIFIER-MODEL
-    - GD-13-NATIONWIDE-RECORD-CONTRACT
-    - GD-16-INTEROP-PURE-ADAPTER
-    - GD-22-NATION-REGISTRY-BINDING
-    - GD-27-LOCAL-RELEASE-PACKAGE
-    - GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
   last_durable_checkpoint: b839a56704073f044700bd7509b6c55f7bb05f28
   resume_command: npm run validate:roadmap
 
@@ -5717,7 +5700,7 @@ work_items:
     priority: 292
     milestone: General development
     title: Storage capacity model, holding policy and storage:report
-    status: ready
+    status: in_progress
     work_class: general_development_local
     decision_ref: D-077
     authorization_gate: G-GENERAL-DEV-01
@@ -5736,7 +5719,19 @@ work_items:
         Refusal and peak-space planning are explicit; no automatic eviction or
         acquisition occurs here. Later admitted batches calibrate the estimates
         from actual useful data without requiring the cap to be filled.
-    evidence: []
+    evidence:
+      - docs/development/gd18-storage-report-2026-10-07.md
+      - docs/handoffs/2026-10-07-gd18-storage-report.md
+      - >-
+        Standalone metadata-only storage:report and offline tests implemented.
+        Scope/privacy review passed; Windows root/run alias review findings
+        repaired and independently closed. Final focused suite passed 29 tests.
+        All 12 declared roots measured at 558,104,040 logical bytes; the
+        hypothetical 2,823,028,200-byte peak forecast refuses FREE_SPACE_FLOOR
+        on the C support volume, not an I volume shortage. Full tests/build pass
+        before the final narrow storage-only namespace delta, then focused tests
+        and lint pass again. Global ignored-settings formatting issue persists.
+        No acquisition, deletion, relocation or production-runner change.
 
   - id: GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
     priority: 293

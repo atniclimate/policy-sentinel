@@ -73,6 +73,8 @@ before implementation:
    checkpoint, validation limits and next-task recovery.
 9. `docs/handoffs/2026-10-07-gd17-initial-source-survey.md`: initial source
    survey, qualification gaps and current validation/next-task state.
+10. `docs/handoffs/2026-10-07-gd18-storage-report.md`: measured storage command,
+    inventory, conservative forecast refusal and next-task recovery.
 
 Historical foundation: general-development session 1 applied RL-01. The rulings are
 D-071 to D-079 in `docs/decision-register.md`, and `ROADMAP.yaml` is at schema
@@ -115,7 +117,12 @@ failure remains visible. GD-17 initial source survey is complete at `b839a56`;
 recover its handoff above. It records a contract-preparation shortlist and an
 empty newly dispatch-ready pilot subset. No policy payload was acquired, no
 profile renewed and no API integration accepted. GD-18 measured storage capacity
-is next; GD-33 full nationwide survey is also ready. The full A3 restore/replay
+is the sole active item pending local commit and terminal bookkeeping. The
+read-only command passes 29 focused tests and independent review. All twelve
+declared roots total 558,104,040 bytes. The hypothetical forecast correctly
+refuses because the included C: support volume is below the 20 GiB disk floor;
+this is not an I: shortage and does not block GD-31/GD-32 preparation.
+GD-33 full nationwide survey is also ready. The full A3 restore/replay
 demonstration remains future acceptance work.
 
 ## What a fresh session does first

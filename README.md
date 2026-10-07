@@ -13,6 +13,94 @@ The separately authorized public demonstration and its maintenance evidence are
 recorded in [Live demo status](docs/DEMO-STATUS.md). The engineering-review
 checkpoints below describe their historical scope.
 
+## Measured storage and capacity planning
+
+`npm run storage:report -- --manifest <local.json>` inventories explicitly
+selected managed roots without reading document bodies or changing files.
+Add `--json` for a machine-readable report; `--help` describes exit codes.
+`npm run test:storage` runs its offline tests and is included in `npm test`.
+Store the machine-local manifest and generated report outside Git. Use opaque
+root/run labels, not personal or sensitive names. The command prints aggregate
+labels, counts, sizes and fixed failure codes, never storage paths or filenames.
+
+Example manifest for one already-owned run (replace the example path):
+
+```json
+{
+  "version": "1.0.0",
+  "roots": [
+    {
+      "id": "retained-run",
+      "path": "I:/owned-policy-store",
+      "categories": [
+        { "path": "objects", "category": "originals" },
+        { "path": "work/renditions", "category": "renditions" },
+        { "path": "receipts", "category": "metadata" },
+        { "path": "local-output", "category": "cases_exports" }
+      ],
+      "runs": [{ "id": "run-one", "path": ".", "state": "existing" }]
+    }
+  ],
+  "projections": [
+    {
+      "id": "example-growth",
+      "rootId": "retained-run",
+      "runId": "run-one",
+      "retainedBytes": 104857600,
+      "temporaryBytes": 52428800
+    }
+  ]
+}
+```
+
+These sample estimates are assumptions, not measured document sizes or
+acquisition authority. Use `"projections": []` for inventory alone; future
+capacity then remains `not_evaluated`. Required root fields are `id`, `path`,
+`categories` and `runs`; empty arrays are permitted. Roots must be absolute,
+non-overlapping local directories. Category/run paths are relative and cannot
+escape the root. Run subdivisions are counted within their parent, never twice.
+Repository roots are excluded except the explicit managed namespaces `dist`,
+`.cache` and `generated-data/real-source-prerelease`; canonical aliases cannot
+bypass that boundary.
+An `existing` run must exist; a `planned` run must be absent. Projections name
+their run explicitly and contain nonnegative integer byte estimates.
+
+Categories are `originals`, `renditions`, `metadata`, `indexes`, `cases_exports`,
+`temporary` and `unclassified`. The longest component-prefix rule wins;
+unmatched files still count as unclassified. A `work` directory can contain
+durable renditions/corpus files, so it must not be classified as temporary just
+because of its name. Categories describe storage, not source admission or
+public visibility. Include historical custody, managed archives/cold storage,
+duplicate outputs and shared contributions in the declared root inventory.
+
+The report uses logical file sizes. Forecasting sums current bytes, all proposed
+retained additions and their simultaneous temporary/rebuild peaks against
+**50,000,000,000 bytes**. It separately checks the **10 GiB run ceiling** and
+**20 GiB post-write free-disk floor**, aggregating plans sharing one filesystem.
+The report conservatively applies that floor to every declared managed
+filesystem, including support volumes receiving no proposed writes. Such a
+volume can refuse an otherwise affordable target-volume forecast. This is
+stricter than a target-only runner check and does not change production checks.
+Moving a managed copy to cold storage does not create a second allowance.
+Forecasts are conservative planning estimates, not a disk reservation or a
+production-runner retrofit. Actual allocation overhead and other processes can
+consume space; rerun immediately before a separately admitted operation.
+
+Missing, inaccessible, changed, unsafe-linked or truncated roots make accounting
+incomplete; observed totals are then lower bounds. No partial inventory can
+produce a passing forecast. Traversal is bounded and does not follow symlinks,
+junctions or other detected reparse points. Scan quiescent roots: metadata
+checks cannot provide an atomic snapshot or protect against a privileged
+concurrent filesystem writer. An omitted managed root remains outside the
+report, so a complete declared inventory is not proof of whole-machine coverage.
+
+Exit 0 means the declared inventory completed and any supplied forecast passed;
+exit 2 means accounting is incomplete, the measured cap is exceeded or the
+forecast is refused; exit 1 is an invalid input or unexpected error. No report
+authorizes acquisition, deletion, automatic eviction, source reuse or publication.
+
+## Historical engineering checkpoints
+
 The adopted finite engineering review `H-ENGINEERING-REVIEW-02` is complete.
 Recover its [outcome](docs/handoffs/ps09-engineering-review-02-outcome.md),
 [journal](docs/development/PS09-ENGINEERING-REVIEW-02.md) and live roadmap.
