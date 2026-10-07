@@ -14,6 +14,7 @@
     "demo:worker:deploy": "npx wrangler deploy --config worker/wrangler.toml",
     "hooks:run": "node scripts/codex-hooks.mjs",
     "hooks:test": "node --test tests/hooks/codex-hooks.test.mjs",
+    "hooks:test:snapshot": "node scripts/test-hooks-snapshot.mjs",
     "validate:roadmap": "node scripts/validate-roadmap.mjs",
     "test:roadmap": "node --test tests/pipeline/roadmap-validator.test.mjs",
     "test:assurance": "node --test tests/pipeline/policy-assurance.test.mjs tests/pipeline/policy-windows-probe.test.mjs tests/pipeline/engineering-measurement.test.mjs",

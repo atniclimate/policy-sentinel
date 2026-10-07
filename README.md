@@ -336,6 +336,7 @@ not automatically change `needs_accessibility_review` into a passing report.
 npm run dev
 npm run validate:runtime
 npm run hooks:test
+npm run hooks:test:snapshot
 npm run validate:roadmap
 npm run validate:backbone
 npm test
@@ -405,9 +406,19 @@ Compaction must not be vetoed by repository state, validations belong in the
 explicit command surface, and a stop hook must not create continuation loops.
 The two hooks are synchronous cooperative guardrails, not a shell parser,
 permission system, security boundary, or replacement for `npm run check`.
-Run `npm run hooks:test` for their focused contract tests. Codex requires the
-exact project hook definitions to be reviewed and trusted; after cloning or
-changing them, use `/hooks` to inspect and trust the repository hook layer. See
+Run `npm run hooks:test` for their focused contract tests, including the finite
+matrix of all committed Claude Bash deny forms through the production matcher.
+The command strings are never executed. `npm run hooks:test:snapshot` copies
+tracked working-tree source into a disposable Git root and runs the same suite
+without ignored historical receipts or local settings. It also includes its own
+harness before its first commit, reuses a copy of the installed `yaml` dependency
+with its version checked against the lockfile, reports a source digest, and
+removes only its own snapshot.
+This is source reproducibility proof, not an independent dependency installation,
+active-client event probe, or completion of the A3 restore/replay demonstration.
+Codex requires the exact project hook definitions to be reviewed and trusted;
+after cloning or changing them, use `/hooks` to inspect and trust the repository
+hook layer. See
 the
 [official Codex hooks reference](https://learn.chatgpt.com/docs/hooks) for the
 runtime and trust model.

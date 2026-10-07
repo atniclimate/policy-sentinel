@@ -1964,7 +1964,14 @@ test("schema 1.10 admits the general-development graph by rule and keeps every o
     [
       "identity-outside-pattern",
       (r) => {
-        item(r, userSuppliedSourceClass).id = "GENDEV-23-USER-SUPPLIED";
+        const invalidId = "GENDEV-23-USER-SUPPLIED";
+        item(r, userSuppliedSourceClass).id = invalidId;
+        // Keep references valid so this case reaches the identity guard.
+        for (const entry of r.work_items) {
+          entry.dependencies = entry.dependencies.map((id) =>
+            id === userSuppliedSourceClass ? invalidId : id,
+          );
+        }
       },
       /general-development identity must match GD-nn-NAME/,
     ],

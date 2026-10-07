@@ -195,6 +195,7 @@ const run = (command, args, options = {}) => {
     maxBuffer: 4 * 1024 * 1024,
     shell: false,
     timeout: options.timeout ?? 30_000,
+    windowsHide: true,
   });
   return {
     ok: result.status === 0 && result.error === undefined,
@@ -609,6 +610,30 @@ const gitInvocationOperation = (invocation) => {
     command: operation[1].toLowerCase(),
     remainder,
   };
+};
+
+const hasGitFlagPrefix = (args, prefix, { commit = false } = {}) => {
+  let messageValue = false;
+  for (const [rawToken] of args.matchAll(
+    /(?:[^\s"']+|"[^"\r\n]*"|'[^'\r\n]*')+/gu,
+  )) {
+    const token = stripMatchingShellQuotes(rawToken);
+    if (messageValue) {
+      messageValue = false;
+      continue;
+    }
+    if (token === "--") {
+      break;
+    }
+    if (commit && ["-m", "--message"].includes(token)) {
+      messageValue = true;
+      continue;
+    }
+    if (token.toLowerCase().startsWith(prefix)) {
+      return true;
+    }
+  }
+  return false;
 };
 
 const approvedEvidenceDirectory =
@@ -1175,12 +1200,11 @@ export const evaluateShellCommand = (
     gitOperations.some(({ operation }) => {
       const { args, command: gitCommand } = operation;
       return (
-        (gitCommand === "reset" && /(?:^|\s)--hard(?:\s|$)/iu.test(args)) ||
-        gitCommand === "rebase" ||
-        (gitCommand === "commit" && /(?:^|\s)--amend(?:\s|$)/iu.test(args)) ||
+        (gitCommand === "reset" && hasGitFlagPrefix(args, "--hard")) ||
+        ["rebase", "tag", "merge", "clean"].includes(gitCommand) ||
+        (gitCommand === "commit" &&
+          hasGitFlagPrefix(args, "--amend", { commit: true })) ||
         ["filter-branch", "filter-repo"].includes(gitCommand) ||
-        (gitCommand === "clean" &&
-          /(?:^|\s)(?:-[a-z]*f[a-z]*|--force)(?:\s|$)/iu.test(args)) ||
         gitCommand === "apply"
       );
     })
@@ -1189,6 +1213,22 @@ export const evaluateShellCommand = (
       blocked: true,
       reason:
         "High-risk destructive or history-rewriting Git operation blocked by repository policy.",
+    };
+  }
+
+  // Keep the finite command forms in .claude/settings.json covered here too.
+  // These are invocation checks, not a shell interpreter or execution grant.
+  if (
+    [
+      /^(?:curl|wget|invoke-webrequest|iwr|invoke-restmethod|irm)(?:\.exe)?(?:\s|$)/iu,
+      /^rm\s+-rf(?:\s|$)/iu,
+      /^remove-item\b[^\r\n]*\s-recurse/iu,
+    ].some((pattern) => matchesShellInvocation(expandedCommand, pattern))
+  ) {
+    return {
+      blocked: true,
+      reason:
+        "Direct network fetch or recursive deletion is denied by the committed command policy.",
     };
   }
   if (
@@ -1257,8 +1297,7 @@ export const evaluateShellCommand = (
     gitOperations.some(({ operation }) => {
       const { args, command: gitCommand } = operation;
       return (
-        (gitCommand === "remote" &&
-          /^(?:add|remove|rename|set-url|update)\b/iu.test(args)) ||
+        gitCommand === "remote" ||
         (gitCommand === "config" &&
           !/(?:^|\s)--get(?:-all|-regexp)?\b/iu.test(args) &&
           /\b(?:branch\.[^\s=]+\.remote|remote\.[^\s=]+)\b/iu.test(args))
@@ -1268,7 +1307,7 @@ export const evaluateShellCommand = (
     return {
       blocked: true,
       reason:
-        "Remote configuration mutation is forbidden while the GitHub boundary is closed.",
+        "Direct Git remote commands and remote configuration mutation are denied by repository policy.",
     };
   }
 
@@ -1286,18 +1325,12 @@ export const evaluateShellCommand = (
         ghPrefix,
         String.raw`repo\s+(?:autolink|deploy-key)\s+(?:add|create|delete|remove|set)\b`,
       ),
-      invocationPattern(
-        ghPrefix,
-        String.raw`pr\s+(?:close|comment|create|edit|lock|merge|ready|reopen|review|unlock)\b`,
-      ),
+      invocationPattern(ghPrefix, String.raw`pr\b`),
       invocationPattern(
         ghPrefix,
         String.raw`issue\s+(?:close|comment|create|delete|develop|edit|lock|pin|reopen|transfer|unlock|unpin)\b`,
       ),
-      invocationPattern(
-        ghPrefix,
-        String.raw`release\s+(?:create|delete|edit|upload)\b`,
-      ),
+      invocationPattern(ghPrefix, String.raw`release\b`),
       invocationPattern(ghPrefix, String.raw`gist\s+(?:create|delete|edit)\b`),
       invocationPattern(
         ghPrefix,
@@ -1315,11 +1348,11 @@ export const evaluateShellCommand = (
       invocationPattern(ghPrefix, String.raw`run\s+(?:cancel|delete|rerun)\b`),
       invocationPattern(
         ghPrefix,
-        String.raw`(?:secret|variable)\s+(?:delete|remove|set)\b`,
+        String.raw`(?:secret\b|variable\s+(?:delete|remove|set)\b)`,
       ),
       invocationPattern(
         ghPrefix,
-        String.raw`api\b[^\r\n]*(?:(?:-X(?:=|\s*)|--method(?:=|\s+))(?:POST|PUT|PATCH|DELETE)|(?:^|\s)(?:-f|-F|--field|--raw-field|--input)(?:\s|=))`,
+        String.raw`api\b[^\r\n]*(?:(?:^|\s)(?:-X(?:=|\s*)|--method(?:=|\s+))|(?:^|\s)(?:-f|-F|--field|--raw-field|--input)(?:\s|=))`,
       ),
       invocationPattern(
         npmPrefix,
