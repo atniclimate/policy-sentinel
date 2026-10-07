@@ -1,98 +1,40 @@
-// GD-03: boundary-guard tests (docs/architecture/module-boundaries.md
-// section 3, section 9.1 rows GD-03/GD-04; audit section 2.6 row "Divergent
-// boundary guards"). This step is the tests. It owns only this file.
-//
-// Part A (always runs) pins the expected protected-key set: the union of the
-// three existing families named in the design --
-//   - src/pipeline/policy-validation.mjs:48-72 (`FORBIDDEN_NORMALIZED_KEYS`)
-//   - src/engine/land-boundary-contracts.ts:39-93
-//     (`PRIVATE_CONTEXT_PROTECTED_KEYS`)
-//   - src/engine/citation-export-contracts.ts:49-86
-//     (`CITATION_EXPORT_PROTECTED_KEYS`)
-// -- plus the four keys the design adds: `landStatus`, `apn`, `parcelNumber`,
-// `shapefile`. The union is asserted against an explicit sorted literal so
-// this test fails if any of the three source lists drifts.
-//
-// `PRIVATE_CONTEXT_PROTECTED_KEYS` and `CITATION_EXPORT_PROTECTED_KEYS` are
-// exported, so they are imported directly. `FORBIDDEN_NORMALIZED_KEYS` is
-// NOT exported (verified: policy-validation.mjs only exports
-// `PolicyValidationError`, `sourceDerivedLeafPointers`,
-// `completeSyntheticProvenance`, `validateRecordPolicy` and
-// `validateRecordSetPolicy`), so it is extracted mechanically below by
-// reading the source file text and pulling the quoted string literals out of
-// the `const FORBIDDEN_NORMALIZED_KEYS = new Set([...])` block.
-//
-// Casing note for GD-04: `FORBIDDEN_NORMALIZED_KEYS` is already
-// lower-cased/normalized ("legalconclusion", "rightsimpact", ...), while the
-// other two lists use exact camelCase field spellings ("legalConclusion",
-// "rightsImpact", ...). This test does not invent a normalization rule: it
-// treats the three lists as sets of exact strings, so e.g. "legalconclusion"
-// and "legalConclusion" are two distinct entries in the union. GD-04 decides
-// whether `rejectProtectedKeys` compares keys exactly or case-insensitively;
-// this test's Part B checks exact-spelling rejection only, since that is
-// what every source list guarantees today.
-//
-// Part B (skipped until GD-04 exists) resolves src/core/boundary-guard.mjs
-// relative to the project root. If it does not exist yet, the behavior
-// tests are skipped with a reason naming GD-04. When it exists, this test
-// imports it with a non-literal specifier (a file URL built with
-// pathToFileURL) so tsc does not try to statically resolve a module that may
-// not exist yet, and asserts:
-//   - `rejectProtectedKeys` THROWS when a protected key appears at the top
-//     level, nested one level in an object, inside an array element, and at
-//     least three levels deep (the contract this test assumes; GD-04
-//     implements to it). If GD-04 instead returns a rejection report, this
-//     step's constraints ask that choice be stated in a comment -- it is
-//     stated here as "throws" and GD-04 must match it or this file must be
-//     revisited as part of that step.
-//   - a benign object containing none of the protected keys is accepted
-//     (does not throw).
-//   - a value that merely contains a protected key's name as a *string
-//     value* (not as an object key) is accepted (does not throw).
-//   - the module exports the protected-key set and it equals the Part A
-//     union. GD-04's design does not name this export; this test assumes
-//     `PROTECTED_KEYS`, following the naming pattern of the three source
-//     lists' own exports (`PRIVATE_CONTEXT_PROTECTED_KEYS`,
-//     `CITATION_EXPORT_PROTECTED_KEYS`). GD-04 must export under this exact
-//     name or this file must be revisited as part of that step.
-
-import { existsSync, readFileSync } from "node:fs";
-import { resolve as resolvePath } from "node:path";
-import { pathToFileURL } from "node:url";
+// GD-03 froze 77 origin spellings and their rejection-depth cases. GD-04 keeps
+// those literals/cases and normalizes only the exported comparison to 70 keys.
+// The historical record list is pinned below instead of extracting a private
+// source block that shared-core adoption removes. Private seam drift checks stay.
 
 import { describe, expect, it } from "vitest";
+
+import * as boundaryGuard from "../../src/core/boundary-guard.mjs";
 
 import { CITATION_EXPORT_PROTECTED_KEYS } from "../../src/engine/citation-export-contracts";
 import { PRIVATE_CONTEXT_PROTECTED_KEYS } from "../../src/engine/land-boundary-contracts";
 
-const REPO_ROOT = resolvePath(import.meta.dirname, "../..");
-
-const POLICY_VALIDATION_SOURCE_PATH = resolvePath(
-  REPO_ROOT,
-  "src/pipeline/policy-validation.mjs",
-);
-
-function extractForbiddenNormalizedKeys(): string[] {
-  const source = readFileSync(POLICY_VALIDATION_SOURCE_PATH, "utf8");
-  const blockMatch = source.match(
-    /const FORBIDDEN_NORMALIZED_KEYS = new Set\(\[([\s\S]*?)\]\);/u,
-  );
-  if (blockMatch === null) {
-    throw new Error(
-      "FORBIDDEN_NORMALIZED_KEYS block not found in policy-validation.mjs; " +
-        "GD-03's mechanical text extraction needs updating to match the " +
-        "current source shape",
-    );
-  }
-  const body = blockMatch[1] ?? "";
-  const stringLiteralPattern = /"([^"]*)"/gu;
-  const keys: string[] = [];
-  let literalMatch: RegExpExecArray | null;
-  while ((literalMatch = stringLiteralPattern.exec(body)) !== null) {
-    keys.push(literalMatch[1] ?? "");
-  }
-  return keys;
-}
+const LEGACY_RECORD_PROTECTED_KEYS = Object.freeze([
+  "legalconclusion",
+  "legaldetermination",
+  "rightsimpact",
+  "rightsdetermination",
+  "inferredrelevance",
+  "inferrednation",
+  "inferrednationrelationship",
+  "keywordrelevance",
+  "geographyrelevance",
+  "parcel",
+  "parcelid",
+  "parcelgeometry",
+  "geometry",
+  "coordinates",
+  "latitude",
+  "longitude",
+  "landownership",
+  "trustland",
+  "feeland",
+  "triballyownedparcel",
+  "propertyownership",
+  "mapdata",
+  "privatelandcontext",
+] as const);
 
 // The four keys the design adds beyond the three source lists (design
 // section 3; step row acceptance line 1).
@@ -103,10 +45,10 @@ const ADDED_PROTECTED_KEYS = Object.freeze([
   "shapefile",
 ] as const);
 
-// Explicit, sorted literal target: the union of FORBIDDEN_NORMALIZED_KEYS,
+// Explicit, sorted literal target: the union of LEGACY_RECORD_PROTECTED_KEYS,
 // PRIVATE_CONTEXT_PROTECTED_KEYS, CITATION_EXPORT_PROTECTED_KEYS and
 // ADDED_PROTECTED_KEYS, computed and verified once against the live source
-// files and frozen here. A drift in any of the three source lists changes
+// files and frozen here. A drift in either private seam list changes
 // this union and fails Part A.
 const EXPECTED_PROTECTED_KEY_UNION = Object.freeze([
   "apiKey",
@@ -190,13 +132,12 @@ const EXPECTED_PROTECTED_KEY_UNION = Object.freeze([
 
 describe("Part A: frozen expected protected-key union (GD-03)", () => {
   it("equals the union of the three source lists plus the four added keys", () => {
-    const forbiddenNormalizedKeys = extractForbiddenNormalizedKeys();
-    expect(forbiddenNormalizedKeys.length).toBeGreaterThan(0);
+    expect(LEGACY_RECORD_PROTECTED_KEYS).toHaveLength(23);
     expect(PRIVATE_CONTEXT_PROTECTED_KEYS.length).toBeGreaterThan(0);
     expect(CITATION_EXPORT_PROTECTED_KEYS.length).toBeGreaterThan(0);
 
     const union = new Set<string>([
-      ...forbiddenNormalizedKeys,
+      ...LEGACY_RECORD_PROTECTED_KEYS,
       ...PRIVATE_CONTEXT_PROTECTED_KEYS,
       ...CITATION_EXPORT_PROTECTED_KEYS,
       ...ADDED_PROTECTED_KEYS,
@@ -207,25 +148,15 @@ describe("Part A: frozen expected protected-key union (GD-03)", () => {
   });
 });
 
-const BOUNDARY_GUARD_PATH = resolvePath(
-  REPO_ROOT,
-  "src/core/boundary-guard.mjs",
-);
-const boundaryGuardExists = existsSync(BOUNDARY_GUARD_PATH);
-const boundaryGuardModuleUrl = pathToFileURL(BOUNDARY_GUARD_PATH).href;
-
 interface BoundaryGuardModule {
-  readonly PROTECTED_KEYS: Iterable<string>;
-  readonly rejectProtectedKeys: (value: unknown) => unknown;
+  readonly PROTECTED_KEYS: readonly string[];
+  readonly normalizeProtectedKey: (key: string) => string;
+  readonly isProtectedKey: (key: string) => boolean;
+  readonly rejectProtectedKeys: (value: unknown) => void;
 }
 
-async function loadBoundaryGuardModule(): Promise<BoundaryGuardModule> {
-  // Non-literal specifier: src/core/boundary-guard.mjs does not exist until
-  // GD-04, so a literal import specifier would fail tsc. This dynamic import
-  // is only ever reached when boundaryGuardExists is true (Part B is
-  // skipped otherwise).
-  const specifier = boundaryGuardModuleUrl;
-  return (await import(/* @vite-ignore */ specifier)) as BoundaryGuardModule;
+function loadBoundaryGuardModule(): Promise<BoundaryGuardModule> {
+  return Promise.resolve(boundaryGuard);
 }
 
 function atTopLevel(key: string): Record<string, unknown> {
@@ -244,50 +175,177 @@ function threeLevelsDeep(key: string): Record<string, unknown> {
   return { a: { b: { c: { [key]: "protected-value" } } } };
 }
 
-describe.skipIf(!boundaryGuardExists)(
-  "Part B: boundary-guard behavior (skipped until GD-04 builds src/core/boundary-guard.mjs)",
-  () => {
-    it.each(EXPECTED_PROTECTED_KEY_UNION.map((key) => [key] as const))(
-      "rejects %s at the top level, nested, inside an array element, and three levels deep",
-      async (key) => {
-        const { rejectProtectedKeys } = await loadBoundaryGuardModule();
+describe("Part B: boundary-guard behavior (GD-04)", () => {
+  it.each(EXPECTED_PROTECTED_KEY_UNION.map((key) => [key] as const))(
+    "rejects %s at the top level, nested, inside an array element, and three levels deep",
+    async (key) => {
+      const { rejectProtectedKeys } = await loadBoundaryGuardModule();
 
-        expect(() => rejectProtectedKeys(atTopLevel(key))).toThrow();
-        expect(() => rejectProtectedKeys(nestedOneLevel(key))).toThrow();
-        expect(() => rejectProtectedKeys(insideArrayElement(key))).toThrow();
-        expect(() => rejectProtectedKeys(threeLevelsDeep(key))).toThrow();
+      expect(() => rejectProtectedKeys(atTopLevel(key))).toThrow();
+      expect(() => rejectProtectedKeys(nestedOneLevel(key))).toThrow();
+      expect(() => rejectProtectedKeys(insideArrayElement(key))).toThrow();
+      expect(() => rejectProtectedKeys(threeLevelsDeep(key))).toThrow();
+    },
+  );
+
+  it("accepts a benign object containing none of the protected keys", async () => {
+    const { rejectProtectedKeys } = await loadBoundaryGuardModule();
+
+    expect(() =>
+      rejectProtectedKeys({
+        officialTitle: "An ordinance",
+        status: { normalized: "enacted" },
+        notes: ["a", "b", { detail: "c" }],
+      }),
+    ).not.toThrow();
+  });
+
+  it("accepts values that merely contain a protected key name as a string value, not as a key", async () => {
+    const { rejectProtectedKeys } = await loadBoundaryGuardModule();
+
+    expect(() =>
+      rejectProtectedKeys({
+        summary: "This record does not include geometry or shapefile data.",
+        tags: ["parcelNumber", "apn"],
+      }),
+    ).not.toThrow();
+  });
+
+  it("exports immutable PROTECTED_KEYS equal to the normalized Part A union", async () => {
+    const guardModule = await loadBoundaryGuardModule();
+
+    expect(new Set(guardModule.PROTECTED_KEYS)).toEqual(
+      new Set(
+        EXPECTED_PROTECTED_KEY_UNION.map((key) =>
+          key.toLowerCase().replace(/[^a-z0-9]/gu, ""),
+        ),
+      ),
+    );
+    expect(guardModule.PROTECTED_KEYS).toHaveLength(70);
+    expect(Object.isFrozen(guardModule.PROTECTED_KEYS)).toBe(true);
+    expect(() =>
+      (guardModule.PROTECTED_KEYS as string[]).push("safe"),
+    ).toThrow();
+    expect(Object.keys(guardModule).sort()).toEqual([
+      "PROTECTED_KEYS",
+      "isProtectedKey",
+      "normalizeProtectedKey",
+      "rejectProtectedKeys",
+    ]);
+  });
+
+  it.each(EXPECTED_PROTECTED_KEY_UNION.map((key) => [key] as const))(
+    "rejects case and punctuation variants of %s",
+    async (key) => {
+      const { normalizeProtectedKey, isProtectedKey, rejectProtectedKeys } =
+        await loadBoundaryGuardModule();
+      const variants = [
+        key.toUpperCase(),
+        key.toUpperCase().split("").join("._-"),
+        `é${key}é`,
+      ];
+      for (const variant of variants) {
+        expect(normalizeProtectedKey(variant)).toBe(
+          key.toLowerCase().replace(/[^a-z0-9]/gu, ""),
+        );
+        expect(isProtectedKey(variant)).toBe(true);
+        expect(() => rejectProtectedKeys(threeLevelsDeep(variant))).toThrow();
+      }
+    },
+  );
+
+  it("does not treat a protected word inside a larger benign key as a match", async () => {
+    const { isProtectedKey, rejectProtectedKeys } =
+      await loadBoundaryGuardModule();
+    expect(isProtectedKey("geometryDescription")).toBe(false);
+    expect(isProtectedKey("officialTitle")).toBe(false);
+    expect(() =>
+      rejectProtectedKeys({ geometryDescription: "metadata only" }),
+    ).not.toThrow();
+    expect(() =>
+      Reflect.apply(rejectProtectedKeys, undefined, [
+        { geometry: "synthetic protected sentinel" },
+        { allow: ["geometry"] },
+      ]),
+    ).toThrow("PROTECTED_KEY_REJECTED");
+  });
+
+  it("accepts benign primitives and cycles while finding protected cyclic descendants", async () => {
+    const { rejectProtectedKeys } = await loadBoundaryGuardModule();
+    for (const value of [null, undefined, "geometry", 42, false]) {
+      expect(() => rejectProtectedKeys(value)).not.toThrow();
+    }
+    const root: Record<string, unknown> = {};
+    const child: Record<string, unknown> = { back: root };
+    root.child = child;
+    root.self = root;
+    expect(() => rejectProtectedKeys(root)).not.toThrow();
+    child.deep = { geometry: "synthetic protected sentinel" };
+    expect(() => rejectProtectedKeys(root)).toThrow("PROTECTED_KEY_REJECTED");
+  });
+
+  it("scans nonenumerable keys and symbol-held descendants", async () => {
+    const { rejectProtectedKeys } = await loadBoundaryGuardModule();
+    const hidden = Object.defineProperty({}, "geometry", {
+      value: "synthetic protected sentinel",
+      enumerable: false,
+    });
+    expect(() => rejectProtectedKeys(hidden)).toThrow("PROTECTED_KEY_REJECTED");
+    expect(() =>
+      rejectProtectedKeys({
+        [Symbol("synthetic holder")]: { phone: "synthetic protected sentinel" },
+      }),
+    ).toThrow("PROTECTED_KEY_REJECTED");
+  });
+
+  it("rejects accessors without invoking caller getters", async () => {
+    const { rejectProtectedKeys } = await loadBoundaryGuardModule();
+    let calls = 0;
+    const value = {
+      get safe() {
+        calls += 1;
+        return { geometry: "synthetic protected sentinel" };
+      },
+    };
+    expect(() => rejectProtectedKeys(value)).toThrow(
+      "BOUNDARY_ACCESSOR_REJECTED",
+    );
+    expect(calls).toBe(0);
+  });
+
+  it("does not expose values from a rejected property or inspection failure", async () => {
+    const { rejectProtectedKeys } = await loadBoundaryGuardModule();
+    const sentinel = "synthetic-value-must-never-enter-error";
+    try {
+      rejectProtectedKeys({ geometry: sentinel });
+      throw new Error("Expected rejection");
+    } catch (error) {
+      expect((error as Error).message).toBe("PROTECTED_KEY_REJECTED");
+      expect((error as Error).message).not.toContain(sentinel);
+    }
+    const uninspectable = new Proxy(
+      {},
+      {
+        ownKeys() {
+          throw new Error(sentinel);
+        },
       },
     );
+    expect(() => rejectProtectedKeys(uninspectable)).toThrow(
+      "UNINSPECTABLE_BOUNDARY_VALUE",
+    );
+  });
 
-    it("accepts a benign object containing none of the protected keys", async () => {
-      const { rejectProtectedKeys } = await loadBoundaryGuardModule();
-
-      expect(() =>
-        rejectProtectedKeys({
-          officialTitle: "An ordinance",
-          status: { normalized: "enacted" },
-          notes: ["a", "b", { detail: "c" }],
-        }),
-      ).not.toThrow();
-    });
-
-    it("accepts values that merely contain a protected key name as a string value, not as a key", async () => {
-      const { rejectProtectedKeys } = await loadBoundaryGuardModule();
-
-      expect(() =>
-        rejectProtectedKeys({
-          summary: "This record does not include geometry or shapefile data.",
-          tags: ["parcelNumber", "apn"],
-        }),
-      ).not.toThrow();
-    });
-
-    it("exports PROTECTED_KEYS equal to the Part A union", async () => {
-      const guardModule = await loadBoundaryGuardModule();
-
-      expect(new Set(guardModule.PROTECTED_KEYS)).toEqual(
-        new Set(EXPECTED_PROTECTED_KEY_UNION),
-      );
-    });
-  },
-);
+  it("traverses deeply nested data without recursive stack exhaustion", async () => {
+    const { rejectProtectedKeys } = await loadBoundaryGuardModule();
+    const root: Record<string, unknown> = {};
+    let current = root;
+    for (let depth = 0; depth < 10000; depth += 1) {
+      const child: Record<string, unknown> = {};
+      current.child = child;
+      current = child;
+    }
+    current.geometry = "synthetic protected sentinel";
+    expect(() => rejectProtectedKeys(root)).toThrow("PROTECTED_KEY_REJECTED");
+  });
+});

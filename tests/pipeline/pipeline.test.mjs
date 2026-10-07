@@ -1323,6 +1323,84 @@ test("forbidden legal, inference, and sensitive land fields fail closed", () => 
   }
 });
 
+test("shared guard preserves exact record roots without exempting their descendants or variants", () => {
+  const canonicalRoots = [
+    "jurisdiction",
+    "issuingBodies",
+    "officialSubjects",
+    "taxonomyMemberships",
+    "relevance",
+    "nationAssociations",
+  ];
+  for (const key of canonicalRoots) {
+    for (const placement of ["nested", "root-variant"]) {
+      const invalid = globalThis.structuredClone(preparedFederal);
+      const field = placement === "nested" ? key : key.toUpperCase();
+      const pointer =
+        placement === "nested" ? `/jurisdiction/extra/${field}` : `/${field}`;
+      if (placement === "nested") {
+        invalid.jurisdiction.extra = { [field]: "synthetic protected value" };
+      } else {
+        invalid[field] = "synthetic protected value";
+      }
+      assert.throws(
+        () =>
+          validateRecordPolicy(invalid, {
+            sourceConfig: sourceConfigs.get(invalid.source.id),
+            taxonomy,
+          }),
+        (error) =>
+          error instanceof PolicyValidationError &&
+          error.issues.includes(`${pointer} is a forbidden public field`),
+        `${placement}: ${key}`,
+      );
+    }
+  }
+});
+
+test("record traversal rejects newly shared protected families inside permitted root objects and arrays", () => {
+  const fields = [
+    "landStatus",
+    "apn",
+    "PARCEL-NUMBER",
+    "shapefile",
+    "contact",
+    "Api_Key",
+    "token",
+    "email",
+  ];
+  const sentinel = "SYNTHETIC_PRIVATE_SENTINEL";
+  for (const container of [
+    "jurisdiction",
+    "issuingBodies",
+    "relevance",
+    "nationAssociations",
+  ]) {
+    for (const field of fields) {
+      const invalid = globalThis.structuredClone(preparedCounty);
+      const parent =
+        container === "jurisdiction"
+          ? invalid[container]
+          : invalid[container][0];
+      parent.extra = [{ [field]: sentinel }];
+      const pointer = `/${container}${container === "jurisdiction" ? "" : "/0"}/extra/0/${field}`;
+      assert.throws(
+        () =>
+          validateRecordPolicy(invalid, {
+            sourceConfig: sourceConfigs.get(invalid.source.id),
+            taxonomy,
+            knownNationIds: new Set(nations.map(({ id }) => id)),
+          }),
+        (error) =>
+          error instanceof PolicyValidationError &&
+          error.issues.includes(`${pointer} is a forbidden public field`) &&
+          !error.message.includes(sentinel),
+        `${container}: ${field}`,
+      );
+    }
+  }
+});
+
 test("source URLs require exact registered HTTPS hostnames", () => {
   const allowed = globalThis.structuredClone(preparedFederal);
   allowed.urls.officialSource =

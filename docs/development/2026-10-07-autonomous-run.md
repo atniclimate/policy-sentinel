@@ -229,7 +229,7 @@ their failed logs and release obligations remain intact. This transition opens
 no source operation, private-data, credential/terms or publication gate.
 
 Root owns this record, ROADMAP.yaml, a dated handoff,
-`src/pipeline/policy-validation.mjs` and `tests/pipeline/pipeline.test.ts`.
+`src/pipeline/policy-validation.mjs` and `tests/pipeline/pipeline.test.mjs`.
 A bounded worker owns only `src/core/boundary-guard.mjs`, its `.d.mts` and
 `tests/core/boundary-guard.test.ts`; it runs no tests or Git. Historical private
 lists, demo/Worker, extractors, sealed source objects and owner inputs are outside
@@ -251,3 +251,117 @@ unit tests (including GD-03, pipeline and data integrity), source/boundary check
 synthetic build/artifact, appropriate full validation and independent review.
 Retain every failure under a new external attempt label. Native probe limits are
 unchanged; incomplete validation cannot complete the item.
+
+Before integration edits, root narrows its test lease to the existing Node
+`pipeline.test.mjs` suite instead of its TypeScript wrapper. That suite already
+owns the prepared governance fixtures and refusal assertions; the wrapper and its
+45-second limit remain unchanged. No command is added for this routine coverage.
+
+The worker returns all three core/test leases without running tools for
+validation or Git. Core uses an immutable normalized array/private membership
+set and iterative descriptor traversal: cycles and deep descendants are scanned,
+accessors fail closed without getter invocation, and errors contain no values.
+Root integrates the shared predicate and adds exact refusal assertions for
+nested canonical names, root spelling variants and new protected families under
+object/array roots. No historical private-seam list or wrapper limit changes.
+Root formats only the five code/test paths and begins serialized validation;
+independent integration and core review remain required before acceptance.
+
+Both independent GD-04 reviews pass: the only protected-name intersections in
+the record schema are the six canonical root properties; no additional nested
+exemption is required. Core retains the original 77-key/depth cases and private
+list drift assertions. Lint and typecheck pass. Full unit validation exits 1:
+105/106 files and 1,925/1,926 tests pass. Its sole failure is the unchanged
+45-second pipeline wrapper, which takes 110.838 seconds. The core tests and
+other files pass; no child assertion error is reported by the wrapper. Its
+captured log/receipt are `test-unit-gd04-first.log/json`. Native and wrapper
+limits remain intact. A later host CPU sample is 67%, not proof of a quiet run.
+
+Root continues final source/build checks and requests bounded read-only
+diagnosis of wrapper/roadmap-test cost. Any implementation repair requires a
+reproduced cause and a new exact lease before mutation; no deadline waiver or
+test omission is permitted. GD-04 remains active and incomplete.
+
+### Conditional fixture serialization repair
+
+The standing GD-04 roadmap/backbone/source checks and synthetic build/artifact
+pass. Global formatting still fails only on the protected local settings file.
+Read-only diagnosis identifies a reproducible harness cost: the retained
+493-case roadmap regression took 95.656 seconds, exceeding the unchanged
+45-second pipeline wrapper before this implementation. Root now leases only
+`tests/pipeline/roadmap-validator.test.mjs` for a bounded serialization repair.
+Ordinary JSON-shaped module candidates may use the JSON subset of YAML; all
+actual validator parsing and filesystem checks still run against fresh files.
+Non-JSON candidates retain the original YAML serializer. Representative CLI
+cases retain their original YAML serialization. No pre-existing raw syntax
+fixtures were found; direct malformed and duplicate-key byte cases are added
+against both the actual module and CLI parsing refusals.
+No parser, filesystem or verdict cache, deadline change, concurrency increase,
+case removal or production validator change is permitted. Run the complete
+roadmap regression, then the unchanged unit wrapper and required full suite.
+The experiment is not an acceptance result until those checks actually pass.
+
+The first complete serialization experiment passes all 494 cases in 61.442
+seconds (`test-roadmap-gd04-json-fixtures.log/json`), an improvement over the
+retained 95.656-second run but still above the wrapper limit. Review finds and
+root repairs the compensated sparse-array fallback, preserving YAML for numeric
+properties outside the actual array index range. Final validation remains
+pending; no timing result proves the unchanged wrapper passes.
+
+Final lint and independent fixture review pass. The unchanged unit suite now
+passes all 1,926 tests across 106 files in 266.62 seconds, including the pipeline
+wrapper with its original 45-second deadline. The real child suite therefore
+passes its retained assertions against the final fallback and raw syntax tests.
+Evidence is `test-unit-gd04-json-final.log/json`. Root dispatches one final full
+`npm test` attempt under `test-gd04-final`; item acceptance remains pending its
+actual result. All 36 protected owner-input hashes still match at 16:28 UTC.
+
+### Conditional assurance scheduling repair
+
+`test-gd04-final` ends at 16:40 UTC with exit 1. Foundation, corpus (13),
+spine (30 plus the existing privilege skip) and all 143 policy tests pass.
+Assurance passes 98 of 100 tests. The native synthetic knowledge publication
+case fails during cleanup with `BOUNDED_NATIVE_CHILD_FAILED`; the native
+reparse case receives `WINDOWS_PROBE_TIMEOUT` instead of its expected refusal.
+Later full-suite phases do not run. These are two distinct retained failures,
+not a full acceptance pass or proof that their causes are identical.
+
+Root now additionally leases only `package.json` and `README.md` to serialize
+the same three assurance files with the already-used `--test-concurrency=1`.
+The Node 24 [execution model](https://nodejs.org/docs/latest-v24.x/api/test.html#test-runner-execution-model)
+documents the file-process concurrency control and default process isolation;
+the installed runtime's help also confirms the flag. Two focused Context7 CLI
+lookups select the official Node 24 documentation. No test body, file list,
+isolation flag, native/operation deadline, knowledge module or cleanup behavior
+changes. Competition between the concurrent files is a scheduling hypothesis;
+the complete assurance suite and a new full attempt must establish the result.
+Root retains each failure under its original label and remains sole validator.
+
+The scheduling repair passes independent review. Complete serialized assurance
+passes all 100 tests in 54.400 seconds, including both previously failing native
+cases, with no skips (`test-assurance-gd04-serialized.log/json`, exit 0).
+This establishes the focused repair but does not replace full acceptance.
+Root now dispatches `test-gd04-serialized-assurance` against the final code and
+command surface. No other validation runs concurrently and no ended measurement
+namespace is touched. GD-04 remains the sole active item until the result and
+all acceptance evidence are reconciled.
+
+The complete retry ends with exit 1 before policy: foundation and corpus pass;
+spine has 26 passes, four `TIME_LIMIT` failures and the unchanged privilege skip.
+Failure locations are corpus-store lines 174, 502, 539 and 588. The final code
+therefore has no passing full-suite acceptance. Its unit suite, prior full
+policy phase and complete serialized assurance successes remain qualified
+evidence only. Root prepares an incomplete local checkpoint, without changing
+any deadline, knowledge/custody implementation or protected owner input.
+After checkpoint review, temporarily defer GD-04 and select eligible GD-05 under
+its own explicit manifest. No newly unblocked not_started item is due under
+that transition; the full dependency review confirms GD-05 remains priority 315.
+
+Final incomplete-checkpoint review passes. The roadmap validator passes all
+135 items/65 gates; backbone validates 170 Markdown files/1,042 links and the
+source scan passes. Global formatting fails only on the protected local settings
+file; all owned paths and Git whitespace checks pass. All 36 owner hashes and
+all six retained implementation/measurement pins match at 16:50 UTC. The index
+is empty before staging. Root may commit exactly the eleven leased paths with
+GD-04 still active and incomplete, then record its actual SHA in the separate
+GD-05 selection update. No remote operation or acceptance claim is authorized.

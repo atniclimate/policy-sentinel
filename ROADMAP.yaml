@@ -7033,6 +7033,38 @@ work_items:
         npm run build stay green.
     evidence:
       - docs/development/2026-10-07-autonomous-run.md
+      - >-
+        Shared normalized 70-key guard preserves 77 original origin/depth cases.
+        Record integration exempts only six exact canonical root names and scans
+        their children; historical private lists remain unchanged. Two
+        independent reviews, lint and typecheck pass. First unit run has 1925
+        passes and one failure: the unchanged 45-second pipeline wrapper takes
+        110.838 seconds. Required validation and completion remain pending.
+      - docs/handoffs/2026-10-07-gd04-boundary-guard.md
+      - >-
+        Conditional fixture serialization retains real parser/filesystem checks,
+        CLI YAML cases and all deadlines. The first full regression passes 494
+        cases in 61.442 seconds; final fallback/syntax corrections are reviewed.
+        The final unit suite passes; mandatory full-suite validation remains
+        pending.
+      - >-
+        Final lint and fixture review pass. Final unit validation passes all
+        1926 tests across 106 files, including the unchanged 45-second pipeline
+        wrapper. Full test-gd04-final passes all 143 policy tests, then
+        assurance has 98 passes and two native failures. The same three
+        assurance files are now serialized; final acceptance remains pending
+        without any deadline or assertion change.
+      - >-
+        Independent assurance scheduling review passes, and the complete
+        serialized suite passes all 100 tests without skips in 54.400 seconds. A
+        new complete npm test attempt is pending; no focused result waives
+        required acceptance or source/release gates.
+      - >-
+        Complete test-gd04-serialized-assurance exits 1 before policy: spine has
+        26 passes, four TIME_LIMIT failures (corpus-store lines 174, 502, 539,
+        588) and the unchanged privilege skip. Final full acceptance remains
+        pending; root prepares a reviewed incomplete checkpoint before selecting
+        independent GD-05. Native limits and all owner inputs remain intact.
   - id: GD-05-INTAKE-REPLAY-AND-DISCOVERY
     priority: 315
     milestone: General development

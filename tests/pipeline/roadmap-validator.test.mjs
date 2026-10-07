@@ -66,6 +66,112 @@ const validateActualModule = async (fixturePath, extraArguments = []) => {
     return { status: 1, stdout: output.join("\n"), stderr: error.stack };
   }
 };
+// JSON is a YAML subset. Use it only when serialization preserves every value;
+// actual parsing and filesystem checks still run for each freshly written case.
+const serializeModuleFixture = (candidate, useYaml = false) => {
+  if (useYaml) return stringify(candidate);
+  const pending = [candidate];
+  const seen = new WeakSet();
+  while (pending.length) {
+    const value = pending.pop();
+    if (
+      value === null ||
+      typeof value === "string" ||
+      typeof value === "boolean"
+    )
+      continue;
+    if (typeof value === "number") {
+      if (!Number.isFinite(value) || Object.is(value, -0))
+        return stringify(candidate);
+      continue;
+    }
+    if (typeof value !== "object") return stringify(candidate);
+    if (seen.has(value)) return stringify(candidate);
+    seen.add(value);
+    const isArray = Array.isArray(value);
+    const prototype = Object.getPrototypeOf(value);
+    if (
+      isArray
+        ? prototype !== Array.prototype
+        : prototype !== Object.prototype && prototype !== null
+    )
+      return stringify(candidate);
+    const descriptors = Object.getOwnPropertyDescriptors(value);
+    const keys = Reflect.ownKeys(descriptors);
+    if (isArray && keys.length !== value.length + 1)
+      return stringify(candidate);
+    for (const key of keys) {
+      if (isArray && key === "length") continue;
+      const descriptor = descriptors[key];
+      if (
+        typeof key !== "string" ||
+        !descriptor.enumerable ||
+        !("value" in descriptor) ||
+        key === "toJSON" ||
+        (isArray &&
+          (!/^(0|[1-9]\d*)$/.test(key) || Number(key) >= value.length))
+      )
+        return stringify(candidate);
+      pending.push(descriptor.value);
+    }
+  }
+  return JSON.stringify(candidate);
+};
+
+test("module fixture serialization preserves YAML-only values and ordinary candidates", () => {
+  const ordinary = {
+    text: "yes: quoted",
+    values: [null, true, 1, { nested: "é" }],
+  };
+  assert.deepEqual(parse(serializeModuleFixture(ordinary)), ordinary);
+  for (const value of [
+    NaN,
+    Infinity,
+    -0,
+    undefined,
+    new Date("2026-10-07T00:00:00Z"),
+    Array(2),
+    { toJSON: () => "changed" },
+  ]) {
+    const candidate = { value };
+    assert.equal(serializeModuleFixture(candidate), stringify(candidate));
+  }
+  assert.equal(serializeModuleFixture(ordinary, true), stringify(ordinary));
+  const compensatedHole = Array(2);
+  compensatedHole[0] = 1;
+  compensatedHole["4294967295"] = 2;
+  assert.equal(
+    serializeModuleFixture(compensatedHole),
+    stringify(compensatedHole),
+  );
+});
+
+test("actual module and CLI reject malformed YAML bytes before ledger validation", async (context) => {
+  const fixtureRoot = await mkdtemp(
+    path.join(tmpdir(), "policy-sentinel-malformed-roadmap-"),
+  );
+  context.after(() => rm(fixtureRoot, { recursive: true, force: true }));
+  for (const [name, bytes] of [
+    ["syntax", "schema_version: [unterminated\n"],
+    ["duplicate", "schema_version: '1.11'\nschema_version: '1.10'\n"],
+  ]) {
+    const fixturePath = path.join(fixtureRoot, `${name}.yaml`);
+    await writeFile(fixturePath, bytes, "utf8");
+    for (const result of [
+      await validateActualModule(fixturePath),
+      spawnSync(process.execPath, [validatorPath, fixturePath], {
+        cwd: projectRoot,
+        encoding: "utf8",
+      }),
+    ]) {
+      assert.notEqual(result.status, 0);
+      assert.match(
+        `${result.stdout}\n${result.stderr}`,
+        /ROADMAP.yaml could not be parsed:/,
+      );
+    }
+  }
+});
 const liveRoadmap = parse(
   await readFile(path.resolve(projectRoot, "ROADMAP.yaml"), "utf8"),
 );
@@ -352,7 +458,18 @@ test("schema 1.7 confines maintenance to its approved non-release scope", async 
   };
   const validate = async (name, candidate, extraArguments = []) => {
     const fixturePath = path.join(fixtureRoot, `${name}.yaml`);
-    await writeFile(fixturePath, stringify(candidate), "utf8");
+    const cli = [
+      "in_progress",
+      "complete",
+      "blocked",
+      "historical-v16-terminal",
+      "unknown-version",
+    ].includes(name);
+    await writeFile(
+      fixturePath,
+      serializeModuleFixture(candidate, cli),
+      "utf8",
+    );
     if (
       ![
         "in_progress",
@@ -954,7 +1071,11 @@ test("schema 1.8 freezes spent authority and bounds the exact engineering review
     { cli = false, extraArguments = [] } = {},
   ) => {
     const fixturePath = path.join(fixtureRoot, `${name}.yaml`);
-    await writeFile(fixturePath, stringify(candidate), "utf8");
+    await writeFile(
+      fixturePath,
+      serializeModuleFixture(candidate, cli),
+      "utf8",
+    );
     return cli
       ? spawnSync(
           process.execPath,
@@ -1598,7 +1719,11 @@ test("schema 1.9 represents the Makah demo track without touching PS09", async (
     { cli = false, extraArguments = [] } = {},
   ) => {
     const fixturePath = path.join(fixtureRoot, `${name}.yaml`);
-    await writeFile(fixturePath, stringify(candidate), "utf8");
+    await writeFile(
+      fixturePath,
+      serializeModuleFixture(candidate, cli),
+      "utf8",
+    );
     return cli
       ? spawnSync(
           process.execPath,
@@ -1878,7 +2003,11 @@ test("schema 1.10 admits the general-development graph by rule and keeps every o
   const interopAdapter = "GD-16-INTEROP-PURE-ADAPTER";
   const validate = async (name, candidate, { cli = false } = {}) => {
     const fixturePath = path.join(fixtureRoot, `${name}.yaml`);
-    await writeFile(fixturePath, stringify(candidate), "utf8");
+    await writeFile(
+      fixturePath,
+      serializeModuleFixture(candidate, cli),
+      "utf8",
+    );
     return cli
       ? spawnSync(process.execPath, [validatorPath, fixturePath], {
           cwd: projectRoot,
@@ -2300,7 +2429,7 @@ test("schema 1.11 makes general development the current local release without ch
   context.after(() => rm(fixtureRoot, { recursive: true, force: true }));
   const validate = async (name, candidate) => {
     const fixturePath = path.join(fixtureRoot, `${name}.yaml`);
-    await writeFile(fixturePath, stringify(candidate), "utf8");
+    await writeFile(fixturePath, serializeModuleFixture(candidate), "utf8");
     return validateActualModule(fixturePath);
   };
   assert.equal(liveRoadmap.schema_version, "1.11");
@@ -2603,7 +2732,19 @@ test("PS09 release accounting converges without reopening archived lanes", async
   const validate = async (name, candidate, candidateRegistry = registry) => {
     const fixturePath = path.join(fixtureRoot, `${name}.yaml`);
     const registryPath = path.join(fixtureRoot, `${name}.json`);
-    await writeFile(fixturePath, stringify(candidate), "utf8");
+    const cli = [
+      "adopted-general-jurisdiction-run",
+      "active",
+      "active-v2",
+      "terminal-run-one",
+      "canonical-rc",
+      "v2-missing-identity-release-gate",
+    ].includes(name);
+    await writeFile(
+      fixturePath,
+      serializeModuleFixture(candidate, cli),
+      "utf8",
+    );
     await writeFile(registryPath, JSON.stringify(candidateRegistry), "utf8");
     if (
       ![
@@ -3552,7 +3693,7 @@ test("additive stage governance cannot affect protected release accounting", asy
 
   const validateCandidate = async (name, candidate) => {
     const fixturePath = path.join(fixtureRoot, `${name}.yaml`);
-    await writeFile(fixturePath, stringify(candidate), "utf8");
+    await writeFile(fixturePath, serializeModuleFixture(candidate), "utf8");
     return validateActualModule(fixturePath, ["--synthetic-legacy-fixture"]);
   };
   const legacyCliPath = path.join(fixtureRoot, "legacy-positive-cli.yaml");

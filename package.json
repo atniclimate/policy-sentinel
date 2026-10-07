@@ -17,7 +17,7 @@
     "hooks:test:snapshot": "node scripts/test-hooks-snapshot.mjs",
     "validate:roadmap": "node scripts/validate-roadmap.mjs",
     "test:roadmap": "node --test tests/pipeline/roadmap-validator.test.mjs",
-    "test:assurance": "node --test tests/pipeline/policy-assurance.test.mjs tests/pipeline/policy-windows-probe.test.mjs tests/pipeline/engineering-measurement.test.mjs",
+    "test:assurance": "node --test --test-concurrency=1 tests/pipeline/policy-assurance.test.mjs tests/pipeline/policy-windows-probe.test.mjs tests/pipeline/engineering-measurement.test.mjs",
     "test:browser-assurance": "node --test tests/pipeline/policy-assurance.test.mjs",
     "test:windows-probe": "node --test tests/pipeline/policy-windows-probe.test.mjs",
     "test:engineering-measurement": "node --test tests/pipeline/engineering-measurement.test.mjs",

@@ -16,10 +16,11 @@ and [finite blocked source/API packets](docs/development/gd31-operation-packets.
 `npm run test:development-authority` runs their offline refusal and compatibility
 tests and is included in `npm test`. Preparation cannot dispatch, share or publish.
 
-`npm run test:spine` and `npm run test:policy` serialize their respective three
-and twelve test files to avoid competing Windows native custody probes.
+`npm run test:spine`, `npm run test:policy` and `npm run test:assurance` serialize
+their respective three, twelve and three files to avoid competing Windows native
+custody probes.
 Assertions, process isolation and operation timeouts stay unchanged; `npm test`
-includes both suites.
+includes all three suites.
 
 Current general-development work is recorded in [ROADMAP.yaml](ROADMAP.yaml).
 The separately authorized public demonstration and its maintenance evidence are

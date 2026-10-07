@@ -1,5 +1,7 @@
 import { URL } from "node:url";
 
+import { isProtectedKey } from "../core/boundary-guard.mjs";
+
 import {
   assertStableRecordId,
   recordIdentityKey,
@@ -45,30 +47,16 @@ const SOURCE_DERIVED_ROOTS = [
   "/historical",
 ];
 
-const FORBIDDEN_NORMALIZED_KEYS = new Set([
-  "legalconclusion",
-  "legaldetermination",
-  "rightsimpact",
-  "rightsdetermination",
-  "inferredrelevance",
-  "inferrednation",
-  "inferrednationrelationship",
-  "keywordrelevance",
-  "geographyrelevance",
-  "parcel",
-  "parcelid",
-  "parcelgeometry",
-  "geometry",
-  "coordinates",
-  "latitude",
-  "longitude",
-  "landownership",
-  "trustland",
-  "feeland",
-  "triballyownedparcel",
-  "propertyownership",
-  "mapdata",
-  "privatelandcontext",
+// The strict shared guard also protects these private-context fact names.
+// PolicyRecord requires them at its canonical root. Exempt only their exact
+// root spellings here, and continue checking every child with the shared guard.
+const CANONICAL_RECORD_ROOT_KEYS = new Set([
+  "jurisdiction",
+  "issuingBodies",
+  "officialSubjects",
+  "taxonomyMemberships",
+  "relevance",
+  "nationAssociations",
 ]);
 
 export class PolicyValidationError extends Error {
@@ -177,8 +165,8 @@ function validateForbiddenKeys(value, path, issues) {
     return;
   }
   for (const [key, child] of Object.entries(value)) {
-    const normalized = key.toLowerCase().replaceAll(/[^a-z0-9]/g, "");
-    if (FORBIDDEN_NORMALIZED_KEYS.has(normalized)) {
+    const canonicalRoot = path === "" && CANONICAL_RECORD_ROOT_KEYS.has(key);
+    if (!canonicalRoot && isProtectedKey(key)) {
       issues.push(`${path}/${key} is a forbidden public field`);
     }
     validateForbiddenKeys(child, `${path}/${key}`, issues);
