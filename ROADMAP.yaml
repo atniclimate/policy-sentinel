@@ -1079,16 +1079,16 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-05-INTAKE-REPLAY-AND-DISCOVERY
+  work_item: GD-07-RESEARCH-OUTPUT-SPLIT
   objective: >-
-    Extract reviewed replay and Washington discovery into intake under the
-    bounded GD-05 manifest in docs/development/2026-10-07-autonomous-run.md.
-    Preserve reader cleanup, replay identity, compatibility imports and closed
-    gates. GD-31/GD-32/GD-04 full acceptance remains pending.
+    Separate research review/context from output rendering under the bounded
+    GD-07 manifest in docs/development/2026-10-07-autonomous-run.md. Preserve
+    review permissions, exact quotations, generated assets and compatibility.
+    GD-31/GD-32/GD-04/GD-05 full acceptance remains pending.
   terminal_reason: null
   resumable_roots:
-    - GD-05-INTAKE-REPLAY-AND-DISCOVERY
-  last_durable_checkpoint: 9822139befee84711a3c1ad099dcadb2f439be08
+    - GD-07-RESEARCH-OUTPUT-SPLIT
+  last_durable_checkpoint: 88c632fa1ef21274be048874fa23b6c856cc6fce
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -7075,7 +7075,13 @@ work_items:
     priority: 315
     milestone: General development
     title: Replay and Washington discovery moved into intake
-    status: in_progress
+    status: deferred
+    reason: >-
+      Temporarily postpone full acceptance after reviewed intake checkpoint
+      88c632f. Complete focused policy, assurance, unit and build pass, but the
+      full attempt retains nine WINDOWS_PROBE_TIMEOUT failures. Preserve every
+      failed log and required release outcome; continue independent GD-07
+      without changing deadlines or opening an operation gate.
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -7118,6 +7124,12 @@ work_items:
         the unchanged privilege skip; policy 136 pass and nine
         WINDOWS_PROBE_TIMEOUT failures. Later phases do not run. Focused
         successes remain qualified evidence; full acceptance stays unmet.
+      - >-
+        Reviewed incomplete local checkpoint
+        88c632fa1ef21274be048874fa23b6c856cc6fce contains the eleven leased
+        paths. Temporarily deferred after the failed full attempt while
+        independent eligible GD-07 proceeds; required intake acceptance remains
+        in the release closure. No dependency completes.
   - id: GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
     priority: 316
     milestone: General development
@@ -7143,7 +7155,7 @@ work_items:
     priority: 317
     milestone: General development
     title: Research review (context) split from research HTML (output)
-    status: ready
+    status: in_progress
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -7155,7 +7167,13 @@ work_items:
         and escape helpers move to src/modules/output/research-html.mjs.
       - src/pipeline/policy-research-output.mjs becomes a re-export shim.
       - tests/pipeline/policy-research-output.test.mjs stays green.
-    evidence: []
+    evidence:
+      - docs/development/2026-10-07-autonomous-run.md
+      - >-
+        Selected at priority 317 after the reviewed incomplete GD-05 checkpoint.
+        Full GD-07/GD-02/GD-00 dependency closure and approved D-071 local
+        synthetic authority are verified. Mechanical split implementation and
+        acceptance remain pending; no not_started item newly unblocks.
   - id: GD-08-CONTEXT-RELEVANCE-EXTRACTION
     priority: 318
     milestone: General development
@@ -8363,11 +8381,15 @@ next_actions:
   - order: 4
     work_item: GD-05-INTAKE-REPLAY-AND-DISCOVERY
     action:
-      "Active bounded task: extract intake replay/discovery behind compatibility
-      re-exports; preserve sealed replay and the adopted reader cleanup."
+      "Finish mandatory full validation of intake checkpoint 88c632f when
+      native-probe conditions change. Preserve compatibility, sealed replay and
+      the adopted reader cleanup; GD-06 also needs a reviewed composition plan."
   - order: 5
     work_item: GD-07-RESEARCH-OUTPUT-SPLIT
-    action: "Separate context research review from output rendering."
+    action:
+      "Active bounded task: mechanically separate context research review from
+      output rendering behind the legacy shim; preserve reviewed semantics,
+      quotations and generated asset bytes."
   - order: 6
     work_item: GD-08-CONTEXT-RELEVANCE-EXTRACTION
     action:

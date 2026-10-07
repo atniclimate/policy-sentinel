@@ -46,3 +46,11 @@ Immutable validation logs and receipts belong in
 `C:/dev/_scratch/policy-sentinel/autonomous-2026-10-07/`.
 GD-31, GD-32 and GD-04 retain their unmet full-suite acceptance obligations.
 This checkpoint makes no release or product-completion claim.
+
+Reviewed incomplete local commit `88c632fa1ef21274be048874fa23b6c856cc6fce`
+contains exactly the eleven leased paths. The live ledger temporarily defers
+GD-05 and selects independent GD-07 at priority 317. No dependency completes
+and GD-06 remains not_started. Read-only preparation also finds that GD-06's
+mechanical output move needs a reviewed composition plan to avoid forbidden
+intake imports; it is not dispatched. Recover current execution from the live
+ledger and GD-07 manifest in the autonomous run record.

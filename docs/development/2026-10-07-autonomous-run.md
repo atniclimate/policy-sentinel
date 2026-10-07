@@ -488,3 +488,51 @@ source/measurement pins match at 17:19 UTC; the index is empty before staging.
 Root checkpoints exactly eight code/test paths plus the roadmap, this record
 and GD-05 handoff. Acceptance remains pending. The next selection update will
 record the actual SHA and defer GD-05 without opening any external operation.
+
+## GD-07 research review/render extraction manifest
+
+Reviewed incomplete intake commit `88c632fa1ef21274be048874fa23b6c856cc6fce`
+contains exactly its eleven leased paths. GD-05 is temporarily deferred with
+mandatory full acceptance unmet. GD-06 remains not_started. Independent closure
+review selects GD-07 at priority 317 through complete GD-02/GD-00 and approved
+G-GENERAL-DEV-01/D-071. No not_started item newly unblocks; GD-07 is the sole
+active item. All deferred acceptance and closed external gates remain intact.
+
+Root owns ROADMAP.yaml, this record, the GD-05 status handoff, a dated GD-07
+handoff, `src/pipeline/policy-research-output.mjs` and
+`tests/pipeline/policy-research-output.test.mjs`. The bounded worker owns only
+new `src/modules/context/research-review.mjs` and
+`src/modules/output/research-html.mjs`. The worker runs no tests, Git or source
+requests. Root alone validates and commits. Other work may be concurrent;
+preserve every unrelated change and never revert another agent's files.
+
+Move the catalogs, canonical-copy helper, closed-shape helpers,
+resolvePolicyResearchReview and enrichPolicyCorpus mechanically into context.
+Move rendering/escaping/date/list helpers, stylesheet, page and
+buildPolicyResearchOutput mechanically into output. Duplicate the existing
+small fail/ensure helpers verbatim as needed; plain belongs to context.
+Import existing core corpus functions with adjusted relative paths. Replace
+the old path with explicit re-exports of its same three public functions.
+Preserve the five existing tests and add direct/legacy identity and exact
+export-surface checks. No declaration is currently required by this interface.
+
+Preserve review permissions, omitted inputs, source/authored distinctions,
+exact UTF-8 quotations, output names/order, HTML/JSON/CSS bytes, escaping and
+closed-publication labels. No new abstraction, guard insertion, API, source
+interface, dependency, allowlist, deadline or test-selection change is leased.
+Private/custody/knowledge, demo/Worker, K0/S0/O0, owner inputs, GD-04/GD-05
+implementations and external namespaces remain protected.
+
+Before source edits, validate the complete live ledger/backbone. Root compares
+complete moved spans, formats owned files and runs lint/typecheck, complete
+policy/assurance/unit suites, source scan, synthetic build/artifact and required
+full validation serially under immutable labels. Independent module and
+integration reviews precede a qualified checkpoint. A failed full attempt stays
+failed and may require another incomplete disposition without a deadline change.
+
+The first selection validation rejects a missing required deferred-item reason;
+root adds the explicit GD-05 postponement reason and preserves that failed log.
+The corrected full roadmap/backbone checks pass before source edits: 55 complete,
+one active, four ready, 25 blocked, six deferred and 44 not_started. The worker
+receives only its two new-file leases. Root adds the compatibility identity
+test while retaining all existing research assertions.
