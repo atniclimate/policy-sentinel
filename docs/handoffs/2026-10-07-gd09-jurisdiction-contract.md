@@ -1,6 +1,6 @@
 # GD-09 synthetic jurisdiction contract
 
-GD-09 is the sole active item after accepted GD-06 source checkpoint
+GD-09 was selected as the sole active item after accepted GD-06 source checkpoint
 `1def69b2c156973777de826b20ad467778f16b43`. GD-10 becomes ready because
 GD-04/06/07/08 are complete; GD-09 has the lowest eligible priority (319).
 Its full recursive closure is GD-09 → GD-02 → GD-00, with reviewed completion
@@ -187,4 +187,13 @@ and unchanged hashes.
 The new source snapshot was captured at 20:01:59 UTC during the already-frozen
 full run; it is not described as a pre-start snapshot. Final owned-document
 checks and exact nine-path checkpoint review precede the source commit and
-separate ledger acceptance. GD-09 remains active until that transition.
+separate ledger acceptance. GD-09 stayed active until that transition.
+
+Exact nine-path source checkpoint is committed locally as
+`8b97383f37e33c0569e57b7e834ac8fd8ef582fc` at 20:24:01 UTC after final
+owned formatting, whitespace, roadmap/backbone and independent receipt review.
+The separate selection transition accepts this bounded synthetic work and
+promotes GD-12 and GD-20 after full dependency/gate reconciliation. GD-10 is
+selected at priority 320 under its reviewed production/enforcement contract.
+GD-22 real identity, GD-11 corpus integration, GD-13 public successor and
+all release/external gates retain their actual prerequisites and boundaries.

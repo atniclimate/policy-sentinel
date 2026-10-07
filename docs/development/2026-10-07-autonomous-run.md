@@ -1027,3 +1027,33 @@ refresh-result types move to core. Corrected graph resolution and exact
 export-only facade enforcement remain part of the reviewed amendment. No
 GD-10 source lease is issued. Historical observer digests and operation grants
 remain untouched; a refactored adapter entry does not renew observer eligibility.
+
+Root commits the exact independently reviewed nine-path GD-09 source
+checkpoint as `8b97383f37e33c0569e57b7e834ac8fd8ef582fc` at 20:24:01 UTC.
+Final owned formatting, whitespace, roadmap/backbone and actual receipt
+review pass. The separate five-document transition accepts bounded GD-09,
+promotes both GD-12 and GD-20 after complete dependencies and approved gates,
+and selects GD-10 at the lowest eligible priority, 320. Exactly one item is
+active; inventory becomes 63 complete, one active, four ready, 25 blocked,
+two deferred and 40 not started. Canonical next actions now contain all 11
+incomplete roots in priority order.
+
+The binding GD-10 amendment is
+`docs/handoffs/2026-10-07-gd10-boundary-enforcement.md`, with 50 exact
+source/test paths in three disjoint leases (25/16/9), plus root-owned
+documentation. It repairs all 16 substantive exceptions through explicit
+pure factories, configuration composition and exact named compatibility
+facades. Source-pack remains orchestration; mandatory adapter policy validation
+and three-argument legacy refresh APIs remain intact. Three refresh-result
+types move unchanged to core. Existing module membership, public/private
+reachability, static source inventories, fixtures and deadlines stay binding.
+No lease is issued until independent selection review, checks and commit.
+
+Root passively captures all 12 old facade export inventories at source
+checkpoint 8b97383 in external scratch, preserving runtime/type names and
+existing sibling targets for static exact enforcement tables. The resolver
+also covers source/declaration substitutions, import types and loader aliases;
+ordinary modules cannot reach configured composition through facades or
+unclassified relays. A stronger actual graph finding requires diagnosis and
+a concrete reviewed scope amendment. This preparation dispatches no source
+operation and renews no historical observer pin, grant or release claim.

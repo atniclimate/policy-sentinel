@@ -431,7 +431,7 @@ These must stay green, together with
 | GD-07 research output split | GD-02 | `src/modules/context/research-review.mjs`, `src/modules/output/research-html.mjs`, `src/pipeline/policy-research-output.mjs` (to a shim) | `tests/pipeline/policy-research-output.test.mjs` | none; the existing five tests cover both halves |
 | GD-08 context relevance extraction | GD-02 | `src/modules/context/relevance.ts` and `src/core/public-app-types.ts` (new), `src/app/policy.ts` and `src/app/types.ts` (explicit re-exports; remaining policy bodies unchanged) | `tests/app/policy.test.ts` (binding identity plus retained cases), unchanged `tests/app/csv.test.ts` and `tests/app/accessibility.test.tsx` | none; `tests/app/policy.test.ts` covers the moved functions |
 | GD-09 jurisdiction identifier model | GD-02 | `src/modules/context/jurisdiction/{registry,association}.ts`, `schemas/jurisdiction-ref.schema.v1.json`, `fixtures/context/jurisdiction-registry.synthetic.valid.json`, `tests/context/jurisdiction*.test.ts` (all new) | backbone schema-ID check | This step's own schema and negative tests |
-| GD-10 boundary enforcement | GD-04, GD-06, GD-07, GD-08 | `tests/architecture/module-manifest.mjs` (allowlist reduced to documented shims) | GD-02 in enforcing mode | none |
+| GD-10 boundary enforcement | GD-04, GD-06, GD-07, GD-08 | Exact 50-path production/test closure in the GD-10 handoff: pure factories, composition, named compatibility facades and enforcing graph harness | Focused affected suites, strict graph/private reachability and complete required checks | Exact-facade and transitive-loader regression graphs |
 | GD-11 v2 jurisdiction association | GD-09, GD-10 | an additive `AnalyzedCorpus 2.1` schema and runtime, `src/modules/context/jurisdiction/association.ts`, tests | `npm run test:policy`, `tests/pipeline/analyzed-corpus-v2.test.mjs`; the sealed 2.0 corpus must still replay unchanged | 2.0 replay compatibility test |
 | GD-12 nationwide source catalog | GD-05, GD-09 | `src/modules/intake/source-catalog.mjs`, `schemas/source-catalog.schema.v1.json`, synthetic catalog fixture, tests | `npm run test:policy` | catalog schema negative cases; manifest-from-catalog equivalence with `initialDirectManifest` |
 | GD-13 nationwide record contract | GD-09, GD-10, gate G-GD-NATIONWIDE-CONTRACT (RD-05) | record, artifact and source schema successors (state enum replaced by `JurisdictionRef`), `src/app/data.ts:156`, `src/pipeline/nation-collection-policy.mjs:4`, migration fixtures | all artifact and app suites, `npm run build` | migration and compatibility fixtures first |
@@ -453,6 +453,28 @@ These must stay green, together with
 
 The manifest classifies `src/modules/*` and `src/core/` by prefix, so wave 2
 steps never edit it. Only GD-02 and GD-10 do.
+
+GD-10 production closure amendment (2026-10-07): all 16 audit exceptions
+remain substantive after GD-04/06/07/08; changing the harness label alone
+cannot satisfy enforcement. The binding exact 50-path source/test manifest is
+[the GD-10 contract](../handoffs/2026-10-07-gd10-boundary-enforcement.md).
+Pure corpus/profile factories stay in core; context factories receive explicit
+configuration, synthetic/source-pack orchestration stays in composition and
+configured refresh wrappers retain mandatory validation and existing APIs.
+The curated intake caller receives its canonical parser from composition.
+Three refresh-result types move unchanged to core; retained LKG runtime,
+configuration, sealed 2.0, private/K0/S0/O0 and measurement pins stay untouched.
+
+Existing module classification remains binding. Recognize only the three
+exact TypeScript composition roots named in the handoff, alongside existing
+scripts/*.mjs roots. Exact legacy facades permit only reviewed named export
+bindings; substantive implementations cannot reach configured composition
+through those facades or an unclassified intermediary. Source/declaration
+resolution, import types, loader aliases and public/private traversal are
+enforced with a shared pure graph helper and substantive negative cases.
+Capability scans cover relocated implementations and configured roots.
+The amendment changes no source qualification, identity, private-data,
+publication, observer eligibility or release gate. Section 9.3 stays binding.
 
 ### 9.3 Stop conditions for the refactor session
 
