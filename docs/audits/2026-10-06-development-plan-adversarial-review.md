@@ -51,8 +51,10 @@ validators passed at startup, after graph admission and on the final candidate.
 The candidate source-boundary scan passed (646 tracked paths, 682 source files).
 The ledger passes scoped Prettier checking and staged diff checks pass. Markdown
 preserves repository wrapping under the existing formatter exclusion; its local
-links passed backbone validation. Terminal-ledger validation follows the actual
-implementation commit before closeout.
+links passed backbone validation. After implementation commit `f0e1b57`, terminal
+roadmap validation passes with 115 items and zero in progress; GD-26 and GD-17
+are ready. Backbone validation and the source-boundary scan also pass at that
+terminal checkpoint.
 Runtime, schemas, source profiles, permissions and data remain outside this edit.
 The prior ignored local-settings formatting failure remains a known separate
 GD-26 concern; no full-suite or new product-test result is claimed here.
