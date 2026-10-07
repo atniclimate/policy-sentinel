@@ -1008,20 +1008,43 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-29-BOUNDED-OPTIMIZATION
+  work_item: null
   objective: >-
-    Execute only O1 deterministic historical-profile and capacity tests and O2
-    startup instruction reconciliation from selected optimization plan
-    policy-sentinel-optimize-20261006-223953 revision 1 under D-085. Preserve
-    production refusal, source profiles, custody, protected paths and unrelated
-    work. GD-28 remains complete; GD-26 and all other general-development and
-    PS09 items retain their status and gates. No acquisition, source activation,
-    private-data use, publication or release is selected.
-  terminal_reason: null
+    General development under G-GENERAL-DEV-01 (D-071). Refactor wave 1 (GD-01,
+    GD-02, GD-03) and GD-24 (legacy archive and consolidation, D-080) are
+    complete; waves run one item at a time under the one-in_progress rule
+    (D-082). Next: session R (GD-17 nationwide source survey, GD-18 storage
+    capacity model; activating them first needs a planning act that moves them
+    ahead of the ready wave 2 items, or wave 2 lands first), wave 2 (GD-04,
+    GD-05, GD-07, GD-08, GD-09; wave 3: GD-06, GD-10) and GD-26 (reproducible
+    checks). GD-13, GD-16, GD-22 and GD-27 wait on their gates. The Makah demo
+    track is finished; its acquired objects remain custody only, and
+    per-document G-J decisions and G-BIA-IDENTITY stay open. The PS09 program
+    stays blocked on PS09-02 originating identity/scenario evidence; PS09-06 is
+    unstarted and gated; the completed H01/H02 maintenance and every sealed
+    discovery, prior assurance and owner-input identity are preserved.
+  terminal_reason: >-
+    The selected O1/O2 bounded optimization under D-085 is complete. Historical
+    profile and capacity test failures are resolved; full tests and synthetic
+    build pass. The unchanged ignored-settings formatting failure remains
+    recorded. Independent review found no material defect. No next work item,
+    publication, acquisition or general-engine release is selected; other
+    general-development and PS09 items retain their status and gates.
   resumable_roots:
-    - GD-29-BOUNDED-OPTIMIZATION
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: 3a037f9cd7350cbc96fd7a185756c58984b6ab6e
+    - GD-04-CORE-BOUNDARY-GUARD
+    - GD-05-INTAKE-REPLAY-AND-DISCOVERY
+    - GD-07-RESEARCH-OUTPUT-SPLIT
+    - GD-08-CONTEXT-RELEVANCE-EXTRACTION
+    - GD-09-JURISDICTION-IDENTIFIER-MODEL
+    - GD-13-NATIONWIDE-RECORD-CONTRACT
+    - GD-16-INTEROP-PURE-ADAPTER
+    - GD-17-NATIONWIDE-SOURCE-SURVEY
+    - GD-18-STORAGE-CAPACITY-MODEL
+    - GD-22-NATION-REGISTRY-BINDING
+    - GD-26-REPRODUCIBLE-CHECKS
+    - GD-27-LOCAL-RELEASE-PACKAGE
+  last_durable_checkpoint: f06374c2e10229eb2eefeda7755903a609145352
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5531,7 +5554,9 @@ work_items:
     priority: 295
     milestone: General development
     title: Deterministic offline tests and consistent startup instructions
-    status: in_progress
+    status: complete
+    completed_on: "2026-10-06T23:13:50-07:00"
+    completion_commit: f06374c2e10229eb2eefeda7755903a609145352
     work_class: general_development_local
     decision_ref: D-085
     authorization_gate: G-GENERAL-DEV-01
@@ -5584,8 +5609,10 @@ work_items:
         material defect. It confirms unchanged production profiles, limits,
         custody and authority gates and retains formatting, symlink, fixture
         and unmeasured-performance qualifications. All 110 prior work items
-        and 36 unrelated untracked files remain unchanged. Local implementation
-        commit and terminal ledger follow-up remain pending at this checkpoint.
+        and 36 unrelated untracked files remain unchanged. Implementation
+        committed locally at f06374c2e10229eb2eefeda7755903a609145352; this
+        terminal ledger follow-up restores zero active items and the prior
+        resumable roots/actions. No push or deployment occurred.
 
   - id: MAKAH-DEMO-01-GROUNDWORK-DISCOVERY-SCOUTS
     priority: 296
@@ -7257,13 +7284,6 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: GD-29-BOUNDED-OPTIMIZATION
-    action: >-
-      Complete only selected O1/O2 test and instruction fixes, run the
-      applicable serialized checkpoint, obtain independent review and record the
-      terminal disposition. Preserve deferred optimization work and all existing
-      gates.
-  - order: 2
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action: >-
       Recover docs/development/ps09-engineering-review-02-evidence-matrix.md and
@@ -7278,60 +7298,60 @@ next_actions:
       discovery outcome; do not reactivate ended maintenance, acquisition,
       cutoff startups or archived lanes. General development proceeds separately
       under G-GENERAL-DEV-01 (D-071) and does not unblock PS09.
-  - order: 3
+  - order: 2
     work_item: GD-04-CORE-BOUNDARY-GUARD
     action: >-
       Wave 2: build src/core/boundary-guard.mjs to the contract the GD-03 tests
       state (its 80 skipped tests then run) and adopt it in record validation.
-  - order: 4
+  - order: 3
     work_item: GD-05-INTAKE-REPLAY-AND-DISCOVERY
     action: >-
       Wave 2: move replay and Washington discovery into src/modules/intake
       behind re-export shims.
-  - order: 5
+  - order: 4
     work_item: GD-07-RESEARCH-OUTPUT-SPLIT
     action: >-
       Wave 2: split research review (context) from research HTML (output).
-  - order: 6
+  - order: 5
     work_item: GD-08-CONTEXT-RELEVANCE-EXTRACTION
     action: >-
       Wave 2: move the relevance functions into
       src/modules/context/relevance.ts.
-  - order: 7
+  - order: 6
     work_item: GD-09-JURISDICTION-IDENTIFIER-MODEL
     action: >-
       Wave 2: nationwide JurisdictionRef model with a synthetic registry.
-  - order: 8
+  - order: 7
     work_item: GD-13-NATIONWIDE-RECORD-CONTRACT
     action: >-
       Blocked on the closed gate G-GD-NATIONWIDE-CONTRACT; the owner opens it
       for the exact successor contracts under D-073.
-  - order: 9
+  - order: 8
     work_item: GD-16-INTEROP-PURE-ADAPTER
     action: >-
       Blocked on the closed gate G-GD-INTEROP; the owner opens it for the pure
       validator and projector only under D-074.
-  - order: 10
+  - order: 9
     work_item: GD-17-NATIONWIDE-SOURCE-SURVEY
     action: >-
       Session R (RL-14): documentation-only nationwide source survey with the
       source-scout agent; acquires nothing.
-  - order: 11
+  - order: 10
     work_item: GD-18-STORAGE-CAPACITY-MODEL
     action: >-
       Session R (RL-14): storage capacity model and storage:report against the
       D-077 caps; acquires nothing.
-  - order: 12
+  - order: 11
     work_item: GD-22-NATION-REGISTRY-BINDING
     action: >-
       Blocked on G-BIA-IDENTITY and on an atni-nation-registry v0 release
       (D-075).
-  - order: 13
+  - order: 12
     work_item: GD-26-REPRODUCIBLE-CHECKS
     action: >-
       Make hook tests independent of ignored historical receipts and test each
       .claude/settings.json deny form (D-081).
-  - order: 14
+  - order: 13
     work_item: GD-27-LOCAL-RELEASE-PACKAGE
     action: >-
       Blocked on the closed gate G-GD-NATIONWIDE-CONTRACT (through GD-13); a

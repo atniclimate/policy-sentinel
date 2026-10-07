@@ -75,8 +75,10 @@ reviewer reviewed the final diff and evidence. All implementation leases are
 returned. No live helper or server remains owned by this run.
 
 Starting branch: `demo/live-pages`; HEAD
-`8ae5b4ca59b39ca16946c77978ef010bc7256e6d`. The implementation is verified;
-the local implementation commit and terminal ledger follow-up are pending.
+`8ae5b4ca59b39ca16946c77978ef010bc7256e6d`. Implementation is committed
+locally at `f06374c2e10229eb2eefeda7755903a609145352`. This terminal ledger
+follow-up records GD-29 complete, zero active items and the prior resumable
+roots/actions; the private closeout records both resulting commit identities.
 Nothing from this optimization run has been pushed or deployed.
 
 The ready plan and earlier receipts remain immutable; the private run state and
