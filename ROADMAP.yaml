@@ -7097,6 +7097,27 @@ work_items:
         GD-04 checkpoint 9822139befee84711a3c1ad099dcadb2f439be08. Complete
         GD-01/GD-02/GD-00 dependency closure and D-071 local synthetic authority
         are verified; implementation and acceptance remain pending.
+      - docs/handoffs/2026-10-07-gd05-intake-extraction.md
+      - >-
+        Replay/helpers and Washington discovery move mechanically into intake;
+        both independent reviews and lint/typecheck/source scan pass. Legacy
+        replay re-export and discovery shim preserve imports; writer/server
+        bodies remain for GD-06. Required test acceptance remains pending.
+      - >-
+        Complete GD-05 policy validation passes 145/145, including compatibility
+        and GD-01 characterization; complete assurance passes 100/100, including
+        all eight actual-reader cleanup cases. Unit/build/full validation remain
+        pending; no assertion, isolation setting or deadline changes.
+      - >-
+        Complete unit suite passes all 1,926 tests across 106 files, including
+        module boundaries/public reachability and retained non-interference.
+        Synthetic build/artifact passes (3 records, 575 Nations, 8 assets).
+        Required test-gd05-full is running; item acceptance remains pending.
+      - >-
+        test-gd05-full exits 1 at 17:18 UTC: corpus 13 pass, spine 30 pass and
+        the unchanged privilege skip; policy 136 pass and nine
+        WINDOWS_PROBE_TIMEOUT failures. Later phases do not run. Focused
+        successes remain qualified evidence; full acceptance stays unmet.
   - id: GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
     priority: 316
     milestone: General development

@@ -5,6 +5,18 @@ import {
   selectWashingtonSessionLaw,
   assertWashingtonBillHeader,
 } from "../../src/pipeline/policy-broad-discovery.mjs";
+import * as intakeDiscovery from "../../src/modules/intake/sources/washington-legislature/discovery.mjs";
+
+test("legacy discovery imports preserve the intake functions and export surface", async () => {
+  const legacy = await import("../../src/pipeline/policy-broad-discovery.mjs");
+  assert.deepEqual(
+    Object.keys(legacy).sort(),
+    Object.keys(intakeDiscovery).sort(),
+  );
+  for (const name of Object.keys(legacy)) {
+    assert.strictEqual(legacy[name], intakeDiscovery[name]);
+  }
+});
 const fixture = () => ({
   text: "2025 Regular Session",
   links: Array.from({ length: 200 }, (_, i) => ({

@@ -413,3 +413,78 @@ validation pass before source edits: exactly one item is active, GD-05, and no
 not_started promotion is missed. Root checkpoints only the three selection
 documents while the worker holds its three new-file leases. Protected owner
 inputs and source/measurement pins remain unchanged.
+
+Selection checkpoint `b7f3f5d6164a1b20ec02102deec74f34dc003d86` contains exactly
+the three reviewed selection documents. The worker returns all three intake
+leases. Root independently compares the complete moved replay/helper span and
+entire discovery source with their originals: both match exactly. The remaining
+output function bodies also match exactly. Root integrates shared imports and
+replay re-export, replaces discovery with its three-export shim, changes only
+the assurance source URL, and adds legacy/direct function identity checks.
+All eight reader cleanup cases and existing characterization assertions remain.
+Scoped formatting passes. Root begins serialized validation; independent intake
+and integration reviews remain required before item acceptance.
+
+Both independent reviews pass. Complete moved and retained bodies match the
+selection commit; all changed imports resolve. The binding design's GD-05 row
+explicitly adds the legacy replay shim export while GD-06 owns making the
+entire output file a pure shim. The implementation follows that sequence and
+does not dispatch GD-06. Lint, typecheck and source scan pass (686 tracked
+paths, 725 source files). The complete policy suite runs under its existing
+serialized command; broader acceptance remains pending.
+
+Complete `test-policy-gd05-first` passes all 145 tests without skips in
+299.349 seconds (exit 0). Both added compatibility identity checks and
+GD-01 characterization pass. Root now runs complete serialized assurance
+against the moved actual reader; unit, build and full validation remain due.
+
+Complete `test-assurance-gd05-first` passes all 100 tests without skips in
+43.450 seconds (exit 0), including all eight actual-reader cleanup cases.
+Root runs the complete unit suite next. No assertion, native timeout,
+operation deadline or file-isolation setting changes.
+
+Complete `test-unit-gd05-first` passes all 1,926 tests across 106 files in
+239.91 seconds (exit 0), including module-boundary/public reachability,
+Makah and S0 non-interference coverage. All 36 owner-input hashes and six
+retained source/measurement pins match at 17:07 UTC. Root proceeds with
+synthetic build/artifact, then one required complete full-suite attempt.
+
+Synthetic build and explicit artifact validation pass: 3 records, 575 synthetic
+Nations and 8 verified assets, build `synthetic-439895dd3488b465bfb5`.
+Root dispatches `test-gd05-full` with immutable external log/receipt and no
+concurrent validation. GD-05 remains active until its actual full result and
+final standing checks are reconciled. Focused passes do not waive any deferred
+GD-31/GD-32/GD-04 obligation.
+
+Independent GD-05 checkpoint review passes with full acceptance still pending.
+During the full attempt, read-only preparation identifies a GD-06 design
+conflict: mechanically moving the remaining output bodies would add forbidden
+output-to-intake imports for custody writes, run/file reads and provider replay.
+A pure legacy shim alone cannot resolve those dependencies. No GD-06 code is
+dispatched. A reviewed composition contract is needed before that extraction;
+this is an implementation-design issue, not a new source-authorization gate.
+Independent GD-07 preparation identifies a mechanical context/render split
+that introduces no such imports. Selection remains governed by the live ledger
+after the current full attempt and qualified GD-05 checkpoint.
+
+`test-gd05-full` ends at 17:18 UTC with exit 1. Foundation and corpus
+(13/13) pass; spine passes 30 with the unchanged file-symlink privilege skip.
+Policy passes 136 of 145, with nine `WINDOWS_PROBE_TIMEOUT` failures:
+bounded-operation-runner lines 536/637, custody-PDF lines 199/284 and
+local-output-replay lines 329/395/433/515/535. Later phases do not run.
+The separate complete policy (145), assurance (100), unit (1,926) and
+synthetic build/artifact passes remain focused evidence, not full acceptance.
+Root prepares an independently reviewed incomplete local checkpoint after
+final standing checks. GD-05 remains active until its actual checkpoint SHA
+is recorded and the next independent eligible item is selected. No timeout,
+test assertion, private module, source interface or closed gate changes.
+
+Independent final incomplete-checkpoint review passes. Roadmap validates all
+135 items/65 gates with GD-05 alone active; backbone validates 171 Markdown
+files/1,044 links and source scan passes 686 tracked paths/726 source files.
+Global formatting fails only on the protected ignored settings file; owned
+formatting and Git whitespace checks pass. All 36 owner hashes and six retained
+source/measurement pins match at 17:19 UTC; the index is empty before staging.
+Root checkpoints exactly eight code/test paths plus the roadmap, this record
+and GD-05 handoff. Acceptance remains pending. The next selection update will
+record the actual SHA and defer GD-05 without opening any external operation.

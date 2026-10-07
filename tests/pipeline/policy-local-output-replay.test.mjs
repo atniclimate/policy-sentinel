@@ -35,8 +35,13 @@ import {
   replayReviewedCorpus,
   writeLocalOutput,
 } from "../../src/pipeline/policy-local-output.mjs";
+import { replayReviewedCorpus as intakeReplayReviewedCorpus } from "../../src/modules/intake/replay.mjs";
 import { syntheticCorpusV2Input } from "./analyzed-corpus-v2.test.mjs";
 import { mockPolicyFilesystem } from "../helpers/policy-filesystem-observations.mjs";
+
+test("legacy replay import is the intake entry point", () => {
+  assert.strictEqual(replayReviewedCorpus, intakeReplayReviewedCorpus);
+});
 
 function evidenceFor(
   capture,

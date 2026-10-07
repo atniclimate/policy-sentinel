@@ -287,7 +287,7 @@ test("cleanup preserves a lone primary, cleanup-only failure and successful retu
 });
 
 const localOutputSource = await readFile(
-  new URL("../../src/pipeline/policy-local-output.mjs", import.meta.url),
+  new URL("../../src/modules/intake/replay.mjs", import.meta.url),
   "utf8",
 );
 function localOutputRead(injected) {
