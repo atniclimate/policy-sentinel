@@ -664,3 +664,64 @@ defaults children to Normal unless creation flags specify otherwise; only Idle
 and BelowNormal parents automatically propagate. That candidate would not
 establish elevated probe scheduling. No priority or process setting changes;
 the next exact validation runs under the existing conditions.
+
+GD-08 selection commit `dc33623d61f8aadbb5f1be02b528b00b7f0b8245` contains
+exactly four reviewed documents. Full roadmap/backbone checks pass before
+source dispatch with counts 55/1/3/25/7/44. The worker receives its two new-file
+leases; root integrates the two existing app shims and three-binding identity
+test. The dated GD-08 handoff records pending implementation and acceptance.
+
+The GD-08 worker returns both new-file leases. Root independently compares
+complete UTF-8 declarations (8,163 characters, 361 lines, 21 exports), all
+three relevance bodies and every remaining policy body: unchanged. Formatting
+preserves function bodies. The only new source dependencies follow existing
+core/context prefixes; independent integration review and actual validation
+are pending. No mechanical comparison establishes item acceptance.
+
+Read-only diagnostic review clarifies the GD-07 UI failure: the 50-to-55
+increment checks had already passed; expected notice-055 detail heading was
+still a loading heading with aria-busy true. Four other test failures retain
+their deadlines, and two files time out during worker startup. Checked local
+import closures do not execute GD-07 modules, although the reverse-import
+test scans all production files and the roadmap test reads current evidence.
+The prior GD-05 unit pass does not prove the cause or flakiness of this failure.
+No protected assertion, native limit, process setting or production repair
+changes on this diagnostic evidence.
+
+Both GD-08 source reviews pass. Lint, typecheck and source scan pass
+(693 tracked paths, 732 source files). Focused unit passes five files/32 tests
+in 8.12 seconds, covering policy, CSV, accessibility, module boundaries and
+the protected reverse import scan. Root compares the complete original test
+string after removing only the new alias import and identity case: unchanged.
+Root runs the required full command under immutable `test-gd08-full` labels,
+then the synthetic build/artifact. If full validation stops early, unreached
+required phases run separately; every failed attempt retains its real status.
+
+The active GD-08 full run passes corpus and completes spine before entering
+policy. This is progress within the still-running full receipt, not acceptance.
+Read-only forward preparation confirms GD-09's independent closure and six
+new-file synthetic jurisdiction manifest, including strict schema/fixture
+testing. It also identifies required explicit reserved-namespace, FIPS linkage,
+synthetic-only Nation evidence and body non-propagation semantics. No GD-09
+source dispatch or real identifier qualification occurs while GD-08 is active.
+
+Complete `test-gd08-full` starts at 17:59:46 UTC and ends at 18:15:08 UTC,
+exit 0. Corpus 13, spine 30 plus its unchanged privilege skip, policy 146,
+assurance 100, backbone 26, tier-1 129, knowledge 31, storage 29,
+development-authority 37, search-measurement 9 and unit 106 files/1,927 tests
+pass. Unit reports 213.85 seconds. This is a genuinely complete current-code
+receipt, not a composition of separate passes. Earlier failures remain failed;
+the result does not establish their cause, a quiet host or concurrent-load
+reliability. Independent conditional acceptance audit confirms it can discharge
+the six implemented items after final standing checks and review; GD-32 design
+acceptance retains every incomplete workload/browser/capacity limitation.
+
+Synthetic build and artifact pass: three records, 575 synthetic Nations, eight
+assets, `synthetic-7c4a37a4b73f3caeeaf3`. Runtime, hooks (47), knowledge,
+roadmap/backbone/source checks pass. Knowledge retains its 17 stale observations
+without rewriting the index. Global formatting fails only on protected ignored
+settings; aggregate `npm run check` is not claimed. At 18:16 UTC all 36 owner
+hashes and six retained source/measurement pins match. Root prepares an exact
+eight-file GD-08 source checkpoint, then a separately reviewed completion and
+next-task ledger transition. No item completion or source dispatch is inferred
+before that reconciliation; GD-08 remains the sole active item for this checkpoint.

@@ -7,6 +7,11 @@ import {
 } from "../../src/app/policy";
 import { emptyCriteria } from "../../src/app/routing";
 import type { Nation, PublicRecord } from "../../src/app/types";
+import {
+  recordAvailableForNation as directRecordAvailableForNation,
+  recordEventDate as directRecordEventDate,
+  whyShownFor as directWhyShownFor,
+} from "../../src/modules/context/relevance";
 
 const nation: Nation = {
   id: "nation:test",
@@ -78,6 +83,12 @@ const record = (overrides: Partial<PublicRecord>): PublicRecord =>
   }) as PublicRecord;
 
 describe("Nation relationship policy", () => {
+  it("preserves legacy relevance binding identity", () => {
+    expect(recordAvailableForNation).toBe(directRecordAvailableForNation);
+    expect(recordEventDate).toBe(directRecordEventDate);
+    expect(whyShownFor).toBe(directWhyShownFor);
+  });
+
   it("shows federal records only as general jurisdiction without evidence", () => {
     const federal = record({});
     expect(recordAvailableForNation(federal, nation)).toBe(true);

@@ -7253,6 +7253,26 @@ work_items:
         transitive manifest moves unchanged public app declarations into core
         with a legacy type shim, avoiding forbidden context-to-output type
         imports.
+      - docs/handoffs/2026-10-07-gd08-relevance-extraction.md
+      - >-
+        Root integrates explicit legacy app shims and three-function identity
+        coverage. Whole public declaration block, three moved bodies and
+        remaining policy bodies match the original. Owned formatting passes;
+        independent review and actual validation remain pending.
+      - >-
+        Independent integration and module/governance source reviews, lint,
+        typecheck and source scan pass. Focused unit passes 5 files/32 tests:
+        policy, CSV, accessibility, module boundaries and protected reverse
+        imports. Original test text is preserved except identity coverage.
+        Complete full validation and synthetic build/artifact remain pending.
+      - >-
+        Complete test-gd08-full exits 0 at 18:15 UTC through every phase,
+        including policy 146, assurance 100 and unit 106 files/1,927 tests.
+        Synthetic build/artifact passes (3 records, 575 Nations, 8 assets).
+        Runtime/hooks/knowledge/roadmap/backbone/source checks pass; protected
+        global-format failure remains. All 36 owner hashes and six retained pins
+        match at 18:16 UTC. Final checkpoint review/ledger reconciliation
+        follows.
   - id: GD-09-JURISDICTION-IDENTIFIER-MODEL
     priority: 319
     milestone: General development
