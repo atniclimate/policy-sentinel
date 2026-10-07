@@ -629,3 +629,38 @@ protected ignored `.claude/settings.local.json`; root neither reads nor edits
 it. At 17:51 UTC all 36 protected owner hashes and six retained source/
 measurement pins match. Independent final review approves the honest incomplete
 seven-file checkpoint. No full-validation pass or item acceptance is claimed.
+
+GD-07 checkpoint `26bc35df5fa53408856bb4760abbff3ad8ae7dff` contains exactly
+the seven leased paths. GD-07 is deferred with required acceptance unmet.
+GD-08/318 is the next independently eligible ready item: complete dependency
+closure is GD-08 -> GD-02 -> GD-00, all under approved D-071/G-GENERAL-DEV-01.
+Deferral completes no dependency, so no not_started promotion is due. Expected
+counts are 55 complete, one active, three ready, 25 blocked, seven deferred and
+44 not_started. GD-27 and all required acceptance prerequisites stay intact.
+
+GD-08's original two-file move would introduce a forbidden context-to-output
+type edge. Independent review approves the routine transitive amendment now
+published in the binding module design: move all 361 lines of import-free public
+app declarations unchanged into core and explicitly preserve all 21 legacy type
+exports. Do not substitute different shared core types or change classification,
+allowlists, schemas, signatures, versions or required search fields.
+
+Root leases ROADMAP, this run record, the GD-07 status handoff, the binding
+module design, the future `docs/handoffs/2026-10-07-gd08-relevance-extraction.md`,
+`src/app/policy.ts`, `src/app/types.ts` and `tests/app/policy.test.ts`.
+The worker leases only new `src/core/public-app-types.ts` and
+`src/modules/context/relevance.ts`. All remaining policy/filter bodies and
+three moved functions retain their complete original text. Root adds only
+direct/legacy binding identity coverage and retains every original test.
+Policy, CSV, accessibility, module-boundary, S0 and full validation remain
+required; failures stay failed. No deadline, package, source acquisition,
+private-seam, demo, K0/S0/O0, owner input or external-operation change is leased.
+Validate complete roadmap/backbone before source edits; commit exactly the four
+selection documents. Independent source and final checkpoint reviews follow.
+
+The bounded diagnostic review rejects raising only the PS7 helper priority:
+[Microsoft's CreateProcessW contract](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessw)
+defaults children to Normal unless creation flags specify otherwise; only Idle
+and BelowNormal parents automatically propagate. That candidate would not
+establish elevated probe scheduling. No priority or process setting changes;
+the next exact validation runs under the existing conditions.

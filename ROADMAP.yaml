@@ -1079,16 +1079,16 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-07-RESEARCH-OUTPUT-SPLIT
+  work_item: GD-08-CONTEXT-RELEVANCE-EXTRACTION
   objective: >-
-    Separate research review/context from output rendering under the bounded
-    GD-07 manifest in docs/development/2026-10-07-autonomous-run.md. Preserve
-    review permissions, exact quotations, generated assets and compatibility.
-    GD-31/GD-32/GD-04/GD-05 full acceptance remains pending.
+    Extract three pure relevance functions under the reviewed GD-08 manifest and
+    core type relocation in module-boundaries.md. Preserve declarations, legacy
+    paths, evidence rules and remaining filter bodies.
+    GD-31/GD-32/GD-04/GD-05/GD-07 full acceptance remains pending.
   terminal_reason: null
   resumable_roots:
-    - GD-07-RESEARCH-OUTPUT-SPLIT
-  last_durable_checkpoint: 88c632fa1ef21274be048874fa23b6c856cc6fce
+    - GD-08-CONTEXT-RELEVANCE-EXTRACTION
+  last_durable_checkpoint: 26bc35df5fa53408856bb4760abbff3ad8ae7dff
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -7155,7 +7155,12 @@ work_items:
     priority: 317
     milestone: General development
     title: Research review (context) split from research HTML (output)
-    status: in_progress
+    status: deferred
+    reason: >-
+      Reviewed mechanical implementation is checkpointed, but mandatory full
+      validation remains failed and unit execution incomplete. Postpone
+      acceptance while independent authorized GD-08 advances; no required
+      outcome is waived.
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -7217,11 +7222,15 @@ work_items:
         global formatting retains the protected ignored-settings failure. All 36
         owner hashes and six retained source/measurement pins match at 17:51
         UTC. Independent final review approves this incomplete checkpoint.
+      - >-
+        Local checkpoint 26bc35df5fa53408856bb4760abbff3ad8ae7dff contains
+        exactly seven reviewed leased paths. It establishes no full acceptance.
+        GD-08 is independently eligible through completed GD-02/GD-00.
   - id: GD-08-CONTEXT-RELEVANCE-EXTRACTION
     priority: 318
     milestone: General development
     title: Relevance functions moved into context
-    status: ready
+    status: in_progress
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -7234,7 +7243,16 @@ work_items:
       - >-
         tests/app/policy.test.ts, tests/app/csv.test.ts and
         tests/app/accessibility.test.tsx stay green.
-    evidence: []
+    evidence:
+      - docs/development/2026-10-07-autonomous-run.md
+      - docs/architecture/module-boundaries.md
+      - >-
+        Selected at priority 318 after the reviewed incomplete GD-07 checkpoint.
+        Complete GD-08/GD-02/GD-00 closure and approved D-071 local authority
+        remain satisfied; no not_started item newly unblocks. Reviewed
+        transitive manifest moves unchanged public app declarations into core
+        with a legacy type shim, avoiding forbidden context-to-output type
+        imports.
   - id: GD-09-JURISDICTION-IDENTIFIER-MODEL
     priority: 319
     milestone: General development
@@ -8430,13 +8448,14 @@ next_actions:
   - order: 5
     work_item: GD-07-RESEARCH-OUTPUT-SPLIT
     action:
-      "Active bounded task: mechanically separate context research review from
-      output rendering behind the legacy shim; preserve reviewed semantics,
-      quotations and generated asset bytes."
+      "Resume required full acceptance after incomplete checkpoint 26bc35d;
+      preserve reviewed context/render split, legacy shim and failed receipts."
   - order: 6
     work_item: GD-08-CONTEXT-RELEVANCE-EXTRACTION
     action:
-      "Extract relevance functions without inventing association evidence."
+      "Active bounded task: relocate unchanged app type declarations into core
+      behind their legacy shim, then extract three relevance functions without
+      inventing association evidence or changing remaining filtering behavior."
   - order: 7
     work_item: GD-09-JURISDICTION-IDENTIFIER-MODEL
     action: "Implement nationwide identifiers using a synthetic registry."

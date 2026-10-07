@@ -1,6 +1,9 @@
 # GD-07 research extraction checkpoint
 
 GD-07 separates research review from rendering. Acceptance remains pending.
+Implementation is checkpointed at `26bc35df5fa53408856bb4760abbff3ad8ae7dff`.
+GD-07 is deferred with its required full acceptance unmet while independent
+GD-08 advances through completed GD-02/GD-00.
 Recover current execution from [ROADMAP.yaml](../../ROADMAP.yaml) and the
 [autonomous run record](../development/2026-10-07-autonomous-run.md).
 

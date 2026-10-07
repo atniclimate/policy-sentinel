@@ -109,6 +109,16 @@ Core has no I/O. The v2 corpus parser is already browser-safe (the workbench
 imports it), so classifying it as core makes the engine-to-pipeline and
 app-to-pipeline edges (F-08) legal without moving the file.
 
+GD-08 transitive dependency amendment (2026-10-07): the complete import-free
+public declaration block in `src/app/types.ts` moves unchanged to
+`src/core/public-app-types.ts`. The old path explicitly re-exports all 21 type
+names. Context relevance imports its three types directly from core, avoiding
+a forbidden context-to-output type edge. This is a mechanical relocation:
+declarations, artifact versions, required `SearchCriteria.nationId`, signatures
+and every legacy importer remain unchanged. Existing core record types are
+different contracts and are not substituted. The manifest and allowlist need
+no change because the new file follows the existing core prefix rule.
+
 ## 4. Module 1: intake
 
 **Purpose.** Federal, state and Tribal source ingestion, source-agnostic enough
@@ -183,7 +193,7 @@ Moves and splits:
 
 | From | To | Step |
 | --- | --- | --- |
-| `recordEventDate`, `whyShownFor`, `recordAvailableForNation` (`src/app/policy.ts:9-85`) | `src/modules/context/relevance.ts`; `src/app/policy.ts` re-exports them, so its path (pinned by the S0 test) and every importer stay valid | GD-08 |
+| `recordEventDate`, `whyShownFor`, `recordAvailableForNation` (`src/app/policy.ts:9-85`) and their public app type dependency | `src/modules/context/relevance.ts`; unchanged complete declarations move from `src/app/types.ts` to `src/core/public-app-types.ts`. Both old app paths retain explicit re-exports, so the S0-pinned policy path and every importer stay valid | GD-08 |
 | `resolvePolicyResearchReview`, `enrichPolicyCorpus` and their closed-shape helpers (`src/pipeline/policy-research-output.mjs:8-241`) | `src/modules/context/research-review.mjs`; old path re-exports | GD-07 |
 | none (new) | `src/modules/context/jurisdiction/{registry,association}.ts`, `schemas/jurisdiction-ref.schema.v1.json`, synthetic registry fixture | GD-09 |
 | none (new) | v2 jurisdiction association: an additive corpus successor (`AnalyzedCorpus 2.1`) with `work.jurisdictionRefs[]`, each with evidence; `governmentContext` retained as source text | GD-11 |
@@ -397,7 +407,7 @@ These must stay green, together with
 | GD-05 intake replay and discovery | GD-01, GD-02, RD-02 | `src/modules/intake/replay.mjs` and `.d.mts`, `src/modules/intake/sources/washington-legislature/discovery.mjs`, `src/pipeline/policy-broad-discovery.mjs` (to a shim), `src/pipeline/policy-local-output.mjs` (replay moved out, shim export added) | `npm run test:policy`, `npm run test:assurance`, GD-01 | GD-01 |
 | GD-06 output local-workbench split | GD-05 | `src/modules/output/local-workbench/{write,failure-simulation,loopback-server}.mjs` and `.d.mts`, `src/pipeline/policy-local-output.mjs` (to a pure shim) | `tests/pipeline/policy-local-output.test.mjs`, `npm run test:assurance`, GD-01 | GD-01 |
 | GD-07 research output split | GD-02 | `src/modules/context/research-review.mjs`, `src/modules/output/research-html.mjs`, `src/pipeline/policy-research-output.mjs` (to a shim) | `tests/pipeline/policy-research-output.test.mjs` | none; the existing five tests cover both halves |
-| GD-08 context relevance extraction | GD-02 | `src/modules/context/relevance.ts` (new), `src/app/policy.ts` (re-exports) | `tests/app/policy.test.ts`, `tests/app/csv.test.ts`, `tests/app/accessibility.test.tsx` | none; `tests/app/policy.test.ts` covers the moved functions |
+| GD-08 context relevance extraction | GD-02 | `src/modules/context/relevance.ts` and `src/core/public-app-types.ts` (new), `src/app/policy.ts` and `src/app/types.ts` (explicit re-exports; remaining policy bodies unchanged) | `tests/app/policy.test.ts` (binding identity plus retained cases), unchanged `tests/app/csv.test.ts` and `tests/app/accessibility.test.tsx` | none; `tests/app/policy.test.ts` covers the moved functions |
 | GD-09 jurisdiction identifier model | GD-02 | `src/modules/context/jurisdiction/{registry,association}.ts`, `schemas/jurisdiction-ref.schema.v1.json`, `fixtures/context/jurisdiction-registry.synthetic.valid.json`, `tests/context/jurisdiction*.test.ts` (all new) | backbone schema-ID check | This step's own schema and negative tests |
 | GD-10 boundary enforcement | GD-04, GD-06, GD-07, GD-08 | `tests/architecture/module-manifest.mjs` (allowlist reduced to documented shims) | GD-02 in enforcing mode | none |
 | GD-11 v2 jurisdiction association | GD-09, GD-10 | an additive `AnalyzedCorpus 2.1` schema and runtime, `src/modules/context/jurisdiction/association.ts`, tests | `npm run test:policy`, `tests/pipeline/analyzed-corpus-v2.test.mjs`; the sealed 2.0 corpus must still replay unchanged | 2.0 replay compatibility test |
