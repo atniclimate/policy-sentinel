@@ -1,5 +1,15 @@
 # GD-04 boundary guard checkpoint
 
+Current acceptance (2026-10-07): this bounded item is complete after final
+independent review and source checkpoint `04d626f`. The complete current-code
+`test-gd08-full` receipt exits 0 at 18:15 UTC; all required phases,
+synthetic build/artifact and standing checks pass. Protected ignored settings
+retain the sole global formatting failure; aggregate `check` is not claimed.
+Earlier pending statements and failures below record the historical sequence.
+GD-32's incomplete measurement rows remain incomplete; this acceptance does
+not establish browser/capacity performance, acquisition or release completion.
+The roadmap now selects GD-06; all separate operation gates retain their scope.
+
 GD-04 implements the shared protected-key guard and its record-validation
 integration. Acceptance remains pending. Recover the live status and next action
 from [ROADMAP.yaml](../../ROADMAP.yaml) and the exact execution leases from the

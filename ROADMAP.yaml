@@ -1079,16 +1079,16 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-08-CONTEXT-RELEVANCE-EXTRACTION
+  work_item: GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
   objective: >-
-    Extract three pure relevance functions under the reviewed GD-08 manifest and
-    core type relocation in module-boundaries.md. Preserve declarations, legacy
-    paths, evidence rules and remaining filter bodies.
-    GD-31/GD-32/GD-04/GD-05/GD-07 full acceptance remains pending.
+    Split pure local-workbench output from custody orchestration under the
+    reviewed GD-06 manifest and design amendment. Preserve exact behavior,
+    sealed replay, legacy exports and reader cleanup. Six prior checkpoints are
+    accepted on complete current-code validation; GD-06 acceptance is pending.
   terminal_reason: null
   resumable_roots:
-    - GD-08-CONTEXT-RELEVANCE-EXTRACTION
-  last_durable_checkpoint: 26bc35df5fa53408856bb4760abbff3ad8ae7dff
+    - GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
+  last_durable_checkpoint: 04d626f8eab10cf1fb5f5e627e234ade408775d2
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5875,13 +5875,9 @@ work_items:
     priority: 293
     milestone: General development
     title: Successor authority manifests and release acceptance crosswalk
-    status: deferred
-    reason: >-
-      Deliberately postpone repeated full-suite attempts after two preserved
-      recovery failures; this is a temporary scheduling decision. Required
-      acceptance remains pending, not waived: resume full validation when
-      reproducible Windows native-probe conditions change. Independent GD-32
-      depends only on completed GD-18 and can proceed without dispatch.
+    status: complete
+    completion_commit: 04d626f8eab10cf1fb5f5e627e234ade408775d2
+    completed_on: "2026-10-07T18:16:15Z"
     work_class: general_development_local
     decision_ref: D-086
     authorization_gate: G-GENERAL-DEV-01
@@ -5950,18 +5946,21 @@ work_items:
         contract tests and 492 roadmap tests pass. Full npm test completion
         remains pending after native Windows custody timeouts observed under
         high host CPU load. No operation dispatched or source qualified.
+      - >-
+        Accepted after source checkpoint 04d626f and final independent review:
+        complete test-gd08-full exits 0 at 18:15 UTC, all required phases pass;
+        synthetic build/artifact and standing checks pass. Protected ignored
+        settings retain the sole global format failure; no aggregate check pass
+        or broader release/source activation is claimed. Earlier failures and
+        GD-32 incomplete measurement limitations remain historical evidence.
 
   - id: GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
     priority: 294
     milestone: General development
     title: Bounded offline search storage and pilot measurement design
-    status: deferred
-    reason: >-
-      Temporarily postpone item acceptance after the final full suite retains
-      five unchanged Windows native-probe timeouts. Design, failed/incomplete
-      measurements and focused review are checkpointed at cba873a; full npm test
-      remains required. Continue independent ready GD-04 without relaxing limits
-      or rerunning ended measurement namespaces.
+    status: complete
+    completion_commit: 04d626f8eab10cf1fb5f5e627e234ade408775d2
+    completed_on: "2026-10-07T18:16:15Z"
     work_class: general_development_local
     decision_ref: D-086
     authorization_gate: G-GENERAL-DEV-01
@@ -6002,6 +6001,13 @@ work_items:
         global formatting fails only on protected ignored local settings. Full
         npm test exits 1 with five unchanged native-probe timeouts, so
         completion remains pending. All 36 original owner hashes match.
+      - >-
+        Accepted after source checkpoint 04d626f and final independent review:
+        complete test-gd08-full exits 0 at 18:15 UTC, all required phases pass;
+        synthetic build/artifact and standing checks pass. Protected ignored
+        settings retain the sole global format failure; no aggregate check pass
+        or broader release/source activation is claimed. Earlier failures and
+        GD-32 incomplete measurement limitations remain historical evidence.
 
   - id: GD-29-BOUNDED-OPTIMIZATION
     priority: 295
@@ -7015,13 +7021,9 @@ work_items:
     priority: 314
     milestone: General development
     title: Core boundary guard adopted by record validation
-    status: deferred
-    reason: >-
-      Temporarily postpone required full acceptance after checkpoint 9822139:
-      final unit and serialized assurance pass, but the complete retry retains
-      four unchanged native TIME_LIMIT failures in spine. Preserve all failed
-      logs and mandatory release acceptance; continue independent GD-05 without
-      deadline changes or reopening any operation gate.
+    status: complete
+    completion_commit: 04d626f8eab10cf1fb5f5e627e234ade408775d2
+    completed_on: "2026-10-07T18:16:15Z"
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -7071,17 +7073,20 @@ work_items:
         588) and the unchanged privilege skip. Final full acceptance remains
         pending; root prepares a reviewed incomplete checkpoint before selecting
         independent GD-05. Native limits and all owner inputs remain intact.
+      - >-
+        Accepted after source checkpoint 04d626f and final independent review:
+        complete test-gd08-full exits 0 at 18:15 UTC, all required phases pass;
+        synthetic build/artifact and standing checks pass. Protected ignored
+        settings retain the sole global format failure; no aggregate check pass
+        or broader release/source activation is claimed. Earlier failures and
+        GD-32 incomplete measurement limitations remain historical evidence.
   - id: GD-05-INTAKE-REPLAY-AND-DISCOVERY
     priority: 315
     milestone: General development
     title: Replay and Washington discovery moved into intake
-    status: deferred
-    reason: >-
-      Temporarily postpone full acceptance after reviewed intake checkpoint
-      88c632f. Complete focused policy, assurance, unit and build pass, but the
-      full attempt retains nine WINDOWS_PROBE_TIMEOUT failures. Preserve every
-      failed log and required release outcome; continue independent GD-07
-      without changing deadlines or opening an operation gate.
+    status: complete
+    completion_commit: 04d626f8eab10cf1fb5f5e627e234ade408775d2
+    completed_on: "2026-10-07T18:16:15Z"
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -7130,37 +7135,52 @@ work_items:
         paths. Temporarily deferred after the failed full attempt while
         independent eligible GD-07 proceeds; required intake acceptance remains
         in the release closure. No dependency completes.
+      - >-
+        Accepted after source checkpoint 04d626f and final independent review:
+        complete test-gd08-full exits 0 at 18:15 UTC, all required phases pass;
+        synthetic build/artifact and standing checks pass. Protected ignored
+        settings retain the sole global format failure; no aggregate check pass
+        or broader release/source activation is claimed. Earlier failures and
+        GD-32 incomplete measurement limitations remain historical evidence.
   - id: GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
     priority: 316
     milestone: General development
     title:
       Local-workbench writer, server and failure simulation split into output
-    status: not_started
+    status: in_progress
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
     dependencies: [GD-05-INTAKE-REPLAY-AND-DISCOVERY]
     acceptance:
       - >-
-        The writer, reader, validation and checksum helpers, the failure
-        simulation and the loopback server move to
+        Pure bytes/validation, failure simulation and loopback serving move to
         src/modules/output/local-workbench/{write,failure-simulation,loopback-server}.mjs
-        with .d.mts files.
+        with .d.mts files. Writer/reader custody orchestration moves unchanged
+        to import-safe scripts/policy-local-output.mjs with its declaration;
+        three pure binding helpers move unchanged to core and remain re-exported
+        by intake. Output has no intake, composition or custody callback edge.
       - src/pipeline/policy-local-output.mjs becomes a pure re-export shim.
       - >-
         tests/pipeline/policy-local-output.test.mjs, npm run test:assurance and
         the GD-01 tests stay green.
-    evidence: []
+    evidence:
+      - docs/development/2026-10-07-autonomous-run.md
+      - docs/architecture/module-boundaries.md
+      - >-
+        Selected at priority 316 after accepted GD-05 and full recursive
+        GD-06/GD-05/GD-01/GD-02/GD-00 closure. Approved G-GENERAL-DEV-01 and
+        D-071 admit the bounded mechanical split. The published 18-path source
+        manifest separates custody composition from output without weakening
+        legacy behavior, tests or source/private gates; acceptance remains
+        pending.
   - id: GD-07-RESEARCH-OUTPUT-SPLIT
     priority: 317
     milestone: General development
     title: Research review (context) split from research HTML (output)
-    status: deferred
-    reason: >-
-      Reviewed mechanical implementation is checkpointed, but mandatory full
-      validation remains failed and unit execution incomplete. Postpone
-      acceptance while independent authorized GD-08 advances; no required
-      outcome is waived.
+    status: complete
+    completion_commit: 04d626f8eab10cf1fb5f5e627e234ade408775d2
+    completed_on: "2026-10-07T18:16:15Z"
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -7226,11 +7246,20 @@ work_items:
         Local checkpoint 26bc35df5fa53408856bb4760abbff3ad8ae7dff contains
         exactly seven reviewed leased paths. It establishes no full acceptance.
         GD-08 is independently eligible through completed GD-02/GD-00.
+      - >-
+        Accepted after source checkpoint 04d626f and final independent review:
+        complete test-gd08-full exits 0 at 18:15 UTC, all required phases pass;
+        synthetic build/artifact and standing checks pass. Protected ignored
+        settings retain the sole global format failure; no aggregate check pass
+        or broader release/source activation is claimed. Earlier failures and
+        GD-32 incomplete measurement limitations remain historical evidence.
   - id: GD-08-CONTEXT-RELEVANCE-EXTRACTION
     priority: 318
     milestone: General development
     title: Relevance functions moved into context
-    status: in_progress
+    status: complete
+    completion_commit: 04d626f8eab10cf1fb5f5e627e234ade408775d2
+    completed_on: "2026-10-07T18:16:15Z"
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -7273,6 +7302,13 @@ work_items:
         global-format failure remains. All 36 owner hashes and six retained pins
         match at 18:16 UTC. Final checkpoint review/ledger reconciliation
         follows.
+      - >-
+        Accepted after source checkpoint 04d626f and final independent review:
+        complete test-gd08-full exits 0 at 18:15 UTC, all required phases pass;
+        synthetic build/artifact and standing checks pass. Protected ignored
+        settings retain the sole global format failure; no aggregate check pass
+        or broader release/source activation is claimed. Earlier failures and
+        GD-32 incomplete measurement limitations remain historical evidence.
   - id: GD-09-JURISDICTION-IDENTIFIER-MODEL
     priority: 319
     milestone: General development
@@ -8442,79 +8478,52 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
+    work_item: GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
     action:
-      "Finish required full validation of the reviewed b6145f6 preparation
-      checkpoint in a quiet Windows test window; retain failed logs and do not
-      repeat implementation or dispatch sources."
+      "Execute the reviewed mechanical output/custody split and compatibility
+      tests, preserve actual replay/cleanup, then complete required full checks
+      and independent review. No source dispatch or publication is granted."
   - order: 2
-    work_item: GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
-    action:
-      "Finish mandatory full validation of checkpointed search design and
-      measurements when native-probe conditions change. Retain incomplete rows;
-      never rerun ended namespaces or claim acquisition/delivery acceptance."
-  - order: 3
-    work_item: GD-04-CORE-BOUNDARY-GUARD
-    action:
-      "Finish mandatory full validation of checkpoint 9822139 when native-probe
-      conditions change. Retain unit/assurance passes and failed full attempts;
-      preserve every deadline and historical private list."
-  - order: 4
-    work_item: GD-05-INTAKE-REPLAY-AND-DISCOVERY
-    action:
-      "Finish mandatory full validation of intake checkpoint 88c632f when
-      native-probe conditions change. Preserve compatibility, sealed replay and
-      the adopted reader cleanup; GD-06 also needs a reviewed composition plan."
-  - order: 5
-    work_item: GD-07-RESEARCH-OUTPUT-SPLIT
-    action:
-      "Resume required full acceptance after incomplete checkpoint 26bc35d;
-      preserve reviewed context/render split, legacy shim and failed receipts."
-  - order: 6
-    work_item: GD-08-CONTEXT-RELEVANCE-EXTRACTION
-    action:
-      "Active bounded task: relocate unchanged app type declarations into core
-      behind their legacy shim, then extract three relevance functions without
-      inventing association evidence or changing remaining filtering behavior."
-  - order: 7
     work_item: GD-09-JURISDICTION-IDENTIFIER-MODEL
-    action: "Implement nationwide identifiers using a synthetic registry."
-  - order: 8
+    action:
+      "After GD-06 acceptance, freeze and implement the bounded synthetic-only
+      jurisdiction contract under its reviewed six-new-file manifest."
+  - order: 3
     work_item: GD-22-NATION-REGISTRY-BINDING
     action:
       "Await originating recognition reconciliation and the digest-pinned Nation
       registry v1; T0 baseline bundle v0 is a different version line."
-  - order: 9
+  - order: 4
     work_item: GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
     action:
       "Complete remaining nationwide source classes without blocking the finite
       pilot or acquiring source payloads."
-  - order: 10
+  - order: 5
     work_item: GD-40-GOVINFO-API-INTEGRATION
     action:
       "Resolve the exact GovInfo API credential/terms gate before bounded API
       integration; direct documents cannot substitute."
-  - order: 11
+  - order: 6
     work_item: GD-41-ECFR-API-INTEGRATION
     action:
       "Resolve the exact eCFR access-consent condition before any new host
       request, then qualify and test the API."
-  - order: 12
+  - order: 7
     work_item: GD-42-CONGRESS-API-INTEGRATION
     action:
       "Resolve exact Congress.gov API credentials and source-specific terms
       before bounded integration."
-  - order: 13
+  - order: 8
     work_item: GD-43-REGULATIONS-API-INTEGRATION
     action:
       "Resolve exact Regulations.gov governmental GET access and credentials;
       comments and submissions remain excluded."
-  - order: 14
+  - order: 9
     work_item: GD-53-PS09-ACCEPTANCE-CARRYFORWARD
     action:
       "Close each retained identity/scenario claim under the successor
       crosswalk; do not reactivate a spent historical run."
-  - order: 15
+  - order: 10
     work_item: GD-27-LOCAL-RELEASE-PACKAGE
     action:
       "Accept the current local release only after all Part B work, A1-A4 and

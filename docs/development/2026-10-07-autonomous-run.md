@@ -725,3 +725,93 @@ hashes and six retained source/measurement pins match. Root prepares an exact
 eight-file GD-08 source checkpoint, then a separately reviewed completion and
 next-task ledger transition. No item completion or source dispatch is inferred
 before that reconciliation; GD-08 remains the sole active item for this checkpoint.
+
+## Accepted checkpoints and GD-06 selection
+
+Source checkpoint `04d626f8eab10cf1fb5f5e627e234ade408775d2` contains exactly
+eight reviewed paths. Final review and the complete current-code receipt
+discharge the shared full-validation obligation for GD-31, GD-32, GD-04,
+GD-05, GD-07 and GD-08. All six are complete. Earlier failures remain failed.
+GD-32's design accepts explicit incomplete workload/browser measurements; no
+performance, managed-footprint or analyst-journey completion is inferred.
+Global formatting remains failed only on protected ignored settings.
+
+The complete roadmap was reread. Completing these six promotes only GD-06,
+priority 316; it is selected in the same ledger update. Counts become
+61 complete, one active, three ready, 25 blocked, two deferred and 43 not started.
+The recursive GD-06/GD-05/GD-01/GD-02/GD-00 closure and approved
+G-GENERAL-DEV-01/D-071 authority admit this bounded mechanical refactor.
+All GD-27 acceptance, identity, external-operation and source gates remain
+unchanged. GD-09 and GD-33 remain independent ready successors.
+
+Root's current documentation lease contains exactly nine existing paths:
+ROADMAP.yaml, this record, module-boundaries.md and the six dated
+GD-31/GD-32/GD-04/GD-05/GD-07/GD-08 handoffs. The design and GD-06 acceptance
+are amended before implementation to keep custody orchestration in composition,
+pure helpers in core and formatting in output. Selection review and full-ledger
+validators must pass before source dispatch.
+
+### GD-06 exact source ownership
+
+Worker A (`search_measurement`) owns only these four paths:
+
+- `src/core/local-output-bindings.mjs` (new)
+- `src/core/local-output-bindings.d.mts` (new)
+- `src/modules/intake/replay.mjs`
+- `src/modules/intake/replay.d.mts`
+
+Promote the complete unchanged safeFile/assertProfileBindings/
+assertCaptureBindings bodies and declarations. Intake imports/re-exports them;
+readOwnedFile, sealed replay, private I/O and cleanup remain unchanged.
+
+Worker B (`validation_diagnosis`) owns only these eight new paths:
+
+- `scripts/policy-local-output.mjs`
+- `scripts/policy-local-output.d.mts`
+- `src/modules/output/local-workbench/write.mjs`
+- `src/modules/output/local-workbench/write.d.mts`
+- `src/modules/output/local-workbench/failure-simulation.mjs`
+- `src/modules/output/local-workbench/failure-simulation.d.mts`
+- `src/modules/output/local-workbench/loopback-server.mjs`
+- `src/modules/output/local-workbench/loopback-server.d.mts`
+
+Keep complete writer/reader bodies in import-safe composition; pure
+bytes/validation in write; checksum snapshot and simulation in failure;
+contentType/server in loopback. Preserve signatures, error text, ordering and
+actual custody calls. Output imports no intake/scripts/legacy shim or custody
+callback; inert run metadata retains its actual shape and root is ignored.
+Existing core sha256Bytes supplies the equivalent private digest alias.
+Declarations preserve actual manifest variants and return values, without
+inventing verified-handle or automatic-refresh claims.
+
+Root owns only these six source/test paths:
+
+- `src/pipeline/policy-local-output.mjs` (explicit seven-export shim)
+- `src/pipeline/policy-local-output.d.mts` (new explicit declaration shim)
+- `tests/pipeline/policy-local-output.test.mjs`
+- `tests/pipeline/policy-local-output-replay.test.mjs`
+- `tests/pipeline/policy-assurance.test.mjs`
+- `tests/architecture/local-workbench-boundaries.test.ts` (new)
+
+Root also owns ROADMAP.yaml, this record, module-boundaries.md and a new dated
+GD-06 handoff for implementation evidence. Existing assurance extraction
+adapts only its function marker and injects actual promoted safeFile; every
+one of the eight RD-02 cleanup cases and assertions remains unchanged.
+The new scoped guard traverses output modules/declarations plus core and
+unclassified intermediates, rejects intake/scripts/old-shim/computed imports,
+and stops only reviewed existing corpus-validator/hashing terminals. It tests
+direct and wrapper bypasses, cycles and valid paths; no global allowlist changes.
+
+Workers are not alone in the repository and must preserve concurrent edits.
+They do not stage, commit, validate or expand leases. Root alone schedules
+serialized validation and writes the index. Existing schemas, packages,
+protected tests/deadlines, private seam, K0/S0/O0, demo/Worker, owner inputs and
+all historical custody remain untouched. Complete body comparisons, focused
+identity/boundary/assurance checks, full tests, artifact/standing checks and
+independent review precede GD-06 acceptance.
+
+Independent selection review passes for all nine documents, six completions,
+recursive closure, exact 18-path disjoint leases and the corrected core digest
+dependency wording. Full roadmap/backbone checks pass with 61/1/3/25/2/43;
+owned formatting and whitespace checks pass. Root commits exactly these nine
+documents before source dispatch; no completion of GD-06 is implied.

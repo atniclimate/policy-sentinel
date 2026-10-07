@@ -1,5 +1,15 @@
 # GD-08 relevance extraction checkpoint
 
+Current acceptance (2026-10-07): this bounded item is complete after final
+independent review and source checkpoint `04d626f`. The complete current-code
+`test-gd08-full` receipt exits 0 at 18:15 UTC; all required phases,
+synthetic build/artifact and standing checks pass. Protected ignored settings
+retain the sole global formatting failure; aggregate `check` is not claimed.
+Earlier pending statements and failures below record the historical sequence.
+GD-32's incomplete measurement rows remain incomplete; this acceptance does
+not establish browser/capacity performance, acquisition or release completion.
+The roadmap now selects GD-06; all separate operation gates retain their scope.
+
 GD-08 is active; acceptance remains pending. Recover from
 [ROADMAP.yaml](../../ROADMAP.yaml), the
 [autonomous run record](../development/2026-10-07-autonomous-run.md) and the
