@@ -1008,19 +1008,43 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-28-DEMO-MAINTENANCE-VALIDATION
+  work_item: null
   objective: >-
-    Bounded local assessment, repair and synthetic validation of the existing
-    live demo under the owner's 2026-10-06 direction and D-083/D-084. This item
-    records local engineering only. Live acceptance and demo publication have
-    their separate D-083/D-084 authority; the general-development gate grants
-    neither. General engine, PS09, private-context and source gates stay as
-    recorded. No other ready item is selected by this maintenance run.
-  terminal_reason: null
+    General development under G-GENERAL-DEV-01 (D-071). Refactor wave 1 (GD-01,
+    GD-02, GD-03) and GD-24 (legacy archive and consolidation, D-080) are
+    complete; waves run one item at a time under the one-in_progress rule
+    (D-082). Next: session R (GD-17 nationwide source survey, GD-18 storage
+    capacity model; activating them first needs a planning act that moves them
+    ahead of the ready wave 2 items, or wave 2 lands first), wave 2 (GD-04,
+    GD-05, GD-07, GD-08, GD-09; wave 3: GD-06, GD-10) and GD-26 (reproducible
+    checks). GD-13, GD-16, GD-22 and GD-27 wait on their gates. The Makah demo
+    track is finished; its acquired objects remain custody only, and
+    per-document G-J decisions and G-BIA-IDENTITY stay open. The PS09 program
+    stays blocked on PS09-02 originating identity/scenario evidence; PS09-06 is
+    unstarted and gated; the completed H01/H02 maintenance and every sealed
+    discovery, prior assurance and owner-input identity are preserved.
+  terminal_reason: >-
+    The bounded 2026-10-06 existing-demo maintenance ended with reviewed
+    repairs, local checks and separately authorized D-083/D-084 publication.
+    Four historical policy failures and an unrelated ignored-settings format
+    failure remain recorded; no general-engine release is claimed. Other
+    general-development items and PS09 retain their existing status and gates;
+    this maintenance run does not select a successor item.
   resumable_roots:
-    - GD-28-DEMO-MAINTENANCE-VALIDATION
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: e47966295ea686560d765ebaae2c0e578ad448d9
+    - GD-04-CORE-BOUNDARY-GUARD
+    - GD-05-INTAKE-REPLAY-AND-DISCOVERY
+    - GD-07-RESEARCH-OUTPUT-SPLIT
+    - GD-08-CONTEXT-RELEVANCE-EXTRACTION
+    - GD-09-JURISDICTION-IDENTIFIER-MODEL
+    - GD-13-NATIONWIDE-RECORD-CONTRACT
+    - GD-16-INTEROP-PURE-ADAPTER
+    - GD-17-NATIONWIDE-SOURCE-SURVEY
+    - GD-18-STORAGE-CAPACITY-MODEL
+    - GD-22-NATION-REGISTRY-BINDING
+    - GD-26-REPRODUCIBLE-CHECKS
+    - GD-27-LOCAL-RELEASE-PACKAGE
+  last_durable_checkpoint: 3a037f9cd7350cbc96fd7a185756c58984b6ab6e
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -6192,7 +6216,9 @@ work_items:
     priority: 308
     milestone: General development
     title: Existing demo assessment, repairs and local validation
-    status: in_progress
+    status: complete
+    completed_on: "2026-10-06T18:39:21-07:00"
+    completion_commit: 3a037f9cd7350cbc96fd7a185756c58984b6ab6e
     work_class: general_development_local
     decision_ref: D-084
     authorization_gate: G-GENERAL-DEV-01
@@ -6223,9 +6249,22 @@ work_items:
         with preserved failures and scoped reruns. Final-artifact export pairs
         preserve identical PDF bytes and reduce long-token generation time.
         Native speech, physical printing and deployed large-document resource
-        limits remain unverified. Final repository checks and separately
-        authorized publication remain in progress; no general-engine completion
-        is asserted.
+        limits remain unverified. No general-engine completion is asserted.
+      - >-
+        Final unit suite: 106 files pass, 1763 tests pass, 80 existing skips.
+        All required child checks ran; four baseline local-policy failures and
+        the unrelated ignored-settings format failure remain. Staged source scan
+        and both builds pass. Protected and unrelated work is preserved.
+      - >-
+        Separate D-083/D-084 publication: Pages build 1265628829 built commit
+        3a037f9cd7350cbc96fd7a185756c58984b6ab6e; active Worker version
+        48c514b8-df5e-417f-91b7-8d2954f94d5d confirmed at 100 percent. Bounded
+        live acceptance passed 234 checks on 2026-10-07 at 01:39 UTC: six Worker
+        calls, 11 Pages requests, one locally aborted outage call, no retries.
+        All four served artifact digests match the reviewed build. Federal
+        Register and original Washington bill text were readable; citations,
+        notes, PDF, browser print and compact outage recovery passed. Private
+        release receipts retain detailed evidence and capability limits.
 
   - id: GD-24-LEGACY-ARCHIVE-AND-CONSOLIDATION
     priority: 309
@@ -7196,65 +7235,59 @@ next_actions:
       cutoff startups or archived lanes. General development proceeds separately
       under G-GENERAL-DEV-01 (D-071) and does not unblock PS09.
   - order: 2
-    work_item: GD-28-DEMO-MAINTENANCE-VALIDATION
-    action: >-
-      Complete the bounded existing-demo maintenance and validation selected by
-      the owner on 2026-10-06. Keep independent demo publication authority under
-      D-083/D-084 separate from this local engineering ledger item.
-  - order: 3
     work_item: GD-04-CORE-BOUNDARY-GUARD
     action: >-
       Wave 2: build src/core/boundary-guard.mjs to the contract the GD-03 tests
       state (its 80 skipped tests then run) and adopt it in record validation.
-  - order: 4
+  - order: 3
     work_item: GD-05-INTAKE-REPLAY-AND-DISCOVERY
     action: >-
       Wave 2: move replay and Washington discovery into src/modules/intake
       behind re-export shims.
-  - order: 5
+  - order: 4
     work_item: GD-07-RESEARCH-OUTPUT-SPLIT
     action: >-
       Wave 2: split research review (context) from research HTML (output).
-  - order: 6
+  - order: 5
     work_item: GD-08-CONTEXT-RELEVANCE-EXTRACTION
     action: >-
       Wave 2: move the relevance functions into
       src/modules/context/relevance.ts.
-  - order: 7
+  - order: 6
     work_item: GD-09-JURISDICTION-IDENTIFIER-MODEL
     action: >-
       Wave 2: nationwide JurisdictionRef model with a synthetic registry.
-  - order: 8
+  - order: 7
     work_item: GD-13-NATIONWIDE-RECORD-CONTRACT
     action: >-
       Blocked on the closed gate G-GD-NATIONWIDE-CONTRACT; the owner opens it
       for the exact successor contracts under D-073.
-  - order: 9
+  - order: 8
     work_item: GD-16-INTEROP-PURE-ADAPTER
     action: >-
       Blocked on the closed gate G-GD-INTEROP; the owner opens it for the pure
       validator and projector only under D-074.
-  - order: 10
+  - order: 9
     work_item: GD-17-NATIONWIDE-SOURCE-SURVEY
     action: >-
       Session R (RL-14): documentation-only nationwide source survey with the
       source-scout agent; acquires nothing.
-  - order: 11
+  - order: 10
     work_item: GD-18-STORAGE-CAPACITY-MODEL
     action: >-
       Session R (RL-14): storage capacity model and storage:report against the
       D-077 caps; acquires nothing.
-  - order: 12
+  - order: 11
     work_item: GD-22-NATION-REGISTRY-BINDING
     action: >-
       Blocked on G-BIA-IDENTITY and on an atni-nation-registry v0 release
       (D-075).
-  - order: 13
+  - order: 12
     work_item: GD-26-REPRODUCIBLE-CHECKS
     action: >-
       Make hook tests independent of ignored historical receipts and test each
       .claude/settings.json deny form (D-081).
-  - order: 14
+  - order: 13
     work_item: GD-27-LOCAL-RELEASE-PACKAGE
     action: >-
       Blocked on the closed gate G-GD-NATIONWIDE-CONTRACT (through GD-13); a

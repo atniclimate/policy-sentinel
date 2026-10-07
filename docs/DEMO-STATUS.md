@@ -5,10 +5,10 @@ maintenance of the separately authorized public demo under D-083 and D-084 in
 the [decision register](decision-register.md). General engine work remains in
 [ROADMAP.yaml](../ROADMAP.yaml).
 
-The maintenance candidate has passed the demo checks and full unit suite
-described below. Publication and verification of the deployed candidate are
-pending. The existing public deployment must not be assumed to contain these
-changes.
+The maintenance changes are published and passed a bounded live check on
+2026-10-06 (Pacific time). Demo checks and the full unit suite passed. Four
+historical policy failures and an unrelated local-settings formatting failure
+remain; the combined repository check is not green.
 
 ## Public page and source coverage
 
@@ -149,19 +149,32 @@ Local demo acceptance does not establish general engine release readiness.
 
 ## Publication record
 
-The Worker version confirmed at the start of this maintenance run was
-`180deb6c-e72b-4eea-861c-51aa3259ce99`. It is a starting observation, not the
-identity of the maintenance candidate.
+The implementation is commit `3a037f9cd7350cbc96fd7a185756c58984b6ab6e`.
+GitHub Pages build 1265628829 completed for that commit. The browser then
+verified the exact entry, stylesheet, application script and PDF script against
+the reviewed build. The outgoing `docs/` inventory contains 141 tracked files;
+unrelated untracked planning files and private assessment evidence were excluded.
 
-| Required final evidence | Status |
-| --- | --- |
-| Final maintenance commit | Pending: record the exact commit. |
-| Final repository and demo checks | Full unit suite: 1,763 passed, 80 skipped. Demo tests: 141 passed. Four baseline policy failures and unrelated local-settings formatting failure remain; the staged source scan passed. |
-| Public artifact review | Pending: record the exact outgoing files and entry/asset digests. |
-| Pages publication | Pending: record the deployed commit/build and verified entry/asset identities. |
-| Worker publication | Pending: record the active version and verification time. |
-| Bounded live acceptance | Pending: record the official-source requests actually made and their outcomes. |
-| Checks after publication | Pending: verify the public page and Worker together and record any source gap. |
+The active Worker version is `48c514b8-df5e-417f-91b7-8d2954f94d5d`,
+confirmed at 100% in deployment `8f317b84-d10f-4240-a63f-ba92b6336e6e`
+on 2026-10-07 at 01:38 UTC. No source, credential or account setting changed.
+
+The live browser sequence finished at 01:39 UTC with 234 checks passed. It
+searched Federal Register once for the example `Executive Order 13175` and
+read the first readable result, FR document 2025-23880. That is a search result,
+not a claim that the result is Executive Order 13175. It then looked up
+Washington HB 1100 in the 2025-26 biennium and read its as-introduced text.
+Both records retained their exact identities and evidence receipts through
+citation, notes, downloaded PDF and browser print. Compact navigation preserved
+the saved report; locally blocking source discovery left it readable and
+exportable with source availability marked unchecked.
+
+The browser observed six successful Worker calls and 11 Pages requests, plus
+one locally aborted Worker call for the outage check. There were no retries.
+The code implies at most five official upstream calls for that sequence;
+upstream counts, processor time and provider bytes were not observed at the edge.
+Actual live PDF visual inspection is recorded in the private release receipt.
+This finite result does not establish continuing provider availability.
 
 The deployed Worker account plan and large-document processor use remain
 unverified; local parser wall time cannot establish them. Existing byte and
