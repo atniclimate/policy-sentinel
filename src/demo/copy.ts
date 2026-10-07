@@ -10,7 +10,7 @@ export const COPY = {
   introOne:
     "Policy Sentinel reads official policy text and keeps track of where each passage came from, so a reader can check the source rather than trust a summary. This demo searches real public policy, reads the official text, and points to passages that may deserve a closer look.",
   introTwo:
-    "Everything here is public material from government sources, which the Tiered Sovereign Data Framework calls Tier 0 (T0). No Tribal codes and no Tribal government documents are used. What you type is sent to the demo service to run the search, and it is not kept. The flagged passages come from automated demo rules, not from Policy Sentinel's reviewed findings. The question to ask of every flag is the one the tool asks of itself: what would show this is wrong?",
+    "Everything here is public material from government sources, which the Tiered Sovereign Data Framework calls Tier 0 (T0). No Tribal codes and no Tribal government documents are used. Search terms go to the demo service and the selected official source. The demo does not save or cache searches. Your citations and notes stay in this browser tab. The flagged passages come from automated demo rules, not from Policy Sentinel's reviewed findings. The question to ask of every flag is the one the tool asks of itself: what would show this is wrong?",
   limitsTitle: "Limits",
   limits: (version: string) =>
     `Policy Sentinel ${version} is in development. This is not legal advice. Coverage is limited to the sources listed here, and sources may be incomplete or delayed. Automated issue identification can miss passages or misread them. Verify everything against the official source before you rely on it.`,
@@ -44,7 +44,7 @@ export const COPY = {
   readingText: "Reading the official text.",
   issuesTitle: "Issues the demo rules identified",
   issuesNote:
-    "These are automated checks, labelled as demo rules. Each one quotes the text, names its rule, and says what it cannot show. They are not Policy Sentinel's reviewed findings.",
+    "These are automated checks, labelled as demo rules. Passage flags quote the extracted text. An absence check is labelled as a rule assessment. Each check names its rule and says what it cannot show. They are not Policy Sentinel's reviewed findings.",
   noIssues: "The demo rules found nothing to flag in this text.",
   ruleLabel: "Rule",
   limitLabel: "What this cannot show",
@@ -71,6 +71,8 @@ export const COPY = {
   exportDone: "The PDF was built and saved to your downloads.",
   exportFailed:
     "The PDF could not be built. The print view still works: use Print view, then save as PDF.",
+  exportUnsupported:
+    "This report contains characters the PDF font cannot display. Use Print view to save it as PDF with your browser's fonts. Check the saved pages before sharing them.",
   serviceDown:
     "The demo service did not answer. Try again in a moment. If it keeps happening, the service may be down.",
   rateLimited:
@@ -81,15 +83,15 @@ export const COPY = {
   footerSource:
     "Policy text comes from the Federal Register and GovInfo, and from the Washington State Legislature. Each citation links to its official source.",
   footerCode:
-    "Built on the Policy Sentinel text extractor. The demo service reads official government hosts only and keeps no record of searches.",
+    "Built on the Policy Sentinel text extractor. The demo service reads official government hosts only. It does not log searches. It uses temporary in-memory address counters to limit requests; hosting and source providers have their own service policies.",
   pdfTitle: "Cited policies",
   pdfIntro:
-    "A short list of public policies, each with its full citation, the passages the demo rules flagged, and notes written by the person who prepared this list.",
+    "A short list of public policies with citations, selected passages or rule assessments, and notes written by the person who prepared this list.",
   pdfNotesLabel: "Note",
   pdfNoNote: "No note added.",
   pdfNoPassages: "No passages selected for this policy.",
   pdfTextNotRead:
-    "The demo did not read the text of this source, so no passages are listed.",
+    "No text receipt was saved for this citation. Text retrieval was unavailable or did not complete, so no passages are listed.",
 } as const;
 
 export const EXAMPLES: readonly {

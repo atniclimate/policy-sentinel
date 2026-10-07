@@ -8,6 +8,11 @@ Nation's interests.
 
 ## Project status
 
+Current general-development work is recorded in [ROADMAP.yaml](ROADMAP.yaml).
+The separately authorized public demonstration and its maintenance evidence are
+recorded in [Live demo status](docs/DEMO-STATUS.md). The engineering-review
+checkpoints below describe their historical scope.
+
 The adopted finite engineering review `H-ENGINEERING-REVIEW-02` is complete.
 Recover its [outcome](docs/handoffs/ps09-engineering-review-02-outcome.md),
 [journal](docs/development/PS09-ENGINEERING-REVIEW-02.md) and live roadmap.
@@ -448,3 +453,19 @@ Policy Sentinel is a source-reference and discovery tool. It is not legal
 advice, does not determine rights or legal effect, does not guarantee complete
 or current coverage, and is not a substitute for reviewing official sources or
 obtaining qualified advice.
+
+## Demo browser verification
+
+Build the demo with `npm run demo:build`. The browser runner uses an installed
+`playwright-core` package and `pdftotext` on PATH. Set `PLAYWRIGHT_CORE` to that
+package's directory when it is outside this repository, then run
+`node scripts/verify-demo-browser.mjs --url <page> --out <new-private-directory>`.
+The default target uses the live Worker; repeated synthetic checks must supply a
+local fixture service through the localhost `?api=` override. Keep reports,
+notes and screenshots outside the repository and the served `docs/` tree.
+
+The runner accepts `--browser chromium|chrome|brave|webkit`. Brave requires
+`--executable <installed-browser>`; the same option can select an installed
+WebKit executable for an explicit compatibility check. A browser that cannot
+launch is a capability limitation, not a passing check. `--fail-probe true`
+exercises a failing receipt and exit without opening a browser or network.

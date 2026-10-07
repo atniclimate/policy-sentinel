@@ -1,7 +1,12 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import type { PDFFont, PDFPage } from "pdf-lib";
 import { COPY } from "./copy";
-import type { DemoCitation, DemoIssue, DemoReceipt } from "./types";
+import type {
+  DemoCitation,
+  DemoEngineInfo,
+  DemoIssue,
+  DemoReceipt,
+} from "./types";
 
 export interface PdfIssue {
   readonly issue: DemoIssue;
@@ -11,6 +16,7 @@ export interface PdfIssue {
 export interface PdfEntry {
   readonly citation: DemoCitation;
   readonly receipt: DemoReceipt | null;
+  readonly engine: DemoEngineInfo | null;
   readonly note: string;
   readonly issues: readonly PdfIssue[];
 }
@@ -29,18 +35,26 @@ const MUTED = rgb(0.34, 0.37, 0.35);
 const RULE = rgb(0.72, 0.75, 0.73);
 const ACCENT = rgb(0.2, 0.36, 0.3);
 
-/** Replace anything the standard font cannot encode, so export never throws. */
+export class PdfEncodingError extends Error {
+  constructor() {
+    super(
+      "This report contains characters the PDF font cannot display. Use Print view to save it as PDF.",
+    );
+    this.name = "PdfEncodingError";
+  }
+}
+
+/** Collapse layout whitespace; refuse unsupported text instead of changing it. */
 export function pdfSafe(text: string, font: PDFFont): string {
   const allowed = new Set(font.getCharacterSet());
   let out = "";
-  for (const char of text.normalize("NFC")) {
+  for (const char of text) {
     const code = char.codePointAt(0) ?? 63;
     if (code === 0x20 || code === 0x09) out += " ";
     else if (code === 0x0a || code === 0x0d) out += " ";
-    else if (code === 0x2011 || code === 0x2010) out += "-";
     else if (code === 0xa0 || code === 0x202f) out += " ";
     else if (allowed.has(code)) out += char;
-    else out += "?";
+    else throw new PdfEncodingError();
   }
   return out;
 }
@@ -63,12 +77,18 @@ function wrap(
   for (let word of words) {
     // Break very long tokens (URLs, hashes) by character.
     while (font.widthOfTextAtSize(word, size) > width) {
-      let cut = word.length - 1;
-      while (
-        cut > 1 &&
-        font.widthOfTextAtSize(word.slice(0, cut), size) > width
-      )
-        cut -= 1;
+      // Standard-font glyph advances are positive. Find the same largest
+      // fitting prefix without remeasuring every longer prefix.
+      let cut = 1;
+      let low = 1;
+      let high = word.length - 1;
+      while (low <= high) {
+        const mid = Math.floor((low + high) / 2);
+        if (font.widthOfTextAtSize(word.slice(0, mid), size) <= width) {
+          cut = mid;
+          low = mid + 1;
+        } else high = mid - 1;
+      }
       flush();
       lines.push(word.slice(0, cut));
       word = word.slice(cut);
@@ -227,17 +247,28 @@ export async function buildPdf(input: PdfInput): Promise<Uint8Array> {
     });
     w.gap(6);
     w.field("Identifier", c.identifier);
+    w.field("Source", c.sourceId);
     w.field("Issuing body", c.issuingBody);
     w.field("Type", c.kind);
     w.field("Date", dateLabel(c.date));
     w.field("Official URL", c.officialUrl);
-    if (c.textUrl) w.field("Text read from", c.textUrl);
-    w.field("Retrieved", c.retrievedAt);
-    if (entry.receipt)
+    w.field("Metadata retrieved", c.retrievedAt);
+    if (entry.receipt) {
+      w.field("Text read from", entry.receipt.textUrl);
+      w.field("Text retrieved", entry.receipt.retrievedAt);
       w.field(
         "Fingerprint",
         `SHA-256 ${entry.receipt.sha256} (${entry.receipt.bytes.toLocaleString("en-US")} bytes)`,
       );
+    }
+    if (entry.engine) {
+      w.field(
+        "Extractor",
+        `${entry.engine.parser} ${entry.engine.parserVersion}`,
+      );
+      w.field("Parser config", entry.engine.parserConfigDigest);
+      w.field("Demo rules", entry.engine.rulesVersion);
+    }
     w.gap(6);
     w.rule();
     w.text(COPY.pdfNotesLabel, { font: bold, size: 10.5, color: ACCENT });
@@ -247,7 +278,7 @@ export async function buildPdf(input: PdfInput): Promise<Uint8Array> {
     });
     w.gap(8);
     if (entry.issues.length === 0) {
-      w.text(c.textAvailable ? COPY.pdfNoPassages : COPY.pdfTextNotRead, {
+      w.text(entry.receipt ? COPY.pdfNoPassages : COPY.pdfTextNotRead, {
         size: 10,
         font: italic,
         color: MUTED,
@@ -257,13 +288,20 @@ export async function buildPdf(input: PdfInput): Promise<Uint8Array> {
       w.gap(4);
       w.ensure(60);
       w.text(`${issue.label}`, { font: bold, size: 10.5, color: ACCENT });
-      w.text(`“${issue.quote}”`, { size: 10.5, indent: 10 });
+      w.text(
+        issue.type === "consultation_absent"
+          ? `Rule assessment: ${issue.quote}`
+          : `“${issue.quote}”`,
+        { size: 10.5, indent: 10 },
+      );
       w.text(`Where: ${issue.locator}`, {
         size: 8.5,
         indent: 10,
         color: MUTED,
       });
       w.text(`Limit: ${issue.limits}`, { size: 8.5, indent: 10, color: MUTED });
+      w.text(`Rule: ${issue.rule}`, { size: 8.5, indent: 10, color: MUTED });
+      w.text(`Check: ${issue.check}`, { size: 8.5, indent: 10, color: MUTED });
       if (note.trim())
         w.text(`Note: ${note.trim()}`, { size: 10, indent: 10, font: italic });
     }

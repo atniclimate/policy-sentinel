@@ -86,7 +86,7 @@ describe("demo rules", () => {
     expect(quiet.find((i) => i.type === "consultation_absent")).toBeUndefined();
   });
 
-  it("drops lower-case fragments that are line-wrap tails", () => {
+  it("retains lowercase and short fragments as evidence", () => {
     const sentences = splitSentences([
       {
         locator: "/p[1]",
@@ -94,8 +94,59 @@ describe("demo rules", () => {
       },
     ]);
     expect(sentences.map((s) => s.text)).toEqual([
+      "raised in the previous meetings.",
       "A full sentence ends here.",
     ]);
+  });
+
+  it.each([
+    "consultation",
+    "consultation is required here.",
+    `${"A long provision contains detail ".repeat(20)}and consultation is required.`,
+  ])(
+    "does not infer absence from short, lowercase, or long source wording: %s",
+    (text) => {
+      const actual = identifyIssues(
+        [
+          { locator: "/p[1]", text },
+          {
+            locator: "/p[2]",
+            text: "The filing fee stays unchanged this year.",
+          },
+        ],
+        { kind: "Rule", title: "Example" },
+      );
+      expect(actual.some((i) => i.type === "consultation_absent")).toBe(false);
+      const passage = actual.find((i) => i.type === "consultation_language")!;
+      expect(passage.quote).toContain("consultation");
+      expect(passage.quote.length).toBeLessThanOrEqual(420);
+      expect(text).toContain(passage.quote);
+      expect(passage.locator).toBe("/p[1]");
+    },
+  );
+
+  it("keeps late cross-reference and status matches in their source excerpts", () => {
+    const text = `${"The provision adds context ".repeat(24)}with a final rule under 40 CFR 131.10.`;
+    const actual = identifyIssues([{ locator: "/p[1]", text }], {
+      kind: "Notice",
+      title: "Example",
+    });
+    expect(actual.find((i) => i.type === "cross_reference")?.quote).toContain(
+      "40 CFR 131.10",
+    );
+    expect(actual.find((i) => i.type === "status_signal")?.quote).toContain(
+      "final rule",
+    );
+    for (const i of actual) expect(text).toContain(i.quote);
+  });
+
+  it("does not claim absence from empty extraction", () => {
+    expect(
+      identifyIssues([{ locator: "/p[1]", text: "  " }], {
+        kind: "Rule",
+        title: "Example",
+      }),
+    ).toEqual([]);
   });
 
   it("is deterministic", () => {
@@ -139,4 +190,36 @@ describe("public copy", () => {
       /Verify everything against the official source/,
     );
   });
+});
+
+it("detects layout-hyphenated wording while quoting source words", () => {
+  const text =
+    "A prefatory fragment. " +
+    "background ".repeat(70) +
+    "consulta-\ntion is required and Executive Or-\nder 13175 is cited.";
+  const found = identifyIssues([{ text, locator: "/p[1]" }], {
+    kind: "Rule",
+    title: "Example",
+  });
+  expect(found.some((i) => i.type === "consultation_absent")).toBe(false);
+  expect(
+    found.find((i) => i.type === "consultation_language")?.quote,
+  ).toContain("consulta- tion");
+  expect(found.find((i) => i.type === "cross_reference")?.quote).toContain(
+    "Executive Or- der 13175",
+  );
+  for (const i of found) expect(text.replace(/\s+/g, " ")).toContain(i.quote);
+});
+it("retains distinct references beyond the first quote window", () => {
+  const text =
+    "Executive Order 13175 " +
+    "background ".repeat(70) +
+    "and 42 U.S.C. 7401 are cited.";
+  const found = identifyIssues([{ text, locator: "/p[1]" }], {
+    kind: "Notice",
+    title: "Example",
+  }).filter((i) => i.type === "cross_reference");
+  expect(found).toHaveLength(2);
+  expect(found[0].quote).toContain("Executive Order 13175");
+  expect(found[1].quote).toContain("42 U.S.C. 7401");
 });

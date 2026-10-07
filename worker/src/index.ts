@@ -4,8 +4,9 @@
  * A narrow, read-only retrieval layer for the public demo page. It fetches only
  * from an allowlist of official government hosts, runs Sentinel's own text
  * extractor and the demo rules in this Worker, and returns small JSON. API keys
- * exist only as Worker secrets. Nothing about a visitor or a query is stored or
- * logged here beyond what Cloudflare keeps by default.
+ * exist only as Worker secrets. Search requests bypass application caching and
+ * logging. Successful policy reads may be cached by document identity; temporary
+ * address counters enforce rate limits. Hosting providers have their own policies.
  */
 import {
   ENGINE_INFO,
@@ -44,8 +45,8 @@ const USER_AGENT =
   "PolicySentinelDemo/0.2 (+https://atniclimate.github.io/policy-sentinel/)";
 const MAX_BYTES = 1_500_000;
 const FETCH_TIMEOUT_MS = 12_000;
-const SEARCH_TTL = 900;
 const POLICY_TTL = 86_400;
+const POLICY_CACHE_VERSION = `demo-policy-2:${ENGINE_INFO.parser}:${ENGINE_INFO.parserVersion}:${ENGINE_INFO.parserConfigDigest}:${ENGINE_INFO.rulesVersion}`;
 const SOFT_LIMIT_PER_MINUTE = 40;
 
 const softCounters = new Map<string, { n: number; reset: number }>();
@@ -56,6 +57,7 @@ class DemoError extends Error {
     message: string,
     readonly httpStatus = 502,
     readonly status: DemoErrorResponse["status"] = "error",
+    readonly retryAfter?: string,
   ) {
     super(message);
   }
@@ -119,7 +121,7 @@ export function sourceList(env: Env): DemoSource[] {
       label: "Idaho Legislature",
       level: "state",
       status: "not_available",
-      note: "Idaho publishes no machine-readable legislative source that Policy Sentinel can use, so this is a recorded gap.",
+      note: "No Idaho source is enabled in this demo; this remains a recorded gap.",
     },
   ];
 }
@@ -131,6 +133,7 @@ function corsHeaders(origin: string | null): Record<string, string> {
     headers["Access-Control-Allow-Methods"] = "GET, OPTIONS";
     headers["Access-Control-Allow-Headers"] = "Content-Type";
     headers["Access-Control-Max-Age"] = "86400";
+    headers["Access-Control-Expose-Headers"] = "Retry-After";
   }
   return headers;
 }
@@ -177,14 +180,21 @@ export async function officialFetch(
   } catch {
     throw new DemoError("bad_url", "That address is not valid.", 400);
   }
-  if (url.protocol !== "https:" || !ALLOWED_HOSTS.has(url.hostname)) {
+  if (
+    url.protocol !== "https:" ||
+    !ALLOWED_HOSTS.has(url.hostname) ||
+    url.username ||
+    url.password ||
+    url.port
+  ) {
     throw new DemoError(
       "host_not_allowed",
       "This demo only reads from official government hosts on its list.",
       403,
     );
   }
-  let response: Response;
+  let response: Response | undefined;
+  let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
   try {
     response = await fetch(url, {
       ...init,
@@ -197,58 +207,89 @@ export async function officialFetch(
       },
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
-  } catch {
+    if (response.status >= 300 && response.status < 400) {
+      throw new DemoError(
+        "redirect_refused",
+        "The official source sent the request somewhere else, and the demo does not follow redirects.",
+      );
+    }
+    if (response.status === 429) {
+      throw new DemoError(
+        "upstream_rate_limited",
+        "The official source asked the demo to wait before trying again.",
+        429,
+        "error",
+        retryAfter(response.headers.get("retry-after")),
+      );
+    }
+    const declared = Number(response.headers.get("content-length") ?? 0);
+    if (declared > MAX_BYTES) {
+      throw new DemoError(
+        "too_large",
+        "This document is longer than the demo reads. Open it at the official source.",
+        413,
+      );
+    }
+    reader = response.body?.getReader();
+    const chunks: Uint8Array[] = [];
+    let total = 0;
+    if (reader) {
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        total += value.byteLength;
+        if (total > MAX_BYTES) {
+          throw new DemoError(
+            "too_large",
+            "This document is longer than the demo reads. Open it at the official source.",
+            413,
+          );
+        }
+        chunks.push(value);
+      }
+    }
+    const bytes = new Uint8Array(total);
+    let offset = 0;
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+    return { response, bytes };
+  } catch (error) {
+    // Cleanup must not replace the original error or delay the response.
+    if (reader) void reader.cancel().catch(() => undefined);
+    else if (response?.body) void response.body.cancel().catch(() => undefined);
+    if (error instanceof DemoError) throw error;
     throw new DemoError(
       "upstream_unreachable",
-      "The official source did not answer in time. Try again in a moment.",
+      "The official source did not finish answering. Try again in a moment.",
       504,
     );
+  } finally {
+    reader?.releaseLock();
   }
-  if (response.status >= 300 && response.status < 400) {
-    throw new DemoError(
-      "redirect_refused",
-      "The official source sent the request somewhere else, and the demo does not follow redirects.",
-    );
-  }
-  const declared = Number(response.headers.get("content-length") ?? 0);
-  if (declared > MAX_BYTES) {
-    throw new DemoError(
-      "too_large",
-      "This document is longer than the demo reads. Open it at the official source.",
-      413,
-    );
-  }
-  const reader = response.body?.getReader();
-  const chunks: Uint8Array[] = [];
-  let total = 0;
-  if (reader) {
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      total += value.byteLength;
-      if (total > MAX_BYTES) {
-        await reader.cancel();
-        throw new DemoError(
-          "too_large",
-          "This document is longer than the demo reads. Open it at the official source.",
-          413,
-        );
-      }
-      chunks.push(value);
-    }
-  }
-  const bytes = new Uint8Array(total);
-  let offset = 0;
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-  return { response, bytes };
 }
 
-function parseJson<T>(bytes: Uint8Array): T {
+function retryAfter(value: string | null): string {
+  if (!value) return "60";
+  const seconds = /^\d+$/.test(value)
+    ? Number(value)
+    : Math.ceil((Date.parse(value) - Date.now()) / 1000);
+  return Number.isFinite(seconds)
+    ? String(Math.min(86_400, Math.max(1, seconds)))
+    : "60";
+}
+
+function badUpstream(): DemoError {
+  return new DemoError(
+    "bad_upstream",
+    "The official source returned a record the demo could not validate.",
+  );
+}
+
+function parseJson(bytes: Uint8Array): unknown {
   try {
-    return JSON.parse(new TextDecoder().decode(bytes)) as T;
+    return JSON.parse(new TextDecoder().decode(bytes)) as unknown;
   } catch {
     throw new DemoError(
       "bad_upstream",
@@ -258,28 +299,64 @@ function parseJson<T>(bytes: Uint8Array): T {
 }
 
 function cleanText(value: unknown, max = 400): string {
+  if (value !== undefined && value !== null && typeof value !== "string")
+    throw badUpstream();
   const text = typeof value === "string" ? value : "";
   return text.replace(/\s+/g, " ").trim().slice(0, max);
 }
 
 function isoDate(value: unknown): string | null {
-  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value)
-    ? value.slice(0, 10)
-    : null;
+  if (value === undefined || value === null || value === "") return null;
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}(?:T|$)/.test(value))
+    throw badUpstream();
+  const date = value.slice(0, 10);
+  const parsed = new Date(`${date}T00:00:00.000Z`);
+  if (
+    !Number.isFinite(parsed.valueOf()) ||
+    parsed.toISOString().slice(0, 10) !== date
+  )
+    throw badUpstream();
+  return date;
+}
+
+type Loose = Record<string, unknown>;
+
+function record(value: unknown): Loose {
+  if (!value || typeof value !== "object" || Array.isArray(value))
+    throw badUpstream();
+  return value as Loose;
+}
+
+function resultRows(value: unknown): unknown[] {
+  if (!Array.isArray(value) || value.length > 10) throw badUpstream();
+  return value;
+}
+
+function resultCount(value: unknown): number | null {
+  if (value === undefined || value === null) return null;
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 0)
+    throw badUpstream();
+  return value;
+}
+
+function requiredText(value: unknown, max = 400): string {
+  const text = cleanText(value, max);
+  if (!text) throw badUpstream();
+  return text;
+}
+
+/** Identifiers are opaque source values: never trim or truncate them into a different identity. */
+function metadataId(value: unknown): string {
+  if (
+    typeof value !== "string" ||
+    value.length > 80 ||
+    !/^[A-Za-z0-9_.-]+$/.test(value)
+  )
+    throw badUpstream();
+  return value;
 }
 
 // ---------------------------------------------------------------- Federal Register
-
-interface FrDocument {
-  document_number?: string;
-  title?: string;
-  type?: string;
-  agencies?: { name?: string; raw_name?: string }[];
-  publication_date?: string;
-  html_url?: string;
-  abstract?: string | null;
-  citation?: string | null;
-}
 
 const FR_FIELDS = [
   "document_number",
@@ -292,26 +369,33 @@ const FR_FIELDS = [
   "citation",
 ];
 
-function frCitation(doc: FrDocument, retrievedAt: string): DemoCitation | null {
-  const id = cleanText(doc.document_number, 32);
-  if (!/^[A-Za-z0-9-]{4,24}$/.test(id)) return null;
-  const agencies = (doc.agencies ?? [])
-    .map((a) => cleanText(a.name ?? a.raw_name, 120))
+function frCitation(value: unknown, retrievedAt: string): DemoCitation {
+  const doc = record(value);
+  const id = doc.document_number;
+  if (typeof id !== "string" || !/^[A-Za-z0-9-]{4,24}$/.test(id))
+    throw badUpstream();
+  if (doc.agencies !== undefined && !Array.isArray(doc.agencies))
+    throw badUpstream();
+  const agencies = ((doc.agencies ?? []) as unknown[])
+    .map((value) => {
+      const agency = record(value);
+      return cleanText(agency.name ?? agency.raw_name, 120);
+    })
     .filter(Boolean);
+  const citation = cleanText(doc.citation, 60);
+  const summary = cleanText(doc.abstract, 500);
   const officialUrl = `https://www.federalregister.gov/d/${id}`;
   return {
     sourceId: "federal-register",
-    identifier: doc.citation
-      ? `${cleanText(doc.citation, 60)} (FR Doc. ${id})`
-      : `FR Doc. ${id}`,
-    title: cleanText(doc.title, 400) || "Untitled document",
+    identifier: citation ? `${citation} (FR Doc. ${id})` : `FR Doc. ${id}`,
+    title: requiredText(doc.title, 400),
     issuingBody: agencies.join("; ") || "Not stated",
     kind: cleanText(doc.type, 60) || "Document",
     date: isoDate(doc.publication_date),
     officialUrl,
     textUrl: null,
     retrievedAt,
-    summary: doc.abstract ? cleanText(doc.abstract, 500) : null,
+    summary: summary || null,
     textAvailable: /^\d{2,4}-\d{4,6}$/.test(id),
   };
 }
@@ -333,16 +417,16 @@ async function searchFederalRegister(
       `The Federal Register answered with status ${response.status}.`,
     );
   }
-  const data = parseJson<{ count?: number; results?: FrDocument[] }>(bytes);
+  const data = record(parseJson(bytes));
   const retrievedAt = new Date().toISOString();
-  const results = (data.results ?? [])
-    .map((doc) => frCitation(doc, retrievedAt))
-    .filter((c): c is DemoCitation => c !== null);
+  const results = resultRows(data.results).map((doc) =>
+    frCitation(doc, retrievedAt),
+  );
   return {
     ok: true,
     source: "federal-register",
     query,
-    total: typeof data.count === "number" ? data.count : null,
+    total: resultCount(data.count),
     page,
     results,
     retrievedAt,
@@ -375,10 +459,11 @@ async function readFederalRegister(id: string) {
       `The Federal Register answered with status ${response.status}.`,
     );
   }
-  const doc = parseJson<FrDocument>(bytes);
+  const doc = record(parseJson(bytes));
+  if (doc.document_number !== id) throw badUpstream();
   const retrievedAt = new Date().toISOString();
   const citation = frCitation(doc, retrievedAt);
-  if (!citation || !citation.date) {
+  if (!citation.date) {
     throw new DemoError(
       "bad_upstream",
       "The Federal Register record lacked a publication date.",
@@ -456,10 +541,43 @@ export function parseWashingtonQuery(query: string): {
   };
 }
 
-function washingtonDate(bytes: Uint8Array): string | null {
+function washingtonDate(bytes: Uint8Array, biennium: string): string | null {
   const text = new TextDecoder().decode(bytes).replace(/<[^>]+>/g, " ");
   const m = /Read\s+first\s+time\s+(\d{2})\/(\d{2})\/(\d{2})/i.exec(text);
-  return m ? `20${m[3]}-${m[1]}-${m[2]}` : null;
+  if (!m) return null;
+  const start = Number(biennium.slice(0, 4));
+  const year = [start, start + 1].find((value) => value % 100 === Number(m[3]));
+  if (year === undefined) throw badUpstream();
+  return isoDate(`${String(year).padStart(4, "0")}-${m[1]}-${m[2]}`);
+}
+
+/** This demo requests original bill files; its broader parser also supports later variants. */
+function requireOriginalWashingtonBill(
+  bytes: Uint8Array,
+  expected: { prefix: "HB" | "SB"; number: string },
+): void {
+  const preamble = new TextDecoder()
+    .decode(bytes)
+    .replace(/<[^>]+>/g, "\n")
+    .replace(/&nbsp;|&#160;|&#x0*a0;/gi, " ")
+    .split(/\bAN\s+ACT\b/i, 1)[0];
+  const headers = [
+    ...preamble.matchAll(
+      /(?:^|\n)\s*(?:_{3,}\s*)?((?:E2?S|2?S|E)?(?:HB|SB)|(?:ENGROSSED\s+|SECOND\s+|SUBSTITUTE\s+)*(?:HOUSE|SENATE)\s+BILL)\s*(?:No\.?\s*)?(\d{4})(?!\d)/gi,
+    ),
+  ];
+  const plain =
+    expected.prefix === "HB"
+      ? /^(?:HB|HOUSE\s+BILL)$/i
+      : /^(?:SB|SENATE\s+BILL)$/i;
+  if (
+    !headers.length ||
+    /CERTIFICATION\s+OF\s+ENROLLMENT/i.test(preamble) ||
+    headers.some(
+      (header) => !plain.test(header[1]) || header[2] !== expected.number,
+    )
+  )
+    throw badUpstream();
 }
 
 async function readWashington(query: string) {
@@ -489,6 +607,7 @@ async function readWashington(query: string) {
     );
   }
   const retrievedAt = new Date().toISOString();
+  requireOriginalWashingtonBill(bytes, parsed);
   const caption = washingtonCaption(bytes);
   const citation: DemoCitation = {
     sourceId: "washington",
@@ -496,7 +615,7 @@ async function readWashington(query: string) {
     title: caption ?? `${parsed.prefix} ${parsed.number}`,
     issuingBody: "Washington State Legislature",
     kind: "Bill",
-    date: washingtonDate(bytes),
+    date: washingtonDate(bytes, parsed.biennium),
     officialUrl: textUrl,
     textUrl,
     retrievedAt,
@@ -530,8 +649,6 @@ function requireKey(env: Env): string {
   return env.DATA_GOV_API_KEY;
 }
 
-type Loose = Record<string, unknown>;
-
 async function searchGovInfo(
   env: Env,
   query: string,
@@ -557,34 +674,32 @@ async function searchGovInfo(
       "upstream_error",
       `GovInfo answered with status ${response.status}.`,
     );
-  const data = parseJson<{ count?: number; results?: Loose[] }>(bytes);
+  const data = record(parseJson(bytes));
   const retrievedAt = new Date().toISOString();
-  const results: DemoCitation[] = (data.results ?? []).flatMap((row) => {
-    const packageId = cleanText(row.packageId, 80);
-    if (!/^[A-Za-z0-9_.-]+$/.test(packageId)) return [];
-    return [
-      {
-        sourceId: "govinfo",
-        identifier: packageId,
-        title: cleanText(row.title, 400) || packageId,
-        issuingBody:
-          cleanText(row.governmentAuthor1 ?? row.governmentAuthor, 160) ||
-          "Not stated",
-        kind: cleanText(row.collectionCode, 40) || "Document",
-        date: isoDate(row.dateIssued),
-        officialUrl: `https://www.govinfo.gov/app/details/${packageId}`,
-        textUrl: null,
-        retrievedAt,
-        summary: null,
-        textAvailable: false,
-      },
-    ];
+  const results: DemoCitation[] = resultRows(data.results).map((value) => {
+    const row = record(value);
+    const packageId = metadataId(row.packageId);
+    return {
+      sourceId: "govinfo",
+      identifier: packageId,
+      title: requiredText(row.title, 400),
+      issuingBody:
+        cleanText(row.governmentAuthor1 ?? row.governmentAuthor, 160) ||
+        "Not stated",
+      kind: cleanText(row.collectionCode, 40) || "Document",
+      date: isoDate(row.dateIssued),
+      officialUrl: `https://www.govinfo.gov/app/details/${packageId}`,
+      textUrl: null,
+      retrievedAt,
+      summary: null,
+      textAvailable: false,
+    };
   });
   return {
     ok: true,
     source: "govinfo",
     query,
-    total: typeof data.count === "number" ? data.count : null,
+    total: resultCount(data.count),
     page,
     results,
     retrievedAt,
@@ -610,36 +725,32 @@ async function searchRegulations(
       "upstream_error",
       `Regulations.gov answered with status ${response.status}.`,
     );
-  const data = parseJson<{
-    data?: { id?: string; attributes?: Loose }[];
-    meta?: { totalElements?: number };
-  }>(bytes);
+  const data = record(parseJson(bytes));
+  const meta = data.meta === undefined ? {} : record(data.meta);
   const retrievedAt = new Date().toISOString();
-  const results: DemoCitation[] = (data.data ?? []).flatMap((row) => {
-    const id = cleanText(row.id, 80);
-    if (!/^[A-Za-z0-9_.-]+$/.test(id)) return [];
-    const a = row.attributes ?? {};
-    return [
-      {
-        sourceId: "regulations",
-        identifier: id,
-        title: cleanText(a.title, 400) || id,
-        issuingBody: cleanText(a.agencyId, 40) || "Not stated",
-        kind: cleanText(a.documentType, 40) || "Document",
-        date: isoDate(a.postedDate),
-        officialUrl: `https://www.regulations.gov/document/${id}`,
-        textUrl: null,
-        retrievedAt,
-        summary: null,
-        textAvailable: false,
-      },
-    ];
+  const results: DemoCitation[] = resultRows(data.data).map((value) => {
+    const row = record(value);
+    const id = metadataId(row.id);
+    const a = record(row.attributes);
+    return {
+      sourceId: "regulations",
+      identifier: id,
+      title: requiredText(a.title, 400),
+      issuingBody: cleanText(a.agencyId, 40) || "Not stated",
+      kind: cleanText(a.documentType, 40) || "Document",
+      date: isoDate(a.postedDate),
+      officialUrl: `https://www.regulations.gov/document/${id}`,
+      textUrl: null,
+      retrievedAt,
+      summary: null,
+      textAvailable: false,
+    };
   });
   return {
     ok: true,
     source: "regulations",
     query,
-    total: data.meta?.totalElements ?? null,
+    total: resultCount(meta.totalElements),
     page,
     results,
     retrievedAt,
@@ -679,10 +790,27 @@ async function searchCongress(
       "upstream_error",
       `Congress.gov answered with status ${response.status}.`,
     );
-  const data = parseJson<{ bill?: Loose }>(bytes);
-  const bill = data.bill ?? {};
+  const data = record(parseJson(bytes));
+  const bill = record(data.bill);
+  const billNumber =
+    typeof bill.number === "string" && /^\d{1,5}$/.test(bill.number)
+      ? Number(bill.number)
+      : bill.number;
+  if (
+    typeof bill.type !== "string" ||
+    bill.type.toLowerCase() !== type ||
+    typeof billNumber !== "number" ||
+    !Number.isSafeInteger(billNumber) ||
+    billNumber !== Number(m[2]) ||
+    typeof bill.congress !== "number" ||
+    !Number.isSafeInteger(bill.congress) ||
+    bill.congress !== Number(m[3])
+  )
+    throw badUpstream();
   const retrievedAt = new Date().toISOString();
-  const latest = (bill.latestAction ?? {}) as Loose;
+  const latest =
+    bill.latestAction === undefined ? {} : record(bill.latestAction);
+  const latestText = cleanText(latest.text, 300);
   const webType = (
     {
       hr: "house-bill",
@@ -699,16 +827,14 @@ async function searchCongress(
   const result: DemoCitation = {
     sourceId: "congress",
     identifier: `${type.toUpperCase()} ${Number(m[2])}, ${Number(m[3])}th Congress`,
-    title: cleanText(bill.title, 400) || "Untitled bill",
+    title: requiredText(bill.title, 400),
     issuingBody: cleanText(bill.originChamber, 40) || "U.S. Congress",
     kind: "Bill",
     date: isoDate(bill.introducedDate),
     officialUrl: `https://www.congress.gov/bill/${ordinal}/${webType}/${Number(m[2])}`,
     textUrl: null,
     retrievedAt,
-    summary: latest.text
-      ? `Latest action: ${cleanText(latest.text, 300)}`
-      : null,
+    summary: latestText ? `Latest action: ${latestText}` : null,
     textAvailable: false,
   };
   return {
@@ -724,27 +850,44 @@ async function searchCongress(
 
 // ---------------------------------------------------------------- routing
 
-async function cached(
-  request: Request,
-  ttl: number,
+async function cachedPolicy(
+  source: string,
+  identity: string | null,
   produce: () => Promise<unknown>,
 ): Promise<{ body: string; hit: boolean }> {
-  const store = (caches as unknown as { default: Cache }).default;
-  const key = new Request(
-    `https://cache.policy-sentinel-demo.invalid${new URL(request.url).pathname}${new URL(request.url).search}`,
-  );
-  const hit = await store.match(key);
-  if (hit) return { body: await hit.text(), hit: true };
+  // Only validated public document identities enter this optional cache. Search
+  // text, request query strings and unrelated parameters never become cache keys.
+  const key = identity
+    ? new Request(
+        `https://cache.policy-sentinel-demo.invalid/policy/${encodeURIComponent(POLICY_CACHE_VERSION)}/${source}/${encodeURIComponent(identity)}`,
+      )
+    : null;
+  let store: Cache | undefined;
+  try {
+    store =
+      typeof caches === "undefined"
+        ? undefined
+        : (caches as unknown as { default?: Cache }).default;
+    const hit = key ? await store?.match(key) : undefined;
+    if (hit) return { body: await hit.text(), hit: true };
+  } catch {
+    // Retrieval remains available if cache access or reading an entry fails.
+  }
   const body = JSON.stringify(await produce());
-  await store.put(
-    key,
-    new Response(body, {
-      headers: {
-        "Cache-Control": `public, max-age=${ttl}`,
-        "Content-Type": "application/json",
-      },
-    }),
-  );
+  try {
+    if (key && store)
+      await store.put(
+        key,
+        new Response(body, {
+          headers: {
+            "Cache-Control": `public, max-age=${POLICY_TTL}`,
+            "Content-Type": "application/json",
+          },
+        }),
+      );
+  } catch {
+    // A completed official-source read is useful even when caching fails.
+  }
   return { body, hit: false };
 }
 
@@ -847,14 +990,25 @@ export default {
     }
 
     const source = url.searchParams.get("source") ?? "federal-register";
-    const q = (url.searchParams.get("q") ?? "").trim().slice(0, 200);
-    const id = (url.searchParams.get("id") ?? "").trim().slice(0, 40);
-    const page = Math.min(
-      Math.max(Number(url.searchParams.get("page") ?? 1) || 1, 1),
-      50,
-    );
+    const q = (url.searchParams.get("q") ?? "").trim();
+    const id = (url.searchParams.get("id") ?? "").trim();
+    const pageText = url.searchParams.get("page") ?? "1";
+    const page = Number(pageText);
 
     try {
+      if (
+        q.length > 200 ||
+        id.length > 40 ||
+        !/^[1-9]\d*$/.test(pageText) ||
+        !Number.isSafeInteger(page) ||
+        page > 50
+      ) {
+        throw new DemoError(
+          "bad_query",
+          "The search or page number is not valid.",
+          400,
+        );
+      }
       const entry = sourceList(env).find((s) => s.id === source);
       if (!entry)
         throw new DemoError(
@@ -872,6 +1026,15 @@ export default {
           throw new DemoError(
             "bad_query",
             "Enter at least two characters to search.",
+            400,
+          );
+        if (
+          page !== 1 &&
+          ["govinfo", "congress", "washington"].includes(source)
+        )
+          throw new DemoError(
+            "bad_query",
+            "This source supports the first page only in the demo.",
             400,
           );
         const run = async () => {
@@ -904,8 +1067,8 @@ export default {
               );
           }
         };
-        const out = await cached(request, SEARCH_TTL, run);
-        return new Response(out.body, {
+        const body = JSON.stringify(await run());
+        return new Response(body, {
           status: 200,
           headers: {
             "Content-Type": "application/json; charset=utf-8",
@@ -934,7 +1097,15 @@ export default {
           422,
         );
       };
-      const out = await cached(request, POLICY_TTL, run);
+      let identity: string | null = null;
+      if (source === "federal-register" && /^(?:\d{2}|\d{4})-\d{4,6}$/.test(id))
+        identity = id;
+      if (source === "washington") {
+        const parsed = parseWashingtonQuery(id || q);
+        if (parsed)
+          identity = `${parsed.prefix} ${parsed.number} ${parsed.biennium}`;
+      }
+      const out = await cachedPolicy(source, identity, run);
       return new Response(out.body, {
         status: 200,
         headers: {
@@ -946,7 +1117,12 @@ export default {
       });
     } catch (error) {
       if (error instanceof DemoError) {
-        return json(errorBody(error), error.httpStatus, origin);
+        return json(
+          errorBody(error),
+          error.httpStatus,
+          origin,
+          error.retryAfter ? { "Retry-After": error.retryAfter } : {},
+        );
       }
       return json(
         {

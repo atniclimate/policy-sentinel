@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { inflateSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
-import { buildPdf } from "../../src/demo/pdf";
+import { buildPdf, PdfEncodingError } from "../../src/demo/pdf";
 import type { PdfInput } from "../../src/demo/pdf";
 
 /** Pull the shown text out of a PDF made by pdf-lib with standard fonts. */
@@ -45,11 +45,17 @@ const input: PdfInput = {
       receipt: {
         sha256: "a".repeat(64),
         bytes: 1234,
-        retrievedAt: "2099-01-07T11:59:00.000Z",
+        retrievedAt: "2099-01-07T12:00:00.000Z",
         textUrl:
           "https://www.govinfo.gov/content/pkg/FR-2099-01-05/html/2099-00001.htm",
       },
-      note: "Useful for the consultation section ‘draft’ 中",
+      engine: {
+        parser: "policy-text",
+        parserVersion: "1.0.0",
+        parserConfigDigest: "b".repeat(64),
+        rulesVersion: "demo-rules-1.0.1",
+      },
+      note: "Useful for the consultation section ‘draft’ café",
       issues: [
         {
           issue: {
@@ -83,6 +89,7 @@ const input: PdfInput = {
         textAvailable: false,
       },
       receipt: null,
+      engine: null,
       note: "",
       issues: [],
     },
@@ -108,7 +115,14 @@ describe("PDF export", () => {
     expect(text).toContain("Ask the program office.");
     expect(text).toContain("2099-01-07T11:59:00.000Z");
     expect(text).toContain("SHA-256");
-    expect(text).toContain("The demo did not read the text of this source");
+    expect(text).toContain("No text receipt was saved for this citation");
+    expect(text).toContain("federal-register");
+    expect(text).toContain("2099-01-07T12:00:00.000Z");
+    expect(text).toContain("policy-text 1.0.0");
+    expect(text.replace(/\s/g, "")).toContain("b".repeat(64));
+    expect(text).toContain("demo-rules-1.0.1");
+    expect(text).toContain("Rule: rule");
+    expect(text).toContain("Check: check");
   });
 
   it("leaves counterevidence out and repeats the footer on every page", async () => {
@@ -121,14 +135,22 @@ describe("PDF export", () => {
     expect(footers.length).toBeGreaterThanOrEqual(3);
   });
 
-  it("does not throw on characters the standard font cannot encode", async () => {
-    await expect(buildPdf(input)).resolves.toBeInstanceOf(Uint8Array);
-  });
+  it.each(["中", "Ω", "e\u0301", "word\u2011word", "🙂"])(
+    "refuses unsupported characters without silently replacing them: %s",
+    async (note) => {
+      await expect(
+        buildPdf({ ...input, entries: [{ ...input.entries[0], note }] }),
+      ).rejects.toBeInstanceOf(PdfEncodingError);
+    },
+  );
 
   it("wraps very long tokens and long lists across pages", async () => {
     const long = {
       ...input,
-      entries: Array.from({ length: 12 }, () => input.entries[0]),
+      entries: Array.from({ length: 3 }, () => ({
+        ...input.entries[0],
+        note: `https://example.invalid/${"abcdef".repeat(150)} ${"A long note. ".repeat(150)}`,
+      })),
     };
     const bytes = await buildPdf(long);
     const pages = (
@@ -136,6 +158,26 @@ describe("PDF export", () => {
         .toString("latin1")
         .match(/\/Type\s*\/Page\b/g) ?? []
     ).length;
-    expect(pages).toBeGreaterThan(12);
+    expect(pages).toBeGreaterThan(6);
+    expect(pdfText(bytes).replace(/\s/g, "")).toContain("abcdef".repeat(150));
+  });
+
+  it("labels an absence assessment without representing it as a quotation", async () => {
+    const assessment = {
+      ...input.entries[0].issues[0].issue,
+      type: "consultation_absent" as const,
+      quote: "No wording matched.",
+      locator: "whole text",
+    };
+    const text = pdfText(
+      await buildPdf({
+        ...input,
+        entries: [
+          { ...input.entries[0], issues: [{ issue: assessment, note: "" }] },
+        ],
+      }),
+    );
+    expect(text).toContain("Rule assessment: No wording matched.");
+    expect(text).not.toContain("\u0093No wording matched.");
   });
 });

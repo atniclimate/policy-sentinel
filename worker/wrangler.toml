@@ -3,11 +3,11 @@ main = "src/index.ts"
 compatibility_date = "2026-09-01"
 compatibility_flags = ["nodejs_compat"]
 
-# No request or query logging beyond what Cloudflare keeps by default.
+# Application observability is off. Hosting providers have their own policies.
 [observability]
 enabled = false
 
-# Per-visitor rate limit. The key is the connecting address; it is never stored by this Worker.
+# The binding and temporary in-memory fallback use the connecting address to limit requests.
 [[ratelimits]]
 name = "RATE"
 namespace_id = "7301"

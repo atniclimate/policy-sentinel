@@ -4,16 +4,18 @@ import type { DemoIssue, IssueType, PolicyMeta, TextBlock } from "./types";
  * Automated demo rules. These are deterministic pattern checks over text the
  * Policy Sentinel extractor has already read. They are not Sentinel's curated
  * findings (those are human-reviewed research coding with counterevidence).
- * Every issue quotes the exact words, names its rule, and says what it cannot
- * show.
+ * Passage issues quote source words with whitespace collapsed. Absence is a
+ * rule assessment, never a source quotation. Both carry limits and a next check.
  */
-export const DEMO_RULES_VERSION = "demo-rules-1.0.0";
+export const DEMO_RULES_VERSION = "demo-rules-1.0.1";
 
 const MAX_QUOTE = 420;
 const MAX_PER_TYPE = 6;
 
 interface Sentence {
   readonly text: string;
+  readonly searchable: string;
+  readonly removed: readonly { at: number; count: number }[];
   readonly locator: string;
 }
 
@@ -98,23 +100,59 @@ function normalizeSpace(value: string): string {
 export function splitSentences(blocks: readonly TextBlock[]): Sentence[] {
   const out: Sentence[] = [];
   for (const block of blocks) {
-    // Hard line breaks in preformatted source text are layout, not sentence ends.
-    const flat = block.text
-      .replace(/-\n(?=[a-z])/g, "")
-      .replace(/[-=_]{8,}/g, " ");
-    const parts = flat.split(/(?<=[.;:?!])\s+(?=[A-Z(["“§\d])/);
+    const flat = block.text;
+    const parts = flat.split(
+      /(?<!\bU\.S\.C\.)(?<!\bE\.O\.)(?<!\bPub\.)(?<!\bL\.)(?<!\bNo\.)(?<=[.;:?!])\s+(?=[A-Z(["“§\d])/,
+    );
     for (const part of parts) {
       const text = normalizeSpace(part);
-      // A fragment that starts in lower case is the tail of a split line, not a sentence.
-      if (text.length < 20 || /^[a-z]/.test(text)) continue;
+      // Short and lowercase blocks still carry evidence. Display limits must
+      // never determine whether wording exists in the extracted text.
+      if (!text) continue;
+      const removed: { at: number; count: number }[] = [];
+      let omitted = 0;
+      const searchable = text.replace(
+        /(?<=\p{L})-\s+(?=\p{L})/gu,
+        (layout: string, offset: number) => {
+          removed.push({ at: offset - omitted, count: layout.length });
+          omitted += layout.length;
+          return "";
+        },
+      );
       out.push({
-        text:
-          text.length > MAX_QUOTE ? `${text.slice(0, MAX_QUOTE - 1)}…` : text,
+        text,
+        searchable,
+        removed,
         locator: block.locator,
       });
     }
   }
   return out;
+}
+
+function sourceOffset(sentence: Sentence, at: number): number {
+  return (
+    at +
+    sentence.removed.reduce(
+      (sum, span) => sum + (span.at <= at ? span.count : 0),
+      0,
+    )
+  );
+}
+
+/** A contiguous source window around the match, without invented punctuation. */
+function excerpt(text: string, at: number): string {
+  if (text.length <= MAX_QUOTE) return text;
+  let start = Math.max(0, at - 100);
+  const boundary = text.indexOf(" ", start);
+  if (start > 0 && boundary >= start && boundary < at) start = boundary + 1;
+  let end = Math.min(text.length, start + MAX_QUOTE);
+  const lastSpace = text.lastIndexOf(" ", end);
+  if (end < text.length && lastSpace > at) end = lastSpace;
+  // Do not split a Unicode surrogate pair at a display boundary.
+  if (/[\uDC00-\uDFFF]/u.test(text[start] ?? "")) start += 1;
+  if (/[\uD800-\uDBFF]/u.test(text[end - 1] ?? "")) end -= 1;
+  return text.slice(start, end).trim();
 }
 
 function make(
@@ -143,20 +181,28 @@ export function identifyIssues(
   const sentences = splitSentences(blocks);
   const issues: DemoIssue[] = [];
 
-  const take = (type: IssueType, test: (s: Sentence) => boolean): number => {
+  const take = (type: IssueType, match: (text: string) => number): number => {
     let count = 0;
     const seen = new Set<string>();
     for (const sentence of sentences) {
       if (count >= MAX_PER_TYPE) break;
-      if (!test(sentence) || seen.has(sentence.text)) continue;
+      const at = match(sentence.searchable);
+      if (at < 0 || seen.has(sentence.text)) continue;
       seen.add(sentence.text);
-      issues.push(make(type, count, sentence.text, sentence.locator));
+      issues.push(
+        make(
+          type,
+          count,
+          excerpt(sentence.text, sourceOffset(sentence, at)),
+          sentence.locator,
+        ),
+      );
       count += 1;
     }
     return count;
   };
 
-  const consult = take("consultation_language", (s) => CONSULT.test(s.text));
+  const consult = take("consultation_language", (text) => text.search(CONSULT));
   if (
     consult === 0 &&
     /\b(?:rule|proposed rule)\b/i.test(meta.kind) &&
@@ -171,28 +217,33 @@ export function identifyIssues(
       ),
     );
   }
-  take("tribal_reference", (s) => TRIBAL.test(s.text));
-  take(
-    "date_or_deadline",
-    (s) => DATE_RE.test(s.text) && DEADLINE_WORDS.test(s.text),
+  take("tribal_reference", (text) => text.search(TRIBAL));
+  take("date_or_deadline", (text) =>
+    DEADLINE_WORDS.test(text) ? text.search(DATE_RE) : -1,
   );
-  take("status_signal", (s) => STATUS.test(s.text));
+  take("status_signal", (text) => text.search(STATUS));
 
   // Cross-references: one issue per distinct citation, quoted in its sentence.
   const citations = new Set<string>();
   let xrefCount = 0;
   for (const sentence of sentences) {
     if (xrefCount >= MAX_PER_TYPE) break;
-    const found = [...sentence.text.matchAll(XREF)].map((m) =>
-      normalizeSpace(m[0]).toLowerCase(),
-    );
-    const fresh = found.filter((c) => !citations.has(c));
-    if (fresh.length === 0) continue;
-    fresh.forEach((c) => citations.add(c));
-    issues.push(
-      make("cross_reference", xrefCount, sentence.text, sentence.locator),
-    );
-    xrefCount += 1;
+    const found = [...sentence.searchable.matchAll(XREF)];
+    for (const match of found) {
+      const key = normalizeSpace(match[0]).toLowerCase();
+      if (citations.has(key)) continue;
+      if (xrefCount >= MAX_PER_TYPE) break;
+      citations.add(key);
+      issues.push(
+        make(
+          "cross_reference",
+          xrefCount,
+          excerpt(sentence.text, sourceOffset(sentence, match.index)),
+          sentence.locator,
+        ),
+      );
+      xrefCount += 1;
+    }
   }
 
   return issues;

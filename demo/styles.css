@@ -183,7 +183,7 @@ legend,
 }
 .source {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   column-gap: 0.6rem;
   row-gap: 0.1rem;
   align-items: center;
@@ -194,6 +194,7 @@ legend,
   cursor: pointer;
 }
 .source.key_pending,
+.source.unknown,
 .source.not_available {
   cursor: default;
   opacity: 0.92;
@@ -204,6 +205,8 @@ legend,
   height: 1.1rem;
 }
 .source-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-weight: 600;
 }
 .source-note {
@@ -226,7 +229,8 @@ legend,
   background: var(--pending-bg);
   color: var(--pending-ink);
 }
-.badge.not_available {
+.badge.not_available,
+.badge.unknown {
   background: var(--off-bg);
   color: var(--off-ink);
 }
@@ -389,6 +393,13 @@ code {
 .policy-title {
   font-size: 1.05rem;
 }
+.result h3,
+.cited h3,
+.policy-title,
+.notice,
+.live {
+  overflow-wrap: anywhere;
+}
 .count {
   color: var(--muted);
   font-weight: 400;
@@ -443,6 +454,12 @@ html.embed .grid {
   .print-only {
     display: block;
     padding: 0;
+    overflow-wrap: anywhere;
+    --bg: #fff;
+    --ink: #000;
+    --muted: #222;
+    --accent: #000;
+    color-scheme: light;
   }
   .print-only h2 {
     margin-top: 1.2rem;
@@ -452,5 +469,29 @@ html.embed .grid {
     border-left: 2px solid #555;
     background: none;
     break-inside: avoid;
+  }
+  .print-only p {
+    max-width: none;
+    white-space: pre-wrap;
+  }
+  .print-issue h3 {
+    break-after: avoid;
+  }
+}
+
+@media (max-width: 36rem) {
+  .source {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .source input {
+    grid-row: 1 / span 3;
+  }
+  .source .badge {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
+  }
+  .source-note {
+    grid-column: 2;
   }
 }

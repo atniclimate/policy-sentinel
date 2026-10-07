@@ -1,5 +1,10 @@
 # Continuation prompt: current state for a fresh session
 
+The October public demo is a separate maintenance and publication surface under
+D-083/D-084. Recover [its current status](DEMO-STATUS.md) before demo work. The
+local-only historical grants below retain their own scope; they neither revoke
+that demo exception nor authorize new acquisition or general-engine publication.
+
 Updated 2026-09-22. This is the single current-state document for Policy
 Sentinel. `AGENTS.md` holds the rules; this file holds where the project is,
 what to read, and what a fresh session does first. Historical launch, cutoff

@@ -3,7 +3,7 @@
  * and the PDF builder consume them. Everything here is public, Tier 0 material.
  */
 
-export type SourceStatus = "live" | "key_pending" | "not_available";
+export type SourceStatus = "live" | "key_pending" | "not_available" | "unknown";
 
 export interface DemoSource {
   readonly id: string;
@@ -54,7 +54,7 @@ export interface DemoIssue {
   readonly id: string;
   readonly type: IssueType;
   readonly label: string;
-  /** Exact words from the extracted policy text. */
+  /** Source words with whitespace collapsed; consultation_absent is a rule assessment. */
   readonly quote: string;
   /** Structural locator of the block the words came from, or "whole text". */
   readonly locator: string;

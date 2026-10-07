@@ -26,7 +26,7 @@ project:
     prerequisite; PS09-06-LOCAL-RC is the sole release root and remains
     unstarted and gated. EV01, Run 1/2 and archived lanes retain their
     historical evidence and spent-operation boundaries.
-  updated_on: "2026-09-24"
+  updated_on: "2026-10-06"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
     prove its present definition of done through the owner-selected PNW scenario
@@ -1008,41 +1008,18 @@ baseline:
         configured.
 
 current_focus:
-  work_item: null
+  work_item: GD-28-DEMO-MAINTENANCE-VALIDATION
   objective: >-
-    General development under G-GENERAL-DEV-01 (D-071). Refactor wave 1 (GD-01,
-    GD-02, GD-03) and GD-24 (legacy archive and consolidation, D-080) are
-    complete; waves run one item at a time under the one-in_progress rule
-    (D-082). Next: session R (GD-17 nationwide source survey, GD-18 storage
-    capacity model; activating them first needs a planning act that moves them
-    ahead of the ready wave 2 items, or wave 2 lands first), wave 2 (GD-04,
-    GD-05, GD-07, GD-08, GD-09; wave 3: GD-06, GD-10) and GD-26 (reproducible
-    checks). GD-13, GD-16, GD-22 and GD-27 wait on their gates. The Makah demo
-    track is finished; its acquired objects remain custody only, and
-    per-document G-J decisions and G-BIA-IDENTITY stay open. The PS09 program
-    stays blocked on PS09-02 originating identity/scenario evidence; PS09-06 is
-    unstarted and gated; the completed H01/H02 maintenance and every sealed
-    discovery, prior assurance and owner-input identity are preserved.
-  terminal_reason: >-
-    General-development session 2 ended after GD-24 (legacy archive and
-    consolidation) and its governance steps; its authority covered those only.
-    Session R, wave 2 and GD-26 are ready for their own sessions. PS09 remains
-    blocked on PS09-02 originating evidence and scenario acceptance; no
-    successor run or external operation is authorized.
+    Bounded local assessment, repair and synthetic validation of the existing
+    live demo under the owner's 2026-10-06 direction and D-083/D-084. This item
+    records local engineering only. Live acceptance and demo publication have
+    their separate D-083/D-084 authority; the general-development gate grants
+    neither. General engine, PS09, private-context and source gates stay as
+    recorded. No other ready item is selected by this maintenance run.
+  terminal_reason: null
   resumable_roots:
+    - GD-28-DEMO-MAINTENANCE-VALIDATION
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-    - GD-04-CORE-BOUNDARY-GUARD
-    - GD-05-INTAKE-REPLAY-AND-DISCOVERY
-    - GD-07-RESEARCH-OUTPUT-SPLIT
-    - GD-08-CONTEXT-RELEVANCE-EXTRACTION
-    - GD-09-JURISDICTION-IDENTIFIER-MODEL
-    - GD-13-NATIONWIDE-RECORD-CONTRACT
-    - GD-16-INTEROP-PURE-ADAPTER
-    - GD-17-NATIONWIDE-SOURCE-SURVEY
-    - GD-18-STORAGE-CAPACITY-MODEL
-    - GD-22-NATION-REGISTRY-BINDING
-    - GD-26-REPRODUCIBLE-CHECKS
-    - GD-27-LOCAL-RELEASE-PACKAGE
   last_durable_checkpoint: e47966295ea686560d765ebaae2c0e578ad448d9
   resume_command: npm run validate:roadmap
 
@@ -6211,6 +6188,45 @@ work_items:
       - Exact approved feedback and distribution scope is respected and repairs
         validated.
     evidence: []
+  - id: GD-28-DEMO-MAINTENANCE-VALIDATION
+    priority: 308
+    milestone: General development
+    title: Existing demo assessment, repairs and local validation
+    status: in_progress
+    work_class: general_development_local
+    decision_ref: D-084
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-00-REALIGNMENT-AUDIT-DESIGN]
+    acceptance:
+      - >-
+        Confirmed request, report-state, evidence-export and Worker defects in
+        the existing demo are repaired and covered by synthetic regression
+        tests.
+      - >-
+        Browser, accessibility, PDF, print, artifact and measured performance
+        evidence is retained with exact limitations and independent review.
+      - >-
+        Required checks are recorded honestly, including unchanged baseline
+        failures; protected paths, historical grants and unrelated work remain
+        unchanged. This local item creates no source or publication authority.
+    evidence:
+      - >-
+        Owner-directed maintenance selected on 2026-10-06 under D-083/D-084.
+        Starting HEAD 4ba852a144ca0c1e8d1b39f3e60d9da631669fc9. Private
+        assessment receipts retain the quiet baseline and separate failure
+        dispositions.
+
+      - >-
+        Local checkpoint 2026-10-06: 141 demo regression tests pass. Chromium
+        and Chrome pass 39 main checks each; WebKit passes 33 applicable checks
+        with print excluded. Extended cases and visual review of 29 pages pass
+        with preserved failures and scoped reruns. Final-artifact export pairs
+        preserve identical PDF bytes and reduce long-token generation time.
+        Native speech, physical printing and deployed large-document resource
+        limits remain unverified. Final repository checks and separately
+        authorized publication remain in progress; no general-engine completion
+        is asserted.
+
   - id: GD-24-LEGACY-ARCHIVE-AND-CONSOLIDATION
     priority: 309
     milestone: General development
@@ -7179,6 +7195,12 @@ next_actions:
       discovery outcome; do not reactivate ended maintenance, acquisition,
       cutoff startups or archived lanes. General development proceeds separately
       under G-GENERAL-DEV-01 (D-071) and does not unblock PS09.
+  - order: 2
+    work_item: GD-28-DEMO-MAINTENANCE-VALIDATION
+    action: >-
+      Complete the bounded existing-demo maintenance and validation selected by
+      the owner on 2026-10-06. Keep independent demo publication authority under
+      D-083/D-084 separate from this local engineering ledger item.
   - order: 3
     work_item: GD-04-CORE-BOUNDARY-GUARD
     action: >-
