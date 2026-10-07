@@ -1008,7 +1008,7 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-34-ACCEPTED-SCOPE-AND-DISCOVERY-CLARIFICATION
+  work_item: null
   objective: >-
     D-086/D-087 realign general development around a measured offline pilot. The
     accepted county/municipal discovery and optional Nation ATNI profile choices
@@ -1017,11 +1017,26 @@ current_focus:
     retain permissions. GD-25 adds annotation-guided discovery feedback. Next
     implementation remains GD-26, followed by the initial source matrix,
     capacity, successor representation and bounded search preparation.
-  terminal_reason: null
+  terminal_reason: >-
+    The D-087 documentation amendment and bounded review are complete. No
+    runtime contract, corpus, private transfer, acquisition or unattended
+    service is implemented here. GD-26 is the next ready implementation item;
+    historical gates await the reviewed successor representation under the
+    already-adopted owner direction, not another blanket permission request.
   resumable_roots:
-    - GD-34-ACCEPTED-SCOPE-AND-DISCOVERY-CLARIFICATION
+    - GD-26-REPRODUCIBLE-CHECKS
+    - GD-17-NATIONWIDE-SOURCE-SURVEY
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: f0e1b57229cf7c302fe8e6300affa0e97bd5dd01
+    - GD-04-CORE-BOUNDARY-GUARD
+    - GD-05-INTAKE-REPLAY-AND-DISCOVERY
+    - GD-07-RESEARCH-OUTPUT-SPLIT
+    - GD-08-CONTEXT-RELEVANCE-EXTRACTION
+    - GD-09-JURISDICTION-IDENTIFIER-MODEL
+    - GD-13-NATIONWIDE-RECORD-CONTRACT
+    - GD-16-INTEROP-PURE-ADAPTER
+    - GD-22-NATION-REGISTRY-BINDING
+    - GD-27-LOCAL-RELEASE-PACKAGE
+  last_durable_checkpoint: c3a6a72202eba19e96a73c0cebf28bafb1bb5af4
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5531,7 +5546,9 @@ work_items:
     priority: 288
     milestone: General development
     title: Accepted local source ATNI profile and annotation discovery rulings
-    status: in_progress
+    status: complete
+    completed_on: "2026-10-07T00:08:20-07:00"
+    completion_commit: c3a6a72202eba19e96a73c0cebf28bafb1bb5af4
     work_class: general_development_local
     decision_ref: D-087
     authorization_gate: G-GENERAL-DEV-01
@@ -5551,7 +5568,20 @@ work_items:
         Bounded independent review, roadmap/backbone validation, source-boundary
         and diff checks support a local documentation checkpoint. No source
         acquisition, private transfer or unattended service is implemented.
-    evidence: []
+    evidence:
+      - >-
+        Owner acceptance and clarification are recorded under D-087 in commit
+        c3a6a72202eba19e96a73c0cebf28bafb1bb5af4. County/municipal discovery and
+        optional Nation ATNI context are settled; public Tribal-government
+        sources are eligible and restricted internal policies require applicable
+        permissions. Annotation-guided discovery remains planned functionality,
+        with a complete feedback journey specified.
+      - >-
+        Bounded independent review and roadmap/backbone/source-boundary/diff
+        checks pass. Seven pending work items are amended; the other 108
+        pre-existing items and all historical gates remain semantically
+        unchanged. Runtime/schema files and 36 pre-existing untracked files are
+        preserved.
 
   - id: GD-30-DEVELOPMENT-PLAN-REALIGNMENT
     priority: 289
@@ -7509,24 +7539,18 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: GD-34-ACCEPTED-SCOPE-AND-DISCOVERY-CLARIFICATION
-    action: >-
-      Record D-087 accepted source/profile choices and public/internal Tribal
-      classification; update annotation discovery acceptance and the handoff.
-      Close this documentation checkpoint after bounded review and validation.
-  - order: 2
     work_item: GD-26-REPRODUCIBLE-CHECKS
     action: >-
       Prove hook checks from a fresh source snapshot without ignored historical
       receipts and test every denied command form under D-081/D-086. Follow
       docs/handoffs/2026-10-06-development-realignment-next-session.md.
-  - order: 3
+  - order: 2
     work_item: GD-17-NATIONWIDE-SOURCE-SURVEY
     action: >-
       Prepare the finite initial federal, seven-state and intertribal source
       matrix under D-086; qualify a pilot subset and record gaps. Nationwide
       survey completion is retained separately in GD-33. Acquire nothing here.
-  - order: 4
+  - order: 3
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action: >-
       Recover docs/development/ps09-engineering-review-02-evidence-matrix.md and
@@ -7541,47 +7565,47 @@ next_actions:
       discovery outcome; do not reactivate ended maintenance, acquisition,
       cutoff startups or archived lanes. General development proceeds separately
       under G-GENERAL-DEV-01 (D-071) and does not unblock PS09.
-  - order: 5
+  - order: 4
     work_item: GD-04-CORE-BOUNDARY-GUARD
     action: >-
       Wave 2: build src/core/boundary-guard.mjs to the contract the GD-03 tests
       state (its 80 skipped tests then run) and adopt it in record validation.
-  - order: 6
+  - order: 5
     work_item: GD-05-INTAKE-REPLAY-AND-DISCOVERY
     action: >-
       Wave 2: move replay and Washington discovery into src/modules/intake
       behind re-export shims.
-  - order: 7
+  - order: 6
     work_item: GD-07-RESEARCH-OUTPUT-SPLIT
     action: >-
       Wave 2: split research review (context) from research HTML (output).
-  - order: 8
+  - order: 7
     work_item: GD-08-CONTEXT-RELEVANCE-EXTRACTION
     action: >-
       Wave 2: move the relevance functions into
       src/modules/context/relevance.ts.
-  - order: 9
+  - order: 8
     work_item: GD-09-JURISDICTION-IDENTIFIER-MODEL
     action: >-
       Wave 2: nationwide JurisdictionRef model with a synthetic registry.
-  - order: 10
+  - order: 9
     work_item: GD-13-NATIONWIDE-RECORD-CONTRACT
     action: >-
       Await GD-31 successor authority/contract representation under D-086;
       current G-GD-NATIONWIDE-CONTRACT remains closed. Preserve retained schemas
       until the reviewed migration is represented.
-  - order: 11
+  - order: 10
     work_item: GD-16-INTEROP-PURE-ADAPTER
     action: >-
       Await GD-31 representation of already-authorized ATNI local assessment and
       the finalized versioned profile. Do not repurpose G-GD-INTEROP or treat
       local authority as permission for a private/shared transfer.
-  - order: 12
+  - order: 11
     work_item: GD-22-NATION-REGISTRY-BINDING
     action: >-
       Blocked on G-BIA-IDENTITY and on an atni-nation-registry v0 release
       (D-075).
-  - order: 13
+  - order: 12
     work_item: GD-27-LOCAL-RELEASE-PACKAGE
     action: >-
       Await every Part B prerequisite and GD-31 acceptance crosswalk and
