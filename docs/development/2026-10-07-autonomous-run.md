@@ -955,4 +955,75 @@ depth zero, synthetic hostname validation, iterative tri-color body cycles
 and exact constant JURISDICTION_REF_SCHEMA_ID are frozen before dispatch.
 Selection ledger/backbone, owned roadmap formatting and whitespace pass.
 Root commits only the four reviewed documents, then issues both disjoint
-source leases. Implementation and acceptance remain pending.
+source leases. Implementation and acceptance were pending at selection.
+
+Exact four-document selection checkpoint is
+`0f4ec8d7660007964835693d85b29df2eaa462d0`. Root issues both bounded,
+disjoint source leases. Worker coordination identifies only an ambiguous
+wording of the already separate recordRef limit: jurisdiction slugs cap at 64,
+recordRef total caps at 128 (suffix 111). Root clarifies the handoff before
+implementation completion; both workers adopt it. No scope, evidence, gate,
+source path or validation limit is expanded. GD-10 preparation is read-only
+while GD-09 remains the sole active item.
+
+All six GD-09 source leases return. Root reads each complete implementation,
+schema, fixture and test, formats owned files and freezes source. Cross-reviews
+pass production and integration. First focused unit passes four files/125
+tests in 33.89 seconds. A new newline-pattern regression was masked by using
+the federal entry; after that receipt closes, root replaces it with actual
+state/county/body cases plus schema-invalid assertions. First typecheck fails
+only TS18048 for the private refusal arrow; a function declaration preserves
+the exact error body and allows narrowing. Applied-fix review passes.
+Corrected typecheck and lint pass. First failed formatting/typecheck receipts
+remain immutable; corrected focused and full checks precede acceptance.
+
+Independent read-only GD-10 preparation finds all 16 retained allowlisted
+pairs still present and substantive, with no thin-shim closure. Its minimal
+harness lease alone cannot satisfy the binding acceptance. A concrete reviewed
+production closure amendment is required before later GD-10 implementation;
+renaming the test or exceptions supplies no acceptance. Its dependency/gate
+closure is satisfied, while GD-09 remains the sole active item. No GD-10
+source, classification, private reachability or protected scope is changed.
+
+Corrected focused unit passes four files/125 tests in 3.52 seconds. Owned
+nine-path formatting and prefull roadmap/backbone pass; backbone now validates
+24 schemas/IDs and 1,376 references. Root starts immutable complete
+`test-gd09-full` on frozen corrected source. Full/artifact/preservation and
+final acceptance review were pending then; GD-09 stayed active. Parallel
+read-only GD-10 preparation began concrete remediations for all 16
+remaining pairs, without source leases or changes to classification/gates.
+
+Complete `test-gd09-full` starts at 19:59:30 UTC and ends at 20:11:41 UTC,
+exit 0. Corpus 13, spine 30 plus unchanged privilege skip, policy 148,
+assurance 100, backbone 26, tier-1 129, knowledge 31, storage 29,
+development-authority 37, search-measurement nine and unit 109 files/2,049
+tests pass. Unit reports 188.91 seconds. All six corrected source files remain
+frozen throughout this receipt; no earlier failure is relabeled or discarded.
+
+Ten standing acceptance commands pass: build, artifact, runtime, hooks (47),
+knowledge, roadmap, backbone, source scan, lint and typecheck. Build
+`synthetic-8d514e1f46547e7cbac8` validates three records, the retained
+575-Nation collection and eight hashed assets. Knowledge reports 17 stale
+historical observations. Global formatting fails only on protected ignored
+.claude/settings.local.json; no aggregate check pass is claimed. Source scan
+checks 710 tracked paths and 752 source files.
+
+Independent final GD-09 source review passes the exact synthetic contract,
+runtime surfaces, fail-closed bounds, semantic evidence checks and corrected
+negative tests. Preservation at 20:12:57 UTC finds zero changes among 36 owner
+inputs, six historical implementation pins and the six GD-09 source hashes.
+The saved final preservation receipt at 20:22:29 UTC confirms those counts
+and unchanged hashes.
+That source snapshot was recorded during frozen validation at 20:01:59 UTC,
+not before the full run began. Final owned-document and nine-path checkpoint
+checks precede the local source commit and separate ledger acceptance.
+
+Read-only GD-10 design preserves pure corpus validation in core and accounts
+for both intake callers. Explicit factories receive canonical configuration
+from composition; legacy paths preserve named exports and singleton identities.
+Source-pack orchestration moves to composition, adapter refresh wrappers retain
+their three-argument APIs and mandatory policy validation, and only the three
+refresh-result types move to core. Corrected graph resolution and exact
+export-only facade enforcement remain part of the reviewed amendment. No
+GD-10 source lease is issued. Historical observer digests and operation grants
+remain untouched; a refactored adapter entry does not renew observer eligibility.

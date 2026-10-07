@@ -22,8 +22,8 @@ and ref us. State uses kind state, ref us-state:XX, usps (two uppercase ASCII
 letters) and fips (two digit string). County uses kind county, ref
 us-county:NNNNN, fips (five digit string) and stateRef. Nation uses kind nation,
 ref nation:synthetic-<slug>, reviewState reviewed and exact subject evidence.
-Body uses kind body, ref body:<slug> and members [{ref,evidence}]. Slugs use
-lowercase ASCII letters/digits with single separating hyphens, at most 64
+Body uses kind body, ref body:<slug> and members [{ref,evidence}]. Jurisdiction
+slugs use lowercase ASCII letters/digits with single separating hyphens, at most 64
 characters; label is nonblank and at most 256 characters. No current state
 lookup table, actual county table or recognition metadata is introduced.
 
@@ -32,8 +32,9 @@ Evidence requires url and locator, with optional exactSubject
 credentials or port, with a hostname ending in .invalid; no acquisition or
 official-source qualification is implied. Locator is nonblank up to 1024
 characters, exact text nonblank up to 8192. Record refs use
-record:synthetic-<slug> (up to 128 characters); exact subject ref is an active
-ref. Entry exact subject, when supplied, matches its entry ref; member exact
+record:synthetic-<slug> (up to 128 total characters, with suffix up to 111);
+exact subject ref is an active ref. Entry exact subject, when supplied,
+matches its entry ref; member exact
 subject, when supplied, matches its member ref. Every evidence object is
 synthetic declared metadata, including its review state and quoted text.
 
@@ -138,5 +139,52 @@ Independent selection review passes the exact four-document transition and
 six-new-file contract. Full-ledger inventory confirms 62 complete, one active,
 three ready, 25 blocked, two deferred and 42 not started, with no missed GD
 promotion. Selection roadmap/backbone, owned roadmap formatting and whitespace
-checks pass. Root commits the reviewed four-document manifest before issuing
-either source lease; implementation and item acceptance remain pending.
+checks pass. Root committed the reviewed four-document manifest before issuing
+either source lease; implementation and item acceptance were pending at selection.
+
+Selection checkpoint is committed locally as
+`0f4ec8d7660007964835693d85b29df2eaa462d0`, exactly four documents.
+Both source leases are issued under that reviewed contract. A routine limit
+clarification distinguishes jurisdiction slugs (64) from recordRef's existing
+separate total bound (128, suffix 111); both workers use the same rule.
+No additional files or source operation is introduced.
+
+Both workers return all six source leases. Root reads every complete file and
+formats owned files; independent cross-reviews pass production and integration.
+The first focused receipt passes four files/125 tests in 33.89 seconds. Review
+finds a newline-pattern test masked by a federal constant; root repairs only
+the new fixture cases to target state/county/body patterns and assert schema
+refusal. First typecheck flags the private refusal arrow's missing target
+narrowing; a function declaration preserves its exact throw/error behavior.
+Applied corrections pass independent review. Corrected typecheck and lint
+pass. Corrected focused and complete validation were still required at that
+checkpoint; GD-09 stayed active. All first receipts remain immutable,
+including the failed typecheck and temporary owned-format failure before
+wrapping repair.
+
+Corrected focused unit passes four files/125 tests in 3.52 seconds. Owned
+formatting and prefull roadmap/backbone pass (24 schemas and IDs, 1,376
+references). Complete `test-gd09-full` runs from 19:59:30 UTC to 20:11:41 UTC,
+exit 0, on frozen corrected source. Corpus 13, spine 30 plus unchanged
+privilege skip, policy 148, assurance 100, backbone 26, tier-1 129, knowledge
+31, storage 29, development-authority 37, search-measurement nine and unit
+109 files/2,049 tests pass; unit duration is 188.91 seconds.
+
+Standing build, artifact, runtime, hooks (47), knowledge, roadmap, backbone,
+source scan, lint and typecheck pass. Synthetic build
+`synthetic-8d514e1f46547e7cbac8` validates three records, the retained
+575-Nation collection and eight hashed assets. Knowledge retains 17 stale
+historical observations. Global formatting fails only on protected ignored
+.claude/settings.local.json; no aggregate check pass is claimed. The failed
+receipt and earlier failed typecheck remain immutable.
+
+Independent final source review passes all six files and confirms substantive
+negative cases, exact runtime exports and no remaining code or scope blocker.
+Preservation at 20:12:57 UTC checks all 36 owner inputs, six historical
+implementation pins and six frozen GD-09 source hashes with zero changes.
+The saved final preservation receipt at 20:22:29 UTC confirms the same counts
+and unchanged hashes.
+The new source snapshot was captured at 20:01:59 UTC during the already-frozen
+full run; it is not described as a pre-start snapshot. Final owned-document
+checks and exact nine-path checkpoint review precede the source commit and
+separate ledger acceptance. GD-09 remains active until that transition.

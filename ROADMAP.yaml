@@ -1088,7 +1088,7 @@ current_focus:
   terminal_reason: null
   resumable_roots:
     - GD-09-JURISDICTION-IDENTIFIER-MODEL
-  last_durable_checkpoint: 1def69b2c156973777de826b20ad467778f16b43
+  last_durable_checkpoint: 0f4ec8d7660007964835693d85b29df2eaa462d0
   resume_command: npm run validate:roadmap
 completion_scope:
   general_development:
@@ -7375,7 +7375,21 @@ work_items:
         approved G-GENERAL-DEV-01 admit six new local synthetic paths under
         D-071/D-073/D-079. Closed schema, bounded string-only parsers and exact
         synthetic evidence preserve Nation identity and public-successor gates.
-        Implementation and all acceptance checks remain pending.
+        Implementation and acceptance checks were pending at selection.
+      - >-
+        All six leases return; complete source reads and independent reviews
+        pass. Root corrects a masked newline fixture and private refusal
+        narrowing, preserving error behavior. Corrected typecheck, lint and
+        focused unit pass (4 files/125 tests); owned formatting and prefull
+        roadmap/backbone pass with 24 schemas. Complete test-gd09-full began on
+        frozen corrected source; acceptance was pending at that checkpoint.
+      - >-
+        Complete test-gd09-full passes at 20:11:41 UTC: all required phases,
+        including unit 109 files/2049 tests. Ten standing commands and the
+        synthetic build/artifact pass; protected ignored local settings retain
+        the sole global format failure. Independent final source review passes;
+        36 owner inputs, six historical pins and six GD09 source hashes remain
+        unchanged. Exact nine-path checkpoint and separate acceptance follow.
   - id: GD-10-BOUNDARY-ENFORCEMENT
     priority: 320
     milestone: General development
