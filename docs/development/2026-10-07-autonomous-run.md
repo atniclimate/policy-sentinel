@@ -536,3 +536,96 @@ The corrected full roadmap/backbone checks pass before source edits: 55 complete
 one active, four ready, 25 blocked, six deferred and 44 not_started. The worker
 receives only its two new-file leases. Root adds the compatibility identity
 test while retaining all existing research assertions.
+
+Selection commit `35d769a5370985d1a28aefaa60154b8d2af3568e` contains exactly
+the three reviewed selection documents. The worker returns both new-file
+leases. Root independently compares the complete concatenated context and
+render spans with the original: both match, apart from terminal separator
+whitespace at the context file boundary. All UTF-8 rendering strings remain
+identical. Root integrates the explicit three-function legacy shim and identity
+test. Owned formatting passes; independent reviews and actual validation follow.
+
+Independent module/governance review passes. Lint, typecheck and source scan
+pass (690 tracked paths, 729 source files). Root uses the required complete
+`npm test` command to run its policy, assurance and unit phases in sequence,
+avoiding duplicate successful suite runs. If it stops early, required unreached
+checks run separately under their own immutable labels; the full attempt stays
+failed. No command, selection, assertion, deadline or isolation setting changes.
+
+Independent integration review also passes. Its UTF-8 comparison confirms all
+five moved spans, including error helpers and the complete stylesheet/page/
+builder text. Relative imports resolve and all five original tests remain.
+The active full attempt reports native failures in spine before policy; root
+awaits the final receipt and will run unreached required suites separately.
+
+`test-gd07-full` ends at 17:28 UTC with exit 1 before policy. Foundation and
+corpus (13) pass; spine passes 17, fails 13 and retains its existing privilege
+skip. Corpus-store failure locations are 70/107/174/269/292/320/379/413/444/
+502/539/588/635, retaining native `TIME_LIMIT` results. Later full-suite phases
+do not run. Root serially runs complete unreached policy, assurance and unit
+suites, then synthetic build/artifact, with distinct receipts. Every failed
+attempt remains failed and GD-07 acceptance remains pending.
+
+A fresh read-only host sample at 17:30:26 UTC observes 39% total CPU over
+a 2.175-second interval. The largest measured process deltas are PowerShell,
+pwsh and WindowsTerminal. This sample does not establish a quiet window or
+identify the timeout cause; prior high-CPU observations alone are insufficient.
+No unrelated process, command line, session or configuration is changed. Root
+requests a bounded read-only diagnostic review while serialization continues.
+
+The diagnostic review finds no proven new defect or CPU cause. Both existing
+native implementations share startup and complete filesystem inventory within
+their fixed five-second Windows PowerShell budget. Whole-test durations cannot
+attribute that cost. Missing evidence includes owned-child spawn/input/output/
+timeout/close timings and close confirmation after policy-custody termination;
+lingering children remain a possibility, not an established cause. No weaker
+limit, production repair or unrelated process action is justified by this review.
+
+Complete unreached policy ends at 17:34 UTC with exit 1: 132 passes and
+14 failures out of 146. All six GD-07 research cases pass, including legacy
+identity, base/evidence refusals, exact deterministic escaped output, excerpt
+permission denial and accessibility. Other native failures remain retained in
+the same immutable log; this is not a policy-suite pass. The serialized sequence
+continues through assurance, unit and synthetic build/artifact without retrying
+or relabeling either failed attempt.
+
+Complete unreached assurance passes 99 of 100 in 84.501 seconds, exit 1.
+The unchanged engineering-measurement native knowledge-publication case at
+line 217 reports `BOUNDED_NATIVE_CHILD_FAILED`. All actual-reader cleanup and
+native request/refusal cases pass. Unit and build/artifact continue serially.
+Afterward root will also run the remaining unreached backbone, tier-1, knowledge,
+storage, development-authority and search-measurement test commands once under
+distinct labels. Their individual results cannot turn the full attempt into a
+pass; they provide current-code coverage for the otherwise skipped phases.
+
+The active unit attempt reports failures in unchanged application/spatial cases;
+its final counts remain pending. A read-only memory sample at 17:42:14 UTC
+observes 13,756,215,296 available bytes, 22,909,546,496 committed bytes and
+89,538 pages/second. Available memory is not exhausted in that sample; paging
+activity alone does not establish failure causation. No unrelated process or
+protected test is changed. Root retains the eventual actual unit result.
+
+Complete unit ends at 17:47 UTC with exit 1: it reports 1,875 passes and
+five failures across 104 reached files (99 pass/five fail), plus two unhandled
+worker-start timeouts for relation-custody and real-source-lifecycle-coverage-lkg.
+The five failures are pipeline, federal-register-ux, schema-runtime-parity,
+evidence-view and non-interference-imports. The pipeline and three spatial
+cases retain their explicit existing timeouts; the UI case retains its own
+assertion failure. Vitest reports 663.44 seconds. Two files are not completed;
+reported passes and unchanged source do not establish full acceptance.
+Synthetic build and explicit artifact validation pass: three records,
+575 synthetic Nations, eight assets, `synthetic-db4b0e460b747ba53265`.
+Root begins the remaining six previously unreached test commands serially.
+
+The remaining commands all pass: backbone 26, tier-1 129, knowledge 31,
+storage 29, development-authority 37 and search-measurement 9. Separate
+`-gd07-remaining` receipts record each result. They do not replace the failed
+complete `npm test` receipt. Root finishes standing checks and protected-input
+hash verification before the reviewed incomplete checkpoint.
+
+Final GD-07 standing roadmap/backbone/source checks pass. Owned formatting and
+Git diff whitespace checks pass. Global formatting fails only on the unchanged
+protected ignored `.claude/settings.local.json`; root neither reads nor edits
+it. At 17:51 UTC all 36 protected owner hashes and six retained source/
+measurement pins match. Independent final review approves the honest incomplete
+seven-file checkpoint. No full-validation pass or item acceptance is claimed.

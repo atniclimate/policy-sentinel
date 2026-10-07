@@ -7174,6 +7174,49 @@ work_items:
         Full GD-07/GD-02/GD-00 dependency closure and approved D-071 local
         synthetic authority are verified. Mechanical split implementation and
         acceptance remain pending; no not_started item newly unblocks.
+      - docs/handoffs/2026-10-07-gd07-research-extraction.md
+      - >-
+        Complete moved context/render implementation spans match the original;
+        legacy three-function shim and identity/export-surface test are
+        integrated. Owned formatting passes; independent reviews and required
+        actual validation remain pending.
+      - >-
+        Independent module/governance and integration reviews, lint, typecheck
+        and source scan pass. Complete test-gd07-full is running; no acceptance
+        is inferred from mechanical text comparisons or review reports.
+      - >-
+        test-gd07-full exits 1 at 17:28 UTC before policy: corpus 13 pass, spine
+        17 pass/13 native TIME_LIMIT failures/unchanged privilege skip. Later
+        phases do not run. Root validates unreached policy/assurance/unit and
+        synthetic build/artifact separately; full acceptance remains unmet.
+      - >-
+        Separate complete policy validation has 132 passes/14 failures out of
+        146. All six research tests pass, including existing behavioral and
+        accessibility cases and legacy identity. Native failures elsewhere
+        remain retained; assurance/unit/build checks and full acceptance remain
+        pending.
+      - >-
+        Complete assurance passes 99/100 and fails unchanged native knowledge
+        publication with BOUNDED_NATIVE_CHILD_FAILED (engineering-measurement
+        line 217). All reader cleanup and native request/refusal cases pass;
+        unit/build and remaining unreached phases continue under separate
+        labels.
+      - >-
+        Unit exits 1 with 1,875 reported passes/five failures across 104 reached
+        files and two worker-start errors; two files are not completed.
+        Synthetic build/artifact passes (3 records, 575 Nations, 8 assets).
+        Remaining six unreached test commands run separately; full acceptance
+        remains unmet.
+      - >-
+        Remaining complete commands pass: backbone 26, tier-1 129, knowledge 31,
+        storage 29, development-authority 37 and search-measurement 9. Separate
+        receipts preserve current-code coverage without replacing the failed
+        full validation or satisfying item acceptance.
+      - >-
+        Final standing roadmap/backbone/source and owned formatting checks pass;
+        global formatting retains the protected ignored-settings failure. All 36
+        owner hashes and six retained source/measurement pins match at 17:51
+        UTC. Independent final review approves this incomplete checkpoint.
   - id: GD-08-CONTEXT-RELEVANCE-EXTRACTION
     priority: 318
     milestone: General development

@@ -11,7 +11,24 @@ import {
   resolvePolicyResearchReview,
   buildPolicyResearchOutput,
 } from "../../src/pipeline/policy-research-output.mjs";
+import * as legacyResearchOutput from "../../src/pipeline/policy-research-output.mjs";
+import {
+  enrichPolicyCorpus as contextEnrichPolicyCorpus,
+  resolvePolicyResearchReview as contextResolvePolicyResearchReview,
+} from "../../src/modules/context/research-review.mjs";
+import { buildPolicyResearchOutput as outputBuildPolicyResearchOutput } from "../../src/modules/output/research-html.mjs";
 import { syntheticCorpusV2Input } from "./analyzed-corpus-v2.test.mjs";
+
+test("legacy research exports are the context and output entry points", () => {
+  assert.deepEqual(Object.keys(legacyResearchOutput).sort(), [
+    "buildPolicyResearchOutput",
+    "enrichPolicyCorpus",
+    "resolvePolicyResearchReview",
+  ]);
+  assert.equal(enrichPolicyCorpus, contextEnrichPolicyCorpus);
+  assert.equal(resolvePolicyResearchReview, contextResolvePolicyResearchReview);
+  assert.equal(buildPolicyResearchOutput, outputBuildPolicyResearchOutput);
+});
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const selector = (versionId) => ({
