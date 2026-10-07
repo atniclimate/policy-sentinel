@@ -71,6 +71,8 @@ before implementation:
    realignment sequence, protected evidence and checks.
 8. `docs/handoffs/2026-10-07-gd26-reproducible-checks.md`: completed GD-26
    checkpoint, validation limits and next-task recovery.
+9. `docs/handoffs/2026-10-07-gd17-initial-source-survey.md`: initial source
+   survey, qualification gaps and current validation/next-task state.
 
 Historical foundation: general-development session 1 applied RL-01. The rulings are
 D-071 to D-079 in `docs/decision-register.md`, and `ROADMAP.yaml` is at schema
@@ -109,9 +111,10 @@ GD-26 reproducible checks are complete at implementation commit `a3ac31a`;
 recover [the checkpoint handoff](handoffs/2026-10-07-gd26-reproducible-checks.md).
 Both hook runs pass 47/47 and the complete committed Bash deny inventory is
 tested through the production matcher. The separate ignored-settings formatting
-failure remains visible. GD-17 initial source survey is next; the GD-26 session
-stopped before starting it. The full A3 restore/replay demonstration remains
-future acceptance work.
+failure remains visible. GD-17 initial source survey is active in the current
+continuation; recover its handoff above. The survey acquires no policy payload,
+renews no profile and supplies no API-integration acceptance. The full A3
+restore/replay demonstration remains future acceptance work.
 
 ## What a fresh session does first
 

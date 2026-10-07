@@ -1008,28 +1008,15 @@ baseline:
         configured.
 
 current_focus:
-  work_item: null
+  work_item: GD-17-NATIONWIDE-SOURCE-SURVEY
   objective: >-
-    GD-26 reproducible checks are complete at the validated local checkpoint.
-    Recover docs/handoffs/2026-10-07-gd26-reproducible-checks.md. GD-17 initial
-    source survey is next under D-086/D-087; it has not started in this session.
-  terminal_reason: >-
-    The owner bounded this session to GD-26 and a local checkpoint/handoff, then
-    stop. Hook and fresh-snapshot proofs pass, the finite committed deny matrix
-    passes, and independent review accepted the changes. The separate ignored
-    settings.local.json formatting failure remains visible and untouched.
+    GD-17 initial source survey is active under D-086/D-087: documentation-only
+    federal, seven-state, local and public Tribal/intertribal source reviews. No
+    acquisition, profile renewal, terms acceptance or key registration.
+  terminal_reason: null
   resumable_roots:
     - GD-17-NATIONWIDE-SOURCE-SURVEY
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-    - GD-04-CORE-BOUNDARY-GUARD
-    - GD-05-INTAKE-REPLAY-AND-DISCOVERY
-    - GD-07-RESEARCH-OUTPUT-SPLIT
-    - GD-08-CONTEXT-RELEVANCE-EXTRACTION
-    - GD-09-JURISDICTION-IDENTIFIER-MODEL
-    - GD-13-NATIONWIDE-RECORD-CONTRACT
-    - GD-16-INTEROP-PURE-ADAPTER
-    - GD-22-NATION-REGISTRY-BINDING
-    - GD-27-LOCAL-RELEASE-PACKAGE
   last_durable_checkpoint: a3ac31aff64b24d124c05456e3e842bd2b88b2c7
   resume_command: npm run validate:roadmap
 
@@ -5657,7 +5644,7 @@ work_items:
     priority: 291
     milestone: General development
     title: Initial federal regional and intertribal source matrix (docs only)
-    status: ready
+    status: in_progress
     work_class: general_development_local
     decision_ref: D-078
     authorization_gate: G-GENERAL-DEV-01
@@ -5689,7 +5676,23 @@ work_items:
         initial regional matrix. Supersede D-078 blanket exclusion; public
         availability, issuer authority and allowed reuse are separate evidence.
         An operational subject does not make a public record restricted.
-    evidence: []
+    evidence:
+      - docs/development/gd17-initial-source-survey-2026-10-07.md
+      - docs/handoffs/2026-10-07-gd17-initial-source-survey.md
+      - >-
+        Five federal families, seven jurisdiction SourceDescriptor drafts and
+        public Tribal/intertribal publisher matrix completed as documentation.
+        Contract-preparation shortlist is GovInfo direct FR, WA bill/session-law
+        and evidence-blocked ATNI; newly dispatch-ready pilot subset is empty.
+        No API integration, source activation, profile renewal or policy-payload
+        acquisition follows from this survey. Independent source and sovereignty
+        reviews completed; source review's qualification wording repair applied.
+      - >-
+        Active checkpoint: roadmap/backbone validators and source-boundary scan
+        pass; npm run test:roadmap passes 473 tests. Protected runtime and
+        source configuration unchanged; all 36 pre-existing untracked files
+        preserve their recorded SHA-256 hashes. Terminal commit bookkeeping
+        follows.
 
   - id: GD-18-STORAGE-CAPACITY-MODEL
     priority: 292
