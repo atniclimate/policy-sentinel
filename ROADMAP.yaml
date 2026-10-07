@@ -1088,7 +1088,7 @@ current_focus:
   terminal_reason: null
   resumable_roots:
     - GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
-  last_durable_checkpoint: 04d626f8eab10cf1fb5f5e627e234ade408775d2
+  last_durable_checkpoint: cf32bb60cc7b8f0bb6d20cb7460a35af49bb0d08
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -7174,6 +7174,36 @@ work_items:
         manifest separates custody composition from output without weakening
         legacy behavior, tests or source/private gates; acceptance remains
         pending.
+      - docs/handoffs/2026-10-07-gd06-local-workbench-extraction.md
+      - >-
+        Selection commit cf32bb6 contains exactly nine reviewed documents. All
+        implementation leases returned; root and independent integration
+        comparisons find complete unchanged bodies and correct dependencies.
+        Owned formatting, lint, typecheck and focused unit pass (3 files, 19
+        tests). Complete test-gd06-full is running on frozen source; required
+        full/artifact validation and final acceptance remain pending.
+      - >-
+        Complete test-gd06-full exits 1 at 19:06 UTC: corpus 13, spine 30 plus
+        unchanged privilege skip and policy 148 pass; assurance 99/100 fails
+        unchanged native knowledge publication, later phases unreached.
+        Independent review identifies and corrects a scoped guard loader bypass
+        with a regression fixture; final source review passes. Corrected-code
+        focused/full validation and acceptance remain pending.
+      - >-
+        Applied loader-fix source review passes. Corrected focused unit passes 3
+        files/20 tests in 16.23 seconds. Complete test-gd06-finalcandidate is
+        running on frozen final source; all previous failures stay failed, and
+        full/artifact acceptance remains pending.
+      - >-
+        Complete test-gd06-finalcandidate exits 0 at 19:26:50 UTC on frozen
+        corrected source: corpus 13, spine 30 plus unchanged privilege skip,
+        policy 148, assurance 100, backbone 26, tier-1 129, knowledge 31,
+        storage 29, development-authority 37, search-measurement 9 and unit 107
+        files/1934 tests pass. Earlier failed receipt remains failed; standing
+        build/artifact, runtime, hooks, knowledge, roadmap, backbone, source
+        scan, lint and typecheck pass. Synthetic artifact has 3 records, 575
+        Nations and 8 verified assets. All 36 owner hashes and 6 pins match.
+        Final checkpoint and ledger acceptance reconciliation remain pending.
   - id: GD-07-RESEARCH-OUTPUT-SPLIT
     priority: 317
     milestone: General development

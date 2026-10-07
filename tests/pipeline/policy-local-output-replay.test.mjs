@@ -36,6 +36,18 @@ import {
   writeLocalOutput,
 } from "../../src/pipeline/policy-local-output.mjs";
 import { replayReviewedCorpus as intakeReplayReviewedCorpus } from "../../src/modules/intake/replay.mjs";
+import * as intakeBindings from "../../src/modules/intake/replay.mjs";
+import * as coreBindings from "../../src/core/local-output-bindings.mjs";
+
+test("intake preserves all three promoted core binding helpers", () => {
+  assert.deepEqual(Object.keys(coreBindings).sort(), [
+    "assertCaptureBindings",
+    "assertProfileBindings",
+    "safeFile",
+  ]);
+  for (const name of Object.keys(coreBindings))
+    assert.strictEqual(intakeBindings[name], coreBindings[name]);
+});
 import { syntheticCorpusV2Input } from "./analyzed-corpus-v2.test.mjs";
 import { mockPolicyFilesystem } from "../helpers/policy-filesystem-observations.mjs";
 

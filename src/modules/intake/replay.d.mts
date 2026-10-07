@@ -1,28 +1,17 @@
 import type { Buffer } from "node:buffer";
-import type {
-  AnalyzedCorpusV2,
-  PolicySourceProfile,
-} from "../../pipeline/analyzed-corpus-v2.mjs";
+import type { AnalyzedCorpusV2 } from "../../pipeline/analyzed-corpus-v2.mjs";
 
-export function safeFile(value: unknown): boolean;
+export {
+  safeFile,
+  assertProfileBindings,
+  assertCaptureBindings,
+} from "../../core/local-output-bindings.mjs";
+
 export function readOwnedFile(
   root: string,
   relativePath: string,
   limit?: number,
 ): Promise<Buffer>;
-export function assertProfileBindings(
-  corpusOrInput: {
-    readonly sourceProfiles: readonly Pick<
-      PolicySourceProfile,
-      "id" | "hosts" | "pathPrefixes" | "review" | "uses"
-    >[];
-  },
-  run: unknown,
-): void;
-export function assertCaptureBindings(
-  corpus: Pick<AnalyzedCorpusV2, "captures">,
-  run: unknown,
-): void;
 export function replayReviewedCorpus(
   root: string,
   options?: { readonly name?: "gold" | "discovery" },

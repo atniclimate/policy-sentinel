@@ -11,25 +11,18 @@ import { extractPolicyText } from "../../pipeline/policy-text.mjs";
 import { createPolicyCorpus } from "../../pipeline/policy-corpus-builder.mjs";
 import {
   parseAnalyzedCorpusV2,
-  canonicalV2Digest,
   serializeAnalyzedCorpusV2,
 } from "../../pipeline/analyzed-corpus-v2.mjs";
+
+import {
+  safeFile,
+  assertProfileBindings,
+  assertCaptureBindings,
+} from "../../core/local-output-bindings.mjs";
 
 const fail = (code) => {
   throw new Error(code);
 };
-const safeFile = (value) =>
-  typeof value === "string" &&
-  /^[a-zA-Z0-9_./-]+$/.test(value) &&
-  value
-    .split("/")
-    .every(
-      (part) =>
-        part &&
-        part !== "." &&
-        part !== ".." &&
-        !/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(part),
-    );
 async function readOwnedFile(root, relativePath, limit = 128 * 1024 ** 2) {
   if (!safeFile(relativePath)) fail("INVALID_OWNED_FILE_PATH");
   const base = await realpath(root);
@@ -73,42 +66,6 @@ async function readOwnedFile(root, relativePath, limit = 128 * 1024 ** 2) {
     },
     () => handle.close(),
   );
-}
-function assertProfileBindings(corpusOrInput, run) {
-  for (const profile of corpusOrInput.sourceProfiles) {
-    const admitted = run.manifest.profiles.find(
-      (source) => source.id === profile.id,
-    );
-    const selected = Object.fromEntries(
-      ["id", "hosts", "pathPrefixes", "review", "uses"].map((key) => [
-        key,
-        profile[key],
-      ]),
-    );
-    if (
-      !admitted ||
-      canonicalV2Digest(selected) !== canonicalV2Digest(admitted)
-    )
-      fail("SOURCE_POLICY_ADMISSION_MISMATCH");
-  }
-}
-function assertCaptureBindings(corpus, run) {
-  for (const capture of corpus.captures) {
-    const receipt = run.ledger.operations[capture.operationId];
-    if (
-      !receipt ||
-      receipt.state !== "complete" ||
-      receipt.profileId !== capture.sourceProfileId ||
-      receipt.objectDigest !== capture.objectDigest ||
-      receipt.url !== capture.requestedUrl ||
-      receipt.finalUrl !== capture.finalUrl ||
-      receipt.completedAt !== capture.retrievedAt ||
-      receipt.mediaType !== capture.mediaType ||
-      receipt.decodedBytes !== capture.decodedBytes ||
-      receipt.encodedBytes !== capture.encodedBytes
-    )
-      fail("OUTPUT_CAPTURE_ADMISSION_MISMATCH");
-  }
 }
 export async function replayReviewedCorpus(root, { name = "gold" } = {}) {
   if (!["gold", "discovery"].includes(name)) fail("INVALID_CORPUS_SELECTION");

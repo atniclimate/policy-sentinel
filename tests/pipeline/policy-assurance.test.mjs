@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { safeFile } from "../../src/core/local-output-bindings.mjs";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 import { runInNewContext } from "node:vm";
@@ -291,9 +292,9 @@ const localOutputSource = await readFile(
   "utf8",
 );
 function localOutputRead(injected) {
-  const start = localOutputSource.indexOf("const fail = (code) => {");
+  const start = localOutputSource.indexOf("async function readOwnedFile(");
   const end = localOutputSource.indexOf(
-    "function assertProfileBindings(",
+    "export async function replayReviewedCorpus(",
     start,
   );
   assert.ok(start > 0 && end > start);
@@ -301,6 +302,10 @@ function localOutputRead(injected) {
     `${localOutputSource.slice(start, end)}\nreadOwnedFile;`,
     {
       withPreservedCleanup,
+      safeFile,
+      fail: (code) => {
+        throw new Error(code);
+      },
       realpath: async (value) => value,
       join: (...parts) => parts.join("/"),
       relative: (base, value) => value.slice(base.length + 1),

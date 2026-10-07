@@ -14,6 +14,36 @@ import {
 } from "../../src/pipeline/analyzed-corpus-v2.mjs";
 import { digest } from "../../src/pipeline/policy-custody.mjs";
 import { syntheticCorpusV2Input } from "./analyzed-corpus-v2.test.mjs";
+import * as legacyLocalOutput from "../../src/pipeline/policy-local-output.mjs";
+import { replayReviewedCorpus as intakeReplay } from "../../src/modules/intake/replay.mjs";
+import {
+  localCorpusBytes as outputBytes,
+  validateLocalOutputFiles as outputValidation,
+} from "../../src/modules/output/local-workbench/write.mjs";
+import {
+  writeLocalOutput as composedWrite,
+  readLocalOutput as composedRead,
+} from "../../scripts/policy-local-output.mjs";
+import { simulateLocalSourceFailure as outputFailure } from "../../src/modules/output/local-workbench/failure-simulation.mjs";
+import { createLoopbackOutputServer as outputServer } from "../../src/modules/output/local-workbench/loopback-server.mjs";
+
+test("legacy local output preserves exactly seven direct bindings", () => {
+  const direct = {
+    replayReviewedCorpus: intakeReplay,
+    localCorpusBytes: outputBytes,
+    writeLocalOutput: composedWrite,
+    readLocalOutput: composedRead,
+    validateLocalOutputFiles: outputValidation,
+    simulateLocalSourceFailure: outputFailure,
+    createLoopbackOutputServer: outputServer,
+  };
+  assert.deepEqual(
+    Object.keys(legacyLocalOutput).sort(),
+    Object.keys(direct).sort(),
+  );
+  for (const [name, binding] of Object.entries(direct))
+    assert.strictEqual(legacyLocalOutput[name], binding);
+});
 
 function semanticFixture(change = () => {}) {
   const input = JSON.parse(

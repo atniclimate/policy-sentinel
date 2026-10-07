@@ -815,3 +815,108 @@ recursive closure, exact 18-path disjoint leases and the corrected core digest
 dependency wording. Full roadmap/backbone checks pass with 61/1/3/25/2/43;
 owned formatting and whitespace checks pass. Root commits exactly these nine
 documents before source dispatch; no completion of GD-06 is implied.
+
+Selection commit `cf32bb60cc7b8f0bb6d20cb7460a35af49bb0d08` contains exactly
+the nine reviewed documents. Root dispatches both bounded workers. Worker A
+returns all four leases with exact comparisons: promoted helper bodies,
+declarations, reader, replay and private fail unchanged; intake retains five
+exports. Root integrates the seven-export compatibility shim and identity
+tests, the scoped import guard and the assurance extraction marker adaptation.
+Every original cleanup case remains unchanged. Worker B and actual validation
+are pending; the dated GD-06 handoff preserves this active recovery state.
+
+Root independently reads the actual files and confirms complete unchanged
+helper, reader and replay spans. All eight original assurance cleanup cases
+and subsequent tests match the baseline exactly. All eight workbench function
+and private-helper spans also match: bytes, writer, reader, validation,
+checksum snapshot, simulation, content type and server. Source comparisons
+do not discharge required runtime validation or independent review.
+
+Worker B returns all eight leases. Its complete-body/import comparisons and
+the independent integration review pass; composition executes no work on import,
+output reaches only output/core/Node and declarations preserve actual variants.
+All owned source formatting passes. Actual lint and typecheck pass. Focused
+unit passes three files/19 tests in 78.22 seconds, including the new scoped
+guard, unchanged global module test and protected reverse-import scan.
+Root freezes source and starts complete `test-gd06-full` with immutable external
+logs. Full validation and final checkpoint acceptance remain pending.
+
+Independent root-owned review passes legacy bindings, core promotion and all
+eight RD-02 cases, but identifies a concrete scoped-guard gap: importing
+createRequire from node:module and invoking its alias hides the subsequent
+loader call. Current production contains no such loader; this is a test-guard
+defect, not an observed production custody edge. Preserve the frozen running
+receipt, then reject module/node:module loader imports and add the demonstrated
+core-wrapper regression before acceptance. Actual checks of that correction
+remain required; no global allowlist or production behavior changes.
+
+Complete `test-gd06-full` starts 18:57:03 UTC and ends 19:06:06 UTC, exit 1:
+corpus 13 pass, spine 30 pass plus unchanged privilege skip, policy 148 pass,
+assurance 99/100. The unchanged owned native knowledge publication fails with
+BOUNDED_NATIVE_CHILD_FAILED and separate cleanup CHILD_REFUSED; later phases
+do not run. Retain the failed receipt without attributing its cause to this
+refactor or host conditions. The scoped-guard correction is then applied:
+module/node:module loader imports fail before builtin exemption, and a seventh
+case demonstrates the createRequire alias bypass through a core wrapper for
+both specifiers. Independent proposed-fix review passes. Final-code focused
+validation and a new complete candidate receipt are required; GD-06 stays active.
+
+Applied-fix independent source review passes. Corrected focused unit passes
+three files/20 tests in 16.23 seconds. Root starts complete
+`test-gd06-finalcandidate` on frozen final source, preserving the first failed
+receipt and all native limits. No broader repeat is justified without a new
+change, failure or unresolved concern; this attempt checks the changed guard
+and previously incomplete required suite. Full acceptance remains pending.
+
+Read-only GD-09 preparation confirms independent GD-09/GD-02/GD-00 closure
+and approved D-071/D-073/D-079 authority. No GD-09 dispatch occurs. The proposed
+six new paths are two context jurisdiction modules, one Draft 2020-12 schema,
+one synthetic registry fixture and two context test files. Freeze v1 to
+synthetic:true; Canadian ca/ca-province refs remain reserved and inactive.
+Nation refs use only nation:synthetic-* and reviewed exact synthetic subject
+evidence, for both issuing_authority and source_stated_scope bases. State/FIPS
+and county-parent agreement prove internal syntax only. Body membership never
+propagates a Nation relationship. GD-22 retains Nation identity and D-079's
+us_federal/reserved-empty ca_first_nation obligation; GD-09 adds no invented
+recognition metadata or retained public/corpus successor change.
+
+The proposed registry exports its schema ID, public semantic parser and an
+explicitly documented parseJurisdictionSchemaInput internal structural helper.
+That helper accepts JSON strings only, validates its selector, bounds raw text
+and iterative JSON structure, invokes the existing protected-key guard,
+compiles the closed schema strictly and returns a frozen unknown snapshot.
+Association reuses that helper and the registry parser; semantic validation
+precedes each public typed result. No third runtime file, duplicate validation,
+authority claim or new source operation is introduced. This is preparation
+for a separately selected/reviewed manifest, not current GD-09 implementation.
+
+Complete `test-gd06-finalcandidate` starts at 19:09:09 UTC and ends at
+19:26:50 UTC, exit 0. Corpus 13, spine 30 plus unchanged privilege skip,
+policy 148, assurance 100, backbone 26, tier-1 129, knowledge 31, storage 29,
+development-authority 37, search-measurement 9 and unit 107 files/1,934 tests
+pass. Unit reports 239.77 seconds. This is one complete receipt on corrected
+final source; the first failed attempt remains failed. It does not establish
+the previous failure's cause or concurrent-load reliability. Root starts the
+serialized synthetic build/artifact and standing checks; preservation and final
+21-path checkpoint review remain pending. GD-06 remains the sole active item.
+
+Standing GD-06 acceptance receipts pass build, artifact, runtime, hooks (47),
+knowledge, roadmap, backbone, source scan, lint and typecheck. Synthetic build
+`synthetic-7329446c371c8fb5a952` validates three records, the retained
+575-Nation collection and eight hashed assets; knowledge retains 17 stale
+historical observations without rewriting its index. Global formatting fails
+on ROADMAP.yaml and protected ignored .claude/settings.local.json. Root repairs
+only owned roadmap wrapping and preserves the failed receipt. Preservation
+at 19:35:39 UTC checks all 36 owner inputs and six implementation pins with
+zero changes. Final owned formatting, ledger checks and independent exact
+21-path checkpoint review precede the source commit and separate acceptance
+transition. No aggregate check pass or broader release/source activation is
+claimed; GD-06 stays the sole active item.
+
+Finaldocs checks pass owned 21-path formatting under existing repository rules,
+whitespace, roadmap and backbone; global formatting reports only protected
+ignored local settings. Independent final review finds no production or scope
+issue and requests only removal of stale pending-check wording and this latest
+evidence update. Final source checkpoint and separate ledger acceptance follow.
+The earlier formatting and full-test failures remain immutable historical
+receipts, and no aggregate check pass is claimed.
