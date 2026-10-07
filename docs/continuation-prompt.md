@@ -117,11 +117,12 @@ failure remains visible. GD-17 initial source survey is complete at `b839a56`;
 recover its handoff above. It records a contract-preparation shortlist and an
 empty newly dispatch-ready pilot subset. No policy payload was acquired, no
 profile renewed and no API integration accepted. GD-18 measured storage capacity
-is the sole active item pending local commit and terminal bookkeeping. The
-read-only command passes 29 focused tests and independent review. All twelve
+is complete at implementation commit `8dc3985`. Its read-only command passes
+29 focused tests and independent review. All twelve
 declared roots total 558,104,040 bytes. The hypothetical forecast correctly
 refuses because the included C: support volume is below the 20 GiB disk floor;
-this is not an I: shortage and does not block GD-31/GD-32 preparation.
+this is not an I: shortage and does not block GD-31/GD-32 preparation. Both
+successors are ready, with GD-31 next and zero active work items.
 GD-33 full nationwide survey is also ready. The full A3 restore/replay
 demonstration remains future acceptance work.
 

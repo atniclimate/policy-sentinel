@@ -1008,16 +1008,34 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-18-STORAGE-CAPACITY-MODEL
+  work_item: null
   objective: >-
-    GD-18 implements a read-only measured storage inventory and peak-capacity
-    report against the total 50,000,000,000-byte managed cap. Preserve sealed
-    custody and independent run/free-disk limits; acquire and delete nothing.
-  terminal_reason: null
+    GD-18 measured storage reporting is complete at 8dc3985. Recover its
+    handoff, measured twelve-root baseline and conservative support-disk
+    refusal. GD-31 successor authority manifests and release crosswalk is next;
+    GD-32 bounded offline storage/search design is also ready.
+  terminal_reason: >-
+    The bounded implementation, complete declared-root inventory, independent
+    reviews and local checks are complete. The hypothetical forecast refuses
+    because the C support disk is below the 20 GiB floor; no cleanup or passing
+    forecast is required for GD-31/GD-32 preparation. No acquisition, eviction,
+    profile renewal or publication occurred. Historical gates and the ignored
+    local-settings formatting limitation remain unchanged.
   resumable_roots:
-    - GD-18-STORAGE-CAPACITY-MODEL
+    - GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
+    - GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-  last_durable_checkpoint: b839a56704073f044700bd7509b6c55f7bb05f28
+    - GD-04-CORE-BOUNDARY-GUARD
+    - GD-05-INTAKE-REPLAY-AND-DISCOVERY
+    - GD-07-RESEARCH-OUTPUT-SPLIT
+    - GD-08-CONTEXT-RELEVANCE-EXTRACTION
+    - GD-09-JURISDICTION-IDENTIFIER-MODEL
+    - GD-13-NATIONWIDE-RECORD-CONTRACT
+    - GD-16-INTEROP-PURE-ADAPTER
+    - GD-22-NATION-REGISTRY-BINDING
+    - GD-27-LOCAL-RELEASE-PACKAGE
+    - GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
+  last_durable_checkpoint: 8dc3985e373aaf79d0e352eee8fe60284250ccd0
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5700,7 +5718,9 @@ work_items:
     priority: 292
     milestone: General development
     title: Storage capacity model, holding policy and storage:report
-    status: in_progress
+    status: complete
+    completed_on: "2026-10-07T02:00:33-07:00"
+    completion_commit: 8dc3985e373aaf79d0e352eee8fe60284250ccd0
     work_class: general_development_local
     decision_ref: D-077
     authorization_gate: G-GENERAL-DEV-01
@@ -5737,7 +5757,7 @@ work_items:
     priority: 293
     milestone: General development
     title: Successor authority manifests and release acceptance crosswalk
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-086
     authorization_gate: G-GENERAL-DEV-01
@@ -5783,7 +5803,7 @@ work_items:
     priority: 294
     milestone: General development
     title: Bounded offline search storage and pilot measurement design
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-086
     authorization_gate: G-GENERAL-DEV-01
@@ -7568,15 +7588,23 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: GD-18-STORAGE-CAPACITY-MODEL
+    work_item: GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
     action: >-
-      Measure existing project-managed storage and implement storage:report
-      against the 50,000,000,000-byte total managed footprint under D-086.
-      Include retained custody, derivatives, exports and peak staging/rebuild
-      space; distinguish measured usage from projections. Preserve evidence;
-      acquire nothing and perform no automatic eviction. Recover the GD-17
-      handoff and source-format gaps before this next bounded task.
+      Represent D-086/D-087 successor authority, finite pilot/API manifests and
+      release acceptance ownership with schema/tests and source-specific gaps.
+      Use the GD-17 survey and GD-18 measured baseline/refused example forecast.
+      Do not reopen settled owner choices, dispatch acquisition, renew profiles
+      implicitly or infer private transfer authority. Represent later actual
+      search, pilot and required API implementation outcomes explicitly.
   - order: 2
+    work_item: GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
+    action: >-
+      After higher-priority GD-31, specify and measure bounded offline search
+      using retained or synthetic inputs. Preserve loader/result limits and
+      citation/version bindings; include cold/warm workloads, index rebuild
+      peaks and the finite analyst journey. No acquisition or 50 GB search
+      performance claim follows from the storage inventory.
+  - order: 3
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action: >-
       Recover docs/development/ps09-engineering-review-02-evidence-matrix.md and
@@ -7591,53 +7619,53 @@ next_actions:
       discovery outcome; do not reactivate ended maintenance, acquisition,
       cutoff startups or archived lanes. General development proceeds separately
       under G-GENERAL-DEV-01 (D-071) and does not unblock PS09.
-  - order: 3
+  - order: 4
     work_item: GD-04-CORE-BOUNDARY-GUARD
     action: >-
       Wave 2: build src/core/boundary-guard.mjs to the contract the GD-03 tests
       state (its 80 skipped tests then run) and adopt it in record validation.
-  - order: 4
+  - order: 5
     work_item: GD-05-INTAKE-REPLAY-AND-DISCOVERY
     action: >-
       Wave 2: move replay and Washington discovery into src/modules/intake
       behind re-export shims.
-  - order: 5
+  - order: 6
     work_item: GD-07-RESEARCH-OUTPUT-SPLIT
     action: >-
       Wave 2: split research review (context) from research HTML (output).
-  - order: 6
+  - order: 7
     work_item: GD-08-CONTEXT-RELEVANCE-EXTRACTION
     action: >-
       Wave 2: move the relevance functions into
       src/modules/context/relevance.ts.
-  - order: 7
+  - order: 8
     work_item: GD-09-JURISDICTION-IDENTIFIER-MODEL
     action: >-
       Wave 2: nationwide JurisdictionRef model with a synthetic registry.
-  - order: 8
+  - order: 9
     work_item: GD-13-NATIONWIDE-RECORD-CONTRACT
     action: >-
       Await GD-31 successor authority/contract representation under D-086;
       current G-GD-NATIONWIDE-CONTRACT remains closed. Preserve retained schemas
       until the reviewed migration is represented.
-  - order: 9
+  - order: 10
     work_item: GD-16-INTEROP-PURE-ADAPTER
     action: >-
       Await GD-31 representation of already-authorized ATNI local assessment and
       the finalized versioned profile. Do not repurpose G-GD-INTEROP or treat
       local authority as permission for a private/shared transfer.
-  - order: 10
+  - order: 11
     work_item: GD-22-NATION-REGISTRY-BINDING
     action: >-
       Blocked on G-BIA-IDENTITY and on an atni-nation-registry v0 release
       (D-075).
-  - order: 11
+  - order: 12
     work_item: GD-27-LOCAL-RELEASE-PACKAGE
     action: >-
       Await every Part B prerequisite and GD-31 acceptance crosswalk and
       release-root migration. PS09-06 remains the represented release root; an
       installable package alone does not complete the four demonstrations.
-  - order: 12
+  - order: 13
     work_item: GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
     action: >-
       Complete the remaining national and international/transboundary source

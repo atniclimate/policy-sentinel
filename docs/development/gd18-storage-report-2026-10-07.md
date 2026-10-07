@@ -232,3 +232,19 @@ and aggregate `npm run check` success is not claimed. Check logs and JSON
 receipts are in the same external task directory. Independent implementation
 and scope/privacy reviews have no unresolved material findings. The reviews
 explicitly accept complete inventory plus an honestly refused forecast.
+
+## Local checkpoint and next item
+
+Implementation committed at **`8dc3985e373aaf79d0e352eee8fe60284250ccd0`**,
+**2026-10-07T02:00:33-07:00**. All ten staged paths belong to the declared
+lease; the pre-commit source scan passed at 666 tracked paths and 702 source
+files. Both diff whitespace checks passed. All 36 pre-existing untracked files
+retained their SHA-256 hashes and remained untracked. No protected runtime,
+source configuration, historical custody content or user file was changed.
+
+The subsequent local bookkeeping checkpoint marks GD-18 complete, promotes
+GD-31 and GD-32 to ready and leaves zero active items. GD-31 successor authority
+manifests/release crosswalk is next; it represents the already-adopted owner
+direction and finite later implementation, not new blanket permission.
+The [handoff](../handoffs/2026-10-07-gd18-storage-report.md) carries recovery,
+capacity limitations and final ledger receipts. No push or deployment occurred.

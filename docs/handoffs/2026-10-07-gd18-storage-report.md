@@ -2,8 +2,10 @@
 
 Date: 2026-10-07. Branch: `demo/live-pages`.
 Starting HEAD: `b470385c056a0fad56f6a3557c7fcd5f2fd3fe70`.
-Implementation checks and actual inventory are complete. Local commit and
-terminal ledger bookkeeping remain pending until recorded below.
+Implementation checkpoint: `8dc3985e373aaf79d0e352eee8fe60284250ccd0`,
+committed 2026-10-07T02:00:33-07:00. The following local bookkeeping commit
+records terminal status; recover its SHA with `git log` without rewriting the
+implementation checkpoint.
 
 ## Capability and limits
 
@@ -69,24 +71,31 @@ failure modes with exact refusal assertions.
 | `npm run lint` | Passed full lint again on final code. |
 | `npm run typecheck` / `npm run validate:runtime` | Passed; selected Node 24.19.0, npm 12.0.2, Windows x64. |
 | `npm run hooks:test` | 47/47 passed. |
-| `npm run validate:roadmap` / `npm run validate:backbone` | Passed active state; final terminal receipt follows ledger closeout. |
+| `npm run validate:roadmap` / `npm run validate:backbone` | Passed active and terminal states. Terminal: 55 complete, zero active, 9 ready, 22 blocked, 2 deferred, 28 not_started; backbone: 22 schemas/IDs, 1,346 references, 160 Markdown files, 986 local links. |
 | `npm run validate:knowledge` | Exit 0; retained 17 explicitly stale observations, no index rewritten. |
-| `npm run scan:source` | Passed; staged final scope is verified before commit. |
+| `npm run scan:source` | Passed staged final scope: 666 tracked paths and 702 source files. |
 | `npm run build` / included artifact validation | Passed: 3 synthetic records, 575 synthetic Nations, 8 assets; `synthetic-26b38f9cec3dba92d47c`. |
 | `npm run format:check` | Exit 1 only for the pre-existing ignored local-settings file; scoped formatting passed. |
 
 The known global formatting failure in ignored `.claude/settings.local.json`
 remains outside the lease. Do not alter it, silently omit the failure or claim
 aggregate `npm run check` success. The 36 pre-existing untracked user files
-remain protected; the current check finds all 36 hashes unchanged and is repeated
-at staging. No UI, accessibility, source-adapter or public-output behavior changed.
+remain protected; staging found all 36 hashes unchanged and exactly 36 remaining
+untracked files. Both unstaged/staged diff whitespace checks passed. No UI,
+accessibility, source-adapter or public-output behavior changed.
+
+Terminal receipt:
+`C:/dev/_scratch/policy-sentinel/gd18-2026-10-07/validation-terminal.json`.
+Roadmap, backbone and source checks all exit 0. There are no unresolved material
+review findings. This completes the bounded storage task, not the search, pilot,
+source integration, release or whole-product acceptance work.
 
 ## Recovery and next work
 
-GD-18 is the sole active work item until measured evidence and final validation
-are recorded. After completion, promote GD-31 successor authority manifests and
-release acceptance crosswalk, and GD-32 bounded offline storage/search design,
-to ready. GD-31 is the next lowest-priority-number ready item. The subsequent
+GD-18 is complete, with zero active work items. The terminal update promotes
+GD-31 successor authority manifests and release acceptance crosswalk, and GD-32
+bounded offline storage/search design, to ready. GD-31 is the next
+lowest-priority-number ready item. The subsequent
 search design must lead to the finite analyst journey and measured implementation
 tasks represented by that crosswalk; this report alone does not deliver them.
 
