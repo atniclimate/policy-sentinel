@@ -920,3 +920,39 @@ issue and requests only removal of stale pending-check wording and this latest
 evidence update. Final source checkpoint and separate ledger acceptance follow.
 The earlier formatting and full-test failures remain immutable historical
 receipts, and no aggregate check pass is claimed.
+
+Root commits exactly the independently reviewed 21-path GD-06 source
+checkpoint as `1def69b2c156973777de826b20ad467778f16b43` at 19:41:39 UTC.
+The separate four-document transition records its bounded acceptance,
+promotes GD-10 after complete GD-04/06/07/08 closure and selects GD-09 as the
+lowest eligible priority (319). Full GD-09/GD-02/GD-00 closure and approved
+G-GENERAL-DEV-01 are reconciled under D-071/D-073/D-079. Exactly one item
+remains active; all historical and separately closed gates stay unchanged.
+
+The binding six-new-file GD-09 contract is published in
+`docs/handoffs/2026-10-07-gd09-jurisdiction-contract.md`. Worker A owns
+registry.ts, the schema, the synthetic fixture and registry tests; Worker B
+owns association.ts and association tests. Both leases are new, disjoint and
+unissued until selection review and commit. Root alone owns the ledger and
+three handoff/run documents, index and serialized validation. No source,
+package, global manifest, protected test/deadline or private seam change is
+authorized. Reviewed runtime exports, structural limits, frozen string-only
+inputs, exact synthetic evidence and semantic integrity precede implementation.
+
+Canonical find-docs CLI completes three Ajv lookup operations, using official
+library documentation for strict compilation, schema management, draft
+separation and mutation options. Installed Ajv is 8.20.0; returned current
+documentation is not a dedicated version snapshot. Existing repository
+Ajv2020 imports and actual new compilation supply local compatibility evidence.
+The ambiguous 2019-import snippet is not used for 2020-12. Independent
+selection review and full ledger/backbone checks precede source dispatch.
+
+Independent GD-09 selection review passes the exact four documents, full
+recursive closure, 62/1/3/25/2/42 inventory, GD-10 promotion and concrete
+six-file contract. No other GD item is newly eligible. Worker preparation is
+read-only and returns no scope expansion; precise UTF-16 accounting, root
+depth zero, synthetic hostname validation, iterative tri-color body cycles
+and exact constant JURISDICTION_REF_SCHEMA_ID are frozen before dispatch.
+Selection ledger/backbone, owned roadmap formatting and whitespace pass.
+Root commits only the four reviewed documents, then issues both disjoint
+source leases. Implementation and acceptance remain pending.

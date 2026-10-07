@@ -1079,18 +1079,17 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
+  work_item: GD-09-JURISDICTION-IDENTIFIER-MODEL
   objective: >-
-    Split pure local-workbench output from custody orchestration under the
-    reviewed GD-06 manifest and design amendment. Preserve exact behavior,
-    sealed replay, legacy exports and reader cleanup. Six prior checkpoints are
-    accepted on complete current-code validation; GD-06 acceptance is pending.
+    Implement the reviewed synthetic-only JurisdictionRef registry and exact
+    evidence association contract under its six-new-file ownership manifest.
+    GD-06 is accepted on complete current-code validation and independent
+    review. Preserve all source, identity, private and publication gates.
   terminal_reason: null
   resumable_roots:
-    - GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
-  last_durable_checkpoint: cf32bb60cc7b8f0bb6d20cb7460a35af49bb0d08
+    - GD-09-JURISDICTION-IDENTIFIER-MODEL
+  last_durable_checkpoint: 1def69b2c156973777de826b20ad467778f16b43
   resume_command: npm run validate:roadmap
-
 completion_scope:
   general_development:
     accounting: canonical_general_engine_local_release
@@ -7147,7 +7146,9 @@ work_items:
     milestone: General development
     title:
       Local-workbench writer, server and failure simulation split into output
-    status: in_progress
+    status: complete
+    completion_commit: 1def69b2c156973777de826b20ad467778f16b43
+    completed_on: "2026-10-07T19:41:39Z"
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -7204,6 +7205,12 @@ work_items:
         scan, lint and typecheck pass. Synthetic artifact has 3 records, 575
         Nations and 8 verified assets. All 36 owner hashes and 6 pins match.
         Final checkpoint and ledger acceptance reconciliation remain pending.
+      - >-
+        Accepted after exact 21-path source checkpoint 1def69b and independent
+        final review. Complete corrected-code tests, synthetic artifact, owned
+        formatting, preservation and required standing checks pass. Global
+        formatting remains failed only on protected ignored local settings;
+        earlier failures stay historical and no aggregate check pass is claimed.
   - id: GD-07-RESEARCH-OUTPUT-SPLIT
     priority: 317
     milestone: General development
@@ -7343,7 +7350,7 @@ work_items:
     priority: 319
     milestone: General development
     title: Nationwide JurisdictionRef model (synthetic registry)
-    status: ready
+    status: in_progress
     work_class: general_development_local
     decision_ref: D-073
     authorization_gate: G-GENERAL-DEV-01
@@ -7360,12 +7367,20 @@ work_items:
         rejects coordinates, boxes, polygons, parcel identifiers, land status
         and map-inferred Nations.
       - The backbone schema-ID check passes with the new schema.
-    evidence: []
+    evidence:
+      - docs/handoffs/2026-10-07-gd09-jurisdiction-contract.md
+      - docs/development/2026-10-07-autonomous-run.md
+      - >-
+        Selected at priority 319 after accepted GD-06; GD-02/GD-00 closure and
+        approved G-GENERAL-DEV-01 admit six new local synthetic paths under
+        D-071/D-073/D-079. Closed schema, bounded string-only parsers and exact
+        synthetic evidence preserve Nation identity and public-successor gates.
+        Implementation and all acceptance checks remain pending.
   - id: GD-10-BOUNDARY-ENFORCEMENT
     priority: 320
     milestone: General development
     title: Boundary test flipped to enforcing
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -8508,16 +8523,15 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
-    action:
-      "Execute the reviewed mechanical output/custody split and compatibility
-      tests, preserve actual replay/cleanup, then complete required full checks
-      and independent review. No source dispatch or publication is granted."
-  - order: 2
     work_item: GD-09-JURISDICTION-IDENTIFIER-MODEL
     action:
-      "After GD-06 acceptance, freeze and implement the bounded synthetic-only
-      jurisdiction contract under its reviewed six-new-file manifest."
+      "Implement the reviewed synthetic jurisdiction contract and negative
+      cases, then complete full validation and independent acceptance review."
+  - order: 2
+    work_item: GD-10-BOUNDARY-ENFORCEMENT
+    action:
+      "After GD-09 acceptance, reduce only reviewed boundary exceptions and
+      enforce the module rules without changing protected module membership."
   - order: 3
     work_item: GD-22-NATION-REGISTRY-BINDING
     action:

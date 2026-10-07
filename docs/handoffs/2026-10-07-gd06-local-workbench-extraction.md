@@ -69,3 +69,9 @@ protected ignored local settings file. Independent final review finds no
 production or scope issue and requests this evidence reconciliation. Source
 checkpoint and separate ledger acceptance follow; no aggregate check pass is
 claimed.
+
+Exact 21-path source checkpoint is committed locally as
+`1def69b2c156973777de826b20ad467778f16b43`. Final independent review passes
+with no remaining bounded acceptance blocker. The separate ledger transition
+records GD-06 complete, promotes GD-10 and selects GD-09 at priority 319.
+This acceptance changes no external or release gate.
