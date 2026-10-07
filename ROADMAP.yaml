@@ -26,7 +26,7 @@ project:
     prerequisite; PS09-06-LOCAL-RC is the sole release root and remains
     unstarted and gated. EV01, Run 1/2 and archived lanes retain their
     historical evidence and spent-operation boundaries.
-  updated_on: "2026-10-06"
+  updated_on: "2026-10-07"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
     prove its present definition of done through the owner-selected PNW scenario
@@ -1010,21 +1010,15 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    D-086/D-087 realign general development around a measured offline pilot. The
-    accepted county/municipal discovery and optional Nation ATNI profile choices
-    are settled. Official public Tribal-government publications enter
-    public-source review; restricted internal policies and private annotations
-    retain permissions. GD-25 adds annotation-guided discovery feedback. Next
-    implementation remains GD-26, followed by the initial source matrix,
-    capacity, successor representation and bounded search preparation.
+    GD-26 reproducible checks are complete at the validated local checkpoint.
+    Recover docs/handoffs/2026-10-07-gd26-reproducible-checks.md. GD-17 initial
+    source survey is next under D-086/D-087; it has not started in this session.
   terminal_reason: >-
-    The D-087 documentation amendment and bounded review are complete. No
-    runtime contract, corpus, private transfer, acquisition or unattended
-    service is implemented here. GD-26 is the next ready implementation item;
-    historical gates await the reviewed successor representation under the
-    already-adopted owner direction, not another blanket permission request.
+    The owner bounded this session to GD-26 and a local checkpoint/handoff, then
+    stop. Hook and fresh-snapshot proofs pass, the finite committed deny matrix
+    passes, and independent review accepted the changes. The separate ignored
+    settings.local.json formatting failure remains visible and untouched.
   resumable_roots:
-    - GD-26-REPRODUCIBLE-CHECKS
     - GD-17-NATIONWIDE-SOURCE-SURVEY
     - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     - GD-04-CORE-BOUNDARY-GUARD
@@ -1036,7 +1030,7 @@ current_focus:
     - GD-16-INTEROP-PURE-ADAPTER
     - GD-22-NATION-REGISTRY-BINDING
     - GD-27-LOCAL-RELEASE-PACKAGE
-  last_durable_checkpoint: c3a6a72202eba19e96a73c0cebf28bafb1bb5af4
+  last_durable_checkpoint: a3ac31aff64b24d124c05456e3e842bd2b88b2c7
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -5624,7 +5618,7 @@ work_items:
     priority: 290
     milestone: General development
     title: Reproducible checks and Claude Code mechanical gate tests
-    status: ready
+    status: complete
     work_class: general_development_local
     decision_ref: D-081
     authorization_gate: G-GENERAL-DEV-01
@@ -5639,7 +5633,25 @@ work_items:
         that the deny rule matches it.
       - >-
         The checks are required for demonstration A3 of the definition of done.
-    evidence: []
+    evidence:
+      - >-
+        docs/handoffs/2026-10-07-gd26-reproducible-checks.md records the lease,
+        independent review and verified results. hooks:test and
+        hooks:test:snapshot each pass 47/47 without ignored historical receipt
+        inputs. The finite matrix reconciles all 27 committed Bash deny rules,
+        exercises 41 denied command strings through the production matcher, and
+        retains 38 permitted controls. Denied commands are never executed;
+        substantive settings remain unchanged.
+      - >-
+        The full npm test rerun passes after a narrow pre-existing roadmap
+        negative-fixture reference repair. Runtime, lint, typecheck, roadmap,
+        backbone, knowledge, source scan and synthetic build/artifact checks
+        pass. The ignored local-settings formatting failure and host symlink
+        limits remain explicit. This supplies A3 check prerequisites, not the
+        complete restore/replay demonstration. No provider research,
+        acquisition, profile renewal, private transfer, push or deployment.
+    completion_commit: a3ac31aff64b24d124c05456e3e842bd2b88b2c7
+    completed_on: "2026-10-07T00:50:35-07:00"
 
   - id: GD-17-NATIONWIDE-SOURCE-SURVEY
     priority: 291
@@ -7539,18 +7551,13 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: GD-26-REPRODUCIBLE-CHECKS
-    action: >-
-      Prove hook checks from a fresh source snapshot without ignored historical
-      receipts and test every denied command form under D-081/D-086. Follow
-      docs/handoffs/2026-10-06-development-realignment-next-session.md.
-  - order: 2
     work_item: GD-17-NATIONWIDE-SOURCE-SURVEY
     action: >-
       Prepare the finite initial federal, seven-state and intertribal source
-      matrix under D-086; qualify a pilot subset and record gaps. Nationwide
-      survey completion is retained separately in GD-33. Acquire nothing here.
-  - order: 3
+      matrix under D-086/D-087; qualify a pilot subset and record gaps.
+      Nationwide survey completion is retained separately in GD-33. Acquire
+      nothing here.
+  - order: 2
     work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
     action: >-
       Recover docs/development/ps09-engineering-review-02-evidence-matrix.md and
@@ -7565,47 +7572,47 @@ next_actions:
       discovery outcome; do not reactivate ended maintenance, acquisition,
       cutoff startups or archived lanes. General development proceeds separately
       under G-GENERAL-DEV-01 (D-071) and does not unblock PS09.
-  - order: 4
+  - order: 3
     work_item: GD-04-CORE-BOUNDARY-GUARD
     action: >-
       Wave 2: build src/core/boundary-guard.mjs to the contract the GD-03 tests
       state (its 80 skipped tests then run) and adopt it in record validation.
-  - order: 5
+  - order: 4
     work_item: GD-05-INTAKE-REPLAY-AND-DISCOVERY
     action: >-
       Wave 2: move replay and Washington discovery into src/modules/intake
       behind re-export shims.
-  - order: 6
+  - order: 5
     work_item: GD-07-RESEARCH-OUTPUT-SPLIT
     action: >-
       Wave 2: split research review (context) from research HTML (output).
-  - order: 7
+  - order: 6
     work_item: GD-08-CONTEXT-RELEVANCE-EXTRACTION
     action: >-
       Wave 2: move the relevance functions into
       src/modules/context/relevance.ts.
-  - order: 8
+  - order: 7
     work_item: GD-09-JURISDICTION-IDENTIFIER-MODEL
     action: >-
       Wave 2: nationwide JurisdictionRef model with a synthetic registry.
-  - order: 9
+  - order: 8
     work_item: GD-13-NATIONWIDE-RECORD-CONTRACT
     action: >-
       Await GD-31 successor authority/contract representation under D-086;
       current G-GD-NATIONWIDE-CONTRACT remains closed. Preserve retained schemas
       until the reviewed migration is represented.
-  - order: 10
+  - order: 9
     work_item: GD-16-INTEROP-PURE-ADAPTER
     action: >-
       Await GD-31 representation of already-authorized ATNI local assessment and
       the finalized versioned profile. Do not repurpose G-GD-INTEROP or treat
       local authority as permission for a private/shared transfer.
-  - order: 11
+  - order: 10
     work_item: GD-22-NATION-REGISTRY-BINDING
     action: >-
       Blocked on G-BIA-IDENTITY and on an atni-nation-registry v0 release
       (D-075).
-  - order: 12
+  - order: 11
     work_item: GD-27-LOCAL-RELEASE-PACKAGE
     action: >-
       Await every Part B prerequisite and GD-31 acceptance crosswalk and
