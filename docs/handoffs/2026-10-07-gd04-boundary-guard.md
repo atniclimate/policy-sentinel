@@ -48,9 +48,11 @@ receipts are retained under
 successes nor this local checkpoint waive GD-04, GD-31 or GD-32 acceptance.
 No acquisition, private-data, publication or other external operation is opened.
 
-Root prepares a reviewed incomplete local commit. The subsequent ledger
-transition may temporarily defer GD-04 and select GD-05, whose complete
+Reviewed incomplete local commit `9822139befee84711a3c1ad099dcadb2f439be08`
+contains the eleven leased paths. The live ledger temporarily defers GD-04
+and selects GD-05, whose complete
 GD-01/GD-02/GD-00 dependency closure and local synthetic authority are verified.
 No other not_started item becomes ready under that transition. Recover the
 actual selected item and commit from the live ledger rather than inferring
-completion from the implementation or focused test results.
+completion from the implementation or focused test results. Recover the exact
+new write leases from the GD-05 manifest in the autonomous run record.

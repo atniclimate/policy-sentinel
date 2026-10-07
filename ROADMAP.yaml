@@ -1079,16 +1079,16 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-04-CORE-BOUNDARY-GUARD
+  work_item: GD-05-INTAKE-REPLAY-AND-DISCOVERY
   objective: >-
-    Implement the shared normalized protected-key guard under the bounded GD-04
-    manifest in docs/development/2026-10-07-autonomous-run.md. GD-31/GD-32
-    acceptance remains pending after retained native-probe failures. Preserve
-    valid canonical record roots, historical private lists and closed gates.
+    Extract reviewed replay and Washington discovery into intake under the
+    bounded GD-05 manifest in docs/development/2026-10-07-autonomous-run.md.
+    Preserve reader cleanup, replay identity, compatibility imports and closed
+    gates. GD-31/GD-32/GD-04 full acceptance remains pending.
   terminal_reason: null
   resumable_roots:
-    - GD-04-CORE-BOUNDARY-GUARD
-  last_durable_checkpoint: cba873a4da2f1d87f43a998fb88d31d0499db170
+    - GD-05-INTAKE-REPLAY-AND-DISCOVERY
+  last_durable_checkpoint: 9822139befee84711a3c1ad099dcadb2f439be08
   resume_command: npm run validate:roadmap
 
 completion_scope:
@@ -7015,7 +7015,13 @@ work_items:
     priority: 314
     milestone: General development
     title: Core boundary guard adopted by record validation
-    status: in_progress
+    status: deferred
+    reason: >-
+      Temporarily postpone required full acceptance after checkpoint 9822139:
+      final unit and serialized assurance pass, but the complete retry retains
+      four unchanged native TIME_LIMIT failures in spine. Preserve all failed
+      logs and mandatory release acceptance; continue independent GD-05 without
+      deadline changes or reopening any operation gate.
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -7069,7 +7075,7 @@ work_items:
     priority: 315
     milestone: General development
     title: Replay and Washington discovery moved into intake
-    status: ready
+    status: in_progress
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -7084,7 +7090,13 @@ work_items:
       - >-
         npm run test:policy, npm run test:assurance and the GD-01
         characterization tests stay green.
-    evidence: []
+    evidence:
+      - docs/development/2026-10-07-autonomous-run.md
+      - >-
+        Selected under the bounded GD-05 manifest after the reviewed incomplete
+        GD-04 checkpoint 9822139befee84711a3c1ad099dcadb2f439be08. Complete
+        GD-01/GD-02/GD-00 dependency closure and D-071 local synthetic authority
+        are verified; implementation and acceptance remain pending.
   - id: GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
     priority: 316
     milestone: General development
@@ -8324,13 +8336,14 @@ next_actions:
   - order: 3
     work_item: GD-04-CORE-BOUNDARY-GUARD
     action:
-      "Active bounded task: implement the normalized core guard, preserve exact
-      valid record root names and enable all retained rejection tests."
+      "Finish mandatory full validation of checkpoint 9822139 when native-probe
+      conditions change. Retain unit/assurance passes and failed full attempts;
+      preserve every deadline and historical private list."
   - order: 4
     work_item: GD-05-INTAKE-REPLAY-AND-DISCOVERY
     action:
-      "Extract intake replay/discovery behind compatibility shims and preserve
-      sealed replay."
+      "Active bounded task: extract intake replay/discovery behind compatibility
+      re-exports; preserve sealed replay and the adopted reader cleanup."
   - order: 5
     work_item: GD-07-RESEARCH-OUTPUT-SPLIT
     action: "Separate context research review from output rendering."

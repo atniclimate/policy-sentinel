@@ -365,3 +365,51 @@ all six retained implementation/measurement pins match at 16:50 UTC. The index
 is empty before staging. Root may commit exactly the eleven leased paths with
 GD-04 still active and incomplete, then record its actual SHA in the separate
 GD-05 selection update. No remote operation or acceptance claim is authorized.
+
+## GD-05 intake extraction manifest
+
+Incomplete implementation checkpoint `9822139befee84711a3c1ad099dcadb2f439be08`
+contains exactly the eleven GD-04 leased paths. The ledger transition temporarily
+defers GD-04 and selects GD-05 as its sole active item, priority 315. Completed
+GD-01/GD-02/GD-00 supply its complete dependency closure under approved
+G-GENERAL-DEV-01/D-071. No not_started item newly unblocks. GD-31/GD-32/GD-04
+retain mandatory full acceptance; no acquired source, private sharing or release
+gate opens.
+
+Root owns ROADMAP.yaml, this record, the GD-04 status handoff, a dated GD-05
+handoff, `src/pipeline/policy-local-output.mjs`,
+`src/pipeline/policy-broad-discovery.mjs`,
+`tests/pipeline/policy-assurance.test.mjs`,
+`tests/pipeline/policy-local-output-replay.test.mjs` and
+`tests/pipeline/policy-broad-discovery.test.mjs`. The bounded worker owns only
+new `src/modules/intake/replay.mjs`, its `.d.mts`, and
+`src/modules/intake/sources/washington-legislature/discovery.mjs`. The worker
+runs no tests, Git or source requests. Root alone validates and commits.
+All historical private modules/lists, custody/knowledge implementations,
+source objects, demo/Worker and owner inputs remain outside both leases.
+
+Move replay, readOwnedFile and both binding assertions mechanically. Preserve
+the RD-02 reader body and withPreservedCleanup invocation verbatim. Move its
+unchanged safeFile predicate too and export the shared helpers for the retained
+output functions. Keep helper declarations intact with bottom exports so the
+eight actual-function cleanup tests only change their source URL. The old output
+file imports those helpers and re-exports replay while retaining writer/server
+functions until GD-06. The old discovery path becomes a thin re-export of its
+same three functions. Intake imports no output/private module; relative import
+paths change mechanically. Use existing corpus types and opaque undeclared
+custody/input results in the new declaration instead of inventing contracts.
+
+Add direct/legacy function identity assertions to the existing replay and
+discovery suites. Preserve every existing characterization, refusal, digest,
+parser, admission and cleanup assertion. Validate the full ledger before source
+edits, then lint/typecheck, policy/assurance suites, unit module-boundary/private
+reachability and Makah non-interference coverage, source scan, synthetic
+build/artifact and required full validation. Keep independent read-only reviews
+and immutable attempt labels. No deadline, fixture count, module violation
+allowlist or actual source interface changes are permitted.
+
+The independent ledger/manifest review passes. Full roadmap and backbone
+validation pass before source edits: exactly one item is active, GD-05, and no
+not_started promotion is missed. Root checkpoints only the three selection
+documents while the worker holds its three new-file leases. Protected owner
+inputs and source/measurement pins remain unchanged.
