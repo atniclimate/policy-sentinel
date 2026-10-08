@@ -121,6 +121,43 @@ test("reviewed omissions bind the parser recipe, reject stale locators and prese
   );
 });
 
+test("reviewed omissions remove nested link text from serialized extraction", () => {
+  const omitted = fr(
+    '<p>FR Doc. 2025-12345</p><p><span><a href="https://www.govinfo.gov/omitted">OMITTED_TEST_EXPRESSION</a></span></p><p>The council shall <a href="https://www.govinfo.gov/retained">review</a>.</p>',
+    { excludedBlockLocators: ["/html[1]/body[1]/p[2]"] },
+  );
+  assert.ok(!JSON.stringify(omitted).includes("OMITTED_TEST_EXPRESSION"));
+  assert.deepEqual(
+    omitted.links.map((link) => link.url),
+    ["https://www.govinfo.gov/retained"],
+  );
+  assert.ok(
+    omitted.exclusions.some(
+      (entry) => entry.reason === "reviewed_reuse_omission",
+    ),
+  );
+});
+
+test("reviewed preformatted omissions conservatively exclude that container's links", () => {
+  const omitted = fr(
+    '<p>FR Doc. 2025-12345</p><pre>Keep this paragraph.\n\n<a href="https://www.govinfo.gov/omitted">OMITTED_TEST_EXPRESSION</a></pre><p>The council shall review.</p>',
+    { excludedBlockLocators: ["/html[1]/body[1]/pre[1]/paragraph[2]"] },
+  );
+  assert.ok(!JSON.stringify(omitted).includes("OMITTED_TEST_EXPRESSION"));
+  assert.deepEqual(omitted.links, []);
+  assert.ok(omitted.text.includes("Keep this paragraph."));
+});
+
+test("reviewed text-run omissions exclude links whose DOM locators have no text-run suffix", () => {
+  const omitted = fr(
+    '<p>FR Doc. 2025-12345</p><a href="https://www.govinfo.gov/omitted">OMITTED_TEST_EXPRESSION</a><p>The council shall review.</p>',
+    { excludedBlockLocators: ["/html[1]/body[1]/text-run[1]"] },
+  );
+  assert.ok(!JSON.stringify(omitted).includes("OMITTED_TEST_EXPRESSION"));
+  assert.deepEqual(omitted.links, []);
+  assert.ok(omitted.text.includes("The council shall review."));
+});
+
 test("legacy Washington underline separators preserve anchored bill headers", () => {
   const text = bill(
     "<center><font>________________<br><b>HOUSE BILL 1234</b><br>________________</font></center><p>Read first time.</p>",

@@ -1013,7 +1013,9 @@ export function extractPolicyText({
   const excludedPaths = exclusions
     .filter(
       (entry) =>
-        entry.reason.includes("contact") || entry.reason.includes("location"),
+        entry.reason.includes("contact") ||
+        entry.reason.includes("location") ||
+        entry.reason === "reviewed_reuse_omission",
     )
     .map((entry) => entry.sourceLocator);
   const safeLinks = links.filter(
@@ -1022,7 +1024,9 @@ export function extractPolicyText({
       !PHONE.test(link.text) &&
       !PRIVATE_LOCATION.test(link.text) &&
       !excludedPaths.some((path) =>
-        link.sourceLocator.startsWith(path.replace(/\/paragraph\[\d+\]$/, "")),
+        link.sourceLocator.startsWith(
+          path.replace(/\/(?:paragraph|text-run)\[\d+\]$/, ""),
+        ),
       ),
   );
   if (
