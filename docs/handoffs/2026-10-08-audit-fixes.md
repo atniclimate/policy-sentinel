@@ -83,3 +83,25 @@ deployment or published Pages bundle. The local rule change remains undeployed;
 the existing service supplied its deployed rules and source evidence. The live
 check did not force citation-format drift; the regression tests cover that case.
 No push or deployment occurred, and GD-10 remains paused.
+
+## Owner-requested publication
+
+The owner subsequently requested "commit, push, and deploy". Release checkout
+`release/audit-fixes-2026-10-08` isolates the five repairs, favicon and generated
+assets on the previous public `main`, excluding 31 unrelated development
+commits. Local release commit `6510e86` and published commit
+`01b5e2d3e42ba1c6e7ccb5bcc640b0f2f9e47d00` have the same Git tree,
+`c6e7154343de8084e453e2f8295c9fa46c2e90d2`. Publication used the GitHub CLI,
+verified the complete tree and advanced `main` without force.
+
+The release build, 150 demo tests, type checking, source-boundary scan and
+independent read-only publication review passed. Worker deployment
+`abcc306e-91d2-4064-9b2b-bba569c0bcf0` serves 100% of traffic; GitHub Pages
+built the published commit successfully. All 39 deployed Chrome checks passed,
+and the exported PDF confirms `demo-rules-1.0.2`. Evidence is outside Git at
+`C:/dev/_scratch/policy-sentinel/audit-fixes-deployed-2026-10-08/`.
+
+The existing lockfile has seven development-dependency advisories and zero
+production-dependency advisories. Dependency versions, credentials and source
+configuration are unchanged. GD-10 remains paused; this demo publication does
+not accept the general-engine release.

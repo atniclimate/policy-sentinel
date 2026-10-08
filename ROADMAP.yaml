@@ -35,7 +35,11 @@ project:
     pre-existing formatting exceptions recorded there. GD-10 remains paused and
     no gate changed. The owner then requested local commits and a live browser
     check; the local frontend passed 39 checks against the deployed demo service
-    after a missing-favicon repair, with no push or deployment.
+    after a missing-favicon repair, with no push or deployment. The owner's
+    subsequent commit/push/deploy instruction published only the reviewed fixes
+    and demo artifacts on main; the updated Worker and Pages passed all 39
+    deployed browser checks. Unrelated development commits stay local, GD-10
+    remains paused, and general-engine release acceptance is unchanged.
   updated_on: "2026-10-08"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,

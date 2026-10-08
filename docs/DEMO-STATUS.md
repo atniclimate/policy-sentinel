@@ -1,14 +1,36 @@
 # Live demo status
 
-Updated 2026-10-06. Policy Sentinel 0.2.0 is in development. This page records
+Updated 2026-10-08. Policy Sentinel 0.2.0 is in development. This page records
 maintenance of the separately authorized public demo under D-083 and D-084 in
 the [decision register](decision-register.md). General engine work remains in
 [ROADMAP.yaml](../ROADMAP.yaml).
 
-The maintenance changes are published and passed a bounded live check on
-2026-10-06 (Pacific time). Demo checks and the full unit suite passed. Four
-historical policy failures and an unrelated local-settings formatting failure
-remain; the combined repository check is not green.
+The five audit repairs are published and passed a bounded live check on
+2026-10-08 (Pacific time). The earlier maintenance record is retained below.
+The combined development-repository check remains non-green: one pipeline
+wrapper timed out in the full run and passed alone; pre-existing local-settings
+formatting also remains unresolved.
+
+## Audit-fix release, 2026-10-08
+
+Published commit `01b5e2d3e42ba1c6e7ccb5bcc640b0f2f9e47d00` contains only the
+five reviewed fixes, their tests, a missing-favicon repair and rebuilt demo
+assets. Unrelated general-engine development commits were excluded. GitHub
+Pages finished building that commit at 21:24:45 UTC. The published Git tree
+matches the independently reviewed local release tree exactly.
+
+Worker version `abcc306e-91d2-4064-9b2b-bba569c0bcf0` serves 100% of traffic.
+The deployed PDF confirms `demo-rules-1.0.2`. No source, credential or account
+setting changed. The release build, source-boundary scan, type checking and
+150 demo tests passed. Chrome passed all 39 deployed checks, including live
+search/read, citations and notes, PDF evidence, printing, accessibility,
+keyboard focus, mobile layouts, embed mode and no console errors.
+
+The existing lockfile reports seven development-dependency advisories; the
+production-dependency audit reports zero. No dependency versions changed.
+Browser checks do not establish comprehensive source coverage or general-engine
+release readiness. Citation-format drift is covered by synthetic regression
+tests rather than forced against live source responses.
 
 ## Public page and source coverage
 
