@@ -7,7 +7,7 @@ import type { DemoIssue, IssueType, PolicyMeta, TextBlock } from "./types";
  * Passage issues quote source words with whitespace collapsed. Absence is a
  * rule assessment, never a source quotation. Both carry limits and a next check.
  */
-export const DEMO_RULES_VERSION = "demo-rules-1.0.1";
+export const DEMO_RULES_VERSION = "demo-rules-1.0.2";
 
 const MAX_QUOTE = 420;
 const MAX_PER_TYPE = 6;
@@ -74,7 +74,7 @@ const COPY: Record<
 
 const CONSULT =
   /\bconsult(?:ation|ations|ed|ing|s)?\b|government-to-government|\btribal implications\b|\b(?:E\.?O\.?|Executive Order)\s*13175\b/i;
-const TRIBAL = /\b(?:Indian\s+Tribal?|Indian\s+Tribes?|Tribal|Tribes?)\b/;
+const TRIBAL = /\b(?:Indian\s+Tribal?|Indian\s+Tribes?|Tribal|Tribes?)\b/i;
 const MONTH =
   "(?:January|February|March|April|May|June|July|August|September|October|November|December)";
 const DATE_RE = new RegExp(`\\b${MONTH}\\s+\\d{1,2},\\s+\\d{4}\\b`);

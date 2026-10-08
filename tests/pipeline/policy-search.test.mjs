@@ -137,6 +137,36 @@ test("quoted source phrases and distinct document matches are transparent; nonse
   );
 });
 
+test("every quoted phrase must occur in the eligible title or passages", () => {
+  const input = withBlocks(syntheticCorpusV2Input(), "rendition-a-new", [
+    "A separate passage contains the second literal phrase.",
+  ]);
+  const index = createPolicySearchIndex(createAnalyzedCorpusV2(input));
+  for (const query of [
+    '"within 30 days" "missingphrasexyz"',
+    '"Synthetic Policy Alpha" "missingphrasexyz"',
+  ])
+    assert.equal(searchPolicyCorpus(index, { query }).total, 0);
+  for (const query of [
+    '"within 30 days" "second literal phrase"',
+    '"Synthetic Policy Alpha" "second literal phrase"',
+  ])
+    assert.deepEqual(
+      searchPolicyCorpus(index, { query, passageLimit: 1 }).hits.map(
+        (hit) => hit.versionId,
+      ),
+      ["version-a-new"],
+    );
+  assert.equal(
+    searchPolicyCorpus(index, {
+      query: '"Synthetic Policy Alpha" "second literal phrase"',
+      asOf: "2020-12-31",
+      basis: "source_available",
+    }).total,
+    0,
+  );
+});
+
 test("source/context/instrument filters and source as-of selection preserve unknown dates and reject future evidence", () => {
   const input = syntheticCorpusV2Input();
   input.versions[2].dates = {

@@ -154,6 +154,25 @@ describe("demo rules", () => {
       identifyIssues(blocks, { kind: "Proposed Rule", title: "Example" }),
     ).toEqual(issues);
   });
+
+  it.each([
+    "tribal",
+    "Tribal",
+    "TRIBAL",
+    "tribe",
+    "tribes",
+    "indian tribal",
+    "INDIAN TRIBES",
+  ])("flags %s without changing quoted capitalization", (wording) => {
+    const text = `The ${wording} government may apply.`;
+    const found = identifyIssues([{ locator: "/p[1]", text }], {
+      kind: "Notice",
+      title: "Example",
+    });
+    expect(
+      found.find((issue) => issue.type === "tribal_reference")?.quote,
+    ).toBe(text);
+  });
 });
 
 describe("public copy", () => {

@@ -205,9 +205,6 @@ export function createPolicySearchIndex(corpus) {
           work.sourceIdentifier,
           version.sourceVersionIdentifier,
         ].map(identifier),
-        metadata: vector(
-          `${work.sourceIdentifier} ${version.sourceVersionIdentifier} ${version.sourceStatusLabel}`,
-        ),
         passages: passagesByVersion.get(version.id) ?? [],
       };
     });
@@ -472,9 +469,13 @@ export function searchPolicyCorpus(index, request) {
       );
     // Explicitly quoted phrases must occur in at least one eligible field/passage.
     if (
-      phrases.length &&
-      !titlePhrase &&
-      !passages.some((passage) => passage.matchedPhrases.length)
+      phrases.some(
+        (phrase) =>
+          !(
+            known.title && ` ${entry.title.normalized} `.includes(` ${phrase} `)
+          ) &&
+          !passages.some((passage) => passage.matchedPhrases.includes(phrase)),
+      )
     )
       continue;
     const score =

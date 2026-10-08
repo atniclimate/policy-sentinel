@@ -1,5 +1,12 @@
 import type { DemoCitation, DemoPolicyResponse } from "./types";
-import { citationValue, keyOf, object, policyValue, text } from "./validation";
+import {
+  citationValue,
+  keyOf,
+  object,
+  policyId,
+  policyValue,
+  text,
+} from "./validation";
 
 export const STORAGE_KEY = "ps-demo-citations-v1";
 export const MAX_CITATIONS = 50;
@@ -135,13 +142,23 @@ export function attachPolicy(
   policy: DemoPolicyResponse,
 ): ReportState {
   const current = report.cited[key];
-  if (!current || current.policy || keyOf(policy.citation) !== key)
+  if (
+    !current ||
+    current.policy ||
+    current.citation.sourceId !== policy.citation.sourceId ||
+    policyId(current.citation) !== policyId(policy.citation)
+  )
     return report;
+  // Preserve the saved display key while binding retrieved evidence by document ID.
+  const citation = {
+    ...policy.citation,
+    identifier: current.citation.identifier,
+  };
   return {
     ...report,
     cited: {
       ...report.cited,
-      [key]: { ...current, citation: policy.citation, policy },
+      [key]: { ...current, citation, policy: { ...policy, citation } },
     },
   };
 }
