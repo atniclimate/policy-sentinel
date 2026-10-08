@@ -56,6 +56,30 @@ the same container as omitted text.
 Paused GD-10 and all gate/status identities remain unchanged. Historical source
 qualification, private-data, release and general publication gaps remain.
 
-No live browser, source acquisition or deployment was exercised. No commit or
-push was made. The existing 36 untracked owner files remain untouched. Logs are
+At the initial handoff, no live browser check, commit or push had been made.
+The existing 36 untracked owner files remain untouched. Validation logs are
 outside Git at `C:/dev/_scratch/policy-sentinel/audit-fixes-2026-10-08/`.
+
+## Owner-requested commits and live browser check
+
+The owner then requested commits followed by a live browser check. Local commits
+`78fb0c1` and `ca196cc` contain the five fixes and initial checkpoint. Chrome
+154.0.8037.98 exercised that frontend at `http://127.0.0.1:4178/`, served by
+`npm run demo:dev`, against the existing live demo Worker. The committed
+`scripts/verify-demo-browser.mjs` runner initially passed 38 assertions and
+failed its console check because Chrome requested an absent `/favicon.ico`.
+Commit `c04d459` declares an empty inline favicon, avoiding that request.
+
+The complete rerun passed all 39 assertions: live Federal Register search and
+policy reading, citation/notes, exported PDF evidence, browser print lifecycle,
+desktop accessibility, keyboard focus, 390/320-pixel layouts, embed mode and no
+console errors. The mobile screenshot was inspected. Receipts, screenshots and
+PDFs remain outside Git in
+`C:/dev/_scratch/policy-sentinel/audit-fixes-browser-2026-10-08-rerun/`;
+the initial failure remains in the sibling directory without `-rerun`.
+
+This verifies the local frontend against the deployed service, not a new Worker
+deployment or published Pages bundle. The local rule change remains undeployed;
+the existing service supplied its deployed rules and source evidence. The live
+check did not force citation-format drift; the regression tests cover that case.
+No push or deployment occurred, and GD-10 remains paused.
