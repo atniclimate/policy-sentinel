@@ -28,8 +28,13 @@ project:
     blocked on PS09-02 identity/scenario evidence, an explicit PS09-06
     prerequisite; PS09-06-LOCAL-RC is the historical release root and remains
     unstarted and gated. EV01, Run 1/2 and archived lanes retain their
-    historical evidence and spent-operation boundaries.
-  updated_on: "2026-10-07"
+    historical evidence and spent-operation boundaries. The owner's separate
+    2026-10-08 instruction to fix audit findings 1-5 is tracked in
+    docs/handoffs/2026-10-08-audit-fixes.md; the five local repairs passed
+    independent review and regression checks, with aggregate test timeout and
+    pre-existing formatting exceptions recorded there. GD-10 remains paused and
+    no gate changed.
+  updated_on: "2026-10-08"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
     prove its present definition of done through the owner-selected PNW scenario

@@ -159,7 +159,7 @@ describe("demo browser state and report ownership", () => {
     );
   });
 
-  it("deduplicates reading, preserves notes, and reuses the cited snapshot for selections and print", async () => {
+  it("deduplicates reading, preserves notes despite citation-format drift, and reuses the cited snapshot for selections and print", async () => {
     const request = deferred<DemoPolicyResponse>();
     vi.mocked(readPolicy)
       .mockReturnValueOnce(request.promise)
@@ -176,7 +176,9 @@ describe("demo browser state and report ownership", () => {
     });
     expect(readPolicy).toHaveBeenCalledTimes(1);
     await act(async () => {
-      request.resolve(policy());
+      request.resolve(
+        policy("a", { ...citation(), identifier: "FR Doc. 2099-00001" }),
+      );
     });
     await ui.findByRole("checkbox", { name: "Include in PDF" });
     expect(policyNote).toHaveValue("Typed during retrieval.");
@@ -195,6 +197,8 @@ describe("demo browser state and report ownership", () => {
     expect(print).toHaveTextContent("demo-rules-1.0.0");
     expect(print).toHaveTextContent("c".repeat(64));
     expect(print).not.toHaveTextContent("consultation in snapshot b.");
+    expect(print).toHaveTextContent(citation().identifier);
+    expect(ui.getByText(/Citation and text saved/)).toBeInTheDocument();
   });
 
   it("does not resurrect a removed citation when its read settles", async () => {

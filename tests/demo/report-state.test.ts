@@ -126,4 +126,41 @@ describe("citation report recovery and evidence binding", () => {
     ]);
     expect(entry.note).toBe("Keep this policy note.");
   });
+
+  it.each([
+    ["99 FR 100 (FR Doc. 2099-00001)", "FR Doc. 2099-00001"],
+    ["FR Doc. 2099-00001", "99 FR 100 (FR Doc. 2099-00001)"],
+  ])(
+    "attaches the same document despite citation formatting: %s",
+    (savedId, fetchedId) => {
+      const c = { ...citation(), identifier: savedId };
+      const fetched = policy("a", { ...citation(), identifier: fetchedId });
+      const before = structuredClone(fetched);
+      const key = keyOf(c);
+      const original = {
+        cited: { [key]: { citation: c, policy: null, note: "Keep my note." } },
+        marks: {},
+      };
+      const attached = attachPolicy(original, key, fetched);
+      expect(attached.cited[key].citation.identifier).toBe(savedId);
+      expect(attached.cited[key].note).toBe("Keep my note.");
+      expect(attached.cited[key].policy?.receipt).toEqual(fetched.receipt);
+      expect(attached.cited[key].policy?.issues).toEqual(fetched.issues);
+      expect(fetched).toEqual(before);
+      expect(restoreReport(serializeReport(attached))).toEqual({
+        report: attached,
+        notice: "",
+      });
+      expect(attachPolicy(attached, key, policy("b"))).toBe(attached);
+      expect(
+        attachPolicy(original, key, policy("b", citation("2099-00002"))),
+      ).toBe(original);
+      expect(
+        attachPolicy(original, key, {
+          ...fetched,
+          citation: { ...fetched.citation, sourceId: "govinfo" },
+        }),
+      ).toBe(original);
+    },
+  );
 });

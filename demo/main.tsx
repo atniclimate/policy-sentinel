@@ -409,7 +409,8 @@ export function App() {
       updateReport((current) => attachPolicy(current, k, fetched));
       const latestReport: ReportState = reportRef.current;
       const authoritative = latestReport.cited[k]?.policy;
-      if (authoritative && selectedKey.current === k)
+      if (!authoritative) throw new Error("Citation evidence was not attached");
+      if (selectedKey.current === k)
         setSelected({
           citation: authoritative.citation,
           policy: authoritative,
