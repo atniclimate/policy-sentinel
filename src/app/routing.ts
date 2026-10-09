@@ -60,7 +60,7 @@ export const parseRoute = (hash = window.location.hash): Route => {
 };
 
 export const criteriaFromParams = (params: URLSearchParams): SearchCriteria => {
-  const subcategoryIds: Record<string, string[]> = {};
+  const subcategoryIds: Record<string, string[]> = Object.create(null);
   for (const pair of listParam(params, "sub")) {
     const separator = pair.indexOf(":");
     if (separator < 1) continue;

@@ -223,6 +223,8 @@ session 1; the ruling date is the decision date.
 
 | D-089 | **Owner research-pilot direction 2026-10-08.** “Conduct the real-source research pilot.” Execute the finite roadless federal subset recorded in the [pilot journal](development/2026-10-08-roadless-real-source-pilot.md), using a newly reviewed manifest, measured storage, immutable custody, persistent study and local evidence products. Three direct GovInfo documents do not establish Federal Register API integration or complete the broader three-family pilot. Preserve all ungranted external operations and source-specific conditions. |
 
+| D-090 | **Owner audit-repair direction 2026-10-09.** "Make fixes 1 - 3": prevent restricted study identity in public export filenames, reject prototype-key search crashes, and reduce repeated study-history serialization while preserving saved bytes and every integrity check. GD-56 carries the bounded local repairs, regressions, independent review and measured validation in [the repair handoff](handoffs/2026-10-09-audit-repairs.md). No schema, source, private-data, remote, publication or release-acceptance gate changes. |
+
 ## Open implementation facts
 
 | ID | Fact to resolve | Current evidence and next verification |

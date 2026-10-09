@@ -123,14 +123,21 @@ function freeze(value) {
   }
   return value;
 }
-function canonical(value) {
+function canonical(value, serialized) {
   if (value === null || typeof value !== "object") return JSON.stringify(value);
-  if (Array.isArray(value)) return "[" + value.map(canonical).join(",") + "]";
+  const cached = serialized?.get(value);
+  if (cached !== undefined) return cached;
+  if (Array.isArray(value))
+    return (
+      "[" + value.map((item) => canonical(item, serialized)).join(",") + "]"
+    );
   return (
     "{" +
     Object.keys(value)
       .sort()
-      .map((key) => JSON.stringify(key) + ":" + canonical(value[key]))
+      .map(
+        (key) => JSON.stringify(key) + ":" + canonical(value[key], serialized),
+      )
       .join(",") +
     "}"
   );
@@ -142,13 +149,13 @@ async function hashBytes(bytes) {
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
 }
-async function digest(value) {
-  return hashBytes(encoder.encode(canonical(value)));
+async function digest(value, serialized) {
+  return hashBytes(encoder.encode(canonical(value, serialized)));
 }
-async function bodyDigest(value) {
+async function bodyDigest(value, serialized) {
   const { contentDigest, ...body } = value;
   void contentDigest;
-  return digest(body);
+  return digest(body, serialized);
 }
 function shape(value, rule, path = "study") {
   if (rule.$ref) return shape(value, schema.$defs[rule.$ref.slice(8)], path);
@@ -592,8 +599,15 @@ async function checkEnvelope(input) {
     "REVISION_ORDER",
   );
   let cursor = study;
+  // Rollback never changes revision entries; reuse their exact saved-format bytes.
+  const serialized = new WeakMap(
+    study.revisions.map((entry) => [entry, canonical(entry)]),
+  );
   for (;;) {
-    ensure((await bodyDigest(cursor)) === cursor.contentDigest, "STUDY_DIGEST");
+    ensure(
+      (await bodyDigest(cursor, serialized)) === cursor.contentDigest,
+      "STUDY_DIGEST",
+    );
     if (cursor.revisions.length === 0) {
       ensure(
         cursor.revision === 1 && cursor.previousDigest === null,

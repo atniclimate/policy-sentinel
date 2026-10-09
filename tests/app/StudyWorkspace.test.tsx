@@ -43,8 +43,10 @@ import { createSyntheticResearchStudyFixture } from "../../fixtures/study/resear
 const { syntheticCorpusV2, syntheticCorpusV2Input } = authored;
 const NativeURL = globalThis.URL;
 let downloads: Blob[];
+let downloadNames: string[];
 beforeEach(() => {
   downloads = [];
+  downloadNames = [];
   vi.stubGlobal("crypto", webcrypto);
   vi.stubGlobal(
     "URL",
@@ -56,7 +58,11 @@ beforeEach(() => {
       static revokeObjectURL() {}
     },
   );
-  vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+  vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+    this: HTMLAnchorElement,
+  ) {
+    downloadNames.push(this.download);
+  });
 });
 afterEach(() => {
   cleanup();
@@ -747,6 +753,61 @@ describe("persistent local study workspace", () => {
       "passage-saved",
     ]);
   });
+
+  it.each([
+    ["restricted", "public", "public-study"],
+    ["public", "public", "study-filename"],
+    ["restricted", "local", "study-filename"],
+  ] as const)(
+    "uses the filtered identity in every %s study's %s download filename",
+    async (sensitivity, audience, expectedId) => {
+      const settings = props();
+      const initial = await createResearchStudy(
+        {
+          id: "study-filename",
+          title: "Synthetic study title",
+          createdAt: "2026-10-01T00:00:00Z",
+          sensitivity,
+          actor: {
+            id: "analyst-local",
+            label: "Synthetic analyst",
+            kind: "analyst",
+            sensitivity,
+          },
+        },
+        settings.corpus,
+      );
+      render(<StudyWorkspace {...settings} />);
+      await resume(await serializeResearchStudy(initial, settings.corpus));
+      select(
+        screen.getByRole("region", { name: "Persistent research study" }),
+        "Export audience",
+        audience,
+      );
+      fireEvent.click(
+        screen.getByRole("button", { name: "Prepare knowledge products" }),
+      );
+      const buttons = await screen.findAllByRole("button", {
+        name: /^Download /,
+      });
+      for (const button of buttons) fireEvent.click(button);
+      expect(downloadNames).toEqual(
+        [
+          "dossier.html",
+          "evidence.csv",
+          "timeline.csv",
+          "authority.csv",
+          "gaps.csv",
+          "graph.json",
+          "provenance.json",
+        ].map((name) => `${expectedId}-${audience}-${name}`),
+      );
+      if (audience === "public" && sensitivity === "restricted") {
+        for (const blob of downloads)
+          expect(await blobText(blob)).not.toContain(initial.id);
+      }
+    },
+  );
 
   it("downloads public filtered products separately from the local private-note backup", async () => {
     const settings = props();

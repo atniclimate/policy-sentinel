@@ -2777,7 +2777,7 @@ export function StudyWorkspace({
                     key={filename}
                     onClick={() =>
                       download(
-                        `${study.id}-${audience}-${filename}`,
+                        `${products.provenance.studyId}-${audience}-${filename}`,
                         text,
                         type,
                       )

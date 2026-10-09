@@ -430,6 +430,70 @@ describe("persistent research study", () => {
     expect(changed.revisions.at(-1)?.changes[0].record).toEqual(oldQuestion);
   });
 
+  it("preserves long saved histories byte-for-byte and rejects rehashed historical edits", async () => {
+    const corpus = corpusFixture();
+    let study = await createResearchStudy(
+      {
+        id: "study-history",
+        title: "Synthetic history",
+        createdAt: updateTime,
+        actor,
+      },
+      corpus,
+    );
+    const digests = new Map([[study.revision, study.contentDigest]]);
+    for (let index = 0; index < 128; index++) {
+      study = await mutate(
+        study,
+        [
+          {
+            collection: "questions",
+            record: {
+              id: "question-history",
+              actorId: actor.id,
+              createdAt: updateTime,
+              provenance: "analyst_authored",
+              reviewState: "unreviewed",
+              sensitivity: "restricted",
+              parentQuestionId: null,
+              text: `Revision ${index}: ${"x".repeat(1000)}`,
+              theme: "Procedure",
+              status: "open",
+              discoveryGeographies: [],
+            },
+          },
+        ],
+        corpus,
+      );
+      digests.set(study.revision, study.contentDigest);
+    }
+    const saved = await serializeResearchStudy(study, corpus);
+    const reopened = await parseResearchStudy(saved, corpus);
+    expect(await serializeResearchStudy(reopened, corpus)).toBe(saved);
+    for (const revision of [1, 64, 129]) {
+      expect(
+        (await readResearchStudyRevision(reopened, revision)).contentDigest,
+      ).toBe(digests.get(revision));
+    }
+    const tampered = JSON.parse(saved);
+    tampered.revisions[63].changes[0].record.text =
+      "Tampered historical question";
+    const { contentDigest: ignored, ...body } = tampered;
+    void ignored;
+    await expect(
+      parseResearchStudy(
+        JSON.stringify({ ...body, contentDigest: canonicalV2Digest(body) }),
+        corpus,
+      ),
+    ).rejects.toThrow(/STUDY_DIGEST/u);
+    expect(
+      await serializeResearchStudy(
+        await parseResearchStudy(saved, corpus),
+        corpus,
+      ),
+    ).toBe(saved);
+  });
+
   it("rejects missing fields, extra fields, malformed bytes and tampered current or historical records", async () => {
     const { study, corpus } = await fixture();
     const missing = { ...study } as { sensitivity?: string };
