@@ -123,5 +123,7 @@ cannot meet. Keep source bytes and receipts immutable; any future index is a
 rebuildable projection with collection-scoped health, staged promotion and
 offline replay. No production database dependency or schema was added.
 
-GD-60 closes as a **readiness assessment** with zero gate-cleared live routes.
-This does not complete GD-39/40/42, GD-58/59, the five-API claim or GD-27.
+The readiness review is recorded, but GD-60 remains **blocked**: the proposed
+metadata canaries are not exact accepted acquisition manifests, and zero routes
+cleared their source gates. This does not complete GD-39/40/42, GD-58/59, the
+five-API claim or GD-27.

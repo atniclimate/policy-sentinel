@@ -39,8 +39,9 @@ for narrow demo work; it does not reduce validation or authorize new work.
 
 ## Current state (2026-10-09): general development
 
-GD-60 federal probe readiness is complete as a local preparation checkpoint at
-source commit `1de7f20`. The [review and file-index decision](development/gd60-federal-probe-readiness-2026-10-09.md)
+GD-60 has a local preparation checkpoint at source commit `1de7f20`, but its
+work item remains blocked pending exact acquisition manifests and source gates.
+The [review and file-index decision](development/gd60-federal-probe-readiness-2026-10-09.md)
 records current official documentation, finite blocked collection canaries,
 zero live API observations, a fresh 954,205,875-byte managed inventory and the
 decision to retain the measured file search projection. Keyed GovInfo and
