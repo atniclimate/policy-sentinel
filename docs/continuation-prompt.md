@@ -37,7 +37,19 @@ the existing full-ledger validators before repository edits and every substantiv
 source, privacy, publication and acceptance gate. This rule reduces context only
 for narrow demo work; it does not reduce validation or authorize new work.
 
-## Current state (2026-10-07): general development
+## Current state (2026-10-08): general development
+
+The owner resumed implementation through D-088's integrated study-engine launch.
+GD10 boundary enforcement, GD12 source catalog and GD25 persistent analyst studies
+pass integrated validation: all Node suites and 2,170 application/unit tests.
+GD11 is now the sole active item, coordinating additive corpus 2.1 jurisdiction
+associations with the independently authorized GD13 public successor contracts.
+GD35 bounded projection is implemented; its final measurement follows stable
+implementation pins. Recover the exact leases, receipts and remaining work from
+[the implementation record](development/2026-10-08-study-engine-implementation.md)
+and `ROADMAP.yaml`. New catalog rows do not activate sources. Public v1 and corpus
+2.0 defaults remain unchanged pending their explicit successor implementations.
+The following pause record is historical and does not override this resume.
 
 #### True-up at the user-requested pause
 

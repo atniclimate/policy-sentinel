@@ -39,7 +39,24 @@ project:
     subsequent commit/push/deploy instruction published only the reviewed fixes
     and demo artifacts on main; the updated Worker and Pages passed all 39
     deployed browser checks. Unrelated development commits stay local, GD-10
-    remains paused, and general-engine release acceptance is unchanged.
+    remains paused, and general-engine release acceptance is unchanged. The
+    owner's subsequent Roadless Rule comparison request produced three
+    exploratory studies in
+    docs/development/2026-10-08-roadless-comparative-studies.md: frozen deployed
+    search receipts, public-source comparisons, and explicit coverage and
+    inference limits. This research changes no implementation, source
+    activation, publication grant, or general-engine acceptance state. A
+    requested fresh-session implementation plan is prepared at
+    docs/handoffs/2026-10-08-study-workflow-development-plan.md, mapping study
+    improvements onto existing work items. Preparation does not resume GD-10;
+    its included launch prompt supplies explicit resume direction if adopted.
+    The owner subsequently issued the development launch directive for
+    integrated source qualification, procedural evidence, persistent studies and
+    attributed exports, explicitly authorizing implementation, schema migrations
+    and parallel engineering. GD-10 is resumed under its reviewed boundary
+    contract; execution and acceptance evidence are recorded in
+    docs/development/2026-10-08-study-engine-implementation.md. Source-specific
+    qualification, managed-storage limits and separate external gates remain.
   updated_on: "2026-10-08"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
@@ -1090,18 +1107,18 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-10-BOUNDARY-ENFORCEMENT
+  work_item: GD-11-V2-JURISDICTION-ASSOCIATION
   objective: >-
-    Close all 16 substantive module exceptions under the reviewed GD10
-    production and enforcement contract. Preserve exact compatibility APIs,
-    protected classifications, public/private reachability and operation gates.
-    The exact selection is committed at the durable checkpoint below. No source
-    lease was issued before the user-requested pause. On explicit resume, issue
-    the three disjoint leases (25/16/9) under that contract.
+    Implement additive corpus 2.1 jurisdiction associations and integrate their
+    evidence through replay, bounded projection, search, studies and exports.
+    Preserve sealed 2.0 bytes and legacy APIs. Coordinate the independently
+    authorized GD13 public-contract successor with a shared pure reference
+    validator. GD10, GD12 and GD25 pass integrated validation under D-088; final
+    bounded-search measurements follow stable implementation pins.
   terminal_reason: null
   resumable_roots:
-    - GD-10-BOUNDARY-ENFORCEMENT
-  last_durable_checkpoint: 84cf62c0aa2b70510a8045a04fe80d139131c1fe
+    - GD-11-V2-JURISDICTION-ASSOCIATION
+  last_durable_checkpoint: 5a92e8b6710b0c7edf656434bd9ebf69ad730175
   resume_command: npm run validate:roadmap
 completion_scope:
   general_development:
@@ -7416,7 +7433,9 @@ work_items:
     priority: 320
     milestone: General development
     title: Boundary test flipped to enforcing
-    status: in_progress
+    status: complete
+    completion_commit: 5a92e8b6710b0c7edf656434bd9ebf69ad730175
+    completed_on: "2026-10-08T18:25:47-07:00"
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -7442,34 +7461,34 @@ work_items:
         graph/facade enforcement retains module membership and public/private
         reachability. Selection review and commit precede dispatch;
         implementation and validation are not yet complete.
-  - id: GD-11-V2-JURISDICTION-ASSOCIATION
+      - >-
+        D-088 resumes execution on 2026-10-08. All three source leases returned;
+        corpus (14), spine (32 plus one native skip), and focused
+        adapter/context (70) tests pass. Runtime and lint pass. Independent
+        review accepts the 271 relocated corpus/context function bodies. The
+        strict graph checker now passes 49 focused tests with unchanged time
+        limits. The pipeline wrapper passes in 32.2s after serialization; the
+        relocated SourcePack guard passes. Full integrated validation remains
+        due; GD10 is not yet accepted. See
+        docs/development/2026-10-08-study-engine-implementation.md.
+      - >-
+        The 2026-10-08 integrated checkpoint passes 22 study/core/product tests,
+        six analyst workspace tests and TypeScript validation. Catalog and
+        sealed-parent bounded-projection tests are running; full regression
+        acceptance is still required. No source activation is claimed.
+      - >-
+        Accepted 2026-10-08: strict architecture enforcement and compatibility
+        guards pass, followed by all Node suites and 2170 Vitest tests in 115
+        files. Runtime, hooks, lint, typecheck, source scan, backbone, public
+        build and local workbench build pass. Full receipt:
+        docs/development/2026-10-08-study-engine-implementation.md.
+  - id: GD-12-NATIONWIDE-SOURCE-CATALOG
     priority: 321
     milestone: General development
-    title: Additive corpus 2.1 jurisdiction association
-    status: not_started
-    work_class: general_development_local
-    decision_ref: D-073
-    authorization_gate: G-GENERAL-DEV-01
-    dependencies:
-      - GD-09-JURISDICTION-IDENTIFIER-MODEL
-      - GD-10-BOUNDARY-ENFORCEMENT
-    acceptance:
-      - >-
-        An additive AnalyzedCorpus 2.1 schema and runtime carry
-        work.jurisdictionRefs with evidence; governmentContext stays as source
-        text.
-      - >-
-        A 2.0 replay compatibility test is written first, and the sealed 2.0
-        corpus still replays byte-identically.
-      - >-
-        npm run test:policy and tests/pipeline/analyzed-corpus-v2.test.mjs stay
-        green.
-    evidence: []
-  - id: GD-12-NATIONWIDE-SOURCE-CATALOG
-    priority: 322
-    milestone: General development
     title: Source catalog replacing hand-coded profiles
-    status: ready
+    status: complete
+    completion_commit: 5a92e8b6710b0c7edf656434bd9ebf69ad730175
+    completed_on: "2026-10-08T18:25:47-07:00"
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -7495,11 +7514,106 @@ work_items:
         Promoted to ready after accepted GD09; GD05/GD09/GD17 dependencies are
         complete and G-GENERAL-DEV-01 is approved. Its synthetic contract
         remains unimplemented; GD10 has the lowest eligible priority.
-  - id: GD-13-NATIONWIDE-RECORD-CONTRACT
+      - >-
+        Accepted 2026-10-08: versioned catalog, pure browser coverage
+        projection, configured manifest composition and source-qualified
+        capability states cover WA/OR/ID/AK/CA/MT/NV and ATNI/NCAI/USET. Eleven
+        catalog regressions and the full npm test suite pass, including legacy
+        manifest equivalence, credential-reference boundaries and closed/expired
+        qualification gates. No catalog row activates a source.
+  - id: GD-25-ANALYST-RESEARCH-LOOP
+    priority: 322
+    milestone: General development
+    title: Analyst research loop in the local workbench
+    status: complete
+    completion_commit: 5a92e8b6710b0c7edf656434bd9ebf69ad730175
+    completed_on: "2026-10-08T18:25:47-07:00"
+    work_class: general_development_local
+    decision_ref: D-081
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      - GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
+      - GD-07-RESEARCH-OUTPUT-SPLIT
+      - GD-10-BOUNDARY-ENFORCEMENT
+      - GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
+    acceptance:
+      - >-
+        In the local workbench an analyst can draft a finding, attach evidence,
+        review, revise and export it, using synthetic fixtures; today findings
+        are consumed from prepared JSON only.
+      - >-
+        Explicit save/reopen preserves the corpus snapshot, document versions,
+        locators and revisions. Changed source bindings require visible review.
+        Synthetic journeys cover citation packets, comparison matrices and
+        research memos without changing the shared evidence model.
+      - >-
+        Authored questions, notes and findings have sensitivity independent of
+        public source material; mixed exports enforce source and recipient
+        permissions. A private note attached to public citations cannot leak
+        into a public or unauthorized shared output. Offline restart and
+        keyboard journeys pass; later real pilot evidence remains separate.
+      - >-
+        The loop is required for demonstration A1 of the definition of done
+        (docs/decisions/2026-09-24-definition-of-done-general-development.md).
+      - >-
+        An explicit annotation-to-discovery-request-to-candidate-review-to-case
+        journey retains authorship, question, source/version/locator, intended
+        sources/date range, dispositions and missing evidence. Selected outgoing
+        request content must exclude unauthorized private notes; test no-result,
+        source-failure, duplicate and unresolved cases. Synthetic workflow proof
+        precedes the corresponding real pilot packet. Annotation terms do not
+        become official facts, taxonomy, Nation links or source authority, and
+        candidates do not bypass admission. No unattended service is launched.
+      - >-
+        D-088 integrates persistent multi-perspective studies with procedural,
+        consultation and environmental evidence, attributed knowledge graphs and
+        the ten functional outcomes in the study-engine implementation record.
+    evidence:
+      - >-
+        D-088 prioritizes the integrated study workflow after source catalog
+        implementation while preserving its existing dependencies and gates.
+      - >-
+        Accepted 2026-10-08: persistent studies share exact evidence across
+        strategic questions, procedural histories and source passages.
+        Structured consultation, environmental and authority records, attributed
+        review, discovery follow-up, saved filter scopes and public/private
+        exports pass 32 core/product tests and eight workspace journeys. The ten
+        D-088 functional outcomes and the full npm test suite pass
+        synthetically; real-source pilot and release acceptance remain separate.
+  - id: GD-11-V2-JURISDICTION-ASSOCIATION
     priority: 323
     milestone: General development
+    title: Additive corpus 2.1 jurisdiction association
+    status: in_progress
+    work_class: general_development_local
+    decision_ref: D-073
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      - GD-09-JURISDICTION-IDENTIFIER-MODEL
+      - GD-10-BOUNDARY-ENFORCEMENT
+    acceptance:
+      - >-
+        An additive AnalyzedCorpus 2.1 schema and runtime carry
+        work.jurisdictionRefs with evidence; governmentContext stays as source
+        text.
+      - >-
+        A 2.0 replay compatibility test is written first, and the sealed 2.0
+        corpus still replays byte-identically.
+      - >-
+        npm run test:policy and tests/pipeline/analyzed-corpus-v2.test.mjs stay
+        green.
+    evidence:
+      - >-
+        Selected 2026-10-08 after accepted GD10. D-088 coordinates the 19-path
+        corpus/study closure with 20 consumer paths and the GD13 successor.
+        Legacy compatibility fixtures precede successor changes. Final GD35
+        measurements follow stable implementation pins; no 50 GB performance or
+        source activation claim follows from synthetic implementation.
+  - id: GD-13-NATIONWIDE-RECORD-CONTRACT
+    priority: 324
+    milestone: General development
     title: Public record, artifact and source contracts for all states
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-087
     authorization_gate: G-GD-SUCCESSOR-IMPLEMENTATION
@@ -7532,11 +7646,35 @@ work_items:
         Represented at schema 1.10 by general-development session 1 behind the
         closed gate G-GD-NATIONWIDE-CONTRACT, as the module design (section 9.4)
         and D-073 require.
+  - id: GD-35-BOUNDED-SEARCH-IMPLEMENTATION
+    priority: 325
+    milestone: General development
+    title: "Bounded offline index and search implementation"
+    status: ready
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-SUCCESSOR-IMPLEMENTATION
+    dependencies:
+      - GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
+      - GD-10-BOUNDARY-ENFORCEMENT
+    acceptance:
+      - "Implement the selected GD-32 bounded projection/index with stable
+        work/version/passage bindings, explicit result limits and source health;
+        do not load the entire custody store in the browser."
+      - "Measure cold/warm query latency, peak memory and rebuild storage on the
+        frozen workloads; test offline restart, exact citation replay,
+        stale/unavailable/zero-result distinction and bounded failure. Design or
+        synthetic scale alone cannot claim 50 GB performance."
+    evidence:
+      - >-
+        D-088 prioritizes bounded search integration after the persistent study
+        workflow, including explicit direct versus governing-proceeding context.
+        Final measurements follow the stable corpus and public-contract pins.
   - id: GD-14-FEDERAL-TAXONOMY-SOURCE-MAPPINGS
-    priority: 324
+    priority: 326
     milestone: General development
     title: Deterministic official-label mappings (synthetic first)
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -7553,10 +7691,10 @@ work_items:
         tests/engine/taxonomy*.test.ts and foundation validation stay green.
     evidence: []
   - id: GD-15-ARCHITECTURE-DOCS
-    priority: 325
+    priority: 327
     milestone: General development
     title: Architecture, backbone and data-contract updates
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -7569,7 +7707,7 @@ work_items:
       - npm run validate:backbone stays green.
     evidence: []
   - id: GD-16-INTEROP-PURE-ADAPTER
-    priority: 326
+    priority: 328
     milestone: General development
     title: >-
       Pure policy.search-context/1 validator and policy.citations/1 projector
@@ -7717,7 +7855,7 @@ work_items:
     milestone: General development
     title:
       user_supplied source class in the catalog and private custody namespace
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-072
     authorization_gate: G-GD-PRIVATE-CONTEXT
@@ -7736,53 +7874,11 @@ work_items:
         classification. No private-module file is reachable from the public
         entry.
     evidence: []
-  - id: GD-25-ANALYST-RESEARCH-LOOP
-    priority: 334
-    milestone: General development
-    title: Analyst research loop in the local workbench
-    status: not_started
-    work_class: general_development_local
-    decision_ref: D-081
-    authorization_gate: G-GENERAL-DEV-01
-    dependencies:
-      - GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
-      - GD-07-RESEARCH-OUTPUT-SPLIT
-      - GD-10-BOUNDARY-ENFORCEMENT
-      - GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
-    acceptance:
-      - >-
-        In the local workbench an analyst can draft a finding, attach evidence,
-        review, revise and export it, using synthetic fixtures; today findings
-        are consumed from prepared JSON only.
-      - >-
-        Explicit save/reopen preserves the corpus snapshot, document versions,
-        locators and revisions. Changed source bindings require visible review.
-        Synthetic journeys cover citation packets, comparison matrices and
-        research memos without changing the shared evidence model.
-      - >-
-        Authored questions, notes and findings have sensitivity independent of
-        public source material; mixed exports enforce source and recipient
-        permissions. A private note attached to public citations cannot leak
-        into a public or unauthorized shared output. Offline restart and
-        keyboard journeys pass; later real pilot evidence remains separate.
-      - >-
-        The loop is required for demonstration A1 of the definition of done
-        (docs/decisions/2026-09-24-definition-of-done-general-development.md).
-      - >-
-        An explicit annotation-to-discovery-request-to-candidate-review-to-case
-        journey retains authorship, question, source/version/locator, intended
-        sources/date range, dispositions and missing evidence. Selected outgoing
-        request content must exclude unauthorized private notes; test no-result,
-        source-failure, duplicate and unresolved cases. Synthetic workflow proof
-        precedes the corresponding real pilot packet. Annotation terms do not
-        become official facts, taxonomy, Nation links or source authority, and
-        candidates do not bypass admission. No unattended service is launched.
-    evidence: []
   - id: GD-47-REGIONAL-INTERFACE-QUALIFICATION
     priority: 335
     milestone: General development
     title: "Freeze selected-state interface and jurisdiction packets"
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-086
     authorization_gate: G-GD-SUCCESSOR-IMPLEMENTATION
@@ -7837,32 +7933,11 @@ work_items:
         access remain subject to their applicable permissions.
     evidence: []
 
-  - id: GD-35-BOUNDED-SEARCH-IMPLEMENTATION
-    priority: 338
-    milestone: General development
-    title: "Bounded offline index and search implementation"
-    status: not_started
-    work_class: general_development_local
-    decision_ref: D-086
-    authorization_gate: G-GD-SUCCESSOR-IMPLEMENTATION
-    dependencies:
-      - GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
-      - GD-10-BOUNDARY-ENFORCEMENT
-    acceptance:
-      - "Implement the selected GD-32 bounded projection/index with stable
-        work/version/passage bindings, explicit result limits and source health;
-        do not load the entire custody store in the browser."
-      - "Measure cold/warm query latency, peak memory and rebuild storage on the
-        frozen workloads; test offline restart, exact citation replay,
-        stale/unavailable/zero-result distinction and bounded failure. Design or
-        synthetic scale alone cannot claim 50 GB performance."
-    evidence: []
-
   - id: GD-36-PILOT-SOURCE-QUALIFICATION
     priority: 339
     milestone: General development
     title: "Qualify finite federal regional and intertribal pilot packets"
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-086
     authorization_gate: G-GD-SUCCESSOR-IMPLEMENTATION
@@ -8579,56 +8654,83 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: GD-10-BOUNDARY-ENFORCEMENT
+    work_item: GD-11-V2-JURISDICTION-ASSOCIATION
     action:
-      "Execute the reviewed 50-path production closure and enforce exact
-      facade/module rules, preserving APIs and all protected boundaries."
+      "Implement corpus 2.1 with evidenced jurisdiction associations and exact
+      2.0 replay compatibility across ingestion, search, studies and export."
   - order: 2
-    work_item: GD-12-NATIONWIDE-SOURCE-CATALOG
+    work_item: GD-13-NATIONWIDE-RECORD-CONTRACT
     action:
-      "After GD10, implement the synthetic nationwide source catalog under a
-      concrete reviewed contract without acquiring or activating sources."
+      "Integrate explicit public successor contracts and migration fixtures,
+      retaining legacy v1 behavior and independently evidenced Nation links."
   - order: 3
+    work_item: GD-35-BOUNDED-SEARCH-IMPLEMENTATION
+    action:
+      "Validate bounded projection and run the exclusive successor measurement
+      protocol after corpus and public-contract implementation pins stabilize."
+  - order: 4
+    work_item: GD-14-FEDERAL-TAXONOMY-SOURCE-MAPPINGS
+    action: "Implement reviewed exact official subject mappings when selected."
+  - order: 5
+    work_item: GD-15-ARCHITECTURE-DOCS
+    action:
+      "Reconcile architecture documentation with accepted module boundaries."
+  - order: 6
     work_item: GD-20-DESIGNATION-REGISTRY-CONTRACT
     action:
-      "Implement the synthetic designation identity/vocabulary contract when
-      selected; no geometry or inferred Nation criterion is admitted."
-  - order: 4
+      "Implement the synthetic designation vocabulary without geometry or
+      inferred Nation criteria."
+  - order: 7
     work_item: GD-22-NATION-REGISTRY-BINDING
     action:
       "Await originating recognition reconciliation and the digest-pinned Nation
       registry v1; T0 baseline bundle v0 is a different version line."
-  - order: 5
+  - order: 8
+    work_item: GD-23-USER-SUPPLIED-SOURCE-CLASS
+    action:
+      "Implement the separately classified synthetic user-supplied source
+      contract without real private inputs."
+  - order: 9
+    work_item: GD-47-REGIONAL-INTERFACE-QUALIFICATION
+    action:
+      "Qualify regional interfaces against exact source-specific access and
+      reuse evidence."
+  - order: 10
     work_item: GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
     action:
       "Complete remaining nationwide source classes without blocking the finite
       pilot or acquiring source payloads."
-  - order: 6
+  - order: 11
+    work_item: GD-36-PILOT-SOURCE-QUALIFICATION
+    action:
+      "Prepare finite pilot source qualifications and retain source-specific
+      blocks."
+  - order: 12
     work_item: GD-40-GOVINFO-API-INTEGRATION
     action:
       "Resolve the exact GovInfo API credential/terms gate before bounded API
       integration; direct documents cannot substitute."
-  - order: 7
+  - order: 13
     work_item: GD-41-ECFR-API-INTEGRATION
     action:
       "Resolve the exact eCFR access-consent condition before any new host
       request, then qualify and test the API."
-  - order: 8
+  - order: 14
     work_item: GD-42-CONGRESS-API-INTEGRATION
     action:
       "Resolve exact Congress.gov API credentials and source-specific terms
       before bounded integration."
-  - order: 9
+  - order: 15
     work_item: GD-43-REGULATIONS-API-INTEGRATION
     action:
       "Resolve exact Regulations.gov governmental GET access and credentials;
       comments and submissions remain excluded."
-  - order: 10
+  - order: 16
     work_item: GD-53-PS09-ACCEPTANCE-CARRYFORWARD
     action:
       "Close each retained identity/scenario claim under the successor
       crosswalk; do not reactivate a spent historical run."
-  - order: 11
+  - order: 17
     work_item: GD-27-LOCAL-RELEASE-PACKAGE
     action:
       "Accept the current local release only after all Part B work, A1-A4 and
