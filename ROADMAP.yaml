@@ -1107,18 +1107,38 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-11-V2-JURISDICTION-ASSOCIATION
+  work_item: null
   objective: >-
-    Implement additive corpus 2.1 jurisdiction associations and integrate their
-    evidence through replay, bounded projection, search, studies and exports.
-    Preserve sealed 2.0 bytes and legacy APIs. Coordinate the independently
-    authorized GD13 public-contract successor with a shared pure reference
-    validator. GD10, GD12 and GD25 pass integrated validation under D-088; final
-    bounded-search measurements follow stable implementation pins.
-  terminal_reason: null
+    D-088 integrated local implementation is accepted: persistent evidence
+    studies, qualified-source discovery contracts, additive corpus 2.1 and
+    public 2.0 contracts, proceeding-aware bounded search and governed exports.
+    Recover measured results and remaining source-specific qualifications from
+    the implementation record. The broader GD-27 release remains unaccepted.
+  terminal_reason: >-
+    The requested D-088 implementation and ten functional outcomes pass at
+    source checkpoint 18ee6c3547bf1ae17ed30dcbf8bd120e20f15646, following
+    5a92e8b6710b0c7edf656434bd9ebf69ad730175. All Node suites, 2,180
+    application/unit tests, both synthetic builds and the frozen bounded-search
+    measurement pass. Remaining general-engine roots retain their recorded
+    source, identity, acquisition and release requirements; this checkpoint
+    starts no unrelated work and claims neither live activation nor GD-27
+    release acceptance.
   resumable_roots:
-    - GD-11-V2-JURISDICTION-ASSOCIATION
-  last_durable_checkpoint: 5a92e8b6710b0c7edf656434bd9ebf69ad730175
+    - GD-14-FEDERAL-TAXONOMY-SOURCE-MAPPINGS
+    - GD-20-DESIGNATION-REGISTRY-CONTRACT
+    - GD-22-NATION-REGISTRY-BINDING
+    - GD-23-USER-SUPPLIED-SOURCE-CLASS
+    - GD-47-REGIONAL-INTERFACE-QUALIFICATION
+    - GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
+    - GD-36-PILOT-SOURCE-QUALIFICATION
+    - GD-39-FEDERAL-REGISTER-API-INTEGRATION
+    - GD-40-GOVINFO-API-INTEGRATION
+    - GD-41-ECFR-API-INTEGRATION
+    - GD-42-CONGRESS-API-INTEGRATION
+    - GD-43-REGULATIONS-API-INTEGRATION
+    - GD-53-PS09-ACCEPTANCE-CARRYFORWARD
+    - GD-27-LOCAL-RELEASE-PACKAGE
+  last_durable_checkpoint: 18ee6c3547bf1ae17ed30dcbf8bd120e20f15646
   resume_command: npm run validate:roadmap
 completion_scope:
   general_development:
@@ -7584,7 +7604,9 @@ work_items:
     priority: 323
     milestone: General development
     title: Additive corpus 2.1 jurisdiction association
-    status: in_progress
+    status: complete
+    completion_commit: 18ee6c3547bf1ae17ed30dcbf8bd120e20f15646
+    completed_on: "2026-10-08T20:27:18-07:00"
     work_class: general_development_local
     decision_ref: D-073
     authorization_gate: G-GENERAL-DEV-01
@@ -7640,7 +7662,9 @@ work_items:
     priority: 324
     milestone: General development
     title: Public record, artifact and source contracts for all states
-    status: ready
+    status: complete
+    completion_commit: 18ee6c3547bf1ae17ed30dcbf8bd120e20f15646
+    completed_on: "2026-10-08T20:27:18-07:00"
     work_class: general_development_local
     decision_ref: D-087
     authorization_gate: G-GD-SUCCESSOR-IMPLEMENTATION
@@ -7684,7 +7708,9 @@ work_items:
     priority: 325
     milestone: General development
     title: "Bounded offline index and search implementation"
-    status: ready
+    status: complete
+    completion_commit: 18ee6c3547bf1ae17ed30dcbf8bd120e20f15646
+    completed_on: "2026-10-08T20:27:18-07:00"
     work_class: general_development_local
     decision_ref: D-086
     authorization_gate: G-GD-SUCCESSOR-IMPLEMENTATION
@@ -7755,7 +7781,9 @@ work_items:
     priority: 327
     milestone: General development
     title: Architecture, backbone and data-contract updates
-    status: ready
+    status: complete
+    completion_commit: 18ee6c3547bf1ae17ed30dcbf8bd120e20f15646
+    completed_on: "2026-10-08T20:27:18-07:00"
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -8088,7 +8116,7 @@ work_items:
     priority: 342
     milestone: General development
     title: "Federal Register API end-to-end integration"
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-086
     authorization_gate: G-GD-PUBLIC-ACQUISITION
@@ -8730,83 +8758,71 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: GD-11-V2-JURISDICTION-ASSOCIATION
-    action:
-      "Implement corpus 2.1 with evidenced jurisdiction associations and exact
-      2.0 replay compatibility across ingestion, search, studies and export."
-  - order: 2
-    work_item: GD-13-NATIONWIDE-RECORD-CONTRACT
-    action:
-      "Integrate explicit public successor contracts and migration fixtures,
-      retaining legacy v1 behavior and independently evidenced Nation links."
-  - order: 3
-    work_item: GD-35-BOUNDED-SEARCH-IMPLEMENTATION
-    action:
-      "Validate bounded projection and run the exclusive successor measurement
-      protocol after corpus and public-contract implementation pins stabilize."
-  - order: 4
     work_item: GD-14-FEDERAL-TAXONOMY-SOURCE-MAPPINGS
     action: "Implement reviewed exact official subject mappings when selected."
-  - order: 5
-    work_item: GD-15-ARCHITECTURE-DOCS
-    action:
-      "Reconcile architecture documentation with accepted module boundaries."
-  - order: 6
+  - order: 2
     work_item: GD-20-DESIGNATION-REGISTRY-CONTRACT
     action:
       "Implement the synthetic designation vocabulary without geometry or
       inferred Nation criteria."
-  - order: 7
+  - order: 3
     work_item: GD-22-NATION-REGISTRY-BINDING
     action:
       "Await originating recognition reconciliation and the digest-pinned Nation
       registry v1; T0 baseline bundle v0 is a different version line."
-  - order: 8
+  - order: 4
     work_item: GD-23-USER-SUPPLIED-SOURCE-CLASS
     action:
       "Implement the separately classified synthetic user-supplied source
       contract without real private inputs."
-  - order: 9
+  - order: 5
     work_item: GD-47-REGIONAL-INTERFACE-QUALIFICATION
     action:
       "Qualify regional interfaces against exact source-specific access and
       reuse evidence."
-  - order: 10
+  - order: 6
     work_item: GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
     action:
       "Complete remaining nationwide source classes without blocking the finite
       pilot or acquiring source payloads."
-  - order: 11
+  - order: 7
     work_item: GD-36-PILOT-SOURCE-QUALIFICATION
     action:
       "Prepare finite pilot source qualifications and retain source-specific
       blocks."
-  - order: 12
+  - order: 8
+    work_item: GD-39-FEDERAL-REGISTER-API-INTEGRATION
+    action:
+      "Prepare a new source-specific Federal Register review and finite API
+      manifest before bounded integration; spent historical requests do not
+      resume. Dependencies are complete, but no dispatch occurs at this
+      checkpoint."
+  - order: 9
     work_item: GD-40-GOVINFO-API-INTEGRATION
     action:
       "Resolve the exact GovInfo API credential/terms gate before bounded API
       integration; direct documents cannot substitute."
-  - order: 13
+  - order: 10
     work_item: GD-41-ECFR-API-INTEGRATION
     action:
       "Resolve the exact eCFR access-consent condition before any new host
       request, then qualify and test the API."
-  - order: 14
+  - order: 11
     work_item: GD-42-CONGRESS-API-INTEGRATION
     action:
       "Resolve exact Congress.gov API credentials and source-specific terms
       before bounded integration."
-  - order: 15
+  - order: 12
     work_item: GD-43-REGULATIONS-API-INTEGRATION
     action:
       "Resolve exact Regulations.gov governmental GET access and credentials;
       comments and submissions remain excluded."
-  - order: 16
+  - order: 13
     work_item: GD-53-PS09-ACCEPTANCE-CARRYFORWARD
     action:
       "Close each retained identity/scenario claim under the successor
       crosswalk; do not reactivate a spent historical run."
-  - order: 17
+  - order: 14
     work_item: GD-27-LOCAL-RELEASE-PACKAGE
     action:
       "Accept the current local release only after all Part B work, A1-A4 and

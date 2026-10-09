@@ -387,6 +387,14 @@ long-document, whole-store or 50 GB performance claim follows. The complete
 
 ## Accepted local implementation results
 
+Source checkpoint `18ee6c3547bf1ae17ed30dcbf8bd120e20f15646`
+(2026-10-08T20:27:18-07:00) records the successor contracts, measured search,
+regional qualification register and architecture updates. Together with
+`5a92e8b6710b0c7edf656434bd9ebf69ad730175`, this closes the D-088 local
+implementation. The ledger accepts GD11, GD13, GD35 and GD15 against this source
+checkpoint and promotes newly unblocked GD39 without dispatch. Remaining release
+roots stay recorded; GD27 is not accepted and no source gate is reopened.
+
 The complete `npm test` command exits 0: every Node suite and all 2,180
 application/unit tests across 114 files pass. This includes the ten required
 functional outcomes, legacy and successor contracts, exact citation replay,

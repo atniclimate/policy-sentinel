@@ -5,7 +5,7 @@ D-083/D-084. Recover [its current status](DEMO-STATUS.md) before demo work. The
 local-only historical grants below retain their own scope; they neither revoke
 that demo exception nor authorize new acquisition or general-engine publication.
 
-General-engine plan updated 2026-10-07 under D-086/D-087; startup routing remains
+General-engine implementation updated 2026-10-08 under D-086/D-087/D-088; startup routing remains
 under D-085. `AGENTS.md` holds the rules; this file holds where the engine is,
 what to read, and what a fresh session does first. Historical launch, cutoff
 and outcome documents remain preserved; their execution grants do not resume
@@ -41,15 +41,26 @@ for narrow demo work; it does not reduce validation or authorize new work.
 
 The owner resumed implementation through D-088's integrated study-engine launch.
 GD10 boundary enforcement, GD12 source catalog and GD25 persistent analyst studies
-pass integrated validation: all Node suites and 2,170 application/unit tests.
-GD11 is now the sole active item, coordinating additive corpus 2.1 jurisdiction
-associations with the independently authorized GD13 public successor contracts.
-GD35 bounded projection is implemented; its final measurement follows stable
-implementation pins. Recover the exact leases, receipts and remaining work from
+are accepted at `5a92e8b6710b0c7edf656434bd9ebf69ad730175`. GD11 corpus 2.1,
+GD13 public successor contracts, GD35 bounded search and GD15 architecture docs
+are accepted at `18ee6c3547bf1ae17ed30dcbf8bd120e20f15646`. All Node suites and
+2,180 application/unit tests across 114 files pass, including the ten D-088
+functional outcomes. Both synthetic build modes and artifact validation pass.
+The unchanged frozen search-projection-04 protocol completes 100, 500 and 2,000
+works with fresh-process replay, exact citations and measured resource limits;
+its consumed namespace must not be reused. This is short synthetic Node evidence,
+not browser, real-document or 50 GB performance proof. Recover receipts from
 [the implementation record](development/2026-10-08-study-engine-implementation.md)
-and `ROADMAP.yaml`. New catalog rows do not activate sources. Public v1 and corpus
-2.0 defaults remain unchanged pending their explicit successor implementations.
-The following pause record is historical and does not override this resume.
+and `ROADMAP.yaml`. The requested local implementation is at a validated checkpoint
+with zero active items. The broader general-engine release remains in progress:
+GD27 is not accepted, and the roadmap lists the remaining roots in priority order.
+GD39 is newly ready after its dependencies completed; no acquisition was dispatched.
+New catalog rows do not activate sources, and GD47 source qualification remains
+incomplete. Real Nation references require the independently pinned registry.
+Public v1 and corpus 2.0 defaults remain unchanged; their explicit 2.0/2.1 successors
+are implemented with reviewed migration and independent source-registry validation.
+No publication or private-sharing operation occurred. The following pause record
+is historical and does not override this accepted implementation checkpoint.
 
 #### True-up at the user-requested pause
 
@@ -129,9 +140,9 @@ GD-33 retains the complete nationwide survey without delaying the pilot.
 The ledger's `current_focus` and `next_actions` own active/terminal status;
 Recover session 1's historical detail from
 [its outcome](handoffs/general-development-session-01-outcome.md).
-`docs/architecture/module-boundaries.md` section 9.4 retains historical
-pre-ruling design text pending GD-15; the current ledger and D-086 sequence
-control execution.
+`docs/architecture/module-boundaries.md` section 9.4 preserves historical
+pre-ruling design with accepted GD15 successor annotations; the current ledger
+and D-086/D-088 sequence control execution.
 
 D-082 settled the registry repository shape and sequential waves. The geometry
 dependency is selected when GD-19 starts. D-086 records the 50 GB total cap,
