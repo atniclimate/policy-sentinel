@@ -52,6 +52,11 @@ does not accept GD36/GD37/GD38, an API integration, or GD27. Use the current
 roadmap for the exact validated checkpoint and remaining dependency-ready roots;
 never redispatch the spent manifest. Existing source-specific and publication
 boundaries remain in force.
+GD54 and GD14 are accepted at local source commit
+`94179a21ee1c506db7189e55c0519fe560d4421e`. The pilot checkpoint has zero active
+items, a final passing browser receipt, and a 954,056,203-byte managed inventory.
+The remaining roots are unchanged apart from completed GD14/GD54 removal; no
+new dependent item becomes ready at this checkpoint.
 
 The owner resumed implementation through D-088's integrated study-engine launch.
 GD10 boundary enforcement, GD12 source catalog and GD25 persistent analyst studies

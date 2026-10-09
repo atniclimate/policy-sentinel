@@ -268,6 +268,15 @@ remain outside staging. No remote, push, deployment, provider credentials,
 private input, paid service, source-term acceptance or outbound notification
 occurred. The original source captures and historical runs were not rewritten.
 
+Local source checkpoint: `94179a21ee1c506db7189e55c0519fe560d4421e`, on the
+unchanged `demo/live-pages` branch, starting from `695693c`. It contains the 26
+leased source/configuration/test/documentation files and no generated data.
+A follow-up ledger commit accepts GD54 and GD14 against this existing source
+commit. The finite local task ends with zero active items; the broader release
+remains in progress. No dependent item becomes newly ready. Remaining roots and
+source-specific blocks are preserved in priority order, with GD20 the next
+independent implementation root and GD36 carrying the broader pilot qualification.
+
 To reopen the finite pilot, from `I:/policy-sentinel` run:
 
 ```powershell
