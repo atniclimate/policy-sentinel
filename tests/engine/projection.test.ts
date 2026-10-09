@@ -1,3 +1,8 @@
+import sourceRegistry from "../../config/sources.v1.json";
+import taxonomy from "../../config/taxonomy.v1.json";
+import * as legacyProjection from "../../src/engine/projection";
+import * as pureProjection from "../../src/core/projection";
+import * as configuredEngine from "../../scripts/configured-engine";
 import { createHash } from "node:crypto";
 
 import { describe, expect, it } from "vitest";
@@ -211,4 +216,53 @@ describe("deterministic reference-only engine projection", () => {
       before,
     );
   });
+});
+
+it("retains projection facade identity and canonical output with explicit configuration", () => {
+  const shared = [
+    "REQUIRED_COMMUNITY_RELEVANCE_NONCLAIMS",
+    "ProjectionValidationError",
+    "serializeEngineProjection",
+  ] as const;
+  const configured = [
+    "parseProjectionProfileBundle",
+    "createEngineProjection",
+  ] as const;
+  expect(Object.keys(legacyProjection).sort()).toEqual(
+    [...shared, ...configured].sort(),
+  );
+  for (const name of shared)
+    expect(legacyProjection[name]).toBe(pureProjection[name]);
+  for (const name of configured)
+    expect(legacyProjection[name]).toBe(configuredEngine[name]);
+  const direct = pureProjection.createProjectionRuntime({
+    sourceRegistry,
+    taxonomy,
+  });
+  expect(direct.parseProjectionProfileBundle(validProfileBundle)).toEqual(
+    legacyProjection.parseProjectionProfileBundle(validProfileBundle),
+  );
+  expect(
+    serializeEngineProjection(
+      direct.createEngineProjection(records(), validProfileBundle),
+    ),
+  ).toBe(
+    serializeEngineProjection(
+      createEngineProjection(records(), validProfileBundle),
+    ),
+  );
+  const noSources = pureProjection.createProjectionRuntime({
+    sourceRegistry: { sources: [] },
+    taxonomy,
+  });
+  expect(() =>
+    noSources.parseProjectionProfileBundle(validProfileBundle),
+  ).toThrow(ProjectionValidationError);
+  const wrongTaxonomy = pureProjection.createProjectionRuntime({
+    sourceRegistry,
+    taxonomy: { ...taxonomy, taxonomyVersion: "99.0.0" },
+  });
+  expect(() =>
+    wrongTaxonomy.createEngineProjection(records(), validProfileBundle),
+  ).toThrow(ProjectionValidationError);
 });

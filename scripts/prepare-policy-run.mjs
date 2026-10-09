@@ -3,12 +3,10 @@ import {
   openPolicyRun,
   admitPolicyTargets,
 } from "../src/pipeline/policy-custody.mjs";
-import {
-  initialDirectManifest,
-  makahDemoFederalManifest,
-} from "../config/policy-sources.v2.mjs";
+import { makahDemoFederalManifest } from "../config/policy-sources.v2.mjs";
+import { initialDirectManifestFromCatalog } from "./configured-source-catalog.mjs";
 const manifestFactories = {
-  "real-policy-discovery-01": initialDirectManifest,
+  "real-policy-discovery-01": initialDirectManifestFromCatalog,
   "makah-demo-02": makahDemoFederalManifest,
 };
 function parseArgs(argv) {
@@ -46,9 +44,14 @@ const { admit, root, manifestFactory } = parseArgs(process.argv.slice(2));
 let result;
 if (admit) {
   const run = await openPolicyRun(root);
-  const targets = manifestFactory(run.owner.runId).targets.filter(
+  const targets = manifestFactory(run.owner.runId, {
+    purpose: "replay",
+  }).targets.filter(
     (target) => !run.manifest.targets.some((prior) => prior.url === target.url),
   );
+  // An unchanged historical selection is a local no-op. Any new admission
+  // must still pass today's catalog and custody dispatch checks.
+  if (targets.length) manifestFactory(run.owner.runId);
   result = targets.length
     ? await admitPolicyTargets(root, {
         ...run.manifest,

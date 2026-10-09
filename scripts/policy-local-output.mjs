@@ -18,6 +18,12 @@ import {
   localCorpusBytes,
   validateLocalOutputFiles,
 } from "../src/modules/output/local-workbench/write.mjs";
+import {
+  createSearchProjection,
+  MAX_SEARCH_PROJECTION_MANIFEST_BYTES,
+  serializeSearchProjectionManifest,
+  verifySearchProjection,
+} from "../src/modules/output/local-workbench/search-projection.mjs";
 
 const fail = (code) => {
   throw new Error(code);
@@ -27,7 +33,7 @@ export async function writeLocalOutput(
   root,
   corpus,
   assets,
-  { name = "gold" } = {},
+  { name = "gold", selection } = {},
 ) {
   if (!["gold", "discovery"].includes(name)) fail("INVALID_CORPUS_SELECTION");
   const run = await openPolicyRun(root);
@@ -38,7 +44,7 @@ export async function writeLocalOutput(
     fail("OUTPUT_RUN_MISMATCH");
   assertProfileBindings(corpus, run);
   assertCaptureBindings(corpus, run);
-  const corpusBytes = localCorpusBytes(corpus);
+  let corpusBytes = localCorpusBytes(corpus);
   const sealBytes = await readOwnedFile(root, `review/${name}-seal.json`, 4096);
   const seal = JSON.parse(sealBytes.toString("utf8"));
   if (
@@ -46,18 +52,38 @@ export async function writeLocalOutput(
     seal.outputDigest !== digest(corpusBytes)
   )
     fail("OUTPUT_REVIEW_SEAL_MISMATCH");
+  let searchProjection;
+  let projectionBytes;
+  if (selection !== undefined) {
+    // The caller supplies the reviewed parent, never a self-asserted subset.
+    const replay = await replayReviewedCorpus(root, { name });
+    if (replay.corpus.contentDigest !== corpus.contentDigest)
+      fail("OUTPUT_SOURCE_REPLAY_MISMATCH");
+    const projected = createSearchProjection(replay.corpus, selection);
+    corpus = projected.corpus;
+    corpusBytes = localCorpusBytes(corpus);
+    projectionBytes = serializeSearchProjectionManifest(projected.manifest);
+    searchProjection = {
+      file: "search-projection.json",
+      fileDigest: digest(projectionBytes),
+      bytes: projectionBytes.length,
+      parentCorpusDigest: replay.corpus.contentDigest,
+    };
+  }
   const files = new Map(assets);
   if (
     files.has("corpus.json") ||
     files.has("local-profile.json") ||
+    files.has("search-projection.json") ||
     !files.has("index.html")
   )
     fail("OUTPUT_ASSET_CONFLICT");
   files.set("corpus.json", corpusBytes);
+  if (projectionBytes) files.set("search-projection.json", projectionBytes);
   files.set(
     "local-profile.json",
     Buffer.from(
-      `${JSON.stringify({ kind: "policy_local_profile", schemaVersion: "1.0.0", trustDomain: "real_source_local", corpusDigest: corpus.contentDigest, corpusFile: "corpus.json", corpusFileDigest: digest(corpusBytes), corpusBytes: corpusBytes.length, publication: "closed" }, null, 2)}\n`,
+      `${JSON.stringify({ kind: "policy_local_profile", schemaVersion: "1.0.0", trustDomain: "real_source_local", corpusDigest: corpus.contentDigest, corpusFile: "corpus.json", corpusFileDigest: digest(corpusBytes), corpusBytes: corpusBytes.length, publication: "closed", ...(searchProjection ? { searchProjection } : {}) }, null, 2)}\n`,
     ),
   );
   for (const [name, bytes] of files)
@@ -80,6 +106,7 @@ export async function writeLocalOutput(
     corpusSealDigest: digest(sealBytes),
     publication: "closed",
     files: fileEntries,
+    ...(searchProjection ? { searchProjection } : {}),
   };
   // The pointer is written last. Interrupted builds never replace the last complete output.
   for (const [name, bytes] of files)
@@ -145,12 +172,20 @@ export async function readLocalOutput(root) {
       !Number.isSafeInteger(entry.bytes) ||
       entry.bytes < 0 ||
       entry.bytes > 128 * 1024 ** 2 ||
+      (entry.path === "search-projection.json" &&
+        entry.bytes > MAX_SEARCH_PROJECTION_MANIFEST_BYTES) ||
       !/^[a-f0-9]{64}$/.test(entry.digest)
     )
       fail("INVALID_OUTPUT_FILE_SIZE_OR_DIGEST");
     totalBytes += entry.bytes;
     if (totalBytes > 512 * 1024 ** 2) fail("OUTPUT_MEMORY_BOUND");
-    const bytes = await readOwnedFile(root, `${base}/${entry.path}`);
+    const bytes = await readOwnedFile(
+      root,
+      `${base}/${entry.path}`,
+      entry.path === "search-projection.json"
+        ? MAX_SEARCH_PROJECTION_MANIFEST_BYTES
+        : undefined,
+    );
     if (bytes.length !== entry.bytes || digest(bytes) !== entry.digest)
       fail("OUTPUT_FILE_DIGEST_MISMATCH");
     files.set(entry.path, bytes);
@@ -174,6 +209,16 @@ export async function readLocalOutput(root) {
   const replay = await replayReviewedCorpus(root, {
     name: manifest.corpusSelection,
   });
+  if (manifest.searchProjection) {
+    const projection = verifySearchProjection(
+      replay.corpus,
+      JSON.parse(files.get("search-projection.json").toString("utf8")),
+      files.get("corpus.json"),
+    );
+    if (projection.corpus.contentDigest !== manifest.corpusDigest)
+      fail("OUTPUT_SOURCE_REPLAY_MISMATCH");
+    return { manifest, files, manifestDigest: digest(manifestBytes) };
+  }
   if (
     replay.corpus.contentDigest !== manifest.corpusDigest ||
     !Buffer.from(serializeAnalyzedCorpusV2(replay.corpus)).equals(

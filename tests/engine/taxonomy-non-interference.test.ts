@@ -1,3 +1,8 @@
+import sourceRegistry from "../../config/sources.v1.json";
+import * as legacyTaxonomy from "../../src/engine/taxonomy";
+import * as pureTaxonomy from "../../src/modules/context/taxonomy";
+import * as configuredEngine from "../../scripts/configured-engine";
+import type { TaxonomyConfig } from "../../src/shared/contracts";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -30,10 +35,14 @@ const projectRoot = resolve(import.meta.dirname, "../..");
 const enginePaths = [
   "src/engine/contracts.ts",
   "src/engine/projection.ts",
+  "src/core/projection.ts",
+  "scripts/configured-engine.ts",
   "src/engine/geography-rights-contracts.ts",
   "src/engine/geography-rights.ts",
+  "src/modules/context/geography-rights.ts",
   "src/engine/taxonomy-contracts.ts",
   "src/engine/taxonomy.ts",
+  "src/modules/context/taxonomy.ts",
   "src/engine/index.ts",
 ] as const;
 
@@ -438,4 +447,70 @@ describe("taxonomy non-interference boundaries", () => {
     expect(builder).not.toContain("fixtures/engine");
     expect(builder).toContain('normalized.startsWith("fixtures/records/")');
   });
+});
+
+it("preserves taxonomy facade identities and explicitly configured projection", () => {
+  const shared = [
+    "REQUIRED_TAXONOMY_NONCLAIMS",
+    "TaxonomyValidationError",
+    "serializeTaxonomyProjection",
+  ] as const;
+  const configured = [
+    "parseTaxonomyBundle",
+    "createTaxonomyProjection",
+  ] as const;
+  expect(Object.keys(legacyTaxonomy).sort()).toEqual(
+    [...shared, ...configured].sort(),
+  );
+  for (const name of shared)
+    expect(legacyTaxonomy[name]).toBe(pureTaxonomy[name]);
+  for (const name of configured)
+    expect(legacyTaxonomy[name]).toBe(configuredEngine[name]);
+  const configuration = {
+    taxonomyConfig: taxonomyConfig as TaxonomyConfig,
+    projectionConfiguration: { sourceRegistry, taxonomy: taxonomyConfig },
+  };
+  const direct = pureTaxonomy.createTaxonomyRuntime(configuration);
+  expect(direct.parseTaxonomyBundle(validTaxonomyBundle)).toEqual(
+    legacyTaxonomy.parseTaxonomyBundle(validTaxonomyBundle),
+  );
+  const profile = taxonomyProfile();
+  const engine = createEngineProjection(taxonomyRecords(), profile);
+  const request = {
+    deploymentProfileRef: {
+      id: "synthetic-cloud-harbor-deployment",
+      version: "1.0.0",
+    },
+    personaProjectionRef: {
+      id: "synthetic-cloud-harbor-researcher",
+      version: "1.0.0",
+    },
+    outputAdapterRef: {
+      id: "synthetic-document-reference-output",
+      version: "1.0.0",
+    },
+    requestedVisibility: "public",
+    asOf: "3785-06-30",
+  };
+  expect(
+    serializeTaxonomyProjection(
+      direct.createTaxonomyProjection(
+        profile,
+        engine,
+        validTaxonomyBundle,
+        request,
+      ),
+    ),
+  ).toBe(
+    serializeTaxonomyProjection(
+      createTaxonomyProjection(profile, engine, validTaxonomyBundle, request),
+    ),
+  );
+  const wrongTaxonomy = pureTaxonomy.createTaxonomyRuntime({
+    ...configuration,
+    taxonomyConfig: { ...configuration.taxonomyConfig, categories: [] },
+  });
+  expect(() => wrongTaxonomy.parseTaxonomyBundle(validTaxonomyBundle)).toThrow(
+    pureTaxonomy.TaxonomyValidationError,
+  );
 });

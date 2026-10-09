@@ -8,6 +8,10 @@ import {
   assertProfileBindings,
   assertCaptureBindings,
 } from "../../../core/local-output-bindings.mjs";
+import {
+  MAX_SEARCH_PROJECTION_MANIFEST_BYTES,
+  validateSearchProjectionEnvelope,
+} from "./search-projection.mjs";
 
 const fail = (code) => {
   throw new Error(code);
@@ -57,6 +61,42 @@ export function validateLocalOutputFiles(files, manifest, run, replayOptions) {
     corpusBytes: bytes.length,
     publication: "closed",
   };
+  if (manifest.searchProjection !== undefined) {
+    const descriptor = manifest.searchProjection;
+    const projectionBytes = files.get("search-projection.json");
+    if (
+      !descriptor ||
+      descriptor.file !== "search-projection.json" ||
+      !Number.isSafeInteger(descriptor.bytes) ||
+      descriptor.bytes < 1 ||
+      descriptor.bytes > MAX_SEARCH_PROJECTION_MANIFEST_BYTES ||
+      !/^[a-f0-9]{64}$/.test(descriptor.parentCorpusDigest) ||
+      !projectionBytes ||
+      projectionBytes.length !== descriptor.bytes ||
+      digest(projectionBytes) !== descriptor.fileDigest
+    )
+      fail("OUTPUT_PROJECTION_BINDING_MISMATCH");
+    const projection = JSON.parse(projectionBytes.toString("utf8"));
+    if (projection.parentCorpusDigest !== descriptor.parentCorpusDigest)
+      fail("OUTPUT_PROJECTION_BINDING_MISMATCH");
+    validateSearchProjectionEnvelope(projection, corpus, bytes);
+    expectedProfile.searchProjection = {
+      file: "search-projection.json",
+      fileDigest: digest(projectionBytes),
+      bytes: projectionBytes.length,
+      parentCorpusDigest: projection.parentCorpusDigest,
+    };
+    if (
+      JSON.stringify(descriptor) !==
+      JSON.stringify(expectedProfile.searchProjection)
+    )
+      fail("OUTPUT_PROJECTION_BINDING_MISMATCH");
+  } else if (
+    files.has("search-projection.json") ||
+    profile.searchProjection !== undefined
+  ) {
+    fail("OUTPUT_PROJECTION_BINDING_MISMATCH");
+  }
   if (JSON.stringify(profile) !== JSON.stringify(expectedProfile))
     fail("OUTPUT_PROFILE_BINDING_MISMATCH");
   return { corpusDigest: corpus.contentDigest, valid: true };

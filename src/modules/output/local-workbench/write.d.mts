@@ -1,5 +1,6 @@
 import type { Buffer } from "node:buffer";
 import type { CorpusReplayOptions } from "../../../pipeline/analyzed-corpus-v2.mjs";
+import type { SearchProjectionDescriptor } from "./search-projection.mjs";
 
 export interface LocalOutputFileEntry {
   readonly path: string;
@@ -14,6 +15,7 @@ export interface LocalOutputSnapshotManifest {
   readonly corpusDigest: string;
   readonly publication: "closed";
   readonly files: readonly LocalOutputFileEntry[];
+  readonly searchProjection?: SearchProjectionDescriptor;
 }
 
 /** Additional fields checked by readLocalOutput against custody and its seal. */
@@ -50,7 +52,10 @@ export function localCorpusBytes(
 /** Reads owner/profile/receipt metadata from run; performs no root access. */
 export function validateLocalOutputFiles(
   files: ReadonlyMap<string, Buffer>,
-  manifest: { readonly corpusDigest: string },
+  manifest: {
+    readonly corpusDigest: string;
+    readonly searchProjection?: SearchProjectionDescriptor;
+  },
   run: unknown,
   replayOptions?: CorpusReplayOptions,
 ): { readonly corpusDigest: string; readonly valid: true };

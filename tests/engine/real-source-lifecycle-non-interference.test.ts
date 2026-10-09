@@ -538,7 +538,7 @@ describe("real-source lifecycle non-interference", () => {
     );
   });
 
-  it("keeps the accepted SourcePack v1 surface byte-stable", () => {
+  it("keeps the accepted SourcePack v1 contracts and relocated implementation pinned", () => {
     const bytePins = {
       "fixtures/engine/source-pack.synthetic.valid.json":
         "ca7b58b8624d78cd09cef5b8aed48be91ae8d1e787b4ab6a7f65d8a0a87c551d",
@@ -547,12 +547,35 @@ describe("real-source lifecycle non-interference", () => {
       "src/engine/source-pack-contracts.ts":
         "4b03034aa74fcec438dd1d4147b81941a6dcd75049cf9a09155760fb97e3c022",
       "src/engine/source-pack.ts":
-        "ff631a52d4b898ede496d512870fe46ae095c278fb3ae4f40f03f13e8d94084e",
+        "d7d7c3ad8dffb56196e60162527fda84a6841cc85617f99c57d38aad934bb9aa",
+      "scripts/source-pack.ts":
+        "cff425d4e5a203bba057646284340a153da7dbab8bb5f8ce53b9a9020d6e2bdb",
     } as const;
     for (const [path, expected] of Object.entries(bytePins)) {
       expect(sha256(readFileSync(resolve(projectRoot, path))), path).toBe(
         expected,
       );
     }
+    // The original checkpoint's complete non-import body survives relocation.
+    const implementation = ts.createSourceFile(
+      "source-pack.ts",
+      readFileSync(resolve(projectRoot, "scripts/source-pack.ts"), "utf8"),
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TS,
+    );
+    const printer = ts.createPrinter({
+      removeComments: true,
+      newLine: ts.NewLineKind.LineFeed,
+    });
+    const originalBody = implementation.statements
+      .filter((node) => !ts.isImportDeclaration(node))
+      .map((node) =>
+        printer.printNode(ts.EmitHint.Unspecified, node, implementation),
+      )
+      .join("\n");
+    expect(sha256(originalBody)).toBe(
+      "42ff898af9a9623ce49386edbd6ae69b560f199995d93c8847bfe7b960234f79",
+    );
   });
 });

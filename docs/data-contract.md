@@ -65,6 +65,43 @@ or establish PNW completion.
 
 ### Implemented JSON Schemas
 
+D-088 adds three independently versioned local contracts. Their integrated
+validation and acceptance are recorded in the
+[study-engine implementation record](development/2026-10-08-study-engine-implementation.md):
+
+- [`SourceCatalog 1.0.0`](../schemas/source-catalog.schema.v1.json), ID
+  `https://policy-sentinel.invalid/schemas/source-catalog.schema.v1.json`, is
+  consumed by the [catalog runtime](../src/modules/intake/source-catalog.mjs)
+  and configured acquisition preparation. It distinguishes documentary search
+  capabilities, implemented retrieval, source qualification and activation;
+  documentary discovery geography does not establish legal applicability.
+  [Catalog tests](../tests/pipeline/source-catalog.test.mjs) compile strict
+  schema, reject malformed/expired dispatch and preserve historical manifest bytes.
+- [`ResearchStudy 1.0.0`](../schemas/research-study.schema.v1.json), ID
+  `https://policy-sentinel.invalid/schemas/research-study.schema.v1.json`, is
+  consumed by the [pure study runtime](../src/core/research-study.mjs) and
+  [local workspace](../src/app/StudyWorkspace.tsx). It is an 8 MiB bounded
+  sidecar, with canonical digests, exact corpus/version/passage bindings and
+  reconstructable revisions. It leaves sealed AnalyzedCorpus 2.0 bytes intact.
+  Questions, discovery, assertions, reviews and notes retain independent
+  authorship and sensitivity; procedures, consultation and environmental values
+  require exact cited source statements. Importing against a changed corpus
+  requires explicit review. [Study tests](../tests/core/research-study.test.ts)
+  cover schema/runtime negatives and the ten required functional outcomes.
+- [`AttributedStudyGraph 1.0.0`](../schemas/attributed-study-graph.schema.v1.json),
+  ID `https://policy-sentinel.invalid/schemas/attributed-study-graph.schema.v1.json`,
+  is produced by [study products](../src/modules/output/study-products.mjs).
+  Its six node kinds and four edge kinds carry actors, timestamps, review state,
+  provenance and exact citations. It references the study schema's actor and
+  citation definitions; [product tests](../tests/modules/output/study-products.test.ts)
+  compile the graph strictly and check endpoint closure, privacy and exports.
+  Public filtering removes restricted content, history and dependent records;
+  current corpus source profiles prohibit public source redistribution.
+
+These contracts do not migrate retained public record/artifact versions or
+make any source operational merely by listing it. The total managed-storage
+ceiling remains 50,000,000,000 bytes and the browser corpus limit remains 128 MiB.
+
 `DevelopmentAuthorityPreparation 1.0.0` is a local preparation-only contract in
 [`development-authority.schema.v1.json`](../schemas/development-authority.schema.v1.json),
 ID `https://policy-sentinel.invalid/schemas/development-authority.schema.v1.json`.

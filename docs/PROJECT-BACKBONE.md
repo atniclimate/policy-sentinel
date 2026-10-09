@@ -1,6 +1,10 @@
 # Policy Sentinel project backbone
 
 Current execution contract: schema 1.11, GD-27 current local release root.
+D-088's [study-engine implementation](development/2026-10-08-study-engine-implementation.md)
+records the active coordinated catalog, study, procedural evidence, retrieval
+and export work. The [schema catalog](data-contract.md#implemented-json-schemas)
+describes the new contracts; the ledger records validation and acceptance.
 The [GD-31 crosswalk](development/gd31-release-acceptance-crosswalk.md) accounts
 for retained PS09 claims, every Part B capability and A1-A4. The
 [successor preparation contract](architecture/gd31-successor-contracts.md) and

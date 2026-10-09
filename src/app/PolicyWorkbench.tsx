@@ -28,11 +28,18 @@ import type {
   VersionComparison,
 } from "../engine/temporal-operations.mjs";
 import "./policy-workbench.css";
+import { StudyWorkspace } from "./StudyWorkspace";
+import type {
+  ConfiguredSourceCoverage,
+  StudySearchProjection,
+} from "./StudyWorkspace";
 
 export interface PolicyWorkbenchProps {
   readonly corpus: AnalyzedCorpusV2;
   readonly dossierHref?: string;
   readonly jsonHref?: string;
+  readonly sourceCoverage?: ConfiguredSourceCoverage;
+  readonly projection?: StudySearchProjection;
 }
 const dateLabel = (date: PolicyDate) =>
   date.value === null
@@ -312,6 +319,8 @@ export function PolicyWorkbench({
   corpus,
   dossierHref,
   jsonHref,
+  sourceCoverage,
+  projection,
 }: PolicyWorkbenchProps) {
   const index = useMemo(() => createPolicySearchIndex(corpus), [corpus]);
   const [query, setQuery] = useState("");
@@ -560,6 +569,7 @@ export function PolicyWorkbench({
         <a href="#pw-comparison">Compare</a>
         <a href="#pw-findings">Findings</a>
         <a href="#pw-coverage">Coverage</a>
+        <a href="#pw-study">Research study</a>
         {dossier && <a href={dossier}>Open local dossier</a>}
         {json && <a href={json}>Open corpus JSON</a>}
       </nav>
@@ -948,6 +958,30 @@ export function PolicyWorkbench({
             outsideSnapshot={evidenceScope === "retained"}
           />
         )}
+        <StudyWorkspace
+          corpus={corpus}
+          sourceCoverage={sourceCoverage}
+          projection={projection}
+          searchResults={result.value}
+          searchRequest={request}
+          selectedSegmentId={evidenceId}
+          onOpenPassage={(segmentId) => openEvidence(segmentId, "retained")}
+          onSearch={(next) => {
+            setQuery(next.query);
+            setSource(next.sourceProfileId ?? "");
+            setContext(next.governmentContext ?? "");
+            setInstrument(next.instrumentClass ?? "");
+            setAsOf(next.asOf ?? "");
+            setBasis(next.basis ?? "source_available");
+            setRequest(next);
+            setWindowSize(20);
+            setEvidenceId(null);
+            setSelected([]);
+            setComparison(null);
+            setProcedures(null);
+            queueMicrotask(() => resultsHeading.current?.focus());
+          }}
+        />
         <section
           id="pw-comparison"
           class="pw-section"

@@ -1,3 +1,8 @@
+import sourceRegistry from "../../config/sources.v1.json";
+import taxonomy from "../../config/taxonomy.v1.json";
+import * as legacyGeography from "../../src/engine/geography-rights";
+import * as pureGeography from "../../src/modules/context/geography-rights";
+import * as configuredEngine from "../../scripts/configured-engine";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -23,8 +28,11 @@ const projectRoot = resolve(import.meta.dirname, "../..");
 const enginePaths = [
   "src/engine/contracts.ts",
   "src/engine/projection.ts",
+  "src/core/projection.ts",
+  "scripts/configured-engine.ts",
   "src/engine/geography-rights-contracts.ts",
   "src/engine/geography-rights.ts",
+  "src/modules/context/geography-rights.ts",
   "src/engine/index.ts",
 ] as const;
 
@@ -343,4 +351,72 @@ describe("geography and rights non-interference boundaries", () => {
     expect(builder).not.toContain("fixtures/engine");
     expect(builder).toContain('normalized.startsWith("fixtures/records/")');
   });
+});
+
+it("preserves geography facade identities and explicitly configured projection", () => {
+  const shared = [
+    "REQUIRED_GEOGRAPHY_RIGHTS_FORBIDDEN_INFERENCES",
+    "GeographyRightsValidationError",
+    "parseGeographyRightsBundle",
+    "serializeGeographyRightsProjection",
+  ] as const;
+  expect(Object.keys(legacyGeography).sort()).toEqual(
+    [...shared, "createGeographyRightsProjection"].sort(),
+  );
+  for (const name of shared)
+    expect(legacyGeography[name]).toBe(pureGeography[name]);
+  expect(legacyGeography.createGeographyRightsProjection).toBe(
+    configuredEngine.createGeographyRightsProjection,
+  );
+  expect(legacyGeography.parseGeographyRightsBundle).toBe(
+    configuredEngine.parseGeographyRightsBundle,
+  );
+  const request = {
+    deploymentProfileRef: {
+      id: "synthetic-cloud-harbor-deployment",
+      version: "1.0.0",
+    },
+    personaProjectionRef: {
+      id: "synthetic-cloud-harbor-researcher",
+      version: "1.0.0",
+    },
+    outputAdapterRef: {
+      id: "synthetic-document-reference-output",
+      version: "1.0.0",
+    },
+    requestedVisibility: "restricted",
+    requestedUse: "monitoring_context",
+  };
+  const direct = pureGeography.createGeographyRightsRuntime({
+    sourceRegistry,
+    taxonomy,
+  });
+  expect(
+    pureGeography.serializeGeographyRightsProjection(
+      direct.createGeographyRightsProjection(
+        validProfileBundle,
+        validGeographyRightsBundle,
+        request,
+      ),
+    ),
+  ).toBe(
+    pureGeography.serializeGeographyRightsProjection(
+      createGeographyRightsProjection(
+        validProfileBundle,
+        validGeographyRightsBundle,
+        request,
+      ),
+    ),
+  );
+  const refused = pureGeography.createGeographyRightsRuntime({
+    sourceRegistry: { sources: [] },
+    taxonomy,
+  });
+  expect(() =>
+    refused.createGeographyRightsProjection(
+      validProfileBundle,
+      validGeographyRightsBundle,
+      request,
+    ),
+  ).toThrow();
 });

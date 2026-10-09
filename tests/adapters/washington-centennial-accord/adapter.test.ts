@@ -1,4 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import taxonomy from "../../../config/taxonomy.v1.json";
+import * as legacy from "../../../src/adapters/washington-centennial-accord";
+import * as direct from "../../../src/adapters/washington-centennial-accord/adapter";
+import * as configured from "../../../scripts/configured-source-refresh";
+import type { TaxonomyConfig } from "../../../src/shared/contracts";
+import * as policyValidation from "../../../src/pipeline/policy-validation.mjs";
 
 import sourceRegistry from "../../../config/sources.v1.json";
 import {
@@ -29,6 +35,126 @@ const unchangedValidator = {
     return records;
   },
 };
+
+describe("configured refresh composition", () => {
+  it("preserves the complete legacy surface and adapter identities", () => {
+    expect(Object.keys(legacy).sort()).toEqual([
+      "GOIA_ACCORD_HTML_POLICY",
+      "GOIA_ACCORD_METADATA",
+      "GOIA_ACCORD_NORMALIZATION_RULES",
+      "GOIA_ACCORD_PATH",
+      "GOIA_ACCORD_REQUIRED_PROVENANCE_POINTERS",
+      "GOIA_ACCORD_URL",
+      "GOIA_ACCORD_USER_AGENT",
+      "GoiaAccordContractError",
+      "GoiaAccordTransportError",
+      "WASHINGTON_CENTENNIAL_ACCORD_ADAPTER_ID",
+      "WASHINGTON_CENTENNIAL_ACCORD_ADAPTER_VERSION",
+      "WASHINGTON_CENTENNIAL_ACCORD_CONTRACT_VERSION",
+      "WASHINGTON_CENTENNIAL_ACCORD_IDENTITY_RULE",
+      "WASHINGTON_CENTENNIAL_ACCORD_SOURCE_ID",
+      "WashingtonCentennialAccordAdapter",
+      "assertGoiaAccordProjection",
+      "assertGoiaAccordSourceConfig",
+      "assertGoiaAccordUrl",
+      "buildGoiaAccordUrl",
+      "createWashingtonCentennialAccordAdapter",
+      "fetchGoiaAccordPage",
+      "goiaAccordSourceRecordId",
+      "goiaAccordStableRecordId",
+      "normalizeGoiaAccord",
+      "parseGoiaAccordPage",
+      "refreshWashingtonCentennialAccordSource",
+    ]);
+    expect(legacy.WashingtonCentennialAccordAdapter).toBe(
+      direct.WashingtonCentennialAccordAdapter,
+    );
+    expect(legacy.createWashingtonCentennialAccordAdapter).toBe(
+      direct.createWashingtonCentennialAccordAdapter,
+    );
+    expect(legacy.refreshWashingtonCentennialAccordSource).toBe(
+      configured.refreshWashingtonCentennialAccordSource,
+    );
+  });
+
+  it("binds canonical taxonomy and preserves direct refresh results", async () => {
+    const context = goiaAccordContext();
+    const injectedTaxonomy = structuredClone(
+      taxonomy,
+    ) as unknown as TaxonomyConfig;
+    const policyBarrier = vi.spyOn(policyValidation, "validateRecordSetPolicy");
+    const externalValidator = vi.fn((records: PolicyRecord[]) => {
+      expect(policyBarrier.mock.calls.length).toBe(
+        externalValidator.mock.calls.length,
+      );
+      return records;
+    });
+    try {
+      const configuredResult =
+        await configured.refreshWashingtonCentennialAccordSource(
+          createWashingtonCentennialAccordAdapter(fixtureTransport()),
+          context,
+          { validate: externalValidator },
+        );
+      const directResult =
+        await direct.refreshWashingtonCentennialAccordSourceWithTaxonomy(
+          createWashingtonCentennialAccordAdapter(fixtureTransport()),
+          context,
+          { validate: externalValidator },
+          injectedTaxonomy,
+        );
+      expect(configuredResult.ok).toBe(true);
+      expect(directResult).toEqual(configuredResult);
+      expect(externalValidator).toHaveBeenCalledTimes(2);
+      expect(policyBarrier).toHaveBeenCalledTimes(2);
+      expect(policyBarrier.mock.calls[0]?.[1].taxonomy).toBe(taxonomy);
+      expect(policyBarrier.mock.calls[1]?.[1].taxonomy).toBe(injectedTaxonomy);
+      for (const [, options] of policyBarrier.mock.calls) {
+        expect(
+          options.sourceRegistry.sources.find(
+            ({ id }) => id === context.source.id,
+          ),
+        ).toBe(context.source);
+      }
+    } finally {
+      policyBarrier.mockRestore();
+    }
+  });
+
+  it("keeps mandatory policy refusal ahead of caller validation on both routes", async () => {
+    const context = goiaAccordContext();
+    const externalValidator = vi.fn((records: PolicyRecord[]) => records);
+    const policyBarrier = vi
+      .spyOn(policyValidation, "validateRecordSetPolicy")
+      .mockImplementation(() => {
+        throw new Error("Synthetic mandatory policy refusal");
+      });
+    try {
+      const configuredResult =
+        await configured.refreshWashingtonCentennialAccordSource(
+          createWashingtonCentennialAccordAdapter(fixtureTransport()),
+          context,
+          { validate: externalValidator },
+        );
+      const directResult =
+        await direct.refreshWashingtonCentennialAccordSourceWithTaxonomy(
+          createWashingtonCentennialAccordAdapter(fixtureTransport()),
+          context,
+          { validate: externalValidator },
+          taxonomy as unknown as TaxonomyConfig,
+        );
+      expect(configuredResult).toMatchObject({
+        ok: false,
+        failureStage: "validation",
+      });
+      expect(directResult).toEqual(configuredResult);
+      expect(policyBarrier).toHaveBeenCalledTimes(2);
+      expect(externalValidator).not.toHaveBeenCalled();
+    } finally {
+      policyBarrier.mockRestore();
+    }
+  });
+});
 
 async function references(
   adapter: WashingtonCentennialAccordAdapter,

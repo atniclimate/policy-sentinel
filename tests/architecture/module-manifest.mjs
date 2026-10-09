@@ -1,13 +1,10 @@
-// Module manifest for the general-development refactor (GD-02).
+// Module manifest and exact compatibility-facade contracts (GD-10).
 //
 // Declares the module membership model from
 // docs/architecture/module-boundaries.md sections 2-6 and 9, as amended by
 // docs/architecture/general-development-addendum-2026-09-22.md section 2.
-// This file classifies repository-relative paths into a module (or leaves
-// them unclassified/outside), and carries the report-mode allowlist of
-// today's known dependency-rule violations (audit section 2.6). GD-10
-// reduces that allowlist as later steps untangle the flagged files; it does
-// not change the classification logic.
+// This file preserves module membership while enforcing pure implementation
+// dependencies and explicitly reviewed compatibility facades.
 //
 // The manifest classifies the four new prefixes (`src/modules/intake/`,
 // `src/modules/context/`, `src/modules/output/`, `src/modules/private/`) and
@@ -39,7 +36,17 @@ const OUTSIDE_MODULE_PREFIXES = Object.freeze([
 
 // Composition roots (design section 2 diagram): scripts/*.mjs and
 // src/main.tsx. They may import any module's public entry.
-const COMPOSITION_ROOT_PATHS = Object.freeze(["src/main.tsx"]);
+export const COMPOSITION_ROOT_PATHS = Object.freeze([
+  "src/main.tsx",
+  "scripts/configured-engine.ts",
+  "scripts/configured-source-refresh.ts",
+  "scripts/source-pack.ts",
+]);
+
+export const COMPOSITION_DECLARATION_PATHS = Object.freeze([
+  "scripts/configured-analyzed-corpus.d.mts",
+  "scripts/configured-source-catalog.d.mts",
+]);
 
 // The private-context seam (Makah groundwork), kept in place by owner
 // ruling and classified as module `private` from the start (addendum
@@ -185,6 +192,11 @@ export function isCompositionRoot(repoPath) {
   );
 }
 
+/** @param {string} repoPath @returns {boolean} */
+export function isCompositionDeclaration(repoPath) {
+  return COMPOSITION_DECLARATION_PATHS.includes(normalizeRepoPath(repoPath));
+}
+
 /**
  * True for the five named private-context seam files and anything under
  * src/modules/private/.
@@ -298,94 +310,662 @@ export function isAllowedModuleEdge({ fromModule, fromPath, toModule }) {
 }
 
 /**
- * Today's known dependency-rule violations (audit section 2.6), each a
- * repository-relative (from, to) file pair. Report mode compares the
- * mechanically computed violation set against exactly this list: any
- * violation not listed fails the test, and any listed pair that no longer
- * occurs also fails the test, so the list can only shrink (GD-10).
- * @type {ReadonlyArray<{readonly from: string, readonly to: string, readonly note: string}>}
+ * @param {string} target
+ * @param {readonly string[]} names
+ * @param {boolean} typeOnly
+ * @returns {ReadonlyArray<{readonly target: string, readonly resolvedTargets: readonly string[], readonly importedName: string, readonly exportedName: string, readonly typeOnly: boolean}>}
  */
-export const ALLOWLISTED_VIOLATIONS = Object.freeze(
-  [
-    {
-      from: "src/pipeline/analyzed-corpus.mjs",
-      to: "config/sources.v1.json",
-      note: "core imports the intake source registry at module load (audit F-08 import-time data coupling)",
-    },
-    {
-      from: "src/pipeline/analyzed-corpus.mjs",
-      to: "config/taxonomy.v1.json",
-      note: "core imports the context taxonomy config at module load (audit F-08)",
-    },
-    {
-      from: "src/pipeline/synthetic-corpus-path.mjs",
-      to: "config/taxonomy.v1.json",
-      note: "intake imports the context taxonomy config at module load (audit F-08)",
-    },
-    {
-      from: "src/engine/source-pack.ts",
-      to: "src/engine/geography-rights.ts",
-      note: "PNW-05 source-pack bundles the PNW-03 context seam (audit 2.6 seams tested in isolation; no producer wires it)",
-    },
-    {
-      from: "src/engine/source-pack.ts",
-      to: "src/engine/geography-rights-contracts.ts",
-      note: "same as above, contract types",
-    },
-    {
-      from: "src/engine/source-pack.ts",
-      to: "src/engine/taxonomy.ts",
-      note: "PNW-05 source-pack bundles the PNW-04 context seam (audit 2.4/2.6; taxonomy is unwired)",
-    },
-    {
-      from: "src/engine/source-pack.ts",
-      to: "src/engine/taxonomy-contracts.ts",
-      note: "same as above, contract types",
-    },
-    {
-      from: "src/engine/source-pack.ts",
-      to: "src/engine/projection.ts",
-      note: "PNW-05 source-pack bundles the PNW-01 output seam (audit 2.6 seams tested in isolation)",
-    },
-    {
-      from: "src/engine/geography-rights.ts",
-      to: "src/engine/projection.ts",
-      note: "PNW-03 context seam imports the PNW-01 output seam (audit 2.6)",
-    },
-    {
-      from: "src/engine/taxonomy.ts",
-      to: "src/engine/projection.ts",
-      note: "PNW-04 context seam imports the PNW-01 output seam (audit 2.6)",
-    },
-    {
-      from: "src/engine/projection.ts",
-      to: "config/sources.v1.json",
-      note: "output builds maps from the intake source registry at module load (audit F-08, projection.ts:63-73)",
-    },
-    {
-      from: "src/adapters/federal-register/index.ts",
-      to: "config/taxonomy.v1.json",
-      note: "v1 adapter imports the context taxonomy config directly, though it emits only empty taxonomyMemberships (audit 2.4/2.6)",
-    },
-    {
-      from: "src/adapters/supreme-court-opinions-curated/index.ts",
-      to: "config/taxonomy.v1.json",
-      note: "same as above",
-    },
-    {
-      from: "src/adapters/washington-centennial-accord/index.ts",
-      to: "config/taxonomy.v1.json",
-      note: "same as above",
-    },
-    {
-      from: "src/adapters/washington-governor-executive-orders/index.ts",
-      to: "config/taxonomy.v1.json",
-      note: "same as above",
-    },
-    {
-      from: "src/pipeline/last-known-good.d.mts",
-      to: "src/pipeline/source-adapter.ts",
-      note: "output's last-known-good merge types against intake's SourceRefreshResult (audit F-08 layering inversions)",
-    },
-  ].map(Object.freeze),
-);
+function bindings(target, names, typeOnly) {
+  const declarationTargets = {
+    "src/core/analyzed-corpus.mjs": "src/core/analyzed-corpus.d.mts",
+    "scripts/configured-analyzed-corpus.mjs":
+      "scripts/configured-analyzed-corpus.d.mts",
+    "src/adapters/federal-register/tier1-contract.mjs":
+      "src/adapters/federal-register/tier1-contract.d.mts",
+  };
+  const declaration = declarationTargets[target];
+  const resolvedTargets = Object.freeze(
+    declaration ? [target, declaration].sort() : [target],
+  );
+  return names.map((name) =>
+    Object.freeze({
+      target,
+      resolvedTargets,
+      importedName: name,
+      exportedName: name,
+      typeOnly,
+    }),
+  );
+}
+
+/** Frozen named exports from 84cf62c; changing a facade cannot widen its lease. */
+export const LEGACY_FACADE_BINDINGS = Object.freeze({
+  "src/pipeline/analyzed-corpus.mjs": Object.freeze([
+    ...bindings(
+      "src/core/analyzed-corpus.mjs",
+      [
+        "SYNTHETIC_APPLICATION_PROFILE",
+        "canonicalCorpusDigest",
+        "ANALYZED_CORPUS_SCHEMA_ID",
+        "ANALYZED_CORPUS_SCHEMA_VERSION",
+        "REQUIRED_ANALYZED_CORPUS_NON_CLAIMS",
+        "AnalyzedCorpusValidationError",
+      ],
+      false,
+    ),
+    ...bindings(
+      "scripts/configured-analyzed-corpus.mjs",
+      [
+        "syntheticApplicationPins",
+        "createAnalyzedCorpus",
+        "parseAnalyzedCorpus",
+        "serializeAnalyzedCorpus",
+        "assertAnalyzedCorpusCompatibility",
+        "projectAnalyzedCorpus",
+      ],
+      false,
+    ),
+  ]),
+  "src/pipeline/analyzed-corpus.d.mts": Object.freeze([
+    ...bindings(
+      "src/core/analyzed-corpus.mjs",
+      [
+        "ANALYZED_CORPUS_SCHEMA_ID",
+        "ANALYZED_CORPUS_SCHEMA_VERSION",
+        "REQUIRED_ANALYZED_CORPUS_NON_CLAIMS",
+        "AnalyzedCorpusValidationError",
+        "SYNTHETIC_APPLICATION_PROFILE",
+        "canonicalCorpusDigest",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/core/analyzed-corpus.mjs",
+      [
+        "AnalyzedCorpusNonClaim",
+        "AnalyzedCorpusTrustDomain",
+        "AnalyzedCorpusDigestedKind",
+        "AnalyzedCorpusContentKind",
+        "AnalyzedCorpusDigestedReference",
+        "AnalyzedCorpusContentReference",
+        "AnalyzedCorpusProjectionInputs",
+        "SyntheticSourceEvidenceBinding",
+        "RealSourceEvidenceBinding",
+        "SourceEvidenceBinding",
+        "AnalyzedCorpusWhyShown",
+        "AnalyzedCorpusRecordReference",
+        "AnalyzedCorpusRecordEntry",
+        "AnalyzedCorpusView",
+        "AnalyzedCorpus",
+        "CreateSyntheticSourceEvidenceBinding",
+        "CreateRealSourceEvidenceBinding",
+        "CreateAnalyzedCorpusInput",
+        "AnalyzedCorpusLifecycleAuthority",
+        "AnalyzedCorpusCompatibilityExpectation",
+        "AnalyzedCorpusProjectionRequest",
+        "AnalyzedCorpusProjection",
+      ],
+      true,
+    ),
+    ...bindings(
+      "scripts/configured-analyzed-corpus.mjs",
+      [
+        "createAnalyzedCorpus",
+        "syntheticApplicationPins",
+        "parseAnalyzedCorpus",
+        "serializeAnalyzedCorpus",
+        "assertAnalyzedCorpusCompatibility",
+        "projectAnalyzedCorpus",
+      ],
+      false,
+    ),
+  ]),
+  "src/pipeline/synthetic-corpus-path.mjs": Object.freeze([
+    ...bindings(
+      "scripts/synthetic-corpus-path.mjs",
+      [
+        "syntheticCorpusFixtures",
+        "createSyntheticApplicationCorpus",
+        "applicationCorpusForVerification",
+        "syntheticApplicationRecords",
+        "fixtureTextForCitation",
+      ],
+      false,
+    ),
+  ]),
+  "src/pipeline/curated-document-pack.mjs": Object.freeze([
+    ...bindings(
+      "src/modules/intake/curated-document-pack.mjs",
+      [
+        "CURATED_DOCUMENT_PACK_SCHEMA_ID",
+        "CURATED_DOCUMENT_PACK_SCHEMA_VERSION",
+        "CuratedDocumentPackError",
+        "serializeCuratedDocumentPack",
+        "denyCuratedNetworkOperation",
+      ],
+      false,
+    ),
+    ...bindings(
+      "scripts/configured-curated-document-pack.mjs",
+      ["createCuratedDocumentPack", "replayCuratedDocumentPack"],
+      false,
+    ),
+  ]),
+  "src/engine/projection.ts": Object.freeze([
+    ...bindings(
+      "src/core/projection.ts",
+      [
+        "REQUIRED_COMMUNITY_RELEVANCE_NONCLAIMS",
+        "ProjectionValidationError",
+        "serializeEngineProjection",
+      ],
+      false,
+    ),
+    ...bindings(
+      "scripts/configured-engine.ts",
+      ["parseProjectionProfileBundle", "createEngineProjection"],
+      false,
+    ),
+  ]),
+  "src/engine/geography-rights.ts": Object.freeze([
+    ...bindings(
+      "src/modules/context/geography-rights.ts",
+      [
+        "REQUIRED_GEOGRAPHY_RIGHTS_FORBIDDEN_INFERENCES",
+        "GeographyRightsValidationError",
+        "parseGeographyRightsBundle",
+        "serializeGeographyRightsProjection",
+      ],
+      false,
+    ),
+    ...bindings(
+      "scripts/configured-engine.ts",
+      ["createGeographyRightsProjection"],
+      false,
+    ),
+  ]),
+  "src/engine/taxonomy.ts": Object.freeze([
+    ...bindings(
+      "src/modules/context/taxonomy.ts",
+      [
+        "REQUIRED_TAXONOMY_NONCLAIMS",
+        "TaxonomyValidationError",
+        "serializeTaxonomyProjection",
+      ],
+      false,
+    ),
+    ...bindings(
+      "scripts/configured-engine.ts",
+      ["parseTaxonomyBundle", "createTaxonomyProjection"],
+      false,
+    ),
+  ]),
+  "src/engine/source-pack.ts": Object.freeze([
+    ...bindings(
+      "scripts/source-pack.ts",
+      [
+        "SourcePackValidationError",
+        "parseSourcePackBundle",
+        "serializeSourcePackBundle",
+        "createSourcePackAdmissionPlan",
+        "serializeSourcePackAdmissionPlan",
+        "assertSourcePackPlanCompatibility",
+      ],
+      false,
+    ),
+  ]),
+  "src/adapters/federal-register/index.ts": Object.freeze([
+    ...bindings(
+      "src/adapters/federal-register/artifact-policy.ts",
+      [
+        "FEDERAL_REGISTER_PUBLIC_ARTIFACT_POLICY",
+        "assertFederalRegisterPublicArtifactRange",
+        "federalRegisterArtifactCoverageNotes",
+        "federalRegisterPublicArtifactRange",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/federal-register/constants.ts",
+      [
+        "FEDERAL_REGISTER_DISCOVERY_FIELDS",
+        "FEDERAL_REGISTER_ORIGIN",
+        "FEDERAL_REGISTER_PATHS",
+        "FEDERAL_REGISTER_QUERY_POLICY",
+        "FEDERAL_REGISTER_RESPONSE_POLICY",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/federal-register/normalize.ts",
+      [
+        "FEDERAL_REGISTER_ADAPTER_ID",
+        "FEDERAL_REGISTER_ADAPTER_VERSION",
+        "FEDERAL_REGISTER_IDENTITY_RULE",
+        "FEDERAL_REGISTER_SOURCE_ID",
+        "federalRegisterStableRecordId",
+        "normalizeFederalRegisterDocument",
+        "normalizeFederalRegisterInventory",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/federal-register/query-contract.ts",
+      [
+        "assertFederalRegisterDateRange",
+        "buildFederalRegisterSearchUrl",
+        "shouldSplitFederalRegisterDateRange",
+        "splitFederalRegisterDateRange",
+        "validateFederalRegisterNextPageUrl",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/federal-register/retrieval.ts",
+      [
+        "FederalRegisterRetrievalError",
+        "retrieveFederalRegisterInventory",
+        "selectFederalRegisterIssueAuditDates",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/federal-register/response-contract.ts",
+      [
+        "FederalRegisterContractError",
+        "assertFederalRegisterOpenApiProjection",
+        "parseFederalRegisterCorrectionDocumentNumber",
+        "parseFederalRegisterDailyFacet",
+        "parseFederalRegisterDocument",
+        "parseFederalRegisterDocumentBatch",
+        "parseFederalRegisterFacet",
+        "parseFederalRegisterIssueInventory",
+        "parseFederalRegisterSearchPage",
+        "reconcileFederalRegisterCorrections",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/federal-register/transport.ts",
+      ["FederalRegisterTransportError", "fetchFederalRegisterJson"],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/federal-register/tier1-contract.mjs",
+      [
+        "FEDERAL_REGISTER_TIER1_DOCUMENT_NUMBER",
+        "FEDERAL_REGISTER_TIER1_FIELDS",
+        "FederalRegisterTier1ContractError",
+        "parseFederalRegisterTier1Document",
+        "parseFederalRegisterTier1DocumentJson",
+        "serializeFederalRegisterTier1Document",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/federal-register/normalize.ts",
+      ["FederalRegisterNormalizationInput"],
+      true,
+    ),
+    ...bindings(
+      "src/adapters/federal-register/query-contract.ts",
+      [
+        "FederalRegisterDateRange",
+        "FederalRegisterNextPage",
+        "FederalRegisterNextPageContext",
+      ],
+      true,
+    ),
+    ...bindings(
+      "src/adapters/federal-register/retrieval.ts",
+      [
+        "FederalRegisterInventory",
+        "FederalRegisterIssueEvidence",
+        "FederalRegisterRetrievalDependencies",
+        "FederalRegisterRetrievalErrorCode",
+      ],
+      true,
+    ),
+    ...bindings(
+      "src/adapters/federal-register/response-contract.ts",
+      [
+        "FederalRegisterAgency",
+        "FederalRegisterCfrReference",
+        "FederalRegisterCfrTopic",
+        "FederalRegisterContractErrorCode",
+        "FederalRegisterDailyFacet",
+        "FederalRegisterDailyFacetEntry",
+        "FederalRegisterDateBounds",
+        "FederalRegisterDocument",
+        "FederalRegisterDocumentBatch",
+        "FederalRegisterDocumentType",
+        "FederalRegisterIssueInventory",
+        "FederalRegisterRelatedDocument",
+        "FederalRegisterRelatedDocuments",
+        "FederalRegisterSearchPage",
+        "FederalRegisterSearchPageContext",
+      ],
+      true,
+    ),
+    ...bindings(
+      "src/adapters/federal-register/transport.ts",
+      [
+        "FederalRegisterFetchLike",
+        "FederalRegisterResponseKind",
+        "FederalRegisterTransportDependencies",
+        "FederalRegisterTransportErrorCode",
+      ],
+      true,
+    ),
+    ...bindings(
+      "src/adapters/federal-register/tier1-contract.mjs",
+      [
+        "FederalRegisterTier1Agency",
+        "FederalRegisterTier1CfrReference",
+        "FederalRegisterTier1CfrTopic",
+        "FederalRegisterTier1ContractErrorCode",
+        "FederalRegisterTier1Document",
+        "FederalRegisterTier1DocumentType",
+      ],
+      true,
+    ),
+    ...bindings(
+      "src/adapters/federal-register/adapter.ts",
+      ["FederalRegisterAdapter", "createFederalRegisterAdapter"],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/federal-register/adapter.ts",
+      ["FederalRegisterRefreshValidator"],
+      true,
+    ),
+    ...bindings(
+      "scripts/configured-source-refresh.ts",
+      ["refreshFederalRegisterSource"],
+      false,
+    ),
+  ]),
+  "src/adapters/supreme-court-opinions-curated/index.ts": Object.freeze([
+    ...bindings(
+      "src/adapters/supreme-court-opinions-curated/constants.ts",
+      [
+        "SUPREME_COURT_DOCUMENT_FORM_LABEL",
+        "SUPREME_COURT_HEADER_DOM_ORDER",
+        "SUPREME_COURT_HTML_POLICY",
+        "SUPREME_COURT_OPINIONS_ADAPTER_ID",
+        "SUPREME_COURT_OPINIONS_ADAPTER_VERSION",
+        "SUPREME_COURT_OPINIONS_CONTRACT_VERSION",
+        "SUPREME_COURT_OPINIONS_IDENTITY_RULE",
+        "SUPREME_COURT_OPINIONS_SOURCE_ID",
+        "SUPREME_COURT_OPINION_TABLE_CLASS",
+        "SUPREME_COURT_OPINION_TABLE_DATA_ROW_COUNTS",
+        "SUPREME_COURT_ORIGIN",
+        "SUPREME_COURT_PUBLICATION_LABEL",
+        "SUPREME_COURT_REQUIRED_PROVENANCE_POINTERS",
+        "SUPREME_COURT_SELECTED_OPINION",
+        "SUPREME_COURT_TERM_HEADING",
+        "SUPREME_COURT_TERM_PATH",
+        "SUPREME_COURT_TERM_URL",
+        "SUPREME_COURT_USER_AGENT",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/supreme-court-opinions-curated/normalize.ts",
+      [
+        "SUPREME_COURT_NORMALIZATION_RULES",
+        "assertSupremeCourtSourceConfig",
+        "normalizeSupremeCourtOpinion",
+        "supremeCourtOpinionStableRecordId",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/supreme-court-opinions-curated/query-contract.ts",
+      ["assertSupremeCourtTermIndexUrl", "buildSupremeCourtTermIndexUrl"],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/supreme-court-opinions-curated/response-contract.ts",
+      [
+        "assertSupremeCourtOpinionProjection",
+        "parseSupremeCourtTermIndex",
+        "supremeCourtSourceRecordId",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/supreme-court-opinions-curated/transport.ts",
+      ["fetchSupremeCourtTermIndex"],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/supreme-court-opinions-curated/transport.ts",
+      ["SupremeCourtFetchLike", "SupremeCourtTransportDependencies"],
+      true,
+    ),
+    ...bindings(
+      "src/adapters/supreme-court-opinions-curated/errors.ts",
+      ["SupremeCourtContractError", "SupremeCourtTransportError"],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/supreme-court-opinions-curated/errors.ts",
+      ["SupremeCourtContractErrorCode", "SupremeCourtTransportErrorCode"],
+      true,
+    ),
+    ...bindings(
+      "src/adapters/supreme-court-opinions-curated/response-contract.ts",
+      ["SupremeCourtOpinionProjection", "SupremeCourtTermIndex"],
+      true,
+    ),
+    ...bindings(
+      "src/adapters/supreme-court-opinions-curated/adapter.ts",
+      [
+        "SupremeCourtCuratedOpinionsAdapter",
+        "createSupremeCourtCuratedOpinionsAdapter",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/supreme-court-opinions-curated/adapter.ts",
+      ["SupremeCourtRefreshValidator"],
+      true,
+    ),
+    ...bindings(
+      "scripts/configured-source-refresh.ts",
+      ["refreshSupremeCourtCuratedOpinionsSource"],
+      false,
+    ),
+  ]),
+  "src/adapters/washington-centennial-accord/index.ts": Object.freeze([
+    ...bindings(
+      "src/adapters/washington-centennial-accord/constants.ts",
+      [
+        "GOIA_ACCORD_HTML_POLICY",
+        "GOIA_ACCORD_METADATA",
+        "GOIA_ACCORD_PATH",
+        "GOIA_ACCORD_REQUIRED_PROVENANCE_POINTERS",
+        "GOIA_ACCORD_URL",
+        "GOIA_ACCORD_USER_AGENT",
+        "WASHINGTON_CENTENNIAL_ACCORD_ADAPTER_ID",
+        "WASHINGTON_CENTENNIAL_ACCORD_ADAPTER_VERSION",
+        "WASHINGTON_CENTENNIAL_ACCORD_CONTRACT_VERSION",
+        "WASHINGTON_CENTENNIAL_ACCORD_IDENTITY_RULE",
+        "WASHINGTON_CENTENNIAL_ACCORD_SOURCE_ID",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/washington-centennial-accord/normalize.ts",
+      [
+        "GOIA_ACCORD_NORMALIZATION_RULES",
+        "assertGoiaAccordSourceConfig",
+        "goiaAccordStableRecordId",
+        "normalizeGoiaAccord",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/washington-centennial-accord/query-contract.ts",
+      ["assertGoiaAccordUrl", "buildGoiaAccordUrl"],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/washington-centennial-accord/response-contract.ts",
+      [
+        "assertGoiaAccordProjection",
+        "goiaAccordSourceRecordId",
+        "parseGoiaAccordPage",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/washington-centennial-accord/response-contract.ts",
+      ["GoiaAccordPage", "GoiaAccordProjection"],
+      true,
+    ),
+    ...bindings(
+      "src/adapters/washington-centennial-accord/transport.ts",
+      ["fetchGoiaAccordPage"],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/washington-centennial-accord/transport.ts",
+      ["GoiaAccordFetchLike", "GoiaAccordTransportDependencies"],
+      true,
+    ),
+    ...bindings(
+      "src/adapters/washington-centennial-accord/errors.ts",
+      ["GoiaAccordContractError", "GoiaAccordTransportError"],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/washington-centennial-accord/errors.ts",
+      ["GoiaAccordContractErrorCode", "GoiaAccordTransportErrorCode"],
+      true,
+    ),
+    ...bindings(
+      "src/adapters/washington-centennial-accord/adapter.ts",
+      [
+        "WashingtonCentennialAccordAdapter",
+        "createWashingtonCentennialAccordAdapter",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/washington-centennial-accord/adapter.ts",
+      ["GoiaAccordRefreshValidator"],
+      true,
+    ),
+    ...bindings(
+      "scripts/configured-source-refresh.ts",
+      ["refreshWashingtonCentennialAccordSource"],
+      false,
+    ),
+  ]),
+  "src/adapters/washington-governor-executive-orders/index.ts": Object.freeze([
+    ...bindings(
+      "src/adapters/washington-governor-executive-orders/constants.ts",
+      [
+        "WASHINGTON_GOVERNOR_EXECUTIVE_ORDERS_ADAPTER_ID",
+        "WASHINGTON_GOVERNOR_EXECUTIVE_ORDERS_ADAPTER_VERSION",
+        "WASHINGTON_GOVERNOR_EXECUTIVE_ORDERS_CONTRACT_VERSION",
+        "WASHINGTON_GOVERNOR_EXECUTIVE_ORDERS_IDENTITY_RULE",
+        "WASHINGTON_GOVERNOR_EXECUTIVE_ORDERS_INDEX_URL",
+        "WASHINGTON_GOVERNOR_EXECUTIVE_ORDERS_SOURCE_ID",
+        "WASHINGTON_GOVERNOR_FILTER_LABEL",
+        "WASHINGTON_GOVERNOR_FILTER_VALUE",
+        "WASHINGTON_GOVERNOR_HTML_POLICY",
+        "WASHINGTON_GOVERNOR_REQUIRED_ANCHOR",
+        "WASHINGTON_GOVERNOR_SELECTED_FROM",
+        "WASHINGTON_GOVERNOR_SELECTED_STATUS",
+        "WASHINGTON_GOVERNOR_USER_AGENT",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/washington-governor-executive-orders/normalize.ts",
+      [
+        "WASHINGTON_GOVERNOR_NORMALIZATION_RULES",
+        "assertWashingtonGovernorExecutiveOrdersSourceConfig",
+        "normalizeWashingtonGovernorExecutiveOrder",
+        "washingtonGovernorExecutiveOrderStableRecordId",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/washington-governor-executive-orders/query-contract.ts",
+      [
+        "assertWashingtonGovernorExecutiveOrdersIndexUrl",
+        "buildWashingtonGovernorExecutiveOrdersIndexUrl",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/washington-governor-executive-orders/response-contract.ts",
+      [
+        "assertWashingtonGovernorExecutiveOrderProjection",
+        "parseWashingtonGovernorExecutiveOrdersIndex",
+        "washingtonGovernorSourceRecordId",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/washington-governor-executive-orders/transport.ts",
+      ["fetchWashingtonGovernorExecutiveOrdersIndex"],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/washington-governor-executive-orders/transport.ts",
+      [
+        "WashingtonGovernorFetchLike",
+        "WashingtonGovernorTransportDependencies",
+      ],
+      true,
+    ),
+    ...bindings(
+      "src/adapters/washington-governor-executive-orders/errors.ts",
+      ["WashingtonGovernorContractError", "WashingtonGovernorTransportError"],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/washington-governor-executive-orders/errors.ts",
+      [
+        "WashingtonGovernorContractErrorCode",
+        "WashingtonGovernorTransportErrorCode",
+      ],
+      true,
+    ),
+    ...bindings(
+      "src/adapters/washington-governor-executive-orders/response-contract.ts",
+      [
+        "WashingtonGovernorExecutiveOrder",
+        "WashingtonGovernorExecutiveOrderIndex",
+        "WashingtonGovernorIndexContractContext",
+      ],
+      true,
+    ),
+    ...bindings(
+      "src/adapters/washington-governor-executive-orders/adapter.ts",
+      [
+        "WashingtonGovernorExecutiveOrdersAdapter",
+        "createWashingtonGovernorExecutiveOrdersAdapter",
+      ],
+      false,
+    ),
+    ...bindings(
+      "src/adapters/washington-governor-executive-orders/adapter.ts",
+      ["WashingtonGovernorRefreshValidator"],
+      true,
+    ),
+    ...bindings(
+      "scripts/configured-source-refresh.ts",
+      ["refreshWashingtonGovernorExecutiveOrdersSource"],
+      false,
+    ),
+  ]),
+});
+
+/** No substantive implementation exception survives GD-10. */
+export const ALLOWLISTED_VIOLATIONS = Object.freeze([]);

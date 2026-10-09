@@ -23,18 +23,29 @@ if (import.meta.env.VITE_POLICY_LOCAL === "1") {
   void Promise.all([
     import("./app/PolicyWorkbench"),
     import("./app/policy-local-loader"),
+    import("./core/source-coverage.mjs"),
+    import("../config/source-catalog.v1.mjs"),
   ])
-    .then(async ([{ PolicyWorkbench }, { loadPolicyLocalCorpus }]) => {
-      const corpus = await loadPolicyLocalCorpus();
-      render(
-        <PolicyWorkbench
-          corpus={corpus}
-          dossierHref="./dossier.html"
-          jsonHref="./corpus.json"
-        />,
-        root,
-      );
-    })
+    .then(
+      async ([
+        { PolicyWorkbench },
+        { loadPolicyLocalBundle },
+        { projectSourceCoverage },
+        { sourceCatalog },
+      ]) => {
+        const { corpus, projection } = await loadPolicyLocalBundle();
+        render(
+          <PolicyWorkbench
+            corpus={corpus}
+            sourceCoverage={projectSourceCoverage(sourceCatalog)}
+            projection={projection ?? undefined}
+            dossierHref="./dossier.html"
+            jsonHref="./corpus.json"
+          />,
+          root,
+        );
+      },
+    )
     .catch(() => {
       render(
         <main id="main-content" tabIndex={-1}>

@@ -1,5 +1,42 @@
 # Policy Sentinel
 
+The local research workbench now includes a persistent study workspace with
+Moon's-eye questions and gaps, Bird's-eye procedural and consultation history,
+and Frog's-eye exact source passages. Use **Save study** to download a local
+backup and **Open study** to resume it with its original corpus bindings.
+Study notes are restricted by default. Source material, extracted evidence,
+model interpretations and analyst writing have separate provenance and review
+states. The workspace exports dossiers, evidence and timeline tables, authority
+matrices, gaps, attributed graphs and machine-readable provenance; public
+products exclude restricted content and enforce source redistribution limits.
+
+The source catalog describes WA, OR, ID, AK, CA, MT, NV and ATNI, NCAI and USET
+services, including actual versus documented search capabilities. A discovery
+entry does not activate a source or establish a Nation relationship. Integrated
+acceptance and remaining source gaps are tracked in the
+[implementation record](docs/development/2026-10-08-study-engine-implementation.md).
+`npm run test:policy` includes source-catalog and bounded-projection tests;
+`npm run test:unit` includes study, export and accessible analyst journeys.
+
+For an existing reviewed local corpus, build a bounded search projection with:
+
+```powershell
+npm run policy:build:local -- --corpus-root <external-root> --sources <profile-id,profile-id> --from YYYY-MM-DD --through YYYY-MM-DD
+```
+
+The selection flags
+are optional; dates select overlapping publication dates and retain whole-work
+evidence context. The output records the selected, directly matching and retained
+populations, original source health and parent digest. An empty or oversized
+selection fails before replacing the last reviewed output. This builds from
+local custody and does not retrieve sources.
+
+`npm run measure:search-projection -- --out C:/dev/_scratch/policy-sentinel/study-engine-20261008/search-projection-01`
+runs the GD-35 synthetic projection workload in a fresh, bounded local namespace.
+It measures cold/warm search, memory and rebuild storage and requires a separate
+process to replay the written projection. The command refuses existing output;
+its results do not establish whole-store or 50 GB performance.
+
 Policy Sentinel is a configurable, sovereignty-centered policy monitoring and
 source-reference engine. It watches bounded authoritative sources, explains why
 records are shown, preserves source-supported change, and produces governed
@@ -8,7 +45,7 @@ Nation's interests.
 
 ## Project status
 
-### Repository true-up (2026-10-07)
+### Repository true-up (2026-10-08)
 
 The ordinary static build remains synthetic: it sends three fixture records
 through the retained corpus and application contracts, alongside 575 synthetic
@@ -22,10 +59,10 @@ The four implemented Federal Register, curated Supreme Court, Washington
 Governor executive-order, and Washington Centennial Accord adapters remain
 disabled and contribute no records to the ordinary build. GD-09 committed a
 synthetic jurisdiction identifier and association contract; it does not add a
-production identity registry or live source coverage. GD-10 is the next active
-item: its exact implementation scope is reviewed and committed, but its source
-leases have not been issued. Follow [the continuation guide](docs/continuation-prompt.md)
-and [the autonomous run record](docs/development/2026-10-07-autonomous-run.md)
+production identity registry or live source coverage. GD-10 boundary enforcement
+and the D-088 catalog, study and bounded-search implementation are in integrated
+validation. Follow [the continuation guide](docs/continuation-prompt.md) and the
+[implementation record](docs/development/2026-10-08-study-engine-implementation.md)
 for the precise resume state.
 
 Schema 1.11 represents GD-27 as the current local release root, with all
@@ -37,7 +74,7 @@ and [finite blocked source/API packets](docs/development/gd31-operation-packets.
 tests and is included in `npm test`. Preparation cannot dispatch, share or publish.
 
 `npm run test:spine`, `npm run test:policy` and `npm run test:assurance` serialize
-their respective three, twelve and three files to avoid competing Windows native
+their respective three, fourteen and three files to avoid competing Windows native
 custody probes.
 Assertions, process isolation and operation timeouts stay unchanged; `npm test`
 includes all three suites.

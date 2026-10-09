@@ -1,8 +1,9 @@
-import type {
-  PolicyRecord,
-  SourceConfig,
-  SourceHealth,
-} from "../shared/contracts";
+import type { PolicyRecord, SourceConfig } from "../shared/contracts";
+export type {
+  SourceRefreshSuccess,
+  SourceRefreshFailure,
+  SourceRefreshResult,
+} from "../core/source-refresh";
 
 export interface BuildContext {
   buildId: string;
@@ -50,19 +51,3 @@ export interface PublicSourceAdapter {
     context: BuildContext,
   ): Promise<PolicyRecord[]>;
 }
-
-export interface SourceRefreshSuccess {
-  ok: true;
-  records: PolicyRecord[];
-  health: SourceHealth;
-}
-
-export interface SourceRefreshFailure {
-  ok: false;
-  sourceId: string;
-  checkedAt: string;
-  failureStage: NonNullable<SourceHealth["failureStage"]>;
-  publicMessage: string;
-}
-
-export type SourceRefreshResult = SourceRefreshSuccess | SourceRefreshFailure;

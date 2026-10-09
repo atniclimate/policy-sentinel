@@ -1,0 +1,636 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/source-catalog.schema.v1.json",
+  "title": "Policy Sentinel source qualification and capability catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "catalogId",
+    "trustDomain",
+    "managedStorageCeilingBytes",
+    "sources"
+  ],
+  "properties": {
+    "trustDomain": {
+      "enum": ["real_source_local", "synthetic_test_only"]
+    },
+    "$schema": {
+      "const": "https://policy-sentinel.invalid/schemas/source-catalog.schema.v1.json"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "catalogId": {
+      "$ref": "#/$defs/id"
+    },
+    "managedStorageCeilingBytes": {
+      "const": 50000000000
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "maxLength": 96,
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "url": {
+      "type": "string",
+      "maxLength": 2048,
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewer", "reviewedAt", "expiresAt", "evidenceUrls"],
+      "properties": {
+        "reviewer": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "\\S"
+        },
+        "reviewedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "format": "date-time"
+            }
+          ]
+        },
+        "evidenceUrls": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/url"
+          }
+        }
+      }
+    },
+    "uses": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capture",
+        "analysis",
+        "excerpts",
+        "localDisplay",
+        "localExport",
+        "publicRedistribution"
+      ],
+      "properties": {
+        "capture": {
+          "const": true
+        },
+        "analysis": {
+          "const": true
+        },
+        "excerpts": {
+          "type": "boolean"
+        },
+        "localDisplay": {
+          "enum": ["full_text", "excerpt", "metadata_link"]
+        },
+        "localExport": {
+          "enum": ["full_text", "excerpt", "metadata_link", "prohibited"]
+        },
+        "publicRedistribution": {
+          "const": "prohibited"
+        }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "hosts", "pathPrefixes", "review", "uses"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "hosts": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "type": "string",
+            "maxLength": 253,
+            "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$"
+          },
+          "uniqueItems": true
+        },
+        "pathPrefixes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "type": "string",
+            "maxLength": 1024,
+            "pattern": "^/[^\\\\?#]+$"
+          },
+          "uniqueItems": true
+        },
+        "review": {
+          "$ref": "#/$defs/review"
+        },
+        "uses": {
+          "$ref": "#/$defs/uses"
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "locator"],
+      "properties": {
+        "url": {
+          "$ref": "#/$defs/url"
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "\\S"
+        }
+      }
+    },
+    "dateRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "through"],
+      "properties": {
+        "from": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            }
+          ]
+        },
+        "through": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            }
+          ]
+        }
+      }
+    },
+    "capability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "state", "evidenceUrls"],
+      "properties": {
+        "mode": {
+          "enum": [
+            "topical",
+            "full_text",
+            "metadata",
+            "identifier_only",
+            "cached"
+          ]
+        },
+        "state": {
+          "enum": ["unknown", "documented", "verified", "unsupported"]
+        },
+        "evidenceUrls": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/$defs/url"
+          }
+        }
+      }
+    },
+    "feature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "state", "evidenceUrls"],
+      "properties": {
+        "name": {
+          "enum": [
+            "parent_proceeding",
+            "docket_id",
+            "rin",
+            "consultation_event",
+            "statutory_dependency",
+            "environmental_alternative",
+            "geographic_applicability"
+          ]
+        },
+        "state": {
+          "enum": ["unknown", "documented", "verified", "unsupported"]
+        },
+        "evidenceUrls": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/$defs/url"
+          }
+        }
+      }
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "detail", "gateRef"],
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/id"
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000,
+          "pattern": "\\S"
+        },
+        "gateRef": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Z][A-Z0-9-]+$"
+            }
+          ]
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "publisher",
+        "authorityClass",
+        "attributionScope",
+        "publishingJurisdiction",
+        "discoveryRegions",
+        "recordKinds",
+        "interfaceKind",
+        "lifecycle",
+        "review",
+        "evidenceRecord",
+        "terms",
+        "credentials",
+        "implementedCapabilities",
+        "capabilities",
+        "evidenceFeatures",
+        "coverage",
+        "cadence",
+        "blockers",
+        "profile",
+        "activation"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "\\S"
+        },
+        "publisher": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "\\S"
+        },
+        "authorityClass": {
+          "enum": [
+            "federal",
+            "state",
+            "tribal_government",
+            "county",
+            "municipal",
+            "intergovernmental",
+            "user_supplied"
+          ]
+        },
+        "attributionScope": {
+          "const": "publisher_only"
+        },
+        "publishingJurisdiction": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["ref", "basis", "evidence"],
+              "properties": {
+                "ref": {
+                  "type": "string",
+                  "maxLength": 96,
+                  "pattern": "^(?:us|us-state:[A-Z]{2}|us-county:[0-9]{5}|nation:synthetic-[a-z0-9]+(?:-[a-z0-9]+)*|body:[a-z0-9]+(?:-[a-z0-9]+)*)$"
+                },
+                "basis": {
+                  "const": "publishing_authority"
+                },
+                "evidence": {
+                  "$ref": "#/$defs/evidence"
+                }
+              }
+            }
+          ]
+        },
+        "discoveryRegions": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 64,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}$"
+          },
+          "uniqueItems": true
+        },
+        "recordKinds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "enum": [
+              "legislation",
+              "statutes",
+              "rules",
+              "opinions",
+              "local_instruments",
+              "organizational_resolutions",
+              "regulatory_proceedings",
+              "user_documents"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "interfaceKind": {
+          "enum": ["api", "html", "pdf", "xml", "local"]
+        },
+        "lifecycle": {
+          "enum": ["discovery", "qualified", "active"]
+        },
+        "review": {
+          "$ref": "#/$defs/review"
+        },
+        "evidenceRecord": {
+          "type": "string",
+          "maxLength": 240,
+          "pattern": "^(?:docs|fixtures)/[A-Za-z0-9_./-]+$"
+        },
+        "terms": {
+          "enum": ["cleared", "unresolved", "blocked"]
+        },
+        "credentials": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind"],
+              "properties": {
+                "kind": {
+                  "const": "none"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind"],
+              "properties": {
+                "kind": {
+                  "const": "unknown"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "environmentVariable"],
+              "properties": {
+                "kind": {
+                  "const": "environment_variable"
+                },
+                "environmentVariable": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "pattern": "^[A-Z][A-Z0-9_]+$"
+                }
+              }
+            }
+          ]
+        },
+        "implementedCapabilities": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 5,
+          "items": {
+            "enum": [
+              "topical",
+              "full_text",
+              "metadata",
+              "identifier_only",
+              "cached"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "capabilities": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/$defs/capability"
+          }
+        },
+        "evidenceFeatures": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 7,
+          "items": {
+            "$ref": "#/$defs/feature"
+          }
+        },
+        "coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["documented", "selected", "emitted"],
+          "properties": {
+            "documented": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["from", "through", "completeness", "note"],
+              "properties": {
+                "from": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "format": "date"
+                    }
+                  ]
+                },
+                "through": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "format": "date"
+                    }
+                  ]
+                },
+                "completeness": {
+                  "enum": ["unknown", "partial", "declared"]
+                },
+                "note": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1000,
+                  "pattern": "\\S"
+                }
+              }
+            },
+            "selected": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "#/$defs/dateRange"
+                }
+              ]
+            },
+            "emitted": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["from", "through", "recordCount"],
+                  "properties": {
+                    "from": {
+                      "anyOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "string",
+                          "format": "date"
+                        }
+                      ]
+                    },
+                    "through": {
+                      "anyOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "string",
+                          "format": "date"
+                        }
+                      ]
+                    },
+                    "recordCount": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "cadence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "\\S"
+        },
+        "blockers": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/blocker"
+          }
+        },
+        "profile": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/profile"
+            }
+          ]
+        },
+        "activation": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["operationId", "activatedAt", "evidenceUrls"],
+              "properties": {
+                "operationId": {
+                  "$ref": "#/$defs/id"
+                },
+                "activatedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "evidenceUrls": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 16,
+                  "items": {
+                    "$ref": "#/$defs/url"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

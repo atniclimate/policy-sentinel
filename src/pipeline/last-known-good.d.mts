@@ -1,5 +1,5 @@
 import type { PolicyRecord, SourceHealth } from "../shared/contracts";
-import type { SourceRefreshResult } from "./source-adapter";
+import type { SourceRefreshResult } from "../core/source-refresh";
 
 export function mergeSourceRefresh(input: {
   sourceId: string;
