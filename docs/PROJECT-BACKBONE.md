@@ -1,6 +1,13 @@
 # Policy Sentinel project backbone
 
 Current execution contract: schema 1.11, GD-27 current local release root.
+Latest owner direction D-091 makes GD-57 federal document access and reliability
+planning the next session's priority. The
+[sprint report and federal expansion handoff](handoffs/2026-10-09-sprint-report-and-federal-expansion.md)
+records current capabilities, demonstrated data coverage and unfinished work,
+and adds public laws, congressional bills/resolutions, proposed budgets and
+federal court rulings to the explicit next-session assessment.
+
 D-088's [study-engine implementation](development/2026-10-08-study-engine-implementation.md)
 records the active coordinated catalog, study, procedural evidence, retrieval
 and export work. The [schema catalog](data-contract.md#implemented-json-schemas)

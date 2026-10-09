@@ -225,6 +225,8 @@ session 1; the ruling date is the decision date.
 
 | D-090 | **Owner audit-repair direction 2026-10-09.** "Make fixes 1 - 3": prevent restricted study identity in public export filenames, reject prototype-key search crashes, and reduce repeated study-history serialization while preserving saved bytes and every integrity check. GD-56 carries the bounded local repairs, regressions, independent review and measured validation in [the repair handoff](handoffs/2026-10-09-audit-repairs.md). No schema, source, private-data, remote, publication or release-acceptance gate changes. |
 
+| D-091 | **Owner sprint-record and federal-expansion direction 2026-10-09.** Record the capability report for later reference. Prioritize the next session explicitly around federal public laws, congressional bills and resolutions, proposed budgets and federal court rulings, including data access abilities, APIs and source reliability. The [sprint report and federal expansion handoff](handoffs/2026-10-09-sprint-report-and-federal-expansion.md) preserves the pushed checkpoint and required assessment. GD-57 is the next ready planning item; represent collection-level coverage, access conditions, reliability evidence and integration ownership before implementation. This recording session dispatches no acquisition and changes no source-specific access condition or ungranted external operation. |
+
 ## Open implementation facts
 
 | ID | Fact to resolve | Current evidence and next verification |

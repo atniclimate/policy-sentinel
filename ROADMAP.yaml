@@ -1109,15 +1109,17 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Resume the independent general-development roots after the completed
-    owner-selected audit repairs; GD-20 remains the next ready item.
+    Begin the next session with GD-57 federal document access and reliability
+    planning under D-091: public laws, congressional bills and resolutions,
+    proposed budgets and federal court rulings.
   terminal_reason: >-
     GD-56 is complete with all three repairs, regression coverage, independent
     review and broad validation. The measured 1,001-revision import is about 2.3
     times faster. Formatting flags only the pre-existing ignored local settings
-    file. This bounded checkpoint does not accept GD-27 or dispatch another work
-    item.
+    file. The sprint report is recorded and GD-57 is ready for the next session;
+    this checkpoint does not accept GD-27 or dispatch another work item.
   resumable_roots:
+    - GD-57-FEDERAL-EXPANSION-PLAN
     - GD-20-DESIGNATION-REGISTRY-CONTRACT
     - GD-22-NATION-REGISTRY-BINDING
     - GD-23-USER-SUPPLIED-SOURCE-CLASS
@@ -1131,7 +1133,7 @@ current_focus:
     - GD-43-REGULATIONS-API-INTEGRATION
     - GD-53-PS09-ACCEPTANCE-CARRYFORWARD
     - GD-27-LOCAL-RELEASE-PACKAGE
-  last_durable_checkpoint: cd069298b90d070828206a87e7262ae3fd5c64c1
+  last_durable_checkpoint: 7af7e7902dfcb105fafa77f1f7d5a976f4044db1
   resume_command: npm run validate:roadmap
 completion_scope:
   general_development:
@@ -1197,6 +1199,7 @@ completion_scope:
       - GD-54-ROADLESS-FEDERAL-PILOT
       - GD-55-SEARCH-REFINEMENT-REVIEW-GUIDANCE
       - GD-56-AUDIT-REPAIRS
+      - GD-57-FEDERAL-EXPANSION-PLAN
     demonstration_outcomes:
       - GD-49-DEMONSTRATION-A1
       - GD-50-DEMONSTRATION-A2
@@ -5704,6 +5707,40 @@ work_items:
       - "The initial prompt expressly withheld deployment and publication
         approval."
 
+  - id: GD-57-FEDERAL-EXPANSION-PLAN
+    priority: 286
+    milestone: General development
+    title: Federal document expansion access and reliability plan
+    status: ready
+    work_class: general_development_local
+    decision_ref: D-091
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-17-NATIONWIDE-SOURCE-SURVEY]
+    acceptance:
+      - >-
+        Assess originating source routes for public laws, congressional bills
+        and resolutions, proposed budgets and federal court rulings. Preserve
+        instrument, version, proposed/enacted and issuing-body distinctions.
+      - >-
+        Produce a collection-level matrix of data and API access capabilities,
+        date/format coverage, authentication and use conditions, current primary
+        evidence, reliability observations, failure/recovery behavior and gaps.
+        Distinguish documented, implemented, tested and unavailable
+        capabilities.
+      - >-
+        Reconcile GD-33 and GD-39 through GD-43 with the expanded document
+        families, assign existing integration owners or explicit successor work,
+        and prepare a finite implementation and validation packet. This planning
+        item acquires no policy corpus, accepts no terms and changes no
+        credentials.
+    evidence:
+      - >-
+        Owner direction D-091 explicitly prioritizes this next-session federal
+        assessment.
+        docs/handoffs/2026-10-09-sprint-report-and-federal-expansion.md records
+        the sprint report, required document families and assessment criteria.
+        Saving the direction does not complete the assessment or activate a
+        source. Existing implementation statuses and gates remain.
   - id: GD-56-AUDIT-REPAIRS
     priority: 287
     milestone: General development
@@ -8675,6 +8712,7 @@ work_items:
       - GD-54-ROADLESS-FEDERAL-PILOT
       - GD-55-SEARCH-REFINEMENT-REVIEW-GUIDANCE
       - GD-56-AUDIT-REPAIRS
+      - GD-57-FEDERAL-EXPANSION-PLAN
     blocked_by: [G-GD-LOCAL-RELEASE-ACCEPTANCE]
     safe_fallback: >-
       GD-27 is the represented current local release root, not a completed
@@ -8905,68 +8943,74 @@ risks:
 
 next_actions:
   - order: 1
+    work_item: GD-57-FEDERAL-EXPANSION-PLAN
+    action: >-
+      Assess federal public laws, bills and resolutions, proposed budgets and
+      court rulings for collection-level data/API access and source reliability
+      under D-091; reconcile implementation ownership before any dispatch.
+  - order: 2
     work_item: GD-20-DESIGNATION-REGISTRY-CONTRACT
     action:
       "Implement the synthetic designation vocabulary without geometry or
       inferred Nation criteria."
-  - order: 2
+  - order: 3
     work_item: GD-22-NATION-REGISTRY-BINDING
     action:
       "Await originating recognition reconciliation and the digest-pinned Nation
       registry v1; T0 baseline bundle v0 is a different version line."
-  - order: 3
+  - order: 4
     work_item: GD-23-USER-SUPPLIED-SOURCE-CLASS
     action:
       "Implement the separately classified synthetic user-supplied source
       contract without real private inputs."
-  - order: 4
+  - order: 5
     work_item: GD-47-REGIONAL-INTERFACE-QUALIFICATION
     action:
       "Qualify regional interfaces against exact source-specific access and
       reuse evidence."
-  - order: 5
+  - order: 6
     work_item: GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
     action:
       "Complete remaining nationwide source classes without blocking the finite
       pilot or acquiring source payloads."
-  - order: 6
+  - order: 7
     work_item: GD-36-PILOT-SOURCE-QUALIFICATION
     action:
       "Prepare finite pilot source qualifications and retain source-specific
       blocks."
-  - order: 7
+  - order: 8
     work_item: GD-39-FEDERAL-REGISTER-API-INTEGRATION
     action:
       "Prepare a new source-specific Federal Register review and finite API
       manifest before bounded integration; spent historical requests do not
       resume. Dependencies are complete, but no dispatch occurs at this
       checkpoint."
-  - order: 8
+  - order: 9
     work_item: GD-40-GOVINFO-API-INTEGRATION
     action:
       "Resolve the exact GovInfo API credential/terms gate before bounded API
       integration; direct documents cannot substitute."
-  - order: 9
+  - order: 10
     work_item: GD-41-ECFR-API-INTEGRATION
     action:
       "Resolve the exact eCFR access-consent condition before any new host
       request, then qualify and test the API."
-  - order: 10
+  - order: 11
     work_item: GD-42-CONGRESS-API-INTEGRATION
     action:
       "Resolve exact Congress.gov API credentials and source-specific terms
       before bounded integration."
-  - order: 11
+  - order: 12
     work_item: GD-43-REGULATIONS-API-INTEGRATION
     action:
       "Resolve exact Regulations.gov governmental GET access and credentials;
       comments and submissions remain excluded."
-  - order: 12
+  - order: 13
     work_item: GD-53-PS09-ACCEPTANCE-CARRYFORWARD
     action:
       "Close each retained identity/scenario claim under the successor
       crosswalk; do not reactivate a spent historical run."
-  - order: 13
+  - order: 14
     work_item: GD-27-LOCAL-RELEASE-PACKAGE
     action:
       "Accept the current local release only after all Part B work, A1-A4 and
