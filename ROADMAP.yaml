@@ -1109,14 +1109,13 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Start the next session with GD-60 federal probe readiness, reliability and
-    fallback assessment, and local refreshable database requirements under
-    D-092.
+    Continue general development with GD-20's synthetic designation registry
+    contract after the GD-60 readiness checkpoint.
   terminal_reason: >-
-    GD-57 is complete at 845565c. D-092 selects GD-60 ahead of GD-20 for the
-    next session. Its packet is preparation only: no new provider request,
-    credential action, source activation or database implementation occurred.
-    Source-specific gates and GD-27 acceptance remain closed.
+    GD-60 has a local readiness review, but its exact acquisition-manifest
+    acceptance is unmet. GovInfo and Congress.gov source gates remain closed;
+    zero routes cleared for live dispatch. Existing measured search supports
+    retaining the file projection. GD-27 remains unaccepted.
   resumable_roots:
     - GD-60-FEDERAL-PROBE-REFRESH-READINESS
     - GD-20-DESIGNATION-REGISTRY-CONTRACT
@@ -1132,7 +1131,7 @@ current_focus:
     - GD-43-REGULATIONS-API-INTEGRATION
     - GD-53-PS09-ACCEPTANCE-CARRYFORWARD
     - GD-27-LOCAL-RELEASE-PACKAGE
-  last_durable_checkpoint: 7f50d29954ce4f3a8244cb67ac8bf8e35422b655
+  last_durable_checkpoint: 1de7f20fc3d55eac97a483ab9304a69026f65597
   resume_command: npm run validate:roadmap
 completion_scope:
   general_development:
@@ -5711,11 +5710,21 @@ work_items:
     priority: 285
     milestone: General development
     title: Federal probe readiness and local refreshability assessment
-    status: ready
+    status: blocked
     work_class: general_development_local
     decision_ref: D-092
     authorization_gate: G-GENERAL-DEV-01
     dependencies: [GD-57-FEDERAL-EXPANSION-PLAN]
+    blocked_by: [G-B-GOVINFO, G-B-CONGRESS]
+    safe_fallback: >-
+      Retain the reviewed, blocked metadata canary proposals and file-index
+      decision without dispatch or a completed GD-60 claim. Continue independent
+      ready general-development work.
+    unblocks_only_when: >-
+      Exact source-specific access and reuse conditions clear, the canary and
+      content-acquisition manifests bind an owned runner and custody namespace,
+      and any cleared route satisfies the observed reliability and fallback
+      acceptance. Do not infer completion from the preparation record.
     acceptance:
       - >-
         Recheck current originating source access, use and reproduction terms
@@ -5742,6 +5751,17 @@ work_items:
         at source commit 7f50d29954ce4f3a8244cb67ac8bf8e35422b655 prepares the
         work without provider requests, credential action, acquisition or
         database implementation.
+      - >-
+        Commits 88d067d and 1de7f20 record the 2026-10-09 current publisher
+        review and finite, blocked collection canaries in
+        docs/development/gd60-federal-probe-readiness-2026-10-09.md. A fresh
+        read-only twelve-root inventory measured 954,205,875 managed bytes; the
+        retained hypothetical forecast was within limits. No route cleared its
+        source-specific dispatch gate, so no live reliability or new
+        same-collection fallback was claimed. The measured 2,000-work synthetic
+        file projection supports retaining the file design; no database was
+        added. Exact content acquisition, version and failure/LKG proof remain
+        with GD-40, GD-42, GD-58 and GD-59 after their own gates.
   - id: GD-57-FEDERAL-EXPANSION-PLAN
     priority: 286
     milestone: General development
@@ -8991,8 +9011,9 @@ next_actions:
   - order: 1
     work_item: GD-60-FEDERAL-PROBE-REFRESH-READINESS
     action: >-
-      Recheck exact federal source routes and gates, prepare finite canaries and
-      fallback tests, and measure whether a local refreshable index is needed.
+      Keep the reviewed canaries blocked until exact source gates, acquisition
+      manifests, runner and custody conditions clear; then satisfy the
+      collection-specific reliability and fallback acceptance.
   - order: 2
     work_item: GD-20-DESIGNATION-REGISTRY-CONTRACT
     action:

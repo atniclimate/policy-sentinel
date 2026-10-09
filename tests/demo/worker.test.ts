@@ -144,7 +144,7 @@ describe("worker access rules", () => {
     ).rejects.toMatchObject({ code: "redirect_refused" });
   });
 
-  it("rate limits with the in-memory guard when no binding answers", async () => {
+  it("rate limits with the in-memory guard when no binding exists", async () => {
     installFetch({ "documents.json": () => reply(FR_SEARCH_JSON) });
     const headers = { Origin: ORIGIN, "cf-connecting-ip": "203.0.113.77" };
     const statuses: number[] = [];
@@ -167,6 +167,19 @@ describe("worker access rules", () => {
     });
     expect(res.status).toBe(429);
     expect(limit).toHaveBeenCalled();
+  });
+
+  it("does not fetch an official source when the rate-limit binding fails", async () => {
+    installFetch({ "documents.json": () => reply(FR_SEARCH_JSON) });
+    const limit = vi.fn(async () => {
+      throw new Error("rate-limit binding unavailable");
+    });
+    const res = await call("/api/search?source=federal-register&q=abc", {
+      RATE: { limit },
+    });
+    expect(res.status).toBe(429);
+    expect(limit).toHaveBeenCalledOnce();
+    expect(calls).toHaveLength(0);
   });
 });
 

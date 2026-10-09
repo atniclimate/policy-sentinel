@@ -898,7 +898,7 @@ async function rateLimited(request: Request, env: Env): Promise<boolean> {
       const { success } = await env.RATE.limit({ key: ip });
       if (!success) return true;
     } catch {
-      /* fall through to the in-memory guard */
+      return true;
     }
   }
   const now = Date.now();
