@@ -659,6 +659,134 @@ describe("integrated study knowledge products", () => {
     expect(emptyContext.limitations.join(" ")).toContain("date scope");
   });
 
+  it("explains withheld parent context from the same saved review prerequisites", async () => {
+    const { study, corpus, ids } = await fixture();
+    const results = searchPolicyCorpus(createPolicySearchIndex(corpus), {
+      query: "roadless Cascades",
+      matchMode: "all_terms",
+    });
+    expect(results.hits.map((hit) => hit.versionId)).toEqual([
+      ids.regionalVersion,
+    ]);
+    const ready = studySearchContext(study, corpus, results);
+    expect(ready.contextRecords.map((row) => row.versionId)).toContain(
+      ids.parentVersion,
+    );
+    expect(
+      ready.reviewDiagnostics.find((row) => row.versionId === ids.parentVersion)
+        ?.status,
+    ).toBe("eligible_context");
+    const relation = study.authorityRelationships[0];
+    const pending = await reviseResearchStudy(
+      study,
+      {
+        updatedAt: "2026-10-08T23:00:00Z",
+        actorId: study.updatedBy,
+        records: [
+          {
+            collection: "authorityRelationships",
+            record: { ...relation, reviewState: "unreviewed" },
+          },
+        ],
+      },
+      corpus,
+    );
+    const withheld = studySearchContext(pending, corpus, results);
+    expect(withheld.contextRecords).toEqual([]);
+    expect(
+      withheld.reviewDiagnostics.find(
+        (row) => row.versionId === ids.parentVersion,
+      ),
+    ).toMatchObject({
+      status: "unreviewed",
+      requirements: expect.arrayContaining([
+        expect.objectContaining({ id: relation.id, reason: "unreviewed" }),
+      ]),
+    });
+    const review = study.reviews.find((row) => row.targetId === relation.id)!;
+    const restored = await reviseResearchStudy(
+      pending,
+      {
+        updatedAt: "2026-10-08T23:01:00Z",
+        actorId: study.updatedBy,
+        records: [
+          {
+            collection: "authorityRelationships",
+            record: { ...relation, reviewState: "accepted" },
+          },
+          {
+            collection: "reviews",
+            record: {
+              ...review,
+              id: "review-reaccept-authority",
+              createdAt: "2026-10-08T23:01:00Z",
+            },
+          },
+        ],
+      },
+      corpus,
+    );
+    expect(
+      studySearchContext(restored, corpus, results).contextRecords.map(
+        (row) => row.versionId,
+      ),
+    ).toContain(ids.parentVersion);
+    const challenged = await reviseResearchStudy(
+      restored,
+      {
+        updatedAt: "2026-10-08T23:02:00Z",
+        actorId: study.updatedBy,
+        records: [
+          {
+            collection: "authorityRelationships",
+            record: { ...relation, reviewState: "challenged" },
+          },
+          {
+            collection: "reviews",
+            record: {
+              ...review,
+              id: "review-challenge-authority",
+              createdAt: "2026-10-08T23:02:00Z",
+              decision: "challenged",
+            },
+          },
+        ],
+      },
+      corpus,
+    );
+    expect(
+      studySearchContext(challenged, corpus, results).contextRecords,
+    ).toEqual([]);
+    expect(
+      studySearchContext(challenged, corpus, results).reviewDiagnostics.find(
+        (row) => row.versionId === ids.parentVersion,
+      )?.status,
+    ).toBe("challenged_or_rejected");
+    expect(
+      challenged.reviews.some((row) => row.id === "review-reaccept-authority"),
+    ).toBe(true);
+    const other = await fixture({ generatedAt: "2026-10-08T03:00:00Z" });
+    const rebound = await rebindResearchStudy(restored, other.corpus, {
+      updatedAt: "2026-10-08T23:03:00Z",
+      actorId: study.updatedBy,
+    });
+    const reboundResults = searchPolicyCorpus(
+      createPolicySearchIndex(other.corpus),
+      {
+        query: "roadless Cascades",
+        matchMode: "all_terms",
+      },
+    );
+    expect(
+      studySearchContext(
+        rebound,
+        other.corpus,
+        reboundResults,
+      ).reviewDiagnostics.find((row) => row.versionId === ids.parentVersion)
+        ?.status,
+    ).toBe("stale_binding");
+  });
+
   it("does not treat unsupported proceeding membership as governing context", async () => {
     const { study, corpus } = await fixture();
     const relation = study.authorityRelationships[0];

@@ -41,6 +41,8 @@ export interface StudyQuestion extends StudyRecord {
   readonly discoveryGeographies: readonly string[];
 }
 export interface StudySearchScope {
+  /** Missing on older studies means legacy any-term matching. */
+  readonly matchMode?: "any_terms" | "all_terms";
   /** Missing on older saved scopes; null explicitly records no identifier filter. */
   readonly jurisdictionRef?: string | null;
   readonly temporal: null | {

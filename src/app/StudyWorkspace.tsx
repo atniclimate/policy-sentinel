@@ -142,6 +142,7 @@ function captureSearchScope(request: PolicySearchRequest): StudySearchScope {
   if (request.asOf && !request.basis)
     throw new Error("A dated discovery needs its explicit date basis.");
   return {
+    matchMode: request.matchMode ?? "any_terms",
     temporal:
       request.asOf && request.basis
         ? { asOf: request.asOf, basis: request.basis }
@@ -156,6 +157,9 @@ function searchScopeLabel(scope: StudySearchScope | undefined): string {
   if (scope === undefined)
     return "Search scope was not recorded. Running uses only the saved query and collections.";
   return [
+    scope.matchMode === "all_terms"
+      ? "All terms in one version"
+      : "Any term (broad)",
     scope.temporal
       ? `As of ${scope.temporal.asOf} · ${words(scope.temporal.basis)}`
       : "All retained dates",
@@ -333,17 +337,19 @@ function Editor({
   title,
   submit,
   disabled,
+  open,
   children,
   onSubmit,
 }: {
   title: string;
   submit: string;
   disabled: boolean;
+  open?: boolean;
   children: ComponentChildren;
   onSubmit: (data: FormData, form: HTMLFormElement) => void;
 }) {
   return (
-    <details class="sw-editor">
+    <details class="sw-editor" open={open}>
       <summary>{title}</summary>
       <form
         aria-label={title}
@@ -485,6 +491,7 @@ export function StudyWorkspace({
   );
   const [questionId, setQuestionId] = useState("");
   const [discoveryId, setDiscoveryId] = useState("");
+  const [reviewTargetId, setReviewTargetId] = useState("");
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
@@ -559,6 +566,21 @@ export function StudyWorkspace({
         : null,
     [study, bound, corpus, searchResults, searchRequest.sourceProfileId],
   );
+  useEffect(() => {
+    if (!reviewTargetId || busy) return;
+    if (actor)
+      document
+        .querySelector<HTMLSelectElement>(
+          'form[aria-label="Review a study item"] select[name="targetId"]',
+        )
+        ?.focus();
+    else
+      document
+        .querySelector<HTMLInputElement>(
+          'form[aria-label="Join study as local analyst"] input[name="actorLabel"]',
+        )
+        ?.focus();
+  }, [reviewTargetId, actor, busy]);
   const versions = corpus.versions.map((version) => ({
     id: version.id,
     label: `${corpus.works.find((work) => work.id === version.workId)?.title ?? version.workId} · ${version.sourceVersionIdentifier}`,
@@ -966,6 +988,95 @@ export function StudyWorkspace({
               </ul>
             </section>
           )}
+          {study && context.reviewDiagnostics.length > 0 && (
+            <section aria-labelledby="sw-review-guidance">
+              <h3 id="sw-review-guidance">Context review guidance</h3>
+              <p>
+                {context.reviewDiagnostics.length} saved proceeding/version
+                links inspected against the direct results. Review decisions are
+                attributed; a missing link or stale citation needs evidence
+                work.
+              </p>
+              {context.directTruncated && (
+                <p role="status">
+                  Direct results are limited; context and review guidance may be
+                  incomplete.
+                </p>
+              )}
+              <ul>
+                {context.reviewDiagnostics.map((item) => (
+                  <li key={`${item.proceedingId}:${item.versionId}`}>
+                    <strong>{item.title}</strong> · {item.versionId} ·{" "}
+                    {words(item.status)}
+                    {item.status === "already_direct" && (
+                      <p>Already shown as a direct match.</p>
+                    )}
+                    {item.status === "eligible_context" && (
+                      <p>Eligible as separately labeled context.</p>
+                    )}
+                    {item.status === "temporal_exclusion" && (
+                      <p>Outside the selected date basis and cutoff.</p>
+                    )}
+                    {item.status !== "already_direct" &&
+                      item.status !== "eligible_context" && (
+                        <ul>
+                          {item.requirements.map((requirement) => (
+                            <li key={`${requirement.kind}:${requirement.id}`}>
+                              {requirement.kind === "authorityRelationship"
+                                ? "Authority relationship"
+                                : words(requirement.kind)}{" "}
+                              {requirement.id}: {words(requirement.reason)}.{" "}
+                              {requirement.requiredEvidence}{" "}
+                              {requirement.segmentId && (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    onOpenPassage(requirement.segmentId!)
+                                  }
+                                >
+                                  Read cited passage for {requirement.id}
+                                </button>
+                              )}
+                              {requirement.reason === "unreviewed" &&
+                                targets.some(
+                                  (target) =>
+                                    target.record.id === requirement.id,
+                                ) && (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setReviewTargetId(requirement.id)
+                                    }
+                                  >
+                                    Review {requirement.id}
+                                  </button>
+                                )}
+                              {requirement.kind === "authorityRelationship" &&
+                                requirement.reason ===
+                                  "missing_supporting_evidence" && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setPerspective("bird");
+                                      queueMicrotask(() =>
+                                        document
+                                          .getElementById("sw-bird")
+                                          ?.focus(),
+                                      );
+                                    }}
+                                  >
+                                    Open authority evidence form
+                                  </button>
+                                )}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
           <details open={searchResults?.total === 0}>
             <summary>Searched collections and date coverage</summary>
             {searchResults?.total === 0 && (
@@ -1191,6 +1302,7 @@ export function StudyWorkspace({
                 title="Join study as local analyst"
                 submit="Join study"
                 disabled={busy || !bound || !registrationActor}
+                open={Boolean(reviewTargetId)}
                 onSubmit={edit(async (data) => {
                   if (!registrationActor || !bound)
                     throw new Error(
@@ -1465,6 +1577,8 @@ export function StudyWorkspace({
                         setQuestionId(discovery.questionId);
                         onSearch({
                           query: discovery.query,
+                          matchMode:
+                            discovery.searchScope?.matchMode ?? "any_terms",
                           ...(discovery.searchScope?.temporal ?? {}),
                           ...(discovery.searchScope?.governmentContext
                             ? {
@@ -1785,7 +1899,7 @@ export function StudyWorkspace({
           )}
           {perspective === "bird" && (
             <section aria-labelledby="sw-bird">
-              <h3 id="sw-bird">
+              <h3 id="sw-bird" tabIndex={-1}>
                 Bird’s-eye: proceedings, consultation, and authority
               </h3>
               <p>
@@ -2427,6 +2541,7 @@ export function StudyWorkspace({
               title="Review a study item"
               submit="Record review"
               disabled={disabled || !targets.length}
+              open={Boolean(reviewTargetId)}
               onSubmit={edit(async (data) => {
                 const target = targets.find(
                   (item) => item.record.id === value(data, "targetId"),
@@ -2436,6 +2551,43 @@ export function StudyWorkspace({
                   StudyReviewState,
                   "unreviewed"
                 >;
+                const dependent =
+                  target.collection === "passages" && decision !== "accepted"
+                    ? [
+                        ...study.authorityRelationships
+                          .filter(
+                            (row) =>
+                              row.reviewState === "accepted" &&
+                              row.passageIds.includes(target.record.id),
+                          )
+                          .map((row) => ({
+                            collection: "authorityRelationships" as const,
+                            record: {
+                              ...row,
+                              reviewState: "unreviewed" as const,
+                            },
+                          })),
+                        ...study.consultations
+                          .filter(
+                            (row) =>
+                              row.reviewState === "accepted" &&
+                              row.participants.some(
+                                (participant) =>
+                                  participant.scope === "tribal_nation" &&
+                                  participant.passageIds.includes(
+                                    target.record.id,
+                                  ),
+                              ),
+                          )
+                          .map((row) => ({
+                            collection: "consultations" as const,
+                            record: {
+                              ...row,
+                              reviewState: "unreviewed" as const,
+                            },
+                          })),
+                      ]
+                    : [];
                 await update([
                   {
                     collection: target.collection,
@@ -2454,13 +2606,20 @@ export function StudyWorkspace({
                       notes: value(data, "notes"),
                     },
                   },
+                  ...dependent,
                 ]);
+                if (dependent.length)
+                  setMessage(
+                    `Saved review. ${dependent.length} dependent record${dependent.length === 1 ? " needs" : "s need"} a new attributed review; earlier decisions remain in study history. Download study JSON to keep this revision.`,
+                  );
+                setReviewTargetId("");
               })}
             >
               <Choice
                 label="Item to review"
                 name="targetId"
                 options={targetOptions}
+                defaultValue={reviewTargetId || undefined}
               />
               <Choice
                 label="Review decision"

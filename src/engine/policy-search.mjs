@@ -350,6 +350,12 @@ export function searchPolicyCorpus(index, request) {
   );
   const limit = limits(request.limit, 20, 1000);
   const passageLimit = limits(request.passageLimit, 5, 100);
+  ensure(
+    request.matchMode === undefined ||
+      ["any_terms", "all_terms"].includes(request.matchMode),
+    "INVALID_MATCH_MODE",
+  );
+  const matchMode = request.matchMode ?? "any_terms";
   for (const key of [
     "sourceProfileId",
     "governmentContext",
@@ -474,10 +480,27 @@ export function searchPolicyCorpus(index, request) {
     }
     const metadataScore = bm25(metadata, weights, data);
     const proofFields = evidenceFields(entry, request, intent, state, data);
-    const passages = entry.passages
-      .filter(
-        (passage) => !state || state.knownRenditions.has(passage.rendition.id),
-      )
+    const eligiblePassages = entry.passages.filter(
+      (passage) => !state || state.knownRenditions.has(passage.rendition.id),
+    );
+    const lexicalKeys = new Set([
+      ...(known.title ? entry.title.counts.keys() : []),
+      ...metadata.counts.keys(),
+      ...eligiblePassages.flatMap((passage) => [
+        ...passage.vector.counts.keys(),
+      ]),
+    ]);
+    const matchedTerms = exactFields.length
+      ? queryTerms
+      : queryTermKeys
+          .filter(([, key]) => lexicalKeys.has(key))
+          .map(([term]) => term);
+    if (
+      matchMode === "all_terms" &&
+      matchedTerms.length !== queryTermKeys.length
+    )
+      continue;
+    const passages = eligiblePassages
       .map((passage) => {
         const matched = queryTermKeys.filter(([, key]) =>
           passage.vector.counts.has(key),
@@ -583,6 +606,10 @@ export function searchPolicyCorpus(index, request) {
       sourceProfileId: work.sourceProfileId,
       score,
       exactIdentifierMatch: exactFields.length > 0,
+      matchedTerms,
+      allTermsInOnePassage: eligiblePassages.some((passage) =>
+        queryTermKeys.every(([, key]) => passage.vector.counts.has(key)),
+      ),
       whyShown,
       metadataKnown: known,
       passages: passages.slice(0, passageLimit),
@@ -608,6 +635,7 @@ export function searchPolicyCorpus(index, request) {
     method: METHOD,
     corpusDigest: index.corpusDigest,
     query,
+    matchMode,
     queryTerms,
     total: matches.length,
     hits: matches.slice(0, limit),

@@ -97,6 +97,56 @@ test("2.1 identifier search requires exact reviewed version evidence and preserv
   );
 });
 
+test("all terms narrow one version without borrowing terms from another version or ranking context", () => {
+  const corpus = createSyntheticStudyCorpus();
+  const index = createPolicySearchIndex(corpus);
+  const broad = searchPolicyCorpus(index, { query: "roadless Cascades" });
+  assert.equal(broad.matchMode, "any_terms");
+  assert.ok(broad.total > 1);
+  const refined = searchPolicyCorpus(index, {
+    query: "roadless Cascades",
+    matchMode: "all_terms",
+  });
+  assert.deepEqual(
+    refined.hits.map((hit) => hit.versionId),
+    ["version-regional"],
+  );
+  assert.deepEqual(refined.hits[0].matchedTerms, ["roadless", "cascades"]);
+  assert.equal(
+    searchPolicyCorpus(index, {
+      query: "roadless unknownterm7291",
+      matchMode: "all_terms",
+    }).total,
+    0,
+  );
+  assert.equal(
+    searchPolicyCorpus(index, {
+      query: '"Cascades Review" roadless',
+      matchMode: "all_terms",
+    }).total,
+    1,
+  );
+  assert.equal(
+    searchPolicyCorpus(index, {
+      query: '"missing phrase" roadless',
+      matchMode: "all_terms",
+    }).total,
+    0,
+  );
+  assert.equal(
+    searchPolicyCorpus(index, {
+      query: "SYN-ROADLESS-2026 missingterm7291",
+      matchMode: "all_terms",
+    }).total,
+    0,
+  );
+  assert.throws(
+    () =>
+      searchPolicyCorpus(index, { query: "roadless", matchMode: "not_a_mode" }),
+    /INVALID_MATCH_MODE/,
+  );
+});
+
 function withBlocks(input, renditionId, blocks) {
   const rendition = input.renditions.find((value) => value.id === renditionId);
   const capture = input.captures.find(
@@ -142,6 +192,56 @@ function withBlocks(input, renditionId, blocks) {
   input.segments.push(...segments);
   return input;
 }
+
+test("all-term evidence may span passages but never versions or hidden text", () => {
+  const split = createAnalyzedCorpusV2(
+    withBlocks(syntheticCorpusV2Input(), "rendition-a-new", [
+      "firstuniqueterm",
+      "seconduniqueterm",
+    ]),
+  );
+  const hit = searchPolicyCorpus(createPolicySearchIndex(split), {
+    query: "firstuniqueterm seconduniqueterm",
+    matchMode: "all_terms",
+    passageLimit: 1,
+  });
+  assert.equal(hit.total, 1);
+  assert.equal(hit.hits[0].allTermsInOnePassage, false);
+  assert.equal(hit.hits[0].passages.length, 1);
+  let separated = withBlocks(syntheticCorpusV2Input(), "rendition-a-old", [
+    "olduniqueterm",
+  ]);
+  separated = withBlocks(separated, "rendition-a-new", ["newuniqueterm"]);
+  assert.equal(
+    searchPolicyCorpus(
+      createPolicySearchIndex(createAnalyzedCorpusV2(separated)),
+      {
+        query: "olduniqueterm newuniqueterm",
+        matchMode: "all_terms",
+      },
+    ).total,
+    0,
+  );
+  const restricted = syntheticCorpusV2Input();
+  restricted.sourceProfiles.find(
+    (profile) => profile.id === "profile-a",
+  ).uses.localDisplay = "metadata_link";
+  for (const capture of restricted.captures)
+    if (capture.sourceProfileId === "profile-a")
+      capture.sourceProfileDigest = canonicalV2Digest(
+        restricted.sourceProfiles.find((profile) => profile.id === "profile-a"),
+      );
+  assert.equal(
+    searchPolicyCorpus(
+      createPolicySearchIndex(createAnalyzedCorpusV2(restricted)),
+      {
+        query: "within 30 days",
+        matchMode: "all_terms",
+      },
+    ).total,
+    0,
+  );
+});
 
 test("exact version and source identifiers precede incidental references, with stable passage occurrences", () => {
   const corpus = syntheticCorpusV2();

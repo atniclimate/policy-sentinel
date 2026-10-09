@@ -324,6 +324,9 @@ export function PolicyWorkbench({
 }: PolicyWorkbenchProps) {
   const index = useMemo(() => createPolicySearchIndex(corpus), [corpus]);
   const [query, setQuery] = useState("");
+  const [matchMode, setMatchMode] = useState<"any_terms" | "all_terms">(
+    "any_terms",
+  );
   const [source, setSource] = useState("");
   const [context, setContext] = useState("");
   const [jurisdictionRef, setJurisdictionRef] = useState("");
@@ -606,6 +609,7 @@ export function PolicyWorkbench({
               event.preventDefault();
               setRequest({
                 query,
+                matchMode,
                 ...(source ? { sourceProfileId: source } : {}),
                 ...(context ? { governmentContext: context } : {}),
                 ...(jurisdictionRef ? { jurisdictionRef } : {}),
@@ -642,6 +646,22 @@ export function PolicyWorkbench({
               passages from several documents. Queries stay in this page.
             </p>
             <div class="pw-filter-grid">
+              <label>
+                Search refinement
+                <select
+                  value={matchMode}
+                  onChange={(event) =>
+                    setMatchMode(
+                      event.currentTarget.value as "any_terms" | "all_terms",
+                    )
+                  }
+                >
+                  <option value="any_terms">Any query term (broad)</option>
+                  <option value="all_terms">
+                    All query terms in one document version
+                  </option>
+                </select>
+              </label>
               <label>
                 Source
                 <select
@@ -743,7 +763,7 @@ export function PolicyWorkbench({
             </h2>
             <p role="status">
               {result.value
-                ? `${result.value.total} matching versions`
+                ? `${result.value.total} matching versions · ${result.value.matchMode === "all_terms" ? "all terms" : "any term"}`
                 : "Search needs attention"}
             </p>
           </div>
@@ -857,6 +877,8 @@ export function PolicyWorkbench({
                     </dl>
                     <p class="pw-muted">
                       Why shown: {hit.whyShown.map(words).join("; ")}.{" "}
+                      {result.value.matchMode === "all_terms" &&
+                        `Matched terms: ${hit.matchedTerms.join(", ")}. ${hit.allTermsInOnePassage ? "One passage contains all effective terms." : "Terms occur across this version's fields or separate passages; no joined quotation is implied."}`}
                       {hit.temporalState === "ambiguous"
                         ? "More than one version has overlapping date evidence."
                         : ""}
@@ -1097,6 +1119,7 @@ export function PolicyWorkbench({
           onOpenPassage={(segmentId) => openEvidence(segmentId, "retained")}
           onSearch={(next) => {
             setQuery(next.query);
+            setMatchMode(next.matchMode ?? "any_terms");
             setSource(next.sourceProfileId ?? "");
             setContext(next.governmentContext ?? "");
             setJurisdictionRef(next.jurisdictionRef ?? "");

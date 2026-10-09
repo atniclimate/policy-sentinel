@@ -37,6 +37,8 @@ import {
 } from "../../src/engine/policy-search.mjs";
 // @ts-expect-error The authored Node fixture seals the shared v2 corpus contract.
 import * as authored from "../pipeline/analyzed-corpus-v2.test.mjs";
+// @ts-expect-error Authored synthetic fixture is shared with Node contract tests.
+import { createSyntheticResearchStudyFixture } from "../../fixtures/study/research-study.mjs";
 
 const { syntheticCorpusV2, syntheticCorpusV2Input } = authored;
 const NativeURL = globalThis.URL;
@@ -214,6 +216,55 @@ async function seed(
 }
 
 describe("persistent local study workspace", () => {
+  it("guides an unreviewed parent link into the attributed review form", async () => {
+    const { corpus, study } = (await createSyntheticResearchStudyFixture()) as {
+      corpus: AnalyzedCorpusV2;
+      study: ResearchStudy;
+    };
+    const relation = study.authorityRelationships[0];
+    const pending = await reviseResearchStudy(
+      study,
+      {
+        updatedAt: "2026-10-08T23:00:00Z",
+        actorId: study.updatedBy,
+        records: [
+          {
+            collection: "authorityRelationships",
+            record: { ...relation, reviewState: "unreviewed" },
+          },
+        ],
+      },
+      corpus,
+    );
+    const searchRequest = {
+      query: "roadless Cascades",
+      matchMode: "all_terms" as const,
+    };
+    render(
+      <StudyWorkspace
+        {...props()}
+        corpus={corpus}
+        searchRequest={searchRequest}
+        searchResults={searchPolicyCorpus(
+          createPolicySearchIndex(corpus),
+          searchRequest,
+        )}
+        selectedSegmentId={corpus.segments[0].id}
+      />,
+    );
+    await resume(await serializeResearchStudy(pending, corpus));
+    expect(
+      screen.getByRole("heading", { name: "Context review guidance" }),
+    ).toBeInTheDocument();
+    fireEvent.click(
+      screen.getAllByRole("button", { name: "Review authority-regional" })[0],
+    );
+    const target = within(editor("Review a study item")).getByLabelText(
+      "Item to review",
+    ) as HTMLSelectElement;
+    expect(target).toHaveValue(relation.id);
+    expect(target).toHaveFocus();
+  });
   it("explicitly joins a rule-managed model study and preserves its authorship when editing", async () => {
     const network = vi
       .spyOn(globalThis, "fetch")
@@ -414,6 +465,7 @@ describe("persistent local study workspace", () => {
     const saved = await backup(settings.corpus);
     for (const discovery of saved.study.discoveries)
       expect(discovery.searchScope).toEqual({
+        matchMode: "any_terms",
         temporal: null,
         governmentContext: null,
         jurisdictionRef: null,
@@ -449,6 +501,7 @@ describe("persistent local study workspace", () => {
     fireEvent.click(runButtons.at(-1)!);
     expect(settings.onSearch).toHaveBeenCalledWith({
       query: "response implementation",
+      matchMode: "any_terms",
     });
     expect(network).not.toHaveBeenCalled();
   });
@@ -460,6 +513,7 @@ describe("persistent local study workspace", () => {
       ...original,
       searchRequest: {
         query: "within 30 days",
+        matchMode: "all_terms" as const,
         sourceProfileId: work.sourceProfileId,
         governmentContext: work.governmentContext,
         jurisdictionRef: "body:synthetic-council",
@@ -492,6 +546,7 @@ describe("persistent local study workspace", () => {
     await submit(form);
     const saved = await backup(settings.corpus);
     const expectedScope = {
+      matchMode: "all_terms",
       temporal: { asOf: "2026-10-01", basis: "corpus_observed" },
       governmentContext: work.governmentContext,
       jurisdictionRef: "body:synthetic-council",
@@ -562,6 +617,7 @@ describe("persistent local study workspace", () => {
     );
     expect(settings.onSearch).toHaveBeenCalledWith({
       query: "legacy scope query",
+      matchMode: "any_terms",
     });
   });
 

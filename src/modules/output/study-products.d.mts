@@ -40,6 +40,27 @@ export interface StudyContextRecord {
 }
 export interface StudySearchContext {
   readonly contextRecords: readonly StudyContextRecord[];
+  readonly reviewDiagnostics: readonly {
+    readonly versionId: string;
+    readonly proceedingId: string;
+    readonly title: string;
+    readonly status:
+      | "already_direct"
+      | "eligible_context"
+      | "unreviewed"
+      | "challenged_or_rejected"
+      | "stale_binding"
+      | "missing_supporting_evidence"
+      | "temporal_exclusion";
+    readonly requirements: readonly {
+      readonly kind: "passage" | "proceeding" | "authorityRelationship";
+      readonly id: string;
+      readonly reason: string;
+      readonly requiredEvidence: string;
+      readonly segmentId: string | null;
+    }[];
+  }[];
+  readonly directTruncated: boolean;
   readonly totalContextRecords: number;
   readonly contextLimit: number;
   readonly contextTruncated: boolean;

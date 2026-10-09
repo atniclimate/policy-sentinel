@@ -1131,6 +1131,7 @@ describe("persistent research study", () => {
       "source_effective",
     ] as const) {
       const searchScope = {
+        matchMode: "all_terms" as const,
         temporal: {
           asOf:
             basis === "corpus_observed"
@@ -1371,6 +1372,7 @@ describe("persistent research study", () => {
       },
       { ...unbounded, governmentContext: "" },
       { ...unbounded, instrumentClass: "inferred_rule" },
+      { ...unbounded, matchMode: "unknown" },
       { ...unbounded, jurisdiction: "inferred" },
     ]) {
       await expect(

@@ -21,6 +21,8 @@ import {
 import { createHash } from "node:crypto";
 import { Buffer } from "node:buffer";
 import type { AnalyzedCorpusV2 } from "../../src/pipeline/analyzed-corpus-v2.mjs";
+// @ts-expect-error Authored synthetic fixture is shared with Node contract tests.
+import { createSyntheticStudyCorpus } from "../../fixtures/study/research-study.mjs";
 // @ts-expect-error The authored Node fixture has no declaration file; its sealed result is the shared v2 contract.
 import * as authored from "../pipeline/analyzed-corpus-v2.test.mjs";
 
@@ -81,6 +83,27 @@ afterEach(() => {
 });
 
 describe("local policy workbench", () => {
+  it("offers keyboard-selectable all-term refinement and explains version-wide evidence", async () => {
+    const user = userEvent.setup();
+    render(<PolicyWorkbench corpus={createSyntheticStudyCorpus()} />);
+    const mode = screen.getByRole("combobox", { name: "Search refinement" });
+    mode.focus();
+    expect(mode).toHaveFocus();
+    await user.type(
+      screen.getByRole("searchbox", { name: "Identifier, title, or question" }),
+      "roadless Cascades",
+    );
+    await user.click(screen.getByRole("button", { name: "Search corpus" }));
+    expect(screen.getByRole("status")).toHaveTextContent("any term");
+    await user.selectOptions(mode, "all_terms");
+    await user.click(screen.getByRole("button", { name: "Search corpus" }));
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "1 matching versions · all terms",
+    );
+    expect(
+      screen.getByText(/Matched terms: roadless, cascades/),
+    ).toBeInTheDocument();
+  });
   it("filters reviewed identifiers by evidenced version and preserves explicit proof without inferring current scope", async () => {
     const user = userEvent.setup();
     const { container } = render(

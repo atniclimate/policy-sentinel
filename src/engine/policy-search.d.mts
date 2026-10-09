@@ -17,6 +17,7 @@ export interface PolicySearchIndex {
 }
 export interface PolicySearchRequest {
   readonly query: string;
+  readonly matchMode?: "any_terms" | "all_terms";
   readonly sourceProfileId?: string;
   readonly governmentContext?: string;
   /** Exact reviewed source association; never geographic or organizational inference. */
@@ -54,6 +55,8 @@ export interface PolicySearchHit {
   readonly sourceProfileId: string;
   readonly score: number;
   readonly exactIdentifierMatch: boolean;
+  readonly matchedTerms: readonly string[];
+  readonly allTermsInOnePassage: boolean;
   readonly whyShown: readonly string[];
   readonly metadataKnown: {
     readonly title: boolean;
@@ -73,6 +76,7 @@ export interface PolicySearchResults {
   readonly method: PolicyMethod;
   readonly corpusDigest: string;
   readonly query: string;
+  readonly matchMode: "any_terms" | "all_terms";
   readonly queryTerms: readonly string[];
   readonly total: number;
   readonly hits: readonly PolicySearchHit[];

@@ -5,11 +5,13 @@ the owner's request for a GPT-6.1-sol implementation prompt. This register
 preserves future work; it is not source qualification, dispatch authority or a
 claim that the study gaps have been resolved.
 
-The next selected implementation is described in the
+The adopted local follow-up is described in the
 [search refinement and review guidance prompt](../handoffs/2026-10-09-search-refinement-review-guidance-prompt.md).
 The [pilot journal](2026-10-08-roadless-real-source-pilot.md) owns artifact
 locations, digests and validation receipts. `ROADMAP.yaml` owns execution status.
-The preparation session leaves accepted GD25/GD35/GD54 and release status intact.
+The implementation checkpoint is tracked as GD55. Accepted GD25/GD35/GD54 and
+the unfinished GD27 release retain their separate status. No new source
+operation is part of GD55.
 
 ## Engineering sequence
 
@@ -19,18 +21,23 @@ The preparation session leaves accepted GD25/GD35/GD54 and release status intact
 | 2 | Review guidance tied to actual retrieval eligibility | Specific dependencies and reasons; direct source/review navigation; explicit review changes eligibility; challenges/stale bindings withdraw unsupported context; history and privacy survive. |
 | 3 | Reusable complete browser journey | A committed synthetic regression through import, analyst registration, source review, refined search, assertion/review, gap/follow-up, exports and reopen. Keyboard/mobile, private notes, revision binding and zero outside-loopback requests included. |
 
-Step 3 is remembered, not completed. Existing workspace tests already cover
-several individual operations, and the external pilot browser report 08 passed.
+Steps 1 and 2 have local contracts, UI and synthetic regression coverage at
+GD55; their final validation receipts belong in the ledger. Step 3 is still
+open. Existing workspace tests cover individual operations, and the external
+pilot browser report 08 passed before this implementation. This session's
+changed-control browser check covers refinement selection and review navigation,
+focus, contrast and mobile layout; it does not constitute the committed
+end-to-end journey in step 3.
 Reuse `scripts/verify-policy-browser.mjs`, existing fixtures and package commands;
 adapt its assumptions deliberately because its current full journey treats
 downloads as unexpected. Do not copy the entire external pilot harness or add a
 second browser framework. The next code session must test its changed UI, but
 need not turn all remaining journeys into one new automation program.
 
-Additional review in the next session should cover reproducible saved search
-semantics, agreement between review diagnostics and retrieval decisions,
-attribution after review, context already visible as direct evidence, and
-temporal/restricted evidence exclusions. These follow directly from work 1/2.
+The GD55 regressions cover saved search semantics, review/retrieval agreement,
+attribution, already-direct context, and temporal/restricted evidence exclusions
+with controlled fixtures. The remaining step 3 should combine them into a
+browser journey, including export and reopen across a fresh page context.
 Autosave/recovery, bulk review and a new query language are not current scope.
 
 ## Nine study gaps that remain open
@@ -50,7 +57,9 @@ These are the IDs in the saved real study. Each already has a reciprocal
 | `gap-context-review` | Actual review of the supporting passages and procedural relationships; test distinctions between already-direct, withheld and absent context. |
 | `gap-common-origin` | A documented original-and-republication set. Three distinct instruments do not exercise duplicate corroboration. |
 
-The first study has no individual Nation participants, intertribal positions,
+All nine gaps above remain open after GD55. Its review UI supplies a path to
+attributed analyst decisions, but it has not reviewed the real study. The first
+study has no individual Nation participants, intertribal positions,
 environmental metric tuples, authority relationships or common-origin groups.
 These absences describe its three-document scope, not non-occurrence. The saved
 study is revision 3; its seven original products intentionally bind revision 2,
@@ -74,6 +83,32 @@ dispatching it as part of the code task.
 | 6 | For WA/OR/ID/AK/CA/MT/NV, search official registers, legislatures, environmental/forestry agencies and relevant public government instruments for explicit connections to the selected federal proceeding. Start with one WA/OR Cascades example and one contrasting ID or AK example if evidence supports them. | State instrument identifier, adopted/proposed status, exact federal dependency, geographic applicability statement and source locator. No thematic similarity, proximity, land geometry or membership inference. Missing evidence stays a gap rather than forcing one record per state. |
 | 7 | Select a known originating statement and an explicitly identified official republication or attachment, plus one genuinely separate statement on the same issue. | Origin links, document/work identity, version differences and attributed passages. Prove duplicate copies do not increase corroboration, while preserving separately authored evidence. Identical text alone does not establish the whole provenance chain. |
 | 8 | Follow technical references to small, documented public nonspatial tables or data dictionaries needed to interpret the EIS metrics. After one complete chain, select a second policy topic/source format that exercises the same workflow. | Schema, units, time coverage, methodology, revision, missing-value definitions and limits on cross-alternative comparison. Prefer tables actually supporting a studied claim; avoid indiscriminate dataset downloads or joining incomparable measures. |
+
+### Concrete next research packet — prepared, not dispatched
+
+Use the saved study's linked `follow-up-*` discoveries. For each selected lead,
+record the exact collection and observed capability before dispatch; the date
+scope below is a proposed search boundary, not a claim of complete holdings.
+Keep a finite request, byte and storage forecast per source under the total
+managed ceiling. A failed or capped search must retain its tested scope and
+failure rather than become a negative finding.
+
+| Priority / study gap and question | Originating family; query or identifier; proposed date scope | Required evidence and expected product | Qualification or access condition; roadmap owner |
+| --- | --- | --- | --- |
+| 1 · `gap-later-actions`, `gap-context-review`: what preceded or followed the retained notice? | Federal Register, GovInfo and Forest Service; exact `FS-2025-0001`, `0596-AD66`, retained FR/GovInfo identifiers and title variants; search antecedents through an explicit future observation cutoff, with a separate window after 2026-09-11. | Exact parent/action identifier, status wording, source publication/effective/observed dates, deadline text, version and passage locator; an attributed procedural timeline and searched-coverage statement. | Qualify each collection's identifier/full-text mode, pagination, use terms and finite operations at GD47/GD33/GD36, then GD37/GD38; prior GD54 operations are spent. |
+| 2 · `gap-eis-evidence`: what do the actual environmental analyses report? | Originating Forest Service project publications, with EPA EIS index only as a discovery route; project/docket identifier, EIS, supplement, errata and record-of-decision terms; initial proceeding period through the recorded cutoff. | Document version and page/table/row/column, alternative, baseline, metric/unit, spatial scale, range, uncertainty and method; a source-faithful alternatives table. | Qualify project links, extraction/reproduction rights, EPA access challenge and document size before GD37/GD38; do not replace the EIS with a notice summary. |
+| 3 · `gap-nation-consultation`: which participation events have exact public evidence? | Forest Service consultation publications and separately originating official Nation publications; docket plus invitation, meeting, submission and response terms; proceeding period through cutoff. | Issuer, event type/date, named participant, verbatim attribution, exact locator and relationship to preceding/following events; an attributed consultation register. | Public-only source qualification at GD47/GD33/GD36; no private material, personal contacts, inferred Nation stance or expanded Regulations.gov comments under GD43. |
+| 4 · `gap-intertribal-sources`: what final organizational positions exist? | Originating ATNI, NCAI and USET/USET SPF resolution collections; `roadless`, `forest`, `Tongass`, consultation and cited resolution IDs; year/event windows first, then recorded cutoff. | Issuer/body, resolution number, adoption/amendment status and date, operative text, predecessor/cross-endorsement locator; a versioned organizational-position register. | Qualify each host, completeness, linked-library terms and accessible interface under GD47/GD33/GD36 before finite GD37/GD38; ATNI direct retrieval previously failed. |
+| 5 · `gap-authority-matrix`: which exact governing links are supported? | Official statute, regulation, executive, court and agency-procedure sources cited by retained instruments; exact provision/citation and both endpoint identifiers; provision history through cutoff. | Provision version/date, statement naming both endpoints, source and passage locators, relationship type and review state; an authority matrix that distinguishes citation, agency assertion and supported dependency. | Qualify each originating route at GD47/GD33/GD36; API-specific GD39–GD43 gates apply where used. Do not turn a citation into a legal-effect conclusion. |
+| 6 · `gap-regional-scope`: is any regional instrument explicitly linked? | Official WA/OR register or agency records first, then an ID or AK contrast if evidence supports it; exact docket/RIN plus `roadless` and instrument identifiers; proceeding period through cutoff. | State instrument ID, status/date, exact federal connection and applicability wording with locator; a contrasting regional-source comparison or a scoped unresolved gap. | Qualify each government collection and rights at GD47/GD33/GD36, dispatch only under GD37/GD38; no proximity, land or membership inference and no forced record per state. |
+| 7 · `gap-common-origin`: can an original, official republication and independent statement be traced? | Originating publication and a named official republication/attachment discovered by exact title or identifier; original issue through republication date. | Original/copy link, digest, work/version identity, attributed passage and separate author's evidence; a common-origin test set without false corroboration. | Qualify both copies' provenance and reuse at GD47/GD33/GD36 before finite GD37/GD38; matching text alone is insufficient. |
+| 8 · `gap-eis-evidence`: which small supporting datasets explain a claim? | Technical tables or data dictionaries explicitly cited by the qualified EIS, followed by one separately scoped contrasting topic; exact table/reference identifiers and stated coverage period. | Schema, units, time coverage, revision, methodology, missing-value rules and comparable alternatives; a bounded nonspatial data interpretation and extraction-effort receipt. | Qualify the exact table/source and size at GD47/GD33/GD36 before GD37/GD38; no indiscriminate downloads or incomparable joins. |
+
+`gap-independent-review` is a human work item across the packet: a registered
+analyst must review the existing 18 cited passages and six model-authored
+assertions, challenge unsupported interpretations, and record rationale in a new
+study revision. Software cannot close that gap. The two context gaps remain
+open until exact passages, proceedings and links receive attributed review.
 
 Useful later data tests include a scanned document or complex table, an amended
 instrument, an unresolved citation, unavailable source and common-origin copy.
@@ -148,5 +183,5 @@ blanket authorization question is unnecessary. Source-specific qualification,
 finite operation conditions, exact ungranted external actions and the
 50,000,000,000-byte total managed ceiling still apply. The pilot's last measured
 inventory was 954,056,203 bytes, a historical measurement rather than current
-free capacity. This preparation changed no source activation or acquisition
-ledger and admitted no newly browsed material into the study or corpus.
+free capacity. GD55 changed no source activation or acquisition ledger and
+admitted no newly browsed material into the study or corpus.

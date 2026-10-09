@@ -479,6 +479,10 @@
       "additionalProperties": false,
       "required": ["temporal", "governmentContext", "instrumentClass"],
       "properties": {
+        "matchMode": {
+          "type": "string",
+          "enum": ["any_terms", "all_terms"]
+        },
         "jurisdictionRef": {
           "anyOf": [
             { "type": "null" },

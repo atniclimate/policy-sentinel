@@ -4,7 +4,10 @@ import {
   studyReadPassage,
   studyRecordReferences,
 } from "../../core/research-study.mjs";
-import { resolveCorpusRelationships } from "../../engine/temporal-operations.mjs";
+import {
+  resolveCorpusRelationships,
+  selectTemporalVersions,
+} from "../../engine/temporal-operations.mjs";
 
 const collections = [
   "actors",
@@ -513,6 +516,14 @@ export function studySearchContext(
   )
     throw new TypeError("Study search snapshot mismatch");
   const direct = new Set(results.hits.map((hit) => hit.versionId));
+  const temporallyEligible = results.temporal
+    ? new Set(
+        selectTemporalVersions(corpus, {
+          asOf: results.temporal.asOf,
+          basis: results.temporal.basis,
+        }).selections.flatMap((row) => row.versionIds),
+      )
+    : null;
   const contextByVersion = new Map();
   const addContext = (record) => {
     if (direct.has(record.versionId)) return;
@@ -566,15 +577,19 @@ export function studySearchContext(
   const passages = new Map(study?.passages.map((row) => [row.id, row]) ?? []);
   const refKey = (kind, id) => JSON.stringify([kind, id]);
   const dependencies = new Map();
+  const potentialDependencies = new Map();
   for (const row of study?.authorityRelationships ?? []) {
+    if (!["statutory_dependency", "procedural_dependency"].includes(row.type))
+      continue;
+    const from = refKey(row.subject.kind, row.subject.id);
+    if (!potentialDependencies.has(from)) potentialDependencies.set(from, []);
+    potentialDependencies.get(from).push(row);
     if (
       row.reviewState !== "accepted" ||
-      !["statutory_dependency", "procedural_dependency"].includes(row.type) ||
       !row.passageIds.length ||
       !row.passageIds.every((id) => trusted.has(id))
     )
       continue;
-    const from = refKey(row.subject.kind, row.subject.id);
     if (!dependencies.has(from)) dependencies.set(from, []);
     dependencies.get(from).push(refKey(row.object.kind, row.object.id));
   }
@@ -586,7 +601,9 @@ export function studySearchContext(
     );
   const reaches = (start, row) => {
     const targets = new Set(
-      [...anchors(row)].map((id) => refKey("version", id)),
+      [...anchors(row)]
+        .filter((id) => !direct.has(id))
+        .map((id) => refKey("version", id)),
     );
     targets.add(refKey("proceeding", row.id));
     const pending = [start],
@@ -601,6 +618,197 @@ export function studySearchContext(
     return false;
   };
   const retained = new Set(corpus.versions.map((version) => version.id));
+  const reviewDiagnostics = [];
+  if (study && direct.size) {
+    const allProceedings = new Map(
+      study.proceedings.map((row) => [row.id, row]),
+    );
+    const relevant = new Set(
+      study.proceedings
+        .filter((row) => row.versionIds.some((id) => direct.has(id)))
+        .map((row) => row.id),
+    );
+    for (const id of [...relevant]) {
+      let parent = allProceedings.get(id)?.parentProceedingId;
+      while (parent && !relevant.has(parent)) {
+        relevant.add(parent);
+        parent = allProceedings.get(parent)?.parentProceedingId;
+      }
+    }
+    const pathTo = (starts, targets) => {
+      const pending = starts.map((key) => [key, []]);
+      const visited = new Set(starts);
+      for (let position = 0; position < pending.length; position++) {
+        const [key, path] = pending[position];
+        if (targets.has(key)) return path;
+        for (const relation of potentialDependencies.get(key) ?? []) {
+          const next = refKey(relation.object.kind, relation.object.id);
+          if (visited.has(next)) continue;
+          visited.add(next);
+          pending.push([next, [...path, relation]]);
+        }
+      }
+      return null;
+    };
+    const issue = (kind, row, reason, requiredEvidence, segmentId = null) => ({
+      kind,
+      id: row.id,
+      reason,
+      requiredEvidence,
+      segmentId,
+    });
+    const reviewIssue = (kind, row, segmentId = null) =>
+      row.reviewState === "accepted"
+        ? null
+        : issue(
+            kind,
+            row,
+            row.reviewState,
+            row.reviewState === "unreviewed"
+              ? "An attributed analyst review of the cited source evidence."
+              : "Reassess the challenged or rejected evidence before any new acceptance.",
+            segmentId,
+          );
+    const passageIssue = (id) => {
+      const passage = passages.get(id);
+      if (!passage)
+        return issue(
+          "passage",
+          { id },
+          "missing_supporting_evidence",
+          "Capture the exact source passage.",
+        );
+      if (passage.bindingStatus !== "verified")
+        return issue(
+          "passage",
+          passage,
+          "stale_binding",
+          "Rebind and verify this exact citation against the current corpus.",
+          passage.citation.segmentId,
+        );
+      return reviewIssue("passage", passage, passage.citation.segmentId);
+    };
+    const sourceSegmentForVersion = (versionId) => {
+      const renditionIds = new Set(
+        corpus.renditions
+          .filter((item) => item.versionId === versionId)
+          .map((item) => item.id),
+      );
+      return (
+        corpus.segments.find((item) => renditionIds.has(item.renditionId))
+          ?.id ?? null
+      );
+    };
+    for (const proceedingId of relevant) {
+      const row = allProceedings.get(proceedingId);
+      const anchorIds = [...anchors(row)];
+      const starts = row.versionIds
+        .filter((id) => direct.has(id))
+        .map((id) => refKey("version", id));
+      if (!starts.length && row.parentProceedingId)
+        starts.push(refKey("proceeding", row.parentProceedingId));
+      const path = pathTo(
+        starts,
+        new Set([
+          refKey("proceeding", row.id),
+          ...anchorIds
+            .filter((id) => !direct.has(id))
+            .map((id) => refKey("version", id)),
+        ]),
+      );
+      for (const versionId of row.versionIds) {
+        if (!retained.has(versionId)) continue;
+        const requirements = [];
+        const add = (item) => {
+          if (
+            item &&
+            !requirements.some(
+              (prior) => prior.kind === item.kind && prior.id === item.id,
+            )
+          )
+            requirements.push(item);
+        };
+        add(
+          reviewIssue(
+            "proceeding",
+            row,
+            row.passageIds[0]
+              ? passages.get(row.passageIds[0])?.citation.segmentId
+              : null,
+          ),
+        );
+        for (const id of row.passageIds) add(passageIssue(id));
+        if (
+          !row.passageIds.some(
+            (id) => passages.get(id)?.citation.versionId === versionId,
+          )
+        )
+          add(
+            issue(
+              "passage",
+              { id: versionId },
+              "missing_supporting_evidence",
+              "Capture a cited passage from this version to anchor the proceeding.",
+              sourceSegmentForVersion(versionId),
+            ),
+          );
+        if ((!path || !path.length) && !direct.has(versionId))
+          add(
+            issue(
+              "authorityRelationship",
+              { id: row.id },
+              "missing_supporting_evidence",
+              "Record an exact source-supported procedural or statutory relationship from the direct version to this proceeding or parent version.",
+            ),
+          );
+        for (const relation of path ?? []) {
+          add(
+            reviewIssue(
+              "authorityRelationship",
+              relation,
+              relation.passageIds[0]
+                ? passages.get(relation.passageIds[0])?.citation.segmentId
+                : null,
+            ),
+          );
+          if (!relation.passageIds.length)
+            add(
+              issue(
+                "authorityRelationship",
+                relation,
+                "missing_supporting_evidence",
+                "Attach an exact cited source passage supporting both endpoints.",
+              ),
+            );
+          for (const id of relation.passageIds) add(passageIssue(id));
+        }
+        const status = direct.has(versionId)
+          ? "already_direct"
+          : temporallyEligible && !temporallyEligible.has(versionId)
+            ? "temporal_exclusion"
+            : requirements.some((item) => item.reason === "stale_binding")
+              ? "stale_binding"
+              : requirements.some((item) =>
+                    ["challenged", "rejected"].includes(item.reason),
+                  )
+                ? "challenged_or_rejected"
+                : requirements.some(
+                      (item) => item.reason === "missing_supporting_evidence",
+                    )
+                  ? "missing_supporting_evidence"
+                  : requirements.length
+                    ? "unreviewed"
+                    : "eligible_context";
+        reviewDiagnostics.push({
+          versionId,
+          proceedingId: row.id,
+          title: row.title,
+          status,
+          requirements,
+        });
+      }
+    }
+  }
   const selected = new Set();
   for (const row of proceedings.values()) {
     if (
@@ -613,7 +821,11 @@ export function studySearchContext(
     while (current && !selected.has(current.id)) {
       selected.add(current.id);
       for (const versionId of anchors(current)) {
-        if (retained.has(versionId) && !direct.has(versionId))
+        if (
+          retained.has(versionId) &&
+          !direct.has(versionId) &&
+          (!temporallyEligible || temporallyEligible.has(versionId))
+        )
           addContext({
             versionId,
             proceedingId: current.id,
@@ -729,8 +941,26 @@ export function studySearchContext(
       if (!visited.has(target.id)) pending.push(target.id);
     }
   }
+  for (const diagnostic of reviewDiagnostics)
+    if (
+      diagnostic.status === "eligible_context" &&
+      !direct.has(diagnostic.versionId) &&
+      !contextByVersion.has(diagnostic.versionId)
+    ) {
+      diagnostic.status = "missing_supporting_evidence";
+      diagnostic.requirements.push({
+        kind: "authorityRelationship",
+        id: diagnostic.proceedingId,
+        reason: "missing_supporting_evidence",
+        requiredEvidence:
+          "Record an exact supported connection from the direct version to this proceeding or parent version.",
+        segmentId: null,
+      });
+    }
   return freeze({
     contextRecords: [...contextByVersion.values()].slice(0, contextLimit),
+    reviewDiagnostics,
+    directTruncated: results.total > results.hits.length,
     totalContextRecords: contextByVersion.size,
     contextLimit,
     contextTruncated: contextByVersion.size > contextLimit,
@@ -742,6 +972,11 @@ export function studySearchContext(
     })),
     limitations: [
       "Zero matches describe the selected retained collections and date scope, not whether an event occurred.",
+      ...(results.total > results.hits.length
+        ? [
+            "Direct results are truncated; contextual coverage is incomplete at this result limit.",
+          ]
+        : []),
       "Contextual proceeding records are not direct matches and may fall outside the geography or date filter.",
       "Resolved source-stated amendments, corrections, repeals and supersessions preserve procedural history; citations and ambiguous targets do not establish a governing parent.",
       "Source-stated relationships must be available under the search cutoff and date basis. Reviewed study context preserves retained analyst reviews and does not establish legal effect at the cutoff.",
