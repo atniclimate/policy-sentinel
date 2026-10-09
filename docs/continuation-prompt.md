@@ -39,16 +39,25 @@ for narrow demo work; it does not reduce validation or authorize new work.
 
 ## Current state (2026-10-09): general development
 
-The owner's requested next-session prompt is prepared at
-[search refinement and evidence review](handoffs/2026-10-09-search-refinement-review-guidance-prompt.md).
-It selects explicit narrowing and actionable review guidance if adopted in an
-implementation session. The linked
-[follow-up register](development/2026-10-09-study-follow-up-register.md) retains
-the reusable browser journey, all nine study gaps and ranked document/data
-searches with their existing access boundaries. This documentation checkpoint
-starts no implementation or acquisition, changes no work-item acceptance and
-keeps zero active items. The prompt records the `426981e` preparation baseline;
-compare actual Git state before execution.
+The owner adopted the bounded
+[search refinement and evidence-review prompt](handoffs/2026-10-09-search-refinement-review-guidance-prompt.md).
+GD55 is implemented at local source commit
+`ea0581976b5bf5da131e6a9a6cc7e6580801b420`: broad search remains the
+default, explicit all-terms search is version-scoped, discovery scope persists
+its mode, and the study workspace names actual context-review prerequisites
+with source and attributed-review navigation. A read-only browser replay of the
+sealed pilot passed changed-control focus, mobile layout, automated
+accessibility and loopback-only checks. Commit `59c6e0d` made the Windows unit
+test worker stable; `npm test` and the synthetic build passed. Repository-wide
+format checking still flags the pre-existing ignored
+`.claude/settings.local.json`; task-owned files are formatted. See the GD55
+roadmap evidence. No source acquisition, real-study human review, remote push or
+deployment occurred. The
+[follow-up register](development/2026-10-09-study-follow-up-register.md)
+preserves the uncompleted reusable browser journey, all nine real-study gaps and
+the prepared source-specific research packet. GD27 remains incomplete and the
+next independent ready root is GD20. The roadmap is authoritative for final
+validation receipts and current focus; compare actual Git state before work.
 
 The owner subsequently requested the real-source research pilot under D-089.
 Recover [the pilot record](development/2026-10-08-roadless-real-source-pilot.md)

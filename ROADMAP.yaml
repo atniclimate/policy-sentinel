@@ -1109,23 +1109,12 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    D-089's finite roadless pilot and GD-14 exact-label mappings are validated
-    at 94179a2. Three real documents produce a replayable corpus, persistent
-    study and seven local products. The broader source-family pilot, required
-    APIs, nine study evidence gaps and GD-27 release remain incomplete.
+    Resume the next dependency-ready general-development work after the bounded
+    GD-55 local search and evidence-review implementation checkpoint.
   terminal_reason: >-
-    The requested finite local pilot is complete, with independent review,
-    passing regression and browser checks, and measured storage below 50 GB. The
-    exact acquisition operations are spent. Remaining general-engine roots are
-    recorded for continuation; this checkpoint starts no new source run. On
-    2026-10-09 the owner requested next-session prompt preparation for search
-    refinement and actionable review guidance. The prepared prompt is
-    docs/handoffs/2026-10-09-search-refinement-review-guidance-prompt.md; its
-    retained browser journey, nine study gaps and ranked source-search backlog
-    are in docs/development/2026-10-09-study-follow-up-register.md. Preparation
-    changes no work-item status or gate and dispatches no implementation or
-    acquisition. Adoption in a later implementation session selects that bounded
-    follow-up without reopening the completed pilot.
+    GD-55's bounded local implementation and browser verification completed on
+    2026-10-09. No acquisition, deployment or general-engine release acceptance
+    occurred; the next research and reusable browser journey remain separate.
   resumable_roots:
     - GD-20-DESIGNATION-REGISTRY-CONTRACT
     - GD-22-NATION-REGISTRY-BINDING
@@ -1140,7 +1129,7 @@ current_focus:
     - GD-43-REGULATIONS-API-INTEGRATION
     - GD-53-PS09-ACCEPTANCE-CARRYFORWARD
     - GD-27-LOCAL-RELEASE-PACKAGE
-  last_durable_checkpoint: 94179a21ee1c506db7189e55c0519fe560d4421e
+  last_durable_checkpoint: 59c6e0d100cda8557a0b363977e185513edbb413
   resume_command: npm run validate:roadmap
 completion_scope:
   general_development:
@@ -1204,6 +1193,7 @@ completion_scope:
       - GD-52-DEMONSTRATION-A4
       - GD-53-PS09-ACCEPTANCE-CARRYFORWARD
       - GD-54-ROADLESS-FEDERAL-PILOT
+      - GD-55-SEARCH-REFINEMENT-REVIEW-GUIDANCE
     demonstration_outcomes:
       - GD-49-DEMONSTRATION-A1
       - GD-50-DEMONSTRATION-A2
@@ -7995,6 +7985,61 @@ work_items:
         classification. No private-module file is reachable from the public
         entry.
     evidence: []
+  - id: GD-55-SEARCH-REFINEMENT-REVIEW-GUIDANCE
+    priority: 334
+    milestone: General development
+    title: Search refinement and actionable study review guidance
+    status: complete
+    work_class: general_development_local
+    decision_ref: D-088
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      - GD-25-ANALYST-RESEARCH-LOOP
+      - GD-35-BOUNDED-SEARCH-IMPLEMENTATION
+      - GD-54-ROADLESS-FEDERAL-PILOT
+    acceptance:
+      - >-
+        Explicit all-terms search narrows direct versions without changing the
+        legacy broad default; related parents remain separately contextual.
+      - >-
+        Discovery save/reopen/rerun preserves mode and filters with legacy file
+        compatibility, exact citations and public/private export boundaries.
+      - >-
+        Context diagnostics identify relevant review, binding and temporal
+        prerequisites; attributed review recomputes eligibility without erasing
+        history. Synthetic, browser and repository validation pass.
+      - >-
+        The follow-up register retains the reusable browser journey, nine real
+        study gaps and a qualified next research packet without source dispatch.
+    evidence:
+      - >-
+        Owner adopted
+        docs/handoffs/2026-10-09-search-refinement-review-guidance-prompt.md for
+        bounded local implementation after the accepted GD-25, GD-35 and GD-54
+        checkpoints. No pilot acquisition operation is reusable.
+      - >-
+        Explicit any/all-terms search, persisted discovery mode, and versioned
+        evidence guidance are integrated with the local workbench. Synthetic
+        search, study, product and UI regressions exercise retrieval, history,
+        stale binding, privacy and review navigation. The read-only pilot
+        browser check at
+        C:/dev/_scratch/policy-sentinel/study-search-review-20261009/browser-report-05.json
+        passed four changed-control groups, including keyboard focus, mobile
+        layout, automated accessibility and no outside-loopback requests.
+      - >-
+        docs/development/2026-10-09-study-follow-up-register.md preserves all
+        nine real-study gaps, the uncompleted reusable browser journey, and an
+        eight-lead source-specific research packet without dispatch.
+      - >-
+        npm test passed every stage after commit 59c6e0d selected the stable
+        Vitest thread worker on this Windows host; the final unit stage passed
+        115 files and 2,212 tests. npm run build and artifact validation passed
+        with 3 synthetic records, exactly 575 Nations and 8 hashed assets.
+        Runtime, hooks, roadmap, backbone, knowledge, lint, typecheck and source
+        scan passed. Repository-wide format:check flags only the pre-existing
+        ignored .claude/settings.local.json; task-owned files pass Prettier.
+    completion_commit: ea0581976b5bf5da131e6a9a6cc7e6580801b420
+    completed_on: 2026-10-09T01:24:36-07:00
   - id: GD-47-REGIONAL-INTERFACE-QUALIFICATION
     priority: 335
     milestone: General development
@@ -8583,6 +8628,7 @@ work_items:
       - GD-52-DEMONSTRATION-A4
       - GD-53-PS09-ACCEPTANCE-CARRYFORWARD
       - GD-54-ROADLESS-FEDERAL-PILOT
+      - GD-55-SEARCH-REFINEMENT-REVIEW-GUIDANCE
     blocked_by: [G-GD-LOCAL-RELEASE-ACCEPTANCE]
     safe_fallback: >-
       GD-27 is the represented current local release root, not a completed
