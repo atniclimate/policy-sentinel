@@ -57,7 +57,7 @@ project:
     contract; execution and acceptance evidence are recorded in
     docs/development/2026-10-08-study-engine-implementation.md. Source-specific
     qualification, managed-storage limits and separate external gates remain.
-  updated_on: "2026-10-08"
+  updated_on: "2026-10-09"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
     prove its present definition of done through the owner-selected PNW scenario
@@ -1117,7 +1117,15 @@ current_focus:
     The requested finite local pilot is complete, with independent review,
     passing regression and browser checks, and measured storage below 50 GB. The
     exact acquisition operations are spent. Remaining general-engine roots are
-    recorded for continuation; this checkpoint starts no new source run.
+    recorded for continuation; this checkpoint starts no new source run. On
+    2026-10-09 the owner requested next-session prompt preparation for search
+    refinement and actionable review guidance. The prepared prompt is
+    docs/handoffs/2026-10-09-search-refinement-review-guidance-prompt.md; its
+    retained browser journey, nine study gaps and ranked source-search backlog
+    are in docs/development/2026-10-09-study-follow-up-register.md. Preparation
+    changes no work-item status or gate and dispatches no implementation or
+    acquisition. Adoption in a later implementation session selects that bounded
+    follow-up without reopening the completed pilot.
   resumable_roots:
     - GD-20-DESIGNATION-REGISTRY-CONTRACT
     - GD-22-NATION-REGISTRY-BINDING
