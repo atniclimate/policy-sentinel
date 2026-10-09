@@ -60,6 +60,29 @@ holdings. Congress.gov field coverage is unresolved. No Nation relationship or
 taxonomy mapping follows from any of these routes; absent exact official
 evidence, records stay general-jurisdiction and `Unclassified`.
 
+For a later reviewed runner, the five one-page rows above form five **separate
+blocked acquisition proposals**, with operation IDs `gd60-plaw-01`,
+`gd60-bills-01`, `gd60-budget-01`, `gd60-uscourts-01` and `gd60-congress-01`.
+Their only allowed use is local metadata envelope validation. The four GPO
+paths have the exact dates and query shown above with only the collection code
+changed; the Congress path and query are shown in its row. The first four require
+the ungranted `G-B-GOVINFO` credential reference, and the fifth requires the
+ungranted `G-B-CONGRESS` reference. The proposed external custody namespace is
+`I:/policy-sentinel-corpus-real-policy/gd60-federal-canaries-2026-10-09/`;
+it has not been created or assigned to a runner. Each operation stops after one
+response or on any redirect, format, size, timeout, rights or validation
+mismatch. Only the JSON envelope, collection and package/measure identifiers,
+official URL, update date, cursor presence, transport observations and digest
+would be projected; every other field remains excluded. The five independent
+1 MiB response ceilings total **5 MiB**, with **15 MiB** reserved as a
+conservative three-copy peak for original, validation staging and output. On
+the measured inventory this would project 969,934,515 logical bytes, below the
+50,000,000,000-byte managed cap. The same observation-time free-space values
+clear the 20 GiB floor; a fresh manifest-specific storage check must refuse
+dispatch if either condition changes. These proposals are not accepted runner
+manifests and cannot be spent until source review, rights, credentials, runner
+and namespace ownership are independently bound.
+
 ## Capacity, fallback and reliability
 
 `npm run storage:report -- --manifest <existing local manifest>` inventoried
