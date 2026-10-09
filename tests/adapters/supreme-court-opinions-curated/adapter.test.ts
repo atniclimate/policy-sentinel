@@ -1,4 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
+import taxonomy from "../../../config/taxonomy.v1.json";
+import * as legacy from "../../../src/adapters/supreme-court-opinions-curated";
+import * as direct from "../../../src/adapters/supreme-court-opinions-curated/adapter";
+import * as configured from "../../../scripts/configured-source-refresh";
+import type { TaxonomyConfig } from "../../../src/shared/contracts";
+import * as policyValidation from "../../../src/pipeline/policy-validation.mjs";
 
 import {
   SUPREME_COURT_SELECTED_OPINION,
@@ -24,6 +30,141 @@ const unchangedValidator = {
     return records;
   },
 };
+
+describe("configured refresh composition", () => {
+  it("preserves the complete legacy surface and adapter identities", () => {
+    expect(Object.keys(legacy).sort()).toEqual([
+      "SUPREME_COURT_DOCUMENT_FORM_LABEL",
+      "SUPREME_COURT_HEADER_DOM_ORDER",
+      "SUPREME_COURT_HTML_POLICY",
+      "SUPREME_COURT_NORMALIZATION_RULES",
+      "SUPREME_COURT_OPINIONS_ADAPTER_ID",
+      "SUPREME_COURT_OPINIONS_ADAPTER_VERSION",
+      "SUPREME_COURT_OPINIONS_CONTRACT_VERSION",
+      "SUPREME_COURT_OPINIONS_IDENTITY_RULE",
+      "SUPREME_COURT_OPINIONS_SOURCE_ID",
+      "SUPREME_COURT_OPINION_TABLE_CLASS",
+      "SUPREME_COURT_OPINION_TABLE_DATA_ROW_COUNTS",
+      "SUPREME_COURT_ORIGIN",
+      "SUPREME_COURT_PUBLICATION_LABEL",
+      "SUPREME_COURT_REQUIRED_PROVENANCE_POINTERS",
+      "SUPREME_COURT_SELECTED_OPINION",
+      "SUPREME_COURT_TERM_HEADING",
+      "SUPREME_COURT_TERM_PATH",
+      "SUPREME_COURT_TERM_URL",
+      "SUPREME_COURT_USER_AGENT",
+      "SupremeCourtContractError",
+      "SupremeCourtCuratedOpinionsAdapter",
+      "SupremeCourtTransportError",
+      "assertSupremeCourtOpinionProjection",
+      "assertSupremeCourtSourceConfig",
+      "assertSupremeCourtTermIndexUrl",
+      "buildSupremeCourtTermIndexUrl",
+      "createSupremeCourtCuratedOpinionsAdapter",
+      "fetchSupremeCourtTermIndex",
+      "normalizeSupremeCourtOpinion",
+      "parseSupremeCourtTermIndex",
+      "refreshSupremeCourtCuratedOpinionsSource",
+      "supremeCourtOpinionStableRecordId",
+      "supremeCourtSourceRecordId",
+    ]);
+    expect(legacy.SupremeCourtCuratedOpinionsAdapter).toBe(
+      direct.SupremeCourtCuratedOpinionsAdapter,
+    );
+    expect(legacy.createSupremeCourtCuratedOpinionsAdapter).toBe(
+      direct.createSupremeCourtCuratedOpinionsAdapter,
+    );
+    expect(legacy.refreshSupremeCourtCuratedOpinionsSource).toBe(
+      configured.refreshSupremeCourtCuratedOpinionsSource,
+    );
+  });
+
+  it("binds canonical taxonomy and preserves direct refresh results", async () => {
+    const context = supremeCourtContext();
+    const injectedTaxonomy = structuredClone(
+      taxonomy,
+    ) as unknown as TaxonomyConfig;
+    const policyBarrier = vi.spyOn(policyValidation, "validateRecordSetPolicy");
+    const externalValidator = vi.fn((records: PolicyRecord[]) => {
+      expect(policyBarrier.mock.calls.length).toBe(
+        externalValidator.mock.calls.length,
+      );
+      return records;
+    });
+    try {
+      const configuredResult =
+        await configured.refreshSupremeCourtCuratedOpinionsSource(
+          createSupremeCourtCuratedOpinionsAdapter({
+            fetch: fixtureFetch().fetch,
+          }),
+          context,
+          { validate: externalValidator },
+        );
+      const directResult =
+        await direct.refreshSupremeCourtCuratedOpinionsSourceWithTaxonomy(
+          createSupremeCourtCuratedOpinionsAdapter({
+            fetch: fixtureFetch().fetch,
+          }),
+          context,
+          { validate: externalValidator },
+          injectedTaxonomy,
+        );
+      expect(configuredResult.ok).toBe(true);
+      expect(directResult).toEqual(configuredResult);
+      expect(externalValidator).toHaveBeenCalledTimes(2);
+      expect(policyBarrier).toHaveBeenCalledTimes(2);
+      expect(policyBarrier.mock.calls[0]?.[1].taxonomy).toBe(taxonomy);
+      expect(policyBarrier.mock.calls[1]?.[1].taxonomy).toBe(injectedTaxonomy);
+      for (const [, options] of policyBarrier.mock.calls) {
+        expect(
+          options.sourceRegistry.sources.find(
+            ({ id }) => id === context.source.id,
+          ),
+        ).toBe(context.source);
+      }
+    } finally {
+      policyBarrier.mockRestore();
+    }
+  });
+
+  it("keeps mandatory policy refusal ahead of caller validation on both routes", async () => {
+    const context = supremeCourtContext();
+    const externalValidator = vi.fn((records: PolicyRecord[]) => records);
+    const policyBarrier = vi
+      .spyOn(policyValidation, "validateRecordSetPolicy")
+      .mockImplementation(() => {
+        throw new Error("Synthetic mandatory policy refusal");
+      });
+    try {
+      const configuredResult =
+        await configured.refreshSupremeCourtCuratedOpinionsSource(
+          createSupremeCourtCuratedOpinionsAdapter({
+            fetch: fixtureFetch().fetch,
+          }),
+          context,
+          { validate: externalValidator },
+        );
+      const directResult =
+        await direct.refreshSupremeCourtCuratedOpinionsSourceWithTaxonomy(
+          createSupremeCourtCuratedOpinionsAdapter({
+            fetch: fixtureFetch().fetch,
+          }),
+          context,
+          { validate: externalValidator },
+          taxonomy as unknown as TaxonomyConfig,
+        );
+      expect(configuredResult).toMatchObject({
+        ok: false,
+        failureStage: "validation",
+      });
+      expect(directResult).toEqual(configuredResult);
+      expect(policyBarrier).toHaveBeenCalledTimes(2);
+      expect(externalValidator).not.toHaveBeenCalled();
+    } finally {
+      policyBarrier.mockRestore();
+    }
+  });
+});
 
 async function references(
   adapter: SupremeCourtCuratedOpinionsAdapter,

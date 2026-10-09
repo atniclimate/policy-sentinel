@@ -1,5 +1,8 @@
 import { URL } from "node:url";
 
+import { isProtectedKey } from "../core/boundary-guard.mjs";
+import { publicJurisdictionAssociation } from "../core/public-contract-v2.mjs";
+
 import {
   assertStableRecordId,
   recordIdentityKey,
@@ -45,30 +48,16 @@ const SOURCE_DERIVED_ROOTS = [
   "/historical",
 ];
 
-const FORBIDDEN_NORMALIZED_KEYS = new Set([
-  "legalconclusion",
-  "legaldetermination",
-  "rightsimpact",
-  "rightsdetermination",
-  "inferredrelevance",
-  "inferrednation",
-  "inferrednationrelationship",
-  "keywordrelevance",
-  "geographyrelevance",
-  "parcel",
-  "parcelid",
-  "parcelgeometry",
-  "geometry",
-  "coordinates",
-  "latitude",
-  "longitude",
-  "landownership",
-  "trustland",
-  "feeland",
-  "triballyownedparcel",
-  "propertyownership",
-  "mapdata",
-  "privatelandcontext",
+// The strict shared guard also protects these private-context fact names.
+// PolicyRecord requires them at its canonical root. Exempt only their exact
+// root spellings here, and continue checking every child with the shared guard.
+const CANONICAL_RECORD_ROOT_KEYS = new Set([
+  "jurisdiction",
+  "issuingBodies",
+  "officialSubjects",
+  "taxonomyMemberships",
+  "relevance",
+  "nationAssociations",
 ]);
 
 export class PolicyValidationError extends Error {
@@ -121,11 +110,26 @@ function collectPrimitivePointers(value, pointer, result) {
 
 export function sourceDerivedLeafPointers(record) {
   const pointers = [];
-  for (const root of SOURCE_DERIVED_ROOTS) {
+  const roots =
+    record.schemaVersion === "2.0.0"
+      ? [
+          ...SOURCE_DERIVED_ROOTS.filter(
+            (root) => !root.startsWith("/jurisdiction/"),
+          ),
+          "/jurisdiction",
+        ]
+      : SOURCE_DERIVED_ROOTS;
+  for (const root of roots) {
     const value = getAtPointer(record, root);
     collectPrimitivePointers(value, root, pointers);
   }
-  return [...new Set(pointers)].sort();
+  return [...new Set(pointers)]
+    .filter(
+      (pointer) =>
+        record.schemaVersion !== "2.0.0" ||
+        !pointer.startsWith("/jurisdiction/review"),
+    )
+    .sort();
 }
 
 function sourceUpdatedAt(record) {
@@ -140,8 +144,10 @@ function sourceUpdatedAt(record) {
  * Synthetic fixtures are already normalized, so this records their fixture
  * JSON pointers as the source paths. Production adapters must create their own
  * provenance during normalization and must not call this helper.
+ * When supplied, mapping evidence must be the aligned mapOfficialSubjects
+ * result; derived taxonomy fields then cite the matched fixture subject.
  */
-export function completeSyntheticProvenance(record) {
+export function completeSyntheticProvenance(record, mappingEvidence) {
   const clone = globalThis.structuredClone(record);
   const existing = new Set(clone.fieldProvenance.map(({ field }) => field));
   for (const field of sourceDerivedLeafPointers(clone)) {
@@ -162,6 +168,65 @@ export function completeSyntheticProvenance(record) {
       validationState: "validated",
     });
   }
+  if (mappingEvidence !== undefined) {
+    if (
+      !Array.isArray(mappingEvidence) ||
+      mappingEvidence.length !== clone.taxonomyMemberships.length ||
+      clone.isUnclassified !== (mappingEvidence.length === 0)
+    ) {
+      throw new TypeError(
+        "Synthetic mapping evidence does not match taxonomy output",
+      );
+    }
+    const derived = [];
+    const flagEvidence = new Set();
+    for (const [index, evidence] of mappingEvidence.entries()) {
+      const membership = clone.taxonomyMemberships[index];
+      const subjectIndex = clone.officialSubjects.findIndex(
+        (subject) =>
+          subject.scheme === evidence.officialSubject?.scheme &&
+          subject.label === evidence.officialSubject?.label &&
+          subject.sourceUrl === evidence.officialSubject?.sourceUrl,
+      );
+      if (
+        subjectIndex === -1 ||
+        evidence.sourceId !== clone.source.id ||
+        evidence.mappingRuleId !== membership.mappingRuleId ||
+        evidence.taxonomyVersion !== membership.taxonomyVersion ||
+        evidence.mappingProvenance?.validationState !== "validated" ||
+        membership.officialSubjectLabels.length !== 1 ||
+        membership.officialSubjectLabels[0] !== evidence.officialSubject.label
+      ) {
+        throw new TypeError(
+          "Synthetic mapping evidence does not match its source subject or rule",
+        );
+      }
+      const subjectField = `/officialSubjects/${subjectIndex}/label`;
+      const provenance = {
+        ...clone.fieldProvenance.find(({ field }) => field === subjectField),
+        sourcePath: `$fixture${subjectField}`,
+        sourceUrl: evidence.officialSubject.sourceUrl,
+        transformation: "deterministic_mapping",
+        transformRuleId: evidence.mappingRuleId,
+      };
+      const fields = [];
+      collectPrimitivePointers(
+        membership,
+        `/taxonomyMemberships/${index}`,
+        fields,
+      );
+      for (const field of fields) derived.push({ ...provenance, field });
+      const flagKey = JSON.stringify([evidence.mappingRuleId, subjectIndex]);
+      if (!flagEvidence.has(flagKey)) {
+        derived.push({ ...provenance, field: "/isUnclassified" });
+        flagEvidence.add(flagKey);
+      }
+    }
+    const derivedFields = new Set(derived.map(({ field }) => field));
+    clone.fieldProvenance = clone.fieldProvenance
+      .filter(({ field }) => !derivedFields.has(field))
+      .concat(derived);
+  }
   clone.fieldProvenance.sort((a, b) => a.field.localeCompare(b.field));
   return clone;
 }
@@ -177,8 +242,8 @@ function validateForbiddenKeys(value, path, issues) {
     return;
   }
   for (const [key, child] of Object.entries(value)) {
-    const normalized = key.toLowerCase().replaceAll(/[^a-z0-9]/g, "");
-    if (FORBIDDEN_NORMALIZED_KEYS.has(normalized)) {
+    const canonicalRoot = path === "" && CANONICAL_RECORD_ROOT_KEYS.has(key);
+    if (!canonicalRoot && isProtectedKey(key)) {
       issues.push(`${path}/${key} is a forbidden public field`);
     }
     validateForbiddenKeys(child, `${path}/${key}`, issues);
@@ -631,9 +696,12 @@ function validateAccordContext(record, sourceConfig, issues) {
 
 function validateNationPolicy(record, knownNations, knownNationIds, issues) {
   const isCounty = record.jurisdiction.level === "county";
-  const isStateOrFederal = ["state", "federal"].includes(
-    record.jurisdiction.level,
-  );
+  const successor = record.schemaVersion === "2.0.0";
+  const isStateOrFederal = (
+    successor
+      ? ["state", "federal", "county", "municipal", "other"]
+      : ["state", "federal"]
+  ).includes(record.jurisdiction.level);
   const explicitRelevance = record.relevance.some(
     ({ basis }) => basis === "explicit_nation_reference",
   );
@@ -641,13 +709,13 @@ function validateNationPolicy(record, knownNations, knownNationIds, issues) {
     ({ basis }) => basis === "general_jurisdiction",
   );
 
-  if (isCounty && record.nationAssociations.length === 0) {
+  if (!successor && isCounty && record.nationAssociations.length === 0) {
     issues.push("county record has no explicit Nation association");
   }
-  if (isCounty && !explicitRelevance) {
+  if (!successor && isCounty && !explicitRelevance) {
     issues.push("county record lacks explicit_nation_reference relevance");
   }
-  if (isCounty && record.jurisdiction.generalJurisdictionOnly) {
+  if (!successor && isCounty && record.jurisdiction.generalJurisdictionOnly) {
     issues.push("county record cannot be labeled general jurisdiction");
   }
 
@@ -836,6 +904,17 @@ function validateProvenance(record, sourceConfig, issues) {
     ) {
       issues.push(`${label} does not match the record source identity`);
     }
+    if (
+      record.schemaVersion === "2.0.0" &&
+      entry.field.startsWith("/jurisdiction/") &&
+      !entry.field.startsWith("/jurisdiction/review") &&
+      (entry.sourceUrl !== record.jurisdiction.evidence.url ||
+        entry.retrievedAt !== record.dates.retrieved ||
+        entry.sourceUpdatedAt !== sourceUpdatedAt(record))
+    )
+      issues.push(
+        `${label} jurisdiction provenance does not match its source capture`,
+      );
     if (entry.validationState !== "validated") {
       issues.push(`${label} is not validated`);
     }
@@ -1040,6 +1119,77 @@ export function validateRecordPolicy(
   { sourceConfig, taxonomy, knownNations = null, knownNationIds = null },
 ) {
   const issues = [];
+  if (record.schemaVersion === "2.0.0") {
+    try {
+      const association = publicJurisdictionAssociation(
+        record.jurisdiction,
+        record.internalId,
+      );
+      const exact = association.evidence.exactSubject;
+      const sourceTexts = [
+        record.officialTitle,
+        record.sourceDocumentIdentifier,
+        record.status.sourceLabel,
+        ...record.issuingBodies.map((row) => row.officialName),
+        record.texts.officialSummary?.text,
+        record.texts.sourceExcerpt?.text,
+      ];
+      if (
+        association.reviewState !== "reviewed" ||
+        !exact ||
+        !sourceTexts.some(
+          (text) => typeof text === "string" && text.includes(exact.text),
+        )
+      )
+        issues.push("jurisdiction requires reviewed exact source evidence");
+      if (
+        ![record.urls.officialSource, record.urls.officialFullText].includes(
+          association.evidence.url,
+        )
+      )
+        issues.push("jurisdiction evidence URL is not an official record URL");
+      if (
+        association.jurisdictionRef.startsWith("nation:") &&
+        !record.nationAssociations.some(
+          (row) =>
+            row.nationId === association.jurisdictionRef &&
+            row.evidenceText.includes(exact?.text ?? ""),
+        )
+      )
+        issues.push(
+          "Nation jurisdiction lacks independently documented Nation attribution",
+        );
+      const configured = publicJurisdictionAssociation(
+        sourceConfig.jurisdiction,
+        sourceConfig.id,
+      );
+      if (
+        association.basis === "issuing_authority" &&
+        (configured.basis !== "issuing_authority" ||
+          configured.reviewState !== "reviewed" ||
+          configured.jurisdictionRef !== association.jurisdictionRef)
+      )
+        issues.push(
+          "issuing jurisdiction does not match reviewed source authority",
+        );
+      if (
+        association.jurisdictionRef.startsWith("nation:") &&
+        !sourceConfig.synthetic
+      )
+        issues.push("real Nation registry binding is not enabled");
+      const reviewedAt = Date.parse(record.jurisdiction.review?.reviewedAt);
+      if (
+        !Number.isFinite(reviewedAt) ||
+        reviewedAt < Date.parse(record.dates.retrieved) ||
+        reviewedAt > Date.parse(record.dataQuality.validatedAt)
+      )
+        issues.push(
+          "jurisdiction review is outside retrieval/validation history",
+        );
+    } catch (error) {
+      issues.push(error.message);
+    }
+  }
   try {
     assertStableRecordId(record.internalId);
     toUrlSafeId(record.internalId);
@@ -1082,6 +1232,10 @@ export function validateRecordSetPolicy(
   { sourceRegistry, taxonomy, nations = [] },
 ) {
   const issues = [];
+  const expectedVersion =
+    sourceRegistry.schemaVersion === "2.0.0" ? "2.0.0" : "1.4.0";
+  if (records.some((record) => record.schemaVersion !== expectedVersion))
+    issues.push("record schema version does not match source registry");
   const sourceConfigs = new Map(
     sourceRegistry.sources.map((source) => [source.id, source]),
   );

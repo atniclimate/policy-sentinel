@@ -2,14 +2,18 @@
 
 ## Product-space compatibility and successor boundary
 
-The current contracts below remain authoritative for implemented application
-and artifact behavior. They are not renamed as the analyzed corpus.
+The retained contracts below remain authoritative for the ordinary synthetic
+application and artifact build. Explicit corpus 2.1 and public-contract 2.0
+successors are cataloged separately; legacy inputs are never silently upgraded.
+Public records are not renamed as the analyzed corpus.
 `PolicyRecord 1.4` is embedded once in the existing AnalyzedCorpus contract;
 the explicit 1.1 exact-fixture compatibility profile now supplies the ordinary
 build's three records. The [corpus ADR](adr/ps09-canonical-corpus.md) and
 [component dispositions](development/ps09-convergence.v1.json) define the single
-canonical path and exclusions. `PS09-06-LOCAL-RC` is the sole local release
-root; the historical schema families below do not impose a second graph.
+canonical path and exclusions. GD-27 is the current local release root under
+schema 1.11 and the [GD-31 crosswalk](development/gd31-release-acceptance-crosswalk.md).
+PS09-06 and the historical schema families below retain evidence without
+imposing a second current execution graph.
 
 The owner adopted the [real-policy launch](handoffs/ps09-real-policy-discovery-launch.md)
 prepared at `39d738a` for bounded local implementation, official acquisition,
@@ -63,6 +67,86 @@ or establish PNW completion.
 
 ### Implemented JSON Schemas
 
+D-088 adds the following versioned contracts. Their integrated
+validation and acceptance are recorded in the
+[study-engine implementation record](development/2026-10-08-study-engine-implementation.md):
+
+- [`AnalyzedCorpus 2.1.0`](../schemas/analyzed-corpus.schema.v2.1.json), ID
+  `https://policy-sentinel.invalid/schemas/analyzed-corpus.schema.v2.1.json`,
+  adds evidence-bearing work jurisdiction associations while preserving original
+  government-context text. Its explicit successor constructors, parsers and
+  replay path retain sealed 2.0 compatibility. The new association is not a
+  production Nation registry or a determination of legal applicability.
+- [`Public record 2.0.0`](../schemas/record.schema.v2.json), ID
+  `https://policy-sentinel.invalid/schemas/record.schema.v2.json`,
+  [`public artifact 2.0.0`](../schemas/artifact.schema.v2.json), ID
+  `https://policy-sentinel.invalid/schemas/artifact.schema.v2.json`, and
+  [`source registry 2.0.0`](../schemas/source.schema.v2.json), ID
+  `https://policy-sentinel.invalid/schemas/source.schema.v2.json`,
+  form an explicit successor family. Jurisdiction references replace the retained
+  three-state restriction; reviewed source evidence remains distinct from
+  discovery relevance. County and municipal instruments can be general-jurisdiction
+  records without a Nation relationship. Migration requires supplied evidence and
+  never derives Nation links from location, keywords or organizational membership.
+  The v1 schemas, source configuration and ordinary build defaults remain fixed.
+
+  Migration helpers return candidates plus receipts, preserving the original
+  jurisdiction values and provenance. Admission still requires schema and policy
+  validation against an independently supplied source registry. The artifact
+  validator accepts that registry through `--sources`; embedded artifact metadata
+  cannot authorize itself. Reviewed state references require matching identity
+  evidence, not merely a quotation from the same document. Production Nation
+  jurisdiction references remain gated on a qualified identity registry.
+
+- [`SourceCatalog 1.0.0`](../schemas/source-catalog.schema.v1.json), ID
+  `https://policy-sentinel.invalid/schemas/source-catalog.schema.v1.json`, is
+  consumed by the [catalog runtime](../src/modules/intake/source-catalog.mjs)
+  and configured acquisition preparation. It distinguishes documentary search
+  capabilities, implemented retrieval, source qualification and activation;
+  documentary discovery geography does not establish legal applicability.
+  [Catalog tests](../tests/pipeline/source-catalog.test.mjs) compile strict
+  schema, reject malformed/expired dispatch and preserve historical manifest bytes.
+- [`ResearchStudy 1.0.0`](../schemas/research-study.schema.v1.json), ID
+  `https://policy-sentinel.invalid/schemas/research-study.schema.v1.json`, is
+  consumed by the [pure study runtime](../src/core/research-study.mjs) and
+  [local workspace](../src/app/StudyWorkspace.tsx). It is an 8 MiB bounded
+  sidecar, with canonical digests, exact corpus/version/passage bindings and
+  reconstructable revisions. It leaves sealed AnalyzedCorpus 2.0 bytes intact.
+  Questions, discovery, assertions, reviews and notes retain independent
+  authorship and sensitivity; procedures, consultation and environmental values
+  require exact cited source statements. Importing against a changed corpus
+  requires explicit review. [Study tests](../tests/core/research-study.test.ts)
+  cover schema/runtime negatives and the ten required functional outcomes.
+- [`AttributedStudyGraph 1.0.0`](../schemas/attributed-study-graph.schema.v1.json),
+  ID `https://policy-sentinel.invalid/schemas/attributed-study-graph.schema.v1.json`,
+  is produced by [study products](../src/modules/output/study-products.mjs).
+  Its six node kinds and four edge kinds carry actors, timestamps, review state,
+  provenance and exact citations. It references the study schema's actor and
+  citation definitions; [product tests](../tests/modules/output/study-products.test.ts)
+  compile the graph strictly and check endpoint closure, privacy and exports.
+  Public filtering removes restricted content, history and dependent records;
+  current corpus source profiles prohibit public source redistribution.
+
+These contracts do not silently rewrite retained public record/artifact bytes or
+make any source operational merely by listing it; explicit migration candidates
+still require independent admission. The total managed-storage
+ceiling remains 50,000,000,000 bytes and the browser corpus limit remains 128 MiB.
+
+`DevelopmentAuthorityPreparation 1.0.0` is a local preparation-only contract in
+[`development-authority.schema.v1.json`](../schemas/development-authority.schema.v1.json),
+ID `https://policy-sentinel.invalid/schemas/development-authority.schema.v1.json`.
+It has closed local definitions and no external `$ref`. The pure
+[`development-authority.mjs`](../src/core/development-authority.mjs) parser and
+assessment functions consume source, exchange and restriction specimens.
+Foundation strictly compiles the schema and validates the
+[`synthetic fixture`](../fixtures/development/authority.synthetic.valid.json)
+and [blocked real planning packet](development/gd31-operation-packets.v1.json).
+[`Focused tests`](../tests/pipeline/development-authority.test.mjs) exercise
+refusal, source eligibility, profile migration and independent restrictions.
+The [contract reference](architecture/gd31-successor-contracts.md) specifies
+compatibility. All roots forbid dispatch; this does not migrate retained
+PolicyRecord/artifact/source contracts or implement GD-16 peer exchange.
+
 The adopted run now implements the closed `AnalyzedCorpus 2.0.0` local contract
 in [its schema](../schemas/analyzed-corpus.schema.v2.json),
 [pure producer/validator](../src/pipeline/analyzed-corpus-v2.mjs),
@@ -92,9 +176,9 @@ contracts; see the [discovery outcome](handoffs/ps09-real-policy-discovery-outco
 | Schema and normative status | Purpose, version, and stable ID | `$ref` dependencies | Instance producer and consumers | Examples and fixtures | Validator and migration posture |
 | --- | --- | --- | --- | --- | --- |
 | [`identity-authority-scenarios.schema.v1.json`](../schemas/identity-authority-scenarios.schema.v1.json) — local synthetic contract | `IdentityAuthorityScenariosBundle 1.0.0`; ID `https://policy-sentinel.invalid/schemas/identity-authority-scenarios.schema.v1.json`. Separates stable entities, names, recognition, membership, owner cohort, record association and reference scenarios. | Closed local definitions only; no protected schema or real-source/corpus dependency. | Pure [`identity-authority-scenarios.ts`](../src/engine/identity-authority-scenarios.ts) parser/evaluator/serializers; readonly [`contracts`](../src/engine/identity-authority-scenarios-contracts.ts). | [`synthetic fixture`](../fixtures/engine/identity-authority-scenarios.synthetic.valid.json) and [`malformed family`](../fixtures/engine/identity-authority-scenarios-malformed.invalid.json). | Foundation compiles strict schema and classifies negative layers; focused schema/runtime/non-interference tests enforce semantics. New additive version, no retained migration or real-data acceptance. |
-| [`artifact.schema.v1.json`](../schemas/artifact.schema.v1.json) — current static-application contract | Six static artifact document kinds use document schema `1.0.0`. The manifest accepts archival artifact packages `1.0.0` through `1.4.0`; current output is package `1.4.0` with record `1.4.0` and source registry `1.19.0`. ID: `https://policy-sentinel.invalid/schemas/artifact.schema.v1.json`. | No external references; record, index, Nation, coverage, health, and manifest shapes are closed local definitions. | [`artifact.mjs`](../src/pipeline/artifact.mjs) and [`build-synthetic-artifact.mjs`](../scripts/build-synthetic-artifact.mjs) produce ignored `dist/data/**`. The application loader, artifact validator, and [`last-known-good.mjs`](../src/pipeline/last-known-good.mjs) consume it. | Current examples are generated and ignored; archival package fixtures are constructed in [`artifact-schema-compatibility.test.ts`](../tests/pipeline/artifact-schema-compatibility.test.ts). | [`validate-artifact.mjs`](../scripts/validate-artifact.mjs) and pipeline hardening tests validate instances separately from foundation validation. The schema remains archive-compatible, but the current client and validator require the coherent `1.4.0` package/record pair. Older packages need matching-version software or an explicit tested migration. |
-| [`record.schema.v1.json`](../schemas/record.schema.v1.json) — current normalized-record contract | `PolicyRecord` schema `1.4.0`, including taxonomy membership `1.0.0`. ID: `https://policy-sentinel.invalid/schemas/record.schema.v1.json`. Its WA/OR/ID jurisdiction vocabulary and Nation-association fields belong to the retained application; they are not universal engine primitives or an ATNI-membership model. | No external references. The artifact schema carries related closed projections rather than referencing this schema. | Source normalizers under [`src/adapters/`](../src/adapters/), the pipeline, and the synthetic builder produce records. Policy validation, artifact/LKG handling, K0 compatibility projection, and application loading consume them. | [`county-explicit.valid.json`](../fixtures/records/county-explicit.valid.json), [`general-jurisdiction.valid.json`](../fixtures/records/general-jurisdiction.valid.json), and [`intergovernmental-accord.valid.json`](../fixtures/records/intergovernmental-accord.valid.json). | [`validate-foundation.mjs`](../scripts/validate-foundation.mjs), [`policy-record-14-validator.ts`](../src/kernel/lifecycle/policy-record-14-validator.ts), artifact validation, and pipeline tests enforce schema plus semantic policy. A breaking field or meaning change requires a new major schema, migration and compatibility fixtures, an artifact-version decision, and a decision-register entry. No general record migration is implemented. |
-| [`source.schema.v1.json`](../schemas/source.schema.v1.json) — current source-registry contract | Source schema `1.3.0`; current registry `1.19.0`. ID: `https://policy-sentinel.invalid/schemas/source.schema.v1.json`. | No external references. | The authored [`sources.v1.json`](../config/sources.v1.json) is the normative instance. Build, policy, LKG, and K0 projection validators consume it. | The registry itself is the representative configuration; source-specific synthetic payloads live under [`fixtures/sources/`](../fixtures/sources/). | Foundation validation and [`source-registry.test.mjs`](../tests/pipeline/source-registry.test.mjs) validate it. Artifact/LKG compatibility is pinned to the exact registry version; an older artifact must be rebuilt or explicitly migrated, never silently relabeled. |
+| [`artifact.schema.v1.json`](../schemas/artifact.schema.v1.json) — retained static-application contract | Six static artifact document kinds use document schema `1.0.0`. The manifest accepts archival artifact packages `1.0.0` through `1.4.0`; ordinary synthetic output remains package `1.4.0` with record `1.4.0` and source registry `1.19.0`. ID: `https://policy-sentinel.invalid/schemas/artifact.schema.v1.json`. | No external references; record, index, Nation, coverage, health, and manifest shapes are closed local definitions. | [`artifact.mjs`](../src/pipeline/artifact.mjs) and [`build-synthetic-artifact.mjs`](../scripts/build-synthetic-artifact.mjs) produce ignored `dist/data/**`. The application loader, artifact validator, and [`last-known-good.mjs`](../src/pipeline/last-known-good.mjs) consume it. | Current examples are generated and ignored; archival package fixtures are constructed in [`artifact-schema-compatibility.test.ts`](../tests/pipeline/artifact-schema-compatibility.test.ts). | [`validate-artifact.mjs`](../scripts/validate-artifact.mjs) and pipeline hardening tests validate instances separately from foundation validation. The retained v1 client/validator path requires the coherent `1.4.0` package/record pair. The separately cataloged `2.0.0` path requires its complete successor family and independently supplied registry; mixed families fail closed. Older packages need matching-version software or an explicit tested migration. |
+| [`record.schema.v1.json`](../schemas/record.schema.v1.json) — retained normalized-record contract | `PolicyRecord` schema `1.4.0`, including taxonomy membership `1.0.0`. ID: `https://policy-sentinel.invalid/schemas/record.schema.v1.json`. Its WA/OR/ID jurisdiction vocabulary and Nation-association fields belong to the retained application; they are not universal engine primitives or an ATNI-membership model. | No external references. The artifact schema carries related closed projections rather than referencing this schema. | Source normalizers under [`src/adapters/`](../src/adapters/), the pipeline, and the synthetic builder produce records. Policy validation, artifact/LKG handling, K0 compatibility projection, and application loading consume them. | [`county-explicit.valid.json`](../fixtures/records/county-explicit.valid.json), [`general-jurisdiction.valid.json`](../fixtures/records/general-jurisdiction.valid.json), and [`intergovernmental-accord.valid.json`](../fixtures/records/intergovernmental-accord.valid.json). | [`validate-foundation.mjs`](../scripts/validate-foundation.mjs), [`policy-record-14-validator.ts`](../src/kernel/lifecycle/policy-record-14-validator.ts), artifact validation, and pipeline tests enforce schema plus semantic policy. The explicit D-088 [`public successor helper`](../src/core/public-contract-v2.mjs) produces a `2.0.0` candidate and migration receipt only from supplied jurisdiction evidence. It does not rewrite retained records or admit a candidate without successor schema, policy and registry validation. Breaking changes still require versioned compatibility evidence and a decision-register entry. |
+| [`source.schema.v1.json`](../schemas/source.schema.v1.json) — retained source-registry contract | Source schema `1.3.0`; ordinary build registry `1.19.0`. ID: `https://policy-sentinel.invalid/schemas/source.schema.v1.json`. | No external references. | The authored [`sources.v1.json`](../config/sources.v1.json) is the normative retained instance. Build, policy, LKG, and K0 projection validators consume it. | The registry itself is the representative configuration; source-specific synthetic payloads live under [`fixtures/sources/`](../fixtures/sources/). | Foundation validation and [`source-registry.test.mjs`](../tests/pipeline/source-registry.test.mjs) validate it. Artifact/LKG compatibility is pinned to the exact registry version; an older artifact must be rebuilt or explicitly migrated, never silently relabeled. Explicit successor-registry candidates use the separate `2.0.0` family and do not replace this default configuration. |
 | [`taxonomy.schema.v1.json`](../schemas/taxonomy.schema.v1.json) — current taxonomy-configuration contract | Taxonomy schema and current taxonomy version `1.0.0`. ID: `https://policy-sentinel.invalid/schemas/taxonomy.schema.v1.json`. | No external references. | The authored [`taxonomy.v1.json`](../config/taxonomy.v1.json) is the normative ten-category, 33-subcategory instance. Mapping, record-policy, build, application, and LKG paths consume it. | The configuration itself is the representative example; record fixtures exercise mapped and Unclassified states. | Foundation and pipeline tests validate exact IDs and many-to-many structure. A semantic taxonomy change requires a new version and reviewed mapping compatibility; no automatic taxonomy migration exists. |
 | [`taxonomy-bundle.schema.v1.json`](../schemas/taxonomy-bundle.schema.v1.json) — additive PNW-04 governed taxonomy contract | `TaxonomyBundle 1.0.0`. ID: `https://policy-sentinel.invalid/schemas/taxonomy-bundle.schema.v1.json`. It governs synthetic authority-separated namespaces, exact source-native official-subject schemes, concepts, evidence, review, direct crosswalks, assignments, and deployment/persona grants. | No external schema references. Project-general concepts carry exact retained taxonomy `1.0.0` category/subcategory references, while runtime validation checks those identities against the unchanged canonical configuration. | The synthetic bundle fixture is the only authored producer. [`taxonomy.ts`](../src/engine/taxonomy.ts) parses it beside an exact PNW-01 profile and accepts only an `EngineProjection` reproduced byte-for-byte by the pure PNW-01 resolver, then emits a detached reference-only taxonomy projection. The application, adapters, pipeline, artifact builder, and LKG do not consume it. | [`taxonomy.synthetic.valid.json`](../fixtures/engine/taxonomy.synthetic.valid.json) and [`taxonomy-malformed.invalid.json`](../fixtures/engine/taxonomy-malformed.invalid.json). | Foundation plus the three focused taxonomy suites enforce schema closure, composite identity/reference closure, scheme and authority non-substitution, time-qualified review, honest unmapped/Unclassified states, lifecycle, one-depth deterministic resolution, atomicity, immutability, and non-interference. There is no migration from taxonomy v1 or `PolicyRecord.taxonomyMemberships`; a semantic break requires a successor schema and consumer/migration review. |
 | [`source-pack-bundle.schema.v1.json`](../schemas/source-pack-bundle.schema.v1.json) — additive PNW-05 synthetic source-pack-core contract | `SourcePackBundle 1.0.0`. ID: `https://policy-sentinel.invalid/schemas/source-pack-bundle.schema.v1.json`. It governs only synthetic-test source/context bindings, structural contract and evidence receipts, reviewed declared coverage, admission, disclosure, and static scoped health/availability observations. Each evidence receipt names an exact contract, coverage, or authority subject and must have exactly one primary consumer. | No external schema references. Runtime resolution binds source ID plus registry version to the unchanged source registry and binds exact PNW-01 references. Optional PNW-03/04 object references are compatibility-only, and PNW-03 references are restricted to public visibility/sensitivity plus explicit public source-reference approval. | The authored synthetic fixture is the only producer. [`source-pack.ts`](../src/engine/source-pack.ts) validates the complete graph beside an already validated PNW-01 profile and optional PNW-03/04 bundles, then returns a detached, recursively frozen, reference-only internal admission plan. The admission's persona/output must equal the request tuple. That disclosure-scoped plan omits the global bundle identity/version so hidden-only versioned changes cannot affect public bytes. The application, adapters, acquisition pipeline, artifact builder, and LKG do not consume it. | [`source-pack.synthetic.valid.json`](../fixtures/engine/source-pack.synthetic.valid.json) and [`source-pack-malformed.invalid.json`](../fixtures/engine/source-pack-malformed.invalid.json). | Foundation plus three focused source-pack suites enforce closed shape/reference integrity, exact synthetic source/configuration binding, single-primary-consumer evidence closure, exact admission persona/output, exact review subject/time closure, independent operations and state axes, partial and unserved non-absence gaps, distinct observed-unknown states, access-first disclosure, time selection, isolation, deterministic authorized fingerprints, replay rejection, atomicity, immutability, and hidden-version non-interference. It is not a migration or production source catalog; a semantic break or real-source onboarding requires a successor/compatibility review and the exact source evidence and activation gate. |
@@ -194,6 +278,34 @@ absent remain dated evidence, not contrary current-state claims.
 | Document, web-module, application, and structured-output adapters | PNW-08 requires adapters over one accepted corpus plus digest-bearing receipts preserving identity, citations, evidence, review, visibility, coverage and limitations. The adopted v2 local output has a digest-bound manifest, workbench, dossier/evidence pages and governed JSON exports. | Those concrete local outputs and the retained synthetic app/dossier/CSV/static artifact are bounded evidence. A general accepted adapter/receipt contract across all four output classes, including a separately accepted web module, remains unresolved; local output does not establish that broader acceptance. |
 | O0 orchestration | [`o0-orchestration-contract.md`](vision/o0-orchestration-contract.md) is a repaired, byte-sealed proposed `1.0.0` candidate awaiting independent review. It is unaccepted, unimplemented, nonconverged, and blocked at `O0-ORCHESTRATION`. | It has no JSON Schema, fixture implementation, producer, consumer, migration, or product dependency. Cataloging the candidate does not accept or authorize it. |
 | D0 change intelligence | D0 appears only in the superseded historical development proposal and remains absent and unauthorized. | There is no roadmap work item, contract, schema ID, fixture, implementation, migration, or dependency. O0 absence/promotion evidence cannot create D0 change semantics. |
+
+The [general development addendum](architecture/general-development-addendum-2026-09-22.md)
+also governs planned private-context and exchange contracts. Module 4 accepts
+only deployment-authorized user-supplied private inputs, keeps their custody and
+derivatives in the private namespace, and remains unreachable from public entry
+points. The existing synthetic land contracts do not implement a real area
+resolver or private-source adapter. A future `PolicyContext` carries bounded
+public criteria and sensitivity provenance; its common exchange profile is
+Nation-free, while a separately authorized ATNI profile may carry an optional,
+explicitly selected canonical Nation identifier under D-087. Neither selection
+nor geographic intersection establishes affiliation, representation, legal
+applicability or a record-to-Nation association. Private-derived context and land
+status cannot be transmitted off the deployment.
+
+Designation vocabulary, source-backed record connections, externally held
+geometry and a qualified Nation registry remain separate versioned contracts.
+Registry recognition, organizational membership and record evidence cannot
+substitute for one another; the real Nation binding remains gated. Official
+public Tribal-government publications are eligible for source qualification,
+whereas restricted internal records require applicable permission. A source's
+subject matter does not decide its access class. These are successor obligations,
+not additional implemented schema or peer-exchange claims in this catalog.
+
+The D-086 storage contract counts all managed originals, renditions, indexes,
+study cases, exports and simultaneous temporary/rebuild copies against
+50,000,000,000 bytes. Moving managed data to cold storage does not create a new
+allowance. Source review, measured capacity and operation-specific admission
+remain independent of the existence of these schemas.
 
 The successor concepts deliberately preserve distinctions that current output
 projections cannot collapse: sovereign identity versus recognition versus
@@ -379,7 +491,7 @@ personal/contact, free-text, and untyped surfaces; publication remains
 metadata-and-reviewed-official-links only after the remaining adapter
 contracts pass.
 
-The current normalized record and artifact schemas do not provide first-class
+The public normalized record and artifact schemas do not provide first-class
 Regulations.gov docket entities, attachment collections, rate-header metadata,
 or a general mutable-field observation history. Regulations.gov docket
 relationships and attachment metadata therefore remain source-contract
@@ -541,7 +653,11 @@ jurisdictional determination, land interest, or inferred Nation relationship.
 
 ## Semantic invariants
 
-JSON Schema is one layer. Phase B semantic validation must additionally prove:
+The following retained v1 invariants remain unchanged. The explicit public v2
+successor instead permits county and municipal general-jurisdiction records
+without a Nation association, subject to its separate source and jurisdiction
+evidence checks. JSON Schema is one layer. Phase B semantic validation must
+additionally prove:
 
 1. internal and compound source IDs are unique and stable;
 2. every source-derived leaf field has a field-provenance entry;
@@ -697,19 +813,20 @@ The public artifact accepts only coherent source-health combinations:
 
 The artifact manifest names the record, taxonomy, mapping, source-registry, and
 build versions. Additive compatible changes can increment the minor version.
-Current builds emit artifact package `1.4.0`, record schema `1.4.0`, and source
+Ordinary synthetic builds emit artifact package `1.4.0`, record schema `1.4.0`, and source
 registry `1.19.0`; artifact schema `1.0.0` still accepts historical package
 `1.0.0`, `1.1.0`, `1.2.0`, and `1.3.0` shapes for archival schema validation. Package
 1.2 added `judicialContext` to the compact-index/detail integrity projection so
 court, docket, citation, form, publication, and revision evidence cannot
 diverge during hydration. Package 1.3 keeps the compact landmark flag and adds
 the reviewed criterion and evidence union to detail records. Package 1.4 adds
-the full Accord context to compact/detail integrity. The current client fails
-closed on any artifact package or record schema other than `1.4.0` before
-record normalization; it does not synthesize judicial, landmark, or Accord
-evidence from a legacy package. The current artifact validator likewise
-requires the coherent `1.4.0` package/record pair even though the artifact JSON
-Schema retains archival compatibility. For current records, client
+the full Accord context to compact/detail integrity. The retained v1 client path
+requires the coherent `1.4.0` package/record pair before normalization; it does
+not synthesize judicial, landmark, or Accord evidence from an older package.
+The explicit D-088 successor path instead requires the coherent `2.0.0`
+package/record/source-registry family and validates its jurisdiction evidence.
+Mixed families fail closed. Archival schema compatibility does not make an old
+package loadable by either current path. For retained v1 records, client
 normalization rechecks judicial invariants, landmark/relevance symmetry and
 evidence, and the Accord party/role/date/status/supersession/identity boundary.
 A package-1.4 detail must share the loaded manifest build timestamp and exactly

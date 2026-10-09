@@ -1,0 +1,903 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/artifact.schema.v2.json",
+  "title": "Policy Sentinel public artifact successor 2.0",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/manifest"
+    },
+    {
+      "$ref": "#/$defs/coverage"
+    },
+    {
+      "$ref": "#/$defs/sourceHealthCollection"
+    },
+    {
+      "$ref": "#/$defs/nationCollection"
+    },
+    {
+      "$ref": "#/$defs/recordIndex"
+    },
+    {
+      "$ref": "#/$defs/recordDetail"
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/sha256"
+    },
+    "slug": {
+      "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/slug"
+    },
+    "httpsUrl": {
+      "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/httpsUrl"
+    },
+    "nullableDate": {
+      "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nullableDate"
+    },
+    "nullableDateTime": {
+      "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nullableDateTime"
+    },
+    "jurisdiction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "level",
+        "name",
+        "jurisdictionRef",
+        "basis",
+        "evidence",
+        "reviewState",
+        "review"
+      ],
+      "properties": {
+        "level": {
+          "enum": ["federal", "state", "county", "municipal", "tribal", "other"]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "jurisdictionRef": {
+          "type": "string",
+          "pattern": "^(?:us|us-state:[A-Z]{2}|us-county:[0-9]{5}|(?:nation|body):[a-z0-9]+(?:-[a-z0-9]+)*)$",
+          "maxLength": 71
+        },
+        "basis": {
+          "enum": ["issuing_authority", "source_stated_scope"]
+        },
+        "reviewState": {
+          "enum": ["unreviewed", "reviewed", "rejected"]
+        },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["url", "locator"],
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https://",
+              "maxLength": 4096
+            },
+            "locator": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "exactSubject": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["recordRef", "ref", "text"],
+              "properties": {
+                "recordRef": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "ref": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 71
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8192
+                }
+              }
+            }
+          }
+        },
+        "review": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["reviewer", "reviewedAt"],
+              "properties": {
+                "reviewer": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "reviewedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactType",
+        "schemaVersion",
+        "artifactVersion",
+        "buildId",
+        "generatedAt",
+        "dataAsOf",
+        "synthetic",
+        "recordSchemaVersion",
+        "taxonomyVersion",
+        "sourceRegistryVersion",
+        "recordCount",
+        "nationCount",
+        "assets"
+      ],
+      "properties": {
+        "artifactType": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/manifest/properties/artifactType"
+        },
+        "schemaVersion": {
+          "const": "2.0.0"
+        },
+        "artifactVersion": {
+          "const": "2.0.0"
+        },
+        "buildId": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/manifest/properties/buildId"
+        },
+        "generatedAt": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/manifest/properties/generatedAt"
+        },
+        "dataAsOf": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/manifest/properties/dataAsOf"
+        },
+        "synthetic": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/manifest/properties/synthetic"
+        },
+        "recordSchemaVersion": {
+          "const": "2.0.0"
+        },
+        "taxonomyVersion": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/manifest/properties/taxonomyVersion"
+        },
+        "sourceRegistryVersion": {
+          "type": "string",
+          "pattern": "^2\\.\\d+\\.\\d+$"
+        },
+        "recordCount": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/manifest/properties/recordCount"
+        },
+        "nationCount": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/manifest/properties/nationCount"
+        },
+        "assets": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/manifest/properties/assets"
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactType",
+        "schemaVersion",
+        "generatedAt",
+        "notices",
+        "entries"
+      ],
+      "properties": {
+        "artifactType": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/coverage/properties/artifactType"
+        },
+        "schemaVersion": {
+          "const": "2.0.0"
+        },
+        "generatedAt": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/coverage/properties/generatedAt"
+        },
+        "notices": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/coverage/properties/notices"
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sourceId",
+              "jurisdiction",
+              "from",
+              "through",
+              "cadence",
+              "recordTypes",
+              "status",
+              "limitation"
+            ],
+            "properties": {
+              "sourceId": {
+                "$ref": "#/$defs/slug"
+              },
+              "sourceName": {
+                "type": "string",
+                "minLength": 1
+              },
+              "provider": {
+                "type": "string",
+                "minLength": 1
+              },
+              "jurisdiction": {
+                "$ref": "#/$defs/jurisdiction"
+              },
+              "from": {
+                "$ref": "#/$defs/nullableDate"
+              },
+              "through": {
+                "$ref": "#/$defs/nullableDate"
+              },
+              "documentedFrom": {
+                "$ref": "#/$defs/nullableDate"
+              },
+              "documentedThrough": {
+                "$ref": "#/$defs/nullableDate"
+              },
+              "recordFrom": {
+                "$ref": "#/$defs/nullableDate"
+              },
+              "recordThrough": {
+                "$ref": "#/$defs/nullableDate"
+              },
+              "recordCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "cadence": {
+                "type": "string",
+                "minLength": 1
+              },
+              "recordTypes": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "status": {
+                "enum": ["synthetic", "available", "limited", "unavailable"]
+              },
+              "limitation": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "sourceHealth": {
+      "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/sourceHealth"
+    },
+    "sourceHealthCollection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifactType", "schemaVersion", "generatedAt", "sources"],
+      "properties": {
+        "artifactType": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/sourceHealthCollection/properties/artifactType"
+        },
+        "schemaVersion": {
+          "const": "2.0.0"
+        },
+        "generatedAt": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/sourceHealthCollection/properties/generatedAt"
+        },
+        "sources": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/sourceHealthCollection/properties/sources"
+        }
+      }
+    },
+    "nation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "officialName",
+        "authorizedAliases",
+        "recognitionBaselineVersion",
+        "stateCoverage"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nation/properties/id"
+        },
+        "officialName": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nation/properties/officialName"
+        },
+        "authorizedAliases": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nation/properties/authorizedAliases"
+        },
+        "recognitionBaselineVersion": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nation/properties/recognitionBaselineVersion"
+        },
+        "stateCoverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["jurisdictionRefs", "federalOnly", "basis"],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "basis": {
+                    "const": "reviewed_official_crosswalk"
+                  }
+                }
+              },
+              "then": {
+                "required": ["evidence"],
+                "properties": {
+                  "federalOnly": {
+                    "const": false
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "minItems": 1
+                  },
+                  "jurisdictionRefs": {
+                    "type": "array",
+                    "minItems": 1
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "basis": {
+                    "const": "unresolved_no_reviewed_crosswalk"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "federalOnly": {
+                    "const": true
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "maxItems": 0
+                  },
+                  "jurisdictionRefs": {
+                    "type": "array",
+                    "maxItems": 0
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "basis": {
+                    "const": "synthetic_fixture"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "evidence": {
+                    "type": "array",
+                    "maxItems": 0
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "federalOnly": {
+              "type": "boolean"
+            },
+            "basis": {
+              "enum": [
+                "synthetic_fixture",
+                "reviewed_official_crosswalk",
+                "unresolved_no_reviewed_crosswalk"
+              ]
+            },
+            "evidence": {
+              "type": "array",
+              "maxItems": 57,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "jurisdictionRef",
+                  "basis",
+                  "sourceNationName",
+                  "evidenceText",
+                  "evidenceUrl",
+                  "sourceIdentifier",
+                  "sourceDate",
+                  "retrievedAt",
+                  "validationState"
+                ],
+                "properties": {
+                  "basis": {
+                    "const": "reviewed_official_crosswalk"
+                  },
+                  "sourceNationName": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "evidenceText": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "evidenceUrl": {
+                    "$ref": "#/$defs/httpsUrl"
+                  },
+                  "sourceIdentifier": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sourceDate": {
+                    "$ref": "#/$defs/nullableDate"
+                  },
+                  "retrievedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "validationState": {
+                    "const": "validated"
+                  },
+                  "jurisdictionRef": {
+                    "type": "string",
+                    "pattern": "^us-state:[A-Z]{2}$"
+                  }
+                }
+              }
+            },
+            "jurisdictionRefs": {
+              "type": "array",
+              "uniqueItems": true,
+              "maxItems": 57,
+              "items": {
+                "type": "string",
+                "pattern": "^us-state:[A-Z]{2}$"
+              }
+            }
+          }
+        },
+        "aliasProvenance": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nation/properties/aliasProvenance"
+        },
+        "sourceIdentifier": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nation/properties/sourceIdentifier"
+        },
+        "officialListEntry": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nation/properties/officialListEntry"
+        },
+        "section": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nation/properties/section"
+        },
+        "sourceEvidence": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nation/properties/sourceEvidence"
+        },
+        "fieldProvenance": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nation/properties/fieldProvenance"
+        }
+      }
+    },
+    "nationCollection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactType",
+        "schemaVersion",
+        "generatedAt",
+        "baseline",
+        "nations"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "baseline": {
+                "type": "object",
+                "required": ["synthetic"],
+                "properties": {
+                  "synthetic": {
+                    "const": false
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "registryVersion",
+              "identityRule",
+              "publicationReview",
+              "validation",
+              "sourceHealth"
+            ],
+            "properties": {
+              "baseline": {
+                "type": "object",
+                "required": [
+                  "documentNumber",
+                  "publicationDate",
+                  "officialTextUrl",
+                  "officialPdfUrl",
+                  "structuredTranscriptionUrl"
+                ],
+                "properties": {
+                  "documentNumber": {},
+                  "publicationDate": {},
+                  "officialTextUrl": {},
+                  "officialPdfUrl": {},
+                  "structuredTranscriptionUrl": {}
+                }
+              },
+              "registryVersion": {},
+              "identityRule": {},
+              "publicationReview": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "const": "completed"
+                  },
+                  "blocking": {
+                    "const": false
+                  },
+                  "reviewedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              },
+              "nations": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "aliasProvenance",
+                    "sourceIdentifier",
+                    "officialListEntry",
+                    "section",
+                    "sourceEvidence",
+                    "fieldProvenance"
+                  ],
+                  "properties": {
+                    "aliasProvenance": {},
+                    "sourceIdentifier": {},
+                    "officialListEntry": {},
+                    "section": {},
+                    "sourceEvidence": {},
+                    "fieldProvenance": {},
+                    "stateCoverage": {
+                      "type": "object",
+                      "properties": {
+                        "basis": {
+                          "enum": [
+                            "reviewed_official_crosswalk",
+                            "unresolved_no_reviewed_crosswalk"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "validation": {},
+              "sourceHealth": {}
+            }
+          },
+          "else": {
+            "properties": {
+              "nations": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "stateCoverage": {
+                      "type": "object",
+                      "properties": {
+                        "basis": {
+                          "const": "synthetic_fixture"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "artifactType": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nationCollection/properties/artifactType"
+        },
+        "schemaVersion": {
+          "const": "2.0.0"
+        },
+        "registryVersion": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nationCollection/properties/registryVersion"
+        },
+        "generatedAt": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nationCollection/properties/generatedAt"
+        },
+        "baseline": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nationCollection/properties/baseline"
+        },
+        "nations": {
+          "type": "array",
+          "minItems": 575,
+          "maxItems": 575,
+          "items": {
+            "$ref": "#/$defs/nation"
+          }
+        },
+        "identityRule": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nationCollection/properties/identityRule"
+        },
+        "publicationReview": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nationCollection/properties/publicationReview"
+        },
+        "validation": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nationCollection/properties/validation"
+        },
+        "sourceHealth": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/nationCollection/properties/sourceHealth"
+        }
+      }
+    },
+    "indexJurisdiction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "level",
+        "name",
+        "jurisdictionRef",
+        "basis",
+        "evidence",
+        "reviewState",
+        "review",
+        "generalJurisdictionOnly"
+      ],
+      "properties": {
+        "level": {
+          "enum": ["federal", "state", "county", "municipal", "tribal", "other"]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "jurisdictionRef": {
+          "type": "string",
+          "pattern": "^(?:us|us-state:[A-Z]{2}|us-county:[0-9]{5}|(?:nation|body):[a-z0-9]+(?:-[a-z0-9]+)*)$",
+          "maxLength": 71
+        },
+        "basis": {
+          "enum": ["issuing_authority", "source_stated_scope"]
+        },
+        "reviewState": {
+          "enum": ["unreviewed", "reviewed", "rejected"]
+        },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["url", "locator"],
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https://",
+              "maxLength": 4096
+            },
+            "locator": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "exactSubject": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["recordRef", "ref", "text"],
+              "properties": {
+                "recordRef": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "ref": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 71
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8192
+                }
+              }
+            }
+          }
+        },
+        "review": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["reviewer", "reviewedAt"],
+              "properties": {
+                "reviewer": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "reviewedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          ]
+        },
+        "generalJurisdictionOnly": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/indexJurisdiction/properties/generalJurisdictionOnly"
+        }
+      }
+    },
+    "indexJudicialContext": {
+      "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/indexJudicialContext"
+    },
+    "indexAccordContext": {
+      "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/indexAccordContext"
+    },
+    "recordIndexEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "detailPath",
+        "officialTitle",
+        "documentType",
+        "jurisdiction",
+        "status",
+        "source",
+        "dates",
+        "taxonomyMemberships",
+        "isUnclassified",
+        "nationIds",
+        "relevance",
+        "landmark",
+        "change"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/id"
+        },
+        "detailPath": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/detailPath"
+        },
+        "sourceDocumentIdentifier": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/sourceDocumentIdentifier"
+        },
+        "officialTitle": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/officialTitle"
+        },
+        "documentType": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/documentType"
+        },
+        "jurisdiction": {
+          "$ref": "#/$defs/indexJurisdiction"
+        },
+        "issuingBodies": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/issuingBodies"
+        },
+        "judicialContext": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/judicialContext"
+        },
+        "accordContext": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/accordContext"
+        },
+        "status": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/status"
+        },
+        "source": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/source"
+        },
+        "dates": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/dates"
+        },
+        "urls": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/urls"
+        },
+        "taxonomyMemberships": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/taxonomyMemberships"
+        },
+        "isUnclassified": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/isUnclassified"
+        },
+        "nationIds": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/nationIds"
+        },
+        "relevance": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/relevance"
+        },
+        "landmark": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/landmark"
+        },
+        "change": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndexEntry/properties/change"
+        }
+      }
+    },
+    "recordIndex": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifactType", "schemaVersion", "generatedAt", "records"],
+      "properties": {
+        "artifactType": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndex/properties/artifactType"
+        },
+        "schemaVersion": {
+          "const": "2.0.0"
+        },
+        "generatedAt": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordIndex/properties/generatedAt"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/recordIndexEntry"
+          }
+        }
+      }
+    },
+    "recordDetail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifactType", "schemaVersion", "generatedAt", "record"],
+      "properties": {
+        "artifactType": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordDetail/properties/artifactType"
+        },
+        "schemaVersion": {
+          "const": "2.0.0"
+        },
+        "generatedAt": {
+          "$ref": "https://policy-sentinel.invalid/schemas/artifact.schema.v1.json#/$defs/recordDetail/properties/generatedAt"
+        },
+        "record": {
+          "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v2.json"
+        }
+      }
+    }
+  }
+}

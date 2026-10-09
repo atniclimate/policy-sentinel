@@ -8,6 +8,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  realpathSync,
   rmSync,
   symlinkSync,
   writeFileSync,
@@ -45,7 +46,6 @@ const projectRoot = path.resolve(
   "../..",
 );
 const hookRunner = path.resolve(projectRoot, "scripts/codex-hooks.mjs");
-const shellContext = Object.freeze({ root: projectRoot, workdir: projectRoot });
 const hookConfig = JSON.parse(
   readFileSync(path.resolve(projectRoot, ".codex/hooks.json"), "utf8"),
 );
@@ -116,6 +116,32 @@ const runGit = (root, args) => {
     windowsHide: true,
   });
   assert.equal(result.status, 0, result.stderr);
+};
+
+const initializeShellFixture = (t, { git = false } = {}) => {
+  const root = realpathSync.native(
+    mkdtempSync(path.join(tmpdir(), "policy-sentinel-shell-hook-")),
+  );
+  t.after(() => rmSync(root, { force: true, recursive: true }));
+  for (const [repositoryPath, contents] of Object.entries({
+    "ROADMAP.yaml": JSON.stringify(closedRoadmap),
+    "README.md": "Synthetic hook test repository.\n",
+    ".codex/hooks.json": "{}\n",
+    "docs/00-READ-FIRST.md": "Synthetic protected owner-input path.\n",
+    "docs/vision/k0-lifecycle-contract.md": "Synthetic frozen evidence.\n",
+    "generated-data/real-source-prerelease/PF-01.receipt.json":
+      '{"synthetic":true}\n',
+  })) {
+    const absolutePath = path.join(root, ...repositoryPath.split("/"));
+    mkdirSync(path.dirname(absolutePath), { recursive: true });
+    writeFileSync(absolutePath, contents, "utf8");
+  }
+  const nestedPackage = path.join(root, "node_modules", "synthetic-package");
+  mkdirSync(nestedPackage, { recursive: true });
+  if (git) {
+    runGit(root, ["init", "--quiet"]);
+  }
+  return { root, nestedPackage };
 };
 
 const initializeObserverFixture = () => {
@@ -334,8 +360,130 @@ test("terminal status exempts only exact untracked owner-input custody", () => {
   }
 });
 
-test("PreToolUse blocks exact closed gates without becoming a shell allowlist", () => {
+test("every committed Bash deny form has a finite production-matcher regression", async (t) => {
+  const settings = JSON.parse(
+    readFileSync(path.join(projectRoot, ".claude", "settings.json"), "utf8"),
+  );
+  const committedRules = settings.permissions.deny.filter((rule) =>
+    rule.startsWith("Bash("),
+  );
+  // These are command strings sent only to the production matcher, never a shell.
+  // Keep the keys explicit so a new or changed committed deny rule fails coverage.
+  const matrix = {
+    "Bash(git push *)": ["git push origin main"],
+    "Bash(git push)": ["git push"],
+    "Bash(git remote *)": [
+      "git remote -v",
+      "git remote add origin https://example.invalid/repository.git",
+    ],
+    "Bash(git tag *)": ["git tag --list", "git tag checkpoint"],
+    "Bash(git rebase *)": ["git rebase --continue"],
+    "Bash(git merge *)": ["git merge --abort"],
+    "Bash(git commit --amend*)": [
+      "git commit --amend",
+      "git commit --amend --no-edit",
+      "git commit --amend=no-edit",
+    ],
+    "Bash(git reset --hard*)": [
+      "git reset --hard",
+      "git reset --hard HEAD~1",
+      "git reset --hard=HEAD",
+    ],
+    "Bash(git clean *)": ["git clean -ndx"],
+    "Bash(git filter-branch *)": ["git filter-branch --all"],
+    "Bash(gh pr *)": ["gh pr list", "gh pr comment 1 --body synthetic"],
+    "Bash(gh release *)": ["gh release list", "gh release create checkpoint"],
+    "Bash(gh repo create *)": ["gh repo create synthetic-repository"],
+    "Bash(gh repo delete *)": ["gh repo delete example/synthetic-repository"],
+    "Bash(gh secret *)": ["gh secret list"],
+    "Bash(gh api -X *)": [
+      "gh api -X GET repos/atniclimate/policy-sentinel",
+      "gh api -X POST repos/example/synthetic-repository",
+    ],
+    "Bash(gh api --method *)": [
+      "gh api --method GET repos/atniclimate/policy-sentinel",
+      "gh api --method PATCH repos/example/synthetic-repository",
+    ],
+    "Bash(npm publish *)": ["npm publish --dry-run"],
+    "Bash(npm publish)": ["npm publish"],
+    "Bash(curl *)": ["curl --version", "curl https://example.invalid/policy"],
+    "Bash(wget *)": ["wget --version", "wget https://example.invalid/policy"],
+    "Bash(Invoke-WebRequest *)": [
+      "Invoke-WebRequest -Uri https://example.invalid/policy",
+    ],
+    "Bash(iwr *)": ["iwr https://example.invalid/policy"],
+    "Bash(Invoke-RestMethod *)": [
+      "Invoke-RestMethod -Uri https://example.invalid/policy",
+    ],
+    "Bash(irm *)": ["irm https://example.invalid/policy"],
+    "Bash(rm -rf *)": ["rm -rf ./tmp/synthetic-output"],
+    "Bash(Remove-Item * -Recurse*)": [
+      "Remove-Item ./tmp/synthetic-output -Recurse",
+      "Remove-Item ./tmp/synthetic-output -Recurse -Force",
+      "Remove-Item ./tmp/synthetic-output -Recurse:$true",
+    ],
+  };
+  assert.equal(committedRules.length, 27);
+  assert.deepEqual(Object.keys(matrix).sort(), [...committedRules].sort());
+  const { root } = initializeShellFixture(t);
+  const context = { root, workdir: root };
+  for (const [rule, commands] of Object.entries(matrix)) {
+    await t.test(rule, () => {
+      const pattern = new RegExp(
+        `^${rule
+          .slice(5, -1)
+          .split("*")
+          .map((part) => part.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"))
+          .join(".*")}$`,
+        "u",
+      );
+      assert.ok(commands.length > 0, `${rule} requires a positive case`);
+      for (const command of commands) {
+        assert.match(command, pattern, `${command} must exercise ${rule}`);
+        assert.equal(
+          evaluateShellCommand(command, closedRoadmap, context).blocked,
+          true,
+          `${rule}: ${command}`,
+        );
+      }
+      const literalControl = `Write-Output '${commands[0]}'`;
+      assert.doesNotMatch(literalControl, pattern);
+      assert.equal(
+        evaluateShellCommand(literalControl, closedRoadmap, context).blocked,
+        false,
+        `quoted example must remain data: ${literalControl}`,
+      );
+    });
+  }
+  for (const command of [
+    "git status --short",
+    'git commit -m "record --amend example"',
+    'git commit -m "--amend documentation"',
+    'git commit --message "--amend documentation"',
+    'git commit --message="--amend documentation"',
+    'git reset -- "--hard.txt"',
+    'git log --grep="--hard"',
+    "gh api repos/atniclimate/policy-sentinel",
+    "npm run check",
+    "Remove-Item -LiteralPath ./tmp/synthetic-output.txt",
+    "rg --no-config -n 'git push' README.md",
+  ]) {
+    assert.equal(
+      evaluateShellCommand(command, closedRoadmap, context).blocked,
+      false,
+      `permitted neighboring control: ${command}`,
+    );
+  }
+});
+
+test("PreToolUse blocks exact closed gates without becoming a shell allowlist", (t) => {
+  const { root: projectRoot } = initializeShellFixture(t);
+  const shellContext = { root: projectRoot, workdir: projectRoot };
   const shellSyntaxCorpus = [
+    'git commit "--amend"',
+    'git commit -m "ordinary message" --amend',
+    'git commit --message="ordinary message" --amend',
+    'git reset "--hard"',
     "git push origin main",
     "git.exe push origin main",
     "git -C . push origin main",
@@ -643,7 +791,7 @@ test("PreToolUse blocks exact closed gates without becoming a shell allowlist", 
     "git add -- ROADMAP.yaml",
     "gh auth status",
     "gh repo view atniclimate/policy-sentinel",
-    "gh api --method GET repos/atniclimate/policy-sentinel",
+    "gh api repos/atniclimate/policy-sentinel",
     "git config --get remote.origin.url",
     'git commit -m "local hook checkpoint"',
     "npm run check",
@@ -718,6 +866,7 @@ test("PreToolUse blocks exact closed gates without becoming a shell allowlist", 
 });
 
 test("shell workdirs protect sensitive custody without blocking external reads", (t) => {
+  const { root: projectRoot, nestedPackage } = initializeShellFixture(t);
   const sensitiveWorkdir = path.join(
     projectRoot,
     "generated-data",
@@ -814,12 +963,7 @@ test("shell workdirs protect sensitive custody without blocking external reads",
   assert.equal(
     evaluateShellCommand("npm test", closedRoadmap, {
       root: projectRoot,
-      workdir: path.join(
-        projectRoot,
-        "node_modules",
-        "@humanwhocodes",
-        "retry",
-      ),
+      workdir: nestedPackage,
     }).blocked,
     false,
   );
@@ -1584,9 +1728,84 @@ test("SessionStart context is bounded recovery state, not transcript content", (
   assert.match(context, /current focus: H-HOOKS/u);
   assert.match(context, /HEAD: abc123/u);
   assert.doesNotMatch(context, /last_assistant_message|transcript_path/u);
+  assert.ok(
+    context.includes(
+      "Before implementation, read AGENTS.md and follow the continuation prompt's scope-specific context rule. The hook summary is not a complete dependency, gate, acceptance or evidence closure.",
+    ),
+  );
 });
 
-test("the command hook emits valid deny JSON and stays silent when allowing", () => {
+test("recovery summaries preserve full-context fallbacks without granting task authority", () => {
+  for (const [title, itemStatus] of [
+    ["Narrow demo CSS", "in_progress"],
+    ["Shared extractor used by demo", "in_progress"],
+    ["Ledger graph change", "in_progress"],
+    ["General-engine work", "in_progress"],
+    ["Ambiguous mixed demo and engine work", "in_progress"],
+    ["Completed demo record", "complete"],
+    ["Unselected demo record", "ready"],
+  ]) {
+    const context = buildSessionContext({
+      roadmap: {
+        ...closedRoadmap,
+        current_focus: {
+          work_item: itemStatus === "in_progress" ? "DEMO-LABEL" : null,
+        },
+        work_items: [
+          {
+            id: "DEMO-LABEL",
+            title,
+            status: itemStatus,
+            dependencies: ["SIXTH"],
+          },
+        ],
+        next_actions: [
+          "FIRST",
+          "SECOND",
+          "THIRD",
+          "FOURTH",
+          "FIFTH",
+          "SIXTH",
+        ].map((work_item, index) => ({ order: index + 1, work_item })),
+      },
+      validation: { ok: true, detail: "" },
+      head: "abc123",
+      status: "",
+    });
+    assert.ok(
+      context.includes(
+        "General-engine work, shared extractor work, ledger graph changes, and uncertain or mixed scope require the full context. A completed or unselected demo record does not supply a new active task.",
+      ),
+      title,
+    );
+    assert.ok(
+      context.includes(
+        "The hook summary is not a complete dependency, gate, acceptance or evidence closure.",
+      ),
+      title,
+    );
+    assert.match(
+      context,
+      /closed external boundaries: EXT-GITHUB, EXT-CREDENTIALS, EXT-NOTIFY/u,
+    );
+    assert.doesNotMatch(
+      context,
+      /SIXTH/u,
+      "the bounded summary still omits later actions",
+    );
+    assert.match(
+      context,
+      itemStatus === "in_progress"
+        ? /current focus: DEMO-LABEL/u
+        : /current focus: none/u,
+    );
+  }
+});
+
+test("the command hook emits valid deny JSON and stays silent when allowing", (t) => {
+  const { root: projectRoot, nestedPackage } = initializeShellFixture(t, {
+    git: true,
+  });
   const invoke = (
     command,
     toolName = "Bash",
@@ -1606,6 +1825,7 @@ test("the command hook emits valid deny JSON and stays silent when allowing", ()
             : { command, ...(workdir ? { workdir } : {}) },
       }),
       timeout: 30_000,
+      windowsHide: true,
     });
 
   const denied = invoke("git push origin main");
@@ -1694,11 +1914,7 @@ test("the command hook emits valid deny JSON and stays silent when allowing", ()
   assert.equal(workdirRead.status, 0, workdirRead.stderr);
   assert.equal(workdirRead.stdout, "");
 
-  const nestedNpmAllowed = invoke(
-    "npm test",
-    "exec_command",
-    path.join(projectRoot, "node_modules", "@humanwhocodes", "retry"),
-  );
+  const nestedNpmAllowed = invoke("npm test", "exec_command", nestedPackage);
   assert.equal(nestedNpmAllowed.status, 0, nestedNpmAllowed.stderr);
   assert.equal(nestedNpmAllowed.stdout, "");
 

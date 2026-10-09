@@ -1,0 +1,578 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/record.schema.v2.json",
+  "title": "Policy Sentinel public record successor 2.0",
+  "description": "Source-reference record contract. Fields describe published source facts and provenance, not legal conclusions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "internalId",
+    "source",
+    "officialTitle",
+    "sourceDocumentIdentifier",
+    "documentType",
+    "jurisdiction",
+    "issuingBodies",
+    "legislativeContext",
+    "judicialContext",
+    "accordContext",
+    "status",
+    "dates",
+    "urls",
+    "texts",
+    "sponsors",
+    "committees",
+    "actionHistory",
+    "statusHistory",
+    "sourceDocumentRelationships",
+    "officialSubjects",
+    "taxonomyMemberships",
+    "isUnclassified",
+    "relevance",
+    "nationAssociations",
+    "landmark",
+    "historical",
+    "dataQuality",
+    "sourceHealth",
+    "change",
+    "aiSummary",
+    "fieldProvenance"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "2.0.0"
+    },
+    "internalId": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/internalId"
+    },
+    "source": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/source"
+    },
+    "officialTitle": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/officialTitle"
+    },
+    "sourceDocumentIdentifier": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/sourceDocumentIdentifier"
+    },
+    "documentType": {
+      "enum": [
+        "bill",
+        "resolution",
+        "statute",
+        "regulation",
+        "proposed_rule",
+        "rulemaking",
+        "executive_action",
+        "notice",
+        "implementation_material",
+        "grant_opportunity",
+        "litigation_filing",
+        "court_decision",
+        "administrative_decision",
+        "intergovernmental_accord",
+        "county_policy",
+        "county_ordinance",
+        "tribal_government_document",
+        "treaty",
+        "other",
+        "municipal_policy",
+        "municipal_ordinance",
+        "intertribal_publication"
+      ]
+    },
+    "jurisdiction": {
+      "$ref": "#/$defs/jurisdiction"
+    },
+    "issuingBodies": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/issuingBodies"
+    },
+    "legislativeContext": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/legislativeContext"
+    },
+    "judicialContext": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/judicialContext"
+    },
+    "accordContext": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/accordContext"
+    },
+    "status": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/status"
+    },
+    "dates": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/dates"
+    },
+    "urls": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/urls"
+    },
+    "texts": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/texts"
+    },
+    "sponsors": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/sponsors"
+    },
+    "committees": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/committees"
+    },
+    "actionHistory": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/actionHistory"
+    },
+    "statusHistory": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/statusHistory"
+    },
+    "sourceDocumentRelationships": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/sourceDocumentRelationships"
+    },
+    "officialSubjects": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/officialSubjects"
+    },
+    "taxonomyMemberships": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/taxonomyMemberships"
+    },
+    "isUnclassified": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/isUnclassified"
+    },
+    "relevance": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/relevance"
+    },
+    "nationAssociations": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/nationAssociations"
+    },
+    "landmark": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/landmark"
+    },
+    "historical": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/historical"
+    },
+    "dataQuality": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/dataQuality"
+    },
+    "sourceHealth": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/sourceHealth"
+    },
+    "change": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/change"
+    },
+    "aiSummary": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/aiSummary"
+    },
+    "fieldProvenance": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/properties/fieldProvenance"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "documentType": {
+            "const": "intergovernmental_accord"
+          }
+        },
+        "required": ["documentType"]
+      },
+      "then": {
+        "properties": {
+          "issuingBodies": {
+            "type": "array",
+            "maxItems": 0
+          },
+          "legislativeContext": {
+            "type": "null"
+          },
+          "judicialContext": {
+            "type": "null"
+          },
+          "accordContext": {
+            "$ref": "#/$defs/accordContext"
+          },
+          "status": {
+            "type": "object",
+            "properties": {
+              "normalized": {
+                "const": "unknown"
+              },
+              "sourceLabel": {
+                "type": "null"
+              },
+              "asOf": {
+                "type": "null"
+              }
+            },
+            "required": ["normalized", "sourceLabel", "asOf"]
+          },
+          "dates": {
+            "type": "object",
+            "properties": {
+              "introduced": {
+                "type": "null"
+              },
+              "published": {
+                "type": "null"
+              },
+              "updated": {
+                "type": ["string", "null"],
+                "format": "date-time"
+              },
+              "lastAction": {
+                "type": "null"
+              },
+              "deadline": {
+                "type": "null"
+              },
+              "effective": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "introduced",
+              "published",
+              "updated",
+              "lastAction",
+              "deadline",
+              "effective"
+            ]
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "issuingBodies": {
+            "type": "array",
+            "minItems": 1
+          },
+          "accordContext": {
+            "type": "null"
+          },
+          "status": {
+            "type": "object",
+            "properties": {
+              "sourceLabel": {
+                "type": "string",
+                "minLength": 1
+              },
+              "asOf": {
+                "$ref": "#/$defs/dateOrDateTime"
+              }
+            },
+            "required": ["sourceLabel", "asOf"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "documentType": {
+            "enum": ["court_decision", "administrative_decision"]
+          }
+        },
+        "required": ["documentType"]
+      },
+      "then": {
+        "properties": {
+          "judicialContext": {
+            "$ref": "#/$defs/judicialContext"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "judicialContext": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "documentType": {
+            "const": "court_decision"
+          }
+        },
+        "required": ["documentType"]
+      },
+      "then": {
+        "properties": {
+          "judicialContext": {
+            "type": "object",
+            "properties": {
+              "adjudicatingBody": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "court"
+                  }
+                },
+                "required": ["kind"]
+              }
+            },
+            "required": ["adjudicatingBody"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "documentType": {
+            "const": "administrative_decision"
+          }
+        },
+        "required": ["documentType"]
+      },
+      "then": {
+        "properties": {
+          "judicialContext": {
+            "type": "object",
+            "properties": {
+              "adjudicatingBody": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "administrative_body"
+                  }
+                },
+                "required": ["kind"]
+              }
+            },
+            "required": ["adjudicatingBody"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "taxonomyMemberships": {
+            "type": "array",
+            "maxItems": 0
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "isUnclassified": {
+            "const": true
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "isUnclassified": {
+            "const": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "jurisdiction": {
+            "type": "object",
+            "properties": {
+              "level": {
+                "enum": ["federal", "state", "county", "municipal", "other"]
+              }
+            },
+            "required": ["level"]
+          },
+          "nationAssociations": {
+            "type": "array",
+            "maxItems": 0
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "jurisdiction": {
+            "type": "object",
+            "properties": {
+              "generalJurisdictionOnly": {
+                "const": true
+              }
+            }
+          },
+          "relevance": {
+            "type": "array",
+            "contains": {
+              "type": "object",
+              "properties": {
+                "basis": {
+                  "const": "general_jurisdiction"
+                }
+              },
+              "required": ["basis"]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "slug": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/slug"
+    },
+    "httpsUrl": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/httpsUrl"
+    },
+    "dateOrDateTime": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/dateOrDateTime"
+    },
+    "nullableDate": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/nullableDate"
+    },
+    "nullableDateOrDateTime": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/nullableDateOrDateTime"
+    },
+    "source": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/source"
+    },
+    "namedEntity": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/namedEntity"
+    },
+    "accordContext": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/accordContext"
+    },
+    "judicialContext": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/judicialContext"
+    },
+    "jurisdiction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "level",
+        "name",
+        "jurisdictionRef",
+        "basis",
+        "evidence",
+        "reviewState",
+        "review",
+        "generalJurisdictionOnly"
+      ],
+      "properties": {
+        "level": {
+          "enum": ["federal", "state", "county", "municipal", "tribal", "other"]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "jurisdictionRef": {
+          "type": "string",
+          "pattern": "^(?:us|us-state:[A-Z]{2}|us-county:[0-9]{5}|(?:nation|body):[a-z0-9]+(?:-[a-z0-9]+)*)$",
+          "maxLength": 71
+        },
+        "basis": {
+          "enum": ["issuing_authority", "source_stated_scope"]
+        },
+        "reviewState": {
+          "enum": ["unreviewed", "reviewed", "rejected"]
+        },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["url", "locator"],
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https://",
+              "maxLength": 4096
+            },
+            "locator": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "exactSubject": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["recordRef", "ref", "text"],
+              "properties": {
+                "recordRef": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "ref": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 71
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8192
+                }
+              }
+            }
+          }
+        },
+        "review": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["reviewer", "reviewedAt"],
+              "properties": {
+                "reviewer": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "reviewedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          ]
+        },
+        "generalJurisdictionOnly": {
+          "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/jurisdiction/properties/generalJurisdictionOnly"
+        }
+      }
+    },
+    "sourceText": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/sourceText"
+    },
+    "landmarkMetadataEvidence": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/landmarkMetadataEvidence"
+    },
+    "nullableSourceText": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/nullableSourceText"
+    },
+    "historyEvent": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/historyEvent"
+    },
+    "sourceDocumentRelationship": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/sourceDocumentRelationship"
+    },
+    "officialSubject": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/officialSubject"
+    },
+    "taxonomyMembership": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/taxonomyMembership"
+    },
+    "relevance": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/relevance"
+    },
+    "nationAssociation": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/nationAssociation"
+    },
+    "landmark": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/landmark"
+    },
+    "aiSummary": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/aiSummary"
+    },
+    "fieldProvenance": {
+      "$ref": "https://policy-sentinel.invalid/schemas/record.schema.v1.json#/$defs/fieldProvenance"
+    }
+  }
+}

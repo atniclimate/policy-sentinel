@@ -12,6 +12,8 @@ import {
   createAnalyzedCorpusV2,
   createEvidenceSegment,
   parseAnalyzedCorpusV2,
+  parseAnalyzedCorpusV21,
+  parseSupportedAnalyzedCorpus,
   projectLocalCorpusV2,
   replayCorpusCitation,
   serializeAnalyzedCorpusV2,
@@ -321,6 +323,60 @@ export function syntheticCorpusV2() {
   return createAnalyzedCorpusV2(syntheticCorpusV2Input());
 }
 
+test("the sealed 2.0 contract retains its canonical bytes before successor dispatch", () => {
+  const canonical = (value) =>
+    value === null || typeof value !== "object"
+      ? JSON.stringify(value)
+      : Array.isArray(value)
+        ? `[${value.map(canonical).join(",")}]`
+        : `{${Object.keys(value)
+            .sort()
+            .map((key) => `${JSON.stringify(key)}:${canonical(value[key])}`)
+            .join(",")}}`;
+  const seal = ({ contentDigest, ...body }) => {
+    void contentDigest;
+    return { ...body, contentDigest: hash(canonical(body)) };
+  };
+  const input = syntheticCorpusV2Input();
+  const expected = {
+    $schema:
+      "https://policy-sentinel.invalid/schemas/analyzed-corpus.schema.v2.json",
+    schemaVersion: "2.0.0",
+    kind: "analyzed_corpus",
+    ...input,
+  };
+  for (const name of [
+    "sourceProfiles",
+    "captures",
+    "works",
+    "versions",
+    "renditions",
+    "segments",
+    "events",
+    "relationships",
+    "analyses",
+    "findings",
+    "coverage",
+  ])
+    expected[name] = expected[name]
+      .map(seal)
+      .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  const bytes = `${canonical(seal(expected))}\n`;
+  assert.equal(serializeAnalyzedCorpusV2(createAnalyzedCorpusV2(input)), bytes);
+  assert.equal(
+    serializeAnalyzedCorpusV2(parseAnalyzedCorpusV2(JSON.parse(bytes))),
+    bytes,
+  );
+  assert.throws(
+    () =>
+      createAnalyzedCorpusV2({
+        ...input,
+        works: input.works.map((work) => ({ ...work, jurisdictionRefs: [] })),
+      }),
+    /UNEXPECTED|KEY|SHAPE/,
+  );
+});
+
 test("v2 closed schema compiles strictly and agrees with representative runtime output", () => {
   const ajv = new Ajv2020({ allErrors: true, strict: true });
   addFormats(ajv);
@@ -333,6 +389,79 @@ test("v2 closed schema compiles strictly and agrees with representative runtime 
   const invalid = clone(syntheticCorpusV2());
   invalid.works[0].nationAssociation = "inferred";
   assert.equal(validate(invalid), false);
+});
+
+test("repeated parsing reuses only proven immutable snapshots and still checks version and external inputs", () => {
+  const corpus = syntheticCorpusV2();
+  assert.equal(parseAnalyzedCorpusV2(corpus), corpus);
+  assert.equal(parseSupportedAnalyzedCorpus(corpus), corpus);
+  assert.throws(
+    () => parseAnalyzedCorpusV21(corpus),
+    /UNSUPPORTED_CORPUS_VERSION/,
+  );
+  const freeze = (value) => {
+    if (value && typeof value === "object") {
+      Object.values(value).forEach(freeze);
+      Object.freeze(value);
+    }
+    return value;
+  };
+  const external = freeze(clone(corpus));
+  const admitted = parseAnalyzedCorpusV2(external);
+  assert.notEqual(admitted, external);
+  assert.equal(parseAnalyzedCorpusV2(admitted), admitted);
+  assert.equal(
+    serializeAnalyzedCorpusV2(admitted),
+    serializeAnalyzedCorpusV2(corpus),
+  );
+  const forged = clone(corpus);
+  forged.works[0].title = "Forged frozen source title";
+  assert.throws(
+    () => parseAnalyzedCorpusV2(freeze(forged)),
+    /CONTENT_DIGEST_MISMATCH/,
+  );
+  let calls = 0;
+  const accessor = { ...corpus };
+  Object.defineProperty(accessor, "generatedAt", {
+    enumerable: true,
+    get() {
+      calls++;
+      return corpus.generatedAt;
+    },
+  });
+  Object.freeze(accessor);
+  assert.throws(() => parseAnalyzedCorpusV2(accessor), /PLAIN_JSON_REQUIRED/);
+  assert.equal(calls, 0);
+  assert.throws(
+    () =>
+      parseAnalyzedCorpusV2(corpus, {
+        lastKnownGoodCorpora: [],
+        unexpected: true,
+      }),
+    /CLOSED_SHAPE_REQUIRED/,
+  );
+  const accessorOptions = {};
+  Object.defineProperty(accessorOptions, "lastKnownGoodCorpora", {
+    enumerable: true,
+    get() {
+      calls++;
+      return [];
+    },
+  });
+  assert.throws(
+    () => parseAnalyzedCorpusV2(corpus, accessorOptions),
+    /PLAIN_JSON_REQUIRED/,
+  );
+  assert.equal(calls, 0);
+  const badPrior = clone(corpus);
+  badPrior.id = "forged-prior";
+  assert.throws(
+    () =>
+      parseAnalyzedCorpusV2(corpus, {
+        lastKnownGoodCorpora: [freeze(badPrior)],
+      }),
+    /CONTENT_DIGEST_MISMATCH/,
+  );
 });
 
 test("v2 source-neutral producer, validator and projection retain exact independent identities", () => {
@@ -507,6 +636,69 @@ test("capture-property provenance cannot attest arbitrary source values", () => 
   );
 });
 
+test("validation indexes retain exact rendition membership, evidence and coverage checks", () => {
+  const input = syntheticCorpusV2Input();
+  const version = input.versions[0];
+  const original = input.renditions.find(
+    (row) => row.id === version.renditionIds[0],
+  );
+  const extra = { ...clone(original), id: "rendition-additional" };
+  input.renditions.push(extra);
+  assert.throws(() => createAnalyzedCorpusV2(input), /RENDITION_REFERENCE_SET/);
+  version.renditionIds.push(extra.id);
+  assert.throws(
+    () => createAnalyzedCorpusV2(input),
+    /RENDITION_WITHOUT_EVIDENCE/,
+  );
+  input.segments.push(
+    createEvidenceSegment({
+      renditionId: extra.id,
+      renditionDigest: extra.outputDigest,
+      renditionBytes: Buffer.from(extra.text),
+      startByte: 0,
+      endByte: Buffer.byteLength(extra.text),
+      locator: clone(input.segments[0].locator),
+    }),
+  );
+  const valid = createAnalyzedCorpusV2(input);
+  assert.equal(
+    parseAnalyzedCorpusV2(clone(valid)).contentDigest,
+    valid.contentDigest,
+  );
+  extra.versionId = "version-missing";
+  assert.throws(() => createAnalyzedCorpusV2(input), /UNRESOLVED_REFERENCE/);
+  extra.versionId = version.id;
+  input.coverage[0].versionCount += 1;
+  assert.throws(() => createAnalyzedCorpusV2(input), /COVERAGE_COUNT_MISMATCH/);
+  input.coverage[0].versionCount -= 1;
+  input.works.push({
+    ...clone(input.works[0]),
+    id: "work-unversioned",
+    sourceIdentifier: "Final",
+  });
+  assert.throws(() => createAnalyzedCorpusV2(input), /WORK_WITHOUT_VERSION/);
+});
+
+test("text validation rejects control characters but retains permitted whitespace and Unicode", () => {
+  for (const code of [...Array(32).keys(), 127].filter(
+    (value) => ![9, 10, 13].includes(value),
+  )) {
+    const input = syntheticCorpusV2Input();
+    input.renditions[0].warnings = [
+      `Synthetic${String.fromCharCode(code)}warning`,
+    ];
+    assert.throws(() => createAnalyzedCorpusV2(input), /INVALID_TEXT/);
+  }
+  const input = syntheticCorpusV2Input();
+  input.renditions[0].warnings = ["Synthetic\twarning\nwith\rUnicode é 𐐀"];
+  assert.deepEqual(
+    createAnalyzedCorpusV2(input).renditions.find(
+      (row) => row.id === input.renditions[0].id,
+    ).warnings,
+    input.renditions[0].warnings,
+  );
+});
+
 test("same text in distinct renditions retains distinct occurrence segment identities", () => {
   const bytes = Buffer.from("Identical synthetic policy é\n");
   const renditionDigest = hash(bytes);
@@ -630,6 +822,35 @@ test("degraded output requires exact checksum-bound same-source prior corpus and
   );
   const options = { lastKnownGoodCorpora: [prior] };
   const degraded = createAnalyzedCorpusV2(input, options);
+  assert.equal(parseAnalyzedCorpusV2(degraded, options), degraded);
+  const bytes = serializeAnalyzedCorpusV2(degraded, options);
+  assert.throws(
+    () => parseAnalyzedCorpusV2(degraded),
+    /VERIFIED_PRIOR_CORPUS_REQUIRED/,
+  );
+  assert.throws(
+    () => serializeAnalyzedCorpusV2(degraded),
+    /VERIFIED_PRIOR_CORPUS_REQUIRED/,
+  );
+  options.lastKnownGoodCorpora = [];
+  assert.throws(
+    () => parseAnalyzedCorpusV2(degraded, options),
+    /VERIFIED_PRIOR_CORPUS_REQUIRED/,
+  );
+  const wrongPriorInput = syntheticCorpusV2Input();
+  wrongPriorInput.id = "different-valid-prior";
+  options.lastKnownGoodCorpora = [createAnalyzedCorpusV2(wrongPriorInput)];
+  assert.throws(
+    () => parseAnalyzedCorpusV2(degraded, options),
+    /VERIFIED_PRIOR_CORPUS_REQUIRED/,
+  );
+  options.lastKnownGoodCorpora = [prior, prior];
+  assert.throws(
+    () => parseAnalyzedCorpusV2(degraded, options),
+    /DUPLICATE_PRIOR_CORPUS/,
+  );
+  options.lastKnownGoodCorpora = [prior];
+  assert.equal(serializeAnalyzedCorpusV2(degraded, options), bytes);
   assert.equal(
     parseAnalyzedCorpusV2(degraded, options).coverage[0].dataAsOf,
     prior.coverage[0].dataAsOf,

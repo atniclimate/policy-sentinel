@@ -109,6 +109,23 @@ Core has no I/O. The v2 corpus parser is already browser-safe (the workbench
 imports it), so classifying it as core makes the engine-to-pipeline and
 app-to-pipeline edges (F-08) legal without moving the file.
 
+GD-08 transitive dependency amendment (2026-10-07): the complete import-free
+public declaration block in `src/app/types.ts` moves unchanged to
+`src/core/public-app-types.ts`. The old path explicitly re-exports all 21 type
+names. Context relevance imports its three types directly from core, avoiding
+a forbidden context-to-output type edge. This is a mechanical relocation:
+declarations, artifact versions, required `SearchCriteria.nationId`, signatures
+and every legacy importer remain unchanged. Existing core record types are
+different contracts and are not substituted. The manifest and allowlist need
+no change because the new file follows the existing core prefix rule.
+
+GD-06 transitive dependency amendment (2026-10-07): unchanged pure
+`safeFile`, `assertProfileBindings` and `assertCaptureBindings` move from
+intake replay into `src/core/local-output-bindings.mjs` with declarations.
+Intake imports and re-exports their bindings. Core retains no I/O or non-core
+dependency; canonicalV2Digest comes from the reviewed core corpus terminal.
+This promotion avoids an output-to-intake helper edge.
+
 ## 4. Module 1: intake
 
 **Purpose.** Federal, state and Tribal source ingestion, source-agnostic enough
@@ -183,7 +200,7 @@ Moves and splits:
 
 | From | To | Step |
 | --- | --- | --- |
-| `recordEventDate`, `whyShownFor`, `recordAvailableForNation` (`src/app/policy.ts:9-85`) | `src/modules/context/relevance.ts`; `src/app/policy.ts` re-exports them, so its path (pinned by the S0 test) and every importer stay valid | GD-08 |
+| `recordEventDate`, `whyShownFor`, `recordAvailableForNation` (`src/app/policy.ts:9-85`) and their public app type dependency | `src/modules/context/relevance.ts`; unchanged complete declarations move from `src/app/types.ts` to `src/core/public-app-types.ts`. Both old app paths retain explicit re-exports, so the S0-pinned policy path and every importer stay valid | GD-08 |
 | `resolvePolicyResearchReview`, `enrichPolicyCorpus` and their closed-shape helpers (`src/pipeline/policy-research-output.mjs:8-241`) | `src/modules/context/research-review.mjs`; old path re-exports | GD-07 |
 | none (new) | `src/modules/context/jurisdiction/{registry,association}.ts`, `schemas/jurisdiction-ref.schema.v1.json`, synthetic registry fixture | GD-09 |
 | none (new) | v2 jurisdiction association: an additive corpus successor (`AnalyzedCorpus 2.1`) with `work.jurisdictionRefs[]`, each with evidence; `governmentContext` retained as source text | GD-11 |
@@ -218,8 +235,10 @@ Moves and splits:
 
 | From | To | Step |
 | --- | --- | --- |
-| `localCorpusBytes`, `writeLocalOutput`, `readLocalOutput`, `validateLocalOutputFiles`, `checksumOutputSnapshot` (`src/pipeline/policy-local-output.mjs:205-455`) | `src/modules/output/local-workbench/write.mjs` | GD-06 |
-| `simulateLocalSourceFailure` (`:456-643`) | `src/modules/output/local-workbench/failure-simulation.mjs` | GD-06 |
+| `localCorpusBytes`, `validateLocalOutputFiles` | `src/modules/output/local-workbench/write.mjs` with declarations | GD-06 |
+| `writeLocalOutput`, `readLocalOutput` custody orchestration | Import-safe composition `scripts/policy-local-output.mjs` with declarations | GD-06 |
+| `safeFile`, `assertProfileBindings`, `assertCaptureBindings` from intake replay | `src/core/local-output-bindings.mjs` with declarations; intake preserves re-exports | GD-06 |
+| `simulateLocalSourceFailure`, `checksumOutputSnapshot` | `src/modules/output/local-workbench/failure-simulation.mjs` with declarations | GD-06 |
 | `createLoopbackOutputServer`, `contentType` (`:644-700`) | `src/modules/output/local-workbench/loopback-server.mjs` | GD-06 |
 | After GD-05 and GD-06 | `src/pipeline/policy-local-output.mjs` becomes a pure re-export shim | GD-06 |
 | `buildPolicyResearchOutput`, stylesheet, `page` and the escape helpers (`src/pipeline/policy-research-output.mjs:42-59, 243` onward) | `src/modules/output/research-html.mjs` | GD-07 |
@@ -232,6 +251,19 @@ Untangle first:
 2. HTML rendering leaves analysis (GD-07).
 3. A Nation-free general-jurisdiction query entry for interop (GD-16) that does
    not require `SearchCriteria.nationId` (`src/app/types.ts:341`).
+
+GD-06 preserves the complete existing function bodies and error strings.
+Writer/reader remain custody callers in composition; actual sealed replay and
+reader cleanup remain intake operations. Composition performs no top-level
+execution, listener creation, acquisition or root lookup. Output receives the
+existing inert run metadata shape `{root, owner, ledger, manifest}`, reads
+owner/profile/receipt bindings and ignores root; it receives no custody callback.
+This is not a new nominal verified-handle contract. A scoped transitive guard
+covers all three new output modules and declarations, follows core/unclassified
+intermediates and rejects intake, composition, legacy-shim and computed loading
+bypasses. Only the reviewed existing corpus-validator and hashing terminals
+stop traversal; the broader retained boundary cleanup remains GD-10.
+The exact 18-path ownership manifest is in the autonomous run record.
 
 Extraction order: GD-05 → GD-06; GD-07 in parallel; GD-16 last and gated.
 
@@ -393,13 +425,13 @@ These must stay green, together with
 | GD-01 characterization tests | GD-00 | `tests/pipeline/policy-local-output-replay.test.mjs` (new), `package.json` (register it in `test:policy`) | `npm run test:policy`, `npm run test:assurance` | This step is the tests: replay, write, read and `localCorpusBytes` over a synthetic run root built with `initializePolicyRun` and `admitPolicyTargets` |
 | GD-02 module boundary test | GD-00 | `tests/architecture/module-manifest.mjs`, `tests/architecture/module-boundaries.test.ts` (both new); extend the scan in `tests/engine/makah-demo-non-interference.test.ts:229-250` to `src/modules/**` and `src/core/**` | `tests/engine/makah-demo-non-interference.test.ts` | This step is the test. It starts in report mode with an explicit allowlist of today's violations (audit 2.6) |
 | GD-03 boundary guard tests | GD-00 | `tests/core/boundary-guard.test.ts` (new) | none beyond the standing checks | The union of the three key lists plus `landStatus`, `apn`, `parcelNumber`, `shapefile`, rejected at any depth |
-| GD-04 core boundary guard | GD-03 | `src/core/boundary-guard.mjs` and `.d.mts` (new), `src/pipeline/policy-validation.mjs` | `tests/pipeline/pipeline.test.ts` (nested artifact, LKG and Nation suites), `tests/app/data-integrity.test.ts`, `npm run build` | GD-03 |
+| GD-04 core boundary guard | GD-03 | `src/core/boundary-guard.mjs` and `.d.mts` (new), `src/pipeline/policy-validation.mjs` | `npm run test:artifact` (direct artifact, LKG and Nation suites), `tests/app/data-integrity.test.ts`, `npm run build` | GD-03 |
 | GD-05 intake replay and discovery | GD-01, GD-02, RD-02 | `src/modules/intake/replay.mjs` and `.d.mts`, `src/modules/intake/sources/washington-legislature/discovery.mjs`, `src/pipeline/policy-broad-discovery.mjs` (to a shim), `src/pipeline/policy-local-output.mjs` (replay moved out, shim export added) | `npm run test:policy`, `npm run test:assurance`, GD-01 | GD-01 |
-| GD-06 output local-workbench split | GD-05 | `src/modules/output/local-workbench/{write,failure-simulation,loopback-server}.mjs` and `.d.mts`, `src/pipeline/policy-local-output.mjs` (to a pure shim) | `tests/pipeline/policy-local-output.test.mjs`, `npm run test:assurance`, GD-01 | GD-01 |
+| GD-06 output local-workbench split | GD-05 | Three output module/declaration pairs, core binding pair, intake replay pair, composition pair, legacy shim/declaration pair; exact 18-path ownership in the autonomous run record | Local-output/replay identity tests, scoped transitive boundary test, unchanged assurance reader cases, GD-01 and full required checks | GD-01 |
 | GD-07 research output split | GD-02 | `src/modules/context/research-review.mjs`, `src/modules/output/research-html.mjs`, `src/pipeline/policy-research-output.mjs` (to a shim) | `tests/pipeline/policy-research-output.test.mjs` | none; the existing five tests cover both halves |
-| GD-08 context relevance extraction | GD-02 | `src/modules/context/relevance.ts` (new), `src/app/policy.ts` (re-exports) | `tests/app/policy.test.ts`, `tests/app/csv.test.ts`, `tests/app/accessibility.test.tsx` | none; `tests/app/policy.test.ts` covers the moved functions |
+| GD-08 context relevance extraction | GD-02 | `src/modules/context/relevance.ts` and `src/core/public-app-types.ts` (new), `src/app/policy.ts` and `src/app/types.ts` (explicit re-exports; remaining policy bodies unchanged) | `tests/app/policy.test.ts` (binding identity plus retained cases), unchanged `tests/app/csv.test.ts` and `tests/app/accessibility.test.tsx` | none; `tests/app/policy.test.ts` covers the moved functions |
 | GD-09 jurisdiction identifier model | GD-02 | `src/modules/context/jurisdiction/{registry,association}.ts`, `schemas/jurisdiction-ref.schema.v1.json`, `fixtures/context/jurisdiction-registry.synthetic.valid.json`, `tests/context/jurisdiction*.test.ts` (all new) | backbone schema-ID check | This step's own schema and negative tests |
-| GD-10 boundary enforcement | GD-04, GD-06, GD-07, GD-08 | `tests/architecture/module-manifest.mjs` (allowlist reduced to documented shims) | GD-02 in enforcing mode | none |
+| GD-10 boundary enforcement | GD-04, GD-06, GD-07, GD-08 | Exact 50-path production/test closure in the GD-10 handoff: pure factories, composition, named compatibility facades and enforcing graph harness | Focused affected suites, strict graph/private reachability and complete required checks | Exact-facade and transitive-loader regression graphs |
 | GD-11 v2 jurisdiction association | GD-09, GD-10 | an additive `AnalyzedCorpus 2.1` schema and runtime, `src/modules/context/jurisdiction/association.ts`, tests | `npm run test:policy`, `tests/pipeline/analyzed-corpus-v2.test.mjs`; the sealed 2.0 corpus must still replay unchanged | 2.0 replay compatibility test |
 | GD-12 nationwide source catalog | GD-05, GD-09 | `src/modules/intake/source-catalog.mjs`, `schemas/source-catalog.schema.v1.json`, synthetic catalog fixture, tests | `npm run test:policy` | catalog schema negative cases; manifest-from-catalog equivalence with `initialDirectManifest` |
 | GD-13 nationwide record contract | GD-09, GD-10, gate G-GD-NATIONWIDE-CONTRACT (RD-05) | record, artifact and source schema successors (state enum replaced by `JurisdictionRef`), `src/app/data.ts:156`, `src/pipeline/nation-collection-policy.mjs:4`, migration fixtures | all artifact and app suites, `npm run build` | migration and compatibility fixtures first |
@@ -421,6 +453,28 @@ These must stay green, together with
 
 The manifest classifies `src/modules/*` and `src/core/` by prefix, so wave 2
 steps never edit it. Only GD-02 and GD-10 do.
+
+GD-10 production closure amendment (2026-10-07): all 16 audit exceptions
+remain substantive after GD-04/06/07/08; changing the harness label alone
+cannot satisfy enforcement. The binding exact 50-path source/test manifest is
+[the GD-10 contract](../handoffs/2026-10-07-gd10-boundary-enforcement.md).
+Pure corpus/profile factories stay in core; context factories receive explicit
+configuration, synthetic/source-pack orchestration stays in composition and
+configured refresh wrappers retain mandatory validation and existing APIs.
+The curated intake caller receives its canonical parser from composition.
+Three refresh-result types move unchanged to core; retained LKG runtime,
+configuration, sealed 2.0, private/K0/S0/O0 and measurement pins stay untouched.
+
+Existing module classification remains binding. Recognize only the three
+exact TypeScript composition roots named in the handoff, alongside existing
+scripts/*.mjs roots. Exact legacy facades permit only reviewed named export
+bindings; substantive implementations cannot reach configured composition
+through those facades or an unclassified intermediary. Source/declaration
+resolution, import types, loader aliases and public/private traversal are
+enforced with a shared pure graph helper and substantive negative cases.
+Capability scans cover relocated implementations and configured roots.
+The amendment changes no source qualification, identity, private-data,
+publication, observer eligibility or release gate. Section 9.3 stays binding.
 
 ### 9.3 Stop conditions for the refactor session
 

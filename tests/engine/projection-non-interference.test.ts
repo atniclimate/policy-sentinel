@@ -16,6 +16,8 @@ const projectRoot = resolve(import.meta.dirname, "../..");
 const enginePaths = [
   "src/engine/contracts.ts",
   "src/engine/projection.ts",
+  "src/core/projection.ts",
+  "scripts/configured-engine.ts",
   "src/engine/index.ts",
 ] as const;
 

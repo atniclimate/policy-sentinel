@@ -3,6 +3,12 @@
 const METHOD_VERSION = "2.0.0";
 const COMPARE_LIMIT = 20000;
 const DATE_PRECISIONS = ["unknown", "year", "month", "day"];
+const DATE_PATTERNS = {
+  year: /^\d{4}$/u,
+  month: /^\d{4}-\d{2}$/u,
+  day: /^\d{4}-\d{2}-\d{2}$/u,
+};
+const DATE_SUFFIXES = { year: "-01-01", month: "-01", day: "" };
 
 function fail(code) {
   throw new TypeError(`Temporal operation rejected input: ${code}`);
@@ -23,7 +29,7 @@ function detached(value) {
 function corpus(value) {
   ensure(
     value &&
-      value.schemaVersion === "2.0.0" &&
+      ["2.0.0", "2.1.0"].includes(value.schemaVersion) &&
       value.kind === "analyzed_corpus" &&
       /^[a-f0-9]{64}$/u.test(value.contentDigest),
     "VALIDATED_V2_CORPUS_REQUIRED",
@@ -60,23 +66,22 @@ function cutoff(value) {
     return timestamp(`${value}T23:59:59.999Z`);
   return timestamp(value);
 }
-export function policyDateBounds(value) {
+function bound(value, intervals) {
   ensure(value && DATE_PRECISIONS.includes(value.precision), "INVALID_DATE");
   if (value.precision === "unknown") {
     ensure(value.value === null, "INVALID_DATE");
     return null;
   }
-  const pattern = {
-    year: /^\d{4}$/u,
-    month: /^\d{4}-\d{2}$/u,
-    day: /^\d{4}-\d{2}-\d{2}$/u,
-  }[value.precision];
   ensure(
-    typeof value.value === "string" && pattern.test(value.value),
+    typeof value.value === "string" &&
+      DATE_PATTERNS[value.precision].test(value.value),
     "INVALID_DATE",
   );
-  const lowerDate =
-    value.value + { year: "-01-01", month: "-01", day: "" }[value.precision];
+  // Only validated scalar shapes form keys. A value enters this call-local
+  // map after calendar validation, and precision is part of its identity.
+  const key = `${value.precision}:${value.value}`;
+  if (intervals?.has(key)) return intervals.get(key);
+  const lowerDate = value.value + DATE_SUFFIXES[value.precision];
   const lower = timestamp(`${lowerDate}T00:00:00Z`);
   const next = new Date(lower);
   if (value.precision === "year")
@@ -84,38 +89,44 @@ export function policyDateBounds(value) {
   else if (value.precision === "month")
     next.setUTCMonth(next.getUTCMonth() + 1);
   else next.setUTCDate(next.getUTCDate() + 1);
-  return freeze({
-    earliest: new Date(lower).toISOString(),
-    latest: new Date(next.getTime() - 1).toISOString(),
-    precision: value.precision,
-  });
+  const result = { lower, upper: next.getTime() - 1 };
+  intervals?.set(key, result);
+  return result;
 }
-function bound(value) {
-  const interval = policyDateBounds(value);
+export function policyDateBounds(value) {
+  const interval = bound(value);
   return interval === null
     ? null
-    : {
-        lower: timestamp(interval.earliest),
-        upper: timestamp(interval.latest),
-      };
+    : freeze({
+        earliest: new Date(interval.lower).toISOString(),
+        latest: new Date(interval.upper).toISOString(),
+        precision: value.precision,
+      });
 }
-function atOrBefore(value, limit) {
-  const interval = bound(value);
+function atOrBefore(value, limit, intervals) {
+  const interval = bound(value, intervals);
   return interval !== null && interval.upper <= limit;
 }
-function sourceInterval(version) {
-  const publication = bound(version.dates.publication);
-  const sourceVersion = bound(version.dates.sourceVersion);
-  if (publication === null && sourceVersion === null) return null;
-  if (publication === null) return sourceVersion;
-  if (sourceVersion === null) return publication;
-  return {
-    lower: Math.max(publication.lower, sourceVersion.lower),
-    upper: Math.max(publication.upper, sourceVersion.upper),
-  };
+function sourceInterval(version, intervals, dates) {
+  if (intervals?.has(version)) return intervals.get(version);
+  const publication = bound(version.dates.publication, dates);
+  const sourceVersion = bound(version.dates.sourceVersion, dates);
+  const result =
+    publication === null
+      ? sourceVersion
+      : sourceVersion === null
+        ? publication
+        : {
+            lower: Math.max(publication.lower, sourceVersion.lower),
+            upper: Math.max(publication.upper, sourceVersion.upper),
+          };
+  intervals?.set(version, result);
+  return result;
 }
-function refVersion(value, id) {
-  const result = value.versions.find((version) => version.id === id);
+function refVersion(value, id, references) {
+  const result = references
+    ? references.versions.get(id)
+    : value.versions.find((version) => version.id === id);
   ensure(result !== undefined, "UNKNOWN_VERSION");
   return result;
 }
@@ -133,34 +144,52 @@ function rendition(value, version) {
   );
   return result;
 }
-function evidenceKnownAt(value, segmentIds, asOf, basis) {
+function evidenceKnownAt(value, segmentIds, asOf, basis, references) {
   return segmentIds.every((segmentId) => {
-    const segment = value.segments.find((entry) => entry.id === segmentId);
+    if (references?.knownSegments.has(segmentId))
+      return references.knownSegments.get(segmentId);
+    const segment = references
+      ? references.segments.get(segmentId)
+      : value.segments.find((entry) => entry.id === segmentId);
     ensure(segment !== undefined, "UNKNOWN_SEGMENT");
-    const evidenceRendition = value.renditions.find(
-      (entry) => entry.id === segment.renditionId,
-    );
+    const evidenceRendition = references
+      ? references.renditions.get(segment.renditionId)
+      : value.renditions.find((entry) => entry.id === segment.renditionId);
     ensure(evidenceRendition !== undefined, "UNKNOWN_RENDITION");
-    const version = refVersion(value, evidenceRendition.versionId);
+    const version = refVersion(value, evidenceRendition.versionId, references);
+    let known;
     if (basis === "corpus_observed") {
-      const capture = value.captures.find(
-        (entry) => entry.id === evidenceRendition.captureId,
-      );
+      const capture = references
+        ? references.captures.get(evidenceRendition.captureId)
+        : value.captures.find(
+            (entry) => entry.id === evidenceRendition.captureId,
+          );
       ensure(capture !== undefined, "UNKNOWN_CAPTURE");
-      return timestamp(capture.retrievedAt) <= asOf;
+      known = timestamp(capture.retrievedAt) <= asOf;
+    } else {
+      const interval = sourceInterval(
+        version,
+        references?.sourceIntervals,
+        references?.dates,
+      );
+      known = interval !== null && interval.upper <= asOf;
     }
-    const interval = sourceInterval(version);
-    return interval !== null && interval.upper <= asOf;
+    references?.knownSegments.set(segmentId, known);
+    return known;
   });
 }
-function knownEvents(value, versionId, asOf, basis) {
-  return value.events.filter(
+function knownEvents(value, versionId, asOf, basis, references) {
+  return (references.eventsByVersion.get(versionId) ?? []).filter(
     (event) =>
-      event.versionId === versionId &&
-      atOrBefore(event.date, asOf) &&
-      atOrBefore(event.sourceStatedAt, asOf) &&
-      evidenceKnownAt(value, event.segmentIds, asOf, basis),
+      atOrBefore(event.date, asOf, references.dates) &&
+      atOrBefore(event.sourceStatedAt, asOf, references.dates) &&
+      evidenceKnownAt(value, event.segmentIds, asOf, basis, references),
   );
+}
+function indexById(rows) {
+  const result = new Map();
+  for (const row of rows) if (!result.has(row.id)) result.set(row.id, row);
+  return result;
 }
 
 export function selectTemporalVersions(input, { asOf, basis }) {
@@ -170,18 +199,39 @@ export function selectTemporalVersions(input, { asOf, basis }) {
     ["source_available", "corpus_observed", "source_effective"].includes(basis),
     "EXPLICIT_TEMPORAL_BASIS_REQUIRED",
   );
-  const included = [];
+  // These indexes and date/evidence results belong to this call only. A later
+  // call rechecks its input and cutoff rather than trusting a frozen envelope.
+  const references = {
+    versions: indexById(value.versions),
+    renditions: indexById(value.renditions),
+    segments: indexById(value.segments),
+    captures: basis === "corpus_observed" ? indexById(value.captures) : null,
+    eventsByVersion: new Map(),
+    sourceIntervals: new Map(),
+    dates: new Map(),
+    knownSegments: new Map(),
+  };
+  for (const event of value.events) {
+    if (!references.eventsByVersion.has(event.versionId))
+      references.eventsByVersion.set(event.versionId, []);
+    references.eventsByVersion.get(event.versionId).push(event);
+  }
+  const includedByWork = new Map();
   const excluded = [];
   for (const version of value.versions) {
     let interval;
     let reason = null;
-    const events = knownEvents(value, version.id, limit, basis);
+    const events = knownEvents(value, version.id, limit, basis, references);
     if (basis === "corpus_observed") {
       const observed = timestamp(version.observedAt);
       interval = { lower: observed, upper: observed };
       if (observed > limit) reason = "not_yet_observed_in_corpus";
     } else {
-      interval = sourceInterval(version);
+      interval = sourceInterval(
+        version,
+        references.sourceIntervals,
+        references.dates,
+      );
       if (interval === null) reason = "unknown_source_availability";
       else if (interval.lower > limit) reason = "future_source_version";
       else if (interval.upper > limit) reason = "partial_date_crosses_cutoff";
@@ -192,13 +242,15 @@ export function selectTemporalVersions(input, { asOf, basis }) {
         reason = "no_source_effective_event_by_cutoff";
       else {
         const latest = Math.max(
-          ...effective.map((event) => bound(event.date).upper),
+          ...effective.map(
+            (event) => bound(event.date, references.dates).upper,
+          ),
         );
         if (
           events.some(
             (event) =>
               ["repealed", "withdrawn"].includes(event.type) &&
-              bound(event.date).lower >= latest,
+              bound(event.date, references.dates).lower >= latest,
           )
         )
           reason = "later_source_repeal_or_withdrawal_event";
@@ -207,8 +259,10 @@ export function selectTemporalVersions(input, { asOf, basis }) {
     }
     if (reason !== null)
       excluded.push({ versionId: version.id, workId: version.workId, reason });
-    else
-      included.push({
+    else {
+      if (!includedByWork.has(version.workId))
+        includedByWork.set(version.workId, []);
+      includedByWork.get(version.workId).push({
         versionId: version.id,
         workId: version.workId,
         interval,
@@ -217,10 +271,11 @@ export function selectTemporalVersions(input, { asOf, basis }) {
           ...new Set(events.flatMap((event) => event.segmentIds)),
         ].sort(),
       });
+    }
   }
   const selections = [];
   for (const work of value.works) {
-    const candidates = included.filter((entry) => entry.workId === work.id);
+    const candidates = includedByWork.get(work.id) ?? [];
     candidates.sort(
       (left, right) =>
         right.interval.upper - left.interval.upper ||
@@ -240,15 +295,14 @@ export function selectTemporalVersions(input, { asOf, basis }) {
         (entry) => entry.interval.upper >= latest.interval.lower,
       );
       const renditionIds = tied
-        .flatMap((entry) => refVersion(value, entry.versionId).renditionIds)
+        .flatMap(
+          (entry) =>
+            refVersion(value, entry.versionId, references).renditionIds,
+        )
         .filter((renditionId) => {
           if (basis !== "corpus_observed") return true;
-          const selected = value.renditions.find(
-            (entry) => entry.id === renditionId,
-          );
-          const capture = value.captures.find(
-            (entry) => entry.id === selected.captureId,
-          );
+          const selected = references.renditions.get(renditionId);
+          const capture = references.captures.get(selected.captureId);
           return timestamp(capture.retrievedAt) <= limit;
         })
         .sort();

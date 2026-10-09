@@ -1,5 +1,8 @@
+import type { JurisdictionAssociation } from "../core/jurisdiction-reference.mjs";
 export const ANALYZED_CORPUS_V2_SCHEMA_ID: "https://policy-sentinel.invalid/schemas/analyzed-corpus.schema.v2.json";
 export const ANALYZED_CORPUS_V2_SCHEMA_VERSION: "2.0.0";
+export const ANALYZED_CORPUS_V21_SCHEMA_ID: "https://policy-sentinel.invalid/schemas/analyzed-corpus.schema.v2.1.json";
+export const ANALYZED_CORPUS_V21_SCHEMA_VERSION: "2.1.0";
 export interface PolicyDate {
   readonly value: string | null;
   readonly precision: "year" | "month" | "day" | "unknown";
@@ -245,6 +248,26 @@ export interface AnalyzedCorpusV2 extends DigestedMember {
 export class AnalyzedCorpusV2Error extends TypeError {
   readonly code: string;
 }
+export interface PolicyJurisdictionAssociation extends JurisdictionAssociation {
+  readonly versionId: string;
+  readonly segmentIds: readonly string[];
+  readonly reviewer: PolicyReviewer | null;
+}
+export interface PolicyWorkV21 extends PolicyWork {
+  readonly jurisdictionRefs: readonly PolicyJurisdictionAssociation[];
+}
+export interface AnalyzedCorpusV21 extends Omit<
+  AnalyzedCorpusV2,
+  "$schema" | "schemaVersion" | "works"
+> {
+  readonly $schema: typeof ANALYZED_CORPUS_V21_SCHEMA_ID;
+  readonly schemaVersion: "2.1.0";
+  readonly works: readonly PolicyWorkV21[];
+}
+export type AnalyzedCorpus = AnalyzedCorpusV2 | AnalyzedCorpusV21;
+export interface SupportedCorpusReplayOptions {
+  readonly lastKnownGoodCorpora: readonly AnalyzedCorpus[];
+}
 export interface CorpusReplayOptions {
   readonly lastKnownGoodCorpora: readonly AnalyzedCorpusV2[];
 }
@@ -260,6 +283,31 @@ export function parseAnalyzedCorpusV2(
 export function serializeAnalyzedCorpusV2(
   value: unknown,
   options?: CorpusReplayOptions,
+): string;
+export function createAnalyzedCorpusV21(
+  input: unknown,
+  options?: SupportedCorpusReplayOptions,
+): AnalyzedCorpusV21;
+export function parseAnalyzedCorpusV21(
+  value: unknown,
+  options?: SupportedCorpusReplayOptions,
+): AnalyzedCorpusV21;
+export function serializeAnalyzedCorpusV21(
+  value: unknown,
+  options?: SupportedCorpusReplayOptions,
+): string;
+export function createSupportedAnalyzedCorpus(
+  input: unknown,
+  schemaVersion?: "2.0.0" | "2.1.0",
+  options?: SupportedCorpusReplayOptions,
+): AnalyzedCorpus;
+export function parseSupportedAnalyzedCorpus(
+  value: unknown,
+  options?: SupportedCorpusReplayOptions,
+): AnalyzedCorpus;
+export function serializeSupportedAnalyzedCorpus(
+  value: unknown,
+  options?: SupportedCorpusReplayOptions,
 ): string;
 export function evidenceSegmentId(
   renditionId: string,
@@ -326,6 +374,14 @@ export interface LocalCorpusRecord {
     readonly text: string | null;
   }[];
 }
+export function replaySupportedCorpusCitation(
+  input: Omit<
+    Parameters<typeof replayCorpusCitation>[0],
+    "lastKnownGoodCorpora"
+  > & {
+    readonly lastKnownGoodCorpora?: readonly AnalyzedCorpus[];
+  },
+): CitationReplay;
 export function projectLocalCorpusV2(
   value: unknown,
   options?: CorpusReplayOptions,

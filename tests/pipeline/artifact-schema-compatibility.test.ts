@@ -156,3 +156,51 @@ test("artifact schema v1 accepts the legacy compact-index shape", () => {
     JSON.stringify(validateArtifactDocument.errors),
   );
 });
+
+test("successor schema dispatch keeps v1 closed while admitting expanded jurisdiction references", async () => {
+  const nextAjv = new Ajv2020({
+    allErrors: true,
+    strict: true,
+    allowUnionTypes: true,
+  });
+  addFormats(nextAjv);
+  for (const version of ["v1", "v2"]) {
+    for (const kind of ["record", "source", "artifact"]) {
+      nextAjv.addSchema(
+        JSON.parse(
+          await readFile(
+            path.join(
+              projectRoot,
+              "schemas",
+              kind + ".schema." + version + ".json",
+            ),
+            "utf8",
+          ),
+        ),
+      );
+    }
+  }
+  const record = JSON.parse(
+    await readFile(
+      path.join(
+        projectRoot,
+        "fixtures/records/nationwide-successor.valid.json",
+      ),
+      "utf8",
+    ),
+  );
+  const validateNext = nextAjv.getSchema(
+    "https://policy-sentinel.invalid/schemas/record.schema.v2.json",
+  )!;
+  assert.equal(validateNext(record), true, JSON.stringify(validateNext.errors));
+  record.schemaVersion = "1.4.0";
+  assert.equal(validateNext(record), false);
+  const validatePrevious = nextAjv.getSchema(
+    "https://policy-sentinel.invalid/schemas/record.schema.v1.json",
+  )!;
+  assert.equal(validatePrevious(record), false);
+  assert.deepEqual(
+    artifactSchema.$defs.jurisdiction.properties.stateCode.oneOf,
+    [{ enum: ["WA", "OR", "ID"] }, { type: "null" }],
+  );
+});

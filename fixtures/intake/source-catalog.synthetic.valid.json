@@ -1,0 +1,189 @@
+{
+  "$schema": "https://policy-sentinel.invalid/schemas/source-catalog.schema.v1.json",
+  "schemaVersion": "1.0.0",
+  "catalogId": "synthetic-source-catalog",
+  "trustDomain": "synthetic_test_only",
+  "managedStorageCeilingBytes": 50000000000,
+  "sources": [
+    {
+      "id": "synthetic-official",
+      "label": "Synthetic official collection",
+      "publisher": "Synthetic Official Publisher",
+      "authorityClass": "federal",
+      "attributionScope": "publisher_only",
+      "publishingJurisdiction": {
+        "ref": "us",
+        "basis": "publishing_authority",
+        "evidence": {
+          "url": "https://official.invalid/about",
+          "locator": "Publisher identity"
+        }
+      },
+      "discoveryRegions": ["US"],
+      "recordKinds": ["regulatory_proceedings"],
+      "interfaceKind": "html",
+      "lifecycle": "active",
+      "review": {
+        "reviewer": "Synthetic source reviewer",
+        "reviewedAt": "2026-10-07T00:00:00Z",
+        "expiresAt": "2099-01-01T00:00:00Z",
+        "evidenceUrls": ["https://official.invalid/policy"]
+      },
+      "evidenceRecord": "fixtures/intake/source-catalog.synthetic.valid.json",
+      "terms": "cleared",
+      "credentials": {
+        "kind": "none"
+      },
+      "implementedCapabilities": ["identifier_only", "cached"],
+      "capabilities": [
+        {
+          "mode": "topical",
+          "state": "unknown",
+          "evidenceUrls": []
+        },
+        {
+          "mode": "full_text",
+          "state": "unknown",
+          "evidenceUrls": []
+        },
+        {
+          "mode": "metadata",
+          "state": "unknown",
+          "evidenceUrls": []
+        },
+        {
+          "mode": "identifier_only",
+          "state": "verified",
+          "evidenceUrls": ["https://official.invalid/policy"]
+        },
+        {
+          "mode": "cached",
+          "state": "verified",
+          "evidenceUrls": ["https://official.invalid/policy"]
+        }
+      ],
+      "evidenceFeatures": [
+        {
+          "name": "docket_id",
+          "state": "verified",
+          "evidenceUrls": ["https://official.invalid/policy"]
+        }
+      ],
+      "coverage": {
+        "documented": {
+          "from": "2020-01-01",
+          "through": null,
+          "completeness": "partial",
+          "note": "Synthetic fixture collection only."
+        },
+        "selected": {
+          "from": "2026-01-01",
+          "through": "2026-10-07"
+        },
+        "emitted": {
+          "from": "2026-10-01",
+          "through": "2026-10-01",
+          "recordCount": 1
+        }
+      },
+      "cadence": "Synthetic fixture only.",
+      "blockers": [],
+      "profile": {
+        "id": "synthetic-official",
+        "hosts": ["official.invalid"],
+        "pathPrefixes": ["/instruments/"],
+        "review": {
+          "reviewer": "Synthetic source reviewer",
+          "reviewedAt": "2026-10-07T00:00:00Z",
+          "expiresAt": "2099-01-01T00:00:00Z",
+          "evidenceUrls": ["https://official.invalid/policy"]
+        },
+        "uses": {
+          "capture": true,
+          "analysis": true,
+          "excerpts": true,
+          "localDisplay": "full_text",
+          "localExport": "full_text",
+          "publicRedistribution": "prohibited"
+        }
+      },
+      "activation": {
+        "operationId": "synthetic-source-operation",
+        "activatedAt": "2026-10-07T00:00:00Z",
+        "evidenceUrls": ["https://official.invalid/acceptance"]
+      }
+    },
+    {
+      "id": "synthetic-user-supplied",
+      "label": "Synthetic user document",
+      "publisher": "User supplied",
+      "authorityClass": "user_supplied",
+      "attributionScope": "publisher_only",
+      "publishingJurisdiction": null,
+      "discoveryRegions": [],
+      "recordKinds": ["user_documents"],
+      "interfaceKind": "local",
+      "lifecycle": "discovery",
+      "review": {
+        "reviewer": "Synthetic source reviewer",
+        "reviewedAt": "2026-10-07T00:00:00Z",
+        "expiresAt": null,
+        "evidenceUrls": ["https://official.invalid/policy"]
+      },
+      "evidenceRecord": "fixtures/intake/source-catalog.synthetic.valid.json",
+      "terms": "unresolved",
+      "credentials": {
+        "kind": "none"
+      },
+      "implementedCapabilities": [],
+      "capabilities": [
+        {
+          "mode": "topical",
+          "state": "unknown",
+          "evidenceUrls": []
+        },
+        {
+          "mode": "full_text",
+          "state": "unknown",
+          "evidenceUrls": []
+        },
+        {
+          "mode": "metadata",
+          "state": "unknown",
+          "evidenceUrls": []
+        },
+        {
+          "mode": "identifier_only",
+          "state": "unknown",
+          "evidenceUrls": []
+        },
+        {
+          "mode": "cached",
+          "state": "unknown",
+          "evidenceUrls": []
+        }
+      ],
+      "evidenceFeatures": [],
+      "coverage": {
+        "documented": {
+          "from": null,
+          "through": null,
+          "completeness": "unknown",
+          "note": "No documents admitted."
+        },
+        "selected": null,
+        "emitted": null
+      },
+      "cadence": "Synthetic fixture only.",
+      "blockers": [
+        {
+          "code": "private-custody-required",
+          "detail": "User documents need their separate private custody and authorization contract.",
+          "gateRef": "G-GD-PRIVATE-CONTEXT"
+        }
+      ],
+      "profile": null,
+      "activation": null
+    }
+  ]
+}

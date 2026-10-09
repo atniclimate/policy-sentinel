@@ -2,10 +2,18 @@ import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
 import { TextDecoder, types } from "node:util";
 import { URL } from "node:url";
+import {
+  hasStateJurisdictionEvidence,
+  parseJurisdictionAssociation,
+  US_STATE_CODES,
+} from "../core/jurisdiction-reference.mjs";
 
 export const ANALYZED_CORPUS_V2_SCHEMA_ID =
   "https://policy-sentinel.invalid/schemas/analyzed-corpus.schema.v2.json";
 export const ANALYZED_CORPUS_V2_SCHEMA_VERSION = "2.0.0";
+export const ANALYZED_CORPUS_V21_SCHEMA_ID =
+  "https://policy-sentinel.invalid/schemas/analyzed-corpus.schema.v2.1.json";
+export const ANALYZED_CORPUS_V21_SCHEMA_VERSION = "2.1.0";
 const CATALOGS = [
   "sourceProfiles",
   "captures",
@@ -187,6 +195,16 @@ function freeze(value) {
   }
   return value;
 }
+// Only complete, module-validated and recursively frozen corpus snapshots enter
+// this set. Caller-frozen objects and equal digests do not establish trust.
+const validatedCorpora = new WeakSet();
+function rememberValidatedCorpus(value) {
+  if (!validatedCorpora.has(value)) {
+    freeze(value);
+    validatedCorpora.add(value);
+  }
+  return value;
+}
 function keys(value, expected) {
   requireValue(
     value !== null &&
@@ -204,16 +222,10 @@ function text(value, max = 4096, allowEmpty = false) {
       value.length <= max,
     "INVALID_TEXT",
   );
-  for (const character of value) {
-    const point = character.codePointAt(0);
-    requireValue(
-      point === 9 ||
-        point === 10 ||
-        point === 13 ||
-        (point >= 32 && point !== 127),
-      "INVALID_TEXT",
-    );
-  }
+  requireValue(
+    !/[^\t\n\r\u0020-\u007e\u0080-\u{10ffff}]/u.test(value),
+    "INVALID_TEXT",
+  );
 }
 function id(value) {
   requireValue(typeof value === "string" && ID.test(value), "INVALID_ID");
@@ -458,12 +470,117 @@ function assertSegmentScope(segmentIds, versionId, maps) {
     );
 }
 
-function validate(value) {
+function jurisdictionAssociations(work, maps, generatedAt, trustDomain) {
+  const seen = new Set();
+  for (const association of values(work.jurisdictionRefs, 0, 256)) {
+    keys(association, [
+      "jurisdictionRef",
+      "basis",
+      "evidence",
+      "reviewState",
+      "versionId",
+      "segmentIds",
+      "reviewer",
+    ]);
+    const {
+      versionId,
+      segmentIds,
+      reviewer: reviewedBy,
+      ...shared
+    } = association;
+    parseJurisdictionAssociation(JSON.stringify(shared), work.id);
+    requireValue(
+      !association.jurisdictionRef.startsWith("us-state:") ||
+        US_STATE_CODES.includes(association.jurisdictionRef.slice(9)),
+      "JURISDICTION_STATE_UNKNOWN",
+    );
+    requireValue(
+      !association.jurisdictionRef.startsWith("nation:") ||
+        (trustDomain === "synthetic_test_only" &&
+          association.jurisdictionRef.startsWith("nation:synthetic-")),
+      "JURISDICTION_NATION_REGISTRY_REQUIRED",
+    );
+    requireValue(
+      association.evidence.exactSubject !== undefined,
+      "JURISDICTION_EXACT_SUBJECT_REQUIRED",
+    );
+    requireValue(
+      !association.jurisdictionRef.startsWith("us-state:") ||
+        hasStateJurisdictionEvidence(
+          association.jurisdictionRef,
+          association.evidence.exactSubject.text,
+        ),
+      "JURISDICTION_STATE_EXACT_IDENTITY",
+    );
+    requireValue(
+      !association.jurisdictionRef.startsWith("nation:") ||
+        association.evidence.exactSubject.text
+          .split(/[^a-z0-9:-]+/u)
+          .includes(association.jurisdictionRef),
+      "JURISDICTION_NATION_EXACT_IDENTITY",
+    );
+    const identity = `${association.jurisdictionRef}@${association.basis}@${versionId}`;
+    requireValue(!seen.has(identity), "DUPLICATE_JURISDICTION_ASSOCIATION");
+    seen.add(identity);
+    const version = resolve(maps.versions, versionId);
+    requireValue(version.workId === work.id, "JURISDICTION_WORK_MISMATCH");
+    assertSegmentScope(segmentIds, versionId, maps);
+    const evidenceSegments = refs(segmentIds, maps.segments, 1);
+    requireValue(
+      evidenceSegments.every((segment) => {
+        const rendition = resolve(maps.renditions, segment.renditionId);
+        const capture = resolve(maps.captures, rendition.captureId);
+        return (
+          capture.sourceProfileId === work.sourceProfileId &&
+          capture.finalUrl === association.evidence.url
+        );
+      }),
+      "JURISDICTION_SOURCE_MISMATCH",
+    );
+    requireValue(
+      evidenceSegments.some((segment) => {
+        const bytes = maps.renditionBuffers.get(segment.renditionId);
+        return (
+          segment.locator.value === association.evidence.locator &&
+          bytes
+            .subarray(segment.startByte, segment.endByte)
+            .toString("utf8")
+            .includes(association.evidence.exactSubject.text)
+        );
+      }),
+      "JURISDICTION_STATEMENT_REPLAY",
+    );
+    if (association.reviewState === "reviewed")
+      requireValue(reviewedBy !== null, "JURISDICTION_REVIEW_REQUIRED");
+    if (reviewedBy !== null) {
+      reviewer(reviewedBy, generatedAt);
+      requireValue(
+        evidenceSegments.every((segment) => {
+          const rendition = resolve(maps.renditions, segment.renditionId);
+          return (
+            timestamp(
+              resolve(maps.captures, rendition.captureId).retrievedAt,
+            ) <= timestamp(reviewedBy.reviewedAt)
+          );
+        }),
+        "JURISDICTION_REVIEW_PRECEDES_EVIDENCE",
+      );
+    }
+  }
+}
+function validate(value, schemaVersion = "2.0.0") {
+  requireValue(
+    ["2.0.0", "2.1.0"].includes(schemaVersion),
+    "UNSUPPORTED_CORPUS_VERSION",
+  );
   keys(value, ROOT);
   verifySeal(value);
   requireValue(
-    value.$schema === ANALYZED_CORPUS_V2_SCHEMA_ID &&
-      value.schemaVersion === "2.0.0" &&
+    value.$schema ===
+      (schemaVersion === "2.0.0"
+        ? ANALYZED_CORPUS_V2_SCHEMA_ID
+        : ANALYZED_CORPUS_V21_SCHEMA_ID) &&
+      value.schemaVersion === schemaVersion &&
       value.kind === "analyzed_corpus",
     "UNSUPPORTED_CORPUS_VERSION",
   );
@@ -476,6 +593,15 @@ function validate(value) {
     CATALOGS.map((name) => [name, catalog(value[name], name, globalIds)]),
   );
   maps.renditionBuffers = new Map();
+  // These indexes belong to this validation pass; every catalog entry still
+  // receives its full shape, reference, digest and evidence checks below.
+  const renditionIdsByVersion = new Map();
+  const evidencedRenditionIds = new Set();
+  const versionedWorkIds = new Set(
+    value.versions.map((version) => version.workId),
+  );
+  const workCountsByProfile = new Map();
+  const versionCountsByProfile = new Map();
   requireValue(
     new Set(
       [...maps.sourceProfiles.values()].map((profile) => profile.sourceId),
@@ -703,6 +829,9 @@ function validate(value) {
       ),
       "INVALID_OMISSION_LOCATOR",
     );
+    const renditionIds = renditionIdsByVersion.get(rendition.versionId) ?? [];
+    renditionIds.push(rendition.id);
+    renditionIdsByVersion.set(rendition.versionId, renditionIds);
   }
   for (const segment of maps.segments.values()) {
     keys(segment, [
@@ -716,6 +845,7 @@ function validate(value) {
       "contentDigest",
     ]);
     const rendition = resolve(maps.renditions, segment.renditionId);
+    evidencedRenditionIds.add(rendition.id);
     count(segment.startByte);
     count(segment.endByte);
     requireValue(
@@ -792,6 +922,7 @@ function validate(value) {
       "taxonomy",
       "fieldProvenance",
       "contentDigest",
+      ...(schemaVersion === "2.1.0" ? ["jurisdictionRefs"] : []),
     ]);
     resolve(maps.sourceProfiles, work.sourceProfileId);
     text(work.sourceIdentifier);
@@ -839,9 +970,17 @@ function validate(value) {
       );
     });
     provenance(work, required, maps, work.sourceProfileId);
-    requireValue(
-      [...maps.versions.values()].some((version) => version.workId === work.id),
-      "WORK_WITHOUT_VERSION",
+    if (schemaVersion === "2.1.0")
+      jurisdictionAssociations(
+        work,
+        maps,
+        value.generatedAt,
+        value.trustDomain,
+      );
+    requireValue(versionedWorkIds.has(work.id), "WORK_WITHOUT_VERSION");
+    workCountsByProfile.set(
+      work.sourceProfileId,
+      (workCountsByProfile.get(work.sourceProfileId) ?? 0) + 1,
     );
   }
   const versionIdentities = new Set();
@@ -885,9 +1024,7 @@ function validate(value) {
       );
       observedAt = Math.min(observedAt, timestamp(capture.retrievedAt));
       requireValue(
-        [...maps.segments.values()].some(
-          (segment) => segment.renditionId === rendition.id,
-        ),
+        evidencedRenditionIds.has(rendition.id),
         "RENDITION_WITHOUT_EVIDENCE",
       );
     }
@@ -895,16 +1032,19 @@ function validate(value) {
       timestamp(version.observedAt) === observedAt,
       "VERSION_OBSERVATION_MISMATCH",
     );
-    const actualRenditions = [...maps.renditions.values()]
-      .filter((rendition) => rendition.versionId === version.id)
-      .map((rendition) => rendition.id)
-      .sort();
+    const actualRenditions = (
+      renditionIdsByVersion.get(version.id) ?? []
+    ).sort();
     requireValue(
       canonical([...version.renditionIds].sort()) ===
         canonical(actualRenditions),
       "RENDITION_REFERENCE_SET",
     );
     provenance(version, required, maps, work.sourceProfileId);
+    versionCountsByProfile.set(
+      work.sourceProfileId,
+      (versionCountsByProfile.get(work.sourceProfileId) ?? 0) + 1,
+    );
   }
   for (const event of maps.events.values()) {
     keys(event, [
@@ -1133,15 +1273,13 @@ function validate(value) {
       "DUPLICATE_SOURCE_COVERAGE",
     );
     covered.add(coverage.sourceProfileId);
-    const works = [...maps.works.values()].filter(
-      (work) => work.sourceProfileId === coverage.sourceProfileId,
-    );
-    const versions = [...maps.versions.values()].filter((version) =>
-      works.some((work) => work.id === version.workId),
-    );
+    const documentCount =
+      workCountsByProfile.get(coverage.sourceProfileId) ?? 0;
+    const versionCount =
+      versionCountsByProfile.get(coverage.sourceProfileId) ?? 0;
     requireValue(
-      coverage.documentCount === works.length &&
-        coverage.versionCount === versions.length,
+      coverage.documentCount === documentCount &&
+        coverage.versionCount === versionCount,
       "COVERAGE_COUNT_MISMATCH",
     );
     const from = date(coverage.from);
@@ -1153,7 +1291,7 @@ function validate(value) {
     choice(coverage.status, ["healthy", "degraded", "unavailable"]);
     if (coverage.status === "unavailable")
       requireValue(
-        works.length === 0 &&
+        documentCount === 0 &&
           coverage.dataAsOf === null &&
           coverage.lastSuccessfulAt === null &&
           coverage.lastKnownGoodDigest === null &&
@@ -1162,7 +1300,7 @@ function validate(value) {
       );
     else {
       requireValue(
-        works.length > 0 &&
+        documentCount > 0 &&
           timestamp(coverage.dataAsOf) <=
             timestamp(coverage.lastSuccessfulAt) &&
           timestamp(coverage.lastSuccessfulAt) <= generatedAt,
@@ -1220,13 +1358,13 @@ function sourceSnapshot(value, sourceProfileId) {
     ),
   };
 }
-function verifyPriorEvidence(value, options) {
+function verifyPriorEvidence(value, options, supported = false) {
   const safe = snapshot(options ?? { lastKnownGoodCorpora: [] });
   keys(safe, ["lastKnownGoodCorpora"]);
   values(safe.lastKnownGoodCorpora, 0, 32);
   const prior = new Map(
     safe.lastKnownGoodCorpora.map((candidate) => {
-      validate(candidate);
+      validate(candidate, supported ? candidate.schemaVersion : "2.0.0");
       return [candidate.contentDigest, candidate];
     }),
   );
@@ -1245,6 +1383,7 @@ function verifyPriorEvidence(value, options) {
         previous !== undefined &&
           timestamp(previous.generatedAt) < timestamp(current.generatedAt) &&
           previous.trustDomain === current.trustDomain &&
+          previous.schemaVersion === current.schemaVersion &&
           previous.runId === current.runId,
         "VERIFIED_PRIOR_CORPUS_REQUIRED",
       );
@@ -1272,12 +1411,15 @@ function verifyPriorEvidence(value, options) {
   return value;
 }
 
-export function createAnalyzedCorpusV2(input, options) {
+function createCorpus(input, options, schemaVersion) {
   const safe = snapshot(input);
   keys(safe, ["id", "runId", "trustDomain", "generatedAt", ...CATALOGS]);
   const output = {
-    $schema: ANALYZED_CORPUS_V2_SCHEMA_ID,
-    schemaVersion: "2.0.0",
+    $schema:
+      schemaVersion === "2.0.0"
+        ? ANALYZED_CORPUS_V2_SCHEMA_ID
+        : ANALYZED_CORPUS_V21_SCHEMA_ID,
+    schemaVersion,
     kind: "analyzed_corpus",
     ...safe,
   };
@@ -1287,13 +1429,66 @@ export function createAnalyzedCorpusV2(input, options) {
       .sort((left, right) =>
         left.id < right.id ? -1 : left.id > right.id ? 1 : 0,
       );
-  return freeze(verifyPriorEvidence(validate(seal(output)), options));
+  return rememberValidatedCorpus(
+    verifyPriorEvidence(
+      validate(seal(output), schemaVersion),
+      options,
+      schemaVersion === "2.1.0",
+    ),
+  );
+}
+export function createAnalyzedCorpusV2(input, options) {
+  return createCorpus(input, options, "2.0.0");
+}
+function parseCorpus(value, schemaVersion, options) {
+  let parsed;
+  if (validatedCorpora.has(value)) {
+    requireValue(
+      schemaVersion === null || value.schemaVersion === schemaVersion,
+      "UNSUPPORTED_CORPUS_VERSION",
+    );
+    parsed = value;
+  } else {
+    const safe = snapshot(value);
+    parsed = validate(safe, schemaVersion ?? safe.schemaVersion);
+  }
+  // Proof is request-specific: always inspect current options and prior corpora,
+  // even when the immutable current corpus has already passed validation.
+  return rememberValidatedCorpus(
+    verifyPriorEvidence(parsed, options, parsed.schemaVersion === "2.1.0"),
+  );
 }
 export function parseAnalyzedCorpusV2(value, options) {
-  return freeze(verifyPriorEvidence(validate(snapshot(value)), options));
+  return parseCorpus(value, "2.0.0", options);
 }
 export function serializeAnalyzedCorpusV2(value, options) {
   return `${canonical(parseAnalyzedCorpusV2(value, options))}\n`;
+}
+export function createAnalyzedCorpusV21(input, options) {
+  return createCorpus(input, options, "2.1.0");
+}
+export function parseAnalyzedCorpusV21(value, options) {
+  return parseCorpus(value, "2.1.0", options);
+}
+export function serializeAnalyzedCorpusV21(value, options) {
+  return `${canonical(parseAnalyzedCorpusV21(value, options))}\n`;
+}
+export function createSupportedAnalyzedCorpus(
+  input,
+  schemaVersion = "2.0.0",
+  options,
+) {
+  requireValue(
+    ["2.0.0", "2.1.0"].includes(schemaVersion),
+    "UNSUPPORTED_CORPUS_VERSION",
+  );
+  return createCorpus(input, options, schemaVersion);
+}
+export function parseSupportedAnalyzedCorpus(value, options) {
+  return parseCorpus(value, null, options);
+}
+export function serializeSupportedAnalyzedCorpus(value, options) {
+  return `${canonical(parseSupportedAnalyzedCorpus(value, options))}\n`;
 }
 export function evidenceSegmentId(
   renditionId,
@@ -1344,15 +1539,18 @@ export function createEvidenceSegment({
     }),
   );
 }
-export function replayCorpusCitation({
-  corpus,
-  segmentId,
-  objectBytes,
-  renditionBytes,
-  reextract,
-  lastKnownGoodCorpora = [],
-}) {
-  const parsed = parseAnalyzedCorpusV2(corpus, { lastKnownGoodCorpora });
+function replayCitation(
+  {
+    corpus,
+    segmentId,
+    objectBytes,
+    renditionBytes,
+    reextract,
+    lastKnownGoodCorpora = [],
+  },
+  parse,
+) {
+  const parsed = parse(corpus, { lastKnownGoodCorpora });
   const segment = parsed.segments.find((entry) => entry.id === segmentId);
   requireValue(segment !== undefined, "UNRESOLVED_REFERENCE");
   const rendition = parsed.renditions.find(
@@ -1403,6 +1601,12 @@ export function replayCorpusCitation({
       .toString("utf8"),
     parserReplay: reextract === undefined ? "not_performed" : "verified",
   });
+}
+export function replayCorpusCitation(input) {
+  return replayCitation(input, parseAnalyzedCorpusV2);
+}
+export function replaySupportedCorpusCitation(input) {
+  return replayCitation(input, parseSupportedAnalyzedCorpus);
 }
 export function projectLocalCorpusV2(value, options) {
   const corpus = parseAnalyzedCorpusV2(value, options);

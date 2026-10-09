@@ -1,3 +1,6 @@
+import * as legacyCorpus from "../../src/pipeline/analyzed-corpus.mjs";
+import * as pureCorpus from "../../src/core/analyzed-corpus.mjs";
+import * as configuredCorpus from "../../scripts/configured-analyzed-corpus.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -999,10 +1002,15 @@ test("plain-JSON capture rejects getters, custom prototypes, cycles, and unpaire
 });
 
 test("runtime contains no network, environment, clock, timer, random, filesystem, or logging capability", async () => {
-  const source = await readFile(
-    new URL("src/pipeline/analyzed-corpus.mjs", root),
-    "utf8",
-  );
+  const source = (
+    await Promise.all(
+      [
+        "src/pipeline/analyzed-corpus.mjs",
+        "src/core/analyzed-corpus.mjs",
+        "scripts/configured-analyzed-corpus.mjs",
+      ].map((path) => readFile(new URL(path, root), "utf8")),
+    )
+  ).join("\n");
   for (const forbidden of [
     /node:(?:fs|http|https|net|tls|dns|child_process)/u,
     /\b(?:fetch|setTimeout|setInterval|XMLHttpRequest|WebSocket)\s*\(/u,
@@ -1012,4 +1020,30 @@ test("runtime contains no network, environment, clock, timer, random, filesystem
   ]) {
     assert.doesNotMatch(source, forbidden);
   }
+});
+
+test("corpus facade retains exact exports and shared singleton/configured identities", () => {
+  const shared = [
+    "ANALYZED_CORPUS_SCHEMA_ID",
+    "ANALYZED_CORPUS_SCHEMA_VERSION",
+    "AnalyzedCorpusValidationError",
+    "REQUIRED_ANALYZED_CORPUS_NON_CLAIMS",
+    "SYNTHETIC_APPLICATION_PROFILE",
+    "canonicalCorpusDigest",
+  ];
+  const configured = [
+    "syntheticApplicationPins",
+    "createAnalyzedCorpus",
+    "parseAnalyzedCorpus",
+    "serializeAnalyzedCorpus",
+    "assertAnalyzedCorpusCompatibility",
+    "projectAnalyzedCorpus",
+  ];
+  assert.deepEqual(
+    Object.keys(legacyCorpus).sort(),
+    [...shared, ...configured].sort(),
+  );
+  for (const name of shared) assert.equal(legacyCorpus[name], pureCorpus[name]);
+  for (const name of configured)
+    assert.equal(legacyCorpus[name], configuredCorpus[name]);
 });

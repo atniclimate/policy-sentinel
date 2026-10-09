@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtemp, rm } from "node:fs/promises";
+import { lstat, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import process from "node:process";
 import test from "node:test";
-import { URL } from "node:url";
+import { pathToFileURL, URL } from "node:url";
 import {
   initialDirectManifest,
   makahDemoFederalManifest,
@@ -12,6 +12,8 @@ import {
 import { initializePolicyRun } from "../../src/pipeline/policy-custody.mjs";
 
 const CURRENT_DISCOVERY_TARGET_COUNT = 20;
+// Historical fixture time only; this does not renew the ended source reviews.
+const HISTORICAL_REVIEW_TIME = Date.parse("2026-09-20T00:00:00Z");
 
 const MAKAH_TARGET_URLS = [
   "https://www.govinfo.gov/content/pkg/FR-2024-06-18/html/2024-12669.htm",
@@ -49,6 +51,12 @@ async function externalFixture(t) {
     await rm(base, { recursive: true, force: true });
   });
   return join(base, "run");
+}
+
+async function historicalCliArguments(root, now = HISTORICAL_REVIEW_TIME) {
+  const preload = join(dirname(root), "historical-test-clock.mjs");
+  await writeFile(preload, `Date.now = () => ${now};\n`);
+  return ["--import", pathToFileURL(preload).href];
 }
 
 test("initialDirectManifest() is unchanged by the new source profile", () => {
@@ -127,6 +135,7 @@ test("makahDemoFederalManifest() hosts, uses and review metadata are consistent"
 });
 
 test("initializePolicyRun accepts the Makah demo manifest without network", async (t) => {
+  t.mock.method(Date, "now", () => HISTORICAL_REVIEW_TIME);
   const root = await externalFixture(t);
   const manifest = makahDemoFederalManifest();
   try {
@@ -142,6 +151,45 @@ test("initializePolicyRun accepts the Makah demo manifest without network", asyn
       );
     }
     throw error;
+  }
+});
+
+test("Makah source profiles admit only their historical review intervals", async (t) => {
+  const manifest = makahDemoFederalManifest();
+  for (const profile of manifest.profiles) {
+    const reviewedAt = Date.parse(profile.review.reviewedAt);
+    const expiresAt = Date.parse(profile.review.expiresAt);
+    for (const [label, now, accepted] of [
+      ["before review", reviewedAt - 1, false],
+      ["at review", reviewedAt, true],
+      ["just before expiry", expiresAt - 1, true],
+      ["at expiry", expiresAt, false],
+      ["after expiry", expiresAt + 1, false],
+    ]) {
+      await t.test(`${profile.id}: ${label}`, async (context) => {
+        const root = await externalFixture(context);
+        context.mock.method(Date, "now", () => now);
+        const profileManifest = {
+          ...manifest,
+          profiles: [profile],
+          targets: manifest.targets.filter(
+            (target) => target.profileId === profile.id,
+          ),
+        };
+        if (accepted) {
+          assert.equal(
+            (await initializePolicyRun(root, profileManifest)).runId,
+            manifest.runId,
+          );
+        } else {
+          await assert.rejects(
+            initializePolicyRun(root, profileManifest),
+            /EXPIRED_PROFILE/,
+          );
+          await assert.rejects(lstat(root), { code: "ENOENT" });
+        }
+      });
+    }
   }
 });
 
@@ -162,7 +210,14 @@ test("prepare-policy-run.mjs initializes the Makah demo manifest via --manifest"
   const script = resolve("scripts/prepare-policy-run.mjs");
   const result = spawnSync(
     process.execPath,
-    [script, "--manifest", "makah-demo-02", "--root", root],
+    [
+      ...(await historicalCliArguments(root)),
+      script,
+      "--manifest",
+      "makah-demo-02",
+      "--root",
+      root,
+    ],
     { encoding: "utf8", windowsHide: true, timeout: 15000 },
   );
   if (result.status !== 0 && /UNSUPPORTED_MEDIA/.test(result.stderr)) {
@@ -173,6 +228,47 @@ test("prepare-policy-run.mjs initializes the Makah demo manifest via --manifest"
   }
   assert.equal(result.status, 0, result.stderr);
   assert.equal(JSON.parse(result.stdout).runId, "makah-demo-02");
+});
+
+test("prepare-policy-run.mjs refuses before-review, exact-expiry and ended profiles", async (t) => {
+  const manifest = makahDemoFederalManifest();
+  const reviewStart = Math.max(
+    ...manifest.profiles.map((profile) =>
+      Date.parse(profile.review.reviewedAt),
+    ),
+  );
+  const expiry = Math.min(
+    ...manifest.profiles.map((profile) => Date.parse(profile.review.expiresAt)),
+  );
+  for (const [label, now] of [
+    ["before review", reviewStart - 1],
+    ["at expiry", expiry],
+    ["after expiry", expiry + 1],
+    ["current clock", null],
+  ]) {
+    await t.test(label, async (context) => {
+      const root = await externalFixture(context);
+      // A parent clock mock cannot grant a child CLI historical authorization.
+      context.mock.method(Date, "now", () => HISTORICAL_REVIEW_TIME);
+      const result = spawnSync(
+        process.execPath,
+        [
+          ...(now === null ? [] : await historicalCliArguments(root, now)),
+          resolve("scripts/prepare-policy-run.mjs"),
+          "--manifest",
+          "makah-demo-02",
+          "--root",
+          root,
+        ],
+        { encoding: "utf8", windowsHide: true, timeout: 15000 },
+      );
+      assert.equal(result.error, undefined);
+      assert.equal(result.signal, null);
+      assert.notEqual(result.status, 0);
+      assert.match(result.stderr, /EXPIRED_PROFILE/);
+      await assert.rejects(lstat(root), { code: "ENOENT" });
+    });
+  }
 });
 
 test("prepare-policy-run.mjs requires an explicit external root", () => {

@@ -8,7 +8,7 @@
 // this file, and no external custody namespace is read or written.
 import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { lstat, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -28,6 +28,7 @@ import {
   canonicalV2Digest,
   createAnalyzedCorpusV2,
   serializeAnalyzedCorpusV2,
+  serializeSupportedAnalyzedCorpus,
 } from "../../src/pipeline/analyzed-corpus-v2.mjs";
 import {
   localCorpusBytes,
@@ -35,7 +36,27 @@ import {
   replayReviewedCorpus,
   writeLocalOutput,
 } from "../../src/pipeline/policy-local-output.mjs";
+import { replayReviewedCorpus as intakeReplayReviewedCorpus } from "../../src/modules/intake/replay.mjs";
+import * as intakeBindings from "../../src/modules/intake/replay.mjs";
+import * as coreBindings from "../../src/core/local-output-bindings.mjs";
+import { createSearchProjection } from "../../src/modules/output/local-workbench/search-projection.mjs";
+import { buildPolicyResearchOutput } from "../../src/modules/output/research-html.mjs";
+
+test("intake preserves all three promoted core binding helpers", () => {
+  assert.deepEqual(Object.keys(coreBindings).sort(), [
+    "assertCaptureBindings",
+    "assertProfileBindings",
+    "safeFile",
+  ]);
+  for (const name of Object.keys(coreBindings))
+    assert.strictEqual(intakeBindings[name], coreBindings[name]);
+});
 import { syntheticCorpusV2Input } from "./analyzed-corpus-v2.test.mjs";
+import { mockPolicyFilesystem } from "../helpers/policy-filesystem-observations.mjs";
+
+test("legacy replay import is the intake entry point", () => {
+  assert.strictEqual(replayReviewedCorpus, intakeReplayReviewedCorpus);
+});
 
 function evidenceFor(
   capture,
@@ -134,7 +155,10 @@ async function completeCapture(
  * that replayReviewedCorpus/writeLocalOutput/readLocalOutput consume. */
 async function buildRunFixture(
   t,
-  { transformPortable = (portable) => portable } = {},
+  {
+    transformPortable = (portable) => portable,
+    transformInput = (input) => input,
+  } = {},
 ) {
   const base = await mkdtemp(join(tmpdir(), "policy-local-output-replay-"));
   t.after(async () => {
@@ -274,10 +298,11 @@ async function buildRunFixture(
     ],
     items: [item],
   };
-  const corpus = createPolicyCorpus(input);
+  const reviewedInput = transformInput(input);
+  const corpus = createPolicyCorpus(reviewedInput);
   const portable = transformPortable({
-    ...input,
-    items: input.items.map((current) => ({
+    ...reviewedInput,
+    items: reviewedInput.items.map((current) => ({
       ...current,
       captures: current.captures.map(({ receipt, extraction }) => ({
         operationId: receipt.operationId,
@@ -290,7 +315,7 @@ async function buildRunFixture(
     })),
   });
   const inputBytes = Buffer.from(`${JSON.stringify(portable, null, 2)}\n`);
-  const corpusBytes = Buffer.from(serializeAnalyzedCorpusV2(corpus));
+  const corpusBytes = Buffer.from(serializeSupportedAnalyzedCorpus(corpus));
   await writeFile(join(root, "review", "gold-input.json"), inputBytes);
   await writeFile(join(root, "work", "gold-corpus.json"), corpusBytes);
   const seal = {
@@ -321,6 +346,9 @@ async function buildSyntheticOnlyRoot(t) {
 }
 
 test("replayReviewedCorpus, writeLocalOutput, readLocalOutput and localCorpusBytes reproduce a reviewed run built with initializePolicyRun and admitPolicyTargets", async (t) => {
+  mockPolicyFilesystem(t, {
+    availableBytes: POLICY_LIMITS.freeBytes + POLICY_LIMITS.runBytes,
+  });
   const fixture = await buildRunFixture(t);
   const replay = await replayReviewedCorpus(fixture.root, { name: "gold" });
   assert.equal(replay.custody.valid, true);
@@ -380,6 +408,147 @@ test("replayReviewedCorpus, writeLocalOutput, readLocalOutput and localCorpusByt
       { name: "gold" },
     ),
     /OUTPUT_ASSET_CONFLICT/,
+  );
+});
+
+test("reviewed 2.1 input replays, projects, exports and serves exact jurisdiction proof without a 2.0 downgrade", async (t) => {
+  mockPolicyFilesystem(t, {
+    availableBytes: POLICY_LIMITS.freeBytes + POLICY_LIMITS.runBytes,
+  });
+  const fixture = await buildRunFixture(t, {
+    transformInput(input) {
+      const original = createPolicyCorpus(input);
+      const version = original.versions[0];
+      const segment = original.segments.find((entry) => {
+        const rendition = original.renditions.find(
+          (row) => row.id === entry.renditionId,
+        );
+        return Buffer.from(rendition.text)
+          .subarray(entry.startByte, entry.endByte)
+          .toString("utf8")
+          .includes("Washington State Legislature");
+      });
+      const rendition = original.renditions.find(
+        (row) => row.id === segment.renditionId,
+      );
+      const capture = original.captures.find(
+        (row) => row.id === rendition.captureId,
+      );
+      const association = {
+        jurisdictionRef: "us-state:WA",
+        basis: "issuing_authority",
+        evidence: {
+          url: capture.finalUrl,
+          locator: segment.locator.value,
+          exactSubject: {
+            recordRef: original.works[0].id,
+            ref: "us-state:WA",
+            text: "Washington State Legislature",
+          },
+        },
+        reviewState: "reviewed",
+        versionId: version.id,
+        segmentIds: [segment.id],
+        reviewer: {
+          name: "Authored item reviewer",
+          kind: "human",
+          reviewedAt: "2026-09-02T00:00:00Z",
+        },
+      };
+      return {
+        ...input,
+        schemaVersion: "2.1.0",
+        items: input.items.map((item) => ({
+          ...item,
+          work: { ...item.work, jurisdictionRefs: [association] },
+        })),
+      };
+    },
+  });
+  const replay = await replayReviewedCorpus(fixture.root);
+  assert.equal(replay.input.schemaVersion, "2.1.0");
+  assert.equal(replay.corpus.schemaVersion, "2.1.0");
+  assert.deepEqual(replay.corpus, fixture.corpus);
+  const association = fixture.corpus.works[0].jurisdictionRefs[0];
+  const research = buildPolicyResearchOutput(replay.corpus);
+  const exported = JSON.parse(research.get("research.json"));
+  assert.equal(
+    canonicalV2Digest(exported.jurisdictionAssociations),
+    canonicalV2Digest([
+      {
+        workId: fixture.corpus.works[0].id,
+        sourceIdentifier: fixture.corpus.works[0].sourceIdentifier,
+        governmentContext: "Washington",
+        ...association,
+      },
+    ]),
+  );
+  assert.ok(
+    exported.evidence.some(
+      (entry) => entry.segmentId === association.segmentIds[0],
+    ),
+  );
+  assert.match(
+    research.get("dossier.html"),
+    /Declared jurisdiction associations/u,
+  );
+  assert.match(research.get("dossier.html"), /Washington State Legislature/u);
+  assert.match(research.get("dossier.html"), /reviewed/u);
+  const assets = new Map([
+    ["index.html", Buffer.from("<main>Reviewed successor fixture</main>")],
+  ]);
+  await writeLocalOutput(fixture.root, replay.corpus, assets, {
+    selection: { sourceProfileIds: ["profile-a"] },
+  });
+  const delivered = await readLocalOutput(fixture.root);
+  const projected = JSON.parse(
+    delivered.files.get("corpus.json").toString("utf8"),
+  );
+  assert.equal(projected.schemaVersion, "2.1.0");
+  assert.equal(
+    canonicalV2Digest(projected.works[0].jurisdictionRefs),
+    canonicalV2Digest(fixture.corpus.works[0].jurisdictionRefs),
+  );
+  assert.equal(
+    canonicalV2Digest(projected.segments),
+    canonicalV2Digest(fixture.corpus.segments),
+  );
+  const downgraded = JSON.parse(JSON.stringify(fixture.portable));
+  downgraded.schemaVersion = "2.0.0";
+  for (const item of downgraded.items) delete item.work.jurisdictionRefs;
+  const inputBytes = Buffer.from(`${JSON.stringify(downgraded, null, 2)}\n`);
+  await writeFile(join(fixture.root, "review/gold-input.json"), inputBytes);
+  const sealPath = join(fixture.root, "review/gold-seal.json");
+  const seal = JSON.parse(await readFile(sealPath, "utf8"));
+  await writeFile(
+    sealPath,
+    JSON.stringify({ ...seal, inputDigest: digest(inputBytes) }),
+  );
+  await assert.rejects(
+    replayReviewedCorpus(fixture.root),
+    /CORPUS_REPLAY_MISMATCH/u,
+  );
+});
+
+test("writeLocalOutput refuses low capacity before creating output or its pointer", async (t) => {
+  const fixture = await buildRunFixture(t);
+  const replay = await replayReviewedCorpus(fixture.root, { name: "gold" });
+  mockPolicyFilesystem(t, { availableBytes: POLICY_LIMITS.freeBytes });
+  await assert.rejects(
+    writeLocalOutput(
+      fixture.root,
+      replay.corpus,
+      new Map([["index.html", Buffer.from("<main>Synthetic output</main>")]]),
+      { name: "gold" },
+    ),
+    /DISK_BUDGET_EXHAUSTED/,
+  );
+  await assert.rejects(lstat(join(fixture.root, "local-output")), {
+    code: "ENOENT",
+  });
+  await assert.rejects(
+    lstat(join(fixture.root, "review", "local-output-current.json")),
+    { code: "ENOENT" },
   );
 });
 
@@ -502,6 +671,9 @@ test("writeLocalOutput fails closed on a tampered review seal", async (t) => {
 });
 
 test("readLocalOutput fails closed on a non-real-source-local run, a tampered pointer, manifest digest and served file bytes", async (t) => {
+  mockPolicyFilesystem(t, {
+    availableBytes: POLICY_LIMITS.freeBytes + POLICY_LIMITS.runBytes,
+  });
   const synthetic = await buildSyntheticOnlyRoot(t);
   await assert.rejects(readLocalOutput(synthetic), /REAL_LOCAL_RUN_REQUIRED/);
 
@@ -621,5 +793,141 @@ test("localCorpusBytes enforces the real_source_local trust domain and the full 
   assert.throws(
     () => localCorpusBytes(restricted),
     /FULL_LOCAL_DISPLAY_EXPORT_POLICY_REQUIRED/,
+  );
+});
+
+test("bounded output derives from the sealed parent and pins its replayable selection", async (t) => {
+  mockPolicyFilesystem(t, {
+    availableBytes: POLICY_LIMITS.freeBytes + POLICY_LIMITS.runBytes,
+  });
+  const fixture = await buildRunFixture(t);
+  const assets = new Map([
+    ["index.html", Buffer.from("<main>Authored bounded output</main>")],
+  ]);
+  const selection = {
+    sourceProfileIds: ["profile-a"],
+    from: "2020-01-01",
+    through: "2020-01-01",
+  };
+  const expected = createSearchProjection(fixture.corpus, selection);
+  const written = await writeLocalOutput(fixture.root, fixture.corpus, assets, {
+    selection,
+  });
+  const output = await readLocalOutput(fixture.root);
+  assert.equal(written.files, 4);
+  assert.deepEqual(output.files.get("corpus.json"), expected.bytes);
+  const projection = JSON.parse(output.files.get("search-projection.json"));
+  assert.deepEqual(projection, JSON.parse(JSON.stringify(expected.manifest)));
+  const profile = JSON.parse(output.files.get("local-profile.json"));
+  assert.deepEqual(profile.searchProjection, output.manifest.searchProjection);
+  assert.equal(
+    profile.searchProjection.fileDigest,
+    digest(output.files.get("search-projection.json")),
+  );
+  assert.equal(
+    profile.searchProjection.parentCorpusDigest,
+    fixture.corpus.contentDigest,
+  );
+  const oldPointer = await readFile(
+    join(fixture.root, "review", "local-output-current.json"),
+  );
+  await assert.rejects(
+    writeLocalOutput(fixture.root, fixture.corpus, assets, {
+      selection: { sourceProfileIds: ["profile-a"], from: "2030-01-01" },
+    }),
+    /EMPTY_SELECTED_POPULATION/,
+  );
+  await assert.rejects(
+    writeLocalOutput(fixture.root, fixture.corpus, assets, {
+      selection: { sourceProfileIds: [] },
+    }),
+    /UNKNOWN_SOURCE_SELECTION/,
+  );
+  assert.deepEqual(
+    await readFile(join(fixture.root, "review", "local-output-current.json")),
+    oldPointer,
+  );
+  await assert.rejects(
+    writeLocalOutput(
+      fixture.root,
+      fixture.corpus,
+      new Map([...assets, ["search-projection.json", Buffer.from("{}")]]),
+      { selection },
+    ),
+    /OUTPUT_ASSET_CONFLICT/,
+  );
+});
+
+test("bounded output replays reviewed source objects at write and read admission", async (t) => {
+  mockPolicyFilesystem(t, {
+    availableBytes: POLICY_LIMITS.freeBytes + POLICY_LIMITS.runBytes,
+  });
+  const fixture = await buildRunFixture(t);
+  const assets = new Map([
+    ["index.html", Buffer.from("<main>Authored bounded output</main>")],
+  ]);
+  const selection = { sourceProfileIds: ["profile-a"] };
+  await writeLocalOutput(fixture.root, fixture.corpus, assets, { selection });
+  await writeFile(
+    join(fixture.root, fixture.capture.receipt.objectPath),
+    "changed originating bytes",
+  );
+  await assert.rejects(
+    writeLocalOutput(fixture.root, fixture.corpus, assets, { selection }),
+  );
+  await assert.rejects(readLocalOutput(fixture.root));
+});
+
+test("rehashed bounded output metadata cannot forge searched coverage past parent replay", async (t) => {
+  mockPolicyFilesystem(t, {
+    availableBytes: POLICY_LIMITS.freeBytes + POLICY_LIMITS.runBytes,
+  });
+  const fixture = await buildRunFixture(t);
+  const written = await writeLocalOutput(
+    fixture.root,
+    fixture.corpus,
+    new Map([
+      ["index.html", Buffer.from("<main>Authored bounded output</main>")],
+    ]),
+    { selection: { sourceProfileIds: ["profile-a"] } },
+  );
+  const output = await readLocalOutput(fixture.root);
+  const base = join(fixture.root, "local-output", written.buildId);
+  const projection = JSON.parse(output.files.get("search-projection.json"));
+  projection.coverage[0].searched = false;
+  const { contentDigest: _oldDigest, ...projectionBody } = projection;
+  void _oldDigest;
+  projection.contentDigest = canonicalV2Digest(projectionBody);
+  const projectionBytes = Buffer.from(
+    `${JSON.stringify(projection, null, 2)}\n`,
+  );
+  const profile = JSON.parse(output.files.get("local-profile.json"));
+  profile.searchProjection.fileDigest = digest(projectionBytes);
+  profile.searchProjection.bytes = projectionBytes.length;
+  const profileBytes = Buffer.from(`${JSON.stringify(profile, null, 2)}\n`);
+  const manifest = output.manifest;
+  manifest.searchProjection = profile.searchProjection;
+  for (const [path, bytes] of [
+    ["search-projection.json", projectionBytes],
+    ["local-profile.json", profileBytes],
+  ]) {
+    const entry = manifest.files.find((row) => row.path === path);
+    entry.digest = digest(bytes);
+    entry.bytes = bytes.length;
+    await writeFile(join(base, path), bytes);
+  }
+  const manifestBytes = Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`);
+  await writeFile(join(base, "output-manifest.json"), manifestBytes);
+  await writeFile(
+    join(fixture.root, "review", "local-output-current.json"),
+    JSON.stringify({
+      version: "1.0.0",
+      buildId: written.buildId,
+      manifestDigest: digest(manifestBytes),
+    }),
+  );
+  await assert.rejects(
+    readLocalOutput(fixture.root),
+    /PROJECTION_REPLAY_MISMATCH/,
   );
 });

@@ -3,6 +3,9 @@ import { resolve } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { assertSourceRegistrySemantics } from "../src/pipeline/source-registry.mjs";
+import { parseDevelopmentAuthority } from "../src/core/development-authority.mjs";
+import { migratePublicRecordV2 } from "../src/core/public-contract-v2.mjs";
+import { validateRecordSetPolicy as validateSuccessorRecordSetPolicy } from "../src/pipeline/policy-validation.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const readJson = async (path) =>
@@ -13,6 +16,11 @@ const taxonomyBundleSchema = await readJson(
   "schemas/taxonomy-bundle.schema.v1.json",
 );
 const recordSchema = await readJson("schemas/record.schema.v1.json");
+const successorRecordSchema = await readJson("schemas/record.schema.v2.json");
+const artifactSchema = await readJson("schemas/artifact.schema.v1.json");
+const successorArtifactSchema = await readJson("schemas/artifact.schema.v2.json");
+const successorSourceSchema = await readJson("schemas/source.schema.v2.json");
+const developmentAuthoritySchema = await readJson("schemas/development-authority.schema.v1.json");
 const sourceSchema = await readJson("schemas/source.schema.v1.json");
 const assertionSchema = await readJson("schemas/assertion.schema.v1.json");
 const lifecycleSchema = await readJson("schemas/lifecycle.schema.v1.json");
@@ -63,6 +71,11 @@ for (const [name, schema] of [
   ["taxonomy schema", taxonomySchema],
   ["taxonomy bundle schema", taxonomyBundleSchema],
   ["record schema", recordSchema],
+  ["public successor record schema", successorRecordSchema],
+  ["artifact schema", artifactSchema],
+  ["public successor artifact schema", successorArtifactSchema],
+  ["public successor source schema", successorSourceSchema],
+  ["development authority preparation schema", developmentAuthoritySchema],
   ["source schema", sourceSchema],
   ["assertion schema", assertionSchema],
   ["lifecycle schema", lifecycleSchema],
@@ -91,6 +104,22 @@ for (const [name, schema] of [
 }
 
 ajv.addSchema(recordSchema);
+ajv.addSchema(sourceSchema);
+ajv.addSchema(artifactSchema);
+ajv.addSchema(successorRecordSchema);
+const validateSuccessorRecord = ajv.getSchema(successorRecordSchema.$id);
+const validateSuccessorSource = ajv.compile(successorSourceSchema);
+ajv.compile(successorArtifactSchema);
+ajv.compile(developmentAuthoritySchema);
+for (const preparationPath of [
+  "fixtures/development/authority.synthetic.valid.json",
+  "docs/development/gd31-operation-packets.v1.json",
+]) {
+  // Fixed fixture clock; blocked real preparation rows assert no current review.
+  parseDevelopmentAuthority(await readFile(resolve(root, preparationPath), "utf8"), {
+    now: "2026-10-07T00:00:00Z",
+  });
+}
 const validateAnalyzedCorpus = ajv.compile(analyzedCorpusSchema);
 ajv.compile(analyzedCorpusV2Schema);
 if (typeof validateAnalyzedCorpus !== "function") {
@@ -735,6 +764,19 @@ if (!validateSources(sourceRegistry)) {
 }
 assertSourceRegistrySemantics(sourceRegistry);
 
+const sourceValidators = new Map([
+  ["1.3.0", validateSources],
+  ["2.0.0", validateSuccessorSource],
+]);
+const validateSourceFixture = (registry, name) => {
+  const validate = sourceValidators.get(registry.schemaVersion);
+  if (validate === undefined) throw new Error(`${name}: unsupported source registry schema version`);
+  if (!validate(registry)) throw new Error(`${name} is invalid:\n${ajv.errorsText(validate.errors, { separator: "\n" })}`);
+  assertSourceRegistrySemantics(registry);
+};
+const successorSourceFixture = await readJson("fixtures/sources/nationwide-successor.valid.json");
+validateSourceFixture(successorSourceFixture, "nationwide successor source fixture");
+
 const categoryIds = new Set();
 const subcategoryIds = new Map();
 for (const category of taxonomy.categories) {
@@ -866,12 +908,22 @@ const validateRecordPolicy = (record, name) => {
   }
 };
 
+const recordValidators = new Map([
+  ["1.4.0", validateRecord],
+  ["2.0.0", validateSuccessorRecord],
+]);
+const recordValidatorFor = (record, name) => {
+  const validate = recordValidators.get(record.schemaVersion);
+  if (typeof validate !== "function") throw new Error(`${name}: unsupported record schema version`);
+  return validate;
+};
 const fixtures = [];
 for (const name of fixtureNames) {
   const record = await readJson(`fixtures/records/${name}`);
-  if (!validateRecord(record)) {
+  const validateFixture = recordValidatorFor(record, name);
+  if (!validateFixture(record)) {
     throw new Error(
-      `${name} is invalid:\n${ajv.errorsText(validateRecord.errors, {
+      `${name} is invalid:\n${ajv.errorsText(validateFixture.errors, {
         separator: "\n",
       })}`,
     );
@@ -880,7 +932,35 @@ for (const name of fixtureNames) {
   fixtures.push(record);
 }
 
+const successorFixtures = fixtures.filter((record) => record.schemaVersion === "2.0.0");
+if (successorFixtures.length === 0) throw new Error("a public successor record fixture is required");
+validateSuccessorRecordSetPolicy(successorFixtures, {sourceRegistry: successorSourceFixture, taxonomy});
+
 let negativePolicyChecks = 0;
+for (const [label, reject] of [
+  ["unknown record version", () => recordValidatorFor({schemaVersion:"9.0.0"}, "negative unknown version")],
+  ["unknown source version", () => validateSourceFixture({...successorSourceFixture,schemaVersion:"9.0.0"}, "negative unknown version")],
+]) {
+  let rejected = false;
+  try { reject(); } catch (error) {
+    if (!error.message.includes("unsupported")) throw error;
+    rejected = true;
+  }
+  if (!rejected) throw new Error(`negative policy test failed: ${label} was accepted`);
+  negativePolicyChecks += 1;
+}
+const invalidMigration = await readJson("fixtures/records/nationwide-migration.invalid.json");
+if (!validateRecord(invalidMigration.legacyRecord)) throw new Error("negative migration fixture must start from a valid legacy record");
+let migrationRejected = false;
+try {
+  migratePublicRecordV2(JSON.stringify(invalidMigration.legacyRecord), JSON.stringify(invalidMigration.jurisdiction));
+} catch (error) {
+  if (!(error instanceof TypeError)) throw error;
+  migrationRejected = true;
+}
+if (!migrationRejected) throw new Error("negative policy test failed: malformed jurisdiction migration was accepted");
+negativePolicyChecks += 1;
+
 
 const generalFixture = structuredClone(
   fixtures.find((record) => record.jurisdiction.level === "federal"),
@@ -978,7 +1058,7 @@ if (!historicalPolicyRejected) {
 negativePolicyChecks += 1;
 
 console.log(
-  `Foundation validation passed: 19 schemas, ${taxonomy.categories.length} categories, ` +
+  `Foundation validation passed: 24 schemas, ${taxonomy.categories.length} categories, ` +
     `${taxonomy.categories.reduce((count, category) => count + category.subcategories.length, 0)} subcategories, ` +
     `${fixtureNames.length} valid fixtures, ${negativePolicyChecks} negative policy checks, ` +
     `${s0ValidFixtureChecks} valid plus ${s0InvalidFixtureChecks} invalid S0 fixture checks, ` +

@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/attributed-study-graph.schema.v1.json",
+  "title": "Attributed study graph 1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "kind",
+    "audience",
+    "studyId",
+    "studyDigest",
+    "corpusDigest",
+    "generatedAt",
+    "actors",
+    "nodes",
+    "edges"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://policy-sentinel.invalid/schemas/attributed-study-graph.schema.v1.json"
+    },
+    "schemaVersion": { "const": "1.0.0" },
+    "kind": { "const": "attributed_study_graph" },
+    "audience": { "enum": ["local", "public"] },
+    "studyId": { "type": ["string", "null"] },
+    "studyDigest": { "$ref": "#/$defs/digest" },
+    "corpusDigest": { "$ref": "#/$defs/digest" },
+    "generatedAt": { "type": ["string", "null"], "format": "date-time" },
+    "actors": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": { "$ref": "research-study.schema.v1.json#/$defs/actor" }
+    },
+    "nodes": {
+      "type": "array",
+      "maxItems": 200000,
+      "items": { "$ref": "#/$defs/node" }
+    },
+    "edges": {
+      "type": "array",
+      "maxItems": 400000,
+      "items": { "$ref": "#/$defs/edge" }
+    }
+  },
+  "$defs": {
+    "digest": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" },
+    "ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "Study",
+            "Question",
+            "SourceDocument",
+            "Assertion",
+            "ConsultationEvent",
+            "Gap"
+          ]
+        },
+        "id": { "type": "string", "minLength": 1, "maxLength": 192 }
+      }
+    },
+    "review": { "enum": ["unreviewed", "accepted", "challenged", "rejected"] },
+    "provenance": {
+      "enum": [
+        "source_content",
+        "extracted_evidence",
+        "model_interpretation",
+        "analyst_authored"
+      ]
+    },
+    "sensitivity": { "enum": ["public", "restricted"] },
+    "citations": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": { "$ref": "research-study.schema.v1.json#/$defs/citation" }
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "label",
+        "actorId",
+        "createdAt",
+        "provenance",
+        "reviewState",
+        "sensitivity",
+        "citations"
+      ],
+      "properties": {
+        "ref": { "$ref": "#/$defs/ref" },
+        "label": { "type": "string", "maxLength": 16000 },
+        "actorId": { "type": ["string", "null"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "provenance": { "$ref": "#/$defs/provenance" },
+        "reviewState": { "$ref": "#/$defs/review" },
+        "sensitivity": { "$ref": "#/$defs/sensitivity" },
+        "citations": { "$ref": "#/$defs/citations" }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "from",
+        "to",
+        "actorId",
+        "createdAt",
+        "reviewState",
+        "provenance",
+        "sensitivity",
+        "citations"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 2048 },
+        "type": {
+          "enum": ["supportedBy", "challengedBy", "respondsTo", "supersededBy"]
+        },
+        "from": { "$ref": "#/$defs/ref" },
+        "to": { "$ref": "#/$defs/ref" },
+        "actorId": { "type": "string", "minLength": 1 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "reviewState": { "$ref": "#/$defs/review" },
+        "provenance": { "$ref": "#/$defs/provenance" },
+        "sensitivity": { "$ref": "#/$defs/sensitivity" },
+        "citations": { "$ref": "#/$defs/citations" }
+      }
+    }
+  }
+}

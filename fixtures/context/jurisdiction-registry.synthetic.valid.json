@@ -1,0 +1,79 @@
+{
+  "$schema": "https://policy-sentinel.invalid/schemas/jurisdiction-ref.schema.v1.json",
+  "schemaVersion": "1.0.0",
+  "synthetic": true,
+  "reservedNamespaces": ["ca", "ca-province"],
+  "entries": [
+    {
+      "kind": "federal",
+      "ref": "us",
+      "label": "Synthetic federal reference",
+      "evidence": {
+        "url": "https://records.example.invalid/synthetic-registry",
+        "locator": " Synthetic fixture declaration "
+      }
+    },
+    {
+      "kind": "state",
+      "ref": "us-state:AL",
+      "label": "Synthetic state reference beyond WA/OR/ID",
+      "usps": "AL",
+      "fips": "01",
+      "evidence": {
+        "url": "https://records.example.invalid/synthetic-registry",
+        "locator": " Synthetic fixture declaration "
+      }
+    },
+    {
+      "kind": "county",
+      "ref": "us-county:01001",
+      "label": "Synthetic leading-zero county reference",
+      "fips": "01001",
+      "stateRef": "us-state:AL",
+      "evidence": {
+        "url": "https://records.example.invalid/synthetic-registry",
+        "locator": " Synthetic fixture declaration "
+      }
+    },
+    {
+      "kind": "nation",
+      "ref": "nation:synthetic-example",
+      "label": "Synthetic Nation reference",
+      "reviewState": "reviewed",
+      "evidence": {
+        "url": "https://records.example.invalid/synthetic-registry",
+        "locator": " Synthetic fixture declaration ",
+        "exactSubject": {
+          "recordRef": "record:synthetic-registry",
+          "ref": "nation:synthetic-example",
+          "text": "“Synthetic Nation example” — fixture text only."
+        }
+      }
+    },
+    {
+      "kind": "body",
+      "ref": "body:synthetic-review",
+      "label": "Synthetic multi-member body",
+      "evidence": {
+        "url": "https://records.example.invalid/synthetic-registry",
+        "locator": " Synthetic fixture declaration "
+      },
+      "members": [
+        {
+          "ref": "us-state:AL",
+          "evidence": {
+            "url": "https://records.example.invalid/synthetic-registry",
+            "locator": " Synthetic fixture declaration "
+          }
+        },
+        {
+          "ref": "nation:synthetic-example",
+          "evidence": {
+            "url": "https://records.example.invalid/synthetic-registry",
+            "locator": " Synthetic fixture declaration "
+          }
+        }
+      ]
+    }
+  ]
+}

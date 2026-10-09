@@ -1,0 +1,358 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/jurisdiction-ref.schema.v1.json",
+  "title": "Synthetic jurisdiction registry and association",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "synthetic",
+    "reservedNamespaces",
+    "entries"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://policy-sentinel.invalid/schemas/jurisdiction-ref.schema.v1.json"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "synthetic": {
+      "const": true
+    },
+    "reservedNamespaces": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "const": "ca"
+        },
+        {
+          "const": "ca-province"
+        }
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "entries": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/federal"
+          },
+          {
+            "$ref": "#/$defs/state"
+          },
+          {
+            "$ref": "#/$defs/county"
+          },
+          {
+            "$ref": "#/$defs/nation"
+          },
+          {
+            "$ref": "#/$defs/body"
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "activeRef": {
+      "anyOf": [
+        {
+          "const": "us"
+        },
+        {
+          "type": "string",
+          "pattern": "^us-state:[A-Z]{2}$(?![\\s\\S])"
+        },
+        {
+          "type": "string",
+          "pattern": "^us-county:[0-9]{5}$(?![\\s\\S])"
+        },
+        {
+          "type": "string",
+          "pattern": "^nation:synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$(?![\\s\\S])",
+          "maxLength": 81
+        },
+        {
+          "type": "string",
+          "pattern": "^body:[a-z0-9]+(?:-[a-z0-9]+)*$(?![\\s\\S])",
+          "maxLength": 69
+        }
+      ]
+    },
+    "reservedRef": {
+      "anyOf": [
+        {
+          "const": "ca"
+        },
+        {
+          "type": "string",
+          "pattern": "^ca-province:[A-Z]{2}$(?![\\s\\S])"
+        }
+      ]
+    },
+    "recordRef": {
+      "type": "string",
+      "pattern": "^record:synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$(?![\\s\\S])",
+      "maxLength": 128
+    },
+    "exactSubject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordRef", "ref", "text"],
+      "properties": {
+        "recordRef": {
+          "$ref": "#/$defs/recordRef"
+        },
+        "ref": {
+          "$ref": "#/$defs/activeRef"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192,
+          "pattern": "\\S"
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "locator"],
+      "properties": {
+        "url": {
+          "type": "string",
+          "maxLength": 8192,
+          "pattern": "^[hH][tT][tT][pP][sS]://(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[iI][nN][vV][aA][lL][iI][dD](?:[/?#][^\\s\\\\\\u0000-\\u0020\\u007f]*)?$(?![\\s\\S])"
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "\\S"
+        },
+        "exactSubject": {
+          "$ref": "#/$defs/exactSubject"
+        }
+      }
+    },
+    "member": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "evidence"],
+      "properties": {
+        "ref": {
+          "$ref": "#/$defs/activeRef"
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        }
+      }
+    },
+    "federal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "ref", "label", "evidence"],
+      "properties": {
+        "kind": {
+          "const": "federal"
+        },
+        "ref": {
+          "const": "us"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "\\S"
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "ref", "label", "evidence", "usps", "fips"],
+      "properties": {
+        "kind": {
+          "const": "state"
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^us-state:[A-Z]{2}$(?![\\s\\S])"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "\\S"
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "usps": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$(?![\\s\\S])"
+        },
+        "fips": {
+          "type": "string",
+          "pattern": "^[0-9]{2}$(?![\\s\\S])"
+        }
+      }
+    },
+    "county": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "ref", "label", "evidence", "fips", "stateRef"],
+      "properties": {
+        "kind": {
+          "const": "county"
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^us-county:[0-9]{5}$(?![\\s\\S])"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "\\S"
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "fips": {
+          "type": "string",
+          "pattern": "^[0-9]{5}$(?![\\s\\S])"
+        },
+        "stateRef": {
+          "type": "string",
+          "pattern": "^us-state:[A-Z]{2}$(?![\\s\\S])"
+        }
+      }
+    },
+    "nation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "ref", "label", "evidence", "reviewState"],
+      "properties": {
+        "kind": {
+          "const": "nation"
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^nation:synthetic-[a-z0-9]+(?:-[a-z0-9]+)*$(?![\\s\\S])",
+          "maxLength": 81
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "\\S"
+        },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["url", "locator", "exactSubject"],
+          "properties": {
+            "url": {
+              "type": "string",
+              "maxLength": 8192,
+              "pattern": "^[hH][tT][tT][pP][sS]://(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[iI][nN][vV][aA][lL][iI][dD](?:[/?#][^\\s\\\\\\u0000-\\u0020\\u007f]*)?$(?![\\s\\S])"
+            },
+            "locator": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024,
+              "pattern": "\\S"
+            },
+            "exactSubject": {
+              "$ref": "#/$defs/exactSubject"
+            }
+          }
+        },
+        "reviewState": {
+          "const": "reviewed"
+        }
+      }
+    },
+    "body": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "ref", "label", "evidence", "members"],
+      "properties": {
+        "kind": {
+          "const": "body"
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^body:[a-z0-9]+(?:-[a-z0-9]+)*$(?![\\s\\S])",
+          "maxLength": 69
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "\\S"
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "members": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "$ref": "#/$defs/member"
+          }
+        }
+      }
+    },
+    "association": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$schema",
+        "schemaVersion",
+        "synthetic",
+        "recordRef",
+        "jurisdictionRef",
+        "basis",
+        "evidence",
+        "reviewState"
+      ],
+      "properties": {
+        "$schema": {
+          "const": "https://policy-sentinel.invalid/schemas/jurisdiction-ref.schema.v1.json"
+        },
+        "schemaVersion": {
+          "const": "1.0.0"
+        },
+        "synthetic": {
+          "const": true
+        },
+        "recordRef": {
+          "$ref": "#/$defs/recordRef"
+        },
+        "jurisdictionRef": {
+          "$ref": "#/$defs/activeRef"
+        },
+        "basis": {
+          "enum": ["issuing_authority", "source_stated_scope"]
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "reviewState": {
+          "enum": ["unreviewed", "reviewed", "rejected"]
+        }
+      }
+    }
+  }
+}

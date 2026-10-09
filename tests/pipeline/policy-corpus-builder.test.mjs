@@ -305,6 +305,74 @@ test("reviewed builder closes source-byte replay, exact evidence, explicit works
   );
 });
 
+test("reviewed builder persists an explicit 2.1 selection and exact same-work jurisdiction evidence", () => {
+  const input = fixture();
+  const legacy = createPolicyCorpus(input);
+  const version = legacy.versions.find((row) => row.id === "version-original");
+  const work = legacy.works.find((row) => row.id === version.workId);
+  const statement = work.issuerRoles[0].label;
+  const segment = legacy.segments.find((row) => {
+    const rendition = legacy.renditions.find(
+      (candidate) => candidate.id === row.renditionId,
+    );
+    return (
+      rendition.versionId === version.id &&
+      Buffer.from(rendition.text)
+        .subarray(row.startByte, row.endByte)
+        .toString("utf8")
+        .includes(statement)
+    );
+  });
+  const rendition = legacy.renditions.find(
+    (row) => row.id === segment.renditionId,
+  );
+  const capture = legacy.captures.find((row) => row.id === rendition.captureId);
+  const association = {
+    jurisdictionRef: "us-state:WA",
+    basis: "issuing_authority",
+    reviewState: "reviewed",
+    evidence: {
+      url: capture.finalUrl,
+      locator: segment.locator.value,
+      exactSubject: { recordRef: work.id, ref: "us-state:WA", text: statement },
+    },
+    versionId: version.id,
+    segmentIds: [segment.id],
+    reviewer: {
+      name: "Synthetic jurisdiction reviewer",
+      kind: "human",
+      reviewedAt: input.generatedAt,
+    },
+  };
+  input.schemaVersion = "2.1.0";
+  for (const item of input.items)
+    item.work.jurisdictionRefs = item.work.id === work.id ? [association] : [];
+  const corpus = createPolicyCorpus(input);
+  assert.equal(corpus.schemaVersion, "2.1.0");
+  assert.deepEqual(
+    JSON.parse(
+      JSON.stringify(
+        corpus.works.find((row) => row.id === work.id).jurisdictionRefs,
+      ),
+    ),
+    [association],
+  );
+  assert.equal(
+    policyCorpusEvidenceIndex(corpus).find(
+      (row) => row.segmentId === segment.id,
+    ).versionId,
+    version.id,
+  );
+  input.items.reverse();
+  assert.equal(createPolicyCorpus(input).contentDigest, corpus.contentDigest);
+  delete input.schemaVersion;
+  assert.throws(() => createPolicyCorpus(input), /CLOSED_BUILDER_SHAPE/);
+  assert.equal(
+    createPolicyCorpus(fixture()).contentDigest,
+    legacy.contentDigest,
+  );
+});
+
 test("builder IDs and lookup mappings bind retained operations, captures, renditions and exact source spans", () => {
   const input = fixture();
   const output = createPolicyCorpus(input);

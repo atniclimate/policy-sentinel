@@ -5,19 +5,30 @@ does not authorize work, open a gate, accept evidence, or supersede
 [`AGENTS.md`](../../AGENTS.md), [`ROADMAP.yaml`](../../ROADMAP.yaml), or a
 binding product contract.
 
-For the current 0.9 program, the exact PS09 run gate and its durable path leases
+For the historical 0.9 program, the exact PS09 run gate and its durable path leases
 bound execution. Historical B/PNW/prerelease work items are retained evidence,
-not additional live release queues. The single local release root is
-`PS09-06-LOCAL-RC`; the [Run 1 handoff](../handoffs/ps09-run-01-convergence.md)
+not additional live release queues. Schema 1.11 makes GD-27 the current local
+release root through the [GD-31 crosswalk](gd31-release-acceptance-crosswalk.md).
+The historical `PS09-06-LOCAL-RC`, [Run 1 handoff](../handoffs/ps09-run-01-convergence.md)
 and [component registry](ps09-convergence.v1.json) explain reuse and
 remaining gated work. A dependency-ready historical item cannot auto-start a
 successor tranche or reopen a consumed source operation.
 
 ## Operating rules
 
-1. Start from the live repository. Read every applicable `AGENTS.md`, read the
-   roadmap completely, and reconcile the branch, HEAD, status, worktrees,
-   remotes, relevant history, gates, and protected evidence before mutation.
+1. Start from the live repository. Read every applicable `AGENTS.md` and follow
+   the continuation prompt's scope-specific context rule. General-engine work,
+   shared extractor work, ledger graph changes, and uncertain or mixed scope
+   require the complete roadmap and full ordered context. Narrow demo work
+   requires current focus and terminal reason, the explicitly selected item's
+   complete recursive dependency, gate, decision, acceptance, evidence and
+   blocker closure, applicable instructions, `docs/DEMO-STATUS.md` and the
+   selected handoff. Missing references or inconsistent authority take the full
+   route; completed or unselected records cannot start work. Run full-ledger
+   validators before repository edits. Reconcile the branch, HEAD, status,
+   worktrees, remotes, relevant history, gates, and protected evidence before
+   mutation, using the selected plan and matching surface handoff rather than
+   filename dates.
 2. Name one bounded capability or evidence question. Record its starting and
    terminal states, exact authority, allowed paths, protected paths,
    dependencies, fixtures, tests, and stop conditions.

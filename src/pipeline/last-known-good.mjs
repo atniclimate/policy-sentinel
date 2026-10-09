@@ -111,7 +111,9 @@ async function readProjectJson(relativePath) {
   );
 }
 
-async function createCanonicalValidationContext() {
+async function createCanonicalValidationContext(suppliedSourceRegistry) {
+  const successor = suppliedSourceRegistry?.schemaVersion === "2.0.0";
+  const suffix = successor ? "v2" : "v1";
   const [
     artifactSchema,
     recordSchema,
@@ -120,11 +122,13 @@ async function createCanonicalValidationContext() {
     sourceRegistry,
     taxonomy,
   ] = await Promise.all([
-    readProjectJson("schemas/artifact.schema.v1.json"),
-    readProjectJson("schemas/record.schema.v1.json"),
+    readProjectJson(`schemas/artifact.schema.${suffix}.json`),
+    readProjectJson(`schemas/record.schema.${suffix}.json`),
     readProjectJson("schemas/taxonomy.schema.v1.json"),
-    readProjectJson("schemas/source.schema.v1.json"),
-    readProjectJson("config/sources.v1.json"),
+    readProjectJson(`schemas/source.schema.${suffix}.json`),
+    suppliedSourceRegistry === undefined
+      ? readProjectJson("config/sources.v1.json")
+      : Promise.resolve(suppliedSourceRegistry),
     readProjectJson("config/taxonomy.v1.json"),
   ]);
   const ajv = new Ajv2020({
@@ -133,6 +137,11 @@ async function createCanonicalValidationContext() {
     strict: true,
   });
   addFormats(ajv);
+  if (successor) {
+    for (const name of ["record", "artifact", "source"])
+      ajv.addSchema(await readProjectJson(`schemas/${name}.schema.v1.json`));
+    ajv.addSchema(recordSchema);
+  }
   const validateArtifact = ajv.compile(artifactSchema);
   const validateRecord = ajv.compile(recordSchema);
   const validateTaxonomy = ajv.compile(taxonomySchema);
@@ -182,16 +191,26 @@ function validateManifest(manifest, root) {
   if (
     !isObject(manifest) ||
     manifest.artifactType !== "manifest" ||
-    manifest.schemaVersion !== ARTIFACT_DOCUMENT_SCHEMA_VERSION
+    ![ARTIFACT_DOCUMENT_SCHEMA_VERSION, "2.0.0"].includes(
+      manifest.schemaVersion,
+    )
   ) {
     throw new Error("last-known-good manifest has an invalid structure");
   }
-  if (manifest.artifactVersion !== SUPPORTED_ARTIFACT_VERSION) {
+  if (
+    manifest.artifactVersion !==
+    (manifest.schemaVersion === "2.0.0" ? "2.0.0" : SUPPORTED_ARTIFACT_VERSION)
+  ) {
     throw new Error(
       `last-known-good artifact package version is unsupported: ${String(manifest.artifactVersion)}`,
     );
   }
-  if (manifest.recordSchemaVersion !== SUPPORTED_RECORD_SCHEMA_VERSION) {
+  if (
+    manifest.recordSchemaVersion !==
+    (manifest.schemaVersion === "2.0.0"
+      ? "2.0.0"
+      : SUPPORTED_RECORD_SCHEMA_VERSION)
+  ) {
     throw new Error(
       `last-known-good record schema version is unsupported: ${String(manifest.recordSchemaVersion)}`,
     );
@@ -508,11 +527,11 @@ function parseVerifiedJson(verifiedAssets, assetPath) {
   }
 }
 
-function validateHealthDocument(healthDocument) {
+function validateHealthDocument(healthDocument, documentVersion) {
   if (
     !isObject(healthDocument) ||
     healthDocument.artifactType !== "source-health" ||
-    healthDocument.schemaVersion !== ARTIFACT_DOCUMENT_SCHEMA_VERSION ||
+    healthDocument.schemaVersion !== documentVersion ||
     !isDateTime(healthDocument.generatedAt) ||
     !Array.isArray(healthDocument.sources)
   ) {
@@ -568,11 +587,15 @@ function validateHealthDocument(healthDocument) {
   return healthDocument;
 }
 
-function validateCoverageDocument(coverageDocument, generatedAt) {
+function validateCoverageDocument(
+  coverageDocument,
+  generatedAt,
+  documentVersion,
+) {
   if (
     !isObject(coverageDocument) ||
     coverageDocument.artifactType !== "coverage" ||
-    coverageDocument.schemaVersion !== ARTIFACT_DOCUMENT_SCHEMA_VERSION ||
+    coverageDocument.schemaVersion !== documentVersion ||
     coverageDocument.generatedAt !== generatedAt ||
     !Array.isArray(coverageDocument.entries)
   ) {
@@ -603,11 +626,11 @@ function validateCoverageDocument(coverageDocument, generatedAt) {
   return entries;
 }
 
-function validateIndexDocument(indexDocument, generatedAt) {
+function validateIndexDocument(indexDocument, generatedAt, documentVersion) {
   if (
     !isObject(indexDocument) ||
     indexDocument.artifactType !== "record-index" ||
-    indexDocument.schemaVersion !== ARTIFACT_DOCUMENT_SCHEMA_VERSION ||
+    indexDocument.schemaVersion !== documentVersion ||
     indexDocument.generatedAt !== generatedAt ||
     !Array.isArray(indexDocument.records)
   ) {
@@ -616,11 +639,16 @@ function validateIndexDocument(indexDocument, generatedAt) {
   return indexDocument;
 }
 
-function validateDetailDocument(detailDocument, assetPath, generatedAt) {
+function validateDetailDocument(
+  detailDocument,
+  assetPath,
+  generatedAt,
+  documentVersion,
+) {
   if (
     !isObject(detailDocument) ||
     detailDocument.artifactType !== "record-detail" ||
-    detailDocument.schemaVersion !== ARTIFACT_DOCUMENT_SCHEMA_VERSION ||
+    detailDocument.schemaVersion !== documentVersion ||
     detailDocument.generatedAt !== generatedAt ||
     !isObject(detailDocument.record)
   ) {
@@ -629,7 +657,10 @@ function validateDetailDocument(detailDocument, assetPath, generatedAt) {
     );
   }
   const { record } = detailDocument;
-  if (record.schemaVersion !== SUPPORTED_RECORD_SCHEMA_VERSION) {
+  if (
+    record.schemaVersion !==
+    (documentVersion === "2.0.0" ? "2.0.0" : SUPPORTED_RECORD_SCHEMA_VERSION)
+  ) {
     throw new Error(
       `last-known-good detail record schema version is unsupported: ${assetPath}`,
     );
@@ -690,9 +721,11 @@ function validateArtifactContents(manifest, verifiedAssets, context) {
   const coverageEntries = validateCoverageDocument(
     parseVerifiedJson(verifiedAssets, "coverage.json"),
     manifest.generatedAt,
+    manifest.schemaVersion,
   );
   const healthDocument = validateHealthDocument(
     parseVerifiedJson(verifiedAssets, "source-health.json"),
+    manifest.schemaVersion,
   );
   if (healthDocument.generatedAt !== manifest.generatedAt) {
     throw new Error(
@@ -702,12 +735,13 @@ function validateArtifactContents(manifest, verifiedAssets, context) {
   const indexDocument = validateIndexDocument(
     parseVerifiedJson(verifiedAssets, "index/records.json"),
     manifest.generatedAt,
+    manifest.schemaVersion,
   );
   const nationDocument = parseVerifiedJson(verifiedAssets, "nations.json");
   if (
     !isObject(nationDocument) ||
     nationDocument.artifactType !== "nation-collection" ||
-    nationDocument.schemaVersion !== ARTIFACT_DOCUMENT_SCHEMA_VERSION ||
+    nationDocument.schemaVersion !== manifest.schemaVersion ||
     nationDocument.generatedAt !== manifest.generatedAt ||
     !isObject(nationDocument.baseline) ||
     nationDocument.baseline.count !== manifest.nationCount ||
@@ -743,6 +777,7 @@ function validateArtifactContents(manifest, verifiedAssets, context) {
       parseVerifiedJson(verifiedAssets, assetPath),
       assetPath,
       manifest.generatedAt,
+      manifest.schemaVersion,
     );
     assertSchemaValid(
       context.validateRecord,
@@ -939,7 +974,10 @@ function validateArtifactContents(manifest, verifiedAssets, context) {
   return { records, healthDocument };
 }
 
-export async function verifyLastKnownGoodArtifact(root) {
+export async function verifyLastKnownGoodArtifact(
+  root,
+  { sourceRegistry } = {},
+) {
   const manifestPath = safeAssetPath(root, "manifest.json");
   const manifestStat = await lstat(manifestPath);
   if (manifestStat.isSymbolicLink() || !manifestStat.isFile()) {
@@ -961,7 +999,10 @@ export async function verifyLastKnownGoodArtifact(root) {
     throw new Error("last-known-good manifest is not valid JSON");
   }
   const assets = validateManifest(manifest, root);
-  const context = await canonicalValidationContext();
+  const context =
+    sourceRegistry === undefined
+      ? await canonicalValidationContext()
+      : await createCanonicalValidationContext(sourceRegistry);
   assertSchemaValid(
     context.validateArtifact,
     manifest,
@@ -998,7 +1039,7 @@ export async function verifyLastKnownGoodArtifact(root) {
   return { manifest, verifiedAssets, records, healthDocument };
 }
 
-export async function loadLastKnownGoodSource(root, sourceId) {
+export async function loadLastKnownGoodSource(root, sourceId, options) {
   if (typeof sourceId !== "string" || !SOURCE_ID_PATTERN.test(sourceId)) {
     throw new TypeError(`invalid last-known-good source ID: ${sourceId}`);
   }
@@ -1006,7 +1047,7 @@ export async function loadLastKnownGoodSource(root, sourceId) {
     manifest,
     records: allRecords,
     healthDocument,
-  } = await verifyLastKnownGoodArtifact(root);
+  } = await verifyLastKnownGoodArtifact(root, options);
   const records = allRecords.filter((record) => record.source.id === sourceId);
   const health = healthDocument.sources.find(
     (entry) => entry.sourceId === sourceId,

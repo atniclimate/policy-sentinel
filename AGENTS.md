@@ -11,9 +11,11 @@ resumes through this file.
 Phase (2026-09-22): general development. The Makah demo track is finished and
 its material stays where it is by owner ruling. Nationwide coverage (Tribal,
 federal and state sources across the United States) is a core capability of
-the general engine. Before any implementation, read
+the general engine. Before implementation, read
 [`docs/continuation-prompt.md`](docs/continuation-prompt.md) and follow its
-read order, which covers the
+scope-specific context rule below. General-engine work, shared extractor work,
+ledger graph changes, and uncertain or mixed scope require the full read order,
+which covers the
 [general development audit](docs/audits/2026-09-22-general-dev-audit.md), the
 [module boundaries design](docs/architecture/module-boundaries.md), the
 [general development addendum](docs/architecture/general-development-addendum-2026-09-22.md),
@@ -58,8 +60,9 @@ remains unresolved and synthetic proof cannot complete all of PS09-02. The
 bounded packet is validated at [its terminal checkpoint](docs/handoffs/ps09-run-02-identity-authority-scenarios.md),
 with no active work or remaining execution grant. Run 1 remains complete.
 This approval does not authorize a later run or archived
-ready lane. `PS09-06-LOCAL-RC` is the sole local
-release root; retained B1-B10, PNW, and real-source prerelease statuses are
+ready lane. `PS09-06-LOCAL-RC` remains the frozen historical local
+release root; schema 1.11 represents GD-27 as the current general-engine root
+through the GD-31 claim crosswalk. Retained B1-B10, PNW, and real-source prerelease statuses are
 archived evidence, not parallel mandatory release graphs. Current PS09-03/04/05
 authority is limited to the adopted launch; PS09-06/07/08 and every operation
 outside that scope retain their exact owner gates. Earlier Gate A and tranche approvals
@@ -92,9 +95,11 @@ originating evidence only when that claim is made; no fixed membership count
 defines the product cohort or gates unrelated general-jurisdiction work.
 Federal recognition is not organization membership. Nationwide coverage
 (Tribal, federal and state sources across the United States) is a core
-capability of the general engine (owner direction, 2026-09-22). The current
-public record, artifact and source contracts still admit only WA, OR and ID
-state codes, and widening them is a gated contract change (decision RD-05).
+capability of the general engine (owner direction, 2026-09-22). The retained v1
+public record, artifact and source contracts admit only WA, OR and ID state
+codes. D-086/D-087/D-088 authorize the explicit public 2.0 successor and corpus
+2.1 evidence-bearing jurisdiction references; legacy defaults remain fixed.
+Contract implementation does not activate sources or establish Nation identity.
 Native Hawaiian support remains a later-compatible direction. Real public information
 is an intended first-class capability; Run 1's implemented corpus path remains
 synthetic and cannot admit or activate a real source. The current static
@@ -107,10 +112,55 @@ concurrent changes.
 
 ## Durable execution ledger
 
-- Read [`ROADMAP.yaml`](ROADMAP.yaml) completely at the start of every
-  implementation session. It is the canonical ledger for current status,
-  dependencies, evidence, blockers, and the course through finish. The
-  Markdown documents remain the binding product and acceptance contracts.
+Current owner direction D-086 is recorded in the
+[development plan revision](docs/decisions/2026-10-06-development-plan-revision.md).
+It adopts measured public acquisition within a 50 GB total managed footprint,
+expanded regional coverage including Nevada, public intertribal resolutions,
+and already-authorized ATNI local interoperability assessment. Public-only
+instances follow software/source licenses; private/shared data and ATNI
+interoperability require applicable authorization and agreements. This planning
+session dispatches no acquisition. GD-31 represents reviewed successor
+preparation contracts and blocked manifests before later dispatch under that adopted direction;
+do not repurpose historical zero-budget gates or request the same blanket
+authorization again. Source qualification and separate ungranted external
+operations retain their actual boundaries.
+
+D-087 (2026-10-07) settles local-government eligibility and the optional
+Nation selection in an authorized ATNI exchange profile, and admits official
+public Tribal-government publications to public-source discovery. Restricted
+internal Tribal material remains permission-dependent for external partners;
+its governmental or operational subject does not determine access. Annotations
+may guide explicit discovery requests but never become official evidence or
+silently transmit private research. Apply these rulings in reviewed successor
+contracts without reopening the owner's settled choices.
+
+Schema 1.11 represents the current local release root as
+`GD-27-LOCAL-RELEASE-PACKAGE` under D-086/D-087. The
+[claim crosswalk](docs/development/gd31-release-acceptance-crosswalk.md) preserves
+all unmet PS09 acceptance in GD-53; the historical PS09 objects and publication
+schedule remain frozen evidence. GD-48 prepares a candidate, while A1-A4 and
+all required outcomes precede GD-27 acceptance. Successor implementation,
+measured public acquisition and ATNI local assessment have distinct named
+gates; historical gates are unchanged. The
+[GD-31 packets](docs/development/gd31-operation-packets.md) allow no dispatch.
+No current general-engine publication or private-sharing operation is granted.
+
+- [`ROADMAP.yaml`](ROADMAP.yaml) remains the canonical ledger, and the Markdown
+  documents remain the binding product and acceptance contracts. Before
+  general-engine work, shared extractor work, ledger graph changes, or work with
+  uncertain or mixed scope, read the complete roadmap and the continuation
+  prompt's full required context. For a task confined to the existing demo
+  surface, read the applicable instructions, current focus and terminal reason,
+  the explicitly selected item's full dependency and authorization-gate closure,
+  acceptance, evidence and blockers, the relevant decision rows, and
+  `docs/DEMO-STATUS.md` plus the explicitly selected handoff. Resolve that closure
+  from the full YAML by item ID, recursively following every dependency and
+  reading every referenced gate and decision. A completed or unselected demo
+  record does not supply a new active task. Run the existing full-ledger
+  validators before repository edits. If this scoped read reveals inconsistent
+  authority, dependencies or current state, missing references or uncertain
+  closure, complete the full read before implementation. Do not treat a
+  truncated summary as the dependency or evidence closure.
 - Reconcile roadmap claims with Git, tests, artifacts, browser checks, and
   current primary-source evidence. A checkbox, scaffold, or agent report is not
   completion evidence.
@@ -196,11 +246,15 @@ concurrent changes.
 - A public Nation relationship requires exact evidence in an official source
   plus its URL. Never infer it from AI, keywords, geography, sponsors,
   eligibility, territory, maps, or land.
-- A county record is eligible only when the official county record explicitly
-  names the Nation. An agenda item alone does not prove final or executed
-  status.
-- State and federal records without exact Nation evidence must be labeled
+- Under D-087, official county and municipal instruments may be discovered
+  without naming a Nation. A Nation relationship still requires exact official
+  evidence. Preserve the retained beta contract until its versioned successor
+  is implemented; an agenda item alone does not prove final or executed status.
+- State, federal and local records without exact Nation evidence must be labeled
   `general_jurisdiction`, never Nation-specific.
+- Official public Tribal-government publications are eligible public sources.
+  Private/internal access restrictions follow the record and its derivatives;
+  Tribal authorship alone does not make a record private.
 - Category mappings must be deterministic mappings from exact official subject
   or topic labels, be versioned, and retain mapping provenance. Keyword-only or
   AI classification is forbidden. Unmapped records remain `Unclassified` and

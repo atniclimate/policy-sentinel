@@ -14,6 +14,26 @@ import {
 } from "../../src/app/routing";
 
 describe("URL-backed application state", () => {
+  it.each(["__proto__", "constructor", "toString"])(
+    "round-trips the prototype-named category %s without inherited values",
+    (category) => {
+      const route = parseRoute(
+        `#/search?sub=${category}:quality,water:supply,${category}:quantity`,
+      );
+      const criteria = criteriaFromParams(route.params);
+      expect(Object.getPrototypeOf(criteria.subcategoryIds)).toBeNull();
+      expect(criteria.subcategoryIds[category]).toEqual([
+        "quality",
+        "quantity",
+      ]);
+      expect(criteria.subcategoryIds.water).toEqual(["supply"]);
+      expect(
+        criteriaFromParams(parseRoute(routeHash("/search", criteria)).params),
+      ).toEqual(criteria);
+      expect(Object.prototype).not.toHaveProperty("quality");
+    },
+  );
+
   it("round-trips criteria, selection, result window, route, and focus origin", () => {
     const criteria = {
       ...emptyCriteria(),

@@ -1,3 +1,9 @@
+import * as legacySynthetic from "../../src/pipeline/synthetic-corpus-path.mjs";
+import * as syntheticComposition from "../../scripts/synthetic-corpus-path.mjs";
+import { createAnalyzedCorpusRuntime } from "../../src/core/analyzed-corpus.mjs";
+import federalFixture from "../../fixtures/records/general-jurisdiction.valid.json" with { type: "json" };
+import countyFixture from "../../fixtures/records/county-explicit.valid.json" with { type: "json" };
+import accordFixture from "../../fixtures/records/intergovernmental-accord.valid.json" with { type: "json" };
 import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
@@ -170,4 +176,49 @@ test("all ordinary fixture titles and summaries replay through canonical pack re
     assert.equal(manifest.recordRef.recordDigest, entry.recordDigest);
     assert.equal(manifest.publication.state, "closed");
   }
+});
+
+test("synthetic facade retains exact composition identities and explicit corpus pins", () => {
+  const names = [
+    "syntheticCorpusFixtures",
+    "createSyntheticApplicationCorpus",
+    "applicationCorpusForVerification",
+    "syntheticApplicationRecords",
+    "fixtureTextForCitation",
+  ];
+  assert.deepEqual(Object.keys(legacySynthetic).sort(), names.sort());
+  for (const name of names)
+    assert.equal(legacySynthetic[name], syntheticComposition[name]);
+  const configuration = {
+    canonicalSources: sourceRegistry,
+    canonicalTaxonomy: taxonomy,
+    federalFixture,
+    countyFixture,
+    accordFixture,
+  };
+  const direct = createAnalyzedCorpusRuntime(configuration);
+  const corpus = applicationCorpusForVerification();
+  assert.equal(
+    direct.serializeAnalyzedCorpus(direct.parseAnalyzedCorpus(corpus)),
+    serializeAnalyzedCorpus(corpus),
+  );
+  const changedRegistry = createAnalyzedCorpusRuntime({
+    ...configuration,
+    canonicalSources: { ...sourceRegistry, sources: [] },
+  });
+  assert.throws(() => changedRegistry.parseAnalyzedCorpus(corpus));
+  const changedTaxonomy = createAnalyzedCorpusRuntime({
+    ...configuration,
+    canonicalTaxonomy: { ...taxonomy, taxonomyVersion: "99.0.0" },
+  });
+  assert.throws(() => changedTaxonomy.parseAnalyzedCorpus(corpus));
+  assert.deepEqual(
+    direct
+      .syntheticApplicationPins()
+      .fixtureDigests.map((entry) => entry.recordId)
+      .sort(),
+    syntheticCorpusFixtures()
+      .map((entry) => entry.internalId)
+      .sort(),
+  );
 });

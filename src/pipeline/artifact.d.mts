@@ -1,4 +1,9 @@
 import type {
+  PolicyRecordV2,
+  SourceRegistryV2,
+  NationV2,
+} from "../core/public-contract-v2.mjs";
+import type {
   ArtifactManifest,
   Nation,
   PolicyRecord,
@@ -28,10 +33,10 @@ export const ARTIFACT_MANIFEST_LIMITS_V1: Readonly<ArtifactManifestLimits>;
 export function generateSyntheticNations(): Nation[];
 
 export function createArtifactDocuments(input: {
-  records: PolicyRecord[];
-  nations: Nation[];
+  records: Array<PolicyRecord | PolicyRecordV2>;
+  nations: Array<Nation | NationV2>;
   taxonomy: TaxonomyConfig;
-  sourceRegistry: SourceRegistry;
+  sourceRegistry: SourceRegistry | SourceRegistryV2;
   generatedAt: string;
   synthetic?: boolean;
   artifactBudget?: StaticArtifactBudget;

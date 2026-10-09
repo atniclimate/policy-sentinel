@@ -11,8 +11,11 @@ what the material legally means for a Nation.
 The 0.9 definition of done is one general engine supporting a bounded,
 owner-selected PNW/ATNI-facing cohort and contrasting scenarios. Exact current
 ATNI membership is an independently evidenced claim, not the product's cohort
-definition or a universal acquisition gate. Nationwide United States and
-Native Hawaiian support are later-compatible directions. The complete binding scope and acceptance
+definition or a universal acquisition gate. Nationwide United States coverage is
+a core general-engine capability under D-071; Native Hawaiian support remains
+later-compatible. The [2026-10-06 revision](decisions/2026-10-06-development-plan-revision.md)
+records the current implementation sequence, regional acquisition focus,
+50 GB total ceiling and public/local deployment roles. The retained 0.9 scope and acceptance
 contract is [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md).
 
 This is a new, independent project. The earlier public
@@ -46,8 +49,10 @@ That bounded packet is now validated at [its checkpoint](handoffs/ps09-run-02-id
 with no remaining work under that historical grant. Run 1's synthetic corpus spine remains validated. Required real identity and
 scenario evidence is unresolved; synthetic proof does not complete PS09-02.
 PS09-03/04/05 completed the adopted general-jurisdiction slice independently;
-PS09-02 remains an explicit prerequisite of the still-gated sole local release
-root, `PS09-06-LOCAL-RC`. Other later-run and external gates retain their scope.
+PS09-02 remains an unmet historical release prerequisite. Schema 1.11 carries
+its claims into GD-53 and the current GD-27 local release root through the
+[GD-31 crosswalk](development/gd31-release-acceptance-crosswalk.md).
+Historical PS09 and other external gates retain their scope.
 B1-B10, PNW, and the exhausted 2026-09-03 real-source child lane retain
 archived evidence without imposing another release graph. Real public-source
 use is intended product capability, with source-specific admission, operation,
@@ -116,12 +121,16 @@ inferred from the retained application baseline.
   date, and health. Never imply universal or complete coverage.
 - A state or federal record that does not explicitly name a Nation may appear
   only as a clearly labeled general-jurisdiction record.
-- A county record may appear only when its official record explicitly names
-  the selected Nation. Location, territory, land, maps, and keywords are not
-  evidence.
-- Municipal and city sources are excluded from the retained static beta
-  artifact. Future bounded local materials require source-specific authority,
-  privacy, reuse, and output decisions in separately authorized runs.
+- D-087 admits official county and municipal instruments to general-engine
+  discovery as general-jurisdiction records without a Nation-name requirement.
+  Exact official evidence remains required for a Nation relationship; location,
+  territory, land, maps and keywords cannot supply it. The retained static beta
+  exclusions remain historical until successor schemas are implemented.
+- Official public Tribal-government codes, ordinances, resolutions and policies
+  are eligible public sources. Restricted internal governmental or operational
+  policies may be incorporated by authorized Tribal users; external partners
+  require permission for access and use. Public Tribal authorship alone creates
+  no private-data or per-instance authorization requirement (D-087).
 
 An official, auditable relation will control state or regional treatment.
 Neither an address nor a map point in the Tribal Leaders Directory establishes
@@ -292,6 +301,12 @@ occurred; and the owner receives one explicit Phase B approval gate.
 
 ### Single local 0.9 release candidate
 
+This subsection records the retained historical acceptance. Current 1.0 local
+acceptance is the [owner definition](decisions/2026-09-24-definition-of-done-general-development.md)
+and [GD-31 claim crosswalk](development/gd31-release-acceptance-crosswalk.md),
+represented by GD-27. Every unresolved historical claim survives in GD-53;
+the package candidate and independent demonstrations are separate work items.
+
 `PS09-06-LOCAL-RC` is complete only when the accepted scope in
 [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md) passes: the bounded
 cohort and scenarios, real-source evidence and operation gates, immutable
@@ -304,9 +319,11 @@ mandatory release roots. Run 1 does not complete this six-run target.
 
 ### Published application
 
-The public beta has one product prerequisite, the converged
+The retained public-beta contract below has the historical prerequisite
 `PS09-06-LOCAL-RC`, followed by separately authorized license, remote, hosting,
-and publication operations and public-profile review. It is done only when:
+and publication operations and public-profile review. It supplies no current
+general-engine publication authority; a successor output operation must be
+represented separately. Its retained historical acceptance is satisfied only when:
 
 1. if the retained federal-recognition collection is published, its exact
    575-identity compatibility contract and current recognition evidence pass;

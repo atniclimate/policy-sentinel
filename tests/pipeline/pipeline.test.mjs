@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -32,6 +32,7 @@ import {
   validateRecordPolicy,
   validateRecordSetPolicy,
 } from "../../src/pipeline/policy-validation.mjs";
+import { mapOfficialSubjects } from "../../src/modules/context/official-subject-mapping.mjs";
 
 const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -472,6 +473,111 @@ test("synthetic provenance covers every declared source-derived leaf", () => {
     assert.ok(
       derivedPointers.includes(requiredPointer),
       `semantic provenance walk omitted ${requiredPointer}`,
+    );
+  }
+});
+
+test("synthetic mapping provenance cites actual subjects and rules without changing unmapped bytes", () => {
+  assert.equal(
+    JSON.stringify(completeSyntheticProvenance(federalFixture, [])),
+    JSON.stringify(preparedFederal),
+  );
+  const rule = taxonomy.mappingPolicy.sourceMappings.find(
+    ({ sourceId }) => sourceId === federalFixture.source.id,
+  );
+  const secondRule = { ...rule, id: "synthetic-second-subject-rule" };
+  const configuredTaxonomy = {
+    ...taxonomy,
+    mappingPolicy: {
+      ...taxonomy.mappingPolicy,
+      sourceMappings: [rule, secondRule],
+    },
+  };
+  const source = {
+    ...sourceConfigs.get(federalFixture.source.id),
+    officialSubjectMappings: [rule.id, secondRule.id],
+  };
+  const officialSubjects = [
+    {
+      scheme: rule.officialSubjectScheme,
+      label: "Unmapped synthetic subject",
+      sourceUrl: federalFixture.urls.officialSource,
+    },
+    {
+      scheme: rule.officialSubjectScheme,
+      label: rule.officialSubjectValue,
+      sourceUrl: federalFixture.urls.officialSource,
+    },
+  ];
+  const mapped = mapOfficialSubjects(
+    configuredTaxonomy,
+    source,
+    officialSubjects,
+  );
+  const record = completeSyntheticProvenance({
+    ...federalFixture,
+    officialSubjects,
+    taxonomyMemberships: mapped.taxonomyMemberships,
+    isUnclassified: mapped.isUnclassified,
+  });
+  const completed = completeSyntheticProvenance(record, mapped.mappingEvidence);
+  for (const field of sourceDerivedLeafPointers(completed).filter((pointer) =>
+    pointer.startsWith("/taxonomyMemberships/"),
+  )) {
+    const entries = completed.fieldProvenance.filter(
+      (entry) => entry.field === field,
+    );
+    assert.equal(entries.length, 1);
+    const membershipIndex = Number(field.split("/")[2]);
+    assert.equal(entries[0].transformation, "deterministic_mapping");
+    assert.equal(
+      entries[0].transformRuleId,
+      mapped.taxonomyMemberships[membershipIndex].mappingRuleId,
+    );
+    assert.equal(entries[0].sourcePath, "$fixture/officialSubjects/1/label");
+  }
+  const flag = completed.fieldProvenance.filter(
+    ({ field }) => field === "/isUnclassified",
+  );
+  assert.deepEqual(
+    flag.map(({ transformRuleId }) => transformRuleId),
+    [rule.id, secondRule.id],
+  );
+  assert.ok(
+    flag.every(
+      ({ transformation, sourcePath }) =>
+        transformation === "deterministic_mapping" &&
+        sourcePath === "$fixture/officialSubjects/1/label",
+    ),
+  );
+  assert.deepEqual(completeSyntheticProvenance(completed), completed);
+  assert.equal(
+    record.fieldProvenance.find(({ field }) => field === "/isUnclassified")
+      .transformation,
+    "copied",
+  );
+  for (const change of [
+    (evidence) => {
+      evidence.pop();
+    },
+    (evidence) => {
+      evidence[0].mappingRuleId = "different-rule";
+    },
+    (evidence) => {
+      evidence[0].sourceId = "different-source";
+    },
+    (evidence) => {
+      evidence[0].officialSubject.label = "Not in this source";
+    },
+    (evidence) => {
+      evidence[0].mappingProvenance.validationState = "unvalidated";
+    },
+  ]) {
+    const evidence = globalThis.structuredClone(mapped.mappingEvidence);
+    change(evidence);
+    assert.throws(
+      () => completeSyntheticProvenance(record, evidence),
+      /Synthetic mapping evidence/,
     );
   }
 });
@@ -1320,6 +1426,84 @@ test("forbidden legal, inference, and sensitive land fields fail closed", () => 
         error instanceof PolicyValidationError &&
         error.issues.some((issue) => issue.includes("forbidden public field")),
     );
+  }
+});
+
+test("shared guard preserves exact record roots without exempting their descendants or variants", () => {
+  const canonicalRoots = [
+    "jurisdiction",
+    "issuingBodies",
+    "officialSubjects",
+    "taxonomyMemberships",
+    "relevance",
+    "nationAssociations",
+  ];
+  for (const key of canonicalRoots) {
+    for (const placement of ["nested", "root-variant"]) {
+      const invalid = globalThis.structuredClone(preparedFederal);
+      const field = placement === "nested" ? key : key.toUpperCase();
+      const pointer =
+        placement === "nested" ? `/jurisdiction/extra/${field}` : `/${field}`;
+      if (placement === "nested") {
+        invalid.jurisdiction.extra = { [field]: "synthetic protected value" };
+      } else {
+        invalid[field] = "synthetic protected value";
+      }
+      assert.throws(
+        () =>
+          validateRecordPolicy(invalid, {
+            sourceConfig: sourceConfigs.get(invalid.source.id),
+            taxonomy,
+          }),
+        (error) =>
+          error instanceof PolicyValidationError &&
+          error.issues.includes(`${pointer} is a forbidden public field`),
+        `${placement}: ${key}`,
+      );
+    }
+  }
+});
+
+test("record traversal rejects newly shared protected families inside permitted root objects and arrays", () => {
+  const fields = [
+    "landStatus",
+    "apn",
+    "PARCEL-NUMBER",
+    "shapefile",
+    "contact",
+    "Api_Key",
+    "token",
+    "email",
+  ];
+  const sentinel = "SYNTHETIC_PRIVATE_SENTINEL";
+  for (const container of [
+    "jurisdiction",
+    "issuingBodies",
+    "relevance",
+    "nationAssociations",
+  ]) {
+    for (const field of fields) {
+      const invalid = globalThis.structuredClone(preparedCounty);
+      const parent =
+        container === "jurisdiction"
+          ? invalid[container]
+          : invalid[container][0];
+      parent.extra = [{ [field]: sentinel }];
+      const pointer = `/${container}${container === "jurisdiction" ? "" : "/0"}/extra/0/${field}`;
+      assert.throws(
+        () =>
+          validateRecordPolicy(invalid, {
+            sourceConfig: sourceConfigs.get(invalid.source.id),
+            taxonomy,
+            knownNationIds: new Set(nations.map(({ id }) => id)),
+          }),
+        (error) =>
+          error instanceof PolicyValidationError &&
+          error.issues.includes(`${pointer} is a forbidden public field`) &&
+          !error.message.includes(sentinel),
+        `${container}: ${field}`,
+      );
+    }
   }
 });
 
@@ -2402,4 +2586,211 @@ test("artifact writer refuses recursive output outside dist", async () => {
     }),
     /isolated directory under dist/,
   );
+});
+
+test("synthetic build maps exact official subjects through corpus admission and generated artifacts", async (t) => {
+  const parent = path.join(projectRoot, "dist", "synthetic-mapping-tests");
+  await mkdir(parent, { recursive: true });
+  const workspace = await mkdtemp(path.join(parent, "workspace-"));
+  t.after(async () => {
+    assert.ok(
+      path.resolve(workspace).startsWith(`${path.resolve(parent)}${path.sep}`),
+    );
+    await rm(workspace, { recursive: true, force: true });
+  });
+  // Copy executable source without modifying retained configuration or fixture
+  // pins. Dependencies resolve from the enclosing repository's node_modules.
+  await cp(path.join(projectRoot, "src"), path.join(workspace, "src"), {
+    recursive: true,
+  });
+  await cp(path.join(projectRoot, "schemas"), path.join(workspace, "schemas"), {
+    recursive: true,
+  });
+  for (const relativePath of [
+    "scripts/build-synthetic-artifact.mjs",
+    "scripts/configured-analyzed-corpus.mjs",
+    "scripts/synthetic-corpus-path.mjs",
+    "config/taxonomy.v1.json",
+    "config/sources.v1.json",
+    "fixtures/sources/synthetic-refresh.valid.json",
+    "fixtures/records/general-jurisdiction.valid.json",
+    "fixtures/records/county-explicit.valid.json",
+    "fixtures/records/intergovernmental-accord.valid.json",
+  ]) {
+    const destination = path.join(workspace, relativePath);
+    await mkdir(path.dirname(destination), { recursive: true });
+    await cp(path.join(projectRoot, relativePath), destination);
+  }
+  const registry = globalThis.structuredClone(sourceRegistry);
+  const source = registry.sources.find(
+    ({ id }) => id === federalFixture.source.id,
+  );
+  const rule = taxonomy.mappingPolicy.sourceMappings.find(
+    ({ sourceId }) => sourceId === source.id,
+  );
+  assert.ok(rule, "reviewed synthetic mapping is required");
+  source.officialSubjectMappings = [rule.id];
+  await writeFile(
+    path.join(workspace, "config/sources.v1.json"),
+    JSON.stringify(registry),
+  );
+  const expectedMembership = {
+    categoryId: rule.targets[0].categoryId,
+    subcategoryId: rule.targets[0].subcategoryId,
+    mappingRuleId: rule.id,
+    taxonomyVersion: taxonomy.taxonomyVersion,
+    officialSubjectLabels: [rule.officialSubjectValue],
+  };
+  for (const [label, classified] of [
+    [rule.officialSubjectValue, true],
+    [`${rule.officialSubjectValue} `, false],
+  ]) {
+    const input = globalThis.structuredClone(federalFixture);
+    input.officialSubjects = [
+      {
+        scheme: rule.officialSubjectScheme,
+        label: "Unmapped synthetic official subject",
+        sourceUrl: input.urls.officialSource,
+      },
+      {
+        scheme: rule.officialSubjectScheme,
+        label,
+        sourceUrl: input.urls.officialSource,
+      },
+    ];
+    assert.deepEqual(input.taxonomyMemberships, []);
+    assert.equal(input.isUnclassified, true);
+    await writeFile(
+      path.join(workspace, "fixtures/records/general-jurisdiction.valid.json"),
+      JSON.stringify(input),
+    );
+    const output = path.join(
+      workspace,
+      "dist",
+      classified ? "matched" : "unmatched",
+    );
+    const child = spawnSync(
+      process.execPath,
+      [
+        path.join(workspace, "scripts/build-synthetic-artifact.mjs"),
+        "--out",
+        output,
+        "--generated-at",
+        "2026-10-08T12:00:00.000Z",
+      ],
+      { cwd: workspace, encoding: "utf8", windowsHide: true, timeout: 15000 },
+    );
+    assert.equal(child.status, 0, child.stderr || child.stdout);
+    const index = JSON.parse(
+      await readFile(path.join(output, "index/records.json"), "utf8"),
+    );
+    const compact = index.records.find(({ id }) => id === input.internalId);
+    const detail = JSON.parse(
+      await readFile(path.join(output, compact.detailPath), "utf8"),
+    );
+    assert.deepEqual(
+      detail.record.taxonomyMemberships,
+      classified ? [expectedMembership] : [],
+    );
+    assert.equal(detail.record.isUnclassified, !classified);
+    assert.deepEqual(
+      compact.taxonomyMemberships,
+      classified
+        ? [
+            {
+              categoryId: expectedMembership.categoryId,
+              subcategoryId: expectedMembership.subcategoryId,
+            },
+          ]
+        : [],
+    );
+    assert.equal(compact.isUnclassified, !classified);
+    assert.deepEqual(detail.record.officialSubjects, input.officialSubjects);
+    assert.deepEqual(detail.record.nationAssociations, []);
+    for (const field of [
+      "/officialSubjects/0/scheme",
+      "/officialSubjects/0/label",
+      "/officialSubjects/0/sourceUrl",
+      "/officialSubjects/1/scheme",
+      "/officialSubjects/1/label",
+      "/officialSubjects/1/sourceUrl",
+    ]) {
+      const provenance = detail.record.fieldProvenance.find(
+        (entry) => entry.field === field,
+      );
+      assert.equal(provenance?.sourceId, source.id);
+      assert.equal(provenance?.sourceUrl, input.urls.officialSource);
+      assert.equal(provenance?.retrievedAt, input.dates.retrieved);
+      assert.equal(provenance?.validationState, "validated");
+      assert.equal(provenance?.transformation, "copied");
+      assert.equal(provenance?.transformRuleId, null);
+    }
+    if (classified) {
+      for (const field of sourceDerivedLeafPointers(detail.record).filter(
+        (pointer) =>
+          pointer.startsWith("/taxonomyMemberships/") ||
+          pointer === "/isUnclassified",
+      )) {
+        const entries = detail.record.fieldProvenance.filter(
+          (entry) => entry.field === field,
+        );
+        assert.equal(entries.length, 1, field);
+        assert.equal(entries[0].transformation, "deterministic_mapping", field);
+        assert.equal(entries[0].transformRuleId, rule.id, field);
+        assert.equal(
+          entries[0].sourcePath,
+          "$fixture/officialSubjects/1/label",
+          field,
+        );
+        assert.equal(entries[0].sourceId, source.id, field);
+        assert.equal(
+          entries[0].sourceUrl,
+          input.officialSubjects[1].sourceUrl,
+          field,
+        );
+        assert.equal(entries[0].retrievedAt, input.dates.retrieved, field);
+        assert.equal(entries[0].validationState, "validated", field);
+      }
+    } else {
+      assert.deepEqual(
+        detail.record.fieldProvenance,
+        completeSyntheticProvenance(input).fieldProvenance,
+      );
+    }
+    const manifest = JSON.parse(
+      await readFile(path.join(output, "manifest.json"), "utf8"),
+    );
+    assert.equal(
+      manifest.assets.find(
+        ({ path: assetPath }) => assetPath === compact.detailPath,
+      ).sha256,
+      hashJson(detail).sha256,
+    );
+    assert.equal(
+      manifest.assets.find(
+        ({ path: assetPath }) => assetPath === "index/records.json",
+      ).sha256,
+      hashJson(index).sha256,
+    );
+    // The ordinary fixture-emission path must compose the same pinned records.
+    const verification = spawnSync(
+      process.execPath,
+      [
+        "--input-type=module",
+        "-e",
+        "import { applicationCorpusForVerification, syntheticApplicationRecords } from './scripts/synthetic-corpus-path.mjs'; console.log(JSON.stringify(syntheticApplicationRecords(applicationCorpusForVerification('2026-10-08T12:00:00Z'))));",
+      ],
+      { cwd: workspace, encoding: "utf8", windowsHide: true, timeout: 15000 },
+    );
+    assert.equal(verification.status, 0, verification.stderr);
+    const emitted = JSON.parse(verification.stdout).find(
+      (record) => record.internalId === input.internalId,
+    );
+    assert.deepEqual(
+      emitted.taxonomyMemberships,
+      detail.record.taxonomyMemberships,
+    );
+    assert.equal(emitted.isUnclassified, detail.record.isUnclassified);
+    assert.deepEqual(emitted.fieldProvenance, detail.record.fieldProvenance);
+  }
 });

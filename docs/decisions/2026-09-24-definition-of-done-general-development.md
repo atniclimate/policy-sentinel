@@ -1,8 +1,8 @@
 # Definition of done: Policy Sentinel general development (1.0 local)
 
-Status: owner-confirmed definition, 2026-09-24, to be transcribed into
-`docs/decision-register.md` as the next free D-number by the session that
-launches after it. It defines what "done" means for the general-development
+Status: owner-confirmed definition, 2026-09-24, adopted as D-081;
+implementation sequence and source acceptance refined by D-086 on 2026-10-06.
+It defines what "done" means for the general-development
 release. It is measured by demonstrations, not by gate closures; the ledger
 items are the means. It authorizes no operation by itself; each acquisition,
 gate and release step keeps its own decision.
@@ -10,6 +10,12 @@ gate and release step keeps its own decision.
 The name "1.0 local" means a versioned, self-contained local deployment. It
 is not a public release, a remote publication, or a hosted service; those
 remain separate decisions.
+
+The [GD-31 acceptance crosswalk](../development/gd31-release-acceptance-crosswalk.md)
+maps every Part B capability and A1-A4 demonstration to the current schema 1.11
+graph rooted at GD-27. GD-48 produces a package candidate; it cannot complete
+the release without the demonstrations and unresolved historical claims.
+This representation does not change the acceptance standard below.
 
 ## Part A. Demonstrations (acceptance evidence)
 
@@ -32,9 +38,9 @@ Each line maps to a ledger item; a line is satisfied by that item's
 | --- | --- | --- |
 | Module boundaries enforced; sealed 2.0 corpus replays unchanged | GD-04, GD-05, GD-06, GD-07, GD-08, GD-10 | Waves 2 and 3 |
 | Nationwide identifiers and contracts: `JurisdictionRef`, record and artifact successors, v2 jurisdiction association | GD-09, GD-11, GD-13 | GD-13 behind G-GD-NATIONWIDE-CONTRACT |
-| Source catalog with reviewed rows for federal, all 50 states, DC and the territories | GD-12, GD-17 | Survey first, catalog second |
-| Federal families fully wired: catalog rows for Federal Register, GovInfo, eCFR, Regulations.gov and Congress.gov with credential placeholders where a key is required, and live bounded custody for the keyless ones | GD-12 and a new decision after GD-17 | Credential placeholders are environment-variable references, never values (D-072) |
-| Starting state custody: at least three states (Washington and two others), each under its own source review and gate; no larger number until GD-18 reports the measured weight of a full federal plus 50-state current-text corpus and of the international instruments class | GD-18 and the same decision after GD-17 | The first general-development acquisition gate; chosen after the survey and the capacity model |
+| Source catalog with reviewed rows for federal, all 50 states, DC and the territories | GD-12, GD-17, GD-33 | Initial finite matrix before pilot catalog; complete nationwide survey before release |
+| Federal families fully wired: Federal Register, GovInfo, eCFR, Regulations.gov and Congress.gov must each exercise the required API route through bounded live retrieval, custody, offline search and citation export | GD-12 and implementation packets represented by GD-31 under D-086 | Credential references are never values; a placeholder or manual import does not complete a required API. Source-specific credential blocks remain explicit |
+| Starting state custody: at least three states (Washington and two others), each under its own current review and bounded manifest; measured expansion follows the selected region including NV and whole-state APIs within 50 GB total managed data | GD-18 and implementation packets represented by GD-31 under D-086 | Existing custody establishes the baseline; acquired batches calibrate capacity. Nationwide forecasts remain distinct from measurements and do not delay the pilot |
 | Deterministic official-label taxonomy mappings for the federal family and each activated state | GD-14 and a successor item per activated state | Keyword and AI classification stay forbidden |
 | Area resolver on the five input formats, synthetic fixtures plus one owner-supplied real file in a private deployment | GD-19 | Public-entry reachability test enforcing |
 | Designation registry v1 with the starting entries; PolicyContext v1; user-supplied source class | GD-20, GD-21, GD-23 | |
@@ -45,6 +51,23 @@ Each line maps to a ledger item; a line is satisfied by that item's
 | Storage capacity model measured and `storage:report` in place | GD-18 | |
 | Architecture and backbone documents describe the built system, with a short current-execution front door | GD-15 | Deep review improvement 6 |
 | Interop pure adapter with conformance suite | GD-16 | Behind G-GD-INTEROP; required for A4 |
+
+The [2026-10-06 development revision](2026-10-06-development-plan-revision.md)
+(D-086) refines the implementation order and acceptance evidence. It adds
+successor authority/manifest and release-crosswalk preparation (GD-31), bounded
+storage/search design (GD-32), and the complete nationwide survey (GD-33,
+split from the finite initial GD-17 matrix). Required APIs must be exercised
+through their actual API route into usable evidence. The earlier analyst pilot
+does not complete Parts A or B. GD-27's dependency list must cover these tasks
+and every existing Part B capability; release-root migration remains explicit.
+
+D-087 (2026-10-07) settles the local-government and ATNI exchange choices in
+that revision. Include official public Tribal-government publications in the
+GD-17/GD-33 survey and GD-12 catalog; reserve restricted internal input for
+GD-23's permission-aware path. GD-25 includes an explicit annotation-to-discovery
+request-to-candidate-review-to-case cycle with provenance and private-note
+exclusion. Iterative user-requested discovery does not require the continuous
+monitoring service excluded in Part C.
 
 ## Part C. Not in 1.0
 

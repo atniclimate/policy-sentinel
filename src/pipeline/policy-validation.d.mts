@@ -1,4 +1,10 @@
 import type {
+  PolicyRecordV2,
+  SourceConfigV2,
+  SourceRegistryV2,
+  NationV2,
+} from "../core/public-contract-v2.mjs";
+import type {
   Nation,
   PolicyRecord,
   SourceConfig,
@@ -10,23 +16,27 @@ export class PolicyValidationError extends Error {
   readonly issues: string[];
 }
 
-export function sourceDerivedLeafPointers(record: PolicyRecord): string[];
+export function sourceDerivedLeafPointers(
+  record: PolicyRecord | PolicyRecordV2,
+): string[];
 
-export function validateRecordPolicy(
-  record: PolicyRecord,
+export function validateRecordPolicy<T extends PolicyRecord | PolicyRecordV2>(
+  record: T,
   options: {
-    sourceConfig: SourceConfig;
+    sourceConfig: SourceConfig | SourceConfigV2;
     taxonomy: TaxonomyConfig;
-    knownNations?: ReadonlyMap<string, Nation> | null;
+    knownNations?: ReadonlyMap<string, Nation | NationV2> | null;
     knownNationIds?: ReadonlySet<string> | null;
   },
-): PolicyRecord;
+): T;
 
-export function validateRecordSetPolicy(
-  records: PolicyRecord[],
+export function validateRecordSetPolicy<
+  T extends PolicyRecord | PolicyRecordV2,
+>(
+  records: T[],
   options: {
-    sourceRegistry: SourceRegistry;
+    sourceRegistry: SourceRegistry | SourceRegistryV2;
     taxonomy: TaxonomyConfig;
-    nations?: Nation[];
+    nations?: Array<Nation | NationV2>;
   },
-): PolicyRecord[];
+): T[];

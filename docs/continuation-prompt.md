@@ -5,13 +5,147 @@ D-083/D-084. Recover [its current status](DEMO-STATUS.md) before demo work. The
 local-only historical grants below retain their own scope; they neither revoke
 that demo exception nor authorize new acquisition or general-engine publication.
 
-Updated 2026-09-22. This is the single current-state document for Policy
-Sentinel. `AGENTS.md` holds the rules; this file holds where the project is,
+General-engine implementation updated 2026-10-08 under D-086/D-087/D-088; startup routing remains
+under D-085. `AGENTS.md` holds the rules; this file holds where the engine is,
 what to read, and what a fresh session does first. Historical launch, cutoff
 and outcome documents remain preserved; their execution grants do not resume
 through this file.
 
-## Current state (2026-09-22): general development
+## Scope-specific startup context
+
+General-engine work, shared extractor work, ledger graph changes, and uncertain
+or mixed scope require the complete `ROADMAP.yaml` and the full ordered context
+below. Shared code stays on this route even when its caller is the demo. Branch
+names and the hook's five-action summary do not determine task scope.
+
+For a task confined to the existing demo surface, read applicable instructions,
+`docs/DEMO-STATUS.md`, the explicitly selected plan and matching recovery handoff,
+and the following complete closure from the full YAML:
+
+1. Current focus and terminal reason, plus the explicitly selected work item.
+2. Every dependency recursively by item ID, every referenced authorization gate
+   and decision (including D-083/D-084 for the demo exception), and the complete
+   acceptance, evidence and blocker fields for those items.
+3. The task's allowed and protected paths, validation obligations, and exact
+   current authority. A completed or unselected demo record does not supply a
+   new active task or reopen a completed grant.
+
+If references are missing, authority or current state is inconsistent, or the
+closure or scope is uncertain, complete the full read before implementation.
+Full reading does not itself resolve an authority conflict. Both routes retain
+the existing full-ledger validators before repository edits and every substantive
+source, privacy, publication and acceptance gate. This rule reduces context only
+for narrow demo work; it does not reduce validation or authorize new work.
+
+## Current state (2026-10-09): general development
+
+The owner selected federal document expansion under D-091. GD57's
+[collection-level access and reliability plan](development/gd57-federal-expansion-access-reliability-2026-10-09.md)
+is complete at local source commit `845565c`: it distinguishes public laws,
+bills and resolutions, proposed budgets and federal court rulings, and records
+current access, coverage, reliability gaps, integration owners and a finite
+validation packet. It made no provider request and opens no keyed API, source
+activation or publication gate. The prior
+[sprint report and federal expansion handoff](handoffs/2026-10-09-sprint-report-and-federal-expansion.md)
+preserves the initiating scope. D-092 selects GD60's
+[federal probe and refreshability entry packet](development/gd60-federal-probes-and-local-refresh-plan-2026-10-09.md)
+ahead of GD20 for the next session. Recheck each exact source gate and prepare
+finite manifests before any live request; keyed GovInfo and Congress.gov gates
+remain closed. Compare the current immutable corpus with a measured local index
+candidate before choosing a database. The terminal ledger has zero active items
+and GD27 remains unaccepted. Verify GitHub publication state separately from
+this preparation record.
+
+The owner-requested audit fixes 1-3 are complete under GD56/D-090 at local
+source commit `cd069298b90d070828206a87e7262ae3fd5c64c1`: public export
+filenames, malformed search URLs and repeated study-history serialization.
+Focused regressions, independent reviews, 2,219 unit tests, broad validation
+and the synthetic build passed; the measured 1,001-revision import is about
+2.3 times faster. GD20 remains ready behind the D-091 federal planning priority.
+Formatting flags only the pre-existing
+ignored local settings file. Recover
+[the repair handoff](handoffs/2026-10-09-audit-repairs.md).
+No source acquisition, private input, publication or release acceptance is included.
+
+The owner adopted the bounded
+[search refinement and evidence-review prompt](handoffs/2026-10-09-search-refinement-review-guidance-prompt.md).
+GD55 is implemented at local source commit
+`ea0581976b5bf5da131e6a9a6cc7e6580801b420`: broad search remains the
+default, explicit all-terms search is version-scoped, discovery scope persists
+its mode, and the study workspace names actual context-review prerequisites
+with source and attributed-review navigation. A read-only browser replay of the
+sealed pilot passed changed-control focus, mobile layout, automated
+accessibility and loopback-only checks. Commit `59c6e0d` made the Windows unit
+test worker stable; `npm test` and the synthetic build passed. Repository-wide
+format checking still flags the pre-existing ignored
+`.claude/settings.local.json`; task-owned files are formatted. See the GD55
+roadmap evidence. No source acquisition, real-study human review, remote push or
+deployment occurred. The
+[follow-up register](development/2026-10-09-study-follow-up-register.md)
+preserves the uncompleted reusable browser journey, all nine real-study gaps and
+the prepared source-specific research packet. GD27 remains incomplete and the
+next independent ready root is GD20. The roadmap is authoritative for final
+validation receipts and current focus; compare actual Git state before work.
+
+The owner subsequently requested the real-source research pilot under D-089.
+Recover [the pilot record](development/2026-10-08-roadless-real-source-pilot.md)
+before any further source work. Its three exact GovInfo operations are spent:
+three captured documents, 273,276 bytes, a replayable corpus, and a saved study
+with seven local products. These are external artifacts; the record gives their
+paths and hashes. The study preserves both historical deadlines and agency-only
+consultation attribution, with model interpretations and procedural links still
+unreviewed. The nine recorded gaps include later actions, actual EIS evidence,
+Nation participation and reviewed governing context. This finite federal subset
+does not accept GD36/GD37/GD38, an API integration, or GD27. Use the current
+roadmap for the exact validated checkpoint and remaining dependency-ready roots;
+never redispatch the spent manifest. Existing source-specific and publication
+boundaries remain in force.
+GD54 and GD14 are accepted at local source commit
+`94179a21ee1c506db7189e55c0519fe560d4421e`. The pilot checkpoint has zero active
+items, a final passing browser receipt, and a 954,056,203-byte managed inventory.
+The remaining roots are unchanged apart from completed GD14/GD54 removal; no
+new dependent item becomes ready at this checkpoint.
+
+The owner resumed implementation through D-088's integrated study-engine launch.
+GD10 boundary enforcement, GD12 source catalog and GD25 persistent analyst studies
+are accepted at `5a92e8b6710b0c7edf656434bd9ebf69ad730175`. GD11 corpus 2.1,
+GD13 public successor contracts, GD35 bounded search and GD15 architecture docs
+are accepted at `18ee6c3547bf1ae17ed30dcbf8bd120e20f15646`. All Node suites and
+2,180 application/unit tests across 114 files pass, including the ten D-088
+functional outcomes. Both synthetic build modes and artifact validation pass.
+The unchanged frozen search-projection-04 protocol completes 100, 500 and 2,000
+works with fresh-process replay, exact citations and measured resource limits;
+its consumed namespace must not be reused. This is short synthetic Node evidence,
+not browser, real-document or 50 GB performance proof. Recover receipts from
+[the implementation record](development/2026-10-08-study-engine-implementation.md)
+and `ROADMAP.yaml`. The requested local implementation is at a validated checkpoint
+with zero active items. The broader general-engine release remains in progress:
+GD27 is not accepted, and the roadmap lists the remaining roots in priority order.
+GD39 is newly ready after its dependencies completed; no acquisition was dispatched.
+New catalog rows do not activate sources, and GD47 source qualification remains
+incomplete. Real Nation references require the independently pinned registry.
+Public v1 and corpus 2.0 defaults remain unchanged; their explicit 2.0/2.1 successors
+are implemented with reviewed migration and independent source-registry validation.
+No publication or private-sharing operation occurred. The following pause record
+is historical and does not override this accepted implementation checkpoint.
+
+#### True-up at the user-requested pause
+
+GD-09 is accepted at source checkpoint `8b97383f37e33c0569e57b7e834ac8fd8ef582fc`.
+GD-10 remains the only active roadmap item. Its reviewed 50-path contract is
+committed at `84cf62c0aa2b70510a8045a04fe80d139131c1fe`; no GD-10 source lease
+was issued before the owner paused the run. On an explicit resume, first
+confirm the checkout and protected worktree state, then reread the
+[GD-10 boundary contract](handoffs/2026-10-07-gd10-boundary-enforcement.md)
+and issue the three disjoint leases (25/16/9). Do not repeat the completed
+GD-31 or GD-09 implementation and acceptance work.
+
+The ordinary build remains synthetic. The accepted PS09 local workbench is a
+separate, locally served output. GD-09's synthetic identifier and association
+contract is not a production identity registry, and the four existing source
+adapters remain disabled. The local release root GD-27 is not accepted. See
+the [run record](development/2026-10-07-autonomous-run.md) for this pause's
+validation results and the specific discussion/stop conditions.
 
 The non-PS09 Makah demo track was delivered at the ATNI Annual Convention and
 is finished. The project has returned to general engine development, with
@@ -21,8 +155,9 @@ States) treated as a core capability, not an extension.
 The realignment session on branch `realign/general-development` (commits
 `fff7990` audit, `20d0056` design, `6eb8947` realignment, plus a ledger
 follow-up) produced three documents; the owner then ruled on their open
-questions and added directions. Read, in this order, before any
-implementation:
+questions and added directions. That ordered work is historical evidence; use
+the live roadmap and the true-up above for today's status. For the full-context
+route, read in this order before implementation:
 
 1. `ROADMAP.yaml` (the canonical ledger; read it completely).
 2. `docs/audits/2026-09-22-general-dev-audit.md`: the code as it actually is,
@@ -38,36 +173,111 @@ implementation:
 5. `docs/decisions/2026-09-22-realignment-open-decisions.md` (the questions)
    and `docs/decisions/2026-09-22-realignment-rulings.md` (the owner's
    answers, RL-01 to RL-14).
+6. `docs/decisions/2026-09-24-definition-of-done-general-development.md` and
+   `docs/decisions/2026-10-06-development-plan-revision.md`: retained release
+   demonstrations, latest owner scope and revised implementation sequence.
+7. `docs/handoffs/2026-10-06-development-realignment-next-session.md`: bounded
+   realignment sequence, protected evidence and checks.
+8. `docs/handoffs/2026-10-07-gd26-reproducible-checks.md`: completed GD-26
+   checkpoint, validation limits and next-task recovery.
+9. `docs/handoffs/2026-10-07-gd17-initial-source-survey.md`: initial source
+   survey, qualification gaps and current validation/next-task state.
+10. `docs/handoffs/2026-10-07-gd18-storage-report.md`: measured storage command,
+    inventory, conservative forecast refusal and next-task recovery.
+11. `docs/development/gd31-release-acceptance-crosswalk.md`,
+    `docs/development/gd31-operation-packets.md` and
+    `docs/architecture/gd31-successor-contracts.md`: current release closure,
+    blocked finite preparation manifests and synthetic boundary contracts.
+    Recover `docs/handoffs/2026-10-07-gd31-successor-contracts.md` for the
+    historical successor-preparation contract; validation recovery is closed
+    and reconciled in the current autonomous run record.
 
-Ledger status: general-development session 1 applied RL-01. The rulings are
-D-071 to D-079 in `docs/decision-register.md`, and `ROADMAP.yaml` is at schema
+Historical foundation: general-development session 1 applied RL-01. The rulings are
+D-071 to D-079 in `docs/decision-register.md`, and the historical roadmap used schema
 1.10: milestone "General development" (GD-00 to GD-23) is admitted by rule
 behind four gates, `G-GENERAL-DEV-01` and `G-GD-PRIVATE-CONTEXT` approved for
 local synthetic work, `G-GD-NATIONWIDE-CONTRACT` and `G-GD-INTEROP` closed.
 Every other milestone keeps its frozen identities. Refactor wave 1 (GD-01
 characterization tests, GD-02 module boundary test, GD-03 boundary-guard
-tests) is complete, and the ledger is at a terminal checkpoint with zero
-active items. Ready next: session R (GD-17 nationwide source survey, GD-18
-storage capacity model) and session 2 (wave 2: GD-04, GD-05, GD-07, GD-08,
-GD-09). The ledger's `current_focus` and `next_actions` say what is next;
-recover that session's detail from
-[its outcome](handoffs/general-development-session-01-outcome.md). Note that
-`docs/PROJECT-BACKBONE.md` and `docs/architecture/module-boundaries.md`
-section 9.4 still describe the pre-ruling schema 1.9 state until GD-15
-updates them.
+tests) is complete. GD-24 archive/consolidation and GD-29 optimization O1/O2
+are also complete. D-086 reorders pending work: GD-26 reproducible checks,
+GD-17 initial survey, GD-18 measured capacity, GD-31 authority/manifest/release
+crosswalk, and GD-32 bounded storage/search design precede bulk expansion.
+GD-33 retains the complete nationwide survey without delaying the pilot.
+The ledger's `current_focus` and `next_actions` own active/terminal status;
+Recover session 1's historical detail from
+[its outcome](handoffs/general-development-session-01-outcome.md).
+`docs/architecture/module-boundaries.md` section 9.4 preserves historical
+pre-ruling design with accepted GD15 successor annotations; the current ledger
+and D-086/D-088 sequence control execution.
 
-Open owner decisions after the rulings: addendum section 12 (registry
-repository shape, wave concurrency versus the one-`in_progress` rule, the
-geometry dependency).
+D-082 settled the registry repository shape and sequential waves. The geometry
+dependency is selected when GD-19 starts. D-086 records the 50 GB total cap,
+public/private authorization distinction, ATNI local assessment authority and
+the owner-selected AK/CA/MT/NV planning communities. Remaining contract and
+source-specific details are listed in the revision; do not reopen settled
+questions. Schema 1.11 preserves the historical four GD gates and represents
+successor implementation, measured public acquisition, ATNI local assessment
+and release acceptance separately. `GD-27-LOCAL-RELEASE-PACKAGE` is the current
+general-engine release root; the crosswalk retains unmet PS09 obligations.
+Neither that implementation requirement nor a source
+qualification gap means the owner must repeat the adopted blanket direction.
+
+D-087 accepts both former open choices: county/municipal discovery without a
+Nation-name requirement and an optional selected Nation criterion in a versioned
+authorized ATNI exchange. It distinguishes official public Tribal publications
+from restricted internal policies and adds annotation-guided discovery requests
+to GD-25. Read the updated plan and handoff; do not reopen these product choices.
+GD-26 reproducible checks are complete at implementation commit `a3ac31a`;
+recover [the checkpoint handoff](handoffs/2026-10-07-gd26-reproducible-checks.md).
+Both hook runs pass 47/47 and the complete committed Bash deny inventory is
+tested through the production matcher. The separate ignored-settings formatting
+failure remains visible. GD-17 initial source survey is complete at `b839a56`;
+recover its handoff above. It records a contract-preparation shortlist and an
+empty newly dispatch-ready pilot subset. No policy payload was acquired, no
+profile renewed and no API integration accepted. GD-18 measured storage capacity
+is complete at implementation commit `8dc3985`. Its read-only command passes
+29 focused tests and independent review. All twelve
+declared roots total 558,104,040 bytes. The hypothetical forecast correctly
+refuses because the included C: support volume is below the 20 GiB disk floor;
+this is not an I: shortage and does not block GD-31/GD-32 preparation. Both
+GD-31 successor preparation and validation recovery, plus GD-32 bounded search
+design, have durable completed checkpoints. Their full outcomes and immutable
+failed receipts are reconciled in `docs/development/2026-10-07-autonomous-run.md`;
+do not repeat that recovery. The `test:spine` serialization preserves its
+assertions and timeouts. GD-17 found no newly dispatch-ready acquisition profile,
+and no payload was acquired in that work. GD-33's nationwide survey and the full
+A3 restore/replay demonstration retain their roadmap status and acceptance.
+
+## Re-entry issues and discussion boundaries
+
+No new product ruling is needed to resume GD-10. If implementation finds a
+real graph edge outside the reviewed 50-path manifest, stop for diagnosis and
+a root-reviewed amendment. Record source-specific qualification gaps against
+their exact gate and continue independent eligible work where possible.
+
+The genuine remaining evidence and acceptance work is already owned by the
+roadmap: GD-53 carries unresolved PS09 identity/scenario claims; GD-13 owns the
+gated nationwide record-contract successor; source activation is source-specific;
+and GD-27 still requires its outcomes, demonstrations and release review. D-087's
+county/municipal discovery and public Tribal-publication rulings are settled.
+Private/shared access, publication, remote operations, new acquisition and
+release remain behind their existing gates. Details and validation limits are
+in the [true-up record](development/2026-10-07-autonomous-run.md).
 
 ## What a fresh session does first
 
 1. Confirm the checkout: `git branch --show-current`, `git rev-parse HEAD`,
-   `git status --short`. Compare against the last session handoff under
-   `docs/handoffs/`.
+   `git status --short`. Compare against the explicitly selected plan and the
+   matching surface's current handoff. For October demo work, start with
+   `docs/DEMO-STATUS.md` and any private recovery explicitly selected by the
+   current task or its plan;
+   for general-engine work use the selected ledger item and corresponding
+   handoff. Do not choose a plan by filename date or resume a completed grant.
 2. Run `npm run validate:roadmap` and `npm run validate:backbone`. Both must
    pass before any edit; if one fails, the failure is the first finding.
-3. Read the documents in the order above.
+3. Follow the scope-specific startup context rule above. Shared extractor,
+   general-engine, ledger graph and uncertain or mixed work take the full route.
 4. Select work only from the ledger, under the rules in `AGENTS.md`
    ("Durable execution ledger"). A design document, an addendum or a handoff
    is not an execution grant.

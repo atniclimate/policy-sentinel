@@ -1,7 +1,42 @@
 import { URL } from "node:url";
+import {
+  US_STATE_CODES,
+  hasStateJurisdictionEvidence,
+} from "../core/jurisdiction-reference.mjs";
 
 const EXPECTED_NATION_COUNT = 575;
 const STATE_CODES = new Set(["WA", "OR", "ID"]);
+const isStateCode = (state, successor) =>
+  successor ? US_STATE_CODES.includes(state) : STATE_CODES.has(state);
+const coverageView = (coverage, successor) =>
+  !successor || !isObject(coverage)
+    ? coverage
+    : {
+        ...coverage,
+        states: Object.hasOwn(coverage, "states")
+          ? [null]
+          : Array.isArray(coverage.jurisdictionRefs)
+            ? coverage.jurisdictionRefs.map((ref) =>
+                typeof ref === "string" && /^us-state:[A-Z]{2}$/u.test(ref)
+                  ? ref.slice(9)
+                  : null,
+              )
+            : undefined,
+        ...(coverage.evidence === undefined
+          ? {}
+          : {
+              evidence: Array.isArray(coverage.evidence)
+                ? coverage.evidence.map((row) => ({
+                    ...row,
+                    state:
+                      typeof row?.jurisdictionRef === "string" &&
+                      /^us-state:[A-Z]{2}$/u.test(row.jurisdictionRef)
+                        ? row.jurisdictionRef.slice(9)
+                        : null,
+                  }))
+                : coverage.evidence,
+            }),
+      };
 const PRODUCTION_COLLECTION_FIELDS = [
   "registryVersion",
   "identityRule",
@@ -213,8 +248,9 @@ function validateStateEvidence(
   provenanceByField,
   generatedAt,
   issues,
+  successor = false,
 ) {
-  const coverage = nation.stateCoverage;
+  const coverage = coverageView(nation.stateCoverage, successor);
   if (!isObject(coverage)) {
     issues.push(`${label} state coverage must be an object`);
     return;
@@ -225,7 +261,7 @@ function validateStateEvidence(
   }
   const uniqueStates = new Set();
   for (const state of states) {
-    if (!STATE_CODES.has(state)) {
+    if (!isStateCode(state, successor)) {
       issues.push(
         `${label} has unsupported state coverage code ${String(state)}`,
       );
@@ -307,6 +343,13 @@ function validateStateEvidence(
           `${evidenceLabel} does not contain the exact source Nation name`,
         );
       }
+      if (
+        successor &&
+        !hasStateJurisdictionEvidence(item.jurisdictionRef, item.evidenceText)
+      )
+        issues.push(
+          `${evidenceLabel} does not identify the referenced state in exact text`,
+        );
       requireString(
         item.sourceIdentifier,
         `${evidenceLabel} source identifier`,
@@ -668,6 +711,7 @@ function validateProductionNation(
     provenanceByField,
     document.generatedAt,
     issues,
+    document.schemaVersion === "2.0.0",
   );
 }
 
@@ -916,7 +960,10 @@ function validateSyntheticCollection(document, nations, issues) {
         );
       }
     }
-    const coverage = isObject(nation.stateCoverage) ? nation.stateCoverage : {};
+    const coverage = coverageView(
+      isObject(nation.stateCoverage) ? nation.stateCoverage : {},
+      document.schemaVersion === "2.0.0",
+    );
     if (coverage.basis !== "synthetic_fixture") {
       issues.push(
         `${label} synthetic state coverage must use synthetic_fixture`,
@@ -928,7 +975,7 @@ function validateSyntheticCollection(document, nations, issues) {
     }
     const uniqueStates = new Set();
     for (const state of states) {
-      if (!STATE_CODES.has(state)) {
+      if (!isStateCode(state, document.schemaVersion === "2.0.0")) {
         issues.push(
           `${label} has unsupported state coverage code ${String(state)}`,
         );
@@ -964,8 +1011,8 @@ export function validateNationCollectionPolicy(
   if (document.artifactType !== "nation-collection") {
     issues.push("artifact type must be nation-collection");
   }
-  if (document.schemaVersion !== "1.0.0") {
-    issues.push("Nation collection schema version must be 1.0.0");
+  if (!["1.0.0", "2.0.0"].includes(document.schemaVersion)) {
+    issues.push("Nation collection schema version must be 1.0.0 or 2.0.0");
   }
   if (!isIsoDateTime(document.generatedAt)) {
     issues.push("Nation collection generatedAt must be an ISO date-time");

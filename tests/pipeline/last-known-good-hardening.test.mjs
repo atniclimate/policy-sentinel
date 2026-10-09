@@ -788,3 +788,63 @@ test("source refresh merging cannot cross source identities", async (t) => {
     );
   });
 });
+
+test("successor LKG needs its explicit trusted registry and preserves source freshness after failure", async () => {
+  const [record, registry] = await Promise.all([
+    json("fixtures/records/nationwide-successor.valid.json"),
+    json("fixtures/sources/nationwide-successor.valid.json"),
+  ]);
+  await mkdir(testParent, { recursive: true });
+  const root = await mkdtemp(path.join(testParent, "successor-"));
+  try {
+    const documents = createArtifactDocuments({
+      records: [record],
+      nations,
+      taxonomy,
+      sourceRegistry: registry,
+      generatedAt,
+      synthetic: true,
+    });
+    await writeArtifactDocuments({
+      documents,
+      outputDirectory: root,
+      projectRoot,
+    });
+    await assert.rejects(verifyLastKnownGoodArtifact(root));
+    const loaded = await loadLastKnownGoodSource(root, record.source.id, {
+      sourceRegistry: registry,
+    });
+    assert.deepEqual(loaded.records, [record]);
+    const failed = mergeSourceRefresh({
+      sourceId: record.source.id,
+      previousRecords: loaded.records,
+      previousHealth: loaded.health,
+      refresh: {
+        ok: false,
+        sourceId: record.source.id,
+        failureStage: "fetch",
+        checkedAt: "2026-08-01T00:00:00.000Z",
+        publicMessage: "Official service unavailable.",
+      },
+    });
+    assert.equal(failed.health.status, "degraded");
+    assert.equal(failed.health.dataAsOf, record.sourceHealth.dataAsOf);
+    assert.deepEqual(failed.records[0].jurisdiction, record.jurisdiction);
+    await rewriteAsset(
+      root,
+      "details/" + toUrlSafeId(record.internalId) + ".json",
+      (detail) => {
+        detail.record.jurisdiction.evidence.exactSubject.ref = "us-state:WA";
+      },
+    );
+    await assert.rejects(
+      verifyLastKnownGoodArtifact(root, { sourceRegistry: registry }),
+      /jurisdiction|association|index/i,
+    );
+  } finally {
+    assert.ok(
+      path.resolve(root).startsWith(path.resolve(testParent) + path.sep),
+    );
+    await rm(root, { recursive: true, force: true });
+  }
+});

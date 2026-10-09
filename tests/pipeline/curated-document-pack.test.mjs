@@ -1,3 +1,7 @@
+import * as legacyCurated from "../../src/pipeline/curated-document-pack.mjs";
+import * as pureCurated from "../../src/modules/intake/curated-document-pack.mjs";
+import * as configuredCurated from "../../scripts/configured-curated-document-pack.mjs";
+import { parseAnalyzedCorpus } from "../../scripts/configured-analyzed-corpus.mjs";
 import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
@@ -743,4 +747,56 @@ test("HTTP MIME, header, filename and redirect claims cannot be smuggled into a 
       rejects("INVALID_SHAPE"),
     );
   }
+});
+
+test("curated facade and explicit parser preserve pack bytes, replay and refusal", async () => {
+  const shared = [
+    "CURATED_DOCUMENT_PACK_SCHEMA_ID",
+    "CURATED_DOCUMENT_PACK_SCHEMA_VERSION",
+    "CuratedDocumentPackError",
+    "serializeCuratedDocumentPack",
+    "denyCuratedNetworkOperation",
+  ];
+  const configured = ["createCuratedDocumentPack", "replayCuratedDocumentPack"];
+  assert.deepEqual(
+    Object.keys(legacyCurated).sort(),
+    [...shared, ...configured].sort(),
+  );
+  for (const name of shared)
+    assert.equal(legacyCurated[name], pureCurated[name]);
+  for (const name of configured)
+    assert.equal(legacyCurated[name], configuredCurated[name]);
+  const input = await fixture();
+  let parserCalls = 0;
+  const direct = pureCurated.createCuratedDocumentPackRuntime({
+    parseAnalyzedCorpus(value) {
+      parserCalls += 1;
+      return parseAnalyzedCorpus(value);
+    },
+  });
+  const directPack = direct.createCuratedDocumentPack(input);
+  const configuredPack = createCuratedDocumentPack(input);
+  assert.equal(
+    serializeCuratedDocumentPack(directPack.manifest),
+    serializeCuratedDocumentPack(configuredPack.manifest),
+  );
+  assert.deepEqual(directPack.renditionBytes, configuredPack.renditionBytes);
+  assert.deepEqual(
+    direct.replayCuratedDocumentPack(replayInput(input, directPack)),
+    replayCuratedDocumentPack(replayInput(input, configuredPack)),
+  );
+  assert.equal(parserCalls, 2);
+  const refused = pureCurated.createCuratedDocumentPackRuntime({
+    parseAnalyzedCorpus() {
+      throw new Error("refused");
+    },
+  });
+  assert.throws(
+    () => refused.createCuratedDocumentPack(input),
+    rejects("INVALID_DOCUMENT_PACK"),
+  );
+  assert.throws(
+    () => refused.replayCuratedDocumentPack(replayInput(input, configuredPack)),
+    rejects("INVALID_DOCUMENT_PACK"),
+  );
 });

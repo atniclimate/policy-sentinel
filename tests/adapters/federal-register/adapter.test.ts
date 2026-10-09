@@ -1,4 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
+import taxonomy from "../../../config/taxonomy.v1.json";
+import * as legacy from "../../../src/adapters/federal-register";
+import * as direct from "../../../src/adapters/federal-register/adapter";
+import * as configured from "../../../scripts/configured-source-refresh";
+import type { TaxonomyConfig } from "../../../src/shared/contracts";
 
 import sourceRegistry from "../../../config/sources.v1.json";
 import correctionFixture from "../../../fixtures/sources/federal-register/document-correction.valid.json";
@@ -348,6 +353,153 @@ const fixedDependencies = {
   random: () => 0,
   sleep: async () => undefined,
 };
+
+describe("configured refresh composition", () => {
+  it("preserves the complete legacy surface and adapter identities", () => {
+    expect(Object.keys(legacy).sort()).toEqual([
+      "FEDERAL_REGISTER_ADAPTER_ID",
+      "FEDERAL_REGISTER_ADAPTER_VERSION",
+      "FEDERAL_REGISTER_DISCOVERY_FIELDS",
+      "FEDERAL_REGISTER_IDENTITY_RULE",
+      "FEDERAL_REGISTER_ORIGIN",
+      "FEDERAL_REGISTER_PATHS",
+      "FEDERAL_REGISTER_PUBLIC_ARTIFACT_POLICY",
+      "FEDERAL_REGISTER_QUERY_POLICY",
+      "FEDERAL_REGISTER_RESPONSE_POLICY",
+      "FEDERAL_REGISTER_SOURCE_ID",
+      "FEDERAL_REGISTER_TIER1_DOCUMENT_NUMBER",
+      "FEDERAL_REGISTER_TIER1_FIELDS",
+      "FederalRegisterAdapter",
+      "FederalRegisterContractError",
+      "FederalRegisterRetrievalError",
+      "FederalRegisterTier1ContractError",
+      "FederalRegisterTransportError",
+      "assertFederalRegisterDateRange",
+      "assertFederalRegisterOpenApiProjection",
+      "assertFederalRegisterPublicArtifactRange",
+      "buildFederalRegisterSearchUrl",
+      "createFederalRegisterAdapter",
+      "federalRegisterArtifactCoverageNotes",
+      "federalRegisterPublicArtifactRange",
+      "federalRegisterStableRecordId",
+      "fetchFederalRegisterJson",
+      "normalizeFederalRegisterDocument",
+      "normalizeFederalRegisterInventory",
+      "parseFederalRegisterCorrectionDocumentNumber",
+      "parseFederalRegisterDailyFacet",
+      "parseFederalRegisterDocument",
+      "parseFederalRegisterDocumentBatch",
+      "parseFederalRegisterFacet",
+      "parseFederalRegisterIssueInventory",
+      "parseFederalRegisterSearchPage",
+      "parseFederalRegisterTier1Document",
+      "parseFederalRegisterTier1DocumentJson",
+      "reconcileFederalRegisterCorrections",
+      "refreshFederalRegisterSource",
+      "retrieveFederalRegisterInventory",
+      "selectFederalRegisterIssueAuditDates",
+      "serializeFederalRegisterTier1Document",
+      "shouldSplitFederalRegisterDateRange",
+      "splitFederalRegisterDateRange",
+      "validateFederalRegisterNextPageUrl",
+    ]);
+    expect(legacy.FederalRegisterAdapter).toBe(direct.FederalRegisterAdapter);
+    expect(legacy.createFederalRegisterAdapter).toBe(
+      direct.createFederalRegisterAdapter,
+    );
+    expect(legacy.refreshFederalRegisterSource).toBe(
+      configured.refreshFederalRegisterSource,
+    );
+  });
+
+  it("binds canonical taxonomy and preserves direct refresh results", async () => {
+    const context = enabledContext();
+    const injectedTaxonomy = structuredClone(
+      taxonomy,
+    ) as unknown as TaxonomyConfig;
+    const policyBarrier = vi.spyOn(policyValidation, "validateRecordSetPolicy");
+    const externalValidator = vi.fn((records: PolicyRecord[]) => {
+      expect(policyBarrier.mock.calls.length).toBe(
+        externalValidator.mock.calls.length,
+      );
+      return records;
+    });
+    try {
+      const configuredResult = await configured.refreshFederalRegisterSource(
+        createFederalRegisterAdapter({
+          ...fixedDependencies,
+          fetchImpl: stableFetch(),
+        }),
+        context,
+        { validate: externalValidator },
+      );
+      const directResult =
+        await direct.refreshFederalRegisterSourceWithTaxonomy(
+          createFederalRegisterAdapter({
+            ...fixedDependencies,
+            fetchImpl: stableFetch(),
+          }),
+          context,
+          { validate: externalValidator },
+          injectedTaxonomy,
+        );
+      expect(configuredResult.ok).toBe(true);
+      expect(directResult).toEqual(configuredResult);
+      expect(externalValidator).toHaveBeenCalledTimes(2);
+      expect(policyBarrier).toHaveBeenCalledTimes(2);
+      expect(policyBarrier.mock.calls[0]?.[1].taxonomy).toBe(taxonomy);
+      expect(policyBarrier.mock.calls[1]?.[1].taxonomy).toBe(injectedTaxonomy);
+      for (const [, options] of policyBarrier.mock.calls) {
+        expect(
+          options.sourceRegistry.sources.find(
+            ({ id }) => id === context.source.id,
+          ),
+        ).toBe(context.source);
+      }
+    } finally {
+      policyBarrier.mockRestore();
+    }
+  });
+
+  it("keeps mandatory policy refusal ahead of caller validation on both routes", async () => {
+    const context = enabledContext();
+    const externalValidator = vi.fn((records: PolicyRecord[]) => records);
+    const policyBarrier = vi
+      .spyOn(policyValidation, "validateRecordSetPolicy")
+      .mockImplementation(() => {
+        throw new Error("Synthetic mandatory policy refusal");
+      });
+    try {
+      const configuredResult = await configured.refreshFederalRegisterSource(
+        createFederalRegisterAdapter({
+          ...fixedDependencies,
+          fetchImpl: stableFetch(),
+        }),
+        context,
+        { validate: externalValidator },
+      );
+      const directResult =
+        await direct.refreshFederalRegisterSourceWithTaxonomy(
+          createFederalRegisterAdapter({
+            ...fixedDependencies,
+            fetchImpl: stableFetch(),
+          }),
+          context,
+          { validate: externalValidator },
+          taxonomy as unknown as TaxonomyConfig,
+        );
+      expect(configuredResult).toMatchObject({
+        ok: false,
+        failureStage: "validation",
+      });
+      expect(directResult).toEqual(configuredResult);
+      expect(policyBarrier).toHaveBeenCalledTimes(2);
+      expect(externalValidator).not.toHaveBeenCalled();
+    } finally {
+      policyBarrier.mockRestore();
+    }
+  });
+});
 
 describe("Federal Register public source adapter", () => {
   it("checks the contract, completes discovery, and normalizes only reconciled references", async () => {

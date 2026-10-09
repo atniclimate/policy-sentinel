@@ -6,7 +6,25 @@
     "method": "deterministic-official-subject-only",
     "manyToMany": true,
     "unmappedBehavior": "unclassified",
-    "sourceMappings": []
+    "sourceMappings": [
+      {
+        "id": "synthetic-federal-forestry-v1",
+        "sourceId": "synthetic-federal",
+        "officialSubjectScheme": "synthetic-official-topic",
+        "officialSubjectValue": "Synthetic Forestry",
+        "targets": [
+          {
+            "categoryId": "natural-resources-conservation-wildlife",
+            "subcategoryId": "forestry-land-management"
+          }
+        ],
+        "provenance": {
+          "sourceUrl": "https://synthetic-federal.invalid/topics/forestry-v1",
+          "retrievedAt": "2026-10-08T00:00:00Z",
+          "validationState": "validated"
+        }
+      }
+    ]
   },
   "categories": [
     {

@@ -1,5 +1,54 @@
 # Policy Sentinel
 
+The local research workbench now includes a persistent study workspace with
+Moon's-eye questions and gaps, Bird's-eye procedural and consultation history,
+and Frog's-eye exact source passages. Use **Save study** to download a local
+backup and **Open study** to resume it with its original corpus bindings.
+Study notes are restricted by default. Source material, extracted evidence,
+model interpretations and analyst writing have separate provenance and review
+states. The workspace exports dossiers, evidence and timeline tables, authority
+matrices, gaps, attributed graphs and machine-readable provenance; public
+products exclude restricted content and enforce source redistribution limits.
+
+The source catalog describes WA, OR, ID, AK, CA, MT, NV and ATNI, NCAI and USET
+services, including actual versus documented search capabilities. A discovery
+entry does not activate a source or establish a Nation relationship. Integrated
+acceptance and remaining source gaps are tracked in the
+[implementation record](docs/development/2026-10-08-study-engine-implementation.md).
+`npm run test:policy` includes source-catalog and bounded-projection tests;
+`npm run test:unit` includes study, export and accessible analyst journeys.
+
+For an existing reviewed local corpus, build a bounded search projection with:
+
+```powershell
+npm run policy:build:local -- --corpus-root <external-root> --sources <profile-id,profile-id> --from YYYY-MM-DD --through YYYY-MM-DD
+```
+
+The selection flags
+are optional; dates select overlapping publication dates and retain whole-work
+evidence context. The output records the selected, directly matching and retained
+populations, original source health and parent digest. An empty or oversized
+selection fails before replacing the last reviewed output. This builds from
+local custody and does not retrieve sources.
+
+The completed GD-35 synthetic projection measurement used
+`npm run measure:search-projection -- --out C:/dev/_scratch/policy-sentinel/study-engine-20261008/search-projection-04`.
+All 100-, 500- and 2,000-work cases pass, including separate-process replay,
+exact citations and bounded rebuild storage. This retained namespace is consumed;
+the command refuses existing output. Results measure short synthetic passages in
+Node, not browser, real-source, whole-store or 50 GB performance.
+
+The public artifact successor requires an explicit validated source registry.
+Validate a generated package against that registry with:
+
+```powershell
+npm run validate:artifact -- --dir <artifact-directory> --sources <registry.json>
+```
+
+The ordinary build retains the existing v1 registry and artifact versions. A
+successor package cannot supply its own trusted source registry, infer Nation
+relationships, or bypass source qualification through migration.
+
 Policy Sentinel is a configurable, sovereignty-centered policy monitoring and
 source-reference engine. It watches bounded authoritative sources, explains why
 records are shown, preserves source-supported change, and produces governed
@@ -8,10 +57,157 @@ Nation's interests.
 
 ## Project status
 
+### Repository true-up (2026-10-08)
+
+The ordinary static build remains synthetic: it sends three fixture records
+through the retained corpus and application contracts, alongside 575 synthetic
+Nation rows. The accepted PS09 local workbench is a separate workflow over its
+reviewed local output; it supports search, passage and citation review, temporal
+and cross-context comparison, findings with supporting and contrary evidence,
+and dossier, evidence, and JSON export. That output is served only through its
+explicit local boundary.
+
+The four implemented Federal Register, curated Supreme Court, Washington
+Governor executive-order, and Washington Centennial Accord adapters remain
+disabled and contribute no records to the ordinary build. GD-09 committed a
+synthetic jurisdiction identifier and association contract; it does not add a
+production identity registry or live source coverage. GD-10 boundary enforcement,
+the source catalog and persistent studies pass integrated validation. Additive
+corpus 2.1 and public-contract 2.0 successors preserve legacy defaults and require
+explicit evidence for jurisdiction references. The complete test suite, both
+builds and the frozen bounded-search measurement pass. Follow
+[the continuation guide](docs/continuation-prompt.md) and the
+[implementation record](docs/development/2026-10-08-study-engine-implementation.md)
+for the precise resume state.
+
+Schema 1.11 represents GD-27 as the current local release root, with all
+remaining PS09 claims preserved in the
+[release crosswalk](docs/development/gd31-release-acceptance-crosswalk.md).
+GD-31 adds [tested preparation contracts](docs/architecture/gd31-successor-contracts.md)
+and [finite blocked source/API packets](docs/development/gd31-operation-packets.md).
+`npm run test:development-authority` runs their offline refusal and compatibility
+tests and is included in `npm test`. Preparation cannot dispatch, share or publish.
+
+`npm run test:spine`, `npm run test:policy` and `npm run test:assurance` serialize
+their respective three, sixteen and three files to avoid competing Windows native
+custody probes.
+Assertions, process isolation and operation timeouts stay unchanged; `npm test`
+includes all three suites.
+
+`npm run test:artifact` runs the seven artifact, registry and roadmap Node suites
+directly and serially. It is included in `npm test`; the former synchronous
+Vitest wrapper is removed, so individual Node test results are visible.
+
 Current general-development work is recorded in [ROADMAP.yaml](ROADMAP.yaml).
 The separately authorized public demonstration and its maintenance evidence are
 recorded in [Live demo status](docs/DEMO-STATUS.md). The engineering-review
 checkpoints below describe their historical scope.
+
+## Measured storage and capacity planning
+
+`npm run storage:report -- --manifest <local.json>` inventories explicitly
+selected managed roots without reading document bodies or changing files.
+Add `--json` for a machine-readable report; `--help` describes exit codes.
+`npm run test:storage` runs its offline tests and is included in `npm test`.
+Store the machine-local manifest and generated report outside Git. Use opaque
+root/run labels, not personal or sensitive names. The command prints aggregate
+labels, counts, sizes and fixed failure codes, never storage paths or filenames.
+
+Example manifest for one already-owned run (replace the example path):
+
+```json
+{
+  "version": "1.0.0",
+  "roots": [
+    {
+      "id": "retained-run",
+      "path": "I:/owned-policy-store",
+      "categories": [
+        { "path": "objects", "category": "originals" },
+        { "path": "work/renditions", "category": "renditions" },
+        { "path": "receipts", "category": "metadata" },
+        { "path": "local-output", "category": "cases_exports" }
+      ],
+      "runs": [{ "id": "run-one", "path": ".", "state": "existing" }]
+    }
+  ],
+  "projections": [
+    {
+      "id": "example-growth",
+      "rootId": "retained-run",
+      "runId": "run-one",
+      "retainedBytes": 104857600,
+      "temporaryBytes": 52428800
+    }
+  ]
+}
+```
+
+These sample estimates are assumptions, not measured document sizes or
+acquisition authority. Use `"projections": []` for inventory alone; future
+capacity then remains `not_evaluated`. Required root fields are `id`, `path`,
+`categories` and `runs`; empty arrays are permitted. Roots must be absolute,
+non-overlapping local directories. Category/run paths are relative and cannot
+escape the root. Run subdivisions are counted within their parent, never twice.
+Repository roots are excluded except the explicit managed namespaces `dist`,
+`.cache` and `generated-data/real-source-prerelease`; canonical aliases cannot
+bypass that boundary.
+An `existing` run must exist; a `planned` run must be absent. Projections name
+their run explicitly and contain nonnegative integer byte estimates.
+
+Categories are `originals`, `renditions`, `metadata`, `indexes`, `cases_exports`,
+`temporary` and `unclassified`. The longest component-prefix rule wins;
+unmatched files still count as unclassified. A `work` directory can contain
+durable renditions/corpus files, so it must not be classified as temporary just
+because of its name. Categories describe storage, not source admission or
+public visibility. Include historical custody, managed archives/cold storage,
+duplicate outputs and shared contributions in the declared root inventory.
+
+The report uses logical file sizes. Forecasting sums current bytes, all proposed
+retained additions and their simultaneous temporary/rebuild peaks against
+**50,000,000,000 bytes**. It separately checks the **10 GiB run ceiling** and
+**20 GiB post-write free-disk floor**, aggregating plans sharing one filesystem.
+The report conservatively applies that floor to every declared managed
+filesystem, including support volumes receiving no proposed writes. Such a
+volume can refuse an otherwise affordable target-volume forecast. This is
+stricter than a target-only runner check and does not change production checks.
+Moving a managed copy to cold storage does not create a second allowance.
+Forecasts are conservative planning estimates, not a disk reservation or a
+production-runner retrofit. Actual allocation overhead and other processes can
+consume space; rerun immediately before a separately admitted operation.
+
+Missing, inaccessible, changed, unsafe-linked or truncated roots make accounting
+incomplete; observed totals are then lower bounds. No partial inventory can
+produce a passing forecast. Traversal is bounded and does not follow symlinks,
+junctions or other detected reparse points. Scan quiescent roots: metadata
+checks cannot provide an atomic snapshot or protect against a privileged
+concurrent filesystem writer. An omitted managed root remains outside the
+report, so a complete declared inventory is not proof of whole-machine coverage.
+
+Exit 0 means the declared inventory completed and any supplied forecast passed;
+exit 2 means accounting is incomplete, the measured cap is exceeded or the
+forecast is refused; exit 1 is an invalid input or unexpected error. No report
+authorizes acquisition, deletion, automatic eviction, source reuse or publication.
+
+## Historical engineering checkpoints
+
+The [GD-32 bounded search design](docs/architecture/gd32-bounded-search.md)
+selects immutable bounded projections and freezes finite analyst journeys.
+`npm run test:search-measurement` checks its synthetic measurement guards.
+`npm run measure:search -- --out C:/dev/_scratch/policy-sentinel/autonomous-2026-10-07/search-01`
+runs the newly authorized finite synthetic protocol in that fresh external
+namespace. Existing evidence is never replaced. It imports pure historical
+fixture/oracle exports without resuming the historical runner. Failed or partial
+measurements remain visible; this is no 50 GB search-capacity claim.
+
+`npm run measure:search:browser -- --measurement-root <search-01> --out <search-browser-01> --playwright-core <installed-package> --browser <installed-executable>`
+uses the same pinned payloads in a separate synthetic loopback harness. Both
+output paths are fixed under the current run namespace. It installs nothing;
+an absent installed runtime yields an incomplete report, never invented timing
+or memory. This harness does not exercise the application loader or analyst
+journeys. Its deprecated optional heap estimate cannot accept browser memory.
+Neither measurement runs during ordinary builds; command documentation does not
+authorize a later replay of an ended measurement run.
 
 The adopted finite engineering review `H-ENGINEERING-REVIEW-02` is complete.
 Recover its [outcome](docs/handoffs/ps09-engineering-review-02-outcome.md),
@@ -88,7 +284,8 @@ The authorized 0.9 Run 1 has completed repository convergence and a minimal
 local synthetic corpus/citation spine. Its exact acceptance evidence is in
 [`ROADMAP.yaml`](ROADMAP.yaml) and the
 [Run 1 handoff](docs/handoffs/ps09-run-01-convergence.md). Its historical grant is
-complete. `PS09-06-LOCAL-RC` is the single local release root; B1-B10, PNW, and
+complete. `PS09-06-LOCAL-RC` is the frozen historical release root; the current
+GD-27 root carries its unmet claims through GD-53. B1-B10, PNW, and
 the exhausted real-source child lane retain historical evidence without
 creating additional release roots.
 
@@ -336,6 +533,7 @@ not automatically change `needs_accessibility_review` into a passing report.
 npm run dev
 npm run validate:runtime
 npm run hooks:test
+npm run hooks:test:snapshot
 npm run validate:roadmap
 npm run validate:backbone
 npm test
@@ -405,9 +603,19 @@ Compaction must not be vetoed by repository state, validations belong in the
 explicit command surface, and a stop hook must not create continuation loops.
 The two hooks are synchronous cooperative guardrails, not a shell parser,
 permission system, security boundary, or replacement for `npm run check`.
-Run `npm run hooks:test` for their focused contract tests. Codex requires the
-exact project hook definitions to be reviewed and trusted; after cloning or
-changing them, use `/hooks` to inspect and trust the repository hook layer. See
+Run `npm run hooks:test` for their focused contract tests, including the finite
+matrix of all committed Claude Bash deny forms through the production matcher.
+The command strings are never executed. `npm run hooks:test:snapshot` copies
+tracked working-tree source into a disposable Git root and runs the same suite
+without ignored historical receipts or local settings. It also includes its own
+harness before its first commit, reuses a copy of the installed `yaml` dependency
+with its version checked against the lockfile, reports a source digest, and
+removes only its own snapshot.
+This is source reproducibility proof, not an independent dependency installation,
+active-client event probe, or completion of the A3 restore/replay demonstration.
+Codex requires the exact project hook definitions to be reviewed and trusted;
+after cloning or changing them, use `/hooks` to inspect and trust the repository
+hook layer. See
 the
 [official Codex hooks reference](https://learn.chatgpt.com/docs/hooks) for the
 runtime and trust model.

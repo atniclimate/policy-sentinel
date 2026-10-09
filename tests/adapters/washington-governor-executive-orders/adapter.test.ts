@@ -2,6 +2,12 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 import { describe, expect, it, vi } from "vitest";
+import taxonomy from "../../../config/taxonomy.v1.json";
+import * as legacy from "../../../src/adapters/washington-governor-executive-orders";
+import * as direct from "../../../src/adapters/washington-governor-executive-orders/adapter";
+import * as configured from "../../../scripts/configured-source-refresh";
+import type { TaxonomyConfig } from "../../../src/shared/contracts";
+import * as policyValidation from "../../../src/pipeline/policy-validation.mjs";
 
 import sourceRegistry from "../../../config/sources.v1.json";
 import {
@@ -72,6 +78,136 @@ const unchangedValidator = {
     return records;
   },
 };
+
+describe("configured refresh composition", () => {
+  it("preserves the complete legacy surface and adapter identities", () => {
+    expect(Object.keys(legacy).sort()).toEqual([
+      "WASHINGTON_GOVERNOR_EXECUTIVE_ORDERS_ADAPTER_ID",
+      "WASHINGTON_GOVERNOR_EXECUTIVE_ORDERS_ADAPTER_VERSION",
+      "WASHINGTON_GOVERNOR_EXECUTIVE_ORDERS_CONTRACT_VERSION",
+      "WASHINGTON_GOVERNOR_EXECUTIVE_ORDERS_IDENTITY_RULE",
+      "WASHINGTON_GOVERNOR_EXECUTIVE_ORDERS_INDEX_URL",
+      "WASHINGTON_GOVERNOR_EXECUTIVE_ORDERS_SOURCE_ID",
+      "WASHINGTON_GOVERNOR_FILTER_LABEL",
+      "WASHINGTON_GOVERNOR_FILTER_VALUE",
+      "WASHINGTON_GOVERNOR_HTML_POLICY",
+      "WASHINGTON_GOVERNOR_NORMALIZATION_RULES",
+      "WASHINGTON_GOVERNOR_REQUIRED_ANCHOR",
+      "WASHINGTON_GOVERNOR_SELECTED_FROM",
+      "WASHINGTON_GOVERNOR_SELECTED_STATUS",
+      "WASHINGTON_GOVERNOR_USER_AGENT",
+      "WashingtonGovernorContractError",
+      "WashingtonGovernorExecutiveOrdersAdapter",
+      "WashingtonGovernorTransportError",
+      "assertWashingtonGovernorExecutiveOrderProjection",
+      "assertWashingtonGovernorExecutiveOrdersIndexUrl",
+      "assertWashingtonGovernorExecutiveOrdersSourceConfig",
+      "buildWashingtonGovernorExecutiveOrdersIndexUrl",
+      "createWashingtonGovernorExecutiveOrdersAdapter",
+      "fetchWashingtonGovernorExecutiveOrdersIndex",
+      "normalizeWashingtonGovernorExecutiveOrder",
+      "parseWashingtonGovernorExecutiveOrdersIndex",
+      "refreshWashingtonGovernorExecutiveOrdersSource",
+      "washingtonGovernorExecutiveOrderStableRecordId",
+      "washingtonGovernorSourceRecordId",
+    ]);
+    expect(legacy.WashingtonGovernorExecutiveOrdersAdapter).toBe(
+      direct.WashingtonGovernorExecutiveOrdersAdapter,
+    );
+    expect(legacy.createWashingtonGovernorExecutiveOrdersAdapter).toBe(
+      direct.createWashingtonGovernorExecutiveOrdersAdapter,
+    );
+    expect(legacy.refreshWashingtonGovernorExecutiveOrdersSource).toBe(
+      configured.refreshWashingtonGovernorExecutiveOrdersSource,
+    );
+  });
+
+  it("binds canonical taxonomy and preserves direct refresh results", async () => {
+    const context = enabledContext();
+    const injectedTaxonomy = structuredClone(
+      taxonomy,
+    ) as unknown as TaxonomyConfig;
+    const policyBarrier = vi.spyOn(policyValidation, "validateRecordSetPolicy");
+    const externalValidator = vi.fn((records: PolicyRecord[]) => {
+      expect(policyBarrier.mock.calls.length).toBe(
+        externalValidator.mock.calls.length,
+      );
+      return records;
+    });
+    try {
+      const configuredResult =
+        await configured.refreshWashingtonGovernorExecutiveOrdersSource(
+          createWashingtonGovernorExecutiveOrdersAdapter({
+            fetch: fixtureFetch().fetch,
+          }),
+          context,
+          { validate: externalValidator },
+        );
+      const directResult =
+        await direct.refreshWashingtonGovernorExecutiveOrdersSourceWithTaxonomy(
+          createWashingtonGovernorExecutiveOrdersAdapter({
+            fetch: fixtureFetch().fetch,
+          }),
+          context,
+          { validate: externalValidator },
+          injectedTaxonomy,
+        );
+      expect(configuredResult.ok).toBe(true);
+      expect(directResult).toEqual(configuredResult);
+      expect(externalValidator).toHaveBeenCalledTimes(2);
+      expect(policyBarrier).toHaveBeenCalledTimes(2);
+      expect(policyBarrier.mock.calls[0]?.[1].taxonomy).toBe(taxonomy);
+      expect(policyBarrier.mock.calls[1]?.[1].taxonomy).toBe(injectedTaxonomy);
+      for (const [, options] of policyBarrier.mock.calls) {
+        expect(
+          options.sourceRegistry.sources.find(
+            ({ id }) => id === context.source.id,
+          ),
+        ).toBe(context.source);
+      }
+    } finally {
+      policyBarrier.mockRestore();
+    }
+  });
+
+  it("keeps mandatory policy refusal ahead of caller validation on both routes", async () => {
+    const context = enabledContext();
+    const externalValidator = vi.fn((records: PolicyRecord[]) => records);
+    const policyBarrier = vi
+      .spyOn(policyValidation, "validateRecordSetPolicy")
+      .mockImplementation(() => {
+        throw new Error("Synthetic mandatory policy refusal");
+      });
+    try {
+      const configuredResult =
+        await configured.refreshWashingtonGovernorExecutiveOrdersSource(
+          createWashingtonGovernorExecutiveOrdersAdapter({
+            fetch: fixtureFetch().fetch,
+          }),
+          context,
+          { validate: externalValidator },
+        );
+      const directResult =
+        await direct.refreshWashingtonGovernorExecutiveOrdersSourceWithTaxonomy(
+          createWashingtonGovernorExecutiveOrdersAdapter({
+            fetch: fixtureFetch().fetch,
+          }),
+          context,
+          { validate: externalValidator },
+          taxonomy as unknown as TaxonomyConfig,
+        );
+      expect(configuredResult).toMatchObject({
+        ok: false,
+        failureStage: "validation",
+      });
+      expect(directResult).toEqual(configuredResult);
+      expect(policyBarrier).toHaveBeenCalledTimes(2);
+      expect(externalValidator).not.toHaveBeenCalled();
+    } finally {
+      policyBarrier.mockRestore();
+    }
+  });
+});
 
 async function references(
   adapter: WashingtonGovernorExecutiveOrdersAdapter,

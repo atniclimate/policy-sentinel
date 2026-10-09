@@ -4,9 +4,11 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 import { URL } from "node:url";
+import { createSyntheticStudyCorpus } from "../../fixtures/study/research-study.mjs";
 import {
   canonicalV2Digest,
   createAnalyzedCorpusV2,
+  createAnalyzedCorpusV21,
   createEvidenceSegment,
 } from "../../src/pipeline/analyzed-corpus-v2.mjs";
 import {
@@ -18,6 +20,132 @@ import {
   searchPolicyCorpus,
   policySearchPassage,
 } from "../../src/engine/policy-search.mjs";
+
+test("2.1 identifier search requires exact reviewed version evidence and preserves date scope", () => {
+  const corpus = createSyntheticStudyCorpus({ schemaVersion: "2.1.0" });
+  const index = createPolicySearchIndex(corpus);
+  for (const state of ["WA", "OR", "ID", "AK", "CA", "MT", "NV"])
+    assert.deepEqual(
+      searchPolicyCorpus(index, {
+        query: "Cascades",
+        jurisdictionRef: `us-state:${state}`,
+      }).hits.map((row) => row.versionId),
+      ["version-regional"],
+    );
+  assert.equal(
+    searchPolicyCorpus(index, { query: "Cascades", jurisdictionRef: "us" })
+      .total,
+    0,
+  );
+  assert.equal(
+    searchPolicyCorpus(index, {
+      query: "Cascades",
+      jurisdictionRef: "body:synthetic-council",
+    }).total,
+    0,
+  );
+  assert.equal(
+    searchPolicyCorpus(index, {
+      query: "Cascades",
+      jurisdictionRef: "us-state:WA",
+      asOf: "2026-10-06",
+      basis: "corpus_observed",
+    }).total,
+    0,
+  );
+  assert.equal(
+    searchPolicyCorpus(index, {
+      query: "Cascades",
+      jurisdictionRef: "us-state:WA",
+      asOf: "2026-10-07",
+      basis: "corpus_observed",
+    }).total,
+    1,
+  );
+  assert.throws(
+    () =>
+      searchPolicyCorpus(index, { query: "", jurisdictionRef: "us-state:ZZ" }),
+    /UNKNOWN_JURISDICTION_STATE/,
+  );
+  assert.throws(
+    () => searchPolicyCorpus(index, { query: "", jurisdictionRef: "Cascades" }),
+    /INVALID_JURISDICTION_REF/,
+  );
+  const input = JSON.parse(JSON.stringify(corpus));
+  for (const key of ["$schema", "schemaVersion", "kind", "contentDigest"])
+    delete input[key];
+  for (const catalog of Object.values(input))
+    if (Array.isArray(catalog))
+      for (const row of catalog) delete row.contentDigest;
+  for (const row of input.works.find((work) => work.id === "work-regional")
+    .jurisdictionRefs)
+    row.reviewState = "unreviewed";
+  const unreviewed = createPolicySearchIndex(createAnalyzedCorpusV21(input));
+  assert.equal(
+    searchPolicyCorpus(unreviewed, {
+      query: "Cascades",
+      jurisdictionRef: "us-state:WA",
+    }).total,
+    0,
+  );
+  assert.equal(
+    searchPolicyCorpus(createPolicySearchIndex(createSyntheticStudyCorpus()), {
+      query: "Cascades",
+      jurisdictionRef: "us-state:WA",
+    }).total,
+    0,
+  );
+});
+
+test("all terms narrow one version without borrowing terms from another version or ranking context", () => {
+  const corpus = createSyntheticStudyCorpus();
+  const index = createPolicySearchIndex(corpus);
+  const broad = searchPolicyCorpus(index, { query: "roadless Cascades" });
+  assert.equal(broad.matchMode, "any_terms");
+  assert.ok(broad.total > 1);
+  const refined = searchPolicyCorpus(index, {
+    query: "roadless Cascades",
+    matchMode: "all_terms",
+  });
+  assert.deepEqual(
+    refined.hits.map((hit) => hit.versionId),
+    ["version-regional"],
+  );
+  assert.deepEqual(refined.hits[0].matchedTerms, ["roadless", "cascades"]);
+  assert.equal(
+    searchPolicyCorpus(index, {
+      query: "roadless unknownterm7291",
+      matchMode: "all_terms",
+    }).total,
+    0,
+  );
+  assert.equal(
+    searchPolicyCorpus(index, {
+      query: '"Cascades Review" roadless',
+      matchMode: "all_terms",
+    }).total,
+    1,
+  );
+  assert.equal(
+    searchPolicyCorpus(index, {
+      query: '"missing phrase" roadless',
+      matchMode: "all_terms",
+    }).total,
+    0,
+  );
+  assert.equal(
+    searchPolicyCorpus(index, {
+      query: "SYN-ROADLESS-2026 missingterm7291",
+      matchMode: "all_terms",
+    }).total,
+    0,
+  );
+  assert.throws(
+    () =>
+      searchPolicyCorpus(index, { query: "roadless", matchMode: "not_a_mode" }),
+    /INVALID_MATCH_MODE/,
+  );
+});
 
 function withBlocks(input, renditionId, blocks) {
   const rendition = input.renditions.find((value) => value.id === renditionId);
@@ -64,6 +192,56 @@ function withBlocks(input, renditionId, blocks) {
   input.segments.push(...segments);
   return input;
 }
+
+test("all-term evidence may span passages but never versions or hidden text", () => {
+  const split = createAnalyzedCorpusV2(
+    withBlocks(syntheticCorpusV2Input(), "rendition-a-new", [
+      "firstuniqueterm",
+      "seconduniqueterm",
+    ]),
+  );
+  const hit = searchPolicyCorpus(createPolicySearchIndex(split), {
+    query: "firstuniqueterm seconduniqueterm",
+    matchMode: "all_terms",
+    passageLimit: 1,
+  });
+  assert.equal(hit.total, 1);
+  assert.equal(hit.hits[0].allTermsInOnePassage, false);
+  assert.equal(hit.hits[0].passages.length, 1);
+  let separated = withBlocks(syntheticCorpusV2Input(), "rendition-a-old", [
+    "olduniqueterm",
+  ]);
+  separated = withBlocks(separated, "rendition-a-new", ["newuniqueterm"]);
+  assert.equal(
+    searchPolicyCorpus(
+      createPolicySearchIndex(createAnalyzedCorpusV2(separated)),
+      {
+        query: "olduniqueterm newuniqueterm",
+        matchMode: "all_terms",
+      },
+    ).total,
+    0,
+  );
+  const restricted = syntheticCorpusV2Input();
+  restricted.sourceProfiles.find(
+    (profile) => profile.id === "profile-a",
+  ).uses.localDisplay = "metadata_link";
+  for (const capture of restricted.captures)
+    if (capture.sourceProfileId === "profile-a")
+      capture.sourceProfileDigest = canonicalV2Digest(
+        restricted.sourceProfiles.find((profile) => profile.id === "profile-a"),
+      );
+  assert.equal(
+    searchPolicyCorpus(
+      createPolicySearchIndex(createAnalyzedCorpusV2(restricted)),
+      {
+        query: "within 30 days",
+        matchMode: "all_terms",
+      },
+    ).total,
+    0,
+  );
+});
 
 test("exact version and source identifiers precede incidental references, with stable passage occurrences", () => {
   const corpus = syntheticCorpusV2();
@@ -225,6 +403,88 @@ test("source/context/instrument filters and source as-of selection preserve unkn
   );
 });
 
+test("event indexes keep ambiguous version evidence separate across repeated query scopes", () => {
+  const input = syntheticCorpusV2Input();
+  const original = input.events.find((row) => row.id === "event-a-old");
+  input.events.push(
+    { ...original, id: "event-a-old-additional" },
+    {
+      ...original,
+      id: "event-a-old-undated",
+      date: { value: null, precision: "unknown" },
+      fieldProvenance: original.fieldProvenance.filter(
+        (row) => row.field !== "/date/value",
+      ),
+    },
+  );
+  const corpus = createAnalyzedCorpusV2(input);
+  const index = createPolicySearchIndex(corpus);
+  const request = {
+    query: "effective review",
+    asOf: "2026-09-02",
+    basis: "corpus_observed",
+  };
+  const observed = searchPolicyCorpus(index, request);
+  assert.equal(observed.total, 3);
+  const byVersion = new Map(observed.hits.map((hit) => [hit.versionId, hit]));
+  assert.deepEqual(byVersion.get("version-a-new").eventIds, ["event-a-new"]);
+  assert.deepEqual(byVersion.get("version-a-old").eventIds, [
+    "event-a-old",
+    "event-a-old-additional",
+  ]);
+  assert.deepEqual(byVersion.get("version-b").eventIds, ["event-b"]);
+  for (const hit of observed.hits) {
+    assert.equal(
+      hit.temporalState,
+      hit.workId === "work-a" ? "ambiguous" : "supported_source_snapshot",
+    );
+    assert.ok(
+      hit.passages.some((passage) =>
+        passage.evidenceFields.includes("event:effective/date/value"),
+      ),
+    );
+    for (const passage of hit.passages) {
+      const exact = policySearchPassage(index, passage.segmentId);
+      assert.equal(exact.truncated, false);
+      assert.ok(exact.text.includes("Effective"));
+      assert.equal(
+        corpus.renditions.find((row) => row.id === passage.renditionId)
+          .versionId,
+        hit.versionId,
+      );
+    }
+  }
+  const unfiltered = searchPolicyCorpus(index, { query: "effective review" });
+  assert.deepEqual(
+    unfiltered.hits.find((hit) => hit.versionId === "version-a-old").eventIds,
+    ["event-a-old", "event-a-old-additional", "event-a-old-undated"],
+  );
+  const historic = searchPolicyCorpus(index, {
+    ...request,
+    asOf: "2021-06-01",
+    basis: "source_effective",
+  });
+  assert.deepEqual(historic.hits.map((hit) => hit.versionId).sort(), [
+    "version-a-old",
+    "version-b",
+  ]);
+  assert.deepEqual(searchPolicyCorpus(index, request), observed);
+  assert.deepEqual(
+    searchPolicyCorpus(
+      createPolicySearchIndex({
+        ...corpus,
+        events: [...corpus.events].reverse(),
+      }),
+      request,
+    ),
+    observed,
+  );
+  assert.throws(
+    () => searchPolicyCorpus(index, { ...request, basis: "in_force" }),
+    /INVALID_TEMPORAL_BASIS/u,
+  );
+});
+
 test("metadata display grants cannot leak source body tokens or excerpts, and snippets decode only requested evidence", () => {
   const input = syntheticCorpusV2Input();
   input.sourceProfiles[0].uses.localDisplay = "metadata_link";
@@ -284,6 +544,81 @@ test("generic inflections match while literal phrases and exact source identifie
     searchPolicyCorpus(index, { query: "Instrument A" }).hits[0].workId,
     "work-a",
   );
+  const single = searchPolicyCorpus(index, { query: "consultation" });
+  for (const query of [
+    "consulted",
+    "consultation consulted",
+    "ＣＯＮＳＵＬＴＥＤ",
+  ]) {
+    const result = searchPolicyCorpus(index, { query });
+    assert.deepEqual(
+      result.hits.map((hit) => [hit.versionId, hit.score]),
+      single.hits.map((hit) => [hit.versionId, hit.score]),
+    );
+    assert.deepEqual(
+      result,
+      searchPolicyCorpus(
+        createPolicySearchIndex(createAnalyzedCorpusV2(input)),
+        { query },
+      ),
+    );
+  }
+});
+
+test("cached source metadata variants never carry later field evidence into an earlier query", () => {
+  const input = syntheticCorpusV2Input();
+  const version = input.versions.find((row) => row.id === "version-a-old");
+  const original = input.renditions.find((row) => row.id === "rendition-a-old");
+  const capture = {
+    ...input.captures.find((row) => row.id === original.captureId),
+    id: "capture-a-late-metadata",
+    operationId: "operation-a-late-metadata",
+    retrievedAt: "2026-09-02T12:00:00Z",
+  };
+  const rendition = {
+    ...original,
+    id: "rendition-a-late-metadata",
+    captureId: capture.id,
+  };
+  const segment = createEvidenceSegment({
+    renditionId: rendition.id,
+    renditionDigest: rendition.outputDigest,
+    renditionBytes: Buffer.from(rendition.text),
+    startByte: 0,
+    endByte: rendition.byteLength,
+    locator: input.segments.find((row) => row.renditionId === original.id)
+      .locator,
+  });
+  input.captures.push(capture);
+  input.renditions.push(rendition);
+  input.segments.push(segment);
+  version.renditionIds.push(rendition.id);
+  const status = version.fieldProvenance.find(
+    (row) => row.field === "/sourceStatusLabel",
+  );
+  status.captureId = capture.id;
+  status.segmentIds = [segment.id];
+  const corpus = createAnalyzedCorpusV2(input);
+  const index = createPolicySearchIndex(corpus);
+  const earlier = {
+    query: "Final",
+    asOf: "2026-09-02T06:00:00Z",
+    basis: "corpus_observed",
+  };
+  const later = { ...earlier, asOf: "2026-09-02T18:00:00Z" };
+  for (const request of [later, earlier, { query: "Final" }, earlier, later]) {
+    const result = searchPolicyCorpus(index, request);
+    assert.deepEqual(
+      result,
+      searchPolicyCorpus(createPolicySearchIndex(corpus), request),
+    );
+    const hit = result.hits.find((row) => row.versionId === version.id);
+    const known = request.asOf !== earlier.asOf;
+    assert.equal(hit.metadataKnown.status, known);
+    assert.equal(hit.whyShown.includes("source_metadata_terms"), known);
+    if (!known)
+      assert.ok(hit.passages.every((row) => row.renditionId !== rendition.id));
+  }
 });
 
 test("source metadata and cutoff proof are returned even when their exact words do not match the subject query", () => {

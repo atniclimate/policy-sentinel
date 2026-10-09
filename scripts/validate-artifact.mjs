@@ -1,4 +1,4 @@
-import { lstat, open, readFile, readdir } from "node:fs/promises";
+import { lstat, open, readFile, readdir, realpath } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
@@ -25,9 +25,15 @@ const SUPPORTED_RECORD_SCHEMA_VERSION = "1.4.0";
 
 function parseArguments(argv) {
   let directory = path.join(projectRoot, "dist", "data");
+  let sources = "config/sources.v1.json";
   for (let index = 0; index < argv.length; index += 1) {
     if (argv[index] === "--dir") {
       directory = path.resolve(projectRoot, argv[++index] ?? "");
+    } else if (argv[index] === "--sources") {
+      sources = argv[++index] ?? "";
+      const candidate = path.resolve(projectRoot, sources);
+      if (!sources || !candidate.startsWith(`${projectRoot}${path.sep}`))
+        throw new Error("source registry must remain inside the project");
     } else {
       throw new Error(`unknown argument: ${argv[index]}`);
     }
@@ -37,7 +43,7 @@ function parseArguments(argv) {
   if (!resolved.startsWith(`${root}${path.sep}`) || resolved === root) {
     throw new Error("artifact directory must remain inside the project");
   }
-  return resolved;
+  return { directory: resolved, sources };
 }
 
 async function readJsonFile(filePath) {
@@ -46,6 +52,33 @@ async function readJsonFile(filePath) {
 
 async function readProjectJson(relativePath) {
   return readJsonFile(path.resolve(projectRoot, relativePath));
+}
+
+async function readSourceRegistry(relativePath) {
+  const candidate = path.resolve(projectRoot, relativePath);
+  const [resolvedRoot, resolvedFile, candidateStat] = await Promise.all([
+    realpath(projectRoot),
+    realpath(candidate),
+    lstat(candidate),
+  ]);
+  const relative = path.relative(resolvedRoot, resolvedFile);
+  if (
+    relative === "" ||
+    relative.startsWith("..") ||
+    path.isAbsolute(relative) ||
+    candidateStat.isSymbolicLink() ||
+    !candidateStat.isFile()
+  )
+    throw new Error(
+      "source registry must be a regular file inside the project",
+    );
+  const bytes = await readBoundedRegularFile(
+    resolvedFile,
+    candidateStat,
+    8 * 1024 ** 2,
+    "source registry",
+  );
+  return JSON.parse(bytes.toString("utf8"));
 }
 
 async function inventoryArtifactEntries(root) {
@@ -176,7 +209,8 @@ function compileValidators(schemas) {
     allowUnionTypes: true,
   });
   addFormats(ajv);
-  return schemas.map((schema) => ajv.compile(schema));
+  for (const schema of schemas) ajv.addSchema(schema);
+  return schemas.map((schema) => ajv.getSchema(schema.$id));
 }
 
 function assertValid(validate, value, label) {
@@ -484,7 +518,9 @@ function assertActualArtifactBudget(assets, artifactFiles) {
   }
 }
 
-const artifactDirectory = parseArguments(process.argv.slice(2));
+const { directory: artifactDirectory, sources: sourceRegistryPath } =
+  parseArguments(process.argv.slice(2));
+const configuredSourceRegistry = await readSourceRegistry(sourceRegistryPath);
 const artifactInventory = await inventoryArtifactEntries(artifactDirectory);
 const manifestStat = artifactInventory.files.get("manifest.json");
 if (manifestStat === undefined) {
@@ -498,6 +534,8 @@ const manifestContent = await readBoundedRegularFile(
 );
 const manifest = JSON.parse(manifestContent.toString("utf8"));
 
+const successor = manifest.schemaVersion === "2.0.0";
+const suffix = successor ? "v2" : "v1";
 const [
   artifactSchema,
   recordSchema,
@@ -506,11 +544,11 @@ const [
   sourceRegistry,
   taxonomyConfig,
 ] = await Promise.all([
-  readProjectJson("schemas/artifact.schema.v1.json"),
-  readProjectJson("schemas/record.schema.v1.json"),
+  readProjectJson(`schemas/artifact.schema.${suffix}.json`),
+  readProjectJson(`schemas/record.schema.${suffix}.json`),
   readProjectJson("schemas/taxonomy.schema.v1.json"),
-  readProjectJson("schemas/source.schema.v1.json"),
-  readProjectJson("config/sources.v1.json"),
+  readProjectJson(`schemas/source.schema.${suffix}.json`),
+  Promise.resolve(configuredSourceRegistry),
   readProjectJson("config/taxonomy.v1.json"),
 ]);
 const [validateArtifact, validateRecord, validateTaxonomy, validateSources] =
@@ -519,6 +557,13 @@ const [validateArtifact, validateRecord, validateTaxonomy, validateSources] =
     recordSchema,
     taxonomySchema,
     sourceSchema,
+    ...(successor
+      ? await Promise.all(
+          ["record", "artifact", "source"].map((name) =>
+            readProjectJson(`schemas/${name}.schema.v1.json`),
+          ),
+        )
+      : []),
   ]);
 assertValid(validateSources, sourceRegistry, "source registry");
 assertSourceRegistrySemantics(sourceRegistry);
@@ -526,8 +571,10 @@ assertValid(validateTaxonomy, taxonomyConfig, "configured taxonomy");
 
 assertValid(validateArtifact, manifest, "manifest.json");
 if (
-  manifest.artifactVersion !== SUPPORTED_ARTIFACT_VERSION ||
-  manifest.recordSchemaVersion !== SUPPORTED_RECORD_SCHEMA_VERSION
+  manifest.artifactVersion !==
+    (successor ? "2.0.0" : SUPPORTED_ARTIFACT_VERSION) ||
+  manifest.recordSchemaVersion !==
+    (successor ? "2.0.0" : SUPPORTED_RECORD_SCHEMA_VERSION)
 ) {
   throw new Error(
     `manifest version pair is unsupported: expected ${SUPPORTED_ARTIFACT_VERSION}/${SUPPORTED_RECORD_SCHEMA_VERSION}, received ${manifest.artifactVersion}/${manifest.recordSchemaVersion}`,

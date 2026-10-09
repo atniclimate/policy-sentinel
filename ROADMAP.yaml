@@ -1,4 +1,4 @@
-schema_version: "1.10"
+schema_version: "1.11"
 roadmap_id: policy-sentinel-through-finish
 project:
   name: Policy Sentinel
@@ -15,18 +15,49 @@ project:
     plus intake, geographic/context association and output modules. The owner
     ruled on the realignment questions on 2026-09-22
     (docs/decisions/2026-09-22-realignment-rulings.md, transcribed as D-071 to
-    D-079 in docs/decision-register.md). Under D-071 this ledger is schema 1.10:
-    milestone "General development" (GD-00 to GD-23 from the design and
+    D-079 in docs/decision-register.md). Under D-071 the ledger used schema
+    1.10: milestone "General development" (GD-00 to GD-23 from the design and
     docs/architecture/general-development-addendum-2026-09-22.md) is admitted by
     rule behind four named gates, and every other milestone keeps its frozen 1.9
-    identities. General development is non-release local work. Retained PS09
+    identities. Schema 1.11 represents D-086/D-087 successor authority and the
+    explicit GD-31 acceptance crosswalk. GD-27-LOCAL-RELEASE-PACKAGE is the
+    current general-engine local release root, with every required capability,
+    demonstration and unresolved historical claim carried forward. Retained PS09
     state is unchanged: POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01 completed its
     bounded local workbench outcome through PS09-03/04/05; the program remains
     blocked on PS09-02 identity/scenario evidence, an explicit PS09-06
-    prerequisite; PS09-06-LOCAL-RC is the sole release root and remains
+    prerequisite; PS09-06-LOCAL-RC is the historical release root and remains
     unstarted and gated. EV01, Run 1/2 and archived lanes retain their
-    historical evidence and spent-operation boundaries.
-  updated_on: "2026-10-06"
+    historical evidence and spent-operation boundaries. The owner's separate
+    2026-10-08 instruction to fix audit findings 1-5 is tracked in
+    docs/handoffs/2026-10-08-audit-fixes.md; the five local repairs passed
+    independent review and regression checks, with aggregate test timeout and
+    pre-existing formatting exceptions recorded there. GD-10 remains paused and
+    no gate changed. The owner then requested local commits and a live browser
+    check; the local frontend passed 39 checks against the deployed demo service
+    after a missing-favicon repair, with no push or deployment. The owner's
+    subsequent commit/push/deploy instruction published only the reviewed fixes
+    and demo artifacts on main; the updated Worker and Pages passed all 39
+    deployed browser checks. Unrelated development commits stay local, GD-10
+    remains paused, and general-engine release acceptance is unchanged. The
+    owner's subsequent Roadless Rule comparison request produced three
+    exploratory studies in
+    docs/development/2026-10-08-roadless-comparative-studies.md: frozen deployed
+    search receipts, public-source comparisons, and explicit coverage and
+    inference limits. This research changes no implementation, source
+    activation, publication grant, or general-engine acceptance state. A
+    requested fresh-session implementation plan is prepared at
+    docs/handoffs/2026-10-08-study-workflow-development-plan.md, mapping study
+    improvements onto existing work items. Preparation does not resume GD-10;
+    its included launch prompt supplies explicit resume direction if adopted.
+    The owner subsequently issued the development launch directive for
+    integrated source qualification, procedural evidence, persistent studies and
+    attributed exports, explicitly authorizing implementation, schema migrations
+    and parallel engineering. GD-10 is resumed under its reviewed boundary
+    contract; execution and acceptance evidence are recorded in
+    docs/development/2026-10-08-study-engine-implementation.md. Source-specific
+    qualification, managed-storage limits and separate external gates remain.
+  updated_on: "2026-10-09"
   owner_intent: >-
     Build and validate a sovereignty-centered general Policy Sentinel engine,
     prove its present definition of done through the owner-selected PNW scenario
@@ -241,6 +272,74 @@ authority:
         The owner approves the recipient, channel, event, content, and workflow.
 
 gates:
+  - id: G-GD-SUCCESSOR-IMPLEMENTATION
+    name: Reviewed general-engine successor contracts and implementation
+    state: approved
+    decision_ref: D-086
+    evidence:
+      - D-086/D-087 adopt successor implementation; GD-31 represents it
+        separately from historical synthetic grants.
+    scope:
+      kind: approved_general_engine_successor_implementation
+      policy_acquisition_budget:
+        { sources: 0, domains: 0, requests: 0, bytes: 0 }
+      policy_source_activation: false
+      real_private_data: false
+      publication: false
+      release_authority: false
+  - id: G-GD-PUBLIC-ACQUISITION
+    name: Adopted measured public acquisition subject to reviewed manifests
+    state: approved
+    decision_ref: D-086
+    evidence:
+      - D-086/D-087 authorize measured public acquisition. Qualification,
+        current profiles, finite manifests, capacity refusal and separate output
+        acceptance precede each operation; no GD-31 packet is dispatch-ready.
+    scope:
+      kind: approved_measured_public_acquisition
+      policy_acquisition_budget:
+        total_managed_bytes: 50000000000
+        dispatch_requires_reviewed_manifest: true
+      policy_source_activation: true
+      real_private_data: false
+      publication: false
+      release_authority: false
+      source_review_required: true
+      external_storage_required: true
+      source_specific_external_gates_preserved: true
+  - id: G-GD-ATNI-LOCAL-ASSESSMENT
+    name: Already-authorized local ATNI synthetic interoperability assessment
+    state: approved
+    decision_ref: D-087
+    evidence:
+      - D-086 confirms local assessment authority; D-087 adopts separately
+        versioned optional deliberate Nation selection. Actual private/shared
+        transfer requires its own agreement and recipient scope.
+    scope:
+      kind: approved_atni_local_synthetic_assessment
+      policy_acquisition_budget:
+        { sources: 0, domains: 0, requests: 0, bytes: 0 }
+      policy_source_activation: false
+      real_private_data: false
+      publication: false
+      release_authority: false
+  - id: G-GD-LOCAL-RELEASE-ACCEPTANCE
+    name: General-engine local release evidence acceptance
+    state: closed
+    decision_ref: D-086
+    unblocks_only_when: >-
+      Every required Part B outcome, retained PS09 claim and independent A1-A4
+      demonstration has dated reviewed evidence and the crosswalk has no open
+      acceptance claim. This evidence gate is not a repeated blanket owner
+      grant.
+    scope:
+      kind: general_engine_local_release_acceptance
+      policy_acquisition_budget:
+        { sources: 0, domains: 0, requests: 0, bytes: 0 }
+      policy_source_activation: false
+      real_private_data: false
+      publication: false
+      release_authority: true
   - id: G-MAKAH-DEMO-01
     name: Approved Makah demo groundwork, discovery and scouts
     state: approved
@@ -1010,55 +1109,113 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    General development under G-GENERAL-DEV-01 (D-071). Refactor wave 1 (GD-01,
-    GD-02, GD-03) and GD-24 (legacy archive and consolidation, D-080) are
-    complete; waves run one item at a time under the one-in_progress rule
-    (D-082). Next: session R (GD-17 nationwide source survey, GD-18 storage
-    capacity model; activating them first needs a planning act that moves them
-    ahead of the ready wave 2 items, or wave 2 lands first), wave 2 (GD-04,
-    GD-05, GD-07, GD-08, GD-09; wave 3: GD-06, GD-10) and GD-26 (reproducible
-    checks). GD-13, GD-16, GD-22 and GD-27 wait on their gates. The Makah demo
-    track is finished; its acquired objects remain custody only, and
-    per-document G-J decisions and G-BIA-IDENTITY stay open. The PS09 program
-    stays blocked on PS09-02 originating identity/scenario evidence; PS09-06 is
-    unstarted and gated; the completed H01/H02 maintenance and every sealed
-    discovery, prior assurance and owner-input identity are preserved.
+    Start the next session with GD-60 federal probe readiness, reliability and
+    fallback assessment, and local refreshable database requirements under
+    D-092.
   terminal_reason: >-
-    The bounded 2026-10-06 existing-demo maintenance ended with reviewed
-    repairs, local checks and separately authorized D-083/D-084 publication.
-    Four historical policy failures and an unrelated ignored-settings format
-    failure remain recorded; no general-engine release is claimed. Other
-    general-development items and PS09 retain their existing status and gates;
-    this maintenance run does not select a successor item.
+    GD-57 is complete at 845565c. D-092 selects GD-60 ahead of GD-20 for the
+    next session. Its packet is preparation only: no new provider request,
+    credential action, source activation or database implementation occurred.
+    Source-specific gates and GD-27 acceptance remain closed.
   resumable_roots:
-    - PS09-02-IDENTITY-AUTHORITY-SCENARIOS
-    - GD-04-CORE-BOUNDARY-GUARD
-    - GD-05-INTAKE-REPLAY-AND-DISCOVERY
-    - GD-07-RESEARCH-OUTPUT-SPLIT
-    - GD-08-CONTEXT-RELEVANCE-EXTRACTION
-    - GD-09-JURISDICTION-IDENTIFIER-MODEL
-    - GD-13-NATIONWIDE-RECORD-CONTRACT
-    - GD-16-INTEROP-PURE-ADAPTER
-    - GD-17-NATIONWIDE-SOURCE-SURVEY
-    - GD-18-STORAGE-CAPACITY-MODEL
+    - GD-60-FEDERAL-PROBE-REFRESH-READINESS
+    - GD-20-DESIGNATION-REGISTRY-CONTRACT
     - GD-22-NATION-REGISTRY-BINDING
-    - GD-26-REPRODUCIBLE-CHECKS
+    - GD-23-USER-SUPPLIED-SOURCE-CLASS
+    - GD-47-REGIONAL-INTERFACE-QUALIFICATION
+    - GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
+    - GD-36-PILOT-SOURCE-QUALIFICATION
+    - GD-39-FEDERAL-REGISTER-API-INTEGRATION
+    - GD-40-GOVINFO-API-INTEGRATION
+    - GD-41-ECFR-API-INTEGRATION
+    - GD-42-CONGRESS-API-INTEGRATION
+    - GD-43-REGULATIONS-API-INTEGRATION
+    - GD-53-PS09-ACCEPTANCE-CARRYFORWARD
     - GD-27-LOCAL-RELEASE-PACKAGE
-  last_durable_checkpoint: 3a037f9cd7350cbc96fd7a185756c58984b6ab6e
+  last_durable_checkpoint: 7f50d29954ce4f3a8244cb67ac8bf8e35422b655
   resume_command: npm run validate:roadmap
-
 completion_scope:
   general_development:
-    accounting: non_release_local_development
+    accounting: canonical_general_engine_local_release
+    release_root: GD-27-LOCAL-RELEASE-PACKAGE
+    historical_release_root: PS09-06-LOCAL-RC
+    acceptance_gate: G-GD-LOCAL-RELEASE-ACCEPTANCE
+    acceptance_crosswalk: docs/development/gd31-release-acceptance-crosswalk.md
+    required_outcomes:
+      - GD-00-REALIGNMENT-AUDIT-DESIGN
+      - GD-01-CHARACTERIZATION-TESTS
+      - GD-02-MODULE-BOUNDARY-TEST
+      - GD-03-BOUNDARY-GUARD-TESTS
+      - GD-04-CORE-BOUNDARY-GUARD
+      - GD-05-INTAKE-REPLAY-AND-DISCOVERY
+      - GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
+      - GD-07-RESEARCH-OUTPUT-SPLIT
+      - GD-08-CONTEXT-RELEVANCE-EXTRACTION
+      - GD-09-JURISDICTION-IDENTIFIER-MODEL
+      - GD-10-BOUNDARY-ENFORCEMENT
+      - GD-11-V2-JURISDICTION-ASSOCIATION
+      - GD-12-NATIONWIDE-SOURCE-CATALOG
+      - GD-13-NATIONWIDE-RECORD-CONTRACT
+      - GD-14-FEDERAL-TAXONOMY-SOURCE-MAPPINGS
+      - GD-15-ARCHITECTURE-DOCS
+      - GD-16-INTEROP-PURE-ADAPTER
+      - GD-17-NATIONWIDE-SOURCE-SURVEY
+      - GD-18-STORAGE-CAPACITY-MODEL
+      - GD-19-AREA-RESOLVER
+      - GD-20-DESIGNATION-REGISTRY-CONTRACT
+      - GD-21-POLICY-CONTEXT-V1
+      - GD-22-NATION-REGISTRY-BINDING
+      - GD-23-USER-SUPPLIED-SOURCE-CLASS
+      - GD-24-LEGACY-ARCHIVE-AND-CONSOLIDATION
+      - GD-25-ANALYST-RESEARCH-LOOP
+      - GD-26-REPRODUCIBLE-CHECKS
+      - GD-27-LOCAL-RELEASE-PACKAGE
+      - GD-29-BOUNDED-OPTIMIZATION
+      - GD-30-DEVELOPMENT-PLAN-REALIGNMENT
+      - GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
+      - GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
+      - GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
+      - GD-34-ACCEPTED-SCOPE-AND-DISCOVERY-CLARIFICATION
+      - GD-35-BOUNDED-SEARCH-IMPLEMENTATION
+      - GD-36-PILOT-SOURCE-QUALIFICATION
+      - GD-37-PILOT-ACQUISITION
+      - GD-38-REAL-PILOT-ACCEPTANCE
+      - GD-39-FEDERAL-REGISTER-API-INTEGRATION
+      - GD-40-GOVINFO-API-INTEGRATION
+      - GD-41-ECFR-API-INTEGRATION
+      - GD-42-CONGRESS-API-INTEGRATION
+      - GD-43-REGULATIONS-API-INTEGRATION
+      - GD-44-REGIONAL-API-INTEGRATION
+      - GD-45-REGIONAL-CUSTODY-EXPANSION
+      - GD-46-ACTIVATED-STATE-MAPPINGS
+      - GD-47-REGIONAL-INTERFACE-QUALIFICATION
+      - GD-48-PACKAGE-CANDIDATE
+      - GD-49-DEMONSTRATION-A1
+      - GD-50-DEMONSTRATION-A2
+      - GD-51-DEMONSTRATION-A3
+      - GD-52-DEMONSTRATION-A4
+      - GD-53-PS09-ACCEPTANCE-CARRYFORWARD
+      - GD-54-ROADLESS-FEDERAL-PILOT
+      - GD-55-SEARCH-REFINEMENT-REVIEW-GUIDANCE
+      - GD-56-AUDIT-REPAIRS
+      - GD-57-FEDERAL-EXPANSION-PLAN
+      - GD-60-FEDERAL-PROBE-REFRESH-READINESS
+    demonstration_outcomes:
+      - GD-49-DEMONSTRATION-A1
+      - GD-50-DEMONSTRATION-A2
+      - GD-51-DEMONSTRATION-A3
+      - GD-52-DEMONSTRATION-A4
     admission_rule: >-
-      Every work item under milestone "General development" belongs here by
-      rule: it carries work_class general_development_local, a decision_ref that
-      resolves to a docs/decision-register.md row, and an authorization_gate
-      among G-GENERAL-DEV-01, G-GD-NATIONWIDE-CONTRACT, G-GD-INTEROP and
-      G-GD-PRIVATE-CONTEXT. General-development items depend only on each other,
-      no other item depends on them, and none is a release prerequisite;
-      PS09-06-LOCAL-RC stays the sole release root.
-    decision_ref: D-071
+      Schema 1.11 makes GD-27 the current local release root under D-086. GD
+      items retain general_development_local and an exact admitted gate. Every
+      GD outcome except the separate completed demo maintenance GD-28 is
+      required. General-development dependencies remain within the GD graph. The
+      PS09 completion, finish, component registry and publication graph remain
+      immutable historical acceptance evidence, not a second current execution
+      or publication schedule. GD-53 owns every unmet PS09 claim. New gates do
+      not change historical grants. Preparation is not dispatch, private
+      transfer, publication or final local release acceptance.
+    decision_ref: D-086
   makah_demo:
     accounting: non_release_local_maintenance
     required_outcomes:
@@ -5550,6 +5707,541 @@ work_items:
       - "The initial prompt expressly withheld deployment and publication
         approval."
 
+  - id: GD-60-FEDERAL-PROBE-REFRESH-READINESS
+    priority: 285
+    milestone: General development
+    title: Federal probe readiness and local refreshability assessment
+    status: ready
+    work_class: general_development_local
+    decision_ref: D-092
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-57-FEDERAL-EXPANSION-PLAN]
+    acceptance:
+      - >-
+        Recheck current originating source access, use and reproduction terms
+        for selected federal collections. Prepare exact finite canary and
+        acquisition manifests with measured storage refusal, source-specific
+        gates and distinct dispatch decisions. Do not spend GD-31 or historical
+        packets.
+      - >-
+        For routes actually cleared for dispatch under their separate operation
+        gate, collect bounded status, latency, bytes, pagination,
+        update/version, fixity and failure evidence. Test same-collection LKG
+        and unavailable fallbacks; do not infer reliability or coverage from
+        documentation alone.
+      - >-
+        Compare the current immutable corpus and a local transactional-index
+        candidate for refresh, provenance, privacy separation, crash recovery,
+        search, replay and total managed capacity. Record measured prototype
+        evidence or an explicit decision to retain the file design before any
+        production database dependency is selected.
+    evidence:
+      - >-
+        Owner direction D-092 selects this next-session focus. The entry packet
+        docs/development/gd60-federal-probes-and-local-refresh-plan-2026-10-09.md
+        at source commit 7f50d29954ce4f3a8244cb67ac8bf8e35422b655 prepares the
+        work without provider requests, credential action, acquisition or
+        database implementation.
+  - id: GD-57-FEDERAL-EXPANSION-PLAN
+    priority: 286
+    milestone: General development
+    title: Federal document expansion access and reliability plan
+    status: complete
+    completed_on: "2026-10-09T08:55:39-07:00"
+    completion_commit: 845565c23d194f530a5ee59a1b088c90cb566f40
+    work_class: general_development_local
+    decision_ref: D-091
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-17-NATIONWIDE-SOURCE-SURVEY]
+    acceptance:
+      - >-
+        Assess originating source routes for public laws, congressional bills
+        and resolutions, proposed budgets and federal court rulings. Preserve
+        instrument, version, proposed/enacted and issuing-body distinctions.
+      - >-
+        Produce a collection-level matrix of data and API access capabilities,
+        date/format coverage, authentication and use conditions, current primary
+        evidence, reliability observations, failure/recovery behavior and gaps.
+        Distinguish documented, implemented, tested and unavailable
+        capabilities.
+      - >-
+        Reconcile GD-33 and GD-39 through GD-43 with the expanded document
+        families, assign existing integration owners or explicit successor work,
+        and prepare a finite implementation and validation packet. This planning
+        item acquires no policy corpus, accepts no terms and changes no
+        credentials.
+    evidence:
+      - >-
+        docs/development/gd57-federal-expansion-access-reliability-2026-10-09.md
+        records ten collection-level routes, documented/implemented/tested
+        states, date and format coverage, access and reuse conditions,
+        failure/recovery limits, implementation owners and a finite next
+        validation packet. Source commit
+        845565c23d194f530a5ee59a1b088c90cb566f40. No GD-57 provider request was
+        made; keyed API gates remain closed.
+      - >-
+        Owner direction D-091 explicitly prioritizes this next-session federal
+        assessment.
+        docs/handoffs/2026-10-09-sprint-report-and-federal-expansion.md records
+        the sprint report, required document families and assessment criteria.
+        Saving the direction does not complete the assessment or activate a
+        source. Existing implementation statuses and gates remain.
+  - id: GD-56-AUDIT-REPAIRS
+    priority: 287
+    milestone: General development
+    title:
+      Repair export filename privacy, search URL parsing and study history
+      replay
+    status: complete
+    completed_on: "2026-10-09T08:08:08-07:00"
+    completion_commit: cd069298b90d070828206a87e7262ae3fd5c64c1
+    work_class: general_development_local
+    decision_ref: D-090
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      - GD-25-ANALYST-RESEARCH-LOOP
+      - GD-55-SEARCH-REFINEMENT-REVIEW-GUIDANCE
+    acceptance:
+      - Public export filenames use the same filtered study identity as their
+        contents.
+      - Prototype-named URL category keys cannot crash search parsing or change
+        object prototypes.
+      - >-
+        Study history replay reuses unchanged canonical revision strings while
+        preserving saved bytes, all digest checks and tamper rejection; a
+        repeatable synthetic before/after measurement demonstrates improvement.
+      - Focused regressions, independent review and standing repository checks
+        pass within their stated limits.
+    evidence:
+      - >-
+        Owner instructed "Make fixes 1 - 3" after the 2026-10-09 Ponytail audit.
+        Scope and validation are recorded in
+        docs/handoffs/2026-10-09-audit-repairs.md. No source, private-data,
+        remote or publication operation is included.
+      - >-
+        All 64 focused tests passed after reproducing four expected failures
+        before the fixes. Independent source/test and ledger reviews passed. The
+        unchanged 1,001-revision synthetic study imported in 1,897 ms versus
+        4,351 ms before; all three measured saved digests and lengths matched.
+        npm test passed every stage, including 2,219 unit tests in 115 files;
+        synthetic build and artifact validation passed. Runtime, typecheck,
+        lint, hooks, roadmap, backbone, knowledge and source scan passed. The
+        existing Windows file-symlink permission skip remains; the final format
+        check flags only the pre-existing ignored local settings file.
+  - id: GD-34-ACCEPTED-SCOPE-AND-DISCOVERY-CLARIFICATION
+    priority: 288
+    milestone: General development
+    title: Accepted local source ATNI profile and annotation discovery rulings
+    status: complete
+    completed_on: "2026-10-07T00:08:20-07:00"
+    completion_commit: c3a6a72202eba19e96a73c0cebf28bafb1bb5af4
+    work_class: general_development_local
+    decision_ref: D-087
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-30-DEVELOPMENT-PLAN-REALIGNMENT]
+    acceptance:
+      - >-
+        Record the owner acceptance of county/municipal discovery and the
+        optional selected Nation criterion in an authorized ATNI profile.
+        Distinguish public Tribal-government sources from restricted internal
+        policies without treating operational subjects as nongovernmental.
+      - >-
+        Specify annotation-guided repeated discovery with exact bindings,
+        reviewed candidate feedback and private-request exclusions. Update
+        pending acceptance and current documents; preserve historical evidence,
+        gate states, runtime code and the next GD-26 implementation selection.
+      - >-
+        Bounded independent review, roadmap/backbone validation, source-boundary
+        and diff checks support a local documentation checkpoint. No source
+        acquisition, private transfer or unattended service is implemented.
+    evidence:
+      - >-
+        Owner acceptance and clarification are recorded under D-087 in commit
+        c3a6a72202eba19e96a73c0cebf28bafb1bb5af4. County/municipal discovery and
+        optional Nation ATNI context are settled; public Tribal-government
+        sources are eligible and restricted internal policies require applicable
+        permissions. Annotation-guided discovery remains planned functionality,
+        with a complete feedback journey specified.
+      - >-
+        Bounded independent review and roadmap/backbone/source-boundary/diff
+        checks pass. Seven pending work items are amended; the other 108
+        pre-existing items and all historical gates remain semantically
+        unchanged. Runtime/schema files and 36 pre-existing untracked files are
+        preserved.
+
+  - id: GD-30-DEVELOPMENT-PLAN-REALIGNMENT
+    priority: 289
+    milestone: General development
+    title: Owner-directed development plan and next-session realignment
+    status: complete
+    completed_on: "2026-10-06T23:53:28-07:00"
+    completion_commit: f0e1b57229cf7c302fe8e6300affa0e97bd5dd01
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-29-BOUNDED-OPTIMIZATION]
+    acceptance:
+      - >-
+        Owner directions, clarified authorization, 50 GB total managed footprint
+        and named AK/CA/MT/NV planning scope are recorded without claiming
+        verified membership or source activation.
+      - >-
+        One bounded adversarial critique is dispositioned; dependencies, API
+        acceptance, analyst privacy, source survey split and release crosswalk
+        are concrete and preserve historical evidence.
+      - >-
+        Front-door documents, ledger and next-session handoff agree; roadmap,
+        backbone, source-boundary and scoped formatting checks are recorded. No
+        product code, schema, corpus or deployment changes.
+    evidence:
+      - >-
+        The owner-directed revision, D-086, independent adversarial review and
+        next-session handoff are committed at
+        f0e1b57229cf7c302fe8e6300affa0e97bd5dd01. All three material review
+        findings are addressed: authored analysis privacy, actual API-route
+        acceptance and initial/nationwide survey split.
+      - >-
+        Roadmap and backbone validators, source-boundary scan, scoped ledger
+        formatting and diff checks pass. Product/runtime/schema files and the
+        pre-existing untracked files are preserved. Planning completion does not
+        acquire data or complete an integration or release.
+
+  - id: GD-26-REPRODUCIBLE-CHECKS
+    priority: 290
+    milestone: General development
+    title: Reproducible checks and Claude Code mechanical gate tests
+    status: complete
+    work_class: general_development_local
+    decision_ref: D-081
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      [GD-00-REALIGNMENT-AUDIT-DESIGN, GD-30-DEVELOPMENT-PLAN-REALIGNMENT]
+    acceptance:
+      - >-
+        npm run hooks:test passes on a fresh source snapshot that carries no
+        ignored historical receipts.
+      - >-
+        A test attempts each denied form in .claude/settings.json and verifies
+        that the deny rule matches it.
+      - >-
+        The checks are required for demonstration A3 of the definition of done.
+    evidence:
+      - >-
+        docs/handoffs/2026-10-07-gd26-reproducible-checks.md records the lease,
+        independent review and verified results. hooks:test and
+        hooks:test:snapshot each pass 47/47 without ignored historical receipt
+        inputs. The finite matrix reconciles all 27 committed Bash deny rules,
+        exercises 41 denied command strings through the production matcher, and
+        retains 38 permitted controls. Denied commands are never executed;
+        substantive settings remain unchanged.
+      - >-
+        The full npm test rerun passes after a narrow pre-existing roadmap
+        negative-fixture reference repair. Runtime, lint, typecheck, roadmap,
+        backbone, knowledge, source scan and synthetic build/artifact checks
+        pass. The ignored local-settings formatting failure and host symlink
+        limits remain explicit. This supplies A3 check prerequisites, not the
+        complete restore/replay demonstration. No provider research,
+        acquisition, profile renewal, private transfer, push or deployment.
+    completion_commit: a3ac31aff64b24d124c05456e3e842bd2b88b2c7
+    completed_on: "2026-10-07T00:50:35-07:00"
+
+  - id: GD-17-NATIONWIDE-SOURCE-SURVEY
+    priority: 291
+    milestone: General development
+    title: Initial federal regional and intertribal source matrix (docs only)
+    status: complete
+    completed_on: "2026-10-07T01:23:20-07:00"
+    completion_commit: b839a56704073f044700bd7509b6c55f7bb05f28
+    work_class: general_development_local
+    decision_ref: D-078
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      [GD-00-REALIGNMENT-AUDIT-DESIGN, GD-30-DEVELOPMENT-PLAN-REALIGNMENT]
+    acceptance:
+      - >-
+        The finite initial matrix covers Federal Register, GovInfo, eCFR,
+        Congress.gov and Regulations.gov; WA, OR, ID, AK, CA, MT and NV; and
+        public ATNI, NCAI and USET resolutions. Source classes include
+        legislation, codes, rules, court opinions and selected local
+        instruments.
+      - >-
+        Record official authority, declared API or document route, coverage,
+        access/reuse conditions, credentials, source health and explicit gaps.
+        Distinguish discovery, fixture testing, live acquisition and usable
+        evidence. Identify the qualified pilot subset and required API set.
+      - >-
+        Owner-provided community labels guide offline source selection without
+        asserting membership, land boundaries or Nation-record relationships.
+        Tribal private law remains user-supplied; public intertribal resolutions
+        are organizational acts, not inferred positions of member Nations.
+      - >-
+        Documentation only; no acquisition, term acceptance or key registration.
+        Full nationwide survey completion remains required through GD-33.
+      - >-
+        D-087 includes official public Tribal-government codes, ordinances,
+        resolutions and policies from selected originating publishers in the
+        initial regional matrix. Supersede D-078 blanket exclusion; public
+        availability, issuer authority and allowed reuse are separate evidence.
+        An operational subject does not make a public record restricted.
+    evidence:
+      - docs/development/gd17-initial-source-survey-2026-10-07.md
+      - docs/handoffs/2026-10-07-gd17-initial-source-survey.md
+      - >-
+        Five federal families, seven jurisdiction SourceDescriptor drafts and
+        public Tribal/intertribal publisher matrix completed as documentation.
+        Contract-preparation shortlist is GovInfo direct FR, WA bill/session-law
+        and evidence-blocked ATNI; newly dispatch-ready pilot subset is empty.
+        No API integration, source activation, profile renewal or policy-payload
+        acquisition follows from this survey. Independent source and sovereignty
+        reviews completed; source review's qualification wording repair applied.
+      - >-
+        Validated checkpoint: roadmap/backbone validators and source-boundary
+        scan pass; npm run test:roadmap passes 473 tests. Protected runtime and
+        source configuration unchanged; all 36 pre-existing untracked files
+        preserve their recorded SHA-256 hashes. Completion unblocks GD-18 and
+        GD-33; source-specific gaps remain represented in the survey.
+
+  - id: GD-18-STORAGE-CAPACITY-MODEL
+    priority: 292
+    milestone: General development
+    title: Storage capacity model, holding policy and storage:report
+    status: complete
+    completed_on: "2026-10-07T02:00:33-07:00"
+    completion_commit: 8dc3985e373aaf79d0e352eee8fe60284250ccd0
+    work_class: general_development_local
+    decision_ref: D-077
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-17-NATIONWIDE-SOURCE-SURVEY]
+    acceptance:
+      - >-
+        Inventory existing project-managed policy roots and replace provisional
+        allocations with measured baseline usage and source/format forecasts.
+        Distinguish measured retained data from unacquired projections.
+      - >-
+        storage:report accounts for originals, renditions, metadata, indexes,
+        cases/exports and peak staging/rebuild copies together against
+        50,000,000,000 bytes (D-086); historical custody and managed cold
+        storage count. Preserve sealed evidence and independent disk/run limits.
+      - >-
+        Refusal and peak-space planning are explicit; no automatic eviction or
+        acquisition occurs here. Later admitted batches calibrate the estimates
+        from actual useful data without requiring the cap to be filled.
+    evidence:
+      - docs/development/gd18-storage-report-2026-10-07.md
+      - docs/handoffs/2026-10-07-gd18-storage-report.md
+      - >-
+        Standalone metadata-only storage:report and offline tests implemented.
+        Scope/privacy review passed; Windows root/run alias review findings
+        repaired and independently closed. Final focused suite passed 29 tests.
+        All 12 declared roots measured at 558,104,040 logical bytes; the
+        hypothetical 2,823,028,200-byte peak forecast refuses FREE_SPACE_FLOOR
+        on the C support volume, not an I volume shortage. Full tests/build pass
+        before the final narrow storage-only namespace delta, then focused tests
+        and lint pass again. Global ignored-settings formatting issue persists.
+        No acquisition, deletion, relocation or production-runner change.
+
+  - id: GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
+    priority: 293
+    milestone: General development
+    title: Successor authority manifests and release acceptance crosswalk
+    status: complete
+    completion_commit: 04d626f8eab10cf1fb5f5e627e234ade408775d2
+    completed_on: "2026-10-07T18:16:15Z"
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      [
+        GD-26-REPRODUCIBLE-CHECKS,
+        GD-17-NATIONWIDE-SOURCE-SURVEY,
+        GD-18-STORAGE-CAPACITY-MODEL,
+      ]
+    acceptance:
+      - >-
+        Prepare reviewed successor ledger/schema and operation-manifest
+        representation of D-086 public acquisition and ATNI local assessment.
+        Preserve historical gates and grants; do not request repeated blanket
+        authorization or dispatch acquisition in this item.
+      - >-
+        Define finite pilot and required API packets with official routes,
+        coverage, current reviews, host/request/retry/byte ceilings, total
+        managed storage and output boundaries. API acceptance exercises the API
+        route; manual import cannot substitute. Source-specific blocks do not
+        delay independent qualified rows.
+      - >-
+        Encode the accepted D-087 county/municipal general-jurisdiction rule and
+        common Nation-free versus optional-Nation ATNI profile, with exact
+        fields, recipient scope and compatibility tests. Include official public
+        Tribal-government sources without the D-078 blanket exclusion.
+        Restricted internal input and analyst-authored case/note sensitivity
+        retain separate access and permitted-use rules. These owner choices are
+        settled; source and implementation details remain to be qualified.
+      - >-
+        Represent the corresponding implementation and acquisition tasks with
+        dependencies and source-specific acceptance, including delivery of
+        bounded search, the pilot and the complete required API set. Design
+        completion alone cannot satisfy those later implementation outcomes.
+      - >-
+        Produce a PS09-to-1.0 claim crosswalk, registry-version reconciliation
+        and explicit release-root migration with required schema/tests. Every
+        Part B capability and A1-A4 demonstration has an owner; no release
+        completion or private transfer is inferred from preparation.
+    evidence:
+      - docs/architecture/gd31-successor-contracts.md
+      - docs/development/gd31-operation-packets.md
+      - docs/development/gd31-release-acceptance-crosswalk.md
+      - docs/development/gd31-successor-preparation-2026-10-07.md
+      - docs/handoffs/2026-10-07-gd31-successor-contracts.md
+      - docs/development/2026-10-07-autonomous-run.md
+      - >-
+        Recovery full test: spine passes 30 tests with one native-symlink skip;
+        concurrent policy fails nine of 143 tests on WINDOWS_PROBE_TIMEOUT. Root
+        applies a bounded scheduling-only repair to serialize the same policy
+        files; all assertions and native/operation limits remain intact.
+      - >-
+        The second full recovery test exits 1 before policy: spine has 25
+        passed, five TIME_LIMIT failures and one native-symlink skip. The policy
+        scheduling repair is independently reviewed but has no full passing run.
+        Both logs remain external; GD-31 stays an unmet mandatory release
+        outcome.
+      - >-
+        Final GD-32 implementation validation also exits 1 on unchanged native
+        probes: corpus 13 pass, spine 30 pass/one privilege skip, policy 138
+        pass/five WINDOWS_PROBE_TIMEOUT failures. Later phases do not run.
+        test-gd32-final.log/json preserve the third full attempt; no deadlines
+        or mandatory acceptance have been waived.
+      - >-
+        Preparation implementation and independent review pass; 37 focused
+        contract tests and 492 roadmap tests pass. Full npm test completion
+        remains pending after native Windows custody timeouts observed under
+        high host CPU load. No operation dispatched or source qualified.
+      - >-
+        Accepted after source checkpoint 04d626f and final independent review:
+        complete test-gd08-full exits 0 at 18:15 UTC, all required phases pass;
+        synthetic build/artifact and standing checks pass. Protected ignored
+        settings retain the sole global format failure; no aggregate check pass
+        or broader release/source activation is claimed. Earlier failures and
+        GD-32 incomplete measurement limitations remain historical evidence.
+
+  - id: GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
+    priority: 294
+    milestone: General development
+    title: Bounded offline search storage and pilot measurement design
+    status: complete
+    completion_commit: 04d626f8eab10cf1fb5f5e627e234ade408775d2
+    completed_on: "2026-10-07T18:16:15Z"
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-18-STORAGE-CAPACITY-MODEL]
+    acceptance:
+      - >-
+        Using retained or synthetic inputs only, choose bounded corpus
+        projections or persistent local search; account for current 128 MiB
+        loader and 1000-result limits without treating them as full coverage.
+      - >-
+        Specify and measure named workloads, cold/warm search, browser
+        payload/memory, stable version/passage bindings and peak index rebuild
+        space. Record incomplete or failed measurements without a 50 GB
+        performance claim; later acquired pilot data calibrates the design.
+      - >-
+        Freeze a finite offline analyst journey/query set including case
+        save/reopen, exact citation replay, three output styles and private
+        notes attached to public sources. No acquisition or bulk dispatch occurs
+        in this design item.
+    evidence:
+      - docs/development/2026-10-07-autonomous-run.md
+      - docs/architecture/gd32-bounded-search.md
+      - >-
+        Bounded projection design and twelve analyst journeys are frozen. A new
+        finite synthetic measurement runner and nine negative/supervisor tests
+        pass focused validation. The 100-work case completes; 500 and 2000
+        watchdog exits are confirmed and remain incomplete. Browser attempt
+        records the absent installed runtime without launching a browser or
+        listener. docs/development/gd32-search-measurements-2026-10-07.md
+        records the measured limits. Historical runner and production modules
+        remain unchanged; journeys, browser memory and item completion are not
+        claimed.
+      - docs/handoffs/2026-10-07-gd32-bounded-search.md
+      - >-
+        Independent fixture and measurement reconciliation reviews pass. Focused
+        measurement tests pass 9/9 and repaired roadmap regressions pass
+        493/493. Final lint, typecheck, roadmap/backbone and source scan pass;
+        global formatting fails only on protected ignored local settings. Full
+        npm test exits 1 with five unchanged native-probe timeouts, so
+        completion remains pending. All 36 original owner hashes match.
+      - >-
+        Accepted after source checkpoint 04d626f and final independent review:
+        complete test-gd08-full exits 0 at 18:15 UTC, all required phases pass;
+        synthetic build/artifact and standing checks pass. Protected ignored
+        settings retain the sole global format failure; no aggregate check pass
+        or broader release/source activation is claimed. Earlier failures and
+        GD-32 incomplete measurement limitations remain historical evidence.
+
+  - id: GD-29-BOUNDED-OPTIMIZATION
+    priority: 295
+    milestone: General development
+    title: Deterministic offline tests and consistent startup instructions
+    status: complete
+    completed_on: "2026-10-06T23:13:50-07:00"
+    completion_commit: f06374c2e10229eb2eefeda7755903a609145352
+    work_class: general_development_local
+    decision_ref: D-085
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-00-REALIGNMENT-AUDIT-DESIGN]
+    acceptance:
+      - >-
+        Historical-profile initialization and positive CLI routing succeed with
+        isolated test clocks; before-review, exact-expiry and expired cases
+        preserve production refusal without renewing profiles or making
+        requests.
+      - >-
+        Replay tests use synthetic capacity observations; post-write reserve and
+        independent run-byte limits retain refusal before output creation and
+        real byte, checksum, ownership and exclusive-write checks.
+      - >-
+        Startup instructions and hook guidance agree on scoped demo reading and
+        full context for shared extractor, general-engine, graph and uncertain
+        work. Full-ledger validation, authority gates and negative hooks remain.
+      - >-
+        Required checks, retained failures and independent review are recorded;
+        unrelated work and historical evidence are preserved. No product speed,
+        live-source, publication or general-engine release claim is made.
+    evidence:
+      - >-
+        Owner selected O1 and O2 in plan
+        policy-sentinel-optimize-20261006-223953 revision 1, then launched
+        optimize-go on 2026-10-06. Starting HEAD
+        8ae5b4ca59b39ca16946c77978ef010bc7256e6d and relevant input hashes match
+        the ready plan. Startup roadmap and backbone validation pass. Private
+        run state retains the immutable plan, baseline failures and path leases.
+      - >-
+        Implementation checkpoint 2026-10-06: focused policy checks pass 54
+        tests with no failures or skips; hook checks pass 19 tests. Test-only
+        clocks and filesystem observations preserve unchanged production guards.
+        The final serialized npm test passes all children, including 143 policy
+        tests and 1763 unit tests across 106 files. The 80 existing unit
+        placeholders and one unavailable Windows file-symlink check remain
+        qualified; no new skip or weakened assertion was introduced.
+      - >-
+        Runtime, lint, type checking, roadmap, backbone, knowledge, source scan,
+        synthetic build and artifact validation pass. npm run check remains
+        failed at the unchanged ignored local-settings formatting issue;
+        remaining children ran separately. Original failures remain retained.
+        Source scan checks 643 tracked paths and 679 source files. Build
+        synthetic-db24cbdc0f7701aef4e5 contains 3 records, 575 fixture Nations
+        and 8 verified assets. See
+        docs/handoffs/bounded-optimization-2026-10-06-outcome.md.
+      - >-
+        Independent final review recommends PASS for selected O1/O2 with no
+        material defect. It confirms unchanged production profiles, limits,
+        custody and authority gates and retains formatting, symlink, fixture and
+        unmeasured-performance qualifications. All 110 prior work items and 36
+        unrelated untracked files remain unchanged. Implementation committed
+        locally at f06374c2e10229eb2eefeda7755903a609145352; this terminal
+        ledger follow-up restores zero active items and the prior resumable
+        roots/actions. No push or deployment occurred.
+
   - id: MAKAH-DEMO-01-GROUNDWORK-DISCOVERY-SCOUTS
     priority: 296
     milestone: Makah demo
@@ -6498,7 +7190,9 @@ work_items:
     priority: 314
     milestone: General development
     title: Core boundary guard adopted by record validation
-    status: ready
+    status: complete
+    completion_commit: 04d626f8eab10cf1fb5f5e627e234ade408775d2
+    completed_on: "2026-10-07T18:16:15Z"
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -6514,12 +7208,54 @@ work_items:
       - >-
         tests/pipeline/pipeline.test.ts, tests/app/data-integrity.test.ts and
         npm run build stay green.
-    evidence: []
+    evidence:
+      - docs/development/2026-10-07-autonomous-run.md
+      - >-
+        Shared normalized 70-key guard preserves 77 original origin/depth cases.
+        Record integration exempts only six exact canonical root names and scans
+        their children; historical private lists remain unchanged. Two
+        independent reviews, lint and typecheck pass. First unit run has 1925
+        passes and one failure: the unchanged 45-second pipeline wrapper takes
+        110.838 seconds. Required validation and completion remain pending.
+      - docs/handoffs/2026-10-07-gd04-boundary-guard.md
+      - >-
+        Conditional fixture serialization retains real parser/filesystem checks,
+        CLI YAML cases and all deadlines. The first full regression passes 494
+        cases in 61.442 seconds; final fallback/syntax corrections are reviewed.
+        The final unit suite passes; mandatory full-suite validation remains
+        pending.
+      - >-
+        Final lint and fixture review pass. Final unit validation passes all
+        1926 tests across 106 files, including the unchanged 45-second pipeline
+        wrapper. Full test-gd04-final passes all 143 policy tests, then
+        assurance has 98 passes and two native failures. The same three
+        assurance files are now serialized; final acceptance remains pending
+        without any deadline or assertion change.
+      - >-
+        Independent assurance scheduling review passes, and the complete
+        serialized suite passes all 100 tests without skips in 54.400 seconds. A
+        new complete npm test attempt is pending; no focused result waives
+        required acceptance or source/release gates.
+      - >-
+        Complete test-gd04-serialized-assurance exits 1 before policy: spine has
+        26 passes, four TIME_LIMIT failures (corpus-store lines 174, 502, 539,
+        588) and the unchanged privilege skip. Final full acceptance remains
+        pending; root prepares a reviewed incomplete checkpoint before selecting
+        independent GD-05. Native limits and all owner inputs remain intact.
+      - >-
+        Accepted after source checkpoint 04d626f and final independent review:
+        complete test-gd08-full exits 0 at 18:15 UTC, all required phases pass;
+        synthetic build/artifact and standing checks pass. Protected ignored
+        settings retain the sole global format failure; no aggregate check pass
+        or broader release/source activation is claimed. Earlier failures and
+        GD-32 incomplete measurement limitations remain historical evidence.
   - id: GD-05-INTAKE-REPLAY-AND-DISCOVERY
     priority: 315
     milestone: General development
     title: Replay and Washington discovery moved into intake
-    status: ready
+    status: complete
+    completion_commit: 04d626f8eab10cf1fb5f5e627e234ade408775d2
+    completed_on: "2026-10-07T18:16:15Z"
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -6534,33 +7270,124 @@ work_items:
       - >-
         npm run test:policy, npm run test:assurance and the GD-01
         characterization tests stay green.
-    evidence: []
+    evidence:
+      - docs/development/2026-10-07-autonomous-run.md
+      - >-
+        Selected under the bounded GD-05 manifest after the reviewed incomplete
+        GD-04 checkpoint 9822139befee84711a3c1ad099dcadb2f439be08. Complete
+        GD-01/GD-02/GD-00 dependency closure and D-071 local synthetic authority
+        are verified; implementation and acceptance remain pending.
+      - docs/handoffs/2026-10-07-gd05-intake-extraction.md
+      - >-
+        Replay/helpers and Washington discovery move mechanically into intake;
+        both independent reviews and lint/typecheck/source scan pass. Legacy
+        replay re-export and discovery shim preserve imports; writer/server
+        bodies remain for GD-06. Required test acceptance remains pending.
+      - >-
+        Complete GD-05 policy validation passes 145/145, including compatibility
+        and GD-01 characterization; complete assurance passes 100/100, including
+        all eight actual-reader cleanup cases. Unit/build/full validation remain
+        pending; no assertion, isolation setting or deadline changes.
+      - >-
+        Complete unit suite passes all 1,926 tests across 106 files, including
+        module boundaries/public reachability and retained non-interference.
+        Synthetic build/artifact passes (3 records, 575 Nations, 8 assets).
+        Required test-gd05-full is running; item acceptance remains pending.
+      - >-
+        test-gd05-full exits 1 at 17:18 UTC: corpus 13 pass, spine 30 pass and
+        the unchanged privilege skip; policy 136 pass and nine
+        WINDOWS_PROBE_TIMEOUT failures. Later phases do not run. Focused
+        successes remain qualified evidence; full acceptance stays unmet.
+      - >-
+        Reviewed incomplete local checkpoint
+        88c632fa1ef21274be048874fa23b6c856cc6fce contains the eleven leased
+        paths. Temporarily deferred after the failed full attempt while
+        independent eligible GD-07 proceeds; required intake acceptance remains
+        in the release closure. No dependency completes.
+      - >-
+        Accepted after source checkpoint 04d626f and final independent review:
+        complete test-gd08-full exits 0 at 18:15 UTC, all required phases pass;
+        synthetic build/artifact and standing checks pass. Protected ignored
+        settings retain the sole global format failure; no aggregate check pass
+        or broader release/source activation is claimed. Earlier failures and
+        GD-32 incomplete measurement limitations remain historical evidence.
   - id: GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
     priority: 316
     milestone: General development
     title:
       Local-workbench writer, server and failure simulation split into output
-    status: not_started
+    status: complete
+    completion_commit: 1def69b2c156973777de826b20ad467778f16b43
+    completed_on: "2026-10-07T19:41:39Z"
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
     dependencies: [GD-05-INTAKE-REPLAY-AND-DISCOVERY]
     acceptance:
       - >-
-        The writer, reader, validation and checksum helpers, the failure
-        simulation and the loopback server move to
+        Pure bytes/validation, failure simulation and loopback serving move to
         src/modules/output/local-workbench/{write,failure-simulation,loopback-server}.mjs
-        with .d.mts files.
+        with .d.mts files. Writer/reader custody orchestration moves unchanged
+        to import-safe scripts/policy-local-output.mjs with its declaration;
+        three pure binding helpers move unchanged to core and remain re-exported
+        by intake. Output has no intake, composition or custody callback edge.
       - src/pipeline/policy-local-output.mjs becomes a pure re-export shim.
       - >-
         tests/pipeline/policy-local-output.test.mjs, npm run test:assurance and
         the GD-01 tests stay green.
-    evidence: []
+    evidence:
+      - docs/development/2026-10-07-autonomous-run.md
+      - docs/architecture/module-boundaries.md
+      - >-
+        Selected at priority 316 after accepted GD-05 and full recursive
+        GD-06/GD-05/GD-01/GD-02/GD-00 closure. Approved G-GENERAL-DEV-01 and
+        D-071 admit the bounded mechanical split. The published 18-path source
+        manifest separates custody composition from output without weakening
+        legacy behavior, tests or source/private gates; acceptance remains
+        pending.
+      - docs/handoffs/2026-10-07-gd06-local-workbench-extraction.md
+      - >-
+        Selection commit cf32bb6 contains exactly nine reviewed documents. All
+        implementation leases returned; root and independent integration
+        comparisons find complete unchanged bodies and correct dependencies.
+        Owned formatting, lint, typecheck and focused unit pass (3 files, 19
+        tests). Complete test-gd06-full is running on frozen source; required
+        full/artifact validation and final acceptance remain pending.
+      - >-
+        Complete test-gd06-full exits 1 at 19:06 UTC: corpus 13, spine 30 plus
+        unchanged privilege skip and policy 148 pass; assurance 99/100 fails
+        unchanged native knowledge publication, later phases unreached.
+        Independent review identifies and corrects a scoped guard loader bypass
+        with a regression fixture; final source review passes. Corrected-code
+        focused/full validation and acceptance remain pending.
+      - >-
+        Applied loader-fix source review passes. Corrected focused unit passes 3
+        files/20 tests in 16.23 seconds. Complete test-gd06-finalcandidate is
+        running on frozen final source; all previous failures stay failed, and
+        full/artifact acceptance remains pending.
+      - >-
+        Complete test-gd06-finalcandidate exits 0 at 19:26:50 UTC on frozen
+        corrected source: corpus 13, spine 30 plus unchanged privilege skip,
+        policy 148, assurance 100, backbone 26, tier-1 129, knowledge 31,
+        storage 29, development-authority 37, search-measurement 9 and unit 107
+        files/1934 tests pass. Earlier failed receipt remains failed; standing
+        build/artifact, runtime, hooks, knowledge, roadmap, backbone, source
+        scan, lint and typecheck pass. Synthetic artifact has 3 records, 575
+        Nations and 8 verified assets. All 36 owner hashes and 6 pins match.
+        Final checkpoint and ledger acceptance reconciliation remain pending.
+      - >-
+        Accepted after exact 21-path source checkpoint 1def69b and independent
+        final review. Complete corrected-code tests, synthetic artifact, owned
+        formatting, preservation and required standing checks pass. Global
+        formatting remains failed only on protected ignored local settings;
+        earlier failures stay historical and no aggregate check pass is claimed.
   - id: GD-07-RESEARCH-OUTPUT-SPLIT
     priority: 317
     milestone: General development
     title: Research review (context) split from research HTML (output)
-    status: ready
+    status: complete
+    completion_commit: 04d626f8eab10cf1fb5f5e627e234ade408775d2
+    completed_on: "2026-10-07T18:16:15Z"
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -6572,12 +7399,74 @@ work_items:
         and escape helpers move to src/modules/output/research-html.mjs.
       - src/pipeline/policy-research-output.mjs becomes a re-export shim.
       - tests/pipeline/policy-research-output.test.mjs stays green.
-    evidence: []
+    evidence:
+      - docs/development/2026-10-07-autonomous-run.md
+      - >-
+        Selected at priority 317 after the reviewed incomplete GD-05 checkpoint.
+        Full GD-07/GD-02/GD-00 dependency closure and approved D-071 local
+        synthetic authority are verified. Mechanical split implementation and
+        acceptance remain pending; no not_started item newly unblocks.
+      - docs/handoffs/2026-10-07-gd07-research-extraction.md
+      - >-
+        Complete moved context/render implementation spans match the original;
+        legacy three-function shim and identity/export-surface test are
+        integrated. Owned formatting passes; independent reviews and required
+        actual validation remain pending.
+      - >-
+        Independent module/governance and integration reviews, lint, typecheck
+        and source scan pass. Complete test-gd07-full is running; no acceptance
+        is inferred from mechanical text comparisons or review reports.
+      - >-
+        test-gd07-full exits 1 at 17:28 UTC before policy: corpus 13 pass, spine
+        17 pass/13 native TIME_LIMIT failures/unchanged privilege skip. Later
+        phases do not run. Root validates unreached policy/assurance/unit and
+        synthetic build/artifact separately; full acceptance remains unmet.
+      - >-
+        Separate complete policy validation has 132 passes/14 failures out of
+        146. All six research tests pass, including existing behavioral and
+        accessibility cases and legacy identity. Native failures elsewhere
+        remain retained; assurance/unit/build checks and full acceptance remain
+        pending.
+      - >-
+        Complete assurance passes 99/100 and fails unchanged native knowledge
+        publication with BOUNDED_NATIVE_CHILD_FAILED (engineering-measurement
+        line 217). All reader cleanup and native request/refusal cases pass;
+        unit/build and remaining unreached phases continue under separate
+        labels.
+      - >-
+        Unit exits 1 with 1,875 reported passes/five failures across 104 reached
+        files and two worker-start errors; two files are not completed.
+        Synthetic build/artifact passes (3 records, 575 Nations, 8 assets).
+        Remaining six unreached test commands run separately; full acceptance
+        remains unmet.
+      - >-
+        Remaining complete commands pass: backbone 26, tier-1 129, knowledge 31,
+        storage 29, development-authority 37 and search-measurement 9. Separate
+        receipts preserve current-code coverage without replacing the failed
+        full validation or satisfying item acceptance.
+      - >-
+        Final standing roadmap/backbone/source and owned formatting checks pass;
+        global formatting retains the protected ignored-settings failure. All 36
+        owner hashes and six retained source/measurement pins match at 17:51
+        UTC. Independent final review approves this incomplete checkpoint.
+      - >-
+        Local checkpoint 26bc35df5fa53408856bb4760abbff3ad8ae7dff contains
+        exactly seven reviewed leased paths. It establishes no full acceptance.
+        GD-08 is independently eligible through completed GD-02/GD-00.
+      - >-
+        Accepted after source checkpoint 04d626f and final independent review:
+        complete test-gd08-full exits 0 at 18:15 UTC, all required phases pass;
+        synthetic build/artifact and standing checks pass. Protected ignored
+        settings retain the sole global format failure; no aggregate check pass
+        or broader release/source activation is claimed. Earlier failures and
+        GD-32 incomplete measurement limitations remain historical evidence.
   - id: GD-08-CONTEXT-RELEVANCE-EXTRACTION
     priority: 318
     milestone: General development
     title: Relevance functions moved into context
-    status: ready
+    status: complete
+    completion_commit: 04d626f8eab10cf1fb5f5e627e234ade408775d2
+    completed_on: "2026-10-07T18:16:15Z"
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -6590,12 +7479,48 @@ work_items:
       - >-
         tests/app/policy.test.ts, tests/app/csv.test.ts and
         tests/app/accessibility.test.tsx stay green.
-    evidence: []
+    evidence:
+      - docs/development/2026-10-07-autonomous-run.md
+      - docs/architecture/module-boundaries.md
+      - >-
+        Selected at priority 318 after the reviewed incomplete GD-07 checkpoint.
+        Complete GD-08/GD-02/GD-00 closure and approved D-071 local authority
+        remain satisfied; no not_started item newly unblocks. Reviewed
+        transitive manifest moves unchanged public app declarations into core
+        with a legacy type shim, avoiding forbidden context-to-output type
+        imports.
+      - docs/handoffs/2026-10-07-gd08-relevance-extraction.md
+      - >-
+        Root integrates explicit legacy app shims and three-function identity
+        coverage. Whole public declaration block, three moved bodies and
+        remaining policy bodies match the original. Owned formatting passes;
+        independent review and actual validation remain pending.
+      - >-
+        Independent integration and module/governance source reviews, lint,
+        typecheck and source scan pass. Focused unit passes 5 files/32 tests:
+        policy, CSV, accessibility, module boundaries and protected reverse
+        imports. Original test text is preserved except identity coverage.
+        Complete full validation and synthetic build/artifact remain pending.
+      - >-
+        Complete test-gd08-full exits 0 at 18:15 UTC through every phase,
+        including policy 146, assurance 100 and unit 106 files/1,927 tests.
+        Synthetic build/artifact passes (3 records, 575 Nations, 8 assets).
+        Runtime/hooks/knowledge/roadmap/backbone/source checks pass; protected
+        global-format failure remains. All 36 owner hashes and six retained pins
+        match at 18:16 UTC. Final checkpoint review/ledger reconciliation
+        follows.
+      - >-
+        Accepted after source checkpoint 04d626f and final independent review:
+        complete test-gd08-full exits 0 at 18:15 UTC, all required phases pass;
+        synthetic build/artifact and standing checks pass. Protected ignored
+        settings retain the sole global format failure; no aggregate check pass
+        or broader release/source activation is claimed. Earlier failures and
+        GD-32 incomplete measurement limitations remain historical evidence.
   - id: GD-09-JURISDICTION-IDENTIFIER-MODEL
     priority: 319
     milestone: General development
     title: Nationwide JurisdictionRef model (synthetic registry)
-    status: ready
+    status: complete
     work_class: general_development_local
     decision_ref: D-073
     authorization_gate: G-GENERAL-DEV-01
@@ -6612,12 +7537,45 @@ work_items:
         rejects coordinates, boxes, polygons, parcel identifiers, land status
         and map-inferred Nations.
       - The backbone schema-ID check passes with the new schema.
-    evidence: []
+    evidence:
+      - docs/handoffs/2026-10-07-gd09-jurisdiction-contract.md
+      - docs/development/2026-10-07-autonomous-run.md
+      - >-
+        Selected at priority 319 after accepted GD-06; GD-02/GD-00 closure and
+        approved G-GENERAL-DEV-01 admit six new local synthetic paths under
+        D-071/D-073/D-079. Closed schema, bounded string-only parsers and exact
+        synthetic evidence preserve Nation identity and public-successor gates.
+        Implementation and acceptance checks were pending at selection.
+      - >-
+        All six leases return; complete source reads and independent reviews
+        pass. Root corrects a masked newline fixture and private refusal
+        narrowing, preserving error behavior. Corrected typecheck, lint and
+        focused unit pass (4 files/125 tests); owned formatting and prefull
+        roadmap/backbone pass with 24 schemas. Complete test-gd09-full began on
+        frozen corrected source; acceptance was pending at that checkpoint.
+      - >-
+        Complete test-gd09-full passes at 20:11:41 UTC: all required phases,
+        including unit 109 files/2049 tests. Ten standing commands and the
+        synthetic build/artifact pass; protected ignored local settings retain
+        the sole global format failure. Independent final source review passes;
+        36 owner inputs, six historical pins and six GD09 source hashes remain
+        unchanged. Exact nine-path checkpoint and separate acceptance follow.
+      - >-
+        Accepted after exact nine-path source checkpoint 8b97383 and independent
+        receipt review. Complete current-code npm test, focused/type checks,
+        synthetic build/artifact and ten standing commands pass. Owner inputs,
+        historical pins and source hashes remain unchanged. Protected ignored
+        local settings retain the sole global format failure; no aggregate check
+        pass, real Nation identity or broader release claim follows.
+    completion_commit: 8b97383f37e33c0569e57b7e834ac8fd8ef582fc
+    completed_on: "2026-10-07T20:24:01Z"
   - id: GD-10-BOUNDARY-ENFORCEMENT
     priority: 320
     milestone: General development
     title: Boundary test flipped to enforcing
-    status: not_started
+    status: complete
+    completion_commit: 5a92e8b6710b0c7edf656434bd9ebf69ad730175
+    completed_on: "2026-10-08T18:25:47-07:00"
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -6631,12 +7589,144 @@ work_items:
         tests/architecture/module-manifest.mjs reduces its allowlist to the
         documented shims, and the GD-02 boundary test runs in enforcing mode and
         passes.
-    evidence: []
-  - id: GD-11-V2-JURISDICTION-ASSOCIATION
+    evidence:
+      - docs/handoffs/2026-10-07-gd10-boundary-enforcement.md
+      - docs/development/2026-10-07-autonomous-run.md
+      - >-
+        Selected at priority 320 after accepted GD09. Complete GD04/06/07/08
+        closure and approved G-GENERAL-DEV-01 admit the reviewed local
+        mechanical production closure of all 16 substantive exceptions. Three
+        disjoint leases cover 50 source/test paths; explicit factories,
+        configuration composition and named legacy facades preserve APIs. Exact
+        graph/facade enforcement retains module membership and public/private
+        reachability. Selection review and commit precede dispatch;
+        implementation and validation are not yet complete.
+      - >-
+        D-088 resumes execution on 2026-10-08. All three source leases returned;
+        corpus (14), spine (32 plus one native skip), and focused
+        adapter/context (70) tests pass. Runtime and lint pass. Independent
+        review accepts the 271 relocated corpus/context function bodies. The
+        strict graph checker now passes 49 focused tests with unchanged time
+        limits. The pipeline wrapper passes in 32.2s after serialization; the
+        relocated SourcePack guard passes. Full integrated validation remains
+        due; GD10 is not yet accepted. See
+        docs/development/2026-10-08-study-engine-implementation.md.
+      - >-
+        The 2026-10-08 integrated checkpoint passes 22 study/core/product tests,
+        six analyst workspace tests and TypeScript validation. Catalog and
+        sealed-parent bounded-projection tests are running; full regression
+        acceptance is still required. No source activation is claimed.
+      - >-
+        Accepted 2026-10-08: strict architecture enforcement and compatibility
+        guards pass, followed by all Node suites and 2170 Vitest tests in 115
+        files. Runtime, hooks, lint, typecheck, source scan, backbone, public
+        build and local workbench build pass. Full receipt:
+        docs/development/2026-10-08-study-engine-implementation.md.
+  - id: GD-12-NATIONWIDE-SOURCE-CATALOG
     priority: 321
     milestone: General development
+    title: Source catalog replacing hand-coded profiles
+    status: complete
+    completion_commit: 5a92e8b6710b0c7edf656434bd9ebf69ad730175
+    completed_on: "2026-10-08T18:25:47-07:00"
+    work_class: general_development_local
+    decision_ref: D-071
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      - GD-05-INTAKE-REPLAY-AND-DISCOVERY
+      - GD-09-JURISDICTION-IDENTIFIER-MODEL
+      - GD-17-NATIONWIDE-SOURCE-SURVEY
+    acceptance:
+      - >-
+        src/modules/intake/source-catalog.mjs,
+        schemas/source-catalog.schema.v1.json and a synthetic catalog fixture
+        (catalog data in .mjs or under fixtures/, never a new JSON file under
+        config/) generalize the source profile shape.
+      - >-
+        Catalog schema negative cases and a manifest-from-catalog equivalence
+        test against initialDirectManifest pass.
+      - >-
+        Credential requirements are environment-variable references only, never
+        values (D-072), and the user_supplied authority class is defined.
+      - npm run test:policy stays green.
+    evidence:
+      - >-
+        Promoted to ready after accepted GD09; GD05/GD09/GD17 dependencies are
+        complete and G-GENERAL-DEV-01 is approved. Its synthetic contract
+        remains unimplemented; GD10 has the lowest eligible priority.
+      - >-
+        Accepted 2026-10-08: versioned catalog, pure browser coverage
+        projection, configured manifest composition and source-qualified
+        capability states cover WA/OR/ID/AK/CA/MT/NV and ATNI/NCAI/USET. Eleven
+        catalog regressions and the full npm test suite pass, including legacy
+        manifest equivalence, credential-reference boundaries and closed/expired
+        qualification gates. No catalog row activates a source.
+  - id: GD-25-ANALYST-RESEARCH-LOOP
+    priority: 322
+    milestone: General development
+    title: Analyst research loop in the local workbench
+    status: complete
+    completion_commit: 5a92e8b6710b0c7edf656434bd9ebf69ad730175
+    completed_on: "2026-10-08T18:25:47-07:00"
+    work_class: general_development_local
+    decision_ref: D-081
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      - GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
+      - GD-07-RESEARCH-OUTPUT-SPLIT
+      - GD-10-BOUNDARY-ENFORCEMENT
+      - GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
+    acceptance:
+      - >-
+        In the local workbench an analyst can draft a finding, attach evidence,
+        review, revise and export it, using synthetic fixtures; today findings
+        are consumed from prepared JSON only.
+      - >-
+        Explicit save/reopen preserves the corpus snapshot, document versions,
+        locators and revisions. Changed source bindings require visible review.
+        Synthetic journeys cover citation packets, comparison matrices and
+        research memos without changing the shared evidence model.
+      - >-
+        Authored questions, notes and findings have sensitivity independent of
+        public source material; mixed exports enforce source and recipient
+        permissions. A private note attached to public citations cannot leak
+        into a public or unauthorized shared output. Offline restart and
+        keyboard journeys pass; later real pilot evidence remains separate.
+      - >-
+        The loop is required for demonstration A1 of the definition of done
+        (docs/decisions/2026-09-24-definition-of-done-general-development.md).
+      - >-
+        An explicit annotation-to-discovery-request-to-candidate-review-to-case
+        journey retains authorship, question, source/version/locator, intended
+        sources/date range, dispositions and missing evidence. Selected outgoing
+        request content must exclude unauthorized private notes; test no-result,
+        source-failure, duplicate and unresolved cases. Synthetic workflow proof
+        precedes the corresponding real pilot packet. Annotation terms do not
+        become official facts, taxonomy, Nation links or source authority, and
+        candidates do not bypass admission. No unattended service is launched.
+      - >-
+        D-088 integrates persistent multi-perspective studies with procedural,
+        consultation and environmental evidence, attributed knowledge graphs and
+        the ten functional outcomes in the study-engine implementation record.
+    evidence:
+      - >-
+        D-088 prioritizes the integrated study workflow after source catalog
+        implementation while preserving its existing dependencies and gates.
+      - >-
+        Accepted 2026-10-08: persistent studies share exact evidence across
+        strategic questions, procedural histories and source passages.
+        Structured consultation, environmental and authority records, attributed
+        review, discovery follow-up, saved filter scopes and public/private
+        exports pass 32 core/product tests and eight workspace journeys. The ten
+        D-088 functional outcomes and the full npm test suite pass
+        synthetically; real-source pilot and release acceptance remain separate.
+  - id: GD-11-V2-JURISDICTION-ASSOCIATION
+    priority: 323
+    milestone: General development
     title: Additive corpus 2.1 jurisdiction association
-    status: not_started
+    status: complete
+    completion_commit: 18ee6c3547bf1ae17ed30dcbf8bd120e20f15646
+    completed_on: "2026-10-08T20:27:18-07:00"
     work_class: general_development_local
     decision_ref: D-073
     authorization_gate: G-GENERAL-DEV-01
@@ -6654,51 +7744,62 @@ work_items:
       - >-
         npm run test:policy and tests/pipeline/analyzed-corpus-v2.test.mjs stay
         green.
-    evidence: []
-  - id: GD-12-NATIONWIDE-SOURCE-CATALOG
-    priority: 322
-    milestone: General development
-    title: Source catalog replacing hand-coded profiles
-    status: not_started
-    work_class: general_development_local
-    decision_ref: D-071
-    authorization_gate: G-GENERAL-DEV-01
-    dependencies:
-      - GD-05-INTAKE-REPLAY-AND-DISCOVERY
-      - GD-09-JURISDICTION-IDENTIFIER-MODEL
-    acceptance:
+    evidence:
       - >-
-        src/modules/intake/source-catalog.mjs,
-        schemas/source-catalog.schema.v1.json and a synthetic catalog fixture
-        (catalog data in .mjs or under fixtures/, never a new JSON file under
-        config/) generalize the source profile shape.
+        Selected 2026-10-08 after accepted GD10. D-088 coordinates the 19-path
+        corpus/study closure with 20 consumer paths and the GD13 successor.
+        Legacy compatibility fixtures precede successor changes. Final GD35
+        measurements follow stable implementation pins; no 50 GB performance or
+        source activation claim follows from synthetic implementation.
       - >-
-        Catalog schema negative cases and a manifest-from-catalog equivalence
-        test against initialDirectManifest pass.
+        Successor closure returned with corpus 2.1 replay, temporal identifier
+        filtering, projection, study and output support. Thirty app and 34
+        core/product checks pass. The targeted corpus run passed 87 of 91 tests;
+        four portable-object comparisons and a separately found WA/CA evidence
+        identity defect are under repair. GD11 remains active pending complete
+        successor and compatibility validation.
       - >-
-        Credential requirements are environment-variable references only, never
-        values (D-072), and the user_supplied authority class is defined.
-      - npm run test:policy stays green.
-    evidence: []
+        The identity and portable-comparison repairs pass all 55 targeted
+        successor contract tests. Explicit foundation dispatch and both builds
+        pass. Full policy validation passed 194/197; three existing Windows
+        probe timeouts pass on isolated rerun with unchanged limits. Complete
+        successor validation remains pending; the first storage forecast was
+        refused on incomplete inventory and generated no measurement output.
+      - >-
+        Full application/unit validation passed 2,176 of 2,181 tests. Four
+        failures were test deadlines under concurrent host load; the fifth was a
+        diagnostic expectation corrected to list both supported versions. Native
+        storage checks pass 30 with one host-privilege symlink skip. Final
+        aggregate validation follows the measured projection repair.
+      - >-
+        Final 2026-10-09 validation resolves the earlier failures: every Node
+        suite and all 2,180 application/unit tests across 114 files pass. Corpus
+        2.0 replay, additive 2.1 admission, evidence identity, temporal
+        filtering, projection, studies and exports pass together. Both local and
+        public synthetic builds pass artifact validation; no real Nation
+        reference is admitted without the independently pinned registry.
   - id: GD-13-NATIONWIDE-RECORD-CONTRACT
-    priority: 323
+    priority: 324
     milestone: General development
     title: Public record, artifact and source contracts for all states
-    status: blocked
+    status: complete
+    completion_commit: 18ee6c3547bf1ae17ed30dcbf8bd120e20f15646
+    completed_on: "2026-10-08T20:27:18-07:00"
     work_class: general_development_local
-    decision_ref: D-073
-    authorization_gate: G-GD-NATIONWIDE-CONTRACT
+    decision_ref: D-087
+    authorization_gate: G-GD-SUCCESSOR-IMPLEMENTATION
     dependencies:
       - GD-09-JURISDICTION-IDENTIFIER-MODEL
       - GD-10-BOUNDARY-ENFORCEMENT
-    blocked_by: [G-GD-NATIONWIDE-CONTRACT]
+      - GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
     safe_fallback: >-
       Keep the retained WA/OR/ID record, artifact and source contracts unchanged
       and emit no record from another state; nationwide work proceeds only in
       the identifier model and the local corpus (GD-09, GD-11, GD-12).
     unblocks_only_when: >-
-      The owner opens G-GD-NATIONWIDE-CONTRACT for the exact successor contracts
-      under D-073, and GD-09 and GD-10 are complete.
+      GD-09, GD-10 and the reviewed GD-31 successor preparation are complete.
+      The historical nationwide gate is unchanged; D-086/D-087 govern this
+      successor.
     acceptance:
       - >-
         Record, artifact package and source registry successor schemas replace
@@ -6706,36 +7807,124 @@ work_items:
         src/pipeline/nation-collection-policy.mjs follow.
       - Migration and compatibility fixtures are written first.
       - All artifact and app suites and npm run build stay green.
+      - >-
+        Under D-087, successor eligibility admits official county and municipal
+        instruments as general_jurisdiction without a Nation-name requirement.
+        Test that geography and discovery annotations never create a Nation
+        relationship; exact official evidence and source-stated status survive.
     evidence:
       - >-
         Represented at schema 1.10 by general-development session 1 behind the
         closed gate G-GD-NATIONWIDE-CONTRACT, as the module design (section 9.4)
         and D-073 require.
-  - id: GD-14-FEDERAL-TAXONOMY-SOURCE-MAPPINGS
-    priority: 324
-    milestone: General development
-    title: Deterministic official-label mappings (synthetic first)
-    status: not_started
-    work_class: general_development_local
-    decision_ref: D-071
-    authorization_gate: G-GENERAL-DEV-01
-    dependencies:
-      - GD-08-CONTEXT-RELEVANCE-EXTRACTION
-      - GD-10-BOUNDARY-ENFORCEMENT
-    acceptance:
       - >-
-        config/taxonomy.v1.json sourceMappings gain synthetic official labels
-        first, with a context mapping function that records mapping provenance
-        and falls back to Unclassified; no keyword or AI classification.
-      - >-
-        Mapping provenance and Unclassified fallback tests are written first;
-        tests/engine/taxonomy*.test.ts and foundation validation stay green.
-    evidence: []
-  - id: GD-15-ARCHITECTURE-DOCS
+        Implemented explicit public record, artifact and source 2.0 contracts
+        with reviewed migration candidates and an independently trusted source
+        registry. Legacy v1 defaults remain unchanged. County and municipal
+        general-jurisdiction records retain exact source status and cannot infer
+        Nation relationships. The complete npm test chain and both synthetic
+        build modes pass with the integrated corpus successor.
+  - id: GD-35-BOUNDED-SEARCH-IMPLEMENTATION
     priority: 325
     milestone: General development
+    title: "Bounded offline index and search implementation"
+    status: complete
+    completion_commit: 18ee6c3547bf1ae17ed30dcbf8bd120e20f15646
+    completed_on: "2026-10-08T20:27:18-07:00"
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-SUCCESSOR-IMPLEMENTATION
+    dependencies:
+      - GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
+      - GD-10-BOUNDARY-ENFORCEMENT
+    acceptance:
+      - "Implement the selected GD-32 bounded projection/index with stable
+        work/version/passage bindings, explicit result limits and source health;
+        do not load the entire custody store in the browser."
+      - "Measure cold/warm query latency, peak memory and rebuild storage on the
+        frozen workloads; test offline restart, exact citation replay,
+        stale/unavailable/zero-result distinction and bounded failure. Design or
+        synthetic scale alone cannot claim 50 GB performance."
+    evidence:
+      - >-
+        D-088 prioritizes bounded search integration after the persistent study
+        workflow, including explicit direct versus governing-proceeding context.
+        Final measurements follow the stable corpus and public-contract pins.
+      - >-
+        The complete twelve-root inventory at 2026-10-09T02:27:19.585Z records
+        766,949,846 retained bytes and a 1,036,433,878-byte within-limits
+        forecast. Sixteen runner tests pass. The preserved search-projection-01
+        receipt completes 100 works with exact fresh-process replay; 500 and
+        2,000 works reach the unchanged case watchdog and owned children are
+        reaped. Immutable corpus reuse is under repair before a distinct 02
+        measurement; no incomplete observations establish capacity or a passing
+        measurement.
+      - >-
+        Preserved measurements 02 and 03 complete the 100- and 500-work cases
+        with fresh-process replay, while 2,000 works reaches the unchanged
+        watchdog. The third complete inventory records 828,435,819 retained
+        bytes and a 1,097,919,851-byte forecast. Thirty-five targeted search,
+        temporal and measurement tests plus 604 direct artifact checks pass.
+        Further per-call indexing repairs address the measured remaining work;
+        final measurement and aggregate successor acceptance remain pending.
+      - >-
+        Final search-projection-04 completes the unchanged frozen 100-, 500- and
+        2,000-work protocol, fresh-process replay, exact citations, result caps,
+        health states and rebuild checks in 75.698 seconds. Largest-case cold
+        query medians span 13.26245-75.36835 ms and warm medians span
+        11.4926-37.11145 ms; peak Node RSS is 1,140,277,248 bytes. The complete
+        preflight records 865,322,448 retained bytes and a 1,134,806,480-byte
+        managed forecast under the 50 GB ceiling. The receipt namespace is
+        consumed. These short synthetic Node workloads do not establish browser,
+        real-document or 50 GB performance. Full npm test and both builds pass.
+  - id: GD-54-ROADLESS-FEDERAL-PILOT
+    priority: 326
+    milestone: General development
+    title: Finite roadless federal source and persistent-study pilot
+    status: complete
+    completion_commit: 94179a21ee1c506db7189e55c0519fe560d4421e
+    completed_on: "2026-10-08T23:59:13-07:00"
+    work_class: general_development_local
+    decision_ref: D-089
+    authorization_gate: G-GD-PUBLIC-ACQUISITION
+    dependencies:
+      - GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
+      - GD-18-STORAGE-CAPACITY-MODEL
+      - GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
+      - GD-35-BOUNDED-SEARCH-IMPLEMENTATION
+      - GD-25-ANALYST-RESEARCH-LOOP
+    acceptance:
+      - Dispatch only the three independently reviewed D-089 GovInfo targets in
+        a fresh sealed namespace after complete capacity and custody checks;
+        retain every failure and prohibit retries.
+      - Produce a replayable corpus, persistent study and local evidence
+        products for the successfully retained sources; record missing-source
+        gaps, review states, historical deadlines and exact passage attribution
+        without inferred Nation relationships.
+      - Exercise the frozen finite pilot journeys and independently review
+        results. This subset does not complete GD-36, GD-37, GD-38, an API or
+        the general-engine release.
+    evidence:
+      - docs/development/2026-10-08-roadless-real-source-pilot.md records the
+        finite scope, write leases, preflight and validation receipts.
+      - docs/source-reviews/govinfo-roadless-pilot-2026-10-08.md records current
+        source-specific qualification.
+      - Three immutable GovInfo captures total 273276 bytes. The final corpus
+        has three works and 210 segments; the saved study binds 18 passages,
+        both historical deadlines and agency-only consultation attribution.
+        Seven local products preserve source/model provenance and omit the
+        restricted synthetic note. All interpretations remain unreviewed.
+      - Independent artifact review, full npm test including 2209 unit cases,
+        ordinary/local builds, source scan and final browser report 08 pass. The
+        12-root final inventory is 954056203 bytes under the 50 GB cap. No
+        broader API, source-family pilot, publication or release is accepted.
+  - id: GD-15-ARCHITECTURE-DOCS
+    priority: 327
+    milestone: General development
     title: Architecture, backbone and data-contract updates
-    status: not_started
+    status: complete
+    completion_commit: 18ee6c3547bf1ae17ed30dcbf8bd120e20f15646
+    completed_on: "2026-10-08T20:27:18-07:00"
     work_class: general_development_local
     decision_ref: D-071
     authorization_gate: G-GENERAL-DEV-01
@@ -6746,30 +7935,37 @@ work_items:
         docs/PROJECT-BACKBONE.md and docs/data-contract.md describe the module
         design and fold in the general development addendum.
       - npm run validate:backbone stays green.
-    evidence: []
+    evidence:
+      - >-
+        Architecture, module boundaries, backbone and data contracts now
+        describe the implemented additive corpus/public contracts, shared
+        persistent evidence studies, bounded search, independent registry trust
+        and governed exports. C-3 and the retained general-development addendum
+        are reconciled with implemented behavior. Backbone validation passes
+        with 31 schema IDs and 1,106 Markdown links; the implementation record
+        retains validation receipts, measured limits and source-specific gaps.
   - id: GD-16-INTEROP-PURE-ADAPTER
-    priority: 326
+    priority: 328
     milestone: General development
     title: >-
       Pure policy.search-context/1 validator and policy.citations/1 projector
-    status: blocked
+    status: not_started
     work_class: general_development_local
-    decision_ref: D-074
-    authorization_gate: G-GD-INTEROP
+    decision_ref: D-087
+    authorization_gate: G-GD-ATNI-LOCAL-ASSESSMENT
     dependencies:
       - GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
       - GD-08-CONTEXT-RELEVANCE-EXTRACTION
       - GD-09-JURISDICTION-IDENTIFIER-MODEL
       - GD-10-BOUNDARY-ENFORCEMENT
       - GD-21-POLICY-CONTEXT-V1
-    blocked_by: [G-GD-INTEROP]
+      - GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
     safe_fallback: >-
       No interop adapter, listener or wire payload exists; the IO guide remains
       specified and not implemented.
     unblocks_only_when: >-
-      The owner opens G-GD-INTEROP for the pure validator and projector only,
-      with no live listener, and GD-06, GD-08, GD-09, GD-10 and GD-21 are
-      complete.
+      GD-06, GD-08, GD-09, GD-10, GD-21 and GD-31 are complete; implement only
+      the reviewed pure local profiles under already-adopted authority.
     acceptance:
       - >-
         src/modules/output/interop/, schemas/interop/ and tests/interop/ hold a
@@ -6778,50 +7974,19 @@ work_items:
         (NC-1 to NC-7).
       - The minimum scenario 4 negatives are written first.
       - No live listener, persistence or logging of queries exists.
+      - >-
+        After GD-31 successor representation, retain the common Nation-free
+        profile and implement the versioned authorized ATNI profile with
+        optional deliberately selected user-declared canonical Nation context
+        (D-087). Test recipient scope, omission, unsupported-profile refusal and
+        no promotion to affiliation, representation authority, membership or
+        source-evidenced Nation relationships. Private payloads, geometry and
+        land-status classes do not become permitted through this identifier.
     evidence:
       - >-
         Represented at schema 1.10 by general-development session 1 behind the
         closed gate G-GD-INTEROP; D-074 adopts Design A generalized and adds
         GD-21 as a dependency (addendum section 11).
-  - id: GD-17-NATIONWIDE-SOURCE-SURVEY
-    priority: 327
-    milestone: General development
-    title: Nationwide source landscape survey (docs only)
-    status: ready
-    work_class: general_development_local
-    decision_ref: D-078
-    authorization_gate: G-GENERAL-DEV-01
-    dependencies: [GD-00-REALIGNMENT-AUDIT-DESIGN]
-    acceptance:
-      - >-
-        SourceDescriptor drafts, one document per jurisdiction under
-        docs/source-reviews/nationwide/, cover federal sources, all 50 states,
-        DC and the territories, with counties by platform class (addendum
-        section 7).
-      - >-
-        Tribal law sources are not surveyed for acquisition (D-078); discovery
-        catalogs may be named for a Nation's own use.
-      - >-
-        Documentation only: nothing is acquired, no terms are accepted and no
-        key is registered.
-    evidence: []
-  - id: GD-18-STORAGE-CAPACITY-MODEL
-    priority: 328
-    milestone: General development
-    title: Storage capacity model, holding policy and storage:report
-    status: ready
-    work_class: general_development_local
-    decision_ref: D-077
-    authorization_gate: G-GENERAL-DEV-01
-    dependencies: [GD-00-REALIGNMENT-AUDIT-DESIGN]
-    acceptance:
-      - >-
-        A capacity model replaces the addendum section 8 estimates with measured
-        numbers from the survey and the existing custody namespaces.
-      - >-
-        A storage:report script reports reference, custody, derived and reserve
-        tier usage against the D-077 caps; nothing is acquired.
-    evidence: []
   - id: GD-19-AREA-RESOLVER
     priority: 329
     milestone: General development
@@ -6850,14 +8015,14 @@ work_items:
         the synthetic artifact build.
       - >-
         The geometry dependency is a pinned, offline, pure JavaScript library
-        recorded in the decision register when this item starts (addendum
-        section 12, question 3, is open).
+        recorded in the decision register when this item starts (D-082); the
+        choice is scheduled there, not an unresolved general owner interview.
     evidence: []
   - id: GD-20-DESIGNATION-REGISTRY-CONTRACT
     priority: 330
     milestone: General development
     title: Designation registry schema, synthetic fixture and appliesWhere field
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-076
     authorization_gate: G-GENERAL-DEV-01
@@ -6871,7 +8036,12 @@ work_items:
       - >-
         An appliesWhere record field maps designation codes to records with
         provenance; no entry asserts a boundary as a determination.
-    evidence: []
+    evidence:
+      - >-
+        Promoted to ready after accepted GD09; its only dependency is complete
+        and G-GENERAL-DEV-01 is approved under D-076. Only the synthetic
+        identity/vocabulary contract is eligible; no geometry, private input or
+        Nation relationship is admitted by this promotion.
   - id: GD-21-POLICY-CONTEXT-V1
     priority: 331
     milestone: General development
@@ -6906,7 +8076,7 @@ work_items:
       The tribal JurisdictionRef kind stays evidence-only with no registry
       binding, and no Nation criterion is exchanged.
     unblocks_only_when: >-
-      G-BIA-IDENTITY is satisfied, atni-nation-registry v0 exists as a
+      G-BIA-IDENTITY is satisfied, atni-nation-registry v1 exists as a
       digest-pinned release, and GD-09 is complete.
     acceptance:
       - >-
@@ -6923,7 +8093,7 @@ work_items:
     milestone: General development
     title:
       user_supplied source class in the catalog and private custody namespace
-    status: not_started
+    status: ready
     work_class: general_development_local
     decision_ref: D-072
     authorization_gate: G-GD-PRIVATE-CONTEXT
@@ -6935,57 +8105,617 @@ work_items:
         immutable-object and receipt model as v2 custody, with no network
         transport, using synthetic fixtures only.
       - >-
-        Tribal codes and ordinances enter only through this class (D-078), and
-        no private-module file is reachable from the public entry.
+        Restricted internal Tribal policies use authorized local input; external
+        partners require permission for access and use. D-087 allows official
+        public Tribal codes and policies through the reviewed public source
+        route. Governmental versus operational subject does not set access
+        classification. No private-module file is reachable from the public
+        entry.
     evidence: []
-  - id: GD-25-ANALYST-RESEARCH-LOOP
+  - id: GD-55-SEARCH-REFINEMENT-REVIEW-GUIDANCE
     priority: 334
     milestone: General development
-    title: Analyst research loop in the local workbench
-    status: not_started
+    title: Search refinement and actionable study review guidance
+    status: complete
     work_class: general_development_local
-    decision_ref: D-081
+    decision_ref: D-088
     authorization_gate: G-GENERAL-DEV-01
     dependencies:
-      - GD-06-OUTPUT-LOCAL-WORKBENCH-SPLIT
-      - GD-07-RESEARCH-OUTPUT-SPLIT
-      - GD-10-BOUNDARY-ENFORCEMENT
+      - GD-25-ANALYST-RESEARCH-LOOP
+      - GD-35-BOUNDED-SEARCH-IMPLEMENTATION
+      - GD-54-ROADLESS-FEDERAL-PILOT
     acceptance:
       - >-
-        In the local workbench an analyst can draft a finding, attach evidence,
-        review, revise and export it, using synthetic fixtures; today findings
-        are consumed from prepared JSON only.
+        Explicit all-terms search narrows direct versions without changing the
+        legacy broad default; related parents remain separately contextual.
       - >-
-        The loop is required for demonstration A1 of the definition of done
-        (docs/decisions/2026-09-24-definition-of-done-general-development.md).
-    evidence: []
-  - id: GD-26-REPRODUCIBLE-CHECKS
+        Discovery save/reopen/rerun preserves mode and filters with legacy file
+        compatibility, exact citations and public/private export boundaries.
+      - >-
+        Context diagnostics identify relevant review, binding and temporal
+        prerequisites; attributed review recomputes eligibility without erasing
+        history. Synthetic, browser and repository validation pass.
+      - >-
+        The follow-up register retains the reusable browser journey, nine real
+        study gaps and a qualified next research packet without source dispatch.
+    evidence:
+      - >-
+        Owner adopted
+        docs/handoffs/2026-10-09-search-refinement-review-guidance-prompt.md for
+        bounded local implementation after the accepted GD-25, GD-35 and GD-54
+        checkpoints. No pilot acquisition operation is reusable.
+      - >-
+        Explicit any/all-terms search, persisted discovery mode, and versioned
+        evidence guidance are integrated with the local workbench. Synthetic
+        search, study, product and UI regressions exercise retrieval, history,
+        stale binding, privacy and review navigation. The read-only pilot
+        browser check at
+        C:/dev/_scratch/policy-sentinel/study-search-review-20261009/browser-report-05.json
+        passed four changed-control groups, including keyboard focus, mobile
+        layout, automated accessibility and no outside-loopback requests.
+      - >-
+        docs/development/2026-10-09-study-follow-up-register.md preserves all
+        nine real-study gaps, the uncompleted reusable browser journey, and an
+        eight-lead source-specific research packet without dispatch.
+      - >-
+        npm test passed every stage after commit 59c6e0d selected the stable
+        Vitest thread worker on this Windows host; the final unit stage passed
+        115 files and 2,212 tests. npm run build and artifact validation passed
+        with 3 synthetic records, exactly 575 Nations and 8 hashed assets.
+        Runtime, hooks, roadmap, backbone, knowledge, lint, typecheck and source
+        scan passed. Repository-wide format:check flags only the pre-existing
+        ignored .claude/settings.local.json; task-owned files pass Prettier.
+    completion_commit: ea0581976b5bf5da131e6a9a6cc7e6580801b420
+    completed_on: 2026-10-09T01:24:36-07:00
+  - id: GD-47-REGIONAL-INTERFACE-QUALIFICATION
     priority: 335
     milestone: General development
-    title: Reproducible checks and Claude Code mechanical gate tests
+    title: "Freeze selected-state interface and jurisdiction packets"
     status: ready
     work_class: general_development_local
-    decision_ref: D-081
+    decision_ref: D-086
+    authorization_gate: G-GD-SUCCESSOR-IMPLEMENTATION
+    dependencies:
+      - GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
+      - GD-12-NATIONWIDE-SOURCE-CATALOG
+    acceptance:
+      - "Freeze the finite seven-state interface register: WA LWS and OR OData
+        are required candidate APIs; ID/AK/CA/MT/NV have unresolved
+        API/interface cells in GD-17. Verify official interfaces, current
+        review/terms, coverage and exact jurisdiction manifests without claiming
+        APIs exist where unverified."
+      - "Represent each state's accepted API or documented non-API/gap
+        disposition separately; additions to the required integration set
+        require an explicit versioned scope update. Local county/municipal and
+        public Tribal records are eligible without inferred Nation
+        relationships; unknown locality bindings remain blocked."
+    evidence:
+      - >-
+        The versioned seven-state register is integrated with catalog schema,
+        validation and analyst coverage projection. Fourteen catalog tests pass,
+        including fixed scope, dated evidence, legacy-byte compatibility and
+        source-specific blockers. WA/OR remain required API candidates and the
+        other five states have explicit interface gaps. UI acceptance and
+        source-specific qualification remain separate; no source is activated.
+
+  - id: GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
+    priority: 337
+    milestone: General development
+    title: Complete nationwide source landscape beyond initial pilot
+    status: ready
+    work_class: general_development_local
+    decision_ref: D-086
     authorization_gate: G-GENERAL-DEV-01
-    dependencies: [GD-00-REALIGNMENT-AUDIT-DESIGN]
+    dependencies: [GD-17-NATIONWIDE-SOURCE-SURVEY]
     acceptance:
       - >-
-        npm run hooks:test passes on a fresh source snapshot that carries no
-        ignored historical receipts.
+        Complete SourceDescriptor drafts for all 50 states, DC and territories,
+        federal families and county platform classes. Preserve originating
+        authority, coverage, terms and visible gaps; no completeness claim
+        follows from an API existing.
       - >-
-        A test attempts each denied form in .claude/settings.json and verifies
-        that the deny rule matches it.
+        Retain the addendum's international/transboundary instrument survey
+        class with source-specific coverage and weight estimates; distinguish
+        discovery-only references from admitted material.
       - >-
-        The checks are required for demonstration A3 of the definition of done.
+        Reconcile the initial GD-17 matrix and qualified intertribal resolution
+        sources into the national inventory. This documentation task acquires
+        nothing, accepts no terms and registers no credentials.
+      - >-
+        The full survey remains a GD-27 release prerequisite and is not a pilot
+        prerequisite. Added sources require their own integration and acceptance
+        packets; a catalog row does not complete an adapter.
+      - >-
+        Include official public Tribal-government publications as a source class
+        under D-087, using originating publishers and explicit coverage gaps. Do
+        not claim an exhaustive all-Nation corpus or require per-instance
+        permission for public-only use. Restricted internal records and partner
+        access remain subject to their applicable permissions.
     evidence: []
+
+  - id: GD-36-PILOT-SOURCE-QUALIFICATION
+    priority: 339
+    milestone: General development
+    title: "Qualify finite federal regional and intertribal pilot packets"
+    status: ready
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-SUCCESSOR-IMPLEMENTATION
+    dependencies:
+      - GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
+      - GD-12-NATIONWIDE-SOURCE-CATALOG
+    acceptance:
+      - "Independently review the GD-31 GovInfo direct Federal Register,
+        Washington bill/session-law and ATNI resolution preparation slots.
+        Resolve source-specific access/robots/rights, exact
+        target/version/date/format and official host bindings before a dispatch
+        manifest exists."
+      - "Keep each source row independent and blocked when evidence is absent.
+        No silent NCAI/USET substitution or repeat of expired profiles/spent
+        operations. Freeze current review expiry, request/retry/byte/time
+        bounds, field allowlist, external custody/output and fixtures.
+        Qualification performs no policy acquisition."
+    evidence: []
+
+  - id: GD-37-PILOT-ACQUISITION
+    priority: 340
+    milestone: General development
+    title: "Measured public three-family pilot acquisition"
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-PUBLIC-ACQUISITION
+    dependencies:
+      - GD-36-PILOT-SOURCE-QUALIFICATION
+      - GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
+      - GD-18-STORAGE-CAPACITY-MODEL
+    acceptance:
+      - "Dispatch only exact currently reviewed fresh operations in a sealed
+        finite manifest and new external namespace after a fresh complete
+        managed-storage forecast passes. Count historical holdings, renditions,
+        indexes, outputs and temporary/rebuild peaks within 50000000000 bytes,
+        10 GiB run ceiling and 20 GiB free floor."
+      - "Produce actual federal, regional and intertribal custody, extraction
+        and normalization receipts with stable version/segment provenance and
+        source-isolated failure/LKG behavior. Zero new dispatch-ready rows in
+        GD-31 is not a completed corpus; preserve each blocked family."
+    evidence: []
+
+  - id: GD-38-REAL-PILOT-ACCEPTANCE
+    priority: 341
+    milestone: General development
+    title: "Offline real-corpus analyst pilot acceptance"
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-SUCCESSOR-IMPLEMENTATION
+    dependencies:
+      - GD-37-PILOT-ACQUISITION
+      - GD-35-BOUNDED-SEARCH-IMPLEMENTATION
+      - GD-25-ANALYST-RESEARCH-LOOP
+      - GD-13-NATIONWIDE-RECORD-CONTRACT
+    acceptance:
+      - "Run the frozen GD-32 journeys on the reviewed real
+        federal/regional/intertribal corpus with network disabled after intake.
+        Search, inspect exact passage, find contrary/missing evidence,
+        review/revise finding, save/reopen case and export citation packet,
+        comparison and research memo."
+      - "Verify annotation-request-discovery-candidate-review loop,
+        duplicate/no-result/failure outcomes, keyboard and long-document
+        usability, quotation replay and private analyst note exclusion from
+        public/shared exports. A read-only workflow monitor and independent
+        review record finite defects and closure; this is not A1-A4 or full API
+        acceptance."
+    evidence: []
+
+  - id: GD-39-FEDERAL-REGISTER-API-INTEGRATION
+    priority: 342
+    milestone: General development
+    title: "Federal Register API end-to-end integration"
+    status: ready
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-PUBLIC-ACQUISITION
+    dependencies:
+      - GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
+      - GD-12-NATIONWIDE-SOURCE-CATALOG
+      - GD-35-BOUNDED-SEARCH-IMPLEMENTATION
+    acceptance:
+      - "Under a new current source-specific review and finite API manifest,
+        exercise the Federal Register API through custody, extraction,
+        normalization, offline search and replayable quotation export. Resolve
+        historic R7 drift through successor evidence without repeating
+        D3/R6/R7/PF requests or FR-A1."
+      - "Test missing fields, pagination/duplicates/truncation,
+        correction/withdrawal versions, privacy projection, controlled
+        auth/rate/timeout failures and checksum-bound same-adapter
+        stale/unavailable output. GovInfo direct documents cannot satisfy this
+        API."
+    evidence: []
+
+  - id: GD-40-GOVINFO-API-INTEGRATION
+    priority: 343
+    milestone: General development
+    title: "GovInfo keyed API end-to-end integration"
+    status: blocked
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-PUBLIC-ACQUISITION
+    dependencies:
+      - GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
+      - GD-12-NATIONWIDE-SOURCE-CATALOG
+      - GD-35-BOUNDED-SEARCH-IMPLEMENTATION
+    blocked_by: [G-B-GOVINFO]
+    safe_fallback:
+      No dependent real operation or completion claim; continue independent
+      ready work.
+    unblocks_only_when:
+      "The exact source/evidence conditions in this item's acceptance are
+      resolved and dependencies complete; no blanket category permission is
+      requested."
+    acceptance:
+      - "After exact G-B-GOVINFO resolution, exercise the keyed package/granule
+        API under current finite collection/version manifests through custody,
+        search and replayable export; direct documents/bulk routes are not API
+        evidence."
+      - "Test cursor loops, missing formats, package/granule identity,
+        generated-file failures, redaction/mutable bytes, rights exceptions,
+        controlled failures and source-isolated LKG. Exclude keys/credentialed
+        URLs from all persisted outputs."
+    evidence:
+      - docs/source-reviews/nationwide/federal-2026-10-07.md records this
+        source-specific unresolved access or credential condition; no gate was
+        opened by GD-31.
+
+  - id: GD-41-ECFR-API-INTEGRATION
+    priority: 344
+    milestone: General development
+    title: "eCFR API end-to-end integration"
+    status: blocked
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-PUBLIC-ACQUISITION
+    dependencies:
+      - GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
+      - GD-12-NATIONWIDE-SOURCE-CATALOG
+      - GD-35-BOUNDED-SEARCH-IMPLEMENTATION
+    blocked_by: [G-J]
+    safe_fallback:
+      No dependent real operation or completion claim; continue independent
+      ready work.
+    unblocks_only_when:
+      "The exact source/evidence conditions in this item's acceptance are
+      resolved and dependencies complete; no blanket category permission is
+      requested."
+    acceptance:
+      - "Resolve the exact eCFR access-consent condition before any host
+        request; independently record current permitted API route and finite
+        title/part/date/format selection. Then prove real API custody through
+        offline search and citation replay."
+      - "Keep version/as-of/amendment dates distinct; test removed/renumbered
+        provisions, absent history, malformed XML, controlled failures and
+        rights/provenance survival. NARA reproduction guidance alone does not
+        resolve host access consent."
+    evidence:
+      - docs/source-reviews/nationwide/federal-2026-10-07.md records this
+        source-specific unresolved access or credential condition; no gate was
+        opened by GD-31.
+
+  - id: GD-42-CONGRESS-API-INTEGRATION
+    priority: 345
+    milestone: General development
+    title: "Congress.gov API end-to-end integration"
+    status: blocked
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-PUBLIC-ACQUISITION
+    dependencies:
+      - GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
+      - GD-12-NATIONWIDE-SOURCE-CATALOG
+      - GD-35-BOUNDED-SEARCH-IMPLEMENTATION
+    blocked_by: [G-B-CONGRESS]
+    safe_fallback:
+      No dependent real operation or completion claim; continue independent
+      ready work.
+    unblocks_only_when:
+      "The exact source/evidence conditions in this item's acceptance are
+      resolved and dependencies complete; no blanket category permission is
+      requested."
+    acceptance:
+      - "After G-B-CONGRESS resolution and current host/rate/terms review,
+        acquire a finite Congress/type/number/version API population through
+        custody, normalization, offline search and replayable citations."
+      - "Test historical field absence, text-only changes, law relationships,
+        official subject mappings, paging/truncation, controlled failures and
+        LKG. Preserve CRS as distinct issuer/product and restrict each field's
+        reuse; direct text imports do not complete the API."
+    evidence:
+      - docs/source-reviews/nationwide/federal-2026-10-07.md records this
+        source-specific unresolved access or credential condition; no gate was
+        opened by GD-31.
+
+  - id: GD-43-REGULATIONS-API-INTEGRATION
+    priority: 346
+    milestone: General development
+    title: "Regulations.gov API end-to-end integration"
+    status: blocked
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-PUBLIC-ACQUISITION
+    dependencies:
+      - GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
+      - GD-12-NATIONWIDE-SOURCE-CATALOG
+      - GD-35-BOUNDED-SEARCH-IMPLEMENTATION
+    blocked_by: [G-B-REGULATIONS]
+    safe_fallback:
+      No dependent real operation or completion claim; continue independent
+      ready work.
+    unblocks_only_when:
+      "The exact source/evidence conditions in this item's acceptance are
+      resolved and dependencies complete; no blanket category permission is
+      requested."
+    acceptance:
+      - "After G-B-REGULATIONS resolution for governmental document/docket GET
+        operations, prove finite actual API retrieval through custody, offline
+        search and quotation replay. No comment, submission or unrelated
+        attachment route is admitted."
+      - "Verify identity changes, same-second modifications, bounded pagination
+        and duplicates, agency-dependent attributes, private/contact rejection,
+        controlled failures and same-adapter stale/unavailable behavior; source
+        status is not legal effect."
+    evidence:
+      - docs/source-reviews/nationwide/federal-2026-10-07.md records this
+        source-specific unresolved access or credential condition; no gate was
+        opened by GD-31.
+
+  - id: GD-44-REGIONAL-API-INTEGRATION
+    priority: 347
+    milestone: General development
+    title: "Finite selected regional API integrations"
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-PUBLIC-ACQUISITION
+    dependencies:
+      - GD-47-REGIONAL-INTERFACE-QUALIFICATION
+      - GD-35-BOUNDED-SEARCH-IMPLEMENTATION
+      - GD-13-NATIONWIDE-RECORD-CONTRACT
+    acceptance:
+      - "Individually exercise Washington legislative LWS and Oregon legislative
+        OData through source-reviewed bounded API retrieval, custody,
+        normalization, search and exact citation export. Preserve WA enumeration
+        rejection and Oregon source-specific terms/account gates until resolved."
+      - "The finite API set is the two named routes plus individually reviewed
+        official statewide interfaces recorded by GD-47 for ID/AK/CA/MT/NV. A
+        change to that set is versioned and explicit. Missing or document-only
+        interfaces remain disclosed gaps, never fabricated API passes; test each
+        accepted route's representative/malformed/partial/failure/LKG behavior."
+    evidence: []
+
+  - id: GD-45-REGIONAL-CUSTODY-EXPANSION
+    priority: 348
+    milestone: General development
+    title: "Measured starting custody in Washington and two selected states"
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-PUBLIC-ACQUISITION
+    dependencies:
+      - GD-37-PILOT-ACQUISITION
+      - GD-47-REGIONAL-INTERFACE-QUALIFICATION
+      - GD-13-NATIONWIDE-RECORD-CONTRACT
+    acceptance:
+      - "Demonstrate at least Washington and two other selected states under
+        separate current reviewed finite source/jurisdiction manifests,
+        source-specific rights and measured batch reports. Whole-state API
+        eligibility includes WA/OR/ID/AK/CA/MT/NV; offline-heavy local intake
+        follows confirmed owner-selected jurisdictions."
+      - "Resolve official community identities/locality uncertainty without
+        deriving territory or a Nation-record link. Preserve the total managed
+        cap and per-run/disk limits including simultaneous peaks. Record actual
+        record/date/format/byte/extraction coverage, not nationwide
+        completeness."
+    evidence: []
+
+  - id: GD-46-ACTIVATED-STATE-MAPPINGS
+    priority: 349
+    milestone: General development
+    title: "Official-label mappings for every activated state"
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-SUCCESSOR-IMPLEMENTATION
+    dependencies:
+      - GD-14-FEDERAL-TAXONOMY-SOURCE-MAPPINGS
+      - GD-45-REGIONAL-CUSTODY-EXPANSION
+    acceptance:
+      - "Provide a versioned per-activated-state deterministic mapping from
+        exact official labels, preserving source scheme/label/provenance and
+        mapping version. Enumerate every activated state and its independently
+        tested mapping receipt."
+      - "Test unknown/unmapped labels remain Unclassified and searchable,
+        many-to-many and absent-label behavior, and rejection of keyword/AI or
+        geography-derived classifications. New activations add explicit mapping
+        acceptance rows before release."
+    evidence: []
+
+  - id: GD-48-PACKAGE-CANDIDATE
+    priority: 380
+    milestone: General development
+    title: "Prepare an installable offline acceptance candidate"
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-SUCCESSOR-IMPLEMENTATION
+    dependencies:
+      - GD-38-REAL-PILOT-ACCEPTANCE
+      - GD-19-AREA-RESOLVER
+      - GD-22-NATION-REGISTRY-BINDING
+      - GD-23-USER-SUPPLIED-SOURCE-CLASS
+      - GD-26-REPRODUCIBLE-CHECKS
+    acceptance:
+      - "Create a versioned local install candidate with instructions, approved
+        T0 baseline bundle v0, pinned Nation registry v1 and checksum-bound
+        restore/replay procedure, public/private separation and no private
+        contents in repository/package."
+      - "Verify offline install/restart and reproducible synthetic checks before
+        A1/A3. This candidate enables demonstrations but cannot complete GD-27
+        or claim independent participant success."
+    evidence: []
+
+  - id: GD-49-DEMONSTRATION-A1
+    priority: 390
+    milestone: General development
+    title: "Independent Tribal staff second-machine offline demonstration"
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-SUCCESSOR-IMPLEMENTATION
+    dependencies:
+      - GD-48-PACKAGE-CANDIDATE
+    acceptance:
+      - "A Tribal staff member other than the owner installs on a second
+        machine, loads the approved baseline, supplies their own authorized area
+        file and policy documents, performs area and topic queries and receives
+        citations and why-shown entirely offline."
+      - "Record dated participant role, task completion/time/errors, participant
+        statement of output limits and proof no private data left the machine.
+        Permission-dependent real inputs remain outside Git and need actual
+        supplier/use authority; synthetic developer tests do not satisfy A1."
+    evidence: []
+
+  - id: GD-50-DEMONSTRATION-A2
+    priority: 391
+    milestone: General development
+    title: "Independent non-Washington source operator demonstration"
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-PUBLIC-ACQUISITION
+    dependencies:
+      - GD-44-REGIONAL-API-INTEGRATION
+      - GD-45-REGIONAL-CUSTODY-EXPANSION
+    acceptance:
+      - "An operator other than the owner prepares a reviewed bounded source
+        population from a state other than Washington using the catalog and
+        bounded runner. Record every code/recipe change, catalog row, operation
+        manifest and actual run receipt."
+      - "Fresh source qualification and measured capacity precede dispatch.
+        Record person by role/date and evidence; an owner-run source test or
+        source survey does not satisfy A2."
+    evidence: []
+
+  - id: GD-51-DEMONSTRATION-A3
+    priority: 392
+    milestone: General development
+    title: "Successor restores and replays without chat context"
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-SUCCESSOR-IMPLEMENTATION
+    dependencies:
+      - GD-48-PACKAGE-CANDIDATE
+    acceptance:
+      - "A successor restores the approved evidence package, custody receipts
+        and sealed corpus into a second authorized local location without chat
+        context and replays exact citations byte-identically."
+      - "Record dated role, procedure as actually executed, errors and replay
+        digests. No private inputs or restricted custody are copied without
+        applicable authorization; a checksum inventory or developer replay alone
+        is not this demonstration."
+    evidence: []
+
+  - id: GD-52-DEMONSTRATION-A4
+    priority: 393
+    milestone: General development
+    title: "Peer synthetic context and citation conformance demonstration"
+    status: not_started
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-ATNI-LOCAL-ASSESSMENT
+    dependencies:
+      - GD-16-INTEROP-PURE-ADAPTER
+    acceptance:
+      - "land-use-analyzer or plan-assessor sends a synthetic PolicyContext and
+        receives policy.citations/1 through the pure adapter with both
+        conformance suites passing and exchanged synthetic payloads recorded."
+      - "Record authorized participating deployment, profile/recipient scope and
+        unsupported-profile negatives. Preserve common Nation-free and optional
+        deliberate ATNI selection semantics; no live listener, private transfer
+        or edits to read-only sibling repositories are inferred."
+    evidence: []
+
+  - id: GD-53-PS09-ACCEPTANCE-CARRYFORWARD
+    priority: 394
+    milestone: General development
+    title: "Close retained identity and scenario claims in successor acceptance"
+    status: blocked
+    work_class: general_development_local
+    decision_ref: D-086
+    authorization_gate: G-GD-SUCCESSOR-IMPLEMENTATION
+    dependencies:
+      - GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
+      - GD-22-NATION-REGISTRY-BINDING
+      - GD-38-REAL-PILOT-ACCEPTANCE
+    blocked_by: [G-BIA-IDENTITY]
+    safe_fallback:
+      No dependent real operation or completion claim; continue independent
+      ready work.
+    unblocks_only_when:
+      "The exact source/evidence conditions in this item's acceptance are
+      resolved and dependencies complete; no blanket category permission is
+      requested."
+    acceptance:
+      - "Close every unresolved identity, cohort, membership,
+        governmental/geographic authority and all nine scenario claims itemized
+        in docs/development/gd31-release-acceptance-crosswalk.md using exact
+        originating evidence and independent review."
+      - "Registry v1 alone cannot close PS09-02. Record claim-level
+        accepted/replaced/unresolved disposition and dated evidence under the
+        successor scope; no synthetic fixture, geographic guess, expired review
+        or spent historical request supplies missing real evidence."
+    evidence:
+      - docs/development/gd31-release-acceptance-crosswalk.md preserves the
+        unresolved PS09 identity and scenario requirements.
+
+  - id: GD-14-FEDERAL-TAXONOMY-SOURCE-MAPPINGS
+    priority: 395
+    milestone: General development
+    title: Deterministic official-label mappings (synthetic first)
+    status: complete
+    completion_commit: 94179a21ee1c506db7189e55c0519fe560d4421e
+    completed_on: "2026-10-08T23:59:13-07:00"
+    work_class: general_development_local
+    decision_ref: D-071
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      - GD-08-CONTEXT-RELEVANCE-EXTRACTION
+      - GD-10-BOUNDARY-ENFORCEMENT
+    acceptance:
+      - config/taxonomy.v1.json sourceMappings gain synthetic official labels
+        first, with a context mapping function that records mapping provenance
+        and falls back to Unclassified; no keyword or AI classification.
+      - Mapping provenance and Unclassified fallback tests are written first;
+        tests/engine/taxonomy*.test.ts and foundation validation stay green.
+    evidence:
+      - src/modules/context/official-subject-mapping.mjs maps only enabled,
+        validated exact source/scheme/label rules; unmatched labels remain
+        Unclassified. Synthetic rules are versioned in config/taxonomy.v1.json.
+      - All three synthetic composition paths preserve deterministic_mapping
+        provenance, exact rule IDs and actual official-subject input pointers
+        for mapped fields. Regression tests cover source/rule mismatch,
+        whitespace, multiple rules, unchanged legacy bytes and corpus/export
+        parity. Independent review and full npm test pass; real-source labels
+        are not activated by this synthetic-first contract.
+
   - id: GD-27-LOCAL-RELEASE-PACKAGE
-    priority: 336
+    priority: 399
     milestone: General development
     title: Versioned 1.0 local release package
     status: blocked
     work_class: general_development_local
-    decision_ref: D-081
-    authorization_gate: G-GENERAL-DEV-01
+    decision_ref: D-086
+    authorization_gate: G-GD-LOCAL-RELEASE-ACCEPTANCE
     dependencies:
       - GD-10-BOUNDARY-ENFORCEMENT
       - GD-13-NATIONWIDE-RECORD-CONTRACT
@@ -6995,24 +8725,63 @@ work_items:
       - GD-22-NATION-REGISTRY-BINDING
       - GD-25-ANALYST-RESEARCH-LOOP
       - GD-26-REPRODUCIBLE-CHECKS
-    blocked_by: [G-GD-NATIONWIDE-CONTRACT]
+      - GD-11-V2-JURISDICTION-ASSOCIATION
+      - GD-12-NATIONWIDE-SOURCE-CATALOG
+      - GD-14-FEDERAL-TAXONOMY-SOURCE-MAPPINGS
+      - GD-16-INTEROP-PURE-ADAPTER
+      - GD-23-USER-SUPPLIED-SOURCE-CLASS
+      - GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
+      - GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
+      - GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
+      - GD-24-LEGACY-ARCHIVE-AND-CONSOLIDATION
+      - GD-34-ACCEPTED-SCOPE-AND-DISCOVERY-CLARIFICATION
+      - GD-35-BOUNDED-SEARCH-IMPLEMENTATION
+      - GD-36-PILOT-SOURCE-QUALIFICATION
+      - GD-37-PILOT-ACQUISITION
+      - GD-38-REAL-PILOT-ACCEPTANCE
+      - GD-39-FEDERAL-REGISTER-API-INTEGRATION
+      - GD-40-GOVINFO-API-INTEGRATION
+      - GD-41-ECFR-API-INTEGRATION
+      - GD-42-CONGRESS-API-INTEGRATION
+      - GD-43-REGULATIONS-API-INTEGRATION
+      - GD-44-REGIONAL-API-INTEGRATION
+      - GD-45-REGIONAL-CUSTODY-EXPANSION
+      - GD-46-ACTIVATED-STATE-MAPPINGS
+      - GD-47-REGIONAL-INTERFACE-QUALIFICATION
+      - GD-48-PACKAGE-CANDIDATE
+      - GD-49-DEMONSTRATION-A1
+      - GD-50-DEMONSTRATION-A2
+      - GD-51-DEMONSTRATION-A3
+      - GD-52-DEMONSTRATION-A4
+      - GD-53-PS09-ACCEPTANCE-CARRYFORWARD
+      - GD-54-ROADLESS-FEDERAL-PILOT
+      - GD-55-SEARCH-REFINEMENT-REVIEW-GUIDANCE
+      - GD-56-AUDIT-REPAIRS
+      - GD-57-FEDERAL-EXPANSION-PLAN
+      - GD-60-FEDERAL-PROBE-REFRESH-READINESS
+    blocked_by: [G-GD-LOCAL-RELEASE-ACCEPTANCE]
     safe_fallback: >-
-      No release package exists; PS09-06-LOCAL-RC stays the sole local release
-      root and D-063 is unchanged.
+      GD-27 is the represented current local release root, not a completed
+      release. GD-48 may prepare a candidate for demonstrations. Historical PS09
+      objects remain frozen evidence with unmet claims owned by GD-53.
     unblocks_only_when: >-
-      The owner opens G-GD-NATIONWIDE-CONTRACT for GD-13 under D-073, and every
-      dependency of this item is complete.
+      Every required outcome and A1-A4 demonstration has reviewed evidence; the
+      exact local acceptance gate is satisfied without opening publication.
     acceptance:
       - >-
         A versioned local release package with an install document and the T0
         baseline bundle v0 as a local file installs on a second machine.
       - >-
-        A later planning session consolidates PS09-06-LOCAL-RC into this root
-        (D-081, completing the D-071 intent); until it acts, PS09-06-LOCAL-RC
-        remains the sole local release root.
+        Schema 1.11 and the GD-31 crosswalk consolidate current local release
+        acceptance here. Every retained unmet PS09 claim must have GD-53
+        acceptance evidence; no historical gate or completed run is reopened.
       - >-
         The package is required for demonstrations A1 and A3 of the definition
         of done; it is not a public release or remote publication.
+      - >-
+        Every Part B capability and A1-A4 demonstration has an owning task and
+        objective evidence. Reconcile registry versions and remaining PS09
+        claims explicitly; packaging is not release acceptance.
     evidence:
       - >-
         Represented by the planning act of general-development session 2 under
@@ -7220,79 +8989,95 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: PS09-02-IDENTITY-AUTHORITY-SCENARIOS
+    work_item: GD-60-FEDERAL-PROBE-REFRESH-READINESS
     action: >-
-      Recover docs/development/ps09-engineering-review-02-evidence-matrix.md and
-      its acceptance delta for a broader finite proposed evidence tranche. Exact
-      owner adoption, source qualification and a reviewed later ledger
-      representation precede execution; unknown locators require separately
-      bounded discovery. The dormant five-GET packet remains an unexecuted
-      limited pilot and cannot complete PS09-02. Preserve all nine scenario gaps
-      and unsupported identity claims. Keep PS09-06 unstarted and gated until
-      PS09-02 is accepted and the exact local release run is authorized. Recover
-      docs/handoffs/ps09-engineering-review-02-outcome.md and the preserved
-      discovery outcome; do not reactivate ended maintenance, acquisition,
-      cutoff startups or archived lanes. General development proceeds separately
-      under G-GENERAL-DEV-01 (D-071) and does not unblock PS09.
+      Recheck exact federal source routes and gates, prepare finite canaries and
+      fallback tests, and measure whether a local refreshable index is needed.
   - order: 2
-    work_item: GD-04-CORE-BOUNDARY-GUARD
-    action: >-
-      Wave 2: build src/core/boundary-guard.mjs to the contract the GD-03 tests
-      state (its 80 skipped tests then run) and adopt it in record validation.
+    work_item: GD-20-DESIGNATION-REGISTRY-CONTRACT
+    action:
+      "Implement the synthetic designation vocabulary without geometry or
+      inferred Nation criteria."
   - order: 3
-    work_item: GD-05-INTAKE-REPLAY-AND-DISCOVERY
-    action: >-
-      Wave 2: move replay and Washington discovery into src/modules/intake
-      behind re-export shims.
-  - order: 4
-    work_item: GD-07-RESEARCH-OUTPUT-SPLIT
-    action: >-
-      Wave 2: split research review (context) from research HTML (output).
-  - order: 5
-    work_item: GD-08-CONTEXT-RELEVANCE-EXTRACTION
-    action: >-
-      Wave 2: move the relevance functions into
-      src/modules/context/relevance.ts.
-  - order: 6
-    work_item: GD-09-JURISDICTION-IDENTIFIER-MODEL
-    action: >-
-      Wave 2: nationwide JurisdictionRef model with a synthetic registry.
-  - order: 7
-    work_item: GD-13-NATIONWIDE-RECORD-CONTRACT
-    action: >-
-      Blocked on the closed gate G-GD-NATIONWIDE-CONTRACT; the owner opens it
-      for the exact successor contracts under D-073.
-  - order: 8
-    work_item: GD-16-INTEROP-PURE-ADAPTER
-    action: >-
-      Blocked on the closed gate G-GD-INTEROP; the owner opens it for the pure
-      validator and projector only under D-074.
-  - order: 9
-    work_item: GD-17-NATIONWIDE-SOURCE-SURVEY
-    action: >-
-      Session R (RL-14): documentation-only nationwide source survey with the
-      source-scout agent; acquires nothing.
-  - order: 10
-    work_item: GD-18-STORAGE-CAPACITY-MODEL
-    action: >-
-      Session R (RL-14): storage capacity model and storage:report against the
-      D-077 caps; acquires nothing.
-  - order: 11
     work_item: GD-22-NATION-REGISTRY-BINDING
-    action: >-
-      Blocked on G-BIA-IDENTITY and on an atni-nation-registry v0 release
-      (D-075).
+    action:
+      "Await originating recognition reconciliation and the digest-pinned Nation
+      registry v1; T0 baseline bundle v0 is a different version line."
+  - order: 4
+    work_item: GD-23-USER-SUPPLIED-SOURCE-CLASS
+    action:
+      "Implement the separately classified synthetic user-supplied source
+      contract without real private inputs."
+  - order: 5
+    work_item: GD-47-REGIONAL-INTERFACE-QUALIFICATION
+    action:
+      "Qualify regional interfaces against exact source-specific access and
+      reuse evidence."
+  - order: 6
+    work_item: GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
+    action:
+      "Complete remaining nationwide source classes without blocking the finite
+      pilot or acquiring source payloads."
+  - order: 7
+    work_item: GD-36-PILOT-SOURCE-QUALIFICATION
+    action:
+      "Prepare finite pilot source qualifications and retain source-specific
+      blocks."
+  - order: 8
+    work_item: GD-39-FEDERAL-REGISTER-API-INTEGRATION
+    action:
+      "Prepare a new source-specific Federal Register review and finite API
+      manifest before bounded integration; spent historical requests do not
+      resume. Dependencies are complete, but no dispatch occurs at this
+      checkpoint."
+  - order: 9
+    work_item: GD-40-GOVINFO-API-INTEGRATION
+    action:
+      "Resolve the exact GovInfo API credential/terms gate before bounded API
+      integration; direct documents cannot substitute."
+  - order: 10
+    work_item: GD-41-ECFR-API-INTEGRATION
+    action:
+      "Resolve the exact eCFR access-consent condition before any new host
+      request, then qualify and test the API."
+  - order: 11
+    work_item: GD-42-CONGRESS-API-INTEGRATION
+    action:
+      "Resolve exact Congress.gov API credentials and source-specific terms
+      before bounded integration."
   - order: 12
-    work_item: GD-26-REPRODUCIBLE-CHECKS
-    action: >-
-      Make hook tests independent of ignored historical receipts and test each
-      .claude/settings.json deny form (D-081).
+    work_item: GD-43-REGULATIONS-API-INTEGRATION
+    action:
+      "Resolve exact Regulations.gov governmental GET access and credentials;
+      comments and submissions remain excluded."
   - order: 13
+    work_item: GD-53-PS09-ACCEPTANCE-CARRYFORWARD
+    action:
+      "Close each retained identity/scenario claim under the successor
+      crosswalk; do not reactivate a spent historical run."
+  - order: 14
     work_item: GD-27-LOCAL-RELEASE-PACKAGE
-    action: >-
-      Blocked on the closed gate G-GD-NATIONWIDE-CONTRACT (through GD-13); a
-      later planning session consolidates PS09-06-LOCAL-RC into it (D-081).
+    action:
+      "Accept the current local release only after all Part B work, A1-A4 and
+      retained PS09 claims pass. Candidate packaging is GD-48, not release
+      completion."
 finish_states:
+  general_development:
+    release_root: GD-27-LOCAL-RELEASE-PACKAGE
+    current_state: in_progress
+    blocked_by: []
+    satisfied_when:
+      - Every required Part B capability and source/API integration has current
+        acceptance evidence.
+      - Independent A1-A4 demonstrations and every retained PS09 claim pass the
+        release crosswalk.
+      - GD-27 is complete and G-GD-LOCAL-RELEASE-ACCEPTANCE is satisfied.
+    does_not_mean:
+      - Public general-engine publication or any remote operation is authorized.
+      - Preparation manifests authorize dispatch or replace source
+        qualification.
+      - Private sharing or real participant inputs are authorized without
+        applicable permissions.
   makah_demo:
     current_state: complete
     work_item: MAKAH-DEMO-02-FEDERAL-CANDIDATE-ACQUISITION

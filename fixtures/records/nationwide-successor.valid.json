@@ -1,0 +1,637 @@
+{
+  "schemaVersion": "2.0.0",
+  "internalId": "psr:synthetic-federal:record-001",
+  "source": {
+    "id": "synthetic-federal",
+    "name": "Synthetic Federal Source",
+    "provider": "Synthetic Public Agency",
+    "recordId": "SYN-001",
+    "adapterId": "synthetic-adapter",
+    "adapterVersion": "1.0.0",
+    "coverage": {
+      "from": "2020-01-01",
+      "through": null,
+      "notes": "Synthetic coverage for contract testing only."
+    },
+    "attribution": "Synthetic Public Agency"
+  },
+  "officialTitle": "Synthetic Nevada public notice for contract validation",
+  "sourceDocumentIdentifier": "SYN-001",
+  "documentType": "notice",
+  "jurisdiction": {
+    "level": "state",
+    "name": "Nevada",
+    "jurisdictionRef": "us-state:NV",
+    "basis": "issuing_authority",
+    "evidence": {
+      "url": "https://official.example.invalid/records/SYN-001",
+      "locator": "Synthetic source heading",
+      "exactSubject": {
+        "recordRef": "psr:synthetic-federal:record-001",
+        "ref": "us-state:NV",
+        "text": "Synthetic Nevada public notice for contract validation"
+      }
+    },
+    "reviewState": "reviewed",
+    "generalJurisdictionOnly": true,
+    "review": {
+      "reviewer": "synthetic-jurisdiction-reviewer",
+      "reviewedAt": "2026-07-30T12:01:00Z"
+    }
+  },
+  "issuingBodies": [
+    {
+      "sourceId": "agency-synthetic",
+      "officialName": "Synthetic Public Agency"
+    }
+  ],
+  "legislativeContext": null,
+  "judicialContext": null,
+  "accordContext": null,
+  "status": {
+    "normalized": "active",
+    "sourceLabel": "Open",
+    "asOf": "2026-07-29"
+  },
+  "dates": {
+    "introduced": null,
+    "published": "2026-07-29",
+    "updated": "2026-07-29T12:00:00Z",
+    "lastAction": null,
+    "deadline": "2026-09-01T23:59:59Z",
+    "effective": null,
+    "retrieved": "2026-07-30T12:00:00Z"
+  },
+  "urls": {
+    "officialSource": "https://official.example.invalid/records/SYN-001",
+    "officialFullText": "https://official.example.invalid/records/SYN-001.pdf"
+  },
+  "texts": {
+    "officialSummary": {
+      "text": "This is synthetic source-provided summary text.",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "sourceDate": "2026-07-29",
+      "reproductionBasis": "Synthetic fixture text."
+    },
+    "sourceExcerpt": null,
+    "detailAsset": {
+      "availability": "official_link_only",
+      "path": null,
+      "reproductionBasis": null
+    }
+  },
+  "sponsors": [],
+  "committees": [],
+  "actionHistory": [],
+  "statusHistory": [
+    {
+      "date": "2026-07-29",
+      "sourceLabel": "Open",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001"
+    }
+  ],
+  "sourceDocumentRelationships": [],
+  "officialSubjects": [],
+  "taxonomyMemberships": [],
+  "isUnclassified": true,
+  "relevance": [
+    {
+      "basis": "general_jurisdiction",
+      "label": "General state jurisdiction",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "evidence": "The synthetic official notice identifies Nevada and does not name a Nation."
+    }
+  ],
+  "nationAssociations": [],
+  "landmark": {
+    "isLandmark": false
+  },
+  "historical": {
+    "isHistorical": false,
+    "pre1980Treatment": "not_applicable"
+  },
+  "dataQuality": {
+    "state": "validated",
+    "validatedAt": "2026-07-30T12:01:00Z",
+    "validator": "synthetic-fixture-validator",
+    "issues": []
+  },
+  "sourceHealth": {
+    "status": "healthy",
+    "checkedAt": "2026-07-30T12:00:30Z",
+    "dataAsOf": "2026-07-29T12:00:00Z",
+    "lastSuccessfulRetrievalAt": "2026-07-30T12:00:00Z",
+    "usingLastKnownGood": false,
+    "message": null
+  },
+  "change": {
+    "firstSeenAt": "2026-07-30T12:00:00Z",
+    "lastSeenAt": "2026-07-30T12:00:00Z",
+    "kind": "new",
+    "urgentAlert": {
+      "basis": "source_deadline",
+      "label": "Official deadline approaching",
+      "date": "2026-09-01T23:59:59Z"
+    }
+  },
+  "aiSummary": {
+    "exists": false,
+    "label": "AI-generated source summary"
+  },
+  "fieldProvenance": [
+    {
+      "field": "/dates/deadline",
+      "sourcePath": "$fixture/dates/deadline",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/dates/published",
+      "sourcePath": "$fixture/dates/published",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/dates/updated",
+      "sourcePath": "$fixture/dates/updated",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/documentType",
+      "sourcePath": "$.type",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "normalized",
+      "transformRuleId": "synthetic-document-type-v1",
+      "validationState": "validated"
+    },
+    {
+      "field": "/historical/isHistorical",
+      "sourcePath": "$fixture/historical/isHistorical",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/historical/pre1980Treatment",
+      "sourcePath": "$fixture/historical/pre1980Treatment",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/issuingBodies/0/officialName",
+      "sourcePath": "$fixture/issuingBodies/0/officialName",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/issuingBodies/0/sourceId",
+      "sourcePath": "$fixture/issuingBodies/0/sourceId",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/isUnclassified",
+      "sourcePath": "$fixture/isUnclassified",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/jurisdiction/basis",
+      "sourcePath": "$fixture/jurisdiction/basis",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/jurisdiction/evidence/exactSubject/recordRef",
+      "sourcePath": "$fixture/jurisdiction/evidence/exactSubject/recordRef",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/jurisdiction/evidence/exactSubject/ref",
+      "sourcePath": "$fixture/jurisdiction/evidence/exactSubject/ref",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/jurisdiction/evidence/exactSubject/text",
+      "sourcePath": "$fixture/jurisdiction/evidence/exactSubject/text",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/jurisdiction/evidence/locator",
+      "sourcePath": "$fixture/jurisdiction/evidence/locator",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/jurisdiction/evidence/url",
+      "sourcePath": "$fixture/jurisdiction/evidence/url",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/jurisdiction/generalJurisdictionOnly",
+      "sourcePath": "$fixture/jurisdiction/generalJurisdictionOnly",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/jurisdiction/jurisdictionRef",
+      "sourcePath": "$fixture/jurisdiction/jurisdictionRef",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/jurisdiction/level",
+      "sourcePath": "$fixture/jurisdiction/level",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/jurisdiction/name",
+      "sourcePath": "$fixture/jurisdiction/name",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/landmark/isLandmark",
+      "sourcePath": "$fixture/landmark/isLandmark",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/officialTitle",
+      "sourcePath": "$.title",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/relevance/0/basis",
+      "sourcePath": "$fixture/relevance/0/basis",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/relevance/0/evidence",
+      "sourcePath": "$fixture/relevance/0/evidence",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/relevance/0/label",
+      "sourcePath": "$fixture/relevance/0/label",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/relevance/0/sourceUrl",
+      "sourcePath": "$fixture/relevance/0/sourceUrl",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/sourceDocumentIdentifier",
+      "sourcePath": "$.identifier",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/status/asOf",
+      "sourcePath": "$fixture/status/asOf",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/status/normalized",
+      "sourcePath": "$fixture/status/normalized",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/status/sourceLabel",
+      "sourcePath": "$.status",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/statusHistory/0/date",
+      "sourcePath": "$fixture/statusHistory/0/date",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/statusHistory/0/sourceLabel",
+      "sourcePath": "$fixture/statusHistory/0/sourceLabel",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/statusHistory/0/sourceUrl",
+      "sourcePath": "$fixture/statusHistory/0/sourceUrl",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/texts/officialSummary/reproductionBasis",
+      "sourcePath": "$fixture/texts/officialSummary/reproductionBasis",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/texts/officialSummary/sourceDate",
+      "sourcePath": "$fixture/texts/officialSummary/sourceDate",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/texts/officialSummary/sourceUrl",
+      "sourcePath": "$fixture/texts/officialSummary/sourceUrl",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/texts/officialSummary/text",
+      "sourcePath": "$fixture/texts/officialSummary/text",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/urls/officialFullText",
+      "sourcePath": "$fixture/urls/officialFullText",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    },
+    {
+      "field": "/urls/officialSource",
+      "sourcePath": "$.url",
+      "sourceId": "synthetic-federal",
+      "sourceRecordId": "SYN-001",
+      "sourceUrl": "https://official.example.invalid/records/SYN-001",
+      "retrievedAt": "2026-07-30T12:00:00Z",
+      "sourceUpdatedAt": "2026-07-29T12:00:00Z",
+      "adapterId": "synthetic-adapter",
+      "transformation": "copied",
+      "transformRuleId": null,
+      "validationState": "validated"
+    }
+  ]
+}

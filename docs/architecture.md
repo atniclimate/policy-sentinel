@@ -22,40 +22,141 @@ community context. Personas are views, not fact stores. Output adapters retain
 record identity, citations, evidence, timestamps, coverage, review,
 visibility, and limitations.
 
-The single local release root is `PS09-06-LOCAL-RC`. Historical B/PNW/local
-prerelease finish scopes retain evidence only. The
+The current local release root is GD-27 under schema 1.11 and the
+[GD-31 crosswalk](development/gd31-release-acceptance-crosswalk.md).
+PS09-06 and historical B/PNW/local prerelease scopes retain their evidence.
+The [preparation contract](architecture/gd31-successor-contracts.md) is pure
+and does not integrate a runner or output adapter. The
 [convergence ADR](adr/ps09-canonical-corpus.md) and
 [component registry](development/ps09-convergence.v1.json) bind current adoption,
 migration, compatibility, and excluded/deferred work. Run 1 does not authorize
 later runs, real acquisition, source activation, or publication.
 
 The separately adopted [real-policy launch](handoffs/ps09-real-policy-discovery-launch.md)
-at `39d738a` now authorizes its bounded local successor implementation under
+at `39d738a` authorized its completed bounded local implementation under
 `POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01`. The
 [execution journal](development/PS09-REAL-POLICY-DISCOVERY-01.md) owns exact
 leases, accepted source/custody decisions and measured integration evidence.
-The target slice connects a one-operation runner, immutable official objects,
+That slice connects a one-operation runner, immutable official objects,
 versioned corpus and replayable segments, deterministic search, temporal and
 cross-context comparison, and local browser/dossier/export. Source review and
 runner preflight precede acquisition; the authorization itself proves no
-working path. PS09-02 stays blocked and an explicit PS09-06 prerequisite while
-general-jurisdiction work proceeds independently.
+working path. Its acquisition has ended; sealed local replay remains available.
+Unmet historical identity and scenario acceptance is carried into GD-53 through
+the current release crosswalk, while general-jurisdiction work proceeds.
 
 The sections below describe retained component evidence and the launch baseline.
 Their synthetic/unsupported statements apply to the named existing contracts;
 they do not prohibit the adopted successor work. New implementation must record
 its own version, compatibility and evidence before a maturity claim changes.
 
-The current static Preact application, print dossier, CSV serializer, source
+The retained static Preact application, print dossier, CSV serializer, source
 contracts, `PolicyRecord 1.4`, source registry `1.19`, and artifact package
 `1.4` remain unchanged compatibility inputs and outputs. They are not the
 complete analyzed corpus or adapter suite. Required successor contracts are
-listed in [`data-contract.md`](data-contract.md), and the exact PNW acceptance
+cataloged in [`data-contract.md`](data-contract.md), and the exact PNW acceptance
 boundary is [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md).
 
 K0, S0, and O0 remain outside this architecture's active dependency graph
 unless their existing convergence gates are separately opened. The planning
 rebase neither changes their bytes nor imports them into product code.
+
+## Current general-engine implementation
+
+The D-088 implementation adds explicit successors beside the retained contracts.
+The [implementation record](development/2026-10-08-study-engine-implementation.md)
+holds validation receipts; code availability here is not a real-source pilot or
+local release acceptance claim. The
+[module design](architecture/module-boundaries.md) and its
+[general development addendum](architecture/general-development-addendum-2026-09-22.md)
+govern the following boundaries.
+
+| Module | Implemented responsibility and dependency boundary |
+| --- | --- |
+| Core | Pure corpus, evidence, validation, source-coverage display and persistent study contracts. Core does not import context, intake, output, configuration or I/O. Some canonical implementations remain at their classified compatibility paths under `src/pipeline/`; a path name alone does not determine module ownership. |
+| Intake | Source contracts, bounded custody, extraction, reviewed corpus assembly and source catalog admission. Parser/normalizer implementations are separate from configured adapter composition. Context-dependent validation is supplied explicitly to factories rather than reached through a core-to-context dependency. |
+| Context | Pure identity, jurisdiction, taxonomy, relevance, research review and temporal operations. Context consumes core contracts and preserves source evidence; it does not acquire or format source data. |
+| Output | Search, public artifact packaging and UI, plus local workbench, dossiers and structured research products. Local output consumes already reviewed corpora; `scripts/` composes intake replay with output writing. |
+| Private | The retained synthetic private-context contracts and any future `src/modules/private/` implementation. Public entry points cannot reach this module or the private engine barrel. Local output may use it only within its separately authorized deployment boundary. |
+
+Composition lives in explicit script entry points and `src/main.tsx`. Reviewed
+legacy facades preserve exported names, function/error identity and existing
+callers. The enforcing
+[module manifest](../tests/architecture/module-manifest.mjs) and graph tests
+cover transitive imports, declarations, compatibility facades and public/private
+reachability. A pure Node validator is not necessarily browser-safe: the local
+browser uses pure display/search/study helpers and pinned output files, without
+bundling Node custody or runtime Ajv code generation.
+
+The [source catalog](../config/source-catalog.v1.mjs) connects the existing
+profiles and bounded preparation runner to documentary coverage for WA, OR, ID,
+AK, CA, MT, NV, ATNI, NCAI and USET. Discovery, qualification and activation are
+different states. Each row distinguishes documented `topical`, `full_text`,
+`metadata`, `identifier_only`, `cached` and `unavailable` capabilities from
+implemented retrieval, source review dates, permitted uses and blocking gaps.
+Credential fields are environment-variable references only. An expired review,
+unresolved terms or absent retrieval path cannot become an active source through
+catalog inclusion. Intertribal statements retain organizational attribution and
+never become member Nation positions or participation.
+
+AnalyzedCorpus `2.1.0` adds work-level jurisdiction associations bound to exact
+versions, segments, source URLs, locators, source wording and attributed review.
+State identity evidence must match the declared identifier. Original
+`governmentContext` text is retained; geographic discovery relevance is separate
+from this reviewed evidence. Search filters use only reviewed associations for
+the returned version whose cited renditions are known on the selected temporal
+axis. Strict `2.0.0` constructors, parsers, serialization and citation replay
+remain strict; named supported-version APIs admit `2.1.0` explicitly. The
+public record/artifact/source `2.0.0` family is a separate contract family, not
+the local corpus version. Its migration helpers produce evidence-supplied
+candidates and receipts for independent validation. The ordinary synthetic build
+still emits the retained public v1 family, and mixed families fail closed.
+
+`ResearchStudy 1.0.0` is a digest-bound, revisioned sidecar over a sealed corpus.
+The local workspace connects Question → Discovery → Source → Passage → Assertion
+→ Review → Gap → Follow-up Discovery. Analysts save and reopen bounded study
+JSON across sessions; a changed corpus requires explicit rebinding and renewed
+evidence review. The strategic, procedural and source-evidence views share
+questions, passages, assertions and review records. Saved discovery scope retains
+collection, temporal, government-context, jurisdiction and instrument filters;
+older missing scope stays explicitly unrecorded. Historical deadlines survive
+extensions, consultation event kinds and participation scopes remain distinct,
+and environmental values retain alternatives, baselines, units, spatial scale,
+uncertainty and source versions. Source material, extraction, model interpretation
+and analyst authorship keep distinct provenance; this creates no model-call path.
+
+Research products include dossiers, evidence tables, timelines, authority
+matrices, gap registers, provenance records and the portable attributed graph.
+The graph's Study, Question, SourceDocument, Assertion, ConsultationEvent and Gap
+nodes use `supportedBy`, `challengedBy`, `respondsTo` and `supersededBy` edges.
+Exports preserve source permissions, review states, evidence identity and
+reference closure. Public projections exclude private notes and their dependent
+content; an explicit local study backup includes those notes. Common-origin
+groups remain distinct from independent corroboration. No public redistribution
+right follows from a source being available locally.
+
+Optional bounded source/date projections preserve whole works, all retained
+versions and evidence dependencies, including documented procedural targets.
+The writer and reader rebuild them from the reviewed parent corpus and pin their
+manifest hash and byte size. The UI distinguishes directly selected records,
+retained context and unsearched collections. Context expansion follows resolved
+source relationships or accepted, evidence-backed study dependencies, respects
+the temporal cutoff and declares result limits. The browser corpus ceiling stays
+128 MiB. The managed footprint stays 50,000,000,000 bytes, counting originals,
+renditions, studies, indexes, exports and simultaneous old/staged/rebuild copies;
+bounded synthetic measurement does not establish capacity for real pilots.
+
+The addendum makes user-supplied private context a first-class module, but the
+area resolver, designation registry, qualified Nation registry binding and peer
+exchange retain their own implementation and acceptance boundaries. Geometry and
+land attributes stay in a deployment's private namespace and cannot create a
+Nation association or leave through a public build. Official public Tribal
+publications are eligible for source review; restricted internal records require
+applicable authorization. The common exchange profile remains Nation-free; a
+separately authorized ATNI profile may carry an explicitly selected canonical
+Nation identifier without implying affiliation or representation. These design
+obligations do not claim an implemented resolver, production registry, private
+adapter, peer transmission or federated baseline service.
 
 ## PS09 Run 2 synthetic identity and scenario references
 
@@ -475,8 +576,9 @@ layer basis and never an applicability statement), and the typed
 implementation used only by tests.
 
 A tribal layer matches a record only through a validated
-`nationAssociations` entry whose official name equals the layer's authority
-name; jurisdiction names, issuing bodies, keywords and geography never
+`nationAssociations` entry whose `nationId` equals the layer's explicit
+`nationId`; equal official names alone, jurisdiction names, issuing bodies,
+keywords and geography never
 produce a match, so a county-only parcel cannot yield a Nation association.
 Both private-only contracts fix `deploymentProfile: private`, reject
 PolicyRecord protected keys and geometry payload keys at any depth before
@@ -504,7 +606,8 @@ build-time ingestion pipeline. There is no browser-to-provider API path, runtime
 database, application server, LLM dependency, telemetry service, or private
 data path in the public build.
 
-Its current maturity is:
+The retained application and source-specific baseline has the following scope;
+the integrated successors are described above:
 
 | Maturity | Current repository evidence |
 | --- | --- |
@@ -513,7 +616,7 @@ Its current maturity is:
 | Retained foundation seams | PNW-01 profiles, PNW-03 geography/rights, PNW-04 taxonomy/crosswalk, and the PNW-05 synthetic source-pack core remain separately tested compatibility evidence outside the current application path. |
 | Implemented but disabled | Federal Register, Washington Governor executive orders, Washington Centennial Accord, and the one-row curated Supreme Court adapters are tested and registered but cannot emit public records. |
 | Contract-only | Congress.gov, GovInfo, Regulations.gov, Oregon Legislature OData, and Washington LWS have bounded synthetic contracts but no activated production adapter. |
-| Proposed and unimplemented | Production region packs and community profiles, broad real-source analyzed-corpus integration, concrete common output-adapter implementations, scheduled/manual workflows, Pages delivery, and a private deployment remain future work. |
+| Separate remaining acceptance | Production region packs and community profiles, broad real-source pilots, a common output-adapter contract across all output classes, general-engine scheduled/manual workflows and publication, and a real private deployment retain their own acceptance and operation gates. The separately authorized demo publication is not a general-engine release. |
 
 Current and conditional tooling:
 
@@ -853,7 +956,11 @@ source status, or publisher identity creates a Nation relationship.
 
 ## Source repository versus deployment artifact
 
-The current authored tree and its explicitly absent target seams are:
+The retained authored tree is shown below. The current module split additionally
+uses `src/core/`, `src/modules/{intake,context,output}/`, the source catalog,
+study/graph schemas and explicit corpus/public successor schemas described above.
+Private implementation remains separately gated; the historical paths below are
+not an exhaustive module ownership manifest.
 
 ```text
 policy-sentinel/
@@ -862,6 +969,7 @@ policy-sentinel/
   config/
     taxonomy.v1.json
     sources.v1.json             # implemented source registry
+    source-catalog.v1.mjs       # qualification/capability catalog; no activation by inclusion
     mappings/                   # absent; future exact official-label maps
   docs/
   fixtures/
@@ -870,6 +978,10 @@ policy-sentinel/
     sources/                    # synthetic source contracts
   schemas/
     record.schema.v1.json
+    record.schema.v2.json       # explicit public successor family
+    analyzed-corpus.schema.v2.1.json
+    research-study.schema.v1.json
+    attributed-study-graph.schema.v1.json
     taxonomy.schema.v1.json
     taxonomy-bundle.schema.v1.json
     source-pack-bundle.schema.v1.json
@@ -879,13 +991,18 @@ policy-sentinel/
   scripts/
     validate-foundation.mjs     # plus artifact/source/hook validators
   src/
-    app/                        # implemented static synthetic UI
+    app/                        # retained static UI and separately delivered local workspace
+    core/                       # pure shared contracts and implementation
+    modules/
+      intake/                   # custody, extraction, catalog admission and replay
+      context/                  # pure evidence-backed context and review
+      output/                   # search projection and governed research products
     adapters/                   # implemented adapters; real sources disabled
     contracts/                  # bounded synthetic source contracts
     experimental/spatial/       # isolated S0; not a product dependency
     kernel/                     # isolated K0; not a product dependency
     pipeline/                   # implemented normalize/validate/package stages
-    engine/                     # additive synthetic projection seam; not integrated
+    engine/                     # retained seams plus integrated local search/temporal operations
     private-adapters/           # absent; future gated interface only
     shared/
   tests/
@@ -970,8 +1087,10 @@ reproduction basis. Current package and record schema `1.4.0` add the complete
 Accord context and bind source registry `1.19.0`. These additions remain
 optional under artifact schema `1.0.0`, so historical package `1.0.0`,
 `1.1.0`, `1.2.0`, and `1.3.0` manifests continue to pass archival schema
-validation. The current client requires a matching package `1.4.0` manifest
-and rejects legacy or unversioned packages before normalizing records; an
+validation. The retained v1 client path requires a matching package `1.4.0`
+manifest; the explicit successor path requires the coherent `2.0.0`
+record/artifact/source family with its evidence checks. Both reject mixed,
+unsupported or unversioned packages before normalizing records; an
 explicit migration is required before a historical package can run under a
 newer client. On-demand detail hydration also requires the detail wrapper's
 build timestamp to match the loaded manifest and compares every compact
@@ -1110,7 +1229,8 @@ language.
 
 ## Private extension boundary
 
-The future private interface is documentation-level only:
+The historical private-interface sketch is retained below; the implemented
+synthetic typed contract and current module boundary follow it:
 
 ```ts
 interface AuthorizedPrivateContextAdapter {
@@ -1132,9 +1252,10 @@ with a synthetic in-memory implementation for tests only; its operations are
 synchronous because the contract performs no I/O, a deliberate deviation from
 the promise-returning sketch above. No real private adapter module or
 private-context manifest exists. Current repository checks reject tracked private-path families and
-prohibited public-record fields; a future implementation must additionally
-prove that its public build configuration rejects the private module and every
-private-context manifest. Private context cannot create a public
+prohibited public-record fields. The enforced import graph now proves that the
+public entry points cannot reach the classified private module or barrel; a real
+private implementation must retain that proof and reject private manifests at
+public build boundaries. Private context cannot create a public
 Nation-to-record relationship. The public product must state that its results
 do not represent all of a Nation's land or other interests.
 

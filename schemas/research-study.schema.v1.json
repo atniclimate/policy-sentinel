@@ -1,0 +1,2448 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/research-study.schema.v1.json",
+  "title": "Persistent research study 1.0.0",
+  "description": "Digest-bound local study sidecar. Semantic validation additionally replays exact corpus citations, source statements, references, history, review and procedural invariants.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "kind",
+    "id",
+    "title",
+    "sensitivity",
+    "trustDomain",
+    "corpusId",
+    "corpusDigest",
+    "createdAt",
+    "updatedAt",
+    "updatedBy",
+    "revision",
+    "previousDigest",
+    "revisions",
+    "actors",
+    "questions",
+    "discoveries",
+    "candidates",
+    "passages",
+    "assertions",
+    "reviews",
+    "gaps",
+    "annotations",
+    "proceedings",
+    "actions",
+    "deadlines",
+    "consultations",
+    "environmentalEvidence",
+    "authorityRelationships",
+    "originGroups",
+    "contentDigest"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://policy-sentinel.invalid/schemas/research-study.schema.v1.json"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "kind": {
+      "const": "research_study"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 192,
+      "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "sensitivity": {
+      "type": "string",
+      "enum": ["public", "restricted"]
+    },
+    "trustDomain": {
+      "type": "string",
+      "enum": ["real_source_local", "synthetic_test_only"]
+    },
+    "corpusId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 192,
+      "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+    },
+    "corpusDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "createdAt": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 30,
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+    },
+    "updatedAt": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 30,
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+    },
+    "updatedBy": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 192,
+      "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000
+    },
+    "previousDigest": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      ]
+    },
+    "revisions": {
+      "type": "array",
+      "maxItems": 9999,
+      "items": {
+        "$ref": "#/$defs/revision"
+      }
+    },
+    "actors": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/actor"
+      }
+    },
+    "questions": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/question"
+      }
+    },
+    "discoveries": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/discovery"
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/candidate"
+      }
+    },
+    "passages": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/passage"
+      }
+    },
+    "assertions": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/assertion"
+      }
+    },
+    "reviews": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/review"
+      }
+    },
+    "gaps": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/gap"
+      }
+    },
+    "annotations": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/annotation"
+      }
+    },
+    "proceedings": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/proceeding"
+      }
+    },
+    "actions": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/action"
+      }
+    },
+    "deadlines": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/deadline"
+      }
+    },
+    "consultations": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/consultation"
+      }
+    },
+    "environmentalEvidence": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/environmentalEvidence"
+      }
+    },
+    "authorityRelationships": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/authorityRelationship"
+      }
+    },
+    "originGroups": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/originGroup"
+      }
+    },
+    "contentDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "$defs": {
+    "policyDate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "precision"],
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 10
+            }
+          ]
+        },
+        "precision": {
+          "type": "string",
+          "enum": ["year", "month", "day", "unknown"]
+        }
+      }
+    },
+    "locator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value",
+        "headingPath",
+        "printedPageLabel",
+        "physicalPageIndex"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["structural_path", "paragraph", "line", "page"]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "headingPath": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        },
+        "printedPageLabel": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          ]
+        },
+        "physicalPageIndex": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "integer",
+              "minimum": 0
+            }
+          ]
+        }
+      }
+    },
+    "uses": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capture",
+        "analysis",
+        "localDisplay",
+        "localExport",
+        "excerpts",
+        "publicRedistribution"
+      ],
+      "properties": {
+        "capture": {
+          "const": true
+        },
+        "analysis": {
+          "const": true
+        },
+        "localDisplay": {
+          "type": "string",
+          "enum": ["full_text", "excerpt", "metadata_link"]
+        },
+        "localExport": {
+          "type": "string",
+          "enum": ["full_text", "excerpt", "metadata_link", "prohibited"]
+        },
+        "excerpts": {
+          "type": "boolean"
+        },
+        "publicRedistribution": {
+          "const": "prohibited"
+        }
+      }
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "kind", "sensitivity"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "analyst",
+            "model",
+            "organization",
+            "agency",
+            "tribal_nation",
+            "rule"
+          ]
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "restricted"]
+        }
+      }
+    },
+    "question": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "actorId",
+        "createdAt",
+        "provenance",
+        "reviewState",
+        "sensitivity",
+        "parentQuestionId",
+        "text",
+        "theme",
+        "status",
+        "discoveryGeographies"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "createdAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "provenance": {
+          "type": "string",
+          "enum": [
+            "source_content",
+            "extracted_evidence",
+            "model_interpretation",
+            "analyst_authored"
+          ]
+        },
+        "reviewState": {
+          "type": "string",
+          "enum": ["unreviewed", "accepted", "challenged", "rejected"]
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "restricted"]
+        },
+        "parentQuestionId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+            }
+          ]
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "theme": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4096
+        },
+        "status": {
+          "type": "string",
+          "enum": ["open", "answered", "archived"]
+        },
+        "discoveryGeographies": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          }
+        }
+      }
+    },
+    "searchScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["temporal", "governmentContext", "instrumentClass"],
+      "properties": {
+        "matchMode": {
+          "type": "string",
+          "enum": ["any_terms", "all_terms"]
+        },
+        "jurisdictionRef": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "pattern": "^(?:us|us-state:[A-Z]{2}|us-county:[0-9]{5}|nation:[a-z0-9]+(?:-[a-z0-9]+)*|body:[a-z0-9]+(?:-[a-z0-9]+)*)$"
+            }
+          ]
+        },
+        "temporal": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["asOf", "basis"],
+              "properties": {
+                "asOf": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                      "minLength": 10,
+                      "maxLength": 10
+                    },
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$",
+                      "minLength": 20,
+                      "maxLength": 24
+                    }
+                  ]
+                },
+                "basis": {
+                  "type": "string",
+                  "enum": [
+                    "source_available",
+                    "corpus_observed",
+                    "source_effective"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "governmentContext": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1, "maxLength": 65536 }
+          ]
+        },
+        "instrumentClass": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "string",
+              "enum": [
+                "regulation",
+                "proposed_rule",
+                "final_rule",
+                "statute",
+                "bill",
+                "executive_order",
+                "judicial_opinion",
+                "intergovernmental_agreement",
+                "agency_policy",
+                "notice"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "discovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "actorId",
+        "createdAt",
+        "provenance",
+        "reviewState",
+        "sensitivity",
+        "questionId",
+        "query",
+        "sourceIds",
+        "followUpGapId",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "createdAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "provenance": {
+          "type": "string",
+          "enum": [
+            "source_content",
+            "extracted_evidence",
+            "model_interpretation",
+            "analyst_authored"
+          ]
+        },
+        "reviewState": {
+          "type": "string",
+          "enum": ["unreviewed", "accepted", "challenged", "rejected"]
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "restricted"]
+        },
+        "questionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "query": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "searchScope": {
+          "$ref": "#/$defs/searchScope"
+        },
+        "sourceIds": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 192,
+            "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+          }
+        },
+        "followUpGapId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+            }
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["planned", "completed"]
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "actorId",
+        "createdAt",
+        "provenance",
+        "reviewState",
+        "sensitivity",
+        "discoveryId",
+        "url",
+        "title",
+        "sourceId",
+        "versionId",
+        "disposition",
+        "reason"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "createdAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "provenance": {
+          "type": "string",
+          "enum": [
+            "source_content",
+            "extracted_evidence",
+            "model_interpretation",
+            "analyst_authored"
+          ]
+        },
+        "reviewState": {
+          "type": "string",
+          "enum": ["unreviewed", "accepted", "challenged", "rejected"]
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "restricted"]
+        },
+        "discoveryId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "url": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "format": "uri",
+          "pattern": "^https?://"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "sourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "versionId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+            }
+          ]
+        },
+        "disposition": {
+          "type": "string",
+          "enum": ["unreviewed", "retained", "excluded"]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 65536
+        }
+      }
+    },
+    "citation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "corpusId",
+        "corpusDigest",
+        "workId",
+        "workDigest",
+        "versionId",
+        "versionDigest",
+        "renditionId",
+        "renditionDigest",
+        "renditionOutputDigest",
+        "segmentId",
+        "segmentDigest",
+        "textDigest",
+        "contextDigest",
+        "startByte",
+        "endByte",
+        "captureId",
+        "captureDigest",
+        "objectDigest",
+        "sourceProfileId",
+        "sourceProfileDigest",
+        "sourceId",
+        "sourceUrl",
+        "sourceOrigin",
+        "retrievedAt",
+        "observedAt",
+        "sourceDates",
+        "sourceUpdatedAt",
+        "locator",
+        "uses",
+        "sourceTitle",
+        "sourceIdentifier",
+        "sourceVersionIdentifier"
+      ],
+      "properties": {
+        "corpusId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "corpusDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "workId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "workDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "versionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "versionDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "renditionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "renditionDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "renditionOutputDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "segmentId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "segmentDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "textDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "contextDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "startByte": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "endByte": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "captureId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "captureDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "objectDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "sourceProfileId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "sourceProfileDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "sourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "sourceUrl": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "format": "uri",
+          "pattern": "^https?://"
+        },
+        "sourceOrigin": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["publisher", "operator", "authorityLabel"],
+          "properties": {
+            "publisher": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "operator": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "authorityLabel": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            }
+          }
+        },
+        "retrievedAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "observedAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "sourceDates": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["publication", "sourceVersion"],
+          "properties": {
+            "publication": {
+              "$ref": "#/$defs/policyDate"
+            },
+            "sourceVersion": {
+              "$ref": "#/$defs/policyDate"
+            }
+          }
+        },
+        "sourceUpdatedAt": {
+          "$ref": "#/$defs/policyDate"
+        },
+        "locator": {
+          "$ref": "#/$defs/locator"
+        },
+        "uses": {
+          "$ref": "#/$defs/uses"
+        },
+        "sourceTitle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "sourceIdentifier": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "sourceVersionIdentifier": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      }
+    },
+    "passage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "actorId",
+        "createdAt",
+        "provenance",
+        "reviewState",
+        "sensitivity",
+        "citation",
+        "bindingStatus",
+        "bindingIssue"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "createdAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "provenance": {
+          "const": "source_content"
+        },
+        "reviewState": {
+          "type": "string",
+          "enum": ["unreviewed", "accepted", "challenged", "rejected"]
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "restricted"]
+        },
+        "citation": {
+          "$ref": "#/$defs/citation"
+        },
+        "bindingStatus": {
+          "type": "string",
+          "enum": ["verified", "review_required"]
+        },
+        "bindingIssue": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            }
+          ]
+        }
+      }
+    },
+    "assertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "actorId",
+        "createdAt",
+        "provenance",
+        "reviewState",
+        "sensitivity",
+        "questionId",
+        "text",
+        "supportingPassageIds",
+        "challengingPassageIds",
+        "supersedesAssertionId"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "createdAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "provenance": {
+          "type": "string",
+          "enum": [
+            "source_content",
+            "extracted_evidence",
+            "model_interpretation",
+            "analyst_authored"
+          ]
+        },
+        "reviewState": {
+          "type": "string",
+          "enum": ["unreviewed", "accepted", "challenged", "rejected"]
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "restricted"]
+        },
+        "questionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "supportingPassageIds": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 192,
+            "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+          }
+        },
+        "challengingPassageIds": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 192,
+            "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+          }
+        },
+        "supersedesAssertionId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+            }
+          ]
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "actorId",
+        "createdAt",
+        "provenance",
+        "sensitivity",
+        "targetId",
+        "decision",
+        "notes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "createdAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "provenance": {
+          "type": "string",
+          "enum": [
+            "source_content",
+            "extracted_evidence",
+            "model_interpretation",
+            "analyst_authored"
+          ]
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "restricted"]
+        },
+        "targetId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "decision": {
+          "type": "string",
+          "enum": ["accepted", "challenged", "rejected"]
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 65536
+        }
+      }
+    },
+    "gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "actorId",
+        "createdAt",
+        "provenance",
+        "reviewState",
+        "sensitivity",
+        "questionId",
+        "text",
+        "status",
+        "followUpDiscoveryId"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "createdAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "provenance": {
+          "type": "string",
+          "enum": [
+            "source_content",
+            "extracted_evidence",
+            "model_interpretation",
+            "analyst_authored"
+          ]
+        },
+        "reviewState": {
+          "type": "string",
+          "enum": ["unreviewed", "accepted", "challenged", "rejected"]
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "restricted"]
+        },
+        "questionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "status": {
+          "type": "string",
+          "enum": ["open", "resolved", "dismissed"]
+        },
+        "followUpDiscoveryId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+            }
+          ]
+        }
+      }
+    },
+    "annotation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "actorId",
+        "createdAt",
+        "provenance",
+        "reviewState",
+        "sensitivity",
+        "targetId",
+        "text"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "createdAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "provenance": {
+          "type": "string",
+          "enum": [
+            "source_content",
+            "extracted_evidence",
+            "model_interpretation",
+            "analyst_authored"
+          ]
+        },
+        "reviewState": {
+          "type": "string",
+          "enum": ["unreviewed", "accepted", "challenged", "rejected"]
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "restricted"]
+        },
+        "targetId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        }
+      }
+    },
+    "proceeding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "actorId",
+        "createdAt",
+        "provenance",
+        "reviewState",
+        "sensitivity",
+        "title",
+        "parentProceedingId",
+        "docketIds",
+        "rins",
+        "versionIds",
+        "sourceStatement",
+        "passageIds"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "createdAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "provenance": {
+          "type": "string",
+          "enum": [
+            "source_content",
+            "extracted_evidence",
+            "model_interpretation",
+            "analyst_authored"
+          ]
+        },
+        "reviewState": {
+          "type": "string",
+          "enum": ["unreviewed", "accepted", "challenged", "rejected"]
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "restricted"]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "parentProceedingId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+            }
+          ]
+        },
+        "docketIds": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          }
+        },
+        "rins": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          }
+        },
+        "versionIds": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 192,
+            "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+          }
+        },
+        "sourceStatement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "passageIds": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 192,
+            "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+          }
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "actorId",
+        "createdAt",
+        "provenance",
+        "reviewState",
+        "sensitivity",
+        "proceedingId",
+        "versionId",
+        "type",
+        "date",
+        "sourceDateText",
+        "sourceStatement",
+        "previousActionId",
+        "passageIds"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "createdAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "provenance": {
+          "type": "string",
+          "enum": [
+            "source_content",
+            "extracted_evidence",
+            "model_interpretation",
+            "analyst_authored"
+          ]
+        },
+        "reviewState": {
+          "type": "string",
+          "enum": ["unreviewed", "accepted", "challenged", "rejected"]
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "restricted"]
+        },
+        "proceedingId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "versionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "proposed_rule",
+            "rescission",
+            "amendment",
+            "comment_deadline_extension",
+            "final_rule",
+            "withdrawal",
+            "subsequent_action"
+          ]
+        },
+        "date": {
+          "$ref": "#/$defs/policyDate"
+        },
+        "sourceDateText": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            }
+          ]
+        },
+        "sourceStatement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "previousActionId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+            }
+          ]
+        },
+        "passageIds": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 192,
+            "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+          }
+        }
+      }
+    },
+    "deadline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "actorId",
+        "createdAt",
+        "provenance",
+        "reviewState",
+        "sensitivity",
+        "actionId",
+        "type",
+        "date",
+        "sourceDateText",
+        "timeZone",
+        "qualifications",
+        "replacesDeadlineId",
+        "sourceStatement",
+        "passageIds"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "createdAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "provenance": {
+          "type": "string",
+          "enum": [
+            "source_content",
+            "extracted_evidence",
+            "model_interpretation",
+            "analyst_authored"
+          ]
+        },
+        "reviewState": {
+          "type": "string",
+          "enum": ["unreviewed", "accepted", "challenged", "rejected"]
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "restricted"]
+        },
+        "actionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["comment", "consultation", "other"]
+        },
+        "date": {
+          "$ref": "#/$defs/policyDate"
+        },
+        "sourceDateText": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            }
+          ]
+        },
+        "timeZone": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          ]
+        },
+        "qualifications": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4096
+        },
+        "replacesDeadlineId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+            }
+          ]
+        },
+        "sourceStatement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "passageIds": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 192,
+            "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+          }
+        }
+      }
+    },
+    "participant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actorId",
+        "role",
+        "scope",
+        "sourceName",
+        "sourceStatement",
+        "passageIds"
+      ],
+      "properties": {
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "agency",
+            "notice_recipient",
+            "invited",
+            "attended",
+            "submitter",
+            "respondent",
+            "outcome_subject"
+          ]
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["agency", "intertribal", "aggregate", "tribal_nation"]
+        },
+        "sourceName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "sourceStatement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "passageIds": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 192,
+            "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+          }
+        }
+      }
+    },
+    "consultation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "actorId",
+        "createdAt",
+        "provenance",
+        "reviewState",
+        "sensitivity",
+        "proceedingId",
+        "type",
+        "date",
+        "sourceDateText",
+        "sourceStatement",
+        "relatedEventIds",
+        "respondsToEventId",
+        "participants",
+        "passageIds"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "createdAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "provenance": {
+          "type": "string",
+          "enum": [
+            "source_content",
+            "extracted_evidence",
+            "model_interpretation",
+            "analyst_authored"
+          ]
+        },
+        "reviewState": {
+          "type": "string",
+          "enum": ["unreviewed", "accepted", "challenged", "rejected"]
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "restricted"]
+        },
+        "proceedingId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+            }
+          ]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "notice",
+            "invitation",
+            "meeting_held",
+            "submission",
+            "response",
+            "outcome"
+          ]
+        },
+        "date": {
+          "$ref": "#/$defs/policyDate"
+        },
+        "sourceDateText": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            }
+          ]
+        },
+        "sourceStatement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "relatedEventIds": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 192,
+            "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+          }
+        },
+        "respondsToEventId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+            }
+          ]
+        },
+        "participants": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "$ref": "#/$defs/participant"
+          }
+        },
+        "passageIds": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 192,
+            "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+          }
+        }
+      }
+    },
+    "environmentalEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "actorId",
+        "createdAt",
+        "provenance",
+        "reviewState",
+        "sensitivity",
+        "versionId",
+        "alternativeId",
+        "baselineYear",
+        "metric",
+        "value",
+        "unit",
+        "spatialScale",
+        "uncertainty",
+        "qualifications",
+        "sourceStatement",
+        "passageIds"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "createdAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "provenance": {
+          "type": "string",
+          "enum": [
+            "source_content",
+            "extracted_evidence",
+            "model_interpretation",
+            "analyst_authored"
+          ]
+        },
+        "reviewState": {
+          "type": "string",
+          "enum": ["unreviewed", "accepted", "challenged", "rejected"]
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "restricted"]
+        },
+        "versionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "alternativeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "baselineYear": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9999
+            }
+          ]
+        },
+        "metric": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            }
+          ]
+        },
+        "spatialScale": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            }
+          ]
+        },
+        "uncertainty": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            }
+          ]
+        },
+        "qualifications": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        },
+        "sourceStatement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "passageIds": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 192,
+            "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+          }
+        }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["actor", "version", "proceeding"]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        }
+      }
+    },
+    "authorityRelationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "actorId",
+        "createdAt",
+        "provenance",
+        "reviewState",
+        "sensitivity",
+        "subject",
+        "object",
+        "subjectLabel",
+        "objectLabel",
+        "type",
+        "sourceStatement",
+        "passageIds"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "createdAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "provenance": {
+          "type": "string",
+          "enum": [
+            "source_content",
+            "extracted_evidence",
+            "model_interpretation",
+            "analyst_authored"
+          ]
+        },
+        "reviewState": {
+          "type": "string",
+          "enum": ["unreviewed", "accepted", "challenged", "rejected"]
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "restricted"]
+        },
+        "subject": {
+          "$ref": "#/$defs/subject"
+        },
+        "object": {
+          "$ref": "#/$defs/subject"
+        },
+        "subjectLabel": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "objectLabel": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "statutory_dependency",
+            "procedural_dependency",
+            "geographic_applicability",
+            "jurisdictional_relationship",
+            "homeland"
+          ]
+        },
+        "sourceStatement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "passageIds": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 192,
+            "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+          }
+        }
+      }
+    },
+    "originGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "actorId",
+        "createdAt",
+        "provenance",
+        "reviewState",
+        "sensitivity",
+        "versionIds",
+        "originVersionId",
+        "basis",
+        "sourceStatement",
+        "passageIds"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "createdAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "provenance": {
+          "type": "string",
+          "enum": [
+            "source_content",
+            "extracted_evidence",
+            "model_interpretation",
+            "analyst_authored"
+          ]
+        },
+        "reviewState": {
+          "type": "string",
+          "enum": ["unreviewed", "accepted", "challenged", "rejected"]
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "restricted"]
+        },
+        "versionIds": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 192,
+            "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+          }
+        },
+        "originVersionId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+            }
+          ]
+        },
+        "basis": {
+          "type": "string",
+          "enum": ["same_document", "documented_republication", "common_origin"]
+        },
+        "sourceStatement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "passageIds": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 192,
+            "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+          }
+        }
+      }
+    },
+    "beforeImage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["collection", "id", "record"],
+      "properties": {
+        "collection": {
+          "type": "string",
+          "enum": [
+            "actors",
+            "questions",
+            "discoveries",
+            "candidates",
+            "passages",
+            "assertions",
+            "reviews",
+            "gaps",
+            "annotations",
+            "proceedings",
+            "actions",
+            "deadlines",
+            "consultations",
+            "environmentalEvidence",
+            "authorityRelationships",
+            "originGroups"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/actor"
+            },
+            {
+              "$ref": "#/$defs/question"
+            },
+            {
+              "$ref": "#/$defs/discovery"
+            },
+            {
+              "$ref": "#/$defs/candidate"
+            },
+            {
+              "$ref": "#/$defs/passage"
+            },
+            {
+              "$ref": "#/$defs/assertion"
+            },
+            {
+              "$ref": "#/$defs/review"
+            },
+            {
+              "$ref": "#/$defs/gap"
+            },
+            {
+              "$ref": "#/$defs/annotation"
+            },
+            {
+              "$ref": "#/$defs/proceeding"
+            },
+            {
+              "$ref": "#/$defs/action"
+            },
+            {
+              "$ref": "#/$defs/deadline"
+            },
+            {
+              "$ref": "#/$defs/consultation"
+            },
+            {
+              "$ref": "#/$defs/environmentalEvidence"
+            },
+            {
+              "$ref": "#/$defs/authorityRelationship"
+            },
+            {
+              "$ref": "#/$defs/originGroup"
+            }
+          ]
+        }
+      }
+    },
+    "revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "revision",
+        "updatedAt",
+        "updatedBy",
+        "corpusId",
+        "corpusDigest",
+        "previousDigest",
+        "contentDigest",
+        "changes"
+      ],
+      "properties": {
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "updatedAt": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 30,
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "updatedBy": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "corpusId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9:._-]{0,191}$"
+        },
+        "corpusDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "previousDigest": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          ]
+        },
+        "contentDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "changes": {
+          "type": "array",
+          "maxItems": 10000,
+          "items": {
+            "$ref": "#/$defs/beforeImage"
+          }
+        }
+      }
+    }
+  }
+}

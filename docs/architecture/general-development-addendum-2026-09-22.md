@@ -19,15 +19,17 @@ Section numbers in this file are its own. "Design section n" refers to
 | Ceded-territory and U&A boundaries are T0 designations | RL-08 | Designation registry (section 5) |
 | Standalone Nation registry | RL-07 | Registry binding (section 6); the tribal `JurisdictionRef` kind is bound to it |
 | Storage budget of about 50 GB, reference-first | RL-09 | Holding policy (section 8) |
-| Tribal law only as user-supplied data | RL-10 | Survey scope (section 7) |
+| Public Tribal publications eligible; restricted internal policies user-supplied | D-087 supersedes RL-10's blanket exclusion | Source/access distinction in section 7 |
 | Canadian First Nations reserved, not wired | RL-11 | Registry and `JurisdictionRef` reservations (section 6) |
 | Ledger admits general development by rule | RL-01 | Schema 1.10 design (section 10) |
 
 ## 2. Module 4: private context (user-supplied)
 
 **Purpose.** Everything a deployment processes that is not public: land
-context (parcels, boundaries, land status, ownership) and private policy
-corpora (a Nation's own codes, commercial or contractual policies). All of it
+context (parcels, boundaries, land status, ownership) and restricted policy
+corpora (internal governmental, operational, commercial or contractual policies).
+Officially public Tribal publications can use the public-source path (D-087).
+All private input
 is supplied by the user of that deployment. The module exists so that "bring
 your own data" is a supported path of the same engine, not a separate fork.
 
@@ -152,6 +154,14 @@ spirit from the audit's NC-1 to NC-7): no `landStatusClasses`; no Nation unless
 verified and never retained or echoed; `storage: memory_only`; unsupported
 filters rejected, not ignored; readiness reported even for zero results.
 
+D-087 resolves the Nation-field conflict with D-075: the common exchange
+profile is Nation-free; a versioned authorized ATNI profile may carry an
+optional deliberately selected user-declared canonical Nation identifier.
+The selection establishes neither affiliation nor representation authority,
+membership or applicability. GD-31 specifies the exact migration and tests;
+private input, geometry and land-status restrictions are not lifted by the
+optional identifier. The older wording above is retained contract history.
+
 `policy.citations/1` is unchanged from the design (design section 8.2), with
 one addition: each citation may carry `appliesWhere: { designationCode }[]`
 copied from the record, so a dossier can say "shown because the area
@@ -234,13 +244,28 @@ it acquires nothing, accepts no terms and registers no keys.
 | Courts | CourtListener API (Free Law Project) | The curated SCOTUS adapter exists; lower courts are a gap to record |
 | State | Open States v3 API (Plural; key required; states plus DC and Puerto Rico; bills, legislators, committees, events) and its bulk data; each legislature's own site; state administrative codes and registers | Open States is a discovery catalog, not an originating source: use it to find records, take custody from the originating legislature URL. Washington (lws) and Oregon (ODATA) contracts already exist |
 | County and municipal | Platform classes: Municode (CivicPlus), American Legal Publishing, eCode360 (General Code), Legistar (Granicus); originating county sites on demand | Most platforms expose no public API; record each as a gap with its terms rather than scrape it |
-| Tribal | Not surveyed for acquisition (RL-10) | A Nation supplies its own law as user-supplied data; discovery catalogs may be cited for the Nation's own use |
+| Tribal | Officially public codes, ordinances, resolutions and policies from originating Tribal-government publishers (D-087) | Include in source review and discovery; restricted internal policies enter through authorized local input and need permission for external partners. Public/internal is an access classification, independent of whether the subject is governmental or operational |
 | International and transboundary instruments | UN publication of UNDRIP and related instruments; US treaty texts through GovInfo or the Statutes at Large; boundary-waters and Pacific Salmon Treaty texts from their commissions | Small class; surveyed for weight and terms, acquisition gated like any other source |
 
 First pass covers federal, all 50 states, DC and the territories. Counties are
 covered by platform class plus originating sites when a user's area demands.
 
+D-086 supersedes that first-pass sequence: GD-17 delivers the finite initial
+federal/seven-state/intertribal matrix; GD-33 completes nationwide coverage for
+release. Catalog and pilot preparation need only the selected initial matrix,
+not completion of every national survey row.
+
 ## 8. Storage holding policy (about 50 GB on I:)
+
+Current amendment D-086 (2026-10-06): **50,000,000,000 bytes total managed
+policy data**, including retained originals, extracted text, indexes, cases,
+exports and peak temporary/rebuild copies. The allocation and rough estimates
+below are historical starting assumptions, superseded by measured budgeting in
+the [development revision](../decisions/2026-10-06-development-plan-revision.md).
+GD-18 inventories existing roots and builds the report before acquisition;
+later measured batches calibrate it. Cold storage still managed by this project
+counts toward the total. No automatic deletion, extra allowance or relaxation of
+the production free-space/run limits is selected.
 
 | Tier | Holds | Cap | Notes |
 | --- | --- | --- | --- |

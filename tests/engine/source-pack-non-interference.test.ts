@@ -38,6 +38,11 @@ const projectRoot = resolve(import.meta.dirname, "../..");
 const sourcePackEnginePaths = [
   "src/engine/source-pack-contracts.ts",
   "src/engine/source-pack.ts",
+  "scripts/source-pack.ts",
+  "scripts/configured-engine.ts",
+  "src/core/projection.ts",
+  "src/modules/context/geography-rights.ts",
+  "src/modules/context/taxonomy.ts",
 ] as const;
 
 const ordinal = (left: string, right: string): number =>
