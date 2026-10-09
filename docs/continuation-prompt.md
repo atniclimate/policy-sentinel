@@ -39,16 +39,18 @@ for narrow demo work; it does not reduce validation or authorize new work.
 
 ## Current state (2026-10-09): general development
 
-The owner selected federal document expansion as the explicit next-session
-focus under D-091. Start with GD57, the ready federal access and reliability
-planning item, before unrelated implementation. Read the
-[sprint report and federal expansion handoff](handoffs/2026-10-09-sprint-report-and-federal-expansion.md):
-public laws, congressional bills and resolutions, proposed budgets and federal
-court rulings, with collection-level API/data access, coverage, reliability
-and source-specific conditions. The report preserves current capabilities,
-regional coverage and remaining work. Development checkpoint `7af7e79` was
-pushed to `origin/demo/live-pages`; the public demo on `main` was unchanged.
-This documentation checkpoint leaves zero active items and dispatches nothing.
+The owner selected federal document expansion under D-091. GD57's
+[collection-level access and reliability plan](development/gd57-federal-expansion-access-reliability-2026-10-09.md)
+is complete at local source commit `845565c`: it distinguishes public laws,
+bills and resolutions, proposed budgets and federal court rulings, and records
+current access, coverage, reliability gaps, integration owners and a finite
+validation packet. It made no provider request and opens no keyed API, source
+activation or publication gate. The prior
+[sprint report and federal expansion handoff](handoffs/2026-10-09-sprint-report-and-federal-expansion.md)
+preserves the initiating scope. The current terminal ledger has zero active
+items; GD20 is the next independent ready work item. The earlier development
+checkpoint `7af7e79` was pushed to `origin/demo/live-pages`; this GD57 work
+remains local. The public demo on `main` is unchanged.
 
 The owner-requested audit fixes 1-3 are complete under GD56/D-090 at local
 source commit `cd069298b90d070828206a87e7262ae3fd5c64c1`: public export
