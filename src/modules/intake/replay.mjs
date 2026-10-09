@@ -10,8 +10,8 @@ import {
 import { extractPolicyText } from "../../pipeline/policy-text.mjs";
 import { createPolicyCorpus } from "../../pipeline/policy-corpus-builder.mjs";
 import {
-  parseAnalyzedCorpusV2,
-  serializeAnalyzedCorpusV2,
+  parseSupportedAnalyzedCorpus,
+  serializeSupportedAnalyzedCorpus,
 } from "../../pipeline/analyzed-corpus-v2.mjs";
 
 import {
@@ -138,13 +138,13 @@ export async function replayReviewedCorpus(root, { name = "gold" } = {}) {
     items.push({ ...item, captures });
   }
   const corpus = createPolicyCorpus({ ...portable, items });
-  const expected = parseAnalyzedCorpusV2(
+  const expected = parseSupportedAnalyzedCorpus(
     JSON.parse(corpusBytes.toString("utf8")),
   );
   if (
     corpus.contentDigest !== seal.corpusDigest ||
     corpus.contentDigest !== expected.contentDigest ||
-    serializeAnalyzedCorpusV2(corpus) !== corpusBytes.toString("utf8")
+    serializeSupportedAnalyzedCorpus(corpus) !== corpusBytes.toString("utf8")
   )
     fail("CORPUS_REPLAY_MISMATCH");
   return {

@@ -117,6 +117,34 @@ export interface SourceCatalog {
   trustDomain: "real_source_local" | "synthetic_test_only";
   managedStorageCeilingBytes: 50000000000;
   sources: SourceDescriptor[];
+  regionalInterfaces?: RegionalInterfaceRegister;
+}
+export interface RegionalInterfaceEvidence {
+  url: string;
+  record: string;
+  observedOn: string;
+  observation:
+    "direct_documentation" | "official_index" | "retained_documentation";
+}
+export interface RegionalInterfaceEntry {
+  state: "WA" | "OR" | "ID" | "AK" | "CA" | "MT" | "NV";
+  sourceId: string;
+  requirement: "required_api" | "interface_disposition";
+  disposition: "api_candidate" | "interface_gap" | "documented_non_api";
+  evidence: RegionalInterfaceEvidence[];
+  note: string;
+}
+export interface RegionalInterfaceRegister {
+  version: "1.0.0";
+  registerId: "gd47-seven-state-interfaces";
+  assessedOn: string;
+  entries: RegionalInterfaceEntry[];
+}
+export interface RegionalInterfaceCoverage extends RegionalInterfaceEntry {
+  registerId: RegionalInterfaceRegister["registerId"];
+  version: RegionalInterfaceRegister["version"];
+  assessedOn: string;
+  blockers: CatalogBlocker[];
 }
 export interface SourceCoverageOptions {
   asOf?: string;
@@ -144,6 +172,7 @@ export type SourceCoverageEntry = Pick<
   reviewStatus: "future" | "unqualified" | "expired" | "current";
   declaredCapabilities: SourceCapability[];
   availableCapabilities: AvailableSourceCapability[];
+  regionalInterface?: RegionalInterfaceCoverage;
 };
 export interface SourceCoverageReport {
   catalogId: string;

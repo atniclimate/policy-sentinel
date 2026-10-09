@@ -1,5 +1,5 @@
 import type {
-  AnalyzedCorpusV2,
+  AnalyzedCorpus,
   PolicySourceProfile,
 } from "../pipeline/analyzed-corpus-v2.mjs";
 
@@ -14,6 +14,6 @@ export function assertProfileBindings(
   run: unknown,
 ): void;
 export function assertCaptureBindings(
-  corpus: Pick<AnalyzedCorpusV2, "captures">,
+  corpus: Pick<AnalyzedCorpus, "captures">,
   run: unknown,
 ): void;

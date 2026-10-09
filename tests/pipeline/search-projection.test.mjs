@@ -5,6 +5,9 @@ import test from "node:test";
 import {
   canonicalV2Digest,
   createAnalyzedCorpusV2,
+  createAnalyzedCorpusV21,
+  parseSupportedAnalyzedCorpus,
+  serializeSupportedAnalyzedCorpus,
   createEvidenceSegment,
   replayCorpusCitation,
 } from "../../src/pipeline/analyzed-corpus-v2.mjs";
@@ -26,6 +29,153 @@ const selectA = {
   from: "2022-01-01",
   through: "2022-01-01",
 };
+
+test("an unchanged projection reuses the proven parent while preserving bytes, selection and admission limits", () => {
+  for (const successor of [false, true]) {
+    const input = syntheticCorpusV2Input();
+    if (successor) for (const work of input.works) work.jurisdictionRefs = [];
+    const parent = successor
+      ? createAnalyzedCorpusV21(input)
+      : createAnalyzedCorpusV2(input);
+    const selection = {
+      sourceProfileIds: parent.sourceProfiles.map((row) => row.id),
+    };
+    const result = createSearchProjection(parent, selection);
+    assert.equal(result.corpus, parent);
+    assert.equal(
+      result.bytes.toString("utf8"),
+      serializeSupportedAnalyzedCorpus(parent),
+    );
+    assert.equal(
+      verifySearchProjection(parent, result.manifest, result.bytes).corpus,
+      parent,
+    );
+    assert.deepEqual(result.manifest.excludedVersionIds, []);
+    assert.throws(
+      () =>
+        createSearchProjection(parent, {
+          ...selection,
+          maxBytes: result.bytes.length - 1,
+        }),
+      /PROJECTION_BYTE_CEILING/,
+    );
+    const subset = createSearchProjection(parent, selectA);
+    assert.notEqual(subset.corpus, parent);
+    assert.equal(subset.corpus.works.length, 1);
+    const forged = clone(parent);
+    forged.works[0].title = "Forged parent title";
+    assert.throws(
+      () => createSearchProjection(Object.freeze(forged), selection),
+      /CONTENT_DIGEST_MISMATCH/,
+    );
+  }
+});
+
+test("valid reordered parent catalogs retain the prior sorted projection bytes instead of being reused", () => {
+  for (const successor of [false, true]) {
+    const input = syntheticCorpusV2Input();
+    if (successor) for (const work of input.works) work.jurisdictionRefs = [];
+    const canonical = successor
+      ? createAnalyzedCorpusV21(input)
+      : createAnalyzedCorpusV2(input);
+    const expectedBytes = serializeSupportedAnalyzedCorpus(canonical);
+    for (const name of [
+      "sourceProfiles",
+      "captures",
+      "works",
+      "versions",
+      "renditions",
+      "segments",
+      "events",
+      "analyses",
+      "coverage",
+    ]) {
+      const reordered = clone(canonical);
+      reordered[name].reverse();
+      const { contentDigest: previousDigest, ...body } = reordered;
+      void previousDigest;
+      reordered.contentDigest = canonicalV2Digest(body);
+      const parent = parseSupportedAnalyzedCorpus(reordered);
+      assert.notEqual(parent.contentDigest, canonical.contentDigest);
+      const result = createSearchProjection(parent, {
+        sourceProfileIds: parent.sourceProfiles.map((row) => row.id),
+      });
+      assert.notEqual(result.corpus, parent);
+      assert.equal(result.corpus.contentDigest, canonical.contentDigest);
+      assert.equal(result.bytes.toString("utf8"), expectedBytes);
+      assert.equal(result.manifest.parentCorpusDigest, parent.contentDigest);
+      assert.equal(result.manifest.corpusDigest, canonical.contentDigest);
+    }
+  }
+});
+
+test("2.1 projection preserves reviewed association proof on older retained versions without upgrading 2.0", () => {
+  const input = syntheticCorpusV2Input();
+  for (const work of input.works) work.jurisdictionRefs = [];
+  const work = input.works.find((row) => row.id === "work-a");
+  const version = input.versions.find((row) => row.id === "version-a-old");
+  const segment = input.segments.find((row) =>
+    version.renditionIds.includes(row.renditionId),
+  );
+  const rendition = input.renditions.find(
+    (row) => row.id === segment.renditionId,
+  );
+  const capture = input.captures.find((row) => row.id === rendition.captureId);
+  work.jurisdictionRefs = [
+    {
+      jurisdictionRef: "body:synthetic-council",
+      basis: "issuing_authority",
+      evidence: {
+        url: capture.finalUrl,
+        locator: segment.locator.value,
+        exactSubject: {
+          recordRef: work.id,
+          ref: "body:synthetic-council",
+          text: "The council must review proposals.",
+        },
+      },
+      reviewState: "reviewed",
+      versionId: version.id,
+      segmentIds: [segment.id],
+      reviewer: {
+        name: "Synthetic reviewer",
+        kind: "human",
+        reviewedAt: "2026-09-02T01:00:00Z",
+      },
+    },
+  ];
+  const parent = createAnalyzedCorpusV21(input);
+  const result = createSearchProjection(parent, selectA);
+  assert.equal(result.corpus.schemaVersion, "2.1.0");
+  assert.deepEqual(result.manifest.directlySelectedVersionIds, [
+    "version-a-new",
+  ]);
+  assert.deepEqual(
+    result.corpus.works[0].jurisdictionRefs,
+    parent.works[0].jurisdictionRefs,
+  );
+  assert.deepEqual(
+    result.corpus.segments.find((row) => row.id === segment.id),
+    parent.segments.find((row) => row.id === segment.id),
+  );
+  assert.ok(result.corpus.versions.some((row) => row.id === version.id));
+  const replayed = parseSupportedAnalyzedCorpus(
+    JSON.parse(result.bytes.toString("utf8")),
+  );
+  assert.equal(replayed.contentDigest, result.corpus.contentDigest);
+  assert.equal(
+    serializeSupportedAnalyzedCorpus(replayed),
+    result.bytes.toString("utf8"),
+  );
+  assert.deepEqual(
+    verifySearchProjection(parent, result.manifest, result.bytes),
+    result,
+  );
+  assert.equal(
+    createSearchProjection(parentCorpus(), selectA).corpus.schemaVersion,
+    "2.0.0",
+  );
+});
 
 test("bounded search retains whole works, exact identities and history while declaring omitted crossings", () => {
   const parent = parentCorpus();
@@ -149,6 +299,59 @@ test("capture-property evidence retains a source dependency even without passage
   assert.deepEqual(
     result.corpus.events.find((row) => row.id === event.id),
     parent.events.find((row) => row.id === event.id),
+  );
+});
+
+test("capture-only closure expands an unrepresented source but preserves a represented source selection", () => {
+  const input = syntheticCorpusV2Input();
+  const newer = input.versions.find((row) => row.id === "version-a-new");
+  const rendition = input.renditions.find(
+    (row) => row.id === newer.renditionIds[0],
+  );
+  const segment = input.segments.find(
+    (row) => row.renditionId === rendition.id,
+  );
+  const separateWork = clone(input.works.find((row) => row.id === "work-a"));
+  separateWork.id = "work-a-newer";
+  separateWork.sourceIdentifier = "Edition 2022";
+  for (const field of separateWork.fieldProvenance) {
+    field.captureId = rendition.captureId;
+    field.segmentIds = [segment.id];
+  }
+  input.works.push(separateWork);
+  newer.workId = separateWork.id;
+  input.events.find((row) => row.versionId === newer.id).workId =
+    separateWork.id;
+  input.coverage[0].documentCount += 1;
+  const event = input.events.find((row) => row.versionId === "version-b");
+  const capture = input.captures.find((row) => row.id === "capture-a-old");
+  event.sourceLabel = capture.finalUrl;
+  Object.assign(
+    event.fieldProvenance.find((field) => field.field === "/sourceLabel"),
+    {
+      captureId: capture.id,
+      sourceLocator: "$capture.finalUrl",
+      segmentIds: [],
+    },
+  );
+  const parent = createAnalyzedCorpusV2(input);
+  const expanded = createSearchProjection(parent, {
+    sourceProfileIds: ["profile-b"],
+  });
+  assert.deepEqual(expanded.corpus.works, parent.works);
+  const represented = createSearchProjection(parent, {
+    sourceProfileIds: ["profile-a", "profile-b"],
+    from: "2021-01-01",
+  });
+  assert.deepEqual(represented.manifest.retainedVersionIds, [
+    "version-a-new",
+    "version-b",
+  ]);
+  assert.deepEqual(represented.manifest.excludedVersionIds, ["version-a-old"]);
+  assert.ok(represented.corpus.captures.some((row) => row.id === capture.id));
+  assert.deepEqual(
+    verifySearchProjection(parent, represented.manifest, represented.bytes),
+    represented,
   );
 });
 
@@ -483,6 +686,18 @@ test("degraded selected sources preserve their verified snapshot, relationship t
     parent,
     { sourceProfileIds: ["profile-b"] },
     replayOptions,
+  );
+  assert.equal(result.corpus, parent);
+  assert.throws(
+    () => createSearchProjection(parent, { sourceProfileIds: ["profile-b"] }),
+    /VERIFIED_PRIOR_CORPUS_REQUIRED/,
+  );
+  assert.throws(
+    () =>
+      verifySearchProjection(parent, result.manifest, result.bytes, {
+        lastKnownGoodCorpora: [],
+      }),
+    /VERIFIED_PRIOR_CORPUS_REQUIRED/,
   );
   assert.deepEqual(
     result.corpus.coverage.find((row) => row.sourceProfileId === "profile-b"),

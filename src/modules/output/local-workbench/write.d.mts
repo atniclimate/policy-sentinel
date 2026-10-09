@@ -1,5 +1,5 @@
 import type { Buffer } from "node:buffer";
-import type { CorpusReplayOptions } from "../../../pipeline/analyzed-corpus-v2.mjs";
+import type { SupportedCorpusReplayOptions } from "../../../pipeline/analyzed-corpus-v2.mjs";
 import type { SearchProjectionDescriptor } from "./search-projection.mjs";
 
 export interface LocalOutputFileEntry {
@@ -46,7 +46,7 @@ export interface LocalOutputWriteReceipt {
 
 export function localCorpusBytes(
   corpus: unknown,
-  replayOptions?: CorpusReplayOptions,
+  replayOptions?: SupportedCorpusReplayOptions,
 ): Buffer;
 
 /** Reads owner/profile/receipt metadata from run; performs no root access. */
@@ -57,5 +57,5 @@ export function validateLocalOutputFiles(
     readonly searchProjection?: SearchProjectionDescriptor;
   },
   run: unknown,
-  replayOptions?: CorpusReplayOptions,
+  replayOptions?: SupportedCorpusReplayOptions,
 ): { readonly corpusDigest: string; readonly valid: true };

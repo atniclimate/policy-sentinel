@@ -2,6 +2,10 @@ import {
   policyDateBounds,
   selectTemporalVersions,
 } from "./temporal-operations.mjs";
+import {
+  isJurisdictionRef,
+  US_STATE_CODES,
+} from "../core/jurisdiction-reference.mjs";
 
 const METHOD = Object.freeze({ id: "source-passage-bm25", version: "2.0.0" });
 const indexes = new WeakMap();
@@ -47,11 +51,15 @@ const freeze = (value) => {
 function ensure(value, code) {
   if (!value) throw new TypeError(`Policy search rejected input: ${code}`);
 }
-function vector(text) {
+function vector(text, termKeys) {
   const words = tokens(text);
   const counts = new Map();
   for (const word of words) {
-    const key = termKey(word);
+    let key = termKeys.get(word);
+    if (key === undefined) {
+      key = termKey(word);
+      termKeys.set(word, key);
+    }
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
   return { counts, length: words.length, normalized: words.join(" ") };
@@ -94,7 +102,10 @@ function temporalState(data, asOf, basis) {
       )
       .map((entry) => entry.id),
   );
-  const result = { snapshot, selected, knownRenditions };
+  const knownEventIds = new Set(
+    snapshot.selections.flatMap((selection) => selection.eventIds),
+  );
+  const result = { snapshot, selected, knownRenditions, knownEventIds };
   if (data.temporal.size >= 8)
     data.temporal.delete(data.temporal.keys().next().value);
   data.temporal.set(key, result);
@@ -104,7 +115,7 @@ function temporalState(data, asOf, basis) {
 /** Input is an already validated, immutable canonical corpus. No network or graph validation is performed. */
 export function createPolicySearchIndex(corpus) {
   ensure(
-    corpus?.schemaVersion === "2.0.0" &&
+    ["2.0.0", "2.1.0"].includes(corpus?.schemaVersion) &&
       corpus.kind === "analyzed_corpus" &&
       /^[a-f0-9]{64}$/u.test(corpus.contentDigest),
     "VALIDATED_V2_CORPUS_REQUIRED",
@@ -118,10 +129,19 @@ export function createPolicySearchIndex(corpus) {
   const renditions = new Map(
     corpus.renditions.map((entry) => [entry.id, entry]),
   );
+  const eventsByVersion = new Map();
+  for (const event of corpus.events) {
+    if (!eventsByVersion.has(event.versionId))
+      eventsByVersion.set(event.versionId, []);
+    eventsByVersion.get(event.versionId).push(event);
+  }
   const bytes = new Map();
   const segments = new Map();
   const passagesByVersion = new Map();
   const frequency = new Map();
+  // Rebuild from this corpus on every index construction; repeated source
+  // words need their deterministic suffix rules evaluated only once here.
+  const termKeys = new Map();
   let totalLength = 0;
   for (const segment of [...corpus.segments].sort((a, b) =>
     order(a.id, b.id),
@@ -155,7 +175,7 @@ export function createPolicySearchIndex(corpus) {
       segment,
       rendition,
       searchable,
-      vector: vector(text),
+      vector: vector(text, termKeys),
       heading,
       context: [],
     };
@@ -195,10 +215,13 @@ export function createPolicySearchIndex(corpus) {
     .sort((a, b) => order(a.id, b.id))
     .map((version) => {
       const work = works.get(version.workId);
+      const events = eventsByVersion.get(version.id) ?? [];
       return {
         version,
         work,
-        title: vector(work.title),
+        events,
+        title: vector(work.title, termKeys),
+        metadata: new Map(),
         identifiers: [
           work.id,
           version.id,
@@ -230,19 +253,18 @@ export function createPolicySearchIndex(corpus) {
     segments,
     entries,
     frequency,
+    termKeys,
     passageCount,
     averageLength: totalLength / Math.max(1, passageCount),
     temporal: new Map(),
   });
   return index;
 }
-function bm25(vector, terms, data) {
+function bm25(vector, weights, data) {
   let score = 0;
-  for (const key of terms) {
+  for (const [key, idf] of weights) {
     const count = vector.counts.get(key) ?? 0;
     if (!count) continue;
-    const df = data.frequency.get(key) ?? 0;
-    const idf = Math.log(1 + (data.passageCount - df + 0.5) / (df + 0.5));
     score +=
       (idf * count * 2.2) /
       (count +
@@ -251,7 +273,23 @@ function bm25(vector, terms, data) {
   }
   return score;
 }
-function evidenceFields(entry, request, queryTerms, state, data) {
+function evidenceIntent(keys) {
+  const intent = new Set(keys);
+  return {
+    status: ["status", "action", "stage"].some((word) =>
+      intent.has(termKey(word)),
+    ),
+    dateRequested: [
+      "date",
+      "publication",
+      "published",
+      "effective",
+      "enacted",
+    ].some((word) => intent.has(termKey(word))),
+    effective: intent.has(termKey("effective")),
+  };
+}
+function evidenceFields(entry, request, intent, state, data) {
   const fields = new Map();
   const add = (provenance, label) => {
     for (const id of provenance.segmentIds) {
@@ -266,17 +304,7 @@ function evidenceFields(entry, request, queryTerms, state, data) {
       if (!fields.get(id).includes(label)) fields.get(id).push(label);
     }
   };
-  const intent = new Set(queryTerms.map(termKey));
-  const status = ["status", "action", "stage"].some((word) =>
-    intent.has(termKey(word)),
-  );
-  const dateRequested = [
-    "date",
-    "publication",
-    "published",
-    "effective",
-    "enacted",
-  ].some((word) => intent.has(termKey(word)));
+  const { status, dateRequested } = intent;
   for (const provenance of entry.version.fieldProvenance) {
     if (
       (status && provenance.field === "/sourceStatusLabel") ||
@@ -286,15 +314,9 @@ function evidenceFields(entry, request, queryTerms, state, data) {
       add(provenance, `version${provenance.field}`);
   }
   if (dateRequested || request.basis === "source_effective") {
-    for (const event of data.corpus.events) {
-      if (
-        event.versionId !== entry.version.id ||
-        (state &&
-          !state.selected.get(entry.version.id)?.eventIds.includes(event.id))
-      )
-        continue;
-      if (intent.has(termKey("effective")) && event.type !== "effective")
-        continue;
+    for (const event of entry.events) {
+      if (state && !state.knownEventIds.has(event.id)) continue;
+      if (intent.effective && event.type !== "effective") continue;
       for (const provenance of event.fieldProvenance)
         if (provenance.field === "/date/value")
           add(provenance, `event:${event.type}/date/value`);
@@ -331,6 +353,7 @@ export function searchPolicyCorpus(index, request) {
   for (const key of [
     "sourceProfileId",
     "governmentContext",
+    "jurisdictionRef",
     "instrumentClass",
     "asOf",
     "basis",
@@ -340,6 +363,16 @@ export function searchPolicyCorpus(index, request) {
       "INVALID_FILTER",
     );
   ensure(!request.asOf || request.basis, "EXPLICIT_TEMPORAL_BASIS_REQUIRED");
+  ensure(
+    request.jurisdictionRef === undefined ||
+      isJurisdictionRef(request.jurisdictionRef),
+    "INVALID_JURISDICTION_REF",
+  );
+  ensure(
+    !request.jurisdictionRef?.startsWith("us-state:") ||
+      US_STATE_CODES.includes(request.jurisdictionRef.slice(9)),
+    "UNKNOWN_JURISDICTION_STATE",
+  );
   ensure(
     !request.basis ||
       ["source_available", "corpus_observed", "source_effective"].includes(
@@ -353,11 +386,30 @@ export function searchPolicyCorpus(index, request) {
   ];
   const queryTermKeys = queryTerms.map((term) => [term, termKey(term)]);
   const queryKeys = [...new Set(queryTermKeys.map(([, key]) => key))];
+  const weights = queryKeys.map((key) => {
+    const df = data.frequency.get(key) ?? 0;
+    return [key, Math.log(1 + (data.passageCount - df + 0.5) / (df + 0.5))];
+  });
+  const intent = evidenceIntent(queryKeys);
   const phrases = [...query.matchAll(/"([^"\n]+)"/gu)]
     .map((match) => tokens(match[1]).join(" "))
     .filter(Boolean);
   const exactQuery = identifier(query);
   const state = temporalState(data, request.asOf, request.basis);
+  const jurisdictionMatch = (work, versionId = null) =>
+    !request.jurisdictionRef ||
+    (work.jurisdictionRefs ?? []).some(
+      (association) =>
+        association.jurisdictionRef === request.jurisdictionRef &&
+        association.reviewState === "reviewed" &&
+        (versionId === null || association.versionId === versionId) &&
+        (!state ||
+          association.segmentIds.every((segmentId) =>
+            state.knownRenditions.has(
+              data.segments.get(segmentId)?.segment.renditionId,
+            ),
+          )),
+    );
   const scopedWorks = new Set(
     data.corpus.works
       .filter(
@@ -367,14 +419,19 @@ export function searchPolicyCorpus(index, request) {
           (!request.governmentContext ||
             request.governmentContext === work.governmentContext) &&
           (!request.instrumentClass ||
-            request.instrumentClass === work.instrumentClass),
+            request.instrumentClass === work.instrumentClass) &&
+          jurisdictionMatch(work),
       )
       .map((work) => work.id),
   );
   const matches = [];
   for (const entry of data.entries) {
     const { work, version } = entry;
-    if (!scopedWorks.has(work.id) || (state && !state.selected.has(version.id)))
+    if (
+      !scopedWorks.has(work.id) ||
+      !jurisdictionMatch(work, version.id) ||
+      (state && !state.selected.has(version.id))
+    )
       continue;
     const known = {
       title: knownField(work, "/title", state, data),
@@ -400,33 +457,44 @@ export function searchPolicyCorpus(index, request) {
       exactQuery === entry.identifiers[3]
     )
       exactFields.push("source_version_identifier");
-    const titleScore = known.title ? bm25(entry.title, queryKeys, data) : 0;
-    const metadata = vector(
-      `${known.identifier ? work.sourceIdentifier : ""} ${known.versionIdentifier ? version.sourceVersionIdentifier : ""} ${known.status ? version.sourceStatusLabel : ""}`,
-    );
-    const metadataScore = bm25(metadata, queryKeys, data);
-    const proofFields = evidenceFields(entry, request, queryTerms, state, data);
+    const titleScore = known.title ? bm25(entry.title, weights, data) : 0;
+    // At most eight source-metadata variants; the key records which fields
+    // have evidence at this cutoff. No query text or result is retained.
+    const metadataKey =
+      Number(known.identifier) |
+      (Number(known.versionIdentifier) << 1) |
+      (Number(known.status) << 2);
+    let metadata = entry.metadata.get(metadataKey);
+    if (!metadata) {
+      metadata = vector(
+        `${known.identifier ? work.sourceIdentifier : ""} ${known.versionIdentifier ? version.sourceVersionIdentifier : ""} ${known.status ? version.sourceStatusLabel : ""}`,
+        data.termKeys,
+      );
+      entry.metadata.set(metadataKey, metadata);
+    }
+    const metadataScore = bm25(metadata, weights, data);
+    const proofFields = evidenceFields(entry, request, intent, state, data);
     const passages = entry.passages
       .filter(
         (passage) => !state || state.knownRenditions.has(passage.rendition.id),
       )
       .map((passage) => {
-        const matchedTerms = queryTermKeys
-          .filter(([, key]) => passage.vector.counts.has(key))
-          .map(([term]) => term);
+        const matched = queryTermKeys.filter(([, key]) =>
+          passage.vector.counts.has(key),
+        );
+        const matchedTerms = matched.map(([term]) => term);
         const matchedPhrases = phrases.filter((phrase) =>
           ` ${passage.vector.normalized} `.includes(` ${phrase} `),
         );
         const lexicalScore =
-          bm25(passage.vector, queryKeys, data) +
-          new Set(matchedTerms.map(termKey)).size * 1.25 +
+          bm25(passage.vector, weights, data) +
+          new Set(matched.map(([, key]) => key)).size * 1.25 +
           matchedPhrases.length * 4;
         const context = passage.context
           .map((other) => ({
             id: other.segment.id,
             score:
-              bm25(other.vector, queryKeys, data) *
-              (other.heading ? 0.35 : 0.15),
+              bm25(other.vector, weights, data) * (other.heading ? 0.35 : 0.15),
           }))
           .filter((other) => other.score > 0);
         const contextScore = Math.max(
@@ -519,18 +587,10 @@ export function searchPolicyCorpus(index, request) {
       metadataKnown: known,
       passages: passages.slice(0, passageLimit),
       matchingPassageCount: passages.length,
-      eventIds: state
-        ? state.selected
-            .get(version.id)
-            .eventIds.filter((id) =>
-              data.corpus.events.some(
-                (event) => event.id === id && event.versionId === version.id,
-              ),
-            )
-        : data.corpus.events
-            .filter((event) => event.versionId === version.id)
-            .map((event) => event.id)
-            .sort(),
+      eventIds: entry.events
+        .filter((event) => !state || state.knownEventIds.has(event.id))
+        .map((event) => event.id)
+        .sort(),
       temporalState: state?.selected.get(version.id).state ?? "not_filtered",
       temporalReason:
         state?.selected.get(version.id).reason ?? "all_retained_versions",

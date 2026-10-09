@@ -4,7 +4,7 @@ import {
   openPolicyRun,
   writePolicyDerived,
 } from "../src/pipeline/policy-custody.mjs";
-import { serializeAnalyzedCorpusV2 } from "../src/pipeline/analyzed-corpus-v2.mjs";
+import { serializeSupportedAnalyzedCorpus } from "../src/pipeline/analyzed-corpus-v2.mjs";
 import {
   safeFile,
   assertProfileBindings,
@@ -221,7 +221,7 @@ export async function readLocalOutput(root) {
   }
   if (
     replay.corpus.contentDigest !== manifest.corpusDigest ||
-    !Buffer.from(serializeAnalyzedCorpusV2(replay.corpus)).equals(
+    !Buffer.from(serializeSupportedAnalyzedCorpus(replay.corpus)).equals(
       files.get("corpus.json"),
     )
   )

@@ -1,0 +1,332 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/source.schema.v2.json",
+  "title": "Policy Sentinel public source successor 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "registryVersion",
+    "generatedDataPolicy",
+    "sources"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "../schemas/source.schema.v2.json"
+    },
+    "schemaVersion": {
+      "const": "2.0.0"
+    },
+    "registryVersion": {
+      "type": "string",
+      "pattern": "^2\\.\\d+\\.\\d+$"
+    },
+    "generatedDataPolicy": {
+      "$ref": "https://policy-sentinel.invalid/schemas/source.schema.v1.json#/properties/generatedDataPolicy"
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    }
+  },
+  "$defs": {
+    "slug": {
+      "$ref": "https://policy-sentinel.invalid/schemas/source.schema.v1.json#/$defs/slug"
+    },
+    "httpsUrl": {
+      "$ref": "https://policy-sentinel.invalid/schemas/source.schema.v1.json#/$defs/httpsUrl"
+    },
+    "nullableDate": {
+      "$ref": "https://policy-sentinel.invalid/schemas/source.schema.v1.json#/$defs/nullableDate"
+    },
+    "adapter": {
+      "$ref": "https://policy-sentinel.invalid/schemas/source.schema.v1.json#/$defs/adapter"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "provider",
+        "synthetic",
+        "enabled",
+        "adapter",
+        "jurisdiction",
+        "access",
+        "coverage",
+        "publication",
+        "officialSubjectMappings"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "https://policy-sentinel.invalid/schemas/source.schema.v1.json#/$defs/source/properties/id"
+        },
+        "name": {
+          "$ref": "https://policy-sentinel.invalid/schemas/source.schema.v1.json#/$defs/source/properties/name"
+        },
+        "provider": {
+          "$ref": "https://policy-sentinel.invalid/schemas/source.schema.v1.json#/$defs/source/properties/provider"
+        },
+        "synthetic": {
+          "$ref": "https://policy-sentinel.invalid/schemas/source.schema.v1.json#/$defs/source/properties/synthetic"
+        },
+        "enabled": {
+          "$ref": "https://policy-sentinel.invalid/schemas/source.schema.v1.json#/$defs/source/properties/enabled"
+        },
+        "adapter": {
+          "$ref": "https://policy-sentinel.invalid/schemas/source.schema.v1.json#/$defs/source/properties/adapter"
+        },
+        "jurisdiction": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "level",
+            "name",
+            "jurisdictionRef",
+            "basis",
+            "evidence",
+            "reviewState",
+            "review"
+          ],
+          "properties": {
+            "level": {
+              "enum": [
+                "federal",
+                "state",
+                "county",
+                "municipal",
+                "tribal",
+                "other"
+              ]
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "jurisdictionRef": {
+              "type": "string",
+              "pattern": "^(?:us|us-state:[A-Z]{2}|us-county:[0-9]{5}|(?:nation|body):[a-z0-9]+(?:-[a-z0-9]+)*)$",
+              "maxLength": 71
+            },
+            "basis": {
+              "enum": ["issuing_authority", "source_stated_scope"]
+            },
+            "reviewState": {
+              "enum": ["unreviewed", "reviewed", "rejected"]
+            },
+            "evidence": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["url", "locator"],
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "format": "uri",
+                  "pattern": "^https://",
+                  "maxLength": 4096
+                },
+                "locator": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "exactSubject": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["recordRef", "ref", "text"],
+                  "properties": {
+                    "recordRef": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    "ref": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 71
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8192
+                    }
+                  }
+                }
+              }
+            },
+            "review": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["reviewer", "reviewedAt"],
+                  "properties": {
+                    "reviewer": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256
+                    },
+                    "reviewedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "access": {
+          "$ref": "https://policy-sentinel.invalid/schemas/source.schema.v1.json#/$defs/source/properties/access"
+        },
+        "coverage": {
+          "$ref": "https://policy-sentinel.invalid/schemas/source.schema.v1.json#/$defs/source/properties/coverage"
+        },
+        "publication": {
+          "$ref": "https://policy-sentinel.invalid/schemas/source.schema.v1.json#/$defs/source/properties/publication"
+        },
+        "officialSubjectMappings": {
+          "$ref": "https://policy-sentinel.invalid/schemas/source.schema.v1.json#/$defs/source/properties/officialSubjectMappings"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            },
+            "required": ["enabled"]
+          },
+          "then": {
+            "properties": {
+              "adapter": {
+                "$ref": "#/$defs/adapter"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "synthetic": {
+                "const": true
+              }
+            },
+            "required": ["synthetic"]
+          },
+          "then": {
+            "properties": {
+              "access": {
+                "type": "object",
+                "properties": {
+                  "method": {
+                    "const": "fixture"
+                  }
+                }
+              },
+              "adapter": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "$ref": "#/$defs/adapter"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "module": {
+                            "type": "string",
+                            "pattern": "^fixtures/"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "access": {
+                "type": "object",
+                "properties": {
+                  "method": {
+                    "enum": [
+                      "api",
+                      "feed",
+                      "official_export",
+                      "official_index",
+                      "official_page"
+                    ]
+                  }
+                }
+              },
+              "adapter": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "$ref": "#/$defs/adapter"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "module": {
+                            "type": "string",
+                            "pattern": "^src/adapters/"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "synthetic": {
+                "const": false
+              }
+            },
+            "required": ["synthetic"]
+          },
+          "then": {
+            "properties": {
+              "access": {
+                "type": "object",
+                "required": ["accessedOn"],
+                "properties": {
+                  "accessedOn": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

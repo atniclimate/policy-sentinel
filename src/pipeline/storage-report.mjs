@@ -191,11 +191,13 @@ export function validateStorageManifest(manifest) {
 }
 
 // Fixed native attribute check. Paths are JSON stdin, never shell source.
+// Read literal-path attributes directly: per-entry PowerShell provider objects
+// are unnecessary for the reparse/directory flags and dominate large scans.
 const PROBE_SCRIPT = [
   "$ErrorActionPreference='Stop';try{[Console]::InputEncoding=[Text.UTF8Encoding]::new($false,$true);$r=[Console]::In.ReadToEnd()|ConvertFrom-Json;",
   "if($r.nonce-cnotmatch '^[a-f0-9-]{36}$' -or $r.root-notmatch '^[A-Za-z]:[\\\\/]' -or $r.maxEntries-lt 1 -or $r.maxEntries-gt 250000 -or $r.maxDepth-lt 1 -or $r.maxDepth-gt 64){exit 45};",
-  "$p=$r.root;while($p){$i=Get-Item -Force -LiteralPath $p;if(($i.Attributes-band [IO.FileAttributes]::ReparsePoint)-ne 0){exit 42};$p=[IO.Path]::GetDirectoryName($p)};",
-  "$q=[Collections.Generic.Queue[object]]::new();$q.Enqueue(@($r.root,0));$n=0;while($q.Count){$v=$q.Dequeue();foreach($e in [IO.Directory]::EnumerateFileSystemEntries($v[0])){$n++;if($n-gt $r.maxEntries){exit 43};$i=Get-Item -Force -LiteralPath $e;if(($i.Attributes-band [IO.FileAttributes]::ReparsePoint)-ne 0){exit 42};if($i.PSIsContainer){$d=$v[1]+1;if($d-gt $r.maxDepth){exit 43};$q.Enqueue(@($e,$d))}}};",
+  "$p=$r.root;while($p){$a=[IO.File]::GetAttributes($p);if(($a-band [IO.FileAttributes]::ReparsePoint)-ne 0){exit 42};$p=[IO.Path]::GetDirectoryName($p)};",
+  "$q=[Collections.Generic.Queue[object]]::new();$q.Enqueue(@($r.root,0));$n=0;while($q.Count){$v=$q.Dequeue();foreach($e in [IO.Directory]::EnumerateFileSystemEntries($v[0])){$n++;if($n-gt $r.maxEntries){exit 43};$a=[IO.File]::GetAttributes($e);if(($a-band [IO.FileAttributes]::ReparsePoint)-ne 0){exit 42};if(($a-band [IO.FileAttributes]::Directory)-ne 0){$d=$v[1]+1;if($d-gt $r.maxDepth){exit 43};$q.Enqueue(@($e,$d))}}};",
   "[Console]::Out.Write((@{nonce=$r.nonce;complete=$true;entries=$n}|ConvertTo-Json -Compress));exit 0}catch{exit 44}",
 ].join("");
 async function probeWindows(root, limits, remaining, spawnChild = spawn) {

@@ -10,10 +10,17 @@ const byteLength = (text: string) => new TextEncoder().encode(text).byteLength;
 const response = (text: string, declared = byteLength(text)) =>
   new Response(text, { headers: { "content-length": String(declared) } });
 
-function fixture(projected = false) {
+function fixture(projected = false, schemaVersion = "2.0.0") {
   const corpus = {
     kind: "analyzed_corpus",
-    schemaVersion: "2.0.0",
+    schemaVersion,
+    ...(schemaVersion === "2.1.0"
+      ? {
+          $schema:
+            "https://policy-sentinel.invalid/schemas/analyzed-corpus.schema.v2.1.json",
+          works: [{ id: "work-a", jurisdictionRefs: [] }],
+        }
+      : {}),
     trustDomain: "real_source_local",
     contentDigest: "a".repeat(64),
     versions: [{ id: "version-a" }],
@@ -87,6 +94,38 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("sealed local corpus bundle loader", () => {
+  it.each([false, true])(
+    "loads only the known 2.1 successor through the existing sealed profile (projected=%s)",
+    async (projected) => {
+      const current = fixture(projected, "2.1.0");
+      await expect(loadPolicyLocalBundle()).resolves.toEqual({
+        corpus: current.corpus,
+        projection: projected ? current.projection : null,
+      });
+      const unknown = fixture(projected, "2.2.0");
+      await expect(loadPolicyLocalBundle()).rejects.toThrow(
+        "Local corpus identity mismatch",
+      );
+      expect(unknown.fetchMock).toHaveBeenCalledTimes(2);
+      const badSchema = fixture(projected, "2.1.0");
+      const text = JSON.stringify({
+        ...badSchema.corpus,
+        $schema: "https://example.invalid/unreviewed-schema.json",
+      });
+      badSchema.bodies.set("./corpus.json", text);
+      Object.assign(badSchema.profile, {
+        corpusFileDigest: hash(text),
+        corpusBytes: byteLength(text),
+      });
+      badSchema.bodies.set(
+        "./local-profile.json",
+        JSON.stringify(badSchema.profile),
+      );
+      await expect(loadPolicyLocalBundle()).rejects.toThrow(
+        "Local corpus identity mismatch",
+      );
+    },
+  );
   it("preserves legacy corpus-only profiles and wrapper behavior", async () => {
     const current = fixture();
     await expect(loadPolicyLocalBundle()).resolves.toEqual({

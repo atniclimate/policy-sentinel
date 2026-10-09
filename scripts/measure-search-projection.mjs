@@ -39,7 +39,7 @@ export const PROJECTION_MEASUREMENT_PROTOCOL = Object.freeze({
   replacementGeneratedAt: "2026-09-04T00:00:00Z",
 });
 export const PROJECTION_MEASUREMENT_OUTPUT =
-  "C:/dev/_scratch/policy-sentinel/study-engine-20261008/search-projection-01";
+  "C:/dev/_scratch/policy-sentinel/study-engine-20261008/search-projection-04";
 const protocol = PROJECTION_MEASUREMENT_PROTOCOL;
 const repository = path.resolve(import.meta.dirname, "..");
 const json = (value) => `${JSON.stringify(value, null, 2)}\n`;
@@ -768,6 +768,7 @@ const implementationPaths = [
   "scripts/measure-bounded-search.mjs",
   "scripts/measure-engineering.mjs",
   "src/pipeline/analyzed-corpus-v2.mjs",
+  "src/core/jurisdiction-reference.mjs",
   "src/engine/policy-search.mjs",
   "src/engine/temporal-operations.mjs",
   "src/modules/output/local-workbench/search-projection.mjs",

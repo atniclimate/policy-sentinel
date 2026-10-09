@@ -479,6 +479,17 @@
       "additionalProperties": false,
       "required": ["temporal", "governmentContext", "instrumentClass"],
       "properties": {
+        "jurisdictionRef": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "pattern": "^(?:us|us-state:[A-Z]{2}|us-county:[0-9]{5}|nation:[a-z0-9]+(?:-[a-z0-9]+)*|body:[a-z0-9]+(?:-[a-z0-9]+)*)$"
+            }
+          ]
+        },
         "temporal": {
           "anyOf": [
             { "type": "null" },

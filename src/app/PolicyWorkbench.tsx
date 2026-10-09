@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import { useLayoutEffect, useMemo, useRef, useState } from "preact/hooks";
 import type {
-  AnalyzedCorpusV2,
+  AnalyzedCorpus,
   PolicyDate,
   PolicyInstrumentClass,
 } from "../pipeline/analyzed-corpus-v2.mjs";
@@ -35,7 +35,7 @@ import type {
 } from "./StudyWorkspace";
 
 export interface PolicyWorkbenchProps {
-  readonly corpus: AnalyzedCorpusV2;
+  readonly corpus: AnalyzedCorpus;
   readonly dossierHref?: string;
   readonly jsonHref?: string;
   readonly sourceCoverage?: ConfiguredSourceCoverage;
@@ -61,7 +61,7 @@ const basisLabels: Record<TemporalBasis, string> = {
 };
 function fieldKnown(
   record: {
-    readonly fieldProvenance: AnalyzedCorpusV2["works"][number]["fieldProvenance"];
+    readonly fieldProvenance: AnalyzedCorpus["works"][number]["fieldProvenance"];
   },
   field: string,
   knownSegments: ReadonlySet<string> | null,
@@ -111,7 +111,7 @@ function EvidencePanel({
   cutoff,
   outsideSnapshot,
 }: {
-  corpus: AnalyzedCorpusV2;
+  corpus: AnalyzedCorpus;
   index: PolicySearchIndex;
   segmentId: string;
   onClose: () => void;
@@ -326,6 +326,7 @@ export function PolicyWorkbench({
   const [query, setQuery] = useState("");
   const [source, setSource] = useState("");
   const [context, setContext] = useState("");
+  const [jurisdictionRef, setJurisdictionRef] = useState("");
   const [instrument, setInstrument] = useState("");
   const [asOf, setAsOf] = useState("");
   const [basis, setBasis] = useState<TemporalBasis>("source_available");
@@ -443,6 +444,29 @@ export function PolicyWorkbench({
     () =>
       [...new Set(corpus.works.map((entry) => entry.instrumentClass))].sort(),
     [corpus],
+  );
+  const jurisdictionAssociations = useMemo(
+    () =>
+      new Map(
+        corpus.schemaVersion === "2.1.0"
+          ? corpus.works.map(
+              (work) => [work.id, work.jurisdictionRefs] as const,
+            )
+          : [],
+      ),
+    [corpus],
+  );
+  const jurisdictionRefs = useMemo(
+    () =>
+      [
+        ...new Set(
+          [...jurisdictionAssociations.values()]
+            .flat()
+            .filter((association) => association.reviewState === "reviewed")
+            .map((association) => association.jurisdictionRef),
+        ),
+      ].sort(),
+    [jurisdictionAssociations],
   );
   const selectedVersions = selected.map((id) => versionMap.get(id)!);
   const sameWork =
@@ -584,6 +608,7 @@ export function PolicyWorkbench({
                 query,
                 ...(source ? { sourceProfileId: source } : {}),
                 ...(context ? { governmentContext: context } : {}),
+                ...(jurisdictionRef ? { jurisdictionRef } : {}),
                 ...(instrument
                   ? { instrumentClass: instrument as PolicyInstrumentClass }
                   : {}),
@@ -659,6 +684,32 @@ export function PolicyWorkbench({
                   ))}
                 </select>
               </label>
+              {(corpus.schemaVersion === "2.1.0" || jurisdictionRef !== "") && (
+                <label>
+                  Reviewed jurisdiction identifier
+                  <select
+                    value={jurisdictionRef}
+                    onChange={(event) =>
+                      setJurisdictionRef(event.currentTarget.value)
+                    }
+                  >
+                    <option value="">All retained works</option>
+                    {jurisdictionRefs.map((ref) => (
+                      <option key={ref} value={ref}>
+                        {ref}
+                      </option>
+                    ))}
+                    {jurisdictionRef &&
+                      !jurisdictionRefs.some(
+                        (ref) => ref === jurisdictionRef,
+                      ) && (
+                        <option value={jurisdictionRef}>
+                          {jurisdictionRef} · not in this corpus
+                        </option>
+                      )}
+                  </select>
+                </label>
+              )}
               <label>
                 As of date
                 <input
@@ -886,6 +937,84 @@ export function PolicyWorkbench({
                         "Inspect work-title evidence",
                         "search",
                       )}
+                      {(jurisdictionAssociations.get(work.id)?.length ?? 0) >
+                        0 && (
+                        <section aria-label="Source-backed jurisdiction associations">
+                          <h4>Declared jurisdiction associations</h4>
+                          <p>
+                            These explicit source associations are separate from
+                            geographic discovery relevance. Review does not
+                            determine legal applicability, homeland boundaries,
+                            or member Nation positions.
+                          </p>
+                          <ul>
+                            {jurisdictionAssociations
+                              .get(work.id)!
+                              .map((association) => {
+                                const known =
+                                  knownSegments === null ||
+                                  association.segmentIds.every((id) =>
+                                    knownSegments.has(id),
+                                  );
+                                const statement =
+                                  association.evidence.exactSubject?.text;
+                                const display =
+                                  statement &&
+                                  profile.uses.excerpts &&
+                                  (profile.uses.localDisplay === "full_text" ||
+                                    (profile.uses.localDisplay === "excerpt" &&
+                                      statement.length <= 1200));
+                                return (
+                                  <li
+                                    key={`${association.jurisdictionRef}:${association.basis}:${association.versionId}`}
+                                  >
+                                    <p>
+                                      {association.jurisdictionRef} ·{" "}
+                                      {words(association.basis)} ·{" "}
+                                      {association.reviewState}
+                                    </p>
+                                    <p>
+                                      Association evidence version:{" "}
+                                      {association.versionId}
+                                      {association.versionId !== version.id
+                                        ? " · another retained version, not evidence for this search hit"
+                                        : ""}
+                                    </p>
+                                    {!known && (
+                                      <p>
+                                        This retained association's evidence is
+                                        unavailable at the search cutoff.
+                                      </p>
+                                    )}
+                                    {known && display ? (
+                                      <blockquote>{statement}</blockquote>
+                                    ) : (
+                                      <p>
+                                        {known
+                                          ? "Source wording is withheld by its display policy."
+                                          : "Open the retained evidence to inspect its later or unknown date scope."}
+                                      </p>
+                                    )}
+                                    {association.reviewer && (
+                                      <p>
+                                        Reviewed by {association.reviewer.name}{" "}
+                                        · {association.reviewer.reviewedAt}
+                                      </p>
+                                    )}
+                                    {evidenceButtons(
+                                      association.segmentIds,
+                                      "Read jurisdiction association evidence",
+                                      known &&
+                                        association.versionId === version.id
+                                        ? "search"
+                                        : "retained",
+                                    )}
+                                  </li>
+                                );
+                              })}
+                          </ul>
+                        </section>
+                      )}
                       <h4>Source-stated events</h4>
                       {corpus.events
                         .filter((entry) => hit.eventIds.includes(entry.id))
@@ -970,6 +1099,7 @@ export function PolicyWorkbench({
             setQuery(next.query);
             setSource(next.sourceProfileId ?? "");
             setContext(next.governmentContext ?? "");
+            setJurisdictionRef(next.jurisdictionRef ?? "");
             setInstrument(next.instrumentClass ?? "");
             setAsOf(next.asOf ?? "");
             setBasis(next.basis ?? "source_available");

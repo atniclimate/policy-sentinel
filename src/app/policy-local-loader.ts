@@ -1,4 +1,4 @@
-import type { AnalyzedCorpusV2 } from "../pipeline/analyzed-corpus-v2.mjs";
+import type { AnalyzedCorpus } from "../pipeline/analyzed-corpus-v2.mjs";
 import type { SearchProjectionManifest } from "../modules/output/local-workbench/search-projection.mjs";
 
 const MAX_CORPUS_BYTES = 128 * 1024 ** 2;
@@ -73,7 +73,7 @@ async function pinnedFile(
 }
 
 export interface PolicyLocalBundle {
-  readonly corpus: AnalyzedCorpusV2;
+  readonly corpus: AnalyzedCorpus;
   readonly projection: SearchProjectionManifest | null;
 }
 
@@ -135,10 +135,13 @@ export async function loadPolicyLocalBundle(): Promise<PolicyLocalBundle> {
       profile.corpusFileDigest,
       "corpus",
     ),
-  ) as AnalyzedCorpusV2;
+  ) as AnalyzedCorpus;
   if (
     corpus.kind !== "analyzed_corpus" ||
-    corpus.schemaVersion !== "2.0.0" ||
+    !["2.0.0", "2.1.0"].includes(corpus.schemaVersion) ||
+    (corpus.schemaVersion === "2.1.0" &&
+      corpus.$schema !==
+        "https://policy-sentinel.invalid/schemas/analyzed-corpus.schema.v2.1.json") ||
     corpus.trustDomain !== "real_source_local" ||
     corpus.contentDigest !== profile.corpusDigest
   )
@@ -180,6 +183,6 @@ export async function loadPolicyLocalBundle(): Promise<PolicyLocalBundle> {
 }
 
 /** Compatibility entry point for callers that need only the delivered corpus. */
-export async function loadPolicyLocalCorpus(): Promise<AnalyzedCorpusV2> {
+export async function loadPolicyLocalCorpus(): Promise<AnalyzedCorpus> {
   return (await loadPolicyLocalBundle()).corpus;
 }

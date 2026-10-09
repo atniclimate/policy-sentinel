@@ -35,7 +35,7 @@ import type {
   StudySensitivity,
 } from "../core/research-study.mjs";
 import type {
-  AnalyzedCorpusV2,
+  AnalyzedCorpus,
   PolicyDate,
 } from "../pipeline/analyzed-corpus-v2.mjs";
 import type {
@@ -50,7 +50,7 @@ import type { StudyProducts } from "../modules/output/study-products.mjs";
 import "./study-workspace.css";
 
 export interface StudyWorkspaceProps {
-  readonly corpus: AnalyzedCorpusV2;
+  readonly corpus: AnalyzedCorpus;
   readonly searchResults: PolicySearchResults | null;
   readonly searchRequest: PolicySearchRequest;
   readonly selectedSegmentId: string | null;
@@ -99,6 +99,17 @@ export interface ConfiguredSourceCoverage {
       readonly state: string;
     }[];
     readonly availableCapabilities: readonly string[];
+    readonly regionalInterface?: {
+      readonly state: string;
+      readonly assessedOn: string;
+      readonly requirement: string;
+      readonly disposition: string;
+      readonly note: string;
+      readonly evidence: readonly {
+        readonly observedOn: string;
+        readonly url: string;
+      }[];
+    };
     readonly coverage: {
       readonly documented: {
         readonly from: string | null;
@@ -136,6 +147,7 @@ function captureSearchScope(request: PolicySearchRequest): StudySearchScope {
         ? { asOf: request.asOf, basis: request.basis }
         : null,
     governmentContext: request.governmentContext || null,
+    jurisdictionRef: request.jurisdictionRef || null,
     instrumentClass: (request.instrumentClass ||
       null) as StudySearchScope["instrumentClass"],
   };
@@ -148,6 +160,9 @@ function searchScopeLabel(scope: StudySearchScope | undefined): string {
       ? `As of ${scope.temporal.asOf} · ${words(scope.temporal.basis)}`
       : "All retained dates",
     scope.governmentContext ?? "All government contexts",
+    scope.jurisdictionRef === undefined
+      ? "Jurisdiction filter not recorded"
+      : (scope.jurisdictionRef ?? "No jurisdiction identifier filter"),
     scope.instrumentClass
       ? words(scope.instrumentClass)
       : "All instrument classes",
@@ -388,7 +403,7 @@ function PassageCard({
   corpus,
 }: {
   passage: StudyPassage;
-  corpus: AnalyzedCorpusV2;
+  corpus: AnalyzedCorpus;
 }) {
   const [display, setDisplay] = useState<{
     text: string | null;
@@ -776,6 +791,32 @@ export function StudyWorkspace({
                       "Unavailable"}
                     .
                   </p>
+                  {source.regionalInterface && (
+                    <div>
+                      <p>
+                        Regional interface review:{" "}
+                        {source.regionalInterface.state}
+                        {" · "}
+                        {source.regionalInterface.requirement === "required_api"
+                          ? "Required API candidate"
+                          : "Interface qualification"}
+                        {" · "}
+                        {words(source.regionalInterface.disposition)}. Assessed{" "}
+                        {source.regionalInterface.assessedOn}.
+                      </p>
+                      <p>{source.regionalInterface.note}</p>
+                      <ul>
+                        {source.regionalInterface.evidence.map(
+                          (evidence, index) => (
+                            <li key={`${evidence.url}-${index}`}>
+                              <a href={evidence.url}>Interface evidence</a>{" "}
+                              observed {evidence.observedOn}
+                            </li>
+                          ),
+                        )}
+                      </ul>
+                    </div>
+                  )}
                   <ul>
                     {source.declaredCapabilities.map((capability) => (
                       <li key={capability.mode}>
@@ -1362,6 +1403,12 @@ export function StudyWorkspace({
                             ? {
                                 instrumentClass:
                                   discovery.searchScope.instrumentClass,
+                              }
+                            : {}),
+                          ...(discovery.searchScope?.jurisdictionRef
+                            ? {
+                                jurisdictionRef:
+                                  discovery.searchScope.jurisdictionRef,
                               }
                             : {}),
                           ...(discovery.sourceIds.length === 1

@@ -1,3 +1,5 @@
+import type { JurisdictionAssociation } from "./jurisdiction-reference.mjs";
+
 export interface Nation {
   id: string;
   officialName: string;
@@ -168,6 +170,7 @@ export interface AccordContext {
 }
 
 export interface PublicRecord {
+  contractVersion?: "1.4.0" | "2.0.0";
   artifactGeneratedAt?: string;
   internalId: string;
   officialTitle: string;
@@ -187,6 +190,11 @@ export interface PublicRecord {
     name: string;
     stateCode: string | null;
     generalJurisdictionOnly?: boolean;
+    jurisdictionRef?: JurisdictionAssociation["jurisdictionRef"];
+    basis?: JurisdictionAssociation["basis"];
+    evidence?: JurisdictionAssociation["evidence"];
+    reviewState?: JurisdictionAssociation["reviewState"];
+    review?: { reviewer: string; reviewedAt: string } | null;
   };
   issuingBodies: string[];
   judicialContext: JudicialContext | null;
@@ -290,8 +298,8 @@ export interface PublicRecord {
 }
 
 export interface ArtifactManifest {
-  artifactVersion: "1.4.0";
-  recordSchemaVersion: "1.4.0";
+  artifactVersion: "1.4.0" | "2.0.0";
+  recordSchemaVersion: "1.4.0" | "2.0.0";
   buildId: string;
   generatedAt: string;
   dataAsOf: string | null;

@@ -9,8 +9,8 @@ import {
 } from "../../src/pipeline/policy-local-output.mjs";
 import {
   canonicalV2Digest,
-  createAnalyzedCorpusV2,
-  serializeAnalyzedCorpusV2,
+  createSupportedAnalyzedCorpus,
+  serializeSupportedAnalyzedCorpus,
 } from "../../src/pipeline/analyzed-corpus-v2.mjs";
 import { digest } from "../../src/pipeline/policy-custody.mjs";
 import { syntheticCorpusV2Input } from "./analyzed-corpus-v2.test.mjs";
@@ -45,7 +45,7 @@ test("legacy local output preserves exactly seven direct bindings", () => {
     assert.strictEqual(legacyLocalOutput[name], binding);
 });
 
-function semanticFixture(change = () => {}) {
+function semanticFixture(change = () => {}, schemaVersion = "2.0.0") {
   const input = JSON.parse(
     JSON.stringify(syntheticCorpusV2Input()).replaceAll(".invalid", ".example"),
   );
@@ -57,8 +57,8 @@ function semanticFixture(change = () => {}) {
         (profile) => profile.id === capture.sourceProfileId,
       ),
     );
-  const corpus = createAnalyzedCorpusV2(input);
-  const bytes = Buffer.from(serializeAnalyzedCorpusV2(corpus));
+  const corpus = createSupportedAnalyzedCorpus(input, schemaVersion);
+  const bytes = Buffer.from(serializeSupportedAnalyzedCorpus(corpus));
   const profile = {
     kind: "policy_local_profile",
     schemaVersion: "1.0.0",
@@ -305,6 +305,98 @@ test("controlled source failure exercises actual local output validation and ser
     assert.equal(served.coverage[0].status, scenario.status);
     assert.equal((await get(server, "/review/gold-seal.json")).status, 404);
   }
+});
+
+test("2.1 local failure retains exact same-work associations with prior proof and omits failed-source works without prior proof", () => {
+  const fixture = semanticFixture((input) => {
+    for (const work of input.works) {
+      const version = input.versions.find((row) => row.workId === work.id);
+      const rendition = input.renditions.find(
+        (row) => row.versionId === version.id,
+      );
+      const segment = input.segments.find(
+        (row) => row.renditionId === rendition.id,
+      );
+      const capture = input.captures.find(
+        (row) => row.id === rendition.captureId,
+      );
+      const ref = "body:synthetic-" + work.id;
+      work.jurisdictionRefs = [
+        {
+          jurisdictionRef: ref,
+          basis: "source_stated_scope",
+          evidence: {
+            url: capture.finalUrl,
+            locator: segment.locator.value,
+            exactSubject: { recordRef: work.id, ref, text: work.title },
+          },
+          reviewState: "reviewed",
+          versionId: version.id,
+          segmentIds: [segment.id],
+          reviewer: {
+            name: "Synthetic reviewer",
+            kind: "human",
+            reviewedAt: "2026-09-02T01:00:00Z",
+          },
+        },
+      ];
+    }
+  }, "2.1.0");
+  const output = approvedSnapshot(fixture);
+  const before = JSON.parse(output.files.get("corpus.json").toString("utf8"));
+  const request = {
+    output,
+    run: fixture.run,
+    sourceProfileId: "profile-a",
+    generatedAt: "2026-09-04T00:00:00Z",
+  };
+  const degraded = simulateLocalSourceFailure({
+    ...request,
+    priorOutput: output,
+  });
+  assert.equal(degraded.corpus.schemaVersion, "2.1.0");
+  assert.equal(
+    canonicalV2Digest(degraded.corpus.works),
+    canonicalV2Digest(before.works),
+  );
+  assert.equal(
+    validateLocalOutputFiles(
+      degraded.files,
+      degraded.manifest,
+      fixture.run,
+      degraded.replayOptions,
+    ).valid,
+    true,
+  );
+  assert.equal(
+    degraded.corpus.coverage[0].dataAsOf,
+    before.coverage[0].dataAsOf,
+  );
+  assert.throws(
+    () =>
+      validateLocalOutputFiles(degraded.files, degraded.manifest, fixture.run),
+    /VERIFIED_PRIOR_CORPUS_REQUIRED/u,
+  );
+  const unavailable = simulateLocalSourceFailure(request);
+  assert.equal(unavailable.corpus.schemaVersion, "2.1.0");
+  assert.equal(
+    canonicalV2Digest(unavailable.corpus.works),
+    canonicalV2Digest(before.works.filter((row) => row.id === "work-b")),
+  );
+  assert.equal(unavailable.corpus.coverage[0].status, "unavailable");
+  assert.equal(unavailable.corpus.coverage[0].dataAsOf, null);
+  assert.equal(
+    validateLocalOutputFiles(
+      unavailable.files,
+      unavailable.manifest,
+      fixture.run,
+    ).valid,
+    true,
+  );
+  assert.deepEqual(
+    JSON.parse(output.files.get("corpus.json").toString("utf8")),
+    before,
+  );
 });
 
 test("controlled failure rejects wrong prior checksums, source policies and unsupported prior baselines", () => {

@@ -26,7 +26,10 @@ import {
 } from "../../src/core/research-study.mjs";
 import type { ResearchStudy } from "../../src/core/research-study.mjs";
 import { createAnalyzedCorpusV2 } from "../../src/pipeline/analyzed-corpus-v2.mjs";
-import type { AnalyzedCorpusV2 } from "../../src/pipeline/analyzed-corpus-v2.mjs";
+import type {
+  AnalyzedCorpus,
+  AnalyzedCorpusV2,
+} from "../../src/pipeline/analyzed-corpus-v2.mjs";
 import {
   createPolicySearchIndex,
   searchPolicyCorpus,
@@ -59,7 +62,7 @@ afterEach(() => {
 });
 
 function props(
-  corpus: AnalyzedCorpusV2 = syntheticCorpusV2(),
+  corpus: AnalyzedCorpus = syntheticCorpusV2(),
 ): StudyWorkspaceProps {
   const selected = corpus.segments.find(
     (segment) => segment.renditionId === "rendition-a-new",
@@ -142,7 +145,7 @@ function blobText(blob: Blob) {
     reader.readAsText(blob);
   });
 }
-async function backup(corpus: AnalyzedCorpusV2) {
+async function backup(corpus: AnalyzedCorpus) {
   const count = downloads.length;
   fireEvent.click(
     screen.getByRole("button", { name: "Save study JSON", exact: true }),
@@ -152,7 +155,7 @@ async function backup(corpus: AnalyzedCorpusV2) {
   return { text, study: await parseResearchStudy(text, corpus) };
 }
 async function seed(
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
   title = "Saved research study",
 ): Promise<ResearchStudy> {
   const study = await createResearchStudy(
@@ -280,6 +283,7 @@ describe("persistent local study workspace", () => {
       expect(discovery.searchScope).toEqual({
         temporal: null,
         governmentContext: null,
+        jurisdictionRef: null,
         instrumentClass: null,
       });
     expect(saved.study.questions[0].discoveryGeographies).toEqual([
@@ -325,6 +329,7 @@ describe("persistent local study workspace", () => {
         query: "within 30 days",
         sourceProfileId: work.sourceProfileId,
         governmentContext: work.governmentContext,
+        jurisdictionRef: "body:synthetic-council",
         instrumentClass: work.instrumentClass,
         asOf: "2026-10-01",
         basis: "corpus_observed" as const,
@@ -356,6 +361,7 @@ describe("persistent local study workspace", () => {
     const expectedScope = {
       temporal: { asOf: "2026-10-01", basis: "corpus_observed" },
       governmentContext: work.governmentContext,
+      jurisdictionRef: "body:synthetic-council",
       instrumentClass: work.instrumentClass,
     };
     expect(saved.study.discoveries).toHaveLength(2);
@@ -381,6 +387,7 @@ describe("persistent local study workspace", () => {
       ...props(),
       searchRequest: {
         query: "different",
+        jurisdictionRef: "body:synthetic-current-filter",
         asOf: "2026-10-07",
         basis: "source_effective" as const,
       },
@@ -605,6 +612,19 @@ describe("persistent local study workspace", () => {
             { mode: "identifier_lookup", state: "unavailable" },
           ],
           availableCapabilities: [],
+          regionalInterface: {
+            state: "NV",
+            assessedOn: "2026-10-07",
+            requirement: "interface_disposition",
+            disposition: "interface_gap",
+            note: "The official index does not establish API availability.",
+            evidence: [
+              {
+                observedOn: "2026-10-06",
+                url: "https://example.test/official-index",
+              },
+            ],
+          },
           coverage: {
             documented: {
               from: null,
@@ -670,6 +690,15 @@ describe("persistent local study workspace", () => {
     expect(
       screen.getByText(/No matches in this search do not establish/),
     ).toBeInTheDocument();
+    expect(screen.getByText(/Regional interface review: NV/)).toHaveTextContent(
+      "Interface qualification · interface gap. Assessed 2026-10-07.",
+    );
+    expect(
+      screen.getByText(/official index does not establish API/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Interface evidence", hidden: true }),
+    ).toHaveAttribute("href", "https://example.test/official-index");
     expect(
       screen.getByText(/Synthetic publisher a: searched/),
     ).toBeInTheDocument();

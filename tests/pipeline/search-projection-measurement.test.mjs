@@ -52,7 +52,7 @@ test("successor names new output and preserves every frozen workload and finite 
   assert.ok(Object.isFrozen(protocol));
   assert.equal(
     PROJECTION_MEASUREMENT_OUTPUT,
-    "C:/dev/_scratch/policy-sentinel/study-engine-20261008/search-projection-01",
+    "C:/dev/_scratch/policy-sentinel/study-engine-20261008/search-projection-04",
   );
   if (process.platform === "win32") {
     assert.equal(
@@ -61,8 +61,11 @@ test("successor names new output and preserves every frozen workload and finite 
     );
     for (const value of [
       "C:/dev/_scratch/policy-sentinel/autonomous-2026-10-07/search-01",
+      "C:/dev/_scratch/policy-sentinel/study-engine-20261008/search-projection-01",
+      "C:/dev/_scratch/policy-sentinel/study-engine-20261008/search-projection-02",
+      "C:/dev/_scratch/policy-sentinel/study-engine-20261008/search-projection-03",
       `${PROJECTION_MEASUREMENT_OUTPUT}/child`,
-      "search-projection-01",
+      "search-projection-04",
     ])
       assert.throws(
         () => exactProjectionOutputPath(value),

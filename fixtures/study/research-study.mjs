@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import {
   canonicalV2Digest,
   createAnalyzedCorpusV2,
+  createAnalyzedCorpusV21,
   createEvidenceSegment,
 } from "../../src/pipeline/analyzed-corpus-v2.mjs";
 import {
@@ -27,6 +28,30 @@ const identifiers = {
   regional: "SYN-REGIONAL-2026",
   extension: "SYN-EXTENSION-2026",
   copy: "SYN-COPY-2026",
+};
+const jurisdictionStatements = {
+  parent: [
+    {
+      ref: "us",
+      text: "The synthetic source expressly states its scope is the United States (us).",
+    },
+  ],
+  regional: ["WA", "OR", "ID", "AK", "CA", "MT", "NV"].map((state) => ({
+    ref: `us-state:${state}`,
+    text: `The synthetic regional review expressly states its scope includes state ${state} (us-state:${state}).`,
+  })),
+  extension: [
+    {
+      ref: "us-county:53033",
+      text: "The synthetic extension expressly names county 53033 (us-county:53033) in its stated scope.",
+    },
+  ],
+  copy: [
+    {
+      ref: "body:synthetic-council",
+      text: "Synthetic Council (body:synthetic-council) issued this synthetic republication.",
+    },
+  ],
 };
 const statements = {
   proceeding: "Docket SYN-2026-001; RIN 0000-AA00.",
@@ -143,7 +168,12 @@ export function createSyntheticStudyCorpus(options = {}) {
   ];
   for (const key of keys) {
     const profile = profiles[key === "copy" ? 1 : 0];
-    const text = documentText(key) + (options.extraText ?? "");
+    const text =
+      documentText(key) +
+      (options.extraText ?? "") +
+      (options.schemaVersion === "2.1.0"
+        ? "\n" + jurisdictionStatements[key].map((row) => row.text).join("\n")
+        : "");
     const bytes = Buffer.from(text, "utf8");
     const digest = createHash("sha256").update(bytes).digest("hex");
     const segment = createEvidenceSegment({
@@ -271,6 +301,39 @@ export function createSyntheticStudyCorpus(options = {}) {
       exclusions: [],
     };
   });
+  if (options.schemaVersion === "2.1.0") {
+    for (const work of input.works) {
+      const key = work.id.slice("work-".length);
+      const versionId = "version-" + key;
+      const segment = input.segments.find(
+        (row) => row.renditionId === "rendition-" + key,
+      );
+      const capture = input.captures.find(
+        (row) =>
+          row.id ===
+          input.renditions.find((row) => row.id === segment.renditionId)
+            .captureId,
+      );
+      work.jurisdictionRefs = jurisdictionStatements[key].map((row) => ({
+        jurisdictionRef: row.ref,
+        basis: key === "copy" ? "issuing_authority" : "source_stated_scope",
+        evidence: {
+          url: capture.finalUrl,
+          locator: segment.locator.value,
+          exactSubject: { recordRef: work.id, ref: row.ref, text: row.text },
+        },
+        reviewState: "reviewed",
+        versionId,
+        segmentIds: [segment.id],
+        reviewer: {
+          name: "Synthetic jurisdiction reviewer",
+          kind: "human",
+          reviewedAt: input.generatedAt,
+        },
+      }));
+    }
+    return createAnalyzedCorpusV21(input);
+  }
   return createAnalyzedCorpusV2(input);
 }
 

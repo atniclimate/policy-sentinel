@@ -14,6 +14,8 @@ import { PolicyWorkbench } from "../../src/app/PolicyWorkbench";
 import { installSkipLink } from "../../src/app/skip-link";
 import {
   createAnalyzedCorpusV2,
+  createAnalyzedCorpusV21,
+  canonicalV2Digest,
   createEvidenceSegment,
 } from "../../src/pipeline/analyzed-corpus-v2.mjs";
 import { createHash } from "node:crypto";
@@ -25,12 +27,151 @@ import * as authored from "../pipeline/analyzed-corpus-v2.test.mjs";
 const { syntheticCorpusV2, syntheticCorpusV2Input } = authored;
 
 const fixture = (): AnalyzedCorpusV2 => syntheticCorpusV2();
+function jurisdictionFixture(metadataOnly = false) {
+  const input = syntheticCorpusV2Input();
+  const base = fixture();
+  const version = base.versions.find((row) => row.id === "version-a-old")!;
+  const rendition = base.renditions.find(
+    (row) => row.versionId === version.id,
+  )!;
+  const segment = base.segments.find(
+    (row) => row.renditionId === rendition.id,
+  )!;
+  const capture = base.captures.find((row) => row.id === rendition.captureId)!;
+  for (const work of input.works) work.jurisdictionRefs = [];
+  input.works.find(
+    (work: { id: string }) => work.id === "work-a",
+  ).jurisdictionRefs = [
+    {
+      jurisdictionRef: "body:synthetic-council",
+      basis: "issuing_authority",
+      evidence: {
+        url: capture.finalUrl,
+        locator: segment.locator.value,
+        exactSubject: {
+          recordRef: "work-a",
+          ref: "body:synthetic-council",
+          text: "The council must review proposals.",
+        },
+      },
+      reviewState: "reviewed",
+      versionId: version.id,
+      segmentIds: [segment.id],
+      reviewer: {
+        name: "Synthetic reviewer",
+        kind: "human",
+        reviewedAt: "2026-09-02T01:00:00Z",
+      },
+    },
+  ];
+  if (metadataOnly) {
+    const profile = input.sourceProfiles.find(
+      (row: { id: string }) => row.id === "profile-a",
+    );
+    profile.uses.localDisplay = "metadata_link";
+    for (const row of input.captures)
+      if (row.sourceProfileId === profile.id)
+        row.sourceProfileDigest = canonicalV2Digest(profile);
+  }
+  return createAnalyzedCorpusV21(input);
+}
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
 
 describe("local policy workbench", () => {
+  it("filters reviewed identifiers by evidenced version and preserves explicit proof without inferring current scope", async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <PolicyWorkbench corpus={jurisdictionFixture()} />,
+    );
+    const filter = screen.getByRole("combobox", {
+      name: "Reviewed jurisdiction identifier",
+    });
+    filter.focus();
+    expect(filter).toHaveFocus();
+    await user.selectOptions(filter, "body:synthetic-council");
+    await user.click(screen.getByRole("button", { name: "Search corpus" }));
+    expect(screen.getByRole("status")).toHaveTextContent("1 matching versions");
+    expect(
+      screen.getByRole("checkbox", {
+        name: "Select Edition 2020 for comparison",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("checkbox", {
+        name: "Select Edition 2022 for comparison",
+      }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(
+      screen.getByText("Work provenance, events, and references"),
+    );
+    const associations = screen.getByRole("region", {
+      name: "Source-backed jurisdiction associations",
+    });
+    expect(associations).toHaveTextContent("body:synthetic-council");
+    expect(associations).toHaveTextContent(
+      "The council must review proposals.",
+    );
+    expect(associations).toHaveTextContent("version-a-old");
+    fireEvent.click(
+      within(associations).getByRole("button", {
+        name: "Read jurisdiction association evidence 1",
+      }),
+    );
+    expect(
+      screen.getByRole("region", { name: "Source evidence" }),
+    ).toHaveTextContent("The council must review proposals.");
+    fireEvent.click(screen.getByRole("button", { name: "Close evidence" }));
+    await user.selectOptions(filter, "");
+    await user.type(screen.getByRole("searchbox"), "within 30 days");
+    await user.click(screen.getByRole("button", { name: "Search corpus" }));
+    fireEvent.click(
+      screen.getByText("Work provenance, events, and references"),
+    );
+    expect(
+      screen.getByRole("region", {
+        name: "Source-backed jurisdiction associations",
+      }),
+    ).toHaveTextContent(
+      "another retained version, not evidence for this search hit",
+    );
+    expect((await axe.run(container)).violations).toEqual([]);
+  });
+
+  it("keeps association wording behind source display permission while preserving evidence navigation", async () => {
+    const user = userEvent.setup();
+    render(<PolicyWorkbench corpus={jurisdictionFixture(true)} />);
+    await user.selectOptions(
+      screen.getByRole("combobox", {
+        name: "Reviewed jurisdiction identifier",
+      }),
+      "body:synthetic-council",
+    );
+    await user.click(screen.getByRole("button", { name: "Search corpus" }));
+    fireEvent.click(
+      screen.getByText("Work provenance, events, and references"),
+    );
+    const associations = screen.getByRole("region", {
+      name: "Source-backed jurisdiction associations",
+    });
+    expect(associations).toHaveTextContent(
+      "Source wording is withheld by its display policy.",
+    );
+    expect(associations.querySelector("blockquote")).toBeNull();
+    fireEvent.click(
+      within(associations).getByRole("button", {
+        name: "Read jurisdiction association evidence 1",
+      }),
+    );
+    const evidence = screen.getByRole("region", { name: "Source evidence" });
+    expect(evidence).toHaveTextContent(
+      "Source terms permit metadata and links here. Text is not displayed.",
+    );
+    expect(evidence.querySelector("blockquote")).toBeNull();
+  });
+
   it("keeps the static skip link working after the loading main is replaced", async () => {
     const user = userEvent.setup();
     const skip = document.createElement("a");

@@ -8,6 +8,7 @@ import { fileURLToPath, URL } from "node:url";
 import { EventEmitter } from "node:events";
 import { PassThrough } from "node:stream";
 import { Buffer } from "node:buffer";
+import { spawnSync } from "node:child_process";
 import {
   createStorageReport,
   STORAGE_LIMITS,
@@ -328,19 +329,106 @@ test("junction/symlink targets are not traversed; native Windows probe rejects t
   }
 });
 
-test("real native guard completes a plain synthetic directory inventory", async (t) => {
+test("real native guard inventories hidden literal metacharacter paths without exposing names", async (t) => {
   const { manifest } = await fixture(t);
-  await fs.mkdir(path.join(manifest.roots[0].path, "nested"));
-  await fs.writeFile(
-    path.join(manifest.roots[0].path, "nested", "one"),
-    "1234",
-  );
+  const nested = path.join(manifest.roots[0].path, "nested [one] $() `");
+  await fs.mkdir(nested);
+  const filename = path.join(nested, ".private-name [one]");
+  await fs.writeFile(filename, "1234");
+  if (process.platform === "win32") {
+    const hidden = spawnSync(
+      path.join(
+        process.env.SystemRoot,
+        "System32",
+        "WindowsPowerShell",
+        "v1.0",
+        "powershell.exe",
+      ),
+      [
+        "-NoLogo",
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        "$ErrorActionPreference='Stop';$p=[Console]::In.ReadToEnd();[IO.File]::SetAttributes($p,([IO.File]::GetAttributes($p)-bor [IO.FileAttributes]::Hidden))",
+      ],
+      { windowsHide: true, input: filename, encoding: "utf8", timeout: 30000 },
+    );
+    assert.equal(hidden.error, undefined);
+    assert.equal(hidden.status, 0);
+  }
   const report = await createStorageReport(manifest, {
     io: { statfs: free() },
   });
   assert.equal(report.status, "complete", JSON.stringify(report));
   assert.equal(report.totalBytes, 4);
+  assert.ok(!JSON.stringify(report).includes("private-name"));
 });
+
+test(
+  "native attribute probe rejects a file link before reading its target",
+  { skip: process.platform !== "win32" },
+  async (t) => {
+    const { manifest, roots } = await fixture(t);
+    const target = path.join(roots[1].path, "private-target");
+    const link = path.join(roots[0].path, "file-link");
+    await fs.writeFile(target, "must not be inventoried");
+    try {
+      await fs.symlink(target, link, "file");
+    } catch (error) {
+      if (["EPERM", "EACCES"].includes(error.code)) {
+        t.skip("Host does not permit creating symbolic file links");
+        return;
+      }
+      throw error;
+    }
+    try {
+      let scans = 0;
+      const report = await createStorageReport(manifest, {
+        io: {
+          statfs: free(),
+          opendir: async () => {
+            scans++;
+            throw new Error("native guard must refuse before inventory");
+          },
+        },
+      });
+      assert.equal(report.status, "incomplete");
+      assert.ok(report.reasons.includes("UNSAFE_LINK"));
+      assert.equal(report.totalBytes, 0);
+      assert.equal(scans, 0);
+    } finally {
+      await fs.unlink(link);
+    }
+  },
+);
+
+test(
+  "native attribute traversal enforces entry and depth bounds before Node inventory",
+  { skip: process.platform !== "win32" },
+  async (t) => {
+    const { manifest } = await fixture(t);
+    const root = manifest.roots[0].path;
+    await fs.mkdir(path.join(root, "nested", "deeper"), { recursive: true });
+    await fs.writeFile(path.join(root, "one"), "1");
+    for (const limit of [{ maxEntries: 1 }, { maxDepth: 1 }]) {
+      let scans = 0;
+      const report = await createStorageReport(manifest, {
+        ...limit,
+        io: {
+          statfs: free(),
+          opendir: async () => {
+            scans++;
+            throw new Error("native guard must refuse before inventory");
+          },
+        },
+      });
+      assert.equal(report.status, "incomplete");
+      assert.ok(report.reasons.includes("INVENTORY_LIMIT"));
+      assert.equal(report.totalBytes, 0);
+      assert.equal(scans, 0);
+    }
+  },
+);
 
 test("entry and depth limits fail closed with observed partial counts", async (t) => {
   const { manifest } = await fixture(t);

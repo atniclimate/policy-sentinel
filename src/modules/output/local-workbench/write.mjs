@@ -1,7 +1,7 @@
 import { Buffer } from "node:buffer";
 import {
-  parseAnalyzedCorpusV2,
-  serializeAnalyzedCorpusV2,
+  parseSupportedAnalyzedCorpus,
+  serializeSupportedAnalyzedCorpus,
 } from "../../../pipeline/analyzed-corpus-v2.mjs";
 import { sha256Bytes as digest } from "../../../pipeline/hashing.mjs";
 import {
@@ -18,7 +18,7 @@ const fail = (code) => {
 };
 
 export function localCorpusBytes(corpus, replayOptions) {
-  const valid = parseAnalyzedCorpusV2(corpus, replayOptions);
+  const valid = parseSupportedAnalyzedCorpus(corpus, replayOptions);
   if (valid.trustDomain !== "real_source_local")
     fail("REAL_LOCAL_CORPUS_REQUIRED");
   // This full-text projection is deliberately narrower than the general schema.
@@ -33,11 +33,11 @@ export function localCorpusBytes(corpus, replayOptions) {
     )
   )
     fail("FULL_LOCAL_DISPLAY_EXPORT_POLICY_REQUIRED");
-  return Buffer.from(serializeAnalyzedCorpusV2(valid, replayOptions));
+  return Buffer.from(serializeSupportedAnalyzedCorpus(valid, replayOptions));
 }
 
 export function validateLocalOutputFiles(files, manifest, run, replayOptions) {
-  const corpus = parseAnalyzedCorpusV2(
+  const corpus = parseSupportedAnalyzedCorpus(
     JSON.parse(files.get("corpus.json").toString("utf8")),
     replayOptions,
   );

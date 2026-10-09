@@ -1,7 +1,7 @@
 import type { Buffer } from "node:buffer";
 import type {
-  AnalyzedCorpusV2,
-  CorpusReplayOptions,
+  AnalyzedCorpus,
+  SupportedCorpusReplayOptions,
 } from "../../../pipeline/analyzed-corpus-v2.mjs";
 import type { LocalOutputFileEntry, LocalOutputSnapshot } from "./write.mjs";
 
@@ -26,10 +26,10 @@ export interface LocalSourceFailureManifest {
 }
 
 export interface LocalSourceFailureResult {
-  readonly corpus: AnalyzedCorpusV2;
+  readonly corpus: AnalyzedCorpus;
   readonly files: Map<string, Buffer>;
   readonly manifest: LocalSourceFailureManifest;
-  readonly replayOptions: CorpusReplayOptions;
+  readonly replayOptions: SupportedCorpusReplayOptions;
   readonly sourceProfileId: string;
   readonly status: "degraded" | "unavailable";
   readonly automaticRefresh: false;

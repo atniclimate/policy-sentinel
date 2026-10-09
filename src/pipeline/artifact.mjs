@@ -5,6 +5,7 @@ import { assertArtifactSourceHealthState } from "./artifact-health.mjs";
 import { deriveBuildId, hashJson, serializeJson } from "./hashing.mjs";
 import { toUrlSafeId } from "./identity.mjs";
 import { assertNationCollectionPolicy } from "./nation-collection-policy.mjs";
+import { migrateNationCoverageV2 } from "../core/public-contract-v2.mjs";
 
 const RECORD_SCHEMA_VERSION = "1.4.0";
 
@@ -570,13 +571,17 @@ export function createArtifactDocuments({
   sourceHealth: suppliedSourceHealth,
 }) {
   const normalizedGeneratedAt = normalizeGeneratedAt(generatedAt);
+  const successor = sourceRegistry.schemaVersion === "2.0.0";
+  const recordVersion = successor ? "2.0.0" : RECORD_SCHEMA_VERSION;
+  const documentVersion = successor ? "2.0.0" : "1.0.0";
+  if (successor) nations = nations.map(migrateNationCoverageV2);
   const documents = new Map();
   const enabledSources = sourceRegistry.sources.filter(
     ({ enabled }) => enabled,
   );
   const enabledSourceIds = new Set(enabledSources.map(({ id }) => id));
   for (const record of records) {
-    if (record.schemaVersion !== RECORD_SCHEMA_VERSION) {
+    if (record.schemaVersion !== recordVersion) {
       throw new Error(
         `artifact record schema version mismatch: ${record.internalId} uses ${record.schemaVersion}`,
       );
@@ -590,12 +595,14 @@ export function createArtifactDocuments({
 
   documents.set("coverage.json", {
     artifactType: "coverage",
-    schemaVersion: "1.0.0",
+    schemaVersion: documentVersion,
     generatedAt: normalizedGeneratedAt,
     notices: [
       "Synthetic artifact for development and testing only.",
       "Public coverage is source-specific and does not represent all of a Nation's interests.",
-      "A Nation outside Washington, Oregon, or Idaho receives federal coverage only.",
+      successor
+        ? "Jurisdiction references describe explicit source evidence; geography does not establish a Nation relationship."
+        : "A Nation outside Washington, Oregon, or Idaho receives federal coverage only.",
     ],
     entries: enabledSources.map((source) =>
       createCoverageEntry(source, records),
@@ -610,14 +617,14 @@ export function createArtifactDocuments({
   );
   documents.set("source-health.json", {
     artifactType: "source-health",
-    schemaVersion: "1.0.0",
+    schemaVersion: documentVersion,
     generatedAt: normalizedGeneratedAt,
     sources: sourceHealth,
   });
 
   const nationDocument = {
     artifactType: "nation-collection",
-    schemaVersion: "1.0.0",
+    schemaVersion: documentVersion,
     generatedAt: normalizedGeneratedAt,
     baseline: {
       count: 575,
@@ -637,7 +644,7 @@ export function createArtifactDocuments({
   documents.set("taxonomy.json", taxonomy);
   documents.set("index/records.json", {
     artifactType: "record-index",
-    schemaVersion: "1.0.0",
+    schemaVersion: documentVersion,
     generatedAt: normalizedGeneratedAt,
     records: records
       .map(toCompactIndexRecord)
@@ -647,7 +654,7 @@ export function createArtifactDocuments({
   for (const record of records) {
     documents.set(`details/${toUrlSafeId(record.internalId)}.json`, {
       artifactType: "record-detail",
-      schemaVersion: "1.0.0",
+      schemaVersion: documentVersion,
       generatedAt: normalizedGeneratedAt,
       record,
     });
@@ -670,13 +677,13 @@ export function createArtifactDocuments({
 
   const manifest = {
     artifactType: "manifest",
-    schemaVersion: "1.0.0",
-    artifactVersion: "1.4.0",
+    schemaVersion: documentVersion,
+    artifactVersion: successor ? "2.0.0" : "1.4.0",
     buildId: deriveBuildId(assets),
     generatedAt: normalizedGeneratedAt,
     dataAsOf: maxDataAsOf(records, normalizedGeneratedAt),
     synthetic,
-    recordSchemaVersion: RECORD_SCHEMA_VERSION,
+    recordSchemaVersion: recordVersion,
     taxonomyVersion: taxonomy.taxonomyVersion,
     sourceRegistryVersion: sourceRegistry.registryVersion,
     recordCount: records.length,

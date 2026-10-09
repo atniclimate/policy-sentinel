@@ -1,5 +1,5 @@
 import type { Buffer } from "node:buffer";
-import type { AnalyzedCorpusV2 } from "../../pipeline/analyzed-corpus-v2.mjs";
+import type { AnalyzedCorpus } from "../../pipeline/analyzed-corpus-v2.mjs";
 
 export {
   safeFile,
@@ -16,7 +16,7 @@ export function replayReviewedCorpus(
   root: string,
   options?: { readonly name?: "gold" | "discovery" },
 ): Promise<{
-  readonly corpus: AnalyzedCorpusV2;
+  readonly corpus: AnalyzedCorpus;
   readonly custody: unknown;
   readonly seal: unknown;
   readonly input: unknown;

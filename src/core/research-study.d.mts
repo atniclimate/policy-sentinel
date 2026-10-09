@@ -1,5 +1,5 @@
 import type {
-  AnalyzedCorpusV2,
+  AnalyzedCorpus,
   PolicyDate,
   PolicyInstrumentClass,
   PolicyLocator,
@@ -41,6 +41,8 @@ export interface StudyQuestion extends StudyRecord {
   readonly discoveryGeographies: readonly string[];
 }
 export interface StudySearchScope {
+  /** Missing on older saved scopes; null explicitly records no identifier filter. */
+  readonly jurisdictionRef?: string | null;
   readonly temporal: null | {
     readonly asOf: string;
     readonly basis: "source_available" | "corpus_observed" | "source_effective";
@@ -99,7 +101,7 @@ export interface StudyCitation {
   };
   readonly retrievedAt: string;
   readonly observedAt: string;
-  readonly sourceDates: AnalyzedCorpusV2["versions"][number]["dates"];
+  readonly sourceDates: AnalyzedCorpus["versions"][number]["dates"];
   readonly sourceUpdatedAt: PolicyDate;
   readonly locator: PolicyLocator;
   readonly uses: PolicySourceProfile["uses"];
@@ -291,7 +293,7 @@ export interface ResearchStudy extends StudyCatalogs {
   readonly title: string;
   /** Classification of authored study metadata, including its title. */
   readonly sensitivity: StudySensitivity;
-  readonly trustDomain: AnalyzedCorpusV2["trustDomain"];
+  readonly trustDomain: AnalyzedCorpus["trustDomain"];
   readonly corpusId: string;
   readonly corpusDigest: string;
   readonly createdAt: string;
@@ -345,7 +347,7 @@ export function createResearchStudy(
     readonly actor: StudyActor;
     readonly sensitivity?: StudySensitivity;
   },
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
 ): Promise<ResearchStudy>;
 export function captureStudyPassage(
   input: {
@@ -355,7 +357,7 @@ export function captureStudyPassage(
     readonly createdAt: string;
     readonly sensitivity?: StudySensitivity;
   },
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
 ): Promise<StudyPassage>;
 export function reviseResearchStudy(
   study: ResearchStudy,
@@ -364,20 +366,20 @@ export function reviseResearchStudy(
     readonly actorId: string;
     readonly records: readonly StudyChange[];
   },
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
 ): Promise<ResearchStudy>;
 /** Untrusted imports are bounded JSON text. A different corpus requires explicit rebind. */
 export function parseResearchStudy(
   text: string,
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
 ): Promise<ResearchStudy>;
 export function serializeResearchStudy(
   study: ResearchStudy,
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
 ): Promise<string>;
 export function rebindResearchStudy(
   study: ResearchStudy,
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
   change: { readonly updatedAt: string; readonly actorId: string },
 ): Promise<ResearchStudy>;
 /** Restores a historical snapshot; does not replace the current study. */
@@ -387,7 +389,7 @@ export function readResearchStudyRevision(
 ): Promise<ResearchStudy>;
 export function studyReadPassage(
   passage: StudyPassage,
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
   options?: { readonly purpose?: "display" | "export" },
 ): Promise<{
   readonly text: string | null;
@@ -409,7 +411,7 @@ export function studyActiveDeadlines(
 /** Throws unless the immutable study and this corpus object completed core validation. */
 export function assertValidatedResearchStudy(
   study: unknown,
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
 ): asserts study is ResearchStudy;
 /** References used for privacy closure; source version IDs are intentionally separate. */
 export function studyRecordReferences(

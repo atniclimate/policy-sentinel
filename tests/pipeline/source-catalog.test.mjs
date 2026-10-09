@@ -31,6 +31,7 @@ import {
 } from "../../src/pipeline/policy-custody.mjs";
 import { STORAGE_LIMITS } from "../../src/pipeline/storage-report.mjs";
 import { projectSourceCoverage } from "../../src/core/source-coverage.mjs";
+import { regionalInterfaceRegister } from "../../config/regional-interface-register.v1.mjs";
 import { mockPolicyFilesystem } from "../helpers/policy-filesystem-observations.mjs";
 
 const asOf = "2026-10-08T00:00:00Z";
@@ -349,6 +350,217 @@ test("all seven states and intertribal publishers expose explicit gaps without a
     );
   }
   assert.ok(report.sources.every((source) => source.lifecycle !== "active"));
+});
+
+test("finite regional register preserves dated candidate evidence and unavailable qualification", () => {
+  assert.equal(sourceCatalog.regionalInterfaces, regionalInterfaceRegister);
+  assert.deepEqual(
+    regionalInterfaceRegister.entries.map((entry) => entry.state),
+    ["WA", "OR", "ID", "AK", "CA", "MT", "NV"],
+  );
+  const before = JSON.stringify(sourceCatalog);
+  const report = describeConfiguredSourceCoverage({ asOf });
+  const registered = report.sources.filter(
+    (source) => source.regionalInterface,
+  );
+  assert.equal(registered.length, 7);
+  for (const source of registered) {
+    const entry = source.regionalInterface;
+    assert.equal(entry.registerId, "gd47-seven-state-interfaces");
+    assert.equal(entry.version, "1.0.0");
+    assert.equal(entry.assessedOn, "2026-10-07");
+    assert.equal(entry.sourceId, source.id);
+    assert.equal(source.publishingJurisdiction, null);
+    assert.equal(source.lifecycle, "discovery");
+    assert.equal(source.review.expiresAt, null);
+    assert.deepEqual(source.availableCapabilities, ["unavailable"]);
+    assert.deepEqual(entry.blockers, source.blockers);
+    assert.notEqual(entry.blockers, source.blockers);
+    assert.ok(
+      entry.evidence.every((item) => item.record === source.evidenceRecord),
+    );
+    if (["WA", "OR"].includes(entry.state)) {
+      assert.equal(entry.requirement, "required_api");
+      assert.equal(entry.disposition, "api_candidate");
+      assert.equal(source.interfaceKind, "api");
+    } else {
+      assert.equal(entry.requirement, "interface_disposition");
+      assert.equal(entry.disposition, "interface_gap");
+    }
+  }
+  const oregon = registered.find(
+    (source) => source.regionalInterface.state === "OR",
+  );
+  assert.equal(oregon.regionalInterface.evidence[0].observedOn, "2026-07-31");
+  assert.equal(
+    oregon.regionalInterface.evidence[0].observation,
+    "retained_documentation",
+  );
+  assert.ok(
+    oregon.regionalInterface.blockers.some(
+      (blocker) => blocker.gateRef === "G-C",
+    ),
+  );
+  const scoped = describeConfiguredSourceCoverage({
+    asOf,
+    regionCodes: ["CA"],
+  });
+  assert.deepEqual(
+    scoped.sources
+      .filter((source) => source.regionalInterface)
+      .map((source) => source.regionalInterface.state),
+    ["CA"],
+  );
+  oregon.regionalInterface.evidence[0].observedOn = "2099-01-01";
+  oregon.regionalInterface.blockers.length = 0;
+  assert.equal(JSON.stringify(sourceCatalog), before);
+});
+
+test("regional register rejects scope drift, false API dispositions and unbound evidence", () => {
+  const cases = [
+    [
+      (value) => {
+        value.regionalInterfaces.entries.pop();
+      },
+      /INVALID_SOURCE_CATALOG/,
+    ],
+    [
+      (value) => {
+        value.regionalInterfaces.version = "1.1.0";
+      },
+      /INVALID_SOURCE_CATALOG/,
+    ],
+    [
+      (value) => {
+        value.regionalInterfaces.entries[0].state = "TX";
+      },
+      /INVALID_SOURCE_CATALOG/,
+    ],
+    [
+      (value) => {
+        value.regionalInterfaces.entries[0].disposition = "accepted_api";
+      },
+      /INVALID_SOURCE_CATALOG/,
+    ],
+    [
+      (value) => {
+        value.regionalInterfaces.entries[0].publishingJurisdiction =
+          "us-state:WA";
+      },
+      /INVALID_SOURCE_CATALOG/,
+    ],
+    [
+      (value) => {
+        value.regionalInterfaces.entries[1] = clone(
+          value.regionalInterfaces.entries[0],
+        );
+      },
+      /REGIONAL_SOURCE_BINDING/,
+    ],
+    [
+      (value) => {
+        value.regionalInterfaces.entries[0].sourceId =
+          "washington-legislative-text";
+      },
+      /REGIONAL_SOURCE_BINDING/,
+    ],
+    [
+      (value) => {
+        value.sources.find(
+          (source) => source.id === "id-legislation",
+        ).discoveryRegions = ["CA"];
+      },
+      /REGIONAL_SOURCE_BINDING/,
+    ],
+    [
+      (value) => {
+        value.regionalInterfaces.entries[0].requirement =
+          "interface_disposition";
+      },
+      /REGIONAL_INTERFACE_DISPOSITION/,
+    ],
+    [
+      (value) => {
+        value.regionalInterfaces.entries[0].disposition = "documented_non_api";
+      },
+      /REGIONAL_INTERFACE_DISPOSITION/,
+    ],
+    [
+      (value) => {
+        value.regionalInterfaces.entries[2].disposition = "api_candidate";
+      },
+      /REGIONAL_INTERFACE_DISPOSITION/,
+    ],
+    [
+      (value) => {
+        value.regionalInterfaces.entries[2].disposition = "documented_non_api";
+      },
+      /REGIONAL_INTERFACE_EVIDENCE/,
+    ],
+    [
+      (value) => {
+        value.regionalInterfaces.entries[0].evidence[0].url =
+          "https://unrelated.invalid/";
+      },
+      /REGIONAL_INTERFACE_EVIDENCE/,
+    ],
+    [
+      (value) => {
+        value.regionalInterfaces.entries[0].evidence[0].record =
+          "docs/../unrelated.md";
+      },
+      /REGIONAL_INTERFACE_EVIDENCE/,
+    ],
+    [
+      (value) => {
+        value.regionalInterfaces.entries[0].evidence[0].observedOn =
+          "2026-10-08";
+      },
+      /REGIONAL_INTERFACE_EVIDENCE/,
+    ],
+    [
+      (value) => {
+        value.regionalInterfaces.entries[0].evidence.push({
+          ...value.regionalInterfaces.entries[0].evidence[0],
+          url: "https://official.invalid/?token=private",
+        });
+      },
+      /REGIONAL_INTERFACE_EVIDENCE/,
+    ],
+  ];
+  for (const [mutate, error] of cases) {
+    const value = clone(sourceCatalog);
+    mutate(value);
+    assert.throws(() => validateSourceCatalog(value), error);
+  }
+});
+
+test("optional register absence preserves legacy projection bytes and manifest behavior", () => {
+  const legacy = clone(sourceCatalog);
+  delete legacy.regionalInterfaces;
+  assert.equal(validateSourceCatalog(legacy), legacy);
+  const current = describeSourceCoverage(sourceCatalog, { asOf });
+  for (const source of current.sources) delete source.regionalInterface;
+  assert.equal(
+    JSON.stringify(describeSourceCoverage(legacy, { asOf })),
+    JSON.stringify(current),
+  );
+  assert.ok(
+    describeSourceCoverage(fixture, { asOf }).sources.every(
+      (source) => !Object.hasOwn(source, "regionalInterface"),
+    ),
+  );
+  const options = {
+    sourceIds: ["govinfo-direct", "washington-legislative-text"],
+    targets: initialDirectManifest("regional-register-replay").targets,
+    runId: "regional-register-replay",
+    purpose: "replay",
+    asOf,
+  };
+  assert.equal(
+    JSON.stringify(manifestFromSourceCatalog(sourceCatalog, options)),
+    JSON.stringify(manifestFromSourceCatalog(legacy, options)),
+  );
 });
 
 test("geographic discovery is independent of evidence-backed publisher identity and date coverage", () => {

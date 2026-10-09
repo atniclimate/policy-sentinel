@@ -1,5 +1,5 @@
 import type {
-  AnalyzedCorpusV2,
+  AnalyzedCorpus,
   PolicyCoverage,
   PolicyDate,
 } from "../../pipeline/analyzed-corpus-v2.mjs";
@@ -102,13 +102,13 @@ export interface StudyProducts {
 }
 export function buildStudyProducts(
   study: ResearchStudy,
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
   options?: { readonly audience?: "local" | "public" },
 ): Promise<StudyProducts>;
 /** The corpus is already validated. A supplied study must be held by the core's validated workspace cache. */
 export function studySearchContext(
   study: ResearchStudy | null,
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
   results: PolicySearchResults,
   options?: {
     readonly sourceProfileId?: string;

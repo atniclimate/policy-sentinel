@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { extname, resolve } from "node:path";
 
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 
 import {
   ALLOWLISTED_VIOLATIONS,
@@ -51,6 +51,11 @@ function repositoryFiles(): ReadonlyMap<string, string> {
   for (const directory of SCAN_ROOTS) walk(directory);
   return files;
 }
+
+let files: ReadonlyMap<string, string>;
+beforeAll(() => {
+  files = repositoryFiles();
+});
 
 describe("Module boundary dependency rule (enforced, GD-10)", () => {
   it("classifies the declared module members and the four new prefixes correctly", () => {
@@ -105,7 +110,6 @@ describe("Module boundary dependency rule (enforced, GD-10)", () => {
   });
 
   it("freezes legacy exports against the pre-refactor inventory", () => {
-    const files = repositoryFiles();
     expect(
       Object.values(LEGACY_FACADE_BINDINGS).map((bindings) => bindings.length),
     ).toEqual([12, 34, 5, 7, 5, 5, 5, 6, 79, 40, 33, 36]);
@@ -115,7 +119,6 @@ describe("Module boundary dependency rule (enforced, GD-10)", () => {
   });
 
   it("enforces the actual graph without substantive import exceptions", () => {
-    const files = repositoryFiles();
     const result = analyzeModuleBoundaries(files);
     expect(ALLOWLISTED_VIOLATIONS).toEqual([]);
     expect(result.checkedEdges).toBeGreaterThan(0);
@@ -135,7 +138,6 @@ describe("Module boundary dependency rule (enforced, GD-10)", () => {
 
 describe("Public-entry reachability (no facade or composition exemptions)", () => {
   it("never reaches private implementations or their barrel", () => {
-    const files = repositoryFiles();
     expect(PUBLIC_ENTRY_PATHS.length).toBeGreaterThan(0);
     for (const entry of PUBLIC_ENTRY_PATHS) {
       expect(files.has(entry), entry).toBe(true);

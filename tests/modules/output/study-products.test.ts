@@ -21,7 +21,10 @@ import type {
   ResearchStudy,
   StudyPassage,
 } from "../../../src/core/research-study.mjs";
-import type { AnalyzedCorpusV2 } from "../../../src/pipeline/analyzed-corpus-v2.mjs";
+import type {
+  AnalyzedCorpusV2,
+  AnalyzedCorpusV21,
+} from "../../../src/pipeline/analyzed-corpus-v2.mjs";
 import {
   canonicalV2Digest,
   createAnalyzedCorpusV2,
@@ -122,6 +125,28 @@ function relatedCorpus(
 }
 
 describe("integrated study knowledge products", () => {
+  it("exports 2.1 study evidence with its exact jurisdiction-bound source digest", async () => {
+    const { corpus, study } = (await createSyntheticResearchStudyFixture({
+      schemaVersion: "2.1.0",
+    })) as { corpus: AnalyzedCorpusV21; study: ResearchStudy };
+    const products = await buildStudyProducts(study, corpus);
+    const work = corpus.works.find((row) => row.id === "work-regional")!;
+    expect(JSON.stringify(products)).toContain(work.contentDigest);
+    expect(JSON.stringify(products)).toContain(
+      work.jurisdictionRefs[0].evidence.exactSubject!.text,
+    );
+    const direct = searchPolicyCorpus(createPolicySearchIndex(corpus), {
+      query: "Cascades",
+      jurisdictionRef: "us-state:WA",
+    });
+    expect(direct.hits.map((row) => row.versionId)).toEqual([
+      "version-regional",
+    ]);
+    const context = studySearchContext(study, corpus, direct);
+    expect(
+      context.contextRecords.some((row) => row.versionId === "version-parent"),
+    ).toBe(true);
+  });
   it("uses existing temporal relationship eligibility for future, unknown, and observed context", async () => {
     const { corpus } = await fixture({ extraText: relationshipText });
     const related = relatedCorpus(corpus, [

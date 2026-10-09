@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { URL } from "node:url";
+import { createSyntheticStudyCorpus } from "../../fixtures/study/research-study.mjs";
 import {
   compareDocumentVersions,
   compareInstitutionalProcedures,
@@ -26,6 +27,28 @@ const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const day = (value) => ({ value, precision: "day" });
 const selected = (result, workId) =>
   result.selections.find((entry) => entry.workId === workId);
+
+test("2.1 temporal analysis accepts explicit jurisdiction evidence without changing date rules", () => {
+  const corpus = createSyntheticStudyCorpus({ schemaVersion: "2.1.0" });
+  const before = selectTemporalVersions(corpus, {
+    asOf: "2026-10-06",
+    basis: "corpus_observed",
+  });
+  const after = selectTemporalVersions(corpus, {
+    asOf: "2026-10-07",
+    basis: "corpus_observed",
+  });
+  assert.equal(before.selections.flatMap((row) => row.versionIds).length, 0);
+  assert.equal(
+    after.selections.flatMap((row) => row.versionIds).length,
+    corpus.versions.length,
+  );
+  assert.equal(after.corpusDigest, corpus.contentDigest);
+  assert.equal(
+    corpus.works.find((work) => work.id === "work-regional").governmentContext,
+    "Synthetic general jurisdiction",
+  );
+});
 
 test("historical source availability rejects future versions and preserves missing predecessors", () => {
   const corpus = syntheticCorpusV2();
@@ -83,6 +106,97 @@ test("source availability and corpus observation are distinct query bases", () =
   assert.equal(observed.versionIds.length, 2);
 });
 
+test("indexed temporal evidence preserves work ties, undated events and fresh call boundaries", () => {
+  const input = syntheticCorpusV2Input();
+  const event = input.events.find((row) => row.id === "event-a-old");
+  input.events.push(
+    { ...event, id: "event-a-old-additional" },
+    {
+      ...event,
+      id: "event-a-old-undated",
+      date: { value: null, precision: "unknown" },
+      fieldProvenance: event.fieldProvenance.filter(
+        (row) => row.field !== "/date/value",
+      ),
+    },
+  );
+  const undated = input.versions.find((row) => row.id === "version-b");
+  undated.dates = {
+    publication: { value: null, precision: "unknown" },
+    sourceVersion: { value: null, precision: "unknown" },
+  };
+  undated.fieldProvenance = undated.fieldProvenance.filter(
+    (row) => !row.field.startsWith("/dates/"),
+  );
+  const corpus = createAnalyzedCorpusV2(input);
+  const request = { asOf: "2026-09-02", basis: "corpus_observed" };
+  const observed = selectTemporalVersions(corpus, request);
+  assert.equal(selected(observed, "work-a").state, "ambiguous");
+  assert.deepEqual(selected(observed, "work-a").versionIds, [
+    "version-a-new",
+    "version-a-old",
+  ]);
+  assert.deepEqual(selected(observed, "work-a").eventIds, [
+    "event-a-new",
+    "event-a-old",
+    "event-a-old-additional",
+  ]);
+  assert.deepEqual(selected(observed, "work-b").eventIds, ["event-b"]);
+  for (const basis of ["source_available", "source_effective"]) {
+    const before = selectTemporalVersions(corpus, {
+      asOf: "2021-06-01",
+      basis,
+    });
+    assert.deepEqual(selected(before, "work-a").versionIds, ["version-a-old"]);
+    assert.deepEqual(selected(before, "work-a").eventIds, [
+      "event-a-old",
+      "event-a-old-additional",
+    ]);
+    assert.equal(selected(before, "work-b").state, "unknown");
+    assert.ok(
+      before.excluded.some(
+        (row) =>
+          row.versionId === "version-b" &&
+          row.reason === "unknown_source_availability",
+      ),
+    );
+    const after = selectTemporalVersions(corpus, { ...request, basis });
+    assert.deepEqual(selected(after, "work-a").versionIds, ["version-a-new"]);
+    assert.deepEqual(selected(after, "work-a").eventIds, ["event-a-new"]);
+    assert.equal(selected(after, "work-b").state, "unknown");
+  }
+  const reordered = { ...corpus };
+  for (const key of [
+    "works",
+    "versions",
+    "events",
+    "segments",
+    "renditions",
+    "captures",
+  ])
+    reordered[key] = [...corpus[key]].reverse();
+  assert.deepEqual(selectTemporalVersions(reordered, request), observed);
+
+  // No memo from an earlier call admits malformed later evidence or options.
+  const external = Object.freeze(JSON.parse(JSON.stringify(corpus)));
+  assert.deepEqual(selectTemporalVersions(external, request), observed);
+  external.events.find((row) => row.id === "event-a-old").segmentIds = [
+    "missing-evidence",
+  ];
+  assert.throws(
+    () => selectTemporalVersions(external, request),
+    /UNKNOWN_SEGMENT/u,
+  );
+  assert.throws(
+    () => selectTemporalVersions(corpus, { ...request, asOf: "2026-02-30" }),
+    /INVALID_TIMESTAMP/u,
+  );
+  assert.throws(
+    () => selectTemporalVersions(corpus, { ...request, basis: "in_force" }),
+    /EXPLICIT_TEMPORAL_BASIS/u,
+  );
+});
+
 test("source-stated effectiveness neither conflates enactment nor uses a future source event", () => {
   const input = syntheticCorpusV2Input();
   input.events.find((event) => event.versionId === "version-a-old").type =
@@ -136,6 +250,86 @@ test("partial dates remain indeterminate across their interval, with calendar va
   assert.equal(
     result.excluded.find((entry) => entry.versionId === version.id).reason,
     "partial_date_crosses_cutoff",
+  );
+});
+
+test("numeric date bounds retain calendar precision and reject invalid values after memoized dates", () => {
+  for (const [value, earliest, latest] of [
+    [
+      { value: "2020", precision: "year" },
+      "2020-01-01T00:00:00.000Z",
+      "2020-12-31T23:59:59.999Z",
+    ],
+    [
+      { value: "2020-02", precision: "month" },
+      "2020-02-01T00:00:00.000Z",
+      "2020-02-29T23:59:59.999Z",
+    ],
+    [day("2020-02-29"), "2020-02-29T00:00:00.000Z", "2020-02-29T23:59:59.999Z"],
+    [day("0000-01-01"), "0000-01-01T00:00:00.000Z", "0000-01-01T23:59:59.999Z"],
+    [
+      { value: "9999", precision: "year" },
+      "9999-01-01T00:00:00.000Z",
+      "9999-12-31T23:59:59.999Z",
+    ],
+  ])
+    assert.deepEqual(policyDateBounds(value), {
+      earliest,
+      latest,
+      precision: value.precision,
+    });
+  for (const value of [
+    { value: "2020", precision: "day" },
+    { value: "2020-01-01", precision: "unknown" },
+    { value: null, precision: "day" },
+    { value: "2020-13", precision: "month" },
+    day("1900-02-29"),
+    day("2020-02-30"),
+  ])
+    assert.throws(() => policyDateBounds(value), /INVALID_(?:DATE|TIMESTAMP)/u);
+
+  const corpus = syntheticCorpusV2();
+  for (const precision of ["month", "unknown"]) {
+    const changed = JSON.parse(JSON.stringify(corpus));
+    // An earlier event caches this scalar as a day, never as another precision.
+    changed.events.find((row) => row.id === "event-a-old").sourceStatedAt = {
+      value: "2020-01-01",
+      precision,
+    };
+    assert.throws(
+      () =>
+        selectTemporalVersions(changed, {
+          asOf: "2026-09-02",
+          basis: "source_available",
+        }),
+      /INVALID_DATE/u,
+    );
+  }
+  const changed = JSON.parse(JSON.stringify(corpus));
+  const old = changed.versions.find((row) => row.id === "version-a-old");
+  old.dates = {
+    publication: { value: "2020", precision: "year" },
+    sourceVersion: day("2020-01-01"),
+  };
+  assert.equal(
+    selected(
+      selectTemporalVersions(changed, {
+        asOf: "2020-06-01",
+        basis: "source_available",
+      }),
+      "work-a",
+    ).state,
+    "unknown",
+  );
+  assert.deepEqual(
+    selected(
+      selectTemporalVersions(changed, {
+        asOf: "2020-12-31",
+        basis: "source_available",
+      }),
+      "work-a",
+    ).versionIds,
+    ["version-a-old"],
   );
 });
 

@@ -31,11 +31,23 @@ populations, original source health and parent digest. An empty or oversized
 selection fails before replacing the last reviewed output. This builds from
 local custody and does not retrieve sources.
 
-`npm run measure:search-projection -- --out C:/dev/_scratch/policy-sentinel/study-engine-20261008/search-projection-01`
-runs the GD-35 synthetic projection workload in a fresh, bounded local namespace.
-It measures cold/warm search, memory and rebuild storage and requires a separate
-process to replay the written projection. The command refuses existing output;
-its results do not establish whole-store or 50 GB performance.
+The completed GD-35 synthetic projection measurement used
+`npm run measure:search-projection -- --out C:/dev/_scratch/policy-sentinel/study-engine-20261008/search-projection-04`.
+All 100-, 500- and 2,000-work cases pass, including separate-process replay,
+exact citations and bounded rebuild storage. This retained namespace is consumed;
+the command refuses existing output. Results measure short synthetic passages in
+Node, not browser, real-source, whole-store or 50 GB performance.
+
+The public artifact successor requires an explicit validated source registry.
+Validate a generated package against that registry with:
+
+```powershell
+npm run validate:artifact -- --dir <artifact-directory> --sources <registry.json>
+```
+
+The ordinary build retains the existing v1 registry and artifact versions. A
+successor package cannot supply its own trusted source registry, infer Nation
+relationships, or bypass source qualification through migration.
 
 Policy Sentinel is a configurable, sovereignty-centered policy monitoring and
 source-reference engine. It watches bounded authoritative sources, explains why
@@ -59,9 +71,12 @@ The four implemented Federal Register, curated Supreme Court, Washington
 Governor executive-order, and Washington Centennial Accord adapters remain
 disabled and contribute no records to the ordinary build. GD-09 committed a
 synthetic jurisdiction identifier and association contract; it does not add a
-production identity registry or live source coverage. GD-10 boundary enforcement
-and the D-088 catalog, study and bounded-search implementation are in integrated
-validation. Follow [the continuation guide](docs/continuation-prompt.md) and the
+production identity registry or live source coverage. GD-10 boundary enforcement,
+the source catalog and persistent studies pass integrated validation. Additive
+corpus 2.1 and public-contract 2.0 successors preserve legacy defaults and require
+explicit evidence for jurisdiction references. The complete test suite, both
+builds and the frozen bounded-search measurement pass. Follow
+[the continuation guide](docs/continuation-prompt.md) and the
 [implementation record](docs/development/2026-10-08-study-engine-implementation.md)
 for the precise resume state.
 
@@ -74,10 +89,14 @@ and [finite blocked source/API packets](docs/development/gd31-operation-packets.
 tests and is included in `npm test`. Preparation cannot dispatch, share or publish.
 
 `npm run test:spine`, `npm run test:policy` and `npm run test:assurance` serialize
-their respective three, fourteen and three files to avoid competing Windows native
+their respective three, sixteen and three files to avoid competing Windows native
 custody probes.
 Assertions, process isolation and operation timeouts stay unchanged; `npm test`
 includes all three suites.
+
+`npm run test:artifact` runs the seven artifact, registry and roadmap Node suites
+directly and serially. It is included in `npm test`; the former synchronous
+Vitest wrapper is removed, so individual Node test results are visible.
 
 Current general-development work is recorded in [ROADMAP.yaml](ROADMAP.yaml).
 The separately authorized public demonstration and its maintenance evidence are

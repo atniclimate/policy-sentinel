@@ -1,3 +1,6 @@
+import { publicJurisdictionAssociation } from "../core/public-contract-v2.mjs";
+import type { PublicJurisdictionV2 } from "../core/public-contract-v2.mjs";
+import { US_STATE_CODES } from "../core/jurisdiction-reference.mjs";
 import type {
   AccordContext,
   ArtifactBundle,
@@ -128,7 +131,7 @@ const fetchJson = async (path: string): Promise<unknown> => {
   return response.json() as Promise<unknown>;
 };
 
-const normalizeNation = (value: unknown): Nation | null => {
+const normalizeNation = (value: unknown, successor = false): Nation | null => {
   const item = objectValue(value);
   const coverage = objectValue(item.coverage);
   const stateCoverage = objectValue(item.stateCoverage);
@@ -141,19 +144,33 @@ const normalizeNation = (value: unknown): Nation | null => {
   const aliases = stringArray(
     item.authorizedAliases ?? item.authorized_aliases ?? item.aliases,
   );
-  const coveredStateCodes = [
-    ...stringArray(
-      item.coveredStateCodes ??
-        item.stateCodes ??
-        item.states ??
-        coverage.coveredStateCodes ??
-        coverage.stateCodes ??
-        coverage.states ??
-        stateCoverage.states,
-    ),
-  ]
-    .map((state) => state.toUpperCase())
-    .filter((state) => ["WA", "OR", "ID"].includes(state));
+  if (
+    successor &&
+    (!Array.isArray(stateCoverage.jurisdictionRefs) ||
+      Object.hasOwn(stateCoverage, "states") ||
+      stateCoverage.jurisdictionRefs.some(
+        (ref) =>
+          typeof ref !== "string" ||
+          !/^us-state:[A-Z]{2}$/.test(ref) ||
+          !US_STATE_CODES.includes(ref.slice(9)),
+      ))
+  )
+    return null;
+  const coveredStateCodes = successor
+    ? (stateCoverage.jurisdictionRefs as string[]).map((ref) => ref.slice(9))
+    : [
+        ...stringArray(
+          item.coveredStateCodes ??
+            item.stateCodes ??
+            item.states ??
+            coverage.coveredStateCodes ??
+            coverage.stateCodes ??
+            coverage.states ??
+            stateCoverage.states,
+        ),
+      ]
+        .map((state) => state.toUpperCase())
+        .filter((state) => ["WA", "OR", "ID"].includes(state));
 
   return {
     id,
@@ -699,7 +716,10 @@ const normalizeAssociations = (value: unknown): NationAssociation[] => {
   return associations;
 };
 
-export const normalizeRecord = (value: unknown): PublicRecord | null => {
+export const normalizeRecord = (
+  value: unknown,
+  expectedVersion?: "1.4.0" | "2.0.0",
+): PublicRecord | null => {
   const item = objectValue(value);
   const source = objectValue(item.source);
   const sourceCoverage = objectValue(source.coverage);
@@ -737,7 +757,30 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
     item.officialTitle ?? item.title ?? item.official_title,
   );
   if (!internalId || !officialTitle) return null;
-  if (isDetailRecord && item.schemaVersion !== "1.4.0") return null;
+  const successor =
+    expectedVersion === "2.0.0" ||
+    item.schemaVersion === "2.0.0" ||
+    Object.hasOwn(jurisdiction, "jurisdictionRef");
+  if (expectedVersion === "1.4.0" && successor) return null;
+  if (isDetailRecord && item.schemaVersion !== (successor ? "2.0.0" : "1.4.0"))
+    return null;
+  let reviewedJurisdiction: PublicJurisdictionV2 | null = null;
+  if (successor) {
+    try {
+      const association = publicJurisdictionAssociation(
+        jurisdiction,
+        internalId,
+      );
+      if (
+        association.reviewState !== "reviewed" ||
+        typeof jurisdiction.generalJurisdictionOnly !== "boolean"
+      )
+        return null;
+      reviewedJurisdiction = jurisdiction as unknown as PublicJurisdictionV2;
+    } catch {
+      return null;
+    }
+  }
   if (
     isLandmark !== relevance.some(({ basis }) => basis === "landmark") ||
     (isDetailRecord &&
@@ -966,7 +1009,9 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
       coverageThrough: nullableString(sourceCoverage.through),
       coverageNotes: nullableString(sourceCoverage.notes) ?? undefined,
     },
+    ...(successor ? { contractVersion: "2.0.0" as const } : {}),
     jurisdiction: {
+      ...(reviewedJurisdiction ?? {}),
       level: stringValue(
         jurisdiction.level ?? item.jurisdictionLevel,
         "unknown",
@@ -975,10 +1020,13 @@ export const normalizeRecord = (value: unknown): PublicRecord | null => {
         jurisdiction.name ?? item.jurisdictionName,
         "Jurisdiction not named",
       ),
-      stateCode:
-        nullableString(
-          jurisdiction.stateCode ?? item.stateCode,
-        )?.toUpperCase() ?? null,
+      stateCode: reviewedJurisdiction
+        ? reviewedJurisdiction.jurisdictionRef.startsWith("us-state:")
+          ? reviewedJurisdiction.jurisdictionRef.slice(9)
+          : null
+        : (nullableString(
+            jurisdiction.stateCode ?? item.stateCode,
+          )?.toUpperCase() ?? null),
       generalJurisdictionOnly: booleanValue(
         jurisdiction.generalJurisdictionOnly,
         false,
@@ -1156,17 +1204,17 @@ const normalizeManifest = (payload: unknown): ArtifactManifest => {
   const item = objectValue(payload);
   const statistics = objectValue(item.statistics);
   const artifactVersion = stringValue(item.artifactVersion);
-  if (artifactVersion !== "1.4.0") {
+  if (artifactVersion !== "1.4.0" && artifactVersion !== "2.0.0") {
     throw new Error(
-      `This application requires artifact package 1.4.0; received ${
+      `This application requires artifact package 1.4.0 or 2.0.0; received ${
         artifactVersion || "an unversioned package"
       }.`,
     );
   }
   const recordSchemaVersion = stringValue(item.recordSchemaVersion);
-  if (recordSchemaVersion !== "1.4.0") {
+  if (recordSchemaVersion !== artifactVersion) {
     throw new Error(
-      `This application requires record schema 1.4.0; received ${
+      `This application requires record schema ${artifactVersion}; received ${
         recordSchemaVersion || "an unversioned record schema"
       }.`,
     );
@@ -1351,20 +1399,40 @@ export const loadArtifacts = async (): Promise<ArtifactBundle> => {
   }
 
   const manifest = normalizeManifest(values.get("data/manifest.json"));
-  const nations = arrayPayload(values.get("data/nations.json"), [
+  const successor = manifest.artifactVersion === "2.0.0";
+  if (successor) {
+    for (const key of [
+      "data/manifest.json",
+      "data/coverage.json",
+      "data/source-health.json",
+      "data/nations.json",
+      "data/index/records.json",
+    ]) {
+      if (objectValue(values.get(key)).schemaVersion !== "2.0.0")
+        throw new Error(
+          "Successor artifact documents must all declare schema 2.0.0.",
+        );
+    }
+  }
+  const rawNations = arrayPayload(values.get("data/nations.json"), [
     "nations",
     "items",
-  ])
-    .map(normalizeNation)
+  ]);
+  const nations = rawNations
+    .map((nation) => normalizeNation(nation, successor))
     .filter((nation): nation is Nation => nation !== null)
     .sort((a, b) => a.officialName.localeCompare(b.officialName));
+  if (successor && nations.length !== rawNations.length)
+    throw new Error(
+      "Successor Nation coverage contains an invalid jurisdiction reference.",
+    );
   const taxonomy = normalizeTaxonomy(values.get("data/taxonomy.json"));
   const recordEntries = arrayPayload(values.get("data/index/records.json"), [
     "records",
     "items",
   ]);
   const records = recordEntries.map((entry, index) => {
-    const record = normalizeRecord(entry);
+    const record = normalizeRecord(entry, manifest.artifactVersion);
     if (!record) {
       throw new Error(
         `The public index artifact contains an invalid record at position ${index}.`,
@@ -1471,7 +1539,14 @@ export const loadRecordDetail = async (
       "The detail asset build timestamp does not match the loaded artifact.",
     );
   }
-  const normalized = normalizeRecord(root.record ?? payload);
+  if (record.contractVersion === "2.0.0" && root.schemaVersion !== "2.0.0")
+    throw new Error(
+      "The successor detail asset has a mismatched schema version.",
+    );
+  const normalized = normalizeRecord(
+    root.record ?? payload,
+    record.contractVersion ?? "1.4.0",
+  );
   if (!normalized) {
     throw new Error("The detail asset did not contain a usable record.");
   }

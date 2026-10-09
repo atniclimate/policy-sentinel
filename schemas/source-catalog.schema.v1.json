@@ -28,6 +28,9 @@
     "managedStorageCeilingBytes": {
       "const": 50000000000
     },
+    "regionalInterfaces": {
+      "$ref": "#/$defs/regionalInterfaces"
+    },
     "sources": {
       "type": "array",
       "minItems": 1,
@@ -38,6 +41,74 @@
     }
   },
   "$defs": {
+    "regionalInterfaces": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "registerId", "assessedOn", "entries"],
+      "properties": {
+        "version": { "const": "1.0.0" },
+        "registerId": { "const": "gd47-seven-state-interfaces" },
+        "assessedOn": { "type": "string", "format": "date" },
+        "entries": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "items": { "$ref": "#/$defs/regionalInterface" }
+        }
+      }
+    },
+    "regionalInterface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "sourceId",
+        "requirement",
+        "disposition",
+        "evidence",
+        "note"
+      ],
+      "properties": {
+        "state": { "enum": ["WA", "OR", "ID", "AK", "CA", "MT", "NV"] },
+        "sourceId": { "$ref": "#/$defs/id" },
+        "requirement": { "enum": ["required_api", "interface_disposition"] },
+        "disposition": {
+          "enum": ["api_candidate", "interface_gap", "documented_non_api"]
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["url", "record", "observedOn", "observation"],
+            "properties": {
+              "url": { "$ref": "#/$defs/url" },
+              "record": {
+                "type": "string",
+                "maxLength": 240,
+                "pattern": "^(?:docs|fixtures)/[A-Za-z0-9_./-]+$"
+              },
+              "observedOn": { "type": "string", "format": "date" },
+              "observation": {
+                "enum": [
+                  "direct_documentation",
+                  "official_index",
+                  "retained_documentation"
+                ]
+              }
+            }
+          }
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000,
+          "pattern": "\\S"
+        }
+      }
+    },
     "id": {
       "type": "string",
       "maxLength": 96,

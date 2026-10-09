@@ -1,5 +1,5 @@
 import { Buffer } from "node:buffer";
-import { parseAnalyzedCorpusV2 } from "../../pipeline/analyzed-corpus-v2.mjs";
+import { parseSupportedAnalyzedCorpus } from "../../pipeline/analyzed-corpus-v2.mjs";
 
 const fail = (code) => {
   throw new TypeError(`Policy research rejected: ${code}`);
@@ -29,7 +29,7 @@ function page(title, content) {
 
 /** Same-corpus local research artifacts, all text escaped and no inline executable/style content. */
 export function buildPolicyResearchOutput(input) {
-  const corpus = parseAnalyzedCorpusV2(input);
+  const corpus = parseSupportedAnalyzedCorpus(input);
   ensure(
     corpus.sourceProfiles.every(
       (source) =>
@@ -46,8 +46,20 @@ export function buildPolicyResearchOutput(input) {
     corpus.renditions.map((value) => [value.id, value]),
   );
   const captures = new Map(corpus.captures.map((value) => [value.id, value]));
+  const jurisdictionAssociations =
+    corpus.schemaVersion === "2.1.0"
+      ? corpus.works.flatMap((work) =>
+          work.jurisdictionRefs.map((association) => ({
+            workId: work.id,
+            sourceIdentifier: work.sourceIdentifier,
+            governmentContext: work.governmentContext,
+            ...association,
+          })),
+        )
+      : [];
   const cited = [
     ...new Set([
+      ...jurisdictionAssociations.flatMap((value) => value.segmentIds),
       ...corpus.relationships.flatMap((value) => value.segmentIds),
       ...corpus.analyses.flatMap((value) =>
         value.codes.flatMap((code) => code.segmentIds),
@@ -111,6 +123,10 @@ export function buildPolicyResearchOutput(input) {
     const version = versions.get(id);
     return `${works.get(version.workId).sourceIdentifier} · ${version.sourceVersionIdentifier}`;
   };
+  const jurisdictions =
+    corpus.schemaVersion === "2.1.0"
+      ? `<section id="jurisdiction-associations"><h2>Declared jurisdiction associations</h2><p>Source-backed associations are separate from geographic discovery relevance. Review does not determine legal applicability, homeland boundaries, or member Nation positions.</p>${jurisdictionAssociations.length ? jurisdictionAssociations.map((association) => `<article><h3>${escape(association.sourceIdentifier)} · ${escape(association.jurisdictionRef)}</h3><p>${escape(association.basis)} · ${escape(association.reviewState)}</p><p>Original government context: ${escape(association.governmentContext)}</p><blockquote>${escape(association.evidence.exactSubject.text)}</blockquote>${association.reviewer ? `<p>Reviewer: ${escape(association.reviewer.name)} (${escape(association.reviewer.kind)}) · ${escape(association.reviewer.reviewedAt)}</p>` : "<p>Reviewer not recorded.</p>"}${links(association.segmentIds)}</article>`).join("") : "<p>No jurisdiction associations are recorded in this corpus.</p>"}</section>`
+      : "";
   const method = (record) =>
     `<p><strong>Method:</strong> ${escape(record.method.id)} ${escape(record.method.version)}. <strong>Reviewer:</strong> ${escape(record.reviewer.name)} (${escape(record.reviewer.kind)}), ${escape(record.reviewer.reviewedAt)}.</p>`;
   const facts = `<section id="source-facts"><h2>Retained source facts and reference graph</h2><p>Source labels and links below are attested to existing passages. An amendment or repeal edge concerns the cited provision or rule identified by the source; it is not an assertion that an entire instrument was replaced.</p>${corpus.relationships.map((relationship) => `<article><h3>${escape(versionName(relationship.fromVersionId))}</h3><p><strong>${escape(relationship.type)}</strong> → ${escape(relationship.target.sourceIdentifier)} (${escape(relationship.target.state)})</p><p>Exact source label: <q>${escape(relationship.sourceLabel)}</q></p><p>Source statement date: ${escape(date(relationship.sourceStatedAt))}</p>${links(relationship.segmentIds)}</article>`).join("")}</section>`;
@@ -132,6 +148,7 @@ export function buildPolicyResearchOutput(input) {
     relationships: corpus.relationships,
     analyses: corpus.analyses,
     findings: corpus.findings,
+    ...(corpus.schemaVersion === "2.1.0" ? { jurisdictionAssociations } : {}),
     evidence: cited.map((id) => {
       const { quote, ...reference } = evidenceById.get(id);
       void quote;
@@ -144,7 +161,7 @@ export function buildPolicyResearchOutput(input) {
       "dossier.html",
       page(
         "Policy Sentinel research dossier",
-        preamble + facts + analyses + findings,
+        preamble + facts + jurisdictions + analyses + findings,
       ),
     ],
     [

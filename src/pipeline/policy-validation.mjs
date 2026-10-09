@@ -1,6 +1,7 @@
 import { URL } from "node:url";
 
 import { isProtectedKey } from "../core/boundary-guard.mjs";
+import { publicJurisdictionAssociation } from "../core/public-contract-v2.mjs";
 
 import {
   assertStableRecordId,
@@ -109,11 +110,26 @@ function collectPrimitivePointers(value, pointer, result) {
 
 export function sourceDerivedLeafPointers(record) {
   const pointers = [];
-  for (const root of SOURCE_DERIVED_ROOTS) {
+  const roots =
+    record.schemaVersion === "2.0.0"
+      ? [
+          ...SOURCE_DERIVED_ROOTS.filter(
+            (root) => !root.startsWith("/jurisdiction/"),
+          ),
+          "/jurisdiction",
+        ]
+      : SOURCE_DERIVED_ROOTS;
+  for (const root of roots) {
     const value = getAtPointer(record, root);
     collectPrimitivePointers(value, root, pointers);
   }
-  return [...new Set(pointers)].sort();
+  return [...new Set(pointers)]
+    .filter(
+      (pointer) =>
+        record.schemaVersion !== "2.0.0" ||
+        !pointer.startsWith("/jurisdiction/review"),
+    )
+    .sort();
 }
 
 function sourceUpdatedAt(record) {
@@ -619,9 +635,12 @@ function validateAccordContext(record, sourceConfig, issues) {
 
 function validateNationPolicy(record, knownNations, knownNationIds, issues) {
   const isCounty = record.jurisdiction.level === "county";
-  const isStateOrFederal = ["state", "federal"].includes(
-    record.jurisdiction.level,
-  );
+  const successor = record.schemaVersion === "2.0.0";
+  const isStateOrFederal = (
+    successor
+      ? ["state", "federal", "county", "municipal", "other"]
+      : ["state", "federal"]
+  ).includes(record.jurisdiction.level);
   const explicitRelevance = record.relevance.some(
     ({ basis }) => basis === "explicit_nation_reference",
   );
@@ -629,13 +648,13 @@ function validateNationPolicy(record, knownNations, knownNationIds, issues) {
     ({ basis }) => basis === "general_jurisdiction",
   );
 
-  if (isCounty && record.nationAssociations.length === 0) {
+  if (!successor && isCounty && record.nationAssociations.length === 0) {
     issues.push("county record has no explicit Nation association");
   }
-  if (isCounty && !explicitRelevance) {
+  if (!successor && isCounty && !explicitRelevance) {
     issues.push("county record lacks explicit_nation_reference relevance");
   }
-  if (isCounty && record.jurisdiction.generalJurisdictionOnly) {
+  if (!successor && isCounty && record.jurisdiction.generalJurisdictionOnly) {
     issues.push("county record cannot be labeled general jurisdiction");
   }
 
@@ -824,6 +843,17 @@ function validateProvenance(record, sourceConfig, issues) {
     ) {
       issues.push(`${label} does not match the record source identity`);
     }
+    if (
+      record.schemaVersion === "2.0.0" &&
+      entry.field.startsWith("/jurisdiction/") &&
+      !entry.field.startsWith("/jurisdiction/review") &&
+      (entry.sourceUrl !== record.jurisdiction.evidence.url ||
+        entry.retrievedAt !== record.dates.retrieved ||
+        entry.sourceUpdatedAt !== sourceUpdatedAt(record))
+    )
+      issues.push(
+        `${label} jurisdiction provenance does not match its source capture`,
+      );
     if (entry.validationState !== "validated") {
       issues.push(`${label} is not validated`);
     }
@@ -1028,6 +1058,77 @@ export function validateRecordPolicy(
   { sourceConfig, taxonomy, knownNations = null, knownNationIds = null },
 ) {
   const issues = [];
+  if (record.schemaVersion === "2.0.0") {
+    try {
+      const association = publicJurisdictionAssociation(
+        record.jurisdiction,
+        record.internalId,
+      );
+      const exact = association.evidence.exactSubject;
+      const sourceTexts = [
+        record.officialTitle,
+        record.sourceDocumentIdentifier,
+        record.status.sourceLabel,
+        ...record.issuingBodies.map((row) => row.officialName),
+        record.texts.officialSummary?.text,
+        record.texts.sourceExcerpt?.text,
+      ];
+      if (
+        association.reviewState !== "reviewed" ||
+        !exact ||
+        !sourceTexts.some(
+          (text) => typeof text === "string" && text.includes(exact.text),
+        )
+      )
+        issues.push("jurisdiction requires reviewed exact source evidence");
+      if (
+        ![record.urls.officialSource, record.urls.officialFullText].includes(
+          association.evidence.url,
+        )
+      )
+        issues.push("jurisdiction evidence URL is not an official record URL");
+      if (
+        association.jurisdictionRef.startsWith("nation:") &&
+        !record.nationAssociations.some(
+          (row) =>
+            row.nationId === association.jurisdictionRef &&
+            row.evidenceText.includes(exact?.text ?? ""),
+        )
+      )
+        issues.push(
+          "Nation jurisdiction lacks independently documented Nation attribution",
+        );
+      const configured = publicJurisdictionAssociation(
+        sourceConfig.jurisdiction,
+        sourceConfig.id,
+      );
+      if (
+        association.basis === "issuing_authority" &&
+        (configured.basis !== "issuing_authority" ||
+          configured.reviewState !== "reviewed" ||
+          configured.jurisdictionRef !== association.jurisdictionRef)
+      )
+        issues.push(
+          "issuing jurisdiction does not match reviewed source authority",
+        );
+      if (
+        association.jurisdictionRef.startsWith("nation:") &&
+        !sourceConfig.synthetic
+      )
+        issues.push("real Nation registry binding is not enabled");
+      const reviewedAt = Date.parse(record.jurisdiction.review?.reviewedAt);
+      if (
+        !Number.isFinite(reviewedAt) ||
+        reviewedAt < Date.parse(record.dates.retrieved) ||
+        reviewedAt > Date.parse(record.dataQuality.validatedAt)
+      )
+        issues.push(
+          "jurisdiction review is outside retrieval/validation history",
+        );
+    } catch (error) {
+      issues.push(error.message);
+    }
+  }
   try {
     assertStableRecordId(record.internalId);
     toUrlSafeId(record.internalId);
@@ -1070,6 +1171,10 @@ export function validateRecordSetPolicy(
   { sourceRegistry, taxonomy, nations = [] },
 ) {
   const issues = [];
+  const expectedVersion =
+    sourceRegistry.schemaVersion === "2.0.0" ? "2.0.0" : "1.4.0";
+  if (records.some((record) => record.schemaVersion !== expectedVersion))
+    issues.push("record schema version does not match source registry");
   const sourceConfigs = new Map(
     sourceRegistry.sources.map((source) => [source.id, source]),
   );

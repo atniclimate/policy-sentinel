@@ -1,4 +1,5 @@
 import { directSourceProfiles } from "./policy-sources.v2.mjs";
+import { regionalInterfaceRegister } from "./regional-interface-register.v1.mjs";
 
 // GD-17 reviewed documentation and discovery leads, not renewed access profiles.
 // Official locators below are evidence, never a retrieval allowlist. No source
@@ -711,6 +712,7 @@ export const sourceCatalog = {
   catalogId: "regional-federal-intertribal-discovery",
   trustDomain: "real_source_local",
   managedStorageCeilingBytes: 50_000_000_000,
+  regionalInterfaces: regionalInterfaceRegister,
   sources: [
     ...directSourceProfiles.map(retainedProfile),
     ...discoveryRows.map(discovery),

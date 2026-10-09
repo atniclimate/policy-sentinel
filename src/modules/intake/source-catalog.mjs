@@ -64,6 +64,64 @@ function clock(asOf) {
   return Date.parse(asOf);
 }
 
+function validateRegionalInterfaces(catalog) {
+  const register = catalog.regionalInterfaces;
+  if (!register) return;
+  // Version 1 freezes these seven candidates; expanding scope requires a successor.
+  const scope = new Map([
+    ["WA", "wa-legislative-web-services"],
+    ["OR", "or-legislative-odata"],
+    ["ID", "id-legislation"],
+    ["AK", "ak-legislation"],
+    ["CA", "ca-legislation"],
+    ["MT", "mt-legislation"],
+    ["NV", "nv-legislation"],
+  ]);
+  const sources = new Map(catalog.sources.map((source) => [source.id, source]));
+  const states = new Set();
+  for (const entry of register.entries) {
+    const source = sources.get(entry.sourceId);
+    if (
+      states.has(entry.state) ||
+      scope.get(entry.state) !== entry.sourceId ||
+      !source ||
+      source.authorityClass !== "state" ||
+      !source.discoveryRegions.includes(entry.state) ||
+      !source.recordKinds.includes("legislation")
+    )
+      fail("CATALOG_REGIONAL_SOURCE_BINDING");
+    states.add(entry.state);
+    const required = entry.state === "WA" || entry.state === "OR";
+    if (
+      entry.requirement !==
+        (required ? "required_api" : "interface_disposition") ||
+      (required && entry.disposition !== "api_candidate") ||
+      (entry.disposition === "api_candidate") !==
+        (source.interfaceKind === "api")
+    )
+      fail("CATALOG_REGIONAL_INTERFACE_DISPOSITION");
+    if (
+      !entry.evidence.some(
+        (item) =>
+          item.record === source.evidenceRecord &&
+          source.review.evidenceUrls.includes(item.url),
+      ) ||
+      entry.evidence.some(
+        (item) =>
+          item.record.split("/").includes("..") ||
+          !safeUrl(item.url) ||
+          item.observedOn > register.assessedOn ||
+          item.observedOn > source.review.reviewedAt.slice(0, 10),
+      ) ||
+      (entry.disposition === "documented_non_api" &&
+        !entry.evidence.some(
+          (item) => item.observation === "direct_documentation",
+        ))
+    )
+      fail("CATALOG_REGIONAL_INTERFACE_EVIDENCE");
+  }
+}
+
 /** Validate data only. A valid catalog neither qualifies nor activates a source. */
 export function validateSourceCatalog(catalog) {
   if (!validate(catalog)) fail("INVALID_SOURCE_CATALOG");
@@ -194,6 +252,7 @@ export function validateSourceCatalog(catalog) {
         fail("CATALOG_LOCAL_PROFILE_FORBIDDEN");
     }
   }
+  validateRegionalInterfaces(catalog);
   return catalog;
 }
 

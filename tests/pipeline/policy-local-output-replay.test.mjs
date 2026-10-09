@@ -28,6 +28,7 @@ import {
   canonicalV2Digest,
   createAnalyzedCorpusV2,
   serializeAnalyzedCorpusV2,
+  serializeSupportedAnalyzedCorpus,
 } from "../../src/pipeline/analyzed-corpus-v2.mjs";
 import {
   localCorpusBytes,
@@ -39,6 +40,7 @@ import { replayReviewedCorpus as intakeReplayReviewedCorpus } from "../../src/mo
 import * as intakeBindings from "../../src/modules/intake/replay.mjs";
 import * as coreBindings from "../../src/core/local-output-bindings.mjs";
 import { createSearchProjection } from "../../src/modules/output/local-workbench/search-projection.mjs";
+import { buildPolicyResearchOutput } from "../../src/modules/output/research-html.mjs";
 
 test("intake preserves all three promoted core binding helpers", () => {
   assert.deepEqual(Object.keys(coreBindings).sort(), [
@@ -153,7 +155,10 @@ async function completeCapture(
  * that replayReviewedCorpus/writeLocalOutput/readLocalOutput consume. */
 async function buildRunFixture(
   t,
-  { transformPortable = (portable) => portable } = {},
+  {
+    transformPortable = (portable) => portable,
+    transformInput = (input) => input,
+  } = {},
 ) {
   const base = await mkdtemp(join(tmpdir(), "policy-local-output-replay-"));
   t.after(async () => {
@@ -293,10 +298,11 @@ async function buildRunFixture(
     ],
     items: [item],
   };
-  const corpus = createPolicyCorpus(input);
+  const reviewedInput = transformInput(input);
+  const corpus = createPolicyCorpus(reviewedInput);
   const portable = transformPortable({
-    ...input,
-    items: input.items.map((current) => ({
+    ...reviewedInput,
+    items: reviewedInput.items.map((current) => ({
       ...current,
       captures: current.captures.map(({ receipt, extraction }) => ({
         operationId: receipt.operationId,
@@ -309,7 +315,7 @@ async function buildRunFixture(
     })),
   });
   const inputBytes = Buffer.from(`${JSON.stringify(portable, null, 2)}\n`);
-  const corpusBytes = Buffer.from(serializeAnalyzedCorpusV2(corpus));
+  const corpusBytes = Buffer.from(serializeSupportedAnalyzedCorpus(corpus));
   await writeFile(join(root, "review", "gold-input.json"), inputBytes);
   await writeFile(join(root, "work", "gold-corpus.json"), corpusBytes);
   const seal = {
@@ -402,6 +408,125 @@ test("replayReviewedCorpus, writeLocalOutput, readLocalOutput and localCorpusByt
       { name: "gold" },
     ),
     /OUTPUT_ASSET_CONFLICT/,
+  );
+});
+
+test("reviewed 2.1 input replays, projects, exports and serves exact jurisdiction proof without a 2.0 downgrade", async (t) => {
+  mockPolicyFilesystem(t, {
+    availableBytes: POLICY_LIMITS.freeBytes + POLICY_LIMITS.runBytes,
+  });
+  const fixture = await buildRunFixture(t, {
+    transformInput(input) {
+      const original = createPolicyCorpus(input);
+      const version = original.versions[0];
+      const segment = original.segments.find((entry) => {
+        const rendition = original.renditions.find(
+          (row) => row.id === entry.renditionId,
+        );
+        return Buffer.from(rendition.text)
+          .subarray(entry.startByte, entry.endByte)
+          .toString("utf8")
+          .includes("Washington State Legislature");
+      });
+      const rendition = original.renditions.find(
+        (row) => row.id === segment.renditionId,
+      );
+      const capture = original.captures.find(
+        (row) => row.id === rendition.captureId,
+      );
+      const association = {
+        jurisdictionRef: "us-state:WA",
+        basis: "issuing_authority",
+        evidence: {
+          url: capture.finalUrl,
+          locator: segment.locator.value,
+          exactSubject: {
+            recordRef: original.works[0].id,
+            ref: "us-state:WA",
+            text: "Washington State Legislature",
+          },
+        },
+        reviewState: "reviewed",
+        versionId: version.id,
+        segmentIds: [segment.id],
+        reviewer: {
+          name: "Authored item reviewer",
+          kind: "human",
+          reviewedAt: "2026-09-02T00:00:00Z",
+        },
+      };
+      return {
+        ...input,
+        schemaVersion: "2.1.0",
+        items: input.items.map((item) => ({
+          ...item,
+          work: { ...item.work, jurisdictionRefs: [association] },
+        })),
+      };
+    },
+  });
+  const replay = await replayReviewedCorpus(fixture.root);
+  assert.equal(replay.input.schemaVersion, "2.1.0");
+  assert.equal(replay.corpus.schemaVersion, "2.1.0");
+  assert.deepEqual(replay.corpus, fixture.corpus);
+  const association = fixture.corpus.works[0].jurisdictionRefs[0];
+  const research = buildPolicyResearchOutput(replay.corpus);
+  const exported = JSON.parse(research.get("research.json"));
+  assert.equal(
+    canonicalV2Digest(exported.jurisdictionAssociations),
+    canonicalV2Digest([
+      {
+        workId: fixture.corpus.works[0].id,
+        sourceIdentifier: fixture.corpus.works[0].sourceIdentifier,
+        governmentContext: "Washington",
+        ...association,
+      },
+    ]),
+  );
+  assert.ok(
+    exported.evidence.some(
+      (entry) => entry.segmentId === association.segmentIds[0],
+    ),
+  );
+  assert.match(
+    research.get("dossier.html"),
+    /Declared jurisdiction associations/u,
+  );
+  assert.match(research.get("dossier.html"), /Washington State Legislature/u);
+  assert.match(research.get("dossier.html"), /reviewed/u);
+  const assets = new Map([
+    ["index.html", Buffer.from("<main>Reviewed successor fixture</main>")],
+  ]);
+  await writeLocalOutput(fixture.root, replay.corpus, assets, {
+    selection: { sourceProfileIds: ["profile-a"] },
+  });
+  const delivered = await readLocalOutput(fixture.root);
+  const projected = JSON.parse(
+    delivered.files.get("corpus.json").toString("utf8"),
+  );
+  assert.equal(projected.schemaVersion, "2.1.0");
+  assert.equal(
+    canonicalV2Digest(projected.works[0].jurisdictionRefs),
+    canonicalV2Digest(fixture.corpus.works[0].jurisdictionRefs),
+  );
+  assert.equal(
+    canonicalV2Digest(projected.segments),
+    canonicalV2Digest(fixture.corpus.segments),
+  );
+  const downgraded = JSON.parse(JSON.stringify(fixture.portable));
+  downgraded.schemaVersion = "2.0.0";
+  for (const item of downgraded.items) delete item.work.jurisdictionRefs;
+  const inputBytes = Buffer.from(`${JSON.stringify(downgraded, null, 2)}\n`);
+  await writeFile(join(fixture.root, "review/gold-input.json"), inputBytes);
+  const sealPath = join(fixture.root, "review/gold-seal.json");
+  const seal = JSON.parse(await readFile(sealPath, "utf8"));
+  await writeFile(
+    sealPath,
+    JSON.stringify({ ...seal, inputDigest: digest(inputBytes) }),
+  );
+  await assert.rejects(
+    replayReviewedCorpus(fixture.root),
+    /CORPUS_REPLAY_MISMATCH/u,
   );
 });
 

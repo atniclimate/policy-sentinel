@@ -1,5 +1,5 @@
 import type {
-  AnalyzedCorpusV2,
+  AnalyzedCorpus,
   InstitutionalDimension,
   PolicyDate,
   PolicyMethod,
@@ -35,7 +35,7 @@ export interface TemporalSelection {
   readonly limitations: readonly string[];
 }
 export function selectTemporalVersions(
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
   request: { asOf: string; basis: TemporalBasis },
 ): TemporalSelection;
 export interface VersionComparison {
@@ -67,7 +67,7 @@ export interface VersionComparison {
   readonly limitations: readonly string[];
 }
 export function compareDocumentVersions(
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
   request: { beforeVersionId: string; afterVersionId: string },
 ): VersionComparison;
 export interface RelatedProvisionComparison extends Omit<
@@ -84,7 +84,7 @@ export interface RelatedProvisionComparison extends Omit<
   readonly comparisonScope: "whole_instrument_text";
 }
 export function compareRelatedProvisions(
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
   request: {
     beforeVersionId: string;
     afterVersionId: string;
@@ -128,7 +128,7 @@ export interface InstitutionalComparison {
   readonly limitations: readonly string[];
 }
 export function compareInstitutionalProcedures(
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
   request: { analysisIds: readonly string[] },
 ): InstitutionalComparison;
 export interface RelationshipResolution {
@@ -154,6 +154,6 @@ export interface RelationshipResolution {
   readonly limitation: string;
 }
 export function resolveCorpusRelationships(
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
   request: { versionId: string; asOf: string; basis?: TemporalBasis },
 ): RelationshipResolution;

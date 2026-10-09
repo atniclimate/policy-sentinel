@@ -1,0 +1,70 @@
+{
+  "$schema": "../schemas/source.schema.v2.json",
+  "schemaVersion": "2.0.0",
+  "registryVersion": "2.0.0",
+  "generatedDataPolicy": "artifact-only",
+  "sources": [
+    {
+      "id": "synthetic-federal",
+      "name": "Synthetic Federal Source",
+      "provider": "Synthetic Public Agency",
+      "synthetic": true,
+      "enabled": true,
+      "adapter": {
+        "id": "synthetic-adapter",
+        "version": "1.0.0",
+        "module": "fixtures/records/nationwide-successor.valid.json",
+        "identityRule": "fixture-assigned-id-v1"
+      },
+      "jurisdiction": {
+        "level": "state",
+        "name": "Nevada",
+        "jurisdictionRef": "us-state:NV",
+        "basis": "issuing_authority",
+        "evidence": {
+          "url": "https://official.example.invalid/records/SYN-001",
+          "locator": "Synthetic source heading",
+          "exactSubject": {
+            "recordRef": "synthetic-federal",
+            "ref": "us-state:NV",
+            "text": "Synthetic Nevada public notice for contract validation"
+          }
+        },
+        "reviewState": "reviewed",
+        "review": {
+          "reviewer": "synthetic-jurisdiction-reviewer",
+          "reviewedAt": "2026-07-30T12:01:00Z"
+        }
+      },
+      "access": {
+        "method": "fixture",
+        "officialDocumentationUrl": "https://official.example.invalid/docs",
+        "allowedHosts": ["official.example.invalid"],
+        "authentication": "none",
+        "rateLimit": "No network access. Committed synthetic fixture only.",
+        "browserRuntimeAllowed": false
+      },
+      "coverage": {
+        "from": "2020-01-01",
+        "through": null,
+        "cadence": "Synthetic build only.",
+        "limitations": "Contract-test records only. This is not public policy coverage."
+      },
+      "publication": {
+        "attribution": "Synthetic Public Agency",
+        "termsUrl": "https://official.example.invalid/terms",
+        "reproduction": "reviewed_excerpt",
+        "failureMode": "last_known_good",
+        "requiredProvenancePointers": [
+          "/officialTitle",
+          "/sourceDocumentIdentifier",
+          "/documentType",
+          "/jurisdiction/name",
+          "/status/sourceLabel",
+          "/urls/officialSource"
+        ]
+      },
+      "officialSubjectMappings": []
+    }
+  ]
+}

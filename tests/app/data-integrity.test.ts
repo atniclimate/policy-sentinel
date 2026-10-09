@@ -287,7 +287,7 @@ describe("same-origin artifact integrity", () => {
     installAssetFetch(legacy);
 
     await expect(loadArtifacts()).rejects.toThrow(
-      "requires artifact package 1.4.0; received 1.0.0",
+      "requires artifact package 1.4.0 or 2.0.0; received 1.0.0",
     );
   });
 
@@ -1036,4 +1036,153 @@ describe("detail asset integrity", () => {
       await expect(loadRecordDetail(record)).rejects.toThrow(message);
     },
   );
+});
+
+describe("public successor artifact integrity", () => {
+  const successorCompact = () => {
+    const legacy = compactRecord();
+    return {
+      ...legacy,
+      officialTitle: "Synthetic Nevada official record",
+      jurisdiction: {
+        level: "state",
+        name: "Nevada",
+        jurisdictionRef: "us-state:NV",
+        basis: "issuing_authority",
+        evidence: {
+          url: legacy.urls.officialSource,
+          locator: "Official heading",
+          exactSubject: {
+            recordRef: legacy.id,
+            ref: "us-state:NV",
+            text: "Synthetic Nevada official record",
+          },
+        },
+        reviewState: "reviewed",
+        review: { reviewer: "synthetic-reviewer", reviewedAt: GENERATED_AT },
+        generalJurisdictionOnly: true,
+      },
+    };
+  };
+  const successorAssets = () => {
+    const assets = rootAssets([successorCompact()]);
+    for (const key of [
+      "data/manifest.json",
+      "data/coverage.json",
+      "data/source-health.json",
+      "data/nations.json",
+      "data/index/records.json",
+    ]) {
+      (assets.get(key) as Record<string, unknown>).schemaVersion = "2.0.0";
+    }
+    Object.assign(assets.get("data/manifest.json") as object, {
+      artifactVersion: "2.0.0",
+      recordSchemaVersion: "2.0.0",
+    });
+    assets.set("data/nations.json", {
+      schemaVersion: "2.0.0",
+      nations: [
+        {
+          id: "nation:synthetic",
+          officialName: "Synthetic Nation",
+          stateCoverage: {
+            jurisdictionRefs: [
+              "us-state:AK",
+              "us-state:CA",
+              "us-state:MT",
+              "us-state:NV",
+            ],
+            federalOnly: false,
+            basis: "synthetic_fixture",
+          },
+        },
+      ],
+    });
+    return assets;
+  };
+
+  it("retains expanded coverage and exact jurisdiction provenance in compact records", async () => {
+    installAssetFetch(successorAssets());
+    const loaded = await loadArtifacts();
+    expect(loaded.manifest.artifactVersion).toBe("2.0.0");
+    expect(loaded.nations[0].coveredStateCodes).toEqual([
+      "AK",
+      "CA",
+      "MT",
+      "NV",
+    ]);
+    expect(loaded.records[0].jurisdiction).toMatchObject(
+      successorCompact().jurisdiction,
+    );
+    expect(loaded.records[0].jurisdiction.stateCode).toBe("NV");
+    expect(loaded.records[0].nationIds).toEqual([]);
+  });
+
+  it("rejects legacy rows in a successor envelope and unknown state coverage", async () => {
+    const mixed = successorAssets();
+    mixed.set("data/index/records.json", {
+      schemaVersion: "2.0.0",
+      records: [compactRecord()],
+    });
+    installAssetFetch(mixed);
+    await expect(loadArtifacts()).rejects.toThrow(/invalid record/);
+    const invalid = successorAssets();
+    invalid.set("data/nations.json", {
+      schemaVersion: "2.0.0",
+      nations: [
+        {
+          id: "nation:synthetic",
+          officialName: "Synthetic Nation",
+          stateCoverage: { jurisdictionRefs: ["us-state:ZZ"] },
+        },
+      ],
+    });
+    installAssetFetch(invalid);
+    await expect(loadArtifacts()).rejects.toThrow(
+      /invalid jurisdiction reference/,
+    );
+    expect(
+      normalizeRecord({
+        ...successorCompact(),
+        jurisdiction: { ...successorCompact().jurisdiction, review: null },
+      }),
+    ).toBeNull();
+    expect(
+      normalizeRecord({
+        ...successorCompact(),
+        jurisdiction: {
+          ...successorCompact().jurisdiction,
+          jurisdictionRef: "us-state:WA",
+        },
+      }),
+    ).toBeNull();
+  });
+
+  it("refuses a changed jurisdiction review in a detail with the same ID and build timestamp", async () => {
+    const assets = successorAssets();
+    const compact = successorCompact();
+    assets.set("data/details/record_1.json", {
+      schemaVersion: "2.0.0",
+      generatedAt: GENERATED_AT,
+      record: {
+        ...compact,
+        internalId: compact.id,
+        schemaVersion: "2.0.0",
+        jurisdiction: {
+          ...compact.jurisdiction,
+          review: { reviewer: "different-reviewer", reviewedAt: GENERATED_AT },
+        },
+        sourceHealth: {
+          status: "degraded",
+          usingLastKnownGood: true,
+          message: "Using a validated prior public shard.",
+        },
+      },
+    });
+    installAssetFetch(assets);
+    const loaded = await loadArtifacts();
+    await expect(loadRecordDetail(loaded.records[0])).rejects.toThrow(
+      /compact fields/,
+    );
+  });
 });

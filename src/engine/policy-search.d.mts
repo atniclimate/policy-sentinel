@@ -1,5 +1,5 @@
 import type {
-  AnalyzedCorpusV2,
+  AnalyzedCorpus,
   PolicyMethod,
   PolicyInstrumentClass,
 } from "../pipeline/analyzed-corpus-v2.mjs";
@@ -19,6 +19,8 @@ export interface PolicySearchRequest {
   readonly query: string;
   readonly sourceProfileId?: string;
   readonly governmentContext?: string;
+  /** Exact reviewed source association; never geographic or organizational inference. */
+  readonly jurisdictionRef?: string;
   readonly instrumentClass?: PolicyInstrumentClass;
   readonly asOf?: string;
   /** Required with a cutoff; no date axis is silently selected. */
@@ -85,7 +87,7 @@ export interface PolicySearchResults {
 }
 /** Caller supplies an already validated immutable v2 corpus. Build once per corpus. */
 export function createPolicySearchIndex(
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
 ): PolicySearchIndex;
 export function searchPolicyCorpus(
   index: PolicySearchIndex,

@@ -1,7 +1,7 @@
 import type { Buffer } from "node:buffer";
 import type {
-  AnalyzedCorpusV2,
-  CorpusReplayOptions,
+  AnalyzedCorpus,
+  SupportedCorpusReplayOptions,
   PolicyCoverage,
 } from "../../../pipeline/analyzed-corpus-v2.mjs";
 
@@ -53,26 +53,26 @@ export interface SearchProjectionManifest {
   readonly contentDigest: string;
 }
 export interface SearchProjectionResult {
-  readonly corpus: AnalyzedCorpusV2;
+  readonly corpus: AnalyzedCorpus;
   readonly bytes: Buffer;
   readonly manifest: SearchProjectionManifest;
 }
 export function createSearchProjection(
   input: unknown,
   selection: SearchProjectionSelection,
-  replayOptions?: CorpusReplayOptions,
+  replayOptions?: SupportedCorpusReplayOptions,
 ): SearchProjectionResult;
 export function serializeSearchProjectionManifest(
   manifest: SearchProjectionManifest,
 ): Buffer;
 export function validateSearchProjectionEnvelope(
   manifest: unknown,
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
   bytes: Buffer,
 ): SearchProjectionManifest;
 export function verifySearchProjection(
-  parent: AnalyzedCorpusV2,
+  parent: AnalyzedCorpus,
   manifest: unknown,
   bytes: Buffer,
-  replayOptions?: CorpusReplayOptions,
+  replayOptions?: SupportedCorpusReplayOptions,
 ): SearchProjectionResult;

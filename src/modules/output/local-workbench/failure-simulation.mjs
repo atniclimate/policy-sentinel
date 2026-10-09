@@ -1,7 +1,7 @@
 import { Buffer } from "node:buffer";
 import {
-  parseAnalyzedCorpusV2,
-  createAnalyzedCorpusV2,
+  parseSupportedAnalyzedCorpus,
+  createSupportedAnalyzedCorpus,
 } from "../../../pipeline/analyzed-corpus-v2.mjs";
 import { sha256Bytes as digest } from "../../../pipeline/hashing.mjs";
 import { safeFile } from "../../../core/local-output-bindings.mjs";
@@ -40,7 +40,7 @@ function checksumOutputSnapshot(output, run) {
     seen.add(entry.path);
   }
   validateLocalOutputFiles(output.files, output.manifest, run);
-  return parseAnalyzedCorpusV2(
+  return parseSupportedAnalyzedCorpus(
     JSON.parse(output.files.get("corpus.json").toString("utf8")),
   );
 }
@@ -136,6 +136,8 @@ export function simulateLocalSourceFailure({
     input.captures = input.captures.filter(
       (entry) => entry.sourceProfileId !== sourceProfileId,
     );
+    // Associations cite a retained version in the same work; remove or preserve
+    // that complete work and its proof together, never infer replacement scope.
     input.works = input.works.filter((entry) => !works.has(entry.id));
     input.versions = input.versions.filter((entry) => !versions.has(entry.id));
     input.renditions = input.renditions.filter(
@@ -188,7 +190,11 @@ export function simulateLocalSourceFailure({
   const replayOptions = { lastKnownGoodCorpora: prior ? [prior] : [] };
   for (const name of catalogs)
     for (const entry of input[name]) delete entry.contentDigest;
-  const corpus = createAnalyzedCorpusV2(input, replayOptions);
+  const corpus = createSupportedAnalyzedCorpus(
+    input,
+    baseline.schemaVersion,
+    replayOptions,
+  );
   const corpusBytes = localCorpusBytes(corpus, replayOptions);
   const profile = {
     kind: "policy_local_profile",

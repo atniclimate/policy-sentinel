@@ -1,4 +1,10 @@
 import schema from "../../schemas/research-study.schema.v1.json" with { type: "json" };
+import {
+  hasStateJurisdictionEvidence,
+  isJurisdictionRef,
+  parseJurisdictionAssociation,
+  US_STATE_CODES,
+} from "./jurisdiction-reference.mjs";
 
 export const RESEARCH_STUDY_SCHEMA_ID = schema.$id;
 export const RESEARCH_STUDY_SCHEMA_VERSION = "1.0.0";
@@ -291,7 +297,7 @@ async function corpusIndex(corpus) {
   const promise = (async () => {
     ensure(
       copy.kind === "analyzed_corpus" &&
-        copy.schemaVersion === "2.0.0" &&
+        ["2.0.0", "2.1.0"].includes(copy.schemaVersion) &&
         ["real_source_local", "synthetic_test_only"].includes(copy.trustDomain),
       "CORPUS_CONTRACT",
     );
@@ -307,6 +313,74 @@ async function corpusIndex(corpus) {
     ]) {
       ensure(Array.isArray(copy[key]), "CORPUS_CONTRACT");
       result[key] = mapById(copy[key]);
+    }
+    if (copy.schemaVersion === "2.1.0") {
+      for (const work of copy.works) {
+        ensure(Array.isArray(work.jurisdictionRefs), "CORPUS_JURISDICTION");
+        for (const association of work.jurisdictionRefs) {
+          const { versionId, segmentIds, reviewer, ...shared } = association;
+          parseJurisdictionAssociation(JSON.stringify(shared), work.id);
+          ensure(
+            !association.jurisdictionRef.startsWith("us-state:") ||
+              US_STATE_CODES.includes(association.jurisdictionRef.slice(9)),
+            "CORPUS_JURISDICTION_STATE",
+          );
+          ensure(
+            !association.jurisdictionRef.startsWith("nation:") ||
+              (copy.trustDomain === "synthetic_test_only" &&
+                association.jurisdictionRef.startsWith("nation:synthetic-")),
+            "CORPUS_JURISDICTION_NATION_REGISTRY",
+          );
+          ensure(
+            association.evidence.exactSubject &&
+              Array.isArray(segmentIds) &&
+              segmentIds.length > 0,
+            "CORPUS_JURISDICTION",
+          );
+          ensure(
+            !association.jurisdictionRef.startsWith("us-state:") ||
+              hasStateJurisdictionEvidence(
+                association.jurisdictionRef,
+                association.evidence.exactSubject.text,
+              ),
+            "CORPUS_JURISDICTION_STATE_IDENTITY",
+          );
+          ensure(
+            !association.jurisdictionRef.startsWith("nation:") ||
+              association.evidence.exactSubject.text
+                .split(/[^a-z0-9:-]+/u)
+                .includes(association.jurisdictionRef),
+            "CORPUS_JURISDICTION_NATION_IDENTITY",
+          );
+          ensure(
+            association.reviewState !== "reviewed" ||
+              (reviewer && validTime(reviewer.reviewedAt)),
+            "CORPUS_JURISDICTION_REVIEW",
+          );
+          let replayed = false;
+          for (const segmentId of segmentIds) {
+            const { citation, text } = await citationFor(result, segmentId);
+            ensure(
+              citation.workId === work.id &&
+                citation.versionId === versionId &&
+                citation.sourceUrl === association.evidence.url,
+              "CORPUS_JURISDICTION_SOURCE",
+            );
+            if (reviewer)
+              ensure(
+                Date.parse(citation.retrievedAt) <=
+                  Date.parse(reviewer.reviewedAt) &&
+                  Date.parse(reviewer.reviewedAt) <=
+                    Date.parse(copy.generatedAt),
+                "CORPUS_JURISDICTION_REVIEW",
+              );
+            replayed ||=
+              citation.locator.value === association.evidence.locator &&
+              text.includes(association.evidence.exactSubject.text);
+          }
+          ensure(replayed, "CORPUS_JURISDICTION_REPLAY");
+        }
+      }
     }
     validatedCorpusBindings.set(corpus, {
       id: copy.id,
@@ -783,6 +857,18 @@ async function semantics(study, index) {
   for (const question of study.questions)
     reference("questions", question.parentQuestionId, true);
   for (const discovery of study.discoveries) {
+    const jurisdictionRef = discovery.searchScope?.jurisdictionRef;
+    ensure(
+      jurisdictionRef === undefined ||
+        jurisdictionRef === null ||
+        isJurisdictionRef(jurisdictionRef),
+      "DISCOVERY_JURISDICTION_REF",
+    );
+    ensure(
+      !jurisdictionRef?.startsWith("us-state:") ||
+        US_STATE_CODES.includes(jurisdictionRef.slice(9)),
+      "DISCOVERY_JURISDICTION_STATE",
+    );
     reference("questions", discovery.questionId);
     const gap = reference("gaps", discovery.followUpGapId, true);
     if (gap)

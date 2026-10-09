@@ -6,6 +6,8 @@ import schema from "../../schemas/research-study.schema.v1.json";
 import { canonicalV2Digest } from "../../src/pipeline/analyzed-corpus-v2.mjs";
 import type {
   AnalyzedCorpusV2,
+  AnalyzedCorpusV21,
+  AnalyzedCorpus,
   PolicySourceProfile,
 } from "../../src/pipeline/analyzed-corpus-v2.mjs";
 import {
@@ -69,7 +71,7 @@ const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 function mutate(
   study: ResearchStudy,
   records: readonly StudyChange[],
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
 ) {
   return reviseResearchStudy(
     study,
@@ -951,6 +953,148 @@ describe("persistent research study", () => {
     const reopened = await parseResearchStudy(bytes, corpus);
     expect(Object.hasOwn(reopened.discoveries[0], "searchScope")).toBe(false);
     expect(await serializeResearchStudy(reopened, corpus)).toBe(bytes);
+  });
+
+  it("resumes a 2.1 study with exact jurisdiction source evidence and a saved identifier filter", async () => {
+    const { corpus, study, passages } =
+      (await createSyntheticResearchStudyFixture({
+        schemaVersion: "2.1.0",
+      })) as Omit<Fixture, "corpus"> & { corpus: AnalyzedCorpusV21 };
+    const discovery = study.discoveries.find(
+      (row) => row.followUpGapId === null,
+    )!;
+    const scoped = await mutate(
+      study,
+      [
+        {
+          collection: "discoveries",
+          record: {
+            ...discovery,
+            reviewState: "unreviewed",
+            searchScope: {
+              ...discovery.searchScope!,
+              jurisdictionRef: "us-state:WA",
+            },
+          },
+        },
+      ],
+      corpus,
+    );
+    const reopened = await parseResearchStudy(
+      await serializeResearchStudy(scoped, corpus),
+      corpus,
+    );
+    expect(
+      reopened.discoveries.find((row) => row.id === discovery.id)!.searchScope!
+        .jurisdictionRef,
+    ).toBe("us-state:WA");
+    const association = corpus.works.find((row) => row.id === "work-regional")!
+      .jurisdictionRefs[0];
+    expect((await studyReadPassage(passages.regional, corpus)).text).toContain(
+      association.evidence.exactSubject!.text,
+    );
+    expect(passages.regional.citation.workDigest).toBe(
+      corpus.works.find((row) => row.id === "work-regional")!.contentDigest,
+    );
+    await expect(
+      mutate(
+        study,
+        [
+          {
+            collection: "discoveries",
+            record: {
+              ...discovery,
+              reviewState: "unreviewed",
+              searchScope: {
+                ...discovery.searchScope!,
+                jurisdictionRef: "us-state:ZZ",
+              },
+            },
+          },
+        ],
+        corpus,
+      ),
+    ).rejects.toThrow(/DISCOVERY_JURISDICTION_STATE/u);
+    const forged = clone(corpus);
+    const work = forged.works.find((row) => row.id === "work-regional")!;
+    (work.jurisdictionRefs[0].evidence.exactSubject as { text: string }).text =
+      "Invented Washington jurisdiction source statement";
+    const { contentDigest: oldWorkDigest, ...workBody } = work;
+    void oldWorkDigest;
+    (work as { contentDigest: string }).contentDigest =
+      canonicalV2Digest(workBody);
+    const { contentDigest: oldCorpusDigest, ...corpusBody } = forged;
+    void oldCorpusDigest;
+    (forged as { contentDigest: string }).contentDigest =
+      canonicalV2Digest(corpusBody);
+    await expect(
+      createResearchStudy(
+        {
+          id: "study-forged",
+          title: "Rejected forged association",
+          createdAt: updateTime,
+          actor,
+        },
+        forged,
+      ),
+    ).rejects.toThrow(/CORPUS_JURISDICTION_REPLAY/u);
+  });
+
+  it("rejects rehashed state bindings to another state or ambiguous text in the exact source passage", async () => {
+    const cases = [
+      ["us-state:WA", "The synthetic scope includes California."],
+      ["us-state:VA", "The synthetic scope includes West Virginia."],
+      ["us-state:WA", "The synthetic meeting took place in Washington, D.C."],
+      ["us-state:OR", "Choose one OR another synthetic alternative."],
+      ["us-state:WA", "The synthetic source says us-state:WA-extra."],
+    ];
+    const corpus = createSyntheticStudyCorpus({
+      schemaVersion: "2.1.0",
+      extraText: cases.map(([, statement]) => statement).join("\n"),
+    }) as AnalyzedCorpusV21;
+    const regional = corpus.works.find((row) => row.id === "work-regional")!;
+    cases.push([
+      "us-state:WA",
+      regional.jurisdictionRefs.find(
+        (row) => row.jurisdictionRef === "us-state:CA",
+      )!.evidence.exactSubject!.text,
+    ]);
+    for (const [ref, statement] of cases) {
+      const forged = clone(corpus);
+      const work = forged.works.find((row) => row.id === "work-regional")!;
+      const association = work.jurisdictionRefs[0] as {
+        jurisdictionRef: string;
+        evidence: { exactSubject: { ref: string; text: string } };
+        segmentIds: readonly string[];
+      };
+      const segment = forged.segments.find(
+        (row) => row.id === association.segmentIds[0],
+      )!;
+      expect(
+        forged.renditions.find((row) => row.id === segment.renditionId)!.text,
+      ).toContain(statement);
+      association.jurisdictionRef = association.evidence.exactSubject.ref = ref;
+      association.evidence.exactSubject.text = statement;
+      const { contentDigest: oldWorkDigest, ...workBody } = work;
+      void oldWorkDigest;
+      (work as { contentDigest: string }).contentDigest =
+        canonicalV2Digest(workBody);
+      const { contentDigest: oldCorpusDigest, ...corpusBody } = forged;
+      void oldCorpusDigest;
+      (forged as { contentDigest: string }).contentDigest =
+        canonicalV2Digest(corpusBody);
+      await expect(
+        createResearchStudy(
+          {
+            id: "study-state-identity",
+            title: "Rejected mismatched state identity",
+            createdAt: updateTime,
+            actor,
+          },
+          forged,
+        ),
+      ).rejects.toThrow(/CORPUS_JURISDICTION_STATE_IDENTITY/u);
+    }
   });
 
   it("rejects missing, malformed and invented discovery filter fields", async () => {

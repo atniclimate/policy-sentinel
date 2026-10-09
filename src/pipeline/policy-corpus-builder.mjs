@@ -3,9 +3,9 @@ import { createHash } from "node:crypto";
 import { types } from "node:util";
 import {
   canonicalV2Digest,
-  createAnalyzedCorpusV2,
+  createSupportedAnalyzedCorpus,
   createEvidenceSegment,
-  parseAnalyzedCorpusV2,
+  parseSupportedAnalyzedCorpus,
 } from "./analyzed-corpus-v2.mjs";
 import { extractPolicyText } from "./policy-text.mjs";
 
@@ -356,7 +356,12 @@ export function createPolicyCorpus(input) {
   closed(
     input,
     ["id", "runId", "trustDomain", "generatedAt", "sourceProfiles", "items"],
-    ["coverage", "relationships", "analyses", "findings"],
+    ["coverage", "relationships", "analyses", "findings", "schemaVersion"],
+  );
+  const schemaVersion = input.schemaVersion ?? "2.0.0";
+  assert(
+    ["2.0.0", "2.1.0"].includes(schemaVersion),
+    "UNSUPPORTED_CORPUS_VERSION",
   );
   assert(
     Array.isArray(input.items) &&
@@ -406,6 +411,7 @@ export function createPolicyCorpus(input) {
       "governmentContext",
       "issuerRoles",
       "fieldEvidence",
+      ...(schemaVersion === "2.1.0" ? ["jurisdictionRefs"] : []),
     ]);
     closed(item.version, [
       "id",
@@ -684,28 +690,31 @@ export function createPolicyCorpus(input) {
         exclusions: [],
       };
     });
-  return createAnalyzedCorpusV2({
-    id: detached.id,
-    runId: detached.runId,
-    trustDomain: detached.trustDomain,
-    generatedAt: detached.generatedAt,
-    sourceProfiles: detached.sourceProfiles,
-    captures: [...captures.values()],
-    works: workRecords,
-    versions,
-    renditions,
-    segments,
-    events,
-    relationships: detached.relationships ?? [],
-    analyses: detached.analyses ?? [],
-    findings: detached.findings ?? [],
-    coverage,
-  });
+  return createSupportedAnalyzedCorpus(
+    {
+      id: detached.id,
+      runId: detached.runId,
+      trustDomain: detached.trustDomain,
+      generatedAt: detached.generatedAt,
+      sourceProfiles: detached.sourceProfiles,
+      captures: [...captures.values()],
+      works: workRecords,
+      versions,
+      renditions,
+      segments,
+      events,
+      relationships: detached.relationships ?? [],
+      analyses: detached.analyses ?? [],
+      findings: detached.findings ?? [],
+      coverage,
+    },
+    schemaVersion,
+  );
 }
 
 /** Lookup table for curators/evaluators; no IDs depend on search or extraction order. */
 export function policyCorpusEvidenceIndex(corpus) {
-  corpus = parseAnalyzedCorpusV2(corpus);
+  corpus = parseSupportedAnalyzedCorpus(corpus);
   return Object.freeze(
     corpus.segments.map((segment) => {
       const rendition = corpus.renditions.find(

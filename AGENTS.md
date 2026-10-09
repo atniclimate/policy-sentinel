@@ -95,9 +95,11 @@ originating evidence only when that claim is made; no fixed membership count
 defines the product cohort or gates unrelated general-jurisdiction work.
 Federal recognition is not organization membership. Nationwide coverage
 (Tribal, federal and state sources across the United States) is a core
-capability of the general engine (owner direction, 2026-09-22). The current
-public record, artifact and source contracts still admit only WA, OR and ID
-state codes, and widening them is a gated contract change (decision RD-05).
+capability of the general engine (owner direction, 2026-09-22). The retained v1
+public record, artifact and source contracts admit only WA, OR and ID state
+codes. D-086/D-087/D-088 authorize the explicit public 2.0 successor and corpus
+2.1 evidence-bearing jurisdiction references; legacy defaults remain fixed.
+Contract implementation does not activate sources or establish Nation identity.
 Native Hawaiian support remains a later-compatible direction. Real public information
 is an intended first-class capability; Run 1's implemented corpus path remains
 synthetic and cannot admit or activate a real source. The current static

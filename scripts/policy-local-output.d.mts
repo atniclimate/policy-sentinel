@@ -1,5 +1,5 @@
 import type { Buffer } from "node:buffer";
-import type { AnalyzedCorpusV2 } from "../src/pipeline/analyzed-corpus-v2.mjs";
+import type { AnalyzedCorpus } from "../src/pipeline/analyzed-corpus-v2.mjs";
 import type { SearchProjectionSelection } from "../src/modules/output/local-workbench/search-projection.mjs";
 import type {
   LocalOutputWriteReceipt,
@@ -8,7 +8,7 @@ import type {
 
 export function writeLocalOutput(
   root: string,
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
   assets: Iterable<readonly [string, Buffer]>,
   options?: {
     readonly name?: "gold" | "discovery";

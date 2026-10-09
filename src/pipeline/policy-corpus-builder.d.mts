@@ -1,5 +1,8 @@
 import type {
   AnalyzedCorpusV2,
+  AnalyzedCorpusV21,
+  AnalyzedCorpus,
+  PolicyJurisdictionAssociation,
   PolicySourceProfile,
   PolicyWork,
   PolicyDocumentVersion,
@@ -96,6 +99,7 @@ export interface ReviewedPolicyCorpusItem {
   })[];
 }
 export interface PolicyCorpusBuilderInput {
+  readonly schemaVersion?: "2.0.0";
   readonly id: string;
   readonly runId: string;
   readonly trustDomain: "real_source_local" | "synthetic_test_only";
@@ -111,9 +115,33 @@ export interface PolicyCorpusBuilderInput {
   readonly analyses?: readonly Omit<PolicyAnalysis, "contentDigest">[];
   readonly findings?: readonly Omit<PolicyFinding, "contentDigest">[];
 }
+export interface ReviewedPolicyCorpusItemV21 extends Omit<
+  ReviewedPolicyCorpusItem,
+  "work"
+> {
+  readonly work: ReviewedPolicyCorpusItem["work"] & {
+    readonly jurisdictionRefs: readonly PolicyJurisdictionAssociation[];
+  };
+}
+export interface PolicyCorpusBuilderInputV21 extends Omit<
+  PolicyCorpusBuilderInput,
+  "schemaVersion" | "items"
+> {
+  /** Persist in the portable reviewed descriptor so independent replay selects the same contract. */
+  readonly schemaVersion: "2.1.0";
+  readonly items: readonly ReviewedPolicyCorpusItemV21[];
+}
+export type SupportedPolicyCorpusBuilderInput =
+  PolicyCorpusBuilderInput | PolicyCorpusBuilderInputV21;
+export function createPolicyCorpus(
+  input: PolicyCorpusBuilderInputV21,
+): AnalyzedCorpusV21;
 export function createPolicyCorpus(
   input: PolicyCorpusBuilderInput,
 ): AnalyzedCorpusV2;
+export function createPolicyCorpus(
+  input: SupportedPolicyCorpusBuilderInput,
+): AnalyzedCorpus;
 export function policyCaptureId(
   sourceProfileId: string,
   operationId: string,
@@ -131,7 +159,7 @@ export function normalizePolicyDateSource(
   options?: { readonly yearContext?: string },
 ): PolicyDate;
 export function policyCorpusEvidenceIndex(
-  corpus: AnalyzedCorpusV2,
+  corpus: AnalyzedCorpus,
 ): readonly Readonly<{
   versionId: string;
   operationId: string;

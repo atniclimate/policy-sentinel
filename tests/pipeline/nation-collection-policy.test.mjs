@@ -1,3 +1,4 @@
+import { migrateNationCoverageV2 } from "../../src/core/public-contract-v2.mjs";
 import { readFileSync } from "node:fs";
 import { URL } from "node:url";
 import assert from "node:assert/strict";
@@ -492,4 +493,76 @@ test("record Nation associations must match exact collection identity and eviden
       }),
     /evidence URL is not an official record URL/,
   );
+});
+
+test("successor Nation coverage uses explicit namespaces while retaining old collection contracts", () => {
+  const legacy = syntheticCollection();
+  const before = JSON.stringify(legacy);
+  const successor = {
+    ...legacy,
+    schemaVersion: "2.0.0",
+    nations: legacy.nations.map(migrateNationCoverageV2),
+  };
+  successor.nations[0].stateCoverage.jurisdictionRefs = [
+    "us-state:AK",
+    "us-state:CA",
+    "us-state:MT",
+    "us-state:NV",
+  ];
+  assert.deepEqual(
+    validateNationCollectionPolicy(successor, { manifestSynthetic: true }),
+    [],
+  );
+  assert.equal(JSON.stringify(legacy), before);
+  successor.nations[0].stateCoverage.jurisdictionRefs.push("us-state:ZZ");
+  assertPolicyRejects(successor, /unsupported state coverage/, true);
+  const legacyExpanded = syntheticCollection();
+  legacyExpanded.nations[0].stateCoverage.states = ["NV"];
+  assertPolicyRejects(legacyExpanded, /unsupported state coverage/, true);
+});
+
+test("successor production coverage still requires independently reviewed exact Nation evidence", () => {
+  const legacy = productionCollection();
+  const successor = {
+    ...legacy,
+    schemaVersion: "2.0.0",
+    nations: legacy.nations.map(migrateNationCoverageV2),
+  };
+  assert.deepEqual(
+    validateNationCollectionPolicy(successor, { manifestSynthetic: false }),
+    [],
+  );
+  const nation = successor.nations[0];
+  nation.stateCoverage = {
+    jurisdictionRefs: ["us-state:NV"],
+    federalOnly: false,
+    basis: "reviewed_official_crosswalk",
+    evidence: [],
+  };
+  assertPolicyRejects(successor, /one authoritative evidence item per state/);
+  const evidenceUrl = "https://official.example.invalid/crosswalk";
+  nation.stateCoverage.evidence = [
+    {
+      jurisdictionRef: "us-state:NV",
+      basis: "reviewed_official_crosswalk",
+      sourceNationName: nation.officialName,
+      evidenceText:
+        nation.officialName + " is expressly listed in the Nevada crosswalk.",
+      evidenceUrl,
+      sourceIdentifier: "reviewed-crosswalk-1",
+      sourceDate: PUBLICATION_DATE,
+      retrievedAt: RETRIEVED_AT,
+      validationState: "validated",
+    },
+  ];
+  nation.fieldProvenance.push(
+    provenance("/stateCoverage", { sourceUrl: evidenceUrl }),
+  );
+  assert.deepEqual(
+    validateNationCollectionPolicy(successor, { manifestSynthetic: false }),
+    [],
+  );
+  nation.stateCoverage.evidence[0].evidenceText =
+    nation.officialName + " is expressly listed in California.";
+  assertPolicyRejects(successor, /does not identify the referenced state/);
 });

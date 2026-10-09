@@ -7609,6 +7609,33 @@ work_items:
         Legacy compatibility fixtures precede successor changes. Final GD35
         measurements follow stable implementation pins; no 50 GB performance or
         source activation claim follows from synthetic implementation.
+      - >-
+        Successor closure returned with corpus 2.1 replay, temporal identifier
+        filtering, projection, study and output support. Thirty app and 34
+        core/product checks pass. The targeted corpus run passed 87 of 91 tests;
+        four portable-object comparisons and a separately found WA/CA evidence
+        identity defect are under repair. GD11 remains active pending complete
+        successor and compatibility validation.
+      - >-
+        The identity and portable-comparison repairs pass all 55 targeted
+        successor contract tests. Explicit foundation dispatch and both builds
+        pass. Full policy validation passed 194/197; three existing Windows
+        probe timeouts pass on isolated rerun with unchanged limits. Complete
+        successor validation remains pending; the first storage forecast was
+        refused on incomplete inventory and generated no measurement output.
+      - >-
+        Full application/unit validation passed 2,176 of 2,181 tests. Four
+        failures were test deadlines under concurrent host load; the fifth was a
+        diagnostic expectation corrected to list both supported versions. Native
+        storage checks pass 30 with one host-privilege symlink skip. Final
+        aggregate validation follows the measured projection repair.
+      - >-
+        Final 2026-10-09 validation resolves the earlier failures: every Node
+        suite and all 2,180 application/unit tests across 114 files pass. Corpus
+        2.0 replay, additive 2.1 admission, evidence identity, temporal
+        filtering, projection, studies and exports pass together. Both local and
+        public synthetic builds pass artifact validation; no real Nation
+        reference is admitted without the independently pinned registry.
   - id: GD-13-NATIONWIDE-RECORD-CONTRACT
     priority: 324
     milestone: General development
@@ -7646,6 +7673,13 @@ work_items:
         Represented at schema 1.10 by general-development session 1 behind the
         closed gate G-GD-NATIONWIDE-CONTRACT, as the module design (section 9.4)
         and D-073 require.
+      - >-
+        Implemented explicit public record, artifact and source 2.0 contracts
+        with reviewed migration candidates and an independently trusted source
+        registry. Legacy v1 defaults remain unchanged. County and municipal
+        general-jurisdiction records retain exact source status and cannot infer
+        Nation relationships. The complete npm test chain and both synthetic
+        build modes pass with the integrated corpus successor.
   - id: GD-35-BOUNDED-SEARCH-IMPLEMENTATION
     priority: 325
     milestone: General development
@@ -7670,6 +7704,33 @@ work_items:
         D-088 prioritizes bounded search integration after the persistent study
         workflow, including explicit direct versus governing-proceeding context.
         Final measurements follow the stable corpus and public-contract pins.
+      - >-
+        The complete twelve-root inventory at 2026-10-09T02:27:19.585Z records
+        766,949,846 retained bytes and a 1,036,433,878-byte within-limits
+        forecast. Sixteen runner tests pass. The preserved search-projection-01
+        receipt completes 100 works with exact fresh-process replay; 500 and
+        2,000 works reach the unchanged case watchdog and owned children are
+        reaped. Immutable corpus reuse is under repair before a distinct 02
+        measurement; no incomplete observations establish capacity or a passing
+        measurement.
+      - >-
+        Preserved measurements 02 and 03 complete the 100- and 500-work cases
+        with fresh-process replay, while 2,000 works reaches the unchanged
+        watchdog. The third complete inventory records 828,435,819 retained
+        bytes and a 1,097,919,851-byte forecast. Thirty-five targeted search,
+        temporal and measurement tests plus 604 direct artifact checks pass.
+        Further per-call indexing repairs address the measured remaining work;
+        final measurement and aggregate successor acceptance remain pending.
+      - >-
+        Final search-projection-04 completes the unchanged frozen 100-, 500- and
+        2,000-work protocol, fresh-process replay, exact citations, result caps,
+        health states and rebuild checks in 75.698 seconds. Largest-case cold
+        query medians span 13.26245-75.36835 ms and warm medians span
+        11.4926-37.11145 ms; peak Node RSS is 1,140,277,248 bytes. The complete
+        preflight records 865,322,448 retained bytes and a 1,134,806,480-byte
+        managed forecast under the 50 GB ceiling. The receipt namespace is
+        consumed. These short synthetic Node workloads do not establish browser,
+        real-document or 50 GB performance. Full npm test and both builds pass.
   - id: GD-14-FEDERAL-TAXONOMY-SOURCE-MAPPINGS
     priority: 326
     milestone: General development
@@ -7705,7 +7766,15 @@ work_items:
         docs/PROJECT-BACKBONE.md and docs/data-contract.md describe the module
         design and fold in the general development addendum.
       - npm run validate:backbone stays green.
-    evidence: []
+    evidence:
+      - >-
+        Architecture, module boundaries, backbone and data contracts now
+        describe the implemented additive corpus/public contracts, shared
+        persistent evidence studies, bounded search, independent registry trust
+        and governed exports. C-3 and the retained general-development addendum
+        are reconciled with implemented behavior. Backbone validation passes
+        with 31 schema IDs and 1,106 Markdown links; the implementation record
+        retains validation receipts, measured limits and source-specific gaps.
   - id: GD-16-INTEROP-PURE-ADAPTER
     priority: 328
     milestone: General development
@@ -7896,7 +7965,14 @@ work_items:
         require an explicit versioned scope update. Local county/municipal and
         public Tribal records are eligible without inferred Nation
         relationships; unknown locality bindings remain blocked."
-    evidence: []
+    evidence:
+      - >-
+        The versioned seven-state register is integrated with catalog schema,
+        validation and analyst coverage projection. Fourteen catalog tests pass,
+        including fixed scope, dated evidence, legacy-byte compatibility and
+        source-specific blockers. WA/OR remain required API candidates and the
+        other five states have explicit interface gaps. UI acceptance and
+        source-specific qualification remain separate; no source is activated.
 
   - id: GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
     priority: 337

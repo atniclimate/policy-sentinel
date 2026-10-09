@@ -337,6 +337,11 @@ evidence. It does not introduce a release root or authorize further work.
   canonical-tip LKG rules are executable. The candidate fixture remains
   `evidence_blocked` and does not qualify, admit, activate, bind, retrieve,
   retain, project, or publish Federal Register data.
+- D-088 jurisdiction successors: [corpus 2.1](../schemas/analyzed-corpus.schema.v2.1.json),
+  [public record 2.0](../schemas/record.schema.v2.json),
+  [artifact 2.0](../schemas/artifact.schema.v2.json), and
+  [source registry 2.0](../schemas/source.schema.v2.json). Exact implementation
+  and validation state is in the [study-engine record](development/2026-10-08-study-engine-implementation.md).
 - Adopted real-policy v2 successor: [schema](../schemas/analyzed-corpus.schema.v2.json),
   [producer and validator](../src/pipeline/analyzed-corpus-v2.mjs),
   [temporal operations](../src/engine/temporal-operations.mjs),

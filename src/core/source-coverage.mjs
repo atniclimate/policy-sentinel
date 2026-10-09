@@ -93,6 +93,10 @@ export function projectSourceCoverage(
   { asOf = new Date().toISOString(), sourceIds, regionCodes } = {},
 ) {
   const at = clock(asOf);
+  const register = catalog.regionalInterfaces;
+  const regionalBySource = new Map(
+    (register?.entries ?? []).map((entry) => [entry.sourceId, entry]),
+  );
   const sources = selectSourceDescriptors(catalog, sourceIds, regionCodes).map(
     (source) => {
       const reviewStatus = sourceReviewStatus(source, at);
@@ -147,6 +151,17 @@ export function projectSourceCoverage(
         evidenceFeatures: copy(source.evidenceFeatures),
         coverage: copy(source.coverage),
         blockers,
+        ...(regionalBySource.has(source.id)
+          ? {
+              regionalInterface: {
+                registerId: register.registerId,
+                version: register.version,
+                assessedOn: register.assessedOn,
+                ...copy(regionalBySource.get(source.id)),
+                blockers: copy(blockers),
+              },
+            }
+          : {}),
       };
     },
   );
