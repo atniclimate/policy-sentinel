@@ -5,6 +5,12 @@ D-083/D-084. Recover [its current status](DEMO-STATUS.md) before demo work. The
 local-only historical grants below retain their own scope; they neither revoke
 that demo exception nor authorize new acquisition or general-engine publication.
 
+The 2026-10-09 [Worker maintenance checkpoint](DEMO-STATUS.md#worker-rate-limit-maintenance-2026-10-09)
+records the deployed rate-limit failure fix and its bounded verification.
+Commit `66e8df0` also resolves the local-file formatting issue mentioned in
+the historical GD-55/GD-56 receipts below. Those earlier failure statements
+do not describe the current checkpoint; acquisition and release gates are unchanged.
+
 General-engine implementation updated 2026-10-08 under D-086/D-087/D-088; startup routing remains
 under D-085. `AGENTS.md` holds the rules; this file holds where the engine is,
 what to read, and what a fresh session does first. Historical launch, cutoff

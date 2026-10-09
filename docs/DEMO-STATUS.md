@@ -1,15 +1,38 @@
 # Live demo status
 
-Updated 2026-10-08. Policy Sentinel 0.2.0 is in development. This page records
+Updated 2026-10-09. Policy Sentinel 0.2.0 is in development. This page records
 maintenance of the separately authorized public demo under D-083 and D-084 in
 the [decision register](decision-register.md). General engine work remains in
 [ROADMAP.yaml](../ROADMAP.yaml).
 
-The five audit repairs are published and passed a bounded live check on
-2026-10-08 (Pacific time). The earlier maintenance record is retained below.
-The combined development-repository check remains non-green: one pipeline
-wrapper timed out in the full run and passed alone; pre-existing local-settings
-formatting also remains unresolved.
+The reviewed Worker rate-limit failure fix is deployed and passed bounded
+health and search checks on 2026-10-09. Earlier maintenance and validation
+receipts remain below as historical evidence.
+
+## Worker rate-limit maintenance, 2026-10-09
+
+Source commit `66e8df0e446c541db27ead73e392620a9e24324d` stops search and
+policy-read requests before contacting an official source when the configured
+rate-limit binding fails. The service returns HTTP 429; its health and source
+catalog routes remain available. A regression test checks the failure response
+and confirms that no upstream request occurs.
+
+Worker version `367b993d-dd60-4d34-975f-d0771af22445` serves 100% of traffic
+from 2026-10-09 at 19:26:27 UTC. Bounded health and Federal Register metadata
+search checks passed, including response shape, allowed-origin CORS headers,
+security headers and the retrieval timestamp. The configured rate limit remains 30
+requests per 60 seconds; no source, credential or Worker setting changed.
+The failure path was tested synthetically; no production limiter outage or
+sustained-load test was performed.
+
+The unchanged source passed 81 Worker tests and 495 roadmap-validator tests,
+plus roadmap, backbone and source-boundary validation. The change review found
+no actionable findings. This commit also repairs the blocked-roadmap test
+fixture and excludes two existing Git-ignored local files from formatting;
+the older formatting-failure statements below describe earlier checkpoints.
+The source fix is included in public `main` commit
+`73e7c7e3e15e64deb8c586d6a1d4dcf040283d04`, whose Pages build completed on
+2026-10-09 at 19:07:00 UTC. General-engine release acceptance remains separate.
 
 ## Audit-fix release, 2026-10-08
 
