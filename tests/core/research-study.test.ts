@@ -15,6 +15,7 @@ import {
   assertValidatedResearchStudy,
   captureStudyPassage,
   createResearchStudy,
+  normalizeStudySourceDate,
   parseResearchStudy,
   readResearchStudyRevision,
   rebindResearchStudy,
@@ -110,6 +111,242 @@ async function passageOnly(corpus: AnalyzedCorpusV2) {
 }
 
 describe("persistent research study", () => {
+  it.each([
+    ["September 19, 2025", "2025-09-19", "day"],
+    ["September 1 2025", "2025-09-01", "day"],
+    ["September 2025", "2025-09", "month"],
+    ["  FEBRUARY 29, 2024  ", "2024-02-29", "day"],
+    ["February\n2000", "2000-02", "month"],
+  ])(
+    "normalizes only the explicit precision in %s",
+    (text, value, precision) => {
+      const normalized = normalizeStudySourceDate(text);
+      expect(normalized).toEqual({ value, precision });
+      expect(Object.isFrozen(normalized)).toBe(true);
+    },
+  );
+
+  it.each([
+    "February 29, 2025",
+    "February 29, 1900",
+    "April 31, 2025",
+    "September 0, 2025",
+    "September 32, 2025",
+    "September 19",
+    "September",
+    "September 19, 25",
+    "Sept. 19, 2025",
+    "09/19/2025",
+    "19 September 2025",
+    "September 19–20, 2025",
+    "September 2025 through October 2025",
+    "September 19, 2025 or September 20, 2025",
+    "30 days after September 19, 2025",
+    "next September",
+    "tomorrow",
+    "",
+  ])("does not infer a source date from %s", (text) => {
+    expect(normalizeStudySourceDate(text)).toBeNull();
+  });
+
+  it("replays original month-name dates across actions, deadlines and consultation records without changing review requirements", async () => {
+    const proposalText = "A synthetic rule was proposed on September 1, 2025.";
+    const deadlineText =
+      "Comments close September 19, 2025 Pacific Time, received by midnight.";
+    const consultationText =
+      "A consultation notice was issued in September 2025.";
+    const isoText = "A synthetic action was recorded on 2025-09-01.";
+    const unsupportedDates = [
+      "February 29, 2025",
+      "September 2025 through October 2025",
+      "September 19, 2025 or September 20, 2025",
+      "30 days after September 19, 2025",
+    ];
+    const corpus = corpusFixture({
+      documentKeys: ["parent"],
+      extraText:
+        "\n" +
+        [
+          proposalText,
+          deadlineText,
+          consultationText,
+          isoText,
+          ...unsupportedDates,
+        ].join("\n"),
+    });
+    const { study, passage } = await passageOnly(corpus);
+    const base = {
+      actorId: actor.id,
+      createdAt: updateTime,
+      provenance: "extracted_evidence",
+      reviewState: "unreviewed",
+      sensitivity: "public",
+      passageIds: [passage.id],
+    } as const;
+    const proceeding = {
+      ...base,
+      id: "date-proceeding",
+      title: "Synthetic proceeding with source-stated dates",
+      parentProceedingId: null,
+      docketIds: [],
+      rins: [],
+      versionIds: [passage.citation.versionId],
+      sourceStatement: proposalText,
+    };
+    const action = {
+      ...base,
+      id: "date-action",
+      proceedingId: proceeding.id,
+      versionId: passage.citation.versionId,
+      type: "proposed_rule",
+      date: { value: "2025-09-01", precision: "day" },
+      sourceDateText: "September 1, 2025",
+      sourceStatement: proposalText,
+      previousActionId: null,
+    } as const;
+    const deadline = {
+      ...base,
+      id: "date-deadline",
+      actionId: action.id,
+      type: "comment",
+      date: { value: "2025-09-19", precision: "day" },
+      sourceDateText: "September 19, 2025",
+      timeZone: "Pacific Time",
+      qualifications: "received by midnight",
+      replacesDeadlineId: null,
+      sourceStatement: deadlineText,
+    } as const;
+    const consultation = {
+      ...base,
+      id: "date-consultation",
+      proceedingId: proceeding.id,
+      type: "notice",
+      date: { value: "2025-09", precision: "month" },
+      sourceDateText: "September 2025",
+      sourceStatement: consultationText,
+      relatedEventIds: [],
+      respondsToEventId: null,
+      participants: [],
+    } as const;
+    const records: StudyChange[] = [
+      { collection: "proceedings", record: proceeding },
+      { collection: "actions", record: action },
+      { collection: "deadlines", record: deadline },
+      { collection: "consultations", record: consultation },
+      {
+        collection: "actions",
+        record: {
+          ...action,
+          id: "date-iso-action",
+          sourceDateText: "2025-09-01",
+          sourceStatement: isoText,
+        },
+      },
+    ];
+    const saved = await mutate(study, records, corpus);
+    const reopened = await parseResearchStudy(
+      await serializeResearchStudy(saved, corpus),
+      corpus,
+    );
+    expect(reopened.actions.find((record) => record.id === action.id)).toEqual(
+      action,
+    );
+    expect(reopened.deadlines[0]).toEqual(deadline);
+    expect(reopened.consultations[0]).toEqual(consultation);
+    expect(
+      reopened.actions.find((record) => record.id === "date-iso-action")?.date,
+    ).toEqual(action.date);
+    expect((await studyReadPassage(passage, corpus)).text).toContain(
+      deadlineText,
+    );
+
+    for (const wrongDate of [
+      { value: "2025-09-02", precision: "day" },
+      { value: "2025-09", precision: "month" },
+      { value: "2025", precision: "year" },
+    ] as const) {
+      await expect(
+        mutate(
+          study,
+          [
+            records[0],
+            { collection: "actions", record: { ...action, date: wrongDate } },
+          ],
+          corpus,
+        ),
+      ).rejects.toThrow(/SOURCE_DATE_NORMALIZATION/u);
+    }
+    await expect(
+      mutate(
+        study,
+        [
+          records[0],
+          {
+            collection: "actions",
+            record: { ...action, sourceDateText: "September 01, 2025" },
+          },
+        ],
+        corpus,
+      ),
+    ).rejects.toThrow(/SOURCE_DATE_REPLAY/u);
+    await expect(
+      mutate(
+        study,
+        [
+          records[0],
+          {
+            collection: "actions",
+            record: { ...action, reviewState: "accepted" },
+          },
+        ],
+        corpus,
+      ),
+    ).rejects.toThrow(/REVIEW_REQUIRED/u);
+    for (const sourceDateText of unsupportedDates) {
+      await expect(
+        mutate(
+          study,
+          [
+            records[0],
+            {
+              collection: "actions",
+              record: {
+                ...action,
+                date: { value: "2025", precision: "year" },
+                sourceDateText,
+                sourceStatement: sourceDateText,
+              },
+            },
+          ],
+          corpus,
+        ),
+      ).rejects.toThrow(/SOURCE_DATE_NORMALIZATION/u);
+    }
+    for (const date of [
+      { value: "2025", precision: "year" },
+      { value: "2025-09", precision: "month" },
+      { value: "2025-09-01", precision: "day" },
+    ] as const) {
+      const iso = await mutate(
+        study,
+        [
+          records[0],
+          {
+            collection: "actions",
+            record: {
+              ...action,
+              date,
+              sourceDateText: date.value,
+              sourceStatement: isoText,
+            },
+          },
+        ],
+        corpus,
+      );
+      expect(iso.actions[0].date).toEqual(date);
+    }
+  });
+
   it("compiles the closed schema and round trips exact canonical digests and immutable records", async () => {
     const { study, corpus, passages } = await fixture();
     const ajv = new Ajv2020({ strict: true, allErrors: true });

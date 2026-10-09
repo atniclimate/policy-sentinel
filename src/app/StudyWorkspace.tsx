@@ -541,7 +541,15 @@ export function StudyWorkspace({
   const bound = study?.corpusDigest === corpus.contentDigest;
   const activeQuestion = questionId || study?.questions[0]?.id || "";
   const activeDiscovery = discoveryId || study?.discoveries[0]?.id || "";
-  const actor = actorId || study?.updatedBy || "";
+  const analysts =
+    study?.actors.filter((item) => item.kind === "analyst") ?? [];
+  const actor =
+    analysts.find((item) => item.id === actorId)?.id ?? analysts[0]?.id ?? "";
+  const registrationActor =
+    study?.actors.find(
+      (item) =>
+        item.id === study.updatedBy && ["analyst", "rule"].includes(item.kind),
+    ) ?? study?.actors.find((item) => ["analyst", "rule"].includes(item.kind));
   const context = useMemo(
     () =>
       searchResults
@@ -647,6 +655,8 @@ export function StudyWorkspace({
   async function update(records: readonly StudyChange[]) {
     if (!study || !bound)
       throw new Error("Resume or rebind a study before editing.");
+    if (!actor)
+      throw new Error("Join this study as a local analyst before editing.");
     const next = await reviseResearchStudy(
       study,
       { updatedAt: timestamp(), actorId: actor, records },
@@ -705,7 +715,7 @@ export function StudyWorkspace({
       throw failure;
     }
   }
-  const disabled = busy || !study || !bound;
+  const disabled = busy || !study || !bound || !actor;
   const edit =
     (handler: (data: FormData) => Promise<void>) =>
     (data: FormData, form: HTMLFormElement) => {
@@ -1116,7 +1126,7 @@ export function StudyWorkspace({
             </p>
             <button
               type="button"
-              disabled={disabled}
+              disabled={busy || !bound}
               onClick={() =>
                 void run(async () => {
                   download(
@@ -1150,7 +1160,8 @@ export function StudyWorkspace({
                   void run(async () => {
                     const rebound = await rebindResearchStudy(study, corpus, {
                       updatedAt: timestamp(),
-                      actorId: actor,
+                      actorId:
+                        actor || registrationActor?.id || study.updatedBy,
                     });
                     setStudy(rebound);
                     setProducts(null);
@@ -1162,21 +1173,83 @@ export function StudyWorkspace({
               </button>
             </div>
           )}
+          {!actor && (
+            <>
+              <p>
+                Join this study as a local analyst to edit or review it.
+                Existing model and rule authorship stays attached to its
+                original records.
+              </p>
+              {!registrationActor && (
+                <p class="sw-notice">
+                  This study has no saved analyst or rule actor authorized to
+                  register an analyst. It remains available for reading and
+                  export.
+                </p>
+              )}
+              <Editor
+                title="Join study as local analyst"
+                submit="Join study"
+                disabled={busy || !bound || !registrationActor}
+                onSubmit={edit(async (data) => {
+                  if (!registrationActor || !bound)
+                    throw new Error(
+                      "A bound study with a saved analyst or rule actor is required.",
+                    );
+                  const localActor: StudyActor = {
+                    id: identifier("analyst"),
+                    label: value(data, "actorLabel"),
+                    kind: "analyst",
+                    sensitivity: value(data, "sensitivity") as StudySensitivity,
+                  };
+                  const joined = await reviseResearchStudy(
+                    study,
+                    {
+                      updatedAt: timestamp(),
+                      actorId: registrationActor.id,
+                      records: [{ collection: "actors", record: localActor }],
+                    },
+                    corpus,
+                  );
+                  setStudy(joined);
+                  setActorId(localActor.id);
+                  setSensitivity("restricted");
+                  setProducts(null);
+                  setHistorical(null);
+                  setMessage(
+                    "Local analyst registered. New authored material defaults to restricted; save study JSON to keep this change.",
+                  );
+                })}
+              >
+                <Field
+                  label="Nonpersonal local analyst label"
+                  name="actorLabel"
+                  required
+                  placeholder="For example: local analyst A"
+                />
+                <Choice
+                  label="Local analyst label visibility"
+                  name="sensitivity"
+                  options={choices(["restricted", "public"])}
+                  defaultValue="restricted"
+                />
+              </Editor>
+            </>
+          )}
           <div class="sw-settings">
             <label>
               Acting analyst
               <select
                 value={actor}
-                disabled={busy}
+                disabled={busy || !actor}
                 onChange={(event) => setActorId(event.currentTarget.value)}
               >
-                {study.actors
-                  .filter((item) => item.kind === "analyst")
-                  .map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.label}
-                    </option>
-                  ))}
+                {!actor && <option value="">Join as a local analyst</option>}
+                {analysts.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.label}
+                  </option>
+                ))}
               </select>
             </label>
             <label>
@@ -2470,7 +2543,7 @@ export function StudyWorkspace({
             </p>
             <button
               type="button"
-              disabled={disabled}
+              disabled={busy || !bound}
               onClick={() =>
                 void run(async () => {
                   setProducts(

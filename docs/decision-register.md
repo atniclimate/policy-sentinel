@@ -221,6 +221,8 @@ session 1; the ruling date is the decision date.
 
 | D-088 | **Owner implementation launch 2026-10-08.** Implement integrated source qualification for WA, OR, ID, AK, CA, MT, NV and ATNI/NCAI/USET; procedural and consultation histories; structured environmental evidence; proceeding-aware retrieval; persistent studies and analyst discovery; attributed graph and provenance-preserving exports. The owner authorizes coordinated architecture, schema/migration changes, independent sequencing and parallel engineering. The ten functional outcomes in the [implementation record](development/2026-10-08-study-engine-implementation.md) are mandatory acceptance coverage. Resume GD-10's reviewed closure, then prioritize the dependency-ready catalog, study and search implementation ahead of unrelated pending features. Preserve immutable source identity, explicit sovereign attribution, private-note separation, the 50,000,000,000-byte managed-storage ceiling and existing source-specific access/reuse conditions. This launch implements the already adopted scope; it does not grant general-engine publication, credentials, provider-term acceptance, paid calls, contact, private inputs or optional model generation, and does not declare the GD-27 release accepted. |
 
+| D-089 | **Owner research-pilot direction 2026-10-08.** “Conduct the real-source research pilot.” Execute the finite roadless federal subset recorded in the [pilot journal](development/2026-10-08-roadless-real-source-pilot.md), using a newly reviewed manifest, measured storage, immutable custody, persistent study and local evidence products. Three direct GovInfo documents do not establish Federal Register API integration or complete the broader three-family pilot. Preserve all ungranted external operations and source-specific conditions. |
+
 ## Open implementation facts
 
 | ID | Fact to resolve | Current evidence and next verification |
@@ -308,6 +310,20 @@ On 2026-07-30, `gh repo view atniclimate/policy-sentinel` reported
 archived. The owner-directed treatment controls: it remains read-only historical
 reference regardless of the GitHub flag. Its public files were inspected through
 `gh`; it was not cloned, modified, or used as an architecture or code source.
+
+## D-089: bounded real-source research pilot (2026-10-08)
+
+The owner instructed “Conduct the real-source research pilot” after the accepted
+D-088 implementation. Execute a finite local roadless study through current
+source qualification, measured acquisition, exact passage capture, persistent
+study save/reopen and provenance-preserving exports. Finish the selected
+exact-label mapping seam first. Use a fresh operation and external namespace;
+historical grants and source runs remain sealed. A qualified direct official
+document route can support the study but does not satisfy a separately required
+API integration. Source-specific access/reuse requirements, the 50 GB managed
+ceiling and the closed external operations remain unchanged. The finite federal
+study does not declare the broader three-family pilot or general release complete.
+See [the execution record](development/2026-10-08-roadless-real-source-pilot.md).
 
 ## Change control
 

@@ -21,6 +21,7 @@ import {
   captureStudyPassage,
   createResearchStudy,
   parseResearchStudy,
+  readResearchStudyRevision,
   reviseResearchStudy,
   serializeResearchStudy,
 } from "../../src/core/research-study.mjs";
@@ -213,6 +214,138 @@ async function seed(
 }
 
 describe("persistent local study workspace", () => {
+  it("explicitly joins a rule-managed model study and preserves its authorship when editing", async () => {
+    const network = vi
+      .spyOn(globalThis, "fetch")
+      .mockRejectedValue(new Error("Unexpected network"));
+    const settings = props();
+    const rule = {
+      id: "rule-local",
+      label: "Local study assembly rule",
+      kind: "rule",
+      sensitivity: "restricted",
+    } as const;
+    const model = {
+      id: "model-local",
+      label: "Model interpretation",
+      kind: "model",
+      sensitivity: "restricted",
+    } as const;
+    const initial = await createResearchStudy(
+      {
+        id: "study-model",
+        title: "Model-authored pilot",
+        createdAt: "2026-10-01T00:00:00Z",
+        actor: rule,
+      },
+      settings.corpus,
+    );
+    const question = {
+      id: "question-model",
+      actorId: model.id,
+      createdAt: "2026-10-01T00:00:01Z",
+      provenance: "model_interpretation",
+      reviewState: "unreviewed",
+      sensitivity: "restricted",
+      text: "What changed in the proceeding?",
+      parentQuestionId: null,
+      theme: "Procedure",
+      status: "open",
+      discoveryGeographies: [],
+    } as const;
+    const saved = await reviseResearchStudy(
+      initial,
+      {
+        updatedAt: question.createdAt,
+        actorId: rule.id,
+        records: [
+          { collection: "actors", record: model },
+          { collection: "questions", record: question },
+        ],
+      },
+      settings.corpus,
+    );
+    render(<StudyWorkspace {...settings} />);
+    await resume(await serializeResearchStudy(saved, settings.corpus));
+    expect(screen.getByLabelText("Acting analyst")).toBeDisabled();
+    expect(
+      within(editor("Update question status")).getByRole("button", {
+        name: "Save question status",
+      }),
+    ).toBeDisabled();
+    expect((await backup(settings.corpus)).study.actors).toEqual(saved.actors);
+    const joinForm = editor("Join study as local analyst");
+    expect(
+      within(joinForm).getByLabelText("Local analyst label visibility"),
+    ).toHaveValue("restricted");
+    input(joinForm, "Nonpersonal local analyst label", "local analyst B");
+    await submit(joinForm);
+    const joined = (await backup(settings.corpus)).study;
+    const analyst = joined.actors.find((item) => item.kind === "analyst")!;
+    expect(analyst).toMatchObject({
+      label: "local analyst B",
+      kind: "analyst",
+      sensitivity: "restricted",
+    });
+    expect(screen.getByLabelText("Acting analyst")).toHaveValue(analyst.id);
+    expect(
+      screen.getByLabelText("New authored material visibility"),
+    ).toHaveValue("restricted");
+    expect(joined.questions).toEqual(saved.questions);
+    expect(joined.actors.slice(0, saved.actors.length)).toEqual(saved.actors);
+    expect(joined.updatedBy).toBe(rule.id);
+    expect(joined.revision).toBe(saved.revision + 1);
+    const form = editor("Update question status");
+    select(form, "Question status", "answered");
+    await submit(form);
+    const edited = (await backup(settings.corpus)).study;
+    expect(edited.questions[0]).toEqual({ ...question, status: "answered" });
+    expect(edited.questions[0].actorId).toBe(model.id);
+    expect(edited.questions[0].provenance).toBe("model_interpretation");
+    expect(edited.updatedBy).toBe(analyst.id);
+    expect(edited.revisions.slice(0, saved.revisions.length)).toEqual(
+      saved.revisions,
+    );
+    expect(await readResearchStudyRevision(edited, saved.revision)).toEqual(
+      saved,
+    );
+    expect(network).not.toHaveBeenCalled();
+  });
+
+  it("keeps a model-only study readable without inventing an analyst or revision authority", async () => {
+    const settings = props();
+    const saved = await createResearchStudy(
+      {
+        id: "study-model-only",
+        title: "Model-only study",
+        createdAt: "2026-10-01T00:00:00Z",
+        actor: {
+          id: "model-only",
+          label: "Model interpretation",
+          kind: "model",
+          sensitivity: "restricted",
+        },
+      },
+      settings.corpus,
+    );
+    render(<StudyWorkspace {...settings} />);
+    await resume(await serializeResearchStudy(saved, settings.corpus));
+    expect(
+      screen.getByText(
+        /no saved analyst or rule actor authorized to register an analyst/u,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(editor("Join study as local analyst")).getByRole("button", {
+        name: "Join study",
+      }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Prepare knowledge products" }),
+    ).not.toBeDisabled();
+    expect((await backup(settings.corpus)).study).toEqual(saved);
+  });
+
   it("completes the analyst loop and resumes exact evidence, authorship, review, and private notes", async () => {
     const network = vi
       .spyOn(globalThis, "fetch")

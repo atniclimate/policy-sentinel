@@ -256,6 +256,41 @@ function date(value) {
         : "");
   ensure(validTime(complete + "T00:00:00Z"), "DATE_VALUE");
 }
+/** Normalize one explicit English month fragment, never surrounding date prose. */
+export function normalizeStudySourceDate(sourceDateText) {
+  if (typeof sourceDateText !== "string") return null;
+  const match =
+    /^(January|February|March|April|May|June|July|August|September|October|November|December)\s+(?:(\d{1,2}),?\s+)?(\d{4})$/iu.exec(
+      sourceDateText.trim(),
+    );
+  if (!match) return null;
+  const months = [
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december",
+  ];
+  const month = String(months.indexOf(match[1].toLowerCase()) + 1).padStart(
+    2,
+    "0",
+  );
+  const day = match[2]?.padStart(2, "0");
+  const value = `${match[3]}-${month}${day === undefined ? "" : "-" + day}`;
+  if (!validTime(value + (day === undefined ? "-01" : "") + "T00:00:00Z"))
+    return null;
+  return Object.freeze({
+    value,
+    precision: day === undefined ? "month" : "day",
+  });
+}
 function unique(values, code = "DUPLICATE_REFERENCE") {
   ensure(new Set(values).size === values.length, code);
 }
@@ -847,12 +882,19 @@ async function semantics(study, index) {
         record.sourceStatement.includes(record.sourceDateText),
         "SOURCE_DATE_REPLAY",
       );
-    if (record.date.precision !== "unknown")
+    if (record.date.precision !== "unknown") {
+      const normalized = normalizeStudySourceDate(record.sourceDateText);
       ensure(
         record.sourceDateText !== null &&
-          tokenOccurs(record.sourceDateText, record.date.value),
+          (normalized !== null
+            ? normalized.value === record.date.value &&
+              normalized.precision === record.date.precision
+            : !/\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\b/iu.test(
+                record.sourceDateText,
+              ) && tokenOccurs(record.sourceDateText, record.date.value)),
         "SOURCE_DATE_NORMALIZATION",
       );
+    }
   }
   for (const question of study.questions)
     reference("questions", question.parentQuestionId, true);

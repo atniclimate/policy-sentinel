@@ -144,8 +144,10 @@ function sourceUpdatedAt(record) {
  * Synthetic fixtures are already normalized, so this records their fixture
  * JSON pointers as the source paths. Production adapters must create their own
  * provenance during normalization and must not call this helper.
+ * When supplied, mapping evidence must be the aligned mapOfficialSubjects
+ * result; derived taxonomy fields then cite the matched fixture subject.
  */
-export function completeSyntheticProvenance(record) {
+export function completeSyntheticProvenance(record, mappingEvidence) {
   const clone = globalThis.structuredClone(record);
   const existing = new Set(clone.fieldProvenance.map(({ field }) => field));
   for (const field of sourceDerivedLeafPointers(clone)) {
@@ -165,6 +167,65 @@ export function completeSyntheticProvenance(record) {
       transformRuleId: null,
       validationState: "validated",
     });
+  }
+  if (mappingEvidence !== undefined) {
+    if (
+      !Array.isArray(mappingEvidence) ||
+      mappingEvidence.length !== clone.taxonomyMemberships.length ||
+      clone.isUnclassified !== (mappingEvidence.length === 0)
+    ) {
+      throw new TypeError(
+        "Synthetic mapping evidence does not match taxonomy output",
+      );
+    }
+    const derived = [];
+    const flagEvidence = new Set();
+    for (const [index, evidence] of mappingEvidence.entries()) {
+      const membership = clone.taxonomyMemberships[index];
+      const subjectIndex = clone.officialSubjects.findIndex(
+        (subject) =>
+          subject.scheme === evidence.officialSubject?.scheme &&
+          subject.label === evidence.officialSubject?.label &&
+          subject.sourceUrl === evidence.officialSubject?.sourceUrl,
+      );
+      if (
+        subjectIndex === -1 ||
+        evidence.sourceId !== clone.source.id ||
+        evidence.mappingRuleId !== membership.mappingRuleId ||
+        evidence.taxonomyVersion !== membership.taxonomyVersion ||
+        evidence.mappingProvenance?.validationState !== "validated" ||
+        membership.officialSubjectLabels.length !== 1 ||
+        membership.officialSubjectLabels[0] !== evidence.officialSubject.label
+      ) {
+        throw new TypeError(
+          "Synthetic mapping evidence does not match its source subject or rule",
+        );
+      }
+      const subjectField = `/officialSubjects/${subjectIndex}/label`;
+      const provenance = {
+        ...clone.fieldProvenance.find(({ field }) => field === subjectField),
+        sourcePath: `$fixture${subjectField}`,
+        sourceUrl: evidence.officialSubject.sourceUrl,
+        transformation: "deterministic_mapping",
+        transformRuleId: evidence.mappingRuleId,
+      };
+      const fields = [];
+      collectPrimitivePointers(
+        membership,
+        `/taxonomyMemberships/${index}`,
+        fields,
+      );
+      for (const field of fields) derived.push({ ...provenance, field });
+      const flagKey = JSON.stringify([evidence.mappingRuleId, subjectIndex]);
+      if (!flagEvidence.has(flagKey)) {
+        derived.push({ ...provenance, field: "/isUnclassified" });
+        flagEvidence.add(flagKey);
+      }
+    }
+    const derivedFields = new Set(derived.map(({ field }) => field));
+    clone.fieldProvenance = clone.fieldProvenance
+      .filter(({ field }) => !derivedFields.has(field))
+      .concat(derived);
   }
   clone.fieldProvenance.sort((a, b) => a.field.localeCompare(b.field));
   return clone;

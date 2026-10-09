@@ -302,7 +302,19 @@ async function diskUse(root) {
   return bytes;
 }
 
+function runLimits(manifest) {
+  if (manifest.version === "1.0.0") return POLICY_LIMITS;
+  return {
+    ...POLICY_LIMITS,
+    ...manifest.limits,
+    // Leave one maximum transport chunk inside the reservation when a stream
+    // crosses its payload limit. The response reservation is never exceeded.
+    bodyBytes: manifest.limits.responseBytes - 65536,
+  };
+}
+
 function validateManifest(manifest, forDispatch = false) {
+  const bounded = manifest?.version === "1.1.0";
   if (
     !exact(manifest, [
       "version",
@@ -310,18 +322,53 @@ function validateManifest(manifest, forDispatch = false) {
       "trustDomain",
       "profiles",
       "targets",
+      ...(bounded ? ["limits"] : []),
     ]) ||
-    manifest.version !== "1.0.0" ||
+    !["1.0.0", "1.1.0"].includes(manifest.version) ||
     !safeId(manifest.runId) ||
     !["real_source_local", "synthetic_test_only"].includes(manifest.trustDomain)
   )
     fail("INVALID_MANIFEST");
+  if (bounded) {
+    const limits = manifest.limits;
+    if (
+      !exact(limits, [
+        "attempts",
+        "encodedBytes",
+        "decodedBytes",
+        "responseBytes",
+        "spacingMs",
+        "deadlineMs",
+        "retries",
+      ]) ||
+      !count(limits.attempts, 12) ||
+      limits.attempts < 1 ||
+      !count(limits.encodedBytes, 32 * 1024 ** 2) ||
+      !count(limits.decodedBytes, 32 * 1024 ** 2) ||
+      !count(limits.responseBytes, 8 * 1024 ** 2) ||
+      limits.responseBytes <= 65536 ||
+      limits.responseBytes > limits.encodedBytes ||
+      limits.responseBytes > limits.decodedBytes ||
+      !count(limits.spacingMs, 2147483647) ||
+      limits.spacingMs < 15000 ||
+      !count(limits.deadlineMs, 30000) ||
+      limits.deadlineMs < 1 ||
+      limits.retries !== 0
+    )
+      fail("INVALID_RUN_LIMITS");
+  }
   if (
     !Array.isArray(manifest.profiles) ||
     manifest.profiles.length > 4 ||
     !Array.isArray(manifest.targets)
   )
     fail("INVALID_MANIFEST");
+  if (
+    bounded &&
+    (!manifest.targets.length ||
+      manifest.targets.length > manifest.limits.attempts)
+  )
+    fail("INVALID_TARGET_BUDGET");
   const hosts = new Set();
   const ids = new Set();
   for (const profile of manifest.profiles) {
@@ -393,9 +440,18 @@ function validateManifest(manifest, forDispatch = false) {
   }
   if (hosts.size > 10) fail("HOST_BUDGET");
   const urls = new Set();
+  const operations = new Set();
   for (const target of manifest.targets) {
     if (
-      !exact(target, ["profileId", "url", "expectedIdentity", "mediaTypes"]) ||
+      !exact(target, [
+        "profileId",
+        "url",
+        "expectedIdentity",
+        "mediaTypes",
+        ...(bounded ? ["operationId"] : []),
+      ]) ||
+      (bounded &&
+        (!safeId(target.operationId) || operations.has(target.operationId))) ||
       urls.has(target.url) ||
       typeof target.expectedIdentity !== "string" ||
       !target.expectedIdentity ||
@@ -439,6 +495,7 @@ function validateManifest(manifest, forDispatch = false) {
     )
       fail("UNSUPPORTED_MEDIA");
     urls.add(target.url);
+    if (bounded) operations.add(target.operationId);
   }
   return manifest;
 }
@@ -470,14 +527,17 @@ const receiptKeys = [
   "retryAfter",
 ];
 function validateEntry(entry, id, manifest) {
+  const limits = runLimits(manifest);
+  const bounded = manifest.version === "1.1.0";
   const target = manifest.targets.find((v) => v.url === entry?.url);
   if (
     !safeId(id) ||
     entry?.operationId !== id ||
     !target ||
+    (bounded && (target.operationId !== id || entry.retryOf !== null)) ||
     target.profileId !== entry.profileId ||
     !timestamp(entry.startedAt) ||
-    entry.reservedBytes !== POLICY_LIMITS.responseBytes ||
+    entry.reservedBytes !== limits.responseBytes ||
     !hashId(entry.manifestDigest) ||
     !(entry.retryOf === null || safeId(entry.retryOf))
   )
@@ -492,8 +552,14 @@ function validateEntry(entry, id, manifest) {
     !timestamp(entry.completedAt) ||
     Date.parse(entry.completedAt) < Date.parse(entry.startedAt) ||
     entry.finalUrl !== entry.url ||
-    !count(entry.encodedBytes, POLICY_LIMITS.encodedBytes) ||
-    !count(entry.decodedBytes, POLICY_LIMITS.decodedBytes) ||
+    !count(
+      entry.encodedBytes,
+      bounded ? limits.responseBytes : limits.encodedBytes,
+    ) ||
+    !count(
+      entry.decodedBytes,
+      bounded ? limits.responseBytes : limits.decodedBytes,
+    ) ||
     typeof entry.conservativeByteCharge !== "boolean" ||
     typeof entry.transient !== "boolean" ||
     entry.expectedIdentity !== target.expectedIdentity ||
@@ -513,7 +579,8 @@ function validateEntry(entry, id, manifest) {
       entry.objectPath !== `objects/${entry.objectDigest}.bin` ||
       entry.errorCode !== null ||
       entry.encodedBytes !== entry.decodedBytes ||
-      entry.decodedBytes > POLICY_LIMITS.responseBytes ||
+      entry.decodedBytes >
+        (bounded ? limits.bodyBytes : limits.responseBytes) ||
       entry.transient ||
       entry.conservativeByteCharge ||
       !target.mediaTypes.includes(
@@ -524,15 +591,20 @@ function validateEntry(entry, id, manifest) {
   } else if (
     entry.objectDigest !== null ||
     entry.objectPath !== null ||
-    !entry.errorCode
+    !entry.errorCode ||
+    (bounded &&
+      (!entry.conservativeByteCharge ||
+        entry.encodedBytes !== limits.responseBytes ||
+        entry.decodedBytes !== limits.responseBytes))
   )
     fail("INVALID_FAILED_RECEIPT");
 }
 function validateLedger(ledger, manifest) {
+  const limits = runLimits(manifest);
   if (
-    !count(ledger.attempts, POLICY_LIMITS.attempts) ||
-    !count(ledger.encodedBytes, POLICY_LIMITS.encodedBytes) ||
-    !count(ledger.decodedBytes, POLICY_LIMITS.decodedBytes) ||
+    !count(ledger.attempts, limits.attempts) ||
+    !count(ledger.encodedBytes, limits.encodedBytes) ||
+    !count(ledger.decodedBytes, limits.decodedBytes) ||
     !ledger.operations ||
     typeof ledger.operations !== "object" ||
     Array.isArray(ledger.operations)
@@ -613,18 +685,19 @@ export async function initializePolicyRun(root, manifest) {
   await windowsProbe(root);
   await mkdir(root, { recursive: true });
   if ((await readdir(root)).length) fail("ROOT_NOT_EMPTY");
+  const manifestDigest = digest(jsonBytes(manifest));
   await atomic(
     join(root, "owner.json"),
     jsonBytes({
-      version: "1.0.0",
+      version: manifest.version,
       runId: manifest.runId,
       trustDomain: manifest.trustDomain,
       createdAt: new Date().toISOString(),
+      ...(manifest.version === "1.1.0" ? { manifestDigest } : {}),
     }),
   );
   for (const folder of ["objects", "receipts", "work", "review", "manifests"])
     await mkdir(join(root, folder));
-  const manifestDigest = digest(jsonBytes(manifest));
   await atomic(
     join(root, "manifests", `${manifestDigest}.json`),
     jsonBytes(manifest),
@@ -653,9 +726,19 @@ export async function openPolicyRun(root) {
   await windowsProbe(root);
   const owner = await json(join(root, "owner.json"));
   const ledger = await json(join(root, "ledger.json"));
+  const bounded = owner?.version === "1.1.0";
   if (
-    !exact(owner, ["version", "runId", "trustDomain", "createdAt"]) ||
-    owner.version !== "1.0.0" ||
+    !exact(owner, [
+      "version",
+      "runId",
+      "trustDomain",
+      "createdAt",
+      ...(bounded ? ["manifestDigest"] : []),
+    ]) ||
+    !["1.0.0", "1.1.0"].includes(owner.version) ||
+    (bounded &&
+      (!hashId(owner.manifestDigest) ||
+        owner.manifestDigest !== ledger?.manifestDigest)) ||
     !timestamp(owner.createdAt) ||
     !safeId(owner.runId) ||
     !exact(ledger, [
@@ -681,12 +764,15 @@ export async function openPolicyRun(root) {
   const manifest = validateManifest(JSON.parse(bytes));
   if (
     manifest.runId !== owner.runId ||
-    manifest.trustDomain !== owner.trustDomain
+    manifest.trustDomain !== owner.trustDomain ||
+    manifest.version !== owner.version
   )
     fail("CUSTODY_IDENTITY_MISMATCH");
   validateLedger(ledger, manifest);
   const history = new Map([[ledger.manifestDigest, manifest]]);
   for (const entry of Object.values(ledger.operations)) {
+    if (bounded && entry.manifestDigest !== owner.manifestDigest)
+      fail("HISTORICAL_MANIFEST_BINDING_MISMATCH");
     if (!history.has(entry.manifestDigest)) {
       const historicalPath = await safePath(
         join(root, "manifests", `${entry.manifestDigest}.json`),
@@ -697,6 +783,7 @@ export async function openPolicyRun(root) {
       const historical = validateManifest(JSON.parse(historicalBytes));
       if (
         historical.runId !== owner.runId ||
+        historical.version !== manifest.version ||
         historical.trustDomain !== owner.trustDomain ||
         JSON.stringify(historical.profiles) !==
           JSON.stringify(manifest.profiles)
@@ -745,6 +832,11 @@ export async function admitPolicyTargets(root, manifest) {
   return locked(root, async () => {
     const run = await openPolicyRun(root);
     validateManifest(manifest, true);
+    if (
+      run.manifest.version === "1.1.0" ||
+      manifest.version !== run.manifest.version
+    )
+      fail("FROZEN_MANIFEST_NEW_RUN_REQUIRED");
     if (
       manifest.runId !== run.manifest.runId ||
       manifest.trustDomain !== run.manifest.trustDomain ||
@@ -868,6 +960,8 @@ export async function acquirePolicyObject(
   return locked(root, async () => {
     const run = await openPolicyRun(root);
     const { ledger, manifest } = run;
+    const bounded = manifest.version === "1.1.0";
+    const limits = runLimits(manifest);
     validateManifest(manifest, true);
     for (const [id, entry] of Object.entries(ledger.operations))
       if (
@@ -882,6 +976,9 @@ export async function acquirePolicyObject(
       fail("UNSETTLED_RESERVATION");
     const target = manifest.targets.find((v) => v.url === url);
     if (!target) fail("URL_NOT_IN_FROZEN_MANIFEST");
+    if (bounded && target.operationId !== operationId)
+      fail("OPERATION_TARGET_MISMATCH");
+    if (bounded && retryOf !== null) fail("RETRY_NOT_AUTHORIZED");
     const synthetic = run.owner.trustDomain === "synthetic_test_only";
     if (
       synthetic !== Boolean(syntheticTransport) ||
@@ -890,7 +987,8 @@ export async function acquirePolicyObject(
           crashStage ||
           syntheticDeadlineMs !== null)) ||
       (syntheticDeadlineMs !== null &&
-        (!count(syntheticDeadlineMs, 60000) || syntheticDeadlineMs < 1)) ||
+        (!count(syntheticDeadlineMs, limits.deadlineMs) ||
+          syntheticDeadlineMs < 1)) ||
       (crashStage && !["response", "object", "receipt"].includes(crashStage))
     )
       fail("TRANSPORT_TRUST_MISMATCH");
@@ -908,7 +1006,6 @@ export async function acquirePolicyObject(
         fail("RETRY_NOT_AUTHORIZED");
     } else if (Object.values(ledger.operations).some((o) => o.url === url))
       fail("EXPLICIT_RETRY_REQUIRED");
-    const limits = POLICY_LIMITS;
     if (
       ledger.attempts >= limits.attempts ||
       ledger.encodedBytes + limits.responseBytes > limits.encodedBytes ||
@@ -925,11 +1022,21 @@ export async function acquirePolicyObject(
       fail("DISK_BUDGET_EXHAUSTED");
     const host = new URL(url).hostname;
     if ((ledger.cooldowns[host] ?? 0) > Date.now()) fail("RETRY_AFTER_ACTIVE");
-    const waitMs = Math.max(
-      0,
-      (ledger.lastStarts[host] ?? 0) + limits.spacingMs - Date.now(),
-    );
+    // A reservation precedes ledger persistence and DNS. For bounded runs,
+    // waiting from completion also spaces actual requests across all hosts.
+    const spacingAnchor = bounded
+      ? Math.max(
+          0,
+          ...Object.values(ledger.lastStarts),
+          ...Object.values(ledger.operations).map((entry) =>
+            Date.parse(entry.completedAt ?? entry.startedAt),
+          ),
+        )
+      : (ledger.lastStarts[host] ?? 0);
+    const waitMs = Math.max(0, spacingAnchor + limits.spacingMs - Date.now());
+    if (bounded && waitMs > 2147483647) fail("INVALID_HOST_CLOCK");
     await delay(waitMs);
+    if (bounded) validateManifest(manifest, true);
     const startedAt = new Date().toISOString();
     const reservation = {
       operationId,
@@ -1036,6 +1143,7 @@ export async function acquirePolicyObject(
     if (crashStage === "response") process.exit(87);
     // A rejected/unread response is charged its full reservation. No body or
     // archive decompression occurs; unsupported encodings fail closed.
+    if (bounded && outcome === "failed") unknownBytes = true;
     if (unknownBytes) encodedBytes = decodedBytes = limits.responseBytes;
     let objectDigest = null;
     let objectPath = null;

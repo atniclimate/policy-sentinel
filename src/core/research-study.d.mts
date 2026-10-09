@@ -339,6 +339,14 @@ export interface StudyGraphEdge {
 export class ResearchStudyError extends TypeError {
   readonly code: string;
 }
+/**
+ * Normalize an entire explicit full English month fragment (September 19, 2025
+ * or September 2025). Returns null for unsupported or invalid dates; never
+ * infers missing components. Callers retain and replay the original source text.
+ */
+export function normalizeStudySourceDate(
+  sourceDateText: string,
+): Readonly<PolicyDate> | null;
 export function createResearchStudy(
   input: {
     readonly id: string;

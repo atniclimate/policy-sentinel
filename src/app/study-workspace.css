@@ -5,6 +5,7 @@
   border-radius: 0.6rem;
   background: #f5f8f7;
   color: #183c39;
+  overflow-wrap: anywhere;
 }
 .study-workspace h2,
 .study-workspace h3,
@@ -156,6 +157,7 @@
 }
 .study-workspace th {
   background: #e1ebe6;
+  color: #183c39;
 }
 .sw-products,
 .sw-study-header {

@@ -14,6 +14,7 @@ import {
   validateRecordSetPolicy,
 } from "../src/pipeline/policy-validation.mjs";
 import { assertSourceRegistrySemantics } from "../src/pipeline/source-registry.mjs";
+import { mapOfficialSubjects } from "../src/modules/context/official-subject-mapping.mjs";
 import {
   createSyntheticApplicationCorpus,
   syntheticApplicationRecords,
@@ -154,7 +155,20 @@ for (const input of refreshFixture.inputs) {
       `fixture path differs from registered adapter module: ${input.sourceId}`,
     );
   }
-  const record = completeSyntheticProvenance(await readJson(fixturePath));
+  const inputRecord = await readJson(fixturePath);
+  const mapped = mapOfficialSubjects(
+    taxonomy,
+    source,
+    inputRecord.officialSubjects,
+  );
+  const record = completeSyntheticProvenance(
+    {
+      ...inputRecord,
+      taxonomyMemberships: mapped.taxonomyMemberships,
+      isUnclassified: mapped.isUnclassified,
+    },
+    mapped.mappingEvidence,
+  );
   if (record.source.id !== input.sourceId) {
     throw new Error(`fixture source mismatch: ${input.sourceId}`);
   }

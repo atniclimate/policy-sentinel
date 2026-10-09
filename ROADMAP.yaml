@@ -1107,38 +1107,17 @@ baseline:
         configured.
 
 current_focus:
-  work_item: null
+  work_item: GD-54-ROADLESS-FEDERAL-PILOT
   objective: >-
-    D-088 integrated local implementation is accepted: persistent evidence
-    studies, qualified-source discovery contracts, additive corpus 2.1 and
-    public 2.0 contracts, proceeding-aware bounded search and governed exports.
-    Recover measured results and remaining source-specific qualifications from
-    the implementation record. The broader GD-27 release remains unaccepted.
-  terminal_reason: >-
-    The requested D-088 implementation and ten functional outcomes pass at
-    source checkpoint 18ee6c3547bf1ae17ed30dcbf8bd120e20f15646, following
-    5a92e8b6710b0c7edf656434bd9ebf69ad730175. All Node suites, 2,180
-    application/unit tests, both synthetic builds and the frozen bounded-search
-    measurement pass. Remaining general-engine roots retain their recorded
-    source, identity, acquisition and release requirements; this checkpoint
-    starts no unrelated work and claims neither live activation nor GD-27
-    release acceptance.
+    D-089 conducts a bounded real-source roadless research pilot, starting with
+    exact official-label mappings and independent current source qualification.
+    Reuse accepted persistent study and output contracts; dispatch only a fresh
+    reviewed finite operation after capacity checks. The federal subset does not
+    complete the broader three-family pilot, required API set or GD-27 release.
+  terminal_reason: null
   resumable_roots:
-    - GD-14-FEDERAL-TAXONOMY-SOURCE-MAPPINGS
-    - GD-20-DESIGNATION-REGISTRY-CONTRACT
-    - GD-22-NATION-REGISTRY-BINDING
-    - GD-23-USER-SUPPLIED-SOURCE-CLASS
-    - GD-47-REGIONAL-INTERFACE-QUALIFICATION
-    - GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
-    - GD-36-PILOT-SOURCE-QUALIFICATION
-    - GD-39-FEDERAL-REGISTER-API-INTEGRATION
-    - GD-40-GOVINFO-API-INTEGRATION
-    - GD-41-ECFR-API-INTEGRATION
-    - GD-42-CONGRESS-API-INTEGRATION
-    - GD-43-REGULATIONS-API-INTEGRATION
-    - GD-53-PS09-ACCEPTANCE-CARRYFORWARD
-    - GD-27-LOCAL-RELEASE-PACKAGE
-  last_durable_checkpoint: 18ee6c3547bf1ae17ed30dcbf8bd120e20f15646
+    - GD-54-ROADLESS-FEDERAL-PILOT
+  last_durable_checkpoint: 695693c
   resume_command: npm run validate:roadmap
 completion_scope:
   general_development:
@@ -1201,6 +1180,7 @@ completion_scope:
       - GD-51-DEMONSTRATION-A3
       - GD-52-DEMONSTRATION-A4
       - GD-53-PS09-ACCEPTANCE-CARRYFORWARD
+      - GD-54-ROADLESS-FEDERAL-PILOT
     demonstration_outcomes:
       - GD-49-DEMONSTRATION-A1
       - GD-50-DEMONSTRATION-A2
@@ -7757,26 +7737,36 @@ work_items:
         managed forecast under the 50 GB ceiling. The receipt namespace is
         consumed. These short synthetic Node workloads do not establish browser,
         real-document or 50 GB performance. Full npm test and both builds pass.
-  - id: GD-14-FEDERAL-TAXONOMY-SOURCE-MAPPINGS
+  - id: GD-54-ROADLESS-FEDERAL-PILOT
     priority: 326
     milestone: General development
-    title: Deterministic official-label mappings (synthetic first)
-    status: ready
+    title: Finite roadless federal source and persistent-study pilot
+    status: in_progress
     work_class: general_development_local
-    decision_ref: D-071
-    authorization_gate: G-GENERAL-DEV-01
+    decision_ref: D-089
+    authorization_gate: G-GD-PUBLIC-ACQUISITION
     dependencies:
-      - GD-08-CONTEXT-RELEVANCE-EXTRACTION
-      - GD-10-BOUNDARY-ENFORCEMENT
+      - GD-31-AUTHORITY-MANIFEST-AND-RELEASE-CROSSWALK
+      - GD-18-STORAGE-CAPACITY-MODEL
+      - GD-32-BOUNDED-STORAGE-SEARCH-DESIGN
+      - GD-35-BOUNDED-SEARCH-IMPLEMENTATION
+      - GD-25-ANALYST-RESEARCH-LOOP
     acceptance:
-      - >-
-        config/taxonomy.v1.json sourceMappings gain synthetic official labels
-        first, with a context mapping function that records mapping provenance
-        and falls back to Unclassified; no keyword or AI classification.
-      - >-
-        Mapping provenance and Unclassified fallback tests are written first;
-        tests/engine/taxonomy*.test.ts and foundation validation stay green.
-    evidence: []
+      - Dispatch only the three independently reviewed D-089 GovInfo targets in
+        a fresh sealed namespace after complete capacity and custody checks;
+        retain every failure and prohibit retries.
+      - Produce a replayable corpus, persistent study and local evidence
+        products for the successfully retained sources; record missing-source
+        gaps, review states, historical deadlines and exact passage attribution
+        without inferred Nation relationships.
+      - Exercise the frozen finite pilot journeys and independently review
+        results. This subset does not complete GD-36, GD-37, GD-38, an API or
+        the general-engine release.
+    evidence:
+      - docs/development/2026-10-08-roadless-real-source-pilot.md records the
+        finite scope, write leases, preflight and validation receipts.
+      - docs/source-reviews/govinfo-roadless-pilot-2026-10-08.md records current
+        source-specific qualification.
   - id: GD-15-ARCHITECTURE-DOCS
     priority: 327
     milestone: General development
@@ -8482,6 +8472,25 @@ work_items:
       - docs/development/gd31-release-acceptance-crosswalk.md preserves the
         unresolved PS09 identity and scenario requirements.
 
+  - id: GD-14-FEDERAL-TAXONOMY-SOURCE-MAPPINGS
+    priority: 395
+    milestone: General development
+    title: Deterministic official-label mappings (synthetic first)
+    status: ready
+    work_class: general_development_local
+    decision_ref: D-071
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies:
+      - GD-08-CONTEXT-RELEVANCE-EXTRACTION
+      - GD-10-BOUNDARY-ENFORCEMENT
+    acceptance:
+      - config/taxonomy.v1.json sourceMappings gain synthetic official labels
+        first, with a context mapping function that records mapping provenance
+        and falls back to Unclassified; no keyword or AI classification.
+      - Mapping provenance and Unclassified fallback tests are written first;
+        tests/engine/taxonomy*.test.ts and foundation validation stay green.
+    evidence: []
+
   - id: GD-27-LOCAL-RELEASE-PACKAGE
     priority: 399
     milestone: General development
@@ -8528,6 +8537,7 @@ work_items:
       - GD-51-DEMONSTRATION-A3
       - GD-52-DEMONSTRATION-A4
       - GD-53-PS09-ACCEPTANCE-CARRYFORWARD
+      - GD-54-ROADLESS-FEDERAL-PILOT
     blocked_by: [G-GD-LOCAL-RELEASE-ACCEPTANCE]
     safe_fallback: >-
       GD-27 is the represented current local release root, not a completed
@@ -8758,8 +8768,8 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: GD-14-FEDERAL-TAXONOMY-SOURCE-MAPPINGS
-    action: "Implement reviewed exact official subject mappings when selected."
+    work_item: GD-54-ROADLESS-FEDERAL-PILOT
+    action: "Conduct the fresh finite D-089 roadless source and study pilot."
   - order: 2
     work_item: GD-20-DESIGNATION-REGISTRY-CONTRACT
     action:
@@ -8823,6 +8833,9 @@ next_actions:
       "Close each retained identity/scenario claim under the successor
       crosswalk; do not reactivate a spent historical run."
   - order: 14
+    work_item: GD-14-FEDERAL-TAXONOMY-SOURCE-MAPPINGS
+    action: "Finish integrated exact-label mapping validation."
+  - order: 15
     work_item: GD-27-LOCAL-RELEASE-PACKAGE
     action:
       "Accept the current local release only after all Part B work, A1-A4 and

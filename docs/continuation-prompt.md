@@ -39,6 +39,20 @@ for narrow demo work; it does not reduce validation or authorize new work.
 
 ## Current state (2026-10-08): general development
 
+The owner subsequently requested the real-source research pilot under D-089.
+Recover [the pilot record](development/2026-10-08-roadless-real-source-pilot.md)
+before any further source work. Its three exact GovInfo operations are spent:
+three captured documents, 273,276 bytes, a replayable corpus, and a saved study
+with seven local products. These are external artifacts; the record gives their
+paths and hashes. The study preserves both historical deadlines and agency-only
+consultation attribution, with model interpretations and procedural links still
+unreviewed. The nine recorded gaps include later actions, actual EIS evidence,
+Nation participation and reviewed governing context. This finite federal subset
+does not accept GD36/GD37/GD38, an API integration, or GD27. Use the current
+roadmap for the exact validated checkpoint and remaining dependency-ready roots;
+never redispatch the spent manifest. Existing source-specific and publication
+boundaries remain in force.
+
 The owner resumed implementation through D-088's integrated study-engine launch.
 GD10 boundary enforcement, GD12 source catalog and GD25 persistent analyst studies
 are accepted at `5a92e8b6710b0c7edf656434bd9ebf69ad730175`. GD11 corpus 2.1,

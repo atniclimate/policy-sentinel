@@ -550,18 +550,18 @@ function identityMatch(sourceKind, expected, blocks, title, url) {
   let block;
   let sourceValue = expected;
   if (sourceKind === "govinfo_fr") {
-    if (!/^(?:\d{2}|\d{4})-\d{4,6}$/.test(expected))
+    if (!/^(?:\d{2}|\d{4})-\d{1,6}$/.test(expected))
       fail("INVALID_EXPECTED_IDENTITY");
     block = blocks.find((entry) =>
       [
         ...entry.text.matchAll(
-          /(?:^|\n|\[)FR\s+Doc\.?\s*(?:No\.?\s*:?\s*)?(\d{2,4}-\d{4,6})(?!\d)/gi,
+          /(?:^|\n|\[)FR\s+Doc\.?\s*(?:No\.?\s*:?\s*)?((?:\d{2}|\d{4})-\d{1,6})(?!\d)/gi,
         ),
       ].some((match) => match[1] === expected),
     );
     const otherIds = [
       ...haystack.matchAll(
-        /(?:^|\n|\[)FR\s+Doc\.?\s*(?:No\.?\s*:?\s*)?(\d{2,4}-\d{4,6})(?!\d)/gi,
+        /(?:^|\n|\[)FR\s+Doc\.?\s*(?:No\.?\s*:?\s*)?((?:\d{2}|\d{4})-\d{1,6})(?!\d)/gi,
       ),
     ].map((match) => match[1]);
     if (otherIds.some((id) => id !== expected))
@@ -1041,15 +1041,21 @@ export function extractPolicyText({
   );
   if (sourceKind === "washington_index")
     warnings.add("discovery_index_not_policy_instrument");
+  const shortFederalSerial =
+    sourceKind === "govinfo_fr" &&
+    /^(?:\d{2}|\d{4})-\d{1,3}$/.test(expectedIdentity);
   return freeze({
     parser: {
       ...POLICY_TEXT_PARSER,
-      ...(selectedExclusions.length
+      ...(selectedExclusions.length || shortFederalSerial
         ? {
             configDigest: createHash("sha256")
               .update(
                 JSON.stringify({
                   base: POLICY_TEXT_PARSER.configDigest,
+                  ...(shortFederalSerial
+                    ? { identityContract: "exact-fr-short-serial-v1" }
+                    : {}),
                   excludedBlockLocators: selectedExclusions,
                 }),
               )

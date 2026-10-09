@@ -5,6 +5,7 @@ import federal from "../fixtures/records/general-jurisdiction.valid.json" with {
 import county from "../fixtures/records/county-explicit.valid.json" with { type: "json" };
 import accord from "../fixtures/records/intergovernmental-accord.valid.json" with { type: "json" };
 import { completeSyntheticProvenance } from "../src/pipeline/policy-validation.mjs";
+import { mapOfficialSubjects } from "../src/modules/context/official-subject-mapping.mjs";
 import {
   canonicalCorpusDigest,
   REQUIRED_ANALYZED_CORPUS_NON_CLAIMS,
@@ -25,9 +26,17 @@ const ref = (kind, id, value = id) => ({
 });
 
 export function syntheticCorpusFixtures() {
-  return [federal, county, accord].map((record) =>
-    completeSyntheticProvenance(globalThis.structuredClone(record)),
-  );
+  return [federal, county, accord].map((record) => {
+    const source = sourceRegistry.sources.find(
+      ({ id }) => id === record.source.id,
+    );
+    const { taxonomyMemberships, isUnclassified, mappingEvidence } =
+      mapOfficialSubjects(taxonomy, source, record.officialSubjects);
+    return completeSyntheticProvenance(
+      { ...record, taxonomyMemberships, isUnclassified },
+      mappingEvidence,
+    );
+  });
 }
 
 export function createSyntheticApplicationCorpus({

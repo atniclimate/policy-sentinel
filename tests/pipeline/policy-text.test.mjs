@@ -27,6 +27,40 @@ const bill = (body, options = {}) =>
     ...options,
   });
 
+test("short historical FR serials require exact identity and reject mixed documents", () => {
+  const options = { expectedIdentity: "01-726" };
+  const short = fr(
+    "<pre>[FR Doc No: 01-726]\n\nAuthored test rule.</pre>",
+    options,
+  );
+  assert.notEqual(short.parser.configDigest, POLICY_TEXT_PARSER.configDigest);
+  assert.equal(
+    short.parser.configDigest,
+    fr("<pre>[FR Doc No: 01-726]\n\nAuthored test rule.</pre>", options).parser
+      .configDigest,
+  );
+  const omitted = fr("<pre>[FR Doc No: 01-726]\n\nAuthored test rule.</pre>", {
+    ...options,
+    excludedBlockLocators: ["/html[1]/body[1]/pre[1]/paragraph[2]"],
+  });
+  assert.notEqual(short.parser.configDigest, omitted.parser.configDigest);
+  assert.equal(
+    fr("<pre>[FR Doc No: 01-726]\n\nAuthored test rule.</pre>", options)
+      .identity.matched,
+    true,
+  );
+  assert.throws(() => fr("<pre>[FR Doc No: 01-7260]</pre>", options));
+  assert.throws(
+    () => fr("<pre>[FR Doc No: 01-726]\n\n[FR Doc No: 01-7]</pre>", options),
+    { code: "AMBIGUOUS_SOURCE_IDENTITY" },
+  );
+  for (const id of ["1-726", "001-726", "01-", "01-1234567"])
+    assert.throws(
+      () => fr(`<pre>[FR Doc No: ${id}]</pre>`, { expectedIdentity: id }),
+      { code: "INVALID_EXPECTED_IDENTITY" },
+    );
+});
+
 test("Presidential frontmatter permits only bounded NUL printing controls before its page and order heading", () => {
   const header =
     "[Federal Register Volume 90 (Wednesday, January 1, 2025)]\n[Presidential Documents]\n[FR Doc No: 2025-12345]\nPresidential\u0000 Documents\n\u0000 \u0000\n[[Page 10]]\nExecutive Order 99999 of January 1, 2025\n\n";

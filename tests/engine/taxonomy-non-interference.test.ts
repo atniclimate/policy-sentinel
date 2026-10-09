@@ -230,9 +230,9 @@ function factClosure(record: PolicyRecord): Record<string, unknown> {
 }
 
 describe("taxonomy non-interference boundaries", () => {
-  it("pins retained taxonomy, PNW-01, and PNW-03 contracts byte-for-byte", () => {
+  it("pins GD14 taxonomy and retained PNW-01/PNW-03 contracts byte-for-byte", () => {
     expect(digest(taxonomyConfig)).toBe(
-      "a7e05d8d3f66ae430ffe30309e54abcd42a8ea491a89e300fb594f2aab02a22d",
+      "ff94fb38cc221f568ed91a565be51a03ab7812f0086cc8bca89dca366171c40f",
     );
     expect(digest(retainedTaxonomySchema)).toBe(
       "8c3d5e65dbf03b87898f0c0f56288b80e0f7e14a284f04227867df8850c2568a",
