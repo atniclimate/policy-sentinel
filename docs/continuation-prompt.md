@@ -47,10 +47,14 @@ current access, coverage, reliability gaps, integration owners and a finite
 validation packet. It made no provider request and opens no keyed API, source
 activation or publication gate. The prior
 [sprint report and federal expansion handoff](handoffs/2026-10-09-sprint-report-and-federal-expansion.md)
-preserves the initiating scope. The current terminal ledger has zero active
-items; GD20 is the next independent ready work item. The earlier development
-checkpoint `7af7e79` was pushed to `origin/demo/live-pages`; this GD57 work
-remains local. The public demo on `main` is unchanged.
+preserves the initiating scope. D-092 selects GD60's
+[federal probe and refreshability entry packet](development/gd60-federal-probes-and-local-refresh-plan-2026-10-09.md)
+ahead of GD20 for the next session. Recheck each exact source gate and prepare
+finite manifests before any live request; keyed GovInfo and Congress.gov gates
+remain closed. Compare the current immutable corpus with a measured local index
+candidate before choosing a database. The terminal ledger has zero active items
+and GD27 remains unaccepted. Verify GitHub publication state separately from
+this preparation record.
 
 The owner-requested audit fixes 1-3 are complete under GD56/D-090 at local
 source commit `cd069298b90d070828206a87e7262ae3fd5c64c1`: public export

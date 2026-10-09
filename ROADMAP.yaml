@@ -1109,14 +1109,16 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Continue the lowest-priority-number authorized ready general-development
-    item after the completed GD-57 federal planning assessment.
+    Start the next session with GD-60 federal probe readiness, reliability and
+    fallback assessment, and local refreshable database requirements under
+    D-092.
   terminal_reason: >-
-    GD-57's collection-level federal matrix and finite validation packet are
-    recorded at 845565c. No provider request, credential action, source
-    activation, private input or publication occurred. GD-27 remains unaccepted;
-    GD-20 is the next independent ready item.
+    GD-57 is complete at 845565c. D-092 selects GD-60 ahead of GD-20 for the
+    next session. Its packet is preparation only: no new provider request,
+    credential action, source activation or database implementation occurred.
+    Source-specific gates and GD-27 acceptance remain closed.
   resumable_roots:
+    - GD-60-FEDERAL-PROBE-REFRESH-READINESS
     - GD-20-DESIGNATION-REGISTRY-CONTRACT
     - GD-22-NATION-REGISTRY-BINDING
     - GD-23-USER-SUPPLIED-SOURCE-CLASS
@@ -1130,7 +1132,7 @@ current_focus:
     - GD-43-REGULATIONS-API-INTEGRATION
     - GD-53-PS09-ACCEPTANCE-CARRYFORWARD
     - GD-27-LOCAL-RELEASE-PACKAGE
-  last_durable_checkpoint: 845565c23d194f530a5ee59a1b088c90cb566f40
+  last_durable_checkpoint: 7f50d29954ce4f3a8244cb67ac8bf8e35422b655
   resume_command: npm run validate:roadmap
 completion_scope:
   general_development:
@@ -1197,6 +1199,7 @@ completion_scope:
       - GD-55-SEARCH-REFINEMENT-REVIEW-GUIDANCE
       - GD-56-AUDIT-REPAIRS
       - GD-57-FEDERAL-EXPANSION-PLAN
+      - GD-60-FEDERAL-PROBE-REFRESH-READINESS
     demonstration_outcomes:
       - GD-49-DEMONSTRATION-A1
       - GD-50-DEMONSTRATION-A2
@@ -5704,6 +5707,41 @@ work_items:
       - "The initial prompt expressly withheld deployment and publication
         approval."
 
+  - id: GD-60-FEDERAL-PROBE-REFRESH-READINESS
+    priority: 285
+    milestone: General development
+    title: Federal probe readiness and local refreshability assessment
+    status: ready
+    work_class: general_development_local
+    decision_ref: D-092
+    authorization_gate: G-GENERAL-DEV-01
+    dependencies: [GD-57-FEDERAL-EXPANSION-PLAN]
+    acceptance:
+      - >-
+        Recheck current originating source access, use and reproduction terms
+        for selected federal collections. Prepare exact finite canary and
+        acquisition manifests with measured storage refusal, source-specific
+        gates and distinct dispatch decisions. Do not spend GD-31 or historical
+        packets.
+      - >-
+        For routes actually cleared for dispatch under their separate operation
+        gate, collect bounded status, latency, bytes, pagination,
+        update/version, fixity and failure evidence. Test same-collection LKG
+        and unavailable fallbacks; do not infer reliability or coverage from
+        documentation alone.
+      - >-
+        Compare the current immutable corpus and a local transactional-index
+        candidate for refresh, provenance, privacy separation, crash recovery,
+        search, replay and total managed capacity. Record measured prototype
+        evidence or an explicit decision to retain the file design before any
+        production database dependency is selected.
+    evidence:
+      - >-
+        Owner direction D-092 selects this next-session focus. The entry packet
+        docs/development/gd60-federal-probes-and-local-refresh-plan-2026-10-09.md
+        at source commit 7f50d29954ce4f3a8244cb67ac8bf8e35422b655 prepares the
+        work without provider requests, credential action, acquisition or
+        database implementation.
   - id: GD-57-FEDERAL-EXPANSION-PLAN
     priority: 286
     milestone: General development
@@ -8720,6 +8758,7 @@ work_items:
       - GD-55-SEARCH-REFINEMENT-REVIEW-GUIDANCE
       - GD-56-AUDIT-REPAIRS
       - GD-57-FEDERAL-EXPANSION-PLAN
+      - GD-60-FEDERAL-PROBE-REFRESH-READINESS
     blocked_by: [G-GD-LOCAL-RELEASE-ACCEPTANCE]
     safe_fallback: >-
       GD-27 is the represented current local release root, not a completed
@@ -8950,68 +8989,73 @@ risks:
 
 next_actions:
   - order: 1
+    work_item: GD-60-FEDERAL-PROBE-REFRESH-READINESS
+    action: >-
+      Recheck exact federal source routes and gates, prepare finite canaries and
+      fallback tests, and measure whether a local refreshable index is needed.
+  - order: 2
     work_item: GD-20-DESIGNATION-REGISTRY-CONTRACT
     action:
       "Implement the synthetic designation vocabulary without geometry or
       inferred Nation criteria."
-  - order: 2
+  - order: 3
     work_item: GD-22-NATION-REGISTRY-BINDING
     action:
       "Await originating recognition reconciliation and the digest-pinned Nation
       registry v1; T0 baseline bundle v0 is a different version line."
-  - order: 3
+  - order: 4
     work_item: GD-23-USER-SUPPLIED-SOURCE-CLASS
     action:
       "Implement the separately classified synthetic user-supplied source
       contract without real private inputs."
-  - order: 4
+  - order: 5
     work_item: GD-47-REGIONAL-INTERFACE-QUALIFICATION
     action:
       "Qualify regional interfaces against exact source-specific access and
       reuse evidence."
-  - order: 5
+  - order: 6
     work_item: GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
     action:
       "Complete remaining nationwide source classes without blocking the finite
       pilot or acquiring source payloads."
-  - order: 6
+  - order: 7
     work_item: GD-36-PILOT-SOURCE-QUALIFICATION
     action:
       "Prepare finite pilot source qualifications and retain source-specific
       blocks."
-  - order: 7
+  - order: 8
     work_item: GD-39-FEDERAL-REGISTER-API-INTEGRATION
     action:
       "Prepare a new source-specific Federal Register review and finite API
       manifest before bounded integration; spent historical requests do not
       resume. Dependencies are complete, but no dispatch occurs at this
       checkpoint."
-  - order: 8
+  - order: 9
     work_item: GD-40-GOVINFO-API-INTEGRATION
     action:
       "Resolve the exact GovInfo API credential/terms gate before bounded API
       integration; direct documents cannot substitute."
-  - order: 9
+  - order: 10
     work_item: GD-41-ECFR-API-INTEGRATION
     action:
       "Resolve the exact eCFR access-consent condition before any new host
       request, then qualify and test the API."
-  - order: 10
+  - order: 11
     work_item: GD-42-CONGRESS-API-INTEGRATION
     action:
       "Resolve exact Congress.gov API credentials and source-specific terms
       before bounded integration."
-  - order: 11
+  - order: 12
     work_item: GD-43-REGULATIONS-API-INTEGRATION
     action:
       "Resolve exact Regulations.gov governmental GET access and credentials;
       comments and submissions remain excluded."
-  - order: 12
+  - order: 13
     work_item: GD-53-PS09-ACCEPTANCE-CARRYFORWARD
     action:
       "Close each retained identity/scenario claim under the successor
       crosswalk; do not reactivate a spent historical run."
-  - order: 13
+  - order: 14
     work_item: GD-27-LOCAL-RELEASE-PACKAGE
     action:
       "Accept the current local release only after all Part B work, A1-A4 and
