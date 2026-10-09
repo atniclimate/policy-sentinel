@@ -64,7 +64,7 @@
     "test:storage": "node --test tests/pipeline/storage-report.test.mjs tests/pipeline/storage-report-cli.test.mjs",
     "test:development-authority": "node --test tests/pipeline/development-authority.test.mjs",
     "corpus:verify": "node scripts/verify-corpus-spine.mjs",
-    "test:unit": "vitest run --maxWorkers=1",
+    "test:unit": "vitest run --maxWorkers=1 --pool=threads",
     "test:artifact": "node --test --test-concurrency=1 tests/pipeline/artifact-health.test.mjs tests/pipeline/artifact-validator-hardening.test.mjs tests/pipeline/last-known-good-hardening.test.mjs tests/pipeline/nation-collection-policy.test.mjs tests/pipeline/pipeline.test.mjs tests/pipeline/roadmap-validator.test.mjs tests/pipeline/source-registry.test.mjs",
     "test:a11y": "vitest run tests/app",
     "test": "npm run validate:foundation && npm run test:corpus && npm run test:spine && npm run test:policy && npm run test:assurance && npm run test:backbone && npm run test:tier1 && npm run test:knowledge && npm run test:storage && npm run test:development-authority && npm run test:search-measurement && npm run test:artifact && npm run test:unit",
