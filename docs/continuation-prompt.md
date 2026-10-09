@@ -39,6 +39,17 @@ for narrow demo work; it does not reduce validation or authorize new work.
 
 ## Current state (2026-10-09): general development
 
+GD-60 federal probe readiness is complete as a local preparation checkpoint at
+source commit `1de7f20`. The [review and file-index decision](development/gd60-federal-probe-readiness-2026-10-09.md)
+records current official documentation, finite blocked collection canaries,
+zero live API observations, a fresh 954,205,875-byte managed inventory and the
+decision to retain the measured file search projection. Keyed GovInfo and
+Congress.gov calls, exact content acquisition, new collection-level LKG proof
+and production database work remain gated. The roadmap has zero active items;
+GD-20 is the next independent ready general-development item. GD-27 remains
+unaccepted. The following GD-57/GD-60 startup text is retained as historical
+direction and does not reopen a probe or acquisition operation.
+
 The owner selected federal document expansion under D-091. GD57's
 [collection-level access and reliability plan](development/gd57-federal-expansion-access-reliability-2026-10-09.md)
 is complete at local source commit `845565c`: it distinguishes public laws,

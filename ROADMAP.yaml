@@ -1109,16 +1109,14 @@ baseline:
 current_focus:
   work_item: null
   objective: >-
-    Start the next session with GD-60 federal probe readiness, reliability and
-    fallback assessment, and local refreshable database requirements under
-    D-092.
+    Continue general development with GD-20's synthetic designation registry
+    contract after the GD-60 readiness checkpoint.
   terminal_reason: >-
-    GD-57 is complete at 845565c. D-092 selects GD-60 ahead of GD-20 for the
-    next session. Its packet is preparation only: no new provider request,
-    credential action, source activation or database implementation occurred.
-    Source-specific gates and GD-27 acceptance remain closed.
+    GD-60's collection-specific canaries are blocked by source credentials,
+    rights, host and runner conditions; zero routes cleared for live dispatch.
+    Existing measured search supports retaining the file projection. GD-27
+    remains unaccepted.
   resumable_roots:
-    - GD-60-FEDERAL-PROBE-REFRESH-READINESS
     - GD-20-DESIGNATION-REGISTRY-CONTRACT
     - GD-22-NATION-REGISTRY-BINDING
     - GD-23-USER-SUPPLIED-SOURCE-CLASS
@@ -1132,7 +1130,7 @@ current_focus:
     - GD-43-REGULATIONS-API-INTEGRATION
     - GD-53-PS09-ACCEPTANCE-CARRYFORWARD
     - GD-27-LOCAL-RELEASE-PACKAGE
-  last_durable_checkpoint: 7f50d29954ce4f3a8244cb67ac8bf8e35422b655
+  last_durable_checkpoint: 1de7f20fc3d55eac97a483ab9304a69026f65597
   resume_command: npm run validate:roadmap
 completion_scope:
   general_development:
@@ -5711,7 +5709,9 @@ work_items:
     priority: 285
     milestone: General development
     title: Federal probe readiness and local refreshability assessment
-    status: ready
+    status: complete
+    completed_on: "2026-10-09T10:52:17-07:00"
+    completion_commit: 1de7f20fc3d55eac97a483ab9304a69026f65597
     work_class: general_development_local
     decision_ref: D-092
     authorization_gate: G-GENERAL-DEV-01
@@ -5742,6 +5742,17 @@ work_items:
         at source commit 7f50d29954ce4f3a8244cb67ac8bf8e35422b655 prepares the
         work without provider requests, credential action, acquisition or
         database implementation.
+      - >-
+        Commits 88d067d and 1de7f20 record the 2026-10-09 current publisher
+        review and finite, blocked collection canaries in
+        docs/development/gd60-federal-probe-readiness-2026-10-09.md. A fresh
+        read-only twelve-root inventory measured 954,205,875 managed bytes; the
+        retained hypothetical forecast was within limits. No route cleared its
+        source-specific dispatch gate, so no live reliability or new
+        same-collection fallback was claimed. The measured 2,000-work synthetic
+        file projection supports retaining the file design; no database was
+        added. Exact content acquisition, version and failure/LKG proof remain
+        with GD-40, GD-42, GD-58 and GD-59 after their own gates.
   - id: GD-57-FEDERAL-EXPANSION-PLAN
     priority: 286
     milestone: General development
@@ -8989,73 +9000,68 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: GD-60-FEDERAL-PROBE-REFRESH-READINESS
-    action: >-
-      Recheck exact federal source routes and gates, prepare finite canaries and
-      fallback tests, and measure whether a local refreshable index is needed.
-  - order: 2
     work_item: GD-20-DESIGNATION-REGISTRY-CONTRACT
     action:
       "Implement the synthetic designation vocabulary without geometry or
       inferred Nation criteria."
-  - order: 3
+  - order: 2
     work_item: GD-22-NATION-REGISTRY-BINDING
     action:
       "Await originating recognition reconciliation and the digest-pinned Nation
       registry v1; T0 baseline bundle v0 is a different version line."
-  - order: 4
+  - order: 3
     work_item: GD-23-USER-SUPPLIED-SOURCE-CLASS
     action:
       "Implement the separately classified synthetic user-supplied source
       contract without real private inputs."
-  - order: 5
+  - order: 4
     work_item: GD-47-REGIONAL-INTERFACE-QUALIFICATION
     action:
       "Qualify regional interfaces against exact source-specific access and
       reuse evidence."
-  - order: 6
+  - order: 5
     work_item: GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
     action:
       "Complete remaining nationwide source classes without blocking the finite
       pilot or acquiring source payloads."
-  - order: 7
+  - order: 6
     work_item: GD-36-PILOT-SOURCE-QUALIFICATION
     action:
       "Prepare finite pilot source qualifications and retain source-specific
       blocks."
-  - order: 8
+  - order: 7
     work_item: GD-39-FEDERAL-REGISTER-API-INTEGRATION
     action:
       "Prepare a new source-specific Federal Register review and finite API
       manifest before bounded integration; spent historical requests do not
       resume. Dependencies are complete, but no dispatch occurs at this
       checkpoint."
-  - order: 9
+  - order: 8
     work_item: GD-40-GOVINFO-API-INTEGRATION
     action:
       "Resolve the exact GovInfo API credential/terms gate before bounded API
       integration; direct documents cannot substitute."
-  - order: 10
+  - order: 9
     work_item: GD-41-ECFR-API-INTEGRATION
     action:
       "Resolve the exact eCFR access-consent condition before any new host
       request, then qualify and test the API."
-  - order: 11
+  - order: 10
     work_item: GD-42-CONGRESS-API-INTEGRATION
     action:
       "Resolve exact Congress.gov API credentials and source-specific terms
       before bounded integration."
-  - order: 12
+  - order: 11
     work_item: GD-43-REGULATIONS-API-INTEGRATION
     action:
       "Resolve exact Regulations.gov governmental GET access and credentials;
       comments and submissions remain excluded."
-  - order: 13
+  - order: 12
     work_item: GD-53-PS09-ACCEPTANCE-CARRYFORWARD
     action:
       "Close each retained identity/scenario claim under the successor
       crosswalk; do not reactivate a spent historical run."
-  - order: 14
+  - order: 13
     work_item: GD-27-LOCAL-RELEASE-PACKAGE
     action:
       "Accept the current local release only after all Part B work, A1-A4 and
