@@ -2343,6 +2343,14 @@ test("schema 1.10 admits the general-development graph by rule and keeps every o
       "refactor-gate-closed-under-active-work",
       (r) => {
         gate(r, "G-GENERAL-DEV-01").state = "closed";
+        for (const entry of generalDevelopmentItems(r)) {
+          if (
+            entry.status === "blocked" &&
+            entry.authorization_gate === "G-GENERAL-DEV-01"
+          ) {
+            entry.blocked_by.push("G-GENERAL-DEV-01");
+          }
+        }
       },
       /cannot be \w+ while authorization gate G-GENERAL-DEV-01 is closed/,
     ],

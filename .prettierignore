@@ -8,6 +8,8 @@ generated-data/
 raw-data/
 cached-responses/
 ai-summaries/
+.claude/settings.local.json
+.local/handoff/HANDOFF.md
 
 # Phase A prose and contracts preserve their reviewed wrapping.
 AGENTS.md
