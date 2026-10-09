@@ -39,12 +39,14 @@ for narrow demo work; it does not reduce validation or authorize new work.
 
 ## Current state (2026-10-09): general development
 
-The owner requested fixes 1-3 from the local Ponytail audit. GD56 is the single
-active item under D-090, repairing public export filenames, malformed search
-URLs and repeated study-history serialization. The focused regressions,
-independent reviews, before/after measurement and broad validation pass;
-the local checkpoint is pending. Formatting flags only the pre-existing ignored
-local settings file. Recover
+The owner-requested audit fixes 1-3 are complete under GD56/D-090 at local
+source commit `cd069298b90d070828206a87e7262ae3fd5c64c1`: public export
+filenames, malformed search URLs and repeated study-history serialization.
+Focused regressions, independent reviews, 2,219 unit tests, broad validation
+and the synthetic build passed; the measured 1,001-revision import is about
+2.3 times faster. The terminal ledger has zero active items; GD20 remains
+the next independent ready root. Formatting flags only the pre-existing
+ignored local settings file. Recover
 [the repair handoff](handoffs/2026-10-09-audit-repairs.md).
 No source acquisition, private input, publication or release acceptance is included.
 

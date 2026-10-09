@@ -1107,14 +1107,31 @@ baseline:
         configured.
 
 current_focus:
-  work_item: GD-56-AUDIT-REPAIRS
+  work_item: null
   objective: >-
-    Fix the three owner-selected audit findings: restricted export filenames,
-    prototype-key search URLs and repeated study-history serialization.
-  terminal_reason: null
+    Resume the independent general-development roots after the completed
+    owner-selected audit repairs; GD-20 remains the next ready item.
+  terminal_reason: >-
+    GD-56 is complete with all three repairs, regression coverage, independent
+    review and broad validation. The measured 1,001-revision import is about 2.3
+    times faster. Formatting flags only the pre-existing ignored local settings
+    file. This bounded checkpoint does not accept GD-27 or dispatch another work
+    item.
   resumable_roots:
-    - GD-56-AUDIT-REPAIRS
-  last_durable_checkpoint: 59c6e0d100cda8557a0b363977e185513edbb413
+    - GD-20-DESIGNATION-REGISTRY-CONTRACT
+    - GD-22-NATION-REGISTRY-BINDING
+    - GD-23-USER-SUPPLIED-SOURCE-CLASS
+    - GD-47-REGIONAL-INTERFACE-QUALIFICATION
+    - GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
+    - GD-36-PILOT-SOURCE-QUALIFICATION
+    - GD-39-FEDERAL-REGISTER-API-INTEGRATION
+    - GD-40-GOVINFO-API-INTEGRATION
+    - GD-41-ECFR-API-INTEGRATION
+    - GD-42-CONGRESS-API-INTEGRATION
+    - GD-43-REGULATIONS-API-INTEGRATION
+    - GD-53-PS09-ACCEPTANCE-CARRYFORWARD
+    - GD-27-LOCAL-RELEASE-PACKAGE
+  last_durable_checkpoint: cd069298b90d070828206a87e7262ae3fd5c64c1
   resume_command: npm run validate:roadmap
 completion_scope:
   general_development:
@@ -5693,7 +5710,9 @@ work_items:
     title:
       Repair export filename privacy, search URL parsing and study history
       replay
-    status: in_progress
+    status: complete
+    completed_on: "2026-10-09T08:08:08-07:00"
+    completion_commit: cd069298b90d070828206a87e7262ae3fd5c64c1
     work_class: general_development_local
     decision_ref: D-090
     authorization_gate: G-GENERAL-DEV-01
@@ -8886,72 +8905,68 @@ risks:
 
 next_actions:
   - order: 1
-    work_item: GD-56-AUDIT-REPAIRS
-    action:
-      "Complete the three owner-selected local audit repairs and validation."
-  - order: 2
     work_item: GD-20-DESIGNATION-REGISTRY-CONTRACT
     action:
       "Implement the synthetic designation vocabulary without geometry or
       inferred Nation criteria."
-  - order: 3
+  - order: 2
     work_item: GD-22-NATION-REGISTRY-BINDING
     action:
       "Await originating recognition reconciliation and the digest-pinned Nation
       registry v1; T0 baseline bundle v0 is a different version line."
-  - order: 4
+  - order: 3
     work_item: GD-23-USER-SUPPLIED-SOURCE-CLASS
     action:
       "Implement the separately classified synthetic user-supplied source
       contract without real private inputs."
-  - order: 5
+  - order: 4
     work_item: GD-47-REGIONAL-INTERFACE-QUALIFICATION
     action:
       "Qualify regional interfaces against exact source-specific access and
       reuse evidence."
-  - order: 6
+  - order: 5
     work_item: GD-33-NATIONWIDE-SOURCE-SURVEY-COMPLETION
     action:
       "Complete remaining nationwide source classes without blocking the finite
       pilot or acquiring source payloads."
-  - order: 7
+  - order: 6
     work_item: GD-36-PILOT-SOURCE-QUALIFICATION
     action:
       "Prepare finite pilot source qualifications and retain source-specific
       blocks."
-  - order: 8
+  - order: 7
     work_item: GD-39-FEDERAL-REGISTER-API-INTEGRATION
     action:
       "Prepare a new source-specific Federal Register review and finite API
       manifest before bounded integration; spent historical requests do not
       resume. Dependencies are complete, but no dispatch occurs at this
       checkpoint."
-  - order: 9
+  - order: 8
     work_item: GD-40-GOVINFO-API-INTEGRATION
     action:
       "Resolve the exact GovInfo API credential/terms gate before bounded API
       integration; direct documents cannot substitute."
-  - order: 10
+  - order: 9
     work_item: GD-41-ECFR-API-INTEGRATION
     action:
       "Resolve the exact eCFR access-consent condition before any new host
       request, then qualify and test the API."
-  - order: 11
+  - order: 10
     work_item: GD-42-CONGRESS-API-INTEGRATION
     action:
       "Resolve exact Congress.gov API credentials and source-specific terms
       before bounded integration."
-  - order: 12
+  - order: 11
     work_item: GD-43-REGULATIONS-API-INTEGRATION
     action:
       "Resolve exact Regulations.gov governmental GET access and credentials;
       comments and submissions remain excluded."
-  - order: 13
+  - order: 12
     work_item: GD-53-PS09-ACCEPTANCE-CARRYFORWARD
     action:
       "Close each retained identity/scenario claim under the successor
       crosswalk; do not reactivate a spent historical run."
-  - order: 14
+  - order: 13
     work_item: GD-27-LOCAL-RELEASE-PACKAGE
     action:
       "Accept the current local release only after all Part B work, A1-A4 and

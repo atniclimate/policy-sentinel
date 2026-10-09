@@ -85,6 +85,9 @@ maximum-size study, browser latency, or simultaneous analysts.
 ## Recovery
 
 The three repairs, regression tests, independent review and broad validation
-are complete. Record the implementing local commit, then close GD-56 in a
-terminal ledger follow-up. GD-27 general release
-acceptance and every unrelated source or external gate stay unchanged.
+are complete in local commit `cd069298b90d070828206a87e7262ae3fd5c64c1`
+(`2026-10-09T08:08:08-07:00`). The terminal ledger follow-up closes GD-56
+with zero active work items. GD-20 is the next independent ready root and
+was not started by this task. GD-27 general release acceptance and every
+unrelated source or external gate stay unchanged. The formatting exception,
+Windows permission skip and measurement limits above remain explicit.
