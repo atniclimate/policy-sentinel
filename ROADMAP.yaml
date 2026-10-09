@@ -6977,6 +6977,17 @@ work_items:
         Register and original Washington bill text were readable; citations,
         notes, PDF, browser print and compact outage recovery passed. Private
         release receipts retain detailed evidence and capability limits.
+      - >-
+        Owner-requested Worker maintenance on 2026-10-09: source commit
+        66e8df0e446c541db27ead73e392620a9e24324d rejects requests before
+        official retrieval when the rate-limit binding fails. All 81 Worker
+        tests and 495 roadmap-validator tests pass at this source checkpoint.
+        Deployed version 367b993d-dd60-4d34-975f-d0771af22445 was confirmed at
+        100 percent at 19:26:27 UTC, with bounded health and metadata-search
+        checks passing. docs/DEMO-STATUS.md preserves the current and historical
+        maintenance states and verification limits. Original acceptance and
+        completion identity remain unchanged; this adds no acquisition or
+        release grant.
 
   - id: GD-24-LEGACY-ARCHIVE-AND-CONSOLIDATION
     priority: 309
