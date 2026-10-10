@@ -92,6 +92,69 @@ export const COPY = {
   pdfNoPassages: "No passages selected for this policy.",
   pdfTextNotRead:
     "No text receipt was saved for this citation. Text retrieval was unavailable or did not complete, so no passages are listed.",
+
+  // Document model (src/demo/document.ts): wording shared by the PDF and the
+  // print view, the data actor entries and the duplicate-listing label.
+  // Headings are Title Case, labels and body are sentence case.
+  /** Printed for a missing data actor entry or an unread text receipt. A fixed literal: do not reword. */
+  notRecorded: "Not recorded",
+  actorLabels: {
+    name: "Name",
+    role: "Role",
+    organization: "Organization or Nation",
+    sharingWith: "Sharing with",
+    purpose: "Purpose",
+  },
+  docEyebrow: (version: string) => `Policy Sentinel ${version}, working demo`,
+  docTitle: "Cited Policies",
+  docContentsTitle: "Policies in This List",
+  docProvenanceTitle: "Provenance",
+  docActorsTitle: "Data Actors and Sharing",
+  docActorsIntro:
+    "The entries below were typed by the person who prepared this list. The demo does not verify them.",
+  docSoftwareTitle: "Software",
+  docTool: (version: string) =>
+    `Policy Sentinel demo ${version}, in development`,
+  docReferencesTitle: "References",
+  docSovereigntyTitle: "Data Provenance and Sovereignty Notes",
+  docSovereignty: [
+    "The material cited in this list is public policy published by government sources. The Tiered Sovereign Data Framework (TSDF) 0.9.8, a pre-release standard published by the Affiliated Tribes of Northwest Indians, treats that material as Tier 0 (T0). No Tribal codes and no Tribal government documents are used.",
+    "Notes and data actor entries belong to the person who wrote them. The demo does not classify them, and it claims no certification under the framework and no conformance with it.",
+    "Results are keyword matches and general-jurisdiction records. They establish no relationship to any Nation.",
+    "Verify every citation at its official source.",
+  ],
+  /** A source that gives no date is stated as a gap, never left out. */
+  docDateNotStated: "Not stated",
+  docAssessment: (assessment: string) => `Rule assessment: ${assessment}`,
+  docPassageNote: (note: string) => `Note: ${note}`,
+  docFingerprint: (sha256: string, bytes: number) =>
+    `SHA-256 ${sha256} (${bytes.toLocaleString("en-US")} bytes)`,
+  docLabels: {
+    preparedBy: "Prepared by",
+    generated: "Generated",
+    identifier: "Identifier",
+    source: "Source",
+    issuingBody: "Issuing body",
+    type: "Type",
+    date: "Date",
+    officialUrl: "Official URL",
+    where: "Where",
+    limit: "Limit",
+    rule: "Rule",
+    check: "Check",
+    reference: "Reference",
+    metadataRetrieved: "Metadata retrieved",
+    textReadFrom: "Text read from",
+    textRetrieved: "Text retrieved",
+    fingerprint: "Fingerprint",
+    extractor: "Extractor",
+    parserConfig: "Parser config",
+    demoRules: "Demo rules",
+    alsoListedBy: "Also listed by",
+    tool: "Tool",
+    responsible: "Responsible person for this use",
+    sourcesRead: "Sources read",
+  },
 } as const;
 
 export const EXAMPLES: readonly {

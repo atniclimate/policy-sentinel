@@ -394,7 +394,12 @@ export function App() {
       ...current,
       cited: {
         ...current.cited,
-        [k]: { citation: policy?.citation ?? citation, policy, note: "" },
+        [k]: {
+          citation: policy?.citation ?? citation,
+          policy,
+          note: "",
+          alternates: [],
+        },
       },
     }));
     setCitationMessage(

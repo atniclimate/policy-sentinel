@@ -423,6 +423,7 @@ describe("analysis", () => {
         retrievedAt: "2099-01-07T00:00:00.000Z",
         summary: null,
         textAvailable: true,
+        matchKey: null,
       },
       retrievedAt: "2099-01-07T00:00:00.000Z",
     });

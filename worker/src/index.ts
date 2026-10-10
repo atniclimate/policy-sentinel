@@ -397,6 +397,7 @@ function frCitation(value: unknown, retrievedAt: string): DemoCitation {
     retrievedAt,
     summary: summary || null,
     textAvailable: /^\d{2,4}-\d{4,6}$/.test(id),
+    matchKey: null,
   };
 }
 
@@ -621,6 +622,7 @@ async function readWashington(query: string) {
     retrievedAt,
     summary: null,
     textAvailable: true,
+    matchKey: null,
   };
   return analyzeSafely(() =>
     analyzePolicy({
@@ -701,6 +703,7 @@ async function searchGovInfo(
       retrievedAt,
       summary: null,
       textAvailable: false,
+      matchKey: null,
     };
   });
   return {
@@ -752,6 +755,7 @@ async function searchRegulations(
       retrievedAt,
       summary: null,
       textAvailable: false,
+      matchKey: null,
     };
   });
   return {
@@ -844,6 +848,7 @@ async function searchCongress(
     retrievedAt,
     summary: latestText ? `Latest action: ${latestText}` : null,
     textAvailable: false,
+    matchKey: null,
   };
   return {
     ok: true,

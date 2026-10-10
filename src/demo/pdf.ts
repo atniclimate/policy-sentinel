@@ -14,7 +14,8 @@ export interface PdfIssue {
 }
 
 export interface PdfEntry {
-  readonly citation: DemoCitation;
+  // shortcut: this renderer never reads matchKey, so entries built before it existed still compile; goes away when PdfInput extends DocInput.
+  readonly citation: Omit<DemoCitation, "matchKey">;
   readonly receipt: DemoReceipt | null;
   readonly engine: DemoEngineInfo | null;
   readonly note: string;

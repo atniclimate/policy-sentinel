@@ -38,6 +38,7 @@ export function citation(
     retrievedAt: "2099-01-07T11:59:00.000Z",
     summary: null,
     textAvailable: true,
+    matchKey: null,
   };
 }
 

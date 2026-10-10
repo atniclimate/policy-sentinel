@@ -124,6 +124,14 @@ export function citationValue(value: unknown): DemoCitation {
     throw new Error("Invalid policy date");
   if (typeof v.textAvailable !== "boolean")
     throw new Error("Invalid text availability");
+  // Reports saved before match keys existed carry none.
+  const matchKey = v.matchKey ?? null;
+  if (
+    matchKey !== null &&
+    (typeof matchKey !== "string" ||
+      !/^fr:[A-Za-z0-9][A-Za-z0-9-]{0,39}$/.test(matchKey))
+  )
+    throw new Error("Invalid match key");
   return {
     sourceId: source,
     identifier: text(v.identifier, 300),
@@ -136,6 +144,7 @@ export function citationValue(value: unknown): DemoCitation {
     retrievedAt: timestamp(v.retrievedAt),
     summary: v.summary === null ? null : text(v.summary, 20000, true),
     textAvailable: v.textAvailable,
+    matchKey,
   };
 }
 
