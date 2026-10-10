@@ -679,16 +679,24 @@ async function searchGovInfo(
   const results: DemoCitation[] = resultRows(data.results).map((value) => {
     const row = record(value);
     const packageId = metadataId(row.packageId);
+    // A granule result is one document inside a package; its title and identity are the granule's.
+    const id =
+      row.granuleId === undefined || row.granuleId === null
+        ? packageId
+        : `${packageId}/${metadataId(row.granuleId)}`;
+    // The live search service returns governmentAuthor as a list of names.
+    const authors = Array.isArray(row.governmentAuthor)
+      ? row.governmentAuthor.map((name) => cleanText(name, 160))
+      : [cleanText(row.governmentAuthor, 160)];
     return {
       sourceId: "govinfo",
-      identifier: packageId,
+      identifier: id,
       title: requiredText(row.title, 400),
       issuingBody:
-        cleanText(row.governmentAuthor1 ?? row.governmentAuthor, 160) ||
-        "Not stated",
+        authors.filter(Boolean).join("; ").slice(0, 160) || "Not stated",
       kind: cleanText(row.collectionCode, 40) || "Document",
       date: isoDate(row.dateIssued),
-      officialUrl: `https://www.govinfo.gov/app/details/${packageId}`,
+      officialUrl: `https://www.govinfo.gov/app/details/${id}`,
       textUrl: null,
       retrievedAt,
       summary: null,

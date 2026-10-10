@@ -494,6 +494,57 @@ describe("upstream validation and identity", () => {
     },
   );
 
+  it("normalizes a GovInfo granule result in the live response shape", async () => {
+    // Shape recorded from api.govinfo.gov/search on 2026-10-10.
+    installFetch({
+      "api.govinfo.gov": () =>
+        reply({
+          count: 630043,
+          results: [
+            {
+              title: "Farewell Address to the Nation",
+              packageId: "WCPD-2009-01-19",
+              granuleId: "WCPD-2009-01-19-Pg79-2",
+              lastModified: "2025-10-27T14:46:35Z",
+              governmentAuthor: [
+                "National Archives and Records Administration",
+                "Office of the Federal Register",
+              ],
+              dateIssued: "2009-01-15",
+              collectionCode: "CPD",
+              relatedLink: null,
+            },
+            {
+              title: "A package",
+              packageId: "PKG-1",
+              dateIssued: "2009-01-15",
+            },
+          ],
+        }),
+    });
+    const res = await call("/api/search?source=govinfo&q=water", {
+      DATA_GOV_API_KEY: "synthetic-key",
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.total).toBe(630043);
+    expect(body.results[0]).toMatchObject({
+      identifier: "WCPD-2009-01-19/WCPD-2009-01-19-Pg79-2",
+      issuingBody:
+        "National Archives and Records Administration; Office of the Federal Register",
+      kind: "CPD",
+      date: "2009-01-15",
+      officialUrl:
+        "https://www.govinfo.gov/app/details/WCPD-2009-01-19/WCPD-2009-01-19-Pg79-2",
+      textAvailable: false,
+    });
+    expect(body.results[1]).toMatchObject({
+      identifier: "PKG-1",
+      issuingBody: "Not stated",
+      officialUrl: "https://www.govinfo.gov/app/details/PKG-1",
+    });
+  });
+
   it.each([
     ["govinfo", "example", "api.govinfo.gov", {}],
     ["regulations", "example", "api.regulations.gov", { data: [null] }],
