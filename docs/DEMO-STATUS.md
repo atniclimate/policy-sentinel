@@ -1,13 +1,46 @@
 # Live demo status
 
-Updated 2026-10-09. Policy Sentinel 0.2.0 is in development. This page records
-maintenance of the separately authorized public demo under D-083 and D-084 in
-the [decision register](decision-register.md). General engine work remains in
-[ROADMAP.yaml](../ROADMAP.yaml).
+Updated 2026-10-10. Policy Sentinel 0.2.0 is in development. This page records
+maintenance of the separately authorized public demo under D-083, D-084 and
+D-093 in the [decision register](decision-register.md). General engine work
+remains in [ROADMAP.yaml](../ROADMAP.yaml).
 
-The reviewed Worker rate-limit failure fix is deployed and passed bounded
-health and search checks on 2026-10-09. Earlier maintenance and validation
-receipts remain below as historical evidence.
+GovInfo, Congress.gov and Regulations.gov were switched on in the demo on
+2026-10-10 and passed one bounded live check each. Earlier maintenance and
+validation receipts remain below as historical evidence; statements there that
+these three sources are switched off describe earlier checkpoints.
+
+## Keyed federal sources switched on, 2026-10-10
+
+Under D-093 the owner registered an api.data.gov key and stored it as a Worker
+secret. The key is held only by the Worker and is never sent to the page.
+
+- GovInfo: keyword search. Results are metadata and an official link.
+- Regulations.gov: document search. Results are metadata and an official link.
+  A phrase needs quotation marks; unquoted words match separately.
+- Congress.gov: lookup of one bill by reference, such as `hr 1234 119`. It has
+  no keyword search in the demo.
+
+The demo does not read policy text from these three sources, so it runs no rule
+checks on them. Results are keyword matches and general-jurisdiction records.
+They do not establish a relationship to any Nation.
+
+The first live GovInfo search failed validation: the service returns the
+issuing bodies as a list and returns documents inside a package (granules),
+which the Worker had only met in invented test responses. Source commit
+`ef47304` accepts the list and cites a granule by package and granule, so the
+title, identifier and official link describe the same document. A regression
+test uses the response shape recorded from the service on 2026-10-10. The 152
+demo tests, type checking, lint and the source-boundary scan passed.
+
+Worker version `3e41b801-3018-487d-a590-4417824f8d11` was deployed on
+2026-10-10. Checks at 18:37 UTC: the source list reported all three as live;
+one GovInfo phrase search returned 10 results of 1,460; one Regulations.gov
+phrase search reported 228; one Congress.gov lookup returned HR 1 of the 119th
+Congress. The public page itself did not change and was not rechecked in a
+browser. These finite checks do not establish continuing provider availability,
+rate-limit behavior under load, or source qualification for the general engine;
+G-B-GOVINFO, G-B-CONGRESS and G-B-REGULATIONS remain closed there.
 
 ## Worker rate-limit maintenance, 2026-10-09
 
@@ -67,10 +100,9 @@ tests rather than forced against live source responses.
 - Federal Register search reads official text from GovInfo. Washington
   Legislature lookup reads original bill text by bill number and biennium.
   Other bill versions are outside this demo lookup.
-- GovInfo search, Congress.gov and Regulations.gov remain switched off. Their
-  local tests use invented responses; those tests do not establish live access
-  or source acceptance. No credential, account or provider terms were added or
-  changed in this maintenance work.
+- GovInfo search, Congress.gov bill lookup and Regulations.gov search are on
+  from 2026-10-10 through the owner's api.data.gov key (D-093), as metadata and
+  links only. See the section above for what was checked.
 - Oregon and Idaho remain unavailable in the demo. Their recorded source gaps
   and access boundaries remain in place.
 
