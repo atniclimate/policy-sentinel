@@ -341,14 +341,19 @@ The demo is two pieces. The page (`demo/`, built into `docs/`) holds no keys and
 makes no claim beyond what it shows. The Worker (`worker/`, deployed as
 `policy-sentinel-demo` on Cloudflare) reads an allowlist of exact official
 government hosts, answers only the Pages origin and localhost, rate limits, and
-keeps no record of searches. Federal Register search and Washington Legislature
-bill lookup are live. GovInfo, Congress.gov and Regulations.gov are built and
-switched off until an api.data.gov key is added as a Worker secret; Oregon and
-Idaho are shown as not available, for the reasons in
-[source feasibility](docs/source-feasibility.md). The issues the demo flags come
-from automated rule checks (`src/demo/rules.ts`), not from Sentinel's reviewed
-findings. The owner rulings are D-083 and D-084 in the
-[decision register](docs/decision-register.md).
+keeps no record of searches. Federal Register search and Washington State
+Legislature bill lookup read the official text. GovInfo search, Congress.gov
+bill lookup and Regulations.gov search return metadata and official links
+through an api.data.gov key held as a Worker secret; Oregon and Idaho are shown
+as not available, for the reasons in
+[source feasibility](docs/source-feasibility.md). Several federal sources can be
+searched at once; listings that share a Federal Register document number are
+shown as one row. An exported list carries data actor entries typed by the
+person exporting, numbered references and a provenance block for each policy.
+The issues the demo flags come from automated rule checks (`src/demo/rules.ts`),
+not from Sentinel's reviewed findings. The owner rulings are D-083, D-084, D-093
+and D-094 in the [decision register](docs/decision-register.md); current state
+is in [the demo status](docs/DEMO-STATUS.md).
 
 ```powershell
 npm run demo:build                # builds docs/index.html and docs/demo-assets/

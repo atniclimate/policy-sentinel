@@ -6988,6 +6988,26 @@ work_items:
         maintenance states and verification limits. Original acceptance and
         completion identity remain unchanged; this adds no acquisition or
         release grant.
+      - >-
+        Owner-directed demo updates on 2026-10-10 under D-093 and D-094. D-093:
+        the owner stored an api.data.gov key as a Worker secret; source commit
+        ef47304 accepts the live GovInfo search shape; Worker version
+        3e41b801-3018-487d-a590-4417824f8d11 passed one bounded live check per
+        keyed source. D-094: source commits 05050d8, 98a74ce and d48626d rebuild
+        the page as a four-pane frame with a state drop-down, multi-select
+        federal sources, exact-number merging of duplicate Federal Register
+        listings, required data actor entries, and one document model for the
+        PDF and print view. At d48626d 329 demo tests pass, every npm test stage
+        reports zero failures, a scripted walk passes 394 checks with no
+        automated accessibility violation in 138 state runs, and the built page
+        passes 82 acceptance checks against a local mock. Five independent
+        reviews confirmed 46 findings; all majors are fixed. The D-094 Worker
+        deployment, publication and live acceptance are recorded in
+        docs/DEMO-STATUS.md when they occur; cross-source merging is unproven
+        live until then. Original acceptance and completion identity remain
+        unchanged; this adds no acquisition, source-qualification or release
+        grant, and G-B-GOVINFO, G-B-CONGRESS and G-B-REGULATIONS stay closed for
+        the general engine.
 
   - id: GD-24-LEGACY-ARCHIVE-AND-CONSOLIDATION
     priority: 309

@@ -5,6 +5,13 @@ D-083/D-084. Recover [its current status](DEMO-STATUS.md) before demo work. The
 local-only historical grants below retain their own scope; they neither revoke
 that demo exception nor authorize new acquisition or general-engine publication.
 
+The 2026-10-10 demo work under D-093 and D-094 (keyed federal sources on; new
+interface, document and provenance) is recorded in
+[the demo status](DEMO-STATUS.md#interface-document-and-provenance-update-2026-10-10)
+and [its handoff](handoffs/2026-10-10-demo-interface-document-update.md). Its
+Worker deployment, publication and live acceptance may still be pending; check
+the demo status before assuming the public page matches the source.
+
 The 2026-10-09 [Worker maintenance checkpoint](DEMO-STATUS.md#worker-rate-limit-maintenance-2026-10-09)
 records the deployed rate-limit failure fix and its bounded verification.
 Commit `66e8df0` also resolves the local-file formatting issue mentioned in
