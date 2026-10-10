@@ -1,3 +1,4 @@
+import { COPY } from "./copy";
 import type { DemoCitation, DemoPolicyResponse } from "./types";
 import {
   citationValue,
@@ -186,18 +187,9 @@ export function restoreReport(raw: string | null): RestoredReport {
     }
     if (Object.keys(marks).some((key) => !Object.hasOwn(report.cited, key)))
       recovered = true;
-    return {
-      report,
-      notice: recovered
-        ? "Some saved citations or passage selections could not be restored. Valid citations and notes were kept; check your list before exporting."
-        : "",
-    };
+    return { report, notice: recovered ? COPY.restorePartial : "" };
   } catch {
-    return {
-      report,
-      notice:
-        "The saved citation list could not be restored. This session starts with an empty list.",
-    };
+    return { report, notice: COPY.restoreFailed };
   }
 }
 

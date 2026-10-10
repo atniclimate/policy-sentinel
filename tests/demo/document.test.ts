@@ -165,7 +165,7 @@ describe("document model shared by the PDF and the print view", () => {
         field("Text retrieved", RETRIEVED),
         field("Fingerprint", `SHA-256 ${"a".repeat(64)} (1,234 bytes)`, true),
         field("Extractor", "policy-text 2.0.0"),
-        field("Parser config", "c".repeat(64), true),
+        field("Parser configuration SHA-256", "c".repeat(64), true),
         field("Demo rules", "demo-rules-1.0.0"),
         field(
           "Also listed by",
@@ -209,7 +209,7 @@ describe("document model shared by the PDF and the print view", () => {
         { kind: "h3", text: "Software" },
         field("Tool", "Policy Sentinel demo 0.2.0, in development"),
         field("Responsible person for this use", "Sam Example"),
-        field("Sources read", "Federal Register, GovInfo"),
+        field("Sources cited", "Federal Register, GovInfo"),
 
         { kind: "h2", text: "References" },
         { kind: "ref", number: 1, text: ieeeReference(first.citation) },
@@ -303,7 +303,7 @@ describe("document model shared by the PDF and the print view", () => {
     const model = build({ cited: {}, marks: {}, actors: emptyActors() });
     expect(model.blocks.some((block) => block.kind === "break")).toBe(true);
     expect(model.blocks).toContainEqual({ kind: "p", text: COPY.exportEmpty });
-    expect(fields(model.blocks, "Sources read")).toEqual([]);
+    expect(fields(model.blocks, "Sources cited")).toEqual([]);
     expect(model.blocks.filter((block) => block.kind === "ref")).toEqual([
       { kind: "ref", number: 1, text: atniReferences(VERSION)[0] },
       { kind: "ref", number: 2, text: atniReferences(VERSION)[1] },
@@ -317,7 +317,7 @@ describe("document model shared by the PDF and the print view", () => {
       /Tiered Sovereign Data Framework \(TSDF\) 0\.9\.8, a pre-release standard/,
     );
     expect(notes).toMatch(/Tier 0 \(T0\)/);
-    expect(notes).toMatch(/No Tribal codes and no Tribal government documents/);
+    expect(notes).toMatch(/no Tribal codes and no Tribal government documents/);
     expect(notes).toMatch(/does not classify/);
     expect(notes).toMatch(/no certification/);
     expect(notes).toMatch(/no relationship to any Nation/);

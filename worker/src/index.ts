@@ -13,6 +13,7 @@ import {
   analyzePolicy,
   washingtonCaption,
 } from "../../src/demo/analyze";
+import { CONGRESS_REFERENCE } from "../../src/demo/merge";
 import type {
   DemoCitation,
   DemoErrorResponse,
@@ -356,6 +357,12 @@ function metadataId(value: unknown): string {
   return value;
 }
 
+/** Optional cross-source key: a value that is not a plain Federal Register document number gives null and never fails the row. */
+function frMatchKey(value: unknown): string | null {
+  const number = typeof value === "string" ? value.trim() : "";
+  return /^[A-Za-z0-9][A-Za-z0-9-]{0,39}$/.test(number) ? `fr:${number}` : null;
+}
+
 // ---------------------------------------------------------------- Federal Register
 
 const FR_FIELDS = [
@@ -397,7 +404,7 @@ function frCitation(value: unknown, retrievedAt: string): DemoCitation {
     retrievedAt,
     summary: summary || null,
     textAvailable: /^\d{2,4}-\d{4,6}$/.test(id),
-    matchKey: null,
+    matchKey: frMatchKey(id),
   };
 }
 
@@ -703,7 +710,8 @@ async function searchGovInfo(
       retrievedAt,
       summary: null,
       textAvailable: false,
-      matchKey: null,
+      // A Federal Register granule is named by its document number.
+      matchKey: row.collectionCode === "FR" ? frMatchKey(row.granuleId) : null,
     };
   });
   return {
@@ -755,7 +763,7 @@ async function searchRegulations(
       retrievedAt,
       summary: null,
       textAvailable: false,
-      matchKey: null,
+      matchKey: frMatchKey(a.frDocNum),
     };
   });
   return {
@@ -775,10 +783,7 @@ async function searchCongress(
   page: number,
 ): Promise<DemoSearchResponse> {
   const key = requireKey(env);
-  const m =
-    /^\s*(hr|s|hjres|sjres|hconres|sconres|hres|sres)\s*(\d{1,5})\s+(\d{2,3})\s*$/i.exec(
-      query,
-    );
+  const m = CONGRESS_REFERENCE.exec(query);
   if (!m) {
     throw new DemoError(
       "bad_query",

@@ -2,6 +2,7 @@
 import { createHash } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { analyzePolicy, ENGINE_INFO } from "../../src/demo/analyze";
+import { isCongressReference } from "../../src/demo/merge";
 import worker, {
   ALLOWED_HOSTS,
   officialFetch,
@@ -896,6 +897,150 @@ describe("exact keyed metadata identities", () => {
       });
       expect(res.status).toBe(502);
       expect(await res.json()).toMatchObject({ error: "bad_upstream" });
+    },
+  );
+});
+
+describe("cross-source match keys", () => {
+  const keyed = { DATA_GOV_API_KEY: "synthetic-key" };
+  const key = `fr:${FR_DOC_NUMBER}`;
+  const matchKeys = async (res: Response) =>
+    ((await res.json()) as { results: { matchKey: unknown }[] }).results.map(
+      (row) => row.matchKey,
+    );
+
+  it("keys a Federal Register document by its number, the same in search and in the policy read", async () => {
+    installFetch({
+      "documents.json": () => reply(FR_SEARCH_JSON),
+      [`/documents/${FR_DOC_NUMBER}.json`]: () =>
+        reply(FR_SEARCH_JSON.results[0]),
+      [`/html/${FR_DOC_NUMBER}.htm`]: () => reply(FR_HTML, 200, "text/html"),
+    });
+    const searched = (
+      await (await call("/api/search?source=federal-register&q=water")).json()
+    ).results[0];
+    const read = (
+      await (
+        await call(`/api/policy?source=federal-register&id=${FR_DOC_NUMBER}`)
+      ).json()
+    ).citation;
+    expect(searched.matchKey).toBe(key);
+    expect(read).toMatchObject({
+      matchKey: key,
+      identifier: searched.identifier,
+      officialUrl: searched.officialUrl,
+    });
+  });
+
+  it("keeps a Federal Register row whose number cannot be a match key", async () => {
+    installFetch({
+      "documents.json": () =>
+        reply({
+          count: 1,
+          results: [
+            { ...FR_SEARCH_JSON.results[0], document_number: "-2099-0001" },
+          ],
+        }),
+    });
+    const res = await call("/api/search?source=federal-register&q=water");
+    expect(res.status).toBe(200);
+    expect(await matchKeys(res)).toEqual([null]);
+  });
+
+  it("keys a GovInfo result only when it is a Federal Register granule", async () => {
+    const issue = { packageId: "FR-2099-01-05", collectionCode: "FR" };
+    installFetch({
+      "api.govinfo.gov": () =>
+        reply({
+          count: 4,
+          results: [
+            { ...issue, title: "A notice", granuleId: FR_DOC_NUMBER },
+            { ...issue, title: "A whole issue" },
+            { ...issue, title: "An odd granule", granuleId: "2099_00001.x" },
+            {
+              title: "Another collection",
+              packageId: "CFR-2099-title40-vol1",
+              granuleId: FR_DOC_NUMBER,
+              collectionCode: "CFR",
+            },
+          ],
+        }),
+    });
+    const res = await call("/api/search?source=govinfo&q=water", keyed);
+    expect(res.status).toBe(200);
+    expect(await matchKeys(res)).toEqual([key, null, null, null]);
+  });
+
+  it("keys a Regulations.gov result by frDocNum and keeps the row whatever that field holds", async () => {
+    const values: unknown[] = [
+      FR_DOC_NUMBER,
+      ` ${FR_DOC_NUMBER} `,
+      undefined,
+      null,
+      "",
+      209900001,
+      [FR_DOC_NUMBER],
+      `${FR_DOC_NUMBER}; 2099-00002`,
+      "X".repeat(41),
+    ];
+    installFetch({
+      "api.regulations.gov": () =>
+        reply({
+          data: values.map((frDocNum, index) => ({
+            id: `EX-2099-0001-000${index}`,
+            attributes: { title: "Synthetic docket document", frDocNum },
+          })),
+          meta: { totalElements: values.length },
+        }),
+    });
+    const res = await call("/api/search?source=regulations&q=water", keyed);
+    expect(res.status).toBe(200);
+    expect(await matchKeys(res)).toEqual([
+      key,
+      key,
+      ...Array<null>(7).fill(null),
+    ]);
+  });
+
+  it("gives Congress.gov and Washington records no match key", async () => {
+    installFetch({
+      "api.congress.gov": () =>
+        reply({
+          bill: {
+            type: "HR",
+            number: "1234",
+            congress: 119,
+            title: "Synthetic Bill",
+          },
+        }),
+      "lawfilesext.leg.wa.gov": () => reply(WA_HTML, 200, "text/html"),
+    });
+    const congress = await call(
+      "/api/search?source=congress&q=hr%201234%20119",
+      keyed,
+    );
+    const washington = await call("/api/search?source=washington&q=HB%201100");
+    expect(await matchKeys(congress)).toEqual([null]);
+    expect(await matchKeys(washington)).toEqual([null]);
+  });
+
+  it.each([
+    ["hr 1234 119", true],
+    ["SJRES12 99", true],
+    ["hr 1234", false],
+    ["water quality", false],
+  ])(
+    "accepts %s as a Congress.gov bill reference exactly when the shared grammar does: %s",
+    async (query, accepted) => {
+      installFetch({});
+      const res = await call(
+        `/api/search?source=congress&q=${encodeURIComponent(query)}`,
+        keyed,
+      );
+      expect(isCongressReference(query)).toBe(accepted);
+      // An accepted reference reaches the unrouted synthetic host and comes back as not found.
+      expect(res.status).toBe(accepted ? 404 : 400);
+      expect(calls).toHaveLength(accepted ? 1 : 0);
     },
   );
 });

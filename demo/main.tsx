@@ -1,6 +1,12 @@
 import { render } from "preact";
+import type { RefObject } from "preact";
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
+import { SOURCE_LABELS } from "../src/demo/citations";
 import { COPY, EXAMPLES } from "../src/demo/copy";
+import { buildDocument } from "../src/demo/document";
+import type { DocBlock } from "../src/demo/document";
+import { isCongressReference, mergeResults } from "../src/demo/merge";
+import type { MergedResult, SourceResults } from "../src/demo/merge";
 import type {
   DemoCitation,
   DemoIssue,
@@ -8,11 +14,15 @@ import type {
   DemoSource,
 } from "../src/demo/types";
 import { ApiFailure, loadSources, policyId, readPolicy, search } from "./api";
+import { loadPdfFonts } from "./pdf-fonts";
 import {
+  ACTOR_FIELDS,
   attachPolicy,
   emptyReport,
+  MAX_ACTOR_TEXT,
   MAX_CITATIONS,
   MAX_NOTE,
+  missingActorFields,
   removeFromReport,
   reportEntries,
   restoreReport,
@@ -20,6 +30,7 @@ import {
   STORAGE_KEY,
 } from "../src/demo/report-state";
 import type {
+  DataActors,
   Mark,
   ReportState,
   RestoredReport,
@@ -27,70 +38,61 @@ import type {
 import { keyOf } from "../src/demo/validation";
 
 const VERSION = __APP_VERSION__;
-const EMBED = (() => {
-  try {
-    return new URLSearchParams(window.location.search).get("embed") === "1";
-  } catch {
-    return false;
-  }
-})();
+const TSDF_URL =
+  "https://atniclimate.github.io/TieredSovereignDataFramework/#overview";
+const REPO_URL = "https://github.com/atniclimate/policy-sentinel";
+const THEME_KEY = "ps-demo-theme";
+/** From this width the search and results panes are always in view. */
+const WIDE = "(min-width: 64rem)";
+const PANES = ["search", "results", "issues", "report"] as const;
+type Pane = (typeof PANES)[number];
+type Scope = "federal" | "state";
+type Theme = "dark" | "light";
 
-const FALLBACK_SOURCES: DemoSource[] = [
-  {
-    id: "federal-register",
-    label: "Federal Register",
-    level: "federal",
-    status: "live",
-    note: "Rules, proposed rules, notices and Presidential documents.",
-  },
-  {
-    id: "govinfo",
-    label: "GovInfo",
-    level: "federal",
-    status: "key_pending",
-    note: "Needs an api.data.gov key that has not been added yet.",
-  },
-  {
-    id: "congress",
-    label: "Congress.gov",
-    level: "federal",
-    status: "key_pending",
-    note: "Needs an api.data.gov key that has not been added yet.",
-  },
-  {
-    id: "regulations",
-    label: "Regulations.gov",
-    level: "federal",
-    status: "key_pending",
-    note: "Needs an api.data.gov key that has not been added yet.",
-  },
-  {
-    id: "washington",
-    label: "Washington Legislature",
-    level: "state",
-    status: "live",
-    note: "Look up a bill by number.",
-  },
-  {
-    id: "oregon",
-    label: "Oregon Legislature",
-    level: "state",
-    status: "not_available",
-    note: "Off until an agreement and credentials are in place.",
-  },
-  {
-    id: "idaho",
-    label: "Idaho Legislature",
-    level: "state",
-    status: "not_available",
-    note: "No usable machine-readable source; a recorded gap.",
-  },
-].map((source): DemoSource => ({
-  ...source,
-  level: source.level as DemoSource["level"],
+function param(name: string): string | null {
+  try {
+    return new URLSearchParams(window.location.search).get(name);
+  } catch {
+    return null;
+  }
+}
+const EMBED = param("embed") === "1";
+
+const isTheme = (value: unknown): value is Theme =>
+  value === "dark" || value === "light";
+
+/** Dark unless the address or this tab's earlier choice says otherwise. */
+function startTheme(): Theme {
+  const asked = param("theme");
+  if (isTheme(asked)) return asked;
+  try {
+    const kept = window.sessionStorage.getItem(THEME_KEY);
+    if (isTheme(kept)) return kept;
+  } catch {
+    /* use the default */
+  }
+  return "dark";
+}
+
+// Shown until the catalog answers: every source listed, none claimed available.
+const FALLBACK_SOURCES: DemoSource[] = (
+  [
+    ["federal-register", "federal"],
+    ["govinfo", "federal"],
+    ["congress", "federal"],
+    ["regulations", "federal"],
+    ["washington", "state"],
+    ["oregon", "state"],
+    ["idaho", "state"],
+  ] as const
+).map(([id, level]) => ({
+  id,
+  label: SOURCE_LABELS[id],
+  level,
   status: "unknown",
-  note: "Availability has not been checked.",
+  note: COPY.notCheckedNote,
 }));
+
 interface Selected {
   citation: DemoCitation;
   state: "loading" | "ready" | "error";
@@ -98,15 +100,19 @@ interface Selected {
   message?: string;
 }
 
+/** One search across the chosen sources, after duplicates are merged. */
+interface Found {
+  rows: readonly MergedResult[];
+  /** One line per source asked: its count, or why it has none. */
+  outcomes: readonly { sourceId: string; text: string }[];
+  notes: readonly string[];
+}
+
 function loadSaved(): RestoredReport {
   try {
     return restoreReport(window.sessionStorage.getItem(STORAGE_KEY));
   } catch {
-    return {
-      report: emptyReport(),
-      notice:
-        "Browser storage is unavailable. Your citations work here, but will not be restored after a reload.",
-    };
+    return { report: emptyReport(), notice: COPY.storageUnavailable };
   }
 }
 
@@ -119,35 +125,50 @@ function failureText(error: unknown): string {
   return COPY.serviceDown;
 }
 
-function helpFor(sourceId: string): string {
-  if (sourceId === "washington") return COPY.searchHelpWashington;
-  if (sourceId === "congress") return COPY.searchHelpCongress;
-  return COPY.searchHelpFederal;
-}
-
 function statusText(status: DemoSource["status"]): string {
   if (status === "live") return COPY.liveTitle;
   if (status === "key_pending") return COPY.keyPendingTitle;
-  if (status === "unknown") return "Not checked";
+  if (status === "unknown") return COPY.notCheckedTitle;
   return COPY.notAvailableTitle;
+}
+
+/** Filled is live, half is pending, outline is not available or not checked. */
+function markClass(status: DemoSource["status"]): string {
+  if (status === "live") return "mark is-full";
+  return status === "key_pending" ? "mark is-half" : "mark";
+}
+
+const Leader = () => <span class="leader" aria-hidden="true" />;
+
+function SourceStatus({ status }: { status: DemoSource["status"] }) {
+  return (
+    <span class="row-v status">
+      <span class={markClass(status)} aria-hidden="true" />
+      {statusText(status)}
+    </span>
+  );
 }
 
 export function App() {
   const saved = useMemo(loadSaved, []);
   const [sources, setSources] = useState<DemoSource[]>(FALLBACK_SOURCES);
-  const [sourceId, setSourceId] = useState("federal-register");
+  const [scope, setScope] = useState<Scope>("federal");
+  const [checked, setChecked] = useState<readonly string[]>([
+    "federal-register",
+  ]);
+  const [stateId, setStateId] = useState("washington");
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<DemoCitation[] | null>(null);
+  const [found, setFound] = useState<Found | null>(null);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [selected, setSelected] = useState<Selected | null>(null);
   const [report, setReport] = useState<ReportState>(saved.report);
   const reportRef = useRef(report);
-  const { cited, marks } = report;
+  const { cited, marks, actors } = report;
   const [storageMessage, setStorageMessage] = useState("");
   const [citationMessage, setCitationMessage] = useState("");
-  const [sourceMessage, setSourceMessage] = useState(
-    "Checking source availability.",
+  const [sourceMessage, setSourceMessage] = useState<string>(
+    COPY.checkingSources,
   );
   const [sourceBusy, setSourceBusy] = useState(true);
   const [queryError, setQueryError] = useState("");
@@ -155,6 +176,15 @@ export function App() {
   const [exportBusy, setExportBusy] = useState(false);
   const exporting = useRef(false);
   const [exportMessage, setExportMessage] = useState("");
+  /** True once an export or print was refused for missing data actor entries. */
+  const [actorsAsked, setActorsAsked] = useState(false);
+  const [pane, setPane] = useState<Pane>("search");
+  const [wide, setWide] = useState(
+    () => window.matchMedia?.(WIDE).matches ?? false,
+  );
+  const [theme, setTheme] = useState<Theme>(startTheme);
+  const aboutRef = useRef<HTMLDialogElement>(null);
+  const aboutOpener = useRef<HTMLButtonElement>(null);
   const detailRef = useRef<HTMLElement>(null);
   const searchRequest = useRef<{
     sequence: number;
@@ -185,17 +215,18 @@ export function App() {
     const controller = new AbortController();
     sourceRequest.current = controller;
     setSourceBusy(true);
-    setSourceMessage("Checking source availability.");
+    setSourceMessage(COPY.checkingSources);
     try {
       const catalog = await loadSources(controller.signal);
       if (sourceRequest.current !== controller || !mounted.current) return;
       setSources(catalog);
-      const selectedSource =
-        catalog.find((item) => item.id === sourceId) ??
-        catalog.find((item) => item.status === "live") ??
-        catalog[0];
-      setSourceId(selectedSource.id);
-      setSourceMessage("Source availability checked.");
+      const listed = catalog.filter((item) => item.level === "state");
+      setStateId((current) =>
+        listed.some((item) => item.id === current)
+          ? current
+          : (listed[0]?.id ?? current),
+      );
+      setSourceMessage(COPY.sourcesChecked);
       if (moveFocus)
         requestAnimationFrame(() => {
           if (mounted.current) document.getElementById("q")?.focus();
@@ -203,9 +234,7 @@ export function App() {
     } catch {
       if (sourceRequest.current !== controller || !mounted.current) return;
       setSources(FALLBACK_SOURCES);
-      setSourceMessage(
-        "Source availability could not be checked. Retry to search; your citations remain available.",
-      );
+      setSourceMessage(COPY.sourcesFailed);
     } finally {
       if (sourceRequest.current === controller && mounted.current)
         setSourceBusy(false);
@@ -228,6 +257,9 @@ export function App() {
     };
     window.addEventListener("beforeprint", beforePrint);
     window.addEventListener("afterprint", afterPrint);
+    const media = window.matchMedia?.(WIDE);
+    const onMedia = () => setWide(Boolean(media?.matches));
+    media?.addEventListener("change", onMedia);
     return () => {
       mounted.current = false;
       sourceRequest.current?.abort();
@@ -236,6 +268,7 @@ export function App() {
         request.controller.abort();
       window.removeEventListener("beforeprint", beforePrint);
       window.removeEventListener("afterprint", afterPrint);
+      media?.removeEventListener("change", onMedia);
     };
   }, []);
 
@@ -244,14 +277,55 @@ export function App() {
       window.sessionStorage.setItem(STORAGE_KEY, serializeReport(report));
       setStorageMessage("");
     } catch {
-      setStorageMessage(
-        "This citation list could not be saved in browser storage. Keep this page open or export it; printing uses the current list.",
-      );
+      setStorageMessage(COPY.storageSaveFailed);
     }
   }, [report]);
 
-  const source = sources.find((s) => s.id === sourceId);
-  const usable = source?.status === "live";
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
+  const labelOf = (id: string) =>
+    sources.find((item) => item.id === id)?.label ?? SOURCE_LABELS[id] ?? id;
+  const federal = sources.filter((item) => item.level === "federal");
+  const states = sources.filter((item) => item.level === "state");
+  const chosenState = states.find((item) => item.id === stateId);
+  const federalTargets = federal
+    .filter((item) => item.status === "live" && checked.includes(item.id))
+    .map((item) => item.id);
+  const targets =
+    scope === "federal"
+      ? federalTargets
+      : chosenState?.status === "live"
+        ? [chosenState.id]
+        : [];
+  const usable = targets.length > 0;
+  const unchecked = sources.every((item) => item.status === "unknown");
+  // Why the Search button is off: no federal source is checked, or the chosen
+  // state is not available and its catalog note under the select says why.
+  const noneChecked =
+    scope === "federal" && !usable && !sourceBusy && !unchecked;
+  const blockedBy = usable
+    ? undefined
+    : scope === "state"
+      ? "state-note"
+      : noneChecked
+        ? "q-blocked"
+        : undefined;
+  const help =
+    scope === "state"
+      ? stateId === "washington"
+        ? COPY.searchHelpWashington
+        : COPY.searchHelpState
+      : federalTargets.length === 1 && federalTargets[0] === "congress"
+        ? COPY.searchHelpCongress
+        : federalTargets.includes("congress")
+          ? `${COPY.searchHelpFederal} ${COPY.searchHelpCongressToo}`
+          : COPY.searchHelpFederal;
+  // At this width the third column holds Issues unless Report was asked for.
+  const front: Pane =
+    wide && (pane === "search" || pane === "results") ? "issues" : pane;
+  const paneTab = wide ? 0 : -1;
 
   function clearSelection() {
     detailSequence.current += 1;
@@ -259,18 +333,39 @@ export function App() {
     setSelected(null);
   }
 
-  function changeSource(sid: string) {
+  /** A change of scope or sources drops the pending search and its results. */
+  function resetSearch() {
     searchRequest.current.controller?.abort();
     searchRequest.current.sequence += 1;
-    setSourceId(sid);
     setBusy(false);
-    setResults(null);
+    setFound(null);
     setMessage("");
     setQueryError("");
     clearSelection();
   }
 
-  async function runSearch(sid: string, q: string) {
+  function changeScope(next: Scope) {
+    resetSearch();
+    setScope(next);
+  }
+
+  function toggleSource(id: string, on: boolean) {
+    resetSearch();
+    setChecked((current) =>
+      on ? [...current, id] : current.filter((item) => item !== id),
+    );
+  }
+
+  async function runSearch(ids: readonly string[], q: string) {
+    const reference = isCongressReference(q);
+    if (!reference && ids.length === 1 && ids[0] === "congress") {
+      setQueryError(COPY.congressQueryError);
+      document.getElementById("q")?.focus();
+      return;
+    }
+    // Congress.gov answers one bill reference only; other terms skip it.
+    const skipped = !reference && ids.includes("congress");
+    const asked = skipped ? ids.filter((id) => id !== "congress") : ids;
     searchRequest.current.controller?.abort();
     const sequence = searchRequest.current.sequence + 1;
     const controller = new AbortController();
@@ -280,43 +375,88 @@ export function App() {
     setBusy(true);
     setQueryError("");
     setMessage(COPY.searching);
-    setResults(null);
+    setFound(null);
     clearSelection();
-    try {
-      const data = await search(sid, q, 1, controller.signal);
-      if (!ownsView()) return;
-      setResults([...data.results]);
-      setMessage(
-        data.results.length
-          ? COPY.resultsCount(data.results.length, data.total)
-          : COPY.noResults,
-      );
-    } catch (error) {
-      if (!ownsView()) return;
-      setResults([]);
-      setMessage(failureText(error));
-    } finally {
-      if (ownsView()) setBusy(false);
-    }
+    setPane((current) => (current === "search" ? "results" : current));
+    // One request per source; a source that fails does not hide the others.
+    const settled = await Promise.allSettled(
+      asked.map((id) => search(id, q, 1, controller.signal)),
+    );
+    if (!ownsView()) return;
+    const batches: SourceResults[] = [];
+    const outcomes: { sourceId: string; text: string }[] = [];
+    const failures: { sourceId: string; text: string }[] = [];
+    settled.forEach((result, index) => {
+      const sourceId = asked[index];
+      if (result.status === "fulfilled") {
+        const { results, total } = result.value;
+        batches.push({ sourceId, results });
+        outcomes.push({
+          sourceId,
+          text: COPY.resultsCount(results.length, total),
+        });
+      } else {
+        outcomes.push({ sourceId, text: COPY.sourceFailed });
+        failures.push({ sourceId, text: failureText(result.reason) });
+      }
+    });
+    if (skipped) outcomes.push({ sourceId: "congress", text: COPY.skipped });
+    const { results: rows, merged } = mergeResults(batches);
+    // When every source failed the same way, the reason is the headline.
+    const oneReason =
+      failures.length === asked.length &&
+      failures.every((failure) => failure.text === failures[0].text);
+    setFound({
+      rows,
+      outcomes,
+      notes: [
+        ...(oneReason
+          ? []
+          : failures.map((failure) =>
+              COPY.sourceFailure(labelOf(failure.sourceId), failure.text),
+            )),
+        ...(skipped ? [COPY.congressSkipped] : []),
+        ...(merged ? [COPY.mergeNote(merged)] : []),
+      ],
+    });
+    setMessage(
+      rows.length
+        ? COPY.resultsListed(rows.length)
+        : oneReason
+          ? failures[0].text
+          : failures.length === asked.length
+            ? COPY.allFailed
+            : COPY.noResults,
+    );
+    setBusy(false);
   }
 
   function onSubmit(event: Event) {
     event.preventDefault();
     if (!usable) return;
     if (query.trim().length < 2 || query.trim().length > 200) {
-      setQueryError("Enter between 2 and 200 characters to search.");
+      setQueryError(COPY.queryLength);
       document.getElementById("q")?.focus();
       return;
     }
-    void runSearch(sourceId, query.trim());
+    void runSearch(targets, query.trim());
+  }
+
+  /** A state example switches to that state; a federal one runs on the checked sources. */
+  function exampleTargets(sid: string): readonly string[] {
+    const state = states.find((item) => item.id === sid);
+    if (!state) return federalTargets;
+    return state.status === "live" ? [sid] : [];
   }
 
   function tryExample(sid: string, q: string) {
-    if (!sources.some((item) => item.id === sid && item.status === "live"))
-      return;
-    setSourceId(sid);
+    const ids = exampleTargets(sid);
+    if (ids.length === 0) return;
+    const state = states.some((item) => item.id === sid);
+    setScope(state ? "state" : "federal");
+    if (state) setStateId(sid);
     setQuery(q);
-    void runSearch(sid, q);
+    void runSearch(ids, q);
   }
 
   function requestPolicy(citation: DemoCitation): Promise<DemoPolicyResponse> {
@@ -343,6 +483,7 @@ export function App() {
     selectedKey.current = key;
     const snapshot = reportRef.current.cited[key]?.policy;
     setSelected({ citation, state: "loading" });
+    setPane("issues");
     requestAnimationFrame(() => {
       if (mounted.current && sequence === detailSequence.current)
         detailRef.current?.focus();
@@ -377,18 +518,24 @@ export function App() {
     }
   }
 
-  async function addCitation(citation: DemoCitation) {
+  async function addCitation(
+    citation: DemoCitation,
+    alternates: readonly DemoCitation[],
+  ) {
     const k = keyOf(citation);
     if (reportRef.current.cited[k]) return;
     if (Object.keys(reportRef.current.cited).length >= MAX_CITATIONS) {
-      setCitationMessage(
-        `This list holds up to ${MAX_CITATIONS} citations. Export it or remove a citation before adding another.`,
-      );
+      setCitationMessage(COPY.citationLimit(MAX_CITATIONS));
       return;
     }
     const view = selectedRef.current;
-    const policy =
+    const viewed =
       view?.policy && keyOf(view.citation) === k ? view.policy : null;
+    // The row's match key stays: its alternates were matched on it.
+    const policy = viewed && {
+      ...viewed,
+      citation: { ...viewed.citation, matchKey: citation.matchKey },
+    };
     const revision = revisions.current.get(k) ?? 0;
     updateReport((current) => ({
       ...current,
@@ -398,12 +545,12 @@ export function App() {
           citation: policy?.citation ?? citation,
           policy,
           note: "",
-          alternates: [],
+          alternates,
         },
       },
     }));
     setCitationMessage(
-      `Added ${citation.title}.${!policy && citation.textAvailable ? " Reading the official text." : ""}`,
+      COPY.citationAdded(citation.title, !policy && citation.textAvailable),
     );
     if (policy || !citation.textAvailable) return;
     setPending((current) => ({ ...current, [k]: true }));
@@ -421,12 +568,10 @@ export function App() {
           policy: authoritative,
           state: "ready",
         });
-      setCitationMessage(`Citation and text saved for ${citation.title}.`);
+      setCitationMessage(COPY.citationSaved(citation.title));
     } catch {
       if (mounted.current && (revisions.current.get(k) ?? 0) === revision)
-        setCitationMessage(
-          `Citation added for ${citation.title}, but its text could not be read. Use Show issues to retry.`,
-        );
+        setCitationMessage(COPY.citationTextFailed(citation.title));
     } finally {
       if (mounted.current && (revisions.current.get(k) ?? 0) === revision)
         setPending((current) => {
@@ -448,7 +593,7 @@ export function App() {
     });
     updateReport((current) => removeFromReport(current, k));
     if (selectedKey.current === k) clearSelection();
-    setCitationMessage("Citation, selected passages and notes removed.");
+    setCitationMessage(COPY.citationRemoved);
   }
 
   function setMark(k: string, issue: DemoIssue, patch: Partial<Mark>) {
@@ -481,22 +626,51 @@ export function App() {
     });
   }
 
-  async function exportPdf() {
-    if (exporting.current) return;
-    const entries = reportEntries(reportRef.current);
-    if (entries.length === 0) {
+  function setActor(field: keyof DataActors, value: string) {
+    // The refusal named the missing entries as they stood; an edit retires it.
+    if (actorsAsked) setExportMessage("");
+    updateReport((current) => ({
+      ...current,
+      actors: { ...current.actors, [field]: value },
+    }));
+  }
+
+  /** Export and print wait for a citation and all five data actor entries. */
+  function readyToExport(): boolean {
+    if (reportEntries(reportRef.current).length === 0) {
       setExportMessage(COPY.exportEmpty);
-      return;
+      return false;
     }
+    const missing = missingActorFields(reportRef.current.actors);
+    if (missing.length === 0) return true;
+    setActorsAsked(true);
+    setExportMessage(
+      COPY.actorsMissing(
+        missing.map((field) => COPY.actorLabels[field]).join(", "),
+      ),
+    );
+    document.getElementById(`actor-${missing[0]}`)?.focus();
+    return false;
+  }
+
+  async function exportPdf() {
+    if (exporting.current || !readyToExport()) return;
+    const entries = reportEntries(reportRef.current);
+    const exportActors = reportRef.current.actors;
     setExportMessage(COPY.exportingPdf);
     exporting.current = true;
     setExportBusy(true);
     try {
-      const { buildPdf } = await import("../src/demo/pdf");
+      const [{ buildPdf }, fonts] = await Promise.all([
+        import("../src/demo/pdf"),
+        loadPdfFonts(),
+      ]);
       const bytes = await buildPdf({
         version: VERSION,
         generatedAt: new Date(),
         entries,
+        actors: exportActors,
+        fonts,
       });
       const blob = new Blob([bytes as BlobPart], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
@@ -520,7 +694,48 @@ export function App() {
     }
   }
 
+  async function printView() {
+    if (!readyToExport()) return;
+    setExportMessage("");
+    // The document faces load on first use; fetch them before the print dialog opens.
+    await Promise.all(
+      ["400", "600"].map((weight) =>
+        document.fonts?.load(`${weight} 1em "Lexend Deca"`),
+      ),
+    ).catch(() => undefined);
+    window.print();
+  }
+
+  function switchTheme() {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    try {
+      window.sessionStorage.setItem(THEME_KEY, next);
+    } catch {
+      /* the switch still holds for this page view */
+    }
+  }
+
+  // showModal is missing in some embedded and test environments.
+  function openAbout() {
+    const dialog = aboutRef.current;
+    if (!dialog || dialog.hasAttribute("open")) return;
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else dialog.setAttribute("open", "");
+  }
+
+  function closeAbout() {
+    const dialog = aboutRef.current;
+    if (!dialog?.hasAttribute("open")) return;
+    if (typeof dialog.close === "function") dialog.close();
+    else {
+      dialog.removeAttribute("open");
+      aboutOpener.current?.focus();
+    }
+  }
+
   const citedEntries = Object.entries(cited);
+  const actorsDone = ACTOR_FIELDS.filter((field) => actors[field].trim());
   const grouped = useMemo(() => {
     const out = new Map<string, { label: string; issues: DemoIssue[] }>();
     for (const issue of selected?.policy?.issues ?? []) {
@@ -530,564 +745,859 @@ export function App() {
     }
     return [...out.values()];
   }, [selected]);
+  const paneCount: Record<Pane, number | null> = {
+    search: null,
+    results: found ? found.rows.length : null,
+    issues: null,
+    report: citedEntries.length,
+  };
+
+  const alsoListed = (title: string, alternates: readonly DemoCitation[]) =>
+    alternates.length > 0 && (
+      <div class="also">
+        <span>{COPY.docLabels.alsoListedBy}</span>
+        <ul class="meta">
+          {alternates.map((alternate) => (
+            <li key={alternate.sourceId}>
+              <a
+                href={alternate.officialUrl}
+                aria-label={COPY.alternateLink(
+                  labelOf(alternate.sourceId),
+                  title,
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {labelOf(alternate.sourceId)}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
 
   return (
     <>
-      <div class="shell screen-only">
+      <div class="shell screen-only" data-pane={front}>
         <a class="skip" href="#main">
-          Skip to the search
+          {COPY.skipLink}
         </a>
         <header class="head">
-          <h1>{COPY.title}</h1>
-          <p class="status" role="note">
-            {COPY.statusLine(VERSION)}
-          </p>
+          <h1>
+            {COPY.appName}
+            <span class="quiet">
+              {COPY.appMode} <span class="mono">{VERSION}</span>
+            </span>
+          </h1>
+          <nav class="panes" aria-label={COPY.panesLabel}>
+            {PANES.map((id) => (
+              <button
+                type="button"
+                class={`chip chip-${id}`}
+                key={id}
+                aria-label={COPY.paneChip(COPY.paneLabels[id], paneCount[id])}
+                aria-pressed={front === id}
+                onClick={() => setPane(id)}
+              >
+                {COPY.paneLabels[id]}
+                {paneCount[id] !== null && (
+                  <span class="n">{paneCount[id]}</span>
+                )}
+              </button>
+            ))}
+          </nav>
+          <div class="head-actions">
+            <button
+              type="button"
+              class="btn"
+              ref={aboutOpener}
+              onClick={openAbout}
+            >
+              {COPY.aboutButton}
+            </button>
+            <button type="button" class="btn" onClick={switchTheme}>
+              {theme === "dark" ? COPY.themeLight : COPY.themeDark}
+            </button>
+          </div>
         </header>
 
         <main id="main" tabIndex={-1}>
-          {!EMBED && (
-            <section class="intro" aria-label="About this demo">
-              <p>{COPY.introOne}</p>
-              <p>{COPY.introTwo}</p>
-              <p class="limits">
-                <strong>{COPY.limitsTitle}. </strong>
-                {COPY.limits(VERSION)}
-              </p>
-            </section>
-          )}
-          {EMBED && (
-            <p class="limits">
-              <strong>{COPY.limitsTitle}. </strong>
-              {COPY.limits(VERSION)}
+          <section
+            class="pane pane-search"
+            aria-labelledby="search-h"
+            tabIndex={paneTab}
+          >
+            <h2 id="search-h">{COPY.searchLabel}</h2>
+            <p class="live" role="status">
+              {sourceMessage}
             </p>
-          )}
-
-          <div class="grid">
-            <div class="col">
-              <section aria-labelledby="search-h" class="card">
-                <h2 id="search-h">{COPY.searchLabel}</h2>
-                <p class="live" role="status">
-                  {sourceMessage}
-                </p>
-                {sources.every((item) => item.status === "unknown") && (
+            {unchecked && (
+              <button
+                type="button"
+                class="btn"
+                disabled={sourceBusy}
+                onClick={() => void refreshSources(true)}
+              >
+                {sourceBusy ? COPY.checkingSourcesButton : COPY.retrySources}
+              </button>
+            )}
+            <form onSubmit={onSubmit}>
+              <div class="chips" role="group" aria-label={COPY.scopeLabel}>
+                {(["federal", "state"] as const).map((id) => (
                   <button
                     type="button"
-                    disabled={sourceBusy}
-                    onClick={() => void refreshSources(true)}
+                    class="chip"
+                    key={id}
+                    aria-pressed={scope === id}
+                    onClick={() => changeScope(id)}
                   >
-                    {sourceBusy
-                      ? "Checking sources…"
-                      : "Retry source availability"}
+                    {id === "federal" ? COPY.scopeFederal : COPY.scopeState}
                   </button>
-                )}
-                <form onSubmit={onSubmit}>
-                  <fieldset class="sources">
-                    <legend>{COPY.sourceLabel}</legend>
-                    {(["federal", "state"] as const).map((level) => (
-                      <div class="source-group" key={level}>
-                        <p class="group-name">
-                          {level === "federal" ? "Federal" : "State"}
-                        </p>
-                        {sources
-                          .filter((s) => s.level === level)
-                          .map((s) => (
-                            <label class={`source ${s.status}`} key={s.id}>
-                              <input
-                                type="radio"
-                                name="source"
-                                value={s.id}
-                                checked={sourceId === s.id}
-                                disabled={s.status !== "live"}
-                                onChange={() => changeSource(s.id)}
-                              />
-                              <span class="source-name">{s.label}</span>
-                              <span class={`badge ${s.status}`}>
-                                {statusText(s.status)}
-                              </span>
-                              <span class="source-note">{s.note}</span>
-                            </label>
-                          ))}
-                      </div>
-                    ))}
-                  </fieldset>
-                  <label class="field" for="q">
-                    {COPY.searchLabel}
-                  </label>
-                  <div class="row">
-                    <input
-                      id="q"
-                      type="search"
-                      value={query}
-                      autoComplete="off"
-                      maxLength={200}
-                      aria-describedby={
-                        queryError ? "q-help q-error" : "q-help"
-                      }
-                      aria-invalid={queryError ? "true" : undefined}
-                      onInput={(e) => {
-                        setQuery((e.target as HTMLInputElement).value);
-                        setQueryError("");
-                      }}
-                    />
-                    <button
-                      type="submit"
-                      class="primary"
-                      disabled={!usable || busy}
+                ))}
+              </div>
+              {scope === "federal" ? (
+                <fieldset class="zone">
+                  <legend class="eyebrow">{COPY.sourcesLegend}</legend>
+                  {federal.map((s) => (
+                    <label
+                      class={`source${s.status === "live" ? "" : " is-off"}`}
+                      key={s.id}
                     >
-                      {COPY.searchButton}
-                    </button>
-                  </div>
-                  <p id="q-help" class="help">
-                    {helpFor(sourceId)}
-                  </p>
-                  {queryError && (
-                    <p id="q-error" class="notice" role="alert">
-                      {queryError}
-                    </p>
+                      <input
+                        type="checkbox"
+                        checked={s.status === "live" && checked.includes(s.id)}
+                        disabled={s.status !== "live"}
+                        onChange={(e) =>
+                          toggleSource(
+                            s.id,
+                            (e.target as HTMLInputElement).checked,
+                          )
+                        }
+                      />
+                      <span class="row">
+                        <span class="row-k">{s.label}</span>
+                        <Leader />
+                        <SourceStatus status={s.status} />
+                      </span>
+                      <span class="source-note">
+                        {COPY.capability[s.id] ?? s.note}
+                      </span>
+                    </label>
+                  ))}
+                </fieldset>
+              ) : (
+                <div class="zone">
+                  <label class="field" for="state">
+                    {COPY.stateLabel}
+                  </label>
+                  <select
+                    id="state"
+                    value={stateId}
+                    aria-describedby="state-note"
+                    onChange={(e) => {
+                      resetSearch();
+                      setStateId((e.target as HTMLSelectElement).value);
+                    }}
+                  >
+                    {states.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
+                  {chosenState && (
+                    <div id="state-note" class="source">
+                      <span class="row">
+                        <span class="row-k">{COPY.availabilityLabel}</span>
+                        <Leader />
+                        <SourceStatus status={chosenState.status} />
+                      </span>
+                      <span class="source-note">{chosenState.note}</span>
+                    </div>
                   )}
-                </form>
-                <div class="examples">
-                  <p class="group-name">{COPY.examplesLabel}</p>
-                  <ul class="chips">
-                    {EXAMPLES.map((ex) => (
-                      <li key={ex.label}>
+                </div>
+              )}
+              <div class="zone">
+                <label class="field" for="q">
+                  {COPY.queryLabel}
+                </label>
+                <input
+                  id="q"
+                  type="search"
+                  value={query}
+                  autoComplete="off"
+                  maxLength={200}
+                  aria-describedby={queryError ? "q-help q-error" : "q-help"}
+                  aria-invalid={queryError ? "true" : undefined}
+                  onInput={(e) => {
+                    setQuery((e.target as HTMLInputElement).value);
+                    setQueryError("");
+                  }}
+                />
+                <p id="q-help" class="help">
+                  {help}
+                </p>
+                {queryError && (
+                  <p id="q-error" class="notice" role="alert">
+                    {queryError}
+                  </p>
+                )}
+                {noneChecked && (
+                  <p id="q-blocked" class="notice">
+                    {COPY.noSourceChecked}
+                  </p>
+                )}
+                <button
+                  type="submit"
+                  class="btn primary"
+                  disabled={!usable || busy}
+                  aria-describedby={blockedBy}
+                >
+                  {COPY.searchButton}
+                </button>
+              </div>
+            </form>
+            <div class="zone">
+              <h3 class="eyebrow">{COPY.examplesLabel}</h3>
+              <ul class="chips">
+                {EXAMPLES.map((ex) => (
+                  <li key={ex.label}>
+                    <button
+                      type="button"
+                      class="chip"
+                      disabled={exampleTargets(ex.source).length === 0}
+                      onClick={() => tryExample(ex.source, ex.query)}
+                    >
+                      {ex.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+
+          <section
+            class="pane pane-results"
+            aria-labelledby="results-h"
+            tabIndex={paneTab}
+          >
+            <h2 id="results-h">{COPY.resultsTitle}</h2>
+            <div class="live" role="status" aria-live="polite">
+              <p>
+                {found === null && !busy && !message
+                  ? COPY.emptyStart
+                  : message}
+                {busy && <span class="cursor" aria-hidden="true" />}
+              </p>
+              {found && (
+                <ul class="rows">
+                  {found.outcomes.map((outcome) => (
+                    <li class="row" key={outcome.sourceId}>
+                      <span class="row-k">{labelOf(outcome.sourceId)}</span>
+                      <Leader />
+                      <span class="row-v">{outcome.text}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {found?.notes.map((note) => (
+                <p class="help" key={note}>
+                  {note}
+                </p>
+              ))}
+            </div>
+            <ul class="results" key={searchRequest.current.sequence}>
+              {(found?.rows ?? []).map(({ citation: c, alternates }) => {
+                const k = keyOf(c);
+                const isCited = Boolean(cited[k]);
+                const addLabel = pending[k]
+                  ? COPY.readingCited
+                  : isCited
+                    ? COPY.inCitations
+                    : COPY.addCitation;
+                return (
+                  <li
+                    class={`result${selectedKey.current === k ? " is-here" : ""}`}
+                    key={k}
+                  >
+                    <h3>{c.title}</h3>
+                    <p class="row">
+                      <span class="row-k">{labelOf(c.sourceId)}</span>
+                      <Leader />
+                      <span class="row-v mono">{c.identifier}</span>
+                    </p>
+                    <ul class="meta">
+                      <li>{c.issuingBody}</li>
+                      <li>{c.kind}</li>
+                      <li>{c.date ?? COPY.dateNotStated}</li>
+                    </ul>
+                    {c.summary && <p class="summary">{c.summary}</p>}
+                    {alsoListed(c.title, alternates)}
+                    <p class="actions">
+                      <button
+                        type="button"
+                        class="btn"
+                        aria-label={COPY.showIssuesFor(c.title)}
+                        onClick={() => void showIssues(c)}
+                      >
+                        {COPY.showIssues}
+                      </button>
+                      <button
+                        type="button"
+                        class="btn"
+                        disabled={isCited}
+                        aria-label={COPY.named(addLabel, c.title)}
+                        onClick={() => void addCitation(c, alternates)}
+                      >
+                        {addLabel}
+                      </button>
+                      <a
+                        href={c.officialUrl}
+                        aria-label={COPY.openOfficialFor(c.title)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {COPY.openOfficial}
+                      </a>
+                    </p>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+
+          <section
+            class="pane pane-issues"
+            aria-labelledby="detail-h"
+            ref={detailRef}
+            tabIndex={paneTab}
+          >
+            <h2 id="detail-h">{COPY.issuesTitle}</h2>
+            <p class="live" role="status" aria-live="polite">
+              {selected?.state === "loading"
+                ? COPY.readingText
+                : selected?.state === "ready"
+                  ? COPY.issuesReady(
+                      selected.citation.title,
+                      selected.policy?.issues.length ?? 0,
+                    )
+                  : selected?.state === "error"
+                    ? selected.message
+                    : ""}
+            </p>
+            {!selected && <p class="help">{COPY.issuesNote}</p>}
+            {selected && (
+              <div class="detail">
+                <h3 class="policy-title">{selected.citation.title}</h3>
+                <p class="row">
+                  <span class="row-k">{selected.citation.issuingBody}</span>
+                  <Leader />
+                  <span class="row-v mono">{selected.citation.identifier}</span>
+                </p>
+                {selected.state === "ready" && selected.policy && (
+                  <>
+                    <p class="help">{COPY.issuesNote}</p>
+                    {cited[keyOf(selected.citation)]?.policy && (
+                      <p class="help">
+                        {COPY.savedTextNote(
+                          selected.policy.receipt.retrievedAt,
+                        )}
+                      </p>
+                    )}
+                    <dl class="receipt">
+                      <dt>{COPY.readLabel}</dt>
+                      <dd>
+                        <a
+                          class="mono"
+                          href={selected.policy.receipt.textUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {selected.policy.receipt.textUrl}
+                        </a>
+                      </dd>
+                      <dt>{COPY.receiptLabel}</dt>
+                      <dd>
+                        <code>{selected.policy.receipt.sha256}</code>
+                        <span>
+                          {COPY.receiptNote(selected.policy.receipt.bytes)}{" "}
+                          {COPY.retrieved(selected.policy.receipt.retrievedAt)}
+                        </span>
+                      </dd>
+                      <dt>{COPY.engineLabel}</dt>
+                      <dd>
+                        <span>
+                          {COPY.engineText(
+                            selected.policy.engine.parser,
+                            selected.policy.engine.parserVersion,
+                            selected.policy.engine.rulesVersion,
+                          )}
+                        </span>
+                        <span>{COPY.configLabel}</span>
+                        <code>{selected.policy.engine.parserConfigDigest}</code>
+                      </dd>
+                    </dl>
+                    {selected.policy.issues.length === 0 && (
+                      <p>{COPY.noIssues}</p>
+                    )}
+                    {selected.policy.issues.length > 0 && (
+                      <p class="actions">
                         <button
                           type="button"
-                          class="chip"
-                          disabled={
-                            !sources.some(
-                              (item) =>
-                                item.id === ex.source && item.status === "live",
+                          class="btn"
+                          disabled={!cited[keyOf(selected.citation)]}
+                          onClick={() =>
+                            includeAll(
+                              keyOf(selected.citation),
+                              selected.policy!.issues,
                             )
                           }
-                          onClick={() => tryExample(ex.source, ex.query)}
                         >
-                          {ex.label}
+                          {COPY.includeAll}
                         </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </section>
-
-              <section aria-labelledby="results-h" class="card">
-                <h2 id="results-h">{COPY.resultsTitle}</h2>
-                <p class="live" role="status" aria-live="polite">
-                  {results === null && !busy && !message
-                    ? COPY.emptyStart
-                    : message}
-                </p>
-                <ul class="results">
-                  {(results ?? []).map((c) => {
-                    const k = keyOf(c);
-                    const isCited = Boolean(cited[k]);
-                    return (
-                      <li class="result" key={k}>
-                        <h3>{c.title}</h3>
-                        <p class="cite">
-                          {c.identifier}. {c.issuingBody}. {c.kind},{" "}
-                          {c.date ?? "date not stated"}. Retrieved{" "}
-                          {c.retrievedAt.slice(0, 10)}.
-                        </p>
-                        {c.summary && <p class="summary">{c.summary}</p>}
-                        <p class="actions">
-                          <button
-                            type="button"
-                            aria-label={`${COPY.showIssues} for ${c.title}`}
-                            onClick={() => void showIssues(c)}
-                          >
-                            {COPY.showIssues}
-                            <span class="sr"> for {c.title}</span>
-                          </button>
-                          <button
-                            type="button"
-                            disabled={isCited}
-                            onClick={() => void addCitation(c)}
-                          >
-                            {pending[k]
-                              ? "Reading cited text…"
-                              : isCited
-                                ? COPY.inCitations
-                                : COPY.addCitation}
-                            <span class="sr">: {c.title}</span>
-                          </button>
-                          <a
-                            href={c.officialUrl}
-                            aria-label={`${COPY.openOfficial} for ${c.title}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {COPY.openOfficial}
-                            <span class="sr"> for {c.title}</span>
-                          </a>
-                        </p>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </section>
-            </div>
-
-            <div class="col">
-              <section
-                aria-labelledby="detail-h"
-                class="card"
-                ref={detailRef}
-                tabIndex={-1}
-              >
-                <h2 id="detail-h">{COPY.issuesTitle}</h2>
-                <p class="live" role="status" aria-live="polite">
-                  {selected?.state === "loading"
-                    ? COPY.readingText
-                    : selected?.state === "ready"
-                      ? `Issues ready for ${selected.citation.title}. ${selected.policy?.issues.length ?? 0} flags.`
-                      : selected?.state === "error"
-                        ? selected.message
-                        : ""}
-                </p>
-                {!selected && <p class="help">{COPY.issuesNote}</p>}
-                {selected && (
-                  <div>
-                    <h3 class="policy-title">{selected.citation.title}</h3>
-                    <p class="cite">
-                      {selected.citation.identifier}.{" "}
-                      {selected.citation.issuingBody}.
-                    </p>
-                    {selected.state === "ready" && selected.policy && (
-                      <div>
-                        <p class="help">{COPY.issuesNote}</p>
-                        {cited[keyOf(selected.citation)]?.policy && (
-                          <p class="help">
-                            Showing the text saved with this citation, retrieved{" "}
-                            {selected.policy.receipt.retrievedAt}. Remove and
-                            add the citation to read a new version; removing
-                            also clears its notes and selections.
-                          </p>
+                        {!cited[keyOf(selected.citation)] && (
+                          <span class="help">{COPY.addFirst}</span>
                         )}
-                        <dl class="receipt">
-                          <dt>{COPY.readLabel}</dt>
-                          <dd>
-                            <a
-                              href={selected.policy.receipt.textUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              {selected.policy.receipt.textUrl}
-                            </a>
-                          </dd>
-                          <dt>{COPY.receiptLabel}</dt>
-                          <dd>
-                            <code>{selected.policy.receipt.sha256}</code>
-                            <br />
-                            {COPY.receiptNote(
-                              selected.policy.receipt.bytes,
-                            )}{" "}
-                            Retrieved {selected.policy.receipt.retrievedAt}.
-                          </dd>
-                          <dt>{COPY.engineLabel}</dt>
-                          <dd>
-                            {COPY.engineText(
-                              selected.policy.engine.parser,
-                              selected.policy.engine.parserVersion,
-                              selected.policy.engine.rulesVersion,
-                            )}
-                            <br />
-                            Configuration SHA-256:{" "}
-                            <code>
-                              {selected.policy.engine.parserConfigDigest}
-                            </code>
-                          </dd>
-                        </dl>
-                        {selected.policy.issues.length === 0 && (
-                          <p>{COPY.noIssues}</p>
-                        )}
-                        {selected.policy.issues.length > 0 && (
-                          <p>
-                            <button
-                              type="button"
-                              disabled={!cited[keyOf(selected.citation)]}
-                              onClick={() =>
-                                includeAll(
-                                  keyOf(selected.citation),
-                                  selected.policy!.issues,
-                                )
-                              }
-                            >
-                              Include all in PDF
-                            </button>
-                            {!cited[keyOf(selected.citation)] && (
-                              <span class="help">
-                                {" "}
-                                Add the policy to your citations first.
-                              </span>
-                            )}
-                          </p>
-                        )}
-                        {grouped.map((group) => (
-                          <section class="group" key={group.label}>
-                            <h4>
-                              {group.label}{" "}
-                              <span class="count">({group.issues.length})</span>
-                            </h4>
-                            <ul class="issues">
-                              {group.issues.map((issue) => {
-                                const k = keyOf(selected.citation);
-                                const mark = marks[k]?.[issue.id] ?? {
-                                  on: false,
-                                  note: "",
-                                };
-                                const canMark = Boolean(cited[k]);
-                                return (
-                                  <li class="issue" key={issue.id}>
-                                    {issue.type === "consultation_absent" ? (
-                                      <p class="notice">
-                                        <strong>Demo assessment: </strong>
-                                        {issue.quote}
-                                      </p>
-                                    ) : (
-                                      <blockquote>{issue.quote}</blockquote>
-                                    )}
-                                    <details>
-                                      <summary>Why this was flagged</summary>
-                                      <dl>
-                                        <dt>{COPY.ruleLabel}</dt>
-                                        <dd>{issue.rule}</dd>
-                                        <dt>{COPY.limitLabel}</dt>
-                                        <dd>{issue.limits}</dd>
-                                        <dt>{COPY.checkLabel}</dt>
-                                        <dd>{issue.check}</dd>
-                                        <dt>{COPY.locatorLabel}</dt>
-                                        <dd>{issue.locator}</dd>
-                                      </dl>
-                                    </details>
-                                    <label class="check">
-                                      <input
-                                        type="checkbox"
-                                        checked={mark.on}
-                                        disabled={!canMark}
-                                        onChange={(e) =>
-                                          setMark(k, issue, {
-                                            on: (e.target as HTMLInputElement)
-                                              .checked,
-                                          })
-                                        }
-                                      />
-                                      {COPY.includeInPdf}
-                                    </label>
-                                    {mark.on && (
-                                      <label class="field small">
-                                        {COPY.issueNote}
-                                        <textarea
-                                          rows={2}
-                                          maxLength={MAX_NOTE}
-                                          value={mark.note}
-                                          onInput={(e) =>
-                                            setMark(k, issue, {
-                                              note: (
-                                                e.target as HTMLTextAreaElement
-                                              ).value,
-                                            })
-                                          }
-                                        />
-                                      </label>
-                                    )}
-                                  </li>
-                                );
-                              })}
-                            </ul>
-                          </section>
-                        ))}
-                      </div>
+                      </p>
                     )}
-                  </div>
-                )}
-              </section>
-
-              <section aria-labelledby="cited-h" class="card">
-                <h2 id="cited-h">{COPY.citationsTitle}</h2>
-                {saved.notice && (
-                  <p class="notice" role="status">
-                    {saved.notice}
-                  </p>
-                )}
-                {storageMessage && (
-                  <p class="notice" role="status">
-                    {storageMessage}
-                  </p>
-                )}
-                <p class="live" role="status" aria-live="polite">
-                  {citationMessage}
-                </p>
-                {citedEntries.length === 0 && (
-                  <p class="help">{COPY.citationsEmpty}</p>
-                )}
-                <ul class="cited">
-                  {citedEntries.map(([k, entry]) => {
-                    const count = Object.values(marks[k] ?? {}).filter(
-                      (m) => m.on,
-                    ).length;
-                    return (
-                      <li key={k}>
-                        <h3>{entry.citation.title}</h3>
-                        <p class="cite">
-                          {entry.citation.identifier}. {count} passage
-                          {count === 1 ? "" : "s"} selected.
-                        </p>
-                        {pending[k] && (
-                          <p class="help">
-                            Reading the official text for this citation.
-                          </p>
-                        )}
-                        {!pending[k] && !entry.policy && (
-                          <p class="help">
-                            The text has not been read. You can export this
-                            citation without passages.
-                          </p>
-                        )}
-                        <label class="field small">
-                          {COPY.citationNote}
-                          <textarea
-                            rows={3}
-                            maxLength={MAX_NOTE}
-                            value={entry.note}
-                            onInput={(e) => {
-                              const note = (e.target as HTMLTextAreaElement)
-                                .value;
-                              updateReport((current) =>
-                                current.cited[k]
-                                  ? {
-                                      ...current,
-                                      cited: {
-                                        ...current.cited,
-                                        [k]: { ...current.cited[k], note },
-                                      },
+                    {grouped.map((group) => (
+                      <section class="group" key={group.label}>
+                        <div class="row">
+                          <h4>{group.label}</h4>
+                          <Leader />
+                          <span class="row-v mono">{group.issues.length}</span>
+                        </div>
+                        <ul class="issues">
+                          {group.issues.map((issue) => {
+                            const k = keyOf(selected.citation);
+                            const mark = marks[k]?.[issue.id] ?? {
+                              on: false,
+                              note: "",
+                            };
+                            const canMark = Boolean(cited[k]);
+                            return (
+                              <li class="issue" key={issue.id}>
+                                {issue.type === "consultation_absent" ? (
+                                  <p class="assessment">
+                                    <strong>{COPY.assessmentLead} </strong>
+                                    {issue.quote}
+                                  </p>
+                                ) : (
+                                  <blockquote>{issue.quote}</blockquote>
+                                )}
+                                <details>
+                                  <summary>{COPY.whyFlagged}</summary>
+                                  <dl>
+                                    <dt>{COPY.ruleLabel}</dt>
+                                    <dd>{issue.rule}</dd>
+                                    <dt>{COPY.limitLabel}</dt>
+                                    <dd>{issue.limits}</dd>
+                                    <dt>{COPY.checkLabel}</dt>
+                                    <dd>{issue.check}</dd>
+                                    <dt>{COPY.locatorLabel}</dt>
+                                    <dd class="mono">{issue.locator}</dd>
+                                  </dl>
+                                </details>
+                                <label class="check">
+                                  <input
+                                    type="checkbox"
+                                    checked={mark.on}
+                                    disabled={!canMark}
+                                    onChange={(e) =>
+                                      setMark(k, issue, {
+                                        on: (e.target as HTMLInputElement)
+                                          .checked,
+                                      })
                                     }
-                                  : current,
-                              );
-                            }}
-                          />
-                        </label>
+                                  />
+                                  {COPY.includeInPdf}
+                                </label>
+                                {mark.on && (
+                                  <label class="field">
+                                    {COPY.issueNote}
+                                    <textarea
+                                      rows={2}
+                                      maxLength={MAX_NOTE}
+                                      value={mark.note}
+                                      onInput={(e) =>
+                                        setMark(k, issue, {
+                                          note: (
+                                            e.target as HTMLTextAreaElement
+                                          ).value,
+                                        })
+                                      }
+                                    />
+                                  </label>
+                                )}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </section>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
+          </section>
+
+          <section
+            class="pane pane-report"
+            aria-labelledby="report-h"
+            tabIndex={paneTab}
+          >
+            <h2 id="report-h">{COPY.reportTitle}</h2>
+            {saved.notice && (
+              <p class="notice" role="status">
+                {saved.notice}
+              </p>
+            )}
+            {storageMessage && (
+              <p class="notice" role="status">
+                {storageMessage}
+              </p>
+            )}
+            <section class="zone" aria-labelledby="cited-h">
+              <div class="row">
+                <h3 id="cited-h" class="eyebrow">
+                  {COPY.citationsTitle}
+                </h3>
+                <Leader />
+                <span class="row-v mono">{citedEntries.length}</span>
+              </div>
+              <p class="live" role="status" aria-live="polite">
+                {citationMessage}
+              </p>
+              {citedEntries.length === 0 && (
+                <p class="help">{COPY.citationsEmpty}</p>
+              )}
+              <ul class="cited">
+                {citedEntries.map(([k, entry]) => {
+                  const count = Object.values(marks[k] ?? {}).filter(
+                    (m) => m.on,
+                  ).length;
+                  return (
+                    <li key={k}>
+                      <h4>{entry.citation.title}</h4>
+                      <p class="cited-id mono">{entry.citation.identifier}</p>
+                      <p class="row">
+                        <span class="row-k">{COPY.passagesSelected}</span>
+                        <Leader />
+                        <span class="row-v mono">{count}</span>
+                      </p>
+                      {alsoListed(entry.citation.title, entry.alternates)}
+                      {pending[k] && (
+                        <p class="help">{COPY.readingForCitation}</p>
+                      )}
+                      {!pending[k] && !entry.policy && (
+                        <p class="help">{COPY.textNotReadYet}</p>
+                      )}
+                      <label class="field">
+                        {COPY.citationNote}
+                        <textarea
+                          rows={2}
+                          maxLength={MAX_NOTE}
+                          value={entry.note}
+                          onInput={(e) => {
+                            const note = (e.target as HTMLTextAreaElement)
+                              .value;
+                            updateReport((current) =>
+                              current.cited[k]
+                                ? {
+                                    ...current,
+                                    cited: {
+                                      ...current.cited,
+                                      [k]: { ...current.cited[k], note },
+                                    },
+                                  }
+                                : current,
+                            );
+                          }}
+                        />
+                      </label>
+                      <p class="actions">
                         <button
                           type="button"
-                          aria-label={`${COPY.showIssues} for cited ${entry.citation.title}`}
+                          class="btn"
+                          aria-label={COPY.showIssuesForCited(
+                            entry.citation.title,
+                          )}
                           onClick={() => void showIssues(entry.citation)}
                         >
                           {COPY.showIssues}
-                          <span class="sr">
-                            {" "}
-                            for cited {entry.citation.title}
-                          </span>
-                        </button>{" "}
-                        <button type="button" onClick={() => removeCitation(k)}>
-                          {COPY.remove}
-                          <span class="sr">: {entry.citation.title}</span>
                         </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-                <p class="actions">
-                  <button
-                    type="button"
-                    class="primary"
-                    disabled={exportBusy}
-                    onClick={() => void exportPdf()}
-                  >
-                    {COPY.exportPdf}
-                  </button>
-                  <button type="button" onClick={() => window.print()}>
-                    {COPY.printView}
-                  </button>
-                </p>
-                <p class="live" role="status" aria-live="polite">
-                  {exportMessage}
-                </p>
-              </section>
-            </div>
-          </div>
+                        <button
+                          type="button"
+                          class="btn"
+                          aria-label={COPY.named(
+                            COPY.remove,
+                            entry.citation.title,
+                          )}
+                          onClick={() => removeCitation(k)}
+                        >
+                          {COPY.remove}
+                        </button>
+                      </p>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+            <section class="zone" aria-labelledby="actors-h">
+              <div class="row">
+                <h3 id="actors-h" class="eyebrow">
+                  {COPY.actorsTitle}
+                </h3>
+                <Leader />
+                <span class="row-v mono">
+                  {COPY.actorsCount(actorsDone.length, ACTOR_FIELDS.length)}
+                </span>
+              </div>
+              <p class="help">{COPY.actorsIntro}</p>
+              {ACTOR_FIELDS.map((field) => {
+                const done = actorsDone.includes(field);
+                const input = {
+                  id: `actor-${field}`,
+                  value: actors[field],
+                  maxLength: MAX_ACTOR_TEXT,
+                  "aria-required": true,
+                  "aria-invalid": actorsAsked && !done ? true : undefined,
+                  "aria-describedby": `actor-${field}-state`,
+                  onInput: (e: Event) =>
+                    setActor(
+                      field,
+                      (e.target as HTMLInputElement | HTMLTextAreaElement)
+                        .value,
+                    ),
+                };
+                return (
+                  <div class="actor" key={field}>
+                    <p class="row">
+                      <label class="field" for={input.id}>
+                        {COPY.actorLabels[field]}
+                      </label>
+                      <Leader />
+                      <span id={input["aria-describedby"]} class="row-v status">
+                        <span
+                          class={done ? "mark is-full" : "mark"}
+                          aria-hidden="true"
+                        />
+                        {done ? COPY.actorEntered : COPY.actorRequired}
+                      </span>
+                    </p>
+                    {field === "purpose" ? (
+                      <textarea rows={2} {...input} />
+                    ) : (
+                      <input
+                        type="text"
+                        autoComplete={ACTOR_AUTOCOMPLETE[field]}
+                        {...input}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </section>
+            <section class="export" aria-label={COPY.exportTitle}>
+              <p class="actions">
+                <button
+                  type="button"
+                  class="btn primary"
+                  disabled={exportBusy}
+                  onClick={() => void exportPdf()}
+                >
+                  {COPY.exportPdf}
+                </button>
+                <button
+                  type="button"
+                  class="btn"
+                  onClick={() => void printView()}
+                >
+                  {COPY.printView}
+                </button>
+              </p>
+              <p class="live" role="status" aria-live="polite">
+                {exportMessage}
+              </p>
+            </section>
+          </section>
         </main>
 
         {!EMBED && (
           <footer class="foot">
-            <p>{COPY.footerSource}</p>
-            <p>{COPY.footerCode}</p>
+            <ul class="meta">
+              {COPY.footerItems.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <TsdfLine />
           </footer>
         )}
       </div>
+      <About
+        dialog={aboutRef}
+        sources={sources}
+        onClose={closeAbout}
+        onClosed={() => aboutOpener.current?.focus()}
+      />
       <PrintView report={report} />
     </>
   );
 }
 
-export function PrintView({ report }: { report: ReportState }) {
-  const entries = reportEntries(report);
+/** Browser autofill hints for the entries that describe the person. */
+const ACTOR_AUTOCOMPLETE: Partial<Record<keyof DataActors, string>> = {
+  name: "name",
+  role: "organization-title",
+  organization: "organization",
+};
+
+function TsdfLine() {
   return (
-    <div class="print-only">
-      <h1>{COPY.pdfTitle}</h1>
-      <p>
-        <strong>
-          Prepared with Policy Sentinel {VERSION}, in development.
-        </strong>
-      </p>
-      <p>{COPY.limits(VERSION)}</p>
-      {entries.length === 0 && <p>{COPY.exportEmpty}</p>}
-      {entries.map((entry) => (
-        <section key={keyOf(entry.citation)}>
-          <h2>{entry.citation.title}</h2>
-          <p>
-            {entry.citation.identifier}. {entry.citation.issuingBody}.{" "}
-            {entry.citation.kind}, {entry.citation.date ?? "date not stated"}.
-          </p>
-          <p>Source: {entry.citation.sourceId}</p>
-          <p>
-            Official URL: {entry.citation.officialUrl}. Retrieved{" "}
-            {entry.citation.retrievedAt}.
-          </p>
-          {entry.receipt && (
-            <div class="print-receipt">
-              <p>Text URL: {entry.receipt.textUrl}</p>
-              <p>
-                Text retrieved: {entry.receipt.retrievedAt}. Bytes:{" "}
-                {entry.receipt.bytes}. SHA-256: {entry.receipt.sha256}
-              </p>
-              {entry.engine && (
-                <p>
-                  {COPY.engineText(
-                    entry.engine.parser,
-                    entry.engine.parserVersion,
-                    entry.engine.rulesVersion,
-                  )}
-                  . Configuration SHA-256: {entry.engine.parserConfigDigest}
-                </p>
-              )}
-            </div>
-          )}
-          {entry.note && <p>Note: {entry.note}</p>}
-          {!entry.receipt ? (
-            <p>{COPY.pdfTextNotRead}</p>
-          ) : entry.issues.length === 0 ? (
-            <p>{COPY.pdfNoPassages}</p>
-          ) : null}
-          {entry.issues.map(({ issue, note }) => (
-            <div class="print-issue" key={issue.id}>
-              <h3>{issue.label}</h3>
-              {issue.type === "consultation_absent" ? (
-                <p>
-                  <strong>Demo assessment: </strong>
-                  {issue.quote}
-                </p>
-              ) : (
-                <blockquote>{issue.quote}</blockquote>
-              )}
-              <p>Location: {issue.locator}</p>
-              <p>Rule: {issue.rule}</p>
-              <p>Limit: {issue.limits}</p>
-              <p>Check: {issue.check}</p>
-              {note && <p>Note: {note}</p>}
-            </div>
+    <p class="tsdf">
+      <span class="mark is-land" aria-hidden="true" />
+      <a href={TSDF_URL} target="_blank" rel="noopener noreferrer">
+        {COPY.tsdfLink}
+      </a>
+    </p>
+  );
+}
+
+function About({
+  dialog,
+  sources,
+  onClose,
+  onClosed,
+}: {
+  dialog: RefObject<HTMLDialogElement>;
+  sources: readonly DemoSource[];
+  onClose: () => void;
+  onClosed: () => void;
+}) {
+  // The document's closing "verify" line is left out: the dialog's limits text already says it.
+  const [material, claims, matches] = COPY.docSovereignty;
+  return (
+    <dialog
+      class="about screen-only"
+      ref={dialog}
+      aria-labelledby="about-h"
+      onClose={onClosed}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") onClose();
+      }}
+    >
+      <div class="about-head">
+        <h2 id="about-h">{COPY.aboutButton}</h2>
+        <button type="button" class="btn" onClick={onClose}>
+          {COPY.aboutClose}
+        </button>
+      </div>
+      <div class="about-body">
+        <section>
+          <h3>{COPY.aboutWhatTitle}</h3>
+          <p>{COPY.statusLine(VERSION)}</p>
+          <p>{COPY.introOne}</p>
+        </section>
+        <section>
+          <h3>{COPY.limitsTitle}</h3>
+          <p>{COPY.limits(VERSION)}</p>
+          <p>{COPY.issuesNote}</p>
+          <p>{COPY.flagQuestion}</p>
+          <p>{matches}</p>
+        </section>
+        <section>
+          <h3>{COPY.aboutSourcesTitle}</h3>
+          <ul class="rows">
+            {sources.map((s) => (
+              <li class="source" key={s.id}>
+                <span class="row">
+                  <span class="row-k">{s.label}</span>
+                  <Leader />
+                  <SourceStatus status={s.status} />
+                </span>
+                <span class="source-note">{s.note}</span>
+              </li>
+            ))}
+          </ul>
+          <p>{COPY.aboutSourcesNote}</p>
+          <p>{COPY.mergeRule}</p>
+        </section>
+        <section>
+          <h3>{COPY.aboutPrivacyTitle}</h3>
+          {COPY.aboutPrivacy.map((text) => (
+            <p key={text}>{text}</p>
           ))}
         </section>
-      ))}
+        <section>
+          <h3>{COPY.aboutTsdfTitle}</h3>
+          <p>{material}</p>
+          <p>{claims}</p>
+          <TsdfLine />
+        </section>
+        <section>
+          <h3>{COPY.aboutVersionTitle}</h3>
+          <p>{COPY.docTool(VERSION)}</p>
+          <p>{COPY.aboutBuilt}</p>
+          <p>
+            <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
+              {COPY.repoLink}
+            </a>
+          </p>
+        </section>
+      </div>
+    </dialog>
+  );
+}
+
+/** The one mapping from document blocks to elements; all wording comes from the model. */
+function docBlock(block: DocBlock, index: number) {
+  switch (block.kind) {
+    case "title":
+      return <h1 key={index}>{block.text}</h1>;
+    case "h2":
+      return <h2 key={index}>{block.text}</h2>;
+    case "h3":
+      return <h3 key={index}>{block.text}</h3>;
+    case "quote":
+      return <blockquote key={index}>{block.text}</blockquote>;
+    case "field":
+      return (
+        <p class="doc-field" key={index}>
+          <b>{block.label}</b>{" "}
+          <span class={block.mono ? "mono" : undefined}>{block.value}</span>
+        </p>
+      );
+    case "ref":
+      return (
+        <p class="doc-ref" key={index}>
+          <b>[{block.number}]</b> <span>{block.text}</span>
+        </p>
+      );
+    case "rule":
+      return <hr key={index} />;
+    case "break":
+      return <div class="doc-break" key={index} />;
+    default:
+      return (
+        <p class={`doc-${block.kind}`} key={index}>
+          {block.text}
+        </p>
+      );
+  }
+}
+
+export function PrintView({ report }: { report: ReportState }) {
+  const model = buildDocument({
+    version: VERSION,
+    generatedAt: new Date(),
+    entries: reportEntries(report),
+    actors: report.actors,
+  });
+  return (
+    <div class="print-only">
+      {model.blocks.map(docBlock)}
+      {/* shortcut: the footer prints once at the end, not on every page; the PDF carries the running header and footer. */}
+      <p class="doc-small doc-foot">{model.footer}</p>
     </div>
   );
 }

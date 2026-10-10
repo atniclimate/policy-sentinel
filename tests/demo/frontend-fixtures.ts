@@ -5,22 +5,25 @@ import type {
   DemoSource,
 } from "../../src/demo/types";
 
-export const sources: DemoSource[] = [
-  {
-    id: "federal-register",
-    label: "Federal Register",
-    level: "federal",
-    status: "live",
-    note: "Synthetic test source.",
-  },
-  {
-    id: "washington",
-    label: "Washington Legislature",
-    level: "state",
-    status: "live",
-    note: "Synthetic test source.",
-  },
-];
+export const sources: DemoSource[] = (
+  [
+    ["federal-register", "Federal Register", "federal", "live"],
+    ["govinfo", "GovInfo", "federal", "live"],
+    ["congress", "Congress.gov", "federal", "live"],
+    ["regulations", "Regulations.gov", "federal", "live"],
+    ["washington", "Washington Legislature", "state", "live"],
+    ["oregon", "Oregon Legislature", "state", "not_available"],
+  ] as const
+).map(([id, label, level, status]) => ({
+  id,
+  label,
+  level,
+  status,
+  note:
+    status === "live"
+      ? "Synthetic test source."
+      : "Synthetic gap: not enabled.",
+}));
 
 export function citation(
   id = "2099-00001",
@@ -39,6 +42,21 @@ export function citation(
     summary: null,
     textAvailable: true,
     matchKey: null,
+  };
+}
+
+/** The Federal Register document `id` as another federal source lists it. */
+export function listing(
+  sourceId: "govinfo" | "regulations",
+  id = "2099-00001",
+): DemoCitation {
+  return {
+    ...citation(id),
+    sourceId,
+    identifier: `${sourceId}-${id}`,
+    officialUrl: `https://www.${sourceId}.gov/document/${id}`,
+    textAvailable: false,
+    matchKey: `fr:${id}`,
   };
 }
 
@@ -82,10 +100,11 @@ export function policy(hash = "a", c = citation()): DemoPolicyResponse {
 export function searchResult(
   results = [citation()],
   query = "water",
+  source = "federal-register",
 ): DemoSearchResponse {
   return {
     ok: true,
-    source: "federal-register",
+    source,
     query,
     page: 1,
     total: results.length,

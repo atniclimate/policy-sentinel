@@ -21,16 +21,31 @@ const forbidden = [
   /Policy note from the browser check\./,
 ];
 
+// Fonts are binary and are not text-scanned, so each must open with the
+// signature of the format its name claims.
+const fontSignatures = {
+  woff2: Buffer.from("wOF2"),
+  ttf: Buffer.from([0, 1, 0, 0]),
+};
+
 export function scanDemoOutput(root) {
   const targets = [join(root, "index.html")];
+  let fonts = 0;
   function visit(directory) {
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       const file = join(directory, entry.name);
+      const signature = fontSignatures[/\.(woff2|ttf)$/.exec(entry.name)?.[1]];
       if (entry.isSymbolicLink())
         throw new Error("demo build refused: linked asset");
       if (entry.isDirectory()) visit(file);
       else if (entry.isFile() && /\.(?:js|css)$/.test(entry.name))
         targets.push(file);
+      else if (
+        entry.isFile() &&
+        signature &&
+        readFileSync(file).subarray(0, 4).equals(signature)
+      )
+        fonts += 1;
       else throw new Error("demo build refused: unexpected asset type");
     }
   }
@@ -48,7 +63,7 @@ export function scanDemoOutput(root) {
       );
     }
   }
-  return { generatedFiles: targets.length };
+  return { generatedFiles: targets.length + fonts };
 }
 
 if (
