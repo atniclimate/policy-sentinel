@@ -44,6 +44,8 @@ const REPO_URL = "https://github.com/atniclimate/policy-sentinel";
 const THEME_KEY = "ps-demo-theme";
 /** From this width the search and results panes are always in view. */
 const WIDE = "(min-width: 64rem)";
+/** From this width all four panes are in view. */
+const FULL = "(min-width: 100rem)";
 const PANES = ["search", "results", "issues", "report"] as const;
 type Pane = (typeof PANES)[number];
 type Scope = "federal" | "state";
@@ -95,7 +97,8 @@ const FALLBACK_SOURCES: DemoSource[] = (
 
 interface Selected {
   citation: DemoCitation;
-  state: "loading" | "ready" | "error";
+  /** "unread" is a source whose text the demo does not read: a limit, not a failure. */
+  state: "loading" | "ready" | "error" | "unread";
   policy?: DemoPolicyResponse;
   message?: string;
 }
@@ -139,6 +142,24 @@ function markClass(status: DemoSource["status"]): string {
 }
 
 const Leader = () => <span class="leader" aria-hidden="true" />;
+
+/** The service writes "Not stated" for a record with no issuing body. */
+const bodyOf = (citation: DemoCitation) =>
+  citation.issuingBody === "Not stated"
+    ? COPY.issuingBodyNotStated
+    : citation.issuingBody;
+
+/** A 64 character digest that may break only at its midpoint, so it wraps into even lines. */
+function Digest({ value }: { value: string }) {
+  const half = value.length / 2;
+  return (
+    <code>
+      {value.slice(0, half)}
+      <wbr />
+      {value.slice(half)}
+    </code>
+  );
+}
 
 function SourceStatus({ status }: { status: DemoSource["status"] }) {
   return (
@@ -185,6 +206,8 @@ export function App() {
   const [theme, setTheme] = useState<Theme>(startTheme);
   const aboutRef = useRef<HTMLDialogElement>(null);
   const aboutOpener = useRef<HTMLButtonElement>(null);
+  const notesRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLElement>(null);
   const detailRef = useRef<HTMLElement>(null);
   const searchRequest = useRef<{
     sequence: number;
@@ -258,8 +281,38 @@ export function App() {
     window.addEventListener("beforeprint", beforePrint);
     window.addEventListener("afterprint", afterPrint);
     const media = window.matchMedia?.(WIDE);
-    const onMedia = () => setWide(Boolean(media?.matches));
+    const full = window.matchMedia?.(FULL);
+    // A narrower layout hides panes. The one being typed in stays in front, and
+    // focus is put back if the change of layout dropped it.
+    const layoutNow = () => `${media?.matches} ${full?.matches}`;
+    let layout = layoutNow();
+    const keepPane = (at: EventTarget | null) => {
+      if (!(at instanceof HTMLElement)) return;
+      const holder = PANES.find((id) => at.closest(`.pane-${id}`));
+      // Search and Results stay in view down to the single-pane layout.
+      const stays = holder === "search" || holder === "results";
+      if (!holder || (media?.matches && stays)) return;
+      setWide(Boolean(media?.matches));
+      setPane(holder);
+      requestAnimationFrame(() => {
+        if (at.isConnected && document.activeElement === document.body)
+          at.focus();
+      });
+    };
+    const onMedia = (event: { matches: boolean }) => {
+      layout = layoutNow();
+      setWide(Boolean(media?.matches));
+      if (!event.matches) keepPane(document.activeElement);
+    };
+    // Chrome takes focus from a pane the new layout hides before it reports the
+    // media change, so the pane is also caught as focus leaves it.
+    const onFocusOut = (event: FocusEvent) => {
+      if (!event.relatedTarget && layout !== layoutNow())
+        keepPane(event.target);
+    };
     media?.addEventListener("change", onMedia);
+    full?.addEventListener("change", onMedia);
+    document.addEventListener("focusout", onFocusOut);
     return () => {
       mounted.current = false;
       sourceRequest.current?.abort();
@@ -269,6 +322,8 @@ export function App() {
       window.removeEventListener("beforeprint", beforePrint);
       window.removeEventListener("afterprint", afterPrint);
       media?.removeEventListener("change", onMedia);
+      full?.removeEventListener("change", onMedia);
+      document.removeEventListener("focusout", onFocusOut);
     };
   }, []);
 
@@ -305,13 +360,26 @@ export function App() {
   // state is not available and its catalog note under the select says why.
   const noneChecked =
     scope === "federal" && !usable && !sourceBusy && !unchecked;
+  // Asking for a search anyway says the reason as an alert. The alert then
+  // stands in for the plain note, so the reason is on the page once.
+  const blockedNote = noneChecked && queryError !== COPY.noSourceChecked;
   const blockedBy = usable
     ? undefined
     : scope === "state"
       ? "state-note"
-      : noneChecked
+      : blockedNote
         ? "q-blocked"
-        : undefined;
+        : noneChecked
+          ? "q-error"
+          : undefined;
+  const blockedReason =
+    (scope === "state"
+      ? chosenState?.note
+      : noneChecked
+        ? COPY.noSourceChecked
+        : sourceBusy || unchecked
+          ? sourceMessage
+          : "") || COPY.searchOff;
   const help =
     scope === "state"
       ? stateId === "washington"
@@ -345,6 +413,7 @@ export function App() {
   }
 
   function changeScope(next: Scope) {
+    if (next === scope) return;
     resetSearch();
     setScope(next);
   }
@@ -378,6 +447,11 @@ export function App() {
     setFound(null);
     clearSelection();
     setPane((current) => (current === "search" ? "results" : current));
+    // The single-pane layout hides the Search pane now; focus follows to Results.
+    if (!wide)
+      requestAnimationFrame(() => {
+        if (ownsView()) resultsRef.current?.focus();
+      });
     // One request per source; a source that fails does not hide the others.
     const settled = await Promise.allSettled(
       asked.map((id) => search(id, q, 1, controller.signal)),
@@ -385,7 +459,8 @@ export function App() {
     if (!ownsView()) return;
     const batches: SourceResults[] = [];
     const outcomes: { sourceId: string; text: string }[] = [];
-    const failures: { sourceId: string; text: string }[] = [];
+    const failures: { sourceId: string; text: string; answered: boolean }[] =
+      [];
     settled.forEach((result, index) => {
       const sourceId = asked[index];
       if (result.status === "fulfilled") {
@@ -396,8 +471,20 @@ export function App() {
           text: COPY.resultsCount(results.length, total),
         });
       } else {
-        outcomes.push({ sourceId, text: COPY.sourceFailed });
-        failures.push({ sourceId, text: failureText(result.reason) });
+        // A "source" failure carries the source's own reason, such as no such
+        // bill; only a service or rate-limit failure means nothing was asked.
+        const answered =
+          result.reason instanceof ApiFailure &&
+          result.reason.kind === "source";
+        outcomes.push({
+          sourceId,
+          text: answered ? COPY.sourceNothing : COPY.sourceFailed,
+        });
+        failures.push({
+          sourceId,
+          text: failureText(result.reason),
+          answered,
+        });
       }
     });
     if (skipped) outcomes.push({ sourceId: "congress", text: COPY.skipped });
@@ -412,9 +499,14 @@ export function App() {
       notes: [
         ...(oneReason
           ? []
-          : failures.map((failure) =>
-              COPY.sourceFailure(labelOf(failure.sourceId), failure.text),
-            )),
+          : failures.map(({ sourceId, text, answered }) => {
+              const label = labelOf(sourceId);
+              if (!answered) return COPY.sourceFailure(label, text);
+              // A reason that opens with the source's name is not given it twice.
+              return text.startsWith(label)
+                ? text
+                : COPY.sourceAnswer(label, text);
+            })),
         ...(skipped ? [COPY.congressSkipped] : []),
         ...(merged ? [COPY.mergeNote(merged)] : []),
       ],
@@ -433,7 +525,12 @@ export function App() {
 
   function onSubmit(event: Event) {
     event.preventDefault();
-    if (!usable) return;
+    if (busy) return;
+    if (!usable) {
+      setQueryError(blockedReason);
+      document.getElementById("q")?.focus();
+      return;
+    }
     if (query.trim().length < 2 || query.trim().length > 200) {
       setQueryError(COPY.queryLength);
       document.getElementById("q")?.focus();
@@ -452,6 +549,8 @@ export function App() {
   function tryExample(sid: string, q: string) {
     const ids = exampleTargets(sid);
     if (ids.length === 0) return;
+    // The scope may change even when the search below is refused.
+    resetSearch();
     const state = states.some((item) => item.id === sid);
     setScope(state ? "state" : "federal");
     if (state) setStateId(sid);
@@ -497,7 +596,7 @@ export function App() {
       return;
     }
     if (!citation.textAvailable) {
-      setSelected({ citation, state: "error", message: COPY.noTextForSource });
+      setSelected({ citation, state: "unread", message: COPY.noTextForSource });
       return;
     }
     try {
@@ -518,6 +617,15 @@ export function App() {
     }
   }
 
+  /** On a scrolled page, brings the status line under the header into view. */
+  function showNotes() {
+    requestAnimationFrame(() => {
+      const notes = notesRef.current;
+      if (typeof notes?.scrollIntoView === "function")
+        notes.scrollIntoView({ block: "nearest" });
+    });
+  }
+
   async function addCitation(
     citation: DemoCitation,
     alternates: readonly DemoCitation[],
@@ -526,6 +634,8 @@ export function App() {
     if (reportRef.current.cited[k]) return;
     if (Object.keys(reportRef.current.cited).length >= MAX_CITATIONS) {
       setCitationMessage(COPY.citationLimit(MAX_CITATIONS));
+      // Nothing else on the page changes, so the reason must be in sight.
+      showNotes();
       return;
     }
     const view = selectedRef.current;
@@ -583,6 +693,7 @@ export function App() {
   }
 
   function removeCitation(k: string) {
+    const title = reportRef.current.cited[k]?.citation.title ?? "";
     revisions.current.set(k, (revisions.current.get(k) ?? 0) + 1);
     policyRequests.current.get(k)?.controller.abort();
     policyRequests.current.delete(k);
@@ -593,7 +704,11 @@ export function App() {
     });
     updateReport((current) => removeFromReport(current, k));
     if (selectedKey.current === k) clearSelection();
-    setCitationMessage(COPY.citationRemoved);
+    setCitationMessage(COPY.citationRemoved(title));
+    // The pressed button leaves with its row. Focus goes to the list heading, not
+    // to the next row's Remove, where a second Enter would remove another citation.
+    document.getElementById("cited-h")?.focus();
+    showNotes();
   }
 
   function setMark(k: string, issue: DemoIssue, patch: Partial<Mark>) {
@@ -683,10 +798,20 @@ export function App() {
       setTimeout(() => URL.revokeObjectURL(url), 10_000);
       setExportMessage(COPY.exportDone);
     } catch (error) {
-      setExportMessage(
+      // Name the refused character with its code point, so a combining mark is findable too.
+      const refused =
         error instanceof Error && error.name === "PdfEncodingError"
-          ? COPY.exportUnsupported
-          : COPY.exportFailed,
+          ? ((error as { character?: string }).character ?? "")
+          : null;
+      const code = refused?.codePointAt(0);
+      setExportMessage(
+        refused === null
+          ? COPY.exportFailed
+          : COPY.exportUnsupported(
+              code === undefined
+                ? ""
+                : `${refused} (U+${code.toString(16).toUpperCase().padStart(4, "0")})`,
+            ),
       );
     } finally {
       exporting.current = false;
@@ -695,15 +820,21 @@ export function App() {
   }
 
   async function printView() {
-    if (!readyToExport()) return;
-    setExportMessage("");
-    // The document faces load on first use; fetch them before the print dialog opens.
-    await Promise.all(
-      ["400", "600"].map((weight) =>
-        document.fonts?.load(`${weight} 1em "Lexend Deca"`),
-      ),
-    ).catch(() => undefined);
-    window.print();
+    if (exporting.current || !readyToExport()) return;
+    exporting.current = true;
+    setExportMessage(COPY.printPreparing);
+    try {
+      // The document faces load on first use; fetch them before the print dialog opens.
+      await Promise.all(
+        ["400", "600"].map((weight) =>
+          document.fonts?.load(`${weight} 1em "Lexend Deca"`),
+        ),
+      ).catch(() => undefined);
+      window.print();
+    } finally {
+      exporting.current = false;
+      setExportMessage("");
+    }
   }
 
   function switchTheme() {
@@ -822,6 +953,12 @@ export function App() {
         </header>
 
         <main id="main" tabIndex={-1}>
+          {/* Outside the panes, so these are seen and announced whichever pane is in front. */}
+          <div class="notes" role="status" aria-live="polite" ref={notesRef}>
+            {saved.notice && <p class="notice">{saved.notice}</p>}
+            {storageMessage && <p class="notice">{storageMessage}</p>}
+            {citationMessage && <p class="live">{citationMessage}</p>}
+          </div>
           <section
             class="pane pane-search"
             aria-labelledby="search-h"
@@ -832,11 +969,15 @@ export function App() {
               {sourceMessage}
             </p>
             {unchecked && (
+              // aria-disabled, here and on the other buttons that act: the
+              // disabled attribute would drop keyboard focus to the page body.
               <button
                 type="button"
                 class="btn"
-                disabled={sourceBusy}
-                onClick={() => void refreshSources(true)}
+                aria-disabled={sourceBusy}
+                onClick={() => {
+                  if (!sourceBusy) void refreshSources(true);
+                }}
               >
                 {sourceBusy ? COPY.checkingSourcesButton : COPY.retrySources}
               </button>
@@ -927,7 +1068,13 @@ export function App() {
                   value={query}
                   autoComplete="off"
                   maxLength={200}
-                  aria-describedby={queryError ? "q-help q-error" : "q-help"}
+                  aria-describedby={
+                    queryError
+                      ? "q-help q-error"
+                      : blockedBy
+                        ? `q-help ${blockedBy}`
+                        : "q-help"
+                  }
                   aria-invalid={queryError ? "true" : undefined}
                   onInput={(e) => {
                     setQuery((e.target as HTMLInputElement).value);
@@ -942,7 +1089,7 @@ export function App() {
                     {queryError}
                   </p>
                 )}
-                {noneChecked && (
+                {blockedNote && (
                   <p id="q-blocked" class="notice">
                     {COPY.noSourceChecked}
                   </p>
@@ -950,7 +1097,7 @@ export function App() {
                 <button
                   type="submit"
                   class="btn primary"
-                  disabled={!usable || busy}
+                  aria-disabled={!usable || busy}
                   aria-describedby={blockedBy}
                 >
                   {COPY.searchButton}
@@ -979,6 +1126,7 @@ export function App() {
           <section
             class="pane pane-results"
             aria-labelledby="results-h"
+            ref={resultsRef}
             tabIndex={paneTab}
           >
             <h2 id="results-h">{COPY.resultsTitle}</h2>
@@ -1027,7 +1175,7 @@ export function App() {
                       <span class="row-v mono">{c.identifier}</span>
                     </p>
                     <ul class="meta">
-                      <li>{c.issuingBody}</li>
+                      <li>{bodyOf(c)}</li>
                       <li>{c.kind}</li>
                       <li>{c.date ?? COPY.dateNotStated}</li>
                     </ul>
@@ -1045,7 +1193,7 @@ export function App() {
                       <button
                         type="button"
                         class="btn"
-                        disabled={isCited}
+                        aria-disabled={isCited}
                         aria-label={COPY.named(addLabel, c.title)}
                         onClick={() => void addCitation(c, alternates)}
                       >
@@ -1073,7 +1221,11 @@ export function App() {
             tabIndex={paneTab}
           >
             <h2 id="detail-h">{COPY.issuesTitle}</h2>
-            <p class="live" role="status" aria-live="polite">
+            <p
+              class={selected?.state === "error" ? "live notice" : "live"}
+              role="status"
+              aria-live="polite"
+            >
               {selected?.state === "loading"
                 ? COPY.readingText
                 : selected?.state === "ready"
@@ -1081,16 +1233,14 @@ export function App() {
                       selected.citation.title,
                       selected.policy?.issues.length ?? 0,
                     )
-                  : selected?.state === "error"
-                    ? selected.message
-                    : ""}
+                  : (selected?.message ?? "")}
             </p>
             {!selected && <p class="help">{COPY.issuesNote}</p>}
             {selected && (
               <div class="detail">
                 <h3 class="policy-title">{selected.citation.title}</h3>
                 <p class="row">
-                  <span class="row-k">{selected.citation.issuingBody}</span>
+                  <span class="row-k">{bodyOf(selected.citation)}</span>
                   <Leader />
                   <span class="row-v mono">{selected.citation.identifier}</span>
                 </p>
@@ -1118,7 +1268,7 @@ export function App() {
                       </dd>
                       <dt>{COPY.receiptLabel}</dt>
                       <dd>
-                        <code>{selected.policy.receipt.sha256}</code>
+                        <Digest value={selected.policy.receipt.sha256} />
                         <span>
                           {COPY.receiptNote(selected.policy.receipt.bytes)}{" "}
                           {COPY.retrieved(selected.policy.receipt.retrievedAt)}
@@ -1134,7 +1284,9 @@ export function App() {
                           )}
                         </span>
                         <span>{COPY.configLabel}</span>
-                        <code>{selected.policy.engine.parserConfigDigest}</code>
+                        <Digest
+                          value={selected.policy.engine.parserConfigDigest}
+                        />
                       </dd>
                     </dl>
                     {selected.policy.issues.length === 0 && (
@@ -1175,15 +1327,19 @@ export function App() {
                               note: "",
                             };
                             const canMark = Boolean(cited[k]);
+                            // Names the passage its controls belong to. Rule ids are a type and a number.
+                            const passage = `passage-${issue.id}`;
                             return (
                               <li class="issue" key={issue.id}>
                                 {issue.type === "consultation_absent" ? (
-                                  <p class="assessment">
+                                  <p class="assessment" id={passage}>
                                     <strong>{COPY.assessmentLead} </strong>
                                     {issue.quote}
                                   </p>
                                 ) : (
-                                  <blockquote>{issue.quote}</blockquote>
+                                  <blockquote id={passage}>
+                                    {issue.quote}
+                                  </blockquote>
                                 )}
                                 <details>
                                   <summary>{COPY.whyFlagged}</summary>
@@ -1203,6 +1359,7 @@ export function App() {
                                     type="checkbox"
                                     checked={mark.on}
                                     disabled={!canMark}
+                                    aria-describedby={passage}
                                     onChange={(e) =>
                                       setMark(k, issue, {
                                         on: (e.target as HTMLInputElement)
@@ -1219,6 +1376,7 @@ export function App() {
                                       rows={2}
                                       maxLength={MAX_NOTE}
                                       value={mark.note}
+                                      aria-describedby={passage}
                                       onInput={(e) =>
                                         setMark(k, issue, {
                                           note: (
@@ -1241,169 +1399,164 @@ export function App() {
             )}
           </section>
 
-          <section
-            class="pane pane-report"
-            aria-labelledby="report-h"
-            tabIndex={paneTab}
-          >
-            <h2 id="report-h">{COPY.reportTitle}</h2>
-            {saved.notice && (
-              <p class="notice" role="status">
-                {saved.notice}
-              </p>
-            )}
-            {storageMessage && (
-              <p class="notice" role="status">
-                {storageMessage}
-              </p>
-            )}
-            <section class="zone" aria-labelledby="cited-h">
-              <div class="row">
-                <h3 id="cited-h" class="eyebrow">
-                  {COPY.citationsTitle}
-                </h3>
-                <Leader />
-                <span class="row-v mono">{citedEntries.length}</span>
-              </div>
-              <p class="live" role="status" aria-live="polite">
-                {citationMessage}
-              </p>
-              {citedEntries.length === 0 && (
-                <p class="help">{COPY.citationsEmpty}</p>
-              )}
-              <ul class="cited">
-                {citedEntries.map(([k, entry]) => {
-                  const count = Object.values(marks[k] ?? {}).filter(
-                    (m) => m.on,
-                  ).length;
+          {/* The list scrolls in its own area and Export is a row under it, so no field can sit under Export. */}
+          <section class="pane pane-report" aria-labelledby="report-h">
+            <div
+              class="pane-scroll"
+              role="group"
+              aria-labelledby="report-h"
+              tabIndex={paneTab}
+            >
+              <h2 id="report-h">{COPY.reportTitle}</h2>
+              <section class="zone" aria-labelledby="cited-h">
+                <div class="row">
+                  <h3 id="cited-h" class="eyebrow" tabIndex={-1}>
+                    {COPY.citationsTitle}
+                  </h3>
+                  <Leader />
+                  <span class="row-v mono">{citedEntries.length}</span>
+                </div>
+                {citedEntries.length === 0 && (
+                  <p class="help">{COPY.citationsEmpty}</p>
+                )}
+                <ul class="cited">
+                  {citedEntries.map(([k, entry], index) => {
+                    const count = Object.values(marks[k] ?? {}).filter(
+                      (m) => m.on,
+                    ).length;
+                    return (
+                      <li key={k}>
+                        <h4 id={`cited-${index}`}>{entry.citation.title}</h4>
+                        <p class="cited-id mono">{entry.citation.identifier}</p>
+                        <p class="row">
+                          <span class="row-k">{COPY.passagesSelected}</span>
+                          <Leader />
+                          <span class="row-v mono">{count}</span>
+                        </p>
+                        {alsoListed(entry.citation.title, entry.alternates)}
+                        {pending[k] && (
+                          <p class="help">{COPY.readingForCitation}</p>
+                        )}
+                        {!pending[k] && !entry.policy && (
+                          <p class="help">{COPY.textNotReadYet}</p>
+                        )}
+                        <label class="field">
+                          {COPY.citationNote}
+                          <textarea
+                            rows={2}
+                            maxLength={MAX_NOTE}
+                            value={entry.note}
+                            aria-describedby={`cited-${index}`}
+                            onInput={(e) => {
+                              const note = (e.target as HTMLTextAreaElement)
+                                .value;
+                              updateReport((current) =>
+                                current.cited[k]
+                                  ? {
+                                      ...current,
+                                      cited: {
+                                        ...current.cited,
+                                        [k]: { ...current.cited[k], note },
+                                      },
+                                    }
+                                  : current,
+                              );
+                            }}
+                          />
+                        </label>
+                        <p class="actions">
+                          <button
+                            type="button"
+                            class="btn"
+                            aria-label={COPY.showIssuesForCited(
+                              entry.citation.title,
+                            )}
+                            onClick={() => void showIssues(entry.citation)}
+                          >
+                            {COPY.showIssues}
+                          </button>
+                          <button
+                            type="button"
+                            class="btn"
+                            aria-label={COPY.named(
+                              COPY.remove,
+                              entry.citation.title,
+                            )}
+                            onClick={() => removeCitation(k)}
+                          >
+                            {COPY.remove}
+                          </button>
+                        </p>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+              <section class="zone" aria-labelledby="actors-h">
+                <div class="row">
+                  <h3 id="actors-h" class="eyebrow">
+                    {COPY.actorsTitle}
+                  </h3>
+                  <Leader />
+                  <span class="row-v mono">
+                    {COPY.actorsCount(actorsDone.length, ACTOR_FIELDS.length)}
+                  </span>
+                </div>
+                <p class="help">{COPY.actorsIntro}</p>
+                {ACTOR_FIELDS.map((field) => {
+                  const done = actorsDone.includes(field);
+                  const input = {
+                    id: `actor-${field}`,
+                    value: actors[field],
+                    maxLength: MAX_ACTOR_TEXT,
+                    "aria-required": true,
+                    "aria-invalid": actorsAsked && !done ? true : undefined,
+                    "aria-describedby": `actor-${field}-state`,
+                    onInput: (e: Event) =>
+                      setActor(
+                        field,
+                        (e.target as HTMLInputElement | HTMLTextAreaElement)
+                          .value,
+                      ),
+                  };
                   return (
-                    <li key={k}>
-                      <h4>{entry.citation.title}</h4>
-                      <p class="cited-id mono">{entry.citation.identifier}</p>
+                    <div class="actor" key={field}>
                       <p class="row">
-                        <span class="row-k">{COPY.passagesSelected}</span>
+                        <label class="field" for={input.id}>
+                          {COPY.actorLabels[field]}
+                        </label>
                         <Leader />
-                        <span class="row-v mono">{count}</span>
+                        <span
+                          id={input["aria-describedby"]}
+                          class="row-v status"
+                        >
+                          <span
+                            class={done ? "mark is-full" : "mark"}
+                            aria-hidden="true"
+                          />
+                          {done ? COPY.actorEntered : COPY.actorRequired}
+                        </span>
                       </p>
-                      {alsoListed(entry.citation.title, entry.alternates)}
-                      {pending[k] && (
-                        <p class="help">{COPY.readingForCitation}</p>
-                      )}
-                      {!pending[k] && !entry.policy && (
-                        <p class="help">{COPY.textNotReadYet}</p>
-                      )}
-                      <label class="field">
-                        {COPY.citationNote}
-                        <textarea
-                          rows={2}
-                          maxLength={MAX_NOTE}
-                          value={entry.note}
-                          onInput={(e) => {
-                            const note = (e.target as HTMLTextAreaElement)
-                              .value;
-                            updateReport((current) =>
-                              current.cited[k]
-                                ? {
-                                    ...current,
-                                    cited: {
-                                      ...current.cited,
-                                      [k]: { ...current.cited[k], note },
-                                    },
-                                  }
-                                : current,
-                            );
-                          }}
+                      {field === "purpose" ? (
+                        <textarea rows={2} {...input} />
+                      ) : (
+                        <input
+                          type="text"
+                          autoComplete={ACTOR_AUTOCOMPLETE[field]}
+                          {...input}
                         />
-                      </label>
-                      <p class="actions">
-                        <button
-                          type="button"
-                          class="btn"
-                          aria-label={COPY.showIssuesForCited(
-                            entry.citation.title,
-                          )}
-                          onClick={() => void showIssues(entry.citation)}
-                        >
-                          {COPY.showIssues}
-                        </button>
-                        <button
-                          type="button"
-                          class="btn"
-                          aria-label={COPY.named(
-                            COPY.remove,
-                            entry.citation.title,
-                          )}
-                          onClick={() => removeCitation(k)}
-                        >
-                          {COPY.remove}
-                        </button>
-                      </p>
-                    </li>
+                      )}
+                    </div>
                   );
                 })}
-              </ul>
-            </section>
-            <section class="zone" aria-labelledby="actors-h">
-              <div class="row">
-                <h3 id="actors-h" class="eyebrow">
-                  {COPY.actorsTitle}
-                </h3>
-                <Leader />
-                <span class="row-v mono">
-                  {COPY.actorsCount(actorsDone.length, ACTOR_FIELDS.length)}
-                </span>
-              </div>
-              <p class="help">{COPY.actorsIntro}</p>
-              {ACTOR_FIELDS.map((field) => {
-                const done = actorsDone.includes(field);
-                const input = {
-                  id: `actor-${field}`,
-                  value: actors[field],
-                  maxLength: MAX_ACTOR_TEXT,
-                  "aria-required": true,
-                  "aria-invalid": actorsAsked && !done ? true : undefined,
-                  "aria-describedby": `actor-${field}-state`,
-                  onInput: (e: Event) =>
-                    setActor(
-                      field,
-                      (e.target as HTMLInputElement | HTMLTextAreaElement)
-                        .value,
-                    ),
-                };
-                return (
-                  <div class="actor" key={field}>
-                    <p class="row">
-                      <label class="field" for={input.id}>
-                        {COPY.actorLabels[field]}
-                      </label>
-                      <Leader />
-                      <span id={input["aria-describedby"]} class="row-v status">
-                        <span
-                          class={done ? "mark is-full" : "mark"}
-                          aria-hidden="true"
-                        />
-                        {done ? COPY.actorEntered : COPY.actorRequired}
-                      </span>
-                    </p>
-                    {field === "purpose" ? (
-                      <textarea rows={2} {...input} />
-                    ) : (
-                      <input
-                        type="text"
-                        autoComplete={ACTOR_AUTOCOMPLETE[field]}
-                        {...input}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-            </section>
+              </section>
+            </div>
             <section class="export" aria-label={COPY.exportTitle}>
               <p class="actions">
                 <button
                   type="button"
                   class="btn primary"
-                  disabled={exportBusy}
+                  aria-disabled={exportBusy}
                   onClick={() => void exportPdf()}
                 >
                   {COPY.exportPdf}
@@ -1504,6 +1657,7 @@ function About({
           <p>{COPY.issuesNote}</p>
           <p>{COPY.flagQuestion}</p>
           <p>{matches}</p>
+          <p>{COPY.aboutPdfTagging}</p>
         </section>
         <section>
           <h3>{COPY.aboutSourcesTitle}</h3>
@@ -1579,7 +1733,11 @@ function docBlock(block: DocBlock, index: number) {
       return <div class="doc-break" key={index} />;
     default:
       return (
-        <p class={`doc-${block.kind}`} key={index}>
+        // As in the PDF, only the placeholder for a missing note is set quieter.
+        <p
+          class={`doc-${block.kind}${block.text === COPY.pdfNoNote ? " is-empty" : ""}`}
+          key={index}
+        >
           {block.text}
         </p>
       );

@@ -1,9 +1,18 @@
 import type { PdfFonts } from "../src/demo/pdf";
+import { REQUEST_TIMEOUT_MS } from "./api";
 
 async function bytes(url: URL): Promise<Uint8Array> {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Font request failed: ${response.status}`);
-  return new Uint8Array(await response.arrayBuffer());
+  // A request that stalls is given up at the page's request limit, like one that fails.
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok)
+      throw new Error(`Font request failed: ${response.status}`);
+    return new Uint8Array(await response.arrayBuffer());
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 /**

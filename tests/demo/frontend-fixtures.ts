@@ -11,7 +11,7 @@ export const sources: DemoSource[] = (
     ["govinfo", "GovInfo", "federal", "live"],
     ["congress", "Congress.gov", "federal", "live"],
     ["regulations", "Regulations.gov", "federal", "live"],
-    ["washington", "Washington Legislature", "state", "live"],
+    ["washington", "Washington State Legislature", "state", "live"],
     ["oregon", "Oregon Legislature", "state", "not_available"],
   ] as const
 ).map(([id, label, level, status]) => ({

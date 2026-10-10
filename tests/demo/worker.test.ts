@@ -352,7 +352,7 @@ describe("Federal Register", () => {
   });
 });
 
-describe("Washington Legislature", () => {
+describe("Washington State Legislature", () => {
   it("parses bill references and rejects the rest", () => {
     expect(parseWashingtonQuery("HB 1100")).toMatchObject({
       prefix: "HB",
@@ -947,6 +947,8 @@ describe("cross-source match keys", () => {
     expect(await matchKeys(res)).toEqual([null]);
   });
 
+  // GovInfo names a Federal Register granule by its document number, for
+  // example package FR-2024-06-18, granule 2024-12669 (read 2026-10-10).
   it("keys a GovInfo result only when it is a Federal Register granule", async () => {
     const issue = { packageId: "FR-2099-01-05", collectionCode: "FR" };
     installFetch({
@@ -971,6 +973,11 @@ describe("cross-source match keys", () => {
     expect(await matchKeys(res)).toEqual([key, null, null, null]);
   });
 
+  // The Regulations.gov v4 OpenAPI specification
+  // (https://open.gsa.gov/api/regulationsgov/v4/openapi.yaml, read 2026-10-10)
+  // defines frDocNum as a string, "The federal register document number of the
+  // document.", in the Document schema of the GET /documents list response.
+  // Every other shape below is outside that specification and must not fail the row.
   it("keys a Regulations.gov result by frDocNum and keeps the row whatever that field holds", async () => {
     const values: unknown[] = [
       FR_DOC_NUMBER,

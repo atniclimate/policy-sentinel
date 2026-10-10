@@ -105,7 +105,7 @@ export function sourceList(env: Env): DemoSource[] {
     },
     {
       id: "washington",
-      label: "Washington Legislature",
+      label: "Washington State Legislature",
       level: "state",
       status: "live",
       note: "Look up a bill by number, such as HB 1100 or SB 5100. Official bill text is read from the Legislature.",
@@ -357,7 +357,17 @@ function metadataId(value: unknown): string {
   return value;
 }
 
-/** Optional cross-source key: a value that is not a plain Federal Register document number gives null and never fails the row. */
+/**
+ * Optional cross-source key: "fr:" and a Federal Register document number.
+ * Each source's own documentation, read 2026-10-10, shows where it carries
+ * that number. The Regulations.gov v4 OpenAPI specification
+ * (https://open.gsa.gov/api/regulationsgov/v4/openapi.yaml) defines frDocNum
+ * as a string, "The federal register document number of the document.", in
+ * the Document schema of the GET /documents list response. GovInfo names a
+ * Federal Register granule by its document number, for example package
+ * FR-2024-06-18, granule 2024-12669. A value that is not a plain document
+ * number gives null and never fails the row.
+ */
 function frMatchKey(value: unknown): string | null {
   const number = typeof value === "string" ? value.trim() : "";
   return /^[A-Za-z0-9][A-Za-z0-9-]{0,39}$/.test(number) ? `fr:${number}` : null;

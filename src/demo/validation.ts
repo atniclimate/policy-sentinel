@@ -83,11 +83,17 @@ function sourceId(value: unknown): string {
 function officialUrl(value: unknown, source: string): string {
   const result = text(value, 4096);
   const url = new URL(result);
+  // The document prints this string as text, so it must be exactly the address
+  // the parser read: no second address after a space, in a query or a fragment.
+  // No official address the demo service builds carries a query or a fragment.
   if (
     url.protocol !== "https:" ||
     url.username ||
     url.password ||
     url.port ||
+    url.search ||
+    url.hash ||
+    url.href !== result ||
     !SOURCE_HOSTS[source].includes(url.hostname)
   )
     throw new Error("Invalid official URL");

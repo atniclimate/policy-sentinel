@@ -113,6 +113,7 @@ describe("document model shared by the PDF and the print view", () => {
         field("Sharing with", "Example working group"),
         field("Purpose", "Briefing preparation"),
         field("Generated", "2099-01-08"),
+        { kind: "small", text: COPY.docActorsIntro },
         { kind: "h3", text: "Limits" },
         { kind: "p", text: COPY.limits(VERSION) },
         { kind: "h3", text: "Policies in This List" },
@@ -288,10 +289,28 @@ describe("document model shared by the PDF and the print view", () => {
     ]);
   });
 
+  it("says on the cover, beside the typed entries, that the demo does not verify them", () => {
+    const { blocks } = build(fixture().report);
+    const cover = blocks.slice(
+      0,
+      blocks.findIndex((block) => block.kind === "break"),
+    );
+    expect(COPY.docActorsIntro).toBe(
+      "The data actor entries in this document were typed by the person who prepared this list. The demo does not verify them.",
+    );
+    expect(cover).toContainEqual({ kind: "small", text: COPY.docActorsIntro });
+    expect(
+      blocks.filter(
+        (block) => "text" in block && block.text === COPY.docActorsIntro,
+      ),
+    ).toHaveLength(2);
+  });
+
   it("says a read policy has no selected passages without calling its text unread", () => {
     const { report } = fixture();
     const { blocks } = build({ ...report, marks: {} });
     expect(blocks.filter((block) => block.kind === "small")).toEqual([
+      { kind: "small", text: COPY.docActorsIntro },
       { kind: "small", text: COPY.pdfNoPassages },
       { kind: "small", text: COPY.pdfTextNotRead },
     ]);
@@ -302,7 +321,12 @@ describe("document model shared by the PDF and the print view", () => {
   it("still builds for an empty list, with only the ATNI references", () => {
     const model = build({ cited: {}, marks: {}, actors: emptyActors() });
     expect(model.blocks.some((block) => block.kind === "break")).toBe(true);
-    expect(model.blocks).toContainEqual({ kind: "p", text: COPY.exportEmpty });
+    // The document states the gap; it does not print the page's instruction.
+    expect(model.blocks).toContainEqual({
+      kind: "p",
+      text: "No policies are cited in this list.",
+    });
+    expect(JSON.stringify(model)).not.toContain(COPY.exportEmpty);
     expect(fields(model.blocks, "Sources cited")).toEqual([]);
     expect(model.blocks.filter((block) => block.kind === "ref")).toEqual([
       { kind: "ref", number: 1, text: atniReferences(VERSION)[0] },
@@ -317,8 +341,23 @@ describe("document model shared by the PDF and the print view", () => {
       /Tiered Sovereign Data Framework \(TSDF\) 0\.9\.8, a pre-release standard/,
     );
     expect(notes).toMatch(/Tier 0 \(T0\)/);
-    expect(notes).toMatch(/no Tribal codes and no Tribal government documents/);
+    // The tier is explained once, in the first paragraph, with the framework's own condition.
+    expect(COPY.docSovereignty[0]).toMatch(
+      /treats documented public federal and state sources as Tier 0 \(T0\), subject to each source's conditions\./,
+    );
+    expect(COPY.docSovereignty[0]).toMatch(
+      /Tier 0 is the framework's open tier: material formally released for public access by an authorized source\./,
+    );
+    expect(notes).toMatch(
+      /no Tribal code source and no Tribal government source/,
+    );
+    expect(notes).toMatch(/does not detect or exclude/);
     expect(notes).toMatch(/does not classify/);
+    // The demo knows who typed an entry, not who it belongs to.
+    expect(notes).toMatch(
+      /were written by the person who prepared this list\. The demo does not classify them or say who they belong to/,
+    );
+    expect(notes).not.toMatch(/belong to the person/);
     expect(notes).toMatch(/no certification/);
     expect(notes).toMatch(/no relationship to any Nation/);
     expect(notes).toMatch(/official source/);

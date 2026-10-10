@@ -41,7 +41,8 @@ const HAIR = hex(0xe7ecf3);
 const TINT = hex(0xf4f7fb);
 
 export class PdfEncodingError extends Error {
-  constructor() {
+  /** `character` is the first character the PDF font cannot display. */
+  constructor(readonly character: string) {
     super(
       "This report contains characters the PDF font cannot display. Use Print view to save it as PDF.",
     );
@@ -60,13 +61,13 @@ export function pdfSafe(text: string, font: PDFFont): string {
     else if (code === 0xa0 || code === 0x202f) out += " ";
     // An embedded font may carry combining marks, but nothing here places one over its letter.
     else if (allowed.has(code) && !/\p{M}/u.test(char)) out += char;
-    else throw new PdfEncodingError();
+    else throw new PdfEncodingError(char);
   }
   return out;
 }
 
 /** `tracking` is letter spacing in points. */
-function wrap(
+export function wrap(
   text: string,
   font: PDFFont,
   size: number,
@@ -80,13 +81,29 @@ function wrap(
     .split(" ")
     .filter((w) => w.length > 0);
   let line = "";
+  let lineWidth = 0;
   const flush = () => {
     if (line) lines.push(line);
     line = "";
   };
   for (let word of words) {
+    if (line) {
+      // The line grows by a space and the word. Measured after the last
+      // character of the line, that growth includes any kerning across the
+      // space, so the sum is the width of the whole line without measuring
+      // the line again for every word.
+      const end = line.slice(-1);
+      const grown = lineWidth + measure(`${end} ${word}`) - measure(end);
+      if (grown <= width) {
+        line = `${line} ${word}`;
+        lineWidth = grown;
+        continue;
+      }
+      flush();
+    }
+    lineWidth = measure(word);
     // Break very long tokens (URLs, hashes) by character.
-    while (measure(word) > width) {
+    while (lineWidth > width) {
       // Glyph advances are positive. Find the same largest fitting prefix
       // without remeasuring every longer prefix.
       let cut = 1;
@@ -99,16 +116,11 @@ function wrap(
           low = mid + 1;
         } else high = mid - 1;
       }
-      flush();
       lines.push(word.slice(0, cut));
       word = word.slice(cut);
+      lineWidth = measure(word);
     }
-    const candidate = line ? `${line} ${word}` : word;
-    if (measure(candidate) <= width) line = candidate;
-    else {
-      flush();
-      line = word;
-    }
+    line = word;
   }
   flush();
   return lines.length ? lines : [""];
@@ -148,7 +160,7 @@ function groups(count: number): [number, number][] {
   return out;
 }
 
-async function embed(doc: PDFDocument, fonts?: PdfFonts) {
+export async function embed(doc: PDFDocument, fonts?: PdfFonts) {
   if (!fonts) {
     const bold = await doc.embedFont(StandardFonts.HelveticaBold);
     const body = await doc.embedFont(StandardFonts.Helvetica);

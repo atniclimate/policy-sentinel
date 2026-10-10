@@ -37,11 +37,11 @@ export const COPY = {
   aboutSourcesNote:
     "The demo reads the official text of Federal Register documents, from GovInfo, and the original text of Washington State bills, from the Legislature. For the other sources it returns metadata and an official link, and does not read the text. Each citation links to its official source.",
   mergeRule:
-    "When the same Federal Register document comes back from more than one source, one row is shown. It is the Federal Register record when that source lists the document, because the demo can read and check its official text. The other listings stay linked.",
+    "When the same Federal Register document comes back from more than one source, one row is shown. It is the Federal Register record when that source lists the document, because the demo can read and check its official text. Otherwise it is the GovInfo record, then the Regulations.gov record. The other listings stay linked.",
   aboutPrivacyTitle: "What Leaves the Browser",
   aboutPrivacy: [
     "This page has no tracking, analytics, or cookies.",
-    "Search terms go to the demo service and to the official sources selected. The demo service does not log or save searches. To limit requests, it keeps a temporary count by network address, in memory only. Hosting and source providers have their own policies.",
+    "Search terms go to the demo service and to the official sources selected. Showing issues for a policy, or adding it to My Citations, sends that policy's public identifier to the demo service, which reads the text from the official source and may keep what it read, by identifier, for up to a day. The demo service does not log or save searches. To limit requests, the service and its hosting provider count requests by network address for a short time. Hosting and source providers have their own policies.",
     "Citations, notes, and data actor entries stay in this browser tab unless the person using it exports or prints them.",
   ],
   aboutTsdfTitle: "Tiered Sovereign Data Framework",
@@ -95,6 +95,8 @@ export const COPY = {
   congressQueryError:
     "Congress.gov takes one bill reference: type, number, and Congress. Example: hr 1234 119. To search by words, check another federal source.",
   noSourceChecked: "Check at least one live federal source to search.",
+  /** Said when a search is asked for and nothing else on the page says why it is off. */
+  searchOff: "Search is off until a source is available.",
   searchButton: "Search",
   searching: "Searching the selected official sources.",
   examplesLabel: "Example Searches",
@@ -110,17 +112,23 @@ export const COPY = {
   noResults:
     "Nothing matched. Try fewer words, a different phrase, or another source.",
   emptyStart: "Choose a source and search. Results appear here.",
-  /** Row status for a source that did not answer; the reason follows by name. */
+  /** Row status for a source the demo service could not reach; the reason follows by name. */
   sourceFailed: "No answer",
   sourceFailure: (label: string, reason: string) =>
     `${label} could not be searched. ${reason}`,
-  allFailed: "None of the selected sources could be searched.",
+  /** Row status for a source that answered with a reason and no results; the reason follows by name. */
+  sourceNothing: "Nothing returned",
+  sourceAnswer: (label: string, reason: string) => `${label}: ${reason}`,
+  allFailed: "None of the selected sources returned results.",
   skipped: "Skipped",
   congressSkipped:
     "Congress.gov was skipped. It takes one bill reference, such as hr 1234 119.",
+  /** One short sentence on a phone; the reason for the record shown is in mergeRule. */
   mergeNote: (merged: number) =>
-    `${merged} duplicate ${merged === 1 ? "listing was" : "listings were"} merged. A Federal Register document found by more than one source is one row. The row is the Federal Register record when that source lists the document, because the demo can read and check its official text. The other listings stay linked.`,
+    `${merged} duplicate ${merged === 1 ? "listing was" : "listings were"} merged. Each document is one row; the other listings stay linked.`,
   dateNotStated: "Date not stated",
+  /** Shown in place of the service's "Not stated" so the row does not read as a missing identifier. */
+  issuingBodyNotStated: "Issuing body not stated",
   alternateLink: (source: string, title: string) =>
     `${source} listing of ${title}`,
   showIssues: "Show issues",
@@ -178,7 +186,8 @@ export const COPY = {
   citationSaved: (title: string) => `Citation and text saved for ${title}.`,
   citationTextFailed: (title: string) =>
     `Citation added for ${title}, but its text could not be read. Use Show issues to retry.`,
-  citationRemoved: "Citation, selected passages, and notes removed.",
+  citationRemoved: (title: string) =>
+    `Removed ${title}, its selected passages, and its notes.`,
   /** Label of the count of passages a citation carries into the document. */
   passagesSelected: "Passages selected",
   readingForCitation: "Reading the official text for this citation.",
@@ -197,7 +206,7 @@ export const COPY = {
     "The saved citation list could not be restored. This tab starts with an empty list and blank data actor entries.",
   actorsTitle: "Data Actors",
   actorsIntro:
-    "Who prepared this list, who it is shared with, and why. All five entries are required before Export PDF or Print view. They stay in this browser tab and leave it only inside the PDF or the printed pages. The demo does not verify them.",
+    "Who prepared this list, who it is shared with, and why. All five entries are required before Export PDF or Print view. They stay in this browser tab and leave it only inside the PDF or the printed pages. The demo does not verify them. The document also prints the name as the responsible person for this use of the tool.",
   actorsCount: (entered: number, total: number) => `${entered} of ${total}`,
   actorEntered: "Entered",
   actorRequired: "Required",
@@ -208,12 +217,15 @@ export const COPY = {
   exportPdf: "Export PDF",
   exportingPdf: "Building the PDF.",
   printView: "Print view",
+  printPreparing: "Preparing the print view.",
   exportEmpty: "Add at least one policy to My Citations first.",
   exportDone: "The PDF was built and sent to the browser's downloads.",
   exportFailed:
     "The PDF could not be built. The print view still works: use Print view, then save as PDF.",
-  exportUnsupported:
-    "This list contains characters the PDF font cannot display. Use Print view to save it as PDF with the browser's fonts. Check the saved pages before sharing them.",
+  /** `character` names the first refused character, such as "x (U+0078)"; empty when unknown. */
+  exportUnsupported: (character: string) =>
+    `The PDF fonts cannot display ${character ? `the character ${character}` : "a character"} in this list. Letters used in some Indigenous-language names are among those affected. Use Print view to save the list as a PDF with the browser's fonts, and check the saved pages before sharing them.`,
+  aboutPdfTagging: "The exported PDF is not tagged for screen readers.",
   serviceDown:
     "The demo service did not answer. Try again in a moment. If it keeps happening, the service may be down.",
   rateLimited:
@@ -246,18 +258,21 @@ export const COPY = {
   docEyebrow: (version: string) => `Policy Sentinel ${version}, working demo`,
   docTitle: "Cited Policies",
   docContentsTitle: "Policies in This List",
+  /** A document sentence, not the page's instruction to add a policy. */
+  docEmpty: "No policies are cited in this list.",
   docProvenanceTitle: "Provenance",
   docActorsTitle: "Data Actors and Sharing",
+  /** Printed on the cover and again over the data actor section, so it names no position on the page. */
   docActorsIntro:
-    "The entries below were typed by the person who prepared this list. The demo does not verify them.",
+    "The data actor entries in this document were typed by the person who prepared this list. The demo does not verify them.",
   docSoftwareTitle: "Software",
   docTool: (version: string) =>
     `Policy Sentinel demo ${version}, in development`,
   docReferencesTitle: "References",
   docSovereigntyTitle: "Data Provenance and Sovereignty Notes",
   docSovereignty: [
-    "The material this demo searches and cites is public policy published by government sources. The Tiered Sovereign Data Framework (TSDF) 0.9.8, a pre-release standard published by the Affiliated Tribes of Northwest Indians, treats that material as Tier 0 (T0). The demo uses no Tribal codes and no Tribal government documents.",
-    "Notes and data actor entries belong to the person who wrote them. The demo does not classify them, and it claims no certification under the framework and no conformance with it.",
+    "The material this demo searches and cites is public policy published by government sources. The Tiered Sovereign Data Framework (TSDF) 0.9.8, a pre-release standard published by the Affiliated Tribes of Northwest Indians, treats documented public federal and state sources as Tier 0 (T0), subject to each source's conditions. Tier 0 is the framework's open tier: material formally released for public access by an authorized source. The demo has no Tribal code source and no Tribal government source. It searches federal and state government sources only. A federal source can itself publish a Tribal government document, such as an ordinance printed in a Federal Register notice, and the demo does not detect or exclude one.",
+    "Notes and data actor entries were written by the person who prepared this list. The demo does not classify them or say who they belong to, and it claims no certification under the framework and no conformance with it.",
     "Results are keyword matches and general-jurisdiction records. They establish no relationship to any Nation.",
     "Verify every citation at its official source.",
   ],

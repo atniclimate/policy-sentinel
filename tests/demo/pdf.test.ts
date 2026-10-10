@@ -7,13 +7,20 @@ import {
   PDFDocument,
   PDFName,
 } from "pdf-lib";
-import type { PDFRawStream } from "pdf-lib";
+import type { PDFFont, PDFRawStream } from "pdf-lib";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { REQUEST_TIMEOUT_MS } from "../../demo/api";
 import { loadPdfFonts } from "../../demo/pdf-fonts";
 import { atniReferences } from "../../src/demo/citations";
 import { COPY } from "../../src/demo/copy";
 import { buildDocument } from "../../src/demo/document";
-import { buildPdf, PdfEncodingError } from "../../src/demo/pdf";
+import {
+  buildPdf,
+  embed,
+  PdfEncodingError,
+  pdfSafe,
+  wrap,
+} from "../../src/demo/pdf";
 import type { PdfFonts, PdfInput } from "../../src/demo/pdf";
 import { emptyActors, reportEntries } from "../../src/demo/report-state";
 import type { ReportState } from "../../src/demo/report-state";
@@ -333,6 +340,20 @@ describe("PDF export", () => {
     },
   );
 
+  // Letters and a combining mark that the page shows on screen and the PDF refuses.
+  it.each(["02B7", "0294", "026C", "019B", "0313"])(
+    "names the character it refuses in a data actor entry: U+%s",
+    async (hex) => {
+      const character = String.fromCodePoint(Number.parseInt(hex, 16));
+      const state = report();
+      const actors = { ...state.actors, organization: `Example x${character}` };
+      for (const [, fonts] of MODES)
+        await expect(
+          buildPdf(input({ ...state, actors }, fonts)),
+        ).rejects.toMatchObject({ name: "PdfEncodingError", character });
+    },
+  );
+
   it("shows characters the embedded fonts have and Helvetica does not", async () => {
     // Omega, two Hungarian letters, the fi ligature character, L with middle dot and a fraction slash.
     const note = `Ω őű ${FI_LIGATURE} Ŀ 3${FRACTION_SLASH}4 official`;
@@ -433,8 +454,93 @@ describe("PDF export", () => {
   });
 });
 
+/**
+ * The plain rule for where a line breaks: measure every candidate line whole.
+ * wrap() has to give the same lines without measuring a line again for each word.
+ */
+function wholeLineWrap(
+  text: string,
+  font: PDFFont,
+  size: number,
+  width: number,
+  tracking = 0,
+): string[] {
+  const measure = (value: string) =>
+    font.widthOfTextAtSize(value, size) + tracking * value.length;
+  const lines: string[] = [];
+  let line = "";
+  const flush = () => {
+    if (line) lines.push(line);
+    line = "";
+  };
+  for (let word of pdfSafe(text, font).split(" ").filter(Boolean)) {
+    while (measure(word) > width) {
+      let cut = word.length - 1;
+      while (cut > 1 && measure(word.slice(0, cut)) > width) cut--;
+      flush();
+      lines.push(word.slice(0, cut));
+      word = word.slice(cut);
+    }
+    const candidate = line ? `${line} ${word}` : word;
+    if (measure(candidate) <= width) line = candidate;
+    else {
+      flush();
+      line = word;
+    }
+  }
+  flush();
+  return lines.length ? lines : [""];
+}
+
+describe("PDF line breaks", () => {
+  /** The faces as the PDF embeds them. */
+  const faces = async (fonts?: PdfFonts) =>
+    embed(await PDFDocument.create(), fonts);
+
+  it.each(MODES)(
+    "fall where measuring every whole line puts them with %s",
+    async (_, fonts) => {
+      const token = `https://example.invalid/${"abcdef".repeat(20)}`;
+      const texts = buildDocument(
+        input(report(`${token} ${"A long note, with a pause. ".repeat(30)}`)),
+      ).blocks.flatMap((block) =>
+        block.kind === "field"
+          ? [block.label, block.value]
+          : "text" in block
+            ? [block.text]
+            : [],
+      );
+      for (const font of new Set(Object.values(await faces(fonts))))
+        for (const [size, width, tracking] of [
+          [9.6, 504, 0],
+          [8.4, 100, 0],
+          [34, 504, -0.85],
+        ])
+          for (const text of texts)
+            expect(wrap(text, font, size, width, tracking), text).toEqual(
+              wholeLineWrap(text, font, size, width, tracking),
+            );
+    },
+  );
+
+  it("are found by measuring a paragraph in proportion to its length, however long its lines are", async () => {
+    const { body } = await faces(FONTS);
+    const text = "A sentence of plain words for a long note. ".repeat(60);
+    const measured = vi.spyOn(body, "widthOfTextAtSize");
+    expect(wrap(text, body, 9.6, 504).length).toBeGreaterThan(10);
+    const characters = measured.mock.calls.reduce(
+      (sum, [value]) => sum + value.length,
+      0,
+    );
+    expect(characters).toBeLessThan(3 * text.length);
+  });
+});
+
 describe("document fonts for the PDF", () => {
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
 
   it("fetches the three font files shipped with the page", async () => {
     const requested: string[] = [];
@@ -466,4 +572,37 @@ describe("document fonts for the PDF", () => {
     vi.stubGlobal("fetch", fetch);
     await expect(loadPdfFonts()).resolves.toBeUndefined();
   });
+
+  // Like the browser's fetch: a stalled request or body ends only when its signal aborts.
+  const stalled = (signal?: AbortSignal | null) =>
+    new Promise<never>((_, reject) =>
+      signal?.addEventListener("abort", () => reject(new Error("aborted"))),
+    );
+  it.each([
+    [
+      "a request never answers",
+      (_: URL, init?: RequestInit) => stalled(init?.signal),
+    ],
+    [
+      "a file never finishes arriving",
+      async (_: URL, init?: RequestInit) => ({
+        ok: true,
+        arrayBuffer: () => stalled(init?.signal),
+      }),
+    ],
+  ])(
+    "returns undefined once the request limit passes when %s",
+    async (_, fetch) => {
+      vi.useFakeTimers();
+      vi.stubGlobal("fetch", fetch);
+      let fonts: unknown = "still waiting";
+      void loadPdfFonts().then((value) => {
+        fonts = value;
+      });
+      await vi.advanceTimersByTimeAsync(REQUEST_TIMEOUT_MS - 1);
+      expect(fonts).toBe("still waiting");
+      await vi.advanceTimersByTimeAsync(1);
+      expect(fonts).toBeUndefined();
+    },
+  );
 });

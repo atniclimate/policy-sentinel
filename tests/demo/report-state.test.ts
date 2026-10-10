@@ -299,6 +299,86 @@ describe("data actors", () => {
   });
 });
 
+describe("official addresses in saved citations", () => {
+  const FR = "https://www.federalregister.gov/d/2099-00002";
+  function restoreWith(sourceId: string, officialUrl: string) {
+    const original = saved();
+    const added = { ...citation("2099-00002"), sourceId, officialUrl };
+    const restored = restoreReport(
+      JSON.stringify({
+        version: 3,
+        ...original,
+        cited: {
+          ...original.cited,
+          [keyOf(added)]: {
+            citation: added,
+            policy: null,
+            note: "",
+            alternates: [],
+          },
+        },
+      }),
+    );
+    return { original, added, restored };
+  }
+
+  // The document prints the address as text, so it must be the one address and nothing more.
+  it.each([
+    ["a second address after a space", `${FR} https://attacker.example/login`],
+    [
+      "a backslash before another host",
+      "https://www.federalregister.gov\\@attacker.example/d/2099-00002",
+    ],
+    [
+      "a second address in the query",
+      `${FR}?next=https://attacker.example/login`,
+    ],
+    [
+      "a second address in the fragment",
+      `${FR}#https://attacker.example/login`,
+    ],
+    ["a line break and more text", `${FR}\nSee https://attacker.example`],
+    ["a leading space", ` ${FR}`],
+    [
+      "no slashes after the scheme",
+      "https:www.federalregister.gov/d/2099-00002",
+    ],
+    ["an upper-case host", "https://WWW.FEDERALREGISTER.GOV/d/2099-00002"],
+    ["the default port written out", FR.replace(".gov/", ".gov:443/")],
+    ["a path the parser rewrites", `${FR}/../2099-00003`],
+  ])("refuses an official address with %s", (_case, officialUrl) => {
+    const { original, restored } = restoreWith("federal-register", officialUrl);
+    expect(restored.report).toEqual(original);
+    expect(restored.notice).toMatch(KEPT_NOTICE);
+  });
+
+  it.each([
+    ["federal-register", FR],
+    ["govinfo", "https://www.govinfo.gov/app/details/FR-2099-01-05/2099-00002"],
+    [
+      "regulations",
+      "https://www.regulations.gov/document/EXA-HQ-2099-0001-0001",
+    ],
+    [
+      "congress",
+      "https://www.congress.gov/bill/119th-congress/house-bill/1234",
+    ],
+    [
+      "washington",
+      "https://lawfilesext.leg.wa.gov/biennium/2025-26/Htm/Bills/House%20Bills/1100.htm",
+    ],
+  ])(
+    "keeps the address shape the demo service builds for %s",
+    (sourceId, officialUrl) => {
+      const { added, restored } = restoreWith(sourceId, officialUrl);
+      expect(restored.notice).toBe("");
+      expect(restored.report.cited[keyOf(added)].citation.officialUrl).toBe(
+        officialUrl,
+      );
+    },
+  );
+});
+
 describe("alternate listings of a cited document", () => {
   it("returns the alternates with each report entry", () => {
     expect(reportEntries(merged())[0].alternates).toEqual([

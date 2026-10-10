@@ -76,11 +76,13 @@ export function buildDocument(input: DocInput): DocModel {
   field(A.purpose, actor("purpose"));
   field(L.generated, generated);
   blocks.push(
+    // A reader of the cover alone is told the entries above are typed, not verified.
+    { kind: "small", text: COPY.docActorsIntro },
     { kind: "h3", text: COPY.limitsTitle },
     { kind: "p", text: COPY.limits(version) },
     { kind: "h3", text: COPY.docContentsTitle },
   );
-  if (entries.length === 0) blocks.push({ kind: "p", text: COPY.exportEmpty });
+  if (entries.length === 0) blocks.push({ kind: "p", text: COPY.docEmpty });
   entries.forEach((entry, index) => {
     const n = index + 1;
     blocks.push({ kind: "p", text: `${n}. ${entry.citation.title} [${n}]` });

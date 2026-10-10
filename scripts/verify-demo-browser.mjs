@@ -193,6 +193,13 @@ try {
     "source service returned a successful response",
     catalog.some((s) => s.id === "washington" && s.status === "live"),
   );
+  // The page shows the service's label and the document prints SOURCE_LABELS: one name for each source.
+  const renamed = catalog.filter((s) => s.label !== SOURCE_LABELS[s.id]);
+  check(
+    "source service names each source as the document does",
+    catalog.length > 0 && renamed.length === 0,
+    renamed.map((s) => `${s.id}: ${s.label}`).join(", "),
+  );
   check(
     "page loads with status 200",
     response?.status() === 200,
@@ -562,7 +569,9 @@ try {
     framework:
       /Tiered Sovereign Data Framework \(TSDF\) 0\.9\.8, a pre-release standard/,
     tier: /Tier 0 \(T0\)/,
-    "no Tribal material": /no Tribal codes and no Tribal government documents/,
+    // The demo has no Tribal source, and it cannot promise that a federal source carries no Tribal government document.
+    "no Tribal source": /no Tribal code source and no Tribal government source/,
+    "Tribal documents in federal sources": /does not detect or exclude/,
     "no certification": /claims no certification/,
     "no Nation relationship": /establish no relationship to any Nation/,
     verify: /Verify every citation at its official source/,
