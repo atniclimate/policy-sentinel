@@ -1,19 +1,52 @@
 # Live demo status
 
-Updated 2026-10-10. Policy Sentinel 0.2.0 is in development. This page records
-maintenance of the separately authorized public demo under D-083, D-084, D-093
-and D-094 in the [decision register](decision-register.md). General engine work
-remains in [ROADMAP.yaml](../ROADMAP.yaml).
+Updated 2026-10-10. Policy Sentinel 0.6.0 is in development; the owner set the
+version on 2026-10-10 (D-095), and records below that say 0.2.0 describe
+earlier checkpoints. This page records maintenance of the separately authorized
+public demo under D-083, D-084, D-093, D-094 and D-095 in the
+[decision register](decision-register.md). Project state and the working plan
+are in [STATUS.md](STATUS.md) and [PLAN.md](PLAN.md).
 
 GovInfo, Congress.gov and Regulations.gov were switched on in the demo on
 2026-10-10 and passed one bounded live check each. The interface, document and
-provenance update below is built and committed locally. Its Worker change is
-deployed and passed a bounded live check of the match keys; publication of the
-page and the live acceptance run are not yet done and are recorded here when
-they happen. Earlier maintenance and validation receipts
-remain below as historical evidence; statements there that the three keyed
-sources are switched off, and descriptions of the earlier interface, describe
-earlier checkpoints.
+provenance update below is public: the owner merged pull request 7 into `main`
+as `e295957` on 2026-10-11 at 00:39:34 UTC, the Pages build of that commit
+finished at 00:39:56 UTC, and its stylesheet was read back from the public
+address. That build is source commit `c602468`. The D-095 follow-ups below are
+committed locally and their Worker change is deployed, but the page with the
+seal, the ATNI Climate citation and version 0.6.0 is not yet public. The live
+acceptance run has not happened; it waits for that next merge.
+Earlier maintenance and validation receipts remain below as historical
+evidence; statements there that the three keyed sources are switched off, and
+descriptions of the earlier interface, describe earlier checkpoints.
+
+## Follow-ups under D-095, 2026-10-10
+
+- Version 0.6.0, shown on the page and in the document.
+- The Policy Sentinel reference names ATNI Climate as author and the Affiliated
+  Tribes of Northwest Indians as publisher. The README attribution paragraph
+  says the same.
+- The ATNI seal (`atni-seal-on-dark.png` from the ATNI design system, copied
+  unchanged) is in the page header and at the top right of the document cover.
+  On phones the title sets in two lines beside it so the header keeps its
+  height. The design system's own notes name a different seal file for light
+  grounds; the one file the owner supplied is used everywhere and darkened on
+  light grounds.
+- The Worker allows 60 requests per minute per address, up from 30, with an
+  in-memory fallback of 80, up from 40.
+- Body typeface: an exploration of the ATNI design system found that its
+  2026-10-04 web ruling names Roboto or Poppins and ranks neither, so Roboto
+  stays. `@pdf-lib/fontkit` stays.
+
+335 demo tests, typecheck, lint, the source scan and the real demo build pass
+with these changes. The header was checked in a browser at four widths in both
+themes with no automated accessibility violation on first load.
+
+Worker version `969d1a24-f4de-4706-9fa9-24feae5f2503`, built from source commit
+`79d263b`, serves 100% of traffic from 2026-10-11 at 01:22:50 UTC. The owner's
+instruction to raise the rate is the authority for this deployment. The
+deployment reports the binding at 60 requests per 60 seconds. One source
+catalog read afterward showed the same five live sources; no search was made.
 
 ## Interface, document and provenance update, 2026-10-10
 

@@ -672,6 +672,16 @@ label.source .source-note {
   font-size: 1.125rem;
   white-space: nowrap;
 }
+/* The ATNI seal is a grey line mark drawn for a dark ground. On the light
+   ground the same file is darkened to that theme's grey. The negative margin
+   keeps the seal from making a row of the header taller than its text. */
+.seal {
+  flex: none;
+  margin-block: -0.3125rem;
+}
+:root[data-theme="light"] .seal {
+  filter: brightness(0.65);
+}
 .head .quiet {
   display: none;
   color: var(--muted);
@@ -742,7 +752,21 @@ main {
     padding-inline: 0.5rem;
   }
 }
-@media (min-width: 30rem) {
+/* Beside the seal the name stacks in two lines there, so the row still holds
+   the actions, also before the fonts arrive. Narrower than this the actions
+   take their own row, as they did without the seal. */
+@media (min-width: 22rem) and (max-width: 29.99rem) {
+  .head h1 {
+    width: min-content;
+    padding-top: 0.125rem;
+    font-size: 0.9375rem;
+    line-height: 1.05;
+    white-space: normal;
+    overflow-wrap: normal;
+  }
+}
+/* From here the row also holds the mode and version beside the seal. */
+@media (min-width: 34rem) {
   .head .quiet {
     display: inline;
   }
@@ -1261,6 +1285,15 @@ details dt {
   .print-only b {
     color: #010b13;
     font-family: inherit;
+  }
+  /* The seal takes the top right of the cover, darkened for the white page;
+     text that reaches it runs beside it, never under it. */
+  .doc-seal {
+    float: right;
+    width: 54pt;
+    height: 54pt;
+    margin-left: 12pt;
+    filter: brightness(0.65);
   }
   .doc-eyebrow {
     color: #b02821;

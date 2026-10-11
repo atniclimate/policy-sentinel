@@ -41,12 +41,12 @@ export function ieeeReference(citation: DemoCitation): string {
 
 /**
  * The framework and the tool, cited after the policies in every document.
- * The tool is cited by title only: the repository README calls the project
- * independent, so an author and publisher line waits for the owner's wording.
+ * The tool is cited to ATNI Climate, published by the Affiliated Tribes of
+ * Northwest Indians, by the owner's ruling of 2026-10-10.
  */
 export function atniReferences(version: string): readonly string[] {
   return [
     'P. A. Freeland, "Tiered Sovereign Data Framework: Indigenous Data Sovereignty Standard," ver. 0.9.8 (pre-release), Affiliated Tribes of Northwest Indians, 2025. [Online]. Available: https://atniclimate.github.io/TieredSovereignDataFramework/',
-    `"Policy Sentinel," ver. ${version} (in development). [Online]. Available: https://github.com/atniclimate/policy-sentinel`,
+    `ATNI Climate, "Policy Sentinel," ver. ${version} (in development), Affiliated Tribes of Northwest Indians, 2026. [Online]. Available: https://github.com/atniclimate/policy-sentinel`,
   ];
 }

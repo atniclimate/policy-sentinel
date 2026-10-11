@@ -43,12 +43,12 @@ export const ALLOWED_HOSTS: ReadonlySet<string> = new Set([
 ]);
 
 const USER_AGENT =
-  "PolicySentinelDemo/0.2 (+https://atniclimate.github.io/policy-sentinel/)";
+  "PolicySentinelDemo/0.6 (+https://atniclimate.github.io/policy-sentinel/)";
 const MAX_BYTES = 1_500_000;
 const FETCH_TIMEOUT_MS = 12_000;
 const POLICY_TTL = 86_400;
 const POLICY_CACHE_VERSION = `demo-policy-2:${ENGINE_INFO.parser}:${ENGINE_INFO.parserVersion}:${ENGINE_INFO.parserConfigDigest}:${ENGINE_INFO.rulesVersion}`;
-const SOFT_LIMIT_PER_MINUTE = 40;
+const SOFT_LIMIT_PER_MINUTE = 80;
 
 const softCounters = new Map<string, { n: number; reset: number }>();
 
