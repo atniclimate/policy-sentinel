@@ -611,6 +611,30 @@ describe("demo search scope and sources", () => {
     expect(ui.getAllByText("No answer")).toHaveLength(2);
   });
 
+  it("keeps one row when one source lists the document twice, and names each listing", async () => {
+    // Regulations.gov lists a joint rule once per agency docket.
+    const dockets = ["EXA-2099-0001-0001", "EXB-2099-0002-0003"].map(
+      (identifier) => ({ ...listing("regulations"), identifier }),
+    );
+    vi.mocked(search).mockImplementation(async (source, query) =>
+      searchResult(
+        source === "federal-register" ? [merged] : dockets,
+        query,
+        source,
+      ),
+    );
+    const { ui, shell } = await start();
+    fireEvent.click(ui.getByRole("checkbox", { name: /Regulations\.gov/ }));
+    await showResult(ui);
+    expect(shell.querySelectorAll(".result")).toHaveLength(1);
+    for (const docket of dockets)
+      expect(
+        ui.getByRole("link", {
+          name: `Regulations.gov ${docket.identifier} listing of Example Water Policy`,
+        }),
+      ).toHaveTextContent(`Regulations.gov ${docket.identifier}`);
+  });
+
   it("shows one row for a document several sources list, from the highest-precedence source", async () => {
     answerBySource();
     const { ui, shell } = await start();

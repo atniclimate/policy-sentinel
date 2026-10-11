@@ -37,7 +37,9 @@ from the ATNI design system folder. The page makes no third-party request.
 | D-094 foundation | `05050d8` | Match key on citations, precedence merging, IEEE-style references, one document model, data actor entries in the saved report (saved version 3; version 2 still restores). Decision row D-094. |
 | D-094 build | `98a74ce` | Four-pane interface, both themes, About and Limits dialog, footer line, PDF and print view from the shared document, Worker match keys, font-aware build scan, acceptance script for the new interface. Adds `@pdf-lib/fontkit` 1.1.1. |
 | D-094 review fixes | `d48626d` | Fixes from five independent reviews, the Worker-to-page seam test, rebuilt `docs/`, three stale bundles removed. |
-| Records | this commit | Demo status, ledger evidence on GD-28 (existing demo assessment, repairs and local validation), README demo paragraph, this handoff. |
+| Records | `c5907f1` | Demo status, ledger evidence on GD-28 (existing demo assessment, repairs and local validation), README demo paragraph, this handoff. |
+| Worker deployment | `c5907f1` deployed | Worker version `dd22a664-101a-49a3-984b-cad69de53f49` at 100% from 2026-10-11 00:10:07 UTC, with owner approval. Four bounded live requests: all three sources returned Federal Register document 2026-20447 with one match key. |
+| Same-source listings | this commit | The live check showed Regulations.gov lists a joint rule once per agency docket. The page now merges every listing that shares the document number and names same-source listings by identifier. 330 demo tests pass; `docs/` rebuilt; the built page passes the acceptance dry run 82 of 82 against a local mock. |
 
 Work was run as three workflows (foundation, build, review) with lanes on
 disjoint files; the main session staged and committed. Evidence, screenshots
@@ -75,12 +77,12 @@ or a government host during D-094 work.
 
 ## Not done, and what is next
 
-1. Deploy the Worker from `d48626d` (owner approval for that exact deployment),
-   then the owner pushes `demo/live-pages` and merges to `main`; the agent
-   session cannot push or open a pull request under the recorded deny settings.
-2. After both, run the bounded live acceptance script once against the public
-   page, add one live multi-source search to prove merging through the
-   deployed Worker, and record versions, times and counts in
+1. The Worker is deployed. The owner pushes `demo/live-pages` and merges to
+   `main`; the agent session cannot push or open a pull request under the
+   recorded deny settings.
+2. After the page is published, run the bounded live acceptance script once
+   against it, look at one live multi-source search to see the merged row on
+   the page, and record versions, times and counts in
    [the demo status](../DEMO-STATUS.md).
 3. Not checked by anyone: Safari, Firefox, a screen reader, a physical print,
    and the PDF in Acrobat, Preview or pdf.js.

@@ -35,8 +35,9 @@ function precedence(sourceId: string): number {
 
 /**
  * Interleave the sources by rank and collapse listings of the same document.
- * Only an exact shared matchKey from two different sources merges; titles
- * never do.
+ * Only an exact shared matchKey merges; titles never do. One source can list
+ * a document more than once (Regulations.gov lists a joint rule once per
+ * agency docket), and those listings merge too.
  */
 export function mergeResults(batches: readonly SourceResults[]): {
   readonly results: MergedResult[];
@@ -54,15 +55,13 @@ export function mergeResults(batches: readonly SourceResults[]): {
       const citation = batch.results[rank];
       const row =
         citation.matchKey === null ? undefined : byKey.get(citation.matchKey);
-      if (row && row.every((seen) => seen.sourceId !== citation.sourceId)) {
+      if (row) {
         row.push(citation);
         continue;
       }
-      // A repeat from a source already in the row stays a row of its own.
       const created = [citation];
       rows.push(created);
-      if (citation.matchKey !== null && !row)
-        byKey.set(citation.matchKey, created);
+      if (citation.matchKey !== null) byKey.set(citation.matchKey, created);
     }
   }
   const results = rows.map((row): MergedResult => {

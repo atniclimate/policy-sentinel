@@ -14,7 +14,8 @@ export const MAX_CITATIONS = 50;
 export const MAX_NOTE = 10000;
 export const MAX_SAVED_CHARACTERS = 2_000_000;
 export const MAX_ACTOR_TEXT = 300;
-const MAX_ALTERNATES = 3;
+// One source can list a document several times, so this is above the source count.
+export const MAX_ALTERNATES = 12;
 
 export interface Mark {
   on: boolean;
@@ -67,7 +68,7 @@ export const emptyReport = (): ReportState => ({
   actors: emptyActors(),
 });
 
-/** Keep only saved alternates that are valid listings of the cited document by another source. */
+/** Keep only saved alternates that are valid, distinct other listings of the cited document. */
 function restoreAlternates(
   value: unknown,
   citation: DemoCitation,
@@ -75,17 +76,17 @@ function restoreAlternates(
   const alternates: DemoCitation[] = [];
   if (!Array.isArray(value)) return { alternates, damaged: true };
   let damaged = value.length > MAX_ALTERNATES;
-  const sources = new Set([citation.sourceId]);
+  const listings = new Set([keyOf(citation)]);
   for (const item of value.slice(0, MAX_ALTERNATES)) {
     try {
       const alternate = citationValue(item);
       if (
         citation.matchKey === null ||
         alternate.matchKey !== citation.matchKey ||
-        sources.has(alternate.sourceId)
+        listings.has(keyOf(alternate))
       )
         throw new Error("Saved alternate is not the cited document");
-      sources.add(alternate.sourceId);
+      listings.add(keyOf(alternate));
       alternates.push(alternate);
     } catch {
       damaged = true;

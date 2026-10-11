@@ -95,33 +95,25 @@ describe("merging results from several federal sources", () => {
     });
   });
 
-  it("never merges two results from the same source", () => {
+  // Seen live on 2026-10-10: Regulations.gov lists one joint rule once per agency docket.
+  it("merges repeated listings of one document from the same source", () => {
     const [a, b, g] = [fr("a", A), fr("b", A), gi("g", A)];
     expect(mergeResults([batch("federal-register", a, b)])).toEqual({
-      results: [
-        { citation: a, alternates: [] },
-        { citation: b, alternates: [] },
-      ],
-      merged: 0,
+      results: [{ citation: a, alternates: [b] }],
+      merged: 1,
     });
     expect(
       mergeResults([batch("federal-register", a, b), batch("govinfo", g)]),
     ).toEqual({
-      results: [
-        { citation: a, alternates: [g] },
-        { citation: b, alternates: [] },
-      ],
-      merged: 1,
+      results: [{ citation: a, alternates: [b, g] }],
+      merged: 2,
     });
     const [g1, g2] = [gi("g1", A), gi("g2", A)];
     expect(
       mergeResults([batch("govinfo", g1, g2), batch("federal-register", a)]),
     ).toEqual({
-      results: [
-        { citation: a, alternates: [g1] },
-        { citation: g2, alternates: [] },
-      ],
-      merged: 1,
+      results: [{ citation: a, alternates: [g1, g2] }],
+      merged: 2,
     });
   });
 

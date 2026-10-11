@@ -7,9 +7,10 @@ remains in [ROADMAP.yaml](../ROADMAP.yaml).
 
 GovInfo, Congress.gov and Regulations.gov were switched on in the demo on
 2026-10-10 and passed one bounded live check each. The interface, document and
-provenance update below is built and committed locally at `d48626d`; its Worker
-deployment, its publication and its live acceptance run are not yet done and
-are recorded here when they happen. Earlier maintenance and validation receipts
+provenance update below is built and committed locally. Its Worker change is
+deployed and passed a bounded live check of the match keys; publication of the
+page and the live acceptance run are not yet done and are recorded here when
+they happen. Earlier maintenance and validation receipts
 remain below as historical evidence; statements there that the three keyed
 sources are switched off, and descriptions of the earlier interface, describe
 earlier checkpoints.
@@ -82,10 +83,31 @@ Five independent reviews (code, accessibility, design, sovereignty and privacy,
 security) confirmed 46 findings after a second agent challenged each one; 12
 more were rejected. All confirmed majors are fixed.
 
+Worker deployment and live check of the match keys. Worker version
+`dd22a664-101a-49a3-984b-cad69de53f49`, built from source commit `c5907f1`,
+serves 100% of traffic from 2026-10-11 at 00:10:07 UTC with owner approval. No
+source, credential or Worker setting changed. Four requests followed, at 00:10
+UTC: the source catalog (the three keyed sources live, the state source named
+Washington State Legislature) and one phrase search of each of the Federal
+Register, GovInfo and Regulations.gov for a recent joint health-coverage rule.
+All three returned Federal Register document 2026-20447 with the same match
+key, so the rule the merge depends on holds for real responses from all three
+sources.
+
+That check also showed what invented responses had not: Regulations.gov lists a
+joint rule once per agency docket, three listings of one document in this case,
+and the first merge rule would have left two of them as extra rows. The page
+now merges every listing that shares the document number, from the same source
+or another, and names same-source listings by their identifiers. This is a
+page-side change with its own tests (330 demo tests pass); the Worker did not
+change again. The page-level merge on live responses is still to be seen on the
+published page.
+
 Known limits and items not done:
 
-- Merging is proven with invented responses only. It is not proven until the
-  deployed Worker returns one document from two sources.
+- The page is not yet published, and the live acceptance run has not happened.
+  Until the page is published, the public site is the earlier interface running
+  against the new Worker, which it tolerates.
 - Not checked: Safari, Firefox, a screen reader, a physical print, and the PDF
   in Acrobat, Preview or pdf.js.
 - The exported PDF is not tagged for screen readers; the dialog says so.

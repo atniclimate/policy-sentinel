@@ -37,7 +37,7 @@ export const COPY = {
   aboutSourcesNote:
     "The demo reads the official text of Federal Register documents, from GovInfo, and the original text of Washington State bills, from the Legislature. For the other sources it returns metadata and an official link, and does not read the text. Each citation links to its official source.",
   mergeRule:
-    "When the same Federal Register document comes back from more than one source, one row is shown. It is the Federal Register record when that source lists the document, because the demo can read and check its official text. Otherwise it is the GovInfo record, then the Regulations.gov record. The other listings stay linked.",
+    "When the same Federal Register document is listed more than once, by one source or by several, one row is shown. It is the Federal Register record when that source lists the document, because the demo can read and check its official text. Otherwise it is the GovInfo record, then the Regulations.gov record. The other listings stay linked.",
   aboutPrivacyTitle: "What Leaves the Browser",
   aboutPrivacy: [
     "This page has no tracking, analytics, or cookies.",

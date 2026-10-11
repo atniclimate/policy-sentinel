@@ -5,6 +5,7 @@ import {
   emptyActors,
   emptyReport,
   MAX_ACTOR_TEXT,
+  MAX_ALTERNATES,
   missingActorFields,
   removeFromReport,
   reportEntries,
@@ -391,7 +392,7 @@ describe("alternate listings of a cited document", () => {
   it.each([
     ["another document", [listing("govinfo", "2099-00002")]],
     ["no shared identifier", [listing("govinfo", "2099-00001", null)]],
-    ["the cited source itself", [listing("federal-register")]],
+    ["the cited listing itself", "self"],
     [
       "an unsafe link",
       [{ ...listing("govinfo"), officialUrl: "javascript:alert(1)" }],
@@ -409,7 +410,8 @@ describe("alternate listings of a cited document", () => {
     const raw = structuredClone(original) as unknown as {
       cited: Record<string, { alternates: unknown }>;
     };
-    raw.cited[key].alternates = alternates;
+    raw.cited[key].alternates =
+      alternates === "self" ? [original.cited[key].citation] : alternates;
     const restored = restoreReport(JSON.stringify({ version: 3, ...raw }));
     expect(restored.report.cited[key]).toEqual({
       ...original.cited[key],
@@ -420,7 +422,7 @@ describe("alternate listings of a cited document", () => {
     expect(restored.notice).toMatch(KEPT_NOTICE);
   });
 
-  it("keeps the valid alternates beside a bad one, never a second listing from one source, and at most three", () => {
+  it("keeps the valid alternates beside a bad one, never the same listing twice, and no more than the limit", () => {
     const original = merged();
     const key = Object.keys(original.cited)[0];
     const restoreWith = (alternates: unknown[]) =>
@@ -442,21 +444,25 @@ describe("alternate listings of a cited document", () => {
     expect(repeated.report.cited[key].alternates).toEqual([listing("govinfo")]);
     expect(repeated.notice).toMatch(KEPT_NOTICE);
 
-    const three = [
+    // One source can list a document more than once (a joint rule, one docket per agency).
+    const docket = (n: number) => ({
+      ...listing("regulations"),
+      identifier: `regulations docket ${n}`,
+    });
+    const full = [
       listing("govinfo"),
-      listing("regulations"),
-      listing("congress"),
+      ...Array.from({ length: MAX_ALTERNATES - 1 }, (_, n) => docket(n)),
     ];
-    expect(restoreWith(three)).toEqual({
+    expect(restoreWith(full)).toEqual({
       report: {
         ...original,
-        cited: { [key]: { ...original.cited[key], alternates: three } },
+        cited: { [key]: { ...original.cited[key], alternates: full } },
       },
       notice: "",
     });
-    const four = restoreWith([...three, listing("govinfo")]);
-    expect(four.report.cited[key].alternates).toEqual(three);
-    expect(four.notice).toMatch(KEPT_NOTICE);
+    const over = restoreWith([...full, docket(MAX_ALTERNATES)]);
+    expect(over.report.cited[key].alternates).toEqual(full);
+    expect(over.notice).toMatch(KEPT_NOTICE);
   });
 
   it("drops every alternate of a citation that has no shared identifier", () => {

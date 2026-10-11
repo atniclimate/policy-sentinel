@@ -888,21 +888,28 @@ export function App() {
       <div class="also">
         <span>{COPY.docLabels.alsoListedBy}</span>
         <ul class="meta">
-          {alternates.map((alternate) => (
-            <li key={alternate.sourceId}>
-              <a
-                href={alternate.officialUrl}
-                aria-label={COPY.alternateLink(
-                  labelOf(alternate.sourceId),
-                  title,
-                )}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {labelOf(alternate.sourceId)}
-              </a>
-            </li>
-          ))}
+          {alternates.map((alternate) => {
+            // A source that lists the document more than once is told apart by identifier.
+            const repeated =
+              alternates.filter(
+                (other) => other.sourceId === alternate.sourceId,
+              ).length > 1;
+            const name = repeated
+              ? `${labelOf(alternate.sourceId)} ${alternate.identifier}`
+              : labelOf(alternate.sourceId);
+            return (
+              <li key={keyOf(alternate)}>
+                <a
+                  href={alternate.officialUrl}
+                  aria-label={COPY.alternateLink(name, title)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {name}
+                </a>
+              </li>
+            );
+          })}
         </ul>
       </div>
     );
