@@ -1,97 +1,313 @@
 /**
  * Public prose for the live demo page and its PDF, in one place so the page,
- * the print view and the PDF say the same thing. Written in Patrick Freeland's
- * public voice: plain, direct, no hype, no em dashes.
+ * the print view and the PDF say the same thing. House voice: plain, direct,
+ * no hype, institutional third person (no "we", "I" or "you"; instructions
+ * are imperatives), Oxford comma, no em dashes, Title Case headings and
+ * sentence case for everything else. The list is called My Citations by name.
  */
 export const COPY = {
-  title: "Policy Sentinel, live demo",
+  // Frame: header, pane chips, footer strip and the About and Limits dialog.
+  appName: "Policy Sentinel",
+  appMode: "live demo",
+  skipLink: "Skip to the search",
+  aboutButton: "About and Limits",
+  aboutClose: "Close",
+  themeLight: "Light theme",
+  themeDark: "Dark theme",
+  panesLabel: "Panes",
+  paneLabels: {
+    search: "Search",
+    results: "Results",
+    issues: "Issues",
+    report: "Report",
+  },
+  /** Spoken name of a pane chip; the count is results listed or policies cited. */
+  paneChip: (label: string, count: number | null) =>
+    count === null ? `${label} pane` : `${label} pane, ${count}`,
+  /** One line at 1366 px beside the framework line: keep each item short. */
+  footerItems: [
+    "Working demo, in development",
+    "Sources incomplete",
+    "Not legal advice; follow each citation to its official source",
+    "No tracking and no saved searches",
+  ],
+  tsdfLink: "Tiered Sovereign Data Framework 0.9.8",
+  aboutWhatTitle: "What This Demo Is",
+  aboutSourcesTitle: "Sources",
+  aboutSourcesNote:
+    "The demo reads the official text of Federal Register documents, from GovInfo, and the original text of Washington State bills, from the Legislature. For the other sources it returns metadata and an official link, and does not read the text. Each citation links to its official source.",
+  mergeRule:
+    "When the same Federal Register document is listed more than once, by one source or by several, one row is shown. It is the Federal Register record when that source lists the document, because the demo can read and check its official text. Otherwise it is the GovInfo record, then the Regulations.gov record. The other listings stay linked.",
+  aboutPrivacyTitle: "What Leaves the Browser",
+  aboutPrivacy: [
+    "This page has no tracking, analytics, or cookies.",
+    "Search terms go to the demo service and to the official sources selected. Showing issues for a policy, or adding it to My Citations, sends that policy's public identifier to the demo service, which reads the text from the official source and may keep what it read, by identifier, for up to a day. The demo service does not log or save searches. To limit requests, the service and its hosting provider count requests by network address for a short time. Hosting and source providers have their own policies.",
+    "Citations, notes, and data actor entries stay in this browser tab unless the person using it exports or prints them.",
+  ],
+  aboutTsdfTitle: "Tiered Sovereign Data Framework",
+  aboutVersionTitle: "Version and Repository",
+  aboutBuilt:
+    "The demo runs the Policy Sentinel text extractor. The demo service reads only from the official government sites on its list.",
+  repoLink: "github.com/atniclimate/policy-sentinel",
   statusLine: (version: string) =>
-    `Policy Sentinel ${version} is in development. This page shows part of it working on real public policy. It is not the finished tool.`,
+    `Policy Sentinel ${version} is in development. This page is a working demo: it shows part of the tool running on real public policy. It is not the finished tool.`,
   introOne:
-    "Policy Sentinel reads official policy text and keeps track of where each passage came from, so a reader can check the source rather than trust a summary. This demo searches real public policy, reads the official text, and points to passages that may deserve a closer look.",
-  introTwo:
-    "Everything here is public material from government sources, which the Tiered Sovereign Data Framework calls Tier 0 (T0). No Tribal codes and no Tribal government documents are used. Search terms go to the demo service and the selected official source. The demo does not save or cache searches. Your citations and notes stay in this browser tab. The flagged passages come from automated demo rules, not from Policy Sentinel's reviewed findings. The question to ask of every flag is the one the tool asks of itself: what would show this is wrong?",
+    "Policy Sentinel is a sovereignty-centered policy monitoring tool. It reads official policy text and keeps track of where each passage came from, so a reader can check the source rather than trust a summary. It does not decide what a policy means for any Nation. This demo searches real public policy and, where it reads the official text, flags passages that may deserve a closer look.",
+  flagQuestion:
+    "The question to ask of every flag is the one Policy Sentinel is built around: what would show this is wrong?",
   limitsTitle: "Limits",
   limits: (version: string) =>
-    `Policy Sentinel ${version} is in development. This is not legal advice. Coverage is limited to the sources listed here, and sources may be incomplete or delayed. Automated issue identification can miss passages or misread them. Verify everything against the official source before you rely on it.`,
+    `Policy Sentinel ${version} is in development. This is not legal advice. Coverage is limited to the sources this demo searches; those sources are incomplete and may be delayed. The demo rules are automated and can miss passages or misread them. Verify everything against the official source before relying on it.`,
   limitsShort: (version: string) =>
     `Policy Sentinel ${version}, in development. Not legal advice. Verify against the official source.`,
-  sourceLabel: "Source",
-  searchLabel: "Search policy",
+  // Search pane: scope, sources, terms and examples.
+  searchLabel: "Search Policy",
+  checkingSources: "Checking source availability.",
+  sourcesChecked: "Source availability checked.",
+  sourcesFailed:
+    "Source availability could not be checked, so search is off. Retry source availability to search. The citation list is not affected.",
+  checkingSourcesButton: "Checking sources",
+  retrySources: "Retry source availability",
+  scopeLabel: "Search scope",
+  scopeFederal: "Federal sources",
+  scopeState: "State legislature",
+  sourcesLegend: "Sources to search",
+  stateLabel: "State",
+  availabilityLabel: "Availability",
+  /** What the demo does with each federal source, shown under its name. One line in the search rail: keep each short. */
+  capability: {
+    "federal-register": "Reads the official text and flags passages",
+    govinfo: "Returns metadata and an official link",
+    regulations: "Returns metadata and an official link",
+    congress: "Looks up one bill by reference",
+  } as Readonly<Record<string, string>>,
+  queryLabel: "Search terms",
   searchHelpFederal:
     "Words, a title, or a citation. Example: Executive Order 13175.",
   searchHelpWashington:
-    "A bill number, such as HB 1100 or SB 5100. Add a biennium, such as 2025-26, for an earlier session.",
+    "A bill number, such as HB 1100 or SB 5100, returns the bill as introduced. Add a biennium, such as 2025-26, for an earlier session.",
+  searchHelpState: "A bill number.",
   searchHelpCongress:
-    "One bill reference: type, number, Congress. Example: hr 1234 119.",
+    "One bill reference: type, number, and Congress. Example: hr 1234 119.",
+  searchHelpCongressToo:
+    "Congress.gov is searched only when the terms are one bill reference, such as hr 1234 119.",
+  queryLength: "Enter between 2 and 200 characters to search.",
+  congressQueryError:
+    "Congress.gov takes one bill reference: type, number, and Congress. Example: hr 1234 119. To search by words, check another federal source.",
+  noSourceChecked: "Check at least one live federal source to search.",
+  /** Said when a search is asked for and nothing else on the page says why it is off. */
+  searchOff: "Search is off until a source is available.",
   searchButton: "Search",
-  searching: "Searching the official source.",
-  examplesLabel: "Try one of these",
+  searching: "Searching the selected official sources.",
+  examplesLabel: "Example Searches",
+
+  // Results pane.
   resultsTitle: "Results",
   resultsCount: (shown: number, total: number | null) =>
     total === null
       ? `${shown} shown`
       : `${shown} shown of ${total.toLocaleString("en-US")} found`,
+  resultsListed: (rows: number) =>
+    `${rows} ${rows === 1 ? "policy" : "policies"} listed.`,
   noResults:
     "Nothing matched. Try fewer words, a different phrase, or another source.",
   emptyStart: "Choose a source and search. Results appear here.",
+  /** Row status for a source the demo service could not reach; the reason follows by name. */
+  sourceFailed: "No answer",
+  sourceFailure: (label: string, reason: string) =>
+    `${label} could not be searched. ${reason}`,
+  /** Row status for a source that answered with a reason and no results; the reason follows by name. */
+  sourceNothing: "Nothing returned",
+  sourceAnswer: (label: string, reason: string) => `${label}: ${reason}`,
+  allFailed: "None of the selected sources returned results.",
+  skipped: "Skipped",
+  congressSkipped:
+    "Congress.gov was skipped. It takes one bill reference, such as hr 1234 119.",
+  /** One short sentence on a phone; the reason for the record shown is in mergeRule. */
+  mergeNote: (merged: number) =>
+    `${merged} duplicate ${merged === 1 ? "listing was" : "listings were"} merged. Each document is one row; the other listings stay linked.`,
+  dateNotStated: "Date not stated",
+  /** Shown in place of the service's "Not stated" so the row does not read as a missing identifier. */
+  issuingBodyNotStated: "Issuing body not stated",
+  alternateLink: (source: string, title: string) =>
+    `${source} listing of ${title}`,
   showIssues: "Show issues",
+  showIssuesFor: (title: string) => `Show issues for ${title}`,
+  showIssuesForCited: (title: string) => `Show issues for cited ${title}`,
   addCitation: "Add to my citations",
   inCitations: "In my citations",
+  readingCited: "Reading the cited text",
   openOfficial: "Open the official source",
+  openOfficialFor: (title: string) => `Open the official source for ${title}`,
+  /** Spoken name of a row action: the action, then the policy it acts on. */
+  named: (action: string, title: string) => `${action}: ${title}`,
+
+  // Issues pane.
   noTextForSource:
-    "The demo does not read the text of this source, so it identifies no issues here. You can still cite it.",
+    "The demo does not read the text of this source, so it identifies no issues here. The policy can still be cited.",
   readingText: "Reading the official text.",
-  issuesTitle: "Issues the demo rules identified",
+  issuesTitle: "Issues the Demo Rules Identified",
   issuesNote:
-    "These are automated checks, labelled as demo rules. Passage flags quote the extracted text. An absence check is labelled as a rule assessment. Each check names its rule and says what it cannot show. They are not Policy Sentinel's reviewed findings.",
+    "Flags come from automated demo rules. They are not Policy Sentinel's reviewed findings. A passage flag quotes the extracted text; an absence check is labeled a rule assessment. Each flag names its rule and says what it cannot show.",
+  issuesReady: (title: string, flags: number) =>
+    `Issues ready for ${title}. ${flags} ${flags === 1 ? "flag" : "flags"}.`,
+  savedTextNote: (retrievedAt: string) =>
+    `Showing the text saved with this citation, retrieved ${retrievedAt}. Remove the citation and add it again to read a new version; removing also clears its notes and selections.`,
   noIssues: "The demo rules found nothing to flag in this text.",
+  includeAll: "Include all in PDF",
+  addFirst: "Add the policy to My Citations first.",
+  assessmentLead: "Rule assessment:",
+  whyFlagged: "Why this was flagged",
   ruleLabel: "Rule",
   limitLabel: "What this cannot show",
   checkLabel: "What to check next",
   locatorLabel: "Where in the text",
   includeInPdf: "Include in PDF",
-  issueNote: "Your note on this passage",
-  readLabel: "Read from the official text",
+  issueNote: "Note on this passage",
+  readLabel: "Text read from",
   receiptLabel: "Receipt",
   receiptNote: (bytes: number) =>
     `Fingerprint of the ${bytes.toLocaleString("en-US")} bytes retrieved, so the same text can be checked again.`,
+  retrieved: (retrievedAt: string) => `Retrieved ${retrievedAt}.`,
   engineLabel: "Read by",
   engineText: (parser: string, version: string, rules: string) =>
     `Policy Sentinel text extractor (${parser} ${version}) and ${rules}`,
-  citationsTitle: "My citations",
+  configLabel: "Parser configuration SHA-256:",
+
+  // Report pane: citations, data actors and export.
+  reportTitle: "Report",
+  citationsTitle: "My Citations",
   citationsEmpty:
     "Nothing cited yet. Add a policy from the results to build a short, annotated list.",
-  citationNote: "Your note on this policy",
+  citationLimit: (limit: number) =>
+    `My Citations holds up to ${limit} citations. Remove one to add another; export the list first to keep a copy.`,
+  citationAdded: (title: string, reading: boolean) =>
+    `Added ${title}.${reading ? " Reading the official text." : ""}`,
+  citationSaved: (title: string) => `Citation and text saved for ${title}.`,
+  citationTextFailed: (title: string) =>
+    `Citation added for ${title}, but its text could not be read. Use Show issues to retry.`,
+  citationRemoved: (title: string) =>
+    `Removed ${title}, its selected passages, and its notes.`,
+  /** Label of the count of passages a citation carries into the document. */
+  passagesSelected: "Passages selected",
+  readingForCitation: "Reading the official text for this citation.",
+  textNotReadYet:
+    "The text has not been read. Export PDF and Print view include this citation without passages.",
+  citationNote: "Note on this policy",
   remove: "Remove",
+  storageUnavailable:
+    "Browser storage is unavailable. The citation list works in this tab but will not be restored after a reload. Export it before reloading or closing the tab.",
+  storageSaveFailed:
+    "The citation list could not be saved in browser storage. Keep this page open or export the list; Export PDF and Print view use the list as it stands.",
+  /** Restore notices raised by src/demo/report-state.ts when saved state is damaged. */
+  restorePartial:
+    "Part of the saved citation list could not be restored. Valid citations and notes were kept; check the list and the data actor entries before exporting.",
+  restoreFailed:
+    "The saved citation list could not be restored. This tab starts with an empty list and blank data actor entries.",
+  actorsTitle: "Data Actors",
+  actorsIntro:
+    "Who prepared this list, who it is shared with, and why. All five entries are required before Export PDF or Print view. They stay in this browser tab and leave it only inside the PDF or the printed pages. The demo does not verify them. The document also prints the name as the responsible person for this use of the tool.",
+  actorsCount: (entered: number, total: number) => `${entered} of ${total}`,
+  actorEntered: "Entered",
+  actorRequired: "Required",
+  /** `missing` is the list of entry labels still blank, already joined. */
+  actorsMissing: (missing: string) =>
+    `Export PDF and Print view need every data actor entry. Still missing: ${missing}.`,
+  exportTitle: "Export",
   exportPdf: "Export PDF",
   exportingPdf: "Building the PDF.",
   printView: "Print view",
-  exportEmpty: "Add at least one policy to your citations first.",
-  exportDone: "The PDF was built and saved to your downloads.",
+  printPreparing: "Preparing the print view.",
+  exportEmpty: "Add at least one policy to My Citations first.",
+  exportDone: "The PDF was built and sent to the browser's downloads.",
   exportFailed:
     "The PDF could not be built. The print view still works: use Print view, then save as PDF.",
-  exportUnsupported:
-    "This report contains characters the PDF font cannot display. Use Print view to save it as PDF with your browser's fonts. Check the saved pages before sharing them.",
+  /** `character` names the first refused character, such as "x (U+0078)"; empty when unknown. */
+  exportUnsupported: (character: string) =>
+    `The PDF fonts cannot display ${character ? `the character ${character}` : "a character"} in this list. Letters used in some Indigenous-language names are among those affected. Use Print view to save the list as a PDF with the browser's fonts, and check the saved pages before sharing them.`,
+  aboutPdfTagging: "The exported PDF is not tagged for screen readers.",
   serviceDown:
     "The demo service did not answer. Try again in a moment. If it keeps happening, the service may be down.",
   rateLimited:
     "That is a lot of requests in a short time. Wait a minute and try again.",
   keyPendingTitle: "Key pending",
-  notAvailableTitle: "Not available yet",
+  notAvailableTitle: "Not available",
   liveTitle: "Live",
-  footerSource:
-    "Policy text comes from the Federal Register and GovInfo, and from the Washington State Legislature. Each citation links to its official source.",
-  footerCode:
-    "Built on the Policy Sentinel text extractor. The demo service reads official government hosts only. It does not log searches. It uses temporary in-memory address counters to limit requests; hosting and source providers have their own service policies.",
-  pdfTitle: "Cited policies",
+  notCheckedTitle: "Not checked",
+  notCheckedNote: "Availability has not been checked.",
   pdfIntro:
     "A short list of public policies with citations, selected passages or rule assessments, and notes written by the person who prepared this list.",
   pdfNotesLabel: "Note",
   pdfNoNote: "No note added.",
   pdfNoPassages: "No passages selected for this policy.",
   pdfTextNotRead:
-    "No text receipt was saved for this citation. Text retrieval was unavailable or did not complete, so no passages are listed.",
+    "The text was not read: the demo does not read this source's text, or the read did not finish. No passages are listed.",
+
+  // Document model (src/demo/document.ts): wording shared by the PDF and the
+  // print view, the data actor entries and the duplicate-listing label.
+  // Headings are Title Case, labels and body are sentence case.
+  /** Printed for a missing data actor entry or an unread text receipt. A fixed literal: do not reword. */
+  notRecorded: "Not recorded",
+  actorLabels: {
+    name: "Name",
+    role: "Role",
+    organization: "Organization or Nation",
+    sharingWith: "Sharing with",
+    purpose: "Purpose",
+  },
+  docEyebrow: (version: string) => `Policy Sentinel ${version}, working demo`,
+  docTitle: "Cited Policies",
+  docContentsTitle: "Policies in This List",
+  /** A document sentence, not the page's instruction to add a policy. */
+  docEmpty: "No policies are cited in this list.",
+  docProvenanceTitle: "Provenance",
+  docActorsTitle: "Data Actors and Sharing",
+  /** Printed on the cover and again over the data actor section, so it names no position on the page. */
+  docActorsIntro:
+    "The data actor entries in this document were typed by the person who prepared this list. The demo does not verify them.",
+  docSoftwareTitle: "Software",
+  docTool: (version: string) =>
+    `Policy Sentinel demo ${version}, in development`,
+  docReferencesTitle: "References",
+  docSovereigntyTitle: "Data Provenance and Sovereignty Notes",
+  docSovereignty: [
+    "The material this demo searches and cites is public policy published by government sources. The Tiered Sovereign Data Framework (TSDF) 0.9.8, a pre-release standard published by the Affiliated Tribes of Northwest Indians, treats documented public federal and state sources as Tier 0 (T0), subject to each source's conditions. Tier 0 is the framework's open tier: material formally released for public access by an authorized source. The demo has no Tribal code source and no Tribal government source. It searches federal and state government sources only. A federal source can itself publish a Tribal government document, such as an ordinance printed in a Federal Register notice, and the demo does not detect or exclude one.",
+    "Notes and data actor entries were written by the person who prepared this list. The demo does not classify them or say who they belong to, and it claims no certification under the framework and no conformance with it.",
+    "Results are keyword matches and general-jurisdiction records. They establish no relationship to any Nation.",
+    "Verify every citation at its official source.",
+  ],
+  /** A source that gives no date is stated as a gap, never left out. */
+  docDateNotStated: "Not stated",
+  docAssessment: (assessment: string) => `Rule assessment: ${assessment}`,
+  docPassageNote: (note: string) => `Note: ${note}`,
+  docFingerprint: (sha256: string, bytes: number) =>
+    `SHA-256 ${sha256} (${bytes.toLocaleString("en-US")} bytes)`,
+  docLabels: {
+    preparedBy: "Prepared by",
+    generated: "Generated",
+    identifier: "Identifier",
+    source: "Source",
+    issuingBody: "Issuing body",
+    type: "Type",
+    date: "Date",
+    officialUrl: "Official URL",
+    where: "Where",
+    limit: "Limit",
+    rule: "Rule",
+    check: "Check",
+    reference: "Reference",
+    metadataRetrieved: "Metadata retrieved",
+    textReadFrom: "Text read from",
+    textRetrieved: "Text retrieved",
+    fingerprint: "Fingerprint",
+    extractor: "Extractor",
+    parserConfig: "Parser configuration SHA-256",
+    demoRules: "Demo rules",
+    alsoListedBy: "Also listed by",
+    tool: "Tool",
+    responsible: "Responsible person for this use",
+    sourcesRead: "Sources cited",
+  },
 } as const;
 
 export const EXAMPLES: readonly {

@@ -203,7 +203,7 @@ describe("public copy", () => {
   it("names the version and the development status", () => {
     expect(COPY.limits("0.2.0")).toMatch(/0\.2\.0 is in development/);
     expect(COPY.limits("0.2.0")).toMatch(/not legal advice/i);
-    expect(COPY.limits("0.2.0")).toMatch(/incomplete or delayed/);
+    expect(COPY.limits("0.2.0")).toMatch(/incomplete and may be delayed/);
     expect(COPY.limits("0.2.0")).toMatch(/miss passages or misread/);
     expect(COPY.limits("0.2.0")).toMatch(
       /Verify everything against the official source/,

@@ -13,6 +13,7 @@ import {
   analyzePolicy,
   washingtonCaption,
 } from "../../src/demo/analyze";
+import { CONGRESS_REFERENCE } from "../../src/demo/merge";
 import type {
   DemoCitation,
   DemoErrorResponse,
@@ -104,7 +105,7 @@ export function sourceList(env: Env): DemoSource[] {
     },
     {
       id: "washington",
-      label: "Washington Legislature",
+      label: "Washington State Legislature",
       level: "state",
       status: "live",
       note: "Look up a bill by number, such as HB 1100 or SB 5100. Official bill text is read from the Legislature.",
@@ -356,6 +357,22 @@ function metadataId(value: unknown): string {
   return value;
 }
 
+/**
+ * Optional cross-source key: "fr:" and a Federal Register document number.
+ * Each source's own documentation, read 2026-10-10, shows where it carries
+ * that number. The Regulations.gov v4 OpenAPI specification
+ * (https://open.gsa.gov/api/regulationsgov/v4/openapi.yaml) defines frDocNum
+ * as a string, "The federal register document number of the document.", in
+ * the Document schema of the GET /documents list response. GovInfo names a
+ * Federal Register granule by its document number, for example package
+ * FR-2024-06-18, granule 2024-12669. A value that is not a plain document
+ * number gives null and never fails the row.
+ */
+function frMatchKey(value: unknown): string | null {
+  const number = typeof value === "string" ? value.trim() : "";
+  return /^[A-Za-z0-9][A-Za-z0-9-]{0,39}$/.test(number) ? `fr:${number}` : null;
+}
+
 // ---------------------------------------------------------------- Federal Register
 
 const FR_FIELDS = [
@@ -397,6 +414,7 @@ function frCitation(value: unknown, retrievedAt: string): DemoCitation {
     retrievedAt,
     summary: summary || null,
     textAvailable: /^\d{2,4}-\d{4,6}$/.test(id),
+    matchKey: frMatchKey(id),
   };
 }
 
@@ -621,6 +639,7 @@ async function readWashington(query: string) {
     retrievedAt,
     summary: null,
     textAvailable: true,
+    matchKey: null,
   };
   return analyzeSafely(() =>
     analyzePolicy({
@@ -701,6 +720,8 @@ async function searchGovInfo(
       retrievedAt,
       summary: null,
       textAvailable: false,
+      // A Federal Register granule is named by its document number.
+      matchKey: row.collectionCode === "FR" ? frMatchKey(row.granuleId) : null,
     };
   });
   return {
@@ -752,6 +773,7 @@ async function searchRegulations(
       retrievedAt,
       summary: null,
       textAvailable: false,
+      matchKey: frMatchKey(a.frDocNum),
     };
   });
   return {
@@ -771,10 +793,7 @@ async function searchCongress(
   page: number,
 ): Promise<DemoSearchResponse> {
   const key = requireKey(env);
-  const m =
-    /^\s*(hr|s|hjres|sjres|hconres|sconres|hres|sres)\s*(\d{1,5})\s+(\d{2,3})\s*$/i.exec(
-      query,
-    );
+  const m = CONGRESS_REFERENCE.exec(query);
   if (!m) {
     throw new DemoError(
       "bad_query",
@@ -844,6 +863,7 @@ async function searchCongress(
     retrievedAt,
     summary: latestText ? `Latest action: ${latestText}` : null,
     textAvailable: false,
+    matchKey: null,
   };
   return {
     ok: true,

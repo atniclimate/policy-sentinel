@@ -2,7 +2,38 @@
  * Synthetic documents shaped like the official renditions the demo reads.
  * They are invented text for tests, not copies of any provider response.
  */
+import type { DemoCitation } from "../../src/demo/types";
+
 export const FR_DOC_NUMBER = "2099-00001";
+
+const LISTING_URLS = {
+  "federal-register": "https://www.federalregister.gov/d/",
+  govinfo: "https://www.govinfo.gov/app/details/FR-2099-01-05/",
+  regulations: "https://www.regulations.gov/document/EX-",
+  congress: "https://www.congress.gov/bill/119th-congress/house-bill/",
+};
+
+/** One synthetic listing of document `id` as the named source would return it. */
+export function listing(
+  sourceId: keyof typeof LISTING_URLS,
+  id = FR_DOC_NUMBER,
+  matchKey: string | null = `fr:${id}`,
+): DemoCitation {
+  return {
+    sourceId,
+    identifier: `${sourceId} ${id}`,
+    title: `Example listing ${id}`,
+    issuingBody: "Example Department",
+    kind: "Notice",
+    date: "2099-01-05",
+    officialUrl: `${LISTING_URLS[sourceId]}${id}`,
+    textUrl: null,
+    retrievedAt: "2099-01-07T11:59:00.000Z",
+    summary: null,
+    textAvailable: false,
+    matchKey,
+  };
+}
 
 export const FR_HTML = `<html>
 <head>

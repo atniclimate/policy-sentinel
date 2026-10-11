@@ -1,436 +1,1158 @@
-:root {
-  --bg: #f5f4ef;
-  --card: #fdfcf9;
-  --ink: #1f2623;
-  --muted: #4b5651;
-  --line: #c6cbc3;
-  --accent: #2c5a4b;
-  --accent-ink: #ffffff;
-  --live-bg: #dcebe3;
-  --live-ink: #1e4636;
-  --pending-bg: #f1e6c8;
-  --pending-ink: #5c4207;
-  --off-bg: #e3e4e0;
-  --off-ink: #3f4743;
-  --focus: #7a4b00;
-  --warn-bg: #f3ecd9;
-  color-scheme: light dark;
+/* Policy Sentinel live demo, in the ATNI Climate web system: dark ground by
+   default, hierarchy by surface shade, radius 0, no shadows, blur or
+   gradients, and red only on things that act.
+   Sections: 1 fonts, 2 tokens, 3 base, 4 controls, 5 rows and marks, 6 frame,
+   7 panes, 8 dialog, 9 motion, 10 print document. */
+
+/* 1. Fonts: self-hosted, SIL Open Font License 1.1 (texts beside the files). */
+@font-face {
+  font-family: "League Spartan";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./fonts/league-spartan-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #121816;
-    --card: #1a2220;
-    --ink: #e7ebe6;
-    --muted: #b3bdb7;
-    --line: #3b4742;
-    --accent: #8fc4ae;
-    --accent-ink: #0e1a15;
-    --live-bg: #1f3a2f;
-    --live-ink: #bfe3d2;
-    --pending-bg: #3d3216;
-    --pending-ink: #ecd9a0;
-    --off-bg: #2a312e;
-    --off-ink: #c4ccc7;
-    --focus: #f0c674;
-    --warn-bg: #2b2a1c;
-  }
+@font-face {
+  font-family: "League Spartan";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./fonts/league-spartan-latin-ext.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
-:root[data-theme="dark"] {
-  --bg: #121816;
-  --card: #1a2220;
-  --ink: #e7ebe6;
-  --muted: #b3bdb7;
-  --line: #3b4742;
-  --accent: #8fc4ae;
-  --accent-ink: #0e1a15;
-  --live-bg: #1f3a2f;
-  --live-ink: #bfe3d2;
-  --pending-bg: #3d3216;
-  --pending-ink: #ecd9a0;
-  --off-bg: #2a312e;
-  --off-ink: #c4ccc7;
-  --focus: #f0c674;
-  --warn-bg: #2b2a1c;
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/roboto-400-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/roboto-400-latin-ext.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("./fonts/roboto-500-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("./fonts/roboto-500-latin-ext.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* Orthography characters Roboto lacks, so a name a person types still renders.
+   Basic Latin stays in the range so a letter and its combining mark shape in
+   one face. */
+@font-face {
+  font-family: "Noto Sans Orthography";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/noto-sans-orthography.woff2") format("woff2");
+  unicode-range:
+    U+0020, U+0041-005A, U+0061-007A, U+00B7, U+010D, U+0141-0142, U+015B,
+    U+015D, U+0161, U+016B, U+019B, U+01C0-01C3, U+0250-02FF, U+0300-036F,
+    U+03B8, U+03BB, U+1E00-1EFF, U+2C60-2C7F, U+A78B-A78C;
+}
+/* Metric-matched local fallbacks, so text does not jump when the fonts arrive. */
+@font-face {
+  font-family: "Roboto Fallback";
+  src:
+    local("Arial"), local("ArialMT"), local("Liberation Sans"),
+    local("Helvetica");
+  size-adjust: 99.47%;
+  ascent-override: 93.27%;
+  descent-override: 24.54%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "League Spartan Fallback";
+  src:
+    local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold"),
+    local("Helvetica Bold");
+  size-adjust: 90.4%;
+  ascent-override: 77.43%;
+  descent-override: 24.34%;
+  line-gap-override: 0%;
+}
+/* Document faces for the print view; fetched only when a page is printed. */
+@font-face {
+  font-family: "Lexend Deca";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./fonts/LexendDeca-Regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Lexend Deca";
+  font-style: normal;
+  font-weight: 600;
+  src: url("./fonts/LexendDeca-SemiBold.ttf") format("truetype");
 }
 
-* {
+/* 2. Tokens. Dark is the default ground; the light theme is opt-in. */
+:root {
+  color-scheme: dark;
+  --ground: #010b13;
+  --raised: #141414;
+  --overlay: #1e242c;
+  --overlay-hover: #2a313b;
+  --hair: #23262c;
+  --text: #e8ecf0;
+  --strong: #ffffff;
+  --muted: #8a94a6;
+  --grey: #98a1b4;
+  --red: #e13d33;
+  --link: #f26b5e;
+  --magenta: #9732b4;
+  --line: #8a94a6;
+  --leader: #8a94a6;
+  --primary: #e13d33;
+  --primary-hover: #ea5046;
+  --primary-ink: #010b13;
+  --chip-on: #98a1b4;
+  --chip-on-ink: #010b13;
+  --chip-on-ring: #e8ecf0;
+  --focus: #e8ecf0;
+  --dialog: #1e242c;
+  --dialog-hair: #2a313b;
+  --scrim: rgb(1 11 19 / 0.87);
+  --caret: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M0 0h10L5 6z' fill='%238A94A6'/%3E%3C/svg%3E");
+  --check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6.2 5 9l5-6' fill='none' stroke='%23010B13' stroke-width='2'/%3E%3C/svg%3E");
+  --display: "League Spartan", "League Spartan Fallback", Arial, sans-serif;
+  --body:
+    "Roboto", "Noto Sans Orthography", "Roboto Fallback", system-ui,
+    -apple-system, "Segoe UI", Arial, sans-serif;
+  --mono: "Cascadia Code", "Cascadia Mono", Consolas, ui-monospace, monospace;
+  --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --ground: #ffffff;
+  --raised: #f4f7fb;
+  --overlay: #e8ecf0;
+  --overlay-hover: #d9dfe6;
+  --hair: #e7ecf3;
+  --text: #3b3b3b;
+  --strong: #010b13;
+  --muted: #636363;
+  --grey: #636363;
+  --link: #b02821;
+  --line: #636363;
+  --leader: #636363;
+  --primary: #b02821;
+  --primary-hover: #99221c;
+  --primary-ink: #ffffff;
+  --chip-on: #3b3b3b;
+  --chip-on-ink: #ffffff;
+  --chip-on-ring: #010b13;
+  --focus: #010b13;
+  --dialog: #ffffff;
+  --dialog-hair: #e7ecf3;
+  --scrim: rgb(1 11 19 / 0.55);
+  --caret: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M0 0h10L5 6z' fill='%23636363'/%3E%3C/svg%3E");
+  --check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6.2 5 9l5-6' fill='none' stroke='%23FFFFFF' stroke-width='2'/%3E%3C/svg%3E");
+}
+
+/* 3. Base */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+  border-radius: 0;
 }
 html {
   -webkit-text-size-adjust: 100%;
 }
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font:
-    1rem/1.55 "Poppins",
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  background: var(--ground);
+  color: var(--text);
+  font: 400 1rem/1.5 var(--body);
+  font-kerning: normal;
 }
-.shell {
-  max-width: 78rem;
-  margin: 0 auto;
-  padding: 1rem 1rem 3rem;
-}
-h1 {
-  font-size: clamp(1.5rem, 4.5vw, 2.1rem);
-  line-height: 1.15;
-  margin: 0.4rem 0 0.4rem;
-}
-h2 {
-  font-size: 1.2rem;
-  margin: 0 0 0.75rem;
-}
-h3 {
-  font-size: 1.02rem;
-  margin: 0 0 0.25rem;
-  line-height: 1.3;
-}
+h1,
+h2,
+h3,
 h4 {
-  font-size: 0.98rem;
-  margin: 0.9rem 0 0.4rem;
+  margin: 0;
+  color: var(--strong);
+  font-family: var(--display);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+p,
+ul,
+dl,
+dd,
+blockquote,
+fieldset {
+  margin: 0;
 }
 p {
-  margin: 0 0 0.75rem;
-  max-width: 68ch;
+  text-wrap: pretty;
+}
+ul {
+  padding: 0;
+  list-style: none;
+}
+strong,
+b {
+  color: var(--strong);
+  font-family: var(--display);
+  font-weight: 600;
 }
 a {
-  color: var(--accent);
-  text-underline-offset: 0.18em;
+  color: var(--link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
 }
 :focus-visible {
-  outline: 3px solid var(--focus);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
+}
+.mono,
+code {
+  font-family: var(--mono);
+  font-size: 0.95em;
+  font-weight: 350;
+  font-variant-ligatures: none;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.eyebrow {
+  padding: 0;
+  color: var(--muted);
+  font: 500 0.75rem/1.4 var(--display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.help,
+.live {
+  max-width: 68ch;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+.live {
+  min-height: 1.25rem;
+}
+/* A status line with nothing to say takes no room but stays a live region. */
+.pane .live:empty {
+  min-height: 0;
+  margin: 0;
+}
+/* A problem to act on: the one red status mark, then plain words. */
+.notice {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  max-width: 68ch;
+  color: var(--strong);
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+.notice::before {
+  flex: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  background: var(--red);
+  content: "";
+}
+/* Notices and the citation status sit under the header, outside the panes, so
+   they are seen and announced whichever pane is in front. The region is always
+   rendered; with nothing to say it takes no room. */
+.notes {
+  display: grid;
+  gap: 0.375rem;
+  padding-inline: 1rem;
+}
+.notes:not(:empty) {
+  padding-block: 0.5rem;
+  border-bottom: 1px solid var(--hair);
+}
+/* The strip runs the full width, so a message keeps to one line where it can. */
+.notes > * {
+  max-width: none;
 }
 .skip {
   position: absolute;
-  left: -999px;
-  top: 0;
-  background: var(--card);
-  color: var(--ink);
-  padding: 0.5rem 0.75rem;
+  top: 0.5rem;
+  left: -999rem;
   z-index: 10;
+  padding: 0.5rem 0.75rem;
+  background: var(--overlay);
+  color: var(--strong);
 }
 .skip:focus {
   left: 0.5rem;
-  top: 0.5rem;
 }
-.sr {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
-.status {
-  background: var(--warn-bg);
-  border-left: 4px solid var(--pending-ink);
-  padding: 0.6rem 0.8rem;
-  border-radius: 4px;
-  font-weight: 500;
-}
-.intro p,
-.limits {
-  color: var(--ink);
-}
-.limits {
-  font-size: 0.93rem;
-  color: var(--muted);
-}
-.grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: 1fr;
-}
-@media (min-width: 62rem) {
-  .grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: start;
-  }
-}
-.col {
-  display: grid;
-  gap: 1rem;
-  min-width: 0;
-}
-.card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 1rem;
-  min-width: 0;
-}
-fieldset {
-  border: 0;
-  padding: 0;
-  margin: 0 0 1rem;
-  min-width: 0;
-}
-legend,
-.group-name,
-.field {
-  font-weight: 600;
-  font-size: 0.92rem;
-}
-.group-name {
-  margin: 0.5rem 0 0.25rem;
-  color: var(--muted);
-}
-.source {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  column-gap: 0.6rem;
-  row-gap: 0.1rem;
-  align-items: center;
-  padding: 0.5rem 0.6rem;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  margin-bottom: 0.4rem;
-  cursor: pointer;
-}
-.source.key_pending,
-.source.unknown,
-.source.not_available {
-  cursor: default;
-  opacity: 0.92;
-}
-.source input {
-  grid-row: 1 / span 2;
-  width: 1.1rem;
-  height: 1.1rem;
-}
-.source-name {
-  min-width: 0;
-  overflow-wrap: anywhere;
-  font-weight: 600;
-}
-.source-note {
-  grid-column: 2 / span 2;
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-.badge {
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.1rem 0.5rem;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-.badge.live {
-  background: var(--live-bg);
-  color: var(--live-ink);
-}
-.badge.key_pending {
-  background: var(--pending-bg);
-  color: var(--pending-ink);
-}
-.badge.not_available,
-.badge.unknown {
-  background: var(--off-bg);
-  color: var(--off-ink);
-}
-.row {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-input[type="search"],
-textarea {
-  font: inherit;
-  color: var(--ink);
-  background: var(--bg);
-  border: 1px solid var(--muted);
-  border-radius: 6px;
-  padding: 0.55rem 0.7rem;
-  width: 100%;
-}
-.row input[type="search"] {
-  flex: 1 1 14rem;
-  width: auto;
-  min-width: 0;
-}
-.field.small {
-  display: block;
-  margin: 0.5rem 0;
-}
-.field.small textarea {
-  display: block;
-  margin-top: 0.25rem;
-  font-weight: 400;
-}
+
+/* 4. Controls */
 button,
-.actions a {
+input,
+select,
+textarea {
+  margin: 0;
   font: inherit;
-  font-size: 0.92rem;
-  border-radius: 6px;
-  padding: 0.5rem 0.8rem;
-  min-height: 2.5rem;
-  border: 1px solid var(--accent);
-  background: transparent;
-  color: var(--accent);
-  cursor: pointer;
 }
-button.primary {
-  background: var(--accent);
-  color: var(--accent-ink);
-}
-button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-  max-width: none;
-}
-.actions a {
-  text-decoration: none;
+.btn,
+.chip {
   display: inline-flex;
   align-items: center;
+  border: 0;
+  background: var(--overlay);
+  color: var(--strong);
+  font-family: var(--display);
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
 }
-.help {
-  font-size: 0.85rem;
+.btn {
+  justify-content: center;
+  min-height: 2.5rem;
+  /* League Spartan sits high in its box; the top padding centres it by eye. */
+  padding: 0.1875rem 0.875rem 0;
+  font-size: 0.9375rem;
+}
+.btn:hover,
+.chip:hover {
+  background: var(--overlay-hover);
+}
+/* Buttons that act say they are off with aria-disabled, so they keep focus. */
+.btn:disabled,
+.btn[aria-disabled="true"],
+.chip:disabled {
+  background: var(--overlay);
+  color: var(--muted);
+  cursor: default;
+}
+/* Primary action: the pane's one red fill, its label set bottom right. */
+.btn.primary {
+  align-items: flex-end;
+  justify-content: flex-end;
+  min-height: 3.25rem;
+  padding: 0 0.75rem 0.4375rem;
+  background: var(--primary);
+  color: var(--primary-ink);
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+.btn.primary:hover {
+  background: var(--primary-hover);
+}
+.btn.primary[aria-disabled="true"] {
+  background: var(--overlay);
   color: var(--muted);
 }
 .chips {
-  list-style: none;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  padding: 0;
-  margin: 0;
+  gap: 0.375rem;
 }
 .chip {
-  border-radius: 999px;
-  font-size: 0.85rem;
+  gap: 0.5rem;
   min-height: 2.25rem;
+  padding: 0.1875rem 0.75rem 0;
+  font-size: 0.875rem;
+  text-align: left;
 }
-.live {
+/* Chips, not tabs: the chosen one is grey-inverted with an inset ring. */
+.chip[aria-pressed="true"] {
+  background: var(--chip-on);
+  box-shadow: inset 0 0 0 2px var(--chip-on-ring);
+  color: var(--chip-on-ink);
+}
+.chip .n {
   color: var(--muted);
-  font-size: 0.92rem;
-  min-height: 1.4em;
+  font: 400 0.75rem/1 var(--mono);
+  font-variant-numeric: tabular-nums;
 }
-.results,
-.cited,
-.issues {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.chip[aria-pressed="true"] .n {
+  color: inherit;
 }
-.result,
-.cited li,
-.issue {
-  border-top: 1px solid var(--line);
-  padding: 0.8rem 0;
+/* Instrument field: overlay shade with a line under it. */
+input[type="search"],
+input[type="text"],
+select,
+textarea {
+  display: block;
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.625rem;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background-color: var(--overlay);
+  color: var(--strong);
+  font: 400 1rem/1.4 var(--body);
 }
-.result:first-child,
-.cited li:first-child {
-  border-top: 0;
+textarea {
+  resize: vertical;
 }
-.cite {
-  font-size: 0.88rem;
-  color: var(--muted);
+select {
+  appearance: none;
+  padding-right: 2rem;
+  background-image: var(--caret);
+  background-position: right 0.75rem center;
+  background-size: 0.625rem;
+  background-repeat: no-repeat;
 }
-.summary {
-  font-size: 0.92rem;
+input[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+  border-bottom-color: var(--red);
+  box-shadow: inset 0 -1px 0 var(--red);
 }
-blockquote {
-  margin: 0 0 0.5rem;
-  padding: 0.4rem 0.8rem;
-  border-left: 4px solid var(--accent);
-  background: var(--bg);
-  overflow-wrap: anywhere;
-}
-details {
-  margin: 0.3rem 0;
-  font-size: 0.9rem;
-}
-summary {
+/* A checkbox is a larger status mark: outline when off, filled when on. */
+input[type="checkbox"] {
+  appearance: none;
+  flex: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  background: var(--overlay);
+  box-shadow: inset 0 0 0 1px var(--line);
   cursor: pointer;
-  color: var(--accent);
-  font-weight: 500;
 }
-dl {
-  margin: 0.4rem 0;
+input[type="checkbox"]:checked {
+  background: var(--strong) var(--check) center / 0.75rem no-repeat;
+  box-shadow: none;
 }
-dt {
-  font-weight: 600;
-  font-size: 0.85rem;
-  margin-top: 0.4rem;
+input[type="checkbox"]:disabled {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--overlay-hover);
+  cursor: default;
 }
-dd {
-  margin: 0;
-  overflow-wrap: anywhere;
-  font-size: 0.9rem;
+.field {
+  display: block;
+  color: var(--strong);
+  font: 500 0.875rem/1.3 var(--display);
 }
-code {
-  font-size: 0.78rem;
-  overflow-wrap: anywhere;
+.field + input,
+.field + select,
+.field > textarea {
+  margin-top: 0.375rem;
 }
 .check {
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  font-size: 0.9rem;
-  min-height: 2.25rem;
+  width: fit-content;
+  min-height: 2rem;
+  color: var(--strong);
+  font: 500 0.875rem/1.3 var(--display);
+  cursor: pointer;
 }
-.check input {
-  width: 1.15rem;
-  height: 1.15rem;
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
 }
-.notice {
-  background: var(--warn-bg);
-  padding: 0.6rem 0.8rem;
-  border-radius: 6px;
+.actions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding-top: 0.1875rem;
+  font: 500 0.9375rem/1.2 var(--display);
 }
-.policy-title {
-  font-size: 1.05rem;
+
+/* 5. Rows and marks. The signature: a row ends in its citation or status at
+   the end of a dashed leader. */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.5rem;
+  align-items: baseline;
+  min-width: 0;
+  font-size: 0.8125rem;
 }
-.result h3,
-.cited h3,
-.policy-title,
-.notice,
-.live {
+.row-k {
+  min-width: 0;
   overflow-wrap: anywhere;
 }
-.count {
-  color: var(--muted);
-  font-weight: 400;
+.leader {
+  position: relative;
+  top: -0.25em;
+  flex: 1 1 1.5rem;
+  min-width: 1.5rem;
+  border-bottom: 1px dashed var(--leader);
 }
-.foot {
-  margin-top: 1.5rem;
-  font-size: 0.85rem;
-  color: var(--muted);
+/* In a narrow pane the value drops to its own line, still at the right edge. */
+.row-v {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  margin-left: auto;
+  color: var(--strong);
+  text-align: right;
+  overflow-wrap: anywhere;
 }
-.print-only {
+/* A leader never runs to an empty edge. An issuing body can be any length, so
+   the Issues header pair is always stacked; a result row stacks where its pane
+   is too narrow for the source, a leader and a Federal Register citation. */
+.detail > .row {
+  flex-direction: column;
+}
+.detail > .row .leader {
   display: none;
 }
+.detail > .row .row-v {
+  margin-left: 0;
+  text-align: left;
+}
+.pane-results {
+  container-type: inline-size;
+}
+@container (max-width: 24rem) {
+  .result > .row {
+    flex-direction: column;
+  }
+  .result > .row .leader {
+    display: none;
+  }
+  .result > .row .row-v {
+    margin-left: 0;
+    text-align: left;
+  }
+}
+.rows > li + li {
+  margin-top: 0.25rem;
+}
+/* 12px squares: filled is live or complete, half is pending, outline is not
+   available or empty. */
+.mark {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  box-shadow: inset 0 0 0 1px var(--grey);
+}
+.mark.is-full {
+  background: var(--text);
+  box-shadow: none;
+}
+.mark.is-half {
+  box-shadow: inset 0 0 0 1px var(--text);
+}
+.mark.is-half::after {
+  position: absolute;
+  inset: 0 50% 0 0;
+  background: var(--text);
+  content: "";
+}
+/* Tribal Magenta: only the square beside the framework line. */
+.mark.is-land {
+  background: var(--magenta);
+  box-shadow: none;
+}
+.status {
+  display: inline-flex;
+  gap: 0.375rem;
+  align-items: center;
+  max-width: none;
+  color: var(--text);
+  white-space: nowrap;
+}
+.source {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding: 0.3125rem 0;
+}
+.source .row-k {
+  color: var(--strong);
+  font: 500 0.9375rem/1.3 var(--display);
+}
+.source-note {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+label.source {
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 0.625rem;
+  align-items: center;
+  cursor: pointer;
+}
+label.source .source-note {
+  grid-column: 2;
+}
+.source.is-off {
+  cursor: default;
+}
+.source.is-off .row-k,
+.source.is-off .status {
+  color: var(--muted);
+}
+/* Short facts side by side, parted by space and a hairline, never a dot. */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+.meta > li {
+  margin: 0 1.5rem 0 calc(-0.75rem - 1px);
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--hair);
+  overflow-wrap: anywhere;
+}
+.also {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+/* Room inside the clipped list for the whole focus ring of a link. */
+.also .meta {
+  margin: -4px;
+  padding: 4px;
+}
+.tsdf {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
 
-/* Embedded in another page: tighter and quieter. */
-html.embed .shell {
-  padding: 0.5rem 0.75rem 1rem;
+/* 6. Frame: header strip, panes, footer strip. */
+.shell {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-height: 100dvh;
 }
-html.embed h1 {
-  font-size: 1.2rem;
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+  min-height: 3.25rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--hair);
+  background: var(--ground);
 }
-html.embed .status {
-  font-size: 0.85rem;
-  padding: 0.4rem 0.6rem;
+.head h1 {
+  display: flex;
+  gap: 0.625rem;
+  align-items: baseline;
+  margin-right: auto;
+  padding-top: 0.1875rem;
+  font-size: 1.125rem;
+  white-space: nowrap;
 }
-html.embed .card {
-  padding: 0.75rem;
+.head .quiet {
+  display: none;
+  color: var(--muted);
+  font: 400 0.8125rem/1 var(--body);
+  letter-spacing: 0;
 }
-html.embed .grid {
-  grid-template-columns: 1fr;
+.head-actions {
+  display: flex;
+  gap: 0.375rem;
+}
+.head .btn {
+  min-height: 2.25rem;
+  padding-inline: 0.625rem;
+  font-size: 0.875rem;
+}
+.panes {
+  display: grid;
+  flex-basis: 100%;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.25rem;
+  order: 3;
+}
+.panes .chip {
+  justify-content: center;
+  padding-inline: 0.25rem;
+}
+main {
+  min-width: 0;
+}
+.pane {
+  display: none;
+  min-width: 0;
+  padding: 1rem 1rem 2rem;
+  animation: fade 450ms var(--ease) both;
+}
+.pane:focus-visible,
+.pane-scroll:focus-visible {
+  outline-offset: -2px;
+}
+.shell[data-pane="search"] .pane-search,
+.shell[data-pane="results"] .pane-results,
+.shell[data-pane="issues"] .pane-issues,
+.shell[data-pane="report"] .pane-report {
+  display: block;
+}
+/* Rails sit one shade up; the working field stays on the ground. */
+.pane-search,
+.pane-report {
+  background: var(--raised);
+}
+.foot {
+  display: none;
+}
+@media (max-width: 63.99rem) and (min-height: 40rem) {
+  /* Clear of the sticky header where it takes two rows of controls. */
+  html {
+    scroll-padding-top: 9rem;
+  }
+  .head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+}
+/* On a phone the header actions fit beside the title in both themes. */
+@media (max-width: 29.99rem) {
+  .head .btn {
+    padding-inline: 0.5rem;
+  }
+}
+@media (min-width: 30rem) {
+  .head .quiet {
+    display: inline;
+  }
+}
+@media (min-width: 64rem) {
+  .head {
+    flex-wrap: nowrap;
+    padding-inline: 1.5rem;
+  }
+  .panes {
+    display: flex;
+    flex-basis: auto;
+    order: 0;
+    margin-right: 0.75rem;
+  }
+  .panes .chip {
+    padding-inline: 0.75rem;
+  }
+  /* Search and Results are always in view here, so their chips do nothing. */
+  .chip-search,
+  .chip-results {
+    display: none;
+  }
+  /* The rails are their design width plus the scrollbar gutter each pane keeps. */
+  main {
+    display: grid;
+    grid-template-columns: 20.625rem minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .notes {
+    grid-column: 1 / -1;
+    padding-inline: 1.5rem;
+  }
+  .pane {
+    padding: 1.25rem 1.5rem 2rem;
+  }
+  .shell .pane-search,
+  .shell .pane-results,
+  .shell:not([data-pane="report"]) .pane-issues {
+    display: block;
+  }
+  .pane-issues {
+    border-left: 1px solid var(--hair);
+  }
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 2rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.4375rem 1.5rem;
+    border-top: 1px solid var(--hair);
+    color: var(--muted);
+    font-size: 0.75rem;
+  }
+  .foot .meta {
+    font-size: inherit;
+  }
+  /* The framework line keeps the bottom right corner when the strip wraps. */
+  .foot .tsdf {
+    margin-left: auto;
+  }
+}
+@media (min-width: 100rem) {
+  .panes {
+    display: none;
+  }
+  main {
+    grid-template-columns: 21.625rem minmax(0, 1fr) minmax(0, 1fr) 25.625rem;
+  }
+  .shell .pane-issues,
+  .shell .pane-report {
+    display: block;
+  }
+}
+/* The application frame: the page does not scroll, each pane does. Short or
+   narrow viewports keep ordinary page scroll so zoom and reflow still work. */
+@media (min-width: 64rem) and (min-height: 34rem) {
+  .shell {
+    height: 100dvh;
+    overflow: hidden;
+  }
+  main {
+    min-height: 0;
+  }
+  /* The thumb is the one lasting sign that a pane scrolls, so it is set in the
+     muted text colour (over 3:1 on every surface). The gutter is kept whether
+     or not the pane overflows, so content does not shift when a bar appears. */
+  .pane,
+  .pane-scroll {
+    min-height: 0;
+    overflow: auto;
+    scrollbar-color: var(--muted) transparent;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+  }
+  /* Export stays at hand at the foot of the rail: it is a row of the pane under
+     the list's own scroll area, so no field can sit under it. */
+  .pane-report {
+    grid-template-rows: minmax(0, 1fr) auto;
+    padding: 0;
+    overflow: hidden;
+    scrollbar-gutter: auto;
+  }
+  .shell[data-pane="report"] .pane-report {
+    display: grid;
+  }
+  .pane-scroll {
+    padding: 1.25rem 1.5rem;
+  }
+  /* The same gutter as the list above, so the two right edges line up. */
+  .pane-report .export {
+    margin-top: 0;
+    padding: 1rem 1.5rem 1.25rem;
+    overflow: hidden;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+  }
+}
+@media (min-width: 100rem) and (min-height: 34rem) {
+  .shell .pane-report {
+    display: grid;
+  }
+}
+html.embed .head {
+  min-height: 2.5rem;
+  padding-block: 0.25rem;
+}
+html.embed .head h1 {
+  font-size: 1rem;
 }
 
+/* 7. Panes */
+.pane > h2,
+.pane-scroll > h2 {
+  font-size: 1.5rem;
+}
+.pane > * + *,
+.pane-scroll > * + *,
+form > * + *,
+.detail > * + * {
+  margin-top: 0.75rem;
+}
+.zone {
+  min-width: 0;
+  margin-top: 1.25rem;
+  padding: 1rem 0 0;
+  border: 0;
+  border-top: 1px solid var(--hair);
+}
+.zone > * + * {
+  margin-top: 0.5rem;
+}
+/* A floated legend sits inside the zone, under its hairline like the others. */
+fieldset.zone > legend {
+  float: left;
+  width: 100%;
+}
+fieldset.zone > legend + * {
+  clear: both;
+}
+.pane-search .primary {
+  width: 100%;
+  margin-top: 0.875rem;
+}
+.pane-search .chip {
+  white-space: normal;
+}
+
+/* Status rows run to the same right edge as the result rows under them; the
+   notes keep their own reading measure. */
+.pane-results .live {
+  max-width: none;
+}
+.pane-results .live > p:first-child {
+  color: var(--text);
+  font-size: 0.9375rem;
+}
+.pane-results .live > * + * {
+  margin-top: 0.5rem;
+}
+.results {
+  animation: fade 450ms var(--ease) both;
+}
+.result {
+  position: relative;
+  padding: 1rem 0 1.125rem;
+  border-top: 1px solid var(--hair);
+}
+/* The row being read: a 2px mark in the pane's margin, so titles stay aligned. */
+.result.is-here::before {
+  position: absolute;
+  top: 1rem;
+  bottom: 1.125rem;
+  left: -0.75rem;
+  width: 2px;
+  background: var(--focus);
+  content: "";
+}
+.result > * + * {
+  margin-top: 0.5rem;
+}
+.result h3,
+.policy-title {
+  max-width: 44rem;
+  font-size: 1.125rem;
+  line-height: 1.25;
+}
+.summary {
+  max-width: 68ch;
+  font-size: 0.875rem;
+}
+.result .actions {
+  margin-top: 0.75rem;
+}
+
+.receipt {
+  padding: 0.75rem 0.875rem;
+  background: var(--raised);
+  font-size: 0.8125rem;
+}
+.receipt dt,
+details dt {
+  margin-top: 0.625rem;
+  color: var(--muted);
+  font: 500 0.8125rem/1.3 var(--display);
+}
+.receipt dt:first-child {
+  margin-top: 0;
+}
+.receipt dd {
+  display: grid;
+  gap: 0.125rem;
+  margin-top: 0.125rem;
+  overflow-wrap: anywhere;
+}
+.receipt a {
+  color: var(--text);
+}
+.receipt code {
+  color: var(--strong);
+  font-size: 0.75rem;
+}
+.group {
+  margin-top: 1.25rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid var(--hair);
+}
+.group h4 {
+  font-size: 1rem;
+}
+.issue {
+  padding: 0.875rem 0;
+}
+.issue + .issue {
+  border-top: 1px solid var(--hair);
+}
+.issue > * + * {
+  margin-top: 0.5rem;
+}
+/* The flagged passage, as the document sets it: tint and a red bar. */
+blockquote,
+.assessment {
+  max-width: 68ch;
+  padding: 0.625rem 0.875rem;
+  background: var(--raised);
+  overflow-wrap: anywhere;
+}
+blockquote {
+  box-shadow: inset 2px 0 0 var(--red);
+}
+details {
+  font-size: 0.875rem;
+}
+summary {
+  width: fit-content;
+  color: var(--strong);
+  font: 500 0.875rem/1.5 var(--display);
+  cursor: pointer;
+}
+details dl {
+  max-width: 68ch;
+  padding: 0 0 0.25rem 0.875rem;
+}
+details dt {
+  margin-top: 0.5rem;
+}
+
+.cited > li {
+  padding: 0.875rem 0;
+}
+.cited > li + li {
+  border-top: 1px solid var(--hair);
+}
+.cited > li > * + * {
+  margin-top: 0.5rem;
+}
+.cited h4 {
+  font-size: 1rem;
+  line-height: 1.25;
+}
+.cited-id {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.cited .row {
+  color: var(--muted);
+}
+.actor > .row {
+  align-items: baseline;
+}
+.actor > input,
+.actor > textarea {
+  margin-top: 0.25rem;
+}
+.export {
+  margin-top: 1.25rem;
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--hair);
+}
+.export .primary {
+  flex: 1 1 9rem;
+}
+.export .btn:not(.primary) {
+  min-height: 3.25rem;
+}
+.export .live {
+  margin-top: 0.5rem;
+}
+
+/* 8. About and Limits dialog */
+.about {
+  width: min(46rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  border: 0;
+  background: var(--dialog);
+  color: var(--text);
+  --hair: var(--dialog-hair);
+  /* The dialog itself scrolls, so the keys scroll it from the Close button,
+     where focus lands, and never the page behind it. */
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.about[open] {
+  display: block;
+}
+.about::backdrop {
+  background: var(--scrim);
+}
+.about-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid var(--hair);
+  background: var(--dialog);
+}
+.about-head h2 {
+  padding-top: 0.25rem;
+  font-size: 1.5rem;
+}
+.about .btn {
+  background: var(--overlay-hover);
+}
+.about-body {
+  padding: 0 1.25rem 1.5rem;
+}
+.about-body section {
+  padding-top: 1.125rem;
+}
+.about-body section + section {
+  margin-top: 1.125rem;
+  border-top: 1px solid var(--hair);
+}
+.about-body h3 {
+  font-size: 1.0625rem;
+}
+.about-body section > * + * {
+  margin-top: 0.5rem;
+}
+.about-body p {
+  max-width: 68ch;
+}
+
+/* 9. Motion: a pane coming to the front and results arriving fade in; a red
+   block cursor blinks while a search runs. Nothing else moves. */
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+.cursor {
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-left: 0.3em;
+  background: var(--red);
+  vertical-align: -0.15em;
+  animation: blink 1.05s steps(1) infinite;
+}
 @media (prefers-reduced-motion: reduce) {
   * {
     animation: none !important;
@@ -438,60 +1160,172 @@ html.embed .grid {
     scroll-behavior: auto !important;
   }
 }
+/* Forced colours drop the fills this page uses for shape and state, so edges
+   and marks are redrawn in system colours. */
+@media (forced-colors: active) {
+  input[type="checkbox"] {
+    appearance: auto;
+  }
+  .btn,
+  .chip {
+    border: 1px solid ButtonText;
+  }
+  .chip[aria-pressed="true"] {
+    background: Highlight;
+    box-shadow: none;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+  .mark,
+  .mark.is-half {
+    box-shadow: inset 0 0 0 1px CanvasText;
+    forced-color-adjust: none;
+  }
+  .mark.is-full,
+  .mark.is-land,
+  .mark.is-half::after,
+  .notice::before,
+  .cursor,
+  .result.is-here::before {
+    background: CanvasText;
+    box-shadow: none;
+    forced-color-adjust: none;
+  }
+}
 
+/* 10. Print document: always the light ATNI document style, whatever the
+   screen theme. The blocks come from the same model as the PDF. */
+.print-only {
+  display: none;
+}
 @media print {
+  @page {
+    size: letter;
+    margin: 0.75in 0.85in;
+  }
+  :root,
+  :root[data-theme] {
+    color-scheme: light;
+  }
   body {
-    background: #fff;
-    color: #000;
+    background: #ffffff;
+    color: #3b3b3b;
     font:
-      11pt/1.4 Georgia,
-      "Times New Roman",
-      serif;
+      400 9.6pt/1.5 "Lexend Deca",
+      "Noto Sans Orthography",
+      Arial,
+      sans-serif;
   }
   .screen-only {
     display: none !important;
   }
   .print-only {
     display: block;
-    padding: 0;
     overflow-wrap: anywhere;
-    --bg: #fff;
-    --ink: #000;
-    --muted: #222;
-    --accent: #000;
-    color-scheme: light;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .print-only h1,
+  .print-only h2 {
+    color: #010b13;
+    font-family: "League Spartan", Arial, sans-serif;
+  }
+  .print-only h1 {
+    margin-bottom: 10pt;
+    font-size: 30pt;
+    line-height: 1.02;
   }
   .print-only h2 {
-    margin-top: 1.2rem;
+    margin: 16pt 0 8pt;
+    font-size: 17pt;
     break-after: avoid;
   }
-  .print-only blockquote {
-    border-left: 2px solid #555;
-    background: none;
-    break-inside: avoid;
+  /* As the PDF sets it: clear of the block above and of the first row under it. */
+  .print-only h3 {
+    margin: 14pt 0 5pt;
+    color: #010b13;
+    font:
+      600 10.5pt/1.3 "Lexend Deca",
+      "Noto Sans Orthography",
+      Arial,
+      sans-serif;
+    letter-spacing: 0;
+    break-after: avoid;
   }
-  .print-only p {
+  .print-only p,
+  .print-only blockquote {
     max-width: none;
+    margin-bottom: 5pt;
     white-space: pre-wrap;
   }
-  .print-issue h3 {
-    break-after: avoid;
+  .print-only b {
+    color: #010b13;
+    font-family: inherit;
   }
-}
-
-@media (max-width: 36rem) {
-  .source {
-    grid-template-columns: auto minmax(0, 1fr);
+  .doc-eyebrow {
+    color: #b02821;
+    font-size: 8.4pt;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
-  .source input {
-    grid-row: 1 / span 3;
+  .doc-lede {
+    font:
+      500 13pt/1.4 "League Spartan",
+      Arial,
+      sans-serif;
   }
-  .source .badge {
-    grid-column: 2;
-    grid-row: 2;
-    justify-self: start;
+  /* A person's own note reads as body text; only the placeholder is quieter. */
+  .doc-small,
+  .doc-note.is-empty {
+    color: #636363;
   }
-  .source-note {
-    grid-column: 2;
+  /* A passage's detail lines stay with the passage across a page break. */
+  .doc-small {
+    font-size: 8pt;
+    line-height: 1.45;
+    break-before: avoid;
+  }
+  .doc-field {
+    display: grid;
+    grid-template-columns: 11.5em minmax(0, 1fr);
+    column-gap: 1em;
+    break-inside: avoid;
+  }
+  /* An ink rule over the first row of a group, so a heading above it reads as
+     a heading and not as a label with no value. */
+  :not(.doc-field) + .doc-field {
+    padding-top: 4pt;
+    border-top: 0.75pt solid #010b13;
+  }
+  .doc-ref {
+    display: grid;
+    grid-template-columns: 2.4em minmax(0, 1fr);
+    break-inside: avoid;
+  }
+  .doc-ref b {
+    color: #b02821;
+  }
+  .print-only blockquote,
+  .doc-assessment {
+    padding: 6pt 10pt;
+    background: #f4f7fb;
+    break-inside: avoid;
+  }
+  .print-only blockquote {
+    box-shadow: none;
+    border-left: 2pt solid #b02821;
+  }
+  .print-only hr {
+    margin: 10pt 0;
+    border: 0;
+    border-top: 1px solid #e7ecf3;
+  }
+  .doc-break {
+    break-after: page;
+  }
+  .doc-foot {
+    margin-top: 14pt;
+    padding-top: 6pt;
+    border-top: 1px solid #e7ecf3;
   }
 }

@@ -83,11 +83,17 @@ function sourceId(value: unknown): string {
 function officialUrl(value: unknown, source: string): string {
   const result = text(value, 4096);
   const url = new URL(result);
+  // The document prints this string as text, so it must be exactly the address
+  // the parser read: no second address after a space, in a query or a fragment.
+  // No official address the demo service builds carries a query or a fragment.
   if (
     url.protocol !== "https:" ||
     url.username ||
     url.password ||
     url.port ||
+    url.search ||
+    url.hash ||
+    url.href !== result ||
     !SOURCE_HOSTS[source].includes(url.hostname)
   )
     throw new Error("Invalid official URL");
@@ -124,6 +130,14 @@ export function citationValue(value: unknown): DemoCitation {
     throw new Error("Invalid policy date");
   if (typeof v.textAvailable !== "boolean")
     throw new Error("Invalid text availability");
+  // Reports saved before match keys existed carry none.
+  const matchKey = v.matchKey ?? null;
+  if (
+    matchKey !== null &&
+    (typeof matchKey !== "string" ||
+      !/^fr:[A-Za-z0-9][A-Za-z0-9-]{0,39}$/.test(matchKey))
+  )
+    throw new Error("Invalid match key");
   return {
     sourceId: source,
     identifier: text(v.identifier, 300),
@@ -136,6 +150,7 @@ export function citationValue(value: unknown): DemoCitation {
     retrievedAt: timestamp(v.retrievedAt),
     summary: v.summary === null ? null : text(v.summary, 20000, true),
     textAvailable: v.textAvailable,
+    matchKey,
   };
 }
 

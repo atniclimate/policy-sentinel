@@ -30,6 +30,8 @@ export interface DemoCitation {
   readonly summary: string | null;
   /** True when this demo can read the policy text and identify issues. */
   readonly textAvailable: boolean;
+  /** Cross-source identity of the same official document, such as "fr:2026-05577". Null when the source gives no shared identifier. */
+  readonly matchKey: string | null;
 }
 
 export interface DemoSearchResponse {

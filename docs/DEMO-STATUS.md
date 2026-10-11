@@ -1,14 +1,124 @@
 # Live demo status
 
 Updated 2026-10-10. Policy Sentinel 0.2.0 is in development. This page records
-maintenance of the separately authorized public demo under D-083, D-084 and
-D-093 in the [decision register](decision-register.md). General engine work
+maintenance of the separately authorized public demo under D-083, D-084, D-093
+and D-094 in the [decision register](decision-register.md). General engine work
 remains in [ROADMAP.yaml](../ROADMAP.yaml).
 
 GovInfo, Congress.gov and Regulations.gov were switched on in the demo on
-2026-10-10 and passed one bounded live check each. Earlier maintenance and
-validation receipts remain below as historical evidence; statements there that
-these three sources are switched off describe earlier checkpoints.
+2026-10-10 and passed one bounded live check each. The interface, document and
+provenance update below is built and committed locally. Its Worker change is
+deployed and passed a bounded live check of the match keys; publication of the
+page and the live acceptance run are not yet done and are recorded here when
+they happen. Earlier maintenance and validation receipts
+remain below as historical evidence; statements there that the three keyed
+sources are switched off, and descriptions of the earlier interface, describe
+earlier checkpoints.
+
+## Interface, document and provenance update, 2026-10-10
+
+Owner direction D-094. Source commits `05050d8` (shared logic), `98a74ce`
+(interface, document, Worker) and `d48626d` (review fixes and the rebuilt
+`docs/` output). [The handoff](handoffs/2026-10-10-demo-interface-document-update.md)
+holds the session ledger.
+
+What changed for a person using the page:
+
+- The page is a four-pane frame (Search, Results, Issues, Report) in the ATNI
+  Climate dark style with a light theme switch. It fills the window with no
+  page scroll at 1366 by 768 and larger; panes scroll on their own. On a phone
+  it is one pane at a time behind a chip row. Description, limits, privacy and
+  source notes are in one "About and Limits" dialog. A footer line carries the
+  short disclaimers and the Tiered Sovereign Data Framework 0.9.8 link.
+- Search scope is either federal sources, chosen with checkboxes, or one state
+  from a drop-down. Each checked federal source is asked separately and reports
+  its own count or failure. Congress.gov is skipped unless the terms are one
+  bill reference.
+- When official sources return the same Federal Register document number, one
+  row is shown: the Federal Register record when that source lists it, then
+  GovInfo, then Regulations.gov. The other listings stay linked. Matching is
+  the exact shared number only. The Worker adds that number as a match key; the
+  Regulations.gov field (`frDocNum`) was confirmed in the provider's OpenAPI
+  specification on 2026-10-10.
+- Export and Print view require five data actor entries typed by the person
+  exporting: name, role, organization or Nation, sharing with, and purpose.
+  They stay in the browser tab and the exported file and are not verified.
+- The PDF and the print view render one shared document: cover with the data
+  actor entries, one section per policy with a provenance block, a Data Actors
+  and Sharing section, numbered IEEE-style references, and Data Provenance and
+  Sovereignty Notes. The PDF embeds League Spartan and Lexend Deca and falls
+  back to Helvetica when the font files cannot be loaded.
+
+Statements corrected by independent review, now on the page and in the document:
+
+- The demo has no Tribal code source and no Tribal government source, and
+  searches federal and state government sources only. A federal source can
+  itself publish a Tribal government document, such as an ordinance printed in
+  a Federal Register notice, and the demo does not detect or exclude one. The
+  earlier sentence on this page that the demo "uses no" such documents was
+  stronger than the code. Whether to filter such results is an open owner
+  decision.
+- Showing issues for a policy, or citing it, sends that policy's public
+  identifier to the demo service, which may keep the text it read, by
+  identifier, for up to a day. Searches are still not logged or saved.
+- The framework notice claims no certification or conformance and does not say
+  who a person's notes or entries belong to.
+- The Policy Sentinel reference carries the title, version and repository
+  address only. An author and publisher line waits for the owner, because the
+  README describes this project as independent.
+
+Checks at `d48626d`, all on local synthetic material with no request to the
+deployed Worker or any government host:
+
+| Check | Result |
+| --- | --- |
+| Demo tests | 329 passed in 11 files. |
+| Full `npm run check` | Exit 0 on the final tree with these records: every validation and test stage passed, 2,398 unit tests in 119 files, and the ordinary synthetic build and artifact validation. |
+| Scripted pointer and keyboard walk | 394 of 394 checks in 12 runs at 1920 by 1080, 1366 by 768 and 390 by 844, both themes, run before the last wording edits. |
+| Automated accessibility | No WCAG 2.0, 2.1 or 2.2 A or AA violation in 138 state runs. |
+| Acceptance script, built page against a local mock | 82 of 82, after the last edits; request budget unchanged at two catalog reads, one search and one policy read. |
+| Protected paths | Byte-identical to `e3f4c64`; private-context files unreachable from both demo entries. |
+
+Five independent reviews (code, accessibility, design, sovereignty and privacy,
+security) confirmed 46 findings after a second agent challenged each one; 12
+more were rejected. All confirmed majors are fixed.
+
+Worker deployment and live check of the match keys. Worker version
+`dd22a664-101a-49a3-984b-cad69de53f49`, built from source commit `c5907f1`,
+serves 100% of traffic from 2026-10-11 at 00:10:07 UTC with owner approval. No
+source, credential or Worker setting changed. Four requests followed, at 00:10
+UTC: the source catalog (the three keyed sources live, the state source named
+Washington State Legislature) and one phrase search of each of the Federal
+Register, GovInfo and Regulations.gov for a recent joint health-coverage rule.
+All three returned Federal Register document 2026-20447 with the same match
+key, so the rule the merge depends on holds for real responses from all three
+sources.
+
+That check also showed what invented responses had not: Regulations.gov lists a
+joint rule once per agency docket, three listings of one document in this case,
+and the first merge rule would have left two of them as extra rows. The page
+now merges every listing that shares the document number, from the same source
+or another, and names same-source listings by their identifiers. This is a
+page-side change with its own tests (330 demo tests pass); the Worker did not
+change again. The page-level merge on live responses is still to be seen on the
+published page.
+
+Known limits and items not done:
+
+- The page is not yet published, and the live acceptance run has not happened.
+  Until the page is published, the public site is the earlier interface running
+  against the new Worker, which it tolerates.
+- Not checked: Safari, Firefox, a screen reader, a physical print, and the PDF
+  in Acrobat, Preview or pdf.js.
+- The exported PDF is not tagged for screen readers; the dialog says so.
+- Letters outside the embedded PDF fonts, including letters used in some
+  Indigenous-language names, stop the PDF export with a message naming the
+  character; Print view is the fallback.
+- A search of four federal sources uses four of the 30 requests allowed per
+  address per minute. The limit is unchanged.
+- A very long list can hold the page for seconds while the PDF is built.
+- One new dependency, `@pdf-lib/fontkit` 1.1.1, pinned exactly. It has had no
+  release since 2020 and ships no licence text beside its MIT declaration.
 
 ## Keyed federal sources switched on, 2026-10-10
 
@@ -111,9 +221,11 @@ that an upstream service is answering at that moment. If the list cannot be
 loaded, the page shows an unchecked state and offers a retry. A failed policy
 read does not become a finding that wording is absent.
 
-The authorized material is public Tier 0 (T0) policy material. This demo uses no
-Tribal codes or Tribal government documents. It makes no Nation-specific
-relationship, rights, legal-effect or eligibility determination.
+The authorized material is public Tier 0 (T0) policy material. The demo has no
+Tribal code source and no Tribal government source; a federal source can still
+publish a Tribal government document, and the demo does not detect or exclude
+one (corrected 2026-10-10, see the update section above). It makes no
+Nation-specific relationship, rights, legal-effect or eligibility determination.
 
 ## What changed
 
