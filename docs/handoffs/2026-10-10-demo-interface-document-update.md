@@ -39,7 +39,9 @@ from the ATNI design system folder. The page makes no third-party request.
 | D-094 review fixes | `d48626d` | Fixes from five independent reviews, the Worker-to-page seam test, rebuilt `docs/`, three stale bundles removed. |
 | Records | `c5907f1` | Demo status, ledger evidence on GD-28 (existing demo assessment, repairs and local validation), README demo paragraph, this handoff. |
 | Worker deployment | `c5907f1` deployed | Worker version `dd22a664-101a-49a3-984b-cad69de53f49` at 100% from 2026-10-11 00:10:07 UTC, with owner approval. Four bounded live requests: all three sources returned Federal Register document 2026-20447 with one match key. |
-| Same-source listings | this commit | The live check showed Regulations.gov lists a joint rule once per agency docket. The page now merges every listing that shares the document number and names same-source listings by identifier. 330 demo tests pass; `docs/` rebuilt; the built page passes the acceptance dry run 82 of 82 against a local mock. |
+| Same-source listings | `c602468` | The live check showed Regulations.gov lists a joint rule once per agency docket. The page now merges every listing that shares the document number and names same-source listings by identifier. 330 demo tests pass; `docs/` rebuilt; the built page passes the acceptance dry run 82 of 82 against a local mock. |
+| D-095 follow-ups | `79d263b` | Version 0.6.0; the Policy Sentinel reference names ATNI Climate and the Affiliated Tribes of Northwest Indians; the ATNI seal in the header and on the document cover; rate limit 60 per minute per address; README attribution reconciled; 335 demo tests pass. Deployed as Worker version `969d1a24-f4de-4706-9fa9-24feae5f2503` from 2026-10-11 01:22:50 UTC on the owner's instruction to raise the rate. |
+| Planning rewrite (D-095) | this commit | `AGENTS.md` and `CLAUDE.md` rewritten short with the safeguards carried over; new `docs/STATUS.md` and `docs/PLAN.md`; the continuation prompt replaced by a pointer; `ROADMAP.yaml`, its validators and every test unchanged. The plan is the agent's proposal and its owner decisions are listed in `docs/STATUS.md`. `npm run check` exits 0 on this tree on the second of two runs; the first failed one intermittent study-workspace test that passes alone (recorded in `docs/STATUS.md`). |
 
 Work was run as three workflows (foundation, build, review) with lanes on
 disjoint files; the main session staged and committed. Evidence, screenshots
@@ -87,24 +89,19 @@ or a government host during D-094 work.
 3. Not checked by anyone: Safari, Firefox, a screen reader, a physical print,
    and the PDF in Acrobat, Preview or pdf.js.
 
-## Owner decisions open
+## Owner decisions
 
-- The author and publisher line for the Policy Sentinel reference, and whether
-  the README attribution paragraph (independent project, no endorsement
-  implied) should change with it.
-- Whether results that are Tribal government documents printed by a federal
-  source should be filtered, flagged or left as they are (D-083).
-- Whether to keep `@pdf-lib/fontkit` (unmaintained since 2020, no licence text
-  shipped) or return the PDF to Helvetica.
-- Body typeface on the page: Roboto under the 2026-10-04 web typography ruling,
-  or Lexend Deca as in the convention polish folder.
-- Whether the Worker's 30 requests per minute per address should rise now that
-  one search can use four.
-- Confirmation of the three other readings recorded in D-094 (source order for
-  duplicates, the five data actor entries, the reference format).
+D-095 answered the reference line (ATNI Climate, with the seal), the font
+library (kept), the body typeface (Roboto stays unless a closer face is found)
+and the rate limit (raised). The open decisions are now kept in one place,
+[the status page](../STATUS.md): the release definition, following, the key and
+terms for engine work, a Nation picker, the scope deferrals, archiving the
+ledger, pull requests and a license, and whether a Tribal government document
+printed by a federal source is filtered, flagged or left.
 
-## Gates that stay closed
+## What stays closed
 
-Every general-engine source, acquisition, publication and private-data gate.
-The demo exception under D-083, D-084, D-093 and D-094 covers the demo page, its
-Worker and its exported document only.
+Every general-engine source, acquisition, publication and private-data
+operation still needs the owner's exact approval. The demo exception under
+D-083, D-084, D-093, D-094 and D-095 covers the demo page, its Worker and its
+exported document only.

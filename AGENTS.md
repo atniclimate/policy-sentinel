@@ -1,360 +1,133 @@
 # AGENTS.md
 
-This file is the governing contract for every agent working in this
-repository: rules, boundaries, commands and validation. It is not the place to
-learn where the project is. Current state, the read order for a fresh session
-and the historical recovery pointers live in
-[`docs/continuation-prompt.md`](docs/continuation-prompt.md). Historical
-grants remain historical: no completed launch, handoff or outcome document
-resumes through this file.
+Rules for every agent that works in this repository, Claude Code and Codex alike. Claude Code reads this file through `CLAUDE.md`. It says what the product is, what never changes, what needs the owner and how to work. It holds no project state; that lives in `docs/STATUS.md`.
 
-Phase (2026-09-22): general development. The Makah demo track is finished and
-its material stays where it is by owner ruling. Nationwide coverage (Tribal,
-federal and state sources across the United States) is a core capability of
-the general engine. Before implementation, read
-[`docs/continuation-prompt.md`](docs/continuation-prompt.md) and follow its
-scope-specific context rule below. General-engine work, shared extractor work,
-ledger graph changes, and uncertain or mixed scope require the full read order,
-which covers the
-[general development audit](docs/audits/2026-09-22-general-dev-audit.md), the
-[module boundaries design](docs/architecture/module-boundaries.md), the
-[general development addendum](docs/architecture/general-development-addendum-2026-09-22.md),
-the [realignment open decisions](docs/decisions/2026-09-22-realignment-open-decisions.md)
-and the [realignment rulings](docs/decisions/2026-09-22-realignment-rulings.md).
+## What this is
 
-## Purpose and phase gate
+Policy Sentinel is a policy monitoring and source-reference tool for Tribal policy, natural resources and legal staff, and the ATNI Climate staff who support them. These are people who must keep up with federal and state policy without a research department.
 
-Policy Sentinel is a configurable, sovereignty-centered policy monitoring and
-source-reference engine. Use `docs/PROJECT-BACKBONE.md` as the canonical
-repository navigation and authority index. Preserve the product boundaries in
-`docs/project-brief.md`, the PNW scope and acceptance contract in
-`docs/pnw-scope-and-acceptance.md`, and the decisions in
-`docs/decision-register.md`.
+The end goal: a staff member opens one page and searches official federal and state sources, and public Tribal and intertribal publications, together. Every result says what it is, which official source it came from, when it was retrieved and why it was shown. They can open a policy, see the passages that deserve attention (consultation wording, deadlines, Tribal references), keep those with their own notes, and export a cited document that carries its provenance. They can follow a rule, bill or docket and see what is new when they return. A Nation that wants to add its own documents runs the same tool on its own machine, offline, and that material never leaves it.
 
-The completed bounded local run is
-`POLICY-SENTINEL-REAL-POLICY-DISCOVERY-01`. On 2026-09-05 the owner instructed
-execution of the full [real-policy launch](docs/handoffs/ps09-real-policy-discovery-launch.md)
-prepared at `39d738a` and explicitly adopted its stated local scope. It
-authorized the bounded runner, independently reviewed credential-free official
-acquisition, local corpus and temporal analysis, search/workbench, governed
-local outputs, tests, repairs and local commits within that launch's exact
-source, host, request, byte, custody and privacy ceilings. Read the
-[execution journal](docs/development/PS09-REAL-POLICY-DISCOVERY-01.md) for current
-leases, accepted source profiles, operation accounting and measured evidence.
-The adopted local workbench outcome is complete; acquisition has ended and
-unused ceilings do not authorize a new run. Local replay and inspection use the
-existing sealed corpus and reviewed output.
-Approval is not source qualification or implementation acceptance. Recover
-the live/terminal item from `ROADMAP.yaml` and the
-[local outcome](docs/handoffs/ps09-real-policy-discovery-outcome.md).
-Unresolved PS09-02 identity and scenario acceptance remains an explicit
-PS09-06 prerequisite.
+The tool never says what a policy legally means for a Nation, never links a record to a Nation without exact official evidence, and keeps nothing about its users.
 
-The completed historical local synthetic authorization was
-`POLICY-SENTINEL-0.9-RUN-02-PNW-IDENTITY-AUTHORITY-AND-SCENARIO-MANIFESTS`.
-The owner approved the exact [Run 2 entry packet](docs/handoffs/ps09-run-02-entry-packet.md)
-with "Approve and go" on 2026-09-04. It permits only the listed local synthetic
-contracts, candidate manifests, tests, reviews and local commits; its source,
-domain, request and byte budgets are zero. Required real identity evidence
-remains unresolved and synthetic proof cannot complete all of PS09-02. The
-bounded packet is validated at [its terminal checkpoint](docs/handoffs/ps09-run-02-identity-authority-scenarios.md),
-with no active work or remaining execution grant. Run 1 remains complete.
-This approval does not authorize a later run or archived
-ready lane. `PS09-06-LOCAL-RC` remains the frozen historical local
-release root; schema 1.11 represents GD-27 as the current general-engine root
-through the GD-31 claim crosswalk. Retained B1-B10, PNW, and real-source prerelease statuses are
-archived evidence, not parallel mandatory release graphs. Current PS09-03/04/05
-authority is limited to the adopted launch; PS09-06/07/08 and every operation
-outside that scope retain their exact owner gates. Earlier Gate A and tranche approvals
-retain only their recorded scope. No current approval authorizes a remote repository, push, Pages
-deployment, API registration, provider-term acceptance, paid call, third-party
-contact, secret change, private-data use, optional AI generation, or outbound
-notification. Keep every later stop/go gate closed until the owner approves
-that exact action.
+Coverage grows one source at a time, federal first. Nationwide coverage stays the owner's stated direction (2026-09-22); `docs/PLAN.md` sets the order. Proposed meaning of a first real release (the owner confirms it): a Tribal policy staff member who is not the owner completes a real task on the public tool without help and states correctly what the result does and does not establish, every source the page calls live has been checked against the real service, and the page says plainly what it does not cover.
 
-The separately approved EV01 evidence-review run subsequently ended at local
-launch with zero source requests; its interrupted directory is read-only and
-cannot resume. Recover [its terminal record](docs/handoffs/ps09-ev-01-evidence-review.md)
-and the [fresh-session recovery guide](docs/handoffs/ps09-fresh-session-recovery-and-forward-plan.md).
-The earlier recovery handoff request authorized local documentation and synthetic
-diagnostic preparation only. The owner subsequently approved recommendations
-1–5 for a next-session synthetic runner, then on 2026-09-05 requested a broader
-real-policy direction, public research with subagents, and an implementation
-prompt. Recover the [strategic research](docs/development/ps09-real-policy-systems-research-2026-09-05.md)
-and [real-policy launch prompt](docs/handoffs/ps09-real-policy-discovery-launch.md)
-before selecting the older startup. The `39d738a` preparation checkpoint
-performed public read-only research and documentation without implementation
-or product acquisition. The owner subsequently supplied and adopted that prompt;
-its larger bounded local outcome is now complete. Historical grants remain
-historical; do not reset them or mistake their synthetic limits for the new
-product goal. Separately closed external operations retain their boundaries.
+## Where to look first
 
-The 0.9 program targets one general engine with an owner-selected PNW/ATNI-facing
-cohort and contrasting scenarios. Exact current ATNI membership requires
-originating evidence only when that claim is made; no fixed membership count
-defines the product cohort or gates unrelated general-jurisdiction work.
-Federal recognition is not organization membership. Nationwide coverage
-(Tribal, federal and state sources across the United States) is a core
-capability of the general engine (owner direction, 2026-09-22). The retained v1
-public record, artifact and source contracts admit only WA, OR and ID state
-codes. D-086/D-087/D-088 authorize the explicit public 2.0 successor and corpus
-2.1 evidence-bearing jurisdiction references; legacy defaults remain fixed.
-Contract implementation does not activate sources or establish Nation identity.
-Native Hawaiian support remains a later-compatible direction. Real public information
-is an intended first-class capability; Run 1's implemented corpus path remains
-synthetic and cannot admit or activate a real source. The current static
-application and B1-B10 work are retained evidence, not the whole product.
-K0/S0/O0 remain outside product dependencies while their convergence gates are
-closed.
+1. [`docs/STATUS.md`](docs/STATUS.md): the current state, what is live, the next step, the open owner decisions. One page, overwritten each session.
+2. [`docs/PLAN.md`](docs/PLAN.md): the milestones with their acceptance checks, what needs the owner, what is deferred.
+3. Then only the code and documents the task touches. [`docs/DEMO-STATUS.md`](docs/DEMO-STATUS.md) covers the live demo, [`docs/decision-register.md`](docs/decision-register.md) holds the owner's rulings in order, and [`docs/PROJECT-BACKBONE.md`](docs/PROJECT-BACKBONE.md) indexes everything else.
 
-Do the smallest task that satisfies the request. Preserve unrelated and
-concurrent changes.
+`ROADMAP.yaml`, its validators, the operating model and the older handoffs are retained record. They stay unchanged and are still validated mechanically, but they are not the working plan. Do not edit `ROADMAP.yaml`. Read the record for a specific fact, never as a start-up routine. Whether to archive it is an owner decision listed in `docs/STATUS.md`.
 
-## Durable execution ledger
+## Safeguards
 
-Current owner direction D-086 is recorded in the
-[development plan revision](docs/decisions/2026-10-06-development-plan-revision.md).
-It adopts measured public acquisition within a 50 GB total managed footprint,
-expanded regional coverage including Nevada, public intertribal resolutions,
-and already-authorized ATNI local interoperability assessment. Public-only
-instances follow software/source licenses; private/shared data and ATNI
-interoperability require applicable authorization and agreements. This planning
-session dispatches no acquisition. GD-31 represents reviewed successor
-preparation contracts and blocked manifests before later dispatch under that adopted direction;
-do not repurpose historical zero-budget gates or request the same blanket
-authorization again. Source qualification and separate ungranted external
-operations retain their actual boundaries.
+These do not change with process. An owner direction about how to work relaxes none of them. If you cannot tell whether a sentence is a safeguard or overhead, treat it as a safeguard.
 
-D-087 (2026-10-07) settles local-government eligibility and the optional
-Nation selection in an authorized ATNI exchange profile, and admits official
-public Tribal-government publications to public-source discovery. Restricted
-internal Tribal material remains permission-dependent for external partners;
-its governmental or operational subject does not determine access. Annotations
-may guide explicit discovery requests but never become official evidence or
-silently transmit private research. Apply these rulings in reviewed successor
-contracts without reopening the owner's settled choices.
+### 1. Nation relationships need exact evidence
 
-Schema 1.11 represents the current local release root as
-`GD-27-LOCAL-RELEASE-PACKAGE` under D-086/D-087. The
-[claim crosswalk](docs/development/gd31-release-acceptance-crosswalk.md) preserves
-all unmet PS09 acceptance in GD-53; the historical PS09 objects and publication
-schedule remain frozen evidence. GD-48 prepares a candidate, while A1-A4 and
-all required outcomes precede GD-27 acceptance. Successor implementation,
-measured public acquisition and ATNI local assessment have distinct named
-gates; historical gates are unchanged. The
-[GD-31 packets](docs/development/gd31-operation-packets.md) allow no dispatch.
-No current general-engine publication or private-sharing operation is granted.
+- A public Nation relationship requires exact evidence in an official source plus its URL. Never infer it from AI, keywords, geography, sponsors, eligibility, territory, maps or land.
+- Official county and municipal instruments may be discovered without naming a Nation (D-087, the owner ruling of 2026-10-07 on local-government eligibility). A Nation relationship still needs exact official evidence. An agenda item alone does not prove final or executed status.
+- State, federal and local records without exact Nation evidence are labeled `general_jurisdiction`, never Nation-specific.
+- Official public Tribal-government publications are eligible public sources. Private or internal access restrictions follow the record and its derivatives; Tribal authorship alone does not make a record private.
+- Federal recognition is not organization membership. The retained United States federal-recognition collection must validate to exactly 575 before that collection is published; this is not a universal engine rule. The BIA Tribal Leaders Directory is supplementary, not the recognition authority.
 
-- [`ROADMAP.yaml`](ROADMAP.yaml) remains the canonical ledger, and the Markdown
-  documents remain the binding product and acceptance contracts. Before
-  general-engine work, shared extractor work, ledger graph changes, or work with
-  uncertain or mixed scope, read the complete roadmap and the continuation
-  prompt's full required context. For a task confined to the existing demo
-  surface, read the applicable instructions, current focus and terminal reason,
-  the explicitly selected item's full dependency and authorization-gate closure,
-  acceptance, evidence and blockers, the relevant decision rows, and
-  `docs/DEMO-STATUS.md` plus the explicitly selected handoff. Resolve that closure
-  from the full YAML by item ID, recursively following every dependency and
-  reading every referenced gate and decision. A completed or unselected demo
-  record does not supply a new active task. Run the existing full-ledger
-  validators before repository edits. If this scoped read reveals inconsistent
-  authority, dependencies or current state, missing references or uncertain
-  closure, complete the full read before implementation. Do not treat a
-  truncated summary as the dependency or evidence closure.
-- Reconcile roadmap claims with Git, tests, artifacts, browser checks, and
-  current primary-source evidence. A checkbox, scaffold, or agent report is not
-  completion evidence.
-- Update the roadmap after every material checkpoint and before context
-  compaction or a long pause. While local work is active, keep exactly one work
-  item `in_progress`; a validated terminal local-release or genuine-impasse
-  state has zero. Select the lowest-priority-number `ready` item whose
-  dependencies are complete, and promote newly unblocked `not_started` items
-  to `ready` in the same ledger update. Select only within an authorized
-  canonical graph: the PS09 graph, or the general-development graph under
-  G-GENERAL-DEV-01 once represented. An archived ready item is not an execution
-  grant. (D-071)
-- Use only the roadmap status vocabulary: `complete`, `in_progress`, `ready`,
-  `blocked`, `deferred`, and `not_started`. Run `npm run validate:roadmap`
-  before committing a ledger change.
-- The initial brief answered all gates. Treat remote, publication, credential,
-  terms, paid/contact, private-data, optional-AI, and outbound-notification
-  gates as resolved **closed** constraints until the owner explicitly changes
-  one exact operation. Do not reopen a general product interview. Record a
-  source-specific block and continue independent ready work.
-- Use [the durable continuation prompt](docs/continuation-prompt.md) for a
-  fresh long-running implementation session. Local Git and `ROADMAP.yaml` must
-  remain sufficient to recover after context compaction.
-- Follow the
-  [agent and tool operating model](docs/development/AGENT-AND-TOOL-OPERATING-MODEL.md)
-  for bounded roles, write leases, validation, context conservation, and stop
-  contracts. It organizes work but cannot authorize it.
-- Treat the
-  [PNW rebase handoff](docs/handoffs/pnw-product-space-rebase-2026-09-02.md) as
-  the durable product-space mapping, and the
-  [PNW-01 launch handoff](docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md)
-  as historical first-tranche evidence. The current convergence decision is
-  [the corpus ADR](docs/adr/ps09-canonical-corpus.md); recover exact Run 1
-  outcomes from [its handoff](docs/handoffs/ps09-run-01-convergence.md).
+### 2. No legal conclusions
 
-## Git and GitHub
+- Never add a field or label that implies a rights, legal-effect, jurisdiction, eligibility, or comprehensive land-interest determination. Preserve source language rather than converting it into a legal conclusion.
+- Category mappings are deterministic, versioned mappings from exact official subject or topic labels, and keep their provenance. Keyword-only or AI classification is forbidden. Unmapped records stay `Unclassified` and searchable.
+- Record every source-derived field's provenance, retrieval time, source update time when available, and validation state.
+- Before 1980, non-landmark records are normally metadata-and-link entries. Landmark treatment requires the documented criteria in `docs/project-brief.md`.
 
-- Use local Git for local version control.
-- Use the `gh` CLI for **every** GitHub operation, including authentication,
-  repository inspection, API calls, issues, pull requests, Actions, releases,
-  remotes, and Pages. Begin a GitHub task with `gh auth status`.
-- Do not use a native GitHub plugin, browser-only GitHub workflow, or alternate
-  GitHub integration.
-- Do not create or change a remote, push, publish, enable Pages, alter secrets,
-  create releases, or rewrite history without explicit owner authorization.
-- Exception by owner rulings D-083 and D-084 (2026-10-06): the live public demo
-  (`demo/`, `worker/`, published from `docs/` on `main`) may be committed, pushed
-  and served by GitHub Pages, and its Worker may call official hosts at runtime.
-  That authority covers the demo only and does not open any other gate.
-- Treat `atniclimate/policy-sentinel` as read-only historical reference.
-  Inspect it with `gh` and public source files; do not copy its code or inherit
-  its architecture by default. This describes the earlier Python project; after
-  D-084 the `main` of that repository holds this project, and the earlier
-  history stays in its log.
-- Never commit generated public data, raw responses, caches, AI summaries,
-  credentials, private data, or real Nation-specific configuration.
+### 3. Privacy, AI and secrets
 
-## Source verification
+- The public application works fully without AI and makes no browser-side LLM calls.
+- Optional AI summaries may be generated only in a separately approved build-time step. Show them only in details, label them exactly `AI-generated source summary`, cite their inputs, and follow the content restrictions in `docs/data-governance.md`.
+- No secrets, private endpoints, personal data or credentials in client code, source maps, assets, commits, logs, fixtures or documentation. Actions secrets are never safe for a browser.
+- No telemetry, search logging, tracking pixels or automatic data transmission.
 
-- Read current primary documentation before declaring an adapter viable.
-  Record the originating source URL, access date, fields, date range,
-  authentication, rate limits, use and attribution terms, cadence, CORS/static
-  constraints, and known failure behavior.
-- Prefer an originating agency, legislature, court, county, or Nation. Data.gov
-  is a discovery catalog, not the final authority when an originating source
-  exists.
-- Do not make an opaque scraper the primary production source. If no stable,
-  permitted interface exists, record the gap and stop at its gate.
-- Use build-time retrieval only. Do not create browser dependencies on source
-  APIs, even when current CORS headers allow them.
-- Whitelist normalized fields. Do not retain provider tokens, personal contact
-  fields, comments, land information, or unrelated raw response content.
-- Verify official-text reproduction and excerpt rights source by source. A
-  public URL does not automatically authorize republication.
+### 4. Land, maps and private context
 
-## Non-negotiable data rules
+- No maps, parcel geometry, ownership, trust-land, fee-land, Tribally owned parcel, or sensitive land content. Public builds must reject private adapter inputs.
+- A locally run deployment may process such content only when the user supplies it, under the private-context rules in `docs/architecture/general-development-addendum-2026-09-22.md` (D-072, the owner ruling on private context). A public build never can. The private-context files stay unreachable from the public application entry and the synthetic artifact build; tests check this.
+- A hidden path in a public repository or deployment is not private. Never commit generated public data, raw responses, caches, AI summaries, credentials, private data, or real Nation-specific configuration.
 
-- The retained United States federal-recognition collection used by the current
-  application comes from the current annual recognition notice and must validate
-  to exactly 575 before that collection is published. This is not a universal
-  engine invariant or ATNI membership rule. The BIA Tribal Leaders Directory is
-  supplementary and is not the recognition authority.
-- A public Nation relationship requires exact evidence in an official source
-  plus its URL. Never infer it from AI, keywords, geography, sponsors,
-  eligibility, territory, maps, or land.
-- Under D-087, official county and municipal instruments may be discovered
-  without naming a Nation. A Nation relationship still requires exact official
-  evidence. Preserve the retained beta contract until its versioned successor
-  is implemented; an agenda item alone does not prove final or executed status.
-- State, federal and local records without exact Nation evidence must be labeled
-  `general_jurisdiction`, never Nation-specific.
-- Official public Tribal-government publications are eligible public sources.
-  Private/internal access restrictions follow the record and its derivatives;
-  Tribal authorship alone does not make a record private.
-- Category mappings must be deterministic mappings from exact official subject
-  or topic labels, be versioned, and retain mapping provenance. Keyword-only or
-  AI classification is forbidden. Unmapped records remain `Unclassified` and
-  searchable.
-- Record every source-derived field's provenance, retrieval time, source update
-  time when available, and validation state. Preserve source language rather
-  than converting it into a legal conclusion.
-- Before 1980, non-landmark records are normally metadata-and-link entries.
-  Landmark treatment requires the documented criteria in the project brief.
-- Never add a field or label that implies a rights, legal-effect, jurisdiction,
-  eligibility, or comprehensive land-interest determination.
+### 5. Official sources, read before use
 
-## AI, privacy, and security
+- Before declaring an adapter viable, read the current primary documentation. Record in a short note the originating URL, access date, fields, date range, authentication, rate limits, use and attribution terms, cadence, CORS constraints and known failure behavior.
+- Prefer the originating agency, legislature, court, county or Nation. Data.gov is a discovery catalog, not the final authority when an originating source exists.
+- No opaque scraper as a primary production source. If no stable, permitted interface exists, record the gap and stop at its gate.
+- Whitelist normalized fields. Do not retain provider tokens, personal contact fields, comments, land information, or unrelated raw response content.
+- A public URL does not authorize republication. Verify official-text reproduction and excerpt rights source by source.
+- The browser never calls a provider or holds a key. Engine retrieval is build-time. The one exception is the demo Worker (safeguard 6).
 
-- The public application must work fully without AI and must make no
-  browser-side LLM calls.
-- Optional AI summaries may be generated only in a separately approved
-  build-time step. Show them only in details, label them exactly
-  `AI-generated source summary`, cite their inputs, and enforce the content
-  restrictions in `docs/data-governance.md`.
-- No secrets, private endpoints, personal data, or credentials may appear in
-  client code, source maps, assets, commits, logs, fixtures, or documentation.
-  Actions secrets are never safe for a browser.
-- No telemetry, search logging, tracking pixels, or automatic data
-  transmission belongs in the public beta.
-- Do not add maps, parcel geometry, ownership, trust-land, fee-land, Tribally
-  owned parcel, or sensitive land content. Public builds must reject private
-  adapter inputs. A locally run deployment may process such content only when
-  the user supplies it, under the private-context module rules in
-  `docs/architecture/general-development-addendum-2026-09-22.md`; a public
-  build never can. (D-072)
+### 6. External actions go through the owner
 
-## Repository and artifact boundary
+- Use local Git for local work and the `gh` CLI for every GitHub operation, beginning with `gh auth status`. No native GitHub plugin, browser-only GitHub workflow or alternate integration. The deny list in `.claude/settings.json` stays.
+- Without the owner's explicit authorization for that exact action, never push, merge, open a pull request, deploy, create or change a remote or release, enable Pages, change a secret, register a key or account, accept provider terms, spend money, contact a third party, use private or Nation-specific data, generate optional AI output, send a notification, or publish.
+- Approval for one action does not extend to the next. A passing check is not approval. Approval is not source qualification or implementation acceptance.
+- Demo exception. Under D-083 (owner ruling of 2026-10-06 on the live public demo), D-084 (the same day, on its rule checks and publication path), D-093 (2026-10-10, switching on GovInfo, Congress.gov and Regulations.gov), D-094 (2026-10-10, interface, document and provenance) and D-095 (2026-10-10, demo follow-ups and planning), the live demo page and its Cloudflare Worker (`demo/`, `worker/`, built into `docs/` and served by GitHub Pages from `main`) may be committed, deployed with the owner's approval of each deployment, and may call an exact allowlist of official hosts at run time with the owner's api.data.gov key held as a Worker secret. The page never holds a key. Pushing and merging stay with the owner. This covers the demo only; it opens no engine source, acquisition, publication or private-data gate.
 
-Keep the source repository lean: code, schemas, taxonomy/source configuration,
-documentation, synthetic fixtures, notices, tests, and approved deployment
-configuration only. Generate provider data in approved external or ephemeral
-build space. The current real-policy run may retain reviewed immutable source
-objects and derived evidence in its separately owned external namespace.
-Only its reviewed `local-output/` directory may be served explicitly on
-`127.0.0.1`; never serve the corpus root or acquisition objects. Ordinary
-builds remain synthetic and network-free. For the
-retained static application, place validated public output only in the approved
-Pages artifact. A future document, web-module, application, or structured
-adapter requires its own approved output and delivery boundary; the adopted
-launch supplies only its stated local workbench/dossier/export boundary. A hidden path
-in a public repository or deployment is not private.
+### 7. History and the repository
 
-When a source refresh fails, use only a checksum-validated prior public shard
-from the same adapter's last approved output artifact, label it stale/degraded,
-and preserve its original data-as-of time. If no last-known-good shard exists,
-omit that source and mark it unavailable. Never relabel stale data as current.
+- One writer to the Git index: the main session. Subagents edit files and never stage or commit.
+- Never use `--no-verify`, rewrite history, create tags or change remotes. Dates on records come from the record itself (a commit timestamp, a receipt), not from today.
+- `src/kernel/**`, `src/experimental/**`, `docs/vision/**` and the K0, S0 and O0 contract files (kernel lifecycle, spatial experiment, orchestration) stay untouched, and nothing in the product depends on them; tests enforce this. The sealed 2.0 corpus replays unchanged.
+- The retained v1 public record, artifact and source contracts admit only WA, OR and ID state codes. The public 2.0 successor (D-086, D-087, D-088) carries evidence-bearing jurisdiction references; legacy defaults stay fixed.
+- The sibling repositories `I:\land-use-analyzer`, `I:\TCR-policy-scanner` and `I:\cap-assessor` are read-only from here. Never list, read or search `I:\cap-assessor\pilot`; it holds sealed records.
+- Keep the repository lean: code, schemas, taxonomy and source configuration, documentation, synthetic fixtures, notices, tests and approved deployment configuration. Generate provider data in approved external or ephemeral build space. The finished real-policy run may retain reviewed immutable source objects and derived evidence in its separately owned external namespace. Only its reviewed `local-output/` directory may be served explicitly on `127.0.0.1`; never serve the corpus root or acquisition objects. Ordinary builds are synthetic and network-free. Place validated public output only in the approved Pages artifact. A new document, web-module, application or structured adapter needs its own approved output and delivery boundary.
 
-## Commands and validation
+### 8. Say what is true
 
-Current commands:
+- Unavailable is never shown as empty, and stale is never shown as current. When a source refresh fails, use only a checksum-validated prior public shard from the same adapter's last approved output artifact, label it stale/degraded, and keep its original data-as-of time. If there is none, omit the source and mark it unavailable.
+- Completion is shown by the real thing, not by a checkbox, a scaffold or an agent report. Do not call the product complete because planning or scaffolding exists.
+
+## What needs the owner
+
+Everything listed in safeguard 6, plus private or Nation-specific material and any definition of done. The specific pending approvals are in `docs/PLAN.md`; the open decisions are in `docs/STATUS.md`.
+
+- Read an owner direction for its evident purpose, not its narrowest wording. "Run probes" means run probes, within the bounds the owner set.
+- Ask only for real outside actions, batched as yes or no questions. Do not reopen a general product interview. Record a source-specific block and continue other work.
+- Do not decide an open owner decision silently, and do not stop work that does not depend on it.
+
+## How to work
+
+Do the smallest task that satisfies the request, and preserve unrelated and concurrent changes. This method replaces the earlier read order, leases, per-checkpoint ledger entries and standing-check rituals.
+
+- Start in minutes: this file, `docs/STATUS.md`, `git status` and the last ten commits, then only the code the task touches. No validators before an edit, no full roadmap read.
+- Plan once, in one short spec: what a person will see, files by lane, two to four checks that prove it, the live-call budget, and what needs the owner. Run parallel lanes (subagents or workflows) when their files are disjoint.
+- Test what branches: parsers, merging, privacy filters, exports, plus one regression test for each real defect. Run focused tests while editing. Run the type check, lint and the source-boundary scan before a commit. A contract or taxonomy change also needs `npm test`.
+- Verify against the real thing. Anything that parses an outside service gets one bounded live call before it is called done, and any interface is looked at in a browser. State the call budget first, do not retry, never provoke a rate limit. Keep the trimmed response shape as the test fixture.
+- Run the full check (`npm run check`) once, before anything is published or deployed. It must pass, the affected interface must work by keyboard with no automated accessibility violation, and the artifact must hold no secrets, private data, land fields or raw corpora.
+- Review once per coherent change, at the risk boundary: before anything public, and for identity, geography, private context or a new source's terms. No review for refactors or records.
+- Record little. Overwrite `docs/STATUS.md` at the end of a session. One decision-register row per owner decision, at most 60 words: date, the owner's words, a one-line reading. One short note per source. A handoff file only when work spans sessions.
+- Report in five lines: what a person can now do, how it was checked, what is not done, what needs the owner, the link.
+
+## Commands
+
+Windows x64, Node 24.19.0, npm 12.0.2 (`npm run validate:runtime`).
 
 ```powershell
 npm ci
-npm run validate:runtime
-npm run hooks:test
-npm run validate:roadmap
-npm run validate:backbone
-npm run format:check
-npm run lint
+npm test                  # every test stage; use a focused test while editing
 npm run typecheck
-npm run scan:source
-npm test
-npm run test:spine
-npm run build
-npm run validate:artifact
-npm run check
+npm run lint
+npm run format:check
+npm run scan:source       # source-boundary scan
+npm run build             # synthetic static build into dist/, then artifact validation
+npm run check             # the full check, once before publishing or deploying
+npm run validate:roadmap  # record checks, kept and run by check
+npm run validate:backbone
+npm run validate:knowledge
+npm run hooks:test
+npm run test:spine        # synthetic corpus spine
+npm run demo:dev          # the demo page locally
+npm run demo:build        # builds docs/index.html and docs/demo-assets/
+npm run demo:worker:dev   # local Worker on http://127.0.0.1:8787
+npm run demo:worker:deploy  # deploys policy-sentinel-demo; needs the owner's approval
+node scripts/verify-demo-browser.mjs --url https://atniclimate.github.io/policy-sentinel/ --out NEW-FOLDER
 ```
 
-The selected local runtime is Windows x64 Node 24.19.0 with npm 12.0.2.
-`npm run corpus:verify -- --root <external-root>` is an explicit synthetic
-custody/replay check; the ordinary build creates no external corpus root.
-Historical source-observer runtime pins and consumed operation grants are not
-changed by this selection.
+## Where the history is
 
-`npm test` must pass before reporting a contract or taxonomy change complete.
-It validates JSON Schema compilation in strict mode, taxonomy structure and
-IDs, synthetic fixtures, governance invariants, negative cases, application
-logic, and pipeline behavior. `npm run build` creates ignored static output in
-`dist/` and validates the artifact. Use only scripts committed in
-`package.json`; update this file and the README when the command surface
-changes.
-
-Validation is source-by-source and fail-closed. A change is complete only when:
-
-1. primary documentation and terms remain valid;
-2. contract fixtures cover representative, missing, and malformed fields;
-3. schema plus semantic invariants pass;
-4. source IDs, dates, URLs, mapping evidence, Nation evidence, and provenance
-   survive normalization;
-5. accessibility and keyboard behavior pass for affected UI;
-6. secrets, private data, prohibited land fields, and raw corpora are absent;
-7. last-known-good and source-health behavior is tested; and
-8. generated artifacts, when authorized, contain only reviewed public fields.
-
-Report what changed, commands and real outcomes, source gaps, assumptions, and
-any gate that remains closed. Do not describe the product as complete merely
-because planning or scaffolding exists.
+Git log, and the retained record: `ROADMAP.yaml`, `docs/handoffs/`, `docs/development/`, the owner's rulings in `docs/decision-register.md`, and the earlier state narrative in `docs/continuation-prompt.md` at commit `c602468`. Completed grants and handoffs do not resume. The earlier definitions of done (`docs/project-brief.md`, `docs/decisions/2026-09-24-definition-of-done-general-development.md`) stay on record, and none is treated as revoked until the owner confirms the release definition in `docs/PLAN.md`. The product and governance contracts (`docs/data-governance.md`, `docs/pnw-scope-and-acceptance.md`, `docs/data-contract.md`) stay in force.

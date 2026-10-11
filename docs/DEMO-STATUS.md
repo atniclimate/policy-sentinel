@@ -38,6 +38,12 @@ descriptions of the earlier interface, describe earlier checkpoints.
 with these changes. The header was checked in a browser at four widths in both
 themes with no automated accessibility violation on first load.
 
+Worker version `969d1a24-f4de-4706-9fa9-24feae5f2503`, built from source commit
+`79d263b`, serves 100% of traffic from 2026-10-11 at 01:22:50 UTC. The owner's
+instruction to raise the rate is the authority for this deployment. The
+deployment reports the binding at 60 requests per 60 seconds. One source
+catalog read afterward showed the same five live sources; no search was made.
+
 ## Interface, document and provenance update, 2026-10-10
 
 Owner direction D-094. Source commits `05050d8` (shared logic), `98a74ce`
