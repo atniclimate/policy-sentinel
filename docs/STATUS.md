@@ -8,21 +8,21 @@ Policy Sentinel lets Tribal policy, natural resources and legal staff, and the A
 
 ## Current milestone
 
-Milestone 1 of 6 in [`docs/PLAN.md`](PLAN.md): published and true. The rebuilt demo page is built and committed locally. It waits for the owner's push and merge.
+Milestone 1 of 6 in [`docs/PLAN.md`](PLAN.md): published and true. The rebuilt demo page is public: the owner merged pull request 7 on 2026-10-11 at 00:39 UTC. The D-095 follow-ups (version, seal, citation) and the planning rewrite are committed locally and wait for the owner's next push and merge. The live acceptance run and the browser checks by a person have not happened.
 
 ## What is live
 
 | Item | State |
 | --- | --- |
 | Project version | 0.6.0, in development (D-095, the owner's direction of 2026-10-10 on demo follow-ups and planning). |
-| Public page | `https://atniclimate.github.io/policy-sentinel/` serves the earlier interface until the owner merges `demo/live-pages` to `main`. |
-| Rebuilt demo | Committed locally through `79d263b`: four-pane interface, merged duplicate listings, cited PDF with required data actor entries, the ATNI seal and the ATNI Climate citation. 335 demo tests pass. The full check exited 0 on the tree this page is committed with, on the second of two runs (see known breakage). The acceptance script passed 82 of 82 against a local mock at `c602468`; it was not rerun after the seal was added. |
+| Public page | `https://atniclimate.github.io/policy-sentinel/` serves the rebuilt interface as built at `c602468` (merge commit `e295957` on `main`, Pages build finished 2026-10-11 00:39:56 UTC; its stylesheet was read back from the public address). It shows version 0.2.0 and has no seal until the next merge. |
+| Local, not yet public | Commits `79d263b` and later on `demo/live-pages`: version 0.6.0, the ATNI seal, the ATNI Climate citation, and the planning rewrite. 335 demo tests pass. The full check exited 0 on the tree this page is committed with, on the second of two runs (see known breakage). The acceptance script passed 82 of 82 against a local mock at `c602468`; it was not rerun after the seal was added. |
 | Worker | `policy-sentinel-demo` version `969d1a24-f4de-4706-9fa9-24feae5f2503`, at 100% of traffic since 2026-10-11 01:22:50 UTC, built from `79d263b`. It allows 60 requests per minute per address. GovInfo, Congress.gov and Regulations.gov are live through the owner's api.data.gov key, held as a Worker secret. One bounded live check on the previous version showed all three sources return the same Federal Register document number for one joint rule. |
 
 ## Next step
 
-1. The owner pushes `demo/live-pages` and merges it to `main`. Agents cannot push or merge.
-2. Once the page is published, run the bounded live acceptance script against it one time, look at one live multi-source search for the merged row, and record versions, times and counts in `docs/DEMO-STATUS.md`.
+1. The owner pushes `demo/live-pages` and merges it to `main` again, to publish the follow-ups. Agents cannot push or merge.
+2. Then run the bounded live acceptance script against the public page one time (its document checks expect the 0.6.0 wording, so it waits for step 1), look at one live multi-source search for the merged row, and record versions, times and counts in `docs/DEMO-STATUS.md`.
 3. Then milestone 2, the federal families, one family at a time, live call first.
 
 ## Open owner decisions
@@ -38,7 +38,7 @@ Milestone 1 of 6 in [`docs/PLAN.md`](PLAN.md): published and true. The rebuilt d
 
 ## Known breakage and gaps
 
-- Until the merge, the public page is the earlier interface running against the new Worker, which it tolerates.
+- Until the next merge, the public page is one build behind the Worker (no seal, version shown as 0.2.0, title-only Policy Sentinel reference). It works against the newer Worker.
 - Not checked by anyone: Safari, Firefox, a screen reader, a physical print, and the PDF in Acrobat, Preview or pdf.js.
 - The PDF is not tagged for screen readers. Letters outside the embedded fonts, including some in Indigenous-language names, stop the PDF export with a message; Print view is the fallback. A very long list can hold the page for seconds while the PDF is built.
 - Engine side, per the 2026-10-10 assessment and not re-verified here: the federal API integrations beyond the demo Worker are plans and tests on invented responses with no bounded live check, and the acquisition runner's GovInfo and Washington source profiles expired on 2026-10-05, so it refuses requests to them. The demo is unaffected.

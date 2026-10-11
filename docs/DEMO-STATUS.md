@@ -9,9 +9,13 @@ are in [STATUS.md](STATUS.md) and [PLAN.md](PLAN.md).
 
 GovInfo, Congress.gov and Regulations.gov were switched on in the demo on
 2026-10-10 and passed one bounded live check each. The interface, document and
-provenance update and the D-095 follow-ups below are built and committed
-locally, and their Worker changes are deployed. Publication of the page and the
-live acceptance run are not yet done and are recorded here when they happen.
+provenance update below is public: the owner merged pull request 7 into `main`
+as `e295957` on 2026-10-11 at 00:39:34 UTC, the Pages build of that commit
+finished at 00:39:56 UTC, and its stylesheet was read back from the public
+address. That build is source commit `c602468`. The D-095 follow-ups below are
+committed locally and their Worker change is deployed, but the page with the
+seal, the ATNI Climate citation and version 0.6.0 is not yet public. The live
+acceptance run has not happened; it waits for that next merge.
 Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.

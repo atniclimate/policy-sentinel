@@ -79,11 +79,12 @@ or a government host during D-094 work.
 
 ## Not done, and what is next
 
-1. The Worker is deployed. The owner pushes `demo/live-pages` and merges to
-   `main`; the agent session cannot push or open a pull request under the
-   recorded deny settings.
-2. After the page is published, run the bounded live acceptance script once
-   against it, look at one live multi-source search to see the merged row on
+1. The rebuilt page through `c602468` is public (pull request 7, merge commit
+   `e295957`, 2026-10-11 00:39 UTC). The owner pushes `demo/live-pages` and
+   merges to `main` again to publish `79d263b` and later; the agent session
+   cannot push or open a pull request under the recorded deny settings.
+2. After that merge, run the bounded live acceptance script once against the
+   public page, look at one live multi-source search to see the merged row on
    the page, and record versions, times and counts in
    [the demo status](../DEMO-STATUS.md).
 3. Not checked by anyone: Safari, Firefox, a screen reader, a physical print,
