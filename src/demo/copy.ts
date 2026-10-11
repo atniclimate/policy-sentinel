@@ -9,6 +9,8 @@ export const COPY = {
   // Frame: header, pane chips, footer strip and the About and Limits dialog.
   appName: "Policy Sentinel",
   appMode: "live demo",
+  /** Alternative text of the seal in the header and on the document cover. */
+  sealAlt: "Affiliated Tribes of Northwest Indians",
   skipLink: "Skip to the search",
   aboutButton: "About and Limits",
   aboutClose: "Close",

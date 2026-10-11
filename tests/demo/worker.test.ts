@@ -149,7 +149,7 @@ describe("worker access rules", () => {
     installFetch({ "documents.json": () => reply(FR_SEARCH_JSON) });
     const headers = { Origin: ORIGIN, "cf-connecting-ip": "203.0.113.77" };
     const statuses: number[] = [];
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 100; i++) {
       const res = await call(
         `/api/search?source=federal-register&q=term${i}`,
         {},
@@ -157,8 +157,8 @@ describe("worker access rules", () => {
       );
       statuses.push(res.status);
     }
-    expect(statuses.slice(0, 40)).toEqual(Array(40).fill(200));
-    expect(statuses.slice(40)).toEqual(Array(20).fill(429));
+    expect(statuses.slice(0, 80)).toEqual(Array(80).fill(200));
+    expect(statuses.slice(80)).toEqual(Array(20).fill(429));
   });
 
   it("asks the rate-limit binding first when it exists", async () => {

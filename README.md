@@ -653,12 +653,18 @@ authoritative files, or constitute completion evidence.
 
 ## Attribution
 
-This independent project draws lessons from the earlier public
+By owner direction on 2026-10-10 (D-095 in the
+[decision register](docs/decision-register.md)), Policy Sentinel is cited as a
+work of ATNI Climate, published by the Affiliated Tribes of Northwest Indians,
+and the demo page and its exported document carry the ATNI seal.
+
+This repository began as a separate project that drew lessons from the earlier
+public Python project of the same name in the
 [`atniclimate/policy-sentinel`](https://github.com/atniclimate/policy-sentinel)
-project and acknowledges its ATNI Climate Resilience Program context. No code
-or software architecture from that project has been copied into this
-repository. Historical attribution does not imply current endorsement of this
-project or its future data.
+repository, in its ATNI Climate Resilience Program context. No code or software
+architecture from that earlier project was copied into this one. The seal and
+the citation say who develops the tool. They are not a statement about any
+source, record or result the tool shows.
 
 ## Disclaimer
 

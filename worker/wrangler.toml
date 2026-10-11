@@ -12,7 +12,7 @@ enabled = false
 name = "RATE"
 namespace_id = "7301"
   [ratelimits.simple]
-  limit = 30
+  limit = 60
   period = 60
 
 # Secrets (never in this file). Add with:

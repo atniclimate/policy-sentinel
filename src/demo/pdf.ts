@@ -1,4 +1,10 @@
-import { PDFDocument, StandardFonts, rgb, setCharacterSpacing } from "pdf-lib";
+import {
+  BlendMode,
+  PDFDocument,
+  StandardFonts,
+  rgb,
+  setCharacterSpacing,
+} from "pdf-lib";
 import type { PDFFont, PDFPage, RGB } from "pdf-lib";
 import { COPY } from "./copy";
 import { buildDocument } from "./document";
@@ -13,6 +19,8 @@ export interface PdfFonts {
 export interface PdfInput extends DocInput {
   /** League Spartan SemiBold, Lexend Deca Regular and Lexend Deca SemiBold. Without them the PDF uses Helvetica. */
   readonly fonts?: PdfFonts;
+  /** The seal for the cover, as PNG bytes. Without it, or when the bytes cannot be read, the cover has no image. */
+  readonly seal?: Uint8Array;
 }
 
 // Letter page in the ATNI light document style. Sizes, spacing and colors
@@ -28,6 +36,7 @@ const GUTTER = 12; // between a label or a bar and the text beside it
 const ROW_PAD = 4;
 const BOX_PAD = 6;
 const REF_INDENT = 28;
+const SEAL = 54; // the seal on the cover, square
 const KEEP_WHOLE = 300; // a section up to this tall is not split across pages
 const hex = (value: number) =>
   rgb((value >> 16) / 255, ((value >> 8) & 255) / 255, (value & 255) / 255);
@@ -180,10 +189,13 @@ export async function embed(doc: PDFDocument, fonts?: PdfFonts) {
   };
 }
 
-async function render(input: DocInput, fonts?: PdfFonts): Promise<Uint8Array> {
+async function render(input: PdfInput, fonts?: PdfFonts): Promise<Uint8Array> {
   const model = buildDocument(input);
   const doc = await PDFDocument.create();
   const { title, body, bold } = await embed(doc, fonts);
+  // Seal bytes that cannot be read leave the cover without an image.
+  const seal =
+    input.seal && (await doc.embedPng(input.seal).catch(() => undefined));
   const S = {
     eyebrow: {
       font: body,
@@ -477,6 +489,19 @@ async function render(input: DocInput, fonts?: PdfFonts): Promise<Uint8Array> {
     return total;
   };
   newPage();
+  // The seal takes the top right corner of the cover, clear of the eyebrow, the title and its rule.
+  // It is a light grey line mark made for a dark ground: drawn twice, the second
+  // time multiplied over the first, it darkens for the white page.
+  if (seal) {
+    const at = {
+      x: PAGE.width - MARGIN - SEAL,
+      y: y - SEAL,
+      width: SEAL,
+      height: SEAL,
+    };
+    page.drawImage(seal, at);
+    page.drawImage(seal, { ...at, blendMode: BlendMode.Multiply });
+  }
   items.forEach((current, index) => {
     if (!current) {
       if (!fresh) newPage();

@@ -10,7 +10,7 @@ import {
 import type { PDFFont, PDFRawStream } from "pdf-lib";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { REQUEST_TIMEOUT_MS } from "../../demo/api";
-import { loadPdfFonts } from "../../demo/pdf-fonts";
+import { loadPdfFonts, loadPdfSeal } from "../../demo/pdf-fonts";
 import { atniReferences } from "../../src/demo/citations";
 import { COPY } from "../../src/demo/copy";
 import { buildDocument } from "../../src/demo/document";
@@ -49,6 +49,27 @@ const MODES: [string, PdfFonts | undefined][] = [
   ["the embedded document fonts", FONTS],
   ["the Helvetica fallback", undefined],
 ];
+const SEAL = new Uint8Array(
+  readFileSync(
+    new URL("../../demo/logos/atni-seal-on-dark.png", import.meta.url),
+  ),
+);
+/** How many different images each page draws. */
+async function imagesDrawn(bytes: Uint8Array): Promise<number[]> {
+  const doc = await PDFDocument.load(bytes, { updateMetadata: false });
+  return doc
+    .getPages()
+    .map(
+      (page) =>
+        new Set(
+          page.node
+            .Resources()!
+            .lookupMaybe(PDFName.of("XObject"), PDFDict)
+            ?.values()
+            .map(String),
+        ).size,
+    );
+}
 
 interface Shown {
   readonly text: string;
@@ -308,6 +329,40 @@ describe("PDF export", () => {
     expect(Buffer.compare(bytes, await buildPdf(input()))).toBe(0);
   });
 
+  it("embeds one image, the seal on the cover, only when it is supplied", async () => {
+    const plain = await buildPdf(input(report(), FONTS));
+    const sealed = await buildPdf({ ...input(report(), FONTS), seal: SEAL });
+    const drawn = await imagesDrawn(sealed);
+    expect(drawn.length).toBeGreaterThan(1);
+    expect(drawn).toEqual([1, ...Array(drawn.length - 1).fill(0)]);
+    expect(await imagesDrawn(plain)).toEqual(Array(drawn.length).fill(0));
+    // One image in the file: the seal, and the mask that carries its transparency.
+    const raw = (bytes: Uint8Array) => Buffer.from(bytes).toString("latin1");
+    expect(raw(sealed).match(/\/Subtype \/Image/g)).toHaveLength(2);
+    expect(raw(plain)).not.toMatch(/\/Subtype \/Image/);
+    // The seal sits beside the text: every line is where it is without one.
+    expect((await pdfPages(sealed)).map((page) => page.shown)).toEqual(
+      (await pdfPages(plain)).map((page) => page.shown),
+    );
+    expect(
+      Buffer.compare(
+        sealed,
+        await buildPdf({ ...input(report(), FONTS), seal: SEAL }),
+      ),
+    ).toBe(0);
+  });
+
+  it.each([
+    ["are not an image", new Uint8Array([1, 2, 3])],
+    ["are a cut-off image", SEAL.slice(0, 200)],
+  ])(
+    "builds the document without a seal when the seal bytes %s",
+    async (_, seal) => {
+      const bytes = await buildPdf({ ...input(), seal });
+      expect(Buffer.compare(bytes, await buildPdf(input()))).toBe(0);
+    },
+  );
+
   it("records the title, subject, creator, language and dates", async () => {
     const doc = await PDFDocument.load(await buildPdf(input()), {
       updateMetadata: false,
@@ -536,7 +591,7 @@ describe("PDF line breaks", () => {
   });
 });
 
-describe("document fonts for the PDF", () => {
+describe("document fonts and seal for the PDF", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.useRealTimers();
@@ -560,6 +615,18 @@ describe("document fonts for the PDF", () => {
     ]);
   });
 
+  it("fetches the seal file shipped with the page", async () => {
+    const requested: string[] = [];
+    vi.stubGlobal("fetch", async (url: URL) => {
+      requested.push(String(url));
+      return new Response(new Uint8Array([7]));
+    });
+    await expect(loadPdfSeal()).resolves.toEqual(new Uint8Array([7]));
+    expect(requested.map((url) => url.split("/").at(-1))).toEqual([
+      "atni-seal-on-dark.png",
+    ]);
+  });
+
   it.each([
     [
       "a request fails",
@@ -571,6 +638,7 @@ describe("document fonts for the PDF", () => {
   ])("returns undefined when %s", async (_, fetch) => {
     vi.stubGlobal("fetch", fetch);
     await expect(loadPdfFonts()).resolves.toBeUndefined();
+    await expect(loadPdfSeal()).resolves.toBeUndefined();
   });
 
   // Like the browser's fetch: a stalled request or body ends only when its signal aborts.
@@ -595,14 +663,16 @@ describe("document fonts for the PDF", () => {
     async (_, fetch) => {
       vi.useFakeTimers();
       vi.stubGlobal("fetch", fetch);
-      let fonts: unknown = "still waiting";
-      void loadPdfFonts().then((value) => {
-        fonts = value;
-      });
-      await vi.advanceTimersByTimeAsync(REQUEST_TIMEOUT_MS - 1);
-      expect(fonts).toBe("still waiting");
-      await vi.advanceTimersByTimeAsync(1);
-      expect(fonts).toBeUndefined();
+      for (const load of [loadPdfFonts, loadPdfSeal]) {
+        let loaded: unknown = "still waiting";
+        void load().then((value) => {
+          loaded = value;
+        });
+        await vi.advanceTimersByTimeAsync(REQUEST_TIMEOUT_MS - 1);
+        expect(loaded).toBe("still waiting");
+        await vi.advanceTimersByTimeAsync(1);
+        expect(loaded).toBeUndefined();
+      }
     },
   );
 });

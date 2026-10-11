@@ -9,7 +9,7 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiFailure, loadSources, readPolicy, search } from "../../demo/api";
 import { App } from "../../demo/main";
-import { loadPdfFonts } from "../../demo/pdf-fonts";
+import { loadPdfFonts, loadPdfSeal } from "../../demo/pdf-fonts";
 import { buildPdf } from "../../src/demo/pdf";
 import { emptyActors, STORAGE_KEY } from "../../src/demo/report-state";
 import { keyOf } from "../../src/demo/validation";
@@ -36,7 +36,10 @@ vi.mock("../../demo/api", async (importOriginal) => ({
   readPolicy: vi.fn(),
   search: vi.fn(),
 }));
-vi.mock("../../demo/pdf-fonts", () => ({ loadPdfFonts: vi.fn() }));
+vi.mock("../../demo/pdf-fonts", () => ({
+  loadPdfFonts: vi.fn(),
+  loadPdfSeal: vi.fn(),
+}));
 vi.mock("../../src/demo/pdf", () => ({ buildPdf: vi.fn() }));
 
 const ACTORS = {
@@ -46,6 +49,8 @@ const ACTORS = {
   "Sharing with": "Example working group",
   Purpose: "Synthetic briefing.",
 };
+/** Stands in for the seal file the page fetches for the PDF. */
+const SEAL_BYTES = new Uint8Array([137, 80, 78, 71]);
 /** The same document from three sources: the Federal Register record and two other listings. */
 const merged = { ...citation(), matchKey: "fr:2099-00001" };
 
@@ -56,6 +61,7 @@ beforeEach(() => {
   vi.mocked(search).mockResolvedValue(searchResult());
   vi.mocked(readPolicy).mockResolvedValue(policy());
   vi.mocked(loadPdfFonts).mockResolvedValue(undefined);
+  vi.mocked(loadPdfSeal).mockResolvedValue(SEAL_BYTES);
   vi.mocked(buildPdf).mockResolvedValue(new Uint8Array([37, 80, 68, 70]));
   vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
     callback(0);
@@ -834,6 +840,7 @@ describe("demo report, data actors and export", () => {
     expect(input.entries).toHaveLength(1);
     expect(input.fonts).toBeUndefined();
     expect(loadPdfFonts).toHaveBeenCalledTimes(1);
+    expect(input.seal).toBe(SEAL_BYTES);
     expect(container.querySelector(".print-only")).toHaveTextContent(
       "Prepared by A. Example, Policy analyst",
     );
@@ -1272,6 +1279,24 @@ describe("demo keyboard focus and status messages", () => {
 });
 
 describe("demo frame: panes, dialog and theme", () => {
+  it("shows the seal beside the title and opens the print view cover with it", async () => {
+    const { ui, container } = await start();
+    const name = "Affiliated Tribes of Northwest Indians";
+    const seal = ui.getByRole("img", { name });
+    expect(seal.closest("header")).not.toBeNull();
+    expect(seal.getAttribute("src")).toMatch(/atni-seal-on-dark\.png$/);
+    // A stated size keeps the header from moving as the image loads.
+    expect(seal).toHaveAttribute("width", "32");
+    expect(seal).toHaveAttribute("height", "32");
+    // The seal is beside the heading, not part of its name.
+    expect(ui.getByRole("heading", { level: 1 })).toHaveTextContent(
+      /^Policy Sentinel/,
+    );
+    const cover = container.querySelector(".print-only")?.firstElementChild;
+    expect(cover).toHaveAttribute("src", seal.getAttribute("src"));
+    expect(cover).toHaveAttribute("alt", name);
+  });
+
   it("brings the pane in use to the front and counts results and citations", async () => {
     const { ui, shell } = await start();
     expect(shell).toHaveAttribute("data-pane", "search");

@@ -14,7 +14,8 @@ import type {
   DemoSource,
 } from "../src/demo/types";
 import { ApiFailure, loadSources, policyId, readPolicy, search } from "./api";
-import { loadPdfFonts } from "./pdf-fonts";
+import SEAL from "./logos/atni-seal-on-dark.png";
+import { loadPdfFonts, loadPdfSeal } from "./pdf-fonts";
 import {
   ACTOR_FIELDS,
   attachPolicy,
@@ -776,9 +777,10 @@ export function App() {
     exporting.current = true;
     setExportBusy(true);
     try {
-      const [{ buildPdf }, fonts] = await Promise.all([
+      const [{ buildPdf }, fonts, seal] = await Promise.all([
         import("../src/demo/pdf"),
         loadPdfFonts(),
+        loadPdfSeal(),
       ]);
       const bytes = await buildPdf({
         version: VERSION,
@@ -786,6 +788,7 @@ export function App() {
         entries,
         actors: exportActors,
         fonts,
+        seal,
       });
       const blob = new Blob([bytes as BlobPart], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
@@ -921,6 +924,13 @@ export function App() {
           {COPY.skipLink}
         </a>
         <header class="head">
+          <img
+            class="seal"
+            src={SEAL}
+            alt={COPY.sealAlt}
+            width="32"
+            height="32"
+          />
           <h1>
             {COPY.appName}
             <span class="quiet">
@@ -1760,6 +1770,13 @@ export function PrintView({ report }: { report: ReportState }) {
   });
   return (
     <div class="print-only">
+      <img
+        class="doc-seal"
+        src={SEAL}
+        alt={COPY.sealAlt}
+        width="54"
+        height="54"
+      />
       {model.blocks.map(docBlock)}
       {/* shortcut: the footer prints once at the end, not on every page; the PDF carries the running header and footer. */}
       <p class="doc-small doc-foot">{model.footer}</p>
