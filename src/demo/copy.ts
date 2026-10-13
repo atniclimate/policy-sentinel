@@ -78,14 +78,15 @@ export const COPY = {
   availabilityLabel: "Availability",
   /** What the demo does with each federal source, shown under its name. One line in the search rail: keep each short. */
   capability: {
-    "federal-register": "Reads the official text and flags passages",
-    govinfo: "Returns metadata and an official link",
-    regulations: "Returns metadata and an official link",
+    "federal-register": "Topic search, official text, and passage checks",
+    govinfo:
+      "Topic search, metadata, and official links; current results, with historical versions excluded",
+    regulations: "Topic search, metadata, and official links",
     congress: "Looks up one bill by reference",
   } as Readonly<Record<string, string>>,
   queryLabel: "Search terms",
   searchHelpFederal:
-    "Words, a title, or a citation. Example: Executive Order 13175.",
+    "Words, a title, or a citation. Each source interprets the terms and orders matches differently.",
   searchHelpWashington:
     "A bill number, such as HB 1100 or SB 5100, returns the bill as introduced. Add a biennium, such as 2025-26, for an earlier session.",
   searchHelpState: "A bill number.",
@@ -102,27 +103,101 @@ export const COPY = {
   searchButton: "Search",
   searching: "Searching the selected official sources.",
   examplesLabel: "Example Searches",
+  dateRangeTitle: "Dates (Optional)",
+  dateFrom: "From date",
+  dateTo: "Through date",
+  dateRangeHelp:
+    "Leave both blank for any date. Both endpoints are included. For a whole year, use January 1 through December 31.",
+  dateRangeError:
+    "Enter both dates as valid calendar dates, with the From date on or before the Through date.",
+  stateDateHelp:
+    "Date filters do not apply to state reference lookup. Washington uses the bill biennium and introduced version.",
+  submittedQuery: "Submitted search:",
+  submittedDates: (from: string, to: string) =>
+    "Dates: " + from + " through " + to + ", inclusive.",
+  noDateRange: "Dates: no range applied.",
+  loadedOrder:
+    "Loaded rows only. Initial listings follow each source's order; more results append, with exact duplicate listings merged. Provider totals may change.",
+  sourceDateMeaning: {
+    "federal-register": "Filtered by publication date.",
+    regulations: "Filtered by posted date.",
+    govinfo:
+      "Filtered by publication date (publishdate). A result's displayed date is its source-issued date (dateIssued), which may differ.",
+  } as Readonly<Record<string, string>>,
+  stateHandoffs: {
+    washington: {
+      url: "https://app.leg.wa.gov/bi/Tld/",
+      label: "Search topics on the Washington Legislature site",
+    },
+    oregon: {
+      url: "https://www.oregonlegislature.gov/advancedbills",
+      label: "Search bills on the Oregon Legislature site",
+    },
+    idaho: {
+      url: "https://legislature.idaho.gov/sessioninfo/",
+      label: "Browse the Idaho Legislature session gateway",
+    },
+  } as Readonly<Record<string, { url: string; label: string }>>,
+  stateHandoffHelp:
+    "Opens an external official site. Search terms and notes are not sent by this link. External results are not integrated here.",
+  officialSearch: {
+    "federal-register": "https://www.federalregister.gov/documents/search",
+    govinfo: "https://www.govinfo.gov/",
+    regulations: "https://www.regulations.gov/",
+  } as Readonly<Record<string, string>>,
+  continueOfficial: "Continue on the official site.",
+  loadMore: (source: string) => "Load more " + source,
+  loadingMore: (source: string) => "Loading more from " + source + ".",
+  pageLoaded: (source: string, added: number) =>
+    source + ": " + added + " additional listings loaded.",
+  pageFailed: (source: string) =>
+    source +
+    ": the next page failed. Loaded results are kept; use Load more to retry.",
+  pageFailureDetail: (reason: string) =>
+    "The next page could not be loaded. " + reason,
+  pageCap: (limit: number) =>
+    "Demo limit reached: up to " +
+    limit +
+    " listings per source. This is not all matching policy.",
+  continuationUnknown:
+    "Further pages could not be established. The loaded results are not a complete search.",
+  noMoreResults: "The source reported no further page for this request.",
+  sourceLoading: "Searching",
+  zeroLoaded: "No listings loaded on this page",
+  partialNoResults:
+    "No results loaded. At least one selected source was unavailable.",
+  continuationNoResults:
+    "No listings loaded yet. More results may be available; see each source’s continuation status.",
+  savedMetadataNote:
+    "Showing the saved metadata-only citation. Its source text was not read by this demo. Existing notes remain with this snapshot.",
+  noneSearched:
+    "The selected sources cannot apply these criteria. Review the source reasons.",
+  congressDatesSkipped:
+    "Congress.gov was not searched: its exact bill lookup cannot apply this date range.",
+  govinfoDatesSkipped:
+    "GovInfo was not searched with this date range: dated searches accept plain letters, numbers, and spaces only, without AND, OR, or NOT. Remove the range to use provider search syntax.",
 
   // Results pane.
   resultsTitle: "Results",
   resultsCount: (shown: number, total: number | null) =>
     total === null
-      ? `${shown} shown`
-      : `${shown} shown of ${total.toLocaleString("en-US")} found`,
+      ? `${shown} listings loaded`
+      : `${shown} listings loaded; ${total.toLocaleString("en-US")} reported by source`,
   resultsListed: (rows: number) =>
     `${rows} ${rows === 1 ? "policy" : "policies"} listed.`,
   noResults:
     "Nothing matched. Try fewer words, a different phrase, or another source.",
   emptyStart: "Choose a source and search. Results appear here.",
   /** Row status for a source the demo service could not reach; the reason follows by name. */
-  sourceFailed: "No answer",
+  sourceFailed: "Unavailable",
   sourceFailure: (label: string, reason: string) =>
     `${label} could not be searched. ${reason}`,
   /** Row status for a source that answered with a reason and no results; the reason follows by name. */
-  sourceNothing: "Nothing returned",
+  sourceNothing: "No matches",
   sourceAnswer: (label: string, reason: string) => `${label}: ${reason}`,
-  allFailed: "None of the selected sources returned results.",
-  skipped: "Skipped",
+  allFailed:
+    "The selected sources were unavailable. No empty result is established.",
+  skipped: "Not searched",
   congressSkipped:
     "Congress.gov was skipped. It takes one bill reference, such as hr 1234 119.",
   /** One short sentence on a phone; the reason for the record shown is in mergeRule. */

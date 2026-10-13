@@ -3,6 +3,11 @@ import { createHash } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { analyzePolicy, ENGINE_INFO } from "../../src/demo/analyze";
 import { isCongressReference } from "../../src/demo/merge";
+import {
+  MAX_CONTINUATION_LENGTH,
+  nextSearchCursor,
+  searchCriteria,
+} from "../../src/demo/search-contract";
 import worker, {
   ALLOWED_HOSTS,
   officialFetch,
@@ -575,6 +580,305 @@ describe("upstream validation and identity", () => {
       expect(calls).toHaveLength(0);
     },
   );
+});
+
+describe("date and continuation contracts", () => {
+  const keyed = { DATA_GOV_API_KEY: "synthetic-key" };
+  const dates = {
+    dateFrom: "2024-01-01",
+    dateTo: "2024-12-31",
+    continuation: null,
+  };
+  const route = (source: string, extra: Record<string, string> = {}) =>
+    `/api/search?${new URLSearchParams({ source, q: "water", searchVersion: "1", ...extra })}`;
+
+  it.each([
+    [
+      "federal-register",
+      "documents.json",
+      "conditions[publication_date][gte]",
+      "conditions[publication_date][lte]",
+    ],
+    [
+      "regulations",
+      "api.regulations.gov",
+      "filter[postedDate][ge]",
+      "filter[postedDate][le]",
+    ],
+  ])(
+    "passes inclusive %s year bounds to the provider and echoes them",
+    async (source, host, from, to) => {
+      installFetch({
+        [host]: () =>
+          reply(
+            source === "regulations"
+              ? { data: [], meta: { totalElements: 0 } }
+              : { results: [], count: 0 },
+          ),
+      });
+      const response = await call(
+        route(source, { dateFrom: dates.dateFrom, dateTo: dates.dateTo }),
+        keyed,
+      );
+      expect(response.status).toBe(200);
+      expect(await response.json()).toMatchObject({
+        criteria: searchCriteria(source, "water", 1, dates),
+        continuation: { kind: "stopped", reason: "complete" },
+      });
+      const url = new URL(calls[0].url);
+      expect(url.searchParams.get(from)).toBe("2024-01-01");
+      expect(url.searchParams.get(to)).toBe("2024-12-31");
+      expect(calls).toHaveLength(1);
+    },
+  );
+
+  it.each<Record<string, string>>([
+    { dateFrom: "2024-02-30", dateTo: "2024-12-31" },
+    { dateFrom: "2024-12-31", dateTo: "2024-01-01" },
+    { dateFrom: "2024-01-01" },
+    { dateTo: "2024-12-31" },
+    { searchVersion: "2" },
+    { continuation: "broken json" },
+    { continuation: "X".repeat(MAX_CONTINUATION_LENGTH + 1) },
+  ])("rejects malformed criteria before fetching: %j", async (extra) => {
+    installFetch({});
+    const response = await call(route("federal-register", extra));
+    expect(response.status).toBe(400);
+    expect(calls).toHaveLength(0);
+  });
+
+  it.each([
+    ["regulations", "21"],
+    ["govinfo", "51"],
+    ["federal-register", "51"],
+    ["congress", "2"],
+    ["washington", "2"],
+  ])("rejects %s page %s without upstream work", async (source, page) => {
+    installFetch({});
+    expect((await call(route(source, { page }), keyed)).status).toBe(400);
+    expect(calls).toHaveLength(0);
+  });
+
+  it.each(["congress", "washington"])(
+    "does not silently ignore %s date criteria",
+    async (source) => {
+      installFetch({});
+      const response = await call(
+        route(source, { dateFrom: dates.dateFrom, dateTo: dates.dateTo }),
+        keyed,
+      );
+      expect(response.status).toBe(400);
+      expect(await response.json()).toMatchObject({
+        error: "unsupported_criteria",
+      });
+      expect(calls).toHaveLength(0);
+    },
+  );
+
+  it("composes only safe GovInfo dated terms and preserves its opaque cursor exactly", async () => {
+    const fetch = vi
+      .fn()
+      .mockImplementationOnce(() =>
+        Promise.resolve(
+          reply({ count: 100, results: [], offsetMark: "opaque+/=one" }),
+        ),
+      )
+      .mockImplementationOnce(() =>
+        Promise.resolve(
+          reply({ count: 100, results: [], offsetMark: "opaque+/=two" }),
+        ),
+      );
+    vi.stubGlobal("fetch", fetch);
+    const first = await (
+      await call(
+        route("govinfo", { dateFrom: dates.dateFrom, dateTo: dates.dateTo }),
+        keyed,
+      )
+    ).json();
+    const second = await call(
+      route("govinfo", {
+        dateFrom: dates.dateFrom,
+        dateTo: dates.dateTo,
+        page: "2",
+        continuation: JSON.stringify(first.continuation.next),
+      }),
+      keyed,
+    );
+    expect(second.status).toBe(200);
+    expect(first.continuation).toMatchObject({
+      kind: "more",
+      next: {
+        page: 2,
+        cursor: "opaque+/=one",
+        historical: false,
+        resultLevel: "default",
+      },
+    });
+    expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({
+      query: "(water) AND publishdate:range(2024-01-01,2024-12-31)",
+      pageSize: 10,
+      offsetMark: "*",
+      historical: false,
+      resultLevel: "default",
+    });
+    expect(JSON.parse(fetch.mock.calls[1][1].body).offsetMark).toBe(
+      "opaque+/=one",
+    );
+    expect((await second.json()).criteria.cursor).toBe("opaque+/=one");
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it.each([
+    "water OR land",
+    '"water quality"',
+    "water) OR publishdate:range(1900-01-01,2099-01-01)",
+    "collection:FR",
+    "water\\quality",
+  ])(
+    "refuses unsafe dated GovInfo expression %s before fetching",
+    async (q) => {
+      installFetch({});
+      const response = await call(
+        route("govinfo", { q, dateFrom: dates.dateFrom, dateTo: dates.dateTo }),
+        keyed,
+      );
+      expect(response.status).toBe(400);
+      expect(await response.json()).toMatchObject({
+        error: "unsupported_criteria",
+      });
+      expect(calls).toHaveLength(0);
+    },
+  );
+
+  it.each([
+    undefined,
+    null,
+    "",
+    "*",
+    "X".repeat(4097),
+    "bad token",
+    { next: "x" },
+    "opaque-current",
+  ])(
+    "stops unknown GovInfo continuation %j without treating it as exhaustion",
+    async (offsetMark) => {
+      installFetch({
+        "api.govinfo.gov": () => reply({ count: 0, results: [], offsetMark }),
+      });
+      const cursor = nextSearchCursor(
+        searchCriteria("govinfo", "water", 1),
+        "opaque-current",
+      );
+      const response = await call(
+        route("govinfo", { page: "2", continuation: JSON.stringify(cursor) }),
+        keyed,
+      );
+      expect(response.status).toBe(200);
+      expect(await response.json()).toMatchObject({
+        results: [],
+        continuation: { kind: "stopped", reason: "unknown" },
+      });
+      expect(calls).toHaveLength(1);
+    },
+  );
+
+  it("does not infer GovInfo exhaustion from a zero total or empty page with a valid next token", async () => {
+    installFetch({
+      "api.govinfo.gov": () =>
+        reply({ count: 0, results: [], offsetMark: "opaque-next" }),
+    });
+    expect(await (await call(route("govinfo"), keyed)).json()).toMatchObject({
+      continuation: { kind: "more", next: { cursor: "opaque-next" } },
+    });
+  });
+
+  it.each([
+    { source: "regulations" },
+    { query: "land" },
+    { dateFrom: "2024-01-01", dateTo: "2024-12-31" },
+    { page: 3 },
+    { pageSize: 20 },
+    { sort: "relevance" },
+    { resultLevel: "package" },
+    { historical: true },
+    { cursor: "X".repeat(4097) },
+  ])(
+    "rejects mismatched GovInfo continuation %j before fetching",
+    async (patch) => {
+      installFetch({});
+      const cursor = {
+        ...nextSearchCursor(
+          searchCriteria("govinfo", "water", 1),
+          "opaque-next",
+        ),
+        ...patch,
+      };
+      expect(
+        (
+          await call(
+            route("govinfo", {
+              page: "2",
+              continuation: JSON.stringify(cursor),
+            }),
+            keyed,
+          )
+        ).status,
+      ).toBe(400);
+      expect(calls).toHaveLength(0);
+    },
+  );
+
+  it.each([
+    ["federal-register", 50, "documents.json"],
+    ["regulations", 20, "api.regulations.gov"],
+    ["govinfo", 50, "api.govinfo.gov"],
+  ])(
+    "marks the %s page %s demo cap explicitly",
+    async (sourceValue, pageValue, hostValue) => {
+      const source = String(sourceValue),
+        page = Number(pageValue);
+      installFetch({
+        [hostValue]: () =>
+          reply(
+            source === "regulations"
+              ? { data: [], meta: { totalElements: 10000 } }
+              : { results: [], count: 10000, offsetMark: "opaque-next" },
+          ),
+      });
+      const previous = {
+        ...searchCriteria(source, "water", 1),
+        page: page - 1,
+      };
+      const cursor = nextSearchCursor(
+        previous,
+        source === "govinfo" ? "opaque-current" : null,
+      );
+      const response = await call(
+        route(source, {
+          page: String(page),
+          continuation: JSON.stringify(cursor),
+        }),
+        keyed,
+      );
+      expect(response.status).toBe(200);
+      expect(await response.json()).toMatchObject({
+        continuation: { kind: "stopped", reason: "cap" },
+      });
+    },
+  );
+
+  it("rejects more than ten upstream listings", async () => {
+    installFetch({
+      "documents.json": () =>
+        reply({
+          count: 100,
+          results: Array(11).fill(FR_SEARCH_JSON.results[0]),
+        }),
+    });
+    const response = await call(route("federal-register"));
+    expect(response.status).toBe(502);
+    expect(await response.json()).toMatchObject({ error: "bad_upstream" });
+  });
 });
 
 describe("bounded transport", () => {

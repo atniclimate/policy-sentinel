@@ -14,6 +14,10 @@ import { buildPdf } from "../../src/demo/pdf";
 import { emptyActors, STORAGE_KEY } from "../../src/demo/report-state";
 import { keyOf } from "../../src/demo/validation";
 import {
+  nextSearchCursor,
+  searchCriteria,
+} from "../../src/demo/search-contract";
+import {
   citation,
   deferred,
   listing,
@@ -480,59 +484,70 @@ describe("demo search scope and sources", () => {
     expect(
       ui.getByRole("heading", { name: "Docket Copy" }),
     ).toBeInTheDocument();
-    const status = ui.getByText("2 policies listed.").closest(".live");
-    expect(status).toHaveAttribute("role", "status");
-    // The source answered with a reason, so the row does not say it gave no answer.
-    expect(status).toHaveTextContent("GovInfoNothing returned");
-    expect(status).toHaveTextContent("GovInfo: Synthetic outage.");
-    expect(status).not.toHaveTextContent("could not be searched");
-    expect(status).toHaveTextContent("Federal Register1 shown of 1 found");
+    const announcement = ui.getByText("2 policies listed.").closest(".live");
+    expect(announcement).toHaveAttribute("role", "status");
+    const status = announcement?.closest(".pane-results");
+    expect(status).toHaveTextContent("GovInfoUnavailable");
+    expect(status).toHaveTextContent("Synthetic outage.");
+    expect(status).not.toHaveTextContent("Nothing returned");
+    expect(status).toHaveTextContent(
+      "Federal Register1 listings loaded; 1 reported by source",
+    );
   });
 
-  it("says No answer only for a source the demo service could not reach", async () => {
+  it("distinguishes a valid zero response from an upstream error", async () => {
     vi.mocked(search).mockImplementation(async (source, query) => {
-      if (source === "govinfo") throw new ApiFailure("service", "service");
-      if (source === "regulations")
+      if (source === "govinfo")
         throw new ApiFailure(
-          "Regulations.gov has no document with that reference.",
+          "Synthetic upstream outage.",
           "source",
+          "upstream_error",
+          502,
+          "error",
         );
-      return searchResult([citation()], query, source);
+      return searchResult(
+        source === "regulations" ? [] : [citation()],
+        query,
+        source,
+      );
     });
-    const { ui } = await start();
+    const { ui, shell } = await start();
     fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
     fireEvent.click(ui.getByRole("checkbox", { name: /Regulations\.gov/ }));
     await showResult(ui);
-    const status = ui.getByText("1 policy listed.").closest(".live");
-    expect(status).toHaveTextContent("GovInfoNo answer");
-    expect(status).toHaveTextContent(
-      "GovInfo could not be searched. The demo service did not answer.",
-    );
-    expect(status).toHaveTextContent("Regulations.govNothing returned");
-    // A reason that already names its source is not given the name twice.
-    expect(
-      ui.getByText("Regulations.gov has no document with that reference."),
-    ).toBeInTheDocument();
-    expect(status).not.toHaveTextContent(
-      "Regulations.gov could not be searched",
-    );
+    const outcomes = shell.querySelector(".source-outcomes");
+    expect(outcomes).toHaveTextContent("GovInfoUnavailable");
+    expect(outcomes).toHaveTextContent("Regulations.govNo matches");
+    expect(outcomes).toHaveTextContent("Synthetic upstream outage.");
   });
 
-  it("does not say sources could not be searched when each answered with a reason", async () => {
+  it("shows unavailable when every upstream source fails, not no matches", async () => {
     vi.mocked(search).mockImplementation(async (source) => {
-      throw new ApiFailure(`Synthetic answer from ${source}.`, "source");
+      throw new ApiFailure("Synthetic outage from " + source + ".", "source");
     });
     const { ui } = await start();
     fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
     fireEvent.input(ui.getByRole("searchbox"), { target: { value: "water" } });
     fireEvent.click(ui.getByRole("button", { name: "Search" }));
-    expect(
-      await ui.findByText("None of the selected sources returned results."),
-    ).toBeInTheDocument();
-    expect(ui.getAllByText("Nothing returned")).toHaveLength(2);
-    expect(
-      ui.getByText("GovInfo: Synthetic answer from govinfo."),
-    ).toBeInTheDocument();
+    await ui.findByText(
+      "The selected sources were unavailable. No empty result is established.",
+    );
+    expect(ui.getAllByText("Unavailable")).toHaveLength(2);
+    expect(ui.queryByText("No matches")).not.toBeInTheDocument();
+  });
+
+  it("treats only a typed exact-reference not_found as no matches", async () => {
+    vi.mocked(search).mockRejectedValue(
+      new ApiFailure("No such bill.", "source", "not_found", 404, "live"),
+    );
+    const { ui } = await start();
+    fireEvent.click(ui.getByRole("button", { name: "State legislature" }));
+    fireEvent.input(ui.getByRole("searchbox"), {
+      target: { value: "HB 1100" },
+    });
+    fireEvent.click(ui.getByRole("button", { name: "Search" }));
+    await ui.findByText("No matches");
+    expect(ui.queryByText("Unavailable")).not.toBeInTheDocument();
   });
 
   it("leaves the results alone when the scope already chosen is pressed again", async () => {
@@ -614,7 +629,7 @@ describe("demo search scope and sources", () => {
     expect(
       await ui.findAllByText(/The demo service did not answer/),
     ).toHaveLength(1);
-    expect(ui.getAllByText("No answer")).toHaveLength(2);
+    expect(ui.getAllByText("Unavailable")).toHaveLength(2);
   });
 
   it("keeps one row when one source lists the document twice, and names each listing", async () => {
@@ -687,7 +702,7 @@ describe("demo search scope and sources", () => {
       "federal-register",
     ]);
     expect(ui.getByText(/^Congress\.gov was skipped\./)).toBeInTheDocument();
-    expect(ui.getByText("Skipped")).toBeInTheDocument();
+    expect(ui.getByText("Not searched")).toBeInTheDocument();
 
     // A bill reference is sent to Congress.gov as well.
     await showResult(ui, "hr 1234 119");
@@ -697,7 +712,7 @@ describe("demo search scope and sources", () => {
         .mock.calls.slice(1)
         .map((call) => call[0]),
     ).toEqual(["federal-register", "congress"]);
-    expect(ui.queryByText("Skipped")).not.toBeInTheDocument();
+    expect(ui.queryByText("Not searched")).not.toBeInTheDocument();
   });
 
   it("shows the query error when Congress.gov is the only source and the terms are not a bill reference", async () => {
@@ -1413,5 +1428,421 @@ describe("demo frame: panes, dialog and theme", () => {
     const { ui } = await start();
     fireEvent.click(ui.getByRole("button", { name: "Light theme" }));
     expect(document.documentElement).toHaveAttribute("data-theme", "light");
+  });
+});
+
+describe("demo dates and explicit continuation", () => {
+  function page(
+    source: string,
+    query: string,
+    number: number,
+    results: ReturnType<typeof citation>[],
+    more: boolean,
+    options = {
+      dateFrom: null as string | null,
+      dateTo: null as string | null,
+      continuation: null as
+        import("../../src/demo/types").DemoSearchCursor | null,
+    },
+  ): DemoSearchResponse {
+    const criteria = searchCriteria(source, query, number, options);
+    return {
+      ...searchResult(results, query, source),
+      page: number,
+      criteria,
+      total: 80,
+      continuation: more
+        ? {
+            kind: "more",
+            next: nextSearchCursor(
+              criteria,
+              source === "govinfo" ? "cursor-" + number : null,
+            ),
+          }
+        : { kind: "stopped", reason: "complete" },
+    };
+  }
+
+  function dates(ui: ReturnType<typeof within>, from: string, to: string) {
+    fireEvent.input(ui.getByLabelText("From date"), {
+      target: { value: from },
+    });
+    fireEvent.input(ui.getByLabelText("Through date"), {
+      target: { value: to },
+    });
+  }
+
+  it("validates paired dates before calling sources and retains submitted criteria during edits", async () => {
+    const { ui } = await start();
+    fireEvent.input(ui.getByRole("searchbox"), { target: { value: "water" } });
+    dates(ui, "2025-01-01", "");
+    fireEvent.click(ui.getByRole("button", { name: "Search" }));
+    expect(search).not.toHaveBeenCalled();
+    expect(ui.getByRole("alert")).toHaveTextContent("Enter both dates");
+    dates(ui, "2025-12-31", "2025-01-01");
+    fireEvent.click(ui.getByRole("button", { name: "Search" }));
+    expect(search).not.toHaveBeenCalled();
+    dates(ui, "2025-01-01", "2025-12-31");
+    await showResult(ui);
+    expect(vi.mocked(search).mock.calls[0][4]).toEqual({
+      dateFrom: "2025-01-01",
+      dateTo: "2025-12-31",
+      continuation: null,
+    });
+    fireEvent.input(ui.getByRole("searchbox"), {
+      target: { value: "draft terms" },
+    });
+    dates(ui, "2024-01-01", "2024-12-31");
+    expect(
+      ui.getByText("Dates: 2025-01-01 through 2025-12-31, inclusive."),
+    ).toBeInTheDocument();
+    expect(ui.queryByText(/Dates: 2024/)).not.toBeInTheDocument();
+  });
+
+  it("skips Congress and ambiguous dated GovInfo while sending supported sources, and hides state dates", async () => {
+    const { ui } = await start();
+    fireEvent.click(ui.getByRole("checkbox", { name: /Congress\.gov/ }));
+    fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
+    dates(ui, "2025-01-01", "2025-12-31");
+    await showResult(ui, "water OR fish");
+    expect(vi.mocked(search).mock.calls.map((call) => call[0])).toEqual([
+      "federal-register",
+    ]);
+    expect(ui.getAllByText("Not searched")).toHaveLength(2);
+    expect(
+      ui.getByText(/GovInfo was not searched with this date range/),
+    ).toBeInTheDocument();
+    fireEvent.click(ui.getByRole("button", { name: "State legislature" }));
+    expect(ui.queryByLabelText("From date")).not.toBeInTheDocument();
+    expect(
+      ui.getByRole("link", { name: /Search topics on the Washington/ }),
+    ).toHaveAttribute("href", "https://app.leg.wa.gov/bi/Tld/");
+  });
+
+  it("keeps rows, continuation and focus on a failed page, prevents double clicks, then retries explicitly", async () => {
+    const pendingPage = deferred<DemoSearchResponse>();
+    vi.mocked(search)
+      .mockResolvedValueOnce(
+        page("federal-register", "water", 1, [citation()], true),
+      )
+      .mockReturnValueOnce(pendingPage.promise)
+      .mockResolvedValueOnce(
+        page(
+          "federal-register",
+          "water",
+          2,
+          [citation(), citation("2099-00002", "Next policy")],
+          false,
+        ),
+      );
+    const { ui, shell } = await start();
+    await showResult(ui);
+    const more = ui.getByRole("button", { name: "Load more Federal Register" });
+    more.focus();
+    fireEvent.click(more);
+    fireEvent.click(more);
+    expect(search).toHaveBeenCalledTimes(2);
+    expect(more).toHaveAttribute("aria-disabled", "true");
+    expect(more.closest('[role="status"]')).toBeNull();
+    await act(async () =>
+      pendingPage.reject(
+        new ApiFailure("Synthetic next-page outage.", "source"),
+      ),
+    );
+    await ui.findByText(/the next page failed/);
+    expect(shell.querySelectorAll(".result")).toHaveLength(1);
+    expect(more).toHaveFocus();
+    expect(more).toHaveAttribute("aria-disabled", "false");
+    const originalRow = shell.querySelector(".result");
+    fireEvent.click(more);
+    await ui.findByRole("heading", { name: "Next policy" });
+    expect(vi.mocked(search).mock.calls[2][4]?.continuation).toEqual(
+      vi.mocked(search).mock.calls[1][4]?.continuation,
+    );
+    expect(shell.querySelectorAll(".result")).toHaveLength(2);
+    expect(shell.querySelector(".result")).toBe(originalRow);
+    expect(more).toHaveFocus();
+    expect(more).toHaveAttribute("aria-disabled", "true");
+    expect(ui.getByText(/2 listings loaded; 80 reported/)).toBeInTheDocument();
+  });
+
+  it("allows a new dated submission during initial loading and ignores its late predecessor", async () => {
+    const old = deferred<DemoSearchResponse>();
+    vi.mocked(search)
+      .mockReturnValueOnce(old.promise)
+      .mockResolvedValueOnce(
+        searchResult([citation("2099-00002", "New dated result")], "new water"),
+      );
+    const { ui } = await start();
+    fireEvent.input(ui.getByRole("searchbox"), {
+      target: { value: "old water" },
+    });
+    fireEvent.click(ui.getByRole("button", { name: "Search" }));
+    const oldSignal = vi.mocked(search).mock.calls[0][3];
+    dates(ui, "2025-01-01", "2025-12-31");
+    fireEvent.input(ui.getByRole("searchbox"), {
+      target: { value: "new water" },
+    });
+    expect(ui.getByRole("button", { name: "Search" })).toHaveAttribute(
+      "aria-disabled",
+      "false",
+    );
+    fireEvent.click(ui.getByRole("button", { name: "Search" }));
+    await ui.findByRole("heading", { name: "New dated result" });
+    expect(oldSignal?.aborted).toBe(true);
+    await act(async () =>
+      old.resolve(
+        searchResult([citation("2099-00003", "Old result")], "old water"),
+      ),
+    );
+    expect(
+      ui.queryByRole("heading", { name: "Old result" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("ignores a late page after a replacement search or source change", async () => {
+    const late = deferred<DemoSearchResponse>();
+    vi.mocked(search)
+      .mockResolvedValueOnce(
+        page("federal-register", "water", 1, [citation()], true),
+      )
+      .mockReturnValueOnce(late.promise)
+      .mockResolvedValueOnce(
+        searchResult([citation("2099-00002", "Replacement result")], "fish"),
+      );
+    const { ui } = await start();
+    await showResult(ui);
+    fireEvent.click(
+      ui.getByRole("button", { name: "Load more Federal Register" }),
+    );
+    await showResult(ui, "fish");
+    await act(async () =>
+      late.resolve(
+        page(
+          "federal-register",
+          "water",
+          2,
+          [citation("2099-00003", "Late append")],
+          false,
+        ),
+      ),
+    );
+    expect(
+      ui.getByRole("heading", { name: "Replacement result" }),
+    ).toBeInTheDocument();
+    expect(
+      ui.queryByRole("heading", { name: "Late append" }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
+    expect(
+      ui.queryByRole("heading", { name: "Replacement result" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("promotes a saved GovInfo row in place without a duplicate citation or lost notes", async () => {
+    const gov = { ...listing("govinfo"), title: "GovInfo snapshot" };
+    const fr = { ...merged, title: "Federal Register listing" };
+    vi.mocked(search).mockImplementation(
+      async (source, query, number, _signal, options) =>
+        page(
+          source,
+          query,
+          number,
+          source === "govinfo"
+            ? [gov]
+            : number === 1
+              ? [citation("2099-00002", "Other record")]
+              : [fr],
+          source === "federal-register" && number === 1,
+          options,
+        ),
+    );
+    const { ui, shell, container } = await start();
+    fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
+    await showResult(ui);
+    fireEvent.click(
+      ui.getByRole("button", { name: "Add to my citations: GovInfo snapshot" }),
+    );
+    const note = ui.getByRole("textbox", { name: "Note on this policy" });
+    fireEvent.input(note, { target: { value: "Keep the original evidence." } });
+    const row = ui
+      .getByRole("heading", { name: "GovInfo snapshot", level: 3 })
+      .closest(".result");
+    const detailButton = within(row as HTMLElement).getByRole("button", {
+      name: /^Show issues/,
+    });
+    detailButton.focus();
+    fireEvent.click(
+      ui.getByRole("button", { name: "Load more Federal Register" }),
+    );
+    await ui.findByRole("heading", { name: "Federal Register listing" });
+    const promoted = ui
+      .getByRole("heading", { name: "Federal Register listing" })
+      .closest(".result");
+    expect(promoted).toBe(row);
+    expect(detailButton).toBeInTheDocument();
+    expect(shell.querySelectorAll(".result")).toHaveLength(2);
+    const cited = ui.getByRole("button", {
+      name: "In my citations: Federal Register listing",
+    });
+    fireEvent.click(cited);
+    expect(
+      ui.getAllByRole("textbox", { name: "Note on this policy" }),
+    ).toHaveLength(1);
+    expect(note).toHaveValue("Keep the original evidence.");
+    expect(container.querySelector(".print-only")).toHaveTextContent(
+      "GovInfo snapshot",
+    );
+    fireEvent.click(detailButton);
+    expect(shell.querySelector(".policy-title")).toHaveTextContent(
+      "GovInfo snapshot",
+    );
+    expect(
+      ui.getByText(/Showing the saved metadata-only citation/),
+    ).toBeInTheDocument();
+    expect(
+      ui.queryByText("Add the policy to My Citations first."),
+    ).not.toBeInTheDocument();
+    expect(note).toHaveValue("Keep the original evidence.");
+    expect(readPolicy).not.toHaveBeenCalled();
+  });
+
+  it("opens the saved metadata snapshot through an exact alternate when its legacy match key is absent", async () => {
+    const saved = {
+      ...listing("govinfo"),
+      title: "Legacy GovInfo snapshot",
+      matchKey: null,
+    };
+    window.sessionStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        version: 3,
+        cited: {
+          [keyOf(saved)]: {
+            citation: saved,
+            policy: null,
+            note: "Keep the legacy evidence.",
+            alternates: [],
+          },
+        },
+        marks: {},
+        actors: emptyActors(),
+      }),
+    );
+    answerBySource();
+    const { ui, shell } = await start();
+    fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
+    fireEvent.input(ui.getByRole("searchbox"), { target: { value: "water" } });
+    fireEvent.click(ui.getByRole("button", { name: "Search" }));
+    await ui.findByRole("button", { name: /^In my citations:/ });
+    const row = shell.querySelector(".result") as HTMLElement;
+    fireEvent.click(within(row).getByRole("button", { name: /^Show issues/ }));
+    expect(shell.querySelector(".policy-title")).toHaveTextContent(saved.title);
+    expect(
+      ui.getByText(/Showing the saved metadata-only citation/),
+    ).toBeInTheDocument();
+    expect(
+      ui.getByRole("textbox", { name: "Note on this policy" }),
+    ).toHaveValue("Keep the legacy evidence.");
+    expect(readPolicy).not.toHaveBeenCalled();
+    expect(
+      JSON.parse(window.sessionStorage.getItem(STORAGE_KEY)!).cited[
+        keyOf(saved)
+      ].citation,
+    ).toEqual(saved);
+  });
+
+  it("does not claim nothing matched when an empty response accompanies an unavailable source", async () => {
+    vi.mocked(search).mockImplementation(async (source, query) => {
+      if (source === "govinfo")
+        throw new ApiFailure("Synthetic upstream failure.", "source");
+      return searchResult([], query, source);
+    });
+    const { ui } = await start();
+    fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
+    fireEvent.input(ui.getByRole("searchbox"), { target: { value: "water" } });
+    fireEvent.click(ui.getByRole("button", { name: "Search" }));
+    await ui.findByText(
+      "No results loaded. At least one selected source was unavailable.",
+    );
+    expect(ui.queryByText(/^Nothing matched/)).not.toBeInTheDocument();
+    expect(ui.getByText("Unavailable")).toBeInTheDocument();
+    expect(ui.getByText("No matches")).toBeInTheDocument();
+  });
+
+  it("keeps an empty first page with a valid GovInfo cursor explicitly incomplete", async () => {
+    vi.mocked(search).mockResolvedValue(page("govinfo", "water", 1, [], true));
+    const { ui } = await start();
+    fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
+    fireEvent.click(ui.getByRole("checkbox", { name: /Federal Register/ }));
+    fireEvent.input(ui.getByRole("searchbox"), { target: { value: "water" } });
+    fireEvent.click(ui.getByRole("button", { name: "Search" }));
+    await ui.findByText("No listings loaded on this page");
+    expect(ui.queryByText("No matches")).not.toBeInTheDocument();
+    expect(ui.queryByText(/^Nothing matched/)).not.toBeInTheDocument();
+    expect(
+      ui.getByRole("button", { name: "Load more GovInfo" }),
+    ).toHaveAttribute("aria-disabled", "false");
+  });
+
+  it("keeps source accumulators when pages finish in reverse order and stops a cursor cycle", async () => {
+    const firstFr = page("federal-register", "water", 1, [citation()], true);
+    const firstGov = page(
+      "govinfo",
+      "water",
+      1,
+      [listing("govinfo", "2099-00008")],
+      true,
+    );
+    const frPage = deferred<DemoSearchResponse>();
+    const govPage = deferred<DemoSearchResponse>();
+    vi.mocked(search).mockImplementation((source, _query, number) =>
+      number === 1
+        ? Promise.resolve(source === "govinfo" ? firstGov : firstFr)
+        : source === "govinfo"
+          ? govPage.promise
+          : frPage.promise,
+    );
+    const { ui, shell } = await start();
+    fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
+    await showResult(ui);
+    fireEvent.click(
+      ui.getByRole("button", { name: "Load more Federal Register" }),
+    );
+    fireEvent.click(ui.getByRole("button", { name: "Load more GovInfo" }));
+    const govOptions = vi
+      .mocked(search)
+      .mock.calls.find((call) => call[0] === "govinfo" && call[2] === 2)![4]!;
+    const cycling = page("govinfo", "water", 2, [], true, govOptions);
+    await act(async () =>
+      govPage.resolve({
+        ...cycling,
+        continuation: {
+          kind: "more",
+          next: { ...cycling.criteria, page: 3, cursor: "cursor-1" },
+        },
+      }),
+    );
+    await act(async () =>
+      frPage.resolve(
+        page(
+          "federal-register",
+          "water",
+          2,
+          [citation("2099-00009", "Appended FR")],
+          false,
+        ),
+      ),
+    );
+    expect(shell.querySelectorAll(".result")).toHaveLength(3);
+    expect(
+      ui.getByRole("heading", { name: "Appended FR" }),
+    ).toBeInTheDocument();
+    expect(
+      ui.getByText(/Further pages could not be established/),
+    ).toBeInTheDocument();
+    expect(
+      ui.getByRole("button", { name: "Load more GovInfo" }),
+    ).toHaveAttribute("aria-disabled", "true");
   });
 });

@@ -4,6 +4,7 @@ import {
   attachPolicy,
   emptyActors,
   emptyReport,
+  findCitedKey,
   MAX_ACTOR_TEXT,
   MAX_ALTERNATES,
   missingActorFields,
@@ -231,6 +232,72 @@ describe("citation report recovery and evidence binding", () => {
       ).toBe(original);
     },
   );
+});
+
+describe("saved logical document identity", () => {
+  it("recognizes later primary promotion without changing saved evidence or notes", () => {
+    const original = merged();
+    const key = Object.keys(original.cited)[0];
+    const before = serializeReport(original);
+    const promoted = listing("govinfo", "promoted", "fr:2099-00001");
+    expect(findCitedKey(original, promoted)).toBe(key);
+    expect(findCitedKey(original, original.cited[key].alternates[0])).toBe(key);
+    expect(serializeReport(original)).toBe(before);
+    expect(reportEntries(original)[0]).toMatchObject({
+      receipt: original.cited[key].policy?.receipt,
+      note: "Keep this policy note.",
+      issues: [{ note: "Keep this passage note." }],
+    });
+    expect(original.actors).toEqual(ACTORS);
+  });
+
+  it("recognizes an old entry by its exact listing after that listing becomes an alternate", () => {
+    const original = restoreReport(legacy(saved(), 2)).report;
+    const key = Object.keys(original.cited)[0];
+    const before = serializeReport(original);
+    const primary = listing("govinfo", "new-primary", "fr:2099-00001");
+    const oldListing = {
+      ...original.cited[key].citation,
+      matchKey: primary.matchKey,
+    };
+    expect(findCitedKey(original, primary)).toBeUndefined();
+    expect(findCitedKey(original, primary, [oldListing])).toBe(key);
+    expect(serializeReport(original)).toBe(before);
+  });
+
+  it("uses exact saved alternate identity before a shared-key match", () => {
+    const original = merged();
+    const key = Object.keys(original.cited)[0];
+    const alternate = original.cited[key].alternates[0];
+    expect(findCitedKey(original, { ...alternate, matchKey: null })).toBe(key);
+    const second = citation("2099-00002");
+    const secondKey = keyOf(second);
+    original.cited[secondKey] = {
+      citation: second,
+      policy: null,
+      note: "Separate saved listing",
+      alternates: [],
+    };
+    expect(
+      findCitedKey(original, { ...second, matchKey: "fr:2099-00001" }),
+    ).toBe(secondKey);
+  });
+
+  it("never identifies a saved entry by title, date, or another document version", () => {
+    const original = merged();
+    const key = Object.keys(original.cited)[0];
+    const savedCitation = original.cited[key].citation;
+    for (const matchKey of [null, "fr:2099-00002"]) {
+      expect(
+        findCitedKey(original, {
+          ...savedCitation,
+          identifier: "Another document version",
+          matchKey,
+        }),
+      ).toBeUndefined();
+    }
+    expect(findCitedKey(emptyReport(), savedCitation)).toBeUndefined();
+  });
 });
 
 describe("data actors", () => {

@@ -621,3 +621,36 @@ disabled adapter's non-authoritative status. That review must not implement or
 modify an adapter, fetch production content, admit automatically, activate,
 bind, publish, accept terms, create an account, or use credentials. Any later
 adapter design, source admission, or activation remains a separate exact gate.
+
+## Demo search contract update (2026-10-13)
+
+The demo uses the official FederalRegister.gov API at
+`https://www.federalregister.gov/api/v1/` (API documentation:
+`https://www.federalregister.gov/developers/documentation/api/v1/`). Its date
+filter is the source's `publication_date`, not an effective or docket date. The
+demo requests 10 rows per page and stops after 50 pages (500 rows); reaching
+that cap is not a completeness claim. Current primary docs reviewed here
+establish no numeric API rate or quota, retry rule, SLA, or API indexing
+cadence. Public search was observed without a key and the OpenAPI spec has no
+security scheme, but this is not a permanent access guarantee.
+
+The demo Worker makes the request; the browser does not call the provider. API
+terms for polling, caching, redistribution, attribution, and provider logging
+remain unresolved in this review. Do not retain query text in application logs
+or use user-specific data. An upstream error, invalid response, or page failure
+is unavailable/degraded, never an empty result; no retry or completeness
+inference is added. This runtime path is limited to the approved public demo and
+does not admit or activate the engine adapter.
+
+### Bounded live search check (2026-10-13)
+
+At `2026-10-13T18:35:50Z`, the demo Worker completed a dated FederalRegister.gov
+search for `water` with the inclusive `2025-01-01` through `2025-12-31`
+publication-date range. Exactly two GET requests fetched pages 1 and 2; there
+were no retries and no document-text fetch. The 20 returned document IDs were
+unique and each returned publication date fell within the requested range.
+The API reported a total of 2,011 results at retrieval time; this is a mutable
+source-reported count, not a stable snapshot or a completeness proof. Page 3
+was offered but not fetched, so this check establishes only those two pages.
+This was a bounded demo-only live check; it does not authorize engine source
+activation or public deployment.

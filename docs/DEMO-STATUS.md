@@ -16,10 +16,68 @@ address. That build is source commit `c602468`. The D-095 follow-ups were then
 published through pull request 8 at `4d320bc`, whose tree matches `085ec25`.
 Pages finished that build on 2026-10-11 at 02:12:57 UTC. The public header was
 read back as 0.6.0 on 2026-10-13; the seal and ATNI Climate citation are public.
-The Worker deployment recorded below remains unchanged.
+The 0.6.1 maintenance update was subsequently published through pull request 9
+as `e47ebba` on 2026-10-13; the prior session verified all 17 runtime files
+against the reviewed build. The Worker deployment recorded below remains unchanged.
 Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
+
+## Search upgrade, 2026-10-13 (not deployed)
+
+The local page adds paired inclusive source-date filters and per-source Load more.
+Federal Register and GovInfo have 50-page/500-listing limits; Regulations.gov has
+20-page/200-listing limits at ten results per request. Congress.gov and Washington
+retain reference lookup. The original Federal Register-only default remains.
+
+Every new search request carries its complete criteria and continuation context.
+The page validates the Worker's echo, so an older Worker cannot silently ignore
+dates or paging. Deploy the compatible Worker before publishing this page, with
+the owner's separate approval of each external action.
+
+Results show their submitted criteria and separate loaded-listing counts from
+source totals. Appends preserve row identity, precedence and order; citations,
+receipts, selected passages, notes and data actor entries retain their saved
+snapshots. A failed page retains the loaded results and its cursor for explicit
+retry. Replacement submissions cancel and supersede pending work. Errors and
+unsupported criteria have distinct outcomes.
+
+GovInfo dated queries accept ASCII alphanumeric words separated by spaces,
+without Boolean operators or punctuation. The documented grouping/range grammar
+supports this narrow composition; it has not yet been checked through a keyed
+local route. Its publication-date filter and displayed source-issued date have
+different meanings. Missing, malformed or cyclic cursors stop with unknown
+continuation. Undated provider syntax remains available.
+
+Washington and Oregon offer manual official-site search links; Idaho offers an
+official session gateway whose search UI remains unverified. The links forward
+no typed terms. These are external handoffs and activate no adapter.
+
+Focused frontend (55), merge/report (93) and transport/contract (211) tests pass.
+Local Chrome passed 48 checks, including keyboard paging, failed-page retry,
+replacement searches, retained saved snapshots, PDF and print evidence. Eight
+settled accessibility scans reported no violations; there were no page errors
+or external requests. The independent boundary review is closed. A private
+production build passed the 17-file demo artifact scan; all 17 existing public
+runtime files remain unchanged. The final `npm run check` passed with 2,542 unit
+tests in 120 files, 48 hook tests, all retained validation stages and the synthetic
+build/artifact checks. These checks do not establish deployed or outside-user
+acceptance.
+
+Two bounded Federal Register searches through the local Worker checked pages one
+and two with an inclusive 2025 range. Both returned ten results, all 20 identifiers
+were distinct and every date was in range. There was no retry or third-page call.
+No local keyed binding is available, so GovInfo and Regulations.gov live date and
+continuation checks remain pending. D-099 authorizes a scoped source commit and
+normal review-branch push, followed by the next local audit/fix/review session.
+Worker deployment, pull request, merge and Pages publication remain separately
+gated; no runtime publication has occurred for this feature.
+
+The full-suite follow-up also repaired a workspace review timestamp race: review
+creation and its revision now use the same timestamp. A clock-advancing regression
+and all 15 workspace tests pass. All 43 history tests pass with a 15-second
+allowance for the existing 128-revision case; its assertions and the global
+timeout are unchanged.
 
 ## Maintenance update 0.6.1, 2026-10-13
 
@@ -49,8 +107,9 @@ acceptance, including document export and the embedded view, remains incomplete.
 The observed failure was in browser automation; it does not establish a provider
 or application defect.
 
-Search refinement is the owner's next development focus. Source failures currently
-can appear as "Nothing returned" and require distinct outcomes in that work.
+At this maintenance checkpoint, search refinement was the owner's next focus.
+The local search upgrade above now gives source failures distinct outcomes; the
+published maintenance page still has the earlier behavior.
 Historical statements below that publication was pending are superseded by the
 deployment facts above; all other limits retain their stated scope.
 

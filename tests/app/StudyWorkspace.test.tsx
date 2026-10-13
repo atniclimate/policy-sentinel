@@ -222,6 +222,34 @@ async function seed(
 }
 
 describe("persistent local study workspace", () => {
+  it("records a review atomically when the clock advances between timestamp reads", async () => {
+    const settings = props();
+    const saved = await seed(settings.corpus);
+    render(<StudyWorkspace {...settings} />);
+    await resume(await serializeResearchStudy(saved, settings.corpus));
+    const form = editor("Review a study item");
+    select(form, "Item to review", "question-saved");
+    select(form, "Review decision", "accepted");
+    input(form, "Review rationale", "Checked the saved question.");
+    let now = Date.now();
+    const clock = vi.spyOn(Date, "now").mockImplementation(() => ++now);
+    try {
+      await submit(form);
+    } finally {
+      clock.mockRestore();
+    }
+    const reviewed = (await backup(settings.corpus)).study;
+    expect(reviewed.revision).toBe(saved.revision + 1);
+    expect(reviewed.questions[0].reviewState).toBe("accepted");
+    expect(reviewed.reviews).toHaveLength(1);
+    expect(reviewed.reviews[0]).toMatchObject({
+      targetId: "question-saved",
+      decision: "accepted",
+      notes: "Checked the saved question.",
+      createdAt: reviewed.updatedAt,
+    });
+  });
+
   it("guides an unreviewed parent link into the attributed review form", async () => {
     const { corpus, study } = (await createSyntheticResearchStudyFixture()) as {
       corpus: AnalyzedCorpusV2;

@@ -68,6 +68,26 @@ export const emptyReport = (): ReportState => ({
   actors: emptyActors(),
 });
 
+/** Find the saved snapshot without replacing it when another listing becomes primary. */
+export function findCitedKey(
+  report: ReportState,
+  citation: DemoCitation,
+  alternates: readonly DemoCitation[] = [],
+): string | undefined {
+  const listings = new Set([citation, ...alternates].map(keyOf));
+  for (const listing of listings)
+    if (Object.hasOwn(report.cited, listing)) return listing;
+  const entries = Object.entries(report.cited);
+  const exact = entries.find(([, entry]) =>
+    entry.alternates.some((alternate) => listings.has(keyOf(alternate))),
+  );
+  if (exact) return exact[0];
+  if (citation.matchKey === null) return undefined;
+  return entries.find(
+    ([, entry]) => entry.citation.matchKey === citation.matchKey,
+  )?.[0];
+}
+
 /** Keep only saved alternates that are valid, distinct other listings of the cited document. */
 function restoreAlternates(
   value: unknown,

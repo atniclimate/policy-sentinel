@@ -529,3 +529,25 @@ Until those questions and the authorization gate are resolved, the source
 contributes no public record. Because disabled source IDs are currently absent
 from artifact coverage and health, a future public unavailable-source notice
 also requires an explicit versioned planned-source disclosure mechanism.
+
+## Demo search contract update (2026-10-13)
+
+The approved demo Worker searches
+`https://api.regulations.gov/v4/documents`, as documented in the current
+[Regulations.gov API](https://open.gsa.gov/api/regulationsgov/). It uses
+`filter[searchTerm]`; returned `postedDate` is the posting date, not a comment
+deadline or effective date. The demo asks for 10 rows per page and caps at 20
+pages (200 rows), below the source's documented 5,000-result query window. That
+cap is not a completeness assertion. The API requires `X-Api-Key`, supplied to
+the Worker from its api.data.gov secret. The docs give no precise GET quota;
+the 1,000/hour default is not a source-specific guarantee. Rate headers and
+429 `OVER_RATE_LIMIT` are documented; no reset or retry contract is.
+
+The API terms/GET-specific reuse gate remains unresolved; there is no blanket
+permission for document text, attachments, or public comments. Preserve
+Regulations.gov and issuing-agency attribution, and retain only approved
+metadata. Source cadence and provider logging/retention are unknown. The
+browser does not call the provider or receive a key, and query text is not
+application-logged. Upstream, schema, page, or rate failure is unavailable,
+never empty; the bounded demo call confers no engine admission, qualification,
+or activation.

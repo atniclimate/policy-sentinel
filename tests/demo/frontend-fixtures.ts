@@ -1,3 +1,4 @@
+import { searchCriteria } from "../../src/demo/search-contract";
 import type {
   DemoCitation,
   DemoPolicyResponse,
@@ -108,6 +109,16 @@ export function searchResult(
     query,
     page: 1,
     total: results.length,
+    criteria: searchCriteria(source, query, 1),
+    continuation: {
+      kind: "stopped",
+      reason:
+        source === "congress" || source === "washington"
+          ? "not_applicable"
+          : source === "govinfo"
+            ? "unknown"
+            : "complete",
+    },
     results,
     retrievedAt: "2099-01-07T11:59:00.000Z",
   };

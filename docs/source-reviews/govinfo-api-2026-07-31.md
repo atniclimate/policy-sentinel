@@ -410,3 +410,38 @@ behavior, collection-specific MODS/PREMIS variation, provider fixity binding,
 reprocessing, undocumented errors, quota/retry headers, and source-specific
 last-known-good behavior before an adapter or public coverage claim is
 permitted.
+
+## Demo search contract update (2026-10-13)
+
+The demo calls the official search endpoint `https://api.govinfo.gov/search`
+under the GovInfo API documentation at `https://api.govinfo.gov/docs/` (also
+see the [search service overview](https://www.govinfo.gov/features/search-service-overview)
+and [search operators](https://www.govinfo.gov/help/search-operators), reviewed
+2026-10-13). For a dated search it composes only an ASCII-alphanumeric query
+whose words are separated by spaces as `(query) AND
+publishdate:range(YYYY-MM-DD,YYYY-MM-DD)`. It rejects punctuation and standalone
+AND, OR, or NOT words. This is a conservative inference from the documented
+grouping, implicit-AND, and inclusive `publishdate` range grammar, not a
+provider acceptance test. GovInfo `publishdate` is the issue/publication date;
+`lastModified` means a package was added or updated at GovInfo and is not an
+issue date.
+
+The demo requests 10 results per page, begins at `offsetMark: "*"`, forwards a
+returned cursor unchanged, and caps listing traversal at 50 pages (500 rows).
+The official cursor is opaque; these docs do not define a terminal-cursor
+marker. A missing, repeated, or otherwise unusable continuation stops as
+unknown, not exhausted. Published Federal Register packages are updated by
+6 a.m. ET on weekdays except federal holidays; search-index freshness is
+unknown. The 2026-07-31 review records documented API key rates of 40/second,
+1,200/minute, and 36,000/hour; missing-key 401 and rate-limit 429 are
+documented, while reset and retry behavior are not. The demo holds its
+api.data.gov key only as a Worker secret. Public-domain status is not blanket
+republication permission: preserve
+GPO/origin attribution and do not copy full text or attachments without
+field-specific rights review.
+
+Only the approved demo Worker may make this runtime request; the browser makes
+no GovInfo request or key-bearing URL. Query text is not application-logged;
+provider/hosting retention is not established here. Upstream, schema, or
+continuation failure is unavailable/unknown, never empty or complete. This
+demo exception does not admit, qualify, or activate a GovInfo engine source.

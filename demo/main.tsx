@@ -5,12 +5,20 @@ import { SOURCE_LABELS } from "../src/demo/citations";
 import { COPY, EXAMPLES } from "../src/demo/copy";
 import { buildDocument } from "../src/demo/document";
 import type { DocBlock } from "../src/demo/document";
-import { isCongressReference, mergeResults } from "../src/demo/merge";
+import {
+  appendMergedResults,
+  isCongressReference,
+  logicalResultKey,
+  mergeResults,
+} from "../src/demo/merge";
 import type { MergedResult, SourceResults } from "../src/demo/merge";
 import type {
   DemoCitation,
   DemoIssue,
   DemoPolicyResponse,
+  DemoSearchCursor,
+  DemoSearchOptions,
+  DemoSearchResponse,
   DemoSource,
 } from "../src/demo/types";
 import { ApiFailure, loadSources, policyId, readPolicy, search } from "./api";
@@ -20,6 +28,7 @@ import {
   ACTOR_FIELDS,
   attachPolicy,
   emptyReport,
+  findCitedKey,
   MAX_ACTOR_TEXT,
   MAX_CITATIONS,
   MAX_NOTE,
@@ -37,6 +46,10 @@ import type {
   RestoredReport,
 } from "../src/demo/report-state";
 import { keyOf } from "../src/demo/validation";
+import {
+  dateRangeValue,
+  supportsDatedGovinfoQuery,
+} from "../src/demo/search-contract";
 
 const VERSION = __APP_VERSION__;
 const TSDF_URL =
@@ -104,12 +117,77 @@ interface Selected {
   message?: string;
 }
 
-/** One search across the chosen sources, after duplicates are merged. */
+interface SourceSearch {
+  sourceId: string;
+  state: "loading" | "results" | "empty" | "unavailable" | "not_searched";
+  listings: readonly DemoCitation[];
+  response?: DemoSearchResponse;
+  reason?: string;
+  loadingMore?: boolean;
+  pagingStarted?: boolean;
+  pageError?: string;
+  /** Prior opaque tokens, to stop cycles without interpreting provider syntax. */
+  cursors: readonly string[];
+}
+
+/** The submitted criteria stay attached to results while the form is edited. */
 interface Found {
+  query: string;
+  dateFrom: string | null;
+  dateTo: string | null;
   rows: readonly MergedResult[];
-  /** One line per source asked: its count, or why it has none. */
-  outcomes: readonly { sourceId: string; text: string }[];
-  notes: readonly string[];
+  sources: readonly SourceSearch[];
+}
+
+const PAGE_OPTIONS: DemoSearchOptions = {
+  dateFrom: null,
+  dateTo: null,
+  continuation: null,
+};
+
+function unresolvedEmpty(source: SourceSearch): boolean {
+  if (source.state !== "empty" || !source.response) return false;
+  const { total, continuation } = source.response;
+  return (
+    (total !== null && total > 0) ||
+    continuation.kind === "more" ||
+    (continuation.kind === "stopped" &&
+      (continuation.reason === "unknown" || continuation.reason === "cap"))
+  );
+}
+
+function sourceOutcome(source: SourceSearch): string {
+  if (source.state === "loading") return COPY.sourceLoading;
+  if (source.state === "not_searched") return COPY.skipped;
+  if (source.state === "unavailable") return COPY.sourceFailed;
+  if (source.state === "empty")
+    return unresolvedEmpty(source) ? COPY.zeroLoaded : COPY.sourceNothing;
+  return COPY.resultsCount(
+    source.listings.length,
+    source.response?.total ?? null,
+  );
+}
+
+function foundMessage(found: Found): string {
+  if (found.sources.some((source) => source.state === "loading"))
+    return COPY.searching;
+  if (found.rows.length) return COPY.resultsListed(found.rows.length);
+  const failures = found.sources.filter(
+    (source) => source.state === "unavailable",
+  );
+  const asked = found.sources.filter(
+    (source) => source.state !== "not_searched",
+  );
+  if (failures.length === asked.length && failures.length) {
+    return failures.every((source) => source.reason === failures[0].reason)
+      ? failures[0].reason!
+      : COPY.allFailed;
+  }
+  if (failures.length) return COPY.partialNoResults;
+  if (found.sources.some(unresolvedEmpty)) return COPY.continuationNoResults;
+  if (found.sources.some((source) => source.state === "empty"))
+    return COPY.noResults;
+  return COPY.noneSearched;
 }
 
 function loadSaved(): RestoredReport {
@@ -180,7 +258,11 @@ export function App() {
   ]);
   const [stateId, setStateId] = useState("washington");
   const [query, setQuery] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [dateError, setDateError] = useState("");
   const [found, setFound] = useState<Found | null>(null);
+  const foundRef = useRef<Found | null>(null);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [selected, setSelected] = useState<Selected | null>(null);
@@ -213,7 +295,9 @@ export function App() {
   const searchRequest = useRef<{
     sequence: number;
     controller?: AbortController;
+    signature?: string;
   }>({ sequence: 0 });
+  const pageRequests = useRef(new Set<string>());
   const detailSequence = useRef(0);
   const selectedKey = useRef<string | null>(null);
   const selectedRef = useRef(selected);
@@ -395,6 +479,11 @@ export function App() {
   const front: Pane =
     wide && (pane === "search" || pane === "results") ? "issues" : pane;
   const paneTab = wide ? 0 : -1;
+  const samePendingSearch =
+    busy &&
+    found?.query === query.trim() &&
+    found.dateFrom === (scope === "federal" ? dateFrom || null : null) &&
+    found.dateTo === (scope === "federal" ? dateTo || null : null);
 
   function clearSelection() {
     detailSequence.current += 1;
@@ -405,11 +494,15 @@ export function App() {
   /** A change of scope or sources drops the pending search and its results. */
   function resetSearch() {
     searchRequest.current.controller?.abort();
+    searchRequest.current.signature = undefined;
+    pageRequests.current.clear();
+    foundRef.current = null;
     searchRequest.current.sequence += 1;
     setBusy(false);
     setFound(null);
     setMessage("");
     setQueryError("");
+    setDateError("");
     clearSelection();
   }
 
@@ -426,107 +519,235 @@ export function App() {
     );
   }
 
-  async function runSearch(ids: readonly string[], q: string) {
+  function publishFound(value: Found) {
+    foundRef.current = value;
+    setFound(value);
+    setMessage(foundMessage(value));
+  }
+
+  async function runSearch(
+    ids: readonly string[],
+    q: string,
+    options: DemoSearchOptions = PAGE_OPTIONS,
+  ) {
     const reference = isCongressReference(q);
     if (!reference && ids.length === 1 && ids[0] === "congress") {
       setQueryError(COPY.congressQueryError);
       document.getElementById("q")?.focus();
       return;
     }
-    // Congress.gov answers one bill reference only; other terms skip it.
-    const skipped = !reference && ids.includes("congress");
-    const asked = skipped ? ids.filter((id) => id !== "congress") : ids;
+    const signature = JSON.stringify([
+      ids,
+      q,
+      options.dateFrom,
+      options.dateTo,
+    ]);
+    if (searchRequest.current.signature === signature && busy) return;
     searchRequest.current.controller?.abort();
     const sequence = searchRequest.current.sequence + 1;
     const controller = new AbortController();
-    searchRequest.current = { sequence, controller };
+    searchRequest.current = { sequence, controller, signature };
+    pageRequests.current.clear();
     const ownsView = () =>
       mounted.current && sequence === searchRequest.current.sequence;
-    setBusy(true);
+    const sourceStates: SourceSearch[] = ids.map((sourceId) => {
+      const reason =
+        sourceId === "congress" && (options.dateFrom || !reference)
+          ? options.dateFrom
+            ? COPY.congressDatesSkipped
+            : COPY.congressSkipped
+          : sourceId === "govinfo" &&
+              options.dateFrom &&
+              !supportsDatedGovinfoQuery(q)
+            ? COPY.govinfoDatesSkipped
+            : undefined;
+      return {
+        sourceId,
+        state: reason ? "not_searched" : "loading",
+        listings: [],
+        cursors: [],
+        reason,
+      };
+    });
+    publishFound({
+      query: q,
+      dateFrom: options.dateFrom,
+      dateTo: options.dateTo,
+      rows: [],
+      sources: sourceStates,
+    });
+    setBusy(sourceStates.some((source) => source.state === "loading"));
     setQueryError("");
-    setMessage(COPY.searching);
-    setFound(null);
+    setDateError("");
     clearSelection();
     setPane((current) => (current === "search" ? "results" : current));
-    // The single-pane layout hides the Search pane now; focus follows to Results.
     if (!wide)
       requestAnimationFrame(() => {
         if (ownsView()) resultsRef.current?.focus();
       });
-    // One request per source; a source that fails does not hide the others.
+    const asked = sourceStates.filter((source) => source.state === "loading");
     const settled = await Promise.allSettled(
-      asked.map((id) => search(id, q, 1, controller.signal)),
+      asked.map(({ sourceId }) =>
+        search(sourceId, q, 1, controller.signal, options),
+      ),
     );
     if (!ownsView()) return;
-    const batches: SourceResults[] = [];
-    const outcomes: { sourceId: string; text: string }[] = [];
-    const failures: { sourceId: string; text: string; answered: boolean }[] =
-      [];
+    const completed = new Map<string, SourceSearch>();
     settled.forEach((result, index) => {
-      const sourceId = asked[index];
+      const previous = asked[index];
       if (result.status === "fulfilled") {
-        const { results, total } = result.value;
-        batches.push({ sourceId, results });
-        outcomes.push({
-          sourceId,
-          text: COPY.resultsCount(results.length, total),
+        const response = result.value;
+        const seen = new Set<string>();
+        const listings = response.results.filter((item) => {
+          if (seen.has(keyOf(item))) return false;
+          seen.add(keyOf(item));
+          return true;
+        });
+        completed.set(previous.sourceId, {
+          ...previous,
+          state: listings.length ? "results" : "empty",
+          listings,
+          response,
         });
       } else {
-        // A "source" failure carries the source's own reason, such as no such
-        // bill; only a service or rate-limit failure means nothing was asked.
-        const answered =
+        const missingReference =
+          (previous.sourceId === "congress" ||
+            previous.sourceId === "washington") &&
           result.reason instanceof ApiFailure &&
-          result.reason.kind === "source";
-        outcomes.push({
-          sourceId,
-          text: answered ? COPY.sourceNothing : COPY.sourceFailed,
-        });
-        failures.push({
-          sourceId,
-          text: failureText(result.reason),
-          answered,
+          result.reason.code === "not_found" &&
+          result.reason.httpStatus === 404;
+        completed.set(previous.sourceId, {
+          ...previous,
+          state: missingReference ? "empty" : "unavailable",
+          reason: failureText(result.reason),
         });
       }
     });
-    if (skipped) outcomes.push({ sourceId: "congress", text: COPY.skipped });
-    const { results: rows, merged } = mergeResults(batches);
-    // When every source failed the same way, the reason is the headline.
-    const oneReason =
-      failures.length === asked.length &&
-      failures.every((failure) => failure.text === failures[0].text);
-    setFound({
-      rows,
-      outcomes,
-      notes: [
-        ...(oneReason
-          ? []
-          : failures.map(({ sourceId, text, answered }) => {
-              const label = labelOf(sourceId);
-              if (!answered) return COPY.sourceFailure(label, text);
-              // A reason that opens with the source's name is not given it twice.
-              return text.startsWith(label)
-                ? text
-                : COPY.sourceAnswer(label, text);
-            })),
-        ...(skipped ? [COPY.congressSkipped] : []),
-        ...(merged ? [COPY.mergeNote(merged)] : []),
-      ],
-    });
-    setMessage(
-      rows.length
-        ? COPY.resultsListed(rows.length)
-        : oneReason
-          ? failures[0].text
-          : failures.length === asked.length
-            ? COPY.allFailed
-            : COPY.noResults,
+    const sources = sourceStates.map(
+      (source) => completed.get(source.sourceId) ?? source,
     );
+    const batches: SourceResults[] = sources.map(({ sourceId, listings }) => ({
+      sourceId,
+      results: listings,
+    }));
+    publishFound({
+      query: q,
+      dateFrom: options.dateFrom,
+      dateTo: options.dateTo,
+      rows: mergeResults(batches).results,
+      sources,
+    });
     setBusy(false);
+  }
+
+  async function loadMore(sourceId: string) {
+    const current = foundRef.current;
+    const source = current?.sources.find((item) => item.sourceId === sourceId);
+    if (
+      !current ||
+      !source ||
+      pageRequests.current.has(sourceId) ||
+      source.response?.continuation.kind !== "more"
+    )
+      return;
+    const continuation: DemoSearchCursor = source.response.continuation.next;
+    const sequence = searchRequest.current.sequence;
+    const ownsView = () =>
+      mounted.current && sequence === searchRequest.current.sequence;
+    pageRequests.current.add(sourceId);
+    publishFound({
+      ...current,
+      sources: current.sources.map((item) =>
+        item.sourceId === sourceId
+          ? {
+              ...item,
+              loadingMore: true,
+              pagingStarted: true,
+              pageError: undefined,
+            }
+          : item,
+      ),
+    });
+    setMessage(COPY.loadingMore(labelOf(sourceId)));
+    try {
+      let response = await search(
+        sourceId,
+        current.query,
+        continuation.page,
+        searchRequest.current.controller?.signal,
+        {
+          dateFrom: current.dateFrom,
+          dateTo: current.dateTo,
+          continuation,
+        },
+      );
+      if (!ownsView()) return;
+      const latest = foundRef.current!;
+      const latestSource = latest.sources.find(
+        (item) => item.sourceId === sourceId,
+      )!;
+      const seen = new Set(latestSource.listings.map(keyOf));
+      const added = response.results.filter((item) => {
+        if (seen.has(keyOf(item))) return false;
+        seen.add(keyOf(item));
+        return true;
+      });
+      const cap = sourceId === "regulations" ? 200 : 500;
+      if (latestSource.listings.length + added.length > cap)
+        throw new Error("The source exceeded the demo listing limit.");
+      const cursors = [
+        ...latestSource.cursors,
+        ...(continuation.cursor ? [continuation.cursor] : []),
+      ];
+      if (
+        response.continuation.kind === "more" &&
+        response.continuation.next.cursor &&
+        cursors.includes(response.continuation.next.cursor)
+      )
+        response = {
+          ...response,
+          continuation: { kind: "stopped", reason: "unknown" },
+        };
+      const listings = [...latestSource.listings, ...added];
+      publishFound({
+        ...latest,
+        rows: appendMergedResults(latest.rows, [{ sourceId, results: added }])
+          .results,
+        sources: latest.sources.map((item) =>
+          item.sourceId === sourceId
+            ? {
+                ...item,
+                state: listings.length ? "results" : "empty",
+                listings,
+                response,
+                cursors,
+                loadingMore: false,
+                pageError: undefined,
+              }
+            : item,
+        ),
+      });
+      setMessage(COPY.pageLoaded(labelOf(sourceId), added.length));
+    } catch (error) {
+      if (!ownsView()) return;
+      const latest = foundRef.current!;
+      const reason = failureText(error);
+      publishFound({
+        ...latest,
+        sources: latest.sources.map((item) =>
+          item.sourceId === sourceId
+            ? { ...item, loadingMore: false, pageError: reason }
+            : item,
+        ),
+      });
+      setMessage(COPY.pageFailed(labelOf(sourceId)));
+    } finally {
+      if (ownsView()) pageRequests.current.delete(sourceId);
+    }
   }
 
   function onSubmit(event: Event) {
     event.preventDefault();
-    if (busy) return;
     if (!usable) {
       setQueryError(blockedReason);
       document.getElementById("q")?.focus();
@@ -537,7 +758,20 @@ export function App() {
       document.getElementById("q")?.focus();
       return;
     }
-    void runSearch(targets, query.trim());
+    let options = PAGE_OPTIONS;
+    if (scope === "federal") {
+      try {
+        options = {
+          ...dateRangeValue(dateFrom || null, dateTo || null),
+          continuation: null,
+        };
+      } catch {
+        setDateError(COPY.dateRangeError);
+        document.getElementById("date-from")?.focus();
+        return;
+      }
+    }
+    void runSearch(targets, query.trim(), options);
   }
 
   /** A state example switches to that state; a federal one runs on the checked sources. */
@@ -556,6 +790,8 @@ export function App() {
     setScope(state ? "state" : "federal");
     if (state) setStateId(sid);
     setQuery(q);
+    setDateFrom("");
+    setDateTo("");
     void runSearch(ids, q);
   }
 
@@ -576,8 +812,14 @@ export function App() {
     return promise;
   }
 
-  async function showIssues(citation: DemoCitation) {
-    const key = keyOf(citation);
+  async function showIssues(
+    citation: DemoCitation,
+    alternates: readonly DemoCitation[] = [],
+  ) {
+    const savedKey = findCitedKey(reportRef.current, citation, alternates);
+    const savedEntry = savedKey ? reportRef.current.cited[savedKey] : undefined;
+    if (savedEntry) citation = savedEntry.citation;
+    const key = savedKey ?? keyOf(citation);
     const sequence = ++detailSequence.current;
     const revision = revisions.current.get(key) ?? 0;
     selectedKey.current = key;
@@ -597,7 +839,11 @@ export function App() {
       return;
     }
     if (!citation.textAvailable) {
-      setSelected({ citation, state: "unread", message: COPY.noTextForSource });
+      setSelected({
+        citation,
+        state: "unread",
+        message: savedEntry ? COPY.savedMetadataNote : COPY.noTextForSource,
+      });
       return;
     }
     try {
@@ -632,7 +878,7 @@ export function App() {
     alternates: readonly DemoCitation[],
   ) {
     const k = keyOf(citation);
-    if (reportRef.current.cited[k]) return;
+    if (findCitedKey(reportRef.current, citation, alternates)) return;
     if (Object.keys(reportRef.current.cited).length >= MAX_CITATIONS) {
       setCitationMessage(COPY.citationLimit(MAX_CITATIONS));
       // Nothing else on the page changes, so the reason must be in sight.
@@ -1101,6 +1347,53 @@ export function App() {
                 <p id="q-help" class="help">
                   {help}
                 </p>
+                {scope === "federal" ? (
+                  <fieldset class="date-range">
+                    <legend class="field">{COPY.dateRangeTitle}</legend>
+                    <p id="date-help" class="help">
+                      {COPY.dateRangeHelp}
+                    </p>
+                    <label class="field" for="date-from">
+                      {COPY.dateFrom}
+                    </label>
+                    <input
+                      id="date-from"
+                      type="date"
+                      value={dateFrom}
+                      aria-describedby={
+                        dateError ? "date-help date-error" : "date-help"
+                      }
+                      aria-invalid={dateError ? "true" : undefined}
+                      onInput={(event) => {
+                        setDateFrom((event.target as HTMLInputElement).value);
+                        setDateError("");
+                      }}
+                    />
+                    <label class="field" for="date-to">
+                      {COPY.dateTo}
+                    </label>
+                    <input
+                      id="date-to"
+                      type="date"
+                      value={dateTo}
+                      aria-describedby={
+                        dateError ? "date-help date-error" : "date-help"
+                      }
+                      aria-invalid={dateError ? "true" : undefined}
+                      onInput={(event) => {
+                        setDateTo((event.target as HTMLInputElement).value);
+                        setDateError("");
+                      }}
+                    />
+                    {dateError && (
+                      <p id="date-error" class="notice" role="alert">
+                        {dateError}
+                      </p>
+                    )}
+                  </fieldset>
+                ) : (
+                  <p class="help">{COPY.stateDateHelp}</p>
+                )}
                 {queryError && (
                   <p id="q-error" class="notice" role="alert">
                     {queryError}
@@ -1114,13 +1407,25 @@ export function App() {
                 <button
                   type="submit"
                   class="btn primary"
-                  aria-disabled={!usable || busy}
+                  aria-disabled={!usable || samePendingSearch}
                   aria-describedby={blockedBy}
                 >
                   {COPY.searchButton}
                 </button>
               </div>
             </form>
+            {scope === "state" && COPY.stateHandoffs[stateId] && (
+              <div class="zone">
+                <a
+                  href={COPY.stateHandoffs[stateId].url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {COPY.stateHandoffs[stateId].label}
+                </a>
+                <p class="help">{COPY.stateHandoffHelp}</p>
+              </div>
+            )}
             <div class="zone">
               <h3 class="eyebrow">{COPY.examplesLabel}</h3>
               <ul class="chips">
@@ -1147,6 +1452,19 @@ export function App() {
             tabIndex={paneTab}
           >
             <h2 id="results-h">{COPY.resultsTitle}</h2>
+            {found && (
+              <div class="submitted-search">
+                <p>
+                  <strong>{COPY.submittedQuery}</strong> {found.query}
+                </p>
+                <p class="help">
+                  {found.dateFrom
+                    ? COPY.submittedDates(found.dateFrom, found.dateTo!)
+                    : COPY.noDateRange}
+                </p>
+                <p class="help">{COPY.loadedOrder}</p>
+              </div>
+            )}
             <div class="live" role="status" aria-live="polite">
               <p>
                 {found === null && !busy && !message
@@ -1154,28 +1472,93 @@ export function App() {
                   : message}
                 {busy && <span class="cursor" aria-hidden="true" />}
               </p>
-              {found && (
-                <ul class="rows">
-                  {found.outcomes.map((outcome) => (
-                    <li class="row" key={outcome.sourceId}>
-                      <span class="row-k">{labelOf(outcome.sourceId)}</span>
-                      <Leader />
-                      <span class="row-v">{outcome.text}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {found?.notes.map((note) => (
-                <p class="help" key={note}>
-                  {note}
-                </p>
-              ))}
             </div>
+            {found && (
+              <ul class="source-outcomes">
+                {found.sources.map((source) => {
+                  const label = labelOf(source.sourceId);
+                  const continuation = source.response?.continuation;
+                  const sameFailure = source.reason === message;
+                  return (
+                    <li key={source.sourceId}>
+                      <p class="row">
+                        <span class="row-k">{label}</span>
+                        <Leader />
+                        <span class="row-v">{sourceOutcome(source)}</span>
+                      </p>
+                      {found.dateFrom &&
+                        source.state !== "not_searched" &&
+                        COPY.sourceDateMeaning[source.sourceId] && (
+                          <p class="help">
+                            {COPY.sourceDateMeaning[source.sourceId]}
+                          </p>
+                        )}
+                      {source.reason && !sameFailure && (
+                        <p class="help">{source.reason}</p>
+                      )}
+                      {source.pageError && (
+                        <p class="notice">
+                          {COPY.pageFailureDetail(source.pageError)}
+                        </p>
+                      )}
+                      {(continuation?.kind === "more" ||
+                        source.pagingStarted) && (
+                        <button
+                          type="button"
+                          class="btn"
+                          aria-disabled={
+                            Boolean(source.loadingMore) ||
+                            continuation?.kind !== "more"
+                          }
+                          onClick={() => void loadMore(source.sourceId)}
+                        >
+                          {COPY.loadMore(label)}
+                        </button>
+                      )}
+                      {continuation?.kind === "stopped" &&
+                        continuation.reason !== "not_applicable" && (
+                          <p class="help">
+                            {continuation.reason === "cap"
+                              ? COPY.pageCap(
+                                  source.sourceId === "regulations" ? 200 : 500,
+                                )
+                              : continuation.reason === "unknown"
+                                ? COPY.continuationUnknown
+                                : COPY.noMoreResults}{" "}
+                            <a
+                              href={COPY.officialSearch[source.sourceId]}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {COPY.continueOfficial}
+                            </a>
+                          </p>
+                        )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            {found &&
+              found.sources.reduce(
+                (sum, source) => sum + source.listings.length,
+                0,
+              ) > found.rows.length && (
+                <p class="help">
+                  {COPY.mergeNote(
+                    found.sources.reduce(
+                      (sum, source) => sum + source.listings.length,
+                      0,
+                    ) - found.rows.length,
+                  )}
+                </p>
+              )}
             <ul class="results" key={searchRequest.current.sequence}>
               {(found?.rows ?? []).map(({ citation: c, alternates }) => {
                 const k = keyOf(c);
-                const isCited = Boolean(cited[k]);
-                const addLabel = pending[k]
+                const savedKey = findCitedKey(report, c, alternates);
+                const isCited = savedKey !== undefined;
+                const addLabel = pending[savedKey ?? k]
                   ? COPY.readingCited
                   : isCited
                     ? COPY.inCitations
@@ -1183,7 +1566,7 @@ export function App() {
                 return (
                   <li
                     class={`result${selectedKey.current === k ? " is-here" : ""}`}
-                    key={k}
+                    key={logicalResultKey(c)}
                   >
                     <h3>{c.title}</h3>
                     <p class="row">
@@ -1203,7 +1586,7 @@ export function App() {
                         type="button"
                         class="btn"
                         aria-label={COPY.showIssuesFor(c.title)}
-                        onClick={() => void showIssues(c)}
+                        onClick={() => void showIssues(c, alternates)}
                       >
                         {COPY.showIssues}
                       </button>

@@ -2,7 +2,13 @@ import type {
   DemoPolicyResponse,
   DemoSearchResponse,
   DemoSource,
+  DemoErrorResponse,
+  DemoSearchOptions,
 } from "../src/demo/types";
+import {
+  SearchCriteriaError,
+  searchCriteria,
+} from "../src/demo/search-contract";
 import {
   object,
   policyValue,
@@ -34,6 +40,9 @@ export class ApiFailure extends Error {
   constructor(
     message: string,
     readonly kind: "service" | "limited" | "source",
+    readonly code: string | null = null,
+    readonly httpStatus: number | null = null,
+    readonly status: DemoErrorResponse["status"] | null = null,
   ) {
     super(message);
     this.name = "ApiFailure";
@@ -88,17 +97,29 @@ async function get<T>(
       headers: { Accept: "application/json" },
       signal: controller.signal,
     });
-    if (response.status === 429) {
-      await response.body?.cancel().catch(() => undefined);
-      throw new ApiFailure("limited", "limited");
+    let body: Record<string, unknown>;
+    try {
+      body = object(await readJson(response));
+    } catch (error) {
+      if (response.status === 429)
+        throw new ApiFailure("limited", "limited", null, 429);
+      throw error;
     }
-    const body = object(await readJson(response));
     if (!response.ok || body.ok === false) {
       throw new ApiFailure(
         typeof body.message === "string" && body.message.length <= 2000
           ? body.message
           : "The source did not answer.",
-        "source",
+        response.status === 429 ? "limited" : "source",
+        typeof body.error === "string" && /^[a-z_]{1,80}$/.test(body.error)
+          ? body.error
+          : null,
+        response.status,
+        ["live", "key_pending", "not_available", "unknown", "error"].includes(
+          String(body.status),
+        )
+          ? (body.status as DemoErrorResponse["status"])
+          : null,
       );
     }
     return validate(body);
@@ -115,16 +136,35 @@ export function loadSources(signal?: AbortSignal): Promise<DemoSource[]> {
   return get("/api/sources", sourcesValue, signal);
 }
 
-export function search(
+export async function search(
   source: string,
   query: string,
   page: number,
   signal?: AbortSignal,
+  options?: DemoSearchOptions,
 ): Promise<DemoSearchResponse> {
+  try {
+    searchCriteria(source, query, page, options);
+  } catch (error) {
+    throw new ApiFailure(
+      error instanceof Error ? error.message : "Invalid search.",
+      "source",
+      error instanceof SearchCriteriaError ? error.code : "bad_query",
+      400,
+      "error",
+    );
+  }
   const params = new URLSearchParams({ source, q: query, page: String(page) });
+  if (options) {
+    params.set("searchVersion", "1");
+    if (options.dateFrom !== null) params.set("dateFrom", options.dateFrom);
+    if (options.dateTo !== null) params.set("dateTo", options.dateTo);
+    if (options.continuation !== null)
+      params.set("continuation", JSON.stringify(options.continuation));
+  }
   return get(
     `/api/search?${params.toString()}`,
-    (value) => searchValue(value, source, query, page),
+    (value) => searchValue(value, source, query, page, options),
     signal,
   );
 }

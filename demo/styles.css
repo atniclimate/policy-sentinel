@@ -405,6 +405,7 @@ textarea {
   color: inherit;
 }
 /* Instrument field: overlay shade with a line under it. */
+input[type="date"],
 input[type="search"],
 input[type="text"],
 select,
@@ -1361,4 +1362,22 @@ details dt {
     padding-top: 6pt;
     border-top: 1px solid #e7ecf3;
   }
+}
+
+.date-range > * + * {
+  margin-top: 0.5rem;
+}
+.source-outcomes {
+  list-style: none;
+  padding: 0;
+}
+.source-outcomes > li {
+  padding-block: 0.75rem;
+  border-bottom: 1px solid var(--hair);
+}
+.source-outcomes .btn {
+  margin-top: 0.5rem;
+}
+.submitted-search {
+  overflow-wrap: anywhere;
 }

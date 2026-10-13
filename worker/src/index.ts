@@ -14,10 +14,21 @@ import {
   washingtonCaption,
 } from "../../src/demo/analyze";
 import { CONGRESS_REFERENCE } from "../../src/demo/merge";
+import {
+  MAX_CONTINUATION_LENGTH,
+  SearchCriteriaError,
+  nextSearchCursor,
+  searchCriteria,
+  searchPageLimit,
+  validCursorToken,
+} from "../../src/demo/search-contract";
 import type {
   DemoCitation,
   DemoErrorResponse,
   DemoSearchResponse,
+  DemoSearchCriteria,
+  DemoSearchContinuation,
+  DemoSearchCursor,
   DemoSource,
 } from "../../src/demo/types";
 
@@ -419,14 +430,18 @@ function frCitation(value: unknown, retrievedAt: string): DemoCitation {
 }
 
 async function searchFederalRegister(
-  query: string,
-  page: number,
+  criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
+  const { query, page, dateFrom, dateTo } = criteria;
   const url = new URL("https://www.federalregister.gov/api/v1/documents.json");
   url.searchParams.set("conditions[term]", query);
   url.searchParams.set("per_page", "10");
   url.searchParams.set("page", String(page));
   url.searchParams.set("order", "relevance");
+  if (dateFrom !== null && dateTo !== null) {
+    url.searchParams.set("conditions[publication_date][gte]", dateFrom);
+    url.searchParams.set("conditions[publication_date][lte]", dateTo);
+  }
   for (const f of FR_FIELDS) url.searchParams.append("fields[]", f);
   const { response, bytes } = await officialFetch(url.href);
   if (!response.ok) {
@@ -440,15 +455,32 @@ async function searchFederalRegister(
   const results = resultRows(data.results).map((doc) =>
     frCitation(doc, retrievedAt),
   );
+  const total = resultCount(data.count);
   return {
     ok: true,
     source: "federal-register",
     query,
-    total: resultCount(data.count),
+    total,
     page,
     results,
     retrievedAt,
+    criteria,
+    continuation: numericContinuation(criteria, total, results.length),
   };
+}
+
+function numericContinuation(
+  criteria: DemoSearchCriteria,
+  total: number | null,
+  count: number,
+): DemoSearchContinuation {
+  if (criteria.page === searchPageLimit(criteria.source))
+    return { kind: "stopped", reason: "cap" };
+  if (total !== null && criteria.page * 10 >= total)
+    return { kind: "stopped", reason: "complete" };
+  if (total === null && count < 10)
+    return { kind: "stopped", reason: "unknown" };
+  return { kind: "more", next: nextSearchCursor(criteria) };
 }
 
 async function readFederalRegister(id: string) {
@@ -670,9 +702,9 @@ function requireKey(env: Env): string {
 
 async function searchGovInfo(
   env: Env,
-  query: string,
-  page: number,
+  criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
+  const { query, page, dateFrom, dateTo } = criteria;
   const key = requireKey(env);
   const { response, bytes } = await officialFetch(
     "https://api.govinfo.gov/search",
@@ -680,9 +712,12 @@ async function searchGovInfo(
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Api-Key": key },
       body: JSON.stringify({
-        query,
+        query:
+          dateFrom !== null && dateTo !== null
+            ? `(${query}) AND publishdate:range(${dateFrom},${dateTo})`
+            : query,
         pageSize: 10,
-        offsetMark: "*",
+        offsetMark: criteria.cursor ?? "*",
         historical: false,
         resultLevel: "default",
       }),
@@ -732,20 +767,33 @@ async function searchGovInfo(
     page,
     results,
     retrievedAt,
+    criteria,
+    continuation:
+      page === 50
+        ? { kind: "stopped", reason: "cap" }
+        : validCursorToken(data.offsetMark) &&
+            data.offsetMark !== "*" &&
+            data.offsetMark !== criteria.cursor
+          ? { kind: "more", next: nextSearchCursor(criteria, data.offsetMark) }
+          : { kind: "stopped", reason: "unknown" },
   };
 }
 
 async function searchRegulations(
   env: Env,
-  query: string,
-  page: number,
+  criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
+  const { query, page, dateFrom, dateTo } = criteria;
   const key = requireKey(env);
   const url = new URL("https://api.regulations.gov/v4/documents");
   url.searchParams.set("filter[searchTerm]", query);
   url.searchParams.set("page[size]", "10");
   url.searchParams.set("page[number]", String(page));
   url.searchParams.set("sort", "-postedDate");
+  if (dateFrom !== null && dateTo !== null) {
+    url.searchParams.set("filter[postedDate][ge]", dateFrom);
+    url.searchParams.set("filter[postedDate][le]", dateTo);
+  }
   const { response, bytes } = await officialFetch(url.href, {
     headers: { "X-Api-Key": key },
   });
@@ -776,22 +824,25 @@ async function searchRegulations(
       matchKey: frMatchKey(a.frDocNum),
     };
   });
+  const total = resultCount(meta.totalElements);
   return {
     ok: true,
     source: "regulations",
     query,
-    total: resultCount(meta.totalElements),
+    total,
     page,
     results,
     retrievedAt,
+    criteria,
+    continuation: numericContinuation(criteria, total, results.length),
   };
 }
 
 async function searchCongress(
   env: Env,
-  query: string,
-  page: number,
+  criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
+  const { query, page } = criteria;
   const key = requireKey(env);
   const m = CONGRESS_REFERENCE.exec(query);
   if (!m) {
@@ -873,6 +924,8 @@ async function searchCongress(
     page,
     results: [result],
     retrievedAt,
+    criteria,
+    continuation: { kind: "stopped", reason: "not_applicable" },
   };
 }
 
@@ -1056,25 +1109,44 @@ export default {
             "Enter at least two characters to search.",
             400,
           );
-        if (
-          page !== 1 &&
-          ["govinfo", "congress", "washington"].includes(source)
-        )
+        let criteria: DemoSearchCriteria;
+        try {
+          const version = url.searchParams.get("searchVersion");
+          const envelope = url.searchParams.get("continuation");
+          if (
+            (version !== null && version !== "1") ||
+            (envelope !== null && envelope.length > MAX_CONTINUATION_LENGTH)
+          )
+            throw new SearchCriteriaError(
+              "The search contract is not supported.",
+            );
+          criteria = searchCriteria(source, q, page, {
+            dateFrom: url.searchParams.get("dateFrom"),
+            dateTo: url.searchParams.get("dateTo"),
+            continuation:
+              envelope === null
+                ? null
+                : (JSON.parse(envelope) as DemoSearchCursor),
+          });
+        } catch (error) {
           throw new DemoError(
-            "bad_query",
-            "This source supports the first page only in the demo.",
+            error instanceof SearchCriteriaError ? error.code : "bad_query",
+            error instanceof SearchCriteriaError
+              ? error.message
+              : "The continuation is not valid.",
             400,
           );
+        }
         const run = async () => {
           switch (source) {
             case "federal-register":
-              return searchFederalRegister(q, page);
+              return searchFederalRegister(criteria);
             case "govinfo":
-              return searchGovInfo(env, q, page);
+              return searchGovInfo(env, criteria);
             case "regulations":
-              return searchRegulations(env, q, page);
+              return searchRegulations(env, criteria);
             case "congress":
-              return searchCongress(env, q, page);
+              return searchCongress(env, criteria);
             case "washington": {
               const policy = await readWashington(q);
               return {
@@ -1085,6 +1157,8 @@ export default {
                 page: 1,
                 results: [policy.citation],
                 retrievedAt: policy.receipt.retrievedAt,
+                criteria,
+                continuation: { kind: "stopped", reason: "not_applicable" },
               } satisfies DemoSearchResponse;
             }
             default:
