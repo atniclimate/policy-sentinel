@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  appendMergedResults,
   CONGRESS_REFERENCE,
   FEDERAL_PRECEDENCE,
   isCongressReference,
+  logicalResultKey,
   mergeResults,
 } from "../../src/demo/merge";
 import type { DemoCitation } from "../../src/demo/types";
@@ -174,6 +176,109 @@ describe("merging results from several federal sources", () => {
       results: [],
       merged: 0,
     });
+  });
+});
+
+describe("appending explicitly loaded source pages", () => {
+  it("keeps loaded row order and logical identity when a higher-precedence source arrives", () => {
+    const [gA, g1, r1] = [gi("gA", A), gi("g1"), reg("r1")];
+    const first = mergeResults([
+      batch("govinfo", gA, g1),
+      batch("regulations", r1),
+    ]);
+    const before = structuredClone(first);
+    const f0 = fr("f0");
+    const fA = fr("fA", A);
+    const second = appendMergedResults(first.results, [
+      batch("federal-register", f0, fA),
+    ]);
+    expect(second).toEqual({
+      results: [
+        { citation: fA, alternates: [gA] },
+        { citation: r1, alternates: [] },
+        { citation: g1, alternates: [] },
+        { citation: f0, alternates: [] },
+      ],
+      merged: 1,
+    });
+    expect(
+      second.results.slice(0, 3).map((row) => logicalResultKey(row.citation)),
+    ).toEqual(first.results.map((row) => logicalResultKey(row.citation)));
+    expect(first).toEqual(before);
+  });
+
+  it("keeps the first metadata snapshot of repeated listing IDs, including alternates", () => {
+    const f = fr("f", A);
+    const g = gi("g", A);
+    const noKey = reg("r");
+    const first = mergeResults([
+      batch("federal-register", f),
+      batch("govinfo", g),
+      batch("regulations", noKey),
+    ]);
+    const changed = (c: DemoCitation): DemoCitation => ({
+      ...c,
+      title: "Later metadata must not replace the loaded snapshot",
+      retrievedAt: "2099-02-01T00:00:00.000Z",
+      matchKey: "fr:2099-99999",
+    });
+    const second = appendMergedResults(first.results, [
+      batch("regulations", changed(noKey), changed(noKey)),
+      batch("federal-register", changed(f)),
+      batch("govinfo", changed(g)),
+    ]);
+    expect(second).toEqual(first);
+    expect(second.results[0].citation).toBe(f);
+    expect(second.results[0].alternates[0]).toBe(g);
+    expect(second.results[1].citation).toBe(noKey);
+  });
+
+  it("deduplicates new repeated IDs before merging same-source listings", () => {
+    const a = reg("a", A);
+    const b = reg("b", A);
+    const other = reg("other");
+    expect(
+      mergeResults([batch("regulations", a, a, b, b, other, other)]),
+    ).toEqual({
+      results: [
+        { citation: a, alternates: [b] },
+        { citation: other, alternates: [] },
+      ],
+      merged: 1,
+    });
+  });
+
+  it("keeps distinct versions and title-only matches as separate rows", () => {
+    const introduced = gi("BILLS-119hr1ih");
+    const enrolled = { ...gi("BILLS-119hr1enr"), title: introduced.title };
+    const a = fr("original", A);
+    const corrected = {
+      ...fr("correction", "fr:2099-00002"),
+      title: a.title,
+    };
+    const first = mergeResults([
+      batch("govinfo", introduced),
+      batch("federal-register", a),
+    ]);
+    const second = appendMergedResults(first.results, [
+      batch("federal-register", corrected),
+      batch("govinfo", enrolled),
+    ]);
+    expect(second.results.map((row) => row.citation)).toEqual([
+      a,
+      introduced,
+      corrected,
+      enrolled,
+    ]);
+    expect(second.merged).toBe(0);
+  });
+
+  it("separates shared keys from listing keys and leaves an empty append unchanged", () => {
+    const shared = fr("f", A);
+    const unshared = { ...fr("f"), sourceId: "fr", identifier: "2099-00001" };
+    expect(logicalResultKey(shared)).not.toBe(logicalResultKey(unshared));
+    const first = mergeResults([batch("federal-register", shared)]);
+    expect(appendMergedResults(first.results, [])).toEqual(first);
   });
 });
 

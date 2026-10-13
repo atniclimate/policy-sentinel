@@ -674,14 +674,17 @@ export function StudyWorkspace({
   function extracted(kind: string): StudyRecord {
     return { ...metadata(kind), provenance: "extracted_evidence" };
   }
-  async function update(records: readonly StudyChange[]) {
+  async function update(
+    records: readonly StudyChange[],
+    updatedAt = timestamp(),
+  ) {
     if (!study || !bound)
       throw new Error("Resume or rebind a study before editing.");
     if (!actor)
       throw new Error("Join this study as a local analyst before editing.");
     const next = await reviseResearchStudy(
       study,
-      { updatedAt: timestamp(), actorId: actor, records },
+      { updatedAt, actorId: actor, records },
       corpus,
     );
     setStudy(next);
@@ -1152,6 +1155,7 @@ export function StudyWorkspace({
                 setProducts(null);
                 setHistorical(null);
                 setPendingImport(null);
+                setSensitivity("restricted");
                 setMessage(
                   "Study rebound. Review source bindings before relying on saved evidence.",
                 );
@@ -2588,26 +2592,30 @@ export function StudyWorkspace({
                           })),
                       ]
                     : [];
-                await update([
-                  {
-                    collection: target.collection,
-                    record: { ...target.record, reviewState: decision },
-                  } as StudyChange,
-                  {
-                    collection: "reviews",
-                    record: {
-                      id: identifier("review"),
-                      actorId: actor,
-                      createdAt: timestamp(),
-                      provenance: "analyst_authored",
-                      sensitivity,
-                      targetId: target.record.id,
-                      decision,
-                      notes: value(data, "notes"),
+                const reviewedAt = timestamp();
+                await update(
+                  [
+                    {
+                      collection: target.collection,
+                      record: { ...target.record, reviewState: decision },
+                    } as StudyChange,
+                    {
+                      collection: "reviews",
+                      record: {
+                        id: identifier("review"),
+                        actorId: actor,
+                        createdAt: reviewedAt,
+                        provenance: "analyst_authored",
+                        sensitivity,
+                        targetId: target.record.id,
+                        decision,
+                        notes: value(data, "notes"),
+                      },
                     },
-                  },
-                  ...dependent,
-                ]);
+                    ...dependent,
+                  ],
+                  reviewedAt,
+                );
                 if (dependent.length)
                   setMessage(
                     `Saved review. ${dependent.length} dependent record${dependent.length === 1 ? " needs" : "s need"} a new attributed review; earlier decisions remain in study history. Download study JSON to keep this revision.`,

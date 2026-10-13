@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest";
+import { SOURCE_LABELS } from "../../src/demo/citations";
+import { COPY } from "../../src/demo/copy";
+import { buildDocument } from "../../src/demo/document";
+import { appendMergedResults, mergeResults } from "../../src/demo/merge";
 import {
   ACTOR_FIELDS,
   attachPolicy,
   emptyActors,
   emptyReport,
+  findCitedKey,
   MAX_ACTOR_TEXT,
   MAX_ALTERNATES,
+  MAX_SAVED_CHARACTERS,
   missingActorFields,
   removeFromReport,
   reportEntries,
@@ -13,6 +19,7 @@ import {
   serializeReport,
 } from "../../src/demo/report-state";
 import type { DataActors, ReportState } from "../../src/demo/report-state";
+import { searchPageLimit } from "../../src/demo/search-contract";
 import type { DemoCitation } from "../../src/demo/types";
 import { keyOf } from "../../src/demo/validation";
 import { listing } from "./fixtures";
@@ -233,6 +240,72 @@ describe("citation report recovery and evidence binding", () => {
   );
 });
 
+describe("saved logical document identity", () => {
+  it("recognizes later primary promotion without changing saved evidence or notes", () => {
+    const original = merged();
+    const key = Object.keys(original.cited)[0];
+    const before = serializeReport(original);
+    const promoted = listing("govinfo", "promoted", "fr:2099-00001");
+    expect(findCitedKey(original, promoted)).toBe(key);
+    expect(findCitedKey(original, original.cited[key].alternates[0])).toBe(key);
+    expect(serializeReport(original)).toBe(before);
+    expect(reportEntries(original)[0]).toMatchObject({
+      receipt: original.cited[key].policy?.receipt,
+      note: "Keep this policy note.",
+      issues: [{ note: "Keep this passage note." }],
+    });
+    expect(original.actors).toEqual(ACTORS);
+  });
+
+  it("recognizes an old entry by its exact listing after that listing becomes an alternate", () => {
+    const original = restoreReport(legacy(saved(), 2)).report;
+    const key = Object.keys(original.cited)[0];
+    const before = serializeReport(original);
+    const primary = listing("govinfo", "new-primary", "fr:2099-00001");
+    const oldListing = {
+      ...original.cited[key].citation,
+      matchKey: primary.matchKey,
+    };
+    expect(findCitedKey(original, primary)).toBeUndefined();
+    expect(findCitedKey(original, primary, [oldListing])).toBe(key);
+    expect(serializeReport(original)).toBe(before);
+  });
+
+  it("uses exact saved alternate identity before a shared-key match", () => {
+    const original = merged();
+    const key = Object.keys(original.cited)[0];
+    const alternate = original.cited[key].alternates[0];
+    expect(findCitedKey(original, { ...alternate, matchKey: null })).toBe(key);
+    const second = citation("2099-00002");
+    const secondKey = keyOf(second);
+    original.cited[secondKey] = {
+      citation: second,
+      policy: null,
+      note: "Separate saved listing",
+      alternates: [],
+    };
+    expect(
+      findCitedKey(original, { ...second, matchKey: "fr:2099-00001" }),
+    ).toBe(secondKey);
+  });
+
+  it("never identifies a saved entry by title, date, or another document version", () => {
+    const original = merged();
+    const key = Object.keys(original.cited)[0];
+    const savedCitation = original.cited[key].citation;
+    for (const matchKey of [null, "fr:2099-00002"]) {
+      expect(
+        findCitedKey(original, {
+          ...savedCitation,
+          identifier: "Another document version",
+          matchKey,
+        }),
+      ).toBeUndefined();
+    }
+    expect(findCitedKey(emptyReport(), savedCitation)).toBeUndefined();
+  });
+});
+
 describe("data actors", () => {
   it("lists the five entries in their fixed order, starting empty", () => {
     expect(ACTOR_FIELDS).toEqual([
@@ -381,6 +454,83 @@ describe("official addresses in saved citations", () => {
 });
 
 describe("alternate listings of a cited document", () => {
+  it.each([
+    { name: "two pages", counts: [["regulations", 14]] as const },
+    {
+      name: "every source's page limit",
+      counts: [
+        ["federal-register", searchPageLimit("federal-register") * 10],
+        ["govinfo", searchPageLimit("govinfo") * 10],
+        ["regulations", searchPageLimit("regulations") * 10],
+      ] as const,
+    },
+  ])(
+    "keeps listings accumulated through $name after reopening and in export provenance",
+    ({ counts }) => {
+      let merged = mergeResults([]);
+      for (const [sourceId, count] of counts) {
+        const listings = Array.from({ length: count }, (_, n) =>
+          listing(sourceId, `2099-listing-${n}`, "fr:2099-00001"),
+        );
+        for (let offset = 0; offset < count; offset += 10)
+          merged = appendMergedResults(merged.results, [
+            { sourceId, results: listings.slice(offset, offset + 10) },
+          ]);
+      }
+      expect(merged.results).toHaveLength(1);
+      const row = merged.results[0];
+      const expectedAlternates =
+        counts.reduce((sum, [, count]) => sum + count, 0) - 1;
+      expect(row.alternates).toHaveLength(expectedAlternates);
+      const key = keyOf(row.citation);
+      const report: ReportState = {
+        ...emptyReport(),
+        cited: {
+          [key]: { ...row, policy: null, note: "Keep every official listing." },
+        },
+      };
+      const encoded = serializeReport(report);
+      expect(encoded.length).toBeLessThan(MAX_SAVED_CHARACTERS);
+      const restored = restoreReport(encoded);
+      expect(restored.report.cited[key].alternates).toHaveLength(
+        expectedAlternates,
+      );
+      expect(restored).toEqual({ report, notice: "" });
+
+      // PDF and print share this document model.
+      const document = buildDocument({
+        version: "test",
+        generatedAt: new Date("2099-01-08T12:00:00Z"),
+        entries: reportEntries(restored.report),
+        actors: restored.report.actors,
+      });
+      expect(
+        document.blocks.flatMap((block) =>
+          block.kind === "field" && block.label === COPY.docLabels.alsoListedBy
+            ? [block.value]
+            : [],
+        ),
+      ).toEqual(
+        row.alternates.map(
+          (alternate) =>
+            `${SOURCE_LABELS[alternate.sourceId]}: ${alternate.officialUrl}`,
+        ),
+      );
+    },
+  );
+
+  it("still rejects saved reports above the total character limit", () => {
+    const original = merged();
+    const key = Object.keys(original.cited)[0];
+    original.cited[key].note = "x".repeat(MAX_SAVED_CHARACTERS);
+    expect(() => serializeReport(original)).toThrow(
+      "Saved report is too large",
+    );
+    const restored = restoreReport(JSON.stringify({ version: 3, ...original }));
+    expect(restored.report).toEqual(emptyReport());
+    expect(restored.notice).toBe(COPY.restoreFailed);
+  });
+
   it("returns the alternates with each report entry", () => {
     expect(reportEntries(merged())[0].alternates).toEqual([
       listing("govinfo"),

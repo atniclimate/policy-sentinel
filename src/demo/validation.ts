@@ -2,9 +2,18 @@ import type {
   DemoCitation,
   DemoPolicyResponse,
   DemoSearchResponse,
+  DemoSearchOptions,
+  DemoSearchContinuation,
   DemoSource,
   IssueType,
 } from "./types";
+import {
+  nextSearchCursor,
+  sameSearchCriteria,
+  searchCriteria,
+  searchPageLimit,
+  validCursorToken,
+} from "./search-contract";
 
 const SOURCE_HOSTS: Record<string, readonly string[]> = {
   "federal-register": ["www.federalregister.gov", "www.govinfo.gov"],
@@ -189,8 +198,10 @@ export function searchValue(
   source: string,
   query: string,
   page: number,
+  options?: DemoSearchOptions,
 ): DemoSearchResponse {
   const v = object(value);
+  const criteria = searchCriteria(source, query, page, options);
   if (
     v.ok !== true ||
     v.source !== source ||
@@ -198,8 +209,51 @@ export function searchValue(
     v.page !== page
   )
     throw new Error("Search response does not match request");
+  let continuation: DemoSearchContinuation;
+  if (v.criteria === undefined && options === undefined && page === 1) {
+    continuation = { kind: "stopped", reason: "unknown" };
+  } else {
+    if (!sameSearchCriteria(v.criteria, criteria))
+      throw new Error("Search criteria do not match request");
+    const next = object(v.continuation);
+    if (next.kind === "more") {
+      const envelope = object(next.next);
+      const cursor = source === "govinfo" ? envelope.cursor : null;
+      if (
+        page >= searchPageLimit(source) ||
+        (source === "govinfo" &&
+          (!validCursorToken(cursor) ||
+            cursor === "*" ||
+            cursor === criteria.cursor)) ||
+        !sameSearchCriteria(
+          envelope,
+          nextSearchCursor(criteria, cursor as string | null),
+        )
+      )
+        throw new Error("Invalid search continuation");
+      continuation = {
+        kind: "more",
+        next: nextSearchCursor(criteria, cursor as string | null),
+      };
+    } else if (
+      next.kind === "stopped" &&
+      ["complete", "cap", "unknown", "not_applicable"].includes(
+        String(next.reason),
+      ) &&
+      (next.reason !== "cap" || page === searchPageLimit(source)) &&
+      (next.reason !== "not_applicable" ||
+        ["congress", "washington"].includes(source)) &&
+      (source !== "govinfo" || next.reason !== "complete")
+    ) {
+      continuation = {
+        kind: "stopped",
+        reason: next.reason as
+          "complete" | "cap" | "unknown" | "not_applicable",
+      };
+    } else throw new Error("Invalid search continuation");
+  }
   const ids = new Set<string>();
-  const results = list(v.results, 100).map((item) => {
+  const results = list(v.results, 10).map((item) => {
     const citation = citationValue(item);
     if (citation.sourceId !== source || ids.has(keyOf(citation)))
       throw new Error("Invalid search result identity");
@@ -211,6 +265,8 @@ export function searchValue(
     source,
     query,
     page,
+    criteria,
+    continuation,
     results,
     total: v.total === null ? null : integer(v.total, Number.MAX_SAFE_INTEGER),
     retrievedAt: timestamp(v.retrievedAt),

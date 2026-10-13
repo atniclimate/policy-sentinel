@@ -1,89 +1,69 @@
 # Status
 
-As of 2026-10-13. Policy Sentinel **0.6.1** is the maintenance update from the
-completed local audit. The owner authorized its commit, push and GitHub Pages
-publication under D-098. This page is overwritten each session; earlier state
-and deployment checkpoints remain in Git history and [DEMO-STATUS.md](DEMO-STATUS.md).
+As of 2026-10-13. **This release publishes the search upgrade and six audit
+repairs under D-101.** The compatible Worker is deployed and its bounded live
+search checks passed. Product direction and safeguards remain in
+[AGENTS.md](../AGENTS.md); milestone order is in [PLAN.md](PLAN.md).
 
-## Goal
+## Current state
 
-Policy Sentinel helps Tribal policy, natural resources and legal staff, and ATNI
-Climate staff, find official policy, keep exact passages and notes, and export
-cited documents. Results retain official-source provenance. The tool supplies no
-legal conclusions or inferred Nation relationships. The full product direction
-and safeguards are in [AGENTS.md](../AGENTS.md).
+- The preceding 0.6.1 maintenance publication was pull request 9, merge
+  `e47ebba`. This release's 17 runtime files match the reviewed production
+  artifact exactly. Pages serves `main:/docs` through the normal pull-request path.
+- Worker `583cd4ab-f99b-4ffc-9d7b-c9d73466df18` serves 100% of traffic from
+  2026-10-13 at 21:01:53 UTC. Its source is `350329f`; existing secrets,
+  configured sources and the 60-per-minute rate limit are unchanged.
+- The demo searches Federal Register, GovInfo and Regulations.gov by topic,
+  with inclusive source-date filters and explicit Load more. Congress.gov and Washington retain exact-reference
+  lookup; Oregon and Idaho remain integration gaps.
+- The release includes the search upgrade at `a37c994`: paired inclusive
+  source-date filters, ten-listing pages, explicit Load more, retained search
+  criteria and citations, and distinct unavailable/not-searched outcomes.
+  Federal Register and GovInfo stop at 50 pages/500 listings each;
+  Regulations.gov stops at 20 pages/200. GovInfo cursors stay opaque, and its
+  dated query accepts only the documented narrow plain-word composition.
+- Six reviewed audit repairs: reject junctions in artifact output paths
+  before replacement; retain every permitted alternate citation on report
+  reload; reset new study material to Restricted after an imported study is
+  rebound; correct historical Congress ordinals; report known exhaustion before
+  a numeric page cap; and enlarge wrapped alternate-link targets.
+- The repairs add no source, dependency, credential use, search history,
+  telemetry, private-data route, legal conclusion or inferred Nation
+  relationship. The 38 pre-existing untracked owner documents remain untouched.
 
-## Current functionality and release
+## Verification and next step
 
-- The [public demo](https://atniclimate.github.io/policy-sentinel/) searches
-  Federal Register, GovInfo and Regulations.gov by words or phrases. Congress.gov
-  and Washington support bill-reference lookups. Oregon and Idaho remain explicit
-  coverage gaps. The interface currently retrieves only the first page per source.
-- Federal Register and Washington supply readable text for deterministic passage
-  checks. The other three federal sources supply metadata and official links.
-  Exact shared Federal Register document numbers can merge listings; no inferred
-  identity or Nation relationship is used.
-- Users keep citations, selected passages and their own notes within the browser
-  tab, then export a cited PDF or print view with provenance. Notes and data actor
-  entries are not uploaded. The public application works without AI.
-- The separate local workbench supports saved studies and richer cited outputs.
-  Ordinary builds use synthetic records. Demo source access does not activate
-  engine adapters or authorize private data in a public build.
-- The 0.6.0 page, including the seal and ATNI Climate citation, was published by
-  pull request 8 at `4d320bc`; Pages finished that build on 2026-10-11 at
-  02:12:57 UTC. The public header was read back as 0.6.0 on 2026-10-13.
-  Version 0.6.1 rebuilds the same demo interface and document with the patch number.
-- The Worker remains the previously deployed version
-  `969d1a24-f4de-4706-9fa9-24feae5f2503`. This update changes no Worker code,
-  credentials, source activation or request allowance.
+Each defect has a failing regression or browser receipt and a passing repair.
+Focused suites passed: 57 artifact tests, 158 report/export tests, 146 Worker
+tests and 15 study tests. Independent reviewers checked the actual fixes and
+callers; no substantiated locally fixable finding remains from this audit.
 
-## Audit outcome
+Chrome passed 19 synthetic browser checks, including restored provenance,
+keyboard navigation through alternate links, study rebinding, saved Restricted
+material and public-export filtering. Five settled accessibility scans passed
+across the report's desktop/narrow light/dark views and the study workspace.
+Screenshots were inspected. There were no page errors or external requests.
+The private production demo build passed its 17-file artifact scan; before/after
+SHA-256 checks confirmed all 17 existing public runtime files unchanged.
+The final `npm run check` passed: 2,556 unit tests in 120 files, 48 hook tests,
+the retained validation stages, source-boundary scan and synthetic build/artifact
+checks. Native file-symlink fixtures were unavailable on this Windows host;
+junction and hard-link checks ran. These results do not establish live acceptance.
 
-- Oversized local responses now fail promptly even if stream cancellation rejects
-  or never settles. Both regression cases failed before the repair and now pass.
-- Citation membership, evidence grouping and graph-edge deduplication use Set/Map
-  indexes, preserving output order, exact identifiers and provenance. No measured
-  wall-clock speedup is claimed.
-- PDF wrapping tests share font setup and retain every comparison against the
-  whole-line oracle. Three whole-repository AST tests have individual 15-second
-  limits; assertions and the global timeout are unchanged.
-- Startup context and README now direct current work to the user task, AGENTS,
-  STATUS and PLAN. Obsolete uninstalled hook handlers were removed. The retained
-  roadmap and its validators remain unchanged.
-- One clean obsolete worktree was reconciled and retired; its branch and unique
-  history remain. Only the active checkout remains registered.
-- Engineering, feature and source/output reviews found no further actionable
-  defects in the audited changes after repairs. Subsequent search planning found
-  a separate source-error presentation defect, listed below for the next session.
+The D-101 deployment check made seven search calls: dated pages one and two
+for Federal Register, GovInfo and Regulations.gov, plus `hr 1 101` for Congress.
+All passed criteria, identity, continuation and response-header checks. Each
+paged source returned 20 distinct identifiers. Federal Register publication
+dates and Regulations.gov posted dates were in range. GovInfo's publication
+filter and displayed issue date retain their different meanings. Congress
+returned the corrected `101st` citation and URL; one direct official-page
+request returned 403, so direct route acceptance remains unverified. No retry
+was made. These finite checks do not establish ongoing service availability.
 
-Verification: the repaired tree passed `npm run check`, including 48 hook tests,
-119 unit-test files with 2,419 passing tests, retained-record validators,
-source-boundary checks, the synthetic build and artifact validation. Native
-file-symlink fixtures were unavailable on the Windows host; junction and hard-link
-tests ran. Local browser checks exercised keyboard search, details, citations and
-report flow plus the local-corpus unavailable fallback, with zero automated WCAG
-A/AA violations after transitions settled.
-
-The 0.6.1 demo build, typecheck, lint, formatting, source-boundary scan and
-documentation validators also passed. Its generated script changes were verified
-as version/import-hash changes only. The built page showed 0.6.1 in a browser,
-with working keyboard dialog controls, no page errors and zero automated WCAG
-A/AA violations using a synthetic catalog and no external requests.
-
-The bounded live browser run on 0.6.0 passed 16 checks, including the catalog,
-dialog accessibility and a ten-result Federal Register search. It then stopped
-on a browser protocol error while retrieving a response body. It was not retried;
-the full live acceptance flow remains incomplete. This maintenance update is not
-acceptance of the proposed first real release.
-
-## Next step
-
-The owner selected search improvements for the next implementation session:
-ordinary keywords, source-aware year/date refinement, per-source continuation,
-clear failure and coverage states, and an uninterrupted path to cited outputs.
-Luna research and two Sol reviewers prepare that work without adding dependencies
-or activating sources in this release. The durable product order and acceptance
-checks remain in [PLAN.md](PLAN.md).
+D-100 committed and pushed the reviewed repairs as `350329f`. D-101 authorizes
+the compatible Worker deployment and this Pages publication, including its
+commit, push and normal pull-request/merge path. The next product work remains
+the milestone order in PLAN; do not repeat the completed implementation or audit.
 
 ## Open owner decisions
 
@@ -98,24 +78,18 @@ checks remain in [PLAN.md](PLAN.md).
    corpus past the release? Earlier rulings are not silently revoked.
 6. Archive ROADMAP and its validators? Until answered they stay unchanged.
 7. Standing permission for future public-page pull requests, a repository license,
-   and the first outside user? D-098 authorizes this maintenance publication.
+   and the first outside user? The D-098 maintenance publication is complete.
 8. Tribal government documents printed by a federal source are not detected today.
    Filter, flag or leave them? Open since D-094.
 
 ## Known gaps
 
-- Search currently groups some upstream failures under "Nothing returned". The
-  next search change must separate no matches, unavailable and not searched,
-  preserve healthy results and validate continuation and date semantics.
-- Safari, Firefox, a real screen reader, physical printing, and PDF viewers still
-  need checks by a person. The PDF is untagged; unsupported characters stop export
-  with a message and Print view as fallback. Long reports may take seconds.
-- Engine API integrations beyond the demo retain separate qualification and
-  credential gates. The previously assessed GovInfo and Washington acquisition
-  profiles expired on 2026-10-05; no new engine acquisition was attempted here.
-- The historical StudyWorkspace intermittent failure did not reproduce in focused
-  or integrated audit runs; no speculative repair was made.
-- Three engine source adapters retain their tested `0.2` user-agent strings.
-  They are separate from the displayed application version.
-- The existing phone-header layout, supplied seal variant and body typeface
-  choices remain as recorded in [DEMO-STATUS.md](DEMO-STATUS.md).
+- Outside-user acceptance, Safari,
+  Firefox, a real screen reader, physical printing and PDF-viewer checks remain.
+  The PDF is untagged; unsupported characters stop export with Print view offered
+  as the existing fallback.
+- Engine APIs retain separate qualification and credential gates. The GovInfo and
+  Washington acquisition profiles expired on 2026-10-05; this work does not renew
+  them or resume completed acquisition.
+- Public and local results establish no legal meaning or inferred Nation
+  relationship. Source-specific freshness and coverage limits remain.

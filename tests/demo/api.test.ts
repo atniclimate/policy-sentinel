@@ -7,7 +7,12 @@ import {
   REQUEST_TIMEOUT_MS,
   search,
 } from "../../demo/api";
-import { policy, searchResult, sources } from "./frontend-fixtures";
+import { citation, policy, searchResult, sources } from "./frontend-fixtures";
+import {
+  nextSearchCursor,
+  searchCriteria,
+} from "../../src/demo/search-contract";
+import type { DemoSearchOptions } from "../../src/demo/types";
 
 const answer = (value: unknown, status = 200) =>
   new Response(JSON.stringify(value), {
@@ -20,6 +25,242 @@ afterEach(() => {
 });
 
 describe("demo API response boundary", () => {
+  const undated: DemoSearchOptions = {
+    dateFrom: null,
+    dateTo: null,
+    continuation: null,
+  };
+  const dated: DemoSearchOptions = {
+    ...undated,
+    dateFrom: "2024-01-01",
+    dateTo: "2024-12-31",
+  };
+
+  function searchAnswer(options = undated) {
+    return {
+      ...searchResult([], "water"),
+      criteria: searchCriteria("federal-register", "water", 1, options),
+      continuation: { kind: "stopped", reason: "complete" },
+    };
+  }
+
+  it("sends validated dates and requires complete criteria echo", async () => {
+    const fetch = vi.fn().mockResolvedValue(answer(searchAnswer(dated)));
+    vi.stubGlobal("fetch", fetch);
+    const result = await search(
+      "federal-register",
+      "water",
+      1,
+      undefined,
+      dated,
+    );
+    expect(result.criteria).toEqual(
+      searchCriteria("federal-register", "water", 1, dated),
+    );
+    const params = new URL(fetch.mock.calls[0][0]).searchParams;
+    expect(params.get("searchVersion")).toBe("1");
+    expect(params.get("dateFrom")).toBe("2024-01-01");
+    expect(params.get("dateTo")).toBe("2024-12-31");
+  });
+
+  it.each([
+    {},
+    { dateFrom: null },
+    { dateTo: null },
+    { version: 2 },
+    { pageSize: 100 },
+    { sort: "date" },
+    { historical: true },
+    { resultLevel: "package" },
+    { cursor: "x" },
+  ])("rejects an old or mismatched criteria echo %j", async (patch) => {
+    const response = searchAnswer(dated);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        answer({
+          ...response,
+          criteria: Object.keys(patch).length
+            ? { ...response.criteria, ...patch }
+            : undefined,
+        }),
+      ),
+    );
+    await expect(
+      search("federal-register", "water", 1, undefined, dated),
+    ).rejects.toMatchObject({ kind: "service" });
+  });
+
+  it("requires the new contract even for undated options, while a legacy initial call cannot claim continuation", async () => {
+    const legacy = {
+      ...searchAnswer(),
+      criteria: undefined,
+      continuation: undefined,
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() => Promise.resolve(answer(legacy))),
+    );
+    await expect(
+      search("federal-register", "water", 1, undefined, undated),
+    ).rejects.toMatchObject({ kind: "service" });
+    await expect(search("federal-register", "water", 1)).resolves.toMatchObject(
+      { continuation: { kind: "stopped", reason: "unknown" } },
+    );
+  });
+
+  it("rejects invalid criteria before making a request", async () => {
+    const fetch = vi.fn();
+    vi.stubGlobal("fetch", fetch);
+    await expect(
+      search("federal-register", "water", 1, undefined, {
+        ...dated,
+        dateFrom: "2024-02-30",
+      }),
+    ).rejects.toMatchObject({ code: "bad_query", httpStatus: 400 });
+    await expect(
+      search("congress", "hr 1234 119", 1, undefined, dated),
+    ).rejects.toMatchObject({ code: "unsupported_criteria" });
+    await expect(
+      search("regulations", "water", 21, undefined, undated),
+    ).rejects.toMatchObject({ code: "bad_query" });
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("rejects mismatched next cursor context instead of fetching or claiming more", async () => {
+    const response = searchAnswer(dated);
+    const next = nextSearchCursor(response.criteria);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        answer({
+          ...response,
+          continuation: {
+            kind: "more",
+            next: { ...next, dateTo: "2025-12-31" },
+          },
+        }),
+      ),
+    );
+    await expect(
+      search("federal-register", "water", 1, undefined, dated),
+    ).rejects.toMatchObject({ kind: "service" });
+  });
+
+  it("rejects eleven listings at the browser response boundary", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        answer({
+          ...searchAnswer(),
+          results: Array.from({ length: 11 }, (_, index) =>
+            citation(`2099-${String(index).padStart(5, "0")}`),
+          ),
+        }),
+      ),
+    );
+    await expect(
+      search("federal-register", "water", 1, undefined, undated),
+    ).rejects.toMatchObject({ kind: "service" });
+  });
+
+  it("rejects a legacy later page that cannot echo the continuation context", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        answer({
+          ...searchAnswer(),
+          page: 2,
+          criteria: undefined,
+          continuation: undefined,
+        }),
+      ),
+    );
+    await expect(search("federal-register", "water", 2)).rejects.toMatchObject({
+      kind: "service",
+    });
+  });
+
+  it.each(["current-token", "*", "has space", "X".repeat(4097)])(
+    "rejects unusable returned GovInfo continuation %s",
+    async (token) => {
+      const current = nextSearchCursor(
+        searchCriteria("govinfo", "water", 1),
+        "current-token",
+      );
+      const options = { ...undated, continuation: current };
+      const response = {
+        ...searchResult([], "water", "govinfo"),
+        page: 2,
+        criteria: current,
+        continuation: { kind: "more", next: nextSearchCursor(current, token) },
+      };
+      vi.stubGlobal("fetch", vi.fn().mockResolvedValue(answer(response)));
+      await expect(
+        search("govinfo", "water", 2, undefined, options),
+      ).rejects.toMatchObject({ kind: "service" });
+    },
+  );
+
+  it("sends and validates the complete opaque GovInfo page envelope", async () => {
+    const current = nextSearchCursor(
+      searchCriteria("govinfo", "water", 1),
+      "opaque+/=one",
+    );
+    const options = { ...undated, continuation: current };
+    const response = {
+      ...searchResult([], "water", "govinfo"),
+      page: 2,
+      criteria: current,
+      continuation: {
+        kind: "more",
+        next: nextSearchCursor(current, "opaque+/=two"),
+      },
+    };
+    const fetch = vi.fn().mockResolvedValue(answer(response));
+    vi.stubGlobal("fetch", fetch);
+    await expect(
+      search("govinfo", "water", 2, undefined, options),
+    ).resolves.toMatchObject(response);
+    const params = new URL(fetch.mock.calls[0][0]).searchParams;
+    expect(JSON.parse(params.get("continuation")!)).toEqual(current);
+    expect(fetch).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    ["not_found", 404, "error"],
+    ["upstream_error", 502, "error"],
+    ["key_pending", 503, "key_pending"],
+    ["upstream_rate_limited", 503, "error"],
+    ["rate_limited", 429, "error"],
+  ])(
+    "preserves typed Worker failure %s with HTTP and source status",
+    async (code, httpStatus, status) => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue(
+          answer(
+            {
+              ok: false,
+              error: code,
+              message: "Synthetic source failure.",
+              status,
+            },
+            Number(httpStatus),
+          ),
+        ),
+      );
+      await expect(
+        search("federal-register", "water", 1, undefined, undated),
+      ).rejects.toMatchObject({
+        code,
+        httpStatus,
+        status,
+        kind: httpStatus === 429 ? "limited" : "source",
+      });
+    },
+  );
+
   it.each([
     {},
     { ok: true, sources: [] },

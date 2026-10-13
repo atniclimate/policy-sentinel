@@ -213,6 +213,48 @@ test("validator rejects non-JSON files before parsing the manifest", async () =>
   }
 });
 
+test("artifact writer refuses linked output ancestors without touching their targets", async () => {
+  await mkdir(fixtureParent, { recursive: true });
+  const root = await mkdtemp(path.join(fixtureParent, "linked-writer-"));
+  assert.ok(
+    path.resolve(root).startsWith(`${path.resolve(fixtureParent)}${path.sep}`),
+  );
+  try {
+    for (const linkedPart of ["dist", "dist/linked-parent", "dist/data"]) {
+      const sandbox = path.join(root, linkedPart.replaceAll("/", "-"));
+      const project = path.join(sandbox, "project");
+      const outside = path.join(sandbox, "outside");
+      const link = path.join(project, linkedPart);
+      const output =
+        linkedPart === "dist/linked-parent"
+          ? path.join(link, "data")
+          : path.join(project, "dist", "data");
+      const target =
+        linkedPart === "dist/data" ? outside : path.join(outside, "data");
+      await mkdir(path.dirname(link), { recursive: true });
+      await mkdir(target, { recursive: true });
+      const marker = path.join(target, "preserve.txt");
+      await writeFile(marker, "outside artifact output", "utf8");
+      await symlink(outside, link, "junction");
+      try {
+        await assert.rejects(
+          writeArtifactDocuments({
+            documents: createDocuments(),
+            outputDirectory: output,
+            projectRoot: project,
+          }),
+          /linked artifact output/,
+        );
+        assert.equal(await readFile(marker, "utf8"), "outside artifact output");
+      } finally {
+        await rm(link, { recursive: true, force: true });
+      }
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test("validator rejects symlinks before parsing the manifest", async (t) => {
   const fixture = await createValidatorFixture();
   try {

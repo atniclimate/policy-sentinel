@@ -1,4 +1,5 @@
 import type { DemoCitation } from "./types";
+import { keyOf } from "./validation";
 
 /**
  * Which record to show when several federal sources list the same document,
@@ -33,6 +34,12 @@ function precedence(sourceId: string): number {
   return index < 0 ? FEDERAL_PRECEDENCE.length : index;
 }
 
+/** Keep a row's identity when a later source becomes its primary listing. */
+export const logicalResultKey = (citation: DemoCitation): string =>
+  citation.matchKey === null
+    ? `listing:${keyOf(citation)}`
+    : `match:${citation.matchKey}`;
+
 /**
  * Interleave the sources by rank and collapse listings of the same document.
  * Only an exact shared matchKey merges; titles never do. One source can list
@@ -43,16 +50,40 @@ export function mergeResults(batches: readonly SourceResults[]): {
   readonly results: MergedResult[];
   readonly merged: number;
 } {
+  return appendMergedResults([], batches);
+}
+
+/** Preserve loaded row order and metadata while merging explicitly loaded pages. */
+export function appendMergedResults(
+  previous: readonly MergedResult[],
+  batches: readonly SourceResults[],
+): {
+  readonly results: MergedResult[];
+  readonly merged: number;
+} {
   const ordered = [...batches].sort(
     (a, b) => precedence(a.sourceId) - precedence(b.sourceId),
   );
-  const rows: DemoCitation[][] = [];
+  const rows = previous.map(({ citation, alternates }) => [
+    citation,
+    ...alternates,
+  ]);
   const byKey = new Map<string, DemoCitation[]>();
+  const listings = new Set<string>();
+  for (const row of rows) {
+    for (const citation of row) {
+      listings.add(keyOf(citation));
+      if (citation.matchKey !== null) byKey.set(citation.matchKey, row);
+    }
+  }
   const depth = Math.max(0, ...ordered.map((batch) => batch.results.length));
   for (let rank = 0; rank < depth; rank += 1) {
     for (const batch of ordered) {
       if (rank >= batch.results.length) continue;
       const citation = batch.results[rank];
+      const listing = keyOf(citation);
+      if (listings.has(listing)) continue;
+      listings.add(listing);
       const row =
         citation.matchKey === null ? undefined : byKey.get(citation.matchKey);
       if (row) {

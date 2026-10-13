@@ -34,6 +34,36 @@ export interface DemoCitation {
   readonly matchKey: string | null;
 }
 
+/** Complete request binding. A cursor is data, never a URL or authorization. */
+export interface DemoSearchCriteria {
+  readonly version: 1;
+  readonly source: string;
+  readonly query: string;
+  readonly dateFrom: string | null;
+  readonly dateTo: string | null;
+  readonly page: number;
+  readonly pageSize: 10;
+  readonly sort: "relevance" | "provider-default" | "-postedDate" | "reference";
+  readonly resultLevel: "default" | null;
+  readonly historical: false | null;
+  readonly cursor: string | null;
+}
+
+export type DemoSearchCursor = DemoSearchCriteria;
+
+export interface DemoSearchOptions {
+  readonly dateFrom: string | null;
+  readonly dateTo: string | null;
+  readonly continuation: DemoSearchCursor | null;
+}
+
+export type DemoSearchContinuation =
+  | { readonly kind: "more"; readonly next: DemoSearchCursor }
+  | {
+      readonly kind: "stopped";
+      readonly reason: "complete" | "cap" | "unknown" | "not_applicable";
+    };
+
 export interface DemoSearchResponse {
   readonly ok: true;
   readonly source: string;
@@ -42,6 +72,8 @@ export interface DemoSearchResponse {
   readonly page: number;
   readonly results: readonly DemoCitation[];
   readonly retrievedAt: string;
+  readonly criteria: DemoSearchCriteria;
+  readonly continuation: DemoSearchContinuation;
 }
 
 export type IssueType =

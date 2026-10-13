@@ -16,10 +16,122 @@ address. That build is source commit `c602468`. The D-095 follow-ups were then
 published through pull request 8 at `4d320bc`, whose tree matches `085ec25`.
 Pages finished that build on 2026-10-11 at 02:12:57 UTC. The public header was
 read back as 0.6.0 on 2026-10-13; the seal and ATNI Climate citation are public.
-The Worker deployment recorded below remains unchanged.
+The 0.6.1 maintenance update was subsequently published through pull request 9
+as `e47ebba` on 2026-10-13; the prior session verified all 17 runtime files
+against the reviewed build. The Worker deployment recorded below remains unchanged.
 Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
+
+## Search and audit release, 2026-10-13 (D-101)
+
+This release publishes the search upgrade and six reviewed audit repairs below.
+Its 17 generated runtime files match the independently reviewed production
+artifact exactly. The compatible Worker was deployed first: version
+`583cd4ab-f99b-4ffc-9d7b-c9d73466df18`, source `350329f`, serving 100% from
+2026-10-13 at 21:01:53 UTC. No configured source, secret, rate limit or
+observability setting changed. D-101 authorizes the release commit, push and
+normal pull-request/merge path to Pages from `main:/docs`.
+
+Seven bounded live search calls passed: pages one and two of `water` for the
+inclusive 2025 range on Federal Register, GovInfo and Regulations.gov, and
+`hr 1 101` on Congress. Each paged source returned 20 distinct identifiers with
+matching search criteria and valid continuation. Federal Register publication
+dates and Regulations.gov posted dates were in range; GovInfo's publication
+filter remains distinct from displayed issue dates. Health, configured keyed
+sources, CORS and response headers passed. The corrected Congress API citation
+and URL passed, but a separate direct official-page request returned 403.
+Direct route acceptance remains unverified; no retry was made. These checks do
+not establish continuing upstream availability or outside-user acceptance.
+
+The full repository and browser evidence below applies to unchanged inputs.
+Fresh release formatting, lint, typecheck, source scan and artifact checks pass.
+Earlier statements that deployment or keyed checks are pending describe their
+checkpoints; D-101 and the live results above supersede those specific limits.
+
+## Audit repairs, 2026-10-13 (reviewed)
+
+The D-099 audit/fix/review loop closed six demonstrated defects. For the demo,
+report reload now retains all alternate listings allowed by the search bounds;
+historical Congress citations and URLs use the correct ordinal; known numeric
+result exhaustion takes precedence over the page cap; and alternate-source
+links have targets at least 24 pixels high. Connected local repairs reject
+junctions before replacing artifact output and reset new authored material to
+Restricted when an imported study is rebound to another corpus.
+
+The focused report/export, Worker, artifact and study suites passed 158, 146,
+57 and 15 tests respectively. Independent re-review closed every finding.
+Chrome passed 19 synthetic checks and five settled accessibility scans,
+including desktop/narrow report views in both themes, keyboard links, restored
+provenance, study rebinding and public-export filtering. Screenshots were
+inspected; no page errors or external requests occurred. A private production
+build passed the 17-file artifact scan, and all 17 public runtime files retained
+their exact SHA-256 hashes. The final `npm run check` passed: 2,556 unit tests
+in 120 files, 48 hook tests, retained validation stages, source-boundary scan
+and synthetic build/artifact checks. Native file-symlink fixtures were unavailable
+on this host; junction and hard-link checks ran.
+
+This audit made zero provider calls. D-100 authorizes the reviewed repair commit
+and its push to `demo/live-pages`; pull request, merge, deployment and publication
+still need separate owner authorization. Keyed GovInfo/Regulations.gov checks
+and historical Congress route acceptance remain unverified. The compatible
+Worker must be deployed and verified before the new search page is published.
+
+## Search upgrade, 2026-10-13 (not deployed)
+
+The local page adds paired inclusive source-date filters and per-source Load more.
+Federal Register and GovInfo have 50-page/500-listing limits; Regulations.gov has
+20-page/200-listing limits at ten results per request. Congress.gov and Washington
+retain reference lookup. The original Federal Register-only default remains.
+
+Every new search request carries its complete criteria and continuation context.
+The page validates the Worker's echo, so an older Worker cannot silently ignore
+dates or paging. Deploy the compatible Worker before publishing this page, with
+the owner's separate approval of each external action.
+
+Results show their submitted criteria and separate loaded-listing counts from
+source totals. Appends preserve row identity, precedence and order; citations,
+receipts, selected passages, notes and data actor entries retain their saved
+snapshots. A failed page retains the loaded results and its cursor for explicit
+retry. Replacement submissions cancel and supersede pending work. Errors and
+unsupported criteria have distinct outcomes.
+
+GovInfo dated queries accept ASCII alphanumeric words separated by spaces,
+without Boolean operators or punctuation. The documented grouping/range grammar
+supports this narrow composition; it has not yet been checked through a keyed
+local route. Its publication-date filter and displayed source-issued date have
+different meanings. Missing, malformed or cyclic cursors stop with unknown
+continuation. Undated provider syntax remains available.
+
+Washington and Oregon offer manual official-site search links; Idaho offers an
+official session gateway whose search UI remains unverified. The links forward
+no typed terms. These are external handoffs and activate no adapter.
+
+Focused frontend (55), merge/report (93) and transport/contract (211) tests pass.
+Local Chrome passed 48 checks, including keyboard paging, failed-page retry,
+replacement searches, retained saved snapshots, PDF and print evidence. Eight
+settled accessibility scans reported no violations; there were no page errors
+or external requests. The independent boundary review is closed. A private
+production build passed the 17-file demo artifact scan; all 17 existing public
+runtime files remain unchanged. The final `npm run check` passed with 2,542 unit
+tests in 120 files, 48 hook tests, all retained validation stages and the synthetic
+build/artifact checks. These checks do not establish deployed or outside-user
+acceptance.
+
+Two bounded Federal Register searches through the local Worker checked pages one
+and two with an inclusive 2025 range. Both returned ten results, all 20 identifiers
+were distinct and every date was in range. There was no retry or third-page call.
+No local keyed binding is available, so GovInfo and Regulations.gov live date and
+continuation checks remain pending. D-099 authorizes a scoped source commit and
+normal review-branch push, followed by the next local audit/fix/review session.
+Worker deployment, pull request, merge and Pages publication remain separately
+gated; no runtime publication has occurred for this feature.
+
+The full-suite follow-up also repaired a workspace review timestamp race: review
+creation and its revision now use the same timestamp. A clock-advancing regression
+and all 15 workspace tests pass. All 43 history tests pass with a 15-second
+allowance for the existing 128-revision case; its assertions and the global
+timeout are unchanged.
 
 ## Maintenance update 0.6.1, 2026-10-13
 
@@ -49,8 +161,9 @@ acceptance, including document export and the embedded view, remains incomplete.
 The observed failure was in browser automation; it does not establish a provider
 or application defect.
 
-Search refinement is the owner's next development focus. Source failures currently
-can appear as "Nothing returned" and require distinct outcomes in that work.
+At this maintenance checkpoint, search refinement was the owner's next focus.
+The local search upgrade above now gives source failures distinct outcomes; the
+published maintenance page still has the earlier behavior.
 Historical statements below that publication was pending are superseded by the
 deployment facts above; all other limits retain their stated scope.
 

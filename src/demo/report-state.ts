@@ -1,4 +1,5 @@
 import { COPY } from "./copy";
+import { searchPageLimit } from "./search-contract";
 import type { DemoCitation, DemoPolicyResponse } from "./types";
 import {
   citationValue,
@@ -14,8 +15,12 @@ export const MAX_CITATIONS = 50;
 export const MAX_NOTE = 10000;
 export const MAX_SAVED_CHARACTERS = 2_000_000;
 export const MAX_ACTOR_TEXT = 300;
-// One source can list a document several times, so this is above the source count.
-export const MAX_ALTERNATES = 12;
+// Every loaded listing may identify the same document; one is its primary citation.
+export const MAX_ALTERNATES =
+  ["federal-register", "govinfo", "regulations"].reduce(
+    (total, source) => total + searchPageLimit(source) * 10,
+    0,
+  ) - 1;
 
 export interface Mark {
   on: boolean;
@@ -67,6 +72,26 @@ export const emptyReport = (): ReportState => ({
   marks: {},
   actors: emptyActors(),
 });
+
+/** Find the saved snapshot without replacing it when another listing becomes primary. */
+export function findCitedKey(
+  report: ReportState,
+  citation: DemoCitation,
+  alternates: readonly DemoCitation[] = [],
+): string | undefined {
+  const listings = new Set([citation, ...alternates].map(keyOf));
+  for (const listing of listings)
+    if (Object.hasOwn(report.cited, listing)) return listing;
+  const entries = Object.entries(report.cited);
+  const exact = entries.find(([, entry]) =>
+    entry.alternates.some((alternate) => listings.has(keyOf(alternate))),
+  );
+  if (exact) return exact[0];
+  if (citation.matchKey === null) return undefined;
+  return entries.find(
+    ([, entry]) => entry.citation.matchKey === citation.matchKey,
+  )?.[0];
+}
 
 /** Keep only saved alternates that are valid, distinct other listings of the cited document. */
 function restoreAlternates(

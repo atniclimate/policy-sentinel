@@ -18,8 +18,8 @@ Each milestone is done when its checks pass on the real service and the result i
 
 - A person can: use the rebuilt page at the public address.
 - Checks: a live search for a joint rule shows one merged row; a person tries Safari, Firefox and a screen reader.
-- Builds on: `demo/` and `worker/`. The 0.6.0 interface was published through pull request 8; maintenance publication is authorized by D-098. Live acceptance and the checks by a person remain outstanding.
-- Needs the owner: participation in the browser and assistive-technology checks; this maintenance push and merge are already authorized.
+- Builds on: `demo/` and `worker/`. The 0.6.1 maintenance update was published through pull request 9 under D-098. D-101 publishes the reviewed search upgrade and audit repairs; the compatible Worker and bounded keyed date/continuation checks passed. Outside-user acceptance and the checks by a person remain outstanding.
+- Needs the owner: participation in the browser and assistive-technology checks; each later Worker deployment and runtime publication needs separate authorization.
 
 ### 2. Federal families
 
@@ -60,24 +60,25 @@ Each milestone is done when its checks pass on the real service and the result i
 
 These are real outside actions or decisions. Nothing else on this plan waits for the owner.
 
-- Future publication outside D-098, and each later Worker deployment.
+- Future publication outside D-101, and each later Worker deployment.
 - One sentence allowing the existing api.data.gov key for engine work.
 - The eCFR terms, the Oregon terms and contact with Idaho.
 - A license. The repository is public and has none.
 - Any Nation's private or Nation-specific material.
 - Recruiting the first outside user.
-- Standing permission for future pull requests; D-098 covers this maintenance publication.
+- Standing permission for future pull requests; D-101 covers this search release only.
 - Confirming or changing decisions 1 to 8 in `STATUS.md`: the release definition, following and a refreshed public index, the key and terms, the Nation picker, the deferrals below, archiving the ledger, pull requests and license, and Tribal documents in federal results.
 
 ## Audit follow-through (2026-10-13)
 
-The owner selected improved search as the next session's focus (D-098): plain
-keywords, source-aware date refinement and usable continuation beyond the first
-page, built on the existing demo. Congress and Washington remain bill-reference
-lookups until a keyword interface is qualified. Source failures must be distinct
-from no matches. This changes the immediate development order, not source gates
-or the release acceptance criteria. Detailed implementation preparation stays
-outside the public repository.
+The search work selected under D-098 is implemented and locally verified: plain
+keywords, source-aware date refinement, continuation beyond the first page and
+distinct failure outcomes. Congress and Washington remain bill-reference
+lookups until a keyword interface is qualified. The D-099 repository
+audit/fix/review loop closed six demonstrated defects in this change and
+connected behavior; current verification is in [STATUS.md](STATUS.md).
+Source gates and release acceptance criteria are unchanged. Detailed
+session preparation stays outside the public repository.
 
 The D-096 local review/fix/review loop covers the demo, local loading, cited
 outputs and developer startup instructions. It does not establish release
@@ -86,7 +87,7 @@ Prioritize these small development steps within the milestones above:
 
 | Order | What a person gains | Existing code and acceptance check | Research or owner dependency |
 | --- | --- | --- | --- |
-| 1 | Reach results beyond the first ten from a searchable source. | Reuse `demo/main.tsx`, `demo/api.ts` and the Worker. Add per-source continuation, preserve exact-ID merging and existing selected notes, and keep failed pages distinguishable from no more results. Test a repeated item, a failed second page and a new search during loading. | Federal Register and Regulations.gov already accept page numbers. GovInfo needs an opaque continuation token; Congress and Washington remain reference lookups. Review each source's current interface before changing its request contract. |
+| 1 | Reach results beyond the first ten from a searchable source. | Implemented and locally verified in `demo/main.tsx`, `demo/api.ts` and the Worker. Audit continuation, exact-ID merging, retained notes, failed-page retry and replacement searches before deployment. | Federal Register dated paging passed two live calls. GovInfo and Regulations.gov keyed live checks remain pending; Congress and Washington remain reference lookups. A compatible Worker must precede page publication. |
 | 2 | Read one additional federal family with an exact document version. | Reuse the Worker transport, `src/demo/validation.ts` and the document/receipt model. Start with bills/public laws; one known item per route, exact official identity/version, clear metadata-only versus text-read status, and a receipt for every quoted passage. Distinct bill versions remain distinct. | Research originating-agency fields, versions, dates, reuse and failures first. Engine key use remains an owner decision; deployments need their own approval. |
 | 3 | Use and share a cited report with assistive technology. | Test the existing semantic HTML print view and PDF from the same `buildDocument` output. Check keyboard navigation, headings, reading order, exact quotes, notes and provenance; no silent loss of unsupported characters. Choose standalone accessible HTML or tagged PDF only after this check identifies the actual need. | A real screen-reader user and PDF/print viewer checks remain necessary. The current PDF is untagged; Print view is the existing fallback, not a verified accessible-PDF substitute. |
 | 4 | Return to a followed item and understand what changed. | Reuse report-state and lifecycle code after milestone 1 acceptance. A saved item must recover with its original identity and provenance, show source-supported change, and disclose unavailable refreshes. | Confirm following in the release and any refreshed public metadata index. Do not silently change session-only notes into persistent user storage. |

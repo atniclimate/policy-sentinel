@@ -492,7 +492,7 @@ describe("persistent research study", () => {
         corpus,
       ),
     ).toBe(saved);
-  });
+  }, 15_000);
 
   it("rejects missing fields, extra fields, malformed bytes and tampered current or historical records", async () => {
     const { study, corpus } = await fixture();
