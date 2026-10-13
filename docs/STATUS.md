@@ -1,21 +1,23 @@
 # Status
 
-As of 2026-10-13. **This release publishes the search upgrade and six audit
-repairs under D-101.** The compatible Worker is deployed and its bounded live
-search checks passed. Product direction and safeguards remain in
+As of 2026-10-13. **The search upgrade and six audit repairs are published.**
+Next is comprehensive browser verification and a review/fix loop under D-102,
+followed by planning and assessment of staff workflows when supplied.
+Product direction and safeguards remain in
 [AGENTS.md](../AGENTS.md); milestone order is in [PLAN.md](PLAN.md).
 
 ## Current state
 
-- The preceding 0.6.1 maintenance publication was pull request 9, merge
-  `e47ebba`. This release's 17 runtime files match the reviewed production
-  artifact exactly. Pages serves `main:/docs` through the normal pull-request path.
+- Pull request 10 merged as `981ecad` on 2026-10-13 at 21:05:47 UTC;
+  Pages finished at 21:06:47 UTC. All 17 served runtime files matched the
+  reviewed production artifact. Pages serves `main:/docs` through the normal
+  pull-request path. Pull request 9 is the preceding maintenance checkpoint.
 - Worker `583cd4ab-f99b-4ffc-9d7b-c9d73466df18` serves 100% of traffic from
   2026-10-13 at 21:01:53 UTC. Its source is `350329f`; existing secrets,
   configured sources and the 60-per-minute rate limit are unchanged.
 - The demo searches Federal Register, GovInfo and Regulations.gov by topic,
-  with inclusive source-date filters and explicit Load more. Congress.gov and Washington retain exact-reference
-  lookup; Oregon and Idaho remain integration gaps.
+  with inclusive source-date filters and explicit Load more. Congress.gov and
+  Washington retain exact-reference lookup; Oregon and Idaho remain integration gaps.
 - The release includes the search upgrade at `a37c994`: paired inclusive
   source-date filters, ten-listing pages, explicit Load more, retained search
   criteria and citations, and distinct unavailable/not-searched outcomes.
@@ -29,7 +31,7 @@ search checks passed. Product direction and safeguards remain in
   a numeric page cap; and enlarge wrapped alternate-link targets.
 - The repairs add no source, dependency, credential use, search history,
   telemetry, private-data route, legal conclusion or inferred Nation
-  relationship. The 38 pre-existing untracked owner documents remain untouched.
+  relationship.
 
 ## Verification and next step
 
@@ -43,8 +45,8 @@ keyboard navigation through alternate links, study rebinding, saved Restricted
 material and public-export filtering. Five settled accessibility scans passed
 across the report's desktop/narrow light/dark views and the study workspace.
 Screenshots were inspected. There were no page errors or external requests.
-The private production demo build passed its 17-file artifact scan; before/after
-SHA-256 checks confirmed all 17 existing public runtime files unchanged.
+The production demo build passed its 17-file artifact scan and publication
+readback matched all 17 reviewed files.
 The final `npm run check` passed: 2,556 unit tests in 120 files, 48 hook tests,
 the retained validation stages, source-boundary scan and synthetic build/artifact
 checks. Native file-symlink fixtures were unavailable on this Windows host;
@@ -60,10 +62,26 @@ returned the corrected `101st` citation and URL; one direct official-page
 request returned 403, so direct route acceptance remains unverified. No retry
 was made. These finite checks do not establish ongoing service availability.
 
-D-100 committed and pushed the reviewed repairs as `350329f`. D-101 authorizes
-the compatible Worker deployment and this Pages publication, including its
-commit, push and normal pull-request/merge path. The next product work remains
-the milestone order in PLAN; do not repeat the completed implementation or audit.
+The live browser release check verified citations, PDF/print output, report
+restoration and embed behavior, with eight settled accessibility scans reporting
+zero violations. Its two runs retain outdated test expectations: one supplied
+a page number instead of the added-listing count; the other expected the old
+combined source/count announcement. These are harness defects. Dated append
+DOM/focus checks were not reached live; synthetic evidence does not close that gap.
+
+D-100 commit/push and D-101 deployment/publication are complete. D-102 sets the
+next order: verify existing browser workflows, repair demonstrated defects, then
+independently review again until all locally runnable planned cases pass and no
+confirmed locally fixable finding remains. Cover the public demo, synthetic local
+workbench/studies and retained synthetic app as distinct surfaces. Record blocked
+or unavailable checks without claiming a clean pass. No new browser execution
+or product repair occurred during this preparation.
+
+After that loop, reconcile documentation and assess capability additions against
+the owner's staff workflows when supplied. Dedicated interface polish and deeper
+accessibility work follow broader functionality. Existing keyboard, focus and
+automated accessibility safeguards remain; this sequencing is not conformance
+acceptance. Source, release and publication gates are unchanged.
 
 ## Open owner decisions
 
@@ -78,14 +96,15 @@ the milestone order in PLAN; do not repeat the completed implementation or audit
    corpus past the release? Earlier rulings are not silently revoked.
 6. Archive ROADMAP and its validators? Until answered they stay unchanged.
 7. Standing permission for future public-page pull requests, a repository license,
-   and the first outside user? The D-098 maintenance publication is complete.
+   and the first outside user? The D-101 search publication is complete.
 8. Tribal government documents printed by a federal source are not detected today.
    Filter, flag or leave them? Open since D-094.
 
 ## Known gaps
 
-- Outside-user acceptance, Safari,
-  Firefox, a real screen reader, physical printing and PDF-viewer checks remain.
+- Outside-user acceptance, Safari/Firefox functionality, a real screen reader,
+  physical printing and PDF-viewer checks remain. Functional browser coverage is
+  part of the next loop; the dedicated accessibility/interface pass is later.
   The PDF is untagged; unsupported characters stop export with Print view offered
   as the existing fallback.
 - Engine APIs retain separate qualification and credential gates. The GovInfo and

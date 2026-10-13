@@ -3,7 +3,7 @@
 Updated 2026-10-13. Policy Sentinel 0.6.1 is the maintenance update authorized
 under D-098. Records below that say 0.2.0 or 0.6.0 describe earlier checkpoints.
 This page records maintenance of the separately authorized
-public demo under D-083, D-084, D-093, D-094, D-095 and D-098 in the
+public demo under D-083, D-084, D-093, D-094, D-095, D-098 and D-101 in the
 [decision register](decision-register.md). Project state and the working plan
 are in [STATUS.md](STATUS.md) and [PLAN.md](PLAN.md).
 
@@ -18,20 +18,22 @@ Pages finished that build on 2026-10-11 at 02:12:57 UTC. The public header was
 read back as 0.6.0 on 2026-10-13; the seal and ATNI Climate citation are public.
 The 0.6.1 maintenance update was subsequently published through pull request 9
 as `e47ebba` on 2026-10-13; the prior session verified all 17 runtime files
-against the reviewed build. The Worker deployment recorded below remains unchanged.
+against the reviewed build. D-101 then deployed the compatible Worker and
+published the search/audit release recorded next.
 Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
 
 ## Search and audit release, 2026-10-13 (D-101)
 
-This release publishes the search upgrade and six reviewed audit repairs below.
-Its 17 generated runtime files match the independently reviewed production
-artifact exactly. The compatible Worker was deployed first: version
+Pull request 10 published the search upgrade and six reviewed audit repairs below.
+It merged as `981ecad` on 2026-10-13 at 21:05:47 UTC; Pages finished at
+21:06:47 UTC. All 17 served runtime files matched the independently reviewed
+production artifact. The compatible Worker was deployed first: version
 `583cd4ab-f99b-4ffc-9d7b-c9d73466df18`, source `350329f`, serving 100% from
 2026-10-13 at 21:01:53 UTC. No configured source, secret, rate limit or
-observability setting changed. D-101 authorizes the release commit, push and
-normal pull-request/merge path to Pages from `main:/docs`.
+observability setting changed. D-101's release commit, push and normal
+pull-request/merge path to Pages from `main:/docs` are complete.
 
 Seven bounded live search calls passed: pages one and two of `water` for the
 inclusive 2025 range on Federal Register, GovInfo and Regulations.gov, and
@@ -48,6 +50,20 @@ The full repository and browser evidence below applies to unchanged inputs.
 Fresh release formatting, lint, typecheck, source scan and artifact checks pass.
 Earlier statements that deployment or keyed checks are pending describe their
 checkpoints; D-101 and the live results above supersede those specific limits.
+
+Live browser verification retains two outdated test expectations. Run 01 passed
+19 checks, then supplied a page number where the assertion needed the added
+listing count. Run 02 completed with 93 passing checks and one failed assertion
+for the previous combined source/count announcement. The current separate
+announcement and source/count rows were inspected independently. Citation,
+report restoration, PDF/print and embed checks passed, as did eight settled
+accessibility scans; no browser console errors were recorded. These receipts are
+not all-pass runs. Dated append DOM/focus checks were not reached live.
+
+D-102 schedules a comprehensive functional browser review/fix/review loop, then
+planning and assessment of supplied staff workflows. Dedicated interface polish
+and deeper accessibility evaluation follow broader functionality, with existing
+regression safeguards retained. Preparation itself changes no runtime behavior.
 
 ## Audit repairs, 2026-10-13 (reviewed)
 
