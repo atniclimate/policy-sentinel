@@ -8,7 +8,7 @@ import {
   PDFName,
 } from "pdf-lib";
 import type { PDFFont, PDFRawStream } from "pdf-lib";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { REQUEST_TIMEOUT_MS } from "../../demo/api";
 import { loadPdfFonts, loadPdfSeal } from "../../demo/pdf-fonts";
 import { atniReferences } from "../../src/demo/citations";
@@ -49,6 +49,29 @@ const MODES: [string, PdfFonts | undefined][] = [
   ["the embedded document fonts", FONTS],
   ["the Helvetica fallback", undefined],
 ];
+const WRAP_MODES = [
+  {
+    name: "the embedded document fonts",
+    fonts: FONTS,
+    faces: [
+      ["title", "title"],
+      ["body", "body"],
+      ["bold", "bold"],
+    ],
+  },
+  {
+    name: "the Helvetica fallback",
+    fonts: undefined,
+    faces: [
+      ["title/bold", "title"],
+      ["body", "body"],
+    ],
+  },
+] as const satisfies {
+  name: string;
+  fonts: PdfFonts | undefined;
+  faces: readonly (readonly [string, keyof PdfFonts])[];
+}[];
 const SEAL = new Uint8Array(
   readFileSync(
     new URL("../../demo/logos/atni-seal-on-dark.png", import.meta.url),
@@ -549,37 +572,47 @@ function wholeLineWrap(
 
 describe("PDF line breaks", () => {
   /** The faces as the PDF embeds them. */
-  const faces = async (fonts?: PdfFonts) =>
+  const embedFaces = async (fonts?: PdfFonts) =>
     embed(await PDFDocument.create(), fonts);
-
-  it.each(MODES)(
-    "fall where measuring every whole line puts them with %s",
-    async (_, fonts) => {
-      const token = `https://example.invalid/${"abcdef".repeat(20)}`;
-      const texts = buildDocument(
-        input(report(`${token} ${"A long note, with a pause. ".repeat(30)}`)),
-      ).blocks.flatMap((block) =>
-        block.kind === "field"
-          ? [block.label, block.value]
-          : "text" in block
-            ? [block.text]
-            : [],
-      );
-      for (const font of new Set(Object.values(await faces(fonts))))
-        for (const [size, width, tracking] of [
-          [9.6, 504, 0],
-          [8.4, 100, 0],
-          [34, 504, -0.85],
-        ])
-          for (const text of texts)
-            expect(wrap(text, font, size, width, tracking), text).toEqual(
-              wholeLineWrap(text, font, size, width, tracking),
-            );
-    },
+  const texts = buildDocument(
+    input(
+      report(
+        `https://example.invalid/${"abcdef".repeat(20)} ${"A long note, with a pause. ".repeat(30)}`,
+      ),
+    ),
+  ).blocks.flatMap((block) =>
+    block.kind === "field"
+      ? [block.label, block.value]
+      : "text" in block
+        ? [block.text]
+        : [],
   );
+  const settings = [
+    { name: "body width", size: 9.6, width: 504, tracking: 0 },
+    { name: "narrow column", size: 8.4, width: 100, tracking: 0 },
+    { name: "tracked heading", size: 34, width: 504, tracking: -0.85 },
+  ] as const;
+
+  describe.each(WRAP_MODES)("$name", ({ fonts, faces: fontRoles }) => {
+    let embedded: Awaited<ReturnType<typeof embedFaces>>;
+
+    beforeAll(async () => {
+      embedded = await embedFaces(fonts);
+    });
+
+    for (const [faceName, faceKey] of fontRoles) {
+      it.each(settings)(`${faceName}: $name`, ({ size, width, tracking }) => {
+        const font = embedded[faceKey];
+        for (const text of texts)
+          expect(wrap(text, font, size, width, tracking), text).toEqual(
+            wholeLineWrap(text, font, size, width, tracking),
+          );
+      });
+    }
+  });
 
   it("are found by measuring a paragraph in proportion to its length, however long its lines are", async () => {
-    const { body } = await faces(FONTS);
+    const { body } = await embedFaces(FONTS);
     const text = "A sentence of plain words for a long note. ".repeat(60);
     const measured = vi.spyOn(body, "widthOfTextAtSize");
     expect(wrap(text, body, 9.6, 504).length).toBeGreaterThan(10);

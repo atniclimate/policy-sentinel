@@ -828,6 +828,7 @@ describe("S0 import and reverse-dependency non-interference", () => {
     expect(violations, formatViolations(violations)).toEqual([]);
   });
 
+  // These tests parse the full production source tree; allow more than Vitest's 5s unit-test default.
   it("finds no reverse S0 edge in production source, scripts, or executable configuration", () => {
     const files = reverseGraphModuleFiles();
     const paths = files.map(repositoryPath);
@@ -854,7 +855,7 @@ describe("S0 import and reverse-dependency non-interference", () => {
       inspectReverseModule(filePath, readFileSync(filePath, "utf8")),
     );
     expect(violations, formatViolations(violations)).toEqual([]);
-  });
+  }, 15_000);
 
   it("keeps HTML entrypoints and JSON configuration outside the S0 graph", () => {
     const htmlPath = resolve(REPOSITORY_ROOT, "index.html");
@@ -989,6 +990,7 @@ describe("S0 import and reverse-dependency non-interference", () => {
     }
   });
 
+  // This companion check also AST-parses the full production source tree.
   it("confines the exact three S0 schema registrations to the exact foundation validator", () => {
     const schemaReferences = reverseGraphModuleFiles().flatMap((filePath) =>
       collectS0SchemaStringReferences(filePath, readFileSync(filePath, "utf8")),
@@ -1038,7 +1040,7 @@ describe("S0 import and reverse-dependency non-interference", () => {
         reason: expect.stringContaining("production-to-S0 module edge"),
       }),
     ]);
-  });
+  }, 15_000);
 
   it("detects planted S0 HTML resources, inline imports, and configuration strings", () => {
     const htmlPath = resolve(REPOSITORY_ROOT, "index.html");

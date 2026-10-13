@@ -1,5 +1,10 @@
 # Policy Sentinel
 
+Start with [current status](docs/STATUS.md) and the [working plan](docs/PLAN.md).
+They describe the live demo, the next development step and pending owner decisions.
+The dated checkpoints below, `ROADMAP.yaml` and the continuation prompt are
+retained history, not instructions to resume an old run.
+
 The local research workbench now includes a persistent study workspace with
 Moon's-eye questions and gaps, Bird's-eye procedural and consultation history,
 and Frog's-eye exact source passages. Use **Save study** to download a local
@@ -75,12 +80,12 @@ production identity registry or live source coverage. GD-10 boundary enforcement
 the source catalog and persistent studies pass integrated validation. Additive
 corpus 2.1 and public-contract 2.0 successors preserve legacy defaults and require
 explicit evidence for jurisdiction references. The complete test suite, both
-builds and the frozen bounded-search measurement pass. Follow
-[the continuation guide](docs/continuation-prompt.md) and the
+builds and the frozen bounded-search measurement passed at this checkpoint. The
+[continuation guide](docs/continuation-prompt.md) and the
 [implementation record](docs/development/2026-10-08-study-engine-implementation.md)
-for the precise resume state.
+retain its evidence; use [STATUS.md](docs/STATUS.md) for the current resume state.
 
-Schema 1.11 represents GD-27 as the current local release root, with all
+At that checkpoint, schema 1.11 represented GD-27 as the local release root, with all
 remaining PS09 claims preserved in the
 [release crosswalk](docs/development/gd31-release-acceptance-crosswalk.md).
 GD-31 adds [tested preparation contracts](docs/architecture/gd31-successor-contracts.md)
@@ -98,7 +103,9 @@ includes all three suites.
 directly and serially. It is included in `npm test`; the former synchronous
 Vitest wrapper is removed, so individual Node test results are visible.
 
-Current general-development work is recorded in [ROADMAP.yaml](ROADMAP.yaml).
+Current development work is recorded in [STATUS.md](docs/STATUS.md) and
+[PLAN.md](docs/PLAN.md). [ROADMAP.yaml](ROADMAP.yaml) is retained and validated
+as historical record.
 The separately authorized public demonstration and its maintenance evidence are
 recorded in [Live demo status](docs/DEMO-STATUS.md). The engineering-review
 checkpoints below describe their historical scope.
@@ -318,15 +325,12 @@ pending. Gate A did not authorize a remote, push, Pages, API registration,
 provider-term acceptance, paid use, third-party contact, optional AI
 generation, outbound notifications, or private material.
 
-Current progress, dependencies, source blocks, acceptance evidence, and the
-course through a local release candidate are maintained in the validated
-[`ROADMAP.yaml`](ROADMAP.yaml). The external publication step remains
-separately blocked. Start repository navigation with the
-[project backbone](docs/PROJECT-BACKBONE.md). A fresh implementation session
-must use the [durable continuation prompt](docs/continuation-prompt.md) and live
-`ROADMAP.yaml` for recovery. The PNW-01 launch handoff is historical evidence;
-the currently active bounded lane is named by `current_focus` and cannot be
-expanded by an older handoff.
+This checkpoint's progress, source blocks and acceptance evidence are retained in
+[`ROADMAP.yaml`](ROADMAP.yaml) and the
+[continuation prompt](docs/continuation-prompt.md). A fresh implementation session
+starts with [AGENTS.md](AGENTS.md), [STATUS.md](docs/STATUS.md) and
+[PLAN.md](docs/PLAN.md). Older handoffs do not resume completed runs or authorize
+new external actions.
 
 ## Live demo
 
@@ -593,9 +597,9 @@ Repository-scoped hooks in [`.codex/hooks.json`](.codex/hooks.json) make long
 local Codex runs easier to recover while enforcing only boundaries that are
 objective at command time:
 
-- `SessionStart` adds a short recovery brief from validated `ROADMAP.yaml`, Git
-  status, and the next-action queue without reading the chat transcript. It
-  also runs after built-in compaction so work can continue from durable state;
+- `SessionStart` reports Git status and validated historical ledger state without
+  reading the chat transcript. It points current work to `AGENTS.md`,
+  `docs/STATUS.md` and `docs/PLAN.md`, including after built-in compaction;
   and
 - `PreToolUse` denies closed remote, publication, credential, notification, and
   spent-canary operations; unsafe staging; a small high-risk Git set; private
@@ -627,12 +631,14 @@ runtime and trust model.
 
 Key documents:
 
-- [Canonical repository backbone](docs/PROJECT-BACKBONE.md)
-- [Canonical implementation roadmap](ROADMAP.yaml)
+- [Current status](docs/STATUS.md)
+- [Working plan](docs/PLAN.md)
+- [Repository document index](docs/PROJECT-BACKBONE.md)
+- [Retained implementation ledger](ROADMAP.yaml)
 - [PNW product scope and acceptance](docs/pnw-scope-and-acceptance.md)
 - [PNW rebase mapping, evidence gaps, and first tranche](docs/handoffs/pnw-product-space-rebase-2026-09-02.md)
 - [Exact owner-gated PNW-01 launch handoff](docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md)
-- [Sol Ultra continuation prompt](docs/continuation-prompt.md)
+- [Historical continuation prompt](docs/continuation-prompt.md)
 - [Project brief](docs/project-brief.md)
 - [Schema and logical-contract catalog](docs/data-contract.md)
 - [Agent and tool operating model](docs/development/AGENT-AND-TOOL-OPERATING-MODEL.md)

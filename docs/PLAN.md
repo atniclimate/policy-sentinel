@@ -18,8 +18,8 @@ Each milestone is done when its checks pass on the real service and the result i
 
 - A person can: use the rebuilt page at the public address.
 - Checks: a live search for a joint rule shows one merged row; a person tries Safari, Firefox and a screen reader.
-- Builds on: `demo/` and `worker/`. Done except the merge.
-- Needs the owner: the push and the merge to `main`.
+- Builds on: `demo/` and `worker/`. The 0.6.0 interface was published through pull request 8; maintenance publication is authorized by D-098. Live acceptance and the checks by a person remain outstanding.
+- Needs the owner: participation in the browser and assistive-technology checks; this maintenance push and merge are already authorized.
 
 ### 2. Federal families
 
@@ -60,14 +60,61 @@ Each milestone is done when its checks pass on the real service and the result i
 
 These are real outside actions or decisions. Nothing else on this plan waits for the owner.
 
-- The push and merge of `demo/live-pages`, and each later Worker deployment.
+- Future publication outside D-098, and each later Worker deployment.
 - One sentence allowing the existing api.data.gov key for engine work.
 - The eCFR terms, the Oregon terms and contact with Idaho.
 - A license. The repository is public and has none.
 - Any Nation's private or Nation-specific material.
 - Recruiting the first outside user.
-- Whether agents may open pull requests for the public page.
+- Standing permission for future pull requests; D-098 covers this maintenance publication.
 - Confirming or changing decisions 1 to 8 in `STATUS.md`: the release definition, following and a refreshed public index, the key and terms, the Nation picker, the deferrals below, archiving the ledger, pull requests and license, and Tribal documents in federal results.
+
+## Audit follow-through (2026-10-13)
+
+The owner selected improved search as the next session's focus (D-098): plain
+keywords, source-aware date refinement and usable continuation beyond the first
+page, built on the existing demo. Congress and Washington remain bill-reference
+lookups until a keyword interface is qualified. Source failures must be distinct
+from no matches. This changes the immediate development order, not source gates
+or the release acceptance criteria. Detailed implementation preparation stays
+outside the public repository.
+
+The D-096 local review/fix/review loop covers the demo, local loading, cited
+outputs and developer startup instructions. It does not establish release
+acceptance. Verification results and remaining defects are in [STATUS.md](STATUS.md).
+Prioritize these small development steps within the milestones above:
+
+| Order | What a person gains | Existing code and acceptance check | Research or owner dependency |
+| --- | --- | --- | --- |
+| 1 | Reach results beyond the first ten from a searchable source. | Reuse `demo/main.tsx`, `demo/api.ts` and the Worker. Add per-source continuation, preserve exact-ID merging and existing selected notes, and keep failed pages distinguishable from no more results. Test a repeated item, a failed second page and a new search during loading. | Federal Register and Regulations.gov already accept page numbers. GovInfo needs an opaque continuation token; Congress and Washington remain reference lookups. Review each source's current interface before changing its request contract. |
+| 2 | Read one additional federal family with an exact document version. | Reuse the Worker transport, `src/demo/validation.ts` and the document/receipt model. Start with bills/public laws; one known item per route, exact official identity/version, clear metadata-only versus text-read status, and a receipt for every quoted passage. Distinct bill versions remain distinct. | Research originating-agency fields, versions, dates, reuse and failures first. Engine key use remains an owner decision; deployments need their own approval. |
+| 3 | Use and share a cited report with assistive technology. | Test the existing semantic HTML print view and PDF from the same `buildDocument` output. Check keyboard navigation, headings, reading order, exact quotes, notes and provenance; no silent loss of unsupported characters. Choose standalone accessible HTML or tagged PDF only after this check identifies the actual need. | A real screen-reader user and PDF/print viewer checks remain necessary. The current PDF is untagged; Print view is the existing fallback, not a verified accessible-PDF substitute. |
+| 4 | Return to a followed item and understand what changed. | Reuse report-state and lifecycle code after milestone 1 acceptance. A saved item must recover with its original identity and provenance, show source-supported change, and disclose unavailable refreshes. | Confirm following in the release and any refreshed public metadata index. Do not silently change session-only notes into persistent user storage. |
+
+Focused primary research read during the audit: GovInfo's
+[Search Service](https://www.govinfo.gov/features/search-service-overview)
+documents `offsetMark` pagination and package/granule choices;
+[Congressional Bills](https://www.govinfo.gov/help/bills) documents versioned
+bill identifiers and available text formats. These are research inputs, not
+source qualification or live-route acceptance. For output design,
+[Section508.gov's PDF guidance](https://www.section508.gov/create/pdfs/)
+prioritizes HTML where practical and separate testing of each format;
+[W3C PDF techniques](https://www.w3.org/WAI/WCAG21/Techniques/)
+describe tagging and reading-order methods. These inform the proposed checks
+and do not establish this tool's accessibility conformance.
+
+Metadata titles, abstracts and latest-action descriptions stay distinct from
+exact quoted passages. Every quoted passage retains its locator and text
+receipt; no output supplies legal meaning or inferred Nation relationships.
+
+Developer environment follow-up: profile Vitest's environment/setup cost before
+changing concurrency or test environments. The first integrated unit run during
+this audit took 666.53 seconds, including 255.73 seconds attributed to environment
+setup and 45.32 seconds to setup files. This single run is diagnostic evidence,
+not a benchmark. Identify pure-module suites whose imports do not require browser
+globals, then evaluate selective Node environments with the same assertions.
+Require a repeatable timing improvement and a passing full check before adopting
+the change; keep browser-dependent tests in their browser environment.
 
 ## Later
 

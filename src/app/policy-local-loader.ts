@@ -36,7 +36,8 @@ async function boundedBytes(
       if (done) break;
       length += value.byteLength;
       if (length > maxBytes) {
-        await reader.cancel();
+        // Cleanup must not hide or delay the size-limit failure.
+        void reader.cancel().catch(() => undefined);
         throw new Error("Local response exceeds byte ceiling");
       }
       chunks.push(value);
