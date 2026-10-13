@@ -70,9 +70,10 @@ export function buildPolicyResearchOutput(input) {
       ]),
     ]),
   ].sort();
+  const citedIds = new Set(cited);
   const evidenceById = new Map(
     corpus.segments
-      .filter((value) => cited.includes(value.id))
+      .filter((value) => citedIds.has(value.id))
       .map((segment) => {
         const rendition = renditions.get(segment.renditionId);
         const capture = captures.get(rendition.captureId);

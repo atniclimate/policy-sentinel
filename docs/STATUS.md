@@ -1,48 +1,121 @@
 # Status
 
-As of 2026-10-10 on branch `demo/live-pages`: source commit `79d263b`, plus the planning rewrite this page is committed with. This page is overwritten at the end of every session, never appended to. Older state narrative is in Git history.
+As of 2026-10-13. Policy Sentinel **0.6.1** is the maintenance update from the
+completed local audit. The owner authorized its commit, push and GitHub Pages
+publication under D-098. This page is overwritten each session; earlier state
+and deployment checkpoints remain in Git history and [DEMO-STATUS.md](DEMO-STATUS.md).
 
 ## Goal
 
-Policy Sentinel lets Tribal policy, natural resources and legal staff, and the ATNI Climate staff who support them, search official federal and state sources and public Tribal and intertribal publications together, read the passages that matter, keep notes and export a cited document, with every result traced to its official source. It never says what a policy legally means for a Nation, never links a record to a Nation without exact official evidence, and keeps nothing about its users. The full statement is in [`AGENTS.md`](../AGENTS.md).
+Policy Sentinel helps Tribal policy, natural resources and legal staff, and ATNI
+Climate staff, find official policy, keep exact passages and notes, and export
+cited documents. Results retain official-source provenance. The tool supplies no
+legal conclusions or inferred Nation relationships. The full product direction
+and safeguards are in [AGENTS.md](../AGENTS.md).
 
-## Current milestone
+## Current functionality and release
 
-Milestone 1 of 6 in [`docs/PLAN.md`](PLAN.md): published and true. The rebuilt demo page is public: the owner merged pull request 7 on 2026-10-11 at 00:39 UTC. The D-095 follow-ups (version, seal, citation) and the planning rewrite are committed locally and wait for the owner's next push and merge. The live acceptance run and the browser checks by a person have not happened.
+- The [public demo](https://atniclimate.github.io/policy-sentinel/) searches
+  Federal Register, GovInfo and Regulations.gov by words or phrases. Congress.gov
+  and Washington support bill-reference lookups. Oregon and Idaho remain explicit
+  coverage gaps. The interface currently retrieves only the first page per source.
+- Federal Register and Washington supply readable text for deterministic passage
+  checks. The other three federal sources supply metadata and official links.
+  Exact shared Federal Register document numbers can merge listings; no inferred
+  identity or Nation relationship is used.
+- Users keep citations, selected passages and their own notes within the browser
+  tab, then export a cited PDF or print view with provenance. Notes and data actor
+  entries are not uploaded. The public application works without AI.
+- The separate local workbench supports saved studies and richer cited outputs.
+  Ordinary builds use synthetic records. Demo source access does not activate
+  engine adapters or authorize private data in a public build.
+- The 0.6.0 page, including the seal and ATNI Climate citation, was published by
+  pull request 8 at `4d320bc`; Pages finished that build on 2026-10-11 at
+  02:12:57 UTC. The public header was read back as 0.6.0 on 2026-10-13.
+  Version 0.6.1 rebuilds the same demo interface and document with the patch number.
+- The Worker remains the previously deployed version
+  `969d1a24-f4de-4706-9fa9-24feae5f2503`. This update changes no Worker code,
+  credentials, source activation or request allowance.
 
-## What is live
+## Audit outcome
 
-| Item | State |
-| --- | --- |
-| Project version | 0.6.0, in development (D-095, the owner's direction of 2026-10-10 on demo follow-ups and planning). |
-| Public page | `https://atniclimate.github.io/policy-sentinel/` serves the rebuilt interface as built at `c602468` (merge commit `e295957` on `main`, Pages build finished 2026-10-11 00:39:56 UTC; its stylesheet was read back from the public address). It shows version 0.2.0 and has no seal until the next merge. |
-| Local, not yet public | Commits `79d263b` and later on `demo/live-pages`: version 0.6.0, the ATNI seal, the ATNI Climate citation, and the planning rewrite. 335 demo tests pass. The full check exited 0 on the tree this page is committed with, on the second of two runs (see known breakage). The acceptance script passed 82 of 82 against a local mock at `c602468`; it was not rerun after the seal was added. |
-| Worker | `policy-sentinel-demo` version `969d1a24-f4de-4706-9fa9-24feae5f2503`, at 100% of traffic since 2026-10-11 01:22:50 UTC, built from `79d263b`. It allows 60 requests per minute per address. GovInfo, Congress.gov and Regulations.gov are live through the owner's api.data.gov key, held as a Worker secret. One bounded live check on the previous version showed all three sources return the same Federal Register document number for one joint rule. |
+- Oversized local responses now fail promptly even if stream cancellation rejects
+  or never settles. Both regression cases failed before the repair and now pass.
+- Citation membership, evidence grouping and graph-edge deduplication use Set/Map
+  indexes, preserving output order, exact identifiers and provenance. No measured
+  wall-clock speedup is claimed.
+- PDF wrapping tests share font setup and retain every comparison against the
+  whole-line oracle. Three whole-repository AST tests have individual 15-second
+  limits; assertions and the global timeout are unchanged.
+- Startup context and README now direct current work to the user task, AGENTS,
+  STATUS and PLAN. Obsolete uninstalled hook handlers were removed. The retained
+  roadmap and its validators remain unchanged.
+- One clean obsolete worktree was reconciled and retired; its branch and unique
+  history remain. Only the active checkout remains registered.
+- Engineering, feature and source/output reviews found no further actionable
+  defects in the audited changes after repairs. Subsequent search planning found
+  a separate source-error presentation defect, listed below for the next session.
+
+Verification: the repaired tree passed `npm run check`, including 48 hook tests,
+119 unit-test files with 2,419 passing tests, retained-record validators,
+source-boundary checks, the synthetic build and artifact validation. Native
+file-symlink fixtures were unavailable on the Windows host; junction and hard-link
+tests ran. Local browser checks exercised keyboard search, details, citations and
+report flow plus the local-corpus unavailable fallback, with zero automated WCAG
+A/AA violations after transitions settled.
+
+The 0.6.1 demo build, typecheck, lint, formatting, source-boundary scan and
+documentation validators also passed. Its generated script changes were verified
+as version/import-hash changes only. The built page showed 0.6.1 in a browser,
+with working keyboard dialog controls, no page errors and zero automated WCAG
+A/AA violations using a synthetic catalog and no external requests.
+
+The bounded live browser run on 0.6.0 passed 16 checks, including the catalog,
+dialog accessibility and a ten-result Federal Register search. It then stopped
+on a browser protocol error while retrieving a response body. It was not retried;
+the full live acceptance flow remains incomplete. This maintenance update is not
+acceptance of the proposed first real release.
 
 ## Next step
 
-1. The owner pushes `demo/live-pages` and merges it to `main` again, to publish the follow-ups. Agents cannot push or merge.
-2. Then run the bounded live acceptance script against the public page one time (its document checks expect the 0.6.0 wording, so it waits for step 1), look at one live multi-source search for the merged row, and record versions, times and counts in `docs/DEMO-STATUS.md`.
-3. Then milestone 2, the federal families, one family at a time, live call first.
+The owner selected search improvements for the next implementation session:
+ordinary keywords, source-aware year/date refinement, per-source continuation,
+clear failure and coverage states, and an uninterrupted path to cited outputs.
+Luna research and two Sol reviewers prepare that work without adding dependencies
+or activating sources in this release. The durable product order and acceptance
+checks remain in [PLAN.md](PLAN.md).
 
 ## Open owner decisions
 
-1. First real release: the public tool with one outside user (recommended), or the offline package with four demonstrations? And its version number (0.6.x is the working version)?
-2. Following: is following a rule, bill or docket part of that release, and may the service keep a refreshed index of official public metadata, with no user data?
-3. Key and terms: may the existing api.data.gov key be used for engine work? Does the owner accept the eCFR and Oregon terms and approve contact with Idaho?
+1. First real release: public tool with one outside user, or the offline package
+   with four demonstrations? Version 0.6.1 remains a development maintenance release.
+2. Following: part of that release, and may the service keep a refreshed index of
+   official public metadata with no user data?
+3. May the existing api.data.gov key be used for engine work? Accept eCFR and
+   Oregon terms and approve contact with Idaho?
 4. Nation picker in the release, or typed terms only?
-5. Defer the nationwide survey, area resolver, sibling-app interchange and 50 GB corpus past the release? This partly reverses rulings of 2026-09-22, 2026-09-24 and 2026-10-06.
-6. Archive `ROADMAP.yaml` and its validators? Until answered they stay unchanged and are validated.
-7. May agents open pull requests for the public page? Which license (the repository is public and has none)? Who is the first outside user?
-8. Tribal government documents printed by a federal source, such as an ordinance in a Federal Register notice, are not detected today. Filter, flag or leave them? Open since D-094.
+5. Defer the nationwide survey, area resolver, sibling-app interchange and 50 GB
+   corpus past the release? Earlier rulings are not silently revoked.
+6. Archive ROADMAP and its validators? Until answered they stay unchanged.
+7. Standing permission for future public-page pull requests, a repository license,
+   and the first outside user? D-098 authorizes this maintenance publication.
+8. Tribal government documents printed by a federal source are not detected today.
+   Filter, flag or leave them? Open since D-094.
 
-## Known breakage and gaps
+## Known gaps
 
-- Until the next merge, the public page is one build behind the Worker (no seal, version shown as 0.2.0, title-only Policy Sentinel reference). It works against the newer Worker.
-- Not checked by anyone: Safari, Firefox, a screen reader, a physical print, and the PDF in Acrobat, Preview or pdf.js.
-- The PDF is not tagged for screen readers. Letters outside the embedded fonts, including some in Indigenous-language names, stop the PDF export with a message; Print view is the fallback. A very long list can hold the page for seconds while the PDF is built.
-- Engine side, per the 2026-10-10 assessment and not re-verified here: the federal API integrations beyond the demo Worker are plans and tests on invented responses with no bounded live check, and the acquisition runner's GovInfo and Washington source profiles expired on 2026-10-05, so it refuses requests to them. The demo is unaffected.
-- The Codex session-start hook (`scripts/codex-hooks.mjs`) still tells Codex to follow the continuation prompt's old scope-specific context rule. That rule is retired. Change the hook text and its test when convenient.
-- One intermittent test: in the first of two full check runs on 2026-10-10, `tests/app/StudyWorkspace.test.tsx` ("completes the analyst loop and resumes exact evidence") failed with a study validation alert. It passed alone and in the second full run (2,404 of 2,404). It is outside the demo and was not investigated or fixed.
-- Three engine source adapters still send `0.2` in their user agent strings, pinned by their tests. They are outside the demo and were left at the old version.
-- Small design notes waiting on the owner: the phone header sets the title in two lines beside the seal; the design system names a different seal file for light grounds than the one supplied; its rule that body text on a dark ground uses weight 500 is not applied (the page uses 400); Roboto stays as the body face because the design system ranks neither Roboto nor Poppins.
+- Search currently groups some upstream failures under "Nothing returned". The
+  next search change must separate no matches, unavailable and not searched,
+  preserve healthy results and validate continuation and date semantics.
+- Safari, Firefox, a real screen reader, physical printing, and PDF viewers still
+  need checks by a person. The PDF is untagged; unsupported characters stop export
+  with a message and Print view as fallback. Long reports may take seconds.
+- Engine API integrations beyond the demo retain separate qualification and
+  credential gates. The previously assessed GovInfo and Washington acquisition
+  profiles expired on 2026-10-05; no new engine acquisition was attempted here.
+- The historical StudyWorkspace intermittent failure did not reproduce in focused
+  or integrated audit runs; no speculative repair was made.
+- Three engine source adapters retain their tested `0.2` user-agent strings.
+  They are separate from the displayed application version.
+- The existing phone-header layout, supplied seal variant and body typeface
+  choices remain as recorded in [DEMO-STATUS.md](DEMO-STATUS.md).

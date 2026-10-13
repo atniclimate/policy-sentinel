@@ -147,8 +147,15 @@ function originGroups(records) {
 
 function attributedGraph(study, records, evidence, audience) {
   const citations = new Map(evidence.map((row) => [row.id, row.citation]));
+  const evidenceByVersion = new Map();
+  for (const row of evidence) {
+    const versionId = row.citation.versionId;
+    if (!evidenceByVersion.has(versionId)) evidenceByVersion.set(versionId, []);
+    evidenceByVersion.get(versionId).push(row);
+  }
   const nodes = [];
   const edges = [];
+  const edgeIds = new Set();
   const key = (ref) => JSON.stringify([ref.kind, ref.id]);
   const addNode = (kind, row, label, passageIds = []) =>
     nodes.push({
@@ -179,12 +186,7 @@ function attributedGraph(study, records, evidence, audience) {
   for (const row of records.consultations)
     addNode("ConsultationEvent", row, row.type, evidenceIds(row));
   for (const row of records.gaps) addNode("Gap", row, row.text);
-  for (const versionId of new Set(
-    evidence.map((row) => row.citation.versionId),
-  )) {
-    const sourceRows = evidence.filter(
-      (row) => row.citation.versionId === versionId,
-    );
+  for (const [versionId, sourceRows] of evidenceByVersion) {
     const source = sourceRows[0];
     addNode(
       "SourceDocument",
@@ -213,7 +215,8 @@ function attributedGraph(study, records, evidence, audience) {
       to.id,
       row.id,
     ]);
-    if (edges.some((edge) => edge.id === id)) return;
+    if (edgeIds.has(id)) return;
+    edgeIds.add(id);
     edges.push({
       id,
       type,

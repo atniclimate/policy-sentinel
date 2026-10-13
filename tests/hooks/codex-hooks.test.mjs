@@ -27,6 +27,7 @@ import {
   evaluateShellCommand,
   extractPatchOperations,
   extractPatchPaths,
+  handleHookEvent,
   isObserverAddOperation,
   normalizeRepositoryPath,
   observerCustodyContract,
@@ -1725,17 +1726,38 @@ test("SessionStart context is bounded recovery state, not transcript content", (
     status: " M ROADMAP.yaml\n",
   });
   assert.match(context, /generated locally; no transcript was read/u);
-  assert.match(context, /current focus: H-HOOKS/u);
+  assert.match(context, /historical focus: H-HOOKS/u);
+  assert.match(
+    context,
+    /retained ROADMAP\.yaml context \(historical work record/u,
+  );
+  assert.match(
+    context,
+    /Current task comes from the user's request.*AGENTS\.md, docs\/STATUS\.md, and docs\/PLAN\.md/u,
+  );
   assert.match(context, /HEAD: abc123/u);
   assert.doesNotMatch(context, /last_assistant_message|transcript_path/u);
   assert.ok(
     context.includes(
-      "Before implementation, read AGENTS.md and follow the continuation prompt's scope-specific context rule. The hook summary is not a complete dependency, gate, acceptance or evidence closure.",
+      "Current task comes from the user's request. For current scope and resume state, follow AGENTS.md, docs/STATUS.md, and docs/PLAN.md.",
     ),
   );
 });
 
-test("recovery summaries preserve full-context fallbacks without granting task authority", () => {
+test("uninstalled lifecycle events are ignored", async () => {
+  for (const hook_event_name of ["PreCompact", "PostToolUse", "Stop"]) {
+    assert.equal(
+      await handleHookEvent({
+        cwd: path.join(projectRoot, "missing-nonrepository-cwd"),
+        hook_event_name,
+      }),
+      null,
+      `${hook_event_name} must not inspect or block on repository state`,
+    );
+  }
+});
+
+test("recovery summaries report focus without granting task authority", () => {
   for (const [title, itemStatus] of [
     ["Narrow demo CSS", "in_progress"],
     ["Shared extractor used by demo", "in_progress"],
@@ -1772,21 +1794,26 @@ test("recovery summaries preserve full-context fallbacks without granting task a
       head: "abc123",
       status: "",
     });
-    assert.ok(
-      context.includes(
-        "General-engine work, shared extractor work, ledger graph changes, and uncertain or mixed scope require the full context. A completed or unselected demo record does not supply a new active task.",
-      ),
+    assert.doesNotMatch(
+      context,
+      /require the full context|completed or unselected demo record|continuation prompt|scope-specific context rule/u,
       title,
     );
+    assert.match(
+      context,
+      /historical next actions: 1:FIRST, 2:SECOND, 3:THIRD, 4:FOURTH, 5:FIFTH/u,
+      title,
+    );
+    assert.match(context, /hook gate checks remain active/u, title);
     assert.ok(
       context.includes(
-        "The hook summary is not a complete dependency, gate, acceptance or evidence closure.",
+        "For current scope and resume state, follow AGENTS.md, docs/STATUS.md, and docs/PLAN.md.",
       ),
       title,
     );
     assert.match(
       context,
-      /closed external boundaries: EXT-GITHUB, EXT-CREDENTIALS, EXT-NOTIFY/u,
+      /closed external boundaries \(still enforced\): EXT-GITHUB, EXT-CREDENTIALS, EXT-NOTIFY/u,
     );
     assert.doesNotMatch(
       context,
@@ -1796,8 +1823,8 @@ test("recovery summaries preserve full-context fallbacks without granting task a
     assert.match(
       context,
       itemStatus === "in_progress"
-        ? /current focus: DEMO-LABEL/u
-        : /current focus: none/u,
+        ? /historical focus: DEMO-LABEL/u
+        : /historical focus: none/u,
     );
   }
 });

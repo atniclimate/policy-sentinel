@@ -23,19 +23,6 @@ import {
 } from "./owner-input-custody.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
-const fallbackPlanningDocuments = new Set([
-  "AGENTS.md",
-  "docs/architecture.md",
-  "docs/continuation-prompt.md",
-  "docs/data-contract.md",
-  "docs/data-governance.md",
-  "docs/decision-register.md",
-  "docs/mvp-plan.md",
-  "docs/project-brief.md",
-  "docs/source-coverage.md",
-  "docs/source-feasibility.md",
-  "docs/ux-spec.md",
-]);
 const sensitivePatchRoots = [
   ".cache",
   ".git",
@@ -162,19 +149,6 @@ const staticFrozenPaths = [
   ["S0", "docs/vision/reports/s0-implementation-2026-09-01.md"],
   ["S0", "docs/vision/s0-spatial-contract.md"],
 ];
-const prettierExtensions = new Set([
-  ".css",
-  ".html",
-  ".js",
-  ".json",
-  ".jsx",
-  ".md",
-  ".mjs",
-  ".ts",
-  ".tsx",
-  ".yaml",
-  ".yml",
-]);
 
 const trimOutput = (value, limit = 1_500) => {
   const normalized = String(value ?? "").trim();
@@ -302,9 +276,6 @@ const validateRoadmap = (root) =>
 const gitStatus = (root) =>
   runGit(root, ["status", "--short", "--untracked-files=all"]);
 
-const terminalGitStatus = (root) =>
-  runGit(root, ["status", "--porcelain=v1", "-z", "--untracked-files=all"]);
-
 const repositoryPathIsWithin = (root, candidate) => {
   const relative = path.relative(root, candidate);
   return (
@@ -379,17 +350,6 @@ export const repositoryStatusIsDirty = (
     }
   }
   return false;
-};
-
-const roadmapIsDirty = (root) => {
-  const result = runGit(root, [
-    "status",
-    "--short",
-    "--untracked-files=all",
-    "--",
-    "ROADMAP.yaml",
-  ]);
-  return !result.ok || result.stdout.trim().length > 0;
 };
 
 const isClosedBoundary = (roadmap, boundaryId) => {
@@ -2221,92 +2181,6 @@ export const isObserverAddOperation = (operations) =>
   operations[0].headerPath === ` ${observerAuthoringPolicy.path}` &&
   operations[0].repositoryPath === observerAuthoringPolicy.path;
 
-export const planPostEditChecks = (paths, roadmap) => {
-  const normalizedPaths = [...new Set(paths.map(normalizeRepositoryPath))];
-  const formattedPaths = normalizedPaths.filter((repositoryPath) =>
-    prettierExtensions.has(path.posix.extname(repositoryPath).toLowerCase()),
-  );
-  const roadmapChanged = normalizedPaths.includes("ROADMAP.yaml");
-  const foundation = normalizedPaths.some(
-    (repositoryPath) =>
-      /^(?:config|fixtures|schemas)\//u.test(repositoryPath) ||
-      repositoryPath === "scripts/validate-foundation.mjs" ||
-      repositoryPath === "src/pipeline/source-registry.mjs",
-  );
-  const sourceBoundary = normalizedPaths.some((repositoryPath) =>
-    /^(?:\.agents|\.codex|config|fixtures|schemas|scripts|src)\//u.test(
-      repositoryPath,
-    ),
-  );
-  const planningDocuments = new Set([
-    ...fallbackPlanningDocuments,
-    ...(roadmap?.binding_documents ?? []).map((entry) =>
-      normalizeRepositoryPath(entry?.path),
-    ),
-  ]);
-  const planning = normalizedPaths.some((repositoryPath) =>
-    planningDocuments.has(repositoryPath),
-  );
-  return {
-    paths: normalizedPaths,
-    formattedPaths,
-    roadmap: roadmapChanged,
-    foundation,
-    sourceBoundary,
-    planning,
-  };
-};
-
-const executePostEditChecks = (root, paths, roadmap) => {
-  const plan = planPostEditChecks(paths, roadmap);
-  const checks = [];
-  const existingPaths = plan.formattedPaths.filter((repositoryPath) =>
-    existsSync(path.resolve(root, repositoryPath)),
-  );
-
-  checks.push({
-    name: "git diff --check",
-    result: runGit(root, ["diff", "--check", "--", ...plan.paths]),
-  });
-  if (existingPaths.length > 0) {
-    checks.push({
-      name: "focused Prettier",
-      result: runNodeScript(
-        root,
-        "node_modules/prettier/bin/prettier.cjs",
-        ["--check", ...existingPaths],
-        30_000,
-      ),
-    });
-  }
-  if (plan.roadmap) {
-    checks.push({ name: "roadmap", result: validateRoadmap(root) });
-  }
-  if (plan.foundation) {
-    checks.push({
-      name: "foundation",
-      result: runNodeScript(
-        root,
-        "scripts/validate-foundation.mjs",
-        [],
-        60_000,
-      ),
-    });
-  }
-  if (plan.sourceBoundary) {
-    checks.push({
-      name: "source boundary",
-      result: runNodeScript(
-        root,
-        "scripts/scan-source-boundary.mjs",
-        [],
-        60_000,
-      ),
-    });
-  }
-  return { plan, checks };
-};
-
 export const buildSessionContext = ({ roadmap, validation, head, status }) => {
   const items = roadmap?.work_items ?? [];
   const statusCounts = Object.fromEntries(
@@ -2334,66 +2208,16 @@ export const buildSessionContext = ({ roadmap, validation, head, status }) => {
   const dirty = trimOutput(status, 700) || "clean";
   return [
     "Policy Sentinel recovery brief (generated locally; no transcript was read):",
+    "- retained ROADMAP.yaml context (historical work record; validation and hook gate checks remain active):",
     `- roadmap validation: ${validation.ok ? "pass" : `FAIL — ${trimOutput(validation.detail, 500)}`}`,
     `- HEAD: ${head || "unknown"}`,
     `- worktree: ${dirty}`,
-    `- current focus: ${focus}`,
-    `- status counts: ${JSON.stringify(statusCounts)}`,
-    `- next actions: ${nextActions || "none"}`,
-    `- closed external boundaries: ${closedBoundaries || "none recorded"}`,
-    "- Before implementation, read AGENTS.md and follow the continuation prompt's scope-specific context rule. The hook summary is not a complete dependency, gate, acceptance or evidence closure.",
-    "- General-engine work, shared extractor work, ledger graph changes, and uncertain or mixed scope require the full context. A completed or unselected demo record does not supply a new active task.",
+    `- historical focus: ${focus}`,
+    `- historical status counts: ${JSON.stringify(statusCounts)}`,
+    `- historical next actions: ${nextActions || "none"}`,
+    `- closed external boundaries (still enforced): ${closedBoundaries || "none recorded"}`,
+    "- Current task comes from the user's request. For current scope and resume state, follow AGENTS.md, docs/STATUS.md, and docs/PLAN.md. This summary is not task authority or a complete evidence closure.",
   ].join("\n");
-};
-
-export const evaluatePreCompactState = ({ validationOk, dirty, focus }) => {
-  if (!validationOk) {
-    return {
-      blocked: true,
-      reason:
-        "Roadmap validation failed. Reconcile the durable ledger before compacting.",
-    };
-  }
-  if (dirty && !focus) {
-    return {
-      blocked: true,
-      reason:
-        "The worktree is dirty but ROADMAP.yaml has no active work item. Record the intentional work and next action before compacting.",
-    };
-  }
-  return { blocked: false };
-};
-
-export const evaluateStopState = ({
-  validationOk,
-  dirty,
-  focus,
-  stopHookActive,
-}) => {
-  if (stopHookActive) {
-    return { continue: true };
-  }
-  if (!validationOk) {
-    return {
-      continue: false,
-      reason:
-        "Roadmap validation is failing. Repair or truthfully record the blocker, then rerun proportional checks before stopping.",
-    };
-  }
-  if (focus) {
-    return {
-      continue: false,
-      reason: `Work item ${focus} is still in progress. Finish it or create a truthful validated checkpoint; do not advance unrelated work.`,
-    };
-  }
-  if (dirty) {
-    return {
-      continue: false,
-      reason:
-        "The worktree is dirty with no active roadmap item. Inspect and reconcile it, preserving any identified owner changes, before stopping.",
-    };
-  }
-  return { continue: true };
 };
 
 const preToolUseOutput = (reason) => ({
@@ -2402,11 +2226,6 @@ const preToolUseOutput = (reason) => ({
     permissionDecision: "deny",
     permissionDecisionReason: reason,
   },
-});
-
-const stopContinuationOutput = (reason) => ({
-  decision: "block",
-  reason,
 });
 
 const sessionStart = async (root) => {
@@ -2444,31 +2263,6 @@ const sessionStart = async (root) => {
   return output;
 };
 
-const preCompact = async (root) => {
-  const validationResult = validateRoadmap(root);
-  let roadmap;
-  try {
-    roadmap = await loadRoadmap(root);
-  } catch {
-    roadmap = null;
-  }
-  const statusResult = terminalGitStatus(root);
-  const evaluation = evaluatePreCompactState({
-    validationOk: validationResult.ok && Boolean(roadmap) && statusResult.ok,
-    dirty:
-      !statusResult.ok || repositoryStatusIsDirty(root, statusResult.stdout),
-    focus: roadmap?.current_focus?.work_item ?? null,
-  });
-  if (!evaluation.blocked) {
-    return null;
-  }
-  return {
-    continue: false,
-    stopReason: evaluation.reason,
-    systemMessage: evaluation.reason,
-  };
-};
-
 const preToolUse = async (event, root) => {
   let roadmap;
   try {
@@ -2495,73 +2289,6 @@ const preToolUse = async (event, root) => {
   return evaluation.blocked ? preToolUseOutput(evaluation.reason) : null;
 };
 
-const postToolUse = async (event, root) => {
-  const command = event?.tool_input?.command ?? event?.tool_input?.cmd ?? "";
-  const operations = extractPatchOperations(command, root);
-  const paths = [
-    ...new Set(operations.map(({ repositoryPath }) => repositoryPath)),
-  ];
-  if (paths.length === 0) {
-    return null;
-  }
-  let roadmap;
-  try {
-    roadmap = await loadRoadmap(root);
-  } catch {
-    roadmap = null;
-  }
-  const { plan, checks } = executePostEditChecks(root, paths, roadmap);
-  const failures = checks.filter((check) => !check.result.ok);
-  const companionWarning =
-    plan.planning && !plan.roadmap && !roadmapIsDirty(root)
-      ? "A binding planning document changed while ROADMAP.yaml is unchanged. Decide whether status, evidence, next actions, or the decision register needs a companion update; typo-only edits need no ledger churn."
-      : "";
-  if (failures.length === 0 && !companionWarning) {
-    return null;
-  }
-  const detail = [
-    ...failures.map(
-      ({ name, result }) => `${name} failed:\n${outputForResult(result)}`,
-    ),
-    companionWarning,
-  ]
-    .filter(Boolean)
-    .join("\n\n");
-  const output = {
-    hookSpecificOutput: {
-      hookEventName: "PostToolUse",
-      additionalContext: trimOutput(detail, 2_000),
-    },
-  };
-  if (failures.length > 0) {
-    output.decision = "block";
-    output.reason =
-      "Focused post-edit validation failed; inspect hook feedback.";
-  }
-  return output;
-};
-
-const stop = async (event, root) => {
-  const validationResult = validateRoadmap(root);
-  let roadmap;
-  try {
-    roadmap = await loadRoadmap(root);
-  } catch {
-    roadmap = null;
-  }
-  const statusResult = terminalGitStatus(root);
-  const evaluation = evaluateStopState({
-    validationOk: validationResult.ok && Boolean(roadmap) && statusResult.ok,
-    dirty:
-      !statusResult.ok || repositoryStatusIsDirty(root, statusResult.stdout),
-    focus: roadmap?.current_focus?.work_item ?? null,
-    stopHookActive: event.stop_hook_active === true,
-  });
-  return evaluation.continue
-    ? { continue: true }
-    : stopContinuationOutput(evaluation.reason);
-};
-
 export const handleHookEvent = async (event) => {
   if (
     !event ||
@@ -2570,18 +2297,15 @@ export const handleHookEvent = async (event) => {
   ) {
     throw new Error("hook input must contain hook_event_name");
   }
-  const root = resolveRepositoryRoot(event.cwd);
   switch (event.hook_event_name) {
     case "SessionStart":
-      return sessionStart(root);
-    case "PreCompact":
-      return preCompact(root);
+      return sessionStart(resolveRepositoryRoot(event.cwd));
     case "PreToolUse":
-      return preToolUse(event, root);
+      return preToolUse(event, resolveRepositoryRoot(event.cwd));
+    case "PreCompact":
     case "PostToolUse":
-      return postToolUse(event, root);
     case "Stop":
-      return stop(event, root);
+      return null;
     default:
       throw new Error(`unsupported hook event: ${event.hook_event_name}`);
   }
@@ -2591,22 +2315,6 @@ const errorOutput = (eventName, error) => {
   const message = `Policy Sentinel hook failed safely: ${trimOutput(error instanceof Error ? error.message : error, 900)}`;
   if (eventName === "PreToolUse") {
     return preToolUseOutput(message);
-  }
-  if (eventName === "Stop") {
-    return stopContinuationOutput(message);
-  }
-  if (eventName === "PreCompact") {
-    return { continue: false, stopReason: message, systemMessage: message };
-  }
-  if (eventName === "PostToolUse") {
-    return {
-      decision: "block",
-      reason: message,
-      hookSpecificOutput: {
-        hookEventName: "PostToolUse",
-        additionalContext: message,
-      },
-    };
   }
   return {
     systemMessage: message,

@@ -1,9 +1,9 @@
 # Live demo status
 
-Updated 2026-10-10. Policy Sentinel 0.6.0 is in development; the owner set the
-version on 2026-10-10 (D-095), and records below that say 0.2.0 describe
-earlier checkpoints. This page records maintenance of the separately authorized
-public demo under D-083, D-084, D-093, D-094 and D-095 in the
+Updated 2026-10-13. Policy Sentinel 0.6.1 is the maintenance update authorized
+under D-098. Records below that say 0.2.0 or 0.6.0 describe earlier checkpoints.
+This page records maintenance of the separately authorized
+public demo under D-083, D-084, D-093, D-094, D-095 and D-098 in the
 [decision register](decision-register.md). Project state and the working plan
 are in [STATUS.md](STATUS.md) and [PLAN.md](PLAN.md).
 
@@ -12,13 +12,47 @@ GovInfo, Congress.gov and Regulations.gov were switched on in the demo on
 provenance update below is public: the owner merged pull request 7 into `main`
 as `e295957` on 2026-10-11 at 00:39:34 UTC, the Pages build of that commit
 finished at 00:39:56 UTC, and its stylesheet was read back from the public
-address. That build is source commit `c602468`. The D-095 follow-ups below are
-committed locally and their Worker change is deployed, but the page with the
-seal, the ATNI Climate citation and version 0.6.0 is not yet public. The live
-acceptance run has not happened; it waits for that next merge.
+address. That build is source commit `c602468`. The D-095 follow-ups were then
+published through pull request 8 at `4d320bc`, whose tree matches `085ec25`.
+Pages finished that build on 2026-10-11 at 02:12:57 UTC. The public header was
+read back as 0.6.0 on 2026-10-13; the seal and ATNI Climate citation are public.
+The Worker deployment recorded below remains unchanged.
 Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
+
+## Maintenance update 0.6.1, 2026-10-13
+
+D-098 authorizes this patch version, scoped commits, push and publication through
+the normal pull-request path. The demo and its exported document take the version
+from the package manifest; there is no Worker or source activation change.
+
+The audit repaired oversized local-response cancellation, reduced repeated
+output scans, removed obsolete uninstalled hook code and corrected stale startup
+guidance. PDF and AST test reliability improved without weakening assertions.
+The full check passed with 2,419 unit tests in 119 files and 48 hook tests, plus
+the synthetic build and boundary checks. Local keyboard and citation/report
+checks had no automated WCAG A/AA violation in settled views. These checks do not
+replace outside-user acceptance.
+
+The 0.6.1 build passed its generated-asset scan, typecheck, lint, formatting,
+source-boundary scan and documentation validators. Generated JavaScript differs
+only in the version and import hashes. Browser inspection confirmed the new
+version, keyboard dialog controls, no page errors and zero automated WCAG A/AA
+violations with a synthetic catalog and no external requests.
+
+One bounded live browser run on 0.6.0 passed 16 checks, including successful
+catalog loading, dialog accessibility and ten Federal Register search results.
+The runner then encountered `Network.getResponseBody: No data found for resource`
+while reading a response body and stopped. No retry was made. The full live
+acceptance, including document export and the embedded view, remains incomplete.
+The observed failure was in browser automation; it does not establish a provider
+or application defect.
+
+Search refinement is the owner's next development focus. Source failures currently
+can appear as "Nothing returned" and require distinct outcomes in that work.
+Historical statements below that publication was pending are superseded by the
+deployment facts above; all other limits retain their stated scope.
 
 ## Follow-ups under D-095, 2026-10-10
 

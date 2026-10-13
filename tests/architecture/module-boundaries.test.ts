@@ -118,6 +118,7 @@ describe("Module boundary dependency rule (enforced, GD-10)", () => {
     }
   });
 
+  // This integration test parses and walks the whole repository graph.
   it("enforces the actual graph without substantive import exceptions", () => {
     const result = analyzeModuleBoundaries(files);
     expect(ALLOWLISTED_VIOLATIONS).toEqual([]);
@@ -133,7 +134,7 @@ describe("Module boundary dependency rule (enforced, GD-10)", () => {
     );
     expect(result.diagnostics).toEqual([]);
     expect(result.violations).toEqual([]);
-  });
+  }, 15_000);
 });
 
 describe("Public-entry reachability (no facade or composition exemptions)", () => {

@@ -251,4 +251,31 @@ describe("sealed local corpus bundle loader", () => {
       "Local corpus unavailable",
     );
   });
+
+  it.each(["rejects", "never finishes"])(
+    "rejects an oversized stream even when cancellation %s",
+    async (mode) => {
+      const cancel = vi.fn(() =>
+        mode === "rejects"
+          ? Promise.reject(new Error("Cleanup failed"))
+          : new Promise<void>(() => {}),
+      );
+      const body = new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(new Uint8Array(64 * 1024 + 1));
+        },
+        cancel,
+      });
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async () => new Response(body)),
+      );
+      await expect(loadPolicyLocalBundle()).rejects.toThrow(
+        "Local response exceeds byte ceiling",
+      );
+      expect(cancel).toHaveBeenCalledOnce();
+      expect(body.locked).toBe(false);
+    },
+    1000,
+  );
 });
