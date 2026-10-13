@@ -18,7 +18,7 @@ Each milestone is done when its checks pass on the real service and the result i
 
 - A person can: use the rebuilt page at the public address.
 - Checks: a live search for a joint rule shows one merged row; a person tries Safari, Firefox and a screen reader.
-- Builds on: `demo/` and `worker/`. The 0.6.1 maintenance update was published through pull request 9 under D-098. The newer search implementation is tested locally but not deployed. Live acceptance and the checks by a person remain outstanding.
+- Builds on: `demo/` and `worker/`. The 0.6.1 maintenance update was published through pull request 9 under D-098. D-101 publishes the reviewed search upgrade and audit repairs; the compatible Worker and bounded keyed date/continuation checks passed. Outside-user acceptance and the checks by a person remain outstanding.
 - Needs the owner: participation in the browser and assistive-technology checks; each later Worker deployment and runtime publication needs separate authorization.
 
 ### 2. Federal families
@@ -60,13 +60,13 @@ Each milestone is done when its checks pass on the real service and the result i
 
 These are real outside actions or decisions. Nothing else on this plan waits for the owner.
 
-- Future publication outside D-098, and each later Worker deployment.
+- Future publication outside D-101, and each later Worker deployment.
 - One sentence allowing the existing api.data.gov key for engine work.
 - The eCFR terms, the Oregon terms and contact with Idaho.
 - A license. The repository is public and has none.
 - Any Nation's private or Nation-specific material.
 - Recruiting the first outside user.
-- Standing permission for future pull requests; the D-098 maintenance publication is complete.
+- Standing permission for future pull requests; D-101 covers this search release only.
 - Confirming or changing decisions 1 to 8 in `STATUS.md`: the release definition, following and a refreshed public index, the key and terms, the Nation picker, the deferrals below, archiving the ledger, pull requests and license, and Tribal documents in federal results.
 
 ## Audit follow-through (2026-10-13)

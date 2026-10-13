@@ -23,7 +23,33 @@ Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
 
-## Audit repairs, 2026-10-13 (reviewed; not deployed)
+## Search and audit release, 2026-10-13 (D-101)
+
+This release publishes the search upgrade and six reviewed audit repairs below.
+Its 17 generated runtime files match the independently reviewed production
+artifact exactly. The compatible Worker was deployed first: version
+`583cd4ab-f99b-4ffc-9d7b-c9d73466df18`, source `350329f`, serving 100% from
+2026-10-13 at 21:01:53 UTC. No configured source, secret, rate limit or
+observability setting changed. D-101 authorizes the release commit, push and
+normal pull-request/merge path to Pages from `main:/docs`.
+
+Seven bounded live search calls passed: pages one and two of `water` for the
+inclusive 2025 range on Federal Register, GovInfo and Regulations.gov, and
+`hr 1 101` on Congress. Each paged source returned 20 distinct identifiers with
+matching search criteria and valid continuation. Federal Register publication
+dates and Regulations.gov posted dates were in range; GovInfo's publication
+filter remains distinct from displayed issue dates. Health, configured keyed
+sources, CORS and response headers passed. The corrected Congress API citation
+and URL passed, but a separate direct official-page request returned 403.
+Direct route acceptance remains unverified; no retry was made. These checks do
+not establish continuing upstream availability or outside-user acceptance.
+
+The full repository and browser evidence below applies to unchanged inputs.
+Fresh release formatting, lint, typecheck, source scan and artifact checks pass.
+Earlier statements that deployment or keyed checks are pending describe their
+checkpoints; D-101 and the live results above supersede those specific limits.
+
+## Audit repairs, 2026-10-13 (reviewed)
 
 The D-099 audit/fix/review loop closed six demonstrated defects. For the demo,
 report reload now retains all alternate listings allowed by the search bounds;
