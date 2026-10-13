@@ -1,4 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { SOURCE_LABELS } from "../../src/demo/citations";
+import { COPY } from "../../src/demo/copy";
+import { buildDocument } from "../../src/demo/document";
+import { appendMergedResults, mergeResults } from "../../src/demo/merge";
 import {
   ACTOR_FIELDS,
   attachPolicy,
@@ -7,6 +11,7 @@ import {
   findCitedKey,
   MAX_ACTOR_TEXT,
   MAX_ALTERNATES,
+  MAX_SAVED_CHARACTERS,
   missingActorFields,
   removeFromReport,
   reportEntries,
@@ -14,6 +19,7 @@ import {
   serializeReport,
 } from "../../src/demo/report-state";
 import type { DataActors, ReportState } from "../../src/demo/report-state";
+import { searchPageLimit } from "../../src/demo/search-contract";
 import type { DemoCitation } from "../../src/demo/types";
 import { keyOf } from "../../src/demo/validation";
 import { listing } from "./fixtures";
@@ -448,6 +454,83 @@ describe("official addresses in saved citations", () => {
 });
 
 describe("alternate listings of a cited document", () => {
+  it.each([
+    { name: "two pages", counts: [["regulations", 14]] as const },
+    {
+      name: "every source's page limit",
+      counts: [
+        ["federal-register", searchPageLimit("federal-register") * 10],
+        ["govinfo", searchPageLimit("govinfo") * 10],
+        ["regulations", searchPageLimit("regulations") * 10],
+      ] as const,
+    },
+  ])(
+    "keeps listings accumulated through $name after reopening and in export provenance",
+    ({ counts }) => {
+      let merged = mergeResults([]);
+      for (const [sourceId, count] of counts) {
+        const listings = Array.from({ length: count }, (_, n) =>
+          listing(sourceId, `2099-listing-${n}`, "fr:2099-00001"),
+        );
+        for (let offset = 0; offset < count; offset += 10)
+          merged = appendMergedResults(merged.results, [
+            { sourceId, results: listings.slice(offset, offset + 10) },
+          ]);
+      }
+      expect(merged.results).toHaveLength(1);
+      const row = merged.results[0];
+      const expectedAlternates =
+        counts.reduce((sum, [, count]) => sum + count, 0) - 1;
+      expect(row.alternates).toHaveLength(expectedAlternates);
+      const key = keyOf(row.citation);
+      const report: ReportState = {
+        ...emptyReport(),
+        cited: {
+          [key]: { ...row, policy: null, note: "Keep every official listing." },
+        },
+      };
+      const encoded = serializeReport(report);
+      expect(encoded.length).toBeLessThan(MAX_SAVED_CHARACTERS);
+      const restored = restoreReport(encoded);
+      expect(restored.report.cited[key].alternates).toHaveLength(
+        expectedAlternates,
+      );
+      expect(restored).toEqual({ report, notice: "" });
+
+      // PDF and print share this document model.
+      const document = buildDocument({
+        version: "test",
+        generatedAt: new Date("2099-01-08T12:00:00Z"),
+        entries: reportEntries(restored.report),
+        actors: restored.report.actors,
+      });
+      expect(
+        document.blocks.flatMap((block) =>
+          block.kind === "field" && block.label === COPY.docLabels.alsoListedBy
+            ? [block.value]
+            : [],
+        ),
+      ).toEqual(
+        row.alternates.map(
+          (alternate) =>
+            `${SOURCE_LABELS[alternate.sourceId]}: ${alternate.officialUrl}`,
+        ),
+      );
+    },
+  );
+
+  it("still rejects saved reports above the total character limit", () => {
+    const original = merged();
+    const key = Object.keys(original.cited)[0];
+    original.cited[key].note = "x".repeat(MAX_SAVED_CHARACTERS);
+    expect(() => serializeReport(original)).toThrow(
+      "Saved report is too large",
+    );
+    const restored = restoreReport(JSON.stringify({ version: 3, ...original }));
+    expect(restored.report).toEqual(emptyReport());
+    expect(restored.notice).toBe(COPY.restoreFailed);
+  });
+
   it("returns the alternates with each report entry", () => {
     expect(reportEntries(merged())[0].alternates).toEqual([
       listing("govinfo"),

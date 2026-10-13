@@ -239,6 +239,7 @@ session 1; the ruling date is the decision date.
 | D-097 | **Owner direction 2026-10-13 (worktree reconciliation).** "there are a lot of stale worktrees that need to be reconciled and then retired". Reconcile Policy Sentinel checkouts before removing obsolete worktrees; preserve unique work and history. This authorizes local retirement, not remote branch deletion or publication. |
 | D-098 | **Owner direction 2026-10-13 (publication and search preparation).** "make commits, push and publish the udpated GitHub page"; next session focuses on improved search. Authorizes this maintenance publication through the normal pull-request path; 0.6.1 is the patch increment. Prepare next-session implementation guidance from Luna research and two Sol reviewers. No Worker deployment or new source activation. |
 | D-099 | **Owner direction 2026-10-13 (audit preparation and closeout).** "prepare the next session for the $ponytail-audit review/fix/review loop"; "$trueup". Authorizes next-session local audit and repairs, plus this verified search change's scoped commit and normal review-branch push. No pull request, merge, Worker deployment, runtime publication or new source activation. |
+| D-100 | **Owner direction 2026-10-13 (audit repair closeout).** "Commit and push" authorizes committing the six reviewed audit repairs, tests and completion records, then pushing normally to `demo/live-pages`. No pull request, merge, Worker deployment, runtime publication or source activation. |
 
 ## Open implementation facts
 

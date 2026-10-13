@@ -1,5 +1,5 @@
 import { Buffer } from "node:buffer";
-import { mkdir, rm, writeFile } from "node:fs/promises";
+import { lstat, mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { assertArtifactSourceHealthState } from "./artifact-health.mjs";
 import { deriveBuildId, hashJson, serializeJson } from "./hashing.mjs";
@@ -695,7 +695,7 @@ export function createArtifactDocuments({
   return documents;
 }
 
-function assertSafeArtifactOutput(outputDirectory, projectRoot) {
+async function assertSafeArtifactOutput(outputDirectory, projectRoot) {
   const output = path.resolve(outputDirectory);
   const root = path.resolve(projectRoot);
   const filesystemRoot = path.parse(output).root;
@@ -711,6 +711,22 @@ function assertSafeArtifactOutput(outputDirectory, projectRoot) {
       `artifact output must be an isolated directory under dist/: ${relative}`,
     );
   }
+  // A lexical path under dist/ can still cross a directory junction.
+  let ancestor = filesystemRoot;
+  for (const part of path.relative(filesystemRoot, output).split(path.sep)) {
+    ancestor = path.join(ancestor, part);
+    let entry;
+    try {
+      entry = await lstat(ancestor);
+    } catch (error) {
+      if (error.code === "ENOENT") break;
+      throw error;
+    }
+    if (entry.isSymbolicLink())
+      throw new Error("refusing linked artifact output");
+    if (!entry.isDirectory())
+      throw new Error("artifact output path must contain only directories");
+  }
   return output;
 }
 
@@ -720,7 +736,7 @@ export async function writeArtifactDocuments({
   projectRoot,
   manifestLimits = ARTIFACT_MANIFEST_LIMITS_V1,
 }) {
-  const output = assertSafeArtifactOutput(outputDirectory, projectRoot);
+  const output = await assertSafeArtifactOutput(outputDirectory, projectRoot);
   const manifest = documents?.get?.("manifest.json");
   assertArtifactManifestLimits(manifest, manifestLimits);
   await rm(output, { recursive: true, force: true });

@@ -74,9 +74,10 @@ These are real outside actions or decisions. Nothing else on this plan waits for
 The search work selected under D-098 is implemented and locally verified: plain
 keywords, source-aware date refinement, continuation beyond the first page and
 distinct failure outcomes. Congress and Washington remain bill-reference
-lookups until a keyword interface is qualified. D-099 makes a repository
-audit/fix/review loop the next session, starting with this change and connected
-behavior. Source gates and release acceptance criteria are unchanged. Detailed
+lookups until a keyword interface is qualified. The D-099 repository
+audit/fix/review loop closed six demonstrated defects in this change and
+connected behavior; current verification is in [STATUS.md](STATUS.md).
+Source gates and release acceptance criteria are unchanged. Detailed
 session preparation stays outside the public repository.
 
 The D-096 local review/fix/review loop covers the demo, local loading, cited

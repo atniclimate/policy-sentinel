@@ -23,6 +23,34 @@ Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
 
+## Audit repairs, 2026-10-13 (reviewed; not deployed)
+
+The D-099 audit/fix/review loop closed six demonstrated defects. For the demo,
+report reload now retains all alternate listings allowed by the search bounds;
+historical Congress citations and URLs use the correct ordinal; known numeric
+result exhaustion takes precedence over the page cap; and alternate-source
+links have targets at least 24 pixels high. Connected local repairs reject
+junctions before replacing artifact output and reset new authored material to
+Restricted when an imported study is rebound to another corpus.
+
+The focused report/export, Worker, artifact and study suites passed 158, 146,
+57 and 15 tests respectively. Independent re-review closed every finding.
+Chrome passed 19 synthetic checks and five settled accessibility scans,
+including desktop/narrow report views in both themes, keyboard links, restored
+provenance, study rebinding and public-export filtering. Screenshots were
+inspected; no page errors or external requests occurred. A private production
+build passed the 17-file artifact scan, and all 17 public runtime files retained
+their exact SHA-256 hashes. The final `npm run check` passed: 2,556 unit tests
+in 120 files, 48 hook tests, retained validation stages, source-boundary scan
+and synthetic build/artifact checks. Native file-symlink fixtures were unavailable
+on this host; junction and hard-link checks ran.
+
+This audit made zero provider calls. D-100 authorizes the reviewed repair commit
+and its push to `demo/live-pages`; pull request, merge, deployment and publication
+still need separate owner authorization. Keyed GovInfo/Regulations.gov checks
+and historical Congress route acceptance remain unverified. The compatible
+Worker must be deployed and verified before the new search page is published.
+
 ## Search upgrade, 2026-10-13 (not deployed)
 
 The local page adds paired inclusive source-date filters and per-source Load more.

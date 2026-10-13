@@ -683,7 +683,7 @@ describe("persistent local study workspace", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("requires explicit rebind across corpora and preserves the previous study until it succeeds", async () => {
+  it("requires explicit rebind across corpora and restores restricted defaults for new material", async () => {
     const original = syntheticCorpusV2() as AnalyzedCorpusV2;
     const saved = await seed(original, "Imported different-corpus study");
     const changed = createAnalyzedCorpusV2({
@@ -693,6 +693,10 @@ describe("persistent local study workspace", () => {
     const settings = props(changed);
     render(<StudyWorkspace {...settings} />);
     await create("Current study");
+    const workspace = screen.getByRole("region", {
+      name: "Persistent research study",
+    });
+    select(workspace, "New authored material visibility", "public");
     await resume(await serializeResearchStudy(saved, original));
     expect(
       screen.getByRole("heading", { name: "Current study" }),
@@ -702,6 +706,9 @@ describe("persistent local study workspace", () => {
         name: "Imported different-corpus study",
       }),
     ).not.toBeInTheDocument();
+    expect(
+      screen.getByLabelText("New authored material visibility"),
+    ).toHaveValue("public");
     fireEvent.click(
       screen.getByRole("button", {
         name: "Rebind imported study to this corpus",
@@ -710,12 +717,34 @@ describe("persistent local study workspace", () => {
     await screen.findByRole("heading", {
       name: "Imported different-corpus study",
     });
+    expect(
+      screen.getByLabelText("New authored material visibility"),
+    ).toHaveValue("restricted");
     const rebound = (await backup(changed)).study;
     expect(rebound.passages[0].bindingStatus).toBe("review_required");
     expect(rebound.passages[0].citation.corpusDigest).toBe(
       original.contentDigest,
     );
     expect(rebound.corpusDigest).toBe(changed.contentDigest);
+    expect(rebound.actors[0].sensitivity).toBe("public");
+    const form = editor("Add research question");
+    input(form, "Research question", "Private question after corpus rebind");
+    input(form, "Analytical theme", "Procedure");
+    await submit(form);
+    const authored = (await backup(changed)).study;
+    expect(authored.questions.at(-1)?.sensitivity).toBe("restricted");
+    select(workspace, "Export audience", "public");
+    fireEvent.click(
+      screen.getByRole("button", { name: "Prepare knowledge products" }),
+    );
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: "Download machine-readable provenance",
+      }),
+    );
+    const exported = await blobText(downloads.at(-1)!);
+    expect(exported).toContain("What changed?");
+    expect(exported).not.toContain("Private question after corpus rebind");
   });
 
   it("captures structured procedural, consultation and environmental evidence through field forms", async () => {

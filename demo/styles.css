@@ -642,6 +642,10 @@ label.source .source-note {
   margin: -4px;
   padding: 4px;
 }
+.also a {
+  display: block;
+  min-height: 24px;
+}
 .tsdf {
   display: flex;
   gap: 0.5rem;

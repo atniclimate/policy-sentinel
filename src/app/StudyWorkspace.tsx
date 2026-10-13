@@ -1155,6 +1155,7 @@ export function StudyWorkspace({
                 setProducts(null);
                 setHistorical(null);
                 setPendingImport(null);
+                setSensitivity("restricted");
                 setMessage(
                   "Study rebound. Review source bindings before relying on saved evidence.",
                 );

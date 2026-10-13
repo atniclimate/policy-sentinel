@@ -1,73 +1,64 @@
 # Status
 
-As of 2026-10-13. The **search upgrade is tested locally and not deployed**, on the
-0.6.1 maintenance baseline. Current product direction and safeguards remain in
+As of 2026-10-13. The **search upgrade and audit repairs are not deployed**.
+The D-099 audit/fix/review loop has closed six demonstrated defects;
+the final full check passed. Product direction and safeguards remain in
 [AGENTS.md](../AGENTS.md); milestone order is in [PLAN.md](PLAN.md).
 
 ## Current state
 
-- The recorded public 0.6.1 maintenance publication is pull request 9, merge
-  `e47ebba`, on 2026-10-13. The prior session verified all 17 public runtime
-  files against the reviewed build. This session has not changed public assets
-  or deployed the Worker.
-- The published demo searches Federal Register, GovInfo and Regulations.gov by
-  topic on the first page. Congress.gov and Washington remain exact-reference
-  lookups. Oregon and Idaho remain integration gaps. The deployed Worker remains
-  `969d1a24-f4de-4706-9fa9-24feae5f2503`.
-- Locally, paired inclusive date controls translate to Federal Register publication
-  dates, Regulations.gov posted dates and GovInfo publication-date ranges. GovInfo
-  accepts a narrow plain-word dated query; ambiguous expressions are explicitly
-  not searched. Congress cannot apply the date range; Washington retains its
-  bill/biennium and introduced-version lookup.
-- Each searchable source has explicit Load more, ten listings per request. Federal
-  Register and GovInfo stop at 50 pages/500 listings each; Regulations.gov at
-  20 pages/200. Counts distinguish loaded listings, merged rows and source totals.
-  GovInfo cursors are opaque; unknown continuation is never called exhausted.
-- Results retain submitted criteria while the form changes. Replacement searches
-  cancel prior work. Failed pages retain rows and the unconsumed continuation for
-  explicit retry. Unavailable and not searched remain distinct from no matches.
-- Exact identifiers alone merge listings. Appends preserve row order and identity;
-  a later Federal Register primary does not replace a saved citation, receipt,
-  passage selection or note, or permit a duplicate citation.
-- State links open official external portals/gateways without forwarding terms.
-  No new source, dependency, persistent search history, engine credential grant,
-  private-data path or provider host was added. PDF/print evidence models remain
-  unchanged.
+- Recorded public 0.6.1 maintenance publication: pull request 9, merge
+  `e47ebba`, on 2026-10-13. The previously recorded Worker is
+  `969d1a24-f4de-4706-9fa9-24feae5f2503`. The audit made no remote request,
+  deployment or publication; all 17 public runtime files remain unchanged.
+- The public demo searches Federal Register, GovInfo and Regulations.gov by
+  topic on the first page. Congress.gov and Washington retain exact-reference
+  lookup; Oregon and Idaho remain integration gaps.
+- The review branch contains the search upgrade at `a37c994`: paired inclusive
+  source-date filters, ten-listing pages, explicit Load more, retained search
+  criteria and citations, and distinct unavailable/not-searched outcomes.
+  Federal Register and GovInfo stop at 50 pages/500 listings each;
+  Regulations.gov stops at 20 pages/200. GovInfo cursors stay opaque, and its
+  dated query accepts only the documented narrow plain-word composition.
+- Six reviewed audit repairs: reject junctions in artifact output paths
+  before replacement; retain every permitted alternate citation on report
+  reload; reset new study material to Restricted after an imported study is
+  rebound; correct historical Congress ordinals; report known exhaustion before
+  a numeric page cap; and enlarge wrapped alternate-link targets.
+- The repairs add no source, dependency, credential use, search history,
+  telemetry, private-data route, legal conclusion or inferred Nation
+  relationship. The 38 pre-existing untracked owner documents remain untouched.
 
 ## Verification and next step
 
-The focused frontend suite passed 55 tests; the merge/report suites passed 93;
-the transport/Worker/contract suites passed 211. Local Chrome passed 48 browser
-checks, including keyboard paging, retained citations, PDF and print evidence;
-eight settled accessibility scans reported no violations. The browser run had
-no page errors or external requests. The independent boundary review is closed.
-A private production demo build passed the 17-file artifact scan, and all 17
-existing public runtime files remain unchanged. The final `npm run check` passed:
-2,542 unit tests in 120 files, 48 hook tests, the retained validation stages and
-the synthetic build/artifact checks. These checks do not establish live acceptance.
+Each defect has a failing regression or browser receipt and a passing repair.
+Focused suites passed: 57 artifact tests, 158 report/export tests, 146 Worker
+tests and 15 study tests. Independent reviewers checked the actual fixes and
+callers; no substantiated locally fixable finding remains from this audit.
 
-An earlier full run exposed a workspace review timestamp race and a five-second
-timeout in the existing 128-revision history test. Review creation now shares
-one timestamp with its saved revision; a clock-advancing regression reproduces
-the defect and passes with the fix. All 15 workspace and 43 history tests pass.
-Only the long-history case has a 15-second allowance; its assertions and the
-global timeout are unchanged.
+Chrome passed 19 synthetic browser checks, including restored provenance,
+keyboard navigation through alternate links, study rebinding, saved Restricted
+material and public-export filtering. Five settled accessibility scans passed
+across the report's desktop/narrow light/dark views and the study workspace.
+Screenshots were inspected. There were no page errors or external requests.
+The private production demo build passed its 17-file artifact scan; before/after
+SHA-256 checks confirmed all 17 existing public runtime files unchanged.
+The final `npm run check` passed: 2,556 unit tests in 120 files, 48 hook tests,
+the retained validation stages, source-boundary scan and synthetic build/artifact
+checks. Native file-symlink fixtures were unavailable on this Windows host;
+junction and hard-link checks ran. These results do not establish live acceptance.
 
-Two Federal Register requests through the local Worker checked pages one and
-two with an inclusive 2025 date range: both returned ten results, with 20 unique
-identifiers and every date in range. No retry or third page was requested.
-No local api.data.gov binding is available, so GovInfo and Regulations.gov date
-and continuation checks against their real services remain pending. No deployment
-or key extraction is authorized to close those gaps.
+No provider calls were made in this audit. The preceding search session's two
+Federal Register calls checked dated pages one and two. GovInfo and
+Regulations.gov live date/continuation checks remain pending because no local
+api.data.gov binding is available. Historical Congress route acceptance was not
+probed. Local tests do not establish those live results or release acceptance.
 
-Continue with the owner's repository audit/fix/review loop under D-099, starting
-with the search change and its connected behavior. D-099 also authorizes the
-scoped source commit and normal push to the review branch. Worker deployment,
-pull request, merge and public-page publication remain separately gated.
-The new page requires the new Worker search contract; deploy and
-verify that compatible Worker before publishing the page.
-The previous maintenance publication authority is complete and does not cover
-this feature's external actions.
+D-100 authorizes the reviewed repair commit and its push to `demo/live-pages`.
+Pull request, merge, deployment and publication still need separate owner
+authorization. Deploy and verify the compatible Worker before publishing the
+new search page. Do not repeat the completed maintenance publication or restart
+the search implementation.
 
 ## Open owner decisions
 

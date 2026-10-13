@@ -474,10 +474,10 @@ function numericContinuation(
   total: number | null,
   count: number,
 ): DemoSearchContinuation {
-  if (criteria.page === searchPageLimit(criteria.source))
-    return { kind: "stopped", reason: "cap" };
   if (total !== null && criteria.page * 10 >= total)
     return { kind: "stopped", reason: "complete" };
+  if (criteria.page === searchPageLimit(criteria.source))
+    return { kind: "stopped", reason: "cap" };
   if (total === null && count < 10)
     return { kind: "stopped", reason: "unknown" };
   return { kind: "more", next: nextSearchCursor(criteria) };
@@ -901,15 +901,21 @@ async function searchCongress(
       sres: "senate-resolution",
     } as Record<string, string>
   )[type];
-  const ordinal = `${Number(m[3])}th-congress`;
+  const congress = Number(m[3]);
+  const lastTwo = congress % 100;
+  const suffix =
+    lastTwo >= 11 && lastTwo <= 13
+      ? "th"
+      : (["th", "st", "nd", "rd"][congress % 10] ?? "th");
+  const ordinal = `${congress}${suffix}`;
   const result: DemoCitation = {
     sourceId: "congress",
-    identifier: `${type.toUpperCase()} ${Number(m[2])}, ${Number(m[3])}th Congress`,
+    identifier: `${type.toUpperCase()} ${Number(m[2])}, ${ordinal} Congress`,
     title: requiredText(bill.title, 400),
     issuingBody: cleanText(bill.originChamber, 40) || "U.S. Congress",
     kind: "Bill",
     date: isoDate(bill.introducedDate),
-    officialUrl: `https://www.congress.gov/bill/${ordinal}/${webType}/${Number(m[2])}`,
+    officialUrl: `https://www.congress.gov/bill/${ordinal}-congress/${webType}/${Number(m[2])}`,
     textUrl: null,
     retrievedAt,
     summary: latestText ? `Latest action: ${latestText}` : null,

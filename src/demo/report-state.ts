@@ -1,4 +1,5 @@
 import { COPY } from "./copy";
+import { searchPageLimit } from "./search-contract";
 import type { DemoCitation, DemoPolicyResponse } from "./types";
 import {
   citationValue,
@@ -14,8 +15,12 @@ export const MAX_CITATIONS = 50;
 export const MAX_NOTE = 10000;
 export const MAX_SAVED_CHARACTERS = 2_000_000;
 export const MAX_ACTOR_TEXT = 300;
-// One source can list a document several times, so this is above the source count.
-export const MAX_ALTERNATES = 12;
+// Every loaded listing may identify the same document; one is its primary citation.
+export const MAX_ALTERNATES =
+  ["federal-register", "govinfo", "regulations"].reduce(
+    (total, source) => total + searchPageLimit(source) * 10,
+    0,
+  ) - 1;
 
 export interface Mark {
   on: boolean;

@@ -829,6 +829,44 @@ describe("date and continuation contracts", () => {
   );
 
   it.each([
+    ["federal-register", 50, "documents.json", 500, "complete"],
+    ["regulations", 20, "api.regulations.gov", 200, "complete"],
+    ["federal-register", 50, "documents.json", null, "cap"],
+    ["regulations", 20, "api.regulations.gov", null, "cap"],
+  ])(
+    "reports %s page %s (%s) with total %s as %s",
+    async (sourceValue, pageValue, hostValue, total, reason) => {
+      const source = String(sourceValue),
+        page = Number(pageValue);
+      installFetch({
+        [String(hostValue)]: () =>
+          reply(
+            source === "regulations"
+              ? { data: [], meta: { totalElements: total } }
+              : { results: [], count: total },
+          ),
+      });
+      const cursor = nextSearchCursor({
+        ...searchCriteria(source, "water", 1),
+        page: page - 1,
+      });
+      const response = await call(
+        route(source, {
+          page: String(page),
+          continuation: JSON.stringify(cursor),
+        }),
+        keyed,
+      );
+      expect(response.status).toBe(200);
+      expect(await response.json()).toMatchObject({
+        total,
+        continuation: { kind: "stopped", reason },
+      });
+      expect(calls).toHaveLength(1);
+    },
+  );
+
+  it.each([
     ["federal-register", 50, "documents.json"],
     ["regulations", 20, "api.regulations.gov"],
     ["govinfo", 50, "api.govinfo.gov"],
@@ -1123,6 +1161,33 @@ describe("exact keyed metadata identities", () => {
       date: bill.introducedDate,
     });
   });
+
+  it.each([
+    [101, "101st"],
+    [102, "102nd"],
+    [103, "103rd"],
+    [111, "111th"],
+    [112, "112th"],
+    [113, "113th"],
+    [119, "119th"],
+  ])(
+    "uses the %s Congress ordinal in the citation and link",
+    async (congress, ordinal) => {
+      installFetch({
+        "api.congress.gov": () => reply({ bill: { ...bill, congress } }),
+      });
+      const res = await call(
+        `/api/search?source=congress&q=hr%201234%20${congress}`,
+        { DATA_GOV_API_KEY: "synthetic-key" },
+      );
+      expect(res.status).toBe(200);
+      expect((await res.json()).results[0]).toMatchObject({
+        identifier: `HR 1234, ${ordinal} Congress`,
+        officialUrl: `https://www.congress.gov/bill/${ordinal}-congress/house-bill/1234`,
+      });
+      expect(calls).toHaveLength(1);
+    },
+  );
 
   it.each<[string, Record<string, unknown>]>([
     ["type mismatch", { type: "S" }],
