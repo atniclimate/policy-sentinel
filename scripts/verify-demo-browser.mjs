@@ -2,12 +2,13 @@
 // End-to-end check of the live demo in a real browser, against the deployed Worker.
 // Usage: node scripts/verify-demo-browser.mjs --url <page url> --out <folder>
 // Needs playwright-core (set PLAYWRIGHT_CORE to its folder) and pdftotext on PATH.
-// Request budget, checked at the end: the source catalog twice (page and embed),
+// Request budget, enforced before each request: source catalog twice (page and embed),
 // one search and one policy read.
 import { execFileSync } from "node:child_process";
+import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { createRequire } from "node:module";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 // Control names and document wording come from the page's own modules (Node
 // strips their types on import), so a reworded label cannot strand this script.
 import {
@@ -21,6 +22,71 @@ const TSDF_URL =
   "https://atniclimate.github.io/TieredSovereignDataFramework/#overview";
 const REPO_URL = "https://github.com/atniclimate/policy-sentinel";
 
+function requestGuard(pageUrl) {
+  const target = new URL(pageUrl);
+  const override = target.searchParams.get("api");
+  const apiOrigin =
+    override &&
+    /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d{1,5})?$/.test(override)
+      ? new URL(override).origin
+      : "https://policy-sentinel-demo.atniclimate.workers.dev";
+  const limits = { "/api/sources": 2, "/api/search": 1, "/api/policy": 1 };
+  const calls = Object.fromEntries(
+    Object.keys(limits).map((path) => [path, 0]),
+  );
+  const staticRequests = { count: 0, limit: 80 };
+  return {
+    calls,
+    staticRequests,
+    permit(raw, method, type) {
+      const request = new URL(raw);
+      if (method !== "GET") return false;
+      if (
+        request.origin === apiOrigin &&
+        Object.hasOwn(limits, request.pathname)
+      ) {
+        if (calls[request.pathname] >= limits[request.pathname]) return false;
+        calls[request.pathname] += 1;
+        return true;
+      }
+      const staticAllowed =
+        request.origin === target.origin &&
+        !request.pathname.startsWith("/api/") &&
+        (["document", "script", "stylesheet", "image", "font"].includes(type) ||
+          (type === "fetch" && /\.(?:ttf|woff2?|png)$/.test(request.pathname)));
+      if (!staticAllowed || staticRequests.count >= staticRequests.limit)
+        return false;
+      staticRequests.count += 1;
+      return true;
+    },
+  };
+}
+
+function searchOutcomes(reply, outcome, sourceRows) {
+  const policies = new Set(
+    reply.results.map(
+      (item) => item.matchKey ?? `${item.sourceId}:${item.identifier}`,
+    ),
+  ).size;
+  return (
+    outcome === COPY.resultsListed(policies) &&
+    sourceRows.some(
+      (row) =>
+        row.label === SOURCE_LABELS[reply.source] &&
+        row.value === COPY.resultsCount(reply.results.length, reply.total),
+    )
+  );
+}
+
+function responseDuring(page, path, action) {
+  return Promise.all([
+    page.waitForResponse(
+      (response) => new URL(response.url()).pathname === path,
+    ),
+    Promise.resolve().then(action),
+  ]);
+}
+
 const args = Object.fromEntries(
   process.argv.slice(2).reduce((pairs, value, index, all) => {
     if (value.startsWith("--")) pairs.push([value.slice(2), all[index + 1]]);
@@ -29,11 +95,136 @@ const args = Object.fromEntries(
 );
 const url = args.url;
 const out = args.out;
+if (args["self-test"] === "true") {
+  const reply = {
+    source: "federal-register",
+    results: [
+      { sourceId: "federal-register", identifier: "one", matchKey: null },
+    ],
+    total: 7,
+  };
+  const row = {
+    label: "Federal Register",
+    value: "1 listings loaded; 7 reported by source",
+  };
+  assert(searchOutcomes(reply, "1 policy listed.", [row]));
+  assert(!searchOutcomes(reply, "2 policies listed.", [row]));
+  assert(
+    !searchOutcomes(reply, "1 policy listed.", [
+      { ...row, value: "1 listings loaded; 8 reported by source" },
+    ]),
+  );
+  assert(
+    !searchOutcomes(reply, "1 policy listed.", [{ ...row, label: "GovInfo" }]),
+  );
+  const mergedReply = {
+    ...reply,
+    total: null,
+    results: [
+      { ...reply.results[0], identifier: "a", matchKey: "fr:2099-00001" },
+      { ...reply.results[0], identifier: "b", matchKey: "fr:2099-00001" },
+      { ...reply.results[0], identifier: "c" },
+    ],
+  };
+  const mergedRows = [{ ...row, value: "3 listings loaded" }];
+  assert(searchOutcomes(mergedReply, "2 policies listed.", mergedRows));
+  assert(!searchOutcomes(mergedReply, "3 policies listed.", mergedRows));
+  const guard = requestGuard(
+    "http://127.0.0.1:4185/?api=http://127.0.0.1:4185",
+  );
+  assert(!guard.permit("https://example.invalid/api/search", "GET", "fetch"));
+  assert(!guard.permit("http://127.0.0.1:4185/api/search", "POST", "fetch"));
+  assert(guard.permit("http://127.0.0.1:4185/api/search", "GET", "fetch"));
+  assert(!guard.permit("http://127.0.0.1:4185/api/search", "GET", "fetch"));
+  assert(!guard.permit("http://127.0.0.1:4185/api/unknown", "GET", "fetch"));
+  for (const [path, limit] of [
+    ["sources", 2],
+    ["policy", 1],
+  ]) {
+    for (let count = 0; count < limit; count++)
+      assert(guard.permit(`http://127.0.0.1:4185/api/${path}`, "GET", "fetch"));
+    assert(!guard.permit(`http://127.0.0.1:4185/api/${path}`, "GET", "fetch"));
+  }
+  assert(
+    guard.permit("http://127.0.0.1:4185/demo-assets/main.js", "GET", "script"),
+  );
+  for (let count = 1; count < 80; count += 1)
+    assert(
+      guard.permit(
+        "http://127.0.0.1:4185/demo-assets/main.js",
+        "GET",
+        "script",
+      ),
+    );
+  assert(
+    !guard.permit("http://127.0.0.1:4185/demo-assets/main.js", "GET", "script"),
+  );
+  assert.equal(guard.staticRequests.count, 80);
+  for (const origin of ["http://localhost:80", "http://127.0.0.1:00080"]) {
+    const normalized = requestGuard(`http://127.0.0.1/?api=${origin}`);
+    assert(
+      normalized.permit(`${new URL(origin).origin}/api/search`, "GET", "fetch"),
+    );
+  }
+  const unhandled = [];
+  const observeUnhandled = (error) => unhandled.push(error);
+  process.on("unhandledRejection", observeUnhandled);
+  try {
+    const missingResponse = new Error("Response timeout");
+    await assert.rejects(
+      responseDuring(
+        { waitForResponse: () => Promise.reject(missingResponse) },
+        "/api/search",
+        () => new Promise(() => {}),
+      ),
+      (error) => error === missingResponse,
+    );
+    const triggerFailure = new Error("Action failed");
+    let rejectResponse;
+    const pendingResponse = new Promise((_, reject) => {
+      rejectResponse = reject;
+    });
+    await assert.rejects(
+      responseDuring(
+        { waitForResponse: () => pendingResponse },
+        "/api/policy",
+        () => {
+          throw triggerFailure;
+        },
+      ),
+      (error) => error === triggerFailure,
+    );
+    rejectResponse(missingResponse);
+    const response = { url: () => "http://127.0.0.1/api/sources" };
+    assert.deepEqual(
+      await responseDuring(
+        {
+          waitForResponse: (matches) => {
+            assert(matches(response));
+            return Promise.resolve(response);
+          },
+        },
+        "/api/sources",
+        () => "navigation response",
+      ),
+      [response, "navigation response"],
+    );
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.deepEqual(unhandled, []);
+  } finally {
+    process.off("unhandledRejection", observeUnhandled);
+  }
+  console.log(
+    "PASS source/count, request guard and response/trigger controls; no browser or network opened.",
+  );
+  process.exit(0);
+}
 if (!url || !out) {
   console.error("Usage: --url <page url> --out <folder>");
   process.exit(2);
 }
-mkdirSync(out, { recursive: true });
+mkdirSync(dirname(resolve(out)), { recursive: true });
+mkdirSync(out);
 const coreRoot = process.env.PLAYWRIGHT_CORE
   ? resolve(process.env.PLAYWRIGHT_CORE)
   : null;
@@ -118,6 +309,37 @@ try {
   const context = await browser.newContext({
     viewport: { width: 1280, height: 900 },
     acceptDownloads: true,
+    serviceWorkers: "block",
+  });
+  const guard = requestGuard(url);
+  const blockedRequests = [];
+  await context.route("**/*", async (route) => {
+    const request = route.request();
+    if (
+      !guard.permit(request.url(), request.method(), request.resourceType())
+    ) {
+      blockedRequests.push(
+        new URL(request.url()).origin + new URL(request.url()).pathname,
+      );
+      await route.abort();
+      return;
+    }
+    try {
+      const response = await route.fetch({ maxRedirects: 0, maxRetries: 0 });
+      if (response.status() >= 300 && response.status() < 400) {
+        blockedRequests.push(
+          `Redirect blocked: ${new URL(request.url()).origin}${new URL(request.url()).pathname}`,
+        );
+        await route.abort();
+        return;
+      }
+      await route.fulfill({ response });
+    } catch {
+      blockedRequests.push(
+        `Transport failed: ${new URL(request.url()).origin}${new URL(request.url()).pathname}`,
+      );
+      await route.abort().catch(() => {});
+    }
   });
   const page = await context.newPage();
   const consoleErrors = [];
@@ -126,11 +348,10 @@ try {
     (m) => m.type() === "error" && consoleErrors.push(m.text()),
   );
   page.on("pageerror", (e) => consoleErrors.push(String(e)));
-  const calls = { "/api/sources": 0, "/api/search": 0, "/api/policy": 0 };
-  page.on("request", (r) => {
-    const path = new URL(r.url()).pathname;
-    if (Object.hasOwn(calls, path)) calls[path] += 1;
-  });
+  const calls = guard.calls;
+  receipt.requests = calls;
+  receipt.staticRequests = guard.staticRequests;
+  receipt.blockedRequests = blockedRequests;
 
   // Waits that answer instead of throwing, so one missing thing is one failed check.
   const appears = (locator) =>
@@ -179,11 +400,11 @@ try {
         document.documentElement.clientHeight,
     }));
 
-  const sourceResponse = page.waitForResponse(
-    (r) => new URL(r.url()).pathname === "/api/sources",
+  const [sourceReply, response] = await responseDuring(
+    page,
+    "/api/sources",
+    () => page.goto(url, { waitUntil: "networkidle" }),
   );
-  const response = await page.goto(url, { waitUntil: "networkidle" });
-  const sourceReply = await sourceResponse;
   const catalog = sourceReply.ok()
     ? ((await sourceReply.json()).sources ?? [])
     : [];
@@ -367,7 +588,9 @@ try {
 
   // Search, through the deployed Worker: one request, to the Federal Register.
   const example = EXAMPLES[0];
-  await page.getByRole("button", { name: example.label, exact: true }).click();
+  const [searchResponse] = await responseDuring(page, "/api/search", () =>
+    page.getByRole("button", { name: example.label, exact: true }).click(),
+  );
   const rows = page.locator(".result");
   await rows.first().waitFor({ timeout: 30000 });
   const resultCount = await rows.count();
@@ -379,24 +602,29 @@ try {
   const outcome = flat(
     await page.locator(".pane-results").getByRole("status").innerText(),
   );
+  const searchReply = await searchResponse.json();
+  const sourceRows = await page
+    .locator(".source-outcomes > li > .row")
+    .evaluateAll((rows) =>
+      rows.map((row) => ({
+        label: row.querySelector(".row-k")?.textContent.trim(),
+        value: row.querySelector(".row-v")?.textContent.trim(),
+      })),
+    );
   check(
-    "results status names the source asked and its count",
-    outcome.includes(
-      federal.find((s) => s.id === example.source)?.label ??
-        SOURCE_LABELS[example.source],
-    ) && /\d+ shown/.test(outcome),
-    outcome,
+    "results announce policy count and separately name source loaded/provider counts",
+    searchOutcomes(searchReply, outcome, sourceRows),
+    JSON.stringify({ outcome, sourceRows }),
   );
   const firstTitle = await rows.first().locator("h3").innerText();
 
   // Select a policy and bind all output assertions to this exact response.
-  const policyResponse = page.waitForResponse(
-    (r) => new URL(r.url()).pathname === "/api/policy",
+  const [policyResponse] = await responseDuring(page, "/api/policy", () =>
+    rows.first().getByRole("button", { name: COPY.showIssues }).click(),
   );
-  await rows.first().getByRole("button", { name: COPY.showIssues }).click();
   const issueItems = page.locator(".issue");
   await issueItems.first().waitFor({ timeout: 45000 });
-  const expectedPolicy = await (await policyResponse).json();
+  const expectedPolicy = await policyResponse.json();
   const { citation, engine, receipt: textReceipt } = expectedPolicy;
   const issue = expectedPolicy.issues[0];
   check(
@@ -730,6 +958,11 @@ try {
     consoleErrors.slice(0, 3).join(" | "),
   );
   receipt.requests = calls;
+  check(
+    "no request exceeded the pre-request allowlist or budget",
+    blockedRequests.length === 0,
+    blockedRequests.join(" | "),
+  );
   check(
     "request budget kept: source catalog twice, one search, one policy read",
     calls["/api/sources"] === 2 &&

@@ -737,6 +737,12 @@ dd {
   font-size: 0.88rem;
 }
 
+.facet-group input[type="checkbox"] {
+  width: 1.5rem;
+  min-height: 1.5rem;
+  flex-shrink: 0;
+}
+
 .date-facet {
   display: flex;
   align-items: end;

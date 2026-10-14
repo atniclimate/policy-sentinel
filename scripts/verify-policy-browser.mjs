@@ -83,7 +83,7 @@ const report = {
   limitations: [
     "Observed network totals cover page/context requests, not a system-wide browser-internal packet capture.",
     "Automated axe and explicit keyboard/focus journeys do not certify every accessibility criterion or a screen-reader session.",
-    "This local profile exposes dossier and JSON exports; no CSV export is implemented or claimed.",
+    "This runner covers workbench dossier and JSON exports. StudyWorkspace CSV/HTML/JSON products and study import require separate browser coverage.",
     "Research and comparison cases are selected deterministically from this approved corpus, not from a new blind evaluation population.",
     "The final close/cancellation deadline does not bound earlier screenshots/context closes or report persistence, and does not prove browser or download process termination.",
   ],
