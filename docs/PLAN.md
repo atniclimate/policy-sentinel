@@ -14,14 +14,14 @@ A Tribal policy, natural resources or legal staff member opens one page, searche
 
 Each milestone is done when its checks pass on the real service and the result is written in `STATUS.md`. Every source is added one at a time, live call first, and the trimmed response shape of that call becomes the test fixture. The full check runs once before anything is published.
 
-D-102 sets the immediate sequence: comprehensive verification of existing browser workflows, demonstrated repairs and independent re-review to a bounded clean stop; then documentation and capability planning informed by staff workflows when supplied. The public demo, synthetic local workbench/studies and retained synthetic app need separate evidence. Dedicated interface polish and deeper accessibility evaluation follow broader functionality; existing accessibility safeguards and functional keyboard/focus checks remain. This changes work order, not source gates or the unresolved release definition.
+D-102 sets the immediate sequence: verification of existing browser workflows, demonstrated repairs and independent re-review, then documentation and capability planning informed by staff workflows. The public demo, synthetic local workbench/studies and retained synthetic app have separate evidence; current results and remaining limits are in [STATUS.md](STATUS.md). The owner has supplied consultation and climate-funding research tasks, assessed below. Dedicated interface polish and deeper accessibility evaluation follow broader functionality; existing accessibility safeguards and functional keyboard/focus checks remain. This changes work order, not source gates or the unresolved release definition.
 
 ### 1. Published and true
 
 - A person can: use the rebuilt page at the public address.
 - Checks: a live search for a joint rule shows one merged row; current search, document, report and export workflows pass browser verification, with actual browser/engine coverage stated. Blocked and untested cases stay explicit. Dedicated assistive-technology evaluation remains scheduled after broader functionality under D-102.
-- Builds on: `demo/` and `worker/`. D-101 published the reviewed search upgrade and audit repairs through pull request 10, merge `981ecad`; the compatible Worker and bounded keyed date/continuation checks passed. The D-102 browser review/fix loop is next. Outside-user acceptance remains outstanding.
-- Needs the owner: staff workflows and participation in later user/assistive-technology checks; each later Worker deployment and runtime publication needs separate authorization.
+- Builds on: `demo/` and `worker/`. D-101 published the reviewed search upgrade and audit repairs through pull request 10, merge `981ecad`; D-102 has now exercised dated pagination and focus against the live service. Outside-user acceptance remains outstanding.
+- Needs the owner: participation in later user/assistive-technology checks; each later Worker deployment and runtime publication needs separate authorization.
 
 ### 2. Federal families
 
@@ -62,13 +62,13 @@ D-102 sets the immediate sequence: comprehensive verification of existing browse
 
 These are real outside actions or decisions. Nothing else on this plan waits for the owner.
 
-- Future publication outside D-101, and each later Worker deployment.
+- Future publication outside D-103, and each later Worker deployment.
 - One sentence allowing the existing api.data.gov key for engine work.
 - The eCFR terms, the Oregon terms and contact with Idaho.
 - A license. The repository is public and has none.
 - Any Nation's private or Nation-specific material.
 - Recruiting the first outside user.
-- Standing permission for future pull requests; D-101 covers this search release only.
+- Standing permission for future pull requests; D-103 covers this reviewed publication only.
 - Confirming or changing decisions 1 to 8 in `STATUS.md`: the release definition, following and a refreshed public index, the key and terms, the Nation picker, the deferrals below, archiving the ledger, pull requests and license, and Tribal documents in federal results.
 
 ## Audit follow-through (2026-10-13)
@@ -89,7 +89,7 @@ Prioritize these small development steps within the milestones above:
 
 | Order | What a person gains | Existing code and acceptance check | Research or owner dependency |
 | --- | --- | --- | --- |
-| 1 | Reliably use the published search, report and local study workflows. | Search continuation is implemented and published. D-102 next verifies current browser workflows, repairs demonstrated failures and independently reviews the fixes; include exact-ID merging, notes, replacement searches, failed-page recovery, exports and study filtering. Correct the two stale browser-test expectations and finish unreached dated append/focus checks. | Federal Register, GovInfo and Regulations.gov dated pages one/two passed bounded D-101 live checks. Congress and Washington remain reference lookups. New local Worker repairs need their own live evidence; prior deployed behavior cannot prove them. |
+| 1 | Reliably use the published search, report and local study workflows. | D-102 browser evidence covers current merging, notes, replacement searches, controlled failures, exports and study filtering. The maintained runner now derives separate policy and source counts from the response; dated append/focus checks passed live. Keep the surface and engine limits in STATUS explicit. | Federal Register, GovInfo and Regulations.gov dated pages one/two passed the bounded D-102 browser batch. Congress and Washington remain reference lookups. The direct Congress page returned 403 without retry. New local Worker repairs would need their own live evidence. |
 | 2 | Read one additional federal family with an exact document version. | Reuse the Worker transport, `src/demo/validation.ts` and the document/receipt model. Start with bills/public laws; one known item per route, exact official identity/version, clear metadata-only versus text-read status, and a receipt for every quoted passage. Distinct bill versions remain distinct. | Research originating-agency fields, versions, dates, reuse and failures first. Engine key use remains an owner decision; deployments need their own approval. |
 | 3 | Return to a followed item and understand what changed. | Reuse report-state and lifecycle code after functional browser closure and capability assessment. A saved item must recover with its original identity and provenance, show source-supported change, and disclose unavailable refreshes. This capability is not implemented by session report restoration. | Confirm following in the release and any refreshed public metadata index. Do not silently change session-only notes into persistent user storage. |
 | 4, later | Use and share a cited report with assistive technology. | After broader functionality, run the dedicated interface/accessibility pass under D-102. Test semantic HTML print view and PDF from the same `buildDocument` output, including headings, reading order, quotes, notes and provenance. Choose accessible HTML or tagged PDF from demonstrated need. Existing keyboard/focus and automated regression checks continue now; no silent loss of unsupported characters. | A real screen-reader user and PDF/print viewer checks remain necessary. The PDF is untagged; Print view is the existing fallback, not a verified accessible-PDF substitute. |
@@ -109,6 +109,52 @@ and do not establish this tool's accessibility conformance.
 Metadata titles, abstracts and latest-action descriptions stay distinct from
 exact quoted passages. Every quoted passage retains its locator and text
 receipt; no output supplies legal meaning or inferred Nation relationships.
+
+## Staff workflow capability assessment (2026-10-13)
+
+The owner supplied two real research tasks. This assessment scopes product work;
+it does not answer the funding or legal questions or activate another source.
+
+The first asks which Tribes in Washington and Oregon were consulted, how
+consultation occurred and what evidence was supplied. The owner clarified that
+the staff member needs discovery and deeper understanding of water and forestry
+policy, with a Roadless Rule focus; the initial question referred to Section 106.
+First discover and distinguish the relevant rules, then identify each exact
+statute, agency, docket and version. Do not assume that every consultation record
+belongs to Section 106 or treat that section number as an identified rule.
+The acceptance task is a cited evidence table
+that separates invitation, response, meeting participation and agency disposition.
+Each named Nation needs the exact official passage and URL. An invitation,
+geographic location, search hit or missing record cannot establish participation
+or absence of consultation. Restricted submissions stay outside the public tool.
+
+The second asks about FY27 Tribal Community Resilience funding, source-stated
+award amounts and eligibility, executive actions and litigation, staffing changes,
+and affected or restored climate/environmental programs. It also asks about
+25 U.S.C. § 117c, domestic-content waivers, imported technology, tariffs and
+litigation authorities. A useful result needs an explicit as-of date and separate
+evidence for requests, enacted appropriations, notices, selections, obligations
+and disbursements. Court orders need their date, scope, later orders and appeal
+status; staffing effects need their own evidence. Funding authority, procurement
+waivers, import restrictions, tariffs and possible litigation authorities require
+separate citations. One provision must not be converted into a combined eligibility,
+exemption or litigation conclusion. The supplied § 117c citation identifies a
+research target, not an accepted funding route.
+
+| Capability | What exists and what remains | Smallest useful acceptance task |
+| --- | --- | --- |
+| Versioned federal text | The demo has source-aware search, document identity, text receipts, selected passages and report exports. Complete funding, statute, executive-action and court-order coverage is missing; a metadata hit is not a verified text version. | Qualify one originating source and route, then compare two exact versions with independent citations and retrieval dates. Keep proposals, final instruments and subsequent court orders distinct. Existing source, terms, credential and publication gates apply. |
+| Follow and new since | Session report restoration and engine lifecycle components exist. The public demo has no implemented followed-item refresh or change feed. | Save one exact item, introduce a known new official version, refresh explicitly, show both versions and source-supported differences, then show an unavailable refresh without implying no change. The release/index decisions remain open. |
+| Washington topic discovery | `worker/src/index.ts` supports bill/biennium reference lookup and introduced-text reading. The official topic-search link is external; its results are not integrated. | Review a permitted topic interface, then find one known bill by topic and carry its exact version into a cited report. This needs source qualification before implementation. |
+| Oregon, Idaho and regional coverage | Oregon and Idaho are explicit integration gaps. Federal records may discuss regional matters but do not establish complete regional or Nation coverage. | For the identified consultation rule, inventory official federal and state consultation records, then qualify one missing source at a time. Oregon terms and Idaho contact remain owner decisions; intertribal publications never imply every member Nation's position. |
+| Local studies and offline use | `PolicyWorkbench` and `StudyWorkspace` support checksummed local evidence, analyst-authored procedural/consultation records, review, saved-study import and seven study products. Synthetic browser checks exercise them. Turnkey offline installation and a staff member's disconnected task remain unverified. | Load an approved package with the network disabled, resume an exported study, produce a cited local output and correctly explain missing evidence. Public output must continue filtering Restricted material and source text whose reuse contract prohibits redistribution. |
+
+Next proposed slice: discover the relevant water, forestry and Roadless Rule
+instruments and assemble a bounded official-source consultation inventory before
+choosing a new adapter. In parallel,
+define one FY27 funding program's evidence trail from appropriation through award.
+These are research and acceptance specifications, not authorization to acquire
+private material, add a public source or implement legal-status labels.
 
 Developer environment follow-up: profile Vitest's environment/setup cost before
 changing concurrency or test environments. The first integrated unit run during

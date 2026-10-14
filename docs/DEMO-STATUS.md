@@ -3,7 +3,7 @@
 Updated 2026-10-13. Policy Sentinel 0.6.1 is the maintenance update authorized
 under D-098. Records below that say 0.2.0 or 0.6.0 describe earlier checkpoints.
 This page records maintenance of the separately authorized
-public demo under D-083, D-084, D-093, D-094, D-095, D-098 and D-101 in the
+public demo under D-083, D-084, D-093, D-094, D-095, D-098, D-101, D-102 and D-103 in the
 [decision register](decision-register.md). Project state and the working plan
 are in [STATUS.md](STATUS.md) and [PLAN.md](PLAN.md).
 
@@ -23,6 +23,62 @@ published the search/audit release recorded next.
 Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
+
+## Review publication, 2026-10-13 (D-103)
+
+The owner authorized committing, pushing and publishing the reviewed browser
+verification changes. The release includes the maintained runner's failure and
+request guards, regression tests, retained-App checkbox sizing and updated
+capability records. The fresh full check passed with 2,558 unit tests in 121
+files, all pipeline stages and the validated synthetic build; checked files were
+unchanged. Two native file-symlink checks remain skipped on this Windows host.
+Publication uses the normal pull-request path to `main:/docs`, followed by
+static-byte and browser verification. Demo runtime files and the Worker
+are unchanged; this release requires no Worker deployment.
+
+## Browser verification, 2026-10-13 (D-102)
+
+The current published demo passed two bounded Chrome 155.0.8059.40 browser
+journeys using the installed Playwright 1.63.0. The dated/reference journey
+passed 32 checks: Federal Register, GovInfo and Regulations.gov each returned
+two pages with 20 distinct identifiers, accurate added-listing counts, retained
+DOM rows and keyboard focus. Inclusive date checks passed where the displayed
+date has that meaning; GovInfo's publication/issue distinction remained visible.
+Washington reference lookup and its text receipt passed. Congress returned the
+correct historical ordinal and canonical URL, but its direct official page
+returned 403 without retry. That page's acceptance remains unverified.
+
+The maintained report journey passed all 83 checks, including independent policy
+and source counts, text receipts, selected passages and notes, PDF provenance,
+browser print lifecycle, theme changes, compact/embed views, keyboard focus and
+the exercised accessibility scans. The two stale count expectations recorded
+under D-101 are repaired; the previously unreached live append/focus cases are
+now reached and passing. Original failed receipts remain retained.
+
+Request guards were tested locally before live execution. They reject unknown
+routes and excess calls, refuse redirects before following them, and preserve a
+failed receipt when transport fails. Neither browser transport nor failed
+provider requests are retried. The policy-browser batch used at most 13 upstream
+requests; three citation lookups for workflow clarification bring the session
+upper bound to 16 of 20. The two browser journeys used three catalog requests
+and 27 static requests. Upstream counts are conservative code-derived bounds,
+not measurements at the provider. These finite results do not establish ongoing
+availability, full coverage or outside-user acceptance.
+
+Local synthetic Chrome and installed Windows WebKit runs cover controlled
+failures and data boundaries separately. WebKit is not an actual Safari run;
+Chromium-only PDF/print operations are not attributed to it. Local workbench,
+study and retained-App evidence, repairs and remaining limits are summarized in
+[STATUS.md](STATUS.md). No demo runtime or Worker change, deployment or
+publication was made during D-102.
+
+The extended synthetic matrix exercised 18 supported workflow groups per engine.
+Windows WebKit's advertised Print view fallback preserves report content after a
+PDF-module load failure, but direct PDF retry after ordinary reload still fails.
+An isolated test with the exact generated Vite 8.2.0 helper reproduces that
+interaction in Windows WebKit 26.6. It is a retained failed path, not a successful
+PDF retry. The fallback's synthetic print events establish UI/content behavior;
+they do not establish a saved WebKit PDF or an operating-system print dialog.
 
 ## Search and audit release, 2026-10-13 (D-101)
 
@@ -60,10 +116,10 @@ report restoration, PDF/print and embed checks passed, as did eight settled
 accessibility scans; no browser console errors were recorded. These receipts are
 not all-pass runs. Dated append DOM/focus checks were not reached live.
 
-D-102 schedules a comprehensive functional browser review/fix/review loop, then
-planning and assessment of supplied staff workflows. Dedicated interface polish
-and deeper accessibility evaluation follow broader functionality, with existing
-regression safeguards retained. Preparation itself changes no runtime behavior.
+D-102 subsequently executed the browser work recorded above and assessed the
+owner's supplied staff workflows in [PLAN.md](PLAN.md). Dedicated interface
+polish and deeper accessibility evaluation follow broader functionality, with
+existing regression safeguards retained.
 
 ## Audit repairs, 2026-10-13 (reviewed)
 

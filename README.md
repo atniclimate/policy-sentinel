@@ -685,6 +685,9 @@ Build the demo with `npm run demo:build`. The browser runner uses an installed
 `playwright-core` package and `pdftotext` on PATH. Set `PLAYWRIGHT_CORE` to that
 package's directory when it is outside this repository, then run
 `node scripts/verify-demo-browser.mjs --url <page> --out <new-private-directory>`.
+The output directory must be new; the runner refuses to overwrite earlier evidence.
+`--self-test true` checks its controls without opening a browser or network and
+also runs as part of the normal unit suite.
 The default target uses the live Worker; repeated synthetic checks must supply a
 local fixture service through the localhost `?api=` override. Keep reports,
 notes and screenshots outside the repository and the served `docs/` tree.
