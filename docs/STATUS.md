@@ -1,6 +1,49 @@
 # Status
 
-As of 2026-10-13. **The published search and report workflows passed the bounded
+As of 2026-10-19. **NCAI 0.7.0 bug-fix items 1–6 are implemented on
+`demo/live-pages` and rebuilt into the local Pages artifact; nothing was published.**
+The vault CLI confines new plaintext output to ignored, untracked files inside
+this checkout's `private/`, rejecting directory links and alternate streams.
+Only a decrypt `OperationError` reports a wrong password. Menu entries show the
+verbatim status; blank passwords prompt for input, cancelled unlocks cannot open
+the menu or move focus, and unavailable chips stay focusable with an explained
+reason. Synthetic tests cover the fixes, malformed vault/data inputs, seal
+guards and grouping across committees with missing subcommittees.
+
+All 127 focused bug-fix tests in four suites passed, along with `typecheck`,
+`lint`, `format:check` and `scan:source`. The private-output review found and fixed an
+NTFS alternate-stream escape, demonstrated by a failing synthetic hardlink test
+before the fix and a passing one afterward.
+
+Synthetic Chromium 153.0.8010.12 verification passed 15 checks, including seven
+axe states with no violations. All 13 unavailable chips were reached by Tab;
+Enter and Space triggered no search. Empty passwords and native Escape during
+delayed success/failure, including reopening the dialog, passed. Screenshots
+were inspected. No provider calls or owner vault access occurred, and the
+temporary browser/server were closed. This checks items 3–5 with synthetic
+drafts, not item 8's real-vault acceptance.
+
+The fresh `npm run check` passed once on the final code: 2,645 unit tests in
+124 files, 48 hook tests, all pipeline stages and the validated synthetic build.
+It finished at 2026-10-19 18:06:05 UTC. The two known Windows file-symlink tests
+remain skipped. A fresh `npm run demo:build` passed, and the three replaced
+bundles were removed with `git rm`; the final artifact contains 17 runtime files.
+
+The artifact plaintext scan now runs inside `scripts/ncai-vault.mjs`, as required
+by the owner's private-file boundary, and reports counts only. Its 25 CLI tests
+passed, including 15 added scan cases; independent review closed the bare-filename
+sentinel gap. The final scan checked 81 drafts and 173 needles against all
+17 runtime files, with zero hits. The encrypted vault is unchanged. The earlier
+`fa69419` check and scan remain historical evidence. D-106 now authorizes push,
+publication and closeout through the existing pull-request path to `main`.
+Deployment and public verification are pending.
+Items 7–8 remain excluded: removing "Arizona" (PSC-26-025) and "Sioux"
+(PSC-26-047) requires the owner's reseal; the real unlocked-menu browser check
+of `d6a3ab5` still needs the owner's password. WebKit, print and study-width
+limits below remain outside this bug-fix session. The public page and Worker
+remain unchanged from the D-103 state below.
+
+From 2026-10-13: **The published search and report workflows passed the bounded
 live browser batch.** D-102 browser review has a qualified closeout with the
 WebKit limits below. The fresh D-103 full repository check passed after all
 verifier repairs. D-103 authorizes committing and publishing the reviewed
@@ -127,6 +170,10 @@ under D-102. Existing keyboard/focus safeguards continue throughout.
    push and Pages publication; standing permission remains open.
 8. Tribal government documents printed by a federal source are not detected today.
    Filter, flag or leave them? Open since D-094.
+9. NCAI's reply on republishing the tracker snapshot and on access to its
+   AssetBank resolution files (requested 2026-10-19). D-105 is revisited when
+   NCAI answers. Refresh the snapshot during the convention, and retire it
+   after final actions?
 
 ## Remaining limits
 

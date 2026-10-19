@@ -103,6 +103,77 @@ export const COPY = {
   searchButton: "Search",
   searching: "Searching the selected official sources.",
   examplesLabel: "Example Searches",
+  ncai: {
+    menu: "NCAI",
+    menuTitle: "NCAI 2026 Draft Resolutions in Progress",
+    menuHelp: (date: string) =>
+      "As listed on the NCAI 2026 Annual Resolutions Tracker, read " +
+      date +
+      ". NCAI updates the tracker during the convention, so this list may be out of date. Grouped by the tracker's committee and subcommittee. A draft is not an adopted NCAI resolution or NCAI policy.",
+    elsewhere: "Other Resolution Sources",
+    links: [
+      {
+        url: "https://www.ncai.org/news/2026-annual-policy-resolutions-in-progress",
+        label: "NCAI 2026 resolutions in progress",
+      },
+      {
+        url: "https://www.ncai.org/resolutions",
+        label: "NCAI resolutions and adopted resolution archive",
+      },
+      {
+        url: "https://atnitribes.org/resolution-table/",
+        label: "ATNI adopted resolutions",
+      },
+    ],
+    eyebrow: (id: string) => "NCAI 2026 draft resolution " + id,
+    status: "Resolutions Committee recommendation",
+    committee: "Committee",
+    subcommittee: "Subcommittee",
+    sponsor: "Sponsor affiliation, as listed",
+    note: "Tracker note",
+    tracker: "Open the NCAI 2026 Annual Resolutions Tracker",
+    noText:
+      "The tracker lists no public draft text. Read the draft from NCAI or the sponsor.",
+    caveat:
+      "These are suggested text searches that Policy Sentinel chose by hand for each draft's subject; they are not always words from the title, and NCAI did not choose them. A result is a text match: it does not show that a policy or case governs this resolution's issue. The committee label describes only the resolution.",
+    groups: {
+      policy: "Suggested Federal Searches",
+      bill: "Bills Named in the Title (Congress.gov)",
+      case: "Court Opinions and Litigation (Reference)",
+      sponsor: "Name Search: Sponsor (with the First Topic, if Any)",
+    },
+    groupHelp: {
+      policy: "Runs on the checked federal sources.",
+      bill: "Looks up the bill in the 119th Congress.",
+      case: "GovInfo searches. USCOURTS holds selected federal court opinions from about 2004, including opinions in cases still open. USREPORTS holds Supreme Court opinions in the United States Reports, 1790 through 2018. Neither covers state or Tribal courts. A match is not a finding that a case is relevant, controlling, or still good law, or that it concerns the sponsor or any Tribe.",
+      sponsor:
+        "Lists documents that contain the name as typed. Matches are unreviewed and do not show that a policy applies to, or concerns, that Tribe or organization.",
+    },
+    courtLinksHelp:
+      "Other courts, recent Supreme Court opinions, and pending litigation on CourtListener, a Free Law Project archive, not an official court source. Opens in a new tab; the search words go to CourtListener only when a link is opened. Its docket archive is incomplete: it holds court-feed listings and filings shared from PACER, the official federal docket system.",
+    courtLink: {
+      opinions: (words: string) => "Opinions from all courts: " + words,
+      dockets: (words: string) => "Dockets, including pending cases: " + words,
+    },
+    gateTitle: "NCAI 2026 Draft Resolutions",
+    gateIntro:
+      "The draft resolutions list is for NCAI and ATNI convention participants. Enter the access password shared with participants.",
+    gatePassword: "Access password",
+    gateHelp:
+      "The password opens an encrypted copy of the list in this tab. The password and the list are not stored or sent; a suggested search you run goes to the official sources like any other search. A shared password is a light barrier, not strong security.",
+    gateEmpty: "Enter the access password to open the list.",
+    gateWrong: "That password did not open the list. Check it and try again.",
+    gateBroken: "The list could not be opened. Reload the page and try again.",
+    gateChecking: "Checking the password.",
+    gateOpen: "Open",
+    sourceOff: "Off: the source is not available or not checked.",
+    tribalLaw: "Tribal law materials at the National Indian Law Library",
+    close: "Close resolution",
+    areaLabel: "Policy area (NCAI committee)",
+    areaNone: "Choose an area",
+    areaHelp:
+      "Searches drawn from the NCAI 2026 draft resolutions in that committee area. The area is not applied to results.",
+  },
   dateRangeTitle: "Dates (Optional)",
   dateFrom: "From date",
   dateTo: "Through date",

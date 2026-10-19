@@ -13,6 +13,8 @@ import { loadPdfFonts, loadPdfSeal } from "../../demo/pdf-fonts";
 import { buildPdf } from "../../src/demo/pdf";
 import { emptyActors, STORAGE_KEY } from "../../src/demo/report-state";
 import { keyOf } from "../../src/demo/validation";
+import { NcaiVaultError, openNcaiDrafts } from "../../src/demo/ncai-vault";
+import type { NcaiDraft } from "../../src/demo/ncai-2026";
 import {
   nextSearchCursor,
   searchCriteria,
@@ -45,6 +47,10 @@ vi.mock("../../demo/pdf-fonts", () => ({
   loadPdfSeal: vi.fn(),
 }));
 vi.mock("../../src/demo/pdf", () => ({ buildPdf: vi.fn() }));
+vi.mock("../../src/demo/ncai-vault", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../src/demo/ncai-vault")>()),
+  openNcaiDrafts: vi.fn(),
+}));
 
 const ACTORS = {
   Name: "A. Example",
@@ -55,6 +61,29 @@ const ACTORS = {
 };
 /** Stands in for the seal file the page fetches for the PDF. */
 const SEAL_BYTES = new Uint8Array([137, 80, 78, 71]);
+const NCAI_DRAFTS: readonly NcaiDraft[] = [
+  {
+    id: "PSC-26-001",
+    title: "Example draft on water",
+    sponsor: "Example Tribe",
+    status: "Withdrawn",
+    committee: "Example Committee",
+    topics: ["water quality"],
+    bills: ["hr 1234"],
+  },
+  {
+    id: "PSC-26-002",
+    title: "Example draft on forests",
+    sponsor: "Example Council",
+    status: "Out of Order",
+  },
+  {
+    id: "PSC-26-003",
+    title: "Example deferred draft",
+    sponsor: "Example Council",
+    status: "Deferred to next meeting",
+  },
+];
 /** The same document from three sources: the Federal Register record and two other listings. */
 const merged = { ...citation(), matchKey: "fr:2099-00001" };
 
@@ -1341,6 +1370,178 @@ describe("demo frame: panes, dialog and theme", () => {
     expect(shell.querySelector(".pane-issues")).toHaveFocus();
     fireEvent.click(ui.getByRole("button", { name: "Report pane, 1" }));
     expect(shell).toHaveAttribute("data-pane", "report");
+  });
+
+  it("shows every NCAI draft's verbatim status in its menu entry", async () => {
+    vi.mocked(openNcaiDrafts).mockResolvedValue(NCAI_DRAFTS);
+    const { ui, container } = await start();
+    fireEvent.click(ui.getByRole("button", { name: "NCAI" }));
+    const gate = within(container.querySelector(".gate") as HTMLElement);
+    fireEvent.input(gate.getByLabelText("Access password"), {
+      target: { value: "synthetic" },
+    });
+    fireEvent.click(gate.getByRole("button", { name: "Open" }));
+    await waitFor(() => {
+      for (const draft of NCAI_DRAFTS) {
+        const item = ui.getByRole("button", {
+          name: new RegExp(`${draft.id}.*${draft.status}`),
+        });
+        expect(item.querySelector(".help")?.textContent).toBe(
+          ` (${draft.status})`,
+        );
+      }
+    });
+  });
+
+  it.each(["", "   "])(
+    "prompts for a blank NCAI password (%j) without decrypting",
+    async (password) => {
+      const { ui, container } = await start();
+      fireEvent.click(ui.getByRole("button", { name: "NCAI" }));
+      const gate = within(container.querySelector(".gate") as HTMLElement);
+      const input = gate.getByLabelText("Access password");
+      fireEvent.input(input, { target: { value: password } });
+      fireEvent.click(gate.getByRole("button", { name: "Open" }));
+      expect(gate.getByRole("alert")).toHaveTextContent(
+        "Enter the access password",
+      );
+      expect(input).toHaveFocus();
+      expect(openNcaiDrafts).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    ["success", false],
+    ["failure", false],
+    ["success", true],
+    ["failure", true],
+  ] as const)(
+    "ignores a cancelled NCAI unlock's late %s (reopened: %s)",
+    async (outcome, reopen) => {
+      const pending = deferred<readonly NcaiDraft[]>();
+      vi.mocked(openNcaiDrafts).mockReturnValueOnce(pending.promise);
+      const { ui, container } = await start();
+      const opener = ui.getByRole("button", { name: "NCAI" });
+      fireEvent.click(opener);
+      const dialog = container.querySelector(".gate") as HTMLDialogElement;
+      const gate = within(dialog);
+      fireEvent.input(gate.getByLabelText("Access password"), {
+        target: { value: "synthetic" },
+      });
+      fireEvent.click(gate.getByRole("button", { name: "Open" }));
+      expect(openNcaiDrafts).toHaveBeenCalledOnce();
+      // jsdom does not perform Escape's native dialog close; reproduce its events.
+      fireEvent(dialog, new Event("cancel", { cancelable: true }));
+      dialog.removeAttribute("open");
+      fireEvent(dialog, new Event("close"));
+      if (reopen) fireEvent.click(opener);
+      const focusTarget = reopen
+        ? gate.getByRole("button", { name: "Close" })
+        : opener;
+      focusTarget.focus();
+      await act(async () => {
+        if (outcome === "success") pending.resolve(NCAI_DRAFTS);
+        else pending.reject(new NcaiVaultError("wrong_password"));
+        await pending.promise.catch(() => {});
+      });
+      expect(dialog.open).toBe(reopen);
+      expect(container.querySelector(".ncai-menu")).toBeNull();
+      expect(gate.queryByRole("alert")).toBeNull();
+      expect(focusTarget).toHaveFocus();
+    },
+  );
+
+  it("keeps unavailable example, area and NCAI panel chips focusable with an explained, guarded action", async () => {
+    vi.mocked(loadSources).mockResolvedValue(
+      sources.map((source) =>
+        source.id === "federal-register"
+          ? source
+          : { ...source, status: "not_available" },
+      ),
+    );
+    vi.mocked(openNcaiDrafts).mockResolvedValue(NCAI_DRAFTS);
+    const { ui, container } = await start();
+    fireEvent.click(ui.getByRole("button", { name: "NCAI" }));
+    const gate = within(container.querySelector(".gate") as HTMLElement);
+    fireEvent.input(gate.getByLabelText("Access password"), {
+      target: { value: "synthetic" },
+    });
+    fireEvent.click(gate.getByRole("button", { name: "Open" }));
+    fireEvent.click(await ui.findByRole("button", { name: /PSC-26-001/ }));
+    fireEvent.click(ui.getByRole("checkbox", { name: /Federal Register/ }));
+    fireEvent.change(ui.getByLabelText("Policy area (NCAI committee)"), {
+      target: { value: "0" },
+    });
+    for (const selector of [
+      "#examples-off",
+      "#ncai-area-off",
+      "#ncai-search-off",
+    ]) {
+      const reason = container.querySelector(selector) as HTMLElement;
+      expect(reason).toBeInTheDocument();
+      const chips = container.querySelectorAll<HTMLButtonElement>(
+        `button[aria-describedby="${reason.id}"]`,
+      );
+      expect(chips.length).toBeGreaterThan(0);
+      for (const chip of chips) {
+        expect(chip).not.toBeDisabled();
+        expect(chip).toHaveAttribute("aria-disabled", "true");
+        expect(chip).toHaveAccessibleDescription(
+          "Off: the source is not available or not checked.",
+        );
+        chip.focus();
+        expect(chip).toHaveFocus();
+        fireEvent.click(chip);
+      }
+    }
+    expect(search).not.toHaveBeenCalled();
+    expect(ui.getByRole("searchbox")).toHaveValue("");
+  });
+
+  it("closes the NCAI menu when focus or a click lands outside, and refocuses a re-picked draft", async () => {
+    vi.mocked(openNcaiDrafts).mockResolvedValue([
+      {
+        id: "PSC-26-001",
+        title: "Example draft on water",
+        sponsor: "Example Tribe",
+        status: "In order",
+        committee: "Land Committee",
+        topics: ["water quality"],
+      },
+    ]);
+    const { ui, container } = await start();
+    fireEvent.click(ui.getByRole("button", { name: "NCAI" }));
+    const gate = within(container.querySelector(".gate") as HTMLElement);
+    fireEvent.input(gate.getByLabelText("Access password"), {
+      target: { value: "synthetic" },
+    });
+    fireEvent.click(gate.getByRole("button", { name: "Open" }));
+    const menu = await waitFor(() => {
+      const found = container.querySelector<HTMLDetailsElement>(".ncai-menu");
+      expect(found?.open).toBe(true);
+      return found as HTMLDetailsElement;
+    });
+    const item = within(menu).getByRole("button", { name: /PSC-26-001/ });
+    const heading = () => container.querySelector("#ncai-h");
+    fireEvent.click(item);
+    await waitFor(() => expect(heading()).toHaveFocus());
+    expect(menu.open).toBe(false);
+    // Picking the same draft again still moves focus out of the closed menu.
+    menu.open = true;
+    item.focus();
+    fireEvent.click(item);
+    expect(heading()).toHaveFocus();
+    expect(menu.open).toBe(false);
+    // Focus or a click outside closes the open menu.
+    menu.open = true;
+    ui.getByRole("searchbox").focus();
+    expect(menu.open).toBe(false);
+    menu.open = true;
+    fireEvent.pointerDown(document.body);
+    expect(menu.open).toBe(false);
+    menu.open = true;
+    fireEvent.pointerDown(item);
+    expect(menu.open).toBe(true);
   });
 
   it("opens About and Limits, closes it and returns focus to the button", async () => {
