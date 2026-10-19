@@ -120,6 +120,7 @@ async function scanNcaiArtifact(file) {
   if (!(await lstat(source)).isFile()) throw new Error("Invalid scan input.");
   const drafts = parseNcaiDrafts(JSON.parse(await readFile(source, "utf8")));
   if (!drafts.length) throw new Error("Invalid scan input.");
+  checkNcaiDrafts(drafts);
   const needles = [
     ...new Set([
       ...drafts

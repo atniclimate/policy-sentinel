@@ -640,11 +640,13 @@ label.source .source-note {
   font-size: 0.8125rem;
 }
 /* Room inside the clipped list for the whole focus ring of a link. */
-.also .meta {
+.also .meta,
+.ncai .meta {
   margin: -4px;
   padding: 4px;
 }
-.also a {
+.also a,
+.ncai .meta a {
   display: block;
   min-height: 24px;
 }

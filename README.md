@@ -365,6 +365,11 @@ and D-105. These suggestions do not establish a Nation relationship to a
 discovered policy. The encrypted snapshot and its access limits are described
 in [the demo status](docs/DEMO-STATUS.md).
 
+NCAI draft panels also offer GovInfo bill/public-law and Ninth Circuit searches,
+official federal court/calendar links, and manually selected research links for
+WA, OR, ID, AK, CA, MT and NV. State results and schedules are external research
+links, not integrated coverage; see the [source review](docs/source-reviews/ncai-context-research-2026-10-19.md).
+
 ```powershell
 npm run demo:build                # builds docs/index.html and docs/demo-assets/
 npm run demo:worker:dev           # local Worker on http://127.0.0.1:8787

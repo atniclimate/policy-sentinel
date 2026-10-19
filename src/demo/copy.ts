@@ -138,14 +138,17 @@ export const COPY = {
       "These are suggested text searches that Policy Sentinel chose by hand for each draft's subject; they are not always words from the title, and NCAI did not choose them. A result is a text match: it does not show that a policy or case governs this resolution's issue. The committee label describes only the resolution.",
     groups: {
       policy: "Suggested Federal Searches",
+      legislation: "Federal Legislation by Topic (GovInfo)",
       bill: "Bills Named in the Title (Congress.gov)",
       case: "Court Opinions and Litigation (Reference)",
       sponsor: "Name Search: Sponsor (with the First Topic, if Any)",
     },
     groupHelp: {
       policy: "Runs on the checked federal sources.",
+      legislation:
+        "Search published bill and resolution versions from 1993 onward, or federal public slip laws from 1995 onward. A bill is not an enacted law; a slip law is not the current amended code. Results remain metadata and official links.",
       bill: "Looks up the bill in the 119th Congress.",
-      case: "GovInfo searches. USCOURTS holds selected federal court opinions from about 2004, including opinions in cases still open. USREPORTS holds Supreme Court opinions in the United States Reports, 1790 through 2018. Neither covers state or Tribal courts. A match is not a finding that a case is relevant, controlling, or still good law, or that it concerns the sponsor or any Tribe.",
+      case: "GovInfo searches. USCOURTS holds selected federal court opinions from about 2004, including opinions in cases still open. The Ninth Circuit search uses the source's circuit field, including participating district and bankruptcy courts. USREPORTS holds Supreme Court opinions in the United States Reports, 1790 through 2018. Coverage is incomplete; neither collection supplies state or Tribal courts, hearing schedules or a later-history check. A match does not establish relevance, controlling authority, current legal status or a relationship to a Tribe.",
       sponsor:
         "Lists documents that contain the name as typed. Matches are unreviewed and do not show that a policy applies to, or concerns, that Tribe or organization.",
     },
@@ -155,6 +158,19 @@ export const COPY = {
       opinions: (words: string) => "Opinions from all courts: " + words,
       dockets: (words: string) => "Dockets, including pending cases: " + words,
     },
+    federalCourts: "Official Federal Rulings and Schedules",
+    federalCourtsHelp:
+      "Open an official court site to check opinions, orders, dockets or hearing dates. Supreme Court opinion and order links cover the 2026 term. Schedules can change and do not show that a hearing occurred or a ruling was issued. These sites are not searched here; no context terms are sent automatically.",
+    stateResearch: "State Policies and Cases",
+    stateLabel: "State to research",
+    stateChoose: "Choose a state",
+    stateHelp:
+      "Choose a state yourself, then copy any useful context terms into its official search. These are external research links, not results or a finding that a state policy applies to this draft or its sponsor. No state is inferred from the sponsor. Links open in a new tab without sending these terms; destination sites may log searches you submit there.",
+    policyTerms: "Policy context terms to copy",
+    courtTerms: "Court context terms to copy",
+    bulletins: "Federal and state Indian-law case bulletins at NILL",
+    bulletinsHelp:
+      "NILL is a selective research library, not the issuing court. Verify a discovered case and its later history with the official court; the bulletin directory is not complete coverage.",
     gateTitle: "NCAI 2026 Draft Resolutions",
     gateIntro:
       "The draft resolutions list is for NCAI and ATNI convention participants. Enter the access password shared with participants.",

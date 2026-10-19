@@ -7,6 +7,8 @@ import {
   ncaiAreas,
   ncaiSearches,
   NO_COMMITTEE,
+  FEDERAL_COURT_LINKS,
+  STATE_RESEARCH_SOURCES,
 } from "../../src/demo/ncai-2026";
 import type { NcaiDraft } from "../../src/demo/ncai-2026";
 
@@ -60,20 +62,69 @@ const drafts: readonly NcaiDraft[] = [
 ];
 
 describe("NCAI draft searches", () => {
+  it("offers the seven explicitly chosen research states with fixed HTTPS links", () => {
+    expect(STATE_RESEARCH_SOURCES.map((state) => state.code)).toEqual([
+      "WA",
+      "OR",
+      "ID",
+      "AK",
+      "CA",
+      "MT",
+      "NV",
+    ]);
+    for (const link of [
+      ...FEDERAL_COURT_LINKS,
+      ...STATE_RESEARCH_SOURCES.flatMap((state) => [...state.links]),
+    ]) {
+      const url = new URL(link.url);
+      expect(url.protocol).toBe("https:");
+      expect(url.username + url.password + url.search + url.hash).toBe("");
+    }
+  });
   it("builds policy, bill, court and sponsor searches in panel order", () => {
     expect(ncaiSearches(drafts[0])).toEqual([
       { group: "policy", source: "federal", query: '"Example Rule"' },
       { group: "policy", source: "federal", query: "example program" },
+      {
+        group: "legislation",
+        source: "govinfo",
+        query: 'collection:BILLS AND ("Example Rule")',
+        label: 'Federal bills and resolutions: "Example Rule"',
+      },
+      {
+        group: "legislation",
+        source: "govinfo",
+        query: 'collection:PLAW AND lawtype:public AND ("Example Rule")',
+        label: 'Federal public laws: "Example Rule"',
+      },
+      {
+        group: "legislation",
+        source: "govinfo",
+        query: "collection:BILLS AND (example program)",
+        label: "Federal bills and resolutions: example program",
+      },
+      {
+        group: "legislation",
+        source: "govinfo",
+        query: "collection:PLAW AND lawtype:public AND (example program)",
+        label: "Federal public laws: example program",
+      },
       { group: "bill", source: "congress", query: "hr 1234 119" },
       {
         group: "case",
         source: "govinfo",
-        query: 'collection:USCOURTS AND "Example Act"',
+        query: 'collection:USCOURTS AND ("Example Act")',
       },
       {
         group: "case",
         source: "govinfo",
-        query: 'collection:USREPORTS AND "Example Act"',
+        query: 'collection:USREPORTS AND ("Example Act")',
+      },
+      {
+        group: "case",
+        source: "govinfo",
+        query: 'collection:USCOURTS AND circuit:9 AND ("Example Act")',
+        label: 'Federal opinions in the Ninth Circuit: "Example Act"',
       },
       {
         group: "sponsor",
@@ -90,8 +141,9 @@ describe("NCAI draft searches", () => {
         .filter((s) => s.group === "case")
         .map((s) => s.query),
     ).toEqual([
-      'collection:USCOURTS AND "Example Rule"',
-      'collection:USREPORTS AND "Example Rule"',
+      'collection:USCOURTS AND ("Example Rule")',
+      'collection:USREPORTS AND ("Example Rule")',
+      'collection:USCOURTS AND circuit:9 AND ("Example Rule")',
     ]);
     expect(ncaiSearches(drafts[2])).toEqual([
       { group: "sponsor", source: "federal", query: '"Example Nation"' },
@@ -111,6 +163,18 @@ describe("NCAI draft searches", () => {
         words: '"Example Act"',
         url: "https://www.courtlistener.com/?q=%22Example+Act%22&type=r",
       },
+    ]);
+  });
+
+  it("keeps both sides of an OR expression inside each court collection", () => {
+    const searches = ncaiSearches({
+      ...drafts[0],
+      cases: ["water OR forestry"],
+    }).filter((search) => search.group === "case");
+    expect(searches.map((search) => search.query)).toEqual([
+      "collection:USCOURTS AND (water OR forestry)",
+      "collection:USREPORTS AND (water OR forestry)",
+      "collection:USCOURTS AND circuit:9 AND (water OR forestry)",
     ]);
   });
 

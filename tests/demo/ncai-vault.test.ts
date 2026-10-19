@@ -207,7 +207,7 @@ describe("checkNcaiDrafts", () => {
   it("counts the searches and court links of a valid set", () => {
     expect(checkNcaiDrafts(DRAFTS)).toEqual({
       drafts: 2,
-      searches: 7,
+      searches: 11,
       links: 4,
     });
   });

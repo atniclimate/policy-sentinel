@@ -6,12 +6,16 @@ import { COPY, EXAMPLES } from "../src/demo/copy";
 import { buildDocument } from "../src/demo/document";
 import {
   areaSearches,
+  caseWords,
   courtLinks,
+  FEDERAL_COURT_LINKS,
   NCAI_RETRIEVED,
   NCAI_TRACKER_URL,
   ncaiAreas,
   ncaiSearches,
   NILL_TRIBAL_LAW_URL,
+  NILL_BULLETINS_URL,
+  STATE_RESEARCH_SOURCES,
 } from "../src/demo/ncai-2026";
 import type { NcaiDraft, NcaiSearch } from "../src/demo/ncai-2026";
 import NCAI_VAULT from "../src/demo/ncai-2026.vault.json";
@@ -151,7 +155,13 @@ interface Found {
   sources: readonly SourceSearch[];
 }
 
-const NCAI_GROUPS = ["policy", "bill", "case", "sponsor"] as const;
+const NCAI_GROUPS = [
+  "policy",
+  "legislation",
+  "bill",
+  "case",
+  "sponsor",
+] as const;
 
 const PAGE_OPTIONS: DemoSearchOptions = {
   dateFrom: null,
@@ -2371,6 +2381,10 @@ function NcaiPanel({
   onClose: () => void;
 }) {
   const searches = ncaiSearches(draft);
+  const [stateCode, setStateCode] = useState("");
+  const stateSource = STATE_RESEARCH_SOURCES.find(
+    (state) => state.code === stateCode,
+  );
   const facts: [string, string | undefined][] = [
     [COPY.ncai.status, draft.status],
     [COPY.ncai.committee, draft.committee],
@@ -2425,7 +2439,7 @@ function NcaiPanel({
                       if (usable(preset)) onSearch(preset);
                     }}
                   >
-                    {preset.query}
+                    {preset.label ?? preset.query}
                   </button>
                 </li>
               ))}
@@ -2451,6 +2465,73 @@ function NcaiPanel({
           </div>
         );
       })}
+      <details>
+        <summary>{COPY.ncai.federalCourts}</summary>
+        <p class="help">{COPY.ncai.federalCourtsHelp}</p>
+        <ul class="meta">
+          {FEDERAL_COURT_LINKS.map((link) => (
+            <li key={link.url}>
+              <a href={link.url} target="_blank" rel="noopener noreferrer">
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </details>
+      <h4 class="eyebrow">{COPY.ncai.stateResearch}</h4>
+      <p class="help" id="ncai-state-help">
+        {COPY.ncai.stateHelp}
+      </p>
+      {(draft.topics ?? []).length > 0 && (
+        <label class="field">
+          {COPY.ncai.policyTerms}
+          <input type="text" readOnly value={draft.topics?.join("; ")} />
+        </label>
+      )}
+      {caseWords(draft).length > 0 && (
+        <label class="field">
+          {COPY.ncai.courtTerms}
+          <input type="text" readOnly value={caseWords(draft).join("; ")} />
+        </label>
+      )}
+      <label class="field" for="ncai-state">
+        {COPY.ncai.stateLabel}
+      </label>
+      <select
+        id="ncai-state"
+        value={stateCode}
+        aria-describedby="ncai-state-help"
+        onChange={(event) => setStateCode(event.currentTarget.value)}
+      >
+        <option value="">{COPY.ncai.stateChoose}</option>
+        {STATE_RESEARCH_SOURCES.map((state) => (
+          <option key={state.code} value={state.code}>
+            {state.label}
+          </option>
+        ))}
+      </select>
+      {stateSource && (
+        <div>
+          <p class="help" role="status">
+            {stateSource.note}
+          </p>
+          <ul class="meta">
+            {stateSource.links.map((link) => (
+              <li key={link.url}>
+                <a href={link.url} target="_blank" rel="noopener noreferrer">
+                  {stateSource.label}: {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <p>
+        <a href={NILL_BULLETINS_URL} target="_blank" rel="noopener noreferrer">
+          {COPY.ncai.bulletins}
+        </a>
+      </p>
+      <p class="help">{COPY.ncai.bulletinsHelp}</p>
       <p>
         <a href={NILL_TRIBAL_LAW_URL} target="_blank" rel="noopener noreferrer">
           {COPY.ncai.tribalLaw}
