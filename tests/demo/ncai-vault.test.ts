@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { beforeAll, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import type { NcaiDraft } from "../../src/demo/ncai-2026";
 import {
   NcaiVaultError,
@@ -54,6 +54,7 @@ describe("NCAI drafts vault", () => {
   beforeAll(async () => {
     vault = await sealNcaiDrafts(DRAFTS, PASSWORD, ITERATIONS);
   });
+  afterEach(() => vi.restoreAllMocks());
 
   it("opens what it seals", async () => {
     expect(vault).toMatchObject({
@@ -83,8 +84,45 @@ describe("NCAI drafts vault", () => {
   });
 
   it.each([
+    ["importKey", "OperationError", "bad_vault"],
+    ["importKey", "NotSupportedError", "bad_vault"],
+    ["deriveKey", "OperationError", "bad_vault"],
+    ["deriveKey", "NotSupportedError", "bad_vault"],
+    ["decrypt", "OperationError", "wrong_password"],
+    ["decrypt", "InvalidAccessError", "bad_vault"],
+  ] as const)("reports %s %s as %s", async (method, name, expected) => {
+    vi.spyOn(globalThis.crypto.subtle, method).mockRejectedValueOnce(
+      new DOMException("Synthetic crypto failure", name),
+    );
+    expect(await code(openNcaiDrafts(vault, PASSWORD))).toBe(expected);
+  });
+
+  it("reports an unexpected decrypt failure as bad_vault", async () => {
+    vi.spyOn(globalThis.crypto.subtle, "decrypt").mockRejectedValueOnce(
+      new Error("Synthetic crypto failure"),
+    );
+    expect(await code(openNcaiDrafts(vault, PASSWORD))).toBe("bad_vault");
+  });
+
+  it.each([
+    ["invalid JSON", new TextEncoder().encode("not JSON")],
+    ["a non-draft value", new TextEncoder().encode('{"drafts":[]}')],
+    ["invalid UTF-8", new Uint8Array([0xff])],
+  ])("reports bad_data after decrypting %s", async (_, plaintext) => {
+    const encrypt = globalThis.crypto.subtle.encrypt.bind(
+      globalThis.crypto.subtle,
+    );
+    vi.spyOn(globalThis.crypto.subtle, "encrypt").mockImplementationOnce(
+      (algorithm, key) => encrypt(algorithm, key, plaintext),
+    );
+    const malformed = await sealNcaiDrafts(DRAFTS, PASSWORD, ITERATIONS);
+    expect(await code(openNcaiDrafts(malformed, PASSWORD))).toBe("bad_data");
+  });
+
+  it.each([
     ["not an object", () => null],
     ["wrong version", (v: NcaiVault) => ({ ...v, version: 2 })],
+    ["extra key", (v: NcaiVault) => ({ ...v, extra: "unexpected" })],
     [
       "missing field",
       (v: NcaiVault) =>
@@ -96,6 +134,13 @@ describe("NCAI drafts vault", () => {
     [
       "short iv",
       (v: NcaiVault) => ({ ...v, iv: Buffer.alloc(8).toString("base64") }),
+    ],
+    [
+      "short ciphertext",
+      (v: NcaiVault) => ({
+        ...v,
+        ciphertext: Buffer.alloc(16).toString("base64"),
+      }),
     ],
   ])("rejects a malformed vault: %s", async (_, change) => {
     expect(await code(openNcaiDrafts(change(vault), PASSWORD))).toBe(
@@ -109,6 +154,29 @@ describe("NCAI drafts vault", () => {
     expect(again.iv).not.toBe(vault.iv);
     expect(again.ciphertext).not.toBe(vault.ciphertext);
   });
+
+  it("refuses to seal without a password", async () => {
+    await expect(sealNcaiDrafts(DRAFTS, "", ITERATIONS)).rejects.toThrow(
+      "A password is required",
+    );
+  });
+
+  it.each([99_999, 10_000_001, 100_000.5, NaN])(
+    "refuses to seal with invalid iterations: %s",
+    async (iterations) => {
+      await expect(
+        sealNcaiDrafts(DRAFTS, PASSWORD, iterations),
+      ).rejects.toThrow(RangeError);
+    },
+  );
+
+  it("refuses to seal malformed drafts", async () => {
+    expect(
+      await code(
+        sealNcaiDrafts([{ ...DRAFTS[0], title: "" }], PASSWORD, ITERATIONS),
+      ),
+    ).toBe("bad_data");
+  });
 });
 
 describe("NCAI draft parsing", () => {
@@ -120,6 +188,16 @@ describe("NCAI draft parsing", () => {
     ["non-array", { drafts: [base] }],
     ["empty id", [{ ...base, id: "" }]],
     ["empty list entry", [{ ...base, topics: [""] }]],
+    ...["committee", "subcommittee", "note"].map<[string, unknown]>((key) => [
+      `non-text ${key}`,
+      [{ ...base, [key]: 7 }],
+    ]),
+    ...["topics", "bills", "cases", "names"].flatMap<[string, unknown]>(
+      (key) => [
+        [`non-list ${key}`, [{ ...base, [key]: "not a list" }]],
+        [`non-text ${key} entry`, [{ ...base, [key]: [7] }]],
+      ],
+    ),
   ])("rejects %s as bad data", (_, value) => {
     expect(parseCode(value)).toBe("bad_data");
   });

@@ -1,5 +1,6 @@
-import { readFile, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { spawnSync } from "node:child_process";
+import { lstat, readFile, realpath, writeFile } from "node:fs/promises";
+import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { courtLinks, ncaiSearches } from "../src/demo/ncai-2026.ts";
@@ -12,6 +13,7 @@ import {
 const vaultPath = fileURLToPath(
   new URL("../src/demo/ncai-2026.vault.json", import.meta.url),
 );
+const repositoryPath = fileURLToPath(new URL("../", import.meta.url));
 const ID = /^PSC-26-\d{3}$/;
 const BILL = /^(hr|s|hjres|sjres|hconres|sconres|hres|sres) \d{1,5} \d{2,3}$/;
 
@@ -21,9 +23,52 @@ const USAGE = [
   "",
   "Usage:",
   "  node scripts/ncai-vault.mjs seal <plaintext.json>",
-  "  node scripts/ncai-vault.mjs open <out.json>",
+  "  node scripts/ncai-vault.mjs open <private/out.json>",
+  "Open writes only new, Git-ignored files under this checkout's private/ directory.",
   "",
 ].join("\n");
+
+async function privateOutputPath(file) {
+  const output = resolve(file);
+  const withinPrivate = relative(resolve(repositoryPath, "private"), output);
+  if (
+    !withinPrivate ||
+    withinPrivate === ".." ||
+    withinPrivate.startsWith(`..${sep}`) ||
+    isAbsolute(withinPrivate)
+  )
+    throw new Error(
+      "Open output must be inside this checkout's private/ directory.",
+    );
+  if (withinPrivate.includes(":"))
+    throw new Error("Open output must not name a file stream.");
+  const root = await realpath(repositoryPath);
+  for (
+    let parent = dirname(output);
+    relative(repositoryPath, parent);
+    parent = dirname(parent)
+  ) {
+    const info = await lstat(parent);
+    if (
+      !info.isDirectory() ||
+      info.isSymbolicLink() ||
+      relative(
+        await realpath(parent),
+        resolve(root, relative(repositoryPath, parent)),
+      )
+    )
+      throw new Error("Open output must not pass through linked directories.");
+  }
+  // Without --no-index, tracked paths are never considered ignored.
+  const ignored = spawnSync(
+    "git",
+    ["-C", repositoryPath, "check-ignore", "--quiet", "--", output],
+    { windowsHide: true },
+  );
+  if (ignored.status !== 0)
+    throw new Error("Open output must be Git-ignored and untracked.");
+  return output;
+}
 
 /** Checks a plaintext draft list before sealing; returns counts only. */
 export function checkNcaiDrafts(value) {
@@ -75,12 +120,13 @@ async function main([command, file]) {
     );
     return 0;
   }
+  const output = await privateOutputPath(file);
   const drafts = await openNcaiDrafts(
     JSON.parse(await readFile(vaultPath, "utf8")),
     password,
   );
   // flag "wx" refuses to overwrite an existing file.
-  await writeFile(resolve(file), `${JSON.stringify(drafts, null, 2)}\n`, {
+  await writeFile(output, `${JSON.stringify(drafts, null, 2)}\n`, {
     flag: "wx",
   });
   process.stdout.write(`Opened ${drafts.length} drafts into ${file}.\n`);

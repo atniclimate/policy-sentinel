@@ -161,6 +161,7 @@ export const COPY = {
     gatePassword: "Access password",
     gateHelp:
       "The password opens an encrypted copy of the list in this tab. The password and the list are not stored or sent; a suggested search you run goes to the official sources like any other search. A shared password is a light barrier, not strong security.",
+    gateEmpty: "Enter the access password to open the list.",
     gateWrong: "That password did not open the list. Check it and try again.",
     gateBroken: "The list could not be opened. Reload the page and try again.",
     gateChecking: "Checking the password.",

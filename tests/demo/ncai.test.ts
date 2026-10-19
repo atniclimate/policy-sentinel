@@ -40,6 +40,23 @@ const drafts: readonly NcaiDraft[] = [
     status: "Withdrawn",
     names: ["Example Nation"],
   },
+  {
+    id: "PSC-26-004",
+    title: "Example draft under another committee",
+    sponsor: "Example Council",
+    status: "Deferred",
+    committee: "Climate Committee",
+    subcommittee: "Water",
+    topics: ["example climate program"],
+  },
+  {
+    id: "PSC-26-005",
+    title: "Example draft with no subcommittee",
+    sponsor: "Example Council",
+    status: "Out of order",
+    committee: "Land Committee",
+    topics: ["example land program"],
+  },
 ];
 
 describe("NCAI draft searches", () => {
@@ -100,11 +117,19 @@ describe("NCAI draft searches", () => {
   it("groups drafts by committee area with unassigned drafts last", () => {
     const areas = ncaiAreas(drafts);
     expect(areas.map((a) => [a.committee, a.label, a.drafts.length])).toEqual([
+      ["Climate Committee", "Water", 1],
+      ["Land Committee", "Land Committee", 1],
       ["Land Committee", "Water", 2],
       [NO_COMMITTEE, NO_COMMITTEE, 1],
     ]);
+    expect(areas.map((area) => area.drafts.map((draft) => draft.id))).toEqual([
+      ["PSC-26-004"],
+      ["PSC-26-005"],
+      ["PSC-26-001", "PSC-26-002"],
+      ["PSC-26-003"],
+    ]);
     // Area chips keep policy and bill searches once each; courts and names stay in the panel.
-    expect(areaSearches(areas[0]).map((s) => s.query)).toEqual([
+    expect(areaSearches(areas[2]).map((s) => s.query)).toEqual([
       '"Example Rule"',
       "example program",
       "hr 1234 119",

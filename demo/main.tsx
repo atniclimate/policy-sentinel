@@ -311,6 +311,7 @@ export function App() {
   const [gateBusy, setGateBusy] = useState(false);
   const ncaiMenu = useRef<HTMLDetailsElement>(null);
   const gateRef = useRef<HTMLDialogElement>(null);
+  const gateSession = useRef(0);
   const gateOpener = useRef<HTMLButtonElement>(null);
   const aboutRef = useRef<HTMLDialogElement>(null);
   const aboutOpener = useRef<HTMLButtonElement>(null);
@@ -875,6 +876,8 @@ export function App() {
   function openGate() {
     const dialog = gateRef.current;
     if (!dialog || dialog.hasAttribute("open")) return;
+    gateSession.current++;
+    setGateBusy(false);
     setGateError("");
     if (typeof dialog.showModal === "function") dialog.showModal();
     else dialog.setAttribute("open", "");
@@ -892,12 +895,23 @@ export function App() {
   async function unlock(event: Event) {
     event.preventDefault();
     if (gateBusy) return;
+    if (!password.trim()) {
+      setGateError(COPY.ncai.gateEmpty);
+      document.getElementById("gate-password")?.focus();
+      return;
+    }
+    const session = gateSession.current;
+    const stillOpen = () =>
+      session === gateSession.current && gateRef.current?.open;
     setGateBusy(true);
     setGateError("");
     try {
-      setDrafts(await openNcaiDrafts(NCAI_VAULT, password));
+      const opened = await openNcaiDrafts(NCAI_VAULT, password);
+      if (!stillOpen()) return;
+      setDrafts(opened);
       closeGate();
     } catch (error) {
+      if (!stillOpen()) return;
       setGateError(
         error instanceof NcaiVaultError && error.code === "wrong_password"
           ? COPY.ncai.gateWrong
@@ -905,7 +919,7 @@ export function App() {
       );
       document.getElementById("gate-password")?.focus();
     } finally {
-      setGateBusy(false);
+      if (session === gateSession.current) setGateBusy(false);
     }
   }
 
@@ -1362,6 +1376,7 @@ export function App() {
                               onClick={() => openDraft(item)}
                             >
                               <span class="mono">{item.id}</span> {item.title}
+                              <span class="help">{` (${item.status})`}</span>
                             </button>
                           </li>
                         ))}
@@ -1616,7 +1631,12 @@ export function App() {
                     <button
                       type="button"
                       class="chip"
-                      disabled={exampleTargets(ex.source).length === 0}
+                      aria-disabled={exampleTargets(ex.source).length === 0}
+                      aria-describedby={
+                        exampleTargets(ex.source).length === 0
+                          ? "examples-off"
+                          : undefined
+                      }
                       onClick={() => tryExample(ex.source, ex.query)}
                     >
                       {ex.label}
@@ -1624,6 +1644,13 @@ export function App() {
                   </li>
                 ))}
               </ul>
+              {EXAMPLES.some(
+                (ex) => exampleTargets(ex.source).length === 0,
+              ) && (
+                <p id="examples-off" class="help">
+                  {COPY.ncai.sourceOff}
+                </p>
+              )}
             </div>
             {drafts && (
               <div class="zone">
@@ -1657,7 +1684,14 @@ export function App() {
                         <button
                           type="button"
                           class="chip"
-                          disabled={presetTargets(preset.source).length === 0}
+                          aria-disabled={
+                            presetTargets(preset.source).length === 0
+                          }
+                          aria-describedby={
+                            presetTargets(preset.source).length === 0
+                              ? "ncai-area-off"
+                              : undefined
+                          }
                           onClick={() => tryPreset(preset)}
                         >
                           {preset.query}
@@ -1666,6 +1700,14 @@ export function App() {
                     ))}
                   </ul>
                 )}
+                {areaKey !== "" &&
+                  areaSearches(areas[Number(areaKey)]).some(
+                    (preset) => presetTargets(preset.source).length === 0,
+                  ) && (
+                    <p id="ncai-area-off" class="help">
+                      {COPY.ncai.sourceOff}
+                    </p>
+                  )}
               </div>
             )}
           </section>
@@ -2268,7 +2310,7 @@ export function App() {
             <button
               type="submit"
               class="btn primary"
-              aria-disabled={gateBusy || !password}
+              aria-disabled={gateBusy || !password.trim()}
             >
               {COPY.ncai.gateOpen}
             </button>
@@ -2357,6 +2399,11 @@ function NcaiPanel({
       </p>
       <p class="help">{COPY.ncai.noText}</p>
       <p class="help">{COPY.ncai.caveat}</p>
+      {searches.some((preset) => !usable(preset)) && (
+        <p id="ncai-search-off" class="help">
+          {COPY.ncai.sourceOff}
+        </p>
+      )}
       {NCAI_GROUPS.map((group) => {
         const items = searches.filter((item) => item.group === group);
         if (items.length === 0) return null;
@@ -2370,9 +2417,13 @@ function NcaiPanel({
                   <button
                     type="button"
                     class="chip"
-                    disabled={!usable(preset)}
-                    title={usable(preset) ? undefined : COPY.ncai.sourceOff}
-                    onClick={() => onSearch(preset)}
+                    aria-disabled={!usable(preset)}
+                    aria-describedby={
+                      usable(preset) ? undefined : "ncai-search-off"
+                    }
+                    onClick={() => {
+                      if (usable(preset)) onSearch(preset);
+                    }}
                   >
                     {preset.query}
                   </button>

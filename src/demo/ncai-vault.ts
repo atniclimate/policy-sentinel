@@ -140,16 +140,25 @@ export async function openNcaiDrafts(
 ): Promise<readonly NcaiDraft[]> {
   const { iterations, salt, iv, ciphertext } = readVault(vault);
   if (!password) throw new NcaiVaultError("wrong_password");
+  let key: CryptoKey;
+  try {
+    key = await deriveKey(password, salt, iterations, "decrypt");
+  } catch {
+    throw new NcaiVaultError("bad_vault");
+  }
   let plaintext: ArrayBuffer;
   try {
-    const key = await deriveKey(password, salt, iterations, "decrypt");
     plaintext = await globalThis.crypto.subtle.decrypt(
       { name: "AES-GCM", iv, additionalData: AAD },
       key,
       ciphertext,
     );
-  } catch {
-    throw new NcaiVaultError("wrong_password");
+  } catch (error) {
+    throw new NcaiVaultError(
+      error instanceof DOMException && error.name === "OperationError"
+        ? "wrong_password"
+        : "bad_vault",
+    );
   }
   let value: unknown;
   try {

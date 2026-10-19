@@ -355,7 +355,8 @@ textarea {
 /* Buttons that act say they are off with aria-disabled, so they keep focus. */
 .btn:disabled,
 .btn[aria-disabled="true"],
-.chip:disabled {
+.chip:disabled,
+.chip[aria-disabled="true"] {
   background: var(--overlay);
   color: var(--muted);
   cursor: default;

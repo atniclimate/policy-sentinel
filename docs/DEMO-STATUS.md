@@ -27,6 +27,13 @@ descriptions of the earlier interface, describe earlier checkpoints.
 
 ## NCAI draft resolutions, release 0.7.0, 2026-10-19 (D-104, D-105)
 
+The follow-up bug-fix session implements items 1–6 in source only: private CLI
+output confinement, accurate crypto errors, verbatim menu statuses, cancelled
+unlock handling and keyboard-accessible unavailable chips, with synthetic
+regressions. The Pages artifact at `fa69419` predates these fixes. Current
+verification and the required pre-publication rebuild/scan are in
+[STATUS.md](STATUS.md); no push or publication occurred in this session.
+
 The header has an NCAI button. A shared access password opens an encrypted
 copy of the 81 entries on the NCAI 2026 Annual Resolutions Tracker, read
 2026-10-19, grouped by the tracker's committee and subcommittee. Each entry

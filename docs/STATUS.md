@@ -1,22 +1,38 @@
 # Status
 
-As of 2026-10-19. **Release 0.7.0 (NCAI 2026 draft resolutions) is reviewed,
-checked and built on `demo/live-pages`, ready for the owner's push and merge.**
-Under D-104 and D-105 the demo gains a password-gated NCAI menu, described in
-[DEMO-STATUS.md](DEMO-STATUS.md). The drafts ship only as an encrypted file;
-the password and plaintext are not in the repository. The pre-publication
-review (sovereignty, security, interface, records, gate verifier; each finding
-adversarially checked) found no must-fix item. Its five should-fix items are
-repaired: truthful search-origin and "nothing is sent" wording, a record that a
-pushed vault stays in public history, the menu closing when focus or a click
-leaves it, focus on re-picking a draft, and D-105 at 60 words. The full
-`npm run check` passed on 2026-10-19 (2,583 unit tests in 123 files, 48 hook
-tests; the two known file-symlink skips). The rebuilt Pages artifact holds no
-draft title, note, topic or private path. Not done: unlocked-menu browser check
-of the repairs (needs the password; covered by a frontend test), and the
-sponsor-derived words "Arizona" (PSC-26-025) and "Sioux" (PSC-26-047) remain in
-two searches until the owner reseals. The public page and Worker are unchanged
-from the D-103 state below until the owner pushes and merges.
+As of 2026-10-19. **NCAI 0.7.0 bug-fix items 1–6 are implemented on
+`demo/live-pages`; this source change is not published or built into Pages.**
+The vault CLI confines new plaintext output to ignored, untracked files inside
+this checkout's `private/`, rejecting directory links and alternate streams.
+Only a decrypt `OperationError` reports a wrong password. Menu entries show the
+verbatim status; blank passwords prompt for input, cancelled unlocks cannot open
+the menu or move focus, and unavailable chips stay focusable with an explained
+reason. Synthetic tests cover the fixes, malformed vault/data inputs, seal
+guards and grouping across committees with missing subcommittees.
+
+All 127 focused tests in four suites passed, along with `typecheck`, `lint`,
+`format:check` and `scan:source`. The private-output review found and fixed an
+NTFS alternate-stream escape, demonstrated by a failing synthetic hardlink test
+before the fix and a passing one afterward.
+
+Synthetic Chromium 153.0.8010.12 verification passed 15 checks, including seven
+axe states with no violations. All 13 unavailable chips were reached by Tab;
+Enter and Space triggered no search. Empty passwords and native Escape during
+delayed success/failure, including reopening the dialog, passed. Screenshots
+were inspected. No provider calls or owner vault access occurred, and the
+temporary browser/server were closed. This checks items 3–5 with synthetic
+drafts, not item 8's real-vault acceptance.
+
+The prior `fa69419` Pages artifact and its full check/170-needle
+plaintext scan remain historical evidence, not verification of these fixes.
+Before publication: run `npm run check` once, run a fresh `npm run demo:build`,
+scan the artifact for plaintext, and `git rm` replaced bundles. Push, pull
+request and publication still need the owner's explicit go-ahead.
+Items 7–8 remain excluded: removing "Arizona" (PSC-26-025) and "Sioux"
+(PSC-26-047) requires the owner's reseal; the real unlocked-menu browser check
+of `d6a3ab5` still needs the owner's password. WebKit, print and study-width
+limits below remain outside this bug-fix session. The public page and Worker
+remain unchanged from the D-103 state below.
 
 From 2026-10-13: **The published search and report workflows passed the bounded
 live browser batch.** D-102 browser review has a qualified closeout with the
