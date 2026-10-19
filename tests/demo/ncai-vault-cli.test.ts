@@ -240,6 +240,10 @@ describe("NCAI vault CLI plaintext output boundary", () => {
         JSON.stringify([{ title: "sensitive invalid draft" }]),
       ],
       ["empty drafts", "[]"],
+      [
+        "an overlong generated query",
+        JSON.stringify([{ ...draft, topics: ["x".repeat(170)] }]),
+      ],
     ])("fails safely on %s", async (_, text) => {
       await writeFile(join(root, source), text);
       const result = run("scan", source);

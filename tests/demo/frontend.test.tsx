@@ -1393,6 +1393,53 @@ describe("demo frame: panes, dialog and theme", () => {
     });
   });
 
+  it("offers reader-selected state research without searching or inferring a state", async () => {
+    vi.mocked(openNcaiDrafts).mockResolvedValue(NCAI_DRAFTS);
+    const { ui, container } = await start();
+    fireEvent.click(ui.getByRole("button", { name: "NCAI" }));
+    const gate = within(container.querySelector(".gate") as HTMLElement);
+    fireEvent.input(gate.getByLabelText("Access password"), {
+      target: { value: "synthetic" },
+    });
+    fireEvent.click(gate.getByRole("button", { name: "Open" }));
+    fireEvent.click(await ui.findByRole("button", { name: /PSC-26-001/ }));
+    const state = ui.getByRole("combobox", { name: "State to research" });
+    expect(state).toHaveValue("");
+    expect(ui.getByLabelText("Policy context terms to copy")).toHaveValue(
+      "water quality",
+    );
+    fireEvent.change(state, { target: { value: "WA" } });
+    const link = ui.getByRole("link", {
+      name: "Washington: Appellate opinion search",
+    });
+    expect(link).toHaveAttribute("href", "https://www.courts.wa.gov/opinions/");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(search).not.toHaveBeenCalled();
+    fireEvent.change(state, { target: { value: "OR" } });
+    expect(
+      within(container.querySelector(".ncai") as HTMLElement).getByRole(
+        "status",
+      ),
+    ).toHaveTextContent("source access terms remain unresolved");
+    expect(
+      ui.queryByRole("link", { name: "Washington: Appellate opinion search" }),
+    ).toBeNull();
+    expect(search).not.toHaveBeenCalled();
+    fireEvent.click(
+      ui.getByRole("button", { name: "Federal public laws: water quality" }),
+    );
+    await waitFor(() =>
+      expect(search).toHaveBeenCalledWith(
+        "govinfo",
+        "collection:PLAW AND lawtype:public AND (water quality)",
+        1,
+        expect.any(AbortSignal),
+        expect.any(Object),
+      ),
+    );
+  });
+
   it.each(["", "   "])(
     "prompts for a blank NCAI password (%j) without decrypting",
     async (password) => {

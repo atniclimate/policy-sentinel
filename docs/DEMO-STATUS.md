@@ -4,7 +4,7 @@ Updated 2026-10-19. Policy Sentinel 0.7.0 adds the NCAI 2026 draft resolutions
 menu under D-104 and D-105. Records below that say 0.2.0, 0.6.0 or 0.6.1
 describe earlier checkpoints.
 This page records maintenance of the separately authorized
-public demo under D-083, D-084, D-093, D-094, D-095, D-098, D-101, D-102, D-103, D-104, D-105 and D-106 in the
+public demo under D-083, D-084, D-093, D-094, D-095, D-098, D-101, D-102, D-103, D-104, D-105, D-106, D-107 and D-108 in the
 [decision register](decision-register.md). Project state and the working plan
 are in [STATUS.md](STATUS.md) and [PLAN.md](PLAN.md).
 
@@ -26,6 +26,22 @@ evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
 
 ## NCAI draft resolutions, release 0.7.0, 2026-10-19 (D-104, D-105)
+
+The D-107 context expansion adds GovInfo bill/resolution, public-law and Ninth
+Circuit searches, manually chosen seven-state policy/case directories, official
+federal ruling/calendar links and NILL case bulletins. Terms stay in the panel
+until a reader starts a search; choosing a state sends nothing. External links
+do not establish integrated state or schedule coverage, legal status, relevance
+or a Nation relationship. The [source review](source-reviews/ncai-context-research-2026-10-19.md)
+records eleven research lanes and the five bounded live GovInfo probes.
+
+D-108 authorizes publication of this expansion. The rebuilt artifact contains
+17 runtime files; three replaced bundles were removed. The counts-only vault
+scan validates generated queries against the existing 200-character limit and
+reports zero plaintext hits across all 81 drafts. No private terms were exposed
+or resealed. Synthetic unlocked-panel keyboard and desktop/narrow axe checks
+passed; real-vault browser acceptance is still excluded. Current release state
+and full-check evidence are in [STATUS.md](STATUS.md).
 
 The follow-up bug-fix session implements items 1–6: private CLI
 output confinement, accurate crypto errors, verbatim menu statuses, cancelled
