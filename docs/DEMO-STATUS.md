@@ -43,6 +43,19 @@ or resealed. Synthetic unlocked-panel keyboard and desktop/narrow axe checks
 passed; real-vault browser acceptance is still excluded. Current release state
 and full-check evidence are in [STATUS.md](STATUS.md).
 
+[PR 14](https://github.com/atniclimate/policy-sentinel/pull/14) published the
+expansion as `2cfb485` at 2026-10-19 19:29:46 UTC; Pages finished at 19:30:12 UTC.
+Its tree matches reviewed source `9807b63`. The full check passed with 2,649
+unit tests in 124 files, 48 hook tests, all pipeline stages and the validated
+synthetic build; two native Windows file-symlink tests remain skipped.
+Readback at 19:30:42–19:30:47 UTC matched all 17 runtime files. Chromium passed
+seven publication checks using those verified bytes and a synthetic catalog,
+including keyboard opening, empty-password handling, Escape focus restoration
+and two axe scans with zero violations. Two screenshots were inspected; no page
+errors occurred. The batch made 17 static GETs, no retries and no provider calls,
+then closed its browser. It did not unlock the real vault or exercise live
+backend behavior. No Worker deployment was needed.
+
 The follow-up bug-fix session implements items 1–6: private CLI
 output confinement, accurate crypto errors, verbatim menu statuses, cancelled
 unlock handling and keyboard-accessible unavailable chips, with synthetic
