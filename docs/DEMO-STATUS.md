@@ -1,9 +1,10 @@
 # Live demo status
 
-Updated 2026-10-13. Policy Sentinel 0.6.1 is the maintenance update authorized
-under D-098. Records below that say 0.2.0 or 0.6.0 describe earlier checkpoints.
+Updated 2026-10-19. Policy Sentinel 0.7.0 adds the NCAI 2026 draft resolutions
+menu under D-104 and D-105. Records below that say 0.2.0, 0.6.0 or 0.6.1
+describe earlier checkpoints.
 This page records maintenance of the separately authorized
-public demo under D-083, D-084, D-093, D-094, D-095, D-098, D-101, D-102 and D-103 in the
+public demo under D-083, D-084, D-093, D-094, D-095, D-098, D-101, D-102, D-103, D-104 and D-105 in the
 [decision register](decision-register.md). Project state and the working plan
 are in [STATUS.md](STATUS.md) and [PLAN.md](PLAN.md).
 
@@ -23,6 +24,34 @@ published the search/audit release recorded next.
 Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
+
+## NCAI draft resolutions, release 0.7.0, 2026-10-19 (D-104, D-105)
+
+The header has an NCAI button. A shared access password opens an encrypted
+copy of the 81 entries on the NCAI 2026 Annual Resolutions Tracker, read
+2026-10-19, grouped by the tracker's committee and subcommittee. Each entry
+shows the tracker's verbatim recommendation, committee, sponsor affiliation and
+notes, and offers suggested searches: federal topics, bills named in the title
+(119th Congress), GovInfo court opinions (USCOURTS for current federal opinions,
+including open cases; USREPORTS for Supreme Court opinions through 2018),
+outbound CourtListener opinion and docket searches for other courts, recent
+Supreme Court opinions and pending cases,
+and a sponsor-name search labeled as unreviewed text matches. A policy-area
+chooser offers each committee area's searches after unlocking. Public links to
+NCAI and ATNI adopted resolutions and the NILL Tribal Law Gateway show without
+the password.
+
+The repository holds only `src/demo/ncai-2026.vault.json` (AES-256-GCM, key
+from PBKDF2-SHA256, 600,000 iterations). The plaintext snapshot is kept in the
+ignored `private/` directory and the password is not recorded; maintainers seal
+and open the file with `scripts/ncai-vault.mjs` and `NCAI_DEMO_PASSWORD`. A
+shared password deters casual access and indexing; it is not strong protection.
+NCAI permission was requested by email on 2026-10-19 and is pending; NCAI
+AssetBank files are not fetched. Source notes:
+[the tracker](source-reviews/ncai-2026-resolutions-tracker-2026-10-19.md) and
+[court references](source-reviews/court-opinion-references-2026-10-19.md).
+No Worker change or deployment: the court searches use the allowlisted GovInfo
+host, and CourtListener is reached only by links the reader opens.
 
 ## Review publication, 2026-10-13 (D-103)
 

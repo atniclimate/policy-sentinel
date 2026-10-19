@@ -4,6 +4,18 @@ import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { SOURCE_LABELS } from "../src/demo/citations";
 import { COPY, EXAMPLES } from "../src/demo/copy";
 import { buildDocument } from "../src/demo/document";
+import {
+  areaSearches,
+  courtLinks,
+  NCAI_RETRIEVED,
+  NCAI_TRACKER_URL,
+  ncaiAreas,
+  ncaiSearches,
+  NILL_TRIBAL_LAW_URL,
+} from "../src/demo/ncai-2026";
+import type { NcaiDraft, NcaiSearch } from "../src/demo/ncai-2026";
+import NCAI_VAULT from "../src/demo/ncai-2026.vault.json";
+import { NcaiVaultError, openNcaiDrafts } from "../src/demo/ncai-vault";
 import type { DocBlock } from "../src/demo/document";
 import {
   appendMergedResults,
@@ -138,6 +150,8 @@ interface Found {
   rows: readonly MergedResult[];
   sources: readonly SourceSearch[];
 }
+
+const NCAI_GROUPS = ["policy", "bill", "case", "sponsor"] as const;
 
 const PAGE_OPTIONS: DemoSearchOptions = {
   dateFrom: null,
@@ -287,6 +301,17 @@ export function App() {
     () => window.matchMedia?.(WIDE).matches ?? false,
   );
   const [theme, setTheme] = useState<Theme>(startTheme);
+  // The NCAI drafts exist only after the shared password opens the vault; kept in memory, never stored.
+  const [drafts, setDrafts] = useState<readonly NcaiDraft[] | null>(null);
+  const areas = useMemo(() => (drafts ? ncaiAreas(drafts) : []), [drafts]);
+  const [draft, setDraft] = useState<NcaiDraft | null>(null);
+  const [areaKey, setAreaKey] = useState("");
+  const [password, setPassword] = useState("");
+  const [gateError, setGateError] = useState("");
+  const [gateBusy, setGateBusy] = useState(false);
+  const ncaiMenu = useRef<HTMLDetailsElement>(null);
+  const gateRef = useRef<HTMLDialogElement>(null);
+  const gateOpener = useRef<HTMLButtonElement>(null);
   const aboutRef = useRef<HTMLDialogElement>(null);
   const aboutOpener = useRef<HTMLButtonElement>(null);
   const notesRef = useRef<HTMLDivElement>(null);
@@ -795,6 +820,80 @@ export function App() {
     void runSearch(ids, q);
   }
 
+  /** An NCAI search runs on the checked federal sources, or on its one source if live. */
+  function presetTargets(source: NcaiSearch["source"]): readonly string[] {
+    if (source === "federal") return federalTargets;
+    return federal.some((item) => item.id === source && item.status === "live")
+      ? [source]
+      : [];
+  }
+
+  function tryPreset(preset: NcaiSearch) {
+    const ids = presetTargets(preset.source);
+    if (ids.length === 0) return;
+    resetSearch();
+    setScope("federal");
+    setQuery(preset.query);
+    setDateFrom("");
+    setDateTo("");
+    void runSearch(ids, preset.query);
+  }
+
+  function openDraft(next: NcaiDraft) {
+    setDraft(next);
+    if (ncaiMenu.current) ncaiMenu.current.open = false;
+    setPane("search");
+  }
+
+  // After render, so the heading of a newly chosen draft exists to take focus.
+  useEffect(() => {
+    if (draft) document.getElementById("ncai-h")?.focus();
+  }, [draft]);
+
+  function openGate() {
+    const dialog = gateRef.current;
+    if (!dialog || dialog.hasAttribute("open")) return;
+    setGateError("");
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else dialog.setAttribute("open", "");
+    document.getElementById("gate-password")?.focus();
+  }
+
+  function closeGate() {
+    const dialog = gateRef.current;
+    setPassword("");
+    if (!dialog?.hasAttribute("open")) return;
+    if (typeof dialog.close === "function") dialog.close();
+    else dialog.removeAttribute("open");
+  }
+
+  async function unlock(event: Event) {
+    event.preventDefault();
+    if (gateBusy) return;
+    setGateBusy(true);
+    setGateError("");
+    try {
+      setDrafts(await openNcaiDrafts(NCAI_VAULT, password));
+      closeGate();
+    } catch (error) {
+      setGateError(
+        error instanceof NcaiVaultError && error.code === "wrong_password"
+          ? COPY.ncai.gateWrong
+          : COPY.ncai.gateBroken,
+      );
+      document.getElementById("gate-password")?.focus();
+    } finally {
+      setGateBusy(false);
+    }
+  }
+
+  // Once unlocked, the menu replaces the NCAI button: open it and give it focus.
+  useEffect(() => {
+    if (!drafts || !ncaiMenu.current) return;
+    ncaiMenu.current.open = true;
+    ncaiMenu.current.querySelector("summary")?.focus();
+  }, [drafts]);
+
   function requestPolicy(citation: DemoCitation): Promise<DemoPolicyResponse> {
     const key = keyOf(citation);
     const existing = policyRequests.current.get(key);
@@ -1201,6 +1300,56 @@ export function App() {
             ))}
           </nav>
           <div class="head-actions">
+            {!drafts ? (
+              <button
+                type="button"
+                class="btn"
+                ref={gateOpener}
+                aria-haspopup="dialog"
+                onClick={openGate}
+              >
+                {COPY.ncai.menu}
+              </button>
+            ) : (
+              <details
+                class="ncai-menu"
+                ref={ncaiMenu}
+                onKeyDown={(event) => {
+                  if (event.key !== "Escape" || !ncaiMenu.current?.open) return;
+                  ncaiMenu.current.open = false;
+                  ncaiMenu.current.querySelector("summary")?.focus();
+                }}
+              >
+                <summary class="btn">{COPY.ncai.menu}</summary>
+                <div class="ncai-list">
+                  <p class="eyebrow">{COPY.ncai.menuTitle}</p>
+                  <p class="help">{COPY.ncai.menuHelp(NCAI_RETRIEVED)}</p>
+                  {areas.map((area) => (
+                    <div key={area.committee + area.label}>
+                      <p class="ncai-area">
+                        {area.label === area.committee
+                          ? area.label
+                          : `${area.committee}: ${area.label}`}
+                      </p>
+                      <ul>
+                        {area.drafts.map((item) => (
+                          <li key={item.id}>
+                            <button
+                              type="button"
+                              class="ncai-item"
+                              onClick={() => openDraft(item)}
+                            >
+                              <span class="mono">{item.id}</span> {item.title}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                  <ResolutionLinks />
+                </div>
+              </details>
+            )}
             <button
               type="button"
               class="btn"
@@ -1244,6 +1393,17 @@ export function App() {
               >
                 {sourceBusy ? COPY.checkingSourcesButton : COPY.retrySources}
               </button>
+            )}
+            {draft && (
+              <NcaiPanel
+                draft={draft}
+                usable={(preset) => presetTargets(preset.source).length > 0}
+                onSearch={tryPreset}
+                onClose={() => {
+                  setDraft(null);
+                  ncaiMenu.current?.querySelector("summary")?.focus();
+                }}
+              />
             )}
             <form onSubmit={onSubmit}>
               <div class="chips" role="group" aria-label={COPY.scopeLabel}>
@@ -1443,6 +1603,49 @@ export function App() {
                 ))}
               </ul>
             </div>
+            {drafts && (
+              <div class="zone">
+                <label class="field" for="ncai-area">
+                  {COPY.ncai.areaLabel}
+                </label>
+                <select
+                  id="ncai-area"
+                  value={areaKey}
+                  aria-describedby="ncai-area-help"
+                  onChange={(e) =>
+                    setAreaKey((e.target as HTMLSelectElement).value)
+                  }
+                >
+                  <option value="">{COPY.ncai.areaNone}</option>
+                  {areas.map((area, index) => (
+                    <option key={index} value={String(index)}>
+                      {area.label === area.committee
+                        ? area.label
+                        : `${area.committee}: ${area.label}`}
+                    </option>
+                  ))}
+                </select>
+                <p id="ncai-area-help" class="help">
+                  {COPY.ncai.areaHelp}
+                </p>
+                {areaKey !== "" && (
+                  <ul class="chips">
+                    {areaSearches(areas[Number(areaKey)]).map((preset) => (
+                      <li key={preset.query}>
+                        <button
+                          type="button"
+                          class="chip"
+                          disabled={presetTargets(preset.source).length === 0}
+                          onClick={() => tryPreset(preset)}
+                        >
+                          {preset.query}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
           </section>
 
           <section
@@ -1993,6 +2196,66 @@ export function App() {
         onClose={closeAbout}
         onClosed={() => aboutOpener.current?.focus()}
       />
+      <dialog
+        class="about gate screen-only"
+        ref={gateRef}
+        aria-labelledby="gate-h"
+        onClose={() => {
+          setPassword("");
+          // Unlocking replaces the opener with the menu, which takes focus itself.
+          if (!drafts) gateOpener.current?.focus();
+        }}
+      >
+        <div class="about-head">
+          <h2 id="gate-h">{COPY.ncai.gateTitle}</h2>
+          <button type="button" class="btn" onClick={closeGate}>
+            {COPY.aboutClose}
+          </button>
+        </div>
+        <form class="about-body" onSubmit={unlock}>
+          <section>
+            <p>{COPY.ncai.gateIntro}</p>
+            <label class="field" for="gate-password">
+              {COPY.ncai.gatePassword}
+            </label>
+            <input
+              id="gate-password"
+              type="password"
+              value={password}
+              autoComplete="off"
+              aria-describedby={
+                gateError ? "gate-help gate-error" : "gate-help"
+              }
+              aria-invalid={gateError ? "true" : undefined}
+              onInput={(e) => {
+                setPassword((e.target as HTMLInputElement).value);
+                setGateError("");
+              }}
+            />
+            <p id="gate-help" class="help">
+              {COPY.ncai.gateHelp}
+            </p>
+            {gateError && (
+              <p id="gate-error" class="notice" role="alert">
+                {gateError}
+              </p>
+            )}
+            <p class="live" role="status">
+              {gateBusy ? COPY.ncai.gateChecking : ""}
+            </p>
+            <button
+              type="submit"
+              class="btn primary"
+              aria-disabled={gateBusy || !password}
+            >
+              {COPY.ncai.gateOpen}
+            </button>
+          </section>
+          <section>
+            <ResolutionLinks />
+          </section>
+        </form>
+      </dialog>
       <PrintView report={report} />
     </>
   );
@@ -2004,6 +2267,128 @@ const ACTOR_AUTOCOMPLETE: Partial<Record<keyof DataActors, string>> = {
   role: "organization-title",
   organization: "organization",
 };
+
+/** Public resolution archives and Tribal law, linked out; shown locked or not. */
+function ResolutionLinks() {
+  return (
+    <>
+      <p class="ncai-area">{COPY.ncai.elsewhere}</p>
+      <ul>
+        {[
+          ...COPY.ncai.links,
+          { url: NILL_TRIBAL_LAW_URL, label: COPY.ncai.tribalLaw },
+        ].map((link) => (
+          <li key={link.url}>
+            <a
+              class="ncai-item"
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+/** One NCAI draft as the tracker lists it, with the searches drawn from its title. */
+function NcaiPanel({
+  draft,
+  usable,
+  onSearch,
+  onClose,
+}: {
+  draft: NcaiDraft;
+  usable: (preset: NcaiSearch) => boolean;
+  onSearch: (preset: NcaiSearch) => void;
+  onClose: () => void;
+}) {
+  const searches = ncaiSearches(draft);
+  const facts: [string, string | undefined][] = [
+    [COPY.ncai.status, draft.status],
+    [COPY.ncai.committee, draft.committee],
+    [COPY.ncai.subcommittee, draft.subcommittee],
+    [COPY.ncai.sponsor, draft.sponsor],
+    [COPY.ncai.note, draft.note],
+  ];
+  return (
+    <section class="zone ncai" aria-labelledby="ncai-h">
+      <p class="eyebrow">{COPY.ncai.eyebrow(draft.id)}</p>
+      <h3 id="ncai-h" tabIndex={-1}>
+        {draft.title}
+      </h3>
+      <dl class="receipt">
+        {facts
+          .filter(([, value]) => value)
+          .map(([label, value]) => [
+            <dt key={label + "t"}>{label}</dt>,
+            <dd key={label + "d"}>{value}</dd>,
+          ])}
+      </dl>
+      <p>
+        <a href={NCAI_TRACKER_URL} target="_blank" rel="noopener noreferrer">
+          {COPY.ncai.tracker}
+        </a>
+      </p>
+      <p class="help">{COPY.ncai.noText}</p>
+      <p class="help">{COPY.ncai.caveat}</p>
+      {NCAI_GROUPS.map((group) => {
+        const items = searches.filter((item) => item.group === group);
+        if (items.length === 0) return null;
+        return (
+          <div key={group}>
+            <h4 class="eyebrow">{COPY.ncai.groups[group]}</h4>
+            <p class="help">{COPY.ncai.groupHelp[group]}</p>
+            <ul class="chips">
+              {items.map((preset) => (
+                <li key={preset.query}>
+                  <button
+                    type="button"
+                    class="chip"
+                    disabled={!usable(preset)}
+                    title={usable(preset) ? undefined : COPY.ncai.sourceOff}
+                    onClick={() => onSearch(preset)}
+                  >
+                    {preset.query}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            {group === "case" && (
+              <>
+                <p class="help">{COPY.ncai.courtLinksHelp}</p>
+                <ul class="meta">
+                  {courtLinks(draft).map((link) => (
+                    <li key={link.url}>
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {COPY.ncai.courtLink[link.kind](link.words)}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
+        );
+      })}
+      <p>
+        <a href={NILL_TRIBAL_LAW_URL} target="_blank" rel="noopener noreferrer">
+          {COPY.ncai.tribalLaw}
+        </a>
+      </p>
+      <button type="button" class="btn" onClick={onClose}>
+        {COPY.ncai.close}
+      </button>
+    </section>
+  );
+}
 
 function TsdfLine() {
   return (

@@ -1,6 +1,17 @@
 # Status
 
-As of 2026-10-13. **The published search and report workflows passed the bounded
+As of 2026-10-19. **Release 0.7.0 (NCAI 2026 draft resolutions) is committed
+on `demo/live-pages` but not reviewed, pushed or published.** Under D-104 and
+D-105 the demo gains a password-gated NCAI menu, described in
+[DEMO-STATUS.md](DEMO-STATUS.md). The drafts ship only as an encrypted file;
+the password and plaintext are not in the repository. Type check, lint, format,
+source-boundary scan, 510 demo tests and the demo build passed, and a local
+browser check found no axe violations. Still required before publication: the
+pre-publication review (started, not finished), the full check, a fresh demo
+build committed with the release, and the owner's push and merge. The public
+page and Worker are unchanged from the D-103 state below.
+
+From 2026-10-13: **The published search and report workflows passed the bounded
 live browser batch.** D-102 browser review has a qualified closeout with the
 WebKit limits below. The fresh D-103 full repository check passed after all
 verifier repairs. D-103 authorizes committing and publishing the reviewed
@@ -127,6 +138,10 @@ under D-102. Existing keyboard/focus safeguards continue throughout.
    push and Pages publication; standing permission remains open.
 8. Tribal government documents printed by a federal source are not detected today.
    Filter, flag or leave them? Open since D-094.
+9. NCAI's reply on republishing the tracker snapshot and on access to its
+   AssetBank resolution files (requested 2026-10-19). D-105 is revisited when
+   NCAI answers. Refresh the snapshot during the convention, and retire it
+   after final actions?
 
 ## Remaining limits
 
