@@ -1,7 +1,9 @@
 # Status
 
-As of 2026-10-19. **NCAI 0.7.0 bug-fix items 1–6 are implemented on
-`demo/live-pages` and rebuilt into the local Pages artifact; nothing was published.**
+As of 2026-10-19. **NCAI 0.7.0, including bug-fix items 1–6, is published.**
+[PR 12](https://github.com/atniclimate/policy-sentinel/pull/12) merged as
+`178f89f` at 18:21:17 UTC; Pages finished at 18:21:46 UTC. The merge tree
+matches reviewed source commit `a715da7`, including the rebuilt artifact.
 The vault CLI confines new plaintext output to ignored, untracked files inside
 this checkout's `private/`, rejecting directory links and alternate streams.
 Only a decrypt `OperationError` reports a wrong password. Menu entries show the
@@ -34,14 +36,22 @@ by the owner's private-file boundary, and reports counts only. Its 25 CLI tests
 passed, including 15 added scan cases; independent review closed the bare-filename
 sentinel gap. The final scan checked 81 drafts and 173 needles against all
 17 runtime files, with zero hits. The encrypted vault is unchanged. The earlier
-`fa69419` check and scan remain historical evidence. D-106 now authorizes push,
+`fa69419` check and scan remain historical evidence. D-106 authorized the push,
 publication and closeout through the existing pull-request path to `main`.
-Deployment and public verification are pending.
+
+Published verification at 18:22:05–18:22:10 UTC matched all 17 runtime files
+byte-for-byte, with 17 GETs and no retries. Chromium 153.0.8010.12 then rendered
+those verified files from a route cache with one mocked catalog: seven locked-UI
+checks passed, including the visible 0.7.0 version, keyboard opening, empty-password
+prompt, Escape focus restoration and two axe states with zero violations.
+Screenshots were inspected; no provider calls or page errors occurred. The
+browser was closed and no server was created. This verifies the published static
+artifact and locked interface, not live backend behavior or real-vault unlocking.
 Items 7–8 remain excluded: removing "Arizona" (PSC-26-025) and "Sioux"
 (PSC-26-047) requires the owner's reseal; the real unlocked-menu browser check
 of `d6a3ab5` still needs the owner's password. WebKit, print and study-width
-limits below remain outside this bug-fix session. The public page and Worker
-remain unchanged from the D-103 state below.
+limits below remain outside this bug-fix session. The Worker is unchanged from
+the D-103 state below.
 
 From 2026-10-13: **The published search and report workflows passed the bounded
 live browser batch.** D-102 browser review has a qualified closeout with the
@@ -53,13 +63,14 @@ The owner supplied two staff workflows, now assessed in
 
 ## Current state
 
-- The public demo runtime is unchanged from PR 10, merge `981ecad`, published 2026-10-13 at
-  21:06:47 UTC. The release readback matched all 17 reviewed runtime files.
+- The public demo is 0.7.0 from PR 12, merge `178f89f`, published 2026-10-19 at
+  18:21:46 UTC. The release readback matched all 17 reviewed runtime files.
   Worker `583cd4ab-f99b-4ffc-9d7b-c9d73466df18`, source `350329f`, remains deployed.
 - Federal Register, GovInfo and Regulations.gov support topic search, inclusive
   source-date filters and explicit Load more. Congress.gov and Washington remain
   reference lookups. Oregon and Idaho are integration gaps.
-- D-102 changes are prepared for publication under D-103. The retained App's facet checkboxes
+- D-102 verifier changes were merged through PR 11 (`9f263a2`) under D-103.
+  The retained App's facet checkboxes
   now meet the tested 24-pixel target size. The demo browser runner derives the
   separate policy/source counts from its response and bounds network requests,
   redirects and failures. The local runner's description now states its actual
@@ -156,7 +167,7 @@ under D-102. Existing keyboard/focus safeguards continue throughout.
 ## Open owner decisions
 
 1. First real release: public tool with one outside user, or the offline package
-   with four demonstrations? Version 0.6.1 remains a development maintenance release.
+   with four demonstrations? Version 0.7.0 remains a development demo release.
 2. Following: part of that release, and may the service keep a refreshed index of
    official public metadata with no user data?
 3. May the existing api.data.gov key be used for engine work? Accept eCFR and
@@ -166,8 +177,8 @@ under D-102. Existing keyboard/focus safeguards continue throughout.
    corpus past the release? Earlier rulings are not silently revoked.
 6. Archive ROADMAP and its validators? Until answered they stay unchanged.
 7. Standing permission for future public-page pull requests, a repository license,
-   and the first outside user? D-103 authorizes this reviewed change's commit,
-   push and Pages publication; standing permission remains open.
+   and the first outside user? D-106 authorized the 0.7.0 publication and
+   closeout; standing permission remains open.
 8. Tribal government documents printed by a federal source are not detected today.
    Filter, flag or leave them? Open since D-094.
 9. NCAI's reply on republishing the tracker snapshot and on access to its

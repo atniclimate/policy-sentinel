@@ -34,8 +34,20 @@ regressions. The local Pages artifact now includes these fixes. The fresh full
 check passed with 2,645 unit tests; the rebuild and counts-only plaintext scan
 passed, with zero hits across 17 runtime files. Three replaced bundles were
 removed with `git rm`. Current verification and publication gates are in
-[STATUS.md](STATUS.md). D-106 authorizes publication and closeout through a PR
-to `main`; deployment and public verification are pending.
+[STATUS.md](STATUS.md). Under D-106,
+[PR 12](https://github.com/atniclimate/policy-sentinel/pull/12) merged as
+`178f89f` at 2026-10-19 18:21:17 UTC. Pages finished at 18:21:46 UTC;
+the merge tree matches reviewed source commit `a715da7`.
+
+All 17 published runtime files matched the reviewed build byte-for-byte.
+Chromium 153.0.8010.12 passed seven checks using those verified files from a
+route cache and one mocked catalog: visible version, locked state, keyboard
+opening, empty-password prompt, Escape focus restoration and two axe states
+with no violations. Screenshots were inspected. The batch made 17 static GETs,
+no retries and no provider calls; there were no page errors. The browser closed
+and no server was created. Real-vault unlocking and live backend behavior were
+not exercised by this publication check; the password-dependent items remain
+excluded.
 
 The header has an NCAI button. A shared access password opens an encrypted
 copy of the 81 entries on the NCAI 2026 Annual Resolutions Tracker, read

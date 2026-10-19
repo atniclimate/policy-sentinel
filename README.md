@@ -359,6 +359,12 @@ not from Sentinel's reviewed findings. The owner rulings are D-083, D-084, D-093
 and D-094 in the [decision register](docs/decision-register.md); current state
 is in [the demo status](docs/DEMO-STATUS.md).
 
+The 0.7.0 demo also offers a shared-password NCAI 2026 draft-resolution menu,
+with verbatim tracker statuses and hand-picked search suggestions under D-104
+and D-105. These suggestions do not establish a Nation relationship to a
+discovered policy. The encrypted snapshot and its access limits are described
+in [the demo status](docs/DEMO-STATUS.md).
+
 ```powershell
 npm run demo:build                # builds docs/index.html and docs/demo-assets/
 npm run demo:worker:dev           # local Worker on http://127.0.0.1:8787
