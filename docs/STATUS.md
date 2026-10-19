@@ -1,7 +1,7 @@
 # Status
 
 As of 2026-10-19. **NCAI 0.7.0 bug-fix items 1–6 are implemented on
-`demo/live-pages`; this source change is not published or built into Pages.**
+`demo/live-pages` and rebuilt into the local Pages artifact; nothing was published.**
 The vault CLI confines new plaintext output to ignored, untracked files inside
 this checkout's `private/`, rejecting directory links and alternate streams.
 Only a decrypt `OperationError` reports a wrong password. Menu entries show the
@@ -10,8 +10,8 @@ the menu or move focus, and unavailable chips stay focusable with an explained
 reason. Synthetic tests cover the fixes, malformed vault/data inputs, seal
 guards and grouping across committees with missing subcommittees.
 
-All 127 focused tests in four suites passed, along with `typecheck`, `lint`,
-`format:check` and `scan:source`. The private-output review found and fixed an
+All 127 focused bug-fix tests in four suites passed, along with `typecheck`,
+`lint`, `format:check` and `scan:source`. The private-output review found and fixed an
 NTFS alternate-stream escape, demonstrated by a failing synthetic hardlink test
 before the fix and a passing one afterward.
 
@@ -23,11 +23,19 @@ were inspected. No provider calls or owner vault access occurred, and the
 temporary browser/server were closed. This checks items 3–5 with synthetic
 drafts, not item 8's real-vault acceptance.
 
-The prior `fa69419` Pages artifact and its full check/170-needle
-plaintext scan remain historical evidence, not verification of these fixes.
-Before publication: run `npm run check` once, run a fresh `npm run demo:build`,
-scan the artifact for plaintext, and `git rm` replaced bundles. Push, pull
-request and publication still need the owner's explicit go-ahead.
+The fresh `npm run check` passed once on the final code: 2,645 unit tests in
+124 files, 48 hook tests, all pipeline stages and the validated synthetic build.
+It finished at 2026-10-19 18:06:05 UTC. The two known Windows file-symlink tests
+remain skipped. A fresh `npm run demo:build` passed, and the three replaced
+bundles were removed with `git rm`; the final artifact contains 17 runtime files.
+
+The artifact plaintext scan now runs inside `scripts/ncai-vault.mjs`, as required
+by the owner's private-file boundary, and reports counts only. Its 25 CLI tests
+passed, including 15 added scan cases; independent review closed the bare-filename
+sentinel gap. The final scan checked 81 drafts and 173 needles against all
+17 runtime files, with zero hits. The encrypted vault is unchanged. The earlier
+`fa69419` check and scan remain historical evidence. Push, pull request and
+publication still need the owner's explicit go-ahead.
 Items 7–8 remain excluded: removing "Arizona" (PSC-26-025) and "Sioux"
 (PSC-26-047) requires the owner's reseal; the real unlocked-menu browser check
 of `d6a3ab5` still needs the owner's password. WebKit, print and study-width

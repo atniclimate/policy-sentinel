@@ -68,13 +68,16 @@ describe("NCAI vault CLI plaintext output boundary", () => {
     await rm(root, { recursive: true, force: true });
   });
 
-  function open(file: string) {
+  function run(command: "open" | "scan", file: string) {
     return spawnSync(
       process.execPath,
-      ["scripts/ncai-vault.mjs", "open", file],
+      ["scripts/ncai-vault.mjs", command, file],
       {
         cwd: root,
-        env: { ...process.env, NCAI_DEMO_PASSWORD: PASSWORD },
+        env: {
+          ...process.env,
+          NCAI_DEMO_PASSWORD: command === "open" ? PASSWORD : "",
+        },
         encoding: "utf8",
         windowsHide: true,
       },
@@ -83,10 +86,10 @@ describe("NCAI vault CLI plaintext output boundary", () => {
 
   it("opens only to a new ignored private file and preserves existing output", async () => {
     const output = "private/drafts.json";
-    expect(open(output).status).toBe(0);
+    expect(run("open", output).status).toBe(0);
     const plaintext = await readFile(join(root, output), "utf8");
     expect(JSON.parse(plaintext)).toEqual(DRAFTS);
-    const again = open(output);
+    const again = run("open", output);
     expect(again.status).toBe(1);
     expect(again.stderr).toContain("EEXIST");
     expect(await readFile(join(root, output), "utf8")).toBe(plaintext);
@@ -98,7 +101,7 @@ describe("NCAI vault CLI plaintext output boundary", () => {
     "private-copy/drafts.json",
     ".cache/drafts.json",
   ])("rejects plaintext outside private/: %s", async (output) => {
-    const result = open(output);
+    const result = run("open", output);
     expect(result.status).toBe(1);
     expect(result.stderr).toContain("inside this checkout's private/");
     await expect(readFile(join(root, output))).rejects.toMatchObject({
@@ -111,7 +114,7 @@ describe("NCAI vault CLI plaintext output boundary", () => {
     await writeFile(join(root, output), "synthetic tracked file");
     git("add", "--force", "--", output);
     await unlink(join(root, output));
-    const result = open(output);
+    const result = run("open", output);
     expect(result.status).toBe(1);
     expect(result.stderr).toContain("Git-ignored and untracked");
     await expect(readFile(join(root, output))).rejects.toMatchObject({
@@ -121,7 +124,7 @@ describe("NCAI vault CLI plaintext output boundary", () => {
 
   it("rejects private output when ignore protection is absent", async () => {
     await writeFile(join(root, ".gitignore"), "");
-    const result = open("private/drafts.json");
+    const result = run("open", "private/drafts.json");
     expect(result.status).toBe(1);
     expect(result.stderr).toContain("Git-ignored and untracked");
     await expect(
@@ -135,7 +138,7 @@ describe("NCAI vault CLI plaintext output boundary", () => {
     await writeFile(outside, "synthetic tracked file");
     git("add", "--", "tracked.json");
     await link(outside, join(root, "private/linked.json"));
-    const result = open(output);
+    const result = run("open", output);
     await expect(readFile(`${outside}:drafts`, "utf8")).rejects.toMatchObject({
       code: "ENOENT",
     });
@@ -158,7 +161,7 @@ describe("NCAI vault CLI plaintext output boundary", () => {
         join(root, link),
         process.platform === "win32" ? "junction" : "dir",
       );
-      const result = open(`${link}/drafts.json`);
+      const result = run("open", `${link}/drafts.json`);
       expect(result.status).toBe(1);
       expect(result.stderr).toContain("linked directories");
       await expect(
@@ -166,4 +169,125 @@ describe("NCAI vault CLI plaintext output boundary", () => {
       ).rejects.toMatchObject({ code: "ENOENT" });
     },
   );
+
+  describe("artifact plaintext scan", () => {
+    const source = "private/scan.json";
+    const draft = {
+      ...DRAFTS[0],
+      title: "Sensitive café draft title",
+      note: "Confidential synthetic note phrase",
+      topics: ['"Example topic phrase"'],
+    };
+
+    beforeEach(async () => {
+      await writeFile(join(root, source), JSON.stringify([draft]));
+      await mkdir(join(root, "docs/demo-assets"), { recursive: true });
+      await writeFile(
+        join(root, "docs/index.html"),
+        "<!doctype html><title>Demo</title>",
+      );
+      await writeFile(
+        join(root, "docs/demo-assets/main.js"),
+        "export const ready = true;",
+      );
+    });
+
+    it("scans without a password and emits only counts without writes", async () => {
+      const result = run("scan", source);
+      expect(result.status, result.stderr).toBe(0);
+      expect(result.stderr).toBe("");
+      expect(JSON.parse(result.stdout)).toEqual({
+        drafts: 1,
+        needles: expect.any(Number),
+        files: 2,
+        hits: 0,
+      });
+      expect(await readFile(join(root, source), "utf8")).toBe(
+        JSON.stringify([draft]),
+      );
+      expect(
+        await readFile(join(root, "src/demo/ncai-2026.vault.json"), "utf8"),
+      ).toBe(vault);
+    });
+
+    it.each([
+      ["title", draft.title],
+      ["note", draft.note],
+      ["topic", draft.topics[0]],
+      ["escaped Unicode title", draft.title.replace("é", "\\u00E9")],
+      ["escaped topic", JSON.stringify(draft.topics[0])],
+      ["private input filename", "scan.json"],
+      ["private path", "private/sensitive-file.json"],
+      ["escaped private path", String.raw`private\\sensitive-file.json`],
+    ])("rejects a nested %s hit without printing it", async (_, text) => {
+      await mkdir(join(root, "docs/demo-assets/nested"));
+      await writeFile(join(root, "docs/demo-assets/nested/leak.js"), text);
+      const result = run("scan", source);
+      expect(result.status).toBe(1);
+      expect(result.stderr).toBe("");
+      expect(JSON.parse(result.stdout)).toEqual({
+        drafts: 1,
+        needles: expect.any(Number),
+        files: 3,
+        hits: 1,
+      });
+    });
+
+    it.each([
+      ["malformed JSON", '"sensitive malformed input'],
+      [
+        "invalid drafts",
+        JSON.stringify([{ title: "sensitive invalid draft" }]),
+      ],
+      ["empty drafts", "[]"],
+    ])("fails safely on %s", async (_, text) => {
+      await writeFile(join(root, source), text);
+      const result = run("scan", source);
+      expect(result.status).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe(
+        "ncai-vault failed: Artifact scan could not complete.\n",
+      );
+    });
+
+    it("refuses linked runtime directories", async () => {
+      const outside = join(root, "elsewhere");
+      await mkdir(outside);
+      await writeFile(join(outside, "sensitive-file.txt"), draft.title);
+      await symlink(
+        outside,
+        join(root, "docs/demo-assets/linked"),
+        process.platform === "win32" ? "junction" : "dir",
+      );
+      const result = run("scan", source);
+      expect(result.status).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe(
+        "ncai-vault failed: Artifact scan could not complete.\n",
+      );
+    });
+
+    it("refuses hardlinked runtime files", async () => {
+      await link(
+        join(root, source),
+        join(root, "docs/demo-assets/linked.json"),
+      );
+      const result = run("scan", source);
+      expect(result.status).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe(
+        "ncai-vault failed: Artifact scan could not complete.\n",
+      );
+    });
+
+    it("does not report completion when the artifact is missing", async () => {
+      await unlink(join(root, "docs/index.html"));
+      const result = run("scan", source);
+      expect(result.status).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe(
+        "ncai-vault failed: Artifact scan could not complete.\n",
+      );
+    });
+  });
 });

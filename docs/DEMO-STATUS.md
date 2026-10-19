@@ -27,11 +27,13 @@ descriptions of the earlier interface, describe earlier checkpoints.
 
 ## NCAI draft resolutions, release 0.7.0, 2026-10-19 (D-104, D-105)
 
-The follow-up bug-fix session implements items 1–6 in source only: private CLI
+The follow-up bug-fix session implements items 1–6: private CLI
 output confinement, accurate crypto errors, verbatim menu statuses, cancelled
 unlock handling and keyboard-accessible unavailable chips, with synthetic
-regressions. The Pages artifact at `fa69419` predates these fixes. Current
-verification and the required pre-publication rebuild/scan are in
+regressions. The local Pages artifact now includes these fixes. The fresh full
+check passed with 2,645 unit tests; the rebuild and counts-only plaintext scan
+passed, with zero hits across 17 runtime files. Three replaced bundles were
+removed with `git rm`. Current verification and publication gates are in
 [STATUS.md](STATUS.md); no push or publication occurred in this session.
 
 The header has an NCAI button. A shared access password opens an encrypted
@@ -52,6 +54,9 @@ The repository holds only `src/demo/ncai-2026.vault.json` (AES-256-GCM, key
 from PBKDF2-SHA256, 600,000 iterations). The plaintext snapshot is kept in the
 ignored `private/` directory and the password is not recorded; maintainers seal
 and open the file with `scripts/ncai-vault.mjs` and `NCAI_DEMO_PASSWORD`. A
+password-free artifact check runs through
+`node scripts/ncai-vault.mjs scan private/ncai-2026.json` after the demo build;
+it reports only draft, needle, file and hit counts. A
 shared password deters casual access and indexing; it is not strong protection.
 Once pushed, the encrypted file stays in public Git history; removing it later
 stops new distribution but recalls nothing.

@@ -1,6 +1,19 @@
 import { spawnSync } from "node:child_process";
-import { lstat, readFile, realpath, writeFile } from "node:fs/promises";
-import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
+import {
+  lstat,
+  readFile,
+  readdir,
+  realpath,
+  writeFile,
+} from "node:fs/promises";
+import {
+  basename,
+  dirname,
+  isAbsolute,
+  relative,
+  resolve,
+  sep,
+} from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { courtLinks, ncaiSearches } from "../src/demo/ncai-2026.ts";
@@ -24,7 +37,9 @@ const USAGE = [
   "Usage:",
   "  node scripts/ncai-vault.mjs seal <plaintext.json>",
   "  node scripts/ncai-vault.mjs open <private/out.json>",
+  "  node scripts/ncai-vault.mjs scan <plaintext.json>",
   "Open writes only new, Git-ignored files under this checkout's private/ directory.",
+  "Scan checks the built demo artifact without a password and reports only counts.",
   "",
 ].join("\n");
 
@@ -100,10 +115,75 @@ export function checkNcaiDrafts(value) {
   return { drafts: drafts.length, searches, links };
 }
 
+async function scanNcaiArtifact(file) {
+  const source = resolve(file);
+  if (!(await lstat(source)).isFile()) throw new Error("Invalid scan input.");
+  const drafts = parseNcaiDrafts(JSON.parse(await readFile(source, "utf8")));
+  if (!drafts.length) throw new Error("Invalid scan input.");
+  const needles = [
+    ...new Set([
+      ...drafts
+        .flatMap((draft) => [draft.title, draft.note, ...(draft.topics ?? [])])
+        .filter((text) => typeof text === "string" && text.length > 12),
+      "private/",
+      "private\\",
+      basename(source),
+      source,
+      source.replaceAll("\\", "/"),
+    ]),
+  ].map((text) => [text, JSON.stringify(text).slice(1, -1)]);
+  let files = 0;
+  let hits = 0;
+  async function scan(path) {
+    const info = await lstat(path);
+    if (info.isSymbolicLink()) throw new Error("Linked artifact path.");
+    if (info.isDirectory()) {
+      for (const entry of await readdir(path)) await scan(resolve(path, entry));
+      return;
+    }
+    if (!info.isFile() || info.nlink !== 1)
+      throw new Error("Invalid artifact file.");
+    const content = await readFile(path, "utf8");
+    const decoded = content.replace(
+      /\\u([0-9a-f]{4})|\\x([0-9a-f]{2})/gi,
+      (_, unicode, hex) => String.fromCharCode(parseInt(unicode ?? hex, 16)),
+    );
+    files += 1;
+    hits += needles.filter((forms) =>
+      forms.some(
+        (needle) => content.includes(needle) || decoded.includes(needle),
+      ),
+    ).length;
+  }
+  const docs = resolve(repositoryPath, "docs");
+  const index = resolve(docs, "index.html");
+  const assets = resolve(docs, "demo-assets");
+  const docsInfo = await lstat(docs);
+  if (
+    docsInfo.isSymbolicLink() ||
+    !docsInfo.isDirectory() ||
+    !(await lstat(index)).isFile() ||
+    !(await lstat(assets)).isDirectory()
+  )
+    throw new Error("Invalid artifact layout.");
+  await scan(index);
+  await scan(assets);
+  return { drafts: drafts.length, needles: needles.length, files, hits };
+}
+
 async function main([command, file]) {
-  if ((command !== "seal" && command !== "open") || !file) {
+  if (!["seal", "open", "scan"].includes(command) || !file) {
     process.stderr.write(USAGE);
     return 2;
+  }
+  if (command === "scan") {
+    try {
+      const counts = await scanNcaiArtifact(file);
+      process.stdout.write(`${JSON.stringify(counts)}\n`);
+      return counts.hits ? 1 : 0;
+    } catch {
+      throw new Error("Artifact scan could not complete.");
+    }
   }
   const password = process.env.NCAI_DEMO_PASSWORD;
   if (!password) {
