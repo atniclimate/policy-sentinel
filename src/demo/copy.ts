@@ -135,17 +135,17 @@ export const COPY = {
     noText:
       "The tracker lists no public draft text. Read the draft from NCAI or the sponsor.",
     caveat:
-      "These are suggested text searches, chosen by hand from the programs, instruments, places, and bills the title names. A result is a text match: it does not show that a policy or case governs this resolution's issue. The committee label describes only the resolution.",
+      "These are suggested text searches that Policy Sentinel chose by hand for each draft's subject; they are not always words from the title, and NCAI did not choose them. A result is a text match: it does not show that a policy or case governs this resolution's issue. The committee label describes only the resolution.",
     groups: {
       policy: "Suggested Federal Searches",
       bill: "Bills Named in the Title (Congress.gov)",
       case: "Court Opinions and Litigation (Reference)",
-      sponsor: "Name Search: Sponsor with the Topic",
+      sponsor: "Name Search: Sponsor (with the First Topic, if Any)",
     },
     groupHelp: {
       policy: "Runs on the checked federal sources.",
       bill: "Looks up the bill in the 119th Congress.",
-      case: "GovInfo searches. USCOURTS holds selected federal court opinions from about 2004, including opinions in cases still open. USREPORTS holds Supreme Court opinions in the United States Reports, 1790 through 2018. Neither covers state or Tribal courts. A match is not a finding that a case is relevant, controlling, or still good law.",
+      case: "GovInfo searches. USCOURTS holds selected federal court opinions from about 2004, including opinions in cases still open. USREPORTS holds Supreme Court opinions in the United States Reports, 1790 through 2018. Neither covers state or Tribal courts. A match is not a finding that a case is relevant, controlling, or still good law, or that it concerns the sponsor or any Tribe.",
       sponsor:
         "Lists documents that contain the name as typed. Matches are unreviewed and do not show that a policy applies to, or concerns, that Tribe or organization.",
     },
@@ -160,7 +160,7 @@ export const COPY = {
       "The draft resolutions list is for NCAI and ATNI convention participants. Enter the access password shared with participants.",
     gatePassword: "Access password",
     gateHelp:
-      "The password opens an encrypted copy of the list in this tab. Nothing is stored or sent. A shared password is a light barrier, not strong security.",
+      "The password opens an encrypted copy of the list in this tab. The password and the list are not stored or sent; a suggested search you run goes to the official sources like any other search. A shared password is a light barrier, not strong security.",
     gateWrong: "That password did not open the list. Check it and try again.",
     gateBroken: "The list could not be opened. Reload the page and try again.",
     gateChecking: "Checking the password.",

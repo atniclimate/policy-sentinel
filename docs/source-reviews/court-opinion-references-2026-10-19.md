@@ -54,7 +54,8 @@ opinions are therefore not in USREPORTS on GovInfo.
 ## Query form and live checks
 
 The panel composes `collection:USCOURTS AND <words>` and
-`collection:USREPORTS AND <words>` from words named in a draft title, and sends
+`collection:USREPORTS AND <words>` from hand-picked words for a draft's subject
+(not always words from its title), and sends
 them through the demo Worker to `api.govinfo.gov`, a host already allowlisted.
 As recorded by the director, one request each on 2026-10-19:
 

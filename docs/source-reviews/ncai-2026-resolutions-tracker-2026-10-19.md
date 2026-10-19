@@ -47,8 +47,8 @@ Committee Recommendation and Final Action.
 - Resolutions Committee Recommendation values include in order, out of order,
   late, withdrawn, tabled and under review, some in compound wording; one entry
   is deferred to the 2027 Executive Council Winter Session.
-- Some committee and subcommittee cells are empty; notes record merges and
-  referrals between entries.
+- Some committee and subcommittee cells are empty; notes record merges
+  between entries and referrals to other NCAI bodies.
 - No entry links to a draft text.
 
 Sponsor Affiliation lists Nations and other organizations alike. It records
@@ -98,7 +98,9 @@ date.
 
 A shared password deters casual access and search indexing; it is not strong
 protection. Anyone who has it can read and share the data, and the password is
-guessable.
+guessable. Once pushed, the encrypted file stays in public Git history, which
+is never rewritten: if NCAI declines, removing it stops new distribution but
+does not recall copies, and anyone with the password can still open them.
 
 ## Failure and staleness
 

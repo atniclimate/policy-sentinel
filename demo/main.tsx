@@ -843,12 +843,34 @@ export function App() {
     setDraft(next);
     if (ncaiMenu.current) ncaiMenu.current.open = false;
     setPane("search");
+    // Re-picking the open draft changes no state, so the effect below won't run.
+    if (next === draft)
+      requestAnimationFrame(() => document.getElementById("ncai-h")?.focus());
   }
 
   // After render, so the heading of a newly chosen draft exists to take focus.
   useEffect(() => {
     if (draft) document.getElementById("ncai-h")?.focus();
   }, [draft]);
+
+  // The open menu covers the page: close it when a click or focus lands outside.
+  useEffect(() => {
+    const onOutside = (event: Event) => {
+      const menu = ncaiMenu.current;
+      if (
+        menu?.open &&
+        event.target instanceof Node &&
+        !menu.contains(event.target)
+      )
+        menu.open = false;
+    };
+    document.addEventListener("pointerdown", onOutside);
+    document.addEventListener("focusin", onOutside);
+    return () => {
+      document.removeEventListener("pointerdown", onOutside);
+      document.removeEventListener("focusin", onOutside);
+    };
+  }, []);
 
   function openGate() {
     const dialog = gateRef.current;

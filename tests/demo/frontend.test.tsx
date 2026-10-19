@@ -13,6 +13,7 @@ import { loadPdfFonts, loadPdfSeal } from "../../demo/pdf-fonts";
 import { buildPdf } from "../../src/demo/pdf";
 import { emptyActors, STORAGE_KEY } from "../../src/demo/report-state";
 import { keyOf } from "../../src/demo/validation";
+import { openNcaiDrafts } from "../../src/demo/ncai-vault";
 import {
   nextSearchCursor,
   searchCriteria,
@@ -45,6 +46,10 @@ vi.mock("../../demo/pdf-fonts", () => ({
   loadPdfSeal: vi.fn(),
 }));
 vi.mock("../../src/demo/pdf", () => ({ buildPdf: vi.fn() }));
+vi.mock("../../src/demo/ncai-vault", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../src/demo/ncai-vault")>()),
+  openNcaiDrafts: vi.fn(),
+}));
 
 const ACTORS = {
   Name: "A. Example",
@@ -1341,6 +1346,52 @@ describe("demo frame: panes, dialog and theme", () => {
     expect(shell.querySelector(".pane-issues")).toHaveFocus();
     fireEvent.click(ui.getByRole("button", { name: "Report pane, 1" }));
     expect(shell).toHaveAttribute("data-pane", "report");
+  });
+
+  it("closes the NCAI menu when focus or a click lands outside, and refocuses a re-picked draft", async () => {
+    vi.mocked(openNcaiDrafts).mockResolvedValue([
+      {
+        id: "PSC-26-001",
+        title: "Example draft on water",
+        sponsor: "Example Tribe",
+        status: "In order",
+        committee: "Land Committee",
+        topics: ["water quality"],
+      },
+    ]);
+    const { ui, container } = await start();
+    fireEvent.click(ui.getByRole("button", { name: "NCAI" }));
+    const gate = within(container.querySelector(".gate") as HTMLElement);
+    fireEvent.input(gate.getByLabelText("Access password"), {
+      target: { value: "synthetic" },
+    });
+    fireEvent.click(gate.getByRole("button", { name: "Open" }));
+    const menu = await waitFor(() => {
+      const found = container.querySelector<HTMLDetailsElement>(".ncai-menu");
+      expect(found?.open).toBe(true);
+      return found as HTMLDetailsElement;
+    });
+    const item = within(menu).getByRole("button", { name: /PSC-26-001/ });
+    const heading = () => container.querySelector("#ncai-h");
+    fireEvent.click(item);
+    await waitFor(() => expect(heading()).toHaveFocus());
+    expect(menu.open).toBe(false);
+    // Picking the same draft again still moves focus out of the closed menu.
+    menu.open = true;
+    item.focus();
+    fireEvent.click(item);
+    expect(heading()).toHaveFocus();
+    expect(menu.open).toBe(false);
+    // Focus or a click outside closes the open menu.
+    menu.open = true;
+    ui.getByRole("searchbox").focus();
+    expect(menu.open).toBe(false);
+    menu.open = true;
+    fireEvent.pointerDown(document.body);
+    expect(menu.open).toBe(false);
+    menu.open = true;
+    fireEvent.pointerDown(item);
+    expect(menu.open).toBe(true);
   });
 
   it("opens About and Limits, closes it and returns focus to the button", async () => {

@@ -7,8 +7,8 @@
  * individual sponsor names are left out. Committee labels describe the
  * resolution only and are never applied to search results.
  *
- * The searches are hand-picked from instruments, programs and places named in
- * each title. `names` are search forms of the listed sponsor, used only in a
+ * The searches are Policy Sentinel's hand-picked terms for each draft's
+ * subject, not always words from the title. `names` are search forms of the listed sponsor, used only in a
  * text search for documents that contain the name.
  *
  * No runtime imports, so scripts/ncai-vault.mjs can load this file directly.

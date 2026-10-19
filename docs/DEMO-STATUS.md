@@ -46,6 +46,8 @@ from PBKDF2-SHA256, 600,000 iterations). The plaintext snapshot is kept in the
 ignored `private/` directory and the password is not recorded; maintainers seal
 and open the file with `scripts/ncai-vault.mjs` and `NCAI_DEMO_PASSWORD`. A
 shared password deters casual access and indexing; it is not strong protection.
+Once pushed, the encrypted file stays in public Git history; removing it later
+stops new distribution but recalls nothing.
 NCAI permission was requested by email on 2026-10-19 and is pending; NCAI
 AssetBank files are not fetched. Source notes:
 [the tracker](source-reviews/ncai-2026-resolutions-tracker-2026-10-19.md) and
