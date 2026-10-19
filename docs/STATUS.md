@@ -1,15 +1,22 @@
 # Status
 
-As of 2026-10-19. **Release 0.7.0 (NCAI 2026 draft resolutions) is committed
-on `demo/live-pages` but not reviewed, pushed or published.** Under D-104 and
-D-105 the demo gains a password-gated NCAI menu, described in
+As of 2026-10-19. **Release 0.7.0 (NCAI 2026 draft resolutions) is reviewed,
+checked and built on `demo/live-pages`, ready for the owner's push and merge.**
+Under D-104 and D-105 the demo gains a password-gated NCAI menu, described in
 [DEMO-STATUS.md](DEMO-STATUS.md). The drafts ship only as an encrypted file;
-the password and plaintext are not in the repository. Type check, lint, format,
-source-boundary scan, 510 demo tests and the demo build passed, and a local
-browser check found no axe violations. Still required before publication: the
-pre-publication review (started, not finished), the full check, a fresh demo
-build committed with the release, and the owner's push and merge. The public
-page and Worker are unchanged from the D-103 state below.
+the password and plaintext are not in the repository. The pre-publication
+review (sovereignty, security, interface, records, gate verifier; each finding
+adversarially checked) found no must-fix item. Its five should-fix items are
+repaired: truthful search-origin and "nothing is sent" wording, a record that a
+pushed vault stays in public history, the menu closing when focus or a click
+leaves it, focus on re-picking a draft, and D-105 at 60 words. The full
+`npm run check` passed on 2026-10-19 (2,583 unit tests in 123 files, 48 hook
+tests; the two known file-symlink skips). The rebuilt Pages artifact holds no
+draft title, note, topic or private path. Not done: unlocked-menu browser check
+of the repairs (needs the password; covered by a frontend test), and the
+sponsor-derived words "Arizona" (PSC-26-025) and "Sioux" (PSC-26-047) remain in
+two searches until the owner reseals. The public page and Worker are unchanged
+from the D-103 state below until the owner pushes and merges.
 
 From 2026-10-13: **The published search and report workflows passed the bounded
 live browser batch.** D-102 browser review has a qualified closeout with the
