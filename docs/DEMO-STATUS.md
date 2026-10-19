@@ -4,7 +4,7 @@ Updated 2026-10-19. Policy Sentinel 0.7.0 adds the NCAI 2026 draft resolutions
 menu under D-104 and D-105. Records below that say 0.2.0, 0.6.0 or 0.6.1
 describe earlier checkpoints.
 This page records maintenance of the separately authorized
-public demo under D-083, D-084, D-093, D-094, D-095, D-098, D-101, D-102, D-103, D-104 and D-105 in the
+public demo under D-083, D-084, D-093, D-094, D-095, D-098, D-101, D-102, D-103, D-104, D-105 and D-106 in the
 [decision register](decision-register.md). Project state and the working plan
 are in [STATUS.md](STATUS.md) and [PLAN.md](PLAN.md).
 
@@ -34,7 +34,8 @@ regressions. The local Pages artifact now includes these fixes. The fresh full
 check passed with 2,645 unit tests; the rebuild and counts-only plaintext scan
 passed, with zero hits across 17 runtime files. Three replaced bundles were
 removed with `git rm`. Current verification and publication gates are in
-[STATUS.md](STATUS.md); no push or publication occurred in this session.
+[STATUS.md](STATUS.md). D-106 authorizes publication and closeout through a PR
+to `main`; deployment and public verification are pending.
 
 The header has an NCAI button. A shared access password opens an encrypted
 copy of the 81 entries on the NCAI 2026 Annual Resolutions Tracker, read

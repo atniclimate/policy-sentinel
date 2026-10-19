@@ -34,8 +34,9 @@ by the owner's private-file boundary, and reports counts only. Its 25 CLI tests
 passed, including 15 added scan cases; independent review closed the bare-filename
 sentinel gap. The final scan checked 81 drafts and 173 needles against all
 17 runtime files, with zero hits. The encrypted vault is unchanged. The earlier
-`fa69419` check and scan remain historical evidence. Push, pull request and
-publication still need the owner's explicit go-ahead.
+`fa69419` check and scan remain historical evidence. D-106 now authorizes push,
+publication and closeout through the existing pull-request path to `main`.
+Deployment and public verification are pending.
 Items 7–8 remain excluded: removing "Arizona" (PSC-26-025) and "Sioux"
 (PSC-26-047) requires the owner's reseal; the real unlocked-menu browser check
 of `d6a3ab5` still needs the owner's password. WebKit, print and study-width
