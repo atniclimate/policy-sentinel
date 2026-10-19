@@ -27,6 +27,15 @@ descriptions of the earlier interface, describe earlier checkpoints.
 
 ## NCAI draft resolutions, release 0.7.0, 2026-10-19 (D-104, D-105)
 
+**Acceptance correction (D-109):** the reported live-site experience does not
+show the expected state-policy update or judiciary search. Selecting a draft
+does not automatically load policies into Results; the current implementation
+only opens its panel and offers optional searches and external links. The
+requested selection-to-Results workflow remains incomplete. Published-file
+verification below establishes deployment, not acceptance of that workflow.
+The next session must inspect the real unlocked flow and the visible Results
+before claiming completion; the reported display problem is not yet reproduced.
+
 The D-107 context expansion adds GovInfo bill/resolution, public-law and Ninth
 Circuit searches, manually chosen seven-state policy/case directories, official
 federal ruling/calendar links and NILL case bulletins. Terms stay in the panel

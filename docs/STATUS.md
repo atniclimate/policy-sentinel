@@ -1,10 +1,36 @@
 # Status
 
-As of 2026-10-19. **The NCAI context expansion is published and verified under
-D-108.** D-107 requested regional state
+As of 2026-10-19. **The NCAI context expansion was published under D-108,
+but the intended user workflow is not accepted and needs closer scrutiny.**
+D-109 records the reported missing state-policy and judiciary experience and
+the requirement for selecting a draft resolution to load policy matches into
+Results automatically. D-107 requested regional state
 policy research, court/legislation searches and more than ten research agents,
 prioritizing federal rulings and schedules. Eleven research agents completed
 their assignments; one additional agent reviewed the local implementation.
+
+## Unmet workflow and next-session priority
+
+The reported live-site experience is unchanged: updated state policy and
+judiciary search are not apparent. This report has not been reproduced in the
+real unlocked browser flow. Deployment and byte matching establish which files
+were served, not that the requested experience works.
+
+The implementation provides optional NCAI search buttons and external research
+directories. Selecting a draft only opens its context panel; it does not start
+a search or populate Results. Integrated state-topic results and automatic
+resolution-to-results loading were not implemented. The judiciary search's
+visibility and usability in the real workflow remain unverified. Prior checks
+covered synthetic preset activation and the published locked dialog, leaving
+this acceptance gap.
+
+The next session must reproduce selection through Results on the deployed
+interface, inspect what is actually visible and requested, then repair that
+workflow. Acceptance requires selection-triggered policy/case matches in
+Results, source citations and why-shown context, and explicit unsupported,
+unavailable and empty outcomes. Search matches must not imply legal relevance
+or a Nation relationship. No runtime repair or new deployment was made during
+this closeout.
 
 ## This session
 
@@ -88,8 +114,10 @@ establish real-vault unlock or new live backend acceptance. The Worker remains
 
 ## Next bounded work
 
-Use the source review's dated leads to choose one official opinion or schedule
-contract for a separate source qualification. Washington topic discovery remains
+First resolve the unmet resolution-to-Results workflow above; publication
+success alone must not close it. After that, use the source review's dated leads
+to choose one official opinion or schedule contract for a separate source
+qualification. Washington topic discovery remains
 manual until a permitted interface is qualified. Oregon terms, Idaho structured
 legislative access, California automation restrictions and CourtListener account
 requirements remain separate gates. Case leads have not been checked for later
