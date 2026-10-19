@@ -1,7 +1,7 @@
 # Status
 
-As of 2026-10-19. **D-108 authorizes publication of the checked NCAI
-context expansion; release verification passed and publication is in progress.** D-107 requested regional state
+As of 2026-10-19. **The NCAI context expansion is published and verified under
+D-108.** D-107 requested regional state
 policy research, court/legislation searches and more than ten research agents,
 prioritizing federal rulings and schedules. Eleven research agents completed
 their assignments; one additional agent reviewed the local implementation.
@@ -22,7 +22,7 @@ their assignments; one additional agent reviewed the local implementation.
 - The approved vault CLI read the private draft input only for a counts-only
   artifact/query validation scan; no terms were exposed or resealed. The vault,
   Worker and owner-supplied untracked documents are unchanged. The 17-file Pages
-  artifact is rebuilt; this change has not yet been committed or published.
+  artifact is published through [PR 14](https://github.com/atniclimate/policy-sentinel/pull/14).
 
 ## Verification
 
@@ -53,14 +53,19 @@ build. Two native Windows file-symlink tests were skipped. Independent artifact
 review found no Must/Should finding. The real-vault unlocked workflow and
 non-Chromium browsers remain outside this publication check.
 
-## Published baseline and carried limits
+## Publication and carried limits
 
-PR 12 merged as `178f89f` at 2026-10-19 18:21:17 UTC; Pages finished at
-18:21:46 UTC. Its tree matched reviewed source `a715da7`, including the rebuilt
-17-file runtime artifact. Release readback at 18:22:05–18:22:10 UTC matched all
-17 files, and synthetic locked-UI browser verification passed. PR 13 reconciled
-the closeout records. The Worker remains `583cd4ab-f99b-4ffc-9d7b-c9d73466df18`,
-source `350329f`.
+[PR 14](https://github.com/atniclimate/policy-sentinel/pull/14) merged as
+`2cfb485` at 2026-10-19 19:29:46 UTC; Pages finished at 19:30:12 UTC. Its tree
+matched reviewed source `9807b63`. Readback at 19:30:42–19:30:47 UTC matched
+all 17 published runtime files byte-for-byte. Chromium 153.0.8010.12 passed
+seven publication checks, including keyboard opening, empty-password handling,
+Escape focus restoration and two axe scans with zero violations. Two screenshots
+were inspected. The browser rendered those verified bytes with a synthetic
+catalog; the batch made 17 static GETs, no retries and no provider calls. No page
+errors occurred, the browser closed and no server was created. This does not
+establish real-vault unlock or new live backend acceptance. The Worker remains
+`583cd4ab-f99b-4ffc-9d7b-c9d73466df18`, source `350329f`.
 
 - Federal Register, GovInfo and Regulations.gov support topics, source-date
   filters and Load more; Congress.gov and Washington are reference lookups.
