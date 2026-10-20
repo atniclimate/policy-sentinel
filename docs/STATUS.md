@@ -1,10 +1,20 @@
 # Status
 
-As of 2026-10-20. **Release 0.9.0 (Release B of seeded discovery) is checked,
-built and committed; the demo Worker is deployed (D-112); the page publishes
-through PR 17 (D-113).** The owner accepted 0.8.0's draft-to-Results flow
-(D-112, "seems to work"). Publication evidence for 0.9.0 is recorded below
-once observed.
+As of 2026-10-20. **Release 0.9.0 (Release B of seeded discovery) is published
+and verified, and the demo Worker is deployed (D-112, D-113).** The owner
+accepted 0.8.0's draft-to-Results flow (D-112, "seems to work").
+
+## Publication (D-113)
+
+The owner opened [PR 17](https://github.com/atniclimate/policy-sentinel/pull/17).
+Project settings deny the driver `gh pr create`. The driver merged it with
+`gh pr merge 17 --merge --match-head-commit a05dfa3` (no admin bypass) as
+`a30b48d` at 2026-10-20 13:44:59 UTC. Its tree equals the reviewed tip
+`a05dfa3`. Pages built `a30b48d` by 13:45:22 UTC. Readback at 13:45:52-13:45:54
+UTC matched all 17 runtime files byte for byte, and the bundle names 0.9.0. The
+live verifier on the published page passed 83 of 83 within its budget (2
+catalog, 1 search, 1 policy read). Live rows show Federal Register topics,
+dockets, the document-type filter and Find related.
 
 ## What a person can do in 0.9.0
 
@@ -75,8 +85,7 @@ once observed.
 
 ## Next bounded work
 
-Merge PR 17 and verify the 0.9.0 publication. Then the Regulations.gov v2
-switch-on above. After that, the staff tasks in [PLAN.md](PLAN.md):
+The Regulations.gov v2 switch-on above. After that, the staff tasks in [PLAN.md](PLAN.md):
 consultation discovery for water, forestry and the Roadless Rule, and FY27
 funding research.
 
