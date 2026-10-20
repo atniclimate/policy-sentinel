@@ -256,6 +256,27 @@ export interface NcaiSearch {
   readonly source: "federal" | "congress" | "govinfo";
   readonly query: string;
   readonly label?: string;
+  /** The chosen words alone, when the query wraps them in GovInfo syntax. */
+  readonly terms?: string;
+  /** The GovInfo collection searched, in plain words. */
+  readonly collection?: string;
+}
+
+/** A GovInfo collection search: its words, and a label built from both. */
+function govinfoSearch<G extends NcaiSearchGroup>(
+  group: G,
+  query: string,
+  terms: string,
+  collection: string,
+) {
+  return {
+    group,
+    source: "govinfo" as const,
+    query,
+    label: `${collection}: ${terms}`,
+    terms,
+    collection,
+  };
 }
 
 /**
@@ -280,36 +301,45 @@ export function ncaiSearches(draft: NcaiDraft): readonly NcaiSearch[] {
       query,
     })),
     ...(draft.topics ?? []).flatMap((words) => [
-      {
-        group: "legislation" as const,
-        source: "govinfo" as const,
-        query: `collection:BILLS AND (${words})`,
-        label: `Federal bills and resolutions: ${words}`,
-      },
-      {
-        group: "legislation" as const,
-        source: "govinfo" as const,
-        query: `collection:PLAW AND lawtype:public AND (${words})`,
-        label: `Federal public laws: ${words}`,
-      },
+      govinfoSearch(
+        "legislation",
+        `collection:BILLS AND (${words})`,
+        words,
+        "Federal bills and resolutions",
+      ),
+      govinfoSearch(
+        "legislation",
+        `collection:PLAW AND lawtype:public AND (${words})`,
+        words,
+        "Federal public laws",
+      ),
     ]),
     ...(draft.bills ?? []).map((bill) => ({
       group: "bill" as const,
       source: "congress" as const,
       query: `${bill} ${CONGRESS}`,
     })),
+    // USCOURTS, then its Ninth Circuit subset, then USREPORTS: the order the
+    // court help text describes them and the order they run automatically.
     ...caseWords(draft).flatMap((words) => [
-      ...COURT_COLLECTIONS.map((collection) => ({
-        group: "case" as const,
-        source: "govinfo" as const,
-        query: `collection:${collection} AND (${words})`,
-      })),
-      {
-        group: "case" as const,
-        source: "govinfo" as const,
-        query: `collection:USCOURTS AND circuit:9 AND (${words})`,
-        label: `Federal opinions in the Ninth Circuit: ${words}`,
-      },
+      govinfoSearch(
+        "case",
+        `collection:USCOURTS AND (${words})`,
+        words,
+        "Federal court opinions",
+      ),
+      govinfoSearch(
+        "case",
+        `collection:USCOURTS AND circuit:9 AND (${words})`,
+        words,
+        "Federal opinions in the Ninth Circuit",
+      ),
+      govinfoSearch(
+        "case",
+        `collection:USREPORTS AND (${words})`,
+        words,
+        "Supreme Court opinions in the United States Reports",
+      ),
     ]),
     ...(draft.names ?? []).map((name) => ({
       group: "sponsor" as const,
@@ -326,6 +356,62 @@ export function draftSearch(draft: NcaiDraft): NcaiSearch | undefined {
     searches.find((search) => search.group === "policy") ??
     searches.find((search) => search.group === "bill")
   );
+}
+
+/** A suggested search, and whether it runs when its draft is chosen. */
+export interface NcaiPlanSearch extends NcaiSearch {
+  readonly auto: boolean;
+}
+
+/**
+ * How many searches of each group run on choosing a draft: the first topic on
+ * the federal sources and as GovInfo bills and public laws, the first named
+ * bill, and the first case words in the three court searches (probe of
+ * 2026-10-20: one lane per collection). Name searches never run on their own
+ * (safeguard 1: no Nation association by keyword).
+ */
+const AUTO_PER_GROUP: Readonly<Record<NcaiSearchGroup, number>> = {
+  policy: 1,
+  legislation: 2,
+  bill: 1,
+  case: 3,
+  sponsor: 0,
+};
+
+/**
+ * True when a search holds the draft's listed sponsor or one of its name forms,
+ * as a case caption often does: a name search in effect (safeguard 1).
+ */
+export function namesSponsor(draft: NcaiDraft, query: string): boolean {
+  const text = query.toLowerCase();
+  return [draft.sponsor, ...(draft.names ?? [])].some(
+    (name) => name.trim() !== "" && text.includes(name.trim().toLowerCase()),
+  );
+}
+
+/**
+ * One draft's searches: the automatic set first, then the rest as buttons. A
+ * search holding the sponsor's name waits for its button and leaves its
+ * automatic place to the next search of its group.
+ */
+export function draftPlan(draft: NcaiDraft): readonly NcaiPlanSearch[] {
+  const counted: Record<NcaiSearchGroup, number> = {
+    policy: 0,
+    legislation: 0,
+    bill: 0,
+    case: 0,
+    sponsor: 0,
+  };
+  const marked = ncaiSearches(draft).map((search) => ({
+    ...search,
+    auto:
+      !namesSponsor(draft, search.query) &&
+      counted[search.group]++ < AUTO_PER_GROUP[search.group],
+  }));
+  return [
+    ...marked.filter((search) => search.auto),
+    ...marked.filter((search) => !search.auto),
+  ];
 }
 
 export interface CourtLink {
@@ -389,4 +475,9 @@ export function areaSearches(area: NcaiArea): readonly NcaiSearch[] {
     .flatMap(ncaiSearches)
     .filter((search) => search.group === "policy" || search.group === "bill")
     .filter((search) => !seen.has(search.query) && seen.add(search.query));
+}
+
+/** An area's searches, all on request: choosing an area runs nothing by itself. */
+export function areaPlan(area: NcaiArea): readonly NcaiPlanSearch[] {
+  return areaSearches(area).map((search) => ({ ...search, auto: false }));
 }

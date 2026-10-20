@@ -12,16 +12,18 @@ A Tribal policy, natural resources or legal staff member opens one page, searche
 
 ## Milestones
 
-Immediate acceptance correction under D-109: selecting an NCAI draft resolution
-must automatically load source-cited policy and case matches into Results. The
-published panel, optional search buttons and state/court directories do not meet
-that requirement. The local repair (2026-10-19, unpublished) loads the draft's
-first policy search; case matches are not yet loaded automatically. Then inspect the deployed unlocked selection-to-Results
-workflow and the reported missing state-policy/judiciary experience; then fix
-the demonstrated gaps. Verify selection, replacement of prior-draft results,
-source identity, why-shown context and distinct empty/unavailable outcomes.
-Unavailable state or court coverage must remain explicit. This requirement
-does not bypass source qualification or establish legal relevance.
+Acceptance correction under D-109 and D-110: selecting an NCAI draft resolution
+must automatically load source-cited policy, legislation and case matches into
+Results. Release 0.8.0 implements this as seeded discovery, publication under
+D-111. Acceptance still needs the owner's unlocked look at the live flow:
+selection, replacement of prior-draft results, source identity, why-shown
+context and distinct empty/unavailable outcomes. Unavailable state or court
+coverage must remain explicit. This does not bypass source qualification or
+establish legal relevance. Next, Release B extends the Worker as the
+[Release B source note](source-reviews/discovery-release-b-sources-2026-10-19.md)
+sets out: comment deadlines, docket, RIN and CFR-part expansion from exact
+identifiers, Federal Register topics and the document-type filter. It needs one
+bounded shape call per field and the owner's approval to deploy the Worker.
 
 Each milestone is done when its checks pass on the real service and the result is written in `STATUS.md`. Every source is added one at a time, live call first, and the trimmed response shape of that call becomes the test fixture. The full check runs once before anything is published.
 

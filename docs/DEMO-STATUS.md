@@ -25,17 +25,27 @@ Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
 
+## Seeded discovery, release 0.8.0, 2026-10-20 (D-109, D-110, D-111)
+
+Choosing an NCAI draft runs its planned searches and fills grouped Results:
+Policies and Rules (the first topic on the checked federal sources);
+Legislation (GovInfo BILLS and PLAW); Bills Named in the Title (Congress.gov);
+and Court Opinions (GovInfo USCOURTS, Ninth Circuit and USREPORTS). At most 10
+automatic requests, and Results names every source asked, including GovInfo and
+Congress.gov when unchecked. Each row says why it was shown; each search shows
+its own outcome. Sponsor-name searches run only on request and are worded apart.
+Answers are held in tab memory, so re-choosing a draft sends nothing except to a
+source that was unavailable. A cited row's export lists how it was found, with
+the draft ID but never its title. Typed searches, examples and area chips share
+the same plan code. The Worker is unchanged. State results remain external
+links. Real-vault unlock and the owner's own look at the live flow are the
+acceptance test. Checks are in [current status](STATUS.md).
+
 ## NCAI draft resolutions, release 0.7.0, 2026-10-19 (D-104, D-105)
 
-**Acceptance correction (D-109):** the published 0.7.0 page does not load
-policies into Results when a draft is chosen. The local branch now does
-(2026-10-19, not yet published): choosing a draft runs its first suggested
-topic search on the checked federal sources (or its first named bill when it
-has no topic), labels Results with the draft and why the search ran, and
-clears prior results for a draft with no search or no live source. Court and
-legislation searches stay one click away in the draft panel; they are not run
-automatically. State results remain external links. Real-vault unlock and the
-reported display problem are not yet verified.
+**Acceptance correction (D-109):** the published 0.7.0 page did not load
+policies into Results when a draft was chosen. Release 0.8.0 above replaces
+that behavior.
 
 The D-107 context expansion adds GovInfo bill/resolution, public-law and Ninth
 Circuit searches, manually chosen seven-state policy/case directories, official

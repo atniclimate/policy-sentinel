@@ -105,13 +105,13 @@ if (args["self-test"] === "true") {
   };
   const row = {
     label: "Federal Register",
-    value: "1 listings loaded; 7 reported by source",
+    value: "1 listing loaded; 7 reported by source",
   };
   assert(searchOutcomes(reply, "1 policy listed.", [row]));
   assert(!searchOutcomes(reply, "2 policies listed.", [row]));
   assert(
     !searchOutcomes(reply, "1 policy listed.", [
-      { ...row, value: "1 listings loaded; 8 reported by source" },
+      { ...row, value: "1 listing loaded; 8 reported by source" },
     ]),
   );
   assert(

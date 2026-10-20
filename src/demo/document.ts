@@ -52,6 +52,7 @@ export function buildDocument(input: DocInput): DocModel {
   const generated = input.generatedAt.toISOString().slice(0, 10);
   const L = COPY.docLabels;
   const A = COPY.actorLabels;
+  const F = COPY.docFoundBy;
   const blocks: DocBlock[] = [];
   // A field with no value is left out; callers pass COPY.notRecorded to state a gap.
   const field = (label: string, value: string | null, mono = false) => {
@@ -145,6 +146,30 @@ export function buildDocument(input: DocInput): DocModel {
         L.alsoListedBy,
         `${source(alternate.sourceId)}: ${alternate.officialUrl}`,
       );
+    // Kept only while the page is open, so a restored entry states the gap.
+    if (!entry.foundBy?.length) field(L.foundBy, COPY.notRecorded);
+    for (const found of entry.foundBy ?? []) {
+      const { seed } = found;
+      const where = [source(found.sourceId), found.collection]
+        .filter(Boolean)
+        .join(", ");
+      const from =
+        seed.kind === "draft"
+          ? F.draft(seed.id)
+          : seed.kind === "area"
+            ? F.area
+            : F.typed;
+      // A name search never prints its terms, whatever it grew from (safeguard 1).
+      field(
+        L.foundBy,
+        !found.name
+          ? F.search(from, found.terms, where)
+          : seed.kind === "draft"
+            ? F.nameSearch(seed.id, where)
+            : F.nameSearchFrom(from, where),
+      );
+      if (found.name) blocks.push({ kind: "small", text: F.nameCaution });
+    }
   });
 
   // 3. Data actors and the software actor

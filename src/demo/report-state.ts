@@ -1,5 +1,6 @@
 import { COPY } from "./copy";
 import { searchPageLimit } from "./search-contract";
+import type { Reason, Seed } from "./discovery";
 import type { DemoCitation, DemoPolicyResponse } from "./types";
 import {
   citationValue,
@@ -51,12 +52,52 @@ export const emptyActors = (): DataActors => ({
 export function missingActorFields(actors: DataActors): (keyof DataActors)[] {
   return ACTOR_FIELDS.filter((field) => !actors[field].trim());
 }
+/**
+ * What a search grew from, as the exported report may name it: a draft by ID
+ * only (reuse of the tracker title waits on the owner), a typed search with no
+ * text beyond its terms, or the committee area menu without the area, which is
+ * never applied to results.
+ */
+export type FoundSeed =
+  | { readonly kind: "draft"; readonly id: string }
+  | { readonly kind: "typed" }
+  | { readonly kind: "area" };
+/** One search that listed a cited document. */
+export interface FoundBy {
+  readonly sourceId: string;
+  readonly terms: string;
+  readonly collection?: string;
+  /** A name search, worded apart in the report (safeguard 1). */
+  readonly name?: true;
+  readonly seed: FoundSeed;
+}
+
+/** A row's reasons as report provenance. The seed is rebuilt, so nothing else on it is copied. */
+export function foundByOf(
+  reasons: readonly Reason[],
+  seed: Seed,
+): readonly FoundBy[] {
+  const found: FoundSeed =
+    seed.kind === "draft"
+      ? { kind: "draft", id: seed.id }
+      : { kind: seed.kind };
+  return reasons.map((reason) => ({
+    sourceId: reason.sourceId,
+    terms: reason.terms,
+    ...(reason.collection && { collection: reason.collection }),
+    ...(reason.name && { name: true as const }),
+    seed: found,
+  }));
+}
+
 export interface Cited {
   citation: DemoCitation;
   policy: DemoPolicyResponse | null;
   note: string;
   /** The same document as listed by other sources. */
   alternates: readonly DemoCitation[];
+  /** How it was found. Memory only: never saved, so absent after a restore. */
+  foundBy?: readonly FoundBy[];
 }
 export interface ReportState {
   cited: Record<string, Cited>;
@@ -220,7 +261,10 @@ export function restoreReport(raw: string | null): RestoredReport {
 }
 
 export function serializeReport(report: ReportState): string {
-  const result = JSON.stringify({ version: 3, ...report });
+  // Search terms and draft IDs stay in memory; no validated field is named foundBy.
+  const result = JSON.stringify({ version: 3, ...report }, (key, value) =>
+    key === "foundBy" ? undefined : (value as unknown),
+  );
   if (result.length > MAX_SAVED_CHARACTERS)
     throw new Error("Saved report is too large");
   return result;
@@ -274,6 +318,7 @@ export function reportEntries(report: ReportState) {
     engine: entry.policy?.engine ?? null,
     note: entry.note,
     alternates: entry.alternates,
+    foundBy: entry.foundBy,
     issues: (entry.policy?.issues ?? [])
       .filter((issue) => report.marks[key]?.[issue.id]?.on)
       .map((issue) => ({
