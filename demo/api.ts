@@ -156,7 +156,10 @@ export async function search(
   }
   const params = new URLSearchParams({ source, q: query, page: String(page) });
   if (options) {
-    params.set("searchVersion", "1");
+    params.set("searchVersion", String(options.version ?? 1));
+    if (options.match && options.match !== "text")
+      params.set("match", options.match);
+    if (options.documentType) params.set("documentType", options.documentType);
     if (options.dateFrom !== null) params.set("dateFrom", options.dateFrom);
     if (options.dateTo !== null) params.set("dateTo", options.dateTo);
     if (options.continuation !== null)

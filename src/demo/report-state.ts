@@ -1,6 +1,6 @@
 import { COPY } from "./copy";
 import { searchPageLimit } from "./search-contract";
-import type { Reason, Seed } from "./discovery";
+import type { LaneMatch, Reason, Seed } from "./discovery";
 import type { DemoCitation, DemoPolicyResponse } from "./types";
 import {
   citationValue,
@@ -16,6 +16,7 @@ export const MAX_CITATIONS = 50;
 export const MAX_NOTE = 10000;
 export const MAX_SAVED_CHARACTERS = 2_000_000;
 export const MAX_ACTOR_TEXT = 300;
+export const MAX_DRAFT_TITLE = 300;
 // Every loaded listing may identify the same document; one is its primary citation.
 export const MAX_ALTERNATES =
   ["federal-register", "govinfo", "regulations"].reduce(
@@ -53,15 +54,21 @@ export function missingActorFields(actors: DataActors): (keyof DataActors)[] {
   return ACTOR_FIELDS.filter((field) => !actors[field].trim());
 }
 /**
- * What a search grew from, as the exported report may name it: a draft by ID
- * only (reuse of the tracker title waits on the owner), a typed search with no
- * text beyond its terms, or the committee area menu without the area, which is
- * never applied to results.
+ * What a search grew from, as the exported report may name it: a draft by ID,
+ * with the title the page showed when it supplies one (D-112), a typed search
+ * with no text beyond its terms, the committee area menu without the area,
+ * which is never applied to results, or the official record Find related
+ * started from, by its source and identifier.
  */
 export type FoundSeed =
-  | { readonly kind: "draft"; readonly id: string }
+  | { readonly kind: "draft"; readonly id: string; readonly title?: string }
   | { readonly kind: "typed" }
-  | { readonly kind: "area" };
+  | { readonly kind: "area" }
+  | {
+      readonly kind: "record";
+      readonly sourceId: string;
+      readonly identifier: string;
+    };
 /** One search that listed a cited document. */
 export interface FoundBy {
   readonly sourceId: string;
@@ -69,23 +76,37 @@ export interface FoundBy {
   readonly collection?: string;
   /** A name search, worded apart in the report (safeguard 1). */
   readonly name?: true;
+  /** An exact identifier lookup: the kind of identifier in `terms`. */
+  readonly match?: LaneMatch;
   readonly seed: FoundSeed;
 }
 
-/** A row's reasons as report provenance. The seed is rebuilt, so nothing else on it is copied. */
+/**
+ * A row's reasons as report provenance. The seed is rebuilt, so nothing else on
+ * it is copied; a draft's title comes only from `draftTitle`, the title on screen.
+ */
 export function foundByOf(
   reasons: readonly Reason[],
   seed: Seed,
+  draftTitle?: string,
 ): readonly FoundBy[] {
+  const title = draftTitle?.trim().slice(0, MAX_DRAFT_TITLE).trimEnd();
   const found: FoundSeed =
     seed.kind === "draft"
-      ? { kind: "draft", id: seed.id }
-      : { kind: seed.kind };
+      ? { kind: "draft", id: seed.id, ...(title && { title }) }
+      : seed.kind === "record"
+        ? {
+            kind: "record",
+            sourceId: seed.sourceId,
+            identifier: seed.identifier,
+          }
+        : { kind: seed.kind };
   return reasons.map((reason) => ({
     sourceId: reason.sourceId,
     terms: reason.terms,
     ...(reason.collection && { collection: reason.collection }),
     ...(reason.name && { name: true as const }),
+    ...(reason.match && { match: reason.match }),
     seed: found,
   }));
 }
@@ -260,10 +281,24 @@ export function restoreReport(raw: string | null): RestoredReport {
   }
 }
 
+/**
+ * Kept in memory only. foundBy holds search terms and draft IDs; the rest are
+ * the search contract v2 citation fields, which nothing reads back after a
+ * citation is saved. No other saved field has these names.
+ */
+const MEMORY_ONLY = new Set([
+  "foundBy",
+  "commentsCloseOn",
+  "commentsCloseWithheld",
+  "docketIds",
+  "rins",
+  "cfrRefs",
+  "topics",
+]);
+
 export function serializeReport(report: ReportState): string {
-  // Search terms and draft IDs stay in memory; no validated field is named foundBy.
   const result = JSON.stringify({ version: 3, ...report }, (key, value) =>
-    key === "foundBy" ? undefined : (value as unknown),
+    MEMORY_ONLY.has(key) ? undefined : (value as unknown),
   );
   if (result.length > MAX_SAVED_CHARACTERS)
     throw new Error("Saved report is too large");

@@ -46,6 +46,37 @@ export function citation(
   };
 }
 
+/** A Federal Register record with every contract v2 field its source states. */
+export function statedCitation(
+  id = "2099-00010",
+  title = "Example Groundfish Rule",
+): DemoCitation {
+  return {
+    ...citation(id, title),
+    commentsCloseOn: "2099-02-01",
+    docketIds: ["Docket No. 990101-0001"],
+    rins: ["0648-AA00"],
+    cfrRefs: [{ title: 50, part: "660" }],
+    topics: ["Fisheries", "Reporting and recordkeeping requirements"],
+  };
+}
+
+/** A Regulations.gov document with its own docket id and closing date. */
+export function regulationsRecord(
+  title = "Example Water Docket Document",
+): DemoCitation {
+  return {
+    ...citation("2099-00020", title),
+    sourceId: "regulations",
+    identifier: "EPA-HQ-OW-2099-0001-0001",
+    officialUrl:
+      "https://www.regulations.gov/document/EPA-HQ-OW-2099-0001-0001",
+    textAvailable: false,
+    commentsCloseOn: "2099-03-15",
+    docketIds: ["EPA-HQ-OW-2099-0001"],
+  };
+}
+
 /** The Federal Register document `id` as another federal source lists it. */
 export function listing(
   sourceId: "govinfo" | "regulations",

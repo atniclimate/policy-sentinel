@@ -32,10 +32,37 @@ export interface DemoCitation {
   readonly textAvailable: boolean;
   /** Cross-source identity of the same official document, such as "fr:2026-05577". Null when the source gives no shared identifier. */
   readonly matchKey: string | null;
+  // Search contract v2 only; v1 answers never carry these. Each is source
+  // wording as stated, never a computed deadline or classification.
+  /** Comment closing date as the source states it (YYYY-MM-DD), or null when it states none. */
+  readonly commentsCloseOn?: string | null;
+  /** The source states a closing time the demo leaves out (a UTC instant names no Eastern day), so the row points to the source. */
+  readonly commentsCloseWithheld?: true;
+  /** Docket identifiers verbatim, in this source's own spelling. */
+  readonly docketIds?: readonly string[];
+  /** Regulation Identifier Numbers, such as "0648-BO46". */
+  readonly rins?: readonly string[];
+  /** CFR title and part (or part range) the document states it affects. */
+  readonly cfrRefs?: readonly DemoCfrRef[];
+  /** The source's own subject labels (Federal Register CFR indexing terms), verbatim. */
+  readonly topics?: readonly string[];
 }
 
+export interface DemoCfrRef {
+  readonly title: number;
+  readonly part: string;
+}
+
+/** Federal Register document types; Regulations.gov has no Presidential Document. */
+export type DemoDocumentType = "RULE" | "PRORULE" | "NOTICE" | "PRESDOCU";
+
+/** What `query` holds: free text, or one exact identifier as the source spells it. */
+export type DemoSearchMatch = "text" | "docket" | "rin" | "cfr";
+
 /** Complete request binding. A cursor is data, never a URL or authorization. */
-export interface DemoSearchCriteria {
+export type DemoSearchCriteria = DemoSearchCriteriaV1 | DemoSearchCriteriaV2;
+
+export interface DemoSearchCriteriaV1 {
   readonly version: 1;
   readonly source: string;
   readonly query: string;
@@ -43,10 +70,21 @@ export interface DemoSearchCriteria {
   readonly dateTo: string | null;
   readonly page: number;
   readonly pageSize: 10;
-  readonly sort: "relevance" | "provider-default" | "-postedDate" | "reference";
+  readonly sort:
+    "relevance" | "provider-default" | "-postedDate" | "reference" | "newest";
   readonly resultLevel: "default" | null;
   readonly historical: false | null;
   readonly cursor: string | null;
+}
+
+export interface DemoSearchCriteriaV2 extends Omit<
+  DemoSearchCriteriaV1,
+  "version"
+> {
+  readonly version: 2;
+  readonly match: DemoSearchMatch;
+  /** Null means no type filter. A source with no equivalent is refused, never searched unfiltered. */
+  readonly documentType: DemoDocumentType | null;
 }
 
 export type DemoSearchCursor = DemoSearchCriteria;
@@ -55,6 +93,12 @@ export interface DemoSearchOptions {
   readonly dateFrom: string | null;
   readonly dateTo: string | null;
   readonly continuation: DemoSearchCursor | null;
+  /** 2 opts in to identifier matching, the type filter and the v2 citation fields. */
+  readonly version?: 1 | 2;
+  /** Version 2 only. Default "text". */
+  readonly match?: DemoSearchMatch;
+  /** Version 2 only. Default null. */
+  readonly documentType?: DemoDocumentType | null;
 }
 
 export type DemoSearchContinuation =

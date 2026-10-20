@@ -10,8 +10,20 @@ import {
   searchValue,
   sourcesValue,
 } from "../../src/demo/validation";
+import {
+  cfrQuery,
+  REGULATIONS_V2_CONFIRMED,
+} from "../../src/demo/search-contract";
+import type { DemoSearchOptions } from "../../src/demo/types";
 import worker from "../../worker/src/index";
-import { FR_DOC_NUMBER, FR_HTML, FR_SEARCH_JSON, WA_HTML } from "./fixtures";
+import {
+  FR_DOC_NUMBER,
+  FR_HTML,
+  FR_PROBE_ROWS,
+  FR_SEARCH_JSON,
+  REGULATIONS_V2_JSON,
+  WA_HTML,
+} from "./fixtures";
 
 const ORIGIN = "https://atniclimate.github.io";
 const keyed = { DATA_GOV_API_KEY: "synthetic-key" };
@@ -168,6 +180,86 @@ describe("Worker answers pass the page's validation and merge", () => {
         matchKey,
       });
       expect(policy.issues.length).toBeGreaterThan(0);
+    },
+  );
+
+  it.each<[string, string, Partial<DemoSearchOptions>, object]>([
+    [
+      "federal-register",
+      "Docket No. 260916-0002",
+      { match: "docket", documentType: "PRORULE" },
+      FR_PROBE_ROWS[0],
+    ],
+    [
+      "federal-register",
+      cfrQuery({ title: 50, part: "660" }),
+      { match: "cfr" },
+      FR_PROBE_ROWS[0],
+    ],
+    // Held until its live check is recorded (REGULATIONS_V2_CONFIRMED).
+    ...(REGULATIONS_V2_CONFIRMED
+      ? [
+          [
+            "regulations",
+            "EX-2099-0001",
+            { match: "docket", documentType: "PRORULE" },
+            REGULATIONS_V2_JSON.data[0],
+          ] as [string, string, Partial<DemoSearchOptions>, object],
+        ]
+      : []),
+  ])(
+    "passes a v2 %s identifier answer for %s through the page's validation with its fields",
+    async (source, q, extra, row) => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async () =>
+          reply(
+            source === "regulations"
+              ? { data: [row], meta: { totalElements: 1 } }
+              : { count: 1, results: [row] },
+          ),
+        ),
+      );
+      const options: DemoSearchOptions = {
+        dateFrom: null,
+        dateTo: null,
+        continuation: null,
+        version: 2,
+        ...extra,
+      };
+      const params: Record<string, string> = {
+        source,
+        q,
+        searchVersion: "2",
+        match: options.match!,
+      };
+      if (options.documentType) params.documentType = options.documentType;
+      const answer = searchValue(
+        await call("/api/search", params),
+        source,
+        q,
+        1,
+        options,
+      );
+      expect(answer.criteria).toMatchObject({ version: 2, ...extra });
+      expect(answer.results[0]).toMatchObject(
+        source === "regulations"
+          ? { commentsCloseOn: "2099-03-02", docketIds: ["EX-2099-0001"] }
+          : {
+              commentsCloseOn: "2026-10-22",
+              docketIds: ["Docket No. 260916-0002"],
+              rins: ["0648-BO46"],
+              cfrRefs: [
+                { title: 50, part: "300" },
+                { title: 50, part: "660" },
+              ],
+              topics: [
+                "Fisheries",
+                "Fishing",
+                "Reporting and recordkeeping requirements",
+              ],
+            },
+      );
     },
   );
 });

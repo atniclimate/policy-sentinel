@@ -8,10 +8,14 @@ import type {
   IssueType,
 } from "./types";
 import {
+  MAX_DOCKET_LENGTH,
+  RIN_PATTERN,
   nextSearchCursor,
+  plainSourceText,
   sameSearchCriteria,
   searchCriteria,
   searchPageLimit,
+  validCfrRef,
   validCursorToken,
 } from "./search-contract";
 
@@ -127,15 +131,82 @@ export function policyId(
   return citation.identifier;
 }
 
+function calendarDate(value: unknown): value is string {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value))
+    return false;
+  const parsed = new Date(`${value}T00:00:00Z`);
+  return (
+    Number.isFinite(parsed.valueOf()) &&
+    parsed.toISOString().slice(0, 10) === value
+  );
+}
+
+type CitationFields = Pick<
+  DemoCitation,
+  | "commentsCloseOn"
+  | "commentsCloseWithheld"
+  | "docketIds"
+  | "rins"
+  | "cfrRefs"
+  | "topics"
+>;
+
+/**
+ * The search contract v2 citation fields, parsed leniently for the Worker and
+ * the page alike: an absent field stays absent, a malformed field or list item
+ * is dropped, every list and string is bounded, and nothing here throws.
+ */
+export function citationFields(v: {
+  readonly commentsCloseOn?: unknown;
+  readonly commentsCloseWithheld?: unknown;
+  readonly docketIds?: unknown;
+  readonly rins?: unknown;
+  readonly cfrRefs?: unknown;
+  readonly topics?: unknown;
+}): CitationFields {
+  const strings = (
+    value: unknown,
+    max: number,
+    valid: (item: unknown) => boolean,
+  ) =>
+    Array.isArray(value)
+      ? value.slice(0, max).filter((item): item is string => valid(item))
+      : undefined;
+  const fields: { -readonly [K in keyof CitationFields]: CitationFields[K] } =
+    {};
+  if (v.commentsCloseOn === null || calendarDate(v.commentsCloseOn))
+    fields.commentsCloseOn = v.commentsCloseOn;
+  if (v.commentsCloseWithheld === true) fields.commentsCloseWithheld = true;
+  const docketIds = strings(v.docketIds, 20, (item) =>
+    plainSourceText(item, MAX_DOCKET_LENGTH),
+  );
+  if (docketIds) fields.docketIds = docketIds;
+  const rins = strings(
+    v.rins,
+    20,
+    (item) => typeof item === "string" && RIN_PATTERN.test(item),
+  );
+  if (rins) fields.rins = rins;
+  if (Array.isArray(v.cfrRefs))
+    fields.cfrRefs = v.cfrRefs.slice(0, 50).flatMap((item: unknown) => {
+      const ref =
+        item && typeof item === "object"
+          ? (item as Record<string, unknown>)
+          : {};
+      return validCfrRef(ref.title, ref.part)
+        ? [{ title: ref.title as number, part: ref.part as string }]
+        : [];
+    });
+  const topics = strings(v.topics, 50, (item) => plainSourceText(item, 200));
+  if (topics) fields.topics = topics;
+  return fields;
+}
+
 export function citationValue(value: unknown): DemoCitation {
   const v = object(value);
   const source = sourceId(v.sourceId);
   const date = v.date === null ? null : text(v.date, 10);
-  if (
-    date !== null &&
-    (!/^\d{4}-\d{2}-\d{2}$/.test(date) ||
-      new Date(`${date}T00:00:00Z`).toISOString().slice(0, 10) !== date)
-  )
+  if (date !== null && !calendarDate(date))
     throw new Error("Invalid policy date");
   if (typeof v.textAvailable !== "boolean")
     throw new Error("Invalid text availability");
@@ -160,6 +231,7 @@ export function citationValue(value: unknown): DemoCitation {
     summary: v.summary === null ? null : text(v.summary, 20000, true),
     textAvailable: v.textAvailable,
     matchKey,
+    ...citationFields(v),
   };
 }
 

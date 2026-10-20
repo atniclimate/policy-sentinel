@@ -16,19 +16,27 @@ import {
 import { CONGRESS_REFERENCE } from "../../src/demo/merge";
 import {
   MAX_CONTINUATION_LENGTH,
+  MAX_DOCKET_LENGTH,
+  REGULATIONS_V2_CONFIRMED,
   SearchCriteriaError,
+  documentTypeFilter,
   nextSearchCursor,
+  parseCfrQuery,
+  plainSourceText,
   searchCriteria,
   searchPageLimit,
   validCursorToken,
 } from "../../src/demo/search-contract";
+import { citationFields } from "../../src/demo/validation";
 import type {
   DemoCitation,
+  DemoDocumentType,
   DemoErrorResponse,
   DemoSearchResponse,
   DemoSearchCriteria,
   DemoSearchContinuation,
   DemoSearchCursor,
+  DemoSearchMatch,
   DemoSource,
 } from "../../src/demo/types";
 
@@ -396,8 +404,21 @@ const FR_FIELDS = [
   "abstract",
   "citation",
 ];
+// Requested only on search contract v2; shapes recorded by the 2026-10-20 probe.
+const FR_FIELDS_V2 = [
+  ...FR_FIELDS,
+  "comments_close_on",
+  "docket_ids",
+  "regulation_id_numbers",
+  "cfr_references",
+  "topics",
+];
 
-function frCitation(value: unknown, retrievedAt: string): DemoCitation {
+function frCitation(
+  value: unknown,
+  retrievedAt: string,
+  v2 = false,
+): DemoCitation {
   const doc = record(value);
   const id = doc.document_number;
   if (typeof id !== "string" || !/^[A-Za-z0-9-]{4,24}$/.test(id))
@@ -413,7 +434,7 @@ function frCitation(value: unknown, retrievedAt: string): DemoCitation {
   const citation = cleanText(doc.citation, 60);
   const summary = cleanText(doc.abstract, 500);
   const officialUrl = `https://www.federalregister.gov/d/${id}`;
-  return {
+  const result: DemoCitation = {
     sourceId: "federal-register",
     identifier: citation ? `${citation} (FR Doc. ${id})` : `FR Doc. ${id}`,
     title: requiredText(doc.title, 400),
@@ -427,22 +448,62 @@ function frCitation(value: unknown, retrievedAt: string): DemoCitation {
     textAvailable: /^\d{2,4}-\d{4,6}$/.test(id),
     matchKey: frMatchKey(id),
   };
+  return v2
+    ? {
+        ...result,
+        ...citationFields({
+          commentsCloseOn: doc.comments_close_on,
+          docketIds: doc.docket_ids,
+          rins: doc.regulation_id_numbers,
+          cfrRefs: doc.cfr_references,
+          topics: doc.topics,
+        }),
+      }
+    : result;
+}
+
+/** The FR condition for an identifier search; never a location condition. */
+function frMatchConditions(
+  match: DemoSearchMatch,
+  query: string,
+): [string, string][] {
+  if (match === "text") return [["conditions[term]", query]];
+  if (match === "docket") return [["conditions[docket_id]", query]];
+  if (match === "rin") return [["conditions[regulation_id_number]", query]];
+  const ref = parseCfrQuery(query);
+  if (!ref)
+    throw new DemoError("bad_query", "The CFR reference is not valid.", 400);
+  return [
+    ["conditions[cfr][title]", String(ref.title)],
+    ["conditions[cfr][part]", ref.part],
+  ];
 }
 
 async function searchFederalRegister(
   criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
   const { query, page, dateFrom, dateTo } = criteria;
+  const v2 = criteria.version === 2;
   const url = new URL("https://www.federalregister.gov/api/v1/documents.json");
-  url.searchParams.set("conditions[term]", query);
+  for (const [name, value] of frMatchConditions(
+    v2 ? criteria.match : "text",
+    query,
+  ))
+    url.searchParams.set(name, value);
   url.searchParams.set("per_page", "10");
   url.searchParams.set("page", String(page));
-  url.searchParams.set("order", "relevance");
+  url.searchParams.set(
+    "order",
+    criteria.sort === "newest" ? "newest" : "relevance",
+  );
   if (dateFrom !== null && dateTo !== null) {
     url.searchParams.set("conditions[publication_date][gte]", dateFrom);
     url.searchParams.set("conditions[publication_date][lte]", dateTo);
   }
-  for (const f of FR_FIELDS) url.searchParams.append("fields[]", f);
+  if (v2 && criteria.documentType !== null)
+    url.searchParams.set("conditions[type][]", criteria.documentType);
+  for (const f of v2 ? FR_FIELDS_V2 : FR_FIELDS)
+    url.searchParams.append("fields[]", f);
   const { response, bytes } = await officialFetch(url.href);
   if (!response.ok) {
     throw new DemoError(
@@ -453,7 +514,7 @@ async function searchFederalRegister(
   const data = record(parseJson(bytes));
   const retrievedAt = new Date().toISOString();
   const results = resultRows(data.results).map((doc) =>
-    frCitation(doc, retrievedAt),
+    frCitation(doc, retrievedAt, v2),
   );
   const total = resultCount(data.count);
   return {
@@ -779,14 +840,42 @@ async function searchGovInfo(
   };
 }
 
+/**
+ * commentEndDate is a nullable date-time (v4 OpenAPI). A timestamp's date part
+ * is a calendar date only in the zone it is written in, so a bare date or a
+ * value with its own local offset states that date. A UTC instant such as
+ * 2099-03-03T04:59:59Z can close on the previous Eastern day, and the demo never
+ * converts or assumes a zone, so that value is left out rather than shown late;
+ * the row is marked commentsCloseWithheld so it never reads as no comment period.
+ * shortcut: UTC values show no date, revisit with the owner once a bounded live call records the real spelling.
+ */
+function regulationsCloseDate(value: unknown): unknown {
+  if (value === undefined || value === null) return value;
+  const stated =
+    typeof value === "string"
+      ? /^(\d{4}-\d{2}-\d{2})(?:T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?([+-]\d{2}:\d{2}))?$/.exec(
+          value,
+        )
+      : null;
+  return stated && stated[2] !== "+00:00" && stated[2] !== "-00:00"
+    ? stated[1]
+    : undefined;
+}
+
 async function searchRegulations(
   env: Env,
   criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
   const { query, page, dateFrom, dateTo } = criteria;
+  const v2 = criteria.version === 2;
   const key = requireKey(env);
   const url = new URL("https://api.regulations.gov/v4/documents");
-  url.searchParams.set("filter[searchTerm]", query);
+  url.searchParams.set(
+    v2 && criteria.match === "docket"
+      ? "filter[docketId]"
+      : "filter[searchTerm]",
+    query,
+  );
   url.searchParams.set("page[size]", "10");
   url.searchParams.set("page[number]", String(page));
   url.searchParams.set("sort", "-postedDate");
@@ -794,6 +883,11 @@ async function searchRegulations(
     url.searchParams.set("filter[postedDate][ge]", dateFrom);
     url.searchParams.set("filter[postedDate][le]", dateTo);
   }
+  const type =
+    v2 && criteria.documentType !== null
+      ? documentTypeFilter("regulations", criteria.documentType)
+      : null;
+  if (type !== null) url.searchParams.set("filter[documentType]", type);
   const { response, bytes } = await officialFetch(url.href, {
     headers: { "X-Api-Key": key },
   });
@@ -809,7 +903,7 @@ async function searchRegulations(
     const row = record(value);
     const id = metadataId(row.id);
     const a = record(row.attributes);
-    return {
+    const citation: DemoCitation = {
       sourceId: "regulations",
       identifier: id,
       title: requiredText(a.title, 400),
@@ -823,6 +917,17 @@ async function searchRegulations(
       textAvailable: false,
       matchKey: frMatchKey(a.frDocNum),
     };
+    if (!v2 || !REGULATIONS_V2_CONFIRMED) return citation;
+    const fields = citationFields({
+      commentsCloseOn: regulationsCloseDate(a.commentEndDate),
+      docketIds: plainSourceText(a.docketId, MAX_DOCKET_LENGTH)
+        ? [a.docketId]
+        : undefined,
+    });
+    // A stated time left out is never shown as no comment period (safeguard 8).
+    return a.commentEndDate != null && fields.commentsCloseOn === undefined
+      ? { ...citation, ...fields, commentsCloseWithheld: true }
+      : { ...citation, ...fields };
   });
   const total = resultCount(meta.totalElements);
   return {
@@ -1119,13 +1224,17 @@ export default {
         try {
           const version = url.searchParams.get("searchVersion");
           const envelope = url.searchParams.get("continuation");
+          const match = url.searchParams.get("match");
+          const documentType = url.searchParams.get("documentType");
           if (
-            (version !== null && version !== "1") ||
+            (version !== null && version !== "1" && version !== "2") ||
+            (version !== "2" && (match !== null || documentType !== null)) ||
             (envelope !== null && envelope.length > MAX_CONTINUATION_LENGTH)
           )
             throw new SearchCriteriaError(
               "The search contract is not supported.",
             );
+          // searchCriteria checks match and documentType against their allowlists.
           criteria = searchCriteria(source, q, page, {
             dateFrom: url.searchParams.get("dateFrom"),
             dateTo: url.searchParams.get("dateTo"),
@@ -1133,6 +1242,11 @@ export default {
               envelope === null
                 ? null
                 : (JSON.parse(envelope) as DemoSearchCursor),
+            ...(version === "2" && {
+              version: 2,
+              match: (match ?? "text") as DemoSearchMatch,
+              documentType: documentType as DemoDocumentType | null,
+            }),
           });
         } catch (error) {
           throw new DemoError(

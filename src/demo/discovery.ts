@@ -1,18 +1,25 @@
 /**
- * Seeded discovery: a seed (an NCAI draft, a typed search or a committee area)
- * becomes a plan of lanes, one source and one query each. The page sends the
- * automatic lanes within a request budget, and Results shows the merged rows by
- * group, each row with every reason it was shown and each lane with its outcome.
+ * Seeded discovery: a seed (an NCAI draft, a typed search, a committee area or
+ * an official record) becomes a plan of lanes, one source and one query each.
+ * The page sends the automatic lanes within a request budget, and Results shows
+ * the merged rows by group, each row with every reason it was shown and each
+ * lane with its outcome.
  *
  * Everything here is pure. The page owns requests, AbortController and sequence
  * ownership, and turns each skip reason code into words.
  */
 import { appendMergedResults, isCongressReference } from "./merge";
 import type { MergedResult } from "./merge";
-import { supportsDatedGovinfoQuery } from "./search-contract";
+import {
+  cfrQuery,
+  documentTypeFilter,
+  parseCfrQuery,
+  supportsDatedGovinfoQuery,
+} from "./search-contract";
 import type {
   DemoCitation,
   DemoSearchCursor,
+  DemoSearchMatch,
   DemoSearchOptions,
   DemoSearchResponse,
 } from "./types";
@@ -30,17 +37,28 @@ export const LANE_CACHE_LIMIT = 64;
  */
 export const LANE_KEEP_MS = 15 * 60_000;
 
-/** Results sections, in display order. Name searches are not a group. */
-export type LaneGroup = "policy" | "legislation" | "bill" | "case";
+/**
+ * Results sections, in display order. Name searches are not a group. "related"
+ * holds a record's exact-identifier lanes (Find related), after "case".
+ */
+export type LaneGroup = "policy" | "legislation" | "bill" | "case" | "related";
+
+/** An identifier kind a lane matches exactly; absent means free text. */
+export type LaneMatch = Exclude<DemoSearchMatch, "text">;
 
 /**
- * What a plan grows from. A result record seed can join this union later.
- * A draft seed holds its ID only: reuse of the tracker title waits on the owner.
+ * What a plan grows from. A draft seed holds its ID only; the page supplies the
+ * title it shows. A record seed is an official record's own identity.
  */
 export type Seed =
   | { readonly kind: "draft"; readonly id: string }
   | { readonly kind: "typed"; readonly query: string }
-  | { readonly kind: "area"; readonly label: string };
+  | { readonly kind: "area"; readonly label: string }
+  | {
+      readonly kind: "record";
+      readonly sourceId: string;
+      readonly identifier: string;
+    };
 
 /** One suggested or typed search, before it is spread over sources. */
 export interface PlanSearch {
@@ -61,6 +79,8 @@ export interface PlanSearch {
   /** The collection searched within the source, in plain words. */
   readonly collection?: string;
   readonly auto: boolean;
+  /** An exact identifier in `query`, as `source` itself spells it. */
+  readonly match?: LaneMatch;
 }
 
 /**
@@ -79,7 +99,10 @@ export type SkipReason =
   | "budget";
 
 export interface Lane {
-  /** sourceId and query, so two GovInfo lanes never collide. */
+  /**
+   * sourceId, identifier kind and query, so two GovInfo lanes, or a docket and
+   * a RIN with the same text, never collide.
+   */
   readonly id: string;
   readonly group: LaneGroup;
   readonly sourceId: string;
@@ -96,9 +119,20 @@ export interface Lane {
    * Tribe or organization (safeguard 1), so the page words it apart.
    */
   readonly name?: true;
+  /** An exact identifier in `query`; the lane is sent with that match. */
+  readonly match?: LaneMatch;
+  /**
+   * The plan has a type filter this source has no equivalent for, so the lane
+   * runs without it and the page states "type filter not applied".
+   */
+  readonly typeNotApplied?: true;
 }
 
-export type PlanDates = Pick<DemoSearchOptions, "dateFrom" | "dateTo">;
+/** Dates, and the document type filter (null or absent: any type). */
+export type PlanDates = Pick<
+  DemoSearchOptions,
+  "dateFrom" | "dateTo" | "documentType"
+>;
 
 export interface PlanSources {
   /** Live federal sources the reader has checked, in catalog order. */
@@ -114,8 +148,32 @@ export interface Plan extends PlanDates {
 
 const NO_DATES: PlanDates = { dateFrom: null, dateTo: null };
 
-export const laneId = (sourceId: string, query: string): string =>
-  `${sourceId}:${query}`;
+/** A text lane keeps its 0.8.0 id; source ids hold no "#", so no text id collides. */
+export const laneId = (
+  sourceId: string,
+  query: string,
+  match?: LaneMatch,
+): string => (match ? `${sourceId}#${match}:${query}` : `${sourceId}:${query}`);
+
+/**
+ * The search options a lane is sent with, first page or `continuation`. Every
+ * lane opts in to contract v2; the type filter goes only where the source has
+ * an equivalent, and the plan's dates always go.
+ */
+export function laneOptions(
+  plan: PlanDates,
+  lane: Pick<Lane, "match" | "typeNotApplied">,
+  continuation: DemoSearchCursor | null = null,
+): DemoSearchOptions {
+  return {
+    dateFrom: plan.dateFrom,
+    dateTo: plan.dateTo,
+    continuation,
+    version: 2,
+    match: lane.match ?? "text",
+    documentType: lane.typeNotApplied ? null : (plan.documentType ?? null),
+  };
+}
 
 function skipReason(
   sourceId: string,
@@ -163,11 +221,14 @@ export function buildPlan(
           ? sources.federal
           : [NO_FEDERAL_SOURCE];
     for (const sourceId of ids) {
-      const id = laneId(sourceId, search.query);
+      const id = laneId(sourceId, search.query, search.match);
       if (seen.has(id)) continue;
       seen.add(id);
       let skip = skipReason(sourceId, search.query, sources, dates);
       if (auto && !skip && ++requests > AUTO_REQUEST_BUDGET) skip = "budget";
+      const typeNotApplied =
+        Boolean(dates.documentType) &&
+        documentTypeFilter(sourceId, dates.documentType!) === null;
       lanes.push({
         id,
         group,
@@ -179,11 +240,100 @@ export function buildPlan(
         auto,
         ...(skip && { skip }),
         ...(search.group === "sponsor" && { name: true as const }),
+        ...(search.match && { match: search.match }),
+        ...(typeNotApplied && { typeNotApplied: true as const }),
       });
     }
   }
   return { seed, ...dates, lanes };
 }
+
+/**
+ * Find related: one automatic lane per exact identifier the record's own source
+ * stated, searched only in that source and in its spelling. Federal Register
+ * dockets, RINs and CFR parts go to the Federal Register; a Regulations.gov
+ * docket goes to Regulations.gov. Nothing is rewritten into another source's
+ * format, and no words are matched. Identifier lists past the request budget
+ * stay as buttons, marked "budget". Other sources state no identifiers here,
+ * so their plan has no lanes.
+ */
+export function recordPlan(
+  citation: DemoCitation,
+  sources: PlanSources,
+  dates: PlanDates = NO_DATES,
+): Plan {
+  const { sourceId } = citation;
+  const lane = (
+    match: LaneMatch,
+    query: string,
+    label: string,
+  ): PlanSearch => ({
+    group: "related",
+    source: sourceId,
+    query,
+    label,
+    terms: query,
+    auto: true,
+    match,
+  });
+  const searches: PlanSearch[] =
+    sourceId === "federal-register"
+      ? [
+          ...(citation.docketIds ?? []).map((id) =>
+            lane("docket", id, `Same docket: ${id} (Federal Register)`),
+          ),
+          ...(citation.rins ?? []).map((rin) =>
+            lane("rin", rin, `Same RIN: ${rin}`),
+          ),
+          ...(citation.cfrRefs ?? [])
+            .filter((ref) => parseCfrQuery(cfrQuery(ref)))
+            .map((ref) =>
+              lane("cfr", cfrQuery(ref), `Same CFR part: ${cfrQuery(ref)}`),
+            ),
+        ]
+      : sourceId === "regulations"
+        ? (citation.docketIds ?? []).map((id) =>
+            lane("docket", id, `Same docket: ${id} (Regulations.gov)`),
+          )
+        : [];
+  return buildPlan(
+    { kind: "record", sourceId, identifier: citation.identifier },
+    searches,
+    sources,
+    dates,
+  );
+}
+
+/** The listing's own source fields state the identifier a lookup searched for. */
+export function statesIdentifier(
+  citation: DemoCitation,
+  match: LaneMatch,
+  query: string,
+): boolean {
+  if (match === "docket") return citation.docketIds?.includes(query) ?? false;
+  if (match === "rin") return citation.rins?.includes(query) ?? false;
+  return citation.cfrRefs?.some((ref) => cfrQuery(ref) === query) ?? false;
+}
+
+/**
+ * What an identifier lookup keeps: only listings that state the identifier
+ * themselves. Other lanes keep everything (undefined).
+ */
+export function laneKeep(
+  lane: Pick<Lane, "match" | "query">,
+): ((citation: DemoCitation) => boolean) | undefined {
+  const { match, query } = lane;
+  return match
+    ? (citation) => statesIdentifier(citation, match, query)
+    : undefined;
+}
+
+/** A row is the record Find related started from, listed again by its own identifiers. */
+export const isSeedRecord = (seed: Seed, row: MergedResult): boolean =>
+  seed.kind === "record" &&
+  [row.citation, ...row.alternates].some(
+    (c) => c.sourceId === seed.sourceId && c.identifier === seed.identifier,
+  );
 
 /** A typed search is a one-group plan; `source` is "federal" or a state id. */
 export function typedPlan(
@@ -215,6 +365,8 @@ export interface LaneSearch {
   pageError?: string;
   /** Prior opaque tokens, to stop cycles without interpreting provider syntax. */
   cursors: readonly string[];
+  /** Listings the source returned that an identifier lookup left out (safeguard 8). */
+  leftOut?: number;
 }
 
 export function startLane(lane: Lane): LaneSearch {
@@ -237,16 +389,19 @@ export function startPlan(plan: Plan): LaneSearch[] {
 export function settleLane(
   search: LaneSearch,
   response: DemoSearchResponse,
+  keep?: (citation: DemoCitation) => boolean,
 ): LaneSearch {
   const seen = new Set<string>();
-  const listings = response.results.filter(
+  const distinct = response.results.filter(
     (item) => !seen.has(keyOf(item)) && seen.add(keyOf(item)),
   );
+  const listings = keep ? distinct.filter(keep) : distinct;
   return {
     ...search,
     state: listings.length ? "results" : "empty",
     listings,
     response,
+    ...(keep && { leftOut: distinct.length - listings.length }),
   };
 }
 
@@ -271,11 +426,13 @@ export function appendPage(
   search: LaneSearch,
   response: DemoSearchResponse,
   sent: DemoSearchCursor,
+  keep?: (citation: DemoCitation) => boolean,
 ): { readonly search: LaneSearch; readonly added: DemoCitation[] } {
   const seen = new Set(search.listings.map(keyOf));
-  const added = response.results.filter(
+  const distinct = response.results.filter(
     (item) => !seen.has(keyOf(item)) && seen.add(keyOf(item)),
   );
+  const added = keep ? distinct.filter(keep) : distinct;
   if (search.listings.length + added.length > listingCap(search.sourceId))
     throw new Error("The source exceeded the demo listing limit.");
   const cursors = [...search.cursors, ...(sent.cursor ? [sent.cursor] : [])];
@@ -297,6 +454,9 @@ export function appendPage(
       cursors,
       loadingMore: false,
       pageError: undefined,
+      ...(keep && {
+        leftOut: (search.leftOut ?? 0) + distinct.length - added.length,
+      }),
     },
   };
 }
@@ -324,6 +484,8 @@ export interface Reason {
   readonly collection?: string;
   /** Copied from the lane: a name search, worded apart (safeguard 1). */
   readonly name?: true;
+  /** Copied from the lane: the identifier kind matched exactly. */
+  readonly match?: LaneMatch;
 }
 
 export interface DiscoveryRow extends MergedResult {
@@ -338,6 +500,8 @@ export interface DiscoveryRow extends MergedResult {
  * takes an opinion or bill that a court or bill lane also listed.
  */
 const SPECIFICITY: readonly LaneGroup[] = [
+  // An exact identifier match is narrower than any words searched.
+  "related",
   "case",
   "bill",
   "legislation",
@@ -365,6 +529,8 @@ export function mergeLanes(
     if (index === undefined) throw new Error(`Lane not in plan: ${laneId}`);
     return index;
   };
+  // Identifier lookups already hold only listings that state the identifier
+  // (laneKeep, applied as each answer settles), so counts match the rows.
   const ordered = [...searches].sort(
     (a, b) => position(a.laneId) - position(b.laneId),
   );
@@ -384,6 +550,7 @@ export function mergeLanes(
       terms: lane.terms,
       ...(lane.collection && { collection: lane.collection }),
       ...(lane.name && { name: true as const }),
+      ...(lane.match && { match: lane.match }),
     };
     for (const citation of search.listings) {
       const reasons = shownBy.get(keyOf(citation)) ?? [];
@@ -440,16 +607,26 @@ export function groupDiscovery(
     .filter((view) => view.lanes.length > 0);
 }
 
-/** The only criteria a cached response may be found by. */
-export function laneSignature(
-  lane: Pick<Lane, "sourceId" | "query">,
-  dates: PlanDates,
-): string {
+/** The lane fields a cached answer depends on. */
+export type LaneKey = Pick<
+  Lane,
+  "sourceId" | "query" | "match" | "typeNotApplied"
+>;
+
+/**
+ * The only criteria a cached response may be found by: what the lane is sent
+ * with, so answers never cross identifier kinds or type filters. Pass the plan
+ * as `dates`, so its type filter is included.
+ */
+export function laneSignature(lane: LaneKey, dates: PlanDates): string {
+  const sent = laneOptions(dates, lane);
   return JSON.stringify([
     lane.sourceId,
     lane.query,
-    dates.dateFrom,
-    dates.dateTo,
+    sent.dateFrom,
+    sent.dateTo,
+    sent.match,
+    sent.documentType,
   ]);
 }
 
@@ -465,9 +642,10 @@ export type LaneOutcome =
 export function replayLane(
   search: LaneSearch,
   outcome: LaneOutcome,
+  keep?: (citation: DemoCitation) => boolean,
 ): LaneSearch {
   return outcome.ok
-    ? settleLane(search, outcome)
+    ? settleLane(search, outcome, keep)
     : failLane(search, outcome.missing, true);
 }
 
@@ -487,10 +665,7 @@ export class LaneCache {
     return this.entries.size;
   }
 
-  get(
-    lane: Pick<Lane, "sourceId" | "query">,
-    dates: PlanDates,
-  ): LaneOutcome | undefined {
+  get(lane: LaneKey, dates: PlanDates): LaneOutcome | undefined {
     const key = laneSignature(lane, dates);
     const hit = this.entries.get(key);
     if (!hit) return undefined;
@@ -503,11 +678,7 @@ export class LaneCache {
     return hit.outcome;
   }
 
-  set(
-    lane: Pick<Lane, "sourceId" | "query">,
-    dates: PlanDates,
-    outcome: LaneOutcome,
-  ): void {
+  set(lane: LaneKey, dates: PlanDates, outcome: LaneOutcome): void {
     if (outcome.ok && outcome.page !== 1) return;
     const key = laneSignature(lane, dates);
     this.entries.delete(key);
