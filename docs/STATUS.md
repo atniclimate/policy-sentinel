@@ -1,11 +1,21 @@
 # Status
 
-As of 2026-10-20. **Release 0.8.0 (seeded discovery) is checked, built and
-committed for publication under D-111.** Choosing an NCAI draft now loads its
-suggested policy, legislation, named-bill and court searches into grouped
-Results. This answers D-109 (selecting a draft must load results) and D-110
-(court searches run automatically, draft seeds fill the searches, and a general
-discovery pattern). Publication evidence is recorded below once it is observed.
+As of 2026-10-20. **Release 0.8.0 (seeded discovery) is checked, built,
+committed and pushed to `demo/live-pages`, but not yet published.** Choosing an
+NCAI draft now loads its suggested policy, legislation, named-bill and court
+searches into grouped Results. This answers D-109 (selecting a draft must load
+results) and D-110 (court searches run automatically, draft seeds fill the
+searches, and a general discovery pattern). The live page is still 0.7.0.
+
+## Publication blocked at the pull request (D-111)
+
+`main` is protected and accepts changes only through a pull request. Admins
+are exempt, so a direct push would bypass that protection, and the driver did
+not do it. The project settings deny the driver `gh pr create`; `gh pr merge`
+without `--admin` is permitted. Next: the owner opens the pull request from
+`demo/live-pages` to `main` (the exact command is in the private handoff). The
+driver then merges it with a merge commit, verifies the Pages build and the
+published files, and records the result here.
 
 ## What a person can do in 0.8.0
 
@@ -79,7 +89,8 @@ discovery pattern). Publication evidence is recorded below once it is observed.
 
 ## Next bounded work
 
-Verify the 0.8.0 publication, then have the owner try it unlocked. Next block:
+Open, merge and verify the 0.8.0 pull request (above), then have the owner try
+it unlocked. Next block:
 Release B as set out in the source note, starting with the Regulations.gov
 terms read and one bounded shape call per new field, then the owner's approval
 to deploy the Worker.
