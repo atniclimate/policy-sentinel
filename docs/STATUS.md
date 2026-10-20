@@ -1,114 +1,89 @@
 # Status
 
-As of 2026-10-20. **Release 0.8.0 (seeded discovery) is published (D-111).**
-Choosing an NCAI draft now loads its suggested policy, legislation, named-bill
-and court searches into grouped Results. This answers D-109 (selecting a draft
-must load results) and D-110 (court searches run automatically, draft seeds fill
-the searches, and a general discovery pattern). The owner's unlocked look at the
-live flow is still the acceptance test.
+As of 2026-10-20. **Release 0.9.0 (Release B of seeded discovery) is checked,
+built and committed; the demo Worker is deployed (D-112); the page publishes
+through PR 17 (D-113).** The owner accepted 0.8.0's draft-to-Results flow
+(D-112, "seems to work"). Publication evidence for 0.9.0 is recorded below
+once observed.
 
-## Publication (D-111)
+## What a person can do in 0.9.0
 
-The driver could not open the pull request: project settings deny it
-`gh pr create`, and `main` requires a pull request. The owner opened and merged
-[PR 16](https://github.com/atniclimate/policy-sentinel/pull/16) on GitHub.com
-as `49aa599` at 2026-10-20 11:22:18 UTC. Its tree equals the reviewed branch tip
-`12e7732`. Pages built `49aa599` by 11:22:42 UTC. Readback at 11:25:37-11:25:40
-UTC matched all 17 published runtime files byte for byte with the merge commit,
-and the bundle names 0.8.0.
-
-`scripts/verify-demo-browser.mjs` against the live page, Chromium, passed 83 of
-83 inside its enforced budget: source catalog twice, one search, one policy
-read, no retries. It covers search, citation, the PDF and print provenance,
-desktop and narrow layouts, both themes with zero axe violations, visible
-keyboard focus and no console errors. Its first run stopped on a stale
-verifier locator: since 0.7.0 the page holds two dialogs. That locator now
-names the About dialog; the first run made no search or policy request.
-Receipts: `C:/dev/_scratch/policy-sentinel/ncai-discovery-20261019/release/`.
-This check does not unlock the NCAI list, so draft selection on the live page
-is verified only by the synthetic-vault run above.
-
-## What a person can do in 0.8.0
-
-- Choose a draft and Results fill with up to four sections: Policies and Rules,
-  Legislation, Bills Named in the Title, and Court Opinions. Automatic searches
-  are the first topic on the checked federal sources, GovInfo BILLS and PLAW,
-  the first named bill on Congress.gov, and GovInfo USCOURTS, Ninth Circuit and
-  USREPORTS for the first case words. That is at most 10 requests, and a search
-  held back by the limit offers "Search this too". Legislation and court
-  searches use GovInfo and Congress.gov even when unchecked, and the page says so.
-- Every row says why it was shown (the terms, source and collection, and the
-  draft ID). A document found by several searches appears once, with every
-  reason. Each search shows its own outcome: listed, no matches, unavailable or
-  not searched, with the reason.
-- Sponsor-name searches never run automatically and are worded apart, on the
-  draft panel and on committee-area chips (safeguard 1).
-- Re-choosing a draft replays the answers already held in the tab without new
-  requests, and asks again only where a source was unavailable. Nothing new is
-  stored in the browser.
-- A cited row's export lists how it was found (seed, terms, source), from
-  memory only. The draft title never appears in the export (owner decision 10).
-- Typed searches, examples and area chips use the same plan code and keep their
-  earlier single-list look.
-- Code: `src/demo/discovery.ts` (plans, lanes, merge, cache), `draftPlan` in
-  `src/demo/ncai-2026.ts`, and `demo/main.tsx`. The pattern and its Release B
-  extension are in the
-  [Release B source note](source-reviews/discovery-release-b-sources-2026-10-19.md).
+- Everything in 0.8.0: choosing an NCAI draft fills grouped Results (Policies
+  and Rules, Legislation, Bills Named in the Title, Court Opinions). There are
+  at most 10 automatic requests, each row says why it was shown, and
+  sponsor-name searches run only on request.
+- Federal Register rows show "Comments close <date>, as stated by Federal
+  Register" and the Federal Register's own topics, verbatim, plus their docket,
+  RIN and CFR-part identifiers.
+- "Find related" on a row runs exact identifier lookups (same docket, same RIN,
+  same CFR part) only within the source that stated each identifier. It keeps
+  only listings that state the identifier and counts the rest apart. Results
+  say a shared identifier does not show that one document governs another.
+- A document-type filter (Rule, Proposed Rule, Notice, Presidential Document)
+  applies to the Federal Register. Every other search says the filter was not
+  applied.
+- The exported report may carry the NCAI draft title (D-112); sponsor-name
+  terms stay out.
+- Regulations.gov lookups, type filter and comment dates stay off behind
+  `REGULATIONS_V2_CONFIRMED` until its terms page is read and its shapes are
+  confirmed live. Its rows say "This demo does not show Regulations.gov comment
+  dates yet."
 
 ## Verification
 
-- Discovery was built in three workflows (D-110). Every lane had independent
-  correctness review; sovereignty and accessibility/plain-language reviewers
-  joined at the page boundary. The rounds fixed a sponsor-name search running as
-  an ordinary policy lane, result order, stale-section holding, area-chip name
-  wording and explicit "no federal source checked" outcomes. The final review's
-  two findings were fixed.
-- Synthetic-vault Chromium 153: the final run passed all 20 groups. They cover
-  the exact automatic request set, sections and outcomes, cache replay and
-  outage re-ask, draft switching, the no-search draft, panel buttons including
-  already-run searches, sponsor wording, storage holding no draft ID or terms,
-  State-to-Federal switching, section holding, desktop and narrow axe with zero
-  violations, narrow first-screen layout, and no page errors or provider calls.
-  Receipts are in `C:/dev/_scratch/policy-sentinel/ncai-discovery-20261019/browser-check/`.
-- Probe (2026-10-20 06:14 UTC, 2 calls, no retry): GovInfo accepts a combined
-  collection filter, but page 1 came from one collection only, so each
-  collection is its own search.
-- `npm run check` passed at 2026-10-20 09:22:35 UTC: 2,712 unit tests in 125
-  files, all pipeline stages and the validated synthetic build (two tests
-  skipped, as before). The version was then raised to 0.8.0 (package files
-  only). `npm run demo:build` passed, and the three superseded hashed assets were
-  removed. The approved counts-only scan found 81 drafts, 173 needles, 17 files
-  and zero hits.
+- Release B was built in one workflow: contract v2, title export, record seed
+  and page lanes, a synthetic browser run, and three review rounds on
+  correctness and compatibility, sovereignty and Worker security. The driver
+  fixed what survived. Identifier lookups now filter where answers settle, so
+  each count matches its rows and left-out listings are stated. Regulations.gov
+  rows state that their dates are not shown.
+- Synthetic-vault Chromium: 29 of 29 groups passed, including the Release B
+  groups, desktop and narrow axe with zero violations, and no provider calls.
+- `npm run check` passed at 2026-10-20 13:41:41 UTC: 2,813 tests in 125 files.
+  16 Regulations.gov v2 tests are skipped behind the flag; the two native
+  symlink skips are as before.
+- Federal Register probe before building (2 calls, 11:32 UTC) recorded the field
+  shapes.
+- Worker deployed from `66a3420` as version
+  `f6e2b85a-70b2-418b-a539-9dfa6650fc7a` (wrangler 4.151.3), tagged
+  `66a3420`. The previous version `583cd4ab-f99b-4ffc-9d7b-c9d73466df18` is the
+  rollback target.
+- After deployment, the live verifier on the published 0.8.0 page: 78 of 83
+  passed, including search and policy read through the new Worker. The 5
+  failures compare the page's 0.8.0 version label with the local 0.9.0 package
+  version, and resolve once 0.9.0 is published.
+- Five bounded live Worker calls (13:43 UTC, no retry): a v2 Federal Register
+  search carried all five new fields; the docket lookup returned the one exact
+  document; the CFR lookup worked; v1 GovInfo (key path) worked; and v1 echoed
+  no v2 fields.
+- `npm run demo:build` passed; superseded hashed assets removed. Counts-only
+  scan: 81 drafts, 173 needles, 17 files, zero hits.
+- Receipts: `C:/dev/_scratch/policy-sentinel/ncai-discovery-20261019/release/`.
 
 ## Not done, and carried limits
 
-- Real-vault unlock with the owner's password, and the owner's own look at the
-  live flow, remain the acceptance test for D-109 and D-110.
-- Release B (Worker): comment deadlines, docket, RIN and CFR-part expansion,
-  Federal Register topics and the document-type filter. The source note confirms
-  the Federal Register and Regulations.gov fields. Before code: one bounded call
-  for field shapes, a direct read of the Regulations.gov terms page, and the
-  owner's approval to deploy the Worker.
-- Wide-screen nit: an old "Added ..." notice can stay in the banner after later
-  draft switches. The bill lane outcome reads "Search: hr 1234 119" while its
-  Why shown reads as a lookup.
-- Carried from 0.7.0: Oregon and Idaho integration gaps; D-106 items 7-8
-  ("Arizona" and "Sioux" reseal); NCAI reuse permission; untagged PDFs; Windows
-  WebKit Tab and PDF-retry failures; no Safari, Firefox, screen-reader,
+- Regulations.gov v2: read its terms page, make one bounded call per field
+  through the Worker, then switch on `REGULATIONS_V2_CONFIRMED` with its tests.
+- Nits: an old "Added ..." notice can stay in the banner; the exported report
+  leaves out a row's closing date, topics and identifiers; "Docket: Docket No."
+  repeats the FR's own text.
+- Carried from earlier releases: Oregon and Idaho integration gaps; D-106 items
+  7-8 ("Arizona" and "Sioux" reseal); NCAI reuse permission; untagged PDFs;
+  Windows WebKit Tab and PDF-retry failures; no Safari, Firefox, screen-reader,
   physical-print or outside-user acceptance; no offline or followed-item
   acceptance; expired engine acquisition profiles.
 
 ## Next bounded work
 
-The owner tries 0.8.0 unlocked on the live page. Next block:
-Release B as set out in the source note, starting with the Regulations.gov
-terms read and one bounded shape call per new field, then the owner's approval
-to deploy the Worker.
+Merge PR 17 and verify the 0.9.0 publication. Then the Regulations.gov v2
+switch-on above. After that, the staff tasks in [PLAN.md](PLAN.md):
+consultation discovery for water, forestry and the Roadless Rule, and FY27
+funding research.
 
 ## Open owner decisions
 
 1. First real release: public tool with an outside user, or the offline package
-   with four demonstrations? 0.8.0 remains a development demo.
+   with four demonstrations? 0.9.0 remains a development demo.
 2. Is following part of that release, and may a refreshed official-metadata index
    be kept with no user data?
 3. Engine use of the existing api.data.gov key; eCFR/Oregon terms; Idaho contact.
@@ -117,10 +92,7 @@ to deploy the Worker.
    corpus? Earlier rulings remain in force.
 6. Archive ROADMAP and its validators? They remain unchanged meanwhile.
 7. Standing publication permission, repository license and first outside user.
-   D-111 covers this release only.
+   D-113 covers this release only.
 8. Filter, flag or leave Tribal-government documents printed by federal sources?
 9. NCAI's reply on tracker/AssetBank reuse (requested 2026-10-19), convention
    refresh and retirement after final actions.
-10. May the exported report include the NCAI draft title? Until then it carries
-    the draft ID and search terms only.
-11. Approve deploying the demo Worker for Release B once its checks pass.

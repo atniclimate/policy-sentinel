@@ -371,7 +371,9 @@ WA, OR, ID, AK, CA, MT and NV. State results and schedules are external research
 links, not integrated coverage; see the [source review](docs/source-reviews/ncai-context-research-2026-10-19.md).
 Since 0.8.0, choosing a draft runs its suggested policy, legislation, named-bill
 and court searches and groups them in Results. Each row says why it was shown,
-and sponsor-name searches run only on request. See
+and sponsor-name searches run only on request. Since 0.9.0, Federal Register
+rows show source-stated comment closing dates and topics, and "Find related"
+looks up the same docket, RIN or CFR part. See
 [current status](docs/STATUS.md).
 
 ```powershell

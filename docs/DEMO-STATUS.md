@@ -25,6 +25,17 @@ Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
 
+## Release B, release 0.9.0, 2026-10-20 (D-112, D-113)
+
+The Worker speaks search contract v2 (deployed as `f6e2b85a`, source
+`66a3420`); v1 requests from older pages are unchanged. Federal Register rows
+show source-stated comment closing dates, topics and docket, RIN and CFR
+identifiers. "Find related" looks up those exact identifiers within the
+Federal Register only. A document-type filter applies to the Federal Register;
+other searches say it was not applied. The export may carry the NCAI draft
+title. Regulations.gov v2 features stay off until its terms page and live
+shapes are confirmed. Checks are in [current status](STATUS.md).
+
 ## Seeded discovery, release 0.8.0, 2026-10-20 (D-109, D-110, D-111)
 
 Choosing an NCAI draft runs its planned searches and fills grouped Results:
