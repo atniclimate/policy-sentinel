@@ -10,6 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiFailure, loadSources, readPolicy, search } from "../../demo/api";
 import { App } from "../../demo/main";
 import { loadPdfFonts, loadPdfSeal } from "../../demo/pdf-fonts";
+import { COPY } from "../../src/demo/copy";
 import { buildPdf } from "../../src/demo/pdf";
 import { emptyActors, STORAGE_KEY } from "../../src/demo/report-state";
 import { keyOf } from "../../src/demo/validation";
@@ -513,14 +514,20 @@ describe("demo search scope and sources", () => {
     expect(
       ui.getByRole("heading", { name: "Docket Copy" }),
     ).toBeInTheDocument();
-    const announcement = ui.getByText("2 policies listed.").closest(".live");
+    // The count also says a source was unavailable, so it is not taken as complete.
+    const announcement = ui
+      .getByText(
+        "2 policies listed. At least one selected source was unavailable; its reason is shown with it.",
+      )
+      .closest(".live");
     expect(announcement).toHaveAttribute("role", "status");
     const status = announcement?.closest(".pane-results");
     expect(status).toHaveTextContent("GovInfoUnavailable");
     expect(status).toHaveTextContent("Synthetic outage.");
     expect(status).not.toHaveTextContent("Nothing returned");
+    // One listing is singular.
     expect(status).toHaveTextContent(
-      "Federal Register1 listings loaded; 1 reported by source",
+      "Federal Register1 listing loaded; 1 reported by source",
     );
   });
 
@@ -718,6 +725,87 @@ describe("demo search scope and sources", () => {
       ),
     ).toBeInTheDocument();
     expect(ui.getByText("1 policy listed.")).toBeInTheDocument();
+  });
+
+  it("lists a search's rows only once every source answered, interleaved by rank whatever order they came in", async () => {
+    const answers = {
+      "federal-register": deferred<DemoSearchResponse>(),
+      govinfo: deferred<DemoSearchResponse>(),
+      regulations: deferred<DemoSearchResponse>(),
+    };
+    vi.mocked(search).mockImplementation(
+      (source) => answers[source as keyof typeof answers].promise,
+    );
+    const own = (sourceId: "govinfo" | "regulations", id: string) => ({
+      ...citation(id, id.toUpperCase()),
+      sourceId,
+      identifier: `${sourceId}-${id}`,
+    });
+    const { ui, container } = await start();
+    fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
+    fireEvent.click(ui.getByRole("checkbox", { name: /Regulations\.gov/ }));
+    fireEvent.input(ui.getByRole("searchbox"), { target: { value: "water" } });
+    fireEvent.click(ui.getByRole("button", { name: "Search" }));
+    const titles = () =>
+      [...container.querySelectorAll(".pane-results .result h3")].map(
+        (heading) => heading.textContent,
+      );
+    await act(async () =>
+      answers.regulations.resolve(
+        searchResult(
+          [own("regulations", "r0"), own("regulations", "r1")],
+          "water",
+          "regulations",
+        ),
+      ),
+    );
+    await act(async () =>
+      answers.govinfo.resolve(
+        searchResult(
+          ["g0", "g1", "g2"].map((id) => own("govinfo", id)),
+          "water",
+          "govinfo",
+        ),
+      ),
+    );
+    // Nothing is listed while a source still searches, and every source reads as searching.
+    expect(titles()).toEqual([]);
+    expect(container.querySelector(".pane-results")).toHaveTextContent(
+      "GovInfoSearching",
+    );
+    await act(async () =>
+      answers["federal-register"].resolve(
+        searchResult([citation("f0", "F0")], "water"),
+      ),
+    );
+    await waitFor(() =>
+      expect(titles()).toEqual(["F0", "G0", "R0", "G1", "R1", "G2"]),
+    );
+  });
+
+  it("never offers a lower-precedence listing to cite before the higher-precedence source answers", async () => {
+    const register = deferred<DemoSearchResponse>();
+    vi.mocked(search).mockImplementation(async (source, query) =>
+      source === "federal-register"
+        ? register.promise
+        : searchResult([listing("govinfo")], query, source),
+    );
+    const { ui } = await start();
+    fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
+    fireEvent.input(ui.getByRole("searchbox"), { target: { value: "water" } });
+    fireEvent.click(ui.getByRole("button", { name: "Search" }));
+    await waitFor(() => expect(search).toHaveBeenCalledTimes(2));
+    await act(async () => {});
+    // GovInfo answered, but its copy of the document is not offered alone.
+    expect(
+      ui.queryAllByRole("button", { name: /Add to my citations/ }),
+    ).toHaveLength(0);
+    await act(async () => register.resolve(searchResult([merged])));
+    const row = (
+      await ui.findByRole("button", { name: /^Add to my citations/ })
+    ).closest("li") as HTMLElement;
+    expect(row.querySelector(".row-k")).toHaveTextContent("Federal Register");
+    expect(row).toHaveTextContent("Also listed byGovInfo");
   });
 
   it("skips Congress.gov for terms that are not a bill reference, with a note", async () => {
@@ -1403,6 +1491,25 @@ describe("demo frame: panes, dialog and theme", () => {
     });
     fireEvent.click(gate.getByRole("button", { name: "Open" }));
     fireEvent.click(await ui.findByRole("button", { name: /PSC-26-001/ }));
+    // Choosing the draft runs its automatic searches, the public-law one among them.
+    await waitFor(() =>
+      expect(search).toHaveBeenCalledWith(
+        "federal-register",
+        "water quality",
+        1,
+        expect.any(AbortSignal),
+        expect.any(Object),
+      ),
+    );
+    expect(search).toHaveBeenCalledWith(
+      "govinfo",
+      "collection:PLAW AND lawtype:public AND (water quality)",
+      1,
+      expect.any(AbortSignal),
+      expect.any(Object),
+    );
+    await ui.findAllByRole("button", { name: /Add to my citations/ });
+    vi.mocked(search).mockClear();
     const state = ui.getByRole("combobox", { name: "State to research" });
     expect(state).toHaveValue("");
     expect(ui.getByLabelText("Policy context terms to copy")).toHaveValue(
@@ -1426,18 +1533,11 @@ describe("demo frame: panes, dialog and theme", () => {
       ui.queryByRole("link", { name: "Washington: Appellate opinion search" }),
     ).toBeNull();
     expect(search).not.toHaveBeenCalled();
+    // That search already answered inside the draft's plan, so its button sends nothing new.
     fireEvent.click(
       ui.getByRole("button", { name: "Federal public laws: water quality" }),
     );
-    await waitFor(() =>
-      expect(search).toHaveBeenCalledWith(
-        "govinfo",
-        "collection:PLAW AND lawtype:public AND (water quality)",
-        1,
-        expect.any(AbortSignal),
-        expect.any(Object),
-      ),
-    );
+    expect(search).not.toHaveBeenCalled();
   });
 
   it.each(["", "   "])(
@@ -1515,6 +1615,9 @@ describe("demo frame: panes, dialog and theme", () => {
     });
     fireEvent.click(gate.getByRole("button", { name: "Open" }));
     fireEvent.click(await ui.findByRole("button", { name: /PSC-26-001/ }));
+    // The draft's own suggested search runs on choosing it; the off chips below must add none.
+    await waitFor(() => expect(search).toHaveBeenCalledOnce());
+    vi.mocked(search).mockClear();
     fireEvent.click(ui.getByRole("checkbox", { name: /Federal Register/ }));
     fireEvent.change(ui.getByLabelText("Policy area (NCAI committee)"), {
       target: { value: "0" },
@@ -1542,7 +1645,49 @@ describe("demo frame: panes, dialog and theme", () => {
       }
     }
     expect(search).not.toHaveBeenCalled();
+    // A draft runs several searches; none is copied into the typed search box.
     expect(ui.getByRole("searchbox")).toHaveValue("");
+  });
+
+  it("loads a chosen draft's search into Results, labeled, and clears it for a draft with none", async () => {
+    vi.mocked(openNcaiDrafts).mockResolvedValue(NCAI_DRAFTS);
+    const { ui, container } = await start();
+    fireEvent.click(ui.getByRole("button", { name: "NCAI" }));
+    const gate = within(container.querySelector(".gate") as HTMLElement);
+    fireEvent.input(gate.getByLabelText("Access password"), {
+      target: { value: "synthetic" },
+    });
+    fireEvent.click(gate.getByRole("button", { name: "Open" }));
+    fireEvent.click(await ui.findByRole("button", { name: /PSC-26-001/ }));
+    const results = container.querySelector(".pane-results") as HTMLElement;
+    await waitFor(() =>
+      expect(results).toHaveTextContent(
+        "Suggested searches for NCAI draft PSC-26-001 Example draft on water",
+      ),
+    );
+    // Several searches ran, so no single one is named the submitted search.
+    expect(results).not.toHaveTextContent("Submitted search");
+    expect(results).toHaveTextContent("A result is a text match");
+    // The caveat stays in view; the longer explanation is one press away.
+    const about = within(results)
+      .getByText("About these searches")
+      .closest("details") as HTMLDetailsElement;
+    expect(about.open).toBe(false);
+    expect(about).toHaveTextContent("Name searches never run on their own.");
+    expect(about).not.toHaveTextContent("A result is a text match");
+    await within(results).findAllByRole("button", {
+      name: /Add to my citations/,
+    });
+    // A draft with no suggested search must not keep the previous draft's results.
+    vi.mocked(search).mockClear();
+    (container.querySelector(".ncai-menu") as HTMLDetailsElement).open = true;
+    fireEvent.click(ui.getByRole("button", { name: /PSC-26-002/ }));
+    expect(search).not.toHaveBeenCalled();
+    expect(results).not.toHaveTextContent("PSC-26-001");
+    expect(
+      within(results).queryByRole("button", { name: /Add to my citations/ }),
+    ).toBeNull();
+    expect(results).toHaveTextContent("This draft has no suggested search.");
   });
 
   it("closes the NCAI menu when focus or a click lands outside, and refocuses a re-picked draft", async () => {
@@ -2092,5 +2237,853 @@ describe("demo dates and explicit continuation", () => {
     expect(
       ui.getByRole("button", { name: "Load more GovInfo" }),
     ).toHaveAttribute("aria-disabled", "true");
+  });
+});
+
+describe("demo seeded discovery from NCAI drafts", () => {
+  /** Unlocks the synthetic draft list and waits for its menu. */
+  async function openNcai(
+    ui: ReturnType<typeof within>,
+    container: Element,
+    drafts: readonly NcaiDraft[] = NCAI_DRAFTS,
+  ) {
+    vi.mocked(openNcaiDrafts).mockResolvedValue(drafts);
+    fireEvent.click(ui.getByRole("button", { name: "NCAI" }));
+    const gate = within(container.querySelector(".gate") as HTMLElement);
+    fireEvent.input(gate.getByLabelText("Access password"), {
+      target: { value: "synthetic" },
+    });
+    fireEvent.click(gate.getByRole("button", { name: "Open" }));
+    await ui.findByRole("button", { name: new RegExp(drafts[0].id) });
+  }
+
+  function chooseDraft(
+    ui: ReturnType<typeof within>,
+    container: Element,
+    id: string,
+  ) {
+    (container.querySelector(".ncai-menu") as HTMLDetailsElement).open = true;
+    fireEvent.click(ui.getByRole("button", { name: new RegExp(id) }));
+  }
+
+  /** Source and query of every search sent, in order. */
+  const sent = () =>
+    vi.mocked(search).mock.calls.map(([source, query]) => [source, query]);
+
+  it("sends exactly a draft's automatic searches and never its name search", async () => {
+    const draft: NcaiDraft = {
+      id: "PSC-26-010",
+      title: "Example draft on salmon",
+      sponsor: "Example Tribe",
+      status: "In order",
+      topics: ["salmon habitat", "fish passage"],
+      bills: ["hr 1234"],
+      cases: ["treaty fishing"],
+      names: ["Example Tribe"],
+    };
+    const { ui, container } = await start();
+    await openNcai(ui, container, [draft]);
+    chooseDraft(ui, container, draft.id);
+    await ui.findAllByRole("button", { name: /Add to my citations/ });
+    // Only the Federal Register is checked; GovInfo and Congress.gov are asked as well.
+    expect(sent()).toEqual([
+      ["federal-register", "salmon habitat"],
+      ["govinfo", "collection:BILLS AND (salmon habitat)"],
+      ["govinfo", "collection:PLAW AND lawtype:public AND (salmon habitat)"],
+      ["congress", "hr 1234 119"],
+      ["govinfo", "collection:USCOURTS AND (treaty fishing)"],
+      ["govinfo", "collection:USCOURTS AND circuit:9 AND (treaty fishing)"],
+      ["govinfo", "collection:USREPORTS AND (treaty fishing)"],
+    ]);
+    expect(sent().flat().join(" ")).not.toContain("Example Tribe");
+    // Results names every source asked.
+    const results = container.querySelector(".pane-results") as HTMLElement;
+    expect(results).toHaveTextContent(
+      "GovInfo, Supreme Court opinions in the United States Reports",
+    );
+    expect(results).toHaveTextContent("Congress.gov");
+    expect(results).toHaveTextContent("use GovInfo");
+  });
+
+  it("treats a search holding the sponsor's name as a name search", async () => {
+    const draft: NcaiDraft = {
+      id: "PSC-26-011",
+      title: "Example draft on a case",
+      sponsor: "Example Tribe",
+      status: "In order",
+      topics: ["salmon habitat"],
+      cases: ["Example Tribe v. United States"],
+      names: ["Example Tribe"],
+    };
+    const { ui, container } = await start();
+    await openNcai(ui, container, [draft]);
+    chooseDraft(ui, container, draft.id);
+    await ui.findAllByRole("button", { name: /Add to my citations/ });
+    // The case caption names the sponsor, so it waits for its button.
+    expect(sent().flat().join(" ")).not.toContain("Example Tribe");
+    vi.mocked(search).mockClear();
+    fireEvent.click(
+      ui.getByRole("button", {
+        name: "Federal court opinions: Example Tribe v. United States",
+      }),
+    );
+    const results = container.querySelector(".pane-results") as HTMLElement;
+    await waitFor(() =>
+      expect(results).toHaveTextContent(
+        "name search for Example Tribe v. United States in GovInfo, Federal court opinions",
+      ),
+    );
+    expect(sent()).toEqual([
+      ["govinfo", "collection:USCOURTS AND (Example Tribe v. United States)"],
+    ]);
+    expect(results).toHaveTextContent(
+      "Name search: Example Tribe v. United States. A name match does not show that a document concerns that Tribe or organization.",
+    );
+    fireEvent.click(ui.getByRole("button", { name: /^Add to my citations/ }));
+    await ui.findByText(/Citation and text saved/);
+    const print = container.querySelector(".print-only") as HTMLElement;
+    expect(print).toHaveTextContent(
+      "Found by Name search for the sponsor listed on NCAI draft PSC-26-011 (GovInfo, Federal court opinions)",
+    );
+    expect(print).not.toHaveTextContent("Example Tribe");
+  });
+
+  it("shows each source's rows as it answers, while slower sources still search", async () => {
+    const slow = deferred<DemoSearchResponse>();
+    vi.mocked(search).mockImplementation(async (source, query) =>
+      source === "federal-register"
+        ? searchResult([citation()], query, source)
+        : slow.promise,
+    );
+    const { ui, container } = await start();
+    await openNcai(ui, container);
+    chooseDraft(ui, container, "PSC-26-001");
+    const results = container.querySelector(".pane-results") as HTMLElement;
+    await within(results).findByRole("heading", {
+      name: "Example Water Policy",
+    });
+    const status = within(results).getByRole("status");
+    expect(status).toHaveTextContent("Running the draft's suggested searches");
+    expect(results).toHaveTextContent("Federal court opinionsSearching");
+    await act(async () =>
+      slow.resolve(searchResult([], "water quality", "govinfo")),
+    );
+    await waitFor(() => expect(status).toHaveTextContent("1 document listed."));
+    expect(results).not.toHaveTextContent("Searching");
+  });
+
+  it("announces a search added to the open results by name, then its outcome", async () => {
+    const fish = deferred<DemoSearchResponse>();
+    const { ui, container } = await start();
+    await openNcai(ui, container, [
+      { ...NCAI_DRAFTS[0], topics: ["water quality", "fish passage"] },
+    ]);
+    chooseDraft(ui, container, "PSC-26-001");
+    await ui.findAllByRole("button", { name: /Add to my citations/ });
+    const status = within(
+      container.querySelector(".pane-results") as HTMLElement,
+    ).getByRole("status");
+    vi.mocked(search).mockReturnValue(fish.promise);
+    fireEvent.click(ui.getByRole("button", { name: "fish passage" }));
+    await waitFor(() =>
+      expect(status).toHaveTextContent(
+        "Searching Federal Register: fish passage.",
+      ),
+    );
+    await act(async () =>
+      fish.reject(new ApiFailure("Synthetic outage.", "source")),
+    );
+    await waitFor(() =>
+      expect(status).toHaveTextContent(
+        "Federal Register: fish passage could not be searched. Synthetic outage. 1 document listed. At least one source asked was unavailable; its reason is shown with it.",
+      ),
+    );
+  });
+
+  it("scrolls to the Results heading when a draft is chosen on a narrow layout", async () => {
+    // A pane already partly on screen is not scrolled by focus alone.
+    const shown: string[] = [];
+    Element.prototype.scrollIntoView = function (this: Element) {
+      shown.push(this.id);
+    };
+    try {
+      const { ui, container } = await start();
+      await openNcai(ui, container);
+      chooseDraft(ui, container, "PSC-26-001");
+      await ui.findAllByRole("button", { name: /Add to my citations/ });
+      expect(shown).toContain("results-h");
+    } finally {
+      delete (Element.prototype as Partial<Element>).scrollIntoView;
+    }
+  });
+
+  it("sends nothing new when the same draft is chosen again", async () => {
+    const { ui, container } = await start();
+    await openNcai(ui, container);
+    chooseDraft(ui, container, "PSC-26-001");
+    await ui.findAllByRole("button", { name: /Add to my citations/ });
+    expect(search).toHaveBeenCalledTimes(7);
+    vi.mocked(search).mockClear();
+    chooseDraft(ui, container, "PSC-26-001");
+    await ui.findAllByRole("button", { name: /Add to my citations/ });
+    expect(search).not.toHaveBeenCalled();
+    // Bills and opinions are listed too, so the count is of documents.
+    expect(ui.getByText("1 document listed.")).toBeInTheDocument();
+  });
+
+  it("asks the source again when the same typed search is repeated", async () => {
+    const { ui } = await start();
+    await showResult(ui);
+    await showResult(ui);
+    // Only re-choosing a draft is spared requests; a repeated search may find newer notices.
+    expect(sent()).toEqual([
+      ["federal-register", "water"],
+      ["federal-register", "water"],
+    ]);
+  });
+
+  it("says a draft also asks sources not checked, and never blames the reader for Congress.gov", async () => {
+    const water = deferred<DemoSearchResponse>();
+    vi.mocked(search).mockReturnValue(water.promise);
+    const { ui, container } = await start();
+    fireEvent.click(ui.getByRole("checkbox", { name: /Congress\.gov/ }));
+    await openNcai(ui, container);
+    chooseDraft(ui, container, "PSC-26-001");
+    const results = container.querySelector(".pane-results") as HTMLElement;
+    const status = within(results).getByRole("status");
+    expect(status).toHaveTextContent(
+      "Running the draft's suggested searches on each source named below, including sources not checked.",
+    );
+    expect(status).not.toHaveTextContent("selected");
+    // The topic is not sent to Congress.gov, and the reason asks nothing of the reader.
+    expect(sent()).not.toContainEqual(["congress", "water quality"]);
+    expect(results).not.toHaveTextContent("Congress.gov was skipped");
+    expect(results).toHaveTextContent(
+      "Congress.gov looks up one bill by reference, so it is not searched for a topic.",
+    );
+    await act(async () => water.resolve(searchResult()));
+    await waitFor(() => expect(status).toHaveTextContent("1 document listed."));
+    // Read before the first draft is chosen: the gate and About say where terms go.
+    expect(container.querySelector(".gate")).toHaveTextContent(
+      "Legislation and court searches go to GovInfo, and a bill named in the draft's title to Congress.gov, even when those sources are not checked.",
+    );
+    expect(
+      container.querySelector('[aria-labelledby="about-h"]'),
+    ).toHaveTextContent(
+      "Choosing an NCAI draft also sends its suggested legislation and court searches to GovInfo, and a bill named in its title to Congress.gov, whether or not those sources are selected.",
+    );
+  });
+
+  it("never names the committee area on a result or in the export", async () => {
+    const { ui, container } = await start();
+    await openNcai(ui, container);
+    fireEvent.change(ui.getByLabelText("Policy area (NCAI committee)"), {
+      target: { value: "0" },
+    });
+    fireEvent.click(ui.getByRole("button", { name: "water quality" }));
+    const add = await ui.findByRole("button", {
+      name: /^Add to my citations/,
+    });
+    const results = container.querySelector(".pane-results") as HTMLElement;
+    expect(results).toHaveTextContent(
+      "Why shown: matched the search water quality in Federal Register.",
+    );
+    expect(results).not.toHaveTextContent("Example Committee");
+    fireEvent.click(add);
+    await ui.findByText(/Citation and text saved/);
+    const print = container.querySelector(".print-only") as HTMLElement;
+    expect(print).toHaveTextContent(
+      "Found by Policy area menu search: water quality (Federal Register)",
+    );
+    expect(print).not.toHaveTextContent("Example Committee");
+  });
+
+  it("never shows a replaced draft's rows and drops its late answers", async () => {
+    const water = deferred<DemoSearchResponse>();
+    vi.mocked(search).mockImplementation(async (source, query) =>
+      query.includes("water quality")
+        ? water.promise
+        : searchResult(
+            [citation("2099-00002", "Forest result")],
+            query,
+            source,
+          ),
+    );
+    const drafts = [
+      { ...NCAI_DRAFTS[1], topics: ["forest health"] },
+      NCAI_DRAFTS[0],
+    ];
+    const { ui, container } = await start();
+    await openNcai(ui, container, drafts);
+    chooseDraft(ui, container, "PSC-26-002");
+    await ui.findByRole("heading", { name: "Forest result" });
+    vi.mocked(search).mockClear();
+    chooseDraft(ui, container, "PSC-26-001");
+    // The earlier draft's rows leave as soon as another draft is chosen.
+    expect(
+      ui.queryByRole("heading", { name: "Forest result" }),
+    ).not.toBeInTheDocument();
+    const waterSignal = vi.mocked(search).mock.calls[0][3];
+    // Back to the first draft while the second is still loading.
+    chooseDraft(ui, container, "PSC-26-002");
+    expect(waterSignal?.aborted).toBe(true);
+    await ui.findByRole("heading", { name: "Forest result" });
+    await act(async () =>
+      water.resolve(
+        searchResult(
+          [citation("2099-00003", "Stale water result")],
+          "water quality",
+        ),
+      ),
+    );
+    expect(
+      ui.queryByRole("heading", { name: "Stale water result" }),
+    ).not.toBeInTheDocument();
+    expect(container.querySelector(".pane-results")).toHaveTextContent(
+      "PSC-26-002",
+    );
+  });
+
+  it("shows a search held back by the request budget and sends it alone on request", async () => {
+    vi.mocked(loadSources).mockResolvedValue([
+      ...sources,
+      ...["A", "B"].map((letter) => ({
+        id: `example-${letter.toLowerCase()}`,
+        label: `Example Source ${letter}`,
+        level: "federal" as const,
+        status: "live" as const,
+        note: "Synthetic test source.",
+      })),
+    ]);
+    const { ui, container } = await start();
+    for (const name of [
+      /GovInfo/,
+      /Regulations\.gov/,
+      /Example Source A/,
+      /Example Source B/,
+    ])
+      fireEvent.click(ui.getByRole("checkbox", { name }));
+    await openNcai(ui, container);
+    chooseDraft(ui, container, "PSC-26-001");
+    await ui.findAllByRole("button", { name: /Add to my citations/ });
+    // Five policy searches, two legislation, one bill and two court searches.
+    expect(search).toHaveBeenCalledTimes(10);
+    const held = "collection:USREPORTS AND (water quality)";
+    expect(sent().map(([, query]) => query)).not.toContain(held);
+    expect(container.querySelector(".pane-results")).toHaveTextContent(
+      "choosing a draft sends at most 10 searches at once",
+    );
+    const button = ui.getByRole("button", {
+      name: "Search this too: GovInfo, Supreme Court opinions in the United States Reports: water quality",
+    });
+    expect(
+      ui.getAllByRole("button", { name: /^Search this too/ }),
+    ).toHaveLength(1);
+    vi.mocked(search).mockClear();
+    const lane = button.closest("li") as HTMLElement;
+    fireEvent.click(button);
+    await waitFor(() =>
+      expect(
+        ui.queryByRole("button", { name: /^Search this too/ }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(sent()).toEqual([["govinfo", held]]);
+    // Focus stays at the lane's place in the last section, not the top of Results.
+    expect(lane).toHaveFocus();
+    expect(lane).toHaveTextContent(
+      "GovInfo, Supreme Court opinions in the United States Reports",
+    );
+  });
+
+  it("groups a draft's results and gives every reason for a row two searches found", async () => {
+    const opinion = {
+      ...citation("2099-00005", "Example Opinion"),
+      sourceId: "govinfo",
+      identifier: "USCOURTS-example-0001",
+      officialUrl: "https://www.govinfo.gov/app/details/USCOURTS-example-0001",
+      textAvailable: false,
+    };
+    vi.mocked(search).mockImplementation(async (source, query) =>
+      searchResult(
+        source === "federal-register"
+          ? [citation()]
+          : query.startsWith("collection:USCOURTS")
+            ? [opinion]
+            : [],
+        query,
+        source,
+      ),
+    );
+    const { ui, container } = await start();
+    await openNcai(ui, container);
+    chooseDraft(ui, container, "PSC-26-001");
+    const results = within(
+      container.querySelector(".pane-results") as HTMLElement,
+    );
+    await results.findByRole("heading", { name: "Example Opinion" });
+    expect(
+      results
+        .getAllByRole("heading", { level: 3 })
+        .map((heading) => heading.textContent),
+    ).toEqual([
+      "Policies and Rules",
+      "Legislation",
+      "Bills Named in the Title",
+      "Court Opinions",
+    ]);
+    const section = (title: string) =>
+      results.getByRole("heading", { name: title, level: 3 })
+        .parentElement as HTMLElement;
+    // The opinion both court searches listed is one row, with both reasons.
+    expect(container.querySelectorAll(".pane-results .result")).toHaveLength(2);
+    const row = within(section("Court Opinions"))
+      .getByRole("heading", { name: "Example Opinion", level: 4 })
+      .closest("li") as HTMLElement;
+    expect(row).toHaveTextContent(
+      "Why shown: matched the search water quality in GovInfo, Federal court opinions; matched the search water quality in GovInfo, Federal opinions in the Ninth Circuit; searches suggested for NCAI draft PSC-26-001.",
+    );
+    expect(
+      within(section("Policies and Rules"))
+        .getByRole("heading", { name: "Example Water Policy", level: 4 })
+        .closest("li"),
+    ).toHaveTextContent(
+      "Why shown: matched the search water quality in Federal Register; search suggested for NCAI draft PSC-26-001.",
+    );
+    expect(
+      within(section("Policies and Rules")).getByRole("heading", {
+        name: "Example Water Policy",
+        level: 4,
+      }),
+    ).toBeInTheDocument();
+    expect(section("Legislation")).toHaveTextContent(
+      "GovInfo, Federal public laws",
+    );
+    expect(section("Bills Named in the Title")).not.toHaveTextContent(
+      "Why shown",
+    );
+  });
+
+  it("replays answered searches with no request when a draft is chosen again, and asks an unavailable one again", async () => {
+    vi.mocked(search).mockImplementation(async (source, query) => {
+      if (source === "congress")
+        throw new ApiFailure("No such bill.", "source", "not_found", 404);
+      if (source === "govinfo")
+        throw new ApiFailure("Synthetic outage.", "source");
+      return searchResult([citation()], query, source);
+    });
+    const { ui, container } = await start();
+    await openNcai(ui, container);
+    chooseDraft(ui, container, "PSC-26-001");
+    await ui.findAllByRole("button", { name: /Add to my citations/ });
+    const results = container.querySelector(".pane-results") as HTMLElement;
+    expect(results).toHaveTextContent("Congress.govNo matches");
+    expect(results).toHaveTextContent("Federal court opinionsUnavailable");
+    vi.mocked(search).mockClear();
+    chooseDraft(ui, container, "PSC-26-001");
+    await ui.findAllByRole("button", { name: /Add to my citations/ });
+    // The Federal Register answer and the missing bill are replayed from this
+    // tab's memory with no request; every unavailable search is asked again.
+    expect(sent()).not.toContainEqual(["federal-register", "water quality"]);
+    expect(sent()).not.toContainEqual(["congress", "hr 1234 119"]);
+    expect(sent()).toEqual([
+      ["govinfo", "collection:BILLS AND (water quality)"],
+      ["govinfo", "collection:PLAW AND lawtype:public AND (water quality)"],
+      ["govinfo", "collection:USCOURTS AND (water quality)"],
+      ["govinfo", "collection:USCOURTS AND circuit:9 AND (water quality)"],
+      ["govinfo", "collection:USREPORTS AND (water quality)"],
+    ]);
+    expect(results).toHaveTextContent("Congress.govNo matches");
+  });
+
+  it("adds a further topic from the draft's panel as one search, after the rows already shown", async () => {
+    vi.mocked(search).mockImplementation(async (source, query) =>
+      searchResult(
+        source !== "federal-register"
+          ? []
+          : [
+              query === "fish passage"
+                ? citation("2099-00004", "Fish passage notice")
+                : citation(),
+            ],
+        query,
+        source,
+      ),
+    );
+    const { ui, container } = await start();
+    await openNcai(ui, container, [
+      { ...NCAI_DRAFTS[0], topics: ["water quality", "fish passage"] },
+    ]);
+    chooseDraft(ui, container, "PSC-26-001");
+    await ui.findByRole("heading", { name: "Example Water Policy" });
+    vi.mocked(search).mockClear();
+    fireEvent.click(ui.getByRole("button", { name: "fish passage" }));
+    await ui.findByRole("heading", { name: "Fish passage notice" });
+    expect(sent()).toEqual([["federal-register", "fish passage"]]);
+    expect(
+      [...container.querySelectorAll(".pane-results .result h4")].map(
+        (heading) => heading.textContent,
+      ),
+    ).toEqual(["Example Water Policy", "Fish passage notice"]);
+  });
+
+  it("records how a cited row was found, by draft ID and terms only", async () => {
+    const { ui, container } = await start();
+    await openNcai(ui, container);
+    chooseDraft(ui, container, "PSC-26-001");
+    fireEvent.click(
+      await ui.findByRole("button", { name: /^Add to my citations/ }),
+    );
+    await ui.findByText(/Citation and text saved/);
+    // The bill search is an exact lookup, so it is not called a text match.
+    const results = container.querySelector(".pane-results") as HTMLElement;
+    expect(results).toHaveTextContent(
+      "looked up hr 1234 in the 119th Congress on Congress.gov",
+    );
+    expect(results).not.toHaveTextContent("matched the search hr 1234");
+    expect(
+      [101, 102, 103, 111, 112, 113, 122].map(
+        (n) => COPY.whyLookedUp("hr 1", n, "Congress.gov").split(" ")[6],
+      ),
+    ).toEqual(["101st", "102nd", "103rd", "111th", "112th", "113th", "122nd"]);
+    const print = container.querySelector(".print-only") as HTMLElement;
+    expect(print).toHaveTextContent(
+      "Found by Suggested search for NCAI draft PSC-26-001: water quality (Federal Register)",
+    );
+    expect(print).toHaveTextContent(
+      "Found by Suggested search for NCAI draft PSC-26-001: hr 1234 119 (Congress.gov)",
+    );
+    expect(print).not.toHaveTextContent("Example draft on water");
+  });
+
+  it("holds a section's rows until all its searches answer, while another section shows", async () => {
+    const reports = deferred<DemoSearchResponse>();
+    const opinion = {
+      ...citation("2099-00005", "Example Opinion"),
+      sourceId: "govinfo",
+      identifier: "USCOURTS-example-0001",
+      textAvailable: false,
+    };
+    vi.mocked(search).mockImplementation(async (source, query) =>
+      query.startsWith("collection:USREPORTS")
+        ? reports.promise
+        : searchResult(
+            source === "federal-register"
+              ? [citation()]
+              : query.startsWith("collection:USCOURTS")
+                ? [opinion]
+                : [],
+            query,
+            source,
+          ),
+    );
+    const { ui, container } = await start();
+    await openNcai(ui, container);
+    chooseDraft(ui, container, "PSC-26-001");
+    const results = within(
+      container.querySelector(".pane-results") as HTMLElement,
+    );
+    await results.findByRole("heading", { name: "Example Water Policy" });
+    await act(async () => {});
+    const courts = results.getByRole("heading", {
+      name: "Court Opinions",
+      level: 3,
+    }).parentElement as HTMLElement;
+    // Both USCOURTS searches answered; USREPORTS has not, so none is listed yet.
+    expect(
+      results.queryByRole("heading", { name: "Example Opinion" }),
+    ).toBeNull();
+    expect(courts).toHaveTextContent(
+      "GovInfo, Federal court opinionsSearching",
+    );
+    await act(async () =>
+      reports.resolve(searchResult([], "water quality", "govinfo")),
+    );
+    await results.findByRole("heading", { name: "Example Opinion" });
+    expect(courts).not.toHaveTextContent("Searching");
+  });
+
+  it.each([
+    ["narrow", false],
+    ["wide", true],
+  ])(
+    "brings a panel search that already ran into view on a %s layout, without sending it again",
+    async (_layout, wide) => {
+      const shown: string[] = [];
+      Element.prototype.scrollIntoView = function (this: Element) {
+        shown.push(this.id);
+      };
+      const holder = window as { matchMedia?: unknown };
+      if (wide)
+        holder.matchMedia = () => ({
+          matches: true,
+          addEventListener: () => undefined,
+          removeEventListener: () => undefined,
+        });
+      try {
+        const register = deferred<DemoSearchResponse>();
+        vi.mocked(search).mockImplementation(async (source, query) =>
+          source === "federal-register"
+            ? register.promise
+            : searchResult([], query, source),
+        );
+        const { ui, container, shell } = await start();
+        await openNcai(ui, container);
+        chooseDraft(ui, container, "PSC-26-001");
+        await waitFor(() => expect(search).toHaveBeenCalledTimes(7));
+        // Every other section answers; the Federal Register still searches.
+        await act(async () => {});
+        const results = container.querySelector(".pane-results") as HTMLElement;
+        const status = within(results).getByRole("status");
+        const lane = results.querySelector("#lane-0") as HTMLElement;
+        expect(lane).toHaveTextContent("Federal Register");
+        vi.mocked(search).mockClear();
+        const button = ui.getByRole("button", { name: "water quality" });
+        fireEvent.click(button);
+        expect(status).toHaveTextContent(
+          "Still searching: Federal Register: water quality.",
+        );
+        await act(async () => register.resolve(searchResult()));
+        await ui.findAllByRole("button", { name: /Add to my citations/ });
+        button.focus();
+        shown.length = 0;
+        fireEvent.click(button);
+        expect(search).not.toHaveBeenCalled();
+        expect(status).toHaveTextContent(
+          "Already in Results: Federal Register: water quality.",
+        );
+        expect(shown).toEqual(["lane-0"]);
+        expect(lane).toHaveFocus();
+        if (!wide) expect(shell).toHaveAttribute("data-pane", "results");
+      } finally {
+        delete (Element.prototype as Partial<Element>).scrollIntoView;
+        delete holder.matchMedia;
+      }
+    },
+  );
+
+  describe("a panel search a checked source cannot take", () => {
+    const fish = {
+      ...NCAI_DRAFTS[0],
+      topics: ["water quality", "fish passage"],
+    };
+    const resultsOf = (container: Element) =>
+      within(container.querySelector(".pane-results") as HTMLElement);
+    const statusOf = (container: Element) =>
+      resultsOf(container).getByRole("status");
+    const policiesOf = (container: Element) =>
+      resultsOf(container).getByRole("heading", {
+        name: "Policies and Rules",
+        level: 3,
+      }).parentElement as HTMLElement;
+    const reasons = (container: Element) =>
+      policiesOf(container).textContent!.split(COPY.ncai.congressSkipped)
+        .length - 1;
+
+    it("is added as not searched beside the source that is sent", async () => {
+      vi.mocked(search).mockImplementation(async (source, query) =>
+        searchResult(
+          source === "federal-register" ? [citation()] : [],
+          query,
+          source,
+        ),
+      );
+      const { ui, container } = await start();
+      fireEvent.click(ui.getByRole("checkbox", { name: /Congress\.gov/ }));
+      await openNcai(ui, container, [fish]);
+      chooseDraft(ui, container, "PSC-26-001");
+      await ui.findAllByRole("button", { name: /Add to my citations/ });
+      const status = statusOf(container);
+      expect(reasons(container)).toBe(1);
+      const register = deferred<DemoSearchResponse>();
+      vi.mocked(search).mockClear().mockReturnValue(register.promise);
+      fireEvent.click(ui.getByRole("button", { name: "fish passage" }));
+      // Only the source sent is named as searching.
+      expect(status).toHaveTextContent(
+        /^Searching Federal Register: fish passage\.$/,
+      );
+      await act(async () =>
+        register.resolve(
+          searchResult([citation()], "fish passage", "federal-register"),
+        ),
+      );
+      await waitFor(() =>
+        expect(status).toHaveTextContent(
+          "Federal Register: fish passage: 1 listing loaded; 1 reported by source. Congress.gov: fish passage: Not searched. 1 document listed.",
+        ),
+      );
+      expect(sent()).toEqual([["federal-register", "fish passage"]]);
+      expect(reasons(container)).toBe(2);
+    });
+
+    it("says it was not searched when it is the only checked source", async () => {
+      vi.mocked(search).mockImplementation(async (source, query) =>
+        searchResult([], query, source),
+      );
+      const { ui, container } = await start();
+      fireEvent.click(ui.getByRole("checkbox", { name: /Federal Register/ }));
+      fireEvent.click(ui.getByRole("checkbox", { name: /Congress\.gov/ }));
+      await openNcai(ui, container, [fish]);
+      chooseDraft(ui, container, "PSC-26-001");
+      const status = statusOf(container);
+      await waitFor(() =>
+        expect(status).toHaveTextContent(COPY.ncai.continuationNoResults),
+      );
+      vi.mocked(search).mockClear();
+      fireEvent.click(ui.getByRole("button", { name: "fish passage" }));
+      await waitFor(() =>
+        expect(status).toHaveTextContent(
+          "Congress.gov: fish passage: Not searched.",
+        ),
+      );
+      expect(reasons(container)).toBe(2);
+      // The automatic topic's Congress.gov lane never ran either.
+      fireEvent.click(ui.getByRole("button", { name: "water quality" }));
+      expect(status).toHaveTextContent(
+        "Congress.gov: water quality: Not searched.",
+      );
+      expect(status).not.toHaveTextContent("Already in Results");
+      expect(search).not.toHaveBeenCalled();
+    });
+  });
+
+  it("switches to federal sources when a draft is chosen in the state scope, and runs its searches", async () => {
+    const { ui, container } = await start();
+    fireEvent.click(ui.getByRole("button", { name: "State legislature" }));
+    await openNcai(ui, container);
+    chooseDraft(ui, container, "PSC-26-001");
+    await ui.findAllByRole("button", { name: /Add to my citations/ });
+    expect(ui.getByRole("button", { name: "Federal sources" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(search).toHaveBeenCalledTimes(7);
+  });
+
+  it("words an area search holding a listed sponsor as a name search, and exports it without its terms", async () => {
+    const draft: NcaiDraft = {
+      id: "PSC-26-012",
+      title: "Example draft on rights",
+      sponsor: "Example Tribe",
+      status: "In order",
+      committee: "Example Committee",
+      topics: ["Example Tribe water rights"],
+    };
+    const { ui, container } = await start();
+    await openNcai(ui, container, [draft]);
+    fireEvent.change(ui.getByLabelText("Policy area (NCAI committee)"), {
+      target: { value: "0" },
+    });
+    fireEvent.click(
+      ui.getByRole("button", { name: "Example Tribe water rights" }),
+    );
+    const add = await ui.findByRole("button", {
+      name: /^Add to my citations/,
+    });
+    // Sent only because the reader pressed it.
+    expect(sent()).toEqual([
+      ["federal-register", "Example Tribe water rights"],
+    ]);
+    const results = container.querySelector(".pane-results") as HTMLElement;
+    expect(results).toHaveTextContent(
+      "Why shown: name search for Example Tribe water rights in Federal Register. A name match does not show that this document concerns that Tribe or organization.",
+    );
+    expect(results).toHaveTextContent(
+      "Name search: Example Tribe water rights. A name match does not show that a document concerns that Tribe or organization.",
+    );
+    fireEvent.click(add);
+    await ui.findByText(/Citation and text saved/);
+    const print = container.querySelector(".print-only") as HTMLElement;
+    expect(print).toHaveTextContent(
+      "Found by Policy area menu search: name search for a sponsor listed on an NCAI draft (Federal Register)",
+    );
+    expect(print).not.toHaveTextContent("Example Tribe");
+  });
+
+  it("says a draft's federal search was not searched when no federal source is checked", async () => {
+    const { ui, container } = await start();
+    fireEvent.click(ui.getByRole("checkbox", { name: /Federal Register/ }));
+    await openNcai(ui, container);
+    chooseDraft(ui, container, "PSC-26-001");
+    await ui.findAllByRole("button", { name: /Add to my citations/ });
+    const policies = within(
+      container.querySelector(".pane-results") as HTMLElement,
+    ).getByRole("heading", { name: "Policies and Rules", level: 3 })
+      .parentElement as HTMLElement;
+    // Unsearched is never shown as empty (safeguard 8).
+    expect(policies).toHaveTextContent("Federal sourcesNot searched");
+    expect(policies).toHaveTextContent(
+      "Not searched: no federal source is checked and live.",
+    );
+    expect(policies).not.toHaveTextContent("No matches");
+    expect(search).toHaveBeenCalledTimes(6);
+    expect(sent().map(([source]) => source)).not.toContain("federal-register");
+  });
+
+  it("says a draft's searches listed nothing without asking for fewer words", async () => {
+    // GovInfo's empty page leaves open whether more exist, as the Worker sends it.
+    vi.mocked(search).mockImplementation(async (source, query) =>
+      searchResult([], query, source),
+    );
+    const { ui, container } = await start();
+    await openNcai(ui, container, [
+      NCAI_DRAFTS[0],
+      { ...NCAI_DRAFTS[0], id: "PSC-26-013", topics: [] },
+    ]);
+    chooseDraft(ui, container, "PSC-26-001");
+    const status = () =>
+      within(container.querySelector(".pane-results") as HTMLElement).getByRole(
+        "status",
+      );
+    await waitFor(() =>
+      expect(status()).toHaveTextContent(COPY.ncai.continuationNoResults),
+    );
+    expect(status()).not.toHaveTextContent("fewer words");
+    // A bill-only draft whose bill is not found has only definite answers.
+    vi.mocked(search).mockRejectedValue(
+      new ApiFailure("No such bill.", "source", "not_found", 404),
+    );
+    chooseDraft(ui, container, "PSC-26-013");
+    await waitFor(() =>
+      expect(status()).toHaveTextContent(COPY.ncai.noResults),
+    );
+    expect(status()).not.toHaveTextContent("fewer words");
+  });
+
+  it("keeps draft IDs and search terms out of session storage", async () => {
+    const { ui, container } = await start();
+    await openNcai(ui, container, [
+      { ...NCAI_DRAFTS[0], topics: ["water quality", "fish passage"] },
+    ]);
+    chooseDraft(ui, container, "PSC-26-001");
+    fireEvent.click(
+      await ui.findByRole("button", { name: /^Add to my citations/ }),
+    );
+    await ui.findByText(/Citation and text saved/);
+    fireEvent.click(ui.getByRole("button", { name: "fish passage" }));
+    fireEvent.input(ui.getByRole("searchbox"), {
+      target: { value: "salmon habitat" },
+    });
+    fireEvent.click(ui.getByRole("button", { name: "Search" }));
+    // The typed search lists the document already cited.
+    await ui.findByRole("button", { name: /^In my citations/ });
+    expect(vi.mocked(search).mock.lastCall?.slice(0, 2)).toEqual([
+      "federal-register",
+      "salmon habitat",
+    ]);
+    const keys = Array.from(
+      { length: window.sessionStorage.length },
+      (_, index) => window.sessionStorage.key(index),
+    );
+    expect(keys).toEqual([STORAGE_KEY]);
+    const stored = window.sessionStorage.getItem(STORAGE_KEY) as string;
+    expect(Object.keys(JSON.parse(stored).cited)).toHaveLength(1);
+    for (const text of [
+      "PSC-26-001",
+      "water quality",
+      "salmon habitat",
+      "foundBy",
+      "Example draft on water",
+    ])
+      expect(stored).not.toContain(text);
   });
 });

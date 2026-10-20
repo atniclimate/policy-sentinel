@@ -3,38 +3,70 @@ import type { RefObject } from "preact";
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { SOURCE_LABELS } from "../src/demo/citations";
 import { COPY, EXAMPLES } from "../src/demo/copy";
+import {
+  appendPage,
+  AUTO_REQUEST_BUDGET,
+  buildPlan,
+  failLane,
+  groupDiscovery,
+  LaneCache,
+  laneId,
+  listingCap,
+  mergeLanes,
+  NO_FEDERAL_SOURCE,
+  replayLane,
+  settleLane,
+  startLane,
+  startPlan,
+  typedPlan,
+  unresolvedEmpty,
+} from "../src/demo/discovery";
+import type {
+  DiscoveryRow,
+  Lane,
+  LaneGroup,
+  LaneSearch,
+  Plan,
+  PlanDates,
+  Reason,
+  Seed,
+  SkipReason,
+} from "../src/demo/discovery";
 import { buildDocument } from "../src/demo/document";
 import {
-  areaSearches,
+  areaPlan,
   caseWords,
   courtLinks,
+  draftPlan,
   FEDERAL_COURT_LINKS,
   NCAI_RETRIEVED,
   NCAI_TRACKER_URL,
+  namesSponsor,
   ncaiAreas,
   ncaiSearches,
   NILL_TRIBAL_LAW_URL,
   NILL_BULLETINS_URL,
   STATE_RESEARCH_SOURCES,
 } from "../src/demo/ncai-2026";
-import type { NcaiDraft, NcaiSearch } from "../src/demo/ncai-2026";
+import type {
+  NcaiArea,
+  NcaiDraft,
+  NcaiPlanSearch,
+  NcaiSearch,
+} from "../src/demo/ncai-2026";
 import NCAI_VAULT from "../src/demo/ncai-2026.vault.json";
 import { NcaiVaultError, openNcaiDrafts } from "../src/demo/ncai-vault";
 import type { DocBlock } from "../src/demo/document";
 import {
-  appendMergedResults,
+  CONGRESS_REFERENCE,
   isCongressReference,
   logicalResultKey,
-  mergeResults,
 } from "../src/demo/merge";
-import type { MergedResult, SourceResults } from "../src/demo/merge";
 import type {
   DemoCitation,
   DemoIssue,
   DemoPolicyResponse,
   DemoSearchCursor,
-  DemoSearchOptions,
-  DemoSearchResponse,
   DemoSource,
 } from "../src/demo/types";
 import { ApiFailure, loadSources, policyId, readPolicy, search } from "./api";
@@ -45,6 +77,7 @@ import {
   attachPolicy,
   emptyReport,
   findCitedKey,
+  foundByOf,
   MAX_ACTOR_TEXT,
   MAX_CITATIONS,
   MAX_NOTE,
@@ -62,10 +95,7 @@ import type {
   RestoredReport,
 } from "../src/demo/report-state";
 import { keyOf } from "../src/demo/validation";
-import {
-  dateRangeValue,
-  supportsDatedGovinfoQuery,
-} from "../src/demo/search-contract";
+import { dateRangeValue } from "../src/demo/search-contract";
 
 const VERSION = __APP_VERSION__;
 const TSDF_URL =
@@ -133,26 +163,14 @@ interface Selected {
   message?: string;
 }
 
-interface SourceSearch {
-  sourceId: string;
-  state: "loading" | "results" | "empty" | "unavailable" | "not_searched";
-  listings: readonly DemoCitation[];
-  response?: DemoSearchResponse;
-  reason?: string;
-  loadingMore?: boolean;
-  pagingStarted?: boolean;
-  pageError?: string;
-  /** Prior opaque tokens, to stop cycles without interpreting provider syntax. */
-  cursors: readonly string[];
-}
-
-/** The submitted criteria stay attached to results while the form is edited. */
+/**
+ * The submitted plan stays attached to results while the form is edited. One
+ * shape serves typed searches, examples, committee areas and NCAI drafts.
+ */
 interface Found {
-  query: string;
-  dateFrom: string | null;
-  dateTo: string | null;
-  rows: readonly MergedResult[];
-  sources: readonly SourceSearch[];
+  plan: Plan;
+  searches: readonly LaneSearch[];
+  rows: readonly DiscoveryRow[];
 }
 
 const NCAI_GROUPS = [
@@ -163,56 +181,92 @@ const NCAI_GROUPS = [
   "sponsor",
 ] as const;
 
-const PAGE_OPTIONS: DemoSearchOptions = {
-  dateFrom: null,
-  dateTo: null,
-  continuation: null,
+/** Results sections in reading order, whatever order the plan met them in. */
+const GROUP_ORDER: readonly LaneGroup[] = [
+  "policy",
+  "legislation",
+  "bill",
+  "case",
+];
+
+const SKIP_TEXT: Readonly<Record<SkipReason, string>> = {
+  none_checked: COPY.laneNoneChecked,
+  source_off: COPY.laneSourceOff,
+  congress_reference: COPY.congressSkipped,
+  congress_dates: COPY.congressDatesSkipped,
+  govinfo_dates: COPY.govinfoDatesSkipped,
+  budget: COPY.laneBudget(AUTO_REQUEST_BUDGET),
 };
 
-function unresolvedEmpty(source: SourceSearch): boolean {
-  if (source.state !== "empty" || !source.response) return false;
-  const { total, continuation } = source.response;
+/** One lane's next state, applied to the latest results when it settles. */
+type Settle = (item: LaneSearch) => LaneSearch;
+
+/** A lane the reader asked for: the automatic request budget no longer holds it back. */
+const asked = (lane: Lane): Lane =>
+  lane.skip === "budget" ? { ...lane, skip: undefined } : lane;
+
+/** Only a missing exact reference is a definite answer; anything else is an outage. */
+function missingReference(sourceId: string, error: unknown): boolean {
   return (
-    (total !== null && total > 0) ||
-    continuation.kind === "more" ||
-    (continuation.kind === "stopped" &&
-      (continuation.reason === "unknown" || continuation.reason === "cap"))
+    (sourceId === "congress" || sourceId === "washington") &&
+    error instanceof ApiFailure &&
+    error.code === "not_found" &&
+    error.httpStatus === 404
   );
 }
 
-function sourceOutcome(source: SourceSearch): string {
-  if (source.state === "loading") return COPY.sourceLoading;
-  if (source.state === "not_searched") return COPY.skipped;
-  if (source.state === "unavailable") return COPY.sourceFailed;
-  if (source.state === "empty")
-    return unresolvedEmpty(source) ? COPY.zeroLoaded : COPY.sourceNothing;
-  return COPY.resultsCount(
-    source.listings.length,
-    source.response?.total ?? null,
-  );
+function sourceOutcome(item: LaneSearch): string {
+  if (item.state === "loading") return COPY.sourceLoading;
+  if (item.state === "not_searched") return COPY.skipped;
+  if (item.state === "unavailable") return COPY.sourceFailed;
+  if (item.state === "empty")
+    return unresolvedEmpty(item) ? COPY.zeroLoaded : COPY.sourceNothing;
+  return COPY.resultsCount(item.listings.length, item.response?.total ?? null);
 }
 
 function foundMessage(found: Found): string {
-  if (found.sources.some((source) => source.state === "loading"))
-    return COPY.searching;
-  if (found.rows.length) return COPY.resultsListed(found.rows.length);
-  const failures = found.sources.filter(
-    (source) => source.state === "unavailable",
-  );
-  const asked = found.sources.filter(
-    (source) => source.state !== "not_searched",
-  );
-  if (failures.length === asked.length && failures.length) {
-    return failures.every((source) => source.reason === failures[0].reason)
-      ? failures[0].reason!
-      : COPY.allFailed;
+  const { searches } = found;
+  // A draft also asks sources the reader did not check, and lists bills and opinions.
+  const draft = found.plan.seed.kind === "draft";
+  const words = draft ? COPY.ncai : COPY;
+  if (searches.some((item) => item.state === "loading")) return words.searching;
+  const failures = searches.filter((item) => item.state === "unavailable");
+  if (found.rows.length) {
+    const listed = (draft ? COPY.ncai.listed : COPY.resultsListed)(
+      found.rows.length,
+    );
+    return failures.length ? `${listed} ${words.someFailed}` : listed;
   }
-  if (failures.length) return COPY.partialNoResults;
-  if (found.sources.some(unresolvedEmpty)) return COPY.continuationNoResults;
-  if (found.sources.some((source) => source.state === "empty"))
-    return COPY.noResults;
+  const sent = searches.filter((item) => item.state !== "not_searched");
+  if (failures.length === sent.length && failures.length) {
+    return failures.every((item) => item.reason === failures[0].reason)
+      ? failures[0].reason!
+      : words.allFailed;
+  }
+  if (failures.length) return words.partialNoResults;
+  if (searches.some(unresolvedEmpty)) return words.continuationNoResults;
+  if (searches.some((item) => item.state === "empty")) return words.noResults;
   return COPY.noneSearched;
 }
+
+/** A committee area as the menu and the select name it. */
+const areaName = (area: NcaiArea) =>
+  area.label === area.committee
+    ? area.label
+    : `${area.committee}: ${area.label}`;
+
+/**
+ * A search holding one of these drafts' listed sponsors is a name search in
+ * effect, as a case caption often is, so it is worded apart (safeguard 1).
+ */
+const withNames = (plan: Plan, from: readonly NcaiDraft[]): Plan => ({
+  ...plan,
+  lanes: plan.lanes.map((lane) =>
+    from.some((each) => namesSponsor(each, lane.query))
+      ? { ...lane, name: true as const }
+      : lane,
+  ),
+});
 
 function loadSaved(): RestoredReport {
   try {
@@ -288,7 +342,9 @@ export function App() {
   const [found, setFound] = useState<Found | null>(null);
   const foundRef = useRef<Found | null>(null);
   const [message, setMessage] = useState("");
-  const [busy, setBusy] = useState(false);
+  const busy = Boolean(
+    found?.searches.some((item) => item.state === "loading"),
+  );
   const [selected, setSelected] = useState<Selected | null>(null);
   const [report, setReport] = useState<ReportState>(saved.report);
   const reportRef = useRef(report);
@@ -333,7 +389,12 @@ export function App() {
     controller?: AbortController;
     signature?: string;
   }>({ sequence: 0 });
+  /** Lane ids with a further page loading. */
   const pageRequests = useRef(new Set<string>());
+  // Memory only: gone on reload and never written to browser storage.
+  const laneCache = useRef(new LaneCache());
+  /** Lane answers waiting for the rest of their Results section to answer. */
+  const heldAnswers = useRef(new Map<string, Settle>());
   const detailSequence = useRef(0);
   const selectedKey = useRef<string | null>(null);
   const selectedRef = useRef(selected);
@@ -462,7 +523,11 @@ export function App() {
   }, [theme]);
 
   const labelOf = (id: string) =>
-    sources.find((item) => item.id === id)?.label ?? SOURCE_LABELS[id] ?? id;
+    id === NO_FEDERAL_SOURCE
+      ? COPY.scopeFederal
+      : (sources.find((item) => item.id === id)?.label ??
+        SOURCE_LABELS[id] ??
+        id);
   const federal = sources.filter((item) => item.level === "federal");
   const states = sources.filter((item) => item.level === "state");
   const chosenState = states.find((item) => item.id === stateId);
@@ -517,9 +582,21 @@ export function App() {
   const paneTab = wide ? 0 : -1;
   const samePendingSearch =
     busy &&
-    found?.query === query.trim() &&
-    found.dateFrom === (scope === "federal" ? dateFrom || null : null) &&
-    found.dateTo === (scope === "federal" ? dateTo || null : null);
+    found?.plan.seed.kind === "typed" &&
+    found.plan.seed.query === query.trim() &&
+    found.plan.dateFrom === (scope === "federal" ? dateFrom || null : null) &&
+    found.plan.dateTo === (scope === "federal" ? dateTo || null : null);
+  const planSources = {
+    federal: federalTargets,
+    live: sources
+      .filter((item) => item.status === "live")
+      .map((item) => item.id),
+  };
+  /** A source, then the collection searched within it, if any. */
+  const where = (lane: Pick<Lane, "sourceId" | "collection">) =>
+    COPY.laneWhere(labelOf(lane.sourceId), lane.collection);
+  /** Names one lane apart from the others in a draft's plan. */
+  const laneName = (lane: Lane) => `${where(lane)}: ${lane.terms}`;
 
   function clearSelection() {
     detailSequence.current += 1;
@@ -532,9 +609,9 @@ export function App() {
     searchRequest.current.controller?.abort();
     searchRequest.current.signature = undefined;
     pageRequests.current.clear();
+    heldAnswers.current.clear();
     foundRef.current = null;
     searchRequest.current.sequence += 1;
-    setBusy(false);
     setFound(null);
     setMessage("");
     setQueryError("");
@@ -555,230 +632,299 @@ export function App() {
     );
   }
 
-  function publishFound(value: Found) {
+  /** `say` gives the status; searches added to open results name themselves. */
+  function publishFound(value: Found, say = foundMessage) {
     foundRef.current = value;
     setFound(value);
-    setMessage(foundMessage(value));
+    setMessage(say(value));
   }
 
-  async function runSearch(
-    ids: readonly string[],
-    q: string,
-    options: DemoSearchOptions = PAGE_OPTIONS,
+  /** Brings Results forward; on a narrow layout it also takes focus. */
+  function bringResults(sequence: number) {
+    setPane((current) => (current === "search" ? "results" : current));
+    if (!wide)
+      requestAnimationFrame(() => {
+        if (!mounted.current || sequence !== searchRequest.current.sequence)
+          return;
+        resultsRef.current?.focus();
+        // Focus leaves a pane already partly on screen where it is, so a reader
+        // scrolled down the earlier results would land mid-list.
+        const heading = document.getElementById("results-h");
+        if (typeof heading?.scrollIntoView === "function")
+          heading.scrollIntoView({ block: "start" });
+      });
+  }
+
+  /** Lane names follow the source alone when the plan is one search. */
+  const outcomeName = (plan: Plan, lane: Lane) =>
+    plan.seed.kind === "draft" ? laneName(lane) : labelOf(lane.sourceId);
+
+  /**
+   * Sends each loading lane, or for a draft replays its kept answer without a
+   * request. A Results section takes its answers once all its loading lanes
+   * have answered, merged in plan order and interleaved by rank as one search's
+   * sources are, so a slow section holds back no other and a lower-precedence
+   * listing is never shown before the record that takes its place. Rows
+   * already shown keep their order. Answers for a replaced plan are dropped.
+   */
+  async function sendLanes(
+    plan: Plan,
+    started: readonly LaneSearch[],
+    sequence: number,
+    signal?: AbortSignal,
+    say = foundMessage,
   ) {
-    const reference = isCongressReference(q);
-    if (!reference && ids.length === 1 && ids[0] === "congress") {
+    const dates: PlanDates = { dateFrom: plan.dateFrom, dateTo: plan.dateTo };
+    // Only re-choosing a draft is spared its requests; pressing Search again
+    // always asks the source, so a repeated search never shows an old answer.
+    const cache = plan.seed.kind === "draft" ? laneCache.current : null;
+    const answer = async (lane: Lane): Promise<Settle> => {
+      const kept = cache?.get(lane, dates);
+      if (kept) return (current) => replayLane(current, kept);
+      try {
+        const response = await search(lane.sourceId, lane.query, 1, signal, {
+          ...dates,
+          continuation: null,
+        });
+        cache?.set(lane, dates, response);
+        return (current) => settleLane(current, response);
+      } catch (error) {
+        const reason = failureText(error);
+        const missing = missingReference(lane.sourceId, error);
+        // An outage is not an answer: it is not kept, so asking again sends again.
+        if (missing) cache?.set(lane, dates, { ok: false, missing: reason });
+        return (current) => failLane(current, reason, missing);
+      }
+    };
+    await Promise.all(
+      started
+        .filter((item) => item.state === "loading")
+        .map(async (item) => {
+          const lane = plan.lanes.find((each) => each.id === item.laneId)!;
+          const settle = await answer(lane);
+          if (!mounted.current || sequence !== searchRequest.current.sequence)
+            return;
+          const held = heldAnswers.current;
+          held.set(lane.id, settle);
+          const latest = foundRef.current!;
+          const section = new Set(
+            latest.plan.lanes
+              .filter((each) => each.group === lane.group)
+              .map((each) => each.id),
+          );
+          const waiting = (each: LaneSearch) =>
+            section.has(each.laneId) && each.state === "loading";
+          if (
+            latest.searches.some(
+              (each) => waiting(each) && !held.has(each.laneId),
+            )
+          )
+            return;
+          const searches = latest.searches.map((each) => {
+            const ready = held.get(each.laneId);
+            if (!ready || !waiting(each)) return each;
+            held.delete(each.laneId);
+            return ready(each);
+          });
+          publishFound(
+            {
+              ...latest,
+              searches,
+              rows: mergeLanes(latest.plan, searches, latest.rows).rows,
+            },
+            say,
+          );
+        }),
+    );
+  }
+
+  /**
+   * Starts a plan: its automatic lanes, plus any the reader asked for. A newer
+   * plan aborts this one and its late answers are dropped.
+   */
+  function runPlan(plan: Plan, also: readonly Lane[] = []) {
+    const [only] = plan.lanes;
+    if (
+      plan.seed.kind !== "draft" &&
+      plan.lanes.length === 1 &&
+      only.sourceId === "congress" &&
+      !isCongressReference(only.query)
+    ) {
       setQueryError(COPY.congressQueryError);
       document.getElementById("q")?.focus();
       return;
     }
     const signature = JSON.stringify([
-      ids,
-      q,
-      options.dateFrom,
-      options.dateTo,
+      plan.seed,
+      plan.lanes.map((lane) => lane.id),
+      plan.dateFrom,
+      plan.dateTo,
+      also.map((lane) => lane.id),
     ]);
-    if (searchRequest.current.signature === signature && busy) return;
+    if (
+      searchRequest.current.signature === signature &&
+      foundRef.current?.searches.some((item) => item.state === "loading")
+    )
+      return;
     searchRequest.current.controller?.abort();
     const sequence = searchRequest.current.sequence + 1;
     const controller = new AbortController();
     searchRequest.current = { sequence, controller, signature };
     pageRequests.current.clear();
-    const ownsView = () =>
-      mounted.current && sequence === searchRequest.current.sequence;
-    const sourceStates: SourceSearch[] = ids.map((sourceId) => {
-      const reason =
-        sourceId === "congress" && (options.dateFrom || !reference)
-          ? options.dateFrom
-            ? COPY.congressDatesSkipped
-            : COPY.congressSkipped
-          : sourceId === "govinfo" &&
-              options.dateFrom &&
-              !supportsDatedGovinfoQuery(q)
-            ? COPY.govinfoDatesSkipped
-            : undefined;
-      return {
-        sourceId,
-        state: reason ? "not_searched" : "loading",
-        listings: [],
-        cursors: [],
-        reason,
-      };
-    });
-    publishFound({
-      query: q,
-      dateFrom: options.dateFrom,
-      dateTo: options.dateTo,
-      rows: [],
-      sources: sourceStates,
-    });
-    setBusy(sourceStates.some((source) => source.state === "loading"));
+    heldAnswers.current.clear();
+    const auto = startPlan(plan);
+    const extra = new Map(
+      also.map((lane) => [lane.id, startLane(asked(lane))]),
+    );
+    const searches = [
+      ...auto.map((item) => extra.get(item.laneId) ?? item),
+      ...[...extra.values()].filter(
+        (item) => !auto.some((each) => each.laneId === item.laneId),
+      ),
+    ];
+    publishFound({ plan, searches, rows: [] });
     setQueryError("");
     setDateError("");
     clearSelection();
-    setPane((current) => (current === "search" ? "results" : current));
-    if (!wide)
-      requestAnimationFrame(() => {
-        if (ownsView()) resultsRef.current?.focus();
-      });
-    const asked = sourceStates.filter((source) => source.state === "loading");
-    const settled = await Promise.allSettled(
-      asked.map(({ sourceId }) =>
-        search(sourceId, q, 1, controller.signal, options),
-      ),
-    );
-    if (!ownsView()) return;
-    const completed = new Map<string, SourceSearch>();
-    settled.forEach((result, index) => {
-      const previous = asked[index];
-      if (result.status === "fulfilled") {
-        const response = result.value;
-        const seen = new Set<string>();
-        const listings = response.results.filter((item) => {
-          if (seen.has(keyOf(item))) return false;
-          seen.add(keyOf(item));
-          return true;
-        });
-        completed.set(previous.sourceId, {
-          ...previous,
-          state: listings.length ? "results" : "empty",
-          listings,
-          response,
-        });
-      } else {
-        const missingReference =
-          (previous.sourceId === "congress" ||
-            previous.sourceId === "washington") &&
-          result.reason instanceof ApiFailure &&
-          result.reason.code === "not_found" &&
-          result.reason.httpStatus === 404;
-        completed.set(previous.sourceId, {
-          ...previous,
-          state: missingReference ? "empty" : "unavailable",
-          reason: failureText(result.reason),
-        });
-      }
-    });
-    const sources = sourceStates.map(
-      (source) => completed.get(source.sourceId) ?? source,
-    );
-    const batches: SourceResults[] = sources.map(({ sourceId, listings }) => ({
-      sourceId,
-      results: listings,
-    }));
-    publishFound({
-      query: q,
-      dateFrom: options.dateFrom,
-      dateTo: options.dateTo,
-      rows: mergeResults(batches).results,
-      sources,
-    });
-    setBusy(false);
+    bringResults(sequence);
+    void sendLanes(plan, searches, sequence, controller.signal);
   }
 
-  async function loadMore(sourceId: string) {
+  /**
+   * Runs lanes inside the current plan: a further search from the draft's
+   * panel, or one the request budget held back. A lane already answered is
+   * left alone; an unavailable one is asked again.
+   */
+  async function addLanes(lanes: readonly Lane[]) {
     const current = foundRef.current;
-    const source = current?.sources.find((item) => item.sourceId === sourceId);
+    if (!current) return;
+    const sequence = searchRequest.current.sequence;
+    const before = new Map(current.searches.map((item) => [item.laneId, item]));
+    const started = lanes
+      .map((lane) => startLane(asked(lane)))
+      .filter((item) => {
+        const was = before.get(item.laneId);
+        return (
+          !was ||
+          (item.state === "loading" &&
+            (was.state === "not_searched" || was.state === "unavailable"))
+        );
+      });
+    if (started.length === 0) return;
+    const ids = new Set(started.map((item) => item.laneId));
+    const added = lanes.filter((lane) => ids.has(lane.id));
+    const names = added.map((lane) => outcomeName(current.plan, lane));
+    // The reader asked for these alone, so the status names them and their
+    // outcome, then the whole count, as Load more does for its page.
+    const say = (found: Found) => {
+      const mine = added.map((lane) =>
+        found.searches.find((item) => item.laneId === lane.id)!,
+      );
+      if (mine.some((item) => item.state === "loading"))
+        return COPY.laneSearching(
+          names
+            .filter((_, index) => mine[index].state === "loading")
+            .join("; "),
+        );
+      return [
+        ...mine.map((item, index) =>
+          item.state === "unavailable"
+            ? COPY.sourceFailure(names[index], item.reason ?? "")
+            : `${COPY.sourceAnswer(names[index], sourceOutcome(item))}.`,
+        ),
+        foundMessage(found),
+      ].join(" ");
+    };
+    publishFound(
+      {
+        ...current,
+        searches: [
+          ...current.searches.filter((item) => !ids.has(item.laneId)),
+          ...started,
+        ],
+      },
+      say,
+    );
+    await sendLanes(
+      current.plan,
+      started,
+      sequence,
+      searchRequest.current.controller?.signal,
+      say,
+    );
+  }
+
+  async function loadMore(id: string) {
+    const current = foundRef.current;
+    const lane = current?.plan.lanes.find((each) => each.id === id);
+    const lanePage = current?.searches.find((each) => each.laneId === id);
     if (
       !current ||
-      !source ||
-      pageRequests.current.has(sourceId) ||
-      source.response?.continuation.kind !== "more"
+      !lane ||
+      !lanePage ||
+      pageRequests.current.has(id) ||
+      lanePage.response?.continuation.kind !== "more"
     )
       return;
-    const continuation: DemoSearchCursor = source.response.continuation.next;
+    const continuation: DemoSearchCursor = lanePage.response.continuation.next;
+    const name = outcomeName(current.plan, lane);
     const sequence = searchRequest.current.sequence;
     const ownsView = () =>
       mounted.current && sequence === searchRequest.current.sequence;
-    pageRequests.current.add(sourceId);
+    const change = (from: Found, settle: Settle) =>
+      from.searches.map((each) => (each.laneId === id ? settle(each) : each));
+    pageRequests.current.add(id);
     publishFound({
       ...current,
-      sources: current.sources.map((item) =>
-        item.sourceId === sourceId
-          ? {
-              ...item,
-              loadingMore: true,
-              pagingStarted: true,
-              pageError: undefined,
-            }
-          : item,
-      ),
+      searches: change(current, (each) => ({
+        ...each,
+        loadingMore: true,
+        pagingStarted: true,
+        pageError: undefined,
+      })),
     });
-    setMessage(COPY.loadingMore(labelOf(sourceId)));
+    setMessage(COPY.loadingMore(name));
     try {
-      let response = await search(
-        sourceId,
-        current.query,
+      const response = await search(
+        lane.sourceId,
+        lane.query,
         continuation.page,
         searchRequest.current.controller?.signal,
         {
-          dateFrom: current.dateFrom,
-          dateTo: current.dateTo,
+          dateFrom: current.plan.dateFrom,
+          dateTo: current.plan.dateTo,
           continuation,
         },
       );
       if (!ownsView()) return;
       const latest = foundRef.current!;
-      const latestSource = latest.sources.find(
-        (item) => item.sourceId === sourceId,
-      )!;
-      const seen = new Set(latestSource.listings.map(keyOf));
-      const added = response.results.filter((item) => {
-        if (seen.has(keyOf(item))) return false;
-        seen.add(keyOf(item));
-        return true;
-      });
-      const cap = sourceId === "regulations" ? 200 : 500;
-      if (latestSource.listings.length + added.length > cap)
-        throw new Error("The source exceeded the demo listing limit.");
-      const cursors = [
-        ...latestSource.cursors,
-        ...(continuation.cursor ? [continuation.cursor] : []),
-      ];
-      if (
-        response.continuation.kind === "more" &&
-        response.continuation.next.cursor &&
-        cursors.includes(response.continuation.next.cursor)
-      )
-        response = {
-          ...response,
-          continuation: { kind: "stopped", reason: "unknown" },
-        };
-      const listings = [...latestSource.listings, ...added];
+      const paged = appendPage(
+        latest.searches.find((each) => each.laneId === id)!,
+        response,
+        continuation,
+      );
+      const searches = change(latest, () => paged.search);
       publishFound({
         ...latest,
-        rows: appendMergedResults(latest.rows, [{ sourceId, results: added }])
-          .results,
-        sources: latest.sources.map((item) =>
-          item.sourceId === sourceId
-            ? {
-                ...item,
-                state: listings.length ? "results" : "empty",
-                listings,
-                response,
-                cursors,
-                loadingMore: false,
-                pageError: undefined,
-              }
-            : item,
-        ),
+        searches,
+        rows: mergeLanes(latest.plan, searches, latest.rows).rows,
       });
-      setMessage(COPY.pageLoaded(labelOf(sourceId), added.length));
+      setMessage(COPY.pageLoaded(name, paged.added.length));
     } catch (error) {
       if (!ownsView()) return;
       const latest = foundRef.current!;
       const reason = failureText(error);
       publishFound({
         ...latest,
-        sources: latest.sources.map((item) =>
-          item.sourceId === sourceId
-            ? { ...item, loadingMore: false, pageError: reason }
-            : item,
-        ),
+        searches: change(latest, (each) => ({
+          ...each,
+          loadingMore: false,
+          pageError: reason,
+        })),
       });
-      setMessage(COPY.pageFailed(labelOf(sourceId)));
+      setMessage(COPY.pageFailed(name));
     } finally {
-      if (ownsView()) pageRequests.current.delete(sourceId);
+      if (ownsView()) pageRequests.current.delete(id);
     }
   }
 
@@ -794,20 +940,24 @@ export function App() {
       document.getElementById("q")?.focus();
       return;
     }
-    let options = PAGE_OPTIONS;
+    let dates: PlanDates = { dateFrom: null, dateTo: null };
     if (scope === "federal") {
       try {
-        options = {
-          ...dateRangeValue(dateFrom || null, dateTo || null),
-          continuation: null,
-        };
+        dates = dateRangeValue(dateFrom || null, dateTo || null);
       } catch {
         setDateError(COPY.dateRangeError);
         document.getElementById("date-from")?.focus();
         return;
       }
     }
-    void runSearch(targets, query.trim(), options);
+    runPlan(
+      typedPlan(
+        query.trim(),
+        scope === "federal" ? "federal" : stateId,
+        planSources,
+        dates,
+      ),
+    );
   }
 
   /** A state example switches to that state; a federal one runs on the checked sources. */
@@ -818,8 +968,7 @@ export function App() {
   }
 
   function tryExample(sid: string, q: string) {
-    const ids = exampleTargets(sid);
-    if (ids.length === 0) return;
+    if (exampleTargets(sid).length === 0) return;
     // The scope may change even when the search below is refused.
     resetSearch();
     const state = states.some((item) => item.id === sid);
@@ -828,7 +977,7 @@ export function App() {
     setQuery(q);
     setDateFrom("");
     setDateTo("");
-    void runSearch(ids, q);
+    runPlan(typedPlan(q, state ? sid : "federal", planSources));
   }
 
   /** An NCAI search runs on the checked federal sources, or on its one source if live. */
@@ -839,21 +988,125 @@ export function App() {
       : [];
   }
 
-  function tryPreset(preset: NcaiSearch) {
-    const ids = presetTargets(preset.source);
-    if (ids.length === 0) return;
+  /** A committee area's search runs alone, like a typed one, and names its area. */
+  function tryArea(area: NcaiArea, preset: NcaiPlanSearch) {
+    if (presetTargets(preset.source).length === 0) return;
     resetSearch();
     setScope("federal");
     setQuery(preset.query);
     setDateFrom("");
     setDateTo("");
-    void runSearch(ids, preset.query);
+    // Pressed by the reader, yet a search holding a sponsor is still worded apart.
+    runPlan(
+      withNames(
+        buildPlan(
+          { kind: "area", label: areaName(area) },
+          [{ ...preset, auto: true }],
+          planSources,
+        ),
+        area.drafts,
+      ),
+    );
+  }
+
+  function planForDraft(from: NcaiDraft): Plan {
+    return withNames(
+      buildPlan({ kind: "draft", id: from.id }, draftPlan(from), planSources),
+      [from],
+    );
+  }
+
+  /** Brings one lane's outcome into view and gives it focus, on any layout. */
+  function revealLane(plan: Plan, lane: Lane) {
+    setPane((current) => (current === "search" ? "results" : current));
+    requestAnimationFrame(() => {
+      const row = document.getElementById(`lane-${plan.lanes.indexOf(lane)}`);
+      if (typeof row?.scrollIntoView === "function")
+        // Centered, so the fixed footer never covers the row.
+        row.scrollIntoView({ block: "center" });
+      row?.focus();
+    });
+  }
+
+  /**
+   * A search from a draft's panel. In that draft's plan it is added as a lane,
+   * so earlier rows stay; otherwise the draft's plan starts with it. A lane
+   * that already answered, or is still searching, is not sent again: its
+   * outcome is brought into view. An unavailable one is asked again.
+   */
+  function runDraftSearch(from: NcaiDraft, preset: NcaiSearch) {
+    const ids = presetTargets(preset.source).map((sourceId) =>
+      laneId(sourceId, preset.query),
+    );
+    const lanesOf = (plan: Plan) =>
+      plan.lanes.filter((lane) => ids.includes(lane.id));
+    const current = foundRef.current;
+    if (
+      current?.plan.seed.kind !== "draft" ||
+      current.plan.seed.id !== from.id ||
+      lanesOf(current.plan).length === 0
+    ) {
+      const plan = planForDraft(from);
+      runPlan(plan, lanesOf(plan));
+      return;
+    }
+    const inPlan = lanesOf(current.plan);
+    const was = (lane: Lane) =>
+      current.searches.find((item) => item.laneId === lane.id);
+    // A lane not yet in Results is added even when it cannot be sent, so its
+    // outcome line says why it was not searched.
+    const send = inPlan.filter((lane) => {
+      const item = was(lane);
+      return (
+        !item ||
+        (startLane(asked(lane)).state === "loading" &&
+          (item.state === "not_searched" || item.state === "unavailable"))
+      );
+    });
+    if (send.length > 0) {
+      bringResults(searchRequest.current.sequence);
+      void addLanes(send);
+      return;
+    }
+    const name = (lane: Lane) => outcomeName(current.plan, lane);
+    // A lane its source cannot take never ran, so it is not "already in Results".
+    const skipped = inPlan.filter(
+      (lane) => was(lane)!.state === "not_searched",
+    );
+    const ran = inPlan.filter((lane) => !skipped.includes(lane));
+    setMessage(
+      [
+        ...(ran.length
+          ? [
+              (ran.some((lane) => was(lane)!.state === "loading")
+                ? COPY.stillSearching
+                : COPY.alreadyInResults)(ran.map(name).join("; ")),
+            ]
+          : []),
+        ...skipped.map(
+          (lane) => `${COPY.sourceAnswer(name(lane), COPY.skipped)}.`,
+        ),
+      ].join(" "),
+    );
+    revealLane(current.plan, inPlan[0]);
   }
 
   function openDraft(next: NcaiDraft) {
     setDraft(next);
     if (ncaiMenu.current) ncaiMenu.current.open = false;
     setPane("search");
+    // A draft's searches are federal; setScope alone keeps the plan below.
+    setScope("federal");
+    // D-109, widened 2026-10-19: choosing a draft runs its automatic policy,
+    // legislation and court searches. With none that can run, the previous
+    // draft's results are cleared, not kept.
+    const plan = planForDraft(next);
+    const auto = plan.lanes.filter((lane) => lane.auto);
+    if (auto.some((lane) => !lane.skip)) runPlan(plan);
+    else {
+      resetSearch();
+      setMessage(auto.length ? COPY.ncai.autoOff : COPY.ncai.autoNone);
+    }
     // Re-picking the open draft changes no state, so the effect below won't run.
     if (next === draft)
       requestAnimationFrame(() => document.getElementById("ncai-h")?.focus());
@@ -1018,12 +1271,12 @@ export function App() {
     });
   }
 
-  async function addCitation(
-    citation: DemoCitation,
-    alternates: readonly DemoCitation[],
-  ) {
+  async function addCitation(row: DiscoveryRow) {
+    const { citation, alternates } = row;
     const k = keyOf(citation);
+    // An entry already cited keeps the provenance it was added with.
     if (findCitedKey(reportRef.current, citation, alternates)) return;
+    const plan = foundRef.current?.plan;
     if (Object.keys(reportRef.current.cited).length >= MAX_CITATIONS) {
       setCitationMessage(COPY.citationLimit(MAX_CITATIONS));
       // Nothing else on the page changes, so the reason must be in sight.
@@ -1048,6 +1301,8 @@ export function App() {
           policy,
           note: "",
           alternates,
+          // Memory only: serializeReport leaves it out of browser storage.
+          ...(plan && { foundBy: foundByOf(row.reasons, plan.seed) }),
         },
       },
     }));
@@ -1308,6 +1563,212 @@ export function App() {
       </div>
     );
 
+  const seed = found?.plan.seed;
+  // A draft's plan is shown in sections; a typed, example or area search keeps one list.
+  const sectioned = seed?.kind === "draft";
+  const views = found
+    ? groupDiscovery(found.plan, found.searches, found.rows).sort(
+        (a, b) => GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group),
+      )
+    : [];
+  const merged =
+    found?.rows.reduce((sum, row) => sum + row.alternates.length, 0) ?? 0;
+  // The title is shown from the page's own draft list; the plan and the report carry the ID only.
+  const draftTitle =
+    seed?.kind === "draft"
+      ? drafts?.find((item) => item.id === seed.id)?.title
+      : undefined;
+
+  /** The submitted dates and how loaded rows are ordered. */
+  const criteriaNotes = (plan: Plan) => (
+    <>
+      <p class="help">
+        {plan.dateFrom
+          ? COPY.submittedDates(plan.dateFrom, plan.dateTo!)
+          : COPY.noDateRange}
+      </p>
+      <p class="help">{COPY.loadedOrder}</p>
+    </>
+  );
+
+  /**
+   * Every search that listed the row, then the draft they were suggested for.
+   * A committee area is never named: it is not applied to results.
+   */
+  const whyShown = (reasons: readonly Reason[], from: Seed) => {
+    const clauses = reasons.map((reason) => {
+      const bill =
+        reason.sourceId === "congress" && !reason.name
+          ? CONGRESS_REFERENCE.exec(reason.query)
+          : null;
+      if (bill)
+        return COPY.whyLookedUp(
+          `${bill[1]} ${bill[2]}`,
+          Number(bill[3]),
+          where(reason),
+        );
+      return (reason.name ? COPY.whyName : COPY.whyMatched)(
+        reason.terms,
+        where(reason),
+      );
+    });
+    if (from.kind === "draft")
+      clauses.push(COPY.whyDraft(from.id, reasons.length));
+    // Safeguard 1: a name match is said not to show any relationship.
+    return COPY.whyShown(
+      clauses.join("; "),
+      reasons.some((reason) => reason.name),
+    );
+  };
+
+  const laneOutcome = (plan: Plan, lane: Lane, item: LaneSearch) => {
+    const label = outcomeName(plan, lane);
+    const continuation = item.response?.continuation;
+    const draft = plan.seed.kind === "draft";
+    // A draft's topic meets a checked Congress.gov; the reader typed no reference.
+    const reason =
+      draft && item.skip === "congress_reference"
+        ? COPY.ncai.congressSkipped
+        : item.skip
+          ? SKIP_TEXT[item.skip]
+          : item.reason;
+    return (
+      // Takes focus from its own Search this too, which leaves with the skip,
+      // and from a draft panel search that already ran.
+      <li key={lane.id} id={`lane-${plan.lanes.indexOf(lane)}`} tabIndex={-1}>
+        <p class="row">
+          <span class="row-k">{draft ? where(lane) : label}</span>
+          <Leader />
+          <span class="row-v">{sourceOutcome(item)}</span>
+        </p>
+        {(draft || lane.name) && (
+          <p class="help">
+            {lane.name
+              ? COPY.laneNameTerms(lane.terms)
+              : COPY.laneTerms(lane.terms)}
+          </p>
+        )}
+        {plan.dateFrom &&
+          item.state !== "not_searched" &&
+          COPY.sourceDateMeaning[lane.sourceId] && (
+            <p class="help">{COPY.sourceDateMeaning[lane.sourceId]}</p>
+          )}
+        {reason && reason !== message && <p class="help">{reason}</p>}
+        {item.skip === "budget" && (
+          <button
+            type="button"
+            class="btn"
+            aria-label={COPY.named(COPY.searchThisToo, label)}
+            onClick={(event) => {
+              // The button leaves with the skip; its lane keeps the reader's place.
+              event.currentTarget.closest("li")?.focus();
+              void addLanes([lane]);
+            }}
+          >
+            {COPY.searchThisToo}
+          </button>
+        )}
+        {item.pageError && (
+          <p class="notice">{COPY.pageFailureDetail(item.pageError)}</p>
+        )}
+        {(continuation?.kind === "more" || item.pagingStarted) && (
+          <button
+            type="button"
+            class="btn"
+            aria-disabled={
+              Boolean(item.loadingMore) || continuation?.kind !== "more"
+            }
+            onClick={() => void loadMore(lane.id)}
+          >
+            {COPY.loadMore(label)}
+          </button>
+        )}
+        {continuation?.kind === "stopped" &&
+          continuation.reason !== "not_applicable" && (
+            <p class="help">
+              {continuation.reason === "cap"
+                ? COPY.pageCap(listingCap(lane.sourceId))
+                : continuation.reason === "unknown"
+                  ? COPY.continuationUnknown
+                  : COPY.noMoreResults}{" "}
+              <a
+                href={COPY.officialSearch[lane.sourceId]}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {COPY.continueOfficial}
+              </a>
+            </p>
+          )}
+      </li>
+    );
+  };
+
+  /** One document; under a section heading its title is one level lower. */
+  const resultRow = (row: DiscoveryRow, nested: boolean) => {
+    const { citation: c, alternates } = row;
+    const k = keyOf(c);
+    const savedKey = findCitedKey(report, c, alternates);
+    const isCited = savedKey !== undefined;
+    const addLabel = pending[savedKey ?? k]
+      ? COPY.readingCited
+      : isCited
+        ? COPY.inCitations
+        : COPY.addCitation;
+    return (
+      <li
+        class={`result${selectedKey.current === k ? " is-here" : ""}`}
+        key={logicalResultKey(c)}
+      >
+        {nested ? <h4>{c.title}</h4> : <h3>{c.title}</h3>}
+        <p class="row">
+          <span class="row-k">{labelOf(c.sourceId)}</span>
+          <Leader />
+          <span class="row-v mono">{c.identifier}</span>
+        </p>
+        <ul class="meta">
+          <li>{bodyOf(c)}</li>
+          <li>{c.kind}</li>
+          <li>{c.date ?? COPY.dateNotStated}</li>
+        </ul>
+        {c.summary && <p class="summary">{c.summary}</p>}
+        {alsoListed(c.title, alternates)}
+        {seed && (
+          <p class="help">
+            <strong>{COPY.whyShownLabel}</strong> {whyShown(row.reasons, seed)}
+          </p>
+        )}
+        <p class="actions">
+          <button
+            type="button"
+            class="btn"
+            aria-label={COPY.showIssuesFor(c.title)}
+            onClick={() => void showIssues(c, alternates)}
+          >
+            {COPY.showIssues}
+          </button>
+          <button
+            type="button"
+            class="btn"
+            aria-disabled={isCited}
+            aria-label={COPY.named(addLabel, c.title)}
+            onClick={() => void addCitation(row)}
+          >
+            {addLabel}
+          </button>
+          <a
+            href={c.officialUrl}
+            aria-label={COPY.openOfficialFor(c.title)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {COPY.openOfficial}
+          </a>
+        </p>
+      </li>
+    );
+  };
+
   return (
     <>
       <div class="shell screen-only" data-pane={front}>
@@ -1372,11 +1833,7 @@ export function App() {
                   <p class="help">{COPY.ncai.menuHelp(NCAI_RETRIEVED)}</p>
                   {areas.map((area) => (
                     <div key={area.committee + area.label}>
-                      <p class="ncai-area">
-                        {area.label === area.committee
-                          ? area.label
-                          : `${area.committee}: ${area.label}`}
-                      </p>
+                      <p class="ncai-area">{areaName(area)}</p>
                       <ul>
                         {area.drafts.map((item) => (
                           <li key={item.id}>
@@ -1445,7 +1902,7 @@ export function App() {
               <NcaiPanel
                 draft={draft}
                 usable={(preset) => presetTargets(preset.source).length > 0}
-                onSearch={tryPreset}
+                onSearch={(preset) => runDraftSearch(draft, preset)}
                 onClose={() => {
                   setDraft(null);
                   ncaiMenu.current?.querySelector("summary")?.focus();
@@ -1678,9 +2135,7 @@ export function App() {
                   <option value="">{COPY.ncai.areaNone}</option>
                   {areas.map((area, index) => (
                     <option key={index} value={String(index)}>
-                      {area.label === area.committee
-                        ? area.label
-                        : `${area.committee}: ${area.label}`}
+                      {areaName(area)}
                     </option>
                   ))}
                 </select>
@@ -1689,7 +2144,7 @@ export function App() {
                 </p>
                 {areaKey !== "" && (
                   <ul class="chips">
-                    {areaSearches(areas[Number(areaKey)]).map((preset) => (
+                    {areaPlan(areas[Number(areaKey)]).map((preset) => (
                       <li key={preset.query}>
                         <button
                           type="button"
@@ -1702,7 +2157,9 @@ export function App() {
                               ? "ncai-area-off"
                               : undefined
                           }
-                          onClick={() => tryPreset(preset)}
+                          onClick={() =>
+                            tryArea(areas[Number(areaKey)], preset)
+                          }
                         >
                           {preset.query}
                         </button>
@@ -1711,7 +2168,7 @@ export function App() {
                   </ul>
                 )}
                 {areaKey !== "" &&
-                  areaSearches(areas[Number(areaKey)]).some(
+                  areaPlan(areas[Number(areaKey)]).some(
                     (preset) => presetTargets(preset.source).length === 0,
                   ) && (
                     <p id="ncai-area-off" class="help">
@@ -1731,15 +2188,32 @@ export function App() {
             <h2 id="results-h">{COPY.resultsTitle}</h2>
             {found && (
               <div class="submitted-search">
-                <p>
-                  <strong>{COPY.submittedQuery}</strong> {found.query}
-                </p>
-                <p class="help">
-                  {found.dateFrom
-                    ? COPY.submittedDates(found.dateFrom, found.dateTo!)
-                    : COPY.noDateRange}
-                </p>
-                <p class="help">{COPY.loadedOrder}</p>
+                {found.plan.seed.kind === "draft" ? (
+                  <>
+                    <p>
+                      <strong>{COPY.ncai.loadedFor}</strong>{" "}
+                      <span class="mono">{found.plan.seed.id}</span>{" "}
+                      {draftTitle}
+                    </p>
+                    {/* Short, so a phone shows the first search outcome; the rest is one press away. */}
+                    <p class="help">{COPY.ncai.loadedCaveat}</p>
+                    <details>
+                      <summary>{COPY.ncai.aboutSearches}</summary>
+                      <p class="help">{COPY.ncai.loadedWhy}</p>
+                      {criteriaNotes(found.plan)}
+                    </details>
+                  </>
+                ) : (
+                  <>
+                    <p>
+                      <strong>{COPY.submittedQuery}</strong>{" "}
+                      {found.plan.seed.kind === "typed"
+                        ? found.plan.seed.query
+                        : found.plan.lanes[0]?.query}
+                    </p>
+                    {criteriaNotes(found.plan)}
+                  </>
+                )}
               </div>
             )}
             <div class="live" role="status" aria-live="polite">
@@ -1750,145 +2224,38 @@ export function App() {
                 {busy && <span class="cursor" aria-hidden="true" />}
               </p>
             </div>
-            {found && (
+            {found && !sectioned && (
               <ul class="source-outcomes">
-                {found.sources.map((source) => {
-                  const label = labelOf(source.sourceId);
-                  const continuation = source.response?.continuation;
-                  const sameFailure = source.reason === message;
-                  return (
-                    <li key={source.sourceId}>
-                      <p class="row">
-                        <span class="row-k">{label}</span>
-                        <Leader />
-                        <span class="row-v">{sourceOutcome(source)}</span>
-                      </p>
-                      {found.dateFrom &&
-                        source.state !== "not_searched" &&
-                        COPY.sourceDateMeaning[source.sourceId] && (
-                          <p class="help">
-                            {COPY.sourceDateMeaning[source.sourceId]}
-                          </p>
-                        )}
-                      {source.reason && !sameFailure && (
-                        <p class="help">{source.reason}</p>
-                      )}
-                      {source.pageError && (
-                        <p class="notice">
-                          {COPY.pageFailureDetail(source.pageError)}
-                        </p>
-                      )}
-                      {(continuation?.kind === "more" ||
-                        source.pagingStarted) && (
-                        <button
-                          type="button"
-                          class="btn"
-                          aria-disabled={
-                            Boolean(source.loadingMore) ||
-                            continuation?.kind !== "more"
-                          }
-                          onClick={() => void loadMore(source.sourceId)}
-                        >
-                          {COPY.loadMore(label)}
-                        </button>
-                      )}
-                      {continuation?.kind === "stopped" &&
-                        continuation.reason !== "not_applicable" && (
-                          <p class="help">
-                            {continuation.reason === "cap"
-                              ? COPY.pageCap(
-                                  source.sourceId === "regulations" ? 200 : 500,
-                                )
-                              : continuation.reason === "unknown"
-                                ? COPY.continuationUnknown
-                                : COPY.noMoreResults}{" "}
-                            <a
-                              href={COPY.officialSearch[source.sourceId]}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              {COPY.continueOfficial}
-                            </a>
-                          </p>
-                        )}
-                    </li>
-                  );
-                })}
+                {views.flatMap((view) =>
+                  view.lanes.map(({ lane, search: item }) =>
+                    laneOutcome(found.plan, lane, item),
+                  ),
+                )}
               </ul>
             )}
-            {found &&
-              found.sources.reduce(
-                (sum, source) => sum + source.listings.length,
-                0,
-              ) > found.rows.length && (
-                <p class="help">
-                  {COPY.mergeNote(
-                    found.sources.reduce(
-                      (sum, source) => sum + source.listings.length,
-                      0,
-                    ) - found.rows.length,
-                  )}
-                </p>
-              )}
-            <ul class="results" key={searchRequest.current.sequence}>
-              {(found?.rows ?? []).map(({ citation: c, alternates }) => {
-                const k = keyOf(c);
-                const savedKey = findCitedKey(report, c, alternates);
-                const isCited = savedKey !== undefined;
-                const addLabel = pending[savedKey ?? k]
-                  ? COPY.readingCited
-                  : isCited
-                    ? COPY.inCitations
-                    : COPY.addCitation;
-                return (
-                  <li
-                    class={`result${selectedKey.current === k ? " is-here" : ""}`}
-                    key={logicalResultKey(c)}
+            {merged > 0 && <p class="help">{COPY.mergeNote(merged)}</p>}
+            {found && sectioned ? (
+              views.map((view) => (
+                <div class="discovery-group" key={view.group}>
+                  <h3>{COPY.groupTitles[view.group]}</h3>
+                  <ul class="source-outcomes">
+                    {view.lanes.map(({ lane, search: item }) =>
+                      laneOutcome(found.plan, lane, item),
+                    )}
+                  </ul>
+                  <ul
+                    class="results"
+                    key={`${searchRequest.current.sequence}-${view.group}`}
                   >
-                    <h3>{c.title}</h3>
-                    <p class="row">
-                      <span class="row-k">{labelOf(c.sourceId)}</span>
-                      <Leader />
-                      <span class="row-v mono">{c.identifier}</span>
-                    </p>
-                    <ul class="meta">
-                      <li>{bodyOf(c)}</li>
-                      <li>{c.kind}</li>
-                      <li>{c.date ?? COPY.dateNotStated}</li>
-                    </ul>
-                    {c.summary && <p class="summary">{c.summary}</p>}
-                    {alsoListed(c.title, alternates)}
-                    <p class="actions">
-                      <button
-                        type="button"
-                        class="btn"
-                        aria-label={COPY.showIssuesFor(c.title)}
-                        onClick={() => void showIssues(c, alternates)}
-                      >
-                        {COPY.showIssues}
-                      </button>
-                      <button
-                        type="button"
-                        class="btn"
-                        aria-disabled={isCited}
-                        aria-label={COPY.named(addLabel, c.title)}
-                        onClick={() => void addCitation(c, alternates)}
-                      >
-                        {addLabel}
-                      </button>
-                      <a
-                        href={c.officialUrl}
-                        aria-label={COPY.openOfficialFor(c.title)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {COPY.openOfficial}
-                      </a>
-                    </p>
-                  </li>
-                );
-              })}
-            </ul>
+                    {view.rows.map((row) => resultRow(row, true))}
+                  </ul>
+                </div>
+              ))
+            ) : (
+              <ul class="results" key={searchRequest.current.sequence}>
+                {(found?.rows ?? []).map((row) => resultRow(row, false))}
+              </ul>
+            )}
           </section>
 
           <section

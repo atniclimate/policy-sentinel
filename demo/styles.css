@@ -1037,6 +1037,7 @@ fieldset.zone > legend + * {
   margin-top: 0.5rem;
 }
 .result h3,
+.result h4,
 .policy-title {
   max-width: 44rem;
   font-size: 1.125rem;
@@ -1453,4 +1454,14 @@ details dt {
 }
 .submitted-search {
   overflow-wrap: anywhere;
+}
+/* A draft's Results sections: each heading leads its searches, then its rows.
+   The heading outranks the row titles under it and opens with a heavier rule. */
+.discovery-group {
+  margin-top: 1.5rem;
+}
+.discovery-group > h3 {
+  padding-top: 0.75rem;
+  border-top: 2px solid var(--line);
+  font-size: 1.25rem;
 }

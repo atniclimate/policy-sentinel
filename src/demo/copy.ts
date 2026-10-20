@@ -5,6 +5,13 @@
  * are imperatives), Oxford comma, no em dashes, Title Case headings and
  * sentence case for everything else. The list is called My Citations by name.
  */
+
+/** English ordinal suffix: 1st, 2nd, 3rd, 11th, 112th, 121st. */
+function ordinal(n: number): string {
+  if (n % 100 >= 11 && n % 100 <= 13) return "th";
+  return ["th", "st", "nd", "rd"][n % 10] ?? "th";
+}
+
 export const COPY = {
   // Frame: header, pane chips, footer strip and the About and Limits dialog.
   appName: "Policy Sentinel",
@@ -43,7 +50,7 @@ export const COPY = {
   aboutPrivacyTitle: "What Leaves the Browser",
   aboutPrivacy: [
     "This page has no tracking, analytics, or cookies.",
-    "Search terms go to the demo service and to the official sources selected. Showing issues for a policy, or adding it to My Citations, sends that policy's public identifier to the demo service, which reads the text from the official source and may keep what it read, by identifier, for up to a day. The demo service does not log or save searches. To limit requests, the service and its hosting provider count requests by network address for a short time. Hosting and source providers have their own policies.",
+    "Search terms go to the demo service and to the official sources selected. Choosing an NCAI draft also sends its suggested legislation and court searches to GovInfo, and a bill named in its title to Congress.gov, whether or not those sources are selected. Showing issues for a policy, or adding it to My Citations, sends that policy's public identifier to the demo service, which reads the text from the official source and may keep what it read, by identifier, for up to a day. The demo service does not log or save searches. To limit requests, the service and its hosting provider count requests by network address for a short time. Hosting and source providers have their own policies.",
     "Citations, notes, and data actor entries stay in this browser tab unless the person using it exports or prints them.",
   ],
   aboutTsdfTitle: "Tiered Sovereign Data Framework",
@@ -150,7 +157,7 @@ export const COPY = {
       bill: "Looks up the bill in the 119th Congress.",
       case: "GovInfo searches. USCOURTS holds selected federal court opinions from about 2004, including opinions in cases still open. The Ninth Circuit search uses the source's circuit field, including participating district and bankruptcy courts. USREPORTS holds Supreme Court opinions in the United States Reports, 1790 through 2018. Coverage is incomplete; neither collection supplies state or Tribal courts, hearing schedules or a later-history check. A match does not establish relevance, controlling authority, current legal status or a relationship to a Tribe.",
       sponsor:
-        "Lists documents that contain the name as typed. Matches are unreviewed and do not show that a policy applies to, or concerns, that Tribe or organization.",
+        "Runs only when chosen here, never on choosing the draft. Lists documents that contain the name as typed. Matches are unreviewed and do not show that a policy applies to, or concerns, that Tribe or organization.",
     },
     courtLinksHelp:
       "Other courts, recent Supreme Court opinions, and pending litigation on CourtListener, a Free Law Project archive, not an official court source. Opens in a new tab; the search words go to CourtListener only when a link is opened. Its docket archive is incomplete: it holds court-feed listings and filings shared from PACER, the official federal docket system.",
@@ -176,7 +183,39 @@ export const COPY = {
       "The draft resolutions list is for NCAI and ATNI convention participants. Enter the access password shared with participants.",
     gatePassword: "Access password",
     gateHelp:
-      "The password opens an encrypted copy of the list in this tab. The password and the list are not stored or sent; a suggested search you run goes to the official sources like any other search. A shared password is a light barrier, not strong security.",
+      "The password opens an encrypted copy of the list in this tab. The password and the list are not stored or sent. Choosing a draft runs its suggested policy, legislation, and court searches. Policy searches go to the checked federal sources. Legislation and court searches go to GovInfo, and a bill named in the draft's title to Congress.gov, even when those sources are not checked. A shared password is a light barrier, not strong security.",
+    loadedFor: "Suggested searches for NCAI draft",
+    /** Kept in view above the first section; the rest is under aboutSearches. */
+    loadedCaveat:
+      "Policy Sentinel chose these searches; NCAI did not. A result is a text match, not a finding: it does not show that a policy, bill, or case governs this resolution's issue or concerns its sponsor.",
+    aboutSearches: "About these searches",
+    loadedWhy:
+      "Choosing a draft runs its suggested policy, legislation, and court searches. Policy searches use the checked federal sources. Legislation and court searches use GovInfo, and a bill named in the draft's title uses Congress.gov, even when those sources are not checked. Name searches never run on their own. More searches for the draft are in the Search pane.",
+    /** Results status for a draft's searches, which also go to sources not checked. */
+    searching:
+      "Running the draft's suggested searches on each source named below, including sources not checked.",
+    /** Bills and court opinions are listed too, so the count is of documents. */
+    listed: (rows: number) =>
+      `${rows} ${rows === 1 ? "document" : "documents"} listed.`,
+    partialNoResults:
+      "No results loaded. At least one source asked was unavailable.",
+    someFailed:
+      "At least one source asked was unavailable; its reason is shown with it.",
+    allFailed:
+      "The sources asked were unavailable. No empty result is established.",
+    /** Every search sent answered with nothing; the reader chose no words to change. */
+    noResults:
+      "None of the draft's suggested searches listed a document on the sources named below. More searches for the draft are in the Search pane.",
+    /** As noResults, when a source left open whether it holds more (GovInfo always does). */
+    continuationNoResults:
+      "None of the draft's suggested searches loaded a listing yet. More results may be available; see each source’s continuation status. More searches for the draft are in the Search pane.",
+    /** A draft's topic search is spread over the checked sources; Congress.gov takes a bill only. */
+    congressSkipped:
+      "Congress.gov looks up one bill by reference, so it is not searched for a topic.",
+    autoNone:
+      "This draft has no suggested search. Its panel in the Search pane links to other research sources.",
+    autoOff:
+      "This draft's suggested searches were not run: their sources are not available or not checked. Check a federal source, then choose the draft again or use its searches in the Search pane.",
     gateEmpty: "Enter the access password to open the list.",
     gateWrong: "That password did not open the list. Check it and try again.",
     gateBroken: "The list could not be opened. Reload the page and try again.",
@@ -236,7 +275,7 @@ export const COPY = {
   loadMore: (source: string) => "Load more " + source,
   loadingMore: (source: string) => "Loading more from " + source + ".",
   pageLoaded: (source: string, added: number) =>
-    source + ": " + added + " additional listings loaded.",
+    `${source}: ${added} additional ${added === 1 ? "listing" : "listings"} loaded.`,
   pageFailed: (source: string) =>
     source +
     ": the next page failed. Loaded results are kept; use Load more to retry.",
@@ -253,6 +292,9 @@ export const COPY = {
   zeroLoaded: "No listings loaded on this page",
   partialNoResults:
     "No results loaded. At least one selected source was unavailable.",
+  /** Follows the count when some sources answered and others did not. */
+  someFailed:
+    "At least one selected source was unavailable; its reason is shown with it.",
   continuationNoResults:
     "No listings loaded yet. More results may be available; see each source’s continuation status.",
   savedMetadataNote:
@@ -267,9 +309,7 @@ export const COPY = {
   // Results pane.
   resultsTitle: "Results",
   resultsCount: (shown: number, total: number | null) =>
-    total === null
-      ? `${shown} listings loaded`
-      : `${shown} listings loaded; ${total.toLocaleString("en-US")} reported by source`,
+    `${shown} ${shown === 1 ? "listing" : "listings"} loaded${total === null ? "" : `; ${total.toLocaleString("en-US")} reported by source`}`,
   resultsListed: (rows: number) =>
     `${rows} ${rows === 1 ? "policy" : "policies"} listed.`,
   noResults:
@@ -287,6 +327,47 @@ export const COPY = {
   skipped: "Not searched",
   congressSkipped:
     "Congress.gov was skipped. It takes one bill reference, such as hr 1234 119.",
+  laneSourceOff: "Not searched: the source is not available.",
+  /** A draft's federal search when no federal source is both checked and live. */
+  laneNoneChecked:
+    "Not searched: no federal source is checked and live. Check a live federal source in the Search pane, then choose the draft again.",
+  /** A draft's panel search that already ran: it is not sent again. */
+  alreadyInResults: (names: string) => "Already in Results: " + names + ".",
+  stillSearching: (names: string) =>
+    "Still searching: " + names + ". Its outcome appears in Results.",
+  laneBudget: (limit: number) =>
+    `Not searched yet: choosing a draft sends at most ${limit} searches at once, to stay within the demo service's request limit. Use Search this too to send this one.`,
+  searchThisToo: "Search this too",
+  /** Said for searches added to the open results, so the status names them alone. */
+  laneSearching: (names: string) => "Searching " + names + ".",
+  /** A source, then the collection searched within it, if any. */
+  laneWhere: (source: string, collection?: string) =>
+    collection ? `${source}, ${collection}` : source,
+  laneTerms: (terms: string) => `Search: ${terms}`,
+  laneNameTerms: (terms: string) =>
+    `Name search: ${terms}. A name match does not show that a document concerns that Tribe or organization.`,
+  /** Results sections for an NCAI draft's searches, in reading order. */
+  groupTitles: {
+    policy: "Policies and Rules",
+    legislation: "Legislation",
+    bill: "Bills Named in the Title",
+    case: "Court Opinions",
+  },
+  whyShownLabel: "Why shown:",
+  /** The search as sent, unquoted: quotation marks would claim the phrase is in the document. */
+  whyMatched: (terms: string, where: string) =>
+    `matched the search ${terms} in ${where}`,
+  whyName: (terms: string, where: string) =>
+    `name search for ${terms} in ${where}`,
+  /** Congress.gov takes one bill reference: an exact lookup, not a text match. */
+  whyLookedUp: (bill: string, congress: number, where: string) =>
+    `looked up ${bill} in the ${congress}${ordinal(congress)} Congress on ${where}`,
+  /** The searches were suggested for the draft, not the document. */
+  whyDraft: (id: string, searches: number) =>
+    `${searches === 1 ? "search" : "searches"} suggested for NCAI draft ${id}`,
+  /** `reasons` is already joined; a name search adds its caution (safeguard 1). */
+  whyShown: (reasons: string, named: boolean) =>
+    `${reasons}.${named ? " A name match does not show that this document concerns that Tribe or organization." : ""}`,
   /** One short sentence on a phone; the reason for the record shown is in mergeRule. */
   mergeNote: (merged: number) =>
     `${merged} duplicate ${merged === 1 ? "listing was" : "listings were"} merged. Each document is one row; the other listings stay linked.`,
@@ -471,6 +552,28 @@ export const COPY = {
     tool: "Tool",
     responsible: "Responsible person for this use",
     sourcesRead: "Sources cited",
+    foundBy: "Found by",
+  },
+  /**
+   * One Found by value per search that listed a cited document. Draft ID only:
+   * never the tracker title or sponsor. The committee area is not applied to
+   * results, so it is not named.
+   */
+  docFoundBy: {
+    draft: (id: string) => `Suggested search for NCAI draft ${id}`,
+    typed: "Typed search",
+    area: "Policy area menu search",
+    /** `where` is the source, then the collection searched, if any. */
+    search: (seed: string, terms: string, where: string) =>
+      `${seed}: ${terms} (${where})`,
+    /** A name search's terms are the tracker's sponsor, so they stay out of the export. */
+    nameSearch: (id: string, where: string) =>
+      `Name search for the sponsor listed on NCAI draft ${id} (${where})`,
+    /** The same, from a seed with no draft ID, such as the policy area menu. */
+    nameSearchFrom: (seed: string, where: string) =>
+      `${seed}: name search for a sponsor listed on an NCAI draft (${where})`,
+    nameCaution:
+      "This was a name search. A name match is unreviewed and does not show that this document applies to, or concerns, that Tribe or organization.",
   },
 } as const;
 

@@ -1,9 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { atniReferences, ieeeReference } from "../../src/demo/citations";
 import { COPY } from "../../src/demo/copy";
+import { laneId } from "../../src/demo/discovery";
+import type { Reason } from "../../src/demo/discovery";
 import { buildDocument } from "../../src/demo/document";
 import type { DocBlock } from "../../src/demo/document";
-import { emptyActors, reportEntries } from "../../src/demo/report-state";
+import {
+  emptyActors,
+  foundByOf,
+  reportEntries,
+} from "../../src/demo/report-state";
 import type { DataActors, ReportState } from "../../src/demo/report-state";
 import type { DemoIssue } from "../../src/demo/types";
 import { keyOf } from "../../src/demo/validation";
@@ -87,6 +93,16 @@ function build(report: ReportState, actors = report.actors) {
     actors,
   });
 }
+
+/** A plain policy-lane reason; spread to add a collection or the name flag. */
+const reason = (sourceId: string, terms: string): Reason => ({
+  laneId: laneId(sourceId, terms),
+  group: "policy",
+  sourceId,
+  query: terms,
+  label: terms,
+  terms,
+});
 
 const field = (label: string, value: string, mono?: true): DocBlock =>
   mono
@@ -176,6 +192,7 @@ describe("document model shared by the PDF and the print view", () => {
           "Also listed by",
           "Regulations.gov: https://www.regulations.gov/document/EX-2099-00001",
         ),
+        field("Found by", "Not recorded"),
 
         { kind: "break" },
         { kind: "h2", text: '2. A  second EXAMPLE; "title"' },
@@ -198,6 +215,7 @@ describe("document model shared by the PDF and the print view", () => {
         field("Text read from", "Not recorded"),
         field("Text retrieved", "Not recorded"),
         field("Fingerprint", "Not recorded"),
+        field("Found by", "Not recorded"),
 
         { kind: "break" },
         { kind: "h2", text: "Data Actors and Sharing" },
@@ -332,6 +350,148 @@ describe("document model shared by the PDF and the print view", () => {
       { kind: "ref", number: 1, text: atniReferences(VERSION)[0] },
       { kind: "ref", number: 2, text: atniReferences(VERSION)[1] },
     ]);
+  });
+
+  it("says how each cited document was found, per search, and states the gap when it was not kept", () => {
+    const { first, report } = fixture();
+    const key = keyOf(first.citation);
+    const found = foundByOf(
+      [
+        reason("federal-register", "salmon habitat"),
+        {
+          ...reason("govinfo", "salmon habitat"),
+          collection: "Federal court opinions",
+        },
+        {
+          ...reason("federal-register", '"Example Nation" salmon'),
+          name: true,
+        },
+      ],
+      { kind: "draft", id: "PSC-26-001" },
+    );
+    const { blocks } = build({
+      ...report,
+      cited: {
+        ...report.cited,
+        [key]: { ...report.cited[key], foundBy: found },
+      },
+    });
+    // After the two Also listed by fields, before the second policy's page.
+    const start =
+      blocks.findLastIndex(
+        (block) => block.kind === "field" && block.label === "Also listed by",
+      ) + 1;
+    expect(blocks.slice(start, start + 5)).toEqual([
+      field(
+        "Found by",
+        "Suggested search for NCAI draft PSC-26-001: salmon habitat (Federal Register)",
+      ),
+      field(
+        "Found by",
+        "Suggested search for NCAI draft PSC-26-001: salmon habitat (GovInfo, Federal court opinions)",
+      ),
+      // The name search's terms are the tracker's sponsor: never exported.
+      field(
+        "Found by",
+        "Name search for the sponsor listed on NCAI draft PSC-26-001 (Federal Register)",
+      ),
+      { kind: "small", text: COPY.docFoundBy.nameCaution },
+      { kind: "break" },
+    ]);
+    expect(JSON.stringify(blocks)).not.toContain("Example Nation");
+    // The entry with nothing kept says so once and prints no caution.
+    expect(fields(blocks, "Found by").slice(-1)).toEqual(["Not recorded"]);
+    expect(
+      blocks.filter(
+        (block) =>
+          block.kind === "small" && block.text === COPY.docFoundBy.nameCaution,
+      ),
+    ).toHaveLength(1);
+
+    const typed = build({
+      ...report,
+      cited: {
+        [key]: {
+          ...report.cited[key],
+          foundBy: foundByOf([reason("federal-register", "water")], {
+            kind: "typed",
+            query: "water",
+          }),
+        },
+      },
+    });
+    expect(fields(typed.blocks, "Found by")).toEqual([
+      "Typed search: water (Federal Register)",
+    ]);
+    const area = build({
+      ...report,
+      cited: {
+        [key]: {
+          ...report.cited[key],
+          foundBy: foundByOf([reason("congress", "H.R. 1 119th Congress")], {
+            kind: "area",
+            label: "Natural Resources",
+          }),
+        },
+      },
+    });
+    // The area is not applied to results, so the export does not name it.
+    expect(fields(area.blocks, "Found by")).toEqual([
+      "Policy area menu search: H.R. 1 119th Congress (Congress.gov)",
+    ]);
+    expect(JSON.stringify(area)).not.toContain("Natural Resources");
+  });
+
+  it("prints a name search without its terms whatever seed it grew from", () => {
+    const { first, report } = fixture();
+    const key = keyOf(first.citation);
+    const named = build({
+      ...report,
+      cited: {
+        [key]: {
+          ...report.cited[key],
+          foundBy: foundByOf(
+            [
+              {
+                ...reason("federal-register", "Example Nation water rights"),
+                name: true,
+              },
+            ],
+            { kind: "area", label: "Natural Resources" },
+          ),
+        },
+      },
+    });
+    expect(fields(named.blocks, "Found by")).toEqual([
+      "Policy area menu search: name search for a sponsor listed on an NCAI draft (Federal Register)",
+    ]);
+    expect(named.blocks).toContainEqual({
+      kind: "small",
+      text: COPY.docFoundBy.nameCaution,
+    });
+    expect(JSON.stringify(named)).not.toContain("Example Nation");
+    expect(JSON.stringify(named)).not.toContain("Natural Resources");
+  });
+
+  it("never carries a draft title, even when the seed holds one", () => {
+    const { first, report } = fixture();
+    const key = keyOf(first.citation);
+    const seed = {
+      kind: "draft",
+      id: "PSC-26-001",
+      title: "Sentinel draft title",
+    } as const;
+    const model = build({
+      ...report,
+      cited: {
+        [key]: {
+          ...report.cited[key],
+          foundBy: foundByOf([reason("federal-register", "water")], seed),
+        },
+      },
+    });
+    expect(JSON.stringify(model)).toContain("PSC-26-001");
+    expect(JSON.stringify(model)).not.toContain("Sentinel draft title");
   });
 
   it("states the sovereignty and verification facts and uses no dashes for punctuation", () => {

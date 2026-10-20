@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { SOURCE_LABELS } from "../../src/demo/citations";
 import { COPY } from "../../src/demo/copy";
+import { laneId } from "../../src/demo/discovery";
+import type { Reason, Seed } from "../../src/demo/discovery";
 import { buildDocument } from "../../src/demo/document";
 import { appendMergedResults, mergeResults } from "../../src/demo/merge";
 import {
@@ -9,6 +11,7 @@ import {
   emptyActors,
   emptyReport,
   findCitedKey,
+  foundByOf,
   MAX_ACTOR_TEXT,
   MAX_ALTERNATES,
   MAX_SAVED_CHARACTERS,
@@ -675,5 +678,102 @@ describe("alternate listings of a cited document", () => {
       report: attached,
       notice: "",
     });
+  });
+});
+
+describe("how a cited document was found", () => {
+  const reasons: Reason[] = [
+    {
+      laneId: laneId("federal-register", "salmon habitat"),
+      group: "policy",
+      sourceId: "federal-register",
+      query: "salmon habitat",
+      label: "salmon habitat",
+      terms: "salmon habitat",
+    },
+    {
+      laneId: laneId("govinfo", "collection:USCOURTS AND (salmon)"),
+      group: "case",
+      sourceId: "govinfo",
+      query: "collection:USCOURTS AND (salmon)",
+      label: "Federal court opinions",
+      terms: "salmon",
+      collection: "Federal court opinions",
+    },
+    {
+      laneId: laneId("federal-register", '"Example Nation" salmon'),
+      group: "policy",
+      sourceId: "federal-register",
+      query: '"Example Nation" salmon',
+      label: '"Example Nation" salmon',
+      terms: '"Example Nation" salmon',
+      name: true,
+    },
+  ];
+
+  it("keeps each reason's source, terms, collection and name flag, with the seed", () => {
+    const draft = { kind: "draft", id: "PSC-26-001" } as const;
+    expect(foundByOf(reasons, draft)).toEqual([
+      { sourceId: "federal-register", terms: "salmon habitat", seed: draft },
+      {
+        sourceId: "govinfo",
+        terms: "salmon",
+        collection: "Federal court opinions",
+        seed: draft,
+      },
+      {
+        sourceId: "federal-register",
+        terms: '"Example Nation" salmon',
+        name: true,
+        seed: draft,
+      },
+    ]);
+    // The committee area is never applied to results, so its label is not kept.
+    const area = { kind: "area", label: "Natural Resources" } as const;
+    expect(foundByOf(reasons.slice(0, 1), area)).toEqual([
+      {
+        sourceId: "federal-register",
+        terms: "salmon habitat",
+        seed: { kind: "area" },
+      },
+    ]);
+  });
+
+  it("records no typed text beyond the terms, and nothing beyond a draft's ID", () => {
+    expect(
+      foundByOf(reasons.slice(0, 1), {
+        kind: "typed",
+        query: "salmon habitat",
+      })[0].seed,
+    ).toEqual({ kind: "typed" });
+    // A seed carrying more than the plan types allow still yields the ID alone.
+    const seed = { kind: "draft", id: "PSC-26-001", title: "Draft title" };
+    expect(foundByOf(reasons.slice(0, 1), seed as Seed)[0].seed).toStrictEqual({
+      kind: "draft",
+      id: "PSC-26-001",
+    });
+  });
+
+  it("is never saved, so a restored report has none and keeps everything else", () => {
+    const report = merged();
+    const key = Object.keys(report.cited)[0];
+    const found: ReportState = {
+      ...report,
+      cited: {
+        [key]: {
+          ...report.cited[key],
+          foundBy: foundByOf(reasons, { kind: "draft", id: "PSC-26-001" }),
+        },
+      },
+    };
+    const raw = serializeReport(found);
+    expect(raw).not.toMatch(/foundBy|PSC-26-001|salmon|Example Nation/);
+    expect(raw).toBe(serializeReport(report));
+    const restored = restoreReport(raw);
+    expect(restored).toEqual({ report, notice: "" });
+    expect(restored.report.cited[key]).not.toHaveProperty("foundBy");
+    // Kept in memory for the export until the page is reloaded.
+    expect(reportEntries(found)[0].foundBy).toHaveLength(3);
+    expect(reportEntries(restored.report)[0].foundBy).toBeUndefined();
   });
 });
