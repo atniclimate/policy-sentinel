@@ -8,6 +8,7 @@ import {
   areaSearches,
   caseWords,
   courtLinks,
+  draftSearch,
   FEDERAL_COURT_LINKS,
   NCAI_RETRIEVED,
   NCAI_TRACKER_URL,
@@ -153,6 +154,8 @@ interface Found {
   dateTo: string | null;
   rows: readonly MergedResult[];
   sources: readonly SourceSearch[];
+  /** The NCAI draft whose suggested search this is, shown as why it was run. */
+  draft?: NcaiDraft;
 }
 
 const NCAI_GROUPS = [
@@ -565,6 +568,7 @@ export function App() {
     ids: readonly string[],
     q: string,
     options: DemoSearchOptions = PAGE_OPTIONS,
+    draft?: NcaiDraft,
   ) {
     const reference = isCongressReference(q);
     if (!reference && ids.length === 1 && ids[0] === "congress") {
@@ -577,6 +581,7 @@ export function App() {
       q,
       options.dateFrom,
       options.dateTo,
+      draft?.id,
     ]);
     if (searchRequest.current.signature === signature && busy) return;
     searchRequest.current.controller?.abort();
@@ -611,6 +616,7 @@ export function App() {
       dateTo: options.dateTo,
       rows: [],
       sources: sourceStates,
+      draft,
     });
     setBusy(sourceStates.some((source) => source.state === "loading"));
     setQueryError("");
@@ -672,6 +678,7 @@ export function App() {
       dateTo: options.dateTo,
       rows: mergeResults(batches).results,
       sources,
+      draft,
     });
     setBusy(false);
   }
@@ -839,7 +846,7 @@ export function App() {
       : [];
   }
 
-  function tryPreset(preset: NcaiSearch) {
+  function tryPreset(preset: NcaiSearch, from?: NcaiDraft) {
     const ids = presetTargets(preset.source);
     if (ids.length === 0) return;
     resetSearch();
@@ -847,13 +854,21 @@ export function App() {
     setQuery(preset.query);
     setDateFrom("");
     setDateTo("");
-    void runSearch(ids, preset.query);
+    void runSearch(ids, preset.query, PAGE_OPTIONS, from);
   }
 
   function openDraft(next: NcaiDraft) {
     setDraft(next);
     if (ncaiMenu.current) ncaiMenu.current.open = false;
     setPane("search");
+    // D-109: choosing a draft loads its first suggested search into Results.
+    // With no search or no live source, the previous draft's results are cleared, not kept.
+    const first = draftSearch(next);
+    if (first && presetTargets(first.source).length > 0) tryPreset(first, next);
+    else {
+      resetSearch();
+      setMessage(first ? COPY.ncai.autoOff : COPY.ncai.autoNone);
+    }
     // Re-picking the open draft changes no state, so the effect below won't run.
     if (next === draft)
       requestAnimationFrame(() => document.getElementById("ncai-h")?.focus());
@@ -1445,7 +1460,7 @@ export function App() {
               <NcaiPanel
                 draft={draft}
                 usable={(preset) => presetTargets(preset.source).length > 0}
-                onSearch={tryPreset}
+                onSearch={(preset) => tryPreset(preset, draft)}
                 onClose={() => {
                   setDraft(null);
                   ncaiMenu.current?.querySelector("summary")?.focus();
@@ -1731,6 +1746,16 @@ export function App() {
             <h2 id="results-h">{COPY.resultsTitle}</h2>
             {found && (
               <div class="submitted-search">
+                {found.draft && (
+                  <>
+                    <p>
+                      <strong>{COPY.ncai.loadedFor}</strong>{" "}
+                      <span class="mono">{found.draft.id}</span>{" "}
+                      {found.draft.title}
+                    </p>
+                    <p class="help">{COPY.ncai.loadedWhy}</p>
+                  </>
+                )}
                 <p>
                   <strong>{COPY.submittedQuery}</strong> {found.query}
                 </p>

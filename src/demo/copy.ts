@@ -176,7 +176,14 @@ export const COPY = {
       "The draft resolutions list is for NCAI and ATNI convention participants. Enter the access password shared with participants.",
     gatePassword: "Access password",
     gateHelp:
-      "The password opens an encrypted copy of the list in this tab. The password and the list are not stored or sent; a suggested search you run goes to the official sources like any other search. A shared password is a light barrier, not strong security.",
+      "The password opens an encrypted copy of the list in this tab. The password and the list are not stored or sent. Choosing a draft runs its first suggested search, which goes to the official sources like any other search. A shared password is a light barrier, not strong security.",
+    loadedFor: "Suggested search for NCAI draft",
+    loadedWhy:
+      "Choosing a draft runs its first suggested search, chosen by hand by Policy Sentinel, not by NCAI. A result is a text match: it does not show that a policy governs this resolution's issue or concerns its sponsor. More searches for the draft are in the Search pane.",
+    autoNone:
+      "This draft has no suggested search. Its panel in the Search pane links to other research sources.",
+    autoOff:
+      "This draft's suggested search was not run: its source is not available or not checked. Check a federal source, then use the draft's searches in the Search pane.",
     gateEmpty: "Enter the access password to open the list.",
     gateWrong: "That password did not open the list. Check it and try again.",
     gateBroken: "The list could not be opened. Reload the page and try again.",

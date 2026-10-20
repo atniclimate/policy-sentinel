@@ -4,6 +4,7 @@ import { isCongressReference } from "../../src/demo/merge";
 import {
   areaSearches,
   courtLinks,
+  draftSearch,
   ncaiAreas,
   ncaiSearches,
   NO_COMMITTEE,
@@ -149,6 +150,18 @@ describe("NCAI draft searches", () => {
       { group: "sponsor", source: "federal", query: '"Example Nation"' },
     ]);
     expect(courtLinks(drafts[2])).toEqual([]);
+  });
+
+  it("runs the first topic on choosing a draft, else its first bill, else nothing", () => {
+    expect(draftSearch(drafts[0])).toEqual({
+      group: "policy",
+      source: "federal",
+      query: '"Example Rule"',
+    });
+    expect(
+      draftSearch({ ...drafts[2], bills: ["hr 1234", "s 5"], names: [] }),
+    ).toEqual({ group: "bill", source: "congress", query: "hr 1234 119" });
+    expect(draftSearch(drafts[2])).toBeUndefined();
   });
 
   it("links out to CourtListener opinions and dockets with encoded words", () => {

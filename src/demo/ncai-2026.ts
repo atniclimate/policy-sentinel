@@ -319,6 +319,15 @@ export function ncaiSearches(draft: NcaiDraft): readonly NcaiSearch[] {
   ];
 }
 
+/** The search run when a draft is chosen: its first topic, else its first named bill. */
+export function draftSearch(draft: NcaiDraft): NcaiSearch | undefined {
+  const searches = ncaiSearches(draft);
+  return (
+    searches.find((search) => search.group === "policy") ??
+    searches.find((search) => search.group === "bill")
+  );
+}
+
 export interface CourtLink {
   readonly kind: "opinions" | "dockets";
   readonly words: string;

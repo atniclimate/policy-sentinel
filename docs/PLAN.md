@@ -14,8 +14,9 @@ A Tribal policy, natural resources or legal staff member opens one page, searche
 
 Immediate acceptance correction under D-109: selecting an NCAI draft resolution
 must automatically load source-cited policy and case matches into Results. The
-current panel, optional search buttons and state/court directories do not meet
-that requirement. First inspect the deployed unlocked selection-to-Results
+published panel, optional search buttons and state/court directories do not meet
+that requirement. The local repair (2026-10-19, unpublished) loads the draft's
+first policy search; case matches are not yet loaded automatically. Then inspect the deployed unlocked selection-to-Results
 workflow and the reported missing state-policy/judiciary experience; then fix
 the demonstrated gaps. Verify selection, replacement of prior-draft results,
 source identity, why-shown context and distinct empty/unavailable outcomes.

@@ -369,9 +369,10 @@ NCAI draft panels also offer GovInfo bill/public-law and Ninth Circuit searches,
 official federal court/calendar links, and manually selected research links for
 WA, OR, ID, AK, CA, MT and NV. State results and schedules are external research
 links, not integrated coverage; see the [source review](docs/source-reviews/ncai-context-research-2026-10-19.md).
-Selecting a draft opens its context panel but does not automatically populate
-Results. That requested workflow and the reported visibility of state-policy
-and judiciary searches remain unresolved; see [current status](docs/STATUS.md).
+On the local branch, choosing a draft also runs its first suggested search and
+labels Results with the draft; this is not yet published. Automatic case
+matches and the reported visibility of state-policy and judiciary searches
+remain unresolved; see [current status](docs/STATUS.md).
 
 ```powershell
 npm run demo:build                # builds docs/index.html and docs/demo-assets/

@@ -1,7 +1,7 @@
 # Status
 
-As of 2026-10-19. **The NCAI context expansion was published under D-108,
-but the intended user workflow is not accepted and needs closer scrutiny.**
+As of 2026-10-19. **The NCAI context expansion was published under D-108.
+The D-109 draft-to-Results repair is implemented locally, not published.**
 D-109 records the reported missing state-policy and judiciary experience and
 the requirement for selecting a draft resolution to load policy matches into
 Results automatically. D-107 requested regional state
@@ -9,28 +9,31 @@ policy research, court/legislation searches and more than ten research agents,
 prioritizing federal rulings and schedules. Eleven research agents completed
 their assignments; one additional agent reviewed the local implementation.
 
-## Unmet workflow and next-session priority
+## D-109 repair, local and unpublished (2026-10-19, later session)
 
-The reported live-site experience is unchanged: updated state policy and
-judiciary search are not apparent. This report has not been reproduced in the
-real unlocked browser flow. Deployment and byte matching establish which files
-were served, not that the requested experience works.
+Choosing an NCAI draft now runs its first suggested topic search on the checked
+federal sources (its first named bill when it has no topic) and loads Results.
+Results name the draft, the submitted terms and why they ran ("a text match,
+not a finding"). A draft with no search, or whose source is off, clears the
+previous draft's results and says why. Changing drafts replaces results; the
+search panel's other presets carry the draft label too. Code: `openDraft` and
+`runSearch` in `demo/main.tsx`, `draftSearch` in `src/demo/ncai-2026.ts`.
 
-The implementation provides optional NCAI search buttons and external research
-directories. Selecting a draft only opens its context panel; it does not start
-a search or populate Results. Integrated state-topic results and automatic
-resolution-to-results loading were not implemented. The judiciary search's
-visibility and usability in the real workflow remain unverified. Prior checks
-covered synthetic preset activation and the published locked dialog, leaving
-this acceptance gap.
+Checks: 579 demo tests (one new results test, one new `draftSearch` test, two
+tests updated for the reversed no-search-on-select rule), typecheck, lint,
+Prettier on changed files and the source-boundary scan passed. A synthetic-vault
+Chromium 153 run passed seven groups: keyboard choice loads labeled Results
+with distinct results/unavailable/empty/not-searched rows, draft switching
+replaces results, a termless draft clears them with no request, desktop and
+narrow axe with zero violations, narrow Results focused with no overflow, and no
+provider calls or page errors. Receipt and screenshots:
+`C:/dev/_scratch/policy-sentinel/ncai-autoload-20261019/browser-aNe0UN/`.
 
-The next session must reproduce selection through Results on the deployed
-interface, inspect what is actually visible and requested, then repair that
-workflow. Acceptance requires selection-triggered policy/case matches in
-Results, source citations and why-shown context, and explicit unsupported,
-unavailable and empty outcomes. Search matches must not imply legal relevance
-or a Nation relationship. No runtime repair or new deployment was made during
-this closeout.
+Not done: the live page is still 0.7.0 without this change; publishing needs
+`npm run demo:build`, the full check, review and the owner's push/merge command.
+Case matches are not loaded automatically (one click in the panel). Real-vault
+unlock and the owner's reported display problem remain unverified. Search
+matches still imply no legal relevance or Nation relationship.
 
 ## This session
 
@@ -114,8 +117,8 @@ establish real-vault unlock or new live backend acceptance. The Worker remains
 
 ## Next bounded work
 
-First resolve the unmet resolution-to-Results workflow above; publication
-success alone must not close it. After that, use the source review's dated leads
+Publish the D-109 repair above once the owner commands it, then confirm it in
+the real unlocked flow; publication success alone must not close it. After that, use the source review's dated leads
 to choose one official opinion or schedule contract for a separate source
 qualification. Washington topic discovery remains
 manual until a permitted interface is qualified. Oregon terms, Idaho structured

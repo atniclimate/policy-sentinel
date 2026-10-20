@@ -1403,6 +1403,17 @@ describe("demo frame: panes, dialog and theme", () => {
     });
     fireEvent.click(gate.getByRole("button", { name: "Open" }));
     fireEvent.click(await ui.findByRole("button", { name: /PSC-26-001/ }));
+    // Choosing the draft runs only its first suggested search (D-109).
+    await waitFor(() =>
+      expect(search).toHaveBeenCalledWith(
+        "federal-register",
+        "water quality",
+        1,
+        expect.any(AbortSignal),
+        expect.any(Object),
+      ),
+    );
+    vi.mocked(search).mockClear();
     const state = ui.getByRole("combobox", { name: "State to research" });
     expect(state).toHaveValue("");
     expect(ui.getByLabelText("Policy context terms to copy")).toHaveValue(
@@ -1515,6 +1526,9 @@ describe("demo frame: panes, dialog and theme", () => {
     });
     fireEvent.click(gate.getByRole("button", { name: "Open" }));
     fireEvent.click(await ui.findByRole("button", { name: /PSC-26-001/ }));
+    // The draft's own suggested search runs on choosing it; the off chips below must add none.
+    await waitFor(() => expect(search).toHaveBeenCalledOnce());
+    vi.mocked(search).mockClear();
     fireEvent.click(ui.getByRole("checkbox", { name: /Federal Register/ }));
     fireEvent.change(ui.getByLabelText("Policy area (NCAI committee)"), {
       target: { value: "0" },
@@ -1542,7 +1556,40 @@ describe("demo frame: panes, dialog and theme", () => {
       }
     }
     expect(search).not.toHaveBeenCalled();
-    expect(ui.getByRole("searchbox")).toHaveValue("");
+    expect(ui.getByRole("searchbox")).toHaveValue("water quality");
+  });
+
+  it("loads a chosen draft's search into Results, labeled, and clears it for a draft with none", async () => {
+    vi.mocked(openNcaiDrafts).mockResolvedValue(NCAI_DRAFTS);
+    const { ui, container } = await start();
+    fireEvent.click(ui.getByRole("button", { name: "NCAI" }));
+    const gate = within(container.querySelector(".gate") as HTMLElement);
+    fireEvent.input(gate.getByLabelText("Access password"), {
+      target: { value: "synthetic" },
+    });
+    fireEvent.click(gate.getByRole("button", { name: "Open" }));
+    fireEvent.click(await ui.findByRole("button", { name: /PSC-26-001/ }));
+    const results = container.querySelector(".pane-results") as HTMLElement;
+    await waitFor(() =>
+      expect(results).toHaveTextContent(
+        "Suggested search for NCAI draft PSC-26-001 Example draft on water",
+      ),
+    );
+    expect(results).toHaveTextContent("Submitted search: water quality");
+    expect(results).toHaveTextContent("A result is a text match");
+    await within(results).findAllByRole("button", {
+      name: /Add to my citations/,
+    });
+    // A draft with no suggested search must not keep the previous draft's results.
+    vi.mocked(search).mockClear();
+    (container.querySelector(".ncai-menu") as HTMLDetailsElement).open = true;
+    fireEvent.click(ui.getByRole("button", { name: /PSC-26-002/ }));
+    expect(search).not.toHaveBeenCalled();
+    expect(results).not.toHaveTextContent("PSC-26-001");
+    expect(
+      within(results).queryByRole("button", { name: /Add to my citations/ }),
+    ).toBeNull();
+    expect(results).toHaveTextContent("This draft has no suggested search.");
   });
 
   it("closes the NCAI menu when focus or a click lands outside, and refocuses a re-picked draft", async () => {
