@@ -467,13 +467,14 @@ try {
   const dialogShutWithFocusBack = () =>
     holds(
       (opener) =>
-        !document.querySelector("dialog").open &&
+        !document.querySelector('dialog[aria-labelledby="about-h"]').open &&
         document.activeElement?.textContent === opener,
       COPY.aboutButton,
     );
   await aboutButton.click();
   check("About and Limits opens as a dialog", await appears(dialog));
-  const aboutGaps = lacks(flat(await page.locator("dialog").innerText()), {
+  // The page also holds the NCAI password dialog, so name the About dialog.
+  const aboutGaps = lacks(flat(await dialog.innerText()), {
     status: `Policy Sentinel ${version} is in development`,
     "working demo": /working demo/i,
     "not legal advice": /not legal advice/i,
@@ -949,7 +950,7 @@ try {
     "embed mode drops the footer strip and keeps the limits in the dialog",
     (await page.locator("footer").count()) === 0 &&
       (await appears(dialog)) &&
-      /not legal advice/i.test(await page.locator("dialog").innerText()),
+      /not legal advice/i.test(await dialog.innerText()),
   );
 
   check(

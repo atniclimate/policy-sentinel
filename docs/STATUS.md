@@ -1,21 +1,32 @@
 # Status
 
-As of 2026-10-20. **Release 0.8.0 (seeded discovery) is checked, built,
-committed and pushed to `demo/live-pages`, but not yet published.** Choosing an
-NCAI draft now loads its suggested policy, legislation, named-bill and court
-searches into grouped Results. This answers D-109 (selecting a draft must load
-results) and D-110 (court searches run automatically, draft seeds fill the
-searches, and a general discovery pattern). The live page is still 0.7.0.
+As of 2026-10-20. **Release 0.8.0 (seeded discovery) is published (D-111).**
+Choosing an NCAI draft now loads its suggested policy, legislation, named-bill
+and court searches into grouped Results. This answers D-109 (selecting a draft
+must load results) and D-110 (court searches run automatically, draft seeds fill
+the searches, and a general discovery pattern). The owner's unlocked look at the
+live flow is still the acceptance test.
 
-## Publication blocked at the pull request (D-111)
+## Publication (D-111)
 
-`main` is protected and accepts changes only through a pull request. Admins
-are exempt, so a direct push would bypass that protection, and the driver did
-not do it. The project settings deny the driver `gh pr create`; `gh pr merge`
-without `--admin` is permitted. Next: the owner opens the pull request from
-`demo/live-pages` to `main` (the exact command is in the private handoff). The
-driver then merges it with a merge commit, verifies the Pages build and the
-published files, and records the result here.
+The driver could not open the pull request: project settings deny it
+`gh pr create`, and `main` requires a pull request. The owner opened and merged
+[PR 16](https://github.com/atniclimate/policy-sentinel/pull/16) on GitHub.com
+as `49aa599` at 2026-10-20 11:22:18 UTC. Its tree equals the reviewed branch tip
+`12e7732`. Pages built `49aa599` by 11:22:42 UTC. Readback at 11:25:37-11:25:40
+UTC matched all 17 published runtime files byte for byte with the merge commit,
+and the bundle names 0.8.0.
+
+`scripts/verify-demo-browser.mjs` against the live page, Chromium, passed 83 of
+83 inside its enforced budget: source catalog twice, one search, one policy
+read, no retries. It covers search, citation, the PDF and print provenance,
+desktop and narrow layouts, both themes with zero axe violations, visible
+keyboard focus and no console errors. Its first run stopped on a stale
+verifier locator: since 0.7.0 the page holds two dialogs. That locator now
+names the About dialog; the first run made no search or policy request.
+Receipts: `C:/dev/_scratch/policy-sentinel/ncai-discovery-20261019/release/`.
+This check does not unlock the NCAI list, so draft selection on the live page
+is verified only by the synthetic-vault run above.
 
 ## What a person can do in 0.8.0
 
@@ -89,8 +100,7 @@ published files, and records the result here.
 
 ## Next bounded work
 
-Open, merge and verify the 0.8.0 pull request (above), then have the owner try
-it unlocked. Next block:
+The owner tries 0.8.0 unlocked on the live page. Next block:
 Release B as set out in the source note, starting with the Regulations.gov
 terms read and one bounded shape call per new field, then the owner's approval
 to deploy the Worker.
