@@ -227,6 +227,164 @@ describe("demo API response boundary", () => {
     expect(fetch).toHaveBeenCalledOnce();
   });
 
+  describe("search contract v2", () => {
+    const docket: DemoSearchOptions = {
+      ...undated,
+      version: 2,
+      match: "docket",
+      documentType: "PRORULE",
+    };
+    const q = "Docket No. 260916-0002";
+    const v2Answer = (options: DemoSearchOptions, results: unknown[] = []) => ({
+      ...searchResult([], q),
+      results,
+      criteria: searchCriteria("federal-register", q, 1, options),
+      continuation: { kind: "stopped", reason: "complete" },
+    });
+
+    it("sends an identifier search with its type filter and requires the v2 echo", async () => {
+      const fetch = vi.fn().mockResolvedValue(answer(v2Answer(docket)));
+      vi.stubGlobal("fetch", fetch);
+      const result = await search("federal-register", q, 1, undefined, docket);
+      expect(result.criteria).toEqual(
+        searchCriteria("federal-register", q, 1, docket),
+      );
+      const params = new URL(fetch.mock.calls[0][0]).searchParams;
+      expect(Object.fromEntries(params)).toEqual({
+        source: "federal-register",
+        q,
+        page: "1",
+        searchVersion: "2",
+        match: "docket",
+        documentType: "PRORULE",
+      });
+    });
+
+    it("sends a v2 text search without match or type parameters", async () => {
+      const text: DemoSearchOptions = { ...undated, version: 2 };
+      const fetch = vi.fn().mockResolvedValue(
+        answer({
+          ...v2Answer(text),
+          query: "water",
+          criteria: searchCriteria("federal-register", "water", 1, text),
+        }),
+      );
+      vi.stubGlobal("fetch", fetch);
+      await search("federal-register", "water", 1, undefined, text);
+      const params = new URL(fetch.mock.calls[0][0]).searchParams;
+      expect(params.get("searchVersion")).toBe("2");
+      expect(params.has("match")).toBe(false);
+      expect(params.has("documentType")).toBe(false);
+    });
+
+    it("rejects a v1 echo for a v2 request and a v2 echo for a v1 request", async () => {
+      vi.stubGlobal(
+        "fetch",
+        vi
+          .fn()
+          .mockImplementationOnce(() =>
+            Promise.resolve(
+              answer({
+                ...v2Answer(docket),
+                criteria: searchCriteria("federal-register", q, 1),
+              }),
+            ),
+          )
+          .mockImplementationOnce(() =>
+            Promise.resolve(answer(v2Answer(docket))),
+          ),
+      );
+      await expect(
+        search("federal-register", q, 1, undefined, docket),
+      ).rejects.toMatchObject({ kind: "service" });
+      await expect(
+        search("federal-register", q, 1, undefined, undated),
+      ).rejects.toMatchObject({ kind: "service" });
+    });
+
+    it.each<[string, string, DemoSearchOptions]>([
+      [
+        "regulations",
+        "water",
+        { ...undated, version: 2, documentType: "PRESDOCU" },
+      ],
+      ["govinfo", "water", { ...undated, version: 2, documentType: "RULE" }],
+      [
+        "govinfo",
+        "EPA-HQ-OAR-2021-0317",
+        { ...undated, version: 2, match: "docket" },
+      ],
+    ])(
+      "refuses %s criteria it cannot apply before any request",
+      async (source, query, options) => {
+        const fetch = vi.fn();
+        vi.stubGlobal("fetch", fetch);
+        await expect(
+          search(source, query, 1, undefined, options),
+        ).rejects.toMatchObject({
+          code: "unsupported_criteria",
+          httpStatus: 400,
+        });
+        expect(fetch).not.toHaveBeenCalled();
+      },
+    );
+
+    it("keeps valid v2 citation fields and drops malformed ones without failing the search", async () => {
+      const good = {
+        ...citation("2026-19346"),
+        commentsCloseOn: "2026-10-22",
+        docketIds: [q],
+        rins: ["0648-BO46"],
+        cfrRefs: [{ title: 50, part: "660" }],
+        topics: ["Fisheries"],
+      };
+      const bad = {
+        ...citation("2026-19347"),
+        commentsCloseOn: "22 October 2026",
+        commentsCloseWithheld: "yes",
+        docketIds: "Docket No. 1",
+        rins: ["bad", "0648-BO46"],
+        cfrRefs: [
+          { title: 99, part: "1" },
+          { title: 50, part: "1", extra: "x" },
+        ],
+        topics: [7, "Fishing", "\u0007"],
+      };
+      const closed = { ...citation("2026-19348"), commentsCloseOn: null };
+      const withheld = {
+        ...citation("2026-19349"),
+        commentsCloseWithheld: true,
+      };
+      vi.stubGlobal(
+        "fetch",
+        vi
+          .fn()
+          .mockResolvedValue(
+            answer(v2Answer(docket, [good, bad, closed, citation(), withheld])),
+          ),
+      );
+      const { results } = await search(
+        "federal-register",
+        q,
+        1,
+        undefined,
+        docket,
+      );
+      expect(results[0]).toEqual(good);
+      expect(results[1]).not.toHaveProperty("commentsCloseOn");
+      expect(results[1]).not.toHaveProperty("commentsCloseWithheld");
+      expect(results[1]).not.toHaveProperty("docketIds");
+      expect(results[1]).toMatchObject({
+        rins: ["0648-BO46"],
+        cfrRefs: [{ title: 50, part: "1" }],
+        topics: ["Fishing"],
+      });
+      expect(results[2].commentsCloseOn).toBeNull();
+      expect(Object.keys(results[3])).toEqual(Object.keys(citation()));
+      expect(results[4]).toEqual(withheld);
+    });
+  });
+
   it.each([
     ["not_found", 404, "error"],
     ["upstream_error", 502, "error"],

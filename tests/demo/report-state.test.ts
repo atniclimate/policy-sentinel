@@ -14,6 +14,7 @@ import {
   foundByOf,
   MAX_ACTOR_TEXT,
   MAX_ALTERNATES,
+  MAX_DRAFT_TITLE,
   MAX_SAVED_CHARACTERS,
   missingActorFields,
   removeFromReport,
@@ -739,7 +740,7 @@ describe("how a cited document was found", () => {
     ]);
   });
 
-  it("records no typed text beyond the terms, and nothing beyond a draft's ID", () => {
+  it("records no typed text beyond the terms, and a draft's title only when the page supplies it", () => {
     expect(
       foundByOf(reasons.slice(0, 1), {
         kind: "typed",
@@ -752,6 +753,51 @@ describe("how a cited document was found", () => {
       kind: "draft",
       id: "PSC-26-001",
     });
+    const draft = { kind: "draft", id: "PSC-26-001" } as const;
+    expect(
+      foundByOf(reasons.slice(0, 1), draft, "  Salmon recovery  ")[0].seed,
+    ).toStrictEqual({ ...draft, title: "Salmon recovery" });
+    expect(foundByOf(reasons.slice(0, 1), draft, " ")[0].seed).toStrictEqual(
+      draft,
+    );
+    const long = foundByOf(reasons.slice(0, 1), draft, "x".repeat(400))[0].seed;
+    expect(long).toStrictEqual({
+      ...draft,
+      title: "x".repeat(MAX_DRAFT_TITLE),
+    });
+    // Only a draft seed carries a title.
+    expect(
+      foundByOf(
+        reasons.slice(0, 1),
+        { kind: "area", label: "Natural Resources" },
+        "Salmon recovery",
+      )[0].seed,
+    ).toStrictEqual({ kind: "area" });
+  });
+
+  it("keeps a Find related record seed and the identifier kind matched", () => {
+    const record = {
+      kind: "record",
+      sourceId: "federal-register",
+      identifier: "FR Doc. 2026-19346",
+    } as const;
+    const lookup: Reason = {
+      laneId: laneId("federal-register", "50 CFR 660", "cfr"),
+      group: "related",
+      sourceId: "federal-register",
+      query: "50 CFR 660",
+      label: "Same CFR part: 50 CFR 660",
+      terms: "50 CFR 660",
+      match: "cfr",
+    };
+    expect(foundByOf([lookup], record, "Ignored title")).toStrictEqual([
+      {
+        sourceId: "federal-register",
+        terms: "50 CFR 660",
+        match: "cfr",
+        seed: record,
+      },
+    ]);
   });
 
   it("is never saved, so a restored report has none and keeps everything else", () => {
@@ -762,12 +808,18 @@ describe("how a cited document was found", () => {
       cited: {
         [key]: {
           ...report.cited[key],
-          foundBy: foundByOf(reasons, { kind: "draft", id: "PSC-26-001" }),
+          foundBy: foundByOf(
+            reasons,
+            { kind: "draft", id: "PSC-26-001" },
+            "Sentinel draft title",
+          ),
         },
       },
     };
     const raw = serializeReport(found);
-    expect(raw).not.toMatch(/foundBy|PSC-26-001|salmon|Example Nation/);
+    expect(raw).not.toMatch(
+      /foundBy|PSC-26-001|Sentinel draft title|salmon|Example Nation/,
+    );
     expect(raw).toBe(serializeReport(report));
     const restored = restoreReport(raw);
     expect(restored).toEqual({ report, notice: "" });
@@ -775,5 +827,32 @@ describe("how a cited document was found", () => {
     // Kept in memory for the export until the page is reloaded.
     expect(reportEntries(found)[0].foundBy).toHaveLength(3);
     expect(reportEntries(restored.report)[0].foundBy).toBeUndefined();
+  });
+
+  it("saves no search contract v2 citation fields, on the citation or its alternates", () => {
+    const report = merged();
+    const key = Object.keys(report.cited)[0];
+    const entry = report.cited[key];
+    const v2 = {
+      commentsCloseOn: "2099-02-01",
+      commentsCloseWithheld: true,
+      docketIds: ["Docket No. 990101-0001"],
+      rins: ["0648-AA00"],
+      cfrRefs: [{ title: 50, part: "660" }],
+      topics: ["Fisheries"],
+    } as const;
+    const withFields: ReportState = {
+      ...report,
+      cited: {
+        [key]: {
+          ...entry,
+          citation: { ...entry.citation, ...v2 },
+          alternates: entry.alternates.map((a) => ({ ...a, ...v2 })),
+        },
+      },
+    };
+    const raw = serializeReport(withFields);
+    for (const field of Object.keys(v2)) expect(raw).not.toContain(field);
+    expect(raw).toBe(serializeReport(report));
   });
 });

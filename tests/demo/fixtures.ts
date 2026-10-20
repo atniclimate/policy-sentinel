@@ -125,6 +125,95 @@ BILLING CODE 0000-00-P
 
 export const WA_HTML = `<!DOCTYPE html><html><body><div>H-0000.1</div><hr /><div style="font-weight:bold;text-align:center;">HOUSE BILL 1100</div><hr /><table><tr><td><div>State of Washington</div></td><td><div>69th Legislature</div></td><td><div>2025 Regular Session</div></td></tr></table><div><span>By</span>Representative Example</div><div><span>Prefiled 12/19/24.</span><span>Read first time 01/13/25.</span><span>Referred to Committee on Finance.</span></div><div>AN ACT Relating to an example local tax; and providing an effective date.</div><div>BE IT ENACTED BY THE LEGISLATURE OF THE STATE OF WASHINGTON:</div><div><span>NEW SECTION.</span><span>  </span><span>Sec. 1.  </span><span>The legislature finds that example local governments would benefit from consultation with affected governments before this section takes effect.</span></div><div><span>NEW SECTION.</span><span>  </span><span>Sec. 2.  </span><span>This act takes effect July 1, 2025.</span></div></body></html>`;
 
+/**
+ * Federal Register search rows trimmed from the response recorded on
+ * 2026-10-20T11:32Z (conditions[type][]=PRORULE, two bounded calls). Public
+ * metadata, kept as the field-shape fixture for the v2 citation fields.
+ */
+export const FR_PROBE_ROWS = [
+  {
+    document_number: "2026-19346",
+    title:
+      "Magnuson-Stevens Act Provisions; Fisheries Off West Coast States; Pacific Coast Groundfish Fishery; Pacific Coast Groundfish Fishery Management Plan; Amendment 38; 2027-28 Biennial Specifications and Management Measures",
+    type: "Proposed Rule",
+    publication_date: "2026-09-22",
+    comments_close_on: "2026-10-22",
+    docket_ids: ["Docket No. 260916-0002"],
+    regulation_id_numbers: ["0648-BO46"],
+    cfr_references: [
+      { chapter: null, citation_url: null, part: "300", title: 50 },
+      { chapter: null, citation_url: null, part: "660", title: 50 },
+    ],
+    topics: [
+      "Fisheries",
+      "Fishing",
+      "Reporting and recordkeeping requirements",
+    ],
+    html_url:
+      "https://www.federalregister.gov/documents/2026/09/22/2026-19346/magnuson-stevens-act-provisions-fisheries-off-west-coast-states-pacific-coast-groundfish-fishery",
+  },
+  {
+    document_number: "2026-12955",
+    title: "Process for Authorizing Seasonal Migratory Game Bird Hunting",
+    type: "Proposed Rule",
+    publication_date: "2026-06-26",
+    comments_close_on: "2026-07-27",
+    docket_ids: [
+      "Docket No. FWS-HQ-MB-2024-0206",
+      "FF09M32000-267-FXMB1231099BPP0",
+    ],
+    regulation_id_numbers: ["1018-BI04"],
+    cfr_references: [
+      { chapter: null, citation_url: null, part: "20", title: 50 },
+    ],
+    topics: [
+      "Exports",
+      "Hunting",
+      "Imports",
+      "Reporting and recordkeeping requirements",
+      "Transportation",
+      "Wildlife",
+    ],
+    html_url:
+      "https://www.federalregister.gov/documents/2026/06/26/2026-12955/process-for-authorizing-seasonal-migratory-game-bird-hunting",
+  },
+];
+
+/**
+ * Synthetic Regulations.gov v4 document listing. Field names and types follow
+ * the official OpenAPI file: commentEndDate is a nullable date-time and
+ * docketId a string. The timestamp spellings are invented test values.
+ */
+export const REGULATIONS_V2_JSON = {
+  data: [
+    {
+      id: "EX-2099-0001-0001",
+      attributes: {
+        title: "Example proposed rule, as the docket lists it",
+        agencyId: "EX",
+        documentType: "Proposed Rule",
+        postedDate: "2099-01-05T05:00:00Z",
+        frDocNum: FR_DOC_NUMBER,
+        docketId: "EX-2099-0001",
+        commentEndDate: "2099-03-02T23:59:59-05:00",
+      },
+    },
+    {
+      id: "EX-2099-0001-0002",
+      attributes: {
+        title: "Example supporting material",
+        agencyId: "EX",
+        documentType: "Supporting & Related Material",
+        postedDate: "2099-01-06T05:00:00Z",
+        frDocNum: null,
+        docketId: "EX-2099-0001",
+        commentEndDate: null,
+      },
+    },
+  ],
+  meta: { totalElements: 2 },
+};
+
 export const FR_SEARCH_JSON = {
   count: 1,
   results: [

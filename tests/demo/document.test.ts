@@ -440,6 +440,40 @@ describe("document model shared by the PDF and the print view", () => {
       "Policy area menu search: H.R. 1 119th Congress (Congress.gov)",
     ]);
     expect(JSON.stringify(area)).not.toContain("Natural Resources");
+
+    // Find related: the reader typed nothing; the identifier came from a record.
+    const related = build({
+      ...report,
+      cited: {
+        [key]: {
+          ...report.cited[key],
+          foundBy: foundByOf(
+            [
+              {
+                ...reason("federal-register", "50 CFR 660"),
+                laneId: laneId("federal-register", "50 CFR 660", "cfr"),
+                group: "related",
+                match: "cfr",
+              },
+            ],
+            {
+              kind: "record",
+              sourceId: "federal-register",
+              identifier: "FR Doc. 2026-19346",
+            },
+          ),
+        },
+      },
+    });
+    expect(fields(related.blocks, "Found by")).toEqual([
+      "Identifier lookup from Federal Register record FR Doc. 2026-19346: CFR part 50 CFR 660 (Federal Register)",
+    ]);
+    // Read without the page, the export still says a shared identifier shows no relationship.
+    const caveat = { kind: "small", text: COPY.related.caveat };
+    expect(related.blocks.filter((b) => b.kind === "small")).toContainEqual(
+      caveat,
+    );
+    expect(area.blocks).not.toContainEqual(caveat);
   });
 
   it("prints a name search without its terms whatever seed it grew from", () => {
@@ -473,25 +507,44 @@ describe("document model shared by the PDF and the print view", () => {
     expect(JSON.stringify(named)).not.toContain("Natural Resources");
   });
 
-  it("never carries a draft title, even when the seed holds one", () => {
+  it("prints a draft title only when the page supplies one, never from the seed", () => {
     const { first, report } = fixture();
     const key = keyOf(first.citation);
+    const withFound = (foundBy: ReturnType<typeof foundByOf>) =>
+      build({
+        ...report,
+        cited: { [key]: { ...report.cited[key], foundBy } },
+      });
     const seed = {
       kind: "draft",
       id: "PSC-26-001",
       title: "Sentinel draft title",
     } as const;
-    const model = build({
-      ...report,
-      cited: {
-        [key]: {
-          ...report.cited[key],
-          foundBy: foundByOf([reason("federal-register", "water")], seed),
-        },
-      },
-    });
-    expect(JSON.stringify(model)).toContain("PSC-26-001");
-    expect(JSON.stringify(model)).not.toContain("Sentinel draft title");
+    const fromSeed = withFound(
+      foundByOf([reason("federal-register", "water")], seed),
+    );
+    expect(JSON.stringify(fromSeed)).toContain("PSC-26-001");
+    expect(JSON.stringify(fromSeed)).not.toContain("Sentinel draft title");
+
+    const supplied = withFound(
+      foundByOf(
+        [
+          {
+            ...reason("govinfo", "water"),
+            collection: "Federal court opinions",
+          },
+          { ...reason("federal-register", "Example Nation water"), name: true },
+        ],
+        { kind: "draft", id: "PSC-26-001" },
+        "Sentinel draft title",
+      ),
+    );
+    expect(fields(supplied.blocks, "Found by")).toEqual([
+      "Suggested search for NCAI draft PSC-26-001 (Sentinel draft title): water (GovInfo, Federal court opinions)",
+      // A name search keeps its terms out, and the title too: it may name the sponsor.
+      "Name search for the sponsor listed on NCAI draft PSC-26-001 (Federal Register)",
+    ]);
+    expect(JSON.stringify(supplied)).not.toContain("Example Nation");
   });
 
   it("states the sovereignty and verification facts and uses no dashes for punctuation", () => {

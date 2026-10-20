@@ -6,12 +6,16 @@ import {
   buildPlan,
   failLane,
   groupDiscovery,
+  isSeedRecord,
   LANE_KEEP_MS,
   LaneCache,
   laneId,
+  laneKeep,
+  laneOptions,
   laneSignature,
   mergeLanes,
   NO_FEDERAL_SOURCE,
+  recordPlan,
   replayLane,
   settleLane,
   startLane,
@@ -21,6 +25,10 @@ import {
 } from "../../src/demo/discovery";
 import type { LaneSearch, Plan, PlanSearch } from "../../src/demo/discovery";
 import { draftPlan } from "../../src/demo/ncai-2026";
+import {
+  REGULATIONS_V2_CONFIRMED,
+  searchCriteria,
+} from "../../src/demo/search-contract";
 import type { NcaiDraft } from "../../src/demo/ncai-2026";
 import type {
   DemoCitation,
@@ -603,5 +611,344 @@ describe("the lane cache", () => {
     expect(cache.get(at("a"), dates)).toBeDefined();
     cache.clear();
     expect(cache.size).toBe(0);
+  });
+
+  it("never crosses identifier kinds or type filters", () => {
+    const cache = new LaneCache();
+    const text = { sourceId: "federal-register", query: "0648-BO46" };
+    const rin = { ...text, match: "rin" as const };
+    const first = response(text.sourceId, text.query, []);
+    cache.set(rin, dates, first);
+    expect(cache.get(text, dates)).toBeUndefined();
+    expect(cache.get(rin, { ...dates, documentType: "RULE" })).toBeUndefined();
+    expect(cache.get(rin, { ...dates, documentType: null })).toBe(first);
+    // A lane sent without the plan's filter is the same request as an unfiltered one.
+    const govinfo = { sourceId: "govinfo", query: "salmon" };
+    expect(
+      laneSignature(
+        { ...govinfo, typeNotApplied: true },
+        { ...dates, documentType: "RULE" },
+      ),
+    ).toBe(laneSignature(govinfo, dates));
+  });
+});
+
+describe("the document type filter", () => {
+  const sources = {
+    federal: ["federal-register", "govinfo", "regulations"],
+    live: ALL_LIVE,
+  };
+  const dates = { dateFrom: null, dateTo: null };
+
+  it("flags each lane whose source has no equivalent, and sends the filter only where it applies", () => {
+    const plan = typedPlan("salmon", "federal", sources, {
+      ...dates,
+      documentType: "RULE",
+    });
+    expect(plan.documentType).toBe("RULE");
+    // Regulations.gov takes the filter only once its live check is recorded.
+    expect(plan.lanes.map((l) => [l.sourceId, l.typeNotApplied])).toEqual([
+      ["federal-register", undefined],
+      ["govinfo", true],
+      ["regulations", REGULATIONS_V2_CONFIRMED ? undefined : true],
+    ]);
+    expect(plan.lanes.map((l) => laneOptions(plan, l).documentType)).toEqual([
+      "RULE",
+      null,
+      REGULATIONS_V2_CONFIRMED ? "RULE" : null,
+    ]);
+    // Every lane's options are ones the contract accepts.
+    for (const lane of plan.lanes)
+      expect(() =>
+        searchCriteria(lane.sourceId, lane.query, 1, laneOptions(plan, lane)),
+      ).not.toThrow();
+    const presidential = typedPlan("salmon", "federal", sources, {
+      ...dates,
+      documentType: "PRESDOCU",
+    });
+    expect(presidential.lanes.map((l) => l.typeNotApplied)).toEqual([
+      undefined,
+      true,
+      true,
+    ]);
+  });
+
+  it("flags nothing without a filter, and carries a continuation unchanged", () => {
+    const plan = typedPlan("salmon", "federal", sources);
+    expect(plan.lanes.some((l) => l.typeNotApplied)).toBe(false);
+    const next = criteria("federal-register", "salmon", 2);
+    expect(laneOptions(plan, plan.lanes[0], next)).toEqual({
+      dateFrom: null,
+      dateTo: null,
+      continuation: next,
+      version: 2,
+      match: "text",
+      documentType: null,
+    });
+  });
+});
+
+describe("a record plan (Find related)", () => {
+  const fr: DemoCitation = {
+    ...listing("federal-register"),
+    docketIds: ["Docket No. 260916-0002"],
+    rins: ["0648-BO46"],
+    cfrRefs: [{ title: 50, part: "660" }],
+    topics: ["Fisheries"],
+  };
+  const regs: DemoCitation = {
+    ...listing("regulations", "NOAA-NMFS-2099-0001"),
+    docketIds: ["NOAA-NMFS-2099-0001"],
+  };
+
+  it("expands only the identifiers the Federal Register stated, within the Federal Register", () => {
+    const plan = recordPlan(fr, defaults);
+    expect(plan.seed).toEqual({
+      kind: "record",
+      sourceId: "federal-register",
+      identifier: fr.identifier,
+    });
+    expect(
+      plan.lanes.map((l) => [l.id, l.group, l.sourceId, l.match, l.label]),
+    ).toEqual([
+      [
+        "federal-register#docket:Docket No. 260916-0002",
+        "related",
+        "federal-register",
+        "docket",
+        "Same docket: Docket No. 260916-0002 (Federal Register)",
+      ],
+      [
+        "federal-register#rin:0648-BO46",
+        "related",
+        "federal-register",
+        "rin",
+        "Same RIN: 0648-BO46",
+      ],
+      [
+        "federal-register#cfr:50 CFR 660",
+        "related",
+        "federal-register",
+        "cfr",
+        "Same CFR part: 50 CFR 660",
+      ],
+    ]);
+    expect(startPlan(plan).every((s) => s.state === "loading")).toBe(true);
+    for (const lane of plan.lanes) {
+      const options = laneOptions(plan, lane);
+      expect(options).toMatchObject({ version: 2, match: lane.match });
+      expect(
+        searchCriteria(lane.sourceId, lane.query, 1, options),
+      ).toMatchObject({ version: 2, sort: "newest", query: lane.query });
+    }
+  });
+
+  it("tells the starting record apart when its own identifiers list it again", () => {
+    const { seed } = recordPlan(fr, defaults);
+    const other = listing("federal-register", "2099-00002");
+    expect(isSeedRecord(seed, { citation: fr, alternates: [] })).toBe(true);
+    // Listed by another source first, with the seed as an alternate listing.
+    expect(
+      isSeedRecord(seed, { citation: listing("govinfo"), alternates: [fr] }),
+    ).toBe(true);
+    expect(isSeedRecord(seed, { citation: other, alternates: [] })).toBe(false);
+    // Same identifier text from another source is not the seed.
+    expect(
+      isSeedRecord(seed, {
+        citation: {
+          ...other,
+          sourceId: "regulations",
+          identifier: fr.identifier,
+        },
+        alternates: [],
+      }),
+    ).toBe(false);
+    expect(
+      isSeedRecord(
+        { kind: "typed", query: "x" },
+        { citation: fr, alternates: [] },
+      ),
+    ).toBe(false);
+  });
+
+  it("sends a Regulations.gov docket to Regulations.gov only, and nothing for other sources", () => {
+    const plan = recordPlan(regs, defaults);
+    expect(plan.lanes.map((l) => [l.id, l.sourceId, l.label])).toEqual([
+      [
+        "regulations#docket:NOAA-NMFS-2099-0001",
+        "regulations",
+        "Same docket: NOAA-NMFS-2099-0001 (Regulations.gov)",
+      ],
+    ]);
+    // Held until its live check is recorded: the contract refuses it, so the page offers no Find related.
+    const send = () =>
+      searchCriteria(
+        "regulations",
+        plan.lanes[0].query,
+        1,
+        laneOptions(plan, plan.lanes[0]),
+      );
+    if (REGULATIONS_V2_CONFIRMED) expect(send).not.toThrow();
+    else
+      expect(send).toThrow(
+        expect.objectContaining({ code: "unsupported_criteria" }),
+      );
+    // A Federal Register docket is never rewritten into Regulations.gov's spelling.
+    expect(
+      recordPlan(fr, defaults).lanes.some((l) => l.sourceId === "regulations"),
+    ).toBe(false);
+    expect(
+      recordPlan(
+        { ...listing("govinfo"), docketIds: ["X-1"], rins: ["0648-BO46"] },
+        defaults,
+      ).lanes,
+    ).toEqual([]);
+  });
+
+  it("keeps a docket and a RIN with the same text apart", () => {
+    const plan = recordPlan(
+      { ...fr, docketIds: ["0648-BO46"], cfrRefs: [] },
+      defaults,
+    );
+    expect(plan.lanes.map((l) => l.id)).toEqual([
+      laneId("federal-register", "0648-BO46", "docket"),
+      laneId("federal-register", "0648-BO46", "rin"),
+    ]);
+    expect(laneId("federal-register", "0648-BO46")).toBe(
+      "federal-register:0648-BO46",
+    );
+  });
+
+  it("marks lanes past the request budget, and a source that is not live", () => {
+    const many: DemoCitation = {
+      ...fr,
+      docketIds: Array.from({ length: 8 }, (_, i) => `Docket No. ${i}`),
+      rins: ["0648-BO46", "0648-BO47", "0648-BO48", "0648-BO49"],
+    };
+    const plan = recordPlan(many, defaults);
+    expect(plan.lanes).toHaveLength(13);
+    expect(plan.lanes.filter((l) => !l.skip)).toHaveLength(AUTO_REQUEST_BUDGET);
+    expect(plan.lanes.slice(AUTO_REQUEST_BUDGET).map((l) => l.skip)).toEqual([
+      "budget",
+      "budget",
+      "budget",
+    ]);
+    const off = recordPlan(regs, {
+      federal: ["federal-register"],
+      live: ["federal-register"],
+    });
+    expect(startPlan(off)).toMatchObject([
+      { state: "not_searched", skip: "source_off" },
+    ]);
+  });
+
+  it("applies a type filter where the source has one, and copies the match onto reasons", () => {
+    const plan = recordPlan(regs, defaults, {
+      dateFrom: null,
+      dateTo: null,
+      documentType: "PRESDOCU",
+    });
+    expect(plan.lanes[0].typeNotApplied).toBe(true);
+    expect(laneOptions(plan, plan.lanes[0]).documentType).toBeNull();
+    const frPlan = recordPlan(fr, defaults);
+    const doc: DemoCitation = {
+      ...listing("federal-register", "2099-00009"),
+      docketIds: fr.docketIds,
+      rins: fr.rins,
+      cfrRefs: [{ title: 50, part: "17" }, ...fr.cfrRefs!],
+    };
+    const { rows } = mergeLanes(
+      frPlan,
+      frPlan.lanes.map((lane) => ({
+        ...startLane(lane),
+        state: "results" as const,
+        listings: [doc],
+      })),
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0].groups).toEqual(["related"]);
+    expect(rows[0].reasons.map((r) => r.match)).toEqual([
+      "docket",
+      "rin",
+      "cfr",
+    ]);
+  });
+
+  it("lists a lookup's document under an identifier only when the document states it", () => {
+    const plan = recordPlan(fr, defaults);
+    const [docket, rin, cfr] = plan.lanes;
+    const states = (id: string, fields: Partial<DemoCitation>) => ({
+      ...listing("federal-register", id),
+      ...fields,
+    });
+    // Each states one identifier; "none" states none; "near" states a different part.
+    const docs = [
+      states("2099-00021", { docketIds: ["Docket No. 260916-0002"] }),
+      states("2099-00022", { rins: ["0648-BO46"] }),
+      states("2099-00023", { cfrRefs: [{ title: 50, part: "660" }] }),
+      states("2099-00024", {}),
+      states("2099-00025", { cfrRefs: [{ title: 50, part: "1-700" }] }),
+    ];
+    // Each answer settles through its lane's keep rule, as the page does.
+    const searches = [docket, rin, cfr].map((lane) =>
+      settleLane(
+        startLane(lane),
+        response("federal-register", lane.query, docs),
+        laneKeep(lane),
+      ),
+    );
+    // The lane's own count is the rows it shows, and the rest are counted apart.
+    expect(searches.map((s) => [s.listings.length, s.leftOut])).toEqual([
+      [1, 4],
+      [1, 4],
+      [1, 4],
+    ]);
+    const { rows } = mergeLanes(plan, searches);
+    expect(
+      rows.map((row) => [
+        row.citation.identifier,
+        row.reasons.map((r) => r.laneId),
+      ]),
+    ).toEqual([
+      ["federal-register 2099-00021", [docket.id]],
+      ["federal-register 2099-00022", [rin.id]],
+      ["federal-register 2099-00023", [cfr.id]],
+    ]);
+  });
+
+  it("calls a lookup empty, with its left-out count, when no listing states the identifier", () => {
+    const [docket] = recordPlan(fr, defaults).lanes;
+    const stray = { ...listing("federal-register", "2099-00031"), rins: [] };
+    const settled = settleLane(
+      startLane(docket),
+      response("federal-register", docket.query, [stray]),
+      laneKeep(docket),
+    );
+    expect(settled).toMatchObject({ state: "empty", listings: [], leftOut: 1 });
+    // A later page adds to the count rather than replacing it.
+    const { search } = appendPage(
+      settled,
+      response("federal-register", docket.query, [
+        listing("federal-register", "2099-00032"),
+      ]),
+      criteria("federal-register", docket.query, 2),
+      laneKeep(docket),
+    );
+    expect(search.leftOut).toBe(2);
+    // Lanes without an identifier keep everything and carry no count.
+    expect(laneKeep({ query: "water" })).toBeUndefined();
+  });
+
+  it("builds no lookup for a CFR part range, whose matching is unconfirmed", () => {
+    const plan = recordPlan(
+      {
+        ...fr,
+        docketIds: [],
+        rins: [],
+        cfrRefs: [{ title: 50, part: "1-50" }],
+      },
+      defaults,
+    );
+    expect(plan.lanes).toEqual([]);
   });
 });

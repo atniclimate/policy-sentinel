@@ -87,6 +87,20 @@ states: "FederalRegister.gov APIs do not require API keys".
   stated by Regulations.gov", never a computed legal deadline or a claim that
   comment is open to any particular Tribe.
 
+## What was built (2026-10-20, release 0.9.0)
+
+A Federal Register probe (11:32 UTC, 2 calls) recorded the field shapes.
+`comments_close_on` is a date or null. `docket_ids` holds the Federal
+Register's own text, such as "Docket No. 260916-0002". `cfr_references` holds
+`{title, part, chapter, citation_url}`. `topics` holds display names. The docket
+condition matches the exact text. The Worker (deployed as `f6e2b85a`, source
+`66a3420`) carries these fields in search contract v2 and looks up docket, RIN
+and CFR part within the Federal Register. Five bounded calls after deployment
+confirmed the fields, a one-document docket lookup, a CFR lookup and an
+unchanged v1. The Regulations.gov half is built but switched off
+(`REGULATIONS_V2_CONFIRMED`) until its terms page is read and its fields are
+confirmed through the Worker.
+
 The research records, with their evidence quotes, are kept outside the
 repository at
 `C:\dev\_scratch\policy-sentinel\ncai-discovery-20261019\scouts.json`.

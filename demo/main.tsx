@@ -5,15 +5,19 @@ import { SOURCE_LABELS } from "../src/demo/citations";
 import { COPY, EXAMPLES } from "../src/demo/copy";
 import {
   appendPage,
+  laneKeep,
   AUTO_REQUEST_BUDGET,
   buildPlan,
   failLane,
   groupDiscovery,
+  isSeedRecord,
   LaneCache,
   laneId,
+  laneOptions,
   listingCap,
   mergeLanes,
   NO_FEDERAL_SOURCE,
+  recordPlan,
   replayLane,
   settleLane,
   startLane,
@@ -64,6 +68,7 @@ import {
 } from "../src/demo/merge";
 import type {
   DemoCitation,
+  DemoDocumentType,
   DemoIssue,
   DemoPolicyResponse,
   DemoSearchCursor,
@@ -95,7 +100,12 @@ import type {
   RestoredReport,
 } from "../src/demo/report-state";
 import { keyOf } from "../src/demo/validation";
-import { dateRangeValue } from "../src/demo/search-contract";
+import {
+  cfrQuery,
+  dateRangeValue,
+  REGULATIONS_V2_CONFIRMED,
+  searchCriteria,
+} from "../src/demo/search-contract";
 
 const VERSION = __APP_VERSION__;
 const TSDF_URL =
@@ -187,7 +197,11 @@ const GROUP_ORDER: readonly LaneGroup[] = [
   "legislation",
   "bill",
   "case",
+  "related",
 ];
+
+/** Status words for Find related; the reader typed no words to change. */
+const RELATED_WORDS = { ...COPY, ...COPY.related };
 
 const SKIP_TEXT: Readonly<Record<SkipReason, string>> = {
   none_checked: COPY.laneNoneChecked,
@@ -215,6 +229,16 @@ function missingReference(sourceId: string, error: unknown): boolean {
   );
 }
 
+/** Find related is offered only for an identifier its source can look up as written. */
+function lookupReady(plan: Plan, lane: Lane): boolean {
+  try {
+    searchCriteria(lane.sourceId, lane.query, 1, laneOptions(plan, lane));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function sourceOutcome(item: LaneSearch): string {
   if (item.state === "loading") return COPY.sourceLoading;
   if (item.state === "not_searched") return COPY.skipped;
@@ -228,7 +252,11 @@ function foundMessage(found: Found): string {
   const { searches } = found;
   // A draft also asks sources the reader did not check, and lists bills and opinions.
   const draft = found.plan.seed.kind === "draft";
-  const words = draft ? COPY.ncai : COPY;
+  const words = draft
+    ? COPY.ncai
+    : found.plan.seed.kind === "record"
+      ? RELATED_WORDS
+      : COPY;
   if (searches.some((item) => item.state === "loading")) return words.searching;
   const failures = searches.filter((item) => item.state === "unavailable");
   if (found.rows.length) {
@@ -339,6 +367,9 @@ export function App() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [dateError, setDateError] = useState("");
+  const [docType, setDocType] = useState<DemoDocumentType | "">("");
+  /** The row Find related started from, so Results can name it. */
+  const [record, setRecord] = useState<DemoCitation | null>(null);
   const [found, setFound] = useState<Found | null>(null);
   const foundRef = useRef<Found | null>(null);
   const [message, setMessage] = useState("");
@@ -585,7 +616,11 @@ export function App() {
     found?.plan.seed.kind === "typed" &&
     found.plan.seed.query === query.trim() &&
     found.plan.dateFrom === (scope === "federal" ? dateFrom || null : null) &&
-    found.plan.dateTo === (scope === "federal" ? dateTo || null : null);
+    found.plan.dateTo === (scope === "federal" ? dateTo || null : null) &&
+    (found.plan.documentType ?? null) ===
+      (scope === "federal" ? docType || null : null);
+  /** The type filter goes with every federal plan; the state form has none. */
+  const documentType = docType || null;
   const planSources = {
     federal: federalTargets,
     live: sources
@@ -657,7 +692,11 @@ export function App() {
 
   /** Lane names follow the source alone when the plan is one search. */
   const outcomeName = (plan: Plan, lane: Lane) =>
-    plan.seed.kind === "draft" ? laneName(lane) : labelOf(lane.sourceId);
+    plan.seed.kind === "draft"
+      ? laneName(lane)
+      : plan.seed.kind === "record"
+        ? lane.label
+        : labelOf(lane.sourceId);
 
   /**
    * Sends each loading lane, or for a draft replays its kept answer without a
@@ -674,25 +713,32 @@ export function App() {
     signal?: AbortSignal,
     say = foundMessage,
   ) {
-    const dates: PlanDates = { dateFrom: plan.dateFrom, dateTo: plan.dateTo };
-    // Only re-choosing a draft is spared its requests; pressing Search again
-    // always asks the source, so a repeated search never shows an old answer.
-    const cache = plan.seed.kind === "draft" ? laneCache.current : null;
+    // Only re-choosing a draft or a record is spared its requests; pressing
+    // Search again always asks the source, so a repeated search never shows an
+    // old answer. The plan itself keys the cache, so its type filter does too.
+    const cache =
+      plan.seed.kind === "draft" || plan.seed.kind === "record"
+        ? laneCache.current
+        : null;
     const answer = async (lane: Lane): Promise<Settle> => {
-      const kept = cache?.get(lane, dates);
-      if (kept) return (current) => replayLane(current, kept);
+      const kept = cache?.get(lane, plan);
+      const keep = laneKeep(lane);
+      if (kept) return (current) => replayLane(current, kept, keep);
       try {
-        const response = await search(lane.sourceId, lane.query, 1, signal, {
-          ...dates,
-          continuation: null,
-        });
-        cache?.set(lane, dates, response);
-        return (current) => settleLane(current, response);
+        const response = await search(
+          lane.sourceId,
+          lane.query,
+          1,
+          signal,
+          laneOptions(plan, lane),
+        );
+        cache?.set(lane, plan, response);
+        return (current) => settleLane(current, response, keep);
       } catch (error) {
         const reason = failureText(error);
         const missing = missingReference(lane.sourceId, error);
         // An outage is not an answer: it is not kept, so asking again sends again.
-        if (missing) cache?.set(lane, dates, { ok: false, missing: reason });
+        if (missing) cache?.set(lane, plan, { ok: false, missing: reason });
         return (current) => failLane(current, reason, missing);
       }
     };
@@ -759,6 +805,7 @@ export function App() {
       plan.lanes.map((lane) => lane.id),
       plan.dateFrom,
       plan.dateTo,
+      plan.documentType ?? null,
       also.map((lane) => lane.id),
     ]);
     if (
@@ -890,11 +937,7 @@ export function App() {
         lane.query,
         continuation.page,
         searchRequest.current.controller?.signal,
-        {
-          dateFrom: current.plan.dateFrom,
-          dateTo: current.plan.dateTo,
-          continuation,
-        },
+        laneOptions(current.plan, lane, continuation),
       );
       if (!ownsView()) return;
       const latest = foundRef.current!;
@@ -902,6 +945,7 @@ export function App() {
         latest.searches.find((each) => each.laneId === id)!,
         response,
         continuation,
+        laneKeep(lane),
       );
       const searches = change(latest, () => paged.search);
       publishFound({
@@ -943,7 +987,10 @@ export function App() {
     let dates: PlanDates = { dateFrom: null, dateTo: null };
     if (scope === "federal") {
       try {
-        dates = dateRangeValue(dateFrom || null, dateTo || null);
+        dates = {
+          ...dateRangeValue(dateFrom || null, dateTo || null),
+          documentType,
+        };
       } catch {
         setDateError(COPY.dateRangeError);
         document.getElementById("date-from")?.focus();
@@ -977,7 +1024,13 @@ export function App() {
     setQuery(q);
     setDateFrom("");
     setDateTo("");
-    runPlan(typedPlan(q, state ? sid : "federal", planSources));
+    runPlan(
+      typedPlan(q, state ? sid : "federal", planSources, {
+        dateFrom: null,
+        dateTo: null,
+        documentType: state ? null : documentType,
+      }),
+    );
   }
 
   /** An NCAI search runs on the checked federal sources, or on its one source if live. */
@@ -1003,17 +1056,43 @@ export function App() {
           { kind: "area", label: areaName(area) },
           [{ ...preset, auto: true }],
           planSources,
+          { dateFrom: null, dateTo: null, documentType },
         ),
         area.drafts,
       ),
     );
   }
 
+  // A draft's searches take no date range, as before; the type filter applies.
   function planForDraft(from: NcaiDraft): Plan {
     return withNames(
-      buildPlan({ kind: "draft", id: from.id }, draftPlan(from), planSources),
+      buildPlan({ kind: "draft", id: from.id }, draftPlan(from), planSources, {
+        dateFrom: null,
+        dateTo: null,
+        documentType,
+      }),
       [from],
     );
+  }
+
+  /**
+   * Find related: the exact identifiers the row's own source stated, each
+   * looked up in that source only, with the submitted dates and the type filter.
+   */
+  function findRelated(citation: DemoCitation) {
+    const dates = foundRef.current?.plan;
+    setRecord(citation);
+    runPlan(
+      recordPlan(citation, planSources, {
+        dateFrom: dates?.dateFrom ?? null,
+        dateTo: dates?.dateTo ?? null,
+        documentType,
+      }),
+    );
+    // The pressed button leaves with the earlier rows; Results keeps focus.
+    requestAnimationFrame(() => {
+      if (mounted.current) resultsRef.current?.focus();
+    });
   }
 
   /** Brings one lane's outcome into view and gives it focus, on any layout. */
@@ -1292,6 +1371,12 @@ export function App() {
       citation: { ...viewed.citation, matchKey: citation.matchKey },
     };
     const revision = revisions.current.get(k) ?? 0;
+    // D-112: the export may name the draft by the title shown on this page.
+    const draftId = plan?.seed.kind === "draft" ? plan.seed.id : null;
+    const title =
+      draftId === null
+        ? undefined
+        : drafts?.find((item) => item.id === draftId)?.title;
     updateReport((current) => ({
       ...current,
       cited: {
@@ -1302,7 +1387,7 @@ export function App() {
           note: "",
           alternates,
           // Memory only: serializeReport leaves it out of browser storage.
-          ...(plan && { foundBy: foundByOf(row.reasons, plan.seed) }),
+          ...(plan && { foundBy: foundByOf(row.reasons, plan.seed, title) }),
         },
       },
     }));
@@ -1564,8 +1649,8 @@ export function App() {
     );
 
   const seed = found?.plan.seed;
-  // A draft's plan is shown in sections; a typed, example or area search keeps one list.
-  const sectioned = seed?.kind === "draft";
+  // A draft's or record's plan is shown in sections; a typed, example or area search keeps one list.
+  const sectioned = seed?.kind === "draft" || seed?.kind === "record";
   const views = found
     ? groupDiscovery(found.plan, found.searches, found.rows).sort(
         (a, b) => GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group),
@@ -1578,6 +1663,21 @@ export function App() {
     seed?.kind === "draft"
       ? drafts?.find((item) => item.id === seed.id)?.title
       : undefined;
+  // The record's title as its row showed it; the seed holds its identity only.
+  const recordTitle =
+    seed?.kind === "record" &&
+    record?.sourceId === seed.sourceId &&
+    record.identifier === seed.identifier
+      ? record.title
+      : undefined;
+
+  const typeNote = (plan: Plan) => (
+    <p class="help">
+      {plan.documentType
+        ? COPY.submittedType(COPY.docTypes[plan.documentType])
+        : COPY.noTypeFilter}
+    </p>
+  );
 
   /** The submitted dates and how loaded rows are ordered. */
   const criteriaNotes = (plan: Plan) => (
@@ -1607,6 +1707,12 @@ export function App() {
           Number(bill[3]),
           where(reason),
         );
+      if (reason.match)
+        return COPY.whyIdentifier(
+          COPY.identifierKinds[reason.match],
+          reason.terms,
+          where(reason),
+        );
       return (reason.name ? COPY.whyName : COPY.whyMatched)(
         reason.terms,
         where(reason),
@@ -1614,6 +1720,10 @@ export function App() {
     });
     if (from.kind === "draft")
       clauses.push(COPY.whyDraft(from.id, reasons.length));
+    if (from.kind === "record")
+      clauses.push(
+        COPY.whyRecord(labelOf(from.sourceId), from.identifier, reasons.length),
+      );
     // Safeguard 1: a name match is said not to show any relationship.
     return COPY.whyShown(
       clauses.join("; "),
@@ -1653,6 +1763,12 @@ export function App() {
           COPY.sourceDateMeaning[lane.sourceId] && (
             <p class="help">{COPY.sourceDateMeaning[lane.sourceId]}</p>
           )}
+        {lane.typeNotApplied && item.state !== "not_searched" && (
+          <p class="help">{COPY.typeNotApplied}</p>
+        )}
+        {Boolean(item.leftOut) && (
+          <p class="help">{COPY.identifierLeftOut(item.leftOut!)}</p>
+        )}
         {reason && reason !== message && <p class="help">{reason}</p>}
         {item.skip === "budget" && (
           <button
@@ -1715,12 +1831,27 @@ export function App() {
       : isCited
         ? COPY.inCitations
         : COPY.addCitation;
+    // Identifiers as the source states them, in its own spelling.
+    const ids = [
+      ...(c.docketIds ?? []).map(
+        (id) => [COPY.identifierLabels.docket, id] as const,
+      ),
+      ...(c.rins ?? []).map((rin) => [COPY.identifierLabels.rin, rin] as const),
+      ...(c.cfrRefs ?? []).map(
+        (ref) => [COPY.identifierLabels.cfr, cfrQuery(ref)] as const,
+      ),
+    ];
+    const related = recordPlan(c, planSources);
+    const canRelate = related.lanes.some((lane) => lookupReady(related, lane));
     return (
       <li
         class={`result${selectedKey.current === k ? " is-here" : ""}`}
         key={logicalResultKey(c)}
       >
         {nested ? <h4>{c.title}</h4> : <h3>{c.title}</h3>}
+        {found && isSeedRecord(found.plan.seed, row) && (
+          <p class="help">{COPY.related.startingRecord}</p>
+        )}
         <p class="row">
           <span class="row-k">{labelOf(c.sourceId)}</span>
           <Leader />
@@ -1732,6 +1863,33 @@ export function App() {
           <li>{c.date ?? COPY.dateNotStated}</li>
         </ul>
         {c.summary && <p class="summary">{c.summary}</p>}
+        {c.commentsCloseOn ? (
+          <p class="help">
+            {COPY.commentsClose(c.commentsCloseOn, labelOf(c.sourceId))}
+          </p>
+        ) : c.commentsCloseWithheld ? (
+          <p class="help">{COPY.commentsCloseWithheld(labelOf(c.sourceId))}</p>
+        ) : (
+          // Silence beside a Federal Register date could read as no comment period.
+          c.sourceId === "regulations" &&
+          !REGULATIONS_V2_CONFIRMED && (
+            <p class="help">{COPY.commentsCloseNotRead(labelOf(c.sourceId))}</p>
+          )
+        )}
+        {c.topics?.length ? (
+          <p class="help">
+            {COPY.sourceTopics(labelOf(c.sourceId), c.topics.join("; "))}
+          </p>
+        ) : null}
+        {ids.length > 0 && (
+          <ul class="meta">
+            {ids.map(([label, id]) => (
+              <li key={label + id}>
+                {label}: <span class="mono">{id}</span>
+              </li>
+            ))}
+          </ul>
+        )}
         {alsoListed(c.title, alternates)}
         {seed && (
           <p class="help">
@@ -1756,6 +1914,16 @@ export function App() {
           >
             {addLabel}
           </button>
+          {canRelate && (
+            <button
+              type="button"
+              class="btn"
+              aria-label={COPY.named(COPY.findRelated, c.title)}
+              onClick={() => findRelated(c)}
+            >
+              {COPY.findRelated}
+            </button>
+          )}
           <a
             href={c.officialUrl}
             aria-label={COPY.openOfficialFor(c.title)}
@@ -2058,6 +2226,34 @@ export function App() {
                 ) : (
                   <p class="help">{COPY.stateDateHelp}</p>
                 )}
+                {scope === "federal" && (
+                  <>
+                    <label class="field" for="doc-type">
+                      {COPY.docTypeLabel}
+                    </label>
+                    <select
+                      id="doc-type"
+                      value={docType}
+                      aria-describedby="doc-type-help"
+                      onChange={(e) =>
+                        setDocType(
+                          (e.target as HTMLSelectElement).value as
+                            DemoDocumentType | "",
+                        )
+                      }
+                    >
+                      <option value="">{COPY.docTypeAny}</option>
+                      {Object.entries(COPY.docTypes).map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                    <p id="doc-type-help" class="help">
+                      {COPY.docTypeHelp}
+                    </p>
+                  </>
+                )}
                 {queryError && (
                   <p id="q-error" class="notice" role="alert">
                     {queryError}
@@ -2197,11 +2393,24 @@ export function App() {
                     </p>
                     {/* Short, so a phone shows the first search outcome; the rest is one press away. */}
                     <p class="help">{COPY.ncai.loadedCaveat}</p>
+                    {found.plan.documentType && typeNote(found.plan)}
                     <details>
                       <summary>{COPY.ncai.aboutSearches}</summary>
                       <p class="help">{COPY.ncai.loadedWhy}</p>
                       {criteriaNotes(found.plan)}
                     </details>
+                  </>
+                ) : found.plan.seed.kind === "record" ? (
+                  <>
+                    <p>
+                      <strong>{COPY.related.loadedFor}</strong>{" "}
+                      {labelOf(found.plan.seed.sourceId)}{" "}
+                      <span class="mono">{found.plan.seed.identifier}</span>{" "}
+                      {recordTitle}
+                    </p>
+                    <p class="help">{COPY.related.caveat}</p>
+                    {typeNote(found.plan)}
+                    {criteriaNotes(found.plan)}
                   </>
                 ) : (
                   <>
@@ -2211,6 +2420,7 @@ export function App() {
                         ? found.plan.seed.query
                         : found.plan.lanes[0]?.query}
                     </p>
+                    {typeNote(found.plan)}
                     {criteriaNotes(found.plan)}
                   </>
                 )}

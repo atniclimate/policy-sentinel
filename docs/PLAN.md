@@ -14,16 +14,15 @@ A Tribal policy, natural resources or legal staff member opens one page, searche
 
 Acceptance correction under D-109 and D-110: selecting an NCAI draft resolution
 must automatically load source-cited policy, legislation and case matches into
-Results. Release 0.8.0 implements this as seeded discovery, publication under
-D-111. Acceptance still needs the owner's unlocked look at the live flow:
-selection, replacement of prior-draft results, source identity, why-shown
-context and distinct empty/unavailable outcomes. Unavailable state or court
-coverage must remain explicit. This does not bypass source qualification or
-establish legal relevance. Next, Release B extends the Worker as the
+Results. Release 0.8.0 implemented this as seeded discovery (published under
+D-111). The owner accepted the live flow on 2026-10-20 (D-112). Unavailable
+state or court coverage must remain explicit. This does not bypass source
+qualification or establish legal relevance. Release B (0.9.0, D-112, D-113) adds
+Federal Register comment closing dates, topics, exact-identifier "Find related"
+and the document-type filter, as the
 [Release B source note](source-reviews/discovery-release-b-sources-2026-10-19.md)
-sets out: comment deadlines, docket, RIN and CFR-part expansion from exact
-identifiers, Federal Register topics and the document-type filter. It needs one
-bounded shape call per field and the owner's approval to deploy the Worker.
+sets out. Its Regulations.gov half waits on a direct read of that source's
+terms page and one bounded call per field.
 
 Each milestone is done when its checks pass on the real service and the result is written in `STATUS.md`. Every source is added one at a time, live call first, and the trimmed response shape of that call becomes the test fixture. The full check runs once before anything is published.
 

@@ -18,6 +18,7 @@ import { NcaiVaultError, openNcaiDrafts } from "../../src/demo/ncai-vault";
 import type { NcaiDraft } from "../../src/demo/ncai-2026";
 import {
   nextSearchCursor,
+  REGULATIONS_V2_CONFIRMED,
   searchCriteria,
 } from "../../src/demo/search-contract";
 import {
@@ -25,11 +26,15 @@ import {
   deferred,
   listing,
   policy,
+  regulationsRecord,
   searchResult,
   sources,
+  statedCitation,
 } from "./frontend-fixtures";
 import type {
+  DemoCitation,
   DemoPolicyResponse,
+  DemoSearchOptions,
   DemoSearchResponse,
   DemoSource,
 } from "../../src/demo/types";
@@ -479,6 +484,32 @@ describe("demo search scope and sources", () => {
     await ui.findByText(/Nothing matched/);
     expect(vi.mocked(search).mock.calls[0][0]).toBe("washington");
     expect(ui.getByLabelText("State")).toHaveValue("washington");
+  });
+
+  it("says a Regulations.gov row's comment dates are not shown, beside a stated Federal Register date", async () => {
+    vi.mocked(search).mockImplementation(async (source, query) =>
+      searchResult(
+        [
+          source === "federal-register"
+            ? { ...citation(), commentsCloseOn: "2099-02-01" }
+            : { ...listing("regulations", "2099-00009"), title: "Docket Copy" },
+        ],
+        query,
+        source,
+      ),
+    );
+    const { ui } = await start();
+    fireEvent.click(ui.getByRole("checkbox", { name: /Regulations\.gov/ }));
+    await showResult(ui);
+    const row = (name: string) =>
+      ui.getByRole("heading", { name }).closest("article, li") as HTMLElement;
+    expect(row("Example Water Policy")).toHaveTextContent(
+      "Comments close 2099-02-01, as stated by Federal Register.",
+    );
+    // Silence here could read as no comment period (safeguard 8).
+    expect(row("Docket Copy")).toHaveTextContent(
+      "This demo does not show Regulations.gov comment dates yet.",
+    );
   });
 
   it("searches every checked source and names the one that fails", async () => {
@@ -1831,11 +1862,14 @@ describe("demo dates and explicit continuation", () => {
     number: number,
     results: ReturnType<typeof citation>[],
     more: boolean,
-    options = {
-      dateFrom: null as string | null,
-      dateTo: null as string | null,
-      continuation: null as
-        import("../../src/demo/types").DemoSearchCursor | null,
+    // The page sends every search as contract v2, so its answers are v2.
+    options: DemoSearchOptions = {
+      dateFrom: null,
+      dateTo: null,
+      continuation: null,
+      version: 2,
+      match: "text",
+      documentType: null,
     },
   ): DemoSearchResponse {
     const criteria = searchCriteria(source, query, number, options);
@@ -1877,10 +1911,14 @@ describe("demo dates and explicit continuation", () => {
     expect(search).not.toHaveBeenCalled();
     dates(ui, "2025-01-01", "2025-12-31");
     await showResult(ui);
+    // Every page search opts in to contract v2 (Release B).
     expect(vi.mocked(search).mock.calls[0][4]).toEqual({
       dateFrom: "2025-01-01",
       dateTo: "2025-12-31",
       continuation: null,
+      version: 2,
+      match: "text",
+      documentType: null,
     });
     fireEvent.input(ui.getByRole("searchbox"), {
       target: { value: "draft terms" },
@@ -2342,8 +2380,13 @@ describe("demo seeded discovery from NCAI drafts", () => {
     fireEvent.click(ui.getByRole("button", { name: /^Add to my citations/ }));
     await ui.findByText(/Citation and text saved/);
     const print = container.querySelector(".print-only") as HTMLElement;
+    // D-112: the draft title may be exported, on the draft's search lines; the
+    // name-search line leaves it out, since a title may name the sponsor.
     expect(print).toHaveTextContent(
       "Found by Name search for the sponsor listed on NCAI draft PSC-26-011 (GovInfo, Federal court opinions)",
+    );
+    expect(print).toHaveTextContent(
+      "Suggested search for NCAI draft PSC-26-011 (Example draft on a case)",
     );
     expect(print).not.toHaveTextContent("Example Tribe");
   });
@@ -2726,7 +2769,7 @@ describe("demo seeded discovery from NCAI drafts", () => {
     ).toEqual(["Example Water Policy", "Fish passage notice"]);
   });
 
-  it("records how a cited row was found, by draft ID and terms only", async () => {
+  it("records how a cited row was found, by draft ID, the title shown and terms", async () => {
     const { ui, container } = await start();
     await openNcai(ui, container);
     chooseDraft(ui, container, "PSC-26-001");
@@ -2745,14 +2788,15 @@ describe("demo seeded discovery from NCAI drafts", () => {
         (n) => COPY.whyLookedUp("hr 1", n, "Congress.gov").split(" ")[6],
       ),
     ).toEqual(["101st", "102nd", "103rd", "111th", "112th", "113th", "122nd"]);
+    // D-112: the export names the draft by the title the page showed.
     const print = container.querySelector(".print-only") as HTMLElement;
     expect(print).toHaveTextContent(
-      "Found by Suggested search for NCAI draft PSC-26-001: water quality (Federal Register)",
+      "Found by Suggested search for NCAI draft PSC-26-001 (Example draft on water): water quality (Federal Register)",
     );
     expect(print).toHaveTextContent(
-      "Found by Suggested search for NCAI draft PSC-26-001: hr 1234 119 (Congress.gov)",
+      "Found by Suggested search for NCAI draft PSC-26-001 (Example draft on water): hr 1234 119 (Congress.gov)",
     );
-    expect(print).not.toHaveTextContent("Example draft on water");
+    expect(print).not.toHaveTextContent("Example Tribe");
   });
 
   it("holds a section's rows until all its searches answer, while another section shows", async () => {
@@ -3085,5 +3129,330 @@ describe("demo seeded discovery from NCAI drafts", () => {
       "Example draft on water",
     ])
       expect(stored).not.toContain(text);
+  });
+
+  it("sends a draft's searches with the type filter where the source has the type", async () => {
+    const { ui, container } = await start();
+    fireEvent.change(ui.getByLabelText("Document type"), {
+      target: { value: "NOTICE" },
+    });
+    await openNcai(ui, container);
+    chooseDraft(ui, container, "PSC-26-001");
+    await ui.findAllByRole("button", { name: /Add to my citations/ });
+    const types = vi
+      .mocked(search)
+      .mock.calls.map(([source, , , , options]) => [
+        source,
+        options?.documentType,
+      ]);
+    expect(types).toContainEqual(["federal-register", "NOTICE"]);
+    expect(
+      types.filter(([source]) => source !== "federal-register"),
+    ).toHaveLength(6);
+    for (const [source, type] of types)
+      if (source !== "federal-register") expect(type).toBeNull();
+    const results = container.querySelector(".pane-results") as HTMLElement;
+    expect(results).toHaveTextContent("Document type: Notice.");
+    // Every GovInfo and Congress.gov lane says the filter was not applied.
+    expect(results.textContent!.split(COPY.typeNotApplied)).toHaveLength(7);
+  });
+});
+
+describe("demo record fields, Find related and the type filter", () => {
+  /** Source, query and options of every search sent, in order. */
+  const sentWith = () =>
+    vi
+      .mocked(search)
+      .mock.calls.map(([source, query, , , options]) => [
+        source,
+        query,
+        options,
+      ]);
+  const lookup = (match: string, documentType: string | null = null) => ({
+    dateFrom: null,
+    dateTo: null,
+    continuation: null,
+    version: 2,
+    match,
+    documentType,
+  });
+  const rowOf = (ui: ReturnType<typeof within>, title: string) =>
+    ui.getByRole("heading", { name: title }).closest("li") as HTMLElement;
+  /** Identifier lookups list `related`; word searches list `first`. */
+  function answer(
+    first: readonly DemoCitation[],
+    related: readonly DemoCitation[] = [],
+  ) {
+    vi.mocked(search).mockImplementation(
+      async (source, query, _page, _signal, options) =>
+        searchResult(
+          [
+            ...(options?.match && options.match !== "text" ? related : first),
+          ].filter((item) => item.sourceId === source),
+          query,
+          source,
+        ),
+    );
+  }
+
+  it("shows the closing date, topics and identifiers as the source states them, and offers Find related only with an identifier", async () => {
+    answer([statedCitation(), citation()]);
+    const { ui } = await start();
+    await showResult(ui);
+    const stated = rowOf(ui, "Example Groundfish Rule");
+    expect(stated).toHaveTextContent(
+      "Comments close 2099-02-01, as stated by Federal Register.",
+    );
+    expect(stated).toHaveTextContent(
+      "Federal Register topics: Fisheries; Reporting and recordkeeping requirements",
+    );
+    for (const text of [
+      "Docket: Docket No. 990101-0001",
+      "RIN: 0648-AA00",
+      "CFR part: 50 CFR 660",
+    ])
+      expect(stated).toHaveTextContent(text);
+    // A stated date is not called a deadline, and nothing is asked of the reader.
+    expect(stated).not.toHaveTextContent(/deadline|must|open for comment/i);
+    expect(
+      within(stated).getByRole("button", {
+        name: "Find related: Example Groundfish Rule",
+      }),
+    ).toBeInTheDocument();
+    const plain = rowOf(ui, "Example Water Policy");
+    expect(plain).not.toHaveTextContent("Comments close");
+    expect(plain).not.toHaveTextContent("topics:");
+    expect(
+      within(plain).queryByRole("button", { name: /^Find related/ }),
+    ).toBeNull();
+  });
+
+  it("sends exactly the record's identifier lookups to its own source, names the record, and replays them from memory", async () => {
+    const { docketIds, rins, cfrRefs } = statedCitation();
+    answer(
+      [statedCitation(), citation()],
+      [
+        {
+          ...citation("2099-00011", "Related notice"),
+          docketIds,
+          rins,
+          cfrRefs,
+        },
+        // Returned by the lookups, but it states none of the identifiers.
+        citation("2099-00012", "Unstated notice"),
+      ],
+    );
+    const { ui, container } = await start();
+    await showResult(ui);
+    vi.mocked(search).mockClear();
+    fireEvent.click(
+      ui.getByRole("button", { name: "Find related: Example Groundfish Rule" }),
+    );
+    await ui.findByRole("heading", { name: "Related notice" });
+    expect(sentWith()).toEqual([
+      ["federal-register", "Docket No. 990101-0001", lookup("docket")],
+      ["federal-register", "0648-AA00", lookup("rin")],
+      ["federal-register", "50 CFR 660", lookup("cfr")],
+    ]);
+    const results = container.querySelector(".pane-results") as HTMLElement;
+    expect(results).toHaveFocus();
+    expect(results).toHaveTextContent(
+      "Related by identifier to Federal Register 99 FR 100 (FR Doc. 2099-00010) Example Groundfish Rule",
+    );
+    expect(
+      within(results).getByRole("heading", {
+        name: "Related by Identifier",
+        level: 3,
+      }),
+    ).toBeInTheDocument();
+    expect(results).toHaveTextContent("Same RIN: 0648-AA00");
+    expect(results).toHaveTextContent("Document type: no filter applied.");
+    expect(rowOf(ui, "Related notice")).toHaveTextContent(
+      "Why shown: listed under the same docket, Docket No. 990101-0001, in Federal Register; listed under the same RIN, 0648-AA00, in Federal Register; listed under the same CFR part, 50 CFR 660, in Federal Register; identifiers stated by Federal Register record 99 FR 100 (FR Doc. 2099-00010).",
+    );
+    // A listing that does not itself state the identifier is never called the same docket.
+    expect(ui.queryByRole("heading", { name: "Unstated notice" })).toBeNull();
+    // Asked again from the same row, the answers come from this tab's memory.
+    await showResult(ui);
+    vi.mocked(search).mockClear();
+    fireEvent.click(
+      ui.getByRole("button", { name: "Find related: Example Groundfish Rule" }),
+    );
+    await ui.findByRole("heading", { name: "Related notice" });
+    expect(search).not.toHaveBeenCalled();
+  });
+
+  it("marks the starting record, and exports a Find related citation as an identifier lookup, not a typed search", async () => {
+    const notice: DemoCitation = {
+      ...citation("2099-00011", "Related notice"),
+      cfrRefs: [{ title: 50, part: "660" }],
+    };
+    answer([statedCitation()], [statedCitation(), notice]);
+    vi.mocked(readPolicy).mockResolvedValue(policy("a", notice));
+    const { ui, container } = await start();
+    await showResult(ui);
+    fireEvent.click(
+      ui.getByRole("button", { name: "Find related: Example Groundfish Rule" }),
+    );
+    await ui.findByRole("heading", { name: "Related notice" });
+    expect(rowOf(ui, "Example Groundfish Rule")).toHaveTextContent(
+      COPY.related.startingRecord,
+    );
+    const related = rowOf(ui, "Related notice");
+    expect(related).not.toHaveTextContent(COPY.related.startingRecord);
+    fireEvent.click(
+      within(related).getByRole("button", { name: /^Add to my citations/ }),
+    );
+    await ui.findByText(/Citation and text saved/);
+    const print = container.querySelector(".print-only") as HTMLElement;
+    expect(print).toHaveTextContent(
+      "Found by Identifier lookup from Federal Register record 99 FR 100 (FR Doc. 2099-00010): CFR part 50 CFR 660 (Federal Register)",
+    );
+    expect(print).toHaveTextContent(COPY.related.caveat);
+    expect(print).not.toHaveTextContent("Typed search");
+  });
+
+  it("says a stated closing time was left out instead of showing nothing", async () => {
+    answer([
+      {
+        ...regulationsRecord(),
+        commentsCloseOn: undefined,
+        commentsCloseWithheld: true,
+      },
+    ]);
+    const { ui } = await start();
+    fireEvent.click(ui.getByRole("checkbox", { name: /Regulations\.gov/ }));
+    await showResult(ui);
+    const row = rowOf(ui, "Example Water Docket Document");
+    expect(row).toHaveTextContent(
+      "Regulations.gov states a comment closing time that this demo does not show. See the official source.",
+    );
+    expect(row).not.toHaveTextContent("Comments close");
+  });
+
+  it.runIf(!REGULATIONS_V2_CONFIRMED)(
+    "offers no Find related on a Regulations.gov docket until its live check is recorded",
+    async () => {
+      answer([statedCitation(), regulationsRecord()]);
+      const { ui } = await start();
+      fireEvent.click(ui.getByRole("checkbox", { name: /Regulations\.gov/ }));
+      await showResult(ui);
+      expect(
+        within(rowOf(ui, "Example Water Docket Document")).queryByRole(
+          "button",
+          { name: /^Find related/ },
+        ),
+      ).toBeNull();
+      vi.mocked(search).mockClear();
+      fireEvent.click(
+        ui.getByRole("button", {
+          name: "Find related: Example Groundfish Rule",
+        }),
+      );
+      await waitFor(() =>
+        expect(sentWith().map(([source]) => source)).toEqual([
+          "federal-register",
+          "federal-register",
+          "federal-register",
+        ]),
+      );
+    },
+  );
+
+  it.skipIf(!REGULATIONS_V2_CONFIRMED)(
+    "never rewrites one source's identifier into another's",
+    async () => {
+      answer([statedCitation(), regulationsRecord()]);
+      const { ui, container } = await start();
+      fireEvent.click(ui.getByRole("checkbox", { name: /Regulations\.gov/ }));
+      await showResult(ui);
+      expect(rowOf(ui, "Example Water Docket Document")).toHaveTextContent(
+        "Comments close 2099-03-15, as stated by Regulations.gov.",
+      );
+      vi.mocked(search).mockClear();
+      fireEvent.click(
+        ui.getByRole("button", {
+          name: "Find related: Example Water Docket Document",
+        }),
+      );
+      const results = container.querySelector(".pane-results") as HTMLElement;
+      await waitFor(() =>
+        expect(results).toHaveTextContent(COPY.related.noResults),
+      );
+      expect(sentWith()).toEqual([
+        ["regulations", "EPA-HQ-OW-2099-0001", lookup("docket")],
+      ]);
+      expect(results).toHaveTextContent(
+        "Same docket: EPA-HQ-OW-2099-0001 (Regulations.gov)",
+      );
+      await showResult(ui);
+      vi.mocked(search).mockClear();
+      fireEvent.click(
+        ui.getByRole("button", {
+          name: "Find related: Example Groundfish Rule",
+        }),
+      );
+      await waitFor(() =>
+        expect(results).toHaveTextContent(COPY.related.noResults),
+      );
+      expect(sentWith().map(([source]) => source)).toEqual([
+        "federal-register",
+        "federal-register",
+        "federal-register",
+      ]);
+    },
+  );
+
+  it("applies the type filter where a source has the type and says where it was not applied", async () => {
+    const { ui, shell } = await start();
+    fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
+    fireEvent.click(ui.getByRole("checkbox", { name: /Regulations\.gov/ }));
+    fireEvent.click(ui.getByRole("checkbox", { name: /Congress\.gov/ }));
+    const type = ui.getByLabelText("Document type");
+    fireEvent.change(type, { target: { value: "PRORULE" } });
+    await showResult(ui);
+    const typeBy = () =>
+      Object.fromEntries(
+        vi
+          .mocked(search)
+          .mock.calls.map(([source, , , , options]) => [
+            source,
+            options?.documentType,
+          ]),
+      );
+    // Regulations.gov takes the filter only once its live check is recorded.
+    const regulationsType = REGULATIONS_V2_CONFIRMED ? "PRORULE" : null;
+    expect(typeBy()).toEqual({
+      "federal-register": "PRORULE",
+      govinfo: null,
+      regulations: regulationsType,
+    });
+    const lane = (name: string) =>
+      [...shell.querySelectorAll(".source-outcomes > li")].find((item) =>
+        item.textContent!.startsWith(name),
+      ) as HTMLElement;
+    expect(lane("GovInfo")).toHaveTextContent(COPY.typeNotApplied);
+    expect(lane("Federal Register")).not.toHaveTextContent(COPY.typeNotApplied);
+    if (regulationsType)
+      expect(lane("Regulations.gov")).not.toHaveTextContent(
+        COPY.typeNotApplied,
+      );
+    else expect(lane("Regulations.gov")).toHaveTextContent(COPY.typeNotApplied);
+    // Not searched at all ("water" is no bill reference), so it never says how it was searched.
+    expect(lane("Congress.gov")).toHaveTextContent(COPY.skipped);
+    expect(lane("Congress.gov")).not.toHaveTextContent(COPY.typeNotApplied);
+    expect(shell.querySelector(".submitted-search")).toHaveTextContent(
+      "Document type: Proposed Rule.",
+    );
+    // Regulations.gov has no Presidential Document, so it runs unfiltered and says so.
+    fireEvent.change(type, { target: { value: "PRESDOCU" } });
+    vi.mocked(search).mockClear();
+    await showResult(ui);
+    expect(typeBy()).toEqual({
+      "federal-register": "PRESDOCU",
+      govinfo: null,
+      regulations: null,
+    });
+    expect(lane("Regulations.gov")).toHaveTextContent(COPY.typeNotApplied);
   });
 });

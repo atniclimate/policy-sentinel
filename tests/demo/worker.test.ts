@@ -6,6 +6,7 @@ import { isCongressReference } from "../../src/demo/merge";
 import {
   MAX_CONTINUATION_LENGTH,
   nextSearchCursor,
+  REGULATIONS_V2_CONFIRMED,
   searchCriteria,
 } from "../../src/demo/search-contract";
 import worker, {
@@ -19,7 +20,9 @@ import {
   FR_DOC_NUMBER,
   FR_HTML,
   FR_HTML_QUIET,
+  FR_PROBE_ROWS,
   FR_SEARCH_JSON,
+  REGULATIONS_V2_JSON,
   WA_HTML,
 } from "./fixtures";
 
@@ -637,7 +640,7 @@ describe("date and continuation contracts", () => {
     { dateFrom: "2024-12-31", dateTo: "2024-01-01" },
     { dateFrom: "2024-01-01" },
     { dateTo: "2024-12-31" },
-    { searchVersion: "2" },
+    { searchVersion: "3" },
     { continuation: "broken json" },
     { continuation: "X".repeat(MAX_CONTINUATION_LENGTH + 1) },
   ])("rejects malformed criteria before fetching: %j", async (extra) => {
@@ -916,6 +919,604 @@ describe("date and continuation contracts", () => {
     const response = await call(route("federal-register"));
     expect(response.status).toBe(502);
     expect(await response.json()).toMatchObject({ error: "bad_upstream" });
+  });
+});
+
+describe("search contract v1 stays byte-identical", () => {
+  // Pinned from the 0.8.0 Worker (14bf61e) before v2 existed. The published page
+  // checks the criteria echo exactly, so a v1 answer must never change, even
+  // when a provider returns the v2 fields anyway.
+  const at = "2099-01-07T12:00:00.000Z";
+  const v1Criteria = (source: string, query: string, sort: string) => ({
+    version: 1,
+    source,
+    query,
+    dateFrom: null,
+    dateTo: null,
+    page: 1,
+    pageSize: 10,
+    sort,
+    resultLevel: null,
+    historical: null,
+    cursor: null,
+  });
+  const frRow = (id: string, title: string, date: string) => ({
+    sourceId: "federal-register",
+    identifier: `FR Doc. ${id}`,
+    title,
+    issuingBody: "Not stated",
+    kind: "Proposed Rule",
+    date,
+    officialUrl: `https://www.federalregister.gov/d/${id}`,
+    textUrl: null,
+    retrievedAt: at,
+    summary: null,
+    textAvailable: true,
+    matchKey: `fr:${id}`,
+  });
+  const regRow = (
+    id: string,
+    title: string,
+    kind: string,
+    date: string,
+    matchKey: string | null,
+  ) => ({
+    sourceId: "regulations",
+    identifier: id,
+    title,
+    issuingBody: "EX",
+    kind,
+    date,
+    officialUrl: `https://www.regulations.gov/document/${id}`,
+    textUrl: null,
+    retrievedAt: at,
+    summary: null,
+    textAvailable: false,
+    matchKey,
+  });
+  const frCriteria = v1Criteria(
+    "federal-register",
+    "salmon habitat",
+    "relevance",
+  );
+  const FR_V1 = JSON.stringify({
+    ok: true,
+    source: "federal-register",
+    query: "salmon habitat",
+    total: 753,
+    page: 1,
+    results: [
+      frRow("2026-19346", FR_PROBE_ROWS[0].title, "2026-09-22"),
+      frRow(
+        "2026-12955",
+        "Process for Authorizing Seasonal Migratory Game Bird Hunting",
+        "2026-06-26",
+      ),
+    ],
+    retrievedAt: at,
+    criteria: frCriteria,
+    continuation: { kind: "more", next: { ...frCriteria, page: 2 } },
+  });
+  const REGULATIONS_V1 = JSON.stringify({
+    ok: true,
+    source: "regulations",
+    query: "water",
+    total: 2,
+    page: 1,
+    results: [
+      regRow(
+        "EX-2099-0001-0001",
+        "Example proposed rule, as the docket lists it",
+        "Proposed Rule",
+        "2099-01-05",
+        `fr:${FR_DOC_NUMBER}`,
+      ),
+      regRow(
+        "EX-2099-0001-0002",
+        "Example supporting material",
+        "Supporting & Related Material",
+        "2099-01-06",
+        null,
+      ),
+    ],
+    retrievedAt: at,
+    criteria: v1Criteria("regulations", "water", "-postedDate"),
+    continuation: { kind: "stopped", reason: "complete" },
+  });
+  const FR_V1_UPSTREAM =
+    "https://www.federalregister.gov/api/v1/documents.json?conditions%5Bterm%5D=salmon+habitat&per_page=10&page=1&order=relevance&fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=type&fields%5B%5D=agencies&fields%5B%5D=publication_date&fields%5B%5D=html_url&fields%5B%5D=abstract&fields%5B%5D=citation";
+  const REGULATIONS_V1_UPSTREAM =
+    "https://api.regulations.gov/v4/documents?filter%5BsearchTerm%5D=water&page%5Bsize%5D=10&page%5Bnumber%5D=1&sort=-postedDate";
+
+  it.each([
+    ["no version", "/api/search?source=federal-register&q=salmon%20habitat"],
+    [
+      "searchVersion=1",
+      "/api/search?source=federal-register&q=salmon%20habitat&searchVersion=1",
+    ],
+  ])(
+    "answers a Federal Register request with %s in the 0.8.0 bytes",
+    async (_label, path) => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date(at));
+      installFetch({
+        "documents.json": () => reply({ count: 753, results: FR_PROBE_ROWS }),
+      });
+      try {
+        expect(await (await call(path)).text()).toBe(FR_V1);
+        expect(calls.map((c) => c.url)).toEqual([FR_V1_UPSTREAM]);
+      } finally {
+        vi.useRealTimers();
+      }
+    },
+  );
+
+  it.each([
+    ["no version", "/api/search?source=regulations&q=water"],
+    [
+      "searchVersion=1",
+      "/api/search?source=regulations&q=water&searchVersion=1",
+    ],
+  ])(
+    "answers a Regulations.gov request with %s in the 0.8.0 bytes",
+    async (_label, path) => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date(at));
+      installFetch({ "api.regulations.gov": () => reply(REGULATIONS_V2_JSON) });
+      try {
+        expect(
+          await (
+            await call(path, { DATA_GOV_API_KEY: "synthetic-key" })
+          ).text(),
+        ).toBe(REGULATIONS_V1);
+        expect(calls.map((c) => c.url)).toEqual([REGULATIONS_V1_UPSTREAM]);
+      } finally {
+        vi.useRealTimers();
+      }
+    },
+  );
+});
+
+describe("search contract v2", () => {
+  const keyed = { DATA_GOV_API_KEY: "synthetic-key" };
+  const v2 = (source: string, extra: Record<string, string> = {}) =>
+    `/api/search?${new URLSearchParams({ source, q: "salmon habitat", searchVersion: "2", ...extra })}`;
+  const options = (extra: object = {}) => ({
+    dateFrom: null,
+    dateTo: null,
+    continuation: null,
+    version: 2 as const,
+    ...extra,
+  });
+  const upstream = () => new URL(calls[0].url).searchParams;
+  const frRoute = (
+    results: unknown[] = FR_PROBE_ROWS,
+    count = results.length,
+  ) => installFetch({ "documents.json": () => reply({ count, results }) });
+  const regulationsRoute = (data: unknown[] = REGULATIONS_V2_JSON.data) =>
+    installFetch({
+      "api.regulations.gov": () =>
+        reply({ data, meta: { totalElements: data.length } }),
+    });
+
+  it("maps each Federal Register field verbatim and asks for them only on v2", async () => {
+    frRoute();
+    const res = await call(v2("federal-register"));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.criteria).toEqual(
+      searchCriteria("federal-register", "salmon habitat", 1, options()),
+    );
+    expect(body.criteria).toMatchObject({
+      version: 2,
+      match: "text",
+      documentType: null,
+    });
+    expect(body.results[0]).toMatchObject({
+      commentsCloseOn: "2026-10-22",
+      docketIds: ["Docket No. 260916-0002"],
+      rins: ["0648-BO46"],
+      topics: [
+        "Fisheries",
+        "Fishing",
+        "Reporting and recordkeeping requirements",
+      ],
+    });
+    // Only title and part survive; chapter and citation_url are not whitelisted.
+    expect(body.results[0].cfrRefs).toEqual([
+      { title: 50, part: "300" },
+      { title: 50, part: "660" },
+    ]);
+    expect(body.results[1].docketIds).toEqual([
+      "Docket No. FWS-HQ-MB-2024-0206",
+      "FF09M32000-267-FXMB1231099BPP0",
+    ]);
+    expect(upstream().getAll("fields[]")).toEqual([
+      "document_number",
+      "title",
+      "type",
+      "agencies",
+      "publication_date",
+      "html_url",
+      "abstract",
+      "citation",
+      "comments_close_on",
+      "docket_ids",
+      "regulation_id_numbers",
+      "cfr_references",
+      "topics",
+    ]);
+    expect(upstream().get("conditions[term]")).toBe("salmon habitat");
+    expect(upstream().get("order")).toBe("relevance");
+    expect(JSON.stringify(body)).not.toMatch(/html_url|citation_url|chapter/);
+  });
+
+  it("drops malformed or oversized Federal Register fields without failing the row", async () => {
+    frRoute([
+      {
+        ...FR_PROBE_ROWS[0],
+        comments_close_on: "2026-02-30",
+        docket_ids: "Docket No. 1",
+        regulation_id_numbers: ["0648-BO46", "0648-bo46", 7, null, "x"],
+        cfr_references: [
+          { title: 51, part: "1" },
+          { title: 50, part: "0" },
+          null,
+          "50 CFR 1",
+          { title: "50", part: "1" },
+          { title: 50, part: "20-10" },
+          { title: 50.5, part: "1" },
+          { title: 50, part: null, chapter: "VI" },
+          { title: 50, part: "1-50", chapter: "I" },
+        ],
+        topics: [
+          "Fisheries",
+          "",
+          " padded",
+          3,
+          "x".repeat(201),
+          "line\nbreak",
+          { name: "Fishing" },
+        ],
+      },
+      {
+        ...FR_PROBE_ROWS[1],
+        comments_close_on: null,
+        docket_ids: Array.from({ length: 25 }, (_, i) => `Docket No. ${i}`),
+        regulation_id_numbers: null,
+        cfr_references: {},
+        topics: undefined,
+      },
+      {
+        ...FR_PROBE_ROWS[1],
+        document_number: "2026-12956",
+        comments_close_on: 20261022,
+        docket_ids: ["Docket\u0001No. 1", "X".repeat(121), " Docket No. 2"],
+      },
+    ]);
+    const res = await call(v2("federal-register"));
+    expect(res.status).toBe(200);
+    const [first, second, third] = (await res.json()).results;
+    expect(first).not.toHaveProperty("commentsCloseOn");
+    expect(first).not.toHaveProperty("docketIds");
+    expect(first.rins).toEqual(["0648-BO46"]);
+    expect(first.cfrRefs).toEqual([{ title: 50, part: "1-50" }]);
+    expect(first.topics).toEqual(["Fisheries"]);
+    expect(second.commentsCloseOn).toBeNull();
+    expect(second.docketIds).toHaveLength(20);
+    expect(second).not.toHaveProperty("rins");
+    expect(second).not.toHaveProperty("cfrRefs");
+    expect(second).not.toHaveProperty("topics");
+    expect(third).not.toHaveProperty("commentsCloseOn");
+    expect(third.docketIds).toEqual([]);
+  });
+
+  it.each<[string, string, Record<string, string>]>([
+    [
+      "docket",
+      "Docket No. 260916-0002",
+      { "conditions[docket_id]": "Docket No. 260916-0002" },
+    ],
+    ["rin", "0648-BO46", { "conditions[regulation_id_number]": "0648-BO46" }],
+    [
+      "cfr",
+      "50 CFR 660",
+      { "conditions[cfr][title]": "50", "conditions[cfr][part]": "660" },
+    ],
+  ])(
+    "looks up a Federal Register %s %s exactly, newest first, without a text term",
+    async (match, q, conditions) => {
+      frRoute(FR_PROBE_ROWS.slice(0, 1));
+      const res = await call(v2("federal-register", { q, match }));
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body).toMatchObject({ query: q, total: 1 });
+      expect(body.criteria).toEqual(
+        searchCriteria("federal-register", q, 1, options({ match })),
+      );
+      expect(body.criteria).toMatchObject({ match, sort: "newest" });
+      const params = upstream();
+      for (const [name, value] of Object.entries(conditions))
+        expect(params.getAll(name)).toEqual([value]);
+      expect(params.has("conditions[term]")).toBe(false);
+      expect(params.get("order")).toBe("newest");
+      expect([...params.keys()].some((key) => key.includes("near"))).toBe(
+        false,
+      );
+    },
+  );
+
+  // Held until the terms page is read and each parameter has its bounded live call.
+  it.runIf(!REGULATIONS_V2_CONFIRMED)(
+    "sends Regulations.gov no docket lookup, type filter or comment date until confirmed",
+    async () => {
+      regulationsRoute();
+      for (const extra of [
+        { q: "EX-2099-0001", match: "docket" },
+        { documentType: "RULE" },
+      ] as Record<string, string>[]) {
+        const res = await call(v2("regulations", extra), keyed);
+        expect(res.status).toBe(400);
+        expect(await res.json()).toMatchObject({
+          error: "unsupported_criteria",
+        });
+      }
+      expect(calls).toHaveLength(0);
+      const body = await (
+        await call(v2("regulations", { q: "water" }), keyed)
+      ).json();
+      expect(upstream().get("filter[searchTerm]")).toBe("water");
+      expect(upstream().has("filter[documentType]")).toBe(false);
+      expect(body.criteria).toEqual(
+        searchCriteria("regulations", "water", 1, options()),
+      );
+      // The provider states a closing date and docket; neither is passed on yet.
+      for (const field of [
+        "commentsCloseOn",
+        "commentsCloseWithheld",
+        "docketIds",
+      ])
+        expect(body.results[0]).not.toHaveProperty(field);
+    },
+  );
+
+  it.skipIf(!REGULATIONS_V2_CONFIRMED)(
+    "looks up a Regulations.gov docket exactly and states its comment dates and docket",
+    async () => {
+      regulationsRoute();
+      const res = await call(
+        v2("regulations", { q: "EX-2099-0001", match: "docket" }),
+        keyed,
+      );
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.criteria).toEqual(
+        searchCriteria(
+          "regulations",
+          "EX-2099-0001",
+          1,
+          options({ match: "docket" }),
+        ),
+      );
+      expect(upstream().get("filter[docketId]")).toBe("EX-2099-0001");
+      expect(upstream().has("filter[searchTerm]")).toBe(false);
+      expect(body.results[0]).toMatchObject({
+        commentsCloseOn: "2099-03-02",
+        docketIds: ["EX-2099-0001"],
+      });
+      expect(body.results[1]).toMatchObject({
+        commentsCloseOn: null,
+        docketIds: ["EX-2099-0001"],
+      });
+      for (const field of ["rins", "cfrRefs", "topics"])
+        expect(body.results[0]).not.toHaveProperty(field);
+    },
+  );
+
+  it
+    .skipIf(!REGULATIONS_V2_CONFIRMED)
+    .each<[unknown, string | null | undefined, boolean]>([
+      ["2099-03-02T23:59:59-05:00", "2099-03-02", false],
+      ["2099-03-02T23:59:59.000-05:00", "2099-03-02", false],
+      ["2099-03-02", "2099-03-02", false],
+      // A UTC instant names no Eastern day without assuming a zone; never shown
+      // late, and marked so the row never reads as having no comment period.
+      ["2099-03-03T04:59:59Z", undefined, true],
+      ["2099-03-03T04:59:59+00:00", undefined, true],
+      ["2099-03-02T23:59:59", undefined, true],
+      ["2099-02-30T23:59:59-05:00", undefined, true],
+      ["soon", undefined, true],
+      [20990302, undefined, true],
+      [null, null, false],
+      [undefined, undefined, false],
+    ])(
+    "reads Regulations.gov commentEndDate %j as %j (left out and marked: %j) without failing the row",
+    async (commentEndDate, expected, withheld) => {
+      regulationsRoute([
+        {
+          id: "EX-2099-0001-0001",
+          attributes: {
+            title: "Example",
+            commentEndDate,
+            docketId: 42,
+          },
+        },
+      ]);
+      const res = await call(v2("regulations", { q: "water" }), keyed);
+      expect(res.status).toBe(200);
+      const [row] = (await res.json()).results;
+      if (expected === undefined)
+        expect(row).not.toHaveProperty("commentsCloseOn");
+      else expect(row.commentsCloseOn).toBe(expected);
+      if (withheld) expect(row.commentsCloseWithheld).toBe(true);
+      else expect(row).not.toHaveProperty("commentsCloseWithheld");
+      expect(row).not.toHaveProperty("docketIds");
+    },
+  );
+
+  it.each([
+    ["RULE", "RULE"],
+    ["PRORULE", "PRORULE"],
+    ["NOTICE", "NOTICE"],
+    ["PRESDOCU", "PRESDOCU"],
+  ])(
+    "filters the Federal Register to type %s with conditions[type][]",
+    async (documentType, value) => {
+      frRoute([]);
+      const res = await call(v2("federal-register", { documentType }), keyed);
+      expect(res.status).toBe(200);
+      expect((await res.json()).criteria).toMatchObject({ documentType });
+      expect(upstream().getAll("conditions[type][]")).toEqual([value]);
+    },
+  );
+
+  it.skipIf(!REGULATIONS_V2_CONFIRMED).each([
+    ["RULE", "Rule"],
+    ["PRORULE", "Proposed Rule"],
+    ["NOTICE", "Notice"],
+  ])(
+    "filters Regulations.gov type %s as documentType %s",
+    async (documentType, value) => {
+      regulationsRoute([]);
+      const res = await call(v2("regulations", { documentType }), keyed);
+      expect(res.status).toBe(200);
+      expect((await res.json()).criteria).toMatchObject({ documentType });
+      expect(upstream().getAll("filter[documentType]")).toEqual([value]);
+    },
+  );
+
+  it.each<[string, Record<string, string>, string]>([
+    // A source without the identifier or type refuses instead of searching unfiltered.
+    ["regulations", { documentType: "PRESDOCU" }, "unsupported_criteria"],
+    ["govinfo", { documentType: "RULE" }, "unsupported_criteria"],
+    [
+      "congress",
+      { q: "hr 1234 119", documentType: "NOTICE" },
+      "unsupported_criteria",
+    ],
+    [
+      "washington",
+      { q: "HB 1100", documentType: "RULE" },
+      "unsupported_criteria",
+    ],
+    ["govinfo", { q: "EX-2099-0001", match: "docket" }, "unsupported_criteria"],
+    ["congress", { q: "0648-BO46", match: "rin" }, "unsupported_criteria"],
+    ["washington", { q: "50 CFR 660", match: "cfr" }, "unsupported_criteria"],
+    ["regulations", { q: "0648-BO46", match: "rin" }, "unsupported_criteria"],
+    ["regulations", { q: "50 CFR 660", match: "cfr" }, "unsupported_criteria"],
+    // Malformed identifiers, kinds and types.
+    ["federal-register", { q: "0648-bo46", match: "rin" }, "bad_query"],
+    ["federal-register", { q: "51 CFR 1", match: "cfr" }, "bad_query"],
+    ["federal-register", { q: "50 CFR 0", match: "cfr" }, "bad_query"],
+    ["federal-register", { q: "50 CFR 20-10", match: "cfr" }, "bad_query"],
+    // A part range: how the Federal Register matches one is unconfirmed.
+    ["federal-register", { q: "40 CFR 1-50", match: "cfr" }, "bad_query"],
+    ["federal-register", { q: "050 CFR 1", match: "cfr" }, "bad_query"],
+    ["federal-register", { q: "50 CFR 1 OR 2", match: "cfr" }, "bad_query"],
+    [
+      "federal-register",
+      { q: "Docket\u0001No. 1", match: "docket" },
+      "bad_query",
+    ],
+    ["federal-register", { q: "X".repeat(121), match: "docket" }, "bad_query"],
+    ...["EX-1,EX-2", "EX 2099"].map(
+      (q) =>
+        [
+          "regulations",
+          { q, match: "docket" },
+          REGULATIONS_V2_CONFIRMED ? "bad_query" : "unsupported_criteria",
+        ] as [string, Record<string, string>, string],
+    ),
+    ["federal-register", { match: "keyword" }, "bad_query"],
+    ["federal-register", { match: "" }, "bad_query"],
+    ["federal-register", { documentType: "rule" }, "bad_query"],
+    ["federal-register", { documentType: "" }, "bad_query"],
+    // v2 parameters never ride on a v1 or versionless request.
+    ["federal-register", { searchVersion: "1", match: "docket" }, "bad_query"],
+    [
+      "federal-register",
+      { searchVersion: "1", documentType: "RULE" },
+      "bad_query",
+    ],
+    ["federal-register", { searchVersion: "3" }, "bad_query"],
+  ])(
+    "refuses %s %j before any upstream call (%s)",
+    async (source, extra, error) => {
+      installFetch({});
+      const res = await call(v2(source, extra), keyed);
+      expect(res.status).toBe(400);
+      expect(await res.json()).toMatchObject({ ok: false, error });
+      expect(calls).toHaveLength(0);
+    },
+  );
+
+  it("refuses v2 parameters on a request without searchVersion", async () => {
+    installFetch({});
+    for (const extra of ["match=docket", "documentType=RULE"]) {
+      const res = await call(
+        `/api/search?source=federal-register&q=Docket%20No.%201&${extra}`,
+      );
+      expect(res.status).toBe(400);
+    }
+    expect(calls).toHaveLength(0);
+  });
+
+  it("continues an identifier search only with its own complete v2 envelope", async () => {
+    frRoute(FR_PROBE_ROWS, 25);
+    const q = "Docket No. 260916-0002";
+    const first = await (
+      await call(v2("federal-register", { q, match: "docket" }))
+    ).json();
+    const next = first.continuation.next;
+    expect(next).toEqual(
+      nextSearchCursor(
+        searchCriteria("federal-register", q, 1, options({ match: "docket" })),
+      ),
+    );
+    const page = (continuation: object) =>
+      call(
+        v2("federal-register", {
+          q,
+          match: "docket",
+          page: "2",
+          continuation: JSON.stringify(continuation),
+        }),
+      );
+    expect((await page(next)).status).toBe(200);
+    expect(new URL(calls[1].url).searchParams.get("page")).toBe("2");
+    const v1Next = nextSearchCursor(searchCriteria("federal-register", q, 1));
+    for (const wrong of [
+      v1Next,
+      { ...next, match: "rin" },
+      { ...next, documentType: "RULE" },
+      { ...next, version: 1 },
+      { ...next, sort: "relevance" },
+    ])
+      expect((await page(wrong)).status).toBe(400);
+    expect(calls).toHaveLength(2);
+  });
+
+  it("echoes v2 text criteria for a source without v2 fields and adds none", async () => {
+    installFetch({
+      "api.govinfo.gov": () =>
+        reply({
+          count: 1,
+          results: [{ packageId: "PKG-1", title: "A package" }],
+        }),
+    });
+    const body = await (await call(v2("govinfo"), keyed)).json();
+    expect(body.criteria).toEqual(
+      searchCriteria("govinfo", "salmon habitat", 1, options()),
+    );
+    for (const field of [
+      "commentsCloseOn",
+      "commentsCloseWithheld",
+      "docketIds",
+      "rins",
+      "cfrRefs",
+      "topics",
+    ])
+      expect(body.results[0]).not.toHaveProperty(field);
   });
 });
 

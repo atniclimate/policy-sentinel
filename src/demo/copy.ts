@@ -242,6 +242,24 @@ export const COPY = {
   submittedDates: (from: string, to: string) =>
     "Dates: " + from + " through " + to + ", inclusive.",
   noDateRange: "Dates: no range applied.",
+  docTypeLabel: "Document type",
+  docTypeAny: "Any type",
+  /** Federal Register type names; Regulations.gov has the first three. */
+  docTypes: {
+    RULE: "Rule",
+    PRORULE: "Proposed Rule",
+    NOTICE: "Notice",
+    PRESDOCU: "Presidential Document",
+  },
+  docTypeHelp:
+    "Applies where the demo can send it, such as the Federal Register, including NCAI draft searches and Find related. Other sources are searched without it, and Results says so for each.",
+  submittedType: (label: string) => `Document type: ${label}.`,
+  noTypeFilter: "Document type: no filter applied.",
+  /** A lane the demo sends no type filter to (no matching type, or not yet confirmed); never sent filtered or skipped silently. */
+  typeNotApplied:
+    "Type filter not applied: the demo does not send it to this source, so it is searched without it.",
+  identifierLeftOut: (count: number) =>
+    `${count} ${count === 1 ? "listing" : "listings"} the source returned ${count === 1 ? "does" : "do"} not state this identifier, so ${count === 1 ? "it is" : "they are"} left out.`,
   loadedOrder:
     "Loaded rows only. Initial listings follow each source's order; more results append, with exact duplicate listings merged. Provider totals may change.",
   sourceDateMeaning: {
@@ -352,8 +370,43 @@ export const COPY = {
     legislation: "Legislation",
     bill: "Bills Named in the Title",
     case: "Court Opinions",
+    related: "Related by Identifier",
   },
+  /** Find related: exact identifiers a record's own source stated, looked up in that source only. */
+  findRelated: "Find related",
+  related: {
+    loadedFor: "Related by identifier to",
+    caveat:
+      "Each search looks up one identifier exactly as the record's source states it, in that source only. A shared docket, RIN, or CFR part does not show that one document amends, governs, or applies to another.",
+    searching: "Looking up each identifier in the source that stated it.",
+    noResults:
+      "None of the identifier searches listed a document on the sources named below.",
+    /** The seed row: its own identifiers list it, which shows no relationship. */
+    startingRecord:
+      "This is the starting record, listed again under its own identifiers.",
+  },
+  /** Row labels for identifiers shown verbatim, and the same kinds mid-sentence. */
+  identifierLabels: { docket: "Docket", rin: "RIN", cfr: "CFR part" },
+  identifierKinds: { docket: "docket", rin: "RIN", cfr: "CFR part" },
+  /** The closing date as the source states it; not a deadline the demo computes or applies. */
+  commentsClose: (date: string, source: string) =>
+    `Comments close ${date}, as stated by ${source}.`,
+  /** A closing time the source states but the demo leaves out; never shown as no comment period. */
+  commentsCloseWithheld: (source: string) =>
+    `${source} states a comment closing time that this demo does not show. See the official source.`,
+  /** A source whose comment dates this demo does not read yet; never shown as no comment period. */
+  commentsCloseNotRead: (source: string) =>
+    `This demo does not show ${source} comment dates yet. See the official source.`,
+  /** The source's own subject labels, verbatim; `topics` is already joined. */
+  sourceTopics: (source: string, topics: string) =>
+    `${source} topics: ${topics}`,
   whyShownLabel: "Why shown:",
+  /** An exact identifier lookup; `kind` is one of identifierKinds. */
+  whyIdentifier: (kind: string, id: string, where: string) =>
+    `listed under the same ${kind}, ${id}, in ${where}`,
+  /** The record the identifiers came from, by its source and identifier. */
+  whyRecord: (source: string, identifier: string, searches: number) =>
+    `${searches === 1 ? "identifier" : "identifiers"} stated by ${source} record ${identifier}`,
   /** The search as sent, unquoted: quotation marks would claim the phrase is in the document. */
   whyMatched: (terms: string, where: string) =>
     `matched the search ${terms} in ${where}`,
@@ -555,18 +608,26 @@ export const COPY = {
     foundBy: "Found by",
   },
   /**
-   * One Found by value per search that listed a cited document. Draft ID only:
-   * never the tracker title or sponsor. The committee area is not applied to
-   * results, so it is not named.
+   * One Found by value per search that listed a cited document. Draft ID, and
+   * its tracker title when the page supplies it (D-112); never the sponsor. The
+   * committee area is not applied to results, so it is not named.
    */
   docFoundBy: {
-    draft: (id: string) => `Suggested search for NCAI draft ${id}`,
+    draft: (id: string, title?: string) =>
+      `Suggested search for NCAI draft ${id}${title ? ` (${title})` : ""}`,
     typed: "Typed search",
     area: "Policy area menu search",
+    /** Find related: an identifier the record's own source stated, looked up exactly. */
+    record: (source: string, identifier: string) =>
+      `Identifier lookup from ${source} record ${identifier}`,
     /** `where` is the source, then the collection searched, if any. */
     search: (seed: string, terms: string, where: string) =>
       `${seed}: ${terms} (${where})`,
-    /** A name search's terms are the tracker's sponsor, so they stay out of the export. */
+    /**
+     * A name search's terms are the tracker's sponsor, so they stay out of the
+     * export. The draft title may be exported (D-112) and appears on the row's
+     * other Found by lines; this line names the draft by ID only.
+     */
     nameSearch: (id: string, where: string) =>
       `Name search for the sponsor listed on NCAI draft ${id} (${where})`,
     /** The same, from a seed with no draft ID, such as the policy area menu. */
