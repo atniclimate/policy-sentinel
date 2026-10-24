@@ -1,75 +1,80 @@
 # Status
 
-As of 2026-10-23 (Pacific). **Release 0.10.0 is published** (D-115). The page
-was published through PR 18, merged as `68a826c` at 2026-10-24 02:24:45 UTC;
-Pages built it at 02:25:07 UTC. The demo Worker is version
-`2465b6f7-6791-4505-aa3c-87f7f9779a74`, deployed from `adad603`; the rollback
-target is `f6e2b85a-70b2-418b-a539-9dfa6650fc7a`. Development continues under
-D-114.
+As of 2026-10-23 (Pacific). **Release 0.10.1 is published** (D-116). The page
+was published through PR 19, merged as `2597846` at 2026-10-24 03:44:07 UTC.
+The demo Worker is version `93192de1-9556-4f81-907e-35ace346728d`, deployed
+from `51df81b`; the rollback target is `2465b6f7-6791-4505-aa3c-87f7f9779a74`
+(0.10.0). Development continues under D-114.
 
 ## What a person can do on the live page
 
 - Follow a docket, RIN or document; the list stays in this browser, exports and
   imports as a file, and "Check for new" (on request, at most 10 lookups) shows
-  "New since <date>" in the reader's calendar day or says a lookup was
-  unavailable. When the source holds more listings than were loaded, the next
-  check counts from the same day.
-- Export comment closing dates as a calendar file (.ics).
-- Search Grants.gov for forecasted and posted funding opportunities, with an
-  optional filter for opportunities listed for Tribal governments or Tribal
-  organizations (exact Grants.gov labels, HHS attribution shown). A forecast's
-  estimated date is never shown as "Applications close". Results count
-  policies and funding opportunities apart.
+  "New since <date>" in the reader's calendar day, or says a lookup was
+  unavailable. "Last checked" always advances; when the source holds more
+  listings than were loaded, the page points to the official source.
+- Export comment closing dates as a calendar file (.ics), and a cited document
+  dated by the reader's calendar day.
+- Search Grants.gov forecasted and posted funding opportunities, with an
+  optional filter on its exact Tribal government and Tribal organization
+  labels (HHS attribution shown). A forecast's estimated date is never shown as
+  "Applications close".
 - Open "Unified Agenda entries for RIN <RIN>" from any row with a RIN.
-- Read short Federal Register rules whose GovInfo text has line-start NULs
-  (digest `fr-header-line-nul-v1`); Federal Register searches with no match no
-  longer fail.
-- Passage rules `demo-rules-1.1.0` (deadline false hits 28% to 12%; measured
-  offline with Jev, `docs/development/2026-10-23-jev-rule-audit.md`; Jev never
-  runs in the page).
+- When an official source asks the demo to wait, the page says so instead of
+  blaming the visitor; all visitors share one allowance for the api.data.gov
+  key (15 calls a minute).
+
+## Audit of 2026-10-23 (Jev-assisted)
+
+Four read-only lanes found 20 findings plus 5 smaller ones. Jev scored each
+claim and, after the fixes, answered "fixed? yes/no" (13 yes, 4 unsettled, 0
+no; every fix has a regression test). Findings 1-12, 15 and 17-20 are fixed;
+13, 14 and 16 (copies of canonical JSON, SHA-256 and JSON guards) were
+de-duplicated into `src/core/canonical-json.mjs`, `src/engine/pure-sha256.mjs`
+and `src/contracts/json-guards.ts`. Engine fixes: a Nation's authorized names
+and "<State> County" never count as state evidence; contact sections end only
+at named Federal Register captions; Federal Register data-as-of is retrieval
+time; the publish validator checks asset source tags. Scores and inputs:
+`C:/dev/_scratch/policy-sentinel/ponytail-audit-20261023/`.
 
 ## Verification (2026-10-23 Pacific, 2026-10-24 UTC)
 
-- `npm run check` exit 0 at 19:18 Pacific: 2,874 unit tests passed, 16 skipped
-  (the Regulations.gov v2 flag), all stages. Hook tests re-run after the deny
-  list change: 88 of 88. Log:
-  `C:/dev/_scratch/policy-sentinel/release-0.10.0-20261023/check.log`.
-- One risk-boundary review (sovereignty reviewer): pass; its three findings
-  (forecast close date, filter line without Grants.gov, last-checked with more
-  listings) were fixed before the check.
-- Readback: all 17 runtime files byte-match `68a826c`
-  (`published-receipt-0.10.0.json`). Live verifier (Chromium 1243): 83 of 83
-  after scoping its source checkbox locator to the sources group. One live
-  Grants.gov call through the deployed Worker: 200, 9 Tribal-filtered rows.
-- Incident: between the Worker deploy and the Pages build (about 5 minutes),
-  the 0.9.0 page rejected the Worker's 8-source list (unknown source, limit 7).
-  A future new source needs the page published with the Worker, or a page that
-  ignores unknown sources first.
+- `npm run check` exit 0 at 20:42 Pacific: 2,887 tests passed, 16 skipped (the
+  Regulations.gov v2 flag); sealed corpus replay unchanged.
+- Sovereignty review of the Nation-evidence and contact fixes: its two findings
+  (an upper-case sub-label releasing an official's address; aliases and case)
+  are fixed with regression tests before the check.
+- Readback: all 17 runtime files byte-match `2597846`. Live verifier: 83 of 83.
+  One keyed GovInfo search through the new Worker: 200.
 
 ## Not done, and carried limits
 
-- Regulations.gov v2 stays off: its API terms page renders empty even through
-  Parallel Extract. Comment end dates are UTC timestamps for 11:59:59 PM
-  Eastern, held back until the owner rules.
-- Nit: Grants.gov placeholder close dates show as stated.
-- Noted from review: the standing weekly Parallel monitors from
-  `scripts/dev-ai/parallel-scout.mjs` are a lasting third-party subscription;
-  imported follow files may carry an unused `listedEligibility` field.
+- Regulations.gov v2 stays off: its API terms page renders empty. Comment end
+  dates are UTC timestamps for 11:59:59 PM Eastern, held back.
+- Kept on purpose by the refactor: copies whose inputs are not plain JSON or
+  whose errors differ (listed in the lane reports); `scripts/source-pack.ts`
+  stays pinned. `policy-search.mjs` source hashes in measurement records will
+  differ on the next measurement run.
+- Recovery now clears a torn (empty) lock; a recovery run at the instant a live
+  writer creates its lock could clear it. Recovery is explicit, by hand.
+- Left out of the audit report: a repeated Washington fetch, a Worker in-memory
+  counter, a quadratic curation lookup, Windows case collisions (fail closed),
+  unused `export` keywords. The Cache API on `workers.dev` is unconfirmed.
 - Unified Agenda data beyond the link needs an approved output boundary.
-- USAspending terms unread; Oregon OData needs the owner to accept its
+  USAspending terms unread; Oregon OData needs the owner to accept its
   Acceptable Use Agreement; Idaho has no API (contact needed).
 - Carried: Oregon and Idaho integration gaps; D-106 items 7-8; NCAI reuse
   permission; untagged PDFs; Windows WebKit failures; no Safari, Firefox,
   screen-reader, print or outside-user acceptance. The verifier needs
-  `PLAYWRIGHT_CORE` and `--executable`; no project copy of playwright-core.
-- Uncommitted owner work: `.claude/settings.json` (now also without
-  `gh pr create`), `AGENTS.md` (including the D-114 wording), `CLAUDE.md`,
-  `scripts/codex-hooks.mjs` and its test (now allowing `gh pr create`), and the
-  untracked owner documents under `docs/`.
+  `PLAYWRIGHT_CORE` and `--executable`.
+- Uncommitted owner work: `.claude/settings.json` (without `gh pr create`),
+  `AGENTS.md` (including the D-114 wording), `CLAUDE.md`,
+  `scripts/codex-hooks.mjs` and its test (allowing `gh pr create`; also one dead
+  export removed), and the untracked owner documents under `docs/`.
 
 ## Next bounded work
 
-Owner use of 0.10.0 on the live page. Then the Regulations.gov decision below,
+Owner use of 0.10.1 on the live page. Then the Regulations.gov decision below,
 or the taxonomy review.
 
 ## Open owner decisions

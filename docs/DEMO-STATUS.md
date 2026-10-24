@@ -25,6 +25,18 @@ Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
 
+## Audit fixes, release 0.10.1, 2026-10-23 (D-116)
+
+Fixes from the Jev-assisted audit of 2026-10-23. Following now always advances
+"Last checked" and dates both ends of a lookup in the reader's calendar day;
+the export date matches its file name; an unreadable saved citation list is
+not overwritten on load. The Worker returns 503 for a source's own rate limit,
+holds one shared allowance for the api.data.gov key (`KEY_RATE`, 15 a minute)
+and reads a bare Washington bill number in the current biennium. Deployed as
+`93192de1` from `51df81b`. Published through PR 19 (`2597846`, 2026-10-24
+03:44 UTC); all 17 runtime files matched on readback and the live verifier
+passed 83 of 83.
+
 ## Following and Grants.gov, release 0.10.0, 2026-10-23 (D-114, D-115)
 
 A docket, RIN or document can be followed; the list stays in the browser,
