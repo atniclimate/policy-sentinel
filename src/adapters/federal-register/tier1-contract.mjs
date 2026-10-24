@@ -1,3 +1,5 @@
+import { canonicalJson, deepFreeze } from "../../core/canonical-json.mjs";
+
 export const FEDERAL_REGISTER_TIER1_DOCUMENT_NUMBER = "2026-16965";
 
 export const FEDERAL_REGISTER_TIER1_FIELDS = Object.freeze([
@@ -64,20 +66,6 @@ export class FederalRegisterTier1ContractError extends TypeError {
 
 function fail(code, path, detail) {
   throw new FederalRegisterTier1ContractError(code, path, detail);
-}
-
-function compareCodeUnits(left, right) {
-  return left < right ? -1 : left > right ? 1 : 0;
-}
-
-function deepFreeze(value) {
-  if (value !== null && typeof value === "object") {
-    for (const nested of Object.values(value)) {
-      deepFreeze(nested);
-    }
-    Object.freeze(value);
-  }
-  return value;
 }
 
 function captureJsonValue(value, path, ancestors, depth, budget) {
@@ -343,19 +331,6 @@ function uniqueStrings(value, path, maximumItems, maximumLength) {
     fail("duplicate_value", path, "array contains a duplicate string");
   }
   return parsed;
-}
-
-function canonicalJson(value) {
-  if (value === null || typeof value !== "object") {
-    return JSON.stringify(value);
-  }
-  if (Array.isArray(value)) {
-    return `[${value.map(canonicalJson).join(",")}]`;
-  }
-  return `{${Object.keys(value)
-    .sort(compareCodeUnits)
-    .map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`)
-    .join(",")}}`;
 }
 
 function requireUniqueObjects(values, path) {

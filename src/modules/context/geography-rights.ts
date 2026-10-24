@@ -39,6 +39,11 @@ import {
   createProjectionRuntime,
   type ProjectionConfiguration,
 } from "../../core/projection";
+import {
+  canonicalJson as encodeCanonical,
+  compareCodeUnits as compareText,
+  deepFreeze,
+} from "../../core/canonical-json.mjs";
 
 type JsonPrimitive = null | boolean | number | string;
 type JsonValue =
@@ -372,10 +377,6 @@ function expectDate(value: unknown, path: string): string {
     fail("INVALID_SHAPE", path, "expected a real calendar date");
   }
   return value;
-}
-
-function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 function refKey(reference: VersionedReference): string {
@@ -2459,31 +2460,6 @@ function geometryReviewAccepted(
     refKey(geometry.reviewAttestationRef),
   );
   return review?.kind === "geometry_reviewed" && review.state === "accepted";
-}
-
-function encodeCanonical(value: JsonValue): string {
-  if (value === null || typeof value !== "object") {
-    return JSON.stringify(value);
-  }
-  if (Array.isArray(value)) {
-    return `[${value.map((entry) => encodeCanonical(entry)).join(",")}]`;
-  }
-  const object = value as { readonly [key: string]: JsonValue };
-  return `{${Object.keys(object)
-    .sort(compareText)
-    .map(
-      (key) =>
-        `${JSON.stringify(key)}:${encodeCanonical(object[key] as JsonValue)}`,
-    )
-    .join(",")}}`;
-}
-
-function deepFreeze<T>(value: T): T {
-  if (value !== null && typeof value === "object") {
-    Object.values(value).forEach(deepFreeze);
-    Object.freeze(value);
-  }
-  return value;
 }
 
 function canonicalClone<T>(value: T): T {

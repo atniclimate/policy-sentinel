@@ -249,6 +249,33 @@ test("contact sections and precise location blocks are removed without publishin
   );
 });
 
+test("GovInfo contact sections end at the dated signature and FR Doc trailer", () => {
+  const value = fr(
+    "<pre>Authored test rule.\n\nFOR FURTHER INFORMATION CONTACT: Test Person, (202) 555-0142.\n\nDated: January 1, 2025.\n\n[FR Doc. 2025-12345 Filed 1-1-25; 8:45 am]</pre>",
+  );
+  assert.equal(value.identity.matched, true);
+  assert.ok(value.text.includes("Dated: January 1, 2025."));
+  assert.ok(!/Test Person|555/.test(JSON.stringify(value)));
+  const header = fr(
+    "<pre>FR Doc. 2025-12345\n\nFOR FURTHER INFORMATION CONTACT: Test Person.\n\nEFFECTIVE DATE: The rule takes effect.</pre>",
+  );
+  assert.ok(header.text.includes("EFFECTIVE DATE: The rule takes effect."));
+});
+
+test("an upper-case sub-label inside a contact section never releases the name or address after it", () => {
+  for (const body of [
+    "FOR FURTHER INFORMATION CONTACT: Test Person, Division of X.\n\nTTY: 711\n\nTest Person, Room 4660, 1849 C Street NW, Washington, DC 20240.",
+    "FOR FURTHER INFORMATION CONTACT: Division of X.\n\nATTN: Test Person, Room 4660, 1849 C Street NW, Washington, DC 20240.",
+    "FOR TECHNICAL INFORMATION CONTACT: Test Person, 1849 C Street NW, Washington, DC 20240.",
+  ]) {
+    const value = fr(
+      `<pre>Authored test rule.\n\n${body}\n\n[FR Doc. 2025-12345 Filed 1-1-25; 8:45 am]</pre>`,
+    );
+    assert.equal(value.identity.matched, true);
+    assert.ok(!/Test Person|1849 C Street/.test(JSON.stringify(value)), body);
+  }
+});
+
 test("bill insertions and deletions remain distinct explicit source markup, including style", () => {
   const value = bill(
     '<h1>HOUSE BILL 1234</h1><p>Sec. 1. The board <strike>may</strike> <u>shall</u> review.</p><p><span style="text-decoration:line-through">Before</span><span style="text-decoration: underline">After</span></p>',

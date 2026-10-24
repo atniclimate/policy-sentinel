@@ -1,5 +1,6 @@
 import { Buffer } from "node:buffer";
 
+import { canonicalJson, compareCodeUnits } from "../../core/canonical-json.mjs";
 import type {
   FieldProvenance,
   HistoryEvent,
@@ -126,25 +127,8 @@ interface SubjectWithProvenance {
   sourcePath: string;
 }
 
-function compareCodeUnits(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
-}
-
 function stableJson(value: unknown): string {
-  const serialized = JSON.stringify(value, (_key, nested) => {
-    if (
-      nested === null ||
-      typeof nested !== "object" ||
-      Array.isArray(nested)
-    ) {
-      return nested;
-    }
-    return Object.fromEntries(
-      Object.entries(nested as Record<string, unknown>).sort(
-        ([left], [right]) => compareCodeUnits(left, right),
-      ),
-    );
-  });
+  const serialized = canonicalJson(value);
   if (serialized === undefined) {
     throw new Error(
       "Federal Register source configuration is not JSON-serializable.",
@@ -781,7 +765,7 @@ function normalizeReconciledFederalRegisterDocument(
     });
   });
 
-  const dataAsOf = `${document.publication_date}T00:00:00Z`;
+  const dataAsOf = retrievedAt;
   const record: PolicyRecord = {
     schemaVersion: "1.4.0",
     internalId: federalRegisterStableRecordId(document.document_number),

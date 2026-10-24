@@ -17,6 +17,11 @@ import {
   type RequiredCommunityRelevanceNonClaims,
   type VersionedReference,
 } from "../engine/contracts";
+import {
+  canonicalJson as encodeCanonical,
+  compareCodeUnits as compareText,
+  deepFreeze,
+} from "./canonical-json.mjs";
 
 const PROFILE_SCHEMA_ID =
   "https://policy-sentinel.invalid/schemas/projection-profile.schema.v1.json";
@@ -358,10 +363,6 @@ function expectIsoDate(value: unknown, path: string): string {
     fail("INVALID_SHAPE", path, "expected a real calendar date");
   }
   return value;
-}
-
-function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 function compareVersioned(
@@ -876,36 +877,9 @@ function buildViews(
   });
 }
 
-function encodeCanonical(value: JsonValue): string {
-  if (value === null || typeof value !== "object") {
-    return JSON.stringify(value);
-  }
-  if (Array.isArray(value)) {
-    return `[${value.map((entry) => encodeCanonical(entry)).join(",")}]`;
-  }
-  const object = value as { readonly [key: string]: JsonValue };
-  return `{${Object.keys(object)
-    .sort(compareText)
-    .map(
-      (key) =>
-        `${JSON.stringify(key)}:${encodeCanonical(object[key] as JsonValue)}`,
-    )
-    .join(",")}}`;
-}
-
-function deepFreeze<T>(value: T): DeepReadonly<T> {
-  if (value !== null && typeof value === "object") {
-    for (const child of Object.values(value)) {
-      deepFreeze(child);
-    }
-    Object.freeze(value);
-  }
-  return value as DeepReadonly<T>;
-}
-
 function canonicalClone<T>(value: T): DeepReadonly<T> {
   assertPlainJson(value, "$projection");
-  return deepFreeze(JSON.parse(encodeCanonical(value)) as T);
+  return deepFreeze(JSON.parse(encodeCanonical(value)) as DeepReadonly<T>);
 }
 
 export function serializeEngineProjection(

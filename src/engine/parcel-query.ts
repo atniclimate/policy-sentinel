@@ -9,6 +9,7 @@
  * statement. Pure: no I/O, no clock, no mutation of inputs.
  */
 import type { PolicyRecord } from "../shared/contracts";
+import { deepFreeze } from "../core/canonical-json.mjs";
 import type { WhyAssociated } from "./citation-export-contracts";
 import type { JurisdictionLayer, LandParcel } from "./land-parcel-contracts";
 
@@ -57,16 +58,8 @@ function canonical(value: unknown): string {
     .join(",")}}`;
 }
 
-function freeze<T>(value: T): T {
-  if (value !== null && typeof value === "object") {
-    Object.values(value).forEach(freeze);
-    Object.freeze(value);
-  }
-  return value;
-}
-
 function detached<T>(value: T): T {
-  return freeze(JSON.parse(canonical(value)) as T);
+  return deepFreeze(JSON.parse(canonical(value)) as T);
 }
 
 function matchesOptions(

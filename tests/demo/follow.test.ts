@@ -105,19 +105,17 @@ describe("following a docket, a RIN or a document", () => {
     });
   });
 
+  // Zones are named explicitly: the unit run uses worker threads, where changing TZ has no effect.
   it("counts from the reader's calendar day, not the UTC day", () => {
-    const zone = process.env.TZ;
-    process.env.TZ = "America/Los_Angeles";
-    try {
-      // 6 PM Pacific on January 14 is already January 15 in UTC.
-      const evening = "2099-01-15T02:00:00.000Z";
-      expect(localDay(evening)).toBe("2099-01-14");
-      const checked = { ...docket(), lastChecked: evening };
-      expect(checkDates(checked, NOW).dateFrom).toBe("2099-01-14");
-    } finally {
-      if (zone === undefined) delete process.env.TZ;
-      else process.env.TZ = zone;
-    }
+    // 6 PM Pacific on January 14 is already January 15 in UTC.
+    const evening = "2099-01-15T02:00:00.000Z";
+    expect(localDay(evening, "America/Los_Angeles")).toBe("2099-01-14");
+    // 2 AM in Auckland on January 9 is still January 8 in UTC.
+    expect(localDay("2099-01-08T13:00:00.000Z", "Pacific/Auckland")).toBe(
+      "2099-01-09",
+    );
+    const checked = { ...docket(), lastChecked: evening };
+    expect(checkDates(checked, NOW).dateFrom).toBe(localDay(evening));
   });
 
   it("shows only listings that state the identifier, dated on or after the day counted from, as new", () => {
@@ -147,7 +145,7 @@ describe("following a docket, a RIN or a document", () => {
     expect(item.lastChecked).toBe(NOW.toISOString());
   });
 
-  it("leaves lastChecked alone when the source holds more listings than were loaded", () => {
+  it("advances lastChecked even when the source holds more listings than were loaded", () => {
     const response = searchResult([later("2099-00020", "2099-01-12")]);
     const { check, item } = settleCheck(
       docket(),
@@ -163,7 +161,18 @@ describe("following a docket, a RIN or a document", () => {
       NOW,
     );
     expect(check.state === "checked" && check.more).toBe(true);
-    expect(item.lastChecked).toBeNull();
+    expect(item.lastChecked).toBe(NOW.toISOString());
+  });
+
+  it("dates both ends of a lookup in the same calendar, so the range never ends before it starts", () => {
+    // Every hour of one day: wherever the reader is, local and UTC days differ for some of them.
+    for (let hour = 0; hour < 24; hour++) {
+      const now = new Date(Date.UTC(2099, 0, 8, hour, 30));
+      const followed = followItem(statedCitation(), "docket", DOCKET, now)!;
+      const dates = checkDates(followed, now);
+      expect(dates.dateTo).toBe(localDay(now));
+      expect(dates.dateFrom! <= dates.dateTo!).toBe(true);
+    }
   });
 
   it("keeps a failed lookup unavailable, never nothing new, and leaves lastChecked alone", () => {

@@ -11,8 +11,9 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const forbidden = [
-  /api[_-]?key["']?\s*[:=]\s*["'][A-Za-z0-9]{16,}/i,
-  /X-Api-Key["']?\s*:\s*["'][A-Za-z0-9]{16,}/i,
+  // The quote is optional and a comma counts, so query strings and call arguments are caught too.
+  /api[_-]?key["']?\s*[:=,]\s*["']?[A-Za-z0-9]{16,}/i,
+  /X-Api-Key["']?\s*[:,]\s*["']?[A-Za-z0-9]{16,}/i,
   /(?:ghp_|github_pat_)[A-Za-z0-9_]{20,}/,
   /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
   /[A-Za-z]:[\\/]+(?:Users|dev|policy-sentinel|ATNI-TERRA)[\\/]+/i,

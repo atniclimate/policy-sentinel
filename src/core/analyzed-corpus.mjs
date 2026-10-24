@@ -6,6 +6,11 @@ import addFormats from "ajv-formats";
 import recordSchema from "../../schemas/record.schema.v1.json" with { type: "json" };
 
 import {
+  canonicalJson as canonicalEncode,
+  compareCodeUnits as compareText,
+  deepFreeze,
+} from "./canonical-json.mjs";
+import {
   completeSyntheticProvenance,
   sourceDerivedLeafPointers,
   validateRecordSetPolicy,
@@ -196,18 +201,6 @@ function fail(code, path, detail) {
   throw new AnalyzedCorpusValidationError(code, structuralPath, detail);
 }
 
-function compareText(left, right) {
-  return left < right ? -1 : left > right ? 1 : 0;
-}
-
-function deepFreeze(value) {
-  if (value !== null && typeof value === "object" && !Object.isFrozen(value)) {
-    Object.values(value).forEach(deepFreeze);
-    Object.freeze(value);
-  }
-  return value;
-}
-
 function hasUnpairedSurrogate(value) {
   for (let index = 0; index < value.length; index += 1) {
     const unit = value.charCodeAt(index);
@@ -373,19 +366,6 @@ function capturePlainJson(value, path) {
       "input could not be captured as one stable plain-JSON snapshot",
     );
   }
-}
-
-function canonicalEncode(value) {
-  if (value === null || typeof value !== "object") {
-    return JSON.stringify(value);
-  }
-  if (Array.isArray(value)) {
-    return `[${value.map(canonicalEncode).join(",")}]`;
-  }
-  return `{${Object.keys(value)
-    .sort(compareText)
-    .map((key) => `${JSON.stringify(key)}:${canonicalEncode(value[key])}`)
-    .join(",")}}`;
 }
 
 function digestValue(value) {

@@ -67,6 +67,9 @@ describe("generated demo boundary", () => {
       "C:\\Users\\Example\\private.txt",
       JSON.stringify("C:\\Users\\Example\\private.txt"),
       JSON.stringify({ api_key: "abcdefghijklmnop" }),
+      'fetch("https://api.regulations.gov/v4/documents?api_key=AbCdEf0123456789AbCdEf01")',
+      'url.searchParams.set("api_key","AbCdEf0123456789AbCdEf01")',
+      'headers.set("X-Api-Key", "AbCdEf0123456789AbCdEf01")',
     ]) {
       const root = fixture();
       writeFileSync(join(root, "demo-assets", "app.js"), text);

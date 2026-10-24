@@ -60,7 +60,14 @@ const candidates = listFiles(["-c", "-o", "--exclude-standard"]);
 const findings = [];
 let scanned = 0;
 for (const file of candidates) {
-  const content = await readFile(path.resolve(projectRoot, file));
+  let content;
+  try {
+    content = await readFile(path.resolve(projectRoot, file));
+  } catch (error) {
+    // A tracked file deleted from the working tree but not staged has nothing to scan.
+    if (error?.code === "ENOENT") continue;
+    throw error;
+  }
   if (content.includes(0)) {
     continue;
   }

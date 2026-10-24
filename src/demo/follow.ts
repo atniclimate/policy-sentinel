@@ -5,9 +5,8 @@
  * exact identifier lookups Find related already uses, in the source that stated
  * each identifier. Everything here is pure; the page owns storage and requests.
  */
-import { laneKeep, laneOptions, recordPlan } from "./discovery";
+import { laneKeep, lookupReady, recordPlan } from "./discovery";
 import type { Lane, PlanDates } from "./discovery";
-import { searchCriteria } from "./search-contract";
 import type { DemoCitation, DemoSearchResponse } from "./types";
 import { citationValue, keyOf, object, text } from "./validation";
 
@@ -61,12 +60,7 @@ export function followLookups(
     if (lane.skip) return false;
     if (item.kind !== "document")
       if (lane.match !== item.kind || lane.query !== item.value) return false;
-    try {
-      searchCriteria(sourceId, lane.query, 1, laneOptions(plan, lane));
-      return true;
-    } catch {
-      return false;
-    }
+    return lookupReady(plan, lane);
   });
 }
 
@@ -254,11 +248,22 @@ export function checkBatch(
 /** Sources whose lookups take a publication or posted date range. */
 const DATED = new Set(["federal-register", "regulations"]);
 
-/** The reader's calendar day for an instant, as YYYY-MM-DD; stored times stay UTC. */
-export function localDay(value: string | Date): string {
-  const d = new Date(value);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+/**
+ * The calendar day for an instant as YYYY-MM-DD, in the reader's zone unless one
+ * is named; stored times stay UTC.
+ */
+export function localDay(value: string | Date, timeZone?: string): string {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+      .formatToParts(new Date(value))
+      .map((part) => [part.type, part.value]),
+  );
+  return `${parts.year}-${parts.month}-${parts.day}`;
 }
 
 /** The day new documents are counted from: the last check, or the day it was followed. */
@@ -279,7 +284,8 @@ export function checkDates(item: Followed, now: Date): PlanDates {
     return { dateFrom: null, dateTo: null, documentType: null };
   return {
     dateFrom: sinceDay(item, now),
-    dateTo: now.toISOString().slice(0, 10),
+    // The same calendar as dateFrom, so the range never ends before it starts.
+    dateTo: localDay(now),
     documentType: null,
   };
 }
@@ -341,7 +347,7 @@ export function settleCheck(
   });
   return {
     check: { state: "checked", since, fresh, undated, more },
-    // Listings past the loaded page are unseen, so the next check counts from the same day.
-    item: more ? item : { ...item, lastChecked: now.toISOString() },
+    // Always advances: holding it while "more" stays true would never settle; the notice points to the source.
+    item: { ...item, lastChecked: now.toISOString() },
   };
 }

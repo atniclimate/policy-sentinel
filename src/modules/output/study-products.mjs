@@ -4,6 +4,7 @@ import {
   studyReadPassage,
   studyRecordReferences,
 } from "../../core/research-study.mjs";
+import { deepFreeze as freeze } from "../../core/canonical-json.mjs";
 import {
   resolveCorpusRelationships,
   selectTemporalVersions,
@@ -49,13 +50,6 @@ const csv = (columns, rows) =>
     columns.map(cell).join(","),
     ...rows.map((row) => columns.map((key) => cell(row[key])).join(",")),
   ].join("\r\n") + "\r\n";
-const freeze = (value) => {
-  if (value && typeof value === "object" && !Object.isFrozen(value)) {
-    Object.values(value).forEach(freeze);
-    Object.freeze(value);
-  }
-  return value;
-};
 const evidenceIds = (record) => [
   ...new Set([
     ...(record.passageIds ?? []),

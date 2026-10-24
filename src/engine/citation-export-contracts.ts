@@ -18,6 +18,7 @@
 import Ajv2020 from "ajv/dist/2020.js";
 import type { ValidateFunction } from "ajv";
 import addFormats from "ajv-formats";
+import { deepFreeze } from "../core/canonical-json.mjs";
 
 import recordSchema from "../../schemas/record.schema.v1.json";
 import schema from "../../schemas/citation-export.schema.v1.json";
@@ -413,16 +414,8 @@ function canonical(value: unknown): string {
     .join(",")}}`;
 }
 
-function freeze<T>(value: T): T {
-  if (value !== null && typeof value === "object") {
-    Object.values(value).forEach(freeze);
-    Object.freeze(value);
-  }
-  return value;
-}
-
 function detached<T>(value: T): T {
-  return freeze(JSON.parse(canonical(value)) as T);
+  return deepFreeze(JSON.parse(canonical(value)) as T);
 }
 
 function hostIsSyntheticInvalid(url: string): boolean {

@@ -38,6 +38,7 @@ import {
   LaneCache,
   laneId,
   laneOptions,
+  lookupReady,
   listingCap,
   mergeLanes,
   NO_FEDERAL_SOURCE,
@@ -129,7 +130,6 @@ import {
   cfrQuery,
   dateRangeValue,
   REGULATIONS_V2_CONFIRMED,
-  searchCriteria,
   unifiedAgendaUrl,
 } from "../src/demo/search-contract";
 
@@ -255,16 +255,6 @@ function missingReference(sourceId: string, error: unknown): boolean {
     error.code === "not_found" &&
     error.httpStatus === 404
   );
-}
-
-/** Find related is offered only for an identifier its source can look up as written. */
-function lookupReady(plan: Plan, lane: Lane): boolean {
-  try {
-    searchCriteria(lane.sourceId, lane.query, 1, laneOptions(plan, lane));
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 function sourceOutcome(item: LaneSearch): string {
@@ -445,6 +435,7 @@ export function App() {
   const [selected, setSelected] = useState<Selected | null>(null);
   const [report, setReport] = useState<ReportState>(saved.report);
   const reportRef = useRef(report);
+  const reportChanged = useRef(false);
   const { cited, marks, actors } = report;
   const [storageMessage, setStorageMessage] = useState("");
   const [citationMessage, setCitationMessage] = useState("");
@@ -518,6 +509,7 @@ export function App() {
   function updateReport(update: (current: ReportState) => ReportState) {
     const next = update(reportRef.current);
     reportRef.current = next;
+    reportChanged.current = true;
     setReport(next);
   }
 
@@ -625,7 +617,9 @@ export function App() {
     };
   }, []);
 
+  // Not on first render: a saved list that could not be restored is not overwritten until the person changes it.
   useEffect(() => {
+    if (!reportChanged.current) return;
     try {
       window.sessionStorage.setItem(STORAGE_KEY, serializeReport(report));
       setStorageMessage("");
@@ -1824,7 +1818,9 @@ export function App() {
     }
     const { list, added, already, dropped } = result;
     updateFollows(() => list);
-    setFollowMessage(COPY.follow.importDone(added, already, dropped));
+    setFollowMessage(
+      COPY.follow.importDone(added, already, dropped, MAX_FOLLOWED),
+    );
   }
 
   function switchTheme() {

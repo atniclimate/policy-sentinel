@@ -6,6 +6,10 @@ import {
   isJurisdictionRef,
   US_STATE_CODES,
 } from "../core/jurisdiction-reference.mjs";
+import {
+  compareCodeUnits as order,
+  deepFreeze as freeze,
+} from "../core/canonical-json.mjs";
 
 const METHOD = Object.freeze({ id: "source-passage-bm25", version: "2.0.0" });
 const indexes = new WeakMap();
@@ -16,7 +20,6 @@ const stop = new Set(
     " ",
   ),
 );
-const order = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 const normalize = (value) => value.normalize("NFKC").toLowerCase();
 const tokens = (value) => normalize(value).match(/[\p{L}\p{N}]+/gu) ?? [];
 // Bounded lexical suffix folding only. This changes matching, never source text,
@@ -41,13 +44,6 @@ function termKey(word) {
   return value;
 }
 const identifier = (value) => tokens(value).join("");
-const freeze = (value) => {
-  if (value && typeof value === "object" && !Object.isFrozen(value)) {
-    Object.values(value).forEach(freeze);
-    Object.freeze(value);
-  }
-  return value;
-};
 function ensure(value, code) {
   if (!value) throw new TypeError(`Policy search rejected input: ${code}`);
 }

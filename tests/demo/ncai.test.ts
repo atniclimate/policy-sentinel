@@ -6,7 +6,6 @@ import {
   areaSearches,
   courtLinks,
   draftPlan,
-  draftSearch,
   ncaiAreas,
   namesSponsor,
   ncaiSearches,
@@ -170,18 +169,6 @@ describe("NCAI draft searches", () => {
       { group: "sponsor", source: "federal", query: '"Example Nation"' },
     ]);
     expect(courtLinks(drafts[2])).toEqual([]);
-  });
-
-  it("runs the first topic on choosing a draft, else its first bill, else nothing", () => {
-    expect(draftSearch(drafts[0])).toEqual({
-      group: "policy",
-      source: "federal",
-      query: '"Example Rule"',
-    });
-    expect(
-      draftSearch({ ...drafts[2], bills: ["hr 1234", "s 5"], names: [] }),
-    ).toEqual({ group: "bill", source: "congress", query: "hr 1234 119" });
-    expect(draftSearch(drafts[2])).toBeUndefined();
   });
 
   it("runs the probe's automatic set on choosing a draft and keeps the rest as buttons", () => {

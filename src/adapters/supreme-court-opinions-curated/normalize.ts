@@ -1,5 +1,6 @@
 import { Buffer } from "node:buffer";
 
+import { canonicalJson, compareCodeUnits } from "../../core/canonical-json.mjs";
 import { sourceDerivedLeafPointers } from "../../pipeline/policy-validation.mjs";
 import type {
   FieldProvenance,
@@ -51,25 +52,8 @@ export interface SupremeCourtNormalizationInput {
   termHeading: string;
 }
 
-function compareCodeUnits(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
-}
-
 function stableJson(value: unknown): string {
-  const result = JSON.stringify(value, (_key, nested) => {
-    if (
-      nested === null ||
-      typeof nested !== "object" ||
-      Array.isArray(nested)
-    ) {
-      return nested;
-    }
-    return Object.fromEntries(
-      Object.entries(nested as Record<string, unknown>).sort(
-        ([left], [right]) => compareCodeUnits(left, right),
-      ),
-    );
-  });
+  const result = canonicalJson(value);
   if (result === undefined) {
     throw new Error(
       "Supreme Court curated-opinion value is not JSON-serializable.",

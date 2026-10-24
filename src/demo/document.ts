@@ -1,5 +1,6 @@
 import { atniReferences, ieeeReference, SOURCE_LABELS } from "./citations";
 import { COPY } from "./copy";
+import { localDay } from "./follow";
 import type { DataActors, reportEntries } from "./report-state";
 import { cfrQuery } from "./search-contract";
 
@@ -50,7 +51,8 @@ export interface DocInput {
 
 export function buildDocument(input: DocInput): DocModel {
   const { version, entries } = input;
-  const generated = input.generatedAt.toISOString().slice(0, 10);
+  // The reader's calendar day, as in the file name.
+  const generated = localDay(input.generatedAt);
   const L = COPY.docLabels;
   const A = COPY.actorLabels;
   const F = COPY.docFoundBy;

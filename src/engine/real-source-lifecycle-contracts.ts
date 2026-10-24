@@ -1,18 +1,9 @@
 import type { VersionedReference } from "./contracts";
+import { deepFreeze as freezeLifecycleDescriptor } from "../core/canonical-json.mjs";
 
 export const REAL_SOURCE_LIFECYCLE_BUNDLE_SCHEMA_VERSION = "1.0.0" as const;
 export const REAL_SOURCE_LIFECYCLE_BUNDLE_SCHEMA_ID =
   "https://policy-sentinel.invalid/schemas/real-source-lifecycle-bundle.schema.v1.json" as const;
-
-function freezeLifecycleDescriptor<T>(value: T): T {
-  if (value !== null && typeof value === "object") {
-    Object.values(value as Record<string, unknown>).forEach(
-      freezeLifecycleDescriptor,
-    );
-    Object.freeze(value);
-  }
-  return value;
-}
 
 export const REAL_SOURCE_LIFECYCLE_TARGET_DESCRIPTORS =
   freezeLifecycleDescriptor({

@@ -5,6 +5,10 @@ import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import sourceSchema from "../../../schemas/source.schema.v1.json" with { type: "json" };
 import { assertSourceRegistrySemantics } from "../../pipeline/source-registry.mjs";
+import {
+  canonicalJson as canonical,
+  deepFreeze as freeze,
+} from "../../core/canonical-json.mjs";
 
 export const CURATED_DOCUMENT_PACK_SCHEMA_ID =
   "https://policy-sentinel.invalid/schemas/curated-document-pack.schema.v1.json";
@@ -143,29 +147,12 @@ function capture(value, budget = { nodes: 0, chars: 0 }, depth = 0) {
   return result;
 }
 
-function canonical(value) {
-  if (value === null || typeof value !== "object") return JSON.stringify(value);
-  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
-  return `{${Object.keys(value)
-    .sort()
-    .map((key) => `${JSON.stringify(key)}:${canonical(value[key])}`)
-    .join(",")}}`;
-}
-
 function hash(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
 function digest(value) {
   return hash(Buffer.from(canonical(value), "utf8"));
-}
-
-function freeze(value) {
-  if (value !== null && typeof value === "object") {
-    for (const child of Object.values(value)) freeze(child);
-    Object.freeze(value);
-  }
-  return value;
 }
 
 function stableId(value) {

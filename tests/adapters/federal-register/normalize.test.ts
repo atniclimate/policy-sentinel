@@ -105,6 +105,7 @@ describe("Federal Register normalization", () => {
         generalJurisdictionOnly: true,
       });
       expect(record.nationAssociations).toEqual([]);
+      expect(record.sourceHealth.dataAsOf).toBe(retrievedAt);
       expect(record.relevance).toEqual([
         expect.objectContaining({
           basis: "general_jurisdiction",

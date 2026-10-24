@@ -23,6 +23,7 @@ import {
   type GovInfoRenditionScope,
   type GovInfoRetryOperation,
 } from "./constants";
+import { createJsonGuards } from "../json-guards";
 
 export type GovInfoContractErrorCode =
   | "duplicate_value"
@@ -164,10 +165,6 @@ export interface GovInfoSyntheticRetryDirective {
 export type GovInfoProviderFixityBindingState =
   "unverified_binding" | "provider_fixity_absent";
 
-type JsonObject = Record<string, unknown>;
-type ItemParser<T> = (value: unknown, path: string) => T;
-
-const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 const UTC_DATE_TIME_PATTERN =
   /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{3})?Z$/;
 const IDENTIFIER_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
@@ -193,81 +190,17 @@ function fail(
   throw new GovInfoContractError(code, path, message);
 }
 
-function object(value: unknown, path: string): JsonObject {
-  if (
-    value === null ||
-    typeof value !== "object" ||
-    Array.isArray(value) ||
-    ![Object.prototype, null].includes(Object.getPrototypeOf(value))
-  ) {
-    fail("invalid_type", path, "expected a plain object");
-  }
-  return value as JsonObject;
-}
-
-function exactKeys(
-  value: JsonObject,
-  path: string,
-  required: readonly string[],
-  optional: readonly string[] = [],
-): void {
-  const allowed = new Set([...required, ...optional]);
-  for (const key of Object.keys(value)) {
-    if (!allowed.has(key)) {
-      fail("unexpected_field", `${path}.${key}`, "field is not retained");
-    }
-  }
-  for (const key of required) {
-    if (!Object.hasOwn(value, key)) {
-      fail("missing_field", `${path}.${key}`, "required field is missing");
-    }
-  }
-}
-
-function boundedString(
-  value: unknown,
-  path: string,
-  maximumLength = 16_384,
-): string {
-  if (typeof value !== "string") {
-    fail("invalid_type", path, "expected a string");
-  }
-  if (value.length === 0 || value.trim().length === 0) {
-    fail("invalid_value", path, "expected a nonblank string");
-  }
-  if (value.length > maximumLength) {
-    fail("limit_exceeded", path, "string exceeds the contract limit");
-  }
-  return value;
-}
-
-function exactString<T extends string>(
-  value: unknown,
-  path: string,
-  expected: T,
-): T {
-  if (value !== expected) {
-    fail("invalid_value", path, `expected ${JSON.stringify(expected)}`);
-  }
-  return expected;
-}
-
-function boundedInteger(
-  value: unknown,
-  path: string,
-  minimum: number,
-  maximum: number,
-): number {
-  if (
-    typeof value !== "number" ||
-    !Number.isSafeInteger(value) ||
-    value < minimum ||
-    value > maximum
-  ) {
-    fail("invalid_value", path, "expected a bounded safe integer");
-  }
-  return value;
-}
+const {
+  object,
+  exactKeys,
+  boundedString,
+  exactString,
+  boundedInteger,
+  calendarDate,
+  list,
+  optional,
+  assertUnique,
+} = createJsonGuards(fail);
 
 function member<T extends string>(
   value: unknown,
@@ -279,24 +212,6 @@ function member<T extends string>(
     fail("invalid_value", path, "value is outside the reviewed vocabulary");
   }
   return parsed as T;
-}
-
-function calendarDate(value: unknown, path: string): string {
-  const parsed = boundedString(value, path, 10);
-  const match = DATE_PATTERN.exec(parsed);
-  if (!match) {
-    fail("invalid_value", path, "expected an ISO calendar date");
-  }
-  const [year, month, day] = match.slice(1).map(Number);
-  const reconstructed = new Date(Date.UTC(year, month - 1, day));
-  if (
-    reconstructed.getUTCFullYear() !== year ||
-    reconstructed.getUTCMonth() + 1 !== month ||
-    reconstructed.getUTCDate() !== day
-  ) {
-    fail("invalid_value", path, "expected a real ISO calendar date");
-  }
-  return parsed;
 }
 
 function utcDateTime(value: unknown, path: string): string {
@@ -322,38 +237,6 @@ function utcDateTime(value: unknown, path: string): string {
     fail("invalid_value", path, "expected a real UTC date-time");
   }
   return parsed;
-}
-
-function list<T>(
-  value: unknown,
-  path: string,
-  maximumLength: number,
-  parser: ItemParser<T>,
-): T[] {
-  if (!Array.isArray(value)) {
-    fail("invalid_type", path, "expected an array");
-  }
-  if (value.length > maximumLength) {
-    fail("limit_exceeded", path, "array exceeds the contract limit");
-  }
-  return value.map((entry, index) => parser(entry, `${path}[${index}]`));
-}
-
-function optional<T>(
-  value: JsonObject,
-  key: string,
-  path: string,
-  parser: ItemParser<T>,
-): T | undefined {
-  return Object.hasOwn(value, key)
-    ? parser(value[key], `${path}.${key}`)
-    : undefined;
-}
-
-function assertUnique(values: readonly string[], path: string): void {
-  if (new Set(values).size !== values.length) {
-    fail("duplicate_value", path, "duplicate retained identity");
-  }
 }
 
 function resourceIdentifier(value: unknown, path: string): string {

@@ -629,13 +629,20 @@ export const COPY = {
         .join(" "),
     remove: "Stop following",
     exportDone: "The followed list was sent to the browser's downloads.",
-    importDone: (added: number, already: number, dropped: number) =>
+    importDone: (
+      added: number,
+      already: number,
+      dropped: number,
+      limit: number,
+    ) =>
       [
         `Imported ${added} followed ${added === 1 ? "item" : "items"}.`,
         already
           ? `${already} ${already === 1 ? "was" : "were"} already followed.`
           : "",
-        dropped ? `${dropped} did not fit: the list holds up to 50 items.` : "",
+        dropped
+          ? `${dropped} did not fit: the list holds up to ${limit} items.`
+          : "",
       ]
         .filter(Boolean)
         .join(" "),

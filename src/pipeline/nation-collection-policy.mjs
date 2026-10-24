@@ -343,9 +343,34 @@ function validateStateEvidence(
           `${evidenceLabel} does not contain the exact source Nation name`,
         );
       }
+      // No authorized name of the Nation ("Iowa Tribe of Kansas and Nebraska") is state evidence:
+      // every one is removed, longest first, ignoring case and spacing, as the state matcher does.
+      const stateText =
+        typeof item.evidenceText === "string"
+          ? [...allowedNames]
+              .filter((name) => typeof name === "string" && name.trim() !== "")
+              .sort((left, right) => right.length - left.length)
+              .reduce(
+                (text, name) =>
+                  text.replace(
+                    new RegExp(
+                      name
+                        .trim()
+                        .split(/\s+/u)
+                        .map((word) =>
+                          word.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"),
+                        )
+                        .join("\\s+"),
+                      "giu",
+                    ),
+                    " ",
+                  ),
+                item.evidenceText,
+              )
+          : item.evidenceText;
       if (
         successor &&
-        !hasStateJurisdictionEvidence(item.jurisdictionRef, item.evidenceText)
+        !hasStateJurisdictionEvidence(item.jurisdictionRef, stateText)
       )
         issues.push(
           `${evidenceLabel} does not identify the referenced state in exact text`,

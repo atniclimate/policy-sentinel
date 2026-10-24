@@ -12,6 +12,7 @@ import {
 import worker, {
   ALLOWED_HOSTS,
   officialFetch,
+  currentBiennium,
   parseWashingtonQuery,
   sourceList,
 } from "../../worker/src/index";
@@ -178,6 +179,26 @@ describe("worker access rules", () => {
     });
     expect(res.status).toBe(429);
     expect(limit).toHaveBeenCalled();
+  });
+
+  it("spends the shared key allowance before a keyed call and refuses without calling when it is used up", async () => {
+    installFetch({ "api.govinfo.gov": () => reply({ results: [] }) });
+    const limit = vi.fn(async () => ({ success: false }));
+    const res = await call("/api/search?source=govinfo&q=water", {
+      DATA_GOV_API_KEY: "synthetic-key",
+      KEY_RATE: { limit },
+    });
+    expect(res.status).toBe(503);
+    expect(res.headers.get("retry-after")).toBe("60");
+    expect(await res.json()).toMatchObject({ error: "upstream_rate_limited" });
+    expect(limit).toHaveBeenCalledWith({ key: "data-gov" });
+    expect(calls).toHaveLength(0);
+    // Unkeyed sources do not spend it.
+    installFetch({ "documents.json": () => reply(FR_SEARCH_JSON) });
+    await call("/api/search?source=federal-register&q=water", {
+      KEY_RATE: { limit },
+    });
+    expect(limit).toHaveBeenCalledOnce();
   });
 
   it("does not fetch an official source when the rate-limit binding fails", async () => {
@@ -364,12 +385,20 @@ describe("Federal Register", () => {
 
 describe("Washington State Legislature", () => {
   it("parses bill references and rejects the rest", () => {
-    expect(parseWashingtonQuery("HB 1100")).toMatchObject({
+    expect(
+      parseWashingtonQuery("HB 1100", new Date("2026-10-23T12:00:00Z")),
+    ).toMatchObject({
       prefix: "HB",
       number: "1100",
       biennium: "2025-26",
       chamber: "House Bills",
     });
+    // A bare number reads the session in progress, not a fixed one.
+    expect(
+      parseWashingtonQuery("HB 1100", new Date("2027-01-12T12:00:00Z"))
+        ?.biennium,
+    ).toBe("2027-28");
+    expect(currentBiennium(new Date("2099-06-01T00:00:00Z"))).toBe("2099-00");
     expect(parseWashingtonQuery("senate bill 5100 2023-24")).toMatchObject({
       prefix: "SB",
       biennium: "2023-24",
@@ -1645,7 +1674,8 @@ describe("bounded transport", () => {
         }),
     });
     const res = await call("/api/search?q=example");
-    expect(res.status).toBe(429);
+    // 503: the source's limit, not the visitor's, so the page shows the Worker's message.
+    expect(res.status).toBe(503);
     expect(res.headers.get("retry-after")).toBe(expected);
     expect(res.headers.get("access-control-expose-headers")).toBe(
       "Retry-After",
