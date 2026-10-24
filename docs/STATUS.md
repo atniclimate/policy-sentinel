@@ -69,8 +69,10 @@ time; the publish validator checks asset source tags. Scores and inputs:
   `PLAYWRIGHT_CORE` and `--executable`.
 - The governance edits (`AGENTS.md` with the D-114 wording, `CLAUDE.md`,
   `.claude/settings.json` and the Codex hook and its test, both allowing
-  `gh pr create`) are committed as `d88a070` on `demo/live-pages`, not yet on
-  `main`. The untracked owner documents under `docs/` stay uncommitted.
+  `gh pr create`) are committed as `d88a070` and merged into `main` through PR
+  20 (`4b397fe`, 2026-10-24 05:38 UTC, D-117); Pages rebuilt and all 17 runtime
+  files still byte-match 0.10.1. The untracked owner documents under `docs/`
+  stay uncommitted.
 
 ## Next bounded work
 
@@ -79,16 +81,14 @@ or the taxonomy review.
 
 ## Open owner decisions
 
-1. Merge `demo/live-pages` (the governance commit and the 0.10.1 record) into
-   `main`?
-2. Regulations.gov: switch on docket lookup and type filter on the User Notice
+1. Regulations.gov: switch on docket lookup and type filter on the User Notice
    reading? Show comment end dates as the Eastern calendar day?
-3. Taxonomy proposal: which rows to approve; Tribal topics as a facet; model
+2. Taxonomy proposal: which rows to approve; Tribal topics as a facet; model
    judgment reference metadata for climate adaptation (D-114).
-4. Unified Agenda index as a new public output (Government levels affected)?
-5. Oregon OData Acceptable Use Agreement; Idaho contact.
-6. Keep or cancel the weekly Parallel monitors.
-7. Carried from earlier: first real release definition; following in that
+3. Unified Agenda index as a new public output (Government levels affected)?
+4. Oregon OData Acceptable Use Agreement; Idaho contact.
+5. Keep or cancel the weekly Parallel monitors.
+6. Carried from earlier: first real release definition; following in that
    release; engine use of the api.data.gov key and eCFR/Oregon terms; Nation
    picker; deferrals; archiving ROADMAP; standing publication permission and
    license; Tribal documents in federal results; NCAI reply.
