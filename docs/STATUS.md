@@ -67,10 +67,10 @@ time; the publish validator checks asset source tags. Scores and inputs:
   permission; untagged PDFs; Windows WebKit failures; no Safari, Firefox,
   screen-reader, print or outside-user acceptance. The verifier needs
   `PLAYWRIGHT_CORE` and `--executable`.
-- Uncommitted owner work: `.claude/settings.json` (without `gh pr create`),
-  `AGENTS.md` (including the D-114 wording), `CLAUDE.md`,
-  `scripts/codex-hooks.mjs` and its test (allowing `gh pr create`; also one dead
-  export removed), and the untracked owner documents under `docs/`.
+- The governance edits (`AGENTS.md` with the D-114 wording, `CLAUDE.md`,
+  `.claude/settings.json` and the Codex hook and its test, both allowing
+  `gh pr create`) are committed as `d88a070` on `demo/live-pages`, not yet on
+  `main`. The untracked owner documents under `docs/` stay uncommitted.
 
 ## Next bounded work
 
@@ -79,8 +79,8 @@ or the taxonomy review.
 
 ## Open owner decisions
 
-1. Commit the governance edits (`AGENTS.md`, `CLAUDE.md`, `.claude/settings.json`,
-   the Codex hook and its test)?
+1. Merge `demo/live-pages` (the governance commit and the 0.10.1 record) into
+   `main`?
 2. Regulations.gov: switch on docket lookup and type filter on the User Notice
    reading? Show comment end dates as the Eastern calendar day?
 3. Taxonomy proposal: which rows to approve; Tribal topics as a facet; model
