@@ -160,6 +160,7 @@ export async function search(
     if (options.match && options.match !== "text")
       params.set("match", options.match);
     if (options.documentType) params.set("documentType", options.documentType);
+    if (options.eligibility) params.set("eligibility", options.eligibility);
     if (options.dateFrom !== null) params.set("dateFrom", options.dateFrom);
     if (options.dateTo !== null) params.set("dateTo", options.dateTo);
     if (options.continuation !== null)

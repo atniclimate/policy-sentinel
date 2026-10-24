@@ -214,6 +214,151 @@ export const REGULATIONS_V2_JSON = {
   meta: { totalElements: 2 },
 };
 
+/**
+ * Regulations.gov v4 document rows trimmed from bounded live calls at
+ * 2026-10-24T00:48Z (DEMO_KEY): an exact docket lookup
+ * (filter[docketId]=USCG-2024-0407, both rows) and a Proposed Rule type filter
+ * (three of ten rows). Only the attributes the Worker reads are kept; public
+ * metadata. Every commentEndDate stated is a UTC instant at 23:59:59 Eastern
+ * (04:59:59Z in winter, 03:59:59Z in summer); docketId and commentEndDate can
+ * be null; frDocNum can carry an en dash.
+ */
+export const REGULATIONS_LIVE_DOCKET_ROWS = [
+  {
+    id: "USCG-2024-0407-0005",
+    attributes: {
+      title: "Drawbridge Operation Regulation; Manitowoc River, Manitowoc, WI",
+      agencyId: "USCG",
+      documentType: "Proposed Rule",
+      postedDate: "2026-10-22T04:00:00Z",
+      frDocNum: "2026-21608",
+      docketId: "USCG-2024-0407",
+      commentEndDate: "2026-11-24T04:59:59Z",
+    },
+  },
+  {
+    id: "USCG-2024-0407-0001",
+    attributes: {
+      title: "Drawbridge Operation Regulation; Manitowoc River, Manitowoc, WI",
+      agencyId: "USCG",
+      documentType: "Rule",
+      postedDate: "2025-05-21T04:00:00Z",
+      frDocNum: "2025-09136",
+      docketId: "USCG-2024-0407",
+      commentEndDate: "2025-06-22T03:59:59Z",
+    },
+  },
+];
+
+export const REGULATIONS_LIVE_TYPE_ROWS = [
+  {
+    id: "FNA-2026-0496-0001",
+    attributes: {
+      title:
+        "Supplemental Nutrition Assistance Program: Electronic Benefits Transfer Card Security Measures",
+      agencyId: "FNA",
+      documentType: "Proposed Rule",
+      postedDate: "2026-10-23T04:00:00Z",
+      frDocNum: "2026-21658",
+      docketId: "FNA-2026-0496",
+      commentEndDate: "2026-12-23T04:59:59Z",
+    },
+  },
+  {
+    id: "EPA-HQ-OW-1998-9208-0001",
+    attributes: {
+      title: "Streamlining the State Sewage Sludge Management Regulations",
+      agencyId: "EPA",
+      documentType: "Proposed Rule",
+      postedDate: "2026-10-21T04:00:00Z",
+      frDocNum: "97–5879",
+      docketId: "EPA-HQ-OW-1998-9208",
+      commentEndDate: null,
+    },
+  },
+  {
+    id: "FERC-2026-6178-0001",
+    attributes: {
+      title:
+        "Authorizations for Certain Activities at Liquefied Natural Gas Plants",
+      agencyId: "FERC",
+      documentType: "Proposed Rule",
+      postedDate: "2026-10-20T04:00:00Z",
+      frDocNum: "2026-21443",
+      docketId: null,
+      commentEndDate: "2026-12-22T04:59:59Z",
+    },
+  },
+];
+
+/**
+ * Grants.gov search2 answers trimmed from two bounded live calls at
+ * 2026-10-24T01:08:35Z (keyword "climate", oppStatuses "forecasted|posted",
+ * rows 10, startRecordNum 0): the first with eligibilities "07|11" (hitCount 9),
+ * the second without (hitCount 50). Only the fields the Worker reads are kept;
+ * public metadata. closeDate can be empty, a forecast says docType "forecast",
+ * and a title can carry an HTML entity as Grants.gov wrote it.
+ */
+export const GRANTS_LIVE_TRIBAL = {
+  errorcode: 0,
+  data: {
+    hitCount: 9,
+    oppHits: [
+      {
+        id: "347414",
+        number: "EDA-DISASTER-2023",
+        title: "FY 2023 Disaster Supplemental",
+        agency: "Economic Development Administration",
+        agencyCode: "DOC-EDA",
+        openDate: "04/24/2023",
+        closeDate: "",
+        docType: "synopsis",
+      },
+      {
+        id: "363728",
+        number: "P27AS00032",
+        title:
+          "Exploring and Enhancing Outdoor and Heritage Tourism in the Chesapeake Bay Watershed",
+        agency: "National Park Service",
+        agencyCode: "DOI-NPS",
+        openDate: "08/27/2026",
+        closeDate: "11/04/2026",
+        docType: "synopsis",
+      },
+    ],
+  },
+};
+
+export const GRANTS_LIVE_ANY = {
+  errorcode: 0,
+  data: {
+    hitCount: 50,
+    oppHits: [
+      {
+        id: "351231",
+        number: "PDSITALYFY24",
+        title: "U.S. Mission Italy PDS Annual Program Statement",
+        agency: "U.S. Mission to Italy",
+        agencyCode: "DOS-ITA",
+        openDate: "11/30/2023",
+        closeDate: "",
+        docType: "forecast",
+      },
+      {
+        id: "329436",
+        number: "DE-FOA-0002265",
+        title:
+          "University Nuclear Leadership Program&ndash; Scholarship and Fellowship Support",
+        agency: "Idaho Field Office",
+        agencyCode: "DOE-ID",
+        openDate: "10/15/2020",
+        closeDate: "10/14/2030",
+        docType: "synopsis",
+      },
+    ],
+  },
+};
+
 export const FR_SEARCH_JSON = {
   count: 1,
   results: [

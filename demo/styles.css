@@ -1143,6 +1143,14 @@ details dt {
 .cited .row {
   color: var(--muted);
 }
+/* Documents a Check for new listed: one per line, each link a full target. */
+.follow-new > li + li {
+  margin-top: 0.25rem;
+}
+.follow-new a {
+  display: inline-block;
+  min-height: 24px;
+}
 .actor > .row {
   align-items: baseline;
 }

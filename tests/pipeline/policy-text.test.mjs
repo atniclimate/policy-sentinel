@@ -90,6 +90,28 @@ test("Presidential frontmatter permits only bounded NUL printing controls before
   }
 });
 
+test("rule headers permit single NULs only at line starts before the first page", () => {
+  // Shape from GovInfo FR 2026-21608 (2026-10-23): one NUL opening each banner line.
+  const header =
+    "[Federal Register Volume 91, Number 204 (Friday, October 23, 2026)]\n[Proposed Rules]\n[Pages 66660-66661]\n[FR Doc No: 2025-12345]\n\n\u0000=====\n\u0000Proposed Rules\n\u0000=====\n\n[[Page 66660]]\n\n";
+  const value = fr(`<pre>${header}The agency shall review.</pre>`);
+  const nuls = value.exclusions.filter(
+    (x) => x.reason === "source_header_line_nul",
+  );
+  assert.equal(nuls.length, 3);
+  assert.ok(value.text.includes("agency shall review"));
+  assert.notEqual(value.parser.configDigest, POLICY_TEXT_PARSER.configDigest);
+  for (const modified of [
+    header.replace("\u0000Proposed Rules", "Proposed\u0000 Rules"),
+    header.replace("[[Page 66660]]\n\n", "[[Page 66660]]\n\n\u0000x\n"),
+    header.replace("\u0000Proposed Rules", "\u0001Proposed Rules"),
+  ]) {
+    assert.throws(() => fr(`<pre>${modified}The agency shall review.</pre>`), {
+      code: "CONTROL_CHARACTER",
+    });
+  }
+});
+
 test("preformatted official text has deterministic UTF8 blocks and literal source labels", () => {
   const markup =
     "<pre>AGENCY: Authored test agency.\n\nACTION: Final rule.\n\nThe café council shall review the application.\nContinuation line.\n\n[FR Doc. 2025-12345 Filed 1-1-25; 8:45 am]</pre>";

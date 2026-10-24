@@ -1,6 +1,6 @@
 {
   "name": "policy-sentinel",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "private": true,
   "description": "Configurable, sovereignty-centered policy monitoring and source-reference engine",
   "type": "module",

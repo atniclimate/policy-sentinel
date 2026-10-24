@@ -46,7 +46,17 @@ export interface DemoCitation {
   readonly cfrRefs?: readonly DemoCfrRef[];
   /** The source's own subject labels (Federal Register CFR indexing terms), verbatim. */
   readonly topics?: readonly string[];
+  /** Grants.gov only: the application closing date as it states it (YYYY-MM-DD); absent when it states none. */
+  readonly applicationsCloseOn?: string;
+  /**
+   * Grants.gov only: listed by a search with the Tribal eligibility filter
+   * (codes 07 and 11). The row matches at least one; which one is not stated.
+   */
+  readonly listedEligibility?: DemoEligibility;
 }
+
+/** The Grants.gov eligibility filter: codes 07 and 11, Tribal governments and organizations. */
+export type DemoEligibility = "tribal";
 
 export interface DemoCfrRef {
   readonly title: number;
@@ -85,6 +95,8 @@ export interface DemoSearchCriteriaV2 extends Omit<
   readonly match: DemoSearchMatch;
   /** Null means no type filter. A source with no equivalent is refused, never searched unfiltered. */
   readonly documentType: DemoDocumentType | null;
+  /** Present on Grants.gov criteria only; null means no eligibility filter. */
+  readonly eligibility?: DemoEligibility | null;
 }
 
 export type DemoSearchCursor = DemoSearchCriteria;
@@ -99,6 +111,8 @@ export interface DemoSearchOptions {
   readonly match?: DemoSearchMatch;
   /** Version 2 only. Default null. */
   readonly documentType?: DemoDocumentType | null;
+  /** Version 2 and Grants.gov only. Default null. */
+  readonly eligibility?: DemoEligibility | null;
 }
 
 export type DemoSearchContinuation =

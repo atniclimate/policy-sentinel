@@ -96,6 +96,7 @@ export type SkipReason =
   | "congress_reference"
   | "congress_dates"
   | "govinfo_dates"
+  | "grants_dates"
   | "budget";
 
 export interface Lane {
@@ -128,10 +129,10 @@ export interface Lane {
   readonly typeNotApplied?: true;
 }
 
-/** Dates, and the document type filter (null or absent: any type). */
+/** Dates, the document type filter (null or absent: any type) and the Grants.gov eligibility filter. */
 export type PlanDates = Pick<
   DemoSearchOptions,
-  "dateFrom" | "dateTo" | "documentType"
+  "dateFrom" | "dateTo" | "documentType" | "eligibility"
 >;
 
 export interface PlanSources {
@@ -158,11 +159,12 @@ export const laneId = (
 /**
  * The search options a lane is sent with, first page or `continuation`. Every
  * lane opts in to contract v2; the type filter goes only where the source has
- * an equivalent, and the plan's dates always go.
+ * an equivalent, the eligibility filter only to Grants.gov, and the plan's
+ * dates always go.
  */
 export function laneOptions(
   plan: PlanDates,
-  lane: Pick<Lane, "match" | "typeNotApplied">,
+  lane: Pick<Lane, "sourceId" | "match" | "typeNotApplied">,
   continuation: DemoSearchCursor | null = null,
 ): DemoSearchOptions {
   return {
@@ -172,6 +174,8 @@ export function laneOptions(
     version: 2,
     match: lane.match ?? "text",
     documentType: lane.typeNotApplied ? null : (plan.documentType ?? null),
+    ...(lane.sourceId === "grants" &&
+      plan.eligibility && { eligibility: plan.eligibility }),
   };
 }
 
@@ -193,6 +197,7 @@ function skipReason(
     !supportsDatedGovinfoQuery(query)
   )
     return "govinfo_dates";
+  if (sourceId === "grants" && dates.dateFrom) return "grants_dates";
   return undefined;
 }
 
@@ -627,6 +632,7 @@ export function laneSignature(lane: LaneKey, dates: PlanDates): string {
     sent.dateTo,
     sent.match,
     sent.documentType,
+    sent.eligibility ?? null,
   ]);
 }
 

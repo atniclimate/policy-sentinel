@@ -31,6 +31,7 @@ import { citationFields } from "../../src/demo/validation";
 import type {
   DemoCitation,
   DemoDocumentType,
+  DemoEligibility,
   DemoErrorResponse,
   DemoSearchResponse,
   DemoSearchCriteria,
@@ -58,6 +59,7 @@ export const ALLOWED_HOSTS: ReadonlySet<string> = new Set([
   "api.govinfo.gov",
   "api.congress.gov",
   "api.regulations.gov",
+  "api.grants.gov",
   "lawfilesext.leg.wa.gov",
 ]);
 
@@ -121,6 +123,13 @@ export function sourceList(env: Env): DemoSource[] {
       status: keyed,
       note: keyNote,
       secret: "DATA_GOV_API_KEY",
+    },
+    {
+      id: "grants",
+      label: "Grants.gov",
+      level: "federal",
+      status: "live",
+      note: "Funding opportunities, from Grants.gov: forecasted and posted listings. Opportunity text is not read in the demo.",
     },
     {
       id: "washington",
@@ -513,7 +522,10 @@ async function searchFederalRegister(
   }
   const data = record(parseJson(bytes));
   const retrievedAt = new Date().toISOString();
-  const results = resultRows(data.results).map((doc) =>
+  // The Federal Register omits `results` when nothing matches: {"count":0}.
+  const rows =
+    data.results === undefined && data.count === 0 ? [] : data.results;
+  const results = resultRows(rows).map((doc) =>
     frCitation(doc, retrievedAt, v2),
   );
   const total = resultCount(data.count);
@@ -847,7 +859,9 @@ async function searchGovInfo(
  * 2099-03-03T04:59:59Z can close on the previous Eastern day, and the demo never
  * converts or assumes a zone, so that value is left out rather than shown late;
  * the row is marked commentsCloseWithheld so it never reads as no comment period.
- * shortcut: UTC values show no date, revisit with the owner once a bounded live call records the real spelling.
+ * Live calls on 2026-10-24 found every stated value is such a UTC instant
+ * (23:59:59 Eastern, as 04:59:59Z or 03:59:59Z), so all are withheld today.
+ * shortcut: UTC values show no date; showing the Eastern day needs the owner's ruling on naming that zone.
  */
 function regulationsCloseDate(value: unknown): unknown {
   if (value === undefined || value === null) return value;
@@ -1040,6 +1054,143 @@ async function searchCongress(
   };
 }
 
+// ---------------------------------------------------------------- Grants.gov
+
+/** Grants.gov writes dates as MM/DD/YYYY; an empty value states no date. */
+function grantsDate(value: unknown): string | null {
+  if (value === undefined || value === null || value === "") return null;
+  const m =
+    typeof value === "string"
+      ? /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value)
+      : null;
+  if (!m) throw badUpstream();
+  return isoDate(`${m[3]}-${m[1]}-${m[2]}`);
+}
+
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+  ndash: "–",
+  mdash: "—",
+  rsquo: "’",
+  lsquo: "‘",
+  rdquo: "”",
+  ldquo: "“",
+};
+
+/** Grants.gov titles carry HTML entities as text (seen live: "&ndash;"); unknown ones stay as written. */
+function decodeEntities(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  return value.replace(
+    /&(#x[0-9a-f]{1,6}|#\d{1,7}|[a-z]{2,8});/gi,
+    (all, name: string) => {
+      const code =
+        name[0] === "#"
+          ? Number.parseInt(
+              name.slice(name[1] === "x" || name[1] === "X" ? 2 : 1),
+              name[1] === "x" || name[1] === "X" ? 16 : 10,
+            )
+          : NaN;
+      if (Number.isFinite(code))
+        return code > 31 && code <= 0x10ffff ? String.fromCodePoint(code) : all;
+      return NAMED_ENTITIES[name.toLowerCase()] ?? all;
+    },
+  );
+}
+
+/**
+ * One search2 hit as a citation. Only these fields are read; search2 hits carry
+ * no agency contacts, and fetchOpportunity (which does) is never called.
+ */
+function grantsCitation(
+  value: unknown,
+  retrievedAt: string,
+  eligibility: DemoEligibility | null,
+): DemoCitation {
+  const hit = record(value);
+  if (typeof hit.id !== "string" || !/^\d{1,12}$/.test(hit.id))
+    throw badUpstream();
+  if (!plainSourceText(hit.number, 100)) throw badUpstream();
+  const closes = grantsDate(hit.closeDate);
+  return {
+    sourceId: "grants",
+    identifier: hit.number,
+    title: requiredText(decodeEntities(hit.title), 400),
+    issuingBody:
+      cleanText(hit.agency, 160) ||
+      cleanText(hit.agencyCode, 40) ||
+      "Not stated",
+    kind: hit.docType === "forecast" ? "Forecast" : "Funding opportunity",
+    date: grantsDate(hit.openDate),
+    officialUrl: `https://www.grants.gov/search-results-detail/${hit.id}`,
+    textUrl: null,
+    retrievedAt,
+    summary: null,
+    textAvailable: false,
+    matchKey: null,
+    // An empty closeDate stays absent: never read as no deadline. A forecast's
+    // date is an estimate, so it is never shown as the date applications close.
+    ...(closes !== null &&
+      hit.docType !== "forecast" && { applicationsCloseOn: closes }),
+    ...(eligibility && { listedEligibility: eligibility }),
+  };
+}
+
+async function searchGrants(
+  criteria: DemoSearchCriteria,
+): Promise<DemoSearchResponse> {
+  const { query, page } = criteria;
+  const eligibility =
+    criteria.version === 2 ? (criteria.eligibility ?? null) : null;
+  const { response, bytes } = await officialFetch(
+    "https://api.grants.gov/v1/api/search2",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        rows: 10,
+        keyword: query,
+        oppStatuses: "forecasted|posted",
+        startRecordNum: (page - 1) * 10,
+        // 07 and 11: Tribal governments and Tribal organizations, in Grants.gov's codes.
+        ...(eligibility === "tribal" && { eligibilities: "07|11" }),
+      }),
+    },
+  );
+  if (!response.ok)
+    throw new DemoError(
+      "upstream_error",
+      `Grants.gov answered with status ${response.status}.`,
+    );
+  const body = record(parseJson(bytes));
+  if (body.errorcode !== 0)
+    throw new DemoError(
+      "upstream_error",
+      "Grants.gov answered with an error for this search.",
+    );
+  const data = record(body.data);
+  const retrievedAt = new Date().toISOString();
+  const results = resultRows(data.oppHits).map((hit) =>
+    grantsCitation(hit, retrievedAt, eligibility),
+  );
+  const total = resultCount(data.hitCount);
+  return {
+    ok: true,
+    source: "grants",
+    query,
+    total,
+    page,
+    results,
+    retrievedAt,
+    criteria,
+    continuation: numericContinuation(criteria, total, results.length),
+  };
+}
+
 // ---------------------------------------------------------------- routing
 
 async function cachedPolicy(
@@ -1226,9 +1377,13 @@ export default {
           const envelope = url.searchParams.get("continuation");
           const match = url.searchParams.get("match");
           const documentType = url.searchParams.get("documentType");
+          const eligibility = url.searchParams.get("eligibility");
           if (
             (version !== null && version !== "1" && version !== "2") ||
-            (version !== "2" && (match !== null || documentType !== null)) ||
+            (version !== "2" &&
+              (match !== null ||
+                documentType !== null ||
+                eligibility !== null)) ||
             (envelope !== null && envelope.length > MAX_CONTINUATION_LENGTH)
           )
             throw new SearchCriteriaError(
@@ -1246,6 +1401,7 @@ export default {
               version: 2,
               match: (match ?? "text") as DemoSearchMatch,
               documentType: documentType as DemoDocumentType | null,
+              eligibility: eligibility as DemoEligibility | null,
             }),
           });
         } catch (error) {
@@ -1267,6 +1423,8 @@ export default {
               return searchRegulations(env, criteria);
             case "congress":
               return searchCongress(env, criteria);
+            case "grants":
+              return searchGrants(criteria);
             case "washington": {
               const policy = await readWashington(q);
               return {

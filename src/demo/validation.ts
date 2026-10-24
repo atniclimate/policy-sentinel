@@ -25,6 +25,7 @@ const SOURCE_HOSTS: Record<string, readonly string[]> = {
   govinfo: ["www.govinfo.gov"],
   congress: ["www.congress.gov"],
   regulations: ["www.regulations.gov"],
+  grants: ["www.grants.gov"],
   oregon: ["www.oregonlegislature.gov"],
   idaho: ["legislature.idaho.gov"],
 };
@@ -149,6 +150,8 @@ type CitationFields = Pick<
   | "rins"
   | "cfrRefs"
   | "topics"
+  | "applicationsCloseOn"
+  | "listedEligibility"
 >;
 
 /**
@@ -163,6 +166,8 @@ export function citationFields(v: {
   readonly rins?: unknown;
   readonly cfrRefs?: unknown;
   readonly topics?: unknown;
+  readonly applicationsCloseOn?: unknown;
+  readonly listedEligibility?: unknown;
 }): CitationFields {
   const strings = (
     value: unknown,
@@ -199,6 +204,9 @@ export function citationFields(v: {
     });
   const topics = strings(v.topics, 50, (item) => plainSourceText(item, 200));
   if (topics) fields.topics = topics;
+  if (calendarDate(v.applicationsCloseOn))
+    fields.applicationsCloseOn = v.applicationsCloseOn;
+  if (v.listedEligibility === "tribal") fields.listedEligibility = "tribal";
   return fields;
 }
 
@@ -239,7 +247,7 @@ export function sourcesValue(value: unknown): DemoSource[] {
   const v = object(value);
   if (v.ok !== true) throw new Error("Invalid source response");
   const ids = new Set<string>();
-  const sources = list(v.sources, 7).map((item): DemoSource => {
+  const sources = list(v.sources, 8).map((item): DemoSource => {
     const s = object(item);
     const id = sourceId(s.id);
     if (ids.has(id)) throw new Error("Duplicate source");
@@ -329,6 +337,12 @@ export function searchValue(
     const citation = citationValue(item);
     if (citation.sourceId !== source || ids.has(keyOf(citation)))
       throw new Error("Invalid search result identity");
+    // A row may say it was found by the eligibility filter only when the filter was sent.
+    if (
+      citation.listedEligibility &&
+      !(criteria.version === 2 && criteria.eligibility === "tribal")
+    )
+      throw new Error("Invalid eligibility statement");
     ids.add(keyOf(citation));
     return citation;
   });

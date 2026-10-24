@@ -1,6 +1,7 @@
 import { atniReferences, ieeeReference, SOURCE_LABELS } from "./citations";
 import { COPY } from "./copy";
 import type { DataActors, reportEntries } from "./report-state";
+import { cfrQuery } from "./search-contract";
 
 /**
  * One document model for the PDF and the print view, so both say the same
@@ -100,6 +101,41 @@ export function buildDocument(input: DocInput): DocModel {
     field(L.type, c.kind);
     field(L.date, c.date ?? COPY.docDateNotStated);
     field(L.officialUrl, c.officialUrl, true);
+    // The row's stated fields, worded as the page words them (memory only, so a restored entry has none).
+    if (c.commentsCloseOn)
+      blocks.push({
+        kind: "p",
+        text: COPY.commentsClose(c.commentsCloseOn, source(c.sourceId)),
+      });
+    else if (c.commentsCloseWithheld)
+      blocks.push({
+        kind: "p",
+        text: COPY.commentsCloseWithheld(source(c.sourceId)),
+      });
+    if (c.applicationsCloseOn)
+      blocks.push({
+        kind: "p",
+        text: COPY.applicationsClose(c.applicationsCloseOn, source(c.sourceId)),
+      });
+    if (c.listedEligibility)
+      blocks.push({
+        kind: "p",
+        text: `${COPY.grants.listedUnder} ${COPY.grants.limit}`,
+      });
+    if (c.topics?.length)
+      blocks.push({
+        kind: "p",
+        text: COPY.sourceTopics(source(c.sourceId), c.topics.join("; ")),
+      });
+    const I = COPY.identifierLabels;
+    for (const text of [
+      ...(c.docketIds ?? []).map((id) => COPY.identifierLine(I.docket, id)),
+      ...(c.rins ?? []).map((rin) => COPY.identifierLine(I.rin, rin)),
+      ...(c.cfrRefs ?? []).map((ref) =>
+        COPY.identifierLine(I.cfr, cfrQuery(ref)),
+      ),
+    ])
+      blocks.push({ kind: "p", text });
     blocks.push(
       { kind: "h3", text: COPY.pdfNotesLabel },
       { kind: "note", text: entry.note.trim() || COPY.pdfNoNote },
@@ -214,6 +250,15 @@ export function buildDocument(input: DocInput): DocModel {
   // 5. Provenance and sovereignty notes
   blocks.push({ kind: "h2", text: COPY.docSovereigntyTitle });
   for (const text of COPY.docSovereignty) blocks.push({ kind: "p", text });
+  // Required by the Grants.gov API terms in any export that includes its rows.
+  if (
+    entries.some((entry) =>
+      [entry.citation, ...entry.alternates].some(
+        (c) => c.sourceId === "grants",
+      ),
+    )
+  )
+    blocks.push({ kind: "p", text: COPY.grants.attribution });
 
   return {
     title: `${COPY.docTitle}, ${generated}`,

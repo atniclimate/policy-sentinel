@@ -22,6 +22,8 @@ import {
   FR_HTML_QUIET,
   FR_PROBE_ROWS,
   FR_SEARCH_JSON,
+  REGULATIONS_LIVE_DOCKET_ROWS,
+  REGULATIONS_LIVE_TYPE_ROWS,
   REGULATIONS_V2_JSON,
   WA_HTML,
 } from "./fixtures";
@@ -481,6 +483,20 @@ describe("upstream validation and identity", () => {
 
   it("preserves a validated empty Federal Register response", async () => {
     installFetch({ "documents.json": () => reply({ count: 0, results: [] }) });
+    const res = await call("/api/search?source=federal-register&q=example");
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ ok: true, total: 0, results: [] });
+  });
+
+  it("reads the live empty shape, which omits results, as no listings", async () => {
+    // Live 2026-10-24: a dated RIN lookup with no match returned only these keys.
+    installFetch({
+      "documents.json": () =>
+        reply({
+          description: "Documents published on or after 10/24/2026",
+          count: 0,
+        }),
+    });
     const res = await call("/api/search?source=federal-register&q=example");
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({ ok: true, total: 0, results: [] });
@@ -1312,6 +1328,52 @@ describe("search contract v2", () => {
         expect(body.results[0]).not.toHaveProperty(field);
     },
   );
+
+  it("reads the live Regulations.gov row shapes recorded 2026-10-24", async () => {
+    regulationsRoute([
+      ...REGULATIONS_LIVE_DOCKET_ROWS,
+      ...REGULATIONS_LIVE_TYPE_ROWS,
+    ]);
+    const res = await call(v2("regulations", { q: "water" }), keyed);
+    expect(res.status).toBe(200);
+    const rows = (await res.json()).results;
+    expect(
+      rows.map((r: Record<string, unknown>) => [
+        r.identifier,
+        r.kind,
+        r.date,
+        r.matchKey,
+      ]),
+    ).toEqual([
+      ["USCG-2024-0407-0005", "Proposed Rule", "2026-10-22", "fr:2026-21608"],
+      ["USCG-2024-0407-0001", "Rule", "2025-05-21", "fr:2025-09136"],
+      ["FNA-2026-0496-0001", "Proposed Rule", "2026-10-23", "fr:2026-21658"],
+      ["EPA-HQ-OW-1998-9208-0001", "Proposed Rule", "2026-10-21", null],
+      ["FERC-2026-6178-0001", "Proposed Rule", "2026-10-20", "fr:2026-21443"],
+    ]);
+    // Every live closing time is a UTC instant, which names no Eastern day
+    // without assuming a zone: withheld and marked, never shown as none.
+    const docket = (id: string) =>
+      REGULATIONS_V2_CONFIRMED ? [id] : undefined;
+    const withheld = REGULATIONS_V2_CONFIRMED ? true : undefined;
+    expect(
+      rows.map((r: Record<string, unknown>) => [
+        r.commentsCloseOn,
+        r.commentsCloseWithheld,
+        r.docketIds,
+      ]),
+    ).toEqual([
+      [undefined, withheld, docket("USCG-2024-0407")],
+      [undefined, withheld, docket("USCG-2024-0407")],
+      [undefined, withheld, docket("FNA-2026-0496")],
+      [
+        REGULATIONS_V2_CONFIRMED ? null : undefined,
+        undefined,
+        docket("EPA-HQ-OW-1998-9208"),
+      ],
+      [undefined, withheld, undefined],
+    ]);
+  });
 
   it
     .skipIf(!REGULATIONS_V2_CONFIRMED)

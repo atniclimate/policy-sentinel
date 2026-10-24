@@ -286,15 +286,32 @@ export function restoreReport(raw: string | null): RestoredReport {
  * the search contract v2 citation fields, which nothing reads back after a
  * citation is saved. No other saved field has these names.
  */
-const MEMORY_ONLY = new Set([
-  "foundBy",
+const STATED_FIELDS = [
   "commentsCloseOn",
   "commentsCloseWithheld",
   "docketIds",
   "rins",
   "cfrRefs",
   "topics",
-]);
+  "applicationsCloseOn",
+  "listedEligibility",
+];
+const MEMORY_ONLY = new Set(["foundBy", ...STATED_FIELDS]);
+
+/**
+ * The read text's citation, with the v2 fields the listed row stated where the
+ * read states none: the policy answer carries no v2 fields, and the export
+ * prints the row's closing date, topics and identifiers.
+ */
+export function keepStated(
+  row: DemoCitation,
+  read: DemoCitation,
+): DemoCitation {
+  const stated = Object.fromEntries(
+    Object.entries(row).filter(([key]) => STATED_FIELDS.includes(key)),
+  );
+  return { ...stated, ...read };
+}
 
 export function serializeReport(report: ReportState): string {
   const result = JSON.stringify({ version: 3, ...report }, (key, value) =>
@@ -333,7 +350,7 @@ export function attachPolicy(
   // Preserve the saved display key while binding retrieved evidence by document ID.
   // The saved match key stays too: the entry's alternates were matched on it.
   const citation = {
-    ...policy.citation,
+    ...keepStated(current.citation, policy.citation),
     identifier: current.citation.identifier,
     matchKey: current.citation.matchKey,
   };
