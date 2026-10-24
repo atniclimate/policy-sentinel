@@ -14,7 +14,7 @@ import type { DataActors, ReportState } from "../../src/demo/report-state";
 import type { DemoIssue } from "../../src/demo/types";
 import { keyOf } from "../../src/demo/validation";
 import { listing } from "./fixtures";
-import { citation, policy } from "./frontend-fixtures";
+import { citation, policy, statedCitation } from "./frontend-fixtures";
 
 const VERSION = "0.2.0";
 const GENERATED = new Date("2099-01-08T12:00:00Z");
@@ -545,6 +545,37 @@ describe("document model shared by the PDF and the print view", () => {
       "Name search for the sponsor listed on NCAI draft PSC-26-001 (Federal Register)",
     ]);
     expect(JSON.stringify(supplied)).not.toContain("Example Nation");
+  });
+
+  it("carries a row's stated closing date, topics and identifiers, with the source's own Docket No. printed once", () => {
+    const stated = statedCitation();
+    const report: ReportState = {
+      cited: {
+        [keyOf(stated)]: {
+          citation: stated,
+          policy: null,
+          note: "",
+          alternates: [],
+        },
+      },
+      marks: {},
+      actors: ACTORS,
+    };
+    const texts = build(report).blocks.flatMap((block) =>
+      block.kind === "p" ? [block.text] : [],
+    );
+    for (const text of [
+      "Comments close 2099-02-01, as stated by Federal Register.",
+      "Federal Register topics: Fisheries; Reporting and recordkeeping requirements",
+      "Docket No. 990101-0001",
+      "RIN: 0648-AA00",
+      "CFR part: 50 CFR 660",
+    ])
+      expect(texts).toContain(text);
+    expect(JSON.stringify(build(report))).not.toContain("Docket: Docket No.");
+    // A record that states none of them prints none of them.
+    const plain = JSON.stringify(build(fixture().report));
+    expect(plain).not.toMatch(/Comments close|topics:|RIN:|CFR part:/);
   });
 
   it("states the sovereignty and verification facts and uses no dashes for punctuation", () => {

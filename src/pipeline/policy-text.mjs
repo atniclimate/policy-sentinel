@@ -122,16 +122,20 @@ function decode(bytes, mediaType, sourceKind, exclusions) {
   const pieces = [];
   const firstPage = text.indexOf("[[Page ");
   const executiveHeading = text.indexOf("Executive Order ");
-  const presidentialFrontmatter =
+  const frontmatter =
     sourceKind === "govinfo_fr" &&
     /\[Federal Register Volume \d+[^\n]*\]/.test(text.slice(0, 2048)) &&
-    /\[Presidential Documents\]/.test(text.slice(0, 2048)) &&
     firstPage > 0 &&
     firstPage < 2048 &&
-    executiveHeading > firstPage &&
-    executiveHeading < firstPage + 256 &&
     [...text.slice(0, firstPage)].filter((c) => c.charCodeAt(0) === 0).length <=
       32;
+  const presidentialFrontmatter =
+    frontmatter &&
+    /\[Presidential Documents\]/.test(text.slice(0, 2048)) &&
+    executiveHeading > firstPage &&
+    executiveHeading < firstPage + 256;
+  // GovInfo began printing single NULs at line starts in ordinary rule headers
+  // (found by the 2026-10-23 rule audit); they are accepted only there.
   let retainedStart = 0;
   for (let index = 0; index < text.length; index++) {
     const code = text.charCodeAt(index);
@@ -139,15 +143,22 @@ function decode(bytes, mediaType, sourceKind, exclusions) {
     const start = index;
     if (code !== 0 || sourceKind !== "govinfo_fr") fail("CONTROL_CHARACTER");
     while (text.charCodeAt(index + 1) === 0) index++;
+    const atLineBoundary =
+      ["\n", "\r"].includes(text[start - 1]) ||
+      ["\n", "\r"].includes(text[index + 1]);
+    const lineNulInHeader =
+      frontmatter && index < firstPage && index === start && atLineBoundary;
     if (
       !(presidentialFrontmatter && index < firstPage) &&
-      (index === start ||
-        (!["\n", "\r"].includes(text[start - 1]) &&
-          !["\n", "\r"].includes(text[index + 1])))
+      !lineNulInHeader &&
+      (index === start || !atLineBoundary)
     )
       fail("CONTROL_CHARACTER");
     exclusions.push({
-      reason: "source_nul_delimiter",
+      reason:
+        lineNulInHeader && !presidentialFrontmatter
+          ? "source_header_line_nul"
+          : "source_nul_delimiter",
       sourceLocator: `source:utf8-byte[${Buffer.byteLength(text.slice(0, start), "utf8")}]`,
       count: index - start + 1,
     });
@@ -1044,10 +1055,13 @@ export function extractPolicyText({
   const shortFederalSerial =
     sourceKind === "govinfo_fr" &&
     /^(?:\d{2}|\d{4})-\d{1,3}$/.test(expectedIdentity);
+  const frontmatterLineNul = exclusions.some(
+    (entry) => entry.reason === "source_header_line_nul",
+  );
   return freeze({
     parser: {
       ...POLICY_TEXT_PARSER,
-      ...(selectedExclusions.length || shortFederalSerial
+      ...(selectedExclusions.length || shortFederalSerial || frontmatterLineNul
         ? {
             configDigest: createHash("sha256")
               .update(
@@ -1055,6 +1069,9 @@ export function extractPolicyText({
                   base: POLICY_TEXT_PARSER.configDigest,
                   ...(shortFederalSerial
                     ? { identityContract: "exact-fr-short-serial-v1" }
+                    : {}),
+                  ...(frontmatterLineNul
+                    ? { nulContract: "fr-header-line-nul-v1" }
                     : {}),
                   excludedBlockLocators: selectedExclusions,
                 }),

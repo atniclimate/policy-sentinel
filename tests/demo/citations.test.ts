@@ -14,6 +14,7 @@ describe("source labels", () => {
       govinfo: "GovInfo",
       congress: "Congress.gov",
       regulations: "Regulations.gov",
+      grants: "Grants.gov",
       washington: "Washington State Legislature",
       oregon: "Oregon Legislature",
       idaho: "Idaho Legislature",

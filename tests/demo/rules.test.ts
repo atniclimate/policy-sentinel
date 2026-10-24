@@ -242,3 +242,54 @@ it("retains distinct references beyond the first quote window", () => {
   expect(found[0].quote).toContain("Executive Order 13175");
   expect(found[1].quote).toContain("42 U.S.C. 7401");
 });
+
+// Sentences from Federal Register rules that the 2026-10-23 Jev audit judged
+// (scripts/dev-ai/audit-rules.mjs). Each case is a regression for one finding.
+describe("rule audit regressions (demo-rules-1.1.0)", () => {
+  const typesOf = (text: string) =>
+    new Set(
+      identifyIssues([{ locator: "/p[1]", text }], {
+        kind: "Notice",
+        title: "Audit case",
+      }).map((i) => i.type),
+    );
+
+  it("leaves out consulting firms and names", () => {
+    expect(
+      typesOf(
+        "BLUE is an engineering and consulting firm which provides regulatory services to various LNG facilities.",
+      ).has("consultation_language"),
+    ).toBe(false);
+    expect(
+      typesOf(
+        "Blue Engineering and Consulting Company recommends that the automatic authorization tier include modifications.",
+      ).has("consultation_language"),
+    ).toBe(false);
+  });
+
+  it("finds Executive Order 13175 standard wording and Tribal coordination", () => {
+    for (const text of [
+      "This proposed action will neither impose substantial direct compliance costs on federally recognized tribal governments, nor preempt tribal law.",
+      "The rule will not have a substantial direct effect on federally recognized Tribes.",
+      "The FWS should ensure enforceable Tribal coordination and monitoring requirements.",
+      "The Service will coordinate with affected Tribal governments before the season opens.",
+    ])
+      expect(typesOf(text).has("consultation_language")).toBe(true);
+  });
+
+  it("does not treat commenter letters or FR page citations as deadlines", () => {
+    for (const text of [
+      "BLUE January 23, 2026 Comments at 4.",
+      "See Permitted Payment Stablecoin Issuer Compliance Risk Management, 91 FR 37840 (June 24, 2026).",
+    ])
+      expect(typesOf(text).has("date_or_deadline")).toBe(false);
+  });
+
+  it("keeps deadlines whose words sit near the date", () => {
+    for (const text of [
+      "Comments must be received on or before December 22, 2026.",
+      "This rule is effective November 23, 2026.",
+    ])
+      expect(typesOf(text).has("date_or_deadline")).toBe(true);
+  });
+});

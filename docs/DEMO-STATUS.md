@@ -34,7 +34,9 @@ identifiers. "Find related" looks up those exact identifiers within the
 Federal Register only. A document-type filter applies to the Federal Register;
 other searches say it was not applied. The export may carry the NCAI draft
 title. Regulations.gov v2 features stay off until its terms page and live
-shapes are confirmed. Checks are in [current status](STATUS.md).
+shapes are confirmed. Published through PR 17 (`a30b48d`, 2026-10-20 13:44 UTC);
+all 17 runtime files matched on readback and the live verifier passed 83 of 83.
+Checks are in [current status](STATUS.md).
 
 ## Seeded discovery, release 0.8.0, 2026-10-20 (D-109, D-110, D-111)
 

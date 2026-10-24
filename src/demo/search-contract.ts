@@ -1,6 +1,7 @@
 import type {
   DemoCfrRef,
   DemoDocumentType,
+  DemoEligibility,
   DemoSearchCriteria,
   DemoSearchCriteriaV1,
   DemoSearchCursor,
@@ -26,6 +27,14 @@ const REGULATIONS_TYPES: Partial<Record<DemoDocumentType, string>> = {
   NOTICE: "Notice",
 };
 export const RIN_PATTERN = /^\d{4}-[A-Z0-9]{4}$/;
+// A RIN as the Unified Agenda writes it: agency code, two letters or digits, two digits (1076-AF54).
+const AGENDA_RIN = /^\d{4}-[A-Z0-9]{2}\d{2}$/;
+
+/** The reginfo.gov page listing the Unified Agenda editions that hold this RIN; null for any other spelling. */
+export const unifiedAgendaUrl = (rin: string): string | null =>
+  AGENDA_RIN.test(rin)
+    ? `https://www.reginfo.gov/public/do/eAgendaViewRule?RIN=${rin}`
+    : null;
 // A Regulations.gov docket id; no commas or spaces, so a filter names one docket.
 const REGULATIONS_DOCKET = /^[A-Za-z0-9][A-Za-z0-9_.-]{1,79}$/;
 const CFR_PART = /^([1-9]\d{0,4})(?:-([1-9]\d{0,4}))?$/;
@@ -153,7 +162,9 @@ export function dateRangeValue(dateFrom: unknown, dateTo: unknown) {
 export function searchPageLimit(source: string): number {
   return source === "regulations"
     ? 20
-    : source === "federal-register" || source === "govinfo"
+    : source === "federal-register" ||
+        source === "govinfo" ||
+        source === "grants"
       ? 50
       : 1;
 }
@@ -206,6 +217,7 @@ export function searchCriteria(
       "regulations",
       "congress",
       "washington",
+      "grants",
     ].includes(source) ||
     query.trim() !== query ||
     query.length < 2 ||
@@ -239,16 +251,24 @@ export function searchCriteria(
   const version = options?.version ?? 1;
   const match = options?.match ?? "text";
   const documentType = options?.documentType ?? null;
+  const eligibility: DemoEligibility | null = options?.eligibility ?? null;
   if (
     (version !== 1 && version !== 2) ||
-    (version === 1 && (match !== "text" || documentType !== null))
+    (version === 1 &&
+      (match !== "text" || documentType !== null || eligibility !== null))
   )
     throw new SearchCriteriaError("The search contract is not supported.");
   if (
     !MATCHES.includes(match) ||
-    (documentType !== null && !DOCUMENT_TYPES.includes(documentType))
+    (documentType !== null && !DOCUMENT_TYPES.includes(documentType)) ||
+    (eligibility !== null && eligibility !== "tribal")
   )
     throw new SearchCriteriaError("The search or page number is not valid.");
+  if (eligibility !== null && source !== "grants")
+    throw new SearchCriteriaError(
+      "The demo applies the eligibility filter to Grants.gov only.",
+      "unsupported_criteria",
+    );
   if (!supportsMatch(source, match))
     throw new SearchCriteriaError(
       "The demo does not look up that kind of identifier on this source.",
@@ -282,7 +302,7 @@ export function searchCriteria(
           : "newest"
         : source === "regulations"
           ? "-postedDate"
-          : source === "govinfo"
+          : source === "govinfo" || source === "grants"
             ? "provider-default"
             : "reference",
     resultLevel: source === "govinfo" ? "default" : null,
@@ -290,8 +310,17 @@ export function searchCriteria(
     cursor: token,
   };
   // A v1 echo stays byte-identical for the published page; v2 fields never echo on v1.
+  // Only Grants.gov criteria carry eligibility, so other sources' v2 echo is unchanged.
   const criteria: DemoSearchCriteria =
-    version === 1 ? base : { ...base, version: 2, match, documentType };
+    version === 1
+      ? base
+      : {
+          ...base,
+          version: 2,
+          match,
+          documentType,
+          ...(source === "grants" && { eligibility }),
+        };
   if (
     (page === 1 && supplied !== null) ||
     (page > 1 && source === "govinfo" && supplied === null) ||

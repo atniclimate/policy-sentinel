@@ -11,6 +11,7 @@ import { ApiFailure, loadSources, readPolicy, search } from "../../demo/api";
 import { App } from "../../demo/main";
 import { loadPdfFonts, loadPdfSeal } from "../../demo/pdf-fonts";
 import { COPY } from "../../src/demo/copy";
+import { localDay } from "../../src/demo/follow";
 import { buildPdf } from "../../src/demo/pdf";
 import { emptyActors, STORAGE_KEY } from "../../src/demo/report-state";
 import { keyOf } from "../../src/demo/validation";
@@ -486,31 +487,37 @@ describe("demo search scope and sources", () => {
     expect(ui.getByLabelText("State")).toHaveValue("washington");
   });
 
-  it("says a Regulations.gov row's comment dates are not shown, beside a stated Federal Register date", async () => {
-    vi.mocked(search).mockImplementation(async (source, query) =>
-      searchResult(
-        [
-          source === "federal-register"
-            ? { ...citation(), commentsCloseOn: "2099-02-01" }
-            : { ...listing("regulations", "2099-00009"), title: "Docket Copy" },
-        ],
-        query,
-        source,
-      ),
-    );
-    const { ui } = await start();
-    fireEvent.click(ui.getByRole("checkbox", { name: /Regulations\.gov/ }));
-    await showResult(ui);
-    const row = (name: string) =>
-      ui.getByRole("heading", { name }).closest("article, li") as HTMLElement;
-    expect(row("Example Water Policy")).toHaveTextContent(
-      "Comments close 2099-02-01, as stated by Federal Register.",
-    );
-    // Silence here could read as no comment period (safeguard 8).
-    expect(row("Docket Copy")).toHaveTextContent(
-      "This demo does not show Regulations.gov comment dates yet.",
-    );
-  });
+  it.runIf(!REGULATIONS_V2_CONFIRMED)(
+    "says a Regulations.gov row's comment dates are not shown, beside a stated Federal Register date",
+    async () => {
+      vi.mocked(search).mockImplementation(async (source, query) =>
+        searchResult(
+          [
+            source === "federal-register"
+              ? { ...citation(), commentsCloseOn: "2099-02-01" }
+              : {
+                  ...listing("regulations", "2099-00009"),
+                  title: "Docket Copy",
+                },
+          ],
+          query,
+          source,
+        ),
+      );
+      const { ui } = await start();
+      fireEvent.click(ui.getByRole("checkbox", { name: /Regulations\.gov/ }));
+      await showResult(ui);
+      const row = (name: string) =>
+        ui.getByRole("heading", { name }).closest("article, li") as HTMLElement;
+      expect(row("Example Water Policy")).toHaveTextContent(
+        "Comments close 2099-02-01, as stated by Federal Register.",
+      );
+      // Silence here could read as no comment period (safeguard 8).
+      expect(row("Docket Copy")).toHaveTextContent(
+        "This demo does not show Regulations.gov comment dates yet.",
+      );
+    },
+  );
 
   it("searches every checked source and names the one that fails", async () => {
     vi.mocked(search).mockImplementation(async (source, query) => {
@@ -3207,11 +3214,21 @@ describe("demo record fields, Find related and the type filter", () => {
       "Federal Register topics: Fisheries; Reporting and recordkeeping requirements",
     );
     for (const text of [
-      "Docket: Docket No. 990101-0001",
+      "Docket No. 990101-0001",
       "RIN: 0648-AA00",
       "CFR part: 50 CFR 660",
     ])
       expect(stated).toHaveTextContent(text);
+    // The source's own "Docket No." is shown once, never labeled "Docket" again.
+    expect(stated).not.toHaveTextContent("Docket: Docket No.");
+    expect(
+      within(stated).getByRole("link", {
+        name: "Unified Agenda entries for RIN 0648-AA00",
+      }),
+    ).toHaveAttribute(
+      "href",
+      "https://www.reginfo.gov/public/do/eAgendaViewRule?RIN=0648-AA00",
+    );
     // A stated date is not called a deadline, and nothing is asked of the reader.
     expect(stated).not.toHaveTextContent(/deadline|must|open for comment/i);
     expect(
@@ -3225,6 +3242,72 @@ describe("demo record fields, Find related and the type filter", () => {
     expect(
       within(plain).queryByRole("button", { name: /^Find related/ }),
     ).toBeNull();
+    expect(
+      within(plain).queryByRole("link", { name: /Unified Agenda/ }),
+    ).toBeNull();
+  });
+
+  it("sends the eligibility filter to Grants.gov only and shows its rows with their close date, the filter's statement and the attribution", async () => {
+    vi.mocked(loadSources).mockResolvedValue([
+      ...sources,
+      {
+        id: "grants",
+        label: "Grants.gov",
+        level: "federal",
+        status: "live",
+        note: "Synthetic test source.",
+      },
+    ]);
+    const grantsRow: DemoCitation = {
+      ...citation("2099-00030", "Example Funding Opportunity"),
+      sourceId: "grants",
+      identifier: "EX-FOA-2099-01",
+      kind: "Funding opportunity",
+      officialUrl: "https://www.grants.gov/search-results-detail/1",
+      textAvailable: false,
+      matchKey: null,
+      applicationsCloseOn: "2099-03-01",
+      listedEligibility: "tribal",
+    };
+    vi.mocked(search).mockImplementation(
+      async (source, query, _p, _s, options) => ({
+        ...searchResult(
+          source === "grants" ? [grantsRow] : [citation()],
+          query,
+          source,
+        ),
+        criteria: searchCriteria(source, query, 1, options),
+      }),
+    );
+    const { ui, container } = await start();
+    fireEvent.click(ui.getByRole("checkbox", { name: /^Grants\.gov/ }));
+    fireEvent.click(
+      ui.getByRole("checkbox", { name: COPY.grants.filterLabel }),
+    );
+    await showResult(ui);
+    await ui.findByRole("heading", { name: "Example Funding Opportunity" });
+    const options = Object.fromEntries(
+      vi
+        .mocked(search)
+        .mock.calls.map(([source, , , , sent]) => [source, sent]),
+    );
+    expect(options.grants?.eligibility).toBe("tribal");
+    expect(options["federal-register"]).not.toHaveProperty("eligibility");
+    const row = rowOf(ui, "Example Funding Opportunity");
+    expect(row).toHaveTextContent(
+      "Applications close 2099-03-01, as stated by Grants.gov.",
+    );
+    expect(row).toHaveTextContent(COPY.grants.listedUnder);
+    expect(row).toHaveTextContent(COPY.grants.limit);
+    const results = container.querySelector(".pane-results") as HTMLElement;
+    expect(results).toHaveTextContent(COPY.grants.filterApplied);
+    expect(results).toHaveTextContent(COPY.grants.attribution);
+    expect(rowOf(ui, "Example Water Policy")).not.toHaveTextContent(
+      "Applications close",
+    );
+    expect(results).toHaveTextContent(
+      "1 policy and 1 funding opportunity listed.",
+    );
   });
 
   it("sends exactly the record's identifier lookups to its own source, names the record, and replays them from memory", async () => {
@@ -3454,5 +3537,224 @@ describe("demo record fields, Find related and the type filter", () => {
       regulations: null,
     });
     expect(lane("Regulations.gov")).toHaveTextContent(COPY.typeNotApplied);
+  });
+});
+
+describe("demo export nits, comment dates and following", () => {
+  const DOCKET = "Docket No. 990101-0001";
+  const rowOf = (ui: ReturnType<typeof within>, title: string) =>
+    ui.getByRole("heading", { name: title }).closest("li") as HTMLElement;
+  /** Blobs handed to the browser's downloads, in order. */
+  let downloads: Blob[];
+  beforeEach(() => {
+    window.localStorage.clear();
+    downloads = [];
+    Object.assign(URL, {
+      createObjectURL: vi.fn((blob: Blob) => {
+        downloads.push(blob);
+        return "blob:synthetic";
+      }),
+      revokeObjectURL: vi.fn(),
+    });
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+  });
+  afterEach(() => window.localStorage.clear());
+  /** Word searches list `first`; identifier lookups list `related`, or fail. */
+  function answer(
+    first: readonly DemoCitation[],
+    related: readonly DemoCitation[] | Error = [],
+  ) {
+    vi.mocked(search).mockImplementation(
+      async (source, query, _page, _signal, options) => {
+        const lookup = options?.match && options.match !== "text";
+        if (lookup && related instanceof Error) throw related;
+        return searchResult(
+          [...(lookup ? (related as DemoCitation[]) : first)],
+          query,
+          source,
+        );
+      },
+    );
+  }
+
+  it("retires an old Added notice when a new search starts", async () => {
+    answer([{ ...citation(), textAvailable: false }]);
+    const { shell, ui } = await start();
+    await showResult(ui);
+    fireEvent.click(ui.getByRole("button", { name: /Add to my citations/ }));
+    const notes = shell.querySelector(".notes") as HTMLElement;
+    expect(notes).toHaveTextContent("Added Example Water Policy.");
+    fireEvent.input(ui.getByRole("searchbox"), {
+      target: { value: "forests" },
+    });
+    fireEvent.click(ui.getByRole("button", { name: "Search" }));
+    await ui.findByRole("button", { name: /In my citations/ });
+    expect(notes).not.toHaveTextContent("Added");
+  });
+
+  it("exports the listed closing dates as a calendar file, and says why the button is off when none is stated", async () => {
+    answer([citation()]);
+    const { ui } = await start();
+    const button = ui.getByRole("button", { name: COPY.calendar.button });
+    expect(button).toHaveAttribute("aria-disabled", "true");
+    expect(button).toHaveAccessibleDescription(COPY.calendar.none);
+    fireEvent.click(button);
+    expect(downloads).toHaveLength(0);
+
+    answer([statedCitation(), citation()]);
+    await showResult(ui);
+    expect(button).toHaveAttribute("aria-disabled", "false");
+    fireEvent.click(button);
+    expect(ui.getByText(COPY.calendar.done(1))).toBeInTheDocument();
+    expect(downloads).toHaveLength(1);
+    expect(downloads[0].type).toBe("text/calendar");
+    const ics = await downloads[0].text();
+    expect(ics).toContain("SUMMARY:Comments close: Example Groundfish Rule");
+    expect(ics).toContain("DTSTART;VALUE=DATE:20990201");
+    // No search terms in the file.
+    expect(ics).not.toContain("water");
+  });
+
+  it("follows a docket, keeps it in this browser, and shows documents new since the last check", async () => {
+    answer(
+      [statedCitation()],
+      [{ ...citation("2099-00030", "Later notice"), docketIds: [DOCKET] }],
+    );
+    const { shell, ui } = await start();
+    await showResult(ui);
+    vi.mocked(search).mockClear();
+    const followDocket = within(rowOf(ui, "Example Groundfish Rule")).getByRole(
+      "button",
+      { name: `Follow docket: ${DOCKET}` },
+    );
+    fireEvent.click(followDocket);
+    expect(shell.querySelector(".notes")).toHaveTextContent(
+      `Following ${DOCKET}.`,
+    );
+    expect(
+      within(rowOf(ui, "Example Groundfish Rule")).getByRole("button", {
+        name: `Following docket: ${DOCKET}`,
+      }),
+    ).toHaveAttribute("aria-disabled", "true");
+    const saved = JSON.parse(
+      window.localStorage.getItem("ps-demo-following-v1")!,
+    );
+    expect(saved.followed.map((item: { value: string }) => item.value)).toEqual(
+      [DOCKET],
+    );
+    // Following sends nothing; only Check for new does.
+    expect(search).not.toHaveBeenCalled();
+    const zone = ui
+      .getByRole("heading", { name: COPY.follow.title })
+      .closest("section") as HTMLElement;
+    expect(within(zone).getByText(COPY.follow.notChecked)).toBeInTheDocument();
+    fireEvent.click(
+      within(zone).getByRole("button", { name: COPY.follow.check }),
+    );
+    await within(zone).findByRole("link", { name: "Later notice" });
+    const day = localDay(new Date());
+    expect(zone).toHaveTextContent(`New since ${day}: 1 document.`);
+    const [[source, query, , , options]] = vi.mocked(search).mock.calls;
+    expect([source, query, options?.match, options?.dateFrom]).toEqual([
+      "federal-register",
+      DOCKET,
+      "docket",
+      day,
+    ]);
+    expect(zone).toHaveTextContent(COPY.follow.checked(1, 0, 0));
+    expect(
+      JSON.parse(window.localStorage.getItem("ps-demo-following-v1")!)
+        .followed[0].lastChecked,
+    ).not.toBeNull();
+  });
+
+  it("shows a failed lookup as unavailable, never as nothing new, and checks nothing on page load", async () => {
+    answer([statedCitation()], new ApiFailure("Synthetic outage.", "service"));
+    const first = await start();
+    await showResult(first.ui);
+    fireEvent.click(
+      first.ui.getByRole("button", { name: `Follow RIN: 0648-AA00` }),
+    );
+    cleanup();
+    vi.mocked(search).mockClear();
+    // A reload restores the list and sends no lookup on its own.
+    const { ui } = await start();
+    expect(search).not.toHaveBeenCalled();
+    const zone = ui
+      .getByRole("heading", { name: COPY.follow.title })
+      .closest("section") as HTMLElement;
+    expect(zone).toHaveTextContent("RIN: 0648-AA00");
+    fireEvent.click(
+      within(zone).getByRole("button", { name: COPY.follow.check }),
+    );
+    await waitFor(() => expect(zone).toHaveTextContent("Unavailable."));
+    expect(zone).not.toHaveTextContent("No document listed");
+    expect(zone).toHaveTextContent(COPY.follow.notChecked);
+    fireEvent.click(
+      within(zone).getByRole("button", {
+        name: "Stop following: RIN: 0648-AA00",
+      }),
+    );
+    expect(zone).toHaveTextContent(COPY.follow.empty);
+    expect(ui.getByRole("heading", { name: COPY.follow.title })).toHaveFocus();
+  });
+
+  it("keeps working when browser storage throws", async () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    answer([statedCitation()]);
+    const { shell, ui } = await start();
+    expect(shell.querySelector(".notes")).toHaveTextContent(
+      COPY.follow.storageUnavailable,
+    );
+    await showResult(ui);
+    fireEvent.click(
+      ui.getByRole("button", { name: `Follow docket: ${DOCKET}` }),
+    );
+    expect(shell.querySelector(".notes")).toHaveTextContent(
+      COPY.follow.storageSaveFailed,
+    );
+    expect(
+      ui.getByRole("button", { name: `Following docket: ${DOCKET}` }),
+    ).toBeInTheDocument();
+  });
+
+  it("exports the followed list and imports only a file that checks whole", async () => {
+    answer([statedCitation()]);
+    const { ui, container } = await start();
+    await showResult(ui);
+    fireEvent.click(
+      ui.getByRole("button", { name: `Follow docket: ${DOCKET}` }),
+    );
+    const zone = ui
+      .getByRole("heading", { name: COPY.follow.title })
+      .closest("section") as HTMLElement;
+    fireEvent.click(
+      within(zone).getByRole("button", { name: COPY.follow.exportButton }),
+    );
+    expect(zone).toHaveTextContent(COPY.follow.exportDone);
+    const exported = await downloads[0].text();
+    const input = container.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement;
+    const choose = async (text: string) => {
+      Object.defineProperty(input, "files", {
+        configurable: true,
+        value: [new File([text], "following.json")],
+      });
+      fireEvent.change(input);
+    };
+    await choose('{"version":1,"followed":[{"note":"x"}]}');
+    await waitFor(() =>
+      expect(zone).toHaveTextContent(COPY.follow.importRejected),
+    );
+    await choose(exported);
+    await waitFor(() =>
+      expect(zone).toHaveTextContent(COPY.follow.importDone(0, 1, 0)),
+    );
   });
 });

@@ -1,8 +1,32 @@
 import { render } from "preact";
 import type { RefObject } from "preact";
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
+import { buildCalendar, calendarRows } from "../src/demo/calendar";
 import { SOURCE_LABELS } from "../src/demo/citations";
-import { COPY, EXAMPLES } from "../src/demo/copy";
+import { COPY, EXAMPLES, namesItsKind } from "../src/demo/copy";
+import {
+  addFollow,
+  checkBatch,
+  checkDates,
+  FOLLOW_KEY,
+  followId,
+  followItem,
+  followLookups,
+  importFollows,
+  localDay,
+  MAX_FOLLOWED,
+  MAX_FOLLOW_FILE,
+  removeFollow,
+  restoreFollows,
+  serializeFollows,
+  settleCheck,
+} from "../src/demo/follow";
+import type {
+  FollowAnswer,
+  FollowCheck,
+  Followed,
+  FollowKind,
+} from "../src/demo/follow";
 import {
   appendPage,
   laneKeep,
@@ -83,6 +107,7 @@ import {
   emptyReport,
   findCitedKey,
   foundByOf,
+  keepStated,
   MAX_ACTOR_TEXT,
   MAX_CITATIONS,
   MAX_NOTE,
@@ -105,6 +130,7 @@ import {
   dateRangeValue,
   REGULATIONS_V2_CONFIRMED,
   searchCriteria,
+  unifiedAgendaUrl,
 } from "../src/demo/search-contract";
 
 const VERSION = __APP_VERSION__;
@@ -153,6 +179,7 @@ const FALLBACK_SOURCES: DemoSource[] = (
     ["govinfo", "federal"],
     ["congress", "federal"],
     ["regulations", "federal"],
+    ["grants", "federal"],
     ["washington", "state"],
     ["oregon", "state"],
     ["idaho", "state"],
@@ -209,6 +236,7 @@ const SKIP_TEXT: Readonly<Record<SkipReason, string>> = {
   congress_reference: COPY.congressSkipped,
   congress_dates: COPY.congressDatesSkipped,
   govinfo_dates: COPY.govinfoDatesSkipped,
+  grants_dates: COPY.grantsDatesSkipped,
   budget: COPY.laneBudget(AUTO_REQUEST_BUDGET),
 };
 
@@ -260,9 +288,12 @@ function foundMessage(found: Found): string {
   if (searches.some((item) => item.state === "loading")) return words.searching;
   const failures = searches.filter((item) => item.state === "unavailable");
   if (found.rows.length) {
-    const listed = (draft ? COPY.ncai.listed : COPY.resultsListed)(
-      found.rows.length,
-    );
+    const listed = draft
+      ? COPY.ncai.listed(found.rows.length)
+      : COPY.resultsListed(
+          found.rows.length,
+          found.rows.filter((row) => row.citation.sourceId === "grants").length,
+        );
     return failures.length ? `${listed} ${words.someFailed}` : listed;
   }
   const sent = searches.filter((item) => item.state !== "not_searched");
@@ -303,6 +334,40 @@ function loadSaved(): RestoredReport {
     return { report: emptyReport(), notice: COPY.storageUnavailable };
   }
 }
+
+/** The followed list is kept between visits; storage that throws leaves it in memory only. */
+function loadFollows(): { list: readonly Followed[]; notice: string } {
+  try {
+    const { list, restored } = restoreFollows(
+      window.localStorage.getItem(FOLLOW_KEY),
+    );
+    return {
+      list,
+      notice:
+        restored === "failed"
+          ? COPY.follow.restoreFailed
+          : restored === "partial"
+            ? COPY.follow.restorePartial
+            : "",
+    };
+  } catch {
+    return { list: [], notice: COPY.follow.storageUnavailable };
+  }
+}
+
+/** Hands a file built in this page to the browser's downloads. */
+function download(blob: Blob, name: string) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = name;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
+const today = () => localDay(new Date());
 
 function failureText(error: unknown): string {
   if (error instanceof ApiFailure) {
@@ -368,6 +433,7 @@ export function App() {
   const [dateTo, setDateTo] = useState("");
   const [dateError, setDateError] = useState("");
   const [docType, setDocType] = useState<DemoDocumentType | "">("");
+  const [tribalEligibility, setTribalEligibility] = useState(false);
   /** The row Find related started from, so Results can name it. */
   const [record, setRecord] = useState<DemoCitation | null>(null);
   const [found, setFound] = useState<Found | null>(null);
@@ -391,6 +457,15 @@ export function App() {
   const [exportBusy, setExportBusy] = useState(false);
   const exporting = useRef(false);
   const [exportMessage, setExportMessage] = useState("");
+  const savedFollows = useMemo(loadFollows, []);
+  const [follows, setFollows] = useState(savedFollows.list);
+  const followsRef = useRef(follows);
+  /** Check for new outcomes, by item id. Memory only. */
+  const [checks, setChecks] = useState<Record<string, FollowCheck>>({});
+  const checking = useRef(false);
+  const [followMessage, setFollowMessage] = useState("");
+  const [followStorage, setFollowStorage] = useState("");
+  const importRef = useRef<HTMLInputElement>(null);
   /** True once an export or print was refused for missing data actor entries. */
   const [actorsAsked, setActorsAsked] = useState(false);
   const [pane, setPane] = useState<Pane>("search");
@@ -444,6 +519,16 @@ export function App() {
     const next = update(reportRef.current);
     reportRef.current = next;
     setReport(next);
+  }
+
+  function updateFollows(
+    update: (current: readonly Followed[]) => readonly Followed[],
+  ) {
+    const next = update(followsRef.current);
+    if (next === followsRef.current) return;
+    followsRef.current = next;
+    followsChanged.current = true;
+    setFollows(next);
   }
 
   async function refreshSources(moveFocus = false) {
@@ -549,6 +634,18 @@ export function App() {
     }
   }, [report]);
 
+  // Not on first render: an unreadable list is not overwritten until the person changes it.
+  const followsChanged = useRef(false);
+  useEffect(() => {
+    if (!followsChanged.current) return;
+    try {
+      window.localStorage.setItem(FOLLOW_KEY, serializeFollows(follows));
+      setFollowStorage("");
+    } catch {
+      setFollowStorage(COPY.follow.storageSaveFailed);
+    }
+  }, [follows]);
+
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
@@ -618,9 +715,13 @@ export function App() {
     found.plan.dateFrom === (scope === "federal" ? dateFrom || null : null) &&
     found.plan.dateTo === (scope === "federal" ? dateTo || null : null) &&
     (found.plan.documentType ?? null) ===
-      (scope === "federal" ? docType || null : null);
+      (scope === "federal" ? docType || null : null) &&
+    (found.plan.eligibility ?? null) ===
+      (scope === "federal" && tribalEligibility ? "tribal" : null);
   /** The type filter goes with every federal plan; the state form has none. */
   const documentType = docType || null;
+  /** The Grants.gov eligibility filter goes with every federal plan, like the type filter. */
+  const eligibility = tribalEligibility ? ("tribal" as const) : null;
   const planSources = {
     federal: federalTargets,
     live: sources
@@ -806,6 +907,7 @@ export function App() {
       plan.dateFrom,
       plan.dateTo,
       plan.documentType ?? null,
+      plan.eligibility ?? null,
       also.map((lane) => lane.id),
     ]);
     if (
@@ -832,6 +934,8 @@ export function App() {
     publishFound({ plan, searches, rows: [] });
     setQueryError("");
     setDateError("");
+    // A citation notice speaks of the last list action; a new search retires it.
+    setCitationMessage("");
     clearSelection();
     bringResults(sequence);
     void sendLanes(plan, searches, sequence, controller.signal);
@@ -990,6 +1094,7 @@ export function App() {
         dates = {
           ...dateRangeValue(dateFrom || null, dateTo || null),
           documentType,
+          eligibility,
         };
       } catch {
         setDateError(COPY.dateRangeError);
@@ -1029,6 +1134,7 @@ export function App() {
         dateFrom: null,
         dateTo: null,
         documentType: state ? null : documentType,
+        eligibility: state ? null : eligibility,
       }),
     );
   }
@@ -1056,7 +1162,7 @@ export function App() {
           { kind: "area", label: areaName(area) },
           [{ ...preset, auto: true }],
           planSources,
-          { dateFrom: null, dateTo: null, documentType },
+          { dateFrom: null, dateTo: null, documentType, eligibility },
         ),
         area.drafts,
       ),
@@ -1070,6 +1176,7 @@ export function App() {
         dateFrom: null,
         dateTo: null,
         documentType,
+        eligibility,
       }),
       [from],
     );
@@ -1368,7 +1475,10 @@ export function App() {
     // The row's match key stays: its alternates were matched on it.
     const policy = viewed && {
       ...viewed,
-      citation: { ...viewed.citation, matchKey: citation.matchKey },
+      citation: {
+        ...keepStated(citation, viewed.citation),
+        matchKey: citation.matchKey,
+      },
     };
     const revision = revisions.current.get(k) ?? 0;
     // D-112: the export may name the draft by the title shown on this page.
@@ -1484,6 +1594,7 @@ export function App() {
 
   /** Export and print wait for a citation and all five data actor entries. */
   function readyToExport(): boolean {
+    setCitationMessage("");
     if (reportEntries(reportRef.current).length === 0) {
       setExportMessage(COPY.exportEmpty);
       return false;
@@ -1521,15 +1632,10 @@ export function App() {
         fonts,
         seal,
       });
-      const blob = new Blob([bytes as BlobPart], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `policy-sentinel-citations-${new Date().toISOString().slice(0, 10)}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+      download(
+        new Blob([bytes as BlobPart], { type: "application/pdf" }),
+        `policy-sentinel-citations-${today()}.pdf`,
+      );
       setExportMessage(COPY.exportDone);
     } catch (error) {
       // Name the refused character with its code point, so a combining mark is findable too.
@@ -1571,6 +1677,156 @@ export function App() {
     }
   }
 
+  function exportCalendar() {
+    setCitationMessage("");
+    if (calendarSource.length === 0) {
+      setExportMessage(COPY.calendar.none);
+      return;
+    }
+    download(
+      new Blob([buildCalendar(calendarSource, new Date())], {
+        type: "text/calendar",
+      }),
+      `policy-sentinel-comment-dates-${today()}.ics`,
+    );
+    setExportMessage(COPY.calendar.done(calendarSource.length));
+  }
+
+  /** A followed item as the list names it; a docket keeps its own "Docket No.". */
+  const followName = (item: Pick<Followed, "kind" | "value" | "record">) =>
+    item.kind === "document"
+      ? item.record.title
+      : COPY.identifierLine(COPY.identifierLabels[item.kind], item.value);
+
+  function follow(record: DemoCitation, kind: FollowKind, value: string) {
+    const item = followItem(record, kind, value, new Date());
+    if (!item || followsRef.current.some((each) => each.id === item.id)) return;
+    if (followsRef.current.length >= MAX_FOLLOWED) {
+      setCitationMessage(COPY.follow.full(MAX_FOLLOWED));
+      showNotes();
+      return;
+    }
+    updateFollows((current) => addFollow(current, item));
+    setCitationMessage(COPY.follow.added(followName(item)));
+  }
+
+  function unfollow(item: Followed) {
+    updateFollows((current) => removeFollow(current, item.id));
+    setChecks((current) => {
+      const next = { ...current };
+      delete next[item.id];
+      return next;
+    });
+    setFollowMessage(COPY.follow.removed(followName(item)));
+    // The pressed button leaves with its item, as Remove does for a citation.
+    document.getElementById("follow-h")?.focus();
+  }
+
+  /**
+   * Check for new: only on this press, never on page load. Each item's exact
+   * lookups go to the source that stated them, dated from the last check, and
+   * at most the automatic request budget per press; the rest wait their turn.
+   */
+  async function checkFollowed() {
+    if (checking.current) return;
+    const list = followsRef.current;
+    if (list.length === 0) {
+      setFollowMessage(COPY.follow.none);
+      return;
+    }
+    checking.current = true;
+    const now = new Date();
+    const { now: batch, later } = checkBatch(list, AUTO_REQUEST_BUDGET);
+    const mark = (items: readonly Followed[], check: FollowCheck) =>
+      Object.fromEntries(items.map((item) => [item.id, check]));
+    setChecks((current) => ({
+      ...current,
+      ...mark(batch, { state: "checking" }),
+      ...mark(later, { state: "waiting" }),
+    }));
+    setFollowMessage(COPY.follow.checking);
+    let unavailable = 0;
+    try {
+      await Promise.all(
+        batch.map(async (item) => {
+          const dates = checkDates(item, now);
+          const answers = await Promise.all(
+            followLookups(item).map(async (lane): Promise<FollowAnswer> => {
+              try {
+                const response = await search(
+                  item.sourceId,
+                  lane.query,
+                  1,
+                  undefined,
+                  laneOptions(dates, lane),
+                );
+                return { ok: true, response };
+              } catch (error) {
+                return { ok: false, reason: failureText(error) };
+              }
+            }),
+          );
+          if (!mounted.current) return;
+          const settled = settleCheck(item, answers, now);
+          if (settled.check.state === "unavailable") unavailable++;
+          // An item removed while it was checked stays removed.
+          if (!followsRef.current.some((each) => each.id === item.id)) return;
+          updateFollows((current) =>
+            current.map((each) => (each.id === item.id ? settled.item : each)),
+          );
+          setChecks((current) => ({ ...current, [item.id]: settled.check }));
+        }),
+      );
+    } finally {
+      checking.current = false;
+    }
+    if (mounted.current)
+      setFollowMessage(
+        COPY.follow.checked(batch.length, unavailable, later.length),
+      );
+  }
+
+  function exportFollows() {
+    if (followsRef.current.length === 0) {
+      setFollowMessage(COPY.follow.none);
+      return;
+    }
+    download(
+      new Blob([serializeFollows(followsRef.current)], {
+        type: "application/json",
+      }),
+      `policy-sentinel-following-${today()}.json`,
+    );
+    setFollowMessage(COPY.follow.exportDone);
+  }
+
+  /** The file is checked whole before anything in it is followed. */
+  async function importFile(input: HTMLInputElement) {
+    const file = input.files?.[0];
+    if (!file) return;
+    let result: ReturnType<typeof importFollows> = null;
+    try {
+      // A file past the limit is refused unread.
+      if (file.size <= MAX_FOLLOW_FILE) {
+        const raw = await file.text();
+        result = importFollows(followsRef.current, raw);
+      }
+    } catch {
+      result = null;
+    } finally {
+      // The same file can be chosen again.
+      input.value = "";
+    }
+    if (!mounted.current) return;
+    if (!result) {
+      setFollowMessage(COPY.follow.importRejected);
+      return;
+    }
+    const { list, added, already, dropped } = result;
+    updateFollows(() => list);
+    setFollowMessage(COPY.follow.importDone(added, already, dropped));
+  }
+
   function switchTheme() {
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
@@ -1600,6 +1856,14 @@ export function App() {
   }
 
   const citedEntries = Object.entries(cited);
+  // Saved rows first, then listed ones; each document goes in once.
+  const calendarSource = calendarRows([
+    ...citedEntries.map(([, entry]) => entry.citation),
+    ...(found?.rows ?? []).map((row) => row.citation),
+  ]);
+  const checkBusy = Object.values(checks).some(
+    (check) => check.state === "checking",
+  );
   const actorsDone = ACTOR_FIELDS.filter((field) => actors[field].trim());
   const grouped = useMemo(() => {
     const out = new Map<string, { label: string; issues: DemoIssue[] }>();
@@ -1658,6 +1922,11 @@ export function App() {
     : [];
   const merged =
     found?.rows.reduce((sum, row) => sum + row.alternates.length, 0) ?? 0;
+  // The Grants.gov API terms ask for its attribution wherever its rows appear.
+  const grantsAttribution = (citations: readonly DemoCitation[]) =>
+    citations.some((c) => c.sourceId === "grants") ? (
+      <p class="help">{COPY.grants.attribution}</p>
+    ) : null;
   // The title is shown from the page's own draft list; the plan and the report carry the ID only.
   const draftTitle =
     seed?.kind === "draft"
@@ -1687,6 +1956,10 @@ export function App() {
           ? COPY.submittedDates(plan.dateFrom, plan.dateTo!)
           : COPY.noDateRange}
       </p>
+      {plan.eligibility &&
+        plan.lanes.some((lane) => lane.sourceId === "grants") && (
+          <p class="help">{COPY.grants.submittedFilter}</p>
+        )}
       <p class="help">{COPY.loadedOrder}</p>
     </>
   );
@@ -1766,6 +2039,11 @@ export function App() {
         {lane.typeNotApplied && item.state !== "not_searched" && (
           <p class="help">{COPY.typeNotApplied}</p>
         )}
+        {lane.sourceId === "grants" &&
+          plan.eligibility &&
+          item.state !== "not_searched" && (
+            <p class="help">{COPY.grants.filterApplied}</p>
+          )}
         {Boolean(item.leftOut) && (
           <p class="help">{COPY.identifierLeftOut(item.leftOut!)}</p>
         )}
@@ -1843,6 +2121,16 @@ export function App() {
     ];
     const related = recordPlan(c, planSources);
     const canRelate = related.lanes.some((lane) => lookupReady(related, lane));
+    // Follow is offered for what Check for new can look up: a docket, a RIN, the document.
+    const followable = (
+      [
+        ...(c.docketIds ?? []).map((id) => ["docket", id] as const),
+        ...(c.rins ?? []).map((rin) => ["rin", rin] as const),
+        ["document", c.identifier] as const,
+      ] as const
+    ).filter(
+      ([kind, value]) => followLookups({ kind, value, record: c }).length,
+    );
     return (
       <li
         class={`result${selectedKey.current === k ? " is-here" : ""}`}
@@ -1876,6 +2164,16 @@ export function App() {
             <p class="help">{COPY.commentsCloseNotRead(labelOf(c.sourceId))}</p>
           )
         )}
+        {c.applicationsCloseOn && (
+          <p class="help">
+            {COPY.applicationsClose(c.applicationsCloseOn, labelOf(c.sourceId))}
+          </p>
+        )}
+        {c.listedEligibility && (
+          <p class="help">
+            {COPY.grants.listedUnder} {COPY.grants.limit}
+          </p>
+        )}
         {c.topics?.length ? (
           <p class="help">
             {COPY.sourceTopics(labelOf(c.sourceId), c.topics.join("; "))}
@@ -1885,10 +2183,59 @@ export function App() {
           <ul class="meta">
             {ids.map(([label, id]) => (
               <li key={label + id}>
-                {label}: <span class="mono">{id}</span>
+                {/* The source's own "Docket No." is shown once, not labeled again. */}
+                {!namesItsKind(label, id) && `${label}: `}
+                <span class="mono">{id}</span>
               </li>
             ))}
           </ul>
+        )}
+        {(c.rins ?? []).some((rin) => unifiedAgendaUrl(rin)) && (
+          <ul class="meta">
+            {(c.rins ?? []).map((rin) => {
+              const href = unifiedAgendaUrl(rin);
+              return (
+                href && (
+                  <li key={rin}>
+                    <a href={href} target="_blank" rel="noopener noreferrer">
+                      {COPY.unifiedAgenda(rin)}
+                    </a>
+                  </li>
+                )
+              );
+            })}
+          </ul>
+        )}
+        {followable.length > 0 && (
+          <p class="actions">
+            {followable.map(([kind, value]) => {
+              const on = follows.some(
+                (item) => item.id === followId(c.sourceId, kind, value),
+              );
+              const F = COPY.follow;
+              const label =
+                kind === "document"
+                  ? on
+                    ? F.followingDocument
+                    : F.followDocument
+                  : `${on ? F.following : F.follow} ${F.kinds[kind]}`;
+              return (
+                <button
+                  type="button"
+                  class="btn"
+                  key={kind + value}
+                  aria-disabled={on}
+                  aria-label={COPY.named(
+                    label,
+                    kind === "document" ? c.title : value,
+                  )}
+                  onClick={() => follow(c, kind, value)}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </p>
         )}
         {alsoListed(c.title, alternates)}
         {seed && (
@@ -2041,6 +2388,8 @@ export function App() {
           <div class="notes" role="status" aria-live="polite" ref={notesRef}>
             {saved.notice && <p class="notice">{saved.notice}</p>}
             {storageMessage && <p class="notice">{storageMessage}</p>}
+            {savedFollows.notice && <p class="notice">{savedFollows.notice}</p>}
+            {followStorage && <p class="notice">{followStorage}</p>}
             {citationMessage && <p class="live">{citationMessage}</p>}
           </div>
           <section
@@ -2251,6 +2600,23 @@ export function App() {
                     </select>
                     <p id="doc-type-help" class="help">
                       {COPY.docTypeHelp}
+                    </p>
+                    <label class="check" for="grants-eligibility">
+                      <input
+                        id="grants-eligibility"
+                        type="checkbox"
+                        checked={tribalEligibility}
+                        aria-describedby="grants-eligibility-help"
+                        onChange={(e) =>
+                          setTribalEligibility(
+                            (e.target as HTMLInputElement).checked,
+                          )
+                        }
+                      />
+                      {COPY.grants.filterLabel}
+                    </label>
+                    <p id="grants-eligibility-help" class="help">
+                      {COPY.grants.filterHelp} {COPY.grants.limit}
                     </p>
                   </>
                 )}
@@ -2465,6 +2831,12 @@ export function App() {
               <ul class="results" key={searchRequest.current.sequence}>
                 {(found?.rows ?? []).map((row) => resultRow(row, false))}
               </ul>
+            )}
+            {grantsAttribution(
+              (found?.rows ?? []).flatMap((row) => [
+                row.citation,
+                ...row.alternates,
+              ]),
             )}
           </section>
 
@@ -2745,6 +3117,160 @@ export function App() {
                     );
                   })}
                 </ul>
+                {grantsAttribution(
+                  citedEntries.flatMap(([, entry]) => [
+                    entry.citation,
+                    ...entry.alternates,
+                  ]),
+                )}
+              </section>
+              <section class="zone" aria-labelledby="follow-h">
+                <div class="row">
+                  <h3 id="follow-h" class="eyebrow" tabIndex={-1}>
+                    {COPY.follow.title}
+                  </h3>
+                  <Leader />
+                  <span class="row-v mono">{follows.length}</span>
+                </div>
+                <p class="help">{COPY.follow.intro}</p>
+                {follows.length === 0 && (
+                  <p class="help">{COPY.follow.empty}</p>
+                )}
+                <ul class="cited">
+                  {follows.map((item, index) => {
+                    const check = checks[item.id];
+                    return (
+                      <li key={item.id}>
+                        <h4 id={`follow-${index}`}>{followName(item)}</h4>
+                        <p class="cited-id mono">
+                          {COPY.follow.from(
+                            labelOf(item.sourceId),
+                            item.record.identifier,
+                          )}
+                        </p>
+                        {item.kind !== "document" && (
+                          <p class="help">{item.record.title}</p>
+                        )}
+                        <p class="row">
+                          <span class="row-k">{COPY.follow.followedOn}</span>
+                          <Leader />
+                          <span class="row-v mono">
+                            {localDay(item.followedAt)}
+                          </span>
+                        </p>
+                        <p class="row">
+                          <span class="row-k">{COPY.follow.lastChecked}</span>
+                          <Leader />
+                          <span class="row-v mono">
+                            {item.lastChecked
+                              ? localDay(item.lastChecked)
+                              : COPY.follow.notChecked}
+                          </span>
+                        </p>
+                        {check?.state === "checking" && (
+                          <p class="help">{COPY.follow.checkingItem}</p>
+                        )}
+                        {check?.state === "waiting" && (
+                          <p class="help">
+                            {COPY.follow.waiting(AUTO_REQUEST_BUDGET)}
+                          </p>
+                        )}
+                        {check?.state === "unavailable" && (
+                          <p class="notice">
+                            {COPY.follow.unavailable(check.reason)}
+                          </p>
+                        )}
+                        {check?.state === "checked" && (
+                          <>
+                            <p class="help">
+                              {check.fresh.length
+                                ? COPY.follow.newSince(
+                                    check.since,
+                                    check.fresh.length,
+                                  )
+                                : COPY.follow.nothingNew(check.since)}
+                            </p>
+                            {check.fresh.length > 0 && (
+                              <ul class="follow-new">
+                                {check.fresh.map((listing) => (
+                                  <li key={keyOf(listing)}>
+                                    <a
+                                      href={listing.officialUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      {listing.title}
+                                    </a>{" "}
+                                    <span class="mono">
+                                      {listing.date ?? COPY.dateNotStated}
+                                    </span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                            {check.undated > 0 && (
+                              <p class="help">
+                                {COPY.follow.undated(check.undated)}
+                              </p>
+                            )}
+                            {check.more && (
+                              <p class="help">{COPY.follow.more}</p>
+                            )}
+                          </>
+                        )}
+                        <p class="actions">
+                          <button
+                            type="button"
+                            class="btn"
+                            aria-label={COPY.named(
+                              COPY.follow.remove,
+                              followName(item),
+                            )}
+                            onClick={() => unfollow(item)}
+                          >
+                            {COPY.follow.remove}
+                          </button>
+                        </p>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <p class="actions">
+                  <button
+                    type="button"
+                    class="btn"
+                    aria-disabled={checkBusy || follows.length === 0}
+                    onClick={() => void checkFollowed()}
+                  >
+                    {COPY.follow.check}
+                  </button>
+                  <button
+                    type="button"
+                    class="btn"
+                    aria-disabled={follows.length === 0}
+                    onClick={exportFollows}
+                  >
+                    {COPY.follow.exportButton}
+                  </button>
+                  <button
+                    type="button"
+                    class="btn"
+                    onClick={() => importRef.current?.click()}
+                  >
+                    {COPY.follow.importButton}
+                  </button>
+                  <input
+                    ref={importRef}
+                    type="file"
+                    accept="application/json,.json"
+                    hidden
+                    aria-label={COPY.follow.importButton}
+                    onChange={(event) => void importFile(event.currentTarget)}
+                  />
+                </p>
+                <p class="live" role="status" aria-live="polite">
+                  {followMessage}
+                </p>
               </section>
               <section class="zone" aria-labelledby="actors-h">
                 <div class="row">
@@ -2822,6 +3348,21 @@ export function App() {
                 >
                   {COPY.printView}
                 </button>
+                <button
+                  type="button"
+                  class="btn"
+                  aria-disabled={calendarSource.length === 0}
+                  aria-describedby="calendar-help"
+                  onClick={exportCalendar}
+                >
+                  {COPY.calendar.button}
+                </button>
+              </p>
+              {/* What the file holds, or why the button is off. */}
+              <p id="calendar-help" class="help">
+                {calendarSource.length
+                  ? COPY.calendar.help
+                  : COPY.calendar.none}
               </p>
               <p class="live" role="status" aria-live="polite">
                 {exportMessage}

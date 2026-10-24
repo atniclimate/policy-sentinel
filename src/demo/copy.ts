@@ -12,6 +12,11 @@ function ordinal(n: number): string {
   return ["th", "st", "nd", "rd"][n % 10] ?? "th";
 }
 
+/** Source text that already names its kind, such as "Docket No. 990101-0001", needs no label. */
+export const namesItsKind = (label: string, id: string) =>
+  // String(): the copy walker in tests/demo/rules.test.ts calls every function with placeholder arguments.
+  String(id).toLowerCase().startsWith(String(label).toLowerCase());
+
 export const COPY = {
   // Frame: header, pane chips, footer strip and the About and Limits dialog.
   appName: "Policy Sentinel",
@@ -38,7 +43,7 @@ export const COPY = {
     "Working demo, in development",
     "Sources incomplete",
     "Not legal advice; follow each citation to its official source",
-    "No tracking and no saved searches",
+    "No tracking; follows stay in this browser",
   ],
   tsdfLink: "Tiered Sovereign Data Framework 0.9.8",
   aboutWhatTitle: "What This Demo Is",
@@ -52,6 +57,7 @@ export const COPY = {
     "This page has no tracking, analytics, or cookies.",
     "Search terms go to the demo service and to the official sources selected. Choosing an NCAI draft also sends its suggested legislation and court searches to GovInfo, and a bill named in its title to Congress.gov, whether or not those sources are selected. Showing issues for a policy, or adding it to My Citations, sends that policy's public identifier to the demo service, which reads the text from the official source and may keep what it read, by identifier, for up to a day. The demo service does not log or save searches. To limit requests, the service and its hosting provider count requests by network address for a short time. Hosting and source providers have their own policies.",
     "Citations, notes, and data actor entries stay in this browser tab unless the person using it exports or prints them.",
+    "A followed list is kept in this browser between visits, until each item is removed. It leaves the browser only in a file the person exports, and as the identifier lookups that Check for new sends, when pressed, to the demo service and the official source.",
   ],
   aboutTsdfTitle: "Tiered Sovereign Data Framework",
   aboutVersionTitle: "Version and Repository",
@@ -288,6 +294,7 @@ export const COPY = {
     "federal-register": "https://www.federalregister.gov/documents/search",
     govinfo: "https://www.govinfo.gov/",
     regulations: "https://www.regulations.gov/",
+    grants: "https://www.grants.gov/search-grants",
   } as Readonly<Record<string, string>>,
   continueOfficial: "Continue on the official site.",
   loadMore: (source: string) => "Load more " + source,
@@ -328,8 +335,16 @@ export const COPY = {
   resultsTitle: "Results",
   resultsCount: (shown: number, total: number | null) =>
     `${shown} ${shown === 1 ? "listing" : "listings"} loaded${total === null ? "" : `; ${total.toLocaleString("en-US")} reported by source`}`,
-  resultsListed: (rows: number) =>
-    `${rows} ${rows === 1 ? "policy" : "policies"} listed.`,
+  /** Grants.gov rows are funding opportunities, not policies, and are counted apart. */
+  resultsListed: (rows: number, opportunities = 0) => {
+    const policies = rows - opportunities;
+    const parts = [
+      policies && `${policies} ${policies === 1 ? "policy" : "policies"}`,
+      opportunities &&
+        `${opportunities} funding ${opportunities === 1 ? "opportunity" : "opportunities"}`,
+    ].filter(Boolean);
+    return `${parts.join(" and ")} listed.`;
+  },
   noResults:
     "Nothing matched. Try fewer words, a different phrase, or another source.",
   emptyStart: "Choose a source and search. Results appear here.",
@@ -388,6 +403,9 @@ export const COPY = {
   /** Row labels for identifiers shown verbatim, and the same kinds mid-sentence. */
   identifierLabels: { docket: "Docket", rin: "RIN", cfr: "CFR part" },
   identifierKinds: { docket: "docket", rin: "RIN", cfr: "CFR part" },
+  /** One identifier line: the source's text alone when it already names its kind, so "Docket No." is never labeled "Docket". */
+  identifierLine: (label: string, id: string) =>
+    namesItsKind(label, id) ? id : `${label}: ${id}`,
   /** The closing date as the source states it; not a deadline the demo computes or applies. */
   commentsClose: (date: string, source: string) =>
     `Comments close ${date}, as stated by ${source}.`,
@@ -397,6 +415,36 @@ export const COPY = {
   /** A source whose comment dates this demo does not read yet; never shown as no comment period. */
   commentsCloseNotRead: (source: string) =>
     `This demo does not show ${source} comment dates yet. See the official source.`,
+  /** Grants.gov's stated closing date; absent when it states none, never "no deadline". */
+  applicationsClose: (date: string, source: string) =>
+    `Applications close ${date}, as stated by ${source}.`,
+  /** A plain link to the reginfo.gov list of Unified Agenda editions holding this RIN. */
+  unifiedAgenda: (rin: string) => `Unified Agenda entries for RIN ${rin}`,
+  grants: {
+    /** Grants.gov eligibility labels for codes 07 and 11, verbatim as its API returns them. */
+    labels: [
+      "Native American tribal governments (Federally recognized)",
+      "Native American tribal organizations (other than Federally recognized tribal governments)",
+    ],
+    filterLabel:
+      "Only Grants.gov opportunities listed for Tribal governments or Tribal organizations",
+    filterHelp:
+      "Applies to Grants.gov only. It asks Grants.gov for opportunities listed under either eligibility category: Native American tribal governments (Federally recognized); Native American tribal organizations (other than Federally recognized tribal governments). Other sources are searched without it.",
+    /** The filter's statement on a row: the search does not say which of the two categories the row has. */
+    listedUnder:
+      "Found with the Grants.gov eligibility filter: listed by Grants.gov under at least one of: Native American tribal governments (Federally recognized); Native American tribal organizations (other than Federally recognized tribal governments). This search does not show which.",
+    filterApplied:
+      "Eligibility filter applied: Tribal governments or Tribal organizations, in Grants.gov's own categories.",
+    submittedFilter:
+      "Grants.gov eligibility filter: Tribal governments or Tribal organizations.",
+    limit:
+      "An eligibility listing is the posting agency's statement of who may apply. It is not a determination for any Nation. Read the opportunity's eligibility section at Grants.gov.",
+    /** Required by the Grants.gov API terms wherever its rows appear. */
+    attribution:
+      "This product uses the Grants.gov API but is not endorsed or certified by the U.S. Department of Health and Human Services.",
+  },
+  grantsDatesSkipped:
+    "Grants.gov was not searched: the demo does not send it a date range. Clear the dates to search it.",
   /** The source's own subject labels, verbatim; `topics` is already joined. */
   sourceTopics: (source: string, topics: string) =>
     `${source} topics: ${topics}`,
@@ -523,6 +571,85 @@ export const COPY = {
   /** `character` names the first refused character, such as "x (U+0078)"; empty when unknown. */
   exportUnsupported: (character: string) =>
     `The PDF fonts cannot display ${character ? `the character ${character}` : "a character"} in this list. Letters used in some Indigenous-language names are among those affected. Use Print view to save the list as a PDF with the browser's fonts, and check the saved pages before sharing them.`,
+  /** The calendar file (src/demo/calendar.ts): official record details only. */
+  calendar: {
+    button: "Export comment dates",
+    help: "Downloads a calendar file (.ics) with one all-day event for each Federal Register document in My Citations or Results that states a comment closing date. The file holds only official record details: no notes, names, or search terms.",
+    none: "No Federal Register document in My Citations or Results states a comment closing date, so there is nothing to export.",
+    done: (count: number) =>
+      `The calendar file was sent to the browser's downloads, with ${count} comment closing ${count === 1 ? "date" : "dates"}.`,
+    summary: (title: string) => `Comments close: ${title}`,
+    /** Opens with the page's own words for the date; the date is the source's. */
+    description: (date: string, source: string, url: string) =>
+      `Comments close ${date}, as stated by ${source}. The date can change through an extension or a correction. Check the official source before relying on it: ${url}`,
+  },
+  /** Following (src/demo/follow.ts): kept in this browser, checked only when asked. */
+  follow: {
+    title: "Following",
+    intro:
+      "Follow a docket, a RIN, or a document to look for newer documents later. The followed list is kept in this browser between visits and is not sent anywhere on its own. Check for new looks up each followed identifier, exactly as its source states it, in that source only, and only when pressed. A followed document is looked up by every identifier its source stated, as Find related does. A shared identifier does not show that one document governs another.",
+    empty: "Nothing followed yet. Use Follow on a result row.",
+    follow: "Follow",
+    following: "Following",
+    followDocument: "Follow document",
+    followingDocument: "Following document",
+    kinds: { docket: "docket", rin: "RIN", document: "document" },
+    from: (source: string, identifier: string) =>
+      `From ${source} record ${identifier}`,
+    followedOn: "Followed",
+    lastChecked: "Last checked",
+    notChecked: "Not checked yet",
+    check: "Check for new",
+    checking: "Checking followed items with their sources.",
+    checkingItem: "Checking.",
+    exportButton: "Export followed list",
+    importButton: "Import followed list",
+    none: "Follow at least one docket, RIN, or document first.",
+    added: (what: string) => `Following ${what}.`,
+    removed: (what: string) => `Stopped following ${what}.`,
+    full: (limit: number) =>
+      `The followed list holds up to ${limit} items. Remove one to follow another.`,
+    newSince: (date: string, count: number) =>
+      `New since ${date}: ${count} ${count === 1 ? "document" : "documents"}.`,
+    nothingNew: (date: string) => `No document listed since ${date}.`,
+    undated: (count: number) =>
+      `${count} ${count === 1 ? "listing states" : "listings state"} no date, so ${count === 1 ? "it is" : "they are"} not counted as new.`,
+    more: "The source holds more listings than this check loaded. See the official source.",
+    unavailable: (reason: string) =>
+      `Unavailable. ${reason} Nothing is established about new documents; Last checked is unchanged.`,
+    waiting: (limit: number) =>
+      `Not checked this time: one check sends at most ${limit} lookups, to stay within the demo service's request limit. Press Check for new again for the rest.`,
+    checked: (checked: number, unavailable: number, waiting: number) =>
+      [
+        `Checked ${checked} followed ${checked === 1 ? "item" : "items"}.`,
+        unavailable ? `${unavailable} could not be checked.` : "",
+        waiting ? `${waiting} wait for the next check.` : "",
+      ]
+        .filter(Boolean)
+        .join(" "),
+    remove: "Stop following",
+    exportDone: "The followed list was sent to the browser's downloads.",
+    importDone: (added: number, already: number, dropped: number) =>
+      [
+        `Imported ${added} followed ${added === 1 ? "item" : "items"}.`,
+        already
+          ? `${already} ${already === 1 ? "was" : "were"} already followed.`
+          : "",
+        dropped ? `${dropped} did not fit: the list holds up to 50 items.` : "",
+      ]
+        .filter(Boolean)
+        .join(" "),
+    importRejected:
+      "The file is not a Policy Sentinel followed list, or part of it could not be checked, so nothing was imported.",
+    storageUnavailable:
+      "Browser storage is unavailable. The followed list works on this page but will not be kept after a reload. Export it to keep a copy.",
+    storageSaveFailed:
+      "The followed list could not be saved in browser storage. Export it to keep a copy.",
+    restorePartial:
+      "Part of the saved followed list could not be restored. Valid items were kept.",
+    restoreFailed:
+      "The saved followed list could not be restored. This page starts with an empty followed list.",
+  },
   aboutPdfTagging: "The exported PDF is not tagged for screen readers.",
   serviceDown:
     "The demo service did not answer. Try again in a moment. If it keeps happening, the service may be down.",

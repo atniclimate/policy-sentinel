@@ -12,6 +12,7 @@ import {
   emptyReport,
   findCitedKey,
   foundByOf,
+  keepStated,
   MAX_ACTOR_TEXT,
   MAX_ALTERNATES,
   MAX_DRAFT_TITLE,
@@ -27,7 +28,7 @@ import { searchPageLimit } from "../../src/demo/search-contract";
 import type { DemoCitation } from "../../src/demo/types";
 import { keyOf } from "../../src/demo/validation";
 import { listing } from "./fixtures";
-import { citation, policy } from "./frontend-fixtures";
+import { citation, policy, statedCitation } from "./frontend-fixtures";
 
 const NO_ALTERNATES: DemoCitation[] = [];
 const KEPT_NOTICE = /Valid citations and notes were kept/;
@@ -854,5 +855,37 @@ describe("how a cited document was found", () => {
     const raw = serializeReport(withFields);
     for (const field of Object.keys(v2)) expect(raw).not.toContain(field);
     expect(raw).toBe(serializeReport(report));
+  });
+
+  it("keeps the row's stated fields when its text is read, so the export can print them", () => {
+    const stated = statedCitation();
+    const key = keyOf(stated);
+    const unread: ReportState = {
+      cited: {
+        [key]: { citation: stated, policy: null, note: "", alternates: [] },
+      },
+      marks: {},
+      actors: emptyActors(),
+    };
+    // The policy answer carries no v2 fields.
+    const attached = attachPolicy(
+      unread,
+      key,
+      policy("a", citation("2099-00010")),
+    );
+    const kept = attached.cited[key].citation;
+    for (const field of [
+      "commentsCloseOn",
+      "docketIds",
+      "rins",
+      "cfrRefs",
+      "topics",
+    ] as const)
+      expect(kept[field]).toEqual(stated[field]);
+    expect(attached.cited[key].policy?.citation).toEqual(kept);
+    // Read fields win where the read states them.
+    expect(
+      keepStated(stated, { ...citation(), topics: ["Read topic"] }).topics,
+    ).toEqual(["Read topic"]);
   });
 });
