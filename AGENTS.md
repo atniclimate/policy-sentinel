@@ -35,7 +35,7 @@ These do not change with process. An owner direction about how to work relaxes n
 ### 2. No legal conclusions
 
 - Never add a field or label that implies a rights, legal-effect, jurisdiction, eligibility, or comprehensive land-interest determination. Preserve source language rather than converting it into a legal conclusion.
-- Category mappings are deterministic, versioned mappings from exact official subject or topic labels, and keep their provenance. Keyword-only or AI classification is forbidden. Unmapped records stay `Unclassified` and searchable.
+- Category mappings are deterministic, versioned mappings from exact official subject or topic labels, and keep their provenance. Keyword-only classification is forbidden. Under D-114 (owner ruling of 2026-10-23 on AI-assisted development), Jev judgments may support classification as reference metadata that keeps its question, model version and probability, labeled as a model judgment and kept apart from the official-label map. Unmapped records stay `Unclassified` and searchable.
 - Record every source-derived field's provenance, retrieval time, source update time when available, and validation state.
 - Before 1980, non-landmark records are normally metadata-and-link entries. Landmark treatment requires the documented criteria in `docs/project-brief.md`.
 
@@ -44,7 +44,8 @@ These do not change with process. An owner direction about how to work relaxes n
 - The public application works fully without AI and makes no browser-side LLM calls.
 - Optional AI summaries may be generated only in a separately approved build-time step. Show them only in details, label them exactly `AI-generated source summary`, cite their inputs, and follow the content restrictions in `docs/data-governance.md`.
 - No secrets, private endpoints, personal data or credentials in client code, source maps, assets, commits, logs, fixtures or documentation. Actions secrets are never safe for a browser.
-- No telemetry, search logging, tracking pixels or automatic data transmission.
+- No telemetry, search logging, tracking pixels or automatic data transmission in anything public.
+- Development may use TypeSafe (Jev) and Parallel on public data, and local development may log searches (D-114). Their keys stay in the developer's environment, their code stays out of `src/`, `demo/` and `worker/`, and public output never depends on them.
 
 ### 4. Land, maps and private context
 
@@ -63,10 +64,10 @@ These do not change with process. An owner direction about how to work relaxes n
 
 ### 6. External actions go through the owner
 
-- Use local Git for local work and the `gh` CLI for every GitHub operation, beginning with `gh auth status`. No native GitHub plugin, browser-only GitHub workflow or alternate integration. The deny list in `.claude/settings.json` stays.
-- Without the owner's explicit authorization for that exact action, never push, merge, open a pull request, deploy, create or change a remote or release, enable Pages, change a secret, register a key or account, accept provider terms, spend money, contact a third party, use private or Nation-specific data, generate optional AI output, send a notification, or publish.
+- Use local Git for local work and the `gh` CLI for every GitHub operation, beginning with `gh auth status`. No native GitHub plugin, browser-only GitHub workflow or alternate integration. Destructive and unrelated external operations stay denied by `.claude/settings.json` and the command hook.
+- An explicit in-session owner command naming the exact action and target authorizes that single action for the current task; no prelaunch variable or repeated approval is required. Without that command, never push, merge, open a pull request, deploy, create or change a remote or release, enable Pages, change a secret, register a key or account, accept provider terms, spend money, contact a third party, use private or Nation-specific data, generate optional AI output, send a notification, or publish. Routine command-hook exceptions only defer to host permissions; they do not grant authorization.
 - Approval for one action does not extend to the next. A passing check is not approval. Approval is not source qualification or implementation acceptance.
-- Demo exception. Under D-083 (owner ruling of 2026-10-06 on the live public demo), D-084 (the same day, on its rule checks and publication path), D-093 (2026-10-10, switching on GovInfo, Congress.gov and Regulations.gov), D-094 (2026-10-10, interface, document and provenance) and D-095 (2026-10-10, demo follow-ups and planning), the live demo page and its Cloudflare Worker (`demo/`, `worker/`, built into `docs/` and served by GitHub Pages from `main`) may be committed, deployed with the owner's approval of each deployment, and may call an exact allowlist of official hosts at run time with the owner's api.data.gov key held as a Worker secret. The page never holds a key. Pushing and merging stay with the owner. This covers the demo only; it opens no engine source, acquisition, publication or private-data gate.
+- Demo exception. Under D-083 (owner ruling of 2026-10-06 on the live public demo), D-084 (the same day, on its rule checks and publication path), D-093 (2026-10-10, switching on GovInfo, Congress.gov and Regulations.gov), D-094 (2026-10-10, interface, document and provenance) and D-095 (2026-10-10, demo follow-ups and planning), the live demo page and its Cloudflare Worker (`demo/`, `worker/`, built into `docs/` and served by GitHub Pages from `main`) may be committed, deployed with the owner's approval of each deployment, and may call an exact allowlist of official hosts at run time with the owner's api.data.gov key held as a Worker secret. The page never holds a key. The current-session driver may push or merge only when the owner explicitly commands that exact action and target in-session. This covers the demo only; it opens no engine source, acquisition, publication or private-data gate.
 
 ### 7. History and the repository
 

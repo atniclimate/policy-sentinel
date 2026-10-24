@@ -256,27 +256,36 @@ test(
   () => {
     const handler = hookConfig.hooks.PreToolUse[0].hooks[0];
     const nestedCwd = path.join(projectRoot, "docs");
-    const result = spawnSync(handler.commandWindows, {
-      cwd: nestedCwd,
-      encoding: "utf8",
-      input: JSON.stringify({
-        hook_event_name: "PreToolUse",
+    for (const denied of [false, true]) {
+      const result = spawnSync(handler.commandWindows, {
         cwd: nestedCwd,
-        tool_name: "exec_command",
-        tool_input: {
-          cmd: "git status --short",
-          workdir: projectRoot,
-        },
-      }),
-      shell: true,
-      timeout: 30_000,
-      windowsHide: true,
-    });
+        encoding: "utf8",
+        input: JSON.stringify({
+          hook_event_name: "PreToolUse",
+          cwd: nestedCwd,
+          tool_name: "exec_command",
+          tool_input: {
+            cmd: `C:\\Progra~1\\PowerShell\\7\\pwsh.exe -NoLogo -NoProfile -EncodedCommand ${Buffer.from(denied ? "curl --version" : "git status --short", "utf16le").toString("base64")}`,
+            workdir: projectRoot,
+          },
+        }),
+        shell: true,
+        timeout: 30_000,
+        windowsHide: true,
+      });
 
-    assert.equal(result.status, 0, result.stderr);
-    assert.equal(result.signal, null);
-    assert.equal(result.stdout, "");
-    assert.equal(result.stderr, "");
+      assert.equal(result.status, 0, result.stderr);
+      assert.equal(result.signal, null);
+      assert.equal(result.stderr, "");
+      if (denied) {
+        const output = JSON.parse(result.stdout).hookSpecificOutput;
+        assert.equal(output.hookEventName, "PreToolUse");
+        assert.equal(output.permissionDecision, "deny");
+        assert.match(output.permissionDecisionReason, /network/iu);
+      } else {
+        assert.equal(result.stdout, "");
+      }
+    }
   },
 );
 
@@ -371,15 +380,61 @@ test("every committed Bash deny form has a finite production-matcher regression"
   // These are command strings sent only to the production matcher, never a shell.
   // Keep the keys explicit so a new or changed committed deny rule fails coverage.
   const matrix = {
-    "Bash(git push *)": ["git push origin main"],
-    "Bash(git push)": ["git push"],
     "Bash(git remote *)": [
       "git remote -v",
       "git remote add origin https://example.invalid/repository.git",
     ],
     "Bash(git tag *)": ["git tag --list", "git tag checkpoint"],
+    "Bash(git push --fo*)": [
+      "git push --force main",
+      "git push --force-i origin main",
+    ],
+    "Bash(git push * --fo*)": [
+      "git push origin --force main",
+      "git push origin --force-with-lease main",
+    ],
+    "Bash(git push -f*)": ["git push -f origin main"],
+    "Bash(git push * -f*)": ["git push origin -f main"],
+    "Bash(git push -d*)": ["git push -d origin feature"],
+    "Bash(git push * -d*)": ["git push origin -d feature"],
+    "Bash(git push --del*)": [
+      "git push --delete feature",
+      "git push --del old-branch",
+    ],
+    "Bash(git push * --del*)": ["git push origin --delete feature"],
+    "Bash(git push --al*)": ["git push --all origin"],
+    "Bash(git push * --al*)": ["git push origin --all"],
+    "Bash(git push --br*)": ["git push --branches origin"],
+    "Bash(git push * --br*)": ["git push origin --branches"],
+    "Bash(git push --mir*)": [
+      "git push --mirror origin",
+      "git push --mir origin",
+    ],
+    "Bash(git push * --mir*)": ["git push origin --mirror"],
+    "Bash(git push --tag*)": ["git push --tags origin"],
+    "Bash(git push * --tag*)": ["git push origin --tags"],
+    "Bash(git push --fol*)": ["git push --follow-tags origin main"],
+    "Bash(git push * --fol*)": ["git push origin --follow-tags main"],
+    "Bash(git push --pru*)": [
+      "git push --prune origin",
+      "git push --pru origin",
+    ],
+    "Bash(git push * --pru*)": ["git push origin --prune"],
+    "Bash(git push --no-veri*)": [
+      "git push --no-verify origin main",
+      "git push --no-veri origin main",
+    ],
+    "Bash(git push * --no-veri*)": ["git push origin --no-verify main"],
+    "Bash(git push *+*)": ["git push origin +main:main"],
+    "Bash(git push * :*)": ["git push origin :feature"],
+    "Bash(git push *refs/tags/*)": ["git push origin refs/tags/v1.0.0"],
+    "Bash(git branch -d *)": ["git branch -d feature"],
+    "Bash(git branch -D *)": ["git branch -D feature"],
+    "Bash(git branch --delete *)": ["git branch --delete feature"],
     "Bash(git rebase *)": ["git rebase --continue"],
-    "Bash(git merge *)": ["git merge --abort"],
+    "Bash(git merge --abort*)": ["git merge --abort"],
+    "Bash(git merge --quit*)": ["git merge --quit"],
+    "Bash(git commit --no-verify*)": ["git commit --no-verify -m update"],
     "Bash(git commit --amend*)": [
       "git commit --amend",
       "git commit --amend --no-edit",
@@ -392,10 +447,24 @@ test("every committed Bash deny form has a finite production-matcher regression"
     ],
     "Bash(git clean *)": ["git clean -ndx"],
     "Bash(git filter-branch *)": ["git filter-branch --all"],
-    "Bash(gh pr *)": ["gh pr list", "gh pr comment 1 --body synthetic"],
-    "Bash(gh release *)": ["gh release list", "gh release create checkpoint"],
     "Bash(gh repo create *)": ["gh repo create synthetic-repository"],
     "Bash(gh repo delete *)": ["gh repo delete example/synthetic-repository"],
+    "Bash(gh pr comment *)": ["gh pr comment 1 --body update"],
+    "Bash(gh pr close *)": ["gh pr close 1"],
+    "Bash(gh pr edit *)": ["gh pr edit 1 --title update"],
+    "Bash(gh pr ready *)": ["gh pr ready 1"],
+    "Bash(gh pr reopen *)": ["gh pr reopen 1"],
+    "Bash(gh pr review *)": ["gh pr review 1 --approve"],
+    "Bash(gh pr lock *)": ["gh pr lock 1"],
+    "Bash(gh pr unlock *)": ["gh pr unlock 1"],
+    "Bash(gh pr update-branch *)": ["gh pr update-branch 1"],
+    "Bash(gh pr merge *--admin*)": ["gh pr merge 1 --admin"],
+    "Bash(gh pr merge *--delete-branch*)": ["gh pr merge 1 --delete-branch"],
+    "Bash(gh release delete *)": ["gh release delete v1.0.0"],
+    "Bash(gh release delete-asset *)": [
+      "gh release delete-asset v1.0.0 asset.zip",
+    ],
+    "Bash(gh release upload *)": ["gh release upload v1.0.0 asset.zip"],
     "Bash(gh secret *)": ["gh secret list"],
     "Bash(gh api -X *)": [
       "gh api -X GET repos/atniclimate/policy-sentinel",
@@ -405,8 +474,6 @@ test("every committed Bash deny form has a finite production-matcher regression"
       "gh api --method GET repos/atniclimate/policy-sentinel",
       "gh api --method PATCH repos/example/synthetic-repository",
     ],
-    "Bash(npm publish *)": ["npm publish --dry-run"],
-    "Bash(npm publish)": ["npm publish"],
     "Bash(curl *)": ["curl --version", "curl https://example.invalid/policy"],
     "Bash(wget *)": ["wget --version", "wget https://example.invalid/policy"],
     "Bash(Invoke-WebRequest *)": [
@@ -424,7 +491,7 @@ test("every committed Bash deny form has a finite production-matcher regression"
       "Remove-Item ./tmp/synthetic-output -Recurse:$true",
     ],
   };
-  assert.equal(committedRules.length, 27);
+  assert.equal(committedRules.length, 65);
   assert.deepEqual(Object.keys(matrix).sort(), [...committedRules].sort());
   const { root } = initializeShellFixture(t);
   const context = { root, workdir: root };
@@ -446,6 +513,15 @@ test("every committed Bash deny form has a finite production-matcher regression"
           true,
           `${rule}: ${command}`,
         );
+        assert.equal(
+          evaluateShellCommand(
+            `C:\\Progra~1\\PowerShell\\7\\pwsh.exe -NoLogo -NoProfile -EncodedCommand ${Buffer.from(command, "utf16le").toString("base64")}`,
+            closedRoadmap,
+            context,
+          ).blocked,
+          true,
+          `encoded ${rule}: ${command}`,
+        );
       }
       const literalControl = `Write-Output '${commands[0]}'`;
       assert.doesNotMatch(literalControl, pattern);
@@ -456,13 +532,57 @@ test("every committed Bash deny form has a finite production-matcher regression"
       );
     });
   }
+  const ordinaryPushWithOptionValues = [
+    "git push origin -ofoo main",
+    "git push origin --push-option=--mir main",
+    "git push --push-option=--del origin main",
+    "git push origin --push-option=--pru main",
+  ];
+  for (const rule of committedRules.filter((candidate) =>
+    candidate.includes("git push"),
+  )) {
+    const pattern = new RegExp(
+      "^" +
+        rule.slice(5, -1).replaceAll("+", "\\+").replaceAll("*", ".*") +
+        "$",
+      "u",
+    );
+    for (const command of ordinaryPushWithOptionValues) {
+      assert.doesNotMatch(command, pattern, rule);
+    }
+  }
   for (const command of [
     "git status --short",
+    "git push origin main",
+    "git merge --no-ff feature",
+    "gh pr create --title change --body text",
+    "gh pr merge 123",
+    "gh release create v1.0.0",
+    "gh release edit v1.0.0 --title release",
+    "gh workflow run release.yml",
+    "gh run rerun 123",
+    "npm publish --access public",
     'git commit -m "record --amend example"',
     'git commit -m "--amend documentation"',
     'git commit --message "--amend documentation"',
     'git commit --message="--amend documentation"',
     'git reset -- "--hard.txt"',
+    "git push --dry-run origin main",
+    "git push -ofoo origin main",
+    "git push -voformat=diff origin main",
+    "git push -o --delete origin main",
+    "git push --push-option=--delete origin main",
+    "git push --push-option --delete origin main",
+    "git push --push-option=refs/tags/deploy-note origin main",
+    "git push --push-option refs/tags/deploy-note origin main",
+    "git push -orefs/tags/deploy-note origin main",
+    "git push -o refs/tags/deploy-note origin main",
+    "git push --push-o --force origin main",
+    "git push --repo --mirror origin main",
+    "git push --exec --mirror origin main",
+    "git push --receive-pack --mirror origin main",
+    "git push --recurse-submodules --mirror origin main",
+    "git push --server-option --mirror origin main",
     'git log --grep="--hard"',
     "gh api repos/atniclimate/policy-sentinel",
     "npm run check",
@@ -477,7 +597,40 @@ test("every committed Bash deny form has a finite production-matcher regression"
   }
 });
 
-test("PreToolUse blocks exact closed gates without becoming a shell allowlist", (t) => {
+test("direct Python writes preserve owner inputs while reads remain available", (t) => {
+  const { root } = initializeShellFixture(t);
+  const context = { root, workdir: root };
+  for (const operation of [
+    "open('docs/00-READ-FIRST.md', 'w').write('x')",
+    "open('docs/00-READ-FIRST.md', mode='a').write('x')",
+    "open('docs/00-READ-FIRST.md', 'r+').write('x')",
+    "open('docs/00-READ-FIRST.md', 'xb').write(b'x')",
+    "Path('docs/00-READ-FIRST.md').write_text('x')",
+    "Path('docs/00-READ-FIRST.md').write_bytes(b'x')",
+  ]) {
+    assert.equal(
+      evaluateShellCommand(`python -c "${operation}"`, closedRoadmap, context)
+        .blocked,
+      true,
+      operation,
+    );
+  }
+  for (const operation of [
+    "open('docs/00-READ-FIRST.md', 'r').read()",
+    "open('docs/00-READ-FIRST.md').read()",
+    "Path('docs/00-READ-FIRST.md').read_text()",
+    "open('scratch.txt', 'w').write('x')",
+  ]) {
+    assert.equal(
+      evaluateShellCommand(`python -c "${operation}"`, closedRoadmap, context)
+        .blocked,
+      false,
+      operation,
+    );
+  }
+});
+
+test("PreToolUse defers routine release actions and keeps other closed gates", (t) => {
   const { root: projectRoot } = initializeShellFixture(t);
   const shellContext = { root: projectRoot, workdir: projectRoot };
   const shellSyntaxCorpus = [
@@ -686,20 +839,32 @@ test("PreToolUse blocks exact closed gates without becoming a shell allowlist", 
   }
 
   const requiredBlockedCommands = [
-    "git push origin main",
-    "GIT_OPTIONAL_LOCKS= git push origin main",
-    "GIT_CONFIG_COUNT='1 2' git push origin main",
-    "g`it push origin main",
-    '& "C:\\Program Files\\Git\\cmd\\git.exe" push origin main',
-    "cmd.exe /d /c git push origin main",
-    "pwsh -NoProfile -Command git push origin main",
-    "wsl git push origin main",
-    "wsl -- git push origin main",
-    "wsl.exe git push origin main",
-    "wsl --distribution=Ubuntu -- git push origin main",
-    'bash -c "git push origin main"',
-    'sh -c "git push origin main"',
     "git send-pack origin main",
+    "git push --force origin main",
+    "git push --force-with-lease origin main",
+    "git push -f origin main",
+    "git push --delete origin stale-branch",
+    "git push origin +main:main",
+    "git push origin :stale-branch",
+    "git push --follow-tags origin main",
+    "git push origin refs/tags/v1.0.0",
+    "git push --mir origin",
+    "git push --del origin old-branch",
+    "git push --pru origin",
+    "git push --all origin",
+    "git push --br origin",
+    "git push --tag origin",
+    "git push --no-veri origin main",
+    "git push -qf origin main",
+    "git push -df origin main",
+    "git push -qd origin stale-branch",
+    "git branch -d stale-branch",
+    "git branch -D stale-branch",
+    "git branch --delete stale-branch",
+    "git merge --abort",
+    "git merge --quit",
+    "git commit --no-verify -m message",
+    "git tag -d v0.9.0",
     "git reset --hard HEAD~1",
     "git clean -fdx",
     "git commit --amend",
@@ -712,6 +877,9 @@ test("PreToolUse blocks exact closed gates without becoming a shell allowlist", 
     "gh repo deploy-key add key.pub",
     "gh repo set-default other/repo",
     "gh pr comment 1 --body changed",
+    "gh pr merge 123 --delete-branch",
+    "gh pr merge 123 --admin",
+    "gh release delete v1.0.0",
     "gh issue comment 1 --body changed",
     "gh gist create ROADMAP.yaml",
     "gh ssh-key add key.pub",
@@ -721,10 +889,8 @@ test("PreToolUse blocks exact closed gates without becoming a shell allowlist", 
     "gh api repos/example/example -XPOST",
     "gh secret list",
     "gh auth token",
-    "npm publish",
-    "npm exec -- npm publish",
-    "npx npm publish",
-    "wsl npm publish",
+    "npm deprecate example-package",
+    "npm unpublish example-package@1.0.0",
     "npm token list",
     "npm login",
     "npm adduser",
@@ -864,6 +1030,88 @@ test("PreToolUse blocks exact closed gates without becoming a shell allowlist", 
       `missing boundary must fail closed: ${command}`,
     );
   }
+});
+
+test("encoded PowerShell enforces policy through literal wrappers and fails closed", (t) => {
+  const { root } = initializeShellFixture(t);
+  const context = { root, workdir: root };
+  const encode = (value) => Buffer.from(value, "utf16le").toString("base64");
+  const encoded = (value) => `pwsh -NoProfile -EncodedCommand ${encode(value)}`;
+  const deniedBodies = [
+    "Remove-Item ./tmp/synthetic-output -Recurse",
+    "Get-Content -LiteralPath .env",
+    "Set-Content -LiteralPath docs/vision/k0-lifecycle-contract.md changed",
+    "git add -- ROADMAP.yaml",
+    "Get-Location; curl --version",
+    encoded("curl --version"),
+  ];
+  const wrappers = [
+    (payload) => `pwsh -e ${payload}`,
+    (payload) => `powershell.exe -EC '${payload}'`,
+    (payload) =>
+      `"C:\\Program Files\\PowerShell\\7\\pwsh.exe" -enc "${payload}"`,
+    (payload) =>
+      `& 'C:\\Program Files\\PowerShell\\7\\pwsh.exe' -EncodedCommand ${payload}`,
+    (payload) => `cmd.exe /d /s /c "pwsh -EncodedCommand ${payload}"`,
+    (payload) => `pwsh -Command "pwsh -EncodedCommand ${payload}"`,
+  ];
+  for (const body of deniedBodies) {
+    for (const wrap of wrappers) {
+      assert.equal(
+        evaluateShellCommand(wrap(encode(body)), closedRoadmap, context)
+          .blocked,
+        true,
+        wrap(body),
+      );
+    }
+  }
+  for (const body of [
+    "Get-Location",
+    'Write-Output "Unicode: café 🌧"',
+    "git status --short",
+    "Get-Content -LiteralPath generated-data/real-source-prerelease/PF-01.receipt.json",
+    "Write-Output 'pwsh -EncodedCommand invalid'",
+    encoded("Get-Location"),
+  ]) {
+    for (const wrap of wrappers) {
+      assert.equal(
+        evaluateShellCommand(wrap(encode(body)), closedRoadmap, context)
+          .blocked,
+        false,
+        wrap(body),
+      );
+    }
+  }
+  let tooDeep = "Get-Location";
+  for (let depth = 0; depth < 7; depth += 1) {
+    tooDeep = encoded(tooDeep);
+  }
+  for (const command of [
+    "pwsh -EncodedCommand",
+    "pwsh -EncodedCommand $payload",
+    "pwsh -EncodedCommand !!!!",
+    "pwsh -EncodedCommand YQ==",
+    `pwsh -EncodedCommand ${encode("\uD800")}`,
+    encoded("\0"),
+    encoded(" ".repeat(65_537)),
+    `${encoded("Get-Location")} extra`,
+    `Set-Alias p pwsh; p -EncodedCommand ${encode("curl --version")}`,
+    `New-Alias p pwsh; p -enc ${encode("curl --version")}`,
+    `$p='pwsh'; & $p -ec ${encode("curl --version")}`,
+    tooDeep,
+  ]) {
+    const result = evaluateShellCommand(command, closedRoadmap, context);
+    assert.equal(result.blocked, true);
+    assert.match(result.reason, /cannot be inspected/u);
+  }
+  assert.equal(
+    evaluateShellCommand(
+      "Write-Output 'pwsh -EncodedCommand invalid'",
+      closedRoadmap,
+      context,
+    ).blocked,
+    false,
+  );
 });
 
 test("shell workdirs protect sensitive custody without blocking external reads", (t) => {
@@ -1855,12 +2103,9 @@ test("the command hook emits valid deny JSON and stays silent when allowing", (t
       windowsHide: true,
     });
 
-  const denied = invoke("git push origin main");
-  assert.equal(denied.status, 0, denied.stderr);
-  assert.equal(
-    JSON.parse(denied.stdout).hookSpecificOutput.permissionDecision,
-    "deny",
-  );
+  const routineReleaseAction = invoke("git push origin main");
+  assert.equal(routineReleaseAction.status, 0, routineReleaseAction.stderr);
+  assert.equal(routineReleaseAction.stdout, "");
 
   const allowed = invoke("git status --short");
   assert.equal(allowed.status, 0, allowed.stderr);
@@ -1912,7 +2157,6 @@ test("the command hook emits valid deny JSON and stays silent when allowing", (t
     `[Environment]::GetEnvironmentVariable('OPENAI_API_KEY')`,
     "Remove-Item generated-data/real-source-prerelease/PF-01.receipt.json",
     "gh repo create example",
-    "npm publish",
   ]) {
     const result = invoke(command, "exec_command");
     assert.equal(result.status, 0, result.stderr);
@@ -1944,6 +2188,13 @@ test("the command hook emits valid deny JSON and stays silent when allowing", (t
   const nestedNpmAllowed = invoke("npm test", "exec_command", nestedPackage);
   assert.equal(nestedNpmAllowed.status, 0, nestedNpmAllowed.stderr);
   assert.equal(nestedNpmAllowed.stdout, "");
+
+  const packagePublishAllowed = invoke(
+    "npm publish --access public",
+    "exec_command",
+  );
+  assert.equal(packagePublishAllowed.status, 0, packagePublishAllowed.stderr);
+  assert.equal(packagePublishAllowed.stdout, "");
 
   const ordinaryToolingAllowed = invoke(
     "node --version; wsl --status",

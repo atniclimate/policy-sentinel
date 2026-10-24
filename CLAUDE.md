@@ -14,11 +14,15 @@ read and no validators before an edit. If the checkout does not match
 
 ## Working notes
 
-- The deny list in `.claude/settings.json` stays (push, remote, tag, rebase,
-  merge, amend, hard reset, `gh pr`, `gh release`, `gh secret`, `curl`, `wget`,
-  `rm -rf`, edits to sibling and corpus repositories, reads of the sealed
-  `pilot` directory). When a command is denied, switch tools or ask the owner.
-  Do not rephrase the same trick or edit the list.
+- The deny list in `.claude/settings.json` stays for remote changes, tag,
+  rebase, amend, hard reset, unrelated `gh pr`/`gh release` mutations,
+  credentials, `curl`, `wget`, `rm -rf`, edits to sibling and corpus
+  repositories, and reads of the sealed `pilot` directory. Routine commit,
+  merge, push, pull-request merge, release create/edit, workflow run/rerun, and
+  package publish commands defer to host permissions; the exact in-session owner
+  command supplies scope, not this list. When a command is denied, inspect the
+  denial and follow the applicable host policy; never bypass it with another
+  tool or rephrase the command. Do not edit the list to work around a denial.
 - The main session is the only writer to the Git index. Subagents and workflows
   edit files on disjoint paths; the main session stages by explicit path and
   commits.

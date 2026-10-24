@@ -411,6 +411,10 @@ export const collectFrozenPaths = (roadmap) => {
 const hasWriteIntent = (command) =>
   /\b(?:add-content|appendfile(?:sync)?|clear-content|copyfile(?:sync)?|copy-item|mkdir(?:sync)?|move-item|new-item|new-object|out-file|remove-item|rename-item|rename(?:sync)?|robocopy|rm(?:sync)?|set-content|set-item|truncate(?:sync)?|unlink(?:sync)?|writefile(?:sync)?|xcopy)\b|(?:^|[\s;|&])(?:ac|clc|copy|cp|cpi|del|erase|install|ln|mi|move|mv|ni|rd|ren|rename|ri|rm|rmdir|rni|sc|si|tee|touch|truncate|unlink)\b|\[(?:system\.)?io\.(?:directory|file)\]::(?:append|copy|create|delete|move|open|replace|set|write)\w*|\b(?:directory|file)\.(?:append|copy|create|delete|move|open|replace|set|write)\w*|\bfind\b[^\r\n]*(?:-delete|-exec|-ok)\b|\bsed\b[^\r\n]*\s-i(?:\s|$)|\bdd\b|>>?/iu.test(
     command,
+  ) ||
+  // shortcut: computed Python write modes are not parsed; extend on a concrete missed command.
+  /\bopen\s*\([^,\r\n]+,\s*(?:mode\s*=\s*)?["'][^"'\r\n]*[wax+][^"'\r\n]*["']|\.(?:write_text|write_bytes)\s*\(/iu.test(
+    command,
   );
 
 const sensitiveShellPathPattern = new RegExp(
@@ -594,6 +598,88 @@ const hasGitFlagPrefix = (args, prefix, { commit = false } = {}) => {
     }
   }
   return false;
+};
+
+const unsafeGitPushLongOptions = [
+  "--all",
+  "--branches",
+  "--delete",
+  "--mirror",
+  "--no-verify",
+  "--prune",
+  "--tags",
+  "--follow-tags",
+  "--force",
+  "--force-with-lease",
+  "--force-if-includes",
+];
+const gitPushLongOptionsWithValues = [
+  "--exec",
+  "--push-option",
+  "--receive-pack",
+  "--recurse-submodules",
+  "--repo",
+  "--server-option",
+];
+
+const unsafeGitPush = (args) => {
+  let optionsEnded = false;
+  let skipNextArgument = false;
+  return [...args.matchAll(/(?:[^\s"']+|"[^"\r\n]*"|'[^'\r\n]*')+/gu)]
+    .map(([rawToken]) => stripMatchingShellQuotes(rawToken))
+    .some((token) => {
+      if (skipNextArgument) {
+        skipNextArgument = false;
+        return false;
+      }
+      if (token === "--") {
+        optionsEnded = true;
+        return false;
+      }
+
+      const optionName = token.split("=", 1)[0].toLowerCase();
+      const dangerousOption =
+        !optionsEnded &&
+        optionName.startsWith("--") &&
+        optionName.length >= 3 &&
+        unsafeGitPushLongOptions.some((option) =>
+          option.startsWith(optionName),
+        );
+      if (!optionsEnded && optionName.startsWith("--") && !dangerousOption) {
+        if (
+          gitPushLongOptionsWithValues.some((option) =>
+            option.startsWith(optionName),
+          )
+        ) {
+          skipNextArgument = !token.includes("=");
+          return false;
+        }
+      }
+
+      const shortOptions =
+        !optionsEnded && /^-[^-]/u.test(token) ? token.slice(1) : "";
+      let dangerousShortOption = false;
+      for (const [offset, shortOption] of [...shortOptions].entries()) {
+        if (shortOption === "d" || shortOption === "f") {
+          dangerousShortOption = true;
+          break;
+        }
+        if (shortOption === "o") {
+          if (offset === shortOptions.length - 1) {
+            skipNextArgument = true;
+          }
+          return false;
+        }
+      }
+
+      return (
+        dangerousOption ||
+        token.startsWith("+") ||
+        token.startsWith(":") ||
+        token.toLowerCase().includes("refs/tags/") ||
+        dangerousShortOption
+      );
+    });
 };
 
 const approvedEvidenceDirectory =
@@ -1106,10 +1192,11 @@ const explicitGitAddIsAllowed = (command, root) => {
   });
 };
 
-export const evaluateShellCommand = (
+const evaluatePlainShellCommand = (
   command,
   roadmap,
   { root = "", workdir = root } = {},
+  encoded = false,
 ) => {
   const text = String(command ?? "");
   const policyText = text.replace(/([a-z])(?:`|\^)(?=[a-z])/giu, "$1");
@@ -1132,7 +1219,8 @@ export const evaluateShellCommand = (
   );
   if (
     gitAddInvocations.length > 0 &&
-    (invocations.length !== 1 ||
+    (encoded ||
+      invocations.length !== 1 ||
       gitAddInvocations.length !== 1 ||
       gitAddInvocations[0].invocation !== invocations[0] ||
       workdirContext.repositoryPath !== "" ||
@@ -1146,14 +1234,16 @@ export const evaluateShellCommand = (
   }
 
   if (
-    gitOperations.some(({ operation }) =>
-      ["push", "send-pack"].includes(operation.command),
+    gitOperations.some(
+      ({ operation }) =>
+        operation.command === "send-pack" ||
+        (operation.command === "push" && unsafeGitPush(operation.args)),
     )
   ) {
     return {
       blocked: true,
       reason:
-        "Direct Git push or send-pack is forbidden; Policy Sentinel requires an exact owner-approved remote operation.",
+        "Direct send-pack and force, delete, broad, or hook-bypassing push are blocked by repository policy.",
     };
   }
   if (
@@ -1161,9 +1251,16 @@ export const evaluateShellCommand = (
       const { args, command: gitCommand } = operation;
       return (
         (gitCommand === "reset" && hasGitFlagPrefix(args, "--hard")) ||
-        ["rebase", "tag", "merge", "clean"].includes(gitCommand) ||
+        ["rebase", "tag", "clean"].includes(gitCommand) ||
+        (gitCommand === "merge" &&
+          (hasGitFlagPrefix(args, "--abort") ||
+            hasGitFlagPrefix(args, "--quit"))) ||
+        (gitCommand === "branch" &&
+          (hasGitFlagPrefix(args, "--delete") ||
+            hasGitFlagPrefix(args, "-d"))) ||
         (gitCommand === "commit" &&
-          hasGitFlagPrefix(args, "--amend", { commit: true })) ||
+          (hasGitFlagPrefix(args, "--amend", { commit: true }) ||
+            hasGitFlagPrefix(args, "--no-verify", { commit: true }))) ||
         ["filter-branch", "filter-repo"].includes(gitCommand) ||
         gitCommand === "apply"
       );
@@ -1173,6 +1270,22 @@ export const evaluateShellCommand = (
       blocked: true,
       reason:
         "High-risk destructive or history-rewriting Git operation blocked by repository policy.",
+    };
+  }
+
+  if (
+    matchesShellInvocation(
+      expandedCommand,
+      invocationPattern(
+        ghPrefix,
+        String.raw`pr\s+merge\b[^\r\n]*--(?:admin|delete-branch)\b`,
+      ),
+    )
+  ) {
+    return {
+      blocked: true,
+      reason:
+        "Pull-request merge with branch deletion or administrator bypass is blocked by repository policy.",
     };
   }
 
@@ -1285,12 +1398,18 @@ export const evaluateShellCommand = (
         ghPrefix,
         String.raw`repo\s+(?:autolink|deploy-key)\s+(?:add|create|delete|remove|set)\b`,
       ),
-      invocationPattern(ghPrefix, String.raw`pr\b`),
+      invocationPattern(
+        ghPrefix,
+        String.raw`pr\b(?!\s+(?:create|merge)(?:\s|$))`,
+      ),
       invocationPattern(
         ghPrefix,
         String.raw`issue\s+(?:close|comment|create|delete|develop|edit|lock|pin|reopen|transfer|unlock|unpin)\b`,
       ),
-      invocationPattern(ghPrefix, String.raw`release\b`),
+      invocationPattern(
+        ghPrefix,
+        String.raw`release\b(?!\s+(?:create|edit)(?:\s|$))`,
+      ),
       invocationPattern(ghPrefix, String.raw`gist\s+(?:create|delete|edit)\b`),
       invocationPattern(
         ghPrefix,
@@ -1301,11 +1420,8 @@ export const evaluateShellCommand = (
         ghPrefix,
         String.raw`extension\s+(?:install|remove|upgrade)\b`,
       ),
-      invocationPattern(
-        ghPrefix,
-        String.raw`workflow\s+(?:disable|enable|run)\b`,
-      ),
-      invocationPattern(ghPrefix, String.raw`run\s+(?:cancel|delete|rerun)\b`),
+      invocationPattern(ghPrefix, String.raw`workflow\s+(?:disable|enable)\b`),
+      invocationPattern(ghPrefix, String.raw`run\s+(?:cancel|delete)\b`),
       invocationPattern(
         ghPrefix,
         String.raw`(?:secret\b|variable\s+(?:delete|remove|set)\b)`,
@@ -1314,10 +1430,7 @@ export const evaluateShellCommand = (
         ghPrefix,
         String.raw`api\b[^\r\n]*(?:(?:^|\s)(?:-X(?:=|\s*)|--method(?:=|\s+))|(?:^|\s)(?:-f|-F|--field|--raw-field|--input)(?:\s|=))`,
       ),
-      invocationPattern(
-        npmPrefix,
-        String.raw`(?:publish|deprecate|unpublish)\b`,
-      ),
+      invocationPattern(npmPrefix, String.raw`(?:deprecate|unpublish)\b`),
       invocationPattern(
         npmPrefix,
         String.raw`(?:access\s+(?:grant|revoke|set)|dist-tag\s+(?:add|rm)|owner\s+(?:add|rm)|profile\s+set)\b`,
@@ -1427,6 +1540,77 @@ export const evaluateShellCommand = (
     };
   }
 
+  return { blocked: false };
+};
+
+export const evaluateShellCommand = (command, roadmap, context = {}) => {
+  const pending = [{ command: String(command ?? ""), depth: 0 }];
+  const uninspectable = {
+    blocked: true,
+    reason:
+      "Encoded PowerShell command cannot be inspected: use a literal UTF-16LE Base64 payload within the size and nesting limits.",
+  };
+  let decodedLength = 0;
+  for (let index = 0; index < pending.length; index += 1) {
+    const current = pending[index];
+    const evaluation = evaluatePlainShellCommand(
+      current.command,
+      roadmap,
+      context,
+      current.depth > 0,
+    );
+    if (evaluation.blocked) {
+      return evaluation;
+    }
+    const invocations = expandShellInvocations(
+      current.command.replace(/([a-z])(?:`|\^)(?=[a-z])/giu, "$1"),
+    ).flatMap(splitShellInvocations);
+    for (const invocation of new Set(invocations)) {
+      const tokens = (invocation.match(/"[^"]*"|'[^']*'|\S+/gu) ?? []).map(
+        stripMatchingShellQuotes,
+      );
+      const powershell = /(?:^|[\\/])(?:pwsh|powershell)(?:\.exe)?$/iu.test(
+        tokens[0] ?? "",
+      );
+      const optionIndex = tokens.findIndex(
+        (token) =>
+          /^[-/]/u.test(token) &&
+          (powershell || token.length > 2) &&
+          (token.slice(1).toLowerCase() === "ec" ||
+            (token.length > 1 &&
+              "encodedcommand".startsWith(token.slice(1).toLowerCase()))),
+      );
+      if (optionIndex < 0) {
+        continue;
+      }
+      if (!powershell) {
+        return uninspectable;
+      }
+      const payload = tokens[optionIndex + 1] ?? "";
+      if (
+        current.depth >= 6 ||
+        payload.length > 174_764 ||
+        !payload ||
+        tokens.length !== optionIndex + 2
+      ) {
+        return uninspectable;
+      }
+      const bytes = Buffer.from(payload, "base64");
+      const decoded = bytes.toString("utf16le");
+      decodedLength += decoded.length;
+      // Bound inspection and reject dynamic or ambiguous payloads instead of skipping them.
+      if (
+        decodedLength > 65_536 ||
+        bytes.length % 2 !== 0 ||
+        bytes.toString("base64") !== payload ||
+        !decoded.isWellFormed() ||
+        decoded.includes("\0")
+      ) {
+        return uninspectable;
+      }
+      pending.push({ command: decoded, depth: current.depth + 1 });
+    }
+  }
   return { blocked: false };
 };
 
@@ -2056,14 +2240,6 @@ export const observerExecutionEvidenceIsValid = ({
   trustInputsMatchHead &&
   observerRoadmapAuthority(roadmap) &&
   custodyValid;
-
-export const observerExecutionCheckpointIsValid = (root, roadmap) =>
-  observerExecutionEvidenceIsValid({
-    roadmap,
-    roadmapValid: validateRoadmap(root).ok,
-    trustInputsMatchHead: observerTrustInputsMatchHead(root),
-    custodyValid: observerExecutionCustodyIsValid(root),
-  });
 
 export const evaluatePatchPaths = (
   paths,
