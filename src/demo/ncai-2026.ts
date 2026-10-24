@@ -279,14 +279,6 @@ function govinfoSearch<G extends NcaiSearchGroup>(
   };
 }
 
-/**
- * GovInfo court collections, searched with GovInfo's own field syntax:
- * USCOURTS holds selected federal court opinions from about 2004, including
- * opinions in cases still open; USREPORTS holds Supreme Court opinions in the
- * United States Reports through volume 586 (2018).
- */
-export const COURT_COLLECTIONS = ["USCOURTS", "USREPORTS"] as const;
-
 export function caseWords(draft: NcaiDraft): readonly string[] {
   return draft.cases ?? draft.topics?.slice(0, 1) ?? [];
 }
@@ -347,15 +339,6 @@ export function ncaiSearches(draft: NcaiDraft): readonly NcaiSearch[] {
       query: `"${name}" ${topic}`.trim(),
     })),
   ];
-}
-
-/** The search run when a draft is chosen: its first topic, else its first named bill. */
-export function draftSearch(draft: NcaiDraft): NcaiSearch | undefined {
-  const searches = ncaiSearches(draft);
-  return (
-    searches.find((search) => search.group === "policy") ??
-    searches.find((search) => search.group === "bill")
-  );
 }
 
 /** A suggested search, and whether it runs when its draft is chosen. */

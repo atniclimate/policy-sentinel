@@ -1,5 +1,6 @@
 import sourceRegistry from "../../../config/sources.v1.json";
 
+import { canonicalJson } from "../../core/canonical-json.mjs";
 import type {
   AdapterContractHealth,
   BuildContext,
@@ -46,25 +47,8 @@ interface ActiveInventory {
   normalized: boolean;
 }
 
-function compareCodeUnits(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
-}
-
 function stableJson(value: unknown): string {
-  const result = JSON.stringify(value, (_key, nested) => {
-    if (
-      nested === null ||
-      typeof nested !== "object" ||
-      Array.isArray(nested)
-    ) {
-      return nested;
-    }
-    return Object.fromEntries(
-      Object.entries(nested as Record<string, unknown>).sort(
-        ([left], [right]) => compareCodeUnits(left, right),
-      ),
-    );
-  });
+  const result = canonicalJson(value);
   if (result === undefined) {
     throw new Error(
       "GOIA Centennial Accord adapter state is not JSON-serializable.",

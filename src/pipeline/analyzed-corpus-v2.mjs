@@ -7,6 +7,10 @@ import {
   parseJurisdictionAssociation,
   US_STATE_CODES,
 } from "../core/jurisdiction-reference.mjs";
+import {
+  canonicalJson as canonical,
+  deepFreeze as freeze,
+} from "../core/canonical-json.mjs";
 
 export const ANALYZED_CORPUS_V2_SCHEMA_ID =
   "https://policy-sentinel.invalid/schemas/analyzed-corpus.schema.v2.json";
@@ -160,14 +164,6 @@ function snapshot(
   ancestors.delete(value);
   return result;
 }
-function canonical(value) {
-  if (value === null || typeof value !== "object") return JSON.stringify(value);
-  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
-  return `{${Object.keys(value)
-    .sort()
-    .map((key) => `${JSON.stringify(key)}:${canonical(value[key])}`)
-    .join(",")}}`;
-}
 function hash(value) {
   return createHash("sha256").update(value).digest("hex");
 }
@@ -187,13 +183,6 @@ function verifySeal(value) {
     "CONTENT_DIGEST_REQUIRED",
   );
   seal(value);
-}
-function freeze(value) {
-  if (value && typeof value === "object") {
-    Object.values(value).forEach(freeze);
-    Object.freeze(value);
-  }
-  return value;
 }
 // Only complete, module-validated and recursively frozen corpus snapshots enter
 // this set. Caller-frozen objects and equal digests do not establish trust.

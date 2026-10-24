@@ -25,6 +25,20 @@ Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
 
+## Following and Grants.gov, release 0.10.0, 2026-10-23 (D-114, D-115)
+
+A docket, RIN or document can be followed; the list stays in the browser,
+exports and imports as a file, and "Check for new" runs only on request (at
+most 10 lookups). Comment closing dates export as a calendar file. Grants.gov
+forecasted and posted opportunities are searchable, with an optional filter on
+its exact Tribal government and Tribal organization labels and the HHS
+attribution; a forecast's estimated date is not shown as a closing date. Rows
+with a RIN link to the Unified Agenda. Passage rules are `demo-rules-1.1.0`.
+The Worker was deployed as `2465b6f7` from `adad603`; the 0.9.0 page could not
+read its 8-source list, so the page was published straight after. Published
+through PR 18 (`68a826c`, 2026-10-24 02:24 UTC); all 17 runtime files matched
+on readback and the live verifier passed 83 of 83.
+
 ## Release B, release 0.9.0, 2026-10-20 (D-112, D-113)
 
 The Worker speaks search contract v2 (deployed as `f6e2b85a`, source

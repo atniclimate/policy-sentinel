@@ -242,7 +242,7 @@ export function toCompactIndexRecord(record) {
   };
 }
 
-function sourceIdsForPath(relativePath, documents) {
+export function sourceIdsForPath(relativePath, documents) {
   if (relativePath.startsWith("details/")) {
     return [documents.get(relativePath).record.source.id];
   }
@@ -278,7 +278,7 @@ function maxDataAsOf(records, generatedAt) {
     .at(-1);
 }
 
-function recordCoverageDate(record) {
+export function recordCoverageDate(record) {
   const value =
     record.judicialContext?.decisionDate ??
     record.accordContext?.executionEvent.date ??
@@ -338,7 +338,7 @@ function assertSelectedCoverage(source, selected, sourceRecords) {
   }
 }
 
-function coverageLimitation(source, selectedCoverage = null) {
+export function coverageLimitation(source, selectedCoverage = null) {
   if (
     selectedCoverage === null ||
     selectedCoverage.notes === source.coverage.limitations

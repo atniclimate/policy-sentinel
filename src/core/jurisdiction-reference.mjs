@@ -180,6 +180,11 @@ export function hasStateJurisdictionEvidence(ref, sourceText) {
       new RegExp("\\b" + longer + "\\b", "giu"),
       " ",
     );
+  // A county named after a state ("Washington County, Oregon") does not name that state.
+  statement = statement.replace(
+    new RegExp("\\b" + name + "\\s+County\\b", "giu"),
+    " ",
+  );
   if (ref === "us-state:WA")
     statement = statement.replace(
       /\bWashington(?:,\s*|\s+)(?:D\.?\s*C\.?|District of Columbia)(?=\W|$)/giu,

@@ -4,6 +4,7 @@ import {
   FEDERAL_REGISTER_PATHS,
   FEDERAL_REGISTER_QUERY_POLICY,
 } from "./constants";
+import { createJsonGuards } from "../../contracts/json-guards";
 
 export type FederalRegisterDocumentType =
   | "Rule"
@@ -171,49 +172,13 @@ function fail(
   throw new FederalRegisterContractError(code, path, message);
 }
 
-function object(value: unknown, path: string): JsonObject {
-  if (
-    value === null ||
-    typeof value !== "object" ||
-    Array.isArray(value) ||
-    ![Object.prototype, null].includes(Object.getPrototypeOf(value))
-  ) {
-    fail("invalid_type", path, "expected a plain object");
-  }
-  return value as JsonObject;
-}
-
-function exactKeys(
-  value: JsonObject,
-  path: string,
-  required: readonly string[],
-  optional: readonly string[] = [],
-): void {
-  const allowed = new Set([...required, ...optional]);
-  for (const key of Object.keys(value)) {
-    if (!allowed.has(key)) {
-      fail("unexpected_field", `${path}.${key}`, "field is not retained");
-    }
-  }
-  for (const key of required) {
-    if (!Object.hasOwn(value, key)) {
-      fail("missing_field", `${path}.${key}`, "required field is missing");
-    }
-  }
-}
-
-function string(value: unknown, path: string, maximumLength = 16_384): string {
-  if (typeof value !== "string") {
-    fail("invalid_type", path, "expected a string");
-  }
-  if (value.length === 0 || value.trim().length === 0) {
-    fail("invalid_value", path, "expected a nonblank string");
-  }
-  if (value.length > maximumLength) {
-    fail("limit_exceeded", path, "string exceeds the contract limit");
-  }
-  return value;
-}
+const {
+  object,
+  exactKeys,
+  boundedString: string,
+  boundedInteger: integer,
+  list: parseArray,
+} = createJsonGuards(fail);
 
 function nullableString(
   value: unknown,
@@ -221,23 +186,6 @@ function nullableString(
   maximumLength = 16_384,
 ): string | null {
   return value === null ? null : string(value, path, maximumLength);
-}
-
-function integer(
-  value: unknown,
-  path: string,
-  minimum: number,
-  maximum: number,
-): number {
-  if (
-    typeof value !== "number" ||
-    !Number.isSafeInteger(value) ||
-    value < minimum ||
-    value > maximum
-  ) {
-    fail("invalid_value", path, "expected a bounded safe integer");
-  }
-  return value;
 }
 
 function date(value: unknown, path: string): string {
@@ -572,21 +520,6 @@ function parseRelatedDocuments(
     result[docketLabel] = documents;
   }
   return result;
-}
-
-function parseArray<T>(
-  value: unknown,
-  path: string,
-  maximumItems: number,
-  parser: (item: unknown, itemPath: string) => T,
-): T[] {
-  if (!Array.isArray(value)) {
-    fail("invalid_type", path, "expected an array");
-  }
-  if (value.length > maximumItems) {
-    fail("limit_exceeded", path, "array exceeds the contract limit");
-  }
-  return value.map((item, index) => parser(item, `${path}[${index}]`));
 }
 
 function parseCorrectionUrl(

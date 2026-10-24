@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 
+import { canonicalJson } from "../../core/canonical-json.mjs";
 import {
   WASHINGTON_LWS_CONTRACT_VERSION,
   WASHINGTON_LWS_SOURCE_ID,
@@ -175,25 +176,8 @@ export interface WashingtonLwsSyntheticBillBundle {
   }>;
 }
 
-function compareCodeUnits(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
-}
-
 function stableJson(value: unknown): string {
-  const serialized = JSON.stringify(value, (_key, nested) => {
-    if (
-      nested === null ||
-      typeof nested !== "object" ||
-      Array.isArray(nested)
-    ) {
-      return nested;
-    }
-    return Object.fromEntries(
-      Object.entries(nested as Record<string, unknown>).sort(
-        ([left], [right]) => compareCodeUnits(left, right),
-      ),
-    );
-  });
+  const serialized = canonicalJson(value);
   if (serialized === undefined) {
     failWashingtonLwsContract(
       "invalid_type",

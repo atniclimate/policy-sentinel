@@ -367,6 +367,8 @@ describe("demo browser state and report ownership", () => {
   it("recovers malformed stored data and gives associated search validation", async () => {
     window.sessionStorage.setItem(STORAGE_KEY, "null");
     const { ui } = await start();
+    // The unreadable list stays as it was until the person changes something.
+    expect(window.sessionStorage.getItem(STORAGE_KEY)).toBe("null");
     // The notice is under the header, so it is seen whichever pane is in front.
     expect(
       ui
@@ -3754,7 +3756,7 @@ describe("demo export nits, comment dates and following", () => {
     );
     await choose(exported);
     await waitFor(() =>
-      expect(zone).toHaveTextContent(COPY.follow.importDone(0, 1, 0)),
+      expect(zone).toHaveTextContent(COPY.follow.importDone(0, 1, 0, 50)),
     );
   });
 });

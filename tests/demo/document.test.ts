@@ -4,6 +4,7 @@ import { COPY } from "../../src/demo/copy";
 import { laneId } from "../../src/demo/discovery";
 import type { Reason } from "../../src/demo/discovery";
 import { buildDocument } from "../../src/demo/document";
+import { localDay } from "../../src/demo/follow";
 import type { DocBlock } from "../../src/demo/document";
 import {
   emptyActors,
@@ -240,6 +241,21 @@ describe("document model shared by the PDF and the print view", () => {
         ...COPY.docSovereignty.map((text) => ({ kind: "p", text })),
       ],
     });
+  });
+
+  it("dates the document by the reader's calendar day, as the file name is", () => {
+    const { report } = fixture();
+    // 6 PM Pacific on October 23 is already October 24 in UTC.
+    const generatedAt = new Date("2026-10-24T01:00:00Z");
+    const doc = buildDocument({
+      version: VERSION,
+      generatedAt,
+      entries: reportEntries(report),
+      actors: report.actors,
+    });
+    const day = localDay(generatedAt);
+    expect(doc.title).toBe(`Cited Policies, ${day}`);
+    expect(fields(doc.blocks, "Generated")).toEqual([day]);
   });
 
   it("shares one number between the contents list, the Reference field and the References section", () => {

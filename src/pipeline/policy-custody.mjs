@@ -1212,13 +1212,20 @@ export async function recoverPolicyRun(root) {
   await safePath(root);
   const lockPath = join(root, "operation.lock");
   try {
-    const lock = await json(lockPath);
-    if (!Number.isSafeInteger(lock.pid) || lock.pid < 1) fail("INVALID_LOCK");
-    try {
-      process.kill(lock.pid, 0);
-      fail("LOCK_OWNER_STILL_ALIVE");
-    } catch (error) {
-      if (error.code !== "ESRCH") throw error;
+    // A writer killed between the exclusive create and its pid write leaves a
+    // torn (empty or partial) lock; it names no owner, so treat it as dead.
+    const lock = await json(lockPath).catch((error) => {
+      if (error instanceof SyntaxError) return undefined;
+      throw error;
+    });
+    if (lock !== undefined) {
+      if (!Number.isSafeInteger(lock.pid) || lock.pid < 1) fail("INVALID_LOCK");
+      try {
+        process.kill(lock.pid, 0);
+        fail("LOCK_OWNER_STILL_ALIVE");
+      } catch (error) {
+        if (error.code !== "ESRCH") throw error;
+      }
     }
     await rm(lockPath);
   } catch (error) {

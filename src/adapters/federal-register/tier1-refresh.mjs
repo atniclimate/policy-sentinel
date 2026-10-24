@@ -12,6 +12,7 @@ import {
 } from "node:fs";
 import { registerHooks } from "node:module";
 
+import { deepFreeze } from "../../core/canonical-json.mjs";
 import {
   FEDERAL_REGISTER_TIER1_DOCUMENT_NUMBER,
   FEDERAL_REGISTER_TIER1_FIELDS,
@@ -621,14 +622,6 @@ export class FederalRegisterTier1RefreshGateError extends Error {
 
 function fail(code, path, detail) {
   throw new FederalRegisterTier1RefreshGateError(code, path, detail);
-}
-
-function deepFreeze(value) {
-  if (value !== null && typeof value === "object" && !Object.isFrozen(value)) {
-    Object.values(value).forEach(deepFreeze);
-    Object.freeze(value);
-  }
-  return value;
 }
 
 function capturePlainJson(

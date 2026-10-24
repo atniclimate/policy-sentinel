@@ -7,6 +7,7 @@ import { TextDecoder } from "node:util";
 import { URL } from "node:url";
 import { parse } from "parse5";
 import { SaxesParser } from "saxes";
+import { deepFreeze as freeze } from "../core/canonical-json.mjs";
 
 const CONFIG = Object.freeze({
   html: "parse5@8.0.1:scriptingDisabled:locationsEnabled",
@@ -51,7 +52,7 @@ const HEADINGS = new Set(
   ),
 );
 const CONTACT =
-  /\b(?:FOR FURTHER INFORMATION CONTACT|CONTACT INFORMATION|PERSONAL CONTACT|STAFF CONTACT)\s*:/i;
+  /\b(?:FOR [A-Z ]*INFORMATION CONTACT|CONTACT INFORMATION|PERSONAL CONTACT|STAFF CONTACT)\s*:/i;
 const EMAIL = /[A-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Z0-9-]+(?:\.[A-Z0-9-]+)+/i;
 const PHONE =
   /(?:\+?1[ .-]?)?(?:\(\d{3}\)[ .-]?|\b\d{3}[ .-])\d{3}[ .-]\d{4}\b|\b(?:phone|telephone|tel|fax)\s*:\s*\+?[\d .()/-]{7,}/i;
@@ -64,13 +65,6 @@ function fail(code) {
   const error = new Error(`Policy text extraction rejected: ${code}`);
   error.code = code;
   throw error;
-}
-function freeze(value) {
-  if (value && typeof value === "object") {
-    Object.values(value).forEach(freeze);
-    Object.freeze(value);
-  }
-  return value;
 }
 function safeUrl(value, base) {
   try {
@@ -947,6 +941,10 @@ export function extractPolicyText({
       (/^(?:SUPPLEMENTARY INFORMATION|SUMMARY|DATES|ADDRESSES|AUTHORITY|BACKGROUND|I\.|II\.|III\.)\s*[:.]/.test(
         draft.text,
       ) ||
+        // Named Federal Register captions only: a sub-label inside the contact block ("TTY:", "ATTN:") must not end it.
+        /^(?:Dated:|\[FR Doc|(?:AGENCY|ACTION|EFFECTIVE DATES?|COMMENT DATES?)\s*:)/.test(
+          draft.text,
+        ) ||
         draft.kind === "heading")
     )
       contactSection = false;

@@ -566,3 +566,60 @@ test("successor production coverage still requires independently reviewed exact 
     nation.officialName + " is expressly listed in California.";
   assertPolicyRejects(successor, /does not identify the referenced state/);
 });
+
+test("a state named inside the Nation's own name is not state evidence", () => {
+  const legacy = productionCollection();
+  const successor = {
+    ...legacy,
+    schemaVersion: "2.0.0",
+    nations: legacy.nations.map(migrateNationCoverageV2),
+  };
+  const nation = successor.nations[0];
+  const name = "Iowa Tribe of Kansas and Nebraska";
+  nation.authorizedAliases = [name];
+  nation.aliasProvenance[0].alias = name;
+  nation.aliasProvenance[0].evidenceText = `${name} is the exact official cross-reference.`;
+  const evidenceUrl = "https://official.example.invalid/crosswalk";
+  nation.stateCoverage = {
+    jurisdictionRefs: ["us-state:IA"],
+    federalOnly: false,
+    basis: "reviewed_official_crosswalk",
+    evidence: [
+      {
+        jurisdictionRef: "us-state:IA",
+        basis: "reviewed_official_crosswalk",
+        sourceNationName: name,
+        evidenceText: `${name} is expressly listed in the crosswalk.`,
+        evidenceUrl,
+        sourceIdentifier: "reviewed-crosswalk-1",
+        sourceDate: PUBLICATION_DATE,
+        retrievedAt: RETRIEVED_AT,
+        validationState: "validated",
+      },
+    ],
+  };
+  nation.fieldProvenance.push(
+    provenance("/stateCoverage", { sourceUrl: evidenceUrl }),
+  );
+  assertPolicyRejects(successor, /does not identify the referenced state/);
+  // A shorter alias as the source name, or the name in other capitals, still leaves no state.
+  nation.authorizedAliases = [name, "Iowa Tribe"];
+  nation.stateCoverage.jurisdictionRefs = ["us-state:KS"];
+  Object.assign(nation.stateCoverage.evidence[0], {
+    jurisdictionRef: "us-state:KS",
+    sourceNationName: "Iowa Tribe",
+    evidenceText: `Iowa Tribe: ${name.toUpperCase()} is expressly listed.`,
+  });
+  assertPolicyRejects(successor, /does not identify the referenced state/);
+  nation.authorizedAliases = [name];
+  nation.stateCoverage.jurisdictionRefs = ["us-state:IA"];
+  Object.assign(nation.stateCoverage.evidence[0], {
+    jurisdictionRef: "us-state:IA",
+    sourceNationName: name,
+    evidenceText: `${name} is expressly listed in the Iowa crosswalk.`,
+  });
+  assert.deepEqual(
+    validateNationCollectionPolicy(successor, { manifestSynthetic: false }),
+    [],
+  );
+});

@@ -5,6 +5,7 @@ import {
   type ParserError,
 } from "parse5";
 
+import { compareCodeUnits, deepFreeze } from "../../core/canonical-json.mjs";
 import {
   SUPREME_COURT_HEADER_DOM_ORDER,
   SUPREME_COURT_HTML_POLICY,
@@ -510,10 +511,6 @@ function parseTargetRow(located: LocatedRow): SupremeCourtOpinionProjection {
   };
 }
 
-function compareCodeUnits(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
-}
-
 export function assertSupremeCourtOpinionProjection(
   value: unknown,
 ): SupremeCourtOpinionProjection {
@@ -566,16 +563,6 @@ export function assertSupremeCourtOpinionProjection(
     reporterCitation: SUPREME_COURT_SELECTED_OPINION.reporterCitation,
     boundVolumeUrl: SUPREME_COURT_SELECTED_OPINION.boundVolumeUrl,
   };
-}
-
-function deepFreeze<T>(value: T): Readonly<T> {
-  if (value !== null && typeof value === "object" && !Object.isFrozen(value)) {
-    Object.freeze(value);
-    for (const child of Object.values(value)) {
-      deepFreeze(child);
-    }
-  }
-  return value;
 }
 
 export function supremeCourtSourceRecordId(

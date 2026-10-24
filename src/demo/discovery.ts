@@ -14,6 +14,7 @@ import {
   cfrQuery,
   documentTypeFilter,
   parseCfrQuery,
+  searchCriteria,
   supportsDatedGovinfoQuery,
 } from "./search-contract";
 import type {
@@ -177,6 +178,19 @@ export function laneOptions(
     ...(lane.sourceId === "grants" &&
       plan.eligibility && { eligibility: plan.eligibility }),
   };
+}
+
+/** Whether a lane's source can take its query as written; Find related and Follow both ask this. */
+export function lookupReady(
+  plan: PlanDates,
+  lane: Pick<Lane, "sourceId" | "query" | "match" | "typeNotApplied">,
+): boolean {
+  try {
+    searchCriteria(lane.sourceId, lane.query, 1, laneOptions(plan, lane));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function skipReason(

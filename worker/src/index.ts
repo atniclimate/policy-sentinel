@@ -45,6 +45,8 @@ export interface Env {
   /** api.data.gov key. Optional; enables GovInfo, Congress.gov, Regulations.gov. */
   DATA_GOV_API_KEY?: string;
   RATE?: { limit(options: { key: string }): Promise<{ success: boolean }> };
+  /** One allowance shared by every visitor for calls made with the api.data.gov key. */
+  KEY_RATE?: { limit(options: { key: string }): Promise<{ success: boolean }> };
 }
 
 export const ALLOWED_ORIGINS: readonly string[] = [
@@ -66,6 +68,8 @@ export const ALLOWED_HOSTS: ReadonlySet<string> = new Set([
 const USER_AGENT =
   "PolicySentinelDemo/0.6 (+https://atniclimate.github.io/policy-sentinel/)";
 const MAX_BYTES = 1_500_000;
+/** A Federal Register document number the demo can read; one rule for search, read and cache. */
+const FR_DOCUMENT_NUMBER = /^(?:\d{2}|\d{4})-\d{4,6}$/;
 const FETCH_TIMEOUT_MS = 12_000;
 const POLICY_TTL = 86_400;
 const POLICY_CACHE_VERSION = `demo-policy-2:${ENGINE_INFO.parser}:${ENGINE_INFO.parserVersion}:${ENGINE_INFO.parserConfigDigest}:${ENGINE_INFO.rulesVersion}`;
@@ -246,7 +250,8 @@ export async function officialFetch(
       throw new DemoError(
         "upstream_rate_limited",
         "The official source asked the demo to wait before trying again.",
-        429,
+        // 503, not 429: the visitor did not exceed their own limit.
+        503,
         "error",
         retryAfter(response.headers.get("retry-after")),
       );
@@ -454,7 +459,7 @@ function frCitation(
     textUrl: null,
     retrievedAt,
     summary: summary || null,
-    textAvailable: /^\d{2,4}-\d{4,6}$/.test(id),
+    textAvailable: FR_DOCUMENT_NUMBER.test(id),
     matchKey: frMatchKey(id),
   };
   return v2
@@ -557,7 +562,7 @@ function numericContinuation(
 }
 
 async function readFederalRegister(id: string) {
-  if (!/^(?:\d{2}|\d{4})-\d{4,6}$/.test(id)) {
+  if (!FR_DOCUMENT_NUMBER.test(id)) {
     throw new DemoError(
       "text_unavailable",
       "The demo reads documents numbered like 2026-01899. Open this one at the official source.",
@@ -640,7 +645,17 @@ function analyzeSafely<T>(run: () => T): T {
 
 // ---------------------------------------------------------------- Washington
 
-export function parseWashingtonQuery(query: string): {
+/** The session in progress: Washington bienniums start in odd years. */
+export function currentBiennium(now: Date): string {
+  const year = now.getUTCFullYear();
+  const start = year % 2 ? year : year - 1;
+  return `${start}-${String((start + 1) % 100).padStart(2, "0")}`;
+}
+
+export function parseWashingtonQuery(
+  query: string,
+  now = new Date(),
+): {
   chamber: "House Bills" | "Senate Bills";
   prefix: "HB" | "SB";
   number: string;
@@ -652,7 +667,7 @@ export function parseWashingtonQuery(query: string): {
     );
   if (!match) return null;
   const house = /^h/i.test(match[1]);
-  const biennium = match[3] ?? "2025-26";
+  const biennium = match[3] ?? currentBiennium(now);
   const start = Number(biennium.slice(0, 4));
   if (start % 2 !== 1 || Number(biennium.slice(5)) !== (start + 1) % 100)
     return null;
@@ -773,12 +788,34 @@ function requireKey(env: Env): string {
   return env.DATA_GOV_API_KEY;
 }
 
+/** The key for one keyed call, within the allowance all visitors share; fails closed. */
+async function spendKey(env: Env): Promise<string> {
+  const key = requireKey(env);
+  if (env.KEY_RATE) {
+    let success = false;
+    try {
+      ({ success } = await env.KEY_RATE.limit({ key: "data-gov" }));
+    } catch {
+      // A binding failure is treated as no allowance left.
+    }
+    if (!success)
+      throw new DemoError(
+        "upstream_rate_limited",
+        "The demo has used its shared allowance for this source. Try again in a minute.",
+        503,
+        "error",
+        "60",
+      );
+  }
+  return key;
+}
+
 async function searchGovInfo(
   env: Env,
   criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
   const { query, page, dateFrom, dateTo } = criteria;
-  const key = requireKey(env);
+  const key = await spendKey(env);
   const { response, bytes } = await officialFetch(
     "https://api.govinfo.gov/search",
     {
@@ -842,7 +879,7 @@ async function searchGovInfo(
     retrievedAt,
     criteria,
     continuation:
-      page === 50
+      page === searchPageLimit("govinfo")
         ? { kind: "stopped", reason: "cap" }
         : validCursorToken(data.offsetMark) &&
             data.offsetMark !== "*" &&
@@ -882,7 +919,7 @@ async function searchRegulations(
 ): Promise<DemoSearchResponse> {
   const { query, page, dateFrom, dateTo } = criteria;
   const v2 = criteria.version === 2;
-  const key = requireKey(env);
+  const key = await spendKey(env);
   const url = new URL("https://api.regulations.gov/v4/documents");
   url.searchParams.set(
     v2 && criteria.match === "docket"
@@ -962,7 +999,7 @@ async function searchCongress(
   criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
   const { query, page } = criteria;
-  const key = requireKey(env);
+  const key = await spendKey(env);
   const m = CONGRESS_REFERENCE.exec(query);
   if (!m) {
     throw new DemoError(
@@ -1478,7 +1515,7 @@ export default {
         );
       };
       let identity: string | null = null;
-      if (source === "federal-register" && /^(?:\d{2}|\d{4})-\d{4,6}$/.test(id))
+      if (source === "federal-register" && FR_DOCUMENT_NUMBER.test(id))
         identity = id;
       if (source === "washington") {
         const parsed = parseWashingtonQuery(id || q);

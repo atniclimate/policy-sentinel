@@ -1,4 +1,5 @@
 import schema from "../../schemas/research-study.schema.v1.json" with { type: "json" };
+import { deepFreeze as freeze } from "./canonical-json.mjs";
 import {
   hasStateJurisdictionEvidence,
   isJurisdictionRef,
@@ -115,13 +116,6 @@ function snapshot(value, limit = MAX_RESEARCH_STUDY_BYTES) {
     return result;
   }
   return visit(value, 0);
-}
-function freeze(value) {
-  if (value && typeof value === "object" && !Object.isFrozen(value)) {
-    for (const child of Object.values(value)) freeze(child);
-    Object.freeze(value);
-  }
-  return value;
 }
 function canonical(value, serialized) {
   if (value === null || typeof value !== "object") return JSON.stringify(value);

@@ -1,107 +1,89 @@
 # Status
 
-As of 2026-10-20. **Release 0.9.0 (Release B of seeded discovery) is published
-and verified, and the demo Worker is deployed (D-112, D-113).** The owner
-accepted 0.8.0's draft-to-Results flow (D-112, "seems to work").
+As of 2026-10-23 (Pacific). **Release 0.10.0 is published** (D-115). The page
+was published through PR 18, merged as `68a826c` at 2026-10-24 02:24:45 UTC;
+Pages built it at 02:25:07 UTC. The demo Worker is version
+`2465b6f7-6791-4505-aa3c-87f7f9779a74`, deployed from `adad603`; the rollback
+target is `f6e2b85a-70b2-418b-a539-9dfa6650fc7a`. Development continues under
+D-114.
 
-## Publication (D-113)
+## What a person can do on the live page
 
-The owner opened [PR 17](https://github.com/atniclimate/policy-sentinel/pull/17).
-Project settings deny the driver `gh pr create`. The driver merged it with
-`gh pr merge 17 --merge --match-head-commit a05dfa3` (no admin bypass) as
-`a30b48d` at 2026-10-20 13:44:59 UTC. Its tree equals the reviewed tip
-`a05dfa3`. Pages built `a30b48d` by 13:45:22 UTC. Readback at 13:45:52-13:45:54
-UTC matched all 17 runtime files byte for byte, and the bundle names 0.9.0. The
-live verifier on the published page passed 83 of 83 within its budget (2
-catalog, 1 search, 1 policy read). Live rows show Federal Register topics,
-dockets, the document-type filter and Find related.
+- Follow a docket, RIN or document; the list stays in this browser, exports and
+  imports as a file, and "Check for new" (on request, at most 10 lookups) shows
+  "New since <date>" in the reader's calendar day or says a lookup was
+  unavailable. When the source holds more listings than were loaded, the next
+  check counts from the same day.
+- Export comment closing dates as a calendar file (.ics).
+- Search Grants.gov for forecasted and posted funding opportunities, with an
+  optional filter for opportunities listed for Tribal governments or Tribal
+  organizations (exact Grants.gov labels, HHS attribution shown). A forecast's
+  estimated date is never shown as "Applications close". Results count
+  policies and funding opportunities apart.
+- Open "Unified Agenda entries for RIN <RIN>" from any row with a RIN.
+- Read short Federal Register rules whose GovInfo text has line-start NULs
+  (digest `fr-header-line-nul-v1`); Federal Register searches with no match no
+  longer fail.
+- Passage rules `demo-rules-1.1.0` (deadline false hits 28% to 12%; measured
+  offline with Jev, `docs/development/2026-10-23-jev-rule-audit.md`; Jev never
+  runs in the page).
 
-## What a person can do in 0.9.0
+## Verification (2026-10-23 Pacific, 2026-10-24 UTC)
 
-- Everything in 0.8.0: choosing an NCAI draft fills grouped Results (Policies
-  and Rules, Legislation, Bills Named in the Title, Court Opinions). There are
-  at most 10 automatic requests, each row says why it was shown, and
-  sponsor-name searches run only on request.
-- Federal Register rows show "Comments close <date>, as stated by Federal
-  Register" and the Federal Register's own topics, verbatim, plus their docket,
-  RIN and CFR-part identifiers.
-- "Find related" on a row runs exact identifier lookups (same docket, same RIN,
-  same CFR part) only within the source that stated each identifier. It keeps
-  only listings that state the identifier and counts the rest apart. Results
-  say a shared identifier does not show that one document governs another.
-- A document-type filter (Rule, Proposed Rule, Notice, Presidential Document)
-  applies to the Federal Register. Every other search says the filter was not
-  applied.
-- The exported report may carry the NCAI draft title (D-112); sponsor-name
-  terms stay out.
-- Regulations.gov lookups, type filter and comment dates stay off behind
-  `REGULATIONS_V2_CONFIRMED` until its terms page is read and its shapes are
-  confirmed live. Its rows say "This demo does not show Regulations.gov comment
-  dates yet."
-
-## Verification
-
-- Release B was built in one workflow: contract v2, title export, record seed
-  and page lanes, a synthetic browser run, and three review rounds on
-  correctness and compatibility, sovereignty and Worker security. The driver
-  fixed what survived. Identifier lookups now filter where answers settle, so
-  each count matches its rows and left-out listings are stated. Regulations.gov
-  rows state that their dates are not shown.
-- Synthetic-vault Chromium: 29 of 29 groups passed, including the Release B
-  groups, desktop and narrow axe with zero violations, and no provider calls.
-- `npm run check` passed at 2026-10-20 13:41:41 UTC: 2,813 tests in 125 files.
-  16 Regulations.gov v2 tests are skipped behind the flag; the two native
-  symlink skips are as before.
-- Federal Register probe before building (2 calls, 11:32 UTC) recorded the field
-  shapes.
-- Worker deployed from `66a3420` as version
-  `f6e2b85a-70b2-418b-a539-9dfa6650fc7a` (wrangler 4.151.3), tagged
-  `66a3420`. The previous version `583cd4ab-f99b-4ffc-9d7b-c9d73466df18` is the
-  rollback target.
-- After deployment, the live verifier on the published 0.8.0 page: 78 of 83
-  passed, including search and policy read through the new Worker. The 5
-  failures compare the page's 0.8.0 version label with the local 0.9.0 package
-  version, and resolve once 0.9.0 is published.
-- Five bounded live Worker calls (13:43 UTC, no retry): a v2 Federal Register
-  search carried all five new fields; the docket lookup returned the one exact
-  document; the CFR lookup worked; v1 GovInfo (key path) worked; and v1 echoed
-  no v2 fields.
-- `npm run demo:build` passed; superseded hashed assets removed. Counts-only
-  scan: 81 drafts, 173 needles, 17 files, zero hits.
-- Receipts: `C:/dev/_scratch/policy-sentinel/ncai-discovery-20261019/release/`.
+- `npm run check` exit 0 at 19:18 Pacific: 2,874 unit tests passed, 16 skipped
+  (the Regulations.gov v2 flag), all stages. Hook tests re-run after the deny
+  list change: 88 of 88. Log:
+  `C:/dev/_scratch/policy-sentinel/release-0.10.0-20261023/check.log`.
+- One risk-boundary review (sovereignty reviewer): pass; its three findings
+  (forecast close date, filter line without Grants.gov, last-checked with more
+  listings) were fixed before the check.
+- Readback: all 17 runtime files byte-match `68a826c`
+  (`published-receipt-0.10.0.json`). Live verifier (Chromium 1243): 83 of 83
+  after scoping its source checkbox locator to the sources group. One live
+  Grants.gov call through the deployed Worker: 200, 9 Tribal-filtered rows.
+- Incident: between the Worker deploy and the Pages build (about 5 minutes),
+  the 0.9.0 page rejected the Worker's 8-source list (unknown source, limit 7).
+  A future new source needs the page published with the Worker, or a page that
+  ignores unknown sources first.
 
 ## Not done, and carried limits
 
-- Regulations.gov v2: read its terms page, make one bounded call per field
-  through the Worker, then switch on `REGULATIONS_V2_CONFIRMED` with its tests.
-- Nits: an old "Added ..." notice can stay in the banner; the exported report
-  leaves out a row's closing date, topics and identifiers; "Docket: Docket No."
-  repeats the FR's own text.
-- Carried from earlier releases: Oregon and Idaho integration gaps; D-106 items
-  7-8 ("Arizona" and "Sioux" reseal); NCAI reuse permission; untagged PDFs;
-  Windows WebKit Tab and PDF-retry failures; no Safari, Firefox, screen-reader,
-  physical-print or outside-user acceptance; no offline or followed-item
-  acceptance; expired engine acquisition profiles.
+- Regulations.gov v2 stays off: its API terms page renders empty even through
+  Parallel Extract. Comment end dates are UTC timestamps for 11:59:59 PM
+  Eastern, held back until the owner rules.
+- Nit: Grants.gov placeholder close dates show as stated.
+- Noted from review: the standing weekly Parallel monitors from
+  `scripts/dev-ai/parallel-scout.mjs` are a lasting third-party subscription;
+  imported follow files may carry an unused `listedEligibility` field.
+- Unified Agenda data beyond the link needs an approved output boundary.
+- USAspending terms unread; Oregon OData needs the owner to accept its
+  Acceptable Use Agreement; Idaho has no API (contact needed).
+- Carried: Oregon and Idaho integration gaps; D-106 items 7-8; NCAI reuse
+  permission; untagged PDFs; Windows WebKit failures; no Safari, Firefox,
+  screen-reader, print or outside-user acceptance. The verifier needs
+  `PLAYWRIGHT_CORE` and `--executable`; no project copy of playwright-core.
+- Uncommitted owner work: `.claude/settings.json` (now also without
+  `gh pr create`), `AGENTS.md` (including the D-114 wording), `CLAUDE.md`,
+  `scripts/codex-hooks.mjs` and its test (now allowing `gh pr create`), and the
+  untracked owner documents under `docs/`.
 
 ## Next bounded work
 
-The Regulations.gov v2 switch-on above. After that, the staff tasks in [PLAN.md](PLAN.md):
-consultation discovery for water, forestry and the Roadless Rule, and FY27
-funding research.
+Owner use of 0.10.0 on the live page. Then the Regulations.gov decision below,
+or the taxonomy review.
 
 ## Open owner decisions
 
-1. First real release: public tool with an outside user, or the offline package
-   with four demonstrations? 0.9.0 remains a development demo.
-2. Is following part of that release, and may a refreshed official-metadata index
-   be kept with no user data?
-3. Engine use of the existing api.data.gov key; eCFR/Oregon terms; Idaho contact.
-4. Nation picker or typed terms only?
-5. Defer nationwide survey, area resolver, sibling-app interchange and the 50 GB
-   corpus? Earlier rulings remain in force.
-6. Archive ROADMAP and its validators? They remain unchanged meanwhile.
-7. Standing publication permission, repository license and first outside user.
-   D-113 covers this release only.
-8. Filter, flag or leave Tribal-government documents printed by federal sources?
-9. NCAI's reply on tracker/AssetBank reuse (requested 2026-10-19), convention
-   refresh and retirement after final actions.
+1. Commit the governance edits (`AGENTS.md`, `CLAUDE.md`, `.claude/settings.json`,
+   the Codex hook and its test)?
+2. Regulations.gov: switch on docket lookup and type filter on the User Notice
+   reading? Show comment end dates as the Eastern calendar day?
+3. Taxonomy proposal: which rows to approve; Tribal topics as a facet; model
+   judgment reference metadata for climate adaptation (D-114).
+4. Unified Agenda index as a new public output (Government levels affected)?
+5. Oregon OData Acceptable Use Agreement; Idaho contact.
+6. Keep or cancel the weekly Parallel monitors.
+7. Carried from earlier: first real release definition; following in that
+   release; engine use of the api.data.gov key and eCFR/Oregon terms; Nation
+   picker; deferrals; archiving ROADMAP; standing publication permission and
+   license; Tribal documents in federal results; NCAI reply.

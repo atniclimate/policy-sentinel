@@ -489,6 +489,18 @@ test("recovery retains Retry-After and oversized values never corrupt ledger clo
   assert.equal((await verifyPolicyRun(root)).attempts, 1);
 });
 
+test("recovery clears a torn lock but still refuses a live owner", async (t) => {
+  const { root } = await fixture(t);
+  const lockPath = join(root, "operation.lock");
+  await writeFile(lockPath, "");
+  await assert.rejects(acquire(root), /RUN_LOCKED/);
+  assert.deepEqual((await recoverPolicyRun(root)).recovered, []);
+  await assert.rejects(lstat(lockPath), { code: "ENOENT" });
+  await writeFile(lockPath, JSON.stringify({ pid: process.pid }));
+  await assert.rejects(recoverPolicyRun(root), /LOCK_OWNER_STILL_ALIVE/);
+  await rm(lockPath);
+});
+
 test("historical target manifests remain mandatory after an append", async (t) => {
   const { root, manifest } = await fixture(t);
   const receipt = await acquire(root);

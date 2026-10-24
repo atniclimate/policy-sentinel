@@ -15,5 +15,13 @@ namespace_id = "7301"
   limit = 60
   period = 60
 
+# One allowance shared by all visitors for api.data.gov keyed calls (about 900 an hour).
+[[ratelimits]]
+name = "KEY_RATE"
+namespace_id = "7302"
+  [ratelimits.simple]
+  limit = 15
+  period = 60
+
 # Secrets (never in this file). Add with:
 #   npx wrangler secret put DATA_GOV_API_KEY --config worker/wrangler.toml

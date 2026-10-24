@@ -5,6 +5,7 @@ import {
   type ParserError,
 } from "parse5";
 
+import { compareCodeUnits, deepFreeze } from "../../core/canonical-json.mjs";
 import {
   GOIA_ACCORD_HTML_POLICY,
   GOIA_ACCORD_METADATA,
@@ -322,10 +323,6 @@ function assertArticleMetadata(body: Element): void {
   }
 }
 
-function compareCodeUnits(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
-}
-
 export function assertGoiaAccordProjection(
   value: unknown,
 ): GoiaAccordProjection {
@@ -374,16 +371,6 @@ export function assertGoiaAccordProjection(
     contractError("inconsistent_value", "$projection");
   }
   return { ...canonical };
-}
-
-function deepFreeze<T>(value: T): Readonly<T> {
-  if (value !== null && typeof value === "object" && !Object.isFrozen(value)) {
-    Object.freeze(value);
-    for (const child of Object.values(value)) {
-      deepFreeze(child);
-    }
-  }
-  return value;
 }
 
 export function goiaAccordSourceRecordId(): string {

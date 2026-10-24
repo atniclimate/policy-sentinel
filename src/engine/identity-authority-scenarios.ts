@@ -1,6 +1,11 @@
 import Ajv2020 from "ajv/dist/2020.js";
 import type { ValidateFunction } from "ajv";
 import addFormats from "ajv-formats";
+// canonical inputs are closed-schema snapshots, so keys and values are plain JSON.
+import {
+  canonicalJson as canonical,
+  deepFreeze,
+} from "../core/canonical-json.mjs";
 
 import schema from "../../schemas/identity-authority-scenarios.schema.v1.json";
 import {
@@ -168,26 +173,8 @@ function checkedSnapshot<T>(value: unknown, validate: ValidateFunction): T {
   return captured as T;
 }
 
-function canonical(value: unknown): string {
-  if (value === null || typeof value !== "object") return JSON.stringify(value);
-  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
-  const object = value as Record<string, unknown>;
-  return `{${Object.keys(object)
-    .sort()
-    .map((key) => `${JSON.stringify(key)}:${canonical(object[key])}`)
-    .join(",")}}`;
-}
-
-function freeze<T>(value: T): T {
-  if (value !== null && typeof value === "object") {
-    Object.values(value).forEach(freeze);
-    Object.freeze(value);
-  }
-  return value;
-}
-
 function detached<T>(value: T): T {
-  return freeze(JSON.parse(canonical(value)) as T);
+  return deepFreeze(JSON.parse(canonical(value)) as T);
 }
 
 function refKey(ref: IasReference): string {

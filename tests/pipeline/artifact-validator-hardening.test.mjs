@@ -402,6 +402,29 @@ test("validator binds each detail file path to its record identity", async () =>
   }
 });
 
+test("validator rejects manifest source tags that differ from asset content", async () => {
+  const fixture = await createValidatorFixture();
+  try {
+    const manifestPath = path.join(fixture.root, "manifest.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    const detail = manifest.assets.find(({ path: assetPath }) =>
+      assetPath.startsWith("details/"),
+    );
+    detail.sourceIds = [];
+    manifest.buildId = deriveBuildId(manifest.assets);
+    await writeFile(manifestPath, hashJson(manifest).content, "utf8");
+
+    const result = runValidator(fixture.root);
+    assert.equal(result.status, 1);
+    assert.match(
+      `${result.stdout}\n${result.stderr}`,
+      /manifest source tags do not match/,
+    );
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
 test("validator binds the manifest synthetic discriminator to the Nation collection", async () => {
   const fixture = await createValidatorFixture();
   try {

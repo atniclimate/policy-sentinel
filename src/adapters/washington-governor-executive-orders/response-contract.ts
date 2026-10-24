@@ -5,6 +5,7 @@ import {
   type ParserError,
 } from "parse5";
 
+import { compareCodeUnits, deepFreeze } from "../../core/canonical-json.mjs";
 import {
   WASHINGTON_GOVERNOR_CELL_CLASSES,
   WASHINGTON_GOVERNOR_EXECUTIVE_ORDERS_CONTRACT_VERSION,
@@ -182,10 +183,6 @@ function assertOrderNumber(
     contractError("inconsistent_value", path);
   }
   return value;
-}
-
-function compareCodeUnits(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 function hasDisallowedControl(value: string): boolean {
@@ -682,16 +679,6 @@ export function assertWashingtonGovernorExecutiveOrderProjection(
     governor: WASHINGTON_GOVERNOR_FILTER_LABEL,
     officialPdfUrl: validatedUrl,
   };
-}
-
-function deepFreeze<T>(value: T): Readonly<T> {
-  if (value !== null && typeof value === "object" && !Object.isFrozen(value)) {
-    Object.freeze(value);
-    for (const child of Object.values(value)) {
-      deepFreeze(child);
-    }
-  }
-  return value;
 }
 
 export function washingtonGovernorSourceRecordId(

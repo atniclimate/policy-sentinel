@@ -9,6 +9,9 @@ import {
   ARTIFACT_MANIFEST_LIMITS_V1,
   assertArtifactManifestLimits,
   assertStaticArtifactBudget,
+  coverageLimitation,
+  recordCoverageDate,
+  sourceIdsForPath,
   toCompactIndexRecord,
 } from "../src/pipeline/artifact.mjs";
 import { toUrlSafeId } from "../src/pipeline/identity.mjs";
@@ -325,20 +328,6 @@ function assertHealth(sourceHealth, sourceRegistry, records) {
   }
 }
 
-function recordCoverageDate(record) {
-  const value =
-    record.judicialContext?.decisionDate ??
-    record.accordContext?.executionEvent.date ??
-    record.dates.published ??
-    record.status.asOf;
-  if (typeof value !== "string" || value.length < 10) {
-    throw new Error(
-      `coverage record lacks a decision, publication, or status date: ${record.internalId}`,
-    );
-  }
-  return value.slice(0, 10);
-}
-
 function assertRangeWithinDocumented(source, from, through) {
   if (from !== null && through !== null && from > through) {
     throw new Error(`coverage range is reversed: ${source.id}`);
@@ -355,16 +344,6 @@ function assertRangeWithinDocumented(source, from, through) {
   ) {
     throw new Error(`coverage ends outside documented range: ${source.id}`);
   }
-}
-
-function coverageLimitation(source, selectedCoverage = null) {
-  if (
-    selectedCoverage === null ||
-    selectedCoverage.notes === source.coverage.limitations
-  ) {
-    return source.coverage.limitations;
-  }
-  return `${source.coverage.limitations} ${selectedCoverage.notes}`;
 }
 
 function assertCoverage(coverage, sourceRegistry, records) {
@@ -689,6 +668,15 @@ const indexDocument = documents.get("index/records.json");
 assertIndexMatchesDetails(indexDocument, detailEntries);
 assertCoverage(documents.get("coverage.json"), sourceRegistry, records);
 assertHealth(documents.get("source-health.json"), sourceRegistry, records);
+// Same tag rule last-known-good enforces, so a published artifact stays usable as fallback.
+for (const asset of manifest.assets) {
+  if (
+    JSON.stringify([...asset.sourceIds].sort()) !==
+    JSON.stringify([...sourceIdsForPath(asset.path, documents)].sort())
+  ) {
+    throw new Error(`manifest source tags do not match ${asset.path}`);
+  }
+}
 
 if (
   manifest.recordCount !== records.length ||

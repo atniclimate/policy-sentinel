@@ -12,6 +12,7 @@ import {
   RegulationsGovContractError,
   type RegulationsGovContractErrorCode,
 } from "./errors";
+import { createJsonGuards } from "../json-guards";
 
 export const REGULATIONS_GOV_RESOURCE_BUNDLE_KIND =
   "repository_owned_resource_bundle" as const;
@@ -221,6 +222,8 @@ function fail(
   throw new RegulationsGovContractError(code, path, message);
 }
 
+const { boundedInteger, assertUnique } = createJsonGuards(fail);
+
 function plainObject(value: unknown, path: string): JsonObject {
   if (
     value === null ||
@@ -311,23 +314,6 @@ function booleanValue(value: unknown, path: string): boolean {
   return value;
 }
 
-function boundedInteger(
-  value: unknown,
-  path: string,
-  minimum: number,
-  maximum: number,
-): number {
-  if (
-    typeof value !== "number" ||
-    !Number.isSafeInteger(value) ||
-    value < minimum ||
-    value > maximum
-  ) {
-    fail("invalid_value", path, "expected a bounded safe integer");
-  }
-  return value;
-}
-
 function list<T>(
   value: unknown,
   path: string,
@@ -364,12 +350,6 @@ function reserveResourceBudget(
       path,
       `aggregate ${field} count exceeds the repository safety budget`,
     );
-  }
-}
-
-function assertUnique(values: readonly string[], path: string): void {
-  if (new Set(values).size !== values.length) {
-    fail("duplicate_value", path, "duplicate retained identity");
   }
 }
 

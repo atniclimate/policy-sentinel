@@ -1,3 +1,4 @@
+import { canonicalJson, compareCodeUnits } from "../../core/canonical-json.mjs";
 import { FEDERAL_REGISTER_PUBLIC_ARTIFACT_POLICY } from "./artifact-policy";
 import {
   FEDERAL_REGISTER_DISCOVERY_FIELDS,
@@ -126,34 +127,6 @@ function requestBudget(
       }
     },
   };
-}
-
-function compareCodeUnits(left: string, right: string): number {
-  if (left < right) {
-    return -1;
-  }
-  if (left > right) {
-    return 1;
-  }
-  return 0;
-}
-
-function canonicalJson(value: unknown): string {
-  if (value === null || typeof value !== "object") {
-    return JSON.stringify(value) ?? "undefined";
-  }
-  if (Array.isArray(value)) {
-    return `[${value.map((item) => canonicalJson(item)).join(",")}]`;
-  }
-  const entries = Object.entries(value as Record<string, unknown>).sort(
-    ([left], [right]) => compareCodeUnits(left, right),
-  );
-  return `{${entries
-    .map(
-      ([key, entryValue]) =>
-        `${JSON.stringify(key)}:${canonicalJson(entryValue)}`,
-    )
-    .join(",")}}`;
 }
 
 function stableDocuments(

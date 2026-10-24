@@ -540,7 +540,10 @@ try {
       .getByRole("checkbox")
       .count()) === federal.length;
   for (const s of federal) {
-    const box = page.getByRole("checkbox", { name: s.label });
+    // Scoped to the sources group: the Grants.gov eligibility filter also names Grants.gov.
+    const box = page
+      .getByRole("group", { name: COPY.sourcesLegend })
+      .getByRole("checkbox", { name: s.label });
     const live = s.status === "live";
     federalOk &&=
       (await box.isEnabled()) === live &&

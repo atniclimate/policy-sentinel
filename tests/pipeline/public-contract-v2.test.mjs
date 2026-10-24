@@ -266,6 +266,14 @@ test("shared jurisdiction association is bounded, closed and exact-subject bound
     false,
   );
   assert.equal(hasStateJurisdictionEvidence("us-state:OR", "A OR B"), false);
+  assert.equal(
+    hasStateJurisdictionEvidence("us-state:WA", "Washington County, Oregon"),
+    false,
+  );
+  assert.equal(
+    hasStateJurisdictionEvidence("us-state:OR", "Washington County, Oregon"),
+    true,
+  );
   assert.equal(hasStateJurisdictionEvidence("us-state:NV", "Nevada"), true);
   assert.equal(
     hasStateJurisdictionEvidence(
