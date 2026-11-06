@@ -1,5 +1,35 @@
 # Status
 
+## Planning session of 2026-11-05 (D-118)
+
+The owner set the Full 0.9 scope (D-118). A research swarm (nine source lanes
+with Parallel search and alternates, adversarial verification, a code map, Jev
+query typing, TERRA interop, a completeness critic) and four raw-byte follow-up
+lanes produced
+[`source-reviews/full09-source-survey-2026-11-05.md`](source-reviews/full09-source-survey-2026-11-05.md).
+The design, reviewed by an Opus logic review, the sovereignty reviewer (FAIL on
+draft 2, six blocking items, all addressed) and a Codex adversary (NO-GO on
+draft 1, addressed), is
+[`development/full09-design-2026-11-05.md`](development/full09-design-2026-11-05.md)
+(draft 3). Key finding: the policy chain can be built keyless from eCFR part
+`AUTH` and `SOURCE` elements and OLRC U.S. Code source credits. A launch prompt
+for the build run and an owner-answers file are kept outside the repository in
+`C:/dev/_scratch/policy-sentinel/full09-plan-20261105/`. The only code change
+is a `search` command in `scripts/dev-ai/parallel-scout.mjs`. Nothing from this
+session is committed yet; the live page is unchanged at 0.10.1.
+
+The owner accepted the Oregon OLIS Open Data Service Acceptable Use Agreement
+for ATNI and emailed the Legislature helpdesk (D-119,
+[note](source-reviews/oregon-olis-odata-aua-2026-11-05.md)); open decision 4
+below is now answered for Oregon, and Idaho remains open.
+
+Next bounded work: the owner answers the Tier 1 items (name, reading of "after
+0.9", the eCFR and OLRC terms read in a browser, the static index output
+boundary, the Tier 2 cutoff), then the Full 0.9 build run starts from the
+launch prompt.
+
+## Release 0.10.1 state
+
 As of 2026-10-23 (Pacific). **Release 0.10.1 is published** (D-116). The page
 was published through PR 19, merged as `2597846` at 2026-10-24 03:44:07 UTC.
 The demo Worker is version `93192de1-9556-4f81-907e-35ace346728d`, deployed
