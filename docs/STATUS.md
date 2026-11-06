@@ -11,22 +11,29 @@ The design, reviewed by an Opus logic review, the sovereignty reviewer (FAIL on
 draft 2, six blocking items, all addressed) and a Codex adversary (NO-GO on
 draft 1, addressed), is
 [`development/full09-design-2026-11-05.md`](development/full09-design-2026-11-05.md)
-(draft 3). Key finding: the policy chain can be built keyless from eCFR part
-`AUTH` and `SOURCE` elements and OLRC U.S. Code source credits. A launch prompt
-for the build run and an owner-answers file are kept outside the repository in
-`C:/dev/_scratch/policy-sentinel/full09-plan-20261105/`. The only code change
-is a `search` command in `scripts/dev-ai/parallel-scout.mjs`. Nothing from this
-session is committed yet; the live page is unchanged at 0.10.1.
+(draft 4). Key finding: the policy chain can be built from part-level CFR
+authority and source wording and OLRC U.S. Code source credits.
 
-The owner accepted the Oregon OLIS Open Data Service Acceptable Use Agreement
-for ATNI and emailed the Legislature helpdesk (D-119,
-[note](source-reviews/oregon-olis-odata-aua-2026-11-05.md)); open decision 4
-below is now answered for Oregon, and Idaho remains open.
+The owner then answered every gate (D-119 to D-125): the release is **0.9.1**
+under the TERRA phase scheme, with ATNI ratification making 1.0 (D-120);
+safeguards stay on and ship as automated checks (D-121); Oregon OLIS agreement
+accepted for ATNI ([note](source-reviews/oregon-olis-odata-aua-2026-11-05.md),
+D-119); interim license PolyForm Noncommercial 1.0.0 for code and CC BY-NC-SA
+4.0 for documentation (D-122); keys move to the program account before
+pre-release ([keys and access](KEYS-AND-ACCESS.md), D-123); gate answers and
+three committee-library pilots (D-124); static index files on the
+[approved conditions](development/full09-index-conditions-2026-11-05.md), with
+the GovInfo CFR annual edition as the chain source (D-125). The planning records
+and license are merged into `main` (PR 21 and the session's closing pull
+request); the live page is unchanged at 0.10.1.
 
-Next bounded work: the owner answers the Tier 1 items (name, reading of "after
-0.9", the eCFR and OLRC terms read in a browser, the static index output
-boundary, the Tier 2 cutoff), then the Full 0.9 build run starts from the
-launch prompt.
+Next bounded work: the Full 0.9 build run in a fresh session, from the launch
+prompt and owner-answers file kept outside the repository in
+`C:/dev/_scratch/policy-sentinel/full09-plan-20261105/`. The owner's browser
+reading (eCFR, Office of the Federal Register and OLRC terms, Supreme Court
+robots and terms, the SAM.gov CSV, Regulations.gov) can come during the run.
+Open decisions 1, 4 (Oregon), 5 and the license below are now answered; Idaho
+remains open.
 
 ## Release 0.10.1 state
 
