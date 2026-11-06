@@ -93,6 +93,28 @@ describe("structural shapes (synthetic)", () => {
     expect(masked.startsWith("Washington comment on")).toBe(true);
   });
 
+  it("masks every fixture name with a plural possessive or closing quote", () => {
+    for (const base of nationNameBases()) {
+      const text = `${base}' consultation`;
+      const { spans } = maskProtectedSpans(text);
+      expect(covered(spans, "nation_name", 0, base.length, text), text).toBe(
+        true,
+      );
+    }
+  });
+
+  it.each([
+    ["Sample Washington Tribes' HB 2100", 25],
+    ["Sample Washington Tribes’ HB 2100", 25],
+    ["Sample Washington Tribes'. HB 2100", 26],
+    ["Sample Washington Tribe's. HB 2100", 26],
+    ["National Congress of American Indians S 1001", 37],
+  ])("masks %s from its first word", (text, end) => {
+    expect(maskProtectedSpans(text).spans).toEqual([
+      { start: 0, end, kind: "nation_name" },
+    ]);
+  });
+
   it.each([
     ["Treaty of Example Point, 1855", "Treaty of Example Point, 1855"],
     ["the Treaty with the Sample 1855 text", "Treaty with the Sample 1855"],

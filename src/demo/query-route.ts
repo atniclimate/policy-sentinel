@@ -131,6 +131,9 @@ const FR_DOCUMENT = new RegExp(
   String.raw`${B}(?:199[4-9]|20\d{2})-\d{4,5}${E}`,
   "g",
 );
+/** A later-year 4-digit tail is a year range (2025-2026), not a document number. */
+const yearRange = (id: string) =>
+  /^\d{4}-(?:19|20)\d\d$/.test(id) && id.slice(5) > id.slice(0, 4);
 const PL_NO_DOTS = new RegExp(
   String.raw`${B}PL\s*(\d{1,3})\s*[-–]\s*(\d{1,4})${E}`,
   "gi",
@@ -216,8 +219,9 @@ const CODE_NAME: Readonly<Record<string, string>> = {
 };
 
 // Longer bill forms first so "H.R." wins over "H" and "S.J.Res." over "S".
+// The last lookahead leaves a following citation's title (HB 1100 25 CFR 900) to the citation.
 const BILL = new RegExp(
-  String.raw`(?<![\w.])(?<form>H\.?\s?J\.?\s?Res\.?|S\.?\s?J\.?\s?Res\.?|H\.?\s?Con\.?\s?Res\.?|S\.?\s?Con\.?\s?Res\.?|H\.?\s?Res\.?|S\.?\s?Res\.?|H\.?\s?R\.?|H\.?\s?B\.?|S\.?\s?B\.?|House\s+Bill|Senate\s+Bill|H|S\.?)\s*(?:No\.?\s*)?(?<num>\d{1,5})(?![\w-])(?:\s*,?\s*\(?(?:(?<bien>(?:19|20)\d{2}-\d{2})|(?<cong>\d{2,3})(?:st|nd|rd|th)?(?:\s+Congress)?)\)?(?![\w-]))?`,
+  String.raw`(?<![\w.])(?<form>H\.?\s?J\.?\s?Res\.?|S\.?\s?J\.?\s?Res\.?|H\.?\s?Con\.?\s?Res\.?|S\.?\s?Con\.?\s?Res\.?|H\.?\s?Res\.?|S\.?\s?Res\.?|H\.?\s?R\.?|H\.?\s?B\.?|S\.?\s?B\.?|House\s+Bill|Senate\s+Bill|H|S\.?)\s*(?:No\.?\s*)?(?<num>\d{1,5})(?![\w-])(?:\s*,?\s*\(?(?:(?<bien>(?:19|20)\d{2}-\d{2})|(?<cong>\d{2,3})(?:st|nd|rd|th)?(?:\s+Congress)?)\)?(?![\w-])(?!\s*(?:U\.?\s?S\.?\s?C\.?|C\.?\s?F\.?\s?R\.?|U\.\s?S\.|US|Stat\.|FR|Fed\.\s?Reg\.)\s*(?:§|\d|secs?\.|sections?\s|parts?\s|pt\.)))?`,
   "gi",
 );
 const CONGRESS_HINT =
@@ -306,6 +310,18 @@ const federal = (
   label,
 });
 
+/** The one law_name reading, shared with the combobox's typed-prefix options. */
+export const lawNameReading = (alias: LawAlias): RouteReading =>
+  federal(
+    "law_name",
+    alias.popularName,
+    copy.lawName(
+      alias.popularName,
+      alias.citations.map((c) => c.text),
+      alias.titleAsEnacted,
+    ),
+  );
+
 export function routeQuery(
   input: string,
   options?: { aliases?: LawAliasFile },
@@ -335,22 +351,12 @@ export function routeQuery(
   const entries = [...(options?.aliases?.entries ?? [])].sort(
     (a, b) => b.popularName.length - a.popularName.length,
   );
-  const lawReading = (alias: LawAlias) =>
-    federal(
-      "law_name",
-      alias.popularName,
-      copy.lawName(
-        alias.popularName,
-        alias.citations.map((c) => c.text),
-        alias.titleAsEnacted,
-      ),
-    );
   for (const alias of entries) {
     const re = new RegExp(
       String.raw`(?<![\w])${escapeRe(alias.popularName).replace(/\s+/g, String.raw`\s+`)}(?![\w])`,
       "gi",
     );
-    scan(re, () => [lawReading(alias)]);
+    scan(re, () => [lawNameReading(alias)]);
   }
 
   scan(DOCKET, (m) => {
@@ -358,7 +364,14 @@ export function routeQuery(
     return [federal("docket", id, copy.docket(id))];
   });
 
+  // A list item that begins an RIN or FR document number is that number.
+  const idStarts = new Set(
+    [...input.matchAll(RIN), ...input.matchAll(FR_DOCUMENT)]
+      .filter((m) => !yearRange(m[0]))
+      .map((m) => m.index),
+  );
   for (const c of findCitations(citationCase(input))) {
+    if (idStarts.has(c.start)) continue;
     const end = c.start + c.text.length;
     switch (c.kind) {
       case "usc": {
@@ -482,8 +495,9 @@ export function routeQuery(
     const states = new Set(namedStates);
     const postal = postalNextTo(masked, start, end, bills);
     if (postal) states.add(postal);
+    // A number after HB or SB is no Congress: those forms have no federal reading.
     const federalNamed =
-      g.cong !== undefined ||
+      (g.cong !== undefined && form !== "house" && form !== "senate") ||
       hintedCongress !== null ||
       FEDERAL_WORDS.test(masked);
 
@@ -619,9 +633,11 @@ export function routeQuery(
     const id = m[0].toUpperCase();
     return [federal("rin", id, copy.rin(id))];
   });
-  scan(FR_DOCUMENT, (m) => [
-    federal("fr_document", m[0], copy.frDocument(m[0])),
-  ]);
+  scan(FR_DOCUMENT, (m) =>
+    yearRange(m[0])
+      ? null
+      : [federal("fr_document", m[0], copy.frDocument(m[0]))],
+  );
 
   // Acronyms last, so an identifier ("ORS 196.800") keeps its own reading.
   // Exact and case-sensitive, outside masked spans. An acronym two laws share
@@ -639,7 +655,7 @@ export function routeQuery(
       claim(
         m.index,
         m.index + acronym.length,
-        laws.map(lawReading),
+        laws.map(lawNameReading),
         laws.length > 1,
       );
   }

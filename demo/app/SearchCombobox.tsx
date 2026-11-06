@@ -9,7 +9,11 @@ import type {
   VocabularyFile,
   VocabularyKind,
 } from "../../src/demo/index-types";
-import { routeQuery, type RouteReading } from "../../src/demo/query-route";
+import {
+  lawNameReading,
+  routeQuery,
+  type RouteReading,
+} from "../../src/demo/query-route";
 import {
   phraseRows,
   possibleMatches,
@@ -83,17 +87,7 @@ function candidates(
 }
 
 function lawOption(alias: LawAlias): Option {
-  const reading: RouteReading = {
-    kind: "law_name",
-    identifier: alias.popularName,
-    jurisdiction: "federal",
-    action: "static_index",
-    label: copy.lawName(
-      alias.popularName,
-      alias.citations.map((c) => c.text),
-      alias.titleAsEnacted,
-    ),
-  };
+  const reading = lawNameReading(alias);
   return {
     id: "",
     text: reading.label,

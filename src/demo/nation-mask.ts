@@ -60,6 +60,8 @@ const STOP = new Set(
 /** Connectors a case caption party name may contain. */
 const CAPTION_CONNECTORS = new Set(["of", "and", "&", "ex", "rel", "et", "al"]);
 const CAPTION_FORWARD = new Set([...CAPTION_CONNECTORS, "the"]);
+/** A strong anchor walks back through "of": National Congress of American Indians. */
+const OF_ONLY = new Set(["of"]);
 const ABBREVIATIONS = new Set(["dept", "corp", "assn", "bros", "univ"]);
 
 const STATE_NAMES = [
@@ -131,10 +133,11 @@ interface Token {
 }
 
 function core(text: string): string {
+  // Periods first, so "Tribes'." and "Tribe's." still reach the anchor test.
   return text
     .toLowerCase()
-    .replace(/['’]s$/, "")
-    .replace(/\.+$/, "");
+    .replace(/\.+$/, "")
+    .replace(/['’]s?$/, "");
 }
 
 function sentenceEnd(text: string): boolean {
@@ -296,7 +299,10 @@ function structuralSpans(s: Scanner): ProtectedSpan[] {
     const strong = STRONG_ANCHOR.test(t.core) || JOINED_TRIBE.test(t.core);
     const weak = !strong && WEAK_ANCHOR.test(t.core);
     if (strong || weak) {
-      const start = extendBack(s, t.start, { weak });
+      const start = extendBack(s, t.start, {
+        weak,
+        connectors: strong ? OF_ONLY : undefined,
+      });
       const end = extendForward(s, t.end, strong);
       const phrase = s.text
         .slice(start, end)

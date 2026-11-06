@@ -18,7 +18,8 @@ export type ProbeVariant =
   | "leading_the"
   | "trailing_state"
   | "in_sentence"
-  | "consultation";
+  | "consultation"
+  | "possessive";
 
 export interface NationNameProbe {
   /** The probe text a guard is run over. */
@@ -97,6 +98,7 @@ export function nationNameProbeCases(): NationNameProbe[] {
       probe("in_sentence", "Washington staff asked about ", base, " in Idaho"),
     );
     cases.push(probe("consultation", "", base, " consultation"));
+    cases.push(probe("possessive", "", base, "'"));
   }
   return cases;
 }

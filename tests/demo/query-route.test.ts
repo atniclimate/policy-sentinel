@@ -207,6 +207,33 @@ describe("identifier forms", () => {
     expect(route.ambiguous).toBe(true);
   });
 
+  it.each<[string, string[]]>([
+    ["25 CFR 900 and 2024-28302", ["cfr:25 CFR 900", "fr_document:2024-28302"]],
+    ["25 U.S.C. 5321 and 1076-AF81", ["usc:25 U.S.C. 5321", "rin:1076-AF81"]],
+    ["16 U.S.C. 2001-2009", ["usc:16 U.S.C. 2001-2009"]],
+    [
+      "16 U.S.C. 1531 and 2001-2009",
+      ["usc:16 U.S.C. 1531", "usc:16 U.S.C. 2001-2009"],
+    ],
+    ["HB 1100 25 CFR 900", ["state_bill:HB 1100", "cfr:25 CFR 900"]],
+    ["Washington HB 1100 25 CFR 900", ["state_bill:HB 1100", "cfr:25 CFR 900"]],
+    ["SB 5100 25 USC 5321", ["state_bill:SB 5100", "usc:25 U.S.C. 5321"]],
+    [
+      "S. 1234 25 U.S.C. 5321",
+      ["state_bill:S1234", "federal_bill:s 1234", "usc:25 U.S.C. 5321"],
+    ],
+    [
+      "HB 1100 86 Fed. Reg. 1234",
+      ["state_bill:HB 1100", "fr_citation:86 FR 1234"],
+    ],
+    ["hr 1234 118 US House", ["federal_bill:hr 1234 118"]],
+    ["S 99 119 U.S. Senate", ["federal_bill:s 99 119"]],
+  ])("keeps each identifier its own reading in %s", (input, expected) => {
+    expect(
+      routeQuery(input).readings.map((r) => `${r.kind}:${r.identifier}`),
+    ).toEqual(expected);
+  });
+
   it("finds a citation inside plain words and makes it the default suggestion", () => {
     const route = routeQuery("tribal consultation 25 CFR 900");
     expect(route.plainWords).toBe(false);
@@ -314,6 +341,12 @@ describe("bare bill numbers", () => {
     });
   });
 
+  it("reads no Congress number after a state bill form", () => {
+    const route = routeQuery("HB 1100, 12 amendments");
+    expect(route.readings.map((r) => r.jurisdiction)).toEqual(["WA"]);
+    expect(route.ambiguous).toBe(true);
+  });
+
   it("drops a biennium that is not a Washington biennium", () => {
     expect(only("Washington HB 1100 2024-25").identifier).toBe("HB 1100");
   });
@@ -375,11 +408,23 @@ describe("jurisdiction only from explicit evidence", () => {
       "Sample v Washington HB 2500",
       "State of Washington vs Sample HB 2500",
       "Washington v Example HB 1500",
+      "Sample Washington Tribes' HB 2100",
+      "Sample Oregon Indians' HB 2100",
+      "'Sample Washington Tribes' HB 2100",
+      "Sample Washington Tribes’ HB 2100",
+      "Sample Washington Tribes'. HB 2100",
+      "National Congress of American Indians S 1001",
+      "National Congress of American Indians HB 1100",
     ]) {
       const route = routeQuery(input);
-      expect(route.maskedSpans.length).toBeGreaterThan(0);
-      expect(route.ambiguous).toBe(true);
+      expect(route.maskedSpans.length, input).toBeGreaterThan(0);
+      expect(route.ambiguous, input).toBe(true);
     }
+    expect(
+      routeQuery("National Congress of American Indians HB 1100").readings.map(
+        (r) => r.label,
+      ),
+    ).toEqual(["Washington HB 1100"]);
   });
 
   it("takes no state from a Nation-name probe", () => {
@@ -552,6 +597,9 @@ describe("law names and plain words", () => {
     "salmon habitat consultation",
     "tribal broadband grants 2025",
     "2025-26",
+    "tribal grants 2025-2026",
+    "FY 2024-2025 consultation plan",
+    "2025-2030 strategic plan",
     "",
     "   ",
   ])("treats %j as plain words", (input) => {
