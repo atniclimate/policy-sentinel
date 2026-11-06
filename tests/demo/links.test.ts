@@ -502,3 +502,74 @@ describe("related bills a guard withheld", () => {
     expect(texts).toContain(`HR 4005, 199th Congress: ${chain.titleWithheld}`);
   });
 });
+
+describe("relation names a source returns (decision 12)", () => {
+  const RETRIEVED = "2099-01-07T11:59:00.000Z";
+  const bill = (relation: string) => ({
+    relation,
+    identifiedBy: "CRS",
+    identifier: "HR 4005, 199th Congress",
+    title: "Example Watershed Act",
+    officialUrl: "https://www.congress.gov/bill/199th-congress/house-bill/4005",
+  });
+  const labels = (rows: ChainRow[]) =>
+    rows.map((r) => [r.label, r.labelVerbatim ?? false]);
+
+  it("shows a GovInfo name on the list verbatim and withholds any other, keeping the row", () => {
+    const rows = relatedRows(
+      {
+        ok: true,
+        source: "govinfo",
+        basis: "source_field",
+        accessId: "BILLS-199hr1001ih",
+        relations: [
+          { relation: "Bill Versions", collection: "BILLS" },
+          { relation: "Implements Example Rule", collection: "FR" },
+        ],
+        retrievedAt: RETRIEVED,
+      },
+      frRecord,
+    );
+    expect(labels(rows)).toEqual([
+      ["Bill Versions", true],
+      [chain.relationWithheld, false],
+    ]);
+  });
+
+  it("does the same for Congress.gov relationship types, and the withheld row still links", () => {
+    const rows = relatedRows(
+      {
+        ok: true,
+        source: "congress",
+        basis: "source_field",
+        bill: "hr 4004 199",
+        records: [bill("Identical bill"), bill("Authorized by Example Act")],
+        total: 2,
+        retrievedAt: RETRIEVED,
+      },
+      frRecord,
+    );
+    expect(labels(rows)).toEqual([
+      ["Identical bill", true],
+      [chain.relationWithheld, false],
+    ]);
+    expect(links(rows).map((r) => r.target.identifier)).toEqual([
+      "HR 4005, 199th Congress",
+      "HR 4005, 199th Congress",
+    ]);
+    expect(JSON.stringify(rows)).not.toContain("Authorized by");
+  });
+});
+
+describe("a note citation in the text", () => {
+  it("keeps the word note in the row it links", () => {
+    const rows = citationsInText(
+      [{ text: "See 25 U.S.C. 2801 note.", locator: "Section 9" }],
+      frRecord,
+    );
+    const link = rows.find((r) => r.kind === "link");
+    expect(link && link.kind === "link" ? link.targetText : "").toBe(
+      "25 U.S.C. 2801 note",
+    );
+  });
+});

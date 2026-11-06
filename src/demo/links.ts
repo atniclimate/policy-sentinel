@@ -24,6 +24,7 @@ import type {
 } from "./index-types.ts";
 import { LINK_NOTICES, linkLabel } from "./link-labels.ts";
 import type { LabelId } from "./link-labels.ts";
+import { relationShown } from "./relation-names.ts";
 import type {
   CongressRelatedBills,
   DemoCitation,
@@ -210,7 +211,7 @@ const reach = (
 export function targetOf(c: Cite): Target {
   switch (c.kind) {
     case "usc": {
-      const text = `${c.title} U.S.C. ${c.section}${c.etSeq ? " et seq." : ""}`;
+      const text = `${c.title} U.S.C. ${c.section}${c.etSeq ? " et seq." : ""}${"note" in c && c.note ? " note" : ""}`;
       return reach(
         "usc-index",
         `/us/usc/t${c.title}/s${c.section}`,
@@ -727,12 +728,18 @@ export function relatedTargetOf(citation: DemoCitation): RelatedTarget | null {
 
 /**
  * Rows for one expansion answer, labeled with the source's own relation
- * name. A list the source cut says so, so it never reads as complete.
+ * name when it is on the closed list (relation-names.ts); any other name is
+ * withheld and the row says so. A list the source cut says so, so it never
+ * reads as complete.
  */
 export function relatedRows(
   answer: GovInfoRelations | CongressRelatedBills,
   record: DemoCitation,
 ): ChainRow[] {
+  const named = (relation: string) =>
+    relationShown(relation)
+      ? { label: relation, labelVerbatim: true as const }
+      : { label: chain.relationWithheld };
   const p: Provenance = {
     sourceName: SOURCE_LABELS[answer.source] ?? answer.source,
     asOfLabel: "retrieved",
@@ -745,7 +752,7 @@ export function relatedRows(
   if (answer.source === "govinfo")
     return answer.relations.map((r) => ({
       ...note(p, "stated", r.relation, null),
-      labelVerbatim: true,
+      ...named(r.relation),
     }));
   const rows: ChainRow[] = answer.records.map((r) => ({
     ...link(p, "congress_related_bills", "forward", "", "source_field", {
@@ -758,8 +765,7 @@ export function relatedRows(
       family: "laws_and_bills",
       notice: null,
     }),
-    label: r.relation,
-    labelVerbatim: true,
+    ...named(r.relation),
   }));
   if (answer.total !== null && answer.total > answer.records.length)
     rows.push(

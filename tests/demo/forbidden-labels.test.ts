@@ -1,6 +1,7 @@
 // Design section 1 rule 2: the page's own chain labels and exports never use
 // a forbidden word. Official wording is skipped by field name, and only for
-// exactly VERBATIM_FIELDS (condition F6). The main session extends the export
+// exactly VERBATIM_FIELDS (condition F6) and the relation name (decision 12,
+// RELATION_FIELD). The main session extends the export
 // half when the chain joins buildDocument.
 import { cleanup, render } from "@testing-library/preact";
 import { h } from "preact";
@@ -13,6 +14,8 @@ import type { Reason } from "../../src/demo/discovery";
 import { buildDocument } from "../../src/demo/document";
 import type { DocBlock } from "../../src/demo/document";
 import { VERBATIM_FIELDS } from "../../src/demo/index-types";
+import { relatedRows } from "../../src/demo/links";
+import { RELATION_FIELD } from "../../src/demo/relation-names";
 import { foundByOf, reportEntries } from "../../src/demo/report-state";
 import type { ReportState } from "../../src/demo/report-state";
 import type { DemoCitation } from "../../src/demo/types";
@@ -24,9 +27,10 @@ import { policy } from "./frontend-fixtures";
 
 afterEach(cleanup);
 
-const SKIPPED = new Set<string>(VERBATIM_FIELDS);
+// Decision 12 adds the relation name as its own verbatim field.
+const SKIPPED = new Set<string>([...VERBATIM_FIELDS, RELATION_FIELD]);
 
-/** The panel's text with exactly the VERBATIM_FIELDS elements removed. */
+/** The panel's text with exactly the verbatim field elements removed. */
 function ownText(root: Element): { text: string; skipped: string[] } {
   const copy = root.cloneNode(true) as Element;
   const marked = [...copy.querySelectorAll("[data-verbatim]")];
@@ -64,6 +68,39 @@ describe("forbidden words in chain labels and exports", () => {
       expect(forbiddenHits(text)).toEqual([]);
       cleanup();
     }
+  });
+
+  it("withholds a relation name off the closed list, so its forbidden words never reach the page", () => {
+    const relations = [
+      { relation: "Public and Private Laws", collection: "PLAW" },
+      { relation: "Implements Example Rule", collection: "FR" },
+      { relation: "Authorized by Example Act", collection: "PLAW" },
+    ];
+    expect(relations.flatMap((r) => forbiddenHits(r.relation))).toEqual([
+      "implements",
+      "authorized by",
+    ]);
+    const rows = relatedRows(
+      {
+        ok: true,
+        source: "govinfo",
+        basis: "source_field",
+        accessId: "BILLS-199hr1001ih",
+        relations,
+        retrievedAt: "2099-01-07T11:59:00.000Z",
+      },
+      frRecord,
+    );
+    const { container } = render(
+      h(LinkedRecordsPanel, {
+        rows: [],
+        expansions: [{ id: "govinfo_related", state: "done", rows }],
+      }),
+    );
+    const { text, skipped } = ownText(container);
+    expect(skipped).toEqual([RELATION_FIELD]);
+    expect(forbiddenHits(container.textContent ?? "")).toEqual([]);
+    expect(forbiddenHits(text)).toEqual([]);
   });
 
   it("would catch a forbidden word: the fixture's official wording holds one", () => {

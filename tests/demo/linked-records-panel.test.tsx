@@ -8,10 +8,15 @@ import {
 } from "@testing-library/preact";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LinkedRecordsPanel } from "../../demo/app/LinkedRecordsPanel";
-import { cfrPartLinks, uscSectionLinks } from "../../src/demo/links";
+import {
+  cfrPartLinks,
+  relatedRows,
+  uscSectionLinks,
+} from "../../src/demo/links";
 import {
   cfrFile,
   cfrShard,
+  frRecord,
   NOW,
   staleCfrFile,
   uscFile,
@@ -120,11 +125,42 @@ describe("LinkedRecordsPanel", () => {
     render(<LinkedRecordsPanel rows={[]} expansions={answered()} />);
     expect(screen.getByText("Related Documents")).toHaveAttribute(
       "data-verbatim",
-      "label",
+      "relation",
     );
     expect(screen.getByRole("alert")).toHaveTextContent(
       "The source did not answer.",
     );
+  });
+
+  it("marks a listed relation name as relation and states a withheld one unmarked", () => {
+    const rows = relatedRows(
+      {
+        ok: true,
+        source: "govinfo",
+        basis: "source_field",
+        accessId: "BILLS-199hr1001ih",
+        relations: [
+          { relation: "Public and Private Laws", collection: "PLAW" },
+          { relation: "Example Unlisted Relation", collection: "BILLS" },
+        ],
+        retrievedAt: "2099-01-07T11:59:00.000Z",
+      },
+      frRecord,
+    );
+    render(
+      <LinkedRecordsPanel
+        rows={[]}
+        expansions={[{ id: "govinfo_related", state: "done", rows }]}
+      />,
+    );
+    expect(screen.getByText("Public and Private Laws")).toHaveAttribute(
+      "data-verbatim",
+      "relation",
+    );
+    expect(
+      screen.getByText("relation name not shown here"),
+    ).not.toHaveAttribute("data-verbatim");
+    expect(screen.queryByText("Example Unlisted Relation")).toBeNull();
   });
 
   it("offers a hop into the index for CFR and U.S.C. targets", () => {

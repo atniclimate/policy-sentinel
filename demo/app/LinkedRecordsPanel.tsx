@@ -6,6 +6,7 @@ import { chain } from "../../src/demo/copy/chain";
 import { LINK_NOTICES } from "../../src/demo/link-labels";
 import { groupInText, labelNamesTarget } from "../../src/demo/links";
 import type { ChainLink, ChainRow, ChainSection } from "../../src/demo/links";
+import { RELATION_FIELD } from "../../src/demo/relation-names";
 
 export type ChainExpansionId = keyof typeof chain.expand;
 
@@ -27,7 +28,8 @@ const SECTIONS: readonly ChainSection[] = ["stated", "identifiers", "inText"];
 const INDEX_SOURCES = new Set(["cfr-index", "usc-index"]);
 
 // Verbatim official wording is marked so the forbidden-word test can skip
-// exactly VERBATIM_FIELDS and nothing else.
+// exactly the verbatim fields (VERBATIM_FIELDS and RELATION_FIELD) and
+// nothing else. Only a relation name on the closed list is labelVerbatim.
 const verbatim = (field: string | null | undefined) =>
   field ? { "data-verbatim": field } : {};
 
@@ -55,7 +57,9 @@ function Row({
         </figure>
       )}
       <p class="chain-label">
-        <strong {...verbatim(row.labelVerbatim && "label")}>{row.label}</strong>
+        <strong {...verbatim(row.labelVerbatim && RELATION_FIELD)}>
+          {row.label}
+        </strong>
         {row.kind === "link" && !labelNamesTarget(row) && (
           <>
             {" "}

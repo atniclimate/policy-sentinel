@@ -33,6 +33,8 @@ export const chain = {
   /** The link on a row whose label already names its target. */
   openRecord: "Open the record",
   titleWithheld: "title not shown here because it may name a person",
+  /** A relation name the source returned that is not on the reviewed list. */
+  relationWithheld: "relation name not shown here",
   rowsWithheld: (count: number) =>
     count === 1
       ? "1 citation found in this text is not shown here because its wording may hold personal contact details. Read the record at the source."
