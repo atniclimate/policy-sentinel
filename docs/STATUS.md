@@ -1,131 +1,86 @@
 # Status
 
-## Planning session of 2026-11-05 (D-118)
+As of 2026-11-06 (Pacific). The live page is still **release 0.10.1**
+(D-116). The Full 0.9 build (**0.9.1**, D-118 to D-132) is committed on branch
+`demo/live-pages` and pushed to it. It is not merged into `main`, not built
+into `docs/`, and the demo Worker is not redeployed.
 
-The owner set the Full 0.9 scope (D-118). A research swarm (nine source lanes
-with Parallel search and alternates, adversarial verification, a code map, Jev
-query typing, TERRA interop, a completeness critic) and four raw-byte follow-up
-lanes produced
-[`source-reviews/full09-source-survey-2026-11-05.md`](source-reviews/full09-source-survey-2026-11-05.md).
-The design, reviewed by an Opus logic review, the sovereignty reviewer (FAIL on
-draft 2, six blocking items, all addressed) and a Codex adversary (NO-GO on
-draft 1, addressed), is
-[`development/full09-design-2026-11-05.md`](development/full09-design-2026-11-05.md)
-(draft 4). Key finding: the policy chain can be built from part-level CFR
-authority and source wording and OLRC U.S. Code source credits.
+## Built on `demo/live-pages` (0.9.1, not published)
 
-The owner then answered every gate (D-119 to D-125): the release is **0.9.1**
-under the TERRA phase scheme, with ATNI ratification making 1.0 (D-120);
-safeguards stay on and ship as automated checks (D-121); Oregon OLIS agreement
-accepted for ATNI ([note](source-reviews/oregon-olis-odata-aua-2026-11-05.md),
-D-119); interim license PolyForm Noncommercial 1.0.0 for code and CC BY-NC-SA
-4.0 for documentation (D-122); keys move to the program account before
-pre-release ([keys and access](KEYS-AND-ACCESS.md), D-123); gate answers and
-three committee-library pilots (D-124); static index files on the
-[approved conditions](development/full09-index-conditions-2026-11-05.md), with
-the GovInfo CFR annual edition as the chain source (D-125). The planning records
-and license are merged into `main` (PR 21 and the session's closing pull
-request); the live page is unchanged at 0.10.1.
+- Tier 1 from the [Full 0.9 design](development/full09-design-2026-11-05.md)
+  (draft 4) on the [index conditions](development/full09-index-conditions-2026-11-05.md):
+  - search contract version 3 (version 1 and 2 answers unchanged for ATNI-ResIST);
+  - one search box that reads citations, bills, dockets and law names, offers
+    readings, and abstains when a query could mean more than one thing;
+  - the research chain panel (CFR parts a rule names, authority lines, in-text
+    citations, related records), each row with its basis, source, as-of and
+    live link;
+  - Grants.gov authority wording and Assistance Listings;
+  - federal court lookups (GovInfo courts, U.S. Reports);
+  - modes, the Briefing export, freshness notices.
+- Boundary B (sovereignty review of Wave 2): every blocking finding fixed with
+  a regression test that fails without the fix. Highlights:
+  - A query that names a Nation, Tribal court, case caption or treaty never
+    picks the U.S. Supreme Court.
+  - Person-shaped captions and related titles are withheld, and the page says so.
+  - Withheld authority lines and in-text citations are stated, never dropped
+    silently.
+  - Chain labels quote what OLRC says, not our own wording.
+  - Annual-edition CFR rows link to the GovInfo annual edition.
+- Wave 2b (D-126 to D-132):
+  - law aliases can carry note citations, acronyms and enacted-title marks;
+  - hashed Nation-name probes;
+  - Supreme Court case names shown verbatim;
+  - relation names only from a reviewed list;
+  - the source's own summary, collapsed and guarded, where its terms allow;
+  - search suggestions ranked by word start, with a bounded "possible match"
+    typo pass (uFuzzy as the filter);
+  - a reviewed plain-phrase table, shipped empty.
 
-Next bounded work: the Full 0.9 build run in a fresh session, from the launch
-prompt and owner-answers file kept outside the repository in
-`C:/dev/_scratch/policy-sentinel/full09-plan-20261105/`. The owner's browser
-reading (eCFR, Office of the Federal Register and OLRC terms, Supreme Court
-robots and terms, the SAM.gov CSV, Regulations.gov) can come during the run.
-Open decisions 1, 4 (Oregon), 5 and the license below are now answered; Idaho
-remains open.
+## Verification
 
-## Release 0.10.1 state
-
-As of 2026-10-23 (Pacific). **Release 0.10.1 is published** (D-116). The page
-was published through PR 19, merged as `2597846` at 2026-10-24 03:44:07 UTC.
-The demo Worker is version `93192de1-9556-4f81-907e-35ace346728d`, deployed
-from `51df81b`; the rollback target is `2465b6f7-6791-4505-aa3c-87f7f9779a74`
-(0.10.0). Development continues under D-114.
-
-## What a person can do on the live page
-
-- Follow a docket, RIN or document; the list stays in this browser, exports and
-  imports as a file, and "Check for new" (on request, at most 10 lookups) shows
-  "New since <date>" in the reader's calendar day, or says a lookup was
-  unavailable. "Last checked" always advances; when the source holds more
-  listings than were loaded, the page points to the official source.
-- Export comment closing dates as a calendar file (.ics), and a cited document
-  dated by the reader's calendar day.
-- Search Grants.gov forecasted and posted funding opportunities, with an
-  optional filter on its exact Tribal government and Tribal organization
-  labels (HHS attribution shown). A forecast's estimated date is never shown as
-  "Applications close".
-- Open "Unified Agenda entries for RIN <RIN>" from any row with a RIN.
-- When an official source asks the demo to wait, the page says so instead of
-  blaming the visitor; all visitors share one allowance for the api.data.gov
-  key (15 calls a minute).
-
-## Audit of 2026-10-23 (Jev-assisted)
-
-Four read-only lanes found 20 findings plus 5 smaller ones. Jev scored each
-claim and, after the fixes, answered "fixed? yes/no" (13 yes, 4 unsettled, 0
-no; every fix has a regression test). Findings 1-12, 15 and 17-20 are fixed;
-13, 14 and 16 (copies of canonical JSON, SHA-256 and JSON guards) were
-de-duplicated into `src/core/canonical-json.mjs`, `src/engine/pure-sha256.mjs`
-and `src/contracts/json-guards.ts`. Engine fixes: a Nation's authorized names
-and "<State> County" never count as state evidence; contact sections end only
-at named Federal Register captions; Federal Register data-as-of is retrieval
-time; the publish validator checks asset source tags. Scores and inputs:
-`C:/dev/_scratch/policy-sentinel/ponytail-audit-20261023/`.
-
-## Verification (2026-10-23 Pacific, 2026-10-24 UTC)
-
-- `npm run check` exit 0 at 20:42 Pacific: 2,887 tests passed, 16 skipped (the
-  Regulations.gov v2 flag); sealed corpus replay unchanged.
-- Sovereignty review of the Nation-evidence and contact fixes: its two findings
-  (an upper-case sub-label releasing an official's address; aliases and case)
-  are fixed with regression tests before the check.
-- Readback: all 17 runtime files byte-match `2597846`. Live verifier: 83 of 83.
-  One keyed GovInfo search through the new Worker: 200.
+- Full suite on the final tree before the push: see the session handoff for
+  counts and logs. Earlier on 2026-11-06: `npm test` 179 files and 3,633 tests
+  passed; typecheck, lint, format, source-boundary scan, build and the demo
+  index validator passed. Protected paths and `docs/` build output are
+  unchanged since 07a8dbb.
+- Not yet run: `npm run check` (once, before publishing), `demo:build`, the
+  T1.7 staff-task walk in a browser on the final build, and the accessibility
+  check.
 
 ## Not done, and carried limits
 
-- Regulations.gov v2 stays off: its API terms page renders empty. Comment end
-  dates are UTC timestamps for 11:59:59 PM Eastern, held back.
-- Kept on purpose by the refactor: copies whose inputs are not plain JSON or
-  whose errors differ (listed in the lane reports); `scripts/source-pack.ts`
-  stays pinned. `policy-search.mjs` source hashes in measurement records will
-  differ on the next measurement run.
-- Recovery now clears a torn (empty) lock; a recovery run at the instant a live
-  writer creates its lock could clear it. Recovery is explicit, by hand.
-- Left out of the audit report: a repeated Washington fetch, a Worker in-memory
-  counter, a quadratic curation lookup, Windows case collisions (fail closed),
-  unused `export` keywords. The Cache API on `workers.dev` is unconfirmed.
-- Unified Agenda data beyond the link needs an approved output boundary.
-  USAspending terms unread; Oregon OData needs the owner to accept its
-  Acceptable Use Agreement; Idaho has no API (contact needed).
-- Carried: Oregon and Idaho integration gaps; D-106 items 7-8; NCAI reuse
-  permission; untagged PDFs; Windows WebKit failures; no Safari, Firefox,
-  screen-reader, print or outside-user acceptance. The verifier needs
-  `PLAYWRIGHT_CORE` and `--executable`.
-- The governance edits (`AGENTS.md` with the D-114 wording, `CLAUDE.md`,
-  `.claude/settings.json` and the Codex hook and its test, both allowing
-  `gh pr create`) are committed as `d88a070` and merged into `main` through PR
-  20 (`4b397fe`, 2026-10-24 05:38 UTC, D-117); Pages rebuilt and all 17 runtime
-  files still byte-match 0.10.1. The untracked owner documents under `docs/`
-  stay uncommitted.
+- The law alias table and the plain-phrase table ship empty. Alias entries
+  wait on the OLRC terms reading, then a raw fetch per page and the owner's bulk
+  approval. Phrase rows wait on the official term lists and the owner's ticks.
+- No index shard is acquired: the CFR annual edition waits on the GovInfo
+  policies wording, the U.S. Code on the OLRC terms. eCFR's robots.txt
+  disallows the planned versioner path, so eCFR stays a link-out only.
+- The Supreme Court slip-opinion RSS row (Tier 2) is not viable as designed:
+  robots.txt disallows `/rss/`.
+- Wave 3 (Tier 2: Oregon, Washington, committee libraries, local documents,
+  interop, treaty link target) is not started.
+- Non-blocking review items are recorded for the next session. These include
+  chapter-shard lookup, the eCFR hop's as-of wording, a demo-index schema
+  `note` field before the next CFR acquisition, and `relation` in the verbatim
+  field list.
 
 ## Next bounded work
 
-Owner use of 0.10.1 on the live page. Then the Regulations.gov decision below,
-or the taxonomy review.
+A fresh session: boundary C on Waves 2b and 3, then release preparation.
+Release preparation means `npm run check`, `demo:build`, the T1.7 walk, the
+owner's walk steps, accessibility, the PR body and Worker deployment notes.
+Each publication step needs the owner's command.
 
 ## Open owner decisions
 
-1. Regulations.gov: switch on docket lookup and type filter on the User Notice
-   reading? Show comment end dates as the Eastern calendar day?
-2. Taxonomy proposal: which rows to approve; Tribal topics as a facet; model
-   judgment reference metadata for climate adaptation (D-114).
-3. Unified Agenda index as a new public output (Government levels affected)?
-4. Oregon OData Acceptable Use Agreement; Idaho contact.
-5. Keep or cancel the weekly Parallel monitors.
-6. Carried from earlier: first real release definition; following in that
-   release; engine use of the api.data.gov key and eCFR/Oregon terms; Nation
-   picker; deferrals; archiving ROADMAP; standing publication permission and
-   license; Tribal documents in federal results; NCAI reply.
+1. N17: OLRC terms (supports the alias page fetch), eCFR (robots disallows
+   the planned path), Office of the Federal Register (keyless API invited; no
+   NARA or OFR seals). N19: Supreme Court RSS (disallowed).
+2. N9 SAM.gov listings file; Regulations.gov terms; GovInfo policies wording
+   for the CFR index.
+3. Reviews: the relation-name list, the alias bulk list after the fetch, the
+   plain-phrase rows, and the real hash file (generated by the owner from the
+   recognition notice).
+4. Carried: Idaho contact; taxonomy proposal; Unified Agenda output; first real
+   release definition; archiving `ROADMAP.yaml`.
