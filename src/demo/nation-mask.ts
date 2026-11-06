@@ -45,7 +45,8 @@ const WEAK_ANCHOR = /^(?:village|villages|islands?|community|communities)$/i;
 // it; any word ending in "tribe" counts, which over-masks rare English words.
 const JOINED_TRIBE = /^(?!diatribes?$)\p{L}+tribes?$/iu;
 const CONFEDERATED = /^confederated$/i;
-const CAPTION_V = /^vs?\.$/i;
+// The period is optional: a typed caption often drops it, and over-masking is safe.
+const CAPTION_V = /^vs?\.?$/i;
 
 const STOP = new Set(
   (

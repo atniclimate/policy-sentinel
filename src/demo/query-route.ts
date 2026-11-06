@@ -17,7 +17,7 @@
 import { findCitations } from "./cite-patterns.ts";
 import { router as copy } from "./copy/router.ts";
 import type { LawAliasFile } from "./index-types.ts";
-import { maskProtectedSpans } from "./nation-mask.ts";
+import { maskProtectedSpans, type ProtectedSpan } from "./nation-mask.ts";
 
 export type ReadingKind =
   | "docket"
@@ -223,7 +223,9 @@ const CONGRESS_HINT =
   /\b(\d{2,3})(?:st|nd|rd|th)\s+Congress\b|\bCongress\s+(\d{2,3})\b/i;
 const FEDERAL_WORDS =
   /\b(?:Congress|congressional|U\.S\.\s+(?:House|Senate))\b/i;
-const STATE_NAME = /\b(Washington|Oregon|Idaho)\b(?!\s*,?\s*D\.?\s?C\b)/gi;
+// A place named after a state (Washington County, Oregon City) is not the state.
+const STATE_NAME =
+  /\b(Washington|Oregon|Idaho)\b(?!\s*,?\s*D\.?\s?C\b)(?!\s+(?:County|City|Falls|Trail|State\s+(?:University|College))\b)/gi;
 const STATE_OF: Readonly<Record<string, State>> = {
   washington: "WA",
   oregon: "OR",
@@ -456,7 +458,8 @@ export function routeQuery(
   const hintedCongress = congressHint
     ? Number(congressHint[1] ?? congressHint[2])
     : null;
-  for (const m of input.matchAll(BILL)) {
+  const bills = [...input.matchAll(BILL)];
+  for (const m of bills) {
     const start = m.index;
     const end = start + m[0].length;
     const g = m.groups ?? {};
@@ -475,7 +478,7 @@ export function routeQuery(
             ? "house"
             : "senate";
     const states = new Set(namedStates);
-    const postal = postalNextTo(masked, start, end);
+    const postal = postalNextTo(masked, start, end, bills);
     if (postal) states.add(postal);
     const federalNamed =
       g.cong !== undefined ||
@@ -545,7 +548,7 @@ export function routeQuery(
   }
 
   // Court dockets.
-  const courts = namedCourts(input, masked);
+  const courts = namedCourts(input, masked, spans);
   scan(DISTRICT_DOCKET, (m) => [
     {
       kind: "court_docket",
@@ -665,26 +668,56 @@ function washingtonBiennium(text: string): boolean {
   return start % 2 === 1 && Number(text.slice(5)) === (start + 1) % 100;
 }
 
-/** WA, OR or ID in capitals right before or after the bill, outside masked spans. */
+/**
+ * WA, OR or ID in capitals right before or after the bill, outside masked
+ * spans. A code that sits between two bills ("HB 2500 OR HB 2600") is a
+ * conjunction as likely as a state, so it does not count.
+ */
 function postalNextTo(
   masked: string,
   start: number,
   end: number,
+  bills: readonly RegExpExecArray[],
 ): State | null {
-  const before = /(?:^|[\s(,])(WA|OR|ID)[\s,.)]*$/.exec(masked.slice(0, start));
+  const billEndsAt = (pos: number) =>
+    bills.some((b) => {
+      const bEnd = b.index + b[0].length;
+      return bEnd <= pos && /^[\s,(]*$/.test(masked.slice(bEnd, pos));
+    });
+  const billStartsAt = (pos: number) =>
+    bills.some(
+      (b) => b.index >= pos && /^[\s,)]*$/.test(masked.slice(pos, b.index)),
+    );
+  const before = /(?<![^\s(,])(WA|OR|ID)[\s,.)]*$/.exec(masked.slice(0, start));
   const after = /^[\s,(]*(WA|OR|ID)(?![\w])/.exec(masked.slice(end));
-  return ((before?.[1] ?? after?.[1]) as State | undefined) ?? null;
+  const fromBefore = before && !billEndsAt(before.index) ? before[1] : null;
+  const fromAfter =
+    after && !billStartsAt(end + after[0].length) ? after[1] : null;
+  return ((fromBefore ?? fromAfter) as State | null | undefined) ?? null;
 }
 
 function namedCourts(
   input: string,
   masked: string,
+  spans: readonly ProtectedSpan[],
 ): { supreme: boolean; circuits: string[]; state: State | null } {
   const stateCourt = STATE_SUPREME.exec(masked);
   const state = stateCourt
     ? (STATE_OF[(stateCourt[1] ?? stateCourt[2] ?? "").toLowerCase()] ?? null)
     : null;
-  const supremeMentions = [...input.matchAll(SUPREME_COURT)].length;
+  // A supreme court inside or next to a Nation name is that Nation's court,
+  // never the U.S. Supreme Court: count only unmasked mentions not touching one.
+  const nations = spans.filter((s) => s.kind === "nation_name");
+  const supremeMentions = [...masked.matchAll(SUPREME_COURT)].filter((m) => {
+    const mEnd = m.index + m[0].length;
+    if (/\btribal\s+$/i.test(masked.slice(0, m.index))) return false;
+    return !nations.some(
+      (s) =>
+        (s.end <= m.index && /^\s*$/.test(input.slice(s.end, m.index))) ||
+        (s.start >= mEnd &&
+          /^\s+of\s+(?:the\s+)?$/i.test(input.slice(mEnd, s.start))),
+    );
+  }).length;
   const circuits = new Set<string>();
   for (const m of input.matchAll(COURT_CODE))
     circuits.add(`ca${(m[1] ?? "").toLowerCase()}`);

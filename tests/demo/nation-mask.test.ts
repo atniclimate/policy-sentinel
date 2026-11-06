@@ -107,6 +107,8 @@ describe("structural shapes (synthetic)", () => {
 
   it.each([
     ["Washington v. Oregon", "Washington v. Oregon"],
+    ["Washington v Oregon", "Washington v Oregon"],
+    ["Sample vs Washington HB 2500", "Sample vs Washington"],
     [
       "see Example Party vs. Sample Agency, 123 F.3d 456",
       "Example Party vs. Sample Agency",

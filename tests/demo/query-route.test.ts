@@ -240,6 +240,21 @@ describe("dashed numbers", () => {
     expect(route.ambiguous).toBe(false);
   });
 
+  it.each([
+    "Example Tribe of Idaho Supreme Court 99-1234",
+    "Sample Nation Supreme Court 99-1234",
+    "Supreme Court of the Sample Nation 99-1234",
+    "Example Tribal Supreme Court 99-1234",
+  ])("does not choose the U.S. Supreme Court for %s", (input) => {
+    const route = routeQuery(input);
+    expect(route.ambiguous).toBe(true);
+    expect(route.readings.map((r) => r.label)).toContain(
+      "Court of appeals docket 99-1234, court not named",
+    );
+    for (const r of route.readings)
+      expect(["WA", "OR", "ID"]).not.toContain(r.jurisdiction);
+  });
+
   it("gives a state supreme court docket no federal reading", () => {
     const r = only("Washington Supreme Court 23-1234");
     expect(pick(r)).toEqual({
@@ -311,6 +326,33 @@ describe("jurisdiction only from explicit evidence", () => {
     expect(routeQuery("OR notes on HB 2100").ambiguous).toBe(true);
   });
 
+  it("does not count a postal code between two bills", () => {
+    const hb = routeQuery("HB 2500 OR HB 2600");
+    expect(hb.ambiguous).toBe(true);
+    expect(hb.readings.map((r) => r.jurisdiction)).toEqual([
+      "WA",
+      "OR",
+      "WA",
+      "OR",
+    ]);
+    const mixed = routeQuery("HB 1234 OR SB 5678");
+    expect(mixed.readings.map((r) => r.identifier)).toEqual([
+      "HB 1234",
+      "SB 5678",
+    ]);
+    expect(mixed.ambiguous).toBe(true);
+  });
+
+  it.each([
+    ["Washington County HB 2500", ["WA", "OR"]],
+    ["Oregon City SB 5100", ["WA"]],
+    ["Idaho Falls HB 500", ["ID"]],
+  ])("takes no state from the place name in %s", (input, expected) => {
+    const route = routeQuery(input);
+    expect(route.ambiguous).toBe(true);
+    expect(route.readings.map((r) => r.jurisdiction)).toEqual(expected);
+  });
+
   it("counts a state name written out anywhere outside a masked span", () => {
     expect(only("HB 2100 from the Oregon session").jurisdiction).toBe("OR");
   });
@@ -320,6 +362,9 @@ describe("jurisdiction only from explicit evidence", () => {
       "Sample Washington Tribes HB 2100",
       "Example Band of Oregon Indians HB 2100",
       "Example v. Washington HB 2100",
+      "Sample v Washington HB 2500",
+      "State of Washington vs Sample HB 2500",
+      "Washington v Example HB 1500",
     ]) {
       const route = routeQuery(input);
       expect(route.maskedSpans.length).toBeGreaterThan(0);

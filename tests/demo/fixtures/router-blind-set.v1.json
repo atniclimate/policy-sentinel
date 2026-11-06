@@ -256,18 +256,18 @@
       "task": "find a Supreme Court opinion"
     },
     {
-      "query": "Marbury v. Madison, 5 U.S. 137",
-      "expect": { "kind": "us_reports", "identifier": "5 137" },
+      "query": "Example v. Sample, 698 U.S. 137",
+      "expect": { "kind": "us_reports", "identifier": "698 137" },
       "task": "cite with case caption"
     },
     {
-      "query": "Washington v. Washington State Commercial Passenger Fishing Vessel Association 443 U.S. 658",
-      "expect": { "kind": "us_reports", "identifier": "443 658" },
+      "query": "Washington v. Washington State Example Vessel Association 697 U.S. 658",
+      "expect": { "kind": "us_reports", "identifier": "697 658" },
       "task": "caption naming a state, no court named for state"
     },
     {
-      "query": "Worcester v. Georgia 31 U.S. 515",
-      "expect": { "kind": "us_reports", "identifier": "31 515" },
+      "query": "Sampleperson v. Georgia 699 U.S. 515",
+      "expect": { "kind": "us_reports", "identifier": "699 515" },
       "task": "historic opinion by cite"
     },
 
@@ -544,13 +544,13 @@
       "task": "find a Supreme Court docket"
     },
     {
-      "query": "Supreme Court No. 21-1484",
-      "expect": { "kind": "court_docket", "identifier": "21-1484" },
+      "query": "Supreme Court No. 99-1484",
+      "expect": { "kind": "court_docket", "identifier": "99-1484" },
       "task": "find a Supreme Court docket"
     },
     {
-      "query": "No. 22-451 Supreme Court",
-      "expect": { "kind": "court_docket", "identifier": "22-451" },
+      "query": "No. 98-451 Supreme Court",
+      "expect": { "kind": "court_docket", "identifier": "98-451" },
       "task": "find a Supreme Court docket"
     },
     {
