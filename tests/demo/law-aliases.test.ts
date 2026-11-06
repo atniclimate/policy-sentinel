@@ -149,13 +149,11 @@ describe("the alias checks", () => {
   });
 
   describe("reviewed titles with a mask anchor word", () => {
-    const anchorTitles = vocab.ANCHOR_WORD_TITLES as ReadonlyMap<
-      string,
-      readonly string[]
-    >;
-    const titles = [...anchorTitles.keys()];
+    const titles = vocab.ANCHOR_WORD_TITLES as readonly string[];
 
-    it("holds exactly the five owner-directed titles", () => {
+    it("holds exactly the five owner-directed titles, read-only", () => {
+      expect(Object.isFrozen(titles)).toBe(true);
+      expect(() => (titles as string[]).push("Sample Community Act")).toThrow();
       expect(titles).toEqual([
         "Community Services Block Grant Act",
         "Emergency Planning and Community Right-To-Know Act of 1986",
@@ -212,12 +210,43 @@ describe("the alias checks", () => {
       ).toMatch(/Nation name shape/);
     });
 
-    it("pins the spans the mask produces today, so a mask change forces a re-review", () => {
-      for (const [title, spans] of anchorTitles) {
-        const found = stringProblems(title, [], ".entries[0].popularName");
-        expect(found, title).toEqual([]);
-        expect(spans.length, title).toBeGreaterThan(0);
+    it("refuses a listed title when an exact name sits inside its allowed span", () => {
+      // The exact-name pass runs on its own, so a merged span cannot hide it.
+      expect(
+        stringProblems(
+          "Indian Community Economic Enhancement Act of 2020",
+          ["Indian Community"],
+          ".entries[0].popularName",
+        ),
+      ).toContain("Nation name shape");
+      expect(
+        stringProblems(
+          "PROGRESS for Indian Tribes Act",
+          ["Tribes"],
+          ".entries[0].popularName",
+        ),
+      ).toContain("Nation name shape");
+    });
+
+    it("passes each listed title only while the mask still produces its pinned span", () => {
+      for (const title of titles) {
+        expect(
+          stringProblems(title, [], ".entries[0].popularName"),
+          title,
+        ).toEqual([]);
+        // Without the list the structural mask refuses it, so the pin is live.
+        expect(stringProblems(title, [], ".entries[0].other"), title).toContain(
+          "Nation name shape",
+        );
       }
+    });
+
+    it("exports no way to change the list", () => {
+      const exported = Object.keys(vocab);
+      expect(exported).not.toContain("ANCHOR_WORD_SPANS");
+      expect(exported.filter((k) => /anchor/i.test(k)).sort()).toEqual([
+        "ANCHOR_WORD_TITLES",
+      ]);
     });
   });
 

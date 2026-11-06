@@ -63,42 +63,72 @@ function* strings(value, path = "") {
  * exact-name probes still run, so no other string can pass this way. A title
  * is added only after a person reads it on its OLRC page.
  */
-export const ANCHOR_WORD_TITLES = new Map(
-  Object.entries({
-    "Community Services Block Grant Act": ["Community"],
-    "Emergency Planning and Community Right-To-Know Act of 1986": ["Community"],
-    "Housing and Community Development Act of 1974": ["Community"],
-    "Indian Community Economic Enhancement Act of 2020": ["Indian Community"],
-    "PROGRESS for Indian Tribes Act": ["Indian Tribes"],
-  }).map(([title, spans]) => [title, Object.freeze(spans)]),
-);
-Object.freeze(ANCHOR_WORD_TITLES);
+const ANCHOR_WORD_SPANS = Object.freeze({
+  __proto__: null,
+  "Community Services Block Grant Act": Object.freeze(["Community"]),
+  "Emergency Planning and Community Right-To-Know Act of 1986": Object.freeze([
+    "Community",
+  ]),
+  "Housing and Community Development Act of 1974": Object.freeze(["Community"]),
+  "Indian Community Economic Enhancement Act of 2020": Object.freeze([
+    "Indian Community",
+  ]),
+  "PROGRESS for Indian Tribes Act": Object.freeze(["Indian Tribes"]),
+});
+/** The listed titles, read-only (tests pin them). */
+export const ANCHOR_WORD_TITLES = Object.freeze(Object.keys(ANCHOR_WORD_SPANS));
 
 const POPULAR_NAME_PATH = /^\.entries\[\d+\]\.popularName$/;
 
-function nationSpanTexts(text, names) {
-  return maskProtectedSpans(text, { names })
+function structuralSpanTexts(text) {
+  return maskProtectedSpans(text)
     .spans.filter((s) => s.kind === "nation_name")
     .map((s) => text.slice(s.start, s.end));
 }
 
+const fold = (s) => s.normalize("NFC").replace(/\s+/g, " ").toLowerCase();
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** Exact-name hits, run on their own so no exception can cover one. */
+function exactNameHit(text, names) {
+  const folded = fold(text);
+  return names.some((name) => {
+    const n = fold(name).trim();
+    return (
+      n.length > 0 &&
+      new RegExp(
+        `(?<![\\p{L}\\p{N}])${escapeRe(n)}(?![\\p{L}\\p{N}])`,
+        "u",
+      ).test(folded)
+    );
+  });
+}
+
 /**
  * Personal-pattern and Nation-name hits in one string (conditions G1, G3).
- * `path` is the JSON path of the string; only a popularName may use
- * ANCHOR_WORD_TITLES.
+ * `path` is the JSON path of the string. Exact names are checked first with
+ * no exception; then the structural mask, where only a popularName equal to a
+ * listed title may carry exactly its listed spans.
  */
 export function stringProblems(text, names = [], path = "") {
   const problems = [];
   if (personalPatternHits(text).length) problems.push("personal pattern");
-  const found = nationSpanTexts(text, names);
-  const pinned = POPULAR_NAME_PATH.test(path)
-    ? ANCHOR_WORD_TITLES.get(text)
-    : undefined;
+  const pinned =
+    POPULAR_NAME_PATH.test(path) && Object.hasOwn(ANCHOR_WORD_SPANS, text)
+      ? ANCHOR_WORD_SPANS[text]
+      : undefined;
+  const found = structuralSpanTexts(text);
   const reviewed =
-    pinned !== undefined &&
-    JSON.stringify(found) === JSON.stringify(pinned) &&
-    JSON.stringify(nationSpanTexts(text, [])) === JSON.stringify(pinned);
-  if (found.length && !reviewed) problems.push("Nation name shape");
+    pinned !== undefined && JSON.stringify(found) === JSON.stringify(pinned);
+  if (
+    exactNameHit(text, names) ||
+    (found.length && !reviewed) ||
+    (!reviewed &&
+      maskProtectedSpans(text, { names }).spans.some(
+        (s) => s.kind === "nation_name",
+      ))
+  )
+    problems.push("Nation name shape");
   return problems;
 }
 
