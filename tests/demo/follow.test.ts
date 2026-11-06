@@ -247,7 +247,8 @@ describe("following a docket, a RIN or a document", () => {
     });
     const reject = (value: unknown) =>
       expect(importFollows([], JSON.stringify(value))).toBeNull();
-    reject({ version: 2, followed: [] });
+    // FOLLOW_VERSION 2 accepts both 1 (migrated) and 2; an unknown version does not.
+    reject({ version: 3, followed: [] });
     reject({ version: 1, followed: [], extra: true });
     reject({ version: 1 });
     reject([item]);

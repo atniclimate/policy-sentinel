@@ -7,17 +7,26 @@
  */
 import { laneKeep, lookupReady, recordPlan } from "./discovery";
 import type { Lane, PlanDates } from "./discovery";
+import { FOLLOW_KINDS } from "./follow-kinds";
+import type { FollowKind } from "./follow-kinds";
 import type { DemoCitation, DemoSearchResponse } from "./types";
 import { citationValue, keyOf, object, text } from "./validation";
 
+export type { FollowKind };
+
 export const FOLLOW_KEY = "ps-demo-following-v1";
-export const FOLLOW_VERSION = 1;
+/**
+ * 2 opts in to new follow kinds (T1.6); the stored and exported shape of
+ * today's three kinds is unchanged, so a version 1 list or file migrates
+ * losslessly and re-exports as version 2 with the same items and
+ * last-checked dates.
+ */
+export const FOLLOW_VERSION = 2;
 export const MAX_FOLLOWED = 50;
 /** Far above 50 items with their records; a larger file is refused unread. */
 export const MAX_FOLLOW_FILE = 1_000_000;
 
-export type FollowKind = "docket" | "rin" | "document";
-const KINDS: readonly FollowKind[] = ["docket", "rin", "document"];
+const KINDS: readonly FollowKind[] = Object.keys(FOLLOW_KINDS) as FollowKind[];
 const FIELDS = [
   "id",
   "sourceId",
@@ -43,7 +52,7 @@ export interface Followed {
 }
 
 export const followId = (sourceId: string, kind: FollowKind, value: string) =>
-  `${sourceId}#${kind}:${value}`;
+  FOLLOW_KINDS[kind].id(sourceId, value);
 
 /**
  * The exact identifier lookups for an item, as Find related plans them for its
@@ -146,12 +155,17 @@ export function serializeFollows(list: readonly Followed[]): string {
   return JSON.stringify({ version: FOLLOW_VERSION, followed: list }, null, 2);
 }
 
-/** Throws on an unknown file shape; reports items that did not validate. */
+/**
+ * Throws on an unknown file shape; reports items that did not validate. A
+ * version 1 list (today's three kinds, the only ones a v1 writer could ever
+ * have stored) reads exactly like version 2: migration is a version bump
+ * alone, lossless, with the same items and last-checked dates.
+ */
 function readFollows(raw: string): { list: Followed[]; damaged: boolean } {
   if (raw.length > MAX_FOLLOW_FILE) throw new Error("Followed list too large");
   const saved = object(JSON.parse(raw));
   if (
-    saved.version !== FOLLOW_VERSION ||
+    (saved.version !== 1 && saved.version !== FOLLOW_VERSION) ||
     !Array.isArray(saved.followed) ||
     Object.keys(saved).length !== 2
   )

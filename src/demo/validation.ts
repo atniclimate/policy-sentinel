@@ -152,23 +152,71 @@ type CitationFields = Pick<
   | "topics"
   | "applicationsCloseOn"
   | "listedEligibility"
+  | "court"
+  | "docketNumber"
+  | "packageId"
+  | "lastModified"
+  | "caseCitationProvided"
+  | "assistanceListings"
+  | "authorityPassage"
+  | "versionDate"
+  | "correctionOf"
+  | "corrections"
+  | "authorityLine"
+  | "authorityLinePresent"
 >;
 
+/** Field names search contract v3 adds (design section 3 T1.1 rule 3). */
+const V3_FIELDS = [
+  "court",
+  "docketNumber",
+  "packageId",
+  "lastModified",
+  "caseCitationProvided",
+  "assistanceListings",
+  "authorityPassage",
+  "versionDate",
+  "correctionOf",
+  "corrections",
+  "authorityLine",
+  "authorityLinePresent",
+] as const;
+
 /**
- * The search contract v2 citation fields, parsed leniently for the Worker and
- * the page alike: an absent field stays absent, a malformed field or list item
- * is dropped, every list and string is bounded, and nothing here throws.
+ * The search contract v2 and v3 citation fields, parsed leniently for the
+ * Worker and the page alike: an absent field stays absent, a malformed field
+ * or list item is dropped, every list and string is bounded, and nothing
+ * here throws except a v3-only field on a version 1 or 2 answer.
  */
-export function citationFields(v: {
-  readonly commentsCloseOn?: unknown;
-  readonly commentsCloseWithheld?: unknown;
-  readonly docketIds?: unknown;
-  readonly rins?: unknown;
-  readonly cfrRefs?: unknown;
-  readonly topics?: unknown;
-  readonly applicationsCloseOn?: unknown;
-  readonly listedEligibility?: unknown;
-}): CitationFields {
+export function citationFields(
+  v: {
+    readonly commentsCloseOn?: unknown;
+    readonly commentsCloseWithheld?: unknown;
+    readonly docketIds?: unknown;
+    readonly rins?: unknown;
+    readonly cfrRefs?: unknown;
+    readonly topics?: unknown;
+    readonly applicationsCloseOn?: unknown;
+    readonly listedEligibility?: unknown;
+    readonly court?: unknown;
+    readonly docketNumber?: unknown;
+    readonly packageId?: unknown;
+    readonly lastModified?: unknown;
+    readonly caseCitationProvided?: unknown;
+    readonly assistanceListings?: unknown;
+    readonly authorityPassage?: unknown;
+    readonly versionDate?: unknown;
+    readonly correctionOf?: unknown;
+    readonly corrections?: unknown;
+    readonly authorityLine?: unknown;
+    readonly authorityLinePresent?: unknown;
+  },
+  version: 1 | 2 | 3 = 3,
+): CitationFields {
+  if (version !== 3 && V3_FIELDS.some((key) => v[key] !== undefined))
+    throw new Error(
+      `Search contract v3 citation fields on a version ${version} answer`,
+    );
   const strings = (
     value: unknown,
     max: number,
@@ -207,10 +255,80 @@ export function citationFields(v: {
   if (calendarDate(v.applicationsCloseOn))
     fields.applicationsCloseOn = v.applicationsCloseOn;
   if (v.listedEligibility === "tribal") fields.listedEligibility = "tribal";
+  if (version !== 3) return fields;
+  if (typeof v.court === "string" && plainSourceText(v.court, 10))
+    fields.court = v.court;
+  if (
+    typeof v.docketNumber === "string" &&
+    plainSourceText(v.docketNumber, MAX_DOCKET_LENGTH)
+  )
+    fields.docketNumber = v.docketNumber;
+  if (typeof v.packageId === "string" && plainSourceText(v.packageId, 120))
+    fields.packageId = v.packageId;
+  if (
+    typeof v.lastModified === "string" &&
+    plainSourceText(v.lastModified, 40) &&
+    Number.isFinite(Date.parse(v.lastModified))
+  )
+    fields.lastModified = v.lastModified;
+  if (typeof v.caseCitationProvided === "boolean")
+    fields.caseCitationProvided = v.caseCitationProvided;
+  if (Array.isArray(v.assistanceListings))
+    fields.assistanceListings = v.assistanceListings
+      .slice(0, 50)
+      .flatMap((item: unknown) => {
+        const listing =
+          item && typeof item === "object"
+            ? (item as Record<string, unknown>)
+            : {};
+        return plainSourceText(listing.number, 20) &&
+          plainSourceText(listing.title, 400)
+          ? [{ number: listing.number, title: listing.title }]
+          : [];
+      });
+  if (v.authorityPassage && typeof v.authorityPassage === "object") {
+    const passage = v.authorityPassage as Record<string, unknown>;
+    if (
+      plainSourceText(passage.text, 4000) &&
+      plainSourceText(passage.heading, 200) &&
+      plainSourceText(passage.locator, 500)
+    )
+      fields.authorityPassage = {
+        text: passage.text,
+        heading: passage.heading,
+        locator: passage.locator,
+      };
+  }
+  if (calendarDate(v.versionDate)) fields.versionDate = v.versionDate;
+  if (
+    typeof v.correctionOf === "string" &&
+    plainSourceText(v.correctionOf, 100)
+  )
+    fields.correctionOf = v.correctionOf;
+  const corrections = strings(v.corrections, 50, (item) =>
+    plainSourceText(item, 100),
+  );
+  if (corrections) fields.corrections = corrections;
+  if (
+    typeof v.authorityLine === "string" &&
+    plainSourceText(v.authorityLine, 2000)
+  )
+    fields.authorityLine = v.authorityLine;
+  if (typeof v.authorityLinePresent === "boolean")
+    fields.authorityLinePresent = v.authorityLinePresent;
   return fields;
 }
 
-export function citationValue(value: unknown): DemoCitation {
+/**
+ * `version` gates the search contract v3 citation fields: pass the search
+ * criteria version where it is known (searchValue does); other callers
+ * (follow.ts, report-state.ts) read back an already-validated citation and
+ * default to the most permissive version.
+ */
+export function citationValue(
+  value: unknown,
+  version: 1 | 2 | 3 = 3,
+): DemoCitation {
   const v = object(value);
   const source = sourceId(v.sourceId);
   const date = v.date === null ? null : text(v.date, 10);
@@ -239,7 +357,7 @@ export function citationValue(value: unknown): DemoCitation {
     summary: v.summary === null ? null : text(v.summary, 20000, true),
     textAvailable: v.textAvailable,
     matchKey,
-    ...citationFields(v),
+    ...citationFields(v, version),
   };
 }
 
@@ -334,7 +452,7 @@ export function searchValue(
   }
   const ids = new Set<string>();
   const results = list(v.results, 10).map((item) => {
-    const citation = citationValue(item);
+    const citation = citationValue(item, criteria.version);
     if (citation.sourceId !== source || ids.has(keyOf(citation)))
       throw new Error("Invalid search result identity");
     // A row may say it was found by the eligibility filter only when the filter was sent.
