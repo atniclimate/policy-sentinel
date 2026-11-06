@@ -3,6 +3,7 @@
 // the originating source; nothing here becomes a record or reaches public output.
 //
 //   node scripts/dev-ai/parallel-scout.mjs scout
+//   node scripts/dev-ai/parallel-scout.mjs search <spec.json>
 //   node scripts/dev-ai/parallel-scout.mjs monitors:create | monitors:events
 //   node scripts/dev-ai/parallel-scout.mjs research <name>
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
@@ -256,6 +257,29 @@ if (command === "scout") {
   for (const [id, monitorId] of Object.entries(monitors))
     out[id] = await parallelGet(`/v1/monitors/${monitorId}/events`);
   console.log(save("monitor-events.json", out));
+} else if (command === "search" && name) {
+  // One ad hoc search from a spec file: { objective, queries, domains?, out? }.
+  // An empty or missing domain list searches the open web.
+  const spec = JSON.parse(readFileSync(name, "utf8"));
+  if (!spec.objective || !Array.isArray(spec.queries) || !spec.queries.length)
+    throw new Error("search spec needs objective and a non-empty queries list");
+  const result = await parallelSearch({
+    objective: spec.objective,
+    search_queries: spec.queries,
+    mode: "advanced",
+    advanced_settings: {
+      ...(spec.domains?.length
+        ? { source_policy: { include_domains: spec.domains } }
+        : {}),
+      excerpt_settings: { max_chars_per_result: 1500 },
+      max_results: 8,
+    },
+  });
+  const file = spec.out ?? `search-${Date.now()}.json`;
+  console.log(
+    save(file, { spec, results: result.results, warnings: result.warnings }),
+  );
+  for (const r of result.results ?? []) console.log("-", r.url, "|", r.title);
 } else if (command === "research" && RESEARCH[name]) {
   const spec = RESEARCH[name];
   const run = await parallelPost("/v1/tasks/runs", {
@@ -271,7 +295,7 @@ if (command === "scout") {
   console.log(save(`research-${name}.json`, result));
 } else {
   console.log(
-    "commands: scout | monitors:create | monitors:events | research <" +
+    "commands: scout | search <spec.json> | monitors:create | monitors:events | research <" +
       Object.keys(RESEARCH).join("|") +
       ">",
   );

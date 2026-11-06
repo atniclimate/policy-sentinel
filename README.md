@@ -384,6 +384,9 @@ npx wrangler secret put DATA_GOV_API_KEY --config worker/wrangler.toml
 node scripts/verify-demo-browser.mjs --url https://atniclimate.github.io/policy-sentinel/ --out <folder>
 ```
 
+Which keys and agreements the demo uses, where they are held and how they are
+rotated: [keys and access](docs/KEYS-AND-ACCESS.md).
+
 Embed the page in another site with an iframe and add `?embed=1` for the compact
 layout. Add `?api=http://127.0.0.1:8787` on a localhost copy to test against a
 local Worker.
@@ -688,6 +691,19 @@ repository, in its ATNI Climate Resilience Program context. No code or software
 architecture from that earlier project was copied into this one. The seal and
 the citation say who develops the tool. They are not a statement about any
 source, record or result the tool shows.
+
+## License
+
+Interim license; ATNI will set the full license at 1.0. Policy Sentinel's
+original code is licensed under the
+[PolyForm Noncommercial License 1.0.0](LICENSE): free to use, change and share
+for noncommercial purposes, including use by government institutions,
+charitable, educational, public research and environmental protection
+organizations. It is not an open source license. Documentation is under
+CC BY-NC-SA 4.0 ([details](LICENSE-docs.md)). Third-party software and fonts
+keep their own licenses ([notices](THIRD-PARTY-NOTICES.md)). Official source
+material stays under each source's terms, and the ATNI seal is not licensed for
+reuse.
 
 ## Disclaimer
 

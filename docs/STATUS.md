@@ -1,5 +1,35 @@
 # Status
 
+## Planning session of 2026-11-05 (D-118)
+
+The owner set the Full 0.9 scope (D-118). A research swarm (nine source lanes
+with Parallel search and alternates, adversarial verification, a code map, Jev
+query typing, TERRA interop, a completeness critic) and four raw-byte follow-up
+lanes produced
+[`source-reviews/full09-source-survey-2026-11-05.md`](source-reviews/full09-source-survey-2026-11-05.md).
+The design, reviewed by an Opus logic review, the sovereignty reviewer (FAIL on
+draft 2, six blocking items, all addressed) and a Codex adversary (NO-GO on
+draft 1, addressed), is
+[`development/full09-design-2026-11-05.md`](development/full09-design-2026-11-05.md)
+(draft 3). Key finding: the policy chain can be built keyless from eCFR part
+`AUTH` and `SOURCE` elements and OLRC U.S. Code source credits. A launch prompt
+for the build run and an owner-answers file are kept outside the repository in
+`C:/dev/_scratch/policy-sentinel/full09-plan-20261105/`. The only code change
+is a `search` command in `scripts/dev-ai/parallel-scout.mjs`. Nothing from this
+session is committed yet; the live page is unchanged at 0.10.1.
+
+The owner accepted the Oregon OLIS Open Data Service Acceptable Use Agreement
+for ATNI and emailed the Legislature helpdesk (D-119,
+[note](source-reviews/oregon-olis-odata-aua-2026-11-05.md)); open decision 4
+below is now answered for Oregon, and Idaho remains open.
+
+Next bounded work: the owner answers the Tier 1 items (name, reading of "after
+0.9", the eCFR and OLRC terms read in a browser, the static index output
+boundary, the Tier 2 cutoff), then the Full 0.9 build run starts from the
+launch prompt.
+
+## Release 0.10.1 state
+
 As of 2026-10-23 (Pacific). **Release 0.10.1 is published** (D-116). The page
 was published through PR 19, merged as `2597846` at 2026-10-24 03:44:07 UTC.
 The demo Worker is version `93192de1-9556-4f81-907e-35ace346728d`, deployed
@@ -69,8 +99,10 @@ time; the publish validator checks asset source tags. Scores and inputs:
   `PLAYWRIGHT_CORE` and `--executable`.
 - The governance edits (`AGENTS.md` with the D-114 wording, `CLAUDE.md`,
   `.claude/settings.json` and the Codex hook and its test, both allowing
-  `gh pr create`) are committed as `d88a070` on `demo/live-pages`, not yet on
-  `main`. The untracked owner documents under `docs/` stay uncommitted.
+  `gh pr create`) are committed as `d88a070` and merged into `main` through PR
+  20 (`4b397fe`, 2026-10-24 05:38 UTC, D-117); Pages rebuilt and all 17 runtime
+  files still byte-match 0.10.1. The untracked owner documents under `docs/`
+  stay uncommitted.
 
 ## Next bounded work
 
@@ -79,16 +111,14 @@ or the taxonomy review.
 
 ## Open owner decisions
 
-1. Merge `demo/live-pages` (the governance commit and the 0.10.1 record) into
-   `main`?
-2. Regulations.gov: switch on docket lookup and type filter on the User Notice
+1. Regulations.gov: switch on docket lookup and type filter on the User Notice
    reading? Show comment end dates as the Eastern calendar day?
-3. Taxonomy proposal: which rows to approve; Tribal topics as a facet; model
+2. Taxonomy proposal: which rows to approve; Tribal topics as a facet; model
    judgment reference metadata for climate adaptation (D-114).
-4. Unified Agenda index as a new public output (Government levels affected)?
-5. Oregon OData Acceptable Use Agreement; Idaho contact.
-6. Keep or cancel the weekly Parallel monitors.
-7. Carried from earlier: first real release definition; following in that
+3. Unified Agenda index as a new public output (Government levels affected)?
+4. Oregon OData Acceptable Use Agreement; Idaho contact.
+5. Keep or cancel the weekly Parallel monitors.
+6. Carried from earlier: first real release definition; following in that
    release; engine use of the api.data.gov key and eCFR/Oregon terms; Nation
    picker; deferrals; archiving ROADMAP; standing publication permission and
    license; Tribal documents in federal results; NCAI reply.

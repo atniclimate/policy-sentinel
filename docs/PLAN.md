@@ -10,6 +10,21 @@ A Tribal policy, natural resources or legal staff member opens one page, searche
 
 `ROADMAP.yaml` and its validators, the earlier plans and the operating model are retained record. They stay unchanged, are still validated mechanically, and are not the working plan. Engine parts built for those plans (the text extractor, the acquisition runner, custody, search) are pulled in when a milestone needs them, not finished for their own sake.
 
+## Full 0.9 (D-118)
+
+The owner set the Full 0.9 scope on 2026-11-05: court case search, policy
+chaining across treaties, laws, rules and decisions, Washington, Oregon and
+Idaho law with monitoring, all sources live, context modes, best-fit search with
+suggestions, local documents, and TERRA interoperability. It is Sentinel's
+entry in the TERRA 0.9.x release candidate (mid-December 2026). The reviewed
+design is [`development/full09-design-2026-11-05.md`](development/full09-design-2026-11-05.md):
+Tier 1 is a core release candidate built from keyless official sources and
+existing hosts; Tier 2 additions land only when their owner gate is answered by
+the cutoff; Tier 3 follows 0.9. The research behind it is summarized in
+[`source-reviews/full09-source-survey-2026-11-05.md`](source-reviews/full09-source-survey-2026-11-05.md).
+The milestones below stay in force; Full 0.9 acceptance is the staff-task list
+in the design, section T1.7.
+
 ## Milestones
 
 Acceptance correction under D-109 and D-110: selecting an NCAI draft resolution
