@@ -187,8 +187,10 @@ async function searchWords(
     );
   const data = record(parseJson(bytes));
   const retrievedAt = new Date().toISOString();
+  const rows = resultRows(data.results);
+  const total = resultCount(data.count);
   const results: DemoCitation[] = [];
-  for (const value of resultRows(data.results)) {
+  for (const value of rows) {
     const row = uscourtsRow(record(value), retrievedAt);
     // Granules of one package are one case.
     if (row && !results.some((r) => r.identifier === row.identifier))
@@ -197,11 +199,14 @@ async function searchWords(
   return answer(
     criteria,
     results,
-    resultCount(data.count),
-    // A next token, not the count, says GovInfo has more past this one page.
-    validCursorToken(data.offsetMark) && data.offsetMark !== "*"
-      ? { kind: "stopped", reason: "cap" }
-      : { kind: "stopped", reason: "unknown" },
+    total,
+    // GovInfo's count covers raw rows, so it is checked first: a short last
+    // page may still carry a token. Otherwise a next token says it has more.
+    total !== null && rows.length >= total
+      ? { kind: "stopped", reason: "complete" }
+      : validCursorToken(data.offsetMark) && data.offsetMark !== "*"
+        ? { kind: "stopped", reason: "cap" }
+        : { kind: "stopped", reason: "unknown" },
   );
 }
 

@@ -625,6 +625,46 @@ describe("upstream validation and identity", () => {
     });
   });
 
+  it("withholds a court caption that may name a person, as the court cases source does", async () => {
+    const court = { collectionCode: "USCOURTS", dateIssued: "2099-03-04" };
+    installFetch({
+      "api.govinfo.gov": () =>
+        reply({
+          count: 3,
+          results: [
+            {
+              ...court,
+              title: "Sampleperson v. Example County",
+              packageId: "USCOURTS-wawd-2_99-cv-00123",
+            },
+            {
+              ...court,
+              title: "Example County v. United States",
+              packageId: "USCOURTS-ca9-99-12345",
+            },
+            {
+              collectionCode: "USREPORTS",
+              title: "Example State v. Mr. Sampleperson",
+              packageId: "USREPORTS-199",
+              granuleId: "USREPORTS-199-42",
+            },
+          ],
+        }),
+    });
+    const res = await call(
+      "/api/search?source=govinfo&q=collection%3AUSCOURTS%20AND%20(water)",
+      { DATA_GOV_API_KEY: "synthetic-key" },
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.results.map((r: { title: string }) => r.title)).toEqual([
+      "Case name not shown (USCOURTS-wawd-2_99-cv-00123)",
+      "Example County v. United States",
+      "Case name not shown (USREPORTS-199/USREPORTS-199-42)",
+    ]);
+    expect(JSON.stringify(body)).not.toContain("Sampleperson");
+  });
+
   it.each([
     ["govinfo", "example", "api.govinfo.gov", {}],
     ["regulations", "example", "api.regulations.gov", { data: [null] }],

@@ -1,4 +1,5 @@
 /** GovInfo: search only; it is not read for policy text in the demo. */
+import { caseNameShown, withheldTitle } from "../../../src/demo/courts";
 import {
   nextSearchCursor,
   searchPageLimit,
@@ -69,13 +70,17 @@ async function searchGovInfo(
     const authors = Array.isArray(row.governmentAuthor)
       ? row.governmentAuthor.map((name) => cleanText(name, 160))
       : [cleanText(row.governmentAuthor, 160)];
+    const title = requiredText(row.title, 400);
+    const kind = cleanText(row.collectionCode, 40) || "Document";
+    // A court row's caption gets the same guard as the court cases source.
+    const isCase = kind === "USCOURTS" || kind === "USREPORTS";
     return {
       sourceId: "govinfo",
       identifier: id,
-      title: requiredText(row.title, 400),
+      title: isCase && !caseNameShown(kind, title) ? withheldTitle(id) : title,
       issuingBody:
         authors.filter(Boolean).join("; ").slice(0, 160) || "Not stated",
-      kind: cleanText(row.collectionCode, 40) || "Document",
+      kind,
       date: isoDate(row.dateIssued),
       officialUrl: `https://www.govinfo.gov/app/details/${id}`,
       textUrl: null,

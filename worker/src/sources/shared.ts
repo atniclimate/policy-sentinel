@@ -27,7 +27,7 @@ export interface Env {
   RATE?: { limit(options: { key: string }): Promise<{ success: boolean }> };
   /** One allowance shared by every visitor for calls made with the api.data.gov key. */
   KEY_RATE?: { limit(options: { key: string }): Promise<{ success: boolean }> };
-  /** The version_metadata binding in wrangler.toml; tests and local runs have none. */
+  /** The version_metadata binding in wrangler.toml; wrangler dev supplies a new random id per start, so only tests may omit it and use "local". */
   CF_VERSION_METADATA?: { id: string };
 }
 

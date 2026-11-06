@@ -8,6 +8,7 @@ import { COPY } from "../../src/demo/copy";
 import { courts as COURTS } from "../../src/demo/copy/courts";
 import { listingCap } from "../../src/demo/discovery";
 import { COURT_LABELS, withheldTitle } from "../../src/demo/courts";
+import { searchCriteria } from "../../src/demo/search-contract";
 import type {
   DemoSearchCriteriaV3,
   DemoSearchMatchV3,
@@ -144,7 +145,11 @@ describe("USCOURTS search by court code", () => {
   });
 
   it("says the demo stopped at its one page of 10, and only when GovInfo has more", async () => {
+    // Every counted match is on this page, so a token left on it means nothing more.
     serve(SEARCH);
+    const all = await govinfoCourts.search(env, criteria("salmon"));
+    expect(all.continuation).toEqual({ kind: "stopped", reason: "complete" });
+    serve({ ...SEARCH, count: 25 });
     const more = await govinfoCourts.search(env, criteria("salmon"));
     expect(more.continuation).toEqual({ kind: "stopped", reason: "cap" });
     expect(COPY.pageCap(listingCap("govinfo-courts"))).toContain(
@@ -152,7 +157,25 @@ describe("USCOURTS search by court code", () => {
     );
     serve({ count: 0, results: [] });
     const none = await govinfoCourts.search(env, criteria("salmon"));
-    expect(none.continuation).toEqual({ kind: "stopped", reason: "unknown" });
+    expect(none.continuation).toEqual({ kind: "stopped", reason: "complete" });
+    serve({ results: [] });
+    const unstated = await govinfoCourts.search(env, criteria("salmon"));
+    expect(unstated.continuation).toEqual({
+      kind: "stopped",
+      reason: "unknown",
+    });
+  });
+
+  it("refuses a date range, which the words search would not send", () => {
+    expect(() =>
+      searchCriteria("govinfo-courts", "water", 1, {
+        dateFrom: "2024-01-01",
+        dateTo: "2024-12-31",
+        continuation: null,
+        version: 3,
+        match: "text",
+      }),
+    ).toThrow(expect.objectContaining({ code: "unsupported_criteria" }));
   });
 
   it("refuses criteria before version 3 without a call", async () => {
