@@ -9,8 +9,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SearchBox } from "../../demo/app/SearchBox";
 import { SearchCombobox } from "../../demo/app/SearchCombobox";
 import { router as copy } from "../../src/demo/copy/router";
+import { search } from "../../src/demo/copy/search";
 import type { VocabularyFile } from "../../src/demo/index-types";
 import type { RouteReading } from "../../src/demo/query-route";
+import type { PlainPhraseFile } from "../../src/demo/suggest";
 
 const vocabulary: VocabularyFile[] = [
   {
@@ -22,12 +24,29 @@ const vocabulary: VocabularyFile[] = [
       {
         id: "sample-water-office",
         label: "Sample Water Office",
-        shortLabel: null,
+        shortLabel: "SWO",
         parentId: null,
       },
     ],
   },
 ];
+
+const phrases: PlainPhraseFile = {
+  $schema: "../schemas/plain-phrases.schema.v1.json",
+  schemaVersion: "1.0.0",
+  artifactType: "plain-phrases",
+  entries: [
+    {
+      phrase: "fish runs",
+      termFamily: "federal_register_topic",
+      term: "Sample Fisheries Topic",
+      termSourceUrl: "https://www.federalregister.gov/topics/sample-fisheries",
+      reviewedOn: "2099-01-01",
+      reviewerRole: "owner",
+      basis: "curated",
+    },
+  ],
+};
 
 function Harness({
   onSubmit,
@@ -54,6 +73,7 @@ function Harness({
           <SearchCombobox
             {...field}
             vocabulary={vocabulary}
+            phrases={phrases}
             onChoose={onChoose}
           />
         )}
@@ -215,6 +235,56 @@ describe("search combobox", () => {
     await user.keyboard("{ArrowDown}{Enter}");
     expect(box).toHaveValue("Sample Water Office");
     expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it("finds a label in either word order and by its short label", async () => {
+    const { user, box } = setup();
+    const label = `Sample Water Office (${copy.agencyNote})`;
+    await user.type(box, "office water");
+    expect(screen.getByRole("option")).toHaveTextContent(label);
+    await user.clear(box);
+    await user.type(box, "SWO");
+    expect(screen.getByRole("option")).toHaveTextContent(label);
+  });
+
+  it("offers a typo's possible match, says so, and never chooses it", async () => {
+    const { user, box, onSubmit, onChoose } = setup();
+    await user.type(box, "water ofice");
+    expect(screen.getByRole("status")).toHaveTextContent(
+      search.suggest.possibleMatch,
+    );
+    expect(screen.getByRole("option")).toHaveTextContent(
+      `Sample Water Office (${copy.agencyNote})`,
+    );
+    expect(box).not.toHaveAttribute("aria-activedescendant");
+    await user.keyboard("{Enter}");
+    expect(onSubmit).toHaveBeenCalledWith("water ofice");
+    expect(onChoose).not.toHaveBeenCalled();
+  });
+
+  it("fills the box with a possible match without searching", async () => {
+    const { user, box, onSubmit } = setup();
+    await user.type(box, "water ofice");
+    await user.keyboard("{ArrowDown}{Enter}");
+    expect(box).toHaveValue("Sample Water Office");
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it("offers a reviewed plain phrase's term on an exact match, never adding it", async () => {
+    const { user, box, onSubmit } = setup();
+    await user.type(box, "Fish  Runs");
+    const option = screen.getByRole("option");
+    expect(option).toHaveTextContent(
+      `${search.suggest.alsoSearchFor("Sample Fisheries Topic")} (${copy.topicNote})`,
+    );
+    expect(box).toHaveValue("Fish  Runs");
+    expect(screen.getByRole("status")).toHaveTextContent(copy.searchedAsWords);
+    await user.keyboard("{ArrowDown}{Enter}");
+    expect(box).toHaveValue("Sample Fisheries Topic");
+    expect(onSubmit).not.toHaveBeenCalled();
+    await user.clear(box);
+    await user.type(box, "fish run");
+    expect(optionIds()).toEqual([]);
   });
 
   it("has no automated axe violations with the list open", async () => {

@@ -246,4 +246,12 @@ export const search = {
     "Congress.gov was not searched: its exact bill lookup cannot apply this date range.",
   govinfoDatesSkipped:
     "GovInfo was not searched with this date range: dated searches accept plain letters, numbers, and spaces only, without AND, OR, or NOT. Remove the range to use provider search syntax.",
+  /** Search box word suggestions (src/demo/suggest.ts). */
+  suggest: {
+    /** Status when only the typo pass found options. None is chosen for the person. */
+    possibleMatch: "Possible match for what you typed",
+    /** A reviewed plain-phrase row. It is offered, never added silently. */
+    alsoSearchFor: (term: string) => `Also search for: ${term}`,
+    congressSubjectNote: "Congress.gov subject term",
+  },
 } as const;

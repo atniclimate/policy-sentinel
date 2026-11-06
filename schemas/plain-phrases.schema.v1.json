@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/plain-phrases.schema.v1.json",
+  "title": "Policy Sentinel reviewed plain-phrase table",
+  "$comment": "Owner decision 9 (2026-11-06): curated config, bundled into the demo page, never fetched. Each row maps a plain phrase to one official vocabulary term and cites where the term is listed. A row never maps to a law or a legal meaning. The page offers a row as 'Also search for' and never adds it silently. The owner reviews every row; drafts from any model are screened, never published unreviewed (design rule 8).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schemaVersion", "artifactType", "entries"],
+  "properties": {
+    "$schema": {
+      "const": "../schemas/plain-phrases.schema.v1.json"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "artifactType": {
+      "const": "plain-phrases"
+    },
+    "entries": {
+      "type": "array",
+      "maxItems": 500,
+      "items": {
+        "$ref": "#/$defs/plainPhrase"
+      }
+    }
+  },
+  "$defs": {
+    "plainText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[^<>]*$"
+    },
+    "plainPhrase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "phrase",
+        "termFamily",
+        "term",
+        "termSourceUrl",
+        "reviewedOn",
+        "reviewerRole",
+        "basis"
+      ],
+      "properties": {
+        "phrase": {
+          "$ref": "#/$defs/plainText"
+        },
+        "termFamily": {
+          "enum": [
+            "federal_register_topic",
+            "congress_subject_term",
+            "cfr_title_name",
+            "agency"
+          ]
+        },
+        "term": {
+          "$ref": "#/$defs/plainText",
+          "$comment": "verbatim"
+        },
+        "termSourceUrl": {
+          "type": "string",
+          "maxLength": 400,
+          "pattern": "^https://(www\\.federalregister\\.gov|www\\.congress\\.gov|www\\.ecfr\\.gov)/"
+        },
+        "reviewedOn": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "reviewerRole": {
+          "const": "owner"
+        },
+        "basis": {
+          "const": "curated"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "termFamily": {
+                "enum": ["federal_register_topic", "agency"]
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "termSourceUrl": {
+                "type": "string",
+                "pattern": "^https://www\\.federalregister\\.gov/"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "termFamily": {
+                "const": "congress_subject_term"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "termSourceUrl": {
+                "type": "string",
+                "pattern": "^https://www\\.congress\\.gov/"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "termFamily": {
+                "const": "cfr_title_name"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "termSourceUrl": {
+                "type": "string",
+                "pattern": "^https://www\\.ecfr\\.gov/"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
