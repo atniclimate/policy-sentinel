@@ -705,19 +705,15 @@ function namedCourts(
   const state = stateCourt
     ? (STATE_OF[(stateCourt[1] ?? stateCourt[2] ?? "").toLowerCase()] ?? null)
     : null;
-  // A supreme court inside or next to a Nation name is that Nation's court,
-  // never the U.S. Supreme Court: count only unmasked mentions not touching one.
-  const nations = spans.filter((s) => s.kind === "nation_name");
-  const supremeMentions = [...masked.matchAll(SUPREME_COURT)].filter((m) => {
-    const mEnd = m.index + m[0].length;
-    if (/\btribal\s+$/i.test(masked.slice(0, m.index))) return false;
-    return !nations.some(
-      (s) =>
-        (s.end <= m.index && /^\s*$/.test(input.slice(s.end, m.index))) ||
-        (s.start >= mEnd &&
-          /^\s+of\s+(?:the\s+)?$/i.test(input.slice(mEnd, s.start))),
-    );
-  }).length;
+  // A supreme court named in a query that also names a Nation may be that
+  // Nation's court, whatever punctuation sits between them, so the U.S.
+  // Supreme Court is not chosen then (over-masking is the safe direction).
+  const namesNation = spans.some((s) => s.kind === "nation_name");
+  const supremeMentions = namesNation
+    ? 0
+    : [...masked.matchAll(SUPREME_COURT)].filter(
+        (m) => !/\btribal\s+$/i.test(masked.slice(0, m.index)),
+      ).length;
   const circuits = new Set<string>();
   for (const m of input.matchAll(COURT_CODE))
     circuits.add(`ca${(m[1] ?? "").toLowerCase()}`);

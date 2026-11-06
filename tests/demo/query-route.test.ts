@@ -245,6 +245,11 @@ describe("dashed numbers", () => {
     "Sample Nation Supreme Court 99-1234",
     "Supreme Court of the Sample Nation 99-1234",
     "Example Tribal Supreme Court 99-1234",
+    "Example Nation, Supreme Court 99-1234",
+    "Supreme Court, Example Nation 99-1234",
+    "Example Nation - Supreme Court 99-1234",
+    "Supreme Court (Example Tribe) 99-1234",
+    "Supreme Court for the Example Nation 99-1234",
   ])("does not choose the U.S. Supreme Court for %s", (input) => {
     const route = routeQuery(input);
     expect(route.ambiguous).toBe(true);
