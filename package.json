@@ -41,6 +41,7 @@
     "source:wa-lws:canary": "node scripts/observe-washington-lws-canary.mjs",
     "scan:source": "node scripts/scan-source-boundary.mjs",
     "validate:demo-index": "node scripts/validate-demo-index.mjs --dir docs/demo-data",
+    "check:freshness": "node scripts/check-index-freshness.mjs",
     "format": "prettier --write .",
     "format:files": "prettier --write",
     "format:check": "prettier --check .",

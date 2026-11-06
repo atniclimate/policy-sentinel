@@ -10,6 +10,7 @@ import {
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { copyThirdPartyNotices } from "./copy-third-party-notices.mjs";
 import { FORBIDDEN_OUTPUT as forbidden } from "./demo-index/common.mjs";
 import { validateDemoIndex } from "./demo-index/validate.mjs";
 
@@ -93,14 +94,22 @@ export function scanDemoOutput(root, options = {}) {
   return { generatedFiles: targets.length + binaries + indexFiles };
 }
 
+// After the Vite build: lay the third-party notices into the Pages folder
+// (T1.8), scan the generated output, and keep .nojekyll so Pages serves files as they are.
+export function finishDemoBuild(repoRoot) {
+  copyThirdPartyNotices(repoRoot);
+  const docs = join(repoRoot, "docs");
+  const result = scanDemoOutput(docs);
+  const nojekyll = join(docs, ".nojekyll");
+  if (!existsSync(nojekyll)) writeFileSync(nojekyll, "");
+  return result;
+}
+
 if (
   process.argv[1] &&
   resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-  const docs = fileURLToPath(new URL("../docs/", import.meta.url));
-  const result = scanDemoOutput(docs);
-  const nojekyll = join(docs, ".nojekyll");
-  if (!existsSync(nojekyll)) writeFileSync(nojekyll, "");
+  const result = finishDemoBuild(fileURLToPath(new URL("..", import.meta.url)));
   console.log(
     `demo build checked: ${result.generatedFiles} generated files; tracked historical docs require separate publication review`,
   );

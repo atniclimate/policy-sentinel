@@ -28,7 +28,7 @@ export const documentCopy = {
   docSovereigntyTitle: "Data Provenance and Sovereignty Notes",
   docSovereignty: [
     "The material this demo searches and cites is public policy published by government sources. The Tiered Sovereign Data Framework (TSDF) 0.9.8, a pre-release standard published by the Affiliated Tribes of Northwest Indians, treats documented public federal and state sources as Tier 0 (T0), subject to each source's conditions. Tier 0 is the framework's open tier: material formally released for public access by an authorized source. The demo has no Tribal code source and no Tribal government source. It searches federal and state government sources only. A federal source can itself publish a Tribal government document, such as an ordinance printed in a Federal Register notice, and the demo does not detect or exclude one.",
-    "Notes and data actor entries were written by the person who prepared this list. The demo does not classify them or say who they belong to, and it claims no certification under the framework and no conformance with it.",
+    "Notes and data actor entries were written by the person who prepared this list. The demo does not classify them or say who they belong to, and it claims no certification by the framework and no conformance with it.",
     "Results are keyword matches and general-jurisdiction records. They establish no relationship to any Nation.",
     "Verify every citation at its official source.",
   ],

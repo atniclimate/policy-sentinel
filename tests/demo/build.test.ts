@@ -1,7 +1,9 @@
 // @vitest-environment node
 import {
+  existsSync,
   mkdtempSync,
   mkdirSync,
+  readFileSync,
   writeFileSync,
   rmSync,
   symlinkSync,
@@ -9,8 +11,11 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-// @ts-expect-error build script has no declaration file
-import { scanDemoOutput } from "../../scripts/finish-demo-build.mjs";
+import {
+  finishDemoBuild,
+  scanDemoOutput,
+  // @ts-expect-error build script has no declaration file
+} from "../../scripts/finish-demo-build.mjs";
 import { nationNameProbes } from "../support/nation-name-probes";
 import {
   cfrShard,
@@ -228,6 +233,26 @@ describe("generated demo boundary", () => {
       symlinkSync(outside, join(root, "demo-data"), "junction");
       expect(() => scanDemoOutput(root)).toThrow(/linked index directory/);
     });
+  });
+  it("finishes the build by laying the third-party notices into the Pages folder (T1.8)", () => {
+    const repo = mkdtempSync(join(tmpdir(), "ps-demo-finish-"));
+    roots.push(repo);
+    const docs = join(repo, "docs");
+    mkdirSync(join(docs, "demo-assets"), { recursive: true });
+    writeFileSync(join(docs, "index.html"), "<p>synthetic</p>");
+    writeFileSync(join(docs, "demo-assets", "app.js"), "export {};");
+    const notices = "# Third-party notices\r\n\r\nSynthetic, MIT\n";
+    writeFileSync(join(repo, "THIRD-PARTY-NOTICES.md"), notices);
+    expect(finishDemoBuild(repo)).toEqual({ generatedFiles: 2 });
+    expect(readFileSync(join(docs, "THIRD-PARTY-NOTICES.txt"), "utf8")).toBe(
+      notices,
+    );
+    expect(existsSync(join(docs, ".nojekyll"))).toBe(true);
+    const missing = mkdtempSync(join(tmpdir(), "ps-demo-finish-"));
+    roots.push(missing);
+    mkdirSync(join(missing, "docs", "demo-assets"), { recursive: true });
+    writeFileSync(join(missing, "docs", "index.html"), "");
+    expect(() => finishDemoBuild(missing)).toThrow();
   });
   it("refuses fonts reached through a link", () => {
     const root = fixture();

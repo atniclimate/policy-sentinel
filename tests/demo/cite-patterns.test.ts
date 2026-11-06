@@ -393,6 +393,40 @@ describe("parseUslmHref", () => {
     });
   });
 
+  it("uslm-pl-href with a title segment or subdivisions keeps them in the verbatim href", () => {
+    expect(parseUslmHref("/us/pl/100/472/tI/s103")).toMatchObject({
+      kind: "pl",
+      congress: 100,
+      number: 472,
+      section: "103",
+      text: "/us/pl/100/472/tI/s103",
+      pattern: { id: "uslm-pl-href", version: "1.0.0" },
+    });
+    expect(parseUslmHref("/us/pl/101/301/s2/a/1")).toMatchObject({
+      kind: "pl",
+      congress: 101,
+      number: 301,
+      section: "2",
+      text: "/us/pl/101/301/s2/a/1",
+    });
+    expect(parseUslmHref("/us/pl/95/561/tXI/s1103/b")).toMatchObject({
+      section: "1103",
+    });
+    expect(parseUslmHref("/us/pl/106/568/tXIII")).toMatchObject({
+      number: 568,
+      section: null,
+    });
+    // Grammar outside the table stays unparsed and is counted, not guessed.
+    for (const href of [
+      "/us/pl/116/260/dA/s101",
+      "/us/pl/100/472/t1/s103",
+      "/us/pl/100/472/tI/tII/s103",
+      "/us/pl/100/472/s103/",
+      "/us/pl/100/472/a/1",
+    ])
+      expect(parseUslmHref(href), href).toBeNull();
+  });
+
   it("uslm-stat-href", () => {
     expect(parseUslmHref("/us/stat/88/2203")).toMatchObject({
       kind: "stat",

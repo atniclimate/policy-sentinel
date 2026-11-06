@@ -209,8 +209,48 @@ describe("USLM source-credit parser", () => {
   });
 
   it("counts refs the href table does not parse (F3)", () => {
-    // Six s5304 and one s13–1 public law refs carry title or subdivision segments.
-    expect(uslm().shard.unmappedRefCount).toBe(7);
+    // Every fixture ref is in the table, title and subdivision segments included.
+    expect(uslm().shard.unmappedRefCount).toBe(0);
+    // A division segment is outside the table: counted, and no credit is guessed.
+    const xml = USLM_XML.replace(
+      '<ref href="/us/pl/101/301/s2/a/1">',
+      '<ref href="/us/pl/101/301/dA/s2">',
+    );
+    expect(xml).not.toBe(USLM_XML);
+    const { shard, report } = uslm(xml);
+    expect(shard.unmappedRefCount).toBe(1);
+    expect(report.unmappedRefCount).toBe(1);
+    const s5304 = shard.entries.find((e) => e.identifier.endsWith("/s5304"))!;
+    expect(s5304.credits.filter((c) => c.kind === "pl")).toHaveLength(6);
+  });
+
+  it("reads the section of a public law ref with title or subdivision segments", () => {
+    const s5304 = uslm().shard.entries.find((e) =>
+      e.identifier.endsWith("/s5304"),
+    )!;
+    const pl = s5304.credits.filter((c) => c.kind === "pl");
+    expect(pl).toHaveLength(7);
+    expect(pl[1]).toEqual({
+      kind: "pl",
+      text: "Pub. L. 100–472, title I, § 103",
+      basis: "source_field",
+      pattern: { id: "uslm-pl-href", version: v },
+      congress: 100,
+      number: 472,
+      section: "103",
+      date: "1988-10-05",
+    });
+    expect(pl[3]).toMatchObject({
+      text: "Pub. L. 101–301, § 2(a)(1)",
+      congress: 101,
+      number: 301,
+      section: "2",
+      date: "1990-05-24",
+    });
+    const s13 = uslm().shard.entries.find((e) =>
+      e.identifier.endsWith("/s13–1"),
+    )!;
+    expect(s13.credits[0]).toMatchObject({ kind: "pl", section: "1103" });
   });
 
   it("walks the 450f transfer and keeps two targets and a cross-title target", () => {

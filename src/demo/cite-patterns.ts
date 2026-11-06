@@ -372,7 +372,9 @@ const HREF_RULES: readonly SimpleRule[] = [
   {
     id: "uslm-pl-href",
     re: new RegExp(
-      String.raw`^/us/pl/(?<congress>\d+)/(?<number>\d+)(?:/s(?<section>${HREF_SEC}))?$`,
+      // A title segment (/tI) and subdivisions after the section (/a/1) stay in
+      // the verbatim href; only the section is read.
+      String.raw`^/us/pl/(?<congress>\d+)/(?<number>\d+)(?:/t[IVXLC]+)?(?:/s(?<section>${HREF_SEC})(?:/[0-9A-Za-z]+)*)?$`,
     ),
     make: (g) => ({
       kind: "pl",
