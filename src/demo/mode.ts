@@ -44,6 +44,8 @@ export const modeHash = (mode: Mode): string => `#mode=${mode}`;
 
 /** Display settings the page reads from the query string; no other field is kept. */
 const KEPT_PARAMS = ["embed", "theme"];
+/** The local testing address (?api=), the same loopback rule demo/api.ts applies. */
+const LOCAL_API = /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d{1,5})?$/;
 
 /** The page URL with only the mode in the fragment and only display settings in the query. */
 export function modeUrl(href: string, mode: Mode): string {
@@ -53,6 +55,10 @@ export function modeUrl(href: string, mode: Mode): string {
     const value = url.searchParams.get(name);
     if (value !== null) kept.set(name, value);
   }
+  // A loopback ?api= stays, or a mode change would point a local session at
+  // the deployed Worker; any other value is dropped with the rest.
+  const api = url.searchParams.get("api");
+  if (api !== null && LOCAL_API.test(api)) kept.set("api", api);
   url.search = kept.toString();
   url.hash = modeHash(mode);
   return url.toString();

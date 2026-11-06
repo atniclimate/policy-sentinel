@@ -599,6 +599,10 @@ export function citationsInText(
   return rows;
 }
 
+/** The label already prints the target ("Shares RIN 1076-AF81"), so the row does not repeat it. */
+export const labelNamesTarget = (row: ChainRow): boolean =>
+  row.kind === "link" && row.label.endsWith(row.targetText);
+
 /**
  * In-text rows that name the same target (or repeat the same short form)
  * collapse into the first one, in source order, with how many places named

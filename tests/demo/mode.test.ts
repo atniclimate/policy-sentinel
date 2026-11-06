@@ -51,6 +51,21 @@ describe("modes", () => {
     ).toBe("https://example.org/demo/?embed=1&theme=light#mode=grants");
   });
 
+  it("keeps a loopback ?api= testing address and drops any other", () => {
+    // Dropping it pointed a local session at the deployed Worker mid-walk.
+    expect(
+      modeUrl(
+        "http://127.0.0.1:5173/?api=http://127.0.0.1:8787&q=salmon",
+        "grants",
+      ),
+    ).toBe(
+      "http://127.0.0.1:5173/?api=http%3A%2F%2F127.0.0.1%3A8787#mode=grants",
+    );
+    expect(
+      modeUrl("https://example.org/demo/?api=https://evil.example", "grants"),
+    ).toBe("https://example.org/demo/#mode=grants");
+  });
+
   it("changes default panels and the export template only", () => {
     for (const defaults of Object.values(MODE_DEFAULTS))
       expect(Object.keys(defaults).sort()).toEqual(["panels", "template"]);

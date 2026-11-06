@@ -14,7 +14,11 @@ import {
 } from "../../src/demo/follow";
 import { searchCriteria } from "../../src/demo/search-contract";
 import type { DemoSearchOptions, LinkedRecord } from "../../src/demo/types";
-import { citationFields, citationValue } from "../../src/demo/validation";
+import {
+  citationFields,
+  citationValue,
+  searchValue,
+} from "../../src/demo/validation";
 import { citation, statedCitation } from "./frontend-fixtures";
 
 const FOLLOWED = new Date("2099-01-08T12:00:00.000Z");
@@ -175,6 +179,62 @@ describe("govinfo-courts search criteria (version 3 only)", () => {
       expect(() =>
         searchCriteria(source, "ca9 99-12345", 1, v3("court_docket")),
       ).toThrow(expect.objectContaining({ code: "unsupported_criteria" }));
+  });
+});
+
+describe("a court lookup answer's continuation", () => {
+  const options = (match: "text" | "court_docket" | "us_reports") => ({
+    dateFrom: null,
+    dateTo: null,
+    continuation: null,
+    version: 3 as const,
+    match,
+    documentType: null,
+  });
+  const answer = (query: string, match: string, reason: string) => ({
+    ok: true,
+    source: "govinfo-courts",
+    query,
+    total: 0,
+    page: 1,
+    results: [],
+    retrievedAt: "2099-01-07T11:59:00.000Z",
+    criteria: searchCriteria(
+      "govinfo-courts",
+      query,
+      1,
+      options(match as "text" | "court_docket" | "us_reports"),
+    ),
+    continuation: { kind: "stopped", reason },
+  });
+
+  it("accepts not_applicable for a docket or U.S. Reports lookup, as the Worker answers", () => {
+    // The live Worker answered a docket lookup this way, and the page refused it as an outage.
+    for (const [query, match] of [
+      ["ca9 97-70217", "court_docket"],
+      ["586 U.S. 347", "us_reports"],
+    ] as const)
+      expect(
+        searchValue(
+          answer(query, match, "not_applicable"),
+          "govinfo-courts",
+          query,
+          1,
+          options(match),
+        ).continuation,
+      ).toEqual({ kind: "stopped", reason: "not_applicable" });
+  });
+
+  it("still refuses not_applicable for a court text search, which pages", () => {
+    expect(() =>
+      searchValue(
+        answer("tribe", "text", "not_applicable"),
+        "govinfo-courts",
+        "tribe",
+        1,
+        options("text"),
+      ),
+    ).toThrow("Invalid search continuation");
   });
 });
 

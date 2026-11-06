@@ -3,6 +3,7 @@ import {
   cfrPartLinks,
   citationsInText,
   groupInText,
+  labelNamesTarget,
   recordLinks,
   uscSectionLinks,
 } from "../../src/demo/links";
@@ -62,6 +63,16 @@ describe("groupInText: one row per distinct citation found in the text", () => {
   it("leaves the stated and identifier sections untouched", () => {
     const stated = recordLinks(frRecord, SOURCES);
     expect(groupInText(stated)).toEqual(stated);
+  });
+});
+
+describe("labelNamesTarget: a label that already prints its target", () => {
+  it("is true for shared identifiers and false for a row whose target follows its label", () => {
+    const rows = links(recordLinks(frRecord, SOURCES));
+    const docket = rows.find((r) => r.label.startsWith("Shares docket"))!;
+    const cfr = rows.find((r) => r.label === "CFR parts this document names")!;
+    expect(labelNamesTarget(docket)).toBe(true);
+    expect(labelNamesTarget(cfr)).toBe(false);
   });
 });
 

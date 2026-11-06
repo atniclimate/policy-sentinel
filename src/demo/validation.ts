@@ -459,7 +459,12 @@ export function searchValue(
       ) &&
       (next.reason !== "cap" || page === searchPageLimit(source)) &&
       (next.reason !== "not_applicable" ||
-        ["congress", "washington"].includes(source)) &&
+        ["congress", "washington"].includes(source) ||
+        // A court docket or U.S. Reports lookup names one record; paging does not apply.
+        (source === "govinfo-courts" &&
+          criteria.version === 3 &&
+          (criteria.match === "court_docket" ||
+            criteria.match === "us_reports"))) &&
       (source !== "govinfo" || next.reason !== "complete")
     ) {
       continuation = {

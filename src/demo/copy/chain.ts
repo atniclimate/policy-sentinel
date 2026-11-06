@@ -30,6 +30,8 @@ export const chain = {
   dateNotStated: "Date not stated by the source",
   liveLink: (sourceName: string) => `Open at ${sourceName}`,
   openHop: (target: string) => `Open ${target} in this chain`,
+  /** The link on a row whose label already names its target. */
+  openRecord: "Open the record",
   /** An in-text citation named in several places, grouped into its first row. */
   places: (count: number) =>
     `Found at ${count} places in this text; the first is shown.`,

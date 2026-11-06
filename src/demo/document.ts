@@ -5,7 +5,7 @@ import { chain as CH } from "./copy/chain.ts";
 import { grantsAuthority as GA } from "./copy/grants-authority.ts";
 import type { GrantsDetailResponse } from "./grants-authority.ts";
 import { LINK_NOTICES } from "./link-labels.ts";
-import { groupInText } from "./links.ts";
+import { groupInText, labelNamesTarget } from "./links.ts";
 import type { ChainRow, ChainSection } from "./links.ts";
 import { localDay } from "./follow";
 import type { FollowCheck, Followed } from "./follow";
@@ -120,7 +120,9 @@ function chainBlocks(rows: readonly ChainRow[]): DocBlock[] {
       out.push({
         kind: "p",
         text:
-          row.kind === "link" ? `${row.label} ${row.targetText}` : row.label,
+          row.kind === "link" && !labelNamesTarget(row)
+            ? `${row.label} ${row.targetText}`
+            : row.label,
       });
       const facts = [
         row.kind === "link" && `${F.basis}: ${CH.basis[row.basis]}`,

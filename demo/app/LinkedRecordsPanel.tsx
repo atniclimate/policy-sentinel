@@ -4,7 +4,7 @@
 // a button and asks the source only when pressed, through onExpand.
 import { chain } from "../../src/demo/copy/chain";
 import { LINK_NOTICES } from "../../src/demo/link-labels";
-import { groupInText } from "../../src/demo/links";
+import { groupInText, labelNamesTarget } from "../../src/demo/links";
 import type { ChainLink, ChainRow, ChainSection } from "../../src/demo/links";
 
 export type ChainExpansionId = keyof typeof chain.expand;
@@ -56,7 +56,7 @@ function Row({
       )}
       <p class="chain-label">
         <strong {...verbatim(row.labelVerbatim && "label")}>{row.label}</strong>
-        {row.kind === "link" && (
+        {row.kind === "link" && !labelNamesTarget(row) && (
           <>
             {" "}
             {row.target.officialUrl ? (
@@ -68,6 +68,16 @@ function Row({
             )}
           </>
         )}
+        {row.kind === "link" &&
+          labelNamesTarget(row) &&
+          row.target.officialUrl && (
+            <>
+              {" "}
+              <a href={row.target.officialUrl} rel="noreferrer">
+                {chain.openRecord}
+              </a>
+            </>
+          )}
       </p>
       {row.places && <p class="chain-places">{chain.places(row.places)}</p>}
       {row.kind === "link" &&
