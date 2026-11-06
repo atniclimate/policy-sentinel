@@ -1,7 +1,7 @@
 import { render } from "preact";
 import type { RefObject } from "preact";
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
-import { buildCalendar, calendarRows } from "../src/demo/calendar";
+import { calendarRows } from "../src/demo/calendar";
 import { SOURCE_LABELS } from "../src/demo/citations";
 import { COPY, EXAMPLES, namesItsKind } from "../src/demo/copy";
 import {
@@ -33,7 +33,6 @@ import {
   AUTO_REQUEST_BUDGET,
   buildPlan,
   failLane,
-  groupDiscovery,
   isSeedRecord,
   LaneCache,
   laneId,
@@ -53,7 +52,6 @@ import {
 import type {
   DiscoveryRow,
   Lane,
-  LaneGroup,
   LaneSearch,
   Plan,
   PlanDates,
@@ -61,7 +59,6 @@ import type {
   Seed,
   SkipReason,
 } from "../src/demo/discovery";
-import { buildDocument } from "../src/demo/document";
 import {
   areaPlan,
   caseWords,
@@ -85,7 +82,6 @@ import type {
 } from "../src/demo/ncai-2026";
 import NCAI_VAULT from "../src/demo/ncai-2026.vault.json";
 import { NcaiVaultError, openNcaiDrafts } from "../src/demo/ncai-vault";
-import type { DocBlock } from "../src/demo/document";
 import {
   CONGRESS_REFERENCE,
   isCongressReference,
@@ -100,8 +96,21 @@ import type {
   DemoSource,
 } from "../src/demo/types";
 import { ApiFailure, loadSources, policyId, readPolicy, search } from "./api";
+import { DocumentPane } from "./app/DocumentPane";
+import type { Selected } from "./app/DocumentPane";
+import { bodyOf, Leader } from "./app/parts";
+import { PrintView } from "./app/PrintView";
+import { ResultsList } from "./app/ResultsList";
+import type { Found } from "./app/ResultsList";
+import { SearchBox } from "./app/SearchBox";
+import { SourceList, SourcesPanel } from "./app/SourcesPanel";
+import {
+  downloadCalendar,
+  downloadFollows,
+  downloadPdf,
+  openPrint,
+} from "./app/state/exports";
 import SEAL from "./logos/atni-seal-on-dark.png";
-import { loadPdfFonts, loadPdfSeal } from "./pdf-fonts";
 import {
   ACTOR_FIELDS,
   attachPolicy,
@@ -192,24 +201,6 @@ const FALLBACK_SOURCES: DemoSource[] = (
   note: COPY.notCheckedNote,
 }));
 
-interface Selected {
-  citation: DemoCitation;
-  /** "unread" is a source whose text the demo does not read: a limit, not a failure. */
-  state: "loading" | "ready" | "error" | "unread";
-  policy?: DemoPolicyResponse;
-  message?: string;
-}
-
-/**
- * The submitted plan stays attached to results while the form is edited. One
- * shape serves typed searches, examples, committee areas and NCAI drafts.
- */
-interface Found {
-  plan: Plan;
-  searches: readonly LaneSearch[];
-  rows: readonly DiscoveryRow[];
-}
-
 const NCAI_GROUPS = [
   "policy",
   "legislation",
@@ -217,15 +208,6 @@ const NCAI_GROUPS = [
   "case",
   "sponsor",
 ] as const;
-
-/** Results sections in reading order, whatever order the plan met them in. */
-const GROUP_ORDER: readonly LaneGroup[] = [
-  "policy",
-  "legislation",
-  "bill",
-  "case",
-  "related",
-];
 
 /** Status words for Find related; the reader typed no words to change. */
 const RELATED_WORDS = { ...COPY, ...COPY.related };
@@ -345,20 +327,6 @@ function loadFollows(): { list: readonly Followed[]; notice: string } {
   }
 }
 
-/** Hands a file built in this page to the browser's downloads. */
-function download(blob: Blob, name: string) {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = name;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
-}
-
-const today = () => localDay(new Date());
-
 function failureText(error: unknown): string {
   if (error instanceof ApiFailure) {
     if (error.kind === "service") return COPY.serviceDown;
@@ -366,48 +334,6 @@ function failureText(error: unknown): string {
     return error.message;
   }
   return COPY.serviceDown;
-}
-
-function statusText(status: DemoSource["status"]): string {
-  if (status === "live") return COPY.liveTitle;
-  if (status === "key_pending") return COPY.keyPendingTitle;
-  if (status === "unknown") return COPY.notCheckedTitle;
-  return COPY.notAvailableTitle;
-}
-
-/** Filled is live, half is pending, outline is not available or not checked. */
-function markClass(status: DemoSource["status"]): string {
-  if (status === "live") return "mark is-full";
-  return status === "key_pending" ? "mark is-half" : "mark";
-}
-
-const Leader = () => <span class="leader" aria-hidden="true" />;
-
-/** The service writes "Not stated" for a record with no issuing body. */
-const bodyOf = (citation: DemoCitation) =>
-  citation.issuingBody === "Not stated"
-    ? COPY.issuingBodyNotStated
-    : citation.issuingBody;
-
-/** A 64 character digest that may break only at its midpoint, so it wraps into even lines. */
-function Digest({ value }: { value: string }) {
-  const half = value.length / 2;
-  return (
-    <code>
-      {value.slice(0, half)}
-      <wbr />
-      {value.slice(half)}
-    </code>
-  );
-}
-
-function SourceStatus({ status }: { status: DemoSource["status"] }) {
-  return (
-    <span class="row-v status">
-      <span class={markClass(status)} aria-hidden="true" />
-      {statusText(status)}
-    </span>
-  );
 }
 
 export function App() {
@@ -1613,23 +1539,7 @@ export function App() {
     exporting.current = true;
     setExportBusy(true);
     try {
-      const [{ buildPdf }, fonts, seal] = await Promise.all([
-        import("../src/demo/pdf"),
-        loadPdfFonts(),
-        loadPdfSeal(),
-      ]);
-      const bytes = await buildPdf({
-        version: VERSION,
-        generatedAt: new Date(),
-        entries,
-        actors: exportActors,
-        fonts,
-        seal,
-      });
-      download(
-        new Blob([bytes as BlobPart], { type: "application/pdf" }),
-        `policy-sentinel-citations-${today()}.pdf`,
-      );
+      await downloadPdf(entries, exportActors);
       setExportMessage(COPY.exportDone);
     } catch (error) {
       // Name the refused character with its code point, so a combining mark is findable too.
@@ -1658,13 +1568,7 @@ export function App() {
     exporting.current = true;
     setExportMessage(COPY.printPreparing);
     try {
-      // The document faces load on first use; fetch them before the print dialog opens.
-      await Promise.all(
-        ["400", "600"].map((weight) =>
-          document.fonts?.load(`${weight} 1em "Lexend Deca"`),
-        ),
-      ).catch(() => undefined);
-      window.print();
+      await openPrint();
     } finally {
       exporting.current = false;
       setExportMessage("");
@@ -1677,12 +1581,7 @@ export function App() {
       setExportMessage(COPY.calendar.none);
       return;
     }
-    download(
-      new Blob([buildCalendar(calendarSource, new Date())], {
-        type: "text/calendar",
-      }),
-      `policy-sentinel-comment-dates-${today()}.ics`,
-    );
+    downloadCalendar(calendarSource);
     setExportMessage(COPY.calendar.done(calendarSource.length));
   }
 
@@ -1785,12 +1684,7 @@ export function App() {
       setFollowMessage(COPY.follow.none);
       return;
     }
-    download(
-      new Blob([serializeFollows(followsRef.current)], {
-        type: "application/json",
-      }),
-      `policy-sentinel-following-${today()}.json`,
-    );
+    downloadFollows(followsRef.current);
     setFollowMessage(COPY.follow.exportDone);
   }
 
@@ -1861,15 +1755,6 @@ export function App() {
     (check) => check.state === "checking",
   );
   const actorsDone = ACTOR_FIELDS.filter((field) => actors[field].trim());
-  const grouped = useMemo(() => {
-    const out = new Map<string, { label: string; issues: DemoIssue[] }>();
-    for (const issue of selected?.policy?.issues ?? []) {
-      const entry = out.get(issue.type) ?? { label: issue.label, issues: [] };
-      entry.issues.push(issue);
-      out.set(issue.type, entry);
-    }
-    return [...out.values()];
-  }, [selected]);
   const paneCount: Record<Pane, number | null> = {
     search: null,
     results: found ? found.rows.length : null,
@@ -1909,15 +1794,6 @@ export function App() {
     );
 
   const seed = found?.plan.seed;
-  // A draft's or record's plan is shown in sections; a typed, example or area search keeps one list.
-  const sectioned = seed?.kind === "draft" || seed?.kind === "record";
-  const views = found
-    ? groupDiscovery(found.plan, found.searches, found.rows).sort(
-        (a, b) => GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group),
-      )
-    : [];
-  const merged =
-    found?.rows.reduce((sum, row) => sum + row.alternates.length, 0) ?? 0;
   // The Grants.gov API terms ask for its attribution wherever its rows appear.
   const grantsAttribution = (citations: readonly DemoCitation[]) =>
     citations.some((c) => c.sourceId === "grants") ? (
@@ -2422,7 +2298,115 @@ export function App() {
                 }}
               />
             )}
-            <form onSubmit={onSubmit}>
+            <SearchBox
+              value={query}
+              onInput={(value) => {
+                setQuery(value);
+                setQueryError("");
+              }}
+              onSubmit={onSubmit}
+              help={help}
+              error={queryError}
+              blockedBy={blockedBy}
+              blockedNote={blockedNote}
+              off={!usable || samePendingSearch}
+              criteria={
+                <>
+                  {scope === "federal" ? (
+                    <fieldset class="date-range">
+                      <legend class="field">{COPY.dateRangeTitle}</legend>
+                      <p id="date-help" class="help">
+                        {COPY.dateRangeHelp}
+                      </p>
+                      <label class="field" for="date-from">
+                        {COPY.dateFrom}
+                      </label>
+                      <input
+                        id="date-from"
+                        type="date"
+                        value={dateFrom}
+                        aria-describedby={
+                          dateError ? "date-help date-error" : "date-help"
+                        }
+                        aria-invalid={dateError ? "true" : undefined}
+                        onInput={(event) => {
+                          setDateFrom((event.target as HTMLInputElement).value);
+                          setDateError("");
+                        }}
+                      />
+                      <label class="field" for="date-to">
+                        {COPY.dateTo}
+                      </label>
+                      <input
+                        id="date-to"
+                        type="date"
+                        value={dateTo}
+                        aria-describedby={
+                          dateError ? "date-help date-error" : "date-help"
+                        }
+                        aria-invalid={dateError ? "true" : undefined}
+                        onInput={(event) => {
+                          setDateTo((event.target as HTMLInputElement).value);
+                          setDateError("");
+                        }}
+                      />
+                      {dateError && (
+                        <p id="date-error" class="notice" role="alert">
+                          {dateError}
+                        </p>
+                      )}
+                    </fieldset>
+                  ) : (
+                    <p class="help">{COPY.stateDateHelp}</p>
+                  )}
+                  {scope === "federal" && (
+                    <>
+                      <label class="field" for="doc-type">
+                        {COPY.docTypeLabel}
+                      </label>
+                      <select
+                        id="doc-type"
+                        value={docType}
+                        aria-describedby="doc-type-help"
+                        onChange={(e) =>
+                          setDocType(
+                            (e.target as HTMLSelectElement).value as
+                              DemoDocumentType | "",
+                          )
+                        }
+                      >
+                        <option value="">{COPY.docTypeAny}</option>
+                        {Object.entries(COPY.docTypes).map(([value, label]) => (
+                          <option key={value} value={value}>
+                            {label}
+                          </option>
+                        ))}
+                      </select>
+                      <p id="doc-type-help" class="help">
+                        {COPY.docTypeHelp}
+                      </p>
+                      <label class="check" for="grants-eligibility">
+                        <input
+                          id="grants-eligibility"
+                          type="checkbox"
+                          checked={tribalEligibility}
+                          aria-describedby="grants-eligibility-help"
+                          onChange={(e) =>
+                            setTribalEligibility(
+                              (e.target as HTMLInputElement).checked,
+                            )
+                          }
+                        />
+                        {COPY.grants.filterLabel}
+                      </label>
+                      <p id="grants-eligibility-help" class="help">
+                        {COPY.grants.filterHelp} {COPY.grants.limit}
+                      </p>
+                    </>
+                  )}
+                </>
+              }
+            >
               <div class="chips" role="group" aria-label={COPY.scopeLabel}>
                 {(["federal", "state"] as const).map((id) => (
                   <button
@@ -2436,206 +2420,19 @@ export function App() {
                   </button>
                 ))}
               </div>
-              {scope === "federal" ? (
-                <fieldset class="zone">
-                  <legend class="eyebrow">{COPY.sourcesLegend}</legend>
-                  {federal.map((s) => (
-                    <label
-                      class={`source${s.status === "live" ? "" : " is-off"}`}
-                      key={s.id}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={s.status === "live" && checked.includes(s.id)}
-                        disabled={s.status !== "live"}
-                        onChange={(e) =>
-                          toggleSource(
-                            s.id,
-                            (e.target as HTMLInputElement).checked,
-                          )
-                        }
-                      />
-                      <span class="row">
-                        <span class="row-k">{s.label}</span>
-                        <Leader />
-                        <SourceStatus status={s.status} />
-                      </span>
-                      <span class="source-note">
-                        {COPY.capability[s.id] ?? s.note}
-                      </span>
-                    </label>
-                  ))}
-                </fieldset>
-              ) : (
-                <div class="zone">
-                  <label class="field" for="state">
-                    {COPY.stateLabel}
-                  </label>
-                  <select
-                    id="state"
-                    value={stateId}
-                    aria-describedby="state-note"
-                    onChange={(e) => {
-                      resetSearch();
-                      setStateId((e.target as HTMLSelectElement).value);
-                    }}
-                  >
-                    {states.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.label}
-                      </option>
-                    ))}
-                  </select>
-                  {chosenState && (
-                    <div id="state-note" class="source">
-                      <span class="row">
-                        <span class="row-k">{COPY.availabilityLabel}</span>
-                        <Leader />
-                        <SourceStatus status={chosenState.status} />
-                      </span>
-                      <span class="source-note">{chosenState.note}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-              <div class="zone">
-                <label class="field" for="q">
-                  {COPY.queryLabel}
-                </label>
-                <input
-                  id="q"
-                  type="search"
-                  value={query}
-                  autoComplete="off"
-                  maxLength={200}
-                  aria-describedby={
-                    queryError
-                      ? "q-help q-error"
-                      : blockedBy
-                        ? `q-help ${blockedBy}`
-                        : "q-help"
-                  }
-                  aria-invalid={queryError ? "true" : undefined}
-                  onInput={(e) => {
-                    setQuery((e.target as HTMLInputElement).value);
-                    setQueryError("");
-                  }}
-                />
-                <p id="q-help" class="help">
-                  {help}
-                </p>
-                {scope === "federal" ? (
-                  <fieldset class="date-range">
-                    <legend class="field">{COPY.dateRangeTitle}</legend>
-                    <p id="date-help" class="help">
-                      {COPY.dateRangeHelp}
-                    </p>
-                    <label class="field" for="date-from">
-                      {COPY.dateFrom}
-                    </label>
-                    <input
-                      id="date-from"
-                      type="date"
-                      value={dateFrom}
-                      aria-describedby={
-                        dateError ? "date-help date-error" : "date-help"
-                      }
-                      aria-invalid={dateError ? "true" : undefined}
-                      onInput={(event) => {
-                        setDateFrom((event.target as HTMLInputElement).value);
-                        setDateError("");
-                      }}
-                    />
-                    <label class="field" for="date-to">
-                      {COPY.dateTo}
-                    </label>
-                    <input
-                      id="date-to"
-                      type="date"
-                      value={dateTo}
-                      aria-describedby={
-                        dateError ? "date-help date-error" : "date-help"
-                      }
-                      aria-invalid={dateError ? "true" : undefined}
-                      onInput={(event) => {
-                        setDateTo((event.target as HTMLInputElement).value);
-                        setDateError("");
-                      }}
-                    />
-                    {dateError && (
-                      <p id="date-error" class="notice" role="alert">
-                        {dateError}
-                      </p>
-                    )}
-                  </fieldset>
-                ) : (
-                  <p class="help">{COPY.stateDateHelp}</p>
-                )}
-                {scope === "federal" && (
-                  <>
-                    <label class="field" for="doc-type">
-                      {COPY.docTypeLabel}
-                    </label>
-                    <select
-                      id="doc-type"
-                      value={docType}
-                      aria-describedby="doc-type-help"
-                      onChange={(e) =>
-                        setDocType(
-                          (e.target as HTMLSelectElement).value as
-                            DemoDocumentType | "",
-                        )
-                      }
-                    >
-                      <option value="">{COPY.docTypeAny}</option>
-                      {Object.entries(COPY.docTypes).map(([value, label]) => (
-                        <option key={value} value={value}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
-                    <p id="doc-type-help" class="help">
-                      {COPY.docTypeHelp}
-                    </p>
-                    <label class="check" for="grants-eligibility">
-                      <input
-                        id="grants-eligibility"
-                        type="checkbox"
-                        checked={tribalEligibility}
-                        aria-describedby="grants-eligibility-help"
-                        onChange={(e) =>
-                          setTribalEligibility(
-                            (e.target as HTMLInputElement).checked,
-                          )
-                        }
-                      />
-                      {COPY.grants.filterLabel}
-                    </label>
-                    <p id="grants-eligibility-help" class="help">
-                      {COPY.grants.filterHelp} {COPY.grants.limit}
-                    </p>
-                  </>
-                )}
-                {queryError && (
-                  <p id="q-error" class="notice" role="alert">
-                    {queryError}
-                  </p>
-                )}
-                {blockedNote && (
-                  <p id="q-blocked" class="notice">
-                    {COPY.noSourceChecked}
-                  </p>
-                )}
-                <button
-                  type="submit"
-                  class="btn primary"
-                  aria-disabled={!usable || samePendingSearch}
-                  aria-describedby={blockedBy}
-                >
-                  {COPY.searchButton}
-                </button>
-              </div>
-            </form>
+              <SourcesPanel
+                scope={scope}
+                federal={federal}
+                states={states}
+                checked={checked}
+                stateId={stateId}
+                onToggle={toggleSource}
+                onState={(id) => {
+                  resetSearch();
+                  setStateId(id);
+                }}
+              />
+            </SearchBox>
             {scope === "state" && COPY.stateHandoffs[stateId] && (
               <div class="zone">
                 <a
@@ -2796,38 +2593,12 @@ export function App() {
                 {busy && <span class="cursor" aria-hidden="true" />}
               </p>
             </div>
-            {found && !sectioned && (
-              <ul class="source-outcomes">
-                {views.flatMap((view) =>
-                  view.lanes.map(({ lane, search: item }) =>
-                    laneOutcome(found.plan, lane, item),
-                  ),
-                )}
-              </ul>
-            )}
-            {merged > 0 && <p class="help">{COPY.mergeNote(merged)}</p>}
-            {found && sectioned ? (
-              views.map((view) => (
-                <div class="discovery-group" key={view.group}>
-                  <h3>{COPY.groupTitles[view.group]}</h3>
-                  <ul class="source-outcomes">
-                    {view.lanes.map(({ lane, search: item }) =>
-                      laneOutcome(found.plan, lane, item),
-                    )}
-                  </ul>
-                  <ul
-                    class="results"
-                    key={`${searchRequest.current.sequence}-${view.group}`}
-                  >
-                    {view.rows.map((row) => resultRow(row, true))}
-                  </ul>
-                </div>
-              ))
-            ) : (
-              <ul class="results" key={searchRequest.current.sequence}>
-                {(found?.rows ?? []).map((row) => resultRow(row, false))}
-              </ul>
-            )}
+            <ResultsList
+              found={found}
+              sequence={searchRequest.current.sequence}
+              outcome={laneOutcome}
+              row={resultRow}
+            />
             {grantsAttribution(
               (found?.rows ?? []).flatMap((row) => [
                 row.citation,
@@ -2836,190 +2607,15 @@ export function App() {
             )}
           </section>
 
-          <section
-            class="pane pane-issues"
-            aria-labelledby="detail-h"
-            ref={detailRef}
-            tabIndex={paneTab}
-          >
-            <h2 id="detail-h">{COPY.issuesTitle}</h2>
-            <p
-              class={selected?.state === "error" ? "live notice" : "live"}
-              role="status"
-              aria-live="polite"
-            >
-              {selected?.state === "loading"
-                ? COPY.readingText
-                : selected?.state === "ready"
-                  ? COPY.issuesReady(
-                      selected.citation.title,
-                      selected.policy?.issues.length ?? 0,
-                    )
-                  : (selected?.message ?? "")}
-            </p>
-            {!selected && <p class="help">{COPY.issuesNote}</p>}
-            {selected && (
-              <div class="detail">
-                <h3 class="policy-title">{selected.citation.title}</h3>
-                <p class="row">
-                  <span class="row-k">{bodyOf(selected.citation)}</span>
-                  <Leader />
-                  <span class="row-v mono">{selected.citation.identifier}</span>
-                </p>
-                {selected.state === "ready" && selected.policy && (
-                  <>
-                    <p class="help">{COPY.issuesNote}</p>
-                    {cited[keyOf(selected.citation)]?.policy && (
-                      <p class="help">
-                        {COPY.savedTextNote(
-                          selected.policy.receipt.retrievedAt,
-                        )}
-                      </p>
-                    )}
-                    <dl class="receipt">
-                      <dt>{COPY.readLabel}</dt>
-                      <dd>
-                        <a
-                          class="mono"
-                          href={selected.policy.receipt.textUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {selected.policy.receipt.textUrl}
-                        </a>
-                      </dd>
-                      <dt>{COPY.receiptLabel}</dt>
-                      <dd>
-                        <Digest value={selected.policy.receipt.sha256} />
-                        <span>
-                          {COPY.receiptNote(selected.policy.receipt.bytes)}{" "}
-                          {COPY.retrieved(selected.policy.receipt.retrievedAt)}
-                        </span>
-                      </dd>
-                      <dt>{COPY.engineLabel}</dt>
-                      <dd>
-                        <span>
-                          {COPY.engineText(
-                            selected.policy.engine.parser,
-                            selected.policy.engine.parserVersion,
-                            selected.policy.engine.rulesVersion,
-                          )}
-                        </span>
-                        <span>{COPY.configLabel}</span>
-                        <Digest
-                          value={selected.policy.engine.parserConfigDigest}
-                        />
-                      </dd>
-                    </dl>
-                    {selected.policy.issues.length === 0 && (
-                      <p>{COPY.noIssues}</p>
-                    )}
-                    {selected.policy.issues.length > 0 && (
-                      <p class="actions">
-                        <button
-                          type="button"
-                          class="btn"
-                          disabled={!cited[keyOf(selected.citation)]}
-                          onClick={() =>
-                            includeAll(
-                              keyOf(selected.citation),
-                              selected.policy!.issues,
-                            )
-                          }
-                        >
-                          {COPY.includeAll}
-                        </button>
-                        {!cited[keyOf(selected.citation)] && (
-                          <span class="help">{COPY.addFirst}</span>
-                        )}
-                      </p>
-                    )}
-                    {grouped.map((group) => (
-                      <section class="group" key={group.label}>
-                        <div class="row">
-                          <h4>{group.label}</h4>
-                          <Leader />
-                          <span class="row-v mono">{group.issues.length}</span>
-                        </div>
-                        <ul class="issues">
-                          {group.issues.map((issue) => {
-                            const k = keyOf(selected.citation);
-                            const mark = marks[k]?.[issue.id] ?? {
-                              on: false,
-                              note: "",
-                            };
-                            const canMark = Boolean(cited[k]);
-                            // Names the passage its controls belong to. Rule ids are a type and a number.
-                            const passage = `passage-${issue.id}`;
-                            return (
-                              <li class="issue" key={issue.id}>
-                                {issue.type === "consultation_absent" ? (
-                                  <p class="assessment" id={passage}>
-                                    <strong>{COPY.assessmentLead} </strong>
-                                    {issue.quote}
-                                  </p>
-                                ) : (
-                                  <blockquote id={passage}>
-                                    {issue.quote}
-                                  </blockquote>
-                                )}
-                                <details>
-                                  <summary>{COPY.whyFlagged}</summary>
-                                  <dl>
-                                    <dt>{COPY.ruleLabel}</dt>
-                                    <dd>{issue.rule}</dd>
-                                    <dt>{COPY.limitLabel}</dt>
-                                    <dd>{issue.limits}</dd>
-                                    <dt>{COPY.checkLabel}</dt>
-                                    <dd>{issue.check}</dd>
-                                    <dt>{COPY.locatorLabel}</dt>
-                                    <dd class="mono">{issue.locator}</dd>
-                                  </dl>
-                                </details>
-                                <label class="check">
-                                  <input
-                                    type="checkbox"
-                                    checked={mark.on}
-                                    disabled={!canMark}
-                                    aria-describedby={passage}
-                                    onChange={(e) =>
-                                      setMark(k, issue, {
-                                        on: (e.target as HTMLInputElement)
-                                          .checked,
-                                      })
-                                    }
-                                  />
-                                  {COPY.includeInPdf}
-                                </label>
-                                {mark.on && (
-                                  <label class="field">
-                                    {COPY.issueNote}
-                                    <textarea
-                                      rows={2}
-                                      maxLength={MAX_NOTE}
-                                      value={mark.note}
-                                      aria-describedby={passage}
-                                      onInput={(e) =>
-                                        setMark(k, issue, {
-                                          note: (
-                                            e.target as HTMLTextAreaElement
-                                          ).value,
-                                        })
-                                      }
-                                    />
-                                  </label>
-                                )}
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </section>
-                    ))}
-                  </>
-                )}
-              </div>
-            )}
-          </section>
+          <DocumentPane
+            selected={selected}
+            cited={cited}
+            marks={marks}
+            paneTab={paneTab}
+            paneRef={detailRef}
+            onIncludeAll={includeAll}
+            onMark={setMark}
+          />
 
           {/* The list scrolls in its own area and Export is a row under it, so no field can sit under Export. */}
           <section class="pane pane-report" aria-labelledby="report-h">
@@ -3714,18 +3310,7 @@ function About({
         </section>
         <section>
           <h3>{COPY.aboutSourcesTitle}</h3>
-          <ul class="rows">
-            {sources.map((s) => (
-              <li class="source" key={s.id}>
-                <span class="row">
-                  <span class="row-k">{s.label}</span>
-                  <Leader />
-                  <SourceStatus status={s.status} />
-                </span>
-                <span class="source-note">{s.note}</span>
-              </li>
-            ))}
-          </ul>
+          <SourceList sources={sources} />
           <p>{COPY.aboutSourcesNote}</p>
           <p>{COPY.mergeRule}</p>
         </section>
@@ -3753,70 +3338,6 @@ function About({
         </section>
       </div>
     </dialog>
-  );
-}
-
-/** The one mapping from document blocks to elements; all wording comes from the model. */
-function docBlock(block: DocBlock, index: number) {
-  switch (block.kind) {
-    case "title":
-      return <h1 key={index}>{block.text}</h1>;
-    case "h2":
-      return <h2 key={index}>{block.text}</h2>;
-    case "h3":
-      return <h3 key={index}>{block.text}</h3>;
-    case "quote":
-      return <blockquote key={index}>{block.text}</blockquote>;
-    case "field":
-      return (
-        <p class="doc-field" key={index}>
-          <b>{block.label}</b>{" "}
-          <span class={block.mono ? "mono" : undefined}>{block.value}</span>
-        </p>
-      );
-    case "ref":
-      return (
-        <p class="doc-ref" key={index}>
-          <b>[{block.number}]</b> <span>{block.text}</span>
-        </p>
-      );
-    case "rule":
-      return <hr key={index} />;
-    case "break":
-      return <div class="doc-break" key={index} />;
-    default:
-      return (
-        // As in the PDF, only the placeholder for a missing note is set quieter.
-        <p
-          class={`doc-${block.kind}${block.text === COPY.pdfNoNote ? " is-empty" : ""}`}
-          key={index}
-        >
-          {block.text}
-        </p>
-      );
-  }
-}
-
-export function PrintView({ report }: { report: ReportState }) {
-  const model = buildDocument({
-    version: VERSION,
-    generatedAt: new Date(),
-    entries: reportEntries(report),
-    actors: report.actors,
-  });
-  return (
-    <div class="print-only">
-      <img
-        class="doc-seal"
-        src={SEAL}
-        alt={COPY.sealAlt}
-        width="54"
-        height="54"
-      />
-      {model.blocks.map(docBlock)}
-      {/* shortcut: the footer prints once at the end, not on every page; the PDF carries the running header and footer. */}
-      <p class="doc-small doc-foot">{model.footer}</p>
-    </div>
   );
 }
 
