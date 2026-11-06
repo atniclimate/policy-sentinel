@@ -1,8 +1,13 @@
 import { atniReferences, ieeeReference, SOURCE_LABELS } from "./citations";
 import { COPY } from "./copy";
+import { briefing as B } from "./copy/briefing";
 import { localDay } from "./follow";
+import type { FollowCheck, Followed } from "./follow";
+import type { ExportTemplate } from "./mode";
 import type { DataActors, reportEntries } from "./report-state";
 import { cfrQuery } from "./search-contract";
+import type { DemoCitation } from "./types";
+import { keyOf } from "./validation";
 
 /**
  * One document model for the PDF and the print view, so both say the same
@@ -47,9 +52,37 @@ export interface DocInput {
   readonly generatedAt: Date;
   readonly entries: ReturnType<typeof reportEntries>;
   readonly actors: DataActors;
+  /** Cited Policies unless "briefing" (src/demo/mode.ts). */
+  readonly template?: ExportTemplate;
+  /** Followed items for the Briefing's changes section; ignored by Cited Policies. */
+  readonly checks?: readonly BriefingCheck[];
+}
+
+/** One followed item as the Briefing reports it. */
+export interface BriefingCheck {
+  readonly item: Followed;
+  /** This session's Check for new result; absent when it was not checked. */
+  readonly check?: FollowCheck;
+  /** False when the followed record no longer appears in its source's answer. */
+  readonly listed?: false;
+  /** The source's own data-as-of wording, when it states one. */
+  readonly dataAsOf?: string | null;
+}
+
+export type TrackingState =
+  "new" | "unchanged" | "not_checked" | "unavailable" | "no_longer_listed";
+
+/** The five tracking states (design T1.6), kept apart: a failure is never "nothing new". */
+export function trackingState(entry: BriefingCheck): TrackingState {
+  const { check } = entry;
+  if (check?.state === "unavailable") return "unavailable";
+  if (check?.state !== "checked") return "not_checked";
+  if (entry.listed === false) return "no_longer_listed";
+  return check.fresh.length ? "new" : "unchanged";
 }
 
 export function buildDocument(input: DocInput): DocModel {
+  if (input.template === "briefing") return buildBriefing(input);
   const { version, entries } = input;
   // The reader's calendar day, as in the file name.
   const generated = localDay(input.generatedAt);
@@ -265,6 +298,164 @@ export function buildDocument(input: DocInput): DocModel {
   return {
     title: `${COPY.docTitle}, ${generated}`,
     runningHead: COPY.docTitle,
+    footer: COPY.limitsShort(version),
+    blocks,
+  };
+}
+
+/**
+ * The Briefing: decision dates, source-stated changes since the last check,
+ * open evidence gaps and questions for staff or counsel, from the same entries.
+ * Every line carries its reference number; nothing recommends or concludes.
+ */
+function buildBriefing(input: DocInput): DocModel {
+  const { version, entries } = input;
+  const checks = input.checks ?? [];
+  const generated = localDay(input.generatedAt);
+  const L = COPY.docLabels;
+  const A = COPY.actorLabels;
+  const T = COPY.follow;
+  const blocks: DocBlock[] = [];
+  const source = (sourceId: string) => SOURCE_LABELS[sourceId] ?? sourceId;
+  const actor = (name: keyof DataActors) =>
+    input.actors[name].trim() || COPY.notRecorded;
+  const p = (text: string) => blocks.push({ kind: "p", text });
+  // References: the entries in list order, then followed records and new listings not already cited.
+  const cited: DemoCitation[] = entries.map((entry) => entry.citation);
+  const refOf = (c: DemoCitation) => {
+    const at = cited.findIndex((each) => keyOf(each) === keyOf(c));
+    return at < 0 ? cited.push(c) : at + 1;
+  };
+  const what = ({ item }: BriefingCheck) =>
+    B.followed(
+      T.kinds[item.kind as keyof typeof T.kinds] ?? item.kind,
+      item.value,
+      source(item.sourceId),
+    );
+
+  // 1. Cover
+  blocks.push(
+    { kind: "eyebrow", text: COPY.docEyebrow(version) },
+    { kind: "title", text: B.title },
+    { kind: "lede", text: B.lede },
+  );
+  const role = input.actors.role.trim();
+  for (const [label, value] of [
+    [L.preparedBy, role ? `${actor("name")}, ${role}` : actor("name")],
+    [A.organization, actor("organization")],
+    [A.sharingWith, actor("sharingWith")],
+    [A.purpose, actor("purpose")],
+    [L.generated, generated],
+  ])
+    blocks.push({ kind: "field", label, value });
+  blocks.push(
+    { kind: "small", text: COPY.docActorsIntro },
+    { kind: "h3", text: COPY.limitsTitle },
+    { kind: "p", text: COPY.limits(version) },
+  );
+
+  // 2. Decision dates as each source states them, in date order
+  const dates: { date: string; text: string }[] = [];
+  const gaps: string[] = [];
+  const questions: string[] = [];
+  entries.forEach((entry, index) => {
+    const n = index + 1;
+    const c = entry.citation;
+    const from = source(c.sourceId);
+    if (c.commentsCloseOn)
+      dates.push({
+        date: c.commentsCloseOn,
+        text: `${COPY.commentsClose(c.commentsCloseOn, from)} [${n}]`,
+      });
+    if (c.applicationsCloseOn)
+      dates.push({
+        date: c.applicationsCloseOn,
+        text: `${COPY.applicationsClose(c.applicationsCloseOn, from)} [${n}]`,
+      });
+    for (const date of [c.commentsCloseOn, c.applicationsCloseOn])
+      if (date) questions.push(B.questions.closeDate(date, n));
+    for (const { issue } of entry.issues)
+      questions.push(
+        issue.type === "consultation_absent"
+          ? B.questions.consultationAbsent(n)
+          : B.questions.passage(issue.label, issue.locator, n),
+      );
+    if (!entry.receipt) gaps.push(B.gaps.textNotRead(n));
+    if (c.date === null) gaps.push(B.gaps.dateNotStated(n));
+    if (c.commentsCloseWithheld) gaps.push(B.gaps.closeWithheld(n, from));
+    if (!entry.foundBy?.length) gaps.push(B.gaps.foundByNotRecorded(n));
+  });
+  blocks.push({ kind: "h2", text: B.datesTitle });
+  if (dates.length === 0) p(B.datesNone);
+  dates
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .forEach(({ text }) => p(text));
+
+  // 3. Changes since the last check: each followed item with its state
+  blocks.push({ kind: "h2", text: B.changesTitle });
+  if (checks.length === 0) p(B.changesNone);
+  for (const entry of checks) {
+    const n = refOf(entry.item.record);
+    const state = trackingState(entry);
+    const { check, item } = entry;
+    blocks.push(
+      { kind: "h3", text: `${what(entry)} [${n}]` },
+      { kind: "p", text: `${T.states[state]}. ${T.stateHelp[state]}` },
+      {
+        kind: "small",
+        text: T.lastCheckedLine(
+          item.lastChecked ? localDay(item.lastChecked) : null,
+        ),
+      },
+      { kind: "small", text: T.dataAsOfLine(entry.dataAsOf ?? null) },
+    );
+    if (check?.state === "checked") {
+      for (const listing of check.fresh)
+        p(
+          B.newListing(
+            listing.title,
+            listing.date ?? COPY.docDateNotStated,
+            source(listing.sourceId),
+            refOf(listing),
+          ),
+        );
+      if (check.undated) p(T.undated(check.undated));
+      if (check.more) p(T.more);
+    }
+    if (state === "unavailable")
+      gaps.push(B.gaps.trackingUnavailable(what(entry), n));
+    if (state === "not_checked")
+      gaps.push(B.gaps.trackingNotChecked(what(entry), n));
+    if (state === "no_longer_listed")
+      questions.push(B.questions.noLongerListed(what(entry), n));
+  }
+
+  // 4. Open evidence gaps, then 5. questions
+  blocks.push({ kind: "h2", text: B.gapsTitle });
+  if (gaps.length === 0) p(B.gapsNone);
+  gaps.forEach((text) => p(text));
+  blocks.push({ kind: "h2", text: B.questionsTitle });
+  if (questions.length === 0) p(B.questionsNone);
+  questions.forEach((text) => p(text));
+
+  // 6. References, then the provenance notes
+  blocks.push({ kind: "h2", text: COPY.docReferencesTitle });
+  [...cited.map(ieeeReference), ...atniReferences(version)].forEach(
+    (text, index) => blocks.push({ kind: "ref", number: index + 1, text }),
+  );
+  blocks.push({ kind: "h2", text: COPY.docSovereigntyTitle });
+  for (const text of COPY.docSovereignty) p(text);
+  // Required by the Grants.gov API terms in any export that includes its rows.
+  if (
+    [...cited, ...entries.flatMap((entry) => entry.alternates)].some(
+      (c) => c.sourceId === "grants",
+    )
+  )
+    p(COPY.grants.attribution);
+
+  return {
+    title: `${B.title}, ${generated}`,
+    runningHead: B.title,
     footer: COPY.limitsShort(version),
     blocks,
   };

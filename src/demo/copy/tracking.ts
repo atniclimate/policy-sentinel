@@ -2,7 +2,7 @@
 export const follow = {
   title: "Following",
   intro:
-    "Follow a docket, a RIN, or a document to look for newer documents later. The followed list is kept in this browser between visits and is not sent anywhere on its own. Check for new looks up each followed identifier, exactly as its source states it, in that source only, and only when pressed. A followed document is looked up by every identifier its source stated, as Find related does. A shared identifier does not show that one document governs another.",
+    "Follow a docket, a RIN, or a document to look for newer documents later. The followed list is kept in this browser between visits and is not sent anywhere on its own. Check for new looks up each followed identifier, exactly as its source states it, in that source only, and only when pressed. A followed document is looked up by every identifier its source stated, as Find related does. A shared identifier does not show how one document relates to another.",
   empty: "Nothing followed yet. Use Follow on a result row.",
   follow: "Follow",
   following: "Following",
@@ -71,4 +71,32 @@ export const follow = {
     "Part of the saved followed list could not be restored. Valid items were kept.",
   restoreFailed:
     "The saved followed list could not be restored. This page starts with an empty followed list.",
+  /** The five tracking states (design T1.6), each shown apart from the others. */
+  states: {
+    new: "New",
+    unchanged: "Unchanged",
+    not_checked: "Not checked",
+    unavailable: "Unavailable",
+    no_longer_listed: "No longer listed",
+  },
+  stateHelp: {
+    new: "The source lists documents dated on or after the last check.",
+    unchanged: "The source lists no document dated on or after the last check.",
+    not_checked:
+      "Not looked up in this check. Nothing is established about new documents.",
+    unavailable:
+      "The source could not answer. Nothing is established about new documents.",
+    no_longer_listed:
+      "The source no longer lists the followed record by this identifier. This does not show why.",
+  },
+  lastCheckedLine: (day: string | null) =>
+    `Last checked: ${day ?? "not checked yet"}.`,
+  dataAsOfLine: (asOf: string | null) =>
+    `Source data as of: ${asOf ?? "not stated by the source"}.`,
+  /** A saved Federal Register word search: never called a consultation notice, never naming a Nation. */
+  savedSearch: {
+    title: "Documents containing these words",
+    passage: (passage: string) => `Matched passage: "${passage}"`,
+    note: "A word match only. It does not show what kind of notice a document is or whom it concerns.",
+  },
 } as const;
