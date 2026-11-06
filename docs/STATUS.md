@@ -1,86 +1,110 @@
 # Status
 
-As of 2026-11-06 (Pacific). The live page is still **release 0.10.1**
-(D-116). The Full 0.9 build (**0.9.1**, D-118 to D-132) is committed on branch
-`demo/live-pages` and pushed to it. It is not merged into `main`, not built
-into `docs/`, and the demo Worker is not redeployed.
+As of 2026-11-06 (Pacific). The live page is the **0.9.1 demo update** (the
+Full 0.9 build, D-118 to D-133), merged into `main` through PR 23 (merge
+commit 21b647f) and served by GitHub Pages. The demo Worker runs version
+3c228775-c1ab-4905-9ea4-d0c766b5a16b, built from a124968; the rollback version
+is 93192de1-9556-4f81-907e-35ace346728d. This is a demo update, not the D-123
+pre-release.
 
-## Built on `demo/live-pages` (0.9.1, not published)
+## Next session goal
 
-- Tier 1 from the [Full 0.9 design](development/full09-design-2026-11-05.md)
-  (draft 4) on the [index conditions](development/full09-index-conditions-2026-11-05.md):
-  - search contract version 3 (version 1 and 2 answers unchanged for ATNI-ResIST);
-  - one search box that reads citations, bills, dockets and law names, offers
-    readings, and abstains when a query could mean more than one thing;
-  - the research chain panel (CFR parts a rule names, authority lines, in-text
-    citations, related records), each row with its basis, source, as-of and
-    live link;
-  - Grants.gov authority wording and Assistance Listings;
-  - federal court lookups (GovInfo courts, U.S. Reports);
-  - modes, the Briefing export, freshness notices.
-- Boundary B (sovereignty review of Wave 2): every blocking finding fixed with
-  a regression test that fails without the fix. Highlights:
-  - A query that names a Nation, Tribal court, case caption or treaty never
-    picks the U.S. Supreme Court.
-  - Person-shaped captions and related titles are withheld, and the page says so.
-  - Withheld authority lines and in-text citations are stated, never dropped
-    silently.
-  - Chain labels quote what OLRC says, not our own wording.
-  - Annual-edition CFR rows link to the GovInfo annual edition.
-- Wave 2b (D-126 to D-132):
-  - law aliases can carry note citations, acronyms and enacted-title marks;
-  - hashed Nation-name probes;
-  - Supreme Court case names shown verbatim;
-  - relation names only from a reviewed list;
-  - the source's own summary, collapsed and guarded, where its terms allow;
-  - search suggestions ranked by word start, with a bounded "possible match"
-    typo pass (uFuzzy as the filter);
-  - a reviewed plain-phrase table, shipped empty.
+Build Wave 3 (Tier 2 rows 12 to 18 of the
+[Full 0.9 design](development/full09-design-2026-11-05.md)) on
+`demo/live-pages`, then boundary C. Done means:
 
-## Verification
+- each Tier 2 row is live-checked once within a stated call budget, or recorded
+  as blocked at its gate with the reason;
+- `npm run check` passes once on the final tree;
+- the sovereignty review of the Wave 3 diff has no open blocking finding;
+- `scripts/verify-demo-browser.mjs` passes on a `demo:build` served locally;
+- the owner's walk steps for the T1.7 staff tasks are written.
 
-- Full suite on the final tree before the push: see the session handoff for
-  counts and logs. Earlier on 2026-11-06: `npm test` 179 files and 3,633 tests
-  passed; typecheck, lint, format, source-boundary scan, build and the demo
-  index validator passed. Protected paths and `docs/` build output are
-  unchanged since 07a8dbb.
-- Not yet run: `npm run check` (once, before publishing), `demo:build`, the
-  T1.7 staff-task walk in a browser on the final build, and the accessibility
-  check.
-
-## Not done, and carried limits
-
-- The law alias table and the plain-phrase table ship empty. Alias entries
-  wait on the OLRC terms reading, then a raw fetch per page and the owner's bulk
-  approval. Phrase rows wait on the official term lists and the owner's ticks.
-- No index shard is acquired: the CFR annual edition waits on the GovInfo
-  policies wording, the U.S. Code on the OLRC terms. eCFR's robots.txt
-  disallows the planned versioner path, so eCFR stays a link-out only.
-- The Supreme Court slip-opinion RSS row (Tier 2) is not viable as designed:
-  robots.txt disallows `/rss/`.
-- Wave 3 (Tier 2: Oregon, Washington, committee libraries, local documents,
-  interop, treaty link target) is not started.
-- Non-blocking review items are recorded for the next session. These include
-  chapter-shard lookup, the eCFR hop's as-of wording, a demo-index schema
-  `note` field before the next CFR acquisition, and `relation` in the verbatim
-  field list.
-
-## Next bounded work
-
-A fresh session: boundary C on Waves 2b and 3, then release preparation.
-Release preparation means `npm run check`, `demo:build`, the T1.7 walk, the
-owner's walk steps, accessibility, the PR body and Worker deployment notes.
-Each publication step needs the owner's command.
+Nothing is merged, deployed or published without a fresh owner command. The
+launch prompt is in the private handoff folder (Records, below).
 
 ## Open owner decisions
 
-1. N17: OLRC terms (supports the alias page fetch), eCFR (robots disallows
-   the planned path), Office of the Federal Register (keyless API invited; no
-   NARA or OFR seals). N19: Supreme Court RSS (disallowed).
-2. N9 SAM.gov listings file; Regulations.gov terms; GovInfo policies wording
-   for the CFR index.
-3. Reviews: the relation-name list, the alias bulk list after the fetch, the
-   plain-phrase rows, and the real hash file (generated by the owner from the
-   recognition notice).
-4. Carried: Idaho contact; taxonomy proposal; Unified Agenda output; first real
-   release definition; archiving `ROADMAP.yaml`.
+1. Source terms, N17: the OLRC terms (supports the alias page fetch), eCFR
+   (robots disallows the planned path; recommended: link-out only), the Office
+   of the Federal Register (keyless API invited; no NARA or OFR seals). N19:
+   Supreme Court RSS (disallowed by robots; the row is not viable as designed).
+   Unblocks the alias table and the CFR and U.S. Code index shards.
+2. Index and listing sources: N9 SAM.gov listings file; Regulations.gov terms;
+   the GovInfo policies wording for the CFR annual-edition index.
+3. Reviews: the alias bulk list after the raw fetch; the plain-phrase rows; the
+   real Nation-name hash file, generated by the owner from the recognition
+   notice. The first phrase row cannot land until the hash file is committed.
+4. Search reading: whether a bare four-digit range such as 2010-2045 should
+   read as a Federal Register document number. Today only the "FR Doc." form
+   does, so climate-plan ranges such as 2020-2050 stay plain words.
+5. Review timing: whether pushing the work branch to this public repository
+   counts as "anything public" for the review rule in `AGENTS.md`.
+6. Release definition: confirm the first-real-release meaning in `AGENTS.md`
+   as the 1.0 test (D-120, design T1.7).
+7. Carried: the Nation picker; Tribal documents in federal results; a refreshed
+   public index built with the engine's runner; engine use of the api.data.gov
+   key; the PLAN "Later" deferrals; the NCAI reply; the Parallel monitors; the
+   Idaho contact; the taxonomy proposal; Unified Agenda output; archiving
+   `ROADMAP.yaml`.
+
+## Published in this update (0.9.1)
+
+- Tier 1 of the Full 0.9 design on its
+  [index conditions](development/full09-index-conditions-2026-11-05.md):
+  search contract version 3 (versions 1 and 2 unchanged for ATNI-ResIST); one
+  search box that reads citations, bills, dockets and law names and abstains
+  when a query could mean more than one thing; the Cited and Linked Records
+  panel; Grants.gov authority wording; GovInfo court opinions and U.S. Reports;
+  modes, the Briefing export and freshness notices.
+- Wave 2b (D-126 to D-132): note citations, acronyms and enacted-title marks
+  on law aliases (table still empty); hashed Nation-name probes; Supreme Court
+  case names verbatim; relation names from the owner-approved list (D-133);
+  the source's own summary, collapsed and guarded; ranked suggestions with a
+  bounded typo pass; the plain-phrase table, empty.
+- Two audit rounds (36 and 20 confirmed findings). Among them: every Worker
+  cache entry is keyed to the deployed version; Nation names before a closing
+  apostrophe and organization names joined by "of" are masked; person-naming
+  court captions are withheld in every GovInfo lane; withheld, cut and
+  not-kept rows are stated in the panel and in exports alike; one retrieval day
+  is shown everywhere; the Congress.gov latest action passes the personal
+  guard.
+- The planning records were aligned for agent sessions: one session start, one
+  owner-decision list (this one), current rule pointers in the agent files.
+
+## Verification
+
+- `npm run check` exit 0 at e2bfb4b: 184 test files, 3,823 tests passed, 16
+  skipped; roadmap, backbone, knowledge, runtime, source-boundary and artifact
+  validation passed. After it, one label fix and browser-verifier selector
+  updates (5f246ae) passed their focused tests, typecheck, lint and the
+  source-boundary scan.
+- Pre-public sovereignty review over 566c0b2..HEAD: no Nation-linking, land,
+  secret or telemetry finding; its privacy items are fixed.
+- `scripts/verify-demo-browser.mjs` against the build served locally, calling
+  the deployed Worker: 83 passed, 0 failed, including axe (no WCAG A/AA
+  violations in the dialog and in both themes) and the keyboard focus checks.
+- Live: Pages built 21b647f at 16:35 UTC; the verifier against
+  https://atniclimate.github.io/policy-sentinel/ passed 83 of 83 (header 0.9.1),
+  and all 18 runtime files matched the committed build on readback.
+- Not yet run: the owner's own walk of the T1.7 staff tasks.
+
+## Not done, and carried limits
+
+- The law alias table and the plain-phrase table ship empty (decisions 1 and
+  3). No index shard is acquired. eCFR stays a link-out.
+- Wave 3 (Tier 2: Oregon, Washington, committee libraries, local documents,
+  interop, treaty link target) is not started.
+- `worker/src/sources/govinfo.ts` does not use GovInfo's count to decide
+  whether more results follow; the courts lane does.
+- A saved entry reopened after a reload says its in-text citations were not
+  kept; re-reading them automatically would cost one Worker call per open.
+
+## Records
+
+- Session handoff: `C:\dev\_handoff\policy-sentinel\HANDOFF.md` (read its top
+  section) and the launch prompt beside it.
+- Build ledger: `C:\dev\_scratch\policy-sentinel\full09-build-2026-11-05\LEDGER.md`
+  (sections from "Ponytail audit 1" on cover this update).
+- [Decision register](decision-register.md) through D-133;
+  [demo status](DEMO-STATUS.md) for the live page's history.
