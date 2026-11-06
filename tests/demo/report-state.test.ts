@@ -845,7 +845,7 @@ describe("how a cited document was found", () => {
     expect(reportEntries(restored.report)[0].foundBy).toBeUndefined();
   });
 
-  it("saves no search contract v2 citation fields, on the citation or its alternates", () => {
+  it("saves the row's stated dates and identifiers, so a reload does not turn them into none stated", () => {
     const report = merged();
     const key = Object.keys(report.cited)[0];
     const entry = report.cited[key];
@@ -856,20 +856,25 @@ describe("how a cited document was found", () => {
       rins: ["0648-AA00"],
       cfrRefs: [{ title: 50, part: "660" }],
       topics: ["Fisheries"],
+      applicationsCloseOn: "2099-03-01",
+      listedEligibility: "tribal",
     } as const;
+    // The page keeps the citation and its read's citation the same object.
+    const citation = { ...entry.citation, ...v2 };
     const withFields: ReportState = {
       ...report,
       cited: {
         [key]: {
           ...entry,
-          citation: { ...entry.citation, ...v2 },
+          citation,
+          policy: entry.policy && { ...entry.policy, citation },
           alternates: entry.alternates.map((a) => ({ ...a, ...v2 })),
         },
       },
     };
     const raw = serializeReport(withFields);
-    for (const field of Object.keys(v2)) expect(raw).not.toContain(field);
-    expect(raw).toBe(serializeReport(report));
+    for (const field of Object.keys(v2)) expect(raw).toContain(field);
+    expect(restoreReport(raw)).toEqual({ report: withFields, notice: "" });
   });
 
   it("keeps the row's stated fields when its text is read, so the export can print them", () => {

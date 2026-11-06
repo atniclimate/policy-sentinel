@@ -8,12 +8,9 @@
 import { docketFromPackageId } from "./courts";
 import { buildPlan, laneKeep, lookupReady, recordPlan } from "./discovery";
 import type { Lane, Plan, PlanDates } from "./discovery";
-import { FOLLOW_KINDS } from "./follow-kinds";
-import type { FollowKind } from "./follow-kinds";
 import type { DemoCitation, DemoSearchResponse } from "./types";
+import { localDay } from "./local-day";
 import { citationValue, keyOf, object, text } from "./validation";
-
-export type { FollowKind };
 
 export const FOLLOW_KEY = "ps-demo-following-v1";
 /**
@@ -27,7 +24,8 @@ export const MAX_FOLLOWED = 50;
 /** Far above 50 items with their records; a larger file is refused unread. */
 export const MAX_FOLLOW_FILE = 1_000_000;
 
-const KINDS: readonly FollowKind[] = Object.keys(FOLLOW_KINDS) as FollowKind[];
+const KINDS = ["docket", "rin", "document", "case"] as const;
+export type FollowKind = (typeof KINDS)[number];
 const FIELDS = [
   "id",
   "sourceId",
@@ -53,7 +51,7 @@ export interface Followed {
 }
 
 export const followId = (sourceId: string, kind: FollowKind, value: string) =>
-  FOLLOW_KINDS[kind].id(sourceId, value);
+  `${sourceId}#${kind}:${value}`;
 
 /**
  * The exact identifier lookups for an item, as Find related plans them for its
@@ -287,23 +285,7 @@ export function checkBatch(
 /** Sources whose lookups take a publication or posted date range. */
 const DATED = new Set(["federal-register", "regulations"]);
 
-/**
- * The calendar day for an instant as YYYY-MM-DD, in the reader's zone unless one
- * is named; stored times stay UTC.
- */
-export function localDay(value: string | Date, timeZone?: string): string {
-  const parts = Object.fromEntries(
-    new Intl.DateTimeFormat("en-US", {
-      timeZone,
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    })
-      .formatToParts(new Date(value))
-      .map((part) => [part.type, part.value]),
-  );
-  return `${parts.year}-${parts.month}-${parts.day}`;
-}
+export { localDay };
 
 /** The day new documents are counted from: the last check, or the day it was followed. */
 export function sinceDay(item: Followed, now: Date): string {
@@ -371,8 +353,12 @@ export function settleCheck(
   const since = sinceDay(item, now);
   // A case is its own package listed again, new when its lastModified moved past the last check.
   const versioned = item.kind === "case";
-  const kind = FOLLOW_KINDS[item.kind];
-  const baseline = kind.baseline(item.lastChecked, item.followedAt);
+  // The exact instant, not the day: GovInfo's lastModified is a timestamp, not an official date.
+  const stamp = (v: string | null | undefined) =>
+    typeof v === "string" && /^\d{4}-\d{2}-\d{2}T/.test(v)
+      ? Date.parse(v)
+      : NaN;
+  const baseline = stamp(item.lastChecked ?? item.followedAt);
   const seen = new Set(versioned ? [] : [keyOf(item.record)]);
   const fresh: DemoCitation[] = [];
   let undated = 0;
@@ -384,9 +370,13 @@ export function settleCheck(
     for (const listing of answer.response.results) {
       if (!keep(listing) || seen.has(keyOf(listing))) continue;
       seen.add(keyOf(listing));
-      const key = versioned ? kind.versionKey(listing) : listing.date;
+      const key = versioned
+        ? Number.isFinite(stamp(listing.lastModified))
+          ? (listing.lastModified ?? null)
+          : null
+        : listing.date;
       if (key === null) undated++;
-      else if (versioned ? kind.isNew(baseline, key) : key >= since)
+      else if (versioned ? stamp(key) > baseline : key >= since)
         fresh.push(listing);
     }
   });

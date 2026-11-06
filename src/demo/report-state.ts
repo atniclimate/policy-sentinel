@@ -282,9 +282,9 @@ export function restoreReport(raw: string | null): RestoredReport {
 }
 
 /**
- * Kept in memory only. foundBy holds search terms and draft IDs; the rest are
- * the search contract v2 citation fields, which nothing reads back after a
- * citation is saved. No other saved field has these names.
+ * The search contract v2 citation fields a listed row states. They are saved
+ * with the citation: the identifier rows, the export, the Briefing's dates and
+ * the calendar read them back after a reload.
  */
 const STATED_FIELDS = [
   "commentsCloseOn",
@@ -296,8 +296,9 @@ const STATED_FIELDS = [
   "applicationsCloseOn",
   "listedEligibility",
 ];
-// chain: a version 3 read's rows (up to 200) are rebuilt on read, never saved.
-const MEMORY_ONLY = new Set(["foundBy", "chain", ...STATED_FIELDS]);
+// Kept in memory only. foundBy holds search terms and draft IDs. chain: a
+// version 3 read's rows (up to 200) are rebuilt on read, never saved.
+const MEMORY_ONLY = new Set(["foundBy", "chain"]);
 
 /**
  * The read text's citation, with the v2 fields the listed row stated where the

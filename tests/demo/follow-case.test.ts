@@ -12,8 +12,6 @@ import {
   settleCheck,
 } from "../../src/demo/follow";
 import type { FollowAnswer } from "../../src/demo/follow";
-import { FOLLOW_KINDS } from "../../src/demo/follow-kinds";
-import { caseKind } from "../../src/demo/follow-kinds/case";
 import { COPY } from "../../src/demo/copy";
 import { searchCriteria } from "../../src/demo/search-contract";
 import type { DemoCitation, DemoSearchResponse } from "../../src/demo/types";
@@ -34,40 +32,6 @@ const listing = (lastModified?: string): DemoCitation => ({
   court: "ca9",
   packageId: "USCOURTS-ca9-99-12345",
   ...(lastModified !== undefined && { lastModified }),
-});
-
-describe("case follow kind", () => {
-  it("forms its id from the source and the package id with court code", () => {
-    expect(caseKind.label).toBe("Case");
-    expect(caseKind.id("govinfo-courts", "USCOURTS-ca9-99-12345")).toBe(
-      "govinfo-courts#case:USCOURTS-ca9-99-12345",
-    );
-  });
-
-  it("keeps the full last-check instant as its baseline", () => {
-    expect(caseKind.baseline(null, "2099-03-05T10:00:00.000Z")).toBe(
-      "2099-03-05T10:00:00.000Z",
-    );
-    expect(
-      caseKind.baseline("2099-03-06T10:00:00.000Z", "2099-03-05T10:00:00.000Z"),
-    ).toBe("2099-03-06T10:00:00.000Z");
-  });
-
-  it("uses lastModified as the version key, and none when the source states none", () => {
-    expect(caseKind.versionKey(listing("2099-03-05T01:02:03Z"))).toBe(
-      "2099-03-05T01:02:03Z",
-    );
-    expect(caseKind.versionKey(listing())).toBeNull();
-    expect(caseKind.versionKey(listing("not a date"))).toBeNull();
-  });
-
-  it("is new only when lastModified is after the baseline instant", () => {
-    const base = "2099-03-05T10:00:00.000Z";
-    expect(caseKind.isNew(base, "2099-03-05T10:00:01Z")).toBe(true);
-    expect(caseKind.isNew(base, "2099-03-05T10:00:00Z")).toBe(false);
-    expect(caseKind.isNew(base, "2099-03-05T09:59:59Z")).toBe(false);
-    expect(caseKind.isNew(base, "garbled")).toBe(false);
-  });
 });
 
 describe("following a case on the page (0.9.1 step 11)", () => {
@@ -101,9 +65,24 @@ describe("following a case on the page (0.9.1 step 11)", () => {
     return { ok: true, response };
   };
 
-  it("is registered with its kind label", () => {
-    expect(FOLLOW_KINDS.case).toBe(caseKind);
+  it("has its kind label", () => {
     expect(COPY.follow.kinds.case).toBe("case");
+  });
+
+  it("is new only when lastModified is after the last check's exact instant", () => {
+    // followed has no last check, so the baseline is its follow time, 10:00:00Z.
+    const now = new Date("2099-03-07T00:00:00.000Z");
+    const fresh = (stamp: string) => {
+      const { check } = settleCheck(followed, [answer(listing(stamp))], now);
+      return check.state === "checked" ? check.fresh.length : -1;
+    };
+    expect(fresh("2099-03-05T10:00:01Z")).toBe(1);
+    expect(fresh("2099-03-05T10:00:00Z")).toBe(0);
+    expect(fresh("2099-03-05T09:59:59Z")).toBe(0);
+    // A garbled stamp counts as undated, never as new.
+    expect(
+      settleCheck(followed, [answer(listing("garbled"))], now).check,
+    ).toMatchObject({ undated: 1, fresh: [] });
   });
 
   it("looks a case up once, by its court and docket, with contract v3", () => {

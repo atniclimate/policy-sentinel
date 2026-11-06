@@ -4,49 +4,24 @@ import type { SourceRow } from "../../src/demo/source-model";
 import type { DemoSource } from "../../src/demo/types";
 import { Leader } from "./parts";
 
-function statusText(status: DemoSource["status"]): string {
-  if (status === "live") return COPY.liveTitle;
-  if (status === "key_pending") return COPY.keyPendingTitle;
-  if (status === "unknown") return COPY.notCheckedTitle;
-  return COPY.notAvailableTitle;
-}
-
-/** Filled is enabled, half is pending, outline is anything else. */
-function markClass(status: DemoSource["status"]): string {
-  if (status === "live") return "mark is-full";
-  return status === "key_pending" ? "mark is-half" : "mark";
-}
-
 /**
- * A source's state: the source model's wording when the page passes rows
- * (safeguard 8: nothing called live), otherwise the catalog status.
+ * A source's state in the source model's wording (safeguard 8: nothing called
+ * live). A source with no model row says Not available, never nothing.
  */
-function SourceStatus({
-  status,
-  row,
-}: {
-  status: DemoSource["status"];
-  row?: SourceRow;
-}) {
+function SourceStatus({ row }: { row: SourceRow | undefined }) {
   return (
     <span class="row-v status">
       <span
-        class={
-          row
-            ? row.model.enabled
-              ? "mark is-full"
-              : "mark"
-            : markClass(status)
-        }
+        class={row?.model.enabled ? "mark is-full" : "mark"}
         aria-hidden="true"
       />
-      {row ? row.stateText : statusText(status)}
+      {row?.stateText ?? S.notAvailable}
     </span>
   );
 }
 
-const rowOf = (rows: readonly SourceRow[] | undefined, id: string) =>
-  rows?.find((row) => row.id === id);
+const rowOf = (rows: readonly SourceRow[], id: string) =>
+  rows.find((row) => row.id === id);
 
 /**
  * The sources a search can ask, inside the search form: the federal checklist,
@@ -71,7 +46,7 @@ export function SourcesPanel({
   onToggle: (id: string, on: boolean) => void;
   onState: (id: string) => void;
   /** The source model (src/demo/source-model.ts); its wording replaces the catalog badge. */
-  rows?: readonly SourceRow[];
+  rows: readonly SourceRow[];
 }) {
   const chosenState = states.find((item) => item.id === stateId);
   return scope === "federal" ? (
@@ -93,7 +68,7 @@ export function SourcesPanel({
           <span class="row">
             <span class="row-k">{s.label}</span>
             <Leader />
-            <SourceStatus status={s.status} row={rowOf(rows, s.id)} />
+            <SourceStatus row={rowOf(rows, s.id)} />
           </span>
           <span class="source-note">{COPY.capability[s.id] ?? s.note}</span>
         </label>
@@ -121,10 +96,7 @@ export function SourcesPanel({
           <span class="row">
             <span class="row-k">{COPY.availabilityLabel}</span>
             <Leader />
-            <SourceStatus
-              status={chosenState.status}
-              row={rowOf(rows, chosenState.id)}
-            />
+            <SourceStatus row={rowOf(rows, chosenState.id)} />
           </span>
           <span class="source-note">{chosenState.note}</span>
         </div>
@@ -140,7 +112,7 @@ function ModelRow({ row }: { row: SourceRow }) {
       <span class="row">
         <span class="row-k">{row.label}</span>
         <Leader />
-        <SourceStatus status="unknown" row={row} />
+        <SourceStatus row={row} />
       </span>
       {row.outcomeText && (
         <span class="source-note">
@@ -163,36 +135,14 @@ function ModelRow({ row }: { row: SourceRow }) {
 }
 
 /**
- * Every source, as the About dialog lists them: with rows, the whole source
- * model (Worker sources, static indexes, link-outs and gaps); otherwise the
- * catalog status and note.
+ * Every source, as the About dialog lists them: the whole source model
+ * (Worker sources, static indexes, link-outs and gaps).
  */
-export function SourceList({
-  sources,
-  rows,
-}: {
-  sources: readonly DemoSource[];
-  rows?: readonly SourceRow[];
-}) {
-  if (rows)
-    return (
-      <ul class="rows">
-        {rows.map((row) => (
-          <ModelRow row={row} key={row.id} />
-        ))}
-      </ul>
-    );
+export function SourceList({ rows }: { rows: readonly SourceRow[] }) {
   return (
     <ul class="rows">
-      {sources.map((s) => (
-        <li class="source" key={s.id}>
-          <span class="row">
-            <span class="row-k">{s.label}</span>
-            <Leader />
-            <SourceStatus status={s.status} />
-          </span>
-          <span class="source-note">{s.note}</span>
-        </li>
+      {rows.map((row) => (
+        <ModelRow row={row} key={row.id} />
       ))}
     </ul>
   );

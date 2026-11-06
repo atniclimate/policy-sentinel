@@ -40,6 +40,8 @@ describe("following a docket, a RIN or a document", () => {
   it("follows each identifier once, by source, kind and value, and removes by id", () => {
     const item = docket();
     expect(item.id).toBe(followId("federal-register", "docket", DOCKET));
+    // Stored ids are byte-identical across versions, so saved lists still match.
+    expect(item.id).toBe(`federal-register#docket:${DOCKET}`);
     expect(item.lastChecked).toBeNull();
     expect(item.record.summary).toBeNull();
     const list = addFollow([], item);

@@ -11,6 +11,7 @@ import {
   searchCriteria,
 } from "../src/demo/search-contract";
 import { grantsDetailValue } from "../src/demo/grants-authority";
+import { LOCAL_API } from "../src/demo/mode";
 import type { GrantsDetailResponse } from "../src/demo/grants-authority";
 import {
   object,
@@ -31,11 +32,7 @@ const MAX_RESPONSE_BYTES = 2_000_000;
 export function apiBase(): string {
   try {
     const override = new URLSearchParams(window.location.search).get("api");
-    if (
-      override &&
-      /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d{1,5})?$/.test(override)
-    )
-      return override;
+    if (override && LOCAL_API.test(override)) return override;
   } catch {
     /* use the default */
   }
@@ -199,7 +196,7 @@ export async function search(
 }
 
 /** Sources whose policy read asks for version 3, which adds the chain rows found in the text. */
-const POLICY_V3 = new Set(["federal-register", "washington"]);
+export const POLICY_V3 = new Set(["federal-register", "washington"]);
 
 export function readPolicy(
   source: string,
@@ -248,11 +245,7 @@ export function readRelated(
   const params = new URLSearchParams(
     request.source === "congress"
       ? { source: "congress", bill: request.bill }
-      : {
-          source: "govinfo",
-          id: request.id,
-          ...(request.collection && { collection: request.collection }),
-        },
+      : { source: "govinfo", id: request.id },
   );
   return get(
     `/api/related?${params.toString()}`,

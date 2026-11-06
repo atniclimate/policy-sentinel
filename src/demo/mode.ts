@@ -44,8 +44,8 @@ export const modeHash = (mode: Mode): string => `#mode=${mode}`;
 
 /** Display settings the page reads from the query string; no other field is kept. */
 const KEPT_PARAMS = ["embed", "theme"];
-/** The local testing address (?api=), the same loopback rule demo/api.ts applies. */
-const LOCAL_API = /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d{1,5})?$/;
+/** The local testing address (?api=). demo/api.ts imports this rule, so the two cannot drift. */
+export const LOCAL_API = /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d{1,5})?$/;
 
 /** The page URL with only the mode in the fragment and only display settings in the query. */
 export function modeUrl(href: string, mode: Mode): string {

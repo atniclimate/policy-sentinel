@@ -1,4 +1,5 @@
 import type { ComponentChildren } from "preact";
+import { COPY } from "../../src/demo/copy";
 import { courts as COURTS } from "../../src/demo/copy/courts";
 import { caseRowText } from "../../src/demo/courts";
 import type { DiscoveryRow } from "../../src/demo/discovery";
@@ -8,7 +9,8 @@ import type { DemoCitation } from "../../src/demo/types";
  * One row of the Cases family (T1.5), for ResultsList's `families.cases`
  * seam. Follow is offered only for a GovInfo package with a court code, and
  * only when the page passes `onFollow`; `actions` holds any further page
- * controls, such as adding the row to My Citations.
+ * controls, such as adding the row to My Citations. `why` is the row's
+ * Why shown line, with its name-search caution.
  */
 export function CaseRow({
   row,
@@ -16,12 +18,14 @@ export function CaseRow({
   following,
   onFollow,
   actions,
+  why,
 }: {
   row: DiscoveryRow;
   nested: boolean;
   following: boolean;
   onFollow?: (citation: DemoCitation, packageId: string) => void;
   actions?: ComponentChildren;
+  why?: string;
 }) {
   const c = row.citation;
   const text = caseRowText(c);
@@ -45,6 +49,11 @@ export function CaseRow({
         </li>
       </ul>
       <p class="help">{text.citation}</p>
+      {why && (
+        <p class="help">
+          <strong>{COPY.whyShownLabel}</strong> {why}
+        </p>
+      )}
       <p class="actions">
         <a
           href={text.officialUrl}

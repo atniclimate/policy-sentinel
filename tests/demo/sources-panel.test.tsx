@@ -23,7 +23,7 @@ describe("sources panel", () => {
       now: NOW,
       outcomes: { regulations: "rate_limited" },
     });
-    const { container } = render(<SourceList sources={sources} rows={rows} />);
+    const { container } = render(<SourceList rows={rows} />);
     const items = container.querySelectorAll("li");
     expect(items).toHaveLength(rows.length);
     const ui = within(container as HTMLElement);
@@ -46,7 +46,7 @@ describe("sources panel", () => {
 
   it("opens link-out sources by keyboard-reachable links to their official pages", () => {
     const rows = sourceRows({ sources, manifest: null, now: NOW });
-    const { container } = render(<SourceList sources={sources} rows={rows} />);
+    const { container } = render(<SourceList rows={rows} />);
     const links = within(container as HTMLElement).getAllByRole("link");
     const known = Object.values(LINK_OUT_URLS).filter(Boolean);
     expect(links.map((link) => link.getAttribute("href"))).toEqual(known);
@@ -73,7 +73,7 @@ describe("sources panel", () => {
     expect(ui.getAllByRole("checkbox")[0]).toBeChecked();
   });
 
-  it("keeps the rail's existing badges when no rows are passed", () => {
+  it("says Not available, never nothing, for a source with no model row", () => {
     const { container } = render(
       <SourcesPanel
         scope="state"
@@ -83,11 +83,12 @@ describe("sources panel", () => {
         stateId="oregon"
         onToggle={vi.fn()}
         onState={vi.fn()}
+        rows={[]}
       />,
     );
-    expect(container.querySelector("#state-note")).toHaveTextContent(
-      "Synthetic gap: not enabled.",
-    );
+    const note = container.querySelector("#state-note");
+    expect(note).toHaveTextContent(S.notAvailable);
+    expect(note).not.toHaveTextContent("Live");
   });
 
   it("has no automated axe violations", async () => {
@@ -109,7 +110,7 @@ describe("sources panel", () => {
           onState={vi.fn()}
           rows={rows}
         />
-        <SourceList sources={sources} rows={rows} />
+        <SourceList rows={rows} />
       </section>,
     );
     const results = await axe.run(container);

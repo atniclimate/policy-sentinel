@@ -11,7 +11,12 @@ import { ApiFailure, loadSources, readPolicy, search } from "../../demo/api";
 import { App } from "../../demo/main";
 import { loadPdfFonts, loadPdfSeal } from "../../demo/pdf-fonts";
 import { COPY } from "../../src/demo/copy";
-import { localDay } from "../../src/demo/follow";
+import {
+  FOLLOW_KEY,
+  followItem,
+  localDay,
+  serializeFollows,
+} from "../../src/demo/follow";
 import { buildPdf } from "../../src/demo/pdf";
 import { emptyActors, STORAGE_KEY } from "../../src/demo/report-state";
 import { keyOf } from "../../src/demo/validation";
@@ -2676,6 +2681,8 @@ describe("demo seeded discovery from NCAI drafts", () => {
     const opinion = {
       ...citation("2099-00005", "Example Opinion"),
       sourceId: "govinfo",
+      // The Worker sends GovInfo's collection code, so the row is a case row.
+      kind: "USCOURTS",
       identifier: "USCOURTS-example-0001",
       officialUrl: "https://www.govinfo.gov/app/details/USCOURTS-example-0001",
       textAvailable: false,
@@ -3693,6 +3700,30 @@ describe("demo export nits, comment dates and following", () => {
       JSON.parse(window.localStorage.getItem("ps-demo-following-v1")!)
         .followed[0].lastChecked,
     ).not.toBeNull();
+  });
+
+  it("exports the Tracking Briefing from followed items alone, with nothing cited", async () => {
+    const item = followItem(statedCitation(), "docket", DOCKET, new Date());
+    window.localStorage.setItem(FOLLOW_KEY, serializeFollows([item!]));
+    window.history.replaceState(null, "", "/#mode=tracking");
+    try {
+      const { ui } = await start();
+      fillActors(ui);
+      fireEvent.click(ui.getByRole("button", { name: "Export PDF" }));
+      await ui.findByText(
+        "The PDF was built and sent to the browser's downloads.",
+      );
+      expect(
+        ui.queryByText("Add at least one policy to My Citations first."),
+      ).not.toBeInTheDocument();
+      expect(buildPdf).toHaveBeenCalledTimes(1);
+      const input = vi.mocked(buildPdf).mock.calls[0][0];
+      expect(input.template).toBe("briefing");
+      expect(input.entries).toEqual([]);
+      expect(input.checks?.map((check) => check.item.value)).toEqual([DOCKET]);
+    } finally {
+      window.history.replaceState(null, "", "/");
+    }
   });
 
   it("shows a failed lookup as unavailable, never as nothing new, and checks nothing on page load", async () => {

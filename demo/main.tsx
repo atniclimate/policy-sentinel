@@ -138,6 +138,7 @@ import type {
 import {
   ApiFailure,
   loadSources,
+  POLICY_V3,
   policyId,
   readGrantsDetail,
   readPolicy,
@@ -873,6 +874,12 @@ export function App() {
               ...(hopped?.rows ?? []),
             ]}
             notices={hopped?.notices ?? []}
+            // A version 3 read always carries chain; a saved copy restored after a reload never does.
+            inTextNotKept={
+              POLICY_V3.has(view.citation.sourceId) &&
+              !!view.policy &&
+              view.policy.chain === undefined
+            }
             expansions={
               related
                 ? [
@@ -1368,11 +1375,7 @@ export function App() {
     try {
       const answer = await readRelated(target.request);
       if (!mounted.current || selectedKey.current !== key) return;
-      const rows =
-        "relations" in answer || answer.source === "congress"
-          ? relatedRows(answer, view.citation)
-          : null;
-      if (!rows) throw new Error("Unexpected related records answer");
+      const rows = relatedRows(answer, view.citation);
       setExpansion({ key, value: { id: target.id, state: "done", rows } });
     } catch {
       if (mounted.current && selectedKey.current === key)
@@ -1979,10 +1982,17 @@ export function App() {
     }));
   }
 
-  /** Export and print wait for a citation and all five data actor entries. */
+  /**
+   * Export and print wait for a citation (or, for the Briefing, a followed
+   * item) and all five data actor entries.
+   */
   function readyToExport(): boolean {
     setCitationMessage("");
-    if (reportEntries(reportRef.current).length === 0) {
+    if (
+      reportEntries(reportRef.current).length === 0 &&
+      (MODE_DEFAULTS[mode].template !== "briefing" ||
+        followsRef.current.length === 0)
+    ) {
       setExportMessage(COPY.exportEmpty);
       return false;
     }
@@ -2481,6 +2491,7 @@ export function App() {
       )}
       onFollow={(c, packageId) => follow(c, "case", packageId)}
       actions={citeButton(row)}
+      why={seed && whyShown(row.reasons, seed)}
     />
   );
 
@@ -3530,7 +3541,6 @@ export function App() {
       </div>
       <About
         dialog={aboutRef}
-        sources={sources}
         rows={rows}
         wordsSent={wordsSent}
         onClose={closeAbout}
@@ -3828,14 +3838,12 @@ function TsdfLine() {
 
 function About({
   dialog,
-  sources,
   rows,
   wordsSent,
   onClose,
   onClosed,
 }: {
   dialog: RefObject<HTMLDialogElement>;
-  sources: readonly DemoSource[];
   rows: readonly SourceRow[];
   /** Where search words go, as the search box states it. */
   wordsSent: string;
@@ -3877,7 +3885,7 @@ function About({
         </section>
         <section>
           <h3>{COPY.aboutSourcesTitle}</h3>
-          <SourceList sources={sources} rows={rows} />
+          <SourceList rows={rows} />
           <p>{COPY.aboutSourcesNote}</p>
           <p>{COPY.mergeRule}</p>
         </section>
