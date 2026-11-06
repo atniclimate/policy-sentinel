@@ -45,6 +45,8 @@ describe("D-068 personal-pattern guard (synthetic values only)", () => {
     // R2-2: a name in capitals.
     ["CONTACT: JANE SAMPLEPERSON", "person_title"],
     ["MR. SAMPLEPERSON", "person_title"],
+    ["MR SAMPLEPERSON", "person_title"],
+    ["MRS SAMPLEPERSON", "person_title"],
     [
       "AUTHORITY: 25 U.S.C. 5301 et seq. PROGRAM CONTACT: JANE SAMPLEPERSON",
       "person_title",

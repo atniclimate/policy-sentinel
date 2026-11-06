@@ -250,6 +250,11 @@ describe("dashed numbers", () => {
     "Example Nation - Supreme Court 99-1234",
     "Supreme Court (Example Tribe) 99-1234",
     "Supreme Court for the Example Nation 99-1234",
+    // A Nation name merged into a caption or treaty span keeps that span's kind.
+    "Example Nation v. Sampleperson, Supreme Court 99-1234",
+    "Sampleperson v. Example Nation, Supreme Court 99-1234",
+    "Example Tribe v. Sample County; Supreme Court 99-1234",
+    "Treaty with the Example Nation, Supreme Court 99-1234",
   ])("does not choose the U.S. Supreme Court for %s", (input) => {
     const route = routeQuery(input);
     expect(route.ambiguous).toBe(true);

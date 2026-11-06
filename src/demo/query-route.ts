@@ -708,7 +708,9 @@ function namedCourts(
   // A supreme court named in a query that also names a Nation may be that
   // Nation's court, whatever punctuation sits between them, so the U.S.
   // Supreme Court is not chosen then (over-masking is the safe direction).
-  const namesNation = spans.some((s) => s.kind === "nation_name");
+  // Any protected span counts: a Nation name merged into a caption or treaty
+  // title keeps the earlier span's kind, so the kind alone cannot be trusted.
+  const namesNation = spans.length > 0;
   const supremeMentions = namesNation
     ? 0
     : [...masked.matchAll(SUPREME_COURT)].filter(

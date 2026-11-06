@@ -52,12 +52,22 @@ describe("authorityLine", () => {
     expect(
       authorityLine([block("Authority: call (555) 010-0199 for the list.")]),
     ).toEqual({ authorityLinePresent: true });
-    expect(
-      authorityLine([
+  });
+
+  it("shows no line when any one is withheld, so the rest is not read as the whole authority", () => {
+    // Boundary B recheck: the clean line alone would read as the document's
+    // whole authority; the page then states that a line exists instead.
+    for (const blocks of [
+      [
         block("Authority: write to someone@example.org."),
         block("Authority: 25 U.S.C. 9."),
-      ]),
-    ).toEqual({ authorityLine: "25 U.S.C. 9.", authorityLinePresent: true });
+      ],
+      [
+        block("Authority: 25 U.S.C. 5301."),
+        block("Authority: 42 U.S.C. 1; contact Ms. Sampleperson"),
+      ],
+    ])
+      expect(authorityLine(blocks)).toEqual({ authorityLinePresent: true });
   });
 
   it("stays within the validator's bound, keeping whole lines", () => {

@@ -42,9 +42,10 @@ const EXTENSION = /\bext(?:ension)?\.?\s*#?\s*\d{1,6}\b|\bx\d{2,6}\b/gi;
 // plus "Hon.", before a capitalized name. "Dr" and "Hon" need the period so a
 // street "Dr" or a word such as "Honor" does not count.
 // A name in capitals ("MR. SAMPLEPERSON") counts too; a title in capitals
-// needs its period, so a state code such as "MS Gulf Coast" does not count.
+// needs its period or a name in capitals after it, so "MS Gulf Coast" does not
+// count while "MR SAMPLEPERSON" does.
 const TITLE_NAME =
-  /\b(?:(?:Mrs|Mr|Ms|Mx)\.?|(?:MRS|MR|MS|MX|Dr|DR|Hon|HON)\.)\s+[A-Z][A-Za-z'’-]+/g;
+  /\b(?:(?:Mrs|Mr|Ms|Mx)\.?|(?:MRS|MR|MS|MX|Dr|DR|Hon|HON)\.)\s+[A-Z][A-Za-z'’-]+|\b(?:MRS|MR|MS|MX)\s+[A-Z][A-Z'’-]+\b/g;
 
 // Contact headings: CONTACT from src/pipeline/policy-text.mjs line 54, and the
 // "attn", "c/o", "care of", "director:", "officer:", "manager:" tokens of

@@ -25,6 +25,7 @@ export function authorityLine(
 ): AuthorityLineFields {
   const lines: string[] = [];
   let present = false;
+  let withheld = false;
   for (const block of blocks) {
     const heading = HEADING.exec(block.text);
     if (!heading) continue;
@@ -34,9 +35,12 @@ export function authorityLine(
       .trim();
     if (!wording) continue;
     present = true;
-    if (!hasPersonalPattern(wording) && !lines.includes(wording))
-      lines.push(wording);
+    if (hasPersonalPattern(wording)) withheld = true;
+    else if (!lines.includes(wording)) lines.push(wording);
   }
+  // A withheld line means the rest would read as the whole authority, so no
+  // line is shown and the page states that one exists (safeguard 8).
+  if (withheld) return { authorityLinePresent: true };
   // Whole lines only, up to the bound; a single longer line is cut at it.
   let joined = "";
   for (const line of lines) {
