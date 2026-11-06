@@ -1,7 +1,7 @@
 # Live demo status
 
-The live page is release 0.10.1 (D-116, published through PR 19 on 2026-10-24
-UTC). This page records maintenance of the separately authorized public demo,
+The live page is the 0.9.1 demo update (D-118 to D-133, published through PR
+23 on 2026-11-06 UTC). This page records maintenance of the separately authorized public demo,
 newest first; each section names its rulings in the
 [decision register](decision-register.md), and earlier sections describe
 earlier checkpoints. Project state, including unpublished builds, and the
@@ -23,6 +23,20 @@ published the search/audit release recorded next.
 Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
+
+## Full 0.9 demo update, 0.9.1, 2026-11-06 (D-118 to D-133)
+
+The Full 0.9 build: search contract version 3, the one search box with law
+names and suggestions, GovInfo court opinions, the Cited and Linked Records
+panel, Grants.gov authority wording, modes and the Briefing export, plus two
+audit rounds. Relation names show only from the owner-approved list (D-133).
+The Worker was deployed as `3c228775` from `a124968` with wrangler 4.151.3;
+its cache keys now carry the deployed version id. Published through PR 23
+(`21b647f`, 2026-11-06 16:29 UTC; Pages built it at 16:35 UTC). `npm run
+check` passed at `e2bfb4b`. The browser verifier passed 83 of 83 on the build
+served locally against the deployed Worker and again on the live page, and all
+18 runtime files matched on readback. This is a demo update, not the D-123 pre-release. Rollback:
+Worker `93192de1`, and a revert of PR 23.
 
 ## Audit fixes, release 0.10.1, 2026-10-23 (D-116)
 
