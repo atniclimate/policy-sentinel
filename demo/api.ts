@@ -82,10 +82,12 @@ async function readJson(response: Response): Promise<unknown> {
   return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
 }
 
+/** A GET, or a POST of `post` as JSON when given (search words never go in the address). */
 async function get<T>(
   path: string,
   validate: (value: unknown) => T,
   signal?: AbortSignal,
+  post?: Record<string, string>,
 ): Promise<T> {
   const controller = new AbortController();
   const abort = () => controller.abort();
@@ -94,7 +96,16 @@ async function get<T>(
   const timeout = setTimeout(abort, REQUEST_TIMEOUT_MS);
   try {
     const response = await fetch(`${apiBase()}${path}`, {
-      headers: { Accept: "application/json" },
+      ...(post
+        ? {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(post),
+          }
+        : { headers: { Accept: "application/json" } }),
       signal: controller.signal,
     });
     let body: Record<string, unknown>;
@@ -167,9 +178,10 @@ export async function search(
       params.set("continuation", JSON.stringify(options.continuation));
   }
   return get(
-    `/api/search?${params.toString()}`,
+    "/api/search",
     (value) => searchValue(value, source, query, page, options),
     signal,
+    Object.fromEntries(params),
   );
 }
 

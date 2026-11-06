@@ -24,6 +24,16 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+/** The page POSTs search criteria as JSON (design rule 5); the address carries none of them. */
+function sentParams(call: readonly unknown[]): URLSearchParams {
+  const [url, init] = call as [string, RequestInit];
+  expect(init.method).toBe("POST");
+  expect(new URL(url).search).toBe("");
+  return new URLSearchParams(
+    JSON.parse(String(init.body)) as Record<string, string>,
+  );
+}
+
 describe("demo API response boundary", () => {
   const undated: DemoSearchOptions = {
     dateFrom: null,
@@ -57,7 +67,7 @@ describe("demo API response boundary", () => {
     expect(result.criteria).toEqual(
       searchCriteria("federal-register", "water", 1, dated),
     );
-    const params = new URL(fetch.mock.calls[0][0]).searchParams;
+    const params = sentParams(fetch.mock.calls[0]);
     expect(params.get("searchVersion")).toBe("1");
     expect(params.get("dateFrom")).toBe("2024-01-01");
     expect(params.get("dateTo")).toBe("2024-12-31");
@@ -222,7 +232,7 @@ describe("demo API response boundary", () => {
     await expect(
       search("govinfo", "water", 2, undefined, options),
     ).resolves.toMatchObject(response);
-    const params = new URL(fetch.mock.calls[0][0]).searchParams;
+    const params = sentParams(fetch.mock.calls[0]);
     expect(JSON.parse(params.get("continuation")!)).toEqual(current);
     expect(fetch).toHaveBeenCalledOnce();
   });
@@ -249,7 +259,7 @@ describe("demo API response boundary", () => {
       expect(result.criteria).toEqual(
         searchCriteria("federal-register", q, 1, docket),
       );
-      const params = new URL(fetch.mock.calls[0][0]).searchParams;
+      const params = sentParams(fetch.mock.calls[0]);
       expect(Object.fromEntries(params)).toEqual({
         source: "federal-register",
         q,
@@ -271,7 +281,7 @@ describe("demo API response boundary", () => {
       );
       vi.stubGlobal("fetch", fetch);
       await search("federal-register", "water", 1, undefined, text);
-      const params = new URL(fetch.mock.calls[0][0]).searchParams;
+      const params = sentParams(fetch.mock.calls[0]);
       expect(params.get("searchVersion")).toBe("2");
       expect(params.has("match")).toBe(false);
       expect(params.has("documentType")).toBe(false);

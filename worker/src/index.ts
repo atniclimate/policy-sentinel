@@ -49,7 +49,7 @@ export { officialFetch };
 export { currentBiennium, parseWashingtonQuery } from "./sources/washington";
 
 /** Every live, searchable source, plus the exact hosts and search code each one owns. */
-const SOURCE_REGISTRY = {
+export const SOURCE_REGISTRY = {
   "federal-register": federalRegister,
   govinfo,
   regulations,
@@ -149,7 +149,7 @@ function corsHeaders(origin: string | null): Record<string, string> {
   const headers: Record<string, string> = { Vary: "Origin" };
   if (origin && originAllowed(origin)) {
     headers["Access-Control-Allow-Origin"] = origin;
-    headers["Access-Control-Allow-Methods"] = "GET, OPTIONS";
+    headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
     headers["Access-Control-Allow-Headers"] = "Content-Type";
     headers["Access-Control-Max-Age"] = "86400";
     headers["Access-Control-Expose-Headers"] = "Retry-After";
@@ -189,6 +189,35 @@ function errorBody(error: DemoError): DemoErrorResponse {
 }
 
 // ---------------------------------------------------------------- routing
+
+const MAX_SEARCH_BODY = MAX_CONTINUATION_LENGTH + 2_000;
+
+/**
+ * POST /api/search carries the same criteria as the GET query, as a JSON object
+ * of string values, so search words stay out of addresses (design rule 5). The
+ * address's own query string is ignored.
+ */
+async function searchBody(request: Request): Promise<URLSearchParams> {
+  const bad = () =>
+    new DemoError("bad_query", "The search request is not valid.", 400);
+  if (Number(request.headers.get("Content-Length")) > MAX_SEARCH_BODY)
+    throw bad();
+  const text = await request.text();
+  if (text.length > MAX_SEARCH_BODY) throw bad();
+  let body: unknown;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    throw bad();
+  }
+  if (!body || typeof body !== "object" || Array.isArray(body)) throw bad();
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(body)) {
+    if (typeof value !== "string") throw bad();
+    params.set(key, value);
+  }
+  return params;
+}
 
 async function cachedPolicy(
   source: string,
@@ -260,12 +289,19 @@ export default {
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: corsHeaders(origin) });
     }
-    if (request.method !== "GET") {
+    const searchPost =
+      request.method === "POST" &&
+      url.pathname === "/api/search" &&
+      /^application\/json\s*(?:;|$)/i.test(
+        request.headers.get("Content-Type") ?? "",
+      );
+    if (request.method !== "GET" && !searchPost) {
       return json(
         {
           ok: false,
           error: "method_not_allowed",
-          message: "This service only answers GET requests.",
+          message:
+            "This service answers GET requests, and searches sent by POST as JSON.",
           status: "error",
         },
         405,
@@ -329,13 +365,13 @@ export default {
       );
     }
 
-    const source = url.searchParams.get("source") ?? "federal-register";
-    const q = (url.searchParams.get("q") ?? "").trim();
-    const id = (url.searchParams.get("id") ?? "").trim();
-    const pageText = url.searchParams.get("page") ?? "1";
-    const page = Number(pageText);
-
     try {
+      const params = searchPost ? await searchBody(request) : url.searchParams;
+      const source = params.get("source") ?? "federal-register";
+      const q = (params.get("q") ?? "").trim();
+      const id = (params.get("id") ?? "").trim();
+      const pageText = params.get("page") ?? "1";
+      const page = Number(pageText);
       if (
         q.length > 200 ||
         id.length > 40 ||
@@ -370,11 +406,11 @@ export default {
           );
         let criteria: DemoSearchCriteria;
         try {
-          const version = url.searchParams.get("searchVersion");
-          const envelope = url.searchParams.get("continuation");
-          const match = url.searchParams.get("match");
-          const documentType = url.searchParams.get("documentType");
-          const eligibility = url.searchParams.get("eligibility");
+          const version = params.get("searchVersion");
+          const envelope = params.get("continuation");
+          const match = params.get("match");
+          const documentType = params.get("documentType");
+          const eligibility = params.get("eligibility");
           if (
             (version !== null && version !== "1" && version !== "2") ||
             (version !== "2" &&
@@ -388,8 +424,8 @@ export default {
             );
           // searchCriteria checks match and documentType against their allowlists.
           criteria = searchCriteria(source, q, page, {
-            dateFrom: url.searchParams.get("dateFrom"),
-            dateTo: url.searchParams.get("dateTo"),
+            dateFrom: params.get("dateFrom"),
+            dateTo: params.get("dateTo"),
             continuation:
               envelope === null
                 ? null
