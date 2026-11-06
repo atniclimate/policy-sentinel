@@ -89,6 +89,7 @@ describe("D-068 personal-pattern guard (synthetic values only)", () => {
     // R2-6: state rule numbers are not phone numbers.
     "OAR 340-041-0001",
     "under WAC 173-201-0100 and OAR 340-041-0001",
+    "MS Gulf Coast states and MR basin programs",
   ])("leaves %s alone", (text) => {
     expect(personalPatternHits(text)).toEqual([]);
     expect(hasPersonalPattern(text)).toBe(false);

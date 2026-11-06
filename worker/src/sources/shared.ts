@@ -304,10 +304,18 @@ export function policyV3(
   fields: Partial<DemoCitation> = {},
 ): DemoPolicyResponse {
   const citation = { ...analysis.policy.citation, ...fields };
-  const chain = citationsInText(analysis.blocks, citation)
-    .filter((row) => !hasPersonalPattern(rowWording(row)))
-    .slice(0, CHAIN_MAX);
-  return { ...analysis.policy, citation, version: 3, chain };
+  const found = citationsInText(analysis.blocks, citation);
+  const kept = found.filter((row) => !hasPersonalPattern(rowWording(row)));
+  const chain = kept.slice(0, CHAIN_MAX);
+  // Withheld rows are counted so the page can say so (safeguard 8).
+  const chainWithheld = found.length - kept.length;
+  return {
+    ...analysis.policy,
+    citation,
+    version: 3,
+    chain,
+    ...(chainWithheld ? { chainWithheld } : {}),
+  };
 }
 
 export function requireKey(env: Env): string {

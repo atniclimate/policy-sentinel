@@ -289,6 +289,8 @@ export interface DemoPolicyResponse {
   readonly version?: 3;
   /** Citations found in the text the Worker read (citation_in_text), as chain rows. */
   readonly chain?: readonly ChainRow[];
+  /** In-text citations the Worker withheld under the personal-pattern guard. */
+  readonly chainWithheld?: number;
 }
 
 // Related records, expanded on a press (T1.3), version 3 contract. The

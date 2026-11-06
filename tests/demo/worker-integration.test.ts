@@ -420,6 +420,8 @@ describe("version 3 policy reads", () => {
       ],
     });
     expect(out.chain!.map((r) => r.sourceWording)).toEqual(["42 U.S.C. 7401"]);
+    // The withheld row is counted for the page to state (safeguard 8).
+    expect(out.chainWithheld).toBe(1);
     const many = policyV3({
       policy,
       blocks: [
@@ -432,6 +434,7 @@ describe("version 3 policy reads", () => {
       ],
     });
     expect(many.chain).toHaveLength(CHAIN_MAX);
+    expect(many.chainWithheld).toBeUndefined();
   });
 });
 

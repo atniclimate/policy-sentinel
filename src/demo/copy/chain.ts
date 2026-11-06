@@ -33,6 +33,12 @@ export const chain = {
   /** The link on a row whose label already names its target. */
   openRecord: "Open the record",
   titleWithheld: "title not shown here because it may name a person",
+  rowsWithheld: (count: number) =>
+    count === 1
+      ? "1 citation found in this text is not shown here because its wording may hold personal contact details. Read the record at the source."
+      : `${count} citations found in this text are not shown here because their wording may hold personal contact details. Read the record at the source.`,
+  authorityWithheld:
+    "This document has a part-level 'Authority:' line, but it is not shown here. Read it at the source.",
   /** An in-text citation named in several places, grouped into its first row. */
   places: (count: number) =>
     `Found at ${count} places in this text; the first is shown.`,

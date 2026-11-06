@@ -122,6 +122,19 @@ export function recordProvenance(citation: DemoCitation): Provenance {
   };
 }
 
+/** One row that counts in-text citations withheld by the personal-pattern guard. */
+export function withheldRowsNote(
+  citation: DemoCitation,
+  count: number,
+): ChainNote {
+  return note(
+    recordProvenance(citation),
+    "inText",
+    chain.rowsWithheld(count),
+    null,
+  );
+}
+
 /** Provenance of a shard hop; null when the manifest entry has no source. */
 export function fileProvenance(
   file: IndexFile,
@@ -425,6 +438,12 @@ export function recordLinks(
     rows.push(
       note(p, "stated", linkLabel("fr_no_authority_line", "forward"), null),
     );
+  } else if (
+    citation.authorityLinePresent === true &&
+    !citation.authorityLine
+  ) {
+    // Stated as withheld, never shown as if the record had no line.
+    rows.push(note(p, "stated", chain.authorityWithheld, null));
   } else if (citation.authorityLine) {
     const line = citation.authorityLine;
     // The FR AUTH element carries the same kind of wording as the CFR AUTH line.

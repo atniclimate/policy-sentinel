@@ -3,10 +3,11 @@
 // answer cached before a guard change is still checked (R2-5, R2-7).
 // Synthetic values only.
 import { describe, expect, it } from "vitest";
-import { citationsInText } from "../../src/demo/links";
+import { chain as CH } from "../../src/demo/copy/chain";
+import { citationsInText, recordLinks } from "../../src/demo/links";
 import type { DemoCitation } from "../../src/demo/types";
 import { policyValueV3, relatedValue } from "../../src/demo/validation";
-import { blocks, frRecord as chainRecord } from "./fixtures/chain";
+import { blocks, frRecord as chainRecord, SOURCES } from "./fixtures/chain";
 import { policy } from "./frontend-fixtures";
 
 const frRecord: DemoCitation = {
@@ -16,7 +17,7 @@ const frRecord: DemoCitation = {
 const expected = { source: "federal-register", id: "2099-00001" };
 
 describe("policyValueV3 guard re-run (R2-7)", () => {
-  it("drops a chain row and an authority line the guard flags", () => {
+  it("withholds a chain row and an authority line the guard flags, and says so", () => {
     const opened = policy("a", {
       ...frRecord,
       authorityLine: "25 U.S.C. 5301; CONTACT: JANE SAMPLEPERSON",
@@ -32,10 +33,49 @@ describe("policyValueV3 guard re-run (R2-7)", () => {
       ),
       expected,
     );
-    expect(read.chain).toEqual(others);
+    // Safeguard 8: the withheld row is counted in a stated row, never silent.
+    expect(read.chain?.slice(0, -1)).toEqual(others);
+    expect(read.chain?.at(-1)).toMatchObject({
+      kind: "note",
+      section: "inText",
+      label: CH.rowsWithheld(1),
+    });
     expect(read.citation.authorityLine).toBeUndefined();
     expect(read.citation.authorityLinePresent).toBe(true);
+    expect(recordLinks(read.citation, SOURCES).map((r) => r.label)).toContain(
+      CH.authorityWithheld,
+    );
     expect(JSON.stringify(read)).not.toContain("SAMPLEPERSON");
+  });
+
+  it("adds the rows the Worker withheld to the stated count", () => {
+    const opened = policy("a", frRecord);
+    const rows = citationsInText(blocks, opened.citation);
+    const read = policyValueV3(
+      JSON.parse(
+        JSON.stringify({
+          ...opened,
+          version: 3,
+          chain: rows,
+          chainWithheld: 2,
+        }),
+      ),
+      expected,
+    );
+    expect(read.chain?.at(-1)?.label).toBe(CH.rowsWithheld(2));
+    expect(() =>
+      policyValueV3(
+        JSON.parse(
+          JSON.stringify({
+            ...opened,
+            version: 3,
+            chain: rows,
+            chainWithheld: -1,
+          }),
+        ),
+        expected,
+      ),
+    ).toThrow("Invalid chain withheld count");
   });
 
   it("keeps an authority line with no personal pattern", () => {

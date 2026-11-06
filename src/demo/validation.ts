@@ -12,7 +12,7 @@ import type {
   LinkFamily,
 } from "./types";
 import { LINK_NOTICES, linkLabel } from "./link-labels.ts";
-import type { ChainRow } from "./links.ts";
+import { withheldRowsNote, type ChainRow } from "./links.ts";
 import { hasPersonalPattern } from "./personal-guard.ts";
 import {
   MAX_DOCKET_LENGTH,
@@ -708,10 +708,27 @@ export function policyValueV3(
       : read;
   if (v.version === undefined && v.chain === undefined) return base;
   if (v.version !== 3) throw new Error("Invalid policy version");
-  const chain = list(v.chain, CHAIN_MAX)
-    .map((row) => chainRowValue(row, base.citation))
-    .filter((row) => !hasPersonalPattern(rowWording(row)));
-  return { ...base, version: 3, chain };
+  const rows = list(v.chain, CHAIN_MAX).map((row) =>
+    chainRowValue(row, base.citation),
+  );
+  const chain = rows.filter((row) => !hasPersonalPattern(rowWording(row)));
+  // Rows the Worker or the page withheld are counted in one stated row.
+  const workerWithheld = v.chainWithheld ?? 0;
+  if (
+    typeof workerWithheld !== "number" ||
+    !Number.isInteger(workerWithheld) ||
+    workerWithheld < 0 ||
+    workerWithheld > 10_000
+  )
+    throw new Error("Invalid chain withheld count");
+  const withheld = workerWithheld + rows.length - chain.length;
+  return {
+    ...base,
+    version: 3,
+    chain: withheld
+      ? [...chain, withheldRowsNote(base.citation, withheld)]
+      : chain,
+  };
 }
 
 /** The wording of a chain row the Worker guards (worker/src/sources/shared.ts rowWording). */
