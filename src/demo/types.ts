@@ -2,6 +2,7 @@
  * Shared shapes for the live public demo. The Worker produces them, the page
  * and the PDF builder consume them. Everything here is public, Tier 0 material.
  */
+import type { ChainRow } from "./links.ts";
 
 export type SourceStatus = "live" | "key_pending" | "not_available" | "unknown";
 
@@ -280,6 +281,71 @@ export interface DemoPolicyResponse {
   readonly warnings: readonly string[];
   /** Short opening passage, so a reader can see what was read. */
   readonly opening: string;
+  // Version 3 only (requested with version=3 on /api/policy; answers to
+  // version 1 and 2 readers, such as ATNI-ResIST, never carry these).
+  /** Present and 3 exactly when the answer carries version 3 fields. */
+  readonly version?: 3;
+  /** Citations found in the text the Worker read (citation_in_text), as chain rows. */
+  readonly chain?: readonly ChainRow[];
+}
+
+// Related records, expanded on a press (T1.3), version 3 contract. The
+// Worker's govinfo-related.ts and congress-related.ts answer these shapes.
+
+export interface GovInfoRelation {
+  /** GovInfo's own relation name, such as "Bill Versions". */
+  readonly relation: string;
+  readonly collection: string;
+}
+
+export interface GovInfoRelations {
+  readonly ok: true;
+  readonly source: "govinfo";
+  readonly basis: "source_field";
+  readonly accessId: string;
+  readonly relations: readonly GovInfoRelation[];
+  readonly retrievedAt: string;
+}
+
+export interface RelatedRecord {
+  readonly identifier: string;
+  /** Null when the source gives no title, or one the personal-pattern guard stops. */
+  readonly title: string | null;
+  readonly date: string | null;
+  readonly officialUrl: string;
+}
+
+export interface GovInfoRelatedRecords {
+  readonly ok: true;
+  readonly source: "govinfo";
+  readonly basis: "source_field";
+  readonly accessId: string;
+  readonly collection: string;
+  readonly records: readonly RelatedRecord[];
+  /** How many GovInfo listed; more than `records.length` means the list was cut. */
+  readonly total: number;
+  readonly retrievedAt: string;
+}
+
+export interface RelatedBill {
+  /** Congress.gov's own relation name, such as "Identical bill". */
+  readonly relation: string;
+  /** Who Congress.gov says identified the relation, such as "CRS". */
+  readonly identifiedBy: string;
+  readonly identifier: string;
+  readonly title: string;
+  readonly officialUrl: string;
+}
+
+export interface CongressRelatedBills {
+  readonly ok: true;
+  readonly source: "congress";
+  readonly basis: "source_field";
+  readonly bill: string;
+  readonly records: readonly RelatedBill[];
+  /** Related bills Congress.gov counts; more than shown means the list was cut. */
+  readonly total: number | null;
+  readonly retrievedAt: string;
 }
 
 export interface DemoErrorResponse {

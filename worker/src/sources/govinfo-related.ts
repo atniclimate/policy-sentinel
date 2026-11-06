@@ -19,6 +19,20 @@ import {
   spendKey,
 } from "./shared";
 import type { Env } from "./shared";
+import type {
+  GovInfoRelation,
+  GovInfoRelatedRecords,
+  GovInfoRelations,
+  RelatedRecord,
+} from "../../../src/demo/types";
+
+// The answer shapes are the shared version 3 contract in src/demo/types.ts.
+export type {
+  GovInfoRelation,
+  GovInfoRelatedRecords,
+  GovInfoRelations,
+  RelatedRecord,
+} from "../../../src/demo/types";
 
 export const HOSTS: readonly string[] = ["api.govinfo.gov"];
 
@@ -68,41 +82,6 @@ export async function cachedJson<T>(
     // A completed official-source read is useful even when caching fails.
   }
   return value;
-}
-
-export interface GovInfoRelation {
-  /** GovInfo's own relation name, such as "Bill Versions". */
-  readonly relation: string;
-  readonly collection: string;
-}
-
-export interface GovInfoRelations {
-  readonly ok: true;
-  readonly source: "govinfo";
-  readonly basis: "source_field";
-  readonly accessId: string;
-  readonly relations: readonly GovInfoRelation[];
-  readonly retrievedAt: string;
-}
-
-export interface RelatedRecord {
-  readonly identifier: string;
-  /** Null when the source gives no title, or one the personal-pattern guard stops. */
-  readonly title: string | null;
-  readonly date: string | null;
-  readonly officialUrl: string;
-}
-
-export interface GovInfoRelatedRecords {
-  readonly ok: true;
-  readonly source: "govinfo";
-  readonly basis: "source_field";
-  readonly accessId: string;
-  readonly collection: string;
-  readonly records: readonly RelatedRecord[];
-  /** How many GovInfo listed; more than `records.length` means the list was cut. */
-  readonly total: number;
-  readonly retrievedAt: string;
 }
 
 function checkInput(accessId: string, collection?: string): void {

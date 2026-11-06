@@ -19,6 +19,16 @@ import {
 } from "./shared";
 import type { Env } from "./shared";
 import { MAX_RELATED, cachedJson } from "./govinfo-related";
+import type {
+  CongressRelatedBills,
+  RelatedBill,
+} from "../../../src/demo/types";
+
+// The answer shapes are the shared version 3 contract in src/demo/types.ts.
+export type {
+  CongressRelatedBills,
+  RelatedBill,
+} from "../../../src/demo/types";
 
 export const HOSTS: readonly string[] = ["api.congress.gov"];
 
@@ -51,27 +61,6 @@ function billRef(type: string, number: number, congress: number) {
     identifier: `${type.toUpperCase()} ${number}, ${ordinal(congress)} Congress`,
     officialUrl: `https://www.congress.gov/bill/${ordinal(congress)}-congress/${web}/${number}`,
   };
-}
-
-export interface RelatedBill {
-  /** Congress.gov's own relation name, such as "Identical bill". */
-  readonly relation: string;
-  /** Who Congress.gov says identified the relation, such as "CRS". */
-  readonly identifiedBy: string;
-  readonly identifier: string;
-  readonly title: string;
-  readonly officialUrl: string;
-}
-
-export interface CongressRelatedBills {
-  readonly ok: true;
-  readonly source: "congress";
-  readonly basis: "source_field";
-  readonly bill: string;
-  readonly records: readonly RelatedBill[];
-  /** Related bills Congress.gov counts; more than shown means the list was cut. */
-  readonly total: number | null;
-  readonly retrievedAt: string;
 }
 
 /** Related bills for one reference, such as "hr 1234 119". */
