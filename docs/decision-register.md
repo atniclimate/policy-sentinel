@@ -272,6 +272,7 @@ session 1; the ruling date is the decision date.
 | D-130 | **Owner answers 2026-11-06 (search).** Acronyms "a and b" (CFR scan, then Federal Register searches; that budget rises from 10 to 50); typo pass "a + b integration and improvement" (uFuzzy as filter, own rules decide); summaries "a"; phrase table "a". Reads as: Wave 2b scope; source summaries per source after its terms check. |
 | D-131 | **Owner answer 2026-11-06 (phrase approval).** "a, but use jev and /codex-adversary to automate the approval", then "a" after the safeguard was explained. Reads as: model-drafted plain phrases are screened by Jev and Codex, failures struck by code, and each kept row approved by the owner; approval is not automated (safeguard 2, design rule 8). |
 | D-132 | **Owner answers 2026-11-06 (probes, tests, relations, order).** "b"; "a"; "a + b, use jev for best fit"; "a". Reads as: hashed Nation-name probes committed, plain list kept by the owner; the S0 test lists new config files; relation names shown only from an owner-approved list; Waves 2b and 3 in parallel. |
+| D-133 | **Owner answers 2026-11-06 (publish 0.9.1 demo update).** Relation names: "All 11". Earlier the same day: "make commits and push to GitHub and pages with full authorization to merge, push, etc." Reads as: the eleven-name list in `src/demo/relation-names.ts` is approved; this session may open and merge the pull request, deploy the Worker and publish Pages. |
 
 ## Open implementation facts
 

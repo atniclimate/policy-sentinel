@@ -4,10 +4,12 @@
  * related-bill relationship types. A closed list. A name on it is shown in the
  * source's own words; any other name is withheld and the row says so.
  *
- * Every value is written in an official answer, a committed fixture or the
- * source's own documentation. Each was screened in development for whether it
- * only says how two records relate and states no legal effect of one on the
- * other; the scores stay outside the repository. Owner approval: pending.
+ * Each value was screened in development for whether it only says how two
+ * records relate and states no legal effect of one on the other; the scores
+ * stay outside the repository. Five values appear in a committed fixture or an
+ * official answer; the other six come from the sources' documentation as
+ * excerpted in development, and a value the live answer never prints simply
+ * never matches. Owner approval: all eleven, 2026-11-06 (D-133).
  */
 const SHOWN: ReadonlySet<string> = new Set([
   // GovInfo related records (relationships[].relationship).
