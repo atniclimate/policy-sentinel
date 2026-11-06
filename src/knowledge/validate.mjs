@@ -228,7 +228,7 @@ export async function validateKnowledge(root) {
   if (profile.project === "policy-sentinel") {
     const canonicalOwners = {
       navigation: ["backbone", "docs/PROJECT-BACKBONE.md"],
-      work_status: ["roadmap", "ROADMAP.yaml"],
+      work_status: ["status", "docs/STATUS.md"],
       decisions: ["decisions", "docs/decision-register.md"],
       product: ["brief", "docs/project-brief.md"],
       scope_acceptance: ["pnw", "docs/pnw-scope-and-acceptance.md"],
@@ -320,17 +320,11 @@ export async function validateKnowledge(root) {
     if (git(root, ["ls-files", "--error-unmatch", "--", relative]).length === 0)
       fail("source is not tracked");
     const current = await boundedRead(absolute);
-    const blob = git(root, [
-      "cat-file",
-      "blob",
-      `${record.source_revision}:${relative}`,
-    ]);
-    const oid = git(root, [
-      "rev-parse",
-      `${record.source_revision}:${relative}`,
-    ])
-      .toString("utf8")
-      .trim();
+    const pinPath =
+      record.pin_path === undefined ? relative : sourcePath(record.pin_path);
+    const pin = `${record.pin_revision ?? record.source_revision}:${pinPath}`;
+    const blob = git(root, ["cat-file", "blob", pin]);
+    const oid = git(root, ["rev-parse", pin]).toString("utf8").trim();
     const currentText = new TextDecoder("utf-8", { fatal: true }).decode(
       current,
     );

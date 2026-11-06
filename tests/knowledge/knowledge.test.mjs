@@ -55,7 +55,7 @@ async function fixture(context, namespace = "synthetic-a") {
   };
   const policyOwnerFixtures = [
     ["navigation", "backbone", "docs/PROJECT-BACKBONE.md"],
-    ["work_status", "roadmap", "ROADMAP.yaml"],
+    ["work_status", "status", "docs/STATUS.md"],
     ["decisions", "decisions", "docs/decision-register.md"],
     ["product", "brief", "docs/project-brief.md"],
     ["scope_acceptance", "pnw", "docs/pnw-scope-and-acceptance.md"],
@@ -95,14 +95,7 @@ async function fixture(context, namespace = "synthetic-a") {
     JSON.stringify({ ownerInputs: [{ path: "docs/protected.md" }] }),
   );
   git(root, ["init", "--quiet"]);
-  git(root, [
-    "-c",
-    "core.autocrlf=false",
-    "add",
-    "README.md",
-    "docs",
-    ...(namespace === "policy-sentinel" ? ["ROADMAP.yaml"] : []),
-  ]);
+  git(root, ["-c", "core.autocrlf=false", "add", "README.md", "docs"]);
   git(root, [
     "-c",
     "user.name=Knowledge Fixture",
@@ -530,7 +523,7 @@ test("Policy Sentinel canonical authority roles reject synchronized redirection 
   }
   Object.assign(f.bundle, clone(original));
   const roadmap = f.bundle.catalog.documents.find(
-    (record) => record.id === "policy-sentinel:document:roadmap",
+    (record) => record.id === "policy-sentinel:document:status",
   );
   const topic = f.bundle.catalog.documents.find(
     (record) => record.id === f.ids.topic,
@@ -543,7 +536,7 @@ test("Policy Sentinel canonical authority roles reject synchronized redirection 
   );
   Object.assign(f.bundle, clone(original));
   const roadmapId = f.bundle.catalog.documents.find(
-    (record) => record.path === "ROADMAP.yaml",
+    (record) => record.path === "docs/STATUS.md",
   );
   const topicId = f.bundle.catalog.documents.find(
     (record) => record.path === "docs/topic.md",
@@ -554,6 +547,30 @@ test("Policy Sentinel canonical authority roles reject synchronized redirection 
     validateKnowledge(f.root),
     /canonical authority owner changed: work_status/,
   );
+});
+
+test("a Git pin may cite the path a moved document had, and a pin that names no blob is refused", async (context) => {
+  const f = await fixture(context);
+  const topic = f.bundle.catalog.documents.find(
+    (record) => record.id === f.ids.topic,
+  );
+  const text = await readFile(path.join(f.root, "docs/topic.md"));
+  await mkdir(path.join(f.root, "docs/archive"));
+  await writeFile(path.join(f.root, "docs/archive/topic.md"), text);
+  git(f.root, ["add", "docs/archive/topic.md"]);
+  topic.path = "docs/archive/topic.md";
+  f.bundle.profile.allowed_source_paths = f.bundle.profile.allowed_source_paths
+    .filter((name) => name !== "docs/topic.md")
+    .concat(topic.path);
+  await f.save();
+  await assert.rejects(validateKnowledge(f.root), /bounded Git source lookup/);
+  topic.pin_path = "docs/topic.md";
+  await f.save();
+  const model = await validateKnowledge(f.root);
+  assert.equal(model.profile.project, "synthetic-a");
+  topic.pin_revision = "b".repeat(40);
+  await f.save();
+  await assert.rejects(validateKnowledge(f.root), /bounded Git source lookup/);
 });
 
 test("navigation omits code, comments, escaped links and embeds while retaining scoped curated relations", async (context) => {

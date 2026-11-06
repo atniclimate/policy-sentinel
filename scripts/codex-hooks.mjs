@@ -202,12 +202,6 @@ const runGitBuffer = (root, args, maximumBytes, timeout = 10_000) => {
   };
 };
 
-const runNodeScript = (root, relativePath, args = [], timeout = 30_000) =>
-  run(process.execPath, [path.resolve(root, relativePath), ...args], {
-    cwd: root,
-    timeout,
-  });
-
 export const normalizeRepositoryPath = (value, root = "") => {
   let normalized = String(value ?? "")
     .trim()
@@ -265,13 +259,17 @@ const resolveRepositoryRoot = (cwd) => {
   return path.resolve(result.stdout.trim());
 };
 
+// ROADMAP.yaml is a comment-only pointer since 2026-11-06. The closed external
+// boundaries and frozen contract paths still come from the frozen archive copy.
 const loadRoadmap = async (root) => {
   const { parse } = await import("yaml");
-  return parse(readFileSync(path.resolve(root, "ROADMAP.yaml"), "utf8"));
+  return parse(
+    readFileSync(
+      path.resolve(root, "docs", "archive", "ROADMAP-2026-11-06.yaml"),
+      "utf8",
+    ),
+  );
 };
-
-const validateRoadmap = (root) =>
-  runNodeScript(root, "scripts/validate-roadmap.mjs", [], 30_000);
 
 const gitStatus = (root) =>
   runGit(root, ["status", "--short", "--untracked-files=all"]);
@@ -2357,7 +2355,7 @@ export const isObserverAddOperation = (operations) =>
   operations[0].headerPath === ` ${observerAuthoringPolicy.path}` &&
   operations[0].repositoryPath === observerAuthoringPolicy.path;
 
-export const buildSessionContext = ({ roadmap, validation, head, status }) => {
+export const buildSessionContext = ({ roadmap, head, status }) => {
   const items = roadmap?.work_items ?? [];
   const statusCounts = Object.fromEntries(
     [
@@ -2384,8 +2382,7 @@ export const buildSessionContext = ({ roadmap, validation, head, status }) => {
   const dirty = trimOutput(status, 700) || "clean";
   return [
     "Policy Sentinel recovery brief (generated locally; no transcript was read):",
-    "- retained ROADMAP.yaml context (historical work record; validation and hook gate checks remain active):",
-    `- roadmap validation: ${validation.ok ? "pass" : `FAIL — ${trimOutput(validation.detail, 500)}`}`,
+    "- archived roadmap context (docs/archive/ROADMAP-2026-11-06.yaml, a historical work record; hook gate checks remain active and read it):",
     `- HEAD: ${head || "unknown"}`,
     `- worktree: ${dirty}`,
     `- historical focus: ${focus}`,
@@ -2405,26 +2402,19 @@ const preToolUseOutput = (reason) => ({
 });
 
 const sessionStart = async (root) => {
-  const validationResult = validateRoadmap(root);
-  let roadmap;
-  let loadError = "";
+  let roadmap = null;
   try {
     roadmap = await loadRoadmap(root);
-  } catch (error) {
-    loadError = error instanceof Error ? error.message : String(error);
+  } catch {
+    // The archive is context only; a missing copy leaves the gate checks closed.
   }
   const headResult = runGit(root, ["rev-parse", "--short=12", "HEAD"]);
   const statusResult = gitStatus(root);
-  const validation = {
-    ok: validationResult.ok && Boolean(roadmap),
-    detail: loadError || outputForResult(validationResult),
-  };
   const output = {
     hookSpecificOutput: {
       hookEventName: "SessionStart",
       additionalContext: buildSessionContext({
         roadmap,
-        validation,
         head: headResult.ok ? headResult.stdout.trim() : "unknown",
         status: statusResult.ok
           ? statusResult.stdout
@@ -2432,9 +2422,9 @@ const sessionStart = async (root) => {
       }),
     },
   };
-  if (!validation.ok) {
+  if (!roadmap) {
     output.systemMessage =
-      "Policy Sentinel session recovery could not validate ROADMAP.yaml.";
+      "Policy Sentinel session recovery could not read docs/archive/ROADMAP-2026-11-06.yaml.";
   }
   return output;
 };

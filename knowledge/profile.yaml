@@ -3,7 +3,7 @@ project: policy-sentinel
 source_root_alias: policy-sentinel-repository
 authority_owners:
   navigation: policy-sentinel:document:backbone
-  work_status: policy-sentinel:document:roadmap
+  work_status: policy-sentinel:document:status
   decisions: policy-sentinel:document:decisions
   product: policy-sentinel:document:brief
   scope_acceptance: policy-sentinel:document:pnw
@@ -14,8 +14,10 @@ allowed_source_paths:
   - AGENTS.md
   - README.md
   - docs/PROJECT-BACKBONE.md
-  - docs/continuation-prompt.md
-  - ROADMAP.yaml
+  - docs/archive/continuation-prompt.md
+  - docs/archive/ROADMAP-2026-11-06.yaml
+  - docs/STATUS.md
+  - docs/PLAN.md
   - docs/project-brief.md
   - docs/pnw-scope-and-acceptance.md
   - docs/decision-register.md
@@ -23,7 +25,7 @@ allowed_source_paths:
   - docs/data-contract.md
   - docs/architecture.md
   - docs/ux-spec.md
-  - docs/mvp-plan.md
+  - docs/archive/mvp-plan.md
   - docs/source-coverage.md
   - docs/source-feasibility.md
   - docs/adr/ps09-canonical-corpus.md

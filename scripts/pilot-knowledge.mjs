@@ -18,7 +18,7 @@ const ownership = await verifyOwnedOutput(
   "policy-sentinel-repository",
 );
 const queries = [
-  ["Q01", "roadmap", "ROADMAP.yaml", "current_focus"],
+  ["Q01", "roadmap", "docs/archive/ROADMAP-2026-11-06.yaml", "current_focus"],
   [
     "Q02",
     "outcome",
@@ -36,7 +36,7 @@ const queries = [
   [
     "Q06",
     "roadmap",
-    "ROADMAP.yaml",
+    "docs/archive/ROADMAP-2026-11-06.yaml",
     "f4f39c0b7ac2b5ce763d47785b82d0e162fc1217a41377490e8c926ed8cdd381",
   ],
   [

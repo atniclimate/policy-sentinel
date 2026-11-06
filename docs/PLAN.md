@@ -1,209 +1,406 @@
 # Plan
 
-Status of this plan: it is the agent's proposal, adopted as the working plan under D-095 (the owner's direction of 2026-10-10 on demo follow-ups and planning). The items in the owner-decision list in [`STATUS.md`](STATUS.md) (the release definition, the scope deferrals that partly reverse rulings of 2026-09-22, 2026-09-24 and 2026-10-06, and archiving `ROADMAP.yaml`) take effect as written only when the owner confirms them. Until then nothing deferred is deleted and no earlier ruling is treated as revoked.
+This is the working plan, written as goals. It was adopted under D-095 and
+revised on 2026-11-06 under D-153 to D-155, when the owner archived
+`ROADMAP.yaml` and asked for a spine built around goals rather than strict
+points. Each goal says what a Tribal staff member can do, why it matters, what
+a session can run to show it is done, which owner gates remain and what is out
+of scope. The owner confirmed the release definition (D-147) and the archiving
+(D-153) on 2026-11-06. The parked goals at the end partly reverse rulings of
+2026-09-22, 2026-09-24 and 2026-10-06, so they take effect when the owner
+confirms them in the review of this rewrite. Until then nothing parked is
+deleted and no earlier ruling is treated as revoked.
 
 ## The goal
 
-A Tribal policy, natural resources or legal staff member opens one page, searches official federal and state sources and public Tribal and intertribal publications together, and sees for each result what it is, where it came from, when it was retrieved and why it was shown. They can read the passages that matter, keep notes, export a cited document, follow a rule, bill or docket, and (on their own machine, offline) add their own documents. The full statement and the safeguards are in [`AGENTS.md`](../AGENTS.md).
+A Tribal policy, natural resources or legal staff member opens one page,
+searches official federal and state sources and public Tribal and intertribal
+publications together, and sees for each result what it is, where it came from,
+when it was retrieved and why it was shown. They can read the passages that
+matter, keep notes, export a cited document, follow a rule, bill or docket,
+and (on their own machine, offline) add their own documents. The full
+statement and the safeguards are in [`AGENTS.md`](../AGENTS.md).
 
-## What this plan replaces
+## How to read this plan
 
-`ROADMAP.yaml` and its validators, the earlier plans and the operating model are retained record. They stay unchanged, are still validated mechanically, and are not the working plan. Engine parts built for those plans (the text extractor, the acquisition runner, custody, search) are pulled in when a milestone needs them, not finished for their own sake.
+- A goal is done when its checks pass on the real service and the result is
+  written in [`STATUS.md`](STATUS.md). Planning, scaffolding and an agent
+  report are not completion.
+- Every source is added one at a time, live call first. The trimmed response
+  shape of that call becomes the test fixture. The full check runs once before
+  anything is published.
+- "Owner gates" name the real outside actions or decisions. The live list is
+  "Open owner decisions" in [`STATUS.md`](STATUS.md). Every pull request,
+  merge, publication and Worker deployment also needs an in-session command
+  naming it (safeguard 6).
+- `ROADMAP.yaml` is archived at
+  [`archive/ROADMAP-2026-11-06.yaml`](archive/ROADMAP-2026-11-06.yaml); a
+  comment-only pointer stays at the old path. Read the archive for a specific
+  fact (a gate such as G-D, an item such as B8-ID-LEGISLATION), never as a
+  start-up routine. The earlier plans and the operating model are retained
+  record too. Engine parts built for those plans (the text extractor, the
+  acquisition runner, custody, search) are pulled in when a goal needs them,
+  not finished for their own sake.
 
-## Full 0.9 (D-118)
+## Where this stands: Full 0.9 (D-118)
 
 The owner set the Full 0.9 scope on 2026-11-05: court case search, policy
 chaining across treaties, laws, rules and decisions, Washington, Oregon and
-Idaho law with monitoring, all sources live, context modes, best-fit search with
-suggestions, local documents, and TERRA interoperability. It is Sentinel's
-entry in the TERRA 0.9.x release candidate (mid-December 2026). The reviewed
-design is [`development/full09-design-2026-11-05.md`](development/full09-design-2026-11-05.md):
+Idaho law with monitoring, all sources live, context modes, best-fit search
+with suggestions, local documents, and TERRA interoperability. It is Sentinel's
+entry in the TERRA 0.9.x release candidate (mid-December 2026). The 0.9.1 demo
+update is live. The reviewed design is
+[`development/full09-design-2026-11-05.md`](development/full09-design-2026-11-05.md):
 Tier 1 is a core release candidate built from keyless official sources and
-existing hosts; Tier 2 additions land only when their owner gate is answered by
-the cutoff; Tier 3 follows 0.9. The research behind it is summarized in
+existing hosts; Tier 2 additions land when their owner gate is answered (all
+were answered by 2026-11-06); Tier 3 follows 0.9. The research behind it is in
 [`source-reviews/full09-source-survey-2026-11-05.md`](source-reviews/full09-source-survey-2026-11-05.md).
-The milestones below stay in force; Full 0.9 acceptance is the staff-task list
-in the design, section T1.7.
-
-## Milestones
+Full 0.9 acceptance is the staff-task list in the design, section T1.7, walked
+by the owner.
 
 Acceptance correction under D-109 and D-110: selecting an NCAI draft resolution
 must automatically load source-cited policy, legislation and case matches into
-Results. Release 0.8.0 implemented this as seeded discovery (published under
-D-111). The owner accepted the live flow on 2026-10-20 (D-112). Unavailable
-state or court coverage must remain explicit. This does not bypass source
-qualification or establish legal relevance. Release B (0.9.0, D-112, D-113) adds
-Federal Register comment closing dates, topics, exact-identifier "Find related"
-and the document-type filter, as the
+Results. Release 0.8.0 implemented this as seeded discovery (D-111); the owner
+accepted the live flow on 2026-10-20 (D-112). Unavailable state or court
+coverage stays explicit. This does not bypass source qualification or
+establish legal relevance. Release B (0.9.0, D-112, D-113) added Federal
+Register comment closing dates, topics, exact-identifier "Find related" and the
+document-type filter, as the
 [Release B source note](source-reviews/discovery-release-b-sources-2026-10-19.md)
-sets out. Its Regulations.gov half waits on a direct read of that source's
-terms page and one bounded call per field.
+sets out.
 
-Each milestone is done when its checks pass on the real service and the result is written in `STATUS.md`. Every source is added one at a time, live call first, and the trimmed response shape of that call becomes the test fixture. The full check runs once before anything is published.
+Before Full 0.9, D-102 set the sequence: verification of existing browser
+workflows, demonstrated repairs and independent re-review, then documentation
+and capability planning informed by staff workflows. The public demo,
+synthetic local workbench and studies, and retained synthetic app have separate
+evidence; current results and limits are in [`STATUS.md`](STATUS.md). Dedicated
+interface polish and deeper accessibility evaluation follow broader
+functionality; existing accessibility safeguards and functional keyboard and
+focus checks remain.
 
-Before Full 0.9, D-102 set the sequence: verification of existing browser workflows, demonstrated repairs and independent re-review, then documentation and capability planning informed by staff workflows. The public demo, synthetic local workbench/studies and retained synthetic app have separate evidence; current results and remaining limits are in [STATUS.md](STATUS.md). The owner has supplied consultation and climate-funding research tasks, assessed below. Dedicated interface polish and deeper accessibility evaluation follow broader functionality; existing accessibility safeguards and functional keyboard/focus checks remain. This changes work order, not source gates or the unresolved release definition.
+## Goals
 
 ### 1. Published and true
 
-- A person can: use the rebuilt page at the public address.
-- Checks: a live search for a joint rule shows one merged row; current search, document, report and export workflows pass browser verification, with actual browser/engine coverage stated. Blocked and untested cases stay explicit. Dedicated assistive-technology evaluation remains scheduled after broader functionality under D-102.
-- Builds on: `demo/` and `worker/`. D-101 published the reviewed search upgrade and audit repairs through pull request 10, merge `981ecad`; D-102 has now exercised dated pagination and focus against the live service. Outside-user acceptance remains outstanding.
-- Needs the owner: participation in later user/assistive-technology checks; each later Worker deployment and runtime publication needs separate authorization.
+- **Goal.** A staff member uses the rebuilt page at the public address and can
+  trust what it shows.
+- **Why it matters.** Everything else rests on a page that merges, cites and
+  fails honestly.
+- **Done means.**
+  - A live search for a joint rule shows one merged row.
+  - Current search, document, report and export workflows pass browser
+    verification (`scripts/verify-demo-browser.mjs`), with the actual browser
+    and engine coverage stated. Blocked and untested cases stay explicit.
+  - Search keeps plain keywords, source-aware date refinement, continuation
+    beyond the first page and distinct failure outcomes (D-098, D-102 browser
+    evidence). Congress and Washington stay bill-reference lookups until a
+    keyword interface is qualified.
+  - Metadata titles, abstracts and latest-action descriptions stay distinct
+    from exact quoted passages; every quoted passage keeps its locator and text
+    receipt; no output supplies legal meaning or an inferred Nation
+    relationship.
+- **Owner gates.** Participation in later user and assistive-technology checks;
+  each Worker deployment and runtime publication, by command.
+- **Out of scope.** Dedicated assistive-technology evaluation (parked below).
+- **Builds on.** `demo/` and `worker/`. D-101 published the reviewed search
+  upgrade and audit repairs through pull request 10 (merge `981ecad`).
+  Outside-user acceptance is goal 4.
 
 ### 2. Federal families
 
-- A person can: find public laws, bills and resolutions, budget documents, court opinions and rules, and read their text.
-- Checks: one known item of each family is found with its official link. Each route has had one bounded live call, and its recorded response shape (trimmed, not a raw dump) is the test fixture.
-- Builds on: the Worker handlers, the [federal access and reliability plan](development/gd57-federal-expansion-access-reliability-2026-10-09.md) of 2026-10-09 and its [five proposed probes](development/gd60-federal-probes-and-local-refresh-plan-2026-10-09.md). The engine's federal API items are merged into this milestone.
-- Needs the owner: a yes to use the existing api.data.gov key for engine work; the eCFR terms.
+- **Goal.** A staff member finds public laws, bills and resolutions, budget
+  documents, court opinions, rules and the laws and regulations they cite, and
+  reads their text.
+- **Why it matters.** Policy chains run through all of these; a gap in one
+  breaks the chain.
+- **Done means.**
+  - One known item of each family is found with its official link.
+  - Each route has had one bounded live call; its trimmed response shape is the
+    test fixture.
+  - Read an additional federal family with an exact document version: start
+    with bills and public laws; distinct bill versions stay distinct; metadata
+    only versus text read is stated; every quoted passage has a receipt.
+  - Regulations.gov turns on (`REGULATIONS_V2_CONFIRMED`) only after the API
+    terms page and User Notice are read verbatim into the source note and one
+    bounded call per lane passes (D-138). The page shows the closing date as
+    Regulations.gov's statement, the Eastern calendar day with the zone named,
+    never a computed deadline; reports and exports carry the exact instant as
+    given (D-139).
+- **Owner gates.** One ask is open: the SAM.gov download is asked first, with
+  file name and size (D-140). None other is open for keys or terms:
+  build-time engine use of the api.data.gov key is allowed now, each source
+  within its source note's terms, budget and retention, and the browser never
+  holds it (D-156). Terms answered: OLRC (D-134), eCFR link-out (D-135),
+  Office of the Federal Register keyless API (D-136), GovInfo policies wording
+  (D-141), SAM.gov (D-140: small build-time table for named listings after
+  the download is asked first; large batches defer N9). The D-123 move of keys to the program account still
+  precedes the pre-release.
+- **Out of scope.** Fetching eCFR's robots-disallowed versioner path; the
+  Supreme Court RSS (dropped, D-137); the Unified Agenda output (Tier 3, after
+  the reginfo terms are read); Congress and Washington keyword search.
+- **Builds on.** The Worker handlers, the
+  [federal access and reliability plan](development/gd57-federal-expansion-access-reliability-2026-10-09.md)
+  and its [five probes](development/gd60-federal-probes-and-local-refresh-plan-2026-10-09.md).
+  GovInfo's [Search Service](https://www.govinfo.gov/features/search-service-overview)
+  documents `offsetMark` pagination and package and granule choices;
+  [Congressional Bills](https://www.govinfo.gov/help/bills) documents versioned
+  bill identifiers and text formats. These are research inputs, not source
+  qualification. The Federal Register dated pages, GovInfo and Regulations.gov
+  passed the bounded D-102 browser batch; the direct Congress page returned 403
+  without retry.
 
 ### 3. Follow and see change
 
-- A person can: follow a rule, bill or docket and see "new since" when they return.
-- Checks: a followed docket shows a new document after one appears. The list stays in the browser or in an exported file.
-- Builds on: `src/demo/report-state.ts` and the engine's lifecycle code.
-- Needs the owner: a small refreshed public index built with the engine's runner needs the owner's yes. The browser-held list shipped in 0.10.0 (D-114, D-115).
+- **Goal.** A staff member follows a rule, bill or docket and sees what is new
+  when they return.
+- **Why it matters.** Policy work is watching, and no one has time to re-search
+  everything.
+- **Done means.**
+  - A followed docket shows a new document after one appears. The list stays in
+    the browser or in an exported file.
+  - A saved item recovers with its original identity and provenance, shows
+    source-supported change, and says when a refresh is unavailable instead of
+    implying no change.
+  - Session-only notes are never silently turned into persistent user storage.
+- **Owner gates.** The owner's T1.7 acceptance walk of the 0.9.1 page. The
+  refreshed public index question is closed (D-148): the D-125 static builder
+  covers citation indexes and the browser-held list covers what is new. The
+  follow outcome stays open until the walk passes.
+- **Out of scope.** Any account, server-side follow list or telemetry.
+- **Builds on.** `src/demo/report-state.ts` and the engine's lifecycle code. The
+  browser-held list shipped in 0.10.0 (D-114, D-115).
 
-### 4. First outside user: the first real release (proposed)
+### 4. First outside user: the 1.0 test
 
-- A person can: complete a real task unaided.
-- Checks: a Tribal policy staff member who is not the owner does so and states correctly what the result does and does not establish. Every source the page calls live has been checked against the real service, and the page says plainly what it does not cover.
-- Builds on: milestones 1 to 3.
-- Needs the owner: confirming this definition (the 1.0 test, D-120), the 1.0 license set by ATNI (D-122 set the interim license), and recruiting the outside user.
+- **Goal.** A Tribal policy staff member who is not the owner completes a real
+  task on the public tool unaided and states correctly what the result does and
+  does not establish.
+- **Why it matters.** It is the only proof that the tool works for the people
+  it is for. The owner confirmed this definition on 2026-11-06 (D-147): the
+  outside-user test plus ATNI ratification (D-120). The D-123 pre-release comes
+  first.
+- **Done means.**
+  - The outside-user test passes, and the page says plainly what it does not
+    cover.
+  - Every source the page calls live has been checked against the real service.
+  - The Nation picker works as browser-held context that never filters, ranks
+    or claims a record-to-Nation link, and its sovereignty review has no open
+    blocking finding (D-152).
+  - G-BIA-IDENTITY is met only on the archive gate's terms: current
+    originating BIA evidence gives an unambiguous row-level reconciliation of
+    the notice's 577 displayed list-entry paragraphs to its stated 575
+    entities, and that mapping passes two independent reviews. Arithmetic,
+    TLD rows, grouping assumptions, aliases, geography or third-party contact
+    cannot substitute for exact official evidence. A name count does not meet
+    the gate: the exactly-575 name list and its hash file (D-144) do not
+    satisfy G-BIA-IDENTITY. Separately, the retained federal-recognition
+    collection must validate to exactly 575 before it is published (safeguard
+    1). For the D-144 build step, a session fetches the current notice once
+    (one Federal Register API fetch), builds the plain list in ephemeral
+    scratch outside the repository, requires exactly 575 names, commits only
+    the hash file and deletes the plain list; the list is never committed or
+    logged. Until the hash file is committed the first phrase row cannot
+    land.
+  - Tribal documents printed in federal sources stay in and are flagged
+    "issued by" the issuing body exactly as printed; the record stays
+    `general_jurisdiction` unless an exact official field names the Nation; the
+    name feeds no filter, ranking or why-shown, pinned by a test (D-151).
+- **Owner gates.** The owner's T1.7 walk; recruiting the outside user and
+  running the test; the 1.0 license set by ATNI (D-122 set the interim
+  license); ATNI ratification; the NCAI reply (if NCAI says no, or there is no
+  reply by 1.0, the intertribal snapshot stops being served and the page says
+  its reuse terms were not confirmed, D-150). Any Nation's private or
+  Nation-specific material. Code touching Nation identity or private context
+  is reviewed for sovereignty before it is pushed; each push still needs the
+  owner's command (D-146, safeguard 6). A Tribe's own public (T0) information is fair to
+  use; nothing private, internal or restricted; seeing a name never
+  establishes a record-to-Nation link.
+- **Out of scope.** Treating federal recognition as organization membership;
+  using the BIA Tribal Leaders Directory as the recognition authority; any
+  legal-effect label.
+- **Builds on.** Goals 1 to 3.
 
 ### 5. The region
 
-- A person can: search Washington by topic, then Oregon, Idaho and the four other states named in D-086 (the owner's plan revision of 2026-10-06: Alaska, California, Montana, Nevada), and read ATNI, NCAI and USET resolutions.
-- Checks: each state returns real results or says on the page why not. A resolution names its issuer and implies no member Nation's position.
-- Builds on: the source catalog and the source reviews in `docs/source-reviews/`.
-- Needs the owner: contact with Idaho. The Oregon OLIS agreement was accepted under D-119.
+- **Goal.** A staff member searches Washington by topic, then Oregon, Idaho and
+  the four other states named in D-086 (Alaska, California, Montana, Nevada),
+  and reads ATNI, NCAI and USET resolutions.
+- **Why it matters.** The staff it serves work across state lines and cannot
+  rely on federal sources alone.
+- **Done means.**
+  - Each state returns real results or says on the page why not.
+  - A resolution names its issuer and implies no member Nation's position.
+  - Idaho (G-D, O-007, B-002): a session finds a free non-profit legislative
+    data source covering Idaho, writes its source note and gives the owner the
+    registration link (D-157). The page keeps stating the gap until a bounded
+    live call works. Official Idaho session pages publish no stable documented
+    API, feed, schema, rate policy or bulk contract (B-002, O-007); HTML
+    scraping is never disguised as an API, automation stays marked
+    `blocked_source_contract`, and the gap shows in coverage. G-D is met only
+    by read-only discovery and validation of a stable, permitted, official
+    no-registration source. If contact is required, EXT-COST-CONTACT stays
+    closed and the visible source gap is the accepted fallback (B-002: contact
+    needs later verification and possibly owner-approved contact). The D-157
+    route (a registered non-profit aggregator such as Open States) is not
+    G-D: it is a third-party source under gate G-F, Tier 3, and needs its own
+    source note and the owner's registration. Safeguard 5 prefers the
+    originating source.
+  - Supreme Court: the page states plainly that decisions after volume 586 are
+    not in the demo, with a link to the Court's opinions page. GovInfo U.S.
+    Reports stays the only Supreme Court source (D-137).
+- **Owner gates.** Registering for the Idaho source's API (the owner does this
+  from the link the session supplies); contact with Idaho only if the source
+  needs it. The Oregon OLIS agreement was accepted under D-119.
+- **Out of scope.** The 50-state survey (parked); an opaque scraper as a
+  primary source.
+- **Builds on.** The source catalog and the notes in `docs/source-reviews/`.
 
 ### 6. Own documents, offline
 
-- A person can: install on their own machine, add their own documents, and search and export with no network.
-- Checks: demonstration A1 as written in the [definition of done of 2026-09-24](decisions/2026-09-24-definition-of-done-general-development.md): a Tribal staff member who is not the owner installs from the release package, loads the baseline bundle, supplies their own area file and documents, runs one area query and one topic query, receives a dossier with citations and why-shown entirely offline, and states what it does and does not establish.
-- Builds on: the local workbench, the runner and custody.
-- Needs the owner: any Nation's private material stays with that Nation; the owner approves the outside user.
+- **Goal.** A staff member installs the tool on their own machine, adds their
+  own documents, and searches and exports with no network.
+- **Why it matters.** A Nation that wants to use its own documents must be able
+  to do so with that material never leaving it.
+- **Done means.** Demonstration A1 as written in the
+  [definition of done of 2026-09-24](decisions/2026-09-24-definition-of-done-general-development.md):
+  a Tribal staff member who is not the owner installs from the release package,
+  loads the baseline bundle, supplies their own area file and documents, runs
+  one area query and one topic query, receives a dossier with citations and
+  why-shown entirely offline, and states what it does and does not establish.
+- **Owner gates.** Any Nation's private material stays with that Nation; the
+  owner approves the outside user.
+- **Out of scope.** Any public build touching private context, maps, parcel
+  geometry or land content (safeguard 4).
+- **Builds on.** The local workbench, the runner and custody.
 
-## Needs the owner
+### 7. Staff research tasks
 
-These are real outside actions or decisions. Nothing else on this plan waits for the owner.
+The owner supplied two real research tasks on 2026-10-13. They scope product
+work; they do not answer the funding or legal questions or activate another
+source. Proposed slice, now after Full 0.9 (D-118): discover the relevant
+water, forestry and Roadless Rule instruments and assemble a bounded
+official-source consultation inventory before choosing a new adapter, and in
+parallel define one FY27 funding program's evidence trail from appropriation
+through award. These are research and acceptance specifications, not
+authorization to acquire private material, add a public source or implement
+legal-status labels.
 
-- Each pull request, merge, publication and Worker deployment, by an in-session command naming it (safeguard 6).
-- One sentence allowing the existing api.data.gov key for engine work.
-- The eCFR terms and contact with Idaho. The Oregon OLIS agreement was accepted under D-119.
-- The 1.0 license, set by ATNI. D-122 set the interim license.
+- **Goal A.** A staff member finds which Tribes in Washington and Oregon were
+  consulted on water and forestry policy (Roadless Rule focus), how, and what
+  evidence was supplied. First discover and distinguish the relevant rules, then
+  identify each exact statute, agency, docket and version. Do not assume every
+  consultation record belongs to Section 106.
+- **Goal B.** A staff member traces FY27 Tribal Community Resilience funding:
+  source-stated award amounts and eligibility, executive actions and
+  litigation, staffing changes, affected or restored programs, and 25 U.S.C.
+  117c, domestic-content waivers, imported technology, tariffs and litigation
+  authorities.
+- **Why it matters.** They are the real questions behind the tool.
+- **Done means.**
+  - Goal A: a cited evidence table that separates invitation, response,
+    meeting participation and agency disposition. Each named Nation has the
+    exact official passage and URL. An invitation, location, search hit or
+    missing record never establishes participation or absence of consultation.
+    Restricted submissions stay outside the public tool.
+  - Goal B: an explicit as-of date and separate evidence for requests, enacted
+    appropriations, notices, selections, obligations and disbursements. Court
+    orders carry date, scope, later orders and appeal status; staffing effects
+    their own evidence; funding authority, waivers, import restrictions,
+    tariffs and litigation authorities their own citations. One provision is
+    never converted into a combined eligibility, exemption or litigation
+    conclusion. The supplied 117c citation is a research target, not an
+    accepted funding route.
+  - The smallest useful acceptance tasks per capability are below.
+- **Owner gates.** Oregon and Idaho terms and contact as in goal 5; any
+  restricted or Nation-specific submission.
+- **Out of scope.** Answering the funding or legal questions in the tool.
+
+Capability assessment of 2026-10-13 (what existed then; later releases added
+the browser-held follow list and the Washington bill lookups):
+
+| Capability | Smallest useful acceptance task |
+| --- | --- |
+| Versioned federal text | Qualify one originating source and route, then compare two exact versions with independent citations and retrieval dates. Keep proposals, final instruments and later court orders distinct. Source, terms, credential and publication gates apply. |
+| Follow and new since | Save one exact item, introduce a known new official version, refresh explicitly, show both versions and source-supported differences, then show an unavailable refresh without implying no change. |
+| Washington topic discovery | Review a permitted topic interface, then find one known bill by topic and carry its exact version into a cited report. Needs source qualification first. |
+| Oregon, Idaho and regional coverage | For the identified consultation rule, inventory official federal and state consultation records, then qualify one missing source at a time. Intertribal publications never imply every member Nation's position. |
+| Local studies and offline use | Load an approved package with the network disabled, resume an exported study, produce a cited local output and correctly explain missing evidence. Public output keeps filtering Restricted material and source text whose reuse contract prohibits redistribution. |
+
+## Parked goals
+
+Deferred, not deleted. Each returns when its trigger fires or the owner asks.
+
+- **Nationwide coverage.** The 50-state source survey and coverage beyond the
+  selected states. Nationwide coverage stays the owner's stated direction.
+  Trigger: the seven-state region (goal 5) is real, or the owner asks.
+- **Place-aware search.** The designation registry, the policy context schema
+  and the area resolver. The owner's "scan these relative to Crow Agency"
+  (2026-10-10, D-093) is parked here, not dropped. Trigger: the owner asks, or
+  demonstration A1 (goal 6) needs the area query.
+- **Sibling-app interchange.** Policy context in, citations out, for
+  land-use-analyzer and plan-assessor, and demonstration A4. Trigger: the
+  interop profiles in the Full 0.9 design are accepted and the owner decides
+  O-023.
+- **Other demonstrations.** A2 (an operator prepares a state other than
+  Washington) and A3 (a successor restores and replays the evidence package).
+  Trigger: a second operator or an owner request.
+- **Corpus growth.** Growth of the managed corpus toward 50 GB and measured
+  public acquisition beyond what a goal needs (D-086). Trigger: a goal needs
+  more than it holds.
+- **Shared Nation registry.** The Nation picker (goal 4) is now in 1.0 and
+  depends on the exact 575 collection. Binding the wider shared registry
+  (`atni-nation-registry`, D-075) waits until that collection validates.
+- **Native Hawaiian support.** A later-compatible direction. Trigger: the owner
+  asks.
+- **Optional AI summaries.** Need their own approved build-time step.
+- **Accessible cited output.** Use and share a cited report with assistive
+  technology. Trigger: broader functionality is done (D-102). Test the semantic
+  HTML print view and the PDF from the same `buildDocument` output (headings,
+  reading order, quotes, notes, provenance) and choose accessible HTML or
+  tagged PDF from demonstrated need. A real screen-reader user and PDF and
+  print viewer checks are needed. The PDF is untagged; Print view is the
+  existing fallback, not a verified accessible PDF. Keyboard, focus and
+  automated regression checks continue now; no silent loss of unsupported
+  characters. Guidance read:
+  [Section508.gov PDF guidance](https://www.section508.gov/create/pdfs/) and
+  [W3C PDF techniques](https://www.w3.org/WAI/WCAG21/Techniques/) inform the
+  checks; they establish no conformance.
+- **Unified Agenda output.** Tier 3, after the reginfo terms are read.
+- **Tribal publications as a source.** Tier 3, one publisher at a time
+  (D-151). Official public Tribal-government publications are eligible; each
+  needs its own source note.
+- **Large SAM.gov batches.** N9 defers if the work needs a large batch (D-140).
+- **Taxonomy proposal.** Independent of the phrase table. Trigger: the owner
+  reviews the proposal.
+- **Other Tier 3 items.** Treaty links beyond exact Statutes at Large start
+  pages and the rest of section 6 of the Full 0.9 design.
+- **Test speed.** Profile Vitest's environment and setup cost before changing
+  concurrency or environments. One integrated unit run took 666.53 seconds,
+  255.73 of them environment setup and 45.32 setup files; this is diagnostic,
+  not a benchmark. Find pure-module suites that do not need browser globals and
+  try selective Node environments with the same assertions. Adopt only with a
+  repeatable timing gain and a passing full check; browser-dependent tests keep
+  their browser environment.
+- **Retained record.** The carry-forward of nine old scenario claims and the
+  release crosswalk (GD-31): they served a plan no longer followed and stay as
+  record. The ledger items that belonged to earlier plans (the 2026-10-10
+  assessment counted 81) went to the archive with `ROADMAP.yaml` (D-153). The
+  frozen kernel and experimental code stays idle and untouched.
+
+## Owner gates, in one place
+
+Real outside actions or decisions. Nothing else on this plan waits for the
+owner. The live list is "Open owner decisions" in [`STATUS.md`](STATUS.md).
+
+- Each push, pull request, merge, publication and Worker deployment, by an
+  in-session command naming it (safeguard 6).
+- The SAM.gov download, asked first with file name and size (D-140).
+- The T1.7 acceptance walk, the outside-user test, the 1.0 license set by ATNI
+  and ATNI ratification.
+- The NCAI reply; the Idaho API registration; deleting the seven weekly
+  Parallel monitors in Parallel's console, or a yes to one bounded delete
+  command (D-149).
+- Reviews that stay with the owner: flagged alias and plain-phrase rows (person
+  names, treaty words, Nation-mask hits, judgment classes), D-142 and D-143.
 - Any Nation's private or Nation-specific material.
-- Recruiting the first outside user.
-- The open decisions in `STATUS.md`, which also carries these from earlier lists: the release definition, a refreshed public index, the Nation picker, the deferrals below, archiving `ROADMAP.yaml`, and Tribal documents in federal results.
-
-## Audit follow-through (2026-10-13)
-
-The search work selected under D-098 is implemented and locally verified: plain
-keywords, source-aware date refinement, continuation beyond the first page and
-distinct failure outcomes. Congress and Washington remain bill-reference
-lookups until a keyword interface is qualified. The D-099 repository
-audit/fix/review loop closed six demonstrated defects in this change and
-connected behavior; current verification is in [STATUS.md](STATUS.md).
-Source gates and release acceptance criteria are unchanged. Detailed
-session preparation stays outside the public repository.
-
-The D-096 local review/fix/review loop covers the demo, local loading, cited
-outputs and developer startup instructions. It does not establish release
-acceptance. Verification results and remaining defects are in [STATUS.md](STATUS.md).
-Prioritize these small development steps within the milestones above:
-
-| Order | What a person gains | Existing code and acceptance check | Research or owner dependency |
-| --- | --- | --- | --- |
-| 1 | Reliably use the published search, report and local study workflows. | D-102 browser evidence covers current merging, notes, replacement searches, controlled failures, exports and study filtering. The maintained runner now derives separate policy and source counts from the response; dated append/focus checks passed live. Keep the surface and engine limits in STATUS explicit. | Federal Register, GovInfo and Regulations.gov dated pages one/two passed the bounded D-102 browser batch. Congress and Washington remain reference lookups. The direct Congress page returned 403 without retry. New local Worker repairs would need their own live evidence. |
-| 2 | Read one additional federal family with an exact document version. | Reuse the Worker transport, `src/demo/validation.ts` and the document/receipt model. Start with bills/public laws; one known item per route, exact official identity/version, clear metadata-only versus text-read status, and a receipt for every quoted passage. Distinct bill versions remain distinct. | Research originating-agency fields, versions, dates, reuse and failures first. Engine key use remains an owner decision; deployments need their own approval. |
-| 3 | Return to a followed item and understand what changed. | Reuse report-state and lifecycle code after functional browser closure and capability assessment. A saved item must recover with its original identity and provenance, show source-supported change, and disclose unavailable refreshes. This capability is not implemented by session report restoration. | Confirm following in the release and any refreshed public metadata index. Do not silently change session-only notes into persistent user storage. |
-| 4, later | Use and share a cited report with assistive technology. | After broader functionality, run the dedicated interface/accessibility pass under D-102. Test semantic HTML print view and PDF from the same `buildDocument` output, including headings, reading order, quotes, notes and provenance. Choose accessible HTML or tagged PDF from demonstrated need. Existing keyboard/focus and automated regression checks continue now; no silent loss of unsupported characters. | A real screen-reader user and PDF/print viewer checks remain necessary. The PDF is untagged; Print view is the existing fallback, not a verified accessible-PDF substitute. |
-
-Focused primary research read during the audit: GovInfo's
-[Search Service](https://www.govinfo.gov/features/search-service-overview)
-documents `offsetMark` pagination and package/granule choices;
-[Congressional Bills](https://www.govinfo.gov/help/bills) documents versioned
-bill identifiers and available text formats. These are research inputs, not
-source qualification or live-route acceptance. For output design,
-[Section508.gov's PDF guidance](https://www.section508.gov/create/pdfs/)
-prioritizes HTML where practical and separate testing of each format;
-[W3C PDF techniques](https://www.w3.org/WAI/WCAG21/Techniques/)
-describe tagging and reading-order methods. These inform the proposed checks
-and do not establish this tool's accessibility conformance.
-
-Metadata titles, abstracts and latest-action descriptions stay distinct from
-exact quoted passages. Every quoted passage retains its locator and text
-receipt; no output supplies legal meaning or inferred Nation relationships.
-
-## Staff workflow capability assessment (2026-10-13)
-
-The owner supplied two real research tasks. This assessment scopes product work;
-it does not answer the funding or legal questions or activate another source.
-
-The first asks which Tribes in Washington and Oregon were consulted, how
-consultation occurred and what evidence was supplied. The owner clarified that
-the staff member needs discovery and deeper understanding of water and forestry
-policy, with a Roadless Rule focus; the initial question referred to Section 106.
-First discover and distinguish the relevant rules, then identify each exact
-statute, agency, docket and version. Do not assume that every consultation record
-belongs to Section 106 or treat that section number as an identified rule.
-The acceptance task is a cited evidence table
-that separates invitation, response, meeting participation and agency disposition.
-Each named Nation needs the exact official passage and URL. An invitation,
-geographic location, search hit or missing record cannot establish participation
-or absence of consultation. Restricted submissions stay outside the public tool.
-
-The second asks about FY27 Tribal Community Resilience funding, source-stated
-award amounts and eligibility, executive actions and litigation, staffing changes,
-and affected or restored climate/environmental programs. It also asks about
-25 U.S.C. § 117c, domestic-content waivers, imported technology, tariffs and
-litigation authorities. A useful result needs an explicit as-of date and separate
-evidence for requests, enacted appropriations, notices, selections, obligations
-and disbursements. Court orders need their date, scope, later orders and appeal
-status; staffing effects need their own evidence. Funding authority, procurement
-waivers, import restrictions, tariffs and possible litigation authorities require
-separate citations. One provision must not be converted into a combined eligibility,
-exemption or litigation conclusion. The supplied § 117c citation identifies a
-research target, not an accepted funding route.
-
-| Capability | What exists and what remains | Smallest useful acceptance task |
-| --- | --- | --- |
-| Versioned federal text | The demo has source-aware search, document identity, text receipts, selected passages and report exports. Complete funding, statute, executive-action and court-order coverage is missing; a metadata hit is not a verified text version. | Qualify one originating source and route, then compare two exact versions with independent citations and retrieval dates. Keep proposals, final instruments and subsequent court orders distinct. Existing source, terms, credential and publication gates apply. |
-| Follow and new since | Session report restoration and engine lifecycle components exist. The public demo has no implemented followed-item refresh or change feed. | Save one exact item, introduce a known new official version, refresh explicitly, show both versions and source-supported differences, then show an unavailable refresh without implying no change. The release/index decisions remain open. |
-| Washington topic discovery | `worker/src/index.ts` supports bill/biennium reference lookup and introduced-text reading. The official topic-search link is external; its results are not integrated. | Review a permitted topic interface, then find one known bill by topic and carry its exact version into a cited report. This needs source qualification before implementation. |
-| Oregon, Idaho and regional coverage | Oregon and Idaho are explicit integration gaps. Federal records may discuss regional matters but do not establish complete regional or Nation coverage. | For the identified consultation rule, inventory official federal and state consultation records, then qualify one missing source at a time. Oregon terms and Idaho contact remain owner decisions; intertribal publications never imply every member Nation's position. |
-| Local studies and offline use | `PolicyWorkbench` and `StudyWorkspace` support checksummed local evidence, analyst-authored procedural/consultation records, review, saved-study import and seven study products. Synthetic browser checks exercise them. Turnkey offline installation and a staff member's disconnected task remain unverified. | Load an approved package with the network disabled, resume an exported study, produce a cited local output and correctly explain missing evidence. Public output must continue filtering Restricted material and source text whose reuse contract prohibits redistribution. |
-
-Proposed slice as of 2026-10-13, now after Full 0.9 (D-118): discover the
-relevant water, forestry and Roadless Rule instruments and assemble a bounded
-official-source consultation inventory before choosing a new adapter. In
-parallel, define one FY27 funding program's evidence trail from appropriation
-through award.
-These are research and acceptance specifications, not authorization to acquire
-private material, add a public source or implement legal-status labels.
-
-Developer environment follow-up: profile Vitest's environment/setup cost before
-changing concurrency or test environments. The first integrated unit run during
-this audit took 666.53 seconds, including 255.73 seconds attributed to environment
-setup and 45.32 seconds to setup files. This single run is diagnostic evidence,
-not a benchmark. Identify pure-module suites whose imports do not require browser
-globals, then evaluate selective Node environments with the same assertions.
-Require a repeatable timing improvement and a passing full check before adopting
-the change; keep browser-dependent tests in their browser environment.
-
-## Later
-
-Deferred, not deleted. Each item stays on record and returns when a milestone needs it or the owner asks. The deferrals in the first six rows partly reverse rulings of 2026-09-22 (nationwide coverage), 2026-09-24 (the definition of done) and 2026-10-06 (D-086), so they take effect only when the owner confirms them.
-
-- The 50-state source survey and nationwide coverage beyond the selected states. Nationwide coverage stays the owner's stated direction.
-- The designation registry, the policy context schema and the area resolver. Place-aware search, which the owner raised on 2026-10-10 as "scan these relative to Crow Agency" (D-093), is parked here, not dropped.
-- The sibling-app interchange (policy context in, citations out, for land-use-analyzer and plan-assessor) and demonstration A4.
-- Demonstrations A2 (an operator prepares a state other than Washington) and A3 (a successor restores and replays the evidence package).
-- Growth of the managed corpus toward 50 GB and measured public acquisition beyond what a milestone needs (D-086).
-- Nation registry binding, unless the release has a Nation picker (an open owner decision in `STATUS.md`).
-- Native Hawaiian support, which stays a later-compatible direction.
-- Optional AI summaries, which need their own approved build-time step.
-- The carry-forward of nine old scenario claims and the release crosswalk (GD-31, the release acceptance crosswalk): they served a plan no longer followed and stay as record.
-- The ledger items that belong to earlier plans (the 2026-10-10 assessment counted 81): archived with `ROADMAP.yaml` if the owner confirms archiving it.
-- The frozen kernel and experimental code stays idle and untouched.
+- Confirming the parked goals above.

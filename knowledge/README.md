@@ -1,16 +1,20 @@
 # Repository knowledge sidecar
 
-This directory adopts the approved organization review's 41 document records,
-18 curated knowledge entries and 17 references. It preserves every original
+This directory adopts the approved organization review's 41 document records
+(plus two added on 2026-11-06), 18 curated knowledge entries and 17 references. It preserves every original
 record field, including proposal labels and the seven inherited references that
 still require fresh primary review. Adoption adds validation and a local reading
 projection; it does not upgrade evidence maturity, grant work, qualify sources,
 accept a release or authorize publication.
 
 The authority owners remain explicit in `profile.yaml`: the repository backbone
-owns navigation, `ROADMAP.yaml` owns work status, and the named contracts,
-decision register, convergence registry and custody registry retain their own
-authority. Generated cards and sidecar observations cannot override them.
+owns navigation, `docs/STATUS.md` (with `docs/PLAN.md` for goals) owns work
+status, and the named contracts, decision register, convergence registry and
+custody registry retain their own authority. Until 2026-11-06 `ROADMAP.yaml`
+owned work status. It is archived at `docs/archive/ROADMAP-2026-11-06.yaml`, and
+its catalog record keeps its historical Git pin through `pin_path`. A record may
+also carry `pin_revision` when it was added after the pinned review revision;
+the `STATUS.md` and `PLAN.md` records do. Generated cards and sidecar observations cannot override them.
 
 ## Inputs and historical citations
 

@@ -1969,7 +1969,6 @@ test("SessionStart context is bounded recovery state, not transcript content", (
       current_focus: { work_item: "H-HOOKS" },
       next_actions: [{ order: 1, work_item: "H-HOOKS" }],
     },
-    validation: { ok: true, detail: "" },
     head: "abc123",
     status: " M ROADMAP.yaml\n",
   });
@@ -1977,7 +1976,7 @@ test("SessionStart context is bounded recovery state, not transcript content", (
   assert.match(context, /historical focus: H-HOOKS/u);
   assert.match(
     context,
-    /retained ROADMAP\.yaml context \(historical work record/u,
+    /archived roadmap context \(docs\/archive\/ROADMAP-2026-11-06\.yaml, a historical work record/u,
   );
   assert.match(
     context,
@@ -2038,7 +2037,6 @@ test("recovery summaries report focus without granting task authority", () => {
           "SIXTH",
         ].map((work_item, index) => ({ order: index + 1, work_item })),
       },
-      validation: { ok: true, detail: "" },
       head: "abc123",
       status: "",
     });

@@ -50,23 +50,43 @@ const common = {
   publication_status: { const: "local_review_package_not_reviewed_for_export" },
   adoption,
 };
-const document = object({
-  id,
-  path: text,
-  title: text,
-  observed_role: text,
-  document_lifecycle_observation: text,
-  purpose: text,
-  source_revision: revision,
-  working_file_sha256: hash,
-  metadata_review: { const: "curated_proposal" },
-  publication_status: { const: "not_reviewed_for_export" },
-  git_pin: object({
-    hash_domain: { const: "git_blob_bytes" },
-    oid: revision,
-    sha256: hash,
-  }),
-});
+// pin_path and pin_revision say where the Git pin lives when the file moved after
+// the review (pin_path) or was added after it (pin_revision). Both default to
+// path and source_revision, so the original records stay unchanged.
+const document = object(
+  {
+    id,
+    path: text,
+    pin_path: text,
+    pin_revision: revision,
+    title: text,
+    observed_role: text,
+    document_lifecycle_observation: text,
+    purpose: text,
+    source_revision: revision,
+    working_file_sha256: hash,
+    metadata_review: { const: "curated_proposal" },
+    publication_status: { const: "not_reviewed_for_export" },
+    git_pin: object({
+      hash_domain: { const: "git_blob_bytes" },
+      oid: revision,
+      sha256: hash,
+    }),
+  },
+  [
+    "id",
+    "path",
+    "title",
+    "observed_role",
+    "document_lifecycle_observation",
+    "purpose",
+    "source_revision",
+    "working_file_sha256",
+    "metadata_review",
+    "publication_status",
+    "git_pin",
+  ],
+);
 const locator = object({
   document: id,
   section: text,

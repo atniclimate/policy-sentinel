@@ -1,5 +1,20 @@
 # ATNI Climate interop: Policy Sentinel IO guide
 
+## Goal summary (2026-11-06)
+
+Goal served: Policy Sentinel can take a search context from a peer ATNI Climate
+app and return citations, without ever receiving parcel, geometry or any
+Nation-specific or private content.
+
+Status: specified, not implemented and not adopted. The Full 0.9 plan keeps
+only a draft validator and projector on synthetic fixtures (no listener, no
+inbound query). Nothing here is implementation authority.
+
+Superseded by the owner's answers of 2026-11-06: `ROADMAP.yaml` is archived
+(`../archive/ROADMAP-2026-11-06.yaml`) and `npm run validate:roadmap` is gone,
+so an adoption is now recorded in `../decision-register.md` and
+[`../PLAN.md`](../PLAN.md), not in a roadmap item. The rest stands.
+
 ## 1. Status and authority
 
 This guide describes a pathway that is specified but not implemented, not
@@ -44,7 +59,7 @@ as inherited from the snapshot.
 
 Implementing this pathway requires its own recorded adoption before any code
 lands: a `../decision-register.md` entry plus a corresponding
-`../../ROADMAP.yaml` item, the same pattern that D-068 and D-069 used before
+`../../ROADMAP.yaml` item [2026-11-06: the roadmap is archived; use PLAN.md], the same pattern that D-068 and D-069 used before
 the Makah demo federal-acquisition work began (see
 [`../handoffs/makah-demo-02-federal-acquisition-outcome.md`](../handoffs/makah-demo-02-federal-acquisition-outcome.md)).
 It also requires an explicit owner instruction naming this exact pathway. This
@@ -266,7 +281,7 @@ Negative cases to exercise, drawn from the same handoff section 4:
 Policy Sentinel's own gates, per [`../../AGENTS.md`](../../AGENTS.md):
 
 - `npm test` must pass.
-- `npm run validate:roadmap` if `ROADMAP.yaml` changes (a new item and gate,
+- `npm run validate:roadmap` [removed 2026-11-06] if `ROADMAP.yaml` changes (a new item and gate,
   following the D-068/D-069 pattern, must precede any implementation work).
 - `npm run validate:backbone` must pass if documentation links change.
 - No new dependency; the interop client/schema types can be vendored or

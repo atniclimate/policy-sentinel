@@ -9,18 +9,18 @@ evidence retains its recorded date.
 
 This document remains the binding milestone and acceptance contract for the
 retained B1-B10 implementation stream.
-[`ROADMAP.yaml`](../ROADMAP.yaml) is the canonical ledger for current status,
+[`ROADMAP.yaml`](ROADMAP-2026-11-06.yaml) (archived 2026-11-06) is the canonical ledger for current status,
 dependencies, evidence, blockers, and next actions.
 
 The current 0.9 program supersedes the duplicated B/PNW release accounting
 with one root, `PS09-06-LOCAL-RC`. B1-B10 identities, evidence, and gates are
 preserved as archived accounting; their historical PNW mapping remains in
-[`handoffs/pnw-product-space-rebase-2026-09-02.md`](handoffs/pnw-product-space-rebase-2026-09-02.md).
+[`handoffs/pnw-product-space-rebase-2026-09-02.md`](../handoffs/pnw-product-space-rebase-2026-09-02.md).
 An old item marked complete may be reusable contract, research, implementation,
 or accepted-fallback evidence; it does not thereby complete a broader PNW
-capability. The current [component registry](development/ps09-convergence.v1.json)
-and [corpus ADR](adr/ps09-canonical-corpus.md) give exact runtime dispositions.
-See [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md).
+capability. The current [component registry](../development/ps09-convergence.v1.json)
+and [corpus ADR](../adr/ps09-canonical-corpus.md) give exact runtime dispositions.
+See [`pnw-scope-and-acceptance.md`](../pnw-scope-and-acceptance.md).
 
 ## Current six-run program
 
@@ -36,7 +36,7 @@ See [`pnw-scope-and-acceptance.md`](pnw-scope-and-acceptance.md).
 
 These are outcomes, not completion claims. Six deep scenario graphs and
 geographic sentinels remain planned until Run 2 accepts exact manifests.
-The [terminal discovery outcome](handoffs/ps09-real-policy-discovery-outcome.md)
+The [terminal discovery outcome](../handoffs/ps09-real-policy-discovery-outcome.md)
 records actual real-data capability and its limits. Ordinary builds retain the
 Run1 synthetic path. No historical budget restarts acquisition or publication.
 
@@ -49,7 +49,7 @@ completed PNW-01, PNW-03, PNW-04, and the synthetic PNW-05 core. The exhausted
 2026-09-03 real-source child lane stopped on consumed R7 digest drift; it is
 archived evidence and grants no retry or FR-A1. Run1's convergence grant and the
 later discovery grant have completed their bounded outcomes. The approved
-[knowledge assurance](development/PS09-KNOWLEDGE-ASSURANCE-01.md) is separate local
+[knowledge assurance](../development/PS09-KNOWLEDGE-ASSURANCE-01.md) is separate local
 maintenance with zero policy-source requests. Historical source evidence and
 closed K0/S0/O0 convergence gates remain unchanged.
 
@@ -231,12 +231,12 @@ Governor request while `G-B-OR-OARD` or `G-B-OR-GOVERNOR` is closed.
 
 After approval, implement Oregon Legislature OData within its acceptable-use
 terms and refresh window. Keep official Oregon rule/executive sources separate.
-The [2026-07-31 offline OData review](source-reviews/oregon-odata-offline-contract-2026-07-31.md)
+The [2026-07-31 offline OData review](../source-reviews/oregon-odata-offline-contract-2026-07-31.md)
 already supplies a credential-free repository contract for logical metadata,
 sessions, measures, sponsors, committees, actions, votes, versions, and
 statuses. It is not a provider envelope or live adapter and produces no public
 record, health, coverage, provenance, or last-known-good data.
-The [2026-07-31 non-OData review](source-reviews/oregon-rules-executive-2026-07-31.md)
+The [2026-07-31 non-OData review](../source-reviews/oregon-rules-executive-2026-07-31.md)
 found that Oregon's statewide terms cover Oregon-operated sites beyond the
 `oregon.gov` hostname and make access acceptance. OARD and the Governor index
 therefore remain source-specifically blocked; OARD's aggregate executive-order

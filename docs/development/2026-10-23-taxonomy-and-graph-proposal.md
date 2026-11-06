@@ -1,5 +1,20 @@
 # Federal Register topics to the taxonomy, and a first relationship graph (proposal, 2026-10-23)
 
+## Goal summary (2026-11-06)
+
+Goal served: category labels and relationships between records that come from
+exact official labels, with provenance, so a person can browse by policy area
+without a keyword guess and without any claim about a Nation.
+
+Status: a proposal for review (D-114). Nothing here maps a record yet. It is
+independent of the plain-phrase table and stays an open carried item for the
+owner.
+
+Superseded by the owner's answers of 2026-11-06: none of its content. One
+related ruling applies if rows are taken up: a mapping row may be approved by
+the standing rule only when its target is an exact official label from a
+fetched official list. Judgment-class and flagged rows still come to the owner.
+
 Status: proposal for the team to review (D-114). Nothing here maps a record
 yet. The product still maps only from exact official labels, and only through
 entries in `config/taxonomy.v1.json` that carry review provenance.

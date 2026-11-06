@@ -15,7 +15,7 @@ and activation authority.
 
 ## Authority first
 
-Read `AGENTS.md`, `ROADMAP.yaml`, `docs/data-governance.md`,
+Read `AGENTS.md`, `docs/STATUS.md`, `docs/PLAN.md`, `docs/data-governance.md`,
 `docs/source-feasibility.md`, `docs/source-coverage.md`, the source registry,
 and the closest prior source review before acting. Treat the originating
 government, legislature, court, agency, or Nation as the authority. A catalog,
