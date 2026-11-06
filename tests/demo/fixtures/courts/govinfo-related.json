@@ -1,0 +1,15 @@
+{
+  "relationships": [
+    {
+      "relationship": "Bill Versions",
+      "collection": "BILLS",
+      "relationshipLink": "https://api.govinfo.gov/related/BILLS-199hr1001ih/BILLS"
+    },
+    {
+      "relationship": "Public and Private Laws",
+      "collection": "PLAW",
+      "relationshipLink": "https://api.govinfo.gov/related/BILLS-199hr1001ih/PLAW",
+      "contact": "Example Party"
+    }
+  ]
+}

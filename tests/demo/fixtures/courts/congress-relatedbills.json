@@ -1,0 +1,27 @@
+{
+  "relatedBills": [
+    {
+      "congress": 199,
+      "number": 2002,
+      "type": "S",
+      "title": "Example Watershed Act",
+      "url": "https://api.congress.gov/v3/bill/199/s/2002?format=json",
+      "latestAction": { "actionDate": "2099-02-01", "text": "Read twice." },
+      "relationshipDetails": [
+        { "identifiedBy": "CRS", "type": "Identical bill" },
+        { "identifiedBy": "House", "type": "Related bill" }
+      ],
+      "sponsors": [{ "fullName": "Example Party" }]
+    },
+    {
+      "congress": 199,
+      "number": "3003",
+      "type": "HR",
+      "title": "Example Fisheries Act",
+      "relationshipDetails": [
+        { "identifiedBy": "House", "type": "Procedurally-related" }
+      ]
+    }
+  ],
+  "pagination": { "count": 2 }
+}
