@@ -53,10 +53,15 @@ export interface DocModel {
   readonly blocks: readonly DocBlock[];
 }
 
+/** Why an opened record's in-text section has no rows: a chain copy key (demo/api.ts inTextGap). */
+export type InTextGap = "inTextNotKept" | "inTextNotRead";
+
 /** One cited entry as an export carries it. */
 export type DocEntry = ReturnType<typeof reportEntries>[number] & {
   /** The record's chain rows the page holds; absent leaves the section out. */
   readonly chain?: readonly ChainRow[];
+  /** Set when the in-text rows are missing, so the section says why instead of none. */
+  readonly inTextGap?: InTextGap | null;
   /** A Grants.gov opportunity record read this session. */
   readonly grants?: GrantsDetailResponse;
 };
@@ -101,13 +106,31 @@ const CHAIN_SECTIONS: readonly ChainSection[] = [
   "inText",
 ];
 
-/** The record's chain as its panel shows it: each row with basis, source, as-of, retrieval and live link. */
-function chainBlocks(rows: readonly ChainRow[]): DocBlock[] {
+/**
+ * The record's chain as its panel shows it: each row with basis, source,
+ * as-of, retrieval and live link. Rows the copy does not hold are stated as
+ * not kept or not read, never as none (safeguard 8).
+ */
+function chainBlocks(
+  rows: readonly ChainRow[],
+  inTextGap: InTextGap | null | undefined,
+  statedNotKept: boolean,
+): DocBlock[] {
   const F = CH.facts;
   const out: DocBlock[] = [{ kind: "h3", text: CH.title }];
-  if (!rows.length) out.push({ kind: "small", text: CH.noneStated });
+  if (!rows.length && !inTextGap)
+    out.push({
+      kind: "small",
+      text: statedNotKept ? CH.statedNotKept : CH.noneStated,
+    });
   for (const section of CHAIN_SECTIONS) {
     const own = groupInText(rows.filter((row) => row.section === section));
+    const gap = section === "inText" && !own.length && inTextGap;
+    if (gap)
+      out.push(
+        { kind: "p", text: CH.sections[section] },
+        { kind: "small", text: CH[gap] },
+      );
     if (!own.length) continue;
     out.push({ kind: "p", text: CH.sections[section] });
     own.forEach((row, i) => {
@@ -242,7 +265,7 @@ export function buildDocument(input: DocInput): DocModel {
     field(L.type, c.kind);
     field(L.date, c.date ?? COPY.docDateNotStated);
     field(L.officialUrl, c.officialUrl, true);
-    // The row's stated fields, worded as the page words them (memory only, so a restored entry has none).
+    // The row's stated fields, worded as the page words them; saved with the citation since version 4.
     if (c.commentsCloseOn)
       blocks.push({
         kind: "p",
@@ -277,8 +300,13 @@ export function buildDocument(input: DocInput): DocModel {
       ),
     ])
       blocks.push({ kind: "p", text });
+    if (entry.statedNotKept)
+      blocks.push({ kind: "small", text: CH.statedNotKept });
     if (c.sourceId === "grants") blocks.push(...grantsBlocks(entry.grants));
-    if (entry.chain) blocks.push(...chainBlocks(entry.chain));
+    if (entry.chain)
+      blocks.push(
+        ...chainBlocks(entry.chain, entry.inTextGap, !!entry.statedNotKept),
+      );
     blocks.push(
       { kind: "h3", text: COPY.pdfNotesLabel },
       { kind: "note", text: entry.note.trim() || COPY.pdfNoNote },
@@ -305,9 +333,14 @@ export function buildDocument(input: DocInput): DocModel {
     const { receipt, engine } = entry;
     blocks.push({ kind: "h3", text: COPY.docProvenanceTitle });
     field(L.reference, `[${n}]`);
-    field(L.metadataRetrieved, c.retrievedAt);
+    // The reader's day, as on every retrieval line, then the exact stored time.
+    const stamp = (at: string) => `${localDay(at)} (${at})`;
+    field(L.metadataRetrieved, stamp(c.retrievedAt));
     field(L.textReadFrom, receipt?.textUrl ?? COPY.notRecorded);
-    field(L.textRetrieved, receipt?.retrievedAt ?? COPY.notRecorded);
+    field(
+      L.textRetrieved,
+      receipt ? stamp(receipt.retrievedAt) : COPY.notRecorded,
+    );
     field(
       L.fingerprint,
       receipt
@@ -470,15 +503,17 @@ function buildBriefing(input: DocInput): DocModel {
     const n = index + 1;
     const c = entry.citation;
     const from = source(c.sourceId);
+    // Sources extend closing dates, so each line says when it was retrieved (the reference's accessed day).
+    const on = B.statedOn(localDay(c.retrievedAt));
     if (c.commentsCloseOn)
       dates.push({
         date: c.commentsCloseOn,
-        text: `${COPY.commentsClose(c.commentsCloseOn, from)} [${n}]`,
+        text: `${COPY.commentsClose(c.commentsCloseOn, from)} ${on} [${n}]`,
       });
     if (c.applicationsCloseOn)
       dates.push({
         date: c.applicationsCloseOn,
-        text: `${COPY.applicationsClose(c.applicationsCloseOn, from)} [${n}]`,
+        text: `${COPY.applicationsClose(c.applicationsCloseOn, from)} ${on} [${n}]`,
       });
     for (const date of [c.commentsCloseOn, c.applicationsCloseOn])
       if (date) questions.push(B.questions.closeDate(date, n));
@@ -492,9 +527,15 @@ function buildBriefing(input: DocInput): DocModel {
     if (c.date === null) gaps.push(B.gaps.dateNotStated(n));
     if (c.commentsCloseWithheld) gaps.push(B.gaps.closeWithheld(n, from));
     if (!entry.foundBy?.length) gaps.push(B.gaps.foundByNotRecorded(n));
+    if (entry.statedNotKept) gaps.push(B.gaps.statedNotKept(n));
   });
   blocks.push({ kind: "h2", text: B.datesTitle });
-  if (dates.length === 0) p(B.datesNone);
+  if (dates.length === 0)
+    p(
+      entries.some((entry) => entry.statedNotKept)
+        ? B.datesNotKept
+        : B.datesNone,
+    );
   dates
     .sort((a, b) => a.date.localeCompare(b.date))
     .forEach(({ text }) => p(text));

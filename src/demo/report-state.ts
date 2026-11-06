@@ -119,6 +119,8 @@ export interface Cited {
   alternates: readonly DemoCitation[];
   /** How it was found. Memory only: never saved, so absent after a restore. */
   foundBy?: readonly FoundBy[];
+  /** Saved before version 4, which first kept the listing's stated fields: their absence is not "none stated". */
+  statedNotKept?: true;
 }
 export interface ReportState {
   cited: Record<string, Cited>;
@@ -194,11 +196,12 @@ export function restoreReport(raw: string | null): RestoredReport {
     if (
       saved.version !== undefined &&
       saved.version !== 2 &&
-      saved.version !== 3
+      saved.version !== 3 &&
+      saved.version !== 4
     )
       throw new Error("Unknown saved version");
     // Data actors and alternates were first saved by version 3.
-    const current = saved.version === 3;
+    const current = saved.version === 3 || saved.version === 4;
     if (current) {
       try {
         const actors = object(saved.actors);
@@ -232,6 +235,9 @@ export function restoreReport(raw: string | null): RestoredReport {
             policy = policyValue(entry.policy);
             if (JSON.stringify(policy.citation) !== JSON.stringify(citation))
               throw new Error("Saved evidence does not match citation");
+            // A version 3 read keeps its version, not its chain rows (MEMORY_ONLY), so the page says they were not kept.
+            if (object(entry.policy).version === 3)
+              policy = { ...policy, version: 3 };
           } catch {
             policy = null;
             recovered = true;
@@ -243,7 +249,16 @@ export function restoreReport(raw: string | null): RestoredReport {
           alternates = result.alternates;
           if (result.damaged) recovered = true;
         }
-        report.cited[key] = { citation, policy, note, alternates };
+        // Version 4 first saved the stated fields; the flag then travels with the entry.
+        const statedNotKept =
+          saved.version !== 4 || entry.statedNotKept === true;
+        report.cited[key] = {
+          citation,
+          policy,
+          note,
+          alternates,
+          ...(statedNotKept && { statedNotKept: true as const }),
+        };
         if (marks[key] !== undefined) {
           try {
             const savedMarks = object(marks[key]);
@@ -316,7 +331,7 @@ export function keepStated(
 }
 
 export function serializeReport(report: ReportState): string {
-  const result = JSON.stringify({ version: 3, ...report }, (key, value) =>
+  const result = JSON.stringify({ version: 4, ...report }, (key, value) =>
     MEMORY_ONLY.has(key) ? undefined : (value as unknown),
   );
   if (result.length > MAX_SAVED_CHARACTERS)
@@ -373,6 +388,7 @@ export function reportEntries(report: ReportState) {
     note: entry.note,
     alternates: entry.alternates,
     foundBy: entry.foundBy,
+    statedNotKept: entry.statedNotKept,
     issues: (entry.policy?.issues ?? [])
       .filter((issue) => report.marks[key]?.[issue.id]?.on)
       .map((issue) => ({

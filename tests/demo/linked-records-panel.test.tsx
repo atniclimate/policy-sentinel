@@ -8,11 +8,13 @@ import {
 } from "@testing-library/preact";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LinkedRecordsPanel } from "../../demo/app/LinkedRecordsPanel";
+import { chain } from "../../src/demo/copy/chain";
 import { buildDocument } from "../../src/demo/document";
 import { localDay } from "../../src/demo/follow";
-import type { CfrPartAuthority } from "../../src/demo/index-types";
+import type { CfrPartAuthority, IndexFile } from "../../src/demo/index-types";
 import { emptyActors, reportEntries } from "../../src/demo/report-state";
 import type { ReportState } from "../../src/demo/report-state";
+import { sourceRows } from "../../src/demo/source-model";
 import { keyOf } from "../../src/demo/validation";
 import {
   cfrPartLinks,
@@ -23,12 +25,14 @@ import {
   cfrFile,
   cfrShard,
   frRecord,
+  manifestOf,
   NOW,
   staleCfrFile,
   uscFile,
   uscShard,
 } from "./fixtures/chain";
 import { allRows, answered, idle, notices } from "./fixtures/chain/panel-props";
+import { sources } from "./frontend-fixtures";
 
 const terms = (li: HTMLElement) =>
   [...li.querySelectorAll("dt")].map((dt) => dt.textContent);
@@ -100,6 +104,18 @@ describe("LinkedRecordsPanel", () => {
     ).toEqual(["Authority:", "Source:"]);
   });
 
+  it("says why empty sections hold no rows, never none, for a copy that did not keep or read them", () => {
+    render(
+      <LinkedRecordsPanel rows={[]} inTextGap="inTextNotRead" statedNotKept />,
+    );
+    const said = (name: string) =>
+      screen.getByRole("heading", { name }).closest("section")!.textContent;
+    expect(said(chain.sections.stated)).toContain(chain.statedNotKept);
+    expect(said(chain.sections.identifiers)).toContain(chain.statedNotKept);
+    expect(said(chain.sections.inText)).toContain(chain.inTextNotRead);
+    expect(screen.queryByText(chain.noneStated)).toBeNull();
+  });
+
   it("prints the retrieval day in the reader's day, as the export's Generated line does", () => {
     // An evening in the Pacific is the next day in UTC.
     const retrievedAt = "2099-01-08T03:00:00.000Z";
@@ -113,23 +129,43 @@ describe("LinkedRecordsPanel", () => {
     );
   });
 
-  it("prints the same retrieval day in the panel row and the document line near midnight UTC", () => {
-    // Pinned so the UTC day (2099-01-08) and the reader's day (2099-01-07) differ on any host.
-    vi.stubEnv("TZ", "America/Los_Angeles");
+  it("prints one retrieval day everywhere near midnight UTC: panel row, Sources line, document fields and reference", () => {
+    // TZ set inside a worker thread has no effect (follow.test.ts), so the
+    // reader's zone is pinned at Intl: the UTC day (2099-01-08) and the
+    // reader's day (2099-01-07) then differ on any host.
+    const Real = Intl.DateTimeFormat;
+    Intl.DateTimeFormat = function (
+      locales?: string | string[],
+      options?: Intl.DateTimeFormatOptions,
+    ) {
+      return new Real(locales, {
+        ...options,
+        timeZone: options?.timeZone ?? "America/Los_Angeles",
+      });
+    } as unknown as typeof Intl.DateTimeFormat;
     try {
       const retrievedAt = "2099-01-08T03:00:00.000Z";
-      const rows = (cfrPartLinks(cfrShard, "100", cfrFile, NOW) ?? []).map(
-        (row) => ({ ...row, retrievedAt }),
-      );
+      const file = {
+        ...cfrFile,
+        source: { ...cfrFile.source!, retrievedAt },
+      } as IndexFile;
+      const rows = cfrPartLinks(cfrShard, "100", file, NOW) ?? [];
       const { container } = render(<LinkedRecordsPanel rows={rows} />);
       const li = container.querySelector<HTMLElement>(".chain-row")!;
       expect([...li.querySelectorAll("dd")].at(-1)?.textContent).toBe(
         "2099-01-07",
       );
+      const sourcesLine = sourceRows({
+        sources,
+        manifest: manifestOf([file]),
+        now: NOW,
+      }).find((row) => row.id === "cfr-index")!.model.freshnessPolicy;
+      expect(sourcesLine).toMatch(/^Retrieved 2099-01-07\./);
+      const read = { ...frRecord, retrievedAt };
       const report: ReportState = {
         cited: {
-          [keyOf(frRecord)]: {
-            citation: frRecord,
+          [keyOf(read)]: {
+            citation: read,
             policy: null,
             note: "",
             alternates: [],
@@ -149,8 +185,18 @@ describe("LinkedRecordsPanel", () => {
       expect(lines.some((t) => t.includes("Retrieved: 2099-01-08"))).toBe(
         false,
       );
+      expect(
+        blocks.find(
+          (b) => b.kind === "field" && b.label === "Metadata retrieved",
+        ),
+      ).toMatchObject({ value: `2099-01-07 (${retrievedAt})` });
+      expect(
+        blocks.find((b) => b.kind === "ref" && b.number === 1),
+      ).toMatchObject({
+        text: expect.stringContaining("(accessed Jan. 7, 2099)"),
+      });
     } finally {
-      vi.unstubAllEnvs();
+      Intl.DateTimeFormat = Real;
     }
   });
 

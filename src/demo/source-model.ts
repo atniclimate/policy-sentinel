@@ -9,6 +9,7 @@ import { sourceModel as S } from "./copy/sources.ts";
 import { LINK_OUTS } from "./courts.ts";
 import type { LaneSearch } from "./discovery.ts";
 import type { IndexFile, IndexFileKind, IndexManifest } from "./index-types.ts";
+import { localDay } from "./local-day.ts";
 import type {
   DemoSource,
   DemoSourceId,
@@ -185,8 +186,8 @@ function indexRow(
     input.now.getTime() - Date.parse(retrieved) >
     OLD_AFTER_DAYS * 24 * 60 * 60 * 1000;
   const freshness = [
-    // The day as the retrieval timestamp states it, in its own offset.
-    S.indexFreshness(retrieved.slice(0, 10), asOf || S.indexAsOfNotStated),
+    // The reader's day, as on the index hop rows from the same file.
+    S.indexFreshness(localDay(retrieved), asOf || S.indexAsOfNotStated),
     files.some((file) => file.status === "retained_after_failed_refresh") &&
       S.indexStale,
     old && S.indexOld,

@@ -285,7 +285,10 @@ export interface DemoPolicyResponse {
   readonly opening: string;
   // Version 3 only (requested with version=3 on /api/policy; answers to
   // version 1 and 2 readers, such as ATNI-ResIST, never carry these).
-  /** Present and 3 exactly when the answer carries version 3 fields. */
+  /**
+   * 3 when the answer was a version 3 read. A copy restored from browser
+   * storage keeps 3 but not its chain, which is held in memory only.
+   */
   readonly version?: 3;
   /** Citations found in the text the Worker read (citation_in_text), as chain rows. */
   readonly chain?: readonly ChainRow[];

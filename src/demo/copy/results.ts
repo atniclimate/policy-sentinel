@@ -124,6 +124,9 @@ export const results = {
   /** A summary the personal-pattern guard held back; never shown as no summary. */
   summaryWithheld: (source: string) =>
     `${source} states a summary that this demo does not show, because it may hold personal details. See the official source.`,
+  /** Congress.gov's latest action the personal-pattern guard held back; never shown as no action. */
+  latestActionWithheld: (source: string) =>
+    `${source} states a latest action that this demo does not show, because it may hold personal details. See the official source.`,
   dateNotStated: "Date not stated",
   /** Shown in place of the service's "Not stated" so the row does not read as a missing identifier. */
   issuingBodyNotStated: "Issuing body not stated",

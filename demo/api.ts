@@ -22,6 +22,7 @@ import {
   sourcesValueV2,
 } from "../src/demo/validation";
 import type { RelatedRequest } from "../src/demo/validation";
+import type { InTextGap } from "../src/demo/document";
 export { policyId } from "../src/demo/validation";
 
 const DEFAULT_API = "https://policy-sentinel-demo.atniclimate.workers.dev";
@@ -197,6 +198,21 @@ export async function search(
 
 /** Sources whose policy read asks for version 3, which adds the chain rows found in the text. */
 export const POLICY_V3 = new Set(["federal-register", "washington"]);
+
+/**
+ * Why an opened record's in-text section has no rows, for the panel and every
+ * export alike, or null when the read carries them. A version 3 read always
+ * carries chain, so version 3 without it is a saved copy (restoreReport keeps
+ * the version, never the rows); no version is an answer from a Worker before
+ * version 3, or a copy saved from one, which never checked the text.
+ */
+export function inTextGap(
+  sourceId: string,
+  policy: DemoPolicyResponse | null | undefined,
+): InTextGap | null {
+  if (!POLICY_V3.has(sourceId) || !policy || policy.chain) return null;
+  return policy.version === 3 ? "inTextNotKept" : "inTextNotRead";
+}
 
 export function readPolicy(
   source: string,

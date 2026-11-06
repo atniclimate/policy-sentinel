@@ -16,6 +16,7 @@ import {
   ieeeReference,
   SOURCE_LABELS,
 } from "../src/demo/citations.ts";
+import { localDay } from "../src/demo/local-day.ts";
 import { COPY, EXAMPLES } from "../src/demo/copy.ts";
 import { sourceModel } from "../src/demo/copy/sources.ts";
 
@@ -806,9 +807,9 @@ try {
     "selected rule": `${L.rule}: ${issue.rule}`,
     "selected check": `${L.check}: ${issue.check}`,
     "provenance reference": `${COPY.docProvenanceTitle}${L.reference}[1]`,
-    "provenance metadataRetrieved": `${L.metadataRetrieved}${citation.retrievedAt}`,
+    "provenance metadataRetrieved": `${L.metadataRetrieved}${localDay(citation.retrievedAt)} (${citation.retrievedAt})`,
     "provenance textUrl": `${L.textReadFrom}${textReceipt.textUrl}`,
-    "provenance textRetrieved": `${L.textRetrieved}${textReceipt.retrievedAt}`,
+    "provenance textRetrieved": `${L.textRetrieved}${localDay(textReceipt.retrievedAt)} (${textReceipt.retrievedAt})`,
     "provenance hash": `${L.fingerprint}${COPY.docFingerprint(textReceipt.sha256, textReceipt.bytes)}`,
     "provenance parser": `${L.extractor}${engine.parser} ${engine.parserVersion}`,
     "provenance parserConfig": `${L.parserConfig}${engine.parserConfigDigest}`,

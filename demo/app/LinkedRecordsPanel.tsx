@@ -3,6 +3,7 @@
 // Rows come from src/demo/links.ts; a family that needs a live call shows
 // a button and asks the source only when pressed, through onExpand.
 import { chain } from "../../src/demo/copy/chain";
+import type { InTextGap } from "../../src/demo/document";
 import { localDay } from "../../src/demo/follow";
 import { LINK_NOTICES } from "../../src/demo/link-labels";
 import { groupInText, labelNamesTarget } from "../../src/demo/links";
@@ -155,15 +156,18 @@ function Rows({
 export function LinkedRecordsPanel({
   rows,
   notices = [],
-  inTextNotKept = false,
+  inTextGap = null,
+  statedNotKept = false,
   expansions = [],
   onExpand,
   onHop,
 }: {
   rows: readonly ChainRow[];
   notices?: readonly ChainIndexNotice[];
-  /** The in-text rows were not stored with this saved copy, so the section says so instead of none. */
-  inTextNotKept?: boolean;
+  /** Why the in-text rows are missing (demo/api.ts inTextGap), so the section says so instead of none. */
+  inTextGap?: InTextGap | null;
+  /** A copy saved before its listing's stated fields were kept: empty stated sections say so instead of none. */
+  statedNotKept?: boolean;
   expansions?: readonly ChainExpansion[];
   onExpand?: (id: ChainExpansionId) => void;
   onHop?: (target: ChainLink["target"]) => void;
@@ -229,9 +233,13 @@ export function LinkedRecordsPanel({
             )}
             {empty && (
               <p>
-                {section === "inText" && inTextNotKept
-                  ? chain.inTextNotKept
-                  : chain.noneStated}
+                {section === "inText"
+                  ? inTextGap
+                    ? chain[inTextGap]
+                    : chain.noneStated
+                  : statedNotKept
+                    ? chain.statedNotKept
+                    : chain.noneStated}
               </p>
             )}
           </section>

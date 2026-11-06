@@ -175,10 +175,29 @@ describe("briefing export", () => {
 
   it("lists the stated decision dates in date order, each cited", () => {
     const dates = section(build().blocks, B.datesTitle);
+    // Each date says the day it was retrieved, since sources extend dates.
+    const on = B.statedOn(localDay(citation().retrievedAt));
     expect(dates).toEqual([
-      `${COPY.commentsClose("2099-02-01", "Federal Register")} [1]`,
-      `${COPY.applicationsClose("2099-03-15", "Grants.gov")} [3]`,
+      `${COPY.commentsClose("2099-02-01", "Federal Register")} ${on} [1]`,
+      `${COPY.applicationsClose("2099-03-15", "Grants.gov")} ${on} [3]`,
     ]);
+  });
+
+  it("says a copy saved before version 4 did not keep its stated dates, never that none is stated", () => {
+    const state = report();
+    // An earlier version dropped the stated dates when it saved.
+    for (const entry of Object.values(state.cited))
+      entry.citation = {
+        ...entry.citation,
+        commentsCloseOn: undefined,
+        applicationsCloseOn: undefined,
+      };
+    const [first] = Object.keys(state.cited);
+    state.cited[first].statedNotKept = true;
+    const blocks = build([], state).blocks;
+    expect(section(blocks, B.datesTitle)).toEqual([B.datesNotKept]);
+    expect(section(blocks, B.gapsTitle)).toContain(B.gaps.statedNotKept(1));
+    expect(section(blocks, B.gapsTitle)).not.toContain(B.gaps.statedNotKept(2));
   });
 
   it("states the open evidence gaps, each cited", () => {

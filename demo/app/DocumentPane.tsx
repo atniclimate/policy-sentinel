@@ -2,6 +2,7 @@ import { Fragment } from "preact";
 import type { ComponentChildren, RefObject } from "preact";
 import { useMemo } from "preact/hooks";
 import { COPY } from "../../src/demo/copy";
+import { localDay } from "../../src/demo/local-day";
 import { MAX_NOTE } from "../../src/demo/report-state";
 import type { Mark, ReportState } from "../../src/demo/report-state";
 import type {
@@ -108,7 +109,9 @@ export function DocumentPane({
               <p class="help">{COPY.issuesNote}</p>
               {cited[keyOf(selected.citation)]?.policy && (
                 <p class="help">
-                  {COPY.savedTextNote(selected.policy.receipt.retrievedAt)}
+                  {COPY.savedTextNote(
+                    localDay(selected.policy.receipt.retrievedAt),
+                  )}
                 </p>
               )}
               <dl class="receipt">
@@ -128,7 +131,9 @@ export function DocumentPane({
                   <Digest value={selected.policy.receipt.sha256} />
                   <span>
                     {COPY.receiptNote(selected.policy.receipt.bytes)}{" "}
-                    {COPY.retrieved(selected.policy.receipt.retrievedAt)}
+                    {COPY.retrieved(
+                      localDay(selected.policy.receipt.retrievedAt),
+                    )}
                   </span>
                 </dd>
                 <dt>{COPY.engineLabel}</dt>

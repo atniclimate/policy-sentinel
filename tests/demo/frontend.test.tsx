@@ -890,6 +890,30 @@ describe("demo search scope and sources", () => {
     expect(ui.queryByText("Not searched")).not.toBeInTheDocument();
   });
 
+  it("withholds a Congress.gov latest action that may name a person, and says so (D-068)", async () => {
+    const bill: DemoCitation = {
+      ...citation(),
+      sourceId: "congress",
+      identifier: "H.R. 1234 (119th Congress)",
+      title: "Example Watershed Act",
+      officialUrl:
+        "https://www.congress.gov/bill/119th-congress/house-bill/1234",
+      textAvailable: false,
+      summary:
+        "Latest action: Mr. Sampleperson moved to suspend the rules and pass the bill, as amended.",
+    };
+    vi.mocked(search).mockImplementation(async (source, query) =>
+      searchResult(source === "congress" ? [bill] : [], query, source),
+    );
+    const { ui } = await start();
+    fireEvent.click(ui.getByRole("checkbox", { name: /Congress\.gov/ }));
+    await showResult(ui, "hr 1234 119");
+    expect(
+      ui.getByText(COPY.latestActionWithheld("Congress.gov")),
+    ).toBeInTheDocument();
+    expect(ui.queryByText(/Sampleperson/)).toBeNull();
+  });
+
   it("shows the query error when Congress.gov is the only source and the terms are not a bill reference", async () => {
     const { ui } = await start();
     fireEvent.click(ui.getByRole("checkbox", { name: /Congress\.gov/ }));
@@ -936,7 +960,7 @@ describe("demo report, data actors and export", () => {
     const stored = JSON.parse(
       window.sessionStorage.getItem(STORAGE_KEY) as string,
     );
-    expect(stored.version).toBe(3);
+    expect(stored.version).toBe(4);
     const [saved] = Object.values(stored.cited) as {
       citation: { matchKey: string };
       alternates: { sourceId: string }[];

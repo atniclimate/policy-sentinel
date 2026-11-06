@@ -37,6 +37,8 @@ import { citation, policy, statedCitation } from "./frontend-fixtures";
 const VERSION = "0.2.0";
 const GENERATED = new Date("2099-01-08T12:00:00Z");
 const RETRIEVED = "2099-01-07T11:59:00.000Z";
+/** A retrieval field: the reader's day, then the exact stored time. */
+const RETRIEVED_LINE = `${localDay(RETRIEVED)} (${RETRIEVED})`;
 const ACTORS: DataActors = {
   name: "Sam Example",
   role: "Policy analyst",
@@ -195,9 +197,9 @@ describe("document model shared by the PDF and the print view", () => {
         { kind: "small", text: "Check: Read the whole record." },
         { kind: "h3", text: "Provenance" },
         field("Reference", "[1]"),
-        field("Metadata retrieved", RETRIEVED),
+        field("Metadata retrieved", RETRIEVED_LINE),
         field("Text read from", first.receipt.textUrl),
-        field("Text retrieved", RETRIEVED),
+        field("Text retrieved", RETRIEVED_LINE),
         field("Fingerprint", `SHA-256 ${"a".repeat(64)} (1,234 bytes)`, true),
         field("Extractor", "policy-text 2.0.0"),
         field("Parser configuration SHA-256", "c".repeat(64), true),
@@ -229,7 +231,7 @@ describe("document model shared by the PDF and the print view", () => {
         { kind: "small", text: COPY.pdfTextNotRead },
         { kind: "h3", text: "Provenance" },
         field("Reference", "[2]"),
-        field("Metadata retrieved", RETRIEVED),
+        field("Metadata retrieved", RETRIEVED_LINE),
         field("Text read from", "Not recorded"),
         field("Text retrieved", "Not recorded"),
         field("Fingerprint", "Not recorded"),
@@ -730,6 +732,29 @@ describe("the chain and Grants.gov authority in the cited document", () => {
       expect.arrayContaining([chain.title, chain.noneStated]),
     );
     expect(texts(one(frRecord))).not.toContain(chain.title);
+  });
+
+  it("says a saved copy's in-text citations were not kept, as the panel does, never none", () => {
+    // A Washington bill states no CFR, RIN or docket rows, so its saved chain is empty.
+    const saved = texts(
+      one(frRecord, { chain: [], inTextGap: "inTextNotKept" }),
+    );
+    expect(saved).toEqual(
+      expect.arrayContaining([chain.sections.inText, chain.inTextNotKept]),
+    );
+    expect(saved).not.toContain(chain.noneStated);
+    // Stated rows do not hide the in-text gap.
+    const stated = texts(
+      one(frRecord, {
+        chain: recordLinks(frRecord, SOURCES),
+        inTextGap: "inTextNotRead",
+      }),
+    );
+    expect(stated).toContain(chain.inTextNotRead);
+    // A copy saved before its stated fields were kept says so, in the policy and the chain.
+    const old = texts(one(frRecord, { chain: [], statedNotKept: true }));
+    expect(old.filter((t) => t === chain.statedNotKept)).toHaveLength(2);
+    expect(old).not.toContain(chain.noneStated);
   });
 
   it("prints a Grants.gov passage with its heading, opportunity link, version date and coverage", () => {

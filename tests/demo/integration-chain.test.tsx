@@ -334,6 +334,8 @@ describe("the chain on the page", () => {
       inText(restored.panel()).getByText(chain.inTextNotKept),
     ).toBeVisible();
     expect(inText(restored.panel()).queryByText(chain.noneStated)).toBeNull();
+    // The print view and the PDF say the same, from the same signal.
+    expect(restored.print).toHaveTextContent(chain.inTextNotKept);
     // No new read for the saved copy.
     expect(calls.some((url) => path(url) === "/api/policy")).toBe(false);
     cleanup();
@@ -350,6 +352,32 @@ describe("the chain on the page", () => {
       expect(inText(live.panel()).getByText(chain.noneStated)).toBeVisible(),
     );
     expect(inText(live.panel()).queryByText(chain.inTextNotKept)).toBeNull();
+  });
+
+  it("says a read from a Worker before version 3 did not include the in-text citations, never that a saved copy lost them", async () => {
+    seed();
+    fetchStub.mockImplementation(async (input: string) => {
+      const url = input.startsWith("./") ? null : new URL(input);
+      // An older Worker ignores version=3 and answers version 1, with no chain field.
+      if (
+        url?.pathname === "/api/policy" &&
+        url.searchParams.get("source") === "federal-register"
+      )
+        return json(opened);
+      return worker(input);
+    });
+    const { open, panel } = await start();
+    await open(frRecord.title);
+    const inText = () =>
+      within(
+        panel()
+          .getByRole("heading", { name: chain.sections.inText })
+          .closest("section")!,
+      );
+    await waitFor(() =>
+      expect(inText().getByText(chain.inTextNotRead)).toBeVisible(),
+    );
+    expect(inText().queryByText(chain.inTextNotKept)).toBeNull();
   });
 
   it("says not yet available with the live link for a hop the index does not hold, and index unavailable for a tampered file", async () => {

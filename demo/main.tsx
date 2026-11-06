@@ -16,6 +16,7 @@ import { trackingState } from "../src/demo/document";
 import type { BriefingCheck, DocEntry } from "../src/demo/document";
 import type { GrantsDetailResponse } from "../src/demo/grants-authority";
 import { createIndexLoader, shardNotice } from "../src/demo/index-loader";
+import { hasPersonalPattern } from "../src/demo/personal-guard";
 import type {
   CfrAuthorityShard,
   IndexManifest,
@@ -137,8 +138,8 @@ import type {
 } from "../src/demo/types";
 import {
   ApiFailure,
+  inTextGap,
   loadSources,
-  POLICY_V3,
   policyId,
   readGrantsDetail,
   readPolicy,
@@ -874,12 +875,8 @@ export function App() {
               ...(hopped?.rows ?? []),
             ]}
             notices={hopped?.notices ?? []}
-            // A version 3 read always carries chain; a saved copy restored after a reload never does.
-            inTextNotKept={
-              POLICY_V3.has(view.citation.sourceId) &&
-              !!view.policy &&
-              view.policy.chain === undefined
-            }
+            inTextGap={inTextGap(view.citation.sourceId, view.policy)}
+            statedNotKept={!!(key && report.cited[key]?.statedNotKept)}
             expansions={
               related
                 ? [
@@ -927,6 +924,7 @@ export function App() {
           ...recordLinks(entry.citation, planSources),
           ...(saved.policy?.chain ?? []),
         ],
+        inTextGap: inTextGap(entry.citation.sourceId, saved.policy),
         ...(grants && { grants }),
       };
     });
@@ -2541,9 +2539,13 @@ export function App() {
           <li>{c.date ?? COPY.dateNotStated}</li>
         </ul>
         <SourceSummary citation={c} source={labelOf(c.sourceId)} />
-        {/* Congress.gov sends its latest action here, metadata rather than a summary. */}
+        {/* Congress.gov sends its latest action here, metadata rather than a summary; the D-068 guard still applies. */}
         {c.sourceId === "congress" && c.summary && (
-          <p class="help">{c.summary}</p>
+          <p class="help">
+            {hasPersonalPattern(c.summary)
+              ? COPY.latestActionWithheld(labelOf(c.sourceId))
+              : c.summary}
+          </p>
         )}
         {c.commentsCloseOn ? (
           <p class="help">

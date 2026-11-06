@@ -13,6 +13,12 @@ export const chain = {
   /** A saved copy reopened after a reload: its in-text rows were never stored, so it never says none. */
   inTextNotKept:
     "The citations found in the text are not kept with the saved copy. Read the record at the source to see them.",
+  /** A read with no in-text rows at all (a Worker before version 3): the text was not checked for citations. */
+  inTextNotRead:
+    "This read did not include the citations in the text. Read the record at the source to see them.",
+  /** A copy saved before the saved list kept the listing's stated fields, so an empty section never says none. */
+  statedNotKept:
+    "This copy was saved by an earlier version of this page, which did not keep the identifiers, CFR parts or closing dates its listing stated. Read the record at the source.",
   basis: {
     source_field: "Stated in a source field",
     source_text_parsed: "Parsed from source text",
