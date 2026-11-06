@@ -1,0 +1,756 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/demo-index.schema.v1.json",
+  "title": "Policy Sentinel demo static index (docs/demo-data, D-125 output boundary)",
+  "$comment": "Index conditions 2026-11-05 section 2.2 as adjusted by D-125. A property whose schema carries $comment \"verbatim\" holds official wording; the design rule 2 word test skips exactly those fields. The law alias table has its own schema.",
+  "oneOf": [
+    { "$ref": "#/$defs/manifest" },
+    { "$ref": "#/$defs/cfrAuthorityShard" },
+    { "$ref": "#/$defs/uscSourceCreditShard" },
+    { "$ref": "#/$defs/vocabularyFile" }
+  ],
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "(?:Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "semver": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "officialUrl": {
+      "type": "string",
+      "maxLength": 300,
+      "pattern": "^https://(?:www\\.ecfr\\.gov|uscode\\.house\\.gov|www\\.federalregister\\.gov|www\\.govinfo\\.gov)/[^\\s<>\"]*$"
+    },
+    "uscIdentifier": {
+      "type": "string",
+      "maxLength": 48,
+      "pattern": "^/us/usc/t[0-9]{1,2}[a-z]?/s[0-9A-Za-z.\\u2013-]{1,24}$"
+    },
+    "releasePoint": {
+      "type": "string",
+      "pattern": "^[0-9]{2,3}-[0-9A-Za-z,]{1,24}$",
+      "$comment": "OLRC forms include 119-136 and 113-21not12"
+    },
+    "pattern": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "version": { "$ref": "#/$defs/semver" }
+      }
+    },
+    "citationText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 400,
+      "pattern": "^[^<>]*$"
+    },
+    "uscCitation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "text",
+        "basis",
+        "pattern",
+        "title",
+        "section",
+        "etSeq"
+      ],
+      "properties": {
+        "kind": { "const": "usc" },
+        "text": { "$ref": "#/$defs/citationText", "$comment": "verbatim" },
+        "basis": { "enum": ["source_text_parsed", "curated"] },
+        "pattern": { "$ref": "#/$defs/pattern" },
+        "title": { "type": "integer", "minimum": 1, "maximum": 54 },
+        "section": { "type": "string", "minLength": 1, "maxLength": 24 },
+        "etSeq": { "type": "boolean" }
+      }
+    },
+    "plCitation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "text",
+        "basis",
+        "pattern",
+        "congress",
+        "number",
+        "section"
+      ],
+      "properties": {
+        "kind": { "const": "pl" },
+        "text": { "$ref": "#/$defs/citationText", "$comment": "verbatim" },
+        "basis": { "enum": ["source_field", "source_text_parsed"] },
+        "pattern": { "$ref": "#/$defs/pattern" },
+        "congress": { "type": "integer", "minimum": 1, "maximum": 200 },
+        "number": { "type": "integer", "minimum": 1, "maximum": 9999 },
+        "section": { "type": ["string", "null"], "maxLength": 24 },
+        "date": { "$ref": "#/$defs/date" }
+      }
+    },
+    "statCitation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "text",
+        "basis",
+        "pattern",
+        "volume",
+        "page",
+        "pageEnd"
+      ],
+      "properties": {
+        "kind": { "const": "stat" },
+        "text": { "$ref": "#/$defs/citationText", "$comment": "verbatim" },
+        "basis": { "enum": ["source_field", "source_text_parsed"] },
+        "pattern": { "$ref": "#/$defs/pattern" },
+        "volume": { "type": "integer", "minimum": 1, "maximum": 200 },
+        "page": { "type": "integer", "minimum": 1, "maximum": 99999 },
+        "pageEnd": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "maximum": 99999
+        }
+      }
+    },
+    "frCitation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "text", "basis", "pattern", "volume", "page"],
+      "properties": {
+        "kind": { "const": "fr" },
+        "text": { "$ref": "#/$defs/citationText", "$comment": "verbatim" },
+        "basis": { "const": "source_text_parsed" },
+        "pattern": { "$ref": "#/$defs/pattern" },
+        "volume": { "type": "integer", "minimum": 1, "maximum": 200 },
+        "page": { "type": "integer", "minimum": 1, "maximum": 99999 },
+        "dateText": { "type": "string", "maxLength": 40, "pattern": "^[^<>]*$" }
+      }
+    },
+    "actCitation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "text", "basis", "pattern", "href"],
+      "properties": {
+        "kind": { "const": "act" },
+        "text": { "$ref": "#/$defs/citationText", "$comment": "verbatim" },
+        "basis": { "const": "source_field" },
+        "pattern": { "$ref": "#/$defs/pattern" },
+        "href": {
+          "type": "string",
+          "maxLength": 120,
+          "pattern": "^/us/act/[0-9]{4}-[0-9]{2}-[0-9]{2}/ch[0-9]+(?:/\\S*)?$"
+        }
+      }
+    },
+    "authorityCitation": {
+      "oneOf": [
+        { "$ref": "#/$defs/uscCitation" },
+        { "$ref": "#/$defs/plCitation" },
+        { "$ref": "#/$defs/statCitation" },
+        { "$ref": "#/$defs/frCitation" }
+      ]
+    },
+    "creditCitation": {
+      "oneOf": [
+        { "$ref": "#/$defs/plCitation" },
+        { "$ref": "#/$defs/statCitation" },
+        { "$ref": "#/$defs/actCitation" }
+      ]
+    },
+
+    "cfrPartAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "part",
+        "authorityText",
+        "sourceText",
+        "authorityCitations",
+        "sourceCitations",
+        "omitted"
+      ],
+      "properties": {
+        "title": { "type": "integer", "minimum": 1, "maximum": 50 },
+        "part": { "type": "string", "pattern": "^[0-9]{1,4}[a-z]?$" },
+        "authorityText": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 4000,
+          "pattern": "^[^<>]*$",
+          "$comment": "verbatim"
+        },
+        "sourceText": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 600,
+          "pattern": "^[^<>]*$",
+          "$comment": "verbatim"
+        },
+        "authorityCitations": {
+          "type": "array",
+          "maxItems": 200,
+          "items": { "$ref": "#/$defs/authorityCitation" }
+        },
+        "sourceCitations": {
+          "type": "array",
+          "maxItems": 20,
+          "items": { "$ref": "#/$defs/frCitation" }
+        },
+        "omitted": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 2,
+          "items": { "enum": ["authorityText", "sourceText"] }
+        }
+      }
+    },
+    "cfrAuthorityShard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$schema",
+        "schemaVersion",
+        "artifactType",
+        "title",
+        "editionYear",
+        "revisedAsOfText",
+        "volumes",
+        "partsExpected",
+        "partsReserved",
+        "subpartAuthorityCount",
+        "entries"
+      ],
+      "properties": {
+        "$schema": { "const": "../../schemas/demo-index.schema.v1.json" },
+        "schemaVersion": { "const": "1.0.0" },
+        "artifactType": { "const": "cfr-authority-shard" },
+        "title": { "type": "integer", "minimum": 1, "maximum": 50 },
+        "editionYear": { "type": "integer", "minimum": 1996, "maximum": 2100 },
+        "revisedAsOfText": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[^<>]*$",
+          "$comment": "verbatim"
+        },
+        "volumes": {
+          "type": ["array", "null"],
+          "minItems": 1,
+          "maxItems": 40,
+          "uniqueItems": true,
+          "items": { "type": "integer", "minimum": 1, "maximum": 99 }
+        },
+        "partsExpected": { "type": "integer", "minimum": 0 },
+        "partsReserved": { "type": "integer", "minimum": 0 },
+        "subpartAuthorityCount": { "type": "integer", "minimum": 0 },
+        "entries": {
+          "type": "array",
+          "maxItems": 4000,
+          "items": { "$ref": "#/$defs/cfrPartAuthority" }
+        }
+      }
+    },
+
+    "uscSectionCredit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identifier",
+        "status",
+        "creditText",
+        "credits",
+        "reclassifiedAs"
+      ],
+      "properties": {
+        "identifier": { "$ref": "#/$defs/uscIdentifier" },
+        "status": {
+          "enum": ["transferred", "repealed", "omitted", "reserved", null]
+        },
+        "creditText": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 8000,
+          "pattern": "^[^<>]*$",
+          "$comment": "verbatim"
+        },
+        "credits": {
+          "type": "array",
+          "maxItems": 400,
+          "items": { "$ref": "#/$defs/creditCitation" }
+        },
+        "reclassifiedAs": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["targets", "noteText", "noteTextOmitted"],
+          "properties": {
+            "targets": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 8,
+              "items": { "$ref": "#/$defs/uscIdentifier" }
+            },
+            "noteText": {
+              "type": ["string", "null"],
+              "minLength": 1,
+              "maxLength": 2000,
+              "pattern": "^[^<>]*$",
+              "$comment": "verbatim"
+            },
+            "noteTextOmitted": { "type": "boolean" }
+          }
+        }
+      },
+      "if": {
+        "required": ["status"],
+        "properties": { "status": { "const": "transferred" } }
+      },
+      "then": { "properties": { "reclassifiedAs": { "type": "object" } } },
+      "else": { "properties": { "reclassifiedAs": { "type": "null" } } }
+    },
+    "uscSourceCreditShard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$schema",
+        "schemaVersion",
+        "artifactType",
+        "title",
+        "chapters",
+        "releasePoint",
+        "publicationName",
+        "currentThroughText",
+        "unmappedRefCount",
+        "entries"
+      ],
+      "properties": {
+        "$schema": { "const": "../../schemas/demo-index.schema.v1.json" },
+        "schemaVersion": { "const": "1.0.0" },
+        "artifactType": { "const": "usc-source-credit-shard" },
+        "title": { "type": "integer", "minimum": 1, "maximum": 54 },
+        "chapters": {
+          "type": ["array", "null"],
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[0-9]{1,3}[A-Z]?$" }
+        },
+        "releasePoint": { "$ref": "#/$defs/releasePoint" },
+        "publicationName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^[^<>]*$",
+          "$comment": "verbatim"
+        },
+        "currentThroughText": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[^<>]*$",
+          "$comment": "verbatim"
+        },
+        "unmappedRefCount": { "type": "integer", "minimum": 0 },
+        "entries": {
+          "type": "array",
+          "maxItems": 12000,
+          "items": { "$ref": "#/$defs/uscSectionCredit" }
+        }
+      }
+    },
+
+    "vocabularyEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "shortLabel", "parentId"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[0-9a-z]+(?:-[0-9a-z]+)*$",
+          "maxLength": 120
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "pattern": "^[^<>]*$",
+          "$comment": "verbatim"
+        },
+        "shortLabel": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[^<>]*$",
+          "$comment": "verbatim"
+        },
+        "parentId": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-z]+(?:-[0-9a-z]+)*$",
+          "maxLength": 120
+        }
+      }
+    },
+    "vocabularyFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$schema",
+        "schemaVersion",
+        "artifactType",
+        "kind",
+        "entries"
+      ],
+      "properties": {
+        "$schema": { "const": "../../schemas/demo-index.schema.v1.json" },
+        "schemaVersion": { "const": "1.0.0" },
+        "artifactType": { "const": "vocabulary" },
+        "kind": { "enum": ["fr_agency", "fr_topic", "cfr_title"] },
+        "entries": {
+          "type": "array",
+          "maxItems": 5000,
+          "items": { "$ref": "#/$defs/vocabularyEntry" }
+        }
+      }
+    },
+
+    "sourceRights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["statementText", "url", "readOn", "readByRole"],
+      "properties": {
+        "statementText": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000,
+          "pattern": "^[^<>]*$",
+          "$comment": "verbatim"
+        },
+        "url": { "$ref": "#/$defs/officialUrl" },
+        "readOn": { "$ref": "#/$defs/date" },
+        "readByRole": { "const": "owner" }
+      }
+    },
+    "indexSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "urlTemplate",
+        "linkTemplate",
+        "requestCount",
+        "retrievedAt",
+        "rights"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "govinfo-cfr-annual",
+            "ecfr",
+            "olrc-uslm",
+            "federal-register-api"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[^<>]*$"
+        },
+        "urlTemplate": { "$ref": "#/$defs/officialUrl" },
+        "linkTemplate": { "$ref": "#/$defs/officialUrl" },
+        "requestCount": { "type": "integer", "minimum": 1, "maximum": 5000 },
+        "retrievedAt": { "$ref": "#/$defs/dateTime" },
+        "rights": { "$ref": "#/$defs/sourceRights" },
+        "editionYear": { "type": "integer", "minimum": 1996, "maximum": 2100 },
+        "revisedAsOfText": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[^<>]*$",
+          "$comment": "verbatim"
+        },
+        "volumes": {
+          "type": ["array", "null"],
+          "minItems": 1,
+          "maxItems": 40,
+          "uniqueItems": true,
+          "items": { "type": "integer", "minimum": 1, "maximum": 99 }
+        },
+        "pointInTimeDate": { "$ref": "#/$defs/date" },
+        "releasePoint": { "$ref": "#/$defs/releasePoint" },
+        "publicationName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^[^<>]*$",
+          "$comment": "verbatim"
+        },
+        "currentThroughText": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[^<>]*$",
+          "$comment": "verbatim"
+        },
+        "upstreamSha256": { "$ref": "#/$defs/sha256" },
+        "upstreamBytes": { "type": "integer", "minimum": 1 }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["id"],
+            "properties": { "id": { "const": "govinfo-cfr-annual" } }
+          },
+          "then": { "required": ["editionYear", "revisedAsOfText", "volumes"] },
+          "else": {
+            "not": {
+              "anyOf": [
+                { "required": ["editionYear"] },
+                { "required": ["revisedAsOfText"] },
+                { "required": ["volumes"] }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["id"],
+            "properties": { "id": { "const": "ecfr" } }
+          },
+          "then": { "required": ["pointInTimeDate"] },
+          "else": { "not": { "required": ["pointInTimeDate"] } }
+        },
+        {
+          "if": {
+            "required": ["id"],
+            "properties": { "id": { "const": "olrc-uslm" } }
+          },
+          "then": {
+            "required": [
+              "releasePoint",
+              "publicationName",
+              "currentThroughText",
+              "upstreamSha256",
+              "upstreamBytes"
+            ]
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                { "required": ["releasePoint"] },
+                { "required": ["publicationName"] },
+                { "required": ["currentThroughText"] },
+                { "required": ["upstreamSha256"] },
+                { "required": ["upstreamBytes"] }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "currentReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceId", "upToDateAsOfText", "retrievedAt"],
+      "properties": {
+        "sourceId": { "const": "ecfr" },
+        "upToDateAsOfText": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[^<>]*$",
+          "$comment": "verbatim"
+        },
+        "retrievedAt": { "$ref": "#/$defs/dateTime" }
+      }
+    },
+    "indexFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "kind",
+        "status",
+        "sha256",
+        "sizeBytes",
+        "entryCount",
+        "source",
+        "patternSetVersion",
+        "lastRefreshAttemptAt",
+        "failureStage",
+        "message",
+        "withdrawnOn",
+        "staleAcknowledgedOn",
+        "currentReference"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^(?:vocab/(?:fr-agencies|fr-topics|cfr-titles)|cfr/title-[0-9]{1,2}|usc/title-[0-9]{1,2}(?:-ch-[0-9A-Z]{1,4}(?:-[0-9A-Z]{1,4})?)?)\\.json$"
+        },
+        "kind": {
+          "enum": [
+            "vocabulary",
+            "cfr-authority-shard",
+            "usc-source-credit-shard"
+          ]
+        },
+        "status": {
+          "enum": [
+            "current",
+            "retained_after_failed_refresh",
+            "unavailable",
+            "withdrawn"
+          ]
+        },
+        "sha256": {
+          "anyOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }]
+        },
+        "sizeBytes": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "maximum": 1572864
+        },
+        "entryCount": { "type": ["integer", "null"], "minimum": 0 },
+        "source": {
+          "anyOf": [{ "$ref": "#/$defs/indexSource" }, { "type": "null" }]
+        },
+        "patternSetVersion": { "$ref": "#/$defs/semver" },
+        "lastRefreshAttemptAt": {
+          "anyOf": [{ "$ref": "#/$defs/dateTime" }, { "type": "null" }]
+        },
+        "failureStage": {
+          "enum": ["fetch", "normalize", "validation", "packaging", null]
+        },
+        "message": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 240,
+          "pattern": "^(?![\\s\\S]*(?:https?://|www\\.))[^<>]*$"
+        },
+        "withdrawnOn": {
+          "anyOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }]
+        },
+        "staleAcknowledgedOn": {
+          "anyOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }]
+        },
+        "currentReference": {
+          "anyOf": [{ "$ref": "#/$defs/currentReference" }, { "type": "null" }]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["status"],
+            "properties": {
+              "status": { "enum": ["current", "retained_after_failed_refresh"] }
+            }
+          },
+          "then": {
+            "properties": {
+              "sha256": { "type": "string" },
+              "sizeBytes": { "type": "integer" },
+              "entryCount": { "type": "integer" },
+              "source": { "type": "object" }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["status"],
+            "properties": { "status": { "const": "unavailable" } }
+          },
+          "then": {
+            "properties": {
+              "sha256": { "type": "null" },
+              "sizeBytes": { "type": "null" },
+              "entryCount": { "type": "null" },
+              "source": { "type": "null" }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["status"],
+            "properties": { "status": { "const": "withdrawn" } }
+          },
+          "then": {
+            "properties": {
+              "sha256": { "type": "null" },
+              "sizeBytes": { "type": "null" },
+              "entryCount": { "type": "null" },
+              "withdrawnOn": { "type": "string" },
+              "message": { "type": "string" }
+            }
+          },
+          "else": { "properties": { "withdrawnOn": { "type": "null" } } }
+        },
+        {
+          "if": {
+            "required": ["status"],
+            "properties": {
+              "status": { "const": "retained_after_failed_refresh" }
+            }
+          },
+          "then": {
+            "properties": {
+              "lastRefreshAttemptAt": { "type": "string" },
+              "failureStage": { "type": "string" },
+              "message": { "type": "string" }
+            }
+          }
+        }
+      ]
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$schema",
+        "schemaVersion",
+        "artifactType",
+        "generatedAt",
+        "generatedBy",
+        "approvalRef",
+        "verbatimFields",
+        "files"
+      ],
+      "properties": {
+        "$schema": { "const": "../../schemas/demo-index.schema.v1.json" },
+        "schemaVersion": { "const": "1.0.0" },
+        "artifactType": { "const": "demo-index-manifest" },
+        "generatedAt": { "$ref": "#/$defs/dateTime" },
+        "generatedBy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["script", "version"],
+          "properties": {
+            "script": { "const": "scripts/acquire-demo-index.mjs" },
+            "version": { "$ref": "#/$defs/semver" }
+          }
+        },
+        "approvalRef": { "type": "string", "pattern": "^D-[0-9]{3}$" },
+        "verbatimFields": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 32,
+          "items": { "type": "string", "pattern": "^[a-zA-Z]+$" }
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": { "$ref": "#/$defs/indexFile" }
+        }
+      }
+    }
+  }
+}

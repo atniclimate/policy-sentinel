@@ -56,7 +56,44 @@ for (const file of tracked) {
   }
 }
 
+// Index conditions A6 and K4: docs/demo-data holds only the .json files its
+// manifest names; raw downloads never land there.
+const indexPrefix = "docs/demo-data/";
+const indexTracked = tracked.filter((file) => file.startsWith(indexPrefix));
+if (indexTracked.length > 0) {
+  let named;
+  try {
+    const manifest = JSON.parse(
+      await readFile(
+        path.resolve(projectRoot, indexPrefix, "manifest.json"),
+        "utf8",
+      ),
+    );
+    named = new Set(manifest.files.map((entry) => entry.path));
+  } catch {
+    throw new Error(
+      "docs/demo-data is tracked but its manifest.json cannot be read",
+    );
+  }
+  for (const file of indexTracked) {
+    const relative = file.slice(indexPrefix.length);
+    if (/\.(?:xml|zip|html?|txt)$/i.test(file) || !file.endsWith(".json"))
+      throw new Error(
+        `raw or non-JSON file tracked under docs/demo-data: ${file}`,
+      );
+    if (relative !== "manifest.json" && !named.has(relative))
+      throw new Error(
+        `file under docs/demo-data is not named in its manifest: ${file}`,
+      );
+  }
+}
+
 const candidates = listFiles(["-c", "-o", "--exclude-standard"]);
+// Index condition A3: no page or Worker code reaches the acquisition.
+const pageScopes = ["demo/", "src/demo/", "worker/"];
+const acquisitionImport =
+  /(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s+|\brequire\s*\(\s*)["'][^"']*(?:acquire-demo-index|demo-index\/acquire)[^"']*["']/;
+const boundaryFindings = [];
 const findings = [];
 let scanned = 0;
 for (const file of candidates) {
@@ -73,11 +110,25 @@ for (const file of candidates) {
   }
   scanned += 1;
   const text = content.toString("utf8");
+  if (
+    pageScopes.some((scope) => file.startsWith(scope)) &&
+    acquisitionImport.test(text)
+  ) {
+    boundaryFindings.push(`${file}: imports the index acquisition script`);
+  }
   for (const [label, pattern] of credentialPatterns) {
     if (pattern.test(text)) {
       findings.push(`${file}: ${label}`);
     }
   }
+}
+
+if (boundaryFindings.length > 0) {
+  throw new Error(
+    `page or Worker code imports the index acquisition:\n${boundaryFindings
+      .map((finding) => `- ${finding}`)
+      .join("\n")}`,
+  );
 }
 
 if (findings.length > 0) {

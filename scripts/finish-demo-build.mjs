@@ -10,17 +10,8 @@ import {
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const forbidden = [
-  // The quote is optional and a comma counts, so query strings and call arguments are caught too.
-  /api[_-]?key["']?\s*[:=,]\s*["']?[A-Za-z0-9]{16,}/i,
-  /X-Api-Key["']?\s*[:,]\s*["']?[A-Za-z0-9]{16,}/i,
-  /(?:ghp_|github_pat_)[A-Za-z0-9_]{20,}/,
-  /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
-  /[A-Za-z]:[\\/]+(?:Users|dev|policy-sentinel|ATNI-TERRA)[\\/]+/i,
-  /sourceMappingURL\s*=/,
-  /Passage note from the browser check\./,
-  /Policy note from the browser check\./,
-];
+import { FORBIDDEN_OUTPUT as forbidden } from "./demo-index/common.mjs";
+import { validateDemoIndex } from "./demo-index/validate.mjs";
 
 // Fonts and PNG images are binary and are not text-scanned, so each must open
 // with the signature of the format its name claims.
@@ -30,7 +21,41 @@ const signatures = {
   png: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
 };
 
-export function scanDemoOutput(root) {
+// The static index (index conditions K1): the validator's full check, then
+// the forbidden list over every file. Absent until the first build lays it down.
+function scanDemoData(root, now) {
+  const data = join(root, "demo-data");
+  if (!existsSync(data)) return 0;
+  if (lstatSync(data).isSymbolicLink())
+    throw new Error("demo build refused: linked index directory");
+  const result = validateDemoIndex(data, now ? { now } : {});
+  if (!result.ok)
+    throw new Error(
+      `demo build refused: demo index invalid: ${result.errors.slice(0, 3).join("; ")}`,
+    );
+  const files = ["manifest.json", ...listed(data)];
+  for (const file of files) {
+    const text = readFileSync(join(data, file), "utf8");
+    if (forbidden.some((pattern) => pattern.test(text)))
+      throw new Error("demo build refused: prohibited content in demo index");
+  }
+  return files.length;
+}
+
+function listed(data) {
+  const manifest = JSON.parse(
+    readFileSync(join(data, "manifest.json"), "utf8"),
+  );
+  return manifest.files
+    .filter(
+      (f) =>
+        f.status === "current" || f.status === "retained_after_failed_refresh",
+    )
+    .map((f) => f.path);
+}
+
+export function scanDemoOutput(root, options = {}) {
+  const indexFiles = scanDemoData(root, options.now);
   const targets = [join(root, "index.html")];
   let binaries = 0;
   function visit(directory) {
@@ -65,7 +90,7 @@ export function scanDemoOutput(root) {
       );
     }
   }
-  return { generatedFiles: targets.length + binaries };
+  return { generatedFiles: targets.length + binaries + indexFiles };
 }
 
 if (
