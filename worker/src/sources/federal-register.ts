@@ -1,5 +1,6 @@
 /** Federal Register: search, and the official text read from GovInfo. */
-import { analyzePolicy } from "../../../src/demo/analyze";
+import { analyzePolicyText } from "../../../src/demo/analyze";
+import { authorityLine } from "../../../src/demo/authority-line";
 import { parseCfrQuery } from "../../../src/demo/search-contract";
 import { citationFields } from "../../../src/demo/validation";
 import type {
@@ -18,12 +19,13 @@ import {
   numericContinuation,
   officialFetch,
   parseJson,
+  policyV3,
   record,
   requiredText,
   resultCount,
   resultRows,
 } from "./shared";
-import type { Env } from "./shared";
+import type { Env, Loose } from "./shared";
 
 /** Exact hosts this source calls: the search API and the GovInfo HTML text it reads. */
 export const HOSTS: readonly string[] = [
@@ -58,6 +60,36 @@ const FR_FIELDS_V2 = [
   "cfr_references",
   "topics",
 ];
+
+// Requested only on policy reads with version=3.
+const FR_FIELDS_V3 = [...FR_FIELDS, "correction_of", "corrections"];
+// The API states each as a document's API address (fixtures/sources/federal-register).
+const FR_DOC_API =
+  /^https:\/\/www\.federalregister\.gov\/api\/v1\/documents\/([A-Za-z0-9-]{4,24})(?:\.json)?$/;
+
+/** The document number in a correction field; null for any other value. */
+function frDocNumber(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const id = FR_DOC_API.exec(value)?.[1] ?? value;
+  return /^[A-Za-z0-9-]{4,24}$/.test(id) ? id : null;
+}
+
+/** correctionOf and corrections as document numbers; a malformed value is dropped. */
+function frCorrections(
+  doc: Loose,
+): Pick<DemoCitation, "correctionOf" | "corrections"> {
+  const of = frDocNumber(doc.correction_of);
+  const list = Array.isArray(doc.corrections)
+    ? doc.corrections
+        .slice(0, 50)
+        .map(frDocNumber)
+        .filter((id): id is string => id !== null)
+    : [];
+  return {
+    ...(of !== null && { correctionOf: of }),
+    ...(list.length > 0 && { corrections: list }),
+  };
+}
 
 function frCitation(
   value: unknown,
@@ -178,7 +210,7 @@ async function searchFederalRegister(
   };
 }
 
-async function readFederalRegister(id: string) {
+async function readFederalRegister(id: string, v3: boolean) {
   if (!FR_DOCUMENT_NUMBER.test(id)) {
     throw new DemoError(
       "text_unavailable",
@@ -189,7 +221,8 @@ async function readFederalRegister(id: string) {
   const meta = new URL(
     `https://www.federalregister.gov/api/v1/documents/${id}.json`,
   );
-  for (const f of FR_FIELDS) meta.searchParams.append("fields[]", f);
+  for (const f of v3 ? FR_FIELDS_V3 : FR_FIELDS)
+    meta.searchParams.append("fields[]", f);
   const { response, bytes } = await officialFetch(meta.href);
   if (response.status === 404) {
     throw new DemoError(
@@ -231,8 +264,8 @@ async function readFederalRegister(id: string) {
       `GovInfo answered with status ${text.response.status}.`,
     );
   }
-  return analyzeSafely(() =>
-    analyzePolicy({
+  const analysis = analyzeSafely(() =>
+    analyzePolicyText({
       bytes: text.bytes,
       mediaType: text.response.headers.get("content-type") ?? "text/html",
       sourceKind: "govinfo_fr",
@@ -242,6 +275,12 @@ async function readFederalRegister(id: string) {
       retrievedAt,
     }),
   );
+  return v3
+    ? policyV3(analysis, {
+        ...frCorrections(doc),
+        ...authorityLine(analysis.blocks),
+      })
+    : analysis.policy;
 }
 
 export async function search(
@@ -251,6 +290,7 @@ export async function search(
   return searchFederalRegister(criteria);
 }
 
-export async function read(id: string) {
-  return readFederalRegister(id);
+/** `v3` adds the version 3 fields and chain rows; without it the answer is unchanged. */
+export async function read(id: string, v3 = false) {
+  return readFederalRegister(id, v3);
 }

@@ -1,3 +1,4 @@
+import { courtDocketReading, usReportsReading } from "./courts.ts";
 import type {
   DemoCfrRef,
   DemoDocumentType,
@@ -113,6 +114,11 @@ export function supportsMatch(
   source: string,
   match: DemoSearchMatchV3,
 ): boolean {
+  // Court cases (T1.5), version 3 only: searchCriteria refuses other versions.
+  if (source === "govinfo-courts")
+    return (
+      match === "text" || match === "court_docket" || match === "us_reports"
+    );
   if (match === "text") return true;
   if (!(MATCHES as readonly string[]).includes(match)) return false;
   return (
@@ -147,6 +153,9 @@ function validIdentifier(
       : plainSourceText(query, MAX_DOCKET_LENGTH);
   if (match === "rin") return RIN_PATTERN.test(query);
   if (match === "cfr") return parseCfrQuery(query) !== null;
+  if (match === "court_docket") return courtDocketReading(query) !== null;
+  // A volume above 586 still reads, so the Worker answers not_resolvable.
+  if (match === "us_reports") return usReportsReading(query) !== null;
   return true;
 }
 
@@ -244,6 +253,7 @@ export function searchCriteria(
       "congress",
       "washington",
       "grants",
+      "govinfo-courts",
     ].includes(source) ||
     query.trim() !== query ||
     query.length < 2 ||
@@ -284,6 +294,11 @@ export function searchCriteria(
       (match !== "text" || documentType !== null || eligibility !== null))
   )
     throw new SearchCriteriaError("The search contract is not supported.");
+  if (source === "govinfo-courts" && version !== 3)
+    throw new SearchCriteriaError(
+      "Court cases are searched with search contract version 3.",
+      "unsupported_criteria",
+    );
   // v3 opts in to the router's new identifier readings (T1.2); v1 and v2 keep
   // exactly the matches they have today.
   const matches: readonly string[] = version === 3 ? MATCHES_V3 : MATCHES;
@@ -331,11 +346,15 @@ export function searchCriteria(
           : "newest"
         : source === "regulations"
           ? "-postedDate"
-          : source === "govinfo" || source === "grants"
+          : source === "govinfo" ||
+              source === "grants" ||
+              source === "govinfo-courts"
             ? "provider-default"
             : "reference",
-    resultLevel: source === "govinfo" ? "default" : null,
-    historical: source === "govinfo" ? false : null,
+    resultLevel:
+      source === "govinfo" || source === "govinfo-courts" ? "default" : null,
+    historical:
+      source === "govinfo" || source === "govinfo-courts" ? false : null,
     cursor: token,
   };
   // A v1 echo stays byte-identical for the published page; v2 and v3 fields

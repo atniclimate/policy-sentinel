@@ -114,6 +114,9 @@ const CHECKED: Record<
  */
 const NOT_CHECKED: Record<string, string> = {
   washington: "HTML bill document, no structured response fields",
+  // Its planted-contact check runs in tests/demo/worker-integration.test.ts.
+  "govinfo-courts":
+    "searched with contract version 3 only, which this versionless driver does not send",
 };
 
 beforeEach(() => {

@@ -1,5 +1,8 @@
 /** Washington State Legislature: one bill, read from its original bill file. */
-import { analyzePolicy, washingtonCaption } from "../../../src/demo/analyze";
+import {
+  analyzePolicyText,
+  washingtonCaption,
+} from "../../../src/demo/analyze";
 import type {
   DemoCitation,
   DemoSearchCriteria,
@@ -11,6 +14,7 @@ import {
   badUpstream,
   isoDate,
   officialFetch,
+  policyV3,
 } from "./shared";
 import type { Env } from "./shared";
 
@@ -89,7 +93,7 @@ function requireOriginalWashingtonBill(
     throw badUpstream();
 }
 
-async function readWashington(query: string) {
+async function readWashington(query: string, v3 = false) {
   const parsed = parseWashingtonQuery(query);
   if (!parsed) {
     throw new DemoError(
@@ -132,8 +136,8 @@ async function readWashington(query: string) {
     textAvailable: true,
     matchKey: null,
   };
-  return analyzeSafely(() =>
-    analyzePolicy({
+  const analysis = analyzeSafely(() =>
+    analyzePolicyText({
       bytes,
       mediaType: response.headers.get("content-type") ?? "text/html",
       sourceKind: "washington_bill",
@@ -143,6 +147,7 @@ async function readWashington(query: string) {
       retrievedAt,
     }),
   );
+  return v3 ? policyV3(analysis) : analysis.policy;
 }
 
 export async function search(
@@ -163,6 +168,7 @@ export async function search(
   } satisfies DemoSearchResponse;
 }
 
-export async function read(query: string) {
-  return readWashington(query);
+/** `v3` adds the chain rows; without it the answer is unchanged. */
+export async function read(query: string, v3 = false) {
+  return readWashington(query, v3);
 }

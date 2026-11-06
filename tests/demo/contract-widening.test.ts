@@ -106,6 +106,78 @@ describe("search criteria version 3", () => {
   });
 });
 
+describe("govinfo-courts search criteria (version 3 only)", () => {
+  const v3 = (match: DemoSearchOptions["match"]): DemoSearchOptions => ({
+    dateFrom: null,
+    dateTo: null,
+    continuation: null,
+    version: 3,
+    match,
+  });
+
+  it("accepts words, a docket with its court code and a U.S. Reports citation", () => {
+    expect(
+      searchCriteria("govinfo-courts", "water rights", 1, v3("text")),
+    ).toMatchObject({
+      version: 3,
+      source: "govinfo-courts",
+      match: "text",
+      sort: "provider-default",
+      resultLevel: "default",
+      historical: false,
+      cursor: null,
+    });
+    expect(
+      searchCriteria("govinfo-courts", "ca9 99-12345", 1, v3("court_docket"))
+        .query,
+    ).toBe("ca9 99-12345");
+    expect(
+      searchCriteria("govinfo-courts", "199 U.S. 42", 1, v3("us_reports")),
+    ).toMatchObject({ match: "us_reports" });
+  });
+
+  it("passes a U.S. Reports volume above 586, so the Worker answers not_resolvable", () => {
+    expect(
+      searchCriteria("govinfo-courts", "600 U.S. 1", 1, v3("us_reports")).query,
+    ).toBe("600 U.S. 1");
+  });
+
+  it("refuses a docket with no court code and a malformed citation", () => {
+    for (const [q, match] of [
+      ["99-12345", "court_docket"],
+      ["U.S. Reports", "us_reports"],
+    ] as const)
+      expect(() => searchCriteria("govinfo-courts", q, 1, v3(match))).toThrow(
+        expect.objectContaining({ code: "bad_query" }),
+      );
+  });
+
+  it("refuses other match kinds, versions 1 and 2, and a second page", () => {
+    expect(() =>
+      searchCriteria("govinfo-courts", "Docket No. 1", 1, v3("docket")),
+    ).toThrow(expect.objectContaining({ code: "unsupported_criteria" }));
+    expect(() =>
+      searchCriteria("govinfo-courts", "water", 1, {
+        ...v3("text"),
+        version: 2,
+      }),
+    ).toThrow(expect.objectContaining({ code: "unsupported_criteria" }));
+    expect(() => searchCriteria("govinfo-courts", "water", 1)).toThrow(
+      expect.objectContaining({ code: "unsupported_criteria" }),
+    );
+    expect(() =>
+      searchCriteria("govinfo-courts", "water", 2, v3("text")),
+    ).toThrow(expect.objectContaining({ code: "bad_query" }));
+  });
+
+  it("keeps the court readings away from every other source", () => {
+    for (const source of ["federal-register", "govinfo", "congress"])
+      expect(() =>
+        searchCriteria(source, "ca9 99-12345", 1, v3("court_docket")),
+      ).toThrow(expect.objectContaining({ code: "unsupported_criteria" }));
+  });
+});
+
 describe("search contract v3 citation fields", () => {
   it("accepts the v3 fields only on a version 3 answer", () => {
     const v3Citation = citationValue(

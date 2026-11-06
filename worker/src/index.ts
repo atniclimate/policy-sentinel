@@ -9,13 +9,15 @@
  * address counters enforce rate limits. Hosting providers have their own policies.
  *
  * This file is routing only: CORS, the origin check, rate limiting, and the
- * dispatch for /, /health, /api/sources, /api/search and /api/policy. Each
+ * dispatch for /, /health, /api/sources, /api/search, /api/policy and
+ * /api/related. Each
  * source's own search and read code lives in worker/src/sources/<source>.ts;
  * the SOURCE_REGISTRY below composes the allowed-host set and the search
  * dispatch from those modules, so adding a source there needs only the new
  * module plus one registry line here.
  */
 import { ENGINE_INFO } from "../../src/demo/analyze";
+import { isCourtCode } from "../../src/demo/courts";
 import {
   MAX_CONTINUATION_LENGTH,
   SearchCriteriaError,
@@ -27,13 +29,17 @@ import type {
   DemoErrorResponse,
   DemoSearchCriteria,
   DemoSearchCursor,
-  DemoSearchMatch,
+  DemoSearchMatchV3,
   DemoSource,
 } from "../../src/demo/types";
 import * as congress from "./sources/congress";
+import * as congressRelated from "./sources/congress-related";
 import * as federalRegister from "./sources/federal-register";
 import * as govinfo from "./sources/govinfo";
+import * as govinfoCourts from "./sources/govinfo-courts";
+import * as govinfoRelated from "./sources/govinfo-related";
 import * as grants from "./sources/grants";
+import * as grantsDetail from "./sources/grants-detail";
 import * as regulations from "./sources/regulations";
 import {
   DemoError,
@@ -56,7 +62,10 @@ export const SOURCE_REGISTRY = {
   congress,
   grants,
   washington,
+  "govinfo-courts": govinfoCourts,
 } as const;
+// govinfo-related, congress-related and grants-detail have no search; their
+// hosts are already in this set (tests/demo/worker-integration.test.ts checks).
 
 export const ALLOWED_ORIGINS: readonly string[] = [
   "https://atniclimate.github.io",
@@ -143,6 +152,27 @@ export function sourceList(env: Env): DemoSource[] {
       note: "No Idaho source is enabled in this demo; this remains a recorded gap.",
     },
   ];
+}
+
+/**
+ * The version 2 catalog (GET /api/sources?version=2): the version 1 list plus
+ * the sources a version 1 reader such as ATNI-ResIST does not know. The
+ * router looks sources up here; /health and /api/sources keep sourceList.
+ */
+export function sourceListV2(env: Env): DemoSource[] {
+  const list = sourceList(env);
+  const courts: DemoSource = {
+    id: "govinfo-courts",
+    label: "GovInfo court opinions",
+    level: "federal",
+    status: env.DATA_GOV_API_KEY ? "live" : "key_pending",
+    note: env.DATA_GOV_API_KEY
+      ? "Court opinions on GovInfo from seven federal courts (the Ninth Circuit, the Federal Circuit, the Court of Federal Claims, and the district courts of Washington, Oregon and Idaho), and U.S. Reports through volume 586. Opinion text is not read in the demo."
+      : "The api.data.gov key has not been added yet, so this source is switched off.",
+    secret: "DATA_GOV_API_KEY",
+  };
+  const at = list.findIndex((s) => s.id === "govinfo") + 1;
+  return [...list.slice(0, at), courts, ...list.slice(at)];
 }
 
 function corsHeaders(origin: string | null): Record<string, string> {
@@ -334,11 +364,19 @@ export default {
       );
     }
     if (url.pathname === "/api/sources") {
-      return json({ ok: true, sources: sourceList(env) }, 200, origin, {
+      const body =
+        url.searchParams.get("version") === "2"
+          ? { ok: true, version: 2, sources: sourceListV2(env) }
+          : { ok: true, sources: sourceList(env) };
+      return json(body, 200, origin, {
         "Cache-Control": "public, max-age=60",
       });
     }
-    if (url.pathname !== "/api/search" && url.pathname !== "/api/policy") {
+    if (
+      url.pathname !== "/api/search" &&
+      url.pathname !== "/api/policy" &&
+      url.pathname !== "/api/related"
+    ) {
       return json(
         {
           ok: false,
@@ -372,9 +410,12 @@ export default {
       const id = (params.get("id") ?? "").trim();
       const pageText = params.get("page") ?? "1";
       const page = Number(pageText);
+      const bill = (params.get("bill") ?? "").trim();
       if (
         q.length > 200 ||
-        id.length > 40 ||
+        // GovInfo access ids run to 80 characters (govinfo-related.ts).
+        id.length > (url.pathname === "/api/related" ? 80 : 40) ||
+        bill.length > 40 ||
         !/^[1-9]\d*$/.test(pageText) ||
         !Number.isSafeInteger(page) ||
         page > 50
@@ -385,7 +426,7 @@ export default {
           400,
         );
       }
-      const entry = sourceList(env).find((s) => s.id === source);
+      const entry = sourceListV2(env).find((s) => s.id === source);
       if (!entry)
         throw new DemoError(
           "unknown_source",
@@ -405,15 +446,20 @@ export default {
             400,
           );
         let criteria: DemoSearchCriteria;
+        const court = params.get("court");
         try {
           const version = params.get("searchVersion");
           const envelope = params.get("continuation");
           const match = params.get("match");
           const documentType = params.get("documentType");
           const eligibility = params.get("eligibility");
+          // Version 3 is open to the court-case source only, so every other
+          // source's version 1 and 2 behavior stays exactly as it was.
+          const widened =
+            version === "2" || (version === "3" && source === "govinfo-courts");
           if (
-            (version !== null && version !== "1" && version !== "2") ||
-            (version !== "2" &&
+            (version !== null && version !== "1" && !widened) ||
+            (!widened &&
               (match !== null ||
                 documentType !== null ||
                 eligibility !== null)) ||
@@ -421,6 +467,14 @@ export default {
           )
             throw new SearchCriteriaError(
               "The search contract is not supported.",
+            );
+          // The court filter is a court-case search parameter only.
+          if (
+            court !== null &&
+            (source !== "govinfo-courts" || !isCourtCode(court))
+          )
+            throw new SearchCriteriaError(
+              "The court filter takes one of the seven listed courts, on a court case search only.",
             );
           // searchCriteria checks match and documentType against their allowlists.
           criteria = searchCriteria(source, q, page, {
@@ -430,9 +484,9 @@ export default {
               envelope === null
                 ? null
                 : (JSON.parse(envelope) as DemoSearchCursor),
-            ...(version === "2" && {
-              version: 2,
-              match: (match ?? "text") as DemoSearchMatch,
+            ...(widened && {
+              version: version === "3" ? 3 : 2,
+              match: (match ?? "text") as DemoSearchMatchV3,
               documentType: documentType as DemoDocumentType | null,
               eligibility: eligibility as DemoEligibility | null,
             }),
@@ -455,6 +509,12 @@ export default {
               "That source is not one this demo knows.",
               400,
             );
+          if (adapter === govinfoCourts)
+            return govinfoCourts.search(
+              env,
+              criteria,
+              court !== null && isCourtCode(court) ? court : null,
+            );
           return adapter.search(env, criteria);
         };
         const body = JSON.stringify(await run());
@@ -469,7 +529,28 @@ export default {
         });
       }
 
+      if (url.pathname === "/api/related") {
+        // One keyed call per request at most; each module caches its answer.
+        const collection = params.get("collection");
+        let related: unknown;
+        if (source === "govinfo")
+          related =
+            collection === null
+              ? await govinfoRelated.related(env, id)
+              : await govinfoRelated.relatedIn(env, id, collection);
+        else if (source === "congress")
+          related = await congressRelated.relatedBills(env, bill);
+        else
+          throw new DemoError(
+            "bad_query",
+            "Related records are listed for GovInfo and Congress.gov only.",
+            400,
+          );
+        return json(related, 200, origin);
+      }
+
       // /api/policy
+      const v3 = params.get("version") === "3";
       const run = async () => {
         if (source === "federal-register") {
           if (!id)
@@ -478,9 +559,10 @@ export default {
               "A document number is needed.",
               400,
             );
-          return federalRegister.read(id);
+          return federalRegister.read(id, v3);
         }
-        if (source === "washington") return washington.read(id || q);
+        if (source === "washington") return washington.read(id || q, v3);
+        if (source === "grants") return grantsDetail.read(id);
         throw new DemoError(
           "text_unavailable",
           "The demo does not read the text of this source, so it identifies no issues here. Open the official source.",
@@ -495,6 +577,10 @@ export default {
         if (parsed)
           identity = `${parsed.prefix} ${parsed.number} ${parsed.biennium}`;
       }
+      // A version 3 answer is a different body, so it has its own cache entry.
+      if (v3 && identity !== null) identity = `v3:${identity}`;
+      if (source === "grants" && grantsDetail.isOpportunityId(id))
+        identity = id;
       const out = await cachedPolicy(source, identity, run);
       return new Response(out.body, {
         status: 200,

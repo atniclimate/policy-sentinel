@@ -5,14 +5,20 @@
  * Nothing here is source-specific; a source's own parsing lives in its own
  * module.
  */
+import { citationsInText } from "../../../src/demo/links";
+import type { ChainRow } from "../../../src/demo/links";
+import { hasPersonalPattern } from "../../../src/demo/personal-guard";
 import {
   nextSearchCursor,
   searchPageLimit,
 } from "../../../src/demo/search-contract";
 import type {
+  DemoCitation,
   DemoErrorResponse,
+  DemoPolicyResponse,
   DemoSearchContinuation,
   DemoSearchCriteria,
+  TextBlock,
 } from "../../../src/demo/types";
 
 export interface Env {
@@ -271,6 +277,37 @@ export function analyzeSafely<T>(run: () => T): T {
     }
     throw error;
   }
+}
+
+/** Chain rows one version 3 policy answer carries at most. */
+export const CHAIN_MAX = 200;
+
+function rowWording(row: ChainRow): string {
+  return [
+    row.label,
+    row.sourceWording,
+    row.quote?.text,
+    row.notice,
+    row.kind === "link" ? row.targetText : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+/**
+ * A version 3 policy answer: the version 1 answer, the extra citation fields
+ * and the citation_in_text rows over the blocks the read already has. A row
+ * whose wording trips the personal-pattern guard is dropped.
+ */
+export function policyV3(
+  analysis: { policy: DemoPolicyResponse; blocks: readonly TextBlock[] },
+  fields: Partial<DemoCitation> = {},
+): DemoPolicyResponse {
+  const citation = { ...analysis.policy.citation, ...fields };
+  const chain = citationsInText(analysis.blocks, citation)
+    .filter((row) => !hasPersonalPattern(rowWording(row)))
+    .slice(0, CHAIN_MAX);
+  return { ...analysis.policy, citation, version: 3, chain };
 }
 
 export function requireKey(env: Env): string {

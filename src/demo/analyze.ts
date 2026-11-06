@@ -42,6 +42,14 @@ const EXCLUSION_LABELS: Record<string, string> = {
  * dropped by the extractor before any rule sees the text.
  */
 export function analyzePolicy(input: AnalyzeInput): DemoPolicyResponse {
+  return analyzePolicyText(input).policy;
+}
+
+/** analyzePolicy plus the text blocks it read, for the version 3 chain rows. */
+export function analyzePolicyText(input: AnalyzeInput): {
+  policy: DemoPolicyResponse;
+  blocks: TextBlock[];
+} {
   const extracted = extractPolicyText({
     bytes: input.bytes,
     mediaType: input.mediaType,
@@ -70,7 +78,7 @@ export function analyzePolicy(input: AnalyzeInput): DemoPolicyResponse {
     .slice(0, 2)
     .join(" ")
     .slice(0, 600);
-  return {
+  const policy: DemoPolicyResponse = {
     ok: true,
     citation: { ...input.citation, textUrl: input.textUrl },
     receipt: {
@@ -90,6 +98,7 @@ export function analyzePolicy(input: AnalyzeInput): DemoPolicyResponse {
     warnings: [...extracted.warnings],
     opening,
   };
+  return { policy, blocks };
 }
 
 /** Title line for a Washington bill: the "AN ACT Relating to" caption. */

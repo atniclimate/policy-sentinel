@@ -15,7 +15,9 @@ export type DemoSourceId =
   | "grants"
   | "washington"
   | "oregon"
-  | "idaho";
+  | "idaho"
+  // Enabled in the version 2 catalog (/api/sources?version=2), 0.9.1 step 11.
+  | "govinfo-courts";
 
 /**
  * Closed list of source ids a later lane may wire in (T1.1 rule 1, design
