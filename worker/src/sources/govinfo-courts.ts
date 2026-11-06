@@ -27,18 +27,14 @@ import {
   withheldTitle,
 } from "../../../src/demo/courts";
 import type { CourtCode } from "../../../src/demo/courts";
-import {
-  nextSearchCursor,
-  searchPageLimit,
-  validCursorToken,
-} from "../../../src/demo/search-contract";
+import { validCursorToken } from "../../../src/demo/search-contract";
 import type {
   DemoCitation,
   DemoSearchContinuation,
   DemoSearchCriteria,
   DemoSearchResponse,
 } from "../../../src/demo/types";
-import { cachedJson } from "./govinfo-related";
+import { cachedJson } from "../cache";
 import {
   DemoError,
   badUpstream,
@@ -167,12 +163,8 @@ async function searchWords(
   criteria: DemoSearchCriteria,
   court: CourtCode | null,
 ): Promise<DemoSearchResponse> {
-  const { query, dateFrom, dateTo } = criteria;
+  // searchCriteria refuses dates, page 2 and cursors for this source: one page only.
   const codes = court ? [court] : COURT_CODES;
-  const words =
-    dateFrom !== null && dateTo !== null
-      ? `(${query}) AND publishdate:range(${dateFrom},${dateTo})`
-      : `(${query})`;
   const key = await spendKey(env);
   const { response, bytes } = await officialFetch(
     "https://api.govinfo.gov/search",
@@ -180,9 +172,9 @@ async function searchWords(
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Api-Key": key },
       body: JSON.stringify({
-        query: `collection:(USCOURTS) AND courtcode:(${codes.join(" OR ")}) AND ${words}`,
+        query: `collection:(USCOURTS) AND courtcode:(${codes.join(" OR ")}) AND (${criteria.query})`,
         pageSize: 10,
-        offsetMark: criteria.cursor ?? "*",
+        offsetMark: "*",
         historical: false,
         resultLevel: "default",
       }),
@@ -206,13 +198,10 @@ async function searchWords(
     criteria,
     results,
     resultCount(data.count),
-    criteria.page === searchPageLimit(criteria.source)
+    // A next token, not the count, says GovInfo has more past this one page.
+    validCursorToken(data.offsetMark) && data.offsetMark !== "*"
       ? { kind: "stopped", reason: "cap" }
-      : validCursorToken(data.offsetMark) &&
-          data.offsetMark !== "*" &&
-          data.offsetMark !== criteria.cursor
-        ? { kind: "more", next: nextSearchCursor(criteria, data.offsetMark) }
-        : { kind: "stopped", reason: "unknown" },
+      : { kind: "stopped", reason: "unknown" },
   );
 }
 
@@ -227,17 +216,22 @@ async function lookupDocket(
       "A docket number needs its court code, such as ca9 99-12345.",
       400,
     );
-  const row = await cachedJson("govinfo-case", reading.packageId, async () => {
-    const data = await getSummary(
-      env,
-      reading.packageId,
-      COURTS.docketNotFound,
-    );
-    if (metadataId(data.packageId) !== reading.packageId) throw badUpstream();
-    const out = uscourtsRow(data, new Date().toISOString());
-    if (!out) throw badUpstream();
-    return out;
-  });
+  const row = await cachedJson(
+    env,
+    "govinfo-case",
+    reading.packageId,
+    async () => {
+      const data = await getSummary(
+        env,
+        reading.packageId,
+        COURTS.docketNotFound,
+      );
+      if (metadataId(data.packageId) !== reading.packageId) throw badUpstream();
+      const out = uscourtsRow(data, new Date().toISOString());
+      if (!out) throw badUpstream();
+      return out;
+    },
+  );
   return answer(criteria, [row], 1, {
     kind: "stopped",
     reason: "not_applicable",
@@ -260,31 +254,36 @@ async function lookupUsReports(
     throw new DemoError("not_resolvable", reading.message, 422);
   const packageId = `USREPORTS-${reading.volume}`;
   const granuleId = `${packageId}-${reading.page}`;
-  const row = await cachedJson("govinfo-usreports", granuleId, async () => {
-    const data = await getSummary(
-      env,
-      `${packageId}/granules/${granuleId}`,
-      COURTS.usReportsNotFound,
-    );
-    if (
-      metadataId(data.granuleId) !== granuleId ||
-      metadataId(data.packageId) !== packageId
-    )
-      throw badUpstream();
-    return caseRow(
-      data,
-      {
-        identifier: granuleId,
-        issuingBody: SUPREME_COURT_LABEL,
-        kind: "USREPORTS",
-        officialUrl: `https://www.govinfo.gov/app/details/${packageId}/${granuleId}`,
-        packageId,
-        withheldAs: reading.citation,
-        caseCitationProvided: true,
-      },
-      new Date().toISOString(),
-    );
-  });
+  const row = await cachedJson(
+    env,
+    "govinfo-usreports",
+    granuleId,
+    async () => {
+      const data = await getSummary(
+        env,
+        `${packageId}/granules/${granuleId}`,
+        COURTS.usReportsNotFound,
+      );
+      if (
+        metadataId(data.granuleId) !== granuleId ||
+        metadataId(data.packageId) !== packageId
+      )
+        throw badUpstream();
+      return caseRow(
+        data,
+        {
+          identifier: granuleId,
+          issuingBody: SUPREME_COURT_LABEL,
+          kind: "USREPORTS",
+          officialUrl: `https://www.govinfo.gov/app/details/${packageId}/${granuleId}`,
+          packageId,
+          withheldAs: reading.citation,
+          caseCitationProvided: true,
+        },
+        new Date().toISOString(),
+      );
+    },
+  );
   return answer(criteria, [row], 1, {
     kind: "stopped",
     reason: "not_applicable",

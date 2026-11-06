@@ -32,6 +32,7 @@ import type {
   DemoSearchMatchV3,
   DemoSource,
 } from "../../src/demo/types";
+import { cachedJson } from "./cache";
 import * as congress from "./sources/congress";
 import * as congressRelated from "./sources/congress-related";
 import * as federalRegister from "./sources/federal-register";
@@ -78,7 +79,6 @@ export const ALLOWED_HOSTS: ReadonlySet<string> = new Set(
 );
 configureAllowedHosts(ALLOWED_HOSTS);
 
-const POLICY_TTL = 86_400;
 const POLICY_CACHE_VERSION = `demo-policy-2:${ENGINE_INFO.parser}:${ENGINE_INFO.parserVersion}:${ENGINE_INFO.parserConfigDigest}:${ENGINE_INFO.rulesVersion}`;
 const SOFT_LIMIT_PER_MINUTE = 80;
 
@@ -232,8 +232,21 @@ async function searchBody(request: Request): Promise<URLSearchParams> {
     new DemoError("bad_query", "The search request is not valid.", 400);
   if (Number(request.headers.get("Content-Length")) > MAX_SEARCH_BODY)
     throw bad();
-  const text = await request.text();
-  if (text.length > MAX_SEARCH_BODY) throw bad();
+  // A chunked body states no length, so the read itself stops at the cap.
+  const reader = request.body?.getReader();
+  const decoder = new TextDecoder();
+  let text = "";
+  for (let total = 0; reader;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > MAX_SEARCH_BODY) {
+      void reader.cancel().catch(() => undefined);
+      throw bad();
+    }
+    text += decoder.decode(value, { stream: true });
+  }
+  text += decoder.decode();
   let body: unknown;
   try {
     body = JSON.parse(text);
@@ -247,47 +260,6 @@ async function searchBody(request: Request): Promise<URLSearchParams> {
     params.set(key, value);
   }
   return params;
-}
-
-async function cachedPolicy(
-  source: string,
-  identity: string | null,
-  produce: () => Promise<unknown>,
-): Promise<{ body: string; hit: boolean }> {
-  // Only validated public document identities enter this optional cache. Search
-  // text, request query strings and unrelated parameters never become cache keys.
-  const key = identity
-    ? new Request(
-        `https://cache.policy-sentinel-demo.invalid/policy/${encodeURIComponent(POLICY_CACHE_VERSION)}/${source}/${encodeURIComponent(identity)}`,
-      )
-    : null;
-  let store: Cache | undefined;
-  try {
-    store =
-      typeof caches === "undefined"
-        ? undefined
-        : (caches as unknown as { default?: Cache }).default;
-    const hit = key ? await store?.match(key) : undefined;
-    if (hit) return { body: await hit.text(), hit: true };
-  } catch {
-    // Retrieval remains available if cache access or reading an entry fails.
-  }
-  const body = JSON.stringify(await produce());
-  try {
-    if (key && store)
-      await store.put(
-        key,
-        new Response(body, {
-          headers: {
-            "Cache-Control": `public, max-age=${POLICY_TTL}`,
-            "Content-Type": "application/json",
-          },
-        }),
-      );
-  } catch {
-    // A completed official-source read is useful even when caching fails.
-  }
-  return { body, hit: false };
 }
 
 async function rateLimited(request: Request, env: Env): Promise<boolean> {
@@ -501,14 +473,9 @@ export default {
           );
         }
         const run = async () => {
+          // sourceListV2 and searchCriteria above admit registry sources only.
           const adapter =
             SOURCE_REGISTRY[source as keyof typeof SOURCE_REGISTRY];
-          if (!adapter)
-            throw new DemoError(
-              "unknown_source",
-              "That source is not one this demo knows.",
-              400,
-            );
           if (adapter === govinfoCourts)
             return govinfoCourts.search(
               env,
@@ -517,27 +484,15 @@ export default {
             );
           return adapter.search(env, criteria);
         };
-        const body = JSON.stringify(await run());
-        return new Response(body, {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-            "Cache-Control": "no-store",
-            "X-Content-Type-Options": "nosniff",
-            ...corsHeaders(origin),
-          },
-        });
+        return json(await run(), 200, origin);
       }
 
       if (url.pathname === "/api/related") {
         // One keyed call per request at most; each module caches its answer.
-        const collection = params.get("collection");
+        // An older page may still send collection=; it is ignored, not refused.
         let related: unknown;
         if (source === "govinfo")
-          related =
-            collection === null
-              ? await govinfoRelated.related(env, id)
-              : await govinfoRelated.relatedIn(env, id, collection);
+          related = await govinfoRelated.related(env, id);
         else if (source === "congress")
           related = await congressRelated.relatedBills(env, bill);
         else
@@ -581,16 +536,18 @@ export default {
       if (v3 && identity !== null) identity = `v3:${identity}`;
       if (source === "grants" && grantsDetail.isOpportunityId(id))
         identity = id;
-      const out = await cachedPolicy(source, identity, run);
-      return new Response(out.body, {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          "Cache-Control": "no-store",
-          "X-Content-Type-Options": "nosniff",
-          ...corsHeaders(origin),
-        },
-      });
+      // Only a validated public document identity becomes a cache key; search
+      // text, request query strings and unrelated parameters never do.
+      const body =
+        identity === null
+          ? await run()
+          : await cachedJson(
+              env,
+              `policy/${encodeURIComponent(POLICY_CACHE_VERSION)}/${source}`,
+              identity,
+              run,
+            );
+      return json(body, 200, origin);
     } catch (error) {
       if (error instanceof DemoError) {
         return json(

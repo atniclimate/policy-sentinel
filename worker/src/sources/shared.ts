@@ -27,6 +27,8 @@ export interface Env {
   RATE?: { limit(options: { key: string }): Promise<{ success: boolean }> };
   /** One allowance shared by every visitor for calls made with the api.data.gov key. */
   KEY_RATE?: { limit(options: { key: string }): Promise<{ success: boolean }> };
+  /** The version_metadata binding in wrangler.toml; tests and local runs have none. */
+  CF_VERSION_METADATA?: { id: string };
 }
 
 export class DemoError extends Error {
@@ -309,12 +311,15 @@ export function policyV3(
   const chain = kept.slice(0, CHAIN_MAX);
   // Withheld rows are counted so the page can say so (safeguard 8).
   const chainWithheld = found.length - kept.length;
+  // Rows past the cap are counted too, so the list never reads as complete.
+  const chainCut = kept.length - chain.length;
   return {
     ...analysis.policy,
     citation,
     version: 3,
     chain,
     ...(chainWithheld ? { chainWithheld } : {}),
+    ...(chainCut ? { chainCut } : {}),
   };
 }
 

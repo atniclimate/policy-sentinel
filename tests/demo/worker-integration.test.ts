@@ -21,7 +21,6 @@ import * as govinfoRelated from "../../worker/src/sources/govinfo-related";
 import * as grantsDetail from "../../worker/src/sources/grants-detail";
 import { CHAIN_MAX, policyV3 } from "../../worker/src/sources/shared";
 import CONGRESS_RELATED from "./fixtures/courts/congress-relatedbills.json";
-import RELATED_BILLS from "./fixtures/courts/govinfo-related-bills.json";
 import RELATED from "./fixtures/courts/govinfo-related.json";
 import SEARCH from "./fixtures/courts/uscourts-search.json";
 import { FR_DOC_NUMBER, FR_HTML, FR_SEARCH_JSON, WA_HTML } from "./fixtures";
@@ -435,6 +434,9 @@ describe("version 3 policy reads", () => {
     });
     expect(many.chain).toHaveLength(CHAIN_MAX);
     expect(many.chainWithheld).toBeUndefined();
+    // Rows past the cap are counted for the page to state (safeguard 8).
+    expect(many.chainCut).toBe(50);
+    expect(out.chainCut).toBeUndefined();
   });
 });
 
@@ -473,12 +475,6 @@ describe("/api/related", () => {
       `/api/related?source=govinfo&id=${ACCESS_ID}`,
       `api.govinfo.gov/related/${ACCESS_ID}`,
       RELATED,
-    ],
-    [
-      "GovInfo related records in one collection",
-      `/api/related?source=govinfo&id=${ACCESS_ID}&collection=BILLS`,
-      `api.govinfo.gov/related/${ACCESS_ID}/BILLS`,
-      RELATED_BILLS,
     ],
     [
       "Congress.gov related bills",
@@ -540,13 +536,6 @@ describe("/api/related", () => {
       "bad_query",
     ],
     [
-      "a bad collection",
-      `/api/related?source=govinfo&id=${ACCESS_ID}&collection=bills`,
-      KEYED,
-      400,
-      "bad_query",
-    ],
-    [
       "a bad bill",
       "/api/related?source=congress&bill=water",
       KEYED,
@@ -563,6 +552,26 @@ describe("/api/related", () => {
       expect(calls).toHaveLength(0);
     },
   );
+
+  it("ignores a collection an older page still sends and lists the relations", async () => {
+    installFetch({ [`related/${ACCESS_ID}`]: () => reply(RELATED) });
+    const res = await get(
+      `/api/related?source=govinfo&id=${ACCESS_ID}&collection=BILLS`,
+      KEYED,
+    );
+    expect(res.status).toBe(200);
+    expect(calls.map((c) => c.url)).toEqual([
+      `https://api.govinfo.gov/related/${ACCESS_ID}`,
+    ]);
+    expect(await res.json()).toMatchObject({
+      source: "govinfo",
+      accessId: ACCESS_ID,
+      relations: [
+        { relation: "Bill Versions", collection: "BILLS" },
+        { relation: "Public and Private Laws", collection: "PLAW" },
+      ],
+    });
+  });
 
   it("is a known route behind the origin check", async () => {
     installFetch({});

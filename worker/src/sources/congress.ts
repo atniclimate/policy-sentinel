@@ -17,6 +17,7 @@ import {
   spendKey,
 } from "./shared";
 import type { Env } from "./shared";
+import { billRef } from "./congress-related";
 
 export const HOSTS: readonly string[] = ["api.congress.gov"];
 
@@ -25,7 +26,6 @@ async function searchCongress(
   criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
   const { query, page } = criteria;
-  const key = await spendKey(env);
   const m = CONGRESS_REFERENCE.exec(query);
   if (!m) {
     throw new DemoError(
@@ -34,6 +34,7 @@ async function searchCongress(
       400,
     );
   }
+  const key = await spendKey(env);
   const type = m[1].toLowerCase();
   const url = `https://api.congress.gov/v3/bill/${Number(m[3])}/${type}/${Number(m[2])}?format=json`;
   const { response, bytes } = await officialFetch(url, {
@@ -71,33 +72,15 @@ async function searchCongress(
   const latest =
     bill.latestAction === undefined ? {} : record(bill.latestAction);
   const latestText = cleanText(latest.text, 300);
-  const webType = (
-    {
-      hr: "house-bill",
-      s: "senate-bill",
-      hjres: "house-joint-resolution",
-      sjres: "senate-joint-resolution",
-      hconres: "house-concurrent-resolution",
-      sconres: "senate-concurrent-resolution",
-      hres: "house-resolution",
-      sres: "senate-resolution",
-    } as Record<string, string>
-  )[type];
-  const congress = Number(m[3]);
-  const lastTwo = congress % 100;
-  const suffix =
-    lastTwo >= 11 && lastTwo <= 13
-      ? "th"
-      : (["th", "st", "nd", "rd"][congress % 10] ?? "th");
-  const ordinal = `${congress}${suffix}`;
+  const ref = billRef(type, Number(m[2]), Number(m[3]));
   const result: DemoCitation = {
     sourceId: "congress",
-    identifier: `${type.toUpperCase()} ${Number(m[2])}, ${ordinal} Congress`,
+    identifier: ref.identifier,
     title: requiredText(bill.title, 400),
     issuingBody: cleanText(bill.originChamber, 40) || "U.S. Congress",
     kind: "Bill",
     date: isoDate(bill.introducedDate),
-    officialUrl: `https://www.congress.gov/bill/${ordinal}-congress/${webType}/${Number(m[2])}`,
+    officialUrl: ref.officialUrl,
     textUrl: null,
     retrievedAt,
     summary: latestText ? `Latest action: ${latestText}` : null,

@@ -122,6 +122,31 @@ describe("worker access rules", () => {
     ).toBe(204);
   });
 
+  it("stops reading a search body with no stated length at the size limit", async () => {
+    installFetch({});
+    let pulled = 0;
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulled += 1;
+        if (pulled > 16) controller.close();
+        else controller.enqueue(new Uint8Array(65_536).fill(32));
+      },
+    });
+    const res = await worker.fetch(
+      new Request("https://demo.example/api/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Origin: ORIGIN },
+        body,
+        duplex: "half",
+      } as RequestInit),
+      {},
+    );
+    expect(res.status).toBe(400);
+    expect(await res.json()).toMatchObject({ error: "bad_query" });
+    expect(calls).toHaveLength(0);
+    expect(pulled).toBeLessThanOrEqual(2);
+  });
+
   it("fetches only exact allowlisted official hosts, over https", async () => {
     installFetch({});
     await expect(officialFetch("https://example.com/x")).rejects.toMatchObject({
@@ -2102,14 +2127,17 @@ describe("cross-source match keys", () => {
     "accepts %s as a Congress.gov bill reference exactly when the shared grammar does: %s",
     async (query, accepted) => {
       installFetch({});
+      const limit = vi.fn(async () => ({ success: true }));
       const res = await call(
         `/api/search?source=congress&q=${encodeURIComponent(query)}`,
-        keyed,
+        { ...keyed, KEY_RATE: { limit } },
       );
       expect(isCongressReference(query)).toBe(accepted);
       // An accepted reference reaches the unrouted synthetic host and comes back as not found.
       expect(res.status).toBe(accepted ? 404 : 400);
       expect(calls).toHaveLength(accepted ? 1 : 0);
+      // A query that is not a bill reference spends none of the shared allowance.
+      expect(limit).toHaveBeenCalledTimes(accepted ? 1 : 0);
     },
   );
 });

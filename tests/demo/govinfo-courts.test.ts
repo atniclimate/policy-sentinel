@@ -4,7 +4,9 @@
 // 586, and the positive allowlist applied before any cache write. Synthetic
 // fixtures and stubbed fetch only; no live call.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { COPY } from "../../src/demo/copy";
 import { courts as COURTS } from "../../src/demo/copy/courts";
+import { listingCap } from "../../src/demo/discovery";
 import { COURT_LABELS, withheldTitle } from "../../src/demo/courts";
 import type {
   DemoSearchCriteriaV3,
@@ -141,6 +143,18 @@ describe("USCOURTS search by court code", () => {
     expect(body.query).toContain("courtcode:(ord) AND");
   });
 
+  it("says the demo stopped at its one page of 10, and only when GovInfo has more", async () => {
+    serve(SEARCH);
+    const more = await govinfoCourts.search(env, criteria("salmon"));
+    expect(more.continuation).toEqual({ kind: "stopped", reason: "cap" });
+    expect(COPY.pageCap(listingCap("govinfo-courts"))).toContain(
+      "up to 10 listings",
+    );
+    serve({ count: 0, results: [] });
+    const none = await govinfoCourts.search(env, criteria("salmon"));
+    expect(none.continuation).toEqual({ kind: "stopped", reason: "unknown" });
+  });
+
   it("refuses criteria before version 3 without a call", async () => {
     serve(SEARCH);
     const error = await refusal(() =>
@@ -190,6 +204,21 @@ describe("docket lookup with a court code", () => {
       kind: "stopped",
       reason: "not_applicable",
     });
+  });
+
+  it("never serves a newer deployed version an entry cached by an older one", async () => {
+    serve(SUMMARY);
+    const docket = criteria("ca9 99-12345", "court_docket");
+    const deployed = (id: string): Env => ({
+      ...env,
+      CF_VERSION_METADATA: { id },
+    });
+    await govinfoCourts.search(deployed("version-a"), docket);
+    await govinfoCourts.search(deployed("version-a"), docket);
+    expect(calls).toHaveLength(1);
+    await govinfoCourts.search(deployed("version-b"), docket);
+    expect(calls).toHaveLength(2);
+    expect(cacheEntries.size).toBe(2);
   });
 
   it("says GovInfo has no package for an unknown docket", async () => {

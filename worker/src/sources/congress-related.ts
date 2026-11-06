@@ -19,7 +19,8 @@ import {
   spendKey,
 } from "./shared";
 import type { Env } from "./shared";
-import { MAX_RELATED, cachedJson } from "./govinfo-related";
+import { cachedJson } from "../cache";
+import { MAX_RELATED } from "./govinfo-related";
 import type {
   CongressRelatedBills,
   RelatedBill,
@@ -53,8 +54,8 @@ function ordinal(congress: number): string {
   return `${congress}${suffix}`;
 }
 
-/** The identifier and official page of one bill, as congress.ts writes them. */
-function billRef(type: string, number: number, congress: number) {
+/** The identifier and official page of one bill, for search and related bills. */
+export function billRef(type: string, number: number, congress: number) {
   const web = WEB_TYPE[type];
   if (!web || !Number.isSafeInteger(number) || !Number.isSafeInteger(congress))
     throw badUpstream();
@@ -80,7 +81,7 @@ export async function relatedBills(
   const number = Number(m[2]);
   const congress = Number(m[3]);
   const subject = billRef(type, number, congress);
-  return cachedJson("congress-related", subject.identifier, async () => {
+  return cachedJson(env, "congress-related", subject.identifier, async () => {
     const key = await spendKey(env);
     const { response, bytes } = await officialFetch(
       `https://api.congress.gov/v3/bill/${congress}/${type}/${number}/relatedbills?format=json&limit=${MAX_RELATED}`,

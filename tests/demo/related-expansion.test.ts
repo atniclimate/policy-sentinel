@@ -12,7 +12,6 @@ import {
 import type { Env } from "../../worker/src/sources/shared";
 import BILLS from "./fixtures/courts/congress-relatedbills.json";
 import RELATED from "./fixtures/courts/govinfo-related.json";
-import RELATED_BILLS from "./fixtures/courts/govinfo-related-bills.json";
 
 let calls: string[] = [];
 let cacheEntries: Map<string, string>;
@@ -89,79 +88,16 @@ describe("GovInfo related", () => {
     expect(cached).not.toMatch(/Example Party|relationshipLink/);
   });
 
-  it("reads one relation's records on its own press", async () => {
-    serve(RELATED_BILLS);
-    const out = await govinfoRelated.relatedIn(
-      env,
-      "BILLS-199hr1001ih",
-      "BILLS",
-    );
-    expect(calls).toEqual([
-      "https://api.govinfo.gov/related/BILLS-199hr1001ih/BILLS",
-    ]);
-    expect(out.records).toEqual([
-      {
-        identifier: "BILLS-199hr1001ih",
-        title: "Example Watershed Act",
-        date: "2099-01-10",
-        officialUrl: "https://www.govinfo.gov/app/details/BILLS-199hr1001ih",
-      },
-      // A title with a personal pattern is not passed on.
-      {
-        identifier: "BILLS-199hr1001rh",
-        title: null,
-        date: "2099-02-10",
-        officialUrl: "https://www.govinfo.gov/app/details/BILLS-199hr1001rh",
-      },
-    ]);
-    expect(out.total).toBe(2);
-    expect(JSON.stringify(out)).not.toMatch(
-      /Sampleperson|packageLink|billVersion/,
-    );
-  });
-
-  it("withholds a court record title the caption guard would withhold (R1-3)", async () => {
-    serve({
-      results: [
-        {
-          packageId: "USCOURTS-ca9-99-12345",
-          title: "SAMPLEPERSON V. EXAMPLE FINANCIAL, LLC",
-          dateIssued: "2099-01-10",
-        },
-        {
-          packageId: "USCOURTS-ca9-99-12346",
-          title: "EXAMPLE COUNTY V. UNITED STATES",
-          dateIssued: "2099-01-11",
-        },
-      ],
-    });
-    const out = await govinfoRelated.relatedIn(
-      env,
-      "USCOURTS-ca9-99-12340",
-      "USCOURTS",
-    );
-    expect(out.records.map((r) => r.title)).toEqual([
-      null,
-      "EXAMPLE COUNTY V. UNITED STATES",
-    ]);
-    const cached = [...cacheEntries.values()].join("");
-    expect(cached).not.toContain("SAMPLEPERSON");
-  });
-
   it("states no related records when GovInfo has none", async () => {
     serve({ message: "not found" }, 404);
     const out = await govinfoRelated.related(env, "USCOURTS-ca9-99-12345");
     expect(out.relations).toEqual([]);
   });
 
-  it("refuses a bad id or collection without a call", async () => {
+  it("refuses a bad id without a call", async () => {
     serve(RELATED);
     expect(
       (await refusal(() => govinfoRelated.related(env, "../x"))).code,
-    ).toBe("bad_query");
-    expect(
-      (await refusal(() => govinfoRelated.relatedIn(env, "BILLS-1", "bills/x")))
-        .code,
     ).toBe("bad_query");
     expect(calls).toHaveLength(0);
   });

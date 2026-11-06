@@ -19,6 +19,7 @@ import {
   documentTypeFilter,
   parseCfrQuery,
   searchCriteria,
+  searchPageLimit,
   supportsDatedGovinfoQuery,
 } from "./search-contract";
 import type {
@@ -538,8 +539,9 @@ export function failLane(
   return { ...search, state: empty ? "empty" : "unavailable", reason };
 }
 
+/** The listings one source may load: its page limit at 10 a page. */
 export function listingCap(sourceId: string): number {
-  return sourceId === "regulations" ? 200 : 500;
+  return searchPageLimit(sourceId) * 10;
 }
 
 /**

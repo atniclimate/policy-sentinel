@@ -1,4 +1,5 @@
 /** Grants.gov: search only; opportunity text is not read in the demo. */
+import { decodeEntities } from "../../../src/demo/grants-authority";
 import { plainSourceText } from "../../../src/demo/search-contract";
 import type {
   DemoCitation,
@@ -34,41 +35,6 @@ function grantsDate(value: unknown): string | null {
   return isoDate(`${m[3]}-${m[1]}-${m[2]}`);
 }
 
-const NAMED_ENTITIES: Record<string, string> = {
-  amp: "&",
-  lt: "<",
-  gt: ">",
-  quot: '"',
-  apos: "'",
-  nbsp: " ",
-  ndash: "–",
-  mdash: "—",
-  rsquo: "’",
-  lsquo: "‘",
-  rdquo: "”",
-  ldquo: "“",
-};
-
-/** Grants.gov titles carry HTML entities as text (seen live: "&ndash;"); unknown ones stay as written. */
-function decodeEntities(value: unknown): unknown {
-  if (typeof value !== "string") return value;
-  return value.replace(
-    /&(#x[0-9a-f]{1,6}|#\d{1,7}|[a-z]{2,8});/gi,
-    (all, name: string) => {
-      const code =
-        name[0] === "#"
-          ? Number.parseInt(
-              name.slice(name[1] === "x" || name[1] === "X" ? 2 : 1),
-              name[1] === "x" || name[1] === "X" ? 16 : 10,
-            )
-          : NaN;
-      if (Number.isFinite(code))
-        return code > 31 && code <= 0x10ffff ? String.fromCodePoint(code) : all;
-      return NAMED_ENTITIES[name.toLowerCase()] ?? all;
-    },
-  );
-}
-
 /**
  * One search2 hit as a citation. Only these fields are read; search2 hits carry
  * no agency contacts, and fetchOpportunity (which does) is never called.
@@ -86,7 +52,11 @@ function grantsCitation(
   return {
     sourceId: "grants",
     identifier: hit.number,
-    title: requiredText(decodeEntities(hit.title), 400),
+    // Grants.gov titles carry HTML entities as text (seen live: "&ndash;").
+    title: requiredText(
+      typeof hit.title === "string" ? decodeEntities(hit.title) : hit.title,
+      400,
+    ),
     issuingBody:
       cleanText(hit.agency, 160) ||
       cleanText(hit.agencyCode, 40) ||
