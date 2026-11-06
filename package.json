@@ -2,6 +2,7 @@
   "name": "policy-sentinel",
   "version": "0.10.1",
   "private": true,
+  "license": "PolyForm-Noncommercial-1.0.0",
   "description": "Configurable, sovereignty-centered policy monitoring and source-reference engine",
   "type": "module",
   "scripts": {
