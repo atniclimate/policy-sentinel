@@ -240,6 +240,27 @@ describe("U.S. Reports citation lookup", () => {
     expect(JSON.stringify(out)).not.toContain("otherIdentifier");
   });
 
+  it("keeps a Supreme Court case name as GovInfo gives it", async () => {
+    serve({ ...GRANULE, title: "SAMPLEPERSON V. EXAMPLE STATE" });
+    const out = await govinfoCourts.search(
+      env,
+      criteria("199 U.S. 42", "us_reports"),
+    );
+    expect(out.results[0].title).toBe("SAMPLEPERSON V. EXAMPLE STATE");
+  });
+
+  it("withholds a Supreme Court case name the personal guard matches", async () => {
+    serve({ ...GRANULE, title: "Example State v. Mr. Sampleperson" });
+    const out = await govinfoCourts.search(
+      env,
+      criteria("199 U.S. 42", "us_reports"),
+    );
+    expect(out.results[0].title).toBe(withheldTitle("199 U.S. 42"));
+    expect(JSON.stringify([...cacheEntries.values()])).not.toContain(
+      "Sampleperson",
+    );
+  });
+
   it("answers above volume 586 with no call and no key spent", async () => {
     serve(GRANULE);
     const error = await refusal(() =>

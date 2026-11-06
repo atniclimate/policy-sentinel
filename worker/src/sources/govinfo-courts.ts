@@ -9,15 +9,17 @@
  * Every row passes a positive allowlist (package id, title, court code,
  * docket number, date issued, last modified, official link) before any cache
  * write; party names, MODS, download links and every other field are
- * dropped. A caption that may name a person is withheld. GovInfo states no
- * reporter citation for USCOURTS, so those rows say so.
+ * dropped. A lower-court caption that may name a person is withheld; a
+ * U.S. Reports case name is kept as GovInfo gives it unless the D-068
+ * personal guard matches (caseNameShown). GovInfo states no reporter citation
+ * for USCOURTS, so those rows say so.
  */
 import { courts as COURTS } from "../../../src/demo/copy/courts";
 import {
   COURT_CODES,
   COURT_LABELS,
   SUPREME_COURT_LABEL,
-  captionShown,
+  caseNameShown,
   courtDocketReading,
   docketFromPackageId,
   isCourtCode,
@@ -80,7 +82,9 @@ function caseRow(
   return {
     sourceId: "govinfo-courts",
     identifier: fields.identifier,
-    title: captionShown(title) ? title : withheldTitle(fields.withheldAs),
+    title: caseNameShown(fields.kind, title)
+      ? title
+      : withheldTitle(fields.withheldAs),
     issuingBody: fields.issuingBody,
     kind: fields.kind,
     date: isoDate(row.dateIssued),

@@ -5,7 +5,7 @@
  * shown under "Stated by the source" (basis `source_field`). Only the
  * allowlisted fields below reach the cache or the page.
  */
-import { captionShown } from "../../../src/demo/courts";
+import { caseNameShown } from "../../../src/demo/courts";
 import { hasPersonalPattern } from "../../../src/demo/personal-guard";
 import {
   DemoError,
@@ -177,14 +177,14 @@ export async function relatedIn(
             ? packageId
             : `${packageId}/${metadataId(row.granuleId)}`;
         const title = cleanText(row.title, 400);
-        // A court record's title is a case caption, shown only as captionShown allows.
+        // A court record's title is a case caption, shown only as caseNameShown allows.
         const caption = collection === "USCOURTS" || collection === "USREPORTS";
         return {
           identifier: id,
           title:
             title &&
             !hasPersonalPattern(title) &&
-            (!caption || captionShown(title))
+            (!caption || caseNameShown(collection, title))
               ? title
               : null,
           date: isoDate(row.dateIssued),
