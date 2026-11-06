@@ -135,9 +135,15 @@ function chainBlocks(rows: readonly ChainRow[]): DocBlock[] {
         row.stale && CH.stale,
       ];
       out.push({ kind: "small", text: facts.filter(Boolean).join("; ") });
-      const url =
-        (row.kind === "link" && row.target.officialUrl) || row.liveUrl;
-      if (url) out.push({ kind: "small", text: url });
+      // Both links, as the panel shows them: the record, and where the evidence is stated.
+      const target = row.kind === "link" && row.target.officialUrl;
+      if (target && target !== row.liveUrl)
+        out.push({ kind: "small", text: `${CH.openRecord}: ${target}` });
+      if (row.liveUrl)
+        out.push({
+          kind: "small",
+          text: `${CH.liveLink(row.sourceName)}: ${row.liveUrl}`,
+        });
     });
   }
   return out;

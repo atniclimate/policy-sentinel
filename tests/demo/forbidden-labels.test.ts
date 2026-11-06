@@ -8,10 +8,12 @@ import { afterEach, describe, expect, it } from "vitest";
 import { LinkedRecordsPanel } from "../../demo/app/LinkedRecordsPanel";
 import { COPY } from "../../src/demo/copy";
 import { chain } from "../../src/demo/copy/chain";
+import { laneId } from "../../src/demo/discovery";
+import type { Reason } from "../../src/demo/discovery";
 import { buildDocument } from "../../src/demo/document";
 import type { DocBlock } from "../../src/demo/document";
 import { VERBATIM_FIELDS } from "../../src/demo/index-types";
-import { reportEntries } from "../../src/demo/report-state";
+import { foundByOf, reportEntries } from "../../src/demo/report-state";
 import type { ReportState } from "../../src/demo/report-state";
 import type { DemoCitation } from "../../src/demo/types";
 import { keyOf } from "../../src/demo/validation";
@@ -107,15 +109,33 @@ describe("forbidden words in chain labels and exports", () => {
   it("finds none in a built export that carries the chain, outside verbatim official wording", () => {
     const opened = policy("a", frRecord);
     const rows = allRows();
+    // A Find related match and a name search, so the export prints the
+    // related caveat and the name caution (R3-5).
+    const foundBy = [
+      ...foundByOf([{ ...reason("99 CFR 100"), match: "cfr" as const }], {
+        kind: "record",
+        sourceId: "federal-register",
+        identifier: "FR Doc. 2099-00001",
+      }),
+      ...foundByOf([{ ...reason("Sampleperson water"), name: true }], {
+        kind: "draft",
+        id: "PSC-99-001",
+      }),
+    ];
+    const listed: DemoCitation = { ...grantsRow, listedEligibility: "tribal" };
     const entries = [
-      { ...reportEntries(reportOf(opened.citation, opened))[0], chain: rows },
       {
-        ...reportEntries(reportOf(grantsRow))[0],
+        ...reportEntries(reportOf(opened.citation, opened))[0],
+        chain: rows,
+        foundBy,
+      },
+      {
+        ...reportEntries(reportOf(listed))[0],
         chain: [],
         grants: {
           ok: true as const,
           source: "grants" as const,
-          citation: grantsRow,
+          citation: listed,
           authority: "found" as const,
         },
       },
@@ -129,7 +149,7 @@ describe("forbidden words in chain labels and exports", () => {
         template,
       });
       // Exactly the rows' VERBATIM_FIELDS wording is skipped (the panel marks
-      // the same spans), plus the Grants.gov passage, which is quoted official text.
+      // the same spans), and nothing else.
       const verbatim = [
         ...rows.flatMap((row) =>
           row.quote?.text && SKIPPED.has(row.quote.field)
@@ -139,9 +159,17 @@ describe("forbidden words in chain labels and exports", () => {
         ...rows.flatMap((row) =>
           row.sourceWording ? [row.sourceWording] : [],
         ),
-        grantsRow.authorityPassage!.text,
       ];
       expect(exportHits(doc.blocks, verbatim)).toEqual([]);
+      if (template === "citations") {
+        const text = JSON.stringify(doc.blocks);
+        for (const s of [
+          COPY.related.caveat,
+          COPY.docFoundBy.nameCaution,
+          COPY.grants.listedUnder,
+        ])
+          expect(text).toContain(s);
+      }
     }
     // The fixture's official CFR wording holds a forbidden word, so the skip is load-bearing.
     expect(
@@ -207,13 +235,28 @@ function reportOf(
   };
 }
 
+const reason = (terms: string): Reason => ({
+  laneId: laneId("federal-register", terms),
+  group: "related",
+  sourceId: "federal-register",
+  query: terms,
+  label: terms,
+  terms,
+});
+
+/** A Grants.gov string with only the word "eligibility" cut out: its filter's own name. */
+const grantsExempt = leaves(COPY.grants).map(
+  (s) => [s, s.replace(/\beligibility\b/gi, " ")] as const,
+);
+
 /** Forbidden words in an export's own wording, after the given verbatim spans and the exemptions are cut out. */
 function exportHits(blocks: readonly DocBlock[], verbatim: readonly string[]) {
-  const exempt = [...verbatim, ...leaves(COPY.grants), SAFEGUARD_LABEL];
+  const cut = [...verbatim, SAFEGUARD_LABEL];
   return blocks
     .flatMap((b) =>
       b.kind === "field" ? [b.label, b.value] : "text" in b ? [b.text] : [],
     )
-    .map((s) => exempt.reduce((t, w) => t.split(w).join(" "), s))
+    .map((s) => cut.reduce((t, w) => t.split(w).join(" "), s))
+    .map((s) => grantsExempt.reduce((t, [w, r]) => t.split(w).join(r), s))
     .flatMap(forbiddenHits);
 }

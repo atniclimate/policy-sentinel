@@ -11,7 +11,7 @@ export const grants = {
     "Applies to Grants.gov only. It asks Grants.gov for opportunities listed under either eligibility category: Native American tribal governments (Federally recognized); Native American tribal organizations (other than Federally recognized tribal governments). Other sources are searched without it.",
   /** The filter's statement on a row: the search does not say which of the two categories the row has. */
   listedUnder:
-    "Found with the Grants.gov eligibility filter: listed by Grants.gov under at least one of: Native American tribal governments (Federally recognized); Native American tribal organizations (other than Federally recognized tribal governments). This search does not show which.",
+    "Found with the Grants.gov eligibility filter: listed by Grants.gov in at least one of: Native American tribal governments (Federally recognized); Native American tribal organizations (other than Federally recognized tribal governments). This search does not show which.",
   filterApplied:
     "Eligibility filter applied: Tribal governments or Tribal organizations, in Grants.gov's own categories.",
   submittedFilter:

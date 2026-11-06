@@ -666,7 +666,18 @@ describe("the chain and Grants.gov authority in the cited document", () => {
     expect(out).toContain(
       "Basis: Stated in a source field; Source: Federal Register; Published: 2099-01-05; Retrieved: 2099-01-07",
     );
-    expect(out).toContain("https://www.ecfr.gov/current/title-99/part-100");
+    expect(out).toContain(
+      `${chain.openRecord}: https://www.ecfr.gov/current/title-99/part-100`,
+    );
+    // R3-6: every row keeps the live link to where its evidence is stated, labeled.
+    for (const row of rows)
+      if (row.liveUrl)
+        expect(out).toContain(
+          `${chain.liveLink(row.sourceName)}: ${row.liveUrl}`,
+        );
+    expect(rows.some((r) => r.kind === "link" && r.target.officialUrl)).toBe(
+      true,
+    );
     // The authority line is quoted once, above its rows.
     expect(
       out.filter(

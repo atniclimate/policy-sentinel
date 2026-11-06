@@ -62,7 +62,7 @@ export const results = {
   related: {
     loadedFor: "Related by identifier to",
     caveat:
-      "Each search looks up one identifier exactly as the record's source states it, in that source only. A shared docket, RIN, or CFR part does not show that one document amends, governs, or applies to another.",
+      "Each search looks up one identifier exactly as the record's source states it, in that source only. A shared docket, RIN, or CFR part does not show that one document amends or concerns another.",
     searching: "Looking up each identifier in the source that stated it.",
     noResults:
       "None of the identifier searches listed a document on the sources named below.",

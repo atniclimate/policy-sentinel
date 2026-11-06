@@ -92,6 +92,6 @@ export const documentCopy = {
     nameSearchFrom: (seed: string, where: string) =>
       `${seed}: name search for a sponsor listed on an NCAI draft (${where})`,
     nameCaution:
-      "This was a name search. A name match is unreviewed and does not show that this document applies to, or concerns, that Tribe or organization.",
+      "This was a name search. A name match is unreviewed and does not show that this document concerns that Tribe or organization.",
   },
 } as const;
