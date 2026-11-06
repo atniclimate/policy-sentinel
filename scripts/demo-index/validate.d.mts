@@ -33,6 +33,8 @@ export function validateDemoIndex(
     names?: readonly string[];
     probeSource?: string;
     now?: Date;
+    /** C3 as a warning, for the acquisition only; builds and checks enforce it. */
+    staleAsWarning?: boolean;
   },
 ): DemoIndexResult;
 export function schemaErrors(

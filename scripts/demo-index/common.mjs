@@ -6,6 +6,7 @@ import { basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { canonicalJson } from "../../src/core/canonical-json.mjs";
+import { US_STATE_NAMES } from "../../src/core/jurisdiction-reference.mjs";
 import { serializeJson } from "../../src/pipeline/hashing.mjs";
 import {
   BIA_RECOGNITION_2026,
@@ -173,6 +174,15 @@ function headName(text) {
   return out;
 }
 
+/** A trailing ", <State>" list such as ", Arizona, California & Nevada". */
+const STATE_ALT = Object.values(US_STATE_NAMES)
+  .map((s) => s.replaceAll(" ", "\\s+"))
+  .join("|");
+const TRAILING_STATES = new RegExp(
+  `\\s*,\\s*(?:${STATE_ALT})(?:\\s*(?:,\\s*&?|&|and)\\s*(?:${STATE_ALT}))*$`,
+  "i",
+);
+
 /**
  * Nation-name probe names: every raw entry parsed from the official
  * recognition notice HTML at `path` (saved outside the repository), or, by
@@ -186,6 +196,9 @@ export function loadProbeNames(path) {
     names.add(exactText);
     const head = headName(exactText);
     if (head) names.add(head);
+    // G3: the name is also printed without its state ("Example Owingeh").
+    const bare = head.replace(TRAILING_STATES, "");
+    if (bare) names.add(bare);
   }
   return {
     source: path
@@ -230,20 +243,25 @@ const sha256Hex = (text) =>
 /** The hash file for a plain list: hashes, counts and version, never a name. */
 export function probeHashFile(names, entryCount) {
   const forms = new Set();
-  let maxWords = 0;
   for (const name of names) {
     const words = probeWords(name);
     for (const form of words[0] === "the" ? [words, words.slice(1)] : [words])
-      if (form.length) {
-        forms.add(form.join(" "));
-        maxWords = Math.max(maxWords, form.length);
-      }
+      if (form.length) forms.add(form.join(" "));
   }
+  // A form that begins with another listed form never sets the run length:
+  // the scan reaches the shorter form first from the same word. All forms stay
+  // hashed, so the count check in hashedProbe is unchanged.
+  const lengths = [...forms].map((form) => {
+    const words = form.split(" ");
+    for (let n = 1; n < words.length; n += 1)
+      if (forms.has(words.slice(0, n).join(" "))) return 0;
+    return words.length;
+  });
   return {
     artifactType: "nation-name-probe-hashes",
     normalization: PROBE_NORMALIZATION,
     entryCount,
-    maxWords,
+    maxWords: Math.max(0, ...lengths),
     hashes: [...forms].map(sha256Hex).sort(),
   };
 }

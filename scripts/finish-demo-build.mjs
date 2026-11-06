@@ -27,8 +27,9 @@ const signatures = {
   png: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
 };
 
-// The static index (index conditions K1): the validator's full check, then
-// the forbidden list over every file. Absent until the first build lays it down.
+// The static index (index conditions K1): the validator's full check, which
+// also applies the forbidden list (G7) to the manifest and every present file.
+// Absent until the first build lays it down.
 // Index files need the full Nation-name list (G3): the committed hash file, or
 // the plain list named by DEMO_NATION_NAMES.
 function scanDemoData(root, { now, probe } = {}) {
@@ -48,25 +49,7 @@ function scanDemoData(root, { now, probe } = {}) {
     throw new Error(
       `demo build refused: ${result.fileCount} index files present, but the Nation-name probes hold ${probe.entryCount ?? 0} entries, not the full list of ${FULL_PROBE_ENTRIES} (G3)`,
     );
-  const files = ["manifest.json", ...listed(data)];
-  for (const file of files) {
-    const text = readFileSync(join(data, file), "utf8");
-    if (forbidden.some((pattern) => pattern.test(text)))
-      throw new Error("demo build refused: prohibited content in demo index");
-  }
-  return files.length;
-}
-
-function listed(data) {
-  const manifest = JSON.parse(
-    readFileSync(join(data, "manifest.json"), "utf8"),
-  );
-  return manifest.files
-    .filter(
-      (f) =>
-        f.status === "current" || f.status === "retained_after_failed_refresh",
-    )
-    .map((f) => f.path);
+  return result.fileCount + 1; // + 1 is the manifest
 }
 
 export function scanDemoOutput(root, options = {}) {

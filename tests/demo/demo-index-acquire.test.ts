@@ -8,7 +8,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { join } from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { IndexManifest } from "../../src/demo/index-types";
 import {
@@ -23,7 +23,10 @@ import {
   tempDir,
 } from "./fixtures/demo-index/build-index";
 
-afterEach(removeTemps);
+afterEach(() => {
+  vi.useRealTimers();
+  removeTemps();
+});
 
 const CFR_XML = readFileSync(
   "tests/demo/fixtures/demo-index/cfr-title25-trimmed.xml",
@@ -36,7 +39,8 @@ const ZIP =
   "https://www.govinfo.gov/bulkdata/CFR/2025/title-25/CFR-2025-title-25.zip";
 const USLM_ZIP =
   "https://uscode.house.gov/download/releasepoints/us/pl/119/136/xml_usc25@119-136.zip";
-const START = Date.parse("2026-11-05T12:00:00Z");
+// The real clock, so stage validation never finds these files stale (C3).
+const START = Date.now();
 
 interface Answer {
   status?: number;
@@ -45,7 +49,11 @@ interface Answer {
 }
 
 /** A data directory (a copy of the committed manifest unless given), stubbed fetch and a fake clock. */
-function harness(answers: Record<string, Answer>, existing?: string) {
+function harness(
+  answers: Record<string, Answer>,
+  existing?: string,
+  start = START,
+) {
   const dataDir = existing ?? tempDir();
   if (!existing)
     copyFileSync(
@@ -64,7 +72,7 @@ function harness(answers: Record<string, Answer>, existing?: string) {
       readByRole: "owner",
     }),
   );
-  let clock = START;
+  let clock = start;
   const calls: { url: string; at: number }[] = [];
   const lines: string[] = [];
   const deps = {
@@ -216,6 +224,29 @@ describe("acquisition boundary", () => {
     expect(result.exitCode).toBe(0);
     expect(result.plan!.map((r) => r.url)).toEqual([LISTING, ZIP]);
     expect(lines.at(-1)).toMatch(/^2 requests planned/);
+  });
+
+  it("accepts an OLRC release point of the 119-60not43 form", async () => {
+    const fetch = async () => {
+      throw new Error("no request on a dry run");
+    };
+    const result = await runAcquire(
+      [
+        "uslm",
+        "--title",
+        "25",
+        "--release-point",
+        "119-60not43",
+        "--terms-read",
+        "2099-01-01",
+        "--dry-run",
+      ],
+      { fetch, log: () => {} },
+    );
+    expect(result.exitCode).toBe(0);
+    expect(result.plan!.map((r) => r.url)).toEqual([
+      "https://uscode.house.gov/download/releasepoints/us/pl/119/60not43/xml_usc25@119-60not43.zip",
+    ]);
   });
 
   it("refuses a work directory inside the repository", async () => {
@@ -383,6 +414,24 @@ describe("CFR acquisition", () => {
       stage: "fetch",
       message: expect.stringMatching(/text\/html/),
     });
+  });
+
+  it("refreshes a file that has gone stale since 2027-01-01 (C3 is the build's rule)", async () => {
+    const first = harness(cfrAnswers());
+    expect((await first.run(CFR)).exitCode).toBe(0);
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(
+      Math.max(START + 200 * 86_400_000, Date.parse("2027-01-02T00:00:00Z")),
+    );
+    expect(validateDemoIndex(first.dataDir).errors.join("\n")).toMatch(
+      /older than 180 days \(C3\)/,
+    );
+    const retry = harness(cfrAnswers(), first.dataDir, Date.now());
+    expect((await retry.run(CFR)).exitCode).toBe(0);
+    expect(
+      retry.manifest().files.find((f) => f.path === "cfr/title-25.json"),
+    ).toMatchObject({ status: "current" });
+    expect(validateDemoIndex(first.dataDir).errors).toEqual([]);
   });
 
   it("keeps raw bytes in the work directory only when asked", async () => {

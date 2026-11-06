@@ -267,7 +267,9 @@ function checkShard(entry, value, errors) {
 /**
  * Validate a docs/demo-data directory. `probe` is a loaded Nation-name probe,
  * or `names` are plain probe names (default: the committed fixture plus the
- * committed hash file); `now` sets the clock for the stale rule.
+ * committed hash file); `now` sets the clock for the stale rule, and
+ * `staleAsWarning` (the acquisition only) reports C3 as a warning so a stale
+ * file can be refreshed.
  */
 export function validateDemoIndex(dir, options = {}) {
   const now = options.now ?? new Date();
@@ -365,7 +367,10 @@ export function validateDemoIndex(dir, options = {}) {
           warnings.push(
             `${label}: stale, acknowledged ${entry.staleAcknowledgedOn}`,
           );
-        else if (now >= new Date(STALE_ENFORCED_FROM))
+        else if (
+          !options.staleAsWarning &&
+          now >= new Date(STALE_ENFORCED_FROM)
+        )
           errors.push(`${label}: snapshot older than ${STALE_DAYS} days (C3)`);
         else
           warnings.push(

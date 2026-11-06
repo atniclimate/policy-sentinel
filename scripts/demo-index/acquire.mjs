@@ -163,9 +163,9 @@ export function parseAcquireArgs(argv) {
   }
   if (command === "uslm") {
     const point = values["release-point"] ?? "";
-    if (!/^\d{2,3}-\d{1,4}$/.test(point))
+    if (!/^\d{2,3}-\d{1,4}(?:not\d{1,4})?$/.test(point))
       throw new UsageError(
-        '--release-point such as 119-136 is required; "current" is refused',
+        '--release-point such as 119-136 or 119-60not43 is required; "current" is refused',
       );
     options.releasePoint = point;
   }
@@ -531,6 +531,7 @@ function stageAndValidate(dataDir, stageDir, writes, manifest, probe) {
   return validateDemoIndex(stageDir, {
     names: probe.names,
     probeSource: probe.source,
+    staleAsWarning: true,
   });
 }
 
@@ -581,9 +582,11 @@ export async function runAcquire(argv, deps = {}) {
       return { exitCode: 2 };
     }
   }
+  // A stale file must stay refreshable; demo:build and check still enforce C3.
   const before = validateDemoIndex(dataDir, {
     names: probe.names,
     probeSource: probe.source,
+    staleAsWarning: true,
   });
   if (!before.ok) {
     log(

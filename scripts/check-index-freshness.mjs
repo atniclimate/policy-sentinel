@@ -128,7 +128,8 @@ export function planChecks(
       accept: "text/html",
       evaluate: (status, body) => {
         if (status !== 200) return ["not_checked", `HTTP ${status}`];
-        const found = /xml_uscAll@(\d+-\d+(?:not\d+(?:-\d+)?)?)\.zip/.exec(
+        // Only the forms the acquirer accepts: 119-136 and 119-60not43.
+        const found = /xml_uscAll@(\d{2,3}-\d{1,4}(?:not\d{1,4})?)\.zip/.exec(
           body,
         )?.[1];
         if (!found)

@@ -16,16 +16,21 @@ import {
   validateDemoIndex,
 } from "../../scripts/demo-index/validate.mjs";
 import {
+  DEFAULT_PROBE_FIXTURE,
   PROBE_NORMALIZATION,
   hashedProbe,
   loadNationProbe,
   loadProbeNames,
   probeHashFile,
+  probeHashHit,
+  probeHit,
+  wordingProblem,
   type NationProbe,
   type NationProbeHashFile,
 } from "../../scripts/demo-index/common.mjs";
 import { fullProbeNames, nationNameBases } from "../support/nation-name-probes";
 import {
+  RETRIEVED,
   cfrShard,
   probeFile,
   removeTemps,
@@ -384,6 +389,11 @@ describe("static index validator", () => {
     expect(acknowledged.ok).toBe(true);
   });
 
+  it("stamps fixture files with the real clock, so C3 never trips on the test date (C3)", () => {
+    // The G3 test validates in a child process, which no fake clock reaches.
+    expect(Date.now() - Date.parse(RETRIEVED)).toBeLessThan(3_600_000);
+  });
+
   it("allows official wording that holds a model word (G5 skips verbatim fields)", () => {
     expect(check(withVocabLabel("Model Codes Office")).ok).toBe(true);
   });
@@ -448,6 +458,43 @@ describe("hashed Nation-name probes (decision 10)", () => {
       ["Example Valley Sample", probe],
     ] as const)
       expect(scan(label, p), label).not.toMatch(/Nation-name probe hit/);
+  });
+
+  it("also probes a name printed without the state its entry ends with (G3)", () => {
+    const notice = join(tempDir(), "recognition-notice.html");
+    writeFileSync(
+      notice,
+      readFileSync(DEFAULT_PROBE_FIXTURE, "utf8").replace(
+        "</body>",
+        [
+          '<p class="flush-paragraph flush-paragraph-1">Example Owingeh, New Mexico (previously listed as the Pueblo of Example)</p>',
+          '<p class="flush-paragraph flush-paragraph-1">Sampleton Folk, Arizona, California &amp; Nevada</p>',
+          "</body>",
+        ].join("\n"),
+      ),
+    );
+    const { names, entryCount } = loadProbeNames(notice);
+    const hashed = {
+      ...hashedProbe(probeHashFile(names, entryCount), "t"),
+      names: [],
+    };
+    for (const text of [
+      "Pub. L. 99-1 relating to Example Owingeh water rights",
+      "Sampleton Folk",
+    ]) {
+      expect(wordingProblem(text, names), text).toBe("nation_name_probe");
+      expect(probeHit(text, hashed), text).toBe(true);
+    }
+  });
+
+  it("sets maxWords by the shortest listed form, not the long entry text", () => {
+    const { names, entryCount } = loadProbeNames();
+    const file = probeHashFile(names, entryCount);
+    const words = (name: string) => name.split(/\s+/).length;
+    expect(file.maxWords).toBeLessThan(Math.max(...names.map(words)));
+    const probe = hashedProbe(file, "fixture");
+    for (const name of names)
+      expect(probeHashHit(`Report on ${name}.`, probe), name).toBe(true);
   });
 
   it("loads the default hash file only when present and a named one always", () => {

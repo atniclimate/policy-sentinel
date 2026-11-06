@@ -35,7 +35,9 @@ import {
   shardBytes,
 } from "../../../../scripts/demo-index/common.mjs";
 
-export const RETRIEVED = "2026-11-05T12:00:00Z";
+// Fresh, so the C3 stale rule never trips on the real clock (the G3 test
+// validates in a child process).
+export const RETRIEVED = new Date().toISOString();
 export const RIGHTS = {
   statementText: "none stated",
   url: "https://www.federalregister.gov/reader-aids/developer-resources",
