@@ -677,4 +677,3 @@ validator computes them); a `buildId` (the git commit is the build id); per-entr
 retrieval times; agency descriptions and numeric ids; a relation verb for
 `reclassifiedAs` (the note is quoted, the page asserts nothing); any `nation`,
 `treaty`, `jurisdiction`, `eligibility` or land field; AI summaries.
-
