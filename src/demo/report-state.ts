@@ -296,7 +296,8 @@ const STATED_FIELDS = [
   "applicationsCloseOn",
   "listedEligibility",
 ];
-const MEMORY_ONLY = new Set(["foundBy", ...STATED_FIELDS]);
+// chain: a version 3 read's rows (up to 200) are rebuilt on read, never saved.
+const MEMORY_ONLY = new Set(["foundBy", "chain", ...STATED_FIELDS]);
 
 /**
  * The read text's citation, with the v2 fields the listed row stated where the

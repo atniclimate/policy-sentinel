@@ -43,4 +43,17 @@ export const chain = {
   withdrawn: (date: string) =>
     `Withdrawn on ${date} while the source's terms are reviewed`,
   stale: "Snapshot older than six months; check the source.",
+  /** Where an index hop's live link goes, by the hop target's source. */
+  indexSources: {
+    "cfr-index": "eCFR",
+    "usc-index": "the Office of the Law Revision Counsel",
+  },
+  /** An index hop whose part or section the file does not hold. */
+  notInIndex: "Not in the index file",
+  /** An index hop opened from the search box; the rows show in an opened record's chain. */
+  hopRows: (n: number) =>
+    `${n} ${n === 1 ? "row" : "rows"} in the index file; open a record that cites it to see them`,
+  /** The source listed more than the Worker brought back. */
+  cut: (shown: number, total: number) =>
+    `${shown} of ${total} listed by the source are shown here; open the source for the rest`,
 } as const;

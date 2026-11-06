@@ -19,7 +19,7 @@ export const grantsAuthority = {
     "No full U.S. Code or Public Law citation was found in the passage.",
   citationParsed: "Parsed from the quoted passage",
   coverage:
-    "A forecast, a posted opportunity, and a stated authority citation are different things. This panel shows only what the opportunity record states. Appropriation, award, obligation, and disbursement are not covered.",
+    "A forecast, a posted opportunity, and a stated authority citation are different things. This shows only what the opportunity record states. Appropriation, award, obligation, and disbursement are not covered.",
   loading: "Reading the Grants.gov opportunity record.",
   failed:
     "The Grants.gov opportunity record could not be read. Open the opportunity at Grants.gov.",

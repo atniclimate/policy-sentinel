@@ -8,8 +8,12 @@
  * Everything here is pure. The page owns requests, AbortController and sequence
  * ownership, and turns each skip reason code into words.
  */
+import { router } from "./copy/router";
+import { COURT_CODES, courtDocketReading } from "./courts";
+import type { CourtCode } from "./courts";
 import { appendMergedResults, isCongressReference } from "./merge";
 import type { MergedResult } from "./merge";
+import type { RouteReading } from "./query-route";
 import {
   cfrQuery,
   documentTypeFilter,
@@ -48,12 +52,26 @@ export type LaneGroup = "policy" | "legislation" | "bill" | "case" | "related";
 export type LaneMatch = Exclude<DemoSearchMatch, "text">;
 
 /**
+ * A search contract v3 lookup on GovInfo court opinions (T1.5): a docket
+ * number in one named court ("ca9 23-1234"), or a U.S. Reports citation.
+ */
+export type CourtLookup = "court_docket" | "us_reports";
+
+/** The source that answers court lookups; it takes search contract v3 only. */
+export const COURTS_SOURCE = "govinfo-courts";
+
+/**
  * What a plan grows from. A draft seed holds its ID only; the page supplies the
  * title it shows. A record seed is an official record's own identity.
  */
 export type Seed =
   | { readonly kind: "draft"; readonly id: string }
-  | { readonly kind: "typed"; readonly query: string }
+  | {
+      readonly kind: "typed";
+      readonly query: string;
+      /** The label of the reading chosen in the suggestions; absent when searched as words. */
+      readonly reading?: string;
+    }
   | { readonly kind: "area"; readonly label: string }
   | {
       readonly kind: "record";
@@ -82,6 +100,8 @@ export interface PlanSearch {
   readonly auto: boolean;
   /** An exact identifier in `query`, as `source` itself spells it. */
   readonly match?: LaneMatch;
+  /** A court lookup in `query`; sent with that version 3 match. */
+  readonly lookup?: CourtLookup;
 }
 
 /**
@@ -123,6 +143,8 @@ export interface Lane {
   readonly name?: true;
   /** An exact identifier in `query`; the lane is sent with that match. */
   readonly match?: LaneMatch;
+  /** A court lookup in `query`; the lane is sent with that version 3 match. */
+  readonly lookup?: CourtLookup;
   /**
    * The plan has a type filter this source has no equivalent for, so the lane
    * runs without it and the page states "type filter not applied".
@@ -154,26 +176,26 @@ const NO_DATES: PlanDates = { dateFrom: null, dateTo: null };
 export const laneId = (
   sourceId: string,
   query: string,
-  match?: LaneMatch,
+  match?: LaneMatch | CourtLookup,
 ): string => (match ? `${sourceId}#${match}:${query}` : `${sourceId}:${query}`);
 
 /**
  * The search options a lane is sent with, first page or `continuation`. Every
- * lane opts in to contract v2; the type filter goes only where the source has
- * an equivalent, the eligibility filter only to Grants.gov, and the plan's
- * dates always go.
+ * lane opts in to contract v2, and court lanes to v3; the type filter goes
+ * only where the source has an equivalent, the eligibility filter only to
+ * Grants.gov, and the plan's dates always go.
  */
 export function laneOptions(
   plan: PlanDates,
-  lane: Pick<Lane, "sourceId" | "match" | "typeNotApplied">,
+  lane: Pick<Lane, "sourceId" | "match" | "lookup" | "typeNotApplied">,
   continuation: DemoSearchCursor | null = null,
 ): DemoSearchOptions {
   return {
     dateFrom: plan.dateFrom,
     dateTo: plan.dateTo,
     continuation,
-    version: 2,
-    match: lane.match ?? "text",
+    version: lane.sourceId === COURTS_SOURCE ? 3 : 2,
+    match: lane.match ?? lane.lookup ?? "text",
     documentType: lane.typeNotApplied ? null : (plan.documentType ?? null),
     ...(lane.sourceId === "grants" &&
       plan.eligibility && { eligibility: plan.eligibility }),
@@ -183,7 +205,10 @@ export function laneOptions(
 /** Whether a lane's source can take its query as written; Find related and Follow both ask this. */
 export function lookupReady(
   plan: PlanDates,
-  lane: Pick<Lane, "sourceId" | "query" | "match" | "typeNotApplied">,
+  lane: Pick<
+    Lane,
+    "sourceId" | "query" | "match" | "lookup" | "typeNotApplied"
+  >,
 ): boolean {
   try {
     searchCriteria(lane.sourceId, lane.query, 1, laneOptions(plan, lane));
@@ -240,7 +265,7 @@ export function buildPlan(
           ? sources.federal
           : [NO_FEDERAL_SOURCE];
     for (const sourceId of ids) {
-      const id = laneId(sourceId, search.query, search.match);
+      const id = laneId(sourceId, search.query, search.match ?? search.lookup);
       if (seen.has(id)) continue;
       seen.add(id);
       let skip = skipReason(sourceId, search.query, sources, dates);
@@ -260,6 +285,7 @@ export function buildPlan(
         ...(skip && { skip }),
         ...(search.group === "sponsor" && { name: true as const }),
         ...(search.match && { match: search.match }),
+        ...(search.lookup && { lookup: search.lookup }),
         ...(typeNotApplied && { typeNotApplied: true as const }),
       });
     }
@@ -339,9 +365,16 @@ export function statesIdentifier(
  * themselves. Other lanes keep everything (undefined).
  */
 export function laneKeep(
-  lane: Pick<Lane, "match" | "query">,
+  lane: Pick<Lane, "match" | "query" | "lookup">,
 ): ((citation: DemoCitation) => boolean) | undefined {
-  const { match, query } = lane;
+  const { match, query, lookup } = lane;
+  if (lookup === "court_docket") {
+    // The package the court and docket name, as GovInfo spells it.
+    const packageId = courtDocketReading(query)?.packageId;
+    return (citation) => citation.packageId === packageId;
+  }
+  // shortcut: a U.S. Reports lookup keeps what the Worker matched by volume and page; check granule ids here if the Worker ever lists more.
+  if (lookup === "us_reports") return undefined;
   return match
     ? (citation) => statesIdentifier(citation, match, query)
     : undefined;
@@ -367,6 +400,78 @@ export function typedPlan(
     sources,
     dates,
   );
+}
+
+/**
+ * The court a chosen court docket reading names, from its own label (the
+ * router names the court there and nowhere else); null when the reading
+ * names none this demo searches. A docket alone is never given a court.
+ */
+export function readingCourt(reading: RouteReading): CourtCode | null {
+  if (reading.kind !== "court_docket") return null;
+  return (
+    COURT_CODES.find(
+      (code) =>
+        router.circuitDocket(code, reading.identifier) === reading.label &&
+        router.circuitName(code) !== router.circuitName(""),
+    ) ?? null
+  );
+}
+
+const STATE_SOURCE: Readonly<Record<string, string>> = { WA: "washington" };
+
+/**
+ * The one search a chosen live reading runs, in the source that holds that
+ * kind of identifier, or null when no lookup here can take it (a court the
+ * demo does not search, a court not named). Nothing else is filtered by the
+ * reading's jurisdiction or court.
+ */
+export function readingSearch(reading: RouteReading): PlanSearch | null {
+  if (reading.action !== "live_lookup") return null;
+  const { identifier: query, label } = reading;
+  const base = { group: "policy", query, label, auto: true } as const;
+  switch (reading.kind) {
+    case "docket":
+    case "rin":
+      return { ...base, source: "federal-register", match: reading.kind };
+    case "cfr":
+      return {
+        ...base,
+        source: "federal-register",
+        ...(parseCfrQuery(query) && { match: "cfr" as const }),
+      };
+    case "fr_document":
+      return { ...base, source: "federal-register" };
+    case "federal_bill":
+      return isCongressReference(query)
+        ? { ...base, source: "congress" }
+        : null;
+    case "state_bill": {
+      const source = STATE_SOURCE[reading.jurisdiction ?? ""];
+      return source ? { ...base, group: "bill", source } : null;
+    }
+    case "us_reports":
+      return {
+        ...base,
+        group: "case",
+        source: COURTS_SOURCE,
+        lookup: "us_reports",
+      };
+    case "court_docket": {
+      const court = readingCourt(reading);
+      return court
+        ? {
+            ...base,
+            group: "case",
+            source: COURTS_SOURCE,
+            query: `${court} ${query}`,
+            lookup: "court_docket",
+          }
+        : null;
+    }
+    default:
+      return null;
+  }
 }
 
 /** One lane's search, as the page tracks it; mirrors the single-query state. */
@@ -505,6 +610,8 @@ export interface Reason {
   readonly name?: true;
   /** Copied from the lane: the identifier kind matched exactly. */
   readonly match?: LaneMatch;
+  /** Copied from the lane: the court lookup it was. */
+  readonly lookup?: CourtLookup;
 }
 
 export interface DiscoveryRow extends MergedResult {
@@ -570,6 +677,7 @@ export function mergeLanes(
       ...(lane.collection && { collection: lane.collection }),
       ...(lane.name && { name: true as const }),
       ...(lane.match && { match: lane.match }),
+      ...(lane.lookup && { lookup: lane.lookup }),
     };
     for (const citation of search.listings) {
       const reasons = shownBy.get(keyOf(citation)) ?? [];

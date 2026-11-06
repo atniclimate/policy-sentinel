@@ -25,7 +25,9 @@ import type {
 import { LINK_NOTICES, linkLabel } from "./link-labels.ts";
 import type { LabelId } from "./link-labels.ts";
 import type {
+  CongressRelatedBills,
   DemoCitation,
+  GovInfoRelations,
   LinkFamily,
   LinkedRecord,
   TextBlock,
@@ -592,6 +594,98 @@ export function citationsInText(
       }
     }
   }
+  return rows;
+}
+
+/** The related-records family a record expands on a press, and its one Worker request. */
+export type RelatedTarget =
+  | {
+      readonly id: "govinfo_related";
+      readonly request: { readonly source: "govinfo"; readonly id: string };
+    }
+  | {
+      readonly id: "congress_related_bills";
+      readonly request: { readonly source: "congress"; readonly bill: string };
+    };
+
+const ACCESS_ID = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$/;
+/** A Congress.gov row identifier as congress.ts writes it: "HR 1234, 119th Congress". */
+const CONGRESS_ROW =
+  /^([A-Z]{1,7}) (\d{1,5}), (\d{1,3})(?:st|nd|rd|th) Congress$/;
+
+/** Null when the record's source states no related records the Worker reads. */
+export function relatedTargetOf(citation: DemoCitation): RelatedTarget | null {
+  if (
+    citation.sourceId === "govinfo" ||
+    citation.sourceId === "govinfo-courts"
+  ) {
+    // A granule row is "<package>/<granule>"; GovInfo relates the granule itself.
+    const id =
+      (citation.packageId ?? citation.identifier).split("/").pop() ?? "";
+    return ACCESS_ID.test(id)
+      ? { id: "govinfo_related", request: { source: "govinfo", id } }
+      : null;
+  }
+  const m =
+    citation.sourceId === "congress"
+      ? CONGRESS_ROW.exec(citation.identifier)
+      : null;
+  return m
+    ? {
+        id: "congress_related_bills",
+        request: {
+          source: "congress",
+          bill: `${m[1].toLowerCase()} ${m[2]} ${m[3]}`,
+        },
+      }
+    : null;
+}
+
+/**
+ * Rows for one expansion answer, labeled with the source's own relation
+ * name. A list the source cut says so, so it never reads as complete.
+ */
+export function relatedRows(
+  answer: GovInfoRelations | CongressRelatedBills,
+  record: DemoCitation,
+): ChainRow[] {
+  const p: Provenance = {
+    sourceName: SOURCE_LABELS[answer.source] ?? answer.source,
+    asOfLabel: "retrieved",
+    asOfText: answer.retrievedAt.slice(0, 10),
+    asOfField: null,
+    retrievedAt: answer.retrievedAt,
+    stale: false,
+    liveUrl: record.officialUrl,
+  };
+  if (answer.source === "govinfo")
+    return answer.relations.map((r) => ({
+      ...note(p, "stated", r.relation, null),
+      labelVerbatim: true,
+    }));
+  const rows: ChainRow[] = answer.records.map((r) => ({
+    ...link(p, "congress_related_bills", "forward", "", "source_field", {
+      target: {
+        sourceId: "congress",
+        identifier: r.identifier,
+        officialUrl: r.officialUrl,
+      },
+      text: `${r.identifier}: ${r.title}`,
+      family: "laws_and_bills",
+      notice: null,
+    }),
+    label: r.relation,
+    labelVerbatim: true,
+  }));
+  if (answer.total !== null && answer.total > answer.records.length)
+    rows.push(
+      note(
+        p,
+        "stated",
+        linkLabel("congress_related_bills", "forward"),
+        chain.cut(answer.records.length, answer.total),
+      ),
+    );
   return rows;
 }
 

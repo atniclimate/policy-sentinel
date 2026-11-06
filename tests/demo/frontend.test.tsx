@@ -130,7 +130,9 @@ async function start() {
 }
 
 async function showResult(ui: ReturnType<typeof within>, query = "water") {
-  fireEvent.input(ui.getByRole("searchbox"), { target: { value: query } });
+  fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
+    target: { value: query },
+  });
   fireEvent.click(ui.getByRole("button", { name: "Search" }));
   await ui.findAllByRole("button", { name: /Add to my citations/ });
 }
@@ -376,8 +378,11 @@ describe("demo browser state and report ownership", () => {
         .closest(".pane"),
     ).toBeNull();
     fireEvent.click(ui.getByRole("button", { name: "Search" }));
-    expect(ui.getByRole("searchbox")).toHaveAttribute("aria-invalid", "true");
-    expect(ui.getByRole("searchbox")).toHaveAttribute(
+    expect(ui.getByRole("combobox", { name: "Search terms" })).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+    expect(ui.getByRole("combobox", { name: "Search terms" })).toHaveAttribute(
       "aria-describedby",
       "q-help q-error",
     );
@@ -465,7 +470,7 @@ describe("demo search scope and sources", () => {
     vi.mocked(search).mockResolvedValue(
       searchResult([], "HB 1100", "washington"),
     );
-    fireEvent.input(ui.getByRole("searchbox"), {
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
       target: { value: "HB 1100" },
     });
     fireEvent.click(ui.getByRole("button", { name: "Search" }));
@@ -603,7 +608,9 @@ describe("demo search scope and sources", () => {
     });
     const { ui } = await start();
     fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
-    fireEvent.input(ui.getByRole("searchbox"), { target: { value: "water" } });
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
+      target: { value: "water" },
+    });
     fireEvent.click(ui.getByRole("button", { name: "Search" }));
     await ui.findByText(
       "The selected sources were unavailable. No empty result is established.",
@@ -618,7 +625,7 @@ describe("demo search scope and sources", () => {
     );
     const { ui } = await start();
     fireEvent.click(ui.getByRole("button", { name: "State legislature" }));
-    fireEvent.input(ui.getByRole("searchbox"), {
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
       target: { value: "HB 1100" },
     });
     fireEvent.click(ui.getByRole("button", { name: "Search" }));
@@ -700,7 +707,9 @@ describe("demo search scope and sources", () => {
     vi.mocked(search).mockRejectedValue(new ApiFailure("service", "service"));
     const { ui } = await start();
     fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
-    fireEvent.input(ui.getByRole("searchbox"), { target: { value: "water" } });
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
+      target: { value: "water" },
+    });
     fireEvent.click(ui.getByRole("button", { name: "Search" }));
     expect(
       await ui.findAllByText(/The demo service did not answer/),
@@ -784,7 +793,9 @@ describe("demo search scope and sources", () => {
     const { ui, container } = await start();
     fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
     fireEvent.click(ui.getByRole("checkbox", { name: /Regulations\.gov/ }));
-    fireEvent.input(ui.getByRole("searchbox"), { target: { value: "water" } });
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
+      target: { value: "water" },
+    });
     fireEvent.click(ui.getByRole("button", { name: "Search" }));
     const titles = () =>
       [...container.querySelectorAll(".pane-results .result h3")].map(
@@ -832,7 +843,9 @@ describe("demo search scope and sources", () => {
     );
     const { ui } = await start();
     fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
-    fireEvent.input(ui.getByRole("searchbox"), { target: { value: "water" } });
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
+      target: { value: "water" },
+    });
     fireEvent.click(ui.getByRole("button", { name: "Search" }));
     await waitFor(() => expect(search).toHaveBeenCalledTimes(2));
     await act(async () => {});
@@ -876,12 +889,14 @@ describe("demo search scope and sources", () => {
     const { ui } = await start();
     fireEvent.click(ui.getByRole("checkbox", { name: /Congress\.gov/ }));
     fireEvent.click(ui.getByRole("checkbox", { name: /Federal Register/ }));
-    fireEvent.input(ui.getByRole("searchbox"), { target: { value: "water" } });
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
+      target: { value: "water" },
+    });
     fireEvent.click(ui.getByRole("button", { name: "Search" }));
     expect(ui.getByRole("alert")).toHaveTextContent(
       "Congress.gov takes one bill reference",
     );
-    expect(ui.getByRole("searchbox")).toHaveFocus();
+    expect(ui.getByRole("combobox", { name: "Search terms" })).toHaveFocus();
     expect(search).not.toHaveBeenCalled();
 
     // With nothing checked the reason is stated and Search is off.
@@ -1100,7 +1115,9 @@ describe("demo keyboard focus and status messages", () => {
     const searching = deferred<DemoSearchResponse>();
     vi.mocked(search).mockReturnValueOnce(searching.promise);
     const searchButton = ui.getByRole("button", { name: "Search" });
-    fireEvent.input(ui.getByRole("searchbox"), { target: { value: "water" } });
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
+      target: { value: "water" },
+    });
     fireEvent.click(searchButton);
     busy(searchButton);
     fireEvent.click(searchButton);
@@ -1140,7 +1157,7 @@ describe("demo keyboard focus and status messages", () => {
 
   it("says why search is off when it is asked for", async () => {
     const { ui } = await start();
-    const terms = () => ui.getByRole("searchbox");
+    const terms = () => ui.getByRole("combobox", { name: "Search terms" });
     fireEvent.click(ui.getByRole("button", { name: "State legislature" }));
     fireEvent.change(ui.getByLabelText("State"), {
       target: { value: "oregon" },
@@ -1430,7 +1447,7 @@ describe("demo keyboard focus and status messages", () => {
       expect(name).toHaveFocus();
 
       // Chrome's order: the narrower layout takes focus first, then reports the change.
-      const terms = ui.getByRole("searchbox");
+      const terms = ui.getByRole("combobox", { name: "Search terms" });
       terms.focus();
       watched("(min-width: 64rem)").matches = false;
       act(() => terms.blur());
@@ -1686,7 +1703,7 @@ describe("demo frame: panes, dialog and theme", () => {
     }
     expect(search).not.toHaveBeenCalled();
     // A draft runs several searches; none is copied into the typed search box.
-    expect(ui.getByRole("searchbox")).toHaveValue("");
+    expect(ui.getByRole("combobox", { name: "Search terms" })).toHaveValue("");
   });
 
   it("loads a chosen draft's search into Results, labeled, and clears it for a draft with none", async () => {
@@ -1766,7 +1783,7 @@ describe("demo frame: panes, dialog and theme", () => {
     expect(menu.open).toBe(false);
     // Focus or a click outside closes the open menu.
     menu.open = true;
-    ui.getByRole("searchbox").focus();
+    ui.getByRole("combobox", { name: "Search terms" }).focus();
     expect(menu.open).toBe(false);
     menu.open = true;
     fireEvent.pointerDown(document.body);
@@ -1910,7 +1927,9 @@ describe("demo dates and explicit continuation", () => {
 
   it("validates paired dates before calling sources and retains submitted criteria during edits", async () => {
     const { ui } = await start();
-    fireEvent.input(ui.getByRole("searchbox"), { target: { value: "water" } });
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
+      target: { value: "water" },
+    });
     dates(ui, "2025-01-01", "");
     fireEvent.click(ui.getByRole("button", { name: "Search" }));
     expect(search).not.toHaveBeenCalled();
@@ -1929,7 +1948,7 @@ describe("demo dates and explicit continuation", () => {
       match: "text",
       documentType: null,
     });
-    fireEvent.input(ui.getByRole("searchbox"), {
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
       target: { value: "draft terms" },
     });
     dates(ui, "2024-01-01", "2024-12-31");
@@ -2014,13 +2033,13 @@ describe("demo dates and explicit continuation", () => {
         searchResult([citation("2099-00002", "New dated result")], "new water"),
       );
     const { ui } = await start();
-    fireEvent.input(ui.getByRole("searchbox"), {
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
       target: { value: "old water" },
     });
     fireEvent.click(ui.getByRole("button", { name: "Search" }));
     const oldSignal = vi.mocked(search).mock.calls[0][3];
     dates(ui, "2025-01-01", "2025-12-31");
-    fireEvent.input(ui.getByRole("searchbox"), {
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
       target: { value: "new water" },
     });
     expect(ui.getByRole("button", { name: "Search" })).toHaveAttribute(
@@ -2172,7 +2191,9 @@ describe("demo dates and explicit continuation", () => {
     answerBySource();
     const { ui, shell } = await start();
     fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
-    fireEvent.input(ui.getByRole("searchbox"), { target: { value: "water" } });
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
+      target: { value: "water" },
+    });
     fireEvent.click(ui.getByRole("button", { name: "Search" }));
     await ui.findByRole("button", { name: /^In my citations:/ });
     const row = shell.querySelector(".result") as HTMLElement;
@@ -2200,7 +2221,9 @@ describe("demo dates and explicit continuation", () => {
     });
     const { ui } = await start();
     fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
-    fireEvent.input(ui.getByRole("searchbox"), { target: { value: "water" } });
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
+      target: { value: "water" },
+    });
     fireEvent.click(ui.getByRole("button", { name: "Search" }));
     await ui.findByText(
       "No results loaded. At least one selected source was unavailable.",
@@ -2215,7 +2238,9 @@ describe("demo dates and explicit continuation", () => {
     const { ui } = await start();
     fireEvent.click(ui.getByRole("checkbox", { name: /GovInfo/ }));
     fireEvent.click(ui.getByRole("checkbox", { name: /Federal Register/ }));
-    fireEvent.input(ui.getByRole("searchbox"), { target: { value: "water" } });
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
+      target: { value: "water" },
+    });
     fireEvent.click(ui.getByRole("button", { name: "Search" }));
     await ui.findByText("No listings loaded on this page");
     expect(ui.queryByText("No matches")).not.toBeInTheDocument();
@@ -3113,7 +3138,7 @@ describe("demo seeded discovery from NCAI drafts", () => {
     );
     await ui.findByText(/Citation and text saved/);
     fireEvent.click(ui.getByRole("button", { name: "fish passage" }));
-    fireEvent.input(ui.getByRole("searchbox"), {
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
       target: { value: "salmon habitat" },
     });
     fireEvent.click(ui.getByRole("button", { name: "Search" }));
@@ -3586,7 +3611,7 @@ describe("demo export nits, comment dates and following", () => {
     fireEvent.click(ui.getByRole("button", { name: /Add to my citations/ }));
     const notes = shell.querySelector(".notes") as HTMLElement;
     expect(notes).toHaveTextContent("Added Example Water Policy.");
-    fireEvent.input(ui.getByRole("searchbox"), {
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
       target: { value: "forests" },
     });
     fireEvent.click(ui.getByRole("button", { name: "Search" }));

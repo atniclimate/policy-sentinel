@@ -8,7 +8,7 @@ export const follow = {
   following: "Following",
   followDocument: "Follow document",
   followingDocument: "Following document",
-  kinds: { docket: "docket", rin: "RIN", document: "document" },
+  kinds: { docket: "docket", rin: "RIN", document: "document", case: "case" },
   from: (source: string, identifier: string) =>
     `From ${source} record ${identifier}`,
   followedOn: "Followed",

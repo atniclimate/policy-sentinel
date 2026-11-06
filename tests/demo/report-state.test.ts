@@ -123,6 +123,21 @@ describe("citation report recovery and evidence binding", () => {
     expect(restoreReport(encoded).report).toEqual(original);
   });
 
+  it("never saves a version 3 read's chain rows, which are rebuilt on read", () => {
+    const original = saved();
+    const [key] = Object.keys(original.cited);
+    const entry = original.cited[key];
+    const withChain = {
+      ...original,
+      cited: {
+        [key]: { ...entry, policy: { ...entry.policy, version: 3, chain: [] } },
+      },
+    } as unknown as ReportState;
+    const encoded = serializeReport(withChain);
+    expect(encoded).not.toContain('"chain"');
+    expect(JSON.parse(encoded).cited[key].policy.version).toBe(3);
+  });
+
   it("keeps valid entries while rejecting unsafe URLs, invalid entries and orphan marks", () => {
     const original = saved();
     const bad = citation("2099-00002");

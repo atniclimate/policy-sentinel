@@ -1,6 +1,11 @@
 import { atniReferences, ieeeReference, SOURCE_LABELS } from "./citations";
 import { COPY } from "./copy";
 import { briefing as B } from "./copy/briefing";
+import { chain as CH } from "./copy/chain.ts";
+import { grantsAuthority as GA } from "./copy/grants-authority.ts";
+import type { GrantsDetailResponse } from "./grants-authority.ts";
+import { LINK_NOTICES } from "./link-labels.ts";
+import type { ChainRow, ChainSection } from "./links.ts";
 import { localDay } from "./follow";
 import type { FollowCheck, Followed } from "./follow";
 import type { ExportTemplate } from "./mode";
@@ -47,10 +52,18 @@ export interface DocModel {
   readonly blocks: readonly DocBlock[];
 }
 
+/** One cited entry as an export carries it. */
+export type DocEntry = ReturnType<typeof reportEntries>[number] & {
+  /** The record's chain rows the page holds; absent leaves the section out. */
+  readonly chain?: readonly ChainRow[];
+  /** A Grants.gov opportunity record read this session. */
+  readonly grants?: GrantsDetailResponse;
+};
+
 export interface DocInput {
   readonly version: string;
   readonly generatedAt: Date;
-  readonly entries: ReturnType<typeof reportEntries>;
+  readonly entries: readonly DocEntry[];
   readonly actors: DataActors;
   /** Cited Policies unless "briefing" (src/demo/mode.ts). */
   readonly template?: ExportTemplate;
@@ -79,6 +92,88 @@ export function trackingState(entry: BriefingCheck): TrackingState {
   if (check?.state !== "checked") return "not_checked";
   if (entry.listed === false) return "no_longer_listed";
   return check.fresh.length ? "new" : "unchanged";
+}
+
+const CHAIN_SECTIONS: readonly ChainSection[] = [
+  "stated",
+  "identifiers",
+  "inText",
+];
+
+/** The record's chain as its panel shows it: each row with basis, source, as-of, retrieval and live link. */
+function chainBlocks(rows: readonly ChainRow[]): DocBlock[] {
+  const F = CH.facts;
+  const out: DocBlock[] = [{ kind: "h3", text: CH.title }];
+  if (!rows.length) out.push({ kind: "small", text: CH.noneStated });
+  for (const section of CHAIN_SECTIONS) {
+    const own = rows.filter((row) => row.section === section);
+    if (!own.length) continue;
+    out.push({ kind: "p", text: CH.sections[section] });
+    own.forEach((row, i) => {
+      // A line shared by several rows is quoted once, above the first.
+      if (row.quote && own[i - 1]?.quote?.text !== row.quote.text)
+        out.push({
+          kind: "quote",
+          text: `${row.quote.heading} ${row.quote.text ?? LINK_NOTICES.omitted}`,
+        });
+      out.push({
+        kind: "p",
+        text:
+          row.kind === "link" ? `${row.label} ${row.targetText}` : row.label,
+      });
+      const facts = [
+        row.kind === "link" && `${F.basis}: ${CH.basis[row.basis]}`,
+        `${F.source}: ${row.sourceName}`,
+        row.sourceWording && `${F.wording}: "${row.sourceWording}"`,
+        `${F[row.asOfLabel]}: ${row.asOfText}`,
+        `${F.retrieved}: ${row.retrievedAt.slice(0, 10)}`,
+        row.notice && `${F.notice}: ${row.notice}`,
+        row.stale && CH.stale,
+      ];
+      out.push({ kind: "small", text: facts.filter(Boolean).join("; ") });
+      const url =
+        (row.kind === "link" && row.target.officialUrl) || row.liveUrl;
+      if (url) out.push({ kind: "small", text: url });
+    });
+  }
+  return out;
+}
+
+/** What a Grants.gov opportunity record states, when the page read it, and what that does not cover. */
+function grantsBlocks(detail: GrantsDetailResponse | undefined): DocBlock[] {
+  const out: DocBlock[] = [{ kind: "h3", text: GA.title }];
+  if (detail) {
+    const c = detail.citation;
+    const passage = c.authorityPassage;
+    const listings = c.assistanceListings ?? [];
+    out.push({ kind: "p", text: GA.listingsTitle });
+    if (!listings.length) out.push({ kind: "small", text: GA.listingsNone });
+    for (const l of listings)
+      out.push({ kind: "small", text: `${l.number} ${l.title}` });
+    out.push({ kind: "p", text: GA.passageTitle });
+    if (passage)
+      out.push(
+        { kind: "small", text: GA.passageFrom(passage.heading) },
+        { kind: "quote", text: passage.text },
+      );
+    else
+      out.push({
+        kind: "p",
+        text:
+          detail.authority === "withheld" ? GA.withheld : `${GA.noPassage}.`,
+      });
+    out.push(
+      {
+        kind: "small",
+        text: c.versionDate
+          ? GA.versionDate(c.versionDate)
+          : GA.versionDateNone,
+      },
+      { kind: "small", text: `${GA.openOpportunity}: ${c.officialUrl}` },
+    );
+  }
+  out.push({ kind: "p", text: GA.coverage });
+  return out;
 }
 
 export function buildDocument(input: DocInput): DocModel {
@@ -171,6 +266,8 @@ export function buildDocument(input: DocInput): DocModel {
       ),
     ])
       blocks.push({ kind: "p", text });
+    if (c.sourceId === "grants") blocks.push(...grantsBlocks(entry.grants));
+    if (entry.chain) blocks.push(...chainBlocks(entry.chain));
     blocks.push(
       { kind: "h3", text: COPY.pdfNotesLabel },
       { kind: "note", text: entry.note.trim() || COPY.pdfNoNote },

@@ -332,6 +332,33 @@ describe("briefing export", () => {
     expect(texts(grantNew.blocks)).toContain(COPY.grants.attribution);
   });
 
+  it("takes export entries that carry the chain and a Grants.gov read, and keeps the attribution", () => {
+    const state = report();
+    const entries = reportEntries(state).map((entry) => ({
+      ...entry,
+      chain: [],
+      ...(entry.citation.sourceId === "grants" && {
+        grants: {
+          ok: true as const,
+          source: "grants" as const,
+          citation: entry.citation,
+          authority: "none" as const,
+        },
+      }),
+    }));
+    const model = buildDocument({
+      version: VERSION,
+      generatedAt: GENERATED,
+      entries,
+      actors: state.actors,
+      template: "briefing",
+    });
+    expect(model.title).toBe(build([], state).title);
+    expect(texts(model.blocks)).toContain(COPY.grants.attribution);
+    // The Briefing reports dates, changes, gaps and questions; the chain stays in Cited Policies.
+    expect(texts(model.blocks)).not.toContain("Cited and Linked Records");
+  });
+
   it("goes through the PDF builder unchanged, as its own document", async () => {
     const state = report();
     const bytes = await buildPdf({

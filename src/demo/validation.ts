@@ -1,12 +1,18 @@
 import type {
+  CongressRelatedBills,
   DemoCitation,
   DemoPolicyResponse,
   DemoSearchResponse,
   DemoSearchOptions,
   DemoSearchContinuation,
   DemoSource,
+  GovInfoRelatedRecords,
+  GovInfoRelations,
   IssueType,
+  LinkFamily,
 } from "./types";
+import { LINK_NOTICES, linkLabel } from "./link-labels.ts";
+import type { ChainRow } from "./links.ts";
 import {
   MAX_DOCKET_LENGTH,
   RIN_PATTERN,
@@ -23,6 +29,7 @@ const SOURCE_HOSTS: Record<string, readonly string[]> = {
   "federal-register": ["www.federalregister.gov", "www.govinfo.gov"],
   washington: ["lawfilesext.leg.wa.gov", "app.leg.wa.gov", "apps.leg.wa.gov"],
   govinfo: ["www.govinfo.gov"],
+  "govinfo-courts": ["www.govinfo.gov"],
   congress: ["www.congress.gov"],
   regulations: ["www.regulations.gov"],
   grants: ["www.grants.gov"],
@@ -361,11 +368,11 @@ export function citationValue(
   };
 }
 
-export function sourcesValue(value: unknown): DemoSource[] {
+export function sourcesValue(value: unknown, max = 8): DemoSource[] {
   const v = object(value);
   if (v.ok !== true) throw new Error("Invalid source response");
   const ids = new Set<string>();
-  const sources = list(v.sources, 8).map((item): DemoSource => {
+  const sources = list(v.sources, max).map((item): DemoSource => {
     const s = object(item);
     const id = sourceId(s.id);
     if (ids.has(id)) throw new Error("Duplicate source");
@@ -389,6 +396,18 @@ export function sourcesValue(value: unknown): DemoSource[] {
   });
   if (!sources.length) throw new Error("Empty source catalog");
   return sources;
+}
+
+/**
+ * GET /api/sources?version=2: the same entries plus keyed later sources such
+ * as "govinfo-courts". A Worker that predates version 2 answers the plain
+ * catalog (no version field), which reads the same way without them.
+ */
+export function sourcesValueV2(value: unknown): DemoSource[] {
+  const v = object(value);
+  if (v.version !== undefined && v.version !== 2)
+    throw new Error("Invalid source catalog version");
+  return sourcesValue(v, 16);
 }
 
 export function searchValue(
@@ -542,5 +561,234 @@ export function policyValue(
     }),
     warnings: list(v.warnings, 100).map((warning) => text(warning, 2000)),
     opening: text(v.opening, 4000, true),
+  };
+}
+
+/** The Worker's cap on chain rows in one version 3 policy answer. */
+const CHAIN_MAX = 200;
+/** The official hosts a citation_in_text target may link to (links.ts targetOf). */
+const CHAIN_TARGET_HOSTS: Readonly<Record<string, string | null>> = {
+  "usc-index": "uscode.house.gov",
+  "cfr-index": "www.ecfr.gov",
+  govinfo: "www.govinfo.gov",
+  "federal-register": "www.federalregister.gov",
+  washington: "app.leg.wa.gov",
+  oregon: null,
+  idaho: null,
+  "govinfo-courts": null,
+};
+const LINK_FAMILIES: readonly LinkFamily[] = [
+  "rules_and_notices",
+  "laws_and_bills",
+  "cases",
+  "grants",
+  "state",
+  "intertribal",
+];
+
+/** One citation_in_text row of a version 3 policy answer, closed and rebuilt. */
+function chainRowValue(value: unknown, citation: DemoCitation): ChainRow {
+  const r = object(value);
+  if (r.section !== "inText" || r.quote !== null)
+    throw new Error("Invalid chain row");
+  const sourceWording = text(r.sourceWording, 500);
+  // The row's provenance is the record's own, as recordProvenance states it.
+  const provenance = {
+    sourceName: text(r.sourceName, 200),
+    asOfLabel: "published",
+    asOfText: text(r.asOfText, 100),
+    asOfField: null,
+    retrievedAt: citation.retrievedAt,
+    stale: false,
+    liveUrl: citation.officialUrl,
+  } as const;
+  if (
+    r.asOfLabel !== "published" ||
+    r.asOfField !== null ||
+    r.retrievedAt !== citation.retrievedAt ||
+    r.stale !== false ||
+    r.liveUrl !== citation.officialUrl
+  )
+    throw new Error("Invalid chain row provenance");
+  if (r.kind === "note") {
+    const label = text(r.label, 600);
+    if (
+      r.notice !== LINK_NOTICES.shortForm ||
+      !label.startsWith(linkLabel("short_form", "forward"))
+    )
+      throw new Error("Invalid chain note");
+    return {
+      kind: "note",
+      section: "inText",
+      label,
+      notice: LINK_NOTICES.shortForm,
+      quote: null,
+      sourceWording,
+      ...provenance,
+    };
+  }
+  const locator = text(r.locator, 500);
+  const label = linkLabel("citation_in_text", "forward", locator);
+  if (
+    r.kind !== "link" ||
+    r.basis !== "citation_in_text" ||
+    r.labelId !== "citation_in_text" ||
+    r.direction !== "forward" ||
+    r.label !== label ||
+    !LINK_FAMILIES.includes(r.family as LinkFamily)
+  )
+    throw new Error("Invalid chain link");
+  const t = object(r.target);
+  const targetSource = text(t.sourceId, 40);
+  if (!Object.hasOwn(CHAIN_TARGET_HOSTS, targetSource))
+    throw new Error("Invalid chain target");
+  const host = CHAIN_TARGET_HOSTS[targetSource];
+  let url: string | undefined;
+  if (t.officialUrl !== undefined) {
+    url = text(t.officialUrl, 2000);
+    const parsed = new URL(url);
+    if (
+      parsed.protocol !== "https:" ||
+      parsed.hostname !== host ||
+      parsed.username ||
+      parsed.password ||
+      parsed.port ||
+      parsed.hash ||
+      parsed.href !== url
+    )
+      throw new Error("Invalid chain link URL");
+  }
+  // A target with no live source carries the notice instead of a link.
+  if ((url === undefined) !== (r.notice === LINK_NOTICES.notLive))
+    throw new Error("Invalid chain link notice");
+  return {
+    kind: "link",
+    section: "inText",
+    basis: "citation_in_text",
+    labelId: "citation_in_text",
+    direction: "forward",
+    label,
+    target: {
+      sourceId: targetSource,
+      identifier: text(t.identifier, 300),
+      ...(url && { officialUrl: url }),
+    },
+    targetText: text(r.targetText, 300),
+    family: r.family as LinkFamily,
+    sourceWording,
+    locator,
+    quote: null,
+    notice: url ? null : LINK_NOTICES.notLive,
+    ...provenance,
+  };
+}
+
+/**
+ * GET /api/policy with version=3 (Federal Register and Washington): the
+ * version 1 answer plus its citation_in_text chain rows. An answer with no
+ * version field (a Worker that predates version 3) reads as version 1.
+ */
+export function policyValueV3(
+  value: unknown,
+  expected?: { source: string; id: string },
+): DemoPolicyResponse {
+  const v = object(value);
+  const base = policyValue(v, expected);
+  if (v.version === undefined && v.chain === undefined) return base;
+  if (v.version !== 3) throw new Error("Invalid policy version");
+  const chain = list(v.chain, CHAIN_MAX).map((row) =>
+    chainRowValue(row, base.citation),
+  );
+  return { ...base, version: 3, chain };
+}
+
+export type RelatedRequest =
+  | {
+      readonly source: "govinfo";
+      readonly id: string;
+      readonly collection?: string;
+    }
+  | { readonly source: "congress"; readonly bill: string };
+
+/** GET /api/related: GovInfo relations, one GovInfo collection, or Congress.gov related bills. */
+export function relatedValue(
+  value: unknown,
+  expected: RelatedRequest,
+): GovInfoRelations | GovInfoRelatedRecords | CongressRelatedBills {
+  const v = object(value);
+  if (
+    v.ok !== true ||
+    v.basis !== "source_field" ||
+    v.source !== expected.source
+  )
+    throw new Error("Invalid related records response");
+  const retrievedAt = timestamp(v.retrievedAt);
+  const maybe = (item: unknown, max: number) =>
+    item === null ? null : text(item, max);
+  if (expected.source === "congress") {
+    const records = list(v.records, 20).map((item) => {
+      const r = object(item);
+      return {
+        relation: text(r.relation, 200),
+        identifiedBy: text(r.identifiedBy, 200),
+        identifier: text(r.identifier, 200),
+        title: text(r.title, 4000),
+        officialUrl: officialUrl(r.officialUrl, "congress"),
+      };
+    });
+    return {
+      ok: true,
+      source: "congress",
+      basis: "source_field",
+      bill: text(v.bill, 200),
+      records,
+      total:
+        v.total === null
+          ? null
+          : integer(v.total, Number.MAX_SAFE_INTEGER, records.length),
+      retrievedAt,
+    };
+  }
+  if (v.accessId !== expected.id) throw new Error("Invalid related identity");
+  if (expected.collection === undefined) {
+    if (v.collection !== undefined) throw new Error("Invalid related shape");
+    return {
+      ok: true,
+      source: "govinfo",
+      basis: "source_field",
+      accessId: expected.id,
+      relations: list(v.relations, 50).map((item) => {
+        const r = object(item);
+        const collection = text(r.collection, 12);
+        if (!/^[A-Z]{2,12}$/.test(collection))
+          throw new Error("Invalid related collection");
+        return { relation: text(r.relation, 200), collection };
+      }),
+      retrievedAt,
+    };
+  }
+  if (v.collection !== expected.collection)
+    throw new Error("Invalid related collection");
+  const records = list(v.records, 20).map((item) => {
+    const r = object(item);
+    const date = maybe(r.date, 10);
+    if (date !== null && !calendarDate(date))
+      throw new Error("Invalid related date");
+    return {
+      identifier: text(r.identifier, 200),
+      title: maybe(r.title, 4000),
+      date,
+      officialUrl: officialUrl(r.officialUrl, "govinfo"),
+    };
+  });
+  return {
+    ok: true,
+    source: "govinfo",
+    basis: "source_field",
+    accessId: expected.id,
+    collection: expected.collection,
+    records,
+    total: integer(v.total, Number.MAX_SAFE_INTEGER, records.length),
+    retrievedAt,
   };
 }

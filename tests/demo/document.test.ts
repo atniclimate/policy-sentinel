@@ -12,8 +12,13 @@ import {
   reportEntries,
 } from "../../src/demo/report-state";
 import type { DataActors, ReportState } from "../../src/demo/report-state";
-import type { DemoIssue } from "../../src/demo/types";
+import type { DemoCitation, DemoIssue } from "../../src/demo/types";
 import { keyOf } from "../../src/demo/validation";
+import { chain } from "../../src/demo/copy/chain";
+import { grantsAuthority as GA } from "../../src/demo/copy/grants-authority";
+import { LINK_NOTICES, linkLabel } from "../../src/demo/link-labels";
+import { citationsInText, recordLinks } from "../../src/demo/links";
+import { blocks as textBlocks, frRecord, SOURCES } from "./fixtures/chain";
 import { listing } from "./fixtures";
 import { citation, policy, statedCitation } from "./frontend-fixtures";
 
@@ -624,3 +629,133 @@ describe("document model shared by the PDF and the print view", () => {
     expect(JSON.stringify(model)).not.toMatch(/[–—]/);
   });
 });
+
+describe("the chain and Grants.gov authority in the cited document", () => {
+  const texts = (built: readonly DocBlock[]) =>
+    built.map((b) =>
+      b.kind === "field" ? `${b.label} ${b.value}` : "text" in b ? b.text : "",
+    );
+  const one = (c = frRecord, extra: object = {}) => {
+    const report: ReportState = {
+      cited: {
+        [keyOf(c)]: { citation: c, policy: null, note: "", alternates: [] },
+      },
+      marks: {},
+      actors: ACTORS,
+    };
+    return buildDocument({
+      version: VERSION,
+      generatedAt: GENERATED,
+      entries: [{ ...reportEntries(report)[0], ...extra }],
+      actors: ACTORS,
+    }).blocks;
+  };
+
+  it("prints each chain row with its basis, source, as-of, retrieval and live link, by section", () => {
+    const rows = [
+      ...recordLinks(frRecord, SOURCES),
+      ...citationsInText(textBlocks, frRecord),
+    ];
+    const out = texts(one(frRecord, { chain: rows }));
+    expect(out).toContain(chain.title);
+    for (const section of Object.values(chain.sections))
+      expect(out).toContain(section);
+    expect(out).toContain(
+      `${linkLabel("fr_cfr_refs", "forward")} 99 CFR part 100`,
+    );
+    expect(out).toContain(
+      "Basis: Stated in a source field; Source: Federal Register; Published: 2099-01-05; Retrieved: 2099-01-07",
+    );
+    expect(out).toContain("https://www.ecfr.gov/current/title-99/part-100");
+    // The authority line is quoted once, above its rows.
+    expect(
+      out.filter(
+        (t) => t === "Authority: 99 U.S.C. 1001; section 4 of the Act.",
+      ),
+    ).toHaveLength(1);
+    expect(out.some((t) => t.includes(`Note: ${LINK_NOTICES.shortForm}`))).toBe(
+      true,
+    );
+  });
+
+  it("says none is stated for an empty chain and leaves the section out when the page holds none", () => {
+    expect(texts(one(frRecord, { chain: [] }))).toEqual(
+      expect.arrayContaining([chain.title, chain.noneStated]),
+    );
+    expect(texts(one(frRecord))).not.toContain(chain.title);
+  });
+
+  it("prints a Grants.gov passage with its heading, opportunity link, version date and coverage", () => {
+    const grants = {
+      ok: true as const,
+      source: "grants" as const,
+      citation: grantsRow,
+      authority: "found" as const,
+    };
+    const out = texts(one(grantsRow, { grants }));
+    expect(out).toEqual(
+      expect.arrayContaining([
+        GA.title,
+        "99.001 Example Listing",
+        GA.passageFrom("Authority"),
+        grantsRow.authorityPassage!.text,
+        GA.versionDate("2099-01-04"),
+        `${GA.openOpportunity}: ${grantsRow.officialUrl}`,
+        GA.coverage,
+        COPY.grants.attribution,
+      ]),
+    );
+  });
+
+  it("says a read Grants.gov record states no passage, and prints only the coverage when it was not read", () => {
+    const bare: DemoCitation = {
+      ...grantsRow,
+      authorityPassage: undefined,
+      versionDate: undefined,
+    };
+    const none = texts(
+      one(bare, {
+        grants: {
+          ok: true,
+          source: "grants",
+          citation: bare,
+          authority: "none",
+        },
+      }),
+    );
+    expect(none).toEqual(
+      expect.arrayContaining([
+        `${GA.noPassage}.`,
+        GA.versionDateNone,
+        GA.coverage,
+      ]),
+    );
+    const unread = texts(one(grantsRow));
+    expect(unread).toEqual(expect.arrayContaining([GA.title, GA.coverage]));
+    expect(unread).not.toContain(GA.passageTitle);
+    expect(unread).not.toContain(`${GA.noPassage}.`);
+    expect(unread).toContain(COPY.grants.attribution);
+  });
+});
+
+const grantsRow: DemoCitation = {
+  sourceId: "grants",
+  identifier: "EX-2099-001",
+  title: "Example Water Program",
+  issuingBody: "Example Agency",
+  kind: "posted",
+  date: "2099-01-05",
+  officialUrl: "https://www.grants.gov/search-results-detail/990001",
+  textUrl: null,
+  retrievedAt: RETRIEVED,
+  summary: null,
+  textAvailable: false,
+  matchKey: null,
+  assistanceListings: [{ number: "99.001", title: "Example Listing" }],
+  authorityPassage: {
+    text: "99 U.S.C. 1001, as stated in the program notice.",
+    heading: "Authority",
+    locator: 'Grants.gov synopsis description, heading "Authority"',
+  },
+  versionDate: "2099-01-04",
+};

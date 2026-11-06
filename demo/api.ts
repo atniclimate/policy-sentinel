@@ -5,16 +5,22 @@ import type {
   DemoErrorResponse,
   DemoSearchOptions,
 } from "../src/demo/types";
+import { courtDocketReading } from "../src/demo/courts";
 import {
   SearchCriteriaError,
   searchCriteria,
 } from "../src/demo/search-contract";
+import { grantsDetailValue } from "../src/demo/grants-authority";
+import type { GrantsDetailResponse } from "../src/demo/grants-authority";
 import {
   object,
   policyValue,
+  policyValueV3,
+  relatedValue,
   searchValue,
-  sourcesValue,
+  sourcesValueV2,
 } from "../src/demo/validation";
+import type { RelatedRequest } from "../src/demo/validation";
 export { policyId } from "../src/demo/validation";
 
 const DEFAULT_API = "https://policy-sentinel-demo.atniclimate.workers.dev";
@@ -143,8 +149,9 @@ async function get<T>(
   }
 }
 
+/** The version 2 catalog, which adds court cases; the plain catalog stays for ATNI-ResIST. */
 export function loadSources(signal?: AbortSignal): Promise<DemoSource[]> {
-  return get("/api/sources", sourcesValue, signal);
+  return get("/api/sources?version=2", sourcesValueV2, signal);
 }
 
 export async function search(
@@ -176,6 +183,12 @@ export async function search(
     if (options.dateTo !== null) params.set("dateTo", options.dateTo);
     if (options.continuation !== null)
       params.set("continuation", JSON.stringify(options.continuation));
+    // A docket lookup names its court in the query; the Worker takes it apart too.
+    const court =
+      source === "govinfo-courts" && options.match === "court_docket"
+        ? courtDocketReading(query)?.court
+        : undefined;
+    if (court) params.set("court", court);
   }
   return get(
     "/api/search",
@@ -185,15 +198,65 @@ export async function search(
   );
 }
 
+/** Sources whose policy read asks for version 3, which adds the chain rows found in the text. */
+const POLICY_V3 = new Set(["federal-register", "washington"]);
+
 export function readPolicy(
   source: string,
   id: string,
   signal?: AbortSignal,
 ): Promise<DemoPolicyResponse> {
-  const params = new URLSearchParams({ source, id });
+  const v3 = POLICY_V3.has(source);
+  const params = new URLSearchParams({
+    source,
+    id,
+    ...(v3 && { version: "3" }),
+  });
   return get(
     `/api/policy?${params.toString()}`,
-    (value) => policyValue(value, { source, id }),
+    (value) =>
+      v3
+        ? policyValueV3(value, { source, id })
+        : policyValue(value, { source, id }),
+    signal,
+  );
+}
+
+/** One Grants.gov opportunity record, by the digits its official address ends in. */
+export function readGrantsDetail(
+  id: string,
+  signal?: AbortSignal,
+): Promise<GrantsDetailResponse> {
+  const params = new URLSearchParams({ source: "grants", id });
+  return get(
+    `/api/policy?${params.toString()}`,
+    (value) => {
+      const detail = grantsDetailValue(value);
+      if (!detail.citation.officialUrl.endsWith(`/${id}`))
+        throw new Error("Grants.gov record does not match request");
+      return detail;
+    },
+    signal,
+  );
+}
+
+/** Related records on one press: GovInfo relations or Congress.gov related bills. */
+export function readRelated(
+  request: RelatedRequest,
+  signal?: AbortSignal,
+): Promise<ReturnType<typeof relatedValue>> {
+  const params = new URLSearchParams(
+    request.source === "congress"
+      ? { source: "congress", bill: request.bill }
+      : {
+          source: "govinfo",
+          id: request.id,
+          ...(request.collection && { collection: request.collection }),
+        },
+  );
+  return get(
+    `/api/related?${params.toString()}`,
+    (value) => relatedValue(value, request),
     signal,
   );
 }

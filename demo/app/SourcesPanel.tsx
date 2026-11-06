@@ -148,7 +148,7 @@ function ModelRow({ row }: { row: SourceRow }) {
         </span>
       )}
       <span class="source-note">
-        {S.coverageLabel}: {row.model.coverageLimit}
+        {S.coverageLabel}: <span>{row.model.coverageLimit}</span>
       </span>
       <span class="source-note">
         {S.freshnessLabel}: {row.model.freshnessPolicy}

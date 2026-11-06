@@ -86,6 +86,17 @@ describe("comment closing dates as a calendar file", () => {
     expect(ics).not.toMatch(/Note|Prepared by|Search|Found by/);
   });
 
+  it("writes no Grants.gov row, so the file never holds a Grants.gov item to attribute", () => {
+    const grant = {
+      ...statedCitation(),
+      sourceId: "grants",
+      officialUrl: "https://www.grants.gov/search-results-detail/990001",
+      applicationsCloseOn: "2099-02-01",
+    };
+    expect(calendarRows([grant])).toEqual([]);
+    expect(buildCalendar([grant], AT)).not.toMatch(/VEVENT|Grants\.gov/);
+  });
+
   it("finds no rows when nothing states a Federal Register closing date", () => {
     expect(calendarRows([citation(), regulationsRecord()])).toEqual([]);
     expect(calendarRows([])).toEqual([]);

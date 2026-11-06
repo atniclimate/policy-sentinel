@@ -1,6 +1,7 @@
 import { COPY } from "../../src/demo/copy";
 import { buildDocument } from "../../src/demo/document";
-import type { DocBlock } from "../../src/demo/document";
+import type { DocBlock, DocInput } from "../../src/demo/document";
+import type { ExportTemplate } from "../../src/demo/mode";
 import { reportEntries } from "../../src/demo/report-state";
 import type { ReportState } from "../../src/demo/report-state";
 import SEAL from "../logos/atni-seal-on-dark.png";
@@ -46,13 +47,29 @@ function docBlock(block: DocBlock, index: number) {
   }
 }
 
-/** The cited document as the browser prints it, from the same model as the PDF. */
-export function PrintView({ report }: { report: ReportState }) {
+/**
+ * The cited document (or the Briefing) as the browser prints it, from the
+ * same model as the PDF. `entries` carry the chain rows the page holds;
+ * without them the report's own entries print, with no chain section.
+ */
+export function PrintView({
+  report,
+  entries,
+  template,
+  checks,
+}: {
+  report: ReportState;
+  entries?: DocInput["entries"];
+  template?: ExportTemplate;
+  checks?: DocInput["checks"];
+}) {
   const model = buildDocument({
     version: __APP_VERSION__,
     generatedAt: new Date(),
-    entries: reportEntries(report),
+    entries: entries ?? reportEntries(report),
     actors: report.actors,
+    template,
+    checks,
   });
   return (
     <div class="print-only">

@@ -273,3 +273,16 @@ describe("search outcomes", () => {
     });
   });
 });
+
+describe("court link-outs in the source model (0.9.1 step 11)", () => {
+  it("links IBIA and NILL from the courts step's official addresses, as link out only", async () => {
+    const { LINK_OUTS } = await import("../../src/demo/courts");
+    const rows = sourceRows({ sources, manifest: null, now: NOW });
+    for (const each of LINK_OUTS) {
+      expect(LINK_OUT_URLS[each.id]).toBe(each.url);
+      const found = rows.find((r) => r.id === each.id)!;
+      expect(found.url).toBe(each.url);
+      expect(found.state).toBe("link_out");
+    }
+  });
+});

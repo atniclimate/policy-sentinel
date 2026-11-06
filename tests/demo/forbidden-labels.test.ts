@@ -9,9 +9,11 @@ import { LinkedRecordsPanel } from "../../demo/app/LinkedRecordsPanel";
 import { COPY } from "../../src/demo/copy";
 import { chain } from "../../src/demo/copy/chain";
 import { buildDocument } from "../../src/demo/document";
+import type { DocBlock } from "../../src/demo/document";
 import { VERBATIM_FIELDS } from "../../src/demo/index-types";
 import { reportEntries } from "../../src/demo/report-state";
 import type { ReportState } from "../../src/demo/report-state";
+import type { DemoCitation } from "../../src/demo/types";
 import { keyOf } from "../../src/demo/validation";
 import { frRecord } from "./fixtures/chain";
 import { forbiddenHits } from "./fixtures/chain/forbidden-words";
@@ -99,17 +101,119 @@ describe("forbidden words in chain labels and exports", () => {
     });
     // The export marks no field names, so nothing is skipped: the synthetic
     // record's titles and quotes hold no forbidden word.
-    // shortcut: two sovereignty notes older than this test use "under" and
-    // "general-jurisdiction" (the safeguard 1 label); exempted by exact text
-    // until the owner of src/demo/copy/document.ts rewords them or rules them in.
-    const existing = [COPY.docSovereignty[1], COPY.docSovereignty[2]];
-    const exempt = [...leaves(COPY.grants), ...existing];
-    const text = doc.blocks
-      .flatMap((b) =>
-        b.kind === "field" ? [b.label, b.value] : "text" in b ? [b.text] : [],
-      )
-      .map((s) => exempt.reduce((t, w) => t.split(w).join(" "), s));
-    expect(existing.flatMap(forbiddenHits)).toEqual(["under", "jurisdiction"]);
-    expect(text.flatMap(forbiddenHits)).toEqual([]);
+    expect(exportHits(doc.blocks, [])).toEqual([]);
+  });
+
+  it("finds none in a built export that carries the chain, outside verbatim official wording", () => {
+    const opened = policy("a", frRecord);
+    const rows = allRows();
+    const entries = [
+      { ...reportEntries(reportOf(opened.citation, opened))[0], chain: rows },
+      {
+        ...reportEntries(reportOf(grantsRow))[0],
+        chain: [],
+        grants: {
+          ok: true as const,
+          source: "grants" as const,
+          citation: grantsRow,
+          authority: "found" as const,
+        },
+      },
+    ];
+    for (const template of ["citations", "briefing"] as const) {
+      const doc = buildDocument({
+        version: "0.0.0",
+        generatedAt: new Date("2099-03-01T12:00:00Z"),
+        entries,
+        actors: ACTORS,
+        template,
+      });
+      // Exactly the rows' VERBATIM_FIELDS wording is skipped (the panel marks
+      // the same spans), plus the Grants.gov passage, which is quoted official text.
+      const verbatim = [
+        ...rows.flatMap((row) =>
+          row.quote?.text && SKIPPED.has(row.quote.field)
+            ? [row.quote.text]
+            : [],
+        ),
+        ...rows.flatMap((row) =>
+          row.sourceWording ? [row.sourceWording] : [],
+        ),
+        grantsRow.authorityPassage!.text,
+      ];
+      expect(exportHits(doc.blocks, verbatim)).toEqual([]);
+    }
+    // The fixture's official CFR wording holds a forbidden word, so the skip is load-bearing.
+    expect(
+      rows.some((row) => forbiddenHits(row.quote?.text ?? "").length),
+    ).toBe(true);
+  });
+
+  it("exempts only the safeguard 1 label general-jurisdiction in the sovereignty notes", () => {
+    expect(COPY.docSovereignty.flatMap(forbiddenHits)).toEqual([
+      "jurisdiction",
+    ]);
+    expect(
+      COPY.docSovereignty
+        .map((s) => s.split(SAFEGUARD_LABEL).join(" "))
+        .flatMap(forbiddenHits),
+    ).toEqual([]);
   });
 });
+
+/** The safeguard 1 label (AGENTS.md): the one design rule 2 word an export may print. */
+const SAFEGUARD_LABEL = "general-jurisdiction";
+
+const ACTORS = {
+  name: "Example Analyst",
+  role: "Policy analyst",
+  organization: "Example Office",
+  sharingWith: "Example Committee",
+  purpose: "Synthetic test",
+};
+
+const grantsRow: DemoCitation = {
+  sourceId: "grants",
+  identifier: "EX-2099-001",
+  title: "Example Water Program",
+  issuingBody: "Example Agency",
+  kind: "posted",
+  date: "2099-01-05",
+  officialUrl: "https://www.grants.gov/search-results-detail/990001",
+  textUrl: null,
+  retrievedAt: "2099-01-07T12:00:00.000Z",
+  summary: null,
+  textAvailable: false,
+  matchKey: null,
+  assistanceListings: [{ number: "99.001", title: "Example Listing" }],
+  authorityPassage: {
+    text: "99 U.S.C. 1001, as stated in the program notice.",
+    heading: "Authority",
+    locator: 'Grants.gov synopsis description, heading "Authority"',
+  },
+  versionDate: "2099-01-04",
+};
+
+function reportOf(
+  citation: DemoCitation,
+  opened: ReturnType<typeof policy> | null = null,
+): ReportState {
+  return {
+    cited: {
+      [keyOf(citation)]: { citation, policy: opened, note: "", alternates: [] },
+    },
+    marks: {},
+    actors: ACTORS,
+  };
+}
+
+/** Forbidden words in an export's own wording, after the given verbatim spans and the exemptions are cut out. */
+function exportHits(blocks: readonly DocBlock[], verbatim: readonly string[]) {
+  const exempt = [...verbatim, ...leaves(COPY.grants), SAFEGUARD_LABEL];
+  return blocks
+    .flatMap((b) =>
+      b.kind === "field" ? [b.label, b.value] : "text" in b ? [b.text] : [],
+    )
+    .map((s) => exempt.reduce((t, w) => t.split(w).join(" "), s))
+    .flatMap(forbiddenHits);
+}

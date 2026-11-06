@@ -57,6 +57,7 @@ const GOVINFO_LAWS = new Set([
 export function familyOf(citation: DemoCitation): LinkFamily {
   const { sourceId, kind } = citation;
   if (sourceId === "grants") return "grants";
+  if (sourceId === "govinfo-courts") return "cases";
   if (STATE_SOURCES.has(sourceId)) return "state";
   if (sourceId === "congress") return "laws_and_bills";
   if (sourceId === "govinfo") {

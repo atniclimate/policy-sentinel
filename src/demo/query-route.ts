@@ -68,7 +68,9 @@ type State = "WA" | "OR" | "ID";
  * their routes exist. not_covered: everything else. Where a kind has two
  * entries, the condition picks: a federal bill needs a Congress number, a
  * state bill is live for Washington only, and a court docket is live for the
- * Supreme Court and the circuits only.
+ * circuits only. A Supreme Court docket is not covered: GovInfo's USCOURTS
+ * collection holds no Supreme Court packages, and the Court's own site is not
+ * a source until its robots and terms are read (N19).
  */
 type ActionEntry = RouteAction | Readonly<Record<string, RouteAction>>;
 export const READING_ACTIONS: Readonly<Record<ReadingKind, ActionEntry>> =
@@ -89,7 +91,7 @@ export const READING_ACTIONS: Readonly<Record<ReadingKind, ActionEntry>> =
     state_bill: { WA: "live_lookup", OR: "link_out", ID: "link_out" },
     state_code: "link_out",
     court_docket: {
-      supreme_court: "live_lookup",
+      supreme_court: "not_covered",
       circuit: "live_lookup",
       district: "not_covered",
       state: "not_covered",

@@ -5,8 +5,9 @@
  * exact identifier lookups Find related already uses, in the source that stated
  * each identifier. Everything here is pure; the page owns storage and requests.
  */
-import { laneKeep, lookupReady, recordPlan } from "./discovery";
-import type { Lane, PlanDates } from "./discovery";
+import { docketFromPackageId } from "./courts";
+import { buildPlan, laneKeep, lookupReady, recordPlan } from "./discovery";
+import type { Lane, Plan, PlanDates } from "./discovery";
 import { FOLLOW_KINDS } from "./follow-kinds";
 import type { FollowKind } from "./follow-kinds";
 import type { DemoCitation, DemoSearchResponse } from "./types";
@@ -64,9 +65,29 @@ export function followLookups(
   item: Pick<Followed, "kind" | "value" | "record">,
 ): Lane[] {
   const { sourceId } = item.record;
-  const plan = recordPlan(item.record, { federal: [], live: [sourceId] });
+  const sources = { federal: [], live: [sourceId] };
+  let plan: Plan;
+  if (item.kind === "case") {
+    // One court lookup by the court and docket the package id names.
+    const docket = docketFromPackageId(item.value);
+    if (!docket || item.record.packageId !== item.value) return [];
+    plan = buildPlan(
+      { kind: "record", sourceId, identifier: item.record.identifier },
+      [
+        {
+          group: "related",
+          source: sourceId,
+          query: `${docket.court} ${docket.docketNumber}`,
+          auto: true,
+          lookup: "court_docket",
+        },
+      ],
+      sources,
+    );
+  } else plan = recordPlan(item.record, sources);
   return plan.lanes.filter((lane) => {
     if (lane.skip) return false;
+    if (item.kind === "case") return lookupReady(plan, lane);
     if (item.kind !== "document")
       if (lane.match !== item.kind || lane.query !== item.value) return false;
     return lookupReady(plan, lane);
@@ -129,7 +150,11 @@ function followedValue(value: unknown): Followed {
   const listed =
     kind === "document"
       ? record.identifier === stated
-      : (kind === "docket" ? record.docketIds : record.rins)?.includes(stated);
+      : kind === "case"
+        ? record.packageId === stated
+        : (kind === "docket" ? record.docketIds : record.rins)?.includes(
+            stated,
+          );
   if (
     v.sourceId !== record.sourceId ||
     !listed ||
@@ -344,7 +369,11 @@ export function settleCheck(
   if (answers.length !== lanes.length)
     throw new Error("Each lookup needs one answer");
   const since = sinceDay(item, now);
-  const seen = new Set([keyOf(item.record)]);
+  // A case is its own package listed again, new when its lastModified moved past the last check.
+  const versioned = item.kind === "case";
+  const kind = FOLLOW_KINDS[item.kind];
+  const baseline = kind.baseline(item.lastChecked, item.followedAt);
+  const seen = new Set(versioned ? [] : [keyOf(item.record)]);
   const fresh: DemoCitation[] = [];
   let undated = 0;
   let more = false;
@@ -355,8 +384,10 @@ export function settleCheck(
     for (const listing of answer.response.results) {
       if (!keep(listing) || seen.has(keyOf(listing))) continue;
       seen.add(keyOf(listing));
-      if (listing.date === null) undated++;
-      else if (listing.date >= since) fresh.push(listing);
+      const key = versioned ? kind.versionKey(listing) : listing.date;
+      if (key === null) undated++;
+      else if (versioned ? kind.isNew(baseline, key) : key >= since)
+        fresh.push(listing);
     }
   });
   return {

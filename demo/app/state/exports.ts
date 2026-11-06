@@ -4,6 +4,7 @@ import { buildCalendar } from "../../../src/demo/calendar";
 import type { DocInput } from "../../../src/demo/document";
 import { localDay, serializeFollows } from "../../../src/demo/follow";
 import type { Followed } from "../../../src/demo/follow";
+import type { ExportTemplate } from "../../../src/demo/mode";
 import type { DataActors } from "../../../src/demo/report-state";
 import type { DemoCitation } from "../../../src/demo/types";
 import { loadPdfFonts, loadPdfSeal } from "../../pdf-fonts";
@@ -23,12 +24,15 @@ export function download(blob: Blob, name: string) {
 const today = () => localDay(new Date());
 
 /**
- * The cited document as a PDF, from the entries and actors the print view
- * shows. A character the PDF faces cannot show rejects with PdfEncodingError.
+ * The cited document (or, with template "briefing", the Briefing) as a PDF,
+ * from the entries and actors the print view shows. A character the PDF
+ * faces cannot show rejects with PdfEncodingError.
  */
 export async function downloadPdf(
   entries: DocInput["entries"],
   actors: DataActors,
+  template: ExportTemplate = "citations",
+  checks?: DocInput["checks"],
 ) {
   const [{ buildPdf }, fonts, seal] = await Promise.all([
     import("../../../src/demo/pdf"),
@@ -40,12 +44,16 @@ export async function downloadPdf(
     generatedAt: new Date(),
     entries,
     actors,
+    template,
+    checks,
     fonts,
     seal,
   });
   download(
     new Blob([bytes as BlobPart], { type: "application/pdf" }),
-    `policy-sentinel-citations-${today()}.pdf`,
+    template === "briefing"
+      ? `policy-sentinel-briefing-${today()}.pdf`
+      : `policy-sentinel-citations-${today()}.pdf`,
   );
 }
 

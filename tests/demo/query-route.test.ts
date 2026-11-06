@@ -147,12 +147,13 @@ describe("identifier forms", () => {
       "link_out",
     ],
     ["IDAPA 58.01.02", "state_code", "IDAPA 58.01.02", "ID", "link_out"],
+    // No Supreme Court lookup exists: USCOURTS has no Supreme Court packages.
     [
       "Supreme Court 23-1234",
       "court_docket",
       "23-1234",
       "federal",
-      "live_lookup",
+      "not_covered",
     ],
     ["ca9 21-35000", "court_docket", "21-35000", "federal", "live_lookup"],
     [

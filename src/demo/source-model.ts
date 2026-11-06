@@ -6,9 +6,9 @@
  */
 import { COPY } from "./copy.ts";
 import { sourceModel as S } from "./copy/sources.ts";
+import { LINK_OUTS } from "./courts.ts";
 import type { LaneSearch } from "./discovery.ts";
 import type { IndexFile, IndexFileKind, IndexManifest } from "./index-types.ts";
-import { NILL_TRIBAL_LAW_URL } from "./ncai-2026.ts";
 import type {
   DemoSource,
   DemoSourceId,
@@ -44,12 +44,15 @@ export const RELEASE_VERIFICATION: Readonly<
   "committee-libraries": null,
 });
 
-/** Link-out targets. ibia stays null until the courts step records the official search URL. */
+const courtLinkOut = (id: "ibia" | "nill") =>
+  LINK_OUTS.find((item) => item.id === id)?.url ?? null;
+
+/** Link-out targets; IBIA and NILL as the courts step recorded them (src/demo/courts.ts). */
 export const LINK_OUT_URLS: Readonly<Record<string, string | null>> =
   Object.freeze({
     ecfr: "https://www.ecfr.gov/",
-    ibia: null,
-    nill: NILL_TRIBAL_LAW_URL,
+    ibia: courtLinkOut("ibia"),
+    nill: courtLinkOut("nill"),
   });
 
 const INDEX_KINDS: Readonly<Record<string, IndexFileKind>> = {
