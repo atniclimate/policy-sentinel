@@ -1,0 +1,89 @@
+{
+  "ok": true,
+  "citation": {
+    "sourceId": "federal-register",
+    "identifier": "99 FR 3010 (FR Doc. 2099-00301)",
+    "title": "Example Consultation Procedures",
+    "issuingBody": "Example Department",
+    "kind": "Rule",
+    "date": "2099-02-02",
+    "officialUrl": "https://www.federalregister.gov/d/2099-00301",
+    "textUrl": "https://www.govinfo.gov/content/pkg/FR-2099-02-02/html/2099-00301.htm",
+    "retrievedAt": "2099-02-07T18:00:00.000Z",
+    "textAvailable": true
+  },
+  "receipt": {
+    "sha256": "4f6a3c560afb168899e40962606dc7649e299acabab9a468a4fdd8568d4994a7",
+    "bytes": 1149,
+    "retrievedAt": "2099-02-07T18:00:00.000Z",
+    "textUrl": "https://www.govinfo.gov/content/pkg/FR-2099-02-02/html/2099-00301.htm"
+  },
+  "engine": {
+    "rulesVersion": "demo-rules-1.1.0"
+  },
+  "issues": [
+    {
+      "id": "consultation_language-1",
+      "type": "consultation_language",
+      "label": "Consultation wording",
+      "quote": "Example Consultation Procedures",
+      "locator": "/html[1]/body[1]/pre[1]/paragraph[5]",
+      "rule": "The sentence contains consult, consultation, government-to-government, Tribal implications, Executive Order 13175, coordination or engagement with Tribes, or that order's standard wording (substantial direct effects or compliance costs on Tribes, preempting Tribal law). Consulting firms and companies are left out.",
+      "limits": "Wording only. It does not show that consultation happened, that it was adequate, or that any right attaches to it."
+    },
+    {
+      "id": "consultation_language-2",
+      "type": "consultation_language",
+      "label": "Consultation wording",
+      "quote": "The Department reviewed this rule under Executive Order 13175 and held government-to-government consultation sessions before it was drafted.",
+      "locator": "/html[1]/body[1]/pre[1]/paragraph[13]",
+      "rule": "The sentence contains consult, consultation, government-to-government, Tribal implications, Executive Order 13175, coordination or engagement with Tribes, or that order's standard wording (substantial direct effects or compliance costs on Tribes, preempting Tribal law). Consulting firms and companies are left out.",
+      "limits": "Wording only. It does not show that consultation happened, that it was adequate, or that any right attaches to it."
+    },
+    {
+      "id": "tribal_reference-1",
+      "type": "tribal_reference",
+      "label": "Tribal wording",
+      "quote": "The revised procedures describe how Tribal governments may ask the Department for a meeting about a rule it is developing.",
+      "locator": "/html[1]/body[1]/pre[1]/paragraph[15]",
+      "rule": "The sentence contains Indian Tribe, Indian Tribal, Tribal, Tribe, or Tribes.",
+      "limits": "This marks where the text uses the word. It says nothing about effect on any particular Nation, and it does not establish that a Nation is named."
+    },
+    {
+      "id": "date_or_deadline-1",
+      "type": "date_or_deadline",
+      "label": "Date or deadline",
+      "quote": "This rule is effective March 4, 2099.",
+      "locator": "/html[1]/body[1]/pre[1]/paragraph[10]",
+      "rule": "The sentence contains a calendar date with words such as effective, comments, due, compliance, must be received, or no later than within 80 characters of it. Dates that only cite a commenter's letter or a Federal Register page are left out.",
+      "limits": "Dates are read from the text as written. Extensions, corrections and later notices can change them."
+    },
+    {
+      "id": "status_signal-1",
+      "type": "status_signal",
+      "label": "Status signal",
+      "quote": "Final rule.",
+      "locator": "/html[1]/body[1]/pre[1]/paragraph[7]",
+      "rule": "The sentence contains words such as proposed, final, withdrawn, rescind, extension of comment period, correction, or supersede.",
+      "limits": "The words come from the document itself. They do not give the current legal status of the policy."
+    },
+    {
+      "id": "cross_reference-1",
+      "type": "cross_reference",
+      "label": "Cross-reference",
+      "quote": "50 CFR Part 999",
+      "locator": "/html[1]/body[1]/pre[1]/paragraph[4]",
+      "rule": "The sentence cites a Code of Federal Regulations part or section, a U.S. Code section, an Executive Order, or a Public Law.",
+      "limits": "The citation is listed as written. The cited provision is not retrieved or checked here, and it may have changed."
+    },
+    {
+      "id": "cross_reference-2",
+      "type": "cross_reference",
+      "label": "Cross-reference",
+      "quote": "The Department reviewed this rule under Executive Order 13175 and held government-to-government consultation sessions before it was drafted.",
+      "locator": "/html[1]/body[1]/pre[1]/paragraph[13]",
+      "rule": "The sentence cites a Code of Federal Regulations part or section, a U.S. Code section, an Executive Order, or a Public Law.",
+      "limits": "The citation is listed as written. The cited provision is not retrieved or checked here, and it may have changed."
+    }
+  ]
+}
