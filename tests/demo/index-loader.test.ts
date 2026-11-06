@@ -98,4 +98,14 @@ describe("index loader", () => {
     );
     expect(fetch).not.toHaveBeenCalled();
   });
+
+  it("reads a chapter shard whose name holds a capital, as the schema allows (R3-11)", async () => {
+    const fetch = vi.fn(() => ok(cfrBytes));
+    const path = "usc/title-42-ch-55A.json";
+    const loader = createIndexLoader(manifestOf([{ ...cfrFile, path }]), {
+      fetch,
+    });
+    expect((await loader.load(path)).state).toBe("current");
+    expect(fetch).toHaveBeenCalledWith(`./demo-data/${path}`);
+  });
 });

@@ -61,7 +61,10 @@ describe("LinkedRecordsPanel", () => {
       within(li).getByRole("link", {
         name: "Open at CFR annual edition (GovInfo)",
       }),
-    ).toHaveAttribute("href", "https://www.ecfr.gov/current/title-99/part-100");
+    ).toHaveAttribute(
+      "href",
+      "https://www.govinfo.gov/bulkdata/CFR/2099/title-99",
+    );
     // The authority line is quoted once, above the first row that comes from it.
     expect(container.querySelectorAll("blockquote")).toHaveLength(2);
     expect(screen.queryByText(/snapshot older/i)).toBeNull();

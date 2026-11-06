@@ -4,7 +4,13 @@
  * person, contact or address.
  */
 import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { crc32, deflateRawSync } from "node:zlib";
@@ -23,6 +29,7 @@ import {
   type VocabularyFile,
 } from "../../../../src/demo/index-types";
 import {
+  DEFAULT_PROBE_FIXTURE,
   initialManifest,
   manifestBytes,
   shardBytes,
@@ -284,6 +291,26 @@ export function tempDir(prefix = "ps-demo-index-"): string {
 export function removeTemps(): void {
   for (const dir of temps.splice(0))
     rmSync(dir, { recursive: true, force: true });
+}
+
+/**
+ * The committed recognition structure fixture plus `extra` synthetic entries
+ * ("Synthetic Probe Entity 001"), written to a temp file. G3 needs all 575
+ * before any index file may be acquired or validated.
+ */
+export function probeFile(extra = 575): string {
+  const added = Array.from(
+    { length: extra },
+    (_, i) =>
+      `<p class="flush-paragraph flush-paragraph-1" id="p-synthetic-${i}">Synthetic Probe Entity ${String(i).padStart(3, "0")}</p>`,
+  );
+  const html = readFileSync(DEFAULT_PROBE_FIXTURE, "utf8").replace(
+    "</body>",
+    [...added, "</body>"].join("\n"),
+  );
+  const file = join(tempDir(), "recognition-notice.html");
+  writeFileSync(file, html);
+  return file;
 }
 
 /** A zip archive of the given files, stored or deflated. */

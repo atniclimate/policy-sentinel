@@ -5,7 +5,10 @@ import { fileURLToPath } from "node:url";
 
 import { canonicalJson } from "../../src/core/canonical-json.mjs";
 import { serializeJson } from "../../src/pipeline/hashing.mjs";
-import { parseRecognitionEntries } from "../../src/adapters/bia/recognition-registry.ts";
+import {
+  BIA_RECOGNITION_2026,
+  parseRecognitionEntries,
+} from "../../src/adapters/bia/recognition-registry.ts";
 import { maskProtectedSpans } from "../../src/demo/nation-mask.ts";
 import { hasPersonalPattern } from "../../src/demo/personal-guard.ts";
 
@@ -187,8 +190,17 @@ export function loadProbeNames(path) {
       ? "official recognition notice (--nation-names)"
       : "committed recognition structure fixture",
     names: [...names],
+    entryCount: entries.length,
   };
 }
+
+/**
+ * G3: the full list of 575 federally recognized Nations. The notice prints
+ * 577 entry paragraphs (two are groupings), so at least 575 entries is full.
+ */
+export const FULL_PROBE_ENTRIES = BIA_RECOGNITION_2026.expectedNationCount;
+export const isFullProbe = (probe) =>
+  (probe.entryCount ?? 0) >= FULL_PROBE_ENTRIES;
 
 /** True when the structural mask or an injected name marks any span (G3). */
 export const hasProtectedSpan = (text, names) =>

@@ -1,10 +1,20 @@
+// @vitest-environment node
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { loadProbeNames } from "../../scripts/demo-index/common.mjs";
+import { buildUslmShard } from "../../scripts/demo-index/uslm.mjs";
+import { chain } from "../../src/demo/copy/chain";
+import type {
+  IndexFile,
+  UscSourceCreditShard,
+} from "../../src/demo/index-types";
 import {
   cfrPartLinks,
   citationsInText,
   groupInText,
   labelNamesTarget,
   recordLinks,
+  relatedRows,
   uscSectionLinks,
 } from "../../src/demo/links";
 import type { ChainLink, ChainRow } from "../../src/demo/links";
@@ -234,7 +244,8 @@ describe("cfrPartLinks: the CFR annual edition shard", () => {
       asOfText: "Revised as of April 1, 2099",
       asOfField: "revisedAsOfText",
       retrievedAt: "2099-02-01T10:00:00-08:00",
-      liveUrl: "https://www.ecfr.gov/current/title-99/part-100",
+      // R3-2: the rows quote the annual edition, so the live link is that edition at GovInfo.
+      liveUrl: "https://www.govinfo.gov/bulkdata/CFR/2099/title-99",
       stale: false,
       quote: {
         heading: "Authority:",
@@ -250,6 +261,13 @@ describe("cfrPartLinks: the CFR annual edition shard", () => {
         kind: "note",
         section: "stated",
         label: "No part-level 'Authority:' line in this part",
+        sourceWording: null,
+        notice: null,
+      },
+      {
+        kind: "note",
+        section: "stated",
+        label: "No 'Source:' line in this part",
         sourceWording: null,
         notice: null,
       },
@@ -301,13 +319,16 @@ describe("uscSectionLinks: the OLRC source-credit shard", () => {
     });
   });
 
-  it("quotes the codification note and links each target with OLRC's own verb", () => {
-    const [row] = links(
-      uscSectionLinks(uscShard, "/us/usc/t99/s450", uscFile, NOW),
-    );
+  it("quotes the codification note and links each target under a neutral label", () => {
+    const rows = uscSectionLinks(uscShard, "/us/usc/t99/s450", uscFile, NOW);
+    expect(rows?.slice(0, 2).map((r) => r.label)).toEqual([
+      "Status stated by the U.S. Code: transferred",
+      "No source credit in this section",
+    ]);
+    const [row] = links(rows);
     expect(row).toMatchObject({
-      label:
-        "OLRC notes this section was editorially reclassified as 99 U.S.C. 5321",
+      label: "Named in the OLRC codification note of this section",
+      targetText: "99 U.S.C. 5321",
       target: { sourceId: "usc-index", identifier: "/us/usc/t99/s5321" },
       quote: {
         field: "noteText",
@@ -349,5 +370,135 @@ describe("citationsInText", () => {
     ]);
     expect(links(rows).every((r) => r.direction === "forward")).toBe(true);
     expect(links(rows)[0].locator).toBe("page 12");
+  });
+});
+
+describe("boundary B regressions", () => {
+  const retainedFile = (file: IndexFile): IndexFile => ({
+    ...file,
+    status: "retained_after_failed_refresh",
+    lastRefreshAttemptAt: "2099-02-28T10:00:00Z",
+    failureStage: "fetch",
+    message: "Source refresh failed.",
+  });
+
+  it("R3-1: never says OLRC reclassified a section its codification note only names", () => {
+    const { shard } = buildUslmShard(
+      readFileSync("tests/demo/fixtures/demo-index/usc25-trimmed.xml", "utf8"),
+      { title: 25, releasePoint: "119-136", names: loadProbeNames().names },
+    );
+    for (const id of ["/us/usc/t25/s421", "/us/usc/t25/s458bbb"]) {
+      const rows = uscSectionLinks(shard, id, uscFile, NOW) ?? [];
+      expect(rows.filter((r) => /reclassif/i.test(r.label))).toEqual([]);
+      // The status attribute is shown as the fact the U.S. Code states.
+      expect(rows[0].label).toBe("Status stated by the U.S. Code: transferred");
+    }
+    const named = links(
+      uscSectionLinks(shard, "/us/usc/t25/s458bbb", uscFile, NOW),
+    ).filter((r) => r.labelId === "usc_reclassified");
+    expect(named.map((r) => [r.label, r.targetText])).toEqual([
+      [
+        "Named in the OLRC codification note of this section",
+        "25 U.S.C. 458ddd",
+      ],
+      ["Named in the OLRC codification note of this section", "25 U.S.C. 5421"],
+    ]);
+    // The note itself speaks, quoted verbatim.
+    expect(named[0].quote).toMatchObject({
+      heading: "Codification note",
+      field: "noteText",
+      text: expect.stringContaining("458ddd"),
+    });
+  });
+
+  it("R3-2: no annual-edition row sends the reader to eCFR under the edition's name", () => {
+    for (const part of ["100", "200", "300"])
+      for (const row of cfrPartLinks(cfrShard, part, cfrFile, NOW) ?? []) {
+        expect(row.sourceName).toBe("CFR annual edition (GovInfo)");
+        expect(row.asOfText).toBe("Revised as of April 1, 2099");
+        expect(row.liveUrl).toBe(
+          "https://www.govinfo.gov/bulkdata/CFR/2099/title-99",
+        );
+      }
+  });
+
+  it("R3-3: rows from a file kept after a failed refresh say so, though it is under six months old", () => {
+    const rows = [
+      ...(cfrPartLinks(cfrShard, "100", retainedFile(cfrFile), NOW) ?? []),
+      ...(uscSectionLinks(
+        uscShard,
+        "/us/usc/t99/s450",
+        retainedFile(uscFile),
+        NOW,
+      ) ?? []),
+    ];
+    expect(rows.length).toBeGreaterThan(4);
+    expect(rows.every((r) => r.notice?.endsWith(chain.retained))).toBe(true);
+    // A row's own notice stays, with the retained sentence after it.
+    expect(rows.map((r) => r.notice)).toContain(
+      `Not available from a live source. ${chain.retained}`,
+    );
+    // Not the six-month sentence, and the original as-of is kept.
+    expect(rows.some((r) => r.stale)).toBe(false);
+    expect(rows[0].asOfText).toBe("Revised as of April 1, 2099");
+    // A current file's rows carry no such sentence.
+    expect(
+      (cfrPartLinks(cfrShard, "100", cfrFile, NOW) ?? []).some((r) =>
+        r.notice?.includes(chain.retained),
+      ),
+    ).toBe(false);
+  });
+
+  it("R3-8: a section stub with no source credit states its status and the missing credit", () => {
+    const stub: UscSourceCreditShard = {
+      ...uscShard,
+      entries: [
+        {
+          identifier: "/us/usc/t99/s7",
+          status: "repealed",
+          creditText: null,
+          credits: [],
+          reclassifiedAs: null,
+        },
+      ],
+    };
+    expect(
+      uscSectionLinks(stub, "/us/usc/t99/s7", uscFile, NOW)?.map(
+        (r) => r.label,
+      ),
+    ).toEqual([
+      "Status stated by the U.S. Code: repealed",
+      "No source credit in this section",
+      "Cases that cite this section",
+    ]);
+  });
+});
+
+describe("related bills a guard withheld", () => {
+  it("says the title is not shown instead of printing null", () => {
+    const rows = relatedRows(
+      {
+        ok: true,
+        source: "congress",
+        basis: "source_field",
+        bill: "hr 4004 199",
+        records: [
+          {
+            relation: "Related bill",
+            identifiedBy: "CRS",
+            identifier: "HR 4005, 199th Congress",
+            title: null,
+            officialUrl:
+              "https://www.congress.gov/bill/199th-congress/house-bill/4005",
+          },
+        ],
+        total: 1,
+        retrievedAt: "2099-01-07T11:59:00.000Z",
+      },
+      frRecord,
+    );
+    const texts = rows.map((r) => (r.kind === "link" ? r.targetText : ""));
+    expect(texts.join(" ")).not.toMatch(/null/);
+    expect(texts).toContain(`HR 4005, 199th Congress: ${chain.titleWithheld}`);
   });
 });

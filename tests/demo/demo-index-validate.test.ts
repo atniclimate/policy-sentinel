@@ -6,6 +6,7 @@ import {
   symlinkSync,
   writeFileSync,
 } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -17,6 +18,7 @@ import {
 import { nationNameBases } from "../support/nation-name-probes";
 import {
   cfrShard,
+  probeFile,
   removeTemps,
   tempDir,
   uscShard,
@@ -64,6 +66,29 @@ describe("static index validator", () => {
     const result = check(all());
     expect(result.errors).toEqual([]);
     expect(result).toMatchObject({ ok: true, fileCount: 3, currentCount: 3 });
+  });
+
+  it("fails the check script when index files are present without the full Nation-name list (G3)", () => {
+    const dir = tempDir();
+    writeIndex(dir, all());
+    // npm run check passes no flag; DEMO_NATION_NAMES is unset here.
+    const env = { ...process.env, DEMO_NATION_NAMES: "" };
+    const run = (...args: string[]) =>
+      spawnSync(
+        process.execPath,
+        ["scripts/validate-demo-index.mjs", "--dir", ...args],
+        { env, encoding: "utf8" },
+      );
+    const refused = run(dir);
+    expect(refused.status).toBe(1);
+    expect(refused.stderr).toMatch(
+      /3 index files present, but the Nation-name probes hold \d+ entries, not the full list of 575 \(G3\)/,
+    );
+    const full = run(dir, "--nation-names", probeFile());
+    expect(full.stdout).toMatch(/^demo index valid: 3 files present/);
+    expect(full.status).toBe(0);
+    // Zero index files passes as before.
+    expect(run("docs/demo-data").status).toBe(0);
   });
 
   it("marks exactly the verbatim fields in the schema (F6)", () => {

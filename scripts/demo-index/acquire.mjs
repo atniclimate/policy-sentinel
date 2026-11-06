@@ -27,7 +27,9 @@ import { buildCfrShard } from "./cfr.mjs";
 import {
   ACQUIRE_VERSION,
   REPO_ROOT,
+  FULL_PROBE_ENTRIES,
   StageError,
+  isFullProbe,
   loadProbeNames,
   manifestBytes,
   sanitizeMessage,
@@ -53,7 +55,7 @@ export const USAGE = `usage: node scripts/acquire-demo-index.mjs <command> [opti
   ecfr  --title N --terms-read YYYY-MM-DD           eCFR "up to date as of" (current reference)
   uslm  --title N --release-point 119-136 --terms-read YYYY-MM-DD   OLRC USLM title zip
 common: --dry-run | --work-dir <outside repo> --report <outside repo> --rights-file <json>
-        [--nation-names <recognition notice HTML>] [--keep-raw]`;
+        --nation-names <recognition notice HTML, all 575 entries> [--keep-raw]`;
 
 const SOURCES = {
   cfr: {
@@ -61,7 +63,8 @@ const SOURCES = {
     name: "GovInfo bulk data, Code of Federal Regulations annual edition",
     urlTemplate:
       "https://www.govinfo.gov/bulkdata/CFR/{year}/title-{title}/CFR-{year}-title-{title}.zip",
-    linkTemplate: "https://www.ecfr.gov/current/title-{title}/part-{part}",
+    // The edition the rows quote; eCFR's current text is a different source and date.
+    linkTemplate: "https://www.govinfo.gov/bulkdata/CFR/{year}/title-{title}",
   },
   uslm: {
     id: "olrc-uslm",
@@ -170,9 +173,14 @@ export function parseAcquireArgs(argv) {
     for (const name of ["work-dir", "report"])
       if (!values[name])
         throw new UsageError(`--${name} is required unless --dry-run`);
-    if (command !== "ecfr" && !values["rights-file"])
+    // eCFR too: D-125 adjustment 1 uses it only after its terms are read (N17).
+    if (!values["rights-file"])
       throw new UsageError(
         "--rights-file is required: no file is marked current without the owner's reading",
+      );
+    if (!values["nation-names"])
+      throw new UsageError(
+        `--nation-names is required: every file is probed with all ${FULL_PROBE_ENTRIES} recognition entries (G3)`,
       );
   }
   options.workDir = values["work-dir"] ? resolve(values["work-dir"]) : null;
@@ -512,7 +520,7 @@ const summary = (entry) =>
   };
 
 /** Write the files then the manifest, after the whole new index validated in a staging copy. */
-function stageAndValidate(dataDir, stageDir, writes, manifest, names) {
+function stageAndValidate(dataDir, stageDir, writes, manifest, probe) {
   rmSync(stageDir, { recursive: true, force: true });
   cpSync(dataDir, stageDir, { recursive: true });
   for (const { path, bytes } of writes) {
@@ -521,8 +529,8 @@ function stageAndValidate(dataDir, stageDir, writes, manifest, names) {
   }
   writeFileSync(join(stageDir, "manifest.json"), manifestBytes(manifest));
   return validateDemoIndex(stageDir, {
-    names,
-    probeSource: "acquisition probes",
+    names: probe.names,
+    probeSource: probe.source,
   });
 }
 
@@ -558,6 +566,12 @@ export async function runAcquire(argv, deps = {}) {
       return { exitCode: 2 };
     }
   const probe = loadProbeNames(options.nationNames ?? undefined);
+  if (!isFullProbe(probe)) {
+    log(
+      `--nation-names holds ${probe.entryCount} recognition entries, not the full list of ${FULL_PROBE_ENTRIES}; nothing fetched`,
+    );
+    return { exitCode: 2 };
+  }
   let rights = null;
   if (options.rightsFile) {
     rights = readJson(options.rightsFile);
@@ -623,7 +637,11 @@ export async function runAcquire(argv, deps = {}) {
     },
     requests: { planned: plan.length, used: 0 },
     retrievalWindow: null,
-    probes: { source: probe.source, nameCount: probe.names.length },
+    probes: {
+      source: probe.source,
+      entryCount: probe.entryCount,
+      nameCount: probe.names.length,
+    },
     files: [],
     outcome: "failed",
     failure: null,
@@ -706,7 +724,7 @@ export async function runAcquire(argv, deps = {}) {
       join(options.workDir, "stage"),
       writes,
       next,
-      probe.names,
+      probe,
     );
     report.validator = checked.ok ? "pass" : checked.errors.slice(0, 20);
     if (!checked.ok)
@@ -744,7 +762,7 @@ export async function runAcquire(argv, deps = {}) {
         join(options.workDir, "stage"),
         [],
         failed,
-        probe.names,
+        probe,
       );
       if (checked.ok) writeFileSync(manifestPath, manifestBytes(failed));
       else report.failure.manifestNotUpdated = checked.errors.slice(0, 5);

@@ -59,11 +59,11 @@ export const LINK_LABELS = Object.freeze({
     forward: () => "Source credit stated by the U.S. Code",
     reverse: () => "U.S. Code sections whose source credit names this",
   },
+  // A codification note can name a section for many reasons; the quoted
+  // noteText says which, so the label names no relation.
   usc_reclassified: {
-    forward: (target) =>
-      `OLRC notes this section was editorially reclassified as ${target}`,
-    reverse: (from) =>
-      `OLRC notes ${from} was editorially reclassified as this section`,
+    forward: () => "Named in the OLRC codification note of this section",
+    reverse: () => "U.S. Code sections whose codification note names this",
   },
   // Run-time parse of text the page already reads (citation_in_text).
   citation_in_text: {
@@ -90,6 +90,19 @@ export const LINK_LABELS = Object.freeze({
   },
   cfr_no_authority_line: {
     forward: () => "No part-level 'Authority:' line in this part",
+    reverse: null,
+  },
+  cfr_no_source_line: {
+    forward: () => "No 'Source:' line in this part",
+    reverse: null,
+  },
+  usc_no_source_credit: {
+    forward: () => "No source credit in this section",
+    reverse: null,
+  },
+  // section@status as the U.S. Code states it ("transferred", "repealed").
+  usc_status: {
+    forward: (status) => `Status stated by the U.S. Code: ${status}`,
     reverse: null,
   },
   cases_citing: {

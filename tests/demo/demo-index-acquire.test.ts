@@ -18,6 +18,7 @@ import {
 import { validateDemoIndex } from "../../scripts/demo-index/validate.mjs";
 import {
   makeZip,
+  probeFile,
   removeTemps,
   tempDir,
 } from "./fixtures/demo-index/build-index";
@@ -99,6 +100,8 @@ function harness(answers: Record<string, Answer>, existing?: string) {
     join(out, "report.json"),
     "--rights-file",
     rightsFile,
+    "--nation-names",
+    probeFile(),
   ];
   const run = (argv: string[]) => runAcquire([...argv, ...common], deps);
   const manifest = (): IndexManifest =>
@@ -226,11 +229,51 @@ describe("acquisition boundary", () => {
         join(tempDir(), "r.json"),
         "--rights-file",
         "x.json",
+        "--nation-names",
+        probeFile(),
       ],
       h.deps,
     );
     expect(result.exitCode).toBe(2);
     expect(h.calls).toEqual([]);
+    expect(h.lines).toEqual(["--work-dir must be outside the repository"]);
+  });
+
+  it("refuses a real run without the full Nation-name list, or eCFR without a rights record (G3, N17)", async () => {
+    const out = ["--work-dir", "x", "--report", "y", "--rights-file", "r"];
+    expect(() => parseAcquireArgs([...CFR, ...out])).toThrow(/nation-names/);
+    expect(() =>
+      parseAcquireArgs([
+        "ecfr",
+        "--title",
+        "25",
+        "--terms-read",
+        "2026-11-05",
+        "--work-dir",
+        "x",
+        "--report",
+        "y",
+      ]),
+    ).toThrow(/rights-file/);
+    // The committed fixture alone holds a handful of entries, not 575.
+    const h = harness(cfrAnswers());
+    const result = await runAcquire(
+      [
+        ...CFR,
+        "--work-dir",
+        h.workDir,
+        "--report",
+        join(tempDir(), "r.json"),
+        "--rights-file",
+        "x.json",
+        "--nation-names",
+        probeFile(0),
+      ],
+      h.deps,
+    );
+    expect(result.exitCode).toBe(2);
+    expect(h.calls).toEqual([]);
+    expect(h.lines[0]).toMatch(/not the full list of 575; nothing fetched/);
   });
 });
 
@@ -239,6 +282,9 @@ describe("CFR acquisition", () => {
     const h = harness(cfrAnswers());
     const result = await h.run(CFR);
     expect(result.exitCode).toBe(0);
+    // The refresh report names the probe list and its size for the I2 pull request text.
+    expect(h.report().probes.source).toMatch(/--nation-names/);
+    expect(h.report().probes.entryCount).toBeGreaterThanOrEqual(575);
     expect(h.calls.map((c) => c.url)).toEqual([LISTING, ZIP]);
     expect(h.calls[1].at - h.calls[0].at).toBeGreaterThanOrEqual(1100);
     const entry = h

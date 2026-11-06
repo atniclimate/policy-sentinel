@@ -19,14 +19,22 @@ import { COPY } from "../../src/demo/copy";
 import { chain } from "../../src/demo/copy/chain";
 import { grantsAuthority as GA } from "../../src/demo/copy/grants-authority";
 import { localDay } from "../../src/demo/follow";
-import { citationsInText } from "../../src/demo/links";
+import { cfrPartLinks, citationsInText } from "../../src/demo/links";
 import { buildPdf } from "../../src/demo/pdf";
 import { serializeReport, STORAGE_KEY } from "../../src/demo/report-state";
 import { searchCriteria } from "../../src/demo/search-contract";
 import type { ReportState } from "../../src/demo/report-state";
 import type { DemoCitation, DemoSource } from "../../src/demo/types";
 import { keyOf, policyValueV3, relatedValue } from "../../src/demo/validation";
-import { blocks, frRecord as chainRecord } from "./fixtures/chain";
+import { LinkedRecordsPanel } from "../../demo/app/LinkedRecordsPanel";
+import type { IndexFile } from "../../src/demo/index-types";
+import {
+  blocks,
+  cfrFile,
+  cfrShard,
+  frRecord as chainRecord,
+  NOW,
+} from "./fixtures/chain";
 import { policy } from "./frontend-fixtures";
 
 vi.hoisted(() => {
@@ -360,6 +368,23 @@ describe("the chain on the page", () => {
     expect(
       panel().getByRole("button", { name: chain.expand.govinfo_related }),
     ).toBeEnabled();
+  });
+
+  it("prints the stale sentence on every row from a file kept after a failed refresh (D2, D3)", () => {
+    const retained: IndexFile = {
+      ...cfrFile,
+      status: "retained_after_failed_refresh",
+      lastRefreshAttemptAt: "2099-02-28T10:00:00Z",
+      failureStage: "fetch",
+      message: "Source refresh failed.",
+    };
+    const rows = cfrPartLinks(cfrShard, "100", retained, NOW) ?? [];
+    const { container } = render(<LinkedRecordsPanel rows={rows} />);
+    const items = [...container.querySelectorAll(".chain-row")];
+    expect(items).toHaveLength(rows.length);
+    for (const li of items) expect(li.textContent).toContain(chain.retained);
+    // Under six months old: not the six-month sentence.
+    expect(container.textContent).not.toContain(chain.stale);
   });
 });
 

@@ -26,8 +26,15 @@ describe("closed label table", () => {
     expect(linkLabel("fr_cfr_refs", "forward")).toBe(
       "CFR parts this document names",
     );
+    // R3-1: a codification note names sections for many reasons; the quoted note says which.
     expect(linkLabel("usc_reclassified", "forward", "25 U.S.C. 5321")).toBe(
-      "OLRC notes this section was editorially reclassified as 25 U.S.C. 5321",
+      "Named in the OLRC codification note of this section",
+    );
+    expect(linkLabel("usc_reclassified", "reverse", "25 U.S.C. 450f")).toBe(
+      "U.S. Code sections whose codification note names this",
+    );
+    expect(linkLabel("usc_status", "forward", "transferred")).toBe(
+      "Status stated by the U.S. Code: transferred",
     );
     expect(linkLabel("fr_no_authority_line", "forward")).toBe(
       "No authority line in this document",
@@ -45,9 +52,12 @@ describe("closed label table", () => {
       [
         "cases_citing",
         "cfr_no_authority_line",
+        "cfr_no_source_line",
         "citation_in_text",
         "fr_no_authority_line",
         "short_form",
+        "usc_no_source_credit",
+        "usc_status",
       ].sort(),
     );
     expect(() => linkLabel("citation_in_text", "reverse", "page 1")).toThrow();

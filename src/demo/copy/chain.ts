@@ -32,6 +32,7 @@ export const chain = {
   openHop: (target: string) => `Open ${target} in this chain`,
   /** The link on a row whose label already names its target. */
   openRecord: "Open the record",
+  titleWithheld: "title not shown here because it may name a person",
   /** An in-text citation named in several places, grouped into its first row. */
   places: (count: number) =>
     `Found at ${count} places in this text; the first is shown.`,
@@ -48,6 +49,9 @@ export const chain = {
   withdrawn: (date: string) =>
     `Withdrawn on ${date} while the source's terms are reviewed`,
   stale: "Snapshot older than six months; check the source.",
+  /** Safeguard 8, condition D2: rows from a file kept after a failed refresh. */
+  retained:
+    "Stale: the last refresh failed, so this is the earlier file with its original as-of date.",
   /** Where an index hop's live link goes, by the hop target's source. */
   indexSources: {
     "cfr-index": "eCFR",

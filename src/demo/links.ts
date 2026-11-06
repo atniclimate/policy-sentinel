@@ -91,6 +91,9 @@ const DAY_MS = 86_400_000;
 // Reader links to official pages; nothing here is fetched by the page.
 export const cfrPartUrl = (title: number, part: string) =>
   `https://www.ecfr.gov/current/title-${title}/part-${part}`;
+/** The annual edition's own GovInfo bulk data folder: the edition the shard rows quote. */
+export const cfrAnnualUrl = (year: number, title: number) =>
+  `https://www.govinfo.gov/bulkdata/CFR/${year}/title-${title}`;
 export const uscSectionUrl = (title: number, section: string) =>
   `https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title${title}-section${encodeURIComponent(section)}&num=0&edition=prelim`;
 const frDocUrl = (id: string) =>
@@ -445,7 +448,12 @@ export function cfrPartLinks(
   now: Date,
 ): ChainRow[] | null {
   const entry = shard.entries.find((e) => e.part === part);
-  const p = fileProvenance(file, cfrPartUrl(shard.title, part), now);
+  // The rows quote the annual edition, so the live link is that edition, not eCFR's current text.
+  const p = fileProvenance(
+    file,
+    cfrAnnualUrl(shard.editionYear, shard.title),
+    now,
+  );
   if (!entry || !p) return null;
   const subject = `${shard.title} CFR part ${part}`;
   const rows: ChainRow[] = [];
@@ -479,8 +487,21 @@ export function cfrPartLinks(
         entry.sourceCitations,
       ),
     );
+  } else {
+    rows.push(
+      note(p, "stated", linkLabel("cfr_no_source_line", "forward"), null),
+    );
   }
-  return rows;
+  return markRetained(rows, file);
+}
+
+/** Safeguard 8, D2: rows from a file kept after a failed refresh say so, beside any notice of their own. */
+function markRetained(rows: ChainRow[], file: IndexFile): ChainRow[] {
+  if (file.status !== "retained_after_failed_refresh") return rows;
+  return rows.map((row) => ({
+    ...row,
+    notice: row.notice ? `${row.notice}. ${chain.retained}` : chain.retained,
+  }));
 }
 
 /** (b) Rows for one U.S.C. section from its title shard; null when it is not in it. */
@@ -495,7 +516,15 @@ export function uscSectionLinks(
   const p = fileProvenance(file, uscSectionUrl(shard.title, section), now);
   if (!entry || !p) return null;
   const rows: ChainRow[] = [];
-  if (entry.creditText !== null || entry.credits.length) {
+  if (entry.status !== null)
+    rows.push(
+      note(p, "stated", linkLabel("usc_status", "forward", entry.status), null),
+    );
+  if (entry.creditText === null && !entry.credits.length) {
+    rows.push(
+      note(p, "stated", linkLabel("usc_no_source_credit", "forward"), null),
+    );
+  } else {
     const quote = {
       heading: "Source credit",
       text: entry.creditText,
@@ -540,7 +569,7 @@ export function uscSectionLinks(
       if (parsed?.kind !== "usc") continue;
       const to = targetOf(parsed);
       rows.push(
-        link(p, "usc_reclassified", "forward", to.text, "source_field", to, {
+        link(p, "usc_reclassified", "forward", "", "source_field", to, {
           quote,
         }),
       );
@@ -554,7 +583,7 @@ export function uscSectionLinks(
       LINK_NOTICES.notOfficial,
     ),
   );
-  return rows;
+  return markRetained(rows, file);
 }
 
 /**
@@ -706,7 +735,7 @@ export function relatedRows(
         identifier: r.identifier,
         officialUrl: r.officialUrl,
       },
-      text: `${r.identifier}: ${r.title}`,
+      text: `${r.identifier}: ${r.title ?? chain.titleWithheld}`,
       family: "laws_and_bills",
       notice: null,
     }),

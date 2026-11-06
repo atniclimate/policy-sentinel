@@ -25,8 +25,9 @@ export interface IndexLoader {
 }
 
 export const DEMO_DATA_BASE = "./demo-data/";
-// Condition A1: only these directories, one level deep, .json files.
-const PATH_RE = /^(?:vocab|cfr|usc)\/[a-z0-9-]+\.json$/;
+// Condition A1: only these directories, one level deep, .json files. The
+// schema's chapter names may hold capitals ("title-42-ch-55A").
+const PATH_RE = /^(?:vocab|cfr|usc)\/[A-Za-z0-9-]+\.json$/;
 
 export function createIndexLoader(
   manifest: IndexManifest,
