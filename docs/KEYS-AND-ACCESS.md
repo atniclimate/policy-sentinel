@@ -50,7 +50,7 @@ terms read), and Supreme Court slip-opinion feeds (pending approval).
 2. Register under the program account (below), never under a personal
    address once the program account is in use.
 3. Store it as a Worker secret, from the repository root:
-   `npx wrangler secret put <NAME> --config worker/wrangler.toml`. For local
+   `npx wrangler@4.151.3 secret put <NAME> --config worker/wrangler.toml`. For local
    Worker development, put it in `worker/.dev.vars`, which is never committed.
 4. Add a rate limit binding in `worker/wrangler.toml` when the provider limits
    the key, so all visitors share it fairly.
@@ -64,7 +64,8 @@ registered to climate@atnitribes.org, the ATNI Climate program account, so no
 key depends on one person.
 
 1. Register a new api.data.gov key under the program account.
-2. Replace the Worker secret with `wrangler secret put DATA_GOV_API_KEY` and
+2. Replace the Worker secret with
+   `npx wrangler@4.151.3 secret put DATA_GOV_API_KEY --config worker/wrangler.toml` and
    deploy with the owner's approval; record the Worker version and the rollback
    version.
 3. Make one bounded keyed call through the Worker to confirm it works.

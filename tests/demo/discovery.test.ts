@@ -24,6 +24,13 @@ import {
   unresolvedEmpty,
 } from "../../src/demo/discovery";
 import type { LaneSearch, Plan, PlanSearch } from "../../src/demo/discovery";
+import {
+  COURTS_SOURCE,
+  readingCourt,
+  readingSearch,
+} from "../../src/demo/discovery";
+import { routeQuery } from "../../src/demo/query-route";
+import type { RouteReading } from "../../src/demo/query-route";
 import { draftPlan } from "../../src/demo/ncai-2026";
 import {
   REGULATIONS_V2_CONFIRMED,
@@ -950,5 +957,108 @@ describe("a record plan (Find related)", () => {
       defaults,
     );
     expect(plan.lanes).toEqual([]);
+  });
+});
+
+describe("chosen readings and court lookups (0.9.1 step 11)", () => {
+  const first = (text: string) => routeQuery(text).readings[0];
+  const live = { federal: ["federal-register"], live: [COURTS_SOURCE] };
+  const sources = {
+    federal: ["federal-register"],
+    live: ["federal-register", "congress", "washington", COURTS_SOURCE],
+  };
+
+  it("sends a court lookup with contract v3 and its match, other lanes with v2", () => {
+    const plan = buildPlan(
+      { kind: "typed", query: "23-12345" },
+      [
+        {
+          group: "case",
+          source: COURTS_SOURCE,
+          query: "ca9 23-12345",
+          auto: true,
+          lookup: "court_docket",
+        },
+      ],
+      live,
+    );
+    const [lane] = plan.lanes;
+    expect(lane.id).toBe(`${COURTS_SOURCE}#court_docket:ca9 23-12345`);
+    expect(laneOptions(plan, lane)).toMatchObject({
+      version: 3,
+      match: "court_docket",
+    });
+    expect(() =>
+      searchCriteria(lane.sourceId, lane.query, 1, laneOptions(plan, lane)),
+    ).not.toThrow();
+    expect(
+      laneOptions(plan, { sourceId: "federal-register", match: "docket" }),
+    ).toMatchObject({ version: 2, match: "docket" });
+    // Words searched in the court source go as v3 text.
+    expect(laneOptions(plan, { sourceId: COURTS_SOURCE })).toMatchObject({
+      version: 3,
+      match: "text",
+    });
+  });
+
+  it("keeps only the package a court docket lookup names", () => {
+    const keep = laneKeep({
+      query: "ca9 23-12345",
+      lookup: "court_docket",
+    })!;
+    const row = (packageId?: string): DemoCitation => ({
+      ...listing("govinfo"),
+      sourceId: COURTS_SOURCE,
+      ...(packageId && { packageId }),
+    });
+    expect(keep(row("USCOURTS-ca9-23-12345"))).toBe(true);
+    expect(keep(row("USCOURTS-ca9-23-99999"))).toBe(false);
+    expect(keep(row())).toBe(false);
+    expect(laneKeep({ query: "600 U.S. 1", lookup: "us_reports" })).toBe(
+      undefined,
+    );
+  });
+
+  it("plans each live reading in the one source that holds it", () => {
+    const plan = (reading: RouteReading) =>
+      buildPlan(
+        { kind: "typed", query: reading.identifier },
+        [readingSearch(reading)!],
+        sources,
+      ).lanes[0];
+    expect(plan(first("EPA-HQ-OW-2099-0001"))).toMatchObject({
+      sourceId: "federal-register",
+      match: "docket",
+    });
+    expect(plan(first("1076-AF54"))).toMatchObject({
+      sourceId: "federal-register",
+      match: "rin",
+    });
+    expect(plan(first("2024-28302"))).toMatchObject({
+      sourceId: "federal-register",
+      query: "2024-28302",
+    });
+    expect(plan(first("2024-28302")).match).toBeUndefined();
+    expect(plan(first("hr 1234 119"))).toMatchObject({
+      sourceId: "congress",
+      query: "hr 1234 119",
+    });
+    expect(plan(first("ca9 23-12345"))).toMatchObject({
+      sourceId: COURTS_SOURCE,
+      query: "ca9 23-12345",
+      lookup: "court_docket",
+      group: "case",
+    });
+    expect(plan(first("ca9 23-12345")).skip).toBeUndefined();
+  });
+
+  it("plans no lookup for a court it does not search, a court not named, or a reading that is not live", () => {
+    const [washington, oregon] = routeQuery("HB 2100").readings;
+    expect(readingSearch(washington)).toMatchObject({ source: "washington" });
+    expect(readingSearch(oregon)).toBeNull();
+    expect(readingCourt(first("Second Circuit 23-12345"))).toBeNull();
+    expect(readingSearch(first("Second Circuit 23-12345"))).toBeNull();
+    expect(readingSearch(first("Pub. L. 93-638"))).toBeNull();
+    expect(readingSearch(first("25 U.S.C. 5304"))).toBeNull();
   });
 });

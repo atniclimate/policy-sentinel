@@ -1,6 +1,6 @@
 # Plan
 
-Status of this plan: it is the agent's proposal, adopted as the working plan under D-095 (the owner's direction of 2026-10-10 on demo follow-ups and planning). The items in the owner-decision list in [`STATUS.md`](STATUS.md) (the release definition, the scope deferrals that partly reverse rulings of 2026-09-22, 2026-09-24 and 2026-10-06, and archiving the ledger) take effect as written only when the owner confirms them. Until then nothing deferred is deleted and no earlier ruling is treated as revoked.
+Status of this plan: it is the agent's proposal, adopted as the working plan under D-095 (the owner's direction of 2026-10-10 on demo follow-ups and planning). The items in the owner-decision list in [`STATUS.md`](STATUS.md) (the release definition, the scope deferrals that partly reverse rulings of 2026-09-22, 2026-09-24 and 2026-10-06, and archiving `ROADMAP.yaml`) take effect as written only when the owner confirms them. Until then nothing deferred is deleted and no earlier ruling is treated as revoked.
 
 ## The goal
 
@@ -41,7 +41,7 @@ terms page and one bounded call per field.
 
 Each milestone is done when its checks pass on the real service and the result is written in `STATUS.md`. Every source is added one at a time, live call first, and the trimmed response shape of that call becomes the test fixture. The full check runs once before anything is published.
 
-D-102 sets the immediate sequence: verification of existing browser workflows, demonstrated repairs and independent re-review, then documentation and capability planning informed by staff workflows. The public demo, synthetic local workbench/studies and retained synthetic app have separate evidence; current results and remaining limits are in [STATUS.md](STATUS.md). The owner has supplied consultation and climate-funding research tasks, assessed below. Dedicated interface polish and deeper accessibility evaluation follow broader functionality; existing accessibility safeguards and functional keyboard/focus checks remain. This changes work order, not source gates or the unresolved release definition.
+Before Full 0.9, D-102 set the sequence: verification of existing browser workflows, demonstrated repairs and independent re-review, then documentation and capability planning informed by staff workflows. The public demo, synthetic local workbench/studies and retained synthetic app have separate evidence; current results and remaining limits are in [STATUS.md](STATUS.md). The owner has supplied consultation and climate-funding research tasks, assessed below. Dedicated interface polish and deeper accessibility evaluation follow broader functionality; existing accessibility safeguards and functional keyboard/focus checks remain. This changes work order, not source gates or the unresolved release definition.
 
 ### 1. Published and true
 
@@ -62,21 +62,21 @@ D-102 sets the immediate sequence: verification of existing browser workflows, d
 - A person can: follow a rule, bill or docket and see "new since" when they return.
 - Checks: a followed docket shows a new document after one appears. The list stays in the browser or in an exported file.
 - Builds on: `src/demo/report-state.ts` and the engine's lifecycle code.
-- Needs the owner: decision 2 in `STATUS.md`. A browser-held list needs nothing more. A small refreshed public index built with the engine's runner needs the owner's yes.
+- Needs the owner: a small refreshed public index built with the engine's runner needs the owner's yes. The browser-held list shipped in 0.10.0 (D-114, D-115).
 
 ### 4. First outside user: the first real release (proposed)
 
 - A person can: complete a real task unaided.
 - Checks: a Tribal policy staff member who is not the owner does so and states correctly what the result does and does not establish. Every source the page calls live has been checked against the real service, and the page says plainly what it does not cover.
 - Builds on: milestones 1 to 3.
-- Needs the owner: confirming this definition, a license, and recruiting the outside user.
+- Needs the owner: confirming this definition (the 1.0 test, D-120), the 1.0 license set by ATNI (D-122 set the interim license), and recruiting the outside user.
 
 ### 5. The region
 
 - A person can: search Washington by topic, then Oregon, Idaho and the four other states named in D-086 (the owner's plan revision of 2026-10-06: Alaska, California, Montana, Nevada), and read ATNI, NCAI and USET resolutions.
 - Checks: each state returns real results or says on the page why not. A resolution names its issuer and implies no member Nation's position.
 - Builds on: the source catalog and the source reviews in `docs/source-reviews/`.
-- Needs the owner: the Oregon terms and contact with Idaho.
+- Needs the owner: contact with Idaho. The Oregon OLIS agreement was accepted under D-119.
 
 ### 6. Own documents, offline
 
@@ -89,14 +89,13 @@ D-102 sets the immediate sequence: verification of existing browser workflows, d
 
 These are real outside actions or decisions. Nothing else on this plan waits for the owner.
 
-- Future publication outside D-103, and each later Worker deployment.
+- Each pull request, merge, publication and Worker deployment, by an in-session command naming it (safeguard 6).
 - One sentence allowing the existing api.data.gov key for engine work.
-- The eCFR terms, the Oregon terms and contact with Idaho.
-- A license. The repository is public and has none.
+- The eCFR terms and contact with Idaho. The Oregon OLIS agreement was accepted under D-119.
+- The 1.0 license, set by ATNI. D-122 set the interim license.
 - Any Nation's private or Nation-specific material.
 - Recruiting the first outside user.
-- Standing permission for future pull requests; D-103 covers this reviewed publication only.
-- Confirming or changing decisions 1 to 8 in `STATUS.md`: the release definition, following and a refreshed public index, the key and terms, the Nation picker, the deferrals below, archiving the ledger, pull requests and license, and Tribal documents in federal results.
+- The open decisions in `STATUS.md`, which also carries these from earlier lists: the release definition, a refreshed public index, the Nation picker, the deferrals below, archiving `ROADMAP.yaml`, and Tribal documents in federal results.
 
 ## Audit follow-through (2026-10-13)
 
@@ -176,10 +175,11 @@ research target, not an accepted funding route.
 | Oregon, Idaho and regional coverage | Oregon and Idaho are explicit integration gaps. Federal records may discuss regional matters but do not establish complete regional or Nation coverage. | For the identified consultation rule, inventory official federal and state consultation records, then qualify one missing source at a time. Oregon terms and Idaho contact remain owner decisions; intertribal publications never imply every member Nation's position. |
 | Local studies and offline use | `PolicyWorkbench` and `StudyWorkspace` support checksummed local evidence, analyst-authored procedural/consultation records, review, saved-study import and seven study products. Synthetic browser checks exercise them. Turnkey offline installation and a staff member's disconnected task remain unverified. | Load an approved package with the network disabled, resume an exported study, produce a cited local output and correctly explain missing evidence. Public output must continue filtering Restricted material and source text whose reuse contract prohibits redistribution. |
 
-Next proposed slice: discover the relevant water, forestry and Roadless Rule
-instruments and assemble a bounded official-source consultation inventory before
-choosing a new adapter. In parallel,
-define one FY27 funding program's evidence trail from appropriation through award.
+Proposed slice as of 2026-10-13, now after Full 0.9 (D-118): discover the
+relevant water, forestry and Roadless Rule instruments and assemble a bounded
+official-source consultation inventory before choosing a new adapter. In
+parallel, define one FY27 funding program's evidence trail from appropriation
+through award.
 These are research and acceptance specifications, not authorization to acquire
 private material, add a public source or implement legal-status labels.
 
@@ -201,9 +201,9 @@ Deferred, not deleted. Each item stays on record and returns when a milestone ne
 - The sibling-app interchange (policy context in, citations out, for land-use-analyzer and plan-assessor) and demonstration A4.
 - Demonstrations A2 (an operator prepares a state other than Washington) and A3 (a successor restores and replays the evidence package).
 - Growth of the managed corpus toward 50 GB and measured public acquisition beyond what a milestone needs (D-086).
-- Nation registry binding, unless the release has a Nation picker (decision 4).
+- Nation registry binding, unless the release has a Nation picker (an open owner decision in `STATUS.md`).
 - Native Hawaiian support, which stays a later-compatible direction.
 - Optional AI summaries, which need their own approved build-time step.
 - The carry-forward of nine old scenario claims and the release crosswalk (GD-31, the release acceptance crosswalk): they served a plan no longer followed and stay as record.
-- The ledger items that belong to earlier plans (the 2026-10-10 assessment counted 81): archived with the ledger if the owner confirms decision 6.
+- The ledger items that belong to earlier plans (the 2026-10-10 assessment counted 81): archived with `ROADMAP.yaml` if the owner confirms archiving it.
 - The frozen kernel and experimental code stays idle and untouched.

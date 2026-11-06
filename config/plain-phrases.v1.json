@@ -1,0 +1,6 @@
+{
+  "$schema": "../schemas/plain-phrases.schema.v1.json",
+  "schemaVersion": "1.0.0",
+  "artifactType": "plain-phrases",
+  "entries": []
+}

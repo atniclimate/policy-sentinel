@@ -1,0 +1,14 @@
+{
+  "packageId": "USCOURTS-ca9-99-12345",
+  "title": "EXAMPLE COUNTY V. UNITED STATES",
+  "collectionCode": "USCOURTS",
+  "collectionName": "United States Courts Opinions",
+  "dateIssued": "2099-03-04",
+  "lastModified": "2099-03-05T01:02:03Z",
+  "courtCode": "ca9",
+  "parties": [{ "name": "Example Party", "role": "Appellant" }],
+  "download": {
+    "zipLink": "https://api.govinfo.gov/packages/USCOURTS-ca9-99-12345/zip"
+  },
+  "detailsLink": "https://www.govinfo.gov/app/details/USCOURTS-ca9-99-12345"
+}

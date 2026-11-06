@@ -1,11 +1,11 @@
-import { readFileSync, readdirSync } from "node:fs";
-import { extname, resolve } from "node:path";
+import { resolve } from "node:path";
 
 import { beforeAll, describe, expect, it } from "vitest";
 
 import {
   ALLOWLISTED_VIOLATIONS,
   LEGACY_FACADE_BINDINGS,
+  LOCAL_ENTRY_PATHS,
   PUBLIC_ENTRY_PATHS,
   isCompositionDeclaration,
   isCompositionRoot,
@@ -13,48 +13,18 @@ import {
   moduleOf,
 } from "./module-manifest.mjs";
 import {
+  REPOSITORY_SCAN_ROOTS,
   analyzeModuleBoundaries,
+  readRepositoryFiles,
   validateLegacyFacade,
   walkRepositoryReachable,
 } from "./module-graph";
 
 const REPO_ROOT = resolve(import.meta.dirname, "../..");
-const SCAN_ROOTS = ["src", "config", "schemas", "scripts", "fixtures"] as const;
-const SOURCE_EXTENSIONS = new Set([
-  ".ts",
-  ".tsx",
-  ".mts",
-  ".cts",
-  ".mjs",
-  ".cjs",
-  ".js",
-  ".jsx",
-]);
-
-function repositoryFiles(): ReadonlyMap<string, string> {
-  const files = new Map<string, string>();
-  function walk(directory: string): void {
-    for (const entry of readdirSync(resolve(REPO_ROOT, directory), {
-      withFileTypes: true,
-    })) {
-      const path = directory + "/" + entry.name;
-      if (entry.isDirectory()) walk(path);
-      else if (entry.isFile())
-        files.set(
-          path,
-          SOURCE_EXTENSIONS.has(extname(path))
-            ? readFileSync(resolve(REPO_ROOT, path), "utf8")
-            : "",
-        );
-    }
-  }
-  for (const directory of SCAN_ROOTS) walk(directory);
-  return files;
-}
 
 let files: ReadonlyMap<string, string>;
 beforeAll(() => {
-  files = repositoryFiles();
+  files = readRepositoryFiles(REPO_ROOT);
 });
 
 describe("Module boundary dependency rule (enforced, GD-10)", () => {
@@ -71,7 +41,12 @@ describe("Module boundary dependency rule (enforced, GD-10)", () => {
     expect(moduleOf("config/taxonomy.v1.json")).toBe("context");
     expect(moduleOf("src/app/App.tsx")).toBe("output");
     expect(moduleOf("src/main.tsx")).toBe("output");
+    expect(moduleOf("src/local-main.tsx")).toBe("output");
     expect(moduleOf("src/modules/output/anything.mjs")).toBe("output");
+    expect(moduleOf("demo/main.tsx")).toBe("output");
+    expect(moduleOf("demo/app/anything.tsx")).toBe("output");
+    expect(moduleOf("worker/src/index.ts")).toBe("intake");
+    expect(moduleOf("worker/src/sources/anything.ts")).toBe("intake");
     expect(moduleOf("src/engine/land-boundary-contracts.ts")).toBe("private");
     expect(moduleOf("src/engine/land-parcel-contracts.ts")).toBe("private");
     expect(moduleOf("src/engine/parcel-query.ts")).toBe("private");
@@ -98,6 +73,7 @@ describe("Module boundary dependency rule (enforced, GD-10)", () => {
       "scripts/source-pack.ts",
       "scripts/build-synthetic-artifact.mjs",
       "src/main.tsx",
+      "src/local-main.tsx",
     ])
       expect(isCompositionRoot(path), path).toBe(true);
     expect(isCompositionRoot("scripts/unreviewed.ts")).toBe(false);
@@ -138,7 +114,21 @@ describe("Module boundary dependency rule (enforced, GD-10)", () => {
 });
 
 describe("Public-entry reachability (no facade or composition exemptions)", () => {
-  it("never reaches private implementations or their barrel", () => {
+  it("scans and enters the public page, the demo page and the Worker", () => {
+    expect(REPOSITORY_SCAN_ROOTS).toEqual(
+      expect.arrayContaining(["src", "scripts", "demo", "worker"]),
+    );
+    expect(PUBLIC_ENTRY_PATHS).toEqual(
+      expect.arrayContaining([
+        "src/main.tsx",
+        "scripts/build-synthetic-artifact.mjs",
+        "demo/main.tsx",
+        "worker/src/index.ts",
+      ]),
+    );
+  });
+
+  it("never reaches private implementations, their barrel or the local entry", () => {
     expect(PUBLIC_ENTRY_PATHS.length).toBeGreaterThan(0);
     for (const entry of PUBLIC_ENTRY_PATHS) {
       expect(files.has(entry), entry).toBe(true);
@@ -155,6 +145,38 @@ describe("Public-entry reachability (no facade or composition exemptions)", () =
       );
       expect(result.diagnostics, entry).toEqual([]);
       expect(forbidden, entry).toEqual([]);
+    }
+  });
+});
+
+describe("Local workbench entry (design section 1 rule 9)", () => {
+  it("is local-only and unreachable from the public page, demo page and Worker", () => {
+    expect(LOCAL_ENTRY_PATHS).toEqual(["src/local-main.tsx"]);
+    for (const entry of LOCAL_ENTRY_PATHS) {
+      expect(files.has(entry), entry).toBe(true);
+      expect(PUBLIC_ENTRY_PATHS, entry).not.toContain(entry);
+      expect(isForbiddenFromPublicEntry(entry), entry).toBe(true);
+    }
+    for (const entry of [
+      "src/main.tsx",
+      "demo/main.tsx",
+      "worker/src/index.ts",
+    ])
+      expect(
+        walkRepositoryReachable(files, [entry]).paths,
+        entry,
+      ).not.toContain("src/local-main.tsx");
+  });
+
+  it("carries the workbench and its local loader, which the public page does not", () => {
+    const local = walkRepositoryReachable(files, ["src/local-main.tsx"]).paths;
+    const publicPage = walkRepositoryReachable(files, ["src/main.tsx"]).paths;
+    for (const path of [
+      "src/app/PolicyWorkbench.tsx",
+      "src/app/policy-local-loader.ts",
+    ]) {
+      expect(local, path).toContain(path);
+      expect(publicPage, path).not.toContain(path);
     }
   });
 });

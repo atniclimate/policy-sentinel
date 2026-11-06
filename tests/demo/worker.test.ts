@@ -122,6 +122,31 @@ describe("worker access rules", () => {
     ).toBe(204);
   });
 
+  it("stops reading a search body with no stated length at the size limit", async () => {
+    installFetch({});
+    let pulled = 0;
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulled += 1;
+        if (pulled > 16) controller.close();
+        else controller.enqueue(new Uint8Array(65_536).fill(32));
+      },
+    });
+    const res = await worker.fetch(
+      new Request("https://demo.example/api/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Origin: ORIGIN },
+        body,
+        duplex: "half",
+      } as RequestInit),
+      {},
+    );
+    expect(res.status).toBe(400);
+    expect(await res.json()).toMatchObject({ error: "bad_query" });
+    expect(calls).toHaveLength(0);
+    expect(pulled).toBeLessThanOrEqual(2);
+  });
+
   it("fetches only exact allowlisted official hosts, over https", async () => {
     installFetch({});
     await expect(officialFetch("https://example.com/x")).rejects.toMatchObject({
@@ -598,6 +623,46 @@ describe("upstream validation and identity", () => {
       issuingBody: "Not stated",
       officialUrl: "https://www.govinfo.gov/app/details/PKG-1",
     });
+  });
+
+  it("withholds a court caption that may name a person, as the court cases source does", async () => {
+    const court = { collectionCode: "USCOURTS", dateIssued: "2099-03-04" };
+    installFetch({
+      "api.govinfo.gov": () =>
+        reply({
+          count: 3,
+          results: [
+            {
+              ...court,
+              title: "Sampleperson v. Example County",
+              packageId: "USCOURTS-wawd-2_99-cv-00123",
+            },
+            {
+              ...court,
+              title: "Example County v. United States",
+              packageId: "USCOURTS-ca9-99-12345",
+            },
+            {
+              collectionCode: "USREPORTS",
+              title: "Example State v. Mr. Sampleperson",
+              packageId: "USREPORTS-199",
+              granuleId: "USREPORTS-199-42",
+            },
+          ],
+        }),
+    });
+    const res = await call(
+      "/api/search?source=govinfo&q=collection%3AUSCOURTS%20AND%20(water)",
+      { DATA_GOV_API_KEY: "synthetic-key" },
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.results.map((r: { title: string }) => r.title)).toEqual([
+      "Case name not shown (USCOURTS-wawd-2_99-cv-00123)",
+      "Example County v. United States",
+      "Case name not shown (USREPORTS-199/USREPORTS-199-42)",
+    ]);
+    expect(JSON.stringify(body)).not.toContain("Sampleperson");
   });
 
   it.each([
@@ -2102,14 +2167,17 @@ describe("cross-source match keys", () => {
     "accepts %s as a Congress.gov bill reference exactly when the shared grammar does: %s",
     async (query, accepted) => {
       installFetch({});
+      const limit = vi.fn(async () => ({ success: true }));
       const res = await call(
         `/api/search?source=congress&q=${encodeURIComponent(query)}`,
-        keyed,
+        { ...keyed, KEY_RATE: { limit } },
       );
       expect(isCongressReference(query)).toBe(accepted);
       // An accepted reference reaches the unrouted synthetic host and comes back as not found.
       expect(res.status).toBe(accepted ? 404 : 400);
       expect(calls).toHaveLength(accepted ? 1 : 0);
+      // A query that is not a bill reference spends none of the shared allowance.
+      expect(limit).toHaveBeenCalledTimes(accepted ? 1 : 0);
     },
   );
 });

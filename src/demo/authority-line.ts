@@ -1,0 +1,50 @@
+/**
+ * The Federal Register's printed "Authority:" line (design T1.3), read from
+ * text blocks the Worker already extracted. Pure: the wording after the
+ * official heading at the start of a block, verbatim with its white space
+ * collapsed. Several lines are kept in source order, joined by "; ", and an
+ * exact repeat is kept once. A line the personal-pattern guard stops is left
+ * out. Present false means no block starts with the heading, which the page
+ * words as "No authority line in this document", never as "no authority".
+ */
+import { hasPersonalPattern } from "./personal-guard.ts";
+import type { TextBlock } from "./types";
+
+/** The validator's bound for authorityLine (src/demo/validation.ts). */
+export const AUTHORITY_LINE_MAX = 2000;
+
+const HEADING = /^\s*Authority:\s*/;
+
+export interface AuthorityLineFields {
+  readonly authorityLine?: string;
+  readonly authorityLinePresent: boolean;
+}
+
+export function authorityLine(
+  blocks: readonly TextBlock[],
+): AuthorityLineFields {
+  const lines: string[] = [];
+  let present = false;
+  let withheld = false;
+  for (const block of blocks) {
+    const heading = HEADING.exec(block.text);
+    if (!heading) continue;
+    const wording = block.text
+      .slice(heading[0].length)
+      .replace(/\s+/g, " ")
+      .trim();
+    if (!wording) continue;
+    present = true;
+    if (hasPersonalPattern(wording)) withheld = true;
+    else if (!lines.includes(wording)) lines.push(wording);
+  }
+  // A withheld line means the rest would read as the whole authority, so no
+  // line is shown and the page states that one exists (safeguard 8).
+  if (withheld) return { authorityLinePresent: true };
+  // Over the bound, no part is shown as if it were the whole (safeguard 8).
+  const joined = lines.join("; ");
+  if (joined.length > AUTHORITY_LINE_MAX) return { authorityLinePresent: true };
+  return joined
+    ? { authorityLine: joined, authorityLinePresent: true }
+    : { authorityLinePresent: present };
+}

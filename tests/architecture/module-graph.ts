@@ -1,4 +1,5 @@
-import { posix } from "node:path";
+import { readFileSync, readdirSync } from "node:fs";
+import { posix, resolve } from "node:path";
 
 import ts from "typescript";
 
@@ -63,6 +64,47 @@ const extensions = [
   ".jsx",
   ".json",
 ] as const;
+
+/** Every file a public entry can reach must sit under one of these roots. */
+export const REPOSITORY_SCAN_ROOTS: readonly string[] = Object.freeze([
+  "src",
+  "config",
+  "schemas",
+  "scripts",
+  "fixtures",
+  "demo",
+  "worker",
+]);
+// Git-ignored tool output (wrangler dev bundles, installed packages), never
+// committed or deployed. Matched by exact name: .gitignore's private/ also
+// matches src/modules/private, which must stay scanned.
+const GENERATED_DIRECTORIES = new Set([".wrangler", "node_modules"]);
+
+/** Source text for source files and "" for the rest, keyed by repository path. */
+export function readRepositoryFiles(
+  root: string,
+  scanRoots: readonly string[] = REPOSITORY_SCAN_ROOTS,
+): RepositoryFiles {
+  const files = new Map<string, string>();
+  function walk(directory: string): void {
+    for (const entry of readdirSync(resolve(root, directory), {
+      withFileTypes: true,
+    })) {
+      const path = directory + "/" + entry.name;
+      if (entry.isDirectory()) {
+        if (!GENERATED_DIRECTORIES.has(entry.name)) walk(path);
+      } else if (entry.isFile())
+        files.set(
+          path,
+          sourcePattern.test(path)
+            ? readFileSync(resolve(root, path), "utf8")
+            : "",
+        );
+    }
+  }
+  for (const directory of scanRoots) walk(directory);
+  return files;
+}
 
 function normalized(path: string): string {
   return posix.normalize(path.replaceAll("\\", "/")).replace(/^\.\//u, "");

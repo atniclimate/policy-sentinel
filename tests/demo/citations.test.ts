@@ -12,6 +12,7 @@ describe("source labels", () => {
     expect(SOURCE_LABELS).toEqual({
       "federal-register": "Federal Register",
       govinfo: "GovInfo",
+      "govinfo-courts": "GovInfo court opinions",
       congress: "Congress.gov",
       regulations: "Regulations.gov",
       grants: "Grants.gov",

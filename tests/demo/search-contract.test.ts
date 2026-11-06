@@ -223,7 +223,8 @@ describe("search contract v2 criteria", () => {
       "water",
       "bad_query",
     ],
-    ["federal-register", { version: 3 as 2 }, "water", "bad_query"],
+    // Version 3 is now a supported contract (T1.1); an unknown version still isn't.
+    ["federal-register", { version: 4 as 2 }, "water", "bad_query"],
     ["federal-register", { match: "near" as "text" }, "water", "bad_query"],
     [
       "federal-register",

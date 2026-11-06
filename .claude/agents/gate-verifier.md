@@ -4,7 +4,8 @@ description:
   Read-only verification of the Policy Sentinel working tree after a step or
   wave. Runs the standing checks, confirms protected paths are byte-identical to
   a base commit, and checks that private-context files are unreachable from the
-  public entry. Use at wave boundaries and before a commit. Never edits.
+  public entry. Use at wave boundaries and before publishing, not before every
+  commit. Never edits.
 model: claude-opus-5-5
 effort: medium
 tools: Read, Grep, Glob, Bash
@@ -24,11 +25,11 @@ summary and failing lines read back:
 1. `git status --short` and `git diff --stat <base>..HEAD`. Report every changed
    path. Flag any path the expected steps do not own.
 2. Protected paths: `git diff --stat <base>..HEAD` -- src/kernel
-   src/experimental docs/vision and the private-context files named in the
-   general-development addendum, section 2. Any change is a failure.
-3. Standing checks: npm test, npm run typecheck, npm run lint, npm run
-   format:check, npm run validate:roadmap, npm run validate:backbone, npm run
-   scan:source, npm run build. Report exit codes and pass/fail counts.
+   src/experimental docs/vision ROADMAP.yaml .claude/settings.json and the
+   private-context files named in the general-development addendum, section 2.
+   Any change is a failure.
+3. Standing checks: `npm run check`, unless the main session names a smaller set
+   for a wave boundary. Report exit codes and pass/fail counts.
 4. Pinned tests: confirm tests/engine/makah-demo-non-interference.test.ts and
    tests/experimental/spatial/non-interference-imports.test.ts ran inside npm
    test and passed.

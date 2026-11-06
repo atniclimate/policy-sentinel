@@ -40,6 +40,8 @@ describe("following a docket, a RIN or a document", () => {
   it("follows each identifier once, by source, kind and value, and removes by id", () => {
     const item = docket();
     expect(item.id).toBe(followId("federal-register", "docket", DOCKET));
+    // Stored ids are byte-identical across versions, so saved lists still match.
+    expect(item.id).toBe(`federal-register#docket:${DOCKET}`);
     expect(item.lastChecked).toBeNull();
     expect(item.record.summary).toBeNull();
     const list = addFollow([], item);
@@ -247,7 +249,8 @@ describe("following a docket, a RIN or a document", () => {
     });
     const reject = (value: unknown) =>
       expect(importFollows([], JSON.stringify(value))).toBeNull();
-    reject({ version: 2, followed: [] });
+    // FOLLOW_VERSION 2 accepts both 1 (migrated) and 2; an unknown version does not.
+    reject({ version: 3, followed: [] });
     reject({ version: 1, followed: [], extra: true });
     reject({ version: 1 });
     reject([item]);

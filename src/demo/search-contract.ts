@@ -1,11 +1,15 @@
+import { courtDocketReading, usReportsReading } from "./courts.ts";
 import type {
   DemoCfrRef,
   DemoDocumentType,
   DemoEligibility,
   DemoSearchCriteria,
   DemoSearchCriteriaV1,
+  DemoSearchCriteriaV2,
+  DemoSearchCriteriaV3,
   DemoSearchCursor,
   DemoSearchMatch,
+  DemoSearchMatchV3,
   DemoSearchOptions,
 } from "./types";
 
@@ -14,6 +18,21 @@ export const MAX_CONTINUATION_LENGTH = 12_000;
 export const MAX_DOCKET_LENGTH = 120;
 
 const MATCHES: readonly DemoSearchMatch[] = ["text", "docket", "rin", "cfr"];
+// New v3 identifier readings (T1.2); no source supports these yet, so
+// supportsMatch still returns false for each until a later lane wires one in.
+const MATCHES_V3: readonly DemoSearchMatchV3[] = [
+  ...MATCHES,
+  "fr_document",
+  "fr_citation",
+  "usc",
+  "public_law",
+  "statute",
+  "us_reports",
+  "federal_bill",
+  "state_bill",
+  "state_code",
+  "court_docket",
+];
 const DOCUMENT_TYPES: readonly DemoDocumentType[] = [
   "RULE",
   "PRORULE",
@@ -86,10 +105,23 @@ export function parseCfrQuery(query: string): DemoCfrRef | null {
   return ref && validCfrRef(ref.title, ref.part) ? ref : null;
 }
 
-/** Whether this source can match the identifier kind exactly, in its own spelling. */
-export function supportsMatch(source: string, match: DemoSearchMatch): boolean {
+/**
+ * Whether this source can match the identifier kind exactly, in its own
+ * spelling. The new v3 identifier readings (T1.2) support none yet: a later
+ * lane wires each one in as its source adapter is built.
+ */
+export function supportsMatch(
+  source: string,
+  match: DemoSearchMatchV3,
+): boolean {
+  // Court cases (T1.5), version 3 only: searchCriteria refuses other versions.
+  if (source === "govinfo-courts")
+    return (
+      match === "text" || match === "court_docket" || match === "us_reports"
+    );
+  if (match === "text") return true;
+  if (!(MATCHES as readonly string[]).includes(match)) return false;
   return (
-    match === "text" ||
     source === "federal-register" ||
     (REGULATIONS_V2_CONFIRMED && source === "regulations" && match === "docket")
   );
@@ -112,7 +144,7 @@ export function documentTypeFilter(
 
 function validIdentifier(
   source: string,
-  match: DemoSearchMatch,
+  match: DemoSearchMatchV3,
   query: string,
 ): boolean {
   if (match === "docket")
@@ -121,6 +153,9 @@ function validIdentifier(
       : plainSourceText(query, MAX_DOCKET_LENGTH);
   if (match === "rin") return RIN_PATTERN.test(query);
   if (match === "cfr") return parseCfrQuery(query) !== null;
+  if (match === "court_docket") return courtDocketReading(query) !== null;
+  // A volume above 586 still reads, so the Worker answers not_resolvable.
+  if (match === "us_reports") return usReportsReading(query) !== null;
   return true;
 }
 
@@ -218,6 +253,7 @@ export function searchCriteria(
       "congress",
       "washington",
       "grants",
+      "govinfo-courts",
     ].includes(source) ||
     query.trim() !== query ||
     query.length < 2 ||
@@ -253,13 +289,21 @@ export function searchCriteria(
   const documentType = options?.documentType ?? null;
   const eligibility: DemoEligibility | null = options?.eligibility ?? null;
   if (
-    (version !== 1 && version !== 2) ||
+    (version !== 1 && version !== 2 && version !== 3) ||
     (version === 1 &&
       (match !== "text" || documentType !== null || eligibility !== null))
   )
     throw new SearchCriteriaError("The search contract is not supported.");
+  if (source === "govinfo-courts" && version !== 3)
+    throw new SearchCriteriaError(
+      "Court cases are searched with search contract version 3.",
+      "unsupported_criteria",
+    );
+  // v3 opts in to the router's new identifier readings (T1.2); v1 and v2 keep
+  // exactly the matches they have today.
+  const matches: readonly string[] = version === 3 ? MATCHES_V3 : MATCHES;
   if (
-    !MATCHES.includes(match) ||
+    !matches.includes(match) ||
     (documentType !== null && !DOCUMENT_TYPES.includes(documentType)) ||
     (eligibility !== null && eligibility !== "tribal")
   )
@@ -302,25 +346,30 @@ export function searchCriteria(
           : "newest"
         : source === "regulations"
           ? "-postedDate"
-          : source === "govinfo" || source === "grants"
+          : source === "govinfo" ||
+              source === "grants" ||
+              source === "govinfo-courts"
             ? "provider-default"
             : "reference",
-    resultLevel: source === "govinfo" ? "default" : null,
-    historical: source === "govinfo" ? false : null,
+    resultLevel:
+      source === "govinfo" || source === "govinfo-courts" ? "default" : null,
+    historical:
+      source === "govinfo" || source === "govinfo-courts" ? false : null,
     cursor: token,
   };
-  // A v1 echo stays byte-identical for the published page; v2 fields never echo on v1.
-  // Only Grants.gov criteria carry eligibility, so other sources' v2 echo is unchanged.
+  // A v1 echo stays byte-identical for the published page; v2 and v3 fields
+  // never echo on v1. Only Grants.gov criteria carry eligibility, so other
+  // sources' v2/v3 echo is unchanged.
   const criteria: DemoSearchCriteria =
     version === 1
       ? base
-      : {
+      : ({
           ...base,
-          version: 2,
+          version,
           match,
           documentType,
           ...(source === "grants" && { eligibility }),
-        };
+        } as DemoSearchCriteriaV2 | DemoSearchCriteriaV3);
   if (
     (page === 1 && supplied !== null) ||
     (page > 1 && source === "govinfo" && supplied === null) ||

@@ -8,7 +8,7 @@ import {
   policyId,
   policyValue,
   searchValue,
-  sourcesValue,
+  sourcesValueV2,
 } from "../../src/demo/validation";
 import {
   cfrQuery,
@@ -121,7 +121,10 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("Worker answers pass the page's validation and merge", () => {
   it("lists every source under the one name the documents use for it", async () => {
-    const sources = sourcesValue(await call("/api/sources"));
+    // Version 2 is the catalog the page reads; it adds GovInfo court opinions.
+    const sources = sourcesValueV2(
+      await call("/api/sources", { version: "2" }),
+    );
     expect(Object.fromEntries(sources.map((s) => [s.id, s.label]))).toEqual(
       SOURCE_LABELS,
     );

@@ -1,0 +1,398 @@
+// @vitest-environment node
+// The reviewed law alias table (index conditions A2, E3, F5 and G3): it
+// validates strictly, every citation parses with the shared patterns, no
+// string holds a Nation name or a personal pattern, and it stays within
+// 128 KiB and 400 entries. It ships with no entries until the owner approves
+// the reviewed list (design rule 8).
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import Ajv2020 from "ajv/dist/2020.js";
+import { describe, expect, it } from "vitest";
+// @ts-expect-error build script has no declaration file
+import * as vocab from "../../scripts/build-vocab.mjs";
+import { PATTERN_SET_VERSION } from "../../src/demo/cite-patterns";
+import type {
+  LawAlias,
+  LawAliasCitation,
+  LawAliasFile,
+} from "../../src/demo/index-types";
+import {
+  nationNameBases,
+  nationNameProbes,
+} from "../support/nation-name-probes";
+
+const aliasProblems = vocab.aliasProblems as (
+  text: string,
+  options?: { names?: readonly string[] },
+) => string[];
+const stringProblems = vocab.stringProblems as (
+  text: string,
+  names?: readonly string[],
+  path?: string,
+) => string[];
+
+const ROOT = process.cwd();
+const text = readFileSync(resolve(ROOT, "config/law-aliases.v1.json"), "utf8");
+const table = JSON.parse(text) as LawAliasFile;
+const schema = JSON.parse(
+  readFileSync(resolve(ROOT, "schemas/law-aliases.schema.v1.json"), "utf8"),
+) as Record<string, unknown>;
+const ajv = new Ajv2020({
+  strict: true,
+  allErrors: false,
+  removeAdditional: false,
+  useDefaults: false,
+  coerceTypes: false,
+});
+const validateTable = ajv.compile(schema);
+
+const entry = (over: Partial<LawAlias> = {}): LawAlias => ({
+  popularName: "Sample Water Quality Act",
+  citations: [
+    {
+      kind: "usc",
+      text: "33 U.S.C. 1251 et seq.",
+      basis: "curated",
+      pattern: { id: "usc-section", version: PATTERN_SET_VERSION },
+      title: 33,
+      section: "1251",
+      etSeq: true,
+    },
+  ],
+  olrcUrl:
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title33-section1251&num=0&edition=prelim",
+  reviewedOn: "2026-11-05",
+  reviewerRole: "staff",
+  ...over,
+});
+const withEntries = (entries: unknown[]) =>
+  JSON.stringify({ ...table, entries });
+
+describe("the committed alias table", () => {
+  it("validates strictly against its schema", () => {
+    expect(schema.$id).toBe(
+      "https://policy-sentinel.invalid/schemas/law-aliases.schema.v1.json",
+    );
+    expect(validateTable(table), JSON.stringify(validateTable.errors)).toBe(
+      true,
+    );
+  });
+
+  it("ships with no entries until the owner approves the reviewed list", () => {
+    expect(table.entries).toEqual([]);
+  });
+
+  it("passes every content check with the Nation-name probes as exact names", () => {
+    expect(aliasProblems(text, { names: nationNameBases() })).toEqual([]);
+  });
+
+  it("stays within 128 KiB and 400 entries", () => {
+    expect(Buffer.byteLength(text, "utf8")).toBeLessThanOrEqual(128 * 1024);
+    expect(table.entries.length).toBeLessThanOrEqual(400);
+  });
+});
+
+describe("the alias checks", () => {
+  it("accepts a well-formed synthetic entry", () => {
+    expect(validateTable(JSON.parse(withEntries([entry()])))).toBe(true);
+    expect(aliasProblems(withEntries([entry()]))).toEqual([]);
+  });
+
+  it.each([
+    ["an extra field", { ...entry(), nation: "x" }],
+    [
+      "a reviewer outside the closed roles",
+      entry({ reviewerRole: "admin" as "staff" }),
+    ],
+    [
+      "an OLRC link on another host",
+      entry({ olrcUrl: "https://example.org/x" }),
+    ],
+    ["markup in the name", entry({ popularName: "Sample <b>Act</b>" })],
+    ["no citation", entry({ citations: [] })],
+  ])("rejects %s", (_name, bad) => {
+    expect(validateTable(JSON.parse(withEntries([bad])))).toBe(false);
+    expect(aliasProblems(withEntries([bad])).length).toBeGreaterThan(0);
+  });
+
+  it("rejects a citation whose text does not parse as its fields say", () => {
+    const [c] = entry().citations;
+    const bad = entry({ citations: [{ ...c!, section: "1252" }] });
+    expect(aliasProblems(withEntries([bad]))).toEqual([
+      "entries[0].citations[0] does not parse as its fields say",
+    ]);
+  });
+
+  it("rejects entries out of popularName order", () => {
+    const problems = aliasProblems(
+      withEntries([
+        entry({ popularName: "B Act" }),
+        entry({ popularName: "A Act" }),
+      ]),
+    );
+    expect(problems).toContain(
+      "entries[1] is out of popularName order or repeats a name",
+    );
+  });
+
+  it("rejects more than 400 entries and more than 128 KiB", () => {
+    const many = Array.from({ length: 401 }, (_, i) =>
+      entry({ popularName: `Sample Act ${String(i).padStart(3, "0")}` }),
+    );
+    const problems = aliasProblems(withEntries(many));
+    expect(problems.some((p) => p.startsWith("401 entries"))).toBe(true);
+    expect(problems.some((p) => p.startsWith("alias table is"))).toBe(true);
+  });
+
+  it("flags a personal pattern in any string", () => {
+    const bad = entry({
+      popularName: "Sample Act (write to someone@example.org)",
+    });
+    expect(aliasProblems(withEntries([bad])).join(" ")).toMatch(
+      /personal pattern/,
+    );
+  });
+
+  it("lets an official title that names a person in as a popular name", () => {
+    // Decision 4: the guard looks for contact shapes, not for names.
+    for (const popularName of [
+      "Robin Q. Sample, Jr. Memorial Wildlife Act",
+      "Casey Example Conservation Act of 2099",
+    ])
+      expect(
+        aliasProblems(withEntries([entry({ popularName })]), {
+          names: nationNameBases(),
+        }),
+        popularName,
+      ).toEqual([]);
+  });
+
+  describe("a note locator in a citation", () => {
+    const noteCite: LawAliasCitation = {
+      kind: "usc",
+      text: "33 U.S.C. 1251 note",
+      basis: "curated",
+      pattern: { id: "usc-section", version: PATTERN_SET_VERSION },
+      title: 33,
+      section: "1251",
+      etSeq: false,
+      note: true,
+    };
+
+    it("accepts a note citation whose fields say note", () => {
+      const file = withEntries([entry({ citations: [noteCite] })]);
+      expect(validateTable(JSON.parse(file))).toBe(true);
+      expect(aliasProblems(file)).toEqual([]);
+    });
+
+    it("refuses note on a citation without it, and a note citation without the field", () => {
+      const withoutField = { ...noteCite };
+      delete withoutField.note;
+      for (const c of [{ ...noteCite, text: "33 U.S.C. 1251" }, withoutField])
+        expect(aliasProblems(withEntries([entry({ citations: [c] })]))).toEqual(
+          ["entries[0].citations[0] does not parse as its fields say"],
+        );
+    });
+
+    it("allows note only as true", () => {
+      const bad = entry({
+        citations: [{ ...noteCite, note: false as unknown as true }],
+      });
+      expect(validateTable(JSON.parse(withEntries([bad])))).toBe(false);
+    });
+  });
+
+  it("accepts titleAsEnacted as a boolean only", () => {
+    expect(
+      validateTable(JSON.parse(withEntries([entry({ titleAsEnacted: true })]))),
+    ).toBe(true);
+    const bad = entry({ titleAsEnacted: "yes" as unknown as boolean });
+    expect(validateTable(JSON.parse(withEntries([bad])))).toBe(false);
+  });
+
+  describe("acronyms", () => {
+    const acronym = {
+      acronym: "SWQA",
+      sourceUrl:
+        "https://www.govinfo.gov/content/pkg/CFR-2099-title99-vol1/xml/CFR-2099-title99-vol1-part100.xml",
+      text: "the Sample Water Quality Act (SWQA)",
+    };
+    const withAcronyms = (acronyms: unknown[]) =>
+      withEntries([{ ...entry(), acronyms }]);
+
+    it("accepts an acronym with an official source and its wording", () => {
+      for (const sourceUrl of [
+        acronym.sourceUrl,
+        "https://www.federalregister.gov/documents/2099/01/02/2099-00001/sample",
+        "https://www.ecfr.gov/current/title-99/part-100",
+      ]) {
+        const file = withAcronyms([{ ...acronym, sourceUrl }]);
+        expect(validateTable(JSON.parse(file)), sourceUrl).toBe(true);
+        expect(aliasProblems(file), sourceUrl).toEqual([]);
+      }
+    });
+
+    it.each([
+      ["lower case", { ...acronym, acronym: "Swqa" }],
+      ["one letter", { ...acronym, acronym: "S" }],
+      ["eleven characters", { ...acronym, acronym: "SWQAABCDEFG" }],
+      ["a leading digit", { ...acronym, acronym: "9SWQA" }],
+      ["a punctuation mark", { ...acronym, acronym: "SW-QA" }],
+      [
+        "an unofficial host",
+        { ...acronym, sourceUrl: "https://example.org/x" },
+      ],
+      ["no wording", { acronym: "SWQA", sourceUrl: acronym.sourceUrl }],
+      ["an extra field", { ...acronym, model: "x" }],
+      ["markup in the wording", { ...acronym, text: "<b>SWQA</b>" }],
+    ])("rejects %s", (_name, bad) => {
+      expect(validateTable(JSON.parse(withAcronyms([bad])))).toBe(false);
+      expect(aliasProblems(withAcronyms([bad])).length).toBeGreaterThan(0);
+    });
+
+    it("rejects an empty list", () => {
+      expect(validateTable(JSON.parse(withAcronyms([])))).toBe(false);
+    });
+
+    it("refuses an acronym its official wording does not print exactly", () => {
+      for (const text of [
+        "the Sample Water Quality Act (swqa)",
+        "the Sample Water Quality Act (SWQAX)",
+        "the Sample Water Quality Act",
+      ])
+        expect(
+          aliasProblems(withAcronyms([{ ...acronym, text }])),
+          text,
+        ).toEqual(["entries[0].acronyms[0] is not in its official wording"]);
+    });
+
+    it("refuses the same acronym twice in one entry", () => {
+      expect(aliasProblems(withAcronyms([acronym, acronym]))).toEqual([
+        "entries[0].acronyms[1] repeats SWQA",
+      ]);
+    });
+
+    it("runs the Nation-name and personal checks on acronym strings", () => {
+      const problems = aliasProblems(
+        withAcronyms([
+          { ...acronym, text: "SWQA (write to someone@example.org)" },
+        ]),
+      );
+      expect(problems.join(" ")).toMatch(
+        /acronyms\[0\]\.text: personal pattern/,
+      );
+    });
+  });
+
+  describe("reviewed titles with a mask anchor word", () => {
+    const titles = vocab.ANCHOR_WORD_TITLES as readonly string[];
+
+    it("holds exactly the five owner-directed titles, read-only", () => {
+      expect(Object.isFrozen(titles)).toBe(true);
+      expect(() => (titles as string[]).push("Sample Community Act")).toThrow();
+      expect(titles).toEqual([
+        "Community Services Block Grant Act",
+        "Emergency Planning and Community Right-To-Know Act of 1986",
+        "Housing and Community Development Act of 1974",
+        "Indian Community Economic Enhancement Act of 2020",
+        "PROGRESS for Indian Tribes Act",
+      ]);
+    });
+
+    it("lets each listed title in as a popular name, probes included", () => {
+      const names = nationNameBases();
+      for (const popularName of titles) {
+        expect(
+          aliasProblems(withEntries([entry({ popularName })]), { names }),
+          popularName,
+        ).toEqual([]);
+      }
+    });
+
+    it("still refuses the same title outside popularName", () => {
+      expect(
+        stringProblems(
+          "Community Services Block Grant Act",
+          [],
+          ".entries[0].citations[0].text",
+        ),
+      ).toContain("Nation name shape");
+      expect(stringProblems("Community Services Block Grant Act")).toContain(
+        "Nation name shape",
+      );
+    });
+
+    it("refuses a near variant of a listed title", () => {
+      for (const popularName of [
+        "Community Services Block Grant Act of 1981",
+        "community services block grant act",
+        "Sample Indian Community Economic Enhancement Act of 2020",
+        "Example Valley PROGRESS for Indian Tribes Act",
+      ])
+        expect(
+          aliasProblems(withEntries([entry({ popularName })])).join(" "),
+          popularName,
+        ).toMatch(/Nation name shape/);
+    });
+
+    it("refuses a listed title when an exact name widens its span", () => {
+      expect(
+        aliasProblems(
+          withEntries([
+            entry({ popularName: "Community Services Block Grant Act" }),
+          ]),
+          { names: ["Community Services"] },
+        ).join(" "),
+      ).toMatch(/Nation name shape/);
+    });
+
+    it("refuses a listed title when an exact name sits inside its allowed span", () => {
+      // The exact-name pass runs on its own, so a merged span cannot hide it.
+      expect(
+        stringProblems(
+          "Indian Community Economic Enhancement Act of 2020",
+          ["Indian Community"],
+          ".entries[0].popularName",
+        ),
+      ).toContain("Nation name shape");
+      expect(
+        stringProblems(
+          "PROGRESS for Indian Tribes Act",
+          ["Tribes"],
+          ".entries[0].popularName",
+        ),
+      ).toContain("Nation name shape");
+    });
+
+    it("passes each listed title only while the mask still produces its pinned span", () => {
+      for (const title of titles) {
+        expect(
+          stringProblems(title, [], ".entries[0].popularName"),
+          title,
+        ).toEqual([]);
+        // Without the list the structural mask refuses it, so the pin is live.
+        expect(stringProblems(title, [], ".entries[0].other"), title).toContain(
+          "Nation name shape",
+        );
+      }
+    });
+
+    it("exports no way to change the list", () => {
+      const exported = Object.keys(vocab);
+      expect(exported).not.toContain("ANCHOR_WORD_SPANS");
+      expect(exported.filter((k) => /anchor/i.test(k)).sort()).toEqual([
+        "ANCHOR_WORD_TITLES",
+      ]);
+    });
+  });
+
+  it("flags every Nation-name probe placed in a popular name", () => {
+    const names = nationNameBases();
+    const probes = nationNameProbes();
+    expect(probes.length).toBeGreaterThan(0);
+    for (const probe of probes)
+      expect(stringProblems(`${probe} Settlement Act`, names), probe).toContain(
+        "Nation name shape",
+      );
+  });
+});

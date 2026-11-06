@@ -7,87 +7,82 @@
  * exist only as Worker secrets. Search requests bypass application caching and
  * logging. Successful policy reads may be cached by document identity; temporary
  * address counters enforce rate limits. Hosting providers have their own policies.
+ *
+ * This file is routing only: CORS, the origin check, rate limiting, and the
+ * dispatch for /, /health, /api/sources, /api/search, /api/policy and
+ * /api/related. Each
+ * source's own search and read code lives in worker/src/sources/<source>.ts;
+ * the SOURCE_REGISTRY below composes the allowed-host set and the search
+ * dispatch from those modules, so adding a source there needs only the new
+ * module plus one registry line here.
  */
-import {
-  ENGINE_INFO,
-  analyzePolicy,
-  washingtonCaption,
-} from "../../src/demo/analyze";
-import { CONGRESS_REFERENCE } from "../../src/demo/merge";
+import { ENGINE_INFO } from "../../src/demo/analyze";
+import { isCourtCode } from "../../src/demo/courts";
 import {
   MAX_CONTINUATION_LENGTH,
-  MAX_DOCKET_LENGTH,
-  REGULATIONS_V2_CONFIRMED,
   SearchCriteriaError,
-  documentTypeFilter,
-  nextSearchCursor,
-  parseCfrQuery,
-  plainSourceText,
   searchCriteria,
-  searchPageLimit,
-  validCursorToken,
 } from "../../src/demo/search-contract";
-import { citationFields } from "../../src/demo/validation";
 import type {
-  DemoCitation,
   DemoDocumentType,
   DemoEligibility,
   DemoErrorResponse,
-  DemoSearchResponse,
   DemoSearchCriteria,
-  DemoSearchContinuation,
   DemoSearchCursor,
-  DemoSearchMatch,
+  DemoSearchMatchV3,
   DemoSource,
 } from "../../src/demo/types";
+import { cachedJson } from "./cache";
+import * as congress from "./sources/congress";
+import * as congressRelated from "./sources/congress-related";
+import * as federalRegister from "./sources/federal-register";
+import * as govinfo from "./sources/govinfo";
+import * as govinfoCourts from "./sources/govinfo-courts";
+import * as govinfoRelated from "./sources/govinfo-related";
+import * as grants from "./sources/grants";
+import * as grantsDetail from "./sources/grants-detail";
+import * as regulations from "./sources/regulations";
+import {
+  DemoError,
+  configureAllowedHosts,
+  officialFetch,
+  requireKey,
+} from "./sources/shared";
+import type { Env } from "./sources/shared";
+import * as washington from "./sources/washington";
 
-export interface Env {
-  /** api.data.gov key. Optional; enables GovInfo, Congress.gov, Regulations.gov. */
-  DATA_GOV_API_KEY?: string;
-  RATE?: { limit(options: { key: string }): Promise<{ success: boolean }> };
-  /** One allowance shared by every visitor for calls made with the api.data.gov key. */
-  KEY_RATE?: { limit(options: { key: string }): Promise<{ success: boolean }> };
-}
+export type { Env };
+export { officialFetch };
+export { currentBiennium, parseWashingtonQuery } from "./sources/washington";
+
+/** Every live, searchable source, plus the exact hosts and search code each one owns. */
+export const SOURCE_REGISTRY = {
+  "federal-register": federalRegister,
+  govinfo,
+  regulations,
+  congress,
+  grants,
+  washington,
+  "govinfo-courts": govinfoCourts,
+} as const;
+// govinfo-related, congress-related and grants-detail have no search; their
+// hosts are already in this set (tests/demo/worker-integration.test.ts checks).
 
 export const ALLOWED_ORIGINS: readonly string[] = [
   "https://atniclimate.github.io",
 ];
 const LOCAL_ORIGIN = /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d{1,5})?$/;
 
-/** Exact hosts only. No suffix matching. */
-export const ALLOWED_HOSTS: ReadonlySet<string> = new Set([
-  "www.federalregister.gov",
-  "www.govinfo.gov",
-  "api.govinfo.gov",
-  "api.congress.gov",
-  "api.regulations.gov",
-  "api.grants.gov",
-  "lawfilesext.leg.wa.gov",
-]);
+/** Exact hosts only, composed from the source registry. No suffix matching. */
+export const ALLOWED_HOSTS: ReadonlySet<string> = new Set(
+  Object.values(SOURCE_REGISTRY).flatMap((adapter) => adapter.HOSTS),
+);
+configureAllowedHosts(ALLOWED_HOSTS);
 
-const USER_AGENT =
-  "PolicySentinelDemo/0.6 (+https://atniclimate.github.io/policy-sentinel/)";
-const MAX_BYTES = 1_500_000;
-/** A Federal Register document number the demo can read; one rule for search, read and cache. */
-const FR_DOCUMENT_NUMBER = /^(?:\d{2}|\d{4})-\d{4,6}$/;
-const FETCH_TIMEOUT_MS = 12_000;
-const POLICY_TTL = 86_400;
 const POLICY_CACHE_VERSION = `demo-policy-2:${ENGINE_INFO.parser}:${ENGINE_INFO.parserVersion}:${ENGINE_INFO.parserConfigDigest}:${ENGINE_INFO.rulesVersion}`;
 const SOFT_LIMIT_PER_MINUTE = 80;
 
 const softCounters = new Map<string, { n: number; reset: number }>();
-
-class DemoError extends Error {
-  constructor(
-    readonly code: string,
-    message: string,
-    readonly httpStatus = 502,
-    readonly status: DemoErrorResponse["status"] = "error",
-    readonly retryAfter?: string,
-  ) {
-    super(message);
-  }
-}
 
 export function sourceList(env: Env): DemoSource[] {
   const keyed = env.DATA_GOV_API_KEY ? "live" : "key_pending";
@@ -159,11 +154,32 @@ export function sourceList(env: Env): DemoSource[] {
   ];
 }
 
+/**
+ * The version 2 catalog (GET /api/sources?version=2): the version 1 list plus
+ * the sources a version 1 reader such as ATNI-ResIST does not know. The
+ * router looks sources up here; /health and /api/sources keep sourceList.
+ */
+export function sourceListV2(env: Env): DemoSource[] {
+  const list = sourceList(env);
+  const courts: DemoSource = {
+    id: "govinfo-courts",
+    label: "GovInfo court opinions",
+    level: "federal",
+    status: env.DATA_GOV_API_KEY ? "live" : "key_pending",
+    note: env.DATA_GOV_API_KEY
+      ? "Court opinions on GovInfo from seven federal courts (the Ninth Circuit, the Federal Circuit, the Court of Federal Claims, and the district courts of Washington, Oregon and Idaho), and U.S. Reports through volume 586. Opinion text is not read in the demo."
+      : "The api.data.gov key has not been added yet, so this source is switched off.",
+    secret: "DATA_GOV_API_KEY",
+  };
+  const at = list.findIndex((s) => s.id === "govinfo") + 1;
+  return [...list.slice(0, at), courts, ...list.slice(at)];
+}
+
 function corsHeaders(origin: string | null): Record<string, string> {
   const headers: Record<string, string> = { Vary: "Origin" };
   if (origin && originAllowed(origin)) {
     headers["Access-Control-Allow-Origin"] = origin;
-    headers["Access-Control-Allow-Methods"] = "GET, OPTIONS";
+    headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
     headers["Access-Control-Allow-Headers"] = "Content-Type";
     headers["Access-Control-Max-Age"] = "86400";
     headers["Access-Control-Expose-Headers"] = "Retry-After";
@@ -202,1073 +218,48 @@ function errorBody(error: DemoError): DemoErrorResponse {
   };
 }
 
-/** Fetch from an allowlisted official host, never following redirects. */
-export async function officialFetch(
-  rawUrl: string,
-  init: RequestInit = {},
-): Promise<{ response: Response; bytes: Uint8Array }> {
-  let url: URL;
-  try {
-    url = new URL(rawUrl);
-  } catch {
-    throw new DemoError("bad_url", "That address is not valid.", 400);
-  }
-  if (
-    url.protocol !== "https:" ||
-    !ALLOWED_HOSTS.has(url.hostname) ||
-    url.username ||
-    url.password ||
-    url.port
-  ) {
-    throw new DemoError(
-      "host_not_allowed",
-      "This demo only reads from official government hosts on its list.",
-      403,
-    );
-  }
-  let response: Response | undefined;
-  let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
-  try {
-    response = await fetch(url, {
-      ...init,
-      method: init.method ?? "GET",
-      redirect: "manual",
-      headers: {
-        "User-Agent": USER_AGENT,
-        Accept: "application/json, text/html;q=0.9",
-        ...(init.headers as Record<string, string> | undefined),
-      },
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-    });
-    if (response.status >= 300 && response.status < 400) {
-      throw new DemoError(
-        "redirect_refused",
-        "The official source sent the request somewhere else, and the demo does not follow redirects.",
-      );
-    }
-    if (response.status === 429) {
-      throw new DemoError(
-        "upstream_rate_limited",
-        "The official source asked the demo to wait before trying again.",
-        // 503, not 429: the visitor did not exceed their own limit.
-        503,
-        "error",
-        retryAfter(response.headers.get("retry-after")),
-      );
-    }
-    const declared = Number(response.headers.get("content-length") ?? 0);
-    if (declared > MAX_BYTES) {
-      throw new DemoError(
-        "too_large",
-        "This document is longer than the demo reads. Open it at the official source.",
-        413,
-      );
-    }
-    reader = response.body?.getReader();
-    const chunks: Uint8Array[] = [];
-    let total = 0;
-    if (reader) {
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        total += value.byteLength;
-        if (total > MAX_BYTES) {
-          throw new DemoError(
-            "too_large",
-            "This document is longer than the demo reads. Open it at the official source.",
-            413,
-          );
-        }
-        chunks.push(value);
-      }
-    }
-    const bytes = new Uint8Array(total);
-    let offset = 0;
-    for (const chunk of chunks) {
-      bytes.set(chunk, offset);
-      offset += chunk.byteLength;
-    }
-    return { response, bytes };
-  } catch (error) {
-    // Cleanup must not replace the original error or delay the response.
-    if (reader) void reader.cancel().catch(() => undefined);
-    else if (response?.body) void response.body.cancel().catch(() => undefined);
-    if (error instanceof DemoError) throw error;
-    throw new DemoError(
-      "upstream_unreachable",
-      "The official source did not finish answering. Try again in a moment.",
-      504,
-    );
-  } finally {
-    reader?.releaseLock();
-  }
-}
-
-function retryAfter(value: string | null): string {
-  if (!value) return "60";
-  const seconds = /^\d+$/.test(value)
-    ? Number(value)
-    : Math.ceil((Date.parse(value) - Date.now()) / 1000);
-  return Number.isFinite(seconds)
-    ? String(Math.min(86_400, Math.max(1, seconds)))
-    : "60";
-}
-
-function badUpstream(): DemoError {
-  return new DemoError(
-    "bad_upstream",
-    "The official source returned a record the demo could not validate.",
-  );
-}
-
-function parseJson(bytes: Uint8Array): unknown {
-  try {
-    return JSON.parse(new TextDecoder().decode(bytes)) as unknown;
-  } catch {
-    throw new DemoError(
-      "bad_upstream",
-      "The official source returned something the demo could not read.",
-    );
-  }
-}
-
-function cleanText(value: unknown, max = 400): string {
-  if (value !== undefined && value !== null && typeof value !== "string")
-    throw badUpstream();
-  const text = typeof value === "string" ? value : "";
-  return text.replace(/\s+/g, " ").trim().slice(0, max);
-}
-
-function isoDate(value: unknown): string | null {
-  if (value === undefined || value === null || value === "") return null;
-  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}(?:T|$)/.test(value))
-    throw badUpstream();
-  const date = value.slice(0, 10);
-  const parsed = new Date(`${date}T00:00:00.000Z`);
-  if (
-    !Number.isFinite(parsed.valueOf()) ||
-    parsed.toISOString().slice(0, 10) !== date
-  )
-    throw badUpstream();
-  return date;
-}
-
-type Loose = Record<string, unknown>;
-
-function record(value: unknown): Loose {
-  if (!value || typeof value !== "object" || Array.isArray(value))
-    throw badUpstream();
-  return value as Loose;
-}
-
-function resultRows(value: unknown): unknown[] {
-  if (!Array.isArray(value) || value.length > 10) throw badUpstream();
-  return value;
-}
-
-function resultCount(value: unknown): number | null {
-  if (value === undefined || value === null) return null;
-  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 0)
-    throw badUpstream();
-  return value;
-}
-
-function requiredText(value: unknown, max = 400): string {
-  const text = cleanText(value, max);
-  if (!text) throw badUpstream();
-  return text;
-}
-
-/** Identifiers are opaque source values: never trim or truncate them into a different identity. */
-function metadataId(value: unknown): string {
-  if (
-    typeof value !== "string" ||
-    value.length > 80 ||
-    !/^[A-Za-z0-9_.-]+$/.test(value)
-  )
-    throw badUpstream();
-  return value;
-}
-
-/**
- * Optional cross-source key: "fr:" and a Federal Register document number.
- * Each source's own documentation, read 2026-10-10, shows where it carries
- * that number. The Regulations.gov v4 OpenAPI specification
- * (https://open.gsa.gov/api/regulationsgov/v4/openapi.yaml) defines frDocNum
- * as a string, "The federal register document number of the document.", in
- * the Document schema of the GET /documents list response. GovInfo names a
- * Federal Register granule by its document number, for example package
- * FR-2024-06-18, granule 2024-12669. A value that is not a plain document
- * number gives null and never fails the row.
- */
-function frMatchKey(value: unknown): string | null {
-  const number = typeof value === "string" ? value.trim() : "";
-  return /^[A-Za-z0-9][A-Za-z0-9-]{0,39}$/.test(number) ? `fr:${number}` : null;
-}
-
-// ---------------------------------------------------------------- Federal Register
-
-const FR_FIELDS = [
-  "document_number",
-  "title",
-  "type",
-  "agencies",
-  "publication_date",
-  "html_url",
-  "abstract",
-  "citation",
-];
-// Requested only on search contract v2; shapes recorded by the 2026-10-20 probe.
-const FR_FIELDS_V2 = [
-  ...FR_FIELDS,
-  "comments_close_on",
-  "docket_ids",
-  "regulation_id_numbers",
-  "cfr_references",
-  "topics",
-];
-
-function frCitation(
-  value: unknown,
-  retrievedAt: string,
-  v2 = false,
-): DemoCitation {
-  const doc = record(value);
-  const id = doc.document_number;
-  if (typeof id !== "string" || !/^[A-Za-z0-9-]{4,24}$/.test(id))
-    throw badUpstream();
-  if (doc.agencies !== undefined && !Array.isArray(doc.agencies))
-    throw badUpstream();
-  const agencies = ((doc.agencies ?? []) as unknown[])
-    .map((value) => {
-      const agency = record(value);
-      return cleanText(agency.name ?? agency.raw_name, 120);
-    })
-    .filter(Boolean);
-  const citation = cleanText(doc.citation, 60);
-  const summary = cleanText(doc.abstract, 500);
-  const officialUrl = `https://www.federalregister.gov/d/${id}`;
-  const result: DemoCitation = {
-    sourceId: "federal-register",
-    identifier: citation ? `${citation} (FR Doc. ${id})` : `FR Doc. ${id}`,
-    title: requiredText(doc.title, 400),
-    issuingBody: agencies.join("; ") || "Not stated",
-    kind: cleanText(doc.type, 60) || "Document",
-    date: isoDate(doc.publication_date),
-    officialUrl,
-    textUrl: null,
-    retrievedAt,
-    summary: summary || null,
-    textAvailable: FR_DOCUMENT_NUMBER.test(id),
-    matchKey: frMatchKey(id),
-  };
-  return v2
-    ? {
-        ...result,
-        ...citationFields({
-          commentsCloseOn: doc.comments_close_on,
-          docketIds: doc.docket_ids,
-          rins: doc.regulation_id_numbers,
-          cfrRefs: doc.cfr_references,
-          topics: doc.topics,
-        }),
-      }
-    : result;
-}
-
-/** The FR condition for an identifier search; never a location condition. */
-function frMatchConditions(
-  match: DemoSearchMatch,
-  query: string,
-): [string, string][] {
-  if (match === "text") return [["conditions[term]", query]];
-  if (match === "docket") return [["conditions[docket_id]", query]];
-  if (match === "rin") return [["conditions[regulation_id_number]", query]];
-  const ref = parseCfrQuery(query);
-  if (!ref)
-    throw new DemoError("bad_query", "The CFR reference is not valid.", 400);
-  return [
-    ["conditions[cfr][title]", String(ref.title)],
-    ["conditions[cfr][part]", ref.part],
-  ];
-}
-
-async function searchFederalRegister(
-  criteria: DemoSearchCriteria,
-): Promise<DemoSearchResponse> {
-  const { query, page, dateFrom, dateTo } = criteria;
-  const v2 = criteria.version === 2;
-  const url = new URL("https://www.federalregister.gov/api/v1/documents.json");
-  for (const [name, value] of frMatchConditions(
-    v2 ? criteria.match : "text",
-    query,
-  ))
-    url.searchParams.set(name, value);
-  url.searchParams.set("per_page", "10");
-  url.searchParams.set("page", String(page));
-  url.searchParams.set(
-    "order",
-    criteria.sort === "newest" ? "newest" : "relevance",
-  );
-  if (dateFrom !== null && dateTo !== null) {
-    url.searchParams.set("conditions[publication_date][gte]", dateFrom);
-    url.searchParams.set("conditions[publication_date][lte]", dateTo);
-  }
-  if (v2 && criteria.documentType !== null)
-    url.searchParams.set("conditions[type][]", criteria.documentType);
-  for (const f of v2 ? FR_FIELDS_V2 : FR_FIELDS)
-    url.searchParams.append("fields[]", f);
-  const { response, bytes } = await officialFetch(url.href);
-  if (!response.ok) {
-    throw new DemoError(
-      "upstream_error",
-      `The Federal Register answered with status ${response.status}.`,
-    );
-  }
-  const data = record(parseJson(bytes));
-  const retrievedAt = new Date().toISOString();
-  // The Federal Register omits `results` when nothing matches: {"count":0}.
-  const rows =
-    data.results === undefined && data.count === 0 ? [] : data.results;
-  const results = resultRows(rows).map((doc) =>
-    frCitation(doc, retrievedAt, v2),
-  );
-  const total = resultCount(data.count);
-  return {
-    ok: true,
-    source: "federal-register",
-    query,
-    total,
-    page,
-    results,
-    retrievedAt,
-    criteria,
-    continuation: numericContinuation(criteria, total, results.length),
-  };
-}
-
-function numericContinuation(
-  criteria: DemoSearchCriteria,
-  total: number | null,
-  count: number,
-): DemoSearchContinuation {
-  if (total !== null && criteria.page * 10 >= total)
-    return { kind: "stopped", reason: "complete" };
-  if (criteria.page === searchPageLimit(criteria.source))
-    return { kind: "stopped", reason: "cap" };
-  if (total === null && count < 10)
-    return { kind: "stopped", reason: "unknown" };
-  return { kind: "more", next: nextSearchCursor(criteria) };
-}
-
-async function readFederalRegister(id: string) {
-  if (!FR_DOCUMENT_NUMBER.test(id)) {
-    throw new DemoError(
-      "text_unavailable",
-      "The demo reads documents numbered like 2026-01899. Open this one at the official source.",
-      422,
-    );
-  }
-  const meta = new URL(
-    `https://www.federalregister.gov/api/v1/documents/${id}.json`,
-  );
-  for (const f of FR_FIELDS) meta.searchParams.append("fields[]", f);
-  const { response, bytes } = await officialFetch(meta.href);
-  if (response.status === 404) {
-    throw new DemoError(
-      "not_found",
-      "No Federal Register document has that number.",
-      404,
-    );
-  }
-  if (!response.ok) {
-    throw new DemoError(
-      "upstream_error",
-      `The Federal Register answered with status ${response.status}.`,
-    );
-  }
-  const doc = record(parseJson(bytes));
-  if (doc.document_number !== id) throw badUpstream();
-  const retrievedAt = new Date().toISOString();
-  const citation = frCitation(doc, retrievedAt);
-  if (!citation.date) {
-    throw new DemoError(
-      "bad_upstream",
-      "The Federal Register record lacked a publication date.",
-    );
-  }
-  const textUrl = `https://www.govinfo.gov/content/pkg/FR-${citation.date}/html/${id}.htm`;
-  const text = await officialFetch(textUrl, {
-    headers: { Accept: "text/html" },
-  });
-  if (text.response.status === 404) {
-    throw new DemoError(
-      "text_unavailable",
-      "GovInfo has no HTML text for this document yet. Open it at the official source.",
-      404,
-    );
-  }
-  if (!text.response.ok) {
-    throw new DemoError(
-      "upstream_error",
-      `GovInfo answered with status ${text.response.status}.`,
-    );
-  }
-  return analyzeSafely(() =>
-    analyzePolicy({
-      bytes: text.bytes,
-      mediaType: text.response.headers.get("content-type") ?? "text/html",
-      sourceKind: "govinfo_fr",
-      textUrl,
-      expectedIdentity: id,
-      citation,
-      retrievedAt,
-    }),
-  );
-}
-
-function analyzeSafely<T>(run: () => T): T {
-  try {
-    return run();
-  } catch (error) {
-    const code = (error as { code?: string }).code;
-    if (typeof code === "string" && /^[A-Z_]+$/.test(code)) {
-      throw new DemoError(
-        "extraction_refused",
-        `Policy Sentinel's text extractor declined this document (${code}). It checks identity and structure before it reads anything, and it did not pass. Open the document at the official source.`,
-        422,
-      );
-    }
-    throw error;
-  }
-}
-
-// ---------------------------------------------------------------- Washington
-
-/** The session in progress: Washington bienniums start in odd years. */
-export function currentBiennium(now: Date): string {
-  const year = now.getUTCFullYear();
-  const start = year % 2 ? year : year - 1;
-  return `${start}-${String((start + 1) % 100).padStart(2, "0")}`;
-}
-
-export function parseWashingtonQuery(
-  query: string,
-  now = new Date(),
-): {
-  chamber: "House Bills" | "Senate Bills";
-  prefix: "HB" | "SB";
-  number: string;
-  biennium: string;
-} | null {
-  const match =
-    /^\s*(HB|SB|House\s+Bill|Senate\s+Bill)\s*(\d{3,4})(?:\s+(\d{4}-\d{2}))?\s*$/i.exec(
-      query,
-    );
-  if (!match) return null;
-  const house = /^h/i.test(match[1]);
-  const biennium = match[3] ?? currentBiennium(now);
-  const start = Number(biennium.slice(0, 4));
-  if (start % 2 !== 1 || Number(biennium.slice(5)) !== (start + 1) % 100)
-    return null;
-  return {
-    chamber: house ? "House Bills" : "Senate Bills",
-    prefix: house ? "HB" : "SB",
-    number: String(Number(match[2])),
-    biennium,
-  };
-}
-
-function washingtonDate(bytes: Uint8Array, biennium: string): string | null {
-  const text = new TextDecoder().decode(bytes).replace(/<[^>]+>/g, " ");
-  const m = /Read\s+first\s+time\s+(\d{2})\/(\d{2})\/(\d{2})/i.exec(text);
-  if (!m) return null;
-  const start = Number(biennium.slice(0, 4));
-  const year = [start, start + 1].find((value) => value % 100 === Number(m[3]));
-  if (year === undefined) throw badUpstream();
-  return isoDate(`${String(year).padStart(4, "0")}-${m[1]}-${m[2]}`);
-}
-
-/** This demo requests original bill files; its broader parser also supports later variants. */
-function requireOriginalWashingtonBill(
-  bytes: Uint8Array,
-  expected: { prefix: "HB" | "SB"; number: string },
-): void {
-  const preamble = new TextDecoder()
-    .decode(bytes)
-    .replace(/<[^>]+>/g, "\n")
-    .replace(/&nbsp;|&#160;|&#x0*a0;/gi, " ")
-    .split(/\bAN\s+ACT\b/i, 1)[0];
-  const headers = [
-    ...preamble.matchAll(
-      /(?:^|\n)\s*(?:_{3,}\s*)?((?:E2?S|2?S|E)?(?:HB|SB)|(?:ENGROSSED\s+|SECOND\s+|SUBSTITUTE\s+)*(?:HOUSE|SENATE)\s+BILL)\s*(?:No\.?\s*)?(\d{4})(?!\d)/gi,
-    ),
-  ];
-  const plain =
-    expected.prefix === "HB"
-      ? /^(?:HB|HOUSE\s+BILL)$/i
-      : /^(?:SB|SENATE\s+BILL)$/i;
-  if (
-    !headers.length ||
-    /CERTIFICATION\s+OF\s+ENROLLMENT/i.test(preamble) ||
-    headers.some(
-      (header) => !plain.test(header[1]) || header[2] !== expected.number,
-    )
-  )
-    throw badUpstream();
-}
-
-async function readWashington(query: string) {
-  const parsed = parseWashingtonQuery(query);
-  if (!parsed) {
-    throw new DemoError(
-      "bad_query",
-      "Enter a Washington bill number, such as HB 1100 or SB 5100. Add a biennium, such as 2025-26, to look at an earlier session.",
-      400,
-    );
-  }
-  const textUrl = `https://lawfilesext.leg.wa.gov/biennium/${parsed.biennium}/Htm/Bills/${encodeURIComponent(parsed.chamber)}/${parsed.number}.htm`;
-  const { response, bytes } = await officialFetch(textUrl, {
-    headers: { Accept: "text/html" },
-  });
-  if (response.status === 404) {
-    throw new DemoError(
-      "not_found",
-      `The Legislature has no ${parsed.prefix} ${parsed.number} file for ${parsed.biennium}.`,
-      404,
-    );
-  }
-  if (!response.ok) {
-    throw new DemoError(
-      "upstream_error",
-      `The Legislature answered with status ${response.status}.`,
-    );
-  }
-  const retrievedAt = new Date().toISOString();
-  requireOriginalWashingtonBill(bytes, parsed);
-  const caption = washingtonCaption(bytes);
-  const citation: DemoCitation = {
-    sourceId: "washington",
-    identifier: `${parsed.prefix} ${parsed.number}, ${parsed.biennium} biennium, as introduced`,
-    title: caption ?? `${parsed.prefix} ${parsed.number}`,
-    issuingBody: "Washington State Legislature",
-    kind: "Bill",
-    date: washingtonDate(bytes, parsed.biennium),
-    officialUrl: textUrl,
-    textUrl,
-    retrievedAt,
-    summary: null,
-    textAvailable: true,
-    matchKey: null,
-  };
-  return analyzeSafely(() =>
-    analyzePolicy({
-      bytes,
-      mediaType: response.headers.get("content-type") ?? "text/html",
-      sourceKind: "washington_bill",
-      textUrl,
-      expectedIdentity: `${parsed.prefix} ${parsed.number} ${parsed.biennium}`,
-      citation,
-      retrievedAt,
-    }),
-  );
-}
-
-// ---------------------------------------------------------------- keyed sources
-
-function requireKey(env: Env): string {
-  if (!env.DATA_GOV_API_KEY) {
-    throw new DemoError(
-      "key_pending",
-      "This source needs an api.data.gov key, and the key has not been added yet.",
-      503,
-      "key_pending",
-    );
-  }
-  return env.DATA_GOV_API_KEY;
-}
-
-/** The key for one keyed call, within the allowance all visitors share; fails closed. */
-async function spendKey(env: Env): Promise<string> {
-  const key = requireKey(env);
-  if (env.KEY_RATE) {
-    let success = false;
-    try {
-      ({ success } = await env.KEY_RATE.limit({ key: "data-gov" }));
-    } catch {
-      // A binding failure is treated as no allowance left.
-    }
-    if (!success)
-      throw new DemoError(
-        "upstream_rate_limited",
-        "The demo has used its shared allowance for this source. Try again in a minute.",
-        503,
-        "error",
-        "60",
-      );
-  }
-  return key;
-}
-
-async function searchGovInfo(
-  env: Env,
-  criteria: DemoSearchCriteria,
-): Promise<DemoSearchResponse> {
-  const { query, page, dateFrom, dateTo } = criteria;
-  const key = await spendKey(env);
-  const { response, bytes } = await officialFetch(
-    "https://api.govinfo.gov/search",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Api-Key": key },
-      body: JSON.stringify({
-        query:
-          dateFrom !== null && dateTo !== null
-            ? `(${query}) AND publishdate:range(${dateFrom},${dateTo})`
-            : query,
-        pageSize: 10,
-        offsetMark: criteria.cursor ?? "*",
-        historical: false,
-        resultLevel: "default",
-      }),
-    },
-  );
-  if (!response.ok)
-    throw new DemoError(
-      "upstream_error",
-      `GovInfo answered with status ${response.status}.`,
-    );
-  const data = record(parseJson(bytes));
-  const retrievedAt = new Date().toISOString();
-  const results: DemoCitation[] = resultRows(data.results).map((value) => {
-    const row = record(value);
-    const packageId = metadataId(row.packageId);
-    // A granule result is one document inside a package; its title and identity are the granule's.
-    const id =
-      row.granuleId === undefined || row.granuleId === null
-        ? packageId
-        : `${packageId}/${metadataId(row.granuleId)}`;
-    // The live search service returns governmentAuthor as a list of names.
-    const authors = Array.isArray(row.governmentAuthor)
-      ? row.governmentAuthor.map((name) => cleanText(name, 160))
-      : [cleanText(row.governmentAuthor, 160)];
-    return {
-      sourceId: "govinfo",
-      identifier: id,
-      title: requiredText(row.title, 400),
-      issuingBody:
-        authors.filter(Boolean).join("; ").slice(0, 160) || "Not stated",
-      kind: cleanText(row.collectionCode, 40) || "Document",
-      date: isoDate(row.dateIssued),
-      officialUrl: `https://www.govinfo.gov/app/details/${id}`,
-      textUrl: null,
-      retrievedAt,
-      summary: null,
-      textAvailable: false,
-      // A Federal Register granule is named by its document number.
-      matchKey: row.collectionCode === "FR" ? frMatchKey(row.granuleId) : null,
-    };
-  });
-  return {
-    ok: true,
-    source: "govinfo",
-    query,
-    total: resultCount(data.count),
-    page,
-    results,
-    retrievedAt,
-    criteria,
-    continuation:
-      page === searchPageLimit("govinfo")
-        ? { kind: "stopped", reason: "cap" }
-        : validCursorToken(data.offsetMark) &&
-            data.offsetMark !== "*" &&
-            data.offsetMark !== criteria.cursor
-          ? { kind: "more", next: nextSearchCursor(criteria, data.offsetMark) }
-          : { kind: "stopped", reason: "unknown" },
-  };
-}
-
-/**
- * commentEndDate is a nullable date-time (v4 OpenAPI). A timestamp's date part
- * is a calendar date only in the zone it is written in, so a bare date or a
- * value with its own local offset states that date. A UTC instant such as
- * 2099-03-03T04:59:59Z can close on the previous Eastern day, and the demo never
- * converts or assumes a zone, so that value is left out rather than shown late;
- * the row is marked commentsCloseWithheld so it never reads as no comment period.
- * Live calls on 2026-10-24 found every stated value is such a UTC instant
- * (23:59:59 Eastern, as 04:59:59Z or 03:59:59Z), so all are withheld today.
- * shortcut: UTC values show no date; showing the Eastern day needs the owner's ruling on naming that zone.
- */
-function regulationsCloseDate(value: unknown): unknown {
-  if (value === undefined || value === null) return value;
-  const stated =
-    typeof value === "string"
-      ? /^(\d{4}-\d{2}-\d{2})(?:T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?([+-]\d{2}:\d{2}))?$/.exec(
-          value,
-        )
-      : null;
-  return stated && stated[2] !== "+00:00" && stated[2] !== "-00:00"
-    ? stated[1]
-    : undefined;
-}
-
-async function searchRegulations(
-  env: Env,
-  criteria: DemoSearchCriteria,
-): Promise<DemoSearchResponse> {
-  const { query, page, dateFrom, dateTo } = criteria;
-  const v2 = criteria.version === 2;
-  const key = await spendKey(env);
-  const url = new URL("https://api.regulations.gov/v4/documents");
-  url.searchParams.set(
-    v2 && criteria.match === "docket"
-      ? "filter[docketId]"
-      : "filter[searchTerm]",
-    query,
-  );
-  url.searchParams.set("page[size]", "10");
-  url.searchParams.set("page[number]", String(page));
-  url.searchParams.set("sort", "-postedDate");
-  if (dateFrom !== null && dateTo !== null) {
-    url.searchParams.set("filter[postedDate][ge]", dateFrom);
-    url.searchParams.set("filter[postedDate][le]", dateTo);
-  }
-  const type =
-    v2 && criteria.documentType !== null
-      ? documentTypeFilter("regulations", criteria.documentType)
-      : null;
-  if (type !== null) url.searchParams.set("filter[documentType]", type);
-  const { response, bytes } = await officialFetch(url.href, {
-    headers: { "X-Api-Key": key },
-  });
-  if (!response.ok)
-    throw new DemoError(
-      "upstream_error",
-      `Regulations.gov answered with status ${response.status}.`,
-    );
-  const data = record(parseJson(bytes));
-  const meta = data.meta === undefined ? {} : record(data.meta);
-  const retrievedAt = new Date().toISOString();
-  const results: DemoCitation[] = resultRows(data.data).map((value) => {
-    const row = record(value);
-    const id = metadataId(row.id);
-    const a = record(row.attributes);
-    const citation: DemoCitation = {
-      sourceId: "regulations",
-      identifier: id,
-      title: requiredText(a.title, 400),
-      issuingBody: cleanText(a.agencyId, 40) || "Not stated",
-      kind: cleanText(a.documentType, 40) || "Document",
-      date: isoDate(a.postedDate),
-      officialUrl: `https://www.regulations.gov/document/${id}`,
-      textUrl: null,
-      retrievedAt,
-      summary: null,
-      textAvailable: false,
-      matchKey: frMatchKey(a.frDocNum),
-    };
-    if (!v2 || !REGULATIONS_V2_CONFIRMED) return citation;
-    const fields = citationFields({
-      commentsCloseOn: regulationsCloseDate(a.commentEndDate),
-      docketIds: plainSourceText(a.docketId, MAX_DOCKET_LENGTH)
-        ? [a.docketId]
-        : undefined,
-    });
-    // A stated time left out is never shown as no comment period (safeguard 8).
-    return a.commentEndDate != null && fields.commentsCloseOn === undefined
-      ? { ...citation, ...fields, commentsCloseWithheld: true }
-      : { ...citation, ...fields };
-  });
-  const total = resultCount(meta.totalElements);
-  return {
-    ok: true,
-    source: "regulations",
-    query,
-    total,
-    page,
-    results,
-    retrievedAt,
-    criteria,
-    continuation: numericContinuation(criteria, total, results.length),
-  };
-}
-
-async function searchCongress(
-  env: Env,
-  criteria: DemoSearchCriteria,
-): Promise<DemoSearchResponse> {
-  const { query, page } = criteria;
-  const key = await spendKey(env);
-  const m = CONGRESS_REFERENCE.exec(query);
-  if (!m) {
-    throw new DemoError(
-      "bad_query",
-      "Congress.gov lookup takes one bill reference, such as hr 1234 119 (type, number, Congress).",
-      400,
-    );
-  }
-  const type = m[1].toLowerCase();
-  const url = `https://api.congress.gov/v3/bill/${Number(m[3])}/${type}/${Number(m[2])}?format=json`;
-  const { response, bytes } = await officialFetch(url, {
-    headers: { "X-Api-Key": key },
-  });
-  if (response.status === 404)
-    throw new DemoError(
-      "not_found",
-      "Congress.gov has no bill with that reference.",
-      404,
-    );
-  if (!response.ok)
-    throw new DemoError(
-      "upstream_error",
-      `Congress.gov answered with status ${response.status}.`,
-    );
-  const data = record(parseJson(bytes));
-  const bill = record(data.bill);
-  const billNumber =
-    typeof bill.number === "string" && /^\d{1,5}$/.test(bill.number)
-      ? Number(bill.number)
-      : bill.number;
-  if (
-    typeof bill.type !== "string" ||
-    bill.type.toLowerCase() !== type ||
-    typeof billNumber !== "number" ||
-    !Number.isSafeInteger(billNumber) ||
-    billNumber !== Number(m[2]) ||
-    typeof bill.congress !== "number" ||
-    !Number.isSafeInteger(bill.congress) ||
-    bill.congress !== Number(m[3])
-  )
-    throw badUpstream();
-  const retrievedAt = new Date().toISOString();
-  const latest =
-    bill.latestAction === undefined ? {} : record(bill.latestAction);
-  const latestText = cleanText(latest.text, 300);
-  const webType = (
-    {
-      hr: "house-bill",
-      s: "senate-bill",
-      hjres: "house-joint-resolution",
-      sjres: "senate-joint-resolution",
-      hconres: "house-concurrent-resolution",
-      sconres: "senate-concurrent-resolution",
-      hres: "house-resolution",
-      sres: "senate-resolution",
-    } as Record<string, string>
-  )[type];
-  const congress = Number(m[3]);
-  const lastTwo = congress % 100;
-  const suffix =
-    lastTwo >= 11 && lastTwo <= 13
-      ? "th"
-      : (["th", "st", "nd", "rd"][congress % 10] ?? "th");
-  const ordinal = `${congress}${suffix}`;
-  const result: DemoCitation = {
-    sourceId: "congress",
-    identifier: `${type.toUpperCase()} ${Number(m[2])}, ${ordinal} Congress`,
-    title: requiredText(bill.title, 400),
-    issuingBody: cleanText(bill.originChamber, 40) || "U.S. Congress",
-    kind: "Bill",
-    date: isoDate(bill.introducedDate),
-    officialUrl: `https://www.congress.gov/bill/${ordinal}-congress/${webType}/${Number(m[2])}`,
-    textUrl: null,
-    retrievedAt,
-    summary: latestText ? `Latest action: ${latestText}` : null,
-    textAvailable: false,
-    matchKey: null,
-  };
-  return {
-    ok: true,
-    source: "congress",
-    query,
-    total: 1,
-    page,
-    results: [result],
-    retrievedAt,
-    criteria,
-    continuation: { kind: "stopped", reason: "not_applicable" },
-  };
-}
-
-// ---------------------------------------------------------------- Grants.gov
-
-/** Grants.gov writes dates as MM/DD/YYYY; an empty value states no date. */
-function grantsDate(value: unknown): string | null {
-  if (value === undefined || value === null || value === "") return null;
-  const m =
-    typeof value === "string"
-      ? /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value)
-      : null;
-  if (!m) throw badUpstream();
-  return isoDate(`${m[3]}-${m[1]}-${m[2]}`);
-}
-
-const NAMED_ENTITIES: Record<string, string> = {
-  amp: "&",
-  lt: "<",
-  gt: ">",
-  quot: '"',
-  apos: "'",
-  nbsp: " ",
-  ndash: "–",
-  mdash: "—",
-  rsquo: "’",
-  lsquo: "‘",
-  rdquo: "”",
-  ldquo: "“",
-};
-
-/** Grants.gov titles carry HTML entities as text (seen live: "&ndash;"); unknown ones stay as written. */
-function decodeEntities(value: unknown): unknown {
-  if (typeof value !== "string") return value;
-  return value.replace(
-    /&(#x[0-9a-f]{1,6}|#\d{1,7}|[a-z]{2,8});/gi,
-    (all, name: string) => {
-      const code =
-        name[0] === "#"
-          ? Number.parseInt(
-              name.slice(name[1] === "x" || name[1] === "X" ? 2 : 1),
-              name[1] === "x" || name[1] === "X" ? 16 : 10,
-            )
-          : NaN;
-      if (Number.isFinite(code))
-        return code > 31 && code <= 0x10ffff ? String.fromCodePoint(code) : all;
-      return NAMED_ENTITIES[name.toLowerCase()] ?? all;
-    },
-  );
-}
-
-/**
- * One search2 hit as a citation. Only these fields are read; search2 hits carry
- * no agency contacts, and fetchOpportunity (which does) is never called.
- */
-function grantsCitation(
-  value: unknown,
-  retrievedAt: string,
-  eligibility: DemoEligibility | null,
-): DemoCitation {
-  const hit = record(value);
-  if (typeof hit.id !== "string" || !/^\d{1,12}$/.test(hit.id))
-    throw badUpstream();
-  if (!plainSourceText(hit.number, 100)) throw badUpstream();
-  const closes = grantsDate(hit.closeDate);
-  return {
-    sourceId: "grants",
-    identifier: hit.number,
-    title: requiredText(decodeEntities(hit.title), 400),
-    issuingBody:
-      cleanText(hit.agency, 160) ||
-      cleanText(hit.agencyCode, 40) ||
-      "Not stated",
-    kind: hit.docType === "forecast" ? "Forecast" : "Funding opportunity",
-    date: grantsDate(hit.openDate),
-    officialUrl: `https://www.grants.gov/search-results-detail/${hit.id}`,
-    textUrl: null,
-    retrievedAt,
-    summary: null,
-    textAvailable: false,
-    matchKey: null,
-    // An empty closeDate stays absent: never read as no deadline. A forecast's
-    // date is an estimate, so it is never shown as the date applications close.
-    ...(closes !== null &&
-      hit.docType !== "forecast" && { applicationsCloseOn: closes }),
-    ...(eligibility && { listedEligibility: eligibility }),
-  };
-}
-
-async function searchGrants(
-  criteria: DemoSearchCriteria,
-): Promise<DemoSearchResponse> {
-  const { query, page } = criteria;
-  const eligibility =
-    criteria.version === 2 ? (criteria.eligibility ?? null) : null;
-  const { response, bytes } = await officialFetch(
-    "https://api.grants.gov/v1/api/search2",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        rows: 10,
-        keyword: query,
-        oppStatuses: "forecasted|posted",
-        startRecordNum: (page - 1) * 10,
-        // 07 and 11: Tribal governments and Tribal organizations, in Grants.gov's codes.
-        ...(eligibility === "tribal" && { eligibilities: "07|11" }),
-      }),
-    },
-  );
-  if (!response.ok)
-    throw new DemoError(
-      "upstream_error",
-      `Grants.gov answered with status ${response.status}.`,
-    );
-  const body = record(parseJson(bytes));
-  if (body.errorcode !== 0)
-    throw new DemoError(
-      "upstream_error",
-      "Grants.gov answered with an error for this search.",
-    );
-  const data = record(body.data);
-  const retrievedAt = new Date().toISOString();
-  const results = resultRows(data.oppHits).map((hit) =>
-    grantsCitation(hit, retrievedAt, eligibility),
-  );
-  const total = resultCount(data.hitCount);
-  return {
-    ok: true,
-    source: "grants",
-    query,
-    total,
-    page,
-    results,
-    retrievedAt,
-    criteria,
-    continuation: numericContinuation(criteria, total, results.length),
-  };
-}
-
 // ---------------------------------------------------------------- routing
 
-async function cachedPolicy(
-  source: string,
-  identity: string | null,
-  produce: () => Promise<unknown>,
-): Promise<{ body: string; hit: boolean }> {
-  // Only validated public document identities enter this optional cache. Search
-  // text, request query strings and unrelated parameters never become cache keys.
-  const key = identity
-    ? new Request(
-        `https://cache.policy-sentinel-demo.invalid/policy/${encodeURIComponent(POLICY_CACHE_VERSION)}/${source}/${encodeURIComponent(identity)}`,
-      )
-    : null;
-  let store: Cache | undefined;
-  try {
-    store =
-      typeof caches === "undefined"
-        ? undefined
-        : (caches as unknown as { default?: Cache }).default;
-    const hit = key ? await store?.match(key) : undefined;
-    if (hit) return { body: await hit.text(), hit: true };
-  } catch {
-    // Retrieval remains available if cache access or reading an entry fails.
+const MAX_SEARCH_BODY = MAX_CONTINUATION_LENGTH + 2_000;
+
+/**
+ * POST /api/search carries the same criteria as the GET query, as a JSON object
+ * of string values, so search words stay out of addresses (design rule 5). The
+ * address's own query string is ignored.
+ */
+async function searchBody(request: Request): Promise<URLSearchParams> {
+  const bad = () =>
+    new DemoError("bad_query", "The search request is not valid.", 400);
+  if (Number(request.headers.get("Content-Length")) > MAX_SEARCH_BODY)
+    throw bad();
+  // A chunked body states no length, so the read itself stops at the cap.
+  const reader = request.body?.getReader();
+  const decoder = new TextDecoder();
+  let text = "";
+  for (let total = 0; reader;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > MAX_SEARCH_BODY) {
+      void reader.cancel().catch(() => undefined);
+      throw bad();
+    }
+    text += decoder.decode(value, { stream: true });
   }
-  const body = JSON.stringify(await produce());
+  text += decoder.decode();
+  let body: unknown;
   try {
-    if (key && store)
-      await store.put(
-        key,
-        new Response(body, {
-          headers: {
-            "Cache-Control": `public, max-age=${POLICY_TTL}`,
-            "Content-Type": "application/json",
-          },
-        }),
-      );
+    body = JSON.parse(text);
   } catch {
-    // A completed official-source read is useful even when caching fails.
+    throw bad();
   }
-  return { body, hit: false };
+  if (!body || typeof body !== "object" || Array.isArray(body)) throw bad();
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(body)) {
+    if (typeof value !== "string") throw bad();
+    params.set(key, value);
+  }
+  return params;
 }
 
 async function rateLimited(request: Request, env: Env): Promise<boolean> {
@@ -1300,12 +291,19 @@ export default {
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: corsHeaders(origin) });
     }
-    if (request.method !== "GET") {
+    const searchPost =
+      request.method === "POST" &&
+      url.pathname === "/api/search" &&
+      /^application\/json\s*(?:;|$)/i.test(
+        request.headers.get("Content-Type") ?? "",
+      );
+    if (request.method !== "GET" && !searchPost) {
       return json(
         {
           ok: false,
           error: "method_not_allowed",
-          message: "This service only answers GET requests.",
+          message:
+            "This service answers GET requests, and searches sent by POST as JSON.",
           status: "error",
         },
         405,
@@ -1338,11 +336,19 @@ export default {
       );
     }
     if (url.pathname === "/api/sources") {
-      return json({ ok: true, sources: sourceList(env) }, 200, origin, {
+      const body =
+        url.searchParams.get("version") === "2"
+          ? { ok: true, version: 2, sources: sourceListV2(env) }
+          : { ok: true, sources: sourceList(env) };
+      return json(body, 200, origin, {
         "Cache-Control": "public, max-age=60",
       });
     }
-    if (url.pathname !== "/api/search" && url.pathname !== "/api/policy") {
+    if (
+      url.pathname !== "/api/search" &&
+      url.pathname !== "/api/policy" &&
+      url.pathname !== "/api/related"
+    ) {
       return json(
         {
           ok: false,
@@ -1369,16 +375,19 @@ export default {
       );
     }
 
-    const source = url.searchParams.get("source") ?? "federal-register";
-    const q = (url.searchParams.get("q") ?? "").trim();
-    const id = (url.searchParams.get("id") ?? "").trim();
-    const pageText = url.searchParams.get("page") ?? "1";
-    const page = Number(pageText);
-
     try {
+      const params = searchPost ? await searchBody(request) : url.searchParams;
+      const source = params.get("source") ?? "federal-register";
+      const q = (params.get("q") ?? "").trim();
+      const id = (params.get("id") ?? "").trim();
+      const pageText = params.get("page") ?? "1";
+      const page = Number(pageText);
+      const bill = (params.get("bill") ?? "").trim();
       if (
         q.length > 200 ||
-        id.length > 40 ||
+        // GovInfo access ids run to 80 characters (govinfo-related.ts).
+        id.length > (url.pathname === "/api/related" ? 80 : 40) ||
+        bill.length > 40 ||
         !/^[1-9]\d*$/.test(pageText) ||
         !Number.isSafeInteger(page) ||
         page > 50
@@ -1389,7 +398,7 @@ export default {
           400,
         );
       }
-      const entry = sourceList(env).find((s) => s.id === source);
+      const entry = sourceListV2(env).find((s) => s.id === source);
       if (!entry)
         throw new DemoError(
           "unknown_source",
@@ -1409,15 +418,20 @@ export default {
             400,
           );
         let criteria: DemoSearchCriteria;
+        const court = params.get("court");
         try {
-          const version = url.searchParams.get("searchVersion");
-          const envelope = url.searchParams.get("continuation");
-          const match = url.searchParams.get("match");
-          const documentType = url.searchParams.get("documentType");
-          const eligibility = url.searchParams.get("eligibility");
+          const version = params.get("searchVersion");
+          const envelope = params.get("continuation");
+          const match = params.get("match");
+          const documentType = params.get("documentType");
+          const eligibility = params.get("eligibility");
+          // Version 3 is open to the court-case source only, so every other
+          // source's version 1 and 2 behavior stays exactly as it was.
+          const widened =
+            version === "2" || (version === "3" && source === "govinfo-courts");
           if (
-            (version !== null && version !== "1" && version !== "2") ||
-            (version !== "2" &&
+            (version !== null && version !== "1" && !widened) ||
+            (!widened &&
               (match !== null ||
                 documentType !== null ||
                 eligibility !== null)) ||
@@ -1426,17 +440,25 @@ export default {
             throw new SearchCriteriaError(
               "The search contract is not supported.",
             );
+          // The court filter is a court-case search parameter only.
+          if (
+            court !== null &&
+            (source !== "govinfo-courts" || !isCourtCode(court))
+          )
+            throw new SearchCriteriaError(
+              "The court filter takes one of the seven listed courts, on a court case search only.",
+            );
           // searchCriteria checks match and documentType against their allowlists.
           criteria = searchCriteria(source, q, page, {
-            dateFrom: url.searchParams.get("dateFrom"),
-            dateTo: url.searchParams.get("dateTo"),
+            dateFrom: params.get("dateFrom"),
+            dateTo: params.get("dateTo"),
             continuation:
               envelope === null
                 ? null
                 : (JSON.parse(envelope) as DemoSearchCursor),
-            ...(version === "2" && {
-              version: 2,
-              match: (match ?? "text") as DemoSearchMatch,
+            ...(widened && {
+              version: version === "3" ? 3 : 2,
+              match: (match ?? "text") as DemoSearchMatchV3,
               documentType: documentType as DemoDocumentType | null,
               eligibility: eligibility as DemoEligibility | null,
             }),
@@ -1451,52 +473,39 @@ export default {
           );
         }
         const run = async () => {
-          switch (source) {
-            case "federal-register":
-              return searchFederalRegister(criteria);
-            case "govinfo":
-              return searchGovInfo(env, criteria);
-            case "regulations":
-              return searchRegulations(env, criteria);
-            case "congress":
-              return searchCongress(env, criteria);
-            case "grants":
-              return searchGrants(criteria);
-            case "washington": {
-              const policy = await readWashington(q);
-              return {
-                ok: true,
-                source,
-                query: q,
-                total: 1,
-                page: 1,
-                results: [policy.citation],
-                retrievedAt: policy.receipt.retrievedAt,
-                criteria,
-                continuation: { kind: "stopped", reason: "not_applicable" },
-              } satisfies DemoSearchResponse;
-            }
-            default:
-              throw new DemoError(
-                "unknown_source",
-                "That source is not one this demo knows.",
-                400,
-              );
-          }
+          // sourceListV2 and searchCriteria above admit registry sources only.
+          const adapter =
+            SOURCE_REGISTRY[source as keyof typeof SOURCE_REGISTRY];
+          if (adapter === govinfoCourts)
+            return govinfoCourts.search(
+              env,
+              criteria,
+              court !== null && isCourtCode(court) ? court : null,
+            );
+          return adapter.search(env, criteria);
         };
-        const body = JSON.stringify(await run());
-        return new Response(body, {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-            "Cache-Control": "no-store",
-            "X-Content-Type-Options": "nosniff",
-            ...corsHeaders(origin),
-          },
-        });
+        return json(await run(), 200, origin);
+      }
+
+      if (url.pathname === "/api/related") {
+        // One keyed call per request at most; each module caches its answer.
+        // An older page may still send collection=; it is ignored, not refused.
+        let related: unknown;
+        if (source === "govinfo")
+          related = await govinfoRelated.related(env, id);
+        else if (source === "congress")
+          related = await congressRelated.relatedBills(env, bill);
+        else
+          throw new DemoError(
+            "bad_query",
+            "Related records are listed for GovInfo and Congress.gov only.",
+            400,
+          );
+        return json(related, 200, origin);
       }
 
       // /api/policy
+      const v3 = params.get("version") === "3";
       const run = async () => {
         if (source === "federal-register") {
           if (!id)
@@ -1505,9 +514,10 @@ export default {
               "A document number is needed.",
               400,
             );
-          return readFederalRegister(id);
+          return federalRegister.read(id, v3);
         }
-        if (source === "washington") return readWashington(id || q);
+        if (source === "washington") return washington.read(id || q, v3);
+        if (source === "grants") return grantsDetail.read(id);
         throw new DemoError(
           "text_unavailable",
           "The demo does not read the text of this source, so it identifies no issues here. Open the official source.",
@@ -1515,23 +525,29 @@ export default {
         );
       };
       let identity: string | null = null;
-      if (source === "federal-register" && FR_DOCUMENT_NUMBER.test(id))
+      if (source === "federal-register" && federalRegister.isDocumentNumber(id))
         identity = id;
       if (source === "washington") {
-        const parsed = parseWashingtonQuery(id || q);
+        const parsed = washington.parseWashingtonQuery(id || q);
         if (parsed)
           identity = `${parsed.prefix} ${parsed.number} ${parsed.biennium}`;
       }
-      const out = await cachedPolicy(source, identity, run);
-      return new Response(out.body, {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          "Cache-Control": "no-store",
-          "X-Content-Type-Options": "nosniff",
-          ...corsHeaders(origin),
-        },
-      });
+      // A version 3 answer is a different body, so it has its own cache entry.
+      if (v3 && identity !== null) identity = `v3:${identity}`;
+      if (source === "grants" && grantsDetail.isOpportunityId(id))
+        identity = id;
+      // Only a validated public document identity becomes a cache key; search
+      // text, request query strings and unrelated parameters never do.
+      const body =
+        identity === null
+          ? await run()
+          : await cachedJson(
+              env,
+              `policy/${encodeURIComponent(POLICY_CACHE_VERSION)}/${source}`,
+              identity,
+              run,
+            );
+      return json(body, 200, origin);
     } catch (error) {
       if (error instanceof DemoError) {
         return json(

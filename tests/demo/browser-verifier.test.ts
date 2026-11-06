@@ -23,7 +23,7 @@ it("keeps browser-verifier failure and request controls network-free", () => {
     { encoding: "utf8", timeout: 10_000, windowsHide: true },
   );
   expect(output).toContain(
-    "PASS source/count, request guard and response/trigger controls; no browser or network opened.",
+    "PASS source/count, request guard (search POST only), source state wording and response/trigger controls; no browser or network opened.",
   );
 });
 

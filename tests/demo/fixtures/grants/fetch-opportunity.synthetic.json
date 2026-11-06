@@ -1,0 +1,81 @@
+{
+  "errorcode": 0,
+  "msg": "Webservice Succeeds",
+  "token": "synthetic-token-0000",
+  "data": {
+    "id": 990001,
+    "revision": 2,
+    "opportunityNumber": "SYN-OPP-2099-0001",
+    "opportunityTitle": "Synthetic Resilience Planning &ndash; Example Program",
+    "owningAgencyCode": "SYN-AG",
+    "listed": "L",
+    "publisherUid": "synthetic-publisher-7731",
+    "modifiedComments": "Changed by Alex Sample, alex.sample@example.org, 555-010-0199",
+    "flag2006": "N",
+    "opportunityCategory": { "category": "D", "description": "Discretionary" },
+    "synopsis": {
+      "opportunityId": 990001,
+      "version": 4,
+      "agencyCode": "SYN-AG",
+      "agencyName": "Synthetic Agency for Examples",
+      "agencyPhone": "555-010-0100",
+      "agencyAddressDesc": "100 Example Way, Suite 1, Sampletown, ZZ 00000",
+      "agencyContactPhone": "(555) 010-0101",
+      "agencyContactName": "Alex Sample",
+      "agencyContactDesc": "Program Officer Alex Sample",
+      "agencyContactEmail": "alex.sample@example.org",
+      "agencyContactEmailDesc": "Email the program office",
+      "synopsisDesc": "<p>The synthetic program supports example planning work.</p><p><strong>AUTHORITIES:</strong> Awards are made through Pub. L. 93&ndash;638, P. L. 117-58, 25 U.S.C. 5304(l), 25 U.S.C. 5301 et. seq., and section 4 of the Act.</p><p>Contact: Dr. Alex Sample, alex.sample@example.org, (555) 010-0101.</p>",
+      "responseDate": "Mar 15, 2099 12:00:00 AM EDT",
+      "responseDateStr": "2099-03-15-00-00-00",
+      "postingDate": "Jan 10, 2099 12:00:00 AM EST",
+      "postingDateStr": "2099-01-10-00-00-00",
+      "costSharing": false,
+      "awardCeiling": "100000",
+      "applicantEligibilityDesc": "Synthetic eligibility text with a contact at 555-010-0102.",
+      "sendEmail": "Y",
+      "createTimeStamp": "Jan 09, 2099 10:00:00 AM EST",
+      "modComments": "Edited by Alex Sample",
+      "createdDate": "Jan 09, 2099 10:00:00 AM EST",
+      "lastUpdatedDate": "Feb 02, 2099 03:04:05 PM EST",
+      "applicantTypes": [
+        { "id": "99", "description": "Synthetic applicant type" }
+      ]
+    },
+    "agencyDetails": {
+      "code": "SYN-AG",
+      "seed": "SYN",
+      "agencyName": "Synthetic Agency for Examples",
+      "agencyCode": "SYN-AG",
+      "topAgencyCode": "SYN"
+    },
+    "synopsisAttachmentFolders": [],
+    "synopsisDocumentURLs": [
+      {
+        "id": 1,
+        "opportunityId": 990001,
+        "docUrl": "https://example.org/synthetic.pdf",
+        "description": "Synthetic notice"
+      }
+    ],
+    "synAttChangeComments": [],
+    "cfdas": [
+      {
+        "id": 501,
+        "opportunityId": 990001,
+        "cfdaNumber": "99.001",
+        "programTitle": "Synthetic Example Program"
+      },
+      {
+        "id": 502,
+        "opportunityId": 990001,
+        "cfdaNumber": "not-a-listing",
+        "programTitle": "Dropped"
+      }
+    ],
+    "opportunityHistoryDetails": [],
+    "docType": "synopsis",
+    "assistURL": "",
+    "relatedOpps": []
+  }
+}

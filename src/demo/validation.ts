@@ -1,12 +1,18 @@
 import type {
+  CongressRelatedBills,
   DemoCitation,
   DemoPolicyResponse,
   DemoSearchResponse,
   DemoSearchOptions,
   DemoSearchContinuation,
   DemoSource,
+  GovInfoRelations,
   IssueType,
+  LinkFamily,
 } from "./types";
+import { LINK_NOTICES, linkLabel } from "./link-labels.ts";
+import { cutRowsNote, withheldRowsNote, type ChainRow } from "./links.ts";
+import { hasPersonalPattern } from "./personal-guard.ts";
 import {
   MAX_DOCKET_LENGTH,
   RIN_PATTERN,
@@ -23,6 +29,7 @@ const SOURCE_HOSTS: Record<string, readonly string[]> = {
   "federal-register": ["www.federalregister.gov", "www.govinfo.gov"],
   washington: ["lawfilesext.leg.wa.gov", "app.leg.wa.gov", "apps.leg.wa.gov"],
   govinfo: ["www.govinfo.gov"],
+  "govinfo-courts": ["www.govinfo.gov"],
   congress: ["www.congress.gov"],
   regulations: ["www.regulations.gov"],
   grants: ["www.grants.gov"],
@@ -152,23 +159,71 @@ type CitationFields = Pick<
   | "topics"
   | "applicationsCloseOn"
   | "listedEligibility"
+  | "court"
+  | "docketNumber"
+  | "packageId"
+  | "lastModified"
+  | "caseCitationProvided"
+  | "assistanceListings"
+  | "authorityPassage"
+  | "versionDate"
+  | "correctionOf"
+  | "corrections"
+  | "authorityLine"
+  | "authorityLinePresent"
 >;
 
+/** Field names search contract v3 adds (design section 3 T1.1 rule 3). */
+const V3_FIELDS = [
+  "court",
+  "docketNumber",
+  "packageId",
+  "lastModified",
+  "caseCitationProvided",
+  "assistanceListings",
+  "authorityPassage",
+  "versionDate",
+  "correctionOf",
+  "corrections",
+  "authorityLine",
+  "authorityLinePresent",
+] as const;
+
 /**
- * The search contract v2 citation fields, parsed leniently for the Worker and
- * the page alike: an absent field stays absent, a malformed field or list item
- * is dropped, every list and string is bounded, and nothing here throws.
+ * The search contract v2 and v3 citation fields, parsed leniently for the
+ * Worker and the page alike: an absent field stays absent, a malformed field
+ * or list item is dropped, every list and string is bounded, and nothing
+ * here throws except a v3-only field on a version 1 or 2 answer.
  */
-export function citationFields(v: {
-  readonly commentsCloseOn?: unknown;
-  readonly commentsCloseWithheld?: unknown;
-  readonly docketIds?: unknown;
-  readonly rins?: unknown;
-  readonly cfrRefs?: unknown;
-  readonly topics?: unknown;
-  readonly applicationsCloseOn?: unknown;
-  readonly listedEligibility?: unknown;
-}): CitationFields {
+export function citationFields(
+  v: {
+    readonly commentsCloseOn?: unknown;
+    readonly commentsCloseWithheld?: unknown;
+    readonly docketIds?: unknown;
+    readonly rins?: unknown;
+    readonly cfrRefs?: unknown;
+    readonly topics?: unknown;
+    readonly applicationsCloseOn?: unknown;
+    readonly listedEligibility?: unknown;
+    readonly court?: unknown;
+    readonly docketNumber?: unknown;
+    readonly packageId?: unknown;
+    readonly lastModified?: unknown;
+    readonly caseCitationProvided?: unknown;
+    readonly assistanceListings?: unknown;
+    readonly authorityPassage?: unknown;
+    readonly versionDate?: unknown;
+    readonly correctionOf?: unknown;
+    readonly corrections?: unknown;
+    readonly authorityLine?: unknown;
+    readonly authorityLinePresent?: unknown;
+  },
+  version: 1 | 2 | 3 = 3,
+): CitationFields {
+  if (version !== 3 && V3_FIELDS.some((key) => v[key] !== undefined))
+    throw new Error(
+      `Search contract v3 citation fields on a version ${version} answer`,
+    );
   const strings = (
     value: unknown,
     max: number,
@@ -207,10 +262,80 @@ export function citationFields(v: {
   if (calendarDate(v.applicationsCloseOn))
     fields.applicationsCloseOn = v.applicationsCloseOn;
   if (v.listedEligibility === "tribal") fields.listedEligibility = "tribal";
+  if (version !== 3) return fields;
+  if (typeof v.court === "string" && plainSourceText(v.court, 10))
+    fields.court = v.court;
+  if (
+    typeof v.docketNumber === "string" &&
+    plainSourceText(v.docketNumber, MAX_DOCKET_LENGTH)
+  )
+    fields.docketNumber = v.docketNumber;
+  if (typeof v.packageId === "string" && plainSourceText(v.packageId, 120))
+    fields.packageId = v.packageId;
+  if (
+    typeof v.lastModified === "string" &&
+    plainSourceText(v.lastModified, 40) &&
+    Number.isFinite(Date.parse(v.lastModified))
+  )
+    fields.lastModified = v.lastModified;
+  if (typeof v.caseCitationProvided === "boolean")
+    fields.caseCitationProvided = v.caseCitationProvided;
+  if (Array.isArray(v.assistanceListings))
+    fields.assistanceListings = v.assistanceListings
+      .slice(0, 50)
+      .flatMap((item: unknown) => {
+        const listing =
+          item && typeof item === "object"
+            ? (item as Record<string, unknown>)
+            : {};
+        return plainSourceText(listing.number, 20) &&
+          plainSourceText(listing.title, 400)
+          ? [{ number: listing.number, title: listing.title }]
+          : [];
+      });
+  if (v.authorityPassage && typeof v.authorityPassage === "object") {
+    const passage = v.authorityPassage as Record<string, unknown>;
+    if (
+      plainSourceText(passage.text, 4000) &&
+      plainSourceText(passage.heading, 200) &&
+      plainSourceText(passage.locator, 500)
+    )
+      fields.authorityPassage = {
+        text: passage.text,
+        heading: passage.heading,
+        locator: passage.locator,
+      };
+  }
+  if (calendarDate(v.versionDate)) fields.versionDate = v.versionDate;
+  if (
+    typeof v.correctionOf === "string" &&
+    plainSourceText(v.correctionOf, 100)
+  )
+    fields.correctionOf = v.correctionOf;
+  const corrections = strings(v.corrections, 50, (item) =>
+    plainSourceText(item, 100),
+  );
+  if (corrections) fields.corrections = corrections;
+  if (
+    typeof v.authorityLine === "string" &&
+    plainSourceText(v.authorityLine, 2000)
+  )
+    fields.authorityLine = v.authorityLine;
+  if (typeof v.authorityLinePresent === "boolean")
+    fields.authorityLinePresent = v.authorityLinePresent;
   return fields;
 }
 
-export function citationValue(value: unknown): DemoCitation {
+/**
+ * `version` gates the search contract v3 citation fields: pass the search
+ * criteria version where it is known (searchValue does); other callers
+ * (follow.ts, report-state.ts) read back an already-validated citation and
+ * default to the most permissive version.
+ */
+export function citationValue(
+  value: unknown,
+  version: 1 | 2 | 3 = 3,
+): DemoCitation {
   const v = object(value);
   const source = sourceId(v.sourceId);
   const date = v.date === null ? null : text(v.date, 10);
@@ -239,15 +364,15 @@ export function citationValue(value: unknown): DemoCitation {
     summary: v.summary === null ? null : text(v.summary, 20000, true),
     textAvailable: v.textAvailable,
     matchKey,
-    ...citationFields(v),
+    ...citationFields(v, version),
   };
 }
 
-export function sourcesValue(value: unknown): DemoSource[] {
+export function sourcesValue(value: unknown, max = 8): DemoSource[] {
   const v = object(value);
   if (v.ok !== true) throw new Error("Invalid source response");
   const ids = new Set<string>();
-  const sources = list(v.sources, 8).map((item): DemoSource => {
+  const sources = list(v.sources, max).map((item): DemoSource => {
     const s = object(item);
     const id = sourceId(s.id);
     if (ids.has(id)) throw new Error("Duplicate source");
@@ -271,6 +396,18 @@ export function sourcesValue(value: unknown): DemoSource[] {
   });
   if (!sources.length) throw new Error("Empty source catalog");
   return sources;
+}
+
+/**
+ * GET /api/sources?version=2: the same entries plus keyed later sources such
+ * as "govinfo-courts". A Worker that predates version 2 answers the plain
+ * catalog (no version field), which reads the same way without them.
+ */
+export function sourcesValueV2(value: unknown): DemoSource[] {
+  const v = object(value);
+  if (v.version !== undefined && v.version !== 2)
+    throw new Error("Invalid source catalog version");
+  return sourcesValue(v, 16);
 }
 
 export function searchValue(
@@ -322,7 +459,12 @@ export function searchValue(
       ) &&
       (next.reason !== "cap" || page === searchPageLimit(source)) &&
       (next.reason !== "not_applicable" ||
-        ["congress", "washington"].includes(source)) &&
+        ["congress", "washington"].includes(source) ||
+        // A court docket or U.S. Reports lookup names one record; paging does not apply.
+        (source === "govinfo-courts" &&
+          criteria.version === 3 &&
+          (criteria.match === "court_docket" ||
+            criteria.match === "us_reports"))) &&
       (source !== "govinfo" || next.reason !== "complete")
     ) {
       continuation = {
@@ -334,7 +476,7 @@ export function searchValue(
   }
   const ids = new Set<string>();
   const results = list(v.results, 10).map((item) => {
-    const citation = citationValue(item);
+    const citation = citationValue(item, criteria.version);
     if (citation.sourceId !== source || ids.has(keyOf(citation)))
       throw new Error("Invalid search result identity");
     // A row may say it was found by the eligibility filter only when the filter was sent.
@@ -424,5 +566,253 @@ export function policyValue(
     }),
     warnings: list(v.warnings, 100).map((warning) => text(warning, 2000)),
     opening: text(v.opening, 4000, true),
+  };
+}
+
+/** The Worker's cap on chain rows in one version 3 policy answer. */
+const CHAIN_MAX = 200;
+/** The official hosts a citation_in_text target may link to (links.ts targetOf). */
+const CHAIN_TARGET_HOSTS: Readonly<Record<string, string | null>> = {
+  "usc-index": "uscode.house.gov",
+  "cfr-index": "www.ecfr.gov",
+  govinfo: "www.govinfo.gov",
+  "federal-register": "www.federalregister.gov",
+  washington: "app.leg.wa.gov",
+  oregon: null,
+  idaho: null,
+  "govinfo-courts": null,
+};
+const LINK_FAMILIES: readonly LinkFamily[] = [
+  "rules_and_notices",
+  "laws_and_bills",
+  "cases",
+  "grants",
+  "state",
+  "intertribal",
+];
+
+/** One citation_in_text row of a version 3 policy answer, closed and rebuilt. */
+function chainRowValue(value: unknown, citation: DemoCitation): ChainRow {
+  const r = object(value);
+  if (r.section !== "inText" || r.quote !== null)
+    throw new Error("Invalid chain row");
+  const sourceWording = text(r.sourceWording, 500);
+  // The row's provenance is the record's own, as recordProvenance states it.
+  const provenance = {
+    sourceName: text(r.sourceName, 200),
+    asOfLabel: "published",
+    asOfText: text(r.asOfText, 100),
+    asOfField: null,
+    retrievedAt: citation.retrievedAt,
+    stale: false,
+    liveUrl: citation.officialUrl,
+  } as const;
+  if (
+    r.asOfLabel !== "published" ||
+    r.asOfField !== null ||
+    r.retrievedAt !== citation.retrievedAt ||
+    r.stale !== false ||
+    r.liveUrl !== citation.officialUrl
+  )
+    throw new Error("Invalid chain row provenance");
+  if (r.kind === "note") {
+    const label = text(r.label, 600);
+    if (
+      r.notice !== LINK_NOTICES.shortForm ||
+      !label.startsWith(linkLabel("short_form", "forward"))
+    )
+      throw new Error("Invalid chain note");
+    return {
+      kind: "note",
+      section: "inText",
+      label,
+      notice: LINK_NOTICES.shortForm,
+      quote: null,
+      sourceWording,
+      ...provenance,
+    };
+  }
+  const locator = text(r.locator, 500);
+  const label = linkLabel("citation_in_text", "forward", locator);
+  if (
+    r.kind !== "link" ||
+    r.basis !== "citation_in_text" ||
+    r.labelId !== "citation_in_text" ||
+    r.direction !== "forward" ||
+    r.label !== label ||
+    !LINK_FAMILIES.includes(r.family as LinkFamily)
+  )
+    throw new Error("Invalid chain link");
+  const t = object(r.target);
+  const targetSource = text(t.sourceId, 40);
+  if (!Object.hasOwn(CHAIN_TARGET_HOSTS, targetSource))
+    throw new Error("Invalid chain target");
+  const host = CHAIN_TARGET_HOSTS[targetSource];
+  let url: string | undefined;
+  if (t.officialUrl !== undefined) {
+    url = text(t.officialUrl, 2000);
+    const parsed = new URL(url);
+    if (
+      parsed.protocol !== "https:" ||
+      parsed.hostname !== host ||
+      parsed.username ||
+      parsed.password ||
+      parsed.port ||
+      parsed.hash ||
+      parsed.href !== url
+    )
+      throw new Error("Invalid chain link URL");
+  }
+  // A target with no live source carries the notice instead of a link.
+  if ((url === undefined) !== (r.notice === LINK_NOTICES.notLive))
+    throw new Error("Invalid chain link notice");
+  return {
+    kind: "link",
+    section: "inText",
+    basis: "citation_in_text",
+    labelId: "citation_in_text",
+    direction: "forward",
+    label,
+    target: {
+      sourceId: targetSource,
+      identifier: text(t.identifier, 300),
+      ...(url && { officialUrl: url }),
+    },
+    targetText: text(r.targetText, 300),
+    family: r.family as LinkFamily,
+    sourceWording,
+    locator,
+    quote: null,
+    notice: url ? null : LINK_NOTICES.notLive,
+    ...provenance,
+  };
+}
+
+/**
+ * GET /api/policy with version=3 (Federal Register and Washington): the
+ * version 1 answer plus its citation_in_text chain rows. An answer with no
+ * version field (a Worker that predates version 3) reads as version 1.
+ */
+export function policyValueV3(
+  value: unknown,
+  expected?: { source: string; id: string },
+): DemoPolicyResponse {
+  const v = object(value);
+  const read = policyValue(v, expected);
+  // The guard again, page side, so an answer cached before a guard change is still checked.
+  const { authorityLine, ...rest } = read.citation;
+  const base =
+    authorityLine !== undefined && hasPersonalPattern(authorityLine)
+      ? { ...read, citation: rest }
+      : read;
+  if (v.version === undefined && v.chain === undefined) return base;
+  if (v.version !== 3) throw new Error("Invalid policy version");
+  const rows = list(v.chain, CHAIN_MAX).map((row) =>
+    chainRowValue(row, base.citation),
+  );
+  const chain = rows.filter((row) => !hasPersonalPattern(rowWording(row)));
+  // Rows the Worker or the page withheld are counted in one stated row.
+  const workerWithheld = v.chainWithheld ?? 0;
+  if (
+    typeof workerWithheld !== "number" ||
+    !Number.isInteger(workerWithheld) ||
+    workerWithheld < 0 ||
+    workerWithheld > 10_000
+  )
+    throw new Error("Invalid chain withheld count");
+  const withheld = workerWithheld + rows.length - chain.length;
+  // Places past the Worker's row cap get their own stated row (safeguard 8).
+  const cut = integer(v.chainCut ?? 0, 1_500_000);
+  return {
+    ...base,
+    version: 3,
+    chain: [
+      ...chain,
+      ...(withheld ? [withheldRowsNote(base.citation, withheld)] : []),
+      ...(cut ? [cutRowsNote(base.citation, cut)] : []),
+    ],
+  };
+}
+
+/** The wording of a chain row the Worker guards (worker/src/sources/shared.ts rowWording). */
+function rowWording(row: ChainRow): string {
+  return [
+    row.label,
+    row.sourceWording,
+    row.quote?.text,
+    row.notice,
+    row.kind === "link" ? row.targetText : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+/** A related bill title as the Worker passes it: null when flagged or a private bill's. */
+function titleShown(title: string | null): string | null {
+  return title === null ||
+    hasPersonalPattern(title) ||
+    /\bfor the relief of\b/i.test(title)
+    ? null
+    : title;
+}
+
+export type RelatedRequest =
+  | { readonly source: "govinfo"; readonly id: string }
+  | { readonly source: "congress"; readonly bill: string };
+
+/** GET /api/related: GovInfo relations or Congress.gov related bills. */
+export function relatedValue(
+  value: unknown,
+  expected: RelatedRequest,
+): GovInfoRelations | CongressRelatedBills {
+  const v = object(value);
+  if (
+    v.ok !== true ||
+    v.basis !== "source_field" ||
+    v.source !== expected.source
+  )
+    throw new Error("Invalid related records response");
+  const retrievedAt = timestamp(v.retrievedAt);
+  const maybe = (item: unknown, max: number) =>
+    item === null ? null : text(item, max);
+  if (expected.source === "congress") {
+    const records = list(v.records, 20).map((item) => {
+      const r = object(item);
+      return {
+        relation: text(r.relation, 200),
+        identifiedBy: text(r.identifiedBy, 200),
+        identifier: text(r.identifier, 200),
+        title: titleShown(maybe(r.title, 4000)),
+        officialUrl: officialUrl(r.officialUrl, "congress"),
+      };
+    });
+    return {
+      ok: true,
+      source: "congress",
+      basis: "source_field",
+      bill: text(v.bill, 200),
+      records,
+      total:
+        v.total === null
+          ? null
+          : integer(v.total, Number.MAX_SAFE_INTEGER, records.length),
+      retrievedAt,
+    };
+  }
+  if (v.accessId !== expected.id) throw new Error("Invalid related identity");
+  if (v.collection !== undefined) throw new Error("Invalid related shape");
+  return {
+    ok: true,
+    source: "govinfo",
+    basis: "source_field",
+    accessId: expected.id,
+    relations: list(v.relations, 50).map((item) => {
+      const r = object(item);
+      const collection = text(r.collection, 12);
+      if (!/^[A-Z]{2,12}$/.test(collection))
+        throw new Error("Invalid related collection");
+      return { relation: text(r.relation, 200), collection };
+    }),
+    retrievedAt,
   };
 }

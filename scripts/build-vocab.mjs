@@ -1,0 +1,334 @@
+#!/usr/bin/env node
+// Checks the reviewed law alias table (config/law-aliases.v1.json) and the
+// combined vocabulary ceiling, and writes the owner's review packet. It makes
+// no network call: scripts/acquire-demo-index.mjs is the only fetcher
+// (index condition A3), and no build, check, demo:build or test script runs
+// this one (design T1.2: a separate approved step).
+//
+//   node scripts/build-vocab.mjs [--aliases <file>] [--vocab-dir <dir>]
+//                                [--review-packet <path outside the repository>]
+//                                [--nation-names <html>] [--nation-hashes <json>]
+// Aliases need the full Nation-name list (G3), as the index validator does.
+import { createHash } from "node:crypto";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { gzipSync } from "node:zlib";
+import Ajv2020 from "ajv/dist/2020.js";
+import {
+  canonicalJson,
+  compareCodeUnits,
+} from "../src/core/canonical-json.mjs";
+import {
+  FULL_PROBE_ENTRIES,
+  isFullProbe,
+  loadNationProbe,
+  probeHashHit,
+} from "./demo-index/common.mjs";
+import { parseCitation } from "../src/demo/cite-patterns.ts";
+import { maskProtectedSpans } from "../src/demo/nation-mask.ts";
+import { personalPatternHits } from "../src/demo/personal-guard.ts";
+
+export const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+export const ALIAS_PATH = join(REPO, "config", "law-aliases.v1.json");
+export const VOCAB_DIR = join(REPO, "docs", "demo-data", "vocab");
+const SCHEMA_PATH = join(REPO, "schemas", "law-aliases.schema.v1.json");
+
+/** Index conditions E2 and E3. */
+export const LIMITS = Object.freeze({
+  aliasBytes: 128 * 1024,
+  aliasEntries: 400,
+  vocabFileBytes: 512 * 1024,
+  vocabTotalBytes: 1024 * 1024,
+  vocabTotalGzipBytes: 400 * 1000,
+});
+
+let validate;
+function schemaValidator() {
+  validate ??= new Ajv2020({ strict: true, allErrors: true }).compile(
+    JSON.parse(readFileSync(SCHEMA_PATH, "utf8")),
+  );
+  return validate;
+}
+
+function* strings(value, path = "") {
+  if (typeof value === "string") yield [path, value];
+  else if (Array.isArray(value))
+    for (const [i, v] of value.entries()) yield* strings(v, `${path}[${i}]`);
+  else if (value && typeof value === "object")
+    for (const [k, v] of Object.entries(value)) {
+      yield [`${path}.${k}#key`, k];
+      yield* strings(v, `${path}.${k}`);
+    }
+}
+
+/**
+ * Official law titles whose words "Community" or "Indian Tribes" trip the
+ * structural Nation-name mask while naming no Nation (owner direction
+ * 2026-11-05: integrate these through a closed exact-title list). Each maps to
+ * the exact span texts the mask produces. The exception holds only for a
+ * popularName equal byte for byte to a key whose spans equal that list, and
+ * exact-name probes still run, so no other string can pass this way. A title
+ * is added only after a person reads it on its OLRC page.
+ */
+const ANCHOR_WORD_SPANS = Object.freeze({
+  __proto__: null,
+  "Community Services Block Grant Act": Object.freeze(["Community"]),
+  "Emergency Planning and Community Right-To-Know Act of 1986": Object.freeze([
+    "Community",
+  ]),
+  "Housing and Community Development Act of 1974": Object.freeze(["Community"]),
+  "Indian Community Economic Enhancement Act of 2020": Object.freeze([
+    "Indian Community",
+  ]),
+  "PROGRESS for Indian Tribes Act": Object.freeze(["Indian Tribes"]),
+});
+/** The listed titles, read-only (tests pin them). */
+export const ANCHOR_WORD_TITLES = Object.freeze(Object.keys(ANCHOR_WORD_SPANS));
+
+const POPULAR_NAME_PATH = /^\.entries\[\d+\]\.popularName$/;
+
+function structuralSpanTexts(text) {
+  return maskProtectedSpans(text)
+    .spans.filter((s) => s.kind === "nation_name")
+    .map((s) => text.slice(s.start, s.end));
+}
+
+const fold = (s) => s.normalize("NFC").replace(/\s+/g, " ").toLowerCase();
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** Exact-name hits, run on their own so no exception can cover one. */
+function exactNameHit(text, names) {
+  const folded = fold(text);
+  return names.some((name) => {
+    const n = fold(name).trim();
+    return (
+      n.length > 0 &&
+      new RegExp(
+        `(?<![\\p{L}\\p{N}])${escapeRe(n)}(?![\\p{L}\\p{N}])`,
+        "u",
+      ).test(folded)
+    );
+  });
+}
+
+/**
+ * Personal-pattern and Nation-name hits in one string (conditions G1, G3).
+ * `path` is the JSON path of the string. Exact names are checked first with
+ * no exception; then the structural mask, where only a popularName equal to a
+ * listed title may carry exactly its listed spans.
+ */
+export function stringProblems(text, names = [], path = "") {
+  const problems = [];
+  if (personalPatternHits(text).length) problems.push("personal pattern");
+  const pinned =
+    POPULAR_NAME_PATH.test(path) && Object.hasOwn(ANCHOR_WORD_SPANS, text)
+      ? ANCHOR_WORD_SPANS[text]
+      : undefined;
+  const found = structuralSpanTexts(text);
+  const reviewed =
+    pinned !== undefined && JSON.stringify(found) === JSON.stringify(pinned);
+  if (
+    exactNameHit(text, names) ||
+    (found.length && !reviewed) ||
+    (!reviewed &&
+      maskProtectedSpans(text, { names }).spans.some(
+        (s) => s.kind === "nation_name",
+      ))
+  )
+    problems.push("Nation name shape");
+  return problems;
+}
+
+/**
+ * Every problem with the alias table text; [] when it passes. `names` adds
+ * exact names to the structural Nation-name mask (tests pass the probes).
+ */
+export function aliasProblems(text, { names = [] } = {}) {
+  const problems = [];
+  const bytes = Buffer.byteLength(text, "utf8");
+  if (bytes > LIMITS.aliasBytes)
+    problems.push(
+      `alias table is ${bytes} bytes; the cap is ${LIMITS.aliasBytes}`,
+    );
+  let file;
+  try {
+    file = JSON.parse(text);
+  } catch (error) {
+    return [...problems, `alias table is not JSON: ${error.message}`];
+  }
+  const check = schemaValidator();
+  if (!check(file))
+    for (const e of check.errors ?? [])
+      problems.push(`schema: ${e.instancePath || "/"} ${e.message}`);
+  const entries = Array.isArray(file?.entries) ? file.entries : [];
+  if (entries.length > LIMITS.aliasEntries)
+    problems.push(
+      `${entries.length} entries; the cap is ${LIMITS.aliasEntries}`,
+    );
+  for (let i = 1; i < entries.length; i += 1)
+    if (
+      compareCodeUnits(entries[i - 1]?.popularName, entries[i]?.popularName) >=
+      0
+    )
+      problems.push(
+        `entries[${i}] is out of popularName order or repeats a name`,
+      );
+  for (const [i, entry] of entries.entries()) {
+    for (const [j, c] of (entry?.citations ?? []).entries()) {
+      const parsed = typeof c?.text === "string" ? parseCitation(c.text) : null;
+      if (
+        !parsed ||
+        parsed.kind !== "usc" ||
+        parsed.title !== c.title ||
+        parsed.section !== c.section ||
+        parsed.etSeq !== c.etSeq ||
+        Boolean(parsed.note) !== Boolean(c.note) ||
+        parsed.pattern.id !== c.pattern?.id ||
+        parsed.pattern.version !== c.pattern?.version
+      )
+        problems.push(
+          `entries[${i}].citations[${j}] does not parse as its fields say`,
+        );
+    }
+    // Each acronym once per entry, printed in its official wording as given.
+    const seen = new Set();
+    for (const [j, a] of (entry?.acronyms ?? []).entries()) {
+      const acronym = String(a?.acronym ?? "");
+      if (seen.has(acronym))
+        problems.push(`entries[${i}].acronyms[${j}] repeats ${acronym}`);
+      seen.add(acronym);
+      const word = new RegExp(
+        `(?<![\\p{L}\\p{N}])${escapeRe(acronym)}(?![\\p{L}\\p{N}])`,
+        "u",
+      );
+      if (!word.test(String(a?.text ?? "")))
+        problems.push(
+          `entries[${i}].acronyms[${j}] is not in its official wording`,
+        );
+    }
+  }
+  for (const [path, value] of strings(file))
+    for (const p of stringProblems(value, names, path))
+      problems.push(`${path || "/"}: ${p}`);
+  return problems;
+}
+
+/** Raw and gzip size of the vocabulary files plus the alias table (condition E2). */
+export function vocabularyCeiling(
+  vocabDir = VOCAB_DIR,
+  aliasPath = ALIAS_PATH,
+) {
+  const problems = [];
+  const files = existsSync(vocabDir)
+    ? readdirSync(vocabDir)
+        .filter((n) => n.endsWith(".json"))
+        .sort(compareCodeUnits)
+        .map((n) => join(vocabDir, n))
+    : [];
+  let rawBytes = 0;
+  let gzipBytes = 0;
+  for (const path of [...files, aliasPath]) {
+    const bytes = readFileSync(path);
+    if (path !== aliasPath && bytes.length > LIMITS.vocabFileBytes)
+      problems.push(
+        `${relative(REPO, path)} is ${bytes.length} bytes; the cap is ${LIMITS.vocabFileBytes}`,
+      );
+    rawBytes += bytes.length;
+    gzipBytes += gzipSync(bytes, { level: 9 }).length;
+  }
+  if (rawBytes > LIMITS.vocabTotalBytes)
+    problems.push(
+      `vocabulary is ${rawBytes} bytes raw; the cap is ${LIMITS.vocabTotalBytes}`,
+    );
+  if (gzipBytes > LIMITS.vocabTotalGzipBytes)
+    problems.push(
+      `vocabulary is ${gzipBytes} bytes gzipped; the cap is ${LIMITS.vocabTotalGzipBytes}`,
+    );
+  return { files: files.length, rawBytes, gzipBytes, problems };
+}
+
+export function entriesDigest(entries) {
+  return createHash("sha256")
+    .update(canonicalJson(entries), "utf8")
+    .digest("hex");
+}
+
+/** The owner's review packet: each entry, the count and the SHA-256 of the canonical entries. */
+export function reviewPacket(file) {
+  const entries = file.entries ?? [];
+  const lines = [
+    "# Law alias table: review packet",
+    "",
+    `Entries: ${entries.length}`,
+    `SHA-256 of the canonical entries: ${entriesDigest(entries)}`,
+    "",
+    "Approve each entry only after reading its OLRC page. No entry may name a Nation.",
+    "",
+  ];
+  for (const e of entries) {
+    lines.push(
+      `- ${e.popularName}: ${e.citations.map((c) => c.text).join("; ")}`,
+    );
+    lines.push(`  ${e.olrcUrl} (read ${e.reviewedOn} by ${e.reviewerRole})`);
+  }
+  return `${lines.join("\n")}\n`;
+}
+
+export function insideRepo(path) {
+  const rel = relative(REPO, resolve(path));
+  return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
+}
+
+export function writeReviewPacket(path, file) {
+  if (insideRepo(path))
+    throw new Error("The review packet goes outside the repository.");
+  writeFileSync(path, reviewPacket(file), "utf8");
+}
+
+function main(argv) {
+  const arg = (name) => {
+    const i = argv.indexOf(name);
+    return i >= 0 ? argv[i + 1] : undefined;
+  };
+  const aliasPath = resolve(arg("--aliases") ?? ALIAS_PATH);
+  const vocabDir = resolve(arg("--vocab-dir") ?? VOCAB_DIR);
+  const packet = arg("--review-packet");
+  const text = readFileSync(aliasPath, "utf8");
+  const ceiling = vocabularyCeiling(vocabDir, aliasPath);
+  const probe = loadNationProbe({
+    namesPath:
+      arg("--nation-names") ?? (process.env.DEMO_NATION_NAMES || undefined),
+    hashPath: arg("--nation-hashes"),
+  });
+  const file = JSON.parse(text);
+  const problems = [
+    ...aliasProblems(text, { names: probe.names }),
+    ...ceiling.problems,
+  ];
+  for (const [path, value] of strings(file))
+    if (probeHashHit(value, probe))
+      problems.push(`${path}: Nation-name probe hit (G3)`);
+  if (file.entries?.length && !isFullProbe(probe))
+    problems.push(
+      `the Nation-name probes hold ${probe.entryCount ?? 0} entries, not the full list of ${FULL_PROBE_ENTRIES} (G3)`,
+    );
+  console.log(
+    `aliases ${file.entries?.length ?? 0} entries; vocabulary ${ceiling.files} files, ${ceiling.rawBytes} bytes raw, ${ceiling.gzipBytes} gzipped; Nation-name probes: ${probe.source}`,
+  );
+  if (problems.length) {
+    for (const p of problems) console.error(p);
+    return 1;
+  }
+  if (packet) {
+    writeReviewPacket(packet, JSON.parse(text));
+    console.log(`review packet written to ${packet}`);
+  }
+  return 0;
+}
+
+if (
+  process.argv[1] &&
+  resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+)
+  process.exitCode = main(process.argv.slice(2));

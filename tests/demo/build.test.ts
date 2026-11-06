@@ -1,7 +1,9 @@
 // @vitest-environment node
 import {
+  existsSync,
   mkdtempSync,
   mkdirSync,
+  readFileSync,
   writeFileSync,
   rmSync,
   symlinkSync,
@@ -9,8 +11,26 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-// @ts-expect-error build script has no declaration file
-import { scanDemoOutput } from "../../scripts/finish-demo-build.mjs";
+import {
+  finishDemoBuild,
+  scanDemoOutput,
+  // @ts-expect-error build script has no declaration file
+} from "../../scripts/finish-demo-build.mjs";
+import {
+  hashedProbe,
+  loadProbeNames,
+  probeHashFile,
+} from "../../scripts/demo-index/common.mjs";
+import {
+  fullProbeNames,
+  nationNameProbes,
+} from "../support/nation-name-probes";
+import {
+  cfrShard,
+  vocabFile,
+  writeIndex,
+  type FixtureFile,
+} from "./fixtures/demo-index/build-index";
 
 const roots: string[] = [];
 function fixture() {
@@ -141,6 +161,131 @@ describe("generated demo boundary", () => {
       writeFileSync(join(root, "demo-assets", name), bytes);
       expect(() => scanDemoOutput(root), name).toThrow(/unexpected asset type/);
     }
+  });
+  describe("static index under demo-data (K1, K5)", () => {
+    const shard = () => ({ path: "cfr/title-25.json", value: cfrShard() });
+    const indexed = (
+      files: FixtureFile[],
+      tweak?: Parameters<typeof writeIndex>[2],
+    ) => {
+      const root = fixture();
+      writeIndex(join(root, "demo-data"), files, tweak);
+      return root;
+    };
+    // A full list given as hashes only (decision 10).
+    const names = fullProbeNames();
+    const probe = hashedProbe(probeHashFile(names, names.length), "synthetic");
+    it("accepts a manifested shard and counts the index files", () => {
+      expect(scanDemoOutput(indexed([shard()]), { probe })).toEqual({
+        generatedFiles: 4,
+      });
+    });
+    it("refuses index files when the Nation-name probe is short (G3)", () => {
+      const short = loadProbeNames();
+      expect(() =>
+        scanDemoOutput(indexed([shard()]), { probe: short }),
+      ).toThrow(
+        /1 index files present, but the Nation-name probes hold \d+ entries, not the full list of 575 \(G3\)/,
+      );
+      expect(scanDemoOutput(indexed([]), { probe: short })).toEqual({
+        generatedFiles: 3,
+      });
+    });
+    it("refuses an unmanifested shard", () => {
+      const root = indexed([]);
+      writeFileSync(join(root, "demo-data", "cfr-title-99.json"), "{}");
+      expect(() => scanDemoOutput(root)).toThrow(/demo index invalid/);
+      const listedNot = indexed([]);
+      mkdirSync(join(listedNot, "demo-data", "cfr"));
+      writeFileSync(join(listedNot, "demo-data", "cfr", "title-25.json"), "{}");
+      expect(() => scanDemoOutput(listedNot)).toThrow(
+        /not listed in the manifest/,
+      );
+    });
+    it("refuses a hash mismatch", () => {
+      const root = indexed([{ ...shard(), entry: { sha256: "e".repeat(64) } }]);
+      expect(() => scanDemoOutput(root)).toThrow(/hash mismatch/);
+    });
+    it("refuses a raw XML string", () => {
+      const value = cfrShard();
+      value.entries[0].authorityText = "<AUTH><P>5 U.S.C. 301.</P></AUTH>";
+      expect(() =>
+        scanDemoOutput(indexed([{ path: "cfr/title-25.json", value }])),
+      ).toThrow(/demo index invalid/);
+    });
+    it("refuses an oversize file", () => {
+      const value = vocabFile();
+      value.entries = Array.from({ length: 3000 }, (_, i) => ({
+        id: `agency-${String(i).padStart(5, "0")}`,
+        label: `Synthetic agency ${"x".repeat(170)} ${i}`,
+        shortLabel: null,
+        parentId: null,
+      }));
+      const root = indexed([{ path: "vocab/fr-agencies.json", value }]);
+      expect(() => scanDemoOutput(root)).toThrow(/over 512 KiB/);
+    });
+    it("refuses a Nation-name probe", () => {
+      const value = vocabFile();
+      value.entries[0].label = nationNameProbes().find((p) => p.length <= 200)!;
+      const root = indexed([{ path: "vocab/fr-agencies.json", value }]);
+      expect(() => scanDemoOutput(root, { probe })).toThrow(
+        /Nation-name probe hit/,
+      );
+    });
+    it("refuses a stale manifest from 2027 and accepts an acknowledged one", () => {
+      const stale = (ack: string | null) =>
+        indexed([{ ...shard(), entry: { staleAcknowledgedOn: ack } }], (m) => {
+          m.files[0].source!.retrievedAt = "2026-05-01T00:00:00Z";
+        });
+      const now = new Date("2027-03-01T00:00:00Z");
+      expect(() => scanDemoOutput(stale(null), { now })).toThrow(
+        /older than 180 days/,
+      );
+      expect(scanDemoOutput(stale("2027-02-28"), { now, probe })).toEqual({
+        generatedFiles: 4,
+      });
+    });
+    it("applies the forbidden list to every index file", () => {
+      const root = indexed([shard()]);
+      const file = join(root, "demo-data", "cfr", "title-25.json");
+      writeFileSync(file, "//# sourceMappingURL=x.map");
+      expect(() => scanDemoOutput(root)).toThrow(/demo build refused/);
+    });
+    it("applies the forbidden list to the manifest (G7)", () => {
+      const root = indexed([shard()], (m) => {
+        m.files[0].source!.rights.statementText = "See C:/Users/Example/notes";
+      });
+      expect(() => scanDemoOutput(root, { probe })).toThrow(
+        /manifest\.json: prohibited content \(G7\)/,
+      );
+    });
+    it("refuses an index directory reached through a link", () => {
+      const root = fixture();
+      const outside = join(root, "outside-index");
+      writeIndex(outside, []);
+      symlinkSync(outside, join(root, "demo-data"), "junction");
+      expect(() => scanDemoOutput(root)).toThrow(/linked index directory/);
+    });
+  });
+  it("finishes the build by laying the third-party notices into the Pages folder (T1.8)", () => {
+    const repo = mkdtempSync(join(tmpdir(), "ps-demo-finish-"));
+    roots.push(repo);
+    const docs = join(repo, "docs");
+    mkdirSync(join(docs, "demo-assets"), { recursive: true });
+    writeFileSync(join(docs, "index.html"), "<p>synthetic</p>");
+    writeFileSync(join(docs, "demo-assets", "app.js"), "export {};");
+    const notices = "# Third-party notices\r\n\r\nSynthetic, MIT\n";
+    writeFileSync(join(repo, "THIRD-PARTY-NOTICES.md"), notices);
+    expect(finishDemoBuild(repo)).toEqual({ generatedFiles: 2 });
+    expect(readFileSync(join(docs, "THIRD-PARTY-NOTICES.txt"), "utf8")).toBe(
+      notices,
+    );
+    expect(existsSync(join(docs, ".nojekyll"))).toBe(true);
+    const missing = mkdtempSync(join(tmpdir(), "ps-demo-finish-"));
+    roots.push(missing);
+    mkdirSync(join(missing, "docs", "demo-assets"), { recursive: true });
+    writeFileSync(join(missing, "docs", "index.html"), "");
+    expect(() => finishDemoBuild(missing)).toThrow();
   });
   it("refuses fonts reached through a link", () => {
     const root = fixture();

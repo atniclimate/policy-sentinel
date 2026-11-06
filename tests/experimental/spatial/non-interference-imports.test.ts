@@ -874,6 +874,8 @@ describe("S0 import and reverse-dependency non-interference", () => {
       (filePath) => extname(filePath).toLowerCase() === ".json",
     );
     expect(configFiles.map(repositoryPath)).toEqual([
+      "config/law-aliases.v1.json",
+      "config/plain-phrases.v1.json",
       "config/sources.v1.json",
       "config/taxonomy.v1.json",
     ]);

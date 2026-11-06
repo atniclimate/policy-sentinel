@@ -10,12 +10,12 @@ The end goal: a staff member opens one page and searches official federal and st
 
 The tool never says what a policy legally means for a Nation, never links a record to a Nation without exact official evidence, and keeps nothing about its users.
 
-Coverage grows one source at a time, federal first. Nationwide coverage stays the owner's stated direction (2026-09-22); `docs/PLAN.md` sets the order. Proposed meaning of a first real release (the owner confirms it): a Tribal policy staff member who is not the owner completes a real task on the public tool without help and states correctly what the result does and does not establish, every source the page calls live has been checked against the real service, and the page says plainly what it does not cover.
+Coverage grows one source at a time, federal first. Nationwide coverage stays the owner's stated direction (2026-09-22); `docs/PLAN.md` sets the order. Proposed meaning of a first real release, the 1.0 test under D-120 and design T1.7 (the owner confirms it): a Tribal policy staff member who is not the owner completes a real task on the public tool without help and states correctly what the result does and does not establish, every source the page calls live has been checked against the real service, and the page says plainly what it does not cover.
 
 ## Where to look first
 
 1. [`docs/STATUS.md`](docs/STATUS.md): the current state, what is live, the next step, the open owner decisions. One page, overwritten each session.
-2. [`docs/PLAN.md`](docs/PLAN.md): the milestones with their acceptance checks, what needs the owner, what is deferred.
+2. [`docs/PLAN.md`](docs/PLAN.md): the milestones with their acceptance checks, what needs the owner, what is deferred, and the current build design. That design's rules section binds every feature of the build.
 3. Then only the code and documents the task touches. [`docs/DEMO-STATUS.md`](docs/DEMO-STATUS.md) covers the live demo, [`docs/decision-register.md`](docs/decision-register.md) holds the owner's rulings in order, and [`docs/PROJECT-BACKBONE.md`](docs/PROJECT-BACKBONE.md) indexes everything else.
 
 `ROADMAP.yaml`, its validators, the operating model and the older handoffs are retained record. They stay unchanged and are still validated mechanically, but they are not the working plan. Do not edit `ROADMAP.yaml`. Read the record for a specific fact, never as a start-up routine. Whether to archive it is an owner decision listed in `docs/STATUS.md`.
@@ -85,7 +85,7 @@ These do not change with process. An owner direction about how to work relaxes n
 
 ## What needs the owner
 
-Everything listed in safeguard 6, plus private or Nation-specific material and any definition of done. The specific pending approvals are in `docs/PLAN.md`; the open decisions are in `docs/STATUS.md`.
+Everything listed in safeguard 6, plus private or Nation-specific material and any definition of done. The open owner decisions and pending approvals are listed once, numbered, in `docs/STATUS.md`. Other files refer to them by name, not number.
 
 - Read an owner direction for its evident purpose, not its narrowest wording. "Run probes" means run probes, within the bounds the owner set.
 - Ask only for real outside actions, batched as yes or no questions. Do not reopen a general product interview. Record a source-specific block and continue other work.
@@ -95,14 +95,14 @@ Everything listed in safeguard 6, plus private or Nation-specific material and a
 
 Do the smallest task that satisfies the request, and preserve unrelated and concurrent changes. This method replaces the earlier read order, leases, per-checkpoint ledger entries and standing-check rituals.
 
-- Start in minutes: this file, `docs/STATUS.md`, `git status` and the last ten commits, then only the code the task touches. No validators before an edit, no full roadmap read.
+- Start in minutes: this file, `docs/STATUS.md`, `git status --short` and `git log --oneline -10`, then only the code the task touches. If the checkout does not match `docs/STATUS.md`, say so first. Once a static index is published, also run `npm run check:freshness` (D-125); it reports, changes nothing, and its requests count against the call budget. No other validator before an edit, no full roadmap read.
 - Plan once, in one short spec: what a person will see, files by lane, two to four checks that prove it, the live-call budget, and what needs the owner. Run parallel lanes (subagents or workflows) when their files are disjoint.
 - Test what branches: parsers, merging, privacy filters, exports, plus one regression test for each real defect. Run focused tests while editing. Run the type check, lint and the source-boundary scan before a commit. A contract or taxonomy change also needs `npm test`.
 - Verify against the real thing. Anything that parses an outside service gets one bounded live call before it is called done, and any interface is looked at in a browser. State the call budget first, do not retry, never provoke a rate limit. Keep the trimmed response shape as the test fixture.
 - Run the full check (`npm run check`) once, before anything is published or deployed. It must pass, the affected interface must work by keyboard with no automated accessibility violation, and the artifact must hold no secrets, private data, land fields or raw corpora.
-- Review once per coherent change, at the risk boundary: before anything public, and for identity, geography, private context or a new source's terms. No review for refactors or records.
-- Record little. Overwrite `docs/STATUS.md` at the end of a session. One decision-register row per owner decision, at most 60 words: date, the owner's words, a one-line reading. One short note per source. A handoff file only when work spans sessions.
-- Report in five lines: what a person can now do, how it was checked, what is not done, what needs the owner, the link.
+- Review once per coherent change, at the risk boundary: before anything public, and for identity, geography, private context or a new source's terms. A blocking finding's fix gets its regression test and a narrow recheck, not a new full review. No review for refactors or records.
+- Record little. Overwrite `docs/STATUS.md` at the end of a session. One decision-register row per owner decision, at most 60 words: date, the owner's words, a one-line reading. One short note per source. A handoff file only when work spans sessions; it lives outside the repository, and `docs/STATUS.md` names its path and the build ledger's.
+- Report in five lines: what a person can now do, how it was checked, what is not done, what needs the owner, the link or evidence path. Pair every ID with its plain-language name. Plain ASCII, no em dashes.
 
 ## Commands
 
@@ -122,6 +122,7 @@ npm run validate:backbone
 npm run validate:knowledge
 npm run hooks:test
 npm run test:spine        # synthetic corpus spine
+npm run check:freshness   # index refresh report at session start once an index is published (D-125); live calls
 npm run demo:dev          # the demo page locally
 npm run demo:build        # builds docs/index.html and docs/demo-assets/
 npm run demo:worker:dev   # local Worker on http://127.0.0.1:8787

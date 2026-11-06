@@ -7,6 +7,11 @@ compatibility_flags = ["nodejs_compat"]
 [observability]
 enabled = false
 
+# The deployed version's id scopes every cache entry (worker/src/cache.ts), so a
+# deploy never serves an answer cached under an older guard.
+[version_metadata]
+binding = "CF_VERSION_METADATA"
+
 # The binding and temporary in-memory fallback use the connecting address to limit requests.
 [[ratelimits]]
 name = "RATE"
@@ -24,4 +29,4 @@ namespace_id = "7302"
   period = 60
 
 # Secrets (never in this file). Add with:
-#   npx wrangler secret put DATA_GOV_API_KEY --config worker/wrangler.toml
+#   npx wrangler@4.151.3 secret put DATA_GOV_API_KEY --config worker/wrangler.toml

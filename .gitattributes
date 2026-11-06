@@ -1,2 +1,6 @@
 # Digest-bound synthetic Washington LWS XML must retain canonical LF bytes.
 fixtures/sources/washington-lws/*.xml text eol=lf
+# The static demo index is hashed byte for byte (canonical JSON, LF); never convert it.
+docs/demo-data/** -text
+# Trimmed official XML parser inputs for the index build keep their LF bytes.
+tests/demo/fixtures/demo-index/*.xml text eol=lf

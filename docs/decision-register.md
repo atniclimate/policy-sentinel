@@ -26,7 +26,7 @@ the separate non-PS09 Makah demo track under D-068 and D-069. Dated source
 evidence and earlier decisions retain their recorded review dates and scope;
 the explicit supersessions below control current product-wide interpretation.
 
-## Current phase authorization
+## Phase authorization of 2026-09 (retained record)
 
 The owner approved Gate G-A on 2026-07-30 for the retained B1-B10 stream in
 `docs/mvp-plan.md`. Later exact owner
@@ -265,6 +265,14 @@ session 1; the ruling date is the decision date.
 | D-123 | **Owner direction 2026-11-05 (program account keys).** "once at pre-release we will update keys to use climate@atnitribes.org which is a non-personal account for our program". Reads as: before the 0.9 pre-release, service keys move to the ATNI Climate program account, following `docs/KEYS-AND-ACCESS.md`. |
 | D-124 | **Owner answers 2026-11-05 (Full 0.9 gates).** "c" (answer every gate now); committees: "a good pilot, and also ... Natural Resources Committee and Energy Committe"; "we can ... do bulk approvals"; acceptance "A". Reads as: the gate answers in the Full 0.9 design draft 4, section 5; three committee pilots approved in bulk; the owner walks the staff tasks. |
 | D-125 | **Owner direction 2026-11-05 (static indexes).** "Approve"; for the CFR chain "A" (GovInfo annual edition, eCFR as reference and greater context); build key "B"; staleness "begin Jan 01, 2027"; triggers "A". Reads as: N18 on the conditions in `docs/development/full09-index-conditions-2026-11-05.md`; current key at build time until D-123; freshness check at session start. |
+| D-126 | **Owner direction 2026-11-05 (alias review).** "Utilize Jev and a /codex-adversary to review and verify the candidates"; flagged rows: "generalizing name or omitting"; "utilize Jev to identify the best way to integrate" the five mask hits. Reads as: model checks only order the review (rule 8); the five titles pass a closed exact-title list. |
+| D-127 | **Owner answers 2026-11-06 (alias evidence).** "use jev and a /codex-adversary to pre-determine from the pages what is most likely and can be approved in bulk"; then "a", "a", "a", "a". Reads as: after the OLRC terms reading, a raw fetch per alias page, code check, Jev and Codex sorting, owner bulk approval; note locators; enacted titles labeled. |
+| D-128 | **Owner answer 2026-11-06 (names in law titles).** "a, names of laws and decisions are important as this is how they are often searched for"; then "a". Reads as: an official popular name or short title that names a person may enter the alias table verbatim, in `popularName` only; design rule 7 is otherwise unchanged. |
+| D-129 | **Owner answer 2026-11-06 (case names).** "a". Reads as: Supreme Court case names are shown verbatim from the official source; lower-court captions that may name a private person stay withheld; institution names joined by "and" are shown. |
+| D-130 | **Owner answers 2026-11-06 (search).** Acronyms "a and b" (CFR scan, then Federal Register searches; that budget rises from 10 to 50); typo pass "a + b integration and improvement" (uFuzzy as filter, own rules decide); summaries "a"; phrase table "a". Reads as: Wave 2b scope; source summaries per source after its terms check. |
+| D-131 | **Owner answer 2026-11-06 (phrase approval).** "a, but use jev and /codex-adversary to automate the approval", then "a" after the safeguard was explained. Reads as: model-drafted plain phrases are screened by Jev and Codex, failures struck by code, and each kept row approved by the owner; approval is not automated (safeguard 2, design rule 8). |
+| D-132 | **Owner answers 2026-11-06 (probes, tests, relations, order).** "b"; "a"; "a + b, use jev for best fit"; "a". Reads as: hashed Nation-name probes committed, plain list kept by the owner; the S0 test lists new config files; relation names shown only from an owner-approved list; Waves 2b and 3 in parallel. |
+| D-133 | **Owner answers 2026-11-06 (publish 0.9.1 demo update).** Relation names: "All 11". Earlier the same day: "make commits and push to GitHub and pages with full authorization to merge, push, etc." Reads as: the eleven-name list in `src/demo/relation-names.ts` is approved; this session may open and merge the pull request, deploy the Worker and publish Pages. |
 
 ## Open implementation facts
 

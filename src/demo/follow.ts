@@ -5,19 +5,27 @@
  * exact identifier lookups Find related already uses, in the source that stated
  * each identifier. Everything here is pure; the page owns storage and requests.
  */
-import { laneKeep, lookupReady, recordPlan } from "./discovery";
-import type { Lane, PlanDates } from "./discovery";
+import { docketFromPackageId } from "./courts";
+import { buildPlan, laneKeep, lookupReady, recordPlan } from "./discovery";
+import type { Lane, Plan, PlanDates } from "./discovery";
 import type { DemoCitation, DemoSearchResponse } from "./types";
+import { localDay } from "./local-day";
 import { citationValue, keyOf, object, text } from "./validation";
 
 export const FOLLOW_KEY = "ps-demo-following-v1";
-export const FOLLOW_VERSION = 1;
+/**
+ * 2 opts in to new follow kinds (T1.6); the stored and exported shape of
+ * today's three kinds is unchanged, so a version 1 list or file migrates
+ * losslessly and re-exports as version 2 with the same items and
+ * last-checked dates.
+ */
+export const FOLLOW_VERSION = 2;
 export const MAX_FOLLOWED = 50;
 /** Far above 50 items with their records; a larger file is refused unread. */
 export const MAX_FOLLOW_FILE = 1_000_000;
 
-export type FollowKind = "docket" | "rin" | "document";
-const KINDS: readonly FollowKind[] = ["docket", "rin", "document"];
+const KINDS = ["docket", "rin", "document", "case"] as const;
+export type FollowKind = (typeof KINDS)[number];
 const FIELDS = [
   "id",
   "sourceId",
@@ -55,9 +63,29 @@ export function followLookups(
   item: Pick<Followed, "kind" | "value" | "record">,
 ): Lane[] {
   const { sourceId } = item.record;
-  const plan = recordPlan(item.record, { federal: [], live: [sourceId] });
+  const sources = { federal: [], live: [sourceId] };
+  let plan: Plan;
+  if (item.kind === "case") {
+    // One court lookup by the court and docket the package id names.
+    const docket = docketFromPackageId(item.value);
+    if (!docket || item.record.packageId !== item.value) return [];
+    plan = buildPlan(
+      { kind: "record", sourceId, identifier: item.record.identifier },
+      [
+        {
+          group: "related",
+          source: sourceId,
+          query: `${docket.court} ${docket.docketNumber}`,
+          auto: true,
+          lookup: "court_docket",
+        },
+      ],
+      sources,
+    );
+  } else plan = recordPlan(item.record, sources);
   return plan.lanes.filter((lane) => {
     if (lane.skip) return false;
+    if (item.kind === "case") return lookupReady(plan, lane);
     if (item.kind !== "document")
       if (lane.match !== item.kind || lane.query !== item.value) return false;
     return lookupReady(plan, lane);
@@ -120,7 +148,11 @@ function followedValue(value: unknown): Followed {
   const listed =
     kind === "document"
       ? record.identifier === stated
-      : (kind === "docket" ? record.docketIds : record.rins)?.includes(stated);
+      : kind === "case"
+        ? record.packageId === stated
+        : (kind === "docket" ? record.docketIds : record.rins)?.includes(
+            stated,
+          );
   if (
     v.sourceId !== record.sourceId ||
     !listed ||
@@ -146,12 +178,17 @@ export function serializeFollows(list: readonly Followed[]): string {
   return JSON.stringify({ version: FOLLOW_VERSION, followed: list }, null, 2);
 }
 
-/** Throws on an unknown file shape; reports items that did not validate. */
+/**
+ * Throws on an unknown file shape; reports items that did not validate. A
+ * version 1 list (today's three kinds, the only ones a v1 writer could ever
+ * have stored) reads exactly like version 2: migration is a version bump
+ * alone, lossless, with the same items and last-checked dates.
+ */
 function readFollows(raw: string): { list: Followed[]; damaged: boolean } {
   if (raw.length > MAX_FOLLOW_FILE) throw new Error("Followed list too large");
   const saved = object(JSON.parse(raw));
   if (
-    saved.version !== FOLLOW_VERSION ||
+    (saved.version !== 1 && saved.version !== FOLLOW_VERSION) ||
     !Array.isArray(saved.followed) ||
     Object.keys(saved).length !== 2
   )
@@ -248,23 +285,7 @@ export function checkBatch(
 /** Sources whose lookups take a publication or posted date range. */
 const DATED = new Set(["federal-register", "regulations"]);
 
-/**
- * The calendar day for an instant as YYYY-MM-DD, in the reader's zone unless one
- * is named; stored times stay UTC.
- */
-export function localDay(value: string | Date, timeZone?: string): string {
-  const parts = Object.fromEntries(
-    new Intl.DateTimeFormat("en-US", {
-      timeZone,
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    })
-      .formatToParts(new Date(value))
-      .map((part) => [part.type, part.value]),
-  );
-  return `${parts.year}-${parts.month}-${parts.day}`;
-}
+export { localDay };
 
 /** The day new documents are counted from: the last check, or the day it was followed. */
 export function sinceDay(item: Followed, now: Date): string {
@@ -330,7 +351,15 @@ export function settleCheck(
   if (answers.length !== lanes.length)
     throw new Error("Each lookup needs one answer");
   const since = sinceDay(item, now);
-  const seen = new Set([keyOf(item.record)]);
+  // A case is its own package listed again, new when its lastModified moved past the last check.
+  const versioned = item.kind === "case";
+  // The exact instant, not the day: GovInfo's lastModified is a timestamp, not an official date.
+  const stamp = (v: string | null | undefined) =>
+    typeof v === "string" && /^\d{4}-\d{2}-\d{2}T/.test(v)
+      ? Date.parse(v)
+      : NaN;
+  const baseline = stamp(item.lastChecked ?? item.followedAt);
+  const seen = new Set(versioned ? [] : [keyOf(item.record)]);
   const fresh: DemoCitation[] = [];
   let undated = 0;
   let more = false;
@@ -341,8 +370,14 @@ export function settleCheck(
     for (const listing of answer.response.results) {
       if (!keep(listing) || seen.has(keyOf(listing))) continue;
       seen.add(keyOf(listing));
-      if (listing.date === null) undated++;
-      else if (listing.date >= since) fresh.push(listing);
+      const key = versioned
+        ? Number.isFinite(stamp(listing.lastModified))
+          ? (listing.lastModified ?? null)
+          : null
+        : listing.date;
+      if (key === null) undated++;
+      else if (versioned ? stamp(key) > baseline : key >= since)
+        fresh.push(listing);
     }
   });
   return {

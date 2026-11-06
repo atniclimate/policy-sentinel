@@ -380,7 +380,7 @@ looks up the same docket, RIN or CFR part. See
 npm run demo:build                # builds docs/index.html and docs/demo-assets/
 npm run demo:worker:dev           # local Worker on http://127.0.0.1:8787
 npm run demo:worker:deploy        # deploys policy-sentinel-demo
-npx wrangler secret put DATA_GOV_API_KEY --config worker/wrangler.toml
+npx wrangler@4.151.3 secret put DATA_GOV_API_KEY --config worker/wrangler.toml
 node scripts/verify-demo-browser.mjs --url https://atniclimate.github.io/policy-sentinel/ --out <folder>
 ```
 

@@ -1,9 +1,49 @@
 import { render } from "preact";
 import type { RefObject } from "preact";
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
-import { buildCalendar, calendarRows } from "../src/demo/calendar";
+import MANIFEST_JSON from "../docs/demo-data/manifest.json";
+import { calendarRows } from "../src/demo/calendar";
 import { SOURCE_LABELS } from "../src/demo/citations";
 import { COPY, EXAMPLES, namesItsKind } from "../src/demo/copy";
+import { courts as COURTS } from "../src/demo/copy/courts";
+import { privacy } from "../src/demo/copy/privacy";
+import { router as ROUTER } from "../src/demo/copy/router";
+import { sourceModel } from "../src/demo/copy/sources";
+import { caseRowText } from "../src/demo/courts";
+import { findCitations } from "../src/demo/cite-patterns";
+import { chain as CHAIN } from "../src/demo/copy/chain";
+import { trackingState } from "../src/demo/document";
+import type { BriefingCheck, DocEntry } from "../src/demo/document";
+import type { GrantsDetailResponse } from "../src/demo/grants-authority";
+import { createIndexLoader, shardNotice } from "../src/demo/index-loader";
+import { hasPersonalPattern } from "../src/demo/personal-guard";
+import type {
+  CfrAuthorityShard,
+  IndexManifest,
+  UscSourceCreditShard,
+  VocabularyFile,
+} from "../src/demo/index-types";
+import {
+  cfrPartLinks,
+  cfrPartUrl,
+  recordLinks,
+  relatedRows,
+  relatedTargetOf,
+  targetOf,
+  uscSectionLinks,
+  uscSectionUrl,
+} from "../src/demo/links";
+import type { ChainLink, ChainRow } from "../src/demo/links";
+import {
+  availableModes,
+  MODE_DEFAULTS,
+  modeFromHash,
+  modeUrl,
+} from "../src/demo/mode";
+import type { Mode, ModePanel } from "../src/demo/mode";
+import type { RouteReading } from "../src/demo/query-route";
+import { searchOutcomes, sourceRows } from "../src/demo/source-model";
+import type { SourceRow } from "../src/demo/source-model";
 import {
   addFollow,
   checkBatch,
@@ -33,7 +73,6 @@ import {
   AUTO_REQUEST_BUDGET,
   buildPlan,
   failLane,
-  groupDiscovery,
   isSeedRecord,
   LaneCache,
   laneId,
@@ -42,6 +81,7 @@ import {
   listingCap,
   mergeLanes,
   NO_FEDERAL_SOURCE,
+  readingSearch,
   recordPlan,
   replayLane,
   settleLane,
@@ -53,7 +93,6 @@ import {
 import type {
   DiscoveryRow,
   Lane,
-  LaneGroup,
   LaneSearch,
   Plan,
   PlanDates,
@@ -61,7 +100,6 @@ import type {
   Seed,
   SkipReason,
 } from "../src/demo/discovery";
-import { buildDocument } from "../src/demo/document";
 import {
   areaPlan,
   caseWords,
@@ -85,7 +123,6 @@ import type {
 } from "../src/demo/ncai-2026";
 import NCAI_VAULT from "../src/demo/ncai-2026.vault.json";
 import { NcaiVaultError, openNcaiDrafts } from "../src/demo/ncai-vault";
-import type { DocBlock } from "../src/demo/document";
 import {
   CONGRESS_REFERENCE,
   isCongressReference,
@@ -99,9 +136,41 @@ import type {
   DemoSearchCursor,
   DemoSource,
 } from "../src/demo/types";
-import { ApiFailure, loadSources, policyId, readPolicy, search } from "./api";
+import {
+  ApiFailure,
+  inTextGap,
+  loadSources,
+  policyId,
+  readGrantsDetail,
+  readPolicy,
+  readRelated,
+  search,
+} from "./api";
+import { AuthorityCitations } from "./app/AuthorityCitations";
+import type { GrantsDetailState } from "./app/AuthorityCitations";
+import { DocumentPane } from "./app/DocumentPane";
+import type { DocumentPanel, Selected } from "./app/DocumentPane";
+import { LinkedRecordsPanel } from "./app/LinkedRecordsPanel";
+import type {
+  ChainExpansion,
+  ChainIndexNotice,
+} from "./app/LinkedRecordsPanel";
+import { CaseRow } from "./app/CaseRow";
+import { ModeTabs } from "./app/ModeTabs";
+import { bodyOf, Leader } from "./app/parts";
+import { PrintView } from "./app/PrintView";
+import { ResultsList, SourceSummary } from "./app/ResultsList";
+import type { Found } from "./app/ResultsList";
+import { SearchBox } from "./app/SearchBox";
+import { SearchCombobox } from "./app/SearchCombobox";
+import { SourceList, SourcesPanel } from "./app/SourcesPanel";
+import {
+  downloadCalendar,
+  downloadFollows,
+  downloadPdf,
+  openPrint,
+} from "./app/state/exports";
 import SEAL from "./logos/atni-seal-on-dark.png";
-import { loadPdfFonts, loadPdfSeal } from "./pdf-fonts";
 import {
   ACTOR_FIELDS,
   attachPolicy,
@@ -192,22 +261,116 @@ const FALLBACK_SOURCES: DemoSource[] = (
   note: COPY.notCheckedNote,
 }));
 
-interface Selected {
-  citation: DemoCitation;
-  /** "unread" is a source whose text the demo does not read: a limit, not a failure. */
-  state: "loading" | "ready" | "error" | "unread";
-  policy?: DemoPolicyResponse;
-  message?: string;
+/** The static index manifest bundled at demo:build (today every file is unavailable). */
+const MANIFEST = MANIFEST_JSON as unknown as IndexManifest;
+/** No committee library is approved yet (N5), so that mode stays off. */
+const COMMITTEE_LIBRARY = false;
+/** The pane each mode panel lives in; the committee library has none yet. */
+const PANEL_PANE: Readonly<Record<ModePanel, Pane | null>> = {
+  document: "issues",
+  cited: "report",
+  following: "report",
+  sources: "search",
+  "committee-library": null,
+};
+
+/** One loader per page, so each index file is fetched and checked once. */
+const INDEX = createIndexLoader(MANIFEST);
+
+/** An index hop's answer: the part's or section's rows, or the notice with its live link. */
+interface HopResult {
+  readonly rows: readonly ChainRow[];
+  readonly notices: readonly ChainIndexNotice[];
+  readonly sourceName: string;
+  readonly liveUrl: string;
 }
 
 /**
- * The submitted plan stays attached to results while the form is edited. One
- * shape serves typed searches, examples, committee areas and NCAI drafts.
+ * One chain hop into the shipped index: a CFR part to its title file, a
+ * U.S.C. section to its title file. A file the manifest does not list as
+ * current, or that fails its digest, shows its notice and the live link,
+ * never an empty list. Null for a target that is not an index entry.
  */
-interface Found {
-  plan: Plan;
-  searches: readonly LaneSearch[];
-  rows: readonly DiscoveryRow[];
+async function indexHop(
+  target: ChainLink["target"],
+): Promise<HopResult | null> {
+  const cfr =
+    target.sourceId === "cfr-index"
+      ? /^(\d{1,2}) CFR part (\S+)$/.exec(target.identifier)
+      : null;
+  const usc =
+    target.sourceId === "usc-index"
+      ? /^\/us\/usc\/t(\d{1,2})\/s(\S+)$/.exec(target.identifier)
+      : null;
+  const m = cfr ?? usc;
+  if (!m) return null;
+  const title = Number(m[1]);
+  const sourceName = CHAIN.indexSources[cfr ? "cfr-index" : "usc-index"];
+  const liveUrl = cfr ? cfrPartUrl(title, m[2]) : uscSectionUrl(title, m[2]);
+  const result = await INDEX.load<CfrAuthorityShard | UscSourceCreditShard>(
+    `${cfr ? "cfr" : "usc"}/title-${title}.json`,
+  );
+  let notice = shardNotice(result);
+  if (notice === null && "data" in result) {
+    try {
+      const rows = cfr
+        ? cfrPartLinks(
+            result.data as CfrAuthorityShard,
+            m[2],
+            result.file,
+            new Date(),
+          )
+        : uscSectionLinks(
+            result.data as UscSourceCreditShard,
+            target.identifier,
+            result.file,
+            new Date(),
+          );
+      if (rows) return { rows, notices: [], sourceName, liveUrl };
+      notice = CHAIN.notInIndex;
+    } catch {
+      // A file that passed its digest but not its shape is still unavailable.
+      notice = CHAIN.indexUnavailable;
+    }
+  }
+  return {
+    rows: [],
+    notices: [{ text: notice ?? CHAIN.indexUnavailable, sourceName, liveUrl }],
+    sourceName,
+    liveUrl,
+  };
+}
+
+/** The mode is the one field read from the fragment; search words never are (N3). */
+function startMode(): Mode {
+  try {
+    return modeFromHash(new URL(window.location.href).hash, COMMITTEE_LIBRARY);
+  } catch {
+    return "research";
+  }
+}
+
+/** Vocabulary files the manifest lists as current, each read once and checked against its digest. */
+async function loadVocabulary(): Promise<VocabularyFile[]> {
+  const paths = MANIFEST.files
+    .filter(
+      (file) =>
+        file.kind === "vocabulary" &&
+        (file.status === "current" ||
+          file.status === "retained_after_failed_refresh"),
+    )
+    .map((file) => file.path);
+  if (!paths.length) return [];
+  const read = await Promise.all(
+    paths.map((path) => INDEX.load<VocabularyFile>(path)),
+  );
+  return read.flatMap((result) =>
+    "data" in result &&
+    result.data?.artifactType === "vocabulary" &&
+    Array.isArray(result.data.entries)
+      ? [result.data]
+      : [],
+  );
 }
 
 const NCAI_GROUPS = [
@@ -217,15 +380,6 @@ const NCAI_GROUPS = [
   "case",
   "sponsor",
 ] as const;
-
-/** Results sections in reading order, whatever order the plan met them in. */
-const GROUP_ORDER: readonly LaneGroup[] = [
-  "policy",
-  "legislation",
-  "bill",
-  "case",
-  "related",
-];
 
 /** Status words for Find related; the reader typed no words to change. */
 const RELATED_WORDS = { ...COPY, ...COPY.related };
@@ -249,9 +403,15 @@ const asked = (lane: Lane): Lane =>
 
 /** Only a missing exact reference is a definite answer; anything else is an outage. */
 function missingReference(sourceId: string, error: unknown): boolean {
+  if (!(error instanceof ApiFailure)) return false;
+  // A court lookup with no package, or a U.S. Reports volume past GovInfo's, is answered, not down.
+  if (sourceId === "govinfo-courts")
+    return (
+      (error.code === "not_found" && error.httpStatus === 404) ||
+      error.code === "not_resolvable"
+    );
   return (
     (sourceId === "congress" || sourceId === "washington") &&
-    error instanceof ApiFailure &&
     error.code === "not_found" &&
     error.httpStatus === 404
   );
@@ -345,20 +505,6 @@ function loadFollows(): { list: readonly Followed[]; notice: string } {
   }
 }
 
-/** Hands a file built in this page to the browser's downloads. */
-function download(blob: Blob, name: string) {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = name;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
-}
-
-const today = () => localDay(new Date());
-
 function failureText(error: unknown): string {
   if (error instanceof ApiFailure) {
     if (error.kind === "service") return COPY.serviceDown;
@@ -366,48 +512,6 @@ function failureText(error: unknown): string {
     return error.message;
   }
   return COPY.serviceDown;
-}
-
-function statusText(status: DemoSource["status"]): string {
-  if (status === "live") return COPY.liveTitle;
-  if (status === "key_pending") return COPY.keyPendingTitle;
-  if (status === "unknown") return COPY.notCheckedTitle;
-  return COPY.notAvailableTitle;
-}
-
-/** Filled is live, half is pending, outline is not available or not checked. */
-function markClass(status: DemoSource["status"]): string {
-  if (status === "live") return "mark is-full";
-  return status === "key_pending" ? "mark is-half" : "mark";
-}
-
-const Leader = () => <span class="leader" aria-hidden="true" />;
-
-/** The service writes "Not stated" for a record with no issuing body. */
-const bodyOf = (citation: DemoCitation) =>
-  citation.issuingBody === "Not stated"
-    ? COPY.issuingBodyNotStated
-    : citation.issuingBody;
-
-/** A 64 character digest that may break only at its midpoint, so it wraps into even lines. */
-function Digest({ value }: { value: string }) {
-  const half = value.length / 2;
-  return (
-    <code>
-      {value.slice(0, half)}
-      <wbr />
-      {value.slice(half)}
-    </code>
-  );
-}
-
-function SourceStatus({ status }: { status: DemoSource["status"] }) {
-  return (
-    <span class="row-v status">
-      <span class={markClass(status)} aria-hidden="true" />
-      {statusText(status)}
-    </span>
-  );
 }
 
 export function App() {
@@ -419,6 +523,18 @@ export function App() {
   ]);
   const [stateId, setStateId] = useState("washington");
   const [query, setQuery] = useState("");
+  /**
+   * The reading chosen in the suggestions; it holds while the box keeps its
+   * identifier. A ref, because choosing may submit before the next render.
+   */
+  const chosen = useRef<RouteReading | null>(null);
+  /** A chosen reading this demo only links to, with the official site to open. */
+  const [linkOut, setLinkOut] = useState<{
+    label: string;
+    url: string;
+  } | null>(null);
+  const [vocabulary, setVocabulary] = useState<readonly VocabularyFile[]>([]);
+  const [mode, setMode] = useState<Mode>(startMode);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [dateError, setDateError] = useState("");
@@ -433,6 +549,19 @@ export function App() {
     found?.searches.some((item) => item.state === "loading"),
   );
   const [selected, setSelected] = useState<Selected | null>(null);
+  // The opened record's chain hop, expansion and Grants.gov read, each tagged
+  // with the record key it belongs to, so another record never shows them.
+  const [hop, setHop] = useState<(HopResult & { key: string }) | null>(null);
+  const [expansion, setExpansion] = useState<{
+    key: string;
+    value: ChainExpansion;
+  } | null>(null);
+  const [grantsDetail, setGrantsDetail] = useState<{
+    key: string;
+    value: GrantsDetailState;
+  } | null>(null);
+  /** Grants.gov records read this session, by record key, for the exports. Memory only. */
+  const grantsRead = useRef(new Map<string, GrantsDetailResponse>());
   const [report, setReport] = useState<ReportState>(saved.report);
   const reportRef = useRef(report);
   const reportChanged = useRef(false);
@@ -558,6 +687,13 @@ export function App() {
     mounted.current = true;
     document.documentElement.classList.toggle("embed", EMBED);
     void refreshSources();
+    // Once, never per keystroke; with no vocabulary file the box offers readings and aliases only.
+    void loadVocabulary().then(
+      (files) => {
+        if (mounted.current && files.length) setVocabulary(files);
+      },
+      () => undefined,
+    );
     let focused: HTMLElement | null = null;
     const beforePrint = () => {
       focused =
@@ -722,6 +858,120 @@ export function App() {
       .filter((item) => item.status === "live")
       .map((item) => item.id),
   };
+  /** The opened record's Cited and Linked Records, then a Grants.gov opportunity's authority citations. */
+  const documentPanels: readonly DocumentPanel[] = [
+    {
+      id: "chain",
+      render: (view) => {
+        const key = selectedKey.current;
+        const related = relatedTargetOf(view.citation);
+        const held = expansion?.key === key ? expansion.value : null;
+        const hopped = hop?.key === key ? hop : null;
+        return (
+          <LinkedRecordsPanel
+            rows={[
+              ...recordLinks(view.citation, planSources),
+              ...(view.policy?.chain ?? []),
+              ...(hopped?.rows ?? []),
+            ]}
+            notices={hopped?.notices ?? []}
+            inTextGap={inTextGap(view.citation.sourceId, view.policy)}
+            statedNotKept={!!(key && report.cited[key]?.statedNotKept)}
+            expansions={
+              related
+                ? [
+                    held?.id === related.id
+                      ? held
+                      : { id: related.id, state: "idle" },
+                  ]
+                : []
+            }
+            onExpand={() => void expandRelated()}
+            onHop={(target) => void openHop(target)}
+          />
+        );
+      },
+    },
+    {
+      id: "authority-citations",
+      render: (view) =>
+        view.citation.sourceId === "grants" ? (
+          <AuthorityCitations
+            citation={view.citation}
+            detail={
+              grantsDetail?.key === selectedKey.current
+                ? grantsDetail.value
+                : { state: "loading" }
+            }
+          />
+        ) : null,
+    },
+  ];
+
+  /**
+   * The cited entries as every export carries them: each with the chain rows
+   * the page holds for it (no call at export time) and, for Grants.gov, the
+   * opportunity record read this session.
+   */
+  function exportEntries(current: ReportState): DocEntry[] {
+    const held = Object.entries(current.cited);
+    return reportEntries(current).map((entry, index) => {
+      const [key, saved] = held[index];
+      const grants = grantsRead.current.get(key);
+      return {
+        ...entry,
+        chain: [
+          ...recordLinks(entry.citation, planSources),
+          ...(saved.policy?.chain ?? []),
+        ],
+        inTextGap: inTextGap(entry.citation.sourceId, saved.policy),
+        ...(grants && { grants }),
+      };
+    });
+  }
+
+  /** The Briefing's followed items, each with this session's Check for new result. */
+  const briefingChecks = (): BriefingCheck[] =>
+    followsRef.current.map((item) => ({
+      item,
+      ...(checks[item.id] && { check: checks[item.id] }),
+    }));
+
+  /** The Sources panel model: the catalog, the bundled index manifest and this search's outcomes. */
+  const rows = useMemo(
+    () =>
+      sourceRows({
+        sources,
+        manifest: MANIFEST,
+        now: new Date(),
+        outcomes: found ? searchOutcomes(found.searches) : {},
+      }),
+    [sources, found],
+  );
+  /** Where search words go, naming the official services the catalog has enabled. */
+  const wordsSent = privacy.searchWordsSent(
+    sources.filter((item) => item.status === "live").map((item) => item.label),
+  );
+
+  /** A mode opens its panels and changes the address fragment; it never searches or filters. */
+  function changeMode(next: Mode) {
+    if (next === mode) return;
+    setMode(next);
+    try {
+      window.history.replaceState(
+        null,
+        "",
+        modeUrl(window.location.href, next),
+      );
+    } catch {
+      /* the mode still holds for this page view */
+    }
+    const opens = MODE_DEFAULTS[next].panels
+      .map((panel) => PANEL_PANE[panel])
+      .find((each) => each !== null);
+    if (opens) setPane(opens);
+  }
+
   /** A source, then the collection searched within it, if any. */
   const where = (lane: Pick<Lane, "sourceId" | "collection">) =>
     COPY.laneWhere(labelOf(lane.sourceId), lane.collection);
@@ -744,6 +994,7 @@ export function App() {
     searchRequest.current.sequence += 1;
     setFound(null);
     setMessage("");
+    setLinkOut(null);
     setQueryError("");
     setDateError("");
     clearSelection();
@@ -926,6 +1177,7 @@ export function App() {
       ),
     ];
     publishFound({ plan, searches, rows: [] });
+    setLinkOut(null);
     setQueryError("");
     setDateError("");
     // A citation notice speaks of the last list action; a new search retires it.
@@ -1070,9 +1322,146 @@ export function App() {
     }
   }
 
+  /**
+   * A U.S.C. section or a law name, read from the shipped index through the
+   * same hop as the chain. The answer is the file's notice with the live link.
+   */
+  async function openIndexHop(reading: RouteReading) {
+    resetSearch();
+    const sequence = searchRequest.current.sequence;
+    const cite = findCitations(reading.label).find(
+      (c) => c.kind === "usc" || c.kind === "cfr",
+    );
+    const answer = cite ? await indexHop(targetOf(cite).target) : null;
+    if (!mounted.current || sequence !== searchRequest.current.sequence) return;
+    if (!answer) {
+      setMessage(`${reading.label}: ${sourceModel.indexMissing}`);
+      setLinkOut(null);
+    } else {
+      // shortcut: rows found from the search box are counted, not listed;
+      // they list in an opened record's chain. Upgrade with an index results family.
+      const notice = answer.notices[0]?.text;
+      setMessage(
+        notice
+          ? `${reading.label}: ${notice}. ${sourceModel.indexMissing}`
+          : `${reading.label}: ${CHAIN.hopRows(answer.rows.length)}.`,
+      );
+      setLinkOut({
+        label: CHAIN.liveLink(answer.sourceName),
+        url: answer.liveUrl,
+      });
+    }
+    bringResults(sequence);
+  }
+
+  /** A chain hop pressed in the opened record: its rows or notice join that record's chain. */
+  async function openHop(target: ChainLink["target"]) {
+    const key = selectedKey.current;
+    const answer = await indexHop(target);
+    if (answer && key && mounted.current && selectedKey.current === key)
+      setHop({ key, ...answer });
+  }
+
+  /** One Worker call per press for the opened record's related records. */
+  async function expandRelated() {
+    const view = selectedRef.current;
+    const key = selectedKey.current;
+    const target = view && relatedTargetOf(view.citation);
+    if (!view || !key || !target) return;
+    if (expansion?.key === key && expansion.value.state === "loading") return;
+    setExpansion({ key, value: { id: target.id, state: "loading" } });
+    try {
+      const answer = await readRelated(target.request);
+      if (!mounted.current || selectedKey.current !== key) return;
+      const rows = relatedRows(answer, view.citation);
+      setExpansion({ key, value: { id: target.id, state: "done", rows } });
+    } catch {
+      if (mounted.current && selectedKey.current === key)
+        setExpansion({ key, value: { id: target.id, state: "error" } });
+    }
+  }
+
+  /** The opened Grants.gov row's opportunity record, read once per record and kept for the exports. */
+  async function readGrants(citation: DemoCitation, key: string) {
+    const held = grantsRead.current.get(key);
+    if (held) {
+      setGrantsDetail({ key, value: { state: "ready", detail: held } });
+      return;
+    }
+    const id = /\/(\d{1,12})$/.exec(citation.officialUrl)?.[1];
+    if (!id) {
+      setGrantsDetail({ key, value: { state: "error" } });
+      return;
+    }
+    setGrantsDetail({ key, value: { state: "loading" } });
+    try {
+      const detail = await readGrantsDetail(id);
+      grantsRead.current.set(key, detail);
+      if (mounted.current && selectedKey.current === key)
+        setGrantsDetail({ key, value: { state: "ready", detail } });
+    } catch {
+      if (mounted.current && selectedKey.current === key)
+        setGrantsDetail({ key, value: { state: "error" } });
+    }
+  }
+
+  /** States the outcome of a chosen reading that sends no search. */
+  function sayReading(
+    text: string,
+    link: { label: string; url: string } | null,
+  ) {
+    resetSearch();
+    setMessage(text);
+    setLinkOut(link);
+    bringResults(searchRequest.current.sequence);
+  }
+
+  /**
+   * A reading chosen in the suggestions: its one lookup in the source that
+   * holds that identifier, the official site it links to, or why it has
+   * neither. Its jurisdiction or court picks that one source and nothing else.
+   */
+  function runReading(reading: RouteReading, dates: PlanDates) {
+    if (reading.action === "static_index") return void openIndexHop(reading);
+    if (reading.action === "link_out") {
+      const state = { WA: "washington", OR: "oregon", ID: "idaho" }[
+        reading.jurisdiction as "WA" | "OR" | "ID"
+      ];
+      return sayReading(
+        `${reading.label}: ${ROUTER.linkOutNote}.`,
+        (state && COPY.stateHandoffs[state]) || null,
+      );
+    }
+    const search = readingSearch(reading);
+    if (!search)
+      return sayReading(
+        reading.kind === "court_docket" && reading.action === "live_lookup"
+          ? COURTS.courtNotCovered
+          : `${reading.label}: ${ROUTER.notCoveredNote}.`,
+        null,
+      );
+    // Only the Federal Register takes the date range and the type filter here.
+    const register = search.source === "federal-register";
+    runPlan(
+      buildPlan(
+        { kind: "typed", query: reading.identifier, reading: reading.label },
+        [search],
+        planSources,
+        {
+          dateFrom: register ? dates.dateFrom : null,
+          dateTo: register ? dates.dateTo : null,
+          documentType: register ? (dates.documentType ?? null) : null,
+        },
+      ),
+    );
+  }
+
   function onSubmit(event: Event) {
     event.preventDefault();
-    if (!usable) {
+    const reading =
+      chosen.current?.identifier === query.trim() ? chosen.current : null;
+    // A chosen reading names its own source, checked or not, as Find related does.
+    if (!usable && !reading) {
       setQueryError(blockedReason);
       document.getElementById("q")?.focus();
       return;
@@ -1096,6 +1485,7 @@ export function App() {
         return;
       }
     }
+    if (reading) return runReading(reading, dates);
     runPlan(
       typedPlan(
         query.trim(),
@@ -1404,6 +1794,7 @@ export function App() {
     const snapshot = reportRef.current.cited[key]?.policy;
     setSelected({ citation, state: "loading" });
     setPane("issues");
+    if (citation.sourceId === "grants") void readGrants(citation, key);
     requestAnimationFrame(() => {
       if (mounted.current && sequence === detailSequence.current)
         detailRef.current?.focus();
@@ -1431,8 +1822,11 @@ export function App() {
         updateReport((current) => attachPolicy(current, key, policy));
       if (sequence !== detailSequence.current) return;
       const authoritative = reportRef.current.cited[key]?.policy ?? policy;
+      // The read states no listing fields (docket, RIN, CFR parts); the row's
+      // stated fields fill them in, as a cited entry keeps them, so the chain
+      // shows the identifiers and CFR parts the listing states.
       setSelected({
-        citation: authoritative.citation,
+        citation: keepStated(citation, authoritative.citation),
         state: "ready",
         policy: authoritative,
       });
@@ -1510,7 +1904,7 @@ export function App() {
       if (!authoritative) throw new Error("Citation evidence was not attached");
       if (selectedKey.current === k)
         setSelected({
-          citation: authoritative.citation,
+          citation: keepStated(citation, authoritative.citation),
           policy: authoritative,
           state: "ready",
         });
@@ -1586,10 +1980,17 @@ export function App() {
     }));
   }
 
-  /** Export and print wait for a citation and all five data actor entries. */
+  /**
+   * Export and print wait for a citation (or, for the Briefing, a followed
+   * item) and all five data actor entries.
+   */
   function readyToExport(): boolean {
     setCitationMessage("");
-    if (reportEntries(reportRef.current).length === 0) {
+    if (
+      reportEntries(reportRef.current).length === 0 &&
+      (MODE_DEFAULTS[mode].template !== "briefing" ||
+        followsRef.current.length === 0)
+    ) {
       setExportMessage(COPY.exportEmpty);
       return false;
     }
@@ -1607,28 +2008,17 @@ export function App() {
 
   async function exportPdf() {
     if (exporting.current || !readyToExport()) return;
-    const entries = reportEntries(reportRef.current);
+    const entries = exportEntries(reportRef.current);
     const exportActors = reportRef.current.actors;
     setExportMessage(COPY.exportingPdf);
     exporting.current = true;
     setExportBusy(true);
     try {
-      const [{ buildPdf }, fonts, seal] = await Promise.all([
-        import("../src/demo/pdf"),
-        loadPdfFonts(),
-        loadPdfSeal(),
-      ]);
-      const bytes = await buildPdf({
-        version: VERSION,
-        generatedAt: new Date(),
+      await downloadPdf(
         entries,
-        actors: exportActors,
-        fonts,
-        seal,
-      });
-      download(
-        new Blob([bytes as BlobPart], { type: "application/pdf" }),
-        `policy-sentinel-citations-${today()}.pdf`,
+        exportActors,
+        MODE_DEFAULTS[mode].template,
+        briefingChecks(),
       );
       setExportMessage(COPY.exportDone);
     } catch (error) {
@@ -1658,13 +2048,7 @@ export function App() {
     exporting.current = true;
     setExportMessage(COPY.printPreparing);
     try {
-      // The document faces load on first use; fetch them before the print dialog opens.
-      await Promise.all(
-        ["400", "600"].map((weight) =>
-          document.fonts?.load(`${weight} 1em "Lexend Deca"`),
-        ),
-      ).catch(() => undefined);
-      window.print();
+      await openPrint();
     } finally {
       exporting.current = false;
       setExportMessage("");
@@ -1677,12 +2061,7 @@ export function App() {
       setExportMessage(COPY.calendar.none);
       return;
     }
-    download(
-      new Blob([buildCalendar(calendarSource, new Date())], {
-        type: "text/calendar",
-      }),
-      `policy-sentinel-comment-dates-${today()}.ics`,
-    );
+    downloadCalendar(calendarSource);
     setExportMessage(COPY.calendar.done(calendarSource.length));
   }
 
@@ -1690,7 +2069,10 @@ export function App() {
   const followName = (item: Pick<Followed, "kind" | "value" | "record">) =>
     item.kind === "document"
       ? item.record.title
-      : COPY.identifierLine(COPY.identifierLabels[item.kind], item.value);
+      : item.kind === "case"
+        ? // The caption as a case row shows it: withheld when it may name a person.
+          caseRowText(item.record).caseName
+        : COPY.identifierLine(COPY.identifierLabels[item.kind], item.value);
 
   function follow(record: DemoCitation, kind: FollowKind, value: string) {
     const item = followItem(record, kind, value, new Date());
@@ -1785,12 +2167,7 @@ export function App() {
       setFollowMessage(COPY.follow.none);
       return;
     }
-    download(
-      new Blob([serializeFollows(followsRef.current)], {
-        type: "application/json",
-      }),
-      `policy-sentinel-following-${today()}.json`,
-    );
+    downloadFollows(followsRef.current);
     setFollowMessage(COPY.follow.exportDone);
   }
 
@@ -1861,15 +2238,6 @@ export function App() {
     (check) => check.state === "checking",
   );
   const actorsDone = ACTOR_FIELDS.filter((field) => actors[field].trim());
-  const grouped = useMemo(() => {
-    const out = new Map<string, { label: string; issues: DemoIssue[] }>();
-    for (const issue of selected?.policy?.issues ?? []) {
-      const entry = out.get(issue.type) ?? { label: issue.label, issues: [] };
-      entry.issues.push(issue);
-      out.set(issue.type, entry);
-    }
-    return [...out.values()];
-  }, [selected]);
   const paneCount: Record<Pane, number | null> = {
     search: null,
     results: found ? found.rows.length : null,
@@ -1909,15 +2277,6 @@ export function App() {
     );
 
   const seed = found?.plan.seed;
-  // A draft's or record's plan is shown in sections; a typed, example or area search keeps one list.
-  const sectioned = seed?.kind === "draft" || seed?.kind === "record";
-  const views = found
-    ? groupDiscovery(found.plan, found.searches, found.rows).sort(
-        (a, b) => GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group),
-      )
-    : [];
-  const merged =
-    found?.rows.reduce((sum, row) => sum + row.alternates.length, 0) ?? 0;
   // The Grants.gov API terms ask for its attribution wherever its rows appear.
   const grantsAttribution = (citations: readonly DemoCitation[]) =>
     citations.some((c) => c.sourceId === "grants") ? (
@@ -2094,17 +2453,50 @@ export function App() {
     );
   };
 
-  /** One document; under a section heading its title is one level lower. */
-  const resultRow = (row: DiscoveryRow, nested: boolean) => {
+  /** Add to My Citations for one row, as every row family offers it. */
+  const citeButton = (row: DiscoveryRow) => {
     const { citation: c, alternates } = row;
-    const k = keyOf(c);
     const savedKey = findCitedKey(report, c, alternates);
     const isCited = savedKey !== undefined;
-    const addLabel = pending[savedKey ?? k]
+    const addLabel = pending[savedKey ?? keyOf(c)]
       ? COPY.readingCited
       : isCited
         ? COPY.inCitations
         : COPY.addCitation;
+    return (
+      <button
+        type="button"
+        class="btn"
+        aria-disabled={isCited}
+        aria-label={COPY.named(addLabel, c.title)}
+        onClick={() => void addCitation(row)}
+      >
+        {addLabel}
+      </button>
+    );
+  };
+
+  /** A court opinion row (T1.5): Follow case only for a GovInfo package with its court. */
+  const caseRow = (row: DiscoveryRow, nested: boolean) => (
+    <CaseRow
+      key={logicalResultKey(row.citation)}
+      row={row}
+      nested={nested}
+      following={follows.some(
+        (item) =>
+          item.id ===
+          followId("govinfo-courts", "case", row.citation.packageId ?? ""),
+      )}
+      onFollow={(c, packageId) => follow(c, "case", packageId)}
+      actions={citeButton(row)}
+      why={seed && whyShown(row.reasons, seed)}
+    />
+  );
+
+  /** One document; under a section heading its title is one level lower. */
+  const resultRow = (row: DiscoveryRow, nested: boolean) => {
+    const { citation: c, alternates } = row;
+    const k = keyOf(c);
     // Identifiers as the source states them, in its own spelling.
     const ids = [
       ...(c.docketIds ?? []).map(
@@ -2146,7 +2538,15 @@ export function App() {
           <li>{c.kind}</li>
           <li>{c.date ?? COPY.dateNotStated}</li>
         </ul>
-        {c.summary && <p class="summary">{c.summary}</p>}
+        <SourceSummary citation={c} source={labelOf(c.sourceId)} />
+        {/* Congress.gov sends its latest action here, metadata rather than a summary; the D-068 guard still applies. */}
+        {c.sourceId === "congress" && c.summary && (
+          <p class="help">
+            {hasPersonalPattern(c.summary)
+              ? COPY.latestActionWithheld(labelOf(c.sourceId))
+              : c.summary}
+          </p>
+        )}
         {c.commentsCloseOn ? (
           <p class="help">
             {COPY.commentsClose(c.commentsCloseOn, labelOf(c.sourceId))}
@@ -2248,15 +2648,7 @@ export function App() {
           >
             {COPY.showIssues}
           </button>
-          <button
-            type="button"
-            class="btn"
-            aria-disabled={isCited}
-            aria-label={COPY.named(addLabel, c.title)}
-            onClick={() => void addCitation(row)}
-          >
-            {addLabel}
-          </button>
+          {citeButton(row)}
           {canRelate && (
             <button
               type="button"
@@ -2388,6 +2780,11 @@ export function App() {
             {followStorage && <p class="notice">{followStorage}</p>}
             {citationMessage && <p class="live">{citationMessage}</p>}
           </div>
+          <ModeTabs
+            modes={availableModes(COMMITTEE_LIBRARY)}
+            current={mode}
+            onChange={changeMode}
+          />
           <section
             class="pane pane-search"
             aria-labelledby="search-h"
@@ -2422,7 +2819,127 @@ export function App() {
                 }}
               />
             )}
-            <form onSubmit={onSubmit}>
+            <SearchBox
+              value={query}
+              onInput={(value) => {
+                setQuery(value);
+                setQueryError("");
+                // A chosen reading holds only while the box keeps its identifier.
+                if (chosen.current?.identifier !== value.trim())
+                  chosen.current = null;
+              }}
+              input={(field) => (
+                <SearchCombobox
+                  {...field}
+                  vocabulary={vocabulary}
+                  onChoose={(reading) => {
+                    chosen.current = reading;
+                  }}
+                />
+              )}
+              onSubmit={onSubmit}
+              help={help}
+              error={queryError}
+              blockedBy={blockedBy}
+              blockedNote={blockedNote}
+              off={!usable || samePendingSearch}
+              criteria={
+                <>
+                  {scope === "federal" ? (
+                    <fieldset class="date-range">
+                      <legend class="field">{COPY.dateRangeTitle}</legend>
+                      <p id="date-help" class="help">
+                        {COPY.dateRangeHelp}
+                      </p>
+                      <label class="field" for="date-from">
+                        {COPY.dateFrom}
+                      </label>
+                      <input
+                        id="date-from"
+                        type="date"
+                        value={dateFrom}
+                        aria-describedby={
+                          dateError ? "date-help date-error" : "date-help"
+                        }
+                        aria-invalid={dateError ? "true" : undefined}
+                        onInput={(event) => {
+                          setDateFrom((event.target as HTMLInputElement).value);
+                          setDateError("");
+                        }}
+                      />
+                      <label class="field" for="date-to">
+                        {COPY.dateTo}
+                      </label>
+                      <input
+                        id="date-to"
+                        type="date"
+                        value={dateTo}
+                        aria-describedby={
+                          dateError ? "date-help date-error" : "date-help"
+                        }
+                        aria-invalid={dateError ? "true" : undefined}
+                        onInput={(event) => {
+                          setDateTo((event.target as HTMLInputElement).value);
+                          setDateError("");
+                        }}
+                      />
+                      {dateError && (
+                        <p id="date-error" class="notice" role="alert">
+                          {dateError}
+                        </p>
+                      )}
+                    </fieldset>
+                  ) : (
+                    <p class="help">{COPY.stateDateHelp}</p>
+                  )}
+                  {scope === "federal" && (
+                    <>
+                      <label class="field" for="doc-type">
+                        {COPY.docTypeLabel}
+                      </label>
+                      <select
+                        id="doc-type"
+                        value={docType}
+                        aria-describedby="doc-type-help"
+                        onChange={(e) =>
+                          setDocType(
+                            (e.target as HTMLSelectElement).value as
+                              DemoDocumentType | "",
+                          )
+                        }
+                      >
+                        <option value="">{COPY.docTypeAny}</option>
+                        {Object.entries(COPY.docTypes).map(([value, label]) => (
+                          <option key={value} value={value}>
+                            {label}
+                          </option>
+                        ))}
+                      </select>
+                      <p id="doc-type-help" class="help">
+                        {COPY.docTypeHelp}
+                      </p>
+                      <label class="check" for="grants-eligibility">
+                        <input
+                          id="grants-eligibility"
+                          type="checkbox"
+                          checked={tribalEligibility}
+                          aria-describedby="grants-eligibility-help"
+                          onChange={(e) =>
+                            setTribalEligibility(
+                              (e.target as HTMLInputElement).checked,
+                            )
+                          }
+                        />
+                        {COPY.grants.filterLabel}
+                      </label>
+                      <p id="grants-eligibility-help" class="help">
+                        {COPY.grants.filterHelp} {COPY.grants.limit}
+                      </p>
+                    </>
+                  )}
+                </>
+              }
+            >
               <div class="chips" role="group" aria-label={COPY.scopeLabel}>
                 {(["federal", "state"] as const).map((id) => (
                   <button
@@ -2436,206 +2953,21 @@ export function App() {
                   </button>
                 ))}
               </div>
-              {scope === "federal" ? (
-                <fieldset class="zone">
-                  <legend class="eyebrow">{COPY.sourcesLegend}</legend>
-                  {federal.map((s) => (
-                    <label
-                      class={`source${s.status === "live" ? "" : " is-off"}`}
-                      key={s.id}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={s.status === "live" && checked.includes(s.id)}
-                        disabled={s.status !== "live"}
-                        onChange={(e) =>
-                          toggleSource(
-                            s.id,
-                            (e.target as HTMLInputElement).checked,
-                          )
-                        }
-                      />
-                      <span class="row">
-                        <span class="row-k">{s.label}</span>
-                        <Leader />
-                        <SourceStatus status={s.status} />
-                      </span>
-                      <span class="source-note">
-                        {COPY.capability[s.id] ?? s.note}
-                      </span>
-                    </label>
-                  ))}
-                </fieldset>
-              ) : (
-                <div class="zone">
-                  <label class="field" for="state">
-                    {COPY.stateLabel}
-                  </label>
-                  <select
-                    id="state"
-                    value={stateId}
-                    aria-describedby="state-note"
-                    onChange={(e) => {
-                      resetSearch();
-                      setStateId((e.target as HTMLSelectElement).value);
-                    }}
-                  >
-                    {states.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.label}
-                      </option>
-                    ))}
-                  </select>
-                  {chosenState && (
-                    <div id="state-note" class="source">
-                      <span class="row">
-                        <span class="row-k">{COPY.availabilityLabel}</span>
-                        <Leader />
-                        <SourceStatus status={chosenState.status} />
-                      </span>
-                      <span class="source-note">{chosenState.note}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-              <div class="zone">
-                <label class="field" for="q">
-                  {COPY.queryLabel}
-                </label>
-                <input
-                  id="q"
-                  type="search"
-                  value={query}
-                  autoComplete="off"
-                  maxLength={200}
-                  aria-describedby={
-                    queryError
-                      ? "q-help q-error"
-                      : blockedBy
-                        ? `q-help ${blockedBy}`
-                        : "q-help"
-                  }
-                  aria-invalid={queryError ? "true" : undefined}
-                  onInput={(e) => {
-                    setQuery((e.target as HTMLInputElement).value);
-                    setQueryError("");
-                  }}
-                />
-                <p id="q-help" class="help">
-                  {help}
-                </p>
-                {scope === "federal" ? (
-                  <fieldset class="date-range">
-                    <legend class="field">{COPY.dateRangeTitle}</legend>
-                    <p id="date-help" class="help">
-                      {COPY.dateRangeHelp}
-                    </p>
-                    <label class="field" for="date-from">
-                      {COPY.dateFrom}
-                    </label>
-                    <input
-                      id="date-from"
-                      type="date"
-                      value={dateFrom}
-                      aria-describedby={
-                        dateError ? "date-help date-error" : "date-help"
-                      }
-                      aria-invalid={dateError ? "true" : undefined}
-                      onInput={(event) => {
-                        setDateFrom((event.target as HTMLInputElement).value);
-                        setDateError("");
-                      }}
-                    />
-                    <label class="field" for="date-to">
-                      {COPY.dateTo}
-                    </label>
-                    <input
-                      id="date-to"
-                      type="date"
-                      value={dateTo}
-                      aria-describedby={
-                        dateError ? "date-help date-error" : "date-help"
-                      }
-                      aria-invalid={dateError ? "true" : undefined}
-                      onInput={(event) => {
-                        setDateTo((event.target as HTMLInputElement).value);
-                        setDateError("");
-                      }}
-                    />
-                    {dateError && (
-                      <p id="date-error" class="notice" role="alert">
-                        {dateError}
-                      </p>
-                    )}
-                  </fieldset>
-                ) : (
-                  <p class="help">{COPY.stateDateHelp}</p>
-                )}
-                {scope === "federal" && (
-                  <>
-                    <label class="field" for="doc-type">
-                      {COPY.docTypeLabel}
-                    </label>
-                    <select
-                      id="doc-type"
-                      value={docType}
-                      aria-describedby="doc-type-help"
-                      onChange={(e) =>
-                        setDocType(
-                          (e.target as HTMLSelectElement).value as
-                            DemoDocumentType | "",
-                        )
-                      }
-                    >
-                      <option value="">{COPY.docTypeAny}</option>
-                      {Object.entries(COPY.docTypes).map(([value, label]) => (
-                        <option key={value} value={value}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
-                    <p id="doc-type-help" class="help">
-                      {COPY.docTypeHelp}
-                    </p>
-                    <label class="check" for="grants-eligibility">
-                      <input
-                        id="grants-eligibility"
-                        type="checkbox"
-                        checked={tribalEligibility}
-                        aria-describedby="grants-eligibility-help"
-                        onChange={(e) =>
-                          setTribalEligibility(
-                            (e.target as HTMLInputElement).checked,
-                          )
-                        }
-                      />
-                      {COPY.grants.filterLabel}
-                    </label>
-                    <p id="grants-eligibility-help" class="help">
-                      {COPY.grants.filterHelp} {COPY.grants.limit}
-                    </p>
-                  </>
-                )}
-                {queryError && (
-                  <p id="q-error" class="notice" role="alert">
-                    {queryError}
-                  </p>
-                )}
-                {blockedNote && (
-                  <p id="q-blocked" class="notice">
-                    {COPY.noSourceChecked}
-                  </p>
-                )}
-                <button
-                  type="submit"
-                  class="btn primary"
-                  aria-disabled={!usable || samePendingSearch}
-                  aria-describedby={blockedBy}
-                >
-                  {COPY.searchButton}
-                </button>
-              </div>
-            </form>
+              <SourcesPanel
+                scope={scope}
+                federal={federal}
+                states={states}
+                checked={checked}
+                stateId={stateId}
+                onToggle={toggleSource}
+                onState={(id) => {
+                  resetSearch();
+                  setStateId(id);
+                }}
+                rows={rows}
+              />
+            </SearchBox>
+            <p class="help">{wordsSent}</p>
             {scope === "state" && COPY.stateHandoffs[stateId] && (
               <div class="zone">
                 <a
@@ -2782,6 +3114,11 @@ export function App() {
                         ? found.plan.seed.query
                         : found.plan.lanes[0]?.query}
                     </p>
+                    {found.plan.seed.kind === "typed" && (
+                      <p class="help">
+                        {found.plan.seed.reading ?? ROUTER.searchedAsWords}
+                      </p>
+                    )}
                     {typeNote(found.plan)}
                     {criteriaNotes(found.plan)}
                   </>
@@ -2796,38 +3133,20 @@ export function App() {
                 {busy && <span class="cursor" aria-hidden="true" />}
               </p>
             </div>
-            {found && !sectioned && (
-              <ul class="source-outcomes">
-                {views.flatMap((view) =>
-                  view.lanes.map(({ lane, search: item }) =>
-                    laneOutcome(found.plan, lane, item),
-                  ),
-                )}
-              </ul>
+            {linkOut && (
+              <p>
+                <a href={linkOut.url} target="_blank" rel="noopener noreferrer">
+                  {linkOut.label}
+                </a>
+              </p>
             )}
-            {merged > 0 && <p class="help">{COPY.mergeNote(merged)}</p>}
-            {found && sectioned ? (
-              views.map((view) => (
-                <div class="discovery-group" key={view.group}>
-                  <h3>{COPY.groupTitles[view.group]}</h3>
-                  <ul class="source-outcomes">
-                    {view.lanes.map(({ lane, search: item }) =>
-                      laneOutcome(found.plan, lane, item),
-                    )}
-                  </ul>
-                  <ul
-                    class="results"
-                    key={`${searchRequest.current.sequence}-${view.group}`}
-                  >
-                    {view.rows.map((row) => resultRow(row, true))}
-                  </ul>
-                </div>
-              ))
-            ) : (
-              <ul class="results" key={searchRequest.current.sequence}>
-                {(found?.rows ?? []).map((row) => resultRow(row, false))}
-              </ul>
-            )}
+            <ResultsList
+              found={found}
+              sequence={searchRequest.current.sequence}
+              outcome={laneOutcome}
+              row={resultRow}
+              families={{ cases: caseRow }}
+            />
             {grantsAttribution(
               (found?.rows ?? []).flatMap((row) => [
                 row.citation,
@@ -2836,190 +3155,16 @@ export function App() {
             )}
           </section>
 
-          <section
-            class="pane pane-issues"
-            aria-labelledby="detail-h"
-            ref={detailRef}
-            tabIndex={paneTab}
-          >
-            <h2 id="detail-h">{COPY.issuesTitle}</h2>
-            <p
-              class={selected?.state === "error" ? "live notice" : "live"}
-              role="status"
-              aria-live="polite"
-            >
-              {selected?.state === "loading"
-                ? COPY.readingText
-                : selected?.state === "ready"
-                  ? COPY.issuesReady(
-                      selected.citation.title,
-                      selected.policy?.issues.length ?? 0,
-                    )
-                  : (selected?.message ?? "")}
-            </p>
-            {!selected && <p class="help">{COPY.issuesNote}</p>}
-            {selected && (
-              <div class="detail">
-                <h3 class="policy-title">{selected.citation.title}</h3>
-                <p class="row">
-                  <span class="row-k">{bodyOf(selected.citation)}</span>
-                  <Leader />
-                  <span class="row-v mono">{selected.citation.identifier}</span>
-                </p>
-                {selected.state === "ready" && selected.policy && (
-                  <>
-                    <p class="help">{COPY.issuesNote}</p>
-                    {cited[keyOf(selected.citation)]?.policy && (
-                      <p class="help">
-                        {COPY.savedTextNote(
-                          selected.policy.receipt.retrievedAt,
-                        )}
-                      </p>
-                    )}
-                    <dl class="receipt">
-                      <dt>{COPY.readLabel}</dt>
-                      <dd>
-                        <a
-                          class="mono"
-                          href={selected.policy.receipt.textUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {selected.policy.receipt.textUrl}
-                        </a>
-                      </dd>
-                      <dt>{COPY.receiptLabel}</dt>
-                      <dd>
-                        <Digest value={selected.policy.receipt.sha256} />
-                        <span>
-                          {COPY.receiptNote(selected.policy.receipt.bytes)}{" "}
-                          {COPY.retrieved(selected.policy.receipt.retrievedAt)}
-                        </span>
-                      </dd>
-                      <dt>{COPY.engineLabel}</dt>
-                      <dd>
-                        <span>
-                          {COPY.engineText(
-                            selected.policy.engine.parser,
-                            selected.policy.engine.parserVersion,
-                            selected.policy.engine.rulesVersion,
-                          )}
-                        </span>
-                        <span>{COPY.configLabel}</span>
-                        <Digest
-                          value={selected.policy.engine.parserConfigDigest}
-                        />
-                      </dd>
-                    </dl>
-                    {selected.policy.issues.length === 0 && (
-                      <p>{COPY.noIssues}</p>
-                    )}
-                    {selected.policy.issues.length > 0 && (
-                      <p class="actions">
-                        <button
-                          type="button"
-                          class="btn"
-                          disabled={!cited[keyOf(selected.citation)]}
-                          onClick={() =>
-                            includeAll(
-                              keyOf(selected.citation),
-                              selected.policy!.issues,
-                            )
-                          }
-                        >
-                          {COPY.includeAll}
-                        </button>
-                        {!cited[keyOf(selected.citation)] && (
-                          <span class="help">{COPY.addFirst}</span>
-                        )}
-                      </p>
-                    )}
-                    {grouped.map((group) => (
-                      <section class="group" key={group.label}>
-                        <div class="row">
-                          <h4>{group.label}</h4>
-                          <Leader />
-                          <span class="row-v mono">{group.issues.length}</span>
-                        </div>
-                        <ul class="issues">
-                          {group.issues.map((issue) => {
-                            const k = keyOf(selected.citation);
-                            const mark = marks[k]?.[issue.id] ?? {
-                              on: false,
-                              note: "",
-                            };
-                            const canMark = Boolean(cited[k]);
-                            // Names the passage its controls belong to. Rule ids are a type and a number.
-                            const passage = `passage-${issue.id}`;
-                            return (
-                              <li class="issue" key={issue.id}>
-                                {issue.type === "consultation_absent" ? (
-                                  <p class="assessment" id={passage}>
-                                    <strong>{COPY.assessmentLead} </strong>
-                                    {issue.quote}
-                                  </p>
-                                ) : (
-                                  <blockquote id={passage}>
-                                    {issue.quote}
-                                  </blockquote>
-                                )}
-                                <details>
-                                  <summary>{COPY.whyFlagged}</summary>
-                                  <dl>
-                                    <dt>{COPY.ruleLabel}</dt>
-                                    <dd>{issue.rule}</dd>
-                                    <dt>{COPY.limitLabel}</dt>
-                                    <dd>{issue.limits}</dd>
-                                    <dt>{COPY.checkLabel}</dt>
-                                    <dd>{issue.check}</dd>
-                                    <dt>{COPY.locatorLabel}</dt>
-                                    <dd class="mono">{issue.locator}</dd>
-                                  </dl>
-                                </details>
-                                <label class="check">
-                                  <input
-                                    type="checkbox"
-                                    checked={mark.on}
-                                    disabled={!canMark}
-                                    aria-describedby={passage}
-                                    onChange={(e) =>
-                                      setMark(k, issue, {
-                                        on: (e.target as HTMLInputElement)
-                                          .checked,
-                                      })
-                                    }
-                                  />
-                                  {COPY.includeInPdf}
-                                </label>
-                                {mark.on && (
-                                  <label class="field">
-                                    {COPY.issueNote}
-                                    <textarea
-                                      rows={2}
-                                      maxLength={MAX_NOTE}
-                                      value={mark.note}
-                                      aria-describedby={passage}
-                                      onInput={(e) =>
-                                        setMark(k, issue, {
-                                          note: (
-                                            e.target as HTMLTextAreaElement
-                                          ).value,
-                                        })
-                                      }
-                                    />
-                                  </label>
-                                )}
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </section>
-                    ))}
-                  </>
-                )}
-              </div>
-            )}
-          </section>
+          <DocumentPane
+            selected={selected}
+            cited={cited}
+            marks={marks}
+            paneTab={paneTab}
+            paneRef={detailRef}
+            onIncludeAll={includeAll}
+            onMark={setMark}
+            panels={documentPanels}
+          />
 
           {/* The list scrolls in its own area and Export is a row under it, so no field can sit under Export. */}
           <section class="pane pane-report" aria-labelledby="report-h">
@@ -3135,6 +3280,15 @@ export function App() {
                 <ul class="cited">
                   {follows.map((item, index) => {
                     const check = checks[item.id];
+                    // Checking and waiting are not a tracking state yet: nothing is established.
+                    const state = trackingState({
+                      item,
+                      check:
+                        check?.state === "checked" ||
+                        check?.state === "unavailable"
+                          ? check
+                          : undefined,
+                    });
                     return (
                       <li key={item.id}>
                         <h4 id={`follow-${index}`}>{followName(item)}</h4>
@@ -3163,6 +3317,12 @@ export function App() {
                               : COPY.follow.notChecked}
                           </span>
                         </p>
+                        <p class="help follow-state">
+                          <strong>{COPY.follow.states[state]}.</strong>{" "}
+                          {COPY.follow.stateHelp[state]}
+                        </p>
+                        {/* Search results state their retrieval time, never a source as-of date. */}
+                        <p class="help">{COPY.follow.dataAsOfLine(null)}</p>
                         {check?.state === "checking" && (
                           <p class="help">{COPY.follow.checkingItem}</p>
                         )}
@@ -3373,6 +3533,9 @@ export function App() {
               {COPY.footerItems.map((item) => (
                 <li key={item}>{item}</li>
               ))}
+              <li>
+                <a href={privacy.noticesHref}>{privacy.noticesLink}</a>
+              </li>
             </ul>
             <TsdfLine />
           </footer>
@@ -3380,7 +3543,8 @@ export function App() {
       </div>
       <About
         dialog={aboutRef}
-        sources={sources}
+        rows={rows}
+        wordsSent={wordsSent}
         onClose={closeAbout}
         onClosed={() => aboutOpener.current?.focus()}
       />
@@ -3444,7 +3608,12 @@ export function App() {
           </section>
         </form>
       </dialog>
-      <PrintView report={report} />
+      <PrintView
+        report={report}
+        entries={exportEntries(report)}
+        template={MODE_DEFAULTS[mode].template}
+        checks={briefingChecks()}
+      />
     </>
   );
 }
@@ -3671,15 +3840,19 @@ function TsdfLine() {
 
 function About({
   dialog,
-  sources,
+  rows,
+  wordsSent,
   onClose,
   onClosed,
 }: {
   dialog: RefObject<HTMLDialogElement>;
-  sources: readonly DemoSource[];
+  rows: readonly SourceRow[];
+  /** Where search words go, as the search box states it. */
+  wordsSent: string;
   onClose: () => void;
   onClosed: () => void;
 }) {
+  const [noTracking, ...leaves] = COPY.aboutPrivacy;
   // The document's closing "verify" line is left out: the dialog's limits text already says it.
   const [material, claims, matches] = COPY.docSovereignty;
   return (
@@ -3714,24 +3887,15 @@ function About({
         </section>
         <section>
           <h3>{COPY.aboutSourcesTitle}</h3>
-          <ul class="rows">
-            {sources.map((s) => (
-              <li class="source" key={s.id}>
-                <span class="row">
-                  <span class="row-k">{s.label}</span>
-                  <Leader />
-                  <SourceStatus status={s.status} />
-                </span>
-                <span class="source-note">{s.note}</span>
-              </li>
-            ))}
-          </ul>
+          <SourceList rows={rows} />
           <p>{COPY.aboutSourcesNote}</p>
           <p>{COPY.mergeRule}</p>
         </section>
         <section>
           <h3>{COPY.aboutPrivacyTitle}</h3>
-          {COPY.aboutPrivacy.map((text) => (
+          <p>{noTracking}</p>
+          <p>{wordsSent}</p>
+          {leaves.map((text) => (
             <p key={text}>{text}</p>
           ))}
         </section>
@@ -3753,70 +3917,6 @@ function About({
         </section>
       </div>
     </dialog>
-  );
-}
-
-/** The one mapping from document blocks to elements; all wording comes from the model. */
-function docBlock(block: DocBlock, index: number) {
-  switch (block.kind) {
-    case "title":
-      return <h1 key={index}>{block.text}</h1>;
-    case "h2":
-      return <h2 key={index}>{block.text}</h2>;
-    case "h3":
-      return <h3 key={index}>{block.text}</h3>;
-    case "quote":
-      return <blockquote key={index}>{block.text}</blockquote>;
-    case "field":
-      return (
-        <p class="doc-field" key={index}>
-          <b>{block.label}</b>{" "}
-          <span class={block.mono ? "mono" : undefined}>{block.value}</span>
-        </p>
-      );
-    case "ref":
-      return (
-        <p class="doc-ref" key={index}>
-          <b>[{block.number}]</b> <span>{block.text}</span>
-        </p>
-      );
-    case "rule":
-      return <hr key={index} />;
-    case "break":
-      return <div class="doc-break" key={index} />;
-    default:
-      return (
-        // As in the PDF, only the placeholder for a missing note is set quieter.
-        <p
-          class={`doc-${block.kind}${block.text === COPY.pdfNoNote ? " is-empty" : ""}`}
-          key={index}
-        >
-          {block.text}
-        </p>
-      );
-  }
-}
-
-export function PrintView({ report }: { report: ReportState }) {
-  const model = buildDocument({
-    version: VERSION,
-    generatedAt: new Date(),
-    entries: reportEntries(report),
-    actors: report.actors,
-  });
-  return (
-    <div class="print-only">
-      <img
-        class="doc-seal"
-        src={SEAL}
-        alt={COPY.sealAlt}
-        width="54"
-        height="54"
-      />
-      {model.blocks.map(docBlock)}
-      {/* shortcut: the footer prints once at the end, not on every page; the PDF carries the running header and footer. */}
-      <p class="doc-small doc-foot">{model.footer}</p>
-    </div>
   );
 }
 

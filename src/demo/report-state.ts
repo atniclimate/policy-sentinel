@@ -119,6 +119,8 @@ export interface Cited {
   alternates: readonly DemoCitation[];
   /** How it was found. Memory only: never saved, so absent after a restore. */
   foundBy?: readonly FoundBy[];
+  /** Saved before version 4, which first kept the listing's stated fields: their absence is not "none stated". */
+  statedNotKept?: true;
 }
 export interface ReportState {
   cited: Record<string, Cited>;
@@ -194,11 +196,12 @@ export function restoreReport(raw: string | null): RestoredReport {
     if (
       saved.version !== undefined &&
       saved.version !== 2 &&
-      saved.version !== 3
+      saved.version !== 3 &&
+      saved.version !== 4
     )
       throw new Error("Unknown saved version");
     // Data actors and alternates were first saved by version 3.
-    const current = saved.version === 3;
+    const current = saved.version === 3 || saved.version === 4;
     if (current) {
       try {
         const actors = object(saved.actors);
@@ -232,6 +235,9 @@ export function restoreReport(raw: string | null): RestoredReport {
             policy = policyValue(entry.policy);
             if (JSON.stringify(policy.citation) !== JSON.stringify(citation))
               throw new Error("Saved evidence does not match citation");
+            // A version 3 read keeps its version, not its chain rows (MEMORY_ONLY), so the page says they were not kept.
+            if (object(entry.policy).version === 3)
+              policy = { ...policy, version: 3 };
           } catch {
             policy = null;
             recovered = true;
@@ -243,7 +249,16 @@ export function restoreReport(raw: string | null): RestoredReport {
           alternates = result.alternates;
           if (result.damaged) recovered = true;
         }
-        report.cited[key] = { citation, policy, note, alternates };
+        // Version 4 first saved the stated fields; the flag then travels with the entry.
+        const statedNotKept =
+          saved.version !== 4 || entry.statedNotKept === true;
+        report.cited[key] = {
+          citation,
+          policy,
+          note,
+          alternates,
+          ...(statedNotKept && { statedNotKept: true as const }),
+        };
         if (marks[key] !== undefined) {
           try {
             const savedMarks = object(marks[key]);
@@ -282,9 +297,9 @@ export function restoreReport(raw: string | null): RestoredReport {
 }
 
 /**
- * Kept in memory only. foundBy holds search terms and draft IDs; the rest are
- * the search contract v2 citation fields, which nothing reads back after a
- * citation is saved. No other saved field has these names.
+ * The search contract v2 citation fields a listed row states. They are saved
+ * with the citation: the identifier rows, the export, the Briefing's dates and
+ * the calendar read them back after a reload.
  */
 const STATED_FIELDS = [
   "commentsCloseOn",
@@ -296,7 +311,9 @@ const STATED_FIELDS = [
   "applicationsCloseOn",
   "listedEligibility",
 ];
-const MEMORY_ONLY = new Set(["foundBy", ...STATED_FIELDS]);
+// Kept in memory only. foundBy holds search terms and draft IDs. chain: a
+// version 3 read's rows (up to 200) are rebuilt on read, never saved.
+const MEMORY_ONLY = new Set(["foundBy", "chain"]);
 
 /**
  * The read text's citation, with the v2 fields the listed row stated where the
@@ -314,7 +331,7 @@ export function keepStated(
 }
 
 export function serializeReport(report: ReportState): string {
-  const result = JSON.stringify({ version: 3, ...report }, (key, value) =>
+  const result = JSON.stringify({ version: 4, ...report }, (key, value) =>
     MEMORY_ONLY.has(key) ? undefined : (value as unknown),
   );
   if (result.length > MAX_SAVED_CHARACTERS)
@@ -371,6 +388,7 @@ export function reportEntries(report: ReportState) {
     note: entry.note,
     alternates: entry.alternates,
     foundBy: entry.foundBy,
+    statedNotKept: entry.statedNotKept,
     issues: (entry.policy?.issues ?? [])
       .filter((issue) => report.marks[key]?.[issue.id]?.on)
       .map((issue) => ({

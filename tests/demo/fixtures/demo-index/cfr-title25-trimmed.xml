@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Trimmed from the GovInfo CFR 2025 title 25 volume 1 shape (condition H6).
+     Official elements kept: REVISED, and the AUTH and SOURCE of parts 2 and 32.
+     Synthetic: every SUBJECT and HD heading, part 900 (its AUTH reads as the
+     measured eCFR line), the subpart AUTH, and the reserved entries. -->
+<CFRDOC>
+    <FMTR>
+        <TITLEPG>
+            <TITLENUM>Title 25</TITLENUM>
+            <REVISED>Revised as of April 1, 2025</REVISED>
+        </TITLEPG>
+    </FMTR>
+    <TITLE>
+        <CHAPTER>
+            <TOC>
+                <TOCHD>
+                    <HD SOURCE="HED">SYNTHETIC CHAPTER HEADING</HD>
+                </TOCHD>
+                <CHAPTI>
+                    <PT>2</PT>
+                    <SUBJECT>Synthetic subject two</SUBJECT>
+                    <PG>10</PG>
+                </CHAPTI>
+                <SUBCHAP>
+                    <HD SOURCE="HED">SUBCHAPTER E—SYNTHETIC</HD>
+                    <CHAPTI>
+                        <PT>32</PT>
+                        <SUBJECT>Synthetic subject thirty-two</SUBJECT>
+                        <PG>180</PG>
+                        <PT>82</PT>
+                        <RESERVED>[Reserved]</RESERVED>
+                        <PT>294-299</PT>
+                        <RESERVED>[Reserved]</RESERVED>
+                        <PT>900</PT>
+                        <SUBJECT>Synthetic subject nine hundred</SUBJECT>
+                        <PG>990</PG>
+                    </CHAPTI>
+                </SUBCHAP>
+            </TOC>
+            <SUBCHAP>
+                <PART>
+                    <EAR>Pt. 2</EAR>
+                    <HD SOURCE="HED">PART 2—SYNTHETIC HEADING</HD>
+                    <CONTENTS>
+                        <SECHD>Sec.</SECHD>
+                        <SECTNO>2.1</SECTNO>
+                        <SUBJECT>Synthetic section subject.</SUBJECT>
+                    </CONTENTS>
+                    <AUTH>
+                        <HD SOURCE="HED">Authority:</HD>
+                        <P>43 U.S.C. 1457; 25 U.S.C. 9; 5 U.S.C. 301.</P>
+                    </AUTH>
+                    <SOURCE>
+                        <HD SOURCE="HED">Source:</HD>
+                        <P>88 FR 53779, Aug. 9, 2023, unless otherwise noted.</P>
+                    </SOURCE>
+                    <SECTION>
+                        <SECTNO>§ 2.1</SECTNO>
+                        <SUBJECT>Synthetic section subject.</SUBJECT>
+                        <P>Synthetic section text that the parser does not carry.</P>
+                    </SECTION>
+                </PART>
+            </SUBCHAP>
+            <SUBCHAP>
+                <PART>
+                    <PRTPAGE P="188"/>
+                    <EAR>Pt. 32</EAR>
+                    <HD SOURCE="HED">PART 32—SYNTHETIC HEADING</HD>
+                    <CONTENTS>
+                        <SECHD>Sec.</SECHD>
+                    </CONTENTS>
+                    <AUTH>
+                        <HD SOURCE="HED">Authority:</HD>
+                        <P>Secs. 1130 and 1133 of Title XI of the Education Amendments of 1978 (92 Stat. 2143, 2321 and 2325, Pub. L. 95-561; 25 U.S.C. 2010 and 2013).</P>
+                    </AUTH>
+                    <SOURCE>
+                        <HD SOURCE="HED">Source:</HD>
+                        <P>44 FR 58098, Oct. 9, 1979, unless otherwise noted. Redesignated at 47 FR 13327, Mar. 30, 1982.</P>
+                    </SOURCE>
+                    <SUBPART>
+                        <HD SOURCE="HED">Subpart A—Synthetic</HD>
+                        <AUTH>
+                            <HD SOURCE="HED">Authority:</HD>
+                            <P>5 U.S.C. 301.</P>
+                        </AUTH>
+                    </SUBPART>
+                </PART>
+                <PART>
+                    <RESERVED>PART 82 [RESERVED]</RESERVED>
+                </PART>
+                <PART>
+                    <RESERVED>PARTS 294-299 [RESERVED]</RESERVED>
+                </PART>
+                <PART>
+                    <EAR>Pt. 900</EAR>
+                    <HD SOURCE="HED">PART 900—SYNTHETIC HEADING</HD>
+                    <AUTH>
+                        <HD SOURCE="HED">Authority:</HD>
+                        <P>
+                            25 U.S.C. 450f
+                            <E T="03">et seq.</E>
+                        </P>
+                    </AUTH>
+                    <SOURCE>
+                        <HD SOURCE="HED">Source:</HD>
+                        <P>61 FR 32501, June 24, 1996, unless otherwise noted.</P>
+                    </SOURCE>
+                </PART>
+            </SUBCHAP>
+        </CHAPTER>
+    </TITLE>
+</CFRDOC>

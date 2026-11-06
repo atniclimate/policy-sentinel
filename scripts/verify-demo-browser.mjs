@@ -16,7 +16,19 @@ import {
   ieeeReference,
   SOURCE_LABELS,
 } from "../src/demo/citations.ts";
+import { localDay } from "../src/demo/local-day.ts";
 import { COPY, EXAMPLES } from "../src/demo/copy.ts";
+import { sourceModel } from "../src/demo/copy/sources.ts";
+
+// The Sources panel names an enabled source by the source model (safeguard 8):
+// verified only with a recorded release date, otherwise not yet verified.
+function enabledState(text) {
+  const verified = sourceModel.enabledVerified("");
+  return (
+    text === sourceModel.enabledUnverified ||
+    (text.startsWith(verified) && text.length > verified.length)
+  );
+}
 
 const TSDF_URL =
   "https://atniclimate.github.io/TieredSovereignDataFramework/#overview";
@@ -40,7 +52,12 @@ function requestGuard(pageUrl) {
     staticRequests,
     permit(raw, method, type) {
       const request = new URL(raw);
-      if (method !== "GET") return false;
+      // The page sends its search as a POST (search words stay out of addresses).
+      const searchPost =
+        method === "POST" &&
+        request.origin === apiOrigin &&
+        request.pathname === "/api/search";
+      if (method !== "GET" && !searchPost) return false;
       if (
         request.origin === apiOrigin &&
         Object.hasOwn(limits, request.pathname)
@@ -133,10 +150,27 @@ if (args["self-test"] === "true") {
     "http://127.0.0.1:4185/?api=http://127.0.0.1:4185",
   );
   assert(!guard.permit("https://example.invalid/api/search", "GET", "fetch"));
+  assert(!guard.permit("https://example.invalid/api/search", "POST", "fetch"));
+  for (const method of ["PUT", "DELETE", "PATCH", "OPTIONS"])
+    assert(!guard.permit("http://127.0.0.1:4185/api/search", method, "fetch"));
+  for (const path of ["sources", "policy", "related", "unknown"])
+    assert(!guard.permit(`http://127.0.0.1:4185/api/${path}`, "POST", "fetch"));
+  assert(!guard.permit("http://127.0.0.1:4185/index.html", "POST", "document"));
+  assert(guard.permit("http://127.0.0.1:4185/api/search", "POST", "fetch"));
+  // One search in the budget, whichever method spends it.
   assert(!guard.permit("http://127.0.0.1:4185/api/search", "POST", "fetch"));
-  assert(guard.permit("http://127.0.0.1:4185/api/search", "GET", "fetch"));
   assert(!guard.permit("http://127.0.0.1:4185/api/search", "GET", "fetch"));
+  const getGuard = requestGuard(
+    "http://127.0.0.1:4185/?api=http://127.0.0.1:4185",
+  );
+  assert(getGuard.permit("http://127.0.0.1:4185/api/search", "GET", "fetch"));
+  assert(!getGuard.permit("http://127.0.0.1:4185/api/search", "POST", "fetch"));
   assert(!guard.permit("http://127.0.0.1:4185/api/unknown", "GET", "fetch"));
+  assert(enabledState(sourceModel.enabledUnverified));
+  assert(enabledState(sourceModel.enabledVerified("2026-11-05")));
+  assert(!enabledState(sourceModel.enabledVerified("")));
+  assert(!enabledState(COPY.liveTitle));
+  assert(!enabledState(sourceModel.notAvailable));
   for (const [path, limit] of [
     ["sources", 2],
     ["policy", 1],
@@ -215,7 +249,7 @@ if (args["self-test"] === "true") {
     process.off("unhandledRejection", observeUnhandled);
   }
   console.log(
-    "PASS source/count, request guard and response/trigger controls; no browser or network opened.",
+    "PASS source/count, request guard (search POST only), source state wording and response/trigger controls; no browser or network opened.",
   );
   process.exit(0);
 }
@@ -541,9 +575,11 @@ try {
       .count()) === federal.length;
   for (const s of federal) {
     // Scoped to the sources group: the Grants.gov eligibility filter also names Grants.gov.
+    // Matched on the exact source name: "GovInfo" is a prefix of "GovInfo court opinions".
     const box = page
       .getByRole("group", { name: COPY.sourcesLegend })
-      .getByRole("checkbox", { name: s.label });
+      .locator("label", { has: page.getByText(s.label, { exact: true }) })
+      .getByRole("checkbox");
     const live = s.status === "live";
     federalOk &&=
       (await box.isEnabled()) === live &&
@@ -567,9 +603,9 @@ try {
       ).join() === states.map((s) => s.id).join(),
   );
   check(
-    "service answers (sources load with Washington live)",
+    "service answers (sources load with Washington enabled)",
     (await stateSelect.inputValue()) === "washington" &&
-      flat(await stateNote.locator(".status").innerText()) === COPY.liveTitle,
+      enabledState(flat(await stateNote.locator(".status").innerText())),
   );
   const offState = states.find((s) => s.status !== "live");
   if (offState) {
@@ -773,9 +809,9 @@ try {
     "selected rule": `${L.rule}: ${issue.rule}`,
     "selected check": `${L.check}: ${issue.check}`,
     "provenance reference": `${COPY.docProvenanceTitle}${L.reference}[1]`,
-    "provenance metadataRetrieved": `${L.metadataRetrieved}${citation.retrievedAt}`,
+    "provenance metadataRetrieved": `${L.metadataRetrieved}${localDay(citation.retrievedAt)} (${citation.retrievedAt})`,
     "provenance textUrl": `${L.textReadFrom}${textReceipt.textUrl}`,
-    "provenance textRetrieved": `${L.textRetrieved}${textReceipt.retrievedAt}`,
+    "provenance textRetrieved": `${L.textRetrieved}${localDay(textReceipt.retrievedAt)} (${textReceipt.retrievedAt})`,
     "provenance hash": `${L.fingerprint}${COPY.docFingerprint(textReceipt.sha256, textReceipt.bytes)}`,
     "provenance parser": `${L.extractor}${engine.parser} ${engine.parserVersion}`,
     "provenance parserConfig": `${L.parserConfig}${engine.parserConfigDigest}`,
@@ -852,7 +888,7 @@ try {
       "real browser print lifecycle fires and restores screen",
       receipt.printEvents.includes("beforeprint") &&
         receipt.printEvents.includes("afterprint") &&
-        (await page.getByRole("searchbox").isVisible()),
+        (await page.locator("#q").isVisible()),
     );
   }
   await page.screenshot({
@@ -891,7 +927,8 @@ try {
   check("theme switch returns to dark", await themeIs("dark"));
 
   // Start at a known control, then verify keyboard movement and visible focus.
-  await page.getByRole("searchbox").focus();
+  // The search field is a combobox (#q) since the suggestion list (0.9.1).
+  await page.locator("#q").focus();
   await page.keyboard.press("Tab");
   const focused = await page.evaluate(() => {
     const el = document.activeElement;

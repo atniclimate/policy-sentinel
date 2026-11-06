@@ -5,6 +5,7 @@ export const MODULES: readonly ModuleName[];
 export const PRIVATE_MODULE_FILES: readonly string[];
 export const PRIVATE_BARREL_PATH: string;
 export const PUBLIC_ENTRY_PATHS: readonly string[];
+export const LOCAL_ENTRY_PATHS: readonly string[];
 export const COMPOSITION_ROOT_PATHS: readonly string[];
 export const COMPOSITION_DECLARATION_PATHS: readonly string[];
 

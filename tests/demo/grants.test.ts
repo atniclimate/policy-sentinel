@@ -157,6 +157,16 @@ describe("Grants.gov in the Worker", () => {
     // Source wording is kept as Grants.gov wrote it.
     // Grants.gov sends entities as text; the row shows the character.
     expect(posted.title).toContain("Program– Scholarship");
+    // The search row and the opportunity read decode with one table.
+    answer({
+      ...GRANTS_LIVE_ANY,
+      data: {
+        hitCount: 1,
+        oppHits: [{ ...dated, title: "Example under 25 U.S.C. &sect; 5304" }],
+      },
+    });
+    const sect = await (await call({ searchVersion: "2" })).json();
+    expect(sect.results[0].title).toBe("Example under 25 U.S.C. § 5304");
     expect(body.continuation.kind).toBe("more");
     answer(GRANTS_LIVE_ANY);
     const next = await call({

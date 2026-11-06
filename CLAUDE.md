@@ -5,13 +5,6 @@ file adds Claude Code notes only.
 
 @AGENTS.md
 
-## Session start
-
-Start in minutes: `docs/STATUS.md`, `git status --short`,
-`git log --oneline -10`, then only the code the task touches. No full roadmap
-read and no validators before an edit. If the checkout does not match
-`docs/STATUS.md`, say so first.
-
 ## Working notes
 
 - The deny list in `.claude/settings.json` stays for remote changes, tag,
@@ -27,9 +20,17 @@ read and no validators before an edit. If the checkout does not match
   edit files on disjoint paths; the main session stages by explicit path and
   commits.
 - Use subagents or workflows for disjoint lanes and for the one review at the
-  risk boundary, not for single-file reads. Subagents do not spawn subagents.
-  Project agents are in `.claude/agents/`: `gd-lane`, `gate-verifier`,
-  `source-scout`, `sovereignty-reviewer` and `legacy-inventory`.
+  risk boundary, not for single-file reads. Use a workflow when two or more
+  lanes run in one step. Subagents do not spawn subagents. Project agents in
+  `.claude/agents/`: `gd-lane` for one lane on a listed file set;
+  `gate-verifier` at a wave boundary and before publishing;
+  `sovereignty-reviewer` at the risk boundary, split for a large diff into
+  identity and jurisdiction, privacy, and wording and provenance; `source-scout`
+  for a source note's documentation read; `legacy-inventory` for one legacy
+  location. A lane that adds a source module or a config file is a
+  general-purpose agent given `gd-lane` rules 1 to 7, the land-field ban of rule
+  8, the row's approved host and its source note; the main session wires shared
+  files.
 - Sibling repositories `I:\land-use-analyzer`, `I:\TCR-policy-scanner` and
   `I:\cap-assessor` are read-only: read interface code and docs, never edit,
   install or commit there. In `I:\cap-assessor` the `pilot\` directory holds
@@ -40,9 +41,3 @@ read and no validators before an edit. If the checkout does not match
   the failing lines, and quote a failing assertion instead of pasting a log.
 - Dates on records come from the record (`git show -s --format=%cI <sha>`). File
   names use `Get-Date -Format yyyy-MM-dd`.
-
-## Reporting
-
-Five lines, as set out in `AGENTS.md` under "How to work". Pair every ID with
-its plain-language name. Use plain ASCII and no em dashes. Name every decision
-still waiting on the owner.

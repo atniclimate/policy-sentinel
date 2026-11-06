@@ -10,17 +10,14 @@ import {
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const forbidden = [
-  // The quote is optional and a comma counts, so query strings and call arguments are caught too.
-  /api[_-]?key["']?\s*[:=,]\s*["']?[A-Za-z0-9]{16,}/i,
-  /X-Api-Key["']?\s*[:,]\s*["']?[A-Za-z0-9]{16,}/i,
-  /(?:ghp_|github_pat_)[A-Za-z0-9_]{20,}/,
-  /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
-  /[A-Za-z]:[\\/]+(?:Users|dev|policy-sentinel|ATNI-TERRA)[\\/]+/i,
-  /sourceMappingURL\s*=/,
-  /Passage note from the browser check\./,
-  /Policy note from the browser check\./,
-];
+import { copyThirdPartyNotices } from "./copy-third-party-notices.mjs";
+import {
+  FORBIDDEN_OUTPUT as forbidden,
+  FULL_PROBE_ENTRIES,
+  isFullProbe,
+  loadNationProbe,
+} from "./demo-index/common.mjs";
+import { validateDemoIndex } from "./demo-index/validate.mjs";
 
 // Fonts and PNG images are binary and are not text-scanned, so each must open
 // with the signature of the format its name claims.
@@ -30,7 +27,33 @@ const signatures = {
   png: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
 };
 
-export function scanDemoOutput(root) {
+// The static index (index conditions K1): the validator's full check, which
+// also applies the forbidden list (G7) to the manifest and every present file.
+// Absent until the first build lays it down.
+// Index files need the full Nation-name list (G3): the committed hash file, or
+// the plain list named by DEMO_NATION_NAMES.
+function scanDemoData(root, { now, probe } = {}) {
+  const data = join(root, "demo-data");
+  if (!existsSync(data)) return 0;
+  if (lstatSync(data).isSymbolicLink())
+    throw new Error("demo build refused: linked index directory");
+  probe ??= loadNationProbe({
+    namesPath: process.env.DEMO_NATION_NAMES || undefined,
+  });
+  const result = validateDemoIndex(data, { now, probe });
+  if (!result.ok)
+    throw new Error(
+      `demo build refused: demo index invalid: ${result.errors.slice(0, 3).join("; ")}`,
+    );
+  if (result.fileCount > 0 && !isFullProbe(probe))
+    throw new Error(
+      `demo build refused: ${result.fileCount} index files present, but the Nation-name probes hold ${probe.entryCount ?? 0} entries, not the full list of ${FULL_PROBE_ENTRIES} (G3)`,
+    );
+  return result.fileCount + 1; // + 1 is the manifest
+}
+
+export function scanDemoOutput(root, options = {}) {
+  const indexFiles = scanDemoData(root, options);
   const targets = [join(root, "index.html")];
   let binaries = 0;
   function visit(directory) {
@@ -65,17 +88,25 @@ export function scanDemoOutput(root) {
       );
     }
   }
-  return { generatedFiles: targets.length + binaries };
+  return { generatedFiles: targets.length + binaries + indexFiles };
+}
+
+// After the Vite build: lay the third-party notices into the Pages folder
+// (T1.8), scan the generated output, and keep .nojekyll so Pages serves files as they are.
+export function finishDemoBuild(repoRoot) {
+  copyThirdPartyNotices(repoRoot);
+  const docs = join(repoRoot, "docs");
+  const result = scanDemoOutput(docs);
+  const nojekyll = join(docs, ".nojekyll");
+  if (!existsSync(nojekyll)) writeFileSync(nojekyll, "");
+  return result;
 }
 
 if (
   process.argv[1] &&
   resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-  const docs = fileURLToPath(new URL("../docs/", import.meta.url));
-  const result = scanDemoOutput(docs);
-  const nojekyll = join(docs, ".nojekyll");
-  if (!existsSync(nojekyll)) writeFileSync(nojekyll, "");
+  const result = finishDemoBuild(fileURLToPath(new URL("..", import.meta.url)));
   console.log(
     `demo build checked: ${result.generatedFiles} generated files; tracked historical docs require separate publication review`,
   );

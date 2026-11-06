@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://policy-sentinel.invalid/schemas/law-aliases.schema.v1.json",
+  "title": "Policy Sentinel reviewed law alias table",
+  "$comment": "Index conditions F5 and G3: curated config, bundled into the demo page, never fetched. Each entry is read from the official OLRC page by a person, and each acronym from the official page that states it; no model output (design rule 8). No law whose popular name names a Nation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "artifactType",
+    "basis",
+    "sourceUrl",
+    "entries"
+  ],
+  "properties": {
+    "$schema": { "const": "../schemas/law-aliases.schema.v1.json" },
+    "schemaVersion": { "const": "1.0.0" },
+    "artifactType": { "const": "law-aliases" },
+    "basis": { "const": "curated" },
+    "sourceUrl": { "$ref": "#/$defs/officialHost" },
+    "entries": {
+      "type": "array",
+      "maxItems": 400,
+      "items": { "$ref": "#/$defs/lawAlias" }
+    }
+  },
+  "$defs": {
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "officialHost": {
+      "type": "string",
+      "maxLength": 400,
+      "pattern": "^https://(www\\.ecfr\\.gov|uscode\\.house\\.gov|www\\.federalregister\\.gov)/"
+    },
+    "acronymSource": {
+      "type": "string",
+      "maxLength": 400,
+      "pattern": "^https://(www\\.ecfr\\.gov|uscode\\.house\\.gov|www\\.federalregister\\.gov|www\\.govinfo\\.gov)/",
+      "$comment": "officialHost plus GovInfo, for the CFR annual edition"
+    },
+    "acronym": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["acronym", "sourceUrl", "text"],
+      "properties": {
+        "acronym": { "type": "string", "pattern": "^[A-Z][A-Z0-9]{1,9}$" },
+        "sourceUrl": { "$ref": "#/$defs/acronymSource" },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400,
+          "pattern": "^[^<>]*$",
+          "$comment": "verbatim official wording where the acronym is stated"
+        }
+      }
+    },
+    "pattern": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "version": { "$ref": "#/$defs/semver" }
+      }
+    },
+    "uscCitation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "text",
+        "basis",
+        "pattern",
+        "title",
+        "section",
+        "etSeq"
+      ],
+      "properties": {
+        "kind": { "const": "usc" },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400,
+          "pattern": "^[^<>]*$",
+          "$comment": "verbatim"
+        },
+        "basis": { "const": "curated" },
+        "pattern": { "$ref": "#/$defs/pattern" },
+        "title": { "type": "integer", "minimum": 1, "maximum": 54 },
+        "section": { "type": "string", "minLength": 1, "maxLength": 24 },
+        "etSeq": { "type": "boolean" },
+        "note": {
+          "const": true,
+          "$comment": "a note locator after the section"
+        }
+      }
+    },
+    "lawAlias": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "popularName",
+        "citations",
+        "olrcUrl",
+        "reviewedOn",
+        "reviewerRole"
+      ],
+      "properties": {
+        "popularName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "pattern": "^[^<>]*$",
+          "$comment": "verbatim"
+        },
+        "titleAsEnacted": {
+          "type": "boolean",
+          "$comment": "the label says (title as enacted)"
+        },
+        "citations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": { "$ref": "#/$defs/uscCitation" }
+        },
+        "acronyms": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "items": { "$ref": "#/$defs/acronym" }
+        },
+        "olrcUrl": {
+          "type": "string",
+          "maxLength": 400,
+          "pattern": "^https://uscode\\.house\\.gov/"
+        },
+        "reviewedOn": { "$ref": "#/$defs/date" },
+        "reviewerRole": { "enum": ["owner", "staff"] }
+      }
+    }
+  }
+}

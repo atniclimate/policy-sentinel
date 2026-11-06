@@ -1,3 +1,7 @@
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -7,6 +11,7 @@ import {
 import {
   analyzeModuleBoundaries,
   collectModuleLoads,
+  readRepositoryFiles,
   resolveRepositoryTargets,
   validateLegacyFacade,
   walkRepositoryReachable,
@@ -23,6 +28,33 @@ const sourcePackFacade =
     ({ exportedName }) => exportedName,
   ).join(", ") +
   " } from '../../scripts/source-pack';";
+
+describe("Repository file inventory", () => {
+  it("reads every scanned file but skips git-ignored tool output", () => {
+    const root = mkdtempSync(join(tmpdir(), "module-graph-"));
+    try {
+      for (const [path, text] of Object.entries({
+        "worker/src/index.ts": "export {};",
+        "worker/.wrangler/tmp/bundle.js": "require(name);",
+        "worker/node_modules/pkg/index.js": "require(name);",
+        "demo/.hidden/relay.ts": "export {};",
+        "demo/logo.png": "binary",
+      })) {
+        mkdirSync(dirname(join(root, path)), { recursive: true });
+        writeFileSync(join(root, path), text);
+      }
+      expect(
+        Object.fromEntries(readRepositoryFiles(root, ["demo", "worker"])),
+      ).toEqual({
+        "demo/.hidden/relay.ts": "export {};",
+        "demo/logo.png": "",
+        "worker/src/index.ts": "export {};",
+      });
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+});
 
 describe("Repository module resolution", () => {
   it("includes simultaneous runtime, source and declaration candidates", () => {

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Trimmed from the OLRC USLM title 25 file at release point 119-136
+     (condition H6). Official elements kept: docPublicationName, the title's
+     "Current through" note, the sourceCredit of s13–1, s43 and s5304, and the
+     codification note of s421, s442, s450f and s458bbb. Headings, section
+     text, other notes and element ids are dropped. Synthetic: the chapter
+     wrapper and the referencesInText note in s5304 with its quoted section. -->
+<uscDoc identifier="/us/usc/t25" xmlns="http://xml.house.gov/schemas/uslm/1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/">
+<meta>
+  <dc:title>Title 25</dc:title>
+  <docNumber>25</docNumber>
+  <docPublicationName>Online@119-136</docPublicationName>
+  <dcterms:created>2026-05-06T11:43:48</dcterms:created>
+</meta>
+<main>
+<title identifier="/us/usc/t25"><num value="25">Title 25—</num>
+<note topic="miscellaneous"><p>Current through 119-136</p></note>
+<chapter identifier="/us/usc/t25/ch1">
+<section identifier="/us/usc/t25/s13–1"><num value="13–1">§ 13–1.</num><sourceCredit>(<ref href="/us/pl/95/561/tXI/s1103/b">Pub. L. 95–561, title XI, § 1103(b)</ref>, <date date="1978-11-01">Nov. 1, 1978</date>, <ref href="/us/stat/92/2316">92 Stat. 2316</ref>.)</sourceCredit></section>
+<section identifier="/us/usc/t25/s43"><num value="43">§ 43.</num><sourceCredit>(<ref href="/us/act/1910-04-04/ch140/s2">Apr. 4, 1910, ch. 140, § 2</ref>, <ref href="/us/stat/36/272">36 Stat. 272</ref>.)</sourceCredit></section>
+<section status="transferred" identifier="/us/usc/t25/s421"><num value="421">§ 421.</num><notes type="uscNote">
+<note topic="codification"><heading class="centered smallCaps">Codification</heading>
+<p class="indent0">Section 421, <ref href="/us/act/1900-05-17/ch479/s1">act May 17, 1900, ch. 479, § 1</ref>, <ref href="/us/stat/31/179">31 Stat. 179</ref>, which provided for free homesteads to settlers, commutation rights, and payments to Indians, was transferred to <ref href="/us/usc/t43/s179">section 179 of Title 43</ref>, Public Lands.</p>
+</note>
+</notes>
+</section>
+<section status="transferred" identifier="/us/usc/t25/s442"><num value="442">§ 442.</num><notes type="uscNote">
+<note topic="codification"><heading class="centered smallCaps">Codification</heading>
+<p class="indent0">Section 442 was editorially reclassified as <ref href="/us/usc/t25/s1545">section 1545 of this title</ref>.</p>
+</note>
+</notes>
+</section>
+<section status="transferred" identifier="/us/usc/t25/s450f"><num value="450f">§ 450f.</num><notes type="uscNote">
+<note topic="codification"><heading class="centered smallCaps">Codification</heading>
+<p class="indent0">Section 450f was editorially reclassified as <ref href="/us/usc/t25/s5321">section 5321 of this title</ref>.</p>
+</note>
+</notes>
+</section>
+<section status="transferred" identifier="/us/usc/t25/s458bbb"><num value="458bbb">§ 458bbb.</num><notes type="uscNote">
+<note topic="codification"><heading class="centered smallCaps">Codification</heading>
+<p class="indent0">Section 458bbb, <ref href="/us/pl/93/638/tV/s501">Pub. L. 93–638, title V, § 501</ref>, as added <ref href="/us/pl/106/568/tXIII/s1302">Pub. L. 106–568, title XIII, § 1302</ref>, <date date="2000-12-27">Dec. 27, 2000</date>, <ref href="/us/stat/114/2936">114 Stat. 2936</ref>; amended <ref href="/us/pl/108/267/s1/a">Pub. L. 108–267, § 1(a)</ref>,(b)(2), <date date="2004-07-02">July 2, 2004</date>, <ref href="/us/stat/118/797">118 Stat. 797</ref>, was renumbered <ref href="/us/pl/93/638/s801">section 801 of Pub. L. 93–638</ref> and transferred to <ref href="/us/usc/t25/s458ddd">section 458ddd of this title</ref> prior to editorial reclassification as <ref href="/us/usc/t25/s5421">section 5421 of this title</ref>.</p>
+</note>
+</notes>
+</section>
+<section identifier="/us/usc/t25/s5304"><num value="5304">§ 5304.</num><sourceCredit>(<ref href="/us/pl/93/638/s4">Pub. L. 93–638, § 4</ref>, <date date="1975-01-04">Jan. 4, 1975</date>, <ref href="/us/stat/88/2204">88 Stat. 2204</ref>; <ref href="/us/pl/100/472/tI/s103">Pub. L. 100–472, title I, § 103</ref>, <date date="1988-10-05">Oct. 5, 1988</date>, <ref href="/us/stat/102/2286">102 Stat. 2286</ref>; <ref href="/us/pl/100/581/tII/s208">Pub. L. 100–581, title II, § 208</ref>, <date date="1988-11-01">Nov. 1, 1988</date>, <ref href="/us/stat/102/2940">102 Stat. 2940</ref>; <ref href="/us/pl/101/301/s2/a/1">Pub. L. 101–301, § 2(a)(1)</ref>–(3), <date date="1990-05-24">May 24, 1990</date>, <ref href="/us/stat/104/206">104 Stat. 206</ref>; <ref href="/us/pl/101/644/tII/s202/1">Pub. L. 101–644, title II, § 202(1)</ref>, (2), <date date="1990-11-29">Nov. 29, 1990</date>, <ref href="/us/stat/104/4665">104 Stat. 4665</ref>; <ref href="/us/pl/103/413/tI/s102/1">Pub. L. 103–413, title I, § 102(1)</ref>, <date date="1994-10-25">Oct. 25, 1994</date>, <ref href="/us/stat/108/4250">108 Stat. 4250</ref>; <ref href="/us/pl/116/180/tII/s201/a">Pub. L. 116–180, title II, § 201(a)</ref>, <date date="2020-10-21">Oct. 21, 2020</date>, <ref href="/us/stat/134/878">134 Stat. 878</ref>.)</sourceCredit>
+<notes type="uscNote">
+<note topic="referencesInText"><heading>Synthetic heading</heading><p>Synthetic note with a reference to <ref href="/us/usc/t25/s5301">section 5301 of this title</ref>.</p>
+<quotedContent><section identifier="/us/usc/t25/s9999"><sourceCredit>(<ref href="/us/stat/1/1">1 Stat. 1</ref>.)</sourceCredit></section></quotedContent>
+</note>
+</notes>
+</section>
+</chapter>
+</title>
+</main>
+</uscDoc>

@@ -70,6 +70,19 @@ function legacy(report: ReportState, version?: number): string {
   );
 }
 
+/** The report as restored from a save before version 4: every entry says its stated fields were not kept. */
+function notKept(report: ReportState): ReportState {
+  return {
+    ...report,
+    cited: Object.fromEntries(
+      Object.entries(report.cited).map(([key, entry]) => [
+        key,
+        { ...entry, statedNotKept: true as const },
+      ]),
+    ),
+  };
+}
+
 /** A report whose one citation was merged with listings from two other sources. */
 function merged(): ReportState {
   const matchKey = "fr:2099-00001";
@@ -100,7 +113,7 @@ describe("citation report recovery and evidence binding", () => {
     "{}",
     "{",
     JSON.stringify({ version: 900, cited: {}, marks: {} }),
-    JSON.stringify({ version: 4, cited: {}, marks: {}, actors: emptyActors() }),
+    JSON.stringify({ version: 5, cited: {}, marks: {}, actors: emptyActors() }),
   ])("recovers safely from an invalid stored root: %s", (raw) => {
     const restored = restoreReport(raw);
     expect(restored.report).toEqual(emptyReport());
@@ -111,16 +124,43 @@ describe("citation report recovery and evidence binding", () => {
     const original = saved();
     expect(legacy(original)).not.toMatch(/matchKey|alternates|actors/);
     expect(restoreReport(legacy(original))).toEqual({
-      report: original,
+      report: notKept(original),
       notice: "",
     });
     expect(restoreReport(legacy(original, 2))).toEqual({
-      report: original,
+      report: notKept(original),
       notice: "",
     });
     const encoded = serializeReport(original);
-    expect(JSON.parse(encoded).version).toBe(3);
+    expect(JSON.parse(encoded).version).toBe(4);
     expect(restoreReport(encoded).report).toEqual(original);
+  });
+
+  it("marks an entry saved before version 4 as not keeping its stated fields, and keeps the mark through later saves", () => {
+    const original = saved();
+    // Version 3 saved the alternates and actors, but not the listing's stated fields.
+    const v3 = restoreReport(JSON.stringify({ ...original, version: 3 }));
+    expect(v3).toEqual({ report: notKept(original), notice: "" });
+    expect(restoreReport(serializeReport(v3.report)).report).toEqual(
+      notKept(original),
+    );
+    expect(restoreReport(serializeReport(original)).report).toEqual(original);
+    expect(reportEntries(v3.report)[0].statedNotKept).toBe(true);
+  });
+
+  it("never saves a version 3 read's chain rows, which are rebuilt on read", () => {
+    const original = saved();
+    const [key] = Object.keys(original.cited);
+    const entry = original.cited[key];
+    const withChain = {
+      ...original,
+      cited: {
+        [key]: { ...entry, policy: { ...entry.policy, version: 3, chain: [] } },
+      },
+    } as unknown as ReportState;
+    const encoded = serializeReport(withChain);
+    expect(encoded).not.toContain('"chain"');
+    expect(JSON.parse(encoded).cited[key].policy.version).toBe(3);
   });
 
   it("keeps valid entries while rejecting unsafe URLs, invalid entries and orphan marks", () => {
@@ -143,7 +183,7 @@ describe("citation report recovery and evidence binding", () => {
       },
     };
     const restored = restoreReport(JSON.stringify(raw));
-    expect(restored.report).toEqual(original);
+    expect(restored.report).toEqual(notKept(original));
     expect(restored.notice).toMatch(KEPT_NOTICE);
   });
 
@@ -359,7 +399,7 @@ describe("data actors", () => {
     (_case, actors) => {
       const original = merged();
       const restored = restoreReport(
-        JSON.stringify({ ...original, version: 3, actors }),
+        JSON.stringify({ ...original, version: 4, actors }),
       );
       expect(restored.report).toEqual({ ...original, actors: emptyActors() });
       expect(restored.notice).toMatch(KEPT_NOTICE);
@@ -385,7 +425,7 @@ describe("official addresses in saved citations", () => {
     const added = { ...citation("2099-00002"), sourceId, officialUrl };
     const restored = restoreReport(
       JSON.stringify({
-        version: 3,
+        version: 4,
         ...original,
         cited: {
           ...original.cited,
@@ -531,7 +571,7 @@ describe("alternate listings of a cited document", () => {
     expect(() => serializeReport(original)).toThrow(
       "Saved report is too large",
     );
-    const restored = restoreReport(JSON.stringify({ version: 3, ...original }));
+    const restored = restoreReport(JSON.stringify({ version: 4, ...original }));
     expect(restored.report).toEqual(emptyReport());
     expect(restored.notice).toBe(COPY.restoreFailed);
   });
@@ -567,7 +607,7 @@ describe("alternate listings of a cited document", () => {
     };
     raw.cited[key].alternates =
       alternates === "self" ? [original.cited[key].citation] : alternates;
-    const restored = restoreReport(JSON.stringify({ version: 3, ...raw }));
+    const restored = restoreReport(JSON.stringify({ version: 4, ...raw }));
     expect(restored.report.cited[key]).toEqual({
       ...original.cited[key],
       alternates: [],
@@ -584,7 +624,7 @@ describe("alternate listings of a cited document", () => {
       restoreReport(
         JSON.stringify({
           ...original,
-          version: 3,
+          version: 4,
           cited: { [key]: { ...original.cited[key], alternates } },
         }),
       );
@@ -626,7 +666,7 @@ describe("alternate listings of a cited document", () => {
     const restored = restoreReport(
       JSON.stringify({
         ...original,
-        version: 3,
+        version: 4,
         cited: {
           [key]: { ...original.cited[key], alternates: [listing("govinfo")] },
         },
@@ -830,7 +870,7 @@ describe("how a cited document was found", () => {
     expect(reportEntries(restored.report)[0].foundBy).toBeUndefined();
   });
 
-  it("saves no search contract v2 citation fields, on the citation or its alternates", () => {
+  it("saves the row's stated dates and identifiers, so a reload does not turn them into none stated", () => {
     const report = merged();
     const key = Object.keys(report.cited)[0];
     const entry = report.cited[key];
@@ -841,20 +881,25 @@ describe("how a cited document was found", () => {
       rins: ["0648-AA00"],
       cfrRefs: [{ title: 50, part: "660" }],
       topics: ["Fisheries"],
+      applicationsCloseOn: "2099-03-01",
+      listedEligibility: "tribal",
     } as const;
+    // The page keeps the citation and its read's citation the same object.
+    const citation = { ...entry.citation, ...v2 };
     const withFields: ReportState = {
       ...report,
       cited: {
         [key]: {
           ...entry,
-          citation: { ...entry.citation, ...v2 },
+          citation,
+          policy: entry.policy && { ...entry.policy, citation },
           alternates: entry.alternates.map((a) => ({ ...a, ...v2 })),
         },
       },
     };
     const raw = serializeReport(withFields);
-    for (const field of Object.keys(v2)) expect(raw).not.toContain(field);
-    expect(raw).toBe(serializeReport(report));
+    for (const field of Object.keys(v2)) expect(raw).toContain(field);
+    expect(restoreReport(raw)).toEqual({ report: withFields, notice: "" });
   });
 
   it("keeps the row's stated fields when its text is read, so the export can print them", () => {
