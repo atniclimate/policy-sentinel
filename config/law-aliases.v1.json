@@ -1,0 +1,8 @@
+{
+  "$schema": "../schemas/law-aliases.schema.v1.json",
+  "schemaVersion": "1.0.0",
+  "artifactType": "law-aliases",
+  "basis": "curated",
+  "sourceUrl": "https://uscode.house.gov/popularnames/popularnames.htm",
+  "entries": []
+}
