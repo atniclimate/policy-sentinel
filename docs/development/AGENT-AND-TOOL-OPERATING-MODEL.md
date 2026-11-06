@@ -1,8 +1,21 @@
 # Agent and tool operating model
 
+## Goal summary (2026-11-06)
+
+This is a retained record of the earlier operating model. It is not
+the current method. [`AGENTS.md`](../../AGENTS.md) "How to work" is current: a
+short spec, parallel lanes on disjoint files, focused checks, one `npm run
+check` before anything is published, and one review at the risk boundary.
+
+Superseded by the owner's answers of 2026-11-06: `ROADMAP.yaml` is archived
+(`../archive/ROADMAP-2026-11-06.yaml`), `npm run validate:roadmap` is gone, and
+the roadmap-ledger and `in_progress` rules below no longer apply. Progress and
+the next step live in [`../STATUS.md`](../STATUS.md) and
+[`../PLAN.md`](../PLAN.md). The safeguards in `AGENTS.md` are unchanged.
+
 Status: current development guidance. This document organizes execution; it
 does not authorize work, open a gate, accept evidence, or supersede
-[`AGENTS.md`](../../AGENTS.md), [`ROADMAP.yaml`](../../ROADMAP.yaml), or a
+[`AGENTS.md`](../../AGENTS.md), [`ROADMAP.yaml`](../archive/ROADMAP-2026-11-06.yaml), or a
 binding product contract.
 
 For the historical 0.9 program, the exact PS09 run gate and its durable path leases

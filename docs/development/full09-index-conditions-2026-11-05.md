@@ -1,5 +1,33 @@
 # Full 0.9 static index files: approved conditions and types
 
+## Goal summary (2026-11-06)
+
+Goal served: citation and authority links that a person can follow without a
+live call, from static index files built at build time under stated terms,
+call budgets and retention, so a result can show what a record cites and the
+evidence for each link.
+
+Status: approved on 2026-11-05 (D-125). The shapes and conditions below stand.
+No index shard is acquired yet. The U.S. Code shard waits on a bounded OLRC
+fetch, and the CFR shard waits on the GovInfo policies reading.
+
+Superseded or narrowed by the owner's answers of 2026-11-06:
+
+- The eCFR versioner acquisition (condition A item 5 and the per-part call
+  budget in condition I item 5) is dropped. The robots file disallows that
+  path, so eCFR stays a link-out. Robots-allowed eCFR endpoints may give
+  current metadata only after a source note reads their terms. The GovInfo
+  annual edition is the CFR text source.
+- OLRC terms are accepted for one raw fetch per law-alias page (at most four
+  title zips, one call per URL, one second apart, no retry) and for acquiring
+  the U.S. Code index shard under these conditions.
+- The CFR annual-edition shard is acquired only if the GovInfo policies and
+  bulk-data pages, read verbatim into the source note, allow a derived index.
+  If they are unclear, the chain keeps its link-outs.
+- Build-time engine use of the current api.data.gov key is allowed now, each
+  source within its source note; the browser never holds it. The D-123 move
+  still comes before the pre-release.
+
 Owner approval: D-125 (2026-11-05), on the conditions below with these owner
 adjustments, which override the text where they differ:
 
@@ -95,7 +123,8 @@ title 25).
 4. `demo:build` and `npm run build` read `docs/demo-data/manifest.json` at most
    and make no network call. Test: `finish-demo-build` scan runs on a fixture
    directory with no network (the existing test harness).
-5. The acquisition script takes a pinned input and refuses "current": `ecfr`
+5. [2026-11-06: the `ecfr` versioner path is dropped; the `uslm` part stands.]
+   The acquisition script takes a pinned input and refuses "current": `ecfr`
    requires `--date YYYY-MM-DD` and requests
    `/api/versioner/v1/full/<date>/title-<N>.xml?part=<P>`; `uslm` requires
    `--release-point 119-136` and requests the exact zip URL. Test: unit test on
@@ -328,7 +357,8 @@ with the design's number, not the primary cap.
    recorded only by the merge commit message ("demo index refresh: eCFR
    2026-12-01, OLRC 119-140; owner approved in session 2026-12-02") and the
    release points in `docs/DEMO-STATUS.md`. No register row per refresh.
-5. Call budget stated before each run, per source: OLRC one request per title
+5. [2026-11-06: the eCFR part of this budget is dropped.] Call budget stated
+   before each run, per source: OLRC one request per title
    zip; FR API one request per vocabulary; eCFR one `titles.json`, one
    structure listing per title, one request per part (about 2,800 for five
    titles at the estimated counts), spaced at least one second apart, no

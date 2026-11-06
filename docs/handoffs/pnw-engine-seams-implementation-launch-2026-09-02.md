@@ -91,7 +91,7 @@ was part of the congruence mutation closure.
 | Decisions and open gates | [`docs/decision-register.md`](../decision-register.md) |
 | Source envelope and dated evidence | [`docs/source-coverage.md`](../source-coverage.md) and [`docs/source-feasibility.md`](../source-feasibility.md) |
 | Retained application UX | [`docs/ux-spec.md`](../ux-spec.md) |
-| Retained B1-B10 plan | [`docs/mvp-plan.md`](../mvp-plan.md) |
+| Retained B1-B10 plan | [`docs/mvp-plan.md`](../archive/mvp-plan.md) |
 | K0/S0/O0 custody | [`docs/vision/README.md`](../vision/README.md) |
 | Roles, tools, leases, and run patterns | [`docs/development/AGENT-AND-TOOL-OPERATING-MODEL.md`](../development/AGENT-AND-TOOL-OPERATING-MODEL.md) |
 | Product-space mapping | [`pnw-product-space-rebase-2026-09-02.md`](pnw-product-space-rebase-2026-09-02.md) |

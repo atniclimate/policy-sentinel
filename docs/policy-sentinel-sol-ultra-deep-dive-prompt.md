@@ -3,7 +3,7 @@
 > **Historical completed diagnostic prompt.** Do not execute this snapshot as a
 > current run. Use [`ROADMAP.yaml`](../ROADMAP.yaml), the
 > [project backbone](PROJECT-BACKBONE.md), the
-> [current continuation prompt](continuation-prompt.md), and the current dated
+> [current continuation prompt](archive/continuation-prompt.md), and the current dated
 > handoff under [`docs/handoffs/`](handoffs/) instead. The body below retains its
 > original authority limits and historical assumptions.
 

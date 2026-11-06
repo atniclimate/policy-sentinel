@@ -9,7 +9,7 @@ publication_status: local_review_package_not_reviewed_for_export
 source_root_alias: policy-sentinel-repository
 authority_owners:
   navigation: policy-sentinel:document:backbone
-  work_status: policy-sentinel:document:roadmap
+  work_status: policy-sentinel:document:status
   decisions: policy-sentinel:document:decisions
   product: policy-sentinel:document:brief
   scope_acceptance: policy-sentinel:document:pnw
@@ -68,7 +68,8 @@ documents:
       oid: f876e7b8dac1a0ff77e0eb22bd63470318c835ec
       sha256: f17772a11ac7b3da3aef198b43b4706155d2d3f77c07887833e3d3dd44f625d6
   - id: policy-sentinel:document:continuation
-    path: docs/continuation-prompt.md
+    path: docs/archive/continuation-prompt.md
+    pin_path: docs/continuation-prompt.md
     title: Policy Sentinel durable continuation prompt
     observed_role: operational_guidance
     document_lifecycle_observation: current_guidance
@@ -82,7 +83,8 @@ documents:
       oid: 913ecc00099370d3518a22fdca17ad35b7b95ba7
       sha256: db67c5d656a68c96391624f87ab7d54a864aebcc91c4ac69a95747cc0feeecf0
   - id: policy-sentinel:document:roadmap
-    path: ROADMAP.yaml
+    path: docs/archive/ROADMAP-2026-11-06.yaml
+    pin_path: ROADMAP.yaml
     title: ROADMAP.yaml
     observed_role: work_ledger
     document_lifecycle_observation: current_ledger
@@ -95,6 +97,40 @@ documents:
       hash_domain: git_blob_bytes
       oid: 541d7f879e76247df451e86fb19d611409172b8f
       sha256: ca22c9ce00d5c3142c2e5bbdf77588ee1aaea4fc60b9a5e77b2a8803524af097
+  - id: policy-sentinel:document:status
+    path: docs/STATUS.md
+    pin_revision: 2b6742668dd34ff3e4aadcb354596ba418a8a9ac
+    title: STATUS.md
+    observed_role: work_status
+    document_lifecycle_observation: current_status_page
+    purpose:
+      Current state, next step and open owner decisions. Added 2026-11-06 when
+      ROADMAP.yaml was archived.
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: 57dab77c29d48ba0134f76e7c35f2acb65b96e10b64b2f831381bc720ea7b9ef
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 59ee3bb80d3505905dd8b58596b5868538dba50b
+      sha256: 57dab77c29d48ba0134f76e7c35f2acb65b96e10b64b2f831381bc720ea7b9ef
+  - id: policy-sentinel:document:plan
+    path: docs/PLAN.md
+    pin_revision: 2b6742668dd34ff3e4aadcb354596ba418a8a9ac
+    title: PLAN.md
+    observed_role: working_plan
+    document_lifecycle_observation: current_plan
+    purpose:
+      Goals and what must be true to reach them. Added 2026-11-06 when
+      ROADMAP.yaml was archived.
+    source_revision: c65949fef2c8e331097cbaf9c32f04983cde2a64
+    working_file_sha256: cf595538677b18fa6688fbe8374fa3cf0ffd63b19871e6702430845a02748050
+    metadata_review: curated_proposal
+    publication_status: not_reviewed_for_export
+    git_pin:
+      hash_domain: git_blob_bytes
+      oid: 938092155fe6f3f794954b95df3fffc4dd8e527d
+      sha256: cf595538677b18fa6688fbe8374fa3cf0ffd63b19871e6702430845a02748050
   - id: policy-sentinel:document:brief
     path: docs/project-brief.md
     title: Project brief
@@ -194,7 +230,8 @@ documents:
       oid: e18b1e93ea908a2f20e530b5a2092534ec18cf28
       sha256: 3f62869dcd25648dfa3e711637d9bee0b5fbca2f9b7a034e8d7b0815472bfa55
   - id: policy-sentinel:document:mvp
-    path: docs/mvp-plan.md
+    path: docs/archive/mvp-plan.md
+    pin_path: docs/mvp-plan.md
     title: Policy Sentinel MVP implementation plan
     observed_role: binding_contract
     document_lifecycle_observation: retained_contract_with_stale_passages

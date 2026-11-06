@@ -52,7 +52,7 @@ gates remain closed.
   later sessions cannot turn observed behavior or the 56-field inventory into
   admission, rights, or operational guarantees.
 - [`PROJECT-BACKBONE.md`](../PROJECT-BACKBONE.md),
-  [`continuation-prompt.md`](../continuation-prompt.md), and `ROADMAP.yaml`
+  [`continuation-prompt.md`](../archive/continuation-prompt.md), and `ROADMAP.yaml`
   point recovery to this checkpoint and the exact next gate.
 - `scripts/validate-backbone.mjs` and its direct test exclude the seven new
   owner-input paths from canonical link/count validation. This prevents

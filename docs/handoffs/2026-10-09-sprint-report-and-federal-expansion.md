@@ -167,7 +167,7 @@ Historical source runs and spent operation manifests do not resume.
 
 ## Next session startup
 
-Read the [continuation prompt](../continuation-prompt.md), its full required
+Read the [continuation prompt](../archive/continuation-prompt.md), its full required
 context, this report and D-091 in the [decision register](../decision-register.md).
 Verify branch/HEAD and preserve owner work. Select ready GD-57 and start with the federal expansion
 access and reliability matrix, then reconcile the authorized implementation

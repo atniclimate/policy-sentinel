@@ -1,9 +1,46 @@
 # Policy Sentinel
 
+Policy Sentinel helps Tribal policy, natural resources and legal staff, and the
+ATNI Climate staff who support them, keep up with federal and state policy
+without a research department. The goal: a staff member opens one page and
+searches official federal and state sources, and public Tribal and intertribal
+publications, together. Every result says what it is, which official source it
+came from, when it was retrieved and why it was shown. They can open a policy,
+see the passages that deserve attention (consultation wording, deadlines,
+Tribal references), keep those with their own notes, and export a cited document
+that carries its provenance. They can follow a rule, bill or docket and see what
+is new when they return. A Nation that wants to add its own documents runs the
+same tool on its own machine, offline, and that material never leaves it.
+
+What the live demo does today (version 0.9.1, a demo update and not a release):
+one search box over Federal Register, GovInfo, Congress.gov, Regulations.gov and
+Washington State Legislature records. It reads citations, bills, dockets and law
+names, and abstains when a query could mean more than one thing. A Cited and
+Linked Records panel shows what each record cites, with the evidence behind each
+link. A Briefing export carries the provenance. Oregon and Idaho are shown as
+not available. GovInfo U.S. Reports is the only Supreme Court source, and
+decisions after volume 586 are not in the demo. The law alias table and the
+plain-phrase table are still empty. The page and the Worker keep no record of
+searches.
+
+What it never does: say what a policy legally means for a Nation, link a record
+to a Nation without exact official evidence, present a computed date as a
+deadline, make an AI call in the browser, or keep anything about its users. The
+safeguards in [AGENTS.md](AGENTS.md) bind every change.
+
+First real release (the owner confirmed this meaning on 2026-11-06 as the 1.0
+test): a Tribal policy staff member who is not the owner completes a real task
+on the public tool without help and states correctly what the result does and
+does not establish, every source the page calls live has been checked against
+the real service, and the page says plainly what it does not cover. ATNI
+ratification makes 1.0, and the D-123 pre-release comes first.
+
 Start with [current status](docs/STATUS.md) and the [working plan](docs/PLAN.md).
 They describe the live demo, the next development step and pending owner decisions.
-The dated checkpoints below, `ROADMAP.yaml` and the continuation prompt are
-retained history, not instructions to resume an old run.
+The dated checkpoints below, the archived roadmap
+([docs/archive/ROADMAP-2026-11-06.yaml](docs/archive/ROADMAP-2026-11-06.yaml))
+and the archived continuation prompt are retained history, not instructions to
+resume an old run.
 
 The local research workbench now includes a persistent study workspace with
 Moon's-eye questions and gaps, Bird's-eye procedural and consultation history,
@@ -81,7 +118,7 @@ the source catalog and persistent studies pass integrated validation. Additive
 corpus 2.1 and public-contract 2.0 successors preserve legacy defaults and require
 explicit evidence for jurisdiction references. The complete test suite, both
 builds and the frozen bounded-search measurement passed at this checkpoint. The
-[continuation guide](docs/continuation-prompt.md) and the
+[continuation guide](docs/archive/continuation-prompt.md) and the
 [implementation record](docs/development/2026-10-08-study-engine-implementation.md)
 retain its evidence; use [STATUS.md](docs/STATUS.md) for the current resume state.
 
@@ -99,13 +136,14 @@ custody probes.
 Assertions, process isolation and operation timeouts stay unchanged; `npm test`
 includes all three suites.
 
-`npm run test:artifact` runs the seven artifact, registry and roadmap Node suites
+`npm run test:artifact` runs the six artifact and registry Node suites
 directly and serially. It is included in `npm test`; the former synchronous
 Vitest wrapper is removed, so individual Node test results are visible.
 
 Current development work is recorded in [STATUS.md](docs/STATUS.md) and
-[PLAN.md](docs/PLAN.md). [ROADMAP.yaml](ROADMAP.yaml) is retained and validated
-as historical record.
+[PLAN.md](docs/PLAN.md). The roadmap is archived at
+[docs/archive/ROADMAP-2026-11-06.yaml](docs/archive/ROADMAP-2026-11-06.yaml)
+and is no longer the plan or the status ledger.
 The separately authorized public demonstration and its maintenance evidence are
 recorded in [Live demo status](docs/DEMO-STATUS.md). The engineering-review
 checkpoints below describe their historical scope.
@@ -218,7 +256,7 @@ authorize a later replay of an ended measurement run.
 
 The adopted finite engineering review `H-ENGINEERING-REVIEW-02` is complete.
 Recover its [outcome](docs/handoffs/ps09-engineering-review-02-outcome.md),
-[journal](docs/development/PS09-ENGINEERING-REVIEW-02.md) and live roadmap.
+[journal](docs/development/PS09-ENGINEERING-REVIEW-02.md) and the archived roadmap.
 ER-03/ER-04 repairs and full checks pass; five synthetic measurement cases
 completed and the 2,000-work search case remains explicitly incomplete.
 There are zero active items. The
@@ -235,7 +273,7 @@ for curated metadata and detached reading views. `npm run test:assurance` covers
 error propagation; `npm run test:backbone` and `npm run test:tier1` run the four
 previously omitted offline suites. These suites are included in `npm test`;
 knowledge validation is included in `npm run check`. Generation is explicit and
-does not run during ordinary builds. Catalogs are navigation aids; the roadmap,
+does not run during ordinary builds. Catalogs are navigation aids; the plan,
 backbone, decision register and contracts retain authority.
 
 `npm run knowledge:pilot -- --view <owned-reading-vault>` records read-only local
@@ -263,9 +301,7 @@ historical status below describes the synthetic baseline. The ordinary build
 remains synthetic, while the sealed real corpus uses its reviewed local output.
 
 Development commands added for that scope: `npm run test:policy` runs the v2
-contract, temporal, extraction and acquisition checks; `npm run test:roadmap`
-runs ledger migration and rejection regressions with direct diagnostics;
-`npm run policy:runner -- <command>`
+contract, temporal, extraction and acquisition checks; `npm run policy:runner -- <command>`
 invokes one bounded custody operation; `npm run format:files -- <paths>` formats
 explicitly owned files. Runner commands are `init`, `acquire`, `read`, `recover`
 and `verify`, with `--root <external-owned-run-root>`; `status` reads counters
@@ -289,7 +325,7 @@ review descriptors, evidence index, and a validated v2 corpus. It makes no reque
 
 The authorized 0.9 Run 1 has completed repository convergence and a minimal
 local synthetic corpus/citation spine. Its exact acceptance evidence is in
-[`ROADMAP.yaml`](ROADMAP.yaml) and the
+[archived roadmap](docs/archive/ROADMAP-2026-11-06.yaml) and the
 [Run 1 handoff](docs/handoffs/ps09-run-01-convergence.md). Its historical grant is
 complete. `PS09-06-LOCAL-RC` is the frozen historical release root; the current
 GD-27 root carries its unmet claims through GD-53. B1-B10, PNW, and
@@ -326,8 +362,8 @@ provider-term acceptance, paid use, third-party contact, optional AI
 generation, outbound notifications, or private material.
 
 This checkpoint's progress, source blocks and acceptance evidence are retained in
-[`ROADMAP.yaml`](ROADMAP.yaml) and the
-[continuation prompt](docs/continuation-prompt.md). A fresh implementation session
+[archived roadmap](docs/archive/ROADMAP-2026-11-06.yaml) and the
+[continuation prompt](docs/archive/continuation-prompt.md). A fresh implementation session
 starts with [AGENTS.md](AGENTS.md), [STATUS.md](docs/STATUS.md) and
 [PLAN.md](docs/PLAN.md). Older handoffs do not resume completed runs or authorize
 new external actions.
@@ -478,8 +514,8 @@ npm ci
 npm run check
 ```
 
-`npm run check` checks formatting, lints, type-checks, validates the YAML
-roadmap, schema/link backbone, and foundation, runs the source-boundary scan
+`npm run check` checks formatting, lints, type-checks, validates the
+schema/link backbone, knowledge catalog and foundation, runs the source-boundary scan
 plus unit and accessibility tests, builds the static application, emits an
 ignored synthetic artifact under `dist/data`, and validates its hashes and
 contracts.
@@ -563,7 +599,6 @@ npm run dev
 npm run validate:runtime
 npm run hooks:test
 npm run hooks:test:snapshot
-npm run validate:roadmap
 npm run validate:backbone
 npm test
 npm run test:corpus
@@ -654,11 +689,11 @@ Key documents:
 - [Current status](docs/STATUS.md)
 - [Working plan](docs/PLAN.md)
 - [Repository document index](docs/PROJECT-BACKBONE.md)
-- [Retained implementation ledger](ROADMAP.yaml)
+- [Archived implementation ledger](docs/archive/ROADMAP-2026-11-06.yaml)
 - [PNW product scope and acceptance](docs/pnw-scope-and-acceptance.md)
 - [PNW rebase mapping, evidence gaps, and first tranche](docs/handoffs/pnw-product-space-rebase-2026-09-02.md)
 - [Exact owner-gated PNW-01 launch handoff](docs/handoffs/pnw-engine-seams-implementation-launch-2026-09-02.md)
-- [Historical continuation prompt](docs/continuation-prompt.md)
+- [Historical continuation prompt](docs/archive/continuation-prompt.md)
 - [Project brief](docs/project-brief.md)
 - [Schema and logical-contract catalog](docs/data-contract.md)
 - [Agent and tool operating model](docs/development/AGENT-AND-TOOL-OPERATING-MODEL.md)
@@ -668,7 +703,7 @@ Key documents:
 - [Architecture](docs/architecture.md)
 - [Source coverage](docs/source-coverage.md)
 - [UX specification](docs/ux-spec.md)
-- [MVP plan and stop/go gates](docs/mvp-plan.md)
+- [MVP plan and stop/go gates](docs/archive/mvp-plan.md)
 - [Decision register](docs/decision-register.md)
 
 Repository-local Codex support is intentionally narrow: the two lifecycle

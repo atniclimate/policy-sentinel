@@ -10,15 +10,23 @@ The end goal: a staff member opens one page and searches official federal and st
 
 The tool never says what a policy legally means for a Nation, never links a record to a Nation without exact official evidence, and keeps nothing about its users.
 
-Coverage grows one source at a time, federal first. Nationwide coverage stays the owner's stated direction (2026-09-22); `docs/PLAN.md` sets the order. Proposed meaning of a first real release, the 1.0 test under D-120 and design T1.7 (the owner confirms it): a Tribal policy staff member who is not the owner completes a real task on the public tool without help and states correctly what the result does and does not establish, every source the page calls live has been checked against the real service, and the page says plainly what it does not cover.
+The work is organized by goals, not by a checklist of points. `docs/PLAN.md` states each goal as what a Tribal staff member can do, why it matters, what a session can run to show it is done, which owner gates remain and what is out of scope. In short:
+
+- Search and read official federal sources and their cited laws and rules, with every result showing its source, retrieval time and why it was shown.
+- Follow a rule, bill or docket and see what is new.
+- Reach the first real release (below).
+- Cover the region: Washington first, then Oregon, Idaho and the four other named states, with gaps stated on the page.
+- Work with the staff member's own documents, offline.
+
+Coverage grows one source at a time, federal first. Nationwide coverage stays the owner's stated direction (2026-09-22); `docs/PLAN.md` sets the order. Meaning of the first real release, the 1.0 test under D-120 and design T1.7 (confirmed by the owner on 2026-11-06, D-147): a Tribal policy staff member who is not the owner completes a real task on the public tool without help and states correctly what the result does and does not establish, every source the page calls live has been checked against the real service, and the page says plainly what it does not cover. ATNI ratification makes 1.0, and the D-123 pre-release comes first. The first real release also includes the Nation picker (D-152), browser-held context that never filters, ranks or claims a record-to-Nation link.
 
 ## Where to look first
 
 1. [`docs/STATUS.md`](docs/STATUS.md): the current state, what is live, the next step, the open owner decisions. One page, overwritten each session.
-2. [`docs/PLAN.md`](docs/PLAN.md): the milestones with their acceptance checks, what needs the owner, what is deferred, and the current build design. That design's rules section binds every feature of the build.
+2. [`docs/PLAN.md`](docs/PLAN.md): the goals, each with what makes it done, its owner gates and what is out of scope, plus the parked goals and the current build design. That design's rules section binds every feature of the build.
 3. Then only the code and documents the task touches. [`docs/DEMO-STATUS.md`](docs/DEMO-STATUS.md) covers the live demo, [`docs/decision-register.md`](docs/decision-register.md) holds the owner's rulings in order, and [`docs/PROJECT-BACKBONE.md`](docs/PROJECT-BACKBONE.md) indexes everything else.
 
-`ROADMAP.yaml`, its validators, the operating model and the older handoffs are retained record. They stay unchanged and are still validated mechanically, but they are not the working plan. Do not edit `ROADMAP.yaml`. Read the record for a specific fact, never as a start-up routine. Whether to archive it is an owner decision listed in `docs/STATUS.md`.
+`ROADMAP.yaml` was archived on 2026-11-06 (D-153) to `docs/archive/ROADMAP-2026-11-06.yaml`. The file at the old path is a comment-only pointer; do not edit it. `docs/archive/ROADMAP-2026-11-06.yaml` is frozen record that the hooks read; never edit it. The archive, the operating model and the older handoffs are retained record, not the working plan. Read the record for a specific fact, never as a start-up routine.
 
 ## Safeguards
 
@@ -93,9 +101,10 @@ Everything listed in safeguard 6, plus private or Nation-specific material and a
 
 ## How to work
 
-Do the smallest task that satisfies the request, and preserve unrelated and concurrent changes. This method replaces the earlier read order, leases, per-checkpoint ledger entries and standing-check rituals.
+Work toward the goal, not the checklist. Do the smallest task that satisfies the request, and preserve unrelated and concurrent changes. This method replaces the earlier read order, leases, per-checkpoint ledger entries and standing-check rituals.
 
-- Start in minutes: this file, `docs/STATUS.md`, `git status --short` and `git log --oneline -10`, then only the code the task touches. If the checkout does not match `docs/STATUS.md`, say so first. Once a static index is published, also run `npm run check:freshness` (D-125); it reports, changes nothing, and its requests count against the call budget. No other validator before an edit, no full roadmap read.
+- Start from the goal. Name the goal in `docs/PLAN.md` the task serves and what a person will be able to do when it is done. When a step does not serve that goal, drop it; when the goal needs a step nobody listed, take it, within the safeguards and the owner gates.
+- Start in minutes: this file, `docs/STATUS.md`, `git status --short` and `git log --oneline -10`, then only the code the task touches. If the checkout does not match `docs/STATUS.md`, say so first. Once a static index is published, also run `npm run check:freshness` (D-125); it reports, changes nothing, and its requests count against the call budget. No other validator before an edit, and no archive read.
 - Plan once, in one short spec: what a person will see, files by lane, two to four checks that prove it, the live-call budget, and what needs the owner. Run parallel lanes (subagents or workflows) when their files are disjoint.
 - Test what branches: parsers, merging, privacy filters, exports, plus one regression test for each real defect. Run focused tests while editing. Run the type check, lint and the source-boundary scan before a commit. A contract or taxonomy change also needs `npm test`.
 - Verify against the real thing. Anything that parses an outside service gets one bounded live call before it is called done, and any interface is looked at in a browser. State the call budget first, do not retry, never provoke a rate limit. Keep the trimmed response shape as the test fixture.
@@ -117,7 +126,6 @@ npm run format:check
 npm run scan:source       # source-boundary scan
 npm run build             # synthetic static build into dist/, then artifact validation
 npm run check             # the full check, once before publishing or deploying
-npm run validate:roadmap  # record checks, kept and run by check
 npm run validate:backbone
 npm run validate:knowledge
 npm run hooks:test
@@ -132,4 +140,4 @@ node scripts/verify-demo-browser.mjs --url https://atniclimate.github.io/policy-
 
 ## Where the history is
 
-Git log, and the retained record: `ROADMAP.yaml`, `docs/handoffs/`, `docs/development/`, the owner's rulings in `docs/decision-register.md`, and the earlier state narrative in `docs/continuation-prompt.md` at commit `c602468`. Completed grants and handoffs do not resume. The earlier definitions of done (`docs/project-brief.md`, `docs/decisions/2026-09-24-definition-of-done-general-development.md`) stay on record, and none is treated as revoked until the owner confirms the release definition in `docs/PLAN.md`. The product and governance contracts (`docs/data-governance.md`, `docs/pnw-scope-and-acceptance.md`, `docs/data-contract.md`) stay in force.
+Git log, and the retained record: `docs/archive/` (the archived `ROADMAP.yaml` and the earlier plans), `docs/handoffs/`, `docs/development/`, the owner's rulings in `docs/decision-register.md`, and the earlier state narrative in `docs/continuation-prompt.md` at commit `c602468`. Completed grants and handoffs do not resume. The earlier definitions of done (`docs/project-brief.md`, `docs/decisions/2026-09-24-definition-of-done-general-development.md`) stay on record; the owner confirmed the first-release meaning in `docs/PLAN.md` on 2026-11-06 (D-147). The product and governance contracts (`docs/data-governance.md`, `docs/pnw-scope-and-acceptance.md`, `docs/data-contract.md`) stay in force.

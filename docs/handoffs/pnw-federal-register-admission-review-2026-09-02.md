@@ -58,7 +58,7 @@ activation, publication, or external mutation occurred.
   [`source-coverage.md`](../source-coverage.md) now state no-go, evidence-
   blocked status and none/zero selected/emitted coverage.
 - [`PROJECT-BACKBONE.md`](../PROJECT-BACKBONE.md),
-  [`continuation-prompt.md`](../continuation-prompt.md), and `ROADMAP.yaml`
+  [`continuation-prompt.md`](../archive/continuation-prompt.md), and `ROADMAP.yaml`
   direct recovery to this terminal boundary.
 
 ## Admission predicate summary

@@ -9,7 +9,7 @@ PS09 remains blocked on PS09-02 and PS09-06 stays unstarted and gated.
 Current recovery pointer: the owner adopted and executed the broader launch
 prepared at `39d738a`. Recover the
 [real-policy outcome](ps09-real-policy-discovery-outcome.md), its linked
-execution journal and live `ROADMAP.yaml` for the implemented workbench and
+execution journal and the archived [`ROADMAP.yaml`](../archive/ROADMAP-2026-11-06.yaml) for the implemented workbench and
 current acceptance. The startup instructions and grants below are historical;
 do not restart acquisition or the older synthetic runner from this guide.
 
@@ -46,9 +46,9 @@ testing that interface through the actual shell tool. The remedy should
 simplify execution while preserving evidence and authority.
 
 A fresh session should first read this guide, then `AGENTS.md` and the complete
-live `ROADMAP.yaml`. Verify Git and custody before relying on any snapshot below.
+archived [`ROADMAP.yaml`](../archive/ROADMAP-2026-11-06.yaml). Verify Git and custody before relying on any snapshot below.
 The [backbone](../PROJECT-BACKBONE.md) is the authority index; the
-[durable prompt](../continuation-prompt.md) supplies general recovery rules.
+[durable prompt](../archive/continuation-prompt.md) supplies general recovery rules.
 
 ## Original starting state and custody
 

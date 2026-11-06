@@ -1,5 +1,12 @@
 # Live demo status
 
+- Goal: a Tribal staff member searches official federal and state sources on
+  one page and sees each result's source, retrieval time and why it was shown.
+- Now: the 0.9.1 demo update is live (not the D-123 pre-release); the owner's
+  walk of the T1.7 staff tasks is still to come.
+- Next: the goals and owner gates are in [PLAN.md](PLAN.md) and the current
+  state in [STATUS.md](STATUS.md). History follows, newest first.
+
 The live page is the 0.9.1 demo update (D-118 to D-133, published through PR
 23 on 2026-11-06 UTC). This page records maintenance of the separately authorized public demo,
 newest first; each section names its rulings in the
