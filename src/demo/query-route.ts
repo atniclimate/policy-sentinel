@@ -131,9 +131,15 @@ const FR_DOCUMENT = new RegExp(
   String.raw`${B}(?:199[4-9]|20\d{2})-\d{4,5}${E}`,
   "g",
 );
-/** A later-year 4-digit tail is a year range (2025-2026), not a document number. */
-const yearRange = (id: string) =>
-  /^\d{4}-(?:19|20)\d\d$/.test(id) && id.slice(5) > id.slice(0, 4);
+/**
+ * A later-year 4-digit tail is a year range (2025-2026), not a document
+ * number, unless the text just before it marks a document: "FR Doc.
+ * 2010-2045" is that document. A bare "2010-2045" stays plain words.
+ */
+const yearRange = (id: string, before: string) =>
+  /^\d{4}-(?:19|20)\d\d$/.test(id) &&
+  id.slice(5) > id.slice(0, 4) &&
+  !/\bDoc\.?\s*(?:No\.?\s*)?$/i.test(before);
 const PL_NO_DOTS = new RegExp(
   String.raw`${B}PL\s*(\d{1,3})\s*[-–]\s*(\d{1,4})${E}`,
   "gi",
@@ -367,7 +373,7 @@ export function routeQuery(
   // A list item that begins an RIN or FR document number is that number.
   const idStarts = new Set(
     [...input.matchAll(RIN), ...input.matchAll(FR_DOCUMENT)]
-      .filter((m) => !yearRange(m[0]))
+      .filter((m) => !yearRange(m[0], input.slice(0, m.index)))
       .map((m) => m.index),
   );
   for (const c of findCitations(citationCase(input))) {
@@ -634,7 +640,7 @@ export function routeQuery(
     return [federal("rin", id, copy.rin(id))];
   });
   scan(FR_DOCUMENT, (m) =>
-    yearRange(m[0])
+    yearRange(m[0], input.slice(0, m.index))
       ? null
       : [federal("fr_document", m[0], copy.frDocument(m[0]))],
   );

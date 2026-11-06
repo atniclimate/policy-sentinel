@@ -49,6 +49,8 @@ describe("identifier forms", () => {
     ["1076-AF81", "rin", "1076-AF81", "federal", "live_lookup"],
     ["RIN 1076-af81", "rin", "1076-AF81", "federal", "live_lookup"],
     ["2024-28302", "fr_document", "2024-28302", "federal", "live_lookup"],
+    // Shaped like a year range, but "FR Doc." marks it a document number.
+    ["FR Doc. 2010-2045", "fr_document", "2010-2045", "federal", "live_lookup"],
     ["89 FR 101234", "fr_citation", "89 FR 101234", "federal", "not_covered"],
     [
       "89 Fed. Reg. 101,234",
@@ -209,6 +211,10 @@ describe("identifier forms", () => {
 
   it.each<[string, string[]]>([
     ["25 CFR 900 and 2024-28302", ["cfr:25 CFR 900", "fr_document:2024-28302"]],
+    [
+      "25 CFR 900 and FR Doc. 2010-2045",
+      ["cfr:25 CFR 900", "fr_document:2010-2045"],
+    ],
     ["25 U.S.C. 5321 and 1076-AF81", ["usc:25 U.S.C. 5321", "rin:1076-AF81"]],
     ["16 U.S.C. 2001-2009", ["usc:16 U.S.C. 2001-2009"]],
     [

@@ -663,11 +663,13 @@ export const labelNamesTarget = (row: ChainRow): boolean =>
   row.kind === "link" && row.label.endsWith(row.targetText);
 
 /**
- * In-text rows that name the same target (or repeat the same short form)
+ * In-text rows that print the same citation (or repeat the same short form)
  * collapse into the first one, in source order, with how many places named
  * it. A long rule can name one CFR part in dozens of paragraphs; one row per
- * distinct citation keeps the panel and exports readable. Other sections
- * pass through unchanged.
+ * distinct citation keeps the panel and exports readable. The key holds the
+ * printed target too: 5304(l) and 5304(e) share a section-level hop but are
+ * two citations, each with its own wording and count. Other sections pass
+ * through unchanged.
  */
 export function groupInText(rows: readonly ChainRow[]): ChainRow[] {
   const firsts = new Map<string, number>();
@@ -679,7 +681,7 @@ export function groupInText(rows: readonly ChainRow[]): ChainRow[] {
     }
     const key =
       row.kind === "link"
-        ? `link ${row.target.sourceId} ${row.target.identifier}`
+        ? `link ${row.target.sourceId} ${row.target.identifier} ${row.targetText}`
         : `note ${row.sourceWording ?? row.label}`;
     const at = firsts.get(key);
     if (at === undefined) {

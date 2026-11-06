@@ -70,6 +70,32 @@ describe("groupInText: one row per distinct citation found in the text", () => {
     ]);
   });
 
+  it("keeps two subsections of one section as two rows, each with its own wording", () => {
+    const grouped = links(
+      groupInText(
+        citationsInText(
+          [
+            { text: "See 25 U.S.C. 5304(l).", locator: "paragraph 1" },
+            { text: "See 25 U.S.C. 5304(e).", locator: "paragraph 2" },
+            { text: "And 25 U.S.C. § 5304(l) again.", locator: "paragraph 3" },
+          ],
+          frRecord,
+        ),
+      ),
+    );
+    expect(
+      grouped.map((r) => [
+        r.targetText,
+        r.target.identifier,
+        r.locator,
+        r.places,
+      ]),
+    ).toEqual([
+      ["25 U.S.C. 5304(l)", "/us/usc/t25/s5304", "paragraph 1", 2],
+      ["25 U.S.C. 5304(e)", "/us/usc/t25/s5304", "paragraph 2", undefined],
+    ]);
+  });
+
   it("leaves the stated and identifier sections untouched", () => {
     const stated = recordLinks(frRecord, SOURCES);
     expect(groupInText(stated)).toEqual(stated);
