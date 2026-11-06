@@ -251,6 +251,14 @@ describe("generated demo boundary", () => {
       writeFileSync(file, "//# sourceMappingURL=x.map");
       expect(() => scanDemoOutput(root)).toThrow(/demo build refused/);
     });
+    it("applies the forbidden list to the manifest (G7)", () => {
+      const root = indexed([shard()], (m) => {
+        m.files[0].source!.rights.statementText = "See C:/Users/Example/notes";
+      });
+      expect(() => scanDemoOutput(root, { probe })).toThrow(
+        /manifest\.json: prohibited content \(G7\)/,
+      );
+    });
     it("refuses an index directory reached through a link", () => {
       const root = fixture();
       const outside = join(root, "outside-index");

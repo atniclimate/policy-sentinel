@@ -312,6 +312,36 @@ describe("running the checks", () => {
     expect(report).not.toMatch(/Refresh recommended:[\s\S]*CFR title 36/);
   });
 
+  it("counts the not suffix as part of the release point", async () => {
+    const at = (releasePoint: string) => ({
+      ...manifest,
+      files: [file("usc/title-25.json", source("olrc-uslm", { releasePoint }))],
+    });
+    const { fetch, sleep } = stub([
+      [
+        "uscode.house.gov",
+        () =>
+          reply(
+            '<a href="releasepoints/us/pl/119/60not43/xml_uscAll@119-60not43.zip">XML</a>',
+          ),
+      ],
+    ]);
+    const usc = async (releasePoint: string) =>
+      (
+        await freshness.runChecks(
+          freshness
+            .planChecks(at(releasePoint), { now: NOW, olrcTermsRead: true })
+            .filter((c) => c.id === "usc"),
+          { fetch, sleep },
+        )
+      )[0];
+    expect(await usc("119-60")).toMatchObject({
+      status: "refresh",
+      detail: expect.stringContaining("119-60not43"),
+    });
+    expect(await usc("119-60not43")).toMatchObject({ status: "current" });
+  });
+
   it("stops every later request on a 429 and never retries", async () => {
     const { calls, fetch, sleep } = stub([
       ["/CFR/2026/title-25", () => reply("slow down", 429)],

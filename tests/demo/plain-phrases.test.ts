@@ -2,11 +2,17 @@
 // The reviewed plain-phrase table (owner decision 9, 2026-11-06): a closed
 // schema, shipped with no entries, and every string clear of the D-068
 // personal-pattern guard and the structural Nation-name mask, with the
-// Nation-name probes as exact names and no exceptions.
+// fixture's synthetic Nation-name probes as exact names and no exceptions.
+// The first row also needs the full Nation-name list (G3), as the alias table does.
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 import { describe, expect, it } from "vitest";
+import {
+  isFullProbe,
+  loadNationProbe,
+  probeHit,
+} from "../../scripts/demo-index/common.mjs";
 import { maskProtectedSpans } from "../../src/demo/nation-mask";
 import { personalPatternHits } from "../../src/demo/personal-guard";
 import type { PlainPhrase, PlainPhraseFile } from "../../src/demo/suggest";
@@ -76,6 +82,14 @@ describe("the committed plain-phrase table", () => {
 
   it("passes the personal guard and the Nation-name mask, probes included", () => {
     expect(contentProblems(table)).toEqual([]);
+  });
+
+  it("needs the full Nation-name list before any row, and no row hits it (G3)", () => {
+    if (!table.entries.length) return;
+    const probe = loadNationProbe();
+    expect(isFullProbe(probe)).toBe(true);
+    for (const [path, value] of strings(table))
+      expect(probeHit(value, probe), path).toBe(false);
   });
 });
 

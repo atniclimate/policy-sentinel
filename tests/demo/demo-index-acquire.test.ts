@@ -434,6 +434,41 @@ describe("CFR acquisition", () => {
     expect(validateDemoIndex(first.dataDir).errors).toEqual([]);
   });
 
+  it("refreshes one stale file while another stays stale (stage validation warns on C3)", async () => {
+    const first = harness(cfrAnswers());
+    expect((await first.run(CFR)).exitCode).toBe(0);
+    const zip = makeZip([{ name: "usc25.xml", data: USLM_XML, deflate: true }]);
+    const uslm = harness(
+      { [USLM_ZIP]: { type: "application/zip", body: zip } },
+      first.dataDir,
+    );
+    expect(
+      (
+        await uslm.run([
+          "uslm",
+          "--title",
+          "25",
+          "--release-point",
+          "119-136",
+          "--terms-read",
+          "2026-11-05",
+        ])
+      ).exitCode,
+    ).toBe(0);
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(
+      Math.max(START + 200 * 86_400_000, Date.parse("2027-01-02T00:00:00Z")),
+    );
+    const retry = harness(cfrAnswers(), first.dataDir, Date.now());
+    expect((await retry.run(CFR)).exitCode).toBe(0);
+    expect(
+      retry.manifest().files.find((f) => f.path === "cfr/title-25.json"),
+    ).toMatchObject({ status: "current" });
+    expect(validateDemoIndex(first.dataDir).errors).toEqual([
+      "usc/title-25.json: snapshot older than 180 days (C3)",
+    ]);
+  });
+
   it("keeps raw bytes in the work directory only when asked", async () => {
     const h = harness(cfrAnswers());
     expect((await h.run([...CFR, "--keep-raw"])).exitCode).toBe(0);

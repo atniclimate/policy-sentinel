@@ -85,6 +85,18 @@ describe("following a case on the page (0.9.1 step 11)", () => {
     ).toMatchObject({ undated: 1, fresh: [] });
   });
 
+  it("moves the baseline to the last check's exact instant once there is one", () => {
+    const checked = { ...followed, lastChecked: "2099-03-06T12:00:00.000Z" };
+    const now = new Date("2099-03-07T00:00:00.000Z");
+    const fresh = (stamp: string) => {
+      const { check } = settleCheck(checked, [answer(listing(stamp))], now);
+      return check.state === "checked" ? check.fresh : null;
+    };
+    // After the follow time but before the last check: already seen.
+    expect(fresh("2099-03-06T08:00:00Z")).toEqual([]);
+    expect(fresh("2099-03-06T12:00:01Z")).toHaveLength(1);
+  });
+
   it("looks a case up once, by its court and docket, with contract v3", () => {
     expect(followed.id).toBe(`govinfo-courts#case:${PACKAGE}`);
     const lanes = followLookups(followed);
