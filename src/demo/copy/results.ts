@@ -116,6 +116,14 @@ export const results = {
   /** One short sentence on a phone; the reason for the record shown is in mergeRule. */
   mergeNote: (merged: number) =>
     `${merged} duplicate ${merged === 1 ? "listing was" : "listings were"} merged. Each document is one row; the other listings stay linked.`,
+  /** Disclosure label over a source's own summary, shown verbatim (decision 8). */
+  summaryFromSource: "Summary from the source",
+  summaryAsStated: (source: string) => `As stated by ${source}, word for word.`,
+  summaryMayBeCut: (limit: number) =>
+    `This demo shows at most the first ${limit} characters. See the official source for all of it.`,
+  /** A summary the personal-pattern guard held back; never shown as no summary. */
+  summaryWithheld: (source: string) =>
+    `${source} states a summary that this demo does not show, because it may hold personal details. See the official source.`,
   dateNotStated: "Date not stated",
   /** Shown in place of the service's "Not stated" so the row does not read as a missing identifier. */
   issuingBodyNotStated: "Issuing body not stated",

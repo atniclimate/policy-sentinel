@@ -157,7 +157,7 @@ import { CaseRow } from "./app/CaseRow";
 import { ModeTabs } from "./app/ModeTabs";
 import { bodyOf, Leader } from "./app/parts";
 import { PrintView } from "./app/PrintView";
-import { ResultsList } from "./app/ResultsList";
+import { ResultsList, SourceSummary } from "./app/ResultsList";
 import type { Found } from "./app/ResultsList";
 import { SearchBox } from "./app/SearchBox";
 import { SearchCombobox } from "./app/SearchCombobox";
@@ -2529,7 +2529,11 @@ export function App() {
           <li>{c.kind}</li>
           <li>{c.date ?? COPY.dateNotStated}</li>
         </ul>
-        {c.summary && <p class="summary">{c.summary}</p>}
+        <SourceSummary citation={c} source={labelOf(c.sourceId)} />
+        {/* Congress.gov sends its latest action here, metadata rather than a summary. */}
+        {c.sourceId === "congress" && c.summary && (
+          <p class="help">{c.summary}</p>
+        )}
         {c.commentsCloseOn ? (
           <p class="help">
             {COPY.commentsClose(c.commentsCloseOn, labelOf(c.sourceId))}

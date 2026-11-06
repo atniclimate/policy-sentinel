@@ -8,6 +8,7 @@ import type {
   LaneSearch,
   Plan,
 } from "../../src/demo/discovery";
+import { SUMMARY_LIMIT, sourceSummary } from "../../src/demo/summaries";
 import type { DemoCitation, LinkFamily } from "../../src/demo/types";
 
 /**
@@ -65,6 +66,40 @@ export function familyOf(citation: DemoCitation): LinkFamily {
     if (GOVINFO_LAWS.has(kind)) return "laws_and_bills";
   }
   return "rules_and_notices";
+}
+
+/**
+ * A source's own summary in a collapsed disclosure, verbatim and attributed
+ * to `source` (decision 8). Nothing renders when there is none or the source
+ * is off, so a row without one keeps its layout.
+ */
+export function SourceSummary({
+  citation,
+  source,
+}: {
+  citation: DemoCitation;
+  source: string;
+}) {
+  const shown = sourceSummary(citation);
+  if (!shown) return null;
+  return (
+    <details>
+      <summary aria-label={COPY.named(COPY.summaryFromSource, citation.title)}>
+        {COPY.summaryFromSource}
+      </summary>
+      {shown === "withheld" ? (
+        <p class="help">{COPY.summaryWithheld(source)}</p>
+      ) : (
+        <>
+          <p class="summary">{shown.text}</p>
+          <p class="help">
+            {COPY.summaryAsStated(source)}
+            {shown.cut && ` ${COPY.summaryMayBeCut(SUMMARY_LIMIT)}`}
+          </p>
+        </>
+      )}
+    </details>
+  );
 }
 
 /**
