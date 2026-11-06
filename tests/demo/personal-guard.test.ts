@@ -42,6 +42,18 @@ describe("D-068 personal-pattern guard (synthetic values only)", () => {
       "postal_block",
     ],
     ["P.O. Box 123, Sampleville, ID 83702", "postal_block"],
+    // R2-2: a name in capitals.
+    ["CONTACT: JANE SAMPLEPERSON", "person_title"],
+    ["MR. SAMPLEPERSON", "person_title"],
+    [
+      "AUTHORITY: 25 U.S.C. 5301 et seq. PROGRAM CONTACT: JANE SAMPLEPERSON",
+      "person_title",
+    ],
+    // R2-4: an en dash separator, and a spelled-out address.
+    ["(555) 010–0101", "phone"],
+    ["555‐010‐0101", "phone"],
+    ["jane.sampleperson [at] example.gov", "email"],
+    ["sampleperson (at) example (dot) gov", "email"],
   ] as const)("flags %s", (text, kind) => {
     expect(kinds(text)).toContain(kind);
     expect(hasPersonalPattern(text)).toBe(true);
@@ -71,6 +83,12 @@ describe("D-068 personal-pattern guard (synthetic values only)", () => {
     "Pub. L. 93-638, 88 Stat. 2203",
     "3 x 4 grid",
     "Director of the Office of Testing",
+    // R2-2: capitalized headings with no name after them.
+    "AUTHORITY: 25 U.S.C. 5301 et seq.",
+    "AUTHORITIES: 25 U.S.C. 5304(l) and P. L. 117-58.",
+    // R2-6: state rule numbers are not phone numbers.
+    "OAR 340-041-0001",
+    "under WAC 173-201-0100 and OAR 340-041-0001",
   ])("leaves %s alone", (text) => {
     expect(personalPatternHits(text)).toEqual([]);
     expect(hasPersonalPattern(text)).toBe(false);

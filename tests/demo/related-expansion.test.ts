@@ -120,6 +120,34 @@ describe("GovInfo related", () => {
     );
   });
 
+  it("withholds a court record title the caption guard would withhold (R1-3)", async () => {
+    serve({
+      results: [
+        {
+          packageId: "USCOURTS-ca9-99-12345",
+          title: "SAMPLEPERSON V. EXAMPLE FINANCIAL, LLC",
+          dateIssued: "2099-01-10",
+        },
+        {
+          packageId: "USCOURTS-ca9-99-12346",
+          title: "EXAMPLE COUNTY V. UNITED STATES",
+          dateIssued: "2099-01-11",
+        },
+      ],
+    });
+    const out = await govinfoRelated.relatedIn(
+      env,
+      "USCOURTS-ca9-99-12340",
+      "USCOURTS",
+    );
+    expect(out.records.map((r) => r.title)).toEqual([
+      null,
+      "EXAMPLE COUNTY V. UNITED STATES",
+    ]);
+    const cached = [...cacheEntries.values()].join("");
+    expect(cached).not.toContain("SAMPLEPERSON");
+  });
+
   it("states no related records when GovInfo has none", async () => {
     serve({ message: "not found" }, 404);
     const out = await govinfoRelated.related(env, "USCOURTS-ca9-99-12345");
@@ -197,6 +225,35 @@ describe("Congress.gov related bills", () => {
         .code,
     ).toBe("bad_query");
     expect(calls).toHaveLength(0);
+  });
+
+  it("withholds a private bill's title and one the guard flags (R2-5)", async () => {
+    serve({
+      relatedBills: [
+        {
+          congress: 199,
+          number: 4004,
+          type: "HR",
+          title: "For the relief of Jane Sampleperson.",
+          relationshipDetails: [
+            { identifiedBy: "House", type: "Related bill" },
+          ],
+        },
+        {
+          congress: 199,
+          number: 5005,
+          type: "S",
+          title: "Example Act; contact Mr. Sampleperson",
+          relationshipDetails: [
+            { identifiedBy: "House", type: "Related bill" },
+          ],
+        },
+      ],
+    });
+    const out = await congressRelated.relatedBills(env, "hr 1001 199");
+    expect(out.records.map((r) => r.title)).toEqual([null, null]);
+    const cached = [...cacheEntries.values()].join("");
+    expect(cached).not.toContain("Sampleperson");
   });
 
   it("fails closed on an unknown bill type", async () => {

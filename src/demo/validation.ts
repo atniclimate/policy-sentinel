@@ -13,6 +13,7 @@ import type {
 } from "./types";
 import { LINK_NOTICES, linkLabel } from "./link-labels.ts";
 import type { ChainRow } from "./links.ts";
+import { hasPersonalPattern } from "./personal-guard.ts";
 import {
   MAX_DOCKET_LENGTH,
   RIN_PATTERN,
@@ -698,13 +699,41 @@ export function policyValueV3(
   expected?: { source: string; id: string },
 ): DemoPolicyResponse {
   const v = object(value);
-  const base = policyValue(v, expected);
+  const read = policyValue(v, expected);
+  // The guard again, page side, so an answer cached before a guard change is still checked.
+  const { authorityLine, ...rest } = read.citation;
+  const base =
+    authorityLine !== undefined && hasPersonalPattern(authorityLine)
+      ? { ...read, citation: rest }
+      : read;
   if (v.version === undefined && v.chain === undefined) return base;
   if (v.version !== 3) throw new Error("Invalid policy version");
-  const chain = list(v.chain, CHAIN_MAX).map((row) =>
-    chainRowValue(row, base.citation),
-  );
+  const chain = list(v.chain, CHAIN_MAX)
+    .map((row) => chainRowValue(row, base.citation))
+    .filter((row) => !hasPersonalPattern(rowWording(row)));
   return { ...base, version: 3, chain };
+}
+
+/** The wording of a chain row the Worker guards (worker/src/sources/shared.ts rowWording). */
+function rowWording(row: ChainRow): string {
+  return [
+    row.label,
+    row.sourceWording,
+    row.quote?.text,
+    row.notice,
+    row.kind === "link" ? row.targetText : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+/** A related bill title as the Worker passes it: null when flagged or a private bill's. */
+function titleShown(title: string | null): string | null {
+  return title === null ||
+    hasPersonalPattern(title) ||
+    /\bfor the relief of\b/i.test(title)
+    ? null
+    : title;
 }
 
 export type RelatedRequest =
@@ -737,7 +766,7 @@ export function relatedValue(
         relation: text(r.relation, 200),
         identifiedBy: text(r.identifiedBy, 200),
         identifier: text(r.identifier, 200),
-        title: text(r.title, 4000),
+        title: titleShown(maybe(r.title, 4000)),
         officialUrl: officialUrl(r.officialUrl, "congress"),
       };
     });

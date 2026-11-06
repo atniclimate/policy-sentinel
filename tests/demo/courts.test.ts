@@ -165,6 +165,10 @@ describe("caption withholding", () => {
     "Example Tribe v. Department of Example Affairs",
     "Oregon v. Example Corp.",
     "EXAMPLE ASSOCIATION, ET AL. V. EXAMPLE AGENCY",
+    "Port of Example v. United States",
+    "State of Washington v. Example Tribe",
+    "Secretary of the Interior v. Example Corp.",
+    "City of Example v U.S.",
   ])("shows an institutional caption: %s", (title) => {
     expect(captionShown(title)).toBe(true);
   });
@@ -174,6 +178,21 @@ describe("caption withholding", () => {
     "Example v. Sampleperson, Director, Bureau of Examples", // a name before a title
     "In re Example", // no two sides
     "Example Corp. v. Mr. Sampleperson", // the personal-pattern guard
+    // R2-1: a family trust, and parties joined by "and" or "&", carry no comma.
+    "SAMPLEPERSON FAMILY TRUST V. UNITED STATES",
+    "JANE SAMPLEPERSON AND EXAMPLE COUNTY V. UNITED STATES",
+    "Sampleperson & Example Corp. v. United States",
+    "Jane Sampleperson Revocable Living Trust v. United States",
+    "Jane Sampleperson, Trustee v. United States",
+    "Example County v. Jane Sampleperson Individually",
+    "United States ex rel. Sampleperson v. Example Corp.",
+    // R1-4: an institution word inside a side does not make it an institution.
+    "Example Sampleperson Trust v. United States",
+    "Jane Sampleperson Port v. United States",
+    "Jane Sampleperson Secretary of the Department of the Interior v. Example Tribe",
+    "Jane Sampleperson State Trooper v. County of Example",
+    "Jane Sampleperson Center v. Department of Labor",
+    "Jane Sampleperson Nation v. United States",
   ])("withholds a caption that may name a person: %s", (title) => {
     expect(captionShown(title)).toBe(false);
   });

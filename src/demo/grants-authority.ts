@@ -96,6 +96,18 @@ export function synopsisLines(html: string): string[] {
 const HEADING =
   /^(Authority|AUTHORITY|Authorities|AUTHORITIES)(?:\s*:\s*(.*)|\s*)$/;
 
+/**
+ * The passage up to the end of the sentence that holds its last citation; a
+ * trailing sentence with no citation (a contact line, say) is dropped and the
+ * cut marked. With no citation, the first sentence only.
+ */
+function toLastCitation(text: string): string {
+  // From the citation's last character, which may itself end the sentence ("et seq.").
+  const from = Math.max(0, (findCitations(text).at(-1)?.end ?? 0) - 1);
+  const end = /[.!?](?=\s+[A-Z"'“‘])/.exec(text.slice(from));
+  return end ? `${text.slice(0, from + end.index + 1)} [...]` : text;
+}
+
 function bounded(text: string): string {
   if (text.length <= PASSAGE_MAX) return text;
   const cut = text.slice(0, PASSAGE_MAX - 6);
@@ -121,7 +133,7 @@ export function authorityPassage(synopsisHtml: unknown): AuthorityOutcome {
     return {
       state: "found",
       passage: {
-        text: bounded(text),
+        text: bounded(toLastCitation(text)),
         heading,
         locator: `Grants.gov synopsis description, heading "${heading}"`,
       },

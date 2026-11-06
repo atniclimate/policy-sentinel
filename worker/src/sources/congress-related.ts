@@ -7,6 +7,7 @@
  * before the cache write.
  */
 import { CONGRESS_REFERENCE } from "../../../src/demo/merge";
+import { hasPersonalPattern } from "../../../src/demo/personal-guard";
 import {
   DemoError,
   badUpstream,
@@ -112,7 +113,12 @@ export async function relatedBills(
       )
         throw badUpstream();
       const ref = billRef(row.type.toLowerCase(), rowNumber, row.congress);
-      const title = requiredText(row.title, 400);
+      const stated = requiredText(row.title, 400);
+      // As govinfo-related: a title the guard flags, or a private bill's, is not passed on.
+      const title =
+        hasPersonalPattern(stated) || /\bfor the relief of\b/i.test(stated)
+          ? null
+          : stated;
       const details = row.relationshipDetails;
       if (
         !Array.isArray(details) ||

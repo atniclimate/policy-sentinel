@@ -91,6 +91,35 @@ describe("the personal-pattern guard on passages", () => {
     expect(authorityPassage(`<p>${text}</p>`)).toEqual({ state: "withheld" });
   });
 
+  it("withholds a passage holding a contact name in capitals (R2-2)", () => {
+    expect(
+      authorityPassage(
+        "<p>AUTHORITY: 25 U.S.C. 5301 et seq. PROGRAM CONTACT: JANE SAMPLEPERSON</p>",
+      ),
+    ).toEqual({ state: "withheld" });
+  });
+
+  it("cuts the passage after its last citation's sentence and marks the cut (R2-3)", () => {
+    const out = authorityPassage(
+      "<p>Authority: 25 U.S.C. 5301 et seq. Questions may be directed to Jane Sampleperson, Program Officer.</p>",
+    );
+    expect(out).toMatchObject({
+      state: "found",
+      passage: { text: "25 U.S.C. 5301 et seq. [...]" },
+    });
+    expect(JSON.stringify(out)).not.toContain("Sampleperson");
+  });
+
+  it("keeps the first sentence only when the passage has no citation (R2-3)", () => {
+    const out = authorityPassage(
+      "<p>Authority: The Example Act of 2099. Write to Jane Sampleperson, Program Officer.</p>",
+    );
+    expect(out).toMatchObject({
+      state: "found",
+      passage: { text: "The Example Act of 2099. [...]" },
+    });
+  });
+
   it("does not look past the passage: contact text elsewhere in the synopsis is not quoted", () => {
     const out = authorityPassage(
       "<p>AUTHORITIES: 25 U.S.C. 13.</p><p>Contact: Dr. Alex Sample, someone@example.org</p>",

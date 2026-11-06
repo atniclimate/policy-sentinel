@@ -335,7 +335,8 @@ export interface RelatedBill {
   /** Who Congress.gov says identified the relation, such as "CRS". */
   readonly identifiedBy: string;
   readonly identifier: string;
-  readonly title: string;
+  /** Null when withheld: the personal-pattern guard flagged it, or it is a private bill's. */
+  readonly title: string | null;
   readonly officialUrl: string;
 }
 

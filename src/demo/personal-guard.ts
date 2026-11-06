@@ -25,8 +25,14 @@ const EMAIL = /[A-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Z0-9-]+(?:\.[A-Z0-9-]+)+/gi;
 // PHONE from src/pipeline/policy-text.mjs line 57, with the "direct", "cell"
 // and "mobile" labels of PERSONAL_CONTACT_SHAPE_TOKENS
 // (src/engine/citation-export-contracts.ts line 97) added to the labeled form.
+// Dashes U+2010..U+2015 count as separators (decodeEntities turns &ndash; into one).
+// An Oregon, Washington or Idaho rule number ("OAR 340-041-0001") is not a phone.
 const PHONE =
-  /(?:\+?1[ .-]?)?(?:\(\d{3}\)[ .-]?|\b\d{3}[ .-])\d{3}[ .-]\d{4}\b|\b(?:phone|telephone|tel|fax|direct(?: line)?|cell|mobile)\s*:\s*\+?\d[\d .()/-]{6,}\d/gi;
+  /(?<!\b(?:OAR|WAC|IDAPA)\s)(?:\+?1[ .‐-―-]?)?(?:\(\d{3}\)[ .‐-―-]?|\b\d{3}[ .‐-―-])\d{3}[ .‐-―-]\d{4}\b|\b(?:phone|telephone|tel|fax|direct(?: line)?|cell|mobile)\s*:\s*\+?\d[\d .()/‐-―-]{6,}\d/gi;
+
+// Obfuscated addresses: "name [at] example [dot] gov".
+const EMAIL_SPELLED =
+  /\b[\w.-]+\s*[[(]at[\])]\s*[\w-]+(?:\s*[[(]?(?:dot|\.)[\])]?\s*[\w-]+)+/gi;
 
 // Extensions: the "ext.", "extension" and "x1".."x9" tokens of
 // PERSONAL_CONTACT_SHAPE_TOKENS, followed by digits.
@@ -35,15 +41,17 @@ const EXTENSION = /\bext(?:ension)?\.?\s*#?\s*\d{1,6}\b|\bx\d{2,6}\b/gi;
 // The "mr.", "ms.", "mrs", "mx.", "dr." tokens of PERSONAL_CONTACT_SHAPE_TOKENS,
 // plus "Hon.", before a capitalized name. "Dr" and "Hon" need the period so a
 // street "Dr" or a word such as "Honor" does not count.
-const TITLE_NAME = /\b(?:(?:Mrs|Mr|Ms|Mx)\.?|(?:Dr|Hon)\.)\s+[A-Z][a-z'’-]+/g;
+// A name in capitals ("MR. SAMPLEPERSON") counts too.
+const TITLE_NAME =
+  /\b(?:(?:Mrs|MRS|Mr|MR|Ms|MS|Mx|MX)\.?|(?:Dr|DR|Hon|HON)\.)\s+[A-Z][A-Za-z'’-]+/g;
 
 // Contact headings: CONTACT from src/pipeline/policy-text.mjs line 54, and the
 // "attn", "c/o", "care of", "director:", "officer:", "manager:" tokens of
 // PERSONAL_CONTACT_SHAPE_TOKENS. A name must follow (checked below).
 const CONTACT_LEAD =
   /\bfor\s+(?:[a-z]+\s+)?information,?\s+contact\b\s*:?\s*|\b(?:contact(?:\s+(?:information|person))?|staff\s+contact|personal\s+contact|attn|attention|director|officer|manager)\s*:\s*|\b(?:c\/o|care\s+of)\s+/gi;
-// Two capitalized words, with an optional middle initial.
-const NAME_AFTER_LEAD = /^[A-Z][a-z'’-]+(?:\s+[A-Z]\.)?\s+[A-Z][a-z'’-]+/;
+// Two capitalized words, with an optional middle initial; capitals count too.
+const NAME_AFTER_LEAD = /^[A-Z][A-Za-z'’-]+(?:\s+[A-Z]\.)?\s+[A-Z][A-Za-z'’-]+/;
 
 const STREET_WORD =
   "(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Lane|Ln|Way|Court|Ct|Place|Pl|Highway|Hwy|Parkway|Pkwy|Circle|Cir|Terrace|Ter|Loop|Trail|Trl|Square|Sq)";
@@ -77,6 +85,7 @@ export function personalPatternHits(
 ): readonly PersonalPatternHit[] {
   const hits: PersonalPatternHit[] = [];
   collect(text, EMAIL, "email", hits);
+  collect(text, EMAIL_SPELLED, "email", hits);
   collect(text, PHONE, "phone", hits);
   collect(text, EXTENSION, "phone", hits);
   collect(text, TITLE_NAME, "person_title", hits);

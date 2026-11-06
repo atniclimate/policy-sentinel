@@ -115,9 +115,19 @@ const STATES = new Set(
       "west virginia",
     ]),
 );
-// Words that name an institution, not a person. A privacy guard, not a classification.
-const INSTITUTION =
-  /\b(?:united states|america|state|states|commonwealth|county|city|town|village|port|district|department|dep't|dept|agency|administration|service|bureau|board|commission|council|authority|office|tribe|tribes|nation|nations|band|indians|community|pueblo|rancheria|inc|llc|l\.l\.c|corp|corporation|company|co|ltd|association|ass'n|assn|union|society|foundation|institute|university|college|coalition|alliance|club|center|trust|fund|bank|partners|group|cooperative)\b\.?/i;
+// A privacy guard, not a classification. An institution word passes only at
+// the start ("City of ...") or the end ("... County"), never mid-side, so
+// "Sampleperson Port" or "Jane Sampleperson Secretary of ..." is withheld.
+// Surname-like words (trust, port, center, band, nation, bank) are not suffixes.
+// shortcut: a surname that equals a suffix word still passes; widen the withhold list if one is seen.
+const INSTITUTION_START =
+  /^(?:the\s+)?(?:united\s+states|u\.\s?s\.|(?:state|commonwealth|people|government|territory|county|city|town|village|port|district|department|dep't|dept\.?|bureau|board|office|commission|council|secretary|administrator|director|commissioner|confederated\s+tribes|tribes?|nation|band|pueblo|bank|regents|trustees)\s+of)(?:\s|$)/i;
+const INSTITUTION_END =
+  /\s(?:inc|llc|l\.l\.c|llp|lp|pllc|corp|corporation|company|co|ltd|association|ass'n|assn|society|foundation|institute|university|college|coalition|alliance|cooperative|partners|partnership|group|fund|county|district|department|agency|administration|service|bureau|board|office|commission|council|authority|government|tribe|tribes|nations|indians|pueblo|rancheria|community|reservation)\.?$/i;
+// A side that joins parties, names a family or living trust, a trustee, a
+// person "individually" or a relator ("ex rel.") may name a person.
+const MAY_NAME_PERSON =
+  /\b(?:and|family|living|revocable|trustee|individually|ex\s+rel)\b|&/i;
 
 /**
  * True when a caption's two sides each name an institution or a state, so it
@@ -133,7 +143,10 @@ export function captionShown(title: string): boolean {
       const side = raw.replace(/,?\s+et\s+al\.?$/i, "").trim();
       return (
         !side.includes(",") &&
-        (STATES.has(side.toLowerCase()) || INSTITUTION.test(side))
+        !MAY_NAME_PERSON.test(side) &&
+        (STATES.has(side.toLowerCase()) ||
+          INSTITUTION_START.test(side) ||
+          INSTITUTION_END.test(side))
       );
     })
   );
