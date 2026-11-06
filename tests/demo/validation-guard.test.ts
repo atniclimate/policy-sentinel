@@ -78,6 +78,26 @@ describe("policyValueV3 guard re-run (R2-7)", () => {
     ).toThrow("Invalid chain withheld count");
   });
 
+  it("states the rows the Worker cut at its cap in their own row", () => {
+    const opened = policy("a", frRecord);
+    const rows = citationsInText(blocks, opened.citation);
+    const read = (extra: object) =>
+      policyValueV3(
+        JSON.parse(
+          JSON.stringify({ ...opened, version: 3, chain: rows, ...extra }),
+        ),
+        expected,
+      );
+    const cut = read({ chainWithheld: 2, chainCut: 50 }).chain!;
+    expect(cut.slice(-2).map((r) => [r.kind, r.section, r.label])).toEqual([
+      ["note", "inText", CH.rowsWithheld(2)],
+      ["note", "inText", CH.rowsCut(50)],
+    ]);
+    expect(read({}).chain).toHaveLength(rows.length);
+    expect(() => read({ chainCut: -1 })).toThrow("Invalid count");
+    expect(() => read({ chainCut: 1.5 })).toThrow("Invalid count");
+  });
+
   it("keeps an authority line with no personal pattern", () => {
     const opened = policy("a", {
       ...frRecord,

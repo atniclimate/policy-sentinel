@@ -15,6 +15,7 @@ import { SOURCE_LABELS } from "./citations.ts";
 import { chain } from "./copy/chain.ts";
 import { recordPlan } from "./discovery.ts";
 import type { PlanSources } from "./discovery.ts";
+import { localDay } from "./local-day.ts";
 import type {
   CfrAuthorityShard,
   IndexFile,
@@ -97,11 +98,13 @@ export const cfrAnnualUrl = (year: number, title: number) =>
   `https://www.govinfo.gov/bulkdata/CFR/${year}/title-${title}`;
 export const uscSectionUrl = (title: number, section: string) =>
   `https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title${title}-section${encodeURIComponent(section)}&num=0&edition=prelim`;
+/** Section number without a subsection: "5304(l)" is section 5304. */
+export const baseSection = (section: string) => section.replace(/\(.*$/, "");
 const frDocUrl = (id: string) =>
   `https://www.federalregister.gov/d/${encodeURIComponent(id)}`;
 // First volume, Congress and Statutes volume each live service holds.
 const FR_API_FIRST_VOLUME = 59; // 1994
-const GOVINFO_PLAW_FIRST_CONGRESS = 104;
+export const GOVINFO_PLAW_FIRST_CONGRESS = 104;
 const GOVINFO_STATUTE_FIRST_VOLUME = 65;
 
 const sectionFor = (basis: LinkedRecord["basis"]): ChainSection =>
@@ -134,6 +137,11 @@ export function withheldRowsNote(
     chain.rowsWithheld(count),
     null,
   );
+}
+
+/** One row that counts in-text citation places past the Worker's row cap. */
+export function cutRowsNote(citation: DemoCitation, count: number): ChainNote {
+  return note(recordProvenance(citation), "inText", chain.rowsCut(count), null);
 }
 
 /** Provenance of a shard hop; null when the manifest entry has no source. */
@@ -178,7 +186,7 @@ export function fileProvenance(
       return {
         ...base,
         asOfLabel: "retrieved",
-        asOfText: source.retrievedAt.slice(0, 10),
+        asOfText: localDay(source.retrievedAt),
         asOfField: null,
       };
   }
@@ -212,12 +220,14 @@ export function targetOf(c: Cite): Target {
   switch (c.kind) {
     case "usc": {
       const text = `${c.title} U.S.C. ${c.section}${c.etSeq ? " et seq." : ""}${"note" in c && c.note ? " note" : ""}`;
+      // Index shards and granules are section level; the wording keeps the subsection.
+      const section = baseSection(c.section);
       return reach(
         "usc-index",
-        `/us/usc/t${c.title}/s${c.section}`,
+        `/us/usc/t${c.title}/s${section}`,
         text,
         "laws_and_bills",
-        uscSectionUrl(c.title, c.section),
+        uscSectionUrl(c.title, section),
       );
     }
     case "cfr": {
@@ -743,7 +753,7 @@ export function relatedRows(
   const p: Provenance = {
     sourceName: SOURCE_LABELS[answer.source] ?? answer.source,
     asOfLabel: "retrieved",
-    asOfText: answer.retrievedAt.slice(0, 10),
+    asOfText: localDay(answer.retrievedAt),
     asOfField: null,
     retrievedAt: answer.retrievedAt,
     stale: false,
@@ -821,7 +831,7 @@ export const CALL_BUDGET: Readonly<Record<ChainAction, BudgetRow>> =
       automatic: true,
       cache: "Rows come from the record already read; nothing is fetched.",
       truncation:
-        "None; citations in text cover only the text the Worker read.",
+        "At most 200 in-text citation places, from the text the Worker read; the rest are counted in one stated row.",
     },
     open_cfr_part: {
       keyedCalls: 0,

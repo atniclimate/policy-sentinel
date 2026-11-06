@@ -1437,7 +1437,8 @@ details dt {
 .chain-panel button:hover {
   background: var(--overlay-hover);
 }
-.chain-panel button:disabled {
+.chain-panel button:disabled,
+.chain-panel button[aria-disabled="true"] {
   color: var(--muted);
   cursor: default;
 }

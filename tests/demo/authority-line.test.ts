@@ -6,7 +6,6 @@ import {
   AUTHORITY_LINE_MAX,
   authorityLine,
 } from "../../src/demo/authority-line";
-import { plainSourceText } from "../../src/demo/search-contract";
 
 const block = (text: string, locator = "Part 999") => ({ text, locator });
 
@@ -70,18 +69,22 @@ describe("authorityLine", () => {
       expect(authorityLine(blocks)).toEqual({ authorityLinePresent: true });
   });
 
-  it("stays within the validator's bound, keeping whole lines", () => {
-    const long = `${"25 U.S.C. 9, ".repeat(100)}end.`;
-    const out = authorityLine([
-      block(`Authority: ${long}`),
-      block(`Authority: ${long.replace("end", "fin")}`),
-    ]);
-    expect(out.authorityLine).toBe(long.replace(/\s+$/, ""));
-    expect(out.authorityLine!.length).toBeLessThanOrEqual(AUTHORITY_LINE_MAX);
-    const huge = authorityLine([
-      block(`Authority: ${"9 ".repeat(AUTHORITY_LINE_MAX)}`),
-    ]).authorityLine!;
-    expect(huge.length).toBeLessThanOrEqual(AUTHORITY_LINE_MAX);
-    expect(plainSourceText(huge, AUTHORITY_LINE_MAX)).toBe(true);
+  it("withholds a text over the validator's bound rather than show part of it", () => {
+    // A cut or dropped line would read as the whole authority (safeguard 8).
+    const long = `${"25 U.S.C. 9, ".repeat(115)}end.`;
+    expect(
+      authorityLine([
+        block(`Authority: ${long}`),
+        block(`Authority: ${"42 U.S.C. 1, ".repeat(46)}fin.`),
+      ]),
+    ).toEqual({ authorityLinePresent: true });
+    expect(
+      authorityLine([block(`Authority: ${"9 ".repeat(AUTHORITY_LINE_MAX)}`)]),
+    ).toEqual({ authorityLinePresent: true });
+    const exact = "9".repeat(AUTHORITY_LINE_MAX);
+    expect(authorityLine([block(`Authority: ${exact}`)])).toEqual({
+      authorityLine: exact,
+      authorityLinePresent: true,
+    });
   });
 });

@@ -111,8 +111,9 @@ function chainBlocks(rows: readonly ChainRow[]): DocBlock[] {
     if (!own.length) continue;
     out.push({ kind: "p", text: CH.sections[section] });
     own.forEach((row, i) => {
-      // A line shared by several rows is quoted once, above the first.
-      if (row.quote && own[i - 1]?.quote?.text !== row.quote.text)
+      // A line shared by several rows is quoted once, above the first; rows
+      // from one line share its quote object (links.ts lineRows).
+      if (row.quote && own[i - 1]?.quote !== row.quote)
         out.push({
           kind: "quote",
           text: `${row.quote.heading} ${row.quote.text ?? LINK_NOTICES.omitted}`,
@@ -129,7 +130,7 @@ function chainBlocks(rows: readonly ChainRow[]): DocBlock[] {
         `${F.source}: ${row.sourceName}`,
         row.sourceWording && `${F.wording}: "${row.sourceWording}"`,
         `${F[row.asOfLabel]}: ${row.asOfText}`,
-        `${F.retrieved}: ${row.retrievedAt.slice(0, 10)}`,
+        `${F.retrieved}: ${localDay(row.retrievedAt)}`,
         row.notice && `${F.notice}: ${row.notice}`,
         row.places && CH.places(row.places),
         row.stale && CH.stale,

@@ -217,7 +217,7 @@ describe("citations parsed from the passage", () => {
       ["25 U.S.C. 5304(l)", "usc-index", "/us/usc/t25/s5304"],
       ["25 U.S.C. 5301 et. seq.", "usc-index", "/us/usc/t25/s5301"],
     ]);
-    for (const link of links) {
+    for (const link of links)
       expect(link).toMatchObject({
         basis: "source_text_parsed",
         direction: "forward",
@@ -226,10 +226,12 @@ describe("citations parsed from the passage", () => {
         asOfText: "Grants.gov record version date 2099-02-02",
         family: "laws_and_bills",
       });
+    // GovInfo holds public laws from the 104th Congress on, so 93-638 has no link.
+    expect(links[0].target.officialUrl).toBeUndefined();
+    for (const link of links.slice(1))
       expect(link.target.officialUrl).toMatch(
         /^https:\/\/(uscode\.house\.gov|www\.govinfo\.gov)\//,
       );
-    }
     // The short form stays text and is never linked.
     expect(links.some((l) => /Act/.test(l.sourceWording ?? ""))).toBe(false);
   });

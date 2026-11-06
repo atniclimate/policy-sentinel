@@ -99,22 +99,6 @@ export function usReportsReading(text: string): UsReportsReading | null {
     : { kind: "not_resolvable", citation, message: COURTS.notResolvable };
 }
 
-const STATES = new Set(
-  "alabama alaska arizona arkansas california colorado connecticut delaware florida georgia hawaii idaho illinois indiana iowa kansas kentucky louisiana maine maryland massachusetts michigan minnesota mississippi missouri montana nebraska nevada ohio oklahoma oregon pennsylvania tennessee texas utah vermont virginia washington wisconsin wyoming"
-    .split(" ")
-    .concat([
-      "new hampshire",
-      "new jersey",
-      "new mexico",
-      "new york",
-      "north carolina",
-      "north dakota",
-      "rhode island",
-      "south carolina",
-      "south dakota",
-      "west virginia",
-    ]),
-);
 // A privacy guard, not a classification. An institution word passes only at
 // the start ("City of ...") or the end ("... County"), never mid-side, so
 // "Sampleperson Port" or "Jane Sampleperson Secretary of ..." is withheld.
@@ -145,12 +129,7 @@ const AND_NAMES =
 function institutionSide(side: string): boolean {
   if (side.includes(",") || MAY_NAME_PERSON.test(side.replace(AND_NAMES, "")))
     return false;
-  if (
-    STATES.has(side.toLowerCase()) ||
-    INSTITUTION_START.test(side) ||
-    INSTITUTION_END.test(side)
-  )
-    return true;
+  if (INSTITUTION_START.test(side) || INSTITUTION_END.test(side)) return true;
   const office = OFFICE_START.exec(side);
   return office !== null && DEPARTMENT.test(office[1]);
 }

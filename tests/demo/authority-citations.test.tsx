@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import { AuthorityCitations } from "../../demo/app/AuthorityCitations";
 import type { GrantsDetailState } from "../../demo/app/AuthorityCitations";
 import { grantsAuthority as T } from "../../src/demo/copy/grants-authority";
+import { LINK_NOTICES } from "../../src/demo/link-labels";
 import type { DemoCitation } from "../../src/demo/types";
 
 const base: DemoCitation = {
@@ -77,6 +78,21 @@ describe("AuthorityCitations", () => {
     expect(text).toContain(T.coverage);
     expect(text).not.toMatch(FORBIDDEN);
     expect((await axe.run(container)).violations).toEqual([]);
+  });
+
+  it("prints a public law with no live source as text with the not-live notice, never a link", () => {
+    const old: DemoCitation = {
+      ...found,
+      authorityPassage: { ...found.authorityPassage!, text: "Pub. L. 93-638." },
+    };
+    const { container } = render(
+      <AuthorityCitations citation={base} detail={ready(old, "found")} />,
+    );
+    const item = container.querySelector("ul:last-of-type li");
+    expect(item?.textContent).toContain(
+      `Pub. L. 93-638 (${LINK_NOTICES.notLive})`,
+    );
+    expect(item?.querySelector("a")).toBeNull();
   });
 
   it("says there is no passage when the record has no Authority heading", async () => {

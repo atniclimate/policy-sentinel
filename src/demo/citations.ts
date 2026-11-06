@@ -1,3 +1,4 @@
+import { localDay } from "./local-day.ts";
 import type { DemoCitation } from "./types";
 
 export const SOURCE_LABELS: Readonly<Record<string, string>> = {
@@ -37,7 +38,7 @@ export function ieeeReference(citation: DemoCitation): string {
   const body =
     citation.issuingBody === "Not stated" ? "" : `${citation.issuingBody}, `;
   const date = citation.date ? ieeeDate(citation.date) : "date not stated";
-  return `${body}"${citation.title}," ${citation.identifier}, ${citation.kind}, ${date}. [Online]. Available: ${citation.officialUrl} (accessed ${ieeeDate(citation.retrievedAt)}).`;
+  return `${body}"${citation.title}," ${citation.identifier}, ${citation.kind}, ${date}. [Online]. Available: ${citation.officialUrl} (accessed ${ieeeDate(localDay(citation.retrievedAt))}).`;
 }
 
 /**

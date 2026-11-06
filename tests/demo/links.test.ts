@@ -573,3 +573,18 @@ describe("a note citation in the text", () => {
     );
   });
 });
+
+describe("a U.S.C. subsection in the text", () => {
+  it("hops to the section the index holds and keeps the wording", () => {
+    const rows = links(
+      citationsInText(
+        [{ text: "See 25 U.S.C. 5304(l).", locator: "Section 9" }],
+        frRecord,
+      ),
+    );
+    expect(rows.map((r) => [r.targetText, r.target.identifier])).toEqual([
+      ["25 U.S.C. 5304(l)", "/us/usc/t25/s5304"],
+    ]);
+    expect(rows[0].target.officialUrl).toContain("title25-section5304&");
+  });
+});

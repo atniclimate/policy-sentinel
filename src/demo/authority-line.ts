@@ -41,15 +41,9 @@ export function authorityLine(
   // A withheld line means the rest would read as the whole authority, so no
   // line is shown and the page states that one exists (safeguard 8).
   if (withheld) return { authorityLinePresent: true };
-  // Whole lines only, up to the bound; a single longer line is cut at it.
-  let joined = "";
-  for (const line of lines) {
-    const next = joined ? `${joined}; ${line}` : line;
-    if (next.length > AUTHORITY_LINE_MAX) break;
-    joined = next;
-  }
-  if (!joined && lines.length)
-    joined = lines[0].slice(0, AUTHORITY_LINE_MAX).trim();
+  // Over the bound, no part is shown as if it were the whole (safeguard 8).
+  const joined = lines.join("; ");
+  if (joined.length > AUTHORITY_LINE_MAX) return { authorityLinePresent: true };
   return joined
     ? { authorityLine: joined, authorityLinePresent: true }
     : { authorityLinePresent: present };

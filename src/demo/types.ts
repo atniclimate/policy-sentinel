@@ -291,6 +291,8 @@ export interface DemoPolicyResponse {
   readonly chain?: readonly ChainRow[];
   /** In-text citations the Worker withheld under the personal-pattern guard. */
   readonly chainWithheld?: number;
+  /** In-text citation places past the Worker's row cap, not sent. */
+  readonly chainCut?: number;
 }
 
 // Related records, expanded on a press (T1.3), version 3 contract. The
@@ -308,26 +310,6 @@ export interface GovInfoRelations {
   readonly basis: "source_field";
   readonly accessId: string;
   readonly relations: readonly GovInfoRelation[];
-  readonly retrievedAt: string;
-}
-
-export interface RelatedRecord {
-  readonly identifier: string;
-  /** Null when the source gives no title, or one the personal-pattern guard stops. */
-  readonly title: string | null;
-  readonly date: string | null;
-  readonly officialUrl: string;
-}
-
-export interface GovInfoRelatedRecords {
-  readonly ok: true;
-  readonly source: "govinfo";
-  readonly basis: "source_field";
-  readonly accessId: string;
-  readonly collection: string;
-  readonly records: readonly RelatedRecord[];
-  /** How many GovInfo listed; more than `records.length` means the list was cut. */
-  readonly total: number;
   readonly retrievedAt: string;
 }
 

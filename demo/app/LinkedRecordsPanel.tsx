@@ -3,6 +3,7 @@
 // Rows come from src/demo/links.ts; a family that needs a live call shows
 // a button and asks the source only when pressed, through onExpand.
 import { chain } from "../../src/demo/copy/chain";
+import { localDay } from "../../src/demo/follow";
 import { LINK_NOTICES } from "../../src/demo/link-labels";
 import { groupInText, labelNamesTarget } from "../../src/demo/links";
 import type { ChainLink, ChainRow, ChainSection } from "../../src/demo/links";
@@ -111,7 +112,7 @@ function Row({
         <dt>{F[row.asOfLabel]}</dt>
         <dd {...verbatim(row.asOfField)}>{row.asOfText}</dd>
         <dt>{F.retrieved}</dt>
-        <dd>{row.retrievedAt.slice(0, 10)}</dd>
+        <dd>{localDay(row.retrievedAt)}</dd>
         {row.notice && (
           <>
             <dt>{F.notice}</dt>
@@ -142,8 +143,8 @@ function Rows({
         <Row
           key={i}
           row={row}
-          // A line shared by several rows is quoted once, above the first.
-          showQuote={!!row.quote && rows[i - 1]?.quote?.text !== row.quote.text}
+          // Rows from one line share its quote object (links.ts lineRows), so it is quoted once, above the first.
+          showQuote={!!row.quote && rows[i - 1]?.quote !== row.quote}
           onHop={onHop}
         />
       ))}
@@ -154,12 +155,15 @@ function Rows({
 export function LinkedRecordsPanel({
   rows,
   notices = [],
+  inTextNotKept = false,
   expansions = [],
   onExpand,
   onHop,
 }: {
   rows: readonly ChainRow[];
   notices?: readonly ChainIndexNotice[];
+  /** The in-text rows were not stored with this saved copy, so the section says so instead of none. */
+  inTextNotKept?: boolean;
   expansions?: readonly ChainExpansion[];
   onExpand?: (id: ChainExpansionId) => void;
   onHop?: (target: ChainLink["target"]) => void;
@@ -200,8 +204,11 @@ export function LinkedRecordsPanel({
                         type="button"
                         aria-describedby="chain-expand-help"
                         aria-busy={x.state === "loading"}
-                        disabled={x.state === "loading" || !onExpand}
-                        onClick={() => onExpand?.(x.id)}
+                        // aria-disabled, not disabled: disabled drops keyboard focus to the body.
+                        aria-disabled={x.state === "loading" || !onExpand}
+                        onClick={() => {
+                          if (x.state !== "loading") onExpand?.(x.id);
+                        }}
                       >
                         {chain.expand[x.id]}
                       </button>
@@ -220,7 +227,13 @@ export function LinkedRecordsPanel({
                 {chain.expandHelp}
               </p>
             )}
-            {empty && <p>{chain.noneStated}</p>}
+            {empty && (
+              <p>
+                {section === "inText" && inTextNotKept
+                  ? chain.inTextNotKept
+                  : chain.noneStated}
+              </p>
+            )}
           </section>
         );
       })}

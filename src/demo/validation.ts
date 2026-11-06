@@ -6,13 +6,12 @@ import type {
   DemoSearchOptions,
   DemoSearchContinuation,
   DemoSource,
-  GovInfoRelatedRecords,
   GovInfoRelations,
   IssueType,
   LinkFamily,
 } from "./types";
 import { LINK_NOTICES, linkLabel } from "./link-labels.ts";
-import { withheldRowsNote, type ChainRow } from "./links.ts";
+import { cutRowsNote, withheldRowsNote, type ChainRow } from "./links.ts";
 import { hasPersonalPattern } from "./personal-guard.ts";
 import {
   MAX_DOCKET_LENGTH,
@@ -722,12 +721,16 @@ export function policyValueV3(
   )
     throw new Error("Invalid chain withheld count");
   const withheld = workerWithheld + rows.length - chain.length;
+  // Places past the Worker's row cap get their own stated row (safeguard 8).
+  const cut = integer(v.chainCut ?? 0, 1_500_000);
   return {
     ...base,
     version: 3,
-    chain: withheld
-      ? [...chain, withheldRowsNote(base.citation, withheld)]
-      : chain,
+    chain: [
+      ...chain,
+      ...(withheld ? [withheldRowsNote(base.citation, withheld)] : []),
+      ...(cut ? [cutRowsNote(base.citation, cut)] : []),
+    ],
   };
 }
 
@@ -754,18 +757,14 @@ function titleShown(title: string | null): string | null {
 }
 
 export type RelatedRequest =
-  | {
-      readonly source: "govinfo";
-      readonly id: string;
-      readonly collection?: string;
-    }
+  | { readonly source: "govinfo"; readonly id: string }
   | { readonly source: "congress"; readonly bill: string };
 
-/** GET /api/related: GovInfo relations, one GovInfo collection, or Congress.gov related bills. */
+/** GET /api/related: GovInfo relations or Congress.gov related bills. */
 export function relatedValue(
   value: unknown,
   expected: RelatedRequest,
-): GovInfoRelations | GovInfoRelatedRecords | CongressRelatedBills {
+): GovInfoRelations | CongressRelatedBills {
   const v = object(value);
   if (
     v.ok !== true ||
@@ -801,45 +800,19 @@ export function relatedValue(
     };
   }
   if (v.accessId !== expected.id) throw new Error("Invalid related identity");
-  if (expected.collection === undefined) {
-    if (v.collection !== undefined) throw new Error("Invalid related shape");
-    return {
-      ok: true,
-      source: "govinfo",
-      basis: "source_field",
-      accessId: expected.id,
-      relations: list(v.relations, 50).map((item) => {
-        const r = object(item);
-        const collection = text(r.collection, 12);
-        if (!/^[A-Z]{2,12}$/.test(collection))
-          throw new Error("Invalid related collection");
-        return { relation: text(r.relation, 200), collection };
-      }),
-      retrievedAt,
-    };
-  }
-  if (v.collection !== expected.collection)
-    throw new Error("Invalid related collection");
-  const records = list(v.records, 20).map((item) => {
-    const r = object(item);
-    const date = maybe(r.date, 10);
-    if (date !== null && !calendarDate(date))
-      throw new Error("Invalid related date");
-    return {
-      identifier: text(r.identifier, 200),
-      title: maybe(r.title, 4000),
-      date,
-      officialUrl: officialUrl(r.officialUrl, "govinfo"),
-    };
-  });
+  if (v.collection !== undefined) throw new Error("Invalid related shape");
   return {
     ok: true,
     source: "govinfo",
     basis: "source_field",
     accessId: expected.id,
-    collection: expected.collection,
-    records,
-    total: integer(v.total, Number.MAX_SAFE_INTEGER, records.length),
+    relations: list(v.relations, 50).map((item) => {
+      const r = object(item);
+      const collection = text(r.collection, 12);
+      if (!/^[A-Z]{2,12}$/.test(collection))
+        throw new Error("Invalid related collection");
+      return { relation: text(r.relation, 200), collection };
+    }),
     retrievedAt,
   };
 }

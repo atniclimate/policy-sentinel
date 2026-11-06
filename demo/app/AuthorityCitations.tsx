@@ -5,6 +5,7 @@
 import type { ComponentChildren } from "preact";
 import { grantsAuthority as T } from "../../src/demo/copy/grants-authority";
 import { authorityLinks } from "../../src/demo/grants-authority";
+import { LINK_NOTICES } from "../../src/demo/link-labels";
 import type { GrantsDetailResponse } from "../../src/demo/grants-authority";
 import type { DemoCitation } from "../../src/demo/types";
 
@@ -95,13 +96,19 @@ function Ready(props: {
             <ul>
               {links.map((link) => (
                 <li key={link.target.identifier}>
-                  <a
-                    href={link.target.officialUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {link.sourceWording}
-                  </a>{" "}
+                  {link.target.officialUrl ? (
+                    <a
+                      href={link.target.officialUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {link.sourceWording}
+                    </a>
+                  ) : (
+                    <>
+                      {link.sourceWording} ({LINK_NOTICES.notLive})
+                    </>
+                  )}{" "}
                   <span class="basis">{T.citationParsed}</span>
                 </li>
               ))}

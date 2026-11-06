@@ -305,6 +305,53 @@ describe("the chain on the page", () => {
     expect(panel().getByText("Shares docket EX-2099-0001")).toBeVisible();
   });
 
+  it("says a saved copy's in-text citations were not kept, never none, and a live empty read still says none", async () => {
+    const inText = (p: ReturnType<typeof within>) =>
+      within(
+        p
+          .getByRole("heading", { name: chain.sections.inText })
+          .closest("section")!,
+      );
+    // Saved with its read: serializeReport leaves the chain rows out.
+    window.sessionStorage.setItem(
+      STORAGE_KEY,
+      serializeReport({
+        cited: {
+          [keyOf(v3.citation)]: {
+            citation: v3.citation,
+            policy: policyValueV3(v3),
+            note: "",
+            alternates: [],
+          },
+        },
+        marks: {},
+        actors: ACTORS,
+      }),
+    );
+    const restored = await start();
+    await restored.open(frRecord.title);
+    expect(
+      inText(restored.panel()).getByText(chain.inTextNotKept),
+    ).toBeVisible();
+    expect(inText(restored.panel()).queryByText(chain.noneStated)).toBeNull();
+    // No new read for the saved copy.
+    expect(calls.some((url) => path(url) === "/api/policy")).toBe(false);
+    cleanup();
+
+    seed();
+    fetchStub.mockImplementation(async (input: string) => {
+      const url = input.startsWith("./") ? null : new URL(input);
+      if (url?.pathname === "/api/policy") return json({ ...v3, chain: [] });
+      return worker(input);
+    });
+    const live = await start();
+    await live.open(frRecord.title);
+    await waitFor(() =>
+      expect(inText(live.panel()).getByText(chain.noneStated)).toBeVisible(),
+    );
+    expect(inText(live.panel()).queryByText(chain.inTextNotKept)).toBeNull();
+  });
+
   it("says not yet available with the live link for a hop the index does not hold, and index unavailable for a tampered file", async () => {
     const { open, panel } = await start();
     await open(frRecord.title);
@@ -583,8 +630,9 @@ describe("the page's version 3 and related-records checks", () => {
       total: 3,
     };
     delete (records as { relations?: unknown }).relations;
-    expect(relatedValue(records, { ...request, collection: "BILLS" })).toEqual(
-      records,
+    // No page action asks for one collection, so that answer is refused.
+    expect(() => relatedValue(records, request)).toThrow(
+      "Invalid related shape",
     );
   });
 });

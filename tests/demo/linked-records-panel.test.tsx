@@ -8,6 +8,12 @@ import {
 } from "@testing-library/preact";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LinkedRecordsPanel } from "../../demo/app/LinkedRecordsPanel";
+import { buildDocument } from "../../src/demo/document";
+import { localDay } from "../../src/demo/follow";
+import type { CfrPartAuthority } from "../../src/demo/index-types";
+import { emptyActors, reportEntries } from "../../src/demo/report-state";
+import type { ReportState } from "../../src/demo/report-state";
+import { keyOf } from "../../src/demo/validation";
 import {
   cfrPartLinks,
   relatedRows,
@@ -75,6 +81,79 @@ describe("LinkedRecordsPanel", () => {
     expect(screen.queryByText(/snapshot older/i)).toBeNull();
   });
 
+  it("quotes each omitted line under its own heading, even when both texts are null", () => {
+    const shard = {
+      ...cfrShard,
+      entries: cfrShard.entries.map((e): CfrPartAuthority =>
+        e.part === "300"
+          ? { ...e, omitted: ["authorityText", "sourceText"] }
+          : e,
+      ),
+    };
+    const { container } = render(
+      <LinkedRecordsPanel
+        rows={cfrPartLinks(shard, "300", cfrFile, NOW) ?? []}
+      />,
+    );
+    expect(
+      [...container.querySelectorAll("figcaption")].map((f) => f.textContent),
+    ).toEqual(["Authority:", "Source:"]);
+  });
+
+  it("prints the retrieval day in the reader's day, as the export's Generated line does", () => {
+    // An evening in the Pacific is the next day in UTC.
+    const retrievedAt = "2099-01-08T03:00:00.000Z";
+    const rows = (cfrPartLinks(cfrShard, "100", cfrFile, NOW) ?? []).map(
+      (row) => ({ ...row, retrievedAt }),
+    );
+    const { container } = render(<LinkedRecordsPanel rows={rows} />);
+    const li = container.querySelector<HTMLElement>(".chain-row")!;
+    expect([...li.querySelectorAll("dd")].at(-1)?.textContent).toBe(
+      localDay(retrievedAt),
+    );
+  });
+
+  it("prints the same retrieval day in the panel row and the document line near midnight UTC", () => {
+    // Pinned so the UTC day (2099-01-08) and the reader's day (2099-01-07) differ on any host.
+    vi.stubEnv("TZ", "America/Los_Angeles");
+    try {
+      const retrievedAt = "2099-01-08T03:00:00.000Z";
+      const rows = (cfrPartLinks(cfrShard, "100", cfrFile, NOW) ?? []).map(
+        (row) => ({ ...row, retrievedAt }),
+      );
+      const { container } = render(<LinkedRecordsPanel rows={rows} />);
+      const li = container.querySelector<HTMLElement>(".chain-row")!;
+      expect([...li.querySelectorAll("dd")].at(-1)?.textContent).toBe(
+        "2099-01-07",
+      );
+      const report: ReportState = {
+        cited: {
+          [keyOf(frRecord)]: {
+            citation: frRecord,
+            policy: null,
+            note: "",
+            alternates: [],
+          },
+        },
+        marks: {},
+        actors: emptyActors(),
+      };
+      const { blocks } = buildDocument({
+        version: "0.0.0",
+        generatedAt: NOW,
+        entries: [{ ...reportEntries(report)[0], chain: rows }],
+        actors: emptyActors(),
+      });
+      const lines = blocks.flatMap((b) => ("text" in b ? [b.text] : []));
+      expect(lines.some((t) => t.includes("Retrieved: 2099-01-07"))).toBe(true);
+      expect(lines.some((t) => t.includes("Retrieved: 2099-01-08"))).toBe(
+        false,
+      );
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
   it("shows a U.S.C. hop with its release point and the stale sentence for an old file", () => {
     const usc =
       uscSectionLinks(uscShard, "/us/usc/t99/s1001", uscFile, NOW) ?? [];
@@ -119,6 +198,29 @@ describe("LinkedRecordsPanel", () => {
     fireEvent.click(button);
     expect(onExpand).toHaveBeenCalledTimes(1);
     expect(onExpand).toHaveBeenCalledWith("govinfo_related");
+  });
+
+  it("keeps keyboard focus on a loading button and ignores a second press", () => {
+    const onExpand = vi.fn();
+    const { rerender } = render(
+      <LinkedRecordsPanel rows={[]} expansions={idle} onExpand={onExpand} />,
+    );
+    const button = screen.getByRole("button", {
+      name: "Show related records stated by GovInfo",
+    });
+    button.focus();
+    rerender(
+      <LinkedRecordsPanel
+        rows={[]}
+        expansions={[{ id: "govinfo_related", state: "loading" }, idle[1]]}
+        onExpand={onExpand}
+      />,
+    );
+    expect(button).toHaveAttribute("aria-disabled", "true");
+    expect(button).not.toBeDisabled();
+    expect(document.activeElement).toBe(button);
+    fireEvent.click(button);
+    expect(onExpand).not.toHaveBeenCalled();
   });
 
   it("shows an answered family's rows and a failed one's message", () => {

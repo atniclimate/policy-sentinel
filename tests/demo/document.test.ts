@@ -17,8 +17,20 @@ import { keyOf } from "../../src/demo/validation";
 import { chain } from "../../src/demo/copy/chain";
 import { grantsAuthority as GA } from "../../src/demo/copy/grants-authority";
 import { LINK_NOTICES, linkLabel } from "../../src/demo/link-labels";
-import { citationsInText, recordLinks } from "../../src/demo/links";
-import { blocks as textBlocks, frRecord, SOURCES } from "./fixtures/chain";
+import type { CfrAuthorityShard } from "../../src/demo/index-types";
+import {
+  cfrPartLinks,
+  citationsInText,
+  recordLinks,
+} from "../../src/demo/links";
+import {
+  blocks as textBlocks,
+  cfrFile,
+  cfrShard,
+  frRecord,
+  NOW,
+  SOURCES,
+} from "./fixtures/chain";
 import { listing } from "./fixtures";
 import { citation, policy, statedCitation } from "./frontend-fixtures";
 
@@ -686,6 +698,30 @@ describe("the chain and Grants.gov authority in the cited document", () => {
     ).toHaveLength(1);
     expect(out.some((t) => t.includes(`Note: ${LINK_NOTICES.shortForm}`))).toBe(
       true,
+    );
+  });
+
+  it("quotes two omitted lines of one part once each, not once for both", () => {
+    const omitted = {
+      ...cfrShard,
+      entries: [
+        {
+          ...cfrShard.entries[0],
+          authorityText: null,
+          sourceText: null,
+          authorityCitations: [],
+          sourceCitations: [],
+          omitted: ["authorityText", "sourceText"],
+        },
+      ],
+    } as CfrAuthorityShard;
+    const rows = cfrPartLinks(omitted, "100", cfrFile, NOW)!;
+    const out = texts(one(frRecord, { chain: rows }));
+    expect(out).toEqual(
+      expect.arrayContaining([
+        `Authority: ${LINK_NOTICES.omitted}`,
+        `Source: ${LINK_NOTICES.omitted}`,
+      ]),
     );
   });
 

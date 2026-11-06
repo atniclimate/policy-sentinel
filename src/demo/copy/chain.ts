@@ -10,6 +10,9 @@ export const chain = {
   },
   /** Shown when a section has no rows, so an empty list never reads as checked and empty. */
   noneStated: "None stated in what was read.",
+  /** A saved copy reopened after a reload: its in-text rows were never stored, so it never says none. */
+  inTextNotKept:
+    "The citations found in the text are not kept with the saved copy. Read the record at the source to see them.",
   basis: {
     source_field: "Stated in a source field",
     source_text_parsed: "Parsed from source text",
@@ -39,6 +42,9 @@ export const chain = {
     count === 1
       ? "1 citation found in this text is not shown here because its wording may hold personal contact details. Read the record at the source."
       : `${count} citations found in this text are not shown here because their wording may hold personal contact details. Read the record at the source.`,
+  /** In-text citation places past the Worker's row cap. */
+  rowsCut: (count: number) =>
+    `This list stops before the end of the text. ${count === 1 ? "1 more place a citation appears is" : `${count} more places a citation appears are`} not listed, so place counts may be low. Read the record at the source.`,
   authorityWithheld:
     "This document has a part-level 'Authority:' line, but it is not shown here. Read it at the source.",
   /** An in-text citation named in several places, grouped into its first row. */

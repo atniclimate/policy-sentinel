@@ -164,7 +164,6 @@ describe("caption withholding", () => {
   it.each([
     "EXAMPLE COUNTY V. UNITED STATES",
     "Example Tribe v. Department of Example Affairs",
-    "Oregon v. Example Corp.",
     "EXAMPLE ASSOCIATION, ET AL. V. EXAMPLE AGENCY",
     "Port of Example v. United States",
     "State of Washington v. Example Tribe",
@@ -215,6 +214,9 @@ describe("caption withholding", () => {
     "Jane Co v. Example County",
     "Sampleperson Marital Community v. Example County",
     "Jane Sampleperson Tree Service v. United States",
+    // D-129: a bare state name can be a surname, so only "State of ..." passes.
+    "WASHINGTON V. UNITED STATES",
+    "Oregon v. Example Corp.",
   ])("withholds a caption that may name a person: %s", (title) => {
     expect(captionShown(title)).toBe(false);
   });

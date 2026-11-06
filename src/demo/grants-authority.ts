@@ -16,6 +16,11 @@
  */
 import { findCitations } from "./cite-patterns.ts";
 import type { PlCite, UscCite } from "./cite-patterns.ts";
+import {
+  baseSection,
+  GOVINFO_PLAW_FIRST_CONGRESS,
+  uscSectionUrl,
+} from "./links.ts";
 import { hasPersonalPattern } from "./personal-guard.ts";
 import { citationValue } from "./validation.ts";
 import type { DemoCitation, LinkedRecord } from "./types.ts";
@@ -175,26 +180,26 @@ export function listingNumbers(cfdaList: unknown): string[] {
   ];
 }
 
-/** Section number without a subsection: "5304(l)" is section 5304. */
-const baseSection = (section: string) => section.replace(/\(.*$/, "");
-
 function target(c: UscCite | PlCite): LinkedRecord["target"] {
   if (c.kind === "usc") {
     const section = baseSection(c.section);
     return {
       sourceId: "usc-index",
       identifier: `/us/usc/t${c.title}/s${section}`,
-      officialUrl: `https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title${c.title}-section${encodeURIComponent(section)}&num=0&edition=prelim`,
+      officialUrl: uscSectionUrl(c.title, section),
     };
   }
+  // GovInfo holds public laws from the 104th Congress on; older ones get no link.
   return {
     sourceId: "govinfo",
     identifier: `PLAW-${c.congress}publ${c.number}`,
-    officialUrl: `https://www.govinfo.gov/link/plaw/${c.congress}/public/${c.number}`,
+    ...(c.congress >= GOVINFO_PLAW_FIRST_CONGRESS && {
+      officialUrl: `https://www.govinfo.gov/link/plaw/${c.congress}/public/${c.number}`,
+    }),
   };
 }
 
-/** Labels in step 6's closed table (src/demo/link-labels.ts). */
+/** Label ids for these rows. The panel words them itself; they are not in LINK_LABELS. */
 export const AUTHORITY_LABEL_IDS = {
   usc: "grants-authority-usc",
   pl: "grants-authority-pl",
