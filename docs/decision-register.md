@@ -26,7 +26,7 @@ the separate non-PS09 Makah demo track under D-068 and D-069. Dated source
 evidence and earlier decisions retain their recorded review dates and scope;
 the explicit supersessions below control current product-wide interpretation.
 
-## Current phase authorization
+## Phase authorization of 2026-09 (retained record)
 
 The owner approved Gate G-A on 2026-07-30 for the retained B1-B10 stream in
 `docs/mvp-plan.md`. Later exact owner

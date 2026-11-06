@@ -2,11 +2,12 @@
 
 ## Working set
 
-Start with these five, in this order: [`AGENTS.md`](../AGENTS.md) (the rules),
-[`STATUS.md`](STATUS.md) (current state and open owner decisions),
+Start with [`AGENTS.md`](../AGENTS.md) (the rules) and
+[`STATUS.md`](STATUS.md) (current state and open owner decisions). Read
 [`PLAN.md`](PLAN.md) (milestones and acceptance checks),
 [`DEMO-STATUS.md`](DEMO-STATUS.md) (the live demo) and the
-[decision register](decision-register.md) (the owner's rulings). Everything
+[decision register](decision-register.md) (the owner's rulings) when the task
+needs them. Everything
 else this index lists, including `ROADMAP.yaml`, the operating model and the
 older handoffs, is retained record, not the working plan. The text below is
 that record as it stood on 2026-10-10 and is not updated for the working set.
@@ -431,7 +432,10 @@ evidence. It does not introduce a release root or authorize further work.
   or out-of-inventory Markdown is validated or rejected; canonical Markdown
   cannot depend on an exempt input through links, raw HTML or aliases.
 
-## Recovery and exact next action
+## Recovery and next action as of 2026-10-10 (record, not current)
+
+Current session start is in `AGENTS.md`, under "How to work". The record
+follows.
 
 At every implementation-session start, read `AGENTS.md` and `ROADMAP.yaml`
 completely, then this index and the files relevant to the selected item. Run:

@@ -1,12 +1,11 @@
 # Live demo status
 
-Updated 2026-10-19. Policy Sentinel 0.7.0 adds the NCAI 2026 draft resolutions
-menu under D-104 and D-105. Records below that say 0.2.0, 0.6.0 or 0.6.1
-describe earlier checkpoints.
-This page records maintenance of the separately authorized
-public demo under D-083, D-084, D-093, D-094, D-095, D-098, D-101, D-102, D-103, D-104, D-105, D-106, D-107 and D-108 in the
-[decision register](decision-register.md). Project state and the working plan
-are in [STATUS.md](STATUS.md) and [PLAN.md](PLAN.md).
+The live page is release 0.10.1 (D-116, published through PR 19 on 2026-10-24
+UTC). This page records maintenance of the separately authorized public demo,
+newest first; each section names its rulings in the
+[decision register](decision-register.md), and earlier sections describe
+earlier checkpoints. Project state, including unpublished builds, and the
+working plan are in [STATUS.md](STATUS.md) and [PLAN.md](PLAN.md).
 
 GovInfo, Congress.gov and Regulations.gov were switched on in the demo on
 2026-10-10 and passed one bounded live check each. The interface, document and
