@@ -54,16 +54,51 @@ function* strings(value, path = "") {
     }
 }
 
-/** Personal-pattern and Nation-name hits in one string (conditions G1, G3). */
-export function stringProblems(text, names = []) {
+/**
+ * Official law titles whose words "Community" or "Indian Tribes" trip the
+ * structural Nation-name mask while naming no Nation (owner direction
+ * 2026-11-05: integrate these through a closed exact-title list). Each maps to
+ * the exact span texts the mask produces. The exception holds only for a
+ * popularName equal byte for byte to a key whose spans equal that list, and
+ * exact-name probes still run, so no other string can pass this way. A title
+ * is added only after a person reads it on its OLRC page.
+ */
+export const ANCHOR_WORD_TITLES = new Map(
+  Object.entries({
+    "Community Services Block Grant Act": ["Community"],
+    "Emergency Planning and Community Right-To-Know Act of 1986": ["Community"],
+    "Housing and Community Development Act of 1974": ["Community"],
+    "Indian Community Economic Enhancement Act of 2020": ["Indian Community"],
+    "PROGRESS for Indian Tribes Act": ["Indian Tribes"],
+  }).map(([title, spans]) => [title, Object.freeze(spans)]),
+);
+Object.freeze(ANCHOR_WORD_TITLES);
+
+const POPULAR_NAME_PATH = /^\.entries\[\d+\]\.popularName$/;
+
+function nationSpanTexts(text, names) {
+  return maskProtectedSpans(text, { names })
+    .spans.filter((s) => s.kind === "nation_name")
+    .map((s) => text.slice(s.start, s.end));
+}
+
+/**
+ * Personal-pattern and Nation-name hits in one string (conditions G1, G3).
+ * `path` is the JSON path of the string; only a popularName may use
+ * ANCHOR_WORD_TITLES.
+ */
+export function stringProblems(text, names = [], path = "") {
   const problems = [];
   if (personalPatternHits(text).length) problems.push("personal pattern");
-  if (
-    maskProtectedSpans(text, { names }).spans.some(
-      (s) => s.kind === "nation_name",
-    )
-  )
-    problems.push("Nation name shape");
+  const found = nationSpanTexts(text, names);
+  const pinned = POPULAR_NAME_PATH.test(path)
+    ? ANCHOR_WORD_TITLES.get(text)
+    : undefined;
+  const reviewed =
+    pinned !== undefined &&
+    JSON.stringify(found) === JSON.stringify(pinned) &&
+    JSON.stringify(nationSpanTexts(text, [])) === JSON.stringify(pinned);
+  if (found.length && !reviewed) problems.push("Nation name shape");
   return problems;
 }
 
@@ -119,7 +154,7 @@ export function aliasProblems(text, { names = [] } = {}) {
     }
   }
   for (const [path, value] of strings(file))
-    for (const p of stringProblems(value, names))
+    for (const p of stringProblems(value, names, path))
       problems.push(`${path || "/"}: ${p}`);
   return problems;
 }

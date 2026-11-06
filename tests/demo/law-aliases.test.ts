@@ -23,6 +23,7 @@ const aliasProblems = vocab.aliasProblems as (
 const stringProblems = vocab.stringProblems as (
   text: string,
   names?: readonly string[],
+  path?: string,
 ) => string[];
 
 const ROOT = process.cwd();
@@ -145,6 +146,79 @@ describe("the alias checks", () => {
     expect(aliasProblems(withEntries([bad])).join(" ")).toMatch(
       /personal pattern/,
     );
+  });
+
+  describe("reviewed titles with a mask anchor word", () => {
+    const anchorTitles = vocab.ANCHOR_WORD_TITLES as ReadonlyMap<
+      string,
+      readonly string[]
+    >;
+    const titles = [...anchorTitles.keys()];
+
+    it("holds exactly the five owner-directed titles", () => {
+      expect(titles).toEqual([
+        "Community Services Block Grant Act",
+        "Emergency Planning and Community Right-To-Know Act of 1986",
+        "Housing and Community Development Act of 1974",
+        "Indian Community Economic Enhancement Act of 2020",
+        "PROGRESS for Indian Tribes Act",
+      ]);
+    });
+
+    it("lets each listed title in as a popular name, probes included", () => {
+      const names = nationNameBases();
+      for (const popularName of titles) {
+        expect(
+          aliasProblems(withEntries([entry({ popularName })]), { names }),
+          popularName,
+        ).toEqual([]);
+      }
+    });
+
+    it("still refuses the same title outside popularName", () => {
+      expect(
+        stringProblems(
+          "Community Services Block Grant Act",
+          [],
+          ".entries[0].citations[0].text",
+        ),
+      ).toContain("Nation name shape");
+      expect(stringProblems("Community Services Block Grant Act")).toContain(
+        "Nation name shape",
+      );
+    });
+
+    it("refuses a near variant of a listed title", () => {
+      for (const popularName of [
+        "Community Services Block Grant Act of 1981",
+        "community services block grant act",
+        "Sample Indian Community Economic Enhancement Act of 2020",
+        "Example Valley PROGRESS for Indian Tribes Act",
+      ])
+        expect(
+          aliasProblems(withEntries([entry({ popularName })])).join(" "),
+          popularName,
+        ).toMatch(/Nation name shape/);
+    });
+
+    it("refuses a listed title when an exact name widens its span", () => {
+      expect(
+        aliasProblems(
+          withEntries([
+            entry({ popularName: "Community Services Block Grant Act" }),
+          ]),
+          { names: ["Community Services"] },
+        ).join(" "),
+      ).toMatch(/Nation name shape/);
+    });
+
+    it("pins the spans the mask produces today, so a mask change forces a re-review", () => {
+      for (const [title, spans] of anchorTitles) {
+        const found = stringProblems(title, [], ".entries[0].popularName");
+        expect(found, title).toEqual([]);
+        expect(spans.length, title).toBeGreaterThan(0);
+      }
+    });
   });
 
   it("flags every Nation-name probe placed in a popular name", () => {
