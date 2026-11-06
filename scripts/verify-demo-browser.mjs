@@ -575,9 +575,11 @@ try {
       .count()) === federal.length;
   for (const s of federal) {
     // Scoped to the sources group: the Grants.gov eligibility filter also names Grants.gov.
+    // Matched on the exact source name: "GovInfo" is a prefix of "GovInfo court opinions".
     const box = page
       .getByRole("group", { name: COPY.sourcesLegend })
-      .getByRole("checkbox", { name: s.label });
+      .locator("label", { has: page.getByText(s.label, { exact: true }) })
+      .getByRole("checkbox");
     const live = s.status === "live";
     federalOk &&=
       (await box.isEnabled()) === live &&
@@ -886,7 +888,7 @@ try {
       "real browser print lifecycle fires and restores screen",
       receipt.printEvents.includes("beforeprint") &&
         receipt.printEvents.includes("afterprint") &&
-        (await page.getByRole("searchbox").isVisible()),
+        (await page.locator("#q").isVisible()),
     );
   }
   await page.screenshot({
@@ -925,7 +927,8 @@ try {
   check("theme switch returns to dark", await themeIs("dark"));
 
   // Start at a known control, then verify keyboard movement and visible focus.
-  await page.getByRole("searchbox").focus();
+  // The search field is a combobox (#q) since the suggestion list (0.9.1).
+  await page.locator("#q").focus();
   await page.keyboard.press("Tab");
   const focused = await page.evaluate(() => {
     const el = document.activeElement;

@@ -4,6 +4,7 @@ import type { DemoCitation } from "./types";
 export const SOURCE_LABELS: Readonly<Record<string, string>> = {
   "federal-register": "Federal Register",
   govinfo: "GovInfo",
+  "govinfo-courts": "GovInfo court opinions",
   congress: "Congress.gov",
   regulations: "Regulations.gov",
   grants: "Grants.gov",
