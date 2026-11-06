@@ -43,8 +43,24 @@ const selection = ["--sources", "--from", "--through"].some((flag) =>
 const outputCorpus = selection
   ? createSearchProjection(corpus, selection).corpus
   : corpus;
+// Point the same index.html at the local entry, so the output names stay
+// unchanged and the public entry src/main.tsx never carries the workbench.
+const localEntry = {
+  name: "policy-local-entry",
+  transformIndexHtml: {
+    order: "pre",
+    handler(html) {
+      const local = html.replace(
+        'src="/src/main.tsx"',
+        'src="/src/local-main.tsx"',
+      );
+      if (local === html) throw new Error("LOCAL_ENTRY_NOT_FOUND");
+      return local;
+    },
+  },
+};
 const bundles = await build({
-  define: { "import.meta.env.VITE_POLICY_LOCAL": JSON.stringify("1") },
+  plugins: [localEntry],
   build: { write: false, emptyOutDir: false },
   logLevel: "warn",
 });

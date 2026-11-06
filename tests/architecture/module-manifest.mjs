@@ -34,10 +34,12 @@ const OUTSIDE_MODULE_PREFIXES = Object.freeze([
   "schemas/experimental",
 ]);
 
-// Composition roots (design section 2 diagram): scripts/*.mjs and
-// src/main.tsx. They may import any module's public entry.
+// Composition roots (design section 2 diagram): scripts/*.mjs, src/main.tsx
+// and the local entry src/local-main.tsx. They may import any module's
+// public entry, and no module member may import them.
 export const COMPOSITION_ROOT_PATHS = Object.freeze([
   "src/main.tsx",
+  "src/local-main.tsx",
   "scripts/configured-engine.ts",
   "scripts/configured-source-refresh.ts",
   "scripts/source-pack.ts",
@@ -66,11 +68,19 @@ const PRIVATE_MODULE_PREFIXES = Object.freeze(["src/modules/private"]);
 // right, exactly as the seam files are.
 export const PRIVATE_BARREL_PATH = "src/engine/index.ts";
 
-// Entry points for the public-entry reachability rule (addendum section 2).
+// Entry points for the public-entry reachability rule (addendum section 2;
+// Full 0.9 design T1.1 adds the live demo page and its Worker).
 export const PUBLIC_ENTRY_PATHS = Object.freeze([
   "src/main.tsx",
   "scripts/build-synthetic-artifact.mjs",
+  "demo/main.tsx",
+  "worker/src/index.ts",
 ]);
+
+// The local workbench entry (Full 0.9 design section 1 rule 9), built only by
+// scripts/build-policy-local.mjs. It may reach private context; no public
+// entry may reach it.
+export const LOCAL_ENTRY_PATHS = Object.freeze(["src/local-main.tsx"]);
 
 // Core (design section 3): shared, pure, no I/O.
 const CORE_FILES = Object.freeze([
@@ -110,10 +120,15 @@ const INTAKE_FILES = Object.freeze([
   "config/policy-text-selections.mjs",
   "config/local-corpus.v1.mjs",
 ]);
+// worker/ is the live demo's run-time retrieval (D-083): routing plus a
+// registry of source adapters in worker/src/sources, the job src/adapters does
+// at build time. It already reads text through intake's policy-text (via
+// src/demo/analyze.ts), so as output it would breach output's rule.
 const INTAKE_PREFIXES = Object.freeze([
   "src/modules/intake",
   "src/adapters",
   "src/contracts",
+  "worker",
 ]);
 
 // Module 2: geographic and context association (design section 5).
@@ -142,6 +157,7 @@ const CONTEXT_PREFIXES = Object.freeze(["src/modules/context"]);
 // files under it without editing this manifest.
 const OUTPUT_FILES = Object.freeze([
   "src/main.tsx",
+  "src/local-main.tsx",
   "src/pipeline/artifact.mjs",
   "src/pipeline/artifact.d.mts",
   "src/pipeline/artifact-health.mjs",
@@ -151,7 +167,12 @@ const OUTPUT_FILES = Object.freeze([
   "src/engine/policy-search.mjs",
   "src/engine/policy-search.d.mts",
 ]);
-const OUTPUT_PREFIXES = Object.freeze(["src/modules/output", "src/app"]);
+// demo/ is the live public demo page (D-083), the public output side.
+const OUTPUT_PREFIXES = Object.freeze([
+  "src/modules/output",
+  "src/app",
+  "demo",
+]);
 const OUTPUT_LOCAL_PREFIXES = Object.freeze([
   "src/modules/output/local-workbench",
 ]);
@@ -179,8 +200,9 @@ export function isOutsideEveryModule(repoPath) {
 }
 
 /**
- * True for scripts/*.mjs (any depth) and src/main.tsx: composition roots
- * may import any module's public entry (design section 2).
+ * True for scripts/*.mjs (any depth) and the listed roots, including
+ * src/main.tsx and src/local-main.tsx: composition roots may import any
+ * module's public entry (design section 2).
  * @param {string} repoPath
  * @returns {boolean}
  */
@@ -223,12 +245,17 @@ export function isPrivateBarrel(repoPath) {
 
 /**
  * True for anything the public-entry reachability rule forbids: a private
- * module file, the private barrel, or any src/modules/private/ file.
+ * module file, the private barrel, any src/modules/private/ file, or the
+ * local entry.
  * @param {string} repoPath
  * @returns {boolean}
  */
 export function isForbiddenFromPublicEntry(repoPath) {
-  return isPrivateModuleFile(repoPath) || isPrivateBarrel(repoPath);
+  return (
+    isPrivateModuleFile(repoPath) ||
+    isPrivateBarrel(repoPath) ||
+    LOCAL_ENTRY_PATHS.includes(normalizeRepoPath(repoPath))
+  );
 }
 
 /**
