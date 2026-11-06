@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://policy-sentinel.invalid/schemas/law-aliases.schema.v1.json",
   "title": "Policy Sentinel reviewed law alias table",
-  "$comment": "Index conditions F5 and G3: curated config, bundled into the demo page, never fetched. Each entry is read from the official OLRC page by a person; no model output (design rule 8). No law whose popular name names a Nation.",
+  "$comment": "Index conditions F5 and G3: curated config, bundled into the demo page, never fetched. Each entry is read from the official OLRC page by a person, and each acronym from the official page that states it; no model output (design rule 8). No law whose popular name names a Nation.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -39,6 +39,28 @@
       "maxLength": 400,
       "pattern": "^https://(www\\.ecfr\\.gov|uscode\\.house\\.gov|www\\.federalregister\\.gov)/"
     },
+    "acronymSource": {
+      "type": "string",
+      "maxLength": 400,
+      "pattern": "^https://(www\\.ecfr\\.gov|uscode\\.house\\.gov|www\\.federalregister\\.gov|www\\.govinfo\\.gov)/",
+      "$comment": "officialHost plus GovInfo, for the CFR annual edition"
+    },
+    "acronym": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["acronym", "sourceUrl", "text"],
+      "properties": {
+        "acronym": { "type": "string", "pattern": "^[A-Z][A-Z0-9]{1,9}$" },
+        "sourceUrl": { "$ref": "#/$defs/acronymSource" },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400,
+          "pattern": "^[^<>]*$",
+          "$comment": "verbatim official wording where the acronym is stated"
+        }
+      }
+    },
     "pattern": {
       "type": "object",
       "additionalProperties": false,
@@ -73,7 +95,11 @@
         "pattern": { "$ref": "#/$defs/pattern" },
         "title": { "type": "integer", "minimum": 1, "maximum": 54 },
         "section": { "type": "string", "minLength": 1, "maxLength": 24 },
-        "etSeq": { "type": "boolean" }
+        "etSeq": { "type": "boolean" },
+        "note": {
+          "const": true,
+          "$comment": "a note locator after the section"
+        }
       }
     },
     "lawAlias": {
@@ -94,11 +120,21 @@
           "pattern": "^[^<>]*$",
           "$comment": "verbatim"
         },
+        "titleAsEnacted": {
+          "type": "boolean",
+          "$comment": "the label says (title as enacted)"
+        },
         "citations": {
           "type": "array",
           "minItems": 1,
           "maxItems": 8,
           "items": { "$ref": "#/$defs/uscCitation" }
+        },
+        "acronyms": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "items": { "$ref": "#/$defs/acronym" }
         },
         "olrcUrl": {
           "type": "string",

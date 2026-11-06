@@ -5,10 +5,13 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { spawnSync } from "node:child_process";
 import { afterEach, describe, expect, it } from "vitest";
 // @ts-expect-error build script has no declaration file
 import * as vocab from "../../scripts/build-vocab.mjs";
+import { probeHashFile } from "../../scripts/demo-index/common.mjs";
 import type { LawAliasFile } from "../../src/demo/index-types";
+import { SYNTHETIC_PROBE_NAMES } from "../support/nation-name-probes";
 
 interface Ceiling {
   files: number;
@@ -165,6 +168,45 @@ describe("the review packet", () => {
     expect(packet).toContain(
       "- Sample Water Quality Act: 33 U.S.C. 1251 et seq.",
     );
+  });
+
+  it("runs the hashed Nation-name probe over the alias table and needs the full list (G3)", () => {
+    const dir = temp();
+    const write = (name: string, value: unknown) => {
+      writeFileSync(join(dir, name), JSON.stringify(value));
+      return join(dir, name);
+    };
+    const full = [...SYNTHETIC_PROBE_NAMES];
+    const hashes = write("full.json", probeHashFile(full, full.length));
+    const short = write("short.json", probeHashFile(full.slice(0, 3), 3));
+    const named = file();
+    named.entries[0].popularName = "Synthetic Probe Entity 042 Water Act";
+    const run = (aliases: unknown, hashFile: string) =>
+      spawnSync(
+        process.execPath,
+        [
+          "scripts/build-vocab.mjs",
+          "--aliases",
+          write("aliases.json", aliases),
+          "--vocab-dir",
+          join(dir, "missing"),
+          "--nation-hashes",
+          hashFile,
+        ],
+        { env: { ...process.env, DEMO_NATION_NAMES: "" }, encoding: "utf8" },
+      );
+    // Citation checks belong to aliasProblems; only the G3 lines are pinned here.
+    const clean = run(file(), hashes);
+    expect(clean.stdout).toMatch(/Nation-name probes: .*hashed/);
+    expect(clean.stderr).not.toMatch(/G3/);
+    const hit = run(named, hashes);
+    expect(hit.status).toBe(1);
+    expect(hit.stderr).toMatch(
+      /\.entries\[0\]\.popularName: Nation-name probe hit \(G3\)/,
+    );
+    const partial = run(file(), short);
+    expect(partial.status).toBe(1);
+    expect(partial.stderr).toMatch(/not the full list of 575 \(G3\)/);
   });
 
   it("writes outside the repository and refuses a path inside it", () => {

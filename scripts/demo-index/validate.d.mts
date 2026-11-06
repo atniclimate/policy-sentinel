@@ -1,3 +1,5 @@
+import type { NationProbe } from "./common.mjs";
+
 export const CAPS: Readonly<{
   manifestBytes: number;
   vocabFileBytes: number;
@@ -21,12 +23,17 @@ export interface DemoIndexResult {
   fileCount: number;
   currentCount: number;
   totalBytes: number;
-  probe: { source: string; nameCount: number };
+  probe: { source: string; nameCount: number; hashCount: number };
 }
 
 export function validateDemoIndex(
   dir: string,
-  options?: { names?: readonly string[]; probeSource?: string; now?: Date },
+  options?: {
+    probe?: NationProbe;
+    names?: readonly string[];
+    probeSource?: string;
+    now?: Date;
+  },
 ): DemoIndexResult;
 export function schemaErrors(
   name:

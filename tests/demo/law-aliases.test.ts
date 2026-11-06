@@ -10,7 +10,12 @@ import Ajv2020 from "ajv/dist/2020.js";
 import { describe, expect, it } from "vitest";
 // @ts-expect-error build script has no declaration file
 import * as vocab from "../../scripts/build-vocab.mjs";
-import type { LawAlias, LawAliasFile } from "../../src/demo/index-types";
+import { PATTERN_SET_VERSION } from "../../src/demo/cite-patterns";
+import type {
+  LawAlias,
+  LawAliasCitation,
+  LawAliasFile,
+} from "../../src/demo/index-types";
 import {
   nationNameBases,
   nationNameProbes,
@@ -48,7 +53,7 @@ const entry = (over: Partial<LawAlias> = {}): LawAlias => ({
       kind: "usc",
       text: "33 U.S.C. 1251 et seq.",
       basis: "curated",
-      pattern: { id: "usc-section", version: "1.0.0" },
+      pattern: { id: "usc-section", version: PATTERN_SET_VERSION },
       title: 33,
       section: "1251",
       etSeq: true,
@@ -146,6 +151,137 @@ describe("the alias checks", () => {
     expect(aliasProblems(withEntries([bad])).join(" ")).toMatch(
       /personal pattern/,
     );
+  });
+
+  it("lets an official title that names a person in as a popular name", () => {
+    // Decision 4: the guard looks for contact shapes, not for names.
+    for (const popularName of [
+      "Robin Q. Sample, Jr. Memorial Wildlife Act",
+      "Casey Example Conservation Act of 2099",
+    ])
+      expect(
+        aliasProblems(withEntries([entry({ popularName })]), {
+          names: nationNameBases(),
+        }),
+        popularName,
+      ).toEqual([]);
+  });
+
+  describe("a note locator in a citation", () => {
+    const noteCite: LawAliasCitation = {
+      kind: "usc",
+      text: "33 U.S.C. 1251 note",
+      basis: "curated",
+      pattern: { id: "usc-section", version: PATTERN_SET_VERSION },
+      title: 33,
+      section: "1251",
+      etSeq: false,
+      note: true,
+    };
+
+    it("accepts a note citation whose fields say note", () => {
+      const file = withEntries([entry({ citations: [noteCite] })]);
+      expect(validateTable(JSON.parse(file))).toBe(true);
+      expect(aliasProblems(file)).toEqual([]);
+    });
+
+    it("refuses note on a citation without it, and a note citation without the field", () => {
+      const withoutField = { ...noteCite };
+      delete withoutField.note;
+      for (const c of [{ ...noteCite, text: "33 U.S.C. 1251" }, withoutField])
+        expect(aliasProblems(withEntries([entry({ citations: [c] })]))).toEqual(
+          ["entries[0].citations[0] does not parse as its fields say"],
+        );
+    });
+
+    it("allows note only as true", () => {
+      const bad = entry({
+        citations: [{ ...noteCite, note: false as unknown as true }],
+      });
+      expect(validateTable(JSON.parse(withEntries([bad])))).toBe(false);
+    });
+  });
+
+  it("accepts titleAsEnacted as a boolean only", () => {
+    expect(
+      validateTable(JSON.parse(withEntries([entry({ titleAsEnacted: true })]))),
+    ).toBe(true);
+    const bad = entry({ titleAsEnacted: "yes" as unknown as boolean });
+    expect(validateTable(JSON.parse(withEntries([bad])))).toBe(false);
+  });
+
+  describe("acronyms", () => {
+    const acronym = {
+      acronym: "SWQA",
+      sourceUrl:
+        "https://www.govinfo.gov/content/pkg/CFR-2099-title99-vol1/xml/CFR-2099-title99-vol1-part100.xml",
+      text: "the Sample Water Quality Act (SWQA)",
+    };
+    const withAcronyms = (acronyms: unknown[]) =>
+      withEntries([{ ...entry(), acronyms }]);
+
+    it("accepts an acronym with an official source and its wording", () => {
+      for (const sourceUrl of [
+        acronym.sourceUrl,
+        "https://www.federalregister.gov/documents/2099/01/02/2099-00001/sample",
+        "https://www.ecfr.gov/current/title-99/part-100",
+      ]) {
+        const file = withAcronyms([{ ...acronym, sourceUrl }]);
+        expect(validateTable(JSON.parse(file)), sourceUrl).toBe(true);
+        expect(aliasProblems(file), sourceUrl).toEqual([]);
+      }
+    });
+
+    it.each([
+      ["lower case", { ...acronym, acronym: "Swqa" }],
+      ["one letter", { ...acronym, acronym: "S" }],
+      ["eleven characters", { ...acronym, acronym: "SWQAABCDEFG" }],
+      ["a leading digit", { ...acronym, acronym: "9SWQA" }],
+      ["a punctuation mark", { ...acronym, acronym: "SW-QA" }],
+      [
+        "an unofficial host",
+        { ...acronym, sourceUrl: "https://example.org/x" },
+      ],
+      ["no wording", { acronym: "SWQA", sourceUrl: acronym.sourceUrl }],
+      ["an extra field", { ...acronym, model: "x" }],
+      ["markup in the wording", { ...acronym, text: "<b>SWQA</b>" }],
+    ])("rejects %s", (_name, bad) => {
+      expect(validateTable(JSON.parse(withAcronyms([bad])))).toBe(false);
+      expect(aliasProblems(withAcronyms([bad])).length).toBeGreaterThan(0);
+    });
+
+    it("rejects an empty list", () => {
+      expect(validateTable(JSON.parse(withAcronyms([])))).toBe(false);
+    });
+
+    it("refuses an acronym its official wording does not print exactly", () => {
+      for (const text of [
+        "the Sample Water Quality Act (swqa)",
+        "the Sample Water Quality Act (SWQAX)",
+        "the Sample Water Quality Act",
+      ])
+        expect(
+          aliasProblems(withAcronyms([{ ...acronym, text }])),
+          text,
+        ).toEqual(["entries[0].acronyms[0] is not in its official wording"]);
+    });
+
+    it("refuses the same acronym twice in one entry", () => {
+      expect(aliasProblems(withAcronyms([acronym, acronym]))).toEqual([
+        "entries[0].acronyms[1] repeats SWQA",
+      ]);
+    });
+
+    it("runs the Nation-name and personal checks on acronym strings", () => {
+      const problems = aliasProblems(
+        withAcronyms([
+          { ...acronym, text: "SWQA (write to someone@example.org)" },
+        ]),
+      );
+      expect(problems.join(" ")).toMatch(
+        /acronyms\[0\]\.text: personal pattern/,
+      );
+    });
   });
 
   describe("reviewed titles with a mask anchor word", () => {

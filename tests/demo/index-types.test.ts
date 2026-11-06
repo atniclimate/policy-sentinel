@@ -7,6 +7,7 @@ import {
   VERBATIM_FIELDS,
   type CfrAuthorityShard,
   type IndexManifest,
+  type LawAlias,
   type LawAliasFile,
   type UscSourceCreditShard,
   type VocabularyFile,
@@ -163,6 +164,34 @@ const aliases = {
   ],
 } satisfies LawAliasFile;
 
+// The optional alias fields: a note locator, an enacted title and an acronym.
+const aliasWithOptions = {
+  popularName: "Example Records Act of 2099",
+  titleAsEnacted: true,
+  citations: [
+    {
+      kind: "usc",
+      text: "99 U.S.C. 2 note",
+      basis: "curated",
+      pattern: pattern("usc-section"),
+      title: 99,
+      section: "2",
+      etSeq: false,
+      note: true,
+    },
+  ],
+  acronyms: [
+    {
+      acronym: "ERA",
+      sourceUrl: "https://www.govinfo.gov/example",
+      text: "the Example Records Act of 2099 (ERA)",
+    },
+  ],
+  olrcUrl: "https://uscode.house.gov/view.xhtml?req=99",
+  reviewedOn: "2026-11-05",
+  reviewerRole: "staff",
+} satisfies LawAlias;
+
 const rights = {
   statementText: "none stated",
   url: "https://www.govinfo.gov/example-terms",
@@ -258,6 +287,10 @@ describe("static index types", () => {
     expect(uscShard.entries[0]?.status).toBe("transferred");
     expect(vocabulary.entries).toHaveLength(1);
     expect(aliases.entries[0]?.citations[0]?.etSeq).toBe(true);
+    expect(aliasWithOptions.citations[0]?.note).toBe(true);
+    // An acronym's official wording is a verbatim field, like a citation's text.
+    expect(Object.keys(aliasWithOptions.acronyms[0] ?? {})).toContain("text");
+    expect(VERBATIM_FIELDS).toContain("text");
     expect("pointInTimeDate" in staleShape).toBe(true);
     expect(manifest.files.map((f) => f.kind)).toEqual([
       "cfr-authority-shard",

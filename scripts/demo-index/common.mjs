@@ -1,6 +1,8 @@
 // Shared pieces of the static index acquisition and validator (index
 // conditions 2026-11-05 as adjusted by D-125). No network, no writes.
-import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
+import { basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { canonicalJson } from "../../src/core/canonical-json.mjs";
@@ -202,9 +204,123 @@ export const FULL_PROBE_ENTRIES = BIA_RECOGNITION_2026.expectedNationCount;
 export const isFullProbe = (probe) =>
   (probe.entryCount ?? 0) >= FULL_PROBE_ENTRIES;
 
+/**
+ * Decision 10 (2026-11-06): the committed hashed probes. The owner keeps the
+ * plain list and writes this file with scripts/make-nation-probe-hashes.mjs.
+ */
+export const PROBE_HASH_PATH = fileURLToPath(
+  new URL("../../config/nation-name-probes.sha256.v1.json", import.meta.url),
+);
+/**
+ * NFC, lower case, then words are runs of letters, marks and digits joined by
+ * one space, so punctuation and line breaks separate words. Each name is also
+ * hashed without a leading "the".
+ */
+export const PROBE_NORMALIZATION = "nfc-lower-words.v1";
+
+const probeWords = (text) =>
+  text
+    .normalize("NFC")
+    .toLowerCase()
+    .normalize("NFC")
+    .match(/[\p{L}\p{M}\p{N}]+/gu) ?? [];
+const sha256Hex = (text) =>
+  createHash("sha256").update(text, "utf8").digest("hex");
+
+/** The hash file for a plain list: hashes, counts and version, never a name. */
+export function probeHashFile(names, entryCount) {
+  const forms = new Set();
+  let maxWords = 0;
+  for (const name of names) {
+    const words = probeWords(name);
+    for (const form of words[0] === "the" ? [words, words.slice(1)] : [words])
+      if (form.length) {
+        forms.add(form.join(" "));
+        maxWords = Math.max(maxWords, form.length);
+      }
+  }
+  return {
+    artifactType: "nation-name-probe-hashes",
+    normalization: PROBE_NORMALIZATION,
+    entryCount,
+    maxWords,
+    hashes: [...forms].map(sha256Hex).sort(),
+  };
+}
+
+/** A checked hash file as a probe; throws on any other shape. */
+export function hashedProbe(file, source) {
+  const hashes = file?.hashes;
+  const ok =
+    file?.artifactType === "nation-name-probe-hashes" &&
+    file.normalization === PROBE_NORMALIZATION &&
+    Number.isInteger(file.entryCount) &&
+    file.entryCount >= 0 &&
+    Number.isInteger(file.maxWords) &&
+    file.maxWords >= 1 &&
+    Array.isArray(hashes) &&
+    hashes.length >= file.entryCount &&
+    hashes.every(
+      (h, i) =>
+        typeof h === "string" &&
+        /^[0-9a-f]{64}$/.test(h) &&
+        (i === 0 || hashes[i - 1] < h),
+    );
+  if (!ok)
+    throw new Error(
+      `${source} is not a sorted Nation-name probe hash file (${PROBE_NORMALIZATION})`,
+    );
+  return {
+    source,
+    names: [],
+    entryCount: file.entryCount,
+    hashes: new Set(hashes),
+    maxWords: file.maxWords,
+  };
+}
+
+/**
+ * The probe the checks use: the plain list at `namesPath` (default: the
+ * committed fixture) plus the hash file. The default hash file may be absent;
+ * a named one must exist. Full when either holds the full list.
+ */
+export function loadNationProbe({ namesPath, hashPath } = {}) {
+  const plain = loadProbeNames(namesPath);
+  const path = hashPath ?? PROBE_HASH_PATH;
+  if (!hashPath && !existsSync(path)) return plain;
+  const hashed = hashedProbe(
+    JSON.parse(readFileSync(path, "utf8")),
+    `hashed recognition list (${basename(path)})`,
+  );
+  return {
+    ...hashed,
+    source: `${plain.source} + ${hashed.source}`,
+    names: plain.names,
+    entryCount: Math.max(plain.entryCount, hashed.entryCount),
+  };
+}
+
+/** True when a run of 1 to maxWords words of `text` hashes to a listed name. */
+export function probeHashHit(text, probe) {
+  if (!probe.hashes?.size) return false;
+  const words = probeWords(text);
+  for (let i = 0; i < words.length; i += 1) {
+    let run = "";
+    for (let n = i; n < words.length && n - i < probe.maxWords; n += 1) {
+      run = n === i ? words[n] : `${run} ${words[n]}`;
+      if (probe.hashes.has(sha256Hex(run))) return true;
+    }
+  }
+  return false;
+}
+
 /** True when the structural mask or an injected name marks any span (G3). */
 export const hasProtectedSpan = (text, names) =>
   maskProtectedSpans(text, { names }).spans.length > 0;
+
+/** G3 with a whole probe: plain names, the structural mask and the hashes. */
+export const probeHit = (text, probe) =>
+  hasProtectedSpan(text, probe.names) || probeHashHit(text, probe);
 
 /**
  * Why official wording may not be carried, or null: a Nation-name probe hit

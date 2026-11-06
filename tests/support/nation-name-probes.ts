@@ -104,3 +104,25 @@ export function nationNameProbeCases(): NationNameProbe[] {
 export function nationNameProbes(): string[] {
   return nationNameProbeCases().map((c) => c.text);
 }
+
+/**
+ * Synthetic names only, never a real Nation (decision 10 tests). None holds a
+ * structural anchor word, so only the hashes can catch them.
+ */
+export const SYNTHETIC_PROBE_NAMES: readonly string[] = [
+  "The Example Valley Sample Council",
+  ...Array.from(
+    { length: 575 },
+    (_, i) => `Synthetic Probe Entity ${String(i).padStart(3, "0")}`,
+  ),
+];
+
+/**
+ * A full list for hashed-probe tests: the fixture bases plus the synthetic
+ * names, enough entries for the full-list rule (G3). No import of the Node
+ * scripts here, since jsdom tests load this module too.
+ */
+export const fullProbeNames = (): string[] => [
+  ...nationNameBases(),
+  ...SYNTHETIC_PROBE_NAMES,
+];

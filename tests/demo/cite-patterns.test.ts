@@ -8,6 +8,7 @@ import {
   SHORT_FORM_NOTE,
   type ParsedCitation,
 } from "../../src/demo/cite-patterns";
+import { router } from "../../src/demo/copy/router";
 
 const EN_DASH = "–";
 
@@ -28,8 +29,8 @@ function one(text: string): ParsedCitation {
 }
 
 describe("pattern table", () => {
-  it("is semver, starts at 1.0.0 and every pattern carries that version", () => {
-    expect(PATTERN_SET_VERSION).toBe("1.0.0");
+  it("is semver, at 1.1.0 since the note locator, and every pattern carries that version", () => {
+    expect(PATTERN_SET_VERSION).toBe("1.1.0");
     expect(PATTERN_SET_VERSION).toMatch(/^\d+\.\d+\.\d+$/);
     expect(PATTERNS.map((p) => p.id)).toEqual([
       "usc-section",
@@ -64,7 +65,10 @@ describe("usc-section", () => {
       section: "5304",
       etSeq: false,
     });
-    expect(c.pattern).toEqual({ id: "usc-section", version: "1.0.0" });
+    expect(c.pattern).toEqual({
+      id: "usc-section",
+      version: PATTERN_SET_VERSION,
+    });
   });
 
   it("keeps a letter l subsection in the section", () => {
@@ -140,6 +144,54 @@ describe("usc-section", () => {
     expect(findCitations("as set out in 25 U.S.C. and elsewhere")).toEqual([]);
     expect(parseCitation("25 U.S.C.")).toBeNull();
   });
+
+  it("keeps a note locator with its section", () => {
+    const c = one("25 U.S.C. 2801 note");
+    expect(fields(c)).toEqual({
+      kind: "usc",
+      text: "25 U.S.C. 2801 note",
+      title: 25,
+      section: "2801",
+      etSeq: false,
+      note: true,
+    });
+    expect(c.pattern).toEqual({
+      id: "usc-section",
+      version: PATTERN_SET_VERSION,
+    });
+  });
+
+  it("reads a note locator on a list item and on the next citation", () => {
+    const text = "25 U.S.C. 2, 9, 1451 note; 43 U.S.C. 1457 note";
+    const found = findCitations(text);
+    expect(found.map((c) => [c.text, "note" in c])).toEqual([
+      ["25 U.S.C. 2", false],
+      ["9", false],
+      ["1451 note", true],
+      ["43 U.S.C. 1457 note", true],
+    ]);
+    for (const c of found) expect(text.slice(c.start, c.end)).toBe(c.text);
+  });
+
+  it("gives no note field without the whole word note", () => {
+    // Shards spread parsed fields, so a plain citation must not gain a key.
+    for (const text of ["25 U.S.C. 2801", "25 U.S.C. 450f et seq."])
+      expect("note" in one(text), text).toBe(false);
+    const [notes] = findCitations("25 U.S.C. 2801 notes");
+    expect(notes?.text).toBe("25 U.S.C. 2801");
+    expect(notes && "note" in notes).toBe(false);
+  });
+
+  it.each(["25 U.S.C. 2801 note", "25 U.S.C. 5304", "25 U.S.C. 450f et seq."])(
+    "round-trips %j through its fields and the router label",
+    (text) => {
+      const c = one(text);
+      if (c.kind !== "usc") throw new Error("not usc");
+      const printed = router.usc(c.title, c.section, c.etSeq, c.note);
+      expect(printed).toBe(text);
+      expect(fields(one(printed))).toEqual(fields(c));
+    },
+  );
 });
 
 describe("cfr-part-section", () => {
@@ -326,7 +378,10 @@ describe("short-form", () => {
       text: span,
       note: "short form, not resolved",
     });
-    expect(found[0].pattern).toEqual({ id: "short-form", version: "1.0.0" });
+    expect(found[0].pattern).toEqual({
+      id: "short-form",
+      version: PATTERN_SET_VERSION,
+    });
     expect(SHORT_FORM_NOTE).toBe("short form, not resolved");
   });
 
@@ -386,7 +441,7 @@ describe("parseUslmHref", () => {
       congress: 93,
       number: 638,
       section: null,
-      pattern: { id: "uslm-pl-href", version: "1.0.0" },
+      pattern: { id: "uslm-pl-href", version: PATTERN_SET_VERSION },
     });
     expect(parseUslmHref("/us/pl/93/638/s102")).toMatchObject({
       section: "102",
@@ -400,7 +455,7 @@ describe("parseUslmHref", () => {
       number: 472,
       section: "103",
       text: "/us/pl/100/472/tI/s103",
-      pattern: { id: "uslm-pl-href", version: "1.0.0" },
+      pattern: { id: "uslm-pl-href", version: PATTERN_SET_VERSION },
     });
     expect(parseUslmHref("/us/pl/101/301/s2/a/1")).toMatchObject({
       kind: "pl",

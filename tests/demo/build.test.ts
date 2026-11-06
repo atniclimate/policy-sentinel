@@ -16,7 +16,15 @@ import {
   scanDemoOutput,
   // @ts-expect-error build script has no declaration file
 } from "../../scripts/finish-demo-build.mjs";
-import { nationNameProbes } from "../support/nation-name-probes";
+import {
+  hashedProbe,
+  loadProbeNames,
+  probeHashFile,
+} from "../../scripts/demo-index/common.mjs";
+import {
+  fullProbeNames,
+  nationNameProbes,
+} from "../support/nation-name-probes";
 import {
   cfrShard,
   vocabFile,
@@ -164,8 +172,24 @@ describe("generated demo boundary", () => {
       writeIndex(join(root, "demo-data"), files, tweak);
       return root;
     };
+    // A full list given as hashes only (decision 10).
+    const names = fullProbeNames();
+    const probe = hashedProbe(probeHashFile(names, names.length), "synthetic");
     it("accepts a manifested shard and counts the index files", () => {
-      expect(scanDemoOutput(indexed([shard()]))).toEqual({ generatedFiles: 4 });
+      expect(scanDemoOutput(indexed([shard()]), { probe })).toEqual({
+        generatedFiles: 4,
+      });
+    });
+    it("refuses index files when the Nation-name probe is short (G3)", () => {
+      const short = loadProbeNames();
+      expect(() =>
+        scanDemoOutput(indexed([shard()]), { probe: short }),
+      ).toThrow(
+        /1 index files present, but the Nation-name probes hold \d+ entries, not the full list of 575 \(G3\)/,
+      );
+      expect(scanDemoOutput(indexed([]), { probe: short })).toEqual({
+        generatedFiles: 3,
+      });
     });
     it("refuses an unmanifested shard", () => {
       const root = indexed([]);
@@ -202,10 +226,11 @@ describe("generated demo boundary", () => {
     });
     it("refuses a Nation-name probe", () => {
       const value = vocabFile();
-      const probe = nationNameProbes().find((p) => p.length <= 200)!;
-      value.entries[0].label = probe;
+      value.entries[0].label = nationNameProbes().find((p) => p.length <= 200)!;
       const root = indexed([{ path: "vocab/fr-agencies.json", value }]);
-      expect(() => scanDemoOutput(root)).toThrow(/Nation-name probe hit/);
+      expect(() => scanDemoOutput(root, { probe })).toThrow(
+        /Nation-name probe hit/,
+      );
     });
     it("refuses a stale manifest from 2027 and accepts an acknowledged one", () => {
       const stale = (ack: string | null) =>
@@ -216,7 +241,7 @@ describe("generated demo boundary", () => {
       expect(() => scanDemoOutput(stale(null), { now })).toThrow(
         /older than 180 days/,
       );
-      expect(scanDemoOutput(stale("2027-02-28"), { now })).toEqual({
+      expect(scanDemoOutput(stale("2027-02-28"), { now, probe })).toEqual({
         generatedFiles: 4,
       });
     });

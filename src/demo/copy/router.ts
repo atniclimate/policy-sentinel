@@ -69,8 +69,8 @@ export const router = {
     `${volume} FR ${page}, a Federal Register page`,
   cfr: (title: number, part: string, section: string | null) =>
     section ? `${title} CFR ${section}` : `${title} CFR part ${part}`,
-  usc: (title: number, section: string, etSeq: boolean) =>
-    `${title} U.S.C. ${section}${etSeq ? " et seq." : ""}`,
+  usc: (title: number, section: string, etSeq: boolean, note = false) =>
+    `${title} U.S.C. ${section}${etSeq ? " et seq." : ""}${note ? " note" : ""}`,
   publicLaw: (congress: number, number: number) =>
     `Pub. L. ${congress}-${number}, a public law number`,
   statute: (volume: number, page: number) =>
@@ -95,6 +95,10 @@ export const router = {
   districtDocket: (id: string) => `District court docket ${id}`,
   stateCourtDocket: (state: keyof typeof STATE_NAMES, id: string) =>
     `${STATE_NAMES[state]} Supreme Court docket ${id}`,
-  lawName: (name: string, citations: readonly string[]) =>
-    `${name}, ${citations.join("; ")}`,
+  lawName: (
+    name: string,
+    citations: readonly string[],
+    titleAsEnacted = false,
+  ) =>
+    `${name}${titleAsEnacted ? " (title as enacted)" : ""}, ${citations.join("; ")}`,
 };

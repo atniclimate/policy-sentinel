@@ -27,10 +27,41 @@ export function initialManifest(options: {
 export function shardBytes(value: unknown): Buffer;
 export function manifestBytes(value: unknown): Buffer;
 export function comparePart(left: string, right: string): number;
-export function loadProbeNames(path?: string): {
+/** Nation-name probes: plain names, and the hashed list when loaded (decision 10). */
+export interface NationProbe {
   source: string;
   names: string[];
+  entryCount?: number;
+  /** SHA-256 hex of each normalized name form. */
+  hashes?: ReadonlySet<string>;
+  /** The longest normalized name form, in words. */
+  maxWords?: number;
+}
+export interface NationProbeHashFile {
+  artifactType: "nation-name-probe-hashes";
+  normalization: string;
+  entryCount: number;
+  maxWords: number;
+  hashes: string[];
+}
+export function loadProbeNames(path?: string): NationProbe & {
+  entryCount: number;
 };
+export const FULL_PROBE_ENTRIES: number;
+export function isFullProbe(probe: NationProbe): boolean;
+export const PROBE_HASH_PATH: string;
+export const PROBE_NORMALIZATION: string;
+export function probeHashFile(
+  names: readonly string[],
+  entryCount: number,
+): NationProbeHashFile;
+export function hashedProbe(file: unknown, source: string): NationProbe;
+export function loadNationProbe(options?: {
+  namesPath?: string;
+  hashPath?: string;
+}): NationProbe;
+export function probeHashHit(text: string, probe: NationProbe): boolean;
+export function probeHit(text: string, probe: NationProbe): boolean;
 export function hasProtectedSpan(
   text: string,
   names: readonly string[],

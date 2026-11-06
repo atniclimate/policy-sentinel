@@ -7,6 +7,8 @@
 //
 //   node scripts/build-vocab.mjs [--aliases <file>] [--vocab-dir <dir>]
 //                                [--review-packet <path outside the repository>]
+//                                [--nation-names <html>] [--nation-hashes <json>]
+// Aliases need the full Nation-name list (G3), as the index validator does.
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
@@ -17,6 +19,12 @@ import {
   canonicalJson,
   compareCodeUnits,
 } from "../src/core/canonical-json.mjs";
+import {
+  FULL_PROBE_ENTRIES,
+  isFullProbe,
+  loadNationProbe,
+  probeHashHit,
+} from "./demo-index/common.mjs";
 import { parseCitation } from "../src/demo/cite-patterns.ts";
 import { maskProtectedSpans } from "../src/demo/nation-mask.ts";
 import { personalPatternHits } from "../src/demo/personal-guard.ts";
@@ -175,11 +183,28 @@ export function aliasProblems(text, { names = [] } = {}) {
         parsed.title !== c.title ||
         parsed.section !== c.section ||
         parsed.etSeq !== c.etSeq ||
+        Boolean(parsed.note) !== Boolean(c.note) ||
         parsed.pattern.id !== c.pattern?.id ||
         parsed.pattern.version !== c.pattern?.version
       )
         problems.push(
           `entries[${i}].citations[${j}] does not parse as its fields say`,
+        );
+    }
+    // Each acronym once per entry, printed in its official wording as given.
+    const seen = new Set();
+    for (const [j, a] of (entry?.acronyms ?? []).entries()) {
+      const acronym = String(a?.acronym ?? "");
+      if (seen.has(acronym))
+        problems.push(`entries[${i}].acronyms[${j}] repeats ${acronym}`);
+      seen.add(acronym);
+      const word = new RegExp(
+        `(?<![\\p{L}\\p{N}])${escapeRe(acronym)}(?![\\p{L}\\p{N}])`,
+        "u",
+      );
+      if (!word.test(String(a?.text ?? "")))
+        problems.push(
+          `entries[${i}].acronyms[${j}] is not in its official wording`,
         );
     }
   }
@@ -271,9 +296,25 @@ function main(argv) {
   const packet = arg("--review-packet");
   const text = readFileSync(aliasPath, "utf8");
   const ceiling = vocabularyCeiling(vocabDir, aliasPath);
-  const problems = [...aliasProblems(text), ...ceiling.problems];
+  const probe = loadNationProbe({
+    namesPath:
+      arg("--nation-names") ?? (process.env.DEMO_NATION_NAMES || undefined),
+    hashPath: arg("--nation-hashes"),
+  });
+  const file = JSON.parse(text);
+  const problems = [
+    ...aliasProblems(text, { names: probe.names }),
+    ...ceiling.problems,
+  ];
+  for (const [path, value] of strings(file))
+    if (probeHashHit(value, probe))
+      problems.push(`${path}: Nation-name probe hit (G3)`);
+  if (file.entries?.length && !isFullProbe(probe))
+    problems.push(
+      `the Nation-name probes hold ${probe.entryCount ?? 0} entries, not the full list of ${FULL_PROBE_ENTRIES} (G3)`,
+    );
   console.log(
-    `aliases ${JSON.parse(text).entries?.length ?? 0} entries; vocabulary ${ceiling.files} files, ${ceiling.rawBytes} bytes raw, ${ceiling.gzipBytes} gzipped`,
+    `aliases ${file.entries?.length ?? 0} entries; vocabulary ${ceiling.files} files, ${ceiling.rawBytes} bytes raw, ${ceiling.gzipBytes} gzipped; Nation-name probes: ${probe.source}`,
   );
   if (problems.length) {
     for (const p of problems) console.error(p);

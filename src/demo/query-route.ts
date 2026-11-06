@@ -10,13 +10,14 @@
  * count. A bill number with no state named chooses nothing: every plausible
  * state (and Congress where the form allows) is offered as a choice.
  *
- * Law names come only from the alias table passed in (design rule 8).
+ * Law names and their acronyms come only from the alias table passed in
+ * (design rule 8).
  *
  * Erasable TypeScript with explicit .ts imports, so Node can load it.
  */
 import { findCitations } from "./cite-patterns.ts";
 import { router as copy } from "./copy/router.ts";
-import type { LawAliasFile } from "./index-types.ts";
+import type { LawAlias, LawAliasFile } from "./index-types.ts";
 import { maskProtectedSpans, type ProtectedSpan } from "./nation-mask.ts";
 
 export type ReadingKind =
@@ -334,21 +335,22 @@ export function routeQuery(
   const entries = [...(options?.aliases?.entries ?? [])].sort(
     (a, b) => b.popularName.length - a.popularName.length,
   );
+  const lawReading = (alias: LawAlias) =>
+    federal(
+      "law_name",
+      alias.popularName,
+      copy.lawName(
+        alias.popularName,
+        alias.citations.map((c) => c.text),
+        alias.titleAsEnacted,
+      ),
+    );
   for (const alias of entries) {
     const re = new RegExp(
       String.raw`(?<![\w])${escapeRe(alias.popularName).replace(/\s+/g, String.raw`\s+`)}(?![\w])`,
       "gi",
     );
-    scan(re, () => [
-      federal(
-        "law_name",
-        alias.popularName,
-        copy.lawName(
-          alias.popularName,
-          alias.citations.map((c) => c.text),
-        ),
-      ),
-    ]);
+    scan(re, () => [lawReading(alias)]);
   }
 
   scan(DOCKET, (m) => {
@@ -360,7 +362,7 @@ export function routeQuery(
     const end = c.start + c.text.length;
     switch (c.kind) {
       case "usc": {
-        const id = copy.usc(c.title, c.section, c.etSeq);
+        const id = copy.usc(c.title, c.section, c.etSeq, c.note);
         claim(c.start, end, [federal("usc", id, id)]);
         break;
       }
@@ -620,6 +622,27 @@ export function routeQuery(
   scan(FR_DOCUMENT, (m) => [
     federal("fr_document", m[0], copy.frDocument(m[0])),
   ]);
+
+  // Acronyms last, so an identifier ("ORS 196.800") keeps its own reading.
+  // Exact and case-sensitive, outside masked spans. An acronym two laws share
+  // offers both and chooses neither.
+  const byAcronym = new Map<string, LawAlias[]>();
+  for (const alias of options?.aliases?.entries ?? [])
+    for (const { acronym } of alias.acronyms ?? []) {
+      const laws = byAcronym.get(acronym) ?? [];
+      if (!laws.includes(alias)) laws.push(alias);
+      byAcronym.set(acronym, laws);
+    }
+  for (const [acronym, laws] of byAcronym) {
+    const re = new RegExp(String.raw`(?<!\w)${escapeRe(acronym)}(?!\w)`, "g");
+    for (const m of masked.matchAll(re))
+      claim(
+        m.index,
+        m.index + acronym.length,
+        laws.map(lawReading),
+        laws.length > 1,
+      );
+  }
 
   claims.sort((a, b) => a.start - b.start);
   const readings = claims.flatMap((c) => c.readings);

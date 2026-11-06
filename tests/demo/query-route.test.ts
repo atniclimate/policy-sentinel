@@ -440,6 +440,114 @@ describe("law names and plain words", () => {
     });
   });
 
+  it("says (title as enacted) when the entry is marked so", () => {
+    const marked: LawAliasFile = {
+      ...aliases,
+      entries: [{ ...aliases.entries[0]!, titleAsEnacted: true }],
+    };
+    expect(
+      routeQuery("Sample Water Quality Act", { aliases: marked }).readings[0]
+        ?.label,
+    ).toBe(
+      "Sample Water Quality Act (title as enacted), 99 U.S.C. 100 et seq.",
+    );
+  });
+
+  it("shows a note locator in the label of a typed citation and an alias", () => {
+    expect(pick(only("25 usc 2801 note"))).toEqual({
+      kind: "usc",
+      identifier: "25 U.S.C. 2801 note",
+      jurisdiction: "federal",
+      action: "static_index",
+    });
+    const [c] = aliases.entries[0]!.citations;
+    const noted: LawAliasFile = {
+      ...aliases,
+      entries: [
+        {
+          ...aliases.entries[0]!,
+          citations: [
+            { ...c!, text: "99 U.S.C. 100 note", etSeq: false, note: true },
+          ],
+        },
+      ],
+    };
+    expect(
+      routeQuery("Sample Water Quality Act", { aliases: noted }).readings[0]
+        ?.label,
+    ).toBe("Sample Water Quality Act, 99 U.S.C. 100 note");
+  });
+
+  describe("acronyms", () => {
+    const base = aliases.entries[0]!;
+    const acronym = (a: string) => ({
+      acronym: a,
+      sourceUrl: "https://www.ecfr.gov/current/title-99/part-100",
+      text: `the Sample Water Quality Act (${a})`,
+    });
+    const table = (
+      ...entries: { name: string; acronyms: string[] }[]
+    ): LawAliasFile => ({
+      ...aliases,
+      entries: entries.map(({ name, acronyms }) => ({
+        ...base,
+        popularName: name,
+        acronyms: acronyms.map(acronym),
+      })),
+    });
+
+    it("reads an acronym exactly, case-sensitive, as that law's name", () => {
+      const t = table({ name: "Sample Water Quality Act", acronyms: ["SWQA"] });
+      const route = routeQuery("SWQA permits", { aliases: t });
+      expect(route.ambiguous).toBe(false);
+      expect(route.readings.map(pick)).toEqual([
+        {
+          kind: "law_name",
+          identifier: "Sample Water Quality Act",
+          jurisdiction: "federal",
+          action: "static_index",
+        },
+      ]);
+      expect(route.readings[0]?.label).toBe(
+        "Sample Water Quality Act, 99 U.S.C. 100 et seq.",
+      );
+      for (const input of ["swqa permits", "Swqa", "SWQAS", "XSWQA"])
+        expect(routeQuery(input, { aliases: t }).plainWords, input).toBe(true);
+    });
+
+    it("offers both laws and chooses neither when two share an acronym", () => {
+      const t = table(
+        { name: "Sample Water Quality Act", acronyms: ["SWQA"] },
+        { name: "Sample Wetland Quality Act", acronyms: ["SWQA", "SWLQ"] },
+      );
+      const route = routeQuery("SWQA", { aliases: t });
+      expect(route.ambiguous).toBe(true);
+      expect(route.readings.map((r) => r.identifier)).toEqual([
+        "Sample Water Quality Act",
+        "Sample Wetland Quality Act",
+      ]);
+      expect(
+        routeQuery("SWLQ", { aliases: t }).readings.map((r) => r.identifier),
+      ).toEqual(["Sample Wetland Quality Act"]);
+    });
+
+    it("leaves an identifier its own reading", () => {
+      const t = table({ name: "Sample Water Quality Act", acronyms: ["ORS"] });
+      expect(
+        routeQuery("ORS 196.800", { aliases: t }).readings.map((r) => r.kind),
+      ).toEqual(["state_code"]);
+    });
+
+    it("reads no acronym inside a masked span", () => {
+      const t = table({ name: "Sample Water Quality Act", acronyms: ["SWQA"] });
+      for (const input of ["SWQA Tribe of Example Valley", "Sample v. SWQA"]) {
+        const route = routeQuery(input, { aliases: t });
+        expect(route.maskedSpans.length, input).toBeGreaterThan(0);
+        expect(route.readings, input).toEqual([]);
+      }
+    });
+  });
+
   it.each([
     "salmon habitat consultation",
     "tribal broadband grants 2025",

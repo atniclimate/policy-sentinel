@@ -163,11 +163,25 @@ export interface VocabularyFile {
 }
 
 // Law aliases (curated config; the schema lives in schemas/law-aliases.schema.v1.json).
+/** note is present only for a "note" locator ("25 U.S.C. 2801 note"). */
+export type LawAliasCitation = UscCitation & { note?: true };
+/** An acronym as an official page states it; matched exactly, case-sensitive. */
+export interface LawAliasAcronym {
+  /** 2 to 10 capitals or digits, starting with a capital. */
+  acronym: string;
+  /** The official page (eCFR, OLRC, Federal Register or GovInfo) that states it. */
+  sourceUrl: string;
+  /** The official wording where the acronym is stated, verbatim. */
+  text: string;
+}
 export interface LawAlias {
   /** Verbatim as printed on the OLRC Popular Names page. */
   popularName: string;
+  /** True when popularName is the title as enacted; the label says so. */
+  titleAsEnacted?: boolean;
   /** basis "curated"; pattern still carried. */
-  citations: UscCitation[];
+  citations: LawAliasCitation[];
+  acronyms?: LawAliasAcronym[];
   /** https://uscode.house.gov/... */
   olrcUrl: string;
   /** YYYY-MM-DD */

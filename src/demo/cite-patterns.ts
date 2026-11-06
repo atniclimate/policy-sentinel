@@ -6,13 +6,18 @@
  * Only a full citation is parsed as a citation. Short forms are returned as
  * `short_form` with the note "short form, not resolved" and are never linked
  * to an earlier citation. "et seq." keeps the starting section and is never
- * expanded. Ranges are kept as written. Callers add the basis and build any
+ * expanded. A U.S.C. "note" locator ("25 U.S.C. 2801 note") is kept with its
+ * section. Ranges are kept as written. Callers add the basis and build any
  * link target; this module returns neither.
+ *
+ * Versioning: every pattern carries the one set version. Any change to what a
+ * pattern reads bumps it, because a shard records the version it was parsed
+ * with (index conditions H4, H5). 1.1.0 added the U.S.C. note locator.
  *
  * Erasable TypeScript with no imports, so Node can load it without a build.
  */
 
-export const PATTERN_SET_VERSION = "1.0.0";
+export const PATTERN_SET_VERSION = "1.1.0";
 
 export type PatternId =
   | "usc-section"
@@ -72,6 +77,8 @@ export interface UscCite extends Span {
   title: number;
   section: string;
   etSeq: boolean;
+  /** Present only for a "note" locator after the section. */
+  note?: true;
 }
 export interface CfrCite extends Span {
   kind: "cfr";
@@ -147,6 +154,7 @@ const RCW_SEC = String.raw`\d+[A-Z]?\.\d+[A-Z]?\.\d+[A-Za-z0-9]*${PAREN}`;
 const ORS_SEC = String.raw`\d+[A-Z]?\.\d+[A-Za-z0-9]*${PAREN}`;
 const IDAHO_SEC = String.raw`\d+[A-Z]?-\d+[A-Za-z0-9]*${PAREN}`;
 const ET_SEQ = String.raw`\s+et\.?\s+seq\b\.?`;
+const NOTE = String.raw`\s+note\b`;
 const range = (s: string) => String.raw`${s}(?:\s+through\s+${s})?`;
 // A list item is not the volume or title of the next full citation.
 const NOT_CODE = String.raw`(?!\s*(?:U\.\s?S\.|USC\b|C\.\s?F\.\s?R\.|CFR\b|Stat\.|FR\b|Fed\.\s?Reg\.))`;
@@ -157,8 +165,9 @@ interface CodeRule {
   id: PatternId;
   head: string;
   item: string;
+  /** Reads "et seq." or a "note" locator after each item (U.S.C. only). */
   etSeq: boolean;
-  make: (title: number, item: string, etSeq: boolean) => Fields;
+  make: (title: number, item: string, etSeq: boolean, note: boolean) => Fields;
 }
 
 const CODE_RULES: readonly CodeRule[] = [
@@ -167,7 +176,13 @@ const CODE_RULES: readonly CodeRule[] = [
     head: String.raw`${LEAD}(?<title>\d{1,3})\s+(?:U\.\s?S\.\s?C\.|USC\b)\s*(?:§§?\s*|[Ss]ecs?\.\s*|[Ss]ections?\s+)?`,
     item: range(SEC),
     etSeq: true,
-    make: (title, section, etSeq) => ({ kind: "usc", title, section, etSeq }),
+    make: (title, section, etSeq, note) => ({
+      kind: "usc",
+      title,
+      section,
+      etSeq,
+      ...(note ? { note: true as const } : {}),
+    }),
   },
   {
     id: "cfr-part-section",
@@ -297,7 +312,7 @@ function cite(
 }
 
 function scanCode(text: string, rule: CodeRule, out: ParsedCitation[]): void {
-  const tail = rule.etSeq ? `(?<etseq>${ET_SEQ})?` : "";
+  const tail = rule.etSeq ? `(?:(?<etseq>${ET_SEQ})|(?<note>${NOTE}))?` : "";
   const first = new RegExp(`${rule.head}(?<item>${rule.item})${tail}`, "g");
   const next = new RegExp(
     `${LIST_SEP}(?<item>${rule.item})${tail}${NOT_CODE}`,
@@ -308,7 +323,7 @@ function scanCode(text: string, rule: CodeRule, out: ParsedCitation[]): void {
     const title = Number(g.title ?? 0);
     out.push(
       cite(
-        rule.make(title, g.item ?? "", Boolean(g.etseq)),
+        rule.make(title, g.item ?? "", Boolean(g.etseq), Boolean(g.note)),
         rule.id,
         m[0],
         m.index,
@@ -318,10 +333,10 @@ function scanCode(text: string, rule: CodeRule, out: ParsedCitation[]): void {
     for (let n = next.exec(text); n; n = next.exec(text)) {
       const ng: Groups = n.groups ?? {};
       const item = ng.item ?? "";
-      const span = item + (ng.etseq ?? "");
+      const span = item + (ng.etseq ?? ng.note ?? "");
       out.push(
         cite(
-          rule.make(title, item, Boolean(ng.etseq)),
+          rule.make(title, item, Boolean(ng.etseq), Boolean(ng.note)),
           rule.id,
           span,
           n.index + n[0].length - span.length,

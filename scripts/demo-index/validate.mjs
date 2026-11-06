@@ -19,10 +19,10 @@ import {
   SCHEMA_PATH,
   VOCAB_KIND_OF_PATH,
   comparePart,
-  hasProtectedSpan,
   kindOfPath,
-  loadProbeNames,
+  loadNationProbe,
   manifestBytes,
+  probeHit,
   shardBytes,
   sourceIdOfPath,
 } from "./common.mjs";
@@ -146,14 +146,14 @@ function inventory(dir, errors) {
   return files;
 }
 
-function scanStrings(label, value, { shard, names }, errors) {
+function scanStrings(label, value, { shard, probe }, errors) {
   for (const [key, text] of strings(value)) {
     const where = `${label} ${key}`;
     if (MARKUP.test(text)) errors.push(`${where}: markup or entity (G6)`);
     // An allowlisted official URL (an OLRC zip name holds "@") is not contact data.
     if (!/^https:\/\/\S+$/.test(text) && hasPersonalPattern(text))
       errors.push(`${where}: personal pattern (G1)`);
-    if (hasProtectedSpan(text, names))
+    if (probeHit(text, probe))
       errors.push(`${where}: Nation-name probe hit (G3)`);
     if (!VERBATIM_FIELDS.includes(key) && MODEL_WORDS.test(text))
       errors.push(`${where}: model word (G5)`);
@@ -265,16 +265,18 @@ function checkShard(entry, value, errors) {
 }
 
 /**
- * Validate a docs/demo-data directory. `names` are extra Nation-name probes
- * (default: the committed recognition structure fixture); `now` sets the
- * clock for the stale rule.
+ * Validate a docs/demo-data directory. `probe` is a loaded Nation-name probe,
+ * or `names` are plain probe names (default: the committed fixture plus the
+ * committed hash file); `now` sets the clock for the stale rule.
  */
 export function validateDemoIndex(dir, options = {}) {
   const now = options.now ?? new Date();
-  const probe = options.names
-    ? { source: options.probeSource ?? "caller", names: options.names }
-    : loadProbeNames();
-  const ctx = { names: probe.names };
+  const probe =
+    options.probe ??
+    (options.names
+      ? { source: options.probeSource ?? "caller", names: options.names }
+      : loadNationProbe());
+  const ctx = { probe };
   const errors = [];
   const warnings = [];
   const stale = [];
@@ -286,7 +288,11 @@ export function validateDemoIndex(dir, options = {}) {
     fileCount,
     currentCount,
     totalBytes,
-    probe: { source: probe.source, nameCount: probe.names.length },
+    probe: {
+      source: probe.source,
+      nameCount: probe.names.length,
+      hashCount: probe.hashes?.size ?? 0,
+    },
   });
   let fileCount = 0;
   let currentCount = 0;

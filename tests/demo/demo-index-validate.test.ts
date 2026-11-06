@@ -15,7 +15,16 @@ import {
   schemaVerbatimFields,
   validateDemoIndex,
 } from "../../scripts/demo-index/validate.mjs";
-import { nationNameBases } from "../support/nation-name-probes";
+import {
+  PROBE_NORMALIZATION,
+  hashedProbe,
+  loadNationProbe,
+  loadProbeNames,
+  probeHashFile,
+  type NationProbe,
+  type NationProbeHashFile,
+} from "../../scripts/demo-index/common.mjs";
+import { fullProbeNames, nationNameBases } from "../support/nation-name-probes";
 import {
   cfrShard,
   probeFile,
@@ -43,6 +52,22 @@ function check(
   const dir = tempDir();
   writeIndex(dir, files, tweak);
   return validateDemoIndex(dir, now ? { now } : {});
+}
+
+const make = (...args: string[]) =>
+  spawnSync(
+    process.execPath,
+    ["scripts/make-nation-probe-hashes.mjs", ...args],
+    { env: { ...process.env, DEMO_NATION_NAMES: "" }, encoding: "utf8" },
+  );
+
+/** A full synthetic hash file written by the script under test. */
+function hashFile(): string {
+  const out = join(tempDir(), "hashes.json");
+  const run = make("--nation-names", probeFile(), "--out", out);
+  expect(run.status, run.stderr).toBe(0);
+  expect(run.stdout).toMatch(/^wrote \d+ hashes for \d+ entries/);
+  return out;
 }
 
 const shortestName = () =>
@@ -87,6 +112,11 @@ describe("static index validator", () => {
     const full = run(dir, "--nation-names", probeFile());
     expect(full.stdout).toMatch(/^demo index valid: 3 files present/);
     expect(full.status).toBe(0);
+    // Decision 10: a full hash file replaces the plain list.
+    const hashed = run(dir, "--nation-hashes", hashFile());
+    expect(hashed.stdout).toMatch(/^demo index valid: 3 files present/);
+    expect(hashed.stdout).toMatch(/, \d+ hashes$/m);
+    expect(hashed.status).toBe(0);
     // Zero index files passes as before.
     expect(run("docs/demo-data").status).toBe(0);
   });
@@ -356,5 +386,84 @@ describe("static index validator", () => {
 
   it("allows official wording that holds a model word (G5 skips verbatim fields)", () => {
     expect(check(withVocabLabel("Model Codes Office")).ok).toBe(true);
+  });
+});
+
+describe("hashed Nation-name probes (decision 10)", () => {
+  it("writes sorted hashes, the count and the version, never a name", () => {
+    const out = hashFile();
+    const text = readFileSync(out, "utf8");
+    const file = JSON.parse(text) as NationProbeHashFile;
+    expect(Object.keys(file)).toEqual([
+      "artifactType",
+      "normalization",
+      "entryCount",
+      "maxWords",
+      "hashes",
+    ]);
+    expect(file.normalization).toBe(PROBE_NORMALIZATION);
+    expect(file.entryCount).toBe(loadProbeNames(probeFile()).entryCount);
+    expect(file.hashes.every((h) => /^[0-9a-f]{64}$/.test(h))).toBe(true);
+    expect([...file.hashes].sort()).toEqual(file.hashes);
+    expect(new Set(file.hashes).size).toBe(file.hashes.length);
+    expect(text).not.toMatch(/synthetic|probe entity/i);
+    for (const base of nationNameBases())
+      expect(text.toLowerCase()).not.toContain(base.toLowerCase());
+  });
+
+  it("refuses a list inside the repository and a short list", () => {
+    const inside = make(
+      "--nation-names",
+      "fixtures/sources/bia/recognition-structure.html",
+    );
+    expect(inside.status).toBe(2);
+    expect(inside.stderr).toMatch(/outside the repository/);
+    const out = join(tempDir(), "short.json");
+    const short = make("--nation-names", probeFile(0), "--out", out);
+    expect(short.status).toBe(1);
+    expect(short.stderr).toMatch(/not the full list of 575; nothing written/);
+    expect(() => readFileSync(out)).toThrow();
+  });
+
+  it("catches each word run after the same normalization, and nothing shorter", () => {
+    const names = fullProbeNames();
+    const probe = hashedProbe(probeHashFile(names, names.length), "synthetic");
+    const plainOnly = { source: "no hashes", names: [] };
+    const scan = (label: string, p: NationProbe = probe) => {
+      const dir = tempDir();
+      writeIndex(dir, withVocabLabel(label));
+      return validateDemoIndex(dir, { probe: p }).errors.join("\n");
+    };
+    for (const label of [
+      "Report of the SYNTHETIC PROBE ENTITY 007, Oregon.",
+      "Example Valley Sample Council staff",
+      "the example  valley sample-council",
+      "Synthetic Probe Entity 574",
+    ])
+      expect(scan(label), label).toMatch(/Nation-name probe hit \(G3\)/);
+    for (const [label, p] of [
+      ["Report of the SYNTHETIC PROBE ENTITY 007", plainOnly],
+      ["Synthetic Probe Entity", probe],
+      ["Synthetic Probe Entity 0070", probe],
+      ["Example Valley Sample", probe],
+    ] as const)
+      expect(scan(label, p), label).not.toMatch(/Nation-name probe hit/);
+  });
+
+  it("loads the default hash file only when present and a named one always", () => {
+    const missing = join(tempDir(), "missing.json");
+    expect(() => loadNationProbe({ hashPath: missing })).toThrow();
+    const probe = loadNationProbe({ hashPath: hashFile() });
+    expect(probe.entryCount).toBeGreaterThanOrEqual(575);
+    expect(probe.names).toEqual(loadProbeNames().names);
+    expect(probe.source).toMatch(/fixture \+ hashed recognition list/);
+    const unsorted = JSON.parse(
+      readFileSync(hashFile(), "utf8"),
+    ) as NationProbeHashFile;
+    unsorted.hashes.reverse();
+    expect(() => hashedProbe(unsorted, "unsorted")).toThrow(/not a sorted/);
+    expect(() =>
+      hashedProbe({ ...unsorted, normalization: "other" }, "other"),
+    ).toThrow(/not a sorted/);
   });
 });

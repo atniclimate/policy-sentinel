@@ -11,7 +11,12 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { copyThirdPartyNotices } from "./copy-third-party-notices.mjs";
-import { FORBIDDEN_OUTPUT as forbidden } from "./demo-index/common.mjs";
+import {
+  FORBIDDEN_OUTPUT as forbidden,
+  FULL_PROBE_ENTRIES,
+  isFullProbe,
+  loadNationProbe,
+} from "./demo-index/common.mjs";
 import { validateDemoIndex } from "./demo-index/validate.mjs";
 
 // Fonts and PNG images are binary and are not text-scanned, so each must open
@@ -24,15 +29,24 @@ const signatures = {
 
 // The static index (index conditions K1): the validator's full check, then
 // the forbidden list over every file. Absent until the first build lays it down.
-function scanDemoData(root, now) {
+// Index files need the full Nation-name list (G3): the committed hash file, or
+// the plain list named by DEMO_NATION_NAMES.
+function scanDemoData(root, { now, probe } = {}) {
   const data = join(root, "demo-data");
   if (!existsSync(data)) return 0;
   if (lstatSync(data).isSymbolicLink())
     throw new Error("demo build refused: linked index directory");
-  const result = validateDemoIndex(data, now ? { now } : {});
+  probe ??= loadNationProbe({
+    namesPath: process.env.DEMO_NATION_NAMES || undefined,
+  });
+  const result = validateDemoIndex(data, { now, probe });
   if (!result.ok)
     throw new Error(
       `demo build refused: demo index invalid: ${result.errors.slice(0, 3).join("; ")}`,
+    );
+  if (result.fileCount > 0 && !isFullProbe(probe))
+    throw new Error(
+      `demo build refused: ${result.fileCount} index files present, but the Nation-name probes hold ${probe.entryCount ?? 0} entries, not the full list of ${FULL_PROBE_ENTRIES} (G3)`,
     );
   const files = ["manifest.json", ...listed(data)];
   for (const file of files) {
@@ -56,7 +70,7 @@ function listed(data) {
 }
 
 export function scanDemoOutput(root, options = {}) {
-  const indexFiles = scanDemoData(root, options.now);
+  const indexFiles = scanDemoData(root, options);
   const targets = [join(root, "index.html")];
   let binaries = 0;
   function visit(directory) {
