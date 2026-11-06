@@ -1,0 +1,145 @@
+{
+  "$schema": "test-fixture-only",
+  "schemaVersion": "1.0.0",
+  "artifactType": "law-aliases",
+  "basis": "curated",
+  "sourceUrl": "https://uscode.house.gov/popularnames/popularnames.htm",
+  "entries": [
+    {
+      "popularName": "Administrative Procedure Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "5 U.S.C. 551 et seq.",
+          "basis": "curated",
+          "pattern": { "id": "usc-section", "version": "1.0.0" },
+          "title": 5,
+          "section": "551",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.htm",
+      "reviewedOn": "2026-11-05",
+      "reviewerRole": "staff"
+    },
+    {
+      "popularName": "Clean Air Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 7401 et seq.",
+          "basis": "curated",
+          "pattern": { "id": "usc-section", "version": "1.0.0" },
+          "title": 42,
+          "section": "7401",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.htm",
+      "reviewedOn": "2026-11-05",
+      "reviewerRole": "staff"
+    },
+    {
+      "popularName": "Endangered Species Act of 1973",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 1531 et seq.",
+          "basis": "curated",
+          "pattern": { "id": "usc-section", "version": "1.0.0" },
+          "title": 16,
+          "section": "1531",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.htm",
+      "reviewedOn": "2026-11-05",
+      "reviewerRole": "staff"
+    },
+    {
+      "popularName": "Indian Child Welfare Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 1901 et seq.",
+          "basis": "curated",
+          "pattern": { "id": "usc-section", "version": "1.0.0" },
+          "title": 25,
+          "section": "1901",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.htm",
+      "reviewedOn": "2026-11-05",
+      "reviewerRole": "staff"
+    },
+    {
+      "popularName": "Indian Self-Determination and Education Assistance Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 5301 et seq.",
+          "basis": "curated",
+          "pattern": { "id": "usc-section", "version": "1.0.0" },
+          "title": 25,
+          "section": "5301",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.htm",
+      "reviewedOn": "2026-11-05",
+      "reviewerRole": "staff"
+    },
+    {
+      "popularName": "National Environmental Policy Act of 1969",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 4321 et seq.",
+          "basis": "curated",
+          "pattern": { "id": "usc-section", "version": "1.0.0" },
+          "title": 42,
+          "section": "4321",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.htm",
+      "reviewedOn": "2026-11-05",
+      "reviewerRole": "staff"
+    },
+    {
+      "popularName": "National Historic Preservation Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "54 U.S.C. 300101 et seq.",
+          "basis": "curated",
+          "pattern": { "id": "usc-section", "version": "1.0.0" },
+          "title": 54,
+          "section": "300101",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.htm",
+      "reviewedOn": "2026-11-05",
+      "reviewerRole": "staff"
+    },
+    {
+      "popularName": "Native American Graves Protection and Repatriation Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 3001 et seq.",
+          "basis": "curated",
+          "pattern": { "id": "usc-section", "version": "1.0.0" },
+          "title": 25,
+          "section": "3001",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.htm",
+      "reviewedOn": "2026-11-05",
+      "reviewerRole": "staff"
+    }
+  ]
+}
