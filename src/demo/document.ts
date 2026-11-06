@@ -5,6 +5,7 @@ import { chain as CH } from "./copy/chain.ts";
 import { grantsAuthority as GA } from "./copy/grants-authority.ts";
 import type { GrantsDetailResponse } from "./grants-authority.ts";
 import { LINK_NOTICES } from "./link-labels.ts";
+import { groupInText } from "./links.ts";
 import type { ChainRow, ChainSection } from "./links.ts";
 import { localDay } from "./follow";
 import type { FollowCheck, Followed } from "./follow";
@@ -106,7 +107,7 @@ function chainBlocks(rows: readonly ChainRow[]): DocBlock[] {
   const out: DocBlock[] = [{ kind: "h3", text: CH.title }];
   if (!rows.length) out.push({ kind: "small", text: CH.noneStated });
   for (const section of CHAIN_SECTIONS) {
-    const own = rows.filter((row) => row.section === section);
+    const own = groupInText(rows.filter((row) => row.section === section));
     if (!own.length) continue;
     out.push({ kind: "p", text: CH.sections[section] });
     own.forEach((row, i) => {
@@ -128,6 +129,7 @@ function chainBlocks(rows: readonly ChainRow[]): DocBlock[] {
         `${F[row.asOfLabel]}: ${row.asOfText}`,
         `${F.retrieved}: ${row.retrievedAt.slice(0, 10)}`,
         row.notice && `${F.notice}: ${row.notice}`,
+        row.places && CH.places(row.places),
         row.stale && CH.stale,
       ];
       out.push({ kind: "small", text: facts.filter(Boolean).join("; ") });

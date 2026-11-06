@@ -52,6 +52,9 @@ export const router = {
   searchedAsWords: "Searched as words",
   suggestion: "Suggestion:",
   chooseReading: "This could be more than one thing. Choose one:",
+  /** A bare number with one plausible reading: nothing was named, so nothing is chosen for the person. */
+  confirmReading:
+    "No state or court was named. Choose this reading to search it:",
   agencyNote: "Federal Register agency",
   topicNote: "Federal Register topic",
   cfrTitleNote: "CFR title",

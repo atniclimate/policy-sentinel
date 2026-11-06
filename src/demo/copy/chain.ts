@@ -30,6 +30,9 @@ export const chain = {
   dateNotStated: "Date not stated by the source",
   liveLink: (sourceName: string) => `Open at ${sourceName}`,
   openHop: (target: string) => `Open ${target} in this chain`,
+  /** An in-text citation named in several places, grouped into its first row. */
+  places: (count: number) =>
+    `Found at ${count} places in this text; the first is shown.`,
   expand: {
     govinfo_related: "Show related records stated by GovInfo",
     congress_related_bills: "Show related bills stated by Congress.gov",

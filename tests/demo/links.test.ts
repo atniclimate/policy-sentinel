@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   cfrPartLinks,
   citationsInText,
+  groupInText,
   recordLinks,
   uscSectionLinks,
 } from "../../src/demo/links";
@@ -33,6 +34,35 @@ const brief = (r: ChainRow) => ({
   }),
   sourceWording: r.sourceWording,
   notice: r.notice,
+});
+
+describe("groupInText: one row per distinct citation found in the text", () => {
+  const repeated = [
+    { text: "Revises 25 CFR part 900 in full.", locator: "paragraph 1" },
+    { text: "Also 50 CFR 660.11 and id.", locator: "paragraph 2" },
+    { text: "Under review: 25 CFR part 900 again.", locator: "paragraph 3" },
+    { text: "See id. once more, and 25 CFR part 900.", locator: "paragraph 4" },
+  ];
+  const rows = citationsInText(repeated, frRecord);
+
+  it("keeps the first row of each target in source order and counts the places", () => {
+    const grouped = groupInText(rows);
+    const shown = grouped.map((r) =>
+      r.kind === "link"
+        ? [r.targetText, r.locator, r.places]
+        : [r.sourceWording, r.places],
+    );
+    expect(shown).toEqual([
+      ["25 CFR part 900", "paragraph 1", 3],
+      ["50 CFR 660.11", "paragraph 2", undefined],
+      ["id.", 2],
+    ]);
+  });
+
+  it("leaves the stated and identifier sections untouched", () => {
+    const stated = recordLinks(frRecord, SOURCES);
+    expect(groupInText(stated)).toEqual(stated);
+  });
 });
 
 describe("recordLinks: the opened record's own fields", () => {

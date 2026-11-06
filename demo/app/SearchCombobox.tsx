@@ -92,10 +92,13 @@ function optionsFor(
         });
       }
   }
+  // One plausible reading with nothing named still waits for the person to choose it.
   const status = route.plainWords
     ? copy.searchedAsWords
     : route.ambiguous
-      ? `${copy.chooseReading} ${route.readings.map((r) => r.label).join("; ")}`
+      ? route.readings.length === 1
+        ? `${copy.confirmReading} ${route.readings[0].label}`
+        : `${copy.chooseReading} ${route.readings.map((r) => r.label).join("; ")}`
       : `${copy.suggestion} ${route.readings[0]?.label ?? ""}`;
   return {
     options: options.map((o, i) => ({ ...o, id: `q-option-${i}` })),

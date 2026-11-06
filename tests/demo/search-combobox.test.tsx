@@ -113,6 +113,20 @@ describe("search combobox", () => {
     );
   });
 
+  it("asks the person to choose a bare number's one plausible reading, never calling it several", async () => {
+    const { user, box } = setup();
+    await user.type(box, "HB 1100");
+    expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual([
+      "Washington HB 1100",
+    ]);
+    expect(screen.getByRole("status")).toHaveTextContent(
+      `${copy.confirmReading} Washington HB 1100`,
+    );
+    expect(screen.getByRole("status")).not.toHaveTextContent(
+      copy.chooseReading,
+    );
+  });
+
   it("says Searched as words for plain words and offers nothing", async () => {
     const { user, box } = setup();
     await user.type(box, "salmon habitat");

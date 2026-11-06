@@ -22,6 +22,7 @@ import { localDay } from "../../src/demo/follow";
 import { citationsInText } from "../../src/demo/links";
 import { buildPdf } from "../../src/demo/pdf";
 import { serializeReport, STORAGE_KEY } from "../../src/demo/report-state";
+import { searchCriteria } from "../../src/demo/search-contract";
 import type { ReportState } from "../../src/demo/report-state";
 import type { DemoCitation, DemoSource } from "../../src/demo/types";
 import { keyOf, policyValueV3, relatedValue } from "../../src/demo/validation";
@@ -235,6 +236,65 @@ describe("the chain on the page", () => {
     // The policy read asked for version 3.
     const read = calls.find((url) => path(url) === "/api/policy")!;
     expect(read.searchParams.get("version")).toBe("3");
+  });
+
+  it("keeps the listing's CFR parts and identifiers when the read itself states none", async () => {
+    // A real text read carries no listing fields; the search row states them.
+    const bare: Record<string, unknown> = { ...v3.citation };
+    for (const field of ["cfrRefs", "docketIds", "rins", "topics"])
+      delete bare[field];
+    // A version 2 search row carries no version 3 field.
+    const listed: Record<string, unknown> = { ...frRecord };
+    for (const field of [
+      "correctionOf",
+      "corrections",
+      "authorityLine",
+      "authorityLinePresent",
+    ])
+      delete listed[field];
+    fetchStub.mockImplementation(async (input: string, init?: RequestInit) => {
+      const url = input.startsWith("./") ? null : new URL(input);
+      if (url?.pathname === "/api/search" && init?.method === "POST") {
+        const body = JSON.parse(String(init.body)) as Record<string, string>;
+        const criteria = searchCriteria(body.source, body.q, 1, {
+          dateFrom: null,
+          dateTo: null,
+          continuation: null,
+          version: Number(body.searchVersion) as 1 | 2,
+          match: "text",
+          documentType: null,
+        });
+        const results = body.source === "federal-register" ? [listed] : [];
+        return json({
+          ok: true,
+          source: body.source,
+          query: body.q,
+          total: results.length,
+          page: 1,
+          results,
+          retrievedAt: RETRIEVED,
+          criteria,
+          continuation: { kind: "stopped", reason: "complete" },
+        });
+      }
+      if (url?.pathname === "/api/policy" && url.searchParams.get("id"))
+        return (calls.push(url), json({ ...v3, citation: bare }));
+      return worker(input);
+    });
+    window.sessionStorage.clear(); // open it from the results, not My Citations
+    const { panel, ui } = await start();
+    fireEvent.input(ui.getByRole("combobox", { name: "Search terms" }), {
+      target: { value: "example watershed" },
+    });
+    fireEvent.click(ui.getByRole("button", { name: "Search" }));
+    fireEvent.click(
+      await ui.findByRole("button", {
+        name: COPY.showIssuesFor(frRecord.title),
+      }),
+    );
+    await ui.findAllByText("Citation found at page 12");
+    expect(panel().getByText("CFR parts this document names")).toBeVisible();
+    expect(panel().getByText("Shares docket EX-2099-0001")).toBeVisible();
   });
 
   it("says not yet available with the live link for a hop the index does not hold, and index unavailable for a tampered file", async () => {

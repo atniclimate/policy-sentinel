@@ -61,6 +61,8 @@ interface RowBase {
   readonly stale: boolean;
   /** The live page where this evidence is stated. */
   readonly liveUrl: string | null;
+  /** Set by groupInText on the page only: how many places in the text named this target (absent means one). */
+  readonly places?: number;
 }
 export interface ChainLink extends RowBase, LinkedRecord {
   readonly kind: "link";
@@ -595,6 +597,36 @@ export function citationsInText(
     }
   }
   return rows;
+}
+
+/**
+ * In-text rows that name the same target (or repeat the same short form)
+ * collapse into the first one, in source order, with how many places named
+ * it. A long rule can name one CFR part in dozens of paragraphs; one row per
+ * distinct citation keeps the panel and exports readable. Other sections
+ * pass through unchanged.
+ */
+export function groupInText(rows: readonly ChainRow[]): ChainRow[] {
+  const firsts = new Map<string, number>();
+  const out: ChainRow[] = [];
+  for (const row of rows) {
+    if (row.section !== "inText") {
+      out.push(row);
+      continue;
+    }
+    const key =
+      row.kind === "link"
+        ? `link ${row.target.sourceId} ${row.target.identifier}`
+        : `note ${row.sourceWording ?? row.label}`;
+    const at = firsts.get(key);
+    if (at === undefined) {
+      firsts.set(key, out.length);
+      out.push(row);
+    } else {
+      out[at] = { ...out[at], places: (out[at].places ?? 1) + 1 };
+    }
+  }
+  return out;
 }
 
 /** The related-records family a record expands on a press, and its one Worker request. */

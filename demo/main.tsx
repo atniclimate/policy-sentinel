@@ -1821,8 +1821,11 @@ export function App() {
         updateReport((current) => attachPolicy(current, key, policy));
       if (sequence !== detailSequence.current) return;
       const authoritative = reportRef.current.cited[key]?.policy ?? policy;
+      // The read states no listing fields (docket, RIN, CFR parts); the row's
+      // stated fields fill them in, as a cited entry keeps them, so the chain
+      // shows the identifiers and CFR parts the listing states.
       setSelected({
-        citation: authoritative.citation,
+        citation: keepStated(citation, authoritative.citation),
         state: "ready",
         policy: authoritative,
       });
@@ -1900,7 +1903,7 @@ export function App() {
       if (!authoritative) throw new Error("Citation evidence was not attached");
       if (selectedKey.current === k)
         setSelected({
-          citation: authoritative.citation,
+          citation: keepStated(citation, authoritative.citation),
           policy: authoritative,
           state: "ready",
         });
