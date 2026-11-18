@@ -2,7 +2,7 @@
 
 - Goal: a Tribal staff member searches official federal and state sources on
   one page and sees each result's source, retrieval time and why it was shown.
-- Now: the 0.9.1 demo update is live (not the D-123 pre-release); the owner's
+- Now: the 0.9.2 demo update is live (not the D-123 pre-release); the owner's
   walk of the T1.7 staff tasks is still to come.
 - Next: the goals and owner gates are in [PLAN.md](PLAN.md) and the current
   state in [STATUS.md](STATUS.md). History follows, newest first.
@@ -30,6 +30,17 @@ published the search/audit release recorded next.
 Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
+
+## Example Issue, 0.9.2, 2026-11-18 (D-158, D-159)
+
+The live page is now 0.9.2: the 0.9.1 build plus an Example Issue in the
+Search pane, "Section 106 and S. 5653". One press runs five searches that
+Policy Sentinel chose by hand and shows them in sections; protect106.org is
+linked as context, never as a source, and is not searched or fetched. Published
+through PR 26 (merge commit `0691fe2`, 2026-11-18 20:53:05 UTC); Pages built it
+at 20:53:36 UTC. No Worker change or deployment. The live verifier passed 83 of
+83 with header 0.9.2. Sections below that call 0.9.1 the live page describe the
+earlier checkpoint.
 
 ## Full 0.9 demo update, 0.9.1, 2026-11-06 (D-118 to D-133)
 
