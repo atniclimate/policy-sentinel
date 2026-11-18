@@ -129,11 +129,10 @@ describe("USCOURTS search by court code", () => {
       lastModified: "2099-03-05T01:02:03Z",
       caseCitationProvided: false,
     });
-    // A caption that may name a person is withheld.
-    expect(out.results[1].title).toBe(withheldTitle("wawd 2:99-cv-00123"));
-    expect(JSON.stringify(out)).not.toMatch(
-      /Example Party|SAMPLEPERSON|pdfLink/,
-    );
+    // D-160: a lower-court case name is shown as GovInfo gives it, people included.
+    expect(out.results[1].title).toBe("SAMPLEPERSON V. EXAMPLE FINANCIAL, LLC");
+    // The separate party fields and download links stay dropped.
+    expect(JSON.stringify(out)).not.toMatch(/Example Party|pdfLink/);
     expect(out.total).toBe(4);
   });
 

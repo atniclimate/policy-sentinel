@@ -16,6 +16,13 @@ federal court opinions on GovInfo), with protect106.org linked as context,
 never as a source. Source commit 0ca7b0a, version commit f06cd0b, Pages
 artifact 709189f.
 
+**Not yet live (2026-11-18, D-160, case names):** the working tree shows every
+court's case name as GovInfo gives it, people named in it included; only the
+D-068 personal guard (a contact detail or a personal title) still holds a name
+back. The live page still withholds lower-court names that may name a person.
+The rule runs in the Worker, so it takes effect only with a Worker deployment,
+and the reworded notice with a Pages build; each needs the owner's command.
+
 ## Next session goal
 
 Build Wave 3 (Tier 2 rows 12 to 18 of the
@@ -150,5 +157,5 @@ output (Tier 3 after the reginfo terms are read).
   section) and the launch prompt beside it.
 - Build ledger: `C:\dev\_scratch\policy-sentinel\full09-build-2026-11-05\LEDGER.md`
   (sections from "Ponytail audit 1" on cover this update).
-- [Decision register](decision-register.md) through D-158;
+- [Decision register](decision-register.md) through D-160;
   [demo status](DEMO-STATUS.md) for the live page's history.

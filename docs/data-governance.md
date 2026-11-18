@@ -258,7 +258,9 @@ adapter requires its own approved output and delivery boundary. Hidden or
 dot-prefixed paths are not private. No API key, token, credential, private
 endpoint, secret, or personal data may enter client code, source maps, assets,
 commits, logs, fixtures, or documentation. Approved GitHub Actions secrets
-remain build-time only.
+remain build-time only. A court case name shown by the live demo exactly as its
+official source states it is not personal data for this purpose (D-160, owner
+ruling of 2026-11-18); fixtures and documentation still use synthetic names.
 
 The public beta must contain no maps, parcel geometry, land ownership, trust-land
 data, fee-land data, Tribally owned parcel data, or sensitive land context. Land

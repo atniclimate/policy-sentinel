@@ -2097,7 +2097,7 @@ export function App() {
     item.kind === "document"
       ? item.record.title
       : item.kind === "case"
-        ? // The caption as a case row shows it: withheld when it may name a person.
+        ? // The case name as a case row shows it.
           caseRowText(item.record).caseName
         : COPY.identifierLine(COPY.identifierLabels[item.kind], item.value);
 
