@@ -625,7 +625,7 @@ describe("upstream validation and identity", () => {
     });
   });
 
-  it("withholds a court caption that may name a person, as the court cases source does", async () => {
+  it("shows a court case name as GovInfo gives it and withholds only a personal-guard match, as the court cases source does", async () => {
     const court = { collectionCode: "USCOURTS", dateIssued: "2099-03-04" };
     installFetch({
       "api.govinfo.gov": () =>
@@ -658,11 +658,12 @@ describe("upstream validation and identity", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.results.map((r: { title: string }) => r.title)).toEqual([
-      "Case name not shown (USCOURTS-wawd-2_99-cv-00123)",
+      // D-160: shown, people named in it included.
+      "Sampleperson v. Example County",
       "Example County v. United States",
       "Case name not shown (USREPORTS-199/USREPORTS-199-42)",
     ]);
-    expect(JSON.stringify(body)).not.toContain("Sampleperson");
+    expect(JSON.stringify(body)).not.toContain("Mr. Sampleperson");
   });
 
   it.each([

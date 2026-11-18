@@ -1,21 +1,27 @@
 # Status
 
-As of 2026-11-18 (Pacific). The live page is the **0.9.1 demo update** (the
-Full 0.9 build, D-118 to D-133), merged into `main` through PR 23 (merge
-commit 21b647f) and served by GitHub Pages. The demo Worker runs version
+As of 2026-11-18 (Pacific). The live page is the **0.9.2 demo update**: the
+0.9.1 build (the Full 0.9 build, D-118 to D-133, PR 23) plus the Example Issue
+(D-158, D-159), merged into `main` through PR 26 (merge commit 0691fe2) and
+served by GitHub Pages. The demo Worker is unchanged: version
 3c228775-c1ab-4905-9ea4-d0c766b5a16b, built from a124968; the rollback version
 is 93192de1-9556-4f81-907e-35ace346728d. This is a demo update, not the D-123
 pre-release.
 
-**Not yet live (2026-11-18, D-158):** `demo/live-pages` holds an Example Issue
-for the Search pane, "Section 106 and S. 5653": five hand-chosen searches run
-together (the Congress.gov bill lookup, the bill's printed versions on GovInfo,
-the Federal Register by CFR part 36 CFR 800 and by the phrase "Protection of
-Historic Properties", and federal court opinions on GovInfo), with
-protect106.org linked as context, never as a source. Source commit 0ca7b0a,
-Pages artifact 056ae77, pushed to the branch. The page header still reads
-0.9.1. It goes live only when the owner commands the merge to `main`. No Worker
-change is needed.
+**Example Issue (0.9.2):** the Search pane has an example, "Section 106 and
+S. 5653", that runs five hand-chosen searches together (the Congress.gov bill
+lookup, the bill's short title on GovInfo bills, the Federal Register by CFR
+part 36 CFR 800 and by the phrase "Protection of Historic Properties", and
+federal court opinions on GovInfo), with protect106.org linked as context,
+never as a source. Source commit 0ca7b0a, version commit f06cd0b, Pages
+artifact 709189f.
+
+**Not yet live (2026-11-18, D-160, case names):** the working tree shows every
+court's case name as GovInfo gives it, people named in it included; only the
+D-068 personal guard (a contact detail or a personal title) still holds a name
+back. The live page still withholds lower-court names that may name a person.
+The rule runs in the Worker, so it takes effect only with a Worker deployment,
+and the reworded notice with a Pages build; each needs the owner's command.
 
 ## Next session goal
 
@@ -122,7 +128,12 @@ output (Tier 3 after the reginfo terms are read).
   example in a browser, 12 Worker searches in all; the five searches kept each
   answered. One sovereignty review, no blocking finding; its four wording
   fixes are in. `scripts/verify-demo-browser.mjs` against the build served
-  locally: 83 passed, 0 failed. Logs:
+  locally: 83 passed, 0 failed. After the version change to 0.9.2 the demo
+  build and five affected test files passed; the full check was not rerun for
+  the version string. Live: Pages built 0691fe2 at 20:53:36 UTC; the verifier
+  against https://atniclimate.github.io/policy-sentinel/ passed 83 of 83
+  (header 0.9.2), and its screenshot shows the Example Issue. The verifier
+  does not press the example. Logs:
   `C:\dev\_scratch\policy-sentinel\example-issue-2026-11-18\`.
 
 ## Not done, and carried limits
@@ -146,5 +157,5 @@ output (Tier 3 after the reginfo terms are read).
   section) and the launch prompt beside it.
 - Build ledger: `C:\dev\_scratch\policy-sentinel\full09-build-2026-11-05\LEDGER.md`
   (sections from "Ponytail audit 1" on cover this update).
-- [Decision register](decision-register.md) through D-158;
+- [Decision register](decision-register.md) through D-160;
   [demo status](DEMO-STATUS.md) for the live page's history.

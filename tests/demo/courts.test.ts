@@ -1,6 +1,6 @@
 // @vitest-environment node
 // Pure court helpers (T1.5): the court table, docket forms with a court code,
-// the U.S. Reports volume rule, caption withholding and the case row text.
+// the U.S. Reports volume rule, the case-name rule and the case row text.
 import { describe, expect, it } from "vitest";
 import { courts as COURTS } from "../../src/demo/copy/courts";
 import {
@@ -8,7 +8,6 @@ import {
   COURT_LABELS,
   LINK_OUTS,
   US_REPORTS_LAST_VOLUME,
-  captionShown,
   caseNameShown,
   caseRowText,
   courtDocketReading,
@@ -160,89 +159,23 @@ describe("U.S. Reports volume rule", () => {
   });
 });
 
-describe("caption withholding", () => {
+describe("case name shown", () => {
+  // D-160: every court's case name is shown as the source gives it.
   it.each([
     "EXAMPLE COUNTY V. UNITED STATES",
-    "Example Tribe v. Department of Example Affairs",
-    "EXAMPLE ASSOCIATION, ET AL. V. EXAMPLE AGENCY",
-    "Port of Example v. United States",
-    "State of Washington v. Example Tribe",
-    "Secretary of the Interior v. Example Corp.",
-    "City of Example v U.S.",
-    // Owner decision 5 (2026-11-06): institution names that hold "and".
-    "Department of Health and Human Services v. Example Tribe",
-    "Example County v. Secretary of Health and Human Services",
-    "Confederated Tribes and Bands of Example v. United States",
-    "Example Fish and Game Commission v. U.S. Fish and Wildlife Service",
-    // An office title followed by a listed department or an institution word.
-    "Example Corp. v. Commissioner of Internal Revenue",
-    "Example Tribe v. Director of the National Park Service",
-    "Trustees of Example University v. Example County",
-    "Example Indian Community v. Example Co.",
-  ])("shows an institutional caption: %s", (title) => {
-    expect(captionShown(title)).toBe(true);
-  });
-
-  it.each([
-    "SAMPLEPERSON V. EXAMPLE FINANCIAL, LLC", // one side is a person
-    "Example v. Sampleperson, Director, Bureau of Examples", // a name before a title
-    "In re Example", // no two sides
-    "Example Corp. v. Mr. Sampleperson", // the personal-pattern guard
-    // R2-1: a family trust, and parties joined by "and" or "&", carry no comma.
+    "SAMPLEPERSON V. EXAMPLE FINANCIAL, LLC",
+    "Example v. Sampleperson, Director, Bureau of Examples",
+    "In re Example",
     "SAMPLEPERSON FAMILY TRUST V. UNITED STATES",
-    "JANE SAMPLEPERSON AND EXAMPLE COUNTY V. UNITED STATES",
-    "Sampleperson & Example Corp. v. United States",
-    "Jane Sampleperson Revocable Living Trust v. United States",
-    "Jane Sampleperson, Trustee v. United States",
-    "Example County v. Jane Sampleperson Individually",
     "United States ex rel. Sampleperson v. Example Corp.",
-    // R1-4: an institution word inside a side does not make it an institution.
-    "Example Sampleperson Trust v. United States",
-    "Jane Sampleperson Port v. United States",
-    "Jane Sampleperson Secretary of the Department of the Interior v. Example Tribe",
-    "Jane Sampleperson State Trooper v. County of Example",
-    "Jane Sampleperson Center v. Department of Labor",
-    "Jane Sampleperson Nation v. United States",
-    // Only listed institution names escape the "and" rule.
-    "United States and Jane Sampleperson v. Example Corp.",
-    "Department of Health and Human Services and Jane Sampleperson v. Example Tribe",
-    // An office title can be followed by a person's name.
-    "Secretary of the Interior Jane Sampleperson v. Example Tribe",
-    "Office of Jane Sampleperson v. Example County",
-    "Trustees of Jane Sampleperson v. United States",
-    // Bare "co", "community" and "service" are not institution words.
-    "Jane Co v. Example County",
-    "Sampleperson Marital Community v. Example County",
-    "Jane Sampleperson Tree Service v. United States",
-    // D-129: a bare state name can be a surname, so only "State of ..." passes.
     "WASHINGTON V. UNITED STATES",
-    "Oregon v. Example Corp.",
-  ])("withholds a caption that may name a person: %s", (title) => {
-    expect(captionShown(title)).toBe(false);
-  });
-});
-
-describe("case name shown by collection", () => {
-  it("shows a U.S. Reports name as GovInfo gives it", () => {
-    expect(caseNameShown("USREPORTS", "SAMPLEPERSON V. EXAMPLE STATE")).toBe(
-      true,
-    );
-    expect(caseNameShown("USREPORTS", "In re Example")).toBe(true);
+  ])("shows a case name, people named in it included: %s", (title) => {
+    expect(caseNameShown(title)).toBe(true);
   });
 
-  it("still applies the D-068 personal guard to a U.S. Reports name", () => {
-    expect(
-      caseNameShown("USREPORTS", "Example State v. Mr. Sampleperson"),
-    ).toBe(false);
-  });
-
-  it("keeps the caption guard on lower-court names", () => {
-    expect(caseNameShown("USCOURTS", "SAMPLEPERSON V. EXAMPLE STATE")).toBe(
-      false,
-    );
-    expect(caseNameShown("USCOURTS", "EXAMPLE COUNTY V. UNITED STATES")).toBe(
-      true,
-    );
+  it("still applies the D-068 personal guard", () => {
+    expect(caseNameShown("Example State v. Mr. Sampleperson")).toBe(false);
+    expect(caseNameShown("Example Corp. v. someone@example.org")).toBe(false);
   });
 });
 

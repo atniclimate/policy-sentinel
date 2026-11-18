@@ -77,7 +77,7 @@ async function searchGovInfo(
     return {
       sourceId: "govinfo",
       identifier: id,
-      title: isCase && !caseNameShown(kind, title) ? withheldTitle(id) : title,
+      title: isCase && !caseNameShown(title) ? withheldTitle(id) : title,
       issuingBody:
         authors.filter(Boolean).join("; ").slice(0, 160) || "Not stated",
       kind,

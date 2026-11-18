@@ -13,9 +13,9 @@ export const courts = {
   /** A U.S. Reports citation above the last GovInfo volume. No call is made. */
   notResolvable:
     "Not resolvable from an official source; search the case name.",
-  /** The caption is withheld when it may name a person (no-personal-data contract). */
+  /** A case name is shown as the source gives it (D-160); only the D-068 personal guard holds one back. */
   captionWithheld:
-    "Case name not shown here because the caption may name a person. Open the official record.",
+    "Case name not shown here because it holds what looks like a contact detail or a personal title. Open the official record.",
   courtLabel: "Court",
   docketLabel: "Docket number",
   docketLine: (court: string, docket: string) => `${docket} (${court})`,
