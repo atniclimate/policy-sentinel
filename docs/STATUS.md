@@ -1,11 +1,21 @@
 # Status
 
-As of 2026-11-06 (Pacific). The live page is the **0.9.1 demo update** (the
+As of 2026-11-18 (Pacific). The live page is the **0.9.1 demo update** (the
 Full 0.9 build, D-118 to D-133), merged into `main` through PR 23 (merge
 commit 21b647f) and served by GitHub Pages. The demo Worker runs version
 3c228775-c1ab-4905-9ea4-d0c766b5a16b, built from a124968; the rollback version
 is 93192de1-9556-4f81-907e-35ace346728d. This is a demo update, not the D-123
 pre-release.
+
+**Not yet live (2026-11-18, D-158):** `demo/live-pages` holds an Example Issue
+for the Search pane, "Section 106 and S. 5653": five hand-chosen searches run
+together (the Congress.gov bill lookup, the bill's printed versions on GovInfo,
+the Federal Register by CFR part 36 CFR 800 and by the phrase "Protection of
+Historic Properties", and federal court opinions on GovInfo), with
+protect106.org linked as context, never as a source. Source commit 0ca7b0a,
+Pages artifact 056ae77, pushed to the branch. The page header still reads
+0.9.1. It goes live only when the owner commands the merge to `main`. No Worker
+change is needed.
 
 ## Next session goal
 
@@ -107,6 +117,13 @@ output (Tier 3 after the reginfo terms are read).
   https://atniclimate.github.io/policy-sentinel/ passed 83 of 83 (header 0.9.1),
   and all 18 runtime files matched the committed build on readback.
 - Not yet run: the owner's own walk of the T1.7 staff tasks.
+- Example Issue (2026-11-18): `npm run check` exit 0 on the source tree of
+  0ca7b0a (185 test files, 3,826 passed, 16 skipped). Two live presses of the
+  example in a browser, 12 Worker searches in all; the five searches kept each
+  answered. One sovereignty review, no blocking finding; its four wording
+  fixes are in. `scripts/verify-demo-browser.mjs` against the build served
+  locally: 83 passed, 0 failed. Logs:
+  `C:\dev\_scratch\policy-sentinel\example-issue-2026-11-18\`.
 
 ## Not done, and carried limits
 
@@ -117,6 +134,9 @@ output (Tier 3 after the reginfo terms are read).
   interop, treaty link target) is not started.
 - `worker/src/sources/govinfo.ts` does not use GovInfo's count to decide
   whether more results follow; the courts lane does.
+- The Example Issue has no Regulations.gov search: its one live call with the
+  phrase timed out on 2026-11-18, so that search is not verified. The owner's
+  wider direction, a general way to search an issue, is not designed yet.
 - A saved entry reopened after a reload says its in-text citations were not
   kept; re-reading them automatically would cost one Worker call per open.
 
@@ -126,5 +146,5 @@ output (Tier 3 after the reginfo terms are read).
   section) and the launch prompt beside it.
 - Build ledger: `C:\dev\_scratch\policy-sentinel\full09-build-2026-11-05\LEDGER.md`
   (sections from "Ponytail audit 1" on cover this update).
-- [Decision register](decision-register.md) through D-157;
+- [Decision register](decision-register.md) through D-158;
   [demo status](DEMO-STATUS.md) for the live page's history.
