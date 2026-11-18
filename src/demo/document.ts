@@ -370,9 +370,11 @@ export function buildDocument(input: DocInput): DocModel {
           ? F.draft(seed.id, seed.title)
           : seed.kind === "area"
             ? F.area
-            : seed.kind === "record"
-              ? F.record(source(seed.sourceId), seed.identifier)
-              : F.typed;
+            : seed.kind === "example"
+              ? F.example(seed.label)
+              : seed.kind === "record"
+                ? F.record(source(seed.sourceId), seed.identifier)
+                : F.typed;
       // An identifier lookup names the kind matched, as Why shown does.
       const terms = found.match
         ? `${COPY.identifierKinds[found.match]} ${found.terms}`
@@ -391,6 +393,9 @@ export function buildDocument(input: DocInput): DocModel {
     // The export travels without the page, so it keeps the Find related caveat (safeguard 2).
     if (entry.foundBy?.some((found) => found.match))
       blocks.push({ kind: "small", text: COPY.related.caveat });
+    // Likewise an example issue's: its searches were chosen for the issue, not the document.
+    if (entry.foundBy?.some((found) => found.seed.kind === "example"))
+      blocks.push({ kind: "small", text: COPY.example.loadedCaveat });
   });
 
   // 3. Data actors and the software actor

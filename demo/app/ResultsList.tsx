@@ -1,6 +1,6 @@
 import type { ComponentChildren } from "preact";
 import { COPY } from "../../src/demo/copy";
-import { groupDiscovery } from "../../src/demo/discovery";
+import { groupDiscovery, isSuggested } from "../../src/demo/discovery";
 import type {
   DiscoveryRow,
   Lane,
@@ -121,8 +121,9 @@ export function ResultsList({
   row: RowRenderer;
   families?: Partial<Record<LinkFamily, RowRenderer>>;
 }) {
-  const kind = found?.plan.seed.kind;
-  const sectioned = kind === "draft" || kind === "record";
+  const seed = found?.plan.seed;
+  const sectioned =
+    seed !== undefined && (isSuggested(seed) || seed.kind === "record");
   const views = found
     ? groupDiscovery(found.plan, found.searches, found.rows).sort(
         (a, b) => GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group),

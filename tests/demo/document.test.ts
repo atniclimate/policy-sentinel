@@ -511,6 +511,31 @@ describe("document model shared by the PDF and the print view", () => {
     expect(area.blocks).not.toContainEqual(caveat);
   });
 
+  it("names an example issue and keeps its caveat in the export", () => {
+    const { first, report } = fixture();
+    const key = keyOf(first.citation);
+    const example = build({
+      ...report,
+      cited: {
+        [key]: {
+          ...report.cited[key],
+          foundBy: foundByOf([reason("federal-register", "water")], {
+            kind: "example",
+            label: "Section 106 and S. 5653",
+          }),
+        },
+      },
+    });
+    expect(fields(example.blocks, "Found by")).toEqual([
+      "Example issue search (Section 106 and S. 5653): water (Federal Register)",
+    ]);
+    // Read without the page, the export still says the match is not a finding.
+    expect(example.blocks).toContainEqual({
+      kind: "small",
+      text: COPY.example.loadedCaveat,
+    });
+  });
+
   it("prints a name search without its terms whatever seed it grew from", () => {
     const { first, report } = fixture();
     const key = keyOf(first.citation);

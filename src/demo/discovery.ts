@@ -74,11 +74,17 @@ export type Seed =
       readonly reading?: string;
     }
   | { readonly kind: "area"; readonly label: string }
+  /** An example issue (issue-examples.ts): several hand-chosen searches. */
+  | { readonly kind: "example"; readonly label: string }
   | {
       readonly kind: "record";
       readonly sourceId: string;
       readonly identifier: string;
     };
+
+/** A seed whose plan is several suggested searches, shown in sections by group. */
+export const isSuggested = (seed: Seed): boolean =>
+  seed.kind === "draft" || seed.kind === "example";
 
 /** One suggested or typed search, before it is spread over sources. */
 export interface PlanSearch {

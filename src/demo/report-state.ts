@@ -64,6 +64,7 @@ export type FoundSeed =
   | { readonly kind: "draft"; readonly id: string; readonly title?: string }
   | { readonly kind: "typed" }
   | { readonly kind: "area" }
+  | { readonly kind: "example"; readonly label: string }
   | {
       readonly kind: "record";
       readonly sourceId: string;
@@ -100,7 +101,9 @@ export function foundByOf(
             sourceId: seed.sourceId,
             identifier: seed.identifier,
           }
-        : { kind: seed.kind };
+        : seed.kind === "example"
+          ? { kind: "example", label: seed.label }
+          : { kind: seed.kind };
   return reasons.map((reason) => ({
     sourceId: reason.sourceId,
     terms: reason.terms,

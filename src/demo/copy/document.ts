@@ -75,6 +75,7 @@ export const documentCopy = {
       `Suggested search for NCAI draft ${id}${title ? ` (${title})` : ""}`,
     typed: "Typed search",
     area: "Policy area menu search",
+    example: (label: string) => `Example issue search (${label})`,
     /** Find related: an identifier the record's own source stated, looked up exactly. */
     record: (source: string, identifier: string) =>
       `Identifier lookup from ${source} record ${identifier}`,

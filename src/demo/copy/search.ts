@@ -32,6 +32,26 @@ export const search = {
   searchButton: "Search",
   searching: "Searching the selected official sources.",
   examplesLabel: "Example Searches",
+  /** An example issue: several hand-chosen searches run together (src/demo/issue-examples.ts). */
+  example: {
+    heading: "Example Issue",
+    help: "Runs a set of searches that Policy Sentinel chose by hand for one issue. Each goes to the source named in Results, whether or not that source is checked. Dates and the document type filter are not applied.",
+    about: "Searches for:",
+    texts: "Official texts:",
+    context: "Context, not a source:",
+    contextHelp:
+      "Opens in a new tab. Its views are its own, and linking it endorses no position. Policy Sentinel did not review that page, and that page did not choose these searches. The pairing of the law, the rule, and the bill comes from that page; Policy Sentinel has not checked what the bill's text says about Section 106.",
+    off: "Off: none of the example's sources is available.",
+    loadedFor: "Example issue searches:",
+    loadedCaveat:
+      "Policy Sentinel chose these searches by hand. A result is a text match or an identifier lookup, not a finding: it does not show what a bill, rule, or case means for this issue or for any Tribe.",
+    searching:
+      "Running the example's searches on each source named below, including sources not checked.",
+    noResults:
+      "None of the example's searches listed a document on the sources named below.",
+    continuationNoResults:
+      "None of the example's searches loaded a listing yet. More results may be available; see each source’s continuation status.",
+  },
   ncai: {
     menu: "NCAI",
     menuTitle: "NCAI 2026 Draft Resolutions in Progress",

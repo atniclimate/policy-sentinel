@@ -74,6 +74,7 @@ import {
   buildPlan,
   failLane,
   isSeedRecord,
+  isSuggested,
   LaneCache,
   laneId,
   laneOptions,
@@ -121,6 +122,8 @@ import type {
   NcaiPlanSearch,
   NcaiSearch,
 } from "../src/demo/ncai-2026";
+import { ISSUE_EXAMPLES } from "../src/demo/issue-examples";
+import type { IssueExample } from "../src/demo/issue-examples";
 import NCAI_VAULT from "../src/demo/ncai-2026.vault.json";
 import { NcaiVaultError, openNcaiDrafts } from "../src/demo/ncai-vault";
 import {
@@ -384,6 +387,9 @@ const NCAI_GROUPS = [
 /** Status words for Find related; the reader typed no words to change. */
 const RELATED_WORDS = { ...COPY, ...COPY.related };
 
+/** Status words for an example issue: a draft's, except where those name a draft. */
+const EXAMPLE_WORDS = { ...COPY.ncai, ...COPY.example };
+
 const SKIP_TEXT: Readonly<Record<SkipReason, string>> = {
   none_checked: COPY.laneNoneChecked,
   source_off: COPY.laneSourceOff,
@@ -429,12 +435,15 @@ function sourceOutcome(item: LaneSearch): string {
 function foundMessage(found: Found): string {
   const { searches } = found;
   // A draft also asks sources the reader did not check, and lists bills and opinions.
-  const draft = found.plan.seed.kind === "draft";
-  const words = draft
-    ? COPY.ncai
-    : found.plan.seed.kind === "record"
-      ? RELATED_WORDS
-      : COPY;
+  const draft = isSuggested(found.plan.seed);
+  const words =
+    found.plan.seed.kind === "draft"
+      ? COPY.ncai
+      : found.plan.seed.kind === "example"
+        ? EXAMPLE_WORDS
+        : found.plan.seed.kind === "record"
+          ? RELATED_WORDS
+          : COPY;
   if (searches.some((item) => item.state === "loading")) return words.searching;
   const failures = searches.filter((item) => item.state === "unavailable");
   if (found.rows.length) {
@@ -1038,7 +1047,7 @@ export function App() {
 
   /** Lane names follow the source alone when the plan is one search. */
   const outcomeName = (plan: Plan, lane: Lane) =>
-    plan.seed.kind === "draft"
+    isSuggested(plan.seed)
       ? laneName(lane)
       : plan.seed.kind === "record"
         ? lane.label
@@ -1063,7 +1072,7 @@ export function App() {
     // Search again always asks the source, so a repeated search never shows an
     // old answer. The plan itself keys the cache, so its type filter does too.
     const cache =
-      plan.seed.kind === "draft" || plan.seed.kind === "record"
+      isSuggested(plan.seed) || plan.seed.kind === "record"
         ? laneCache.current
         : null;
     const answer = async (lane: Lane): Promise<Settle> => {
@@ -1137,7 +1146,7 @@ export function App() {
   function runPlan(plan: Plan, also: readonly Lane[] = []) {
     const [only] = plan.lanes;
     if (
-      plan.seed.kind !== "draft" &&
+      !isSuggested(plan.seed) &&
       plan.lanes.length === 1 &&
       only.sourceId === "congress" &&
       !isCongressReference(only.query)
@@ -1521,6 +1530,24 @@ export function App() {
         eligibility: state ? null : eligibility,
       }),
     );
+  }
+
+  /** An example issue's plan: its own sources, no dates and no type filter, so it runs the same for everyone. */
+  const issuePlan = (example: IssueExample): Plan =>
+    buildPlan(
+      { kind: "example", label: example.label },
+      example.searches,
+      planSources,
+      { dateFrom: null, dateTo: null, documentType: null, eligibility: null },
+    );
+  const issueReady = (example: IssueExample) =>
+    issuePlan(example).lanes.some((lane) => !lane.skip);
+
+  function tryIssue(example: IssueExample) {
+    if (!issueReady(example)) return;
+    // The example's searches are federal; setScope alone keeps the plan below.
+    setScope("federal");
+    runPlan(issuePlan(example));
   }
 
   /** An NCAI search runs on the checked federal sources, or on its one source if live. */
@@ -2348,6 +2375,8 @@ export function App() {
     });
     if (from.kind === "draft")
       clauses.push(COPY.whyDraft(from.id, reasons.length));
+    if (from.kind === "example")
+      clauses.push(COPY.whyExample(from.label, reasons.length));
     if (from.kind === "record")
       clauses.push(
         COPY.whyRecord(labelOf(from.sourceId), from.identifier, reasons.length),
@@ -2362,7 +2391,7 @@ export function App() {
   const laneOutcome = (plan: Plan, lane: Lane, item: LaneSearch) => {
     const label = outcomeName(plan, lane);
     const continuation = item.response?.continuation;
-    const draft = plan.seed.kind === "draft";
+    const draft = isSuggested(plan.seed);
     // A draft's topic meets a checked Congress.gov; the reader typed no reference.
     const reason =
       draft && item.skip === "congress_reference"
@@ -3009,6 +3038,65 @@ export function App() {
                 </p>
               )}
             </div>
+            {/* shortcut: one example, so its ids are fixed; make them per-example when a second is added. */}
+            {ISSUE_EXAMPLES.map((example) => (
+              <div class="zone" key={example.label}>
+                <h3 class="eyebrow">{COPY.example.heading}</h3>
+                <ul class="chips">
+                  <li>
+                    <button
+                      type="button"
+                      class="chip"
+                      aria-disabled={!issueReady(example)}
+                      aria-describedby={
+                        issueReady(example) ? "issue-help" : "issue-off"
+                      }
+                      onClick={() => tryIssue(example)}
+                    >
+                      {example.label}
+                    </button>
+                  </li>
+                </ul>
+                {!issueReady(example) && (
+                  <p id="issue-off" class="help">
+                    {COPY.example.off}
+                  </p>
+                )}
+                <p id="issue-help" class="help">
+                  {COPY.example.help}
+                </p>
+                <p class="help">
+                  {COPY.example.about} {example.about}
+                </p>
+                <p class="help">
+                  {COPY.example.texts}{" "}
+                  {example.texts.map((text, index) => (
+                    <span key={text.url}>
+                      {index > 0 && ", "}
+                      <a
+                        href={text.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {text.label}
+                      </a>
+                    </span>
+                  ))}
+                  .
+                </p>
+                <p class="help">
+                  {COPY.example.context}{" "}
+                  <a
+                    href={example.context.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {example.context.label}
+                  </a>
+                  . {COPY.example.contextHelp}
+                </p>
+              </div>
+            ))}
             {drafts && (
               <div class="zone">
                 <label class="field" for="ncai-area">
@@ -3093,6 +3181,15 @@ export function App() {
                       <p class="help">{COPY.ncai.loadedWhy}</p>
                       {criteriaNotes(found.plan)}
                     </details>
+                  </>
+                ) : found.plan.seed.kind === "example" ? (
+                  <>
+                    <p>
+                      <strong>{COPY.example.loadedFor}</strong>{" "}
+                      {found.plan.seed.label}
+                    </p>
+                    <p class="help">{COPY.example.loadedCaveat}</p>
+                    {criteriaNotes(found.plan)}
                   </>
                 ) : found.plan.seed.kind === "record" ? (
                   <>
