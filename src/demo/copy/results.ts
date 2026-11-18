@@ -110,6 +110,9 @@ export const results = {
   /** The searches were suggested for the draft, not the document. */
   whyDraft: (id: string, searches: number) =>
     `${searches === 1 ? "search" : "searches"} suggested for NCAI draft ${id}`,
+  /** The searches were chosen for the example issue, not the document. */
+  whyExample: (label: string, searches: number) =>
+    `${searches === 1 ? "search" : "searches"} chosen for the example issue ${label}`,
   /** `reasons` is already joined; a name search adds its caution (safeguard 1). */
   whyShown: (reasons: string, named: boolean) =>
     `${reasons}.${named ? " A name match does not show that this document concerns that Tribe or organization." : ""}`,

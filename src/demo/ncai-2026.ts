@@ -263,7 +263,7 @@ export interface NcaiSearch {
 }
 
 /** A GovInfo collection search: its words, and a label built from both. */
-function govinfoSearch<G extends NcaiSearchGroup>(
+export function govinfoSearch<G extends NcaiSearchGroup>(
   group: G,
   query: string,
   terms: string,

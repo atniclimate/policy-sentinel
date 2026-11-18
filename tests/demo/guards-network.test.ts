@@ -47,6 +47,9 @@ const REVIEWED_LINK_OUT = [
   "narf.org",
   "nvcourts.gov",
   "open.gsa.gov",
+  // An advocacy hub, not an official source: the context link of the example
+  // issue only, named by the owner on 2026-11-18. Never searched or fetched.
+  "protect106.org",
   "sos.oregon.gov",
   "supreme.courts.ca.gov",
   "uscode.house.gov",
