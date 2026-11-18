@@ -1,11 +1,12 @@
 # Status
 
-As of 2026-11-18 (Pacific). The live page is the **0.9.2 demo update**: the
-0.9.1 build (the Full 0.9 build, D-118 to D-133, PR 23) plus the Example Issue
-(D-158, D-159), merged into `main` through PR 26 (merge commit 0691fe2) and
-served by GitHub Pages. The demo Worker is unchanged: version
-3c228775-c1ab-4905-9ea4-d0c766b5a16b, built from a124968; the rollback version
-is 93192de1-9556-4f81-907e-35ace346728d. This is a demo update, not the D-123
+As of 2026-11-18 (Pacific). The live page is the **0.9.3 demo update**: the
+0.9.1 build (the Full 0.9 build, D-118 to D-133, PR 23), plus the Example Issue
+(0.9.2, D-158 and D-159, PR 26, merge commit 0691fe2), plus court case names
+shown as the source gives them (0.9.3, D-160, PR 27, merge commit 3e70cbd),
+served by GitHub Pages from `main`. The demo Worker runs version
+6feff3b5-0e45-4692-8c33-90ec4bf0f7c3, built from 44adef6; the rollback version
+is 3c228775-c1ab-4905-9ea4-d0c766b5a16b. These are demo updates, not the D-123
 pre-release.
 
 **Example Issue (0.9.2):** the Search pane has an example, "Section 106 and
@@ -16,19 +17,28 @@ federal court opinions on GovInfo), with protect106.org linked as context,
 never as a source. Source commit 0ca7b0a, version commit f06cd0b, Pages
 artifact 709189f.
 
-**Not yet live (2026-11-18, D-160, case names):** the working tree shows every
-court's case name as GovInfo gives it, people named in it included; only the
-D-068 personal guard (a contact detail or a personal title) still holds a name
-back. The live page still withholds lower-court names that may name a person.
-The rule runs in the Worker, so it takes effect only with a Worker deployment,
-and the reworded notice with a Pages build; each needs the owner's command.
+**Case names (0.9.3, D-160):** every court's case name is shown as GovInfo
+gives it, people named in it included; only the D-068 personal guard (a contact
+detail or a personal title) still holds a name back. The rule runs in the
+Worker, which was deployed before the page. Source commit 44adef6, Pages
+artifact bb3f9a5.
 
 ## Next session goal
 
-Build Wave 3 (Tier 2 rows 12 to 18 of the
+Build issue search (the owner's direction of 2026-11-18; the name is open),
+then verify and harden: a person types an issue the way people say it, an
+abbreviation or a nickname included, picks it from the suggestions, and gets
+the sectioned results the Example Issue gives by hand. Then one bounded live
+call per API feed, and fixes for confirmed bugs and messy code. The launch
+prompt, with the design direction, the ATNI resolutions lane and the owner
+questions to batch, is
+`C:\dev\_handoff\policy-sentinel\NEXT-SESSION-PROMPT-issue-search.md`.
+
+Still queued behind it: Wave 3 (Tier 2 rows 12 to 18 of the
 [Full 0.9 design](development/full09-design-2026-11-05.md); row 18, the Supreme
-Court RSS, is dropped under D-137) on `demo/live-pages`, then boundary C. Also
-run the queued work from the owner's answers of 2026-11-06 (D-134 to D-157):
+Court RSS, is dropped under D-137) on `demo/live-pages`, then boundary C, and
+the queued work from the owner's answers of 2026-11-06 (D-134 to D-157), of
+which the alias fetch and screens belong to the issue search build:
 
 - the terms reads for Regulations.gov, SAM.gov, the GovInfo policies and the
   eCFR metadata paths, each into its source note (D-135, D-138, D-140, D-141);
@@ -39,7 +49,7 @@ run the queued work from the owner's answers of 2026-11-06 (D-134 to D-157):
 - one line in the Federal Register source note stating the keyless API reading
   as the standing rule (D-136).
 
-Done means:
+Done means, for Wave 3 (the launch prompt states it for issue search):
 
 - each Tier 2 row is live-checked once within a stated call budget, or recorded
   as blocked at its gate with the reason;
@@ -100,7 +110,8 @@ output (Tier 3 after the reginfo terms are read).
 - Two audit rounds (36 and 20 confirmed findings). Among them: every Worker
   cache entry is keyed to the deployed version; Nation names before a closing
   apostrophe and organization names joined by "of" are masked; person-naming
-  court captions are withheld in every GovInfo lane; withheld, cut and
+  court captions are withheld in every GovInfo lane (changed in 0.9.3: case
+  names are now shown, D-160); withheld, cut and
   not-kept rows are stated in the panel and in exports alike; one retrieval day
   is shown everywhere; the Congress.gov latest action passes the personal
   guard.
@@ -135,6 +146,13 @@ output (Tier 3 after the reginfo terms are read).
   (header 0.9.2), and its screenshot shows the Example Issue. The verifier
   does not press the example. Logs:
   `C:\dev\_scratch\policy-sentinel\example-issue-2026-11-18\`.
+- Case names (2026-11-18): `npm run check` exit 0 on the source tree of
+  44adef6 (185 test files, 3,789 passed, 16 skipped). One privacy review, no
+  blocking finding; the Worker was deployed before the page as it required.
+  Live: Pages built 3e70cbd at 21:24:59 UTC. One press of the Example Issue on
+  the live page (five Worker searches): header 0.9.3, 24 documents listed, and
+  the court opinions section showed case names with no "Case name not shown"
+  row. The browser verifier was not rerun for 0.9.3.
 
 ## Not done, and carried limits
 
@@ -148,6 +166,8 @@ output (Tier 3 after the reginfo terms are read).
 - The Example Issue has no Regulations.gov search: its one live call with the
   phrase timed out on 2026-11-18, so that search is not verified. The owner's
   wider direction, a general way to search an issue, is not designed yet.
+- A case followed before 0.9.3 keeps its "Case name not shown" title in the
+  followed list until it is followed again.
 - A saved entry reopened after a reload says its in-text citations were not
   kept; re-reading them automatically would cost one Worker call per open.
 
