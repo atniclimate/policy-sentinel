@@ -1,181 +1,114 @@
 # Status
 
-As of 2026-11-18 (Pacific). The live page is the **0.9.3 demo update**: the
-0.9.1 build (the Full 0.9 build, D-118 to D-133, PR 23), plus the Example Issue
-(0.9.2, D-158 and D-159, PR 26, merge commit 0691fe2), plus court case names
-shown as the source gives them (0.9.3, D-160, PR 27, merge commit 3e70cbd),
-served by GitHub Pages from `main`. The demo Worker runs version
-6feff3b5-0e45-4692-8c33-90ec4bf0f7c3, built from 44adef6; the rollback version
-is 3c228775-c1ab-4905-9ea4-d0c766b5a16b. These are demo updates, not the D-123
+As of 2026-11-18 (Pacific). The live page is the **0.9.5 demo update**, served
+by GitHub Pages from `main`: the 0.9.1 build (the Full 0.9 build, D-118 to
+D-133), the Example Issue (0.9.2), court case names (0.9.3), issue search
+(0.9.4, PR 28, merge commit 9a18cf5) and the source release record (0.9.5,
+PR 29, merge commit f19a116). The demo Worker runs version
+8726fa96-87b2-4623-9df4-4dc5b21509eb, built from 50a3813; the rollback version
+is 6feff3b5-0e45-4692-8c33-90ec4bf0f7c3. These are demo updates, not the D-123
 pre-release.
 
-**Example Issue (0.9.2):** the Search pane has an example, "Section 106 and
-S. 5653", that runs five hand-chosen searches together (the Congress.gov bill
-lookup, the bill's short title on GovInfo bills, the Federal Register by CFR
-part 36 CFR 800 and by the phrase "Protection of Historic Properties", and
-federal court opinions on GovInfo), with protect106.org linked as context,
-never as a source. Source commit 0ca7b0a, version commit f06cd0b, Pages
-artifact 709189f.
+**Issue search (0.9.4, D-161 to D-171):** a reviewed table
+(`config/issues.v1.json`, schema `schemas/issues.schema.v1.json`) of issues (a
+subject, its names, the identifiers it rests on), bills that carry issues, and
+bill sections listed with an issue, each citing an identifier the issue rests
+on or listed on the owner's review. The search box offers an entry by name;
+choosing it runs its searches in sections. After any search, issues sharing an
+identifier stated in the results' own fields are offered (never from words;
+rows found only by a name search are not counted). The committed table holds
+the Section 106 consultation issue and the BAAJA bill (D-171). The Search pane
+heading is "Policy issues", because the "Issues" pane lists passages in a
+policy.
 
-**Case names (0.9.3, D-160):** every court's case name is shown as GovInfo
-gives it, people named in it included; only the D-068 personal guard (a contact
-detail or a personal title) still holds a name back. The rule runs in the
-Worker, which was deployed before the page. Source commit 44adef6, Pages
-artifact bb3f9a5.
+**Verified sources (0.9.5, D-172 to D-174):** all seven Worker sources read
+"Enabled, verified at release 2026-11-18", from one bounded release check each
+and, for GovInfo, its court opinions and Grants.gov, a re-probe after the
+Worker deployment that fixed them.
 
 ## Next session goal
 
-Build issue search (the owner's direction of 2026-11-18; the name is open),
-then verify and harden: a person types an issue the way people say it, an
-abbreviation or a nickname included, picks it from the suggestions, and gets
-the sectioned results the Example Issue gives by hand. Then one bounded live
-call per API feed, and fixes for confirmed bugs and messy code. The launch
-prompt, with the design direction, the ATNI resolutions lane and the owner
-questions to batch, is
-`C:\dev\_handoff\policy-sentinel\NEXT-SESSION-PROMPT-issue-search.md`.
+Ship the rest of the issue table and harden what the checks found. In order:
 
-Still queued behind it: Wave 3 (Tier 2 rows 12 to 18 of the
-[Full 0.9 design](development/full09-design-2026-11-05.md); row 18, the Supreme
-Court RSS, is dropped under D-137) on `demo/live-pages`, then boundary C, and
-the queued work from the owner's answers of 2026-11-06 (D-134 to D-157), of
-which the alias fetch and screens belong to the issue search build:
+1. The exact 575-name list (D-168, O-001, G-BIA-IDENTITY). The 2026 notice
+   parses to 577 paragraphs against a stated 575; the owner held the
+   577-paragraph hash file. Until a reconciliation the owner accepts exists, the
+   nine drafted rows stay in scratch (path under Records), and so do the alias
+   and phrase tables' rows.
+2. The open review notes on issue search (Records: review summary): the bare
+   name "Section 106" also matches other laws' section 106 when typed with
+   them; "Executive Order 13175" and "NAGPRA" may be stated officially, which
+   would change D-169 and D-170 (ask the owner); one scratch row cites a search
+   URL as its official page; `issuesInText` is built and tested but not on the
+   page yet; the G3 exception is keyed by id only.
+3. The bill-text Worker route (D-166): read federal bill text by section from
+   GovInfo so issues inside any bill come up from its citations. Design first,
+   then the owner's command to deploy.
+4. Loose ends from the release checks: the Federal Register reports at most
+   10,000 results and the page shows that as exact; a policy read's opening can
+   start with ruler lines; a Washington bill's opening is its front matter; the
+   two dates GovInfo gives one court case; the Congress.gov related-bills button
+   and the Grants.gov eligibility filter and forecast detail were not probed;
+   Regulations.gov identifier lookups stay off (D-139 closing dates and the
+   terms read first); the grants note in `/api/sources` still says the
+   opportunity text is not read (ATNI-ResIST pins that response); the ATNI-ResIST
+   502 did not reproduce for words, and "91 FR 57841" was not probed.
+5. Still queued behind it: Wave 3 (Tier 2 rows 12 to 17 of the
+   [Full 0.9 design](development/full09-design-2026-11-05.md)), boundary C, the
+   terms reads (D-135, D-138, D-140, D-141), the OLRC alias fetch and screens
+   (D-134, D-142, D-143), the Federal Register source note line (D-136).
 
-- the terms reads for Regulations.gov, SAM.gov, the GovInfo policies and the
-  eCFR metadata paths, each into its source note (D-135, D-138, D-140, D-141);
-- the Nation-name hash file build from the recognition notice, 575 names, plain
-  list in scratch only (D-144);
-- the alias fetch from OLRC under its stated budget, then the screens and the
-  full review table (D-134, D-142, D-143);
-- one line in the Federal Register source note stating the keyless API reading
-  as the standing rule (D-136).
-
-Done means, for Wave 3 (the launch prompt states it for issue search):
-
-- each Tier 2 row is live-checked once within a stated call budget, or recorded
-  as blocked at its gate with the reason;
-- `npm run check` passes once on the final tree;
-- the sovereignty review of the Wave 3 diff has no open blocking finding;
-- `scripts/verify-demo-browser.mjs` passes on a `demo:build` served locally;
-- the owner's walk steps for the T1.7 staff tasks are written.
-
-Nothing is merged, deployed or published without a fresh owner command. The
-launch prompt is in the private handoff folder (Records, below).
+Nothing is merged, deployed or published without a fresh owner command.
 
 ## Open owner decisions
 
-The owner's answers of 2026-11-06 are recorded as D-134 to D-157. The terms
-reads they queue (Regulations.gov, SAM.gov, the GovInfo policies, the eCFR
-metadata paths) are session work, listed under "Next session goal", not owner
-items. Still open for the owner:
-
-1. Idaho (D-157): the source search found no strictly non-profit API. Open
-   States (Plural Policy, Inc., for-profit) is free, with no attribution
-   required, an unconfirmed rate limit and discretionary blocking; the Idaho
-   Legislature has no API. Decide whether to register with Open States anyway.
-   Note: `C:\dev\_scratch\policy-sentinel\full09-build-2026-11-05\carried-review\IDAHO-SOURCE.md`.
-2. Parallel monitors (D-149): delete the seven weekly monitors in Parallel's
-   console, or say yes to one bounded delete command.
-3. NCAI reply (D-150): the reply, or none by 1.0, decides whether the
-   intertribal snapshot stays.
-4. Flagged review rows: the alias and plain-phrase rows that carry a flag or
-   fall in a judgment class (D-142, D-143) come in the full review table when
-   it arrives; they stay out unless named in.
-5. PLAN "Later" deferrals: reviewed in the pull request for the PLAN rewrite
-   (the owner's note of 2026-11-06; no decision row covers it).
-6. SAM.gov download (D-140): if the terms read finds a keyless public CSV with
-   an Authorizations column, the owner is asked first, with the file name and
-   size, before any download.
-7. Acceptance for 1.0 (D-147): the owner's T1.7 walk, the outside-user test,
-   the ATNI 1.0 license and ATNI ratification. G-BIA-IDENTITY (the 575
-   collection validates exactly) is on the 1.0 critical path with the Nation
-   picker (D-152).
-
-Also still carried, not owner-blocking: the taxonomy proposal and Unified Agenda
-output (Tier 3 after the reginfo terms are read).
-
-## Published in this update (0.9.1)
-
-- Tier 1 of the Full 0.9 design on its
-  [index conditions](development/full09-index-conditions-2026-11-05.md):
-  search contract version 3 (versions 1 and 2 unchanged for ATNI-ResIST); one
-  search box that reads citations, bills, dockets and law names and abstains
-  when a query could mean more than one thing; the Cited and Linked Records
-  panel; Grants.gov authority wording; GovInfo court opinions and U.S. Reports;
-  modes, the Briefing export and freshness notices.
-- Wave 2b (D-126 to D-132): note citations, acronyms and enacted-title marks
-  on law aliases (table still empty); hashed Nation-name probes; Supreme Court
-  case names verbatim; relation names from the owner-approved list (D-133);
-  the source's own summary, collapsed and guarded; ranked suggestions with a
-  bounded typo pass; the plain-phrase table, empty.
-- Two audit rounds (36 and 20 confirmed findings). Among them: every Worker
-  cache entry is keyed to the deployed version; Nation names before a closing
-  apostrophe and organization names joined by "of" are masked; person-naming
-  court captions are withheld in every GovInfo lane (changed in 0.9.3: case
-  names are now shown, D-160); withheld, cut and
-  not-kept rows are stated in the panel and in exports alike; one retrieval day
-  is shown everywhere; the Congress.gov latest action passes the personal
-  guard.
-- The planning records were aligned for agent sessions: one session start, one
-  owner-decision list (this one), current rule pointers in the agent files.
+1. The exact 575-name list (D-168): how the two extra paragraphs of the 2026
+   recognition notice are reconciled, or whether some other source settles it.
+   It gates every issue, alias and phrase row beyond D-171's two.
+2. Idaho (D-157): register with Open States (Plural Policy, Inc., for-profit)
+   or keep the gap. Note:
+   `C:\dev\_scratch\policy-sentinel\full09-build-2026-11-05\carried-review\IDAHO-SOURCE.md`.
+3. Parallel monitors (D-149): delete the seven weekly monitors, or say yes to
+   one bounded delete command.
+4. NCAI reply (D-150): decides whether the intertribal snapshot stays.
+5. The feature's name: the page says "Policy issues" and "Issue:"; the owner
+   left naming open (D-163).
+6. D-165's wording: the page says "Listed with this issue" where the owner's
+   words said "under"; "under" is on the forbidden-word list (design rule 2).
+7. Flagged review rows (D-142, D-143), PLAN "Later" deferrals, the SAM.gov
+   download (D-140), and acceptance for 1.0 (D-147: the T1.7 walk, the
+   outside-user test, the ATNI 1.0 license, ATNI ratification).
 
 ## Verification
 
-- `npm run check` exit 0 at e2bfb4b: 184 test files, 3,823 tests passed, 16
-  skipped; roadmap, backbone, knowledge, runtime, source-boundary and artifact
-  validation passed. After it, one label fix and browser-verifier selector
-  updates (5f246ae) passed their focused tests, typecheck, lint and the
-  source-boundary scan.
-- Pre-public sovereignty review over 566c0b2..HEAD: no Nation-linking, land,
-  secret or telemetry finding; its privacy items are fixed.
-- `scripts/verify-demo-browser.mjs` against the build served locally, calling
-  the deployed Worker: 83 passed, 0 failed, including axe (no WCAG A/AA
-  violations in the dialog and in both themes) and the keyboard focus checks.
-- Live: Pages built 21b647f at 16:35 UTC; the verifier against
-  https://atniclimate.github.io/policy-sentinel/ passed 83 of 83 (header 0.9.1),
-  and all 18 runtime files matched the committed build on readback.
-- Not yet run: the owner's own walk of the T1.7 staff tasks.
-- Example Issue (2026-11-18): `npm run check` exit 0 on the source tree of
-  0ca7b0a (185 test files, 3,826 passed, 16 skipped). Two live presses of the
-  example in a browser, 12 Worker searches in all; the five searches kept each
-  answered. One sovereignty review, no blocking finding; its four wording
-  fixes are in. `scripts/verify-demo-browser.mjs` against the build served
-  locally: 83 passed, 0 failed. After the version change to 0.9.2 the demo
-  build and five affected test files passed; the full check was not rerun for
-  the version string. Live: Pages built 0691fe2 at 20:53:36 UTC; the verifier
-  against https://atniclimate.github.io/policy-sentinel/ passed 83 of 83
-  (header 0.9.2), and its screenshot shows the Example Issue. The verifier
-  does not press the example. Logs:
-  `C:\dev\_scratch\policy-sentinel\example-issue-2026-11-18\`.
-- Case names (2026-11-18): `npm run check` exit 0 on the source tree of
-  44adef6 (185 test files, 3,789 passed, 16 skipped). One privacy review, no
-  blocking finding; the Worker was deployed before the page as it required.
-  Live: Pages built 3e70cbd at 21:24:59 UTC. One press of the Example Issue on
-  the live page (five Worker searches): header 0.9.3, 24 documents listed, and
-  the court opinions section showed case names with no "Case name not shown"
-  row. The browser verifier was not rerun for 0.9.3.
+- Issue search (7eac055) and source fixes (9e8bc75): `npm run check` exit 0 on
+  the 9e8bc75 tree (195 files, 3,861 passed, 16 skipped; artifact validation
+  passed), and again on the 0.9.5 source tree (same counts).
+- One sovereignty review of issue search: one blocking finding (name searches
+  in the shared-issues panel), fixed with a regression test; the notes not
+  fixed are listed under Next session goal.
+- Live calls this session, each within a stated budget, through the deployed
+  Worker: 30 issue searches (all answered; the CFR lookups for 25 CFR 23 and
+  25 CFR 900 kept nothing before the fix), 19 release checks, 4 re-probes plus
+  3 redone (D-174), and the browser verifier's 4 per run.
+- Browser verifier: 83 of 83 on the local build and on the live page, at 0.9.4
+  and at 0.9.5.
 
 ## Not done, and carried limits
 
-- The law alias table and the plain-phrase table ship empty (the alias fetch,
-  screens and hash file are queued above). No index shard is acquired. eCFR
-  stays a link-out.
-- Wave 3 (Tier 2: Oregon, Washington, committee libraries, local documents,
-  interop, treaty link target) is not started.
-- `worker/src/sources/govinfo.ts` does not use GovInfo's count to decide
-  whether more results follow; the courts lane does.
-- The Example Issue has no Regulations.gov search: its one live call with the
-  phrase timed out on 2026-11-18, so that search is not verified. The owner's
-  wider direction, a general way to search an issue, is not designed yet.
-- A case followed before 0.9.3 keeps its "Case name not shown" title in the
-  followed list until it is followed again.
-- A saved entry reopened after a reload says its in-text citations were not
-  kept; re-reading them automatically would cost one Worker call per open.
+- Nine drafted issue rows wait for the 575 list; the law alias and plain-phrase
+  tables still ship empty. No index shard is acquired; eCFR stays a link-out.
+- Wave 3 is not started.
+- A case followed before 0.9.3 keeps its "Case name not shown" title until
+  followed again; a saved entry reopened after a reload says its in-text
+  citations were not kept.
 
 ## Records
 
-- Session handoff: `C:\dev\_handoff\policy-sentinel\HANDOFF.md` (read its top
-  section) and the launch prompt beside it.
-- Build ledger: `C:\dev\_scratch\policy-sentinel\full09-build-2026-11-05\LEDGER.md`
-  (sections from "Ponytail audit 1" on cover this update).
-- [Decision register](decision-register.md) through D-160;
+- Session handoff: `C:\dev\_handoff\policy-sentinel\HANDOFF.md` (top section)
+  and the next launch prompt beside it.
+- This session's scratch: `C:\dev\_scratch\policy-sentinel\issue-search-2026-11-18\`
+  (SPEC.md, TABLE-REVIEW.md, NAMES.md, issues.rows.v1.json, logs) and the
+  release receipts in `C:\dev\_scratch\policy-sentinel\release-check-2026-11-18\`.
+- [Decision register](decision-register.md) through D-174;
   [demo status](DEMO-STATUS.md) for the live page's history.
