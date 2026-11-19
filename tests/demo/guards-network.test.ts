@@ -64,6 +64,9 @@ const REVIEWED_LINK_OUT = [
   "www.doi.gov",
   "www.ecfr.gov",
   "www.federalregister.gov",
+  // The Forest Service page that states the Roadless Rule's names, in the
+  // issue table's name provenance (D-170, D-175). Official; never fetched.
+  "www.fs.usda.gov",
   "www.govinfo.gov",
   "www.grants.gov",
   "www.leg.state.nv.us",

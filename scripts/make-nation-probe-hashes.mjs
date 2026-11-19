@@ -2,8 +2,15 @@
 // Decision 10 (2026-11-06): write the hashed Nation-name probes. Reads the
 // owner's plain recognition list (the official notice HTML, kept outside the
 // repository) and writes SHA-256 hashes of each normalized name, sorted, with
-// the entry count, the longest name in words and the normalization version.
-// It never writes a name. No network.
+// the number of Tribes the notice states, the longest name in words and the
+// normalization version. It never writes a name. No network.
+//
+// D-175 (2026-11-18): the count is the notice's stated number of federally
+// recognized Tribes (FULL_PROBE_ENTRIES, 575 for the 2026 notice), not its
+// paragraph count: the 2026 notice prints 577 paragraphs because two Alaska
+// entries appear as a grouping and as its members. Every listed name is hashed.
+// A later notice with a new total gets its own recognition-registry entry, and
+// this count follows it.
 //
 //   node scripts/make-nation-probe-hashes.mjs --nation-names <notice HTML> [--out <file>]
 // DEMO_NATION_NAMES may name the list instead. The default output is
@@ -47,9 +54,9 @@ if (!isFullProbe(plain)) {
   );
   process.exit(1);
 }
-const file = probeHashFile(plain.names, plain.entryCount);
+const file = probeHashFile(plain.names, FULL_PROBE_ENTRIES);
 const out = resolve(values.out ?? PROBE_HASH_PATH);
 writeFileSync(out, manifestBytes(file));
 console.log(
-  `wrote ${file.hashes.length} hashes for ${file.entryCount} entries (${file.normalization}, longest ${file.maxWords} words) to ${out}`,
+  `wrote ${file.hashes.length} hashes for ${file.entryCount} entries (${plain.entryCount} listed paragraphs; ${file.normalization}, longest ${file.maxWords} words) to ${out}`,
 );

@@ -46,8 +46,6 @@ const validate = new Ajv2020({
   strictRequired: false,
 }).compile(schema);
 const NAMES = nationNameBases();
-/** Owner ruling D-171: rows that may ship before the full Nation-name list (G3). */
-const G3_EXCEPTION: ReadonlySet<string> = new Set(["section-106", "baaja"]);
 const LIVE_SOURCES = [
   "federal-register",
   "govinfo",
@@ -244,10 +242,8 @@ describe("the committed issue table", () => {
   });
 
   it("needs the full Nation-name list before any row, and no row hits it (G3)", () => {
-    // D-171: the two rows of the example already public (D-158) stay while the
-    // exact 575-name list is open (D-168); every other row waits for it.
-    const waiting = table.entries.filter((e) => !G3_EXCEPTION.has(e.id));
-    if (!waiting.length) return;
+    // D-175 settled the full list (575 Tribes), so D-171's exception is spent.
+    if (!table.entries.length) return;
     const probe = loadNationProbe();
     expect(isFullProbe(probe)).toBe(true);
     for (const [path, value] of strings(table))
