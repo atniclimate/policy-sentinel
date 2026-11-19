@@ -627,6 +627,7 @@ describe("the action table", () => {
         "cfr",
         "court_docket",
         "docket",
+        "executive_order",
         "federal_bill",
         "fr_citation",
         "fr_document",

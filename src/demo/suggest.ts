@@ -6,7 +6,9 @@
  *
  * rankLabels: every typed token matches a word start in label or shortLabel;
  * earlier tokens are whole words and the last may be a prefix. Order: exact,
- * then word-start, then fewer extra words, then list order.
+ * then every token a whole word ("water" finds "Water supply" before
+ * "Watermelons"), then a last token that is only a prefix, then fewer extra
+ * words, then list order.
  *
  * possibleMatches: the bounded typo pass, which the caller runs only when
  * rankLabels finds nothing. Each typed token must sit within an optimal
@@ -106,7 +108,7 @@ export function rankLabels<T extends Labeled>(
     );
     if (all)
       hits.push([
-        p.exact[i].includes(joined) ? 0 : 1,
+        p.exact[i].includes(joined) ? 0 : words.includes(tokens[last]) ? 1 : 2,
         p.labelWords[i] - tokens.length,
         i,
       ]);

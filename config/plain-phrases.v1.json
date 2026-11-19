@@ -2,5 +2,825 @@
   "$schema": "../schemas/plain-phrases.schema.v1.json",
   "schemaVersion": "1.0.0",
   "artifactType": "plain-phrases",
-  "entries": []
+  "entries": [
+    {
+      "phrase": "air quality",
+      "termFamily": "federal_register_topic",
+      "term": "Air pollution control",
+      "termSourceUrl": "https://www.federalregister.gov/topics/air-pollution-control",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "behavioral health",
+      "termFamily": "federal_register_topic",
+      "term": "Mental health programs",
+      "termSourceUrl": "https://www.federalregister.gov/topics/mental-health-programs",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "boarding school records",
+      "termFamily": "federal_register_topic",
+      "term": "Historical records",
+      "termSourceUrl": "https://www.federalregister.gov/topics/historical-records",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "broadband access",
+      "termFamily": "federal_register_topic",
+      "term": "Broadband",
+      "termSourceUrl": "https://www.federalregister.gov/topics/broadband",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "climate action plan",
+      "termFamily": "agency",
+      "term": "Environmental Protection Agency",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/environmental-protection-agency",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "coastal erosion",
+      "termFamily": "federal_register_topic",
+      "term": "Coastal zone",
+      "termSourceUrl": "https://www.federalregister.gov/topics/coastal-zone",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "critical habitat",
+      "termFamily": "federal_register_topic",
+      "term": "Endangered and threatened species",
+      "termSourceUrl": "https://www.federalregister.gov/topics/endangered-threatened-species",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "critical minerals",
+      "termFamily": "federal_register_topic",
+      "term": "Mineral resources",
+      "termSourceUrl": "https://www.federalregister.gov/topics/mineral-resources",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "cultural resource protection",
+      "termFamily": "federal_register_topic",
+      "term": "Historic preservation",
+      "termSourceUrl": "https://www.federalregister.gov/topics/historic-preservation",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "culvert replacement",
+      "termFamily": "agency",
+      "term": "Federal Highway Administration",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/federal-highway-administration",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "dam removal",
+      "termFamily": "federal_register_topic",
+      "term": "Dams",
+      "termSourceUrl": "https://www.federalregister.gov/topics/dams",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "diabetes programs",
+      "termFamily": "agency",
+      "term": "Indian Health Service",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/indian-health-service",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "drinking water",
+      "termFamily": "federal_register_topic",
+      "term": "Water supply",
+      "termSourceUrl": "https://www.federalregister.gov/topics/water-supply",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "drought",
+      "termFamily": "federal_register_topic",
+      "term": "Water supply",
+      "termSourceUrl": "https://www.federalregister.gov/topics/water-supply",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "drought assistance",
+      "termFamily": "federal_register_topic",
+      "term": "Disaster assistance",
+      "termSourceUrl": "https://www.federalregister.gov/topics/disaster-assistance",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "electricity access",
+      "termFamily": "federal_register_topic",
+      "term": "Electric power",
+      "termSourceUrl": "https://www.federalregister.gov/topics/electric-power",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "emergency preparedness",
+      "termFamily": "federal_register_topic",
+      "term": "Emergency preparedness",
+      "termSourceUrl": "https://www.federalregister.gov/topics/emergency-preparedness",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "endangered species listings",
+      "termFamily": "federal_register_topic",
+      "term": "Endangered and threatened species",
+      "termSourceUrl": "https://www.federalregister.gov/topics/endangered-threatened-species",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "energy grid resilience",
+      "termFamily": "federal_register_topic",
+      "term": "Electric utilities",
+      "termSourceUrl": "https://www.federalregister.gov/topics/electric-utilities",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "energy workforce training",
+      "termFamily": "agency",
+      "term": "Energy Department",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/energy-department",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "environmental program grants",
+      "termFamily": "federal_register_topic",
+      "term": "Grant programs-environmental protection",
+      "termSourceUrl": "https://www.federalregister.gov/topics/grant-programs-environmental-protection",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "environmental review",
+      "termFamily": "federal_register_topic",
+      "term": "Environmental impact statements",
+      "termSourceUrl": "https://www.federalregister.gov/topics/environmental-impact-statements",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "executive orders on tribal issues",
+      "termFamily": "agency",
+      "term": "Executive Office of the President",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/executive-office-of-the-president",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "extreme heat",
+      "termFamily": "federal_register_topic",
+      "term": "Public health",
+      "termSourceUrl": "https://www.federalregister.gov/topics/public-health",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "fish consumption rates",
+      "termFamily": "federal_register_topic",
+      "term": "Water pollution control",
+      "termSourceUrl": "https://www.federalregister.gov/topics/water-pollution-control",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "fish hatcheries",
+      "termFamily": "federal_register_topic",
+      "term": "Fisheries",
+      "termSourceUrl": "https://www.federalregister.gov/topics/fisheries",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "fish passage",
+      "termFamily": "agency",
+      "term": "National Oceanic and Atmospheric Administration",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/national-oceanic-and-atmospheric-administration",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "fisheries management",
+      "termFamily": "federal_register_topic",
+      "term": "Fisheries",
+      "termSourceUrl": "https://www.federalregister.gov/topics/fisheries",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "flood risk",
+      "termFamily": "federal_register_topic",
+      "term": "Flood plains",
+      "termSourceUrl": "https://www.federalregister.gov/topics/flood-plains",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "forest health",
+      "termFamily": "federal_register_topic",
+      "term": "Forests and forest products",
+      "termSourceUrl": "https://www.federalregister.gov/topics/forests-forest-products",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "fuels reduction",
+      "termFamily": "federal_register_topic",
+      "term": "Fire prevention",
+      "termSourceUrl": "https://www.federalregister.gov/topics/fire-prevention",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "good neighbor agreements",
+      "termFamily": "agency",
+      "term": "Forest Service",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/forest-service",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "greenhouse gas emissions",
+      "termFamily": "federal_register_topic",
+      "term": "Greenhouse gases",
+      "termSourceUrl": "https://www.federalregister.gov/topics/greenhouse-gases",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "hazard mitigation grants",
+      "termFamily": "federal_register_topic",
+      "term": "Disaster assistance",
+      "termSourceUrl": "https://www.federalregister.gov/topics/disaster-assistance",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "hazard mitigation plan",
+      "termFamily": "agency",
+      "term": "Federal Emergency Management Agency",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/federal-emergency-management-agency",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "health care workforce",
+      "termFamily": "federal_register_topic",
+      "term": "Health professions",
+      "termSourceUrl": "https://www.federalregister.gov/topics/health-professions",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "health clinic construction",
+      "termFamily": "federal_register_topic",
+      "term": "Health facilities",
+      "termSourceUrl": "https://www.federalregister.gov/topics/health-facilities",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "health grants",
+      "termFamily": "federal_register_topic",
+      "term": "Grant programs-health",
+      "termSourceUrl": "https://www.federalregister.gov/topics/grant-programs-health",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "high energy costs",
+      "termFamily": "federal_register_topic",
+      "term": "Electric power rates",
+      "termSourceUrl": "https://www.federalregister.gov/topics/electric-power-rates",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "historic preservation review",
+      "termFamily": "federal_register_topic",
+      "term": "Historic preservation",
+      "termSourceUrl": "https://www.federalregister.gov/topics/historic-preservation",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "home weatherization",
+      "termFamily": "federal_register_topic",
+      "term": "Energy conservation",
+      "termSourceUrl": "https://www.federalregister.gov/topics/energy-conservation",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "housing shortage",
+      "termFamily": "federal_register_topic",
+      "term": "Housing",
+      "termSourceUrl": "https://www.federalregister.gov/topics/housing",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "hydropower relicensing",
+      "termFamily": "agency",
+      "term": "Federal Energy Regulatory Commission",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/federal-energy-regulatory-commission",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "medicaid changes",
+      "termFamily": "federal_register_topic",
+      "term": "Medicaid",
+      "termSourceUrl": "https://www.federalregister.gov/topics/medicaid",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "microgrids",
+      "termFamily": "federal_register_topic",
+      "term": "Electric power",
+      "termSourceUrl": "https://www.federalregister.gov/topics/electric-power",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "national forest planning",
+      "termFamily": "federal_register_topic",
+      "term": "National forests",
+      "termSourceUrl": "https://www.federalregister.gov/topics/national-forests",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "nutrition programs",
+      "termFamily": "federal_register_topic",
+      "term": "Food assistance programs",
+      "termSourceUrl": "https://www.federalregister.gov/topics/food-assistance-programs",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "ocean acidification",
+      "termFamily": "federal_register_topic",
+      "term": "Marine resources",
+      "termSourceUrl": "https://www.federalregister.gov/topics/marine-resources",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "oil and gas development",
+      "termFamily": "federal_register_topic",
+      "term": "Oil and gas exploration",
+      "termSourceUrl": "https://www.federalregister.gov/topics/oil-gas-exploration",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "opioid crisis",
+      "termFamily": "federal_register_topic",
+      "term": "Drug abuse",
+      "termSourceUrl": "https://www.federalregister.gov/topics/drug-abuse",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "opioid emergency declaration",
+      "termFamily": "agency",
+      "term": "Health and Human Services Department",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/health-and-human-services-department",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "prescribed burning",
+      "termFamily": "agency",
+      "term": "Forest Service",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/forest-service",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "public transit",
+      "termFamily": "agency",
+      "term": "Federal Transit Administration",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/federal-transit-administration",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "reforestation",
+      "termFamily": "federal_register_topic",
+      "term": "Forests and forest products",
+      "termSourceUrl": "https://www.federalregister.gov/topics/forests-forest-products",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "renewable energy",
+      "termFamily": "federal_register_topic",
+      "term": "Renewable energy",
+      "termSourceUrl": "https://www.federalregister.gov/topics/renewable-energy",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "repatriation of ancestors",
+      "termFamily": "agency",
+      "term": "National Park Service",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/national-park-service",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "river restoration",
+      "termFamily": "federal_register_topic",
+      "term": "Rivers",
+      "termSourceUrl": "https://www.federalregister.gov/topics/rivers",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "roadless areas",
+      "termFamily": "federal_register_topic",
+      "term": "National forests",
+      "termSourceUrl": "https://www.federalregister.gov/topics/national-forests",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "salmon habitat",
+      "termFamily": "federal_register_topic",
+      "term": "Fish",
+      "termSourceUrl": "https://www.federalregister.gov/topics/fish",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "salmon recovery",
+      "termFamily": "federal_register_topic",
+      "term": "Endangered and threatened species",
+      "termSourceUrl": "https://www.federalregister.gov/topics/endangered-threatened-species",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "salmon recovery funding",
+      "termFamily": "agency",
+      "term": "National Oceanic and Atmospheric Administration",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/national-oceanic-and-atmospheric-administration",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "sanitation facilities",
+      "termFamily": "agency",
+      "term": "Indian Health Service",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/indian-health-service",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "sea level rise",
+      "termFamily": "federal_register_topic",
+      "term": "Coastal zone",
+      "termSourceUrl": "https://www.federalregister.gov/topics/coastal-zone",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "septic systems",
+      "termFamily": "federal_register_topic",
+      "term": "Sewage disposal",
+      "termSourceUrl": "https://www.federalregister.gov/topics/sewage-disposal",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "shellfish harvest",
+      "termFamily": "federal_register_topic",
+      "term": "Fisheries",
+      "termSourceUrl": "https://www.federalregister.gov/topics/fisheries",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "solid waste",
+      "termFamily": "federal_register_topic",
+      "term": "Waste treatment and disposal",
+      "termSourceUrl": "https://www.federalregister.gov/topics/waste-treatment-disposal",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "steelhead runs",
+      "termFamily": "federal_register_topic",
+      "term": "Fish",
+      "termSourceUrl": "https://www.federalregister.gov/topics/fish",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "stormwater runoff",
+      "termFamily": "federal_register_topic",
+      "term": "Water pollution control",
+      "termSourceUrl": "https://www.federalregister.gov/topics/water-pollution-control",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "substance use treatment",
+      "termFamily": "agency",
+      "term": "Substance Abuse and Mental Health Services Administration",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/substance-abuse-and-mental-health-services-administration",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "suicide prevention",
+      "termFamily": "federal_register_topic",
+      "term": "Mental health programs",
+      "termSourceUrl": "https://www.federalregister.gov/topics/mental-health-programs",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "timber sales",
+      "termFamily": "federal_register_topic",
+      "term": "Forests and forest products",
+      "termSourceUrl": "https://www.federalregister.gov/topics/forests-forest-products",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "transmission lines",
+      "termFamily": "agency",
+      "term": "Federal Energy Regulatory Commission",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/federal-energy-regulatory-commission",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "transportation grants",
+      "termFamily": "federal_register_topic",
+      "term": "Grant programs-transportation",
+      "termSourceUrl": "https://www.federalregister.gov/topics/grant-programs-transportation",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "tribal broadband grants",
+      "termFamily": "agency",
+      "term": "National Telecommunications and Information Administration",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/national-telecommunications-and-information-administration",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "tribal climate resilience",
+      "termFamily": "agency",
+      "term": "Indian Affairs Bureau",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/indian-affairs-bureau",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "tribal disaster declarations",
+      "termFamily": "federal_register_topic",
+      "term": "Disaster assistance",
+      "termSourceUrl": "https://www.federalregister.gov/topics/disaster-assistance",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "tribal emergency management",
+      "termFamily": "agency",
+      "term": "Federal Emergency Management Agency",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/federal-emergency-management-agency",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "tribal energy development",
+      "termFamily": "agency",
+      "term": "Energy Department",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/energy-department",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "tribal energy grants",
+      "termFamily": "federal_register_topic",
+      "term": "Grant programs-energy",
+      "termSourceUrl": "https://www.federalregister.gov/topics/grant-programs-energy",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "tribal forestry",
+      "termFamily": "agency",
+      "term": "Indian Affairs Bureau",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/indian-affairs-bureau",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "tribal grants",
+      "termFamily": "federal_register_topic",
+      "term": "Grant programs-Indians",
+      "termSourceUrl": "https://www.federalregister.gov/topics/grant-programs-indians",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "tribal historic preservation office",
+      "termFamily": "agency",
+      "term": "National Park Service",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/national-park-service",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "tribal roads",
+      "termFamily": "federal_register_topic",
+      "term": "Highways and roads",
+      "termSourceUrl": "https://www.federalregister.gov/topics/highways-roads",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "urban indian health",
+      "termFamily": "agency",
+      "term": "Indian Health Service",
+      "termSourceUrl": "https://www.federalregister.gov/agencies/indian-health-service",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "wastewater systems",
+      "termFamily": "federal_register_topic",
+      "term": "Waste treatment and disposal",
+      "termSourceUrl": "https://www.federalregister.gov/topics/waste-treatment-disposal",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "water infrastructure funding",
+      "termFamily": "federal_register_topic",
+      "term": "Grant programs-environmental protection",
+      "termSourceUrl": "https://www.federalregister.gov/topics/grant-programs-environmental-protection",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "water pollution",
+      "termFamily": "federal_register_topic",
+      "term": "Water pollution control",
+      "termSourceUrl": "https://www.federalregister.gov/topics/water-pollution-control",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "water quality standards",
+      "termFamily": "federal_register_topic",
+      "term": "Water pollution control",
+      "termSourceUrl": "https://www.federalregister.gov/topics/water-pollution-control",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "wildfire risk",
+      "termFamily": "federal_register_topic",
+      "term": "Fire prevention",
+      "termSourceUrl": "https://www.federalregister.gov/topics/fire-prevention",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "wildfire smoke",
+      "termFamily": "federal_register_topic",
+      "term": "Particulate matter",
+      "termSourceUrl": "https://www.federalregister.gov/topics/particulate-matter",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    },
+    {
+      "phrase": "wildland firefighters",
+      "termFamily": "federal_register_topic",
+      "term": "Firefighters",
+      "termSourceUrl": "https://www.federalregister.gov/topics/firefighters",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "basis": "curated"
+    }
+  ]
 }

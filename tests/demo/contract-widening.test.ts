@@ -110,6 +110,101 @@ describe("search criteria version 3", () => {
   });
 });
 
+describe("executive order search criteria (T1.2, D-177, version 3 only)", () => {
+  const v3 = (extra: Partial<DemoSearchOptions> = {}): DemoSearchOptions => ({
+    dateFrom: null,
+    dateTo: null,
+    continuation: null,
+    version: 3,
+    match: "executive_order",
+    ...extra,
+  });
+
+  it("accepts the exact form on the Federal Register only", () => {
+    expect(
+      searchCriteria("federal-register", "E.O. 13175", 1, v3()),
+    ).toMatchObject({
+      version: 3,
+      source: "federal-register",
+      match: "executive_order",
+      sort: "relevance",
+    });
+    for (const source of ["govinfo", "congress", "govinfo-courts"])
+      expect(() => searchCriteria(source, "E.O. 13175", 1, v3())).toThrow(
+        expect.objectContaining({ code: "unsupported_criteria" }),
+      );
+  });
+
+  it("refuses version 1 and 2, and a wrongly spelled identifier", () => {
+    expect(() =>
+      searchCriteria("federal-register", "E.O. 13175", 1, {
+        ...v3(),
+        version: 2,
+      }),
+    ).toThrow(expect.objectContaining({ code: "bad_query" }));
+    for (const q of ["13175", "EO 13175", "E.O. 123"])
+      expect(() => searchCriteria("federal-register", q, 1, v3())).toThrow(
+        expect.objectContaining({ code: "bad_query" }),
+      );
+  });
+
+  it("refuses a date range, a type filter and a second page", () => {
+    expect(() =>
+      searchCriteria("federal-register", "E.O. 13175", 1, {
+        ...v3(),
+        dateFrom: "2024-01-01",
+        dateTo: "2024-12-31",
+      }),
+    ).toThrow(expect.objectContaining({ code: "unsupported_criteria" }));
+    expect(() =>
+      searchCriteria("federal-register", "E.O. 13175", 1, {
+        ...v3(),
+        documentType: "RULE",
+      }),
+    ).toThrow(expect.objectContaining({ code: "unsupported_criteria" }));
+    expect(() =>
+      searchCriteria("federal-register", "E.O. 13175", 2, v3()),
+    ).toThrow(expect.objectContaining({ code: "unsupported_criteria" }));
+  });
+
+  it("reads the Worker's left-out count on this lookup only, within the 100 rows asked for", () => {
+    const answer = (query: string, options: DemoSearchOptions) => ({
+      ok: true,
+      source: "federal-register",
+      query,
+      total: 0,
+      page: 1,
+      results: [],
+      retrievedAt: "2099-01-07T11:59:00.000Z",
+      criteria: searchCriteria("federal-register", query, 1, options),
+      continuation: { kind: "stopped", reason: "complete" },
+    });
+    const read = (leftOut: unknown) =>
+      searchValue(
+        { ...answer("E.O. 13175", v3()), leftOut },
+        "federal-register",
+        "E.O. 13175",
+        1,
+        v3(),
+      );
+    expect(read(8).leftOut).toBe(8);
+    expect(read(undefined)).not.toHaveProperty("leftOut");
+    for (const bad of [0, 101, "8", 1.5])
+      expect(() => read(bad)).toThrow("Invalid count");
+    // Any other search never carries the field, whatever the answer holds.
+    const words = { ...v3(), match: "text" as const, version: 2 as const };
+    expect(
+      searchValue(
+        { ...answer("water", words), leftOut: 8 },
+        "federal-register",
+        "water",
+        1,
+        words,
+      ),
+    ).not.toHaveProperty("leftOut");
+  });
+});
+
 describe("govinfo-courts search criteria (version 3 only)", () => {
   const v3 = (match: DemoSearchOptions["match"]): DemoSearchOptions => ({
     dateFrom: null,

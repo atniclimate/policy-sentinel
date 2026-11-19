@@ -32,6 +32,7 @@ const MATCHES_V3: readonly DemoSearchMatchV3[] = [
   "state_bill",
   "state_code",
   "court_docket",
+  "executive_order",
 ];
 const DOCUMENT_TYPES: readonly DemoDocumentType[] = [
   "RULE",
@@ -107,8 +108,9 @@ export function parseCfrQuery(query: string): DemoCfrRef | null {
 
 /**
  * Whether this source can match the identifier kind exactly, in its own
- * spelling. The new v3 identifier readings (T1.2) support none yet: a later
- * lane wires each one in as its source adapter is built.
+ * spelling. Most of the v3 identifier readings (T1.2) support none yet: a
+ * later lane wires each one in as its source adapter is built. An executive
+ * order (D-177) is wired in, on the Federal Register only.
  */
 export function supportsMatch(
   source: string,
@@ -120,6 +122,8 @@ export function supportsMatch(
       match === "text" || match === "court_docket" || match === "us_reports"
     );
   if (match === "text") return true;
+  // Executive orders (T1.2, D-177), version 3 only: the Federal Register only.
+  if (match === "executive_order") return source === "federal-register";
   if (!(MATCHES as readonly string[]).includes(match)) return false;
   return (
     source === "federal-register" ||
@@ -156,6 +160,7 @@ function validIdentifier(
   if (match === "court_docket") return courtDocketReading(query) !== null;
   // A volume above 586 still reads, so the Worker answers not_resolvable.
   if (match === "us_reports") return usReportsReading(query) !== null;
+  if (match === "executive_order") return /^E\.O\. \d{4,5}$/.test(query);
   return true;
 }
 
@@ -330,6 +335,21 @@ export function searchCriteria(
       "The demo does not apply this document type filter on this source.",
       "unsupported_criteria",
     );
+  // An executive order lookup (T1.2, D-177) takes no date range or type
+  // filter, and answers a single page: the Worker asks the Federal Register
+  // once, keeps the exact matches and reports the rest left out.
+  if (match === "executive_order") {
+    if (dates.dateFrom !== null || documentType !== null)
+      throw new SearchCriteriaError(
+        "An executive order lookup takes no date range or type filter.",
+        "unsupported_criteria",
+      );
+    if (page > 1)
+      throw new SearchCriteriaError(
+        "An executive order lookup answers a single page.",
+        "unsupported_criteria",
+      );
+  }
   const supplied = options?.continuation ?? null;
   const token = supplied?.cursor ?? null;
   const base: DemoSearchCriteriaV1 = {
@@ -341,7 +361,7 @@ export function searchCriteria(
     pageSize: 10,
     sort:
       source === "federal-register"
-        ? match === "text"
+        ? match === "text" || match === "executive_order"
           ? "relevance"
           : "newest"
         : source === "regulations"

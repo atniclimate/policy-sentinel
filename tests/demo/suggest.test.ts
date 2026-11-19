@@ -86,6 +86,27 @@ describe("rankLabels", () => {
     ]);
   });
 
+  it("puts a whole-word match before a longer word that only starts with the typed text", () => {
+    const list3 = items(
+      "Samplewaters",
+      "Sample Water Supply Office",
+      "Water Sample",
+    );
+    expect(labels(rankLabels("water", list3))).toEqual([
+      "Water Sample",
+      "Sample Water Supply Office",
+    ]);
+    expect(labels(rankLabels("sample wat", list3))).toEqual([
+      "Water Sample",
+      "Sample Water Supply Office",
+    ]);
+    const prefixOnly = items("Waterways Sample", "Sample Water Board");
+    expect(labels(rankLabels("water", prefixOnly))).toEqual([
+      "Sample Water Board",
+      "Waterways Sample",
+    ]);
+  });
+
   it("puts an exact label before a longer one, then keeps list order", () => {
     const list2 = items(
       "Sample Habitat Program Office",

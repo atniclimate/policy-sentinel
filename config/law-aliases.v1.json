@@ -3,6 +3,3092 @@
   "schemaVersion": "1.0.0",
   "artifactType": "law-aliases",
   "basis": "curated",
-  "sourceUrl": "https://uscode.house.gov/popularnames/popularnames.htm",
-  "entries": []
+  "sourceUrl": "https://uscode.house.gov/popularnames/popularnames.html",
+  "entries": [
+    {
+      "popularName": "Agriculture Improvement Act of 2018",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "7 U.S.C. 9001 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 7,
+          "section": "9001",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#AgricultureImprovementActof2018",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Alaska National Interest Lands Conservation Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 3101 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "3101",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#AlaskaNationalInterestLandsConservationAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Alaska Native Claims Settlement Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "43 U.S.C. 1601 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 43,
+          "section": "1601",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#AlaskaNativeClaimsSettlementAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "ANCSA",
+          "sourceUrl": "https://www.federalregister.gov/d/2024-19447",
+          "text": "Alaska Native Claims Settlement Act (ANCSA)"
+        }
+      ]
+    },
+    {
+      "popularName": "American Indian Agricultural Resource Management Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 3701 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "3701",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#AmericanIndianAgriculturalResourceManagementAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "American Indian Probate Reform Act of 2004",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 2201 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "2201",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#AmericanIndianProbateReformActof2004",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "American Indian Trust Fund Management Reform Act of 1994",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 4001 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "4001",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#AmericanIndianTrustFundManagementReformActof1994",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "American Rescue Plan Act of 2021",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "15 U.S.C. 9001 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 15,
+          "section": "9001",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#AmericanRescuePlanActof2021",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Anadromous Fish Conservation Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 757a et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "757a",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#AnadromousFishConservationAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Antiquities Act of 1906",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 431 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "431",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#AntiquitiesActof1906",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Archaeological Resources Protection Act of 1979",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 470aa et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "470aa",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#ArchaeologicalResourcesProtectionActof1979",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "ARPA",
+          "sourceUrl": "https://www.federalregister.gov/d/2016-19343",
+          "text": "Archaeological Resources Protection Act (ARPA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Bald and Golden Eagle Protection Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 668 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "668",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#BaldandGoldenEagleProtectionAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Buy Indian Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 47",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "47",
+          "etSeq": false
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#BuyIndianAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Child Care and Development Block Grant Act of 1990",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 9857 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "9857",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#ChildCareandDevelopmentBlockGrantActof1990",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Clean Air Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 7401 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "7401",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#CleanAirAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "CAA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-22584",
+          "text": "Clean Air Act (CAA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Clean Water Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "33 U.S.C. 1251 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 33,
+          "section": "1251",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#CleanWaterAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "CWA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-05864",
+          "text": "Clean Water Act (CWA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Coastal Zone Management Act of 1972",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 1451 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "1451",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#CoastalZoneManagementActof1972",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "CZMA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-14457",
+          "text": "Coastal Zone Management Act (CZMA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Columbia River Gorge National Scenic Area Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 544 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "544",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#ColumbiaRiverGorgeNationalScenicAreaAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Communications Act of 1934",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "47 U.S.C. 151 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 47,
+          "section": "151",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#CommunicationsActof1934",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Community Services Block Grant Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 9901 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "9901",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#CommunityServicesBlockGrantAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Comprehensive Environmental Response, Compensation, and Liability Act of 1980",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 9601 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "9601",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#ComprehensiveEnvironmentalResponseCompensationandLiabilityActof1980",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "CERCLA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-11053",
+          "text": "Comprehensive Environmental Response, Compensation, and Liability Act (CERCLA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Congressional Review Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "5 U.S.C. 801 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 5,
+          "section": "801",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#CongressionalReviewAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Disaster Mitigation Act of 2000",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 5121 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "5121",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#DisasterMitigationActof2000",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Elementary and Secondary Education Act of 1965",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "20 U.S.C. 6301 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 20,
+          "section": "6301",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#ElementaryandSecondaryEducationActof1965",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Emergency Planning and Community Right-To-Know Act of 1986",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 11001 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "11001",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#EmergencyPlanningandCommunityRight-To-KnowActof1986",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Endangered Species Act of 1973",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 1531 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "1531",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#EndangeredSpeciesActof1973",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "ESA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-18621",
+          "text": "Endangered Species Act (ESA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Energy Policy Act of 2005",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 15801 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "15801",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#EnergyPolicyActof2005",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Esther Martinez Native American Languages Preservation Act of 2006",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 2991 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "2991",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#EstherMartinezNativeAmericanLanguagesPreservationActof2006",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Family Violence Prevention and Services Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 10401 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "10401",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#FamilyViolencePreventionandServicesAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Federal Advisory Committee Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "5 U.S.C. 1001 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 5,
+          "section": "1001",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#FederalAdvisoryCommitteeAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "FACA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-04941",
+          "text": "Federal Advisory Committee Act (FACA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Federal Cave Resources Protection Act of 1988",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 4301 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "4301",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#FederalCaveResourcesProtectionActof1988",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Federal Insecticide, Fungicide, and Rodenticide Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "7 U.S.C. 136 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 7,
+          "section": "136",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#FederalInsecticideFungicideandRodenticideAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Federal Land Policy and Management Act of 1976",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "43 U.S.C. 1701 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 43,
+          "section": "1701",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#FederalLandPolicyandManagementActof1976",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "FLPMA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-00467",
+          "text": "Federal Land Policy and Management Act (FLPMA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Federal Lands Recreation Enhancement Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 6801 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "6801",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#FederalLandsRecreationEnhancementAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Federal Oil and Gas Royalty Management Act of 1982",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "30 U.S.C. 1701 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 30,
+          "section": "1701",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#FederalOilandGasRoyaltyManagementActof1982",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Federal Power Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 791a et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "791a",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#FederalPowerAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "FPA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-12475",
+          "text": "Federal Power Act (FPA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Federal Tort Claims Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "28 U.S.C. 2671 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 28,
+          "section": "2671",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#FederalTortClaimsAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Federal Water Pollution Control Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "33 U.S.C. 1251 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 33,
+          "section": "1251",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#FederalWaterPollutionControlAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Fish and Wildlife Coordination Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 661 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "661",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#FishandWildlifeCoordinationAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Food and Nutrition Act of 2008",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "7 U.S.C. 2011 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 7,
+          "section": "2011",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#FoodandNutritionActof2008",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Forest and Rangeland Renewable Resources Planning Act of 1974",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 1600 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "1600",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#ForestandRangelandRenewableResourcesPlanningActof1974",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Freedom of Information Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "5 U.S.C. 552 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 5,
+          "section": "552",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#FreedomofInformationAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "FOIA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-05679",
+          "text": "Freedom of Information Act (FOIA)"
+        }
+      ]
+    },
+    {
+      "popularName": "General Mining Act of 1872",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "30 U.S.C. 22 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 30,
+          "section": "22",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#GeneralMiningActof1872",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Global Change Research Act of 1990",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "15 U.S.C. 2921 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 15,
+          "section": "2921",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#GlobalChangeResearchActof1990",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Great American Outdoors Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "54 U.S.C. 100101 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 54,
+          "section": "100101",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#GreatAmericanOutdoorsAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "HEARTH Act of 2012",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 415 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "415",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#HEARTHActof2012",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Head Start Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 9831 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "9831",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#HeadStartAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Healthy Forests Restoration Act of 2003",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 6501 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "6501",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#HealthyForestsRestorationActof2003",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Homeland Security Act of 2002",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "6 U.S.C. 101 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 6,
+          "section": "101",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#HomelandSecurityActof2002",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Housing and Community Development Act of 1974",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 5301 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "5301",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#HousingandCommunityDevelopmentActof1974",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Alcohol and Substance Abuse Prevention and Treatment Act of 1986",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 2401 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "2401",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianAlcoholandSubstanceAbusePreventionandTreatmentActof1986",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Child Protection and Family Violence Prevention Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 3201 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "3201",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianChildProtectionandFamilyViolencePreventionAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Child Welfare Act of 1978",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 1901 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "1901",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianChildWelfareActof1978",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "ICWA",
+          "sourceUrl": "https://www.federalregister.gov/d/2025-13018",
+          "text": "Indian Child Welfare Act (ICWA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Indian Civil Rights Act of 1968",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 1301 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "1301",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianCivilRightsActof1968",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Claims Commission Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 70 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "70",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianClaimsCommissionAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Community Economic Enhancement Act of 2020",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 4301 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "4301",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianCommunityEconomicEnhancementActof2020",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Dams Safety Act of 1994",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 3801 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "3801",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianDamsSafetyActof1994",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Employment, Training and Related Services Consolidation Act of 2017",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 3401 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "3401",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianEmploymentTrainingandRelatedServicesConsolidationActof2017",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Financing Act of 1974",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 1451 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "1451",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianFinancingActof1974",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Gaming Regulatory Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "18 U.S.C. 1166-1168",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 18,
+          "section": "1166-1168",
+          "etSeq": false
+        },
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 2701 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "2701",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianGamingRegulatoryAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Health Care Improvement Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 1601 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "1601",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianHealthCareImprovementAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "IHCIA",
+          "sourceUrl": "https://www.federalregister.gov/d/2024-19421",
+          "text": "Indian Health Care Improvement Act (IHCIA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Indian Land Consolidation Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 2201 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "2201",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianLandConsolidationAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Lands Open Dump Cleanup Act of 1994",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 3901 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "3901",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianLandsOpenDumpCleanupActof1994",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Law Enforcement Reform Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 2801 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "2801",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianLawEnforcementReformAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Long-Term Leasing Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 415 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "415",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianLong-TermLeasingAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Mineral Development Act of 1982",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 2101 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "2101",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianMineralDevelopmentActof1982",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Mineral Leasing Act of 1938",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 396a et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "396a",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianMineralLeasingActof1938",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Reorganization Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 5101 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "5101",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianReorganizationAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Self-Determination and Education Assistance Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 5301 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "5301",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianSelf-DeterminationandEducationAssistanceAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Tribal Economic Development and Contract Encouragement Act of 2000",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 71 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "71",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianTribalEconomicDevelopmentandContractEncouragementActof2000",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Tribal Energy Development and Self-Determination Act of 2005",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 15801 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "15801",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianTribalEnergyDevelopmentandSelf-DeterminationActof2005",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Tribal Justice Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 3601 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "3601",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianTribalJusticeAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Tribal Justice Technical and Legal Assistance Act of 2000",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 3651 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "3651",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianTribalJusticeTechnicalandLegalAssistanceActof2000",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Indian Trust Asset Reform Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 5601 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "5601",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#IndianTrustAssetReformAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Infrastructure Investment and Jobs Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "23 U.S.C. 101 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 23,
+          "section": "101",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#InfrastructureInvestmentandJobsAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "IIJA",
+          "sourceUrl": "https://www.federalregister.gov/d/2025-15333",
+          "text": "Infrastructure Investment and Jobs Act (IIJA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Johnson-O'Malley Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 5342 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "5342",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#Johnson-OMalleyAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Lacey Act Amendments of 1981",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 3371 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "3371",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#LaceyActAmendmentsof1981",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Land and Water Conservation Fund Act of 1965",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "54 U.S.C. 100101 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 54,
+          "section": "100101",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#LandandWaterConservationFundActof1965",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Low-Income Home Energy Assistance Act of 1981",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 8621 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "8621",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#Low-IncomeHomeEnergyAssistanceActof1981",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Magnuson-Stevens Fishery Conservation and Management Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 1801 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "1801",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#Magnuson-StevensFisheryConservationandManagementAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "MSA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-20965",
+          "text": "Magnuson-Stevens Fishery Conservation and Management Act (MSA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Marine Mammal Protection Act of 1972",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 1361 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "1361",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#MarineMammalProtectionActof1972",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "MMPA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-23226",
+          "text": "Marine Mammal Protection Act (MMPA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Migratory Bird Treaty Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 703 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "703",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#MigratoryBirdTreatyAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "MBTA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-20123",
+          "text": "Migratory Bird Treaty Act (MBTA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Mineral Leasing Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "30 U.S.C. 181 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 30,
+          "section": "181",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#MineralLeasingAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Multiple-Use Sustained-Yield Act of 1960",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 528 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "528",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#Multiple-UseSustained-YieldActof1960",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "National Climate Program Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "15 U.S.C. 2901 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 15,
+          "section": "2901",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#NationalClimateProgramAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "National Environmental Policy Act of 1969",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 4321 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "4321",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#NationalEnvironmentalPolicyActof1969",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "NEPA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-11298",
+          "text": "National Environmental Policy Act (NEPA)"
+        }
+      ]
+    },
+    {
+      "popularName": "National Flood Insurance Act of 1968",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 4001 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "4001",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#NationalFloodInsuranceActof1968",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "National Forest Management Act of 1976",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 1600 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "1600",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#NationalForestManagementActof1976",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "NFMA",
+          "sourceUrl": "https://www.federalregister.gov/d/2025-08693",
+          "text": "National Forest Management Act (NFMA)"
+        }
+      ]
+    },
+    {
+      "popularName": "National Historic Preservation Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "54 U.S.C. 100101 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 54,
+          "section": "100101",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#NationalHistoricPreservationAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "NHPA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-21347",
+          "text": "National Historic Preservation Act (NHPA)"
+        }
+      ]
+    },
+    {
+      "popularName": "National Indian Forest Resources Management Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 3101 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "3101",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#NationalIndianForestResourcesManagementAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "National Park Service Organic Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "54 U.S.C. 100101 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 54,
+          "section": "100101",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#NationalParkServiceOrganicAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Native American Business Development, Trade Promotion, and Tourism Act of 2000",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 4301 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "4301",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#NativeAmericanBusinessDevelopmentTradePromotionandTourismActof2000",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Native American Graves Protection and Repatriation Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 3001 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "3001",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#NativeAmericanGravesProtectionandRepatriationAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "NAGPRA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-22974",
+          "text": "Native American Graves Protection and Repatriation Act (NAGPRA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Native American Housing Assistance and Self-Determination Act of 1996",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 4101 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "4101",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#NativeAmericanHousingAssistanceandSelf-DeterminationActof1996",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Native American Languages Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 2901 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "2901",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#NativeAmericanLanguagesAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Native American Programs Act of 1974",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 2991 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "2991",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#NativeAmericanProgramsActof1974",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Native American Tourism and Improving Visitor Experience Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 4351 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "4351",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#NativeAmericanTourismandImprovingVisitorExperienceAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Not Invisible Act of 2019",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 2801 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "2801",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#NotInvisibleActof2019",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Oil Pollution Act of 1990",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "33 U.S.C. 2701 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 33,
+          "section": "2701",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#OilPollutionActof1990",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Oklahoma Indian Welfare Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 5201 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "5201",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#OklahomaIndianWelfareAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Older Americans Act of 1965",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 3001 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "3001",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#OlderAmericansActof1965",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Outer Continental Shelf Lands Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "43 U.S.C. 1331 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 43,
+          "section": "1331",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#OuterContinentalShelfLandsAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "PROGRESS for Indian Tribes Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 5301 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "5301",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#PROGRESSforIndianTribesAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Pacific Northwest Electric Power Planning and Conservation Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 839 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "839",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#PacificNorthwestElectricPowerPlanningandConservationAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Pacific Salmon Treaty Act of 1985",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 3631 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "3631",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#PacificSalmonTreatyActof1985",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Paperwork Reduction Act of 1995",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "44 U.S.C. 101 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 44,
+          "section": "101",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#PaperworkReductionActof1995",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "PRA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-16223",
+          "text": "Paperwork Reduction Act (PRA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Privacy Act of 1974",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "5 U.S.C. 552a note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 5,
+          "section": "552a",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#PrivacyActof1974",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Public Rangelands Improvement Act of 1978",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "43 U.S.C. 1901 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 43,
+          "section": "1901",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#PublicRangelandsImprovementActof1978",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Reclamation Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "43 U.S.C. 371 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 43,
+          "section": "371",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#ReclamationAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Regulatory Flexibility Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "5 U.S.C. 601 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 5,
+          "section": "601",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#RegulatoryFlexibilityAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Religious Freedom Restoration Act of 1993",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 2000bb et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "2000bb",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#ReligiousFreedomRestorationActof1993",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Resource Conservation and Recovery Act of 1976",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 6901 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "6901",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#ResourceConservationandRecoveryActof1976",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "RCRA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-11202",
+          "text": "Resource Conservation and Recovery Act (RCRA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Robert T. Stafford Disaster Relief and Emergency Assistance Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 5121 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "5121",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#RobertTStaffordDisasterReliefandEmergencyAssistanceAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Rural Electrification Act of 1936",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "7 U.S.C. 901 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 7,
+          "section": "901",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#RuralElectrificationActof1936",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Safe Drinking Water Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 300f et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "300f",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#SafeDrinkingWaterAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "SDWA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-05452",
+          "text": "Safe Drinking Water Act (SDWA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Salmon and Steelhead Conservation and Enhancement Act of 1980",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 3301 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "3301",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#SalmonandSteelheadConservationandEnhancementActof1980",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Savanna's Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 5701 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "5701",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#SavannasAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Sikes Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 670 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "670",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#SikesAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Small Business Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "15 U.S.C. 631 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 15,
+          "section": "631",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#SmallBusinessAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Soil and Water Resources Conservation Act of 1977",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 2001 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "2001",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#SoilandWaterResourcesConservationActof1977",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Solid Waste Disposal Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 6901 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "6901",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#SolidWasteDisposalAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Submerged Lands Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "43 U.S.C. 1301 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 43,
+          "section": "1301",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#SubmergedLandsAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Surface Mining Control and Reclamation Act of 1977",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "30 U.S.C. 1201 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 30,
+          "section": "1201",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#SurfaceMiningControlandReclamationActof1977",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Taylor Grazing Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "43 U.S.C. 315 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 43,
+          "section": "315",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#TaylorGrazingAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Toxic Substances Control Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "15 U.S.C. 2601 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 15,
+          "section": "2601",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#ToxicSubstancesControlAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "TSCA",
+          "sourceUrl": "https://www.federalregister.gov/d/2026-20964",
+          "text": "Toxic Substances Control Act (TSCA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Tribal Forest Protection Act of 2004",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 3115a",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "3115a",
+          "etSeq": false
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#TribalForestProtectionActof2004",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Tribal General Welfare Exclusion Act of 2014",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "26 U.S.C. 139E",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 26,
+          "section": "139E",
+          "etSeq": false
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#TribalGeneralWelfareExclusionActof2014",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Tribal Law and Order Act of 2010",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 2801 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "2801",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#TribalLawandOrderActof2010",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Tribal Self-Governance Act of 1994",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 5361 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "5361",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#TribalSelf-GovernanceActof1994",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Tribal Self-Governance Amendments of 2000",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 5301 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "5301",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#TribalSelf-GovernanceAmendmentsof2000",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Tribally Controlled Colleges and Universities Assistance Act of 1978",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 1801 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "1801",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#TriballyControlledCollegesandUniversitiesAssistanceActof1978",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Tribally Controlled Schools Act of 1988",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "25 U.S.C. 2501 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 25,
+          "section": "2501",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#TriballyControlledSchoolsActof1988",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Unfunded Mandates Reform Act of 1995",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "2 U.S.C. 1501 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 2,
+          "section": "1501",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#UnfundedMandatesReformActof1995",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Violence Against Women Act Reauthorization Act of 2022",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "34 U.S.C. 10101 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 34,
+          "section": "10101",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#ViolenceAgainstWomenActReauthorizationActof2022",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Violence Against Women Act of 1994",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "34 U.S.C. 10101 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 34,
+          "section": "10101",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#ViolenceAgainstWomenActof1994",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Violence Against Women Reauthorization Act of 2013",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "34 U.S.C. 10101 note",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 34,
+          "section": "10101",
+          "etSeq": false,
+          "note": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#ViolenceAgainstWomenReauthorizationActof2013",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Water Infrastructure Finance and Innovation Act of 2014",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "33 U.S.C. 3901 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 33,
+          "section": "3901",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#WaterInfrastructureFinanceandInnovationActof2014",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Water Resources Development Act of 1986",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "33 U.S.C. 2201 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 33,
+          "section": "2201",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#WaterResourcesDevelopmentActof1986",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Water Resources Planning Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "42 U.S.C. 1962 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 42,
+          "section": "1962",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#WaterResourcesPlanningAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Watershed Protection and Flood Prevention Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 1001 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "1001",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#WatershedProtectionandFloodPreventionAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Wild Free-Roaming Horses and Burros Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 1331 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "1331",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#WildFree-RoamingHorsesandBurrosAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Wild and Scenic Rivers Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 1271 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "1271",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#WildandScenicRiversAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "acronyms": [
+        {
+          "acronym": "WSRA",
+          "sourceUrl": "https://www.federalregister.gov/d/2016-28683",
+          "text": "Wild and Scenic Rivers Act (WSRA)"
+        }
+      ]
+    },
+    {
+      "popularName": "Wilderness Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "16 U.S.C. 1131 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 16,
+          "section": "1131",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#WildernessAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    },
+    {
+      "popularName": "Workforce Innovation and Opportunity Act",
+      "citations": [
+        {
+          "kind": "usc",
+          "text": "29 U.S.C. 3101 et seq.",
+          "basis": "curated",
+          "pattern": {
+            "id": "usc-section",
+            "version": "1.1.0"
+          },
+          "title": 29,
+          "section": "3101",
+          "etSeq": true
+        }
+      ],
+      "olrcUrl": "https://uscode.house.gov/popularnames/popularnames.html#WorkforceInnovationandOpportunityAct",
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner"
+    }
+  ]
 }

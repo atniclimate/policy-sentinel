@@ -81,6 +81,22 @@ const ISSUES: IssueFile = {
       reviewerRole: "owner",
     },
     {
+      kind: "issue",
+      id: "tribal-consultation-eo",
+      label: "Consultation with Tribal governments",
+      names: [
+        {
+          name: "Executive Order 13175",
+          basis: "people_use",
+          reviewedOn: "2026-11-18",
+        },
+      ],
+      restsOn: [],
+      searches: [search("Executive Order 13175")],
+      reviewedOn: "2026-11-18",
+      reviewerRole: "owner",
+    },
+    {
       kind: "measure",
       id: "ndaa-fy2027",
       label: "NDAA FY2027 Test Bill",
@@ -175,6 +191,25 @@ describe("query router, issue and measure names", () => {
       (x) => x.kind === "issue" && x.identifier === "NDAA FY2027 Test Bill",
     );
     expect(r?.label).toBe("Bill: NDAA FY2027 Test Bill, 1 issue listed");
+  });
+
+  it("appends an issue reading to an executive-order reading over the same span, chosen neither (D-177 point 4)", () => {
+    const route = routeQuery("news on Executive Order 13175 today", {
+      issues: ISSUES,
+    });
+    expect(route.readings.map((r) => r.kind)).toEqual([
+      "executive_order",
+      "issue",
+    ]);
+    expect(route.readings[0]).toMatchObject({
+      kind: "executive_order",
+      identifier: "E.O. 13175",
+    });
+    expect(route.readings[1]).toMatchObject({
+      kind: "issue",
+      identifier: "Consultation with Tribal governments",
+    });
+    expect(route.ambiguous).toBe(true);
   });
 
   it("changes nothing when no issues option is passed", () => {

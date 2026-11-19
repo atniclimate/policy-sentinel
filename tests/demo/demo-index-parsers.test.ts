@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
@@ -10,7 +11,12 @@ import {
 } from "../../scripts/demo-index/common.mjs";
 import { buildUslmShard } from "../../scripts/demo-index/uslm.mjs";
 import { schemaErrors } from "../../scripts/demo-index/validate.mjs";
-import { mapFrAgencies, mapFrTopics } from "../../scripts/demo-index/vocab.mjs";
+import {
+  HELD_OUT_SHA256,
+  heldOut,
+  mapFrAgencies,
+  mapFrTopics,
+} from "../../scripts/demo-index/vocab.mjs";
 import { listZipEntries, readZipEntry } from "../../scripts/demo-index/zip.mjs";
 import { nationNameBases } from "../support/nation-name-probes";
 import { makeZip } from "./fixtures/demo-index/build-index";
@@ -346,6 +352,34 @@ describe("Federal Register vocabulary", () => {
       "zeta-topic",
     ]);
     expect(schemaErrors("vocabulary", topics.file)).toEqual([]);
+  });
+
+  it("holds out an entry whose id is on the hashed held-out list, and a child loses that parent", () => {
+    // Regression (review of 2026-11-18): an official agency name that holds a
+    // Nation's everyday name passed the probes. The list holds hashes only.
+    const hash = (id: string) =>
+      createHash("sha256").update(id, "utf8").digest("hex");
+    const list = { fr_agency: [hash("sample-held-office")] };
+    const answer = [
+      { id: 1, slug: "sample-held-office", name: "Sample Held Office" },
+      { id: 2, slug: "kept-bureau", name: "Kept Bureau", parent_id: 1 },
+    ];
+    const { file, report } = mapFrAgencies(answer, [], list);
+    expect(file.entries).toEqual([
+      {
+        id: "kept-bureau",
+        label: "Kept Bureau",
+        shortLabel: null,
+        parentId: null,
+      },
+    ]);
+    // The report does not repeat the id, which would carry the name.
+    expect(report.dropped).toEqual([{ id: "(held out)", reason: "held_out" }]);
+    expect(heldOut("fr_agency", "sample-held-office", list)).toBe(true);
+    expect(heldOut("fr_topic", "sample-held-office", list)).toBe(false);
+    // Without the list (the committed one), a synthetic id is kept.
+    expect(mapFrAgencies(answer, []).file.entries).toHaveLength(2);
+    expect(HELD_OUT_SHA256.fr_agency).toHaveLength(1);
   });
 });
 

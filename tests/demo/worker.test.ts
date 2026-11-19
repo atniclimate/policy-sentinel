@@ -28,6 +28,7 @@ import {
   REGULATIONS_V2_JSON,
   WA_HTML,
 } from "./fixtures";
+import EO_SEARCH from "./fixtures/federal-register/executive-order-13175.json";
 
 const ORIGIN = "https://atniclimate.github.io";
 let calls: { url: string; headers: Record<string, string> }[] = [];
@@ -1674,6 +1675,80 @@ describe("search contract v2", () => {
       "topics",
     ])
       expect(body.results[0]).not.toHaveProperty(field);
+  });
+});
+
+describe("executive order search (T1.2, D-177)", () => {
+  const v3 = (extra: Record<string, string> = {}) =>
+    `/api/search?${new URLSearchParams({
+      source: "federal-register",
+      q: "E.O. 13175",
+      searchVersion: "3",
+      match: "executive_order",
+      ...extra,
+    })}`;
+  const upstream = () => new URL(calls[0].url).searchParams;
+
+  it("keeps only the exact order, reports the rest left out, and asks the documented parameters", async () => {
+    installFetch({ "documents.json": () => reply(EO_SEARCH) });
+    const body = await (await call(v3())).json();
+    expect(body.results).toHaveLength(1);
+    expect(body.results[0].identifier).toBe("65 FR 67249 (FR Doc. 00-29003)");
+    expect(body.total).toBe(1);
+    expect(body.leftOut).toBe(2);
+    expect(body.continuation).toEqual({ kind: "stopped", reason: "complete" });
+    expect(upstream().get("conditions[term]")).toBe("13175");
+    expect(upstream().get("conditions[type][]")).toBe("PRESDOCU");
+    expect(upstream().get("conditions[presidential_document_type][]")).toBe(
+      "executive_order",
+    );
+    expect(upstream().get("per_page")).toBe("100");
+    expect(upstream().get("page")).toBe("1");
+    expect(upstream().get("order")).toBe("relevance");
+    expect(upstream().getAll("fields[]")).toContain("executive_order_number");
+  });
+
+  it("answers an empty result that still reports what was left out, for a number with no exact row", async () => {
+    installFetch({
+      "documents.json": () =>
+        reply({ ...EO_SEARCH, results: EO_SEARCH.results.slice(1) }),
+    });
+    const body = await (await call(v3({ q: "E.O. 13175" }))).json();
+    expect(body.results).toEqual([]);
+    expect(body.total).toBe(0);
+    expect(body.leftOut).toBe(2);
+  });
+
+  it("does not call the answer complete when more orders mention the number than one request read", async () => {
+    // The live answer trimmed to three rows had count 9; the fixture's count
+    // matches its rows. Here the source reports 150 and the order's own row
+    // is not among those read, so the order may still exist past row 100.
+    installFetch({
+      "documents.json": () =>
+        reply({
+          ...EO_SEARCH,
+          count: 150,
+          results: EO_SEARCH.results.slice(1),
+        }),
+    });
+    const body = await (await call(v3())).json();
+    expect(body.results).toEqual([]);
+    expect(body.leftOut).toBe(2);
+    expect(body.continuation).toEqual({ kind: "stopped", reason: "unknown" });
+  });
+
+  it("refuses a date range, a type filter and a second page before any upstream call", async () => {
+    installFetch({});
+    const refused: Record<string, string>[] = [
+      { dateFrom: "2024-01-01", dateTo: "2024-12-31" },
+      { documentType: "RULE" },
+      { page: "2" },
+    ];
+    for (const extra of refused) {
+      const res = await call(v3(extra));
+      expect(res.status).toBe(400);
+    }
+    expect(calls).toHaveLength(0);
   });
 });
 

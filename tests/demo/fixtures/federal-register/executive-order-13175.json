@@ -1,0 +1,70 @@
+{
+  "description": "Documents matching '13175', of type Presidential Document, and of presidential document type Executive Order",
+  "count": 3,
+  "total_pages": 1,
+  "results": [
+    {
+      "document_number": "00-29003",
+      "title": "Consultation and Coordination With Indian Tribal Governments",
+      "type": "Presidential Document",
+      "agencies": [
+        {
+          "raw_name": "EXECUTIVE OFFICE OF THE PRESIDENT",
+          "name": "Executive Office of the President",
+          "id": 538,
+          "url": "https://www.federalregister.gov/agencies/executive-office-of-the-president",
+          "json_url": "https://www.federalregister.gov/api/v1/agencies/538",
+          "parent_id": null,
+          "slug": "executive-office-of-the-president"
+        }
+      ],
+      "publication_date": "2000-11-09",
+      "html_url": "https://www.federalregister.gov/documents/2000/11/09/00-29003/consultation-and-coordination-with-indian-tribal-governments",
+      "abstract": null,
+      "citation": "65 FR 67249",
+      "executive_order_number": "13175"
+    },
+    {
+      "document_number": "2019-13175",
+      "title": "Evaluating and Improving the Utility of Federal Advisory Committees",
+      "type": "Presidential Document",
+      "agencies": [
+        {
+          "raw_name": "EXECUTIVE OFFICE OF THE PRESIDENT",
+          "name": "Executive Office of the President",
+          "id": 538,
+          "url": "https://www.federalregister.gov/agencies/executive-office-of-the-president",
+          "json_url": "https://www.federalregister.gov/api/v1/agencies/538",
+          "parent_id": null,
+          "slug": "executive-office-of-the-president"
+        }
+      ],
+      "publication_date": "2019-06-19",
+      "html_url": "https://www.federalregister.gov/documents/2019/06/19/2019-13175/evaluating-and-improving-the-utility-of-federal-advisory-committees",
+      "abstract": null,
+      "citation": "84 FR 28711",
+      "executive_order_number": "13875"
+    },
+    {
+      "document_number": "04-10377",
+      "title": "American Indian and Alaska Native Education",
+      "type": "Presidential Document",
+      "agencies": [
+        {
+          "raw_name": "EXECUTIVE OFFICE OF THE PRESIDENT",
+          "name": "Executive Office of the President",
+          "id": 538,
+          "url": "https://www.federalregister.gov/agencies/executive-office-of-the-president",
+          "json_url": "https://www.federalregister.gov/api/v1/agencies/538",
+          "parent_id": null,
+          "slug": "executive-office-of-the-president"
+        }
+      ],
+      "publication_date": "2004-05-05",
+      "html_url": "https://www.federalregister.gov/documents/2004/05/05/04-10377/american-indian-and-alaska-native-education",
+      "abstract": null,
+      "citation": "69 FR 25295",
+      "executive_order_number": "13336"
+    }
+  ]
+}

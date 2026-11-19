@@ -37,6 +37,8 @@ export function runAcquire(
     dataDir?: string;
     repoRoot?: string;
     minSpacingMs?: number;
+    /** Tests only: the hash file used when no --nation-names is given. */
+    probeHashPath?: string;
   },
 ): Promise<{
   exitCode: number;

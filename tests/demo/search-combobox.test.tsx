@@ -10,7 +10,7 @@ import { SearchBox } from "../../demo/app/SearchBox";
 import { SearchCombobox } from "../../demo/app/SearchCombobox";
 import { router as copy } from "../../src/demo/copy/router";
 import { search } from "../../src/demo/copy/search";
-import type { VocabularyFile } from "../../src/demo/index-types";
+import type { LawAliasFile, VocabularyFile } from "../../src/demo/index-types";
 import type { IssueFile } from "../../src/demo/issues";
 import type { RouteReading } from "../../src/demo/query-route";
 import type { PlainPhraseFile } from "../../src/demo/suggest";
@@ -49,6 +49,41 @@ const phrases: PlainPhraseFile = {
   ],
 };
 
+const aliases: LawAliasFile = {
+  $schema: "../schemas/law-aliases.schema.v1.json",
+  schemaVersion: "1.0.0",
+  artifactType: "law-aliases",
+  basis: "curated",
+  sourceUrl: "https://uscode.house.gov/popularnames/popularnames.html",
+  entries: [
+    {
+      popularName: "Sample Riparian Stewardship Act",
+      citations: [
+        {
+          kind: "usc",
+          text: "16 U.S.C. 9901 et seq.",
+          basis: "curated",
+          pattern: { id: "usc-section", version: "1.0.0" },
+          title: 16,
+          section: "9901",
+          etSeq: true,
+        },
+      ],
+      acronyms: [
+        {
+          acronym: "SRSA",
+          sourceUrl: "https://www.federalregister.gov/documents/sample",
+          text: "Sample Riparian Stewardship Act (SRSA)",
+        },
+      ],
+      olrcUrl:
+        "https://uscode.house.gov/popularnames/popularnames.html#SampleRiparianStewardshipAct",
+      reviewedOn: "2099-01-01",
+      reviewerRole: "owner",
+    },
+  ],
+};
+
 function Harness({
   onSubmit,
   onChoose,
@@ -75,6 +110,7 @@ function Harness({
         input={(field) => (
           <SearchCombobox
             {...field}
+            aliases={aliases}
             vocabulary={vocabulary}
             phrases={phrases}
             issues={issues}
@@ -249,6 +285,32 @@ describe("search combobox", () => {
     await user.clear(box);
     await user.type(box, "SWO");
     expect(screen.getByRole("option")).toHaveTextContent(label);
+  });
+
+  it("offers a law once by the start of its name, or by its acronym in any case, and runs it when chosen", async () => {
+    const { user, box, onSubmit, onChoose } = setup();
+    const law = /^Sample Riparian Stewardship Act, 16 U\.S\.C\. 9901 et seq\./;
+    for (const typed of ["riparian stew", "srsa", "SRS"]) {
+      await user.clear(box);
+      await user.type(box, typed);
+      const options = screen.getAllByRole("option");
+      expect(options).toHaveLength(1);
+      expect(options[0]).toHaveTextContent(law);
+    }
+    // The exact acronym in capitals is the router's own reading: still one option.
+    await user.clear(box);
+    await user.type(box, "SRSA");
+    expect(screen.getAllByRole("option")).toHaveLength(1);
+    await user.clear(box);
+    await user.type(box, "srsa");
+    await user.keyboard("{ArrowDown}{Enter}");
+    expect(onChoose).toHaveBeenCalledWith(
+      expect.objectContaining({
+        kind: "law_name",
+        identifier: "Sample Riparian Stewardship Act",
+      }),
+    );
+    expect(onSubmit).toHaveBeenCalledWith("Sample Riparian Stewardship Act");
   });
 
   it("offers a typo's possible match, says so, and never chooses it", async () => {

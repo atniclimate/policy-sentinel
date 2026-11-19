@@ -70,7 +70,11 @@ function requestGuard(pageUrl) {
         request.origin === target.origin &&
         !request.pathname.startsWith("/api/") &&
         (["document", "script", "stylesheet", "image", "font"].includes(type) ||
-          (type === "fetch" && /\.(?:ttf|woff2?|png)$/.test(request.pathname)));
+          (type === "fetch" &&
+            // Fonts and images, and the static index files beside the page (0.9.7).
+            /\.(?:ttf|woff2?|png)$|\/demo-data\/(?:vocab|cfr|usc)\/[A-Za-z0-9-]+\.json$/.test(
+              request.pathname,
+            )));
       if (!staticAllowed || staticRequests.count >= staticRequests.limit)
         return false;
       staticRequests.count += 1;
@@ -182,6 +186,21 @@ if (args["self-test"] === "true") {
   assert(
     guard.permit("http://127.0.0.1:4185/demo-assets/main.js", "GET", "script"),
   );
+  // A static index file beside the page is read; any other JSON fetch is refused.
+  const indexGuard = requestGuard("http://127.0.0.1:4185/");
+  assert(
+    indexGuard.permit(
+      "http://127.0.0.1:4185/demo-data/vocab/fr-agencies.json",
+      "GET",
+      "fetch",
+    ),
+  );
+  for (const path of [
+    "demo-data/raw.json",
+    "demo-data/vocab/a/b.json",
+    "x.json",
+  ])
+    assert(!indexGuard.permit(`http://127.0.0.1:4185/${path}`, "GET", "fetch"));
   for (let count = 1; count < 80; count += 1)
     assert(
       guard.permit(
@@ -925,6 +944,38 @@ try {
   await page.screenshot({ path: join(out, "desktop-1920-light.png") });
   await page.getByRole("button", { name: COPY.themeDark, exact: true }).click();
   check("theme switch returns to dark", await themeIs("dark"));
+
+  // Suggestions (0.9.7): type the start of an agency's name, choose it by
+  // keyboard. A vocabulary label only fills the box, so no search is sent; the
+  // request budget check at the end confirms that.
+  const box = page.locator("#q");
+  await box.fill("Federal Highway");
+  const agencyOption = page.getByRole("option", {
+    name: /^Federal Highway Administration/,
+  });
+  check(
+    "typing an agency's name offers it as a suggestion",
+    (await appears(agencyOption)) &&
+      (await box.getAttribute("aria-expanded")) === "true",
+  );
+  await runAxe("axe finds no WCAG A/AA violations (suggestion list open)");
+  await box.press("ArrowDown");
+  const activeId = await box.getAttribute("aria-activedescendant");
+  check(
+    "Down moves to the first suggestion while focus stays in the box",
+    Boolean(activeId) &&
+      (await page.evaluate(() => document.activeElement?.id)) === "q" &&
+      (await page.locator(`#${activeId}`).getAttribute("aria-selected")) ===
+        "true",
+    String(activeId),
+  );
+  await box.press("Enter");
+  check(
+    "Enter fills the box with the chosen name and closes the list",
+    (await box.inputValue()) === "Federal Highway Administration" &&
+      (await box.getAttribute("aria-expanded")) === "false",
+    await box.inputValue(),
+  );
 
   // Start at a known control, then verify keyboard movement and visible focus.
   // The search field is a combobox (#q) since the suggestion list (0.9.1).

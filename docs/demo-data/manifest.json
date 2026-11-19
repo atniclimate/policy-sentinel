@@ -2,7 +2,7 @@
   "$schema": "../../schemas/demo-index.schema.v1.json",
   "schemaVersion": "1.0.0",
   "artifactType": "demo-index-manifest",
-  "generatedAt": "2026-11-06T04:55:41Z",
+  "generatedAt": "2026-11-19T07:48:58.094Z",
   "generatedBy": {
     "script": "scripts/acquire-demo-index.mjs",
     "version": "1.0.0"
@@ -187,13 +187,26 @@
     {
       "path": "vocab/fr-agencies.json",
       "kind": "vocabulary",
-      "status": "unavailable",
-      "sha256": null,
-      "sizeBytes": null,
-      "entryCount": null,
-      "source": null,
-      "patternSetVersion": "1.0.0",
-      "lastRefreshAttemptAt": null,
+      "status": "current",
+      "sha256": "cb3156e979345860d0134430afa8abf64d092e277e623f52e710118b5a10d2a8",
+      "sizeBytes": 64548,
+      "entryCount": 466,
+      "source": {
+        "id": "federal-register-api",
+        "name": "Federal Register API, agencies",
+        "urlTemplate": "https://www.federalregister.gov/api/v1/agencies",
+        "linkTemplate": "https://www.federalregister.gov/agencies/{id}",
+        "requestCount": 1,
+        "retrievedAt": "2026-11-19T07:48:58.052Z",
+        "rights": {
+          "statementText": "Any person may reproduce or republish any material appearing in any regular or special edition of the Federal Register (1 CFR 2.6).",
+          "url": "https://www.federalregister.gov/reader-aids/government-policy-and-ofr-procedures/about-this-site",
+          "readOn": "2026-11-06",
+          "readByRole": "owner"
+        }
+      },
+      "patternSetVersion": "1.1.0",
+      "lastRefreshAttemptAt": "2026-11-19T07:48:58.094Z",
       "failureStage": null,
       "message": null,
       "withdrawnOn": null,
@@ -203,13 +216,26 @@
     {
       "path": "vocab/fr-topics.json",
       "kind": "vocabulary",
-      "status": "unavailable",
-      "sha256": null,
-      "sizeBytes": null,
-      "entryCount": null,
-      "source": null,
-      "patternSetVersion": "1.0.0",
-      "lastRefreshAttemptAt": null,
+      "status": "current",
+      "sha256": "6d8e470ff1d4256dd0d1189427bfeaa77fc707fc40fdca1ce3947bd4ac4a3ec5",
+      "sizeBytes": 75646,
+      "entryCount": 888,
+      "source": {
+        "id": "federal-register-api",
+        "name": "Federal Register API, topics",
+        "urlTemplate": "https://www.federalregister.gov/api/v1/documents/facets/topic",
+        "linkTemplate": "https://www.federalregister.gov/topics/{id}",
+        "requestCount": 1,
+        "retrievedAt": "2026-11-19T06:54:36.054Z",
+        "rights": {
+          "statementText": "Any person may reproduce or republish any material appearing in any regular or special edition of the Federal Register (1 CFR 2.6).",
+          "url": "https://www.federalregister.gov/reader-aids/government-policy-and-ofr-procedures/about-this-site",
+          "readOn": "2026-11-06",
+          "readByRole": "owner"
+        }
+      },
+      "patternSetVersion": "1.1.0",
+      "lastRefreshAttemptAt": "2026-11-19T06:54:36.088Z",
       "failureStage": null,
       "message": null,
       "withdrawnOn": null,

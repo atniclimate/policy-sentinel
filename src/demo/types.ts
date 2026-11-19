@@ -151,7 +151,8 @@ export type DemoSearchMatchV3 =
   | "federal_bill"
   | "state_bill"
   | "state_code"
-  | "court_docket";
+  | "court_docket"
+  | "executive_order";
 
 /** Complete request binding. A cursor is data, never a URL or authorization. */
 export type DemoSearchCriteria =
@@ -231,6 +232,14 @@ export interface DemoSearchResponse {
   readonly retrievedAt: string;
   readonly criteria: DemoSearchCriteria;
   readonly continuation: DemoSearchContinuation;
+  /**
+   * An exact-match search contract v3 lookup, such as an executive order
+   * (T1.2, D-177), may answer rows the API's own term search returned that do
+   * not state the exact identifier; this counts them, the way an identifier
+   * lookup already reports listings it left out (safeguard 8). Absent when
+   * the lookup kept everything the source returned.
+   */
+  readonly leftOut?: number;
 }
 
 export type IssueType =

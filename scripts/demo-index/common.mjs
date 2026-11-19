@@ -345,7 +345,13 @@ export const probeHit = (text, probe) =>
  * (G3), a URL (G2), a personal pattern (G1) or markup (G6).
  */
 export function wordingProblem(text, names) {
-  if (hasProtectedSpan(text, names)) return "nation_name_probe";
+  // `names` is a plain name list, or a whole probe carrying the hashes (D-175).
+  if (
+    names && !Array.isArray(names)
+      ? probeHit(text, names)
+      : hasProtectedSpan(text, names)
+  )
+    return "nation_name_probe";
   if (/https?:\/\/|www\./i.test(text)) return "url";
   if (hasPersonalPattern(text)) return "personal_pattern";
   if (/[<>]|&#|&lt;|&gt;|&amp;/.test(text)) return "markup";

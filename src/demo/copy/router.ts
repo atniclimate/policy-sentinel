@@ -60,13 +60,15 @@ export const router = {
   agencyNote: "Federal Register agency",
   topicNote: "Federal Register topic",
   cfrTitleNote: "CFR title",
-  lawNote: "Popular name in the U.S. Code",
+  /** What it is and what choosing it does (D-178). */
+  lawNote: "U.S. Code popular name; searches this name",
   linkOutNote: "Opens the official site",
   notCoveredNote: "Not covered in this release",
   circuitName: (code: string) => CIRCUITS[code] ?? "Court of appeals",
   docket: (id: string) => `Docket ${id}`,
   rin: (id: string) => `RIN ${id}`,
   frDocument: (id: string) => `Federal Register document ${id}`,
+  executiveOrder: (number: string) => `Executive Order ${number}`,
   frCitation: (volume: number, page: number) =>
     `${volume} FR ${page}, a Federal Register page`,
   cfr: (title: number, part: string, section: string | null) =>

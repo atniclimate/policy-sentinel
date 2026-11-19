@@ -78,8 +78,21 @@ describe("the committed alias table", () => {
     );
   });
 
-  it("ships with no entries until the owner approves the reviewed list", () => {
-    expect(table.entries).toEqual([]);
+  it("holds exactly the 143 rows the owner approved on 2026-11-18 (D-184), each from the official table", () => {
+    // A row is added or removed only with a new owner approval.
+    expect(table.entries).toHaveLength(143);
+    expect(table.sourceUrl).toBe(
+      "https://uscode.house.gov/popularnames/popularnames.html",
+    );
+    for (const entry of table.entries as {
+      olrcUrl: string;
+      reviewedOn: string;
+      reviewerRole: string;
+    }[]) {
+      expect(entry.olrcUrl.startsWith(`${table.sourceUrl}#`)).toBe(true);
+      expect(entry.reviewerRole).toBe("owner");
+      expect(entry.reviewedOn).toBe("2026-11-18");
+    }
   });
 
   it("passes every content check with the Nation-name probes as exact names", () => {

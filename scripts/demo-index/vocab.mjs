@@ -1,16 +1,44 @@
 // Federal Register API answers to vocabulary files (condition F4): slug,
 // name, short name and parent slug only. No description, URL or numeric id.
+import { createHash } from "node:crypto";
+
 import { compareCodeUnits } from "../../src/core/canonical-json.mjs";
 import { SCHEMA_REF, StageError, wordingProblem } from "./common.mjs";
 import { collapse } from "./xml.mjs";
 
 const ID = /^[0-9a-z]+(?:-[0-9a-z]+)*$/;
 
-function finish(kind, rows, names) {
+/**
+ * Official names held out of the suggestion lists (index condition G3): each
+ * includes a Nation's everyday name that the probes, built from full official
+ * names, do not catch. Kept as the SHA-256 of the entry id, so no name is
+ * written here (as the probe hash file does). Found by the review of
+ * 2026-11-18; the owner has not named the entry in (D-186). The validator
+ * refuses a file that carries one.
+ */
+export const HELD_OUT_SHA256 = Object.freeze({
+  fr_agency: Object.freeze([
+    "63636c1cedb953e91739041981f5ad9dfac0cc7d9f9885a7d525dc5619f9cfa6",
+  ]),
+  fr_topic: Object.freeze([]),
+});
+
+/** True when this vocabulary entry id is held out; `list` is for tests. */
+export const heldOut = (kind, id, list = HELD_OUT_SHA256) =>
+  (list[kind] ?? []).includes(
+    createHash("sha256").update(String(id), "utf8").digest("hex"),
+  );
+
+function finish(kind, rows, names, list) {
   const report = { dropped: [] };
   const seen = new Set();
   const kept = [];
   for (const row of rows) {
+    if (heldOut(kind, row.id, list)) {
+      // The id is not repeated in the report: it would carry the name.
+      report.dropped.push({ id: "(held out)", reason: "held_out" });
+      continue;
+    }
     if (typeof row.id !== "string" || !ID.test(row.id) || row.id.length > 120) {
       report.dropped.push({
         id: String(row.id).slice(0, 40),
@@ -62,7 +90,7 @@ function finish(kind, rows, names) {
 }
 
 /** GET /api/v1/agencies: an array of agencies with numeric parent_id. */
-export function mapFrAgencies(json, names) {
+export function mapFrAgencies(json, names, list) {
   if (!Array.isArray(json))
     throw new StageError("normalize", "agencies answer is not a list");
   const slugById = new Map(json.map((a) => [a?.id, a?.slug]));
@@ -72,7 +100,7 @@ export function mapFrAgencies(json, names) {
     shortLabel: a?.short_name,
     parentId: a?.parent_id == null ? null : (slugById.get(a.parent_id) ?? null),
   }));
-  return finish("fr_agency", rows, names);
+  return finish("fr_agency", rows, names, list);
 }
 
 /** GET /api/v1/documents/facets/topic: an object keyed by slug with name and count. */

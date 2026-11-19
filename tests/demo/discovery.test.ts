@@ -1050,6 +1050,40 @@ describe("chosen readings and court lookups (0.9.1 step 11)", () => {
       group: "case",
     });
     expect(plan(first("ca9 23-12345")).skip).toBeUndefined();
+    expect(plan(first("EO 13175"))).toMatchObject({
+      sourceId: "federal-register",
+      query: "E.O. 13175",
+      lookup: "executive_order",
+    });
+  });
+
+  it("carries the Worker's left-out count of an executive order lookup to the lane", () => {
+    const lane = buildPlan(
+      { kind: "typed", query: "E.O. 13175" },
+      [readingSearch(first("EO 13175"))!],
+      sources,
+    ).lanes[0];
+    const answer = {
+      ...response("federal-register", "E.O. 13175", []),
+      leftOut: 8,
+    };
+    expect(settleLane(startLane(lane), answer, laneKeep(lane))).toMatchObject({
+      state: "empty",
+      leftOut: 8,
+    });
+  });
+
+  it("sends an executive order lookup with contract v3, and keeps everything the Worker answers", () => {
+    const lane = buildPlan(
+      { kind: "typed", query: "E.O. 13175" },
+      [readingSearch(first("EO 13175"))!],
+      sources,
+    ).lanes[0];
+    expect(laneOptions({ dateFrom: null, dateTo: null }, lane)).toMatchObject({
+      version: 3,
+      match: "executive_order",
+    });
+    expect(laneKeep(lane)).toBeUndefined();
   });
 
   it("plans no lookup for a court it does not search, a court not named, or a reading that is not live", () => {

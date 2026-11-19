@@ -1,12 +1,6 @@
 // @vitest-environment node
 import { createHash } from "node:crypto";
-import {
-  copyFileSync,
-  existsSync,
-  readdirSync,
-  readFileSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -15,12 +9,14 @@ import {
   parseAcquireArgs,
   runAcquire,
 } from "../../scripts/demo-index/acquire.mjs";
+import { probeHashFile } from "../../scripts/demo-index/common.mjs";
 import { validateDemoIndex } from "../../scripts/demo-index/validate.mjs";
 import {
   makeZip,
   probeFile,
   removeTemps,
   tempDir,
+  writeIndex,
 } from "./fixtures/demo-index/build-index";
 
 afterEach(() => {
@@ -48,18 +44,15 @@ interface Answer {
   body: string | Buffer;
 }
 
-/** A data directory (a copy of the committed manifest unless given), stubbed fetch and a fake clock. */
+/** A data directory (every planned file unavailable unless given), stubbed fetch and a fake clock. */
 function harness(
   answers: Record<string, Answer>,
   existing?: string,
   start = START,
 ) {
   const dataDir = existing ?? tempDir();
-  if (!existing)
-    copyFileSync(
-      "docs/demo-data/manifest.json",
-      join(dataDir, "manifest.json"),
-    );
+  // A fresh manifest, so these tests do not depend on what is acquired today.
+  if (!existing) writeIndex(dataDir);
   const workDir = tempDir();
   const out = tempDir();
   const rightsFile = join(out, "rights.json");
@@ -116,7 +109,18 @@ function harness(
     JSON.parse(readFileSync(join(dataDir, "manifest.json"), "utf8"));
   const report = () =>
     JSON.parse(readFileSync(join(out, "report.json"), "utf8"));
-  return { dataDir, workDir, calls, lines, run, manifest, report, deps };
+  return {
+    dataDir,
+    workDir,
+    out,
+    rightsFile,
+    calls,
+    lines,
+    run,
+    manifest,
+    report,
+    deps,
+  };
 }
 
 const cfrAnswers = (xml: Buffer = CFR_XML): Record<string, Answer> => ({
@@ -271,8 +275,6 @@ describe("acquisition boundary", () => {
   });
 
   it("refuses a real run without the full Nation-name list, or eCFR without a rights record (G3, N17)", async () => {
-    const out = ["--work-dir", "x", "--report", "y", "--rights-file", "r"];
-    expect(() => parseAcquireArgs([...CFR, ...out])).toThrow(/nation-names/);
     expect(() =>
       parseAcquireArgs([
         "ecfr",
@@ -476,6 +478,68 @@ describe("CFR acquisition", () => {
       "raw-1-title-25",
       "raw-2-CFR-2025-title-25.zip",
     ]);
+  });
+});
+
+describe("the committed hash file as the probe (D-175)", () => {
+  const AGENCIES = "https://www.federalregister.gov/api/v1/agencies";
+  /** A hash file of `count` synthetic names; never a real name. */
+  const hashFile = (count: number) => {
+    const names = Array.from({ length: count }, (_, i) => `Synthetic Row ${i}`);
+    const path = join(tempDir(), "probes.json");
+    writeFileSync(path, JSON.stringify(probeHashFile(names, count)));
+    return path;
+  };
+  const agencies = (h: ReturnType<typeof harness>, probeHashPath: string) =>
+    runAcquire(
+      [
+        "vocab",
+        "--only",
+        "fr-agencies",
+        "--work-dir",
+        h.workDir,
+        "--report",
+        join(h.out, "report.json"),
+        "--rights-file",
+        h.rightsFile,
+      ],
+      { ...h.deps, probeHashPath },
+    );
+  const answers = {
+    [AGENCIES]: {
+      type: "application/json",
+      body: JSON.stringify([
+        { id: 1, slug: "alpha", name: "Alpha Department", parent_id: null },
+        {
+          id: 2,
+          slug: "beta",
+          name: "Office of Synthetic Row 7",
+          parent_id: 1,
+        },
+      ]),
+    },
+  };
+
+  it("drops a label that hashes to a listed name when no plain notice is given", async () => {
+    const h = harness(answers);
+    expect((await agencies(h, hashFile(575))).exitCode).toBe(0);
+    const file = JSON.parse(
+      readFileSync(join(h.dataDir, "vocab", "fr-agencies.json"), "utf8"),
+    );
+    expect(file.entries.map((e: { id: string }) => e.id)).toEqual(["alpha"]);
+    expect(h.report().files[0].details.dropped).toEqual([
+      { id: "beta", reason: "nation_name_probe" },
+    ]);
+    expect(h.report().probes.source).toMatch(/hashed recognition list/);
+  });
+
+  it("fetches nothing when the hash file is not the full list", async () => {
+    const h = harness(answers);
+    expect((await agencies(h, hashFile(12))).exitCode).toBe(2);
+    expect(h.calls).toEqual([]);
+    expect(h.lines[0]).toMatch(
+      /the committed hash file holds \d+ recognition entries, not the full list of 575; nothing fetched/,
+    );
   });
 });
 

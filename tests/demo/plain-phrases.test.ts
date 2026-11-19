@@ -76,8 +76,44 @@ describe("the committed plain-phrase table", () => {
     expect(validate(table), JSON.stringify(validate.errors)).toBe(true);
   });
 
-  it("ships with no entries until the owner ticks each row", () => {
-    expect(table.entries).toEqual([]);
+  it("holds exactly the 91 rows the owner approved on 2026-11-18 (D-185)", () => {
+    // A row is added or removed only with a new owner approval.
+    expect(table.entries).toHaveLength(91);
+    for (const entry of table.entries as {
+      reviewedOn: string;
+      reviewerRole: string;
+      termSourceUrl: string;
+    }[]) {
+      expect(entry.reviewerRole).toBe("owner");
+      expect(entry.reviewedOn).toBe("2026-11-18");
+      expect(entry.termSourceUrl).toMatch(
+        /^https:\/\/www\.federalregister\.gov\/(?:topics|agencies)\//,
+      );
+    }
+  });
+
+  it("points every row at an exact name in the acquired Federal Register lists (D-143)", () => {
+    const labels = (name: string) =>
+      new Map(
+        (
+          JSON.parse(
+            readFileSync(`docs/demo-data/vocab/${name}.json`, "utf8"),
+          ) as { entries: { id: string; label: string }[] }
+        ).entries.map((e) => [e.id, e.label]),
+      );
+    const lists = {
+      federal_register_topic: labels("fr-topics"),
+      agency: labels("fr-agencies"),
+    };
+    for (const entry of table.entries as {
+      phrase: string;
+      term: string;
+      termFamily: keyof typeof lists;
+      termSourceUrl: string;
+    }[]) {
+      const id = entry.termSourceUrl.split("/").at(-1) ?? "";
+      expect(lists[entry.termFamily]?.get(id), entry.phrase).toBe(entry.term);
+    }
   });
 
   it("passes the personal guard and the Nation-name mask, probes included", () => {
