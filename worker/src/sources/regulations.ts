@@ -59,7 +59,10 @@ async function searchRegulations(
   criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
   const { query, page, dateFrom, dateTo } = criteria;
-  const v2 = criteria.version === 2;
+  // Version 2 OR LATER keeps the version 2 behavior (match kind, the type
+  // filter, the version 2 citation fields): a version 3 search never
+  // silently drops a filter its echoed criteria names.
+  const v2 = criteria.version !== 1;
   const key = await spendKey(env);
   const url = new URL("https://api.regulations.gov/v4/documents");
   url.searchParams.set(

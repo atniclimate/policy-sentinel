@@ -412,7 +412,18 @@ export default {
       if (entry.status === "key_pending") requireKey(env);
 
       if (url.pathname === "/api/search") {
-        if (q.length < 2)
+        // Narrowing by agency or topic (D-186): the Federal Register's own
+        // field, on a version 3 text search only (narrowShapeOk). Read here,
+        // ahead of the try block, because it also governs whether an empty
+        // q may pass the length check just below.
+        const agency = params.get("agency");
+        const topic = params.get("topic");
+        const narrowing = agency !== null || topic !== null;
+        const narrowShapeOk =
+          params.get("searchVersion") === "3" &&
+          source === "federal-register" &&
+          (params.get("match") === null || params.get("match") === "text");
+        if (q.length < 2 && !(q.length === 0 && narrowing && narrowShapeOk))
           throw new DemoError(
             "bad_query",
             "Enter at least two characters to search.",
@@ -426,21 +437,27 @@ export default {
           const match = params.get("match");
           const documentType = params.get("documentType");
           const eligibility = params.get("eligibility");
-          // Version 3 is open to court cases and, on the Federal Register,
-          // the executive-order match only (T1.2, D-177); every other
-          // source's version 1 and 2 behavior stays exactly as it was.
+          // Version 3 is open to court cases, on the Federal Register the
+          // executive-order match (T1.2, D-177) and a narrowed text search
+          // (D-186); every other source's version 1 and 2 behavior stays
+          // exactly as it was.
           const widened =
             version === "2" ||
             (version === "3" &&
               (source === "govinfo-courts" ||
                 (source === "federal-register" &&
-                  match === "executive_order")));
+                  (match === "executive_order" ||
+                    (narrowing && narrowShapeOk)))));
           if (
             (version !== null && version !== "1" && !widened) ||
             (!widened &&
               (match !== null ||
                 documentType !== null ||
                 eligibility !== null)) ||
+            // A narrowing parameter with version 1 or 2, or on another
+            // source, is refused the same way as any other unsupported
+            // search contract (D-186).
+            (narrowing && !narrowShapeOk) ||
             (envelope !== null && envelope.length > MAX_CONTINUATION_LENGTH)
           )
             throw new SearchCriteriaError(
@@ -468,6 +485,8 @@ export default {
               documentType: documentType as DemoDocumentType | null,
               eligibility: eligibility as DemoEligibility | null,
             }),
+            ...(agency !== null && { agency }),
+            ...(topic !== null && { topic }),
           });
         } catch (error) {
           throw new DemoError(

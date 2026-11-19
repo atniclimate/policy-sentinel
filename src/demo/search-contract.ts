@@ -244,12 +244,18 @@ export function sameSearchCriteria(
   );
 }
 
+/** A Federal Register vocabulary entry id (D-186): the source's own slug spelling. */
+const NARROW_ID = /^[0-9a-z]+(?:-[0-9a-z]+)*$/;
+
 export function searchCriteria(
   source: string,
   query: string,
   page: number,
   options?: DemoSearchOptions,
 ): DemoSearchCriteria {
+  const agency = options?.agency ?? null;
+  const topic = options?.topic ?? null;
+  const narrowed = agency !== null || topic !== null;
   if (
     ![
       "federal-register",
@@ -261,7 +267,10 @@ export function searchCriteria(
       "govinfo-courts",
     ].includes(source) ||
     query.trim() !== query ||
-    query.length < 2 ||
+    // A narrowed search may carry the empty query; the 2-character minimum
+    // stays for every other search (checked again below, once narrowing is
+    // confirmed supported).
+    query.length === 1 ||
     query.length > 200 ||
     !Number.isSafeInteger(page) ||
     page < 1 ||
@@ -293,6 +302,25 @@ export function searchCriteria(
   const match = options?.match ?? "text";
   const documentType = options?.documentType ?? null;
   const eligibility: DemoEligibility | null = options?.eligibility ?? null;
+  // Narrowing by agency or topic (D-186): the Federal Register's own field,
+  // on a version 3 text search only. At most one of the two may be set.
+  if (narrowed) {
+    if (agency !== null && topic !== null)
+      throw new SearchCriteriaError(
+        "Narrow by one agency or one topic at a time.",
+        "unsupported_criteria",
+      );
+    if (version !== 3 || source !== "federal-register" || match !== "text")
+      throw new SearchCriteriaError(
+        "The demo narrows by agency or topic on the Federal Register only.",
+        "unsupported_criteria",
+      );
+    const value = (agency ?? topic) as string;
+    if (value.length > 120 || !NARROW_ID.test(value))
+      throw new SearchCriteriaError("The search or page number is not valid.");
+  }
+  if (query.length === 0 && !narrowed)
+    throw new SearchCriteriaError("The search or page number is not valid.");
   if (
     (version !== 1 && version !== 2 && version !== 3) ||
     (version === 1 &&
@@ -361,9 +389,15 @@ export function searchCriteria(
     pageSize: 10,
     sort:
       source === "federal-register"
-        ? match === "text" || match === "executive_order"
-          ? "relevance"
-          : "newest"
+        ? match === "text"
+          ? // A narrowed search with no words lists newest first; with words
+            // it ranks by relevance, as every other text search does.
+            query === ""
+            ? "newest"
+            : "relevance"
+          : match === "executive_order"
+            ? "relevance"
+            : "newest"
         : source === "regulations"
           ? "-postedDate"
           : source === "govinfo" ||
@@ -389,6 +423,8 @@ export function searchCriteria(
           match,
           documentType,
           ...(source === "grants" && { eligibility }),
+          ...(agency !== null && { agency }),
+          ...(topic !== null && { topic }),
         } as DemoSearchCriteriaV2 | DemoSearchCriteriaV3);
   if (
     (page === 1 && supplied !== null) ||
@@ -410,4 +446,16 @@ export function nextSearchCursor(
   cursor: string | null = null,
 ): DemoSearchCursor {
   return { ...criteria, page: criteria.page + 1, cursor };
+}
+
+/** The agency or topic this search was narrowed to (D-186), or null when it was not. */
+export function narrowOf(
+  criteria: DemoSearchCriteria,
+): { field: "agency" | "topic"; id: string } | null {
+  if (criteria.version !== 3) return null;
+  if (criteria.agency !== undefined)
+    return { field: "agency", id: criteria.agency };
+  if (criteria.topic !== undefined)
+    return { field: "topic", id: criteria.topic };
+  return null;
 }

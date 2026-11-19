@@ -29,6 +29,8 @@ import {
   WA_HTML,
 } from "./fixtures";
 import EO_SEARCH from "./fixtures/federal-register/executive-order-13175.json";
+import NARROW_AGENCY from "./fixtures/federal-register/narrow-agency-indian-affairs-bureau.json";
+import NARROW_TOPIC from "./fixtures/federal-register/narrow-topic-indians-lands.json";
 
 const ORIGIN = "https://atniclimate.github.io";
 let calls: { url: string; headers: Record<string, string> }[] = [];
@@ -2295,5 +2297,133 @@ describe("Washington original bill rendition", () => {
     expect((await res.json()).citation.identifier).toBe(
       "HB 1100, 2025-26 biennium, as introduced",
     );
+  });
+});
+
+describe("Federal Register narrowing by agency or topic (D-186)", () => {
+  const route = (extra: Record<string, string> = {}) =>
+    `/api/search?${new URLSearchParams({
+      source: "federal-register",
+      q: "consultation",
+      searchVersion: "3",
+      agency: "indian-affairs-bureau",
+      ...extra,
+    })}`;
+  const upstream = () => new URL(calls[0].url).searchParams;
+  const keyed = { DATA_GOV_API_KEY: "synthetic-key" };
+
+  it("narrows to an agency with words, keeps the term, ranks by relevance, and maps version 2 fields", async () => {
+    installFetch({ "documents.json": () => reply(NARROW_AGENCY) });
+    const res = await call(route());
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.criteria).toMatchObject({
+      version: 3,
+      match: "text",
+      agency: "indian-affairs-bureau",
+      sort: "relevance",
+    });
+    expect(body.criteria).not.toHaveProperty("topic");
+    expect(body.results[1]).toMatchObject({
+      issuingBody: "Interior Department; Indian Affairs Bureau",
+      docketIds: ["267A2100DD/AAKP3000000/A0A501010.000000"],
+      rins: ["1076-AF81"],
+      topics: expect.arrayContaining(["Indians-lands"]),
+    });
+    expect(upstream().get("conditions[term]")).toBe("consultation");
+    expect(upstream().get("conditions[agencies][]")).toBe(
+      "indian-affairs-bureau",
+    );
+    expect(upstream().get("order")).toBe("relevance");
+    expect(calls).toHaveLength(1);
+  });
+
+  it("narrows to a topic with no words, asks no term condition, and lists newest first", async () => {
+    installFetch({ "documents.json": () => reply(NARROW_TOPIC) });
+    const params = new URLSearchParams({
+      source: "federal-register",
+      q: "",
+      searchVersion: "3",
+      topic: "indians-lands",
+    });
+    const res = await call(`/api/search?${params}`);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.criteria).toMatchObject({
+      version: 3,
+      query: "",
+      match: "text",
+      topic: "indians-lands",
+      sort: "newest",
+    });
+    expect(body.criteria).not.toHaveProperty("agency");
+    expect(upstream().has("conditions[term]")).toBe(false);
+    expect(upstream().get("conditions[topics][]")).toBe("indians-lands");
+    expect(upstream().get("order")).toBe("newest");
+    expect(calls).toHaveLength(1);
+  });
+
+  it("combines a date range and the type filter with a narrowing, exactly as with a text search", async () => {
+    installFetch({ "documents.json": () => reply(NARROW_AGENCY) });
+    const res = await call(
+      route({
+        dateFrom: "2024-01-01",
+        dateTo: "2024-12-31",
+        documentType: "RULE",
+      }),
+    );
+    expect(res.status).toBe(200);
+    expect(upstream().get("conditions[publication_date][gte]")).toBe(
+      "2024-01-01",
+    );
+    expect(upstream().get("conditions[publication_date][lte]")).toBe(
+      "2024-12-31",
+    );
+    expect(upstream().get("conditions[type][]")).toBe("RULE");
+    expect(upstream().get("conditions[agencies][]")).toBe(
+      "indian-affairs-bureau",
+    );
+  });
+
+  it.each<[string, Record<string, string>]>([
+    ["with searchVersion 2", { searchVersion: "2" }],
+    ["with no searchVersion", { searchVersion: "" }],
+    ["on another source", { source: "regulations" }],
+  ])(
+    "refuses a narrowing parameter %s before any upstream call",
+    async (_label, extra) => {
+      installFetch({});
+      const params = new URLSearchParams({
+        source: "federal-register",
+        q: "consultation",
+        searchVersion: "3",
+        agency: "indian-affairs-bureau",
+        ...extra,
+      });
+      if (extra.searchVersion === "") params.delete("searchVersion");
+      const res = await call(`/api/search?${params}`, keyed);
+      expect(res.status).toBe(400);
+      expect(calls).toHaveLength(0);
+    },
+  );
+
+  it("refuses narrowing by both an agency and a topic at once, before any upstream call", async () => {
+    installFetch({});
+    const res = await call(route({ topic: "indians-lands" }), keyed);
+    expect(res.status).toBe(400);
+    expect(await res.json()).toMatchObject({ error: "unsupported_criteria" });
+    expect(calls).toHaveLength(0);
+  });
+
+  it("still refuses an empty query on an un-narrowed version 3 Federal Register search", async () => {
+    installFetch({});
+    const params = new URLSearchParams({
+      source: "federal-register",
+      q: "",
+      searchVersion: "3",
+    });
+    const res = await call(`/api/search?${params}`);
+    expect(res.status).toBe(400);
+    expect(calls).toHaveLength(0);
   });
 });
