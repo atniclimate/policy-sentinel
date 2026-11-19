@@ -75,18 +75,23 @@ const row = (rows: ReturnType<typeof sourceRows>, id: string) => {
 
 describe("release verification record", () => {
   // Receipts: C:/dev/_scratch/policy-sentinel/release-check-2026-11-18/ (calls
-  // 2026-11-19 03:52 to 03:55 UTC, 2026-11-18 Pacific). GovInfo, its court
-  // opinions and Grants.gov wait for the Worker deployment that fixes them.
+  // 2026-11-19 03:52 to 03:55 UTC, 2026-11-18 Pacific); GovInfo, its court
+  // opinions and Grants.gov re-probed after Worker 8726fa96 (05:07 to 05:08 UTC).
   it("records only the release checks with a receipt", () => {
     expect(Object.keys(RELEASE_VERIFICATION).length).toBeGreaterThan(8);
     expect(
       Object.entries(RELEASE_VERIFICATION).filter(([, day]) => day !== null),
-    ).toEqual([
-      ["federal-register", "2026-11-18"],
-      ["congress", "2026-11-18"],
-      ["regulations", "2026-11-18"],
-      ["washington", "2026-11-18"],
-    ]);
+    ).toEqual(
+      [
+        "federal-register",
+        "govinfo",
+        "congress",
+        "regulations",
+        "grants",
+        "washington",
+        "govinfo-courts",
+      ].map((id) => [id, "2026-11-18"]),
+    );
   });
 });
 

@@ -348,8 +348,9 @@ describe("modes, sources and privacy on the page", () => {
     expect(
       ui.getByRole("checkbox", { name: /GovInfo court opinions/ }),
     ).not.toBeChecked();
+    // Every enabled Worker source has a recorded release check (D-172).
     expect(
-      ui.getAllByText(sourceModel.enabledUnverified).length,
+      ui.getAllByText(sourceModel.enabledVerified("2026-11-18")).length,
     ).toBeGreaterThan(0);
     expect(ui.queryByText("Live", { exact: true })).toBeNull();
     // Where search words go, once, naming the enabled services.
