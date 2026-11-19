@@ -3,7 +3,12 @@
 import { createHash } from "node:crypto";
 
 import { compareCodeUnits } from "../../src/core/canonical-json.mjs";
-import { SCHEMA_REF, StageError, wordingProblem } from "./common.mjs";
+import {
+  SCHEMA_REF,
+  StageError,
+  namedInWordingProblem,
+  wordingProblem,
+} from "./common.mjs";
 import { collapse } from "./xml.mjs";
 
 const ID = /^[0-9a-z]+(?:-[0-9a-z]+)*$/;
@@ -29,8 +34,45 @@ export const heldOut = (kind, id, list = HELD_OUT_SHA256) =>
     createHash("sha256").update(String(id), "utf8").digest("hex"),
   );
 
+/**
+ * The 18 official Federal Register agency and topic names the Nation-name
+ * check left out for a general word ("Indians", "Community", "Islands")
+ * that names no Nation on the recognition list (D-191, 2026-11-19: "I
+ * approve now"). A frozen, closed list by kind, modeled on
+ * ANCHOR_WORD_TITLES (scripts/build-vocab.mjs). The one entry the owner has
+ * not named in (HELD_OUT_SHA256, D-186, D-192) is never named in even so;
+ * `heldOut` is checked first in `finish` and still wins.
+ */
+export const NAMED_IN = Object.freeze({
+  fr_agency: Object.freeze([
+    "community-development-financial-institutions-fund",
+    "community-living-administration",
+    "corporation-for-national-and-community-service",
+    "national-civilian-community-corps",
+    "rural-housing-and-community-development-service",
+    "special-trustee-for-american-indians-office",
+  ]),
+  fr_topic: Object.freeze([
+    "indians",
+    "loan-programs-housing-community-development",
+    "grant-programs-housing-community-development",
+    "virgin-islands",
+    "community-development",
+    "northern-mariana-islands",
+    "community-facilities",
+    "community-development-block-grants",
+    "pacific-islands-trust-territory",
+    "wake-island",
+    "midway-islands",
+    "community-action-programs",
+  ]),
+});
+
+/** True when this vocabulary entry id is named in for this kind (D-191). */
+export const namedIn = (kind, id) => (NAMED_IN[kind] ?? []).includes(id);
+
 function finish(kind, rows, names, list) {
-  const report = { dropped: [] };
+  const report = { dropped: [], namedIn: [] };
   const seen = new Set();
   const kept = [];
   for (const row of rows) {
@@ -56,16 +98,21 @@ function finish(kind, rows, names, list) {
     const shortLabel = row.shortLabel
       ? collapse(String(row.shortLabel)) || null
       : null;
+    // Named in (D-191): the STRUCTURAL mask is skipped, never the hashed
+    // recognition list, an injected probe name, a URL, a personal pattern or
+    // markup.
+    const exempt = namedIn(kind, row.id);
+    const check = exempt ? namedInWordingProblem : wordingProblem;
     const problem =
       !label || label.length > 200 || (shortLabel && shortLabel.length > 80)
         ? "length"
-        : (wordingProblem(label, names) ??
-          (shortLabel && wordingProblem(shortLabel, names)));
+        : (check(label, names) ?? (shortLabel && check(shortLabel, names)));
     if (problem) {
       // A label is required, so an entry whose wording cannot be carried is left out.
       report.dropped.push({ id: row.id, reason: problem });
       continue;
     }
+    if (exempt) report.namedIn.push({ id: row.id, label });
     kept.push({
       id: row.id,
       label,

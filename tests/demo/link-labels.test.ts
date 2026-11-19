@@ -57,6 +57,7 @@ describe("closed label table", () => {
         "fr_no_authority_line",
         "short_form",
         "usc_no_source_credit",
+        "usc_reclassified_no_target",
         "usc_status",
       ].sort(),
     );

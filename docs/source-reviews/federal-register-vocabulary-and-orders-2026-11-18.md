@@ -41,8 +41,20 @@ page sentence the owner read on 2026-11-06: "Any person may reproduce or
 republish any material appearing in any regular or special edition of the
 Federal Register (1 CFR 2.6)."
 
-Choosing an agency or topic name in the search box only fills the box with
-that official wording as search words. It filters nothing.
+Named in on 2026-11-19 (D-191, the owner: "I approve now"): the 6 agency names
+and 12 topic names above are on a closed list in `scripts/demo-index/vocab.mjs`
+and skip only the broad word check. The hashed recognition list, an exact
+probe name, the URL, personal-pattern and markup checks still apply to them,
+and the held-out agency name stays out (D-192). Both lists were fetched once
+more at 10:45:35 and 10:45:36 UTC, no retry: 472 agency names and 900 topic
+names, the 18 added and nothing else changed. The first build of that fetch
+failed in the validator, which refused the topic id `indians` itself; the files
+were rebuilt from the kept downloads after the fix, with no second request.
+
+In 0.9.7, choosing an agency or topic name in the search box only fills the
+box with that official wording as search words and filters nothing. From 0.9.8
+the page can also narrow a Federal Register search by the same entry, using the
+source's own agency or topic condition (D-188).
 
 ## Executive order lookup (D-177)
 
