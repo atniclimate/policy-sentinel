@@ -87,10 +87,12 @@ function withVocabLabel(label: string): FixtureFile[] {
 }
 
 describe("static index validator", () => {
-  it("accepts the committed index: the two Federal Register lists, every other planned file unavailable", () => {
+  it("accepts the committed index: five CFR titles, two U.S. Code titles, the two Federal Register lists, every other planned file unavailable", () => {
     const result = validateDemoIndex("docs/demo-data");
     expect(result.errors).toEqual([]);
-    // Acquired 2026-11-18 (D-180); a later acquisition changes this list.
+    // Vocabulary acquired 2026-11-18 (D-180); CFR and U.S. Code 2026-11-19
+    // (D-190). A later acquisition changes this list. U.S. Code titles 16 and
+    // 42 stay unavailable: one fetch to redo, one title over its size ceiling.
     const manifest = JSON.parse(
       readFileSync("docs/demo-data/manifest.json", "utf8"),
     ) as { files: { path: string; status: string }[] };
@@ -98,15 +100,39 @@ describe("static index validator", () => {
       manifest.files
         .filter((f) => f.status !== "unavailable")
         .map((f) => f.path),
-    ).toEqual(["vocab/fr-agencies.json", "vocab/fr-topics.json"]);
-    expect(result.fileCount).toBe(2);
+    ).toEqual([
+      "cfr/title-25.json",
+      "cfr/title-36.json",
+      "cfr/title-40.json",
+      "cfr/title-43.json",
+      "cfr/title-50.json",
+      "usc/title-25.json",
+      "usc/title-33.json",
+      "vocab/fr-agencies.json",
+      "vocab/fr-topics.json",
+    ]);
+    expect(result.fileCount).toBe(9);
     expect(result.probe.nameCount).toBeGreaterThan(0);
-  });
+    // 3.5 MB of official wording goes through the Nation-name probe: about 5 seconds.
+  }, 60_000);
 
   it("accepts a manifested CFR, U.S.C. and vocabulary file", () => {
     const result = check(all());
     expect(result.errors).toEqual([]);
     expect(result).toMatchObject({ ok: true, fileCount: 3, currentCount: 3 });
+  });
+
+  it("accepts a transferred U.S.C. section whose codification note names no U.S.C. ref (U1)", () => {
+    const value = uscShard();
+    value.entries[0].reclassifiedAs = {
+      targets: [],
+      noteText:
+        "Section 450f was transferred by the Act and redesignated elsewhere.",
+      noteTextOmitted: false,
+    };
+    const result = check([{ path: "usc/title-25.json", value }]);
+    expect(result.errors).toEqual([]);
+    expect(result.ok).toBe(true);
   });
 
   it("fails the check script when index files are present without the full Nation-name list (G3)", () => {
@@ -139,9 +165,9 @@ describe("static index validator", () => {
     expect(hashed.stdout).toMatch(/^demo index valid: 3 files present/);
     expect(hashed.stdout).toMatch(/, \d+ hashes$/m);
     expect(hashed.status).toBe(0);
-    // Zero index files passes as before.
+    // The committed index passes with the committed full hash file (about 5 seconds for its 3.5 MB).
     expect(run("docs/demo-data").status).toBe(0);
-  });
+  }, 60_000);
 
   it("marks exactly the verbatim fields in the schema (F6)", () => {
     // popularName lives in the law alias table's own schema.

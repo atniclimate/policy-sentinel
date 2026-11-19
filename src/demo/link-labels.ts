@@ -100,6 +100,10 @@ export const LINK_LABELS = Object.freeze({
     forward: () => "No source credit in this section",
     reverse: null,
   },
+  usc_reclassified_no_target: {
+    forward: () => "Transferred; the U.S. Code names no section link",
+    reverse: null,
+  },
   // section@status as the U.S. Code states it ("transferred", "repealed").
   usc_status: {
     forward: (status) => `Status stated by the U.S. Code: ${status}`,

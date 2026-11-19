@@ -94,7 +94,13 @@ function searchOutcomes(reply, outcome, sourceRows) {
     sourceRows.some(
       (row) =>
         row.label === SOURCE_LABELS[reply.source] &&
-        row.value === COPY.resultsCount(reply.results.length, reply.total),
+        row.value ===
+          COPY.resultsCount(
+            reply.results.length,
+            reply.total,
+            // The Federal Register stops counting at 10,000 (totalIsFloor in src/demo/discovery.ts).
+            reply.source === "federal-register" && reply.total === 10000,
+          ),
     )
   );
 }
@@ -137,6 +143,18 @@ if (args["self-test"] === "true") {
   );
   assert(
     !searchOutcomes(reply, "1 policy listed.", [{ ...row, label: "GovInfo" }]),
+  );
+  // A Federal Register total of 10,000 is a floor and must read "or more".
+  const capped = { ...reply, total: 10000 };
+  assert(
+    searchOutcomes(capped, "1 policy listed.", [
+      { ...row, value: "1 listing loaded; 10,000 or more reported by source" },
+    ]),
+  );
+  assert(
+    !searchOutcomes(capped, "1 policy listed.", [
+      { ...row, value: "1 listing loaded; 10,000 reported by source" },
+    ]),
   );
   const mergedReply = {
     ...reply,

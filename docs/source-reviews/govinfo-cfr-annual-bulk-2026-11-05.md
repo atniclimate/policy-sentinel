@@ -50,6 +50,55 @@ the originating body. The manifest's `rights.statementText` needs the owner's
 own reading of https://www.govinfo.gov/about/policies (condition B5); until
 then no CFR shard is published as current.
 
+## Policies and bulk-data pages, read word for word (D-141)
+
+Read on 2026-11-19 under the owner's ruling on the GovInfo policies wording
+(D-141) and the fetch approval of the same day (D-190). One request per page,
+no retry; none blocked the read.
+
+https://www.govinfo.gov/about/policies, under "Public Domain & Copyright
+Notice", after the lead-in "Title 17, Section 105, United States Code, provides
+that:". This passage is the manifest's rights statement, checked against the
+saved page character for character:
+
+> Copyright protection under this title is not available for any work of the
+> United States Government, but the United States Government is not precluded
+> from receiving and holding copyrights transferred to it by assignment,
+> bequest, or otherwise. The intent of the section is to place in the public
+> domain all work of the United States Government, which is defined in 17
+> U.S.C. § 101 as work prepared by an officer or employee of the United States
+> Government as part of the person's official duties. By virtue of the
+> foregoing, public documents can generally be reprinted without legal
+> restriction. However, Government publications may contain copyrighted
+> material which was used with permission of the copyright owner. Publication
+> in a Government document does not authorize any use or appropriation of such
+> copyright material without consent of the owner. Since the Government
+> Publishing Office serves merely as a printing and distribution agency for
+> Government publications and has no jurisdiction over their content or subject
+> matter, it is advisable to consult with the originating department or agency,
+> or its successor, prior to reprinting any given publication. In those
+> instances in which permission to reprint material from Government
+> publications is granted, customary credit should be given to the Government
+> department or agency which prepared the material.
+
+The same page says its images are licensed and "are not in the public domain";
+the index carries no image.
+
+https://www.govinfo.gov/bulkdata/ states: "GPO makes select collections
+available in bulk in a machine-readable format (i.e. XML) via our Bulk Data
+Repository." It states no condition of use, rate limit or attribution rule.
+The guide it points to, https://github.com/usgpo/bulk-data, states: "If
+crawling the xml and json endpoints programmatically, you should ensure that
+you set the appropriate accept headers in your request, or you may see a 406
+response." https://www.govinfo.gov/robots.txt disallows no `/bulkdata/` path
+and lists the bulk-data sitemaps, the CFR one among them.
+
+Reading: these statements allow a small derived index of part-level
+"Authority:" and "Source:" wording with credit to the issuing agency, which
+each row already names. The rights record gives the passage above, the
+policies address and the read date 2026-11-19. The read was made by an agent
+under D-141; the owner confirms the wording before the index is published.
+
 ## Known failure behavior
 
 On 2026-07-31 the bulk root answered HTTP 200 with an HTML page titled
@@ -57,7 +106,7 @@ On 2026-07-31 the bulk root answered HTTP 200 with an HTML page titled
 the content type and the XML root before parsing, and treats anything else as
 `failureStage: fetch`.
 
-## Observed in this build
+## Observed in the 0.9.1 build (2026-11-05)
 
 Three bounded calls on 2026-11-05 (04:07 UTC on 2026-11-06), no key, no retry:
 
@@ -81,3 +130,36 @@ has no `SOURCE`). Each chapter's table of contents is `CHAPTER/TOC` with
 `PART`, 114 `PT`, 110 `AUTH`, 128 `SOURCE` (some below part level), 40
 `RESERVED`, 494 `SUBPART` (one with its own `AUTH`), 19 `SECAUTH`. Raw bytes
 stay in the build's scratch folder outside the repository.
+
+## Observed in the 0.9.8 build (2026-11-19, D-190)
+
+Eleven requests, no key, no retry, raw files kept outside the repository:
+
+- `GET /bulkdata/json/CFR/2026`: 200. The 2026 edition held 14 titles and none
+  of 25, 36, 40, 43 or 50, so each index file is built from the 2025 edition.
+- For each of the five titles, one listing and one whole-title zip
+  (`CFR-2025-title-N.zip`): all 200. Title 40's zip was 27,537,122 bytes.
+- Shapes the builder had not met in title 25, each now read and tested
+  (`tests/demo/demo-index-cfr-shapes.test.ts`): running heads printed
+  "PT. 1001", "Pt.3100" and "Pt 3140"; five-digit parts (43 CFR 10000); an
+  empty running head, where the part's own heading states the number (43 CFR
+  3000); a subtitle that lists its parts in its own contents (43 CFR subtitle
+  A); a part repeated in a later volume with the same Authority and Source
+  lines (50 CFR 17); and an Authority line that cites a U.S. Code note ("25
+  U.S.C. 5130 note", 25 CFR 83).
+- Title 40: volume 9 of the 2025 edition states "Revised as of July 1, 2024".
+  It holds only the continuation of part 60, with no part-level line, so the
+  index leaves that volume out and its manifest entry names the 34 volumes it
+  read. Volume 18 was not in the listing.
+- Title 50: the listing held volumes 1, 2, 6 and 9 to 13 only. The volumes it
+  lacked are continuations of part 17.
+- Results: title 25, 154 parts ("Revised as of April 1, 2025"); title 36, 166
+  parts ("Revised as of July 1, 2025"); title 40, 320 parts ("Revised as of
+  July 1, 2025"); title 43, 179 parts and title 50, 87 parts ("Revised as of
+  October 1, 2025"). An Authority or Source line that the Nation-name check
+  flags is left out and counted, never shown as absent: three in title 25, two
+  in title 40, one in title 43.
+- Four of the five first runs failed after their download on one of the shapes
+  above. Each index file was then built from the kept download through the
+  same acquisition code, with no second request; its manifest entry carries
+  the time of the original request.

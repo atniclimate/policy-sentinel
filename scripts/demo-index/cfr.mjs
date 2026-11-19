@@ -65,7 +65,8 @@ function readVolume(xml) {
     (name, _attrs, ancestors) =>
       name === "REVISED" ||
       name === "PART" ||
-      (name === "TOC" && ancestors.at(-1) === "CHAPTER"),
+      // A subtitle with no chapters lists its parts in its own contents (43 CFR subtitle A).
+      (name === "TOC" && ["CHAPTER", "SUBTITLE"].includes(ancestors.at(-1))),
     (node) => {
       if (node.name === "REVISED") revised.push(collapse(textOf(node)));
       else if (node.name === "TOC") {
@@ -95,13 +96,19 @@ function readVolume(xml) {
             );
           return;
         }
-        const number = /^Pt\.\s+(\d{1,4}[a-z]?)$/.exec(
-          collapse(textOf(ear)),
-        )?.[1];
+        // The annual edition also prints "PT. 1001", "Pt.3100", "Pt 3140" and five-digit parts (43 CFR 10000).
+        const head = collapse(textOf(ear));
+        // An empty running head (43 CFR 3000): the part's own heading states the number, "PART 3000—...".
+        const heading = direct.find((c) => c.name === "HD");
+        const number = head
+          ? /^Pt\.?\s*(\d{1,5}[a-z]?)$/i.exec(head)?.[1]
+          : /^PART\s+(\d{1,5}[a-z]?)(?![\w.])/.exec(
+              heading ? collapse(textOf(heading)) : "",
+            )?.[1];
         if (!number)
           throw new StageError(
             "normalize",
-            "a part number is not in the expected form",
+            `a part number is not in the expected form: ${head.slice(0, 40) || "(empty running head)"}`,
           );
         if (auth.length > 1 || source.length > 1)
           throw new StageError(
@@ -159,17 +166,24 @@ export function buildCfrShard(
 
   const report = { omitted: [], droppedCitations: 0, continuedParts: [] };
   const byPart = new Map();
+  const firstLines = new Map();
   for (const p of read.flatMap((v) => v.parts)) {
     if (byPart.has(p.part)) {
-      // A part continued into the next volume repeats its number without its lines.
-      if (p.authorityText || p.sourceText)
+      // A part continued into another volume repeats its number, without its
+      // lines or with the same lines again (50 CFR 17). Different wording fails.
+      const first = firstLines.get(p.part);
+      if (
+        (p.authorityText && p.authorityText !== first.authorityText) ||
+        (p.sourceText && p.sourceText !== first.sourceText)
+      )
         throw new StageError(
           "normalize",
-          `part ${p.part} appears twice with its own lines`,
+          `part ${p.part} appears twice with different lines`,
         );
       report.continuedParts.push(p.part);
       continue;
     }
+    firstLines.set(p.part, p);
     if (!pts.has(p.part) || pts.get(p.part).reserved)
       throw new StageError("validation", `part ${p.part} is not a listed part`);
     const omitted = [];

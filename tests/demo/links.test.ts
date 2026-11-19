@@ -365,6 +365,45 @@ describe("uscSectionLinks: the OLRC source-credit shard", () => {
       uscSectionLinks(uscShard, "/us/usc/t99/s1", uscFile, NOW),
     ).toBeNull();
   });
+
+  it("quotes the codification note and links nothing when the note names no target (U1)", () => {
+    const stub: UscSourceCreditShard = {
+      ...uscShard,
+      entries: [
+        {
+          identifier: "/us/usc/t99/s472",
+          status: "transferred",
+          creditText: null,
+          credits: [],
+          reclassifiedAs: {
+            targets: [],
+            noteText:
+              "Section was transferred to the end of subchapter III of chapter 5 of Title 14, Coast Guard, and redesignated as section 548 of that title.",
+            noteTextOmitted: false,
+          },
+        },
+      ],
+    };
+    const rows = uscSectionLinks(stub, "/us/usc/t99/s472", uscFile, NOW);
+    expect(rows?.map((r) => r.label)).toEqual([
+      "Status stated by the U.S. Code: transferred",
+      "No source credit in this section",
+      "Transferred; the U.S. Code names no section link",
+      "Cases that cite this section",
+    ]);
+    expect(links(rows)).toEqual([]);
+    const noteRow = rows?.find((r) =>
+      r.label.includes("names no section link"),
+    );
+    expect(noteRow).toMatchObject({
+      kind: "note",
+      quote: {
+        heading: "Note in the U.S. Code",
+        field: "noteText",
+        text: stub.entries[0].reclassifiedAs?.noteText,
+      },
+    });
+  });
 });
 
 describe("citationsInText", () => {
@@ -431,7 +470,7 @@ describe("boundary B regressions", () => {
     ]);
     // The note itself speaks, quoted verbatim.
     expect(named[0].quote).toMatchObject({
-      heading: "Codification note",
+      heading: "Note in the U.S. Code",
       field: "noteText",
       text: expect.stringContaining("458ddd"),
     });
