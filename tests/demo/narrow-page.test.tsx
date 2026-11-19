@@ -284,11 +284,19 @@ describe("narrowing a Federal Register search by agency or topic, end to end (D-
       /^Narrow to this agency: Indian Affairs Bureau/,
     );
     const searchPane = container.querySelector(".pane-search") as HTMLElement;
+    // The line states the setting and what it does not reach (review finding).
     expect(searchPane).toHaveTextContent(
-      "Narrowed to the agency Indian Affairs Bureau",
+      "Words searched on the Federal Register are narrowed to the agency Indian Affairs Bureau, a Federal Register field. Lookups, examples and issue searches are not narrowed.",
     );
+    // Under the state scope it is one true sentence, never "narrowed to".
+    fireEvent.click(ui.getByRole("button", { name: "State legislature" }));
+    expect(searchPane).toHaveTextContent(
+      "Narrowing to the agency Indian Affairs Bureau, a Federal Register field, is not applied to a state search; nothing is sent.",
+    );
+    expect(searchPane).not.toHaveTextContent("are narrowed to the agency");
+    fireEvent.click(ui.getByRole("button", { name: "Federal sources" }));
     fireEvent.click(ui.getByRole("button", { name: "Remove narrowing" }));
-    expect(searchPane).not.toHaveTextContent("Narrowed to the agency");
+    expect(searchPane).not.toHaveTextContent("Indian Affairs Bureau");
 
     await runSearch(ui, "consultation");
     const calls = vi.mocked(search).mock.calls;

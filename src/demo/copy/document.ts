@@ -92,6 +92,9 @@ export const documentCopy = {
     /** The same, from a seed with no draft ID, such as the policy area menu. */
     nameSearchFrom: (seed: string, where: string) =>
       `${seed}: name search for a sponsor listed on an NCAI draft (${where})`,
+    /** D-189: typed words that hold a name shaped like a Tribe's; the words stay out, as above. */
+    nameSearchTyped: (seed: string, where: string) =>
+      `${seed}: name search for the name typed (${where})`,
     nameCaution:
       "This was a name search. A name match is unreviewed and does not show that this document concerns that Tribe or organization.",
     /** D-186: appended to a Found by line whose search was narrowed to a Federal Register field. */

@@ -26,6 +26,8 @@ export const GENERAL_WORDS: ReadonlySet<string> = new Set([
   "hawaiian",
   "federally",
   "federal",
+  "national",
+  "civilian",
   "recognized",
   "unrecognized",
   "the",
@@ -124,28 +126,51 @@ function words(span: string): string[] {
     .filter(Boolean);
 }
 
+/** Village and Community count with a name beside them (design (b)1); Island does not. */
+const PLACE_WORDS = new Set([
+  "village",
+  "villages",
+  "community",
+  "communities",
+]);
+
+/** A word that is neither an anchor nor a general word. */
+const isDistinctive = (word: string | undefined): boolean =>
+  !!word && !isAnchor(word) && !GENERAL_WORDS.has(word);
+
 /**
- * Whether the typed words hold a name shaped like a Tribe's: a `nation_name`
- * span anchored on a strong anchor (tribe, nation, band, indians, pueblo,
- * rancheria, reservation, colony, confederated, or a joined "...tribe") with
- * a word that is neither an anchor nor a general word; or anchored only on a
- * weak anchor (village, island, community) that also holds "native",
- * "indian" or "indians" and such a word. A one-word everyday name (no anchor
- * word) is not recognized (the stated page limit).
+ * Whether the typed words hold a name shaped like a Tribe's.
+ *
+ * A span with a strong anchor (tribe, nation, band, indians, pueblo,
+ * rancheria, reservation, colony, confederated, or a joined "...tribe") and
+ * a distinctive word counts, whether the mask calls it a `nation_name` or
+ * has folded the name into a `case_caption` or `treaty_title` span (a
+ * caption with a Tribe as a party, a treaty named for one).
+ *
+ * A `nation_name` span with only a weak anchor counts when it also holds
+ * "native", "indian" or "indians" and a distinctive word, or when Village or
+ * Community has a distinctive word right before it or after "of" ("X
+ * Village", "Village of X"). General phrases such as "community development"
+ * stay ordinary searches.
+ *
+ * Not recognized (the stated page limit): a name typed with no such word,
+ * or only with Island.
  */
 export function holdsTribeName(text: string): boolean {
   const { spans } = maskProtectedSpans(text);
   return spans.some((span) => {
-    if (span.kind !== "nation_name") return false;
     const ws = words(text.slice(span.start, span.end));
-    const strong = ws.some(isStrongAnchor);
-    const weak = !strong && ws.some(isWeakAnchor);
-    if (!strong && !weak) return false;
-    const distinctive = ws.some((w) => !isAnchor(w) && !GENERAL_WORDS.has(w));
-    if (strong) return distinctive;
+    if (ws.some(isStrongAnchor)) return ws.some(isDistinctive);
+    if (span.kind !== "nation_name" || !ws.some(isWeakAnchor)) return false;
     const holdsNative = ws.some(
       (w) => w === "native" || w === "indian" || w === "indians",
     );
-    return holdsNative && distinctive;
+    if (holdsNative && ws.some(isDistinctive)) return true;
+    return ws.some(
+      (w, i) =>
+        PLACE_WORDS.has(w) &&
+        (isDistinctive(ws[i - 1]) ||
+          (ws[i + 1] === "of" && isDistinctive(ws[i + 2]))),
+    );
   });
 }

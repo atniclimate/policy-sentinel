@@ -15,10 +15,12 @@ export function heldOut(
   list?: Readonly<Record<string, readonly string[]>>,
 ): boolean;
 
-/** The 18 ids named in by kind, despite the STRUCTURAL mask (D-191). */
-export const NAMED_IN: Readonly<Record<string, readonly string[]>>;
-/** True when this vocabulary entry id is named in for this kind (D-191). */
-export function namedIn(kind: string, id: unknown): boolean;
+/** The 18 ids named in by kind, each with its approved label, despite the STRUCTURAL mask (D-191). */
+export const NAMED_IN: Readonly<
+  Record<string, Readonly<Record<string, string>>>
+>;
+/** True when this id is named in for this kind under this exact label (D-191). */
+export function namedIn(kind: string, id: unknown, label: unknown): boolean;
 
 export function mapFrAgencies(
   json: unknown,

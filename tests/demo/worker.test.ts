@@ -2415,6 +2415,22 @@ describe("Federal Register narrowing by agency or topic (D-186)", () => {
     expect(calls).toHaveLength(0);
   });
 
+  it.each([
+    "a&conditions[term]=x",
+    "../x",
+    "Indian-Affairs-Bureau",
+    "indian affairs bureau",
+    "a".repeat(121),
+  ])(
+    "refuses the malformed entry id %j before any upstream call",
+    async (agency) => {
+      installFetch({});
+      const res = await call(route({ agency }), keyed);
+      expect(res.status).toBe(400);
+      expect(calls).toHaveLength(0);
+    },
+  );
+
   it("still refuses an empty query on an un-narrowed version 3 Federal Register search", async () => {
     installFetch({});
     const params = new URLSearchParams({

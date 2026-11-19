@@ -432,7 +432,9 @@ export function buildDocument(input: DocInput): DocModel {
         ? F.search(from, terms, where)
         : seed.kind === "draft"
           ? F.nameSearch(seed.id, where)
-          : F.nameSearchFrom(from, where);
+          : seed.kind === "typed"
+            ? F.nameSearchTyped(from, where)
+            : F.nameSearchFrom(from, where);
       // D-186: the Federal Register field this search was narrowed to.
       field(L.foundBy, found.narrow ? F.narrowed(line, found.narrow) : line);
       if (found.name) blocks.push({ kind: "small", text: F.nameCaution });

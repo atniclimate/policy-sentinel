@@ -81,8 +81,8 @@ describe("release verification record", () => {
     expect(Object.keys(RELEASE_VERIFICATION).length).toBeGreaterThan(8);
     expect(
       Object.entries(RELEASE_VERIFICATION).filter(([, day]) => day !== null),
-    ).toEqual(
-      [
+    ).toEqual([
+      ...[
         "federal-register",
         "govinfo",
         "congress",
@@ -91,7 +91,10 @@ describe("release verification record", () => {
         "washington",
         "govinfo-courts",
       ].map((id) => [id, "2026-11-18"]),
-    );
+      // The index files, checked in a browser on 2026-11-19 (0.9.8).
+      ["cfr-index", "2026-11-19"],
+      ["usc-index", "2026-11-19"],
+    ]);
   });
 });
 

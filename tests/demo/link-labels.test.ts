@@ -28,10 +28,10 @@ describe("closed label table", () => {
     );
     // R3-1: a codification note names sections for many reasons; the quoted note says which.
     expect(linkLabel("usc_reclassified", "forward", "25 U.S.C. 5321")).toBe(
-      "Named in the OLRC codification note of this section",
+      "Named in the U.S. Code note of this section",
     );
     expect(linkLabel("usc_reclassified", "reverse", "25 U.S.C. 450f")).toBe(
-      "U.S. Code sections whose codification note names this",
+      "U.S. Code sections whose note names this",
     );
     expect(linkLabel("usc_status", "forward", "transferred")).toBe(
       "Status stated by the U.S. Code: transferred",

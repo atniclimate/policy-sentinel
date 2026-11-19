@@ -157,9 +157,7 @@ function scanStrings(label, value, { shard, probe, vocabExempt }, errors) {
       errors.push(`${where}: personal pattern (G1)`);
     // A named-in vocabulary label (D-191) skips only the STRUCTURAL mask.
     const exempt =
-      vocabExempt &&
-      (key === "id" || key === "label" || key === "shortLabel") &&
-      vocabExempt.has(text);
+      vocabExempt && (key === "id" || key === "label") && vocabExempt.has(text);
     if (exempt ? namedInProbeHit(text, probe) : probeHit(text, probe))
       errors.push(`${where}: Nation-name probe hit (G3)`);
     if (!VERBATIM_FIELDS.includes(key) && MODEL_WORDS.test(text))
@@ -434,16 +432,14 @@ export function validateDemoIndex(dir, options = {}) {
       errors.push(`${label}: not in canonical form (H1)`);
     checkShard(entry, value, errors, options.heldOutList);
     // A named-in id (D-191) exempts only its own id (the topic id "indians"
-    // is itself an anchor word), label and short label, and only in the
+    // is itself an anchor word) and its approved label, and only in the
     // vocabulary file for its own kind (VOCAB_KIND_OF_PATH above).
     const vocabExempt =
       value.artifactType === "vocabulary"
         ? new Set(
             value.entries
-              .filter((e) => namedIn(value.kind, e.id))
-              .flatMap((e) =>
-                e.shortLabel ? [e.id, e.label, e.shortLabel] : [e.id, e.label],
-              ),
+              .filter((e) => namedIn(value.kind, e.id, e.label))
+              .flatMap((e) => [e.id, e.label]),
           )
         : undefined;
     scanStrings(label, value, { shard: true, vocabExempt, ...ctx }, errors);

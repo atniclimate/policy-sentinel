@@ -59,11 +59,11 @@ export const LINK_LABELS = Object.freeze({
     forward: () => "Source credit stated by the U.S. Code",
     reverse: () => "U.S. Code sections whose source credit names this",
   },
-  // A codification note can name a section for many reasons; the quoted
-  // noteText says which, so the label names no relation.
+  // A codification or removal note can name a section for many reasons; the
+  // quoted noteText says which, so the label names no relation and no kind of note.
   usc_reclassified: {
-    forward: () => "Named in the OLRC codification note of this section",
-    reverse: () => "U.S. Code sections whose codification note names this",
+    forward: () => "Named in the U.S. Code note of this section",
+    reverse: () => "U.S. Code sections whose note names this",
   },
   // Run-time parse of text the page already reads (citation_in_text).
   citation_in_text: {

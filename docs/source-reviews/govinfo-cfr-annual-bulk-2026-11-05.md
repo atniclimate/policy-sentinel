@@ -47,8 +47,11 @@ GovInfo policy (summarized in `govinfo-api-2026-07-31.md`): United States
 Government works are generally in the public domain, but a publication can
 contain copyrighted material used with permission; customary credit goes to
 the originating body. The manifest's `rights.statementText` needs the owner's
-own reading of https://www.govinfo.gov/about/policies (condition B5); until
-then no CFR shard is published as current.
+own reading of https://www.govinfo.gov/about/policies (condition B5). For the
+0.9.8 build an agent read the page (next section) and wrote the record, which
+the index schema can only label `readByRole: owner`. That label is not yet
+true: the owner has not confirmed the passage. Until the owner confirms it and
+a decision row records that, no CFR file is published as current.
 
 ## Policies and bulk-data pages, read word for word (D-141)
 
@@ -150,7 +153,11 @@ Eleven requests, no key, no retry, raw files kept outside the repository:
 - Title 40: volume 9 of the 2025 edition states "Revised as of July 1, 2024".
   It holds only the continuation of part 60, with no part-level line, so the
   index leaves that volume out and its manifest entry names the 34 volumes it
-  read. Volume 18 was not in the listing.
+  read. Volume 18 was not in the listing or the zip. Volume 17 is "Parts 64 to
+  71" and volume 19 is "Parts 79 to 80", so parts 72 to 78 are not in the
+  index file; the page says "Not in the index file" for them and links the
+  official text. The file's own count of expected parts comes from the volumes
+  read, so it does not show this gap.
 - Title 50: the listing held volumes 1, 2, 6 and 9 to 13 only. The volumes it
   lacked are continuations of part 17.
 - Results: title 25, 154 parts ("Revised as of April 1, 2025"); title 36, 166

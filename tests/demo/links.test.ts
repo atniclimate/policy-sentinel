@@ -353,7 +353,7 @@ describe("uscSectionLinks: the OLRC source-credit shard", () => {
     ]);
     const [row] = links(rows);
     expect(row).toMatchObject({
-      label: "Named in the OLRC codification note of this section",
+      label: "Named in the U.S. Code note of this section",
       targetText: "99 U.S.C. 5321",
       target: { sourceId: "usc-index", identifier: "/us/usc/t99/s5321" },
       quote: {
@@ -462,11 +462,8 @@ describe("boundary B regressions", () => {
       uscSectionLinks(shard, "/us/usc/t25/s458bbb", uscFile, NOW),
     ).filter((r) => r.labelId === "usc_reclassified");
     expect(named.map((r) => [r.label, r.targetText])).toEqual([
-      [
-        "Named in the OLRC codification note of this section",
-        "25 U.S.C. 458ddd",
-      ],
-      ["Named in the OLRC codification note of this section", "25 U.S.C. 5421"],
+      ["Named in the U.S. Code note of this section", "25 U.S.C. 458ddd"],
+      ["Named in the U.S. Code note of this section", "25 U.S.C. 5421"],
     ]);
     // The note itself speaks, quoted verbatim.
     expect(named[0].quote).toMatchObject({

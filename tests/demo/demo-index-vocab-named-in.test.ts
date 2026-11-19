@@ -18,7 +18,6 @@ import {
   mapFrAgencies,
   mapFrTopics,
 } from "../../scripts/demo-index/vocab.mjs";
-import { SYNTHETIC_PROBE_NAMES } from "../support/nation-name-probes";
 import {
   removeTemps,
   tempDir,
@@ -47,18 +46,18 @@ const AGENCY_LABELS: Record<string, string> = {
 const TOPIC_LABELS: Record<string, string> = {
   indians: "Indians",
   "loan-programs-housing-community-development":
-    "Loan Programs-Housing and Community Development",
+    "Loan programs-housing and community development",
   "grant-programs-housing-community-development":
-    "Grant Programs-Housing and Community Development",
+    "Grant programs-housing and community development",
   "virgin-islands": "Virgin Islands",
-  "community-development": "Community Development",
+  "community-development": "Community development",
   "northern-mariana-islands": "Northern Mariana Islands",
-  "community-facilities": "Community Facilities",
-  "community-development-block-grants": "Community Development Block Grants",
+  "community-facilities": "Community facilities",
+  "community-development-block-grants": "Community development block grants",
   "pacific-islands-trust-territory": "Pacific Islands Trust Territory",
   "wake-island": "Wake Island",
   "midway-islands": "Midway Islands",
-  "community-action-programs": "Community Action Programs",
+  "community-action-programs": "Community action programs",
 };
 
 function agencyAnswer(labels: Record<string, string>) {
@@ -102,27 +101,22 @@ describe("the 18 named-in Federal Register vocabulary entries (D-191)", () => {
     expect(topicReport.dropped).toEqual([]);
   });
 
-  it("holds exactly 18 ids, 6 agencies and 12 topics, none on the held-out hash list", () => {
-    expect(NAMED_IN.fr_agency).toHaveLength(6);
-    expect(NAMED_IN.fr_topic).toHaveLength(12);
-    expect(NAMED_IN.fr_agency.length + NAMED_IN.fr_topic.length).toBe(18);
+  it("holds exactly 18 ids with their approved labels, 6 agencies and 12 topics, none on the held-out hash list", () => {
+    expect(NAMED_IN.fr_agency).toEqual(AGENCY_LABELS);
+    expect(NAMED_IN.fr_topic).toEqual(TOPIC_LABELS);
+    expect(Object.keys(NAMED_IN.fr_agency)).toHaveLength(6);
+    expect(Object.keys(NAMED_IN.fr_topic)).toHaveLength(12);
     for (const [kind, ids] of Object.entries(NAMED_IN))
-      for (const id of ids)
+      for (const id of Object.keys(ids))
         expect(
           (HELD_OUT_SHA256 as Record<string, readonly string[]>)[kind] ?? [],
         ).not.toContain(sha256(id));
   });
 
-  it("still drops a named-in label that actually contains an injected probe name", () => {
-    const probeName = SYNTHETIC_PROBE_NAMES[0]!;
+  it("still drops an approved label that is itself an injected probe name", () => {
     const { report } = mapFrTopics(
-      {
-        "community-development": {
-          count: 1,
-          name: `Community Development: ${probeName} Fund`,
-        },
-      },
-      [probeName],
+      { "community-development": { count: 1, name: "Community development" } },
+      ["Community development"],
     );
     expect(report.dropped).toEqual([
       { id: "community-development", reason: "nation_name_probe" },
@@ -130,15 +124,17 @@ describe("the 18 named-in Federal Register vocabulary entries (D-191)", () => {
     expect(report.namedIn).toEqual([]);
   });
 
-  it("still drops a named-in label that hits the hashed recognition list, with a whole probe", () => {
-    const hashOnlyName = "Hash Only Synthetic Entity";
-    const probe = hashedProbe(probeHashFile([hashOnlyName], 1), "test");
+  it("still drops an approved label that hits the hashed recognition list, with a whole probe", () => {
+    const probe = hashedProbe(
+      probeHashFile(["Community Living Administration"], 1),
+      "test",
+    );
     const { report } = mapFrAgencies(
       [
         {
           id: 1,
           slug: "community-living-administration",
-          name: `Community Living Administration ${hashOnlyName} Program`,
+          name: "Community Living Administration",
         },
       ],
       probe,
@@ -169,21 +165,52 @@ describe("the 18 named-in Federal Register vocabulary entries (D-191)", () => {
     expect(report.namedIn).toEqual([]);
   });
 
-  it("still drops a named-in entry with a URL in its label", () => {
+  it("gives a named-in id the full check again when the source changes its label", () => {
+    const { report } = mapFrTopics(
+      { indians: { count: 1, name: "Example River Tribe Indians" } },
+      [],
+    );
+    expect(report.dropped).toEqual([
+      { id: "indians", reason: "nation_name_probe" },
+    ]);
+    expect(report.namedIn).toEqual([]);
+
+    // The validator refuses a file that carries the changed label under that id.
+    const dir = tempDir();
+    const file = vocabFile();
+    file.kind = "fr_topic";
+    file.entries = [
+      {
+        id: "indians",
+        label: "Example River Tribe Indians",
+        shortLabel: null,
+        parentId: null,
+      },
+    ];
+    writeIndex(dir, [{ path: "vocab/fr-topics.json", value: file }]);
+    expect(validateDemoIndex(dir).errors.join("\n")).toMatch(
+      /Nation-name probe hit/,
+    );
+  });
+
+  it("gives a named-in entry's short label the full check", () => {
     const { report } = mapFrAgencies(
       [
         {
           id: 1,
           slug: "community-living-administration",
-          name: "Community Living Administration https://example.org",
+          name: "Community Living Administration",
+          short_name: "Example River Tribe",
         },
       ],
       [],
     );
     expect(report.dropped).toEqual([
-      { id: "community-living-administration", reason: "url" },
+      {
+        id: "community-living-administration",
+        reason: "nation_name_probe",
+      },
     ]);
-    expect(report.namedIn).toEqual([]);
   });
 
   it("still drops the held-out id as held_out even though it carries no named-in id, and the validator still refuses a file that carries it", () => {

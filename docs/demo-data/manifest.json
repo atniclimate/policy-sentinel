@@ -2,7 +2,7 @@
   "$schema": "../../schemas/demo-index.schema.v1.json",
   "schemaVersion": "1.0.0",
   "artifactType": "demo-index-manifest",
-  "generatedAt": "2026-11-19T10:47:13.493Z",
+  "generatedAt": "2026-11-19T11:25:55.118Z",
   "generatedBy": {
     "script": "scripts/acquire-demo-index.mjs",
     "version": "1.0.0"
@@ -312,9 +312,9 @@
       "entryCount": null,
       "source": null,
       "patternSetVersion": "1.0.0",
-      "lastRefreshAttemptAt": "2026-11-19T10:10:22.520Z",
-      "failureStage": "normalize",
-      "message": "transferred section /us/usc/t42/s628a names no target",
+      "lastRefreshAttemptAt": "2026-11-19T11:25:55.118Z",
+      "failureStage": "validation",
+      "message": "the refreshed index did not validate",
       "withdrawnOn": null,
       "staleAcknowledgedOn": null,
       "currentReference": null

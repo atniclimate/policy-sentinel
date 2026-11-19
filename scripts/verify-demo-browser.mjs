@@ -3,7 +3,8 @@
 // Usage: node scripts/verify-demo-browser.mjs --url <page url> --out <folder>
 // Needs playwright-core (set PLAYWRIGHT_CORE to its folder) and pdftotext on PATH.
 // Request budget, enforced before each request: source catalog twice (page and embed),
-// one search and one policy read.
+// three searches (an example, a CFR part lookup, a narrowed name search) and two
+// policy reads (the example's first listing, the looked-up rule).
 import { execFileSync } from "node:child_process";
 import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
@@ -18,7 +19,11 @@ import {
 } from "../src/demo/citations.ts";
 import { localDay } from "../src/demo/local-day.ts";
 import { COPY, EXAMPLES } from "../src/demo/copy.ts";
+import { chain as CHAIN } from "../src/demo/copy/chain.ts";
 import { sourceModel } from "../src/demo/copy/sources.ts";
+
+/** Service requests one run may make, by path. */
+const LIMITS = { "/api/sources": 2, "/api/search": 3, "/api/policy": 2 };
 
 // The Sources panel names an enabled source by the source model (safeguard 8):
 // verified only with a recorded release date, otherwise not yet verified.
@@ -42,7 +47,7 @@ function requestGuard(pageUrl) {
     /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d{1,5})?$/.test(override)
       ? new URL(override).origin
       : "https://policy-sentinel-demo.atniclimate.workers.dev";
-  const limits = { "/api/sources": 2, "/api/search": 1, "/api/policy": 1 };
+  const limits = LIMITS;
   const calls = Object.fromEntries(
     Object.keys(limits).map((path) => [path, 0]),
   );
@@ -178,14 +183,17 @@ if (args["self-test"] === "true") {
   for (const path of ["sources", "policy", "related", "unknown"])
     assert(!guard.permit(`http://127.0.0.1:4185/api/${path}`, "POST", "fetch"));
   assert(!guard.permit("http://127.0.0.1:4185/index.html", "POST", "document"));
-  assert(guard.permit("http://127.0.0.1:4185/api/search", "POST", "fetch"));
-  // One search in the budget, whichever method spends it.
+  // The searches in the budget, whichever method spends them.
+  const searches = LIMITS["/api/search"];
+  for (let count = 0; count < searches; count += 1)
+    assert(guard.permit("http://127.0.0.1:4185/api/search", "POST", "fetch"));
   assert(!guard.permit("http://127.0.0.1:4185/api/search", "POST", "fetch"));
   assert(!guard.permit("http://127.0.0.1:4185/api/search", "GET", "fetch"));
   const getGuard = requestGuard(
     "http://127.0.0.1:4185/?api=http://127.0.0.1:4185",
   );
-  assert(getGuard.permit("http://127.0.0.1:4185/api/search", "GET", "fetch"));
+  for (let count = 0; count < searches; count += 1)
+    assert(getGuard.permit("http://127.0.0.1:4185/api/search", "GET", "fetch"));
   assert(!getGuard.permit("http://127.0.0.1:4185/api/search", "POST", "fetch"));
   assert(!guard.permit("http://127.0.0.1:4185/api/unknown", "GET", "fetch"));
   assert(enabledState(sourceModel.enabledUnverified));
@@ -194,8 +202,8 @@ if (args["self-test"] === "true") {
   assert(!enabledState(COPY.liveTitle));
   assert(!enabledState(sourceModel.notAvailable));
   for (const [path, limit] of [
-    ["sources", 2],
-    ["policy", 1],
+    ["sources", LIMITS["/api/sources"]],
+    ["policy", LIMITS["/api/policy"]],
   ]) {
     for (let count = 0; count < limit; count++)
       assert(guard.permit(`http://127.0.0.1:4185/api/${path}`, "GET", "fetch"));
@@ -451,7 +459,14 @@ try {
     check(
       name,
       violations.length === 0,
-      violations.map((v) => `${v.id}x${v.nodes.length}`).join(", "),
+      // The first failing element and what axe measured, so one run is enough to act on.
+      violations
+        .map((v) => {
+          const node = v.nodes[0];
+          const seen = node?.any?.[0]?.data;
+          return `${v.id}x${v.nodes.length} first: ${node?.target?.join(" ")} ${seen ? JSON.stringify(seen) : ""}`;
+        })
+        .join(", "),
     );
   };
   /** Panes on screen, width left unused beside them, and how far the page itself scrolls. */
@@ -995,6 +1010,242 @@ try {
     await box.inputValue(),
   );
 
+  // 0.9.8. Each choice below is made by keyboard: Down to the named option, then Enter.
+  const chooseByKeyboard = async (typed, name) => {
+    await box.fill(typed);
+    const option = page.getByRole("option", { name }).first();
+    if (!(await appears(option))) return false;
+    const id = await option.getAttribute("id");
+    for (let presses = 0; presses < 12; presses += 1) {
+      await box.press("ArrowDown");
+      if ((await box.getAttribute("aria-activedescendant")) === id) {
+        await box.press("Enter");
+        return true;
+      }
+    }
+    return false;
+  };
+  const indexFile = (path) =>
+    JSON.parse(
+      readFileSync(
+        new URL(`../docs/demo-data/${path}`, import.meta.url),
+        "utf8",
+      ),
+    );
+  const part83 = indexFile("cfr/title-25.json").entries.find(
+    (entry) => entry.part === "83",
+  );
+  const section5131 = indexFile("usc/title-25.json").entries.find(
+    (entry) => entry.identifier === "/us/usc/t25/s5131",
+  );
+  const resultsPane = page.locator(".pane-results");
+  const chainPanel = page.locator(".chain-panel");
+  /** True once the opened record's chain quotes this wording, word for word. */
+  const chainQuotes = (wording) =>
+    holds(
+      (text) =>
+        [
+          ...document.querySelectorAll(
+            ".chain-panel figure.chain-quote blockquote",
+          ),
+        ].some(
+          (quote) => quote.textContent.replace(/\s+/g, " ").trim() === text,
+        ),
+      flat(wording),
+    );
+
+  // A U.S. Code section typed in the box is read from the index file beside
+  // the page: no service request, which the budget check at the end confirms.
+  const sectionChosen = await chooseByKeyboard(
+    "25 U.S.C. 5131",
+    /^25 U\.S\.C\. 5131/,
+  );
+  const officeLink = resultsPane.getByRole("link", {
+    name: CHAIN.liveLink(CHAIN.indexSources["usc-index"]),
+    exact: true,
+  });
+  check(
+    "a typed U.S. Code section is read from the index file and links the official page, with no service request",
+    sectionChosen &&
+      (await holds(() =>
+        /^\s*25 U\.S\.C\. 5131: [1-9]\d* rows? in the index file/.test(
+          document.querySelector(".pane-results [role=status]")?.textContent ??
+            "",
+        ),
+      )) &&
+      (await appears(officeLink)) &&
+      /uscode\.house\.gov/.test(
+        (await officeLink.getAttribute("href")) ?? "",
+      ) &&
+      calls["/api/search"] === 1,
+    flat(await resultsPane.getByRole("status").innerText()),
+  );
+
+  // A rule to its CFR part's Authority line, then to a U.S. Code section it
+  // cites and that section's source credit: one lookup and one policy read.
+  const [partSearch] = await responseDuring(page, "/api/search", () =>
+    chooseByKeyboard("25 CFR 83", /^25 CFR part 83/),
+  );
+  const partReply = await partSearch.json();
+  await rows.first().waitFor({ timeout: 30000 });
+  check(
+    "a typed CFR part is looked up on the Federal Register and its listings state that part",
+    partReply.results.some((item) =>
+      (item.cfrRefs ?? []).some((ref) => ref.title === 25 && ref.part === "83"),
+    ),
+    `${partReply.results.length} listings`,
+  );
+  const partHop = chainPanel.getByRole("button", {
+    name: CHAIN.openHop("25 CFR part 83"),
+    exact: true,
+  });
+  await responseDuring(page, "/api/policy", () =>
+    rows.first().getByRole("button", { name: COPY.showIssues }).click(),
+  );
+  check(
+    "the opened rule lists the CFR part it states, with a button to open it in the chain",
+    await partHop
+      .first()
+      .waitFor({ timeout: 45000 })
+      .then(
+        () => true,
+        () => false,
+      ),
+  );
+  await partHop.first().click();
+  check(
+    "the part's Authority line is quoted from the index file, word for word",
+    Boolean(part83) && (await chainQuotes(part83.authorityText)),
+    part83?.authorityText,
+  );
+  const sectionHop = chainPanel.getByRole("button", {
+    name: CHAIN.openHop("25 U.S.C. 5131"),
+    exact: true,
+  });
+  const sectionOffered = await appears(sectionHop.first());
+  if (sectionOffered) await sectionHop.first().click();
+  check(
+    "a U.S. Code section the Authority line cites opens with its source credit, word for word",
+    sectionOffered &&
+      Boolean(section5131) &&
+      (await chainQuotes(section5131.creditText)),
+    section5131?.creditText,
+  );
+  await runAxe(
+    "axe finds no WCAG A/AA violations (index rows in an opened rule)",
+  );
+  // The quoted source credit on screen; the pane scrolls, so this is the viewport.
+  await chainPanel
+    .locator("figure.chain-quote")
+    .last()
+    .scrollIntoViewIfNeeded({ timeout: 5000 })
+    .catch(() => {});
+  await page.screenshot({ path: join(out, "index-chain.png") });
+  // Shown only when the rule's own text cites an identifier a listed issue holds (D-164).
+  const issueChips = await chainPanel
+    .locator("h5", { hasText: CHAIN.issues.title })
+    .locator("xpath=following-sibling::ul[1]/li")
+    .allInnerTexts();
+  check(
+    "listed issues named by the opened rule's citations state the citation and the citation-only caution",
+    issueChips.length === 0 ||
+      (flat(await chainPanel.innerText()).includes(flat(CHAIN.issues.help)) &&
+        issueChips.every((chip) => /cited at \d+ places?/.test(chip))),
+    issueChips.length
+      ? issueChips.map(flat).join(" | ")
+      : "not shown: this text cites no listed identifier",
+  );
+
+  // Narrowing (D-188) and the name-search wording (D-189), one search. The
+  // words are shaped like a Tribe's name and name no Nation.
+  const narrow = { field: "agency", label: "Indian Affairs Bureau" };
+  const nameWords = "Example Tribe";
+  const narrowChosen = await chooseByKeyboard(
+    "Indian Affairs",
+    /^Narrow to this agency: Indian Affairs Bureau/,
+  );
+  const removeNarrowing = page.getByRole("button", {
+    name: COPY.removeNarrowingLabel,
+    exact: true,
+  });
+  check(
+    "choosing Narrow to this agency by keyboard clears the box, names the Federal Register field and sends nothing",
+    narrowChosen &&
+      (await box.inputValue()) === "" &&
+      (await appears(removeNarrowing)) &&
+      flat(await page.locator(".pane-search").innerText()).includes(
+        COPY.narrowingSet(narrow),
+      ) &&
+      calls["/api/search"] === 2,
+    JSON.stringify(calls),
+  );
+  await box.fill(nameWords);
+  const [narrowSearch] = await responseDuring(page, "/api/search", () =>
+    box.press("Enter"),
+  );
+  const narrowSent = narrowSearch.request().postDataJSON() ?? {};
+  const narrowReply = await narrowSearch.json();
+  // Past the rows of the lookup before: these results name the narrowing.
+  await page
+    .waitForFunction(
+      (line) => {
+        const pane = document.querySelector(".pane-results");
+        return (
+          pane?.textContent.includes(line) && pane.querySelector(".result")
+        );
+      },
+      COPY.narrowedTo(narrow),
+      { timeout: 30000 },
+    )
+    .catch(() => {});
+  const narrowedRows = await rows.evaluateAll((items) =>
+    items.map((item) => item.textContent.replace(/\s+/g, " ")),
+  );
+  check(
+    "the narrowed search sends the agency entry with the words, and the answer names it",
+    narrowSent.agency === "indian-affairs-bureau" &&
+      narrowSent.q === nameWords &&
+      narrowReply.criteria?.agency === "indian-affairs-bureau",
+    JSON.stringify({ sent: narrowSent, criteria: narrowReply.criteria }),
+  );
+  check(
+    "results name the narrowing, and every row says it is listed under that agency",
+    flat(await resultsPane.innerText()).includes(COPY.narrowedTo(narrow)) &&
+      narrowedRows.length > 0 &&
+      narrowedRows.every((text) =>
+        text.includes(
+          `listed by the Federal Register under the agency ${narrow.label}`,
+        ),
+      ),
+    `${narrowedRows.length} rows`,
+  );
+  check(
+    "a search holding a Tribe-shaped name is a name search, and every row says a name match shows no relationship",
+    flat(await resultsPane.innerText()).includes(
+      COPY.laneNameTerms(nameWords),
+    ) &&
+      narrowedRows.length > 0 &&
+      narrowedRows.every((text) =>
+        text.includes(
+          "A name match does not show that this document concerns that Tribe or organization.",
+        ),
+      ),
+    `${narrowedRows.length} rows`,
+  );
+  await page.waitForTimeout(650); // past the fade of the new rows, so axe measures contrast at rest
+  await runAxe("axe finds no WCAG A/AA violations (narrowed name search)");
+  await page.screenshot({ path: join(out, "narrowed-name-search.png") });
+  await removeNarrowing.focus();
+  await page.keyboard.press("Enter");
+  check(
+    "Remove, by keyboard, takes the narrowing off the search form",
+    await holds(
+      (line) =>
+        !document.querySelector(".pane-search")?.textContent.includes(line),
+      COPY.narrowingSet(narrow),
+    ),
+  );
+
   // Start at a known control, then verify keyboard movement and visible focus.
   // The search field is a combobox (#q) since the suggestion list (0.9.1).
   await page.locator("#q").focus();
@@ -1074,10 +1325,8 @@ try {
     blockedRequests.join(" | "),
   );
   check(
-    "request budget kept: source catalog twice, one search, one policy read",
-    calls["/api/sources"] === 2 &&
-      calls["/api/search"] === 1 &&
-      calls["/api/policy"] === 1,
+    "request budget kept: source catalog twice, three searches, two policy reads",
+    Object.entries(LIMITS).every(([path, limit]) => calls[path] === limit),
     JSON.stringify(calls),
   );
   receipt.completed = true;

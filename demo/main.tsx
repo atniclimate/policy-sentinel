@@ -133,6 +133,8 @@ import {
 } from "../src/demo/issues";
 import type { IssueFile, Provision, TableEntry } from "../src/demo/issues";
 import { issuesInText, issuesSharedByRows } from "../src/demo/issue-match";
+import { holdsTribeName } from "../src/demo/name-search";
+import { maskProtectedSpans } from "../src/demo/nation-mask";
 import NCAI_VAULT from "../src/demo/ncai-2026.vault.json";
 import { NcaiVaultError, openNcaiDrafts } from "../src/demo/ncai-vault";
 import {
@@ -1429,6 +1431,8 @@ export function App() {
             source: "federal",
             query: reading.identifier,
             auto: true,
+            // A law named for a Tribe is searched by that name (D-189).
+            ...(holdsTribeName(reading.identifier) && { name: true as const }),
           },
         ],
         planSources,
@@ -2609,7 +2613,13 @@ export function App() {
       rows,
       seed.kind === "example" ? seed.label : undefined,
     );
-    const { hits, named } = shared;
+    const { hits } = shared;
+    // Safeguard 1: any protected span in the typed words keeps the caution
+    // here, wider than the name-search rule (an Island name, a treaty title).
+    const named =
+      shared.named ||
+      (seed.kind === "typed" &&
+        maskProtectedSpans(seed.query).spans.length > 0);
     if (!hits.length) return null;
     return (
       <div class="zone shared-issues">
@@ -3285,8 +3295,9 @@ export function App() {
                   )}
                   {narrowing && (
                     <p class="help">
-                      {COPY.narrowedTo(narrowing)}{" "}
-                      {scope === "state" && COPY.narrowNotStateScope}{" "}
+                      {scope === "state"
+                        ? COPY.narrowingStateScope(narrowing)
+                        : COPY.narrowingSet(narrowing)}{" "}
                       <button
                         type="button"
                         class="btn"

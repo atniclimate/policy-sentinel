@@ -3,23 +3,30 @@ import { describe, expect, it } from "vitest";
 import { holdsTribeName } from "../../src/demo/name-search";
 
 /**
- * "Lummi Nation v. Washington" is left out: it is a case caption as well as
- * a Tribe-shaped name, and the mask's merge rule folds the nation_name span
- * into the case_caption span there, so this module never sees a nation_name
- * span for it. The owner ruling says it may be read either way; it is not
- * pinned.
+ * Every name here is made up, in the shapes real names take; no real Nation
+ * is named in a test (safeguard 4).
  */
 
 const TRUE_CASES = [
-  "Yakama Nation",
-  "yakama nation water rights",
-  "Confederated Tribes of the Colville Reservation",
-  "Navajo Nation",
-  "Leech Lake Band of Ojibwe",
-  "Pueblo of Zuni",
-  "Native Village of Kotzebue",
-  "Gila River Indian Community",
-  "Tulalip Tribes housing",
+  "Example River Nation",
+  "example river nation water quality",
+  "Confederated Tribes of the Sample Reservation",
+  "Sample Nation",
+  "Sample Lake Band of Example",
+  "Pueblo of Example",
+  "Native Village of Sample",
+  "Example River Indian Community",
+  "Sample Tribes housing",
+  // A Tribe as a party in a case caption, or named in a treaty title: the
+  // mask folds the name into that span, and it still counts (review finding).
+  "Example Tribe v. State",
+  "State v. Example Tribe",
+  "Example Tribe et al. v. United States",
+  "Treaty with the Example Tribe",
+  // Village or Community with a name beside it (design (b)1).
+  "Example Village",
+  "Village of Example",
+  "Example Community",
 ];
 
 const FALSE_CASES = [
@@ -35,7 +42,14 @@ const FALSE_CASES = [
   "Clean Water Act section 106",
   "Indians",
   "the nation's forests",
-  "Navajo",
+  // A one-word name with no anchor word, or only Island: the limit the page states.
+  "Samplewood",
+  "Example Island",
+  // A caption with no Tribe as a party, and general village or community phrases.
+  "Smith v. Jones",
+  "village water systems",
+  "rural community facilities",
+  "National Civilian Community Corps",
   "25 CFR 83",
 ];
 
