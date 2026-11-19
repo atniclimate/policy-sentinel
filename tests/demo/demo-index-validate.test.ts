@@ -17,6 +17,7 @@ import {
 } from "../../scripts/demo-index/validate.mjs";
 import {
   DEFAULT_PROBE_FIXTURE,
+  FULL_PROBE_ENTRIES,
   PROBE_NORMALIZATION,
   hashedProbe,
   loadNationProbe,
@@ -109,7 +110,13 @@ describe("static index validator", () => {
         ["scripts/validate-demo-index.mjs", "--dir", ...args],
         { env, encoding: "utf8" },
       );
-    const refused = run(dir);
+    // A short hash file, since the committed full one (D-175) is the default.
+    const short = join(tempDir(), "short-hashes.json");
+    writeFileSync(
+      short,
+      JSON.stringify(probeHashFile(["Example Sample Nation"], 1)),
+    );
+    const refused = run(dir, "--nation-hashes", short);
     expect(refused.status).toBe(1);
     expect(refused.stderr).toMatch(
       /3 index files present, but the Nation-name probes hold \d+ entries, not the full list of 575 \(G3\)/,
@@ -412,7 +419,11 @@ describe("hashed Nation-name probes (decision 10)", () => {
       "hashes",
     ]);
     expect(file.normalization).toBe(PROBE_NORMALIZATION);
-    expect(file.entryCount).toBe(loadProbeNames(probeFile()).entryCount);
+    // D-175: the count is the notice's stated number of Tribes, not its paragraphs.
+    expect(file.entryCount).toBe(FULL_PROBE_ENTRIES);
+    expect(loadProbeNames(probeFile()).entryCount).toBeGreaterThanOrEqual(
+      FULL_PROBE_ENTRIES,
+    );
     expect(file.hashes.every((h) => /^[0-9a-f]{64}$/.test(h))).toBe(true);
     expect([...file.hashes].sort()).toEqual(file.hashes);
     expect(new Set(file.hashes).size).toBe(file.hashes.length);

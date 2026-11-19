@@ -876,6 +876,7 @@ describe("S0 import and reverse-dependency non-interference", () => {
     expect(configFiles.map(repositoryPath)).toEqual([
       "config/issues.v1.json",
       "config/law-aliases.v1.json",
+      "config/nation-name-probes.sha256.v1.json",
       "config/plain-phrases.v1.json",
       "config/sources.v1.json",
       "config/taxonomy.v1.json",

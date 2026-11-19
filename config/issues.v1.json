@@ -5,6 +5,434 @@
   "entries": [
     {
       "kind": "issue",
+      "id": "tribal-consultation",
+      "label": "Consultation with Tribal governments",
+      "names": [
+        {
+          "name": "Consultation and Coordination With Indian Tribal Governments",
+          "basis": "official",
+          "statedAt": "https://www.federalregister.gov/api/v1/documents/00-29003.json",
+          "wording": "Consultation and Coordination With Indian Tribal Governments",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "Tribal Consultation",
+          "basis": "official",
+          "statedAt": "https://www.federalregister.gov/api/v1/documents/E9-27142.json",
+          "wording": "Tribal Consultation",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "Executive Order 13175",
+          "basis": "people_use",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "E.O. 13175",
+          "basis": "people_use",
+          "reviewedOn": "2026-11-18"
+        }
+      ],
+      "searches": [
+        {
+          "group": "legislation",
+          "source": "govinfo",
+          "query": "collection:BILLS AND (\"Executive Order 13175\")",
+          "label": "Federal bills and resolutions: Executive Order 13175",
+          "terms": "Executive Order 13175",
+          "collection": "Federal bills and resolutions",
+          "auto": true
+        },
+        {
+          "group": "case",
+          "source": "govinfo",
+          "query": "collection:USCOURTS AND (\"Executive Order 13175\")",
+          "label": "Federal court opinions: Executive Order 13175",
+          "terms": "Executive Order 13175",
+          "collection": "Federal court opinions",
+          "auto": true
+        }
+      ],
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "restsOn": [
+        {
+          "kind": "executive_order",
+          "id": "E.O. 13175",
+          "label": "Executive Order 13175",
+          "url": "https://www.federalregister.gov/api/v1/documents/00-29003.json",
+          "stated": "Consultation and Coordination With Indian Tribal Governments",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "fr_document",
+          "id": "E9-27142",
+          "label": "FR Doc. E9-27142 (74 FR 57881)",
+          "url": "https://www.federalregister.gov/api/v1/documents/E9-27142.json",
+          "stated": "Tribal Consultation",
+          "readOn": "2026-11-18"
+        }
+      ]
+    },
+    {
+      "kind": "issue",
+      "id": "icwa",
+      "label": "Indian child welfare",
+      "names": [
+        {
+          "name": "Indian Child Welfare Act",
+          "basis": "official",
+          "statedAt": "https://www.govinfo.gov/link/cfr/25/23",
+          "wording": "Indian Child Welfare Act (ICWA)",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "ICWA",
+          "basis": "official",
+          "statedAt": "https://www.govinfo.gov/link/cfr/25/23",
+          "wording": "Indian Child Welfare Act (ICWA)",
+          "reviewedOn": "2026-11-18"
+        }
+      ],
+      "searches": [
+        {
+          "group": "policy",
+          "source": "federal-register",
+          "query": "25 CFR 23",
+          "match": "cfr",
+          "auto": true
+        },
+        {
+          "group": "legislation",
+          "source": "govinfo",
+          "query": "collection:BILLS AND (\"Indian Child Welfare Act\")",
+          "label": "Federal bills and resolutions: Indian Child Welfare Act",
+          "terms": "Indian Child Welfare Act",
+          "collection": "Federal bills and resolutions",
+          "auto": true
+        },
+        {
+          "group": "case",
+          "source": "govinfo",
+          "query": "collection:USCOURTS AND (\"Indian Child Welfare Act\")",
+          "label": "Federal court opinions: Indian Child Welfare Act",
+          "terms": "Indian Child Welfare Act",
+          "collection": "Federal court opinions",
+          "auto": true
+        }
+      ],
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "restsOn": [
+        {
+          "kind": "usc",
+          "id": "25 U.S.C. 1901",
+          "label": "25 U.S.C. 1901",
+          "url": "https://www.govinfo.gov/link/uscode/25/1901?link-type=html",
+          "stated": "Congressional findings",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "public_law",
+          "id": "Pub. L. 95-608",
+          "label": "Pub. L. 95-608",
+          "url": "https://www.govinfo.gov/link/uscode/25/1901?link-type=html",
+          "stated": "Indian Child Welfare Act of 1978",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "cfr",
+          "id": "25 CFR 23",
+          "label": "25 CFR Part 23",
+          "url": "https://www.govinfo.gov/link/cfr/25/23",
+          "stated": "PART 23--INDIAN CHILD WELFARE ACT",
+          "readOn": "2026-11-18"
+        }
+      ]
+    },
+    {
+      "kind": "issue",
+      "id": "indian-self-determination-contracting",
+      "label": "Indian self-determination contracting",
+      "names": [
+        {
+          "name": "Indian Self-Determination and Education Assistance Act",
+          "basis": "official",
+          "statedAt": "https://www.govinfo.gov/link/uscode/25/5301?link-type=html",
+          "wording": "may be cited as the 'Indian Self-Determination and Education Assistance Act'",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "ISDEAA",
+          "basis": "people_use",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "Indian Self-Determination Act",
+          "basis": "people_use",
+          "reviewedOn": "2026-11-18"
+        }
+      ],
+      "searches": [
+        {
+          "group": "policy",
+          "source": "federal-register",
+          "query": "25 CFR 900",
+          "match": "cfr",
+          "auto": true
+        },
+        {
+          "group": "legislation",
+          "source": "govinfo",
+          "query": "collection:BILLS AND (\"25 U.S.C. 5325\")",
+          "label": "Federal bills and resolutions: 25 U.S.C. 5325",
+          "terms": "25 U.S.C. 5325",
+          "collection": "Federal bills and resolutions",
+          "auto": true
+        },
+        {
+          "group": "case",
+          "source": "govinfo",
+          "query": "collection:USCOURTS AND (\"Indian Self-Determination and Education Assistance Act\")",
+          "label": "Federal court opinions: Indian Self-Determination and Education Assistance Act",
+          "terms": "Indian Self-Determination and Education Assistance Act",
+          "collection": "Federal court opinions",
+          "auto": true
+        }
+      ],
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "restsOn": [
+        {
+          "kind": "public_law",
+          "id": "Pub. L. 93-638",
+          "label": "Pub. L. 93-638",
+          "url": "https://www.govinfo.gov/link/uscode/25/5301?link-type=html",
+          "stated": "Indian Self-Determination and Education Assistance Act",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "usc",
+          "id": "25 U.S.C. 5301",
+          "label": "25 U.S.C. 5301",
+          "url": "https://www.govinfo.gov/link/uscode/25/5301?link-type=html",
+          "stated": "Congressional statement of findings",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "usc",
+          "id": "25 U.S.C. 5325",
+          "label": "25 U.S.C. 5325",
+          "url": "https://www.govinfo.gov/link/uscode/25/5325?link-type=html",
+          "stated": "Contract funding and indirect costs",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "cfr",
+          "id": "25 CFR 900",
+          "label": "25 CFR Part 900",
+          "url": "https://www.govinfo.gov/link/cfr/25/900",
+          "stated": "PART 900--CONTRACTS UNDER THE INDIAN SELF-DETERMINATION AND EDUCATION ASSISTANCE ACT",
+          "readOn": "2026-11-18"
+        }
+      ]
+    },
+    {
+      "kind": "issue",
+      "id": "nagpra",
+      "label": "Native American graves protection and repatriation",
+      "names": [
+        {
+          "name": "Native American Graves Protection and Repatriation Act",
+          "basis": "official",
+          "statedAt": "https://www.govinfo.gov/link/uscode/25/3001?link-type=html",
+          "wording": "may be cited as the 'Native American Graves Protection and Repatriation Act'",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "NAGPRA",
+          "basis": "people_use",
+          "reviewedOn": "2026-11-18"
+        }
+      ],
+      "searches": [
+        {
+          "group": "policy",
+          "source": "federal-register",
+          "query": "43 CFR 10",
+          "match": "cfr",
+          "auto": true
+        },
+        {
+          "group": "policy",
+          "source": "federal-register",
+          "query": "1024-AE19",
+          "match": "rin",
+          "auto": true
+        },
+        {
+          "group": "legislation",
+          "source": "govinfo",
+          "query": "collection:BILLS AND (\"Native American Graves Protection and Repatriation Act\")",
+          "label": "Federal bills and resolutions: Native American Graves Protection and Repatriation Act",
+          "terms": "Native American Graves Protection and Repatriation Act",
+          "collection": "Federal bills and resolutions",
+          "auto": true
+        },
+        {
+          "group": "case",
+          "source": "govinfo",
+          "query": "collection:USCOURTS AND (\"Native American Graves Protection and Repatriation Act\")",
+          "label": "Federal court opinions: Native American Graves Protection and Repatriation Act",
+          "terms": "Native American Graves Protection and Repatriation Act",
+          "collection": "Federal court opinions",
+          "auto": true
+        }
+      ],
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "restsOn": [
+        {
+          "kind": "usc",
+          "id": "25 U.S.C. 3001",
+          "label": "25 U.S.C. 3001",
+          "url": "https://www.govinfo.gov/link/uscode/25/3001?link-type=html",
+          "stated": "Definitions",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "public_law",
+          "id": "Pub. L. 101-601",
+          "label": "Pub. L. 101-601",
+          "url": "https://www.govinfo.gov/link/uscode/25/3001?link-type=html",
+          "stated": "Native American Graves Protection and Repatriation Act",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "cfr",
+          "id": "43 CFR 10",
+          "label": "43 CFR Part 10",
+          "url": "https://www.govinfo.gov/link/cfr/43/10",
+          "stated": "PART 10--NATIVE AMERICAN GRAVES PROTECTION AND REPATRIATION REGULATIONS",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "fr_document",
+          "id": "2023-27040",
+          "label": "FR Doc. 2023-27040 (88 FR 86452)",
+          "url": "https://www.federalregister.gov/api/v1/documents/2023-27040.json",
+          "stated": "Native American Graves Protection and Repatriation Act Systematic Processes for Disposition or Repatriation of Native American Human Remains, Funerary Objects, Sacred Objects, and Objects of Cultural Patrimony",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "rin",
+          "id": "1024-AE19",
+          "label": "RIN 1024-AE19",
+          "url": "https://www.federalregister.gov/api/v1/documents/2023-27040.json",
+          "stated": "Native American Graves Protection and Repatriation Act Systematic Processes for Disposition or Repatriation of Native American Human Remains, Funerary Objects, Sacred Objects, and Objects of Cultural Patrimony",
+          "readOn": "2026-11-18"
+        }
+      ]
+    },
+    {
+      "kind": "issue",
+      "id": "roadless-area-conservation",
+      "label": "Roadless area conservation",
+      "names": [
+        {
+          "name": "Roadless Rule",
+          "basis": "official",
+          "statedAt": "https://www.fs.usda.gov/roadless/",
+          "wording": "The 2001 Roadless Rule",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "Roadless Area Conservation Rule",
+          "basis": "official",
+          "statedAt": "https://www.fs.usda.gov/roadless/",
+          "wording": "2001 Roadless Area Conservation Rule",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "2001 Roadless Rule",
+          "basis": "official",
+          "statedAt": "https://www.fs.usda.gov/roadless/",
+          "wording": "The 2001 Roadless Rule",
+          "reviewedOn": "2026-11-18"
+        }
+      ],
+      "searches": [
+        {
+          "group": "policy",
+          "source": "federal-register",
+          "query": "36 CFR 294",
+          "match": "cfr",
+          "auto": true
+        },
+        {
+          "group": "policy",
+          "source": "federal-register",
+          "query": "0596-AD66",
+          "match": "rin",
+          "auto": true
+        },
+        {
+          "group": "case",
+          "source": "govinfo",
+          "query": "collection:USCOURTS AND (\"Roadless Area Conservation Rule\")",
+          "label": "Federal court opinions: Roadless Area Conservation Rule",
+          "terms": "Roadless Area Conservation Rule",
+          "collection": "Federal court opinions",
+          "auto": true
+        }
+      ],
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "restsOn": [
+        {
+          "kind": "cfr",
+          "id": "36 CFR 294",
+          "label": "36 CFR Part 294",
+          "url": "https://www.govinfo.gov/link/cfr/36/294",
+          "stated": "PART 294--SPECIAL AREAS",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "fr_document",
+          "id": "01-726",
+          "label": "FR Doc. 01-726 (66 FR 3244)",
+          "url": "https://www.federalregister.gov/api/v1/documents/01-726.json",
+          "stated": "Special Areas; Roadless Area Conservation",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "fr_document",
+          "id": "2026-16965",
+          "label": "FR Doc. 2026-16965",
+          "url": "https://www.federalregister.gov/api/v1/documents/2026-16965.json",
+          "stated": "Special Areas; Roadless Area Conservation",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "docket",
+          "id": "FS-2025-0001",
+          "label": "Docket FS-2025-0001",
+          "url": "https://www.federalregister.gov/api/v1/documents/2026-16965.json",
+          "stated": "Special Areas; Roadless Area Conservation",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "rin",
+          "id": "0596-AD66",
+          "label": "RIN 0596-AD66",
+          "url": "https://www.federalregister.gov/api/v1/documents/2026-16965.json",
+          "stated": "Special Areas; Roadless Area Conservation",
+          "readOn": "2026-11-18"
+        }
+      ]
+    },
+    {
+      "kind": "issue",
       "id": "section-106",
       "label": "Section 106 consultation",
       "names": [
@@ -85,6 +513,193 @@
       ]
     },
     {
+      "kind": "issue",
+      "id": "tribal-general-welfare-exclusion",
+      "label": "Tribal general welfare exclusion",
+      "names": [
+        {
+          "name": "Tribal General Welfare Exclusion Act of 2014",
+          "basis": "official",
+          "statedAt": "https://www.govinfo.gov/link/plaw/113/public/168?link-type=html",
+          "wording": "This Act may be cited as the ``Tribal General Welfare Exclusion Act of 2014''.",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "Tribal General Welfare Benefits",
+          "basis": "official",
+          "statedAt": "https://www.federalregister.gov/api/v1/documents/2025-22873.json",
+          "wording": "Tribal General Welfare Benefits",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "General Welfare Exclusion",
+          "basis": "people_use",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "TGWE",
+          "basis": "people_use",
+          "reviewedOn": "2026-11-18"
+        }
+      ],
+      "searches": [
+        {
+          "group": "policy",
+          "source": "federal-register",
+          "query": "1545-BQ95",
+          "match": "rin",
+          "auto": true
+        },
+        {
+          "group": "legislation",
+          "source": "govinfo",
+          "query": "collection:BILLS AND (\"Tribal General Welfare Exclusion Act\")",
+          "label": "Federal bills and resolutions: Tribal General Welfare Exclusion Act",
+          "terms": "Tribal General Welfare Exclusion Act",
+          "collection": "Federal bills and resolutions",
+          "auto": true
+        }
+      ],
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "restsOn": [
+        {
+          "kind": "usc",
+          "id": "26 U.S.C. 139E",
+          "label": "26 U.S.C. 139E",
+          "url": "https://www.govinfo.gov/link/uscode/26/139E?link-type=html",
+          "stated": "Indian general welfare benefits",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "public_law",
+          "id": "Pub. L. 113-168",
+          "label": "Pub. L. 113-168",
+          "url": "https://www.govinfo.gov/link/plaw/113/public/168?link-type=html",
+          "stated": "Tribal General Welfare Exclusion Act of 2014",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "fr_document",
+          "id": "2025-22873",
+          "label": "FR Doc. 2025-22873 (90 FR 58378)",
+          "url": "https://www.federalregister.gov/api/v1/documents/2025-22873.json",
+          "stated": "Tribal General Welfare Benefits",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "rin",
+          "id": "1545-BQ95",
+          "label": "RIN 1545-BQ95",
+          "url": "https://www.federalregister.gov/api/v1/documents/2025-22873.json",
+          "stated": "Tribal General Welfare Benefits",
+          "readOn": "2026-11-18"
+        }
+      ]
+    },
+    {
+      "kind": "issue",
+      "id": "us-israel-defense-technology-cooperation",
+      "label": "United States-Israel defense technology cooperation",
+      "names": [
+        {
+          "name": "United States-Israel Defense Technology Cooperation Initiative",
+          "basis": "official",
+          "statedAt": "https://www.govinfo.gov/content/pkg/BILLS-119hr8800eh/html/BILLS-119hr8800eh.htm",
+          "wording": "United States-Israel Defense Technology Cooperation Initiative",
+          "reviewedOn": "2026-11-18"
+        }
+      ],
+      "searches": [
+        {
+          "group": "legislation",
+          "source": "govinfo",
+          "query": "collection:BILLS AND (\"United States-Israel Defense Technology Cooperation Initiative\")",
+          "label": "Federal bills and resolutions: United States-Israel Defense Technology Cooperation Initiative",
+          "terms": "United States-Israel Defense Technology Cooperation Initiative",
+          "collection": "Federal bills and resolutions",
+          "auto": true
+        }
+      ],
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "restsOn": []
+    },
+    {
+      "kind": "issue",
+      "id": "water-quality-standards-fish-consumption",
+      "label": "Water quality standards and fish consumption rates",
+      "names": [
+        {
+          "name": "Water Quality Standards",
+          "basis": "official",
+          "statedAt": "https://www.govinfo.gov/link/cfr/40/131",
+          "wording": "PART 131--WATER QUALITY STANDARDS",
+          "reviewedOn": "2026-11-18"
+        }
+      ],
+      "searches": [
+        {
+          "group": "policy",
+          "source": "federal-register",
+          "query": "40 CFR 131",
+          "match": "cfr",
+          "auto": true
+        },
+        {
+          "group": "policy",
+          "source": "federal-register",
+          "query": "2040-AG17",
+          "match": "rin",
+          "auto": true
+        }
+      ],
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "restsOn": [
+        {
+          "kind": "usc",
+          "id": "33 U.S.C. 1313",
+          "label": "33 U.S.C. 1313",
+          "url": "https://www.govinfo.gov/link/uscode/33/1313?link-type=html",
+          "stated": "Water quality standards and implementation plans",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "cfr",
+          "id": "40 CFR 131",
+          "label": "40 CFR Part 131",
+          "url": "https://www.govinfo.gov/link/cfr/40/131",
+          "stated": "PART 131--WATER QUALITY STANDARDS",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "fr_document",
+          "id": "2024-09427",
+          "label": "FR Doc. 2024-09427 (89 FR 35717)",
+          "url": "https://www.federalregister.gov/api/v1/documents/2024-09427.json",
+          "stated": "Water Quality Standards Regulatory Revisions To Protect Tribal Reserved Rights",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "docket",
+          "id": "EPA-HQ-OW-2021-0791",
+          "label": "Docket EPA-HQ-OW-2021-0791",
+          "url": "https://www.federalregister.gov/api/v1/documents/2024-09427.json",
+          "stated": "Water Quality Standards Regulatory Revisions To Protect Tribal Reserved Rights",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "rin",
+          "id": "2040-AG17",
+          "label": "RIN 2040-AG17",
+          "url": "https://www.federalregister.gov/api/v1/documents/2024-09427.json",
+          "stated": "Water Quality Standards Regulatory Revisions To Protect Tribal Reserved Rights",
+          "readOn": "2026-11-18"
+        }
+      ]
+    },
+    {
       "kind": "measure",
       "id": "baaja",
       "label": "Bipartisan American Affordability and Jobs Act of 2026",
@@ -143,6 +758,94 @@
           "readOn": "2026-11-18",
           "basis": "cites",
           "cites": ["54 U.S.C. 306108"],
+          "reviewedOn": "2026-11-18"
+        }
+      ]
+    },
+    {
+      "kind": "measure",
+      "id": "ndaa-fy2027",
+      "label": "National Defense Authorization Act for Fiscal Year 2027",
+      "names": [
+        {
+          "name": "National Defense Authorization Act for Fiscal Year 2027",
+          "basis": "official",
+          "statedAt": "https://www.govinfo.gov/app/details/BILLS-119hr8800eh",
+          "wording": "National Defense Authorization Act for Fiscal Year 2027",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "NDAA",
+          "basis": "people_use",
+          "reviewedOn": "2026-11-18"
+        }
+      ],
+      "searches": [
+        {
+          "group": "legislation",
+          "source": "congress",
+          "query": "hr 8800 119",
+          "label": "H.R. 8800 (119th Congress)",
+          "auto": true
+        },
+        {
+          "group": "legislation",
+          "source": "congress",
+          "query": "s 4784 119",
+          "label": "S. 4784 (119th Congress)",
+          "auto": true
+        },
+        {
+          "group": "legislation",
+          "source": "govinfo",
+          "query": "collection:BILLS AND (\"National Defense Authorization Act for Fiscal Year 2027\")",
+          "label": "Federal bills and resolutions: National Defense Authorization Act for Fiscal Year 2027",
+          "terms": "National Defense Authorization Act for Fiscal Year 2027",
+          "collection": "Federal bills and resolutions",
+          "auto": true
+        }
+      ],
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "identifiers": [
+        {
+          "kind": "bill",
+          "id": "hr 8800 119",
+          "label": "H.R. 8800 (119th Congress)",
+          "url": "https://www.govinfo.gov/app/details/BILLS-119hr8800eh",
+          "stated": "National Defense Authorization Act for Fiscal Year 2027",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "bill",
+          "id": "s 4784 119",
+          "label": "S. 4784 (119th Congress)",
+          "url": "https://www.govinfo.gov/app/details/BILLS-119s4784rs",
+          "stated": "National Defense Authorization Act for Fiscal Year 2027",
+          "readOn": "2026-11-18"
+        }
+      ],
+      "provisions": [
+        {
+          "issue": "us-israel-defense-technology-cooperation",
+          "bill": "hr 8800 119",
+          "version": "Engrossed in House",
+          "section": "219",
+          "heading": "Sec. 219. United States-Israel Defense Technology Cooperation Initiative.",
+          "url": "https://www.govinfo.gov/content/pkg/BILLS-119hr8800eh/html/BILLS-119hr8800eh.htm",
+          "readOn": "2026-11-18",
+          "basis": "listed",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "issue": "us-israel-defense-technology-cooperation",
+          "bill": "s 4784 119",
+          "version": "Reported in Senate",
+          "section": "1217",
+          "heading": "Sec. 1217. United States-Israel Framework for Upgraded Technologies, Unified Research, and Enhanced Security (FUTURES) Act of 2026.",
+          "url": "https://www.govinfo.gov/content/pkg/BILLS-119s4784rs/xhtml/BILLS-119s4784rs.html",
+          "readOn": "2026-11-18",
+          "basis": "listed",
           "reviewedOn": "2026-11-18"
         }
       ]
