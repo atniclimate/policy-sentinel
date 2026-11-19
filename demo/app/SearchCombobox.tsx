@@ -98,12 +98,13 @@ function candidates(
   vocabulary: readonly VocabularyFile[],
   issues: IssueFile,
 ) {
-  const laws = aliases.entries.map((alias) => ({
-    label: alias.popularName,
-    shortLabel: null,
-    note: copy.lawNote,
-    alias,
-  }));
+  // One row for the name and one per acronym, so an acronym typed in any
+  // case, or only its start, finds the law (the router reads exact capitals).
+  const laws = aliases.entries.flatMap((alias) =>
+    [alias.popularName, ...(alias.acronyms ?? []).map((a) => a.acronym)].map(
+      (label) => ({ label, shortLabel: null, note: copy.lawNote, alias }),
+    ),
+  );
   const vocab: Candidate[] = vocabulary.flatMap((file) =>
     file.entries.map((entry) => ({
       label: entry.label,
@@ -116,7 +117,11 @@ function candidates(
     laws,
     vocab,
     issues: issueRows,
-    all: [...laws, ...vocab] as Candidate[],
+    // The typo pass reads names only: an acronym is short and exact.
+    all: [
+      ...laws.filter((law) => law.label === law.alias.popularName),
+      ...vocab,
+    ] as Candidate[],
   };
   for (const list of Object.values(lists)) prepareLabels(list);
   return lists;
@@ -209,10 +214,13 @@ function optionsFor(
       note: FAMILY_NOTE[row.termFamily],
       insert: row.term,
     }));
-    for (const c of rankLabels(typed, lists.laws)
-      .filter((c) => !named.has(c.label))
-      .slice(0, MAX_WORD_OPTIONS))
+    const seenLaws = new Set<LawAlias>();
+    for (const c of rankLabels(typed, lists.laws)) {
+      if (named.has(c.alias.popularName) || seenLaws.has(c.alias)) continue;
+      seenLaws.add(c.alias);
       words.push(lawOption(c.alias));
+      if (seenLaws.size >= MAX_WORD_OPTIONS) break;
+    }
     for (const c of rankLabels(typed, lists.vocab).slice(0, MAX_WORD_OPTIONS))
       words.push(labelOption(c));
     const issueEntries: TableEntry[] = [];

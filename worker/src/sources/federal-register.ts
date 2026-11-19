@@ -173,6 +173,80 @@ function frMatchConditions(
   ];
 }
 
+/** search-contract.ts validIdentifier already enforces this shape. */
+function executiveOrderNumber(query: string): string {
+  const m = /^E\.O\. (\d{4,5})$/.exec(query);
+  if (!m)
+    throw new DemoError(
+      "bad_query",
+      "An executive order number is written as E.O. 13175.",
+      400,
+    );
+  return m[1] as string;
+}
+
+/**
+ * An executive order (T1.2, D-177): the Federal Register's search API has no
+ * condition for the order number itself, only a free-text term search
+ * restricted to presidential documents of type Executive Order, so a term
+ * match on, say, "13175" can answer rows for a different order (its document
+ * number, or some other mention, carries that digit string). This keeps only
+ * the rows whose own executive_order_number states the number exactly and
+ * counts the rest left out, the way an identifier lookup already reports
+ * listings it left out (safeguard 8). One page, no continuation.
+ */
+async function searchExecutiveOrder(
+  criteria: DemoSearchCriteria,
+): Promise<DemoSearchResponse> {
+  const { query } = criteria;
+  const number = executiveOrderNumber(query);
+  const url = new URL("https://www.federalregister.gov/api/v1/documents.json");
+  url.searchParams.set("conditions[term]", number);
+  url.searchParams.set("conditions[type][]", "PRESDOCU");
+  url.searchParams.set(
+    "conditions[presidential_document_type][]",
+    "executive_order",
+  );
+  url.searchParams.set("per_page", "100");
+  url.searchParams.set("page", "1");
+  url.searchParams.set("order", "relevance");
+  for (const f of [...FR_FIELDS, "executive_order_number"])
+    url.searchParams.append("fields[]", f);
+  const { response, bytes } = await officialFetch(url.href);
+  if (!response.ok) {
+    throw new DemoError(
+      "upstream_error",
+      `The Federal Register answered with status ${response.status}.`,
+    );
+  }
+  const data = record(parseJson(bytes));
+  const retrievedAt = new Date().toISOString();
+  const rows =
+    data.results === undefined && data.count === 0 ? [] : data.results;
+  const raw = resultRows(rows);
+  const exact = raw.filter(
+    (doc) => String(record(doc).executive_order_number) === number,
+  );
+  const results = exact.map((doc) => frCitation(doc, retrievedAt, false));
+  const leftOut = raw.length - exact.length;
+  // More orders mention the number than this one request read: the order
+  // itself may sit past row 100, so the answer cannot say it is complete
+  // (safeguard 8). "unknown" keeps an existing order from reading as absent.
+  const partial = typeof data.count === "number" && data.count > raw.length;
+  return {
+    ok: true,
+    source: "federal-register",
+    query,
+    total: results.length,
+    page: 1,
+    results,
+    retrievedAt,
+    criteria,
+    continuation: { kind: "stopped", reason: partial ? "unknown" : "complete" },
+    ...(leftOut > 0 && { leftOut }),
+  };
+}
+
 async function searchFederalRegister(
   criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
@@ -304,6 +378,8 @@ export async function search(
   _env: Env,
   criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
+  if (criteria.version === 3 && criteria.match === "executive_order")
+    return searchExecutiveOrder(criteria);
   return searchFederalRegister(criteria);
 }
 

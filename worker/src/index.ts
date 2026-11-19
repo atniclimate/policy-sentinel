@@ -425,10 +425,15 @@ export default {
           const match = params.get("match");
           const documentType = params.get("documentType");
           const eligibility = params.get("eligibility");
-          // Version 3 is open to the court-case source only, so every other
+          // Version 3 is open to court cases and, on the Federal Register,
+          // the executive-order match only (T1.2, D-177); every other
           // source's version 1 and 2 behavior stays exactly as it was.
           const widened =
-            version === "2" || (version === "3" && source === "govinfo-courts");
+            version === "2" ||
+            (version === "3" &&
+              (source === "govinfo-courts" ||
+                (source === "federal-register" &&
+                  match === "executive_order")));
           if (
             (version !== null && version !== "1" && !widened) ||
             (!widened &&

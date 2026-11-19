@@ -53,10 +53,13 @@ export type LaneGroup = "policy" | "legislation" | "bill" | "case" | "related";
 export type LaneMatch = Exclude<DemoSearchMatch, "text">;
 
 /**
- * A search contract v3 lookup on GovInfo court opinions (T1.5): a docket
- * number in one named court ("ca9 23-1234"), or a U.S. Reports citation.
+ * A search contract v3 lookup that travels apart from `match` because it is
+ * not one of the v1/v2 identifier kinds: a docket number in one named GovInfo
+ * court (T1.5), a U.S. Reports citation, or an executive order (T1.2, D-177).
+ * Like a court lookup, an executive order is never looked up by words, and
+ * the Worker (not a client-side keep rule) is the one that matches it exactly.
  */
-export type CourtLookup = "court_docket" | "us_reports";
+export type CourtLookup = "court_docket" | "us_reports" | "executive_order";
 
 /** The source that answers court lookups; it takes search contract v3 only. */
 export const COURTS_SOURCE = "govinfo-courts";
@@ -201,7 +204,10 @@ export function laneOptions(
     dateFrom: plan.dateFrom,
     dateTo: plan.dateTo,
     continuation,
-    version: lane.sourceId === COURTS_SOURCE ? 3 : 2,
+    version:
+      lane.sourceId === COURTS_SOURCE || lane.lookup === "executive_order"
+        ? 3
+        : 2,
     match: lane.match ?? lane.lookup ?? "text",
     documentType: lane.typeNotApplied ? null : (plan.documentType ?? null),
     ...(lane.sourceId === "grants" &&
@@ -382,6 +388,9 @@ export function laneKeep(
   }
   // shortcut: a U.S. Reports lookup keeps what the Worker matched by volume and page; check granule ids here if the Worker ever lists more.
   if (lookup === "us_reports") return undefined;
+  // The Worker already keeps only the exact executive order (T1.2, D-177);
+  // nothing here filters its results a second time.
+  if (lookup === "executive_order") return undefined;
   return match
     ? (citation) => statesIdentifier(citation, match, query)
     : undefined;
@@ -441,6 +450,8 @@ export function readingSearch(reading: RouteReading): PlanSearch | null {
     case "docket":
     case "rin":
       return { ...base, source: "federal-register", match: reading.kind };
+    case "executive_order":
+      return { ...base, source: "federal-register", lookup: "executive_order" };
     case "cfr":
       return {
         ...base,
@@ -532,7 +543,11 @@ export function settleLane(
     state: listings.length ? "results" : "empty",
     listings,
     response,
-    ...(keep && { leftOut: distinct.length - listings.length }),
+    // An identifier lookup counts what it left out here; an executive order
+    // lookup carries the Worker's own count (safeguard 8).
+    ...(keep
+      ? { leftOut: distinct.length - listings.length }
+      : response.leftOut !== undefined && { leftOut: response.leftOut }),
   };
 }
 

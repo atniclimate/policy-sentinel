@@ -35,6 +35,8 @@ export function validateDemoIndex(
     now?: Date;
     /** C3 as a warning, for the acquisition only; builds and checks enforce it. */
     staleAsWarning?: boolean;
+    /** Tests only: hashes of held-out vocabulary ids in place of the committed list. */
+    heldOutList?: Readonly<Record<string, readonly string[]>>;
   },
 ): DemoIndexResult;
 export function schemaErrors(

@@ -497,6 +497,11 @@ export function searchValue(
     results,
     total: v.total === null ? null : integer(v.total, Number.MAX_SAFE_INTEGER),
     retrievedAt: timestamp(v.retrievedAt),
+    // Only an executive order lookup states what it left out (D-177); the
+    // Worker asks for at most 100 rows.
+    ...(criteria.version === 3 &&
+      criteria.match === "executive_order" &&
+      v.leftOut !== undefined && { leftOut: integer(v.leftOut, 100, 1) }),
   };
 }
 

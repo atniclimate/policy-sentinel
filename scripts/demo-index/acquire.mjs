@@ -30,6 +30,7 @@ import {
   FULL_PROBE_ENTRIES,
   StageError,
   isFullProbe,
+  loadNationProbe,
   loadProbeNames,
   manifestBytes,
   sanitizeMessage,
@@ -55,7 +56,7 @@ export const USAGE = `usage: node scripts/acquire-demo-index.mjs <command> [opti
   ecfr  --title N --terms-read YYYY-MM-DD           eCFR "up to date as of" (current reference)
   uslm  --title N --release-point 119-136 --terms-read YYYY-MM-DD   OLRC USLM title zip
 common: --dry-run | --work-dir <outside repo> --report <outside repo> --rights-file <json>
-        --nation-names <recognition notice HTML, all 575 entries> [--keep-raw]`;
+        [--nation-names <recognition notice HTML, all 575 entries>; default: the committed hash file] [--keep-raw]`;
 
 const SOURCES = {
   cfr: {
@@ -177,10 +178,6 @@ export function parseAcquireArgs(argv) {
     if (!values["rights-file"])
       throw new UsageError(
         "--rights-file is required: no file is marked current without the owner's reading",
-      );
-    if (!values["nation-names"])
-      throw new UsageError(
-        `--nation-names is required: every file is probed with all ${FULL_PROBE_ENTRIES} recognition entries (G3)`,
       );
   }
   options.workDir = values["work-dir"] ? resolve(values["work-dir"]) : null;
@@ -528,11 +525,7 @@ function stageAndValidate(dataDir, stageDir, writes, manifest, probe) {
     writeFileSync(join(stageDir, path), bytes);
   }
   writeFileSync(join(stageDir, "manifest.json"), manifestBytes(manifest));
-  return validateDemoIndex(stageDir, {
-    names: probe.names,
-    probeSource: probe.source,
-    staleAsWarning: true,
-  });
+  return validateDemoIndex(stageDir, { probe, staleAsWarning: true });
 }
 
 /**
@@ -566,10 +559,14 @@ export async function runAcquire(argv, deps = {}) {
       log(`${name} must be outside the repository`);
       return { exitCode: 2 };
     }
-  const probe = loadProbeNames(options.nationNames ?? undefined);
+  // G3: every file is probed with the full recognition list. With no plain
+  // notice, the committed hash file is the probe (D-175).
+  const probe = options.nationNames
+    ? loadProbeNames(options.nationNames)
+    : loadNationProbe({ hashPath: deps.probeHashPath });
   if (!isFullProbe(probe)) {
     log(
-      `--nation-names holds ${probe.entryCount} recognition entries, not the full list of ${FULL_PROBE_ENTRIES}; nothing fetched`,
+      `${options.nationNames ? "--nation-names" : "the committed hash file"} holds ${probe.entryCount} recognition entries, not the full list of ${FULL_PROBE_ENTRIES}; nothing fetched`,
     );
     return { exitCode: 2 };
   }
@@ -583,11 +580,7 @@ export async function runAcquire(argv, deps = {}) {
     }
   }
   // A stale file must stay refreshable; demo:build and check still enforce C3.
-  const before = validateDemoIndex(dataDir, {
-    names: probe.names,
-    probeSource: probe.source,
-    staleAsWarning: true,
-  });
+  const before = validateDemoIndex(dataDir, { probe, staleAsWarning: true });
   if (!before.ok) {
     log(
       `the committed index is invalid; nothing fetched: ${before.errors.slice(0, 3).join("; ")}`,
@@ -626,7 +619,8 @@ export async function runAcquire(argv, deps = {}) {
     windowEnd: null,
     workDir: options.workDir,
     rawFiles: [],
-    names: probe.names,
+    // The whole probe when it carries hashes, so wordingProblem checks them too.
+    names: probe.hashes ? probe : probe.names,
     rights,
   };
   const report = {

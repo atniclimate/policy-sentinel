@@ -2,7 +2,7 @@
 
 - Goal: a Tribal staff member searches official federal and state sources on
   one page and sees each result's source, retrieval time and why it was shown.
-- Now: the 0.9.5 demo update is live (not the D-123 pre-release); the owner's
+- Now: the 0.9.6 demo update is live (not the D-123 pre-release); the owner's
   walk of the T1.7 staff tasks is still to come.
 - Next: the goals and owner gates are in [PLAN.md](PLAN.md) and the current
   state in [STATUS.md](STATUS.md). History follows, newest first.
@@ -31,9 +31,19 @@ Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
 
+## Full issue table, 0.9.6, 2026-11-18 (D-175, D-176)
+
+The live page is now 0.9.6. The owner ruled that 575 is the number of
+federally recognized Tribes (the 2026 notice's 577 paragraphs include two
+Alaska groupings listed with their members). The Nation-name hash file is
+committed with that count, so the issue table now holds all 11 entries.
+Published through PR 30 (merge commit `9b59688`, 2026-11-19 06:21:36 UTC);
+Pages built it at 06:22:13 UTC; the browser verifier passed 83 of 83 against
+the live page, header 0.9.6. No Worker change.
+
 ## Issue search and verified sources, 0.9.4 and 0.9.5, 2026-11-18 (D-161 to D-174)
 
-The live page is now 0.9.5. The search box offers a policy issue or a bill by
+This update published 0.9.5. The search box offers a policy issue or a bill by
 the names people use ("Section 106", "BAAJA"); choosing it runs a small set of
 exact searches, shows the identifiers it rests on with read dates, and lists
 bill sections with the reason each is listed. Issues that share an identifier

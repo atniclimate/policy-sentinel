@@ -26,6 +26,7 @@ import {
   shardBytes,
   sourceIdOfPath,
 } from "./common.mjs";
+import { heldOut } from "./vocab.mjs";
 
 const KiB = 1024;
 const MiB = 1024 * KiB;
@@ -185,7 +186,7 @@ function checkSorted(label, values, compare, errors) {
 
 const sameJson = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
-function checkShard(entry, value, errors) {
+function checkShard(entry, value, errors, heldOutList) {
   const label = entry.path;
   const source = entry.source;
   if (entry.entryCount !== value.entries.length)
@@ -196,6 +197,8 @@ function checkShard(entry, value, errors) {
   if (value.artifactType === "vocabulary") {
     if (value.kind !== VOCAB_KIND_OF_PATH[label])
       errors.push(`${label}: vocabulary kind differs from the path`);
+    if (value.entries.some((e) => heldOut(value.kind, e.id, heldOutList)))
+      errors.push(`${label}: holds a held-out entry (G3)`);
     checkSorted(
       label,
       value.entries.map((e) => e.id),
@@ -423,7 +426,7 @@ export function validateDemoIndex(dir, options = {}) {
     }
     if (!shardBytes(value).equals(bytes))
       errors.push(`${label}: not in canonical form (H1)`);
-    checkShard(entry, value, errors);
+    checkShard(entry, value, errors, options.heldOutList);
     scanStrings(label, value, { shard: true, ...ctx }, errors);
   }
   if (vocabBytes > CAPS.vocabTotalBytes)

@@ -36,6 +36,7 @@ export type ReadingKind =
   | "state_bill"
   | "state_code"
   | "court_docket"
+  | "executive_order"
   | "law_name"
   | "issue";
 
@@ -74,7 +75,10 @@ type State = "WA" | "OR" | "ID";
  * state bill is live for Washington only, and a court docket is live for the
  * circuits only. A Supreme Court docket is not covered: GovInfo's USCOURTS
  * collection holds no Supreme Court packages, and the Court's own site is not
- * a source until its robots and terms are read (N19).
+ * a source until its robots and terms are read (N19). An executive order is
+ * live only when the Federal Register can hold it: that source's documents
+ * run from 1994, Executive Order 12890 is the first order published there, so
+ * a number below 12890 is not_covered (D-177).
  */
 type ActionEntry = RouteAction | Readonly<Record<string, RouteAction>>;
 export const READING_ACTIONS: Readonly<Record<ReadingKind, ActionEntry>> =
@@ -99,6 +103,10 @@ export const READING_ACTIONS: Readonly<Record<ReadingKind, ActionEntry>> =
       circuit: "live_lookup",
       district: "not_covered",
       state: "not_covered",
+    },
+    executive_order: {
+      in_federal_register: "live_lookup",
+      before_1994: "not_covered",
     },
     law_name: "static_index",
     issue: "live_lookup",
@@ -158,6 +166,19 @@ const DISTRICT_DOCKET = new RegExp(
   "gi",
 );
 const APPELLATE_DOCKET = new RegExp(String.raw`${B}(\d{2})-(\d{1,5})${E}`, "g");
+
+/** The Federal Register's documents run from 1994; Executive Order 12890 is the first one published there (D-177). */
+const FIRST_FR_EXECUTIVE_ORDER = 12890;
+/**
+ * "Executive Order", "Exec. Order", "E.O.", "E. O.", "EO" or "XO", case and
+ * spacing variants included, optionally followed by "No." or "Number", then
+ * a 4 or 5 digit number. A bare number is never an executive order.
+ */
+const EO_FORM = String.raw`(?:Executive\s+Order|Exec\.?\s+Order|E\.\s?O\.|EO|XO)`;
+const EXECUTIVE_ORDER = new RegExp(
+  String.raw`${B}${EO_FORM}\s*(?:No\.?\s*|Number\s+)?(\d{4,5})${E}`,
+  "gi",
+);
 
 /** Code forms cite-patterns does not parse: WAC, OAR, IDAPA, chapters, lower case. */
 const CODE_FORMS: readonly { re: RegExp; code: string; state: State }[] = [
@@ -667,6 +688,24 @@ export function routeQuery(
       : [federal("fr_document", m[0], copy.frDocument(m[0]))],
   );
 
+  // Executive orders (D-177), read on the masked text so a form inside a
+  // protected span never claims. Scanned with the other identifiers, before
+  // acronyms and issue names, so every existing reading keeps its span.
+  for (const m of masked.matchAll(EXECUTIVE_ORDER)) {
+    const number = m[1] ?? "";
+    const id = `E.O. ${number}`;
+    claim(m.index, m.index + m[0].length, [
+      federal(
+        "executive_order",
+        id,
+        copy.executiveOrder(number),
+        Number(number) < FIRST_FR_EXECUTIVE_ORDER
+          ? "before_1994"
+          : "in_federal_register",
+      ),
+    ]);
+  }
+
   // Acronyms last, so an identifier ("ORS 196.800") keeps its own reading.
   // Exact and case-sensitive, outside masked spans. An acronym two laws share
   // offers both and chooses neither.
@@ -721,7 +760,26 @@ export function routeQuery(
         if (!eligible.length) continue;
         const end = m.index + m[0].length;
         // An identifier already holds this span: a later mention may still claim.
-        if (claims.some((c) => m.index < c.end && c.start < end)) continue;
+        const overlap = claims.find((c) => m.index < c.end && c.start < end);
+        // An issue name covering exactly the same span as an executive-order
+        // reading, or as a law's name or acronym, is still offered: appended
+        // to that claim as an alternative, the order or law first, nothing
+        // chosen (D-177 point 4; D-178 for "NAGPRA", a law and an issue).
+        const sameSpanKind = overlap?.readings[0]?.kind;
+        if (
+          overlap &&
+          overlap.start === m.index &&
+          overlap.end === end &&
+          (sameSpanKind === "executive_order" || sameSpanKind === "law_name")
+        ) {
+          overlap.readings.push(
+            ...eligible.map((e) => issueReading(issueTable, e)),
+          );
+          overlap.unchosen = true;
+          for (const e of eligible) claimedEntries.add(e);
+          continue;
+        }
+        if (overlap) continue;
         claim(
           m.index,
           end,

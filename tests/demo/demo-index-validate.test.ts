@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { createHash } from "node:crypto";
 import {
   mkdirSync,
   readFileSync,
@@ -86,10 +87,19 @@ function withVocabLabel(label: string): FixtureFile[] {
 }
 
 describe("static index validator", () => {
-  it("accepts the committed manifest, with every planned file unavailable", () => {
+  it("accepts the committed index: the two Federal Register lists, every other planned file unavailable", () => {
     const result = validateDemoIndex("docs/demo-data");
     expect(result.errors).toEqual([]);
-    expect(result.fileCount).toBe(0);
+    // Acquired 2026-11-18 (D-180); a later acquisition changes this list.
+    const manifest = JSON.parse(
+      readFileSync("docs/demo-data/manifest.json", "utf8"),
+    ) as { files: { path: string; status: string }[] };
+    expect(
+      manifest.files
+        .filter((f) => f.status !== "unavailable")
+        .map((f) => f.path),
+    ).toEqual(["vocab/fr-agencies.json", "vocab/fr-topics.json"]);
+    expect(result.fileCount).toBe(2);
     expect(result.probe.nameCount).toBeGreaterThan(0);
   });
 
@@ -328,6 +338,22 @@ describe("static index validator", () => {
     const result = run();
     expect(result.ok).toBe(false);
     expect(result.errors.join("\n")).toMatch(pattern);
+  });
+
+  it("refuses a vocabulary file that carries a held-out entry (G3)", () => {
+    // Regression (review of 2026-11-18). The list holds hashes of entry ids.
+    const dir = tempDir();
+    const file = vocabFile();
+    writeIndex(dir, [{ path: "vocab/fr-agencies.json", value: file }]);
+    const heldOutList = {
+      fr_agency: [
+        createHash("sha256").update(file.entries[0].id, "utf8").digest("hex"),
+      ],
+    };
+    expect(validateDemoIndex(dir).errors).toEqual([]);
+    expect(validateDemoIndex(dir, { heldOutList }).errors).toEqual([
+      "vocab/fr-agencies.json: holds a held-out entry (G3)",
+    ]);
   });
 
   it("refuses a listed file that is missing", () => {

@@ -70,7 +70,7 @@ export type WordingProblem =
   "nation_name_probe" | "url" | "personal_pattern" | "markup";
 export function wordingProblem(
   text: string,
-  names: readonly string[],
+  names: readonly string[] | NationProbe,
 ): WordingProblem | null;
 export function sanitizeMessage(message: unknown): string;
 export class StageError extends Error {

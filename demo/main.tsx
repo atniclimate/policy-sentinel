@@ -272,7 +272,7 @@ const FALLBACK_SOURCES: DemoSource[] = (
   note: COPY.notCheckedNote,
 }));
 
-/** The static index manifest bundled at demo:build (today every file is unavailable). */
+/** The static index manifest bundled at demo:build; it says which files are current and which are unavailable. */
 const MANIFEST = MANIFEST_JSON as unknown as IndexManifest;
 /** No committee library is approved yet (N5), so that mode stays off. */
 const COMMITTEE_LIBRARY = false;
@@ -1396,6 +1396,41 @@ export function App() {
     bringResults(sequence);
   }
 
+  /**
+   * A chosen law name (D-178): its official name searched as words on the
+   * federal sources, with the link to the U.S. Code section the Popular Names
+   * table points to. The name is searched as printed; nothing is filtered by it.
+   */
+  async function runLawName(reading: RouteReading, dates: PlanDates) {
+    runPlan(
+      buildPlan(
+        { kind: "typed", query: reading.identifier, reading: reading.label },
+        [
+          {
+            group: "policy",
+            source: "federal",
+            query: reading.identifier,
+            auto: true,
+          },
+        ],
+        planSources,
+        dates,
+      ),
+    );
+    const sequence = searchRequest.current.sequence;
+    const cite = findCitations(reading.label).find((c) => c.kind === "usc");
+    const answer = cite ? await indexHop(targetOf(cite).target) : null;
+    if (
+      answer &&
+      mounted.current &&
+      sequence === searchRequest.current.sequence
+    )
+      setLinkOut({
+        label: CHAIN.liveLink(answer.sourceName),
+        url: answer.liveUrl,
+      });
+  }
+
   /** A chain hop pressed in the opened record: its rows or notice join that record's chain. */
   async function openHop(target: ChainLink["target"]) {
     const key = selectedKey.current;
@@ -1469,6 +1504,7 @@ export function App() {
       if (entry && issueReady(entry)) return tryIssue(entry);
       return sayReading(`${reading.label}: ${COPY.example.off}`, null);
     }
+    if (reading.kind === "law_name") return void runLawName(reading, dates);
     if (reading.action === "static_index") return void openIndexHop(reading);
     if (reading.action === "link_out") {
       const state = { WA: "washington", OR: "oregon", ID: "idaho" }[
@@ -1487,8 +1523,11 @@ export function App() {
           : `${reading.label}: ${ROUTER.notCoveredNote}.`,
         null,
       );
-    // Only the Federal Register takes the date range and the type filter here.
-    const register = search.source === "federal-register";
+    // Only the Federal Register takes the date range and the type filter
+    // here; an executive order lookup takes neither (T1.2, D-177).
+    const register =
+      search.source === "federal-register" &&
+      search.lookup !== "executive_order";
     runPlan(
       buildPlan(
         { kind: "typed", query: reading.identifier, reading: reading.label },

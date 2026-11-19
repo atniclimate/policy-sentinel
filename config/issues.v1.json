@@ -24,11 +24,23 @@
         },
         {
           "name": "Executive Order 13175",
-          "basis": "people_use",
+          "basis": "official",
+          "statedAt": "https://www.govinfo.gov/content/pkg/FR-2000-11-09/html/00-29003.htm",
+          "wording": "Executive Order 13175 of November 6, 2000",
           "reviewedOn": "2026-11-18"
         },
         {
           "name": "E.O. 13175",
+          "basis": "people_use",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "EO 13175",
+          "basis": "people_use",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "XO 13175",
           "basis": "people_use",
           "reviewedOn": "2026-11-18"
         }
@@ -251,7 +263,9 @@
         },
         {
           "name": "NAGPRA",
-          "basis": "people_use",
+          "basis": "official",
+          "statedAt": "https://www.govinfo.gov/link/cfr/43/10",
+          "wording": "a criminal action under NAGPRA",
           "reviewedOn": "2026-11-18"
         }
       ],
