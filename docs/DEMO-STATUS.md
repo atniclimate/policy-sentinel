@@ -2,7 +2,7 @@
 
 - Goal: a Tribal staff member searches official federal and state sources on
   one page and sees each result's source, retrieval time and why it was shown.
-- Now: the 0.9.6 demo update is live (not the D-123 pre-release); the owner's
+- Now: the 0.9.7 demo update is live (not the D-123 pre-release); the owner's
   walk of the T1.7 staff tasks is still to come.
 - Next: the goals and owner gates are in [PLAN.md](PLAN.md) and the current
   state in [STATUS.md](STATUS.md). History follows, newest first.
@@ -30,6 +30,18 @@ published the search/audit release recorded next.
 Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
+
+## Suggestions with real names, 0.9.7, 2026-11-19 UTC (D-177 to D-187)
+
+The live page is now 0.9.7. The search box suggests official Federal Register
+agency and topic names (466 and 888), 143 law names from the OLRC Popular
+Names table (26 with an acronym), executive orders in the EO, E.O. and XO
+forms with a Federal Register lookup, and 91 plain phrases. Worker
+`f6033355` was deployed first from `63326cb` with wrangler 4.151.3 (rollback
+`8726fa96`), then PR 31 merged (merge commit `be454c6`, 2026-11-19 08:16:00
+UTC; Pages 08:16:24 UTC). The browser verifier passed 87 of 87 against the
+live page, header 0.9.7, and one live executive-order lookup listed the order
+and said 8 listings were left out.
 
 ## Full issue table, 0.9.6, 2026-11-18 (D-175, D-176)
 
