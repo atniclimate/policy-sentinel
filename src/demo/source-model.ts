@@ -26,12 +26,13 @@ export type QueryOutcome = DemoSourceModel["queryOutcome"];
 export const RELEASE_VERIFICATION: Readonly<
   Record<DemoSourceId | PlannedSourceId, string | null>
 > = Object.freeze({
-  "federal-register": null,
+  // Release checks of 2026-11-18 (Pacific); receipts in the session's scratch folder.
+  "federal-register": "2026-11-18",
   govinfo: null,
-  congress: null,
-  regulations: null,
+  congress: "2026-11-18",
+  regulations: "2026-11-18",
   grants: null,
-  washington: null,
+  washington: "2026-11-18",
   oregon: null,
   idaho: null,
   "govinfo-courts": null,

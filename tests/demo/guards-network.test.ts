@@ -89,7 +89,14 @@ function files(dir: string): string[] {
   });
 }
 
-const sources = ROOTS.flatMap(files)
+/** Reviewed tables the page bundles and links out from. */
+const BUNDLED = [
+  "config/issues.v1.json",
+  "config/law-aliases.v1.json",
+  "config/plain-phrases.v1.json",
+];
+
+const sources = [...ROOTS.flatMap(files), ...BUNDLED]
   .filter((path) => TEXT.test(path))
   .map((path) => ({ path, text: readFileSync(path, "utf8") }));
 

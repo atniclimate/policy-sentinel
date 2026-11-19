@@ -91,23 +91,34 @@ async function searchGovInfo(
       matchKey: row.collectionCode === "FR" ? frMatchKey(row.granuleId) : null,
     };
   });
+  const total = resultCount(data.count);
   return {
     ok: true,
     source: "govinfo",
     query,
-    total: resultCount(data.count),
+    total,
     page,
     results,
     retrievedAt,
     criteria,
     continuation:
-      page === searchPageLimit("govinfo")
-        ? { kind: "stopped", reason: "cap" }
-        : validCursorToken(data.offsetMark) &&
-            data.offsetMark !== "*" &&
-            data.offsetMark !== criteria.cursor
-          ? { kind: "more", next: nextSearchCursor(criteria, data.offsetMark) }
-          : { kind: "stopped", reason: "unknown" },
+      // Live 2026-11-19: a one-hit search still carried a next token, so the
+      // count is read first, as the courts lane does. An empty page proves
+      // nothing. shortcut: this page's rows are compared with the count, so a
+      // short last page after page 1 still offers one empty next page; upgrade
+      // when the count's meaning on page 2 is checked live.
+      total !== null && results.length > 0 && results.length >= total
+        ? { kind: "stopped", reason: "complete" }
+        : page === searchPageLimit("govinfo")
+          ? { kind: "stopped", reason: "cap" }
+          : validCursorToken(data.offsetMark) &&
+              data.offsetMark !== "*" &&
+              data.offsetMark !== criteria.cursor
+            ? {
+                kind: "more",
+                next: nextSearchCursor(criteria, data.offsetMark),
+              }
+            : { kind: "stopped", reason: "unknown" },
   };
 }
 

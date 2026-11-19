@@ -3,6 +3,8 @@
  * identifier and the official system it belongs to; none states what a record
  * means or relates a record to a Nation.
  */
+import type { TableEntry } from "../issues.ts";
+
 const CIRCUITS: Readonly<Record<string, string>> = {
   ca1: "First Circuit",
   ca2: "Second Circuit",
@@ -101,4 +103,18 @@ export const router = {
     titleAsEnacted = false,
   ) =>
     `${name}${titleAsEnacted ? " (title as enacted)" : ""}, ${citations.join("; ")}`,
+  /** issueCount is read only for a measure (a bill or rule); an issue ignores it. */
+  issueReading: (entry: TableEntry, issueCount: number) =>
+    entry.kind === "issue"
+      ? `Issue: ${entry.label}`
+      : `Bill: ${entry.label}, ${issueCount} ${issueCount === 1 ? "issue" : "issues"} listed`,
+  /** The combobox's note on an issue entry's word-prefix option. */
+  issueSearchNote: (searchCount: number) =>
+    `runs ${searchCount} ${searchCount === 1 ? "search" : "searches"} together`,
+  /** The combobox's note on a measure entry's word-prefix option. */
+  measureIssueNote: (issueCount: number) =>
+    `${issueCount} ${issueCount === 1 ? "issue" : "issues"} listed`,
+  /** One of a bill's issues, offered beside the bill: where the bill lists it. */
+  measureIssueOption: (bill: string, sections: string, issue: string) =>
+    `${bill}, ${sections}, listed with the issue ${issue}`,
 };

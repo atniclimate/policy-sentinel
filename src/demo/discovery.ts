@@ -74,7 +74,7 @@ export type Seed =
       readonly reading?: string;
     }
   | { readonly kind: "area"; readonly label: string }
-  /** An example issue (issue-examples.ts): several hand-chosen searches. */
+  /** An issue or bill from the reviewed table (issues.ts): several hand-chosen searches. */
   | { readonly kind: "example"; readonly label: string }
   | {
       readonly kind: "record";

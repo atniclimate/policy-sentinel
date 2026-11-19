@@ -18,6 +18,8 @@
 import { findCitations } from "./cite-patterns.ts";
 import { router as copy } from "./copy/router.ts";
 import type { LawAlias, LawAliasFile } from "./index-types.ts";
+import { issuesIn } from "./issues.ts";
+import type { IssueFile, TableEntry } from "./issues.ts";
 import { maskProtectedSpans, type ProtectedSpan } from "./nation-mask.ts";
 
 export type ReadingKind =
@@ -34,7 +36,8 @@ export type ReadingKind =
   | "state_bill"
   | "state_code"
   | "court_docket"
-  | "law_name";
+  | "law_name"
+  | "issue";
 
 export type RouteJurisdiction = "federal" | "WA" | "OR" | "ID" | null;
 export type RouteAction =
@@ -98,6 +101,7 @@ export const READING_ACTIONS: Readonly<Record<ReadingKind, ActionEntry>> =
       state: "not_covered",
     },
     law_name: "static_index",
+    issue: "live_lookup",
   });
 
 const action = (kind: ReadingKind, condition?: string): RouteAction => {
@@ -328,9 +332,27 @@ export const lawNameReading = (alias: LawAlias): RouteReading =>
     ),
   );
 
+/**
+ * The one issue reading, shared with the combobox's typed-prefix options
+ * (D-161 to D-167). identifier is the entry's label, unique across the table
+ * and what the page uses to find the entry.
+ */
+export const issueReading = (
+  table: IssueFile,
+  entry: TableEntry,
+): RouteReading =>
+  federal(
+    "issue",
+    entry.label,
+    copy.issueReading(
+      entry,
+      entry.kind === "measure" ? issuesIn(table, entry).length : 0,
+    ),
+  );
+
 export function routeQuery(
   input: string,
-  options?: { aliases?: LawAliasFile },
+  options?: { aliases?: LawAliasFile; issues?: IssueFile },
 ): QueryRoute {
   const { masked, spans } = maskProtectedSpans(input);
   const claims: Claim[] = [];
@@ -664,6 +686,51 @@ export function routeQuery(
         laws.map(lawNameReading),
         laws.length > 1,
       );
+  }
+
+  // Issue and measure names (D-161 to D-167), scanned last of all so an
+  // identifier, acronym or law name keeps its own reading and a protected
+  // span never matches. One claim per entry, even when several of its names
+  // (or its label) appear; a name entries share offers both and chooses
+  // neither, as a shared acronym does.
+  if (options?.issues) {
+    const issueTable = options.issues;
+    const claimedEntries = new Set<TableEntry>();
+    const byName = new Map<string, TableEntry[]>();
+    const addName = (name: string, entry: TableEntry) => {
+      const owners = byName.get(name) ?? [];
+      if (!owners.includes(entry)) owners.push(entry);
+      byName.set(name, owners);
+    };
+    for (const entry of issueTable.entries) {
+      for (const { name } of entry.names) addName(name, entry);
+      addName(entry.label, entry);
+    }
+    // Longest name first, so a longer name another entry owns keeps its span.
+    const names = [...byName].sort(([a], [b]) => b.length - a.length);
+    for (const [name, owners] of names) {
+      const allCapsAndDigits = /^[A-Z0-9]+$/.test(name);
+      const re = allCapsAndDigits
+        ? new RegExp(String.raw`(?<!\w)${escapeRe(name)}(?!\w)`, "g")
+        : new RegExp(
+            String.raw`(?<!\w)${escapeRe(name).replace(/\s+/g, String.raw`\s+`)}(?!\w)`,
+            "gi",
+          );
+      for (const m of masked.matchAll(re)) {
+        const eligible = owners.filter((e) => !claimedEntries.has(e));
+        if (!eligible.length) continue;
+        const end = m.index + m[0].length;
+        // An identifier already holds this span: a later mention may still claim.
+        if (claims.some((c) => m.index < c.end && c.start < end)) continue;
+        claim(
+          m.index,
+          end,
+          eligible.map((e) => issueReading(issueTable, e)),
+          eligible.length > 1,
+        );
+        for (const e of eligible) claimedEntries.add(e);
+      }
+    }
   }
 
   claims.sort((a, b) => a.start - b.start);

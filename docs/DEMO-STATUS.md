@@ -2,7 +2,7 @@
 
 - Goal: a Tribal staff member searches official federal and state sources on
   one page and sees each result's source, retrieval time and why it was shown.
-- Now: the 0.9.2 demo update is live (not the D-123 pre-release); the owner's
+- Now: the 0.9.3 demo update is live (not the D-123 pre-release); the owner's
   walk of the T1.7 staff tasks is still to come.
 - Next: the goals and owner gates are in [PLAN.md](PLAN.md) and the current
   state in [STATUS.md](STATUS.md). History follows, newest first.
@@ -30,6 +30,18 @@ published the search/audit release recorded next.
 Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
+
+## Court case names, 0.9.3, 2026-11-18 (D-160)
+
+The live page is now 0.9.3. Every court's case name is shown as GovInfo gives
+it, people named in it included; before, a lower-court caption that might name
+a person read "Case name not shown". Only the D-068 personal guard still holds
+a name back. The Worker was deployed first, as `6feff3b5` from `44adef6` with
+wrangler 4.151.3 (rollback `3c228775`), then the page was published through PR
+27 (merge commit `3e70cbd`, 2026-11-18 21:24:31 UTC); Pages built it at
+21:24:59 UTC. One press of the Example Issue on the live page showed header
+0.9.3 and court opinions listed by name. Sections below that call an earlier
+version the live page describe earlier checkpoints.
 
 ## Example Issue, 0.9.2, 2026-11-18 (D-158, D-159)
 

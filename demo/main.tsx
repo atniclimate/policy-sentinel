@@ -1,4 +1,4 @@
-import { render } from "preact";
+import { Fragment, render } from "preact";
 import type { RefObject } from "preact";
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import MANIFEST_JSON from "../docs/demo-data/manifest.json";
@@ -122,8 +122,16 @@ import type {
   NcaiPlanSearch,
   NcaiSearch,
 } from "../src/demo/ncai-2026";
-import { ISSUE_EXAMPLES } from "../src/demo/issue-examples";
-import type { IssueExample } from "../src/demo/issue-examples";
+import bundledIssues from "../config/issues.v1.json";
+import {
+  entryByLabel,
+  entrySearches,
+  issuesIn,
+  provisionsFor,
+} from "../src/demo/issues";
+import type { IssueFile, Provision, TableEntry } from "../src/demo/issues";
+import { issuesSharedByRows } from "../src/demo/issue-match";
+import { maskProtectedSpans } from "../src/demo/nation-mask";
 import NCAI_VAULT from "../src/demo/ncai-2026.vault.json";
 import { NcaiVaultError, openNcaiDrafts } from "../src/demo/ncai-vault";
 import {
@@ -387,8 +395,33 @@ const NCAI_GROUPS = [
 /** Status words for Find related; the reader typed no words to change. */
 const RELATED_WORDS = { ...COPY, ...COPY.related };
 
-/** Status words for an example issue: a draft's, except where those name a draft. */
+/** Status words for an issue or bill: a draft's, except where those name a draft. */
 const EXAMPLE_WORDS = { ...COPY.ncai, ...COPY.example };
+
+/** The reviewed issue table (config/issues.v1.json), bundled with the page. */
+const ISSUES = bundledIssues as unknown as IssueFile;
+const ISSUE_ENTRIES = ISSUES.entries.filter((e) => e.kind === "issue");
+const BILL_ENTRIES = ISSUES.entries.filter((e) => e.kind === "measure");
+
+/** The identifiers an entry rests on (an issue) or is numbered by (a bill). */
+const entryIdentifiers = (entry: TableEntry) =>
+  entry.kind === "issue" ? entry.restsOn : entry.identifiers;
+
+/** Why a provision is listed with its issue, in the reader's words (D-165). */
+const provisionBasis = (provision: Provision, entry: TableEntry | undefined) =>
+  provision.basis === "cites"
+    ? COPY.example.cites(
+        (provision.cites ?? [])
+          .map(
+            (id) =>
+              (entry?.kind === "issue" &&
+                entry.restsOn.find((r) => r.id === id)?.label) ||
+              id,
+          )
+          .join(", "),
+        provision.readOn,
+      )
+    : COPY.example.listed(provision.reviewedOn, provision.readOn);
 
 const SKIP_TEXT: Readonly<Record<SkipReason, string>> = {
   none_checked: COPY.laneNoneChecked,
@@ -1431,6 +1464,11 @@ export function App() {
    * neither. Its jurisdiction or court picks that one source and nothing else.
    */
   function runReading(reading: RouteReading, dates: PlanDates) {
+    if (reading.kind === "issue") {
+      const entry = entryByLabel(ISSUES, reading.identifier);
+      if (entry && issueReady(entry)) return tryIssue(entry);
+      return sayReading(`${reading.label}: ${COPY.example.off}`, null);
+    }
     if (reading.action === "static_index") return void openIndexHop(reading);
     if (reading.action === "link_out") {
       const state = { WA: "washington", OR: "oregon", ID: "idaho" }[
@@ -1532,22 +1570,22 @@ export function App() {
     );
   }
 
-  /** An example issue's plan: its own sources, no dates and no type filter, so it runs the same for everyone. */
-  const issuePlan = (example: IssueExample): Plan =>
+  /** An issue's or bill's plan: its own sources, no dates and no type filter, so it runs the same for everyone. */
+  const issuePlan = (entry: TableEntry): Plan =>
     buildPlan(
-      { kind: "example", label: example.label },
-      example.searches,
+      { kind: "example", label: entry.label },
+      entrySearches(ISSUES, entry),
       planSources,
       { dateFrom: null, dateTo: null, documentType: null, eligibility: null },
     );
-  const issueReady = (example: IssueExample) =>
-    issuePlan(example).lanes.some((lane) => !lane.skip);
+  const issueReady = (entry: TableEntry) =>
+    issuePlan(entry).lanes.some((lane) => !lane.skip);
 
-  function tryIssue(example: IssueExample) {
-    if (!issueReady(example)) return;
-    // The example's searches are federal; setScope alone keeps the plan below.
+  function tryIssue(entry: TableEntry) {
+    if (!issueReady(entry)) return;
+    // The entry's searches are federal; setScope alone keeps the plan below.
     setScope("federal");
-    runPlan(issuePlan(example));
+    runPlan(issuePlan(entry));
   }
 
   /** An NCAI search runs on the checked federal sources, or on its one source if live. */
@@ -2346,6 +2384,196 @@ export function App() {
     </>
   );
 
+  /** A link that opens an official page in a new tab. */
+  const officialLink = (url: string, label: string) => (
+    <a href={url} target="_blank" rel="noopener noreferrer">
+      {label}
+    </a>
+  );
+
+  /** One bill section listed with an issue: where it is, its heading as the bill states it, and why (D-165). */
+  const provisionRow = (
+    provision: Provision,
+    measure: TableEntry,
+    issue: TableEntry | undefined,
+  ) => {
+    const bill =
+      (measure.kind === "measure" &&
+        measure.identifiers.find((id) => id.id === provision.bill)?.label) ||
+      provision.bill;
+    return (
+      <li key={`${provision.bill}:${provision.section}`}>
+        {COPY.example.section(bill, provision.version, provision.section)}{" "}
+        <span data-verbatim="heading">{provision.heading}</span> (
+        {officialLink(provision.url, COPY.example.billText)}).{" "}
+        {provisionBasis(provision, issue)}
+      </li>
+    );
+  };
+
+  /** The Results header for an issue or bill: what it rests on, its names, its sections. */
+  const issueHeader = (label: string) => {
+    const entry = entryByLabel(ISSUES, label);
+    if (!entry)
+      return (
+        <p>
+          <strong>{COPY.example.loadedFor}</strong> {label}
+        </p>
+      );
+    const ids = entryIdentifiers(entry);
+    const sections =
+      entry.kind === "issue" ? provisionsFor(ISSUES, entry.id) : [];
+    return (
+      <>
+        <p>
+          <strong>
+            {entry.kind === "issue"
+              ? COPY.example.loadedFor
+              : COPY.example.loadedForBill}
+          </strong>{" "}
+          {entry.label}
+        </p>
+        <p class="help">{COPY.example.loadedCaveat}</p>
+        {ids.length > 0 && (
+          <p class="help">
+            {entry.kind === "issue"
+              ? COPY.example.restsOn
+              : COPY.example.billNumbers}{" "}
+            {ids.map((id, index) => (
+              <span key={id.id}>
+                {index > 0 && ", "}
+                {officialLink(id.url, id.label)} ({COPY.example.read(id.readOn)}
+                )
+              </span>
+            ))}
+            .
+          </p>
+        )}
+        {entry.names.length > 0 && (
+          <p class="help">
+            {COPY.example.alsoCalled}{" "}
+            {entry.names
+              .map((n) =>
+                n.basis === "people_use"
+                  ? `${n.name} (${COPY.example.peopleUse})`
+                  : n.name,
+              )
+              .join(", ")}
+            .
+          </p>
+        )}
+        {entry.context && (
+          <p class="help">
+            {COPY.example.context}{" "}
+            {officialLink(entry.context.url, entry.context.label)}.{" "}
+            {COPY.example.contextHelp}
+          </p>
+        )}
+        {entry.kind === "measure" && entry.provisions.length > 0 && (
+          <>
+            <h3>{COPY.example.inBill}</h3>
+            <p class="help">{COPY.example.inBillHelp}</p>
+            {issuesIn(ISSUES, entry).map((issue) => (
+              <div key={issue.id}>
+                <p>
+                  <strong>{issue.label}</strong>
+                </p>
+                <ul class="help">
+                  {entry.provisions
+                    .filter((p) => p.issue === issue.id)
+                    .map((p) => provisionRow(p, entry, issue))}
+                </ul>
+                <ul class="chips">
+                  <li>
+                    <button
+                      type="button"
+                      class="chip"
+                      aria-disabled={!issueReady(issue)}
+                      onClick={() => tryIssue(issue)}
+                    >
+                      {COPY.example.searchIssue}: {issue.label}
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            ))}
+          </>
+        )}
+        {sections.length > 0 && (
+          <>
+            <h3>{COPY.example.withSections}</h3>
+            <ul class="help">
+              {sections.map(({ measure, provision }) =>
+                provisionRow(provision, measure, entry),
+              )}
+            </ul>
+            <ul class="chips">
+              {[...new Set(sections.map((s) => s.measure))].map((measure) => (
+                <li key={measure.id}>
+                  <button
+                    type="button"
+                    class="chip"
+                    aria-disabled={!issueReady(measure)}
+                    onClick={() => tryIssue(measure)}
+                  >
+                    {COPY.example.searchBill}: {measure.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </>
+    );
+  };
+
+  /**
+   * Issues that share an identifier with the listed rows (D-164): matched by
+   * identifier only, never by words. The entry being run is not repeated.
+   */
+  const sharedIssues = (rows: readonly DiscoveryRow[], seed: Seed) => {
+    const shared = issuesSharedByRows(
+      ISSUES,
+      rows,
+      seed.kind === "example" ? seed.label : undefined,
+    );
+    const { hits } = shared;
+    // Safeguard 1: a name in the typed words, or a name search, links nothing.
+    const named =
+      shared.named ||
+      (seed.kind === "typed" &&
+        maskProtectedSpans(seed.query).spans.length > 0);
+    if (!hits.length) return null;
+    return (
+      <div class="zone shared-issues">
+        <h3>{COPY.example.shared}</h3>
+        <p class="help">{COPY.example.sharedHelp}</p>
+        {named && <p class="help">{COPY.example.sharedNameCaution}</p>}
+        <ul class="chips">
+          {hits.map((hit) => (
+            <li key={hit.entry.id}>
+              <button
+                type="button"
+                class="chip"
+                aria-disabled={!issueReady(hit.entry)}
+                onClick={() => tryIssue(hit.entry)}
+              >
+                {hit.entry.label}
+              </button>{" "}
+              <span class="help">
+                {hit.matches
+                  .map((m) =>
+                    COPY.example.sharedRow(m.identifier.label, m.count),
+                  )
+                  .join("; ")}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
   /**
    * Every search that listed the row, then the draft they were suggested for.
    * A committee area is never named: it is not applied to results.
@@ -3038,26 +3266,41 @@ export function App() {
                 </p>
               )}
             </div>
-            {/* shortcut: one example, so its ids are fixed; make them per-example when a second is added. */}
-            {ISSUE_EXAMPLES.map((example) => (
-              <div class="zone" key={example.label}>
-                <h3 class="eyebrow">{COPY.example.heading}</h3>
-                <ul class="chips">
-                  <li>
-                    <button
-                      type="button"
-                      class="chip"
-                      aria-disabled={!issueReady(example)}
-                      aria-describedby={
-                        issueReady(example) ? "issue-help" : "issue-off"
-                      }
-                      onClick={() => tryIssue(example)}
-                    >
-                      {example.label}
-                    </button>
-                  </li>
-                </ul>
-                {!issueReady(example) && (
+            {ISSUES.entries.length > 0 && (
+              <div class="zone">
+                {(
+                  [
+                    ["issues-h", COPY.example.heading, ISSUE_ENTRIES],
+                    ["bills-h", COPY.example.billsHeading, BILL_ENTRIES],
+                  ] as const
+                ).map(
+                  ([hid, heading, entries]) =>
+                    entries.length > 0 && (
+                      <Fragment key={hid}>
+                        <h3 class="eyebrow" id={hid}>
+                          {heading}
+                        </h3>
+                        <ul class="chips" aria-labelledby={hid}>
+                          {entries.map((entry) => (
+                            <li key={entry.id}>
+                              <button
+                                type="button"
+                                class="chip"
+                                aria-disabled={!issueReady(entry)}
+                                aria-describedby={
+                                  issueReady(entry) ? "issue-help" : "issue-off"
+                                }
+                                onClick={() => tryIssue(entry)}
+                              >
+                                {entry.label}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </Fragment>
+                    ),
+                )}
+                {ISSUES.entries.some((entry) => !issueReady(entry)) && (
                   <p id="issue-off" class="help">
                     {COPY.example.off}
                   </p>
@@ -3065,38 +3308,8 @@ export function App() {
                 <p id="issue-help" class="help">
                   {COPY.example.help}
                 </p>
-                <p class="help">
-                  {COPY.example.about} {example.about}
-                </p>
-                <p class="help">
-                  {COPY.example.texts}{" "}
-                  {example.texts.map((text, index) => (
-                    <span key={text.url}>
-                      {index > 0 && ", "}
-                      <a
-                        href={text.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {text.label}
-                      </a>
-                    </span>
-                  ))}
-                  .
-                </p>
-                <p class="help">
-                  {COPY.example.context}{" "}
-                  <a
-                    href={example.context.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {example.context.label}
-                  </a>
-                  . {COPY.example.contextHelp}
-                </p>
               </div>
-            ))}
+            )}
             {drafts && (
               <div class="zone">
                 <label class="field" for="ncai-area">
@@ -3184,11 +3397,7 @@ export function App() {
                   </>
                 ) : found.plan.seed.kind === "example" ? (
                   <>
-                    <p>
-                      <strong>{COPY.example.loadedFor}</strong>{" "}
-                      {found.plan.seed.label}
-                    </p>
-                    <p class="help">{COPY.example.loadedCaveat}</p>
+                    {issueHeader(found.plan.seed.label)}
                     {criteriaNotes(found.plan)}
                   </>
                 ) : found.plan.seed.kind === "record" ? (
@@ -3237,6 +3446,7 @@ export function App() {
                 </a>
               </p>
             )}
+            {found && sharedIssues(found.rows, found.plan.seed)}
             <ResultsList
               found={found}
               sequence={searchRequest.current.sequence}

@@ -32,25 +32,54 @@ export const search = {
   searchButton: "Search",
   searching: "Searching the selected official sources.",
   examplesLabel: "Example Searches",
-  /** An example issue: several hand-chosen searches run together (src/demo/issue-examples.ts). */
+  /** Issues and the bills that carry them (D-163 to D-165); the seed kind stays "example". */
   example: {
-    heading: "Example Issue",
-    help: "Runs a set of searches that Policy Sentinel chose by hand for one issue. Each goes to the source named in Results, whether or not that source is checked. Dates and the document type filter are not applied.",
-    about: "Searches for:",
-    texts: "Official texts:",
+    // Not "Issues": that pane lists passages in an opened policy.
+    heading: "Policy issues",
+    billsHeading: "Bills",
+    help: "Each runs a set of searches that Policy Sentinel chose by hand for one issue or bill, together. Each search goes to the source named in Results, whether or not that source is checked. Dates and the document type filter are not applied.",
+    off: "Off: none of these sources is available.",
+    restsOn: "Identifiers:",
+    billNumbers: "Bill numbers:",
+    alsoCalled: "Also called:",
+    peopleUse: "a name people use; no official page is recorded for it",
     context: "Context, not a source:",
     contextHelp:
-      "Opens in a new tab. Its views are its own, and linking it endorses no position. Policy Sentinel did not review that page, and that page did not choose these searches. The pairing of the law, the rule, and the bill comes from that page; Policy Sentinel has not checked what the bill's text says about Section 106.",
-    off: "Off: none of the example's sources is available.",
-    loadedFor: "Example issue searches:",
+      "Opens in a new tab. Its views are its own, and linking it endorses no position. Policy Sentinel did not review that page, and that page did not choose these searches.",
+    loadedFor: "Issue searches:",
+    loadedForBill: "Bill searches:",
     loadedCaveat:
       "Policy Sentinel chose these searches by hand. A result is a text match or an identifier lookup, not a finding: it does not show what a bill, rule, or case means for this issue or for any Tribe.",
     searching:
-      "Running the example's searches on each source named below, including sources not checked.",
+      "Running these searches on each source named below, including sources not checked.",
     noResults:
-      "None of the example's searches listed a document on the sources named below.",
+      "None of these searches listed a document on the sources named below.",
     continuationNoResults:
-      "None of the example's searches loaded a listing yet. More results may be available; see each source’s continuation status.",
+      "None of these searches loaded a listing yet. More results may be available; see each source’s continuation status.",
+    inBill: "Issues listed with this bill",
+    inBillHelp:
+      "Sections of this bill that Policy Sentinel lists with an issue, and why each is listed.",
+    withSections: "Bill sections listed with this issue",
+    searchIssue: "Search this issue",
+    searchBill: "Search this bill",
+    billText: "bill text",
+    section: (bill: string, version: string, section: string) =>
+      `${bill}, ${version}, section ${section}:`,
+    cites: (ids: string, day: string) =>
+      `The section's own text cites ${ids} (read ${day}).`,
+    listed: (day: string, read: string) =>
+      `Listed with this issue by Policy Sentinel review on ${day}, not by the bill (text read ${read}).`,
+    read: (day: string) => `read ${day}`,
+    /** Heads an export's issue lines: they describe the search, not the record. */
+    aboutSearch: "About the issue search, not this record:",
+    shared: "Issues that share an identifier with these results",
+    sharedHelp:
+      "Each issue below is listed with an identifier that the results' own source fields state, such as a CFR part, a docket, a RIN or a bill number. Matched by identifier only, never by words; it does not show what a result means for the issue.",
+    /** Safeguard 1: a name in the search, or a name search, links nothing to anyone. */
+    sharedNameCaution:
+      "A name in the search does not show that these results or issues concern that Tribe or organization. Results found only by a name search are not counted here.",
+    sharedRow: (ids: string, results: number) =>
+      `${ids}, stated by ${results} ${results === 1 ? "result" : "results"}`,
   },
   ncai: {
     menu: "NCAI",

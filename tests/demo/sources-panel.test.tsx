@@ -54,7 +54,13 @@ describe("sources panel", () => {
   });
 
   it("shows the model's state in the search rail when rows are given", () => {
-    const rows = sourceRows({ sources, manifest: null, now: NOW });
+    // No release record, so every enabled source reads unverified.
+    const rows = sourceRows({
+      sources,
+      manifest: null,
+      now: NOW,
+      verification: {},
+    });
     const { container } = render(
       <SourcesPanel
         scope="federal"

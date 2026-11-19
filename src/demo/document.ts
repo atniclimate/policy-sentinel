@@ -7,6 +7,9 @@ import type { GrantsDetailResponse } from "./grants-authority.ts";
 import { LINK_NOTICES } from "./link-labels.ts";
 import { groupInText, labelNamesTarget } from "./links.ts";
 import type { ChainRow, ChainSection } from "./links.ts";
+import bundledIssues from "../../config/issues.v1.json";
+import { entryById, entryByLabel, provisionsFor } from "./issues.ts";
+import type { IssueFile } from "./issues.ts";
 import { localDay } from "./follow";
 import type { FollowCheck, Followed } from "./follow";
 import type { ExportTemplate } from "./mode";
@@ -210,6 +213,51 @@ function grantsBlocks(detail: GrantsDetailResponse | undefined): DocBlock[] {
   return out;
 }
 
+const ISSUES = bundledIssues as unknown as IssueFile;
+
+/** An issue's or bill's identifiers and listed sections, as plain export lines. */
+export function issueLines(label: string, table: IssueFile = ISSUES): string[] {
+  const entry = entryByLabel(table, label);
+  if (!entry) return [];
+  const E = COPY.example;
+  const ids = entry.kind === "issue" ? entry.restsOn : entry.identifiers;
+  const lines = ids.length
+    ? [
+        `${label}. ${entry.kind === "issue" ? E.restsOn : E.billNumbers} ${ids
+          .map((id) => `${id.label} (${id.url}, read ${id.readOn})`)
+          .join("; ")}.`,
+      ]
+    : [];
+  const sections =
+    entry.kind === "measure"
+      ? entry.provisions.map((provision) => ({ measure: entry, provision }))
+      : provisionsFor(table, entry.id);
+  for (const { measure, provision } of sections) {
+    const issue = entryById(table, provision.issue);
+    const bill =
+      measure.identifiers.find((id) => id.id === provision.bill)?.label ??
+      provision.bill;
+    const basis =
+      provision.basis === "cites"
+        ? E.cites(
+            (provision.cites ?? [])
+              .map(
+                (id) =>
+                  (issue?.kind === "issue" &&
+                    issue.restsOn.find((r) => r.id === id)?.label) ||
+                  id,
+              )
+              .join(", "),
+            provision.readOn,
+          )
+        : E.listed(provision.reviewedOn, provision.readOn);
+    lines.push(
+      `${issue?.label ?? provision.issue}: ${E.section(bill, provision.version, provision.section)} ${provision.heading} (${provision.url}). ${basis}`,
+    );
+  }
+  return lines;
+}
+
 export function buildDocument(input: DocInput): DocModel {
   if (input.template === "briefing") return buildBriefing(input);
   const { version, entries } = input;
@@ -393,9 +441,21 @@ export function buildDocument(input: DocInput): DocModel {
     // The export travels without the page, so it keeps the Find related caveat (safeguard 2).
     if (entry.foundBy?.some((found) => found.match))
       blocks.push({ kind: "small", text: COPY.related.caveat });
-    // Likewise an example issue's: its searches were chosen for the issue, not the document.
+    // Likewise an issue's: its searches were chosen for the issue, not the document.
     if (entry.foundBy?.some((found) => found.seed.kind === "example"))
       blocks.push({ kind: "small", text: COPY.example.loadedCaveat });
+    // What each issue rests on and why each bill section is listed (D-165), headed so a
+    // reader without the page does not take the lines as facts about this record.
+    for (const label of new Set(
+      (entry.foundBy ?? []).flatMap((found) =>
+        found.seed.kind === "example" ? [found.seed.label] : [],
+      ),
+    )) {
+      const lines = issueLines(label);
+      if (lines.length)
+        blocks.push({ kind: "small", text: COPY.example.aboutSearch });
+      for (const text of lines) blocks.push({ kind: "small", text });
+    }
   });
 
   // 3. Data actors and the software actor

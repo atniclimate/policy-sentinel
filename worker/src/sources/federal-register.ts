@@ -91,6 +91,23 @@ function frCorrections(
   };
 }
 
+/**
+ * Older documents state a CFR part as a number ({"title":45,"part":160}); newer
+ * ones as a string. The page's shape is the string, and a number was dropped,
+ * so a lookup found its documents and then kept none. Only an exact positive
+ * integer is converted; every other value reaches citationFields unchanged.
+ */
+function frCfrReferences(value: unknown): unknown {
+  if (!Array.isArray(value)) return value;
+  return value.map((ref: unknown) => {
+    const part =
+      ref && typeof ref === "object" ? (ref as Loose).part : undefined;
+    return typeof part === "number" && Number.isSafeInteger(part) && part > 0
+      ? { ...(ref as Loose), part: String(part) }
+      : ref;
+  });
+}
+
 function frCitation(
   value: unknown,
   retrievedAt: string,
@@ -132,7 +149,7 @@ function frCitation(
           commentsCloseOn: doc.comments_close_on,
           docketIds: doc.docket_ids,
           rins: doc.regulation_id_numbers,
-          cfrRefs: doc.cfr_references,
+          cfrRefs: frCfrReferences(doc.cfr_references),
           topics: doc.topics,
         }),
       }

@@ -1,5 +1,6 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "preact/hooks";
 import bundledAliases from "../../config/law-aliases.v1.json";
+import bundledIssues from "../../config/issues.v1.json";
 import bundledPhrases from "../../config/plain-phrases.v1.json";
 import { router as copy } from "../../src/demo/copy/router";
 import { search } from "../../src/demo/copy/search";
@@ -10,6 +11,16 @@ import type {
   VocabularyKind,
 } from "../../src/demo/index-types";
 import {
+  entrySearches,
+  issuesIn,
+  provisionsFor,
+  type IssueEntry,
+  type IssueFile,
+  type MeasureEntry,
+  type TableEntry,
+} from "../../src/demo/issues";
+import {
+  issueReading,
   lawNameReading,
   routeQuery,
   type RouteReading,
@@ -25,6 +36,7 @@ import {
 import type { SearchField } from "./SearchBox";
 
 const ALIASES = bundledAliases as unknown as LawAliasFile;
+const ISSUES = bundledIssues as unknown as IssueFile;
 const PHRASES = bundledPhrases as unknown as PlainPhraseFile;
 const NO_VOCABULARY: readonly VocabularyFile[] = [];
 const LIST_ID = "q-listbox";
@@ -63,10 +75,28 @@ interface Candidate {
   note: string;
 }
 
-/** Built once per alias table and vocabulary, so suggest.ts prepares each list once. */
+/** One row per name and one for the label (D-161 to D-167), so a typed prefix of any finds the entry. */
+interface IssueCandidate {
+  label: string;
+  shortLabel: string | null;
+  entry: TableEntry;
+}
+
+function issueCandidateRows(table: IssueFile): IssueCandidate[] {
+  const rows: IssueCandidate[] = [];
+  for (const entry of table.entries) {
+    rows.push({ label: entry.label, shortLabel: null, entry });
+    for (const { name } of entry.names)
+      rows.push({ label: name, shortLabel: null, entry });
+  }
+  return rows;
+}
+
+/** Built once per alias table, issue table and vocabulary, so suggest.ts prepares each list once. */
 function candidates(
   aliases: LawAliasFile,
   vocabulary: readonly VocabularyFile[],
+  issues: IssueFile,
 ) {
   const laws = aliases.entries.map((alias) => ({
     label: alias.popularName,
@@ -81,7 +111,13 @@ function candidates(
       note: KIND_NOTE[file.kind],
     })),
   );
-  const lists = { laws, vocab, all: [...laws, ...vocab] as Candidate[] };
+  const issueRows = issueCandidateRows(issues);
+  const lists = {
+    laws,
+    vocab,
+    issues: issueRows,
+    all: [...laws, ...vocab] as Candidate[],
+  };
   for (const list of Object.values(lists)) prepareLabels(list);
   return lists;
 }
@@ -105,15 +141,58 @@ const labelOption = (c: Candidate): Option => ({
   insert: c.label,
 });
 
+/** An issue or measure entry's word-prefix option (D-161 to D-167). */
+function issueOption(table: IssueFile, entry: TableEntry): Option {
+  const reading = issueReading(table, entry);
+  const note =
+    entry.kind === "issue"
+      ? copy.issueSearchNote(entrySearches(table, entry).length)
+      : copy.measureIssueNote(issuesIn(table, entry).length);
+  return { id: "", text: reading.label, note, insert: entry.label, reading };
+}
+
+/** The official bill form without its Congress, e.g. "H.R. 8800" from "H.R. 8800 (119th Congress)". */
+const billShortLabel = (label: string) =>
+  label.replace(/\s*\([^()]*Congress\)\s*$/, "");
+
+/**
+ * One of a measure's issues, offered beside the measure's own option, with the
+ * sections that file the measure with it. Its reading is the issue's own.
+ */
+function measureIssueOption(
+  table: IssueFile,
+  measure: MeasureEntry,
+  issueEntry: IssueEntry,
+): Option {
+  const sections = provisionsFor(table, issueEntry.id)
+    .filter(({ measure: m }) => m === measure)
+    .map(({ provision }) => {
+      const bill = measure.identifiers.find(
+        (id) => id.kind === "bill" && id.id === provision.bill,
+      );
+      const billLabel = bill ? billShortLabel(bill.label) : provision.bill;
+      return `${billLabel} sec. ${provision.section}`;
+    })
+    .join("; ");
+  const reading = issueReading(table, issueEntry);
+  return {
+    id: "",
+    text: copy.measureIssueOption(measure.label, sections, issueEntry.label),
+    insert: issueEntry.label,
+    reading,
+  };
+}
+
 function optionsFor(
   value: string,
   aliases: LawAliasFile,
+  issues: IssueFile,
   lists: ReturnType<typeof candidates>,
   phrases: PlainPhraseFile,
 ): { options: Option[]; status: string } {
   const typed = value.trim();
   if (typed.length < 2) return { options: [], status: "" };
-  const route = routeQuery(typed, { aliases });
+  const route = routeQuery(typed, { aliases, issues });
   const options: Option[] = route.readings.map((reading) => ({
     id: "",
     text: reading.label,
@@ -136,6 +215,30 @@ function optionsFor(
       words.push(lawOption(c.alias));
     for (const c of rankLabels(typed, lists.vocab).slice(0, MAX_WORD_OPTIONS))
       words.push(labelOption(c));
+    const issueEntries: TableEntry[] = [];
+    const seenIssueEntries = new Set<TableEntry>();
+    // A bill the router already offered still lists its issues beside it.
+    for (const reading of route.readings)
+      if (reading.kind === "issue") {
+        const entry = issues.entries.find(
+          (e) => e.label === reading.identifier,
+        );
+        if (entry?.kind === "measure")
+          for (const issueEntry of issuesIn(issues, entry))
+            words.push(measureIssueOption(issues, entry, issueEntry));
+      }
+    for (const c of rankLabels(typed, lists.issues)) {
+      if (named.has(c.entry.label) || seenIssueEntries.has(c.entry)) continue;
+      seenIssueEntries.add(c.entry);
+      issueEntries.push(c.entry);
+      if (issueEntries.length >= MAX_WORD_OPTIONS) break;
+    }
+    for (const entry of issueEntries) {
+      words.push(issueOption(issues, entry));
+      if (entry.kind === "measure")
+        for (const issueEntry of issuesIn(issues, entry))
+          words.push(measureIssueOption(issues, entry, issueEntry));
+    }
     if (!words.length) {
       // Typo matches only fill the box: never chosen for the person, never read by the router.
       words.push(...possibleMatches(route, lists.all).map(labelOption));
@@ -176,11 +279,13 @@ export function SearchCombobox({
   invalid,
   onInput,
   aliases = ALIASES,
+  issues = ISSUES,
   vocabulary = NO_VOCABULARY,
   phrases = PHRASES,
   onChoose,
 }: SearchField & {
   aliases?: LawAliasFile;
+  issues?: IssueFile;
   vocabulary?: readonly VocabularyFile[];
   phrases?: PlainPhraseFile;
   /** Told which reading was chosen, before the form submits. */
@@ -191,12 +296,12 @@ export function SearchCombobox({
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const lists = useMemo(
-    () => candidates(aliases, vocabulary),
-    [aliases, vocabulary],
+    () => candidates(aliases, vocabulary, issues),
+    [aliases, vocabulary, issues],
   );
   const { options, status } = useMemo(
-    () => optionsFor(value, aliases, lists, phrases),
-    [value, aliases, lists, phrases],
+    () => optionsFor(value, aliases, issues, lists, phrases),
+    [value, aliases, issues, lists, phrases],
   );
   const expanded = open && options.length > 0;
   const current = expanded && active >= 0 ? options[active] : undefined;

@@ -630,6 +630,7 @@ describe("the action table", () => {
         "federal_bill",
         "fr_citation",
         "fr_document",
+        "issue",
         "law_name",
         "public_law",
         "rin",

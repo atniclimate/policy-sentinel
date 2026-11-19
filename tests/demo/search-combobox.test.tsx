@@ -11,6 +11,7 @@ import { SearchCombobox } from "../../demo/app/SearchCombobox";
 import { router as copy } from "../../src/demo/copy/router";
 import { search } from "../../src/demo/copy/search";
 import type { VocabularyFile } from "../../src/demo/index-types";
+import type { IssueFile } from "../../src/demo/issues";
 import type { RouteReading } from "../../src/demo/query-route";
 import type { PlainPhraseFile } from "../../src/demo/suggest";
 
@@ -51,9 +52,11 @@ const phrases: PlainPhraseFile = {
 function Harness({
   onSubmit,
   onChoose,
+  issues,
 }: {
   onSubmit: (value: string) => void;
   onChoose?: (reading: RouteReading) => void;
+  issues?: IssueFile;
 }) {
   const [value, setValue] = useState("");
   return (
@@ -74,6 +77,7 @@ function Harness({
             {...field}
             vocabulary={vocabulary}
             phrases={phrases}
+            issues={issues}
             onChoose={onChoose}
           />
         )}
@@ -82,11 +86,11 @@ function Harness({
   );
 }
 
-const setup = () => {
+const setup = (issues?: IssueFile) => {
   const onSubmit = vi.fn();
   const onChoose = vi.fn();
   const user = userEvent.setup();
-  render(<Harness onSubmit={onSubmit} onChoose={onChoose} />);
+  render(<Harness onSubmit={onSubmit} onChoose={onChoose} issues={issues} />);
   const box = screen.getByRole("combobox");
   return { user, box, onSubmit, onChoose };
 };
@@ -296,6 +300,124 @@ describe("search combobox", () => {
     });
     expect(results.violations.map(({ id, help }) => ({ id, help }))).toEqual(
       [],
+    );
+  });
+});
+
+// Issue and measure word-prefix options (D-161 to D-167), a thin check that
+// the combobox wires the router's issue readings (tests/demo/query-route-issues.test.ts
+// covers the router behavior itself).
+describe("search combobox, issue and measure options", () => {
+  const issuesFixture: IssueFile = {
+    $schema: "../schemas/issues.schema.v1.json",
+    schemaVersion: "1.0.0",
+    artifactType: "issues",
+    entries: [
+      {
+        kind: "issue",
+        id: "section-106",
+        label: "Section 106 consultation",
+        names: [
+          {
+            name: "Section 106 consultation",
+            basis: "official",
+            reviewedOn: "2026-11-18",
+          },
+        ],
+        restsOn: [],
+        searches: [
+          {
+            group: "policy",
+            source: "federal-register",
+            query: "x",
+            auto: true,
+          },
+        ],
+        reviewedOn: "2026-11-18",
+        reviewerRole: "owner",
+      },
+    ],
+  };
+
+  it("shows a word-prefix option for an issue entry", async () => {
+    const { user, box } = setup(issuesFixture);
+    await user.type(box, "Section 106");
+    expect(screen.getAllByRole("option").map((o) => o.textContent)).toContain(
+      `Issue: Section 106 consultation (${copy.issueSearchNote(1)})`,
+    );
+  });
+
+  it("calls onChoose with the issue reading when the option is chosen", async () => {
+    const { user, box, onChoose } = setup(issuesFixture);
+    await user.type(box, "Section 106");
+    const option = screen
+      .getAllByRole("option")
+      .find((o) => o.textContent?.startsWith("Issue: Section 106"));
+    expect(option).toBeDefined();
+    await user.click(option as HTMLElement);
+    expect(onChoose).toHaveBeenCalledWith(
+      expect.objectContaining({
+        kind: "issue",
+        identifier: "Section 106 consultation",
+      }),
+    );
+    expect(box).toHaveValue("Section 106 consultation");
+  });
+
+  it("lists a bill's issues beside the bill when its exact name is typed", async () => {
+    const withBill: IssueFile = {
+      ...issuesFixture,
+      entries: [
+        ...issuesFixture.entries,
+        {
+          kind: "measure",
+          id: "sample-bill",
+          label: "Sample Permitting Act",
+          names: [
+            { name: "SPA", basis: "people_use", reviewedOn: "2026-11-18" },
+          ],
+          identifiers: [
+            {
+              kind: "bill",
+              id: "s 9999 119",
+              label: "S. 9999 (119th Congress)",
+              url: "https://www.govinfo.gov/x",
+              stated: "Sample Permitting Act",
+              readOn: "2026-11-18",
+            },
+          ],
+          provisions: [
+            {
+              issue: "section-106",
+              bill: "s 9999 119",
+              version: "Introduced in Senate",
+              section: "7",
+              heading: "SEC. 7. SAMPLE.",
+              url: "https://www.govinfo.gov/x",
+              readOn: "2026-11-18",
+              basis: "listed",
+              reviewedOn: "2026-11-18",
+            },
+          ],
+          searches: [
+            {
+              group: "legislation",
+              source: "congress",
+              query: "s 9999 119",
+              auto: true,
+            },
+          ],
+          reviewedOn: "2026-11-18",
+          reviewerRole: "owner",
+        },
+      ],
+    };
+    const { user, box } = setup(withBill);
+    await user.type(box, "SPA");
+    const texts = screen.getAllByRole("option").map((o) => o.textContent ?? "");
+    expect(texts[0]).toMatch(/^Bill: Sample Permitting Act/);
+    expect(texts.some((t) => t.includes("Section 106 consultation"))).toBe(
+      true,
     );
   });
 });
