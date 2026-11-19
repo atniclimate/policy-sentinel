@@ -81,8 +81,10 @@ async function searchGrants(
   criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
   const { query, page } = criteria;
+  // Version 2 OR LATER keeps the eligibility filter: a version 3 search
+  // never silently drops a filter its echoed criteria names.
   const eligibility =
-    criteria.version === 2 ? (criteria.eligibility ?? null) : null;
+    criteria.version !== 1 ? (criteria.eligibility ?? null) : null;
   const { response, bytes } = await officialFetch(
     "https://api.grants.gov/v1/api/search2",
     {

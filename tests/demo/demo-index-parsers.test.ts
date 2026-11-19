@@ -29,6 +29,10 @@ const USLM_XML = readFileSync(
   "tests/demo/fixtures/demo-index/usc25-trimmed.xml",
   "utf8",
 );
+const TRANSFERRED_XML = readFileSync(
+  "tests/demo/fixtures/demo-index/usc-transferred-trimmed.xml",
+  "utf8",
+);
 const { names } = loadProbeNames();
 const v = PATTERN_SET_VERSION;
 const cfr = (xml = CFR_XML) =>
@@ -45,7 +49,9 @@ const shortestName = () =>
 
 describe("fixtures", () => {
   it("hold no Nation name from the probe set (H6)", () => {
-    for (const text of [CFR_XML, USLM_XML].map((t) => t.toLowerCase()))
+    for (const text of [CFR_XML, USLM_XML, TRANSFERRED_XML].map((t) =>
+      t.toLowerCase(),
+    ))
       for (const base of nationNameBases())
         expect(text).not.toContain(base.toLowerCase());
   });
@@ -282,13 +288,96 @@ describe("USLM source-credit parser", () => {
 
   it("refuses a title that does not state the requested release point", () => {
     expect(() => uslm(USLM_XML, "119-140")).toThrow(/release point/);
+  });
+
+  it("refuses a transferred section with no codification note at all", () => {
+    // s421's whole <notes> element removed; the status attribute still fails closed.
+    const noNote = USLM_XML.replace(
+      /<notes type="uscNote">[\s\S]*?<\/notes>\n<\/section>\n<section status="transferred" identifier="\/us\/usc\/t25\/s442">/,
+      '</section>\n<section status="transferred" identifier="/us/usc/t25/s442">',
+    );
+    expect(noNote).not.toBe(USLM_XML);
+    expect(() => uslm(noNote)).toThrow(/names no target/);
+  });
+
+  it("carries a transferred section whose note names no U.S.C. ref with empty targets, not a thrown error", () => {
+    // s442's only ref replaced with a non-U.S.C. ref; the note's wording is
+    // unaffected, so this is the no-ref case, not the no-note case above.
+    const noRef = USLM_XML.replace(
+      '<ref href="/us/usc/t25/s1545">',
+      '<ref href="/us/pl/1/1">',
+    );
+    expect(noRef).not.toBe(USLM_XML);
+    const { shard, report } = uslm(noRef);
+    const s442 = shard.entries.find((e) => e.identifier.endsWith("/s442"))!;
+    expect(s442.reclassifiedAs).toEqual({
+      targets: [],
+      noteText:
+        "Section 442 was editorially reclassified as section 1545 of this title.",
+      noteTextOmitted: false,
+    });
+    expect(report.transferredWithoutTarget).toBe(1);
+    expect(schemaErrors("usc-source-credit-shard", shard)).toEqual([]);
+  });
+
+  it("trims a shape-A target to its section when the ref also names a subsection, on the real title 42 text", () => {
+    const { shard, report } = buildUslmShard(TRANSFERRED_XML, {
+      title: 42,
+      releasePoint: "119-142",
+      names,
+    });
+    const s628a = shard.entries.find((e) => e.identifier.endsWith("/s628a"))!;
+    expect(s628a.reclassifiedAs).toEqual({
+      targets: ["/us/usc/t42/s626"],
+      noteText:
+        "Section, act Aug. 14, 1935, ch. 531, title IV, § 429, as added Pub. L. 103–432, title II, § 205(a), Oct. 31, 1994, 108 Stat. 4456, which related to child welfare traineeships, was redesignated section 426(c) of act Aug. 14, 1935, by Pub. L. 109–288, § 6(f)(2), Sept. 28, 2006, 120 Stat. 1247, and is classified to section 626(c) of this title.",
+      noteTextOmitted: false,
+    });
+    expect(report.transferredWithoutTarget).toBe(1);
+    expect(schemaErrors("usc-source-credit-shard", shard)).toEqual([]);
+  });
+
+  it("carries a shape-B transfer named only in prose with empty targets, on the real title 33 text", () => {
+    const { shard, report } = buildUslmShard(TRANSFERRED_XML, {
+      title: 42,
+      releasePoint: "119-142",
+      names,
+    });
+    const s472 = shard.entries.find((e) => e.identifier.endsWith("/s472"))!;
+    expect(s472.reclassifiedAs).toEqual({
+      targets: [],
+      noteText:
+        "Section, act Sept. 15, 1922, ch. 313, 42 Stat. 844, which related to marking of anchorage grounds by the Commissioner of Lighthouses, was transferred to the end of subchapter III of chapter 5 of Title 14, Coast Guard, and redesignated as section 548 of that title by Pub. L. 117–263, div. K, title CXVIII, § 11808(c), Dec. 23, 2022, 136 Stat. 4166.",
+      noteTextOmitted: false,
+    });
+    expect(report.transferredWithoutTarget).toBe(1);
+  });
+
+  it("reads the removalDescription note when there is no codification note, on the real title 33 text (shape C)", () => {
+    const { shard, report } = buildUslmShard(TRANSFERRED_XML, {
+      title: 42,
+      releasePoint: "119-142",
+      names,
+    });
+    const s1914 = shard.entries.find((e) => e.identifier.endsWith("/s1914"))!;
+    expect(s1914.reclassifiedAs).toEqual({
+      targets: ["/us/usc/t33/s1954"],
+      noteText:
+        "Section, Pub. L. 100–220, title II, § 2203, Dec. 29, 1987, 101 Stat. 1466; Pub. L. 104–324, title VIII, § 802(b), Oct. 19, 1996, 110 Stat. 3944; Pub. L. 109–449, § 5(a), Dec. 22, 2006, 120 Stat. 3337, was redesignated section 5 of Pub. L. 109–449 and transferred to section 1954 of this title.",
+      noteTextOmitted: false,
+    });
+    expect(report.transferredFromRemovalNote).toBe(1);
+    expect(schemaErrors("usc-source-credit-shard", shard)).toEqual([]);
+  });
+
+  it("still refuses a transferred section with neither a codification nor a removalDescription note", () => {
+    const noNote = TRANSFERRED_XML.replace(
+      /<notes type="uscNote">\n<note topic="removalDescription">[\s\S]*?<\/notes>/,
+      "",
+    );
+    expect(noNote).not.toBe(TRANSFERRED_XML);
     expect(() =>
-      uslm(
-        USLM_XML.replace(
-          '<ref href="/us/usc/t25/s1545">',
-          '<ref href="/us/pl/1/1">',
-        ),
-      ),
+      buildUslmShard(noNote, { title: 42, releasePoint: "119-142", names }),
     ).toThrow(/names no target/);
   });
 });

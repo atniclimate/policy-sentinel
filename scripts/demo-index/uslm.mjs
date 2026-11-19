@@ -15,6 +15,10 @@ import {
 
 const STATUSES = new Set(["transferred", "repealed", "omitted", "reserved"]);
 const SECTION_ID = /^\/us\/usc\/t\d{1,2}[a-z]?\/s[^/]+$/;
+// A ref naming a subsection or deeper path still names its section (shape A);
+// only the section part is a target. No match when the href is not a U.S.C.
+// section at all.
+const SECTION_PREFIX = /^(\/us\/usc\/t\d{1,2}[a-z]?\/s[^/]+)(?:\/.+)?$/;
 // A section quoted inside a note or another element is not a Code section.
 const NOT_CODE = new Set(["quotedContent", "note", "notes", "sourceCredit"]);
 const RANGES = {
@@ -85,25 +89,30 @@ function readSection(node, names, report) {
     : { credits: [], unmapped: 0 };
   let reclassifiedAs = null;
   if (status === "transferred") {
-    const note = elements(node, "notes")
-      .flatMap((n) => elements(n, "note"))
-      .find((n) => n.attrs.topic === "codification");
-    const targets = [];
-    if (note)
-      for (const el of descendants(note)) {
-        const href = el.attrs.href ?? "";
-        if (
-          el.name === "ref" &&
-          SECTION_ID.test(href) &&
-          !targets.includes(href)
-        )
-          targets.push(href);
-      }
-    if (!note || targets.length === 0)
+    const notes = elements(node, "notes").flatMap((n) => elements(n, "note"));
+    // The note that states the transfer: the codification note when there is
+    // one, else the removalDescription note (shape C; no other topic is
+    // read). A transferred section with neither still fails closed: nothing
+    // says where it went. A note that names no U.S.C. section (the new home
+    // is stated only in prose) is carried with empty targets (safeguard 2:
+    // the prose itself is never parsed for a target).
+    const note =
+      notes.find((n) => n.attrs.topic === "codification") ??
+      notes.find((n) => n.attrs.topic === "removalDescription");
+    if (!note)
       throw new StageError(
         "normalize",
         `transferred section ${identifier} names no target`,
       );
+    if (note.attrs.topic === "removalDescription")
+      report.transferredFromRemovalNote += 1;
+    const targets = [];
+    for (const el of descendants(note)) {
+      if (el.name !== "ref") continue;
+      const base = SECTION_PREFIX.exec(el.attrs.href ?? "")?.[1];
+      if (base && !targets.includes(base)) targets.push(base);
+    }
+    if (targets.length === 0) report.transferredWithoutTarget += 1;
     const text =
       collapse(
         note.children
@@ -130,7 +139,13 @@ function readSection(node, names, report) {
 
 /** Build the shard for one whole title. Throws StageError on a problem. */
 export function buildUslmShard(xml, { title, releasePoint, names }) {
-  const report = { omitted: [], statusCounts: {}, unmappedRefCount: 0 };
+  const report = {
+    omitted: [],
+    statusCounts: {},
+    unmappedRefCount: 0,
+    transferredWithoutTarget: 0,
+    transferredFromRemovalNote: 0,
+  };
   const entries = new Map();
   let publicationName = null;
   let currentThroughText = null;

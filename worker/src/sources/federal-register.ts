@@ -1,7 +1,7 @@
 /** Federal Register: search, and the official text read from GovInfo. */
 import { analyzePolicyText } from "../../../src/demo/analyze";
 import { authorityLine } from "../../../src/demo/authority-line";
-import { parseCfrQuery } from "../../../src/demo/search-contract";
+import { narrowOf, parseCfrQuery } from "../../../src/demo/search-contract";
 import { citationFields } from "../../../src/demo/validation";
 import type {
   DemoCitation,
@@ -251,13 +251,34 @@ async function searchFederalRegister(
   criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
   const { query, page, dateFrom, dateTo } = criteria;
-  const v2 = criteria.version === 2;
+  // Version 2 OR LATER keeps the version 2 behavior (match kind, the type
+  // filter, the version 2 citation fields): a version 3 search never
+  // silently drops a filter its echoed criteria names.
+  const v2 = criteria.version !== 1;
   const url = new URL("https://www.federalregister.gov/api/v1/documents.json");
-  for (const [name, value] of frMatchConditions(
-    v2 ? criteria.match : "text",
-    query,
-  ))
-    url.searchParams.set(name, value);
+  const narrow = narrowOf(criteria);
+  if (narrow) {
+    // A narrowed search (D-186) carries the Federal Register's own agency or
+    // topic condition instead of a location condition; an empty query asks
+    // no term condition at all.
+    if (query !== "") url.searchParams.set("conditions[term]", query);
+    url.searchParams.set(
+      narrow.field === "agency"
+        ? "conditions[agencies][]"
+        : "conditions[topics][]",
+      narrow.id,
+    );
+  } else {
+    // supportsMatch admits only text/docket/rin/cfr for this source at any
+    // version (every other v3 identifier reading is unsupported here, and
+    // executive_order is dispatched to searchExecutiveOrder before this
+    // function runs), so this narrowing is safe at runtime.
+    for (const [name, value] of frMatchConditions(
+      v2 ? (criteria.match as DemoSearchMatch) : "text",
+      query,
+    ))
+      url.searchParams.set(name, value);
+  }
   url.searchParams.set("per_page", "10");
   url.searchParams.set("page", String(page));
   url.searchParams.set(

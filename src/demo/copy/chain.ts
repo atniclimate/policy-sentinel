@@ -85,4 +85,11 @@ export const chain = {
   /** The source listed more than the Worker brought back. */
   cut: (shown: number, total: number) =>
     `${shown} of ${total} listed by the source are shown here; open the source for the rest`,
+  /** The listed issues this opened document's own in-text citations name (D-164, issuesInText). */
+  issues: {
+    title: "Listed Issues These Citations Name",
+    help: "Each issue below is listed with an identifier that this text cites, such as a U.S. Code section, a CFR part or a public law. Matched by citation only, never by words; it does not show what this document means for the issue.",
+    row: (ids: string, places: number) =>
+      `${ids}, cited at ${places} ${places === 1 ? "place" : "places"}`,
+  },
 } as const;

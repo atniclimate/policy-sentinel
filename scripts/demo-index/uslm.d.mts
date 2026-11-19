@@ -5,6 +5,10 @@ export interface UslmBuildReport {
   omitted: { identifier: string; field: "noteText"; reason: WordingProblem }[];
   statusCounts: Record<string, number>;
   unmappedRefCount: number;
+  /** Transferred sections whose codification note names no U.S.C. section. */
+  transferredWithoutTarget: number;
+  /** Transferred sections with no codification note, read from a removalDescription note instead. */
+  transferredFromRemovalNote: number;
 }
 
 export function buildUslmShard(

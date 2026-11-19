@@ -3,7 +3,12 @@
 import { createHash } from "node:crypto";
 
 import { compareCodeUnits } from "../../src/core/canonical-json.mjs";
-import { SCHEMA_REF, StageError, wordingProblem } from "./common.mjs";
+import {
+  SCHEMA_REF,
+  StageError,
+  namedInWordingProblem,
+  wordingProblem,
+} from "./common.mjs";
 import { collapse } from "./xml.mjs";
 
 const ID = /^[0-9a-z]+(?:-[0-9a-z]+)*$/;
@@ -29,8 +34,56 @@ export const heldOut = (kind, id, list = HELD_OUT_SHA256) =>
     createHash("sha256").update(String(id), "utf8").digest("hex"),
   );
 
+/**
+ * The 18 official Federal Register agency and topic names the Nation-name
+ * check left out for a general word ("Indians", "Community", "Islands")
+ * that names no Nation on the recognition list (D-191, 2026-11-19: "I
+ * approve now"). A frozen, closed list by kind, modeled on
+ * ANCHOR_WORD_TITLES (scripts/build-vocab.mjs): each id with the exact label
+ * the owner approved, so a label the source later changes gets the full
+ * check again. The one entry the owner has not named in (HELD_OUT_SHA256,
+ * D-186, D-192) is never named in even so; `heldOut` is checked first in
+ * `finish` and still wins.
+ */
+export const NAMED_IN = Object.freeze({
+  fr_agency: Object.freeze({
+    "community-development-financial-institutions-fund":
+      "Community Development Financial Institutions Fund",
+    "community-living-administration": "Community Living Administration",
+    "corporation-for-national-and-community-service":
+      "Corporation for National and Community Service",
+    "national-civilian-community-corps": "National Civilian Community Corps",
+    "rural-housing-and-community-development-service":
+      "Rural Housing and Community Development Service",
+    "special-trustee-for-american-indians-office":
+      "Special Trustee for American Indians Office",
+  }),
+  fr_topic: Object.freeze({
+    indians: "Indians",
+    "loan-programs-housing-community-development":
+      "Loan programs-housing and community development",
+    "grant-programs-housing-community-development":
+      "Grant programs-housing and community development",
+    "virgin-islands": "Virgin Islands",
+    "community-development": "Community development",
+    "northern-mariana-islands": "Northern Mariana Islands",
+    "community-facilities": "Community facilities",
+    "community-development-block-grants": "Community development block grants",
+    "pacific-islands-trust-territory": "Pacific Islands Trust Territory",
+    "wake-island": "Wake Island",
+    "midway-islands": "Midway Islands",
+    "community-action-programs": "Community action programs",
+  }),
+});
+
+/** True when this id is named in for this kind under this exact label (D-191). */
+export const namedIn = (kind, id, label) =>
+  typeof id === "string" &&
+  Object.hasOwn(NAMED_IN[kind] ?? {}, id) &&
+  NAMED_IN[kind][id] === label;
+
 function finish(kind, rows, names, list) {
-  const report = { dropped: [] };
+  const report = { dropped: [], namedIn: [] };
   const seen = new Set();
   const kept = [];
   for (const row of rows) {
@@ -56,16 +109,23 @@ function finish(kind, rows, names, list) {
     const shortLabel = row.shortLabel
       ? collapse(String(row.shortLabel)) || null
       : null;
+    // Named in (D-191): the STRUCTURAL mask is skipped, never the hashed
+    // recognition list, an injected probe name, a URL, a personal pattern or
+    // markup.
+    // Only the approved label itself; a short label always gets the full check.
+    const exempt = namedIn(kind, row.id, label);
+    const check = exempt ? namedInWordingProblem : wordingProblem;
     const problem =
       !label || label.length > 200 || (shortLabel && shortLabel.length > 80)
         ? "length"
-        : (wordingProblem(label, names) ??
+        : (check(label, names) ??
           (shortLabel && wordingProblem(shortLabel, names)));
     if (problem) {
       // A label is required, so an entry whose wording cannot be carried is left out.
       report.dropped.push({ id: row.id, reason: problem });
       continue;
     }
+    if (exempt) report.namedIn.push({ id: row.id, label });
     kept.push({
       id: row.id,
       label,

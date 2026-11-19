@@ -67,7 +67,11 @@
         "pattern": { "$ref": "#/$defs/pattern" },
         "title": { "type": "integer", "minimum": 1, "maximum": 54 },
         "section": { "type": "string", "minLength": 1, "maxLength": 24 },
-        "etSeq": { "type": "boolean" }
+        "etSeq": { "type": "boolean" },
+        "note": {
+          "const": true,
+          "$comment": "Present only for a note locator such as 25 U.S.C. 5130 note (pattern set 1.1.0)."
+        }
       }
     },
     "plCitation": {
@@ -179,7 +183,7 @@
       ],
       "properties": {
         "title": { "type": "integer", "minimum": 1, "maximum": 50 },
-        "part": { "type": "string", "pattern": "^[0-9]{1,4}[a-z]?$" },
+        "part": { "type": "string", "pattern": "^[0-9]{1,5}[a-z]?$" },
         "authorityText": {
           "type": ["string", "null"],
           "minLength": 1,
@@ -293,14 +297,14 @@
           "properties": {
             "targets": {
               "type": "array",
-              "minItems": 1,
-              "maxItems": 8,
+              "minItems": 0,
+              "maxItems": 16,
               "items": { "$ref": "#/$defs/uscIdentifier" }
             },
             "noteText": {
               "type": ["string", "null"],
               "minLength": 1,
-              "maxLength": 2000,
+              "maxLength": 6000,
               "pattern": "^[^<>]*$",
               "$comment": "verbatim"
             },

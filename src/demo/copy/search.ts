@@ -231,6 +231,37 @@ export const search = {
     "Type filter not applied: the demo does not send it to this source, so it is searched without it.",
   identifierLeftOut: (count: number) =>
     `${count} ${count === 1 ? "listing" : "listings"} the source returned ${count === 1 ? "does" : "do"} not state this identifier, so ${count === 1 ? "it is" : "they are"} left out.`,
+  /** D-186, D-188: the Federal Register's own field a search is narrowed to, shown near the search box and above the results it ran with. */
+  narrowedTo: (narrow: { field: "agency" | "topic"; label: string }) =>
+    `Narrowed to the ${narrow.field} ${narrow.label}, a Federal Register field.`,
+  /**
+   * The line near the search box. It states the setting, not a search: a
+   * lookup, an example and an issue search run without it.
+   */
+  narrowingSet: (narrow: { field: "agency" | "topic"; label: string }) =>
+    `Words searched on the Federal Register are narrowed to the ${narrow.field} ${narrow.label}, a Federal Register field. Lookups, examples and issue searches are not narrowed.`,
+  /** The same line under the state scope: it is not applied, and nothing is sent. */
+  narrowingStateScope: (narrow: { field: "agency" | "topic"; label: string }) =>
+    `Narrowing to the ${narrow.field} ${narrow.label}, a Federal Register field, is not applied to a state search; nothing is sent.`,
+  removeNarrowing: "Remove",
+  removeNarrowingLabel: "Remove narrowing",
+  /** A lane this narrowing does not reach: no agency or topic field, like the type filter. */
+  notNarrowed:
+    "Not narrowed: the demo sends the agency or topic to the Federal Register only, so this source is searched without it.",
+  /** No words typed, and a narrowing set: the demo narrows on the Federal Register only. */
+  laneNarrowNoWords:
+    "Not searched: no words were typed, and the demo narrows by agency or topic on the Federal Register only.",
+  /** D-186, D-188: the Federal Register's own field a lane was narrowed to, beside its terms. */
+  laneNarrowTerms: (
+    terms: string,
+    narrow: { field: "agency" | "topic"; label: string },
+  ) =>
+    terms
+      ? `Search: ${terms}; narrowed to the ${narrow.field} ${narrow.label} (Federal Register field)`
+      : `Narrowed to the ${narrow.field} ${narrow.label} (Federal Register field); no words`,
+  /** Listings a narrowed Federal Register lane left out because their own fields did not state it (safeguard 8). */
+  narrowLeftOut: (count: number, field: "agency" | "topic") =>
+    `${count} ${count === 1 ? "listing" : "listings"} the Federal Register returned ${count === 1 ? "does" : "do"} not state this ${field} in ${count === 1 ? "its" : "their"} own fields and ${count === 1 ? "is" : "are"} not shown.`,
   loadedOrder:
     "Loaded rows only. Initial listings follow each source's order; more results append, with exact duplicate listings merged. Provider totals may change.",
   sourceDateMeaning: {

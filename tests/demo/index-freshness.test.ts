@@ -186,6 +186,11 @@ describe("planned requests", () => {
     expect(fr.searchParams.get("conditions[publication_date][gte]")).toBe(
       "2026-11-04",
     );
+    // Regression (2026-11-19, HTTP 400): a condition name was sent as a field.
+    expect(fr.searchParams.getAll("fields[]")).toEqual([
+      "document_number",
+      "publication_date",
+    ]);
     expect(checks.find((c) => c.id === "usc")).toMatchObject({
       status: "not_checked",
       detail: "not checked: terms unread",

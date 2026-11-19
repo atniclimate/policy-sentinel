@@ -177,6 +177,8 @@ export async function search(
       params.set("match", options.match);
     if (options.documentType) params.set("documentType", options.documentType);
     if (options.eligibility) params.set("eligibility", options.eligibility);
+    if (options.agency) params.set("agency", options.agency);
+    if (options.topic) params.set("topic", options.topic);
     if (options.dateFrom !== null) params.set("dateFrom", options.dateFrom);
     if (options.dateTo !== null) params.set("dateTo", options.dateTo);
     if (options.continuation !== null)

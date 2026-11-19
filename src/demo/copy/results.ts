@@ -3,8 +3,9 @@ import { namesItsKind, ordinal } from "./shared.ts";
 /** Results pane. */
 export const results = {
   resultsTitle: "Results",
-  resultsCount: (shown: number, total: number | null) =>
-    `${shown} ${shown === 1 ? "listing" : "listings"} loaded${total === null ? "" : `; ${total.toLocaleString("en-US")} reported by source`}`,
+  /** `orMore`: the source stops counting at this total, so it is a floor (safeguard 8). */
+  resultsCount: (shown: number, total: number | null, orMore = false) =>
+    `${shown} ${shown === 1 ? "listing" : "listings"} loaded${total === null ? "" : `; ${total.toLocaleString("en-US")}${orMore ? " or more" : ""} reported by source`}`,
   /** Grants.gov rows are funding opportunities, not policies, and are counted apart. */
   resultsListed: (rows: number, opportunities = 0) => {
     const policies = rows - opportunities;
@@ -104,6 +105,14 @@ export const results = {
     `matched the search ${terms} in ${where}`,
   whyName: (terms: string, where: string) =>
     `name search for ${terms} in ${where}`,
+  /** D-186: the Federal Register's own agency or topic clause; `base` is the words-matched clause, or null with no words. */
+  whyNarrow: (
+    base: string | null,
+    narrow: { field: "agency" | "topic"; label: string },
+  ) =>
+    base
+      ? `${base}, listed by the Federal Register under the ${narrow.field} ${narrow.label}`
+      : `listed by the Federal Register under the ${narrow.field} ${narrow.label}`,
   /** Congress.gov takes one bill reference: an exact lookup, not a text match. */
   whyLookedUp: (bill: string, congress: number, where: string) =>
     `looked up ${bill} in the ${congress}${ordinal(congress)} Congress on ${where}`,

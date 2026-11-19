@@ -589,11 +589,14 @@ export function uscSectionLinks(
   }
   if (entry.reclassifiedAs) {
     const { targets, noteText } = entry.reclassifiedAs;
+    // A removal-description note states a transfer too, and the shard does
+    // not record which note kind it was; one heading covers both.
     const quote = {
-      heading: "Codification note",
+      heading: "Note in the U.S. Code",
       text: noteText,
       field: "noteText",
     } as const;
+    let linked = 0;
     for (const href of targets) {
       const parsed = parseUslmHref(href);
       if (parsed?.kind !== "usc") continue;
@@ -603,7 +606,18 @@ export function uscSectionLinks(
           quote,
         }),
       );
+      linked += 1;
     }
+    if (!linked)
+      rows.push(
+        note(
+          p,
+          "stated",
+          linkLabel("usc_reclassified_no_target", "forward"),
+          null,
+          quote,
+        ),
+      );
   }
   rows.push(
     note(

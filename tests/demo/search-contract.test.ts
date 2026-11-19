@@ -4,6 +4,7 @@ import {
   cfrQuery,
   dateRangeValue,
   documentTypeFilter,
+  narrowOf,
   nextSearchCursor,
   parseCfrQuery,
   REGULATIONS_V2_CONFIRMED,
@@ -384,5 +385,200 @@ describe("search contract v2 criteria", () => {
           }),
         ),
       ).toThrow();
+  });
+});
+
+describe("Federal Register narrowing by agency or topic (D-186)", () => {
+  const narrow = (
+    extra: Partial<DemoSearchOptions> = {},
+  ): DemoSearchOptions => ({
+    dateFrom: null,
+    dateTo: null,
+    continuation: null,
+    version: 3,
+    ...extra,
+  });
+
+  it("accepts an agency narrowing with words, echoing the key and ranking by relevance", () => {
+    const criteria = searchCriteria(
+      "federal-register",
+      "consultation",
+      1,
+      narrow({ agency: "indian-affairs-bureau" }),
+    );
+    expect(criteria).toMatchObject({
+      version: 3,
+      match: "text",
+      agency: "indian-affairs-bureau",
+      sort: "relevance",
+    });
+    expect(criteria).not.toHaveProperty("topic");
+    expect(narrowOf(criteria)).toEqual({
+      field: "agency",
+      id: "indian-affairs-bureau",
+    });
+  });
+
+  it("accepts a topic narrowing with no words, echoing the key and listing newest first", () => {
+    const criteria = searchCriteria(
+      "federal-register",
+      "",
+      1,
+      narrow({ topic: "indians-lands" }),
+    );
+    expect(criteria).toMatchObject({
+      version: 3,
+      query: "",
+      match: "text",
+      topic: "indians-lands",
+      sort: "newest",
+    });
+    expect(criteria).not.toHaveProperty("agency");
+    expect(narrowOf(criteria)).toEqual({ field: "topic", id: "indians-lands" });
+  });
+
+  it("combines dates and the type filter with a narrowing exactly as with a text search", () => {
+    const criteria = searchCriteria(
+      "federal-register",
+      "consultation",
+      1,
+      narrow({
+        agency: "indian-affairs-bureau",
+        dateFrom: "2024-01-01",
+        dateTo: "2024-12-31",
+        documentType: "RULE",
+      }),
+    );
+    expect(criteria).toMatchObject({
+      dateFrom: "2024-01-01",
+      dateTo: "2024-12-31",
+      documentType: "RULE",
+      agency: "indian-affairs-bureau",
+    });
+  });
+
+  it("rejects narrowing by both an agency and a topic at once", () => {
+    expect(() =>
+      searchCriteria(
+        "federal-register",
+        "consultation",
+        1,
+        narrow({ agency: "indian-affairs-bureau", topic: "indians-lands" }),
+      ),
+    ).toThrow(
+      expect.objectContaining({
+        code: "unsupported_criteria",
+        message: "Narrow by one agency or one topic at a time.",
+      }),
+    );
+  });
+
+  it.each([
+    ["version 1", { version: 1 as const }],
+    ["version 2", { version: 2 as const }],
+    ["a non-text match", { match: "docket" as const }],
+  ])("rejects narrowing on %s", (_label, extra) => {
+    expect(() =>
+      searchCriteria(
+        "federal-register",
+        "consultation",
+        1,
+        narrow({ agency: "indian-affairs-bureau", ...extra }),
+      ),
+    ).toThrow(
+      expect.objectContaining({
+        code: "unsupported_criteria",
+        message:
+          "The demo narrows by agency or topic on the Federal Register only.",
+      }),
+    );
+  });
+
+  it("rejects narrowing on another source", () => {
+    for (const source of ["govinfo", "regulations", "congress"])
+      expect(() =>
+        searchCriteria(
+          source,
+          "consultation",
+          1,
+          narrow({ agency: "indian-affairs-bureau" }),
+        ),
+      ).toThrow(expect.objectContaining({ code: "unsupported_criteria" }));
+  });
+
+  it.each([
+    "Indian-Affairs-Bureau",
+    "indian_affairs_bureau",
+    "-bureau",
+    `${"a".repeat(121)}`,
+  ])("rejects a malformed vocabulary id %s", (id) => {
+    expect(() =>
+      searchCriteria(
+        "federal-register",
+        "consultation",
+        1,
+        narrow({ agency: id }),
+      ),
+    ).toThrow(expect.objectContaining({ code: "bad_query" }));
+  });
+
+  it("still requires at least two characters when no narrowing is given", () => {
+    expect(() => searchCriteria("federal-register", "", 1, narrow())).toThrow(
+      expect.objectContaining({ code: "bad_query" }),
+    );
+    expect(() => searchCriteria("federal-register", "w", 1, narrow())).toThrow(
+      expect.objectContaining({ code: "bad_query" }),
+    );
+    expect(() =>
+      searchCriteria(
+        "federal-register",
+        "w",
+        1,
+        narrow({ agency: "indian-affairs-bureau" }),
+      ),
+    ).toThrow(expect.objectContaining({ code: "bad_query" }));
+  });
+
+  it("says no when no criteria is narrowed, including on version 1 and 2", () => {
+    expect(narrowOf(searchCriteria("federal-register", "water", 1))).toBeNull();
+    expect(
+      narrowOf(
+        searchCriteria("federal-register", "water", 1, {
+          dateFrom: null,
+          dateTo: null,
+          continuation: null,
+          version: 2,
+        }),
+      ),
+    ).toBeNull();
+    expect(
+      narrowOf(searchCriteria("federal-register", "water", 1, narrow())),
+    ).toBeNull();
+  });
+
+  it("round-trips the narrowing key through a continuation", () => {
+    const first = searchCriteria(
+      "federal-register",
+      "consultation",
+      1,
+      narrow({ agency: "indian-affairs-bureau" }),
+    );
+    const next = nextSearchCursor(first);
+    expect(
+      searchCriteria(
+        "federal-register",
+        "consultation",
+        2,
+        narrow({ agency: "indian-affairs-bureau", continuation: next }),
+      ),
+    ).toEqual(next);
+    expect(() =>
+      searchCriteria(
+        "federal-register",
+        "consultation",
+        2,
+        narrow({ agency: "interior-department", continuation: next }),
+      ),
+    ).toThrow();
   });
 });

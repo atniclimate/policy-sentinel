@@ -8,6 +8,7 @@ import type { IndexManifest } from "../../src/demo/index-types";
 import {
   parseAcquireArgs,
   runAcquire,
+  USAGE,
 } from "../../scripts/demo-index/acquire.mjs";
 import { probeHashFile } from "../../scripts/demo-index/common.mjs";
 import { validateDemoIndex } from "../../scripts/demo-index/validate.mjs";
@@ -185,7 +186,11 @@ describe("acquisition boundary", () => {
         ...dry,
       ]),
     ).toThrow(/current/);
+    // D-135: the eCFR command is refused outright, terms read or not.
     expect(() => parseAcquireArgs(["ecfr", "--title", "25", ...dry])).toThrow(
+      /D-135/,
+    );
+    expect(() => parseAcquireArgs(["uslm", "--title", "25", ...dry])).toThrow(
       /terms-read/,
     );
     expect(() =>
@@ -274,12 +279,14 @@ describe("acquisition boundary", () => {
     expect(h.lines).toEqual(["--work-dir must be outside the repository"]);
   });
 
-  it("refuses a real run without the full Nation-name list, or eCFR without a rights record (G3, N17)", async () => {
+  it("refuses a real run without the full Nation-name list, or without a rights record (G3, N17)", async () => {
     expect(() =>
       parseAcquireArgs([
-        "ecfr",
+        "uslm",
         "--title",
         "25",
+        "--release-point",
+        "119-136",
         "--terms-read",
         "2026-11-05",
         "--work-dir",
@@ -623,33 +630,26 @@ describe("vocabulary, U.S. Code and eCFR acquisition", () => {
     ]);
   });
 
-  it("records the eCFR up to date as of wording as current reference only", async () => {
+  it("refuses the eCFR command and sends no request (D-135)", async () => {
+    // Regression: the command once fetched eCFR's robots-disallowed versioner path.
     const h = harness({
       "https://www.ecfr.gov/api/versioner/v1/titles.json": {
         type: "application/json",
-        body: JSON.stringify({
-          titles: [
-            {
-              number: 25,
-              name: "Synthetic title name",
-              up_to_date_as_of: "2026-11-03",
-            },
-          ],
-        }),
+        body: JSON.stringify({ titles: [] }),
       },
     });
-    expect(
-      (await h.run(["ecfr", "--title", "25", "--terms-read", "2026-11-05"]))
-        .exitCode,
-    ).toBe(0);
-    const entry = h
-      .manifest()
-      .files.find((f) => f.path === "cfr/title-25.json")!;
-    expect(entry.status).toBe("unavailable");
-    expect(entry.currentReference).toMatchObject({
-      sourceId: "ecfr",
-      upToDateAsOfText: "2026-11-03",
-    });
-    expect(validateDemoIndex(h.dataDir).errors).toEqual([]);
+    const before = JSON.stringify(h.manifest());
+    const result = await h.run([
+      "ecfr",
+      "--title",
+      "25",
+      "--terms-read",
+      "2026-11-05",
+    ]);
+    expect(result.exitCode).toBe(2);
+    expect(h.calls).toEqual([]);
+    expect(h.lines.join(" ")).toMatch(/D-135/);
+    expect(JSON.stringify(h.manifest())).toBe(before);
+    expect(USAGE).not.toMatch(/ecfr/i);
   });
 });

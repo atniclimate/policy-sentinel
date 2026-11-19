@@ -1,7 +1,9 @@
+import type { NationProbe } from "./common.d.mts";
 import type { VocabularyFile } from "../../src/demo/index-types.ts";
 
 export interface VocabularyReport {
   dropped: { id: string; reason: string }[];
+  namedIn: { id: string; label: string }[];
 }
 
 /** SHA-256 of each vocabulary entry id held out of the suggestion lists (G3), by kind. */
@@ -13,12 +15,19 @@ export function heldOut(
   list?: Readonly<Record<string, readonly string[]>>,
 ): boolean;
 
+/** The 18 ids named in by kind, each with its approved label, despite the STRUCTURAL mask (D-191). */
+export const NAMED_IN: Readonly<
+  Record<string, Readonly<Record<string, string>>>
+>;
+/** True when this id is named in for this kind under this exact label (D-191). */
+export function namedIn(kind: string, id: unknown, label: unknown): boolean;
+
 export function mapFrAgencies(
   json: unknown,
-  names: readonly string[],
+  names: readonly string[] | NationProbe,
   list?: Readonly<Record<string, readonly string[]>>,
 ): { file: VocabularyFile; report: VocabularyReport };
 export function mapFrTopics(
   json: unknown,
-  names: readonly string[],
+  names: readonly string[] | NationProbe,
 ): { file: VocabularyFile; report: VocabularyReport };

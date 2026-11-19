@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Trimmed from the real OLRC USLM title 42 and title 33 files at release
+     point 119-142 (condition H6), read from the owner-approved fetch of
+     2026-11-19 via the peek-section helper. Official elements kept: num,
+     heading and the stated note (codification, or removalDescription when
+     there is no codification note) of each section, verbatim. s628a
+     (title 42, real identifier) is shape A: its codification note's only
+     U.S.C. ref names a subsection, /us/usc/t42/s626/c. s472 (title 33, real
+     identifier) is shape B: its codification note names no U.S.C. ref at
+     all, only prose ("redesignated as section 548" of Title 14). s1914
+     (title 33, real identifier) is shape C: it has no codification note at
+     all; its removalDescription note (no heading of its own, as in the real
+     file) names section 1954 of this title. Dropped: editorialNotes, element
+     ids and style attributes. Synthetic: the chapter wrapper, and s472 and
+     s1914 are carried under title 42's document so one small file holds all
+     three real shapes; buildUslmShard does not check a section's title
+     segment against the document title. -->
+<uscDoc identifier="/us/usc/t42" xmlns="http://xml.house.gov/schemas/uslm/1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/">
+<meta>
+  <dc:title>Title 42</dc:title>
+  <docNumber>42</docNumber>
+  <docPublicationName>Online@119-142</docPublicationName>
+  <dcterms:created>2026-05-06T11:43:48</dcterms:created>
+</meta>
+<main>
+<title identifier="/us/usc/t42"><num value="42">Title 42—</num>
+<note topic="miscellaneous"><p>Current through 119-142</p></note>
+<chapter identifier="/us/usc/t42/ch1">
+<section status="transferred" identifier="/us/usc/t42/s628a"><num value="628a">§ 628a.</num><heading> Transferred</heading><notes type="uscNote">
+<note topic="codification"><heading class="centered smallCaps">Codification</heading>
+<p class="indent0">Section, <ref href="/us/act/1935-08-14/ch531/tIV/s429">act Aug. 14, 1935, ch. 531, title IV, § 429</ref>, as added <ref href="/us/pl/103/432/tII/s205/a">Pub. L. 103–432, title II, § 205(a)</ref>, <date date="1994-10-31">Oct. 31, 1994</date>, <ref href="/us/stat/108/4456">108 Stat. 4456</ref>, which related to child welfare traineeships, was redesignated section 426(c) of act <date date="1935-08-14">Aug. 14, 1935</date>, by <ref href="/us/pl/109/288/s6/f/2">Pub. L. 109–288, § 6(f)(2)</ref>, <date date="2006-09-28">Sept. 28, 2006</date>, <ref href="/us/stat/120/1247">120 Stat. 1247</ref>, and is classified to <ref href="/us/usc/t42/s626/c">section 626(c) of this title</ref>.</p>
+</note>
+</notes>
+</section>
+<section status="transferred" identifier="/us/usc/t33/s472"><num value="472">§ 472.</num><heading> Transferred</heading><notes type="uscNote">
+<note topic="codification"><heading class="centered smallCaps">Codification</heading>
+<p class="indent0">Section, <ref href="/us/act/1922-09-15/ch313">act Sept. 15, 1922, ch. 313</ref>, <ref href="/us/stat/42/844">42 Stat. 844</ref>, which related to marking of anchorage grounds by the Commissioner of Lighthouses, was transferred to the end of subchapter III of chapter 5 of Title 14, Coast Guard, and redesignated as section 548 of that title by <ref href="/us/pl/117/263/dK/tCXVIII/s11808/c">Pub. L. 117–263, div. K, title CXVIII, § 11808(c)</ref>, <date date="2022-12-23">Dec. 23, 2022</date>, <ref href="/us/stat/136/4166">136 Stat. 4166</ref>.</p>
+</note>
+</notes>
+</section>
+<section status="transferred" identifier="/us/usc/t33/s1914"><num value="1914">§ 1914.</num><heading> Transferred</heading><notes type="uscNote">
+<note topic="removalDescription">
+<p class="indent0">Section, <ref href="/us/pl/100/220/tII/s2203">Pub. L. 100–220, title II, § 2203</ref>, <date date="1987-12-29">Dec. 29, 1987</date>, <ref href="/us/stat/101/1466">101 Stat. 1466</ref>; <ref href="/us/pl/104/324/tVIII/s802/b">Pub. L. 104–324, title VIII, § 802(b)</ref>, <date date="1996-10-19">Oct. 19, 1996</date>, <ref href="/us/stat/110/3944">110 Stat. 3944</ref>; <ref href="/us/pl/109/449/s5/a">Pub. L. 109–449, § 5(a)</ref>, <date date="2006-12-22">Dec. 22, 2006</date>, <ref href="/us/stat/120/3337">120 Stat. 3337</ref>, was redesignated <ref href="/us/pl/109/449/s5">section 5 of Pub. L. 109–449</ref> and transferred to <ref href="/us/usc/t33/s1954">section 1954 of this title</ref>.</p>
+</note>
+</notes>
+</section>
+</chapter>
+</title>
+</main>
+</uscDoc>

@@ -395,6 +395,82 @@ describe("demo API response boundary", () => {
     });
   });
 
+  describe("narrowing by agency or topic (D-186)", () => {
+    it("sends an agency narrowing with words", async () => {
+      const options: DemoSearchOptions = {
+        ...undated,
+        version: 3,
+        agency: "indian-affairs-bureau",
+      };
+      const fetch = vi.fn().mockResolvedValue(
+        answer({
+          ...searchResult([], "consultation"),
+          criteria: searchCriteria(
+            "federal-register",
+            "consultation",
+            1,
+            options,
+          ),
+          continuation: { kind: "stopped", reason: "complete" },
+        }),
+      );
+      vi.stubGlobal("fetch", fetch);
+      await search("federal-register", "consultation", 1, undefined, options);
+      const params = sentParams(fetch.mock.calls[0]);
+      expect(Object.fromEntries(params)).toEqual({
+        source: "federal-register",
+        q: "consultation",
+        page: "1",
+        searchVersion: "3",
+        agency: "indian-affairs-bureau",
+      });
+    });
+
+    it("sends a topic narrowing with an empty query, for a search with no words", async () => {
+      const options: DemoSearchOptions = {
+        ...undated,
+        version: 3,
+        topic: "indians-lands",
+      };
+      const fetch = vi.fn().mockResolvedValue(
+        answer({
+          ok: true,
+          source: "federal-register",
+          query: "",
+          page: 1,
+          total: 0,
+          results: [],
+          retrievedAt: "2099-01-07T11:59:00.000Z",
+          criteria: searchCriteria("federal-register", "", 1, options),
+          continuation: { kind: "stopped", reason: "complete" },
+        }),
+      );
+      vi.stubGlobal("fetch", fetch);
+      await search("federal-register", "", 1, undefined, options);
+      const params = sentParams(fetch.mock.calls[0]);
+      expect(params.get("q")).toBe("");
+      expect(params.get("topic")).toBe("indians-lands");
+      expect(params.has("agency")).toBe(false);
+      expect(params.has("match")).toBe(false);
+    });
+
+    it("refuses an invalid narrowing before any request", async () => {
+      const fetch = vi.fn();
+      vi.stubGlobal("fetch", fetch);
+      await expect(
+        search("federal-register", "water", 1, undefined, {
+          ...undated,
+          version: 2,
+          agency: "indian-affairs-bureau",
+        }),
+      ).rejects.toMatchObject({
+        code: "unsupported_criteria",
+        httpStatus: 400,
+      });
+      expect(fetch).not.toHaveBeenCalled();
+    });
+  });
+
   it.each([
     ["not_found", 404, "error"],
     ["upstream_error", 502, "error"],

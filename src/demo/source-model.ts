@@ -37,8 +37,10 @@ export const RELEASE_VERIFICATION: Readonly<
   oregon: null,
   idaho: null,
   "govinfo-courts": "2026-11-18",
-  "cfr-index": null,
-  "usc-index": null,
+  // 2026-11-19: the browser check quoted 25 CFR part 83's Authority line and
+  // 25 U.S.C. 5131's source credit from the index files, word for word.
+  "cfr-index": "2026-11-19",
+  "usc-index": "2026-11-19",
   ecfr: null,
   ibia: null,
   nill: null,

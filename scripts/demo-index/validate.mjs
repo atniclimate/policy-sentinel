@@ -22,11 +22,12 @@ import {
   kindOfPath,
   loadNationProbe,
   manifestBytes,
+  namedInProbeHit,
   probeHit,
   shardBytes,
   sourceIdOfPath,
 } from "./common.mjs";
-import { heldOut } from "./vocab.mjs";
+import { heldOut, namedIn } from "./vocab.mjs";
 
 const KiB = 1024;
 const MiB = 1024 * KiB;
@@ -147,14 +148,17 @@ function inventory(dir, errors) {
   return files;
 }
 
-function scanStrings(label, value, { shard, probe }, errors) {
+function scanStrings(label, value, { shard, probe, vocabExempt }, errors) {
   for (const [key, text] of strings(value)) {
     const where = `${label} ${key}`;
     if (MARKUP.test(text)) errors.push(`${where}: markup or entity (G6)`);
     // An allowlisted official URL (an OLRC zip name holds "@") is not contact data.
     if (!/^https:\/\/\S+$/.test(text) && hasPersonalPattern(text))
       errors.push(`${where}: personal pattern (G1)`);
-    if (probeHit(text, probe))
+    // A named-in vocabulary label (D-191) skips only the STRUCTURAL mask.
+    const exempt =
+      vocabExempt && (key === "id" || key === "label") && vocabExempt.has(text);
+    if (exempt ? namedInProbeHit(text, probe) : probeHit(text, probe))
       errors.push(`${where}: Nation-name probe hit (G3)`);
     if (!VERBATIM_FIELDS.includes(key) && MODEL_WORDS.test(text))
       errors.push(`${where}: model word (G5)`);
@@ -427,7 +431,18 @@ export function validateDemoIndex(dir, options = {}) {
     if (!shardBytes(value).equals(bytes))
       errors.push(`${label}: not in canonical form (H1)`);
     checkShard(entry, value, errors, options.heldOutList);
-    scanStrings(label, value, { shard: true, ...ctx }, errors);
+    // A named-in id (D-191) exempts only its own id (the topic id "indians"
+    // is itself an anchor word) and its approved label, and only in the
+    // vocabulary file for its own kind (VOCAB_KIND_OF_PATH above).
+    const vocabExempt =
+      value.artifactType === "vocabulary"
+        ? new Set(
+            value.entries
+              .filter((e) => namedIn(value.kind, e.id, e.label))
+              .flatMap((e) => [e.id, e.label]),
+          )
+        : undefined;
+    scanStrings(label, value, { shard: true, vocabExempt, ...ctx }, errors);
   }
   if (vocabBytes > CAPS.vocabTotalBytes)
     errors.push("vocabulary over 1 MiB in all");

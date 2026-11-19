@@ -567,6 +567,42 @@ describe("document model shared by the PDF and the print view", () => {
     expect(JSON.stringify(named)).not.toContain("Natural Resources");
   });
 
+  it("prints a typed name search as typed, with no NCAI wording and without its terms (D-189)", () => {
+    const { first, report } = fixture();
+    const key = keyOf(first.citation);
+    const typed = build({
+      ...report,
+      cited: {
+        [key]: {
+          ...report.cited[key],
+          foundBy: foundByOf(
+            [
+              {
+                ...reason("federal-register", "Example River Nation water"),
+                name: true,
+                narrow: {
+                  field: "agency",
+                  id: "indian-affairs-bureau",
+                  label: "Indian Affairs Bureau",
+                },
+              },
+            ],
+            { kind: "typed", query: "Example River Nation water" },
+          ),
+        },
+      },
+    });
+    expect(fields(typed.blocks, "Found by")).toEqual([
+      "Typed search: name search for the name typed (Federal Register); narrowed to the agency Indian Affairs Bureau (Federal Register field)",
+    ]);
+    expect(typed.blocks).toContainEqual({
+      kind: "small",
+      text: COPY.docFoundBy.nameCaution,
+    });
+    expect(JSON.stringify(typed)).not.toContain("Example River");
+    expect(JSON.stringify(typed)).not.toContain("NCAI draft");
+  });
+
   it("prints a draft title only when the page supplies one, never from the seed", () => {
     const { first, report } = fixture();
     const key = keyOf(first.citation);

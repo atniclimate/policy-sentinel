@@ -340,6 +340,56 @@ export const hasProtectedSpan = (text, names) =>
 export const probeHit = (text, probe) =>
   hasProtectedSpan(text, probe.names) || probeHashHit(text, probe);
 
+const fold = (s) => s.normalize("NFC").replace(/\s+/g, " ").toLowerCase();
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * An exact probe name present in text by itself: the same match
+ * src/demo/nation-mask.ts's injected-name pass makes, but never a
+ * STRUCTURAL anchor word (D-191: a named-in vocabulary entry skips only the
+ * structural mask, never an exact name on the list).
+ */
+function exactNameHit(text, names) {
+  const folded = fold(text);
+  return (names ?? []).some((name) => {
+    const n = fold(name).trim();
+    return (
+      n.length > 0 &&
+      new RegExp(
+        `(?<![\\p{L}\\p{N}])${escapeRe(n)}(?![\\p{L}\\p{N}])`,
+        "u",
+      ).test(folded)
+    );
+  });
+}
+
+/**
+ * G3 for a named-in vocabulary label (D-191): the hashed recognition list
+ * and an exact injected probe name, never the structural mask. `probe` is a
+ * plain name list or a whole probe carrying the hashes, the same shape
+ * wordingProblem and probeHit take.
+ */
+export function namedInProbeHit(text, probe) {
+  const names = probe && !Array.isArray(probe) ? probe.names : probe;
+  const hashHit =
+    probe && !Array.isArray(probe) ? probeHashHit(text, probe) : false;
+  return hashHit || exactNameHit(text, names);
+}
+
+/**
+ * Why a named-in label (D-191) may still not be carried: the hashed
+ * recognition list or an exact injected probe name (nation_name_probe), a
+ * URL (G2), a personal pattern (G1) or markup (G6). Skips the structural
+ * Nation-name mask the id is named in against.
+ */
+export function namedInWordingProblem(text, probe) {
+  if (namedInProbeHit(text, probe)) return "nation_name_probe";
+  if (/https?:\/\/|www\./i.test(text)) return "url";
+  if (hasPersonalPattern(text)) return "personal_pattern";
+  if (/[<>]|&#|&lt;|&gt;|&amp;/.test(text)) return "markup";
+  return null;
+}
+
 /**
  * Why official wording may not be carried, or null: a Nation-name probe hit
  * (G3), a URL (G2), a personal pattern (G1) or markup (G6).

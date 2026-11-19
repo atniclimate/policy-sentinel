@@ -428,14 +428,15 @@ export function buildDocument(input: DocInput): DocModel {
         ? `${COPY.identifierKinds[found.match]} ${found.terms}`
         : found.terms;
       // A name search never prints its terms, whatever it grew from (safeguard 1).
-      field(
-        L.foundBy,
-        !found.name
-          ? F.search(from, terms, where)
-          : seed.kind === "draft"
-            ? F.nameSearch(seed.id, where)
-            : F.nameSearchFrom(from, where),
-      );
+      const line = !found.name
+        ? F.search(from, terms, where)
+        : seed.kind === "draft"
+          ? F.nameSearch(seed.id, where)
+          : seed.kind === "typed"
+            ? F.nameSearchTyped(from, where)
+            : F.nameSearchFrom(from, where);
+      // D-186: the Federal Register field this search was narrowed to.
+      field(L.foundBy, found.narrow ? F.narrowed(line, found.narrow) : line);
       if (found.name) blocks.push({ kind: "small", text: F.nameCaution });
     }
     // The export travels without the page, so it keeps the Find related caveat (safeguard 2).

@@ -13,6 +13,7 @@ import { COURT_CODES, courtDocketReading } from "./courts";
 import type { CourtCode } from "./courts";
 import { appendMergedResults, isCongressReference } from "./merge";
 import type { MergedResult } from "./merge";
+import { holdsTribeName } from "./name-search";
 import type { RouteReading } from "./query-route";
 import {
   cfrQuery,
@@ -112,6 +113,11 @@ export interface PlanSearch {
   readonly match?: LaneMatch;
   /** A court lookup in `query`; sent with that version 3 match. */
   readonly lookup?: CourtLookup;
+  /**
+   * A name search outside the "sponsor" group: the typed words hold a name
+   * shaped like a Tribe's (safeguard 1). Worded apart, like a sponsor search.
+   */
+  readonly name?: true;
 }
 
 /**
@@ -128,7 +134,19 @@ export type SkipReason =
   | "congress_dates"
   | "govinfo_dates"
   | "grants_dates"
+  | "narrow_no_words"
   | "budget";
+
+/**
+ * The Federal Register's own agency or topic field a text search is narrowed
+ * to (D-186, D-188). `label` is the vocabulary entry's exact published label,
+ * the wording a listing's own fields must state for laneKeep to keep it.
+ */
+export interface Narrow {
+  readonly field: "agency" | "topic";
+  readonly id: string;
+  readonly label: string;
+}
 
 export interface Lane {
   /**
@@ -160,13 +178,20 @@ export interface Lane {
    * runs without it and the page states "type filter not applied".
    */
   readonly typeNotApplied?: true;
+  /** This lane is the Federal Register's own text lane, narrowed to this field (D-186). */
+  readonly narrow?: Narrow;
+  /** The plan carries a narrowing, but the demo does not send it on this lane (D-186). */
+  readonly narrowNotApplied?: true;
 }
 
 /** Dates, the document type filter (null or absent: any type) and the Grants.gov eligibility filter. */
 export type PlanDates = Pick<
   DemoSearchOptions,
   "dateFrom" | "dateTo" | "documentType" | "eligibility"
->;
+> & {
+  /** D-186: narrows the Federal Register's own text lane to this field; absent or null means no narrowing. */
+  readonly narrow?: Narrow | null;
+};
 
 export interface PlanSources {
   /** Live federal sources the reader has checked, in catalog order. */
@@ -197,7 +222,10 @@ export const laneId = (
  */
 export function laneOptions(
   plan: PlanDates,
-  lane: Pick<Lane, "sourceId" | "match" | "lookup" | "typeNotApplied">,
+  lane: Pick<
+    Lane,
+    "sourceId" | "match" | "lookup" | "typeNotApplied" | "narrow"
+  >,
   continuation: DemoSearchCursor | null = null,
 ): DemoSearchOptions {
   return {
@@ -205,13 +233,17 @@ export function laneOptions(
     dateTo: plan.dateTo,
     continuation,
     version:
-      lane.sourceId === COURTS_SOURCE || lane.lookup === "executive_order"
+      lane.sourceId === COURTS_SOURCE ||
+      lane.lookup === "executive_order" ||
+      lane.narrow
         ? 3
         : 2,
     match: lane.match ?? lane.lookup ?? "text",
     documentType: lane.typeNotApplied ? null : (plan.documentType ?? null),
     ...(lane.sourceId === "grants" &&
       plan.eligibility && { eligibility: plan.eligibility }),
+    ...(lane.narrow?.field === "agency" && { agency: lane.narrow.id }),
+    ...(lane.narrow?.field === "topic" && { topic: lane.narrow.id }),
   };
 }
 
@@ -220,7 +252,7 @@ export function lookupReady(
   plan: PlanDates,
   lane: Pick<
     Lane,
-    "sourceId" | "query" | "match" | "lookup" | "typeNotApplied"
+    "sourceId" | "query" | "match" | "lookup" | "typeNotApplied" | "narrow"
   >,
 ): boolean {
   try {
@@ -239,6 +271,10 @@ function skipReason(
 ): SkipReason | undefined {
   if (sourceId === NO_FEDERAL_SOURCE) return "none_checked";
   if (!sources.live.includes(sourceId)) return "source_off";
+  // D-186: with no words typed and a narrowing set, only the Federal
+  // Register's own field can run; the demo narrows on no other source.
+  if (dates.narrow && query === "" && sourceId !== "federal-register")
+    return "narrow_no_words";
   if (sourceId === "congress") {
     if (dates.dateFrom) return "congress_dates";
     if (!isCongressReference(query)) return "congress_reference";
@@ -286,6 +322,15 @@ export function buildPlan(
       const typeNotApplied =
         Boolean(dates.documentType) &&
         documentTypeFilter(sourceId, dates.documentType!) === null;
+      // D-186: the Federal Register's own text lane carries the narrowing;
+      // an identifier lookup on it, and every other source, states it was
+      // not applied, the way typeNotApplied already does.
+      const narrowLane =
+        Boolean(dates.narrow) &&
+        sourceId === "federal-register" &&
+        !search.match &&
+        !search.lookup;
+      const narrowNotApplied = Boolean(dates.narrow) && !narrowLane;
       lanes.push({
         id,
         group,
@@ -296,10 +341,14 @@ export function buildPlan(
         ...(search.collection && { collection: search.collection }),
         auto,
         ...(skip && { skip }),
-        ...(search.group === "sponsor" && { name: true as const }),
+        ...((search.group === "sponsor" || search.name) && {
+          name: true as const,
+        }),
         ...(search.match && { match: search.match }),
         ...(search.lookup && { lookup: search.lookup }),
         ...(typeNotApplied && { typeNotApplied: true as const }),
+        ...(narrowLane && { narrow: dates.narrow! }),
+        ...(narrowNotApplied && { narrowNotApplied: true as const }),
       });
     }
   }
@@ -378,9 +427,9 @@ export function statesIdentifier(
  * themselves. Other lanes keep everything (undefined).
  */
 export function laneKeep(
-  lane: Pick<Lane, "match" | "query" | "lookup">,
+  lane: Pick<Lane, "match" | "query" | "lookup" | "narrow">,
 ): ((citation: DemoCitation) => boolean) | undefined {
-  const { match, query, lookup } = lane;
+  const { match, query, lookup, narrow } = lane;
   if (lookup === "court_docket") {
     // The package the court and docket name, as GovInfo spells it.
     const packageId = courtDocketReading(query)?.packageId;
@@ -391,6 +440,13 @@ export function laneKeep(
   // The Worker already keeps only the exact executive order (T1.2, D-177);
   // nothing here filters its results a second time.
   if (lookup === "executive_order") return undefined;
+  // D-186, safeguard 8: a narrowed listing is kept only when its own fields
+  // state the agency or topic, in the vocabulary entry's exact label.
+  if (narrow)
+    return (citation) =>
+      narrow.field === "agency"
+        ? citation.issuingBody.split("; ").includes(narrow.label)
+        : (citation.topics?.includes(narrow.label) ?? false);
   return match
     ? (citation) => statesIdentifier(citation, match, query)
     : undefined;
@@ -403,7 +459,14 @@ export const isSeedRecord = (seed: Seed, row: MergedResult): boolean =>
     (c) => c.sourceId === seed.sourceId && c.identifier === seed.identifier,
   );
 
-/** A typed search is a one-group plan; `source` is "federal" or a state id. */
+/**
+ * A typed search is a one-group plan; `source` is "federal" or a state id.
+ * When the typed words hold a name shaped like a Tribe's (D-186b, the owner
+ * ruling of 2026-11-19), the search carries `name: true`, worded apart as
+ * the NCAI sponsor searches already are (safeguard 1): a name match does not
+ * show that a document concerns that Tribe or organization, and a row only a
+ * name search lists never counts toward a shared issue.
+ */
 export function typedPlan(
   query: string,
   source: string,
@@ -412,7 +475,15 @@ export function typedPlan(
 ): Plan {
   return buildPlan(
     { kind: "typed", query },
-    [{ group: "policy", source, query, auto: true }],
+    [
+      {
+        group: "policy",
+        source,
+        query,
+        auto: true,
+        ...(holdsTribeName(query) && { name: true as const }),
+      },
+    ],
     sources,
     dates,
   );
@@ -620,6 +691,15 @@ export function unresolvedEmpty(search: LaneSearch): boolean {
   );
 }
 
+/**
+ * The Federal Register stops counting at 10,000 (source note of 2026-07-31:
+ * a half-year query reported 10,000 and no page past 10,000 items; the
+ * release check of 2026-11-18 read exactly 10,000), so that total is a
+ * floor, never shown as exact (safeguard 8).
+ */
+export const totalIsFloor = (search: LaneSearch): boolean =>
+  search.sourceId === "federal-register" && search.response?.total === 10_000;
+
 /** Why a row is shown: the lane that listed it. */
 export interface Reason {
   readonly laneId: string;
@@ -635,6 +715,8 @@ export interface Reason {
   readonly match?: LaneMatch;
   /** Copied from the lane: the court lookup it was. */
   readonly lookup?: CourtLookup;
+  /** Copied from the lane: the Federal Register field this lane was narrowed to (D-186). */
+  readonly narrow?: Narrow;
 }
 
 export interface DiscoveryRow extends MergedResult {
@@ -701,6 +783,7 @@ export function mergeLanes(
       ...(lane.name && { name: true as const }),
       ...(lane.match && { match: lane.match }),
       ...(lane.lookup && { lookup: lane.lookup }),
+      ...(lane.narrow && { narrow: lane.narrow }),
     };
     for (const citation of search.listings) {
       const reasons = shownBy.get(keyOf(citation)) ?? [];
@@ -760,13 +843,13 @@ export function groupDiscovery(
 /** The lane fields a cached answer depends on. */
 export type LaneKey = Pick<
   Lane,
-  "sourceId" | "query" | "match" | "typeNotApplied"
+  "sourceId" | "query" | "match" | "typeNotApplied" | "narrow"
 >;
 
 /**
  * The only criteria a cached response may be found by: what the lane is sent
- * with, so answers never cross identifier kinds or type filters. Pass the plan
- * as `dates`, so its type filter is included.
+ * with, so answers never cross identifier kinds, type filters or narrowings.
+ * Pass the plan as `dates`, so its type filter is included.
  */
 export function laneSignature(lane: LaneKey, dates: PlanDates): string {
   const sent = laneOptions(dates, lane);
@@ -778,6 +861,8 @@ export function laneSignature(lane: LaneKey, dates: PlanDates): string {
     sent.match,
     sent.documentType,
     sent.eligibility ?? null,
+    sent.agency ?? null,
+    sent.topic ?? null,
   ]);
 }
 

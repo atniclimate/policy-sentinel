@@ -1,0 +1,83 @@
+{
+  "description": "Documents matching 'consultation' and from Indian Affairs Bureau",
+  "count": 462,
+  "total_pages": 47,
+  "next_page_url": "https://www.federalregister.gov/api/v1/documents?conditions%5Bagencies%5D%5B%5D=indian-affairs-bureau&conditions%5Bterm%5D=consultation&order=relevance&page=2&per_page=10",
+  "results": [
+    {
+      "document_number": "2024-30252",
+      "title": "Synthetic title for a narrowed search",
+      "type": "Notice",
+      "agencies": [
+        {
+          "raw_name": "DEPARTMENT OF THE INTERIOR",
+          "name": "Interior Department",
+          "id": 253,
+          "url": "https://www.federalregister.gov/agencies/interior-department",
+          "json_url": "https://www.federalregister.gov/api/v1/agencies/253",
+          "parent_id": null,
+          "slug": "interior-department"
+        },
+        {
+          "raw_name": "Bureau of Indian Affairs",
+          "name": "Indian Affairs Bureau",
+          "id": 234,
+          "url": "https://www.federalregister.gov/agencies/indian-affairs-bureau",
+          "json_url": "https://www.federalregister.gov/api/v1/agencies/234",
+          "parent_id": 253,
+          "slug": "indian-affairs-bureau"
+        }
+      ],
+      "publication_date": "2024-12-19",
+      "abstract": "Synthetic abstract.",
+      "citation": "89 FR 103858",
+      "comments_close_on": null,
+      "docket_ids": ["256A2100DD/AAKC001030/A0A51010.999900"],
+      "regulation_id_numbers": [],
+      "cfr_references": [],
+      "topics": []
+    },
+    {
+      "document_number": "2026-21474",
+      "title": "Synthetic title for a narrowed search",
+      "type": "Rule",
+      "agencies": [
+        {
+          "raw_name": "DEPARTMENT OF THE INTERIOR",
+          "name": "Interior Department",
+          "id": 253,
+          "url": "https://www.federalregister.gov/agencies/interior-department",
+          "json_url": "https://www.federalregister.gov/api/v1/agencies/253",
+          "parent_id": null,
+          "slug": "interior-department"
+        },
+        {
+          "raw_name": "Bureau of Indian Affairs",
+          "name": "Indian Affairs Bureau",
+          "id": 234,
+          "url": "https://www.federalregister.gov/agencies/indian-affairs-bureau",
+          "json_url": "https://www.federalregister.gov/api/v1/agencies/234",
+          "parent_id": 253,
+          "slug": "indian-affairs-bureau"
+        }
+      ],
+      "publication_date": "2026-10-20",
+      "abstract": null,
+      "citation": "91 FR 66286",
+      "comments_close_on": null,
+      "docket_ids": ["267A2100DD/AAKP3000000/A0A501010.000000"],
+      "regulation_id_numbers": ["1076-AF81"],
+      "cfr_references": [
+        { "chapter": null, "citation_url": null, "part": "140", "title": 25 },
+        { "chapter": null, "citation_url": null, "part": "141", "title": 25 },
+        { "chapter": null, "citation_url": null, "part": "211", "title": 25 }
+      ],
+      "topics": [
+        "Business and industry",
+        "Indians",
+        "Indians-lands",
+        "Reporting and recordkeeping requirements"
+      ]
+    }
+  ]
+}

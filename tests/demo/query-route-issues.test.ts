@@ -4,7 +4,10 @@
 // span never matches.
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
+import bundledIssues from "../../config/issues.v1.json";
+import bundledAliases from "../../config/law-aliases.v1.json";
 import type { PlanSearch } from "../../src/demo/discovery";
+import type { LawAliasFile } from "../../src/demo/index-types";
 import type { IssueFile } from "../../src/demo/issues";
 import { routeQuery } from "../../src/demo/query-route";
 
@@ -216,5 +219,47 @@ describe("query router, issue and measure names", () => {
     const route = routeQuery("Section 106 consultation");
     expect(route.readings).toEqual([]);
     expect(route.plainWords).toBe(true);
+  });
+});
+
+// Regression: "Clean Water Act section 106" offered the Section 106
+// consultation issue, which rests on the National Historic Preservation Act.
+describe("a section number typed beside another law's name (the reviewed tables)", () => {
+  const tables = {
+    aliases: bundledAliases as unknown as LawAliasFile,
+    issues: bundledIssues as unknown as IssueFile,
+  };
+  const read = (text: string) =>
+    routeQuery(text, tables).readings.map((r) => [r.kind, r.identifier]);
+  const ISSUE = ["issue", "Section 106 consultation"];
+
+  it("does not offer the issue when the named law is a different U.S. Code title", () => {
+    expect(read("Clean Water Act section 106")).toEqual([
+      ["law_name", "Clean Water Act"],
+    ]);
+    expect(read("CWA section 106 grants")).toEqual([
+      ["law_name", "Clean Water Act"],
+    ]);
+    expect(read("Clean Water Act Section 106 compliance")).toEqual([
+      ["law_name", "Clean Water Act"],
+    ]);
+  });
+
+  it("still offers it alone, and beside its own law", () => {
+    expect(read("section 106")).toEqual([ISSUE]);
+    expect(
+      read("Section 106 of the National Historic Preservation Act"),
+    ).toEqual([ISSUE, ["law_name", "National Historic Preservation Act"]]);
+    expect(read("NHPA section 106")).toEqual([
+      ["law_name", "National Historic Preservation Act"],
+      ISSUE,
+    ]);
+  });
+
+  it("keeps a name that is not a section number beside any law", () => {
+    expect(read("Clean Water Act Tribal Consultation")).toEqual([
+      ["law_name", "Clean Water Act"],
+      ["issue", "Consultation with Tribal governments"],
+    ]);
   });
 });

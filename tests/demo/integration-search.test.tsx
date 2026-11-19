@@ -370,9 +370,12 @@ describe("modes, sources and privacy on the page", () => {
       "href",
       "https://www.doi.gov/oha/organization/ibia/findingIBIA",
     );
+    // Oregon is off. The CFR and U.S. Code indexes hold files since 0.9.8, so
+    // neither reads "Not available" or the index-missing sentence.
     expect(about.getAllByText(sourceModel.notAvailable).length).toBeGreaterThan(
-      1,
+      0,
     );
+    expect(about.queryByText(sourceModel.indexMissing)).toBeNull();
     expect(
       container.querySelector(`a[href="${privacy.noticesHref}"]`),
     ).toHaveTextContent(privacy.noticesLink);

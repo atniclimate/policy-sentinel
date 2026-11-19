@@ -1,0 +1,74 @@
+{
+  "description": "Documents about Indians-lands",
+  "count": 1055,
+  "total_pages": 106,
+  "next_page_url": "https://www.federalregister.gov/api/v1/documents?conditions%5Btopics%5D%5B%5D=indians-lands&order=newest&page=2&per_page=10",
+  "results": [
+    {
+      "document_number": "2026-22085",
+      "title": "Synthetic title for a narrowed search",
+      "type": "Proposed Rule",
+      "agencies": [
+        {
+          "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+          "name": "Environmental Protection Agency",
+          "id": 145,
+          "url": "https://www.federalregister.gov/agencies/environmental-protection-agency",
+          "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+          "parent_id": null,
+          "slug": "environmental-protection-agency"
+        }
+      ],
+      "publication_date": "2026-10-29",
+      "abstract": "Synthetic abstract.",
+      "citation": "91 FR 68091",
+      "comments_close_on": "2026-12-14",
+      "docket_ids": ["EPA-HQ-OW-2026-4588", "FRL 13424-01-OW"],
+      "regulation_id_numbers": [],
+      "cfr_references": [
+        { "chapter": null, "citation_url": null, "part": "147", "title": 40 }
+      ],
+      "topics": [
+        "Environmental protection",
+        "Incorporation by reference",
+        "Indians-lands",
+        "Intergovernmental relations",
+        "Reporting and recordkeeping requirements",
+        "Water supply"
+      ]
+    },
+    {
+      "document_number": "2026-21618",
+      "title": "Synthetic title for a narrowed search",
+      "type": "Proposed Rule",
+      "agencies": [
+        {
+          "raw_name": "ENVIRONMENTAL PROTECTION AGENCY",
+          "name": "Environmental Protection Agency",
+          "id": 145,
+          "url": "https://www.federalregister.gov/agencies/environmental-protection-agency",
+          "json_url": "https://www.federalregister.gov/api/v1/agencies/145",
+          "parent_id": null,
+          "slug": "environmental-protection-agency"
+        }
+      ],
+      "publication_date": "2026-10-22",
+      "abstract": null,
+      "citation": "91 FR 66662",
+      "comments_close_on": "2026-12-07",
+      "docket_ids": ["EPA-HQ-OW-2026-0496", "FRL 13209-01-OW"],
+      "regulation_id_numbers": [],
+      "cfr_references": [
+        { "chapter": null, "citation_url": null, "part": "147", "title": 40 }
+      ],
+      "topics": [
+        "Environmental protection",
+        "Incorporation by reference",
+        "Indians-lands",
+        "Intergovernmental relations",
+        "Reporting and recordkeeping requirements",
+        "Water supply"
+      ]
+    }
+  ]
+}

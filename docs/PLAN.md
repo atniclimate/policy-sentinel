@@ -48,8 +48,9 @@ The owner set the Full 0.9 scope on 2026-11-05: court case search, policy
 chaining across treaties, laws, rules and decisions, Washington, Oregon and
 Idaho law with monitoring, all sources live, context modes, best-fit search
 with suggestions, local documents, and TERRA interoperability. It is Sentinel's
-entry in the TERRA 0.9.x release candidate (mid-December 2026). The 0.9.1 demo
-update is live. The reviewed design is
+entry in the TERRA 0.9.x release candidate (mid-December 2026). The live demo
+update is named in [`STATUS.md`](STATUS.md) (0.9.7 on 2026-11-19). The reviewed
+design is
 [`development/full09-design-2026-11-05.md`](development/full09-design-2026-11-05.md):
 Tier 1 is a core release candidate built from keyless official sources and
 existing hosts; Tier 2 additions land when their owner gate is answered (all
@@ -195,12 +196,11 @@ focus checks remain.
     the gate: the exactly-575 name list and its hash file (D-144) do not
     satisfy G-BIA-IDENTITY. Separately, the retained federal-recognition
     collection must validate to exactly 575 before it is published (safeguard
-    1). For the D-144 build step, a session fetches the current notice once
-    (one Federal Register API fetch), builds the plain list in ephemeral
-    scratch outside the repository, requires exactly 575 names, commits only
-    the hash file and deletes the plain list; the list is never committed or
-    logged. Until the hash file is committed the first phrase row cannot
-    land.
+    1). The D-144 build step is done: the hash file
+    `config/nation-name-probes.sha256.v1.json` (hashes only, count 575) was
+    committed at 3e7abfa on 2026-11-18 under the owner's ruling on the count
+    (D-175), and the plain list was deleted; the list is never committed or
+    logged.
   - Tribal documents printed in federal sources stay in and are flagged
     "issued by" the issuing body exactly as printed; the record stays
     `general_jurisdiction` unless an exact official field names the Nation; the

@@ -197,6 +197,10 @@ export interface DemoSearchCriteriaV3 extends Omit<
 > {
   readonly version: 3;
   readonly match: DemoSearchMatchV3;
+  // Federal Register text searches only (D-186): narrows to this vocabulary
+  // entry id's own agency or topic field. Present only when set; at most one.
+  readonly agency?: string;
+  readonly topic?: string;
 }
 
 export type DemoSearchCursor = DemoSearchCriteria;
@@ -213,6 +217,10 @@ export interface DemoSearchOptions {
   readonly documentType?: DemoDocumentType | null;
   /** Version 2 and 3, Grants.gov only. Default null. */
   readonly eligibility?: DemoEligibility | null;
+  /** Version 3, Federal Register text searches only (D-186): narrow to this vocabulary entry id's own agency. At most one of agency/topic may be set. */
+  readonly agency?: string;
+  /** Version 3, Federal Register text searches only (D-186): narrow to this vocabulary entry id's own topic. */
+  readonly topic?: string;
 }
 
 export type DemoSearchContinuation =

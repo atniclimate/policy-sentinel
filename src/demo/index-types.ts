@@ -119,9 +119,11 @@ export interface UscSectionCredit {
   /** From ref@href, basis source_field, document order. */
   credits: (PublicLawCitation | StatuteCitation | ActCitation)[];
   /**
-   * Present only when status is "transferred". targets: every /us/usc href in
-   * the codification note, document order. The page quotes noteText and links
-   * each target; it names no relation itself.
+   * Present only when status is "transferred". targets: every /us/usc section
+   * ref in the codification note, trimmed to its section (a subsection ref
+   * still names its section), deduplicated, document order; empty when the
+   * note names the new home only in prose, with no U.S.C. ref at all. The
+   * page quotes noteText and links each target; it names no relation itself.
    */
   reclassifiedAs: {
     targets: string[];
