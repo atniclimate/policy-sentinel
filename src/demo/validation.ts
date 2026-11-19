@@ -464,8 +464,7 @@ export function searchValue(
         (source === "govinfo-courts" &&
           criteria.version === 3 &&
           (criteria.match === "court_docket" ||
-            criteria.match === "us_reports"))) &&
-      (source !== "govinfo" || next.reason !== "complete")
+            criteria.match === "us_reports")))
     ) {
       continuation = {
         kind: "stopped",

@@ -34,6 +34,8 @@ const EXCLUSION_LABELS: Record<string, string> = {
   prohibited_location_block: "Location details left out",
   printed_page_marker_to_locator: "Page markers folded into locators",
   running_page_header: "Running page headers left out",
+  // Live Washington bill read, 2026-11-18: the code reached the page unworded.
+  unsafe_link: "Unsafe links left out",
 };
 
 /**

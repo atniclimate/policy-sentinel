@@ -67,6 +67,10 @@ export function opportunityDetail(
     data.synopsis && typeof data.synopsis === "object"
       ? record(data.synopsis)
       : {};
+  const agency =
+    data.agencyDetails && typeof data.agencyDetails === "object"
+      ? record(data.agencyDetails)
+      : {};
   const forecast = data.docType === "forecast";
   // shortcut: a forecast's own date fields were not probed live, so a forecast states no date here; read data.forecast once a forecast record is probed.
   const opens = forecast ? null : stampDay(synopsis.postingDateStr);
@@ -83,8 +87,10 @@ export function opportunityDetail(
         : data.opportunityTitle,
       400,
     ),
+    // synopsis.agencyName is free text and was seen live holding a person's name
+    // and job title; the agency table entry and the owning code are not.
     issuingBody:
-      cleanText(synopsis.agencyName, 160) ||
+      cleanText(agency.agencyName, 160) ||
       cleanText(data.owningAgencyCode, 40) ||
       "Not stated",
     kind: forecast ? "Forecast" : "Funding opportunity",

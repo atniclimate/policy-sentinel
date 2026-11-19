@@ -1,4 +1,4 @@
-/** Grants.gov: search only; opportunity text is not read in the demo. */
+/** Grants.gov search; the opportunity read (authority passage) is in grants-detail.ts. */
 import { decodeEntities } from "../../../src/demo/grants-authority";
 import { plainSourceText } from "../../../src/demo/search-contract";
 import type {
@@ -37,7 +37,7 @@ function grantsDate(value: unknown): string | null {
 
 /**
  * One search2 hit as a citation. Only these fields are read; search2 hits carry
- * no agency contacts, and fetchOpportunity (which does) is never called.
+ * no agency contacts. fetchOpportunity (which does) is read only in grants-detail.ts.
  */
 function grantsCitation(
   value: unknown,

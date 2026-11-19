@@ -74,16 +74,30 @@ const row = (rows: ReturnType<typeof sourceRows>, id: string) => {
 };
 
 describe("release verification record", () => {
-  it("starts with every source unverified, for the main session to fill at release", () => {
+  // Receipts: C:/dev/_scratch/policy-sentinel/release-check-2026-11-18/ (calls
+  // 2026-11-19 03:52 to 03:55 UTC, 2026-11-18 Pacific). GovInfo, its court
+  // opinions and Grants.gov wait for the Worker deployment that fixes them.
+  it("records only the release checks with a receipt", () => {
     expect(Object.keys(RELEASE_VERIFICATION).length).toBeGreaterThan(8);
-    for (const value of Object.values(RELEASE_VERIFICATION))
-      expect(value).toBeNull();
+    expect(
+      Object.entries(RELEASE_VERIFICATION).filter(([, day]) => day !== null),
+    ).toEqual([
+      ["federal-register", "2026-11-18"],
+      ["congress", "2026-11-18"],
+      ["regulations", "2026-11-18"],
+      ["washington", "2026-11-18"],
+    ]);
   });
 });
 
 describe("source rows", () => {
   it("never calls an enabled source live and says it is not yet verified", () => {
-    const rows = sourceRows({ sources, manifest: null, now: NOW });
+    const rows = sourceRows({
+      sources,
+      manifest: null,
+      now: NOW,
+      verification: {},
+    });
     const fr = row(rows, "federal-register");
     expect(fr.state).toBe("enabled");
     expect(fr.model.enabled).toBe(true);

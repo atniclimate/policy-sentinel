@@ -60,6 +60,16 @@ function lastModifiedOf(value: unknown): { lastModified?: string } {
   return { lastModified: value };
 }
 
+/**
+ * A U.S. Reports granule's dateIssued is the volume's date (live: 443 U.S. 658,
+ * decided 1979, states 1981-01-01), not the decision date. It is kept only when
+ * the title's own "(YYYY)" confirms it; otherwise the row says no date is stated.
+ */
+function decisionYearMatches(title: string, issued: string | null): boolean {
+  const year = /\((\d{4})\)\s*$/.exec(title)?.[1];
+  return !!year && !!issued && issued.startsWith(year);
+}
+
 function caseRow(
   row: Loose,
   fields: Pick<
@@ -75,13 +85,17 @@ function caseRow(
   retrievedAt: string,
 ): DemoCitation {
   const title = requiredText(row.title, 400);
+  const issued = isoDate(row.dateIssued);
   return {
     sourceId: "govinfo-courts",
     identifier: fields.identifier,
     title: caseNameShown(title) ? title : withheldTitle(fields.withheldAs),
     issuingBody: fields.issuingBody,
     kind: fields.kind,
-    date: isoDate(row.dateIssued),
+    date:
+      fields.kind === "USREPORTS" && !decisionYearMatches(title, issued)
+        ? null
+        : issued,
     officialUrl: fields.officialUrl,
     textUrl: null,
     retrievedAt,
