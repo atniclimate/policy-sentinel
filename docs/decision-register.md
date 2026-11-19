@@ -334,6 +334,8 @@ session 1; the ruling date is the decision date.
 | D-192 | **Owner answer 2026-11-19 (held-out agency name).** Not chosen. Reads as: no; the agency name held out under D-186 stays out of the suggestion and narrowing lists. |
 | D-193 | **Owner answer 2026-11-19 (Codex permission rule).** "Codex permission rule". Reads as: yes to a host permission rule for the guarded Codex launch; lanes stay subagents until the rule exists; no agent edits permission settings on this answer alone. |
 | D-194 | **Owner answer 2026-11-19 (G-BIA-IDENTITY).** "Start G-BIA-IDENTITY". Reads as: build the 575-name mapping in scratch on D-175's reading and send it to two independent reviews; nothing committed; it shapes the next session. |
+| D-195 | **Owner answer 2026-11-19 (GovInfo policies passage).** "Yes, confirmed". Reads as: the passage quoted in the CFR rights record is on https://www.govinfo.gov/about/policies; index condition B5 is met and the five CFR files stay current. |
+| D-196 | **Owner command 2026-11-19 (publish 0.9.8).** "Publish, the /trueup", with the answer "Push as is". Reads as: deploy the Worker, push `demo/live-pages` with its nine local commits, then open and merge the pull request into `main`; the live check follows. This command, not standing permission. |
 
 ## Open implementation facts
 

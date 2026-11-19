@@ -49,9 +49,9 @@ contain copyrighted material used with permission; customary credit goes to
 the originating body. The manifest's `rights.statementText` needs the owner's
 own reading of https://www.govinfo.gov/about/policies (condition B5). For the
 0.9.8 build an agent read the page (next section) and wrote the record, which
-the index schema can only label `readByRole: owner`. That label is not yet
-true: the owner has not confirmed the passage. Until the owner confirms it and
-a decision row records that, no CFR file is published as current.
+the index schema can only label `readByRole: owner`. The owner confirmed the
+passage on 2026-11-19 (D-195), so the label is now true and the CFR files are
+published as current.
 
 ## Policies and bulk-data pages, read word for word (D-141)
 
@@ -100,7 +100,7 @@ Reading: these statements allow a small derived index of part-level
 "Authority:" and "Source:" wording with credit to the issuing agency, which
 each row already names. The rights record gives the passage above, the
 policies address and the read date 2026-11-19. The read was made by an agent
-under D-141; the owner confirms the wording before the index is published.
+under D-141; the owner confirmed the wording on 2026-11-19 (D-195).
 
 ## Known failure behavior
 
