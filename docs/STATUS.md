@@ -36,12 +36,21 @@ Worker deployment that fixed them.
 
 ## Next session goal
 
-Harden what the checks found and grow the issue table. In order:
+An engineering session (D-178), with autocomplete and suggestions as its major
+aspect: the machinery is built, but the vocabulary files were never acquired
+(the index manifest lists all 12 files unavailable), and the law alias and
+plain-phrase tables are empty. Executive orders get their own reading ("EO",
+"E.O.", "XO", D-177). The launch prompt, written for Fable 5.2 at xhigh with
+Codex (`gpt-6.2-astra`, `ultra`) for heavy coding through the guarded route,
+is `C:\dev\_handoff\policy-sentinel\NEXT-SESSION-PROMPT-autocomplete-engineering.md`.
+The next published update is 0.9.7 (D-179). In order:
 
-1. With 575 settled (D-175), the alias fetch and screens (D-134, D-142, D-143)
-   can fill the law alias and plain-phrase tables; the recognition collection's
-   own row-by-row reconciliation (G-BIA-IDENTITY, the Nation picker) can follow
-   the same ruling, but that is its own piece of work.
+1. Autocomplete: the three vocabulary files through
+   `scripts/acquire-demo-index.mjs`, the executive-order reading, the OLRC
+   alias fetch and screens (D-134, D-142, D-143), plain phrases, ranking tests.
+   With 575 settled (D-175), G3 no longer holds these back. The recognition
+   collection's own row-by-row reconciliation (G-BIA-IDENTITY, the Nation
+   picker) can follow the same ruling, but that is its own piece of work.
 2. The open review notes on issue search: the bare name "Section 106" also
    matches other laws' section 106 when typed with them; "Executive Order
    13175" and "NAGPRA" may be stated officially, which would change D-169 and
@@ -68,8 +77,10 @@ Nothing is merged, deployed or published without a fresh owner command.
 
 ## Open owner decisions
 
-1. Whether "Executive Order 13175" and "NAGPRA" count as official names (the
-   review found official pages that may state them; D-169, D-170).
+1. Names: D-177 says EO, E.O., XO and NAGPRA count; whether the table records
+   "Executive Order 13175" and "NAGPRA" as official (with the page that states
+   them) or keeps `people_use`; and whether "NICWA", the National Indian Child
+   Welfare Association, is used at all (an organization's name, not a law's).
 2. Idaho (D-157): register with Open States (Plural Policy, Inc., for-profit)
    or keep the gap. Note:
    `C:\dev\_scratch\policy-sentinel\full09-build-2026-11-05\carried-review\IDAHO-SOURCE.md`.
@@ -120,5 +131,5 @@ Nothing is merged, deployed or published without a fresh owner command.
 - This session's scratch: `C:\dev\_scratch\policy-sentinel\issue-search-2026-11-18\`
   (SPEC.md, TABLE-REVIEW.md, NAMES.md, issues.rows.v1.json, logs) and the
   release receipts in `C:\dev\_scratch\policy-sentinel\release-check-2026-11-18\`.
-- [Decision register](decision-register.md) through D-176;
+- [Decision register](decision-register.md) through D-179;
   [demo status](DEMO-STATUS.md) for the live page's history.
