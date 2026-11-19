@@ -1,10 +1,11 @@
 # Status
 
-As of 2026-11-18 (Pacific). The live page is the **0.9.5 demo update**, served
+As of 2026-11-18 (Pacific). The live page is the **0.9.6 demo update**, served
 by GitHub Pages from `main`: the 0.9.1 build (the Full 0.9 build, D-118 to
 D-133), the Example Issue (0.9.2), court case names (0.9.3), issue search
-(0.9.4, PR 28, merge commit 9a18cf5) and the source release record (0.9.5,
-PR 29, merge commit f19a116). The demo Worker runs version
+(0.9.4, PR 28, merge commit 9a18cf5), the source release record (0.9.5,
+PR 29, merge commit f19a116) and the full issue table (0.9.6, PR 30, merge
+commit 9b59688, D-175 and D-176). The demo Worker runs version
 8726fa96-87b2-4623-9df4-4dc5b21509eb, built from 50a3813; the rollback version
 is 6feff3b5-0e45-4692-8c33-90ec4bf0f7c3. These are demo updates, not the D-123
 pre-release.
@@ -16,10 +17,17 @@ bill sections listed with an issue, each citing an identifier the issue rests
 on or listed on the owner's review. The search box offers an entry by name;
 choosing it runs its searches in sections. After any search, issues sharing an
 identifier stated in the results' own fields are offered (never from words;
-rows found only by a name search are not counted). The committed table holds
-the Section 106 consultation issue and the BAAJA bill (D-171). The Search pane
-heading is "Policy issues", because the "Issues" pane lists passages in a
-policy.
+rows found only by a name search are not counted). The table holds 11
+entries (9 issues, 2 bills; D-167, D-176). The Search pane heading is "Policy
+issues", because the "Issues" pane lists passages in a policy.
+
+**575 (D-175):** the owner ruled that 575 is the number of federally
+recognized Tribes. The 2026 notice prints 577 paragraphs because two Alaska
+groupings are listed with their members. The committed
+`config/nation-name-probes.sha256.v1.json` hashes every listed name (never a
+name itself) with count 575, so the G3 check runs on every issue, alias and
+phrase row. A later notice gets its own recognition-registry entry, and its
+stated total replaces 575.
 
 **Verified sources (0.9.5, D-172 to D-174):** all seven Worker sources read
 "Enabled, verified at release 2026-11-18", from one bounded release check each
@@ -28,19 +36,17 @@ Worker deployment that fixed them.
 
 ## Next session goal
 
-Ship the rest of the issue table and harden what the checks found. In order:
+Harden what the checks found and grow the issue table. In order:
 
-1. The exact 575-name list (D-168, O-001, G-BIA-IDENTITY). The 2026 notice
-   parses to 577 paragraphs against a stated 575; the owner held the
-   577-paragraph hash file. Until a reconciliation the owner accepts exists, the
-   nine drafted rows stay in scratch (path under Records), and so do the alias
-   and phrase tables' rows.
-2. The open review notes on issue search (Records: review summary): the bare
-   name "Section 106" also matches other laws' section 106 when typed with
-   them; "Executive Order 13175" and "NAGPRA" may be stated officially, which
-   would change D-169 and D-170 (ask the owner); one scratch row cites a search
-   URL as its official page; `issuesInText` is built and tested but not on the
-   page yet; the G3 exception is keyed by id only.
+1. With 575 settled (D-175), the alias fetch and screens (D-134, D-142, D-143)
+   can fill the law alias and plain-phrase tables; the recognition collection's
+   own row-by-row reconciliation (G-BIA-IDENTITY, the Nation picker) can follow
+   the same ruling, but that is its own piece of work.
+2. The open review notes on issue search: the bare name "Section 106" also
+   matches other laws' section 106 when typed with them; "Executive Order
+   13175" and "NAGPRA" may be stated officially, which would change D-169 and
+   D-170 (ask the owner); `issuesInText` is built and tested but not on the
+   page yet (the opened document's cited issues).
 3. The bill-text Worker route (D-166): read federal bill text by section from
    GovInfo so issues inside any bill come up from its citations. Design first,
    then the owner's command to deploy.
@@ -62,9 +68,8 @@ Nothing is merged, deployed or published without a fresh owner command.
 
 ## Open owner decisions
 
-1. The exact 575-name list (D-168): how the two extra paragraphs of the 2026
-   recognition notice are reconciled, or whether some other source settles it.
-   It gates every issue, alias and phrase row beyond D-171's two.
+1. Whether "Executive Order 13175" and "NAGPRA" count as official names (the
+   review found official pages that may state them; D-169, D-170).
 2. Idaho (D-157): register with Open States (Plural Policy, Inc., for-profit)
    or keep the gap. Note:
    `C:\dev\_scratch\policy-sentinel\full09-build-2026-11-05\carried-review\IDAHO-SOURCE.md`.
@@ -91,13 +96,18 @@ Nothing is merged, deployed or published without a fresh owner command.
   Worker: 30 issue searches (all answered; the CFR lookups for 25 CFR 23 and
   25 CFR 900 kept nothing before the fix), 19 release checks, 4 re-probes plus
   3 redone (D-174), and the browser verifier's 4 per run.
-- Browser verifier: 83 of 83 on the local build and on the live page, at 0.9.4
-  and at 0.9.5.
+- Browser verifier: 83 of 83 on the local build and on the live page, at 0.9.4,
+  0.9.5 and 0.9.6.
+- 0.9.6 (D-175, D-176): `npm run check` exit 0 on its source tree (195 files,
+  3,861 passed, 16 skipped); PR 30 merged as 9b59688 at 2026-11-19 06:21:36
+  UTC, Pages built it at 06:22:13 UTC. The verifier does not press an issue;
+  the 11 entries' searches were each live-checked once earlier the same day.
 
 ## Not done, and carried limits
 
-- Nine drafted issue rows wait for the 575 list; the law alias and plain-phrase
-  tables still ship empty. No index shard is acquired; eCFR stays a link-out.
+- The law alias and plain-phrase tables still ship empty. One water-quality
+  docket (EPA-HQ-OW-2015-0174) was left out of the table because its recorded
+  page was a search URL. No index shard is acquired; eCFR stays a link-out.
 - Wave 3 is not started.
 - A case followed before 0.9.3 keeps its "Case name not shown" title until
   followed again; a saved entry reopened after a reload says its in-text
@@ -110,5 +120,5 @@ Nothing is merged, deployed or published without a fresh owner command.
 - This session's scratch: `C:\dev\_scratch\policy-sentinel\issue-search-2026-11-18\`
   (SPEC.md, TABLE-REVIEW.md, NAMES.md, issues.rows.v1.json, logs) and the
   release receipts in `C:\dev\_scratch\policy-sentinel\release-check-2026-11-18\`.
-- [Decision register](decision-register.md) through D-174;
+- [Decision register](decision-register.md) through D-176;
   [demo status](DEMO-STATUS.md) for the live page's history.
