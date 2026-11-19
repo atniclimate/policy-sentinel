@@ -745,9 +745,30 @@ export function routeQuery(
       for (const { name } of entry.names) addName(name, entry);
       addName(entry.label, entry);
     }
+    // A name that opens with a section number ("Section 106") names its issue
+    // only within its own law: beside another law's name it is that law's
+    // section. Decided by identifiers alone, the typed laws' U.S. Code titles
+    // against the entry's own U.S.C. identifiers, never by words.
+    const typedLawTitles = new Set(
+      claims
+        .flatMap((c) => c.readings)
+        .filter((r) => r.kind === "law_name")
+        .flatMap(
+          (r) =>
+            options.aliases?.entries.find((a) => a.popularName === r.identifier)
+              ?.citations ?? [],
+        )
+        .flatMap((c) => (c.kind === "usc" ? [c.title] : [])),
+    );
+    const inTypedLaw = (entry: TableEntry) =>
+      (entry.kind === "issue" ? entry.restsOn : entry.identifiers).some(
+        (i) => i.kind === "usc" && typedLawTitles.has(parseInt(i.id, 10)),
+      );
     // Longest name first, so a longer name another entry owns keeps its span.
     const names = [...byName].sort(([a], [b]) => b.length - a.length);
     for (const [name, owners] of names) {
+      const sectionOfAnotherLaw =
+        typedLawTitles.size > 0 && /^section\s+\d/i.test(name);
       const allCapsAndDigits = /^[A-Z0-9]+$/.test(name);
       const re = allCapsAndDigits
         ? new RegExp(String.raw`(?<!\w)${escapeRe(name)}(?!\w)`, "g")
@@ -756,7 +777,10 @@ export function routeQuery(
             "gi",
           );
       for (const m of masked.matchAll(re)) {
-        const eligible = owners.filter((e) => !claimedEntries.has(e));
+        const eligible = owners.filter(
+          (e) =>
+            !claimedEntries.has(e) && (!sectionOfAnotherLaw || inTypedLaw(e)),
+        );
         if (!eligible.length) continue;
         const end = m.index + m[0].length;
         // An identifier already holds this span: a later mention may still claim.
