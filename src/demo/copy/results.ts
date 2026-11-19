@@ -33,13 +33,13 @@ export const results = {
   laneSourceOff: "Not searched: the source is not available.",
   /** A draft's federal search when no federal source is both checked and live. */
   laneNoneChecked:
-    "Not searched: no federal source is checked and live. Check a live federal source in the Search pane, then choose the draft again.",
+    "Not searched: no federal source is checked and live. Check a live federal source in the Search pane, then choose it again.",
   /** A draft's panel search that already ran: it is not sent again. */
   alreadyInResults: (names: string) => "Already in Results: " + names + ".",
   stillSearching: (names: string) =>
     "Still searching: " + names + ". Its outcome appears in Results.",
   laneBudget: (limit: number) =>
-    `Not searched yet: choosing a draft sends at most ${limit} searches at once, to stay within the demo service's request limit. Use Search this too to send this one.`,
+    `Not searched yet: choosing a draft or an issue sends at most ${limit} searches at once, to stay within the demo service's request limit. Use Search this too to send this one.`,
   searchThisToo: "Search this too",
   /** Said for searches added to the open results, so the status names them alone. */
   laneSearching: (names: string) => "Searching " + names + ".",
@@ -110,9 +110,9 @@ export const results = {
   /** The searches were suggested for the draft, not the document. */
   whyDraft: (id: string, searches: number) =>
     `${searches === 1 ? "search" : "searches"} suggested for NCAI draft ${id}`,
-  /** The searches were chosen for the example issue, not the document. */
+  /** The searches were chosen for the issue or bill, not the document. */
   whyExample: (label: string, searches: number) =>
-    `${searches === 1 ? "search" : "searches"} chosen for the example issue ${label}`,
+    `${searches === 1 ? "search" : "searches"} chosen for ${label}`,
   /** `reasons` is already joined; a name search adds its caution (safeguard 1). */
   whyShown: (reasons: string, named: boolean) =>
     `${reasons}.${named ? " A name match does not show that this document concerns that Tribe or organization." : ""}`,

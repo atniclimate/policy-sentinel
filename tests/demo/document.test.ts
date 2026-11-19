@@ -527,7 +527,7 @@ describe("document model shared by the PDF and the print view", () => {
       },
     });
     expect(fields(example.blocks, "Found by")).toEqual([
-      "Example issue search (Section 106 and S. 5653): water (Federal Register)",
+      "Issue search (Section 106 and S. 5653): water (Federal Register)",
     ]);
     // Read without the page, the export still says the match is not a finding.
     expect(example.blocks).toContainEqual({

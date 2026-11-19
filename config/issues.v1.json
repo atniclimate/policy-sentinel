@@ -1,0 +1,151 @@
+{
+  "$schema": "../schemas/issues.schema.v1.json",
+  "schemaVersion": "1.0.0",
+  "artifactType": "issues",
+  "entries": [
+    {
+      "kind": "issue",
+      "id": "section-106",
+      "label": "Section 106 consultation",
+      "names": [
+        {
+          "name": "Section 106",
+          "basis": "official",
+          "statedAt": "https://www.govinfo.gov/link/cfr/36/800",
+          "wording": "Section 106 of the National Historic Preservation Act",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "Section 106 Compliance",
+          "basis": "people_use",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "NHPA",
+          "basis": "people_use",
+          "reviewedOn": "2026-11-18"
+        }
+      ],
+      "searches": [
+        {
+          "group": "policy",
+          "source": "federal-register",
+          "query": "36 CFR 800",
+          "match": "cfr",
+          "auto": true
+        },
+        {
+          "group": "policy",
+          "source": "federal-register",
+          "query": "\"Protection of Historic Properties\"",
+          "auto": true
+        },
+        {
+          "group": "legislation",
+          "source": "govinfo",
+          "query": "collection:BILLS AND (\"306108 of title 54\")",
+          "label": "Federal bills and resolutions: 306108 of title 54",
+          "terms": "306108 of title 54",
+          "collection": "Federal bills and resolutions",
+          "auto": true
+        },
+        {
+          "group": "case",
+          "source": "govinfo",
+          "query": "collection:USCOURTS AND (National Historic Preservation Act Section 106 tribal consultation)",
+          "label": "Federal court opinions: National Historic Preservation Act Section 106 tribal consultation",
+          "terms": "National Historic Preservation Act Section 106 tribal consultation",
+          "collection": "Federal court opinions",
+          "auto": true
+        }
+      ],
+      "context": {
+        "url": "https://protect106.org/",
+        "label": "protect106.org, an advocacy site"
+      },
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "restsOn": [
+        {
+          "kind": "usc",
+          "id": "54 U.S.C. 306108",
+          "label": "54 U.S.C. 306108",
+          "url": "https://www.govinfo.gov/content/pkg/USCODE-2023-title54/html/USCODE-2023-title54-subtitleIII-divsnA-app-dup4-chap3061-subchapI-sec306108.htm",
+          "stated": "Effect of undertaking on historic property",
+          "readOn": "2026-11-18"
+        },
+        {
+          "kind": "cfr",
+          "id": "36 CFR 800",
+          "label": "36 CFR Part 800",
+          "url": "https://www.govinfo.gov/link/cfr/36/800",
+          "stated": "PART 800--PROTECTION OF HISTORIC PROPERTIES",
+          "readOn": "2026-11-18"
+        }
+      ]
+    },
+    {
+      "kind": "measure",
+      "id": "baaja",
+      "label": "Bipartisan American Affordability and Jobs Act of 2026",
+      "names": [
+        {
+          "name": "Bipartisan American Affordability and Jobs Act of 2026",
+          "basis": "official",
+          "statedAt": "https://www.govinfo.gov/app/details/BILLS-119s5653is",
+          "wording": "Bipartisan American Affordability and Jobs Act of 2026",
+          "reviewedOn": "2026-11-18"
+        },
+        {
+          "name": "BAAJA",
+          "basis": "people_use",
+          "reviewedOn": "2026-11-18"
+        }
+      ],
+      "searches": [
+        {
+          "group": "legislation",
+          "source": "congress",
+          "query": "s 5653 119",
+          "label": "S. 5653 (119th Congress)",
+          "auto": true
+        },
+        {
+          "group": "legislation",
+          "source": "govinfo",
+          "query": "collection:BILLS AND (\"Bipartisan American Affordability and Jobs Act\")",
+          "label": "Federal bills and resolutions: Bipartisan American Affordability and Jobs Act",
+          "terms": "Bipartisan American Affordability and Jobs Act",
+          "collection": "Federal bills and resolutions",
+          "auto": true
+        }
+      ],
+      "reviewedOn": "2026-11-18",
+      "reviewerRole": "owner",
+      "identifiers": [
+        {
+          "kind": "bill",
+          "id": "s 5653 119",
+          "label": "S. 5653 (119th Congress)",
+          "url": "https://www.govinfo.gov/app/details/BILLS-119s5653is",
+          "stated": "Bipartisan American Affordability and Jobs Act of 2026",
+          "readOn": "2026-11-18"
+        }
+      ],
+      "provisions": [
+        {
+          "issue": "section-106",
+          "bill": "s 5653 119",
+          "version": "Introduced in Senate",
+          "section": "2301",
+          "heading": "SEC. 2301. HISTORIC PRESERVATION.",
+          "url": "https://www.govinfo.gov/content/pkg/BILLS-119s5653is/html/BILLS-119s5653is.htm",
+          "readOn": "2026-11-18",
+          "basis": "cites",
+          "cites": ["54 U.S.C. 306108"],
+          "reviewedOn": "2026-11-18"
+        }
+      ]
+    }
+  ]
+}

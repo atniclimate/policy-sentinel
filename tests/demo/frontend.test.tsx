@@ -2677,7 +2677,7 @@ describe("demo seeded discovery from NCAI drafts", () => {
     const held = "collection:USREPORTS AND (water quality)";
     expect(sent().map(([, query]) => query)).not.toContain(held);
     expect(container.querySelector(".pane-results")).toHaveTextContent(
-      "choosing a draft sends at most 10 searches at once",
+      "choosing a draft or an issue sends at most 10 searches at once",
     );
     const button = ui.getByRole("button", {
       name: "Search this too: GovInfo, Supreme Court opinions in the United States Reports: water quality",

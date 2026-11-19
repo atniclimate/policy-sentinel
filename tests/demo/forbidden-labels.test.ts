@@ -11,7 +11,8 @@ import { COPY } from "../../src/demo/copy";
 import { chain } from "../../src/demo/copy/chain";
 import { laneId } from "../../src/demo/discovery";
 import type { Reason } from "../../src/demo/discovery";
-import { buildDocument } from "../../src/demo/document";
+import { buildDocument, issueLines } from "../../src/demo/document";
+import type { IssueFile } from "../../src/demo/issues";
 import type { DocBlock } from "../../src/demo/document";
 import { VERBATIM_FIELDS } from "../../src/demo/index-types";
 import { relatedRows } from "../../src/demo/links";
@@ -212,6 +213,66 @@ describe("forbidden words in chain labels and exports", () => {
     expect(
       rows.some((row) => forbiddenHits(row.quote?.text ?? "").length),
     ).toBe(true);
+  });
+
+  it("finds none in the issue copy or an issue's export lines outside verbatim headings", () => {
+    expect(leaves(COPY.example).flatMap(forbiddenHits)).toEqual([]);
+    const heading = "SEC. 7. CONTRACTS UNDER THE SAMPLE ACT.";
+    const table: IssueFile = {
+      $schema: "../schemas/issues.schema.v1.json",
+      schemaVersion: "1.0.0",
+      artifactType: "issues",
+      entries: [
+        {
+          kind: "issue",
+          id: "sample",
+          label: "Sample review",
+          names: [],
+          restsOn: [],
+          searches: [],
+          reviewedOn: "2099-01-01",
+          reviewerRole: "owner",
+        },
+        {
+          kind: "measure",
+          id: "sample-act",
+          label: "Sample Act",
+          names: [],
+          identifiers: [
+            {
+              kind: "bill",
+              id: "s 9999 119",
+              label: "S. 9999 (119th Congress)",
+              url: "https://www.govinfo.gov/x",
+              stated: "Sample Act",
+              readOn: "2099-01-01",
+            },
+          ],
+          provisions: [
+            {
+              issue: "sample",
+              bill: "s 9999 119",
+              version: "Introduced in Senate",
+              section: "7",
+              heading,
+              url: "https://www.govinfo.gov/x",
+              readOn: "2099-01-01",
+              basis: "listed",
+              reviewedOn: "2099-01-01",
+            },
+          ],
+          searches: [],
+          reviewedOn: "2099-01-01",
+          reviewerRole: "owner",
+        },
+      ],
+    };
+    const lines = issueLines("Sample review", table);
+    // The check would catch it: the verbatim heading holds "under".
+    expect(lines.flatMap(forbiddenHits)).toContain("under");
+    expect(
+      lines.map((l) => l.split(heading).join(" ")).flatMap(forbiddenHits),
+    ).toEqual([]);
   });
 
   it("exempts only the safeguard 1 label general-jurisdiction in the sovereignty notes", () => {
