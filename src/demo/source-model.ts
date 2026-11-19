@@ -27,15 +27,16 @@ export const RELEASE_VERIFICATION: Readonly<
   Record<DemoSourceId | PlannedSourceId, string | null>
 > = Object.freeze({
   // Release checks of 2026-11-18 (Pacific); receipts in the session's scratch folder.
+  // GovInfo, its court opinions and Grants.gov were re-probed after Worker 8726fa96.
   "federal-register": "2026-11-18",
-  govinfo: null,
+  govinfo: "2026-11-18",
   congress: "2026-11-18",
   regulations: "2026-11-18",
-  grants: null,
+  grants: "2026-11-18",
   washington: "2026-11-18",
   oregon: null,
   idaho: null,
-  "govinfo-courts": null,
+  "govinfo-courts": "2026-11-18",
   "cfr-index": null,
   "usc-index": null,
   ecfr: null,

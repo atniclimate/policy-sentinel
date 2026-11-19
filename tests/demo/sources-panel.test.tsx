@@ -28,8 +28,9 @@ describe("sources panel", () => {
     expect(items).toHaveLength(rows.length);
     const ui = within(container as HTMLElement);
     expect(ui.queryByText("Live", { exact: true })).not.toBeInTheDocument();
+    // Every enabled Worker source has a recorded release check (D-172).
     expect(
-      ui.getAllByText(S.enabledUnverified, { exact: false }).length,
+      ui.getAllByText(S.enabledVerified("2026-11-18"), { exact: false }).length,
     ).toBeGreaterThan(0);
     const regulations = within(items[3] as HTMLElement);
     expect(regulations.getByText("Regulations.gov")).toBeInTheDocument();
