@@ -26,6 +26,7 @@ const TRUE_CASES = [
   // Village or Community with a name beside it (design (b)1).
   "Example Village",
   "Village of Example",
+  "village of the Example",
   "Example Community",
 ];
 
@@ -47,6 +48,8 @@ const FALSE_CASES = [
   "Example Island",
   // A caption with no Tribe as a party, and general village or community phrases.
   "Smith v. Jones",
+  // A caption of general words alone names no Tribe.
+  "Indian Tribes v. United States",
   "village water systems",
   "rural community facilities",
   "National Civilian Community Corps",

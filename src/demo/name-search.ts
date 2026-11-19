@@ -69,6 +69,12 @@ export const GENERAL_WORDS: ReadonlySet<string> = new Set([
   "such",
   "non",
   "new",
+  // The connecting words of a case caption, so a caption of general words
+  // alone ("Indian Tribes v. United States") stays an ordinary search.
+  "v",
+  "vs",
+  "et",
+  "al",
 ]);
 
 const STRONG_WORDS = new Set([
@@ -170,7 +176,9 @@ export function holdsTribeName(text: string): boolean {
       (w, i) =>
         PLACE_WORDS.has(w) &&
         (isDistinctive(ws[i - 1]) ||
-          (ws[i + 1] === "of" && isDistinctive(ws[i + 2]))),
+          // "Village of X", "Village of the X".
+          (ws[i + 1] === "of" &&
+            isDistinctive(ws[i + 2] === "the" ? ws[i + 3] : ws[i + 2]))),
     );
   });
 }
