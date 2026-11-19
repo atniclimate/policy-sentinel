@@ -2,13 +2,13 @@
 
 - Goal: a Tribal staff member searches official federal and state sources on
   one page and sees each result's source, retrieval time and why it was shown.
-- Now: the 0.9.7 demo update is live (not the D-123 pre-release); the owner's
+- Now: the 0.9.8 demo update is live (not the D-123 pre-release); the owner's
   walk of the T1.7 staff tasks is still to come.
 - Next: the goals and owner gates are in [PLAN.md](PLAN.md) and the current
   state in [STATUS.md](STATUS.md). History follows, newest first.
 
-The live page is the 0.9.7 demo update (D-177 to D-187, published through PR
-31 on 2026-11-19 UTC). This page records maintenance of the separately authorized public demo,
+The live page is the 0.9.8 demo update (D-188 to D-196, published through PR
+32 on 2026-11-19 UTC). This page records maintenance of the separately authorized public demo,
 newest first; each section names its rulings in the
 [decision register](decision-register.md), and earlier sections describe
 earlier checkpoints. Project state, including unpublished builds, and the
@@ -30,6 +30,22 @@ published the search/audit release recorded next.
 Earlier maintenance and validation receipts remain below as historical
 evidence; statements there that the three keyed sources are switched off, and
 descriptions of the earlier interface, describe earlier checkpoints.
+
+## Narrowing, name searches and the CFR and U.S. Code index, 0.9.8, 2026-11-19 UTC (D-188 to D-196)
+
+The live page is now 0.9.8. A Federal Register search can be narrowed by that
+source's own agency or topic (D-188); a typed Tribe-shaped name is worded as a
+name search on every row (D-189); the index holds CFR part "Authority:" lines
+for titles 25, 36, 40, 43 and 50 and U.S. Code source credits for titles 25 and
+33 (D-190); 18 more official names are offered (D-191); and the Oregon note and
+"10,000 or more" now state what is true. Worker
+2de50710-b2bf-41bc-8651-2c1f500d55ed was deployed first from 1bdabac with
+wrangler 4.151.3 (rollback f6033355-2826-4579-a5e3-0f79f7f74d53), then PR 32
+merged (merge commit 1ee8427, 2026-11-19 16:44:22 UTC; Pages 16:44:50 UTC). The
+browser verifier passed 100 of 100 against the live page. Not in the index:
+U.S. Code titles 16 and 42 and 40 CFR parts 72 to 78. The pushed branch history
+holds an earlier test file with real Nation names (afd934b); the owner chose to
+push as it was.
 
 ## Suggestions with real names, 0.9.7, 2026-11-19 UTC (D-177 to D-187)
 
