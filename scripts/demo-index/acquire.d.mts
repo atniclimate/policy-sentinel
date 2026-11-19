@@ -3,7 +3,7 @@ export const USAGE: string;
 export class UsageError extends Error {}
 
 export interface AcquireOptions {
-  command: "cfr" | "vocab" | "ecfr" | "uslm";
+  command: "cfr" | "vocab" | "uslm";
   dryRun: boolean;
   keepRaw: boolean;
   title?: number;

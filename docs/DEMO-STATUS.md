@@ -7,8 +7,8 @@
 - Next: the goals and owner gates are in [PLAN.md](PLAN.md) and the current
   state in [STATUS.md](STATUS.md). History follows, newest first.
 
-The live page is the 0.9.1 demo update (D-118 to D-133, published through PR
-23 on 2026-11-06 UTC). This page records maintenance of the separately authorized public demo,
+The live page is the 0.9.7 demo update (D-177 to D-187, published through PR
+31 on 2026-11-19 UTC). This page records maintenance of the separately authorized public demo,
 newest first; each section names its rulings in the
 [decision register](decision-register.md), and earlier sections describe
 earlier checkpoints. Project state, including unpublished builds, and the

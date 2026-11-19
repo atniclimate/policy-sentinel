@@ -53,7 +53,6 @@ const ZIP_TYPES = [
 export const USAGE = `usage: node scripts/acquire-demo-index.mjs <command> [options]
   cfr   --title N --edition YYYY [--volumes 1,2]   GovInfo CFR annual edition (bulk listing + title zip)
   vocab [--only fr-agencies|fr-topics]              Federal Register agencies and topics
-  ecfr  --title N --terms-read YYYY-MM-DD           eCFR "up to date as of" (current reference)
   uslm  --title N --release-point 119-136 --terms-read YYYY-MM-DD   OLRC USLM title zip
 common: --dry-run | --work-dir <outside repo> --report <outside repo> --rights-file <json>
         [--nation-names <recognition notice HTML, all 575 entries>; default: the committed hash file] [--keep-raw]`;
@@ -98,8 +97,12 @@ const pad2 = (n) => String(n).padStart(2, "0");
 /** Parse and check the command line; refuses "current" and unpinned inputs. */
 export function parseAcquireArgs(argv) {
   const [command, ...rest] = argv;
-  if (!["cfr", "vocab", "ecfr", "uslm"].includes(command))
-    throw new UsageError(USAGE);
+  // D-135: eCFR's versioner path is robots-disallowed, so nothing here fetches it.
+  if (command === "ecfr")
+    throw new UsageError(
+      "ecfr is refused: the owner ruled out fetching eCFR's versioner path (D-135). eCFR stays a link-out; CFR text comes from the GovInfo annual edition (cfr).",
+    );
+  if (!["cfr", "vocab", "uslm"].includes(command)) throw new UsageError(USAGE);
   const { values } = parseArgs({
     args: rest,
     strict: true,
@@ -155,14 +158,12 @@ export function parseAcquireArgs(argv) {
       throw new UsageError("--only is fr-agencies or fr-topics");
     options.only = values.only ?? null;
   }
-  if (command === "ecfr" || command === "uslm") {
+  if (command === "uslm") {
     if (!DATE.test(values["terms-read"] ?? ""))
       throw new UsageError(
         "--terms-read YYYY-MM-DD is required: the source's terms must be read first",
       );
     options.termsRead = values["terms-read"];
-  }
-  if (command === "uslm") {
     const point = values["release-point"] ?? "";
     if (!/^\d{2,3}-\d{1,4}(?:not\d{1,4})?$/.test(point))
       throw new UsageError(
@@ -174,7 +175,6 @@ export function parseAcquireArgs(argv) {
     for (const name of ["work-dir", "report"])
       if (!values[name])
         throw new UsageError(`--${name} is required unless --dry-run`);
-    // eCFR too: D-125 adjustment 1 uses it only after its terms are read (N17).
     if (!values["rights-file"])
       throw new UsageError(
         "--rights-file is required: no file is marked current without the owner's reading",
@@ -223,17 +223,6 @@ export function planRequests(options) {
         types: JSON_TYPES,
         maxBytes: 16 * MiB,
       }));
-  }
-  if (command === "ecfr") {
-    return [
-      {
-        label: "titles",
-        url: "https://www.ecfr.gov/api/versioner/v1/titles.json",
-        accept: "application/json",
-        types: JSON_TYPES,
-        maxBytes: MiB,
-      },
-    ];
   }
   const [congress, law] = options.releasePoint.split("-");
   return [
@@ -590,13 +579,11 @@ export async function runAcquire(argv, deps = {}) {
   const manifestPath = join(dataDir, "manifest.json");
   const manifest = readJson(manifestPath);
   const targetPaths =
-    options.command === "ecfr"
-      ? [`cfr/title-${options.title}.json`]
-      : options.command === "vocab"
-        ? plan.map((r) => `vocab/${r.label}.json`)
-        : [
-            `${options.command === "cfr" ? "cfr" : "usc"}/title-${options.title}.json`,
-          ];
+    options.command === "vocab"
+      ? plan.map((r) => `vocab/${r.label}.json`)
+      : [
+          `${options.command === "cfr" ? "cfr" : "usc"}/title-${options.title}.json`,
+        ];
   for (const path of targetPaths) {
     const entry = manifest.files.find((f) => f.path === path);
     if (!entry || entry.status === "withdrawn") {
@@ -649,67 +636,40 @@ export async function runAcquire(argv, deps = {}) {
   try {
     const next = structuredClone(manifest);
     const writes = [];
-    if (options.command === "ecfr") {
-      const [request] = plan;
-      const json = parseJsonBytes(
-        await fetchPlanned(request, ctx),
-        request.label,
-      );
-      const row =
-        Array.isArray(json?.titles) &&
-        json.titles.find((t) => t?.number === options.title);
-      const asOfText = row?.up_to_date_as_of;
-      if (typeof asOfText !== "string" || !DATE.test(asOfText))
-        throw new StageError(
-          "normalize",
-          "the titles list does not state an up to date as of date",
-        );
-      const entry = next.files.find((f) => f.path === targetPaths[0]);
-      entry.currentReference = {
-        sourceId: "ecfr",
-        upToDateAsOfText: asOfText,
-        retrievedAt: ctx.windowEnd,
-      };
-      report.files.push({
-        path: entry.path,
-        currentReference: entry.currentReference,
+    const acquired =
+      options.command === "cfr"
+        ? await acquireCfr(options, ctx)
+        : options.command === "vocab"
+          ? await acquireVocab(options, ctx)
+          : await acquireUslm(options, ctx);
+    for (const item of acquired) {
+      const bytes = shardBytes(item.value);
+      const entry = next.files.find((f) => f.path === item.path);
+      const prior = summary(entry);
+      const previous = existsSync(join(dataDir, item.path))
+        ? readJson(join(dataDir, item.path))
+        : null;
+      Object.assign(entry, {
+        status: "current",
+        sha256: sha256Bytes(bytes),
+        sizeBytes: bytes.length,
+        entryCount: item.value.entries.length,
+        source: item.source,
+        patternSetVersion: PATTERN_SET_VERSION,
+        lastRefreshAttemptAt: stamp(),
+        failureStage: null,
+        message: null,
+        withdrawnOn: null,
+        staleAcknowledgedOn: null,
       });
-    } else {
-      const acquired =
-        options.command === "cfr"
-          ? await acquireCfr(options, ctx)
-          : options.command === "vocab"
-            ? await acquireVocab(options, ctx)
-            : await acquireUslm(options, ctx);
-      for (const item of acquired) {
-        const bytes = shardBytes(item.value);
-        const entry = next.files.find((f) => f.path === item.path);
-        const prior = summary(entry);
-        const previous = existsSync(join(dataDir, item.path))
-          ? readJson(join(dataDir, item.path))
-          : null;
-        Object.assign(entry, {
-          status: "current",
-          sha256: sha256Bytes(bytes),
-          sizeBytes: bytes.length,
-          entryCount: item.value.entries.length,
-          source: item.source,
-          patternSetVersion: PATTERN_SET_VERSION,
-          lastRefreshAttemptAt: stamp(),
-          failureStage: null,
-          message: null,
-          withdrawnOn: null,
-          staleAcknowledgedOn: null,
-        });
-        writes.push({ path: item.path, bytes });
-        report.files.push({
-          path: item.path,
-          before: prior,
-          after: summary(entry),
-          entries: diffEntries(previous, item.value),
-          details: item.report,
-        });
-      }
+      writes.push({ path: item.path, bytes });
+      report.files.push({
+        path: item.path,
+        before: prior,
+        after: summary(entry),
+        entries: diffEntries(previous, item.value),
+        details: item.report,
+      });
     }
     next.generatedAt = stamp();
     next.generatedBy = {
@@ -740,30 +700,28 @@ export async function runAcquire(argv, deps = {}) {
     const stage = error instanceof StageError ? error.stage : "packaging";
     const message = sanitizeMessage(error.message);
     report.failure = { stage, message };
-    if (options.command !== "ecfr") {
-      // D2: only the manifest records the failure; the committed file stays byte-identical.
-      const failed = structuredClone(manifest);
-      for (const path of targetPaths) {
-        const entry = failed.files.find((f) => f.path === path);
-        if (entry.status === "current")
-          entry.status = "retained_after_failed_refresh";
-        Object.assign(entry, {
-          lastRefreshAttemptAt: stamp(),
-          failureStage: stage,
-          message,
-        });
-      }
-      failed.generatedAt = stamp();
-      const checked = stageAndValidate(
-        dataDir,
-        join(options.workDir, "stage"),
-        [],
-        failed,
-        probe,
-      );
-      if (checked.ok) writeFileSync(manifestPath, manifestBytes(failed));
-      else report.failure.manifestNotUpdated = checked.errors.slice(0, 5);
+    // D2: only the manifest records the failure; the committed file stays byte-identical.
+    const failed = structuredClone(manifest);
+    for (const path of targetPaths) {
+      const entry = failed.files.find((f) => f.path === path);
+      if (entry.status === "current")
+        entry.status = "retained_after_failed_refresh";
+      Object.assign(entry, {
+        lastRefreshAttemptAt: stamp(),
+        failureStage: stage,
+        message,
+      });
     }
+    failed.generatedAt = stamp();
+    const checked = stageAndValidate(
+      dataDir,
+      join(options.workDir, "stage"),
+      [],
+      failed,
+      probe,
+    );
+    if (checked.ok) writeFileSync(manifestPath, manifestBytes(failed));
+    else report.failure.manifestNotUpdated = checked.errors.slice(0, 5);
     log(`refresh failed at ${stage}: ${message}`);
   } finally {
     report.requests.used = ctx.used;

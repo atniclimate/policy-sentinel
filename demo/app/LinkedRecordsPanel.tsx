@@ -5,6 +5,7 @@
 import { chain } from "../../src/demo/copy/chain";
 import type { InTextGap } from "../../src/demo/document";
 import { localDay } from "../../src/demo/follow";
+import type { EntryMatch } from "../../src/demo/issue-match";
 import { LINK_NOTICES } from "../../src/demo/link-labels";
 import { groupInText, labelNamesTarget } from "../../src/demo/links";
 import type { ChainLink, ChainRow, ChainSection } from "../../src/demo/links";
@@ -159,6 +160,7 @@ export function LinkedRecordsPanel({
   inTextGap = null,
   statedNotKept = false,
   expansions = [],
+  issues = [],
   onExpand,
   onHop,
 }: {
@@ -169,6 +171,8 @@ export function LinkedRecordsPanel({
   /** A copy saved before its listing's stated fields were kept: empty stated sections say so instead of none. */
   statedNotKept?: boolean;
   expansions?: readonly ChainExpansion[];
+  /** Listed issues this document's own in-text citations name (D-164, issuesInText). */
+  issues?: readonly EntryMatch[];
   onExpand?: (id: ChainExpansionId) => void;
   onHop?: (target: ChainLink["target"]) => void;
 }) {
@@ -193,6 +197,26 @@ export function LinkedRecordsPanel({
                 </p>
               ))}
             {own.length > 0 && <Rows rows={own} onHop={onHop} />}
+            {section === "inText" && issues.length > 0 && (
+              <>
+                <h5>{chain.issues.title}</h5>
+                <p class="chain-help">{chain.issues.help}</p>
+                <ul class="chips">
+                  {issues.map((hit) => (
+                    <li key={hit.entry.id}>
+                      {hit.entry.label}{" "}
+                      <span class="help">
+                        {hit.matches
+                          .map((m) =>
+                            chain.issues.row(m.identifier.label, m.count),
+                          )
+                          .join("; ")}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
             {stated &&
               expansions.map((x) => (
                 <div key={x.id} class="chain-expand">

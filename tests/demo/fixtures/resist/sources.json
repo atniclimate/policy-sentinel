@@ -48,7 +48,7 @@
       "label": "Oregon Legislature",
       "level": "state",
       "status": "not_available",
-      "note": "Oregon's data service needs an agreement and credentials that Policy Sentinel has not accepted, so it is off."
+      "note": "ATNI Climate accepted the Oregon Legislature's data service agreement on 2026-11-05. This demo has not yet made its first checked request to that service, so Oregon is off."
     },
     {
       "id": "idaho",

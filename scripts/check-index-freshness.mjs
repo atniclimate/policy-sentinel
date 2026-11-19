@@ -150,8 +150,8 @@ export function planChecks(
     ["conditions[type][]", "PRESDOCU"],
     ["conditions[publication_date][gte]", since],
     ["fields[]", "document_number"],
+    // Only document fields: presidential_document_type is a condition, and as a field it drew HTTP 400.
     ["fields[]", "publication_date"],
-    ["fields[]", "presidential_document_type"],
   ]);
   checks.push({
     id: "presidential",

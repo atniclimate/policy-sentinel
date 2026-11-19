@@ -89,6 +89,7 @@ import {
   startLane,
   startPlan,
   typedPlan,
+  totalIsFloor,
   unresolvedEmpty,
 } from "../src/demo/discovery";
 import type {
@@ -130,7 +131,7 @@ import {
   provisionsFor,
 } from "../src/demo/issues";
 import type { IssueFile, Provision, TableEntry } from "../src/demo/issues";
-import { issuesSharedByRows } from "../src/demo/issue-match";
+import { issuesInText, issuesSharedByRows } from "../src/demo/issue-match";
 import { maskProtectedSpans } from "../src/demo/nation-mask";
 import NCAI_VAULT from "../src/demo/ncai-2026.vault.json";
 import { NcaiVaultError, openNcaiDrafts } from "../src/demo/ncai-vault";
@@ -462,7 +463,11 @@ function sourceOutcome(item: LaneSearch): string {
   if (item.state === "unavailable") return COPY.sourceFailed;
   if (item.state === "empty")
     return unresolvedEmpty(item) ? COPY.zeroLoaded : COPY.sourceNothing;
-  return COPY.resultsCount(item.listings.length, item.response?.total ?? null);
+  return COPY.resultsCount(
+    item.listings.length,
+    item.response?.total ?? null,
+    totalIsFloor(item),
+  );
 }
 
 function foundMessage(found: Found): string {
@@ -917,6 +922,8 @@ export function App() {
               ...(hopped?.rows ?? []),
             ]}
             notices={hopped?.notices ?? []}
+            // Only the opened document's own citations (D-164), never a hopped record's.
+            issues={issuesInText(ISSUES, view.policy?.chain ?? [])}
             inTextGap={inTextGap(view.citation.sourceId, view.policy)}
             statedNotKept={!!(key && report.cited[key]?.statedNotKept)}
             expansions={

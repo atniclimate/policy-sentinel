@@ -620,6 +620,15 @@ export function unresolvedEmpty(search: LaneSearch): boolean {
   );
 }
 
+/**
+ * The Federal Register stops counting at 10,000 (source note of 2026-07-31:
+ * a half-year query reported 10,000 and no page past 10,000 items; the
+ * release check of 2026-11-18 read exactly 10,000), so that total is a
+ * floor, never shown as exact (safeguard 8).
+ */
+export const totalIsFloor = (search: LaneSearch): boolean =>
+  search.sourceId === "federal-register" && search.response?.total === 10_000;
+
 /** Why a row is shown: the lane that listed it. */
 export interface Reason {
   readonly laneId: string;

@@ -142,7 +142,8 @@ export function sourceList(env: Env): DemoSource[] {
       label: "Oregon Legislature",
       level: "state",
       status: "not_available",
-      note: "Oregon's data service needs an agreement and credentials that Policy Sentinel has not accepted, so it is off.",
+      // D-119: the agreement was accepted on 2026-11-05; the first checked call is still to be made.
+      note: "ATNI Climate accepted the Oregon Legislature's data service agreement on 2026-11-05. This demo has not yet made its first checked request to that service, so Oregon is off.",
     },
     {
       id: "idaho",
