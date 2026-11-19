@@ -1,6 +1,6 @@
 import { COPY } from "./copy";
 import { searchPageLimit } from "./search-contract";
-import type { LaneMatch, Reason, Seed } from "./discovery";
+import type { LaneMatch, Narrow, Reason, Seed } from "./discovery";
 import type { DemoCitation, DemoPolicyResponse } from "./types";
 import {
   citationValue,
@@ -79,6 +79,8 @@ export interface FoundBy {
   readonly name?: true;
   /** An exact identifier lookup: the kind of identifier in `terms`. */
   readonly match?: LaneMatch;
+  /** The Federal Register field this search was narrowed to (D-186). */
+  readonly narrow?: Narrow;
   readonly seed: FoundSeed;
 }
 
@@ -110,6 +112,7 @@ export function foundByOf(
     ...(reason.collection && { collection: reason.collection }),
     ...(reason.name && { name: true as const }),
     ...(reason.match && { match: reason.match }),
+    ...(reason.narrow && { narrow: reason.narrow }),
     seed: found,
   }));
 }

@@ -94,5 +94,11 @@ export const documentCopy = {
       `${seed}: name search for a sponsor listed on an NCAI draft (${where})`,
     nameCaution:
       "This was a name search. A name match is unreviewed and does not show that this document concerns that Tribe or organization.",
+    /** D-186: appended to a Found by line whose search was narrowed to a Federal Register field. */
+    narrowed: (
+      base: string,
+      narrow: { field: "agency" | "topic"; label: string },
+    ) =>
+      `${base}; narrowed to the ${narrow.field} ${narrow.label} (Federal Register field)`,
   },
 } as const;

@@ -60,6 +60,10 @@ export const router = {
   agencyNote: "Federal Register agency",
   topicNote: "Federal Register topic",
   cfrTitleNote: "CFR title",
+  /** D-186, D-188: follows an agency or topic label option. */
+  narrowToAgency: (label: string) => `Narrow to this agency: ${label}`,
+  narrowToTopic: (label: string) => `Narrow to this topic: ${label}`,
+  narrowFieldNote: "Federal Register field",
   /** What it is and what choosing it does (D-178). */
   lawNote: "U.S. Code popular name; searches this name",
   linkOutNote: "Opens the official site",

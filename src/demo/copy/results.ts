@@ -105,6 +105,14 @@ export const results = {
     `matched the search ${terms} in ${where}`,
   whyName: (terms: string, where: string) =>
     `name search for ${terms} in ${where}`,
+  /** D-186: the Federal Register's own agency or topic clause; `base` is the words-matched clause, or null with no words. */
+  whyNarrow: (
+    base: string | null,
+    narrow: { field: "agency" | "topic"; label: string },
+  ) =>
+    base
+      ? `${base}, listed by the Federal Register under the ${narrow.field} ${narrow.label}`
+      : `listed by the Federal Register under the ${narrow.field} ${narrow.label}`,
   /** Congress.gov takes one bill reference: an exact lookup, not a text match. */
   whyLookedUp: (bill: string, congress: number, where: string) =>
     `looked up ${bill} in the ${congress}${ordinal(congress)} Congress on ${where}`,

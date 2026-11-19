@@ -96,6 +96,7 @@ import type {
   DiscoveryRow,
   Lane,
   LaneSearch,
+  Narrow,
   Plan,
   PlanDates,
   Reason,
@@ -132,7 +133,6 @@ import {
 } from "../src/demo/issues";
 import type { IssueFile, Provision, TableEntry } from "../src/demo/issues";
 import { issuesInText, issuesSharedByRows } from "../src/demo/issue-match";
-import { maskProtectedSpans } from "../src/demo/nation-mask";
 import NCAI_VAULT from "../src/demo/ncai-2026.vault.json";
 import { NcaiVaultError, openNcaiDrafts } from "../src/demo/ncai-vault";
 import {
@@ -431,6 +431,7 @@ const SKIP_TEXT: Readonly<Record<SkipReason, string>> = {
   congress_dates: COPY.congressDatesSkipped,
   govinfo_dates: COPY.govinfoDatesSkipped,
   grants_dates: COPY.grantsDatesSkipped,
+  narrow_no_words: COPY.laneNarrowNoWords,
   budget: COPY.laneBudget(AUTO_REQUEST_BUDGET),
 };
 
@@ -587,6 +588,8 @@ export function App() {
   const [dateError, setDateError] = useState("");
   const [docType, setDocType] = useState<DemoDocumentType | "">("");
   const [tribalEligibility, setTribalEligibility] = useState(false);
+  /** D-186, D-188: the Federal Register field the typed search narrows to; federal scope only. */
+  const [narrowing, setNarrowing] = useState<Narrow | null>(null);
   /** The row Find related started from, so Results can name it. */
   const [record, setRecord] = useState<DemoCitation | null>(null);
   const [found, setFound] = useState<Found | null>(null);
@@ -885,6 +888,12 @@ export function App() {
   const front: Pane =
     wide && (pane === "search" || pane === "results") ? "issues" : pane;
   const paneTab = wide ? 0 : -1;
+  /** The narrowing a plan's Federal Register lane carries (D-186), or null. */
+  const planNarrow = (plan: Plan): Narrow | null =>
+    plan.lanes.find((lane) => lane.narrow)?.narrow ?? null;
+  /** Same field and vocabulary entry; the label follows the id, so it is not compared. */
+  const sameNarrow = (a: Narrow | null, b: Narrow | null) =>
+    a?.field === b?.field && a?.id === b?.id;
   const samePendingSearch =
     busy &&
     found?.plan.seed.kind === "typed" &&
@@ -894,7 +903,8 @@ export function App() {
     (found.plan.documentType ?? null) ===
       (scope === "federal" ? docType || null : null) &&
     (found.plan.eligibility ?? null) ===
-      (scope === "federal" && tribalEligibility ? "tribal" : null);
+      (scope === "federal" && tribalEligibility ? "tribal" : null) &&
+    sameNarrow(planNarrow(found.plan), scope === "federal" ? narrowing : null);
   /** The type filter goes with every federal plan; the state form has none. */
   const documentType = docType || null;
   /** The Grants.gov eligibility filter goes with every federal plan, like the type filter. */
@@ -1203,6 +1213,7 @@ export function App() {
       plan.documentType ?? null,
       plan.eligibility ?? null,
       also.map((lane) => lane.id),
+      planNarrow(plan),
     ]);
     if (
       searchRequest.current.signature === signature &&
@@ -1559,7 +1570,15 @@ export function App() {
       document.getElementById("q")?.focus();
       return;
     }
-    if (query.trim().length < 2 || query.trim().length > 200) {
+    // D-186: a narrowing set on the federal scope allows no words typed, so
+    // the Federal Register lists that field's documents, newest first.
+    const narrowed = scope === "federal" && narrowing;
+    const typedLength = query.trim().length;
+    if (
+      (typedLength === 0 && !narrowed) ||
+      typedLength === 1 ||
+      typedLength > 200
+    ) {
       setQueryError(COPY.queryLength);
       document.getElementById("q")?.focus();
       return;
@@ -1571,6 +1590,7 @@ export function App() {
           ...dateRangeValue(dateFrom || null, dateTo || null),
           documentType,
           eligibility,
+          ...(narrowing && { narrow: narrowing }),
         };
       } catch {
         setDateError(COPY.dateRangeError);
@@ -2414,6 +2434,12 @@ export function App() {
     </p>
   );
 
+  /** D-186: the narrowing a submitted plan ran with, repeated above the results. */
+  const narrowNote = (plan: Plan) => {
+    const narrow = planNarrow(plan);
+    return narrow ? <p class="help">{COPY.narrowedTo(narrow)}</p> : null;
+  };
+
   /** The submitted dates and how loaded rows are ordered. */
   const criteriaNotes = (plan: Plan) => (
     <>
@@ -2583,12 +2609,7 @@ export function App() {
       rows,
       seed.kind === "example" ? seed.label : undefined,
     );
-    const { hits } = shared;
-    // Safeguard 1: a name in the typed words, or a name search, links nothing.
-    const named =
-      shared.named ||
-      (seed.kind === "typed" &&
-        maskProtectedSpans(seed.query).spans.length > 0);
+    const { hits, named } = shared;
     if (!hits.length) return null;
     return (
       <div class="zone shared-issues">
@@ -2642,6 +2663,18 @@ export function App() {
           reason.terms,
           where(reason),
         );
+      // D-186: the words matched, if any, then the Federal Register's own
+      // agency or topic clause; with no words, the clause alone.
+      if (reason.narrow)
+        return COPY.whyNarrow(
+          reason.terms
+            ? (reason.name ? COPY.whyName : COPY.whyMatched)(
+                reason.terms,
+                where(reason),
+              )
+            : null,
+          reason.narrow,
+        );
       return (reason.name ? COPY.whyName : COPY.whyMatched)(
         reason.terms,
         where(reason),
@@ -2682,11 +2715,13 @@ export function App() {
           <Leader />
           <span class="row-v">{sourceOutcome(item)}</span>
         </p>
-        {(draft || lane.name) && (
+        {(draft || lane.name || lane.narrow) && (
           <p class="help">
             {lane.name
               ? COPY.laneNameTerms(lane.terms)
-              : COPY.laneTerms(lane.terms)}
+              : lane.narrow
+                ? COPY.laneNarrowTerms(lane.terms, lane.narrow)
+                : COPY.laneTerms(lane.terms)}
           </p>
         )}
         {plan.dateFrom &&
@@ -2697,13 +2732,20 @@ export function App() {
         {lane.typeNotApplied && item.state !== "not_searched" && (
           <p class="help">{COPY.typeNotApplied}</p>
         )}
+        {lane.narrowNotApplied && item.state !== "not_searched" && (
+          <p class="help">{COPY.notNarrowed}</p>
+        )}
         {lane.sourceId === "grants" &&
           plan.eligibility &&
           item.state !== "not_searched" && (
             <p class="help">{COPY.grants.filterApplied}</p>
           )}
         {Boolean(item.leftOut) && (
-          <p class="help">{COPY.identifierLeftOut(item.leftOut!)}</p>
+          <p class="help">
+            {lane.narrow
+              ? COPY.narrowLeftOut(item.leftOut!, lane.narrow.field)
+              : COPY.identifierLeftOut(item.leftOut!)}
+          </p>
         )}
         {reason && reason !== message && <p class="help">{reason}</p>}
         {item.skip === "budget" && (
@@ -3138,6 +3180,7 @@ export function App() {
                   onChoose={(reading) => {
                     chosen.current = reading;
                   }}
+                  onNarrow={(narrow) => setNarrowing(narrow)}
                 />
               )}
               onSubmit={onSubmit}
@@ -3239,6 +3282,20 @@ export function App() {
                         {COPY.grants.filterHelp} {COPY.grants.limit}
                       </p>
                     </>
+                  )}
+                  {narrowing && (
+                    <p class="help">
+                      {COPY.narrowedTo(narrowing)}{" "}
+                      {scope === "state" && COPY.narrowNotStateScope}{" "}
+                      <button
+                        type="button"
+                        class="btn"
+                        aria-label={COPY.removeNarrowingLabel}
+                        onClick={() => setNarrowing(null)}
+                      >
+                        {COPY.removeNarrowing}
+                      </button>
+                    </p>
                   )}
                 </>
               }
@@ -3466,12 +3523,15 @@ export function App() {
                         ? found.plan.seed.query
                         : found.plan.lanes[0]?.query}
                     </p>
-                    {found.plan.seed.kind === "typed" && (
-                      <p class="help">
-                        {found.plan.seed.reading ?? ROUTER.searchedAsWords}
-                      </p>
-                    )}
+                    {found.plan.seed.kind === "typed" &&
+                      (found.plan.seed.query !== "" ||
+                        !planNarrow(found.plan)) && (
+                        <p class="help">
+                          {found.plan.seed.reading ?? ROUTER.searchedAsWords}
+                        </p>
+                      )}
                     {typeNote(found.plan)}
+                    {narrowNote(found.plan)}
                     {criteriaNotes(found.plan)}
                   </>
                 )}
@@ -4237,6 +4297,8 @@ function About({
           <p>{COPY.flagQuestion}</p>
           <p>{matches}</p>
           <p>{COPY.aboutPdfTagging}</p>
+          <p>{COPY.nameSearchLimit}</p>
+          <p>{COPY.narrowingLimit}</p>
         </section>
         <section>
           <h3>{COPY.aboutSourcesTitle}</h3>

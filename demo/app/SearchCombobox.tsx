@@ -43,6 +43,13 @@ const LIST_ID = "q-listbox";
 const STATUS_ID = "q-route";
 const MAX_WORD_OPTIONS = 5;
 
+/** D-186, D-188: the Federal Register field a narrow-to option narrows to. */
+export interface NarrowChoice {
+  field: "agency" | "topic";
+  id: string;
+  label: string;
+}
+
 interface Option {
   id: string;
   text: string;
@@ -51,6 +58,8 @@ interface Option {
   insert: string;
   /** Readings run their lookup; vocabulary labels only fill the box. */
   reading?: RouteReading;
+  /** A narrow-to-agency/topic option: chosen, it clears the box and does not submit. */
+  narrow?: NarrowChoice;
 }
 
 const KIND_NOTE: Record<VocabularyKind, string> = {
@@ -73,6 +82,8 @@ interface Candidate {
   label: string;
   shortLabel: string | null;
   note: string;
+  /** Present on a vocabulary entry: lets a narrow-to option follow it (D-186). */
+  vocab?: { id: string; kind: VocabularyKind };
 }
 
 /** One row per name and one for the label (D-161 to D-167), so a typed prefix of any finds the entry. */
@@ -110,6 +121,7 @@ function candidates(
       label: entry.label,
       shortLabel: entry.shortLabel,
       note: KIND_NOTE[file.kind],
+      vocab: { id: entry.id, kind: file.kind },
     })),
   );
   const issueRows = issueCandidateRows(issues);
@@ -145,6 +157,27 @@ const labelOption = (c: Candidate): Option => ({
   note: c.note,
   insert: c.label,
 });
+
+/**
+ * The narrow-to-agency/topic option that follows an fr_agency or fr_topic
+ * label option (D-186, D-188); null for a cfr_title label or a non-vocabulary
+ * candidate. Chosen, it clears the box rather than filling it: the typed
+ * letters were only a way to find the name.
+ */
+function narrowOption(c: Candidate): Option | null {
+  if (!c.vocab || c.vocab.kind === "cfr_title") return null;
+  const field = c.vocab.kind === "fr_agency" ? "agency" : "topic";
+  return {
+    id: "",
+    text:
+      field === "agency"
+        ? copy.narrowToAgency(c.label)
+        : copy.narrowToTopic(c.label),
+    note: copy.narrowFieldNote,
+    insert: "",
+    narrow: { field, id: c.vocab.id, label: c.label },
+  };
+}
 
 /** An issue or measure entry's word-prefix option (D-161 to D-167). */
 function issueOption(table: IssueFile, entry: TableEntry): Option {
@@ -221,8 +254,11 @@ function optionsFor(
       words.push(lawOption(c.alias));
       if (seenLaws.size >= MAX_WORD_OPTIONS) break;
     }
-    for (const c of rankLabels(typed, lists.vocab).slice(0, MAX_WORD_OPTIONS))
+    for (const c of rankLabels(typed, lists.vocab).slice(0, MAX_WORD_OPTIONS)) {
       words.push(labelOption(c));
+      const narrow = narrowOption(c);
+      if (narrow) words.push(narrow);
+    }
     const issueEntries: TableEntry[] = [];
     const seenIssueEntries = new Set<TableEntry>();
     // A bill the router already offered still lists its issues beside it.
@@ -249,7 +285,11 @@ function optionsFor(
     }
     if (!words.length) {
       // Typo matches only fill the box: never chosen for the person, never read by the router.
-      words.push(...possibleMatches(route, lists.all).map(labelOption));
+      for (const c of possibleMatches(route, lists.all)) {
+        words.push(labelOption(c));
+        const narrow = narrowOption(c);
+        if (narrow) words.push(narrow);
+      }
       possible = words.length > 0;
     }
     options.push(...words);
@@ -291,6 +331,7 @@ export function SearchCombobox({
   vocabulary = NO_VOCABULARY,
   phrases = PHRASES,
   onChoose,
+  onNarrow,
 }: SearchField & {
   aliases?: LawAliasFile;
   issues?: IssueFile;
@@ -298,6 +339,8 @@ export function SearchCombobox({
   phrases?: PlainPhraseFile;
   /** Told which reading was chosen, before the form submits. */
   onChoose?: (reading: RouteReading) => void;
+  /** Told which agency or topic to narrow to; the box clears and does not submit (D-186). */
+  onNarrow?: (narrow: NarrowChoice) => void;
 }) {
   const input = useRef<HTMLInputElement>(null);
   const pendingSubmit = useRef<string | null>(null);
@@ -328,6 +371,11 @@ export function SearchCombobox({
   };
   const choose = (option: Option) => {
     close();
+    if (option.narrow) {
+      onNarrow?.(option.narrow);
+      if (value !== "") onInput("");
+      return;
+    }
     if (option.reading) {
       onChoose?.(option.reading);
       pendingSubmit.current = option.insert;

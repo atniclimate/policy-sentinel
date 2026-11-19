@@ -57,4 +57,10 @@ export const frame = {
     `Policy Sentinel ${version} is in development. This is not legal advice. Coverage is limited to the sources this demo searches; those sources are incomplete and may be delayed. The demo rules are automated and can miss passages or misread them. Verify everything against the official source before relying on it.`,
   limitsShort: (version: string) =>
     `Policy Sentinel ${version}, in development. Not legal advice. Verify against the official source.`,
+  /** D-186b, the owner ruling of 2026-11-19: the stated limit of the name-search check. */
+  nameSearchLimit:
+    "A Tribe's name typed without a word such as Tribe, Nation or Band is not recognized as a name, so the name-match caution does not show for it.",
+  /** D-186, D-188, the owner ruling of 2026-11-19 approving part (a) of the narrowing design. */
+  narrowingLimit:
+    "Narrowing uses the Federal Register's own agency and topic fields. The demo sends them to the Federal Register only, so the other sources are not narrowed.",
 } as const;

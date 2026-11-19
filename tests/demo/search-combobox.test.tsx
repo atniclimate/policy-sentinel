@@ -268,10 +268,15 @@ describe("search combobox", () => {
   it("inserts an official vocabulary label as search words without searching", async () => {
     const { user, box, onSubmit } = setup();
     await user.type(box, "water off");
-    const option = screen.getByRole("option");
+    // The label, then its narrow-to option (D-188); nothing else.
+    const [option, narrow, ...rest] = screen.getAllByRole("option");
     expect(option).toHaveTextContent(
       `Sample Water Office (${copy.agencyNote})`,
     );
+    expect(narrow).toHaveTextContent(
+      copy.narrowToAgency("Sample Water Office"),
+    );
+    expect(rest).toEqual([]);
     await user.keyboard("{ArrowDown}{Enter}");
     expect(box).toHaveValue("Sample Water Office");
     expect(onSubmit).not.toHaveBeenCalled();
@@ -281,10 +286,10 @@ describe("search combobox", () => {
     const { user, box } = setup();
     const label = `Sample Water Office (${copy.agencyNote})`;
     await user.type(box, "office water");
-    expect(screen.getByRole("option")).toHaveTextContent(label);
+    expect(screen.getAllByRole("option")[0]).toHaveTextContent(label);
     await user.clear(box);
     await user.type(box, "SWO");
-    expect(screen.getByRole("option")).toHaveTextContent(label);
+    expect(screen.getAllByRole("option")[0]).toHaveTextContent(label);
   });
 
   it("offers a law once by the start of its name, or by its acronym in any case, and runs it when chosen", async () => {
@@ -319,7 +324,7 @@ describe("search combobox", () => {
     expect(screen.getByRole("status")).toHaveTextContent(
       search.suggest.possibleMatch,
     );
-    expect(screen.getByRole("option")).toHaveTextContent(
+    expect(screen.getAllByRole("option")[0]).toHaveTextContent(
       `Sample Water Office (${copy.agencyNote})`,
     );
     expect(box).not.toHaveAttribute("aria-activedescendant");
