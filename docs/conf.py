@@ -2,7 +2,7 @@
 
 project = "policy-sentinel"
 author = "ATNI Climate Resilience Program"
-copyright = "2026, ATNI Climate Resilience Program"  # noqa: A001
+copyright = "2026, ATNI Climate Resilience Program"
 
 extensions = [
     "sphinx.ext.napoleon",

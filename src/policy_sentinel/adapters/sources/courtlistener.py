@@ -38,9 +38,7 @@ class CourtListenerAdapter:
         """
         raise NotImplementedError
 
-    def compare(
-        self, previous: dict[str, Any], current: dict[str, Any]
-    ) -> dict[str, Any]:
+    def compare(self, previous: dict[str, Any], current: dict[str, Any]) -> dict[str, Any]:
         """Compare two CourtListener snapshots.
 
         Raises

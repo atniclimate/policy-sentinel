@@ -35,9 +35,7 @@ class QueryPolicyStatusHook(Protocol):
         ...
 
 
-def default_query_policy_status(
-    policy_id: str, sources: list[str]
-) -> str | None:
+def default_query_policy_status(policy_id: str, sources: list[str]) -> str | None:
     """Default stub -- no external status query.
 
     Parameters

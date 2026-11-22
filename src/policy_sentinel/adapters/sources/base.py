@@ -43,9 +43,7 @@ class SourceAdapter(Protocol):
         """
         ...
 
-    def compare(
-        self, previous: dict[str, Any], current: dict[str, Any]
-    ) -> dict[str, Any]:
+    def compare(self, previous: dict[str, Any], current: dict[str, Any]) -> dict[str, Any]:
         """Compare previous and current states, return diff.
 
         Parameters
