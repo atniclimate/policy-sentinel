@@ -11,6 +11,14 @@ import type {
   LinkFamily,
 } from "./types";
 import { LINK_NOTICES, linkLabel } from "./link-labels.ts";
+import { calendarDate } from "./local-day.ts";
+import {
+  CONGRESS_REFERENCE,
+  congressIdentifier,
+  relatedBillCount,
+  RELATED_BILL_LIMIT,
+  RELATIONSHIPS_PER_BILL,
+} from "./congress-reference.ts";
 import { cutRowsNote, withheldRowsNote, type ChainRow } from "./links.ts";
 import { hasPersonalPattern } from "./personal-guard.ts";
 import {
@@ -137,16 +145,6 @@ export function policyId(
     return match ? `${match[1]} ${match[2]} ${match[3]}` : citation.identifier;
   }
   return citation.identifier;
-}
-
-function calendarDate(value: unknown): value is string {
-  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value))
-    return false;
-  const parsed = new Date(`${value}T00:00:00Z`);
-  return (
-    Number.isFinite(parsed.valueOf()) &&
-    parsed.toISOString().slice(0, 10) === value
-  );
 }
 
 type CitationFields = Pick<
@@ -474,7 +472,9 @@ export function searchValue(
     } else throw new Error("Invalid search continuation");
   }
   const ids = new Set<string>();
-  const results = list(v.results, 10).map((item) => {
+  const resultLimit =
+    criteria.version === 3 && criteria.match === "executive_order" ? 100 : 10;
+  const results = list(v.results, resultLimit).map((item) => {
     const citation = citationValue(item, criteria.version);
     if (citation.sourceId !== source || ids.has(keyOf(citation)))
       throw new Error("Invalid search result identity");
@@ -780,7 +780,21 @@ export function relatedValue(
   const maybe = (item: unknown, max: number) =>
     item === null ? null : text(item, max);
   if (expected.source === "congress") {
-    const records = list(v.records, 20).map((item) => {
+    const reference = CONGRESS_REFERENCE.exec(expected.bill);
+    if (
+      !reference ||
+      v.bill !==
+        congressIdentifier(
+          reference[1],
+          Number(reference[2]),
+          Number(reference[3]),
+        )
+    )
+      throw new Error("Invalid related identity");
+    const records = list(
+      v.records,
+      RELATED_BILL_LIMIT * RELATIONSHIPS_PER_BILL,
+    ).map((item) => {
       const r = object(item);
       return {
         relation: text(r.relation, 200),
@@ -790,6 +804,9 @@ export function relatedValue(
         officialUrl: officialUrl(r.officialUrl, "congress"),
       };
     });
+    const shown = relatedBillCount(records);
+    if (shown > RELATED_BILL_LIMIT)
+      throw new Error("Invalid related bill count");
     return {
       ok: true,
       source: "congress",
@@ -799,7 +816,7 @@ export function relatedValue(
       total:
         v.total === null
           ? null
-          : integer(v.total, Number.MAX_SAFE_INTEGER, records.length),
+          : integer(v.total, Number.MAX_SAFE_INTEGER, shown),
       retrievedAt,
     };
   }

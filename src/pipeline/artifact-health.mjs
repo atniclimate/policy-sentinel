@@ -5,6 +5,30 @@ const RECORD_HEALTH_FIELDS = [
   "message",
 ];
 
+// Preserve the source spelling, including precision beyond Date.parse's milliseconds.
+export function latestHealthTime(records, field) {
+  let latest = null;
+  let latestMillis = -Infinity;
+  let latestFraction = "";
+  for (const { sourceHealth } of records) {
+    const value = sourceHealth[field];
+    if (value == null) continue;
+    const millis = Date.parse(value);
+    const fraction = (value.match(/\.(\d+)/)?.[1] ?? "").replace(/0+$/, "");
+    if (
+      millis > latestMillis ||
+      (millis === latestMillis &&
+        (fraction > latestFraction ||
+          (fraction === latestFraction && value > latest)))
+    ) {
+      latest = value;
+      latestMillis = millis;
+      latestFraction = fraction;
+    }
+  }
+  return latest;
+}
+
 function fail(label, health, reason) {
   throw new Error(`${label} ${reason}: ${health.sourceId}`);
 }

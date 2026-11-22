@@ -3,33 +3,44 @@
 // run by build, check, demo:build or test; the main session runs it within
 // the stated call budget.
 import {
+  closeSync,
   cpSync,
   existsSync,
+  lstatSync,
   mkdirSync,
+  mkdtempSync,
+  openSync,
   readFileSync,
+  realpathSync,
+  renameSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
 import {
   basename,
   dirname,
-  isAbsolute,
   join,
+  parse,
   relative,
   resolve,
+  sep,
 } from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { parseArgs } from "node:util";
 
 import { canonicalJson } from "../../src/core/canonical-json.mjs";
 import { sha256Bytes } from "../../src/pipeline/hashing.mjs";
 import { PATTERN_SET_VERSION } from "../../src/demo/cite-patterns.ts";
+import { calendarDate } from "../../src/demo/local-day.ts";
 import { buildCfrShard } from "./cfr.mjs";
+import { cfrArchive, listsCfrArchive } from "./cfr-listing.mjs";
 import {
   ACQUIRE_VERSION,
   REPO_ROOT,
-  FULL_PROBE_ENTRIES,
+  INCOMPLETE_PROBE,
   StageError,
   isFullProbe,
+  insideRepo,
   loadNationProbe,
   loadProbeNames,
   manifestBytes,
@@ -54,8 +65,8 @@ export const USAGE = `usage: node scripts/acquire-demo-index.mjs <command> [opti
   cfr   --title N --edition YYYY [--volumes 1,2]   GovInfo CFR annual edition (bulk listing + title zip)
   vocab [--only fr-agencies|fr-topics]              Federal Register agencies and topics
   uslm  --title N --release-point 119-136 --terms-read YYYY-MM-DD   OLRC USLM title zip
-common: --dry-run | --work-dir <outside repo> --report <outside repo> --rights-file <json>
-        [--nation-names <recognition notice HTML, all 575 entries>; default: the committed hash file] [--keep-raw]`;
+common: --dry-run | --work-dir <outside repo> --report <new file outside repo> --rights-file <json>
+        [--nation-names <reviewed recognition notice HTML>; default: the committed hash file] [--keep-raw]`;
 
 const SOURCES = {
   cfr: {
@@ -91,7 +102,6 @@ const SOURCES = {
 
 export class UsageError extends Error {}
 
-const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const pad2 = (n) => String(n).padStart(2, "0");
 
 /** Parse and check the command line; refuses "current" and unpinned inputs. */
@@ -103,16 +113,19 @@ export function parseAcquireArgs(argv) {
       "ecfr is refused: the owner ruled out fetching eCFR's versioner path (D-135). eCFR stays a link-out; CFR text comes from the GovInfo annual edition (cfr).",
     );
   if (!["cfr", "vocab", "uslm"].includes(command)) throw new UsageError(USAGE);
-  const { values } = parseArgs({
+  const sourceFlags = {
+    cfr: ["title", "edition", "volumes"],
+    vocab: ["only"],
+    uslm: ["title", "terms-read", "release-point"],
+  };
+  const { values, tokens } = parseArgs({
     args: rest,
     strict: true,
+    tokens: true,
     options: {
-      title: { type: "string" },
-      edition: { type: "string" },
-      volumes: { type: "string" },
-      only: { type: "string" },
-      "terms-read": { type: "string" },
-      "release-point": { type: "string" },
+      ...Object.fromEntries(
+        sourceFlags[command].map((name) => [name, { type: "string" }]),
+      ),
       "dry-run": { type: "boolean", default: false },
       "work-dir": { type: "string" },
       report: { type: "string" },
@@ -121,6 +134,15 @@ export function parseAcquireArgs(argv) {
       "keep-raw": { type: "boolean", default: false },
     },
   });
+  const seen = new Set();
+  for (const token of tokens) {
+    if (token.kind !== "option") continue;
+    if (seen.has(token.name))
+      throw new UsageError(
+        `Option --${token.name} was supplied more than once.`,
+      );
+    seen.add(token.name);
+  }
   const options = {
     command,
     dryRun: values["dry-run"],
@@ -159,7 +181,7 @@ export function parseAcquireArgs(argv) {
     options.only = values.only ?? null;
   }
   if (command === "uslm") {
-    if (!DATE.test(values["terms-read"] ?? ""))
+    if (!calendarDate(values["terms-read"]))
       throw new UsageError(
         "--terms-read YYYY-MM-DD is required: the source's terms must be read first",
       );
@@ -195,18 +217,18 @@ export function parseAcquireArgs(argv) {
 export function planRequests(options) {
   const { command, title } = options;
   if (command === "cfr") {
-    const year = options.edition;
+    const archive = cfrArchive(options.edition, title);
     return [
       {
         label: "listing",
-        url: `https://www.govinfo.gov/bulkdata/json/CFR/${year}/title-${title}`,
+        url: archive.listingUrl,
         accept: "application/json",
         types: JSON_TYPES,
         maxBytes: MiB,
       },
       {
         label: "zip",
-        url: `https://www.govinfo.gov/bulkdata/CFR/${year}/title-${title}/CFR-${year}-title-${title}.zip`,
+        url: archive.zipUrl,
         accept: "application/zip",
         types: ZIP_TYPES,
         maxBytes: 300 * MiB,
@@ -236,11 +258,6 @@ export function planRequests(options) {
   ];
 }
 
-function insideRepo(path, repoRoot) {
-  const rel = relative(resolve(repoRoot), resolve(path));
-  return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
-}
-
 function readJson(path) {
   return JSON.parse(readFileSync(path, "utf8"));
 }
@@ -256,38 +273,90 @@ async function fetchPlanned(request, ctx) {
   ctx.used += 1;
   if (ctx.windowStart === null)
     ctx.windowStart = new Date(ctx.now()).toISOString();
-  let response;
-  try {
-    response = await ctx.fetch(request.url, {
-      headers: { Accept: request.accept },
-      redirect: "error",
-    });
-  } catch {
-    throw new StageError(
-      "fetch",
-      `the ${request.label} request did not complete`,
-    );
+  const controller = new AbortController();
+  let reader;
+  async function download() {
+    let response;
+    try {
+      response = await ctx.fetch(request.url, {
+        headers: { Accept: request.accept },
+        redirect: "error",
+        signal: controller.signal,
+      });
+    } catch {
+      throw new StageError(
+        "fetch",
+        `the ${request.label} request did not complete`,
+      );
+    }
+    if (controller.signal.aborted) {
+      void response.body?.cancel().catch(() => {});
+      throw controller.signal.reason;
+    }
+    reader = response.body?.getReader();
+    if (response.status !== 200)
+      throw new StageError(
+        "fetch",
+        `the ${request.label} request answered ${response.status}`,
+      );
+    const type = (response.headers.get("content-type") ?? "")
+      .split(";")[0]
+      .trim()
+      .toLowerCase();
+    if (!request.types.includes(type))
+      throw new StageError(
+        "fetch",
+        `the ${request.label} request answered ${type || "no content type"}`,
+      );
+    const declared = Number(response.headers.get("content-length") ?? 0);
+    if (declared > request.maxBytes)
+      throw new StageError("fetch", `the ${request.label} answer is too large`);
+    const chunks = [];
+    let length = 0;
+    try {
+      while (reader) {
+        const { done, value: chunk } = await reader.read();
+        if (done) break;
+        length += chunk.byteLength;
+        if (length > request.maxBytes)
+          throw new StageError(
+            "fetch",
+            `the ${request.label} answer is too large`,
+          );
+        chunks.push(chunk);
+      }
+    } catch (error) {
+      if (error instanceof StageError) throw error;
+      throw new StageError(
+        "fetch",
+        `the ${request.label} answer was interrupted`,
+      );
+    }
+    if (controller.signal.aborted) throw controller.signal.reason;
+    return Buffer.concat(chunks, length);
   }
-  if (response.status !== 200)
-    throw new StageError(
-      "fetch",
-      `the ${request.label} request answered ${response.status}`,
+  let timer;
+  const deadline = new Promise((_, reject) => {
+    // The largest permitted title ZIP is 400 MiB. Bound the entire download.
+    timer = setTimeout(
+      () =>
+        reject(
+          new StageError("fetch", `the ${request.label} request timed out`),
+        ),
+      5 * 60_000,
     );
-  const type = (response.headers.get("content-type") ?? "")
-    .split(";")[0]
-    .trim()
-    .toLowerCase();
-  if (!request.types.includes(type))
-    throw new StageError(
-      "fetch",
-      `the ${request.label} request answered ${type || "no content type"}`,
-    );
-  const declared = Number(response.headers.get("content-length") ?? 0);
-  if (declared > request.maxBytes)
-    throw new StageError("fetch", `the ${request.label} answer is too large`);
-  const bytes = Buffer.from(await response.arrayBuffer());
-  if (bytes.length > request.maxBytes)
-    throw new StageError("fetch", `the ${request.label} answer is too large`);
+  });
+  let bytes;
+  try {
+    bytes = await Promise.race([download(), deadline]);
+  } catch (error) {
+    controller.abort();
+    void reader?.cancel().catch(() => {});
+    throw error;
+  } finally {
+    clearTimeout(timer);
+    reader?.releaseLock();
+  }
   ctx.lastRequestAt = ctx.now();
   ctx.windowEnd = new Date(ctx.now()).toISOString();
   // Downloaded bytes live only in the work directory, outside the repository.
@@ -295,7 +364,7 @@ async function fetchPlanned(request, ctx) {
     ctx.workDir,
     `raw-${ctx.used}-${basename(new URL(request.url).pathname) || "answer"}`,
   );
-  writeFileSync(raw, bytes);
+  writeFileSync(raw, bytes, { flag: "wx" });
   ctx.rawFiles.push(raw);
   return bytes;
 }
@@ -314,11 +383,7 @@ async function acquireCfr(options, ctx) {
     await fetchPlanned(listingRequest, ctx),
     "listing",
   );
-  const zipName = `CFR-${options.edition}-title-${options.title}.zip`;
-  const file =
-    Array.isArray(listing?.files) &&
-    listing.files.find((f) => f?.justFileName === zipName);
-  if (!file || file.link !== zipRequest.url)
+  if (!listsCfrArchive(listing, cfrArchive(options.edition, options.title)))
     throw new StageError(
       "fetch",
       "the listing does not name the title zip at its expected address",
@@ -338,11 +403,10 @@ async function acquireCfr(options, ctx) {
         ({ volume }) =>
           volume && (!options.volumes || options.volumes.includes(volume)),
       )
-      .sort((a, b) => a.volume - b.volume)
-      .map(({ entry, volume }) => ({
-        volume,
-        xml: readZipEntry(zip, entry).toString("utf8"),
-      }));
+      .sort((a, b) => a.volume - b.volume);
+    const totalBytes = volumes.reduce((sum, { entry }) => sum + entry.size, 0);
+    if (totalBytes > 512 * MiB)
+      throw new Error("selected volumes exceed 512 MiB uncompressed");
   } catch (error) {
     throw new StageError(
       "fetch",
@@ -357,10 +421,9 @@ async function acquireCfr(options, ctx) {
     throw new StageError("fetch", "the title zip lacks a requested volume");
   let built;
   try {
-    built = buildCfrShard(volumes, {
+    built = buildCfrShard(readCfrVolumes(zip, volumes), {
       title: options.title,
       editionYear: options.edition,
-      volumes: options.volumes,
       names: ctx.names,
     });
   } catch (error) {
@@ -377,7 +440,7 @@ async function acquireCfr(options, ctx) {
     rights: ctx.rights,
     editionYear: options.edition,
     revisedAsOfText: built.shard.revisedAsOfText,
-    volumes: options.volumes,
+    volumes: built.shard.volumes,
   };
   return [
     {
@@ -387,6 +450,21 @@ async function acquireCfr(options, ctx) {
       report: built.report,
     },
   ];
+}
+
+function* readCfrVolumes(zip, volumes) {
+  for (const { entry, volume } of volumes) {
+    let xml;
+    try {
+      xml = readZipEntry(zip, entry).toString("utf8");
+    } catch (error) {
+      throw new StageError(
+        "fetch",
+        `the title zip could not be read: ${error.message}`,
+      );
+    }
+    yield { volume, xml };
+  }
 }
 
 async function acquireVocab(options, ctx) {
@@ -400,6 +478,11 @@ async function acquireVocab(options, ctx) {
       request.label === "fr-agencies"
         ? mapFrAgencies(json, ctx.names)
         : mapFrTopics(json, ctx.names);
+    if (!mapped.file.entries.length)
+      throw new StageError(
+        "normalize",
+        `the ${request.label} vocabulary has no usable entries`,
+      );
     const { id, name, urlTemplate, linkTemplate } = SOURCES[request.label];
     out.push({
       path: `vocab/${request.label}.json`,
@@ -506,15 +589,133 @@ const summary = (entry) =>
   };
 
 /** Write the files then the manifest, after the whole new index validated in a staging copy. */
-function stageAndValidate(dataDir, stageDir, writes, manifest, probe) {
-  rmSync(stageDir, { recursive: true, force: true });
-  cpSync(dataDir, stageDir, { recursive: true });
-  for (const { path, bytes } of writes) {
-    mkdirSync(dirname(join(stageDir, path)), { recursive: true });
-    writeFileSync(join(stageDir, path), bytes);
+function stageAndValidate(dataDir, workDir, writes, manifest, probe) {
+  const stageDir = mkdtempSync(join(workDir, "stage-"));
+  try {
+    cpSync(dataDir, stageDir, { recursive: true });
+    for (const { path, bytes } of writes) {
+      mkdirSync(dirname(join(stageDir, path)), { recursive: true });
+      writeFileSync(join(stageDir, path), bytes);
+    }
+    writeFileSync(join(stageDir, "manifest.json"), manifestBytes(manifest));
+    return validateDemoIndex(stageDir, { probe, staleAsWarning: true });
+  } finally {
+    rmSync(stageDir, { recursive: true, force: true });
   }
-  writeFileSync(join(stageDir, "manifest.json"), manifestBytes(manifest));
-  return validateDemoIndex(stageDir, { probe, staleAsWarning: true });
+}
+
+// A recovery can run long after the original install. Recheck every component
+// before reading, replacing or removing a path recorded in the journal.
+function unlinkedPath(base, parts) {
+  let current = base;
+  for (const part of parts) {
+    current = join(current, part);
+    const stat = lstatSync(current, { throwIfNoEntry: false });
+    if (stat) {
+      const canonical = realpathSync.native(current);
+      if (
+        stat.isSymbolicLink() ||
+        relative(dirname(current), dirname(canonical)) !== ""
+      )
+        throw new Error(
+          "A linked path cannot be used in an index transaction.",
+        );
+      current = canonical;
+    }
+  }
+  return current;
+}
+
+// Keep the undo record outside Pages, on the same volume as the index. SQLite's
+// exclusive lock spans acquisition and is released by the OS if the writer dies.
+function openIndexJournal(dataDir) {
+  const absolute = resolve(dataDir);
+  const drive = parse(absolute).root;
+  const root = realpathSync.native(
+    unlinkedPath(drive, relative(drive, absolute).split(sep)),
+  );
+  const parent = dirname(root);
+  const cacheRoot =
+    basename(parent).toLowerCase() === "docs" ? dirname(parent) : parent;
+  const state = unlinkedPath(cacheRoot, [
+    ".cache",
+    "index-install",
+    sha256Bytes(Buffer.from(root)),
+  ]);
+  mkdirSync(state, { recursive: true });
+  const db = new DatabaseSync(unlinkedPath(state, ["undo.sqlite"]));
+  const scratch = join(state, "replacement");
+  const targetFor = (path) => {
+    if (
+      typeof path !== "string" ||
+      !path.split("/").every((part) => /^[a-z0-9][a-z0-9._-]*$/i.test(part))
+    )
+      throw new Error("Invalid file path in the index transaction.");
+    return unlinkedPath(root, path.split("/"));
+  };
+  const replace = (target, bytes) => {
+    mkdirSync(dirname(target), { recursive: true });
+    writeFileSync(scratch, bytes, { flag: "wx" });
+    renameSync(scratch, target);
+  };
+  const restore = () => {
+    rmSync(scratch, { force: true });
+    // Replaying the same backups is safe even if the last recovery was interrupted.
+    for (const { path, bytes } of db
+      .prepare("SELECT path, bytes FROM undo ORDER BY rowid")
+      .iterate()) {
+      const target = targetFor(path);
+      if (bytes === null) {
+        if (existsSync(target)) rmSync(target);
+      } else if (!existsSync(target) || !readFileSync(target).equals(bytes)) {
+        replace(target, bytes);
+      }
+    }
+    db.exec("DELETE FROM undo");
+  };
+  try {
+    db.exec(
+      "PRAGMA locking_mode=EXCLUSIVE; PRAGMA auto_vacuum=FULL; BEGIN EXCLUSIVE; CREATE TABLE IF NOT EXISTS undo (path TEXT PRIMARY KEY, bytes BLOB); COMMIT",
+    );
+    restore();
+  } catch (error) {
+    db.close();
+    throw error;
+  }
+  return {
+    close: () => db.close(),
+    install(writes) {
+      // Commit the complete previous generation before touching the first shard.
+      db.exec("BEGIN");
+      try {
+        const save = db.prepare("INSERT INTO undo (path, bytes) VALUES (?, ?)");
+        for (const { path } of writes) {
+          const target = targetFor(path);
+          save.run(path, existsSync(target) ? readFileSync(target) : null);
+        }
+        db.exec("COMMIT");
+      } catch (error) {
+        db.exec("ROLLBACK");
+        throw error;
+      }
+      try {
+        for (const { path, bytes } of writes) replace(targetFor(path), bytes);
+        db.exec("DELETE FROM undo");
+      } catch (error) {
+        restore();
+        throw error;
+      }
+    },
+  };
+}
+
+export function installIndexFiles(dataDir, writes) {
+  const journal = openIndexJournal(dataDir);
+  try {
+    journal.install(writes);
+  } finally {
+    journal.close();
+  }
 }
 
 /**
@@ -554,9 +755,7 @@ export async function runAcquire(argv, deps = {}) {
     ? loadProbeNames(options.nationNames)
     : loadNationProbe({ hashPath: deps.probeHashPath });
   if (!isFullProbe(probe)) {
-    log(
-      `${options.nationNames ? "--nation-names" : "the committed hash file"} holds ${probe.entryCount} recognition entries, not the full list of ${FULL_PROBE_ENTRIES}; nothing fetched`,
-    );
+    log(`${INCOMPLETE_PROBE}; nothing fetched`);
     return { exitCode: 2 };
   }
   let rights = null;
@@ -568,6 +767,41 @@ export async function runAcquire(argv, deps = {}) {
       return { exitCode: 2 };
     }
   }
+  let journal;
+  try {
+    journal = openIndexJournal(dataDir);
+  } catch (error) {
+    log(
+      `the local index could not be locked or recovered; nothing fetched: ${error.message}`,
+    );
+    return { exitCode: 1 };
+  }
+  try {
+    return await acquireLocked({
+      options,
+      deps,
+      dataDir,
+      rights,
+      probe,
+      plan,
+      log,
+      journal,
+    });
+  } finally {
+    journal.close();
+  }
+}
+
+async function acquireLocked({
+  options,
+  deps,
+  dataDir,
+  rights,
+  probe,
+  plan,
+  log,
+  journal,
+}) {
   // A stale file must stay refreshable; demo:build and check still enforce C3.
   const before = validateDemoIndex(dataDir, { probe, staleAsWarning: true });
   if (!before.ok) {
@@ -633,6 +867,18 @@ export async function runAcquire(argv, deps = {}) {
   };
   const stamp = () => new Date(ctx.now()).toISOString();
   let exitCode = 1;
+  let reportFd;
+  try {
+    mkdirSync(dirname(options.report), { recursive: true });
+    reportFd = openSync(options.report, "wx");
+  } catch (error) {
+    log(
+      error.code === "EEXIST"
+        ? "--report already exists; choose a new file"
+        : "--report could not be created; nothing fetched",
+    );
+    return { exitCode: 2 };
+  }
   try {
     const next = structuredClone(manifest);
     const writes = [];
@@ -678,7 +924,7 @@ export async function runAcquire(argv, deps = {}) {
     };
     const checked = stageAndValidate(
       dataDir,
-      join(options.workDir, "stage"),
+      options.workDir,
       writes,
       next,
       probe,
@@ -689,16 +935,18 @@ export async function runAcquire(argv, deps = {}) {
         "validation",
         "the refreshed index did not validate",
       );
-    for (const { path, bytes } of writes) {
-      mkdirSync(dirname(join(dataDir, path)), { recursive: true });
-      writeFileSync(join(dataDir, path), bytes);
-    }
-    writeFileSync(manifestPath, manifestBytes(next));
+    journal.install([
+      ...writes,
+      { path: "manifest.json", bytes: manifestBytes(next) },
+    ]);
     report.outcome = "written";
     exitCode = 0;
   } catch (error) {
     const stage = error instanceof StageError ? error.stage : "packaging";
-    const message = sanitizeMessage(error.message);
+    const message =
+      error instanceof StageError
+        ? sanitizeMessage(error.message)
+        : "Local index packaging failed.";
     report.failure = { stage, message };
     // D2: only the manifest records the failure; the committed file stays byte-identical.
     const failed = structuredClone(manifest);
@@ -715,12 +963,15 @@ export async function runAcquire(argv, deps = {}) {
     failed.generatedAt = stamp();
     const checked = stageAndValidate(
       dataDir,
-      join(options.workDir, "stage"),
+      options.workDir,
       [],
       failed,
       probe,
     );
-    if (checked.ok) writeFileSync(manifestPath, manifestBytes(failed));
+    if (checked.ok)
+      journal.install([
+        { path: "manifest.json", bytes: manifestBytes(failed) },
+      ]);
     else report.failure.manifestNotUpdated = checked.errors.slice(0, 5);
     log(`refresh failed at ${stage}: ${message}`);
   } finally {
@@ -728,11 +979,13 @@ export async function runAcquire(argv, deps = {}) {
     report.retrievalWindow = ctx.windowStart
       ? { start: ctx.windowStart, end: ctx.windowEnd }
       : null;
-    rmSync(join(options.workDir, "stage"), { recursive: true, force: true });
-    if (!options.keepRaw)
-      for (const raw of ctx.rawFiles) rmSync(raw, { force: true });
-    mkdirSync(dirname(options.report), { recursive: true });
-    writeFileSync(options.report, `${JSON.stringify(report, null, 2)}\n`);
+    try {
+      writeFileSync(reportFd, `${JSON.stringify(report, null, 2)}\n`);
+    } finally {
+      closeSync(reportFd);
+      if (!options.keepRaw)
+        for (const raw of ctx.rawFiles) rmSync(raw, { force: true });
+    }
   }
   log(
     `${report.outcome}: ${ctx.used} of ${plan.length} requests used; report ${options.report}`,

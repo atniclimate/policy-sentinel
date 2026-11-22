@@ -110,40 +110,39 @@ export type FetchLike = (
   init?: RequestInit,
 ) => Promise<Response>;
 
+const namedEntities: Readonly<Record<string, string>> = {
+  amp: "&",
+  apos: "'",
+  gt: ">",
+  lt: "<",
+  mdash: "—",
+  nbsp: " ",
+  quot: '"',
+};
+
 function decodeEntity(entity: string): string {
-  const named: Record<string, string> = {
-    amp: "&",
-    apos: "'",
-    gt: ">",
-    lt: "<",
-    mdash: "—",
-    nbsp: " ",
-    quot: '"',
-  };
-
-  if (entity.startsWith("#x") || entity.startsWith("#X")) {
-    const codePoint = Number.parseInt(entity.slice(2), 16);
-    if (!Number.isFinite(codePoint)) {
-      throw new Error(`Invalid hexadecimal character entity: &${entity};`);
-    }
-    return String.fromCodePoint(codePoint);
-  }
-
   if (entity.startsWith("#")) {
-    const codePoint = Number.parseInt(entity.slice(1), 10);
-    if (!Number.isFinite(codePoint)) {
-      throw new Error(`Invalid decimal character entity: &${entity};`);
-    }
+    const hex = /^#x([a-f\d]+)$/i.exec(entity);
+    const decimal = /^#(\d+)$/.exec(entity);
+    const codePoint = hex ? Number.parseInt(hex[1], 16) : Number(decimal?.[1]);
+    if (
+      !Number.isInteger(codePoint) ||
+      codePoint <= 0 ||
+      codePoint > 0x10ffff ||
+      (codePoint >= 0xd800 && codePoint <= 0xdfff)
+    )
+      throw new Error(
+        "Invalid numeric character entity in recognition source.",
+      );
     return String.fromCodePoint(codePoint);
   }
 
-  const decoded = named[entity];
-  if (decoded === undefined) {
+  if (!Object.hasOwn(namedEntities, entity)) {
     throw new Error(
       `Unsupported character entity in recognition source: &${entity};`,
     );
   }
-  return decoded;
+  return namedEntities[entity];
 }
 
 function removeUnprintedPageMarkup(value: string): string {
@@ -169,11 +168,18 @@ export function normalizeVisibleText(value: string): string {
     .trim();
 }
 
-function getAttribute(attributes: string, name: string): string | null {
-  const match = attributes.match(
-    new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, "i"),
-  );
-  return match ? (match[1] ?? match[2] ?? null) : null;
+function getAttribute(
+  attributes: string,
+  name: string,
+  format: "html" | "xml",
+): string | null {
+  for (const match of attributes.matchAll(
+    /(?:^|\s+)([^\s"'<>/=]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/g,
+  )) {
+    if (match[1].toLowerCase() === name.toLowerCase())
+      return match[2] ?? match[3] ?? (format === "html" ? match[4] : null);
+  }
+  return null;
 }
 
 function locateHeading(
@@ -224,41 +230,38 @@ function parseMarkupEntries(
   const paragraphExpression = /<p\b([^>]*)>([\s\S]*?)<\/p>/gi;
   const entries: RawRecognitionEntry[] = [];
   let fallbackId = 0;
+  const endIndex =
+    format === "xml"
+      ? Math.min(
+          source.length,
+          ...["<FRDOC", "<BILCOD", "</SUPLINF"]
+            .map((marker) => source.indexOf(marker, alaskaIndex))
+            .filter((index) => index >= 0),
+        )
+      : source.length;
 
   for (const match of source.matchAll(paragraphExpression)) {
     const index = match.index;
+    if (index >= endIndex) break;
     if (index <= contiguousIndex) {
       continue;
     }
 
     const attributes = match[1];
     if (format === "html") {
-      const className = getAttribute(attributes, "class") ?? "";
+      const className = getAttribute(attributes, "class", format) ?? "";
       if (!className.split(/\s+/).includes("flush-paragraph-1")) {
-        continue;
-      }
-    } else {
-      const endIndexCandidates = [
-        source.indexOf("<FRDOC", alaskaIndex),
-        source.indexOf("<BILCOD", alaskaIndex),
-        source.indexOf("</SUPLINF", alaskaIndex),
-      ].filter((candidate) => candidate >= 0);
-      if (
-        endIndexCandidates.length > 0 &&
-        index >= Math.min(...endIndexCandidates)
-      ) {
         continue;
       }
     }
 
     fallbackId += 1;
     const paragraphId =
-      getAttribute(attributes, "id") ??
-      getAttribute(attributes, "ID") ??
+      getAttribute(attributes, "id", format) ??
       `${format}-paragraph-${fallbackId}`;
     const page =
-      getAttribute(attributes, "data-page") ??
-      getAttribute(attributes, "PGS") ??
+      getAttribute(attributes, "data-page", format) ??
+      getAttribute(attributes, "PGS", format) ??
       null;
 
     entries.push({
@@ -566,7 +569,12 @@ function assertOfficialMetadata(metadata: FederalRegisterMetadata): void {
 }
 
 function validateRetrievedAt(value: string): void {
-  if (!value.endsWith("Z") || Number.isNaN(Date.parse(value))) {
+  const timestamp = Date.parse(value);
+  if (
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.test(value) ||
+    !Number.isFinite(timestamp) ||
+    new Date(timestamp).toISOString().slice(0, 19) !== value.slice(0, 19)
+  ) {
     throw new Error(
       `retrievedAt must be a UTC ISO date-time; received ${value}.`,
     );
@@ -607,7 +615,7 @@ async function fetchChecked(
     readonly maxBytes: number;
   },
   label: string,
-): Promise<Response> {
+): Promise<string> {
   const parsedUrl = new URL(url);
   const allowedHosts = new Set(["www.federalregister.gov", "www.govinfo.gov"]);
   if (
@@ -625,41 +633,46 @@ async function fetchChecked(
     redirect: "error",
     signal: AbortSignal.timeout(30_000),
   });
-  if (!response.ok) {
-    throw new Error(
-      `BIA recognition source returned HTTP ${response.status} for ${url}.`,
-    );
-  }
-
-  const contentTypeHeader = response.headers.get("content-type");
-  if (!contentTypeHeader) {
-    throw new Error(`${label} response is missing a Content-Type header.`);
-  }
-  const mediaType = contentTypeHeader.split(";", 1)[0].trim().toLowerCase();
-  if (!policy.mediaTypes.includes(mediaType)) {
-    throw new Error(
-      `${label} response Content-Type was ${JSON.stringify(contentTypeHeader)}; expected ${policy.mediaTypes.join(" or ")}.`,
-    );
-  }
-
-  const contentLengthHeader = response.headers.get("content-length");
-  if (contentLengthHeader !== null) {
-    if (!/^\d+$/.test(contentLengthHeader.trim())) {
+  try {
+    if (!response.ok) {
       throw new Error(
-        `${label} response has an invalid Content-Length header.`,
+        `BIA recognition source returned HTTP ${response.status} for ${url}.`,
       );
     }
-    const declaredBytes = Number(contentLengthHeader);
-    if (
-      !Number.isSafeInteger(declaredBytes) ||
-      declaredBytes > policy.maxBytes
-    ) {
+
+    const contentTypeHeader = response.headers.get("content-type");
+    if (!contentTypeHeader) {
+      throw new Error(`${label} response is missing a Content-Type header.`);
+    }
+    const mediaType = contentTypeHeader.split(";", 1)[0].trim().toLowerCase();
+    if (!policy.mediaTypes.includes(mediaType)) {
       throw new Error(
-        `${label} response declares ${contentLengthHeader} bytes; limit is ${policy.maxBytes}.`,
+        `${label} response Content-Type was ${JSON.stringify(contentTypeHeader)}; expected ${policy.mediaTypes.join(" or ")}.`,
       );
     }
+
+    const contentLengthHeader = response.headers.get("content-length");
+    if (contentLengthHeader !== null) {
+      if (!/^\d+$/.test(contentLengthHeader.trim())) {
+        throw new Error(
+          `${label} response has an invalid Content-Length header.`,
+        );
+      }
+      const declaredBytes = Number(contentLengthHeader);
+      if (
+        !Number.isSafeInteger(declaredBytes) ||
+        declaredBytes > policy.maxBytes
+      ) {
+        throw new Error(
+          `${label} response declares ${contentLengthHeader} bytes; limit is ${policy.maxBytes}.`,
+        );
+      }
+    }
+    return await readBoundedUtf8(response, policy.maxBytes, label);
+  } catch (error) {
+    void response.body?.cancel().catch(() => undefined);
+    throw error;
   }
-  return response;
 }
 
 async function readBoundedUtf8(
@@ -682,7 +695,6 @@ async function readBoundedUtf8(
       }
       totalBytes += value.byteLength;
       if (totalBytes > maxBytes) {
-        await reader.cancel();
         throw new Error(
           `${label} response exceeded the ${maxBytes}-byte limit.`,
         );
@@ -715,17 +727,13 @@ export async function fetchOfficialBiaRegistry(
 ): Promise<never> {
   const fetchImpl = options.fetchImpl ?? fetch;
   const retrievedAt = options.retrievedAt ?? new Date().toISOString();
+  validateRetrievedAt(retrievedAt);
 
-  const metadataResponse = await fetchChecked(
+  const metadataText = await fetchChecked(
     fetchImpl,
     BIA_RECOGNITION_2026.metadataUrl,
     "application/json",
     BIA_RESPONSE_POLICY.metadata,
-    "Federal Register metadata",
-  );
-  const metadataText = await readBoundedUtf8(
-    metadataResponse,
-    BIA_RESPONSE_POLICY.metadata.maxBytes,
     "Federal Register metadata",
   );
   let metadata: FederalRegisterMetadata;
@@ -736,7 +744,7 @@ export async function fetchOfficialBiaRegistry(
   }
   assertOfficialMetadata(metadata);
 
-  const [structuredResponse, officialTextResponse] = await Promise.all([
+  const [structuredBody, officialText] = await Promise.all([
     fetchChecked(
       fetchImpl,
       metadata.body_html_url,
@@ -749,19 +757,6 @@ export async function fetchOfficialBiaRegistry(
       BIA_RECOGNITION_2026.officialTextUrl,
       "text/html",
       BIA_RESPONSE_POLICY.officialText,
-      "GovInfo official text",
-    ),
-  ]);
-
-  const [structuredBody, officialText] = await Promise.all([
-    readBoundedUtf8(
-      structuredResponse,
-      BIA_RESPONSE_POLICY.structuredBody.maxBytes,
-      "Federal Register structured body",
-    ),
-    readBoundedUtf8(
-      officialTextResponse,
-      BIA_RESPONSE_POLICY.officialText.maxBytes,
       "GovInfo official text",
     ),
   ]);

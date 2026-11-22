@@ -111,15 +111,13 @@ const validateSuccessorRecord = ajv.getSchema(successorRecordSchema.$id);
 const validateSuccessorSource = ajv.compile(successorSourceSchema);
 ajv.compile(successorArtifactSchema);
 ajv.compile(developmentAuthoritySchema);
-for (const preparationPath of [
-  "fixtures/development/authority.synthetic.valid.json",
-  "docs/development/gd31-operation-packets.v1.json",
-]) {
-  // Fixed fixture clock; blocked real preparation rows assert no current review.
-  parseDevelopmentAuthority(await readFile(resolve(root, preparationPath), "utf8"), {
-    now: "2026-10-07T00:00:00Z",
-  });
-}
+parseDevelopmentAuthority(
+  await readFile(
+    resolve(root, "fixtures/development/authority.synthetic.valid.json"),
+    "utf8",
+  ),
+  { now: "2026-10-07T00:00:00Z" },
+);
 const validateAnalyzedCorpus = ajv.compile(analyzedCorpusSchema);
 ajv.compile(analyzedCorpusV2Schema);
 if (typeof validateAnalyzedCorpus !== "function") {

@@ -18,18 +18,18 @@ const encoder = new TextEncoder();
 export function calendarRows(
   citations: readonly DemoCitation[],
 ): DemoCitation[] {
-  const seen = new Set<string>();
-  return citations.filter((citation) => {
+  const latest = new Map<string, DemoCitation>();
+  for (const citation of citations) {
+    if (citation.sourceId !== "federal-register") continue;
     const number = policyId(citation);
+    const prior = latest.get(number);
     if (
-      citation.sourceId !== "federal-register" ||
-      !citation.commentsCloseOn ||
-      seen.has(number)
+      !prior ||
+      Date.parse(citation.retrievedAt) > Date.parse(prior.retrievedAt)
     )
-      return false;
-    seen.add(number);
-    return true;
-  });
+      latest.set(number, citation);
+  }
+  return [...latest.values()].filter((citation) => citation.commentsCloseOn);
 }
 
 /** TEXT value escaping (RFC 5545 3.3.11): backslash, semicolon, comma and newlines. */

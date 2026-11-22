@@ -479,17 +479,17 @@ export function searchPolicyCorpus(index, request) {
     const eligiblePassages = entry.passages.filter(
       (passage) => !state || state.knownRenditions.has(passage.rendition.id),
     );
-    const lexicalKeys = new Set([
-      ...(known.title ? entry.title.counts.keys() : []),
-      ...metadata.counts.keys(),
-      ...eligiblePassages.flatMap((passage) => [
-        ...passage.vector.counts.keys(),
-      ]),
-    ]);
     const matchedTerms = exactFields.length
       ? queryTerms
       : queryTermKeys
-          .filter(([, key]) => lexicalKeys.has(key))
+          .filter(
+            ([, key]) =>
+              (known.title && entry.title.counts.has(key)) ||
+              metadata.counts.has(key) ||
+              eligiblePassages.some((passage) =>
+                passage.vector.counts.has(key),
+              ),
+          )
           .map(([term]) => term);
     if (
       matchMode === "all_terms" &&
@@ -591,7 +591,7 @@ export function searchPolicyCorpus(index, request) {
       ...exactFields.map((field) => `exact_${field}`),
       ...(titleScore > 0 ? ["title_terms"] : []),
       ...(metadataScore > 0 ? ["source_metadata_terms"] : []),
-      ...(passages.some((passage) => passage.score > 0)
+      ...(passages.some((passage) => passage.lexicalScore > 0)
         ? ["source_passage_terms"]
         : []),
       ...(!query ? ["browse_retained_versions"] : []),
@@ -603,9 +603,11 @@ export function searchPolicyCorpus(index, request) {
       score,
       exactIdentifierMatch: exactFields.length > 0,
       matchedTerms,
-      allTermsInOnePassage: eligiblePassages.some((passage) =>
-        queryTermKeys.every(([, key]) => passage.vector.counts.has(key)),
-      ),
+      allTermsInOnePassage:
+        queryTermKeys.length > 0 &&
+        eligiblePassages.some((passage) =>
+          queryTermKeys.every(([, key]) => passage.vector.counts.has(key)),
+        ),
       whyShown,
       metadataKnown: known,
       passages: passages.slice(0, passageLimit),

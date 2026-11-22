@@ -247,6 +247,9 @@ test("exact version and source identifiers precede incidental references, with s
   const corpus = syntheticCorpusV2();
   const index = createPolicySearchIndex(corpus);
   const exact = searchPolicyCorpus(index, { query: "version-a-new" });
+  for (const hit of searchPolicyCorpus(index, { query: "" }).hits) {
+    assert.equal(hit.allTermsInOnePassage, false);
+  }
   assert.equal(exact.hits[0].versionId, "version-a-new");
   assert.ok(exact.hits[0].whyShown.includes("exact_version_id"));
   const reference = searchPolicyCorpus(index, { query: "Instrument A" });
@@ -285,6 +288,18 @@ test("exact version and source identifiers precede incidental references, with s
     }),
     reference,
   );
+});
+
+test("an exact identifier with metadata points does not claim a passage match", () => {
+  const input = syntheticCorpusV2Input();
+  input.works[0].sourceIdentifier = "2020";
+  input.relationships = [];
+  const index = createPolicySearchIndex(createAnalyzedCorpusV2(input));
+  const result = searchPolicyCorpus(index, { query: "2020" });
+  const hit = result.hits.find((entry) => entry.versionId === "version-a-new");
+  assert.ok(hit.whyShown.includes("source_metadata_terms"));
+  assert.ok(hit.passages.some((passage) => passage.score > 0));
+  assert.ok(!hit.whyShown.includes("source_passage_terms"));
 });
 
 test("quoted source phrases and distinct document matches are transparent; nonsense never generates an answer", () => {

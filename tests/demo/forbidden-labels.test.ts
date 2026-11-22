@@ -287,7 +287,7 @@ describe("forbidden words in chain labels and exports", () => {
   });
 });
 
-/** The safeguard 1 label (AGENTS.md): the one design rule 2 word an export may print. */
+/** Exports may describe a record's general jurisdiction. */
 const SAFEGUARD_LABEL = "general-jurisdiction";
 
 const ACTORS = {

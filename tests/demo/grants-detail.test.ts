@@ -63,6 +63,13 @@ describe("Grants.gov opportunity read", () => {
     expect(sent).toHaveLength(0);
   });
 
+  it("rejects a response for a different opportunity", async () => {
+    answer(BODY);
+    await expect(grantsDetail.read("990002")).rejects.toMatchObject({
+      code: "bad_upstream",
+    });
+  });
+
   it("keeps only allowlisted fields: a response full of contact data yields none of it", async () => {
     answer(BODY);
     const out = await grantsDetail.read("990001");
@@ -150,13 +157,16 @@ describe("Grants.gov opportunity read", () => {
     expect(JSON.stringify(out)).not.toContain("example.org");
   });
 
-  it("gives a forecast no application closing date", async () => {
-    answer({ ...BODY, data: { ...BODY.data, docType: "forecast" } });
-    const out = await grantsDetail.read("990001");
-    expect(out.citation.kind).toBe("Forecast");
-    expect(out.citation.applicationsCloseOn).toBeUndefined();
-    expect(out.citation.date).toBeNull();
-  });
+  it.each(["forecast", "unrecognized", undefined])(
+    "withholds application dates for type %s",
+    async (docType) => {
+      answer({ ...BODY, data: { ...BODY.data, docType } });
+      const out = await grantsDetail.read("990001");
+      if (docType === "forecast") expect(out.citation.kind).toBe("Forecast");
+      expect(out.citation.applicationsCloseOn).toBeUndefined();
+      expect(out.citation.date).toBeNull();
+    },
+  );
 
   it("treats a Grants.gov error answer and a non-200 status as upstream failures", async () => {
     answer({ errorcode: 1, msg: "error" });

@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { createHash } from "node:crypto";
 import {
+  linkSync,
   mkdirSync,
   readFileSync,
   rmSync,
@@ -21,6 +22,7 @@ import {
   FULL_PROBE_ENTRIES,
   PROBE_NORMALIZATION,
   hashedProbe,
+  isFullProbe,
   loadNationProbe,
   loadProbeNames,
   probeHashFile,
@@ -35,6 +37,7 @@ import {
   RETRIEVED,
   cfrShard,
   probeFile,
+  reviewedProbeWith,
   removeTemps,
   tempDir,
   uscShard,
@@ -68,12 +71,10 @@ const make = (...args: string[]) =>
     { env: { ...process.env, DEMO_NATION_NAMES: "" }, encoding: "utf8" },
   );
 
-/** A full synthetic hash file written by the script under test. */
+/** The reviewed hashes with extra synthetic names; contains no plain names. */
 function hashFile(): string {
   const out = join(tempDir(), "hashes.json");
-  const run = make("--nation-names", probeFile(), "--out", out);
-  expect(run.status, run.stderr).toBe(0);
-  expect(run.stdout).toMatch(/^wrote \d+ hashes for \d+ entries/);
+  writeFileSync(out, JSON.stringify(reviewedProbeWith(fullProbeNames())));
   return out;
 }
 
@@ -122,6 +123,32 @@ describe("static index validator", () => {
     expect(result).toMatchObject({ ok: true, fileCount: 3, currentCount: 3 });
   });
 
+  it.each(["current", "retained_after_failed_refresh"] as const)(
+    "rejects empty vocabulary and U.S. Code files marked %s even when the hashes match",
+    (status) => {
+      const files = [
+        { path: "usc/title-25.json", value: uscShard() },
+        { path: "vocab/fr-agencies.json", value: vocabFile() },
+      ].map(({ path, value }) => ({
+        path,
+        value: { ...value, entries: [] },
+        status,
+        entry:
+          status === "retained_after_failed_refresh"
+            ? {
+                lastRefreshAttemptAt: RETRIEVED,
+                failureStage: "fetch" as const,
+                message: "Source offline.",
+              }
+            : {},
+      }));
+      expect(check(files).errors).toEqual([
+        "usc/title-25.json: a present usc-source-credit-shard has no entries",
+        "vocab/fr-agencies.json: a present vocabulary has no entries",
+      ]);
+    },
+  );
+
   it("accepts a transferred U.S.C. section whose codification note names no U.S.C. ref (U1)", () => {
     const value = uscShard();
     value.entries[0].reclassifiedAs = {
@@ -155,7 +182,7 @@ describe("static index validator", () => {
     const refused = run(dir, "--nation-hashes", short);
     expect(refused.status).toBe(1);
     expect(refused.stderr).toMatch(
-      /3 index files present, but the Nation-name probes hold \d+ entries, not the full list of 575 \(G3\)/,
+      /3 index files present; .*reviewed 575-Nation inventory/,
     );
     const full = run(dir, "--nation-names", probeFile());
     expect(full.stdout).toMatch(/^demo index valid: 3 files present/);
@@ -459,7 +486,7 @@ describe("static index validator", () => {
 });
 
 describe("hashed Nation-name probes (decision 10)", () => {
-  it("writes sorted hashes, the count and the version, never a name", () => {
+  it("accepts reviewed hashes with supplemental synthetic names and rejects insufficient coverage", () => {
     const out = hashFile();
     const text = readFileSync(out, "utf8");
     const file = JSON.parse(text) as NationProbeHashFile;
@@ -471,6 +498,22 @@ describe("hashed Nation-name probes (decision 10)", () => {
       "hashes",
     ]);
     expect(file.normalization).toBe(PROBE_NORMALIZATION);
+    expect(isFullProbe(hashedProbe(file, "supplemented"))).toBe(true);
+    expect(
+      isFullProbe(hashedProbe({ ...file, maxWords: 1 }, "short word span")),
+    ).toBe(false);
+    const unrelated = probeHashFile(fullProbeNames(), FULL_PROBE_ENTRIES);
+    expect(isFullProbe(hashedProbe(unrelated, "unreviewed"))).toBe(false);
+    const missing = hashedProbe(file, "missing a reviewed hash");
+    const withoutOne = new Set(missing.hashes);
+    withoutOne.delete(reviewedProbeWith().hashes[0]);
+    expect(isFullProbe({ ...missing, hashes: withoutOne })).toBe(false);
+    const padded = loadProbeNames(
+      probeFile(FULL_PROBE_ENTRIES - loadProbeNames().entryCount),
+    );
+    expect(padded.entryCount).toBe(FULL_PROBE_ENTRIES);
+    expect(isFullProbe(padded)).toBe(false);
+    expect(probeHashHit("Synthetic-PROBE/entity 007", padded)).toBe(true);
     // D-175: the count is the notice's stated number of Tribes, not its paragraphs.
     expect(file.entryCount).toBe(FULL_PROBE_ENTRIES);
     expect(loadProbeNames(probeFile()).entryCount).toBeGreaterThanOrEqual(
@@ -484,7 +527,23 @@ describe("hashed Nation-name probes (decision 10)", () => {
       expect(text.toLowerCase()).not.toContain(base.toLowerCase());
   });
 
-  it("refuses a list inside the repository and a short list", () => {
+  it("protects the input notice against direct and hard-linked output collisions before parsing", () => {
+    const dir = tempDir();
+    const notice = join(dir, "notice.html");
+    const alias = join(dir, "alias.json");
+    writeFileSync(notice, "synthetic input, deliberately unparseable");
+    linkSync(notice, alias);
+    for (const out of [notice, alias]) {
+      const result = make("--nation-names", notice, "--out", out);
+      expect(result.status).toBe(2);
+      expect(result.stderr).toMatch(/refer to the same file; nothing written/);
+      expect(readFileSync(out, "utf8")).toBe(
+        "synthetic input, deliberately unparseable",
+      );
+    }
+  });
+
+  it("refuses a list inside the repository and unreviewed lists regardless of their size", () => {
     const inside = make(
       "--nation-names",
       "fixtures/sources/bia/recognition-structure.html",
@@ -492,9 +551,13 @@ describe("hashed Nation-name probes (decision 10)", () => {
     expect(inside.status).toBe(2);
     expect(inside.stderr).toMatch(/outside the repository/);
     const out = join(tempDir(), "short.json");
-    const short = make("--nation-names", probeFile(0), "--out", out);
-    expect(short.status).toBe(1);
-    expect(short.stderr).toMatch(/not the full list of 575; nothing written/);
+    for (const size of [0, 575]) {
+      const short = make("--nation-names", probeFile(size), "--out", out);
+      expect(short.status).toBe(1);
+      expect(short.stderr).toMatch(
+        /Recognition inventory verification failed; nothing written/,
+      );
+    }
     expect(() => readFileSync(out)).toThrow();
   });
 

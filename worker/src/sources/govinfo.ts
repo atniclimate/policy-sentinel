@@ -12,6 +12,7 @@ import type {
 } from "../../../src/demo/types";
 import {
   DemoError,
+  badUpstream,
   cleanText,
   frMatchKey,
   isoDate,
@@ -28,7 +29,7 @@ import type { Env } from "./shared";
 
 export const HOSTS: readonly string[] = ["api.govinfo.gov"];
 
-async function searchGovInfo(
+export async function search(
   env: Env,
   criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
@@ -71,9 +72,16 @@ async function searchGovInfo(
       ? row.governmentAuthor.map((name) => cleanText(name, 160))
       : [cleanText(row.governmentAuthor, 160)];
     const title = requiredText(row.title, 400);
-    const kind = cleanText(row.collectionCode, 40) || "Document";
+    const collection = cleanText(row.collectionCode, 40).toUpperCase();
+    const prefix = /^([A-Z]+)-/i.exec(packageId)?.[1].toUpperCase();
     // A court row's caption gets the same guard as the court cases source.
-    const isCase = kind === "USCOURTS" || kind === "USREPORTS";
+    const isCase = [collection, prefix].some(
+      (code) => code === "USCOURTS" || code === "USREPORTS",
+    );
+    if (isCase && collection && prefix && prefix !== collection)
+      throw badUpstream();
+    const kind = collection || (isCase && prefix) || "Document";
+    const issued = isoDate(row.dateIssued);
     return {
       sourceId: "govinfo",
       identifier: id,
@@ -81,7 +89,7 @@ async function searchGovInfo(
       issuingBody:
         authors.filter(Boolean).join("; ").slice(0, 160) || "Not stated",
       kind,
-      date: isoDate(row.dateIssued),
+      date: kind === "USREPORTS" && id !== packageId ? null : issued,
       officialUrl: `https://www.govinfo.gov/app/details/${id}`,
       textUrl: null,
       retrievedAt,
@@ -120,11 +128,4 @@ async function searchGovInfo(
               }
             : { kind: "stopped", reason: "unknown" },
   };
-}
-
-export async function search(
-  env: Env,
-  criteria: DemoSearchCriteria,
-): Promise<DemoSearchResponse> {
-  return searchGovInfo(env, criteria);
 }

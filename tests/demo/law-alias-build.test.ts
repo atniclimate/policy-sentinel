@@ -722,10 +722,10 @@ describe("the command line", () => {
           "--reviewed-on",
           REVIEWED_ON,
         ],
-        { log, probe: { source: "test", names: [], entryCount: 3 } },
+        { log, probe: { source: "test", names: [], entryCount: 575 } },
       );
       expect(result.exitCode).toBe(2);
-      expect(lines.join("\n")).toMatch(/not the full list of 575/);
+      expect(lines.join("\n")).toMatch(/reviewed 575-Nation inventory/);
       expect(existsSync(join(dir, "out"))).toBe(false);
     } finally {
       rmSync(dir, { recursive: true, force: true });

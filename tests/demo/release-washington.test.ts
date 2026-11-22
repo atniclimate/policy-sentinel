@@ -108,6 +108,8 @@ describe("Washington release check: live Worker answers", () => {
   });
 
   it("a bare bill number reads the session in progress on the check date", () => {
+    expect(currentBiennium(new Date("2027-01-01T07:59:59Z"))).toBe("2025-26");
+    expect(currentBiennium(new Date("2027-01-01T08:00:00Z"))).toBe("2027-28");
     expect(currentBiennium(new Date("2026-11-19T03:53:00Z"))).toBe("2025-26");
     expect(
       parseWashingtonQuery("HB 1100", new Date("2026-11-19T03:53:00Z"))

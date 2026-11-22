@@ -56,18 +56,14 @@ const STAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/;
 
 function lastModifiedOf(value: unknown): { lastModified?: string } {
   if (value === undefined || value === null) return {};
-  if (typeof value !== "string" || !STAMP.test(value)) throw badUpstream();
+  if (
+    typeof value !== "string" ||
+    !STAMP.test(value) ||
+    !Number.isFinite(Date.parse(value)) ||
+    new Date(value).toISOString().slice(0, 19) !== value.slice(0, 19)
+  )
+    throw badUpstream();
   return { lastModified: value };
-}
-
-/**
- * A U.S. Reports granule's dateIssued is the volume's date (live: 443 U.S. 658,
- * decided 1979, states 1981-01-01), not the decision date. It is kept only when
- * the title's own "(YYYY)" confirms it; otherwise the row says no date is stated.
- */
-function decisionYearMatches(title: string, issued: string | null): boolean {
-  const year = /\((\d{4})\)\s*$/.exec(title)?.[1];
-  return !!year && !!issued && issued.startsWith(year);
 }
 
 function caseRow(
@@ -92,10 +88,8 @@ function caseRow(
     title: caseNameShown(title) ? title : withheldTitle(fields.withheldAs),
     issuingBody: fields.issuingBody,
     kind: fields.kind,
-    date:
-      fields.kind === "USREPORTS" && !decisionYearMatches(title, issued)
-        ? null
-        : issued,
+    // GovInfo supplies the volume's issue date for U.S. Reports granules.
+    date: fields.kind === "USREPORTS" ? null : issued,
     officialUrl: fields.officialUrl,
     textUrl: null,
     retrievedAt,
@@ -205,7 +199,11 @@ async function searchWords(
   for (const value of rows) {
     const row = uscourtsRow(record(value), retrievedAt);
     // Granules of one package are one case.
-    if (row && !results.some((r) => r.identifier === row.identifier))
+    if (
+      row &&
+      (court === null || row.court === court) &&
+      !results.some((r) => r.identifier === row.identifier)
+    )
       results.push(row);
   }
   return answer(
@@ -225,12 +223,19 @@ async function searchWords(
 async function lookupDocket(
   env: Env,
   criteria: DemoSearchCriteria,
+  court: CourtCode | null,
 ): Promise<DemoSearchResponse> {
   const reading = courtDocketReading(criteria.query);
   if (!reading)
     throw new DemoError(
       "bad_query",
       "A docket number needs its court code, such as ca9 99-12345.",
+      400,
+    );
+  if (court !== null && court !== reading.court)
+    throw new DemoError(
+      "bad_query",
+      "The court does not match the docket.",
       400,
     );
   const row = await cachedJson(
@@ -325,7 +330,10 @@ export async function search(
   if (court !== null && !isCourtCode(court))
     throw new DemoError("bad_query", COURTS.courtNotCovered, 400);
   if (criteria.match === "text") return searchWords(env, criteria, court);
-  if (criteria.match === "court_docket") return lookupDocket(env, criteria);
+  if (criteria.match === "court_docket")
+    return lookupDocket(env, criteria, court);
+  if (court !== null)
+    throw new DemoError("bad_query", "This lookup takes no court filter.", 400);
   if (criteria.match === "us_reports") return lookupUsReports(env, criteria);
   throw new DemoError(
     "unsupported_criteria",

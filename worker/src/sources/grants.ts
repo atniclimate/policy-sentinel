@@ -1,5 +1,6 @@
 /** Grants.gov search; the opportunity read (authority passage) is in grants-detail.ts. */
 import { decodeEntities } from "../../../src/demo/grants-authority";
+import { isOpportunityId } from "./grants-detail";
 import { plainSourceText } from "../../../src/demo/search-contract";
 import type {
   DemoCitation,
@@ -45,10 +46,10 @@ function grantsCitation(
   eligibility: DemoEligibility | null,
 ): DemoCitation {
   const hit = record(value);
-  if (typeof hit.id !== "string" || !/^\d{1,12}$/.test(hit.id))
+  if (typeof hit.id !== "string" || !isOpportunityId(hit.id))
     throw badUpstream();
   if (!plainSourceText(hit.number, 100)) throw badUpstream();
-  const closes = grantsDate(hit.closeDate);
+  const closes = hit.docType === "synopsis" ? grantsDate(hit.closeDate) : null;
   return {
     sourceId: "grants",
     identifier: hit.number,
@@ -71,13 +72,13 @@ function grantsCitation(
     matchKey: null,
     // An empty closeDate stays absent: never read as no deadline. A forecast's
     // date is an estimate, so it is never shown as the date applications close.
-    ...(closes !== null &&
-      hit.docType !== "forecast" && { applicationsCloseOn: closes }),
+    ...(closes !== null && { applicationsCloseOn: closes }),
     ...(eligibility && { listedEligibility: eligibility }),
   };
 }
 
-async function searchGrants(
+export async function search(
+  _env: Env,
   criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
   const { query, page } = criteria;
@@ -128,11 +129,4 @@ async function searchGrants(
     criteria,
     continuation: numericContinuation(criteria, total, results.length),
   };
-}
-
-export async function search(
-  _env: Env,
-  criteria: DemoSearchCriteria,
-): Promise<DemoSearchResponse> {
-  return searchGrants(criteria);
 }

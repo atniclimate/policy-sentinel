@@ -72,8 +72,7 @@ const COPY: Record<
   },
 };
 
-// Precision and recall measured against Jev judgments on 45 Federal Register
-// rules (scripts/dev-ai/audit-rules.mjs, 2026-10-23); Jev never runs here.
+// Match consultation language in the source passage.
 const CONSULT =
   /\bconsult(?:ation|ations|ed|ing|s)?\b|government-to-government|\btribal implications\b|\b(?:E\.?O\.?|Executive Order)\s*13175\b|\bcoordinat(?:e|es|ed|ing|ion)\s+with\s+(?:[\w-]+\s+){0,3}?(?:Indian\s+)?(?:Tribes?|Tribal)\b|\bTribal\s+(?:coordination|engagement|review process)\b|\bpreempts?\s+tribal\s+law\b|\bsubstantial direct (?:compliance costs|effects?) on (?:[\w-]+\s+){0,3}?(?:Indian\s+)?(?:Tribes?|Tribal governments?)\b/gi;
 const CONSULTING_BUSINESS =

@@ -17,7 +17,10 @@ export function listZipEntries(buffer) {
   const floor = Math.max(0, buffer.length - 22 - 0xffff);
   let end = -1;
   for (let i = buffer.length - 22; i >= floor; i -= 1)
-    if (buffer.readUInt32LE(i) === EOCD) {
+    if (
+      buffer.readUInt32LE(i) === EOCD &&
+      i + 22 + buffer.readUInt16LE(i + 20) === buffer.length
+    ) {
       end = i;
       break;
     }
@@ -27,10 +30,11 @@ export function listZipEntries(buffer) {
   let at = buffer.readUInt32LE(end + 16);
   if (count > ZIP_LIMITS.maxEntries)
     throw new Error("zip has too many entries");
-  if (at + size > end) throw new Error("zip central directory out of range");
+  const directoryEnd = at + size;
+  if (directoryEnd > end) throw new Error("zip central directory out of range");
   const entries = [];
   for (let n = 0; n < count; n += 1) {
-    if (at + 46 > end || buffer.readUInt32LE(at) !== CENTRAL)
+    if (at + 46 > directoryEnd || buffer.readUInt32LE(at) !== CENTRAL)
       throw new Error("zip central directory is malformed");
     const flags = buffer.readUInt16LE(at + 8);
     const method = buffer.readUInt16LE(at + 10);
@@ -41,6 +45,9 @@ export function listZipEntries(buffer) {
     const extraLength = buffer.readUInt16LE(at + 30);
     const commentLength = buffer.readUInt16LE(at + 32);
     const offset = buffer.readUInt32LE(at + 42);
+    const next = at + 46 + nameLength + extraLength + commentLength;
+    if (next > directoryEnd)
+      throw new Error("zip directory entry is truncated");
     const name = buffer.toString("utf8", at + 46, at + 46 + nameLength);
     if (flags & 1) throw new Error("zip entry is encrypted");
     if (
@@ -57,7 +64,7 @@ export function listZipEntries(buffer) {
       crc,
       offset,
     });
-    at += 46 + nameLength + extraLength + commentLength;
+    at = next;
   }
   return entries;
 }
@@ -75,8 +82,11 @@ export function readZipEntry(buffer, entry) {
   if (data.length !== entry.compressedSize)
     throw new Error("zip entry is truncated");
   let bytes;
-  if (entry.method === 0) bytes = Buffer.from(data);
-  else if (entry.method === 8)
+  if (entry.method === 0) {
+    if (entry.compressedSize !== entry.size)
+      throw new Error("zip entry size mismatch");
+    bytes = Buffer.from(data);
+  } else if (entry.method === 8)
     bytes = inflateRawSync(data, { maxOutputLength: entry.size + 1 });
   else throw new Error(`zip method ${entry.method} is not supported`);
   if (bytes.length !== entry.size) throw new Error("zip entry size mismatch");

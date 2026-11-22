@@ -13,8 +13,8 @@
      file) names section 1954 of this title. Dropped: editorialNotes, element
      ids and style attributes. Synthetic: the chapter wrapper, and s472 and
      s1914 are carried under title 42's document so one small file holds all
-     three real shapes; buildUslmShard does not check a section's title
-     segment against the document title. -->
+     three real shapes. Tests use the combined file to check rejection of
+     mixed titles and replay the excerpts separately for valid inputs. -->
 <uscDoc identifier="/us/usc/t42" xmlns="http://xml.house.gov/schemas/uslm/1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/">
 <meta>
   <dc:title>Title 42</dc:title>

@@ -1,7 +1,7 @@
 // The search box combobox (design section 2, T1.2): WAI-ARIA 1.2 list
 // autocomplete with focus kept on the input, suggestions from the router and
 // static vocabularies only, and the box's one submit path.
-import { cleanup, render, screen } from "@testing-library/preact";
+import { cleanup, fireEvent, render, screen } from "@testing-library/preact";
 import userEvent from "@testing-library/user-event";
 import axe from "axe-core";
 import { useState } from "preact/hooks";
@@ -223,6 +223,18 @@ describe("search combobox", () => {
     await user.keyboard("{Escape}{ArrowUp}");
     expect(box).toHaveAttribute("aria-expanded", "true");
     expect(box).toHaveAttribute("aria-activedescendant", "q-option-1");
+  });
+
+  it("leaves the composition editor in control of arrow, Enter and Escape keys", async () => {
+    const { user, box, onSubmit, onChoose } = setup();
+    await user.type(box, "HB 2100");
+    await user.keyboard("{ArrowDown}");
+    for (const key of ["ArrowDown", "Enter", "Escape"]) {
+      expect(fireEvent.keyDown(box, { key, isComposing: true })).toBe(true);
+    }
+    expect(box).toHaveAttribute("aria-activedescendant", "q-option-0");
+    expect(onChoose).not.toHaveBeenCalled();
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   it("runs the chosen reading through the form's submit path with its identifier", async () => {

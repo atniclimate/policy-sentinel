@@ -98,7 +98,7 @@ export interface CfrAuthorityShard {
   editionYear: number;
   /** The edition's own wording verbatim, such as "Revised as of April 1, 2025". */
   revisedAsOfText: string;
-  /** Named volumes when only some volumes of the title are included; null for the whole title. */
+  /** Volume numbers read. Older whole-title shards may carry null. */
   volumes: number[] | null;
   partsExpected: number;
   partsReserved: number;

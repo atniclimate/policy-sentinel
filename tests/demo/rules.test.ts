@@ -243,8 +243,7 @@ it("retains distinct references beyond the first quote window", () => {
   expect(found[1].quote).toContain("42 U.S.C. 7401");
 });
 
-// Sentences from Federal Register rules that the 2026-10-23 Jev audit judged
-// (scripts/dev-ai/audit-rules.mjs). Each case is a regression for one finding.
+// Each Federal Register passage below exercises a distinct issue-matching case.
 describe("rule audit regressions (demo-rules-1.1.0)", () => {
   const typesOf = (text: string) =>
     new Set(

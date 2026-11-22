@@ -1,5 +1,7 @@
 import type { DemoCitation } from "./types";
 import { keyOf } from "./validation";
+import { CONGRESS_REFERENCE } from "./congress-reference.ts";
+export { CONGRESS_REFERENCE } from "./congress-reference.ts";
 
 /**
  * Which record to show when several federal sources list the same document,
@@ -13,10 +15,6 @@ export const FEDERAL_PRECEDENCE: readonly string[] = [
   "regulations",
   "congress",
 ];
-
-/** One bill reference: type, number, Congress. The Worker reads the three groups. */
-export const CONGRESS_REFERENCE =
-  /^\s*(hr|s|hjres|sjres|hconres|sconres|hres|sres)\s*(\d{1,5})\s+(\d{2,3})\s*$/i;
 
 export interface SourceResults {
   readonly sourceId: string;

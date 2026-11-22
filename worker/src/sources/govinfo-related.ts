@@ -31,8 +31,6 @@ export const HOSTS: readonly string[] = ["api.govinfo.gov"];
 
 const ACCESS_ID = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$/;
 const COLLECTION = /^[A-Z]{2,12}$/;
-/** Records shown per press; the total the source lists is stated beside them. */
-export const MAX_RELATED = 20;
 
 function checkInput(accessId: string): void {
   if (!ACCESS_ID.test(accessId))
@@ -56,7 +54,7 @@ async function fetchRelated(env: Env, path: string): Promise<unknown | null> {
       "upstream_error",
       `GovInfo answered with status ${response.status}.`,
     );
-  return parseJson(bytes);
+  return record(parseJson(bytes));
 }
 
 function list(value: unknown, max: number): unknown[] {

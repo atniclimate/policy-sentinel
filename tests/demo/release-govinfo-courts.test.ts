@@ -3,7 +3,7 @@
 // the live shape; stubbed fetch only, no live call.
 // Live finding: a U.S. Reports granule's dateIssued is the volume's date (443
 // U.S. 658, decided 1979, stated 1981-01-01), which the page would have shown as
-// "Date issued". The row now keeps it only when the title's "(YYYY)" confirms it.
+// "Date issued". The case row omits the volume date even in the same year.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { courtDocketReading } from "../../src/demo/courts";
 import type {
@@ -97,14 +97,14 @@ describe("U.S. Reports date (volume date is not the decision date)", () => {
     expect((await lookup()).results[0].date).toBeNull();
   });
 
-  it("keeps the date when the title's year confirms it", async () => {
+  it("drops the volume date even when the title states the same year", async () => {
     serve(
       granule(
         "Example State v. Example Agency, 199 U.S. 42 (2099)",
         "2099-06-01",
       ),
     );
-    expect((await lookup()).results[0].date).toBe("2099-06-01");
+    expect((await lookup()).results[0].date).toBeNull();
   });
 
   it("still fails closed on a malformed date", async () => {

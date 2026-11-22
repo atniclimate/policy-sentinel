@@ -7,7 +7,7 @@ const pkg = JSON.parse(
 ) as { version: string };
 
 // The live demo builds straight into docs/, which GitHub Pages serves from main.
-// emptyOutDir stays false: docs/ also holds the project's Markdown records.
+// Keep the reviewed index and source notes when rebuilding the hashed assets.
 export default defineConfig({
   root: "demo",
   base: "./",

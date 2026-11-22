@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { analyzePolicy, ENGINE_INFO } from "../../src/demo/analyze";
 import { isCongressReference } from "../../src/demo/merge";
+import { searchValue } from "../../src/demo/validation";
 import {
   MAX_CONTINUATION_LENGTH,
   nextSearchCursor,
@@ -150,6 +151,24 @@ describe("worker access rules", () => {
     expect(pulled).toBeLessThanOrEqual(2);
   });
 
+  it("rejects an interrupted search body as a client error and releases the reader", async () => {
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.error(new Error("request interrupted"));
+      },
+    });
+    const request = new Request("https://demo.example/api/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Origin: ORIGIN },
+      body,
+      duplex: "half",
+    } as RequestInit);
+    const res = await worker.fetch(request, {});
+    expect(res.status).toBe(400);
+    expect(await res.json()).toMatchObject({ error: "bad_query" });
+    expect(body.locked).toBe(false);
+  });
+
   it("fetches only exact allowlisted official hosts, over https", async () => {
     installFetch({});
     await expect(officialFetch("https://example.com/x")).rejects.toMatchObject({
@@ -244,6 +263,16 @@ describe("worker access rules", () => {
 });
 
 describe("sources", () => {
+  it("describes the grant synopsis read in the current catalog", async () => {
+    const body = await (await call("/api/sources?version=2")).json();
+    expect(body.sources).toContainEqual(
+      expect.objectContaining({
+        id: "grants",
+        note: expect.stringContaining("stated authority passage"),
+      }),
+    );
+  });
+
   it("marks keyed sources pending without a key and live with one", () => {
     const pending = sourceList({});
     expect(pending.find((s) => s.id === "govinfo")?.status).toBe("key_pending");
@@ -628,46 +657,54 @@ describe("upstream validation and identity", () => {
     });
   });
 
-  it("shows a court case name as GovInfo gives it and withholds only a personal-guard match, as the court cases source does", async () => {
-    const court = { collectionCode: "USCOURTS", dateIssued: "2099-03-04" };
-    installFetch({
-      "api.govinfo.gov": () =>
-        reply({
-          count: 3,
-          results: [
-            {
-              ...court,
-              title: "Sampleperson v. Example County",
-              packageId: "USCOURTS-wawd-2_99-cv-00123",
-            },
-            {
-              ...court,
-              title: "Example County v. United States",
-              packageId: "USCOURTS-ca9-99-12345",
-            },
-            {
-              collectionCode: "USREPORTS",
-              title: "Example State v. Mr. Sampleperson",
-              packageId: "USREPORTS-199",
-              granuleId: "USREPORTS-199-42",
-            },
-          ],
-        }),
-    });
-    const res = await call(
-      "/api/search?source=govinfo&q=collection%3AUSCOURTS%20AND%20(water)",
-      { DATA_GOV_API_KEY: "synthetic-key" },
-    );
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.results.map((r: { title: string }) => r.title)).toEqual([
-      // D-160: shown, people named in it included.
-      "Sampleperson v. Example County",
-      "Example County v. United States",
-      "Case name not shown (USREPORTS-199/USREPORTS-199-42)",
-    ]);
-    expect(JSON.stringify(body)).not.toContain("Mr. Sampleperson");
-  });
+  it.each([undefined, "FR", "USREPORTS"])(
+    "guards court packages even with collection code %s",
+    async (collectionCode) => {
+      const court = { collectionCode: "USCOURTS", dateIssued: "2099-03-04" };
+      installFetch({
+        "api.govinfo.gov": () =>
+          reply({
+            count: 3,
+            results: [
+              {
+                ...court,
+                title: "Sampleperson v. Example County",
+                packageId: "USCOURTS-wawd-2_99-cv-00123",
+              },
+              {
+                ...court,
+                title: "Example County v. United States",
+                packageId: "USCOURTS-ca9-99-12345",
+              },
+              {
+                collectionCode,
+                title: "Example State v. Mr. Sampleperson",
+                packageId: "USREPORTS-199",
+                granuleId: "USREPORTS-199-42",
+              },
+            ],
+          }),
+      });
+      const res = await call(
+        "/api/search?source=govinfo&q=collection%3AUSCOURTS%20AND%20(water)",
+        { DATA_GOV_API_KEY: "synthetic-key" },
+      );
+      if (collectionCode === "FR") {
+        expect(res.status).toBe(502);
+        expect(await res.json()).toMatchObject({ error: "bad_upstream" });
+        return;
+      }
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.results.map((r: { title: string }) => r.title)).toEqual([
+        // D-160: shown, people named in it included.
+        "Sampleperson v. Example County",
+        "Example County v. United States",
+        "Case name not shown (USREPORTS-199/USREPORTS-199-42)",
+      ]);
+      expect(JSON.stringify(body)).not.toContain("Mr. Sampleperson");
+    },
+  );
 
   it.each([
     ["govinfo", "example", "api.govinfo.gov", {}],
@@ -1138,7 +1175,7 @@ describe("search contract v1 stays byte-identical", () => {
     continuation: { kind: "stopped", reason: "complete" },
   });
   const FR_V1_UPSTREAM =
-    "https://www.federalregister.gov/api/v1/documents.json?conditions%5Bterm%5D=salmon+habitat&per_page=10&page=1&order=relevance&fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=type&fields%5B%5D=agencies&fields%5B%5D=publication_date&fields%5B%5D=html_url&fields%5B%5D=abstract&fields%5B%5D=citation";
+    "https://www.federalregister.gov/api/v1/documents.json?conditions%5Bterm%5D=salmon+habitat&per_page=10&page=1&order=relevance&fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=type&fields%5B%5D=agencies&fields%5B%5D=publication_date&fields%5B%5D=abstract&fields%5B%5D=citation";
   const REGULATIONS_V1_UPSTREAM =
     "https://api.regulations.gov/v4/documents?filter%5BsearchTerm%5D=water&page%5Bsize%5D=10&page%5Bnumber%5D=1&sort=-postedDate";
 
@@ -1251,7 +1288,6 @@ describe("search contract v2", () => {
       "type",
       "agencies",
       "publication_date",
-      "html_url",
       "abstract",
       "citation",
       "comments_close_on",
@@ -1721,6 +1757,53 @@ describe("executive order search (T1.2, D-177)", () => {
     expect(body.leftOut).toBe(2);
   });
 
+  it("finds the exact order at the end of the requested hundred rows", async () => {
+    installFetch({
+      "documents.json": () =>
+        reply({
+          count: 100,
+          results: [
+            ...Array(98).fill(EO_SEARCH.results[1]),
+            { ...EO_SEARCH.results[0], executive_order_number: ["13175"] },
+            EO_SEARCH.results[0],
+          ],
+        }),
+    });
+    const body = await (await call(v3())).json();
+    expect(body.results).toHaveLength(1);
+    expect(body.leftOut).toBe(99);
+  });
+
+  it("keeps completeness unknown when the source omits the count", async () => {
+    installFetch({
+      "documents.json": () => reply({ results: [] }),
+    });
+    const body = await (await call(v3())).json();
+    expect(body.continuation).toEqual({ kind: "stopped", reason: "unknown" });
+  });
+
+  it("accepts more than ten distinct source documents stating the order number", async () => {
+    installFetch({
+      "documents.json": () =>
+        reply({
+          count: 11,
+          results: Array.from({ length: 11 }, (_, i) => ({
+            ...EO_SEARCH.results[0],
+            document_number: `2099-${10000 + i}`,
+          })),
+        }),
+    });
+    const body = await (await call(v3())).json();
+    const answer = searchValue(body, "federal-register", "E.O. 13175", 1, {
+      dateFrom: null,
+      dateTo: null,
+      continuation: null,
+      version: 3,
+      match: "executive_order",
+    });
+    expect(answer.results).toHaveLength(11);
+  });
+
   it("does not call the answer complete when more orders mention the number than one request read", async () => {
     // The live answer trimmed to three rows had count 9; the fixture's count
     // matches its rows. Here the source reports 150 and the order's own row
@@ -1983,21 +2066,6 @@ describe("exact keyed metadata identities", () => {
     latestAction: { text: "Referred to a committee." },
   };
 
-  it("preserves metadata from the requested Congress bill", async () => {
-    installFetch({ "api.congress.gov": () => reply({ bill }) });
-    const res = await call("/api/search?source=congress&q=hr%201234%20119", {
-      DATA_GOV_API_KEY: "synthetic-key",
-    });
-    expect(res.status).toBe(200);
-    expect((await res.json()).results[0]).toMatchObject({
-      identifier: "HR 1234, 119th Congress",
-      title: bill.title,
-      officialUrl:
-        "https://www.congress.gov/bill/119th-congress/house-bill/1234",
-      date: bill.introducedDate,
-    });
-  });
-
   it.each([
     [101, "101st"],
     [102, "102nd"],
@@ -2007,7 +2075,7 @@ describe("exact keyed metadata identities", () => {
     [113, "113th"],
     [119, "119th"],
   ])(
-    "uses the %s Congress ordinal in the citation and link",
+    "preserves bill metadata and uses the %s Congress ordinal in the citation and link",
     async (congress, ordinal) => {
       installFetch({
         "api.congress.gov": () => reply({ bill: { ...bill, congress } }),
@@ -2019,7 +2087,9 @@ describe("exact keyed metadata identities", () => {
       expect(res.status).toBe(200);
       expect((await res.json()).results[0]).toMatchObject({
         identifier: `HR 1234, ${ordinal} Congress`,
+        title: bill.title,
         officialUrl: `https://www.congress.gov/bill/${ordinal}-congress/house-bill/1234`,
+        date: bill.introducedDate,
       });
       expect(calls).toHaveLength(1);
     },
@@ -2091,6 +2161,8 @@ describe("exact keyed metadata identities", () => {
     ["regulations", ["X".repeat(81)]],
     ["govinfo", ["  SAMPLE-1"]],
     ["regulations", ["SAMPLE-1  "]],
+    ["govinfo", ["."]],
+    ["regulations", [".."]],
     ["govinfo", ["X".repeat(80) + "A", "X".repeat(80) + "B"]],
     ["regulations", ["X".repeat(80) + "A", "X".repeat(80) + "B"]],
   ])(

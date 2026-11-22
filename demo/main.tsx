@@ -49,6 +49,7 @@ import {
   checkBatch,
   checkDates,
   FOLLOW_KEY,
+  fitsFollowFile,
   followId,
   followItem,
   followLookups,
@@ -604,6 +605,7 @@ export function App() {
   // The opened record's chain hop, expansion and Grants.gov read, each tagged
   // with the record key it belongs to, so another record never shows them.
   const [hop, setHop] = useState<(HopResult & { key: string }) | null>(null);
+  const hopSequence = useRef(0);
   const [expansion, setExpansion] = useState<{
     key: string;
     value: ChainExpansion;
@@ -632,6 +634,8 @@ export function App() {
   const savedFollows = useMemo(loadFollows, []);
   const [follows, setFollows] = useState(savedFollows.list);
   const followsRef = useRef(follows);
+  const memoryOnlyFollows = useRef(false);
+  const waitingFollows = useRef<string[]>([]);
   /** Check for new outcomes, by item id. Memory only. */
   const [checks, setChecks] = useState<Record<string, FollowCheck>>({});
   const checking = useRef(false);
@@ -694,14 +698,44 @@ export function App() {
     setReport(next);
   }
 
-  function updateFollows(
+  async function updateFollows(
     update: (current: readonly Followed[]) => readonly Followed[],
   ) {
-    const next = update(followsRef.current);
-    if (next === followsRef.current) return;
-    followsRef.current = next;
-    followsChanged.current = true;
-    setFollows(next);
+    // Every tab reads and changes the shared list under the same origin lock.
+    // If storage or locking is unavailable, keep this tab's edits in memory.
+    const apply = (shared: boolean) => {
+      if (!mounted.current) return;
+      shared = shared && !memoryOnlyFollows.current;
+      let current = followsRef.current;
+      if (shared) {
+        try {
+          current = restoreFollows(
+            window.localStorage.getItem(FOLLOW_KEY),
+          ).list;
+        } catch {
+          shared = false;
+        }
+      }
+      const next = update(current);
+      if (shared && next !== current) {
+        try {
+          window.localStorage.setItem(FOLLOW_KEY, serializeFollows(next));
+        } catch {
+          shared = false;
+        }
+      }
+      if (!shared) {
+        memoryOnlyFollows.current = true;
+        setFollowStorage(COPY.follow.storageSaveFailed);
+      }
+      followsRef.current = next;
+      setFollows(next);
+    };
+    if (!memoryOnlyFollows.current && navigator.locks) {
+      await navigator.locks
+        .request(FOLLOW_KEY, () => apply(true))
+        .catch(() => apply(false));
+    } else apply(false);
   }
 
   async function refreshSources(moveFocus = false) {
@@ -816,17 +850,22 @@ export function App() {
     }
   }, [report]);
 
-  // Not on first render: an unreadable list is not overwritten until the person changes it.
-  const followsChanged = useRef(false);
   useEffect(() => {
-    if (!followsChanged.current) return;
-    try {
-      window.localStorage.setItem(FOLLOW_KEY, serializeFollows(follows));
-      setFollowStorage("");
-    } catch {
-      setFollowStorage(COPY.follow.storageSaveFailed);
-    }
-  }, [follows]);
+    const sync = (event: StorageEvent) => {
+      if (
+        memoryOnlyFollows.current ||
+        (event.key !== FOLLOW_KEY && event.key !== null)
+      )
+        return;
+      const saved = loadFollows();
+      setFollowStorage(saved.notice);
+      if (saved.notice === COPY.follow.storageUnavailable) return;
+      followsRef.current = saved.list;
+      setFollows(saved.list);
+    };
+    window.addEventListener("storage", sync);
+    return () => window.removeEventListener("storage", sync);
+  }, []);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -1456,8 +1495,16 @@ export function App() {
   /** A chain hop pressed in the opened record: its rows or notice join that record's chain. */
   async function openHop(target: ChainLink["target"]) {
     const key = selectedKey.current;
+    const sequence = ++hopSequence.current;
+    setHop(null);
     const answer = await indexHop(target);
-    if (answer && key && mounted.current && selectedKey.current === key)
+    if (
+      answer &&
+      key &&
+      mounted.current &&
+      selectedKey.current === key &&
+      hopSequence.current === sequence
+    )
       setHop({ key, ...answer });
   }
 
@@ -2211,18 +2258,24 @@ export function App() {
 
   function follow(record: DemoCitation, kind: FollowKind, value: string) {
     const item = followItem(record, kind, value, new Date());
-    if (!item || followsRef.current.some((each) => each.id === item.id)) return;
-    if (followsRef.current.length >= MAX_FOLLOWED) {
-      setCitationMessage(COPY.follow.full(MAX_FOLLOWED));
-      showNotes();
-      return;
-    }
-    updateFollows((current) => addFollow(current, item));
-    setCitationMessage(COPY.follow.added(followName(item)));
+    if (!item) return;
+    void updateFollows((current) => {
+      if (current.some((each) => each.id === item.id)) return current;
+      const next = addFollow(current, item);
+      if (next === current) {
+        setCitationMessage(
+          current.length >= MAX_FOLLOWED
+            ? COPY.follow.full(MAX_FOLLOWED)
+            : COPY.follow.tooLarge,
+        );
+        showNotes();
+      } else setCitationMessage(COPY.follow.added(followName(item)));
+      return next;
+    });
   }
 
   function unfollow(item: Followed) {
-    updateFollows((current) => removeFollow(current, item.id));
+    void updateFollows((current) => removeFollow(current, item.id));
     setChecks((current) => {
       const next = { ...current };
       delete next[item.id];
@@ -2247,7 +2300,12 @@ export function App() {
     }
     checking.current = true;
     const now = new Date();
-    const { now: batch, later } = checkBatch(list, AUTO_REQUEST_BUDGET);
+    const { now: batch, later } = checkBatch(
+      list,
+      AUTO_REQUEST_BUDGET,
+      waitingFollows.current,
+    );
+    waitingFollows.current = later.map((item) => item.id);
     const mark = (items: readonly Followed[], check: FollowCheck) =>
       Object.fromEntries(items.map((item) => [item.id, check]));
     setChecks((current) => ({
@@ -2281,11 +2339,32 @@ export function App() {
           const settled = settleCheck(item, answers, now);
           if (settled.check.state === "unavailable") unavailable++;
           // An item removed while it was checked stays removed.
-          if (!followsRef.current.some((each) => each.id === item.id)) return;
-          updateFollows((current) =>
-            current.map((each) => (each.id === item.id ? settled.item : each)),
-          );
-          setChecks((current) => ({ ...current, [item.id]: settled.check }));
+          await updateFollows((current) => {
+            const existing = current.find((each) => each.id === item.id);
+            if (
+              !existing ||
+              existing.followedAt !== item.followedAt ||
+              (existing.lastChecked ?? "") > now.toISOString()
+            ) {
+              setChecks((previous) => {
+                const next = { ...previous };
+                delete next[item.id];
+                return next;
+              });
+              return current;
+            }
+            setChecks((previous) => ({
+              ...previous,
+              [item.id]: settled.check,
+            }));
+            return settled.item === item
+              ? current
+              : current.map((each) =>
+                  each === existing
+                    ? { ...each, lastChecked: settled.item.lastChecked }
+                    : each,
+                );
+          });
         }),
       );
     } finally {
@@ -2302,6 +2381,10 @@ export function App() {
       setFollowMessage(COPY.follow.none);
       return;
     }
+    if (!fitsFollowFile(followsRef.current)) {
+      setFollowMessage(COPY.follow.tooLarge);
+      return;
+    }
     downloadFollows(followsRef.current);
     setFollowMessage(COPY.follow.exportDone);
   }
@@ -2310,29 +2393,40 @@ export function App() {
   async function importFile(input: HTMLInputElement) {
     const file = input.files?.[0];
     if (!file) return;
-    let result: ReturnType<typeof importFollows> = null;
+    let raw: string | null = null;
     try {
       // A file past the limit is refused unread.
       if (file.size <= MAX_FOLLOW_FILE) {
-        const raw = await file.text();
-        result = importFollows(followsRef.current, raw);
+        raw = await file.text();
       }
     } catch {
-      result = null;
+      raw = null;
     } finally {
       // The same file can be chosen again.
       input.value = "";
     }
     if (!mounted.current) return;
-    if (!result) {
+    if (raw === null) {
       setFollowMessage(COPY.follow.importRejected);
       return;
     }
-    const { list, added, already, dropped } = result;
-    updateFollows(() => list);
-    setFollowMessage(
-      COPY.follow.importDone(added, already, dropped, MAX_FOLLOWED),
-    );
+    const imported = raw;
+    await updateFollows((current) => {
+      const result = importFollows(current, imported);
+      if (!result) {
+        setFollowMessage(COPY.follow.importRejected);
+        return current;
+      }
+      setFollowMessage(
+        COPY.follow.importDone(
+          result.added,
+          result.already,
+          result.dropped,
+          MAX_FOLLOWED,
+        ),
+      );
+      return result.list;
+    });
   }
 
   function switchTheme() {
@@ -2364,10 +2458,13 @@ export function App() {
   }
 
   const citedEntries = Object.entries(cited);
-  // Saved rows first, then listed ones; each document goes in once.
+  // Include each source observation so the newest one determines the deadline.
   const calendarSource = calendarRows([
-    ...citedEntries.map(([, entry]) => entry.citation),
-    ...(found?.rows ?? []).map((row) => row.citation),
+    ...citedEntries.flatMap(([, entry]) => [
+      entry.citation,
+      ...entry.alternates,
+    ]),
+    ...(found?.rows ?? []).flatMap((row) => [row.citation, ...row.alternates]),
   ]);
   const checkBusy = Object.values(checks).some(
     (check) => check.state === "checking",
@@ -3201,6 +3298,27 @@ export function App() {
               off={!usable || samePendingSearch}
               criteria={
                 <>
+                  <div class="help">
+                    <span role="status">
+                      {narrowing &&
+                        (scope === "state"
+                          ? COPY.narrowingStateScope(narrowing)
+                          : COPY.narrowingSet(narrowing))}
+                    </span>{" "}
+                    {narrowing && (
+                      <button
+                        type="button"
+                        class="btn"
+                        aria-label={COPY.removeNarrowingLabel}
+                        onClick={() => {
+                          setNarrowing(null);
+                          document.getElementById("q")?.focus();
+                        }}
+                      >
+                        {COPY.removeNarrowing}
+                      </button>
+                    )}
+                  </div>
                   {scope === "federal" ? (
                     <fieldset class="date-range">
                       <legend class="field">{COPY.dateRangeTitle}</legend>
@@ -3292,21 +3410,6 @@ export function App() {
                         {COPY.grants.filterHelp} {COPY.grants.limit}
                       </p>
                     </>
-                  )}
-                  {narrowing && (
-                    <p class="help">
-                      {scope === "state"
-                        ? COPY.narrowingStateScope(narrowing)
-                        : COPY.narrowingSet(narrowing)}{" "}
-                      <button
-                        type="button"
-                        class="btn"
-                        aria-label={COPY.removeNarrowingLabel}
-                        onClick={() => setNarrowing(null)}
-                      >
-                        {COPY.removeNarrowing}
-                      </button>
-                    </p>
                   )}
                 </>
               }

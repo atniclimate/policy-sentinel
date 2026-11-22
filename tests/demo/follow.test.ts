@@ -236,6 +236,77 @@ describe("following a docket, a RIN or a document", () => {
     expect(restoreFollows("{")).toEqual({ list: [], restored: "failed" });
   });
 
+  it("checks waiting follows on the next press even when every earlier lookup failed", () => {
+    const follows = Array.from({ length: 11 }, (_, index) => {
+      const id = `2099-${String(index).padStart(5, "0")}`;
+      const record = { ...statedCitation(id), docketIds: [id] };
+      return followItem(record, "docket", id, FOLLOWED)!;
+    });
+    const first = checkBatch(follows, 10);
+    expect(first.later).toEqual([follows[10]]);
+    const failed = first.now.map(
+      (item) =>
+        settleCheck(item, [{ ok: false, reason: "unavailable" }], NOW).item,
+    );
+    const next = checkBatch(
+      [...failed, ...first.later],
+      10,
+      first.later.map((item) => item.id),
+    );
+    expect(next.now[0]).toBe(follows[10]);
+    expect(failed.every((item) => item.lastChecked === null)).toBe(true);
+  });
+
+  it("round-trips merged imports and recovers older oversized storage with unused summaries", () => {
+    const follows = Array.from({ length: 50 }, (_, index) => {
+      const id = `2099-${String(index).padStart(5, "0")}`;
+      const record = statedCitation(id);
+      const item = followItem(record, "document", record.identifier, FOLLOWED)!;
+      return {
+        ...item,
+        record: { ...item.record, summary: "x".repeat(20_000) },
+      };
+    });
+    const first = importFollows([], serializeFollows(follows.slice(0, 25)))!;
+    const combined = importFollows(
+      first.list,
+      serializeFollows(follows.slice(25)),
+    )!;
+    expect(combined.list).toHaveLength(50);
+    expect(restoreFollows(serializeFollows(combined.list))).toEqual({
+      list: combined.list,
+      restored: "ok",
+    });
+    expect(restoreFollows(serializeFollows(follows)).list).toEqual(
+      combined.list,
+    );
+    expect(combined.list.every((item) => item.record.summary === null)).toBe(
+      true,
+    );
+  });
+
+  it("refuses a merge or addition that would exceed the UTF-8 file limit", () => {
+    const follows = Array.from({ length: 50 }, (_, index) => {
+      const id = `2099-${String(index).padStart(5, "0")}`;
+      const record = {
+        ...statedCitation(id, "文".repeat(4_000)),
+        issuingBody: "文".repeat(4_000),
+      };
+      return followItem(record, "document", record.identifier, FOLLOWED)!;
+    });
+    const first = importFollows([], serializeFollows(follows.slice(0, 25)))!;
+    expect(first.list).toHaveLength(25);
+    expect(
+      importFollows(first.list, serializeFollows(follows.slice(25))),
+    ).toBeNull();
+    const kept = follows.reduce<readonly Followed[]>(
+      (list, item) => addFollow(list, item),
+      [],
+    );
+    expect(kept.length).toBeLessThan(50);
+    expect(importFollows([], serializeFollows(kept))?.list).toEqual(kept);
+  });
+
   it("imports a valid file whole, keeps items already followed, and rejects unknown shapes", () => {
     const item = docket();
     const rin = followItem(statedCitation(), "rin", "0648-AA00", FOLLOWED)!;

@@ -3,7 +3,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
-import { assertArtifactSourceHealthState } from "../src/pipeline/artifact-health.mjs";
+import {
+  assertArtifactSourceHealthState,
+  latestHealthTime,
+} from "../src/pipeline/artifact-health.mjs";
 import { deriveBuildId, sha256Bytes } from "../src/pipeline/hashing.mjs";
 import {
   ARTIFACT_MANIFEST_LIMITS_V1,
@@ -306,15 +309,11 @@ function assertHealth(sourceHealth, sourceRegistry, records) {
       sourceRecords,
       label: "source-health",
     });
-    const expectedDataAsOf = sourceRecords
-      .map((record) => record.sourceHealth.dataAsOf)
-      .sort()
-      .at(-1);
-    const expectedLastSuccessfulRetrievalAt = sourceRecords
-      .map((record) => record.sourceHealth.lastSuccessfulRetrievalAt)
-      .filter((value) => value !== null)
-      .sort()
-      .at(-1);
+    const expectedDataAsOf = latestHealthTime(sourceRecords, "dataAsOf");
+    const expectedLastSuccessfulRetrievalAt = latestHealthTime(
+      sourceRecords,
+      "lastSuccessfulRetrievalAt",
+    );
     if (
       sourceRecords.length > 0 &&
       (health.dataAsOf !== expectedDataAsOf ||
@@ -687,10 +686,7 @@ if (
 const expectedDataAsOf =
   records.length === 0
     ? manifest.generatedAt
-    : records
-        .map((record) => record.sourceHealth.dataAsOf)
-        .sort()
-        .at(-1);
+    : latestHealthTime(records, "dataAsOf");
 if (manifest.dataAsOf !== expectedDataAsOf) {
   throw new Error("manifest data-as-of does not match source records");
 }

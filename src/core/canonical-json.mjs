@@ -26,7 +26,7 @@ function encode(value, key) {
     value = value.toJSON(key);
   if (value === null || typeof value !== "object") return JSON.stringify(value);
   if (Array.isArray(value))
-    return `[${value.map((entry, index) => encode(entry, String(index)) ?? "null").join(",")}]`;
+    return `[${Array.from({ length: value.length }, (_, index) => encode(value[index], String(index)) ?? "null").join(",")}]`;
   const members = [];
   for (const name of Object.keys(value).sort(compareCodeUnits)) {
     const text = encode(value[name], name);
@@ -37,9 +37,13 @@ function encode(value, key) {
 
 /** Freezes a value and everything reachable through its own properties; returns it. */
 export function deepFreeze(value) {
-  if (value !== null && typeof value === "object" && !Object.isFrozen(value)) {
-    Object.freeze(value);
-    for (const nested of Object.values(value)) deepFreeze(nested);
+  const seen = new WeakSet();
+  function visit(node) {
+    if (node === null || typeof node !== "object" || seen.has(node)) return;
+    seen.add(node);
+    Object.freeze(node);
+    for (const nested of Object.values(node)) visit(nested);
   }
+  visit(value);
   return value;
 }

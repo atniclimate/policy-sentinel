@@ -1,7 +1,8 @@
 import type { Nation, PublicRecord, WhyShown } from "./types";
 
 export const neutralizeSpreadsheetFormula = (value: string): string =>
-  /^[\t\r\n ]*[=+\-@]/.test(value) ? `'${value}` : value;
+  // eslint-disable-next-line no-control-regex
+  /^[\s\u0000-\u001f]*[=+@-]/u.test(value) ? `'${value}` : value;
 
 const csvCell = (value: unknown): string => {
   const plain =

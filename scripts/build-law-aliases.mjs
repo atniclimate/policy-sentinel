@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 
 import { compareCodeUnits } from "../src/core/canonical-json.mjs";
+import { calendarDate } from "../src/demo/local-day.ts";
 import { serializeJson, sha256Bytes } from "../src/pipeline/hashing.mjs";
 import {
   ANCHOR_WORD_TITLES,
@@ -16,7 +17,7 @@ import {
   insideRepo,
 } from "./build-vocab.mjs";
 import {
-  FULL_PROBE_ENTRIES,
+  INCOMPLETE_PROBE,
   StageError,
   isFullProbe,
   loadNationProbe,
@@ -60,7 +61,7 @@ export function runBuildLawAliases(argv, deps = {}) {
     !values.table ||
     !values.wanted ||
     !values.out ||
-    !/^\d{4}-\d{2}-\d{2}$/.test(reviewedOn)
+    !calendarDate(reviewedOn)
   ) {
     log(USAGE);
     return { exitCode: 2 };
@@ -73,9 +74,7 @@ export function runBuildLawAliases(argv, deps = {}) {
   // G3: no alias row is built unless names are probed with the full list.
   const probe = deps.probe ?? loadNationProbe();
   if (!isFullProbe(probe)) {
-    log(
-      `the Nation-name probes hold ${probe.entryCount ?? 0} entries, not the full list of ${FULL_PROBE_ENTRIES}; nothing written`,
-    );
+    log(`${INCOMPLETE_PROBE}; nothing written`);
     return { exitCode: 2 };
   }
   const tableBytes = readFileSync(resolve(values.table));

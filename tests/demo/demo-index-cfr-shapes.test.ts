@@ -16,7 +16,7 @@ const { names } = loadProbeNames();
 const build = (...volumes: string[]) =>
   buildCfrShard(
     volumes.map((xml, i) => ({ volume: i + 1, xml })),
-    { title: 25, editionYear: 2025, volumes: null, names },
+    { title: 25, editionYear: 2025, names },
   );
 const base = build(CFR_XML);
 const swap = (from: string, to: string) => {
@@ -25,6 +25,54 @@ const swap = (from: string, to: string) => {
 };
 
 describe("CFR annual edition shapes outside title 25", () => {
+  it("parses each volume before requesting the next one", () => {
+    function* volumes() {
+      yield { volume: 1, xml: "<NotCfr/>" };
+      throw new Error("read past the invalid first volume");
+    }
+    expect(() =>
+      buildCfrShard(volumes(), { title: 25, editionYear: 2025, names }),
+    ).toThrow(/not CFR XML/);
+  });
+
+  it("requires the requested title on every volume's own title page", () => {
+    const marker = "<TITLENUM>Title 25</TITLENUM>";
+    for (const replacement of [
+      "",
+      "<TITLENUM>Title 43</TITLENUM>",
+      "<TITLENUM>Title 25 or 43</TITLENUM>",
+      marker + "<TITLENUM>Title 43</TITLENUM>",
+    ]) {
+      const xml = swap(marker, replacement).replace(
+        "<CHAPTER>",
+        "<CHAPTER>" + marker,
+      );
+      expect(() => build(CFR_XML, xml)).toThrow(/requested CFR title/);
+    }
+    expect(build(swap(marker, "<TITLENUM>25</TITLENUM>")).shard).toEqual(
+      base.shard,
+    );
+  });
+  it("rejects conflicting revision wording on a volume title page", () => {
+    const xml = swap(
+      "</TITLEPG>",
+      "<REVISED>Revised as of April 1, 2024</REVISED></TITLEPG>",
+    );
+    expect(() => build(xml)).toThrow(/one revision date/);
+  });
+  it("identifies the mixed-edition volume before reading the rest of a title", () => {
+    function* volumes() {
+      yield { volume: 8, xml: CFR_XML };
+      yield { volume: 9, xml: swap("2025</REVISED>", "2024</REVISED>") };
+      throw new Error("read beyond the mixed edition");
+    }
+    expect(() =>
+      buildCfrShard(volumes(), { title: 25, editionYear: 2025, names }),
+    ).toThrow(/volume 9 does not state the requested edition year 2025/);
+    expect(() => build(CFR_XML, swap("April 1, 2025", "July 1, 2025"))).toThrow(
+      /volume 2 states a different revision date/,
+    );
+  });
   it("reads a running head printed PT. 2, Pt.2 or Pt 2 as part 2 (36 CFR 1001, 43 CFR 3100 and 3140)", () => {
     for (const head of ["PT. 2", "Pt.2", "Pt 2"])
       expect(

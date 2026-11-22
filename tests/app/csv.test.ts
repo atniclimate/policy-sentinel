@@ -21,12 +21,17 @@ const parseCsvLine = (line: string): string[] =>
   );
 
 describe("CSV output", () => {
-  it.each(["=1+1", "+cmd", "-2+3", "@SUM(A1)", " \t=hidden"])(
-    "neutralizes spreadsheet formula prefix %s",
-    (value) => {
-      expect(neutralizeSpreadsheetFormula(value)).toBe(`'${value}`);
-    },
-  );
+  it.each([
+    "=1+1",
+    "+cmd",
+    "-2+3",
+    "@SUM(A1)",
+    " \t=hidden",
+    "\uFEFF=1",
+    "\u000b+2",
+  ])("neutralizes spreadsheet formula prefix %s", (value) => {
+    expect(neutralizeSpreadsheetFormula(value)).toBe(`'${value}`);
+  });
 
   it("preserves normal official-source text", () => {
     expect(neutralizeSpreadsheetFormula("Official title")).toBe(

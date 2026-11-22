@@ -1,7 +1,7 @@
 // Static index validator (index conditions K2, as adjusted by D-125). Pure
 // reads under one directory; no network. Used by validate-demo-index.mjs, by
 // finish-demo-build.mjs and by the acquisition before it writes anything.
-import { readdirSync, readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { gzipSync } from "node:zlib";
 import Ajv2020 from "ajv/dist/2020.js";
@@ -195,6 +195,12 @@ function checkShard(entry, value, errors, heldOutList) {
   const source = entry.source;
   if (entry.entryCount !== value.entries.length)
     errors.push(`${label}: entryCount differs from entries`);
+  if (
+    value.entries.length === 0 &&
+    (value.artifactType === "vocabulary" ||
+      value.artifactType === "usc-source-credit-shard")
+  )
+    errors.push(`${label}: a present ${value.artifactType} has no entries`);
   const title = Number(/title-(\d+)/.exec(label)?.[1]);
   if (value.artifactType !== "vocabulary" && value.title !== title)
     errors.push(`${label}: title differs from the path`);
@@ -312,8 +318,12 @@ export function validateDemoIndex(dir, options = {}) {
     errors.push("manifest.json is missing");
     return result();
   }
-  const raw = readFileSync(join(dir, "manifest.json"));
-  if (raw.length > CAPS.manifestBytes) errors.push("manifest.json over 64 KiB");
+  const manifestPath = join(dir, "manifest.json");
+  if (statSync(manifestPath).size > CAPS.manifestBytes) {
+    errors.push("manifest.json over 64 KiB");
+    return result();
+  }
+  const raw = readFileSync(manifestPath);
   let manifest;
   try {
     manifest = JSON.parse(raw.toString("utf8"));
@@ -396,21 +406,25 @@ export function validateDemoIndex(dir, options = {}) {
       errors.push(
         `${label}: patternSetVersion is not ${PATTERN_SET_VERSION} (H5)`,
       );
-    const bytes = readFileSync(join(dir, label));
-    totalBytes += bytes.length;
+    const path = join(dir, label);
+    const size = statSync(path).size;
+    const vocab = entry.kind === "vocabulary";
+    totalBytes += size;
+    if (vocab) vocabBytes += size;
+    if (size > (vocab ? CAPS.vocabFileBytes : CAPS.shardBytes)) {
+      errors.push(`${label}: over ${vocab ? "512 KiB" : "1.5 MiB"}`);
+      continue;
+    }
+    if (totalBytes > CAPS.totalBytes) continue;
+    const bytes = readFileSync(path);
     allBuffers.push(bytes);
     if (bytes.length !== entry.sizeBytes)
       errors.push(`${label}: size mismatch`);
     if (sha256Bytes(bytes) !== entry.sha256)
       errors.push(`${label}: hash mismatch`);
-    const vocab = entry.kind === "vocabulary";
     if (vocab) {
-      vocabBytes += bytes.length;
       vocabBuffers.push(bytes);
-      if (bytes.length > CAPS.vocabFileBytes)
-        errors.push(`${label}: over 512 KiB`);
     } else {
-      if (bytes.length > CAPS.shardBytes) errors.push(`${label}: over 1.5 MiB`);
       if (gzipSync(bytes).length > CAPS.shardGzipBytes)
         errors.push(`${label}: over 400 KB gzipped`);
     }

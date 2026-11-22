@@ -19,7 +19,6 @@ import {
 import {
   hashedProbe,
   loadProbeNames,
-  probeHashFile,
 } from "../../scripts/demo-index/common.mjs";
 import {
   fullProbeNames,
@@ -27,6 +26,7 @@ import {
 } from "../support/nation-name-probes";
 import {
   cfrShard,
+  reviewedProbeWith,
   vocabFile,
   writeIndex,
   type FixtureFile,
@@ -174,7 +174,10 @@ describe("generated demo boundary", () => {
     };
     // A full list given as hashes only (decision 10).
     const names = fullProbeNames();
-    const probe = hashedProbe(probeHashFile(names, names.length), "synthetic");
+    const probe = hashedProbe(
+      reviewedProbeWith(names),
+      "reviewed hashes and synthetic additions",
+    );
     it("accepts a manifested shard and counts the index files", () => {
       expect(scanDemoOutput(indexed([shard()]), { probe })).toEqual({
         generatedFiles: 4,
@@ -184,9 +187,7 @@ describe("generated demo boundary", () => {
       const short = loadProbeNames();
       expect(() =>
         scanDemoOutput(indexed([shard()]), { probe: short }),
-      ).toThrow(
-        /1 index files present, but the Nation-name probes hold \d+ entries, not the full list of 575 \(G3\)/,
-      );
+      ).toThrow(/1 index files present; .*reviewed 575-Nation inventory/);
       expect(scanDemoOutput(indexed([]), { probe: short })).toEqual({
         generatedFiles: 3,
       });
@@ -277,6 +278,15 @@ describe("generated demo boundary", () => {
     const notices = "# Third-party notices\r\n\r\nSynthetic, MIT\n";
     writeFileSync(join(repo, "THIRD-PARTY-NOTICES.md"), notices);
     expect(finishDemoBuild(repo)).toEqual({ generatedFiles: 2 });
+    const lazy = "demo-assets/pdf-abcdefgh.js";
+    const obsolete = "demo-assets/pdf-12345678.js";
+    for (const file of [lazy, obsolete])
+      writeFileSync(join(docs, file), "export {};");
+    expect(finishDemoBuild(repo, new Set([lazy]))).toEqual({
+      generatedFiles: 3,
+    });
+    expect(existsSync(join(docs, obsolete))).toBe(false);
+    expect(existsSync(join(docs, lazy))).toBe(true);
     expect(readFileSync(join(docs, "THIRD-PARTY-NOTICES.txt"), "utf8")).toBe(
       notices,
     );

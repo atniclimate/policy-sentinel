@@ -21,7 +21,7 @@ export const FOLLOW_KEY = "ps-demo-following-v1";
  */
 export const FOLLOW_VERSION = 2;
 export const MAX_FOLLOWED = 50;
-/** Far above 50 items with their records; a larger file is refused unread. */
+/** Maximum UTF-8 byte length of an imported or exported file. */
 export const MAX_FOLLOW_FILE = 1_000_000;
 
 const KINDS = ["docket", "rin", "document", "case"] as const;
@@ -119,7 +119,8 @@ export function addFollow(
 ): readonly Followed[] {
   if (list.length >= MAX_FOLLOWED || list.some((each) => each.id === item.id))
     return list;
-  return [...list, item];
+  const next = [...list, item];
+  return fitsFollowFile(next) ? next : list;
 }
 
 export const removeFollow = (list: readonly Followed[], id: string) =>
@@ -164,7 +165,7 @@ function followedValue(value: unknown): Followed {
     sourceId: record.sourceId,
     kind,
     value: stated,
-    record,
+    record: { ...record, summary: null },
     followedAt: instant(v.followedAt),
     lastChecked: v.lastChecked === null ? null : instant(v.lastChecked),
   };
@@ -178,6 +179,16 @@ export function serializeFollows(list: readonly Followed[]): string {
   return JSON.stringify({ version: FOLLOW_VERSION, followed: list }, null, 2);
 }
 
+/** Leave space for each first successful check to replace null with a timestamp. */
+export function fitsFollowFile(list: readonly Followed[]): boolean {
+  const bytes = new TextEncoder().encode(serializeFollows(list)).length;
+  const pending = list.filter((item) => item.lastChecked === null).length;
+  return (
+    bytes + pending * ('"2000-01-01T00:00:00.000Z"'.length - "null".length) <=
+    MAX_FOLLOW_FILE
+  );
+}
+
 /**
  * Throws on an unknown file shape; reports items that did not validate. A
  * version 1 list (today's three kinds, the only ones a v1 writer could ever
@@ -185,7 +196,6 @@ export function serializeFollows(list: readonly Followed[]): string {
  * alone, lossless, with the same items and last-checked dates.
  */
 function readFollows(raw: string): { list: Followed[]; damaged: boolean } {
-  if (raw.length > MAX_FOLLOW_FILE) throw new Error("Followed list too large");
   const saved = object(JSON.parse(raw));
   if (
     (saved.version !== 1 && saved.version !== FOLLOW_VERSION) ||
@@ -239,6 +249,11 @@ export function importFollows(
 } | null {
   let incoming: Followed[];
   try {
+    if (
+      raw.length > MAX_FOLLOW_FILE ||
+      new TextEncoder().encode(raw).length > MAX_FOLLOW_FILE
+    )
+      return null;
     const read = readFollows(raw);
     if (read.damaged) return null;
     incoming = read.list;
@@ -257,19 +272,24 @@ export function importFollows(
       added++;
     }
   }
-  return { list, added, already, dropped };
+  return fitsFollowFile(list) ? { list, added, already, dropped } : null;
 }
 
 /**
- * Items for one Check for new, oldest check first, within the request budget.
- * The rest wait for the next press, so the oldest go first again.
+ * Continue the prior press's waiting queue before scheduling more lookups.
+ * New checks use the oldest successful check first.
  */
 export function checkBatch(
   list: readonly Followed[],
   budget: number,
+  waiting: readonly string[] = [],
 ): { now: Followed[]; later: Followed[] } {
-  const order = [...list].sort((a, b) =>
-    (a.lastChecked ?? "").localeCompare(b.lastChecked ?? ""),
+  const position = new Map(waiting.map((id, index) => [id, index]));
+  const order = [...list].sort(
+    (a, b) =>
+      (position.get(a.id) ?? waiting.length) -
+        (position.get(b.id) ?? waiting.length) ||
+      (a.lastChecked ?? "").localeCompare(b.lastChecked ?? ""),
   );
   const now: Followed[] = [];
   let requests = 0;

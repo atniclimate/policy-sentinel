@@ -41,11 +41,11 @@ export const HOSTS: readonly string[] = ["api.regulations.gov"];
  * (23:59:59 Eastern, as 04:59:59Z or 03:59:59Z), so all are withheld today.
  * shortcut: UTC values show no date; showing the Eastern day needs the owner's ruling on naming that zone.
  */
-function regulationsCloseDate(value: unknown): unknown {
+export function regulationsCloseDate(value: unknown): unknown {
   if (value === undefined || value === null) return value;
   const stated =
     typeof value === "string"
-      ? /^(\d{4}-\d{2}-\d{2})(?:T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?([+-]\d{2}:\d{2}))?$/.exec(
+      ? /^(\d{4}-\d{2}-\d{2})(?:T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,3})?([+-](?:[01]\d|2[0-3]):[0-5]\d))?$/.exec(
           value,
         )
       : null;
@@ -54,7 +54,7 @@ function regulationsCloseDate(value: unknown): unknown {
     : undefined;
 }
 
-async function searchRegulations(
+export async function search(
   env: Env,
   criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
@@ -136,11 +136,4 @@ async function searchRegulations(
     criteria,
     continuation: numericContinuation(criteria, total, results.length),
   };
-}
-
-export async function search(
-  env: Env,
-  criteria: DemoSearchCriteria,
-): Promise<DemoSearchResponse> {
-  return searchRegulations(env, criteria);
 }

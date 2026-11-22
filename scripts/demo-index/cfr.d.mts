@@ -20,11 +20,10 @@ export function shardCitations(
 ): { kept: ShardCitation[]; dropped: number };
 
 export function buildCfrShard(
-  volumeXml: readonly { volume: number; xml: string }[],
+  volumeXml: Iterable<{ volume: number; xml: string }>,
   options: {
     title: number;
     editionYear: number;
-    volumes: number[] | null;
     names: readonly string[];
   },
 ): { shard: CfrAuthorityShard; report: CfrBuildReport };

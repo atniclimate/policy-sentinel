@@ -285,6 +285,10 @@ describe("narrowing a Federal Register search by agency or topic, end to end (D-
     );
     const searchPane = container.querySelector(".pane-search") as HTMLElement;
     // The line states the setting and what it does not reach (review finding).
+    const announcement = within(searchPane).getByText(
+      /^Words searched on the Federal Register are narrowed/,
+    );
+    expect(announcement).toHaveAttribute("role", "status");
     expect(searchPane).toHaveTextContent(
       "Words searched on the Federal Register are narrowed to the agency Indian Affairs Bureau, a Federal Register field. Lookups, examples and issue searches are not narrowed.",
     );
@@ -296,6 +300,8 @@ describe("narrowing a Federal Register search by agency or topic, end to end (D-
     expect(searchPane).not.toHaveTextContent("are narrowed to the agency");
     fireEvent.click(ui.getByRole("button", { name: "Federal sources" }));
     fireEvent.click(ui.getByRole("button", { name: "Remove narrowing" }));
+    expect(ui.getByRole("combobox", { name: "Search terms" })).toHaveFocus();
+    expect(announcement).toBeEmptyDOMElement();
     expect(searchPane).not.toHaveTextContent("Indian Affairs Bureau");
 
     await runSearch(ui, "consultation");

@@ -11,7 +11,10 @@ import {
   assertStaticArtifactBudget,
   toCompactIndexRecord,
 } from "./artifact.mjs";
-import { assertArtifactSourceHealthState } from "./artifact-health.mjs";
+import {
+  assertArtifactSourceHealthState,
+  latestHealthTime,
+} from "./artifact-health.mjs";
 import { deriveBuildId, sha256Bytes } from "./hashing.mjs";
 import { recordIdentityKey, toUrlSafeId } from "./identity.mjs";
 import { validateRecordSetPolicy } from "./policy-validation.mjs";
@@ -938,15 +941,11 @@ function validateArtifactContents(manifest, verifiedAssets, context) {
       sourceRecords,
       label: "last-known-good source-health",
     });
-    const expectedDataAsOf = sourceRecords
-      .map((record) => record.sourceHealth.dataAsOf)
-      .sort()
-      .at(-1);
-    const expectedLastSuccessfulRetrievalAt = sourceRecords
-      .map((record) => record.sourceHealth.lastSuccessfulRetrievalAt)
-      .filter((value) => value !== null)
-      .sort()
-      .at(-1);
+    const expectedDataAsOf = latestHealthTime(sourceRecords, "dataAsOf");
+    const expectedLastSuccessfulRetrievalAt = latestHealthTime(
+      sourceRecords,
+      "lastSuccessfulRetrievalAt",
+    );
     if (
       sourceRecords.length > 0 &&
       (health.dataAsOf !== expectedDataAsOf ||
@@ -962,10 +961,7 @@ function validateArtifactContents(manifest, verifiedAssets, context) {
   const expectedDataAsOf =
     records.length === 0
       ? manifest.generatedAt
-      : records
-          .map((record) => record.sourceHealth.dataAsOf)
-          .sort()
-          .at(-1);
+      : latestHealthTime(records, "dataAsOf");
   if (manifest.dataAsOf !== expectedDataAsOf) {
     throw new Error(
       "last-known-good manifest data-as-of does not match records",

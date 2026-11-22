@@ -276,11 +276,6 @@ export function selectTemporalVersions(input, { asOf, basis }) {
   const selections = [];
   for (const work of value.works) {
     const candidates = includedByWork.get(work.id) ?? [];
-    candidates.sort(
-      (left, right) =>
-        right.interval.upper - left.interval.upper ||
-        left.versionId.localeCompare(right.versionId, "en"),
-    );
     if (candidates.length === 0)
       selections.push({
         workId: work.id,
@@ -290,9 +285,12 @@ export function selectTemporalVersions(input, { asOf, basis }) {
         reason: "no_supported_version_by_cutoff",
       });
     else {
-      const latest = candidates[0];
+      const latestStart = candidates.reduce(
+        (latest, entry) => Math.max(latest, entry.interval.lower),
+        -Infinity,
+      );
       const tied = candidates.filter(
-        (entry) => entry.interval.upper >= latest.interval.lower,
+        (entry) => entry.interval.upper >= latestStart,
       );
       const renditionIds = tied
         .flatMap(

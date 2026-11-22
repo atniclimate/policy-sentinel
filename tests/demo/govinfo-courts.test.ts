@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { COPY } from "../../src/demo/copy";
 import { courts as COURTS } from "../../src/demo/copy/courts";
 import { listingCap } from "../../src/demo/discovery";
+import { relatedTargetOf } from "../../src/demo/links";
 import { COURT_LABELS, withheldTitle } from "../../src/demo/courts";
 import { searchCriteria } from "../../src/demo/search-contract";
 import type {
@@ -137,10 +138,15 @@ describe("USCOURTS search by court code", () => {
   });
 
   it("restricts to one court when the router names it", async () => {
-    serve({ count: 0, results: [] });
-    await govinfoCourts.search(env, criteria("example words"), "ord");
+    serve(SEARCH);
+    const out = await govinfoCourts.search(
+      env,
+      criteria("example words"),
+      "ca9",
+    );
     const body = JSON.parse(String(calls[0].init?.body)) as { query: string };
-    expect(body.query).toContain("courtcode:(ord) AND");
+    expect(body.query).toContain("courtcode:(ca9) AND");
+    expect(out.results.map((row) => row.court)).toEqual(["ca9"]);
   });
 
   it("says the demo stopped at its one page of 10, and only when GovInfo has more", async () => {
@@ -260,6 +266,30 @@ describe("docket lookup with a court code", () => {
     expect(error.code).toBe("bad_upstream");
   });
 
+  it("refuses an impossible source update date before caching the case", async () => {
+    serve({ ...SUMMARY, lastModified: "2099-02-30T12:00:00Z" });
+    const error = await refusal(() =>
+      govinfoCourts.search(env, criteria("ca9 99-12345", "court_docket")),
+    );
+    expect(error.code).toBe("bad_upstream");
+    expect(cacheEntries.size).toBe(0);
+  });
+
+  it.each([
+    ["ca9 99-12345", "court_docket"],
+    ["199 U.S. 42", "us_reports"],
+  ] as const)(
+    "refuses a conflicting court filter for %s",
+    async (query, match) => {
+      serve(SUMMARY);
+      const error = await refusal(() =>
+        govinfoCourts.search(env, criteria(query, match), "ord"),
+      );
+      expect(error.code).toBe("bad_query");
+      expect(calls).toHaveLength(0);
+    },
+  );
+
   it("refuses a docket with no court code without a call", async () => {
     serve(SUMMARY);
     const error = await refusal(() =>
@@ -287,6 +317,10 @@ describe("U.S. Reports citation lookup", () => {
       caseCitationProvided: true,
       officialUrl:
         "https://www.govinfo.gov/app/details/USREPORTS-199/USREPORTS-199-42",
+    });
+    expect(relatedTargetOf(out.results[0])?.request).toEqual({
+      source: "govinfo",
+      id: "USREPORTS-199-42",
     });
     expect(JSON.stringify(out)).not.toContain("otherIdentifier");
   });

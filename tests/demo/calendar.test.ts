@@ -47,6 +47,23 @@ describe("comment closing dates as a calendar file", () => {
     expect(ics.replace(/\r\n/g, "")).not.toMatch(/[\r\n]/);
   });
 
+  it("uses the latest observation for a changed or removed date in either order", () => {
+    const old = { ...statedCitation(), retrievedAt: "2099-01-01T00:00:00Z" };
+    for (const commentsCloseOn of ["2099-03-01", undefined]) {
+      const current = {
+        ...old,
+        retrievedAt: "2099-01-02T00:00:00Z",
+        commentsCloseOn,
+      };
+      for (const rows of [
+        [old, current],
+        [current, old],
+      ]) {
+        expect(calendarRows(rows)).toEqual(commentsCloseOn ? [current] : []);
+      }
+    }
+  });
+
   it("rolls DTEND over a month and a year end", () => {
     const ics = unfold(
       buildCalendar(

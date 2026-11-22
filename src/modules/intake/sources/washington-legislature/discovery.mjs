@@ -7,11 +7,10 @@ export function selectWashingtonChapterCandidates(extraction) {
     fail("REGULAR_SESSION_SCOPE_REQUIRED");
   const selected = [];
   const exclusions = [];
+  const linksByText = Map.groupBy(extraction.links, (link) => link.text);
   for (let chapter = 1; chapter <= 200; chapter++) {
-    const links = extraction.links.filter(
-      (link) => link.text === `Chapter ${chapter}`,
-    );
-    if (links.length !== 1) fail("MISSING_OR_DUPLICATE_CHAPTER");
+    const links = linksByText.get(`Chapter ${chapter}`);
+    if (links?.length !== 1) fail("MISSING_OR_DUPLICATE_CHAPTER");
     const link = links[0];
     const url = new URL(link.url);
     if (
@@ -103,21 +102,20 @@ export function selectWashingtonSessionLaw(candidate, extraction) {
       !["name", "description", "longFriendlyName"].includes(field)
     )
       continue;
-    const short = /\bC\s+(\d+)\s+L\s+(\d{2})\b/i.exec(value);
-    const long = /\bChapter\s+(\d+)\s+Year\s+(\d{4})\b/i.exec(value);
-    if (
-      short &&
-      (Number(short[1]) !== candidate.chapter ||
-        short[2] !== String(candidate.year).slice(-2))
-    )
-      fail("INVENTORY_CHAPTER_CONTRADICTION");
-    if (
-      long &&
-      (Number(long[1]) !== candidate.chapter ||
-        Number(long[2]) !== candidate.year)
-    )
-      fail("INVENTORY_CHAPTER_CONTRADICTION");
-    if (short || long) chapterEvidence.push({ field, value });
+    let found = false;
+    for (const match of value.matchAll(
+      /\bC\s+(\d+)\s+L\s+(\d{2})\b|\bChapter\s+(\d+)\s+Year\s+(\d{4})\b/gi,
+    )) {
+      const chapter = Number(match[1] ?? match[3]);
+      const year = match[2] ?? match[4];
+      if (
+        chapter !== candidate.chapter ||
+        year !== String(candidate.year).slice(-year.length)
+      )
+        fail("INVENTORY_CHAPTER_CONTRADICTION");
+      found = true;
+    }
+    if (found) chapterEvidence.push({ field, value });
   }
   return {
     ...candidate,

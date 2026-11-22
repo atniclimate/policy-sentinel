@@ -2,7 +2,13 @@
 // scripts/build-vocab.mjs: no network, never run by build, check, demo:build
 // or test, enforces the combined vocabulary ceiling (index condition E2), and
 // writes the owner's review packet only outside the repository.
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  linkSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -12,6 +18,7 @@ import * as vocab from "../../scripts/build-vocab.mjs";
 import { probeHashFile } from "../../scripts/demo-index/common.mjs";
 import type { LawAliasFile } from "../../src/demo/index-types";
 import { SYNTHETIC_PROBE_NAMES } from "../support/nation-name-probes";
+import { reviewedProbeWith } from "./fixtures/demo-index/build-index";
 
 interface Ceiling {
   files: number;
@@ -177,8 +184,8 @@ describe("the review packet", () => {
       return join(dir, name);
     };
     const full = [...SYNTHETIC_PROBE_NAMES];
-    const hashes = write("full.json", probeHashFile(full, full.length));
-    const short = write("short.json", probeHashFile(full.slice(0, 3), 3));
+    const hashes = write("full.json", reviewedProbeWith(full));
+    const short = write("impostor.json", probeHashFile(full, full.length));
     const named = file();
     named.entries[0].popularName = "Synthetic Probe Entity 042 Water Act";
     const run = (aliases: unknown, hashFile: string) =>
@@ -206,13 +213,21 @@ describe("the review packet", () => {
     );
     const partial = run(file(), short);
     expect(partial.status).toBe(1);
-    expect(partial.stderr).toMatch(/not the full list of 575 \(G3\)/);
+    expect(partial.stderr).toMatch(/reviewed 575-Nation inventory/);
   });
 
   it("writes outside the repository and refuses a path inside it", () => {
     const out = join(temp(), "packet.md");
     writeReviewPacket(out, file());
     expect(readFileSync(out, "utf8")).toBe(reviewPacket(file()));
+    const aliases = join(temp(), "aliases.json");
+    const original = JSON.stringify(file());
+    writeFileSync(aliases, original);
+    const hardlink = join(temp(), "alias-link");
+    linkSync(aliases, hardlink);
+    for (const existing of [aliases, hardlink, out])
+      expect(() => writeReviewPacket(existing, file())).toThrow(/EEXIST/);
+    expect(readFileSync(aliases, "utf8")).toBe(original);
     const inside = resolve(ROOT, "docs", "packet.md");
     expect(insideRepo(inside)).toBe(true);
     expect(() => writeReviewPacket(inside, file())).toThrow(/outside/);

@@ -54,15 +54,16 @@ function statedDay(value: unknown): string | null {
 }
 
 /** The allowlist. Every field read from the upstream body is named here. */
-export function opportunityDetail(
+function opportunityDetail(
   body: unknown,
+  expectedId: string,
   retrievedAt: string,
 ): GrantsDetailResponse {
   const top = record(body);
   if (top.errorcode !== 0) throw badUpstream();
   const data = record(top.data);
   const id = typeof data.id === "number" ? String(data.id) : data.id;
-  if (typeof id !== "string" || !isOpportunityId(id)) throw badUpstream();
+  if (id !== expectedId) throw badUpstream();
   const synopsis =
     data.synopsis && typeof data.synopsis === "object"
       ? record(data.synopsis)
@@ -73,8 +74,10 @@ export function opportunityDetail(
       : {};
   const forecast = data.docType === "forecast";
   // shortcut: a forecast's own date fields were not probed live, so a forecast states no date here; read data.forecast once a forecast record is probed.
-  const opens = forecast ? null : stampDay(synopsis.postingDateStr);
-  const closes = forecast ? null : stampDay(synopsis.responseDateStr);
+  const opens =
+    data.docType === "synopsis" ? stampDay(synopsis.postingDateStr) : null;
+  const closes =
+    data.docType === "synopsis" ? stampDay(synopsis.responseDateStr) : null;
   const versionDate = statedDay(synopsis.lastUpdatedDate);
   const listings = assistanceListings(data.cfdas);
   const outcome = authorityPassage(synopsis.synopsisDesc);
@@ -130,5 +133,5 @@ export async function read(id: string): Promise<GrantsDetailResponse> {
       "upstream_error",
       `Grants.gov answered with status ${response.status}.`,
     );
-  return opportunityDetail(parseJson(bytes), new Date().toISOString());
+  return opportunityDetail(parseJson(bytes), id, new Date().toISOString());
 }

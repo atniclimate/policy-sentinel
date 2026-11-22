@@ -55,20 +55,30 @@ export function shardCitations(text, kinds) {
 const wording = (node) =>
   collapse(elements(node, "P").map(textOf).join(" ")) || null;
 
-function readVolume(xml) {
-  const revised = [];
+function readVolume(xml, requestedTitle) {
+  const revised = new Set();
+  const titles = new Set();
   const pts = [];
   const parts = [];
   let subpartAuthorityCount = 0;
   const root = collectSubtrees(
     xml,
     (name, _attrs, ancestors) =>
-      name === "REVISED" ||
+      ((name === "TITLENUM" || name === "REVISED") &&
+        ancestors.length === 3 &&
+        ancestors[0] === "CFRDOC" &&
+        ancestors[1] === "FMTR" &&
+        ancestors[2] === "TITLEPG") ||
       name === "PART" ||
       // A subtitle with no chapters lists its parts in its own contents (43 CFR subtitle A).
       (name === "TOC" && ["CHAPTER", "SUBTITLE"].includes(ancestors.at(-1))),
     (node) => {
-      if (node.name === "REVISED") revised.push(collapse(textOf(node)));
+      if (node.name === "TITLENUM") {
+        const number = /^(?:Title\s+)?([1-9]\d?)$/i.exec(
+          collapse(textOf(node)),
+        );
+        titles.add(number?.[1]);
+      } else if (node.name === "REVISED") revised.add(collapse(textOf(node)));
       else if (node.name === "TOC") {
         for (const list of descendants(node)) {
           if (list.name !== "CHAPTI") continue;
@@ -125,32 +135,54 @@ function readVolume(xml) {
   );
   if (root?.name !== "CFRDOC")
     throw new StageError("fetch", "a volume is not CFR XML");
-  return { revised: revised[0] ?? null, pts, parts, subpartAuthorityCount };
+  if (titles.size !== 1 || !titles.has(String(requestedTitle)))
+    throw new StageError(
+      "normalize",
+      "the volume title page does not identify the requested CFR title",
+    );
+  if (revised.size !== 1)
+    throw new StageError(
+      "normalize",
+      "the volume title page does not state one revision date",
+    );
+  return { revised: [...revised][0], pts, parts, subpartAuthorityCount };
 }
 
 /**
  * Build the shard for one title from its volumes ([{ volume, xml }]).
- * `volumes` is null for the whole title. Throws StageError on a structure
- * problem (normalize) or a failed count identity (validation).
+ * Record only the volumes read. The archive alone cannot establish whole-title coverage.
  */
-export function buildCfrShard(
-  volumeXml,
-  { title, editionYear, volumes, names },
-) {
-  const read = volumeXml.map(({ xml }) => readVolume(xml));
-  const revisions = new Set(read.map((v) => v.revised));
-  if (revisions.size !== 1 || !read[0]?.revised)
+export function buildCfrShard(volumeXml, { title, editionYear, names }) {
+  const read = [];
+  const volumes = [];
+  let revisedAsOfText;
+  for (const { volume, xml } of volumeXml) {
+    const parsed = readVolume(xml, title);
+    if (!parsed.revised.includes(String(editionYear)))
+      throw new StageError(
+        "normalize",
+        `volume ${volume} does not state the requested edition year ${editionYear}`,
+      );
+    if (revisedAsOfText !== undefined && parsed.revised !== revisedAsOfText)
+      throw new StageError(
+        "normalize",
+        `volume ${volume} states a different revision date`,
+      );
+    revisedAsOfText = parsed.revised;
+    read.push(parsed);
+    volumes.push(volume);
+  }
+  volumes.sort((a, b) => a - b);
+  if (new Set(volumes).size !== volumes.length)
+    throw new StageError(
+      "validation",
+      "the title archive repeats a volume number",
+    );
+  if (!revisedAsOfText)
     throw new StageError(
       "normalize",
       "the volumes do not state one revision date",
     );
-  const revisedAsOfText = read[0].revised;
-  if (!revisedAsOfText.includes(String(editionYear)))
-    throw new StageError(
-      "normalize",
-      "the revision wording does not name the edition year",
-    );
-
   const pts = new Map();
   for (const pt of read.flatMap((v) => v.pts)) {
     const prior = pts.get(pt.text);

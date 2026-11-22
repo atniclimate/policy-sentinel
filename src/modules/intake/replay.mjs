@@ -23,6 +23,24 @@ import {
 const fail = (code) => {
   throw new Error(code);
 };
+export function reviewedPaths(name, generation) {
+  if (!["gold", "discovery"].includes(name)) fail("INVALID_CORPUS_SELECTION");
+  if (
+    generation !== undefined &&
+    (typeof generation !== "string" || !/^[a-f0-9]{32}$/.test(generation))
+  )
+    fail("INVALID_REVIEW_GENERATION");
+  const prefix = generation === undefined ? "" : `${generation}-`;
+  return {
+    input: `review/${prefix}${name}-input.json`,
+    corpus: `work/${prefix}${name}-corpus.json`,
+    attachment:
+      name === "gold"
+        ? `review/${prefix}gold-evidence-index.json`
+        : `review/${prefix}broad-body-reviews.json`,
+    seal: `review/${name}-seal.json`,
+  };
+}
 async function readOwnedFile(root, relativePath, limit = 128 * 1024 ** 2) {
   if (!safeFile(relativePath)) fail("INVALID_OWNED_FILE_PATH");
   const base = await realpath(root);
@@ -60,8 +78,20 @@ async function readOwnedFile(root, relativePath, limit = 128 * 1024 ** 2) {
         stat.dev !== before.dev
       )
         fail("UNSAFE_OR_OVERSIZED_OUTPUT_FILE");
-      const bytes = await handle.readFile();
-      if (bytes.length !== stat.size) fail("OUTPUT_FILE_CHANGED_DURING_READ");
+      const bytes = Buffer.alloc(stat.size);
+      let offset = 0;
+      while (offset < bytes.length) {
+        const { bytesRead } = await handle.read(
+          bytes,
+          offset,
+          bytes.length - offset,
+          offset,
+        );
+        if (!bytesRead) fail("OUTPUT_FILE_CHANGED_DURING_READ");
+        offset += bytesRead;
+      }
+      if ((await handle.stat()).size !== stat.size)
+        fail("OUTPUT_FILE_CHANGED_DURING_READ");
       return bytes;
     },
     () => handle.close(),
@@ -71,11 +101,20 @@ export async function replayReviewedCorpus(root, { name = "gold" } = {}) {
   if (!["gold", "discovery"].includes(name)) fail("INVALID_CORPUS_SELECTION");
   const custody = await verifyPolicyRun(root);
   const run = await openPolicyRun(root);
-  const inputBytes = await readFile(join(root, `review/${name}-input.json`));
-  const corpusBytes = await readFile(join(root, `work/${name}-corpus.json`));
   const seal = JSON.parse(
-    await readFile(join(root, `review/${name}-seal.json`), "utf8"),
+    (await readOwnedFile(root, reviewedPaths(name).seal, 4096)).toString(
+      "utf8",
+    ),
   );
+  const paths = reviewedPaths(name, seal.generation);
+  const inputBytes = await readOwnedFile(root, paths.input);
+  const corpusBytes = await readOwnedFile(root, paths.corpus);
+  if (
+    seal.generation !== undefined &&
+    digest(await readOwnedFile(root, paths.attachment)) !==
+      seal.attachmentDigest
+  )
+    fail("REVIEW_SEAL_MISMATCH");
   if (
     seal.inputDigest !== digest(inputBytes) ||
     seal.outputDigest !== digest(corpusBytes)

@@ -26,6 +26,7 @@ describe("canonical JSON helpers", () => {
   });
 
   it("follows JSON.stringify for values JSON cannot hold", () => {
+    expect(canonicalJson(Array(2))).toBe("[null,null]");
     expect(canonicalJson({ a: undefined, b: [undefined], c: Number.NaN })).toBe(
       '{"b":[null],"c":null}',
     );
@@ -41,5 +42,13 @@ describe("canonical JSON helpers", () => {
     expect(deepFreeze(value)).toBe(value);
     expect(Object.isFrozen(value.a.b[1])).toBe(true);
     expect(Object.isFrozen(value.a.b)).toBe(true);
+  });
+
+  it("freezes children of a shallow-frozen object even with a cycle", () => {
+    const child: { parent?: object } = {};
+    const parent = Object.freeze({ child });
+    child.parent = parent;
+    expect(deepFreeze(parent)).toBe(parent);
+    expect(Object.isFrozen(child)).toBe(true);
   });
 });

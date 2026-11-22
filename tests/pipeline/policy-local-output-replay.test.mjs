@@ -8,7 +8,17 @@
 // this file, and no external custody namespace is read or written.
 import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
-import { lstat, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import {
+  lstat,
+  mkdtemp,
+  readFile,
+  readdir,
+  rm,
+  truncate,
+  writeFile,
+} from "node:fs/promises";
+import { publishReviewedGeneration } from "../../src/modules/intake/reviewed-generation.mjs";
+import { reviewedPaths } from "../../src/modules/intake/replay.mjs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -344,6 +354,92 @@ async function buildSyntheticOnlyRoot(t) {
   });
   return root;
 }
+
+test("reviewed generations expose only a complete legacy or current selection across failed publication", async (t) => {
+  mockPolicyFilesystem(t, {
+    availableBytes: POLICY_LIMITS.freeBytes + POLICY_LIMITS.runBytes,
+  });
+  const fixture = await buildRunFixture(t);
+  const { root } = fixture;
+  const publish = (portable, attachment) =>
+    publishReviewedGeneration(
+      root,
+      "gold",
+      Buffer.from(JSON.stringify(portable)),
+      Buffer.from(serializeSupportedAnalyzedCorpus(fixture.corpus)),
+      attachment,
+      fixture.corpus.contentDigest,
+    );
+  const legacy = await replayReviewedCorpus(root);
+  await assert.rejects(
+    publish(fixture.portable, "bad attachment"),
+    /INVALID_DERIVED_OUTPUT/,
+  );
+  assert.deepEqual((await replayReviewedCorpus(root)).seal, legacy.seal);
+  await publish(fixture.portable, Buffer.from("index"));
+  const current = await replayReviewedCorpus(root);
+  assert.ok(current.seal.generation);
+  assert.notEqual(current.seal.inputDigest, legacy.seal.inputDigest);
+  assert.deepEqual(current.corpus, legacy.corpus);
+  await rm(join(root, reviewedPaths("gold").corpus));
+  const active = reviewedPaths("gold", current.seal.generation);
+  assert.equal(
+    digest(await readFile(join(root, active.corpus))),
+    current.seal.outputDigest,
+  );
+  assert.deepEqual((await replayReviewedCorpus(root)).corpus, fixture.corpus);
+  const members = () =>
+    Promise.all(["work", "review"].map((dir) => readdir(join(root, dir))));
+  const beforeRetry = await members();
+  await publish(fixture.portable, Buffer.from("index"));
+  assert.deepEqual(await members(), beforeRetry);
+  assert.deepEqual((await replayReviewedCorpus(root)).seal, current.seal);
+  await assert.rejects(
+    publish(fixture.portable, "bad attachment"),
+    /INVALID_DERIVED_OUTPUT/,
+  );
+  assert.deepEqual((await replayReviewedCorpus(root)).seal, current.seal);
+  const resumed = await publish(
+    fixture.portable,
+    Buffer.from("bad attachment"),
+  );
+  const afterRecovery = await members();
+  assert.equal(afterRecovery[0].length, beforeRetry[0].length);
+  assert.equal(afterRecovery[1].length, beforeRetry[1].length + 1);
+  assert.equal(
+    (await replayReviewedCorpus(root)).seal.attachmentDigest,
+    resumed.auxiliary.digest,
+  );
+  await writeFile(join(root, active.attachment), "wrong");
+  await assert.rejects(
+    publish(fixture.portable, Buffer.from("index")),
+    /REVIEW_GENERATION_CONFLICT/,
+  );
+  await writeFile(join(root, "operation.lock"), "busy");
+  await assert.rejects(
+    publish(fixture.portable, Buffer.from("index")),
+    /RUN_LOCKED/,
+  );
+  assert.equal(
+    (await replayReviewedCorpus(root)).seal.attachmentDigest,
+    resumed.auxiliary.digest,
+  );
+  assert.throws(
+    () => reviewedPaths("gold", "../escape"),
+    /INVALID_REVIEW_GENERATION/,
+  );
+  const file = join(root, "review", "research-input.json");
+  await writeFile(file, "");
+  await truncate(file, 9 * 1024 ** 2);
+  await assert.rejects(
+    intakeBindings.readOwnedFile(
+      root,
+      "review/research-input.json",
+      8 * 1024 ** 2,
+    ),
+    /OVERSIZED/,
+  );
+});
 
 test("replayReviewedCorpus, writeLocalOutput, readLocalOutput and localCorpusBytes reproduce a reviewed run built with initializePolicyRun and admitPolicyTargets", async (t) => {
   mockPolicyFilesystem(t, {

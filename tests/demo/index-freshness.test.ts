@@ -29,6 +29,7 @@ type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
 
 // A computed specifier: the script is plain JavaScript with no declaration file.
 const freshness = (await import(pathToFileURL(SCRIPT).href)) as {
+  main: (argv: string[]) => Promise<number>;
   SPACING_MS: number;
   congressAt: (value: string | Date) => { congress: number; session: number };
   retrievedSince: (manifest: unknown) => string;
@@ -169,6 +170,29 @@ describe("Congress and session from the date", () => {
 });
 
 describe("planned requests", () => {
+  it.each([
+    ["--dryrun"],
+    ["--dry-run=false"],
+    ["unexpected"],
+    ["--manifest"],
+    ["--manifest", ""],
+    ["--manifest", "--dry-run"],
+    ["--manifest", "first.json", "--manifest", "second.json"],
+    ["--olrc-terms-read", "--olrc-terms-read"],
+  ])("rejects invalid arguments before a request: %s", async (...argv) => {
+    const fetch = vi
+      .spyOn(globalThis, "fetch")
+      .mockRejectedValue(new Error("Unexpected request"));
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      expect(await freshness.main(argv)).toBe(2);
+      expect(error).toHaveBeenCalledOnce();
+      expect(fetch).not.toHaveBeenCalled();
+    } finally {
+      fetch.mockRestore();
+      error.mockRestore();
+    }
+  });
   it("plans one request per CFR title, the presidential documents since the earliest retrieval, and no U.S. Code request with terms unread", () => {
     const checks = freshness.planChecks(manifest, { now: NOW, cfrTitle });
     expect(freshness.retrievedSince(manifest)).toBe("2026-11-04");
@@ -274,12 +298,99 @@ describe("planned requests", () => {
 });
 
 describe("running the checks", () => {
+  const archive = {
+    justFileName: "CFR-2026-title-25.zip",
+    link: "https://www.govinfo.gov/bulkdata/CFR/2026/title-25/CFR-2026-title-25.zip",
+  };
+  const title25 = () =>
+    freshness
+      .planChecks(manifest, { now: NOW, cfrTitle })
+      .filter((c) => c.id === "cfr:25");
+
+  it("requires the exact archive name and official address on the same listing entry", async () => {
+    const files = [
+      { ...archive, justFileName: "metadata.xml" },
+      { ...archive, link: archive.link.replace("2026/", "2025/") },
+    ];
+    const fetch = vi.fn(async () => reply({ files }));
+    expect((await freshness.runChecks(title25(), { fetch }))[0].status).toBe(
+      "not_checked",
+    );
+    files.push(archive);
+    expect((await freshness.runChecks(title25(), { fetch }))[0].status).toBe(
+      "refresh",
+    );
+  });
+
+  it.each(["declared", "streamed"])(
+    "cancels an oversized %s body",
+    async (kind) => {
+      const cancel = vi.fn(() => new Promise<void>(() => {}));
+      const stream = new ReadableStream<Uint8Array>({
+        pull(controller) {
+          controller.enqueue(new Uint8Array(600_000));
+        },
+        cancel,
+      });
+      const fetch = vi.fn(
+        async () =>
+          new Response(stream, {
+            headers: kind === "declared" ? { "Content-Length": "3000000" } : {},
+          }),
+      );
+      expect(
+        (await freshness.runChecks(title25(), { fetch }))[0],
+      ).toMatchObject({
+        status: "not_checked",
+        detail: expect.stringContaining("1 MiB"),
+      });
+      expect(fetch).toHaveBeenCalledOnce();
+      expect(cancel).toHaveBeenCalledOnce();
+      expect(stream.locked).toBe(false);
+    },
+  );
+
+  it("uses a 404 without consuming its error page", async () => {
+    const cancel = vi.fn();
+    const stream = new ReadableStream({ cancel });
+    const fetch = vi.fn(async () => new Response(stream, { status: 404 }));
+    expect((await freshness.runChecks(title25(), { fetch }))[0].status).toBe(
+      "current",
+    );
+    expect(cancel).toHaveBeenCalledOnce();
+  });
+
+  it("accepts a UTF-8 byte-order mark on a bounded JSON listing", async () => {
+    const fetch = async () =>
+      reply("\uFEFF" + JSON.stringify({ files: [archive] }));
+    expect((await freshness.runChecks(title25(), { fetch }))[0].status).toBe(
+      "refresh",
+    );
+  });
+
+  it("reports a redirect without making an unplanned request", async () => {
+    const fetch = vi.fn(async (_url: string, options?: RequestInit) => {
+      expect(options?.redirect).toBe("manual");
+      return new Response(null, {
+        status: 302,
+        headers: { Location: "/new-listing" },
+      });
+    });
+    const checks = freshness.planChecks(manifest, { now: NOW, cfrTitle });
+    const results = await freshness.runChecks(
+      checks.filter((check) => check.id === "cfr:25"),
+      { fetch },
+    );
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(results[0]).toMatchObject({
+      status: "not_checked",
+      detail: "HTTP 302",
+    });
+  });
+
   it("recommends a refresh for a new edition, a new release point and new presidential documents, spacing requests 1.1 s apart", async () => {
     const { calls, fetch, sleep } = stub([
-      [
-        "/CFR/2026/title-25",
-        () => reply({ files: [{ justFileName: "CFR-2026-title-25.zip" }] }),
-      ],
+      ["/CFR/2026/title-25", () => reply({ files: [archive] })],
       ["/CFR/2026/title-36", () => reply({ message: "not found" }, 404)],
       [
         "uscode.house.gov",
@@ -349,7 +460,18 @@ describe("running the checks", () => {
 
   it("stops every later request on a 429 and never retries", async () => {
     const { calls, fetch, sleep } = stub([
-      ["/CFR/2026/title-25", () => reply("slow down", 429)],
+      [
+        "/CFR/2026/title-25",
+        () =>
+          new Response(
+            new ReadableStream({
+              start(controller) {
+                controller.error(new Error("connection closed after headers"));
+              },
+            }),
+            { status: 429 },
+          ),
+      ],
     ]);
     const results = await freshness.runChecks(
       freshness.planChecks(manifest, { now: NOW, cfrTitle }),

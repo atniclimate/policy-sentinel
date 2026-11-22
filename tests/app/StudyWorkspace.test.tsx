@@ -604,56 +604,79 @@ describe("persistent local study workspace", () => {
       });
   });
 
-  it("labels legacy discovery filters as unrecorded without inheriting the current search scope", async () => {
-    const settings = {
-      ...props(),
-      searchRequest: {
-        query: "different",
-        jurisdictionRef: "body:synthetic-current-filter",
-        asOf: "2026-10-07",
-        basis: "source_effective" as const,
-      },
-    };
-    const initial = await seed(settings.corpus, "Legacy discovery study");
-    const legacy = await reviseResearchStudy(
-      initial,
-      {
-        actorId: "analyst-local",
-        updatedAt: "2026-10-01T00:00:02Z",
-        records: [
-          {
-            collection: "discoveries",
-            record: {
-              id: "discovery-legacy",
-              actorId: "analyst-local",
-              createdAt: "2026-10-01T00:00:02Z",
-              provenance: "analyst_authored",
-              reviewState: "unreviewed",
-              sensitivity: "restricted",
-              questionId: "question-saved",
-              query: "legacy scope query",
-              sourceIds: [],
-              followUpGapId: null,
-              status: "planned",
+  it.each(
+    [[], ["source-missing"], ["source-a", "source-b"]].map((sourceIds) => ({
+      sourceIds,
+    })),
+  )(
+    "discloses unrepresentable saved collections $sourceIds without running a wider search",
+    async ({ sourceIds }) => {
+      const input = syntheticCorpusV2Input();
+      input.sourceProfiles.push({
+        ...input.sourceProfiles[0],
+        id: "profile-c",
+        sourceId: "source-c",
+      });
+      input.coverage.push({
+        ...input.coverage[0],
+        id: "coverage-source-c",
+        sourceProfileId: "profile-c",
+        documentCount: 0,
+        versionCount: 0,
+        status: "unavailable",
+        dataAsOf: null,
+        lastSuccessfulAt: null,
+        failureStage: "synthetic_failure",
+      });
+      const corpus = createAnalyzedCorpusV2(input);
+      const settings = {
+        ...props(corpus),
+        searchRequest: {
+          query: "different",
+          jurisdictionRef: "body:synthetic-current-filter",
+          asOf: "2026-10-07",
+          basis: "source_effective" as const,
+        },
+      };
+      const initial = await seed(settings.corpus, "Legacy discovery study");
+      const legacy = await reviseResearchStudy(
+        initial,
+        {
+          actorId: "analyst-local",
+          updatedAt: "2026-10-01T00:00:02Z",
+          records: [
+            {
+              collection: "discoveries",
+              record: {
+                id: "discovery-legacy",
+                actorId: "analyst-local",
+                createdAt: "2026-10-01T00:00:02Z",
+                provenance: "analyst_authored",
+                reviewState: "unreviewed",
+                sensitivity: "restricted",
+                questionId: "question-saved",
+                query: "legacy scope query",
+                sourceIds,
+                followUpGapId: null,
+                status: "planned",
+              },
             },
-          },
-        ],
-      },
-      settings.corpus,
-    );
-    render(<StudyWorkspace {...settings} />);
-    await resume(await serializeResearchStudy(legacy, settings.corpus));
-    expect(
-      screen.getByText(/Search scope was not recorded/),
-    ).toBeInTheDocument();
-    fireEvent.click(
-      screen.getByRole("button", { name: "Run saved discovery" }),
-    );
-    expect(settings.onSearch).toHaveBeenCalledWith({
-      query: "legacy scope query",
-      matchMode: "any_terms",
-    });
-  });
+          ],
+        },
+        settings.corpus,
+      );
+      render(<StudyWorkspace {...settings} />);
+      await resume(await serializeResearchStudy(legacy, settings.corpus));
+      expect(
+        screen.getByText(/Search scope was not recorded/),
+      ).toBeInTheDocument();
+      fireEvent.click(
+        screen.getByRole("button", { name: "Run saved discovery" }),
+      );
+      expect(settings.onSearch).not.toHaveBeenCalled();
+      expect(screen.getByText(/The discovery was not run/)).toBeInTheDocument();
+    },
+  );
 
   it("rejects oversized and malformed resumes without losing the current study", async () => {
     const settings = props();
@@ -685,7 +708,25 @@ describe("persistent local study workspace", () => {
 
   it("requires explicit rebind across corpora and restores restricted defaults for new material", async () => {
     const original = syntheticCorpusV2() as AnalyzedCorpusV2;
-    const saved = await seed(original, "Imported different-corpus study");
+    const initial = await seed(original, "Imported different-corpus study");
+    // The imported file was saved on a machine whose clock is ahead of ours.
+    const saved = await reviseResearchStudy(
+      initial,
+      {
+        actorId: initial.updatedBy,
+        updatedAt: "2099-01-01T00:00:00Z",
+        records: [
+          {
+            collection: "questions",
+            record: {
+              ...initial.questions[0],
+              theme: "Reviewed procedure",
+            },
+          },
+        ],
+      },
+      original,
+    );
     const changed = createAnalyzedCorpusV2({
       ...syntheticCorpusV2Input(),
       id: "different-corpus",
@@ -914,6 +955,10 @@ describe("persistent local study workspace", () => {
           publisher: "Synthetic agency",
           lifecycle: "discovery",
           reviewStatus: "unqualified",
+          review: {
+            reviewedAt: "2026-10-07T00:00:00Z",
+            evidenceUrls: ["https://example.test/source-documentation"],
+          },
           discoveryRegions: ["NV"],
           declaredCapabilities: [
             { mode: "identifier_lookup", state: "unavailable" },
@@ -1006,6 +1051,13 @@ describe("persistent local study workspace", () => {
     expect(
       screen.getByRole("link", { name: "Interface evidence", hidden: true }),
     ).toHaveAttribute("href", "https://example.test/official-index");
+    expect(
+      screen.getByRole("link", {
+        name: "Official evidence location",
+        hidden: true,
+      }),
+    ).toHaveAttribute("href", "https://example.test/source-documentation");
+    expect(screen.getByText(/Review dated 2026-10-07/)).toBeInTheDocument();
     expect(
       screen.getByText(/Synthetic publisher a: searched/),
     ).toBeInTheDocument();

@@ -120,8 +120,8 @@ export const SYNTHETIC_PROBE_NAMES: readonly string[] = [
 ];
 
 /**
- * A full list for hashed-probe tests: the fixture bases plus the synthetic
- * names, enough entries for the full-list rule (G3). No import of the Node
+ * Fixture bases and synthetic names for normalization and impostor tests.
+ * These names alone cannot establish reviewed coverage. No import of the Node
  * scripts here, since jsdom tests load this module too.
  */
 export const fullProbeNames = (): string[] => [

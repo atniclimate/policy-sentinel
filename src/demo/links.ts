@@ -13,6 +13,7 @@ import { findCitations, parseUslmHref } from "./cite-patterns.ts";
 import type { ParsedCitation } from "./cite-patterns.ts";
 import { SOURCE_LABELS } from "./citations.ts";
 import { chain } from "./copy/chain.ts";
+import { relatedBillCount } from "./congress-reference.ts";
 import { recordPlan } from "./discovery.ts";
 import type { PlanSources } from "./discovery.ts";
 import { localDay } from "./local-day.ts";
@@ -731,8 +732,7 @@ export function relatedTargetOf(citation: DemoCitation): RelatedTarget | null {
     citation.sourceId === "govinfo-courts"
   ) {
     // A granule row is "<package>/<granule>"; GovInfo relates the granule itself.
-    const id =
-      (citation.packageId ?? citation.identifier).split("/").pop() ?? "";
+    const id = citation.identifier.split("/").pop() ?? "";
     return ACCESS_ID.test(id)
       ? { id: "govinfo_related", request: { source: "govinfo", id } }
       : null;
@@ -793,13 +793,14 @@ export function relatedRows(
     }),
     ...named(r.relation),
   }));
-  if (answer.total !== null && answer.total > answer.records.length)
+  const shown = relatedBillCount(answer.records);
+  if (answer.total !== null && answer.total > shown)
     rows.push(
       note(
         p,
         "stated",
         linkLabel("congress_related_bills", "forward"),
-        chain.cut(answer.records.length, answer.total),
+        chain.cut(shown, answer.total),
       ),
     );
   return rows;

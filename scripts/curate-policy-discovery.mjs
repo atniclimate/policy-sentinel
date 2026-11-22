@@ -1,11 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { readOwnedFile } from "../src/modules/intake/replay.mjs";
 import { Buffer } from "node:buffer";
-import {
-  openPolicyRun,
-  writePolicyDerived,
-  digest,
-} from "../src/pipeline/policy-custody.mjs";
+import { openPolicyRun, digest } from "../src/pipeline/policy-custody.mjs";
+import { publishReviewedGeneration } from "../src/modules/intake/reviewed-generation.mjs";
 import { replayReviewedCorpus } from "../src/pipeline/policy-local-output.mjs";
 import { extractPolicyText } from "../src/pipeline/policy-text.mjs";
 import { assertWashingtonBillHeader } from "../src/pipeline/policy-broad-discovery.mjs";
@@ -20,9 +18,15 @@ if (args.length !== 2 || args[0] !== "--root")
   throw new Error("EXPLICIT_ROOT_REQUIRED");
 const root = args[1];
 const gold = await replayReviewedCorpus(root);
-const researchBytes = await readFile(join(root, "review/research-input.json"));
+const researchBytes = await readOwnedFile(
+  root,
+  "review/research-input.json",
+  8 * 1024 ** 2,
+);
 const researchSeal = JSON.parse(
-  await readFile(join(root, "review/research-seal.json"), "utf8"),
+  (await readOwnedFile(root, "review/research-seal.json", 4096)).toString(
+    "utf8",
+  ),
 );
 if (
   researchSeal.baseCorpusDigest !== gold.corpus.contentDigest ||
@@ -43,7 +47,9 @@ if (
   throw new Error("RESEARCH_REPLAY_MISMATCH");
 const run = await openPolicyRun(root);
 const targets = JSON.parse(
-  await readFile(join(root, "review/broad-bodies.json"), "utf8"),
+  (
+    await readOwnedFile(root, "review/broad-bodies.json", 8 * 1024 ** 2)
+  ).toString("utf8"),
 );
 const generatedAt = new Date().toISOString();
 const unknown = () => ({ value: null, precision: "unknown" });
@@ -325,29 +331,19 @@ const portable = {
     })),
   })),
 };
-const descriptors = await writePolicyDerived(
+const {
+  descriptors,
+  output,
+  auxiliary: review,
+} = await publishReviewedGeneration(
   root,
-  "review/discovery-input.json",
+  "discovery",
   Buffer.from(`${JSON.stringify(portable, null, 2)}\n`),
-);
-const output = await writePolicyDerived(
-  root,
-  "work/discovery-corpus.json",
   Buffer.from(serializeAnalyzedCorpusV2(corpus)),
-);
-await writePolicyDerived(
-  root,
-  "review/discovery-seal.json",
-  Buffer.from(
-    `${JSON.stringify({ version: "1.0.0", inputDigest: descriptors.digest, outputDigest: output.digest, corpusDigest: corpus.contentDigest }, null, 2)}\n`,
-  ),
-);
-const review = await writePolicyDerived(
-  root,
-  "review/broad-body-reviews.json",
   Buffer.from(
     `${JSON.stringify({ version: "1.0.0", generatedAt, goldCorpusDigest: gold.corpus.contentDigest, researchCorpusDigest: research.corpus.contentDigest, researchInputDigest: researchSeal.inputDigest, corpusDigest: corpus.contentDigest, reviews, gaps, indexExclusions: targets.exclusions }, null, 2)}\n`,
   ),
+  corpus.contentDigest,
 );
 process.stdout.write(
   `${JSON.stringify({ descriptors, output, review, corpusDigest: corpus.contentDigest, goldWorks: gold.corpus.works.length, broadAccepted: reviews.length, works: corpus.works.length, versions: corpus.versions.length, events: corpus.events.length, segments: corpus.segments.length, gapCount: gaps.length, gapReasons: [...new Set(gaps.map((gap) => gap.reason))] })}\n`,

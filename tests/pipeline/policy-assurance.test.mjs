@@ -303,6 +303,7 @@ function localOutputRead(injected) {
     {
       withPreservedCleanup,
       safeFile,
+      Buffer: globalThis.Buffer,
       fail: (code) => {
         throw new Error(code);
       },
@@ -316,7 +317,7 @@ function localOutputRead(injected) {
     },
   );
 }
-for (const stage of ["stat", "read", "length", "success"]) {
+for (const stage of ["stat", "read", "length", "growth", "success"]) {
   for (const cleanupFails of [false, true]) {
     test(`actual local output ${stage} retains separate cleanup=${cleanupFails}`, async () => {
       const primary = new Error(`SYNTHETIC_PRIVATE_${stage}`);
@@ -332,16 +333,26 @@ for (const stage of ["stat", "read", "length", "success"]) {
         dev: 1,
       };
       let closes = 0;
+      let stats = 0;
       const read = localOutputRead({
         lstat: async () => stat,
         open: async () => ({
           stat: async () => {
             if (stage === "stat") throw primary;
+            if (++stats > 1 && stage === "growth")
+              return { ...stat, size: 2 ** 32 };
             return stat;
           },
-          readFile: async () => {
+          read: async (target, offset, length, position) => {
             if (stage === "read") throw primary;
-            return bytes;
+            return {
+              bytesRead: bytes.copy(
+                target,
+                offset,
+                position,
+                position + length,
+              ),
+            };
           },
           close: async () => {
             closes++;
@@ -350,13 +361,13 @@ for (const stage of ["stat", "read", "length", "success"]) {
         }),
       });
       if (stage === "success" && !cleanupFails) {
-        assert.equal(await read("owned", "review/output.json"), bytes);
+        assert.deepEqual(await read("owned", "review/output.json"), bytes);
       } else {
         await assert.rejects(read("owned", "review/output.json"), (error) => {
           if (stage === "success") assert.equal(error, cleanup);
           else {
             const observedPrimary = cleanupFails ? error.cause : error;
-            if (stage === "length")
+            if (stage === "length" || stage === "growth")
               assert.equal(
                 observedPrimary.message,
                 "OUTPUT_FILE_CHANGED_DURING_READ",

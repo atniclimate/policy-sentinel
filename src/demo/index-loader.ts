@@ -28,12 +28,13 @@ export const DEMO_DATA_BASE = "./demo-data/";
 // Condition A1: only these directories, one level deep, .json files. The
 // schema's chapter names may hold capitals ("title-42-ch-55A").
 const PATH_RE = /^(?:vocab|cfr|usc)\/[A-Za-z0-9-]+\.json$/;
+const MAX_SHARD_BYTES = 1_572_864; // demo-index.schema.v1.json
 
 export function createIndexLoader(
   manifest: IndexManifest,
   options: { fetch?: typeof fetch; base?: string } = {},
 ): IndexLoader {
-  const fetchImpl = options.fetch ?? ((url) => fetch(url));
+  const fetchImpl = options.fetch ?? ((url, init) => fetch(url, init));
   const base = options.base ?? DEMO_DATA_BASE;
   const cache = new Map<string, Promise<ShardResult<unknown>>>();
 
@@ -43,16 +44,51 @@ export function createIndexLoader(
       return { state: "unavailable", file };
     if (file.status === "withdrawn") return { state: "withdrawn", file };
     const failed = { state: "index_unavailable", file } as const;
-    if (!PATH_RE.test(path) || !file.sha256) return failed;
+    const size = file.sizeBytes;
+    if (
+      !PATH_RE.test(path) ||
+      !file.sha256 ||
+      size === null ||
+      !Number.isSafeInteger(size) ||
+      size < 1 ||
+      size > MAX_SHARD_BYTES
+    )
+      return failed;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30_000);
     try {
-      const res = await fetchImpl(base + path);
-      if (!res.ok) return failed;
-      const bytes = new Uint8Array(await res.arrayBuffer());
-      if (sha256Hex(bytes) !== file.sha256) return failed;
+      const res = await fetchImpl(base + path, {
+        mode: "same-origin",
+        signal: controller.signal,
+      });
+      if (!res.ok || !res.body) {
+        void res.body?.cancel().catch(() => undefined);
+        return failed;
+      }
+      const bytes = new Uint8Array(size);
+      let offset = 0;
+      const reader = res.body.getReader();
+      try {
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          if (value.byteLength > size - offset) {
+            void reader.cancel().catch(() => undefined);
+            return failed;
+          }
+          bytes.set(value, offset);
+          offset += value.byteLength;
+        }
+      } finally {
+        reader.releaseLock();
+      }
+      if (offset !== size || sha256Hex(bytes) !== file.sha256) return failed;
       const data: unknown = JSON.parse(new TextDecoder().decode(bytes));
       return { state: file.status, file, data };
     } catch {
       return failed;
+    } finally {
+      clearTimeout(timeout);
     }
   }
 

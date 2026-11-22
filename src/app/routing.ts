@@ -41,7 +41,9 @@ const listParam = (params: URLSearchParams, key: string): string[] =>
 
 export const parseRoute = (hash = window.location.hash): Route => {
   const raw = hash.startsWith("#") ? hash.slice(1) : hash;
-  const [rawPath, rawQuery = ""] = (raw || "/").split("?", 2);
+  const separator = raw.indexOf("?");
+  const rawPath = separator < 0 ? raw : raw.slice(0, separator);
+  const rawQuery = separator < 0 ? "" : raw.slice(separator + 1);
   const path = rawPath.startsWith("/") ? rawPath : `/${rawPath}`;
   const recordMatch = path.match(/^\/record\/(.+)$/);
   let recordId: string | null = null;
@@ -67,10 +69,7 @@ export const criteriaFromParams = (params: URLSearchParams): SearchCriteria => {
     const categoryId = pair.slice(0, separator);
     const subcategoryId = pair.slice(separator + 1);
     if (!subcategoryId) continue;
-    subcategoryIds[categoryId] = [
-      ...(subcategoryIds[categoryId] ?? []),
-      subcategoryId,
-    ];
+    (subcategoryIds[categoryId] ??= []).push(subcategoryId);
   }
 
   const areas = listParam(params, "areas");

@@ -12,6 +12,15 @@ export function readOwnedFile(
   relativePath: string,
   limit?: number,
 ): Promise<Buffer>;
+export function reviewedPaths(
+  name: "gold" | "discovery",
+  generation?: string,
+): {
+  input: string;
+  corpus: string;
+  attachment: string;
+  seal: string;
+};
 export function replayReviewedCorpus(
   root: string,
   options?: { readonly name?: "gold" | "discovery" },

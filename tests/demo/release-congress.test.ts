@@ -72,6 +72,20 @@ describe("Congress.gov release check", () => {
     expect(JSON.stringify(body)).not.toContain("Example Party");
   });
 
+  it.each([
+    ["SRES", "Resolution"],
+    ["HJRES", "Joint resolution"],
+    ["SCONRES", "Concurrent resolution"],
+  ])("shows the stated resolution type %s", async (type, kind) => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => reply({ bill: { ...BILL.bill, type } })),
+    );
+    const response = await post(`${type} 8800 119`);
+    expect(response.status).toBe(200);
+    expect((await response.json()).results[0].kind).toBe(kind);
+  });
+
   it("answers a bill that does not exist as a definite 404 not_found", async () => {
     vi.stubGlobal(
       "fetch",
