@@ -232,9 +232,40 @@ function fullSyntheticDocuments(): RecognitionSourceDocuments {
 }
 
 describe("BIA annual recognition-list adapter", () => {
+  it("rejects an impossible retrieval day before making any source requests", async () => {
+    let calls = 0;
+    await expect(
+      fetchOfficialBiaRegistry({
+        retrievedAt: "2026-02-30T12:00:00Z",
+        fetchImpl: async () => {
+          calls++;
+          throw new Error("Unexpected source request");
+        },
+      }),
+    ).rejects.toThrow(/retrievedAt/);
+    expect(calls).toBe(0);
+  });
+  it("decodes complete numeric references and rejects malformed source text", () => {
+    expect(normalizeVisibleText("&#65;&#x42;")).toBe("AB");
+    for (const entity of [
+      "&#65tail;",
+      "&#x42no;",
+      "&#55296;",
+      "&constructor;",
+    ]) {
+      expect(() => normalizeVisibleText(entity)).toThrow(/character entity/);
+    }
+  });
+
   it("parses source paragraphs without retaining markup or hidden page controls", async () => {
     const fixture = await readFile(fixturePath, "utf8");
     const entries = parseRecognitionEntries(fixture, "html");
+    const extraAttributes = fixture.replace(
+      'id="p-capitan"',
+      'data-id="other" title=\'source id="inside-title"\' id="p-capitan"',
+    );
+    expect(extraAttributes).not.toBe(fixture);
+    expect(parseRecognitionEntries(extraAttributes, "html")).toEqual(entries);
 
     expect(entries).toHaveLength(16);
     expect(entries[0]).toMatchObject({
@@ -317,6 +348,18 @@ describe("BIA annual recognition-list adapter", () => {
   });
 
   it("supports injected XML and line-structured text fixtures", () => {
+    const html = `<h2>${contiguousHeading}</h2>
+      <p class=flush-paragraph-1 data-id=other title='source id="wrong"' id=first data-page=123>Synthetic One</p>
+      <h2>${alaskaHeading}</h2><p class=flush-paragraph-1 id=second>Synthetic Two</p>`;
+    expect(
+      parseRecognitionEntries(html, "html").map(({ paragraphId, page }) => [
+        paragraphId,
+        page,
+      ]),
+    ).toEqual([
+      ["first", "123"],
+      ["second", null],
+    ]);
     const xml = `
       <ROOT>
         <HD>${normalizeVisibleText(
@@ -330,6 +373,12 @@ describe("BIA annual recognition-list adapter", () => {
         <FRDOC />
       </ROOT>`;
     expect(parseRecognitionEntries(xml, "xml")).toHaveLength(2);
+    expect(
+      parseRecognitionEntries(
+        xml.replace('ID="xml-one"', "ID=xml-one"),
+        "xml",
+      )[0].paragraphId,
+    ).toBe("xml-paragraph-1");
 
     const text = [
       "Indian Tribal Entities Within the Contiguous 48 States Recognized by and Eligible To Receive Services From the United States Bureau of Indian Affairs",
@@ -536,6 +585,31 @@ describe("BIA annual recognition-list adapter", () => {
       }),
     ).rejects.toThrowError(/structured body response exceeded/);
   });
+
+  it.each([true, false])(
+    "releases rejected metadata without waiting for cancellation (declared: %s)",
+    async (declared) => {
+      let cancelled = false;
+      const limit = BIA_RESPONSE_POLICY.metadata.maxBytes;
+      const body = new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(new Uint8Array(limit + 1));
+        },
+        cancel() {
+          cancelled = true;
+          return new Promise<void>(() => {});
+        },
+      });
+      const headers = new Headers({ "content-type": "application/json" });
+      if (declared) headers.set("content-length", String(limit + 1));
+      const metadata = new Response(body, { headers });
+      await expect(
+        fetchOfficialBiaRegistry({ fetchImpl: injectedFetch({ metadata }) }),
+      ).rejects.toThrow(/metadata response (declares|exceeded)/);
+      expect(cancelled).toBe(true);
+      expect(body.locked).toBe(false);
+    },
+  );
 
   it("accepts only ignored BIA staging and removes a stale exact target", async () => {
     const temporaryRoot = await makeProjectTestDirectory("output-");

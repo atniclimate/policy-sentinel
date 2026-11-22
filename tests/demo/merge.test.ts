@@ -310,6 +310,8 @@ describe("Congress.gov bill reference", () => {
     "hr 1234 119; s 5 119",
     "h.r. 1234 119",
     "hr -12 119",
+    "hr 000 119",
+    "hr 12 00",
     "hb 1100",
     "water quality standards",
     "Executive Order 13175",

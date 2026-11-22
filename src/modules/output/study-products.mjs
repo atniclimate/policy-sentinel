@@ -141,6 +141,11 @@ function originGroups(records) {
 
 function attributedGraph(study, records, evidence, audience) {
   const citations = new Map(evidence.map((row) => [row.id, row.citation]));
+  const restrictedVersions = new Set(
+    records.passages
+      .filter((row) => row.sensitivity === "restricted")
+      .map((row) => row.citation.versionId),
+  );
   const evidenceByVersion = new Map();
   for (const row of evidence) {
     const versionId = row.citation.versionId;
@@ -189,10 +194,9 @@ function attributedGraph(study, records, evidence, audience) {
         id: versionId,
         actorId: null,
         createdAt: source.citation.retrievedAt,
-        sensitivity:
-          audience === "public"
-            ? "public"
-            : records.passages.find((row) => row.id === source.id).sensitivity,
+        sensitivity: restrictedVersions.has(versionId)
+          ? "restricted"
+          : "public",
       },
       source.citation.sourceTitle,
       sourceRows.map((row) => row.id),
@@ -330,20 +334,15 @@ export async function buildStudyProducts(
     candidateAllowed,
   );
   const origin = originGroups(records);
-  const evidence = await Promise.all(
-    records.passages.map(async (passage) => {
-      const content = passageContent.get(passage.id);
-      return {
-        id: passage.id,
-        actorId: passage.actorId,
-        reviewState: passage.reviewState,
-        provenance: "source_content",
-        citation: passage.citation,
-        ...content,
-        originGroup: origin(passage.citation.versionId),
-      };
-    }),
-  );
+  const evidence = records.passages.map((passage) => ({
+    id: passage.id,
+    actorId: passage.actorId,
+    reviewState: passage.reviewState,
+    provenance: "source_content",
+    citation: passage.citation,
+    ...passageContent.get(passage.id),
+    originGroup: origin(passage.citation.versionId),
+  }));
   const timeline = [
     ...records.actions,
     ...records.deadlines,

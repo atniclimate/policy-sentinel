@@ -14,6 +14,12 @@ import {
 } from "../../src/app/routing";
 
 describe("URL-backed application state", () => {
+  it("preserves a literal question mark and filters after it in a shared link", () => {
+    const { params } = parseRoute("#/search?q=When?&source=federal-register");
+    expect(params.get("q")).toBe("When?");
+    expect(params.get("source")).toBe("federal-register");
+  });
+
   it.each(["__proto__", "constructor", "toString"])(
     "round-trips the prototype-named category %s without inherited values",
     (category) => {

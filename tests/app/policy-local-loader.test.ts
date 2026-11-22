@@ -252,6 +252,22 @@ describe("sealed local corpus bundle loader", () => {
     );
   });
 
+  it("cancels an oversized declared response before reading the body", async () => {
+    const cancel = vi.fn();
+    const body = new ReadableStream<Uint8Array>({ cancel });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(body, { headers: { "content-length": "65537" } }),
+      ),
+    );
+    await expect(loadPolicyLocalBundle()).rejects.toThrow(
+      "Local response exceeds byte ceiling",
+    );
+    expect(cancel).toHaveBeenCalledOnce();
+  });
+
   it.each(["rejects", "never finishes"])(
     "rejects an oversized stream even when cancellation %s",
     async (mode) => {

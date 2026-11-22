@@ -16,6 +16,11 @@ const hash = async (bytes: Uint8Array<ArrayBuffer>) =>
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
 
+function rejectResponse(response: Response, message: string): never {
+  void response.body?.cancel().catch(() => undefined);
+  throw new Error(message);
+}
+
 async function boundedBytes(
   response: Response,
   maxBytes: number,
@@ -25,7 +30,7 @@ async function boundedBytes(
     declared !== null &&
     (!/^\d+$/.test(declared) || Number(declared) > maxBytes)
   )
-    throw new Error("Local response exceeds byte ceiling");
+    rejectResponse(response, "Local response exceeds byte ceiling");
   const reader = response.body?.getReader();
   if (!reader) throw new Error("Local response body unavailable");
   const chunks: Uint8Array[] = [];
@@ -66,7 +71,7 @@ async function pinnedFile(
     response.headers.get("content-length") === null ||
     Number(response.headers.get("content-length")) !== size
   )
-    throw new Error(`Local ${label} unavailable`);
+    rejectResponse(response, `Local ${label} unavailable`);
   const bytes = await boundedBytes(response, size);
   if (bytes.byteLength !== size || (await hash(bytes)) !== digest)
     throw new Error(`Local ${label} checksum mismatch`);
@@ -83,7 +88,7 @@ export async function loadPolicyLocalBundle(): Promise<PolicyLocalBundle> {
   if (location.hostname !== "127.0.0.1" || location.protocol !== "http:")
     throw new Error("Local loopback profile required");
   const response = await fetch("./local-profile.json", fetchOptions);
-  if (!response.ok) throw new Error("Local profile unavailable");
+  if (!response.ok) rejectResponse(response, "Local profile unavailable");
   const profile = decode(await boundedBytes(response, 64 * 1024));
   if (
     !profile ||

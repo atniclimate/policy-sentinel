@@ -4,6 +4,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { REGULATIONS_V2_CONFIRMED } from "../../src/demo/search-contract";
 import worker from "../../worker/src/index";
+import { regulationsCloseDate } from "../../worker/src/sources/regulations";
+
+it.each([
+  "2099-03-02T99:59:59-05:00",
+  "2099-03-02T23:99:59-05:00",
+  "2099-03-02T23:59:99-05:00",
+  "2099-03-02T23:59:59-99:00",
+  "2099-03-02T23:59:59-05:99",
+])("withholds malformed comment deadline %s", (value) => {
+  expect(regulationsCloseDate(value)).toBeUndefined();
+});
 
 const ORIGIN = "http://localhost:5211";
 const keyed = { DATA_GOV_API_KEY: "synthetic-key" };

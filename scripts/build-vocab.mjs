@@ -11,7 +11,7 @@
 // Aliases need the full Nation-name list (G3), as the index validator does.
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 import Ajv2020 from "ajv/dist/2020.js";
@@ -20,8 +20,9 @@ import {
   compareCodeUnits,
 } from "../src/core/canonical-json.mjs";
 import {
-  FULL_PROBE_ENTRIES,
+  INCOMPLETE_PROBE,
   isFullProbe,
+  insideRepo,
   loadNationProbe,
   probeHashHit,
 } from "./demo-index/common.mjs";
@@ -275,15 +276,12 @@ export function reviewPacket(file) {
   return `${lines.join("\n")}\n`;
 }
 
-export function insideRepo(path) {
-  const rel = relative(REPO, resolve(path));
-  return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
-}
+export { insideRepo };
 
 export function writeReviewPacket(path, file) {
   if (insideRepo(path))
     throw new Error("The review packet goes outside the repository.");
-  writeFileSync(path, reviewPacket(file), "utf8");
+  writeFileSync(path, reviewPacket(file), { encoding: "utf8", flag: "wx" });
 }
 
 function main(argv) {
@@ -310,9 +308,7 @@ function main(argv) {
     if (probeHashHit(value, probe))
       problems.push(`${path}: Nation-name probe hit (G3)`);
   if (file.entries?.length && !isFullProbe(probe))
-    problems.push(
-      `the Nation-name probes hold ${probe.entryCount ?? 0} entries, not the full list of ${FULL_PROBE_ENTRIES} (G3)`,
-    );
+    problems.push(INCOMPLETE_PROBE);
   console.log(
     `aliases ${file.entries?.length ?? 0} entries; vocabulary ${ceiling.files} files, ${ceiling.rawBytes} bytes raw, ${ceiling.gzipBytes} gzipped; Nation-name probes: ${probe.source}`,
   );
@@ -321,7 +317,7 @@ function main(argv) {
     return 1;
   }
   if (packet) {
-    writeReviewPacket(packet, JSON.parse(text));
+    writeReviewPacket(packet, file);
     console.log(`review packet written to ${packet}`);
   }
   return 0;

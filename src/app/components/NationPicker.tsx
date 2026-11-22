@@ -20,14 +20,15 @@ export function NationPicker({
   id = "nation",
 }: NationPickerProps) {
   const selectedNation = nations.find((nation) => nation.id === value);
-  const [input, setInput] = useState(selectedNation?.officialName ?? "");
+  const [query, setInput] = useState("");
+  const input = selectedNation?.officialName ?? query;
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setInput(selectedNation?.officialName ?? "");
-  }, [selectedNation?.officialName]);
+    if (selectedNation) setInput("");
+  }, [selectedNation]);
 
   const matches = useMemo(
     () =>
@@ -43,7 +44,7 @@ export function NationPicker({
 
   const choose = (nation: Nation) => {
     onChange(nation.id);
-    setInput(nation.officialName);
+    setInput("");
     setOpen(false);
     inputRef.current?.focus();
   };
@@ -89,6 +90,7 @@ export function NationPicker({
             setOpen(true);
           }}
           onKeyDown={(event) => {
+            if (event.isComposing) return;
             if (event.key === "ArrowDown") {
               event.preventDefault();
               setOpen(true);
@@ -111,7 +113,7 @@ export function NationPicker({
             } else if (event.key === "Escape") {
               event.preventDefault();
               setOpen(false);
-              setInput(selectedNation?.officialName ?? "");
+              setInput("");
             }
           }}
         />

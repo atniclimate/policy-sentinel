@@ -388,6 +388,7 @@ export function SearchCombobox({
   };
 
   const onKeyDown = (event: KeyboardEvent) => {
+    if (event.isComposing) return;
     const n = options.length;
     switch (event.key) {
       case "ArrowDown":

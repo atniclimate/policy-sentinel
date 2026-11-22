@@ -1,20 +1,29 @@
 // @vitest-environment node
 import { createHash } from "node:crypto";
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { IndexManifest } from "../../src/demo/index-types";
 import {
   parseAcquireArgs,
+  installIndexFiles,
   runAcquire,
   USAGE,
 } from "../../scripts/demo-index/acquire.mjs";
-import { probeHashFile } from "../../scripts/demo-index/common.mjs";
+import { insideRepo, probeHashFile } from "../../scripts/demo-index/common.mjs";
 import { validateDemoIndex } from "../../scripts/demo-index/validate.mjs";
 import {
   makeZip,
   probeFile,
+  reviewedProbeWith,
   removeTemps,
   tempDir,
   writeIndex,
@@ -51,7 +60,7 @@ function harness(
   existing?: string,
   start = START,
 ) {
-  const dataDir = existing ?? tempDir();
+  const dataDir = existing ?? join(tempDir(), "index");
   // A fresh manifest, so these tests do not depend on what is acquired today.
   if (!existing) writeIndex(dataDir);
   const workDir = tempDir();
@@ -102,8 +111,6 @@ function harness(
     join(out, "report.json"),
     "--rights-file",
     rightsFile,
-    "--nation-names",
-    probeFile(),
   ];
   const run = (argv: string[]) => runAcquire([...argv, ...common], deps);
   const manifest = (): IndexManifest =>
@@ -145,6 +152,62 @@ const cfrAnswers = (xml: Buffer = CFR_XML): Record<string, Answer> => ({
 const CFR = ["cfr", "--title", "25", "--edition", "2025"];
 
 describe("acquisition boundary", () => {
+  it.each(["rights", "recognition", "prior report"])(
+    "preserves an existing %s file selected as the report before fetching",
+    async (kind) => {
+      const h = harness(cfrAnswers());
+      const names = probeFile();
+      const prior = join(h.out, "prior.json");
+      writeFileSync(prior, "earlier run");
+      const report =
+        kind === "rights"
+          ? h.rightsFile
+          : kind === "recognition"
+            ? names
+            : prior;
+      const before = readFileSync(report);
+      const result = await runAcquire(
+        [
+          ...CFR,
+          "--report",
+          report,
+          "--work-dir",
+          h.workDir,
+          "--rights-file",
+          h.rightsFile,
+          "--nation-names",
+          names,
+        ],
+        h.deps,
+      );
+      expect(result.exitCode).toBe(2);
+      expect(h.calls).toEqual([]);
+      expect(readFileSync(report)).toEqual(before);
+    },
+  );
+
+  it("recognizes a future output beneath a directory linked into the repository", () => {
+    const repository = tempDir();
+    const link = join(tempDir(), "checkout");
+    symlinkSync(repository, link, "junction");
+    expect(insideRepo(join(link, "future", "out.json"), repository)).toBe(true);
+  });
+
+  it("restores earlier shards if a later install fails", () => {
+    const root = join(tempDir(), "index");
+    mkdirSync(root);
+    writeFileSync(join(root, "previous"), "retained");
+    expect(() =>
+      installIndexFiles(root, [
+        { path: "previous", bytes: Buffer.from("replacement") },
+        { path: "new-file", bytes: Buffer.from("new") },
+        { path: "previous/child", bytes: Buffer.from("unwritable") },
+      ]),
+    ).toThrow();
+    expect(readFileSync(join(root, "previous"), "utf8")).toBe("retained");
+    expect(readdirSync(root)).toEqual(["previous"]);
+  });
+
   it("is never run by build, check, demo:build or test, and check runs the validator (A3, K3)", () => {
     const scripts: Record<string, string> = JSON.parse(
       readFileSync("package.json", "utf8"),
@@ -219,7 +282,40 @@ describe("acquisition boundary", () => {
       parseAcquireArgs([...CFR, "--work-dir", "x", "--report", "y"]),
     ).toThrow(/rights-file/);
     expect(() => parseAcquireArgs(["fetch-all"])).toThrow(/usage/);
+    expect(() =>
+      parseAcquireArgs([
+        "uslm",
+        "--title",
+        "25",
+        "--release-point",
+        "119-136",
+        "--terms-read",
+        "2026-02-30",
+        ...dry,
+      ]),
+    ).toThrow(/terms-read/);
   });
+
+  it.each([
+    ["vocab", "--title", "25"],
+    [...CFR, "--only", "fr-agencies"],
+    ["uslm", "--edition", "2025"],
+    [...CFR, "--title=26"],
+    ["vocab", "--only", "fr-agencies", "--only=fr-topics"],
+    ["vocab", "--dry-run"],
+  ])(
+    "rejects misplaced or repeated options before planning: %s",
+    async (...args) => {
+      const fetch = vi.fn<typeof globalThis.fetch>();
+      const log = vi.fn();
+      const result = await runAcquire([...args, "--dry-run"], { fetch, log });
+      expect(result).toEqual({ exitCode: 2 });
+      expect(fetch).not.toHaveBeenCalled();
+      expect(log).toHaveBeenCalledExactlyOnceWith(
+        expect.stringMatching(/unknown option|more than once/i),
+      );
+    },
+  );
 
   it("prints the plan and makes no request on --dry-run", async () => {
     const lines: string[] = [];
@@ -258,26 +354,29 @@ describe("acquisition boundary", () => {
     ]);
   });
 
-  it("refuses a work directory inside the repository", async () => {
-    const h = harness(cfrAnswers());
-    const result = await runAcquire(
-      [
-        ...CFR,
-        "--work-dir",
-        "docs/demo-data",
-        "--report",
-        join(tempDir(), "r.json"),
-        "--rights-file",
-        "x.json",
-        "--nation-names",
-        probeFile(),
-      ],
-      h.deps,
-    );
-    expect(result.exitCode).toBe(2);
-    expect(h.calls).toEqual([]);
-    expect(h.lines).toEqual(["--work-dir must be outside the repository"]);
-  });
+  it.each(["docs/demo-data", "..scratch"])(
+    "refuses repository work directory %s",
+    async (path) => {
+      const h = harness(cfrAnswers());
+      const result = await runAcquire(
+        [
+          ...CFR,
+          "--work-dir",
+          path,
+          "--report",
+          join(tempDir(), "r.json"),
+          "--rights-file",
+          "x.json",
+          "--nation-names",
+          probeFile(),
+        ],
+        h.deps,
+      );
+      expect(result.exitCode).toBe(2);
+      expect(h.calls).toEqual([]);
+      expect(h.lines).toEqual(["--work-dir must be outside the repository"]);
+    },
+  );
 
   it("refuses a real run without the full Nation-name list, or without a rights record (G3, N17)", async () => {
     expect(() =>
@@ -295,35 +394,168 @@ describe("acquisition boundary", () => {
         "y",
       ]),
     ).toThrow(/rights-file/);
-    // The committed fixture alone holds a handful of entries, not 575.
+    // A padded structure fixture can match the expected count without coverage.
     const h = harness(cfrAnswers());
+    const reportPath = join(h.out, "report.json");
     const result = await runAcquire(
       [
         ...CFR,
         "--work-dir",
         h.workDir,
         "--report",
-        join(tempDir(), "r.json"),
+        reportPath,
         "--rights-file",
         "x.json",
         "--nation-names",
-        probeFile(0),
+        probeFile(575),
       ],
       h.deps,
     );
     expect(result.exitCode).toBe(2);
     expect(h.calls).toEqual([]);
-    expect(h.lines[0]).toMatch(/not the full list of 575; nothing fetched/);
+    expect(h.lines[0]).toMatch(
+      /reviewed 575-Nation inventory.*nothing fetched/,
+    );
+    expect(existsSync(reportPath)).toBe(false);
   });
 });
 
 describe("CFR acquisition", () => {
+  it("rejects the combined volume sizes before inflating any XML", async () => {
+    const zip = makeZip(
+      [1, 2].map((volume) => ({
+        name: `CFR-2025-title25-vol${volume}.xml`,
+        data: Buffer.from("small test payload"),
+        deflate: true,
+      })),
+    );
+    // Two individually allowed 300 MiB entries exceed the 512 MiB title limit.
+    const centralHeader = Buffer.from([0x50, 0x4b, 0x01, 0x02]);
+    for (
+      let offset = zip.indexOf(centralHeader);
+      offset >= 0;
+      offset = zip.indexOf(centralHeader, offset + 46)
+    )
+      zip.writeUInt32LE(300 * 1024 * 1024, offset + 24);
+    const answers = cfrAnswers();
+    answers[ZIP].body = zip;
+    const h = harness(answers);
+    expect((await h.run(CFR)).exitCode).toBe(1);
+    expect(h.report().failure).toMatchObject({
+      stage: "fetch",
+      message: expect.stringContaining("512 MiB uncompressed"),
+    });
+    expect(
+      h.manifest().files.find((f) => f.path === "cfr/title-25.json")?.status,
+    ).toBe("unavailable");
+  });
+
+  it("records the volumes actually read when a title archive has a gap", async () => {
+    const answers = cfrAnswers();
+    answers[ZIP].body = makeZip(
+      [3, 1].map((volume) => ({
+        name: `CFR-2025-title25-vol${volume}.xml`,
+        data: CFR_XML,
+      })),
+    );
+    const h = harness(answers);
+    expect((await h.run(CFR)).exitCode).toBe(0);
+    const path = "cfr/title-25.json";
+    expect(
+      h.manifest().files.find((file) => file.path === path)?.source,
+    ).toMatchObject({
+      volumes: [1, 3],
+    });
+    expect(
+      JSON.parse(readFileSync(join(h.dataDir, path), "utf8")).volumes,
+    ).toEqual([1, 3]);
+  });
+
+  it.each(["headers", "body"])(
+    "bounds the request when %s stall",
+    async (stage) => {
+      const prior = harness(cfrAnswers());
+      expect((await prior.run(CFR)).exitCode).toBe(0);
+      const shardPath = join(prior.dataDir, "cfr", "title-25.json");
+      const priorBytes = readFileSync(shardPath);
+      const priorSource = prior
+        .manifest()
+        .files.find((f) => f.path === "cfr/title-25.json")!.source;
+      const h = harness({}, prior.dataDir);
+      const cancel = vi.fn(() => new Promise<void>(() => {}));
+      const body = new ReadableStream<Uint8Array>({ cancel });
+      const response = new Response(body, {
+        headers: { "content-type": "application/json" },
+      });
+      let releaseHeaders!: (response: Response) => void;
+      let signal: AbortSignal | null | undefined;
+      h.deps.fetch = async (_url, options?: RequestInit) => {
+        signal = options?.signal;
+        return stage === "headers"
+          ? new Promise<Response>((resolve) => {
+              releaseHeaders = resolve;
+            })
+          : response;
+      };
+      vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+      try {
+        const pending = h.run(CFR);
+        await vi.advanceTimersByTimeAsync(5 * 60_000);
+        expect((await pending).exitCode).toBe(1);
+        expect(h.report().failure).toMatchObject({
+          stage: "fetch",
+          message: expect.stringContaining("timed out"),
+        });
+        expect(h.report().requests.used).toBe(1);
+        expect(readFileSync(shardPath)).toEqual(priorBytes);
+        expect(
+          h.manifest().files.find((f) => f.path === "cfr/title-25.json"),
+        ).toMatchObject({
+          status: "retained_after_failed_refresh",
+          source: priorSource,
+        });
+        expect(signal?.aborted).toBe(true);
+        if (stage === "headers") {
+          releaseHeaders(response);
+          await vi.advanceTimersByTimeAsync(0);
+        }
+        expect(cancel).toHaveBeenCalledOnce();
+        expect(body.locked).toBe(false);
+        expect(readdirSync(h.workDir)).toEqual([]);
+      } finally {
+        vi.useRealTimers();
+      }
+    },
+  );
+
+  it("stops reading an oversized listing without a content length", async () => {
+    const h = harness({});
+    let cancelled = false;
+    let sent = 0;
+    h.deps.fetch = async () =>
+      new Response(
+        new ReadableStream({
+          pull(controller) {
+            if (sent++ < 4) controller.enqueue(new Uint8Array(600_000));
+            else controller.close();
+          },
+          cancel() {
+            cancelled = true;
+          },
+        }),
+        { headers: { "content-type": "application/json" } },
+      );
+    expect((await h.run(CFR)).exitCode).toBe(1);
+    expect(cancelled).toBe(true);
+    expect(h.report().failure.stage).toBe("fetch");
+  });
+
   it("writes the shard and the manifest, spaced requests, raw bytes removed", async () => {
     const h = harness(cfrAnswers());
     const result = await h.run(CFR);
     expect(result.exitCode).toBe(0);
     // The refresh report names the probe list and its size for the I2 pull request text.
-    expect(h.report().probes.source).toMatch(/--nation-names/);
+    expect(h.report().probes.source).toMatch(/hashed recognition list/);
     expect(h.report().probes.entryCount).toBeGreaterThanOrEqual(575);
     expect(h.calls.map((c) => c.url)).toEqual([LISTING, ZIP]);
     expect(h.calls[1].at - h.calls[0].at).toBeGreaterThanOrEqual(1100);
@@ -343,7 +575,7 @@ describe("CFR acquisition", () => {
       requestCount: 2,
       editionYear: 2025,
       revisedAsOfText: "Revised as of April 1, 2025",
-      volumes: null,
+      volumes: [1],
       rights: { readByRole: "owner" },
     });
     expect(validateDemoIndex(h.dataDir).errors).toEqual([]);
@@ -486,15 +718,31 @@ describe("CFR acquisition", () => {
       "raw-2-CFR-2025-title-25.zip",
     ]);
   });
+
+  it("preserves existing stage and download files in a reused work directory", async () => {
+    const h = harness(cfrAnswers());
+    const stage = join(h.workDir, "stage");
+    const raw = join(h.workDir, "raw-1-title-25");
+    writeFileSync(stage, "prior stage");
+    writeFileSync(raw, "prior download");
+    expect((await h.run(CFR)).exitCode).toBe(1);
+    expect(readFileSync(stage, "utf8")).toBe("prior stage");
+    expect(readFileSync(raw, "utf8")).toBe("prior download");
+  });
 });
 
 describe("the committed hash file as the probe (D-175)", () => {
   const AGENCIES = "https://www.federalregister.gov/api/v1/agencies";
   /** A hash file of `count` synthetic names; never a real name. */
-  const hashFile = (count: number) => {
+  const hashFile = (count: number, reviewed = false) => {
     const names = Array.from({ length: count }, (_, i) => `Synthetic Row ${i}`);
     const path = join(tempDir(), "probes.json");
-    writeFileSync(path, JSON.stringify(probeHashFile(names, count)));
+    writeFileSync(
+      path,
+      JSON.stringify(
+        reviewed ? reviewedProbeWith(names) : probeHashFile(names, count),
+      ),
+    );
     return path;
   };
   const agencies = (h: ReturnType<typeof harness>, probeHashPath: string) =>
@@ -529,7 +777,7 @@ describe("the committed hash file as the probe (D-175)", () => {
 
   it("drops a label that hashes to a listed name when no plain notice is given", async () => {
     const h = harness(answers);
-    expect((await agencies(h, hashFile(575))).exitCode).toBe(0);
+    expect((await agencies(h, hashFile(575, true))).exitCode).toBe(0);
     const file = JSON.parse(
       readFileSync(join(h.dataDir, "vocab", "fr-agencies.json"), "utf8"),
     );
@@ -542,11 +790,12 @@ describe("the committed hash file as the probe (D-175)", () => {
 
   it("fetches nothing when the hash file is not the full list", async () => {
     const h = harness(answers);
-    expect((await agencies(h, hashFile(12))).exitCode).toBe(2);
+    expect((await agencies(h, hashFile(575))).exitCode).toBe(2);
     expect(h.calls).toEqual([]);
     expect(h.lines[0]).toMatch(
-      /the committed hash file holds \d+ recognition entries, not the full list of 575; nothing fetched/,
+      /reviewed 575-Nation inventory.*nothing fetched/,
     );
+    expect(existsSync(join(h.out, "report.json"))).toBe(false);
   });
 });
 
@@ -595,6 +844,30 @@ describe("vocabulary, U.S. Code and eCFR acquisition", () => {
       entryCount: 1,
     });
     expect(validateDemoIndex(h.dataDir).errors).toEqual([]);
+    for (const [kind, endpoint, body] of [
+      ["fr-agencies", "agencies", "[]"],
+      ["fr-topics", "documents/facets/topic", "{}"],
+    ]) {
+      const path = `vocab/${kind}.json`;
+      const before = readFileSync(join(h.dataDir, path));
+      const failed = harness(
+        {
+          [`https://www.federalregister.gov/api/v1/${endpoint}`]: {
+            type: "application/json",
+            body,
+          },
+        },
+        h.dataDir,
+      );
+      expect((await failed.run(["vocab", "--only", kind])).exitCode).toBe(1);
+      expect(readFileSync(join(h.dataDir, path))).toEqual(before);
+      expect(
+        failed.manifest().files.find((entry) => entry.path === path),
+      ).toMatchObject({
+        status: "retained_after_failed_refresh",
+        failureStage: "normalize",
+      });
+    }
   });
 
   it("writes a U.S. Code shard with the release point and the upstream hash", async () => {

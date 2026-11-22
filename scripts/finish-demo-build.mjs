@@ -6,6 +6,7 @@ import {
   writeFileSync,
   existsSync,
   lstatSync,
+  unlinkSync,
 } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -13,7 +14,7 @@ import { fileURLToPath } from "node:url";
 import { copyThirdPartyNotices } from "./copy-third-party-notices.mjs";
 import {
   FORBIDDEN_OUTPUT as forbidden,
-  FULL_PROBE_ENTRIES,
+  INCOMPLETE_PROBE,
   isFullProbe,
   loadNationProbe,
 } from "./demo-index/common.mjs";
@@ -47,7 +48,7 @@ function scanDemoData(root, { now, probe } = {}) {
     );
   if (result.fileCount > 0 && !isFullProbe(probe))
     throw new Error(
-      `demo build refused: ${result.fileCount} index files present, but the Nation-name probes hold ${probe.entryCount ?? 0} entries, not the full list of ${FULL_PROBE_ENTRIES} (G3)`,
+      `demo build refused: ${result.fileCount} index files present; ${INCOMPLETE_PROBE}`,
     );
   return result.fileCount + 1; // + 1 is the manifest
 }
@@ -93,12 +94,27 @@ export function scanDemoOutput(root, options = {}) {
 
 // After the Vite build: lay the third-party notices into the Pages folder
 // (T1.8), scan the generated output, and keep .nojekyll so Pages serves files as they are.
-export function finishDemoBuild(repoRoot) {
+export function finishDemoBuild(repoRoot, emittedFiles) {
   copyThirdPartyNotices(repoRoot);
   const docs = join(repoRoot, "docs");
   const result = scanDemoOutput(docs);
   const nojekyll = join(docs, ".nojekyll");
   if (!existsSync(nojekyll)) writeFileSync(nojekyll, "");
+  if (emittedFiles) {
+    // Vite owns hashed files in this directory. Its output includes lazy chunks,
+    // fonts and images even when index.html does not reference them directly.
+    const assets = join(docs, "demo-assets");
+    for (const entry of readdirSync(assets, { withFileTypes: true })) {
+      if (
+        entry.isFile() &&
+        /-[\w-]{8}\.(?:js|css|woff2|ttf|png)$/.test(entry.name) &&
+        !emittedFiles.has(`demo-assets/${entry.name}`)
+      ) {
+        unlinkSync(join(assets, entry.name));
+        result.generatedFiles--;
+      }
+    }
+  }
   return result;
 }
 
@@ -106,8 +122,25 @@ if (
   process.argv[1] &&
   resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-  const result = finishDemoBuild(fileURLToPath(new URL("..", import.meta.url)));
+  const repo = fileURLToPath(new URL("..", import.meta.url));
+  let emittedFiles;
+  if (process.argv.includes("--build")) {
+    const { build } = await import("vite");
+    const built = await build({
+      configFile: join(repo, "vite.demo.config.ts"),
+    });
+    const outputs = Array.isArray(built) ? built : [built];
+    emittedFiles = new Set(
+      outputs.flatMap(({ output }) => output.map(({ fileName }) => fileName)),
+    );
+    if (
+      !emittedFiles.has("index.html") ||
+      ![...emittedFiles].some((name) => name.startsWith("demo-assets/"))
+    )
+      throw new Error("Demo build did not emit its entry page and assets.");
+  }
+  const result = finishDemoBuild(repo, emittedFiles);
   console.log(
-    `demo build checked: ${result.generatedFiles} generated files; tracked historical docs require separate publication review`,
+    `Demo build checked ${result.generatedFiles} generated files.`,
   );
 }

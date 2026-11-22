@@ -5,6 +5,7 @@ export const ACQUIRE_VERSION: string;
 export const APPROVAL_REF: string;
 export const SCHEMA_REF: string;
 export const REPO_ROOT: string;
+export function insideRepo(path: string, root?: string): boolean;
 export const SCHEMA_PATH: string;
 export const DEFAULT_PROBE_FIXTURE: string;
 export const OFFICIAL_HOSTS: readonly string[];
@@ -34,6 +35,8 @@ export interface NationProbe {
   entryCount?: number;
   /** SHA-256 hex of each normalized name form. */
   hashes?: ReadonlySet<string>;
+  /** Optional baseline carried across a union, verified against the reviewed digest. */
+  baselineHashes?: readonly string[];
   /** The longest normalized name form, in words. */
   maxWords?: number;
 }
@@ -44,10 +47,14 @@ export interface NationProbeHashFile {
   maxWords: number;
   hashes: string[];
 }
-export function loadProbeNames(path?: string): NationProbe & {
+export function loadProbeNames(
+  path?: string,
+  options?: { requireReviewedInventory?: boolean },
+): NationProbe & {
   entryCount: number;
 };
 export const FULL_PROBE_ENTRIES: number;
+export const INCOMPLETE_PROBE: string;
 export function isFullProbe(probe: NationProbe): boolean;
 export const PROBE_HASH_PATH: string;
 export const PROBE_NORMALIZATION: string;

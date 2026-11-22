@@ -12,6 +12,8 @@ import {
   searchPolicyCorpus,
 } from "../../../src/engine/policy-search.mjs";
 import {
+  captureStudyPassage,
+  createResearchStudy,
   reviseResearchStudy,
   serializeResearchStudy,
   parseResearchStudy,
@@ -125,6 +127,73 @@ function relatedCorpus(
 }
 
 describe("integrated study knowledge products", () => {
+  it.each(["public", "restricted"] as const)(
+    "restricts source nodes with mixed-sensitivity evidence in either order (%s)",
+    async (firstSensitivity) => {
+      const { corpus, passages } = await fixture();
+      const parent = passages.parent;
+      const study = await createResearchStudy(
+        {
+          id: "mixed-study",
+          title: "Mixed evidence",
+          createdAt: parent.createdAt,
+          actor: {
+            id: parent.actorId,
+            label: "Analyst",
+            kind: "analyst",
+            sensitivity: "public",
+          },
+          sensitivity: "public",
+        },
+        corpus,
+      );
+      const first = await captureStudyPassage(
+        {
+          id: "first-passage",
+          segmentId: parent.citation.segmentId,
+          actorId: parent.actorId,
+          createdAt: parent.createdAt,
+          sensitivity: firstSensitivity,
+        },
+        corpus,
+      );
+      const second = await captureStudyPassage(
+        {
+          id: "second-passage",
+          segmentId: first.citation.segmentId,
+          actorId: first.actorId,
+          createdAt: first.createdAt,
+          sensitivity: firstSensitivity === "public" ? "restricted" : "public",
+        },
+        corpus,
+      );
+      const restricted = firstSensitivity === "restricted" ? first : second;
+      const revised = await reviseResearchStudy(
+        study,
+        {
+          updatedAt: "2026-10-08T23:00:00Z",
+          actorId: study.updatedBy,
+          records: [
+            { collection: "passages", record: first },
+            { collection: "passages", record: second },
+          ],
+        },
+        corpus,
+      );
+      const local = await buildStudyProducts(revised, corpus);
+      const node = local.graph.nodes.find(
+        (item) =>
+          item.ref.kind === "SourceDocument" &&
+          item.ref.id === restricted.citation.versionId,
+      );
+      expect(node?.citations).toHaveLength(2);
+      expect(node?.sensitivity).toBe("restricted");
+      const publicProducts = await buildStudyProducts(revised, corpus, {
+        audience: "public",
+      });
+      expect(JSON.stringify(publicProducts)).not.toContain(restricted.id);
+    },
+  );
   it("exports 2.1 study evidence with its exact jurisdiction-bound source digest", async () => {
     const { corpus, study } = (await createSyntheticResearchStudyFixture({
       schemaVersion: "2.1.0",

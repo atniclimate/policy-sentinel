@@ -614,7 +614,9 @@ describe("relation names a source returns (decision 12)", () => {
     expect(labels(rows)).toEqual([
       ["Identical bill", true],
       [chain.relationWithheld, false],
+      ["Related bills stated by Congress.gov", false],
     ]);
+    expect(rows.at(-1)?.notice).toBe(chain.cut(1, 2));
     expect(links(rows).map((r) => r.target.identifier)).toEqual([
       "HR 4005, 199th Congress",
       "HR 4005, 199th Congress",

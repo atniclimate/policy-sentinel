@@ -19,7 +19,10 @@ describe("index loader", () => {
     const fetch = vi.fn(() => ok(cfrBytes));
     const loader = createIndexLoader(manifest, { fetch });
     const result = await loader.load<CfrAuthorityShard>("cfr/title-99.json");
-    expect(fetch).toHaveBeenCalledWith("./demo-data/cfr/title-99.json");
+    expect(fetch).toHaveBeenCalledWith("./demo-data/cfr/title-99.json", {
+      mode: "same-origin",
+      signal: expect.any(AbortSignal),
+    });
     expect(result.state).toBe("current");
     if (result.state === "current") expect(result.data).toEqual(cfrShard);
     expect(shardNotice(result)).toBeNull();
@@ -35,6 +38,47 @@ describe("index loader", () => {
     const result = await loader.load("cfr/title-99.json");
     expect(result.state).toBe("index_unavailable");
     expect(shardNotice(result)).toBe("Index unavailable");
+  });
+
+  it("cancels a chunked shard as soon as it exceeds its listed size", async () => {
+    const cancel = vi.fn();
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new Uint8Array(cfrBytes.length + 1));
+      },
+      cancel,
+    });
+    const loader = createIndexLoader(manifest, {
+      fetch: async () => new Response(stream),
+    });
+    expect((await loader.load("cfr/title-99.json")).state).toBe(
+      "index_unavailable",
+    );
+    expect(cancel).toHaveBeenCalledOnce();
+  });
+
+  it("releases a stalled read so the next open can try again", async () => {
+    vi.useFakeTimers();
+    try {
+      const fetch = vi
+        .fn<typeof globalThis.fetch>()
+        .mockImplementationOnce(
+          (_url, init) =>
+            new Promise((_resolve, reject) => {
+              init!.signal!.addEventListener("abort", () =>
+                reject(new Error("Timed out")),
+              );
+            }),
+        )
+        .mockImplementation(() => ok(cfrBytes));
+      const loader = createIndexLoader(manifest, { fetch });
+      const first = loader.load("cfr/title-99.json");
+      await vi.advanceTimersByTimeAsync(30_000);
+      expect((await first).state).toBe("index_unavailable");
+      expect((await loader.load("cfr/title-99.json")).state).toBe("current");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("shows index unavailable on a fetch failure or an error status, and tries again on the next open", async () => {
@@ -106,6 +150,9 @@ describe("index loader", () => {
       fetch,
     });
     expect((await loader.load(path)).state).toBe("current");
-    expect(fetch).toHaveBeenCalledWith(`./demo-data/${path}`);
+    expect(fetch).toHaveBeenCalledWith(`./demo-data/${path}`, {
+      mode: "same-origin",
+      signal: expect.any(AbortSignal),
+    });
   });
 });

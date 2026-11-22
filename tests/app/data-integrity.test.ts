@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { createHash, webcrypto } from "node:crypto";
+import { bindFixtureAssets } from "./manifest-fixture";
 
 import {
   loadArtifacts,
@@ -8,6 +10,20 @@ import {
 
 const SOURCE_ID = "synthetic-source";
 const GENERATED_AT = "2026-07-31T12:00:00Z";
+
+function serveBoundDetail(
+  record: { detailAssetSha256?: string },
+  detail: unknown,
+  generatedAt = GENERATED_AT,
+) {
+  const body = JSON.stringify({ generatedAt, record: detail });
+  record.detailAssetSha256 = createHash("sha256").update(body).digest("hex");
+  vi.stubGlobal("crypto", webcrypto);
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => new Response(body)),
+  );
+}
 
 const compactRecord = () => ({
   id: "psr:synthetic:record-1",
@@ -249,6 +265,10 @@ const rootAssets = (records: unknown[] = [compactRecord()]) =>
   ]);
 
 const installAssetFetch = (assets: Map<string, unknown>) => {
+  const bound = new Map(assets);
+  if (!bound.has("data/details/record_1.json"))
+    bound.set("data/details/record_1.json", {});
+  bindFixtureAssets(bound, "data/");
   const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
     const raw =
       typeof input === "string"
@@ -277,6 +297,42 @@ afterEach(() => {
 });
 
 describe("same-origin artifact integrity", () => {
+  it("refuses an index or detail from another build with matching record counts", async () => {
+    const assets = rootAssets();
+    installAssetFetch(assets);
+    const { records } = await loadArtifacts();
+    assets.set("data/details/record_1.json", { changed: true });
+    await expect(loadRecordDetail(records[0])).rejects.toThrow(
+      "checksum mismatch",
+    );
+    assets.set("data/index/records.json", {
+      records: [{ ...compactRecord(), officialTitle: "Earlier title" }],
+    });
+    await expect(loadArtifacts()).rejects.toThrow("checksum mismatch");
+  });
+  it.each([
+    "data/index/records.json",
+    "data/coverage.json",
+    "data/source-health.json",
+  ])(
+    "rejects %s with a missing entry list instead of displaying zero entries",
+    async (path) => {
+      const assets = rootAssets([]);
+      assets.set(path, {});
+      installAssetFetch(assets);
+      await expect(loadArtifacts()).rejects.toThrow("missing its entry list");
+    },
+  );
+
+  it("rejects incomplete and duplicate record indexes before showing their results", async () => {
+    const assets = rootAssets();
+    assets.set("data/index/records.json", { records: [] });
+    installAssetFetch(assets);
+    await expect(loadArtifacts()).rejects.toThrow("record count differs");
+    installAssetFetch(rootAssets([compactRecord(), compactRecord()]));
+    await expect(loadArtifacts()).rejects.toThrow("duplicate record ID");
+  });
+
   it("fails closed before normalization for a legacy artifact package", async () => {
     const legacy = rootAssets();
     const manifest = legacy.get("data/manifest.json") as Record<
@@ -314,8 +370,15 @@ describe("same-origin artifact integrity", () => {
       "required same-origin artifact data/coverage.json",
     );
 
-    installAssetFetch(rootAssets([]));
+    const fetch = installAssetFetch(rootAssets([]));
     const bundle = await loadArtifacts();
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining("/data/manifest.json"),
+      expect.objectContaining({
+        mode: "same-origin",
+        signal: expect.any(AbortSignal),
+      }),
+    );
     expect(bundle.coverage).toEqual([]);
     expect(bundle.sourceHealth).toEqual([]);
   });
@@ -691,19 +754,7 @@ describe("Accord record integrity", () => {
     const detail = accordDetailRecord();
     detail.accordContext.executionEvent.sourceLabel =
       "Tampered execution label";
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(
-        async () =>
-          new Response(
-            JSON.stringify({ generatedAt: GENERATED_AT, record: detail }),
-            {
-              status: 200,
-              headers: { "Content-Type": "application/json" },
-            },
-          ),
-      ),
-    );
+    serveBoundDetail(record, detail);
 
     await expect(loadRecordDetail(record)).rejects.toThrow(
       "compact fields do not match",
@@ -820,22 +871,7 @@ describe("detail asset integrity", () => {
     expect(record).not.toBeNull();
     if (!record) return;
     record.artifactGeneratedAt = GENERATED_AT;
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(
-        async () =>
-          new Response(
-            JSON.stringify({
-              generatedAt: "2026-07-30T12:00:00Z",
-              record: compactRecord(),
-            }),
-            {
-              status: 200,
-              headers: { "Content-Type": "application/json" },
-            },
-          ),
-      ),
-    );
+    serveBoundDetail(record, compactRecord(), "2026-07-30T12:00:00Z");
 
     await expect(loadRecordDetail(record)).rejects.toThrow(
       "build timestamp does not match",
@@ -849,19 +885,7 @@ describe("detail asset integrity", () => {
     record.artifactGeneratedAt = GENERATED_AT;
     const detail = structuredClone(compactRecord());
     detail.issuingBodies = ["Different Issuing Body"];
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(
-        async () =>
-          new Response(
-            JSON.stringify({ generatedAt: GENERATED_AT, record: detail }),
-            {
-              status: 200,
-              headers: { "Content-Type": "application/json" },
-            },
-          ),
-      ),
-    );
+    serveBoundDetail(record, detail);
 
     await expect(loadRecordDetail(record)).rejects.toThrow(
       "compact fields do not match",
@@ -910,19 +934,7 @@ describe("detail asset integrity", () => {
     record.artifactGeneratedAt = GENERATED_AT;
     const detail = structuredClone(indexed);
     detail.judicialContext.citations[0].value = "999 U.S. 2";
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(
-        async () =>
-          new Response(
-            JSON.stringify({ generatedAt: GENERATED_AT, record: detail }),
-            {
-              status: 200,
-              headers: { "Content-Type": "application/json" },
-            },
-          ),
-      ),
-    );
+    serveBoundDetail(record, detail);
 
     await expect(loadRecordDetail(record)).rejects.toThrow(
       "compact fields do not match",
@@ -954,19 +966,7 @@ describe("detail asset integrity", () => {
         },
       ],
     };
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(
-        async () =>
-          new Response(
-            JSON.stringify({ generatedAt: GENERATED_AT, record: detail }),
-            {
-              status: 200,
-              headers: { "Content-Type": "application/json" },
-            },
-          ),
-      ),
-    );
+    serveBoundDetail(record, detail);
 
     await expect(loadRecordDetail(record)).rejects.toThrow(
       "did not contain a usable record",
@@ -1019,19 +1019,7 @@ describe("detail asset integrity", () => {
       record.artifactGeneratedAt = GENERATED_AT;
       const detail = structuredClone(compactRecord());
       mutate(detail);
-      vi.stubGlobal(
-        "fetch",
-        vi.fn(
-          async () =>
-            new Response(
-              JSON.stringify({ generatedAt: GENERATED_AT, record: detail }),
-              {
-                status: 200,
-                headers: { "Content-Type": "application/json" },
-              },
-            ),
-        ),
-      );
+      serveBoundDetail(record, detail);
 
       await expect(loadRecordDetail(record)).rejects.toThrow(message);
     },

@@ -9,7 +9,7 @@ import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 
 import {
-  FULL_PROBE_ENTRIES,
+  INCOMPLETE_PROBE,
   isFullProbe,
   loadNationProbe,
 } from "./demo-index/common.mjs";
@@ -37,7 +37,7 @@ const result = validateDemoIndex(resolve(values.dir), { probe });
 if (result.fileCount > 0 && !isFullProbe(probe)) {
   result.ok = false;
   result.errors.push(
-    `${result.fileCount} index files present, but the Nation-name probes hold ${probe.entryCount} entries, not the full list of ${FULL_PROBE_ENTRIES} (G3)`,
+    `${result.fileCount} index files present; ${INCOMPLETE_PROBE}`,
   );
 }
 for (const warning of result.warnings) console.warn(`warning: ${warning}`);

@@ -210,6 +210,11 @@ describe("accessible discovery controls", () => {
 
     fireEvent.change(nativeSelect!, { target: { value: nation.id } });
     await waitFor(() => expect(combobox).toHaveValue(nation.officialName));
+    fireEvent.input(combobox, { target: { value: "Synthetic A" } });
+    expect(combobox).toHaveValue("Synthetic A");
+    expect(nativeSelect).toHaveValue("");
+    fireEvent.keyDown(combobox, { key: "Enter", isComposing: true });
+    expect(nativeSelect).toHaveValue("");
 
     const results = await axe.run(container, {
       rules: {

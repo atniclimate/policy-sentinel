@@ -1,5 +1,5 @@
 /** Congress.gov: one bill lookup by reference; it is not read for policy text. */
-import { CONGRESS_REFERENCE } from "../../../src/demo/merge";
+import { CONGRESS_REFERENCE } from "../../../src/demo/congress-reference";
 import type {
   DemoCitation,
   DemoSearchCriteria,
@@ -21,7 +21,7 @@ import { billRef } from "./congress-related";
 
 export const HOSTS: readonly string[] = ["api.congress.gov"];
 
-async function searchCongress(
+export async function search(
   env: Env,
   criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
@@ -78,7 +78,13 @@ async function searchCongress(
     identifier: ref.identifier,
     title: requiredText(bill.title, 400),
     issuingBody: cleanText(bill.originChamber, 40) || "U.S. Congress",
-    kind: "Bill",
+    kind: type.endsWith("jres")
+      ? "Joint resolution"
+      : type.endsWith("conres")
+        ? "Concurrent resolution"
+        : type.endsWith("res")
+          ? "Resolution"
+          : "Bill",
     date: isoDate(bill.introducedDate),
     officialUrl: ref.officialUrl,
     textUrl: null,
@@ -98,11 +104,4 @@ async function searchCongress(
     criteria,
     continuation: { kind: "stopped", reason: "not_applicable" },
   };
-}
-
-export async function search(
-  env: Env,
-  criteria: DemoSearchCriteria,
-): Promise<DemoSearchResponse> {
-  return searchCongress(env, criteria);
 }

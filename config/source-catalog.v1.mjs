@@ -1,5 +1,8 @@
 import { directSourceProfiles } from "./policy-sources.v2.mjs";
-import { regionalInterfaceRegister } from "./regional-interface-register.v1.mjs";
+import {
+  publicCatalogEvidenceRecord,
+  regionalInterfaceRegister,
+} from "./regional-interface-register.v1.mjs";
 
 // GD-17 reviewed documentation and discovery leads, not renewed access profiles.
 // Official locators below are evidence, never a retrieval allowlist. No source
@@ -31,7 +34,6 @@ const discoveryRows = [
     url: "https://www.archives.gov/federal-register/faqs",
     authorityClass: "federal",
     interfaceKind: "api",
-    evidenceRecord: "docs/source-reviews/nationwide/federal-2026-10-07.md",
     modes: ["topical"],
     from: "1994-01-01",
     note: "Documented API search since 1994; no selected or emitted successor collection.",
@@ -47,7 +49,6 @@ const discoveryRows = [
     url: "https://www.govinfo.gov/developers",
     authorityClass: "federal",
     interfaceKind: "api",
-    evidenceRecord: "docs/source-reviews/nationwide/federal-2026-10-07.md",
     modes: ["identifier_only"],
     credentialEnv: "GOVINFO_API_KEY",
     note: "Collection-specific: FR since 1936, BILLS since 1993, selected incomplete USCOURTS generally since 2004. These are not one guaranteed API range.",
@@ -64,7 +65,6 @@ const discoveryRows = [
     url: "https://www.archives.gov/federal-register/faqs",
     authorityClass: "federal",
     interfaceKind: "api",
-    evidenceRecord: "docs/source-reviews/nationwide/federal-2026-10-07.md",
     terms: "blocked",
     note: "NARA describes website searches since 2017; exact API history remains unknown.",
     block:
@@ -80,7 +80,6 @@ const discoveryRows = [
     url: "https://www.loc.gov/apis/additional-apis/congress-dot-gov-api/",
     authorityClass: "federal",
     interfaceKind: "api",
-    evidenceRecord: "docs/source-reviews/nationwide/federal-2026-10-07.md",
     modes: ["identifier_only"],
     credentialEnv: "CONGRESS_API_KEY",
     note: "Field-specific historical coverage remains dated evidence; current coverage-page verification was unavailable.",
@@ -97,7 +96,6 @@ const discoveryRows = [
     url: "https://open.gsa.gov/api/regulationsgov/",
     authorityClass: "federal",
     interfaceKind: "api",
-    evidenceRecord: "docs/source-reviews/nationwide/federal-2026-10-07.md",
     modes: ["identifier_only"],
     features: ["docket_id", "parent_proceeding"],
     credentialEnv: "REGULATIONS_GOV_API_KEY",
@@ -506,8 +504,6 @@ const discoveryRows = [
     recordKinds: ["organizational_resolutions"],
     url: "https://atnitribes.org/resolution-table/",
     authorityClass: "intergovernmental",
-    evidenceRecord:
-      "docs/source-reviews/nationwide/tribal-intertribal-2026-10-07.md",
     note: "Indexed organizational table labels include 2026; archive bounds unknown. Passed labels may conflict with tabled-file descriptions.",
     block:
       "Direct index, rights, robots/access, adoption/version state and finite document selection remain unresolved.",
@@ -520,8 +516,6 @@ const discoveryRows = [
     recordKinds: ["organizational_resolutions"],
     url: "https://archive.ncai.org/terms-of-use",
     authorityClass: "intergovernmental",
-    evidenceRecord:
-      "docs/source-reviews/nationwide/tribal-intertribal-2026-10-07.md",
     terms: "blocked",
     note: "Current resolutions route and archive bounds not newly verified.",
     block:
@@ -535,8 +529,6 @@ const discoveryRows = [
     recordKinds: ["organizational_resolutions"],
     url: "https://www.usetinc.org/resources/resolutions/",
     authorityClass: "intergovernmental",
-    evidenceRecord:
-      "docs/source-reviews/nationwide/tribal-intertribal-2026-10-07.md",
     terms: "blocked",
     from: "1969-01-01",
     note: "Index declares 1969–Present; holdings not enumerated. USET and USET SPF issuers require distinct record attribution.",
@@ -551,8 +543,6 @@ const discoveryRows = [
     recordKinds: ["organizational_resolutions"],
     url: "https://www.usetinc.org/resources/resolutions/",
     authorityClass: "intergovernmental",
-    evidenceRecord:
-      "docs/source-reviews/nationwide/tribal-intertribal-2026-10-07.md",
     terms: "blocked",
     note: "Shared index does not establish USET SPF-specific date coverage; issuing body must be resolved per record.",
     block:
@@ -580,11 +570,7 @@ function discovery(row) {
       expiresAt: null,
       evidenceUrls,
     },
-    evidenceRecord:
-      row.evidenceRecord ??
-      "docs/source-reviews/nationwide/" +
-        row.region.toLowerCase() +
-        "-2026-10-07.md",
+    evidenceRecord: publicCatalogEvidenceRecord,
     terms: row.terms ?? "unresolved",
     credentials: row.credentialEnv
       ? { kind: "environment_variable", environmentVariable: row.credentialEnv }
@@ -667,7 +653,7 @@ function retainedProfile(original) {
       profile.id === "federal-court-opinions-direct" ? "pdf" : "html",
     lifecycle: "qualified",
     review: globalThis.structuredClone(profile.review),
-    evidenceRecord: "docs/handoffs/ps09-real-policy-discovery-outcome.md",
+    evidenceRecord: publicCatalogEvidenceRecord,
     terms: "cleared",
     credentials: { kind: "none" },
     implementedCapabilities: ["identifier_only"],

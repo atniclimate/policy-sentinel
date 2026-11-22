@@ -9,6 +9,9 @@ const projectRoot = path.resolve(
 );
 
 const forbiddenTrackedPrefixes = [
+  ".agents/",
+  ".claude/",
+  ".codex/",
   ".cache/",
   "ai-summaries/",
   "cached-responses/",
@@ -20,7 +23,7 @@ const forbiddenTrackedPrefixes = [
   "raw-data/",
   "secrets/",
 ];
-const forbiddenTrackedNames = new Set([".env"]);
+const forbiddenTrackedNames = new Set([".env", "agents.md", "claude.md"]);
 const credentialPatterns = [
   ["private key", /-----BEGIN [A-Z ]*PRIVATE KEY-----/],
   ["GitHub token", /\bgh[pousr]_[A-Za-z0-9]{30,}\b/],
@@ -47,6 +50,7 @@ for (const file of tracked) {
   const basename = lower.split("/").at(-1);
   if (
     forbiddenTrackedNames.has(basename) ||
+    /(?:^|\/)(?:prompts?|handoffs?)(?:\/|$)/.test(lower) ||
     basename.startsWith(".env.") ||
     forbiddenTrackedPrefixes.some((prefix) => lower.startsWith(prefix))
   ) {

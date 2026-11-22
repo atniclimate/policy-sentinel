@@ -166,6 +166,11 @@ export function buildUslmShard(xml, { title, releasePoint, names }) {
         if (!currentThroughText && /^Current through /.test(text))
           currentThroughText = text;
       } else {
+        if (!node.attrs.identifier.startsWith(`/us/usc/t${title}/`))
+          throw new StageError(
+            "normalize",
+            `section ${node.attrs.identifier} is outside Title ${title}`,
+          );
         const { entry, unmapped } = readSection(node, names, report);
         if (entries.has(entry.identifier))
           throw new StageError(
@@ -189,6 +194,11 @@ export function buildUslmShard(xml, { title, releasePoint, names }) {
     throw new StageError(
       "normalize",
       "the title does not state the requested release point",
+    );
+  if (!entries.size)
+    throw new StageError(
+      "normalize",
+      "the title contains no recognized sections",
     );
   report.unmappedRefCount = unmappedRefCount;
   const shard = {

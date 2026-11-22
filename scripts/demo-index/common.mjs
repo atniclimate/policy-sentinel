@@ -11,6 +11,7 @@ import { serializeJson } from "../../src/pipeline/hashing.mjs";
 import {
   BIA_RECOGNITION_2026,
   parseRecognitionEntries,
+  verifyReviewedRecognitionInventory,
 } from "../../src/adapters/bia/recognition-registry.ts";
 import { maskProtectedSpans } from "../../src/demo/nation-mask.ts";
 import { hasPersonalPattern } from "../../src/demo/personal-guard.ts";
@@ -19,6 +20,8 @@ export const ACQUIRE_VERSION = "1.0.0";
 export const APPROVAL_REF = "D-125";
 export const SCHEMA_REF = "../../schemas/demo-index.schema.v1.json";
 export const REPO_ROOT = fileURLToPath(new URL("../../", import.meta.url));
+
+export { insideRepo } from "../repository-path.mjs";
 export const SCHEMA_PATH = fileURLToPath(
   new URL("../../schemas/demo-index.schema.v1.json", import.meta.url),
 );
@@ -188,9 +191,13 @@ const TRAILING_STATES = new RegExp(
  * recognition notice HTML at `path` (saved outside the repository), or, by
  * default, from the committed structure fixture.
  */
-export function loadProbeNames(path) {
+export function loadProbeNames(
+  path,
+  { requireReviewedInventory = false } = {},
+) {
   const file = path ?? DEFAULT_PROBE_FIXTURE;
   const entries = parseRecognitionEntries(readFileSync(file, "utf8"), "html");
+  if (requireReviewedInventory) verifyReviewedRecognitionInventory(entries);
   const names = new Set();
   for (const { exactText } of entries) {
     names.add(exactText);
@@ -200,22 +207,60 @@ export function loadProbeNames(path) {
     const bare = head.replace(TRAILING_STATES, "");
     if (bare) names.add(bare);
   }
+  const source = path
+    ? "recognition input (--nation-names)"
+    : "committed recognition structure fixture";
+  const fileHashes = probeHashFile(names, entries.length);
   return {
-    source: path
-      ? "official recognition notice (--nation-names)"
-      : "committed recognition structure fixture",
+    source,
     names: [...names],
     entryCount: entries.length,
+    hashes: new Set(fileHashes.hashes),
+    maxWords: fileHashes.maxWords,
   };
 }
 
 /**
  * G3: the full list of 575 federally recognized Nations. The notice prints
- * 577 entry paragraphs (two are groupings), so at least 575 entries is full.
+ * 577 entry paragraphs. Coverage is pinned separately.
  */
 export const FULL_PROBE_ENTRIES = BIA_RECOGNITION_2026.expectedNationCount;
-export const isFullProbe = (probe) =>
-  (probe.entryCount ?? 0) >= FULL_PROBE_ENTRIES;
+// SHA-256 of the sorted, LF-joined normalized hashes in the reviewed v1 list.
+const REVIEWED_HASH_DIGEST =
+  "d447f36359fe4c6226ca20f6b84b2ab28c72bded32e16093078b6e952d1f4798";
+const REVIEWED_MAX_WORDS = 17;
+export const INCOMPLETE_PROBE =
+  "Nation-name probes do not cover the reviewed 575-Nation inventory at its required word span (G3)";
+function reviewedHashes(hashes) {
+  const sorted = [...hashes].sort();
+  return (
+    sorted.every(
+      (hash) => typeof hash === "string" && /^[0-9a-f]{64}$/.test(hash),
+    ) && sha256Hex(sorted.join("\n")) === REVIEWED_HASH_DIGEST
+  );
+}
+
+export function isFullProbe(probe) {
+  if (
+    !Number.isSafeInteger(probe.entryCount) ||
+    probe.entryCount < FULL_PROBE_ENTRIES ||
+    !Number.isSafeInteger(probe.maxWords) ||
+    probe.maxWords < REVIEWED_MAX_WORDS ||
+    !probe.hashes?.size
+  )
+    return false;
+  if (reviewedHashes(probe.hashes)) return true;
+  const baseline =
+    probe.baselineHashes ??
+    (existsSync(PROBE_HASH_PATH)
+      ? JSON.parse(readFileSync(PROBE_HASH_PATH, "utf8")).hashes
+      : undefined);
+  return (
+    Array.isArray(baseline) &&
+    reviewedHashes(baseline) &&
+    baseline.every((hash) => probe.hashes.has(hash))
+  );
+}
 
 /**
  * Decision 10 (2026-11-06): the committed hashed probes. The owner keeps the
@@ -274,7 +319,7 @@ export function hashedProbe(file, source) {
     file.normalization === PROBE_NORMALIZATION &&
     Number.isInteger(file.entryCount) &&
     file.entryCount >= 0 &&
-    Number.isInteger(file.maxWords) &&
+    Number.isSafeInteger(file.maxWords) &&
     file.maxWords >= 1 &&
     Array.isArray(hashes) &&
     hashes.length >= file.entryCount &&
@@ -310,10 +355,16 @@ export function loadNationProbe({ namesPath, hashPath } = {}) {
     JSON.parse(readFileSync(path, "utf8")),
     `hashed recognition list (${basename(path)})`,
   );
+  // A separately supplied reviewed file or plain notice remains verifiable
+  // after union with supplemental hashes, even when the default file is absent.
+  const baseline = [hashed.hashes, plain.hashes].find(reviewedHashes);
   return {
     ...hashed,
     source: `${plain.source} + ${hashed.source}`,
     names: plain.names,
+    hashes: new Set([...hashed.hashes, ...plain.hashes]),
+    baselineHashes: baseline ? [...baseline] : undefined,
+    maxWords: Math.max(plain.maxWords, hashed.maxWords),
     entryCount: Math.max(plain.entryCount, hashed.entryCount),
   };
 }

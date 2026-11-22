@@ -34,12 +34,21 @@ const TRANSFERRED_XML = readFileSync(
   "utf8",
 );
 const { names } = loadProbeNames();
+// The fixture collects excerpts from two titles. Replay each under its own title.
+function transferredTitle(title: 33 | 42) {
+  return TRANSFERRED_XML.replace(
+    /<section status="transferred" identifier="\/us\/usc\/t(\d+)\/[^"]+"[\s\S]*?<\/section>/g,
+    (section, sectionTitle) => (Number(sectionTitle) === title ? section : ""),
+  ).replace(
+    /(<(?:uscDoc|title|chapter) identifier="\/us\/usc\/t)42/g,
+    `$1${title}`,
+  );
+}
 const v = PATTERN_SET_VERSION;
 const cfr = (xml = CFR_XML) =>
   buildCfrShard([{ volume: 1, xml }], {
     title: 25,
     editionYear: 2025,
-    volumes: null,
     names,
   });
 const uslm = (xml = USLM_XML, releasePoint = "119-136") =>
@@ -65,7 +74,7 @@ describe("CFR annual edition parser", () => {
       title: 25,
       editionYear: 2025,
       revisedAsOfText: "Revised as of April 1, 2025",
-      volumes: null,
+      volumes: [1],
       partsExpected: 5,
       partsReserved: 2,
       subpartAuthorityCount: 1,
@@ -154,7 +163,6 @@ describe("CFR annual edition parser", () => {
       buildCfrShard([{ volume: 1, xml: CFR_XML }], {
         title: 25,
         editionYear: 2026,
-        volumes: null,
         names,
       }),
     ).toThrow(/edition year/);
@@ -290,6 +298,24 @@ describe("USLM source-credit parser", () => {
     expect(() => uslm(USLM_XML, "119-140")).toThrow(/release point/);
   });
 
+  it("refuses a section from a different title", () => {
+    expect(() =>
+      buildUslmShard(TRANSFERRED_XML, {
+        title: 42,
+        releasePoint: "119-142",
+        names,
+      }),
+    ).toThrow(/outside Title 42/);
+  });
+
+  it("refuses a title with no recognized sections", () => {
+    const emptyTitle = USLM_XML.replace(
+      /<section\b/g,
+      "<unrecognizedSection",
+    ).replaceAll("</section>", "</unrecognizedSection>");
+    expect(() => uslm(emptyTitle)).toThrow(/no recognized sections/);
+  });
+
   it("refuses a transferred section with no codification note at all", () => {
     // s421's whole <notes> element removed; the status attribute still fails closed.
     const noNote = USLM_XML.replace(
@@ -321,7 +347,7 @@ describe("USLM source-credit parser", () => {
   });
 
   it("trims a shape-A target to its section when the ref also names a subsection, on the real title 42 text", () => {
-    const { shard, report } = buildUslmShard(TRANSFERRED_XML, {
+    const { shard, report } = buildUslmShard(transferredTitle(42), {
       title: 42,
       releasePoint: "119-142",
       names,
@@ -333,13 +359,13 @@ describe("USLM source-credit parser", () => {
         "Section, act Aug. 14, 1935, ch. 531, title IV, § 429, as added Pub. L. 103–432, title II, § 205(a), Oct. 31, 1994, 108 Stat. 4456, which related to child welfare traineeships, was redesignated section 426(c) of act Aug. 14, 1935, by Pub. L. 109–288, § 6(f)(2), Sept. 28, 2006, 120 Stat. 1247, and is classified to section 626(c) of this title.",
       noteTextOmitted: false,
     });
-    expect(report.transferredWithoutTarget).toBe(1);
+    expect(report.transferredWithoutTarget).toBe(0);
     expect(schemaErrors("usc-source-credit-shard", shard)).toEqual([]);
   });
 
   it("carries a shape-B transfer named only in prose with empty targets, on the real title 33 text", () => {
-    const { shard, report } = buildUslmShard(TRANSFERRED_XML, {
-      title: 42,
+    const { shard, report } = buildUslmShard(transferredTitle(33), {
+      title: 33,
       releasePoint: "119-142",
       names,
     });
@@ -354,8 +380,8 @@ describe("USLM source-credit parser", () => {
   });
 
   it("reads the removalDescription note when there is no codification note, on the real title 33 text (shape C)", () => {
-    const { shard, report } = buildUslmShard(TRANSFERRED_XML, {
-      title: 42,
+    const { shard, report } = buildUslmShard(transferredTitle(33), {
+      title: 33,
       releasePoint: "119-142",
       names,
     });
@@ -371,13 +397,14 @@ describe("USLM source-credit parser", () => {
   });
 
   it("still refuses a transferred section with neither a codification nor a removalDescription note", () => {
-    const noNote = TRANSFERRED_XML.replace(
+    const titleXml = transferredTitle(33);
+    const noNote = titleXml.replace(
       /<notes type="uscNote">\n<note topic="removalDescription">[\s\S]*?<\/notes>/,
       "",
     );
-    expect(noNote).not.toBe(TRANSFERRED_XML);
+    expect(noNote).not.toBe(titleXml);
     expect(() =>
-      buildUslmShard(noNote, { title: 42, releasePoint: "119-142", names }),
+      buildUslmShard(noNote, { title: 33, releasePoint: "119-142", names }),
     ).toThrow(/names no target/);
   });
 });
@@ -473,6 +500,19 @@ describe("Federal Register vocabulary", () => {
 });
 
 describe("zip reader", () => {
+  it("reads a commented archive and respects the declared directory size", () => {
+    const zip = makeZip([{ name: "volume.xml", data: Buffer.from("volume") }]);
+    const comment = Buffer.alloc(30);
+    comment.writeUInt32LE(0x06054b50);
+    zip.writeUInt16LE(comment.length, zip.length - 2);
+    const archive = Buffer.concat([zip, comment]);
+    expect(listZipEntries(archive).map((entry) => entry.name)).toEqual([
+      "volume.xml",
+    ]);
+    archive.writeUInt32LE(46, zip.length - 10);
+    expect(() => listZipEntries(archive)).toThrow(/truncated/);
+  });
+
   it("reads stored and deflated entries and refuses a damaged one", () => {
     const data = Buffer.from("synthetic volume bytes ".repeat(50));
     const zip = makeZip([
@@ -483,6 +523,9 @@ describe("zip reader", () => {
     expect(entries.map((e) => e.name)).toEqual(["a/one.xml", "two.xml"]);
     for (const entry of entries)
       expect(readZipEntry(zip, entry).equals(data)).toBe(true);
+    expect(() => readZipEntry(zip, { ...entries[0], size: 1 })).toThrow(
+      /size mismatch/,
+    );
     const damaged = Buffer.from(zip);
     damaged[40] ^= 0xff;
     expect(() => readZipEntry(damaged, entries[0])).toThrow(/CRC/);

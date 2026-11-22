@@ -172,6 +172,7 @@ export interface AccordContext {
 export interface PublicRecord {
   contractVersion?: "1.4.0" | "2.0.0";
   artifactGeneratedAt?: string;
+  detailAssetSha256?: string;
   internalId: string;
   officialTitle: string;
   sourceDocumentIdentifier: string;

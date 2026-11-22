@@ -62,7 +62,9 @@ export const follow = {
       .filter(Boolean)
       .join(" "),
   importRejected:
-    "The file is not a Policy Sentinel followed list, or part of it could not be checked, so nothing was imported.",
+    "Nothing was imported. Check that the file is a valid Policy Sentinel followed list and that the combined list fits within 1 MB.",
+  tooLarge:
+    "The followed list exceeds its 1 MB file limit. Remove an item and try again.",
   storageUnavailable:
     "Browser storage is unavailable. The followed list works on this page but will not be kept after a reload. Export it to keep a copy.",
   storageSaveFailed:

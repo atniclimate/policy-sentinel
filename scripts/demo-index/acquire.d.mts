@@ -27,6 +27,10 @@ export interface PlannedRequest {
 
 export function parseAcquireArgs(argv: readonly string[]): AcquireOptions;
 export function planRequests(options: AcquireOptions): PlannedRequest[];
+export function installIndexFiles(
+  dataDir: string,
+  writes: readonly { path: string; bytes: Uint8Array }[],
+): void;
 export function runAcquire(
   argv: readonly string[],
   deps?: {

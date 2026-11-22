@@ -103,12 +103,18 @@ const stringArray = (value: unknown): string[] =>
         .filter(Boolean)
     : [];
 
-const arrayPayload = (payload: unknown, keys: string[]): unknown[] => {
+const arrayPayload = (
+  payload: unknown,
+  keys: string[],
+  requiredIn?: string,
+): unknown[] => {
   if (Array.isArray(payload)) return payload;
   const object = objectValue(payload);
   for (const key of keys) {
     if (Array.isArray(object[key])) return object[key] as unknown[];
   }
+  if (requiredIn)
+    throw new Error(`The ${requiredIn} artifact is missing its entry list.`);
   return [];
 };
 
@@ -120,15 +126,25 @@ const assetUrl = (path: string): string => {
   return url.toString();
 };
 
-const fetchJson = async (path: string): Promise<unknown> => {
+const fetchJson = async (path: string, sha256?: string): Promise<unknown> => {
   const response = await fetch(assetUrl(path), {
+    mode: "same-origin",
+    signal: AbortSignal.timeout(30_000),
     credentials: "same-origin",
     headers: { Accept: "application/json" },
   });
   if (!response.ok) {
     throw new Error(`${path} returned ${response.status}`);
   }
-  return response.json() as Promise<unknown>;
+  if (sha256 === undefined) return response.json() as Promise<unknown>;
+  const bytes = await response.arrayBuffer();
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  const actual = [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+  if (actual !== sha256)
+    throw new Error(`Manifest checksum mismatch for ${path}.`);
+  return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
 };
 
 const normalizeNation = (value: unknown, successor = false): Nation | null => {
@@ -1295,72 +1311,73 @@ const normalizeTaxonomy = (payload: unknown): Taxonomy => {
 };
 
 const normalizeCoverage = (payload: unknown): CoverageEntry[] =>
-  arrayPayload(payload, ["entries", "sources", "coverage", "items"]).map(
-    (entry) => {
-      const item = objectValue(entry);
-      const dateRange = objectValue(item.dateRange ?? item.historicalRange);
-      const jurisdiction = objectValue(item.jurisdiction);
-      const sourceId = stringValue(item.sourceId ?? item.id, "unknown-source");
-      return {
-        sourceId,
-        sourceName: stringValue(
-          item.sourceName ?? item.name,
-          humanizeSourceId(sourceId),
-        ),
-        provider: stringValue(item.provider, "Issuing authority not provided"),
-        jurisdictions: stringArray(
-          item.jurisdictions ?? item.coveredJurisdictions,
-        ).concat(
-          stringValue(jurisdiction.name)
-            ? [stringValue(jurisdiction.name)]
-            : [],
-        ),
-        from: nullableString(item.from ?? item.dateFrom),
-        through: nullableString(item.through ?? item.dateThrough),
-        documentedFrom: nullableString(item.documentedFrom ?? dateRange.from),
-        documentedThrough: nullableString(
-          item.documentedThrough ?? dateRange.through,
-        ),
-        recordFrom: nullableString(item.recordFrom),
-        recordThrough: nullableString(item.recordThrough),
-        recordCount: nonnegativeInteger(item.recordCount),
-        cadence: stringValue(item.cadence, "Cadence not provided"),
-        recordTypes: stringArray(item.recordTypes),
-        status: stringValue(item.status, "range-limited"),
-        limitation: stringValue(
-          item.limitation ?? item.limitations ?? item.notes,
-        ),
-      };
-    },
-  );
+  arrayPayload(
+    payload,
+    ["entries", "sources", "coverage", "items"],
+    "coverage",
+  ).map((entry) => {
+    const item = objectValue(entry);
+    const dateRange = objectValue(item.dateRange ?? item.historicalRange);
+    const jurisdiction = objectValue(item.jurisdiction);
+    const sourceId = stringValue(item.sourceId ?? item.id, "unknown-source");
+    return {
+      sourceId,
+      sourceName: stringValue(
+        item.sourceName ?? item.name,
+        humanizeSourceId(sourceId),
+      ),
+      provider: stringValue(item.provider, "Issuing authority not provided"),
+      jurisdictions: stringArray(
+        item.jurisdictions ?? item.coveredJurisdictions,
+      ).concat(
+        stringValue(jurisdiction.name) ? [stringValue(jurisdiction.name)] : [],
+      ),
+      from: nullableString(item.from ?? item.dateFrom),
+      through: nullableString(item.through ?? item.dateThrough),
+      documentedFrom: nullableString(item.documentedFrom ?? dateRange.from),
+      documentedThrough: nullableString(
+        item.documentedThrough ?? dateRange.through,
+      ),
+      recordFrom: nullableString(item.recordFrom),
+      recordThrough: nullableString(item.recordThrough),
+      recordCount: nonnegativeInteger(item.recordCount),
+      cadence: stringValue(item.cadence, "Cadence not provided"),
+      recordTypes: stringArray(item.recordTypes),
+      status: stringValue(item.status, "range-limited"),
+      limitation: stringValue(
+        item.limitation ?? item.limitations ?? item.notes,
+      ),
+    };
+  });
 
 const humanizeSourceId = (value: string): string =>
   value.replaceAll("-", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 
 const normalizeHealth = (payload: unknown): SourceHealthEntry[] =>
-  arrayPayload(payload, ["sources", "health", "items"]).map((entry) => {
-    const item = objectValue(entry);
-    return {
-      sourceId: stringValue(item.sourceId ?? item.id, "unknown-source"),
-      sourceName: stringValue(
-        item.sourceName ?? item.name,
-        humanizeSourceId(
-          stringValue(item.sourceId ?? item.id, "unknown-source"),
+  arrayPayload(payload, ["sources", "health", "items"], "source health").map(
+    (entry) => {
+      const item = objectValue(entry);
+      return {
+        sourceId: stringValue(item.sourceId ?? item.id, "unknown-source"),
+        sourceName: stringValue(
+          item.sourceName ?? item.name,
+          humanizeSourceId(
+            stringValue(item.sourceId ?? item.id, "unknown-source"),
+          ),
         ),
-      ),
-      status: stringValue(item.status, "unknown"),
-      dataAsOf: nullableString(item.dataAsOf),
-      lastSuccessfulRetrievalAt: nullableString(
-        item.lastSuccessfulRetrievalAt ?? item.lastSuccess,
-      ),
-      usingLastKnownGood: booleanValue(item.usingLastKnownGood, false),
-      message: nullableString(item.message),
-    };
-  });
+        status: stringValue(item.status, "unknown"),
+        dataAsOf: nullableString(item.dataAsOf),
+        lastSuccessfulRetrievalAt: nullableString(
+          item.lastSuccessfulRetrievalAt ?? item.lastSuccess,
+        ),
+        usingLastKnownGood: booleanValue(item.usingLastKnownGood, false),
+        message: nullableString(item.message),
+      };
+    },
+  );
 
 export const loadArtifacts = async (): Promise<ArtifactBundle> => {
   const paths = [
-    "data/manifest.json",
     "data/coverage.json",
     "data/source-health.json",
     "data/nations.json",
@@ -1368,8 +1385,37 @@ export const loadArtifacts = async (): Promise<ArtifactBundle> => {
     "data/index/records.json",
   ] as const;
 
-  const results = await Promise.allSettled(paths.map(fetchJson));
-  const values = new Map<string, unknown>();
+  const rawManifest = await fetchJson("data/manifest.json");
+  const manifest = normalizeManifest(rawManifest);
+  const assets = objectValue(rawManifest).assets;
+  if (!Array.isArray(assets))
+    throw new Error("The manifest is missing its asset checksums.");
+  const digests = new Map<string, string>();
+  for (const value of assets) {
+    const { path, sha256 } = objectValue(value);
+    if (
+      typeof path !== "string" ||
+      typeof sha256 !== "string" ||
+      !/^[a-f0-9]{64}$/.test(sha256) ||
+      digests.has(`data/${path}`)
+    )
+      throw new Error(
+        "The manifest contains an invalid or duplicate asset checksum.",
+      );
+    digests.set(`data/${path}`, sha256);
+  }
+  const checksumFor = (path: string): string => {
+    const digest = digests.get(path);
+    if (!digest)
+      throw new Error(`The manifest is missing the checksum for ${path}.`);
+    return digest;
+  };
+  const results = await Promise.allSettled(
+    paths.map(async (path) => fetchJson(path, checksumFor(path))),
+  );
+  const values = new Map<string, unknown>([
+    ["data/manifest.json", rawManifest],
+  ]);
   const warnings: string[] = [];
 
   results.forEach((result, index) => {
@@ -1398,7 +1444,6 @@ export const loadArtifacts = async (): Promise<ArtifactBundle> => {
     }
   }
 
-  const manifest = normalizeManifest(values.get("data/manifest.json"));
   const successor = manifest.artifactVersion === "2.0.0";
   if (successor) {
     for (const key of [
@@ -1427,10 +1472,17 @@ export const loadArtifacts = async (): Promise<ArtifactBundle> => {
       "Successor Nation coverage contains an invalid jurisdiction reference.",
     );
   const taxonomy = normalizeTaxonomy(values.get("data/taxonomy.json"));
-  const recordEntries = arrayPayload(values.get("data/index/records.json"), [
-    "records",
-    "items",
-  ]);
+  const recordEntries = arrayPayload(
+    values.get("data/index/records.json"),
+    ["records", "items"],
+    "public index",
+  );
+  if (
+    manifest.recordCount !== null &&
+    recordEntries.length !== manifest.recordCount
+  )
+    throw new Error("The public index record count differs from the manifest.");
+  const recordIds = new Set<string>();
   const records = recordEntries.map((entry, index) => {
     const record = normalizeRecord(entry, manifest.artifactVersion);
     if (!record) {
@@ -1438,10 +1490,17 @@ export const loadArtifacts = async (): Promise<ArtifactBundle> => {
         `The public index artifact contains an invalid record at position ${index}.`,
       );
     }
+    if (recordIds.has(record.internalId))
+      throw new Error(
+        `The public index contains a duplicate record ID at position ${index}.`,
+      );
+    recordIds.add(record.internalId);
     return record;
   });
   for (const record of records) {
     record.artifactGeneratedAt = manifest.generatedAt;
+    if (record.texts.detailPath)
+      record.detailAssetSha256 = checksumFor(record.texts.detailPath);
   }
 
   for (const record of records) {
@@ -1528,7 +1587,14 @@ export const loadRecordDetail = async (
   if (!FETCHABLE_DETAIL_ASSET_PATH.test(record.texts.detailPath)) {
     throw new Error("The compact index provides an invalid detail asset path.");
   }
-  const payload = await fetchJson(record.texts.detailPath);
+  if (!record.detailAssetSha256)
+    throw new Error(
+      "The compact record has no manifest checksum for its detail asset.",
+    );
+  const payload = await fetchJson(
+    record.texts.detailPath,
+    record.detailAssetSha256,
+  );
   const root = objectValue(payload);
   const detailGeneratedAt = nullableString(root.generatedAt);
   if (
@@ -1586,6 +1652,7 @@ export const loadRecordDetail = async (
     );
   }
   normalized.artifactGeneratedAt = record.artifactGeneratedAt;
+  normalized.detailAssetSha256 = record.detailAssetSha256;
   normalized.texts.detailPath = record.texts.detailPath;
   normalized.sourceHealth = { ...record.sourceHealth };
   return normalized;

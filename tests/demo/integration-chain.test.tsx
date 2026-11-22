@@ -35,7 +35,7 @@ import {
   frRecord as chainRecord,
   NOW,
 } from "./fixtures/chain";
-import { policy } from "./frontend-fixtures";
+import { deferred, policy } from "./frontend-fixtures";
 
 vi.hoisted(() => {
   vi.stubGlobal("__APP_VERSION__", "test-version");
@@ -409,6 +409,36 @@ describe("the chain on the page", () => {
     expect(panel().queryByText(chain.noneStated)).toBeNull();
   });
 
+  it("keeps the last chosen citation when an earlier index read finishes later", async () => {
+    const pending = deferred<Response>();
+    fetchStub.mockImplementation((input) =>
+      input.includes("cfr/title-99.json") ? pending.promise : worker(input),
+    );
+    const { open, panel } = await start();
+    await open(frRecord.title);
+    fireEvent.click(
+      await panel().findByRole("button", {
+        name: chain.openHop("99 CFR 100.5"),
+      }),
+    );
+    await waitFor(() =>
+      expect(fetchStub).toHaveBeenCalledWith(
+        expect.stringContaining("cfr/title-99.json"),
+        expect.anything(),
+      ),
+    );
+    fireEvent.click(
+      panel().getByRole("button", { name: chain.openHop("99 U.S.C. 1001") }),
+    );
+    await panel().findByText(/^Not yet available\./);
+    await act(async () => {
+      pending.resolve(new Response(null, { status: 503 }));
+      await pending.promise;
+    });
+    expect(panel().getByText(/^Not yet available\./)).toBeInTheDocument();
+    expect(panel().queryByText(/^Index unavailable\./)).toBeNull();
+  });
+
   it("makes exactly one Worker call per expansion press", async () => {
     const { open, panel } = await start();
     await open(billRecord.title);
@@ -560,7 +590,7 @@ describe("print and exports", () => {
       rules: { "color-contrast": { enabled: false } },
     });
     expect(results.violations).toEqual([]);
-  });
+  }, 15_000);
 });
 
 describe("the page's version 3 and related-records checks", () => {

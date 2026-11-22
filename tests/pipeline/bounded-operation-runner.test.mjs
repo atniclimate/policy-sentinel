@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
 import { spawnSync } from "node:child_process";
-import { lstat, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
+import { lstat, readFile, rm, writeFile } from "node:fs/promises";
+import { join, resolve } from "node:path";
 import { syncBuiltinESMExports } from "node:module";
 import process from "node:process";
 import test from "node:test";
@@ -20,7 +20,10 @@ import {
   verifyPolicyRun,
   writePolicyDerived,
 } from "../../src/pipeline/policy-custody.mjs";
-import { mockPolicyFilesystem } from "../helpers/policy-filesystem-observations.mjs";
+import {
+  createCustodyTestDirectory,
+  mockPolicyFilesystem,
+} from "../helpers/policy-filesystem-observations.mjs";
 
 export const runnerSyntheticManifest = () => ({
   version: "1.0.0",
@@ -93,14 +96,7 @@ const boundedManifest = () => {
 };
 
 async function fixture(t, manifest = runnerSyntheticManifest()) {
-  const testParent = dirname(resolve(import.meta.dirname, "../.."));
-  const base = await mkdtemp(join(testParent, "policy-custody-test-"));
-  t.after(async () => {
-    assert.ok(
-      resolve(base).startsWith(join(testParent, "policy-custody-test-")),
-    );
-    await rm(base, { recursive: true, force: true });
-  });
+  const base = await createCustodyTestDirectory(t);
   const root = join(base, "run");
   await initializePolicyRun(root, manifest);
   return { root, base, manifest };

@@ -84,7 +84,7 @@ const SOFT_LIMIT_PER_MINUTE = 80;
 
 const softCounters = new Map<string, { n: number; reset: number }>();
 
-export function sourceList(env: Env): DemoSource[] {
+export function sourceList(env: Env, version: 1 | 2 = 1): DemoSource[] {
   const keyed = env.DATA_GOV_API_KEY ? "live" : "key_pending";
   const keyNote = env.DATA_GOV_API_KEY
     ? "Search is live. Policy text is not read for this source in the demo, so no issues are identified."
@@ -128,7 +128,10 @@ export function sourceList(env: Env): DemoSource[] {
       label: "Grants.gov",
       level: "federal",
       status: "live",
-      note: "Funding opportunities, from Grants.gov: forecasted and posted listings. Opportunity text is not read in the demo.",
+      note:
+        version === 2
+          ? "Forecasted and posted funding opportunities from Grants.gov. Open a listing to check its synopsis for a stated authority passage."
+          : "Funding opportunities, from Grants.gov: forecasted and posted listings. Opportunity text is not read in the demo.",
     },
     {
       id: "washington",
@@ -161,7 +164,7 @@ export function sourceList(env: Env): DemoSource[] {
  * router looks sources up here; /health and /api/sources keep sourceList.
  */
 export function sourceListV2(env: Env): DemoSource[] {
-  const list = sourceList(env);
+  const list = sourceList(env, 2);
   const courts: DemoSource = {
     id: "govinfo-courts",
     label: "GovInfo court opinions",
@@ -235,24 +238,23 @@ async function searchBody(request: Request): Promise<URLSearchParams> {
     throw bad();
   // A chunked body states no length, so the read itself stops at the cap.
   const reader = request.body?.getReader();
-  const decoder = new TextDecoder();
+  const decoder = new TextDecoder("utf-8", { fatal: true });
   let text = "";
-  for (let total = 0; reader;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    total += value.byteLength;
-    if (total > MAX_SEARCH_BODY) {
-      void reader.cancel().catch(() => undefined);
-      throw bad();
-    }
-    text += decoder.decode(value, { stream: true });
-  }
-  text += decoder.decode();
   let body: unknown;
   try {
-    body = JSON.parse(text);
+    for (let total = 0; reader;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > MAX_SEARCH_BODY) throw bad();
+      text += decoder.decode(value, { stream: true });
+    }
+    body = JSON.parse(text + decoder.decode());
   } catch {
+    void reader?.cancel().catch(() => undefined);
     throw bad();
+  } finally {
+    reader?.releaseLock();
   }
   if (!body || typeof body !== "object" || Array.isArray(body)) throw bad();
   const params = new URLSearchParams();

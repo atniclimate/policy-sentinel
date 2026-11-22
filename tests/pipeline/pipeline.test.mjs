@@ -447,6 +447,16 @@ function runArtifactValidator(root) {
 }
 
 test("stable and URL-safe IDs are deterministic", () => {
+  assert.throws(() => makeStableRecordId(null, "1"), /invalid source ID/);
+  assert.throws(
+    () => makeStableRecordId("synthetic-federal", "\ud800"),
+    /surrogate/,
+  );
+  assert.throws(
+    () => toUrlSafeId(["psr:synthetic-federal:1"]),
+    /invalid stable record ID/,
+  );
+  assert.throws(() => assertUrlSafeId(null), /invalid URL-safe ID/);
   const id = makeStableRecordId("synthetic-federal", "SYN 001/α");
   assert.equal(id, makeStableRecordId("synthetic-federal", "SYN 001/α"));
   const urlSafeId = toUrlSafeId(id);
@@ -2585,6 +2595,40 @@ test("artifact writer refuses recursive output outside dist", async () => {
       projectRoot,
     }),
     /isolated directory under dist/,
+  );
+});
+
+test("artifact freshness follows time offsets through build and both validators", async (t) => {
+  const records = globalThis.structuredClone([preparedFederal, preparedCounty]);
+  records[0].sourceHealth.dataAsOf = "2026-06-15T01:00:00+02:00";
+  records[1].sourceHealth.dataAsOf = "2026-06-15T00:30:00Z";
+  const fixture = await createArtifactValidatorFixture({ records });
+  t.after(fixture.cleanup);
+  const verified = await verifyLastKnownGoodArtifact(fixture.root);
+  assert.equal(verified.manifest.dataAsOf, records[1].sourceHealth.dataAsOf);
+  const result = runArtifactValidator(fixture.root);
+  assert.equal(result.status, 0, result.stderr);
+});
+
+test("failed artifact staging preserves the previous complete output", async (t) => {
+  const fixture = await createArtifactValidatorFixture();
+  t.after(fixture.cleanup);
+  const previous = await verifyLastKnownGoodArtifact(fixture.root);
+  const documents = new Map([
+    ["manifest.json", previous.manifest],
+    ["invalid.json", 1n],
+  ]);
+  await assert.rejects(
+    writeArtifactDocuments({
+      documents,
+      outputDirectory: fixture.root,
+      projectRoot,
+    }),
+    /BigInt/i,
+  );
+  assert.deepEqual(
+    (await verifyLastKnownGoodArtifact(fixture.root)).manifest,
+    previous.manifest,
   );
 });
 

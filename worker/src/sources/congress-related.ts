@@ -6,7 +6,13 @@
  * `source_field`). Sponsors, actions and every other field are dropped
  * before the cache write.
  */
-import { CONGRESS_REFERENCE } from "../../../src/demo/merge";
+import {
+  CONGRESS_REFERENCE,
+  congressIdentifier,
+  RELATED_BILL_LIMIT,
+  RELATIONSHIPS_PER_BILL,
+} from "../../../src/demo/congress-reference";
+import { ordinal } from "../../../src/demo/copy/shared";
 import { hasPersonalPattern } from "../../../src/demo/personal-guard";
 import {
   DemoError,
@@ -20,7 +26,6 @@ import {
 } from "./shared";
 import type { Env } from "./shared";
 import { cachedJson } from "../cache";
-import { MAX_RELATED } from "./govinfo-related";
 import type {
   CongressRelatedBills,
   RelatedBill,
@@ -45,23 +50,19 @@ const WEB_TYPE: Readonly<Record<string, string>> = {
   sres: "senate-resolution",
 };
 
-function ordinal(congress: number): string {
-  const lastTwo = congress % 100;
-  const suffix =
-    lastTwo >= 11 && lastTwo <= 13
-      ? "th"
-      : (["th", "st", "nd", "rd"][congress % 10] ?? "th");
-  return `${congress}${suffix}`;
-}
-
 /** The identifier and official page of one bill, for search and related bills. */
 export function billRef(type: string, number: number, congress: number) {
-  const web = WEB_TYPE[type];
-  if (!web || !Number.isSafeInteger(number) || !Number.isSafeInteger(congress))
+  if (
+    !Object.hasOwn(WEB_TYPE, type) ||
+    !Number.isSafeInteger(number) ||
+    number < 1 ||
+    !Number.isSafeInteger(congress) ||
+    congress < 1
+  )
     throw badUpstream();
   return {
-    identifier: `${type.toUpperCase()} ${number}, ${ordinal(congress)} Congress`,
-    officialUrl: `https://www.congress.gov/bill/${ordinal(congress)}-congress/${web}/${number}`,
+    identifier: congressIdentifier(type, number, congress),
+    officialUrl: `https://www.congress.gov/bill/${congress}${ordinal(congress)}-congress/${WEB_TYPE[type]}/${number}`,
   };
 }
 
@@ -84,7 +85,7 @@ export async function relatedBills(
   return cachedJson(env, "congress-related", subject.identifier, async () => {
     const key = await spendKey(env);
     const { response, bytes } = await officialFetch(
-      `https://api.congress.gov/v3/bill/${congress}/${type}/${number}/relatedbills?format=json&limit=${MAX_RELATED}`,
+      `https://api.congress.gov/v3/bill/${congress}/${type}/${number}/relatedbills?format=json&limit=${RELATED_BILL_LIMIT}`,
       { headers: { "X-Api-Key": key } },
     );
     if (response.status === 404)
@@ -100,7 +101,8 @@ export async function relatedBills(
       );
     const data = record(parseJson(bytes));
     const rows = data.relatedBills;
-    if (!Array.isArray(rows) || rows.length > MAX_RELATED) throw badUpstream();
+    if (!Array.isArray(rows) || rows.length > RELATED_BILL_LIMIT)
+      throw badUpstream();
     const records: RelatedBill[] = rows.flatMap((value) => {
       const row = record(value);
       const rowNumber =
@@ -124,7 +126,7 @@ export async function relatedBills(
       if (
         !Array.isArray(details) ||
         details.length === 0 ||
-        details.length > 10
+        details.length > RELATIONSHIPS_PER_BILL
       )
         throw badUpstream();
       return details.map((detail) => {
@@ -145,7 +147,7 @@ export async function relatedBills(
       basis: "source_field",
       bill: subject.identifier,
       records,
-      total: resultCount(pagination.count) ?? rows.length,
+      total: resultCount(pagination.count),
       retrievedAt: new Date().toISOString(),
     };
   });

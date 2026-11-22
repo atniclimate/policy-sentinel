@@ -30,10 +30,28 @@ import {
 } from "../../../../src/demo/index-types";
 import {
   DEFAULT_PROBE_FIXTURE,
+  PROBE_HASH_PATH,
+  probeHashFile,
+  type NationProbeHashFile,
   initialManifest,
   manifestBytes,
   shardBytes,
 } from "../../../../scripts/demo-index/common.mjs";
+
+/** Exercise supplementary synthetic names alongside the reviewed hash inventory. */
+export function reviewedProbeWith(
+  names: readonly string[] = [],
+): NationProbeHashFile {
+  const baseline: NationProbeHashFile = JSON.parse(
+    readFileSync(PROBE_HASH_PATH, "utf8"),
+  );
+  const supplement = probeHashFile(names, names.length);
+  return {
+    ...baseline,
+    hashes: [...new Set([...baseline.hashes, ...supplement.hashes])].sort(),
+    maxWords: Math.max(baseline.maxWords, supplement.maxWords),
+  };
+}
 
 // Fresh, so the C3 stale rule never trips on the real clock (the G3 test
 // validates in a child process).
@@ -297,8 +315,8 @@ export function removeTemps(): void {
 
 /**
  * The committed recognition structure fixture plus `extra` synthetic entries
- * ("Synthetic Probe Entity 001"), written to a temp file. G3 needs all 575
- * before any index file may be acquired or validated.
+ * ("Synthetic Probe Entity 001"), written to a temp file. Even a long
+ * synthetic notice lacks the reviewed inventory.
  */
 export function probeFile(extra = 575): string {
   const added = Array.from(

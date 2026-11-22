@@ -16,9 +16,11 @@
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { cfrArchive, listsCfrArchive } from "./demo-index/cfr-listing.mjs";
 
 export const SPACING_MS = 1100;
 const TIMEOUT_MS = 20_000;
+const MAX_RESPONSE_BYTES = 1024 * 1024;
 export const DEFAULT_MANIFEST = "docs/demo-data/manifest.json";
 const OLRC_DOWNLOAD = "https://uscode.house.gov/download/download.shtml";
 
@@ -73,10 +75,11 @@ export function planChecks(
   }
   for (const [title, year] of [...editions].sort((a, b) => a[0] - b[0])) {
     const next = year + 1;
+    const archive = cfrArchive(next, title);
     checks.push({
       id: `cfr:${title}`,
       label: `CFR title ${title} annual edition`,
-      url: `https://www.govinfo.gov/bulkdata/json/CFR/${next}/title-${title}`,
+      url: archive.listingUrl,
       accept: "application/json",
       evaluate: (status, body) => {
         if (status === 404)
@@ -87,16 +90,19 @@ export function planChecks(
         if (status !== 200) return ["not_checked", `HTTP ${status}`];
         let listed;
         try {
-          listed = JSON.parse(body).files;
+          listed = JSON.parse(body);
         } catch {
           return ["not_checked", "the listing answer was not JSON"];
         }
-        return Array.isArray(listed) && listed.length > 0
+        return listsCfrArchive(listed, archive)
           ? [
               "refresh",
               `the ${next} edition is listed on GovInfo bulk data; the index has ${year}`,
             ]
-          : ["not_checked", "the listing answer held no file list"];
+          : [
+              "not_checked",
+              "the listing did not include the expected title archive at its official address",
+            ];
       },
     });
   }
@@ -196,6 +202,31 @@ export function planChecks(
   return checks;
 }
 
+async function readCheckBody(response) {
+  if (Number(response.headers.get("content-length")) > MAX_RESPONSE_BYTES) {
+    void response.body?.cancel().catch(() => {});
+    return null;
+  }
+  if (!response.body) return "";
+  const reader = response.body.getReader();
+  const bytes = Buffer.allocUnsafe(MAX_RESPONSE_BYTES);
+  let size = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) return new TextDecoder().decode(bytes.subarray(0, size));
+      if (value.byteLength > MAX_RESPONSE_BYTES - size) {
+        void reader.cancel().catch(() => {});
+        return null;
+      }
+      bytes.set(value, size);
+      size += value.byteLength;
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
 /** Runs the planned requests in order, spaced, once each; stops all requests after a 403 or 429. */
 export async function runChecks(
   checks,
@@ -228,11 +259,13 @@ export async function runChecks(
     let body;
     try {
       const response = await fetch(url, {
+        redirect: "manual",
         headers: { Accept: check.accept },
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
       status = response.status;
-      body = await response.text();
+      if (status === 200) body = await readCheckBody(response);
+      else void response.body?.cancel().catch(() => {});
     } catch {
       results.push({
         id,
@@ -254,7 +287,10 @@ export async function runChecks(
       });
       continue;
     }
-    const [verdict, detail] = check.evaluate(status, body);
+    const [verdict, detail] =
+      body === null
+        ? ["not_checked", "the response exceeded the 1 MiB limit"]
+        : check.evaluate(status, body);
     results.push({ id, label, url, status: verdict, detail });
   }
   return results;
@@ -290,10 +326,30 @@ export function formatPlan(checks) {
   ].join("\n");
 }
 
-async function main(argv) {
-  const flag = (name) => argv.includes(name);
-  const at = argv.indexOf("--manifest");
-  const path = resolve(at >= 0 ? argv[at + 1] : DEFAULT_MANIFEST);
+export async function main(argv) {
+  const flags = new Set();
+  let manifestPath = DEFAULT_MANIFEST;
+  for (let i = 0; i < argv.length; i++) {
+    const flag = argv[i];
+    if (
+      !["--dry-run", "--olrc-terms-read", "--manifest"].includes(flag) ||
+      flags.has(flag)
+    ) {
+      console.error(
+        "Usage: check-index-freshness [--dry-run] [--olrc-terms-read] [--manifest PATH]",
+      );
+      return 2;
+    }
+    flags.add(flag);
+    if (flag === "--manifest") {
+      manifestPath = argv[++i];
+      if (!manifestPath?.trim() || manifestPath.startsWith("-")) {
+        console.error("--manifest requires a file path.");
+        return 2;
+      }
+    }
+  }
+  const path = resolve(manifestPath);
   let manifest;
   try {
     manifest = JSON.parse(readFileSync(path, "utf8"));
@@ -314,13 +370,13 @@ async function main(argv) {
     }
   };
   const checks = planChecks(manifest, {
-    olrcTermsRead: flag("--olrc-terms-read"),
+    olrcTermsRead: flags.has("--olrc-terms-read"),
     cfrTitle,
   });
   console.log(
     `Index freshness for the manifest generated ${manifest.generatedAt}`,
   );
-  if (flag("--dry-run")) {
+  if (flags.has("--dry-run")) {
     console.log(formatPlan(checks));
     return 0;
   }

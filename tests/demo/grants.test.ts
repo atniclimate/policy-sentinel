@@ -154,6 +154,17 @@ describe("Grants.gov in the Worker", () => {
     const estimated = await (await call({ searchVersion: "2" })).json();
     expect(estimated.results[0].kind).toBe("Forecast");
     expect(estimated.results[0].applicationsCloseOn).toBeUndefined();
+    for (const docType of [undefined, "unrecognized"]) {
+      answer({
+        ...GRANTS_LIVE_ANY,
+        data: {
+          hitCount: 1,
+          oppHits: [{ ...dated, docType, closeDate: "11/04/2026" }],
+        },
+      });
+      const unknown = await (await call({ searchVersion: "2" })).json();
+      expect(unknown.results[0].applicationsCloseOn).toBeUndefined();
+    }
     // Source wording is kept as Grants.gov wrote it.
     // Grants.gov sends entities as text; the row shows the character.
     expect(posted.title).toContain("Program– Scholarship");
@@ -200,6 +211,7 @@ describe("Grants.gov in the Worker", () => {
     ["an ISO open date", { openDate: "2026-10-01" }],
     ["an impossible close date", { closeDate: "02/30/2026" }],
     ["a non-numeric id", { id: "abc" }],
+    ["an id the detail reader refuses", { id: "0001" }],
     ["a numeric id", { id: 347414 }],
     ["no title", { title: "" }],
     ["an untrimmed number", { number: " EDA-1" }],

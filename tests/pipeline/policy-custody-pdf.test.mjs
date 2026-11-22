@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import test from "node:test";
+import { createCustodyTestDirectory } from "../helpers/policy-filesystem-observations.mjs";
 import {
   acquirePolicyObject,
   admitPolicyTargets,
@@ -61,14 +62,7 @@ const pdfSyntheticManifest = () => ({
 });
 
 async function fixture(t) {
-  const testParent = dirname(resolve(import.meta.dirname, "../.."));
-  const base = await mkdtemp(join(testParent, "policy-custody-test-"));
-  t.after(async () => {
-    assert.ok(
-      resolve(base).startsWith(join(testParent, "policy-custody-test-")),
-    );
-    await rm(base, { recursive: true, force: true });
-  });
+  const base = await createCustodyTestDirectory(t);
   const root = join(base, "run");
   const manifest = pdfSyntheticManifest();
   await initializePolicyRun(root, manifest);

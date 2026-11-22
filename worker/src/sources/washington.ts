@@ -22,7 +22,12 @@ export const HOSTS: readonly string[] = ["lawfilesext.leg.wa.gov"];
 
 /** The session in progress: Washington bienniums start in odd years. */
 export function currentBiennium(now: Date): string {
-  const year = now.getUTCFullYear();
+  const year = Number(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Los_Angeles",
+      year: "numeric",
+    }).format(now),
+  );
   const start = year % 2 ? year : year - 1;
   return `${start}-${String((start + 1) % 100).padStart(2, "0")}`;
 }
@@ -93,7 +98,8 @@ function requireOriginalWashingtonBill(
     throw badUpstream();
 }
 
-async function readWashington(query: string, v3 = false) {
+/** Version 3 adds chain rows. */
+export async function read(query: string, v3 = false) {
   const parsed = parseWashingtonQuery(query);
   if (!parsed) {
     throw new DemoError(
@@ -154,7 +160,7 @@ export async function search(
   _env: Env,
   criteria: DemoSearchCriteria,
 ): Promise<DemoSearchResponse> {
-  const policy = await readWashington(criteria.query);
+  const policy = await read(criteria.query);
   return {
     ok: true,
     source: "washington",
@@ -166,9 +172,4 @@ export async function search(
     criteria,
     continuation: { kind: "stopped", reason: "not_applicable" },
   } satisfies DemoSearchResponse;
-}
-
-/** `v3` adds the chain rows; without it the answer is unchanged. */
-export async function read(query: string, v3 = false) {
-  return readWashington(query, v3);
 }

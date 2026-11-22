@@ -107,19 +107,24 @@ test("session-law selection uses advertised exact variants and does not synthesi
       ),
     /MISSING_OR_AMBIGUOUS/,
   );
-  assert.throws(
-    () =>
-      selectWashingtonSessionLaw(candidate, {
-        links: [
-          {
-            ...link,
-            sourceMetadata: {
-              ...link.sourceMetadata,
-              name: "Session Law C 99 L 25",
+  for (const name of [
+    "Session Law C 99 L 25",
+    `C ${candidate.chapter} L 25; C 99 L 25`,
+    `Chapter ${candidate.chapter} Year 2025; Chapter ${candidate.chapter} Year 2024`,
+  ])
+    assert.throws(
+      () =>
+        selectWashingtonSessionLaw(candidate, {
+          links: [
+            {
+              ...link,
+              sourceMetadata: {
+                ...link.sourceMetadata,
+                name,
+              },
             },
-          },
-        ],
-      }),
-    /INVENTORY_CHAPTER_CONTRADICTION/,
-  );
+          ],
+        }),
+      /INVENTORY_CHAPTER_CONTRADICTION/,
+    );
 });

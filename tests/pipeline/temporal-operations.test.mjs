@@ -73,6 +73,34 @@ test("historical source availability rejects future versions and preserves missi
   );
 });
 
+test("a year-only version cannot restore a definitely superseded day", () => {
+  const corpus = globalThis.structuredClone(syntheticCorpusV2());
+  const old = corpus.versions.find((entry) => entry.id === "version-a-old");
+  const recent = corpus.versions.find((entry) => entry.id === "version-a-new");
+  old.dates = {
+    publication: day("2020-01-10"),
+    sourceVersion: day("2020-01-10"),
+  };
+  recent.dates = {
+    publication: day("2020-01-20"),
+    sourceVersion: day("2020-01-20"),
+  };
+  const year = { value: "2020", precision: "year" };
+  corpus.versions.push({
+    ...old,
+    id: "year-only",
+    dates: { publication: year, sourceVersion: year },
+  });
+  const result = selectTemporalVersions(corpus, {
+    asOf: "2021-01-01",
+    basis: "source_available",
+  });
+  assert.deepEqual(selected(result, old.workId).versionIds, [
+    "version-a-new",
+    "year-only",
+  ]);
+});
+
 test("source availability and corpus observation are distinct query bases", () => {
   const corpus = syntheticCorpusV2();
   assert.equal(

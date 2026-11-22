@@ -29,7 +29,7 @@ const page = ["demo", "src/demo"]
 /** Each storage write the page may make: the key and the only value it may write. */
 const WRITES = [
   "sessionStorage.setItem(STORAGE_KEY, serializeReport(report))",
-  "localStorage.setItem(FOLLOW_KEY, serializeFollows(follows))",
+  "localStorage.setItem(FOLLOW_KEY, serializeFollows(next))",
   "sessionStorage.setItem(THEME_KEY, next)",
 ].sort();
 

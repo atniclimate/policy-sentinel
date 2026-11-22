@@ -4,6 +4,7 @@
 // the cache write. Synthetic fixtures and stubbed fetch only.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as congressRelated from "../../worker/src/sources/congress-related";
+import { relatedValue } from "../../src/demo/validation";
 import * as govinfoRelated from "../../worker/src/sources/govinfo-related";
 import {
   DemoError,
@@ -94,6 +95,16 @@ describe("GovInfo related", () => {
     expect(out.relations).toEqual([]);
   });
 
+  it("rejects a successful null payload without caching it", async () => {
+    serve(null);
+    await expect(
+      govinfoRelated.related(env, "USREPORTS-199-42"),
+    ).rejects.toMatchObject({
+      code: "bad_upstream",
+    });
+    expect(cacheEntries.size).toBe(0);
+  });
+
   it("refuses a bad id without a call", async () => {
     serve(RELATED);
     expect(
@@ -115,6 +126,12 @@ describe("Congress.gov related bills", () => {
   it("lists each relation as Congress.gov states it, one call, then cache", async () => {
     serve(BILLS);
     const first = await congressRelated.relatedBills(env, "hr 1001 199");
+    expect(
+      relatedValue(first, { source: "congress", bill: "hr 1001 199" }),
+    ).toEqual(first);
+    expect(() =>
+      relatedValue(first, { source: "congress", bill: "s 1001 199" }),
+    ).toThrow("Invalid related identity");
     await congressRelated.relatedBills(env, "HR 1001 199");
     expect(calls).toEqual([
       "https://api.congress.gov/v3/bill/199/hr/1001/relatedbills?format=json&limit=20",
@@ -192,13 +209,16 @@ describe("Congress.gov related bills", () => {
     expect(cached).not.toContain("Sampleperson");
   });
 
-  it("fails closed on an unknown bill type", async () => {
+  it.each([
+    { type: "ZZ", number: 1, congress: 199 },
+    { type: "constructor", number: 1, congress: 199 },
+    { type: "HR", number: 0, congress: 199 },
+    { type: "HR", number: 1, congress: -1 },
+  ])("rejects an invalid related bill identity %j", async (identity) => {
     serve({
       relatedBills: [
         {
-          congress: 199,
-          number: 1,
-          type: "ZZ",
+          ...identity,
           title: "Example",
           relationshipDetails: [
             { identifiedBy: "House", type: "Related bill" },

@@ -9,7 +9,7 @@ Read-only metadata inventory of explicitly declared managed roots.
 No document bodies, source hashes, file names, writes or network requests.
 Report is planning evidence, never permission to acquire or delete material.
 
-Manifest: version "1.0.0", roots, projections. See README for the contract.
+Manifest: version "1.0.0", roots, projections. See reference/local-use.md#storage.
 Exit 0: complete inventory (and any supplied forecast within limits).
 Exit 2: incomplete inventory, measured cap exceeded, or refused forecast.
 Exit 1: invalid arguments/manifest or unexpected failure.

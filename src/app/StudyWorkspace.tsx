@@ -93,6 +93,10 @@ export interface ConfiguredSourceCoverage {
     readonly publisher: string;
     readonly lifecycle: string;
     readonly reviewStatus: string;
+    readonly review?: {
+      readonly reviewedAt: string;
+      readonly evidenceUrls: readonly string[];
+    };
     readonly discoveryRegions: readonly string[];
     readonly declaredCapabilities: readonly {
       readonly mode: string;
@@ -581,10 +585,13 @@ export function StudyWorkspace({
         )
         ?.focus();
   }, [reviewTargetId, actor, busy]);
-  const versions = corpus.versions.map((version) => ({
-    id: version.id,
-    label: `${corpus.works.find((work) => work.id === version.workId)?.title ?? version.workId} · ${version.sourceVersionIdentifier}`,
-  }));
+  const versions = useMemo(() => {
+    const titles = new Map(corpus.works.map((work) => [work.id, work.title]));
+    return corpus.versions.map((version) => ({
+      id: version.id,
+      label: `${titles.get(version.workId) ?? version.workId} · ${version.sourceVersionIdentifier}`,
+    }));
+  }, [corpus.works, corpus.versions]);
   const sourceIds = corpus.sourceProfiles
     .filter(
       (profile) =>
@@ -653,9 +660,9 @@ export function StudyWorkspace({
       setBusy(false);
     }
   }
-  function timestamp() {
+  function timestamp(previous = study?.updatedAt) {
     return new Date(
-      Math.max(Date.now(), Date.parse(study?.updatedAt ?? "1970-01-01") + 1),
+      Math.max(Date.now(), Date.parse(previous ?? "1970-01-01") + 1),
     ).toISOString();
   }
   function metadata(
@@ -797,7 +804,8 @@ export function StudyWorkspace({
             {sourceCoverage.sources.length})
           </summary>
           <p>
-            Qualification as of {sourceCoverage.asOf}. Configured discovery
+            Qualification status as of {sourceCoverage.asOf}. The links point to
+            official material used in earlier reviews. Configured discovery
             sources are separate from collections already retained in this
             corpus. Geographic discovery relevance does not establish
             jurisdiction or homeland relationships.
@@ -820,6 +828,14 @@ export function StudyWorkspace({
                     Publisher: {source.publisher}. Discovery regions:{" "}
                     {source.discoveryRegions.join(", ") || "Not specified"}.
                   </p>
+                  {source.review?.evidenceUrls[0]?.startsWith("https://") && (
+                    <p>
+                      <a href={source.review.evidenceUrls[0]}>
+                        Official evidence location
+                      </a>
+                      {` · Review dated ${source.review.reviewedAt.slice(0, 10)}`}
+                    </p>
+                  )}
                   <p>
                     Available capabilities:{" "}
                     {source.availableCapabilities.map(words).join(", ") ||
@@ -1145,7 +1161,7 @@ export function StudyWorkspace({
               void run(async () => {
                 const pending = JSON.parse(pendingImport) as ResearchStudy;
                 const rebound = await rebindResearchStudy(pending, corpus, {
-                  updatedAt: new Date().toISOString(),
+                  updatedAt: timestamp(pending.updatedAt),
                   actorId: pending.updatedBy,
                 });
                 setStudy(rebound);
@@ -1577,6 +1593,26 @@ export function StudyWorkspace({
                     <button
                       type="button"
                       onClick={() => {
+                        const selected = new Set(discovery.sourceIds);
+                        const profiles = corpus.sourceProfiles.filter(
+                          (profile) => selected.has(profile.sourceId),
+                        );
+                        const all =
+                          profiles.length === corpus.sourceProfiles.length &&
+                          selected.size ===
+                            new Set(profiles.map((profile) => profile.sourceId))
+                              .size &&
+                          profiles.length > 0;
+                        if (
+                          !all &&
+                          (selected.size !== 1 || profiles.length !== 1)
+                        ) {
+                          setError(
+                            `The saved collections (${discovery.sourceIds.join(", ") || "none"}) cannot be searched together in this corpus. The discovery was not run.`,
+                          );
+                          return;
+                        }
+                        setError(null);
                         setDiscoveryId(discovery.id);
                         setQuestionId(discovery.questionId);
                         onSearch({
@@ -1602,14 +1638,7 @@ export function StudyWorkspace({
                                   discovery.searchScope.jurisdictionRef,
                               }
                             : {}),
-                          ...(discovery.sourceIds.length === 1
-                            ? {
-                                sourceProfileId: corpus.sourceProfiles.find(
-                                  (profile) =>
-                                    profile.sourceId === discovery.sourceIds[0],
-                                )?.id,
-                              }
-                            : {}),
+                          ...(!all ? { sourceProfileId: profiles[0]!.id } : {}),
                         });
                       }}
                     >

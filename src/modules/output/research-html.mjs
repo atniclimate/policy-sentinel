@@ -71,46 +71,47 @@ export function buildPolicyResearchOutput(input) {
     ]),
   ].sort();
   const citedIds = new Set(cited);
-  const evidenceById = new Map(
-    corpus.segments
-      .filter((value) => citedIds.has(value.id))
-      .map((segment) => {
-        const rendition = renditions.get(segment.renditionId);
-        const capture = captures.get(rendition.captureId);
-        const version = versions.get(rendition.versionId);
-        const work = works.get(version.workId);
-        const quote = Buffer.from(rendition.text)
-          .subarray(segment.startByte, segment.endByte)
-          .toString("utf8");
-        return [
-          segment.id,
-          {
-            segmentId: segment.id,
-            versionId: version.id,
-            workId: work.id,
-            sourceIdentifier: work.sourceIdentifier,
-            sourceVersionIdentifier: version.sourceVersionIdentifier,
-            sourceStatusLabel: version.sourceStatusLabel,
-            sourceDates: version.dates,
-            firstCorpusObservation: version.observedAt,
-            sourceUrl: capture.finalUrl,
-            locator: segment.locator,
-            startByte: segment.startByte,
-            endByte: segment.endByte,
-            captureId: capture.id,
-            capturedAt: capture.retrievedAt,
-            objectDigest: capture.objectDigest,
-            renditionDigest: rendition.outputDigest,
-            textDigest: segment.textDigest,
-            parser: rendition.parser,
-            authorityLabel: rendition.authorityLabel,
-            omittedSourceLocators: rendition.omittedSourceLocators,
-            warnings: rendition.warnings,
-            quote,
-          },
-        ];
-      }),
+  const evidenceById = new Map();
+  const citedByRendition = Map.groupBy(
+    corpus.segments.filter((segment) => citedIds.has(segment.id)),
+    (segment) => segment.renditionId,
   );
+  for (const [renditionId, segments] of citedByRendition) {
+    const rendition = renditions.get(renditionId);
+    const capture = captures.get(rendition.captureId);
+    const version = versions.get(rendition.versionId);
+    const work = works.get(version.workId);
+    const bytes = Buffer.from(rendition.text);
+    for (const segment of segments) {
+      const quote = bytes
+        .subarray(segment.startByte, segment.endByte)
+        .toString("utf8");
+      evidenceById.set(segment.id, {
+        segmentId: segment.id,
+        versionId: version.id,
+        workId: work.id,
+        sourceIdentifier: work.sourceIdentifier,
+        sourceVersionIdentifier: version.sourceVersionIdentifier,
+        sourceStatusLabel: version.sourceStatusLabel,
+        sourceDates: version.dates,
+        firstCorpusObservation: version.observedAt,
+        sourceUrl: capture.finalUrl,
+        locator: segment.locator,
+        startByte: segment.startByte,
+        endByte: segment.endByte,
+        captureId: capture.id,
+        capturedAt: capture.retrievedAt,
+        objectDigest: capture.objectDigest,
+        renditionDigest: rendition.outputDigest,
+        textDigest: segment.textDigest,
+        parser: rendition.parser,
+        authorityLabel: rendition.authorityLabel,
+        omittedSourceLocators: rendition.omittedSourceLocators,
+        warnings: rendition.warnings,
+        quote,
+      });
+    }
+  }
   const links = (ids) =>
     ids.length
       ? list(

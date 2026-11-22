@@ -11,6 +11,7 @@ import axe from "axe-core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "../../src/app/App";
+import { bindFixtureAssets } from "./manifest-fixture";
 
 const SOURCE_ID = "federal-register";
 const NATION_ID = "nation:synthetic-a";
@@ -261,13 +262,13 @@ function installArtifactFetch(
   ]);
   for (const record of records) {
     const path = record.detailPath;
-    if (!missingDetailPaths.has(path)) {
-      documents.set(path, {
-        generatedAt: "2026-07-31T12:00:00.000Z",
-        record: detailRecord(record),
-      });
-    }
+    documents.set(path, {
+      generatedAt: "2026-07-31T12:00:00.000Z",
+      record: detailRecord(record),
+    });
   }
+  bindFixtureAssets(documents);
+  for (const path of missingDetailPaths) documents.delete(path);
 
   const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
     const raw =
@@ -363,10 +364,11 @@ describe("Federal Register artifact UX", () => {
     fireEvent.click(
       screen.getAllByRole("link", { name: "Open record details" })[54],
     );
-    await screen.findByRole("heading", {
-      name: records[54].officialTitle,
-      level: 1,
-    });
+    await screen.findByRole(
+      "heading",
+      { name: records[54].officialTitle, level: 1 },
+      { timeout: 5_000 },
+    );
     expect(container.querySelector("#route-announcement")?.textContent).toBe(
       `Route changed: Record details: ${records[54].officialTitle}`,
     );

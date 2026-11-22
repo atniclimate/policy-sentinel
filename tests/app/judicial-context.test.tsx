@@ -11,6 +11,7 @@ import axe from "axe-core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "../../src/app/App";
+import { bindFixtureAssets } from "./manifest-fixture";
 
 const SOURCE_ID = "supreme-court-opinions-curated";
 const NATION_ID = "nation:synthetic-a";
@@ -296,6 +297,7 @@ function installArtifactFetch() {
     ],
   ]);
 
+  bindFixtureAssets(documents);
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: RequestInfo | URL) => {

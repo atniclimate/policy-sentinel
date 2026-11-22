@@ -74,9 +74,7 @@ const row = (rows: ReturnType<typeof sourceRows>, id: string) => {
 };
 
 describe("release verification record", () => {
-  // Receipts: C:/dev/_scratch/policy-sentinel/release-check-2026-11-18/ (calls
-  // 2026-11-19 03:52 to 03:55 UTC, 2026-11-18 Pacific); GovInfo, its court
-  // opinions and Grants.gov re-probed after Worker 8726fa96 (05:07 to 05:08 UTC).
+  // Source checks ran on November 19 UTC, still November 18 in Pacific time.
   it("records only the release checks with a receipt", () => {
     expect(Object.keys(RELEASE_VERIFICATION).length).toBeGreaterThan(8);
     expect(

@@ -220,8 +220,8 @@ export function record(value: unknown): Loose {
   return value as Loose;
 }
 
-export function resultRows(value: unknown): unknown[] {
-  if (!Array.isArray(value) || value.length > 10) throw badUpstream();
+export function resultRows(value: unknown, limit = 10): unknown[] {
+  if (!Array.isArray(value) || value.length > limit) throw badUpstream();
   return value;
 }
 
@@ -243,6 +243,8 @@ export function metadataId(value: unknown): string {
   if (
     typeof value !== "string" ||
     value.length > 80 ||
+    value === "." ||
+    value === ".." ||
     !/^[A-Za-z0-9_.-]+$/.test(value)
   )
     throw badUpstream();

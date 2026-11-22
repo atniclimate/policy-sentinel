@@ -47,7 +47,6 @@ const FR_FIELDS = [
   "type",
   "agencies",
   "publication_date",
-  "html_url",
   "abstract",
   "citation",
 ];
@@ -207,7 +206,8 @@ async function searchExecutiveOrder(
     "conditions[presidential_document_type][]",
     "executive_order",
   );
-  url.searchParams.set("per_page", "100");
+  const pageSize = 100;
+  url.searchParams.set("per_page", String(pageSize));
   url.searchParams.set("page", "1");
   url.searchParams.set("order", "relevance");
   for (const f of [...FR_FIELDS, "executive_order_number"])
@@ -223,16 +223,18 @@ async function searchExecutiveOrder(
   const retrievedAt = new Date().toISOString();
   const rows =
     data.results === undefined && data.count === 0 ? [] : data.results;
-  const raw = resultRows(rows);
-  const exact = raw.filter(
-    (doc) => String(record(doc).executive_order_number) === number,
-  );
+  const raw = resultRows(rows, pageSize);
+  const exact = raw.filter((doc) => {
+    const stated = record(doc).executive_order_number;
+    return stated === number || stated === Number(number);
+  });
   const results = exact.map((doc) => frCitation(doc, retrievedAt, false));
   const leftOut = raw.length - exact.length;
   // More orders mention the number than this one request read: the order
   // itself may sit past row 100, so the answer cannot say it is complete
   // (safeguard 8). "unknown" keeps an existing order from reading as absent.
-  const partial = typeof data.count === "number" && data.count > raw.length;
+  const count = resultCount(data.count);
+  const partial = count === null || count > raw.length;
   return {
     ok: true,
     source: "federal-register",
@@ -322,7 +324,8 @@ async function searchFederalRegister(
   };
 }
 
-async function readFederalRegister(id: string, v3: boolean) {
+/** Version 3 adds citation fields and chain rows. */
+export async function read(id: string, v3 = false) {
   if (!FR_DOCUMENT_NUMBER.test(id)) {
     throw new DemoError(
       "text_unavailable",
@@ -402,9 +405,4 @@ export async function search(
   if (criteria.version === 3 && criteria.match === "executive_order")
     return searchExecutiveOrder(criteria);
   return searchFederalRegister(criteria);
-}
-
-/** `v3` adds the version 3 fields and chain rows; without it the answer is unchanged. */
-export async function read(id: string, v3 = false) {
-  return readFederalRegister(id, v3);
 }

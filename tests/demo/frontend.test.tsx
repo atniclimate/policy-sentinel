@@ -3605,6 +3605,10 @@ describe("demo export nits, comment dates and following", () => {
   /** Blobs handed to the browser's downloads, in order. */
   let downloads: Blob[];
   beforeEach(() => {
+    Object.defineProperty(navigator, "locks", {
+      configurable: true,
+      value: { request: async (_name: string, run: () => void) => run() },
+    });
     window.localStorage.clear();
     downloads = [];
     Object.assign(URL, {
@@ -3616,7 +3620,10 @@ describe("demo export nits, comment dates and following", () => {
     });
     vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
   });
-  afterEach(() => window.localStorage.clear());
+  afterEach(() => {
+    Reflect.deleteProperty(navigator, "locks");
+    window.localStorage.clear();
+  });
   /** Word searches list `first`; identifier lookups list `related`, or fail. */
   function answer(
     first: readonly DemoCitation[],
@@ -3719,11 +3726,40 @@ describe("demo export nits, comment dates and following", () => {
       "docket",
       day,
     ]);
-    expect(zone).toHaveTextContent(COPY.follow.checked(1, 0, 0));
+    await waitFor(() =>
+      expect(zone).toHaveTextContent(COPY.follow.checked(1, 0, 0)),
+    );
     expect(
       JSON.parse(window.localStorage.getItem("ps-demo-following-v1")!)
         .followed[0].lastChecked,
     ).not.toBeNull();
+  });
+
+  it("merges a follow with another tab's pending storage event and respects a removal during a check", async () => {
+    answer([statedCitation()]);
+    const { ui } = await start();
+    await showResult(ui);
+    const rin = followItem(statedCitation(), "rin", "0648-AA00", new Date())!;
+    window.localStorage.setItem(FOLLOW_KEY, serializeFollows([rin]));
+    fireEvent.click(
+      ui.getByRole("button", { name: `Follow docket: ${DOCKET}` }),
+    );
+    const both = JSON.parse(window.localStorage.getItem(FOLLOW_KEY)!);
+    expect(both.followed.map((item: { value: string }) => item.value)).toEqual([
+      rin.value,
+      DOCKET,
+    ]);
+    const response = deferred<DemoSearchResponse>();
+    vi.mocked(search).mockReturnValue(response.promise);
+    fireEvent.click(ui.getByRole("button", { name: COPY.follow.check }));
+    window.localStorage.setItem(FOLLOW_KEY, serializeFollows([]));
+    fireEvent(window, new StorageEvent("storage", { key: FOLLOW_KEY }));
+    expect(ui.getByText(COPY.follow.empty)).toBeInTheDocument();
+    response.resolve(searchResult([]));
+    await ui.findByText(COPY.follow.checked(2, 0, 0));
+    expect(
+      JSON.parse(window.localStorage.getItem(FOLLOW_KEY)!).followed,
+    ).toEqual([]);
   });
 
   it("exports the Tracking Briefing from followed items alone, with nothing cited", async () => {

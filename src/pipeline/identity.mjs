@@ -5,11 +5,14 @@ const INTERNAL_ID_PATTERN = /^psr:[a-z0-9]+(?:-[a-z0-9]+)*:[A-Za-z0-9._~:-]+$/;
 const URL_SAFE_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
 
 export function makeStableRecordId(sourceId, sourceRecordId) {
-  if (!SOURCE_ID_PATTERN.test(sourceId)) {
+  if (typeof sourceId !== "string" || !SOURCE_ID_PATTERN.test(sourceId)) {
     throw new TypeError(`invalid source ID: ${sourceId}`);
   }
   if (typeof sourceRecordId !== "string" || sourceRecordId.length === 0) {
     throw new TypeError("source record ID must be a non-empty string");
+  }
+  if (!sourceRecordId.isWellFormed()) {
+    throw new TypeError("source record ID contains an unpaired surrogate");
   }
 
   const encoded = Buffer.from(sourceRecordId, "utf8").toString("base64url");
@@ -17,7 +20,7 @@ export function makeStableRecordId(sourceId, sourceRecordId) {
 }
 
 export function assertStableRecordId(internalId) {
-  if (!INTERNAL_ID_PATTERN.test(internalId)) {
+  if (typeof internalId !== "string" || !INTERNAL_ID_PATTERN.test(internalId)) {
     throw new TypeError(`invalid stable record ID: ${internalId}`);
   }
   return internalId;
@@ -29,7 +32,7 @@ export function toUrlSafeId(internalId) {
 }
 
 export function assertUrlSafeId(value) {
-  if (!URL_SAFE_ID_PATTERN.test(value)) {
+  if (typeof value !== "string" || !URL_SAFE_ID_PATTERN.test(value)) {
     throw new TypeError(`invalid URL-safe ID: ${value}`);
   }
   return value;

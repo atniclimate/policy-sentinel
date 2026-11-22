@@ -1,7 +1,10 @@
 import { Buffer } from "node:buffer";
-import { lstat, mkdir, rm, writeFile } from "node:fs/promises";
+import { lstat, mkdir, mkdtemp, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { assertArtifactSourceHealthState } from "./artifact-health.mjs";
+import {
+  assertArtifactSourceHealthState,
+  latestHealthTime,
+} from "./artifact-health.mjs";
 import { deriveBuildId, hashJson, serializeJson } from "./hashing.mjs";
 import { toUrlSafeId } from "./identity.mjs";
 import { assertNationCollectionPolicy } from "./nation-collection-policy.mjs";
@@ -272,10 +275,7 @@ function maxDataAsOf(records, generatedAt) {
   if (records.length === 0) {
     return generatedAt;
   }
-  return records
-    .map((record) => record.sourceHealth.dataAsOf)
-    .sort()
-    .at(-1);
+  return latestHealthTime(records, "dataAsOf");
 }
 
 export function recordCoverageDate(record) {
@@ -430,19 +430,15 @@ function createCoverageEntry(source, records) {
 }
 
 function deriveSyntheticSourceHealth(source, sourceRecords, generatedAt) {
-  const latest = sourceRecords
-    .map((record) => record.sourceHealth)
-    .sort((left, right) => left.checkedAt.localeCompare(right.checkedAt))
-    .at(-1);
-  const dataAsOf = sourceRecords
-    .map((record) => record.sourceHealth.dataAsOf)
-    .sort()
-    .at(-1);
-  const lastSuccessfulRetrievalAt = sourceRecords
-    .map((record) => record.sourceHealth.lastSuccessfulRetrievalAt)
-    .filter((value) => value !== null)
-    .sort()
-    .at(-1);
+  const checkedAt = latestHealthTime(sourceRecords, "checkedAt");
+  const latest = sourceRecords.findLast(
+    (record) => record.sourceHealth.checkedAt === checkedAt,
+  )?.sourceHealth;
+  const dataAsOf = latestHealthTime(sourceRecords, "dataAsOf");
+  const lastSuccessfulRetrievalAt = latestHealthTime(
+    sourceRecords,
+    "lastSuccessfulRetrievalAt",
+  );
   return {
     sourceId: source.id,
     status: latest?.status ?? "unavailable",
@@ -468,15 +464,11 @@ function assertSourceHealthReceipt(receipt, source, sourceRecords) {
     health: receipt,
     sourceRecords,
   });
-  const expectedDataAsOf = sourceRecords
-    .map((record) => record.sourceHealth.dataAsOf)
-    .sort()
-    .at(-1);
-  const expectedLastSuccessfulRetrievalAt = sourceRecords
-    .map((record) => record.sourceHealth.lastSuccessfulRetrievalAt)
-    .filter((value) => value !== null)
-    .sort()
-    .at(-1);
+  const expectedDataAsOf = latestHealthTime(sourceRecords, "dataAsOf");
+  const expectedLastSuccessfulRetrievalAt = latestHealthTime(
+    sourceRecords,
+    "lastSuccessfulRetrievalAt",
+  );
   if (
     sourceRecords.length > 0 &&
     (receipt.dataAsOf !== expectedDataAsOf ||
@@ -739,15 +731,47 @@ export async function writeArtifactDocuments({
   const output = await assertSafeArtifactOutput(outputDirectory, projectRoot);
   const manifest = documents?.get?.("manifest.json");
   assertArtifactManifestLimits(manifest, manifestLimits);
-  await rm(output, { recursive: true, force: true });
-  await mkdir(output, { recursive: true });
-  for (const [relativePath, value] of documents) {
-    const destination = path.resolve(output, relativePath);
-    if (!destination.startsWith(`${output}${path.sep}`)) {
-      throw new Error(`artifact path escapes output: ${relativePath}`);
+  const parent = path.dirname(output);
+  await mkdir(parent, { recursive: true });
+  const temporary = await mkdtemp(path.join(parent, ".artifact-"));
+  const stage = path.join(temporary, "new");
+  const backup = path.join(temporary, "previous");
+  let previousMoved = false;
+  try {
+    await mkdir(stage);
+    for (const [relativePath, value] of documents) {
+      const destination = path.resolve(stage, relativePath);
+      if (!destination.startsWith(`${stage}${path.sep}`))
+        throw new Error(`artifact path escapes output: ${relativePath}`);
+      await mkdir(path.dirname(destination), { recursive: true });
+      await writeFile(destination, serializeJson(value), { flag: "wx" });
     }
-    await mkdir(path.dirname(destination), { recursive: true });
-    await writeFile(destination, serializeJson(value), "utf8");
+    try {
+      await rename(output, backup);
+      previousMoved = true;
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+    try {
+      await rename(stage, output);
+    } catch (installError) {
+      if (previousMoved) {
+        try {
+          await rename(backup, output);
+          previousMoved = false;
+        } catch (restoreError) {
+          throw new AggregateError(
+            [installError, restoreError],
+            `previous artifact preserved at ${backup}`,
+            { cause: restoreError },
+          );
+        }
+      }
+      throw installError;
+    }
+    previousMoved = false;
+  } finally {
+    if (!previousMoved) await rm(temporary, { recursive: true, force: true });
   }
   return output;
 }
